@@ -598,7 +598,7 @@ int QHeaderView::sectionPosition(int logicalIndex) const
 int QHeaderView::sectionViewportPosition(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (logicalIndex < 0 || logicalIndex >= count())
+    if (logicalIndex >= count())
         return -1;
     int position = sectionPosition(logicalIndex);
     if (position < 0)
@@ -3029,10 +3029,12 @@ int QHeaderViewPrivate::headerSectionSize(int visual) const
 {
     // ### stupid iteration
     int section_start = 0;
-    for (int i = 0; i < sectionSpans.count(); ++i) {
-        int section_end = section_start + sectionSpans.at(i).count - 1;
+    const int sectionSpansCount = sectionSpans.count();
+    for (int i = 0; i < sectionSpansCount; ++i) {
+        const QHeaderViewPrivate::SectionSpan &currentSection = sectionSpans.at(i);
+        int section_end = section_start + currentSection.count - 1;
         if (visual >= section_start && visual <= section_end)
-            return sectionSpans.at(i).sectionSize();
+            return currentSection.sectionSize();
         section_start = section_end + 1;
     }
     return -1;
@@ -3043,12 +3045,14 @@ int QHeaderViewPrivate::headerSectionPosition(int visual) const
     // ### stupid iteration
     int section_start = 0;
     int span_position = 0;
-    for (int i = 0; i < sectionSpans.count(); ++i) {
-        int section_end = section_start + sectionSpans.at(i).count - 1;
+    const int sectionSpansCount = sectionSpans.count();
+    for (int i = 0; i < sectionSpansCount; ++i) {
+        const QHeaderViewPrivate::SectionSpan &currentSection = sectionSpans.at(i);
+        int section_end = section_start + currentSection.count - 1;
         if (visual >= section_start && visual <= section_end)
-            return span_position + (visual - section_start) * sectionSpans.at(i).sectionSize();
+            return span_position + (visual - section_start) * currentSection.sectionSize();
         section_start = section_end + 1;
-        span_position += sectionSpans.at(i).size;
+        span_position += currentSection.size;
     }
     return -1;
 }
@@ -3058,14 +3062,16 @@ int QHeaderViewPrivate::headerVisualIndexAt(uint position) const
     // ### stupid iteration
     uint span_start_section = 0;
     uint span_position = 0;
-    for (int i = 0; i < sectionSpans.count(); ++i) {
-        uint next_span_start_section = span_start_section + sectionSpans.at(i).count;
-        uint next_span_position = span_position + sectionSpans.at(i).size;
+    const int sectionSpansCount = sectionSpans.count();
+    for (int i = 0; i < sectionSpansCount; ++i) {
+        const QHeaderViewPrivate::SectionSpan &currentSection = sectionSpans.at(i);
+        uint next_span_start_section = span_start_section + currentSection.count;
+        uint next_span_position = span_position + currentSection.size;
         if (position == span_position)
             return span_start_section; // spans with no size
         if (position > span_position && position < next_span_position) {
             uint position_in_span = position - span_position;
-            return span_start_section + (position_in_span / sectionSpans.at(i).sectionSize());
+            return span_start_section + (position_in_span / currentSection.sectionSize());
         }
         span_start_section = next_span_start_section;
         span_position = next_span_position;

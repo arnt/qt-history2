@@ -103,7 +103,7 @@ public:
     }
 
     inline bool reverse() const {
-        return q_func()->isRightToLeft() && orientation == Qt::Horizontal;
+        return orientation == Qt::Horizontal && q_func()->isRightToLeft();
     }
 
     inline int logicalIndex(int visualIndex) const {
