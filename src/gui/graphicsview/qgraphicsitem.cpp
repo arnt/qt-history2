@@ -622,13 +622,19 @@ bool QGraphicsItemPrivate::itemIsUntransformable() const
 }
 
 /*!
-    Constructs a QGraphicsItem with the parent \a parent on \a scene. If \a
-    parent is 0, the item will be a top-level. If \a scene is 0, the item
-    will not be associated with a scene.
+    Constructs a QGraphicsItem with the given \a parent.
 
-    \sa QGraphicsScene::addItem()
+    If \a parent is 0, you can add the item to a scene by calling
+    QGraphicsScene::addItem(). The item will then become a top-level item.
+
+    \sa QGraphicsScene::addItem(), setParentItem()
 */
-QGraphicsItem::QGraphicsItem(QGraphicsItem *parent, QGraphicsScene *scene)
+QGraphicsItem::QGraphicsItem(QGraphicsItem *parent
+#ifndef Q_QDOC
+                             // obsolete argument
+                             , QGraphicsScene *scene
+#endif
+    )
     : d_ptr(new QGraphicsItemPrivate)
 {
     d_ptr->q_ptr = this;
@@ -3540,11 +3546,15 @@ public:
 };
 
 /*!
-    Constructs a QAbstractGraphicsShapeItem. \a parent and \a scene are
-    passed to QGraphicsItem's constructor.
+    Constructs a QAbstractGraphicsShapeItem. \a parent is passed to
+    QGraphicsItem's constructor.
 */
-QAbstractGraphicsShapeItem::QAbstractGraphicsShapeItem(QGraphicsItem *parent,
-                                                     QGraphicsScene *scene)
+QAbstractGraphicsShapeItem::QAbstractGraphicsShapeItem(QGraphicsItem *parent
+#ifndef Q_QDOC
+                                                       // obsolete argument
+                                                       , QGraphicsScene *scene
+#endif
+    )
     : QGraphicsItem(*new QAbstractGraphicsShapeItemPrivate, parent, scene)
 {
 }
@@ -3668,12 +3678,18 @@ public:
 };
 
 /*!
-    Constructs a QGraphicsPath item using \a path as the default
-    path. The \a parent and \a scene parameters are passed to
-    QAbstractGraphicsShapeItem's constructor.
+    Constructs a QGraphicsPath item using \a path as the default path. \a
+    parent is passed to QAbstractGraphicsShapeItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
 QGraphicsPathItem::QGraphicsPathItem(const QPainterPath &path,
-                                     QGraphicsItem *parent, QGraphicsScene *scene)
+                                     QGraphicsItem *parent
+#ifndef Q_QDOC
+                                     // obsolete argument
+                                     , QGraphicsScene *scene
+#endif
+    )
     : QAbstractGraphicsShapeItem(*new QGraphicsPathItemPrivate, parent, scene)
 {
     if (!path.isEmpty())
@@ -3681,10 +3697,17 @@ QGraphicsPathItem::QGraphicsPathItem(const QPainterPath &path,
 }
 
 /*!
-    Constructs a QGraphicsPath. The \a parent and \a scene parameters
-    are passed to QAbstractGraphicsShapeItem's constructor.
+    Constructs a QGraphicsPath. \a parent is passed to
+    QAbstractGraphicsShapeItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsPathItem::QGraphicsPathItem(QGraphicsItem *parent, QGraphicsScene *scene)
+QGraphicsPathItem::QGraphicsPathItem(QGraphicsItem *parent
+#ifndef Q_QDOC
+                                     // obsolete argument
+                                     , QGraphicsScene *scene
+#endif
+    )
     : QAbstractGraphicsShapeItem(*new QGraphicsPathItemPrivate, parent, scene)
 {
 }
@@ -3853,12 +3876,17 @@ public:
 };
 
 /*!
-    Constructs a QGraphicsRectItem, using \a rect as the default
-    rectangle.  The \a parent and \a scene parameters are passed to
-    QAbstractGraphicsShapeItem's constructor.
+    Constructs a QGraphicsRectItem, using \a rect as the default rectangle.
+    \a parent is passed to QAbstractGraphicsShapeItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsRectItem::QGraphicsRectItem(const QRectF &rect, QGraphicsItem *parent,
-                                     QGraphicsScene *scene)
+QGraphicsRectItem::QGraphicsRectItem(const QRectF &rect, QGraphicsItem *parent
+#ifndef Q_QDOC
+                                     // obsolete argument
+                                     , QGraphicsScene *scene
+#endif
+    )
     : QAbstractGraphicsShapeItem(*new QGraphicsRectItemPrivate, parent, scene)
 {
     setRect(rect);
@@ -3866,26 +3894,39 @@ QGraphicsRectItem::QGraphicsRectItem(const QRectF &rect, QGraphicsItem *parent,
 
 /*!
     \fn QGraphicsRectItem::QGraphicsRectItem(qreal x, qreal y, qreal width, qreal height,
-                                     QGraphicsItem *parent, QGraphicsScene *scene)
+                                     QGraphicsItem *parent)
 
     Constructs a QGraphicsRectItem with a default rectangle defined
     by (\a x, \a y) and the given \a width and \a height.
 
-    The \a parent parameter is passed to QAbstractGraphicsShapeItem's
-    constructor.
+    \a parent is passed to QAbstractGraphicsShapeItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
 QGraphicsRectItem::QGraphicsRectItem(qreal x, qreal y, qreal w, qreal h,
-                                     QGraphicsItem *parent, QGraphicsScene *scene)
+                                     QGraphicsItem *parent
+#ifndef Q_QDOC
+                                     // obsolete argument
+                                     , QGraphicsScene *scene
+#endif
+    )
     : QAbstractGraphicsShapeItem(*new QGraphicsRectItemPrivate, parent, scene)
 {
     setRect(QRectF(x, y, w, h));
 }
 
 /*!
-    Constructs a QGraphicsRectItem. The \a parent and \a scene
-    parameters are passed to QAbstractGraphicsShapeItem's constructor.
+    Constructs a QGraphicsRectItem. \a parent is passed to
+    QAbstractGraphicsShapeItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsRectItem::QGraphicsRectItem(QGraphicsItem *parent, QGraphicsScene *scene)
+QGraphicsRectItem::QGraphicsRectItem(QGraphicsItem *parent
+#ifndef Q_QDOC
+                                     // obsolete argument
+                                     , QGraphicsScene *scene
+#endif
+    )
     : QAbstractGraphicsShapeItem(*new QGraphicsRectItemPrivate, parent, scene)
 {
 }
@@ -4083,27 +4124,38 @@ public:
 };
 
 /*!
-    Constructs a QGraphicsEllipseItem using \a rect as the default
-    rectangle.  The \a parent and \a scene parameters are passed to
-    QAbstractGraphicsShapeItem's constructor.
+    Constructs a QGraphicsEllipseItem using \a rect as the default rectangle.
+    \a parent is passed to QAbstractGraphicsShapeItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsEllipseItem::QGraphicsEllipseItem(const QRectF &rect, QGraphicsItem *parent,
-                                           QGraphicsScene *scene)
+QGraphicsEllipseItem::QGraphicsEllipseItem(const QRectF &rect, QGraphicsItem *parent
+#ifndef Q_QDOC
+                                           // obsolete argument
+                                           , QGraphicsScene *scene
+#endif
+    )
     : QAbstractGraphicsShapeItem(*new QGraphicsEllipseItemPrivate, parent, scene)
 {
     setRect(rect);
 }
 
 /*!
-    \fn QGraphicsEllipseItem::QGraphicsEllipseItem(qreal x, qreal y, qreal width, qreal height, QGraphicsItem *parent, QGraphicsScene *scene)
+    \fn QGraphicsEllipseItem::QGraphicsEllipseItem(qreal x, qreal y, qreal width, qreal height, QGraphicsItem *parent)
 
-    Constructs a QGraphicsEllipseItem using the rectangle defined by
-    (\a x, \a y) and the given \a width and \a height, as the default
-    rectangle. The \a parent and \a scene parameters are passed to
-    QAbstractGraphicsShapeItem's constructor.
+    Constructs a QGraphicsEllipseItem using the rectangle defined by (\a x, \a
+    y) and the given \a width and \a height, as the default rectangle. \a
+    parent is passed to QAbstractGraphicsShapeItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
 QGraphicsEllipseItem::QGraphicsEllipseItem(qreal x, qreal y, qreal w, qreal h,
-                                           QGraphicsItem *parent, QGraphicsScene *scene)
+                                           QGraphicsItem *parent
+#ifndef Q_QDOC
+                                           // obsolete argument
+                                           , QGraphicsScene *scene
+#endif
+    )
     : QAbstractGraphicsShapeItem(*new QGraphicsEllipseItemPrivate, parent, scene)
 {
     setRect(x,y,w,h);
@@ -4112,10 +4164,17 @@ QGraphicsEllipseItem::QGraphicsEllipseItem(qreal x, qreal y, qreal w, qreal h,
 
 
 /*!
-    Constructs a QGraphicsEllipseItem. The \a parent and \a scene
-    parameters are passed to QAbstractGraphicsShapeItem's constructor.
+    Constructs a QGraphicsEllipseItem. \a parent is passed to
+    QAbstractGraphicsShapeItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsEllipseItem::QGraphicsEllipseItem(QGraphicsItem *parent, QGraphicsScene *scene)
+QGraphicsEllipseItem::QGraphicsEllipseItem(QGraphicsItem *parent
+#ifndef Q_QDOC
+                                           // obsolete argument
+                                           , QGraphicsScene *scene
+#endif
+    )
     : QAbstractGraphicsShapeItem(*new QGraphicsEllipseItemPrivate, parent, scene)
 {
 }
@@ -4366,21 +4425,34 @@ public:
 
 /*!
     Constructs a QGraphicsPolygonItem with \a polygon as the default
-    polygon. The \a parent and \a scene parameters are passed to
-    QAbstractGraphicsShapeItem's constructor.
+    polygon. \a parent is passed to QAbstractGraphicsShapeItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
 QGraphicsPolygonItem::QGraphicsPolygonItem(const QPolygonF &polygon,
-                                           QGraphicsItem *parent, QGraphicsScene *scene)
+                                           QGraphicsItem *parent
+#ifndef Q_QDOC
+                                           // obsolete argument
+                                           , QGraphicsScene *scene
+#endif
+    )
     : QAbstractGraphicsShapeItem(*new QGraphicsPolygonItemPrivate, parent, scene)
 {
     setPolygon(polygon);
 }
 
 /*!
-    Constructs a QGraphicsPolygonItem. The \a parent and \a scene
-    parameters are passed to QAbstractGraphicsShapeItem's constructor.
+    Constructs a QGraphicsPolygonItem. \a parent is passed to
+    QAbstractGraphicsShapeItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsPolygonItem::QGraphicsPolygonItem(QGraphicsItem *parent, QGraphicsScene *scene)
+QGraphicsPolygonItem::QGraphicsPolygonItem(QGraphicsItem *parent
+#ifndef Q_QDOC
+                                           // obsolete argument
+                                           , QGraphicsScene *scene
+#endif
+    )
     : QAbstractGraphicsShapeItem(*new QGraphicsPolygonItemPrivate, parent, scene)
 {
 }
@@ -4578,24 +4650,35 @@ public:
 };
 
 /*!
-    Constructs a QGraphicsLineItem, using \a line as the default
-    line. The \a parent and \a scene parameters are passed to
-    QGraphicsItem's constructor.
+    Constructs a QGraphicsLineItem, using \a line as the default line. \a
+    parent is passed to QGraphicsItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsLineItem::QGraphicsLineItem(const QLineF &line, QGraphicsItem *parent,
-                                     QGraphicsScene *scene)
+QGraphicsLineItem::QGraphicsLineItem(const QLineF &line, QGraphicsItem *parent
+#ifndef Q_QDOC
+                                     // obsolete argument
+                                     , QGraphicsScene *scene
+#endif
+    )
     : QGraphicsItem(*new QGraphicsLineItemPrivate, parent, scene)
 {
     setLine(line);
 }
 
 /*!
-    Constructs a QGraphicsLineItem, using the line between (\a x1, \a
-    y1) and (\a x2, \a y2) as the default line.  The \a parent and \a
-    scene parameters are passed to QGraphicsItem's constructor.
+    Constructs a QGraphicsLineItem, using the line between (\a x1, \a y1) and
+    (\a x2, \a y2) as the default line.  \a parent is passed to
+    QGraphicsItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsLineItem::QGraphicsLineItem(qreal x1, qreal y1, qreal x2, qreal y2, QGraphicsItem *parent,
-                                     QGraphicsScene *scene)
+QGraphicsLineItem::QGraphicsLineItem(qreal x1, qreal y1, qreal x2, qreal y2, QGraphicsItem *parent
+#ifndef Q_QDOC
+                                     // obsolete argument
+                                     , QGraphicsScene *scene
+#endif
+    )
     : QGraphicsItem(*new QGraphicsLineItemPrivate, parent, scene)
 {
     setLine(x1, y1, x2, y2);
@@ -4604,10 +4687,17 @@ QGraphicsLineItem::QGraphicsLineItem(qreal x1, qreal y1, qreal x2, qreal y2, QGr
 
 
 /*!
-    Constructs a QGraphicsLineItem. The \a parent and \a scene
-    parameters are passed to QGraphicsItem's constructor.
+    Constructs a QGraphicsLineItem. \a parent is passed to QGraphicsItem's
+    constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsLineItem::QGraphicsLineItem(QGraphicsItem *parent, QGraphicsScene *scene)
+QGraphicsLineItem::QGraphicsLineItem(QGraphicsItem *parent
+#ifndef Q_QDOC
+                                     // obsolete argument
+                                     , QGraphicsScene *scene
+#endif
+    )
     : QGraphicsItem(*new QGraphicsLineItemPrivate, parent, scene)
 {
 }
@@ -4882,22 +4972,35 @@ public:
 };
 
 /*!
-    Constructs a QGraphicsPixmapItem, using \a pixmap as the default
-    pixmap.  The \a parent and \a scene parameteres are passed to
-    QGraphicsItem's constructor.
+    Constructs a QGraphicsPixmapItem, using \a pixmap as the default pixmap.
+    \a parent is passed to QGraphicsItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
 QGraphicsPixmapItem::QGraphicsPixmapItem(const QPixmap &pixmap,
-                                         QGraphicsItem *parent, QGraphicsScene *scene)
+                                         QGraphicsItem *parent
+#ifndef Q_QDOC
+                                         // obsolete argument
+                                         , QGraphicsScene *scene
+#endif
+    )
     : QGraphicsItem(*new QGraphicsPixmapItemPrivate, parent, scene)
 {
     setPixmap(pixmap);
 }
 
 /*!
-    Constructs a QGraphicsPixmapItem. The \a parent and \a scene
-    parameteres are passed to QGraphicsItem's constructor.
+    Constructs a QGraphicsPixmapItem. \a parent is passed to QGraphicsItem's
+    constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsPixmapItem::QGraphicsPixmapItem(QGraphicsItem *parent, QGraphicsScene *scene)
+QGraphicsPixmapItem::QGraphicsPixmapItem(QGraphicsItem *parent
+#ifndef Q_QDOC
+                                         // obsolete argument
+                                         , QGraphicsScene *scene
+#endif
+    )
     : QGraphicsItem(*new QGraphicsPixmapItemPrivate, parent, scene)
 {
 }
@@ -5174,11 +5277,17 @@ public:
 };
 
 /*!
-    Constructs a QGraphicsTextItem, using \a text as the default plain text. \a
-    parent and \a scene are passed to QGraphicsItem's constructor.
+    Constructs a QGraphicsTextItem, using \a text as the default plain
+    text. \a parent is passed to QGraphicsItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent,
-                                     QGraphicsScene *scene)
+QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent
+#ifndef Q_QDOC
+                                     // obsolete argument
+                                     , QGraphicsScene *scene
+#endif
+    )
     : QGraphicsItem(parent, scene), dd(new QGraphicsTextItemPrivate)
 {
     dd->qq = this;
@@ -5189,10 +5298,17 @@ QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent,
 }
 
 /*!
-    Constructs a QGraphicsTextItem. \a parent and \a scene are passed to
-    QGraphicsItem's constructor.
+    Constructs a QGraphicsTextItem. \a parent is passed to QGraphicsItem's
+    constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsTextItem::QGraphicsTextItem(QGraphicsItem *parent, QGraphicsScene *scene)
+QGraphicsTextItem::QGraphicsTextItem(QGraphicsItem *parent
+#ifndef Q_QDOC
+                                     // obsolete argument
+                                     , QGraphicsScene *scene
+#endif
+    )
     : QGraphicsItem(parent, scene), dd(new QGraphicsTextItemPrivate)
 {
     dd->qq = this;
@@ -5870,9 +5986,16 @@ void QGraphicsSimpleTextItemPrivate::updateBoundingRect()
 /*!
     Constructs a QGraphicsSimpleTextItem.
 
-    \a parent and \a scene are passed to QGraphicsItem's constructor.
+    \a parent is passed to QGraphicsItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(QGraphicsItem *parent, QGraphicsScene *scene)
+QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(QGraphicsItem *parent
+#ifndef Q_QDOC
+                                                 // obsolete argument
+                                                 , QGraphicsScene *scene
+#endif
+    )
     : QAbstractGraphicsShapeItem(*new QGraphicsSimpleTextItemPrivate, parent, scene)
 {
 }
@@ -5880,9 +6003,16 @@ QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(QGraphicsItem *parent, QGraphic
 /*!
     Constructs a QGraphicsSimpleTextItem, using \a text as the default plain text.
 
-    \a parent and \a scene are passed to QGraphicsItem's constructor.
+    \a parent is passed to QGraphicsItem's constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(const QString &text, QGraphicsItem *parent , QGraphicsScene *scene)
+QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(const QString &text, QGraphicsItem *parent
+#ifndef Q_QDOC
+                                                 // obsolete argument
+                                                 , QGraphicsScene *scene
+#endif
+    )
     : QAbstractGraphicsShapeItem(*new QGraphicsSimpleTextItemPrivate, parent, scene)
 {
     setText(text);
@@ -6124,10 +6254,17 @@ public:
 };
 
 /*!
-    Constructs a QGraphicsItemGroup. The \a parent and \a scene
-    parameters are passed to QGraphicsItem's constructor.
+    Constructs a QGraphicsItemGroup. \a parent is passed to QGraphicsItem's
+    constructor.
+
+    \sa QGraphicsScene::addItem()
 */
-QGraphicsItemGroup::QGraphicsItemGroup(QGraphicsItem *parent, QGraphicsScene *scene)
+QGraphicsItemGroup::QGraphicsItemGroup(QGraphicsItem *parent
+#ifndef Q_QDOC
+                                       // obsolete argument
+                                       , QGraphicsScene *scene
+#endif
+    )
     : QGraphicsItem(*new QGraphicsItemGroupPrivate, parent, scene)
 {
     setHandlesChildEvents(true);
