@@ -2839,7 +2839,6 @@ qreal QPainterPath::slopeAtPercent(qreal t) const
 
 void QPainterPath::addRoundRect(const QRectF &r, int xRnd, int yRnd)
 {
-    
     if(xRnd >= 100)                          // fix ranges
         xRnd = 99;
     if(yRnd >= 100)
@@ -2851,7 +2850,8 @@ void QPainterPath::addRoundRect(const QRectF &r, int xRnd, int yRnd)
 
     QRectF rect = r.normalized();
 
-    QPainterPath path;
+    if (rect.isNull())
+        return;
 
     qreal x = rect.x();
     qreal y = rect.y();
@@ -2867,13 +2867,17 @@ void QPainterPath::addRoundRect(const QRectF &r, int xRnd, int yRnd)
     qreal rxx2 = 2*rxx;
     qreal ryy2 = 2*ryy;
 
-    path.arcMoveTo(x, y, rxx2, ryy2, 90);
-    path.arcTo(x, y, rxx2, ryy2, 90, 90);
-    path.arcTo(x, y+h-ryy2, rxx2, ryy2, 2*90, 90);
-    path.arcTo(x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*90, 90);
-    path.arcTo(x+w-rxx2, y, rxx2, ryy2, 0, 90);
-    path.closeSubpath();
+    ensureData();
+    detach();
 
+    arcMoveTo(x, y, rxx2, ryy2, 90);
+    arcTo(x, y, rxx2, ryy2, 90, 90);
+    arcTo(x, y+h-ryy2, rxx2, ryy2, 2*90, 90);
+    arcTo(x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*90, 90);
+    arcTo(x+w-rxx2, y, rxx2, ryy2, 0, 90);
+    closeSubpath();
+
+    d_func()->require_moveTo = true;
 }
 
 /*!
