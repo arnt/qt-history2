@@ -627,7 +627,7 @@ QVariant QScriptValue::toVariant() const
 
 #ifndef QT_NO_QOBJECT
     case QScript::QObjectType:
-        return QVariant(toQObject());
+        return qVariantFromValue(toQObject());
 #endif
 
     default: {
