@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include <QtGui/qapplication.h>
+#include <QtGui/qmainwindow.h>
+#include <QtGui/qtabwidget.h>
 #include <QtDBus/qdbusconnection.h>
 #include "qdbusviewer.h"
 
@@ -21,18 +23,19 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QStringList arguments = app.arguments();
-    if (arguments.contains("--help")) {
-        printf("Arguments:\n");
-        printf("    --system    Use system bus\n");
-        printf("    --help      This help\n");
-        return 0;
-    }
+    QMainWindow mw;
 
-    bool showSystemBus = app.arguments().contains(QLatin1String("--system"));
+    QMenu *fileMenu = mw.menuBar()->addMenu(QObject::tr("&File"));
+    QAction *quitAction = fileMenu->addAction(QObject::tr("&Exit"));
+    QObject::connect(quitAction, SIGNAL(triggered()), &mw, SLOT(close()));
+    quitAction->setShortcuts(QKeySequence::keyBindings(QKeySequence::Close));
 
-    QDBusViewer viewer(showSystemBus ? QDBusConnection::systemBus() : QDBusConnection::sessionBus());
-    viewer.show();
+    QTabWidget *mainWidget = new QTabWidget;
+    mw.setCentralWidget(mainWidget);
+    mainWidget->addTab(new QDBusViewer(QDBusConnection::sessionBus()), QObject::tr("Session Bus"));
+    mainWidget->addTab(new QDBusViewer(QDBusConnection::systemBus()), QObject::tr("System Bus"));
+
+    mw.show();
 
     return app.exec();
 }
