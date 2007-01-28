@@ -73,7 +73,7 @@ inline void QDBusMarshaller::append(double arg)
     qIterAppend(&iterator, ba, DBUS_TYPE_DOUBLE, &arg);
 }
 
-inline void QDBusMarshaller::append(const QString &arg)
+void QDBusMarshaller::append(const QString &arg)
 {
     QByteArray data = arg.toUtf8();
     const char *cdata = data.constData();
