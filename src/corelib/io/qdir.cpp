@@ -864,10 +864,8 @@ QString QDir::toNativeSeparators(const QString &pathName)
 /*!
     \since 4.2
 
-    Returns \a pathName with the native '\\' separators converted to
-    '/' separators.
-
-    On Windows, fromNativeSeparators("c:\\winnt\\system32") returns
+    Returns \a pathName using '/' as file separator. On Windows,
+    for instance, fromNativeSeparators("c:\\winnt\\system32") returns
     "c:/winnt/system32".
 
     The returned string may be the same as the argument on some
