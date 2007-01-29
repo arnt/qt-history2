@@ -943,6 +943,8 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                 break; //otherwise fall through
             }
 
+            if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option)) {
+
             const QStyleOptionDockWidgetV2 *v2
                 = qstyleoption_cast<const QStyleOptionDockWidgetV2*>(dwOpt);
             bool verticalTitleBar = v2 == 0 ? false : v2->verticalTitleBar;
@@ -960,8 +962,6 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
             painter->setBrush(option->palette.background().color().darker(110));
             painter->setPen(option->palette.background().color().darker(130));
             painter->drawRect(rect.adjusted(0, 1, -1, -3));
-
-            if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option)) {
 
             int buttonMargin = 4;
             int mw = pixelMetric(QStyle::PM_DockWidgetTitleMargin, dwOpt, widget);
