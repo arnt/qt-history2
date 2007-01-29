@@ -1,10 +1,12 @@
 /*!
-    \page containers.html
     \title Generic Containers
-
+    \group containers
     \ingroup architecture
+    \ingroup groups
     \keyword container class
     \keyword container classes
+
+    \brief Qt's template-based container classes.
 
     \tableofcontents
 

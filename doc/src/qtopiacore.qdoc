@@ -13,8 +13,9 @@
 
 /*!
     \group qtopiacore
-
+    \ingroup topics
     \title Qtopia Core
+    \brief Documents specifically about Qtopia Core.
 
     Qtopia Core is a C++ framework for GUI and application development
     for embedded devices. It runs on a variety of processors, usually

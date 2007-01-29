@@ -17,6 +17,8 @@
 /*! \group installation
 \title Installation
 \ingroup buildsystem
+\ingroup topics
+\brief Installing Qt on supported platforms.
 
 The installation procedure is different for the different Qt platforms.
 Please follow the instructions for your platform from the following list.
@@ -28,6 +30,7 @@ Please follow the instructions for your platform from the following list.
 
 \title Installing Qt/X11
 \ingroup installation
+\brief How to install Qt on platforms with X11.
 
 \list 1
 \o  If you have the commercial edition of Qt, install your license
@@ -151,6 +154,7 @@ Please follow the instructions for your platform from the following list.
 
 \title Installing Qt/Windows
 \ingroup installation
+\brief How to install Qt on Windows.
 
 \table
 \row \o \bold{Notes:}
@@ -266,6 +270,7 @@ as part of the \l{Qt Commercial Editions}.
 
 \title Installing Qt/Mac
 \ingroup installation
+\brief How to install Qt on Mac OS X.
 
 \bold{Note:} If you have obtained a binary package for this platform,
 consult the installation instructions provided instead of the ones in

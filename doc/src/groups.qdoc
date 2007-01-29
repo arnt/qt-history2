@@ -11,34 +11,14 @@
 ****************************************************************************/
 
 /*!
-    \page groups.html
-
     \title Grouped Classes
+    \group groups
     \ingroup classlists
 
     This page provides a way of navigating Qt's classes by grouping
     related classes together. Some classes may appear in more than one group.
 
-    \table
-    \header
-    \o Group
-    \o Description
-
-    \row
-    \o \l{Abstract Widget Classes}
-    \o Abstract widget classes usable through subclassing.
-
-    \row
-    \o \l{Accessibility Classes}
-    \o Classes that provide support for accessibility.
-
-    \row
-    \o \l{Advanced Widgets}
-    \o Advanced GUI widgets such as tab widgets and progress bars.
-
-    \row
-    \o \l{Basic Widgets}
-    \o Basic GUI widgets such as buttons, comboboxes and scrollbars.
+    \generatelist{related}
 
     \omit
     \row
@@ -46,127 +26,14 @@
     \o Interfaces and helper classes for the Qt Component Model.
     \endomit
 
-    \row
-    \o \l{Database Classes}
-    \o Database related classes, e.g. for SQL databases.
-
-    \row
-    \o \l{Date and Time Classes}
-    \o Classes for handling date and time.
-
-    \row
-    \o \l{Desktop Environment Classes}
-    \o Classes for interacting with the user's desktop environment.
-
-    \row
-    \o \l{Drag and Drop}
-    \o Classes dealing with drag and drop and mime type
-       encoding and decoding.
-
-    \row
-    \o \l{Environment Classes}
-    \o Classes providing various global services such as
-       event handling, access to system settings and internationalization.
-
-    \row
-    \o \l{Event Classes}
-    \o Classes used to create and handle events.
-
-    \row
-    \o \l{Non-GUI Classes}
-    \o Collection classes such as list, queue, stack and string, along
-    with other classes that can be used without needing QApplication.
-
-    \row
-    \o \l{Multimedia, Graphics, and Printing}
-    \o Classes that provide support for graphics (2D, and with OpenGL, 3D),
-    image encoding, decoding, and manipulation, sound, animation,
-    printing, etc.
-
-    \row
-    \o \l{Help System}
-    \o Classes used to provide online-help for applications.
-
-    \row
-    \o \l{Layout Management}
-    \o Classes handling automatic resizing and moving of widgets, for
-            composing complex dialogs.
-
-    \row
-    \o \l{Shared Classes}
-    \o Classes that use reference counting for fast copying.
-
-    \row
-    \o \l{Input/Output and Networking}
-    \o Classes providing file input and output along with directory and
-    network handling.
-
-    \row
-    \o \l{Main Window and Related Classes}
-    \o Everything you need for a typical modern main application window,
-    including menus, toolbars, workspace, etc.
-
-    \row
-    \o \l{Miscellaneous Classes}
-    \o Various other useful classes.
-
-    \row
-    \o \l{Model/View Classes}
-    \o Classes that use the model/view design pattern.
-
-    \row
-    \o \l{Object Model}
-    \o The Qt GUI toolkit's underlying object model.
-
-    \row
-    \o \l{Organizers}
-    \o User interface organizers such as splitters, tab bars, button groups, etc.
-
-    \row
-    \o \l{Plugin Classes}
-    \o Plugin related classes.
-
-    \row
-    \o \l{Standard Dialog Classes}
-    \o Ready-made dialogs for file, font, color selection and more.
-
-    \row
-    \o \l{Generic Containers}
-    \o Qt's template-based container classes.
-
-    \row
-    \o \l{Text Related Classes}
-    \o Classes for text
-    processing. (See also \l{XML Classes}.)
-
-    \row
-    \o \l{Threading Classes}
-    \o Classes that provide threading support.
-
-    \row
-    \o \l{Widget Appearance and Style}
-    \o Appearance customization with styles, fonts, colors etc.
-
-    \row
-    \o \l{XML Classes}
-    \o Classes that support XML, via, for example DOM and SAX.
-
-    \row
-    \o \l{Script Classes}
-    \o Qt Script-related classes.
-
-    \row
-    \o \l{Qtopia Core Classes}
-    \o Classes that are specific to Qtopia Core (Qt for embedded Linux).
-
-    \endtable
-
 */
 
 /*!
     \group advanced
+    \ingroup groups
 
     \title Advanced Widgets
+    \brief Advanced GUI widgets such as tab widgets and progress bars.
 
     These classes provide more complex user interface widgets (controls).
 
@@ -174,8 +41,10 @@
 
 /*!
     \group abstractwidgets
+    \ingroup groups
 
     \title Abstract Widget Classes
+    \brief Abstract widget classes usable through subclassing.
 
     These classes are abstract widgets; they are generally not usable in
     themselves, but provide functionality that can be used by inheriting
@@ -185,10 +54,10 @@
 
 /*!
     \group accessibility
+    \ingroup groups
 
     \title Accessibility Classes
-
-    Classes that provide support for accessibility.
+    \brief Classes that provide support for accessibility.
 
     Accessible applications are able to be used by users who cannot use
     conventional means of interaction. These classes provide support for
@@ -198,8 +67,10 @@
 
 /*!
     \group appearance
+    \ingroup groups
 
     \title Widget Appearance and Style
+    \brief Appearance customization with styles, fonts, colors etc.
 
     These classes are used to customize an application's appearance and
     style.
@@ -208,8 +79,11 @@
 
 /*!
     \group application
+    \ingroup groups
 
     \title Main Window and Related Classes
+    \brief Everything you need for a typical modern main application window,
+    including menus, toolbars, workspace, etc.
 
     These classes provide everything you need for a typical modern main
     application window, like the main window itself, menu and tool bars,
@@ -220,8 +94,10 @@
 
 /*!
     \group basic
+    \ingroup groups
 
     \title Basic Widgets
+    \brief Basic GUI widgets such as buttons, comboboxes and scrollbars.
 
     These basic widgets (controls) are designed for direct use.
     There are also some \l{Abstract Widget Classes} that are designed for
@@ -239,8 +115,10 @@
 
 /*!
     \group database
+    \ingroup groups
 
     \title Database Classes
+    \brief Database related classes, e.g. for SQL databases.
 
     These classes provide access to SQL databases.
 */
@@ -248,8 +126,10 @@
 
 /*!
     \group dialogs
+    \ingroup groups
 
     \title Standard Dialog Classes
+    \brief Ready-made dialogs for file, font, color selection and more.
 
     These classes are complex widgets, composed of simpler widgets; dialog
     boxes, generally.
@@ -257,8 +137,10 @@
 
 /*!
     \group desktop
+    \ingroup groups
 
     \title Desktop Environment Classes
+    \brief Classes for interacting with the user's desktop environment.
 
     These classes provide ways to interact with the user's desktop environment and
     take advantage of common services.
@@ -266,8 +148,10 @@
 
 /*!
     \group draganddrop
+    \ingroup groups
 
     \title Drag And Drop Classes
+    \brief Classes dealing with drag and drop and mime type encoding and decoding.
 
     These classes deal with drag and drop and the necessary mime type
     encoding and decoding. See also \link dnd.html Drag and Drop with
@@ -276,8 +160,11 @@
 
 /*!
     \group environment
+    \ingroup groups
 
     \title Environment Classes
+    \brief Classes providing various global services such as event handling,
+    access to system settings and internationalization.
 
     These classes providing various global services to your application such as
     event handling, access to system settings, internationalization, etc.
@@ -286,8 +173,10 @@
 
 /*!
     \group events
+    \ingroup groups
 
     \title Event Classes
+    \brief Classes used to create and handle events.
 
     These classes are used to create and handle events.
 
@@ -298,8 +187,11 @@
 
 /*!
     \group geomanagement
+    \ingroup groups
 
     \title Layout Management
+    \brief Classes handling automatic resizing and moving of widgets, for
+    composing complex dialogs.
 
     These classes provide automatic geometry (layout) management of widgets.
 
@@ -308,8 +200,10 @@
 
 /*!
     \group helpsystem
+    \ingroup groups
 
     \title Help System
+    \brief Classes used to provide online-help for applications.
 
     \keyword help system
 
@@ -318,14 +212,14 @@
 
     \list 1
         \o Tool Tips and Status Bar message - flyweight help, extremely brief,
-	    entirely integrated in the user interface, requiring little
-	    or no user interaction to invoke.
+            entirely integrated in the user interface, requiring little
+            or no user interaction to invoke.
         \o What's This? - lightweight, but can be
-	    a three-paragraph explanation.
+            a three-paragraph explanation.
         \o Online Help - can encompass any amount of information,
-	    but is typically slower to call up, somewhat separated
-	    from the user's work, and often users feel that using online
-	    help is a digression from their real task.
+            but is typically slower to call up, somewhat separated
+            from the user's work, and often users feel that using online
+            help is a digression from their real task.
     \endlist
 
 */
@@ -333,8 +227,11 @@
 
 /*!
     \group io
+    \ingroup groups
 
     \title Input/Output and Networking
+    \brief Classes providing file input and output along with directory and
+    network handling.
 
     These classes are used to handle input and output to and from external
     devices, processes, files etc. as well as manipulating files and directories.
@@ -342,8 +239,10 @@
 
 /*!
     \group misc
+    \ingroup groups
 
     \title Miscellaneous Classes
+    \brief Various other useful classes.
 
     These classes are useful classes not fitting into any other category.
 
@@ -352,8 +251,10 @@
 
 /*!
     \group model-view
+    \ingroup groups
 
     \title Model/View Classes
+    \brief Classes that use the model/view design pattern.
 
     These classes use the model/view design pattern in which the
     underlying data (in the model) is kept separate from the way the data
@@ -364,8 +265,12 @@
 
 /*!
     \group multimedia
+    \ingroup groups
 
     \title Multimedia, Graphics, and Printing
+    \brief Classes that provide support for graphics (2D, and with OpenGL, 3D),
+    image encoding, decoding, and manipulation, sound, animation,
+    printing, etc.
 
     These classes provide support for graphics (2D, and with OpenGL, 3D),
     image encoding, decoding, and manipulation, sound, animation, printing
@@ -378,8 +283,10 @@
 
 /*!
     \group objectmodel
+    \ingroup groups
 
     \title Object Model
+    \brief The Qt GUI toolkit's underlying object model.
 
     These classes form the basis of the \l{Qt Object Model}.
 
@@ -387,8 +294,10 @@
 
 /*!
     \group organizers
+    \ingroup groups
 
     \title Organizers
+    \brief User interface organizers such as splitters, tab bars, button groups, etc.
 
     These classes are used to organize and group GUI primitives into more
     complex applications or dialogs.
@@ -398,8 +307,10 @@
 
 /*!
     \group plugins
+    \ingroup groups
 
     \title Plugin Classes
+    \brief Plugin related classes.
 
     These classes deal with shared libraries, (e.g. .so and DLL files),
     and with Qt plugins.
@@ -412,9 +323,11 @@
 
 /*!
     \group qws
+    \ingroup groups
 
     \title Qtopia Core Classes
     \ingroup qtopiacore
+    \brief Classes that are specific to Qtopia Core (Qt for embedded Linux).
 
     These classes are relevant to \l{Qtopia Core} users.
 */
@@ -422,8 +335,10 @@
 /*!
     \group shared
     \ingroup architecture
+    \ingroup groups
 
     \title Implicitly Shared Classes
+    \brief Classes that use reference counting for fast copying.
 
     \keyword implicit data sharing
     \keyword implicit sharing
@@ -536,8 +451,10 @@
 
 /*!
     \group text
+    \ingroup groups
 
     \title Text Related Classes
+    \brief Classes for text processing. (See also \l{XML Classes}.)
 
     These classes are relevant to text processing. See also the
     \l{Rich Text Processing} overview and the
@@ -546,8 +463,10 @@
 
 /*!
     \group thread
+    \ingroup groups
 
     \title Threading Classes
+    \brief Classes that provide threading support.
 
     These classes are relevant to threaded applications.
 */
@@ -555,8 +474,10 @@
 
 /*!
     \group time
+    \ingroup groups
 
     \title Date and Time Classes
+    \brief Classes for handling date and time.
 
     These classes provide system-independent date and time abstractions.
 
@@ -564,8 +485,11 @@
 
 /*!
     \group tools
+    \ingroup groups
 
     \title Non-GUI Classes
+    \brief Collection classes such as list, queue, stack and string, along
+    with other classes that can be used without needing QApplication.
 
     The non-GUI classes are general-purpose collection and string classes
     that may be used independently of the GUI classes.
@@ -577,16 +501,20 @@
 
 /*!
     \group xml-tools
+    \ingroup groups
 
     \title XML Classes
+    \brief Classes that support XML, via, for example DOM and SAX.
 
     These classes are relevant to XML users.
 */
 
 /*!
     \group script
+    \ingroup groups
 
     \title Script Classes
+    \brief Qt Script-related classes.
 
     These classes are relevant to Qt Script users.
 */

@@ -1,6 +1,8 @@
 /*!
   \group gallery
+  \ingroup topics
   \title Qt Widget Gallery
+  \brief Qt widgets shown in different styles on various platforms.
 
   Qt's support for widget styles and themes enables your application to fit in
   with the native desktop enviroment. Below, you can find links to the various
