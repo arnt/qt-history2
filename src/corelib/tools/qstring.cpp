@@ -135,12 +135,12 @@ static int ucstrcmp(const QChar *a, int alen, const QChar *b, int blen)
 
 inline int ucstrcmp(const QString &as, const QString &bs)
 {
-    return ucstrcmp(as.unicode(), as.length(), bs.unicode(), bs.length());
+    return ucstrcmp(as.unicode(), as.size(), bs.unicode(), bs.size());
 }
 
 inline int ucstrcmp(const QStringRef &as, const QStringRef &bs)
 {
-    return ucstrcmp(as.unicode(), as.length(), bs.unicode(), bs.length());
+    return ucstrcmp(as.unicode(), as.size(), bs.unicode(), bs.size());
 }
 
 
