@@ -942,6 +942,21 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                 QWindowsXPStyle::drawControl(element, option, painter, widget);
                 break; //otherwise fall through
             }
+
+            const QStyleOptionDockWidgetV2 *v2
+                = qstyleoption_cast<const QStyleOptionDockWidgetV2*>(dwOpt);
+            bool verticalTitleBar = v2 == 0 ? false : v2->verticalTitleBar;
+
+            if (verticalTitleBar) {
+                QSize s = rect.size();
+                s.transpose();
+                rect.setSize(s);
+
+                painter->translate(rect.left() - 1, rect.top() + rect.width());
+                painter->rotate(-90);
+                painter->translate(-rect.left() + 1, -rect.top());
+            }
+
             painter->setBrush(option->palette.background().color().darker(110));
             painter->setPen(option->palette.background().color().darker(130));
             painter->drawRect(rect.adjusted(0, 1, -1, -3));
@@ -976,7 +991,8 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                 if (!dwOpt->floatable && !dwOpt->closable)
                     titleRect.adjust(0, 0, -mw, 0);
             }
-            titleRect = visualRect(dwOpt->direction, r, titleRect);
+            if (!verticalTitleBar)
+                titleRect = visualRect(dwOpt->direction, r, titleRect);
                  if (!dwOpt->title.isEmpty()) {
                     QString titleText = painter->fontMetrics().elidedText(dwOpt->title, Qt::ElideRight, titleRect.width());
                     const int indent = painter->fontMetrics().descent();
