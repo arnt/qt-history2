@@ -1426,6 +1426,11 @@ void tst_QGraphicsView::mapFromSceneRect()
         QVERIFY(qAbs(viewPolygon[i].x() - polygon[i].x()) < 3);
         QVERIFY(qAbs(viewPolygon[i].y() - polygon[i].y()) < 3);
     }
+
+    QPoint pt = view.mapFromScene(QPointF());
+    QPolygon p;
+    p << pt << pt << pt << pt;
+    QCOMPARE(view.mapFromScene(QRectF()), p);
 }
 
 void tst_QGraphicsView::mapFromScenePoly()
