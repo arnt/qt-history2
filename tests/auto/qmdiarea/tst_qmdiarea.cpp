@@ -995,7 +995,7 @@ void tst_QMdiArea::cascadeAndTileSubWindows()
     const int windowCount = 10;
     QList<QMdiSubWindow *> windows;
     for (int i = 0; i < windowCount; ++i) {
-        QMdiSubWindow *window = workspace.addSubWindow(new QWidget);
+        QMdiSubWindow *window = workspace.addSubWindow(new MyChild);
         if (i % 3 == 0) {
             window->showMinimized();
             QVERIFY(window->isMinimized());
@@ -1028,6 +1028,7 @@ void tst_QMdiArea::cascadeAndTileSubWindows()
             QVERIFY(window->isMinimized());
         } else {
             QVERIFY(!window->isMaximized());
+            QCOMPARE(window->size(), window->sizeHint());
             window->showMaximized();
             QVERIFY(window->isMaximized());
         }
