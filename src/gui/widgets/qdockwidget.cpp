@@ -241,9 +241,9 @@ QSize QDockWidgetLayout::sizeFromContent(const QSize &content, bool floating) co
     result.setHeight(qMin(result.height(), (int) QWIDGETSIZE_MAX));
     result.setWidth(qMin(result.width(), (int) QWIDGETSIZE_MAX));
 
-    if (content.width() <= 0)
+    if (content.width() < 0)
         result.setWidth(-1);
-    if (content.height() <= 0)
+    if (content.height() < 0)
         result.setHeight(-1);
 
     return result;
@@ -555,7 +555,7 @@ void QDockWidgetPrivate::updateButtons()
 
     q->setAttribute(Qt::WA_ContentsPropagated, (canFloat || canClose) && !nonX11Floating);
 
-    layout->update(); // ###
+    layout->invalidate();
 }
 
 void QDockWidgetPrivate::_q_toggleTopLevel()
@@ -882,10 +882,10 @@ void QDockWidgetPrivate::setWindowState(bool floating, bool unplug, const QRect 
         q->setGeometry(rect);
     }
 
+    updateButtons();
+
     if (visible)
         q->show();
-
-    updateButtons();
 
     if (floating != wasFloating)
         emit q->topLevelChanged(floating);

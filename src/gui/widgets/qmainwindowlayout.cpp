@@ -140,6 +140,17 @@ void QMainWindowLayoutState::deleteAllLayoutItems()
 #endif
 }
 
+void QMainWindowLayoutState::deleteCentralWidgetItem()
+{
+#ifndef QT_NO_DOCKWIDGET
+    delete dockAreaLayout.centralWidgetItem;
+    dockAreaLayout.centralWidgetItem = 0;
+#else
+    delete centralWidgetItem;
+    centralWidgetItem = 0;
+#endif
+}
+
 QLayoutItem *QMainWindowLayoutState::itemAt(int index, int *x) const
 {
 #ifndef QT_NO_TOOLBAR
@@ -1141,6 +1152,7 @@ QMainWindowLayout::QMainWindowLayout(QMainWindow *mainwindow)
 QMainWindowLayout::~QMainWindowLayout()
 {
     layoutState.deleteAllLayoutItems();
+    layoutState.deleteCentralWidgetItem();
 
     delete statusbar;
 }

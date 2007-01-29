@@ -69,6 +69,7 @@ public:
 
     void apply(bool animated);
     void deleteAllLayoutItems();
+    void deleteCentralWidgetItem();
 
     QSize sizeHint() const;
     QSize minimumSize() const;
