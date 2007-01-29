@@ -3317,7 +3317,7 @@ fi
 # is where the resulting variable is written to
 setBootstrapVariable()
 {
-    variableRegExp="$1[^_A-Z0-9]"
+    variableRegExp="^$1[^_A-Z0-9]"
     getQMakeConf | grep "$variableRegExp" | ( [ -n "$2" ] && sed "$2" ; [ -z "$2" ] && cat ) | $AWK '
 {
     varLength = index($0, "=") - 1
@@ -3336,7 +3336,7 @@ END {
         printf "%s =", var
         for (i = 1; i <= NR; ++i)
             printf " $(%s_%s)", var, i
-            printf "\n"
+        printf "\n"
     }
 }' >> "$mkfile"
 }
