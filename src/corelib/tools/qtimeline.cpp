@@ -565,12 +565,16 @@ qreal QTimeLine::valueForTime(int msec) const
 }
 
 /*!
-    Starts the timeline. QTimeLine will enter Running state, and once it
-    enters the event loop, it will update its current time, frame and value at
-    regular intervals. The default interval is 40 ms (i.e., 25 times per
-    second). You can change the update interval by calling setUpdateInterval().
+    Starts or restarts the timeline. QTimeLine will enter Running state, and
+    once it enters the event loop, it will update its current time, frame and
+    value at regular intervals. The default interval is 40 ms (i.e., 25 times
+    per second). You can change the update interval by calling
+    setUpdateInterval().
 
-    \sa updateInterval(), frameChanged(), valueChanged()
+    If you want to resume a stopped timeline without restarting, you can call
+    resume() instead.
+
+    \sa resume(), updateInterval(), frameChanged(), valueChanged()
 */
 void QTimeLine::start()
 {
@@ -583,6 +587,29 @@ void QTimeLine::start()
         d->currentTime = 0;
     else if (d->currentTime == 0 && d->direction == Backward)
         d->currentTime = d->duration;
+    d->timerId = startTimer(d->updateInterval);
+    d->startTime = d->currentTime;
+    d->timer.start();
+    d->setState(Running);
+}
+
+/*!
+    Resumes the timeline from the current time. QTimeLine will reenter Running
+    state, and once it enters the event loop, it will update its current time,
+    frame and value at regular intervals.
+
+    In contrast to start(), this function does not restart the timeline before
+    is resumes.
+
+    \sa start(), updateInterval(), frameChanged(), valueChanged()
+*/
+void QTimeLine::resume()
+{
+    Q_D(QTimeLine);
+    if (d->timerId) {
+        qWarning("QTimeLine::resume: already running");
+        return;
+    }
     d->timerId = startTimer(d->updateInterval);
     d->startTime = d->currentTime;
     d->timer.start();
