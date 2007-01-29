@@ -33,14 +33,14 @@ public:
     DummyFrame
 #endif
     {   Box = QFrame::Box, Sunken = QFrame::Sunken, Plain = QFrame::Plain,
-        Raised = QFrame::Raised, MShadow=QFrame::MShadow, NoFrame = QFrame::NoFrame,
+        Raised = QFrame::Raised, MShadow=QFrame::Shadow_Mask, NoFrame = QFrame::NoFrame,
         Panel = QFrame::Panel, StyledPanel = QFrame::StyledPanel, HLine = QFrame::HLine,
         VLine = QFrame::VLine,
-        WinPanel = QFrame::WinPanel,ToolBarPanel = QFrame::ToolBarPanel,
-        MenuBarPanel = QFrame::MenuBarPanel, PopupPanel = QFrame::PopupPanel,
-        LineEditPanel = QFrame::LineEditPanel,TabWidgetPanel = QFrame::TabWidgetPanel,
+        WinPanel = QFrame::WinPanel,ToolBarPanel = QFrame::StyledPanel,
+        MenuBarPanel = QFrame::StyledPanel, PopupPanel = QFrame::StyledPanel,
+        LineEditPanel = QFrame::StyledPanel,TabWidgetPanel = QFrame::StyledPanel,
         GroupBoxPanel = 0x0007,
-        MShape = QFrame::MShape};
+        MShape = QFrame::Shape_Mask};
 
     typedef DummyFrame FrameShape;
     Q_ENUMS(FrameShape)
