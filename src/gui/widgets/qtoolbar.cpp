@@ -576,7 +576,7 @@ QAction *QToolBar::addAction(const QString &text,
                              const QObject *receiver, const char* member)
 {
     QAction *action = new QAction(text, this);
-    QObject::connect(action, SIGNAL(triggered()), receiver, member);
+    QObject::connect(action, SIGNAL(triggered(bool)), receiver, member);
     addAction(action);
     return action;
 }
@@ -593,7 +593,7 @@ QAction *QToolBar::addAction(const QIcon &icon, const QString &text,
                              const QObject *receiver, const char* member)
 {
     QAction *action = new QAction(icon, text, this);
-    QObject::connect(action, SIGNAL(triggered()), receiver, member);
+    QObject::connect(action, SIGNAL(triggered(bool)), receiver, member);
     addAction(action);
     return action;
 }

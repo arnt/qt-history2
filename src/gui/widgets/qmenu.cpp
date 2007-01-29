@@ -1132,7 +1132,7 @@ QAction *QMenu::addAction(const QString &text, const QObject *receiver, const ch
 #else
     action->setShortcut(shortcut);
 #endif
-    QObject::connect(action, SIGNAL(triggered()), receiver, member);
+    QObject::connect(action, SIGNAL(triggered(bool)), receiver, member);
     addAction(action);
     return action;
 }
@@ -1157,7 +1157,7 @@ QAction *QMenu::addAction(const QIcon &icon, const QString &text, const QObject 
 #else
     action->setShortcut(shortcut);
 #endif
-    QObject::connect(action, SIGNAL(triggered()), receiver, member);
+    QObject::connect(action, SIGNAL(triggered(bool)), receiver, member);
     addAction(action);
     return action;
 }

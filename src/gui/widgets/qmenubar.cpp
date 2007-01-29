@@ -680,7 +680,7 @@ QAction *QMenuBar::addAction(const QString &text)
 QAction *QMenuBar::addAction(const QString &text, const QObject *receiver, const char* member)
 {
     QAction *ret = new QAction(text, this);
-    QObject::connect(ret, SIGNAL(triggered()), receiver, member);
+    QObject::connect(ret, SIGNAL(triggered(bool)), receiver, member);
     addAction(ret);
     return ret;
 }
@@ -1670,7 +1670,7 @@ int QMenuBar::insertAny(const QIcon *icon, const QString *text, const QObject *r
     if(shortcut)
         act->setShortcut(*shortcut);
     if(receiver && member)
-        QObject::connect(act, SIGNAL(triggered()), receiver, member);
+        QObject::connect(act, SIGNAL(triggered(bool)), receiver, member);
     if(index == -1 || index >= actions().count())
         addAction(act);
     else
