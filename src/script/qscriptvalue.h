@@ -89,7 +89,7 @@ public:
     QScriptValue(QScriptEngine *engine, const QString &val);
 
 #ifndef QT_NO_CAST_FROM_ASCII
-    QT_ASCII_CAST_WARN QScriptValue(QScriptEngine *engine, const char *val);
+    QT_ASCII_CAST_WARN_CONSTRUCTOR QScriptValue(QScriptEngine *engine, const char *val);
 #endif
 
     bool isValid() const;
