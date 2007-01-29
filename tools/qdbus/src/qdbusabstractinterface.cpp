@@ -49,9 +49,8 @@ QDBusAbstractInterfacePrivate::QDBusAbstractInterfacePrivate(const QString &serv
                                QLatin1String("Not connected to D-Bus server"));
         isValid = false;
     } else if (!service.isEmpty()) {
-        // check if it's there first -- FIXME: add binding mode
-        QString owner = connectionPrivate()->getNameOwner(service); // verify the name owner
-        if (owner.isEmpty()) {
+        currentOwner = connectionPrivate()->getNameOwner(service); // verify the name owner
+        if (currentOwner.isEmpty()) {
             isValid = false;
             lastError = connectionPrivate()->lastError;
         }
@@ -125,8 +124,10 @@ void QDBusAbstractInterfacePrivate::_q_serviceOwnerChanged(const QString &name,
 {
     Q_UNUSED(oldOwner);
     //qDebug() << "QDBusAbstractInterfacePrivate serviceOwnerChanged" << name << oldOwner << newOwner;
-    if (name == service)
+    if (name == service) {
+        currentOwner = newOwner;
         isValid = !newOwner.isEmpty();
+    }
 }
 
 
@@ -337,10 +338,15 @@ bool QDBusAbstractInterface::callWithCallback(const QString &method,
 */
 void QDBusAbstractInterface::connectNotify(const char *signal)
 {
+    // we end up recursing here, so optimise away
+    if (qstrcmp(signal, SIGNAL(destroyed(QObject*))) == 0)
+        return;
+
     // someone connecting to one of our signals
     Q_D(QDBusAbstractInterface);
 
-    d->connectionPrivate()->connectRelay(d->service, d->path, d->interface, this, signal);
+    d->connectionPrivate()->connectRelay(d->service, d->currentOwner, d->path, d->interface,
+                                         this, signal);
 }
 
 /*!
@@ -352,7 +358,8 @@ void QDBusAbstractInterface::disconnectNotify(const char *signal)
     // someone disconnecting from one of our signals
     Q_D(QDBusAbstractInterface);
 
-    d->connectionPrivate()->disconnectRelay(d->service, d->path, d->interface, this, signal);
+    d->connectionPrivate()->disconnectRelay(d->service, d->currentOwner, d->path, d->interface,
+                                            this, signal);
 }
 
 /*!

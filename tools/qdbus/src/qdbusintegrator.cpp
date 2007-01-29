@@ -1539,8 +1539,8 @@ void QDBusConnectionPrivate::registerObject(const ObjectTreeNode *node)
     }
 }
 
-void QDBusConnectionPrivate::connectRelay(const QString &service, const QString &path,
-                                          const QString &interface,
+void QDBusConnectionPrivate::connectRelay(const QString &service, const QString &owner,
+                                          const QString &path, const QString &interface,
                                           QDBusAbstractInterface *receiver,
                                           const char *signal)
 {
@@ -1548,7 +1548,6 @@ void QDBusConnectionPrivate::connectRelay(const QString &service, const QString 
     // we set up a relay from D-Bus into it
     SignalHook hook;
     QString key;
-    QString owner = getNameOwner(service);
 
     if (!prepareHook(hook, key, service, owner, path, interface, QString(), receiver, signal,
                      QDBusAbstractInterface::staticMetaObject.methodCount(), true))
@@ -1572,8 +1571,8 @@ void QDBusConnectionPrivate::connectRelay(const QString &service, const QString 
     connectSignal(key, hook);
 }
 
-void QDBusConnectionPrivate::disconnectRelay(const QString &service, const QString &path,
-                                             const QString &interface,
+void QDBusConnectionPrivate::disconnectRelay(const QString &service, const QString &owner,
+                                             const QString &path, const QString &interface,
                                              QDBusAbstractInterface *receiver,
                                              const char *signal)
 {
@@ -1581,8 +1580,6 @@ void QDBusConnectionPrivate::disconnectRelay(const QString &service, const QStri
     // we remove relay from D-Bus into it
     SignalHook hook;
     QString key;
-
-    QString owner = getNameOwner(service);
 
     if (!prepareHook(hook, key, service, owner, path, interface, QString(), receiver, signal,
                      QDBusAbstractInterface::staticMetaObject.methodCount(), true))

@@ -141,9 +141,11 @@ public:
     void connectSignal(const QString &key, const SignalHook &hook);
     void disconnectSignal(SignalHookHash::Iterator &it);
     void registerObject(const ObjectTreeNode *node);
-    void connectRelay(const QString &service, const QString &path, const QString &interface,
+    void connectRelay(const QString &service, const QString &currentOwner,
+                      const QString &path, const QString &interface,
                       QDBusAbstractInterface *receiver, const char *signal);
-    void disconnectRelay(const QString &service, const QString &path, const QString &interface,
+    void disconnectRelay(const QString &service, const QString &currentOwner,
+                         const QString &path, const QString &interface,
                          QDBusAbstractInterface *receiver, const char *signal);
 
     bool handleMessage(const QDBusMessage &msg);
