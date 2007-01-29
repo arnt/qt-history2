@@ -25,7 +25,6 @@
 #include <private/qwidget_p.h>
 #include <private/qwsmanager_p.h>
 #include <private/qwslock_p.h>
-#include <stdio.h>
 
 static inline bool isWidgetOpaque(const QWidget *w)
 {
@@ -392,7 +391,13 @@ void QWSWindowSurface::setDirty(const QRegion &region) const
         d_ptr->clippedDirty += (region - d_ptr->clip);
         unclipped &= d_ptr->clip;
     }
+
+    const bool updatePosted = !d_ptr->dirty.isEmpty();
+
     d_ptr->dirty += unclipped;
+
+    if (updatePosted)
+        return;
 
     if (window() && !unclipped.isEmpty())
         QApplication::postEvent(window(), new QEvent(QEvent::UpdateRequest));
@@ -426,6 +431,7 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
     if (isBuffered()) {
         dirtyExpose = expose & d_ptr->clippedDirty;
         d_ptr->clippedDirty -= expose;
+        expose -= dirtyExpose;
     }
 #ifndef QT_NO_QWS_MANAGER
     if (window() && !expose.isEmpty()) {
@@ -441,11 +447,9 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
     }
 #endif
 
-    if (!window())
-        return;
     if (!dirtyExpose.isEmpty()) {
+        setDirty(dirtyExpose);
         d_ptr->dirty += expose;
-        window()->d_func()->invalidateBuffer(dirtyExpose);
     } else if (!expose.isEmpty()) {
         // XXX: prevent flush() from resetting dirty and from flushing too much
         const QRegion oldDirty = d_ptr->dirty;
@@ -581,6 +585,9 @@ void QWSWindowSurface::release()
 {
     QWidget::qwsDisplay()->requestRegion(window()->data->winid, key(), data(),
                                          QRegion());
+    d_ptr->dirty = QRegion();
+    d_ptr->clip = QRegion();
+    d_ptr->clippedDirty = QRegion();
 }
 
 static void scroll(const QImage &img, const QRect &rect, const QPoint &point)
