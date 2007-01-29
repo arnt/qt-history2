@@ -2221,7 +2221,20 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             bool isFloating = widget && widget->isWindow();
             bool isActive = dwOpt->state & State_Active;
 
-            QRect r = option->rect.adjusted(0, 2, -1, -3);
+            const QStyleOptionDockWidgetV2 *v2
+                = qstyleoption_cast<const QStyleOptionDockWidgetV2*>(dwOpt);
+            bool verticalTitleBar = v2 == 0 ? false : v2->verticalTitleBar;
+
+            if (verticalTitleBar) {
+                QSize s = rect.size();
+                s.transpose();
+                rect.setSize(s);
+
+                p->translate(rect.left() - 1, rect.top() + rect.width());
+                p->rotate(-90);
+                p->translate(-rect.left() + 1, -rect.top());
+            }
+            QRect r = rect.adjusted(0, 2, -1, -3);
             QRect titleRect = r;
 
             if (dwOpt->closable) {
@@ -2244,7 +2257,8 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                     titleRect.adjust(0, 0, -mw, 0);
             }
 
-            titleRect = visualRect(dwOpt->direction, r, titleRect);
+            if (!verticalTitleBar)
+                titleRect = visualRect(dwOpt->direction, r, titleRect);
 
             if (!isFloating) {
                 QPen oldPen = p->pen();
@@ -2285,7 +2299,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 bool hasIcon = (ico.cacheKey() != qApp->windowIcon().cacheKey());
                 if (hasIcon) {
                     QPixmap pxIco = ico.pixmap(titleHeight);
-                    if (QApplication::layoutDirection() == Qt::RightToLeft)
+                    if (!verticalTitleBar && QApplication::layoutDirection() == Qt::RightToLeft)
                         p->drawPixmap(rect.width() - titleHeight - pxIco.width(), rect.bottom() - titleHeight - 2, pxIco);
                     else
                         p->drawPixmap(fw, rect.bottom() - titleHeight - 2, pxIco);
