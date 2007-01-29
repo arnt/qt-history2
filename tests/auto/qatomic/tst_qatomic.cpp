@@ -62,6 +62,8 @@ private slots:
 
     // stress tests
     void testAndSet_loop();
+    void fetchAndAdd_loop();
+    void fetchAndAdd_threadedLoop();
 };
 
 tst_QAtomic::tst_QAtomic()
@@ -372,6 +374,57 @@ void tst_QAtomic::testAndSet_loop()
     for (int i = 0; i < iterations; ++i) {
         QVERIFY(val.testAndSet(val, val+1));
     }
+}
+
+void tst_QAtomic::fetchAndAdd_loop()
+{
+    int iterations = 10000000;
+#if defined (Q_OS_HPUX)
+    iterations = 1000000;
+#endif
+
+    QAtomic val=0;
+    for (int i = 0; i < iterations; ++i) {
+        const int prev = val.fetchAndAdd(1);
+        QCOMPARE(prev, int(val) -1);
+    }
+}
+
+class FetchAndAddThread : public QThread
+{
+public:
+    void run()
+    {
+
+        for (int i = 0; i < iterations; ++i)
+            val->fetchAndAddAcquire(1);
+
+        for (int i = 0; i < iterations; ++i)
+            val->fetchAndAddAcquire(-1);
+
+    }
+QAtomic *val;
+int iterations;
+};
+
+
+void tst_QAtomic::fetchAndAdd_threadedLoop()
+{
+    QAtomic val;
+    FetchAndAddThread t1;
+    t1.val = &val;
+    t1.iterations = 1000000;
+
+    FetchAndAddThread t2;
+    t2.val = &val;
+    t2.iterations = 2000000;
+    
+    t1.start();
+    t2.start();
+    t1.wait();
+    t2.wait();
+    
+    QCOMPARE(int(val), 0);
 }
 
 QTEST_APPLESS_MAIN(tst_QAtomic)
