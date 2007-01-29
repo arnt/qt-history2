@@ -1501,6 +1501,20 @@ QPainterPath QGraphicsScene::selectionArea() const
 */
 void QGraphicsScene::setSelectionArea(const QPainterPath &path)
 {
+    setSelectionArea(path, Qt::IntersectsItemShape);
+}
+
+/*!
+    \overload
+    \since 4.3
+
+    Sets the selection area to \a path using \a mode to determine if items are
+    included in the selection area.
+
+    \sa clearSelection(), selectionArea()
+*/
+void QGraphicsScene::setSelectionArea(const QPainterPath &path, Qt::ItemSelectionMode mode)
+{
     Q_D(QGraphicsScene);
 
     // Note: with boolean path operations, we can improve performance here
@@ -1516,7 +1530,7 @@ void QGraphicsScene::setSelectionArea(const QPainterPath &path)
     bool changed = false;
 
     // Set all items in path to selected.
-    foreach (QGraphicsItem *item, items(path)) {
+    foreach (QGraphicsItem *item, items(path, mode)) {
         if (item->flags() & QGraphicsItem::ItemIsSelectable) {
             if (!item->isSelected())
                 changed = true;

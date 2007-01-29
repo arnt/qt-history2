@@ -265,6 +265,7 @@ public:
     QRect rubberBandRect;
     QRegion rubberBandRegion(const QWidget *widget, const QRect &rect) const;
     bool rubberBanding;
+    Qt::ItemSelectionMode rubberBandSelectionMode;
 #endif
     bool handScrolling;
     int handScrollMotions;
@@ -307,6 +308,7 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
       scene(0),
 #ifndef QT_NO_RUBBERBAND
       rubberBanding(false),
+      rubberBandSelectionMode(Qt::IntersectsItemShape),
 #endif
       handScrolling(false), handScrollMotions(0), cacheMode(0), mustResizeBackgroundPixmap(true),
 #ifndef QT_NO_CURSOR
@@ -865,6 +867,30 @@ void QGraphicsView::setDragMode(DragMode mode)
         viewport()->setCursor(Qt::OpenHandCursor);
     }
 #endif
+}
+
+/*!
+    \property QGraphicsView::rubberBandSelectionMode
+    \brief the behavior for selecting items with a rubber band selection rectangle.
+    \since 4.3
+
+    This property defines how items are selected when using the RubberBandDrag
+    drag mode.
+
+    The default value is Qt::IntersectsItemShape; all items whose shape
+    intersects with or is contained by the rubber band are selected.
+
+    \sa dragMode, items()
+*/
+Qt::ItemSelectionMode QGraphicsView::rubberBandSelectionMode() const
+{
+    Q_D(const QGraphicsView);
+    return d->rubberBandSelectionMode;
+}
+void QGraphicsView::setRubberBandSelectionMode(Qt::ItemSelectionMode mode)
+{
+    Q_D(QGraphicsView);
+    d->rubberBandSelectionMode = mode;
 }
 
 /*!
@@ -2466,7 +2492,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
             QPainterPath selectionArea;
             selectionArea.addPolygon(mapToScene(d->rubberBandRect));
             if (d->scene)
-                d->scene->setSelectionArea(selectionArea);
+                d->scene->setSelectionArea(selectionArea, d->rubberBandSelectionMode);
             return;
         }
     } else

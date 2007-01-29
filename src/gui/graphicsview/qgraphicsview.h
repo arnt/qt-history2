@@ -47,6 +47,7 @@ class Q_GUI_EXPORT QGraphicsView : public QAbstractScrollArea
     Q_PROPERTY(ViewportAnchor transformationAnchor READ transformationAnchor WRITE setTransformationAnchor)
     Q_PROPERTY(ViewportAnchor resizeAnchor READ resizeAnchor WRITE setResizeAnchor)
     Q_PROPERTY(ViewportUpdateMode viewportUpdateMode READ viewportUpdateMode WRITE setViewportUpdateMode)
+    Q_PROPERTY(Qt::ItemSelectionMode rubberBandSelectionMode READ rubberBandSelectionMode WRITE setRubberBandSelectionMode)
 
 public:
     enum ViewportAnchor {
@@ -97,6 +98,9 @@ public:
 
     DragMode dragMode() const;
     void setDragMode(DragMode mode);
+
+    Qt::ItemSelectionMode rubberBandSelectionMode() const;
+    void setRubberBandSelectionMode(Qt::ItemSelectionMode mode);
 
     CacheMode cacheMode() const;
     void setCacheMode(CacheMode mode);
