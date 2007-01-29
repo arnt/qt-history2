@@ -34,7 +34,6 @@ public:
     QDesignerFormWindowInterface *editor() const;
 
     QRect geometryHint() const;
-    virtual QSize sizeHint () const;
 
 public slots:
     void updateWindowTitle(const QString &fileName);

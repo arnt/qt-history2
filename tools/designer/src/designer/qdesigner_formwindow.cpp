@@ -108,17 +108,13 @@ void QDesignerFormWindow::changeEvent(QEvent *e)
 
 QRect QDesignerFormWindow::geometryHint() const
 {
-    return QRect(QPoint(0, 0), sizeHint());
-}
-
-QSize QDesignerFormWindow::sizeHint() const 
-{    
+    const QPoint point(0, 0);
     // If we have a container, we want to be just as big.
     // QMdiSubWindow attempts to resize its children to sizeHint() when switching user interface modes.
     if (QWidget *mainContainer = m_editor->mainContainer())
-        return mainContainer->size();
+        return QRect(point, mainContainer->size());
 
-    return m_editor->sizeHint();
+    return QRect(point, sizeHint());
 }
 
 QDesignerFormWindowInterface *QDesignerFormWindow::editor() const

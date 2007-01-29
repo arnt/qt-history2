@@ -95,11 +95,13 @@ QDesignerWorkbench::Position::Position(const QWidget *topLevelWindow, const QPoi
 void QDesignerWorkbench::Position::applyTo(QMdiSubWindow *mdiSubWindow,
                                            const QPoint &mdiAreaOffset) const
 {
-    // QMdiSubWindow attempts to resize its children to sizeHint() when switching user interface modes,
-    // see  also QDesignerFormWindow::sizeHint().
+    // QMdiSubWindow attempts to resize its children to sizeHint() when switching user interface modes.
+    // Restore old size
     const QPoint mdiAreaPos =  QPoint(qMax(0, m_position.x() - mdiAreaOffset.x()),
                                       qMax(0, m_position.y() - mdiAreaOffset.y()));
     mdiSubWindow->move(mdiAreaPos);
+    const QSize decorationSize = mdiSubWindow->size() - mdiSubWindow->contentsRect().size();
+    mdiSubWindow->resize(mdiSubWindow->widget()->size() + decorationSize);    
     mdiSubWindow->show();
     if (m_minimized) {
         mdiSubWindow->showShaded();
@@ -628,7 +630,6 @@ QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
 {
     QDesignerFormWindow *formWindow = new QDesignerFormWindow(/*formWindow=*/ 0, this);
 
-    const QRect formWindowGeometryHint = formWindow->geometryHint();
     if (m_mdiArea) {
         QMdiSubWindow *newMdiSubWindow = m_mdiArea->addSubWindow(formWindow, magicalWindowFlags(formWindow));
         newMdiSubWindow->setMinimumSize(QSize(0, 0));
