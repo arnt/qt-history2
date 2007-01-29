@@ -350,8 +350,19 @@ void tst_QScriptValue::toVariant()
     QScriptValue object = eng.newObject();
     QCOMPARE(object.toVariant(), QVariant(QString("[object Object]")));
 
-    QScriptValue qobject = eng.newQObject(0);
-    QCOMPARE(qobject.toVariant(), QVariant((QObject*)0));
+    QScriptValue qobject = eng.newQObject(this);
+    {
+        QVariant var = qobject.toVariant();
+        QCOMPARE(var.userType(), int(QMetaType::QObjectStar));
+        QCOMPARE(qVariantValue<QObject*>(var), this);
+    }
+
+    QScriptValue nilQobject = eng.newQObject(0);
+    {
+        QVariant var = nilQobject.toVariant();
+        QCOMPARE(var.userType(), int(QMetaType::QObjectStar));
+        QCOMPARE(qVariantValue<QObject*>(var), (QObject *)0);
+    }
 
     QScriptValue inv;
     QCOMPARE(inv.toVariant(), QVariant());
