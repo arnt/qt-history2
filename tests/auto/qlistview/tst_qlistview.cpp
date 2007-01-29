@@ -765,6 +765,14 @@ class PublicListView : public QListView
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags flags) {
         QListView::setSelection(rect, flags);
     }
+    QSize contentsSize() const { return QListView::contentsSize(); }
+};
+
+class TestDelegate : public QItemDelegate
+{
+public:
+    TestDelegate(QObject *parent) : QItemDelegate(parent) {}
+    QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const { return QSize(50, 50); }
 };
 
 typedef QList<int> IntList;
@@ -790,7 +798,7 @@ void tst_QListView::selection_data()
         << 0                                    // spacing
         << QSize()                              // gridSize
         << IntList()                            // hiddenRows
-        << QRect(0,0, 10, 200)                  // selection rectangle
+        << QRect(0, 0, 10, 200)                 // selection rectangle
         << (IntList() << 0 << 1 << 2 << 3);     // expected items
     
     QTest::newRow("select below, (on viewport)")
@@ -801,10 +809,10 @@ void tst_QListView::selection_data()
         << 0                                    // spacing
         << QSize()                              // gridSize
         << IntList()                            // hiddenRows
-        << QRect(20, 100, 1, 1)                  // selection rectangle
-        << (IntList());     // expected items
+        << QRect(10, 250, 1, 1)                 // selection rectangle
+        << (IntList());                         // expected items
 
-    QTest::newRow("select below, (on viewport)")
+    QTest::newRow("select below 2, (on viewport)")
         << 4                                    // itemCount
         << int(QListView::ListMode)
         << int(QListView::TopToBottom)
@@ -812,8 +820,8 @@ void tst_QListView::selection_data()
         << 0                                    // spacing
         << QSize()                              // gridSize
         << IntList()                            // hiddenRows
-        << QRect(20, 100, 1, 1)                  // selection rectangle
-        << (IntList());     // expected items
+        << QRect(10, 250, 1, 1)                 // selection rectangle
+        << (IntList());                         // expected items
     
     QTest::newRow("select to the right, (on viewport)")
         << 40                                   // itemCount
@@ -824,7 +832,7 @@ void tst_QListView::selection_data()
         << QSize()                              // gridSize
         << IntList()                            // hiddenRows
         << QRect(300, 10, 1, 1)                 // selection rectangle
-        << (IntList());     // expected items
+        << (IntList());                         // expected items
     
     QTest::newRow("select to the right, (on viewport)")
         << 40                                   // itemCount
@@ -834,8 +842,20 @@ void tst_QListView::selection_data()
         << 0                                    // spacing
         << QSize()                              // gridSize
         << IntList()                            // hiddenRows
-        << QRect(300, 0, 1, 300)                 // selection rectangle
-        << (IntList());     // expected items
+        << QRect(300, 0, 1, 300)                // selection rectangle
+        << (IntList());                         // expected items
+
+  
+    QTest::newRow("select inside contents, (on viewport)")
+        << 35                                   // itemCount
+        << int(QListView::ListMode)
+        << int(QListView::TopToBottom)
+        << true                                 // wrapping
+        << 0                                    // spacing
+        << QSize()                              // gridSize
+        << IntList()                            // hiddenRows
+        << QRect(175, 275, 1, 1)                // selection rectangle
+        << (IntList());                         // expected items
 }
 
 void tst_QListView::selection()
@@ -855,21 +875,23 @@ void tst_QListView::selection()
     model.colCount = 1;
     model.rCount = itemCount;
 
+    v.setItemDelegate(new TestDelegate(&v));
     v.setModel(&model);
     v.setViewMode(QListView::ViewMode(viewMode));
     v.setFlow(QListView::Flow(flow));
     v.setWrapping(wrapping);
+    v.setResizeMode(QListView::Adjust);
     v.setSpacing(spacing);
     if (gridSize.isValid())
         v.setGridSize(gridSize);
     for (int j = 0; j < hiddenRows.count(); ++j) {
         v.setRowHidden(hiddenRows.at(j), true);
     }
-    v.resize(400,300);
+    v.resize(525,525);
     v.show();
     QApplication::processEvents();
 
-    v.setSelection(selectionRect, QItemSelectionModel::Select);
+    v.setSelection(selectionRect, QItemSelectionModel::ClearAndSelect);
 
     QModelIndexList selected = v.selectionModel()->selectedIndexes();
     
