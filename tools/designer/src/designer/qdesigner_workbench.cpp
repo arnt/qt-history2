@@ -53,6 +53,80 @@
 #include <QtGui/QMdiArea>
 #include <QtGui/QMdiSubWindow>
 
+static QMdiSubWindow *mdiSubWindowOf(const QWidget *w) 
+{
+    QMdiSubWindow *rc = qobject_cast<QMdiSubWindow *>(w->parentWidget());
+    Q_ASSERT(rc);
+    return rc;
+}
+
+static QDockWidget *dockWidgetOf(const QWidget *w)
+{
+    for (QWidget *parentWidget = w->parentWidget(); parentWidget ; parentWidget = parentWidget->parentWidget()) {
+        if (QDockWidget *dw = qobject_cast<QDockWidget *>(parentWidget)) {
+            return dw;
+        }
+    }
+    Q_ASSERT("Dock widget not found");
+    return 0;
+}
+
+QDesignerWorkbench::Position::Position(const QMdiSubWindow *mdiSubWindow, const QPoint &mdiAreaOffset) :
+    m_minimized(mdiSubWindow->isShaded()),
+    m_position(mdiSubWindow->pos() + mdiAreaOffset)
+{
+}
+
+QDesignerWorkbench::Position::Position(const QDockWidget *dockWidget) :
+    m_minimized(dockWidget->isMinimized()),
+    m_position(dockWidget->pos())
+{
+}
+
+QDesignerWorkbench::Position::Position(const QWidget *topLevelWindow, const QPoint &desktopTopLeft)
+{
+    const QWidget *window =topLevelWindow->window ();
+    Q_ASSERT(window);
+    m_minimized = window->isMinimized();
+    m_position = window->pos() - desktopTopLeft;
+}
+
+
+void QDesignerWorkbench::Position::applyTo(QMdiSubWindow *mdiSubWindow,
+                                           const QPoint &mdiAreaOffset) const
+{
+    // QMdiSubWindow attempts to resize its children to sizeHint() when switching user interface modes,
+    // see  also QDesignerFormWindow::sizeHint().
+    const QPoint mdiAreaPos =  QPoint(qMax(0, m_position.x() - mdiAreaOffset.x()),
+                                      qMax(0, m_position.y() - mdiAreaOffset.y()));
+    mdiSubWindow->move(mdiAreaPos);
+    mdiSubWindow->show();
+    if (m_minimized) {
+        mdiSubWindow->showShaded();
+    }
+}
+
+void QDesignerWorkbench::Position::applyTo(QWidget *topLevelWindow, const QPoint &desktopTopLeft) const
+{
+    QWidget *window = topLevelWindow->window ();
+    const QPoint newPos = m_position + desktopTopLeft;
+    window->move(newPos);
+    if ( m_minimized) {
+        topLevelWindow->showMinimized();
+    } else {
+        topLevelWindow->show();
+    }
+}
+
+void QDesignerWorkbench::Position::applyTo(QDockWidget *dockWidget) const
+{
+    dockWidget->widget()->setVisible(true);
+    dockWidget->setVisible(!m_minimized);
+}
+
+
+// -------- QDesignerWorkbench
+
 QDesignerWorkbench::QDesignerWorkbench()
     : m_mode(QDesignerWorkbench::NeutralMode), m_mdiArea(0)
 {
@@ -78,6 +152,34 @@ QDesignerWorkbench::~QDesignerWorkbench()
 
     while (!m_toolWindows.isEmpty())
         delete m_toolWindows.takeLast();
+}
+
+void QDesignerWorkbench::saveGeometries() 
+{
+    m_Positions.clear();
+    switch (m_mode) {
+    case NeutralMode:
+        break;
+    case TopLevelMode: {
+        const QPoint desktopOffset = QApplication::desktop()->availableGeometry().topLeft();
+        foreach (QDesignerToolWindow *tw, m_toolWindows) 
+            m_Positions.insert(tw, Position(tw, desktopOffset));
+        foreach (QDesignerFormWindow *fw, m_formWindows) {
+            m_Positions.insert(fw,  Position(fw, desktopOffset));
+        }
+    }
+        break;
+    case DockedMode: {
+        const QPoint mdiAreaOffset = m_mdiArea->pos();
+        foreach (QDesignerToolWindow *tw, m_toolWindows) {
+            m_Positions.insert(tw, Position(dockWidgetOf(tw)));
+        }
+        foreach (QDesignerFormWindow *fw, m_formWindows) {
+            m_Positions.insert(fw, Position(mdiSubWindowOf(fw), mdiAreaOffset));
+        }
+    }
+        break;
+    }
 }
 
 QDesignerWorkbench::UIMode QDesignerWorkbench::mode() const
@@ -247,8 +349,6 @@ void QDesignerWorkbench::initialize()
     toolbarMenu->addAction(m_toolToolBar->toggleViewAction());
     toolbarMenu->addAction(m_formToolBar->toggleViewAction());
 
-    m_geometries.clear();
-
     emit initialized();
 
     connect(m_core->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
@@ -305,48 +405,16 @@ void QDesignerWorkbench::switchToNeutralMode()
         settings.setMainWindowState(mw->saveState(2));
     }
 
-    QPoint desktopOffset = QPoint(0, 0);
-    QPoint workspaceOffset = QPoint(0, 0);
-    if (m_mode == TopLevelMode)
-        desktopOffset = QApplication::desktop()->availableGeometry().topLeft();
-    else if (m_mode == DockedMode)
-        workspaceOffset = m_mdiArea->mapToGlobal(QPoint(0, 0));
+    saveGeometries();
+
     m_mode = NeutralMode;
 
-    m_geometries.clear();
-    m_visibilities.clear();
-
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
-        m_visibilities.insert(tw, tw->isVisible());
-        if (tw->isVisible()) {
-            // use the actual geometry
-            QPoint pos = tw->window()->pos();
-            if (!tw->isWindow()) {
-                if (const QWidget *pw = tw->parentWidget()) {
-                    pos = pw->mapTo(tw->window(), QPoint(0, 0));
-                    pos += tw->window()->pos();
-                }
-
-            }
-            m_geometries.insert(tw, QRect(pos - desktopOffset, tw->size()));
-        }
         tw->setSaveSettingsOnClose(false);
-
         tw->setParent(0);
     }
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
-        if (fw->isVisible()) {
-            // use the actual geometry
-            QPoint pos = fw->window()->pos();
-            if (!fw->isWindow())
-                if (QWidget *p = fw->parentWidget())
-                    pos = p->pos(); // in workspace
-
-            m_geometries.insert(fw, QRect(pos - desktopOffset + workspaceOffset,
-                                            fw->size()));
-        }
-
         fw->setParent(0);
     }
 
@@ -396,12 +464,13 @@ void QDesignerWorkbench::switchToDockedMode()
     mw->setCentralWidget(m_mdiArea);
     m_core->setTopLevel(mw);
     (void) mw->statusBar();
-    if (m_geometries.isEmpty()) {
+    if (m_Positions.isEmpty()) {
         settings.setGeometryFor(mw, qApp->desktop()->availableGeometry(0));
     } else {
         if (QDesignerToolWindow *widgetBox = findToolWindow(core()->widgetBox())) {
-            QRect r = m_geometries.value(widgetBox, QRect(0, 0, 200, 200));
-            mw->move(r.topLeft());
+            const PositionMap::const_iterator pit = m_Positions.constFind(widgetBox);
+            const QPoint pos = pit != m_Positions.constEnd() ? pit->position() : QPoint(0, 0);
+            mw->move(pos);
         }
         mw->setWindowState(mw->windowState() | Qt::WindowMaximized);
     }
@@ -431,29 +500,33 @@ void QDesignerWorkbench::switchToDockedMode()
         }
 
         dockWidget->setWidget(tw);
-    }
-
-    foreach (QDesignerToolWindow *tw, m_toolWindows) {
-        QDockWidget *dockWidget = magicalDockWidget(tw);
-        tw->setVisible(true);
-        dockWidget->setVisible(m_visibilities.value(tw, true));
+        const PositionMap::const_iterator pit = m_Positions.constFind(tw);
+        if (pit != m_Positions.constEnd()) pit->applyTo(dockWidget);
     }
 
     mw->restoreState(settings.mainWindowState(), 2);
-
+    
     foreach (QDesignerFormWindow *fw, m_formWindows) {
         QMdiSubWindow *w = m_mdiArea->addSubWindow(fw, magicalWindowFlags(fw));
         w->setMinimumSize(QSize(0, 0));
         w->hide();
     }
-    // will be shown in adjustFormPositions
-
     changeBringToFrontVisiblity(false);
-
     mw->show();
+    // Trigger adjustMDIFormPositions() delayed as viewport size is not yet known.
 
     if (!m_initializing)
-        QMetaObject::invokeMethod(this, "adjustFormPositions", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, "adjustMDIFormPositions", Qt::QueuedConnection);
+}
+
+void QDesignerWorkbench::adjustMDIFormPositions()
+{
+    const QPoint mdiAreaOffset =  m_mdiArea->pos();
+
+    foreach (QDesignerFormWindow *fw, m_formWindows) {
+        const PositionMap::const_iterator pit = m_Positions.constFind(fw);
+        if (pit != m_Positions.constEnd()) pit->applyTo(mdiSubWindowOf(fw), mdiAreaOffset);
+    }
 }
 
 bool QDesignerWorkbench::eventFilter(QObject *object, QEvent *event)
@@ -480,24 +553,6 @@ bool QDesignerWorkbench::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-void QDesignerWorkbench::adjustFormPositions()
-{
-    if (m_mdiArea == 0)
-        return;
-
-    const QPoint workspace_tl = m_mdiArea->mapToGlobal(QPoint(0, 0));
-
-    foreach (QDesignerFormWindow *fw, m_formWindows) {
-        if (QMdiSubWindow *mdiSubWindow = qobject_cast<QMdiSubWindow *>(fw->parentWidget())) {
-            const QSize decorationSize = mdiSubWindow->geometry().size() - mdiSubWindow->contentsRect().size(); // TODO new API
-            const QRect g = m_geometries.value(fw, fw->geometryHint());
-            mdiSubWindow->move(g.topLeft() - workspace_tl);
-            mdiSubWindow->resize(g.size() + decorationSize);
-            mdiSubWindow->show();
-        }
-    }
-}
-
 void QDesignerWorkbench::changeBringToFrontVisiblity(bool visible)
 {
     QAction *btf = m_actionManager->bringToFrontAction();
@@ -513,7 +568,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
     if (m_mode == TopLevelMode)
         return;
 
-    // make sure that the widgetbox is visible iff it is different from neutrol.
+    // make sure that the widgetbox is visible if it is different from neutral.
     if (m_mode != NeutralMode) {
         if (QDesignerToolWindow *widgetbox_tool = findToolWindow(core()->widgetBox())) {
             if (!widgetbox_tool->action()->isChecked())
@@ -522,7 +577,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
     }
 
     switchToNeutralMode();
-    QPoint desktopOffset = QApplication::desktop()->availableGeometry().topLeft();
+    const QPoint desktopOffset = QApplication::desktop()->availableGeometry().topLeft();
     m_mode = TopLevelMode;
 
     // The widget box is special, it gets the menubar and gets to be the main widget.
@@ -560,10 +615,8 @@ void QDesignerWorkbench::switchToTopLevelMode()
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
         fw->setParent(magicalParent(), magicalWindowFlags(fw));
-        QRect g = m_geometries.value(fw, fw->geometryHint());
-        fw->resize(g.size());
-        fw->move(g.topLeft() + desktopOffset);
-        fw->show();
+        const PositionMap::const_iterator pit = m_Positions.constFind(fw);
+        if (pit != m_Positions.constEnd()) pit->applyTo(fw, desktopOffset);
     }
 }
 
@@ -1022,3 +1075,5 @@ QDesignerFormWindow * QDesignerWorkbench::openTemplate(const QString &templateFi
     rc->show();
     return rc;
 }
+
+

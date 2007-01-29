@@ -101,8 +101,13 @@ QRect QDesignerFormWindow::geometryHint() const
     return QRect(QPoint(0, 0), sizeHint());
 }
 
-QSize QDesignerFormWindow::sizeHint () const 
-{
+QSize QDesignerFormWindow::sizeHint() const 
+{    
+    // If we have a container, we want to be just as big.
+    // QMdiSubWindow attempts to resize its children to sizeHint() when switching user interface modes.
+    if (QWidget *mainContainer = m_editor->mainContainer())
+        return mainContainer->size();
+
     return m_editor->sizeHint();
 }
 

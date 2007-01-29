@@ -119,7 +119,7 @@ private slots:
     void updateWindowMenu(QDesignerFormWindowInterface *fw);
     void formWindowActionTriggered(QAction *a);
     void showToolBars();
-    void adjustFormPositions();
+    void adjustMDIFormPositions();
 
 private:
     QWidget *magicalParent() const;
@@ -134,7 +134,7 @@ private:
 private:
     QDesignerFormWindow *loadForm(const QString &fileName, bool *uic3Converted, QString *errorMessage);
     void resizeForm(QDesignerFormWindow *fw,  const QWidget *mainContainer) const;
-
+    void saveGeometries();
     QDesignerFormEditorInterface *m_core;
     qdesigner_internal::QDesignerIntegration *m_integration;
 
@@ -160,8 +160,26 @@ private:
     QList<QDesignerFormWindow*> m_formWindows;
 
     QMdiArea *m_mdiArea;
-    QHash<QWidget*, bool> m_visibilities;
-    QHash<QWidget*, QRect> m_geometries;
+    
+    // Helper class to remember the position of a window while switching user interface modes.
+    class Position {
+    public:
+        Position(const QDockWidget *dockWidget);
+        Position(const QMdiSubWindow *mdiSubWindow, const QPoint &mdiAreaOffset);
+        Position(const QWidget *topLevelWindow, const QPoint &desktopTopLeft);
+
+        void applyTo(QMdiSubWindow *mdiSubWindow, const QPoint &mdiAreaOffset) const;
+        void applyTo(QWidget *topLevelWindow, const QPoint &desktopTopLeft) const;
+        void applyTo(QDockWidget *dockWidget) const;
+
+        QPoint position() const { return m_position; }
+    private:
+        bool m_minimized;
+        // Position referring to top-left corner (desktop in top-level mode or main window in MDI mode)
+        QPoint m_position;
+    };
+    typedef  QHash<QWidget*, Position> PositionMap;
+    PositionMap m_Positions;
 
     QSet<QDesignerToolWindow*> m_toolWindowExtras;
     QSet<QDesignerFormWindow*> m_formWindowExtras;
