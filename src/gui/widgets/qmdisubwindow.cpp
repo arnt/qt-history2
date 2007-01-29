@@ -1209,6 +1209,7 @@ QStyleOptionTitleBar QMdiSubWindowPrivate::titleBarOptions() const
                                            QStyle::SC_TitleBarLabel, q).width();
     QString title = q->isWindowModified() ? q->windowTitle()
                 : qt_setWindowTitle_helperHelper(q->windowTitle(), const_cast<QMdiSubWindow *>(q));
+    title.replace(QLatin1String("[*]"), QLatin1String("*"));
     titleBarOptions.text = titleBarOptions.fontMetrics.elidedText(title, Qt::ElideRight, width);
     return titleBarOptions;
 }
@@ -2007,8 +2008,7 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
             d->updateWindowTitle(true);
             d->lastChildWindowTitle = d->baseWidget->windowTitle();
         } else if (maximizedButtonsWidget() && d->controlContainer->menuBar()
-                                               ->cornerWidget(Qt::TopRightCorner)
-                                               == maximizedButtonsWidget()) {
+                   ->cornerWidget(Qt::TopRightCorner) == maximizedButtonsWidget()) {
             if (d->baseWidget && d->baseWidget->windowTitle() == windowTitle())
                 d->updateWindowTitle(true);
             else
@@ -2023,8 +2023,6 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
             break;
         if (windowTitle().contains(QLatin1String("[*]")))
             setWindowModified(windowModified);
-        if (isMaximized() && !d->drawTitleBarWhenMaximized())
-            window()->setWindowModified(windowModified);
         break;
     }
     default:
@@ -2098,6 +2096,14 @@ bool QMdiSubWindow::event(QEvent *event)
     case QEvent::WindowTitleChange:
         if (!d->ignoreWindowTitleChange)
             d->updateWindowTitle(false);
+        break;
+    case QEvent::ModifiedChange:
+        if (!windowTitle().contains(QLatin1String("[*]")))
+            break;
+        if (maximizedButtonsWidget() && d->controlContainer->menuBar()
+                ->cornerWidget(Qt::TopRightCorner) == maximizedButtonsWidget()) {
+            window()->setWindowModified(isWindowModified());
+        }
         break;
     case QEvent::LayoutDirectionChange:
         d->updateDirtyRegions();
