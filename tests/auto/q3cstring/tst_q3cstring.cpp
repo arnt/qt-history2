@@ -7,20 +7,14 @@
 **
 ****************************************************************************/
 
-// tst_Q3CString.cpp: implementation of the tst_Q3CString class.
-//
-//////////////////////////////////////////////////////////////////////
-
+#include <QtTest/QtTest>
 #include <q3cstring.h>
+#include <qregexp.h>
 #include <qtextstream.h>
 
-#include "QtTest/QtTest"
 
-Q_DECLARE_METATYPE(Q3CString)
-
-
-//TESTED_CLASS=Q3CString
-//TESTED_FILE=$(QTDIR)/include/q3cstring.h
+//TESTED_CLASS=
+//TESTED_FILES=compat/tools/q3cstring.h compat/tools/q3cstring.cpp
 
 class tst_Q3CString : public QObject
 {
@@ -30,9 +24,10 @@ public:
     tst_Q3CString();
     virtual ~tst_Q3CString();
 
-    virtual void init();
-    virtual void cleanup();
 
+public slots:
+    void init();
+    void cleanup();
 private slots:
     void setExpand();
     void check_QTextStream();
@@ -41,6 +36,8 @@ private slots:
     void replace_uint_uint();
     void replace_string_data();
     void replace_string();
+    void replace_regexp_data();
+    void replace_regexp();
     void remove_uint_uint_data();
     void remove_uint_uint();
     void prepend();
@@ -71,7 +68,10 @@ private slots:
 
     // testfunctions?
     void remove_string_data();
+    void remove_regexp_data();
 };
+
+Q_DECLARE_METATYPE(Q3CString)
 
 tst_Q3CString::tst_Q3CString()
 {
@@ -97,6 +97,11 @@ void tst_Q3CString::remove_uint_uint_data()
 void tst_Q3CString::remove_string_data()
 {
     replace_string_data();
+}
+
+void tst_Q3CString::remove_regexp_data()
+{
+    replace_regexp_data();
 }
 
 void tst_Q3CString::length_data()
@@ -176,6 +181,30 @@ void tst_Q3CString::replace_string_data()
     QTest::newRow( "rep01" ) << Q3CString("$()*+.?[\\]^{|}") << Q3CString("$()*+.?[\\]^{|}") << Q3CString("X") << Q3CString("X");
     QTest::newRow( "rep02" ) << Q3CString("ABCDEF") << Q3CString("") << Q3CString("X") << Q3CString("XAXBXCXDXEXFX");
     QTest::newRow( "rep03" ) << Q3CString("") << Q3CString("") << Q3CString("X") << Q3CString("X");
+}
+
+void tst_Q3CString::replace_regexp_data()
+{
+    QTest::addColumn<Q3CString>("string");
+    QTest::addColumn<Q3CString>("regexp");
+    QTest::addColumn<Q3CString>("after");
+    QTest::addColumn<Q3CString>("result");
+
+    QTest::newRow( "rem00" ) << Q3CString("alpha") << Q3CString("a+") << Q3CString("") << Q3CString("lph");
+#if QT_VERSION >= 0x030100
+    QTest::newRow( "rem01" ) << Q3CString("banana") << Q3CString("^.a") << Q3CString("") << Q3CString("nana");
+#endif
+    QTest::newRow( "rem02" ) << Q3CString("") << Q3CString("^.a") << Q3CString("") << Q3CString("");
+    QTest::newRow( "rem03" ) << Q3CString("") << Q3CString("^.a") << Q3CString(0) << Q3CString("");
+    QTest::newRow( "rem04" ) << Q3CString(0) << Q3CString("^.a") << Q3CString("") << Q3CString(0);
+    QTest::newRow( "rem05" ) << Q3CString(0) << Q3CString("^.a") << Q3CString(0) << Q3CString(0);
+
+#if QT_VERSION >= 0x030100
+    QTest::newRow( "rep00" ) << Q3CString("A <i>bon mot</i>.") << Q3CString("<i>([^<]*)</i>") << Q3CString("\\emph{\\1}") << Q3CString("A \\emph{bon mot}.");
+    QTest::newRow( "rep01" ) << Q3CString("banana") << Q3CString("^.a()") << Q3CString("\\1") << Q3CString("nana");
+    QTest::newRow( "rep02" ) << Q3CString("banana") << Q3CString("(ba)") << Q3CString("\\1X\\1") << Q3CString("baXbanana");
+    QTest::newRow( "rep03" ) << Q3CString("banana") << Q3CString("(ba)(na)na") << Q3CString("\\2X\\1") << Q3CString("naXba");
+#endif
 }
 
 void tst_Q3CString::length()
@@ -498,6 +527,15 @@ void tst_Q3CString::contains()
 {
     Q3CString a;
     a="ABCDEFGHIEfGEFG"; // 15 chars
+#if QT_VERSION < 0x040000
+    QCOMPARE(a.contains('A'),1);
+    QCOMPARE(a.contains('Z'),0);
+    QCOMPARE(a.contains('E'),3);
+    QCOMPARE(a.contains('F'),2);
+    QCOMPARE(a.contains('F',FALSE),3);
+    QCOMPARE(a.contains("FG"),2);
+    QCOMPARE(a.contains("FG",FALSE),3);
+#else
     QVERIFY(a.contains('A'));
     QVERIFY(!a.contains('Z'));
     QVERIFY(a.contains('E'));
@@ -508,6 +546,7 @@ void tst_Q3CString::contains()
     QCOMPARE(a.count('E'),3);
     QCOMPARE(a.count('F'),2);
     QCOMPARE(a.count("FG"),2);
+#endif
 //    QCOMPARE(a.contains(QRegExp("[FG][HI]")),1);
 //    QCOMPARE(a.contains(QRegExp("[G][HE]")),2);
 }
@@ -734,6 +773,21 @@ void tst_Q3CString::replace_string()
 #endif
 }
 
+void tst_Q3CString::replace_regexp()
+{
+#if QT_VERSION >= 0x040000
+    QSKIP("This functionality has been removed in Qt 4.", SkipAll);
+#else
+    QFETCH( Q3CString, string );
+    QFETCH( Q3CString, regexp );
+    QFETCH( Q3CString, after );
+    QFETCH( Q3CString, result );
+
+    string.replace( QRegExp(regexp), after );
+    QVERIFY( string == result );
+#endif
+}
+
 void tst_Q3CString::remove_uint_uint()
 {
     QFETCH( Q3CString, string );
@@ -746,6 +800,8 @@ void tst_Q3CString::remove_uint_uint()
 	Q3CString s1 = string;
 	s1.remove( (uint) index, (uint) len );
 	QVERIFY( s1 == result );
+    } else {
+	QSKIP("Test data applies only to replace_uint_uint(), not remove_uint_uint()", SkipSingle);
     }
 }
 
