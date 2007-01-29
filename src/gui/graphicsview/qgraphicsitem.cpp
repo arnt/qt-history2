@@ -3495,21 +3495,52 @@ void QGraphicsItem::prepareGeometryChange()
 static void qt_graphicsItem_highlightSelected(
     QGraphicsItem *item, QPainter *painter, const QStyleOptionGraphicsItem *option)
 {
-    const QRectF rect1 = painter->transform().mapRect(QRectF(0, 0, 1, 1));
-    const qreal divisor = qMax(rect1.width(), rect1.height());
-    if (qFuzzyCompare(divisor, qreal(0.0)))
-        return;
-    const qreal penWidth = qreal(1.0) / divisor;
-    const qreal padFract = qreal(0.05);
-    const qreal pad =
-        qMin(padFract * item->boundingRect().width(), padFract * item->boundingRect().height());
-
-    const QRectF rect2 = painter->transform().mapRect(item->boundingRect());
-    const qreal minExt = qMin(rect2.width(), rect2.height());
-    if (minExt < qreal(1.0))
+    const QRectF murect = painter->transform().mapRect(QRectF(0, 0, 1, 1));
+    if (qFuzzyCompare(qMax(murect.width(), murect.height()), qreal(0.0)))
         return;
 
-    painter->setPen(QPen(option->palette.windowText(), penWidth, Qt::DashLine));
+    const QRectF mbrect = painter->transform().mapRect(item->boundingRect());
+    if (qMin(mbrect.width(), mbrect.height()) < qreal(1.0))
+        return;
+
+    qreal itemPenWidth;
+    switch (item->type()) {
+        case QGraphicsEllipseItem::Type:
+            itemPenWidth = static_cast<QGraphicsEllipseItem *>(item)->pen().widthF();
+            break;
+        case QGraphicsPathItem::Type:
+            itemPenWidth = static_cast<QGraphicsPathItem *>(item)->pen().widthF();
+            break;
+        case QGraphicsPolygonItem::Type:
+            itemPenWidth = static_cast<QGraphicsPolygonItem *>(item)->pen().widthF();
+            break;
+        case QGraphicsRectItem::Type:
+            itemPenWidth = static_cast<QGraphicsRectItem *>(item)->pen().widthF();
+            break;
+        case QGraphicsSimpleTextItem::Type:
+            itemPenWidth = static_cast<QGraphicsSimpleTextItem *>(item)->pen().widthF();
+            break;
+        case QGraphicsLineItem::Type:
+            itemPenWidth = static_cast<QGraphicsLineItem *>(item)->pen().widthF();
+            break;
+        default:
+            itemPenWidth = 1.0;
+    }
+    const qreal pad = itemPenWidth / 2;
+
+    const qreal penWidth = 0; // cosmetic pen
+
+    const QColor fgcolor = option->palette.windowText().color();
+    const QColor bgcolor( // ensure good contrast against fgcolor
+        fgcolor.red()   > 127 ? 0 : 255,
+        fgcolor.green() > 127 ? 0 : 255,
+        fgcolor.blue()  > 127 ? 0 : 255);
+
+    painter->setPen(QPen(bgcolor, penWidth, Qt::SolidLine));
+    painter->setBrush(Qt::NoBrush);
+    painter->drawRect(item->boundingRect().adjusted(pad, pad, -pad, -pad));
+
+    painter->setPen(QPen(option->palette.windowText(), 0, Qt::DashLine));
     painter->setBrush(Qt::NoBrush);
     painter->drawRect(item->boundingRect().adjusted(pad, pad, -pad, -pad));
 }
