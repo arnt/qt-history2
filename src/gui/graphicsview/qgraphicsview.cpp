@@ -1850,8 +1850,6 @@ QPoint QGraphicsView::mapFromScene(const QPointF &point) const
 */
 QPolygon QGraphicsView::mapFromScene(const QRectF &rect) const
 {
-    if (!rect.isValid())
-        return QPolygon();
     return QPolygon(QVector<QPoint>()
                     << mapFromScene(rect.topLeft())
                     << mapFromScene(rect.topRight())
