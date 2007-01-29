@@ -253,6 +253,7 @@ public:
     void storeMouseEvent(QMouseEvent *event);
 
     QPointF lastCenterPoint;
+    bool keepLastCenterPoint;
     Qt::Alignment alignment;
 
     QGraphicsView::ViewportAnchor transformationAnchor;
@@ -298,7 +299,9 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
       sceneInteractionAllowed(true), hasSceneRect(false), accelerateScrolling(true),
       leftIndent(0), topIndent(0), lastItemUnderCursor(0),
       lastMouseEvent(QEvent::None, QPoint(), Qt::NoButton, 0, 0),
-      useLastMouseEvent(false), alignment(Qt::AlignCenter),
+      useLastMouseEvent(false),
+      keepLastCenterPoint(true),
+      alignment(Qt::AlignCenter),
       transformationAnchor(QGraphicsView::AnchorViewCenter), resizeAnchor(QGraphicsView::NoAnchor),
       viewportUpdateMode(QGraphicsView::MinimalViewportUpdate),
       scene(0),
@@ -1022,6 +1025,7 @@ void QGraphicsView::setScene(QGraphicsScene *scene)
         d->scene->d_func()->views << this;
         d->recalculateContentSize();
         d->lastCenterPoint = sceneRect().center();
+        d->keepLastCenterPoint = true;
     }
 }
 
@@ -2891,12 +2895,13 @@ void QGraphicsView::resizeEvent(QResizeEvent *event)
     d->recalculateContentSize();
 
     // Restore the center point again.
-    if (d->resizeAnchor == NoAnchor) {
+    if (d->resizeAnchor == NoAnchor && !d->keepLastCenterPoint) {
         d->updateLastCenterPoint();
     } else {
         d->lastCenterPoint = oldLastCenterPoint;
     }
     d->centerView(d->resizeAnchor);
+    d->keepLastCenterPoint = false;
 
     if (d->cacheMode & CacheBackground) {
         // Invalidate the background pixmap
