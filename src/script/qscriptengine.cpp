@@ -185,6 +185,7 @@ QScriptEngine::~QScriptEngine()
 {
     Q_D(QScriptEngine);
     d->popContext();
+    d->objectAllocator.destruct();
 #ifdef QT_NO_QOBJECT
     delete d_ptr;
     d_ptr = 0;

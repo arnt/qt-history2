@@ -85,6 +85,9 @@ public:
         m_force_gc(false) {}
 
     inline ~GCAlloc() {
+    }
+
+    inline void destruct() {
         GCBlock *blk = m_free;
 
         if (! blk) {
