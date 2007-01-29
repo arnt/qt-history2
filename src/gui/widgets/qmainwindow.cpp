@@ -738,28 +738,6 @@ void QMainWindow::setVerticalTabsEnabled(bool enabled)
     d_func()->layout->setVerticalTabsEnabled(enabled);
 }
 
-/*! \property QMainWindow::verticalTitleBarsEnabled
-    \brief whether dock widgets have vertical title bars
-    \since 4.3
-
-    If this property is set to false, dock widgets have horizontal
-    title bars on top.
-
-    If this property is set to true, dock widgets have vertical title
-    bars on their left. This can help increase the ammount of vertical
-    space available in a QMainWindow.
-*/
-
-bool QMainWindow::verticalTitleBarsEnabled() const
-{
-    return d_func()->layout->verticalTitleBarsEnabled();
-}
-
-void QMainWindow::setVerticalTitleBarsEnabled(bool b)
-{
-    return d_func()->layout->setVerticalTitleBarsEnabled(b);
-}
-
 static bool checkDockWidgetArea(Qt::DockWidgetArea area, const char *where)
 {
     switch (area) {

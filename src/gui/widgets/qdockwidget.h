@@ -50,8 +50,9 @@ public:
         DockWidgetClosable    = 0x01,
         DockWidgetMovable     = 0x02,
         DockWidgetFloatable   = 0x04,
+        DockWidgetVerticalTitleBar = 0x08,
 
-        DockWidgetFeatureMask = 0x07,
+        DockWidgetFeatureMask = 0x0f,
         AllDockWidgetFeatures = DockWidgetFeatureMask,
         NoDockWidgetFeatures  = 0x00,
 
@@ -67,6 +68,9 @@ public:
 
     void setAllowedAreas(Qt::DockWidgetAreas areas);
     Qt::DockWidgetAreas allowedAreas() const;
+
+    void setTitleBarWidget(QWidget *widget);
+    QWidget *titleBarWidget() const;
 
     inline bool isAreaAllowed(Qt::DockWidgetArea area) const
     { return (allowedAreas() & area) == area; }

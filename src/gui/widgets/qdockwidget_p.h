@@ -111,7 +111,7 @@ public:
 
     void setGeometry(const QRect &r);
 
-    enum Role { Content, CloseButton, FloatButton, RoleCount };
+    enum Role { Content, CloseButton, FloatButton, TitleBar, RoleCount };
     QWidget *widget(Role r) const;
     void setWidget(Role r, QWidget *w);
     QLayoutItem *item(Role r) const;
@@ -122,7 +122,7 @@ public:
     int titleHeight() const;
     void updateMaxSize();
 
-    void setVerticalTitleBars(bool b);
+    void setVerticalTitleBar(bool b);
 
     bool verticalTitleBar;
 

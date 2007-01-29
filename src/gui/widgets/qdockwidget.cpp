@@ -34,7 +34,6 @@
 #include <qmacstyle_mac.h>
 #endif
 
-
 static inline bool hasFeature(const QDockWidget *dockwidget, QDockWidget::DockWidgetFeature feature)
 { return (dockwidget->features() & feature) == feature; }
 
@@ -220,23 +219,21 @@ QSize QDockWidgetLayout::sizeFromContent(const QSize &content, bool floating) co
         result.setWidth(qMax(content.width(), minimumTitleWidth()));
     }
 
-    if (floating) {
-        // Add frame and title only on X11
+    QDockWidget *w = qobject_cast<QDockWidget*>(parentWidget());
+    bool customTitleBar = item_list[TitleBar] != 0;
+    bool nativeDeco = floating && !customTitleBar;
 #ifdef Q_WS_X11
-        QDockWidget *w = qobject_cast<QDockWidget*>(parentWidget());
-        int fw = w->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, 0);
-        if (verticalTitleBar)
-            result += QSize(titleHeight() + 2*fw, 2*fw);
-        else
-            result += QSize(2*fw, titleHeight() + 2*fw);
+    nativeDeco = false;
 #endif
-    } else {
-        // We paint title on all platforms, no frame
-        if (verticalTitleBar)
-            result += QSize(titleHeight(), 0);
-        else
-            result += QSize(0, titleHeight());
-    }
+
+    int fw = floating && !nativeDeco
+            ? w->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, 0)
+            : 0;
+
+    if (verticalTitleBar && !nativeDeco)
+        result += QSize(titleHeight() + 2*fw, 2*fw);
+    else
+        result += QSize(2*fw, titleHeight() + 2*fw);
 
     result.setHeight(qMin(result.height(), (int) QWIDGETSIZE_MAX));
     result.setWidth(qMin(result.width(), (int) QWIDGETSIZE_MAX));
@@ -294,6 +291,8 @@ void QDockWidgetLayout::setWidget(Role r, QWidget *w)
     } else {
         item_list[r] = 0;
     }
+
+    invalidate();
 }
 
 static int pick(bool vertical, const QSize &size)
@@ -310,6 +309,9 @@ int QDockWidgetLayout::minimumTitleWidth() const
 {
     QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
 
+    if (QWidget *title = widget(TitleBar))
+        return pick(verticalTitleBar, title->minimumSizeHint());
+
     QSize closeSize(0, 0);
     QSize floatSize(0, 0);
     if (QLayoutItem *item = item_list[CloseButton])
@@ -319,8 +321,8 @@ int QDockWidgetLayout::minimumTitleWidth() const
 
     int titleHeight = this->titleHeight();
 
-    int fw = q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, q);
     int mw = q->style()->pixelMetric(QStyle::PM_DockWidgetTitleMargin, 0, q);
+    int fw = q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, q);
 
     return pick(verticalTitleBar, closeSize)
             + pick(verticalTitleBar, floatSize)
@@ -330,6 +332,9 @@ int QDockWidgetLayout::minimumTitleWidth() const
 int QDockWidgetLayout::titleHeight() const
 {
     QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
+
+    if (QWidget *title = widget(TitleBar))
+        return perp(verticalTitleBar, title->sizeHint());
 
     QSize closeSize(0, 0);
     QSize floatSize(0, 0);
@@ -359,16 +364,18 @@ void QDockWidgetLayout::setGeometry(const QRect &geometry)
 {
     QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
 
-#ifndef Q_WS_X11
-    if (q->isFloating()) {
+    bool nativeDeco = q->isFloating() && item_list[TitleBar] == 0;
+#ifdef Q_WS_X11
+    nativeDeco = false;
+#endif
+    int fw = q->isFloating() && !nativeDeco
+            ? q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, 0)
+            : 0;
+
+    if (nativeDeco) {
         if (QLayoutItem *item = item_list[Content])
             item->setGeometry(geometry);
-    } else
-#endif
-    {
-        int fw = 0;
-        if (q->isFloating())
-            fw = q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, q);
+    } else {
         int titleHeight = this->titleHeight();
 
         if (verticalTitleBar) {
@@ -382,16 +389,28 @@ void QDockWidgetLayout::setGeometry(const QRect &geometry)
         QStyleOptionDockWidgetV2 opt;
         q->initStyleOption(&opt);
 
-        if (QLayoutItem *item = item_list[CloseButton]) {
-            QRect r = q->style()->subElementRect(QStyle::SE_DockWidgetCloseButton, &opt, q);
-            if (!r.isNull())
-                item->setGeometry(r);
-        }
+        if (QLayoutItem *item = item_list[TitleBar]) {
+            item->setGeometry(_titleArea);
+        } else {
+            if (QLayoutItem *item = item_list[CloseButton]) {
+                if (!item->isEmpty()) {
+                    QRect r = q->style()
+                        ->subElementRect(QStyle::SE_DockWidgetCloseButton,
+                                            &opt, q);
+                    if (!r.isNull())
+                        item->setGeometry(r);
+                }
+            }
 
-        if (QLayoutItem *item = item_list[FloatButton]) {
-            QRect r = q->style()->subElementRect(QStyle::SE_DockWidgetFloatButton, &opt, q);
-            if (!r.isNull())
-                item->setGeometry(r);
+            if (QLayoutItem *item = item_list[FloatButton]) {
+                if (!item->isEmpty()) {
+                    QRect r = q->style()
+                        ->subElementRect(QStyle::SE_DockWidgetFloatButton,
+                                            &opt, q);
+                    if (!r.isNull())
+                        item->setGeometry(r);
+                }
+            }
         }
 
         if (QLayoutItem *item = item_list[Content]) {
@@ -416,7 +435,7 @@ void QDockWidgetLayout::setGeometry(const QRect &geometry)
     }
 }
 
-void QDockWidgetLayout::setVerticalTitleBars(bool b)
+void QDockWidgetLayout::setVerticalTitleBar(bool b)
 {
     if (b == verticalTitleBar)
         return;
@@ -536,24 +555,28 @@ void QDockWidgetPrivate::updateButtons()
     QStyleOptionDockWidget opt;
     q->initStyleOption(&opt);
 
+    bool customTitleBar = layout->widget(QDockWidgetLayout::TitleBar) != 0;
+    bool nativeDeco = q->isFloating() && !customTitleBar;
+#ifdef Q_WS_X11
+    nativeDeco = false;
+#endif
+    bool hideButtons = nativeDeco || customTitleBar;
+
     bool canClose = hasFeature(q, QDockWidget::DockWidgetClosable);
     bool canFloat = hasFeature(q, QDockWidget::DockWidgetFloatable);
-    bool nonX11Floating = false;
-#ifndef Q_WS_X11
-    nonX11Floating = q->isFloating(); // we use native window deocrations
-#endif
 
     QAbstractButton *button
         = qobject_cast<QAbstractButton*>(layout->widget(QDockWidgetLayout::FloatButton));
     button->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarNormalButton));
-    button->setVisible(canFloat && !nonX11Floating);
+    button->setVisible(canFloat && !hideButtons);
 
     button
         = qobject_cast <QAbstractButton*>(layout->widget(QDockWidgetLayout::CloseButton));
     button->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarCloseButton));
-    button->setVisible(canClose && !nonX11Floating);
+    button->setVisible(canClose && !hideButtons);
 
-    q->setAttribute(Qt::WA_ContentsPropagated, (canFloat || canClose) && !nonX11Floating);
+    q->setAttribute(Qt::WA_ContentsPropagated,
+                    (canFloat || canClose) && !hideButtons);
 
     layout->invalidate();
 }
@@ -1030,6 +1053,9 @@ void QDockWidget::setFeatures(QDockWidget::DockWidgetFeatures features)
     if (d->features == features)
         return;
     d->features = features;
+    QDockWidgetLayout *layout
+        = qobject_cast<QDockWidgetLayout*>(this->layout());
+    layout->setVerticalTitleBar(features & DockWidgetVerticalTitleBar);
     d->updateButtons();
     d->toggleViewAction->setEnabled((d->features & DockWidgetClosable) == DockWidgetClosable);
     emit featuresChanged(d->features);
@@ -1133,10 +1159,15 @@ void QDockWidget::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
 
-#ifndef Q_WS_X11
-    if (!isFloating())
+    QDockWidgetLayout *layout
+        = qobject_cast<QDockWidgetLayout*>(this->layout());
+    bool customTitleBar = layout->widget(QDockWidgetLayout::TitleBar) != 0;
+    bool nativeDeco = isFloating() && !customTitleBar;
+#ifdef Q_WS_X11
+    nativeDeco = false;
 #endif
-    {
+
+    if (!nativeDeco) {
         QStylePainter p(this);
         // ### Add PixelMetric to change spacers, so style may show border
         // when not floating.
@@ -1146,11 +1177,13 @@ void QDockWidget::paintEvent(QPaintEvent *event)
             p.drawPrimitive(QStyle::PE_FrameDockWidget, framOpt);
         }
 
-        // Title must be painted after the frame, since the areas overlap, and
-        // the title may wish to extend out to all sides (eg. XP style)
-        QStyleOptionDockWidgetV2 titleOpt;
-        initStyleOption(&titleOpt);
-        p.drawControl(QStyle::CE_DockWidgetTitle, titleOpt);
+        if (!customTitleBar) {
+            // Title must be painted after the frame, since the areas overlap, and
+            // the title may wish to extend out to all sides (eg. XP style)
+            QStyleOptionDockWidgetV2 titleOpt;
+            initStyleOption(&titleOpt);
+            p.drawControl(QStyle::CE_DockWidgetTitle, titleOpt);
+        }
     }
 }
 
@@ -1263,6 +1296,22 @@ QAction * QDockWidget::toggleViewAction() const
     This signal is emitted when the \l allowedAreas property changes. The
     \a allowedAreas parameter gives the new value of the property.
 */
+
+void QDockWidget::setTitleBarWidget(QWidget *widget)
+{
+    Q_D(QDockWidget);
+    QDockWidgetLayout *layout
+        = qobject_cast<QDockWidgetLayout*>(this->layout());
+    layout->setWidget(QDockWidgetLayout::TitleBar, widget);
+    d->updateButtons();
+}
+
+QWidget *QDockWidget::titleBarWidget() const
+{
+    QDockWidgetLayout *layout
+        = qobject_cast<QDockWidgetLayout*>(this->layout());
+    return layout->widget(QDockWidgetLayout::TitleBar);
+}
 
 #include "qdockwidget.moc"
 #include "moc_qdockwidget.cpp"

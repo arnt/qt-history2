@@ -27,6 +27,8 @@
 #include <QMessageBox>
 #include <QSignalMapper>
 #include <QApplication>
+#include <QPainter>
+#include <QMouseEvent>
 #include <qdebug.h>
 
 static const char * const message =
@@ -207,9 +209,111 @@ void MainWindow::_setVerticalTabsEnabled(bool enabled)
     setVerticalTabsEnabled(enabled);
 }
 
-void MainWindow::_setVerticalTitleBarsEnabled(bool enabled)
+class BlueTitleBar : public QWidget
 {
-    setVerticalTitleBarsEnabled(enabled);
+    Q_OBJECT
+public:
+    BlueTitleBar(QWidget *parent = 0);
+
+    QSize sizeHint() const { return minimumSizeHint(); }
+    QSize minimumSizeHint() const;
+protected:
+    void paintEvent(QPaintEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+private:
+    QPixmap leftPm, centerPm, rightPm;
+};
+
+QSize BlueTitleBar::minimumSizeHint() const
+{
+    QDockWidget *dw = qobject_cast<QDockWidget*>(parentWidget());
+    Q_ASSERT(dw != 0);
+    QSize result(leftPm.width() + rightPm.width(), centerPm.height());
+    if (dw->features() & QDockWidget::DockWidgetVerticalTitleBar)
+        result.transpose();
+    return result;
+}
+
+BlueTitleBar::BlueTitleBar(QWidget *parent)
+    : QWidget(parent)
+{
+    leftPm = QPixmap("titlebarLeft.png");
+    centerPm = QPixmap("titlebarCenter.png");
+    rightPm = QPixmap("titlebarRight.png");
+}
+
+void BlueTitleBar::paintEvent(QPaintEvent*)
+{
+    QPainter painter(this);
+    QRect rect = this->rect();
+
+    QDockWidget *dw = qobject_cast<QDockWidget*>(parentWidget());
+    Q_ASSERT(dw != 0);
+
+    if (dw->features() & QDockWidget::DockWidgetVerticalTitleBar) {
+        QSize s = rect.size();
+        s.transpose();
+        rect.setSize(s);
+
+        painter.translate(rect.left(), rect.top() + rect.width());
+        painter.rotate(-90);
+        painter.translate(-rect.left(), -rect.top());
+    }
+
+    painter.drawPixmap(rect.topLeft(), leftPm);
+    painter.drawPixmap(rect.topRight() - QPoint(rightPm.width() - 1, 0), rightPm);
+    QBrush brush(centerPm);
+    painter.fillRect(rect.left() + leftPm.width(), rect.top(),
+                        rect.width() - leftPm.width() - rightPm.width(),
+                        centerPm.height(), centerPm);
+}
+
+void BlueTitleBar::mousePressEvent(QMouseEvent *event)
+{
+    QPoint pos = event->pos();
+
+    QRect rect = this->rect();
+
+    QDockWidget *dw = qobject_cast<QDockWidget*>(parentWidget());
+    Q_ASSERT(dw != 0);
+
+    if (dw->features() & QDockWidget::DockWidgetVerticalTitleBar) {
+        QPoint p = pos;
+        pos.setX(rect.left() + rect.bottom() - p.y());
+        pos.setY(rect.top() + p.x() - rect.left());
+
+        QSize s = rect.size();
+        s.transpose();
+        rect.setSize(s);
+    }
+
+    const int buttonRight = 7;
+    const int buttonWidth = 20;
+    int right = rect.right() - pos.x();
+    int button = (right - buttonRight)/buttonWidth;
+    switch (button) {
+        case 0:
+            event->accept();
+            dw->close();
+            break;
+        case 1:
+            event->accept();
+            dw->setFloating(!dw->isFloating());
+            break;
+        case 2: {
+            event->accept();
+            QDockWidget::DockWidgetFeatures features = dw->features();
+            if (features & QDockWidget::DockWidgetVerticalTitleBar)
+                features &= ~QDockWidget::DockWidgetVerticalTitleBar;
+            else
+                features |= QDockWidget::DockWidgetVerticalTitleBar;
+            dw->setFeatures(features);
+            break;
+        }
+        default:
+            event->ignore();
+            break;
+    }
 }
 
 void MainWindow::setupDockWidgets()
@@ -228,11 +332,6 @@ void MainWindow::setupDockWidgets()
     action->setCheckable(true);
     action->setChecked(verticalTabsEnabled());
     connect(action, SIGNAL(toggled(bool)), this, SLOT(_setVerticalTabsEnabled(bool)));
-
-    action = dockWidgetMenu->addAction(tr("Vertical title bars"));
-    action->setCheckable(true);
-    action->setChecked(verticalTitleBarsEnabled());
-    connect(action, SIGNAL(toggled(bool)), this, SLOT(_setVerticalTitleBarsEnabled(bool)));
 
     dockWidgetMenu->addSeparator();
 
@@ -287,6 +386,8 @@ void MainWindow::setupDockWidgets()
         ColorSwatch *swatch = new ColorSwatch(tr(sets[i].name), this, Qt::WindowFlags(sets[i].flags));
         if (i%2)
             swatch->setWindowIcon(QIcon(QPixmap(":/res/qt.png")));
+        if (qstrcmp(sets[i].name, "Blue") == 0)
+            swatch->setTitleBarWidget(new BlueTitleBar(swatch));
         addDockWidget(sets[i].area, swatch);
         dockWidgetMenu->addMenu(swatch->menu);
     }
@@ -329,3 +430,5 @@ void MainWindow::switchLayoutDirection()
     else
         qApp->setLayoutDirection(Qt::LeftToRight);
 }
+
+#include "mainwindow.moc"

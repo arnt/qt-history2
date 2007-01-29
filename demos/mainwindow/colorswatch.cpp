@@ -245,6 +245,11 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFl
     floatableAction->setCheckable(true);
     connect(floatableAction, SIGNAL(triggered(bool)), SLOT(changeFloatable(bool)));
 
+    verticalTitleBarAction = new QAction(tr("Vertical title bar"), this);
+    verticalTitleBarAction->setCheckable(true);
+    connect(verticalTitleBarAction, SIGNAL(triggered(bool)),
+            SLOT(changeVerticalTitleBar(bool)));
+
     floatingAction = new QAction(tr("Floating"), this);
     floatingAction->setCheckable(true);
     connect(floatingAction, SIGNAL(triggered(bool)), SLOT(changeFloating(bool)));
@@ -328,6 +333,7 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFl
     menu->addAction(movableAction);
     menu->addAction(floatableAction);
     menu->addAction(floatingAction);
+    menu->addAction(verticalTitleBarAction);
     menu->addSeparator();
     menu->addActions(allowedAreasActions->actions());
     menu->addSeparator();
@@ -357,11 +363,14 @@ void ColorSwatch::updateContextMenu()
         floatableAction->setEnabled(false);
         floatingAction->setEnabled(false);
         movableAction->setEnabled(false);
+        verticalTitleBarAction->setChecked(false);
     } else {
         floatableAction->setChecked(features() & QDockWidget::DockWidgetFloatable);
         floatingAction->setChecked(isWindow());
         // done after floating, to get 'floatable' correctly initialized
         movableAction->setChecked(features() & QDockWidget::DockWidgetMovable);
+        verticalTitleBarAction
+            ->setChecked(features() & QDockWidget::DockWidgetVerticalTitleBar);
     }
 
     allowLeftAction->setChecked(isAreaAllowed(Qt::LeftDockWidgetArea));
@@ -517,5 +526,11 @@ void ColorSwatch::placeTop(bool p)
 
 void ColorSwatch::placeBottom(bool p)
 { place(Qt::BottomDockWidgetArea, p); }
+
+void ColorSwatch::changeVerticalTitleBar(bool on)
+{
+    setFeatures(on ? features() | DockWidgetVerticalTitleBar
+                    : features() & ~DockWidgetVerticalTitleBar);
+}
 
 #include "colorswatch.moc"

@@ -140,7 +140,6 @@ public:
 
 #ifndef QT_NO_DOCKWIDGET
     bool dockNestingEnabled;
-    bool verticalTitleBars;
 
     void setCorner(Qt::Corner corner, Qt::DockWidgetArea area);
     Qt::DockWidgetArea corner(Qt::Corner corner) const;
@@ -155,8 +154,6 @@ public:
     void raise(QDockWidget *widget);
     void setVerticalTabsEnabled(bool enabled);
     bool verticalTabsEnabled() const;
-    void setVerticalTitleBarsEnabled(bool enabled);
-    bool verticalTitleBarsEnabled() const;
 
 #ifndef QT_NO_TABBAR
     QTabBar *getTabBar();
