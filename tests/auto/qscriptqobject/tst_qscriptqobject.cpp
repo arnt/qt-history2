@@ -159,6 +159,8 @@ public:
         { m_qtFunctionInvoked = 13; return this; }
     Q_INVOKABLE QObjectList myInvokableWithQObjectListArg(const QObjectList &lst)
         { m_qtFunctionInvoked = 14; m_actuals << qVariantFromValue(lst); return lst; }
+    Q_INVOKABLE QVariant myInvokableWithVariantArg(const QVariant &v)
+        { m_qtFunctionInvoked = 15; m_actuals << v; return v; }
 
     void emitMySignal()
         { emit mySignal(); }
@@ -613,6 +615,19 @@ void tst_QScriptExtQObject::callQtInvokable()
         QCOMPARE(ret.property(QLatin1String("0")).isQObject(), true);
         QCOMPARE(ret.property(QLatin1String("0")).toQObject(), m_myObject);
     }
+
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithVariantArg(myObject.variantProperty)");
+        QCOMPARE(ret.isVariant(), true);
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 15);
+        QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+        QCOMPARE(m_myObject->qtFunctionActuals().at(0), m_myObject->variantProperty());
+        QCOMPARE(ret.toVariant(), m_myObject->variantProperty());
+    }
+
+    m_engine->globalObject().setProperty("fishy", m_engine->newVariant(123));
+    m_engine->evaluate("myObject.myInvokableWithStringArg(fishy)");
 }
 
 void tst_QScriptExtQObject::connectAndDisconnect()

@@ -21,6 +21,7 @@
 #include "qscriptable.h"
 #include "qscriptable_p.h"
 
+#include <QtCore/QBitArray>
 #include <QtCore/QtDebug>
 #include <QtCore/QMetaMethod>
 #include "qscriptextqobject_p.h"
@@ -784,6 +785,7 @@ void QScript::QtFunction::execute(QScriptContext *context)
     }
 
     QList<QVariant> vlist; // ### use QVector
+    QBitArray argIsVariant;
     for (int index = m_initialIndex; index >= 0; --index) {
         QMetaMethod method = meta->method(index);
         QList<QByteArray> parameterTypes = method.parameterTypes();
@@ -804,39 +806,55 @@ void QScript::QtFunction::execute(QScriptContext *context)
 
         bool converted = true;
         vlist.clear();
+        argIsVariant.resize(1 + parameterTypes.count());
 
-        int rtype = QMetaType::type(method.typeName());
-        if (rtype == 0 && (qstrlen(method.typeName()) > 0)) {
-            result = context->throwError(
-                QScriptContext::TypeError,
-                QString::fromUtf8("cannot call %0::%1(): unknown return type `%2'")
-                .arg(QLatin1String(meta->className()))
-                .arg(QLatin1String(funName))
-                .arg(QLatin1String(method.typeName())));
-            continue;
+        QByteArray returnTypeName = method.typeName();
+        int rtype = QMetaType::type(returnTypeName);
+        if (rtype == 0 && !returnTypeName.isEmpty()) {
+            if (returnTypeName == "QVariant") {
+                argIsVariant.setBit(0, true);
+            } else {
+                result = context->throwError(
+                    QScriptContext::TypeError,
+                    QString::fromUtf8("cannot call %0::%1(): unknown return type `%2'")
+                    .arg(QLatin1String(meta->className()))
+                    .arg(QLatin1String(funName))
+                    .arg(QLatin1String(method.typeName())));
+                continue;
+            }
+        } else {
+            argIsVariant.setBit(0, false);
         }
         vlist.append(QVariant(rtype, (void *)0)); // the result
 
         for (int i = 0; converted && i < context->argumentCount(); ++i) {
+            QScriptValue arg = context->argument(i);
             QByteArray argTypeName = parameterTypes.at(i);
             int atype = QMetaType::type(argTypeName);
-            if (atype == 0 && !argTypeName.isEmpty()) {
-                result = context->throwError(
-                    QScriptContext::TypeError,
-                    QString::fromUtf8("cannot call %0::%1(): unknown argument type `%2'")
-                    .arg(QLatin1String(meta->className()))
-                    .arg(QString::fromLatin1(funName))
-                    .arg(QLatin1String(argTypeName)));
-                converted = false;
-                continue;
+            QVariant v(atype, (void *)0);
+
+            if (atype == 0) {
+                // either void (OK), QVariant (OK) or some other, unknown type (not OK)
+                if (!argTypeName.isEmpty()) {
+                    if (argTypeName == "QVariant") {
+                        argIsVariant.setBit(1 + i, true);
+                        v = arg.toVariant();
+                    } else {
+                        result = context->throwError(
+                            QScriptContext::TypeError,
+                            QString::fromUtf8("cannot call %0::%1(): unknown argument type `%2'")
+                            .arg(QLatin1String(meta->className()))
+                            .arg(QString::fromLatin1(funName))
+                            .arg(QLatin1String(argTypeName)));
+                        converted = false;
+                        continue;
+                    }
+                }
+            } else {
+                argIsVariant.setBit(1 + i, false);
+                converted = QScriptEnginePrivate::get(eng)->convert(arg, atype, v.data());
             }
 
-            QScriptValue arg = context->argument(i);
-            QVariant v(atype, (void *)0);
-            if (arg.isVariant())
-                v = arg.toVariant();
-            else
-                converted = QScriptEnginePrivate::get(eng)->convert(arg, atype, v.data());
             if (!converted) {
                 if ((atype >= 256) && arg.isNumber()) {
                     // see if it's an enum value
@@ -859,8 +877,13 @@ void QScript::QtFunction::execute(QScriptContext *context)
         if (converted) {
             void **params = new void*[vlist.count()];
 
-            for (int i = 0; i < vlist.count(); ++i)
-                params[i] = const_cast<void*>(vlist.at(i).constData());
+            for (int i = 0; i < vlist.count(); ++i) {
+                const QVariant &v = vlist.at(i);
+                if (argIsVariant.at(i))
+                    params[i] = const_cast<QVariant*>(&v);
+                else
+                    params[i] = const_cast<void*>(v.constData());
+            }
 
             QScriptable *scriptable = scriptableFromQObject(thisQObject);
             QScriptEngine *oldEngine = 0;
@@ -877,11 +900,12 @@ void QScript::QtFunction::execute(QScriptContext *context)
             if (context->state() == QScriptContext::ExceptionState) {
                 result = context->returnValue(); // propagate
             } else {
-                int returnType = QMetaType::type(method.typeName());
-                if (returnType != 0) {
-                    result = QScriptEnginePrivate::get(eng)->create(returnType, params[0]);
+                if (rtype != 0) {
+                    result = QScriptEnginePrivate::get(eng)->create(rtype, params[0]);
                     if (!result.isValid())
-                        result = eng->newVariant(QVariant(returnType, params[0]));
+                        result = eng->newVariant(QVariant(rtype, params[0]));
+                } else if (returnTypeName == "QVariant") {
+                    result = eng->newVariant(*(QVariant *)params[0]);
                 } else {
                     result = eng->undefinedValue();
                 }
