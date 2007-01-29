@@ -41,9 +41,9 @@ static void sendMousePress(QWidget *widget, const QPoint &point, Qt::MouseButton
     QApplication::sendEvent(widget, &event);
 }
 
-static void sendMouseMove(QWidget *widget, const QPoint &point)
+static void sendMouseMove(QWidget *widget, const QPoint &point, Qt::MouseButton button = Qt::NoButton)
 {
-    QMouseEvent event(QEvent::MouseMove, point, Qt::NoButton, 0, 0);
+    QMouseEvent event(QEvent::MouseMove, point, button, 0, 0);
     QApplication::sendEvent(widget, &event);
 }
 
@@ -69,6 +69,7 @@ private slots:
     void viewport();
     void dragMode_scrollHand();
     void dragMode_rubberBand();
+    void rubberBandSelectionMode();
     void backgroundBrush();
     void foregroundBrush();
     void matrix();
@@ -609,6 +610,32 @@ void tst_QGraphicsView::dragMode_rubberBand()
         view.setScene(&scene);
         view.centerOn(0, 0);
     }
+}
+
+void tst_QGraphicsView::rubberBandSelectionMode()
+{
+    QGraphicsScene scene;
+    QGraphicsRectItem *rect = scene.addRect(QRectF(0, 0, 100, 100));
+    rect->setFlag(QGraphicsItem::ItemIsSelectable);
+
+    QGraphicsView view(&scene);
+    QCOMPARE(view.rubberBandSelectionMode(), Qt::IntersectsItemShape);
+    view.setDragMode(QGraphicsView::RubberBandDrag);
+    view.show();
+    
+    QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>());
+    sendMousePress(view.viewport(), QPoint(), Qt::LeftButton);
+    sendMouseMove(view.viewport(), view.viewport()->rect().center(), Qt::LeftButton);
+    QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>() << rect);
+    sendMouseRelease(view.viewport(), QPoint(), Qt::LeftButton);
+
+    view.setRubberBandSelectionMode(Qt::ContainsItemShape);
+    QCOMPARE(view.rubberBandSelectionMode(), Qt::ContainsItemShape);
+    sendMousePress(view.viewport(), QPoint(), Qt::LeftButton);
+    sendMouseMove(view.viewport(), view.viewport()->rect().center(), Qt::LeftButton);
+    QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>());
+    sendMouseMove(view.viewport(), view.viewport()->rect().bottomRight(), Qt::LeftButton);
+    QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>() << rect);
 }
 
 void tst_QGraphicsView::backgroundBrush()
