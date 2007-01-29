@@ -135,7 +135,6 @@ private slots:
     void openRecentForm();
     void clearRecentFiles();
     void closeForm();
-    void minimizeForm();
     void showDesignerHelp();
     void showWhatsNew();
     void aboutPlugins();

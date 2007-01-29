@@ -106,6 +106,8 @@ public slots:
     void removeFormWindow(QDesignerFormWindow *formWindow);
     void setUIMode(UIMode mode);
     void bringAllToFront();
+    void toggleFormMinimizationState();
+
 // ### private slots:
     void switchToNeutralMode();
     void switchToDockedMode();
@@ -120,7 +122,8 @@ private slots:
     void formWindowActionTriggered(QAction *a);
     void showToolBars();
     void adjustMDIFormPositions();
-
+    void minimizationStateChanged(QDesignerFormWindowInterface *formWindow, bool minimized);
+  
 private:
     QWidget *magicalParent() const;
     Qt::WindowFlags magicalWindowFlags(const QWidget *widgetForFlags) const;
@@ -135,6 +138,9 @@ private:
     QDesignerFormWindow *loadForm(const QString &fileName, bool *uic3Converted, QString *errorMessage);
     void resizeForm(QDesignerFormWindow *fw,  const QWidget *mainContainer) const;
     void saveGeometries();
+    bool isFormWindowMinimized(const QDesignerFormWindow *fw);
+    void setFormWindowMinimized(QDesignerFormWindow *fw, bool minimized);
+    
     QDesignerFormEditorInterface *m_core;
     qdesigner_internal::QDesignerIntegration *m_integration;
 

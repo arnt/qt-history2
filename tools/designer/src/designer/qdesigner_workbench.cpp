@@ -220,6 +220,10 @@ void QDesignerWorkbench::addFormWindow(QDesignerFormWindow *formWindow)
     }
 
     m_actionManager->minimizeAction()->setEnabled(true);
+    m_actionManager->minimizeAction()->setChecked(false);
+    connect(formWindow, SIGNAL(minimizationStateChanged(QDesignerFormWindowInterface *, bool)),
+            this, SLOT(minimizationStateChanged(QDesignerFormWindowInterface *, bool)));
+
     m_actionManager->editWidgets()->trigger();
 }
 
@@ -875,27 +879,33 @@ void QDesignerWorkbench::setUIMode(UIMode mode)
     }
 }
 
-void QDesignerWorkbench::updateWindowMenu(QDesignerFormWindowInterface *fw)
+void QDesignerWorkbench::updateWindowMenu(QDesignerFormWindowInterface *fwi)
 {
+    if (!fwi)
+        return;
+    QDesignerFormWindow *fw = qobject_cast<QDesignerFormWindow *>(fwi->parentWidget());
     if (!fw)
         return;
-    if (QDesignerFormWindow *dfw = qobject_cast<QDesignerFormWindow *>(fw->parentWidget()))
-        dfw->action()->setChecked(true);
+    
+    fw->action()->setChecked(true);    
+    m_actionManager->minimizeAction()->setChecked(isFormWindowMinimized(fw));    
 }
 
 void QDesignerWorkbench::formWindowActionTriggered(QAction *a)
 {
-    QWidget *widget = a->parentWidget();
-    Q_ASSERT(widget != 0);
-
+    QDesignerFormWindow *fw = qobject_cast<QDesignerFormWindow *>(a->parentWidget());
+    Q_ASSERT(fw);
+    
+    if (isFormWindowMinimized(fw))
+        setFormWindowMinimized(fw, false);
+    
     if (m_mode == DockedMode) {
-        if (QMdiSubWindow *subWindow = qobject_cast<QMdiSubWindow *>(widget->parent())) {
+        if (QMdiSubWindow *subWindow = qobject_cast<QMdiSubWindow *>(fw->parent())) {
             m_mdiArea->setActiveSubWindow(subWindow);
         }
     } else {
-        widget->setWindowState(widget->windowState() & ~Qt::WindowMinimized);
-        widget->activateWindow();
-        widget->raise();
+        fw->activateWindow();
+        fw->raise();
     }
 }
 
@@ -1076,4 +1086,61 @@ QDesignerFormWindow * QDesignerWorkbench::openTemplate(const QString &templateFi
     return rc;
 }
 
+void QDesignerWorkbench::minimizationStateChanged(QDesignerFormWindowInterface *formWindow, bool minimized)
+{
+    // refresh the minimize action state
+    if (core()->formWindowManager()->activeFormWindow() == formWindow) {
+        m_actionManager->minimizeAction()->setChecked(minimized);
+    }
+}
 
+
+void QDesignerWorkbench::toggleFormMinimizationState()
+{
+    QDesignerFormWindowInterface *fwi = core()->formWindowManager()->activeFormWindow();
+    if (!fwi || m_mode == NeutralMode)
+        return;
+    QDesignerFormWindow *fw = qobject_cast<QDesignerFormWindow *>(fwi->parentWidget());
+    Q_ASSERT(fw);
+    setFormWindowMinimized(fw, !isFormWindowMinimized(fw));
+}
+
+bool QDesignerWorkbench::isFormWindowMinimized(const QDesignerFormWindow *fw)
+{
+    switch (m_mode) {
+    case DockedMode:
+        return mdiSubWindowOf(fw)->isShaded();
+    case TopLevelMode: 
+        return fw->window()->isMinimized();
+    default:
+        break;
+    }
+    return fw->isMinimized();
+}
+
+void QDesignerWorkbench::setFormWindowMinimized(QDesignerFormWindow *fw, bool minimized)
+{
+    switch (m_mode) {
+    case DockedMode: {
+        QMdiSubWindow *mdiSubWindow = mdiSubWindowOf(fw);
+        if (minimized) {
+            mdiSubWindow->showShaded();
+        } else {
+            mdiSubWindow->setWindowState(mdiSubWindow->windowState() & ~Qt::WindowMinimized);
+        }
+    }
+        break;
+    case TopLevelMode:        {
+        QWidget *window = fw->window();
+        if (window->isMinimized()) {
+            window->setWindowState(window->windowState() & ~Qt::WindowMinimized);
+        } else {
+            window->showMinimized();
+        }
+    }
+        break;
+    default:
+        break;
+    }
+}
+ 

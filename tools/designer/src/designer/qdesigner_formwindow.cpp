@@ -35,6 +35,8 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QUndoCommand>
+#include <QtGui/QWindowStateChangeEvent>
+
 
 QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags),
@@ -90,6 +92,14 @@ void QDesignerFormWindow::changeEvent(QEvent *e)
         case QEvent::WindowIconChange:
             m_action->setIcon(windowIcon());
             break;
+    case QEvent::WindowStateChange: {
+        const  QWindowStateChangeEvent *wsce =  static_cast<const QWindowStateChangeEvent *>(e);
+        const bool wasMinimized = Qt::WindowMinimized & wsce->oldState();
+        const bool isMinimizedNow = isMinimized();
+        if (wasMinimized != isMinimizedNow ) 
+            emit minimizationStateChanged(m_editor, isMinimizedNow);
+    }
+        break;
         default:
             break;
     }

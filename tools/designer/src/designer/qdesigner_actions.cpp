@@ -327,8 +327,9 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 //
     m_minimizeAction = new QAction(tr("&Minimize"), this);
     m_minimizeAction->setEnabled(false);
+    m_minimizeAction->setCheckable(true);
     m_minimizeAction->setShortcut(tr("CTRL+M"));
-    connect(m_minimizeAction, SIGNAL(triggered()), this, SLOT(minimizeForm()));
+    connect(m_minimizeAction, SIGNAL(triggered()), m_workbench, SLOT(toggleFormMinimizationState()));
     m_windowActions->addAction(m_minimizeAction);
 
     sep = new QAction(this);
@@ -1008,20 +1009,6 @@ void QDesignerActions::addRecentFile(const QString &fileName)
     updateRecentFileActions();
 }
 
-void QDesignerActions::minimizeForm()
-{
-    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
-        if (m_workbench->mode() == QDesignerWorkbench::DockedMode) {
-            if (QWidget *formwindow = fw->parentWidget()) {
-                if (QMdiSubWindow *mdiSubWindow = qobject_cast<QMdiSubWindow *>(formwindow->parentWidget())) {
-                    mdiSubWindow ->showShaded();
-                }
-            }
-        } else {
-            fw->parentWidget()->showMinimized();
-        }
-    }
-}
 
 QAction *QDesignerActions::minimizeAction() const
 {

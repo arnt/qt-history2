@@ -41,6 +41,9 @@ public slots:
     void updateChanged();
     void geometryChanged();
 
+signals:
+    void minimizationStateChanged(QDesignerFormWindowInterface *formWindow, bool minimized);
+    
 protected:
     virtual void changeEvent(QEvent *e);
     virtual void closeEvent(QCloseEvent *ev);
