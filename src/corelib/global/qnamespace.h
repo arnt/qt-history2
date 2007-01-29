@@ -42,6 +42,8 @@ Qt {
     Q_ENUMS(CursorShape)
     Q_FLAGS(TextInteractionFlags)
     Q_ENUMS(AspectRatioMode)
+    Q_ENUMS(Key)
+    Q_FLAGS(KeyboardModifiers MouseButtons)
 public:
 #endif
     enum GlobalColor {
