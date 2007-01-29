@@ -208,12 +208,16 @@ void QTipLabel::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == hideTimer.timerId()){
         hideTimer.stop();
-#ifdef Q_WS_MAC
-        // Fade out tip on mac (makes it invisible).
-        // The tip will not be deleted until a new tip is shown.
-        TransitionWindowOptions options = {0, 0, 0, 0};
-        TransitionWindowWithOptions(qt_mac_window_for(this), kWindowFadeTransitionEffect, kWindowHideTransitionAction, 0, 1, &options);
-        QTipLabel::instance->fadingOut = true; // will never be false again.
+#if defined(Q_WS_MAC) && !defined(QT_NO_EFFECTS)
+        if (QApplication::isEffectEnabled(Qt::UI_FadeTooltip)){
+            // Fade out tip on mac (makes it invisible).
+            // The tip will not be deleted until a new tip is shown.
+            TransitionWindowOptions options = {0, 0, 0, 0};
+            TransitionWindowWithOptions(qt_mac_window_for(this), kWindowFadeTransitionEffect, kWindowHideTransitionAction, 0, 1, &options);
+            QTipLabel::instance->fadingOut = true; // will never be false again.
+        }
+        else
+            hideTipImmidiatly();
 #else
         hideTipImmidiatly();
 #endif
@@ -350,7 +354,7 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w, cons
         QTipLabel::instance->placeTip(pos, w);
         QTipLabel::instance->setObjectName(QLatin1String("qtooltip_label"));
 
-#ifndef QT_NO_EFFECTS
+#if !defined(QT_NO_EFFECTS) && !defined(Q_WS_MAC)
         if (QApplication::isEffectEnabled(Qt::UI_AnimateTooltip))
             qScrollEffect(QTipLabel::instance);
         else if (QApplication::isEffectEnabled(Qt::UI_FadeTooltip))

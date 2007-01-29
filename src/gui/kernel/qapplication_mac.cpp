@@ -2261,6 +2261,7 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
         QApplicationPrivate::animate_toolbox = enable;
         break;
     case Qt::UI_General:
+        QApplicationPrivate::fade_tooltip = true;
         break;
     default:
         QApplicationPrivate::animate_ui = enable;
