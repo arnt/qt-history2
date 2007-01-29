@@ -1545,15 +1545,40 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
     case CE_DockWidgetTitle:
         painter->save();
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option)) {
-            QRect r = dwOpt->rect.adjusted(0, 0, -1, 0);
+            const QStyleOptionDockWidgetV2 *v2
+                = qstyleoption_cast<const QStyleOptionDockWidgetV2*>(dwOpt);
+            bool verticalTitleBar = v2 == 0 ? false : v2->verticalTitleBar;
+
+            QRect rect = dwOpt->rect;
+            QRect titleRect = subElementRect(SE_DockWidgetTitleBarText, option, widget);
+            if (verticalTitleBar) {
+                QRect r = rect;
+                QSize s = r.size();
+                s.transpose();
+                r.setSize(s);
+
+                titleRect = QRect(r.left() + rect.bottom()
+                                    - titleRect.bottom(),
+                                r.top() + titleRect.left() - rect.left(),
+                                titleRect.height(), titleRect.width());
+
+                painter->translate(r.left(), r.top() + r.width());
+                painter->rotate(-90);
+                painter->translate(-r.left(), -r.top());
+
+                rect = r;
+            }
+
+            QRect r = rect.adjusted(0, 0, -1, 0);
             painter->setPen(option->palette.light().color());
             painter->drawRect(r.adjusted(1, 1, 1, 1));
             painter->setPen(shadow);
             painter->drawRect(r);
 
             if (!dwOpt->title.isEmpty()) {
-                QRect titleRect = subElementRect(SE_DockWidgetTitleBarText, option, widget);
-                QString titleText = painter->fontMetrics().elidedText(dwOpt->title, Qt::ElideRight, titleRect.width());
+                QString titleText
+                    = painter->fontMetrics().elidedText(dwOpt->title,
+                                            Qt::ElideRight, titleRect.width());
                 drawItemText(painter,
                              titleRect,
                              Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, dwOpt->palette,
@@ -4015,10 +4040,10 @@ QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptio
         switch (subControl) {
         case SC_MDICloseButton:
             offset += buttonWidth + 2;
-            //FALL THROUGH   
+            //FALL THROUGH
         case SC_MDINormalButton:
-            offset += buttonWidth;    
-            //FALL THROUGH   
+            offset += buttonWidth;
+            //FALL THROUGH
         case SC_MDIMinButton:
             rect = QRect(offset, 0, buttonWidth, option->rect.height());
             break;
@@ -4152,10 +4177,17 @@ QRect QCleanlooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, c
         r.adjust(0, 1, 0, -1);
         break;
     case SE_DockWidgetTitleBarText: {
-        if (QApplication::layoutDirection() == Qt::LeftToRight)
-            r.adjust(4, 0, 0, 0);
-        else
-            r.adjust(0, 0, -4, 0);
+        const QStyleOptionDockWidgetV2 *v2
+            = qstyleoption_cast<const QStyleOptionDockWidgetV2*>(opt);
+        bool verticalTitleBar = v2 == 0 ? false : v2->verticalTitleBar;
+        if (verticalTitleBar) {
+            r.adjust(0, 0, 0, -4);
+        } else {
+            if (QApplication::layoutDirection() == Qt::LeftToRight)
+                r.adjust(4, 0, 0, 0);
+            else
+                r.adjust(0, 0, -4, 0);
+        }
 
         break;
     }

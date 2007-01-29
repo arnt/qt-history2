@@ -1480,7 +1480,6 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                     r.setSize(s);
 
                     p->save();
-                    p->save();
                     p->translate(r.left(), r.top() + r.width());
                     p->rotate(-90);
                     p->translate(-r.left(), -r.top());
