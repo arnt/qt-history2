@@ -1349,10 +1349,8 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
     Q_D(QListView);
     if (!d->selectionModel)
         return;
-    
+
     QItemSelection selection;
-    if (!QRect(QPoint(0, 0), d->contentsSize()).intersects(rect))
-        return;
 
     if (rect.width() == 1 && rect.height() == 1) {
         d->intersectingSet(rect.translated(horizontalOffset(), verticalOffset()));
@@ -1365,7 +1363,6 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
         if (state() == DragSelectingState) { // visual selection mode (rubberband selection)
             selection = d->selection(rect.translated(horizontalOffset(), verticalOffset()));
         } else { // logical selection mode (key and mouse click selection)
-
             QModelIndex tl, br;
             // get the first item
             const QRect topLeft(rect.left() + horizontalOffset(), rect.top() + verticalOffset(), 1, 1);
@@ -1377,49 +1374,31 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
             d->intersectingSet(bottomRight);
             if (!d->intersectVector.isEmpty())
                 br = d->intersectVector.last();
-
             // get the ranges
             if (tl.isValid() && br.isValid()) {
+                // top rectangle
                 QRect top = rectForIndex(tl);
+                if (isRightToLeft())
+                    top.setLeft(0);
+                else
+                    top.setRight(contentsSize().width() - top.left());
+                // bottom rectangle
                 QRect bottom = rectForIndex(br);
-                // if bottom is above top, swap them
-                if (top.center().y() > bottom.center().y()) {
-                    QRect tmp = top;
-                    top = bottom;
-                    bottom = tmp;
-                }
-                // if the rect are on differnet lines, expand
-                if (top.top() != bottom.top()) {
-                    // top rectangle
-                    if (isRightToLeft())
-                        top.setLeft(0);
-                    else
-                        top.setRight(contentsSize().width());
-                    // bottom rectangle
-                    if (isRightToLeft())
-                        bottom.setRight(contentsSize().width());
-                    else
-                        bottom.setLeft(0);
-                } else if (top.left() > bottom.right()) {
-                    if (isRightToLeft())
-                        bottom.setLeft(top.right());
-                    else
-                        bottom.setRight(top.left());
-                    
-                }
+                if (isRightToLeft())
+                    bottom.setRight(contentsSize().width() - top.left());
+                else
+                    bottom.setLeft(0);
                 // middle rectangle
                 QRect middle;
-                if (top.bottom() < bottom.top()) {
-                    middle.setTop(top.bottom() + 1);
-                    middle.setLeft(qMin(top.left(), bottom.left()));
-                    middle.setBottom(bottom.top() - 1);
-                    middle.setRight(qMax(top.right(), bottom.right()));
-                }
- 
+                middle.setTop(top.bottom());
+                middle.setLeft(qMin(top.left(), bottom.left()));
+                middle.setBottom(bottom.top());
+                middle.setRight(qMax(top.right(), bottom.right()));
                 // do the selections
                 QItemSelection topSelection = d->selection(top);
                 QItemSelection middleSelection = d->selection(middle);
                 QItemSelection bottomSelection = d->selection(bottom);
+
                 // merge
                 selection.merge(topSelection, QItemSelectionModel::Select);
                 selection.merge(middleSelection, QItemSelectionModel::Select);
@@ -1428,6 +1407,17 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
         }
     }
 
+    // This is to acommodate for the fact that intersectingSet can be inaccurate
+    // for the last item in a segment or for items in the last segment.
+    const QModelIndexList candidates = selection.indexes();
+    QItemSelection ignore;
+    for (int i = 0; i < candidates.count(); ++i) {
+        QModelIndex idx = candidates.at(i);
+        if (!visualRect(idx).intersects(rect)) {
+            ignore.select(idx,idx);
+        }
+    }
+    selection.merge(ignore, QItemSelectionModel::Deselect);
     d->selectionModel->select(selection, command);
 }
 
@@ -1801,11 +1791,35 @@ bool QListViewPrivate::doItemsLayout(int delta)
     info.last = last;
     info.wrap = isWrapping();
     info.flow = flow;
-    info.max = max;
 
     if (viewMode == QListView::ListMode)
         return staticListView->doBatchedItemLayout(info, max);
     return dynamicListView->doBatchedItemLayout(info, max);
+}
+
+/*!
+  \internal
+*/
+void QListViewPrivate::doItemsLayout(const QRect &bounds,
+                                     const QModelIndex &first,
+                                     const QModelIndex &last)
+{
+    if (first.row() >= last.row() || !first.isValid() || !last.isValid())
+        return;
+
+    QListViewLayoutInfo info;
+    info.bounds = bounds;
+    info.grid = gridSize();
+    info.spacing = (info.grid.isValid() ? 0 : spacing());
+    info.first = first.row();
+    info.last = last.row();
+    info.wrap = isWrapping();
+    info.flow = flow;
+
+    if (viewMode == QListView::ListMode)
+        staticListView->doStaticLayout(info);
+    else
+        dynamicListView->doDynamicLayout(info);
 }
 
 QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) const
@@ -1911,14 +1925,8 @@ QItemSelection QListViewPrivate::selection(const QRect &rect) const
             tl = br = *it; // start new range
         }
     }
-
     if (tl.isValid() && br.isValid())
         selection.select(tl, br);
-    else if (tl.isValid())
-        selection.select(tl, tl);
-    else if (br.isValid())
-        selection.select(br, br);
-
     return selection;
 }
 
@@ -2054,7 +2062,6 @@ QPoint QStaticListViewBase::initStaticLayout(const QListViewLayoutInfo &info)
         flowPositions.clear();
         segmentPositions.clear();
         segmentStartRows.clear();
-        segmentExtents.clear();
         x = info.bounds.left() + info.spacing;
         y = info.bounds.top() + info.spacing;
         segmentPositions.append(info.flow == QListView::LeftToRight ? y : x);
@@ -2137,7 +2144,6 @@ void QStaticListViewBase::doStaticLayout(const QListViewLayoutInfo &info)
             }
             // create new segment
             if (info.wrap && (flowPosition + deltaFlowPosition >= segEndPosition)) {
-                segmentExtents.append(flowPosition);
                 flowPosition = info.spacing + segStartPosition;
                 segPosition += deltaSegPosition;
                 segmentPositions.append(segPosition);
@@ -2155,11 +2161,6 @@ void QStaticListViewBase::doStaticLayout(const QListViewLayoutInfo &info)
     batchSavedPosition = flowPosition;
     batchSavedDeltaSeg = deltaSegPosition;
     batchStartRow = info.last + 1;
-    // if it is the last batch, save the end of the segments
-    if (info.last == info.max) {
-        segmentExtents.append(flowPosition - info.spacing);
-        segmentPositions.append(segPosition + deltaSegPosition);
-    }
     // set the contents size
     QRect rect = info.bounds;
     if (info.flow == QListView::LeftToRight) {
@@ -2201,15 +2202,12 @@ void QStaticListViewBase::intersectingStaticSet(const QRect &area) const
     }
     if (segmentPositions.isEmpty() || flowPositions.isEmpty())
         return;
-    // the last segment position is actually the edge of the last segment
-    const int segLast = segmentPositions.count() - 2;
+    const int segLast = segmentPositions.count() - 1;
     Q_ASSERT(segLast > -1);
-    int seg = qBinarySearch<int>(segmentPositions, segStartPosition, 0, segLast + 1);
+    int seg = qBinarySearch<int>(segmentPositions, segStartPosition, 0, segLast);
     for (; seg <= segLast && segmentPositions.at(seg) <= segEndPosition; ++seg) {
         int first = segmentStartRows.at(seg);
         int last = (seg < segLast ? segmentStartRows.at(seg + 1) : batchStartRow) - 1;
-        if (segmentExtents.at(seg) < flowStartPosition)
-            continue;
         int row = qBinarySearch<int>(flowPositions, flowStartPosition, first, last);
         for (; row <= last && flowPositions.at(row) <= flowEndPosition; ++row) {
             if (isHidden(row))
@@ -2336,7 +2334,6 @@ void QStaticListViewBase::clear()
     flowPositions.clear();
     segmentPositions.clear();
     segmentStartRows.clear();
-    segmentExtents.clear();
     batchSavedPosition = 0;
     batchStartRow = 0;
     batchSavedDeltaSeg = 0;
