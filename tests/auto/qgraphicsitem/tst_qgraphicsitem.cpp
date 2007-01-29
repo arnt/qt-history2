@@ -3615,9 +3615,9 @@ void tst_QGraphicsItem::ancestorFlags()
 
     for (int i = 0; i < 2; ++i) {
         QGraphicsItem::GraphicsItemFlag flag = !i ? QGraphicsItem::ItemClipsChildrenToShape
-                                               : QGraphicsItem::ItemIgnoresViewTransformations;
+                                               : QGraphicsItem::ItemIgnoresTransformations;
         int ancestorFlag = !i ? QGraphicsItemPrivate::AncestorClipsChildren
-                           : QGraphicsItemPrivate::AncestorIgnoresViewTransformations;
+                           : QGraphicsItemPrivate::AncestorIgnoresTransformations;
 
         QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
         QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
@@ -3740,7 +3740,7 @@ void tst_QGraphicsItem::untransformable()
 {
     QGraphicsItem *item1 = new QGraphicsEllipseItem(QRectF(-50, -50, 100, 100));
     item1->setZValue(1);
-    item1->setFlag(QGraphicsItem::ItemIgnoresViewTransformations);
+    item1->setFlag(QGraphicsItem::ItemIgnoresTransformations);
     item1->rotate(45);
     ((QGraphicsEllipseItem *)item1)->setBrush(Qt::red);
 
