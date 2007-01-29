@@ -37,6 +37,9 @@ class MyQObject : public QObject
 
     Q_PROPERTY(int intProperty READ intProperty WRITE setIntProperty)
     Q_PROPERTY(QVariant variantProperty READ variantProperty WRITE setVariantProperty)
+    Q_PROPERTY(QVariantList variantListProperty READ variantListProperty WRITE setVariantListProperty)
+    Q_PROPERTY(QString stringProperty READ stringProperty WRITE setStringProperty)
+    Q_PROPERTY(QStringList stringListProperty READ stringListProperty WRITE setStringListProperty)
     Q_PROPERTY(double hiddenProperty READ hiddenProperty WRITE setHiddenProperty SCRIPTABLE false)
     Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
     Q_PROPERTY(CustomType propWithCustomType READ propWithCustomType WRITE setPropWithCustomType)
@@ -69,7 +72,10 @@ public:
     MyQObject(QObject *parent = 0)
         : QObject(parent),
           m_intValue(123),
-          m_variantValue(QString("foo")),
+          m_variantValue(QLatin1String("foo")),
+          m_variantListValue(QVariantList() << QVariant(123) << QVariant(QLatin1String("foo"))),
+          m_stringValue(QLatin1String("bar")),
+          m_stringListValue(QStringList() << QLatin1String("zig") << QLatin1String("zag")),
           m_hiddenValue(456.0),
           m_qtFunctionInvoked(-1)
         { }
@@ -83,6 +89,21 @@ public:
         { return m_variantValue; }
     void setVariantProperty(const QVariant &value)
         { m_variantValue = value; }
+
+    QVariantList variantListProperty() const
+        { return m_variantListValue; }
+    void setVariantListProperty(const QVariantList &value)
+        { m_variantListValue = value; }
+
+    QString stringProperty() const
+        { return m_stringValue; }
+    void setStringProperty(const QString &value)
+        { m_stringValue = value; }
+
+    QStringList stringListProperty() const
+        { return m_stringListValue; }
+    void setStringListProperty(const QStringList &value)
+        { m_stringListValue = value; }
 
     double hiddenProperty() const
         { return m_hiddenValue; }
@@ -158,6 +179,9 @@ Q_SIGNALS:
 private:
     int m_intValue;
     QVariant m_variantValue;
+    QVariantList m_variantListValue;
+    QString m_stringValue;
+    QStringList m_stringListValue;
     double m_hiddenValue;
     QKeySequence m_shortcut;
     CustomType m_customType;
@@ -234,6 +258,26 @@ void tst_QScriptExtQObject::getSetStaticProperty()
              .strictEqualTo(QScriptValue(m_engine, 123.0)), true);
     QCOMPARE(m_engine->evaluate("myObject.variantProperty")
              .equalTo(QScriptValue(m_engine, QLatin1String("foo"))), true);
+    QCOMPARE(m_engine->evaluate("myObject.stringProperty")
+             .strictEqualTo(QScriptValue(m_engine, QLatin1String("bar"))), true);
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty").isArray(), true);
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty.length")
+             .strictEqualTo(QScriptValue(m_engine, 2)), true);
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[0]").isVariant(), true);
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[0]").toVariant(),
+             QVariant(123));
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[1]").isVariant(), true);
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[1]").toVariant(),
+             QVariant(QLatin1String("foo")));
+    QCOMPARE(m_engine->evaluate("myObject.stringListProperty").isArray(), true);
+    QCOMPARE(m_engine->evaluate("myObject.stringListProperty.length")
+             .strictEqualTo(QScriptValue(m_engine, 2)), true);
+    QCOMPARE(m_engine->evaluate("myObject.stringListProperty[0]").isString(), true);
+    QCOMPARE(m_engine->evaluate("myObject.stringListProperty[0]").toString(),
+             QLatin1String("zig"));
+    QCOMPARE(m_engine->evaluate("myObject.stringListProperty[1]").isString(), true);
+    QCOMPARE(m_engine->evaluate("myObject.stringListProperty[1]").toString(),
+             QLatin1String("zag"));
 
     // property change in C++ should be reflected in script
     m_myObject->setIntProperty(456);
@@ -250,6 +294,13 @@ void tst_QScriptExtQObject::getSetStaticProperty()
     QCOMPARE(m_engine->evaluate("myObject.variantProperty")
              .equalTo(QScriptValue(m_engine, 42)), true);
 
+    m_myObject->setStringProperty(QLatin1String("baz"));
+    QCOMPARE(m_engine->evaluate("myObject.stringProperty")
+             .equalTo(QScriptValue(m_engine, QLatin1String("baz"))), true);
+    m_myObject->setStringProperty(QLatin1String("zab"));
+    QCOMPARE(m_engine->evaluate("myObject.stringProperty")
+             .equalTo(QScriptValue(m_engine, QLatin1String("zab"))), true);
+
     // property change in script should be reflected in C++
     QCOMPARE(m_engine->evaluate("myObject.intProperty = 123")
              .strictEqualTo(QScriptValue(m_engine, 123)), true);
@@ -257,19 +308,70 @@ void tst_QScriptExtQObject::getSetStaticProperty()
              .strictEqualTo(QScriptValue(m_engine, 123)), true);
     QCOMPARE(m_myObject->intProperty(), 123);
     QCOMPARE(m_engine->evaluate("myObject.intProperty = \"ciao!\";"
-                                "myObject.intProperty").toNumber(), 0.0);
+                                "myObject.intProperty")
+             .strictEqualTo(QScriptValue(m_engine, 0)), true);
     QCOMPARE(m_myObject->intProperty(), 0);
     QCOMPARE(m_engine->evaluate("myObject.intProperty = \"123\";"
                                 "myObject.intProperty")
              .strictEqualTo(QScriptValue(m_engine, 123)), true);
     QCOMPARE(m_myObject->intProperty(), 123);
 
+    QCOMPARE(m_engine->evaluate("myObject.stringProperty = 'ciao'")
+             .strictEqualTo(QScriptValue(m_engine, QLatin1String("ciao"))), true);
+    QCOMPARE(m_engine->evaluate("myObject.stringProperty")
+             .strictEqualTo(QScriptValue(m_engine, QLatin1String("ciao"))), true);
+    QCOMPARE(m_myObject->stringProperty(), QLatin1String("ciao"));
+    QCOMPARE(m_engine->evaluate("myObject.stringProperty = 123;"
+                                "myObject.stringProperty")
+             .strictEqualTo(QScriptValue(m_engine, QLatin1String("123"))), true);
+    QCOMPARE(m_myObject->stringProperty(), QLatin1String("123"));
+
     QCOMPARE(m_engine->evaluate("myObject.variantProperty = \"foo\";"
                                 "myObject.variantProperty").toString(), QLatin1String("foo"));
-    QCOMPARE(m_myObject->variantProperty().toString(), QLatin1String("foo"));
+    QCOMPARE(m_myObject->variantProperty(), QVariant(QLatin1String("foo")));
     QCOMPARE(m_engine->evaluate("myObject.variantProperty = 42;"
                                 "myObject.variantProperty").toNumber(), 42.0);
     QCOMPARE(m_myObject->variantProperty().toDouble(), 42.0);
+
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty = [1, 'two', true];"
+                                "myObject.variantListProperty.length")
+             .strictEqualTo(QScriptValue(m_engine, 3)), true);
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[0]").isVariant(), true);
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[0]").toVariant(),
+             QVariant(1));
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[1]").isVariant(), true);
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[1]").toVariant(),
+             QVariant(QLatin1String("two")));
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[2]").isVariant(), true);
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[2]").toVariant(),
+             QVariant(true));
+    {
+        QVariantList vl = qscriptvalue_cast<QVariantList>(m_engine->evaluate("myObject.variantListProperty"));
+        QCOMPARE(vl, QVariantList()
+                 << QVariant(1)
+                 << QVariant(QLatin1String("two"))
+                 << QVariant(true));
+    }
+
+    QCOMPARE(m_engine->evaluate("myObject.stringListProperty = [1, 'two', true];"
+                                "myObject.stringListProperty.length")
+             .strictEqualTo(QScriptValue(m_engine, 3)), true);
+    QCOMPARE(m_engine->evaluate("myObject.stringListProperty[0]").isString(), true);
+    QCOMPARE(m_engine->evaluate("myObject.stringListProperty[0]").toString(),
+             QLatin1String("1"));
+    QCOMPARE(m_engine->evaluate("myObject.stringListProperty[1]").isString(), true);
+    QCOMPARE(m_engine->evaluate("myObject.stringListProperty[1]").toString(),
+             QLatin1String("two"));
+    QCOMPARE(m_engine->evaluate("myObject.stringListProperty[2]").isString(), true);
+    QCOMPARE(m_engine->evaluate("myObject.stringListProperty[2]").toString(),
+             QLatin1String("true"));
+    {
+        QStringList sl = qscriptvalue_cast<QStringList>(m_engine->evaluate("myObject.stringListProperty"));
+        QCOMPARE(sl, QStringList()
+                 << QLatin1String("1")
+                 << QLatin1String("two")
+                 << QLatin1String("true"));
+    }
 
     // test setting properties where we can't convert the type natively but where the
     // types happen to be compatible variant types already
@@ -361,7 +463,7 @@ void tst_QScriptExtQObject::getSetChildren()
 }
 
 template <class Container>
-QScriptValue fromContainer(QScriptEngine *eng, const Container &cont)
+QScriptValue scriptValueFromContainer(QScriptEngine *eng, const Container &cont)
 {
     QScriptValue a = eng->newArray();
     typename Container::const_iterator begin = cont.begin();
@@ -373,7 +475,7 @@ QScriptValue fromContainer(QScriptEngine *eng, const Container &cont)
 }
 
 template <class Container>
-void toContainer(const QScriptValue &value, Container &cont)
+void scriptValueToContainer(const QScriptValue &value, Container &cont)
 {
     QScriptEngine *eng = value.engine();
     Q_ASSERT(eng);
@@ -461,7 +563,7 @@ void tst_QScriptExtQObject::callQtInvokable()
     QCOMPARE(m_myObject->qtFunctionInvoked(), -1);
 
     // now we register it, and it should work
-    qScriptRegisterMetaType<QVector<int> >(m_engine, fromContainer, toContainer);
+    qScriptRegisterMetaType<QVector<int> >(m_engine, scriptValueFromContainer, scriptValueToContainer);
     {
         QScriptValue ret = m_engine->evaluate("myObject.myInvokableReturningVectorOfInt()");
         QCOMPARE(ret.isArray(), true);

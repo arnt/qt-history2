@@ -424,6 +424,9 @@ public:
     QScriptValue arrayFromStringList(const QStringList &lst);
     QStringList stringListFromArray(const QScriptValue &arr);
 
+    QScriptValue arrayFromVariantList(const QVariantList &lst);
+    QVariantList variantListFromArray(const QScriptValue &arr);
+
     bool lessThan(const QScriptValue &lhs, const QScriptValue &rhs) const;
     bool equalTo(const QScriptValue &lhs, const QScriptValue &rhs) const;
     bool strictEqualTo(const QScriptValue &lhs, const QScriptValue &rhs) const;

@@ -985,6 +985,24 @@ QStringList QScriptEnginePrivate::stringListFromArray(const QScriptValue &arr)
     return lst;
 }
 
+QScriptValue QScriptEnginePrivate::arrayFromVariantList(const QVariantList &lst)
+{
+    Q_Q(QScriptEngine);
+    QScriptValue arr = q->newArray(lst.size());
+    for (int i = 0; i < lst.size(); ++i)
+        arr.setProperty(i, q->newVariant(lst.at(i)));
+    return arr;
+}
+
+QVariantList QScriptEnginePrivate::variantListFromArray(const QScriptValue &arr)
+{
+    QVariantList lst;
+    uint len = arr.property(QLatin1String("length")).toUInt32();
+    for (uint i = 0; i < len; ++i)
+        lst.append(arr.property(i).toVariant());
+    return lst;
+}
+
 QScriptValue QScriptEnginePrivate::create(int type, const void *ptr)
 {
     Q_Q(QScriptEngine);
@@ -1028,6 +1046,9 @@ QScriptValue QScriptEnginePrivate::create(int type, const void *ptr)
             break;
         case QMetaType::QStringList:
             result = arrayFromStringList(*reinterpret_cast<const QStringList *>(ptr));
+            break;
+        case QMetaType::QVariantList:
+            result = arrayFromVariantList(*reinterpret_cast<const QVariantList *>(ptr));
             break;
         case QMetaType::QDateTime: {
             QDateTime dateTime = *reinterpret_cast<const QDateTime *>(ptr);
@@ -1100,8 +1121,12 @@ bool QScriptEnginePrivate::convert(const QScriptValue &value,
         if (value.isArray()) {
             *reinterpret_cast<QStringList *>(ptr) = stringListFromArray(value);
             return true;
-        }
-        // fallthrough
+        } break;
+    case QMetaType::QVariantList:
+        if (value.isArray()) {
+            *reinterpret_cast<QVariantList *>(ptr) = variantListFromArray(value);
+            return true;
+        } break;
     default:
     ;
     }
