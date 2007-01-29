@@ -497,6 +497,21 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
     t << endl;
 }
 
+void Win32MakefileGenerator::writeIncPart(QTextStream &t)
+{
+    t << "INCPATH       = ";
+
+    QStringList &incs = project->values("INCLUDEPATH");
+    for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
+        QString inc = (*incit);
+        inc.replace(QRegExp("\\\\$"), "");
+        inc.replace(QRegExp("\""), "");
+        t << "-I" << "\"" << inc << "\" ";
+    }
+    t << "-I\"" << specdir() << "\""
+      << endl;
+}
+
 void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 {
     t << "####### Compiler, tools and options" << endl << endl;
@@ -511,18 +526,8 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << "CXXFLAGS      = " << var("QMAKE_CXXFLAGS") << " $(DEFINES)" << endl;
     t << "LEXFLAGS      = " << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS     = " << var("QMAKE_YACCFLAGS") << endl;
-    t << "INCPATH       = ";
-
-    QStringList &incs = project->values("INCLUDEPATH");
-    for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
-        QString inc = (*incit);
-        inc.replace(QRegExp("\\\\$"), "");
-        inc.replace(QRegExp("\""), "");
-        t << "-I" << "\"" << inc << "\" ";
-    }
-    t << "-I\"" << specdir() << "\""
-      << endl;
-
+    
+    writeIncPart(t);
     writeLibsPart(t);
 
     t << "QMAKE         = " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") :

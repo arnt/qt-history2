@@ -33,6 +33,7 @@ protected:
     virtual QString defaultInstall(const QString &);
     virtual void writeCleanParts(QTextStream &t);
     virtual void writeStandardParts(QTextStream &t);
+    virtual void writeIncPart(QTextStream &t);
     virtual void writeLibDirPart(QTextStream &t);
     virtual void writeLibsPart(QTextStream &t);
     virtual void writeObjectsPart(QTextStream &t);

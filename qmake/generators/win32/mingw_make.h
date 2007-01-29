@@ -22,8 +22,11 @@ public:
     MingwMakefileGenerator();
     ~MingwMakefileGenerator();
 private:
+    bool isWindowsShell() const;
     void writeMingwParts(QTextStream &);
+    void writeIncPart(QTextStream &t);
     void writeLibsPart(QTextStream &t);
+    void writeLibDirPart(QTextStream &t);
     bool writeMakefile(QTextStream &);
     void writeObjectsPart(QTextStream &t);
     void writeBuildRulesPart(QTextStream &t);
@@ -40,6 +43,7 @@ private:
 
     bool init_flag;
     QString objectsLinkLine;
+    QString quote;
 };
 
 inline MingwMakefileGenerator::~MingwMakefileGenerator()

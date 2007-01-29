@@ -18,9 +18,21 @@
 #include <stdlib.h>
 #include <time.h>
 
-
 MingwMakefileGenerator::MingwMakefileGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
+    if (Option::shellPath.isEmpty())
+        quote = "\"";
+    else
+        quote = "'";
+}
+
+bool MingwMakefileGenerator::isWindowsShell() const
+{
+#ifdef Q_OS_WIN
+    return Option::shellPath.isEmpty();
+#else
+    return Win32MakefileGenerator::isWindowsShell();
+#endif
 }
 
 bool MingwMakefileGenerator::findLibraries()
@@ -189,7 +201,7 @@ void MingwMakefileGenerator::init()
     project->values("TARGET_PRL").append(project->first("TARGET"));
 
     processVars();
-
+    
     if (!project->values("RES_FILE").isEmpty()) {
         project->values("QMAKE_LIBS") += escapeFilePaths(project->values("RES_FILE"));
     }
@@ -257,6 +269,21 @@ void MingwMakefileGenerator::fixTargetExt()
     }
 }
 
+void MingwMakefileGenerator::writeIncPart(QTextStream &t)
+{
+    t << "INCPATH       = ";
+    
+    QStringList &incs = project->values("INCLUDEPATH");
+    for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
+        QString inc = (*incit);
+        inc.replace(QRegExp("\\\\$"), "");
+        inc.replace(QRegExp("\""), "");
+        t << "-I" << quote << inc << quote << " ";
+    }
+    t << "-I" << quote << specdir() << quote
+      << endl;
+}
+
 void MingwMakefileGenerator::writeLibsPart(QTextStream &t)
 {
     if(project->isActiveConfig("staticlib")) {
@@ -269,6 +296,14 @@ void MingwMakefileGenerator::writeLibsPart(QTextStream &t)
             writeLibDirPart(t);
         t << var("QMAKE_LIBS").replace(QRegExp("(\\slib|^lib)")," -l") << endl;
     }
+}
+
+void MingwMakefileGenerator::writeLibDirPart(QTextStream &t)
+{
+    QStringList libDirs = project->values("QMAKE_LIBDIR");
+    for (int i = 0; i < libDirs.size(); ++i)
+        libDirs[i].remove("\"");
+    t << valGlue(libDirs,"-L"+quote,quote+" -L" +quote,quote) << " ";
 }
 
 void MingwMakefileGenerator::writeObjectsPart(QTextStream &t)

@@ -68,7 +68,7 @@ QString MakefileGenerator::mkdir_p_asstring(const QString &dir, bool escape) con
     else
         ret += dir;
     ret += " ";
-    if(Option::target_mode == Option::TARG_WIN_MODE)
+    if(isWindowsShell())
         ret += "$(MKDIR)";
     else
         ret += "|| $(MKDIR)";
@@ -1323,7 +1323,7 @@ void
 MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool noBuild)
 {
     QString rm_dir_contents("-$(DEL_FILE)");
-    if(Option::target_mode != Option::TARG_WIN_MODE) //ick
+    if (!isWindowsShell()) //ick
         rm_dir_contents = "-$(DEL_FILE) -r";
 
     QString all_installs, all_uninstalls;
@@ -1472,7 +1472,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
             const QStringList &dirs = project->values(pvar);
             for(QStringList::ConstIterator pit = dirs.begin(); pit != dirs.end(); ++pit) {
                 QString tmp_dst = fileFixify((*pit), FileFixifyAbsolute, false);
-                if(Option::target_mode != Option::TARG_WIN_MODE && tmp_dst.right(1) != Option::dir_sep)
+                if (!isWindowsShell() && tmp_dst.right(1) != Option::dir_sep)
                     tmp_dst += Option::dir_sep;
                 t << mkdir_p_asstring(filePrefixRoot(root, tmp_dst)) << "\n\t";
             }

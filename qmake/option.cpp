@@ -64,6 +64,7 @@ QStringList Option::user_configs;
 QStringList Option::after_user_configs;
 QString Option::user_template;
 QString Option::user_template_prefix;
+QStringList Option::shellPath;
 #if defined(Q_OS_WIN32)
 Option::TARG_MODE Option::target_mode = Option::TARG_WIN_MODE;
 #elif defined(Q_OS_MAC)
@@ -304,6 +305,22 @@ Option::parseCommandLine(int argc, char **argv, int skip)
     return Option::QMAKE_CMDLINE_SUCCESS;
 }
 
+#ifdef Q_OS_WIN
+static QStringList detectShellPath()
+{
+    QStringList paths;
+    QString path = qgetenv("PATH");
+    QStringList pathlist = path.toLower().split(";");
+    for (int i = 0; i < pathlist.count(); i++) {
+        QString maybeSh = pathlist.at(i) + "/sh.exe";
+        if (QFile::exists(maybeSh)) {
+            paths.append(maybeSh);
+        }
+    }
+    return paths;
+}
+#endif
+
 int
 Option::init(int argc, char **argv)
 {
@@ -334,6 +351,7 @@ Option::init(int argc, char **argv)
     Option::pro_ext = ".pro";
 #ifdef Q_OS_WIN
     Option::dirlist_sep = ";";
+    Option::shellPath = detectShellPath();
 #else
     Option::dirlist_sep = ":";
 #endif

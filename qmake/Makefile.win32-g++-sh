@@ -46,7 +46,7 @@ QTOBJS= \
 	qbitarray.o \
 	qbuffer.o \
 	qbytearray.o \
-	qvsnprintf.o \
+    qvsnprintf.o \
 	qbytearraymatcher.o \
 	qconfig.o \
 	qdatetime.o \
@@ -112,10 +112,9 @@ QTOBJS= \
 	qscriptvalue.o \
 	qscriptvalueiterator.o
 
-
 qmake.exe: $(OBJS) $(QTOBJS)
 	$(LINKQMAKE)
-	-copy qmake.exe $(BUILD_PATH)\bin\qmake.exe
+	-cp qmake.exe $(BUILD_PATH)/bin/qmake.exe
 
 clean::
 	-del $(OBJS) $(QTOBJS) $(ADDCLEAN)
