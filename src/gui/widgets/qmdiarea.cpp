@@ -234,7 +234,7 @@ void SimpleCascader::rearrange(QList<QWidget *> &widgets, const QRect &domain) c
             if (!sanityCheck(widgets, i, "SimpleCascader"))
                 continue;
             QWidget *widget = widgets.at(i++);
-            QRect newGeometry = QRect(QPoint(x, y), widget->minimumSizeHint());
+            QRect newGeometry = QRect(QPoint(x, y), widget->sizeHint());
             widget->setGeometry(QStyle::visualRect(widget->layoutDirection(), domain, newGeometry));
             if (i == n)
                 return;
