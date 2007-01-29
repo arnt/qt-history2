@@ -221,9 +221,11 @@ public:
 private slots:
     void animationFinished(QWidget *widget);
     void allAnimationsFinished();
+#ifndef QT_NO_DOCKWIDGET
     void doSeparatorMove();
 #ifndef QT_NO_TABBAR
     void tabChanged();
+#endif
 #endif
 };
 
