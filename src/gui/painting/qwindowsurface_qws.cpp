@@ -428,11 +428,6 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
     QRegion dirtyExpose;
     d_ptr->clip = clip;
 
-    if (isBuffered()) {
-        dirtyExpose = expose & d_ptr->clippedDirty;
-        d_ptr->clippedDirty -= expose;
-        expose -= dirtyExpose;
-    }
 #ifndef QT_NO_QWS_MANAGER
     if (window() && !expose.isEmpty()) {
         QTLWExtra *topextra = window()->d_func()->extra->topextra;
@@ -446,6 +441,12 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
         }
     }
 #endif
+
+    if (isBuffered()) {
+        dirtyExpose = expose & d_ptr->clippedDirty;
+        d_ptr->clippedDirty -= expose;
+        expose -= dirtyExpose;
+    }
 
     if (!dirtyExpose.isEmpty()) {
         setDirty(dirtyExpose);
