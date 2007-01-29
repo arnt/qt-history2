@@ -236,8 +236,7 @@ void QThreadPrivate::finish(void *arg, bool lockAnyway)
         delete eventDispatcher;
     }
 
-    QThreadStorageData::finish(d->data->tls);
-    d->data->tls = 0;
+    QThreadStorageData::finish(reinterpret_cast<void **>(&d->data->tls));
 
     if (!d->waiters) {
         CloseHandle(d->handle);

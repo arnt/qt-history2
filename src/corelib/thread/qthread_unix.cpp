@@ -166,8 +166,7 @@ void QThreadPrivate::finish(void *arg)
         delete eventDispatcher;
     }
 
-    QThreadStorageData::finish(d->data->tls);
-    d->data->tls = 0;
+    QThreadStorageData::finish(reinterpret_cast<void **>(&d->data->tls));
 
     d->thread_id = 0;
     d->thread_done.wakeAll();
@@ -202,7 +201,7 @@ Qt::HANDLE QThread::currentThreadId()
 int QThread::idealThreadCount()
 {
     int cores = -1;
-    
+
 #if defined(Q_OS_MAC)
     // Mac OS X
     cores = MPProcessorsScheduled();
@@ -232,7 +231,7 @@ int QThread::idealThreadCount()
     // the rest: Linux, Solaris, AIX, Tru64
     cores = (int)sysconf(_SC_NPROCESSORS_ONLN);
 #endif
-    
+
     return cores;
 }
 

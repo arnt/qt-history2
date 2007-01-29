@@ -31,6 +31,7 @@
 #include "QtCore/qmutex.h"
 #include "QtCore/qstack.h"
 #include "QtCore/qwaitcondition.h"
+#include "QtCore/qhash.h"
 #include "private/qobject_p.h"
 
 class QAbstractEventDispatcher;
@@ -92,7 +93,7 @@ public:
     QStack<QEventLoop *> eventLoops;
     QPostEventList postEventList;
     bool canWait;
-    void **tls;
+    QHash<int, void *> tls;
 };
 
 #ifndef QT_NO_THREAD

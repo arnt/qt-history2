@@ -46,7 +46,7 @@
 */
 
 QThreadData::QThreadData(int initialRefCount)
-    : _ref(initialRefCount), thread(0), quitNow(false), eventDispatcher(0), canWait(true), tls(0)
+    : _ref(initialRefCount), thread(0), quitNow(false), eventDispatcher(0), canWait(true)
 {
     // fprintf(stderr, "QThreadData %p created\n", this);
 }

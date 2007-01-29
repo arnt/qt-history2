@@ -27,47 +27,24 @@
 #  define DEBUG if(false)qDebug
 #endif
 
-
-// 256 maximum + 1 used in QRegExp
-static const int MAX_THREAD_STORAGE = 257;
-
+static QBasicAtomic idCounter = Q_ATOMIC_INIT(0);
 Q_GLOBAL_STATIC(QMutex, mutex)
-
-static bool thread_storage_init = false;
-static struct {
-    bool used;
-    void (*func)(void *);
-} thread_storage_usage[MAX_THREAD_STORAGE];
-
+typedef QHash<int, void (*)(void *)> DestructorHash;
+Q_GLOBAL_STATIC(DestructorHash, destructors)
 
 QThreadStorageData::QThreadStorageData(void (*func)(void *))
-    : id(0)
+    : id(idCounter.fetchAndAdd(1))
 {
     QMutexLocker locker(mutex());
+    destructors()->insert(id, func);
 
-    // make sure things are initialized
-    if (! thread_storage_init)
-        memset(thread_storage_usage, 0, sizeof(thread_storage_usage));
-    thread_storage_init = true;
-
-    for (; id < MAX_THREAD_STORAGE; ++id) {
-        if (!thread_storage_usage[id].used)
-            break;
-    }
-
-    Q_ASSERT(id >= 0 && id < MAX_THREAD_STORAGE);
-    thread_storage_usage[id].used = true;
-    thread_storage_usage[id].func = func;
-
-    DEBUG("QThreadStorageData: Allocated id %d", id);
+    DEBUG("QThreadStorageData: Allocated id %d, destructor %p", id, func);
 }
 
 QThreadStorageData::~QThreadStorageData()
 {
     QMutexLocker locker(mutex());
-
-    // thread_storage_usage[id].used = false;
-    thread_storage_usage[id].func = 0;
+    destructors()->remove(id);
 
     DEBUG("QThreadStorageData: Released id %d", id);
 }
@@ -79,7 +56,12 @@ void **QThreadStorageData::get() const
         qWarning("QThreadStorage::get: QThreadStorage can only be used with threads started with QThread");
         return 0;
     }
-    return data->tls && data->tls[id] ? &data->tls[id] : 0;
+    QHash<int, void *>::iterator it = data->tls.find(id);
+    DEBUG("QThreadStorageData: Returning storage %d, data %p, for thread %p",
+          id,
+          it != data->tls.end() ? it.value() : 0,
+          data->thread);
+    return it != data->tls.end() && it.value() != 0 ? &it.value() : 0;
 }
 
 void **QThreadStorageData::set(void *p)
@@ -89,52 +71,69 @@ void **QThreadStorageData::set(void *p)
         qWarning("QThreadStorage::set: QThreadStorage can only be used with threads started with QThread");
         return 0;
     }
-    if (!data->tls) {
-        DEBUG("QThreadStorageData: Allocating storage %d for thread %p",
-              id, QThread::currentThread());
 
-        data->tls = new void*[MAX_THREAD_STORAGE];
-        memset(data->tls, 0, sizeof(void*) * MAX_THREAD_STORAGE);
+    QHash<int, void *>::iterator it = data->tls.find(id);
+    if (it != data->tls.end()) {
+        // delete any previous data
+        if (it.value() != 0) {
+            DEBUG("QThreadStorageData: Deleting previous storage %d, data %p, for thread %p",
+                  id,
+                  it.value(),
+                  data->thread);
+
+            void *q = it.value();
+            it.value() = 0;
+
+            mutex()->lock();
+            void (*destructor)(void *) = destructors()->value(id);
+            mutex()->unlock();
+
+            destructor(q);
+        }
+
+        // store new data
+        it.value() = p;
+        DEBUG("QThreadStorageData: Set storage %d for thread %p to %p", id, data->thread, p);
+    } else {
+        it = data->tls.insert(id, p);
+        DEBUG("QThreadStorageData: Inserted storage %d, data %p, for thread %p", id, p, data->thread);
     }
 
-    // delete any previous data
-    if (data->tls[id]) {
-        DEBUG("QThreadStorageData: Deleting previous storage %d for thread %p",
-              id, QThread::currentThread());
-
-        void *q = data->tls[id];
-        data->tls[id] = 0;
-        thread_storage_usage[id].func(q);
-    }
-
-    // store new data
-    data->tls[id] = p;
-    DEBUG("QThreadStorageData: Set storage %d for thread %p to %p",
-          id, QThread::currentThread(), p);
-    return &data->tls[id];
+    return &it.value();
 }
 
-void QThreadStorageData::finish(void **tls)
+void QThreadStorageData::finish(void **p)
 {
-    if (!tls) return; // nothing to do
+    QHash<int, void *> *tls = reinterpret_cast<QHash<int, void *> *>(p);
+    if (!tls || tls->isEmpty())
+        return; // nothing to do
 
-    DEBUG("QThreadStorageData: Destroying storage for thread %p",
-          QThread::currentThread());
+    DEBUG("QThreadStorageData: Destroying storage for thread %p", QThread::currentThread());
 
-    for (int i = 0; i < MAX_THREAD_STORAGE; ++i) {
-        if (!tls[i]) continue;
-        if (!thread_storage_usage[i].func) {
-            qWarning("QThreadStorage: Thread %p exited after QThreadStorage destroyed",
-                     QThread::currentThread());
+    QHash<int, void *>::iterator it = tls->begin();
+    while (it != tls->end()) {
+        int id = it.key();
+        void *q = it.value();
+        it.value() = 0;
+        ++it;
+
+        if (!q) {
+            // data already deleted
             continue;
         }
 
-        void *q = tls[i];
-        tls[i] = 0;
-        thread_storage_usage[i].func(q);
-    }
+        mutex()->lock();
+        void (*destructor)(void *) = destructors()->value(id);
+        mutex()->unlock();
 
-    delete [] tls;
+        if (!destructor) {
+            qWarning("QThreadStorage: Thread %p exited after QThreadStorage %d destroyed",
+                     QThread::currentThread(), id);
+            continue;
+        }
+        destructor(q);
+    }
+    tls->clear();
 }
 
 /*!
