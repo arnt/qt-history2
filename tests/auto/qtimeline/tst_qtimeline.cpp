@@ -52,6 +52,7 @@ private slots:
     void sineCurve();
     void outOfRange();
     void stateInFinishedSignal();
+    void resume();
 
 protected slots:
     void finishedSlot();
@@ -467,6 +468,8 @@ void tst_QTimeLine::stopped()
     timeLine.start();
     timeLine.stop();
     QCOMPARE(spy.count(), 2);
+    Q_UNUSED(currentFrame);
+    Q_UNUSED(currentCurrentTime);
     //QCOMPARE(timeLine.currentFrame(), currentFrame); ### Behavioral change
     //QCOMPARE(timeLine.currentTime(), currentCurrentTime);
     timeLine.setDirection(QTimeLine::Backward);
@@ -558,6 +561,43 @@ void tst_QTimeLine::finishedSlot()
     QTimeLine *timeLine = qobject_cast<QTimeLine *>(sender());
     if (timeLine)
         state = timeLine->state();
+}
+
+void tst_QTimeLine::resume()
+{
+    QTimeLine timeLine(1000);
+    {
+        QCOMPARE(timeLine.currentTime(), 0);
+        timeLine.start();
+        QTest::qWait(250);
+        timeLine.stop();
+        int oldCurrentTime = timeLine.currentTime();
+        QVERIFY(oldCurrentTime > 0);
+        QVERIFY(oldCurrentTime < 1000);
+        timeLine.resume();
+        QTest::qWait(250);
+        timeLine.stop();
+        int currentTime = timeLine.currentTime();
+        QVERIFY(currentTime > oldCurrentTime);
+        QVERIFY(currentTime < 1000);
+    }
+    timeLine.setDirection(QTimeLine::Backward);
+    {
+        timeLine.setCurrentTime(1000);
+        QCOMPARE(timeLine.currentTime(), 1000);
+        timeLine.start();
+        QTest::qWait(250);
+        timeLine.stop();
+        int oldCurrentTime = timeLine.currentTime();
+        QVERIFY(oldCurrentTime < 1000);
+        QVERIFY(oldCurrentTime > 0);
+        timeLine.resume();
+        QTest::qWait(250);
+        timeLine.stop();
+        int currentTime = timeLine.currentTime();
+        QVERIFY(currentTime < oldCurrentTime);
+        QVERIFY(currentTime > 0);
+    }
 }
 
 QTEST_MAIN(tst_QTimeLine)
