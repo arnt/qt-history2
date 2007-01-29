@@ -157,6 +157,8 @@ public:
         { m_qtFunctionInvoked = 12; }
     Q_INVOKABLE QObject *myInvokableReturningQObjectStar()
         { m_qtFunctionInvoked = 13; return this; }
+    Q_INVOKABLE QObjectList myInvokableWithQObjectListArg(const QObjectList &lst)
+        { m_qtFunctionInvoked = 14; m_actuals << qVariantFromValue(lst); return lst; }
 
     void emitMySignal()
         { emit mySignal(); }
@@ -486,10 +488,23 @@ void scriptValueToContainer(const QScriptValue &value, Container &cont)
     }
 }
 
+template<typename T>
+int qScriptRegisterContainerMetaType(
+    QScriptEngine *engine,
+    const QScriptValue &prototype = QScriptValue()
+#ifndef qdoc
+    , T * /* dummy */ = 0
+#endif
+)
+{
+    return qScriptRegisterMetaType<T>(engine, scriptValueFromContainer, scriptValueToContainer, prototype);
+}
+
 Q_DECLARE_METATYPE(QVector<int>)
 Q_DECLARE_METATYPE(QVector<double>)
 Q_DECLARE_METATYPE(QVector<QString>)
-    
+Q_DECLARE_METATYPE(QObjectList)
+
 void tst_QScriptExtQObject::callQtInvokable()
 {
     m_myObject->resetQtFunctionInvoked();
@@ -583,6 +598,20 @@ void tst_QScriptExtQObject::callQtInvokable()
         QCOMPARE(m_myObject->qtFunctionActuals().size(), 0);
         QCOMPARE(ret.isQObject(), true);
         QCOMPARE(ret.toQObject(), m_myObject);
+    }
+
+    qScriptRegisterContainerMetaType<QObjectList>(m_engine);
+
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithQObjectListArg([myObject])");
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 14);
+        QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+        QCOMPARE(ret.isArray(), true);
+        QCOMPARE(ret.property(QLatin1String("length"))
+                 .strictEqualTo(QScriptValue(m_engine, 1)), true);
+        QCOMPARE(ret.property(QLatin1String("0")).isQObject(), true);
+        QCOMPARE(ret.property(QLatin1String("0")).toQObject(), m_myObject);
     }
 }
 
