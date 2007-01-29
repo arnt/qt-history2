@@ -16,6 +16,8 @@
 #include "os.h"
 #if OS_UNIX              /* This file is used on unix only */
 
+#include <QtCore/qconfig.h>
+
 /* #define SQLITE_ENABLE_LOCKING_STYLE 0 */
 
 /*
@@ -59,7 +61,7 @@
 ** If we are to be thread-safe, include the pthreads header and define
 ** the SQLITE_UNIX_THREADS macro.
 */
-#if defined(THREADSAFE) && THREADSAFE
+#ifndef QT_NO_THREAD
 # include <pthread.h>
 # define SQLITE_UNIX_THREADS 1
 #endif
