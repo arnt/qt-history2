@@ -1294,22 +1294,6 @@ int QTime::msec() const
     return ds() % 1000;
 }
 
-
-/*!
-    Returns the time converted to milliseconds.
-    Equivalent to:
-    hour() * 36000000) + (minute() * 60000) + (second() * 1000) + msec()
-
-    Returns -1 for a null time
-
-    \sa hour(), minute(), second(), msec(), isNull()
-*/
-
-int QTime::convertToMsec() const
-{
-    return mds;
-}
-
 #ifndef QT_NO_DATESTRING
 /*!
     \overload
