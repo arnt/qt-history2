@@ -2928,6 +2928,20 @@ bool QGraphicsItem::sceneEvent(QEvent *event)
     will propagate to any item beneath this item. If no items accept the
     event, it will be ignored by the scene, and propagate to the view.
 
+    It's common to open a QMenu in response to receiving a context menu
+    event. Example:
+
+    \code
+        void CustomItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+        {
+            QMenu menu;
+            QAction *removeAction = menu.addAction("Remove");
+            QAction *markAction = menu.addAction("Mark");
+            QAction *selectedAction = menu.exec(event->screenPos());
+            // ...
+        }
+    \endcode
+
     The default implementation does nothing.
 
     \sa sceneEvent()
