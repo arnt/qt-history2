@@ -116,21 +116,22 @@ public:
 //	addDB( "QOCI", "SILENCE", "scott", "tiger" ); // Oracle 10g on silence
         
 	// This requires a local ODBC data source to be configured (pointing to a MySql database) 
-//      addDb( "QODBC", "mysqlodbc" );
+//	addDb( "QODBC", "mysqlodbc" );
 
 //	addDb( "QTDS7", "testdb", "troll", "trondk", "horsehead" );
 
 //	addDb( "QMYSQL3", "testdb", "troll", "trond", "horsehead.troll.no" );
-//      addDb( "QMYSQL3", "testdb", "troll", "trond", "horsehead.troll.no", 3307 );
+//	addDb( "QMYSQL3", "testdb", "troll", "trond", "horsehead.troll.no", 3307 );
 //	addDb( "QMYSQL3", "testdb", "troll", "trond", "horsehead.troll.no", 3308 ); // MySQL 4.1.1
-//      addDb( "QMYSQL3", "testdb", "troll", "trond", "horsehead.troll.no", 3309 ); // MySQL 5.0.18 Linux
-//      addDb( "QMYSQL3", "testdb", "troll", "trond", "iceblink.troll.no"); // MySQL 5.0.13 Windows
+//	addDb( "QMYSQL3", "testdb", "troll", "trond", "horsehead.troll.no", 3309 ); // MySQL 5.0.18 Linux
+//	addDb( "QMYSQL3", "testdb", "troll", "trond", "iceblink.troll.no"); // MySQL 5.0.13 Windows
 
 //	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no" );
 //	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no", 5434 ); // multi-byte
 //	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no", 5435 ); // V7.3
 //	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no", 5436 ); // V7.4
 //	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no", 5437 ); // V8.0.3
+//	addDb( "QPSQL7", "testdb", "troll", "trond", "silence.troll.no" );         // V8.2.1, UTF-8
 
 //	addDb( "QDB2", "testdb", "troll", "trond", "silence"); // DB2 v9.1 on silence
 
@@ -142,10 +143,11 @@ public:
 
 	// use in-memory database to prevent local files
 	addDb("QSQLITE", ":memory:");
-//      addDb("QSQLITE", "/tmp/foo.db");
+//	addDb("QSQLITE", "/tmp/foo.db");
 
 #if defined (Q_OS_WIN32)
 //	addDb( "QODBC3", "DRIVER={SQL SERVER};SERVER=ICEBLINK\\ICEBLINK;", "troll", "trond", "" );
+//	addDb( "QODBC3", "DRIVER={SQL Native Client};SERVER=SILENCE\\SQLEXPRESS;", "troll", "trond", "" );
 #endif //Q_OS_WIN32
 
 #if 0
