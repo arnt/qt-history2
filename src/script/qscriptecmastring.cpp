@@ -594,10 +594,10 @@ QScriptValue String::method_substring(QScriptEngine *eng, QScriptClassInfo *)
     qsreal end = length;
 
     if (context->argumentCount() > 0)
-        start = context->argument(0).toNumber();
+        start = context->argument(0).toInteger();
 
     if (context->argumentCount() > 1)
-        end = context->argument(1).toNumber();
+        end = context->argument(1).toInteger();
 
     if (qIsNan(start) || start < 0)
         start = 0;
