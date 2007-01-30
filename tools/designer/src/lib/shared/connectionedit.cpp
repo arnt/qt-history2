@@ -1277,6 +1277,7 @@ void ConnectionEdit::endConnection(QWidget *target, const QPoint &pos)
         new_con->setEndPoint(EndPoint::Source, source, m_tmp_con->endPointPos(EndPoint::Source));
         new_con->setEndPoint(EndPoint::Target, target, m_tmp_con->endPointPos(EndPoint::Target));
         m_undo_stack->push(new AddConnectionCommand(this, new_con));
+        emit connectionChanged(new_con);
     }
 
     delete m_tmp_con;

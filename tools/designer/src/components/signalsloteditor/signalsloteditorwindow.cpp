@@ -249,9 +249,15 @@ void ConnectionModel::connectionChanged(Connection *con)
             continue;
         c = static_cast<SignalSlotConnection*>(m_editor->connection(i));
         if (c->sender() == changedCon->sender() && c->signal() == changedCon->signal()
-            && c->receiver() == changedCon->receiver() && c->slot() == changedCon->slot())
-            QMessageBox::warning(m_editor->parentWidget(), tr("Signal and Slot Editor"),
-                tr("The connection already exists!"));
+            && c->receiver() == changedCon->receiver() && c->slot() == changedCon->slot()) {
+                QMessageBox::warning(m_editor->parentWidget(), tr("Signal and Slot Editor"),
+                    tr("The connection already exists!<br>SENDER(%1), SIGNAL(%2), RECEIVER(%3), SLOT(%4)")
+                    .arg(changedCon->sender())
+                    .arg(changedCon->signal())
+                    .arg(changedCon->receiver())
+                    .arg(changedCon->slot()));
+                break;
+        }
     }
     emit dataChanged(createIndex(idx, 0), createIndex(idx, 3));
 }
