@@ -466,42 +466,6 @@ void tst_QScriptExtQObject::getSetChildren()
 
 }
 
-template <class Container>
-QScriptValue scriptValueFromContainer(QScriptEngine *eng, const Container &cont)
-{
-    QScriptValue a = eng->newArray();
-    typename Container::const_iterator begin = cont.begin();
-    typename Container::const_iterator end = cont.end();
-    typename Container::const_iterator it;
-    for (it = begin; it != end; ++it)
-        a.setProperty(QScriptValue(eng, quint32(it - begin)).toString(), qScriptValueFromValue(eng, *it));
-    return a;
-}
-
-template <class Container>
-void scriptValueToContainer(const QScriptValue &value, Container &cont)
-{
-    QScriptEngine *eng = value.engine();
-    Q_ASSERT(eng);
-    quint32 len = value.property("length").toUInt32();
-    for (quint32 i = 0; i < len; ++i) {
-        QScriptValue item = value.property(QScriptValue(eng, i).toString());
-        cont.push_back(qscriptvalue_cast<typename Container::value_type>(item));
-    }
-}
-
-template<typename T>
-int qScriptRegisterContainerMetaType(
-    QScriptEngine *engine,
-    const QScriptValue &prototype = QScriptValue()
-#ifndef qdoc
-    , T * /* dummy */ = 0
-#endif
-)
-{
-    return qScriptRegisterMetaType<T>(engine, scriptValueFromContainer, scriptValueToContainer, prototype);
-}
-
 Q_DECLARE_METATYPE(QVector<int>)
 Q_DECLARE_METATYPE(QVector<double>)
 Q_DECLARE_METATYPE(QVector<QString>)
@@ -580,7 +544,7 @@ void tst_QScriptExtQObject::callQtInvokable()
     QCOMPARE(m_myObject->qtFunctionInvoked(), -1);
 
     // now we register it, and it should work
-    qScriptRegisterMetaType<QVector<int> >(m_engine, scriptValueFromContainer, scriptValueToContainer);
+    qScriptRegisterSequenceMetaType<QVector<int> >(m_engine);
     {
         QScriptValue ret = m_engine->evaluate("myObject.myInvokableReturningVectorOfInt()");
         QCOMPARE(ret.isArray(), true);
@@ -602,7 +566,7 @@ void tst_QScriptExtQObject::callQtInvokable()
         QCOMPARE(ret.toQObject(), m_myObject);
     }
 
-    qScriptRegisterContainerMetaType<QObjectList>(m_engine);
+    qScriptRegisterSequenceMetaType<QObjectList>(m_engine);
 
     m_myObject->resetQtFunctionInvoked();
     {

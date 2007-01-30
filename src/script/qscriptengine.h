@@ -290,6 +290,42 @@ int qScriptRegisterMetaType(
     return id;
 }
 
+template <class Container>
+QScriptValue qScriptValueFromSequence(QScriptEngine *eng, const Container &cont)
+{
+    QScriptValue a = eng->newArray();
+    typename Container::const_iterator begin = cont.begin();
+    typename Container::const_iterator end = cont.end();
+    typename Container::const_iterator it;
+    quint32 i;
+    for (it = begin, i = 0; it != end; ++it, ++i)
+        a.setProperty(i, qScriptValueFromValue(eng, *it));
+    return a;
+}
+
+template <class Container>
+void qScriptValueToSequence(const QScriptValue &value, Container &cont)
+{
+    quint32 len = value.property("length").toUInt32();
+    for (quint32 i = 0; i < len; ++i) {
+        QScriptValue item = value.property(i);
+        cont.push_back(qscriptvalue_cast<typename Container::value_type>(item));
+    }
+}
+
+template<typename T>
+int qScriptRegisterSequenceMetaType(
+    QScriptEngine *engine,
+    const QScriptValue &prototype = QScriptValue()
+#ifndef qdoc
+    , T * /* dummy */ = 0
+#endif
+)
+{
+    return qScriptRegisterMetaType<T>(engine, qScriptValueFromSequence,
+                                      qScriptValueToSequence, prototype);
+}
+
 QT_END_HEADER
 
 #endif // QSCRIPTENGINE_H

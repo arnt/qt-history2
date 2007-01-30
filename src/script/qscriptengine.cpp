@@ -111,13 +111,7 @@
   QScriptable for details.
 
   You can extend the C++ types recognized by QScriptEngine by calling
-  qScriptRegisterMetaType(). You provide the engine with functions
-  that convert between a QScriptValue and the C++ type. Once the type
-  has been registered, you can use toScriptValue() and
-  qscriptvalue_cast() to create and cast values in a convenient
-  manner. Additionally, the engine will call the proper conversion
-  functions when calling slots in QObjects from script code, and when
-  getting or setting a property of that type in the QObject.
+  qScriptRegisterMetaType() or qScriptRegisterSequenceMetaType().
 
   \sa QScriptValue, QScriptContext
 
@@ -792,7 +786,7 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     engine.globalObject().setProperty("MyStruct", ctor);
     \endcode
 
-    \sa QScriptEngine::newVariant(), qRegisterMetaType()
+    \sa qScriptRegisterSequenceMetaType(), qRegisterMetaType()
 */
 
 /*!
@@ -806,4 +800,33 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     type \a ArgType; typically the argument is the parent type of the
     new instance, in which case \a ArgType is \c{QWidget*} or
     \c{QObject*}.
+*/
+
+/*! \fn int qScriptRegisterSequenceMetaType(
+            QScriptEngine *engine,
+            const QScriptValue &prototype = QScriptValue::invalid())
+    \relates QScriptEngine
+
+    Registers the sequence type \c{T} in the given \a engine. This
+    function provides conversion functions that convert between \c{T}
+    and Qt Script \c{Array} objects. \c{T} must provide a
+    const_iterator class and begin(), end() and push_back()
+    functions. If \a prototype is valid, it will be set as the
+    prototype of \c{Array} objects due to conversion from \c{T};
+    otherwise, the standard \c{Array} prototype will be used.
+
+    Returns the internal ID used by QMetaType.
+
+    You need to declare the container type first with
+    Q_DECLARE_METATYPE(). Example:
+
+    \code
+    Q_DECLARE_METATYPE(QVector<int>)
+
+    ...
+
+    qScriptRegisterSequenceMetaType<QVector<int> >(engine);
+    \endcode
+
+    \sa qScriptRegisterMetaType()
 */

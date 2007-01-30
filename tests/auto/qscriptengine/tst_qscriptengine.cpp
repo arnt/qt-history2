@@ -395,6 +395,13 @@ static void fooFromScriptValue(const QScriptValue &value, Foo &foo)
     foo.y = value.property("y").toInt32();
 }
 
+Q_DECLARE_METATYPE(QLinkedList<QString>)
+Q_DECLARE_METATYPE(QList<Foo>)
+Q_DECLARE_METATYPE(QVector<QChar>)
+Q_DECLARE_METATYPE(QStack<int>)
+Q_DECLARE_METATYPE(QQueue<char>)
+Q_DECLARE_METATYPE(QLinkedList<QStack<int> >)
+
 void tst_QScriptEngine::valueConversion()
 {
     QScriptEngine eng;
@@ -451,6 +458,45 @@ void tst_QScriptEngine::valueConversion()
         Foo foo2 = qScriptValueToValue<Foo>(fooVal);
         QCOMPARE(foo2.x, 56);
         QCOMPARE(foo2.y, 78);
+    }
+
+    qScriptRegisterSequenceMetaType<QLinkedList<QString> >(&eng);
+
+    {
+        QLinkedList<QString> lst;
+        lst << QLatin1String("foo") << QLatin1String("bar");
+        QScriptValue lstVal = qScriptValueFromValue(&eng, lst);
+        QCOMPARE(lstVal.isArray(), true);
+        QCOMPARE(lstVal.property("length").toInt32(), 2);
+        QCOMPARE(lstVal.property("0").isString(), true);
+        QCOMPARE(lstVal.property("0").toString(), QLatin1String("foo"));
+        QCOMPARE(lstVal.property("1").isString(), true);
+        QCOMPARE(lstVal.property("1").toString(), QLatin1String("bar"));
+    }
+
+    qScriptRegisterSequenceMetaType<QList<Foo> >(&eng);
+    qScriptRegisterSequenceMetaType<QStack<int> >(&eng);
+    qScriptRegisterSequenceMetaType<QVector<QChar> >(&eng);
+    qScriptRegisterSequenceMetaType<QQueue<char> >(&eng);
+    qScriptRegisterSequenceMetaType<QLinkedList<QStack<int> > >(&eng);
+
+    {
+        QLinkedList<QStack<int> > lst;
+        QStack<int> first; first << 13 << 49; lst << first;
+        QStack<int> second; second << 99999;lst << second;
+        QScriptValue lstVal = qScriptValueFromValue(&eng, lst);
+        QCOMPARE(lstVal.isArray(), true);
+        QCOMPARE(lstVal.property("length").toInt32(), 2);
+        QCOMPARE(lstVal.property("0").isArray(), true);
+        QCOMPARE(lstVal.property("0").property("length").toInt32(), 2);
+        QCOMPARE(lstVal.property("0").property("0").toInt32(), first.at(0));
+        QCOMPARE(lstVal.property("0").property("1").toInt32(), first.at(1));
+        QCOMPARE(lstVal.property("1").isArray(), true);
+        QCOMPARE(lstVal.property("1").property("length").toInt32(), 1);
+        QCOMPARE(lstVal.property("1").property("0").toInt32(), second.at(0));
+        QCOMPARE(qscriptvalue_cast<QStack<int> >(lstVal.property("0")), first);
+        QCOMPARE(qscriptvalue_cast<QStack<int> >(lstVal.property("1")), second);
+        QCOMPARE(qscriptvalue_cast<QLinkedList<QStack<int> > >(lstVal), lst);
     }
 }
 
