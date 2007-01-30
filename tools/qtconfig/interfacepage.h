@@ -1,30 +1,30 @@
+#ifndef INTERFACEPAGE_H
+#define INTERFACEPAGE_H
+
 /****************************************************************************
 **
-** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
-** $TROLLTECH_DUAL_LICENSE$
+** $LICENSE$
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
 
-#ifndef PREVIEWWIDGET_H
-#define PREVIEWWIDGET_H
-
-#include "previewwidgetbase.h"
-
-class PreviewWidget : public PreviewWidgetBase
+#include <QFrame>
+#include "ui_interfacepage.h"
+class InterfacePage : public QFrame, public Ui_InterfacePage
 {
     Q_OBJECT
-
 public:
-    PreviewWidget( QWidget *parent = 0, const char *name = 0 );
-
-    void closeEvent(QCloseEvent *);
-    bool eventFilter(QObject *, QEvent *);
+    InterfacePage(QWidget *parent = 0);
+    void load();
+    void save();
+signals:
+    void changed();
 };
 
 #endif

@@ -1,0 +1,394 @@
+<ui version="4.0" >
+ <comment>*********************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+*********************************************************************</comment>
+ <author></author>
+ <comment></comment>
+ <exportmacro></exportmacro>
+ <class>InterfacePage</class>
+ <widget class="QWidget" name="InterfacePage" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>413</width>
+    <height>641</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>InterfacePage</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item>
+    <widget class="QGroupBox" name="gbFeel" >
+     <property name="title" >
+      <string>Fee&amp;l settings</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>9</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="2" column="0" >
+       <widget class="QLabel" name="label_3" >
+        <property name="text" >
+         <string>&amp;Wheel scroll lines:</string>
+        </property>
+        <property name="buddy" >
+         <cstring>sbWheelScrollLines</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QLabel" name="label_2" >
+        <property name="text" >
+         <string>Cursor f&amp;lash time:</string>
+        </property>
+        <property name="buddy" >
+         <cstring>sbCursorFlashTime</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" >
+       <widget class="QLabel" name="label" >
+        <property name="text" >
+         <string>&amp;Double-click interval:</string>
+        </property>
+        <property name="buddy" >
+         <cstring>sbDoubleClickInterval</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QSpinBox" name="sbWheelScrollLines" >
+        <property name="suffix" >
+         <string> lines</string>
+        </property>
+        <property name="maximum" >
+         <number>100000</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QSpinBox" name="sbCursorFlashTime" >
+        <property name="specialValueText" >
+         <string>No blinking</string>
+        </property>
+        <property name="suffix" >
+         <string> ms</string>
+        </property>
+        <property name="maximum" >
+         <number>10000</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QSpinBox" name="sbDoubleClickInterval" >
+        <property name="suffix" >
+         <string> ms</string>
+        </property>
+        <property name="maximum" >
+         <number>10000</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="gbEffects" >
+     <property name="title" >
+      <string>GUI &amp;Effects</string>
+     </property>
+     <property name="checkable" >
+      <bool>true</bool>
+     </property>
+     <property name="checked" >
+      <bool>false</bool>
+     </property>
+     <layout class="QVBoxLayout" >
+      <property name="margin" >
+       <number>9</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lblMenu" >
+          <property name="text" >
+           <string>&amp;Menu effect:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>cmbMenuEffect</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cmbMenuEffect" >
+          <item>
+           <property name="text" >
+            <string>Disable</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Animate</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Fade</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lblCombobox" >
+          <property name="text" >
+           <string>&amp;ComboBox effect:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>cmbComboBoxEffect</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cmbComboBoxEffect" >
+          <item>
+           <property name="text" >
+            <string>Disable</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Animate</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lblToolTip" >
+          <property name="text" >
+           <string>&amp;ToolTip effect:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>cmbToolTipEffect</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cmbToolTipEffect" >
+          <item>
+           <property name="text" >
+            <string>Disable</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Animate</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Fade</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lblToolBox" >
+          <property name="text" >
+           <string>ToolBo&amp;x effect:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>cmbToolBoxEffect</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cmbToolBoxEffect" >
+          <item>
+           <property name="text" >
+            <string>Disable</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Animate</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="gbGlobalStrut" >
+     <property name="title" >
+      <string>Glo&amp;bal strut</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>9</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="0" column="1" >
+       <widget class="QSpinBox" name="sbMinimumWidth" >
+        <property name="suffix" >
+         <string> pixels</string>
+        </property>
+        <property name="maximum" >
+         <number>100000</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QLabel" name="label_5" >
+        <property name="text" >
+         <string>Minimum hei&amp;ght:</string>
+        </property>
+        <property name="buddy" >
+         <cstring>sbMinimumHeight</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QSpinBox" name="sbMinimumHeight" >
+        <property name="suffix" >
+         <string> pixels</string>
+        </property>
+        <property name="maximum" >
+         <number>100000</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" >
+       <widget class="QLabel" name="label_4" >
+        <property name="text" >
+         <string>Mi&amp;nimum width:</string>
+        </property>
+        <property name="buddy" >
+         <cstring>sbMinimumWidth</cstring>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="cbEnhancedRTLSupport" >
+     <property name="text" >
+      <string>Enhanced support for languages written &amp;right-to-left</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="gbXIMInputStyle" >
+     <property name="title" >
+      <string>XIM Inp&amp;ut style:</string>
+     </property>
+     <layout class="QHBoxLayout" >
+      <property name="margin" >
+       <number>9</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QComboBox" name="cmbXIMInputStyle" />
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <pixmapfunction></pixmapfunction>
+ <customwidgets>
+ </customwidgets>
+ <tabstops>
+  <tabstop>sbDoubleClickInterval</tabstop>
+  <tabstop>sbCursorFlashTime</tabstop>
+  <tabstop>sbWheelScrollLines</tabstop>
+  <tabstop>cmbMenuEffect</tabstop>
+  <tabstop>cmbComboBoxEffect</tabstop>
+  <tabstop>cmbToolTipEffect</tabstop>
+  <tabstop>cmbToolBoxEffect</tabstop>
+  <tabstop>sbMinimumWidth</tabstop>
+  <tabstop>sbMinimumHeight</tabstop>
+  <tabstop>cbEnhancedRTLSupport</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
