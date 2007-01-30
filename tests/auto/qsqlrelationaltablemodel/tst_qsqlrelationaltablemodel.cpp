@@ -63,7 +63,8 @@ void tst_QSqlRelationalTableModel::recreateTestTables(QSqlDatabase db)
     QSqlQuery q(db);
 
     tst_Databases::safeDropTable(db, qTableName("reltest1"));
-    QVERIFY2(q.exec("create table " + qTableName("reltest1") + " (id int primary key, name varchar(20), title_key int, another_title_key int)"),
+
+    QVERIFY2(q.exec("create table " + qTableName("reltest1") + " (id int not null primary key, name varchar(20), title_key int, another_title_key int)"),
             q.lastError().text().toLatin1());
     QVERIFY2(q.exec("insert into " + qTableName("reltest1") + " values(1, 'harry', 1, 2)"), q.lastError().text().toLatin1());
     QVERIFY2(q.exec("insert into " + qTableName("reltest1") + " values(2, 'trond', 2, 1)"), q.lastError().text().toLatin1());
@@ -71,7 +72,7 @@ void tst_QSqlRelationalTableModel::recreateTestTables(QSqlDatabase db)
     QVERIFY2(q.exec("insert into " + qTableName("reltest1") + " values(4, 'boris', 2, 2)"), q.lastError().text().toLatin1());
 
     tst_Databases::safeDropTable(db, qTableName("reltest2"));
-    QVERIFY2(q.exec("create table " + qTableName("reltest2") + " (tid int primary key, title varchar(20))"),
+    QVERIFY2(q.exec("create table " + qTableName("reltest2") + " (tid int not null primary key, title varchar(20))"),
             q.lastError().text().toLatin1());
     QVERIFY2(q.exec("insert into " + qTableName("reltest2") + " values(1, 'herr')"), q.lastError().text().toLatin1());
     QVERIFY2(q.exec("insert into " + qTableName("reltest2") + " values(2, 'mister')"), q.lastError().text().toLatin1());
