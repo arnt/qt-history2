@@ -357,6 +357,18 @@ QScriptValue Global::method_parseInt(QScriptContext *context,
         }
     }
     QString str = context->argument(0).toString().trimmed();
+    if (radix == 0) {
+        if ((str.length() >= 2) && (str.at(0) == QLatin1Char('0'))) {
+            if ((str.at(1) == QLatin1Char('x'))
+                || (str.at(1) == QLatin1Char('X'))) {
+                str.remove(0, 2);
+                radix = 16;
+            } else {
+                str.remove(0, 1);
+                radix = 8;
+            }
+        }
+    }
 
     const char *startPtr = str.toUtf8().constData();
     qsreal result;
@@ -370,7 +382,7 @@ QScriptValue Global::method_parseInt(QScriptContext *context,
 #endif
     if (startPtr == endPtr) {
         if (str.isEmpty())
-            result = 0;
+            result = qSNan();
         else if (str == QLatin1String("Infinity"))
             result = +qInf();
         else if (str == QLatin1String("+Infinity"))
