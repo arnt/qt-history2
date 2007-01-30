@@ -968,11 +968,12 @@ void QDockAreaLayoutInfo::setCurrentTabId(quintptr id)
 static QRect dockedGeometry(QWidget *widget)
 {
     int titleHeight = 0;
-#ifndef Q_WS_X11
-    QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(widget->layout());
-    if (layout != 0)
+
+    QDockWidgetLayout *layout
+        = qobject_cast<QDockWidgetLayout*>(widget->layout());
+    if(layout != 0 && layout->nativeWindowDeco())
         titleHeight = layout->titleHeight();
-#endif
+
     QRect result = widget->geometry();
     result.adjust(0, -titleHeight, 0, 0);
     return result;

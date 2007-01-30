@@ -69,9 +69,7 @@ public:
     QDockWidget::DockWidgetFeatures features;
     Qt::DockWidgetAreas allowedAreas;
 
-#ifdef Q_WS_X11
     QWidgetResizeHandler *resizer;
-#endif
 
 #ifndef QT_NO_ACTION
     QAction *toggleViewAction;
@@ -121,6 +119,7 @@ public:
     int minimumTitleWidth() const;
     int titleHeight() const;
     void updateMaxSize();
+    bool nativeWindowDeco() const;
 
     void setVerticalTitleBar(bool b);
 

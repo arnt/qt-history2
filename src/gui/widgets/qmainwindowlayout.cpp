@@ -1007,13 +1007,13 @@ bool QMainWindowLayout::plug(QLayoutItem *widgetItem)
         globalRect.moveTopLeft(parentWidget()->mapToGlobal(globalRect.topLeft()));
 #ifndef QT_NO_DOCKWIDGET
         if (qobject_cast<QDockWidget*>(widget) != 0) {
-#ifdef Q_WS_X11
-            int fw = widget->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, 0);
-            globalRect.adjust(-fw, -fw, fw, fw);
-#else
             QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(widget->layout());
-            globalRect.adjust(0, layout->titleHeight(), 0, 0);
-#endif
+            if (layout->nativeWindowDeco()) {
+                globalRect.adjust(0, layout->titleHeight(), 0, 0);
+            } else {
+                int fw = widget->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, 0);
+                globalRect.adjust(-fw, -fw, fw, fw);
+            }   
         }
 #endif
         widgetAnimator->animate(widget, globalRect, animationEnabled);
