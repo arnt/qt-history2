@@ -1,2 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS = test udpServer
+SUBDIRS = test clientserver
+

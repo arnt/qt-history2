@@ -16,7 +16,6 @@
 #include <qhostaddress.h>
 #include <qhostinfo.h>
 #include <qmap.h>
-#undef TEST_QNETWORK_PROXY
 #ifdef TEST_QNETWORK_PROXY
 # include <QNetworkProxy>
 #endif
@@ -59,13 +58,12 @@ private slots:
     void writeDatagramToNonExistingPeer();
     void writeToNonExistingPeer_data();
     void writeToNonExistingPeer();
-    void resumeAfterServerRestarts_waitFor();
-    void resumeAfterServerRestarts_eventLoop();
+    void outOfProcessConnectedClientServerTest();
+    void outOfProcessUnconnectedClientServerTest();
 
 protected slots:
     void empty_readyReadSlot();
     void empty_connectedSlot();
-    void exitLoopSlot();
 };
 
 tst_QUdpSocket::tst_QUdpSocket()
@@ -594,97 +592,109 @@ void tst_QUdpSocket::writeToNonExistingPeer()
     QCOMPARE(int(sConnected.state()), int(QUdpSocket::ConnectedState));
 }
 
-void tst_QUdpSocket::resumeAfterServerRestarts_waitFor()
+void tst_QUdpSocket::outOfProcessConnectedClientServerTest()
 {
-    QUdpSocket *socket = new QUdpSocket;
-    QSignalSpy spy(socket, SIGNAL(readyRead()));
-    
-    // Bind socket on an arbitrary local port on all interfaces
-    QVERIFY(socket->bind());
+    QProcess serverProcess;
+    serverProcess.start(QLatin1String("clientserver/clientserver server 1 1"),
+                        QIODevice::ReadWrite | QIODevice::Text);
 
-    QProcess process;
-    for (int i = 0; i < 3; ++i) {
-        // Start the UDP server and verify that it's running
-        process.start("udpServer/udpServer 9998");
-        int retry = 5;
-        while (!process.canReadLine() && --retry)
-            QVERIFY(process.waitForReadyRead(5000));
-        if (!retry)
-            QFAIL("Unable to start UDP server!");
-        QCOMPARE(process.read(3), QByteArray("OK\n"));
+    // Wait until the server has started and reports success.
+    while (!serverProcess.canReadLine())
+        QVERIFY(serverProcess.waitForReadyRead(3000));
+    QByteArray serverGreeting = serverProcess.readLine();
+    QVERIFY(serverGreeting != QByteArray("XXX\n"));
+    int serverPort = serverGreeting.trimmed().toInt();
+    QVERIFY(serverPort > 0 && serverPort < 65536);
 
-        // Connect to the server the first time only
-        if (i == 0) {
-            socket->connectToHost(QHostAddress::LocalHost, 9998);
-            QVERIFY(socket->waitForConnected(5000));
-        }
+    QProcess clientProcess;
+    clientProcess.start(QString::fromLatin1("clientserver/clientserver connectedclient %1 %2")
+                        .arg(QLatin1String("127.0.0.1")).arg(serverPort),
+                        QIODevice::ReadWrite | QIODevice::Text);
+    // Wait until the server has started and reports success.
+    while (!clientProcess.canReadLine())
+        QVERIFY(clientProcess.waitForReadyRead(3000));
+    QByteArray clientGreeting = clientProcess.readLine();
+    QCOMPARE(clientGreeting, QByteArray("ok\n"));
 
-        // Loopback check
-        socket->write("HELLO", 5);
-        QVERIFY(socket->waitForReadyRead(5000));
-        QCOMPARE(spy.count(), i + 1);
-        QVERIFY(socket->hasPendingDatagrams());
-        QCOMPARE(socket->read(5), QByteArray("IFMMP"));
+    // Let the client and server talk for 3 seconds
+    QTest::qWait(3000);
 
-        // Now kill the server
-        process.kill(); // <- ouch
-        QVERIFY(process.waitForFinished());
-        QVERIFY(!socket->waitForReadyRead(1000));
-        QCOMPARE(spy.count(), i + 1);
-        QVERIFY(!socket->hasPendingDatagrams());
+    QStringList serverData = QString::fromLocal8Bit(serverProcess.readAll()).split("\n");
+    QStringList clientData = QString::fromLocal8Bit(clientProcess.readAll()).split("\n");
+    QVERIFY(serverData.size() > 5);
+    QVERIFY(clientData.size() > 5);
+
+    for (int i = 0; i < clientData.size() / 2; ++i) {
+        QCOMPARE(clientData.at(i * 2), QString("readData()"));
+        QCOMPARE(serverData.at(i * 3), QString("readData()"));
+        
+        QString cdata = clientData.at(i * 2 + 1);
+        QString sdata = serverData.at(i * 3 + 1);
+        QVERIFY(cdata.startsWith(QLatin1String("got ")));
+
+        QCOMPARE(cdata.mid(4).trimmed().toInt(), sdata.mid(4).trimmed().toInt() * 2);
+        QVERIFY(serverData.at(i * 3 + 2).startsWith(QLatin1String("sending ")));
+        QCOMPARE(serverData.at(i * 3 + 2).trimmed().mid(8).toInt(),
+                 sdata.mid(4).trimmed().toInt() * 2);
     }
+
+    clientProcess.kill();
+    QVERIFY(clientProcess.waitForFinished());
+    serverProcess.kill();
+    QVERIFY(serverProcess.waitForFinished());
 }
 
-void tst_QUdpSocket::resumeAfterServerRestarts_eventLoop()
+void tst_QUdpSocket::outOfProcessUnconnectedClientServerTest()
 {
-    QUdpSocket *socket = new QUdpSocket;
-    QSignalSpy spy(socket, SIGNAL(readyRead()));
-    
-    // Bind socket on an arbitrary local port on all interfaces
-    QVERIFY(socket->bind());
+    QProcess serverProcess;
+    serverProcess.start(QLatin1String("clientserver/clientserver server 1 1"),
+                        QIODevice::ReadWrite | QIODevice::Text);
 
-    QProcess process;
-    for (int i = 0; i < 3; ++i) {
-        // Start the UDP server and verify that it's running
-        process.start("udpServer/udpServer 9998");
-        int retry = 5;
-        while (!process.canReadLine() && --retry)
-            QVERIFY(process.waitForReadyRead(5000));
-        if (!retry)
-            QFAIL("Unable to start UDP server!");
-        QCOMPARE(process.read(3), QByteArray("OK\n"));
+    // Wait until the server has started and reports success.
+    while (!serverProcess.canReadLine())
+        QVERIFY(serverProcess.waitForReadyRead(3000));
+    QByteArray serverGreeting = serverProcess.readLine();
+    QVERIFY(serverGreeting != QByteArray("XXX\n"));
+    int serverPort = serverGreeting.trimmed().toInt();
+    QVERIFY(serverPort > 0 && serverPort < 65536);
 
-        // Connect to the server the first time only
-        if (i == 0) {
-            socket->connectToHost(QHostAddress::LocalHost, 9998);
-            if (socket->state() != QAbstractSocket::ConnectedState) {
-                connect(socket, SIGNAL(connected()), this, SLOT(exitLoopSlot()));
-                QTestEventLoop::instance().enterLoop(2);
-                QCOMPARE(socket->state(), QAbstractSocket::ConnectedState);
-            }
-            connect(socket, SIGNAL(readyRead()), this, SLOT(exitLoopSlot()));
-        }
+    QProcess clientProcess;
+    clientProcess.start(QString::fromLatin1("clientserver/clientserver unconnectedclient %1 %2")
+                        .arg(QLatin1String("127.0.0.1")).arg(serverPort),
+                        QIODevice::ReadWrite | QIODevice::Text);
+    // Wait until the server has started and reports success.
+    while (!clientProcess.canReadLine())
+        QVERIFY(clientProcess.waitForReadyRead(3000));
+    QByteArray clientGreeting = clientProcess.readLine();
+    QCOMPARE(clientGreeting, QByteArray("ok\n"));
 
-        // Loopback check
-        socket->write("HELLO", 5);
-        QTestEventLoop::instance().enterLoop(2);
-        QCOMPARE(spy.count(), i + 1);
-        QVERIFY(socket->hasPendingDatagrams());
-        QCOMPARE(socket->read(5), QByteArray("IFMMP"));
+    // Let the client and server talk for 3 seconds
+    QTest::qWait(3000);
 
-        // Now kill the server
-        process.kill(); // <- ouch
-        QVERIFY(process.waitForFinished());
+    QStringList serverData = QString::fromLocal8Bit(serverProcess.readAll()).split("\n");
+    QStringList clientData = QString::fromLocal8Bit(clientProcess.readAll()).split("\n");
 
-        QTestEventLoop::instance().enterLoop(2);
-        QCOMPARE(spy.count(), i + 1);
-        QVERIFY(!socket->hasPendingDatagrams());
+    QVERIFY(serverData.size() > 5);
+    QVERIFY(clientData.size() > 5);
+
+    for (int i = 0; i < clientData.size() / 2; ++i) {
+        QCOMPARE(clientData.at(i * 2), QString("readData()"));
+        QCOMPARE(serverData.at(i * 3), QString("readData()"));
+        
+        QString cdata = clientData.at(i * 2 + 1);
+        QString sdata = serverData.at(i * 3 + 1);
+        QVERIFY(cdata.startsWith(QLatin1String("got ")));
+
+        QCOMPARE(cdata.mid(4).trimmed().toInt(), sdata.mid(4).trimmed().toInt() * 2);
+        QVERIFY(serverData.at(i * 3 + 2).startsWith(QLatin1String("sending ")));
+        QCOMPARE(serverData.at(i * 3 + 2).trimmed().mid(8).toInt(),
+                 sdata.mid(4).trimmed().toInt() * 2);
     }
-}
 
-void tst_QUdpSocket::exitLoopSlot()
-{
-    QTimer::singleShot(50, &QTestEventLoop::instance(), SLOT(exitLoop()));
+    clientProcess.kill();
+    QVERIFY(clientProcess.waitForFinished());
+    serverProcess.kill();
+    QVERIFY(serverProcess.waitForFinished());
 }
 
 QTEST_MAIN(tst_QUdpSocket)
