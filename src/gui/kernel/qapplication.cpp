@@ -3271,7 +3271,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         break;
 #endif // QT_NO_TABLETEVENT
 
-#if !defined(QT_NO_TOOLTIP) && !defined(QT_NO_WHATSTHIS)
+#if !defined(QT_NO_TOOLTIP) || !defined(QT_NO_WHATSTHIS)
     case QEvent::ToolTip:
     case QEvent::WhatsThis:
     case QEvent::QueryWhatsThis:
@@ -3296,7 +3296,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         }
         break;
 #endif
-#if !defined(QT_NO_STATUSTIP) && !defined(QT_NO_WHATSTHIS)
+#if !defined(QT_NO_STATUSTIP) || !defined(QT_NO_WHATSTHIS)
     case QEvent::StatusTip:
     case QEvent::WhatsThisClicked:
         {
