@@ -1349,10 +1349,12 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
     Q_D(QListView);
     if (!d->selectionModel)
         return;
+
+    // if we are wrapping, we can only selecte inside the contents rectangle
+    if (d->wrap && !QRect(QPoint(0, 0), d->contentsSize()).intersects(rect))
+        return;
     
     QItemSelection selection;
-    if (!QRect(QPoint(0, 0), d->contentsSize()).intersects(rect))
-        return;
 
     if (rect.width() == 1 && rect.height() == 1) {
         d->intersectingSet(rect.translated(horizontalOffset(), verticalOffset()));
@@ -2168,7 +2170,7 @@ void QStaticListViewBase::doStaticLayout(const QListViewLayoutInfo &info)
     // if it is the last batch, save the end of the segments
     if (info.last == info.max) {
         segmentExtents.append(flowPosition - info.spacing);
-        segmentPositions.append(segPosition + deltaSegPosition);
+        segmentPositions.append(info.wrap ? segPosition + deltaSegPosition : INT_MAX);
     }
     // if the new items are visble, update the viewport
     QRect changedRect(topLeft, rect.bottomRight());
