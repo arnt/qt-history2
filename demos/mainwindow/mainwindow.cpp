@@ -237,9 +237,9 @@ QSize BlueTitleBar::minimumSizeHint() const
 BlueTitleBar::BlueTitleBar(QWidget *parent)
     : QWidget(parent)
 {
-    leftPm = QPixmap("titlebarLeft.png");
-    centerPm = QPixmap("titlebarCenter.png");
-    rightPm = QPixmap("titlebarRight.png");
+    leftPm = QPixmap(":/res/titlebarLeft.png");
+    centerPm = QPixmap(":/res/titlebarCenter.png");
+    rightPm = QPixmap(":/res/titlebarRight.png");
 }
 
 void BlueTitleBar::paintEvent(QPaintEvent*)
