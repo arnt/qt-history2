@@ -29,11 +29,10 @@ public:
     virtual ~StyledButton () {}
 
     void setButtonType(ButtonType type);
-    const QBrush &brush();
+    const QBrush &brush() const;
     void setBrush(const QBrush &b);
 
     QString pixmapFileName() const;
-
 signals:
     void changed();
 

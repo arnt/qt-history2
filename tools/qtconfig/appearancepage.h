@@ -36,9 +36,9 @@
 class PaletteModel : public QAbstractTableModel
 {
     Q_OBJECT
-        Q_PROPERTY(QPalette::ColorRole colorRole READ colorRole)
-        public:
-        PaletteModel(QObject *parent = 0);
+    Q_PROPERTY(QPalette::ColorRole colorRole READ colorRole)
+public:
+    PaletteModel(QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -64,24 +64,6 @@ private:
     QPalette m_parentPalette;
     QMap<QPalette::ColorRole, QString> m_roleNames;
     bool m_compute;
-};
-
-class ColorEditor : public QWidget
-{
-Q_OBJECT
-    public:
-    ColorEditor(QWidget *parent = 0);
-
-    void setColor(const QColor &color);
-    QColor color() const;
-    bool changed() const;
-signals:
-    void changed(QWidget *widget);
-private slots:
-    void colorChanged();
-private:
-    StyledButton *button;
-    bool m_changed;
 };
 
 class RoleEditor : public QWidget
@@ -141,6 +123,7 @@ public slots:
     void onDetailsToggled(bool showDetails);
     void paletteChanged(const QPalette &palette);
     void buildPalette();
+    void onDoubleClicked(const QModelIndex &index);
 signals:
     void changed();
 private:

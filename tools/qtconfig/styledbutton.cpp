@@ -28,7 +28,7 @@ StyledButton::StyledButton(QWidget *parent, ButtonType type)
     mBrush = QBrush(Qt::darkGray);
 }
 
-const QBrush &StyledButton::brush()
+const QBrush &StyledButton::brush() const
 {
     return mBrush;
 }
@@ -54,7 +54,7 @@ void StyledButton::paintEvent(QPaintEvent *event)
     QToolButton::paintEvent(event);
     QStyleOptionToolButton button;
     initStyleOption(&button);
-    QRect contentRect = style()->subControlRect(QStyle::CC_ToolButton, &button, QStyle::SC_ToolButton, this);
+    const QRect contentRect = style()->subControlRect(QStyle::CC_ToolButton, &button, QStyle::SC_ToolButton, this);
 
     QPainter paint(this);
 
@@ -112,6 +112,7 @@ QString StyledButton::pixmapFileName() const
 
 void StyledButton::onEditor()
 {
+    qDebug() << "onEditor";
     if (btype == ColorButton) {
         QColor c = QColorDialog::getColor(mBrush.color(), this);
         if (c.isValid()) {
@@ -119,7 +120,7 @@ void StyledButton::onEditor()
             emit changed();
         }
     }
-    else if(openPixmap()) {
+    else if (openPixmap()) {
         emit changed();
     }
 }
