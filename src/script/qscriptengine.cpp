@@ -41,18 +41,18 @@
     QScriptValue three = myEngine.evaluate("1 + 2");
   \endcode
 
-  QScriptEngine acts as a QScriptValue factory. Use one of the
-  scriptValue() or scriptValueFromT() functions to create a value. You
-  can then pass the QScriptValue as argument to functions such as
-  QScriptValue::setProperty() and QScriptValue::call().
+  Use newObject() to create a standard Qt Script object. Use newDate()
+  to create a \c{Date} object, and newRegExp() to create a \c{RegExp}
+  object.  Use newQObject() to wrap a QObject (or subclass) pointer,
+  and newQMetaObject() to wrap a QMetaObject. Use newVariant() to wrap
+  a QVariant. Use newFunction() to wrap a native (C++) function.
 
-  For QObjects (and subclasses), you can create a QScriptValue which
-  represents a given object by calling
-  newQObject(). Properties, children and signals and slots
-  of the object will then become available to script code as
-  properties of the created QScriptValue.  No binding code is needed
-  because it is done dynamically using the Qt meta object system. See
-  the \l{QtScript} documentation for more information.
+  When wrapping a QObject pointer with newQObject(), properties,
+  children and signals and slots of the object will then become
+  available to script code as properties of the created QScriptValue.
+  No binding code is needed because it is done dynamically using the
+  Qt meta object system. See the \l{QtScript} documentation for more
+  information.
 
   Typically, you set properties in the engine's Global Object to make
   your own extensions available to scripts; properties of the Global
@@ -62,33 +62,28 @@
   Global Object:
 
   \code
-    QScriptValue myNumber = myEngine.scriptValue(123);
+    QScriptValue myNumber = QScriptValue(&myEngine, 123);
     myEngine.globalObject().setProperty("myNumber", myNumber);
 
     ...
 
-    myNumber = myEngine.evaluate("myNumber + 1");
+    QScriptValue myNumberPlusOne = myEngine.evaluate("myNumber + 1");
   \endcode
 
   In addition to exposing plain data, you can also write C++ functions
   that can be invoked from script code. Such functions must have the
   signature QScriptEngine::FunctionSignature. You may then pass the function
-  as argument to scriptValue(). Here is an example:
+  as argument to newFunction(). Here is an example of a function that
+  returns the sum of its first two arguments:
 
   \code
     QScriptValue myAdd(QScriptContext *context, QScriptEngine *engine)
     {
        QScriptValue a = context->argument(0);
        QScriptValue b = context->argument(1);
-       return engine->scriptValue(a.toNumber() + b.toNumber());
+       return QScriptValue(engine, a.toNumber() + b.toNumber());
     }
   \endcode
-
-  First, we get the current context; the context represents the
-  current Qt Script function invocation. We use the context to
-  retrieve the arguments passed to the function. We convert the
-  arguments to C++ primitive number types, add them together, and
-  return a QScriptValue that holds the sum.
 
   To expose this function to script code, you can set it as a property
   of the Global Object:
@@ -582,7 +577,7 @@ void QScriptEngine::setDefaultPrototype(int metaTypeId, const QScriptValue &prot
 
     The function signature \c{QScriptValue f(QScriptContext *, QScriptEngine *)}.
 
-    A function with such a signature can be passed to QScriptEngine::scriptValue()
+    A function with such a signature can be passed to QScriptEngine::newFunction()
     to wrap the function.
 */
 
@@ -706,14 +701,15 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     You need to declare the custom type first with
     Q_DECLARE_METATYPE().
 
-    After a type has been registered, you can convert from a QScriptValue
-    to that type using fromScriptValue(), and create a QScriptValue from
-    a value of that type using
-    \l{QScriptEngine::toScriptValue()}{toScriptValue}(). The
-    engine will take care of calling the proper conversion function
-    when calling C++ slots, and when getting or setting a C++
-    property; i.e. the custom type may be used seamlessly on both the
-    C++ side and the script side.
+    After a type has been registered, you can convert from a
+    QScriptValue to that type using
+    \l{QScriptEngine::fromScriptValue()}{fromScriptValue}(), and
+    create a QScriptValue from a value of that type using
+    \l{QScriptEngine::toScriptValue()}{toScriptValue}(). The engine
+    will take care of calling the proper conversion function when
+    calling C++ slots, and when getting or setting a C++ property;
+    i.e. the custom type may be used seamlessly on both the C++ side
+    and the script side.
 
     The following is an example of how to use this function. We will
     make our engine able to handle our custom type
@@ -739,8 +735,8 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     QScriptValue toScriptValue(QScriptEngine *engine, const MyStruct &s)
     {
       QScriptValue obj = engine->newObject();
-      obj.setProperty("x", engine->scriptValue(s.x));
-      obj.setProperty("y", engine->scriptValue(s.y));
+      obj.setProperty("x", QScriptValue(engine, s.x));
+      obj.setProperty("y", QScriptValue(engine, s.y));
       return obj;
     }
 
@@ -772,17 +768,17 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     you have to register a constructor function for the type. For example:
 
     \code
-    QScriptValue createMyStruct(QScriptContext *, QScriptEngine *eng)
+    QScriptValue createMyStruct(QScriptContext *, QScriptEngine *engine)
     {
         MyStruct s;
         s.x = 123;
         s.y = 456;
-        return eng->toScriptValue(s);
+        return engine->toScriptValue(s);
     }
 
     ...
 
-    QScriptValue ctor = engine.scriptValue(createMyStruct);
+    QScriptValue ctor = engine.newFunction(createMyStruct);
     engine.globalObject().setProperty("MyStruct", ctor);
     \endcode
 
