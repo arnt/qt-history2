@@ -43,6 +43,7 @@ Qt {
     Q_FLAGS(TextInteractionFlags)
     Q_ENUMS(AspectRatioMode)
     Q_ENUMS(Key)
+    Q_ENUMS(ItemSelectionMode)
     Q_FLAGS(KeyboardModifiers MouseButtons)
 public:
 #endif
