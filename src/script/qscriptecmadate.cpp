@@ -352,6 +352,11 @@ static inline QString ToString(qsreal t)
     return ToDateTime(t).toString();
 }
 
+static inline QString ToUTCString(qsreal t)
+{
+    return ToDateTime(t).toString();
+}
+
 static inline QString ToDateString(qsreal t)
 {
     t = LocalTime(t);
@@ -1209,18 +1214,46 @@ QScriptValue Date::method_setUTCFullYear(QScriptEngine *eng, QScriptClassInfo *c
                                QLatin1String("Date.prototype.setUTCFullYear"));
 }
 
-QScriptValue Date::method_setYear(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValue Date::method_setYear(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    return QScriptContextPrivate::get(context)->throwNotImplemented(
-        QLatin1String("Date.prototype.setYear"));
+    QScriptValue self = context->thisObject();
+    if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        if (qIsNan(t))
+            t = 0;
+        else
+            t = LocalTime(t);
+        qsreal year = context->argument(0).toNumber();
+        qsreal r;
+        if (qIsNan(year)) {
+            r = qSNan();
+        } else {
+            QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+            if ((eng_p->toInteger(year) >= 0) && (eng_p->toInteger(year) <= 99))
+                year += 1900;
+            r = MakeDay(year, MonthFromTime(t), DateFromTime(t));
+            r = UTC(MakeDate(r, TimeWithinDay(t)));
+            r = TimeClip(r);
+        }
+        QScriptValue v = QScriptValue(eng, r);
+        QScriptValueImpl::get(self)->setInternalValue(v);
+        return v;
+    }
+    return context->throwError(QScriptContext::TypeError,
+                               QLatin1String("Date.prototype.setYear"));
 }
 
-QScriptValue Date::method_toUTCString(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValue Date::method_toUTCString(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    return QScriptContextPrivate::get(context)->throwNotImplemented(
-        QLatin1String("Date.prototype.toUTCString"));
+    QScriptValue self = context->thisObject();
+    if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        return QScriptValue(eng, ToUTCString(t));
+    }
+    return context->throwError(QScriptContext::TypeError,
+                               QLatin1String("Date.prototype.toUTCString"));
 }
 
 } } // namespace QScript::Ecma

@@ -304,8 +304,9 @@ QScriptValue String::method_lastIndexOf(QScriptEngine *eng, QScriptClassInfo *)
 QScriptValue String::method_localeCompare(QScriptEngine *eng, QScriptClassInfo *)
 {
     QScriptContext *context = eng->currentContext();
-    return QScriptContextPrivate::get(context)->throwNotImplemented(
-        QLatin1String("String.prototype.localeCompare"));
+    QString value = context->thisObject().toString();
+    QString that = context->argument(0).toString();
+    return QScriptValue(eng, QString::localeAwareCompare(value, that));
 }
 
 QScriptValue String::method_match(QScriptEngine *eng, QScriptClassInfo *)
