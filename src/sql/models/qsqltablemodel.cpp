@@ -929,8 +929,12 @@ QString QSqlTableModel::orderByClause() const
     QSqlField f = d->rec.field(d->sortColumn);
     if (!f.isValid())
         return s;
-    s.append(QLatin1String("ORDER BY ")).append(d->tableName).append(QLatin1Char('.')).append(f.name());
+        
+    QString table = d->db.driver()->escapeIdentifier(d->tableName, QSqlDriver::TableName);
+    QString field = d->db.driver()->escapeIdentifier(f.name(), QSqlDriver::FieldName);
+    s.append(QLatin1String("ORDER BY ")).append(table).append(QLatin1Char('.')).append(field);
     s += d->sortOrder == Qt::AscendingOrder ? QLatin1String(" ASC") : QLatin1String(" DESC");
+
     return s;
 }
 
