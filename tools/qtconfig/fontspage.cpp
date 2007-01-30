@@ -17,15 +17,6 @@
 #include <QFont>
 #include <QSettings>
 
-static void updateFamilyComboBox(QComboBox *box)
-{
-    for (int i=0; i<box->count(); ++i) {
-        QFont font;
-        font.setFamily(box->itemText(i));
-        box->setItemData(i, font, Qt::FontRole);
-    }
-}
-
 FontsPage::FontsPage(QWidget *parent)
     : QFrame(parent)
 {
@@ -185,16 +176,13 @@ void FontsPage::load()
 
     cmbFontStyle->clear();
     cmbFamily->addItems(families);
-    updateFamilyComboBox(cmbFamily);
 
     QStringList familiesAndSubstitutions = (families + QFont::substitutions()).toSet().toList();
     qSort(familiesAndSubstitutions);
     cmbSubstituteSource->clear();
     cmbSubstituteSource->addItems(familiesAndSubstitutions);
-    updateFamilyComboBox(cmbSubstituteSource);
     cmbSubstituteTarget->clear();
     cmbSubstituteTarget->addItems(families);
-    updateFamilyComboBox(cmbSubstituteTarget);
     const QFont font;
 
     const QString defaultFamily = font.family();
