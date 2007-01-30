@@ -110,7 +110,8 @@ public:
     renameAction(0),
     deleteAction(0),
     showHiddenAction(0),
-    saveState(false)
+    saveState(false),
+    useDefaultCaption(true)
     {};
 
     void createToolButtons();
@@ -118,7 +119,8 @@ public:
     void createWidgets();
     void layout();
 
-    void init(const QString &directory = QString(), const QString &nameFilter = QString());
+    void init(const QString &directory = QString(), const QString &nameFilter = QString(),
+              const QString &caption = QString());
     bool itemViewKeyboardEvent(QKeyEvent *event);
     QString getEnvironmentVariable(const QString &string);
     static QString workingDirectory(const QString &path);
@@ -180,6 +182,9 @@ public:
         return path;
 #endif
     }
+
+    void retranslateWindowTitle();
+    void retranslateStrings();
 
     void _q_chooseLocation();
     void _q_goHome();
@@ -258,6 +263,7 @@ public:
     QBasicTimer autoHideLineEdit;
     QSize oldSize;
     bool saveState;
+    bool useDefaultCaption;
 };
 
 class QFileDialogLineEdit : public QLineEdit

@@ -257,8 +257,7 @@ QFileDialog::QFileDialog(QWidget *parent,
     : QDialog(*new QFileDialogPrivate, parent, 0)
 {
     Q_D(QFileDialog);
-    setWindowTitle(caption);
-    d->init(directory, filter);
+    d->init(directory, filter, caption);
 }
 
 /*!
@@ -268,17 +267,7 @@ QFileDialog::QFileDialog(const QFileDialogArgs &args)
     : QDialog(*new QFileDialogPrivate, args.parent, 0)
 {
     Q_D(QFileDialog);
-    if (args.caption.isEmpty()) {
-        if (args.mode == ExistingFiles || args.mode == ExistingFile)
-            setWindowTitle(QFileDialog::tr("Open"));
-        if (args.mode == AnyFile)
-            setWindowTitle(QFileDialog::tr("Save As"));
-        if (args.mode == DirectoryOnly || args.mode == Directory)
-            setWindowTitle(QFileDialog::tr("Find Directory"));
-    } else {
-        setWindowTitle(args.caption);
-    }
-    d->init(args.directory, args.filter);
+    d->init(args.directory, args.filter, args.caption);
     setFileMode(args.mode);
     setConfirmOverwrite(!(args.options & DontConfirmOverwrite));
     setResolveSymlinks(!(args.options & DontResolveSymlinks));
@@ -404,6 +393,62 @@ bool QFileDialog::restoreState(const QByteArray &state)
     if (!d->treeView->header()->restoreState(headerData))
         return false;
     return true;
+}
+
+bool QFileDialog::event(QEvent *e)
+{
+    Q_D(QFileDialog);
+    if (e->type() == QEvent::LanguageChange) {
+        if (d->useDefaultCaption)
+            d->retranslateWindowTitle();
+        d->retranslateStrings();
+    }
+    return QDialog::event(e);
+}
+
+void QFileDialogPrivate::retranslateWindowTitle()
+{
+    Q_Q(QFileDialog);
+    if (fileMode == QFileDialog::ExistingFiles || fileMode == QFileDialog::ExistingFile)
+        q->setWindowTitle(QFileDialog::tr("Open"));
+    if (fileMode == QFileDialog::AnyFile)
+        q->setWindowTitle(QFileDialog::tr("Save As"));
+    if (fileMode == QFileDialog::DirectoryOnly || fileMode == QFileDialog::Directory)
+        q->setWindowTitle(QFileDialog::tr("Find Directory"));
+}
+
+void QFileDialogPrivate::retranslateStrings()
+{
+    Q_Q(QFileDialog);
+
+    /* WIDGETS */
+    lookInLabel->setText(QFileDialog::tr("Where:"));
+    fileTypeLabel->setText(QFileDialog::tr("Files of type:"));
+
+    QList<QAction*> actions = treeView->header()->actions();
+    QAbstractItemModel *abstractModel = model;
+    if (proxyModel)
+        abstractModel = proxyModel;
+    int total = qMin(abstractModel->columnCount(QModelIndex()), actions.count() + 1);
+    for (int i = 1; i < total; ++i) {
+        actions.at(i - 1)->setText(QFileDialog::tr("Show ") + abstractModel->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString());
+    }
+
+    /* TOOL BUTTONS */
+#ifndef QT_NO_TOOLTIP
+    backButton->setToolTip(QFileDialog::tr("Back"));
+    forwardButton->setToolTip(QFileDialog::tr("Forward"));
+    toParentButton->setToolTip(QFileDialog::tr("Parent Directory"));
+    newFolderButton->setText(QFileDialog::tr("New Folder"));
+    listModeButton->setToolTip(QFileDialog::tr("List View"));
+    detailModeButton->setToolTip(QFileDialog::tr("Detail View"));
+#endif
+
+    /* MENU ACTIONS */
+    renameAction->setText(QFileDialog::tr("&Rename"));
+    deleteAction->setText(QFileDialog::tr("&Delete"));
+    showHiddenAction->setText(QFileDialog::tr("Show &hidden files"));
+    newFolderAction->setText(QFileDialog::tr("&New Folder"));
 }
 
 /*!
@@ -688,6 +733,9 @@ void QFileDialog::setFileMode(QFileDialog::FileMode mode)
 {
     Q_D(QFileDialog);
     d->fileMode = mode;
+    if (d->useDefaultCaption)
+        d->retranslateWindowTitle();
+
     // set selection mode and behavior
     QAbstractItemView::SelectionMode selectionMode;
     if (mode == QFileDialog::ExistingFiles)
@@ -759,7 +807,7 @@ void QFileDialogPrivate::updateFileTypeVisibility()
 {
     bool showFilterGUI = true;
     if (fileTypeCombo->count() == 1
-        && fileTypeCombo->itemText(0) == QFileDialog::tr("AllFiles (*)"))
+        && fileTypeCombo->itemText(0) == QFileDialog::tr("All Files (*)"))
             showFilterGUI = false;
     fileTypeCombo->setVisible(showFilterGUI);
     fileTypeLabel->setVisible(showFilterGUI);
@@ -1599,17 +1647,23 @@ void QFileDialog::timerEvent(QTimerEvent *event)
 
     Create widgets, layout and set default values
 */
-void QFileDialogPrivate::init(const QString &directory, const QString &nameFilter)
+void QFileDialogPrivate::init(const QString &directory, const QString &nameFilter, 
+                              const QString &caption)
 {
     Q_Q(QFileDialog);
+    if (!caption.isEmpty()) {
+        useDefaultCaption = false;
+        q->setWindowTitle(caption);
+    }
     createWidgets();
     createMenuActions();
     createToolButtons();
+    retranslateStrings();
     layout();
     oldSize = q->sizeHint();
 
     // Default case
-    q->setFilter(nameFilter.isEmpty() ? QFileDialog::tr("AllFiles (*)") : nameFilter);
+    q->setFilter(nameFilter.isEmpty() ? QFileDialog::tr("All Files (*)") : nameFilter);
     q->setFileMode(fileMode);
     q->setAcceptMode(QFileDialog::AcceptOpen);
     q->setDirectory(workingDirectory(directory));
@@ -1805,13 +1859,13 @@ void QFileDialogPrivate::createWidgets()
                          q, SLOT(_q_goToUrl(const QUrl &)));
 
     // labels
-    lookInLabel = new QLabel(QFileDialog::tr("Where:"), q);
+    lookInLabel = new QLabel(q);
     lookInLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     lookInLabel->setObjectName(QLatin1String("qt_look_in_label"));
     lookInLabel->hide();
     fileNameLabel = new QLabel(q);
     fileNameLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    fileTypeLabel = new QLabel(QFileDialog::tr("Files of type:"), q);
+    fileTypeLabel = new QLabel(q);
     fileTypeLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
     // push buttons
@@ -1891,7 +1945,7 @@ void QFileDialogPrivate::createWidgets()
     if (proxyModel)
         abstractModel = proxyModel;
     for (int i = 1; i < abstractModel->columnCount(QModelIndex()); ++i) {
-        QAction *showHeader = new QAction(QFileDialog::tr("Show ") + abstractModel->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString(), showActionGroup);
+        QAction *showHeader = new QAction(showActionGroup);
         showHeader->setCheckable(true);
         if (i != 1 && i != 2)
             showHeader->setChecked(true);
@@ -2094,9 +2148,6 @@ void QFileDialogPrivate::createToolButtons()
     backButton = new QToolButton(q);
     backButton->setObjectName(QLatin1String("qt_back_button"));
     backButton->setIcon(q->style()->standardIcon(QStyle::SP_ArrowBack));
-#ifndef QT_NO_TOOLTIP
-    backButton->setToolTip(QFileDialog::tr("Back"));
-#endif
     backButton->setAutoRaise(true);
     backButton->setEnabled(false);
     QObject::connect(backButton, SIGNAL(clicked()), q, SLOT(_q_navigateBackward()));
@@ -2104,9 +2155,6 @@ void QFileDialogPrivate::createToolButtons()
     forwardButton = new QToolButton(q);
     forwardButton->setObjectName(QLatin1String("qt_forward_button"));
     forwardButton->setIcon(q->style()->standardIcon(QStyle::SP_ArrowForward));
-#ifndef QT_NO_TOOLTIP
-    forwardButton->setToolTip(QFileDialog::tr("Forward"));
-#endif
     forwardButton->setAutoRaise(true);
     forwardButton->setEnabled(false);
     QObject::connect(forwardButton, SIGNAL(clicked()), q, SLOT(_q_navigateForward()));
@@ -2114,25 +2162,18 @@ void QFileDialogPrivate::createToolButtons()
     toParentButton = new QToolButton(q);
     toParentButton->setObjectName(QLatin1String("qt_toParent_button"));
     toParentButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogToParent));
-#ifndef QT_NO_TOOLTIP
-    toParentButton->setToolTip(QFileDialog::tr("Parent Directory"));
-#endif
     toParentButton->setAutoRaise(true);
     toParentButton->setEnabled(false);
     QObject::connect(toParentButton, SIGNAL(clicked()), q, SLOT(_q_navigateToParent()));
 
     newFolderButton = new QPushButton(q);
     newFolderButton->setObjectName(QLatin1String("qt_new_folder_button"));
-    newFolderButton->setText(QFileDialog::tr("New Folder"));
     newFolderButton->setEnabled(false);
     QObject::connect(newFolderButton, SIGNAL(clicked()), q, SLOT(_q_createDirectory()));
 
     listModeButton = new QToolButton(q);
     listModeButton->setObjectName(QLatin1String("qt_list_mode_button"));
     listModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogListView));
-#ifndef QT_NO_TOOLTIP
-    listModeButton->setToolTip(QFileDialog::tr("List View"));
-#endif
     listModeButton->setAutoRaise(true);
     QObject::connect(listModeButton, SIGNAL(clicked()), q, SLOT(_q_showListView()));
 
@@ -2140,9 +2181,6 @@ void QFileDialogPrivate::createToolButtons()
     detailModeButton->setObjectName(QLatin1String("qt_detail_mode_button"));
     detailModeButton->setDown(true);
     detailModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogDetailedView));
-#ifndef QT_NO_TOOLTIP
-    detailModeButton->setToolTip(QFileDialog::tr("Detail View"));
-#endif
     detailModeButton->setAutoRaise(true);
     QObject::connect(detailModeButton, SIGNAL(clicked()), q, SLOT(_q_showDetailsView()));
 
@@ -2165,7 +2203,7 @@ void QFileDialogPrivate::createMenuActions()
 {
     Q_Q(QFileDialog);
 
-    QAction *locationAction = new QAction(QFileDialog::tr("Go To The Folder"), q);
+    QAction *locationAction = new QAction(q);
     QList<QKeySequence> shortcuts;
     shortcuts.append(Qt::CTRL + Qt::Key_L);
     shortcuts.append(Qt::CTRL + Qt::Key_G + Qt::SHIFT);
@@ -2173,35 +2211,35 @@ void QFileDialogPrivate::createMenuActions()
     QObject::connect(locationAction, SIGNAL(triggered()), q, SLOT(_q_chooseLocation()));
     q->addAction(locationAction);
 
-    QAction *goHomeAction =  new QAction(QFileDialog::tr("Go To The Home Folder"), q);
+    QAction *goHomeAction =  new QAction(q);
     goHomeAction->setShortcut(Qt::CTRL + Qt::Key_H + Qt::SHIFT);
     QObject::connect(goHomeAction, SIGNAL(triggered()), q, SLOT(_q_goHome()));
     q->addAction(goHomeAction);
 
     // ### TODO add Desktop & Computer actions
 
-    QAction *goToParent =  new QAction(QFileDialog::tr("Go To Parent Folder"), q);
+    QAction *goToParent =  new QAction(q);
     goToParent->setObjectName(QLatin1String("qt_goto_parent_action"));
     goToParent->setShortcut(Qt::CTRL + Qt::UpArrow);
     QObject::connect(goToParent, SIGNAL(triggered()), q, SLOT(_q_navigateToParent()));
     q->addAction(goToParent);
 
-    renameAction = new QAction(QFileDialog::tr("&Rename"), q);
+    renameAction = new QAction(q);
     renameAction->setEnabled(false);
     renameAction->setObjectName(QLatin1String("qt_rename_action"));
     QObject::connect(renameAction, SIGNAL(triggered()), q, SLOT(_q_renameCurrent()));
 
-    deleteAction = new QAction(QFileDialog::tr("&Delete"), q);
+    deleteAction = new QAction(q);
     deleteAction->setEnabled(false);
     deleteAction->setObjectName(QLatin1String("qt_delete_action"));
     QObject::connect(deleteAction, SIGNAL(triggered()), q, SLOT(_q_deleteCurrent()));
 
-    showHiddenAction = new QAction(QFileDialog::tr("Show &hidden files"), q);
+    showHiddenAction = new QAction(q);
     showHiddenAction->setObjectName(QLatin1String("qt_show_hidden_action"));
     showHiddenAction->setCheckable(true);
     QObject::connect(showHiddenAction, SIGNAL(triggered()), q, SLOT(_q_showHidden()));
 
-    newFolderAction = new QAction(QFileDialog::tr("&New Folder"), q);
+    newFolderAction = new QAction(q);
     newFolderAction->setObjectName(QLatin1String("qt_new_folder_action"));
     QObject::connect(newFolderAction, SIGNAL(triggered()), q, SLOT(_q_createDirectory()));
 }
@@ -2552,7 +2590,7 @@ void QFileDialogPrivate::_q_goToDirectory(const QString &path)
     if (!dir.exists())
         dir = getEnvironmentVariable(path2);
 
-    if (dir.exists() || path2.isEmpty() || path2 == QFileDialog::tr("My Computer")) {
+    if (dir.exists() || path2.isEmpty() || path2 == model->myComputer().toString()) {
         _q_enterDirectory(index);
 #ifndef QT_NO_MESSAGEBOX
     } else {
