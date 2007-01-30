@@ -230,8 +230,11 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
         dev = QLatin1String("/dev/fb0");
 
     d_ptr->fd = open(dev.toLatin1().constData(), O_RDWR);
-    if (d_ptr->fd < 0) {
-        qCritical("Can't open framebuffer device %s", qPrintable(dev));
+    if (d_ptr->fd == -1 && QApplication::type() != QApplication::GuiServer)
+        d_ptr->fd = open(dev.toLatin1().constData(), O_RDONLY);
+    if (d_ptr->fd == -1) {
+        perror("QScreenLinuxFb::connect");
+        qCritical("Error opening framebuffer device %s", qPrintable(dev));
         return false;
     }
 
@@ -322,12 +325,15 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
                                  MAP_SHARED, d_ptr->fd, 0);
 
     if ((long)data == -1) {
-        perror("QLinuxFbScreen::connect");
-        qWarning("Error: failed to map framebuffer device to memory.");
-        return false;
+        if (QApplication::type() == QApplication::GuiServer) {
+            perror("QLinuxFbScreen::connect");
+            qWarning("Error: failed to map framebuffer device to memory.");
+            return false;
+        }
+        data = 0;
+    } else {
+        data += dataoffset;
     }
-
-    data += dataoffset;
 
     canaccel=useOffscreen();
 
