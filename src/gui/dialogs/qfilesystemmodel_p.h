@@ -306,6 +306,7 @@ public:
     QIcon icon(const QModelIndex &index) const;
     QString name(const QModelIndex &index) const;
     QString size(const QModelIndex &index) const;
+    static QString size(qint64 bytes);
     QString type(const QModelIndex &index) const;
     QString time(const QModelIndex &index) const;
 

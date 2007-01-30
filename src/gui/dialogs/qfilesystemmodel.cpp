@@ -438,7 +438,6 @@ QVariant QFileSystemModel::data(const QModelIndex &index, int role) const
 */
 QString QFileSystemModelPrivate::size(const QModelIndex &index) const
 {
-    Q_Q(const QFileSystemModel);
     if (!index.isValid())
         return QString();
     const QFileSystemNode *n = node(index);
@@ -453,24 +452,26 @@ QString QFileSystemModelPrivate::size(const QModelIndex &index) const
     // Konqueror - "4 KB"
     // Nautilus  - "9 items" (the number of children)
     }
+    return size(n->size());
+}
 
+QString QFileSystemModelPrivate::size(qint64 bytes)
+{
     // According to the Si standard KB is 1000 bytes, KiB is 1024
     // but on windows sizes are calculated by dividing by 1024 so we do what they do.
     const qint64 kb = 1024;
     const qint64 mb = 1024 * kb;
     const qint64 gb = 1024 * mb;
     const qint64 tb = 1024 * gb;
-    qint64 bytes = n->size();
-    // ### TODO make translatable?
     if (bytes >= tb)
-        return QLocale().toString(bytes / tb) + q->tr(" TB");
+        return QLocale().toString(bytes / tb) + QFileSystemModel::tr(" TB");
     if (bytes >= gb)
-        return QLocale().toString(bytes / gb) + q->tr(" GB");
+        return QLocale().toString(bytes / gb) + QFileSystemModel::tr(" GB");
     if (bytes >= mb)
-        return QLocale().toString(bytes / mb) + q->tr(" MB");
+        return QLocale().toString(bytes / mb) + QFileSystemModel::tr(" MB");
     if (bytes >= kb)
-        return QLocale().toString(bytes / kb) + q->tr(" KB");
-    return QLocale().toString(bytes) + q->tr(" bytes");
+        return QLocale().toString(bytes / kb) + QFileSystemModel::tr(" KB");
+    return QLocale().toString(bytes) + QFileSystemModel::tr(" bytes");
 }
 
 /*!
