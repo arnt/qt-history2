@@ -846,7 +846,7 @@ struct QTextLineItemIterator
     QTextLineItemIterator(QTextEngine *eng, int lineNum, const QPointF &pos = QPointF(),
                           const QTextLayout::FormatRange *_selection = 0);
 
-    inline bool atEnd() const { return i >= nItems - 1; }
+    inline bool atEnd() const { return logicalItem >= nItems - 1; }
     QScriptItem &next();
 
     bool getSelectionBounds(QFixed *selectionX, QFixed *selectionWidth) const;
@@ -862,7 +862,7 @@ struct QTextLineItemIterator
     int firstItem;
     int lastItem;
     int nItems;
-    int i;
+    int logicalItem;
     int item;
     int itemLength;
 
@@ -888,7 +888,7 @@ QTextLineItemIterator::QTextLineItemIterator(QTextEngine *_eng, int lineNum, con
       firstItem(eng->findItem(line.from)),
       lastItem(eng->findItem(lineEnd - 1)),
       nItems(lastItem - firstItem + 1),
-      i(-1),
+      logicalItem(-1),
       item(-1),
       visualOrder(nItems),
       levels(nItems),
@@ -909,8 +909,8 @@ QScriptItem &QTextLineItemIterator::next()
 {
     x += itemWidth;
 
-    ++i;
-    item = visualOrder[i] + firstItem;
+    ++logicalItem;
+    item = visualOrder[logicalItem] + firstItem;
     itemLength = eng->length(item);
     si = &eng->layoutData->items[item];
     if (!si->num_glyphs)
@@ -993,6 +993,39 @@ bool QTextLineItemIterator::getSelectionBounds(QFixed *selectionX, QFixed *selec
     return true;
 }
 
+static void addSelectedRegionsToPath(QTextEngine *eng, int lineNumber, const QPointF &pos, QTextLayout::FormatRange *selection,
+                                     QPainterPath *region)
+{
+    const QScriptLine &line = eng->lines[lineNumber];
+
+    if (!line.length) {
+        if (selection
+            && selection->start <= line.from
+            && selection->start + selection->length > line.from) {
+
+            const qreal lineHeight = line.height().toReal();
+            QRectF r(pos.x() + line.x.toReal(), pos.y() + line.y.toReal(),
+                     lineHeight / 2, lineHeight);
+            region->addRect(r);
+        }
+        return;
+    }
+
+    QTextLineItemIterator iterator(eng, lineNumber, pos, selection);
+
+    const QFixed y = QFixed::fromReal(pos.y()) + line.y + line.ascent;
+
+    while (!iterator.atEnd()) {
+        iterator.next();
+
+        QFixed selectionX, selectionWidth;
+        if (iterator.getSelectionBounds(&selectionX, &selectionWidth)) {
+            QRectF r(selectionX.toReal(), (y - line.ascent).toReal(), selectionWidth.toReal(), line.height().toReal());
+            region->addRect(r);
+        }
+    }
+}
+
 /*!
     Draws the whole layout on the painter \a p at the position specified by
     \a pos.
@@ -1016,16 +1049,34 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<FormatRang
         clipe = clipy + QFixed::fromReal(clip.height());
     }
 
-    for (int i = 0; i < d->lines.size(); i++) {
+    int firstLine = 0;
+    int lastLine = d->lines.size();
+    for (int i = 0; i < d->lines.size(); ++i) {
         QTextLine l(i, d);
         const QScriptLine &sl = d->lines[i];
 
-        if (sl.y > clipe || (sl.y + sl.height()) < clipy)
+        if (sl.y > clipe) {
+            lastLine = i;
+            break;
+        }
+        if ((sl.y + sl.height()) < clipy) {
+            firstLine = i;
             continue;
+        }
 
         l.draw(p, position);
-        for (int i = 0; i < selections.size(); ++i) {
-            FormatRange selection = selections.at(i);
+    }
+
+    for (int i = 0; i < selections.size(); ++i) {
+        FormatRange selection = selections.at(i);
+        const QBrush bg = selection.format.background();
+
+        QPainterPath region;
+        region.setFillRule(Qt::WindingFill);
+
+        for (int line = firstLine; line < lastLine; ++line) {
+            const QScriptLine &sl = d->lines[line];
+
             if (selection.format.boolProperty(QTextFormat::FullWidthSelection)
                 && selection.start >= sl.from
                 && (selection.start < sl.from + sl.length || !sl.length)
@@ -1033,16 +1084,40 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<FormatRang
                 QRectF selectionRect;
                 selectionRect.setLeft(0);
                 selectionRect.setWidth(INT_MAX);
-                selectionRect.setY(position.y() + l.y());
-                selectionRect.setHeight(l.height());
-                QBrush bg = selection.format.background();
-                if (bg.style() != Qt::NoBrush)
-                    p->fillRect(selectionRect, bg);
-                selection.start = sl.from;
-                selection.length = sl.length;
+                selectionRect.setY(position.y() + sl.y.toReal());
+                selectionRect.setHeight(sl.height().toReal());
+                region.addRect(selectionRect);
             }
+
+            addSelectedRegionsToPath(d, line, position, &selection, &region);
+        }
+
+        {
+            const QPen oldPen = p->pen();
+            const QBrush oldBrush = p->brush();
+
+            p->setPen(selection.format.penProperty(QTextFormat::OutlinePen));
+            p->setBrush(selection.format.brushProperty(QTextFormat::BackgroundBrush));
+            p->drawPath(region);
+
+            p->setPen(oldPen);
+            p->setPen(oldBrush);
+        }
+
+        p->save();
+        p->setClipPath(region, Qt::IntersectClip);
+
+        // don't just clear the property, set an empty brush that overrides a potential
+        // background brush specified in the text
+        selection.format.setProperty(QTextFormat::BackgroundBrush, QBrush());
+        selection.format.clearProperty(QTextFormat::OutlinePen);
+
+        for (int line = firstLine; line < lastLine; ++line) {
+            QTextLine l(line, d);
             l.draw(p, position, &selection);
         }
+
+        p->restore();
     }
 
     if (!d->cacheGlyphs)
@@ -1745,8 +1820,6 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 
     const QFixed y = QFixed::fromReal(pos.y()) + line.y + line.ascent;
 
-    QRectF outlineRect;
-
     while (!iterator.atEnd()) {
         QScriptItem &si = iterator.next();
 
@@ -1772,8 +1845,6 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                             c.setAlpha(128);
                             p->fillRect(itemRect, c);
                         }
-                        if (selection)
-                            outlineRect = outlineRect.united(itemRect);
                     }
                 } else { // si.isTab
                     QTextItemInt gf;
@@ -1803,18 +1874,6 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
         gf.logClusters = logClusters + iterator.itemStart - si.position;
         gf.num_chars = iterator.itemEnd - iterator.itemStart;
         gf.width = iterator.itemWidth;
-
-        if (selection) {
-            QFixed selectionX, selectionWidth;
-            if (!iterator.getSelectionBounds(&selectionX, &selectionWidth))
-                continue;
-
-            QRectF rect(selectionX.toReal(), (y - line.ascent).toReal(), selectionWidth.toReal(), line.height().toReal());
-            if (selection)
-                outlineRect = outlineRect.united(rect);
-            p->save();
-            p->setClipRect(rect, Qt::IntersectClip);
-        }
 
         QFont f = eng->font(si);
         QTextCharFormat chf;
@@ -1883,17 +1942,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                 p->drawTextItem(pos, gf);
             }
         }
-        if (selection)
-            p->restore();
     }
 
-    if (selection && outlineRect.isValid()) {
-        QVariant outline = selection->format.property(QTextFormat::OutlinePen);
-        if (outline.type() == QVariant::Pen) {
-            p->setPen(qVariantValue<QPen>(outline));
-            p->drawRect(outlineRect);
-        }
-    }
     if (eng->hasFormats())
         p->setPen(pen);
 }
