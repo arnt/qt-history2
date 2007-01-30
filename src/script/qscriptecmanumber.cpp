@@ -65,7 +65,7 @@ Number::Number(QScriptEngine *eng):
     ctor.setProperty(QLatin1String("MAX_VALUE"),
                      QScriptValue(eng, 1.7976931348623158e+308), flags);
     ctor.setProperty(QLatin1String("MIN_VALUE"),
-                     QScriptValue(eng, 2.2250738585072014e-308), flags);
+                     QScriptValue(eng, 5e-324), flags);
 }
 
 Number::~Number()
