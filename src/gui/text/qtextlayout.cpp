@@ -841,6 +841,158 @@ qreal QTextLayout::maximumWidth() const
     return d->maxWidth.toReal();
 }
 
+struct QTextLineItemIterator
+{
+    QTextLineItemIterator(QTextEngine *eng, int lineNum, const QPointF &pos = QPointF(),
+                          const QTextLayout::FormatRange *_selection = 0);
+
+    inline bool atEnd() const { return i >= nItems - 1; }
+    QScriptItem &next();
+
+    bool getSelectionBounds(QFixed *selectionX, QFixed *selectionWidth) const;
+
+    QTextEngine *eng;
+
+    QFixed x;
+    QFixed pos_x;
+    const QScriptLine &line;
+    QScriptItem *si;
+
+    int lineEnd;
+    int firstItem;
+    int lastItem;
+    int nItems;
+    int i;
+    int item;
+    int itemLength;
+
+    int glyphsStart;
+    int glyphsEnd;
+    int itemStart;
+    int itemEnd;
+
+    QFixed itemWidth;
+
+    QVarLengthArray<int> visualOrder;
+    QVarLengthArray<uchar> levels;
+
+    const QTextLayout::FormatRange *selection;
+};
+
+QTextLineItemIterator::QTextLineItemIterator(QTextEngine *_eng, int lineNum, const QPointF &pos,
+                                             const QTextLayout::FormatRange *_selection)
+    : eng(_eng),
+      line(eng->lines[lineNum]),
+      si(0),
+      lineEnd(line.from + line.length),
+      firstItem(eng->findItem(line.from)),
+      lastItem(eng->findItem(lineEnd - 1)),
+      nItems(lastItem - firstItem + 1),
+      i(-1),
+      item(-1),
+      visualOrder(nItems),
+      levels(nItems),
+      selection(_selection)
+{
+    pos_x = x = QFixed::fromReal(pos.x());
+
+    x += line.x;
+
+    x += alignLine(eng, line);
+
+    for (int i = 0; i < nItems; ++i)
+        levels[i] = eng->layoutData->items[i+firstItem].analysis.bidiLevel;
+    QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
+}
+
+QScriptItem &QTextLineItemIterator::next()
+{
+    x += itemWidth;
+
+    ++i;
+    item = visualOrder[i] + firstItem;
+    itemLength = eng->length(item);
+    si = &eng->layoutData->items[item];
+    if (!si->num_glyphs)
+        eng->shape(item);
+
+    if (si->isObject) {
+        itemWidth = si->width;
+        return *si;
+    } else if (si->isTab) {
+        itemWidth = eng->nextTab(si, x - pos_x) - (x - pos_x);
+        return *si;
+    }
+
+    unsigned short *logClusters = eng->logClusters(si);
+    QGlyphLayout *glyphs = eng->glyphs(si);
+
+    itemStart = qMax(line.from, si->position);
+    glyphsStart = logClusters[itemStart - si->position];
+    if (lineEnd < si->position + itemLength) {
+        itemEnd = lineEnd;
+        glyphsEnd = logClusters[itemEnd-si->position];
+    } else {
+        itemEnd = si->position + itemLength;
+        glyphsEnd = si->num_glyphs;
+    }
+    // show soft-hyphen at line-break
+    if (si->position + itemLength >= lineEnd
+        && eng->layoutData->string.at(lineEnd - 1) == 0x00ad)
+        glyphs[glyphsEnd - 1].attributes.dontPrint = false;
+
+    itemWidth = 0;
+    for (int g = glyphsStart; g < glyphsEnd; ++g)
+        itemWidth += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
+
+    return *si;
+}
+
+bool QTextLineItemIterator::getSelectionBounds(QFixed *selectionX, QFixed *selectionWidth) const
+{
+    *selectionX = *selectionWidth = 0;
+
+    if (!selection)
+        return false;
+
+    if (si->isObject || si->isTab) {
+        if (si->position >= selection->start + selection->length
+            || si->position + itemLength <= selection->start)
+            return false;
+
+        *selectionX = x;
+        *selectionWidth = itemWidth;
+    } else {
+        unsigned short *logClusters = eng->logClusters(si);
+        QGlyphLayout *glyphs = eng->glyphs(si);
+
+        int from = qMax(itemStart, selection->start) - si->position;
+        int to = qMin(itemEnd, selection->start + selection->length) - si->position;
+        if (from >= to)
+            return false;
+
+        int start_glyph = logClusters[from];
+        int end_glyph = (to == eng->length(item)) ? si->num_glyphs : logClusters[to];
+        QFixed soff;
+        QFixed swidth;
+        if (si->analysis.bidiLevel %2) {
+            for (int g = glyphsEnd - 1; g >= end_glyph; --g)
+                soff += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
+            for (int g = end_glyph - 1; g >= start_glyph; --g)
+                swidth += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
+        } else {
+            for (int g = glyphsStart; g < start_glyph; ++g)
+                soff += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
+            for (int g = start_glyph; g < end_glyph; ++g)
+                swidth += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
+        }
+
+        *selectionX = x + soff;
+        *selectionWidth = swidth;
+    }
+    return true;
+}
+
 /*!
     Draws the whole layout on the painter \a p at the position specified by
     \a pos.
@@ -1589,54 +1741,28 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 
     QPen pen = p->pen();
 
-    int lineEnd = line.from + line.length;
+    QTextLineItemIterator iterator(eng, i, pos, selection);
 
-    int firstItem = eng->findItem(line.from);
-    int lastItem = eng->findItem(lineEnd - 1);
-    int nItems = lastItem-firstItem+1;
-
-    QFixed x = QFixed::fromReal(pos.x());
-    QFixed y = QFixed::fromReal(pos.y());
-    QFixed pos_x = x;
-    QFixed pos_y = y;
-
-    x += line.x;
-    y += line.y + line.ascent;
-
-    x += alignLine(eng, line);
-
-    QVarLengthArray<int> visualOrder(nItems);
-    QVarLengthArray<uchar> levels(nItems);
-    for (int i = 0; i < nItems; ++i)
-        levels[i] = eng->layoutData->items[i+firstItem].analysis.bidiLevel;
-    QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
+    const QFixed y = QFixed::fromReal(pos.y()) + line.y + line.ascent;
 
     QRectF outlineRect;
 
-    for (int i = 0; i < nItems; ++i) {
-        int item = visualOrder[i]+firstItem;
-        QScriptItem &si = eng->layoutData->items[item];
-        int si_len = eng->length(item);
-        if (!si.num_glyphs)
-            eng->shape(item);
+    while (!iterator.atEnd()) {
+        QScriptItem &si = iterator.next();
 
         if (si.isObject || si.isTab) {
             if (eng->hasFormats() &&
                 (!selection || (si.position < selection->start + selection->length
-                                && si.position + si_len > selection->start))) {
+                                && si.position + iterator.itemLength > selection->start))) {
                 p->save();
                 QTextCharFormat format = eng->format(&si);
                 if (selection)
                     format.merge(selection->format);
-                QFixed width = si.width;
-                if (si.isTab) {
-                    width = eng->nextTab(&si, x - pos_x) - (x - pos_x);
-                }
-                setPenAndDrawBackground(p, pen, format, QRectF(x.toReal(), (y - line.ascent).toReal(), width.toReal(), line.height().toReal()));
+                setPenAndDrawBackground(p, pen, format, QRectF(iterator.x.toReal(), (y - line.ascent).toReal(), iterator.itemWidth.toReal(), line.height().toReal()));
                 if (si.isObject && eng->block.docHandle()) {
-                    QRectF itemRect(x.toReal(), (y-si.ascent).toReal(), width.toReal(), si.height().toReal());
+                    QRectF itemRect(iterator.x.toReal(), (y-si.ascent).toReal(), iterator.itemWidth.toReal(), si.height().toReal());
                     eng->docLayout()->drawInlineObject(p, itemRect,
-                                                       QTextInlineObject(item, eng),
+                                                       QTextInlineObject(iterator.item, eng),
                                                        si.position + eng->block.position(),
                                                        format);
                     if (selection) {
@@ -1655,78 +1781,35 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                     gf.num_glyphs = 0;
                     gf.chars = 0;
                     gf.num_chars = 0;
-                    gf.width = width;
+                    gf.width = iterator.itemWidth;
                     gf.initFontAttributes(si, &f, format);
-                    p->drawTextItem(QPointF(x.toReal(), y.toReal()), gf);
+                    p->drawTextItem(QPointF(iterator.x.toReal(), y.toReal()), gf);
                 }
                 p->restore();
             }
 
-            if (si.isTab)
-                x = eng->nextTab(&si, x - pos_x) + pos_x;
-            else
-                x += si.width;
             continue;
         }
 
         unsigned short *logClusters = eng->logClusters(&si);
         QGlyphLayout *glyphs = eng->glyphs(&si);
 
-        int start = qMax(line.from, si.position);
-        int gs = logClusters[start-si.position];
-        int end;
-        int ge;
-        if (lineEnd < si.position + eng->length(item)) {
-            end = lineEnd;
-            ge = logClusters[end-si.position];
-        } else {
-            end = si.position + si_len;
-            ge = si.num_glyphs;
-        }
-        // show soft-hyphen at line-break
-        if (si.position + si_len >= lineEnd
-            && eng->layoutData->string.at(lineEnd - 1) == 0x00ad)
-            glyphs[ge - 1].attributes.dontPrint = false;
-
         QFixed itemBaseLine = y;
 
         QTextItemInt gf;
-        gf.num_glyphs = ge - gs;
-        gf.glyphs = glyphs + gs;
-        gf.chars = eng->layoutData->string.unicode() + start;
-        gf.logClusters = logClusters + start - si.position;
-        gf.num_chars = end - start;
-        gf.width = 0;
-        int g = gs;
-        while (g < ge) {
-            gf.width += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
-            ++g;
-        }
+        gf.num_glyphs = iterator.glyphsEnd - iterator.glyphsStart;
+        gf.glyphs = glyphs + iterator.glyphsStart;
+        gf.chars = eng->layoutData->string.unicode() + iterator.itemStart;
+        gf.logClusters = logClusters + iterator.itemStart - si.position;
+        gf.num_chars = iterator.itemEnd - iterator.itemStart;
+        gf.width = iterator.itemWidth;
 
         if (selection) {
-            int from = qMax(start, selection->start) - si.position;
-            int to = qMin(end, selection->start + selection->length) - si.position;
-            if (from >= to) {
-                x += gf.width;
+            QFixed selectionX, selectionWidth;
+            if (!iterator.getSelectionBounds(&selectionX, &selectionWidth))
                 continue;
-            }
-            int start_glyph = logClusters[from];
-            int end_glyph = (to == eng->length(item)) ? si.num_glyphs : logClusters[to];
-            QFixed soff;
-            QFixed swidth;
-            if (si.analysis.bidiLevel %2) {
-                for (int g = ge - 1; g >= end_glyph; --g)
-                    soff += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
-                for (int g = end_glyph - 1; g >= start_glyph; --g)
-                    swidth += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
-            } else {
-                for (int g = gs; g < start_glyph; ++g)
-                    soff += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
-                for (int g = start_glyph; g < end_glyph; ++g)
-                    swidth += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
-            }
 
-            QRectF rect((x + soff).toReal(), (y - line.ascent).toReal(), swidth.toReal(), line.height().toReal());
+            QRectF rect(selectionX.toReal(), (y - line.ascent).toReal(), selectionWidth.toReal(), line.height().toReal());
             if (selection)
                 outlineRect = outlineRect.united(rect);
             p->save();
@@ -1740,7 +1823,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
             if (selection)
                 chf.merge(selection->format);
 
-            setPenAndDrawBackground(p, pen, chf, QRectF(x.toReal(), (y - line.ascent).toReal(),
+            setPenAndDrawBackground(p, pen, chf, QRectF(iterator.x.toReal(), (y - line.ascent).toReal(),
                                                         gf.width.toReal(), line.height().toReal()));
 
             QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
@@ -1758,9 +1841,9 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 
         if (eng->underlinePositions) {
             // can't have selections in this case
-            drawMenuText(p, x, itemBaseLine, si, gf, eng, start, gs);
+            drawMenuText(p, iterator.x, itemBaseLine, si, gf, eng, iterator.itemStart, iterator.glyphsStart);
         } else {
-            QPointF pos(x.toReal(), itemBaseLine.toReal());
+            QPointF pos(iterator.x.toReal(), itemBaseLine.toReal());
             if (chf.penProperty(QTextFormat::TextOutline).style() != Qt::NoPen) {
                 QPainterPath path;
                 path.setFillRule(Qt::WindingFill);
@@ -1802,8 +1885,6 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
         }
         if (selection)
             p->restore();
-
-        x += gf.width;
     }
 
     if (selection && outlineRect.isValid()) {
