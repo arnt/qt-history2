@@ -2078,7 +2078,6 @@ bool QMdiSubWindow::event(QEvent *event)
             d->setWindowFlags(windowFlags());
         setContentsMargins(0, 0, 0, 0);
         d->updateGeometryConstraints();
-        resize(minimumSizeHint());
         d->updateCursor();
         d->updateMask();
         d->updateDirtyRegions();

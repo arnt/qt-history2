@@ -491,8 +491,10 @@ void QMdiAreaPrivate::appendChild(QMdiSubWindow *child)
         child->setParent(q->viewport(), child->windowFlags());
     childWindows.append(QPointer<QMdiSubWindow>(child));
 
-    if (!child->testAttribute(Qt::WA_Resized))
-        child->resize(child->sizeHint());
+    if (!child->testAttribute(Qt::WA_Resized)) {
+        QSize newSize(child->sizeHint().boundedTo(q->viewport()->size()));
+        child->resize(newSize.expandedTo(child->minimumSize()));
+    }
     place(MinOverlapPlacer(), child);
 
     if (q->scrollBarsEnabled())
@@ -998,30 +1000,26 @@ QMdiSubWindow *QMdiArea::addSubWindow(QWidget *widget, Qt::WindowFlags windowFla
     Q_D(QMdiArea);
     // QWidget::setParent clears focusWidget so store it
     QWidget *childFocus = widget->focusWidget();
+    QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(widget);
 
     // Widget is already a QMdiSubWindow
-    if (QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(widget)) {
-        if (d_func()->childWindows.indexOf(child) != -1) {
+    if (child) {
+        if (d->childWindows.indexOf(child) != -1) {
             qWarning("QMdiArea::addSubWindow: window is already added");
             return child;
         }
         child->setParent(viewport(), windowFlags ? windowFlags : child->windowFlags());
-        if (childFocus)
-            childFocus->setFocus();
-        d->appendChild(child);
-        return child;
+    // Create a QMdiSubWindow
+    } else {
+        child = new QMdiSubWindow(viewport(), windowFlags);
+        child->setAttribute(Qt::WA_DeleteOnClose);
+        child->setWidget(widget);
+        Q_ASSERT(child->testAttribute(Qt::WA_DeleteOnClose));
     }
 
-    QMdiSubWindow *child = new QMdiSubWindow(viewport(), windowFlags);
-    child->setAttribute(Qt::WA_DeleteOnClose);
-    child->setWidget(widget);
     if (childFocus)
         childFocus->setFocus();
-    if (child->testAttribute(Qt::WA_Resized))
-        child->setAttribute(Qt::WA_Resized, false);
     d->appendChild(child);
-    Q_ASSERT(child->testAttribute(Qt::WA_DeleteOnClose));
-
     return child;
 }
 
