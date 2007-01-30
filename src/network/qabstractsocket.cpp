@@ -1686,6 +1686,8 @@ qint64 QAbstractSocket::readData(char *data, qint64 maxSize)
             d->socketError = d->socketEngine->error();
             setErrorString(d->socketEngine->errorString());
         }
+        if (!d->socketEngine->isReadNotificationEnabled())
+            d->socketEngine->setReadNotificationEnabled(true);
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::readData(%p \"%s\", %lli) == %lld",
                data, qt_prettyDebug(data, 32, readBytes).data(), maxSize,
