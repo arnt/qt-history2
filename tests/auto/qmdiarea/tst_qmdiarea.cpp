@@ -621,32 +621,56 @@ void tst_QMdiArea::setActiveSubWindow()
 
 }
 
+class LargeWidget : public QWidget
+{
+public:
+    LargeWidget(QWidget *parent = 0) : QWidget(parent) {}
+    QSize sizeHint() const { return QSize(1280, 1024); }
+};
+
 void tst_QMdiArea::addAndRemoveWindows()
 {
     QMdiArea workspace;
+    workspace.resize(800, 600);
 
-    { // addSubWindow
+    { // addSubWindow with large widget
     QCOMPARE(workspace.subWindowList().count(), 0);
-    QWidget *window = workspace.addSubWindow(new QWidget);
+    QWidget *window = workspace.addSubWindow(new LargeWidget);
     QVERIFY(window);
     qApp->processEvents();
     QCOMPARE(workspace.subWindowList().count(), 1);
     QVERIFY(window->windowFlags() == DefaultWindowFlags);
+    QCOMPARE(window->size(), workspace.viewport()->size());
     }
 
-    { // addSubWindow
-    QWidget *window = workspace.addSubWindow(new QWidget);
+    { // addSubWindow, minimumSize set.
+    QMdiSubWindow *window = new QMdiSubWindow;
+    window->setMinimumSize(900, 900);
+    workspace.addSubWindow(window);
     QVERIFY(window);
     qApp->processEvents();
     QCOMPARE(workspace.subWindowList().count(), 2);
     QVERIFY(window->windowFlags() == DefaultWindowFlags);
+    QCOMPARE(window->size(), window->minimumSize());
+    }
+
+    { // addSubWindow, resized
+    QMdiSubWindow *window = new QMdiSubWindow;
+    window->setWidget(new QWidget);
+    window->resize(1500, 1500);
+    workspace.addSubWindow(window);
+    QVERIFY(window);
+    qApp->processEvents();
+    QCOMPARE(workspace.subWindowList().count(), 3);
+    QVERIFY(window->windowFlags() == DefaultWindowFlags);
+    QCOMPARE(window->size(), QSize(1500, 1500));
     }
 
     { // addSubWindow with 0 pointer
     QTest::ignoreMessage(QtWarningMsg, "QMdiArea::addSubWindow: null pointer to widget");
     QWidget *window = workspace.addSubWindow(0);
     QVERIFY(!window);
-    QCOMPARE(workspace.subWindowList().count(), 2);
+    QCOMPARE(workspace.subWindowList().count(), 3);
     }
 
     { // addChildWindow
@@ -655,7 +679,7 @@ void tst_QMdiArea::addAndRemoveWindows()
     qApp->processEvents();
     QVERIFY(window->windowFlags() == DefaultWindowFlags);
     window->setWidget(new QWidget);
-    QCOMPARE(workspace.subWindowList().count(), 3);
+    QCOMPARE(workspace.subWindowList().count(), 4);
     QTest::ignoreMessage(QtWarningMsg, "QMdiArea::addSubWindow: window is already added");
     workspace.addSubWindow(window);
     }
@@ -663,7 +687,7 @@ void tst_QMdiArea::addAndRemoveWindows()
     { // addChildWindow with 0 pointer
     QTest::ignoreMessage(QtWarningMsg, "QMdiArea::addSubWindow: null pointer to widget");
     workspace.addSubWindow(0);
-    QCOMPARE(workspace.subWindowList().count(), 3);
+    QCOMPARE(workspace.subWindowList().count(), 4);
     }
 
     // removeSubWindow
