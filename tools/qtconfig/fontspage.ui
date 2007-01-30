@@ -108,7 +108,7 @@
            <number>6</number>
           </property>
           <item>
-           <widget class="QComboBox" name="cmbFamily" />
+           <widget class="QFontComboBox" name="cmbFamily" />
           </item>
           <item>
            <widget class="QComboBox" name="cmbFontStyle" />
@@ -164,7 +164,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="cmbSubstituteSource" >
+         <widget class="QFontComboBox" name="cmbSubstituteSource" >
           <property name="editable" >
            <bool>true</bool>
           </property>
@@ -181,7 +181,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="cmbSubstituteTarget" />
+         <widget class="QFontComboBox" name="cmbSubstituteTarget" />
         </item>
         <item>
          <widget class="QPushButton" name="pbAdd" >
