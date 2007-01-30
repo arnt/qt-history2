@@ -1,6 +1,20 @@
 TEMPLATE = app
-DEPENDPATH += .
+CONFIG += qt warn_on
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
+LANGUAGE = C++
+RESOURCES = qtconfig.qrc
+
+PROJECTNAME = Qt Configuration
+TARGET = qtconfig
+DESTDIR = ../../bin
+
+target.path=$$[QT_INSTALL_BINS]
+INSTALLS += target
 INCLUDEPATH += .
+DBFILE = qtconfig.db
 
 HEADERS += colorbutton.h \
            window.h \
@@ -27,4 +41,4 @@ FORMS += window.ui \
          printerpage.ui \
          interfacepage.ui \
          appearancepage.ui
-RESOURCES += qtconfig.qrc
+
