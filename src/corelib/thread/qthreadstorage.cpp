@@ -184,24 +184,10 @@ void QThreadStorageData::finish(void **p)
     QThreadStorage only deletes per-thread data when the thread exits
     or when setLocalData() is called multiple times.
 
-    \o QThreadStorage can only be used with threads started with
-    QThread. It cannot be used with threads started using
-    platform-specific APIs.
-
-    \o As a corollary to the above, platform-specific APIs cannot be
-    used to exit or terminate a QThread using QThreadStorage. Doing so
-    will cause all per-thread data to be leaked. See QThread::exit()
-    and QThread::terminate().
-
     \o QThreadStorage can be used to store data for the \c main()
-    thread after QApplication has been constructed. QThreadStorage
-    deletes all data set for the \c main() thread when QApplication is
-    destroyed, regardless of whether or not the \c main() thread has
-    actually finished.
-
-    \o The implementation of QThreadStorage limits the total number of
-    QThreadStorage objects to 256. An unlimited number of threads
-    can store per-thread data in each QThreadStorage object.
+    thread. QThreadStorage deletes all data set for the \c main()
+    thread when QApplication is destroyed, regardless of whether or
+    not the \c main() thread has actually finished.
 
     \endlist
 
