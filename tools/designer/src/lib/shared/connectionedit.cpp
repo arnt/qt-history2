@@ -1435,25 +1435,29 @@ void ConnectionEdit::resizeEvent(QResizeEvent *e)
 
 void ConnectionEdit::setSource(Connection *con, const QString &obj_name)
 {
-    QObject *object = qFindChild<QObject*>(m_bg_widget, obj_name);
-    if (object == 0 && m_bg_widget->objectName() == obj_name)
-        object = m_bg_widget;
+    QObject *object = 0;
+    if (!obj_name.isEmpty()) {
+        object = qFindChild<QObject*>(m_bg_widget, obj_name);
+        if (object == 0 && m_bg_widget->objectName() == obj_name)
+            object = m_bg_widget;
 
-    if (object == con->object(EndPoint::Source))
-        return;
-
+        if (object == con->object(EndPoint::Source))
+            return;
+    }
     m_undo_stack->push(new SetEndPointCommand(this, con, EndPoint::Source, object));
 }
 
 void ConnectionEdit::setTarget(Connection *con, const QString &obj_name)
 {
-    QObject *object = qFindChild<QObject*>(m_bg_widget, obj_name);
-    if (object == 0 && m_bg_widget->objectName() == obj_name)
-        object = m_bg_widget;
+    QObject *object = 0;
+    if (!obj_name.isEmpty()) {
+        object = qFindChild<QObject*>(m_bg_widget, obj_name);
+        if (object == 0 && m_bg_widget->objectName() == obj_name)
+            object = m_bg_widget;
 
-    if (object == con->object(EndPoint::Target))
-        return;
-
+        if (object == con->object(EndPoint::Target))
+            return;
+    }
     m_undo_stack->push(new SetEndPointCommand(this, con, EndPoint::Target, object));
 }
 

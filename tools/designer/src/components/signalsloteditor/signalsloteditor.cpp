@@ -716,8 +716,9 @@ QObject *SignalSlotEditor::objectByName(QWidget *topLevel, const QString &name) 
 {
     if (name.isEmpty())
         return 0;
-    QObject *object = 0;
+
     Q_ASSERT(topLevel);
+    QObject *object = 0;
     if (topLevel->objectName() == name)
         object = topLevel;
     else
@@ -845,15 +846,13 @@ void SignalSlotEditor::setSource(Connection *_con, const QString &obj_name)
 {
     SignalSlotConnection *con = static_cast<SignalSlotConnection*>(_con);
 
-    if (con->sender() == obj_name)
+   if (con->sender() == obj_name)
         return;
 
     m_form_window->beginCommand(QApplication::translate("Command", "Change sender"));
     ConnectionEdit::setSource(con, obj_name);
 
     QObject *sourceObject = con->object(EndPoint::Source);
-    Q_ASSERT(sourceObject != 0);
-
     const QStringList member_list = memberList(m_form_window, sourceObject, SignalMember);
 
     if (!member_list.contains(con->signal()))
@@ -872,8 +871,8 @@ void SignalSlotEditor::setTarget(Connection *_con, const QString &obj_name)
     m_form_window->beginCommand(QApplication::translate("Command", "Change receiver"));
     ConnectionEdit::setTarget(con, obj_name);
 
-    QWidget *w = con->widget(EndPoint::Target);
-    const QStringList member_list = memberList(m_form_window, w, SlotMember);
+    QObject *targetObject = con->object(EndPoint::Target);
+    QStringList member_list = memberList(m_form_window, targetObject, SlotMember);
 
     if (!member_list.contains(con->slot()))
         undoStack()->push(new SetMemberCommand(con, EndPoint::Target, QString(), this));
