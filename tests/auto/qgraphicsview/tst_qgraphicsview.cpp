@@ -125,7 +125,9 @@ void tst_QGraphicsView::construction()
     QCOMPARE(view.mapToScene(QRect()), QPolygonF());
     QCOMPARE(view.mapToScene(QPolygon()), QPolygonF());
     QCOMPARE(view.mapFromScene(QPointF()), QPoint());
-    QCOMPARE(view.mapFromScene(QRectF()), QPolygon());
+    QPolygon poly;
+    poly << QPoint() << QPoint() << QPoint() << QPoint();
+    QCOMPARE(view.mapFromScene(QRectF()), poly);
     QCOMPARE(view.mapFromScene(QPolygonF()), QPolygon());
     QCOMPARE(view.transformationAnchor(), QGraphicsView::AnchorViewCenter);
     QCOMPARE(view.resizeAnchor(), QGraphicsView::NoAnchor);
