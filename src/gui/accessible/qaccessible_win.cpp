@@ -22,7 +22,12 @@
 #include "qwidget.h"
 #include "qsettings.h"
 
+#if WINVER >= 0x0600
+#include <winuser.h>
+#else
 #include <winable.h>
+#endif
+
 #include <oleacc.h>
 #if !defined(Q_CC_BOR) && !defined (Q_CC_GNU)
 #include <comdef.h>

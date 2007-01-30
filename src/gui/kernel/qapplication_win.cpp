@@ -51,7 +51,13 @@
 
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
+
+#if WINVER >= 0x0600
+#include <winuser.h>
+#else
 #include <winable.h>
+#endif
+
 #include <oleacc.h>
 #ifndef WM_GETOBJECT
 #define WM_GETOBJECT                    0x003D
