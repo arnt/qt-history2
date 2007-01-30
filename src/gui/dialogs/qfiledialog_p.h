@@ -48,6 +48,10 @@
 #include <qtimeline.h>
 #include <qdebug.h>
 
+#ifdef Q_OS_UNIX
+#include <sys/statvfs.h>
+#endif
+
 class QFileDialogListView;
 class QFileDialogTreeView;
 class QFileDialogLineEdit;
@@ -133,6 +137,23 @@ public:
         if (acceptMode == QFileDialog::AcceptSave)
             return (QLineEdit*)fileNameEdit;
         return (QLineEdit*)quickLineEdit;
+    }
+
+    int maxNameLength(const QString &path) {
+#ifdef Q_OS_UNIX
+        struct statvfs vfs;
+        if (statvfs(path.toLocal8Bit().constData(), &vfs) >= 0)
+            return vfs.f_namemax;
+#endif
+        return -1;
+    }
+
+    QString basename(const QString &path)
+    {
+        int separator = path.lastIndexOf(QDir::separator());
+        if (separator != -1)
+            return path.mid(separator + 1);
+        return path;
     }
 
     static inline QDir::Filters filterForMode(QFileDialog::FileMode mode)

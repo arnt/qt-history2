@@ -1524,6 +1524,13 @@ void QFileDialog::accept()
             d->lineEdit()->selectAll();
             return;
         }
+
+        if (!info.exists()) {
+            int maxNameLength = d->maxNameLength(info.path());
+            if (maxNameLength >= 0 && info.fileName().length() > maxNameLength)
+                return;
+        }
+
         // check if we have to ask for permission to overwrite the file
         if (!info.exists() || !confirmOverwrite() || acceptMode() == AcceptOpen) {
             QDialog::accept();
@@ -2461,9 +2468,31 @@ void QFileDialogPrivate::_q_updateOkButton() {
     case QFileDialog::ExistingFiles:
         button->setEnabled(!model->isDir(index) && index.isValid());
         break;
-    case QFileDialog::AnyFile:
-        button->setEnabled(!q->selectedFiles().isEmpty());
+    case QFileDialog::AnyFile: {
+        QStringList files = q->selectedFiles();
+        bool enableButton = !files.isEmpty();
+        // make sure the typed in names are not too long for the file system
+        if (enableButton && fileNameEdit->isVisible()) {
+            QString lastDirectory;
+            int maxLength = -1;
+            for (int i = 0; i < files.count(); ++i) {
+                QString base = basename(files.at(i));
+                QString directory = files.at(i).left(files.at(i).count() - base.count());
+                if (directory != lastDirectory) {
+                    lastDirectory = directory;
+                    maxLength = maxNameLength(lastDirectory);
+                }
+                if (maxLength < 0)
+                    break;
+                if (basename(files.at(i)).length() > maxLength) {
+                    enableButton = false;
+                    break;
+                }
+            }
+        }
+        button->setEnabled(enableButton);
         break;
+    }
     default:
         button->setEnabled(false);
     }
