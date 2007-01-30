@@ -42,7 +42,13 @@
 #endif
 
 #include <uxtheme.h>
+
+#if WINVER >= 0x0600
+#include <vssym32.h>
+#else
 #include <tmschema.h>
+#endif
+
 #include <limits.h>
 
 // Older Platform SDKs do not have the extended DrawThemeBackgroundEx
