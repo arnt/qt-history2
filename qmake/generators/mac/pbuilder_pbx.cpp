@@ -1145,8 +1145,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << varGlue("QMAKE_PBX_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "buildSettings = {" << "\n"
-      << "\t\t\t\t" << writeSettings("CC", fixListForOutput("QMAKE_CC")) << ";" << "\n"
-      << "\t\t\t\t" << writeSettings("CPLUSPLUS", fixListForOutput("QMAKE_CXX")) << ";" << "\n"
+      << "\t\t\t\t" << writeSettings("CC", fixForOutput(findProgram(project->first("QMAKE_CC")))) << ";" << "\n"
+      << "\t\t\t\t" << writeSettings("CPLUSPLUS", fixForOutput(findProgram(project->first("QMAKE_CXX")))) << ";" << "\n"
       << "\t\t\t\t" << writeSettings("HEADER_SEARCH_PATHS", fixListForOutput("INCLUDEPATH") + QStringList(fixForOutput(specdir())), SettingsAsList, 5) << ";" << "\n"
       << "\t\t\t\t" << writeSettings("LIBRARY_SEARCH_PATHS", fixListForOutput("QMAKE_PBX_LIBPATHS"), SettingsAsList, 5) << ";" << "\n"
       << "\t\t\t\t" << writeSettings("OPTIMIZATION_CFLAGS", QStringList(), SettingsAsList, 5) << ";" << "\n";
@@ -1502,6 +1502,23 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         }
     }
     return true;
+}
+
+QString
+ProjectBuilderMakefileGenerator::findProgram(const QString &prog)
+{
+    QString ret = prog;
+    if(QDir::isRelativePath(ret)) {
+        QStringList paths = QString(qgetenv("PATH")).split(':');
+        for(int i = 0; i < paths.size(); ++i) {
+            QString path = paths.at(i) + "/" + prog;
+            if(exists(path)) {
+                ret = path;
+                break;
+            }
+        }
+    }
+    return ret;
 }
 
 QString

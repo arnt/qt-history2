@@ -28,6 +28,7 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
     QString pbxbuild();
     QMap<QString, QString> keys;
     QString keyFor(const QString &file);
+    QString findProgram(const QString &prog);
     QString fixForOutput(const QString &file);
     QStringList fixListForOutput(const QString &where);
     int     reftypeForFile(const QString &where);
