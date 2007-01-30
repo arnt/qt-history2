@@ -14,9 +14,9 @@
 #ifndef STYLEDBUTTON_H
 #define STYLEDBUTTON_H
 
-#include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 
-class StyledButton : public QPushButton
+class StyledButton : public QToolButton
 {
     Q_OBJECT
     Q_PROPERTY(QBrush brush READ brush WRITE setBrush)
@@ -25,7 +25,7 @@ class StyledButton : public QPushButton
 public:
     enum ButtonType {ColorButton, PixmapButton};
 
-    StyledButton (QWidget *parent = 0, ButtonType type = ColorButton);
+    StyledButton(QWidget *parent = 0, ButtonType type = ColorButton);
     virtual ~StyledButton () {}
 
     void setButtonType(ButtonType type);
@@ -41,7 +41,7 @@ public slots:
     virtual void onEditor();
 
 protected:
-    void paintEvent (QPaintEvent *event);
+    void paintEvent(QPaintEvent *event);
 
 private:
     QString buildImageFormatList() const;

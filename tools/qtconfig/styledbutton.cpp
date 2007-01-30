@@ -22,7 +22,7 @@
 #include "styledbutton.h"
 
 StyledButton::StyledButton(QWidget *parent, ButtonType type)
-    : QPushButton(parent), btype(type)
+    : QToolButton(parent), btype(type)
 {
     connect(this, SIGNAL(clicked()), this, SLOT(onEditor()));
     mBrush = QBrush(Qt::darkGray);
@@ -51,11 +51,10 @@ void StyledButton::setButtonType(ButtonType type)
 
 void StyledButton::paintEvent(QPaintEvent *event)
 {
-    QPushButton::paintEvent(event);
-
-    QStyleOptionButton opt;
-    opt.init(this);
-    QRect contentRect = style()->subElementRect(QStyle::SE_PushButtonContents, &opt, this);
+    QToolButton::paintEvent(event);
+    QStyleOptionToolButton button;
+    initStyleOption(&button);
+    QRect contentRect = style()->subControlRect(QStyle::CC_ToolButton, &button, QStyle::SC_ToolButton, this);
 
     QPainter paint(this);
 
