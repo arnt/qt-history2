@@ -97,6 +97,7 @@ static const char *helpTexts[] = {
         "languages that have large character sets, for example, Chinese and "
         "Japanese."),
 // ### What does the 'Enhanced support for languages written R2L do?
+#ifndef Q_WS_MAC
     QT_TRANSLATE_NOOP(
         "Window",
         "<p><b><font size+=2>Printer</font></b></p>"
@@ -110,6 +111,7 @@ static const char *helpTexts[] = {
         "<p>When using font embedding you can select additional directories where "
         "Qt should search for embeddable font files.  By default, the X "
         "server font path is used."),
+#endif
     0 };
 
 Window::Window(QWidget *parent)
@@ -119,7 +121,9 @@ Window::Window(QWidget *parent)
     connect(appearancePage, SIGNAL(changed()), this, SLOT(setModified()));
     connect(fontsPage, SIGNAL(changed()), this, SLOT(setModified()));
     connect(interfacePage, SIGNAL(changed()), this, SLOT(setModified()));
+#ifndef Q_WS_MAC
     connect(printerPage, SIGNAL(changed()), this, SLOT(setModified()));
+#endif
     connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(onCurrentTabIndexChanged(int)));
     connect(actionRevert, SIGNAL(triggered(bool)), this, SLOT(revert()));
     connect(actionExit, SIGNAL(triggered(bool)), this, SLOT(exit()));
@@ -127,6 +131,10 @@ Window::Window(QWidget *parent)
     connect(actionAboutQt, SIGNAL(triggered(bool)), this, SLOT(aboutQt()));
     connect(actionSave, SIGNAL(triggered(bool)), this, SLOT(save()));
 
+#ifdef Q_WS_MAC
+    tabWidget->removeTab(3);
+    delete printerPage;
+#endif
     QRegExp rx("&([^&])");
     for (int i=0; helpTexts[i]; ++i) {
         QKeySequence seq(
@@ -243,8 +251,8 @@ void Window::save()
     appearancePage->save();
     fontsPage->save();
     interfacePage->save();
-    printerPage->save();
 #if defined(Q_WS_X11)
+    printerPage->save();
     qt_x11_apply_settings_in_all_apps();
 #endif // Q_WS_X11
 
@@ -269,8 +277,8 @@ void Window::revert()
     appearancePage->load();
     fontsPage->load();
     interfacePage->load();
-    printerPage->load();
 #if defined(Q_WS_X11)
+    printerPage->load();
     qt_x11_apply_settings_in_all_apps();
 #endif // Q_WS_X11
 
