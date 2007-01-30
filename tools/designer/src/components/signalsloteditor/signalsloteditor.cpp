@@ -816,11 +816,10 @@ void SignalSlotEditor::setSignal(SignalSlotConnection *con, const QString &membe
     QDesignerMemberSheetExtension *members
         = qt_extension<QDesignerMemberSheetExtension*>
         (m_form_window->core()->extensionManager(), con->object(SignalSlotConnection::EndPoint::Target));
-    Q_ASSERT(members != 0);
 
     m_form_window->beginCommand(QApplication::translate("Command", "Change signal"));
     undoStack()->push(new SetMemberCommand(con, EndPoint::Source, member, this));
-    if (!members->signalMatchesSlot(member, con->slot()))
+    if (members && !members->signalMatchesSlot(member, con->slot()))
         undoStack()->push(new SetMemberCommand(con, EndPoint::Target, QString(), this));
     m_form_window->endCommand();
 }
@@ -833,11 +832,10 @@ void SignalSlotEditor::setSlot(SignalSlotConnection *con, const QString &member)
     QDesignerMemberSheetExtension *members
         = qt_extension<QDesignerMemberSheetExtension*>
         (m_form_window->core()->extensionManager(), con->object(SignalSlotConnection::EndPoint::Source));
-    Q_ASSERT(members != 0);
 
     m_form_window->beginCommand(QApplication::translate("Command", "Change slot"));
     undoStack()->push(new SetMemberCommand(con, EndPoint::Target, member, this));
-    if (!members->signalMatchesSlot(con->signal(), member))
+    if (members && !members->signalMatchesSlot(con->signal(), member))
         undoStack()->push(new SetMemberCommand(con, EndPoint::Source, QString(), this));
     m_form_window->endCommand();
 }
