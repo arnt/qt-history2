@@ -95,7 +95,7 @@ void AppearancePage::load()
         if (s == currentstyle) {
             found = i;
             break;
-        } else if (currentstyle.contains(s)) {
+        } else if (currentstyle.contains(s) || (currentstyle.left(9) == s.left(9))) {
             found = i;
         }
     }
