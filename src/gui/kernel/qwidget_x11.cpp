@@ -2044,28 +2044,32 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         } else {
             if (!q->isVisible())
                 do_size_hints(q, extra);
-            if (!q->isVisible()
-                || (data.window_flags & Qt::X11BypassWindowManagerHint) == Qt::X11BypassWindowManagerHint
-                // work around 4Dwm's incompliance with ICCCM 4.1.5
-                || X11->desktopEnvironment == DE_4DWM) {
-                XMoveResizeWindow(dpy, data.winid, x, y, w, h);
-            } else if (X11->isSupportedByWM(ATOM(_NET_MOVERESIZE_WINDOW))) {
-                XEvent e;
-                e.xclient.type = ClientMessage;
-                e.xclient.message_type = ATOM(_NET_MOVERESIZE_WINDOW);
-                e.xclient.display = X11->display;
-                e.xclient.window = q->internalWinId();
-                e.xclient.format = 32;
-                e.xclient.data.l[0] = StaticGravity | 1<<8 | 1<<9 | 1<<10 | 1<<11 | 1<<12;
-                e.xclient.data.l[1] = x;
-                e.xclient.data.l[2] = y;
-                e.xclient.data.l[3] = w;
-                e.xclient.data.l[4] = h;
-                XSendEvent(X11->display, RootWindow(X11->display, q->x11Info().screen()),
-                           false, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
-            } else {
-                // pos() is right according to ICCCM 4.1.5
-                XMoveResizeWindow(dpy, data.winid, q->pos().x(), q->pos().y(), w, h);
+            if (isMove) {
+                if (!q->isVisible()
+                    || (data.window_flags & Qt::X11BypassWindowManagerHint) == Qt::X11BypassWindowManagerHint
+                    // work around 4Dwm's incompliance with ICCCM 4.1.5
+                    || X11->desktopEnvironment == DE_4DWM) {
+                    XMoveResizeWindow(dpy, data.winid, x, y, w, h);
+                } else if (X11->isSupportedByWM(ATOM(_NET_MOVERESIZE_WINDOW))) {
+                    XEvent e;
+                    e.xclient.type = ClientMessage;
+                    e.xclient.message_type = ATOM(_NET_MOVERESIZE_WINDOW);
+                    e.xclient.display = X11->display;
+                    e.xclient.window = q->internalWinId();
+                    e.xclient.format = 32;
+                    e.xclient.data.l[0] = StaticGravity | 1<<8 | 1<<9 | 1<<10 | 1<<11 | 1<<12;
+                    e.xclient.data.l[1] = x;
+                    e.xclient.data.l[2] = y;
+                    e.xclient.data.l[3] = w;
+                    e.xclient.data.l[4] = h;
+                    XSendEvent(X11->display, RootWindow(X11->display, q->x11Info().screen()),
+                               false, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
+                } else {
+                    // pos() is right according to ICCCM 4.1.5
+                    XMoveResizeWindow(dpy, data.winid, q->pos().x(), q->pos().y(), w, h);
+                }
+            } else if (isResize) {
+                XResizeWindow(dpy, data.winid, w, h);
             }
         }
         if (isResize) // set config pending only on resize, see qapplication_x11.cpp, translateConfigEvent()
