@@ -661,21 +661,20 @@ int QScript::Lexer::lex()
         dval = strtold(buffer8, 0L);
 #endif
     } else if (state == Hex) { // scan hex numbers
-        // TODO: support long uint
-        uint i;
+        quint64 i;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-        sscanf_s(buffer8, "%x", &i);
+        sscanf_s(buffer8, "%Lx", &i);
 #else
-        sscanf(buffer8, "%x", &i);
+        sscanf(buffer8, "%Lx", &i);
 #endif
         dval = i;
         state = Number;
     } else if (state == Octal) {   // scan octal number
-        uint ui;
+        quint64 ui;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-        sscanf_s(buffer8, "%o", &ui);
+        sscanf_s(buffer8, "%Lo", &ui);
 #else
-        sscanf(buffer8, "%o", &ui);
+        sscanf(buffer8, "%Lo", &ui);
 #endif
         dval = ui;
         state = Number;
