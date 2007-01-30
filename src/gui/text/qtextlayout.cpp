@@ -1101,7 +1101,7 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<FormatRang
             p->drawPath(region);
 
             p->setPen(oldPen);
-            p->setPen(oldBrush);
+            p->setBrush(oldBrush);
         }
 
         p->save();
