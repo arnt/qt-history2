@@ -2201,11 +2201,10 @@ void QStaticListViewBase::intersectingStaticSet(const QRect &area) const
         flowStartPosition = area.top();
         flowEndPosition = area.bottom();
     }
-    if (segmentPositions.isEmpty() || flowPositions.isEmpty())
+    if (segmentPositions.count() < 2 || flowPositions.isEmpty())
         return;
     // the last segment position is actually the edge of the last segment
     const int segLast = segmentPositions.count() - 2;
-    Q_ASSERT(segLast > -1);
     int seg = qBinarySearch<int>(segmentPositions, segStartPosition, 0, segLast + 1);
     for (; seg <= segLast && segmentPositions.at(seg) <= segEndPosition; ++seg) {
         int first = segmentStartRows.at(seg);
