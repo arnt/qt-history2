@@ -218,9 +218,13 @@ QScriptValue Math::method_min(QScriptContext *context,
 QScriptValue Math::method_pow(QScriptContext *context,
                               QScriptEngine *eng)
 {
-    qsreal arg0 = context->argument(0).toNumber();
-    qsreal arg1 = context->argument(1).toNumber();
-    return (QScriptValue(eng, ::pow(arg0, arg1)));
+    qsreal x = context->argument(0).toNumber();
+    qsreal y = context->argument(1).toNumber();
+    if (qIsNan(y))
+        return QScriptValue(eng, qSNan());
+    if ((x == 1) && qIsInf(y))
+        return QScriptValue(eng, qSNan());
+    return (QScriptValue(eng, ::pow(x, y)));
 }
 
 QScriptValue Math::method_random(QScriptContext *,
