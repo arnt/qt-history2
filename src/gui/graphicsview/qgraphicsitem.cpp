@@ -6006,20 +6006,28 @@ void QGraphicsSimpleTextItemPrivate::updateBoundingRect()
 
 /*!
     \class QGraphicsSimpleTextItem
-    \brief The QGraphicsSimpleTextItem class provides a text item that you can add to
-    a QGraphicsScene.
+    \brief The QGraphicsSimpleTextItem class provides a simple text path item
+    that you can add to a QGraphicsScene.
     \since 4.2
     \ingroup multimedia
 
-    To set the item's text, pass a QString to QGraphicsSimpleTextItem's
-    constructor, or call setText().
+    To set the item's text, you can either pass a QString to
+    QGraphicsSimpleTextItem's constructor, or call setText() to change the
+    text later. To set the text fill color, call setBrush().
 
-    QGraphicsTextItem uses the text's formatted size and the associated font
-    to provide a reasonable implementation of boundingRect(), shape(),
+    The simple text item can have both a fill and an outline; setBrush() will
+    set the text fill (i.e., text color), and setPen() sets the pen that will
+    be used to draw the text outline. (The latter can be slow, especially for
+    complex pens, and items with long text content.) If all you want is to
+    draw a simple line of text, you should call setBrush() only, and leave the
+    pen unset; QGraphicsSimpleTextItem's pen is by default Qt::NoPen.
+
+    QGraphicsSimpleTextItem uses the text's formatted size and the associated
+    font to provide a reasonable implementation of boundingRect(), shape(),
     and contains(). You can set the font by calling setFont().
 
-    QGraphicsSimpleText does not display rich text. It is optimized for drawing
-    plain text fast and with low memory overhead.
+    QGraphicsSimpleText does not display rich text; instead, you can use
+    QGraphicsTextItem, which provides full text control capabilities.
 
     \img graphicsview-simpletextitem.png
 
