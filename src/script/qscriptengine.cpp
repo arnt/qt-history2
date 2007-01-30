@@ -366,6 +366,9 @@ QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun, in
 {
     Q_D(QScriptEngine);
     QScriptValue v = d->createFunction(new QScript::CFunction(fun, length));
+    QScriptValue prototype = newObject();
+    v.setProperty(d->idTable()->id_prototype, prototype);
+    QScriptValueImpl::get(prototype)->setProperty(d->idTable()->id_constructor, v);
     return v;
 }
 
