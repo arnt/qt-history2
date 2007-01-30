@@ -81,6 +81,7 @@ struct QListViewLayoutInfo
     int last;
     bool wrap;
     QListView::Flow flow;
+    int max;
 };
 
 class QListView;
@@ -142,6 +143,7 @@ public:
     QVector<int> flowPositions;
     QVector<int> segmentPositions;
     QVector<int> segmentStartRows;
+    QVector<int> segmentExtents;
 
     QSize contentsSize;
 
@@ -243,7 +245,6 @@ public:
     void prepareItemsLayout();
 
     bool doItemsLayout(int num);
-    void doItemsLayout(const QRect &bounds, const QModelIndex &first, const QModelIndex &last);
 
     inline void intersectingSet(const QRect &area, bool doLayout = true) const {
         if (doLayout) executePostedLayout();
