@@ -964,7 +964,10 @@ void QDockWidgetPrivate::setWindowState(bool floating, bool unplug, const QRect 
     \value DockWidgetFloatable  The dock widget can be detached from the
                                 main window, and floated as an independent
                                 window.
-
+    \value DockWidgetVerticalTitleBar The dock widget displays a vertical title
+                                  bar on its left side. This can be used to
+                                  increase the ammount of vertical space in
+                                  a QMainWindow.
     \value AllDockWidgetFeatures  The dock widget can be closed, moved,
                                   and floated.
     \value NoDockWidgetFeatures   The dock widget cannot be closed, moved,
@@ -1297,6 +1300,46 @@ QAction * QDockWidget::toggleViewAction() const
     \a allowedAreas parameter gives the new value of the property.
 */
 
+/*!
+    Sets an arbitrary \a widget as the dock widget's title bar. If \a widget
+    is 0, the title bar widget is removed, but not deleted.
+
+    If a title bar widget is set, QDockWidget will not use native window
+    decorations when it is floated.
+
+    Here are some tips for implementing custom title bars:
+
+    \list
+    \i Mouse events that are not explicitly handled by the title bar widget
+       must be ignored by calling QMouseEvent::ignore(). These events then
+       propagate to the QDockWidget parent, which handles them in the usual
+       manner, moving when the title bar is dragged, docking and undocking
+       when it is double-clicked, etc.
+
+    \i When DockWidgetVerticalTitleBar is set on QDockWidget, the title
+       bar widget is repositioned accordingly. In resizeEvent(), the title
+       bar should check what orientation it should assume:
+       \code
+       QDockWidget *dockWidget = qobject_cast<QDockWidget*>(parentWidget());
+       if (dockWidget->features() & QDockWidget::DockWidgetVerticalTitleBar) {
+           // I need to be vertical
+       } else {
+           // I need to be horizontal
+       }
+       \endcode
+
+    \i The title bar widget must have a valid QWidget::sizeHint() and
+       QWidget::minimumSizeHint(). These functions should take into account
+       the current orientation of the title bar.
+    \endlist
+
+    Using qobject_cast as shown above, the title bar widget has full access
+    to its parent QDockWidget. Hence it can perform such operations as docking
+    and hiding in response to user actions.
+
+    \sa titleBarWidget() DockWidgetVerticalTitleBar
+*/
+
 void QDockWidget::setTitleBarWidget(QWidget *widget)
 {
     Q_D(QDockWidget);
@@ -1305,6 +1348,13 @@ void QDockWidget::setTitleBarWidget(QWidget *widget)
     layout->setWidget(QDockWidgetLayout::TitleBar, widget);
     d->updateButtons();
 }
+
+/*!
+    Returns the custom title bar widget set on the QDockWidget, or 0 if no
+    custom title bar has been set.
+
+    \sa setTitleBarWidget()
+*/
 
 QWidget *QDockWidget::titleBarWidget() const
 {
