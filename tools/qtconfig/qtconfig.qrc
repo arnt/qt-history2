@@ -4,5 +4,7 @@
         <file>images/quit.png</file>
         <file>images/revert.png</file>
         <file>images/save.png</file>
+        <file>images/undo.png</file>
+        <file>images/redo.png</file>
     </qresource>
 </RCC>

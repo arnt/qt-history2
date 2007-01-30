@@ -1,8 +1,0 @@
-<!DOCTYPE RCC><RCC version="1.0">
-    <qresource>
-        <file>images/resetproperty.png</file>
-        <file>images/quit.png</file>
-        <file>images/revert.png</file>
-        <file>images/save.png</file>
-    </qresource>
-</RCC>

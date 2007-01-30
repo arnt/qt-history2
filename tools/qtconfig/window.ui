@@ -175,6 +175,13 @@ p, li { white-space: pre-wrap; }
     <addaction name="separator" />
     <addaction name="actionExit" />
    </widget>
+   <widget class="QMenu" name="menuEdit" >
+    <property name="title" >
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="actionUndo" />
+    <addaction name="actionRedo" />
+   </widget>
    <widget class="QMenu" name="menuHelp" >
     <property name="title" >
      <string>&amp;Help</string>
@@ -183,6 +190,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionAboutQt" />
    </widget>
    <addaction name="menuFile" />
+   <addaction name="menuEdit" />
    <addaction name="menuHelp" />
   </widget>
   <widget class="QStatusBar" name="statusbar" />
@@ -205,7 +213,7 @@ p, li { white-space: pre-wrap; }
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="qtconfigport.qrc" >:/images/save.png</iconset>
+    <iconset resource="qtconfig.qrc" >:/images/save.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Save</string>
@@ -225,7 +233,7 @@ p, li { white-space: pre-wrap; }
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="qtconfigport.qrc" >:/images/revert.png</iconset>
+    <iconset resource="qtconfig.qrc" >:/images/revert.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Revert</string>
@@ -240,9 +248,43 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+R</string>
    </property>
   </action>
+  <action name="actionUndo" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="qtconfig.qrc" >:/images/undo.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Undo</string>
+   </property>
+   <property name="statusTip" >
+    <string>Undo last command</string>
+   </property>
+   <property name="whatsThis" >
+    <string>Undo last command</string>
+   </property>
+  </action>
+  <action name="actionRedo" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="qtconfig.qrc" >:/images/redo.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Redo</string>
+   </property>
+   <property name="statusTip" >
+    <string>Redo last command</string>
+   </property>
+   <property name="whatsThis" >
+    <string>Redo last command</string>
+   </property>
+  </action>
   <action name="actionExit" >
    <property name="icon" >
-    <iconset resource="qtconfigport.qrc" >:/images/quit.png</iconset>
+    <iconset resource="qtconfig.qrc" >:/images/quit.png</iconset>
    </property>
    <property name="text" >
     <string>E&amp;xit</string>
@@ -303,7 +345,7 @@ p, li { white-space: pre-wrap; }
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="qtconfigport.qrc" />
+  <include location="qtconfig.qrc" />
  </resources>
  <connections/>
 </ui>

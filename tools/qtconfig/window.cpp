@@ -126,6 +126,9 @@ Window::Window(QWidget *parent)
     connect(actionAboutQt, SIGNAL(triggered(bool)), this, SLOT(aboutQt()));
     connect(actionSave, SIGNAL(triggered(bool)), this, SLOT(save()));
 
+    actionUndo->setShortcut(QKeySequence(QKeySequence::Undo));
+    actionRedo->setShortcut(QKeySequence(QKeySequence::Redo));
+
 #ifdef Q_WS_MAC
     tabWidget->removeTab(3);
     delete printerPage;
