@@ -22,20 +22,12 @@
    </rect>
   </property>
   <property name="sizePolicy" >
-   <sizepolicy>
-    <hsizetype>7</hsizetype>
-    <vsizetype>7</vsizetype>
+   <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <layout class="QVBoxLayout" >
-   <property name="margin" >
-    <number>9</number>
-   </property>
-   <property name="spacing" >
-    <number>6</number>
-   </property>
    <item>
     <widget class="QGroupBox" name="groupBox" >
      <property name="title" >
@@ -80,6 +72,12 @@
       </property>
       <item row="0" column="0" >
        <widget class="QLabel" name="label" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Maximum" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text" >
          <string>Quick</string>
         </property>
@@ -88,9 +86,7 @@
       <item row="0" column="1" >
        <widget class="StyledButton" native="1" name="pbBuild" >
         <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>0</hsizetype>
-          <vsizetype>0</vsizetype>
+         <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -106,18 +102,8 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2" >
-       <widget class="QRadioButton" name="rbCompute" >
-        <property name="text" >
-         <string>Compute Details</string>
-        </property>
-        <property name="checked" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="3" >
-       <widget class="QRadioButton" name="rbDetails" >
+       <widget class="QCheckBox" name="cbDetails" >
         <property name="text" >
          <string>Show Details</string>
         </property>
@@ -133,15 +119,26 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="2" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
     </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="gbPreview" >
      <property name="sizePolicy" >
-      <sizepolicy>
-       <hsizetype>5</hsizetype>
-       <vsizetype>7</vsizetype>
+      <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -149,43 +146,47 @@
      <property name="title" >
       <string>Previe&amp;w</string>
      </property>
-     <layout class="QGridLayout" >
-      <property name="margin" >
-       <number>8</number>
-      </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item row="0" column="2" >
-       <widget class="QRadioButton" name="rbDisabled" >
-        <property name="text" >
-         <string>Disabled</string>
-        </property>
-       </widget>
+     <layout class="QVBoxLayout" >
+      <item>
+       <layout class="QHBoxLayout" >
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cmbColorGroup" >
+          <item>
+           <property name="text" >
+            <string>Enabled</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Inactive</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Disabled</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
       </item>
-      <item row="0" column="1" >
-       <widget class="QRadioButton" name="rbInactive" >
-        <property name="text" >
-         <string>Inactive</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" >
-       <widget class="QRadioButton" name="rbActive" >
-        <property name="text" >
-         <string>Active</string>
-        </property>
-        <property name="checked" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="3" >
+      <item>
        <widget class="PreviewFrame" native="1" name="previewFrame" >
         <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>7</hsizetype>
-          <vsizetype>7</vsizetype>
+         <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -212,12 +213,8 @@
  <tabstops>
   <tabstop>cmbStyle</tabstop>
   <tabstop>pbBuild</tabstop>
-  <tabstop>rbCompute</tabstop>
   <tabstop>rbDetails</tabstop>
   <tabstop>paletteView</tabstop>
-  <tabstop>rbActive</tabstop>
-  <tabstop>rbInactive</tabstop>
-  <tabstop>rbDisabled</tabstop>
  </tabstops>
  <resources/>
  <connections/>

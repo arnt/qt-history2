@@ -67,11 +67,8 @@ AppearancePage::AppearancePage(QWidget *parent)
     connect(m_paletteModel, SIGNAL(paletteChanged(const QPalette &)),
             this, SLOT(paletteChanged(const QPalette &)));
     connect(pbBuild, SIGNAL(changed()), this, SLOT(buildPalette()));
-    connect(rbActive, SIGNAL(clicked()), this, SLOT(onActiveClicked()));
-    connect(rbInactive, SIGNAL(clicked()), this, SLOT(onInactiveClicked()));
-    connect(rbDisabled, SIGNAL(clicked()), this, SLOT(onDisabledClicked()));
-    connect(rbCompute, SIGNAL(clicked()), this, SLOT(onComputeClicked()));
-    connect(rbDetails, SIGNAL(clicked()), this, SLOT(onDetailsClicked()));
+    connect(cmbColorGroup, SIGNAL(activated(QString)), this, SLOT(onColorGroupActivated(QString)));
+    connect(cbDetails, SIGNAL(toggled(bool)), this, SLOT(onDetailsToggled(bool)));
 
     paletteView->setSelectionBehavior(QAbstractItemView::SelectRows);
     paletteView->setDragEnabled(true);
@@ -179,47 +176,37 @@ void AppearancePage::setPalette(const QPalette &palette, const QPalette &parentP
     setPalette(palette);
 }
 
-void AppearancePage::onActiveClicked()
+void AppearancePage::onColorGroupActivated(const QString &colorGroup)
 {
-    m_currentColorGroup = QPalette::Active;
+    if (colorGroup == tr("Active")) {
+        m_currentColorGroup = QPalette::Active;
+    } else if (colorGroup == tr("Inactive")) {
+        m_currentColorGroup = QPalette::Inactive;
+    } else if (colorGroup == tr("Disabled")) {
+        m_currentColorGroup = QPalette::Disabled;
+    }
+
     updatePreviewPalette();
 }
 
-void AppearancePage::onInactiveClicked()
+void AppearancePage::onDetailsToggled(bool showDetails)
 {
-    m_currentColorGroup = QPalette::Inactive;
-    updatePreviewPalette();
-}
-
-void AppearancePage::onDisabledClicked()
-{
-    m_currentColorGroup = QPalette::Disabled;
-    updatePreviewPalette();
-}
-
-void AppearancePage::onComputeClicked()
-{
-    if (m_compute)
-        return;
-    paletteView->setColumnHidden(2, true);
-    paletteView->setColumnHidden(3, true);
-    m_compute = true;
-    m_paletteModel->setCompute(true);
-}
-
-void AppearancePage::onDetailsClicked()
-{
-    if (!m_compute)
-        return;
-    int w = paletteView->columnWidth(1);
-    paletteView->setColumnHidden(2, false);
-    paletteView->setColumnHidden(3, false);
-    QHeaderView *header = paletteView->header();
-    header->resizeSection(1, w / 3);
-    header->resizeSection(2, w / 3);
-    header->resizeSection(3, w / 3);
-    m_compute = false;
-    m_paletteModel->setCompute(false);
+    if (showDetails) {
+        int w = paletteView->columnWidth(1);
+        paletteView->setColumnHidden(2, false);
+        paletteView->setColumnHidden(3, false);
+        QHeaderView *header = paletteView->header();
+        header->resizeSection(1, w / 3);
+        header->resizeSection(2, w / 3);
+        header->resizeSection(3, w / 3);
+        m_compute = false;
+        m_paletteModel->setCompute(false);
+    } else {
+        paletteView->setColumnHidden(2, true);
+        paletteView->setColumnHidden(3, true);
+        m_compute = true;
+        m_paletteModel->setCompute(true);
+    }
 }
 
 void AppearancePage::paletteChanged(const QPalette &palette)

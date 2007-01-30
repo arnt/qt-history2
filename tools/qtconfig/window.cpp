@@ -231,6 +231,8 @@ void Window::closeEvent(QCloseEvent *e)
     settings.setValue("Window/currentTab", tabWidget->currentIndex());
     settings.setValue("Window/geometry", saveGeometry());
     settings.setValue("Window/isMaximized", isMaximized());
+    settings.setValue("Window/Appearance/showDetails", appearancePage->cbDetails->isChecked());
+
     e->accept();
     QMainWindow::closeEvent(e);
 }
@@ -321,6 +323,9 @@ void Window::showEvent(QShowEvent *e)
     if (!geometry.isNull()) {
         restoreGeometry(geometry);
     }
+    if (settings.value("Window/Appearance/showDetails", false).toBool())
+        appearancePage->cbDetails->setChecked(true);
+
     QMainWindow::showEvent(e);
 }
 void Window::onCurrentTabIndexChanged(int index)

@@ -137,11 +137,8 @@ Q_OBJECT
     void setPalette(const QPalette &palette, const QPalette &parentPalette);
 public slots:
     void onStyleComboChanged(const QString &stylename);
-    void onActiveClicked();
-    void onInactiveClicked();
-    void onDisabledClicked();
-    void onComputeClicked();
-    void onDetailsClicked();
+    void onColorGroupActivated(const QString &colorGroup);
+    void onDetailsToggled(bool showDetails);
     void paletteChanged(const QPalette &palette);
     void buildPalette();
 signals:
