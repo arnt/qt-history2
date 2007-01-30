@@ -894,10 +894,10 @@ Ltop:
         QScript::Member member;
         QScriptValue object;
 
-        if (! act->resolve(memberName, &member, &object, QScriptValue::ResolveLocal))
+        if (! act->resolve(memberName, &member, &object, QScriptValue::ResolveLocal)) {
             act->createMember(memberName, &member, QScriptValue::Undeletable);
-
-        act->put(member, undefined);
+            act->put(member, undefined);
+        }
         ++iPtr;
     }   Next();
 

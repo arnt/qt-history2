@@ -509,7 +509,8 @@ bool Compiler::visit(AST::VariableDeclaration *node)
     if (node->expression != 0) {
         iResolve(node->name);
         node->expression->accept(this);
-        iPutField();
+        iAssign();
+        iPop();
     }
 
     return false;
