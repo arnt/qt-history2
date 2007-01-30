@@ -468,7 +468,7 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, SelectionReason 
         }
         q->update(actionRect(action));
         QWidget *widget = widgetItems.value(action);
-        
+
         if (reason == SelectedFromKeyboard) {
             if (widget) {
                 if (widget->focusPolicy() != Qt::NoFocus)
@@ -628,7 +628,7 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
                                                  || !(scroll->scrollFlags & QMenuScroller::ScrollUp)))
         newOffset += scrollHeight;
     else if (location == QMenuScroller::ScrollBottom && ((newScrollFlags & QMenuScroller::ScrollDown)
-                                                         || !(scroll->scrollFlags & QMenuScroller::ScrollDown)))
+                                                           || !(scroll->scrollFlags & QMenuScroller::ScrollDown)))
         newOffset -= scrollHeight;
 
     QRect screen = popupGeometry(QApplication::desktop()->screenNumber(q));
@@ -636,10 +636,15 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
     if (q->height() < screen.height()-(desktopFrame*2)-1) {
         QRect geom = q->geometry();
         if (newOffset > scroll->scrollOffset && (scroll->scrollFlags & newScrollFlags & QMenuScroller::ScrollUp)) { //scroll up
-            geom.setHeight(geom.height()-(newOffset-scroll->scrollOffset));
+            const int newHeight = geom.height()-(newOffset-scroll->scrollOffset);
+            if(newHeight > geom.height())
+                geom.setHeight(newHeight);
         } else if(scroll->scrollFlags & newScrollFlags & QMenuScroller::ScrollDown) {
-            geom.setTop(geom.top() + (newOffset-scroll->scrollOffset));
-            if (geom != q->geometry()) {
+            int newTop = geom.top() + (newOffset-scroll->scrollOffset);
+            if (newTop < desktopFrame+screen.top())
+                newTop = desktopFrame+screen.top();
+            if (newTop < geom.top()) {
+                geom.setTop(newTop);
                 newOffset = 0;
                 newScrollFlags &= ~QMenuScroller::ScrollUp;
             }
@@ -1535,17 +1540,17 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
             pos.setY(qMin(mouse.y() - (size.height() + desktopFrame), screen.bottom()-desktopFrame-size.height()));
         else
             pos.setY(qMax(p.y() - (size.height() + desktopFrame), screen.bottom()-desktopFrame-size.height()));
-    } else if (pos.y() < screen.top()) {
-        pos.setY(screen.top());
+    } else if (pos.y() < screen.top() + desktopFrame) {
+        pos.setY(screen.top() + desktopFrame);
     }
 
-    if (pos.y() < screen.top())
-        pos.setY(screen.top());
+    if (pos.y() < screen.top() + desktopFrame)
+        pos.setY(screen.top() + desktopFrame);
     if (pos.y()+size.height() > screen.bottom() - desktopFrame) {
         if (d->scroll) {
             d->scroll->scrollFlags |= uint(QMenuPrivate::QMenuScroller::ScrollDown);
             int y = qMax(screen.y(),pos.y());
-            size.setHeight(screen.height()-desktopFrame*2-y);
+            size.setHeight(screen.height()-(desktopFrame*2)-y);
         } else {
             // Too big for screen, bias to see bottom of menu (for some reason)
             pos.setY(screen.bottom()-size.height());
@@ -1910,7 +1915,7 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
             if (e->button() == Qt::LeftButton)
 #endif
                 d->activateAction(action, QAction::Trigger);
-        
+
     } else if (d->motions > 6) {
         d->hideUpToMenuBar();
     }
