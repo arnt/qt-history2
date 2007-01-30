@@ -35,7 +35,7 @@ public:
     QExtendedInformation() : size(0), fileType(System), isHidden(false),
                              isSymLink(false), caseSensitive(true) {}
 
-    int size;
+    qint64 size;
     QString displayType;
     QIcon icon;
     QDateTime lastModified;

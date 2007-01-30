@@ -238,7 +238,7 @@ bool QFileSystemModel::isDir(const QModelIndex &index) const
     return fileInfo(index).isDir();
 }
 
-int QFileSystemModel::size(const QModelIndex &index) const
+qint64 QFileSystemModel::size(const QModelIndex &index) const
 {
     Q_D(const QFileSystemModel);
     if (!index.isValid())
@@ -456,11 +456,11 @@ QString QFileSystemModelPrivate::size(const QModelIndex &index) const
 
     // According to the Si standard KB is 1000 bytes, KiB is 1024
     // but on windows sizes are calculated by dividing by 1024 so we do what they do.
-    const quint64 kb = 1024;
-    const quint64 mb = 1024 * kb;
-    const quint64 gb = 1024 * mb;
-    const quint64 tb = 1024 * gb;
-    quint64 bytes = n->size();
+    const qint64 kb = 1024;
+    const qint64 mb = 1024 * kb;
+    const qint64 gb = 1024 * mb;
+    const qint64 tb = 1024 * gb;
+    qint64 bytes = n->size();
     // ### TODO make translatable?
     if (bytes >= tb)
         return QLocale().toString(bytes / tb) + q->tr(" TB");

@@ -93,7 +93,7 @@ public:
 
     QString filePath(const QModelIndex &index) const;
     bool isDir(const QModelIndex &index) const;
-    int size(const QModelIndex &index) const;
+    qint64 size(const QModelIndex &index) const;
     QString type(const QModelIndex &index) const;
     QDateTime lastModified(const QModelIndex &index) const;
 
@@ -147,7 +147,7 @@ public:
 
         QString fileName;
 
-        inline int size() const { if (info && !info->isDir()) return info->size; return 0; }
+        inline qint64 size() const { if (info && !info->isDir()) return info->size; return 0; }
         inline QString type() const { if (info) return info->displayType; return QLatin1String(""); }
         inline QDateTime lastModified() const { if (info) return info->lastModified; return QDateTime(); }
         inline QFile::Permissions permissions() const { if (info) return info->permissions; return 0; }
