@@ -4533,8 +4533,9 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 break; }
             case SC_ComboBoxListBoxPopup:{
                 if (combo->editable) {
+                    HIRect inner = qt_mac_get_combobox_inner_bounds(qt_hirectForQRect(combo->rect), bdi);
                     QRect editRect = qt_mac_get_combobox_edit_bounds(combo->rect, bdi);
-                    ret.adjust(editRect.x(), editRect.y(), editRect.width(), editRect.y() + editRect.height() + 3);
+                    ret.adjust(inner.origin.x, 0, inner.origin.x + inner.size.width, editRect.y() + editRect.height() + 2);
                 } else {
                     QRect editRect = qt_mac_get_combobox_edit_bounds(combo->rect, bdi);
                     ret.adjust(4, 0, editRect.width() + 10, 0);
