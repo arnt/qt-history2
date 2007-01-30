@@ -170,7 +170,7 @@ bool QDockWidgetLayout::nativeWindowDeco() const
     return false;
 #else
     return parentWidget()->isWindow() && item_list[QDockWidgetLayout::TitleBar] == 0;
-#endif;
+#endif
 }
 
 void QDockWidgetLayout::addItem(QLayoutItem*)
@@ -722,7 +722,7 @@ void QDockWidgetPrivate::mouseMoveEvent(QMouseEvent *event)
     if (!dwlayout->nativeWindowDeco()) {
         if (!state->dragging
             && mwlayout->pluggingWidget == 0
-            && (event->pos() - state->pressPos).manhattanLength() 
+            && (event->pos() - state->pressPos).manhattanLength()
                 > QApplication::startDragDistance()) {
             startDrag();
 #ifdef Q_OS_WIN
