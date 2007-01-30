@@ -306,10 +306,9 @@ void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
             return;
         }
 
-        // Enable auto-reenable-write-callback. A write QSocketNotifier stays enabled
-        // after a write, while a CFSocket by default does not.
         CFOptionFlags flags = CFSocketGetSocketFlags(socketInfo->socket);
-        flags |= kCFSocketAutomaticallyReenableWriteCallBack;
+        flags |= kCFSocketAutomaticallyReenableWriteCallBack; //QSocketNotifier stays enabled after a write
+        flags &= ~kCFSocketCloseOnInvalidate; //QSocketNotifier doesn't close the socket upon destruction/invalidation
         CFSocketSetSocketFlags(socketInfo->socket, flags);
 
         // Add CFSocket to runloop.
