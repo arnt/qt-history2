@@ -317,18 +317,69 @@ static inline qsreal ParseString(const QString &s)
     return t = TimeClip(UTC(t));
 }
 
+static inline QDateTime ToDateTime(qsreal t)
+{
+    if (qIsNan(t))
+        return QDateTime();
+    int year = int(YearFromTime(t));
+    int month = int(MonthFromTime(t) + 1);
+    int day = int(DateFromTime(t));
+    int hours = HourFromTime(t);
+    int mins = MinFromTime(t);
+    int secs = SecFromTime(t);
+    int ms = msFromTime(t);
+    return QDateTime(QDate(year, month, day), QTime(hours, mins, secs, ms));
+}
+
+static inline qsreal FromDateTime(const QDateTime &dt)
+{
+    QDate date = dt.date();
+    QTime taim = dt.time();
+    int year = date.year();
+    int month = date.month() - 1;
+    int day = date.day();
+    int hours = taim.hour();
+    int mins = taim.minute();
+    int secs = taim.second();
+    int ms = taim.msec();
+    return MakeDate(MakeDay(year, month, day),
+                    MakeTime(hours, mins, secs, ms));
+}
+
 static inline QString ToString(qsreal t)
 {
     t = LocalTime(t);
+    return ToDateTime(t).toString();
+}
 
-    int year = (int) YearFromTime(t);
-    int month = (int) MonthFromTime(t);
-    int day = (int) DateFromTime(t);
+static inline QString ToDateString(qsreal t)
+{
+    t = LocalTime(t);
+    return ToDateTime(t).date().toString();
+}
 
-    QDate date(year, 1 + month, day);
-    QTime time(HourFromTime(t), MinFromTime(t), SecFromTime(t));
+static inline QString ToTimeString(qsreal t)
+{
+    t = LocalTime(t);
+    return ToDateTime(t).time().toString();
+}
 
-    return QDateTime (date, time).toString();
+static inline QString ToLocaleString(qsreal t)
+{
+    t = LocalTime(t);
+    return ToDateTime(t).toString(Qt::LocaleDate);
+}
+
+static inline QString ToLocaleDateString(qsreal t)
+{
+    t = LocalTime(t);
+    return ToDateTime(t).date().toString(Qt::LocaleDate);
+}
+
+static inline QString ToLocaleTimeString(qsreal t)
+{
+    t = LocalTime(t);
+    return ToDateTime(t).time().toString(Qt::LocaleDate);
 }
 
 static qsreal getLocalTZA()
@@ -517,18 +568,7 @@ void Date::newDate(QScriptValue *result, qsreal t)
 
 void Date::newDate(QScriptValue *result, const QDateTime &dt)
 {
-    QDate date = dt.date();
-    QTime taim = dt.time();
-    int year = date.year();
-    int month = date.month() - 1;
-    int day = date.day();
-    int hours = taim.hour();
-    int mins = taim.minute();
-    int secs = taim.second();
-    int ms = taim.msec();
-    double t = MakeDate(MakeDay(year, month, day),
-                        MakeTime(hours, mins, secs, ms));
-    newDate(result, t);
+    newDate(result, FromDateTime(dt));
 }
 
 void Date::newDate(QScriptValue *result, const QDate &d)
@@ -540,16 +580,7 @@ QDateTime Date::toDateTime(const QScriptValue &date)
 {
     Q_ASSERT(QScriptValueImpl::get(date)->classInfo() == m_classInfo);
     qsreal t = QScriptValueImpl::get(date)->internalValue().toNumber();
-    if (qIsNan(t))
-        return QDateTime();
-    int year = int(YearFromTime(t));
-    int month = int(MonthFromTime(t) + 1);
-    int day = int(DateFromTime(t));
-    int hours = HourFromTime(t);
-    int mins = MinFromTime(t);
-    int secs = SecFromTime(t);
-    int ms = msFromTime(t);
-    return QDateTime(QDate(year, month, day), QTime(hours, mins, secs, ms));
+    return ToDateTime(t);
 }
 
 QScriptValue Date::method_parse(QScriptEngine *eng, QScriptClassInfo *)
@@ -591,39 +622,64 @@ QScriptValue Date::method_toString(QScriptEngine *eng, QScriptClassInfo *classIn
                                QLatin1String("Date.prototype.toString"));
 }
 
-QScriptValue Date::method_toDateString(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValue Date::method_toDateString(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    return QScriptContextPrivate::get(context)->throwNotImplemented(
-        QLatin1String("Date.prototype.toDateString"));
+    QScriptValue self = context->thisObject();
+    if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        return QScriptValue(eng, ToDateString(t));
+    }
+    return context->throwError(QScriptContext::TypeError,
+                               QLatin1String("Date.prototype.toDateString"));
 }
 
-QScriptValue Date::method_toTimeString(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValue Date::method_toTimeString(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    return QScriptContextPrivate::get(context)->throwNotImplemented(
-        QLatin1String("Date.prototype.toTimeString"));
+    QScriptValue self = context->thisObject();
+    if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        return QScriptValue(eng, ToTimeString(t));
+    }
+    return context->throwError(QScriptContext::TypeError,
+                               QLatin1String("Date.prototype.toTimeString"));
 }
 
-QScriptValue Date::method_toLocaleString(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValue Date::method_toLocaleString(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    return QScriptContextPrivate::get(context)->throwNotImplemented(
-        QLatin1String("Date.prototype.toLocaleString"));
+    QScriptValue self = context->thisObject();
+    if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        return QScriptValue(eng, ToLocaleString(t));
+    }
+    return context->throwError(QScriptContext::TypeError,
+                               QLatin1String("Date.prototype.toLocaleString"));
 }
 
-QScriptValue Date::method_toLocaleDateString(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValue Date::method_toLocaleDateString(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    return QScriptContextPrivate::get(context)->throwNotImplemented(
-        QLatin1String("Date.prototype.toLocaleDateString"));
+    QScriptValue self = context->thisObject();
+    if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        return QScriptValue(eng, ToLocaleDateString(t));
+    }
+    return context->throwError(QScriptContext::TypeError,
+                               QLatin1String("Date.prototype.toLocaleDateString"));
 }
 
-QScriptValue Date::method_toLocaleTimeString(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValue Date::method_toLocaleTimeString(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    return QScriptContextPrivate::get(context)->throwNotImplemented(
-        QLatin1String("Date.prototype.toLocaleTimeString"));
+    QScriptValue self = context->thisObject();
+    if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        return QScriptValue(eng, ToLocaleTimeString(t));
+    }
+    return context->throwError(QScriptContext::TypeError,
+                               QLatin1String("Date.prototype.toLocaleTimeString"));
 }
 
 QScriptValue Date::method_valueOf(QScriptEngine *eng, QScriptClassInfo *classInfo)
