@@ -22,11 +22,9 @@
 #include <qmainwindow.h>
 #include <qmenu.h>
 #include <qmenubar.h>
-#include <qpainter.h>
 #include <qrubberband.h>
 #include <qsignalmapper.h>
-#include <qstyle.h>
-#include <qstyleoption.h>
+#include <qstylepainter.h>
 #include <qtoolbutton.h>
 #include <qwidgetaction.h>
 #include <private/qwidgetaction_p.h>
@@ -43,28 +41,28 @@
 
 #include  "qdebug.h"
 
-static QStyleOptionToolBar getStyleOption(QToolBar *toolBar)
+void QToolBar::initStyleOption(QStyleOptionToolBar *option) const
 {
-    QStyleOptionToolBar option;
-    option.init(toolBar);
-    if (toolBar->orientation() == Qt::Horizontal)
-        option.state |= QStyle::State_Horizontal;
-    option.lineWidth = toolBar->style()->pixelMetric(QStyle::PM_ToolBarFrameWidth);
-    option.features = toolBar->isMovable() ? QStyleOptionToolBar::Movable : QStyleOptionToolBar::None;
+    if (!option)
+        return;
+
+    option->initFrom(this);
+    if (orientation() == Qt::Horizontal)
+        option->state |= QStyle::State_Horizontal;
+    option->lineWidth = style()->pixelMetric(QStyle::PM_ToolBarFrameWidth);
+    option->features = isMovable() ? QStyleOptionToolBar::Movable : QStyleOptionToolBar::None;
 
     // Add more styleoptions if the toolbar has been added to a mainwindow.
-    QMainWindow *mainWindow = qobject_cast<QMainWindow *>(toolBar->parent());
+    QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget());
 
     if (!mainWindow)
-        return option;
+        return;
 
     QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(mainWindow->layout());
-    Q_ASSERT_X(layout != 0, "QToolBarPrivate::getStyleOption()",
+    Q_ASSERT_X(layout != 0, "QToolBar::initStyleOption()",
                "QMainWindow->layout() != QMainWindowLayout");
 
-    layout->getStyleOptionInfo(&option, toolBar);
-
-    return option;
+    layout->getStyleOptionInfo(option, const_cast<QToolBar *>(this));
 }
 
 
@@ -92,7 +90,8 @@ void QToolBarPrivate::init()
     q->setBackgroundRole(QPalette::Button);
 
 
-    QStyleOptionToolBar opt = getStyleOption(q);
+    QStyleOptionToolBar opt;
+    q->initStyleOption(&opt);
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
     QStyle *style = q->style();
@@ -803,7 +802,8 @@ void QToolBar::changeEvent(QEvent *event)
         break;
     case QEvent::StyleChange:
         {
-            QStyleOptionToolBar opt = getStyleOption(this);
+            QStyleOptionToolBar opt;
+            initStyleOption(&opt);
             d->layout->setMargin(style()->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, this)
                                  + style()->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, this));
             d->layout->setSpacing(style()->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, this));
@@ -836,12 +836,12 @@ void QToolBar::childEvent(QChildEvent *event)
 }
 
 /*! \reimp */
-void QToolBar::paintEvent(QPaintEvent *event)
+void QToolBar::paintEvent(QPaintEvent *)
 {
-    Q_UNUSED(event);
-    QPainter p(this);
-    QStyleOptionToolBar opt = getStyleOption(this);
-    style()->drawControl(QStyle::CE_ToolBar, &opt, &p, this);
+    QStylePainter p(this);
+    QStyleOptionToolBar opt;
+    initStyleOption(&opt);
+    p.drawControl(QStyle::CE_ToolBar, opt);
 }
 
 /*! \reimp */
