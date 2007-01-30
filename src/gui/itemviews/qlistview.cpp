@@ -2155,11 +2155,6 @@ void QStaticListViewBase::doStaticLayout(const QListViewLayoutInfo &info)
     batchSavedPosition = flowPosition;
     batchSavedDeltaSeg = deltaSegPosition;
     batchStartRow = info.last + 1;
-    // if it is the last batch, save the end of the segments
-    if (info.last == info.max) {
-        segmentExtents.append(flowPosition - info.spacing);
-        segmentPositions.append(segPosition + deltaSegPosition);
-    }
     // set the contents size
     QRect rect = info.bounds;
     if (info.flow == QListView::LeftToRight) {
@@ -2170,6 +2165,11 @@ void QStaticListViewBase::doStaticLayout(const QListViewLayoutInfo &info)
         rect.setBottom(segmentPositions.count() == 1 ? flowPosition : info.bounds.bottom());
     }
     contentsSize = QSize(rect.right(), rect.bottom());
+    // if it is the last batch, save the end of the segments
+    if (info.last == info.max) {
+        segmentExtents.append(flowPosition - info.spacing);
+        segmentPositions.append(segPosition + deltaSegPosition);
+    }
     // if the new items are visble, update the viewport
     QRect changedRect(topLeft, rect.bottomRight());
     if (clipRect().intersects(changedRect))
