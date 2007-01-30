@@ -28,7 +28,7 @@
     GLenum err = glGetError();                            \
     if (err != GL_NO_ERROR) {                             \
         qDebug("[%s line %d] GL Error: %d",               \
-               __FILE__, __LINE__, err);                  \
+               __FILE__, __LINE__, (int)err);             \
     }                                                     \
 }
 
@@ -149,7 +149,7 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::At
         glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_stencil_buffer);
         Q_ASSERT(glIsRenderbufferEXT(depth_stencil_buffer));
         glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, size.width(), size.height());
-        int i = 0;
+        GLint i = 0;
         glGetRenderbufferParameterivEXT(GL_RENDERBUFFER_EXT, GL_RENDERBUFFER_DEPTH_SIZE_EXT, &i);
         glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
                                      GL_RENDERBUFFER_EXT, depth_stencil_buffer);
