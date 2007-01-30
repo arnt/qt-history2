@@ -286,6 +286,7 @@ public:
     void hide_sys();
     void hide_helper();
     void _q_showIfNotHidden();
+    void _q_styleDestroyed();
 
     void setEnabled_helper(bool);
     void registerDropSite(bool);
