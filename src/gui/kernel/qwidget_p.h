@@ -142,7 +142,7 @@ struct QWExtra {
     uint explicitMinSize : 2;
     uint autoFillBackground : 1;
 
-    QStyle *style;
+    QPointer<QStyle> style;
     QString styleSheet;
 };
 
@@ -286,7 +286,6 @@ public:
     void hide_sys();
     void hide_helper();
     void _q_showIfNotHidden();
-    void _q_styleDestroyed();
 
     void setEnabled_helper(bool);
     void registerDropSite(bool);

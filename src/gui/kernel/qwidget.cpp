@@ -1909,12 +1909,6 @@ void QWidgetPrivate::setStyle_helper(QStyle *newStyle, bool propagate, bool
     Q_Q(QWidget);
     createExtra();
 
-    // listen to the destroyed signal (see task #145431)
-    if (extra->style)
-        QObject::disconnect(extra->style, SIGNAL(destroyed()), q, SLOT(_q_styleDestroyed()));
-    if (newStyle)
-        QObject::connect(newStyle, SIGNAL(destroyed()), q, SLOT(_q_styleDestroyed()));
-
     QStyle *oldStyle  = q->style();
 #ifndef QT_NO_STYLE_STYLESHEET
     QStyle *origStyle = extra->style;
@@ -1978,7 +1972,7 @@ void QWidgetPrivate::inheritStyle()
 
     // If we have stylesheet on app or parent has stylesheet style, we need
     // to be running a proxy
-    QStyle *origStyle = proxy ? proxy->base : (extra ? extra->style : 0);
+    QStyle *origStyle = proxy ? proxy->base : (extra ? (QStyle*)extra->style : 0);
     QWidget *parent = q->parentWidget();
     QStyle *parentStyle = parent && parent->d_func()->extra ? parent->d_func()->extra->style : 0;
     if (!qApp->styleSheet().isEmpty() || qobject_cast<QStyleSheetStyle *>(parentStyle)) {
@@ -5375,11 +5369,6 @@ void QWidgetPrivate::_q_showIfNotHidden()
     Q_Q(QWidget);
     if ( !(q->isHidden() && q->testAttribute(Qt::WA_WState_ExplicitShowHide)) )
         q->setVisible(true);
-}
-
-void QWidgetPrivate::_q_styleDestroyed()
-{
-    extra->style = 0;
 }
 
 void QWidgetPrivate::showChildren(bool spontaneous)
