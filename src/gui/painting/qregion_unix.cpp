@@ -2652,6 +2652,9 @@ QRegion QRegion::intersect(const QRegion &r) const
 
 QRegion QRegion::subtract(const QRegion &r) const
 {
+    if (::isEmpty(d->qt_rgn) || ::isEmpty(r.d->qt_rgn))
+        return *this;
+
     QRegion result;
     result.detach();
     SubtractRegion(d->qt_rgn, r.d->qt_rgn, *result.d->qt_rgn);
