@@ -436,7 +436,9 @@ class QCleanlooksStylePrivate : public QWindowsStylePrivate
 public:
     QCleanlooksStylePrivate()
         : QWindowsStylePrivate()
-    { }
+    { 
+        animationFps = 24; 
+    }
 ~QCleanlooksStylePrivate()
     { }
     void lookupIconTheme() const;
@@ -1712,11 +1714,13 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                     progressBar.setRect(rect.right() - 1 - width, rect.top() + 1, width + 1, rect.height() - 3);
                 }
             } else {
-                int step = 0;
-                int slideWidth = rect.width() / 2;
+                Q_D(const QCleanlooksStyle);
+                int slideWidth = ((rect.width() - 4) * 2) / 3;
+                int step = ((d->animateStep * slideWidth) / d->animationFps) % slideWidth;
+                if ((((d->animateStep * slideWidth) / d->animationFps) % (2 * slideWidth)) >= slideWidth)
+                    step = slideWidth - step;
                 progressBar.setRect(rect.left() + 1 + step, rect.top() + 1,
                                     slideWidth / 2, rect.height() - 3);
-
             }
             QColor highlight = option->palette.color(QPalette::Normal, QPalette::Highlight);
             painter->setPen(QPen(highlight.darker(140), 0));
@@ -1743,7 +1747,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
 
             painter->save();
             painter->setClipRect(progressBar.adjusted(2, 2, -1, -1));
-            for (int x = rect.left() - 32; x< rect.right() ; x+=18) {
+            for (int x = progressBar.left() - 32; x < rect.right() ; x+=18) {
                 painter->drawLine(x, progressBar.bottom() + 1, x + 23, progressBar.top() - 2);
             }
             painter->restore();
@@ -3689,6 +3693,7 @@ void QCleanlooksStyle::polish(QApplication *app)
 */
 void QCleanlooksStyle::polish(QWidget *widget)
 {
+    QWindowsStyle::polish(widget);
     if (qobject_cast<QAbstractButton*>(widget)
 #ifndef QT_NO_COMBOBOX
         || qobject_cast<QComboBox *>(widget)
@@ -3735,7 +3740,7 @@ void QCleanlooksStyle::polish(QPalette &pal)
 */
 void QCleanlooksStyle::unpolish(QWidget *widget)
 {
-    Q_UNUSED(widget);
+    QWindowsStyle::unpolish(widget);
     if (qobject_cast<QAbstractButton*>(widget)
 #ifndef QT_NO_COMBOBOX
         || qobject_cast<QComboBox *>(widget)
