@@ -148,40 +148,23 @@
      </property>
      <layout class="QVBoxLayout" >
       <item>
-       <layout class="QHBoxLayout" >
+       <widget class="QComboBox" name="cmbColorGroup" >
         <item>
-         <spacer>
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
+         <property name="text" >
+          <string>Enabled</string>
+         </property>
         </item>
         <item>
-         <widget class="QComboBox" name="cmbColorGroup" >
-          <item>
-           <property name="text" >
-            <string>Enabled</string>
-           </property>
-          </item>
-          <item>
-           <property name="text" >
-            <string>Inactive</string>
-           </property>
-          </item>
-          <item>
-           <property name="text" >
-            <string>Disabled</string>
-           </property>
-          </item>
-         </widget>
+         <property name="text" >
+          <string>Inactive</string>
+         </property>
         </item>
-       </layout>
+        <item>
+         <property name="text" >
+          <string>Disabled</string>
+         </property>
+        </item>
+       </widget>
       </item>
       <item>
        <widget class="PreviewFrame" native="1" name="previewFrame" >
@@ -213,7 +196,6 @@
  <tabstops>
   <tabstop>cmbStyle</tabstop>
   <tabstop>pbBuild</tabstop>
-  <tabstop>rbDetails</tabstop>
   <tabstop>paletteView</tabstop>
  </tabstops>
  <resources/>

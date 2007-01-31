@@ -15,6 +15,7 @@
 #include <QFontDatabase>
 #include <QStringList>
 #include <QFont>
+#include <QDebug>
 #include <QSettings>
 
 FontsPage::FontsPage(QWidget *parent)
@@ -165,44 +166,22 @@ void FontsPage::save()
     }
     settings.endGroup(); // Font Substitutions
     settings.endGroup(); // Qt
+    QApplication::setFont(font);
 }
 void FontsPage::load()
 {
     substitutions.clear();
     cmbSubstituteSource->setCurrentIndex(0);
-    QFontDatabase db;
-    QStringList families = db.families();
-    qSort(families);
 
     cmbFontStyle->clear();
-    cmbFamily->addItems(families);
 
-    QStringList familiesAndSubstitutions = (families + QFont::substitutions()).toSet().toList();
-    qSort(familiesAndSubstitutions);
-    cmbSubstituteSource->clear();
-    cmbSubstituteSource->addItems(familiesAndSubstitutions);
-    cmbSubstituteTarget->clear();
-    cmbSubstituteTarget->addItems(families);
     const QFont font;
-
-    const QString defaultFamily = font.family();
-    QStringList::Iterator sit = families.begin();
-    int found = 0;
-    for (int i=0; i<families.size(); ++i) {
-        if (families.at(i).contains(defaultFamily)) {
-            if (families.at(i) == defaultFamily) {
-                found = i;
-                break;
-            } else {
-                found = i;
-            }
-        }
-    }
-    cmbFamily->setCurrentIndex(found);
+    cmbFamily->setCurrentFont(font); // should already be done
     onFamilyChanged(cmbFamily->currentText());
 
+    QFontDatabase db;
     const QString styleString = db.styleString(font);
-    found = 0;
+    int found = 0;
     for (int i=0; i<cmbFontStyle->count(); ++i) {
         if (cmbFontStyle->itemText(i).contains(styleString)) {
             if (cmbFontStyle->itemText(i) == styleString) {
@@ -231,5 +210,4 @@ void FontsPage::load()
         cmbPointSize->addItem(QString::number(sizes.at(i)));
     }
     cmbPointSize->setCurrentIndex(found);
-
 }

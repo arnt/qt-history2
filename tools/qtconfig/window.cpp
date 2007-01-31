@@ -321,9 +321,11 @@ void Window::showEvent(QShowEvent *e)
     if (!geometry.isNull()) {
         restoreGeometry(geometry);
     }
-    if (settings.value("Window/Appearance/showDetails", false).toBool())
+    if (settings.value("Window/Appearance/showDetails", false).toBool()) {
         appearancePage->cbDetails->setChecked(true);
-
+    } else {
+        appearancePage->onDetailsToggled(false);
+    }
     QMainWindow::showEvent(e);
 }
 void Window::onCurrentTabIndexChanged(int index)
