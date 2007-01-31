@@ -330,11 +330,11 @@ void QLabel::setText(const QString &text)
         if (d->textInteractionFlags & (Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard)) {
             d->ensureTextControl();
         }
-#ifndef QT_NO_SHORTCUT
-        if (d->buddy)
-            d->updateShortcut();
-#endif
     }
+#ifndef QT_NO_SHORTCUT
+    if (d->buddy)
+        d->updateShortcut();
+#endif
 
     d->textInteractionFlagsChanged(); // create text control as necessary
     d->updateLabel();
@@ -1102,7 +1102,6 @@ void QLabelPrivate::updateShortcut()
 {
     Q_Q(QLabel);
     Q_ASSERT(shortcutId == 0);
-    Q_ASSERT(!isRichText());
     ensureTextLayouted();
 
     // Underline the first character that follows an ampersand
