@@ -46,6 +46,14 @@ public:
         Q_ASSERT(child);
         mdiChild = child;
     }
+
+    void *qt_metacast(const char *classname)
+    {
+        if (classname && strcmp(classname, "ControlElement") == 0)
+            return this;
+        return 0;
+    }
+
     QPointer<QMdiSubWindow> mdiChild;
 };
 
