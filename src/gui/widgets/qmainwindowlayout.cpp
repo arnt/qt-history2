@@ -47,13 +47,12 @@ QMainWindowLayoutState::QMainWindowLayoutState(QMainWindow *win)
     :
 #endif
 #ifndef QT_NO_TOOLBAR
-    toolBarAreaLayout(win)
-#endif
-#if !defined(QT_NO_DOCKWIDGET) && !defined(QT_NO_TOOLBAR)
-    ,
+    toolBarAreaLayout(win),
 #endif
 #ifndef QT_NO_DOCKWIDGET
     dockAreaLayout(win)
+#else
+    centralWidgetItem(0)
 #endif
 
 {
