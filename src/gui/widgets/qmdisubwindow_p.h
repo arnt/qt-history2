@@ -133,6 +133,7 @@ public:
     QPoint mousePressPosition;
     QRect oldGeometry;
     QSize internalMinimumSize;
+    QSize restoreSize;
     bool isResizeEnabled;
     bool isInInteractiveMode;
     bool isInRubberBandMode;

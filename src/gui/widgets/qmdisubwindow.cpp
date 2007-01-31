@@ -925,7 +925,9 @@ void QMdiSubWindowPrivate::setNormalMode()
         baseWidget->show();
 
     updateGeometryConstraints();
-    setNewGeometry(&oldGeometry);
+    QRect newGeometry = oldGeometry;
+    newGeometry.setSize(restoreSize);
+    setNewGeometry(&newGeometry);
 
     setEnabled(MoveAction, true);
     setEnabled(MoveAction, true);
@@ -969,6 +971,8 @@ void QMdiSubWindowPrivate::setMaximizeMode()
     isResizeEnabled = false;
 
     oldGeometry = q->geometry();
+    restoreSize.setWidth(oldGeometry.width());
+    restoreSize.setHeight(oldGeometry.height());
     // setGeometry() will reset the Qt::WindowMaximized flag because
     // this window is not a top level window.
     setNewGeometry(&availableRect);
@@ -1949,6 +1953,8 @@ void QMdiSubWindow::showShaded()
 
     d->updateGeometryConstraints();
     d->oldGeometry = geometry();
+    d->restoreSize.setWidth(d->oldGeometry.width());
+    d->restoreSize.setHeight(d->oldGeometry.height());
     resize(d->internalMinimumSize);
     d->isResizeEnabled = false;
     d->updateDirtyRegions();
@@ -2325,17 +2331,25 @@ void QMdiSubWindow::mouseDoubleClickEvent(QMouseEvent *mouseEvent)
         return;
     }
 
-    if (windowFlags() & Qt::WindowShadeButtonHint) {
-        if (isShaded())
+    Qt::WindowFlags flags = windowFlags();
+    if (isMinimized()) {
+        if (isShaded() && (flags & Qt::WindowShadeButtonHint)
+                || (flags & Qt::WindowMinimizeButtonHint)) {
             showNormal();
-        else
-            showShaded();
-    } else {
-        if (isMaximized())
-            showNormal();
-        else
-            showMaximized();
+        }
+        return;
     }
+
+    if (isMaximized()) {
+       if (flags & Qt::WindowMaximizeButtonHint)
+           showNormal();
+       return;
+    }
+
+    if (flags & Qt::WindowShadeButtonHint)
+        showShaded();
+    else if (flags & Qt::WindowMaximizeButtonHint)
+        showMaximized();
 }
 
 /*!
