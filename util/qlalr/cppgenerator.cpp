@@ -23,6 +23,21 @@ QString CppGenerator::trollCopyrightHeader() const
     "\n");
 }
 
+QString CppGenerator::trollPrivateCopyrightHeader() const
+{
+  return QLatin1String(
+    "//\n"
+    "//  W A R N I N G\n"
+    "//  -------------\n"
+    "//\n"
+    "// This file is not part of the Qt API.  It exists for the convenience\n"
+    "// of other Qt classes.  This header file may change from version to\n"
+    "// version without notice, or even be removed.\n"
+    "//\n"
+    "// We mean it.\n"
+    "//\n");
+}
+
 void CppGenerator::operator () ()
 {
   // action table...
@@ -265,7 +280,11 @@ void CppGenerator::operator () ()
     QString prot = declFileName.toUpper ().replace (QLatin1Char ('.'), QLatin1Char ('_'));
 
     if (troll_copyright)
-      out << trollCopyrightHeader();
+      {
+        out << trollCopyrightHeader()
+            << trollPrivateCopyrightHeader()
+            << endl;
+      }
 
     out << "#ifndef " << prot << endl
         << "#define " << prot << endl

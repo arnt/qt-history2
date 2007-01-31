@@ -103,6 +103,8 @@
 // We mean it.
 //
 
+#ifndef QSCRIPTPARSER_P_H
+#define QSCRIPTPARSER_P_H
 
 #include "qscriptgrammar_p.h"
 #include "qscriptastfwd_p.h"
@@ -177,6 +179,8 @@ inline void QScriptParser::reallocateStack()
     state_stack = reinterpret_cast<int*> (qRealloc(state_stack, stack_size * sizeof(int)));
     location_stack = reinterpret_cast<int*> (qRealloc(location_stack, stack_size * sizeof(int)));
 }
+
+#endif // QSCRIPTPARSER_P_H
 
 :/
 

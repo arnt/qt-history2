@@ -33,6 +33,7 @@ private:
 
   QString debugInfoProt() const;
   QString trollCopyrightHeader() const;
+  QString trollPrivateCopyrightHeader() const;
 
 private:
   const Recognizer &p;
