@@ -365,14 +365,22 @@ void tst_QAtomic::fetchAndAdd()
 
 void tst_QAtomic::testAndSet_loop()
 {
+    QTime stopWatch;
+    stopWatch.start();
+
     int iterations = 10000000;
-#if defined (Q_OS_HPUX)
-    iterations = 1000000;
-#endif
 
     QAtomic val=0;
     for (int i = 0; i < iterations; ++i) {
         QVERIFY(val.testAndSet(val, val+1));
+        if ((i % 1000) == 999) {
+            if (stopWatch.elapsed() > 60 * 1000) {
+                // This test shouldn't run for more than two minutes.
+                qDebug("Interrupted test after %d iterations (%.2f iterations/sec)",
+                       i, (i * 1000.0) / double(stopWatch.elapsed()));
+                break;
+            }
+        }
     }
 }
 
