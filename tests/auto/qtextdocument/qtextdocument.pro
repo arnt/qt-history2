@@ -1,3 +1,3 @@
 load(qttest_p4)
-HEADERS += 
+HEADERS += common.h
 SOURCES += tst_qtextdocument.cpp 

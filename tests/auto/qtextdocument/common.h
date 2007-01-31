@@ -1,13 +1,30 @@
 #include <QAbstractTextDocumentLayout>
 
+#ifndef COMMON_H
+#define COMMON_H
+
 class QTestDocumentLayout : public QAbstractTextDocumentLayout
 {
+    Q_OBJECT
 public:
     QTestDocumentLayout(QTextDocument *doc) : QAbstractTextDocumentLayout(doc), f(-1), called(false) {}
     virtual void draw(QPainter *, const PaintContext &)  {}
     virtual int hitTest(const QPointF &, Qt::HitTestAccuracy ) const { return 0; }
 
-    virtual void documentChanged(int from, int oldLength, int length);
+    virtual void documentChanged(int from, int oldLength, int length)
+    {
+        called = true;
+
+        if (f < 0)
+            return;
+
+        if(from != f ||
+                o != oldLength ||
+                l != length) {
+            qDebug("checkDocumentChanged: got %d %d %d, expected %d %d %d", from, oldLength, length, f, o, l);
+            error = true;
+        }
+    }
 
     virtual int pageCount() const { return 1; }
     virtual QSizeF documentSize() const { return QSizeF(); }
@@ -30,19 +47,4 @@ public:
     bool called;
 };
 
-void QTestDocumentLayout::documentChanged(int from, int oldLength, int length)
-{
-    called = true;
-
-    if (f < 0)
-	return;
-
-    if(from != f ||
-       o != oldLength ||
-       l != length) {
-	qDebug("checkDocumentChanged: got %d %d %d, expected %d %d %d", from, oldLength, length, f, o, l);
-	error = true;
-    }
-}
-
-
+#endif
