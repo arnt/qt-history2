@@ -1851,13 +1851,12 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                         }
                     }
                 } else { // si.isTab
-                    QTextItemInt gf;
                     QFont f = eng->font(si);
+                    QTextItemInt gf(si, &f, format);
                     gf.num_glyphs = 0;
                     gf.chars = 0;
                     gf.num_chars = 0;
                     gf.width = iterator.itemWidth;
-                    gf.initFontAttributes(si, &f, format);
                     p->drawTextItem(QPointF(iterator.x.toReal(), y.toReal()), gf);
                 }
                 p->restore();
@@ -1874,14 +1873,6 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 
         QFixed itemBaseLine = y;
 
-        QTextItemInt gf;
-        gf.num_glyphs = iterator.glyphsEnd - iterator.glyphsStart;
-        gf.glyphs = glyphs + iterator.glyphsStart;
-        gf.chars = eng->layoutData->string.unicode() + iterator.itemStart;
-        gf.logClusters = logClusters + iterator.itemStart - si.position;
-        gf.num_chars = iterator.itemEnd - iterator.itemStart;
-        gf.width = iterator.itemWidth;
-
         QFont f = eng->font(si);
         QTextCharFormat chf;
         if (eng->hasFormats() || selection) {
@@ -1890,7 +1881,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                 chf.merge(selection->format);
 
             setPenAndDrawBackground(p, pen, chf, QRectF(iterator.x.toReal(), (y - line.ascent).toReal(),
-                                                        gf.width.toReal(), line.height().toReal()));
+                                                        iterator.itemWidth.toReal(), line.height().toReal()));
 
             QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
             if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript) {
@@ -1902,7 +1893,14 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                     itemBaseLine -= height / 2;
             }
         }
-        gf.initFontAttributes(si, &f, chf);
+        QTextItemInt gf(si, &f, chf);
+        gf.num_glyphs = iterator.glyphsEnd - iterator.glyphsStart;
+        gf.glyphs = glyphs + iterator.glyphsStart;
+        gf.chars = eng->layoutData->string.unicode() + iterator.itemStart;
+        gf.logClusters = logClusters + iterator.itemStart - si.position;
+        gf.num_chars = iterator.itemEnd - iterator.itemStart;
+        gf.width = iterator.itemWidth;
+
         Q_ASSERT(gf.fontEngine);
 
         if (eng->underlinePositions) {

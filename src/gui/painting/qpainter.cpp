@@ -4332,8 +4332,6 @@ void QPainter::drawText(const QPointF &p, const QString &str)
     QFixed x = QFixed::fromReal(p.x());
     QFixed ox = x;
 
-    QTextItemInt gf;
-
     for (int i = 0; i < nItems; ++i) {
         int item = visualOrder[i];
         const QScriptItem &si = engine.layoutData->items.at(item);
@@ -4345,7 +4343,7 @@ void QPainter::drawText(const QPointF &p, const QString &str)
                 x += si.width;
             continue;
         }
-        gf.initFontAttributes(si, &d->state->font);
+        QTextItemInt gf(si, &d->state->font);
         gf.num_glyphs = si.num_glyphs;
         gf.glyphs = engine.glyphs(&si);
         gf.chars = engine.layoutData->string.unicode() + si.position;

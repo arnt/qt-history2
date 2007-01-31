@@ -1881,7 +1881,9 @@ QStackTextEngine::QStackTextEngine(const QString &string, const QFont &f)
     layoutData = &_layoutData;
 }
 
-void QTextItemInt::initFontAttributes(const QScriptItem &si, QFont *font, const QTextCharFormat &format)
+QTextItemInt::QTextItemInt(const QScriptItem &si, QFont *font, const QTextCharFormat &format)
+    : underlineStyle(QTextCharFormat::NoUnderline), num_chars(0), chars(0),
+      logClusters(0), f(0), glyphs(0), num_glyphs(0), fontEngine(0)
 {
     // explicitly initialize flags so that initFontAttributes can be called
     // multiple times on the same TextItem

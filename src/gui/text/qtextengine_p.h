@@ -215,8 +215,7 @@ public:
         : underlineStyle(QTextCharFormat::NoUnderline), num_chars(0), chars(0),
           logClusters(0), f(0), glyphs(0), num_glyphs(0), fontEngine(0)
     {}
-
-    void initFontAttributes(const QScriptItem &si, QFont *font, const QTextCharFormat &format = QTextCharFormat());
+    QTextItemInt(const QScriptItem &si, QFont *font, const QTextCharFormat &format = QTextCharFormat());
 
     QFixed descent;
     QFixed ascent;
