@@ -1324,13 +1324,13 @@ void MoveSeparator::apply(QMainWindow *mw) const
     } else {
         QDockWidget *dw = qFindChild<QDockWidget*>(mw, name);
         QVERIFY(dw != 0);
-        path = l->dockAreaLayout.indexOf(dw);
+        path = l->layoutState.dockAreaLayout.indexOf(dw);
     }
     QVERIFY(!path.isEmpty());
 
     QVector<QLayoutStruct> cache;
 
-    l->dockAreaLayout.separatorMove(path, QPoint(0, 0), QPoint(delta, delta), &cache);
+    l->layoutState.dockAreaLayout.separatorMove(path, QPoint(0, 0), QPoint(delta, delta), &cache);
 
 }
 
@@ -1366,21 +1366,21 @@ void tst_QMainWindow::saveRestore_data()
     QTest::newRow("1") << (AddList()
                             << AddDockWidget("left", Qt::LeftDockWidgetArea))
                        << (MoveList()
-                            << MoveSeparator(100, QDockAreaLayout::LeftPos));
+                            << MoveSeparator(100, QInternal::LeftDock));
 
     QTest::newRow("2") << (AddList()
                             << AddDockWidget("left", Qt::LeftDockWidgetArea)
                             << AddDockWidget("right", Qt::RightDockWidgetArea))
                        << (MoveList()
-                            << MoveSeparator(70, QDockAreaLayout::LeftPos)
-                            << MoveSeparator(-40, QDockAreaLayout::RightPos));
+                            << MoveSeparator(70, QInternal::LeftDock)
+                            << MoveSeparator(-40, QInternal::RightDock));
     QTest::newRow("3") << (AddList()
                             << AddDockWidget("left", Qt::LeftDockWidgetArea)
                             << AddDockWidget("right1", Qt::RightDockWidgetArea)
                             << AddDockWidget("right2", Qt::RightDockWidgetArea))
                        << (MoveList()
-                            << MoveSeparator(70, QDockAreaLayout::LeftPos)
-                            << MoveSeparator(-40, QDockAreaLayout::RightPos));
+                            << MoveSeparator(70, QInternal::LeftDock)
+                            << MoveSeparator(-40, QInternal::RightDock));
 
     QTest::newRow("4") << (AddList()
                             << AddDockWidget("left", Qt::LeftDockWidgetArea)
@@ -1389,8 +1389,8 @@ void tst_QMainWindow::saveRestore_data()
                             << AddDockWidget("right2b", "right2a", Qt::Horizontal)
                           )
                        << (MoveList()
-                          << MoveSeparator(70, QDockAreaLayout::LeftPos)
-                          << MoveSeparator(-40, QDockAreaLayout::RightPos)
+                          << MoveSeparator(70, QInternal::LeftDock)
+                          << MoveSeparator(-40, QInternal::RightDock)
                           << MoveSeparator(-30, "right1")
                           << MoveSeparator(30, "right2a")
                           );
