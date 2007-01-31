@@ -245,7 +245,7 @@ void QLabelPrivate::init()
     movie = 0;
 #endif
 #ifndef QT_NO_SHORTCUT
-    shortcutId = -1;
+    shortcutId = 0;
 #endif
     pixmap = 0;
     scaledpixmap = 0;
@@ -925,7 +925,7 @@ void QLabel::paintEvent(QPaintEvent *)
     if (d->doc) {
         const bool underline = (bool)style->styleHint(QStyle::SH_UnderlineShortcut, 0, this, 0);
 #ifndef QT_NO_SHORTCUT
-        if (d->shortcutId != -1
+        if (d->shortcutId != 0
             && underline != d->shortcutCursor.charFormat().fontUnderline()) {
                 QTextCharFormat fmt;
                 fmt.setFontUnderline(underline);
@@ -1075,9 +1075,10 @@ void QLabel::setBuddy(QWidget *buddy)
     Q_D(QLabel);
     d->buddy = buddy;
     if (d->doc && !d->isRichText()) {
-        releaseShortcut(d->shortcutId);
-        d->shortcutId = -1;
-        d->doc->setPlainText(d->text); // restore the old text
+        if (d->shortcutId)
+            releaseShortcut(d->shortcutId);
+        d->shortcutId = 0;
+        d->textDirty = true;
         if (buddy)
             d->updateShortcut(); // grab new shortcut
         d->updateLabel();
@@ -1100,7 +1101,7 @@ QWidget * QLabel::buddy() const
 void QLabelPrivate::updateShortcut()
 {
     Q_Q(QLabel);
-    Q_ASSERT(shortcutId == -1);
+    Q_ASSERT(shortcutId == 0);
     Q_ASSERT(!isRichText());
     ensureTextLayouted();
 
@@ -1205,8 +1206,9 @@ void QLabelPrivate::clearContents()
     text.clear();
     Q_Q(QLabel);
 #ifndef QT_NO_SHORTCUT
-    q->releaseShortcut(shortcutId);
-    shortcutId = -1;
+    if (shortcutId)
+        q->releaseShortcut(shortcutId);
+    shortcutId = 0;
 #endif
 #ifndef QT_NO_MOVIE
     if (movie) {
