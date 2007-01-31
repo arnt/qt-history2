@@ -248,7 +248,8 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
 {
     Q_Q(QWidget);
     qt_mac_current_dragRef = dragRef;
-    qt_mac_dnd_update_action(dragRef);
+    if (kind != kEventControlDragLeave)
+        qt_mac_dnd_update_action(dragRef);
 
     Point mouse;
     GetDragMouse(dragRef, &mouse, 0L);
@@ -443,11 +444,12 @@ Qt::DropAction QDragManager::drag(QDrag *o)
     if((result = NewDragWithPasteboard(dragBoard.pasteBoard(), &dragRef)))
         return Qt::IgnoreAction;
     //setup the actions
+    DragActions possibleActions = qt_mac_dnd_map_qt_actions(dragPrivate()->possible_actions);
     SetDragAllowableActions(dragRef, //local
-                            qt_mac_dnd_map_qt_actions(dragPrivate()->possible_actions),
+                            possibleActions,
                             true);
     SetDragAllowableActions(dragRef, //remote (same as local)
-                            qt_mac_dnd_map_qt_actions(dragPrivate()->possible_actions),
+                            possibleActions,
                             false);
 
 
