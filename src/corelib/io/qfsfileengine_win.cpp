@@ -509,7 +509,6 @@ bool QFSFileEnginePrivate::nativeClose()
 */
 bool QFSFileEnginePrivate::nativeFlush()
 {
-    Q_Q(QFSFileEngine);
     if (fh) {
         // Buffered stdlib mode.
         return flushFh();
@@ -539,12 +538,11 @@ qint64 QFSFileEnginePrivate::nativeSize() const
 
     // Buffered stdlib mode.
     if (fh) {
-        // ### use _ftelli64?
-        long oldPos = ftell(fh);
-        fseek(fh, 0, SEEK_END);
-        long fileSize = ftell(fh);
-        fseek(fh, oldPos, SEEK_SET);
-        return fileSize;
+        QT_OFF_T oldPos = QT_FTELL(fh);
+        QT_FSEEK(fh, 0, SEEK_END);
+        QT_OFF_T fileSize = QT_FTELL(fh);
+        QT_FSEEK(fh, oldPos, SEEK_SET);
+        return qint64(fileSize);
     }
 
     // Not-open mode, where the file name is known: We'll check the
@@ -560,10 +558,10 @@ qint64 QFSFileEnginePrivate::nativeSize() const
                                         GetFileExInfoStandard, &attribData);
         });
         if (ok) {
-            LARGE_INTEGER lInt;
-            lInt.LowPart = attribData.nFileSizeLow;
-            lInt.HighPart = attribData.nFileSizeHigh;
-            return lInt.QuadPart;
+            qint64 size = attribData.nFileSizeHigh;
+            size <<= 32;
+            size += attribData.nFileSizeLow;
+            return size;
         }
         thatQ->setError(QFile::UnspecifiedError, qt_error_string());
         return 0;
@@ -575,14 +573,14 @@ qint64 QFSFileEnginePrivate::nativeSize() const
         if (handle != INVALID_HANDLE_VALUE) {
             BY_HANDLE_FILE_INFORMATION fileInfo;
             if (GetFileInformationByHandle(handle, &fileInfo)) {
-                LARGE_INTEGER lInt;
-                lInt.LowPart = fileInfo.nFileSizeLow;
-                lInt.HighPart = fileInfo.nFileSizeHigh;
-                return lInt.QuadPart;
+                qint64 size = fileInfo.nFileSizeHigh;
+                size <<= 32;
+                size += fileInfo.nFileSizeLow;
+                return size;
             }
         }
         thatQ->setError(QFile::UnspecifiedError, qt_error_string());
-       return 0;
+        return 0;
     }
 
     // Windows native mode.
@@ -595,10 +593,10 @@ qint64 QFSFileEnginePrivate::nativeSize() const
         return 0;
     }
 
-    LARGE_INTEGER lInt;
-    lInt.LowPart = fileInfo.nFileSizeLow;
-    lInt.HighPart = fileInfo.nFileSizeHigh;
-    return qint64(lInt.QuadPart);
+    qint64 size = fileInfo.nFileSizeHigh;
+    size <<= 32;
+    size += fileInfo.nFileSizeLow;
+    return size;
 }
 
 /*!

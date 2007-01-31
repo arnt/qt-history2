@@ -525,7 +525,7 @@ qint64 QFSFileEnginePrivate::readFdFh(char *data, qint64 len)
             } else if (!retry && feof(fh)) {
                 // Synchronize and try again (just once though).
                 if (++retry == 1)
-                    fseek(fh, ftell(fh), SEEK_SET);
+                    QT_FSEEK(fh, QT_FTELL(fh), SEEK_SET);
             }
         } while (retry == 1 || (readBytes == bytesToRead && read < len));
 
