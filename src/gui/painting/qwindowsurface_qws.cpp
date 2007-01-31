@@ -25,6 +25,7 @@
 #include <private/qwidget_p.h>
 #include <private/qwsmanager_p.h>
 #include <private/qwslock_p.h>
+#include <stdio.h>
 
 static inline bool isWidgetOpaque(const QWidget *w)
 {
