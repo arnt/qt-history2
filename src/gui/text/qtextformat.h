@@ -116,6 +116,7 @@ public:
         OutlinePen = 0x810,
         BackgroundBrush = 0x820,
         ForegroundBrush = 0x821,
+        // Internal to qtextlayout.cpp: ObjectSelectionBrush = 0x822
 
         // paragraph
         BlockAlignment = 0x1010,

@@ -30,6 +30,8 @@
 
 #include "qfontengine_p.h"
 
+#define ObjectSelectionBrush (QTextFormat::ForegroundBrush + 1)
+
 static inline QFixed leadingSpaceWidth(QTextEngine *eng, const QScriptLine &line)
 {
     if (!line.hasTrailingSpaces
@@ -1111,6 +1113,7 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<FormatRang
         p->save();
         p->setClipPath(region, Qt::IntersectClip);
 
+        selection.format.setProperty(ObjectSelectionBrush, selection.format.property(QTextFormat::BackgroundBrush));
         // don't just clear the property, set an empty brush that overrides a potential
         // background brush specified in the text
         selection.format.setProperty(QTextFormat::BackgroundBrush, QBrush());
@@ -1843,7 +1846,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                                                        si.position + eng->block.position(),
                                                        format);
                     if (selection) {
-                        QBrush bg = format.background();
+                        QBrush bg = format.brushProperty(ObjectSelectionBrush);
                         if (bg.style() != Qt::NoBrush) {
                             QColor c = bg.color();
                             c.setAlpha(128);
