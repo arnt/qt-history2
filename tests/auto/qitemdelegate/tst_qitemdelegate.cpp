@@ -200,11 +200,11 @@ void tst_QItemDelegate::getSetCheck()
     QCOMPARE((QItemEditorFactory *)0, obj1.itemEditorFactory());
     delete var1;
 
-    QCOMPARE(obj1.hasClipping(), false);
-    obj1.setClipping(true);
     QCOMPARE(obj1.hasClipping(), true);
     obj1.setClipping(false);
     QCOMPARE(obj1.hasClipping(), false);
+    obj1.setClipping(true);
+    QCOMPARE(obj1.hasClipping(), true);
 }
 
 tst_QItemDelegate::tst_QItemDelegate()
@@ -308,12 +308,15 @@ void tst_QItemDelegate::editorKeyPress()
     view.show();
 
     QModelIndex index = model.index(0, 0);
+    view.setCurrentIndex(index); // the editor will only selectAll on the current index
     view.edit(index);
 
     QList<QLineEdit*> lineEditors = qFindChildren<QLineEdit *>(&view);
     QCOMPARE(lineEditors.count(), 1);
 
     QLineEdit *editor = lineEditors.at(0);
+    QCOMPARE(editor->selectedText(), initial);
+
     QTest::keyClicks(editor, expected);
     QTest::keyClick(editor, Qt::Key_Enter);
     QApplication::processEvents();
@@ -848,6 +851,7 @@ void tst_QItemDelegate::editorEvent()
 
     QStyleOptionViewItem option;
     option.rect = rect;
+    option.state |= QStyle::State_Enabled;
 
     QEvent *event = new QMouseEvent((QEvent::Type)type,
                                     pos,
