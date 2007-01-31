@@ -1840,6 +1840,11 @@ void QFileDialogPrivate::createWidgets()
     Q_Q(QFileDialog);
     model = new QFileSystemModel(q);
     model->setObjectName(QLatin1String("qt_filesystem_model"));
+#ifdef Q_WS_MAC
+    model->setNameFilterDisables(true);
+#else
+    model->setNameFilterDisables(false);
+#endif
     QFileDialog::connect(model, SIGNAL(rootPathChanged(const QString &)),
             q, SLOT(_q_pathChanged(const QString &)));
     QFileDialog::connect(model, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
