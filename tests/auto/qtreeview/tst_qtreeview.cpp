@@ -704,10 +704,7 @@ void tst_QTreeView::hasAutoScroll()
     view.setAutoScroll(false);
     QVERIFY(!view.hasAutoScroll());
     view.setAutoScroll(true);
-    QVERIFY(!view.hasAutoScroll());
-
-    // ### The view will scroll if we drag content near the edge of the
-    // viewport.
+    QVERIFY(view.hasAutoScroll());
 }
 
 void tst_QTreeView::horizontalScrollMode()
