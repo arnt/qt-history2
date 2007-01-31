@@ -389,7 +389,7 @@ QString QSqlRelationalTableModel::selectStatement() const
             fList.append(QLatin1Char(','));
             if (!tables.contains(relation.tableName()))
                 tables.append(d->db.driver()->escapeIdentifier(relation.tableName(),
-                       QSqlDriver::TableName).append(QLatin1String(" AS ")).append(
+                       QSqlDriver::TableName).append(QLatin1String(" ")).append(
                        d->db.driver()->escapeIdentifier(relTableAlias, QSqlDriver::TableName)));
             where.append(d->escapedRelationField(tableName(), rec.fieldName(i)));
             where.append(QLatin1Char('='));
