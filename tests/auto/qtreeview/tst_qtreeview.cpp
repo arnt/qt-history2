@@ -1684,7 +1684,7 @@ void tst_QTreeView::columnAt()
 void tst_QTreeView::scrollTo()
 {
     QtTestModel model;
-    model.rows = model.cols = 10;
+    model.rows = model.cols = 100;
     QTreeView view;
     view.scrollTo(QModelIndex(), QTreeView::PositionAtTop);
     view.setModel(&model);
@@ -1701,9 +1701,9 @@ void tst_QTreeView::scrollTo()
     //
 
     view.show();
-    view.resize(200, 20);
-    QApplication::processEvents();
-    view.verticalScrollBar()->setValue(0);
+    //view.resize(200, 10);
+    //QApplication::processEvents();
+    //view.verticalScrollBar()->setValue(0);
 
     view.scrollTo(model.index(0,0,QModelIndex()));
     QVERIFY(!view.visualRect(model.index(0,0,QModelIndex())).isEmpty()); // item is visible
