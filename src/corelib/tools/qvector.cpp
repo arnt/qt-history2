@@ -17,7 +17,7 @@
 
 QVectorData QVectorData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, true, false };
 
-QVectorData* QVectorData::malloc(int sizeofTypedData, int size, int sizeofT, QVectorData* init)
+QVectorData *QVectorData::malloc(int sizeofTypedData, int size, int sizeofT, QVectorData *init)
 {
     QVectorData* p = (QVectorData *)qMalloc(sizeofTypedData + (size - 1) * sizeofT);
     ::memcpy(p, init, sizeofTypedData + (qMin(size, init->alloc) - 1) * sizeofT);
