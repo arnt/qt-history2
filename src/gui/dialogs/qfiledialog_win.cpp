@@ -312,10 +312,6 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
     if (!fi.exists())
         *initialDirectory = QDir::homePath();
 
-    QString title = args.caption;
-    if (title.isNull())
-        title = QFileDialog::tr("Open");
-
     DWORD selFilIdx;
 
     int idx = 0;
@@ -390,10 +386,6 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
 
     if (!fi.exists())
         *initialDirectory = QDir::homePath();
-
-    QString title = args.caption;
-    if (title.isNull())
-        title = QFileDialog::tr("Save As");
 
     DWORD selFilIdx;
 
@@ -495,10 +487,6 @@ QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
     if (!fi.exists())
         *initialDirectory = QDir::homePath();
 
-    QString title = args.caption;
-    if (title.isNull())
-        title = QFileDialog::tr("Open ");
-
     DWORD selFilIdx;
 
     int idx = 0;
@@ -513,7 +501,7 @@ QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
     QApplicationPrivate::enterModal(&modal_widget);
     QT_WA({
         OPENFILENAME* ofn = qt_win_make_OFN(args.parent, args.selection,
-                                            args.directory, title,
+                                            args.directory, args.caption,
                                             qt_win_filter(args.filter),
 					    QFileDialog::ExistingFiles,
 					    args.options);
@@ -649,9 +637,6 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
         parent = parent->window();
     else
         parent = qApp->activeWindow();
-    QString title = args.caption;
-    if (title.isNull())
-        title = QFileDialog::tr("Select a Directory");
 
     QWidget modal_widget;
     modal_widget.setAttribute(Qt::WA_NoChildEventsForParent, true);
@@ -664,11 +649,12 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
         TCHAR initPath[MAX_PATH];
         initPath[0] = 0;
         path[0] = 0;
-        tTitle = title;
+        tTitle = args.caption;
         BROWSEINFO bi;
         Q_ASSERT(!parent ||parent->testAttribute(Qt::WA_WState_Created));
         bi.hwndOwner = (parent ? parent->winId() : 0);
         bi.pidlRoot = NULL;
+        //### This does not seem to be respected? - the dialog always displays "Browse for folder"
         bi.lpszTitle = (TCHAR*)tTitle.utf16();
         bi.pszDisplayName = initPath;
         bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_STATUSTEXT | BIF_NEWDIALOGSTYLE;
@@ -692,7 +678,7 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
         QString initDir = QDir::toNativeSeparators(args.directory);
         char path[MAX_PATH];
         char initPath[MAX_PATH];
-        QByteArray ctitle = title.toLocal8Bit();
+        QByteArray ctitle = args.caption.toLocal8Bit();
         initPath[0]=0;
         path[0]=0;
         BROWSEINFOA bi;
