@@ -68,6 +68,9 @@ tst_Bic::tst_Bic()
 
     /* Private classes */
     bic.addBlacklistedClass(QLatin1String("QBrushData"));
+
+    /* Jambi-related classes in Designer */
+    bic.addBlacklistedClass(QLatin1String("QDesignerLanguageExtension"));
 }
 
 void tst_Bic::initTestCase_data()
