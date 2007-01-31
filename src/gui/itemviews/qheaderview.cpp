@@ -1832,6 +1832,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
         return;
     int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
     int handle = d->sectionHandleAt(pos);
+    d->originalSize = -1; // clear the stored original size
     while (handle > -1 && isSectionHidden(handle)) --handle;
     if (handle == -1) {
         d->pressed = logicalIndexAt(pos);
@@ -1847,7 +1848,6 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
             d->state = QHeaderViewPrivate::SelectSections;
         }
     } else if (resizeMode(handle) == Interactive) {
-        Q_ASSERT(d->originalSize == -1);
         d->originalSize = sectionSize(handle);
         d->state = QHeaderViewPrivate::ResizeSection;
         d->section = handle;
@@ -2076,7 +2076,7 @@ bool QHeaderView::viewportEvent(QEvent *e)
         break;
     case QEvent::ContextMenu: {
         d->state = QHeaderViewPrivate::NoState;
-        d->pressed =d->section = d->target = -1;
+        d->pressed = d->section = d->target = -1;
         d->updateSectionIndicator(d->section, -1);
     }
     default:
