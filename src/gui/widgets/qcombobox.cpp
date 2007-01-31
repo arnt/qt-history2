@@ -560,7 +560,7 @@ bool QComboBoxPrivateContainer::eventFilter(QObject *o, QEvent *e)
 
 void QComboBoxPrivateContainer::showEvent(QShowEvent *)
 {
-        combo->update();
+    combo->update();
 }
 
 void QComboBoxPrivateContainer::hideEvent(QHideEvent *)
@@ -587,7 +587,10 @@ void QComboBoxPrivateContainer::mousePressEvent(QMouseEvent *e)
 void QComboBoxPrivateContainer::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_UNUSED(e);
-    emit resetButton();
+    if (!blockMouseReleaseTimer.isActive()){
+        combo->hidePopup();
+        emit resetButton();
+    }
 }
 
 QStyleOptionComboBox QComboBoxPrivateContainer::comboStyleOption() const
