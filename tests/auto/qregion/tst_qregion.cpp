@@ -436,6 +436,14 @@ void tst_QRegion::operator_plus_data()
     QTest::newRow("adjacent y-rects") << QRegion(50, 0, 50, 1)
                                       << QRegion(50, 1, 50, 1)
                                       << expected;
+
+    rects.clear();
+    rects << QRect(50, 0, 2, 1);
+    expected.setRects(rects.constData(), rects.size());
+    QTest::newRow("adjacent x-rects") << QRegion(50, 0, 1, 1)
+                                      << QRegion(51, 0, 1, 1)
+                                      << expected;
+
 }
 
 void tst_QRegion::operator_plus()
@@ -488,9 +496,18 @@ void tst_QRegion::operator_minus()
     QFETCH(QRegion, subtract);
     QFETCH(QRegion, expected);
 
+    if (dest - subtract != expected) {
+        qDebug() << "dest - subtract" << (dest - subtract);
+        qDebug() << "expected" << expected;
+    };
     QCOMPARE(dest - subtract, expected);
 
     dest -= subtract;
+
+    if (dest != expected) {
+        qDebug() << "dest" << dest;
+        qDebug() << "expected" << expected;
+    };
     QCOMPARE(dest, expected);
 }
 

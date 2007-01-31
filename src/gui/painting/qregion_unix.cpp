@@ -129,7 +129,7 @@ bool QRegionPrivate::canAppend(const QRegionPrivate *r) const
     if (rFirst->top() > (myLast->bottom() + 1)
         || (rFirst->top() == myLast->top()
             && rFirst->height() == myLast->height()
-            && rFirst->left() > myLast->right()))
+            && rFirst->left() > (myLast->right() + 1)))
     {
         return true;
     }
