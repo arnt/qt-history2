@@ -468,6 +468,7 @@ void tst_QMdiSubWindow::showShaded()
 {
     QMdiArea workspace;
     QMdiSubWindow *window = new QMdiSubWindow;
+    window->resize(300, 300);
     workspace.addSubWindow(window);
     qApp->processEvents();
     workspace.show();
@@ -476,9 +477,17 @@ void tst_QMdiSubWindow::showShaded()
     QVERIFY(!window->isShaded());
     QVERIFY(!window->isMaximized());
 
+    QCOMPARE(window->size(), QSize(300, 300));
+    QRect restoreGeometry = window->geometry();
     window->showShaded();
     QVERIFY(window->isShaded());
     QVERIFY(window->isMinimized());
+
+    window->showNormal();
+    QVERIFY(!window->isShaded());
+    QVERIFY(!window->isMinimized());
+    QCOMPARE(window->geometry(), restoreGeometry);
+    window->showShaded();
 
     window->setParent(0);
     window->show();
@@ -831,7 +840,11 @@ void tst_QMdiSubWindow::mouseDoubleClick()
     QVERIFY(!window->isShaded());
     QCOMPARE(window->geometry(), originalGeometry);
 
-    // Add test for minimized window
+    window->showMinimized();
+    QVERIFY(window->isMinimized());
+    sendMouseDoubleClick(window, mousePosition);
+    QVERIFY(!window->isMinimized());
+    QCOMPARE(window->geometry(), originalGeometry);
 }
 
 void tst_QMdiSubWindow::setSystemMenu()
