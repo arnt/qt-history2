@@ -95,6 +95,9 @@ private slots:
     void writeTextFile_data();
     void writeTextFile();
     /* void largeFileSupport(); */
+#ifdef Q_OS_WIN
+    void largeUncFileSupport();
+#endif
     void tailFile();
     void flush();
     void bufferedRead();
@@ -976,6 +979,47 @@ void tst_QFile::writeTextFile()
     file.open(QFile::ReadOnly);
     QCOMPARE(file.readAll(), out);
 }
+
+#ifdef Q_OS_WIN
+void tst_QFile::largeUncFileSupport()
+{
+    qint64 size = Q_INT64_C(8589934592);
+    qint64 dataOffset = Q_INT64_C(8589914592);
+    QByteArray knownData("LargeFile content at offset 8589914592");
+    QString largeFile(QLatin1String("//gennan/testsharelargefile/file.bin"));
+
+    {
+        // 1) Native file handling.
+        QFile file(largeFile);
+        QCOMPARE(file.size(), size);
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        QCOMPARE(file.size(), size);
+        QVERIFY(file.seek(dataOffset));
+        QCOMPARE(file.read(knownData.size()), knownData);
+    }
+    {
+        // 2) stdlib file handling.
+        QFile file;
+        FILE *fh = fopen(QFile::encodeName(largeFile).data(), "rb");
+        QVERIFY(file.open(fh, QIODevice::ReadOnly));
+        QCOMPARE(file.size(), size);
+        QVERIFY(file.seek(dataOffset));
+        QCOMPARE(file.read(knownData.size()), knownData);
+        fclose(fh);
+    }
+    {
+        // 3) stdio file handling.
+        QFile file;
+        FILE *fh = fopen(QFile::encodeName(largeFile).data(), "rb");
+        int fd = _fileno(fh);
+        QVERIFY(file.open(fd, QIODevice::ReadOnly));
+        QCOMPARE(file.size(), size);
+        QVERIFY(file.seek(dataOffset));
+        QCOMPARE(file.read(knownData.size()), knownData);
+        fclose(fh);
+    }
+}
+#endif
 
 void tst_QFile::tailFile()
 {
