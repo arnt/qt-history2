@@ -2958,32 +2958,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     // capture the current mouse/keyboard state
     if(e->spontaneous()) {
         if(e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
-            Qt::KeyboardModifier modif = Qt::NoModifier;
-            switch(static_cast<QKeyEvent*>(e)->key()) {
-            case Qt::Key_Shift:
-                modif = Qt::ShiftModifier;
-                break;
-            case Qt::Key_Control:
-                modif = Qt::ControlModifier;
-                break;
-            case Qt::Key_Meta:
-                modif = Qt::MetaModifier;
-                break;
-            case Qt::Key_Alt:
-                modif = Qt::AltModifier;
-                break;
-            case Qt::Key_NumLock:
-                modif = Qt::KeypadModifier;
-                break;
-            default:
-                break;
-            }
-            if(modif != Qt::NoModifier) {
-                if(e->type() == QEvent::KeyPress)
-                    QApplicationPrivate::modifier_buttons |= modif;
-                else
-                    QApplicationPrivate::modifier_buttons &= ~modif;
-            }
+            QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+            QApplicationPrivate::modifier_buttons = ke->modifiers();
         } else if(e->type() == QEvent::MouseButtonPress
                   || e->type() == QEvent::MouseButtonRelease) {
             QMouseEvent *me = static_cast<QMouseEvent*>(e);
