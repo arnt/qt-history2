@@ -124,9 +124,9 @@ bool QRegionPrivate::canAppend(const QRegionPrivate *r) const
     const QRect *myLast = rects.constData() + (numRects - 1);
     // XXX: possible improvements:
     //   - same technique for prepending
-    //   - nFirst->top() == myLast->bottom(), must possibly merge bands
+    //   - nFirst->top() == myLast->bottom() + 1, must possibly merge bands
     //   - rFirst->left() == myLast->right(), merge rectangles, possibly bands
-    if (rFirst->top() > myLast->bottom()
+    if (rFirst->top() > (myLast->bottom() + 1)
         || (rFirst->top() == myLast->top()
             && rFirst->height() == myLast->height()
             && rFirst->left() > myLast->right()))

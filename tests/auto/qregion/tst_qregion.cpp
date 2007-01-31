@@ -429,6 +429,13 @@ void tst_QRegion::operator_plus_data()
     QTest::newRow("non overlapping") << QRegion(10, 10, 10, 10)
                                      << QRegion(22, 10, 10, 10)
                                      << expected;
+
+    rects.clear();
+    rects << QRect(50, 0, 50, 2);
+    expected.setRects(rects.constData(), rects.size());
+    QTest::newRow("adjacent y-rects") << QRegion(50, 0, 50, 1)
+                                      << QRegion(50, 1, 50, 1)
+                                      << expected;
 }
 
 void tst_QRegion::operator_plus()
@@ -437,6 +444,10 @@ void tst_QRegion::operator_plus()
     QFETCH(QRegion, add);
     QFETCH(QRegion, expected);
 
+    if (dest + add != expected) {
+        qDebug() << "dest + add" << (dest + add);
+        qDebug() << "expected" << expected;
+    }
     QCOMPARE(dest + add, expected);
 
     dest += add;
