@@ -212,6 +212,8 @@ void tst_QTextDocument::find_data()
     QTest::newRow("across-paragraphs") << QString::fromAscii("First Parag\nSecond Parag with a lot more text")
                                        << "Parag" << int(QTextDocument::FindBackward)
                                        << 15 << 6 << 11;
+
+    QTest::newRow("nbsp") << "Hello" + QString(QChar(QChar::Nbsp)) +"World" << " " << int(QTextDocument::FindCaseSensitively) << 0 << 5 << 6;
 }
 
 void tst_QTextDocument::find()

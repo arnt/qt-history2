@@ -958,10 +958,12 @@ QTextCursor QTextDocument::find(const QString &subString, const QTextCursor &fro
 }
 
 
-static bool findInBlock(const QTextBlock &block, const QString &text, const QRegExp &expression, int offset,
+static bool findInBlock(const QTextBlock &block, const QRegExp &expression, int offset,
                         QTextDocument::FindFlags options, QTextCursor &cursor)
 {
     const QRegExp expr(expression);
+    QString text = block.text();
+    text.replace(QChar::Nbsp, QLatin1Char(' '));
 
     int idx = -1;
     while (offset >=0 && offset <= text.length()) {
@@ -1029,8 +1031,7 @@ QTextCursor QTextDocument::find(const QRegExp & expr, int from, FindFlags option
     if (!(options & FindBackward)) {
        int blockOffset = qMax(0, pos - block.position());
         while (block.isValid()) {
-            const QString blockText = block.text();
-            if (findInBlock(block, blockText, expr, blockOffset, options, cursor))
+            if (findInBlock(block, expr, blockOffset, options, cursor))
                 return cursor;
             blockOffset = 0;
             block = block.next();
@@ -1038,8 +1039,7 @@ QTextCursor QTextDocument::find(const QRegExp & expr, int from, FindFlags option
     } else {
         int blockOffset = pos - block.position();
         while (block.isValid()) {
-            const QString blockText = block.text();
-            if (findInBlock(block, blockText, expr, blockOffset, options, cursor))
+            if (findInBlock(block, expr, blockOffset, options, cursor))
                 return cursor;
             block = block.previous();
             blockOffset = block.length() - 1;
