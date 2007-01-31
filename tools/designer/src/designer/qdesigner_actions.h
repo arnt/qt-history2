@@ -51,67 +51,15 @@ public:
     QActionGroup *uiMode() const;
     QActionGroup *styleActions() const;
 
-//
-// file actions
-//
-    QAction *newFormAction() const;
-    QAction *openFormAction() const;
-    QAction *saveFormAction() const;
-    QAction *saveFormAsAction() const;
-    QAction *saveAllFormsAction() const;
-    QAction *saveFormAsTemplateAction() const;
-    QAction *closeFormAction() const;
-    QAction *quitAction() const;
-
-//
-// edit actions
-//
-    QAction *undoAction() const;
-    QAction *redoAction() const;
-    QAction *cutAction() const;
-    QAction *copyAction() const;
-    QAction *pasteAction() const;
-    QAction *deleteAction() const;
-    QAction *selectAllAction() const;
-    QAction *sendToBackAction() const;
-    QAction *bringToFrontAction() const;
-
-//
-// edit mode actions
-//
-    QAction *editWidgets() const;
-    QAction *editConnections() const;
-    QAction *editTabOrders() const;
-    QAction *editBuddies() const;
-
-//
-// form actions
-//
-    QAction *layoutHorizontallyAction() const;
-    QAction *layoutVerticallyAction() const;
-    QAction *layoutHorizontallyInSplitterAction() const;
-    QAction *layoutVerticallyInSplitterAction() const;
-    QAction *layoutGridAction() const;
-    QAction *breakLayoutAction() const;
-    QAction *adjustSizeAction() const;
-    QAction *previewFormAction() const;
-    QAction *formSettings() const;
-
-//
-// window actions
-//
+    // window actions
     QAction *minimizeAction() const;
-    QAction *bringAllToFront() const;
+    // edit mode actions
+    QAction *editWidgets() const;
+    // form actions
+    QAction *previewFormAction() const;
 
-//
-// help actions
-//
-    QAction *mainHelpAction() const;
-    QAction *widgetHelpAction() const;
-    QAction *whatsNewAction() const;
-    QAction *aboutQtAction() const;
-    QAction *aboutDesignerAction() const;
-
+    void setBringAllToFrontVisibility(bool visible);
+    
     virtual bool eventFilter(QObject *watched, QEvent *event);
 
 public slots:
@@ -154,14 +102,20 @@ private:
     QRect fixDialogRect(const QRect &rect) const;
     QString fixResourceFileBackupPath(QDesignerFormWindowInterface *fwi, const QDir& backupDir);
     void showStatusBarMessage(const QString &message) const;
-
-private:
+    QActionGroup *createHelpActions();
+    bool ensureBackupDirectories();
+    
     enum { MaxRecentFiles = 10 };
     QDesignerWorkbench *m_workbench;
     QDesignerFormEditorInterface *m_core;
     QAssistantClient *m_assistantClient;
     QString m_openDirectory;
     QString m_saveDirectory;
+
+
+    QString m_backupPath;
+    QString m_backupTmpPath;
+
     QTimer* m_backupTimer;
     
     QActionGroup *m_fileActions;
@@ -185,36 +139,14 @@ private:
     QAction *m_closeFormAction;
 
     QAction *m_quitAction;
-    QAction *m_undoAction;
-    QAction *m_redoAction;
-    QAction *m_cutAction;
-    QAction *m_copyAction;
-    QAction *m_pasteAction;
-    QAction *m_deleteAction;
-    QAction *m_sendToBackAction;
-    QAction *m_bringToFrontAction;
-    QAction *m_selectAllAction;
 
-
-    QAction *m_layoutHorizontallyAction;
-    QAction *m_layoutVerticallyAction;
-    QAction *m_layoutHorizontallyInSplitterAction;
-    QAction *m_layoutVerticallyInSplitterAction;
-    QAction *m_layoutGridAction;
-    QAction *m_breakLayoutAction;
-    QAction *m_adjustSizeAction;
     QAction *m_previewFormAction;
     QAction *m_formSettings;
 
     QAction *m_minimizeAction;
+    QAction *m_bringAllToFrontSeparator;
     QAction *m_bringAllToFrontAction;
 
-    QAction *m_mainHelpAction;
-    QAction *m_widgetHelp;
-    QAction *m_whatsNewAction;
-    QAction *m_aboutQtAction;
-    QAction *m_aboutPluginsAction;
-    QAction *m_aboutDesignerAction;
     QAction *m_sdiAction;
     QAction *m_dockedMdiAction;
 };

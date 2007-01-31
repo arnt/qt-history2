@@ -517,7 +517,7 @@ void QDesignerWorkbench::switchToDockedMode()
         w->setMinimumSize(QSize(0, 0));
         w->hide();
     }
-    changeBringToFrontVisiblity(false);
+    m_actionManager->setBringAllToFrontVisibility(false);
     mw->show();
     // Trigger adjustMDIFormPositions() delayed as viewport size is not yet known.
 
@@ -557,16 +557,6 @@ bool QDesignerWorkbench::eventFilter(QObject *object, QEvent *event)
         }
     }
     return false;
-}
-
-void QDesignerWorkbench::changeBringToFrontVisiblity(bool visible)
-{
-    QAction *btf = m_actionManager->bringToFrontAction();
-    QList<QAction *> actionList = m_actionManager->windowActions()->actions();
-    btf->setVisible(visible);
-    QAction *sep = actionList.at(actionList.indexOf(btf) - 1);
-    if (sep->isSeparator())
-        sep->setVisible(visible);
 }
 
 void QDesignerWorkbench::switchToTopLevelMode()
@@ -617,7 +607,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
     if (!m_toolWindows.isEmpty() && !found_visible_window)
         m_toolWindows.first()->show();
 
-    changeBringToFrontVisiblity(true);
+    m_actionManager->setBringAllToFrontVisibility(true);
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
         fw->setParent(magicalParent(), magicalWindowFlags(fw));

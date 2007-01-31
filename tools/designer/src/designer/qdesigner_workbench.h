@@ -130,7 +130,6 @@ private:
     QDockWidget *magicalDockWidget(QWidget *widget) const;
 
     QDesignerFormWindowManagerInterface *formWindowManager() const;
-    void changeBringToFrontVisiblity(bool visible);
 
     bool eventFilter(QObject *object, QEvent *event);
 
