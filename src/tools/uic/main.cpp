@@ -141,10 +141,15 @@ int main(int argc, char *argv[])
     }
 
     bool rtn = driver.uic(inputFile, out);
-    if (!rtn)
-        fprintf(stderr, "File '%s' is not valid\n", inputFile.isEmpty() ? "<stdin>" : inputFile.toLocal8Bit().constData());
-
     delete out;
+
+    if (!rtn) {
+        if (driver.option().outputFile.size()) {
+            f.close();
+            f.remove();
+        }
+        fprintf(stderr, "File '%s' is not valid\n", inputFile.isEmpty() ? "<stdin>" : inputFile.toLocal8Bit().constData());
+    }
 
     return !rtn;
 }
