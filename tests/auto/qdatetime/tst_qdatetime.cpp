@@ -82,8 +82,7 @@ private slots:
     void timeFromStringFormat();
     void dateTimeFromStringFormat_data();
     void dateTimeFromStringFormat();
-    void convertToMsec();
-    void convertToMsec_data();
+
 private:
     bool europeanTimeZone;
     QDate defDate() const { return QDate(1900, 1, 1); }
@@ -1110,24 +1109,6 @@ void tst_QDateTime::dateTimeFromStringFormat()
 
     QCOMPARE(dt, expected);
 }
-
-void tst_QDateTime::convertToMsec()
-{
-    QFETCH(QTime, time);
-    QFETCH(int, expected);
-    QCOMPARE(time.convertToMsec(), expected);
-}
-void tst_QDateTime::convertToMsec_data()
-{
-    QTest::addColumn<QTime>("time");
-    QTest::addColumn<int>("expected");
-
-    QTest::newRow("data1") << QTime() << -1;
-    QTest::newRow("data2") << QTime(0, 0, 0) << 0;
-    QTest::newRow("data3") << QTime(23, 0, 0, 123) << ((23 * 3600 * 1000) + 123);
-}
-
-
 
 QTEST_APPLESS_MAIN(tst_QDateTime)
 #include "tst_qdatetime.moc"
