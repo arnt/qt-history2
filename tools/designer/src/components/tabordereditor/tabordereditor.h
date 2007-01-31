@@ -17,7 +17,6 @@
 #include "tabordereditor_global.h"
 
 #include <QtCore/QPointer>
-#include <QtGui/QPixmap>
 #include <QtGui/QWidget>
 #include <QtGui/QRegion>
 #include <QtGui/QFont>

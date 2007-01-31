@@ -13,48 +13,49 @@
 
 #include "tabordereditor.h"
 
-#include <QtGui/QLabel>
-#include <QtGui/QPainter>
-#include <QtCore/qdebug.h>
-#include <QtGui/QRegion>
-#include <QtGui/qevent.h>
-#include <QtGui/QFontMetrics>
-#include <QtGui/QApplication>
-
-#include <QtDesigner/QtDesigner>
-
 #include <metadatabase_p.h>
 #include <qdesigner_command_p.h>
-#include <qdesigner_widget_p.h>
 #include <qdesigner_utils_p.h>
 #include <qlayout_widget_p.h>
 
-#define BG_ALPHA                32
-#define VBOX_MARGIN             1
-#define HBOX_MARGIN             4
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormWindowCursorInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerWidgetFactoryInterface>
+#include <QtDesigner/QDesignerPropertySheetExtension>
 
-using namespace qdesigner_internal;
+#include <QtGui/QPainter>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QResizeEvent>    
+#include <QtGui/QApplication>
+
+namespace {
+    enum { VBOX_MARGIN = 1, HBOX_MARGIN = 4, BG_ALPHA = 32 };
+}
 
 static QRect fixRect(const QRect &r)
 {
     return QRect(r.x(), r.y(), r.width() - 1, r.height() - 1);
 }
 
-TabOrderEditor::TabOrderEditor(QDesignerFormWindowInterface *form, QWidget *parent)
-    : QWidget(parent), m_font_metrics(font())
+namespace qdesigner_internal {
+
+TabOrderEditor::TabOrderEditor(QDesignerFormWindowInterface *form, QWidget *parent) :
+    QWidget(parent), 
+    m_form_window(form),
+    m_bg_widget(0),
+    m_undo_stack(form->commandHistory()),
+    m_font_metrics(font()),
+    m_current_index(0)    
 {
-    m_form_window = form;
-    m_bg_widget = 0;
-    m_undo_stack = form->commandHistory();
     connect(form, SIGNAL(widgetRemoved(QWidget*)), this, SLOT(widgetRemoved(QWidget*)));
 
-    QFont font = this->font();
-    font.setPointSize(font.pointSize()*2);
-    font.setBold(true);
-    setFont(font);
-    m_font_metrics = QFontMetrics(font);
-    m_current_index = 0;
-
+    QFont tabFont = font();
+    tabFont.setPointSize(tabFont.pointSize()*2);
+    tabFont.setBold(true);
+    setFont(tabFont);
+    m_font_metrics = QFontMetrics(tabFont);
     setAttribute(Qt::WA_MouseTracking, true);
 }
 
@@ -99,11 +100,11 @@ QRect TabOrderEditor::indicatorRect(int index) const
     if (index < 0 || index >= m_tab_order_list.size())
         return QRect();
 
-    QWidget *w = m_tab_order_list.at(index);
-    QString text = QString::number(index + 1);
+    const QWidget *w = m_tab_order_list.at(index);
+    const QString text = QString::number(index + 1);
 
-    QPoint tl = mapFromGlobal(w->mapToGlobal(w->rect().topLeft()));
-    QSize size = m_font_metrics.size(Qt::TextSingleLine, text);
+    const QPoint tl = mapFromGlobal(w->mapToGlobal(w->rect().topLeft()));
+    const QSize size = m_font_metrics.size(Qt::TextSingleLine, text);
     QRect r(tl - QPoint(size.width(), size.height())/2, size);
     r = QRect(r.left() - HBOX_MARGIN, r.top() - VBOX_MARGIN,
                 r.width() + HBOX_MARGIN*2, r.height() + VBOX_MARGIN*2);
@@ -133,7 +134,7 @@ void TabOrderEditor::paintEvent(QPaintEvent *e)
         if (!isWidgetVisible(widget))
             continue;
 
-        QRect r = indicatorRect(i);
+        const QRect r = indicatorRect(i);
 
         QColor c = Qt::blue;
         p.setPen(c);
@@ -163,8 +164,8 @@ bool TabOrderEditor::skipWidget(QWidget *w) const
 
 
     QExtensionManager *ext = formWindow()->core()->extensionManager();
-    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(ext, w)) {
-        int index = sheet->indexOf(QLatin1String("focusPolicy"));
+    if (const QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(ext, w)) {
+        const int index = sheet->indexOf(QLatin1String("focusPolicy"));
         if (index != -1) {
             bool ok = false;
             Qt::FocusPolicy q = (Qt::FocusPolicy) Utils::valueOf(sheet->property(index), &ok);
@@ -263,7 +264,7 @@ void TabOrderEditor::mousePressEvent(QMouseEvent *e)
         return;
     }
 
-    int target_index = widgetIndexAt(e->pos());
+    const int target_index = widgetIndexAt(e->pos());
     if (target_index == -1)
         return;
 
@@ -294,3 +295,4 @@ void TabOrderEditor::resizeEvent(QResizeEvent *e)
     QWidget::resizeEvent(e);
 }
 
+}
