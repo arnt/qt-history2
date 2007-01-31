@@ -92,6 +92,7 @@ void AppearancePage::load()
     for (int i=0; i<paletteView->header()->count(); ++i) {
         paletteView->header()->setResizeMode(i, QHeaderView::Stretch);
     }
+    updatePreviewPalette();
 
     QSettings settings(QLatin1String("Trolltech"));
     settings.beginGroup(QLatin1String("Qt"));
@@ -309,7 +310,7 @@ QVariant PaletteModel::data(const QModelIndex &index, int role) const
     }
     if (role == Qt::BackgroundColorRole)
         return m_palette.color(columnToGroup(index.column()),
-                    (QPalette::ColorRole)index.row());
+                               (QPalette::ColorRole)index.row());
     return QVariant();
 }
 
@@ -329,30 +330,30 @@ bool PaletteModel::setData(const QModelIndex &index, const QVariant &value, int 
         if (m_compute) {
             m_palette.setBrush(QPalette::Inactive, r, c);
             switch (r) {
-                case QPalette::Foreground:
-                case QPalette::Text:
-                case QPalette::ButtonText:
-                case QPalette::Base:
-                    break;
-                case QPalette::Dark:
-                    m_palette.setBrush(QPalette::Disabled, QPalette::Foreground, c);
-                    m_palette.setBrush(QPalette::Disabled, QPalette::Dark, c);
-                    m_palette.setBrush(QPalette::Disabled, QPalette::Text, c);
-                    m_palette.setBrush(QPalette::Disabled, QPalette::ButtonText, c);
-                    idxBegin = PaletteModel::index(0, 0);
-                    idxEnd = PaletteModel::index(m_roleNames.count() - 1, 3);
-                    break;
-                case QPalette::Background:
-                    m_palette.setBrush(QPalette::Disabled, QPalette::Base, c);
-                    m_palette.setBrush(QPalette::Disabled, QPalette::Background, c);
-                    idxBegin = PaletteModel::index(QPalette::Base, 0);
-                    break;
-                case QPalette::Highlight:
-                    m_palette.setBrush(QPalette::Disabled, QPalette::Highlight, c.dark(120));
-                    break;
-                default:
-                    m_palette.setBrush(QPalette::Disabled, r, c);
-                    break;
+            case QPalette::Foreground:
+            case QPalette::Text:
+            case QPalette::ButtonText:
+            case QPalette::Base:
+                break;
+            case QPalette::Dark:
+                m_palette.setBrush(QPalette::Disabled, QPalette::Foreground, c);
+                m_palette.setBrush(QPalette::Disabled, QPalette::Dark, c);
+                m_palette.setBrush(QPalette::Disabled, QPalette::Text, c);
+                m_palette.setBrush(QPalette::Disabled, QPalette::ButtonText, c);
+                idxBegin = PaletteModel::index(0, 0);
+                idxEnd = PaletteModel::index(m_roleNames.count() - 1, 3);
+                break;
+            case QPalette::Background:
+                m_palette.setBrush(QPalette::Disabled, QPalette::Base, c);
+                m_palette.setBrush(QPalette::Disabled, QPalette::Background, c);
+                idxBegin = PaletteModel::index(QPalette::Base, 0);
+                break;
+            case QPalette::Highlight:
+                m_palette.setBrush(QPalette::Disabled, QPalette::Highlight, c.dark(120));
+                break;
+            default:
+                m_palette.setBrush(QPalette::Disabled, r, c);
+                break;
             }
         }
         emit paletteChanged(m_palette);
@@ -367,11 +368,11 @@ bool PaletteModel::setData(const QModelIndex &index, const QVariant &value, int 
             mask |= (1 << r);
         else {
             m_palette.setBrush(QPalette::Active, (QPalette::ColorRole)r,
-                        m_parentPalette.brush(QPalette::Active, (QPalette::ColorRole)r));
+                               m_parentPalette.brush(QPalette::Active, (QPalette::ColorRole)r));
             m_palette.setBrush(QPalette::Inactive, (QPalette::ColorRole)r,
-                        m_parentPalette.brush(QPalette::Inactive, (QPalette::ColorRole)r));
+                               m_parentPalette.brush(QPalette::Inactive, (QPalette::ColorRole)r));
             m_palette.setBrush(QPalette::Disabled, (QPalette::ColorRole)r,
-                        m_parentPalette.brush(QPalette::Disabled, (QPalette::ColorRole)r));
+                               m_parentPalette.brush(QPalette::Disabled, (QPalette::ColorRole)r));
 
             mask &= ~(1 << index.row());
         }
@@ -392,7 +393,7 @@ Qt::ItemFlags PaletteModel::flags(const QModelIndex &index) const
 }
 
 QVariant PaletteModel::headerData(int section, Qt::Orientation orientation,
-                int role) const
+                                  int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         if (section == 0)
@@ -418,6 +419,7 @@ void PaletteModel::setPalette(const QPalette &palette, const QPalette &parentPal
     m_palette = palette;
     QModelIndex idxBegin = index(0, 0);
     QModelIndex idxEnd = index(m_roleNames.count() - 1, 3);
+    emit paletteChanged(m_palette);
     emit dataChanged(idxBegin, idxEnd);
 }
 

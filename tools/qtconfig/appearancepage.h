@@ -68,8 +68,8 @@ private:
 
 class RoleEditor : public QWidget
 {
-Q_OBJECT
-    public:
+    Q_OBJECT
+public:
     RoleEditor(QWidget *parent = 0);
 
     void setLabel(const QString &label);
@@ -86,9 +86,9 @@ private:
 
 class ColorDelegate : public QItemDelegate
 {
-Q_OBJECT
+    Q_OBJECT
 
-    public:
+public:
     ColorDelegate(QObject *parent = 0) : QItemDelegate(parent) { }
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
@@ -109,8 +109,8 @@ Q_OBJECT
 
 class AppearancePage : public QFrame, public Ui_AppearancePage
 {
-Q_OBJECT
-    public:
+    Q_OBJECT
+public:
     AppearancePage(QWidget *parent = 0);
     void load();
     void save();
