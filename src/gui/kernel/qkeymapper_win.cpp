@@ -20,7 +20,7 @@
 #include <private/qapplication_p.h>
 #include <qwidget.h>
 #include <qapplication.h>
-
+#include <ctype.h>
 
 // Uncommend, to show debugging information for the keymapper
 //#define DEBUG_KEYMAPPER
