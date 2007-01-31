@@ -401,11 +401,21 @@ inline QList<T> qFindChildren(const QObject *o, const QRegExp &re)
 
 template <class T>
 inline T qobject_cast(QObject *object)
-{ return static_cast<T>(reinterpret_cast<T>(0)->staticMetaObject.cast(object)); }
+{
+#ifndef QT_NO_MEMBER_TEMPLATES
+    reinterpret_cast<T>(0)->qt_check_for_QOBJECT_macro(*reinterpret_cast<T>(0));
+#endif
+    return static_cast<T>(reinterpret_cast<T>(0)->staticMetaObject.cast(object));
+}
 
 template <class T>
 inline T qobject_cast(const QObject *object)
-{ return static_cast<T>(const_cast<const QObject *>(reinterpret_cast<T>(0)->staticMetaObject.cast(const_cast<QObject *>(object)))); }
+{
+#ifndef QT_NO_MEMBER_TEMPLATES
+    reinterpret_cast<T>(0)->qt_check_for_QOBJECT_macro(*reinterpret_cast<T>(0));
+#endif
+    return static_cast<T>(const_cast<const QObject *>(reinterpret_cast<T>(0)->staticMetaObject.cast(const_cast<QObject *>(object))));
+}
 
 
 #ifndef Q_MOC_RUN

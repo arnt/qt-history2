@@ -83,9 +83,40 @@ class QByteArray;
 # define QT_TR_FUNCTIONS
 #endif
 
+#ifdef QT_NO_MEMBER_TEMPLATES
+/* tmake ignore Q_OBJECT */
+#define Q_OBJECT_CHECK
+#else
+
+/* This is a compile time check that ensures that any class casted with qobject_cast
+   actually contains a Q_OBJECT macro. Note: qobject_cast will fail if a QObject
+   subclass doesn't contain Q_OBJECT.
+
+   In qt_check_for_QOBJECT_macro, we call a dummy templated function with two
+   parameters, the first being "this" and the other the target of the qobject
+   cast. If the types are not identical, we know that a Q_OBJECT macro is missing.
+
+   If you get a compiler error here, make sure that the class you are casting
+   to contains a Q_OBJECT macro.
+*/
+
+/* tmake ignore Q_OBJECT */
+#define Q_OBJECT_CHECK \
+    template <typename T> inline void qt_check_for_QOBJECT_macro(const T &t) const \
+    { int i = qYouForgotTheQ_OBJECT_Macro(this, &t); Q_UNUSED(i); }
+
+template <typename T>
+inline int qYouForgotTheQ_OBJECT_Macro(T, T) { return 0; }
+
+template <typename T1, typename T2>
+inline void qYouForgotTheQ_OBJECT_Macro(T1, T2) {}
+
+#endif // QT_NO_MEMBER_TEMPLATES
+
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT \
 public: \
+    Q_OBJECT_CHECK \
     static const QMetaObject staticMetaObject; \
     virtual const QMetaObject *metaObject() const; \
     virtual void *qt_metacast(const char *); \

@@ -28,6 +28,7 @@
 #include "QtGui/qstyleoption.h"
 #include "private/qwidget_p.h"
 #include "QtGui/qboxlayout.h"
+#include "QtGui/qdockwidget.h"
 
 #ifndef QT_NO_DOCKWIDGET
 
@@ -95,6 +96,7 @@ public:
 
 class QDockWidgetLayout : public QLayout
 {
+    Q_OBJECT
 public:
     QDockWidgetLayout(QWidget *parent = 0);
     void addItem(QLayoutItem *item);
