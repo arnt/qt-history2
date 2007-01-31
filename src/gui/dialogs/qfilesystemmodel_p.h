@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef QFILESYSTEMMODEL_H
 #define QFILESYSTEMMODEL_H
 
@@ -113,10 +114,10 @@ private:
     Q_DECLARE_PRIVATE(QFileSystemModel)
     Q_DISABLE_COPY(QFileSystemModel)
 
-    Q_PRIVATE_SLOT(d_func(), void directoryChanged(const QString &directory, const QStringList &list));
-    Q_PRIVATE_SLOT(d_func(), void performDelayedSort());
-    Q_PRIVATE_SLOT(d_func(), void fileSystemChanged(const QString &path, const QList<QPair<QString, QExtendedInformation> > &));
-    Q_PRIVATE_SLOT(d_func(), void resolvedName(const QString &fileName, const QString &resolvedName));
+    Q_PRIVATE_SLOT(d_func(), void _q_directoryChanged(const QString &directory, const QStringList &list));
+    Q_PRIVATE_SLOT(d_func(), void _q_performDelayedSort());
+    Q_PRIVATE_SLOT(d_func(), void _q_fileSystemChanged(const QString &path, const QList<QPair<QString, QExtendedInformation> > &));
+    Q_PRIVATE_SLOT(d_func(), void _q_resolvedName(const QString &fileName, const QString &resolvedName));
 };
 
 #endif // QFILESYSTEMMODEL_H
@@ -310,10 +311,10 @@ public:
     QString type(const QModelIndex &index) const;
     QString time(const QModelIndex &index) const;
 
-    void directoryChanged(const QString &directory, const QStringList &list);
-    void performDelayedSort();
-    void fileSystemChanged(const QString &path, const QList<QPair<QString, QExtendedInformation> > &);
-    void resolvedName(const QString &fileName, const QString &resolvedName);
+    void _q_directoryChanged(const QString &directory, const QStringList &list);
+    void _q_performDelayedSort();
+    void _q_fileSystemChanged(const QString &path, const QList<QPair<QString, QExtendedInformation> > &);
+    void _q_resolvedName(const QString &fileName, const QString &resolvedName);
 
     static int naturalCompare(const QString &s1, const QString &s2, Qt::CaseSensitivity cs);
 

@@ -650,7 +650,7 @@ Qt::ItemFlags QFileSystemModel::flags(const QModelIndex &index) const
 /*!
     \internal
 */
-void QFileSystemModelPrivate::performDelayedSort()
+void QFileSystemModelPrivate::_q_performDelayedSort()
 {
     Q_Q(QFileSystemModel);
     q->sort(sortColumn, sortOrder);
@@ -1168,7 +1168,7 @@ QStringList QFileSystemModel::nameFilters() const
     Performed quick listing and see if any files have been added or removed,
     then fetch more information on visible files.
  */
-void QFileSystemModelPrivate::directoryChanged(const QString &directory, const QStringList &files)
+void QFileSystemModelPrivate::_q_directoryChanged(const QString &directory, const QStringList &files)
 {
     QFileSystemModelPrivate::QFileSystemNode *parentNode = node(directory, false);
     QStringList newFiles = files;
@@ -1306,7 +1306,7 @@ void QFileSystemModelPrivate::removeVisibleFile(QFileSystemNode *parentNode, int
     The thread has received new information about files,
     update and emit dataChanged if it has actually changed.
  */
-void QFileSystemModelPrivate::fileSystemChanged(const QString &path, const QList<QPair<QString, QExtendedInformation> > &updates)
+void QFileSystemModelPrivate::_q_fileSystemChanged(const QString &path, const QList<QPair<QString, QExtendedInformation> > &updates)
 {
     Q_Q(QFileSystemModel);
     QVector<int> rowsToUpdate;
@@ -1406,7 +1406,7 @@ void QFileSystemModelPrivate::fileSystemChanged(const QString &path, const QList
 /*!
     \internal
 */
-void QFileSystemModelPrivate::resolvedName(const QString &fileName, const QString &resolvedName)
+void QFileSystemModelPrivate::_q_resolvedName(const QString &fileName, const QString &resolvedName)
 {
     resolvedSymLinks[fileName] = resolvedName;
 }
@@ -1419,12 +1419,12 @@ void QFileSystemModelPrivate::init()
     Q_Q(QFileSystemModel);
     qRegisterMetaType<QList<QPair<QString,QExtendedInformation> > >("QList<QPair<QString,QExtendedInformation> >");
     q->connect(&fileInfoGatherer, SIGNAL(newListOfFiles(const QString &, const QStringList &)),
-               q, SLOT(directoryChanged(const QString &, const QStringList &)));
+               q, SLOT(_q_directoryChanged(const QString &, const QStringList &)));
     q->connect(&fileInfoGatherer, SIGNAL(updates(const QString &, const QList<QPair<QString, QExtendedInformation> > &)),
-            q, SLOT(fileSystemChanged(const QString &, const QList<QPair<QString, QExtendedInformation> > &)));
+            q, SLOT(_q_fileSystemChanged(const QString &, const QList<QPair<QString, QExtendedInformation> > &)));
     q->connect(&fileInfoGatherer, SIGNAL(nameResolved(const QString &, const QString &)),
-            q, SLOT(resolvedName(const QString &, const QString &)));
-    q->connect(&delayedSortTimer, SIGNAL(timeout()), q, SLOT(performDelayedSort()), Qt::QueuedConnection);
+            q, SLOT(_q_resolvedName(const QString &, const QString &)));
+    q->connect(&delayedSortTimer, SIGNAL(timeout()), q, SLOT(_q_performDelayedSort()), Qt::QueuedConnection);
 }
 
 /*!

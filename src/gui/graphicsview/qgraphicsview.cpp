@@ -281,8 +281,8 @@ public:
 #ifndef QT_NO_CURSOR
     QCursor originalCursor;
     bool hasStoredOriginalCursor;
-    void setViewportCursor(const QCursor &cursor);
-    void unsetViewportCursor();
+    void _q_setViewportCursor(const QCursor &cursor);
+    void _q_unsetViewportCursor();
 #endif
 
     QGraphicsSceneDragDropEvent *lastDragDropEvent;
@@ -538,7 +538,7 @@ QRegion QGraphicsViewPrivate::rubberBandRegion(const QWidget *widget, const QRec
     \internal
 */
 #ifndef QT_NO_CURSOR
-void QGraphicsViewPrivate::setViewportCursor(const QCursor &cursor)
+void QGraphicsViewPrivate::_q_setViewportCursor(const QCursor &cursor)
 {
     Q_Q(QGraphicsView);
     QWidget *viewport = q->viewport();
@@ -554,12 +554,12 @@ void QGraphicsViewPrivate::setViewportCursor(const QCursor &cursor)
     \internal
 */
 #ifndef QT_NO_CURSOR
-void QGraphicsViewPrivate::unsetViewportCursor()
+void QGraphicsViewPrivate::_q_unsetViewportCursor()
 {
     Q_Q(QGraphicsView);
     foreach (QGraphicsItem *item, q->items(lastMouseEvent.pos())) {
         if (item->hasCursor()) {
-            setViewportCursor(item->cursor());
+            _q_setViewportCursor(item->cursor());
             return;
         }
     }
@@ -2564,7 +2564,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     // Find the topmost item under the mouse with a cursor.
     foreach (QGraphicsItem *item, itemsUnderCursor) {
         if (item->hasCursor()) {
-            d->setViewportCursor(item->cursor());
+            d->_q_setViewportCursor(item->cursor());
             return;
         }
     }
@@ -2642,7 +2642,7 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 #ifndef QT_NO_CURSOR
     if (mouseEvent.isAccepted() && mouseEvent.buttons() == 0) {
         // The last mouse release on the viewport will trigger clearing the cursor.
-        d->unsetViewportCursor();
+        d->_q_unsetViewportCursor();
     }
 #endif
 }

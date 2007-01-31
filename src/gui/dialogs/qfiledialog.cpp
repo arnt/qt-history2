@@ -419,8 +419,6 @@ void QFileDialogPrivate::retranslateWindowTitle()
 
 void QFileDialogPrivate::retranslateStrings()
 {
-    Q_Q(QFileDialog);
-
     /* WIDGETS */
     lookInLabel->setText(QFileDialog::tr("Where:"));
     fileTypeLabel->setText(QFileDialog::tr("Files of type:"));
