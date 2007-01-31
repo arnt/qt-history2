@@ -14,22 +14,20 @@
 #include "qvector.h"
 #include "qtools_p.h"
 #include <string.h>
-#include <limits.h>
 
 QVectorData QVectorData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, true, false };
 
-QVectorData *QVectorData::malloc(int sizeofTypedData, int size, int sizeofT, QVectorData *init)
+QVectorData* QVectorData::malloc(int sizeofTypedData, int size, int sizeofT, QVectorData* init)
 {
-    QVectorData *p = static_cast<QVectorData *>(qMalloc(sizeofTypedData + (size - 1) * sizeofT));
-    if (p)
-        ::memcpy(p, init, sizeofTypedData + (qMin(size, init->alloc) - 1) * sizeofT);
+    QVectorData* p = (QVectorData *)qMalloc(sizeofTypedData + (size - 1) * sizeofT);
+    ::memcpy(p, init, sizeofTypedData + (qMin(size, init->alloc) - 1) * sizeofT);
     return p;
 }
 
 int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive)
 {
     if (excessive)
-        return qBound(size, size + size / 2, INT_MAX);
+        return size + size / 2;
     return qAllocMore(size * sizeofT, sizeofTypedData - sizeofT) / sizeofT;
 }
 

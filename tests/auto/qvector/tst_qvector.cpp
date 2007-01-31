@@ -50,7 +50,7 @@ void tst_QVector::outOfMemory()
     {
         QVector<Foo> a;
 
-        QFAIL("This test crashes on many of our machines.");
+        QSKIP("This test crashes on many of our machines.", SkipSingle);
         a.resize(N);
         if (a.size() == N) {
             // it's a miracle!
