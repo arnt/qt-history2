@@ -519,11 +519,10 @@ bool QFSFileEnginePrivate::nativeFlush()
         return true;
     }
 
-    // Windows native mode.
-    if (fileHandle == INVALID_HANDLE_VALUE || !FlushFileBuffers(fileHandle)) {
-        q->setError(QFile::UnspecifiedError, qt_error_string());
-        return false;
-    }
+    // Windows native mode; flushing is
+    // unnecessary. FlushFileBuffers(), the equivalent of sync() or
+    // fsync() on Unix, does a low-level flush to the disk, and we
+    // don't expose an API for this.
     return true;
 }
 
