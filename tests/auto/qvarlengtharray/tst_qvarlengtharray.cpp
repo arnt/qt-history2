@@ -113,6 +113,7 @@ void tst_QVarLengthArray::oldTests()
         QCOMPARE(sa3[5], 5);
     }
 
+    QFAIL("This test causes the machine to crash when allocating too much memory.");
     {
         QVarLengthArray<Foo> a;
         const int N = 0x7fffffff / sizeof(Foo);
