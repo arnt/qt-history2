@@ -670,6 +670,10 @@ private:
 
     friend Q_GUI_EXPORT QWidgetData *qt_qwidget_data(QWidget *widget);
 
+#ifdef Q_WS_WIN
+    friend class QWizard;
+#endif
+
 private:
     Q_DISABLE_COPY(QWidget)
     Q_PRIVATE_SLOT(d_func(), void _q_showIfNotHidden())
