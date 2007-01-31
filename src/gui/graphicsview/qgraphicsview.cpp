@@ -1326,8 +1326,10 @@ void QGraphicsView::ensureVisible(const QGraphicsItem *item, int xmargin, int ym
 }
 
 /*!
-    Scales the view matrix and scrolls the scroll bars to ensures that the
-    scene rectangle \a rect fits inside the view.
+    Scales the view matrix and scrolls the scroll bars to ensure that the
+    scene rectangle \a rect fits inside the viewport. \a rect must be inside
+    the scene rect; otherwise, fitInView() cannot guarantee that the whole
+    rect is visible.
 
     This function keeps the view's rotation, translation, or shear. The view
     is scaled according to \a aspectRatioMode. \a rect will be centered in the
