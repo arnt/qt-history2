@@ -53,15 +53,15 @@
 #       define INTERFACE IOleInPlaceObjectWindowless
         DECLARE_INTERFACE_(IOleInPlaceObjectWindowless,IOleInPlaceObject)
         {
-	   STDMETHOD(QueryInterface)(THIS_ REFIID,PVOID*) PURE;
-	   STDMETHOD_(ULONG,AddRef)(THIS) PURE;
-	   STDMETHOD_(ULONG,Release)(THIS) PURE;
-	   STDMETHOD(GetWindow)(THIS_ HWND*) PURE;
-	   STDMETHOD(ContextSensitiveHelp)(THIS_ BOOL) PURE;
-	   STDMETHOD(InPlaceDeactivate)(THIS) PURE;
-	   STDMETHOD(UIDeactivate)(THIS) PURE;
-	   STDMETHOD(SetObjectRects)(THIS_ LPCRECT,LPCRECT) PURE;
-	   STDMETHOD(ReactivateAndUndo)(THIS) PURE;
+           STDMETHOD(QueryInterface)(THIS_ REFIID,PVOID*) PURE;
+           STDMETHOD_(ULONG,AddRef)(THIS) PURE;
+           STDMETHOD_(ULONG,Release)(THIS) PURE;
+           STDMETHOD(GetWindow)(THIS_ HWND*) PURE;
+           STDMETHOD(ContextSensitiveHelp)(THIS_ BOOL) PURE;
+           STDMETHOD(InPlaceDeactivate)(THIS) PURE;
+           STDMETHOD(UIDeactivate)(THIS) PURE;
+           STDMETHOD(SetObjectRects)(THIS_ LPCRECT,LPCRECT) PURE;
+           STDMETHOD(ReactivateAndUndo)(THIS) PURE;
            STDMETHOD(OnWindowMessage)(THIS_ UINT, WPARAM, LPARAM, LRESULT*) PURE;
            STDMETHOD(GetDropTarget)(THIS_ IDropTarget**) PURE;
         };
@@ -74,17 +74,17 @@ static QAbstractEventDispatcher::EventFilter previous_filter = 0;
 static int filter_ref = 0;
 
 static ushort mouseTbl[] = {
-    WM_MOUSEMOVE,	QEvent::MouseMove,		0,
-    WM_LBUTTONDOWN,	QEvent::MouseButtonPress,	Qt::LeftButton,
-    WM_LBUTTONUP,	QEvent::MouseButtonRelease,	Qt::LeftButton,
-    WM_LBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	Qt::LeftButton,
-    WM_RBUTTONDOWN,	QEvent::MouseButtonPress,	Qt::RightButton,
-    WM_RBUTTONUP,	QEvent::MouseButtonRelease,	Qt::RightButton,
-    WM_RBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	Qt::RightButton,
-    WM_MBUTTONDOWN,	QEvent::MouseButtonPress,	Qt::MidButton,
-    WM_MBUTTONUP,	QEvent::MouseButtonRelease,	Qt::MidButton,
-    WM_MBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	Qt::MidButton,
-    0,			0,				0
+    WM_MOUSEMOVE,       QEvent::MouseMove,              0,
+    WM_LBUTTONDOWN,     QEvent::MouseButtonPress,       Qt::LeftButton,
+    WM_LBUTTONUP,       QEvent::MouseButtonRelease,     Qt::LeftButton,
+    WM_LBUTTONDBLCLK,   QEvent::MouseButtonDblClick,    Qt::LeftButton,
+    WM_RBUTTONDOWN,     QEvent::MouseButtonPress,       Qt::RightButton,
+    WM_RBUTTONUP,       QEvent::MouseButtonRelease,     Qt::RightButton,
+    WM_RBUTTONDBLCLK,   QEvent::MouseButtonDblClick,    Qt::RightButton,
+    WM_MBUTTONDOWN,     QEvent::MouseButtonPress,       Qt::MidButton,
+    WM_MBUTTONUP,       QEvent::MouseButtonRelease,     Qt::MidButton,
+    WM_MBUTTONDBLCLK,   QEvent::MouseButtonDblClick,    Qt::MidButton,
+    0,                  0,                              0
 };
 
 static Qt::MouseButtons translateMouseButtonState(int s)
@@ -122,6 +122,7 @@ class QAxHostWidget : public QWidget
 {
     friend class QAxClientSite;
 public:
+    Q_OBJECT_CHECK
     QAxHostWidget(QWidget *parent, QAxClientSite *ax);
     ~QAxHostWidget();
 
@@ -474,8 +475,8 @@ QAxClientSite::QAxClientSite(QAxWidget *c)
 {
     aggregatedObject = widget->createAggregate();
     if (aggregatedObject) {
-	aggregatedObject->controlling_unknown = (IUnknown*)(IDispatch*)this;
-	aggregatedObject->the_object = c;
+        aggregatedObject->controlling_unknown = (IUnknown*)(IDispatch*)this;
+        aggregatedObject->the_object = c;
     }
 
     m_spOleObject = 0;
@@ -687,11 +688,11 @@ HRESULT WINAPI QAxClientSite::QueryInterface(REFIID iid, void **iface)
     if (iid == IID_IUnknown) {
         *iface = (IUnknown*)(IDispatch*)this;
     } else {
-	HRESULT res = S_OK;
-	if (aggregatedObject)
-	    res = aggregatedObject->queryInterface(iid, iface);
-	if (*iface)
-	    return res;
+        HRESULT res = S_OK;
+        if (aggregatedObject)
+            res = aggregatedObject->queryInterface(iid, iface);
+        if (*iface)
+            return res;
     }
 
     if (!(*iface)) {
@@ -721,7 +722,7 @@ HRESULT WINAPI QAxClientSite::QueryInterface(REFIID iid, void **iface)
             *iface = (IAdviseSink*)this;
     }
     if (!*iface)
-	return E_NOINTERFACE;
+        return E_NOINTERFACE;
 
     AddRef();
     return S_OK;
@@ -1020,9 +1021,9 @@ HRESULT WINAPI QAxClientSite::InsertMenus(HMENU /*hmenuShared*/, LPOLEMENUGROUPW
     AX_DEBUG(QAxClientSite::InsertMenus);
     QMenuBar *mb = menuBar;
     if (!mb)
-	mb = qFindChild<QMenuBar*>(widget->window());
+        mb = qFindChild<QMenuBar*>(widget->window());
     if (!mb)
-	return E_NOTIMPL;
+        return E_NOTIMPL;
     menuBar = mb;
 
     QMenu *fileMenu = 0;
@@ -1031,21 +1032,21 @@ HRESULT WINAPI QAxClientSite::InsertMenus(HMENU /*hmenuShared*/, LPOLEMENUGROUPW
     QList<QAction*> actions = menuBar->actions();
     for (int i = 0; i < actions.count(); ++i) {
         QAction *action = actions.at(i);
-	QString text = action->text().remove(QLatin1Char('&'));
-	if (text == QLatin1String("File")) {
+        QString text = action->text().remove(QLatin1Char('&'));
+        if (text == QLatin1String("File")) {
             fileMenu = action->menu();
-	} else if (text == QLatin1String("View")) {
-	    viewMenu = action->menu();
-	} else if (text == QLatin1String("Window")) {
-	    windowMenu = action->menu();
-	}
+        } else if (text == QLatin1String("View")) {
+            viewMenu = action->menu();
+        } else if (text == QLatin1String("Window")) {
+            windowMenu = action->menu();
+        }
     }
     if (fileMenu)
-	lpMenuWidths->width[0] = fileMenu->actions().count();
+        lpMenuWidths->width[0] = fileMenu->actions().count();
     if (viewMenu)
-	lpMenuWidths->width[2] = viewMenu->actions().count();
+        lpMenuWidths->width[2] = viewMenu->actions().count();
     if (windowMenu)
-	lpMenuWidths->width[4] = windowMenu->actions().count();
+        lpMenuWidths->width[4] = windowMenu->actions().count();
 
     return S_OK;
 }
@@ -1089,50 +1090,50 @@ QMenu *QAxClientSite::generatePopup(HMENU subMenu, QWidget *parent)
     QMenu *popup = 0;
     int count = GetMenuItemCount(subMenu);
     if (count)
-	popup = new QMenu(parent);
+        popup = new QMenu(parent);
     for (int i = 0; i < count; ++i) {
-	MENUITEMINFOA item;
-	memset(&item, 0, sizeof(MENUITEMINFOA));
-	item.cbSize = sizeof(MENUITEMINFOA);
-	item.fMask = MIIM_ID | MIIM_TYPE | MIIM_SUBMENU;
-	::GetMenuItemInfoA(subMenu, i, true, &item);
+        MENUITEMINFOA item;
+        memset(&item, 0, sizeof(MENUITEMINFOA));
+        item.cbSize = sizeof(MENUITEMINFOA);
+        item.fMask = MIIM_ID | MIIM_TYPE | MIIM_SUBMENU;
+        ::GetMenuItemInfoA(subMenu, i, true, &item);
 
-	QAction *action = 0;
-	QMenu *popupMenu = 0;
-	if (item.fType == MFT_SEPARATOR) {
-	    action = popup->addSeparator();
-	} else {
-	    QString text;
-	    QPixmap icon;
-	    QKeySequence accel;
-	    popupMenu = item.hSubMenu ? generatePopup(item.hSubMenu, popup) : 0;
-	    int res = menuItemEntry(subMenu, i, item, text, icon);
+        QAction *action = 0;
+        QMenu *popupMenu = 0;
+        if (item.fType == MFT_SEPARATOR) {
+            action = popup->addSeparator();
+        } else {
+            QString text;
+            QPixmap icon;
+            QKeySequence accel;
+            popupMenu = item.hSubMenu ? generatePopup(item.hSubMenu, popup) : 0;
+            int res = menuItemEntry(subMenu, i, item, text, icon);
 
-	    int lastSep = text.lastIndexOf(QRegExp(QLatin1String("[\\s]")));
-	    if (lastSep != -1) {
-		QString keyString = text.right(text.length() - lastSep);
-		accel = keyString;
-		if ((int)accel)
-		    text = text.left(lastSep);
-	    }
+            int lastSep = text.lastIndexOf(QRegExp(QLatin1String("[\\s]")));
+            if (lastSep != -1) {
+                QString keyString = text.right(text.length() - lastSep);
+                accel = keyString;
+                if ((int)accel)
+                    text = text.left(lastSep);
+            }
 
             if (popupMenu)
                 popupMenu->setTitle(text);
 
             switch (res) {
-	    case MFT_STRING:
+            case MFT_STRING:
                 if (popupMenu)
                     action = popup->addMenu(popupMenu);
                 else
-		    action = popup->addAction(text);
-		break;
-	    case MFT_BITMAP:
-		if (popupMenu)
-		    action = popup->addMenu(popupMenu);
-		else
-		    action = popup->addAction(icon, text);
-		break;
-	    }
+                    action = popup->addAction(text);
+                break;
+            case MFT_BITMAP:
+                if (popupMenu)
+                    action = popup->addMenu(popupMenu);
+                else
+                    action = popup->addAction(icon, text);
+                break;
+            }
 
             if (action) {
                 if (int(accel))
@@ -1140,12 +1141,12 @@ QMenu *QAxClientSite::generatePopup(HMENU subMenu, QWidget *parent)
                 if (!icon.isNull())
                     action->setIcon(icon);
             }
-	}
+        }
 
-	if (action) {
-	    OleMenuItem oleItem(subMenu, item.wID, popupMenu);
-	    menuItemMap.insert(action, oleItem);
-	}
+        if (action) {
+            OleMenuItem oleItem(subMenu, item.wID, popupMenu);
+            menuItemMap.insert(action, oleItem);
+        }
     }
     return popup;
 }
@@ -1155,75 +1156,75 @@ HRESULT WINAPI QAxClientSite::SetMenu(HMENU hmenuShared, HOLEMENU holemenu, HWND
     AX_DEBUG(QAxClientSite::SetMenu);
 
     if (hmenuShared) {
-	m_menuOwner = hwndActiveObject;
-	QMenuBar *mb = menuBar;
-	if (!mb)
-	    mb = qFindChild<QMenuBar*>(widget->window());
-	if (!mb)
-	    return E_NOTIMPL;
-	menuBar = mb;
+        m_menuOwner = hwndActiveObject;
+        QMenuBar *mb = menuBar;
+        if (!mb)
+            mb = qFindChild<QMenuBar*>(widget->window());
+        if (!mb)
+            return E_NOTIMPL;
+        menuBar = mb;
 
-	int count = GetMenuItemCount(hmenuShared);
-	for (int i = 0; i < count; ++i) {
-	    MENUITEMINFOA item;
-	    memset(&item, 0, sizeof(MENUITEMINFOA));
-	    item.cbSize = sizeof(MENUITEMINFOA);
-	    item.fMask = MIIM_ID | MIIM_TYPE | MIIM_SUBMENU;
-	    ::GetMenuItemInfoA(hmenuShared, i, true, &item);
+        int count = GetMenuItemCount(hmenuShared);
+        for (int i = 0; i < count; ++i) {
+            MENUITEMINFOA item;
+            memset(&item, 0, sizeof(MENUITEMINFOA));
+            item.cbSize = sizeof(MENUITEMINFOA);
+            item.fMask = MIIM_ID | MIIM_TYPE | MIIM_SUBMENU;
+            ::GetMenuItemInfoA(hmenuShared, i, true, &item);
 
-	    QAction *action = 0;
-	    QMenu *popupMenu = 0;
-	    if (item.fType == MFT_SEPARATOR) {
-		action = menuBar->addSeparator();
-	    } else {
-		QString text;
-		QPixmap icon;
+            QAction *action = 0;
+            QMenu *popupMenu = 0;
+            if (item.fType == MFT_SEPARATOR) {
+                action = menuBar->addSeparator();
+            } else {
+                QString text;
+                QPixmap icon;
                 popupMenu = item.hSubMenu ? generatePopup(item.hSubMenu, menuBar) : 0;
                 int res = menuItemEntry(hmenuShared, i, item, text, icon);
 
                 if (popupMenu)
                     popupMenu->setTitle(text);
 
-		switch(res) {
-		case MFT_STRING:
+                switch(res) {
+                case MFT_STRING:
                     if (popupMenu)
-			action = menuBar->addMenu(popupMenu);
+                        action = menuBar->addMenu(popupMenu);
                     else
-			action = menuBar->addAction(text);
-		    break;
-		case MFT_BITMAP:
+                        action = menuBar->addAction(text);
+                    break;
+                case MFT_BITMAP:
                     if (popupMenu)
-			action = menuBar->addMenu(popupMenu);
+                        action = menuBar->addMenu(popupMenu);
                     else
-			action = menuBar->addAction(text);
-		    break;
-		default:
-		    break;
-		}
+                        action = menuBar->addAction(text);
+                    break;
+                default:
+                    break;
+                }
                 if (action && !icon.isNull())
                     action->setIcon(icon);
-	    }
+            }
 
-	    if (action) {
-		OleMenuItem oleItem(hmenuShared, item.wID, popupMenu);
-		menuItemMap.insert(action, oleItem);
-	    }
-	}
-	if (count) {
-	    const QMetaObject *mbmo = menuBar->metaObject();
-	    int index = mbmo->indexOfSignal("triggered(QAction*)");
-	    Q_ASSERT(index != -1);
-	    menuBar->disconnect(SIGNAL(triggered(QAction*)), host);
+            if (action) {
+                OleMenuItem oleItem(hmenuShared, item.wID, popupMenu);
+                menuItemMap.insert(action, oleItem);
+            }
+        }
+        if (count) {
+            const QMetaObject *mbmo = menuBar->metaObject();
+            int index = mbmo->indexOfSignal("triggered(QAction*)");
+            Q_ASSERT(index != -1);
+            menuBar->disconnect(SIGNAL(triggered(QAction*)), host);
             QMetaObject::connect(menuBar, index, host, index, QSIGNAL_CODE);
-	}
+        }
     } else if (menuBar) {
-	m_menuOwner = 0;
-	QMap<QAction*, OleMenuItem>::Iterator it;
-	for (it = menuItemMap.begin(); it != menuItemMap.end(); ++it) {
-	    QAction *action = it.key();
+        m_menuOwner = 0;
+        QMap<QAction*, OleMenuItem>::Iterator it;
+        for (it = menuItemMap.begin(); it != menuItemMap.end(); ++it) {
+            QAction *action = it.key();
             delete action;
-	}
-	menuItemMap.clear();
+        }
+        menuItemMap.clear();
     }
 
     OleSetMenuDescriptor(holemenu, widget ? widget->window()->winId() : 0, m_menuOwner, this, m_spInPlaceActiveObject);
@@ -1252,7 +1253,7 @@ HRESULT WINAPI QAxClientSite::RemoveMenus(HMENU /*hmenuShared*/)
     AX_DEBUG(QAxClientSite::RemoveMenus);
     QMap<QAction*, OleMenuItem>::Iterator it;
     for (it = menuItemMap.begin(); it != menuItemMap.end(); ++it) {
-	QAction *action = it.key();
+        QAction *action = it.key();
         action->setVisible(false);
         delete action;
     }
