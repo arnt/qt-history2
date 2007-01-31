@@ -1,0 +1,17 @@
+path_addRect path1 10 10 50 50
+path_addRect path2 30 30 50 50
+
+setPen nopen
+setBrush red
+
+setClipPath path1
+setClipPath path2 UniteClip
+
+drawRect 0 0 100 100
+
+setClipping false
+
+setClipping true
+
+setBrush #6300ff00
+drawRect 0 0 100 100
