@@ -395,7 +395,7 @@ bool QFileDialog::restoreState(const QByteArray &state)
     return true;
 }
 
-bool QFileDialog::event(QEvent *e)
+void QFileDialog::changeEvent(QEvent *e)
 {
     Q_D(QFileDialog);
     if (e->type() == QEvent::LanguageChange) {
@@ -403,7 +403,7 @@ bool QFileDialog::event(QEvent *e)
             d->retranslateWindowTitle();
         d->retranslateStrings();
     }
-    return QDialog::event(e);
+    QDialog::changeEvent(e);
 }
 
 void QFileDialogPrivate::retranslateWindowTitle()
