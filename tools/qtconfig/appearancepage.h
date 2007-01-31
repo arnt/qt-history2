@@ -30,6 +30,7 @@
 #include <QAbstractItemModel>
 #include <QPainter>
 #include <QSize>
+#include <QUndoStack>
 #include "ui_appearancepage.h"
 
 
@@ -53,13 +54,11 @@ public:
 
     QPalette::ColorRole colorRole() const { return QPalette::NoRole; }
     void setCompute(bool on) { m_compute = on; }
+    QPalette::ColorGroup columnToGroup(int index) const;
+    int groupToColumn(QPalette::ColorGroup group) const;
 signals:
     void paletteChanged(const QPalette &palette);
 private:
-
-    QPalette::ColorGroup columnToGroup(int index) const;
-    int groupToColumn(QPalette::ColorGroup group) const;
-
     QPalette m_palette;
     QPalette m_parentPalette;
     QMap<QPalette::ColorRole, QString> m_roleNames;
@@ -117,6 +116,7 @@ public:
     QPalette palette() const;
     void setPalette(const QPalette &palette);
     void setPalette(const QPalette &palette, const QPalette &parentPalette);
+    void setUndoStack(QUndoStack *stack);
 public slots:
     void onStyleComboChanged(const QString &stylename);
     void onColorGroupActivated(const QString &colorGroup);
@@ -141,6 +141,7 @@ private:
     bool m_modelUpdated;
     bool m_paletteUpdated;
     bool m_compute;
+    QUndoStack *stack;
 };
 
 

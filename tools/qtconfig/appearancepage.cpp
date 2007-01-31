@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "appearancepage.h"
+#include "undocommand.h"
 #include <QSettings>
 #include <QStyleFactory>
 #include <QStyle>
@@ -53,7 +54,7 @@
 #include <QColorDialog>
 
 AppearancePage::AppearancePage(QWidget *parent)
-    : QFrame(parent)
+    : QFrame(parent), stack(0)
 {
     setupUi(this);
     connect(paletteView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClicked(QModelIndex)));
@@ -558,7 +559,16 @@ void AppearancePage::onDoubleClicked(const QModelIndex &index)
         const QColor c = QColorDialog::getColor(qVariantValue<QColor>(index.data(Qt::BackgroundColorRole)),
                                                 this);
         if (c.isValid()) {
+//             Q_ASSERT(stack);
+//             stack->push(new ColorChange(m_paletteModel, (QPalette::ColorRole)index.row(), c,
+//                                         cbDetails->isChecked()
+//                                         ? m_paletteModel->columnToGroup(index.column())
+//                                         : QPalette::All));
             m_paletteModel->setData(index, c, Qt::BackgroundColorRole);
         }
     }
+}
+void AppearancePage::setUndoStack(QUndoStack *s)
+{
+    stack = s;
 }

@@ -24,7 +24,8 @@ HEADERS += colorbutton.h \
            printerpage.h \
            interfacepage.h \
            listwidget.h \
-           appearancepage.h 
+           appearancepage.h \
+           undocommand.h
 SOURCES += colorbutton.cpp \
            main.cpp \
            window.cpp \
@@ -34,7 +35,8 @@ SOURCES += colorbutton.cpp \
            printerpage.cpp \
            interfacepage.cpp \
            listwidget.cpp \
-           appearancepage.cpp 
+           appearancepage.cpp \
+           undocommand.cpp
 FORMS += window.ui \
          preview.ui \
          fontspage.ui \

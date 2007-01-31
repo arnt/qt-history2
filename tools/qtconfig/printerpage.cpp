@@ -38,9 +38,11 @@ PrinterPage::PrinterPage(QWidget *parent)
     connect(tbUp, SIGNAL(clicked()), lwFontPaths, SLOT(moveCurrentUp()));
     connect(tbDown, SIGNAL(clicked()), lwFontPaths, SLOT(moveCurrentDown()));
     connect(pbBrowse, SIGNAL(clicked()), this, SLOT(onBrowseClicked()));
-    connect(leFontPath, SIGNAL(returnPressed()), this, SLOT(add()));
+    connect(leFontPath, SIGNAL(returnPressed()), pbAdd, SLOT(animateClick()));
     QCompleter *completer = new QCompleter(leFontPath);
-    completer->setModel(new QDirModel(completer));
+    QDirModel *dirmodel = new QDirModel(completer);
+    dirmodel->setFilter(QDir::Dirs|QDir::NoDotAndDotDot);
+    completer->setModel(dirmodel);
     leFontPath->setCompleter(completer);
     load();
 }

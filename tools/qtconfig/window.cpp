@@ -112,8 +112,10 @@ static const char *helpTexts[] = {
 Window::Window(QWidget *parent)
     : QMainWindow(parent), modified(false)
 {
+    stack = new QUndoStack(this);
     setupUi(this);
     connect(appearancePage, SIGNAL(changed()), this, SLOT(setModified()));
+    appearancePage->setUndoStack(stack);
     connect(fontsPage, SIGNAL(changed()), this, SLOT(setModified()));
     connect(interfacePage, SIGNAL(changed()), this, SLOT(setModified()));
 #ifndef Q_WS_MAC
@@ -333,4 +335,8 @@ void Window::onCurrentTabIndexChanged(int index)
     Q_ASSERT(index >= 0);
     Q_ASSERT(helpTexts[index]);
     textEdit->setHtml(tr(helpTexts[index]));
+}
+QUndoStack * Window::undoStack() const
+{
+    return stack;
 }

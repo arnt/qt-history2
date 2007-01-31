@@ -112,7 +112,6 @@ QString StyledButton::pixmapFileName() const
 
 void StyledButton::onEditor()
 {
-    qDebug() << "onEditor";
     if (btype == ColorButton) {
         QColor c = QColorDialog::getColor(mBrush.color(), this);
         if (c.isValid()) {

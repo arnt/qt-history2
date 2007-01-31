@@ -17,6 +17,7 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QApplication>
+#include <QUndoStack>
 #include "ui_window.h"
 class Window : public QMainWindow, public Ui_Window
 {
@@ -26,6 +27,7 @@ public:
     void showEvent(QShowEvent *e);
     void closeEvent(QCloseEvent *e);
     bool eventFilter(QObject *o, QEvent *e);
+    QUndoStack *undoStack() const;
 public slots:
     void onCurrentTabIndexChanged(int index);
     void about();
@@ -37,6 +39,7 @@ public slots:
 private:
     bool modified;
     QPalette editPalette;
+    QUndoStack *stack;
 };
 
 
