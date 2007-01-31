@@ -25,7 +25,6 @@
 #include <qwindowsstyle.h>
 #include <qinputcontext.h>
 #include <private/qstylesheetstyle_p.h>
-#include <QDesktopWidget>
 
 // I *MUST* have QtTest afterwards or this test won't work with newer headers
 #if defined(Q_WS_MAC)
@@ -88,8 +87,6 @@ private slots:
     void isHidden();
     void fonts();
     void mapToGlobal();
-    void mapFromAndTo_data();
-    void mapFromAndTo();
     void checkFocus();
     void focusChainOnHide();
     void focusChainOnReparent();
@@ -134,25 +131,15 @@ private slots:
 
     void ensureCreated();
     void persistentWinId();
-    void qobject_castInDestroyedSlot();
 
     void showHideEvent_data();
     void showHideEvent();
 
-    // tests QWidget::setGeometry() on windows only
-    void setWindowGeometry_data();
-    void setWindowGeometry();
-
-    // tests QWidget::move() and resize() on windows only
-    void windowMoveResize_data();
-    void windowMoveResize();
+    void deleteStyle();
 
 #ifdef Q_WS_WIN
     void getDC();
-    void setGeometry_win();
 #endif
-
-    void setLocale();
 
 private:
     QWidget *testWidget;
@@ -717,39 +704,6 @@ void tst_QWidget::visible()
     QVERIFY( !grandChildWidget->isVisible() );
 }
 
-void tst_QWidget::setLocale()
-{
-    QWidget w;
-    QCOMPARE(w.locale(), QLocale());
-
-    w.setLocale(QLocale::Italian);
-    QCOMPARE(w.locale(), QLocale(QLocale::Italian));
-
-    QWidget child1(&w);
-    QCOMPARE(child1.locale(), QLocale(QLocale::Italian));
-
-    w.unsetLocale();
-    QCOMPARE(w.locale(), QLocale());
-    QCOMPARE(child1.locale(), QLocale());
-
-    w.setLocale(QLocale::French);
-    QCOMPARE(w.locale(), QLocale(QLocale::French));
-    QCOMPARE(child1.locale(), QLocale(QLocale::French));
-
-    child1.setLocale(QLocale::Italian);
-    QCOMPARE(w.locale(), QLocale(QLocale::French));
-    QCOMPARE(child1.locale(), QLocale(QLocale::Italian));
-
-    child1.unsetLocale();
-    QCOMPARE(w.locale(), QLocale(QLocale::French));
-    QCOMPARE(child1.locale(), QLocale(QLocale::French));
-
-    QWidget child2;
-    QCOMPARE(child2.locale(), QLocale());
-    child2.setParent(&w);
-    QCOMPARE(child2.locale(), QLocale(QLocale::French));
-}
-
 void tst_QWidget::visible_setWindowOpacity()
 {
     testWidget->hide();
@@ -862,210 +816,6 @@ void tst_QWidget::mapToGlobal()
     QCOMPARE(qw->mapToGlobal(QPoint(0,0)), wVis);
     delete qhb;
 
-}
-
-void tst_QWidget::mapFromAndTo_data()
-{
-    QTest::addColumn<bool>("windowHidden");
-    QTest::addColumn<bool>("subWindow1Hidden");
-    QTest::addColumn<bool>("subWindow2Hidden");
-    QTest::addColumn<bool>("subSubWindowHidden");
-    QTest::addColumn<bool>("windowMinimized");
-    QTest::addColumn<bool>("subWindow1Minimized");
-
-    QTest::newRow("window 1 sub1 1 sub2 1 subsub 1") << false << false << false << false << false << false;
-    QTest::newRow("window 0 sub1 1 sub2 1 subsub 1") << true << false << false << false << false << false;
-    QTest::newRow("window 1 sub1 0 sub2 1 subsub 1") << false << true << false << false << false << false;
-    QTest::newRow("window 0 sub1 0 sub2 1 subsub 1") << true << true << false << false << false << false;
-    QTest::newRow("window 1 sub1 1 sub2 0 subsub 1") << false << false << true << false << false << false;
-    QTest::newRow("window 0 sub1 1 sub2 0 subsub 1") << true << false << true << false << false << false;
-    QTest::newRow("window 1 sub1 0 sub2 0 subsub 1") << false << true << true << false << false << false;
-    QTest::newRow("window 0 sub1 0 sub2 0 subsub 1") << true << true << true << false << false << false;
-    QTest::newRow("window 1 sub1 1 sub2 1 subsub 0") << false << false << false << true << false << false;
-    QTest::newRow("window 0 sub1 1 sub2 1 subsub 0") << true << false << false << true << false << false;
-    QTest::newRow("window 1 sub1 0 sub2 1 subsub 0") << false << true << false << true << false << false;
-    QTest::newRow("window 0 sub1 0 sub2 1 subsub 0") << true << true << false << true << false << false;
-    QTest::newRow("window 1 sub1 1 sub2 0 subsub 0") << false << false << true << true << false << false;
-    QTest::newRow("window 0 sub1 1 sub2 0 subsub 0") << true << false << true << true << false << false;
-    QTest::newRow("window 1 sub1 0 sub2 0 subsub 0") << false << true << true << true << false << false;
-    QTest::newRow("window 0 sub1 0 sub2 0 subsub 0") << true << true << true << true << false << false;
-    QTest::newRow("window 1 sub1 1 sub2 1 subsub 1 windowMinimized") << false << false << false << false << true << false;
-    QTest::newRow("window 0 sub1 1 sub2 1 subsub 1 windowMinimized") << true << false << false << false << true << false;
-    QTest::newRow("window 1 sub1 0 sub2 1 subsub 1 windowMinimized") << false << true << false << false << true << false;
-    QTest::newRow("window 0 sub1 0 sub2 1 subsub 1 windowMinimized") << true << true << false << false << true << false;
-    QTest::newRow("window 1 sub1 1 sub2 0 subsub 1 windowMinimized") << false << false << true << false << true << false;
-    QTest::newRow("window 0 sub1 1 sub2 0 subsub 1 windowMinimized") << true << false << true << false << true << false;
-    QTest::newRow("window 1 sub1 0 sub2 0 subsub 1 windowMinimized") << false << true << true << false << true << false;
-    QTest::newRow("window 0 sub1 0 sub2 0 subsub 1 windowMinimized") << true << true << true << false << true << false;
-    QTest::newRow("window 1 sub1 1 sub2 1 subsub 0 windowMinimized") << false << false << false << true << true << false;
-    QTest::newRow("window 0 sub1 1 sub2 1 subsub 0 windowMinimized") << true << false << false << true << true << false;
-    QTest::newRow("window 1 sub1 0 sub2 1 subsub 0 windowMinimized") << false << true << false << true << true << false;
-    QTest::newRow("window 0 sub1 0 sub2 1 subsub 0 windowMinimized") << true << true << false << true << true << false;
-    QTest::newRow("window 1 sub1 1 sub2 0 subsub 0 windowMinimized") << false << false << true << true << true << false;
-    QTest::newRow("window 0 sub1 1 sub2 0 subsub 0 windowMinimized") << true << false << true << true << true << false;
-    QTest::newRow("window 1 sub1 0 sub2 0 subsub 0 windowMinimized") << false << true << true << true << true << false;
-    QTest::newRow("window 0 sub1 0 sub2 0 subsub 0 windowMinimized") << true << true << true << true << true << false;
-    QTest::newRow("window 1 sub1 1 sub2 1 subsub 1 subWindow1Minimized") << false << false << false << false << false << true;
-    QTest::newRow("window 0 sub1 1 sub2 1 subsub 1 subWindow1Minimized") << true << false << false << false << false << true;
-    QTest::newRow("window 1 sub1 0 sub2 1 subsub 1 subWindow1Minimized") << false << true << false << false << false << true;
-    QTest::newRow("window 0 sub1 0 sub2 1 subsub 1 subWindow1Minimized") << true << true << false << false << false << true;
-    QTest::newRow("window 1 sub1 1 sub2 0 subsub 1 subWindow1Minimized") << false << false << true << false << false << true;
-    QTest::newRow("window 0 sub1 1 sub2 0 subsub 1 subWindow1Minimized") << true << false << true << false << false << true;
-    QTest::newRow("window 1 sub1 0 sub2 0 subsub 1 subWindow1Minimized") << false << true << true << false << false << true;
-    QTest::newRow("window 0 sub1 0 sub2 0 subsub 1 subWindow1Minimized") << true << true << true << false << false << true;
-    QTest::newRow("window 1 sub1 1 sub2 1 subsub 0 subWindow1Minimized") << false << false << false << true << false << true;
-    QTest::newRow("window 0 sub1 1 sub2 1 subsub 0 subWindow1Minimized") << true << false << false << true << false << true;
-    QTest::newRow("window 1 sub1 0 sub2 1 subsub 0 subWindow1Minimized") << false << true << false << true << false << true;
-    QTest::newRow("window 0 sub1 0 sub2 1 subsub 0 subWindow1Minimized") << true << true << false << true << false << true;
-    QTest::newRow("window 1 sub1 1 sub2 0 subsub 0 subWindow1Minimized") << false << false << true << true << false << true;
-    QTest::newRow("window 0 sub1 1 sub2 0 subsub 0 subWindow1Minimized") << true << false << true << true << false << true;
-    QTest::newRow("window 1 sub1 0 sub2 0 subsub 0 subWindow1Minimized") << false << true << true << true << false << true;
-    QTest::newRow("window 0 sub1 0 sub2 0 subsub 0 subWindow1Minimized") << true << true << true << true << false << true;
-
-
-}
-
-void tst_QWidget::mapFromAndTo()
-{
-    QFETCH(bool, windowHidden);
-    QFETCH(bool, subWindow1Hidden);
-    QFETCH(bool, subWindow2Hidden);
-    QFETCH(bool, subSubWindowHidden);
-    QFETCH(bool, windowMinimized);
-    QFETCH(bool, subWindow1Minimized);
-
-    // create a toplevel and two overlapping siblings
-    QWidget window;
-    QWidget *subWindow1 = new QWidget(&window);
-    QWidget *subWindow2 = new QWidget(&window);
-    QWidget *subSubWindow = new QWidget(subWindow1);
-
-    // set their geometries
-    window.setGeometry(100, 100, 100, 100);
-    subWindow1->setGeometry(50, 50, 100, 100);
-    subWindow2->setGeometry(75, 75, 100, 100);
-    subSubWindow->setGeometry(10, 10, 10, 10);
-
-    // update visibility
-    if (windowMinimized) {
-        if (!windowHidden) {
-            window.showMinimized();
-            QVERIFY(window.isMinimized());
-        }
-    } else {
-        window.setVisible(!windowHidden);
-    }
-    if (subWindow1Minimized) {
-        subWindow1->hide();
-        subWindow1->showMinimized();
-        QVERIFY(subWindow1->isMinimized());
-    } else {
-        subWindow1->setVisible(!subWindow1Hidden);
-    }
-    subWindow2->setVisible(!subWindow2Hidden);
-    subSubWindow->setVisible(!subSubWindowHidden);
-
-    // window
-    QCOMPARE(window.mapToGlobal(QPoint(0, 0)), QPoint(100, 100));
-    QCOMPARE(window.mapToGlobal(QPoint(10, 0)), QPoint(110, 100));
-    QCOMPARE(window.mapToGlobal(QPoint(0, 10)), QPoint(100, 110));
-    QCOMPARE(window.mapToGlobal(QPoint(-10, 0)), QPoint(90, 100));
-    QCOMPARE(window.mapToGlobal(QPoint(0, -10)), QPoint(100, 90));
-    QCOMPARE(window.mapToGlobal(QPoint(100, 100)), QPoint(200, 200));
-    QCOMPARE(window.mapToGlobal(QPoint(110, 100)), QPoint(210, 200));
-    QCOMPARE(window.mapToGlobal(QPoint(100, 110)), QPoint(200, 210));
-    QCOMPARE(window.mapFromGlobal(QPoint(100, 100)), QPoint(0, 0));
-    QCOMPARE(window.mapFromGlobal(QPoint(110, 100)), QPoint(10, 0));
-    QCOMPARE(window.mapFromGlobal(QPoint(100, 110)), QPoint(0, 10));
-    QCOMPARE(window.mapFromGlobal(QPoint(90, 100)), QPoint(-10, 0));
-    QCOMPARE(window.mapFromGlobal(QPoint(100, 90)), QPoint(0, -10));
-    QCOMPARE(window.mapFromGlobal(QPoint(200, 200)), QPoint(100, 100));
-    QCOMPARE(window.mapFromGlobal(QPoint(210, 200)), QPoint(110, 100));
-    QCOMPARE(window.mapFromGlobal(QPoint(200, 210)), QPoint(100, 110));
-    QCOMPARE(window.mapToParent(QPoint(0, 0)), QPoint(100, 100));
-    QCOMPARE(window.mapToParent(QPoint(10, 0)), QPoint(110, 100));
-    QCOMPARE(window.mapToParent(QPoint(0, 10)), QPoint(100, 110));
-    QCOMPARE(window.mapToParent(QPoint(-10, 0)), QPoint(90, 100));
-    QCOMPARE(window.mapToParent(QPoint(0, -10)), QPoint(100, 90));
-    QCOMPARE(window.mapToParent(QPoint(100, 100)), QPoint(200, 200));
-    QCOMPARE(window.mapToParent(QPoint(110, 100)), QPoint(210, 200));
-    QCOMPARE(window.mapToParent(QPoint(100, 110)), QPoint(200, 210));
-    QCOMPARE(window.mapFromParent(QPoint(100, 100)), QPoint(0, 0));
-    QCOMPARE(window.mapFromParent(QPoint(110, 100)), QPoint(10, 0));
-    QCOMPARE(window.mapFromParent(QPoint(100, 110)), QPoint(0, 10));
-    QCOMPARE(window.mapFromParent(QPoint(90, 100)), QPoint(-10, 0));
-    QCOMPARE(window.mapFromParent(QPoint(100, 90)), QPoint(0, -10));
-    QCOMPARE(window.mapFromParent(QPoint(200, 200)), QPoint(100, 100));
-    QCOMPARE(window.mapFromParent(QPoint(210, 200)), QPoint(110, 100));
-    QCOMPARE(window.mapFromParent(QPoint(200, 210)), QPoint(100, 110));
-
-    // first subwindow
-    QCOMPARE(subWindow1->mapToGlobal(QPoint(0, 0)), QPoint(150, 150));
-    QCOMPARE(subWindow1->mapToGlobal(QPoint(10, 0)), QPoint(160, 150));
-    QCOMPARE(subWindow1->mapToGlobal(QPoint(0, 10)), QPoint(150, 160));
-    QCOMPARE(subWindow1->mapToGlobal(QPoint(-10, 0)), QPoint(140, 150));
-    QCOMPARE(subWindow1->mapToGlobal(QPoint(0, -10)), QPoint(150, 140));
-    QCOMPARE(subWindow1->mapToGlobal(QPoint(100, 100)), QPoint(250, 250));
-    QCOMPARE(subWindow1->mapToGlobal(QPoint(110, 100)), QPoint(260, 250));
-    QCOMPARE(subWindow1->mapToGlobal(QPoint(100, 110)), QPoint(250, 260));
-    QCOMPARE(subWindow1->mapFromGlobal(QPoint(150, 150)), QPoint(0, 0));
-    QCOMPARE(subWindow1->mapFromGlobal(QPoint(160, 150)), QPoint(10, 0));
-    QCOMPARE(subWindow1->mapFromGlobal(QPoint(150, 160)), QPoint(0, 10));
-    QCOMPARE(subWindow1->mapFromGlobal(QPoint(140, 150)), QPoint(-10, 0));
-    QCOMPARE(subWindow1->mapFromGlobal(QPoint(150, 140)), QPoint(0, -10));
-    QCOMPARE(subWindow1->mapFromGlobal(QPoint(250, 250)), QPoint(100, 100));
-    QCOMPARE(subWindow1->mapFromGlobal(QPoint(260, 250)), QPoint(110, 100));
-    QCOMPARE(subWindow1->mapFromGlobal(QPoint(250, 260)), QPoint(100, 110));
-    QCOMPARE(subWindow1->mapToParent(QPoint(0, 0)), QPoint(50, 50));
-    QCOMPARE(subWindow1->mapToParent(QPoint(10, 0)), QPoint(60, 50));
-    QCOMPARE(subWindow1->mapToParent(QPoint(0, 10)), QPoint(50, 60));
-    QCOMPARE(subWindow1->mapToParent(QPoint(-10, 0)), QPoint(40, 50));
-    QCOMPARE(subWindow1->mapToParent(QPoint(0, -10)), QPoint(50, 40));
-    QCOMPARE(subWindow1->mapToParent(QPoint(100, 100)), QPoint(150, 150));
-    QCOMPARE(subWindow1->mapToParent(QPoint(110, 100)), QPoint(160, 150));
-    QCOMPARE(subWindow1->mapToParent(QPoint(100, 110)), QPoint(150, 160));
-    QCOMPARE(subWindow1->mapFromParent(QPoint(50, 50)), QPoint(0, 0));
-    QCOMPARE(subWindow1->mapFromParent(QPoint(60, 50)), QPoint(10, 0));
-    QCOMPARE(subWindow1->mapFromParent(QPoint(50, 60)), QPoint(0, 10));
-    QCOMPARE(subWindow1->mapFromParent(QPoint(40, 50)), QPoint(-10, 0));
-    QCOMPARE(subWindow1->mapFromParent(QPoint(50, 40)), QPoint(0, -10));
-    QCOMPARE(subWindow1->mapFromParent(QPoint(150, 150)), QPoint(100, 100));
-    QCOMPARE(subWindow1->mapFromParent(QPoint(160, 150)), QPoint(110, 100));
-    QCOMPARE(subWindow1->mapFromParent(QPoint(150, 160)), QPoint(100, 110));
-
-    // subsubwindow
-    QCOMPARE(subSubWindow->mapToGlobal(QPoint(0, 0)), QPoint(160, 160));
-    QCOMPARE(subSubWindow->mapToGlobal(QPoint(10, 0)), QPoint(170, 160));
-    QCOMPARE(subSubWindow->mapToGlobal(QPoint(0, 10)), QPoint(160, 170));
-    QCOMPARE(subSubWindow->mapToGlobal(QPoint(-10, 0)), QPoint(150, 160));
-    QCOMPARE(subSubWindow->mapToGlobal(QPoint(0, -10)), QPoint(160, 150));
-    QCOMPARE(subSubWindow->mapToGlobal(QPoint(100, 100)), QPoint(260, 260));
-    QCOMPARE(subSubWindow->mapToGlobal(QPoint(110, 100)), QPoint(270, 260));
-    QCOMPARE(subSubWindow->mapToGlobal(QPoint(100, 110)), QPoint(260, 270));
-    QCOMPARE(subSubWindow->mapFromGlobal(QPoint(160, 160)), QPoint(0, 0));
-    QCOMPARE(subSubWindow->mapFromGlobal(QPoint(170, 160)), QPoint(10, 0));
-    QCOMPARE(subSubWindow->mapFromGlobal(QPoint(160, 170)), QPoint(0, 10));
-    QCOMPARE(subSubWindow->mapFromGlobal(QPoint(150, 160)), QPoint(-10, 0));
-    QCOMPARE(subSubWindow->mapFromGlobal(QPoint(160, 150)), QPoint(0, -10));
-    QCOMPARE(subSubWindow->mapFromGlobal(QPoint(260, 260)), QPoint(100, 100));
-    QCOMPARE(subSubWindow->mapFromGlobal(QPoint(270, 260)), QPoint(110, 100));
-    QCOMPARE(subSubWindow->mapFromGlobal(QPoint(260, 270)), QPoint(100, 110));
-    QCOMPARE(subSubWindow->mapToParent(QPoint(0, 0)), QPoint(10, 10));
-    QCOMPARE(subSubWindow->mapToParent(QPoint(10, 0)), QPoint(20, 10));
-    QCOMPARE(subSubWindow->mapToParent(QPoint(0, 10)), QPoint(10, 20));
-    QCOMPARE(subSubWindow->mapToParent(QPoint(-10, 0)), QPoint(0, 10));
-    QCOMPARE(subSubWindow->mapToParent(QPoint(0, -10)), QPoint(10, 0));
-    QCOMPARE(subSubWindow->mapToParent(QPoint(100, 100)), QPoint(110, 110));
-    QCOMPARE(subSubWindow->mapToParent(QPoint(110, 100)), QPoint(120, 110));
-    QCOMPARE(subSubWindow->mapToParent(QPoint(100, 110)), QPoint(110, 120));
-    QCOMPARE(subSubWindow->mapFromParent(QPoint(10, 10)), QPoint(0, 0));
-    QCOMPARE(subSubWindow->mapFromParent(QPoint(20, 10)), QPoint(10, 0));
-    QCOMPARE(subSubWindow->mapFromParent(QPoint(10, 20)), QPoint(0, 10));
-    QCOMPARE(subSubWindow->mapFromParent(QPoint(0, 10)), QPoint(-10, 0));
-    QCOMPARE(subSubWindow->mapFromParent(QPoint(10, 0)), QPoint(0, -10));
-    QCOMPARE(subSubWindow->mapFromParent(QPoint(110, 110)), QPoint(100, 100));
-    QCOMPARE(subSubWindow->mapFromParent(QPoint(120, 110)), QPoint(110, 100));
-    QCOMPARE(subSubWindow->mapFromParent(QPoint(110, 120)), QPoint(100, 110));
 }
 
 void tst_QWidget::focusChainOnReparent()
@@ -2134,52 +1884,6 @@ void tst_QWidget::saveRestoreGeometry()
         QCOMPARE(widget.pos().x(), position.x());
         QCOMPARE(widget.size(), size);
     }
-
-    {
-        QWidget widget;
-        widget.move(position);
-        widget.resize(size);
-        widget.show();
-        QRect geom;
-
-
-        //Restore from Full screen
-        savedGeometry = widget.saveGeometry();
-        geom = widget.geometry();
-        widget.setWindowState(widget.windowState() | Qt::WindowFullScreen);
-        QVERIFY(widget.restoreGeometry(savedGeometry));
-        QCOMPARE(widget.geometry(), geom);
-        QVERIFY(!(widget.windowState() & Qt::WindowFullScreen));
-
-        //Restore to full screen
-        widget.setWindowState(widget.windowState() | Qt::WindowFullScreen);
-        savedGeometry = widget.saveGeometry();
-        geom = widget.geometry();
-        widget.setWindowState(widget.windowState() ^ Qt::WindowFullScreen);
-        QVERIFY(widget.restoreGeometry(savedGeometry));
-        QCOMPARE(widget.geometry(), geom);
-        QVERIFY((widget.windowState() & Qt::WindowFullScreen));
-        widget.setWindowState(widget.windowState() ^ Qt::WindowFullScreen);
-
-        //Restore from Maximised
-        widget.move(position);
-        widget.resize(size);
-        savedGeometry = widget.saveGeometry();
-        geom = widget.geometry();
-        widget.setWindowState(widget.windowState() | Qt::WindowMaximized);
-        QVERIFY(widget.restoreGeometry(savedGeometry));
-        QCOMPARE(widget.geometry(), geom);
-        QVERIFY(!(widget.windowState() & Qt::WindowMaximized));
-
-        //Restore to maximised
-        widget.setWindowState(widget.windowState() | Qt::WindowMaximized);
-        geom = widget.geometry();
-        savedGeometry = widget.saveGeometry();
-        widget.setWindowState(widget.windowState() ^ Qt::WindowMaximized);
-        QVERIFY(widget.restoreGeometry(savedGeometry));
-        QCOMPARE(widget.geometry(), geom);
-        QVERIFY((widget.windowState() & Qt::WindowMaximized));
-    }
 }
 
 /*
@@ -3146,17 +2850,17 @@ class ShowHideEventWidget : public QWidget
 {
 public:
     int numberOfShowEvents, numberOfHideEvents;
-
+    
     ShowHideEventWidget(QWidget *parent = 0)
         : QWidget(parent), numberOfShowEvents(0), numberOfHideEvents(0)
     { }
-
+    
     void create()
     { QWidget::create(); }
-
+    
     void showEvent(QShowEvent *)
     { ++numberOfShowEvents; }
-
+    
     void hideEvent(QHideEvent *)
     { ++numberOfHideEvents; }
 };
@@ -3168,7 +2872,7 @@ void tst_QWidget::showHideEvent_data()
     QTest::addColumn<bool>("create");
     QTest::addColumn<int>("expectedShowEvents");
     QTest::addColumn<int>("expectedHideEvents");
-
+    
     QTest::newRow("window: only show")
             << true
             << false
@@ -3214,7 +2918,7 @@ void tst_QWidget::showHideEvent()
     QFETCH(bool, create);
     QFETCH(int, expectedShowEvents);
     QFETCH(int, expectedHideEvents);
-
+    
     ShowHideEventWidget widget;
     if (show)
         widget.show();
@@ -3222,456 +2926,18 @@ void tst_QWidget::showHideEvent()
         widget.hide();
     if (create && !widget.testAttribute(Qt::WA_WState_Created))
         widget.create();
-
+    
     QCOMPARE(widget.numberOfShowEvents, expectedShowEvents);
     QCOMPARE(widget.numberOfHideEvents, expectedHideEvents);
 }
 
-class DestroyedSlotChecker : public QObject
-{
-    Q_OBJECT
-
-public:
-    bool wasQWidget;
-
-    DestroyedSlotChecker()
-        : wasQWidget(false)
-    {
-    }
-
-public slots:
-    void destroyedSlot(QObject *object)
-    {
-        wasQWidget = (qobject_cast<QWidget *>(object) != 0 || object->isWidgetType());
-    }
-};
-
-/*
-    Test that qobject_cast<QWidget*> returns 0 in a slot
-    connected to QObject::destroyed.
-*/
-void tst_QWidget::qobject_castInDestroyedSlot()
-{
-    DestroyedSlotChecker checker;
-    QWidget *widget = new QWidget();
-
-    QObject::connect(widget, SIGNAL(destroyed(QObject *)), &checker, SLOT(destroyedSlot(QObject *)));
-    delete widget;
-
-    QVERIFY(checker.wasQWidget == true);
-}
-
-Q_DECLARE_METATYPE(QList<QRect>)
-
-    void tst_QWidget::setWindowGeometry_data()
-{
-    QTest::addColumn<QList<QRect> >("rects");
-    QTest::addColumn<int>("windowFlags");
-
-    QList<QList<QRect> > rects;
-    rects << (QList<QRect>()
-              << QRect(100, 100, 200, 200)
-              << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100)
-              << QRect(50, 100, 0, 200)
-              << QRect(100, 50, 200, 0)
-              << QRect(50, 50, 0, 0))
-          << (QList<QRect>()
-              << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100)
-              << QRect(50, 100, 0, 200)
-              << QRect(100, 50, 200, 0)
-              << QRect(50, 50, 0, 0)
-              << QRect(100, 100, 200, 200))
-          << (QList<QRect>()
-              << QRect(50, 100, 0, 200)
-              << QRect(100, 50, 200, 0)
-              << QRect(50, 50, 0, 0)
-              << QRect(100, 100, 200, 200)
-              << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100))
-          << (QList<QRect>()
-              << QRect(100, 50, 200, 0)
-              << QRect(50, 50, 0, 0)
-              << QRect(100, 100, 200, 200)
-              << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100)
-              << QRect(50, 100, 0, 200))
-          << (QList<QRect>()
-              << QRect(50, 50, 0, 0)
-              << QRect(100, 100, 200, 200)
-              << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100)
-              << QRect(50, 100, 0, 200)
-              << QRect(100, 50, 200, 0));
-
-    QList<int> windowFlags;
-    windowFlags << 0
-                << Qt::FramelessWindowHint
-                << Qt::X11BypassWindowManagerHint;
-
-    foreach (QList<QRect> l, rects) {
-        QRect rect = l.first();
-        foreach (int windowFlag, windowFlags) {
-            QTest::newRow(QString("%1,%2 %3x%4, flags %5")
-                          .arg(rect.x())
-                          .arg(rect.y())
-                          .arg(rect.width())
-                          .arg(rect.height())
-                          .arg(windowFlag, 0, 16))
-                << l
-                << windowFlag;
-        }
-    }
-}
-
-void tst_QWidget::setWindowGeometry()
-{
-    QFETCH(QList<QRect>, rects);
-    QFETCH(int, windowFlags);
-    QRect rect = rects.takeFirst();
-
-    {
-        // test setGeometry() without actually showing the window
-        QWidget widget;
-        if (windowFlags != 0)
-            widget.setWindowFlags(Qt::WindowFlags(windowFlags));
-
-        widget.setGeometry(rect);
-        QTest::qWait(100);
-        QCOMPARE(widget.geometry(), rect);
-
-        // setGeometry() without showing
-        foreach (QRect r, rects) {
-            widget.setGeometry(r);
-            QTest::qWait(100);
-            QCOMPARE(widget.geometry(), r);
-        }
-    }
-
-    {
-        // setGeometry() first, then show()
-        QWidget widget;
-        if (windowFlags != 0)
-            widget.setWindowFlags(Qt::WindowFlags(windowFlags));
-
-        widget.setGeometry(rect);
-        widget.show();
-#ifdef Q_WS_X11
-        qt_x11_wait_for_window_manager(&widget);
-#endif
-        QTest::qWait(100);
-        QCOMPARE(widget.geometry(), rect);
-
-        // setGeometry() while shown
-        foreach (QRect r, rects) {
-            widget.setGeometry(r);
-            QTest::qWait(100);
-            QCOMPARE(widget.geometry(), r);
-        }
-        widget.setGeometry(rect);
-        QTest::qWait(100);
-        QCOMPARE(widget.geometry(), rect);
-
-        // now hide
-        widget.hide();
-        QTest::qWait(100);
-        QCOMPARE(widget.geometry(), rect);
-
-        // setGeometry() after hide()
-        foreach (QRect r, rects) {
-            widget.setGeometry(r);
-            QTest::qWait(100);
-            QCOMPARE(widget.geometry(), r);
-        }
-        widget.setGeometry(rect);
-        QTest::qWait(100);
-        QCOMPARE(widget.geometry(), rect);
-
-        // show() again, geometry() should still be the same
-        widget.show();
-#ifdef Q_WS_X11
-        qt_x11_wait_for_window_manager(&widget);
-#endif
-        QTest::qWait(100);
-        QCOMPARE(widget.geometry(), rect);
-
-        // final hide(), again geometry() should be unchanged
-        widget.hide();
-        QTest::qWait(100);
-        QCOMPARE(widget.geometry(), rect);
-    }
-
-    {
-        // show() first, then setGeometry()
-        QWidget widget;
-        if (windowFlags != 0)
-            widget.setWindowFlags(Qt::WindowFlags(windowFlags));
-
-        widget.show();
-#ifdef Q_WS_X11
-        qt_x11_wait_for_window_manager(&widget);
-#endif
-        widget.setGeometry(rect);
-        QTest::qWait(100);
-        QCOMPARE(widget.geometry(), rect);
-
-        // setGeometry() while shown
-        foreach (QRect r, rects) {
-            widget.setGeometry(r);
-            QTest::qWait(100);
-            QCOMPARE(widget.geometry(), r);
-        }
-        widget.setGeometry(rect);
-        QTest::qWait(100);
-        QCOMPARE(widget.geometry(), rect);
-
-        // now hide
-        widget.hide();
-        QTest::qWait(100);
-        QCOMPARE(widget.geometry(), rect);
-
-        // setGeometry() after hide()
-        foreach (QRect r, rects) {
-            widget.setGeometry(r);
-            QTest::qWait(100);
-            QCOMPARE(widget.geometry(), r);
-        }
-        widget.setGeometry(rect);
-        QTest::qWait(100);
-        QCOMPARE(widget.geometry(), rect);
-
-        // show() again, geometry() should still be the same
-        widget.show();
-#ifdef Q_WS_X11
-        qt_x11_wait_for_window_manager(&widget);
-#endif
-        QTest::qWait(100);
-        QCOMPARE(widget.geometry(), rect);
-
-        // final hide(), again geometry() should be unchanged
-        widget.hide();
-        QTest::qWait(100);
-        QCOMPARE(widget.geometry(), rect);
-    }
-}
-
-#ifdef Q_WS_WIN
-void tst_QWidget::setGeometry_win()
+void tst_QWidget::deleteStyle()
 {
     QWidget widget;
-    widget.setGeometry(0, 600, 100,100);
+    widget.setStyle(new QWindowsStyle);
     widget.show();
-    widget.setWindowState(widget.windowState() | Qt::WindowMaximized);
-    QRect geom = widget.normalGeometry();
-    widget.close();
-    widget.setGeometry(geom);
-    widget.setWindowState(widget.windowState() | Qt::WindowMaximized);
-    widget.show();
-    RECT rt;
-    ::GetWindowRect(widget.internalWinId(), &rt);
-    QVERIFY(rt.left <= 0);
-    QVERIFY(rt.top <= 0);
-}
-#endif
-
-void tst_QWidget::windowMoveResize_data()
-{
-    setWindowGeometry_data();
-}
-
-void tst_QWidget::windowMoveResize()
-{
-    QFETCH(QList<QRect>, rects);
-    QFETCH(int, windowFlags);
-
-    QRect rect = rects.takeFirst();
-
-    {
-        // test setGeometry() without actually showing the window
-        QWidget widget;
-        if (windowFlags != 0)
-            widget.setWindowFlags(Qt::WindowFlags(windowFlags));
-
-        widget.move(rect.topLeft());
-        widget.resize(rect.size());
-        QTest::qWait(100);
-        QCOMPARE(widget.pos(), rect.topLeft());
-        QCOMPARE(widget.size(), rect.size());
-
-        // move() without showing
-        foreach (QRect r, rects) {
-            widget.move(r.topLeft());
-            widget.resize(r.size());
-            QTest::qWait(100);
-            QCOMPARE(widget.pos(), r.topLeft());
-            QCOMPARE(widget.size(), r.size());
-        }
-    }
-
-    {
-        // move() first, then show()
-        QWidget widget;
-        if (windowFlags != 0)
-            widget.setWindowFlags(Qt::WindowFlags(windowFlags));
-
-        widget.move(rect.topLeft());
-        widget.resize(rect.size());
-        widget.show();
-#ifdef Q_WS_X11
-        qt_x11_wait_for_window_manager(&widget);
-#endif
-        QTest::qWait(100);
-        QCOMPARE(widget.pos(), rect.topLeft());
-        QCOMPARE(widget.size(), rect.size());
-
-        // move() while shown
-        foreach (QRect r, rects) {
-#ifdef Q_WS_X11
-            if ((widget.width() == 0 || widget.height() == 0) && r.width() != 0 && r.height() != 0) {
-                QEXPECT_FAIL("50,100 0x200, flags 0",
-                             "First resize after show of zero-sized gets wrong win_gravity.",
-                             Continue);
-                QEXPECT_FAIL("100,50 200x0, flags 0",
-                             "First resize after show of zero-sized gets wrong win_gravity.",
-                             Continue);
-                QEXPECT_FAIL("50,50 0x0, flags 0",
-                             "First resize after show of zero-sized gets wrong win_gravity.",
-                             Continue);
-            }
-#endif
-            widget.move(r.topLeft());
-            widget.resize(r.size());
-            QTest::qWait(100);
-            QCOMPARE(widget.pos(), r.topLeft());
-            QCOMPARE(widget.size(), r.size());
-        }
-        widget.move(rect.topLeft());
-        widget.resize(rect.size());
-        QTest::qWait(100);
-        QCOMPARE(widget.pos(), rect.topLeft());
-        QCOMPARE(widget.size(), rect.size());
-
-        // now hide
-        widget.hide();
-        QTest::qWait(100);
-        QCOMPARE(widget.pos(), rect.topLeft());
-        QCOMPARE(widget.size(), rect.size());
-
-        // move() after hide()
-        foreach (QRect r, rects) {
-            widget.move(r.topLeft());
-            widget.resize(r.size());
-            QTest::qWait(100);
-            QCOMPARE(widget.pos(), r.topLeft());
-            QCOMPARE(widget.size(), r.size());
-        }
-        widget.move(rect.topLeft());
-        widget.resize(rect.size());
-        QTest::qWait(100);
-        QCOMPARE(widget.pos(), rect.topLeft());
-        QCOMPARE(widget.size(), rect.size());
-
-        // show() again, pos() should be the same
-        widget.show();
-#ifdef Q_WS_X11
-        qt_x11_wait_for_window_manager(&widget);
-#endif
-        QTest::qWait(100);
-        QCOMPARE(widget.pos(), rect.topLeft());
-        QCOMPARE(widget.size(), rect.size());
-
-        // final hide(), again pos() should be unchanged
-        widget.hide();
-        QTest::qWait(100);
-        QCOMPARE(widget.pos(), rect.topLeft());
-        QCOMPARE(widget.size(), rect.size());
-    }
-
-    {
-        // show() first, then move()
-        QWidget widget;
-        if (windowFlags != 0)
-            widget.setWindowFlags(Qt::WindowFlags(windowFlags));
-
-        widget.show();
-#ifdef Q_WS_X11
-        qt_x11_wait_for_window_manager(&widget);
-#endif
-        widget.move(rect.topLeft());
-        widget.resize(rect.size());
-        QTest::qWait(100);
-#ifdef Q_WS_X11
-        QEXPECT_FAIL("50,100 0x200, flags 0",
-                     "First resize after show of zero-sized gets wrong win_gravity.",
-                     Continue);
-        QEXPECT_FAIL("100,50 200x0, flags 0",
-                     "First resize after show of zero-sized gets wrong win_gravity.",
-                     Continue);
-        QEXPECT_FAIL("50,50 0x0, flags 0",
-                     "First resize after show of zero-sized gets wrong win_gravity.",
-                     Continue);
-#endif
-        QCOMPARE(widget.pos(), rect.topLeft());
-        QCOMPARE(widget.size(), rect.size());
-
-        // move() while shown
-        foreach (QRect r, rects) {
-#ifdef Q_WS_X11
-            if ((widget.width() == 0 || widget.height() == 0) && r.width() != 0 && r.height() != 0) {
-                QEXPECT_FAIL("50,100 0x200, flags 0",
-                             "First resize after show of zero-sized gets wrong win_gravity.",
-                             Continue);
-                QEXPECT_FAIL("100,50 200x0, flags 0",
-                             "First resize after show of zero-sized gets wrong win_gravity.",
-                             Continue);
-                QEXPECT_FAIL("50,50 0x0, flags 0",
-                             "First resize after show of zero-sized gets wrong win_gravity.",
-                             Continue);
-            }
-#endif
-            widget.move(r.topLeft());
-            widget.resize(r.size());
-            QTest::qWait(100);
-            QCOMPARE(widget.pos(), r.topLeft());
-            QCOMPARE(widget.size(), r.size());
-        }
-        widget.move(rect.topLeft());
-        widget.resize(rect.size());
-        QTest::qWait(100);
-        QCOMPARE(widget.pos(), rect.topLeft());
-        QCOMPARE(widget.size(), rect.size());
-
-        // now hide
-        widget.hide();
-        QTest::qWait(100);
-        QCOMPARE(widget.pos(), rect.topLeft());
-        QCOMPARE(widget.size(), rect.size());
-
-        // move() after hide()
-        foreach (QRect r, rects) {
-            widget.move(r.topLeft());
-            widget.resize(r.size());
-            QTest::qWait(100);
-            QCOMPARE(widget.pos(), r.topLeft());
-            QCOMPARE(widget.size(), r.size());
-        }
-        widget.move(rect.topLeft());
-        widget.resize(rect.size());
-        QTest::qWait(100);
-        QCOMPARE(widget.pos(), rect.topLeft());
-        QCOMPARE(widget.size(), rect.size());
-
-        // show() again, pos() should be the same
-        widget.show();
-#ifdef Q_WS_X11
-        qt_x11_wait_for_window_manager(&widget);
-#endif
-        QTest::qWait(100);
-        QCOMPARE(widget.pos(), rect.topLeft());
-        QCOMPARE(widget.size(), rect.size());
-
-        // final hide(), again pos() should be unchanged
-        widget.hide();
-        QTest::qWait(100);
-        QCOMPARE(widget.pos(), rect.topLeft());
-        QCOMPARE(widget.size(), rect.size());
-    }
+    delete widget.style();
+    qApp->processEvents();
 }
 
 #ifdef Q_WS_WIN
