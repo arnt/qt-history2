@@ -89,15 +89,32 @@ void QRegionPrivate::append(const QRegionPrivate *r)
 {
     Q_ASSERT(!isEmpty(r));
 
-    const int newNumRects = numRects + r->numRects;
-    if (newNumRects > rects.size())
-        rects.resize(newNumRects);
-
-    // append rectangles
     QRect *destRect = rects.data() + numRects;
     const QRect *srcRect = r->rects.constData();
-    for (int i = 0; i < r->numRects; ++i)
-        *destRect++ = *srcRect++;
+    int numAppend = r->numRects;
+
+    // test for merge in x direction
+    {
+        const QRect *rFirst = r->rects.constData();
+        QRect *myLast = rects.data() + (numRects - 1);
+        if (rFirst->top() == myLast->top()
+            && rFirst->height() == myLast->height()
+            && rFirst->left() == (myLast->right() + 1))
+        {
+            myLast->setWidth(myLast->width() + rFirst->width());
+            updateInnerRect(*myLast);
+            ++srcRect;
+            --numAppend;
+        }
+    }
+
+    // append rectangles
+    const int newNumRects = numRects + numAppend;
+    if (newNumRects > rects.size()) {
+        rects.resize(newNumRects);
+        destRect = rects.data() + numRects;
+    }
+    memcpy(destRect, srcRect, numAppend * sizeof(QRect));
 
     // update inner rectangle
     if (innerArea < r->innerArea) {
@@ -125,11 +142,10 @@ bool QRegionPrivate::canAppend(const QRegionPrivate *r) const
     // XXX: possible improvements:
     //   - same technique for prepending
     //   - nFirst->top() == myLast->bottom() + 1, must possibly merge bands
-    //   - rFirst->left() == myLast->right(), merge rectangles, possibly bands
     if (rFirst->top() > (myLast->bottom() + 1)
         || (rFirst->top() == myLast->top()
             && rFirst->height() == myLast->height()
-            && rFirst->left() > (myLast->right() + 1)))
+            && rFirst->left() > myLast->right()))
     {
         return true;
     }
