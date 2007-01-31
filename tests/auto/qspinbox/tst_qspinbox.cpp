@@ -196,8 +196,11 @@ void tst_QSpinBox::getSetCheck()
     QCOMPARE(0, obj2.decimals());
     obj2.setDecimals(INT_MIN);
     QCOMPARE(0, obj2.decimals()); // Range<0, 13>
-    obj2.setDecimals(INT_MAX);
-    QCOMPARE(13, obj2.decimals()); // Range<0, 13>
+
+    //obj2.setDecimals(INT_MAX);
+    //QCOMPARE(13, obj2.decimals()); // Range<0, 13>
+    obj2.setDecimals(128);
+    QCOMPARE(obj2.decimals(), 128); // Range<0, 128>
 
     // double QDoubleSpinBox::value()
     // void QDoubleSpinBox::setValue(double)
