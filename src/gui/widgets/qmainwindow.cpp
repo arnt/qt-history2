@@ -287,6 +287,18 @@ QMainWindow::~QMainWindow()
     The default is the default tool bar icon size of the GUI style.
 */
 
+void QMainWindow::setDockOptions(DockOptions opt)
+{
+    Q_D(QMainWindow);
+    d->layout->setDockOptions(opt);
+}
+
+QMainWindow::DockOptions QMainWindow::dockOptions() const
+{
+    Q_D(const QMainWindow);
+    return d->layout->dockOptions;
+}
+
 QSize QMainWindow::iconSize() const
 { return d_func()->iconSize; }
 
@@ -679,12 +691,21 @@ bool QMainWindow::toolBarBreak(QToolBar *toolbar) const
 
 bool QMainWindow::isAnimated() const
 {
-    return d_func()->layout->animationEnabled;
+    Q_D(const QMainWindow);
+    return d->layout->dockOptions & AnimatedDocks;
 }
 
 void QMainWindow::setAnimated(bool enabled)
 {
-    d_func()->layout->animationEnabled = enabled;
+    Q_D(QMainWindow);
+
+    DockOptions opts = d->layout->dockOptions;
+    if (enabled)
+        opts |= AnimatedDocks;
+    else
+        opts &= ~AnimatedDocks;
+
+    d->layout->setDockOptions(opts);
 }
 
 /*! \property QMainWindow::dockNestingEnabled
@@ -707,14 +728,24 @@ void QMainWindow::setAnimated(bool enabled)
 
 bool QMainWindow::isDockNestingEnabled() const
 {
-    return d_func()->layout->dockNestingEnabled;
+    Q_D(const QMainWindow);
+    return d->layout->dockOptions & AllowNestedDocks;
 }
 
 void QMainWindow::setDockNestingEnabled(bool enabled)
 {
-    d_func()->layout->dockNestingEnabled = enabled;
+    Q_D(QMainWindow);
+
+    DockOptions opts = d->layout->dockOptions;
+    if (enabled)
+        opts |= AllowNestedDocks;
+    else
+        opts &= ~AllowNestedDocks;
+
+    d->layout->setDockOptions(opts);
 }
 
+#if 0
 /*! \property QMainWindow::verticalTabsEnabled
     \brief whether left and right dock areas use vertical tabs
     \since 4.2
@@ -737,6 +768,7 @@ void QMainWindow::setVerticalTabsEnabled(bool enabled)
 {
     d_func()->layout->setVerticalTabsEnabled(enabled);
 }
+#endif
 
 static bool checkDockWidgetArea(Qt::DockWidgetArea area, const char *where)
 {
@@ -919,7 +951,6 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
     if (stream.status() != QDataStream::Ok || marker != QMainWindowLayout::VersionMarker || v != version)
         return false;
     bool restored = d_func()->layout->restoreState(stream);
-    layout()->setGeometry(rect());
     return restored;
 }
 

@@ -26,6 +26,7 @@ class MainWindow : public QMainWindow
 
     QList<ToolBar*> toolBars;
     QMenu *dockWidgetMenu;
+    QMenu *mainWindowMenu;
     QSignalMapper *mapper;
 
 public:
@@ -37,7 +38,7 @@ public slots:
     void loadLayout();
     void setCorner(int id);
     void switchLayoutDirection();
-    void _setVerticalTabsEnabled(bool enabled);
+    void setDockOptions();
 
 private:
     void setupToolBar();

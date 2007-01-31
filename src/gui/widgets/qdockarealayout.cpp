@@ -146,7 +146,7 @@ static quintptr tabId(const QDockAreaLayoutItem &item)
 QDockAreaLayoutInfo::QDockAreaLayoutInfo()
     : sep(0), o(Qt::Horizontal), rect(0, 0, -1, -1), mainWindow(0)
 #ifndef QT_NO_TABBAR
-    , tabbed(false), tabBar(0), tabBarShape(-1)
+    , tabbed(false), tabBar(0), tabBarShape(QTabBar::RoundedSouth)
 #endif
 {
 }
@@ -155,7 +155,7 @@ QDockAreaLayoutInfo::QDockAreaLayoutInfo(int _sep, Qt::Orientation _o, int tbsha
                                             QMainWindow *window)
     : sep(_sep), o(_o), rect(0, 0, -1, -1), mainWindow(window)
 #ifndef QT_NO_TABBAR
-    , tabbed(false), tabBar(0), tabBarShape(tbshape)
+    , tabbed(false), tabBar(0), tabBarShape(static_cast<QTabBar::Shape>(tbshape))
 #endif
 {
 #ifdef QT_NO_TABBAR
@@ -1738,9 +1738,27 @@ void QDockAreaLayoutInfo::updateTabBar() const
 
     that->tabBarVisible = gap || tabBar->count() > 1;
 
-    if (changed) {
+    if (changed || !tabBarMin.isValid() | !tabBarHint.isValid()) {
         that->tabBarMin = tabBar->minimumSizeHint();
         that->tabBarHint = tabBar->sizeHint();
+    }
+}
+
+void QDockAreaLayoutInfo::setTabBarShape(int shape)
+{
+    if (shape == tabBarShape)
+        return;
+    tabBarShape = shape;
+    if (tabBar != 0) {
+        tabBar->setShape(static_cast<QTabBar::Shape>(shape));
+        tabBarMin = QSize();
+        tabBarHint = QSize();
+    }
+
+    for (int i = 0; i < item_list.count(); ++i) {
+        QDockAreaLayoutItem &item = item_list[i];
+        if (item.subinfo != 0)
+            item.subinfo->setTabBarShape(shape);
     }
 }
 

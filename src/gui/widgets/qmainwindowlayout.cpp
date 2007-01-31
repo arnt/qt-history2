@@ -588,7 +588,8 @@ void QMainWindowLayout::insertToolBar(QToolBar *before, QToolBar *toolbar)
 
 Qt::ToolBarArea QMainWindowLayout::toolBarArea(QToolBar *toolbar) const
 {
-    DockPosition pos = layoutState.toolBarAreaLayout.findToolBar(toolbar);
+    QInternal::DockPosition pos
+        = layoutState.toolBarAreaLayout.findToolBar(toolbar);
     return toToolBarArea(pos);
     switch (pos) {
         case QInternal::LeftDock:   return Qt::LeftToolBarArea;
@@ -697,23 +698,19 @@ void QMainWindowLayout::tabifyDockWidget(QDockWidget *first, QDockWidget *second
 void QMainWindowLayout::setVerticalTabsEnabled(bool enabled)
 {
     QDockAreaLayout &layout = layoutState.dockAreaLayout;
-    if (enabled) {
-        layout.docks[QInternal::LeftDock].tabBarShape = QTabBar::RoundedWest;
-        layout.docks[QInternal::RightDock].tabBarShape = QTabBar::RoundedEast;
-        layout.docks[QInternal::TopDock].tabBarShape = QTabBar::RoundedNorth;
-        layout.docks[QInternal::BottomDock].tabBarShape = QTabBar::RoundedSouth;
-    } else {
-        layout.docks[QInternal::LeftDock].tabBarShape = QTabBar::RoundedSouth;
-        layout.docks[QInternal::RightDock].tabBarShape = QTabBar::RoundedSouth;
-        layout.docks[QInternal::TopDock].tabBarShape = QTabBar::RoundedSouth;
-        layout.docks[QInternal::BottomDock].tabBarShape = QTabBar::RoundedSouth;
-    }
-}
 
-bool QMainWindowLayout::verticalTabsEnabled() const
-{
-    return layoutState.dockAreaLayout.docks[QInternal::LeftDock].tabBarShape
-            == QTabBar::RoundedWest;
+    const QTabBar::Shape verticalShapes[] = {
+        QTabBar::RoundedWest,
+        QTabBar::RoundedEast,
+        QTabBar::RoundedNorth,
+        QTabBar::RoundedSouth
+    };
+
+    for (int i = 0; i < QInternal::DockCount; ++i) {
+        layout.docks[i].setTabBarShape(
+            enabled ? verticalShapes[i] : QTabBar::RoundedSouth
+        );
+    }
 }
 
 void QMainWindowLayout::splitDockWidget(QDockWidget *after,
@@ -1000,7 +997,7 @@ bool QMainWindowLayout::plug(QLayoutItem *widgetItem)
     if (!previousPath.isEmpty())
         layoutState.remove(previousPath);
 
-    if (animationEnabled) {
+    if (dockOptions & QMainWindow::AnimatedDocks) {
         pluggingWidget = widget;
         QRect globalRect = currentGapRect;
         globalRect.moveTopLeft(parentWidget()->mapToGlobal(globalRect.topLeft()));
@@ -1012,10 +1009,11 @@ bool QMainWindowLayout::plug(QLayoutItem *widgetItem)
             } else {
                 int fw = widget->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, 0);
                 globalRect.adjust(-fw, -fw, fw, fw);
-            }   
+            }
         }
 #endif
-        widgetAnimator->animate(widget, globalRect, animationEnabled);
+        widgetAnimator->animate(widget, globalRect,
+                                dockOptions & QMainWindow::AnimatedDocks);
     } else {
 #ifndef QT_NO_DOCKWIDGET
         if (QDockWidget *dw = qobject_cast<QDockWidget*>(widget))
@@ -1096,10 +1094,10 @@ void QMainWindowLayout::restore()
 
 QMainWindowLayout::QMainWindowLayout(QMainWindow *mainwindow)
     : QLayout(mainwindow), layoutState(mainwindow), savedState(mainwindow),
+        dockOptions(QMainWindow::AnimatedDocks|QMainWindow::AllowTabbedDocks),
         statusbar(0)
 {
 #ifndef QT_NO_DOCKWIDGET
-    dockNestingEnabled = false;
     separatorMoveTimer = new QTimer(this);
     separatorMoveTimer->setSingleShot(true);
     separatorMoveTimer->setInterval(0);
@@ -1109,7 +1107,6 @@ QMainWindowLayout::QMainWindowLayout(QMainWindow *mainwindow)
     gapIndicator = new QRubberBand(QRubberBand::Rectangle, mainwindow);
     gapIndicator->hide();
     pluggingWidget = 0;
-    animationEnabled = true;
 
     setObjectName(mainwindow->objectName() + QLatin1String("_layout"));
     widgetAnimator = new QWidgetAnimator(this);
@@ -1125,6 +1122,19 @@ QMainWindowLayout::~QMainWindowLayout()
     layoutState.deleteCentralWidgetItem();
 
     delete statusbar;
+}
+
+void QMainWindowLayout::setDockOptions(QMainWindow::DockOptions opts)
+{
+    if (opts == dockOptions)
+        return;
+
+    dockOptions = opts;
+
+    setVerticalTabsEnabled(opts & QMainWindow::VerticalTabs
+                            || opts & QMainWindow::CollapsibleTabs);
+
+    invalidate();
 }
 
 #ifndef QT_NO_STATUSBAR
@@ -1214,7 +1224,10 @@ QList<int> QMainWindowLayout::hover(QLayoutItem *widgetItem, const QPoint &mouse
 
 #ifdef QT_NO_DOCKWIDGET
     bool dockNestingEnabled = false;
+#else
+    bool dockNestingEnabled = dockOptions & QMainWindow::AllowNestedDocks;
 #endif
+
     QList<int> path = savedState.gapIndex(widget, pos, dockNestingEnabled);
 
     if (!path.isEmpty()) {
@@ -1289,7 +1302,7 @@ void QMainWindowLayout::applyState(QMainWindowLayoutState &newState, bool animat
     }
 #endif // QT_NO_TABBAR
 #endif
-    newState.apply(animationEnabled && animate);
+    newState.apply(dockOptions & QMainWindow::AnimatedDocks && animate);
 }
 
 void QMainWindowLayout::saveState(QDataStream &stream) const
@@ -1301,6 +1314,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
 {
     savedState = layoutState;
     layoutState.clear();
+    layoutState.rect = savedState.rect;
 
     if (!layoutState.restoreState(stream, savedState)) {
         layoutState.deleteAllLayoutItems();
@@ -1309,9 +1323,11 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
         return false;
     }
 
+    layoutState.fitLayout();
+    applyState(layoutState, false);
+
     savedState.deleteAllLayoutItems();
     savedState.clear();
-    applyState(layoutState, false);
 
 #ifndef QT_NO_DOCKWIDGET
 #ifndef QT_NO_TABBAR

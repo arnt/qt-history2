@@ -108,6 +108,9 @@ public:
     explicit QMainWindowLayout(QMainWindow *mainwindow);
     ~QMainWindowLayout();
 
+    QMainWindow::DockOptions dockOptions;
+    void setDockOptions(QMainWindow::DockOptions opts);
+
     // status bar
 
     QLayoutItem *statusbar;
@@ -139,8 +142,6 @@ public:
     // dock widgets
 
 #ifndef QT_NO_DOCKWIDGET
-    bool dockNestingEnabled;
-
     void setCorner(Qt::Corner corner, Qt::DockWidgetArea area);
     Qt::DockWidgetArea corner(Qt::Corner corner) const;
     void addDockWidget(Qt::DockWidgetArea area,
@@ -153,7 +154,6 @@ public:
     Qt::DockWidgetArea dockWidgetArea(QDockWidget *dockwidget) const;
     void raise(QDockWidget *widget);
     void setVerticalTabsEnabled(bool enabled);
-    bool verticalTabsEnabled() const;
 
 #ifndef QT_NO_TABBAR
     QTabBar *getTabBar();
@@ -199,13 +199,10 @@ public:
     // animations
 
     QWidgetAnimator *widgetAnimator;
-    bool animationEnabled;
     QList<int> currentGapPos;
     QRect currentGapRect;
     QWidget *pluggingWidget;
     QRubberBand *gapIndicator;
-
-    typedef QInternal::DockPosition DockPosition;
 
     QList<int> hover(QLayoutItem *widgetItem, const QPoint &mousePos);
     bool plug(QLayoutItem *widgetItem);

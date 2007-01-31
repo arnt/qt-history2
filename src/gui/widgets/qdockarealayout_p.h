@@ -145,6 +145,7 @@ public:
     bool tabBarVisible;
 
     void updateTabBar() const;
+    void setTabBarShape(int shape);
     QSize tabBarMinimumSize() const;
     QSize tabBarSizeHint() const;
 

@@ -99,11 +99,64 @@ void MainWindow::setupMenuBar()
 
     menu->addAction(tr("&Quit"), this, SLOT(close()));
 
+    mainWindowMenu = menuBar()->addMenu(tr("Main window"));
+
+    action = mainWindowMenu->addAction(tr("Animated docks"));
+    action->setCheckable(true);
+    action->setChecked(dockOptions() & AnimatedDocks);
+    connect(action, SIGNAL(toggled(bool)), this, SLOT(setDockOptions()));
+
+    action = mainWindowMenu->addAction(tr("Allow nested docks"));
+    action->setCheckable(true);
+    action->setChecked(dockOptions() & AllowNestedDocks);
+    connect(action, SIGNAL(toggled(bool)), this, SLOT(setDockOptions()));
+
+    action = mainWindowMenu->addAction(tr("Allow tabbed docks"));
+    action->setCheckable(true);
+    action->setChecked(dockOptions() & AllowTabbedDocks);
+    connect(action, SIGNAL(toggled(bool)), this, SLOT(setDockOptions()));
+
+    action = mainWindowMenu->addAction(tr("Force tabbed docks"));
+    action->setCheckable(true);
+    action->setChecked(dockOptions() & ForceTabbedDocks);
+    connect(action, SIGNAL(toggled(bool)), this, SLOT(setDockOptions()));
+
+    action = mainWindowMenu->addAction(tr("Vertical tabs"));
+    action->setCheckable(true);
+    action->setChecked(dockOptions() & VerticalTabs);
+    connect(action, SIGNAL(toggled(bool)), this, SLOT(setDockOptions()));
+
+    action = mainWindowMenu->addAction(tr("Collapsible tabs"));
+    action->setCheckable(true);
+    action->setChecked(dockOptions() & CollapsibleTabs);
+    connect(action, SIGNAL(toggled(bool)), this, SLOT(setDockOptions()));
+
     QMenu *toolBarMenu = menuBar()->addMenu(tr("Tool bars"));
     for (int i = 0; i < toolBars.count(); ++i)
         toolBarMenu->addMenu(toolBars.at(i)->menu);
 
     dockWidgetMenu = menuBar()->addMenu(tr("&Dock Widgets"));
+}
+
+void MainWindow::setDockOptions()
+{
+    DockOptions opts;
+    QList<QAction*> actions = mainWindowMenu->actions();
+
+    if (actions.at(0)->isChecked())
+        opts |= AnimatedDocks;
+    if (actions.at(1)->isChecked())
+        opts |= AllowNestedDocks;
+    if (actions.at(2)->isChecked())
+        opts |= AllowTabbedDocks;
+    if (actions.at(3)->isChecked())
+        opts |= ForceTabbedDocks;
+    if (actions.at(4)->isChecked())
+        opts |= VerticalTabs;
+    if (actions.at(5)->isChecked())
+        opts |= CollapsibleTabs;
+
+    QMainWindow::setDockOptions(opts);
 }
 
 static void dump(const QByteArray &array)
@@ -202,11 +255,6 @@ QAction *addAction(QMenu *menu, const QString &text, QActionGroup *group, QSigna
     QObject::connect(result, SIGNAL(triggered()), mapper, SLOT(map()));
     mapper->setMapping(result, id);
     return result;
-}
-
-void MainWindow::_setVerticalTabsEnabled(bool enabled)
-{
-    setVerticalTabsEnabled(enabled);
 }
 
 class BlueTitleBar : public QWidget
@@ -318,23 +366,6 @@ void BlueTitleBar::mousePressEvent(QMouseEvent *event)
 
 void MainWindow::setupDockWidgets()
 {
-    QAction *action = dockWidgetMenu->addAction(tr("Animation"));
-    action->setCheckable(true);
-    action->setChecked(isAnimated());
-    connect(action, SIGNAL(toggled(bool)), this, SLOT(setAnimated(bool)));
-
-    action = dockWidgetMenu->addAction(tr("Nesting"));
-    action->setCheckable(true);
-    action->setChecked(isDockNestingEnabled());
-    connect(action, SIGNAL(toggled(bool)), this, SLOT(setDockNestingEnabled(bool)));
-
-    action = dockWidgetMenu->addAction(tr("Vertical tabs"));
-    action->setCheckable(true);
-    action->setChecked(verticalTabsEnabled());
-    connect(action, SIGNAL(toggled(bool)), this, SLOT(_setVerticalTabsEnabled(bool)));
-
-    dockWidgetMenu->addSeparator();
-
     mapper = new QSignalMapper(this);
     connect(mapper, SIGNAL(mapped(int)), this, SLOT(setCorner(int)));
 
