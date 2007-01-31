@@ -88,8 +88,8 @@ void tst_CompilerWarnings::warnings()
 {
     QFETCH(QStringList, cflags);
 
-#if defined(Q_CC_GNU) && __GNUC__ == 3 && __GNUC_MINOR__ == 0
-    QSKIP("gcc 3.3.0 outputs too many bogus warnings", Continue);
+#if defined(Q_CC_GNU) && __GNUC__ == 3
+    QSKIP("gcc 3.x outputs too many bogus warnings", Continue);
 #endif
 
     static QString tmpFile;
