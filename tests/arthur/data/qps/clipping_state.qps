@@ -11,6 +11,9 @@ drawRect 0 0 100 100
 
 setClipping false
 
+setBrush #630000ff
+drawRect 0 0 100 100
+
 setClipping true
 
 setBrush #6300ff00
