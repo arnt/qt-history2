@@ -264,6 +264,9 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
                     DomCustomWidget *customWidget = new DomCustomWidget;
                     customWidget->read(n2);
 
+                    if (!customWidget->hasElementExtends())
+                        customWidget->setElementExtends(QLatin1String("QWidget"));
+
                     QDomElement n3 = n2.firstChild().toElement();
                     QString cl;
 
