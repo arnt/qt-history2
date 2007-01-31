@@ -63,19 +63,22 @@ void tst_QSqlRelationalTableModel::recreateTestTables(QSqlDatabase db)
     QSqlQuery q(db);
 
     tst_Databases::safeDropTable(db, qTableName("reltest1"));
-
-    QVERIFY2(q.exec("create table " + qTableName("reltest1") + " (id int not null primary key, name varchar(20), title_key int, another_title_key int)"),
+    QVERIFY2(q.exec("create table " + qTableName("reltest1", 
+            db.driver()) + " (id int not null primary key, name varchar(20), title_key int, another_title_key int)"),
             q.lastError().text().toLatin1());
-    QVERIFY2(q.exec("insert into " + qTableName("reltest1") + " values(1, 'harry', 1, 2)"), q.lastError().text().toLatin1());
-    QVERIFY2(q.exec("insert into " + qTableName("reltest1") + " values(2, 'trond', 2, 1)"), q.lastError().text().toLatin1());
-    QVERIFY2(q.exec("insert into " + qTableName("reltest1") + " values(3, 'vohi', 1, 2)"), q.lastError().text().toLatin1());
-    QVERIFY2(q.exec("insert into " + qTableName("reltest1") + " values(4, 'boris', 2, 2)"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("insert into " + qTableName("reltest1", db.driver()) + " values(1, 'harry', 1, 2)"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("insert into " + qTableName("reltest1", db.driver()) + " values(2, 'trond', 2, 1)"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("insert into " + qTableName("reltest1", db.driver()) + " values(3, 'vohi', 1, 2)"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("insert into " + qTableName("reltest1", db.driver()) + " values(4, 'boris', 2, 2)"), q.lastError().text().toLatin1());
 
+    QString tidField = db.driver()->escapeIdentifier("tid", QSqlDriver::FieldName);
+    QString titleField = db.driver()->escapeIdentifier("title", QSqlDriver::FieldName);
     tst_Databases::safeDropTable(db, qTableName("reltest2"));
-    QVERIFY2(q.exec("create table " + qTableName("reltest2") + " (tid int not null primary key, title varchar(20))"),
+    QVERIFY2(q.exec(QString("create table " + qTableName("reltest2", 
+            db.driver()) + " (%1 int not null primary key, %2 varchar(20))").arg(tidField).arg(titleField)),
             q.lastError().text().toLatin1());
-    QVERIFY2(q.exec("insert into " + qTableName("reltest2") + " values(1, 'herr')"), q.lastError().text().toLatin1());
-    QVERIFY2(q.exec("insert into " + qTableName("reltest2") + " values(2, 'mister')"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("insert into " + qTableName("reltest2", db.driver()) + " values(1, 'herr')"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("insert into " + qTableName("reltest2", db.driver()) + " values(2, 'mister')"), q.lastError().text().toLatin1());
 }
 
 void tst_QSqlRelationalTableModel::initTestCase()
@@ -88,9 +91,8 @@ void tst_QSqlRelationalTableModel::cleanupTestCase()
 {
     foreach (QString dbName, dbs.dbNames) {
         QSqlDatabase db = QSqlDatabase::database(dbName);
-
-     //   tst_Databases::safeDropTable(db, qTableName("reltest1"));
-       // tst_Databases::safeDropTable(db, qTableName("reltest2"));
+        tst_Databases::safeDropTable(db, qTableName("reltest1"));
+        tst_Databases::safeDropTable(db, qTableName("reltest2"));
     }
 
     dbs.close();
@@ -290,9 +292,10 @@ void tst_QSqlRelationalTableModel::filter()
 
     model.setTable(qTableName("reltest1"));
     model.setRelation(2, QSqlRelation(qTableName("reltest2"), "tid", "title"));
-    model.setFilter("title = 'herr'");
+    QString titleField = db.driver()->escapeIdentifier("title", QSqlDriver::FieldName);
+    model.setFilter(QString("%1 = 'herr'").arg(titleField));
+    
     QVERIFY2(model.select(), model.lastError().text().toLatin1());
-
     QCOMPARE(model.rowCount(), 2);
     QCOMPARE(model.data(model.index(0, 2)).toString(), QString("herr"));
     QCOMPARE(model.data(model.index(1, 2)).toString(), QString("herr"));

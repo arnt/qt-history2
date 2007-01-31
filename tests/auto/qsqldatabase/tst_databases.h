@@ -4,6 +4,7 @@
 #define TST_DATABASES_H
 
 #include <qsqldatabase.h>
+#include <qsqldriver.h>
 #include <qsqlerror.h>
 #include <qsqlquery.h>
 #include <qregexp.h>
@@ -42,9 +43,12 @@ static QString qGetHostName()
 // to prevent nameclashes on our database server, each machine
 // will use its own set of table names. Call this function to get
 // "tablename_hostname"
-inline static QString qTableName( const QString& prefix )
+inline static QString qTableName(const QString& prefix, QSqlDriver* driver = 0)
 {
-    return prefix + "_" + qGetHostName();
+    if (!driver)
+        return prefix + "_" + qGetHostName();
+    else 
+        return driver->escapeIdentifier(prefix + "_" + qGetHostName(), QSqlDriver::TableName);
 }
 
 class tst_Databases
@@ -113,7 +117,7 @@ public:
 //	addDb( "QOCI8", "PONY", "scott", "tiger" ); // Oracle 9i on horsehead
 //	addDb( "QOCI8", "USTEST", "scott", "tiger", "" ); // Oracle 9i on horsehead
 //	addDb( "QOCI8", "ICE", "scott", "tiger", "" ); // Oracle 8 on iceblink
-//	addDB( "QOCI", "SILENCE", "scott", "tiger" ); // Oracle 10g on silence
+//	addDb( "QOCI", "SILENCE", "scott", "tiger" ); // Oracle 10g on silence
         
 	// This requires a local ODBC data source to be configured (pointing to a MySql database) 
 //	addDb( "QODBC", "mysqlodbc" );
@@ -214,10 +218,11 @@ public:
     }
 
     // drop a table only if it exists to prevent warnings
-    static void safeDropTable( QSqlDatabase db, const QString& tableName )
+    static void safeDropTable(QSqlDatabase db, const QString& tableName)
     {
-	if (db.tables().contains(tableName, Qt::CaseInsensitive)) {
-	    QSqlQuery q("drop table " + tableName, db);
+        if (db.tables().contains(tableName, Qt::CaseInsensitive)) {
+            QSqlQuery q("drop table " + db.driver()->escapeIdentifier(tableName, QSqlDriver::TableName), db);
+
             if (!q.isActive())
                 qWarning("unable to drop table %s: %s", tableName.toLocal8Bit().constData(),
                          q.lastError().text().toLocal8Bit().constData());

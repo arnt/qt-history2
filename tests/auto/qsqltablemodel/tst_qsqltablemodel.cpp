@@ -104,15 +104,15 @@ void tst_QSqlTableModel::createTestTables()
         QSqlDatabase db = QSqlDatabase::database(dbs.dbNames.at(i));
         QSqlQuery q(db);
 
-        QVERIFY2(q.exec("create table " + qTableName("test")
+        QVERIFY2(q.exec("create table " + qTableName("test", db.driver())
                        + "(id int, name varchar(20), title int)"),
                 q.lastError().text().toLatin1());
 
-        QVERIFY2(q.exec("create table " + qTableName("test2")
+        QVERIFY2(q.exec("create table " + qTableName("test2", db.driver())
                        + "(id int, title varchar(20))"),
                 q.lastError().text().toLatin1());
 
-        QVERIFY2(q.exec("create table " + qTableName("emptytable")
+        QVERIFY2(q.exec("create table " + qTableName("emptytable", db.driver())
                        + "(id int)"),
                 q.lastError().text().toLatin1());
 
@@ -129,18 +129,18 @@ void tst_QSqlTableModel::repopulateTestTables()
         QSqlDatabase db = QSqlDatabase::database(dbs.dbNames.at(i));
         QSqlQuery q(db);
 
-        QVERIFY2(q.exec("delete from " + qTableName("test")), q.lastError().text().toLatin1());
-        QVERIFY2(q.exec("insert into " + qTableName("test")
+        q.exec("delete from " + qTableName("test", db.driver())), q.lastError().text().toLatin1();
+        QVERIFY2(q.exec("insert into " + qTableName("test", db.driver())
                        + " values(1, 'harry', 1)"), q.lastError().text().toLatin1());
-        QVERIFY2(q.exec("insert into " + qTableName("test")
+        QVERIFY2(q.exec("insert into " + qTableName("test", db.driver())
                        + " values(2, 'trond', 2)"), q.lastError().text().toLatin1());
-        QVERIFY2(q.exec("insert into " + qTableName("test")
+        QVERIFY2(q.exec("insert into " + qTableName("test", db.driver())
                        + " values(3, 'vohi', 3)"), q.lastError().text().toLatin1());
 
-        QVERIFY2(q.exec("delete from " + qTableName("test2")), q.lastError().text().toLatin1());
-        QVERIFY2(q.exec("insert into " + qTableName("test2")
+        q.exec("delete from " + qTableName("test2", db.driver())), q.lastError().text().toLatin1();
+        QVERIFY2(q.exec("insert into " + qTableName("test2", db.driver())
                        + " values(1, 'herr')"), q.lastError().text().toLatin1());
-        QVERIFY2(q.exec("insert into " + qTableName("test2")
+        QVERIFY2(q.exec("insert into " + qTableName("test2", db.driver())
                        + " values(2, 'mister')"), q.lastError().text().toLatin1());
     }
 }
