@@ -158,11 +158,6 @@ bool TabOrderEditor::skipWidget(QWidget *w) const
         return true;
     }
 
-
-    if (isPromoted(formWindow()->core(),w))
-        return true;
-
-
     QExtensionManager *ext = formWindow()->core()->extensionManager();
     if (const QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(ext, w)) {
         const int index = sheet->indexOf(QLatin1String("focusPolicy"));
