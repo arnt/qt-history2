@@ -268,7 +268,7 @@ void tst_QTcpSocket::blockingIMAP()
     QTcpSocket socket;
 
     // Connect
-    socket.connectToHost("imap", 143);
+    socket.connectToHost("imap.troll.no", 143);
     QVERIFY(socket.waitForConnected());
     QCOMPARE(socket.state(), QTcpSocket::ConnectedState);
     QVERIFY(socket.isValid());
@@ -366,7 +366,7 @@ void tst_QTcpSocket::nonBlockingIMAP()
     nonBlockingIMAP_socket = &socket;
 
     // Connect
-    socket.connectToHost("imap", 143);
+    socket.connectToHost("imap.troll.no", 143);
     QCOMPARE(socket.state(), QTcpSocket::HostLookupState);
 
     QTestEventLoop::instance().enterLoop(30);
@@ -486,7 +486,7 @@ void tst_QTcpSocket::delayedClose()
     connect(&socket, SIGNAL(connected()), SLOT(nonBlockingIMAP_connected()));
     connect(&socket, SIGNAL(disconnected()), SLOT(exitLoopSlot()));
 
-    socket.connectToHost("imap", 143);
+    socket.connectToHost("imap.troll.no", 143);
 
     QTestEventLoop::instance().enterLoop(30);
     if (QTestEventLoop::instance().timeout())
@@ -541,7 +541,7 @@ void tst_QTcpSocket::ipv6Connect()
 void tst_QTcpSocket::partialRead()
 {
     QTcpSocket socket;
-    socket.connectToHost("imap", 143);
+    socket.connectToHost("imap.troll.no", 143);
     QVERIFY(socket.waitForConnected(5000));
     QVERIFY(socket.state() == QTcpSocket::ConnectedState);
     char buf[512];
@@ -562,7 +562,7 @@ void tst_QTcpSocket::partialRead()
 void tst_QTcpSocket::unget()
 {
     QTcpSocket socket;
-    socket.connectToHost("imap", 143);
+    socket.connectToHost("imap.troll.no", 143);
     QVERIFY(socket.waitForConnected(5000));
     QVERIFY(socket.state() == QTcpSocket::ConnectedState);
     char buf[512];
@@ -596,7 +596,7 @@ void tst_QTcpSocket::readRegularFile_readyRead()
 void tst_QTcpSocket::readAllAfterClose()
 {
     QTcpSocket socket;
-    socket.connectToHost("imap", 143);
+    socket.connectToHost("imap.troll.no", 143);
     connect(&socket, SIGNAL(readyRead()), SLOT(readRegularFile_readyRead()));
     QTestEventLoop::instance().enterLoop(10);
     if (QTestEventLoop::instance().timeout())
@@ -631,7 +631,7 @@ void tst_QTcpSocket::openCloseOpenClose()
 
         QVERIFY(socket.state() == QTcpSocket::UnconnectedState);
 
-        socket.connectToHost("imap", 143);
+        socket.connectToHost("imap.troll.no", 143);
         QVERIFY(socket.waitForConnected(5000));
         socket.close();
     }
@@ -726,7 +726,7 @@ void tst_QTcpSocket::connectToMultiIP()
 void tst_QTcpSocket::readLine()
 {
     QTcpSocket socket;
-    socket.connectToHost("imap", 143);
+    socket.connectToHost("imap.troll.no", 143);
     QVERIFY(socket.waitForConnected(5000));
 
     while (!socket.canReadLine())
@@ -766,7 +766,7 @@ void tst_QTcpSocket::readLineString()
 {
     QTcpSocket socket;
     QByteArray expected("* OK esparsett Cyrus IMAP4 v2.2.8 server ready\r\n");
-    socket.connectToHost("imap", 143);
+    socket.connectToHost("imap.troll.no", 143);
     QVERIFY(socket.waitForReadyRead(5000));
 
     QByteArray arr = socket.readLine();
@@ -777,7 +777,7 @@ void tst_QTcpSocket::readLineString()
 void tst_QTcpSocket::readChunks()
 {
     QTcpSocket socket;
-    socket.connectToHost("imap", 143);
+    socket.connectToHost("imap.troll.no", 143);
     QVERIFY(socket.waitForConnected(5000));
     QVERIFY(socket.waitForReadyRead(5000));
 
@@ -819,7 +819,7 @@ void tst_QTcpSocket::flush()
     socket.flush();
 
     connect(&socket, SIGNAL(connected()), SLOT(exitLoopSlot()));
-    socket.connectToHost("imap", 143);
+    socket.connectToHost("imap.troll.no", 143);
     QTestEventLoop::instance().enterLoop(5000);
     QVERIFY(socket.isOpen());
 
@@ -1233,7 +1233,7 @@ void tst_QTcpSocket::readyReadSignalsAfterWaitForReadyRead()
     QSignalSpy readyReadSpy(&socket, SIGNAL(readyRead()));
 
     // Connect
-    socket.connectToHost("imap", 143);
+    socket.connectToHost("imap.troll.no", 143);
 
     // Wait for the read
     QVERIFY(socket.waitForReadyRead(5000));
