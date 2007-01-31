@@ -850,6 +850,10 @@ struct QTextLineItemIterator
     QScriptItem &next();
 
     bool getSelectionBounds(QFixed *selectionX, QFixed *selectionWidth) const;
+    inline bool isOutsideSelection() const {
+        QFixed tmp1, tmp2;
+        return !getSelectionBounds(&tmp1, &tmp2);
+    }
 
     QTextEngine *eng;
 
@@ -1861,6 +1865,9 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 
             continue;
         }
+
+        if (selection && iterator.isOutsideSelection())
+            continue;
 
         unsigned short *logClusters = eng->logClusters(&si);
         QGlyphLayout *glyphs = eng->glyphs(&si);
