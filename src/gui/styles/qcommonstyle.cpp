@@ -3385,9 +3385,9 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                 }
 
                 QRect frameRect = groupBox->rect;
+                frameRect.setTop(topMargin);
 
                 if (sc == SC_GroupBoxFrame) {
-                    frameRect.setTop(topMargin);
                     ret = frameRect;
                     break;
                 }
@@ -3395,7 +3395,8 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                 int frameWidth = 0;
                 if ((groupBox->features & QStyleOptionFrameV2::Flat) == 0)
                     frameWidth = pixelMetric(PM_DefaultFrameWidth, groupBox, widget);
-                ret = frameRect.adjusted(frameWidth, frameWidth + topHeight, -frameWidth, -frameWidth);
+                ret = frameRect.adjusted(frameWidth, frameWidth + groupBox->fontMetrics.descent() + 1,
+                                         -frameWidth, -frameWidth);
                 break;
             }
             case SC_GroupBoxCheckBox:
