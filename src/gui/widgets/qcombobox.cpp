@@ -2404,14 +2404,9 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         }
         break;
     case Qt::Key_Left:
-        if (QApplication::keypadNavigationEnabled()
-                && (!hasEditFocus() || !d->lineEdit))
-            move = MoveUp;
-        break;
     case Qt::Key_Right:
-        if (QApplication::keypadNavigationEnabled()
-                && (!hasEditFocus() || !d->lineEdit))
-            move = MoveDown;
+        if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
+            e->ignore();
         break;
     case Qt::Key_Back:
         if (QApplication::keypadNavigationEnabled()) {

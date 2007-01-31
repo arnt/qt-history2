@@ -253,7 +253,8 @@ void QTabBarPrivate::init()
     if (QApplication::keypadNavigationEnabled()) {
         leftB->setFocusPolicy(Qt::NoFocus);
         rightB->setFocusPolicy(Qt::NoFocus);
-    }
+        q->setFocusPolicy(Qt::NoFocus);
+    } else
 #endif
     q->setFocusPolicy(Qt::TabFocus);
     q->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);

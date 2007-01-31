@@ -976,6 +976,12 @@ void QAbstractScrollArea::keyPressEvent(QKeyEvent * e)
         d->vbar->triggerAction(QScrollBar::SliderPageStepAdd);
 #endif
     } else {
+#ifdef QT_KEYPAD_NAVIGATION
+        if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
+            e->ignore();
+            return;
+        }
+#endif
         switch (e->key()) {
         case Qt::Key_Up:
             d->vbar->triggerAction(QScrollBar::SliderSingleStepSub);
