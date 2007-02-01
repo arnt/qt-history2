@@ -15,7 +15,7 @@ no-png {
          SUBDIRS += designer
      }
      SUBDIRS     += linguist
-     unix:!mac:!embedded:contains(QT_CONFIG, qt3support):SUBDIRS += qtconfig
+#     unix:!mac:!embedded:contains(QT_CONFIG, qt3support):SUBDIRS += qtconfig
      win32:!contains(QT_EDITION, OpenSource|Console):SUBDIRS += activeqt
 }
 
