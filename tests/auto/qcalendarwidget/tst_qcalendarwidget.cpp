@@ -155,7 +155,6 @@ void tst_QCalendarWidget::buttonClickCheck()
     QTest::keyClick(spinbox, '0');
     QTest::keyClick(spinbox, '0');
     QTest::keyClick(spinbox, '6');
-    QTest::qWait(500); 
     QWidget *widget = qFindChild<QWidget *>(&object, "qt_calendar_calendarview");
     QTest::mouseClick(widget, Qt::LeftButton);
     QCOMPARE(2006, object.yearShown());
