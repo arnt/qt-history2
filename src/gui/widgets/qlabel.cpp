@@ -1074,7 +1074,7 @@ void QLabel::setBuddy(QWidget *buddy)
 {
     Q_D(QLabel);
     d->buddy = buddy;
-    if (d->doc && !d->isRichText()) {
+    if (d->doc) {
         if (d->shortcutId)
             releaseShortcut(d->shortcutId);
         d->shortcutId = 0;
