@@ -260,18 +260,9 @@ QList<int> QMainWindowLayoutState::gapIndex(QWidget *widget,
 #endif
 
 #ifndef QT_NO_DOCKWIDGET
-    bool dockNestingEnabled
-        = mainWindow->dockOptions() & QMainWindow::AllowNestedDocks;
-#ifndef QT_NO_TABBAR
-    bool tabsEnabled
-        = mainWindow->dockOptions() & QMainWindow::AllowTabbedDocks;
-#else
-    bool tabsEnabled = false;
-#endif
-
     // is it a dock widget?
     if (qobject_cast<QDockWidget *>(widget) != 0) {
-        result = dockAreaLayout.gapIndex(pos, dockNestingEnabled, tabsEnabled);
+        result = dockAreaLayout.gapIndex(pos);
         if (!result.isEmpty())
             result.prepend(1);
         return result;

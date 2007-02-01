@@ -483,10 +483,13 @@ void QDockAreaLayoutInfo::fitItems()
 }
 
 static QInternal::DockPosition dockPos(const QRect &rect, const QPoint &_pos,
-                                                Qt::Orientation o,
-                                                bool nestingEnabled,
-                                                bool tabsEnabled)
+                                        Qt::Orientation o,
+                                        bool nestingEnabled,
+                                        QDockAreaLayoutInfo::TabMode tabMode)
 {
+    if (tabMode == QDockAreaLayoutInfo::ForceTabs)
+        return QInternal::DockCount;
+
     QPoint pos = _pos - rect.topLeft();
 
     int x = pos.x();
@@ -494,7 +497,7 @@ static QInternal::DockPosition dockPos(const QRect &rect, const QPoint &_pos,
     int w = rect.width();
     int h = rect.height();
 
-    if (tabsEnabled) {
+    if (tabMode != QDockAreaLayoutInfo::NoTabs) {
         // is it in the center?
         if (nestingEnabled) {
         /*             2/3
@@ -582,7 +585,7 @@ static QInternal::DockPosition dockPos(const QRect &rect, const QPoint &_pos,
 }
 
 QList<int> QDockAreaLayoutInfo::gapIndex(const QPoint& _pos,
-                        bool nestingEnabled, bool tabsEnabled) const
+                        bool nestingEnabled, TabMode tabMode) const
 {
     QList<int> result;
     QRect item_rect;
@@ -613,7 +616,7 @@ QList<int> QDockAreaLayoutInfo::gapIndex(const QPoint& _pos,
 #endif
                 ) {
                 result = item.subinfo->gapIndex(_pos, nestingEnabled,
-                                                    tabsEnabled);
+                                                    tabMode);
                 result.prepend(i);
                 return result;
             }
@@ -632,7 +635,7 @@ QList<int> QDockAreaLayoutInfo::gapIndex(const QPoint& _pos,
     Q_ASSERT(!item_rect.isNull());
 
     QInternal::DockPosition dock_pos
-        = dockPos(item_rect, _pos, o, nestingEnabled, tabsEnabled);
+        = dockPos(item_rect, _pos, o, nestingEnabled, tabMode);
 
     switch (dock_pos) {
         case QInternal::LeftDock:
@@ -1941,15 +1944,26 @@ QList<int> QDockAreaLayout::indexOf(QDockWidget *dockWidget) const
     return QList<int>();
 }
 
-QList<int> QDockAreaLayout::gapIndex(const QPoint &pos, bool nestingEnabled,
-                                        bool tabsEnabled) const
+QList<int> QDockAreaLayout::gapIndex(const QPoint &pos) const
 {
+    QMainWindow::DockOptions opts = mainWindow->dockOptions();
+    bool nestingEnabled = opts & QMainWindow::AllowNestedDocks;
+    QDockAreaLayoutInfo::TabMode tabMode = QDockAreaLayoutInfo::NoTabs;
+#ifndef QT_NO_TABBAR
+    if (opts & QMainWindow::AllowTabbedDocks
+        || opts & QMainWindow::VerticalTabs)
+        tabMode = QDockAreaLayoutInfo::AllowTabs;
+    if (opts & QMainWindow::ForceTabbedDocks
+        || opts & QMainWindow::CollapsibleTabs)
+        tabMode = QDockAreaLayoutInfo::ForceTabs;
+#endif
+
     for (int i = 0; i < QInternal::DockCount; ++i) {
         const QDockAreaLayoutInfo &info = docks[i];
 
         if (!info.isEmpty() && info.rect.contains(pos)) {
-            QList<int> result = docks[i].gapIndex(pos, nestingEnabled,
-                                                    tabsEnabled);
+            QList<int> result
+                = docks[i].gapIndex(pos, nestingEnabled, tabMode);
             if (!result.isEmpty())
                 result.prepend(i);
             return result;

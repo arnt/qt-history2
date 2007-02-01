@@ -81,8 +81,9 @@ public:
     bool insertGap(QList<int> path, QLayoutItem *dockWidgetItem);
     QLayoutItem *plug(QList<int> path);
     QLayoutItem *unplug(QList<int> path);
+    enum TabMode { NoTabs, AllowTabs, ForceTabs };
     QList<int> gapIndex(const QPoint &pos, bool nestingEnabled,
-                            bool tabsEnabled) const;
+                            TabMode tabMode) const;
     void remove(QList<int> path);
     void unnest(int index);
     void split(int index, Qt::Orientation orientation, QLayoutItem *dockWidgetItem);
@@ -175,8 +176,7 @@ public:
     bool restoreState(QDataStream &stream, const QList<QDockWidget*> &widgets);
 
     QList<int> indexOf(QDockWidget *dockWidget) const;
-    QList<int> gapIndex(const QPoint &pos, bool nestingEnabled,
-                        bool tabsEnabled) const;
+    QList<int> gapIndex(const QPoint &pos) const;
     QList<int> findSeparator(const QPoint &pos) const;
 
     QDockAreaLayoutItem &item(QList<int> path);
