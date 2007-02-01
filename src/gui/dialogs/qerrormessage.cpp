@@ -44,6 +44,7 @@ public:
     QHash<QString, int> doNotShow;
 
     bool nextPending();
+    void retranslateStrings();
 };
 
 class QErrorMessageTextView : public QTextEdit
@@ -174,15 +175,16 @@ QErrorMessage::QErrorMessage(QWidget * parent)
     grid->addWidget(d->icon, 0, 0, Qt::AlignTop);
     d->errors = new QErrorMessageTextView(this);
     grid->addWidget(d->errors, 0, 1);
-    d->again = new QCheckBox(tr("&Show this message again"), this);
+    d->again = new QCheckBox(this);
     d->again->setChecked(true);
     grid->addWidget(d->again, 1, 1, Qt::AlignTop);
-    d->ok = new QPushButton(tr("&OK"), this);
+    d->ok = new QPushButton(this);
     connect(d->ok, SIGNAL(clicked()), this, SLOT(accept()));
     d->ok->setFocus();
     grid->addWidget(d->ok, 2, 0, 1, 2, Qt::AlignCenter);
     grid->setColumnStretch(1, 42);
     grid->setRowStretch(0, 42);
+    d->retranslateStrings();
 }
 
 
@@ -258,7 +260,7 @@ bool QErrorMessagePrivate::nextPending()
     \a message is queued for later display.
 */
 
-void QErrorMessage::showMessage(const QString & message)
+void QErrorMessage::showMessage(const QString &message)
 {
     Q_D(QErrorMessage);
     if (d->doNotShow.contains(message))
@@ -266,6 +268,21 @@ void QErrorMessage::showMessage(const QString & message)
     d->pending.append(message);
     if (!isVisible() && d->nextPending())
         show();
+}
+
+void QErrorMessage::changeEvent(QEvent *e)
+{
+    Q_D(QErrorMessage);
+    if (e->type() == QEvent::LanguageChange) {
+        d->retranslateStrings();
+    }
+    QDialog::changeEvent(e);
+}
+
+void QErrorMessagePrivate::retranslateStrings()
+{
+    again->setText(QErrorMessage::tr("&Show this message again"));
+    ok->setText(QErrorMessage::tr("&OK"));
 }
 
 /*!

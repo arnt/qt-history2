@@ -129,6 +129,7 @@ public:
     void _q_styleHighlighted(int);
     void _q_sizeHighlighted(int);
     void _q_updateSample();
+    void retranslateStrings();
 
     QLabel * familyAccel;
     QLineEdit * familyEdit;
@@ -193,7 +194,7 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WindowFlags f)
     d->familyList = new QFontListView(this);
     d->familyEdit->setFocusProxy(d->familyList);
 
-    d->familyAccel = new QLabel(tr("&Font"), this);
+    d->familyAccel = new QLabel(this);
 #ifndef QT_NO_SHORTCUT
     d->familyAccel->setBuddy(d->familyList);
 #endif
@@ -204,7 +205,7 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WindowFlags f)
     d->styleList = new QFontListView(this);
     d->styleEdit->setFocusProxy(d->styleList);
 
-    d->styleAccel = new QLabel(tr("Font st&yle"), this);
+    d->styleAccel = new QLabel(this);
 #ifndef QT_NO_SHORTCUT
     d->styleAccel->setBuddy(d->styleList);
 #endif
@@ -216,23 +217,21 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WindowFlags f)
     d->sizeEdit->setValidator(validator);
     d->sizeList = new QFontListView(this);
 
-    d->sizeAccel = new QLabel(tr("&Size"), this);
+    d->sizeAccel = new QLabel(this);
 #ifndef QT_NO_SHORTCUT
     d->sizeAccel->setBuddy(d->sizeEdit);
 #endif
     d->sizeAccel->setIndent(2);
 
     // effects box
-    d->effects = new QGroupBox(tr("Effects"), this);
+    d->effects = new QGroupBox(this);
     QVBoxLayout *vbox = new QVBoxLayout(d->effects);
     d->strikeout = new QCheckBox(d->effects);
-    d->strikeout->setText(tr("Stri&keout"));
     vbox->addWidget(d->strikeout);
     d->underline = new QCheckBox(d->effects);
-    d->underline->setText(tr("&Underline"));
     vbox->addWidget(d->underline);
 
-    d->sample = new QGroupBox(tr("Sample"), this);
+    d->sample = new QGroupBox(this);
     QHBoxLayout *hbox = new QHBoxLayout(d->sample);
     d->sampleEdit = new QLineEdit(d->sample);
     d->sampleEdit->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
@@ -244,7 +243,7 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WindowFlags f)
 
     d->writingSystemCombo = new QComboBox(this);
 
-    d->writingSystemAccel = new QLabel(tr("Wr&iting System"), this);
+    d->writingSystemAccel = new QLabel(this);
 #ifndef QT_NO_SHORTCUT
     d->writingSystemAccel->setBuddy(d->writingSystemCombo);
 #endif
@@ -339,6 +338,7 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WindowFlags f)
     d->sizeList->installEventFilter(this);
 
     d->familyList->setFocus();
+    d->retranslateStrings();
 }
 
 /*!
@@ -775,6 +775,27 @@ void QFontDialogPrivate::_q_sizeChanged(const QString &s)
         sizeList->blockSignals(false);
     }
     _q_updateSample();
+}
+
+void QFontDialogPrivate::retranslateStrings()
+{
+    familyAccel->setText(QFontDialog::tr("&Font"));
+    styleAccel->setText(QFontDialog::tr("Font st&yle"));
+    sizeAccel->setText(QFontDialog::tr("&Size"));
+    effects->setTitle(QFontDialog::tr("Effects"));
+    strikeout->setText(QFontDialog::tr("Stri&keout"));
+    underline->setText(QFontDialog::tr("&Underline"));
+    sample->setTitle(QFontDialog::tr("Sample"));
+    writingSystemAccel->setText(QFontDialog::tr("Wr&iting System"));
+}
+
+void QFontDialog::changeEvent(QEvent *e)
+{
+    Q_D(QFontDialog);
+    if (e->type() == QEvent::LanguageChange) {
+        d->retranslateStrings();
+    }
+    QDialog::changeEvent(e);
 }
 
 /*!

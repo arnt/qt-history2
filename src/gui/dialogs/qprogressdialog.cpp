@@ -43,12 +43,14 @@ public:
         shown_once(false),
         cancellation_flag(false),
         showTime(defaultShowTime),
-        escapeShortcut(0)
+        escapeShortcut(0),
+        useDefaultCancelText(false)
     {
     }
 
     void init(const QString &labelText, const QString &cancelText, int min, int max);
     void layout();
+    void retranslateStrings();
 
     QLabel *label;
     QPushButton *cancel;
@@ -65,6 +67,7 @@ public:
     bool autoReset;
     bool forceHide;
     QShortcut *escapeShortcut;
+    bool useDefaultCancelText;
 };
 
 void QProgressDialogPrivate::init(const QString &labelText, const QString &cancelText,
@@ -79,10 +82,14 @@ void QProgressDialogPrivate::init(const QString &labelText, const QString &cance
     autoClose = true;
     autoReset = true;
     forceHide = false;
-    q->setCancelButtonText(cancelText);
     QObject::connect(q, SIGNAL(canceled()), q, SLOT(cancel()));
     forceTimer = new QTimer(q);
     QObject::connect(forceTimer, SIGNAL(timeout()), q, SLOT(forceShow()));
+    if (useDefaultCancelText) {
+        retranslateStrings();
+    } else {
+        q->setCancelButtonText(cancelText);
+    }
 }
 
 void QProgressDialogPrivate::layout()
@@ -129,6 +136,12 @@ void QProgressDialogPrivate::layout()
     bar->setGeometry(mlr, lh+sp, q->width()-mlr*2, bh.height());
 }
 
+void QProgressDialogPrivate::retranslateStrings()
+{
+    Q_Q(QProgressDialog);
+    if (useDefaultCancelText)
+        q->setCancelButtonText(QProgressDialog::tr("Cancel"));
+}
 
 /*!
   \class QProgressDialog
@@ -228,7 +241,8 @@ QProgressDialog::QProgressDialog(QWidget *parent, Qt::WindowFlags f)
     : QDialog(*(new QProgressDialogPrivate), parent, f)
 {
     Q_D(QProgressDialog);
-    d->init(QString::fromLatin1(""), tr("Cancel"), 0, 100);
+    d->useDefaultCancelText = true;
+    d->init(QString::fromLatin1(""), QString(), 0, 100);
 }
 
 /*!
@@ -382,6 +396,8 @@ void QProgressDialog::setCancelButton(QPushButton *cancelButton)
 void QProgressDialog::setCancelButtonText(const QString &cancelButtonText)
 {
     Q_D(QProgressDialog);
+    d->useDefaultCancelText = false;
+
     if (!cancelButtonText.isNull()) {
         if (d->cancel)
             d->cancel->setText(cancelButtonText);
@@ -641,8 +657,10 @@ void QProgressDialog::resizeEvent(QResizeEvent *)
 void QProgressDialog::changeEvent(QEvent *ev)
 {
     Q_D(QProgressDialog);
-    if(ev->type() == QEvent::StyleChange)
+    if (ev->type() == QEvent::StyleChange)
         d->layout();
+    else if (ev->type() == QEvent::LanguageChange)
+        d->retranslateStrings();
     QDialog::changeEvent(ev);
 }
 

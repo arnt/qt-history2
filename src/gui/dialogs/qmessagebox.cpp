@@ -185,6 +185,7 @@ public:
     void detectEscapeButton();
     void updateSize();
     int layoutMinimumWidth();
+    void retranslateStrings();
 
     static int showOldMessageBox(QWidget *parent, QMessageBox::Icon icon,
                                  const QString &title, const QString &text,
@@ -227,34 +228,6 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
 
     if (!translatedTextAboutQt) {
         translatedTextAboutQt = new QString;
-
-#if defined(QT_NON_COMMERCIAL)
-    QT_NC_MSGBOX
-#else
-        *translatedTextAboutQt = QMessageBox::tr(
-            "<h3>About Qt</h3>"
-            "%1<p>Qt is a C++ toolkit for cross-platform "
-            "application development.</p>"
-            "<p>Qt provides single-source "
-            "portability across MS&nbsp;Windows, Mac&nbsp;OS&nbsp;X, "
-            "Linux, and all major commercial Unix variants. Qt is also"
-            " available for embedded devices as Qtopia Core.</p>"
-            "<p>Qt is a Trolltech product. See "
-            "<a href=\"http://www.trolltech.com/qt/\">www.trolltech.com/qt/</a> for more information.</p>"
-           )
-#if QT_EDITION != QT_EDITION_OPENSOURCE
-           .arg(QMessageBox::tr("<p>This program uses Qt version %1.</p>"))
-#else
-           .arg(QMessageBox::tr("<p>This program uses Qt Open Source Edition version %1.</p>"
-                   "<p>Qt Open Source Edition is intended for the development "
-                   "of Open Source applications. You need a commercial Qt "
-                   "license for development of proprietary (closed source) "
-                   "applications.</p>"
-                   "<p>Please see <a href=\"http://www.trolltech.com/company/model/\">www.trolltech.com/company/model/</a> "
-                   "for an overview of Qt licensing.</p>"))
-#endif
-           .arg(QLatin1String(QT_VERSION_STR));
-#endif
     }
 
     label = new QLabel;
@@ -310,6 +283,7 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     f.setBold(true);
     label->setFont(f);
 #endif
+    retranslateStrings();
 }
 
 int QMessageBoxPrivate::layoutMinimumWidth()
@@ -1131,8 +1105,16 @@ void QMessageBox::setTextFormat(Qt::TextFormat format)
 bool QMessageBox::event(QEvent *e)
 {
     bool result =QDialog::event(e);
-    if (e->type() == QEvent::LayoutRequest)
-        d_func()->updateSize();
+    switch (e->type()) {
+        case QEvent::LayoutRequest:
+            d_func()->updateSize();
+            break;
+        case QEvent::LanguageChange:
+            d_func()->retranslateStrings();
+            break;
+        default:
+            break;
+    }
     return result;
 }
 
@@ -1625,6 +1607,42 @@ int QMessageBoxPrivate::showOldMessageBox(QWidget *parent, QMessageBox::Icon ico
     messageBox.setEscapeButton(buttonList.value(escapeButtonNumber));
 
     return messageBox.exec();
+}
+
+void QMessageBoxPrivate::retranslateStrings()
+{
+    Q_Q(QMessageBox);
+    if (detailsButton)
+        detailsButton->setText(detailsText->isHidden() ? detailsText->label(HideLabel) : detailsText->label(ShowLabel));
+
+#if defined(QT_NON_COMMERCIAL)
+    QT_NC_MSGBOX
+#else
+    *translatedTextAboutQt = QMessageBox::tr(
+        "<h3>About Qt</h3>"
+        "%1<p>Qt is a C++ toolkit for cross-platform "
+        "application development.</p>"
+        "<p>Qt provides single-source "
+        "portability across MS&nbsp;Windows, Mac&nbsp;OS&nbsp;X, "
+        "Linux, and all major commercial Unix variants. Qt is also"
+        " available for embedded devices as Qtopia Core.</p>"
+        "<p>Qt is a Trolltech product. See "
+        "<a href=\"http://www.trolltech.com/qt/\">www.trolltech.com/qt/</a> for more information.</p>"
+       )
+#if QT_EDITION != QT_EDITION_OPENSOURCE
+       .arg(QMessageBox::tr("<p>This program uses Qt version %1.</p>"))
+#else
+       .arg(QMessageBox::tr("<p>This program uses Qt Open Source Edition version %1.</p>"
+               "<p>Qt Open Source Edition is intended for the development "
+               "of Open Source applications. You need a commercial Qt "
+               "license for development of proprietary (closed source) "
+               "applications.</p>"
+               "<p>Please see <a href=\"http://www.trolltech.com/company/model/\">www.trolltech.com/company/model/</a> "
+               "for an overview of Qt licensing.</p>"))
+#endif
+       .arg(QLatin1String(QT_VERSION_STR));
+#endif
+
 }
 
 /*!

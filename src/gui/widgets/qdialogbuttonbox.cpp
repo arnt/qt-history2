@@ -252,6 +252,9 @@ public:
     void _q_handleButtonDestroyed();
     void _q_handleButtonClicked();
     void addButtonsToLayout(const QList<QAbstractButton *> &buttonList, bool reverse);
+    void retranslateStrings();
+    const char *standardButtonText(QDialogButtonBox::StandardButton sbutton) const;
+
 };
 
 QDialogButtonBoxPrivate::QDialogButtonBoxPrivate(Qt::Orientation orient)
@@ -435,80 +438,42 @@ QPushButton *QDialogButtonBoxPrivate::createButton(QDialogButtonBox::StandardBut
     switch (sbutton) {
     case QDialogButtonBox::Ok:
         icon = QStyle::SP_DialogOkButton;
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "OK");
         break;
     case QDialogButtonBox::Save:
         icon = QStyle::SP_DialogSaveButton;
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Save");
         break;
     case QDialogButtonBox::Open:
         icon = QStyle::SP_DialogOpenButton;
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Open");
         break;
     case QDialogButtonBox::Cancel:
         icon = QStyle::SP_DialogCancelButton;
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Cancel");
         break;
     case QDialogButtonBox::Close:
         icon = QStyle::SP_DialogCloseButton;
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Close");
         break;
     case QDialogButtonBox::Apply:
         icon = QStyle::SP_DialogApplyButton;
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Apply");
         break;
     case QDialogButtonBox::Reset:
         icon = QStyle::SP_DialogResetButton;
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Reset");
         break;
     case QDialogButtonBox::Help:
         icon = QStyle::SP_DialogHelpButton;
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Help");
         break;
     case QDialogButtonBox::Discard:
         icon = QStyle::SP_DialogDiscardButton;
-        if (layoutPolicy == QDialogButtonBox::MacLayout)
-            buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Don't Save");
-        else if (layoutPolicy == QDialogButtonBox::GnomeLayout)
-            buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Close without Saving");
-        else
-            buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Discard");
         break;
     case QDialogButtonBox::Yes:
         icon = QStyle::SP_DialogYesButton;
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "&Yes");
-        break;
-    case QDialogButtonBox::YesToAll:
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Yes to &All");
         break;
     case QDialogButtonBox::No:
         icon = QStyle::SP_DialogNoButton;
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "&No");
-        break;
-    case QDialogButtonBox::NoToAll:
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "N&o to All");
-        break;
-    case QDialogButtonBox::SaveAll:
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Save All");
-        break;
-    case QDialogButtonBox::Abort:
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Abort");
-        break;
-    case QDialogButtonBox::Retry:
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Retry");
-        break;
-    case QDialogButtonBox::Ignore:
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Ignore");
-        break;
-    case QDialogButtonBox::RestoreDefaults:
-        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Restore Defaults");
         break;
     case QDialogButtonBox::NoButton:
+        return 0;
         ;
     }
-
-    if (!buttonText)
-        return 0;
+    buttonText = standardButtonText(sbutton);
 
     QPushButton *button = new QPushButton(QDialogButtonBox::tr(buttonText), q);
     if (q->style()->styleHint(QStyle::SH_DialogButtonBox_ButtonsHaveIcons, 0, q) && icon != 0)
@@ -539,6 +504,89 @@ void QDialogButtonBoxPrivate::createStandardButtons(QDialogButtonBox::StandardBu
         i = i << 1;
     }
     layoutButtons();
+}
+
+const char *QDialogButtonBoxPrivate::standardButtonText(QDialogButtonBox::StandardButton sbutton) const
+{
+    const char *buttonText = 0;
+    switch (sbutton) {
+    case QDialogButtonBox::Ok:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "OK");
+        break;
+    case QDialogButtonBox::Save:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Save");
+        break;
+    case QDialogButtonBox::Open:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Open");
+        break;
+    case QDialogButtonBox::Cancel:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Cancel");
+        break;
+    case QDialogButtonBox::Close:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Close");
+        break;
+    case QDialogButtonBox::Apply:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Apply");
+        break;
+    case QDialogButtonBox::Reset:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Reset");
+        break;
+    case QDialogButtonBox::Help:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Help");
+        break;
+    case QDialogButtonBox::Discard:
+        if (layoutPolicy == QDialogButtonBox::MacLayout)
+            buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Don't Save");
+        else if (layoutPolicy == QDialogButtonBox::GnomeLayout)
+            buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Close without Saving");
+        else
+            buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Discard");
+        break;
+    case QDialogButtonBox::Yes:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "&Yes");
+        break;
+    case QDialogButtonBox::YesToAll:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Yes to &All");
+        break;
+    case QDialogButtonBox::No:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "&No");
+        break;
+    case QDialogButtonBox::NoToAll:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "N&o to All");
+        break;
+    case QDialogButtonBox::SaveAll:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Save All");
+        break;
+    case QDialogButtonBox::Abort:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Abort");
+        break;
+    case QDialogButtonBox::Retry:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Retry");
+        break;
+    case QDialogButtonBox::Ignore:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Ignore");
+        break;
+    case QDialogButtonBox::RestoreDefaults:
+        buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Restore Defaults");
+        break;
+    case QDialogButtonBox::NoButton:
+        ;
+    } // switch
+    return buttonText;
+}
+
+void QDialogButtonBoxPrivate::retranslateStrings()
+{
+    const char *buttonText = 0;
+    QHash<QPushButton *, QDialogButtonBox::StandardButton>::iterator it =  standardButtonHash.begin();
+    while (it != standardButtonHash.end()) {
+        buttonText = standardButtonText(it.value());
+        if (buttonText) {
+            QPushButton *button = it.key();
+            button->setText(QDialogButtonBox::tr(buttonText));
+        }
+        ++it;
+    }
 }
 
 /*!
@@ -1015,6 +1063,8 @@ bool QDialogButtonBox::event(QEvent *event)
         }
         if (!hasDefault && firstAcceptButton)
             firstAcceptButton->setDefault(true);
+    }else if (event->type() == QEvent::LanguageChange) {
+        d->retranslateStrings();
     }
 
     return QWidget::event(event);

@@ -45,6 +45,8 @@ public:
         { Q_UNUSED(name); return getRgba(rgba, ok, parent); }
 #endif
 
+protected:
+    void changeEvent(QEvent *e);
 private:
     ~QColorDialog();
     explicit QColorDialog(QWidget* parent=0, bool modal=false);

@@ -45,6 +45,8 @@ public:
         { Q_UNUSED(name); return getFont(ok, parent); }
 #endif
 
+protected:
+    void changeEvent(QEvent *e);
 private:
     static QFont getFont(bool *ok, const QFont *def, QWidget* parent=0);
 

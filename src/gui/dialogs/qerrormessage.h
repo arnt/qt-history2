@@ -42,6 +42,7 @@ public Q_SLOTS:
 
 protected:
     void done(int);
+    void changeEvent(QEvent *e);
 
 private:
     Q_DISABLE_COPY(QErrorMessage)
