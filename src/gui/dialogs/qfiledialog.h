@@ -220,7 +220,6 @@ protected:
     void accept();
     void timerEvent(QTimerEvent *event);
     void changeEvent(QEvent *e);
-    bool event(QEvent *e);
 
 private:
     Q_DECLARE_PRIVATE(QFileDialog)
