@@ -34,8 +34,10 @@ private slots:
 };
 
 static const int iterations = 10;
+
+// Note: some tests rely on ThreadCount being multiple of 2
 #ifdef Q_OS_SOLARIS
-static const int ThreadCount = 3;
+static const int ThreadCount = 4;
 #else
 static const int ThreadCount = 10;
 #endif
@@ -250,6 +252,57 @@ void tst_QWaitCondition::wakeOne()
 
 	    QCOMPARE(exited, 1);
 	    QCOMPARE(wake_Thread::count, ThreadCount - (x + 1));
+	}
+
+	QCOMPARE(wake_Thread::count, 0);
+    }
+
+    // wake up threads, two at a time
+    for (int i = 0; i < iterations; ++i) {
+	QMutex mutex;
+	QWaitCondition cond;
+
+	wake_Thread thread[ThreadCount];
+	bool thread_exited[ThreadCount];
+
+	mutex.lock();
+	for (x = 0; x < ThreadCount; ++x) {
+	    thread[x].mutex = &mutex;
+	    thread[x].cond = &cond;
+	    thread_exited[x] = FALSE;
+	    thread[x].start();
+	    // wait for thread to start
+	    QVERIFY(thread[x].started.wait(&mutex, 1000));
+            // make sure wakeups are not queued... if nothing is
+            // waiting at the time of the wakeup, nothing happens
+            QVERIFY(!thread[x].dummy.wait(&mutex, 1));
+	}
+	mutex.unlock();
+
+	QCOMPARE(wake_Thread::count, ThreadCount);
+
+	// wake up threads one at a time
+	for (x = 0; x < ThreadCount; x += 2) {
+	    mutex.lock();
+	    cond.wakeOne();
+	    cond.wakeOne();
+	    QVERIFY(!cond.wait(&mutex, 1));
+            QVERIFY(!thread[x].dummy.wait(&mutex, 1));
+            QVERIFY(!thread[x + 1].dummy.wait(&mutex, 1));
+	    mutex.unlock();
+
+	    int exited = 0;
+	    for (int y = 0; y < ThreadCount; ++y) {
+		if (thread_exited[y])
+                    continue;
+		if (thread[y].wait(exited > 0 ? 1 : 1000)) {
+		    thread_exited[y] = TRUE;
+		    ++exited;
+		}
+	    }
+
+	    QCOMPARE(exited, 2);
+	    QCOMPARE(wake_Thread::count, ThreadCount - (x + 2));
 	}
 
 	QCOMPARE(wake_Thread::count, 0);
