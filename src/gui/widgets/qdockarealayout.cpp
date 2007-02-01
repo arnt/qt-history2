@@ -1956,7 +1956,11 @@ QList<int> QDockAreaLayout::gapIndex(const QPoint &pos) const
     if (opts & QMainWindow::ForceTabbedDocks
         || opts & QMainWindow::CollapsibleTabs)
         tabMode = QDockAreaLayoutInfo::ForceTabs;
+
+    if (tabMode == ForceTabs)
+        nestingEnabled = false;
 #endif
+
 
     for (int i = 0; i < QInternal::DockCount; ++i) {
         const QDockAreaLayoutInfo &info = docks[i];

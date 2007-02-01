@@ -287,6 +287,50 @@ QMainWindow::~QMainWindow()
     The default is the default tool bar icon size of the GUI style.
 */
 
+/*!
+    \property QMainWindow::dockOptions
+    \brief the docking bahvaior of QMainWindow.
+
+    The default value is AnimatedDocks | AllowTabbedDocks.
+*/
+
+/*!
+    \enum QMainWindow::DockOption
+
+    This enum contains flags that specify the docking behavior of QMainWindow.
+
+    \value AnimatedDocks    Identical to the \l animated property.
+
+    \value AllowNestedDocks Identical to the \l dockNestingEnabled property.
+
+    \value AllowTabbedDocks The user can drop one dock widget "on top" of
+                            another. The two widgets are stacked and a tab
+                            bar appears for selecting which one is visible.
+
+    \value ForceTabbedDocks Each dock area contains a single stack of tabbed
+                            dock widgets. In other words, dock widgets cannot
+                            be placed next to each other in a dock area. If
+                            this option is set, AllowNestedDocks has no effect.
+
+    \value VerticalTabs     The two vertical dock areas on the sides of the
+                            main window show their tabs vertically. If this
+                            option is not set, all dock areas show their tabs
+                            at the bottom. Implies AllowTabbedDocks.
+
+    \value CollapsibleTabs  Implies ForceTabbedDocks and VerticalTabs. In
+                            addition, clicking the tab of a dock widget
+                            that is already on top causes the whole dock area
+                            to collapse, giving more space to the central
+                            widget. The tab bar remains visible, and clicking
+                            it uncollapses the dock area.
+
+    These options only control how dock widgets may be dropped in a QMainWindow.
+    They do not re-arrange the dock widgets to conform with the specified
+    options. For this reason they should be set before any dock widgets
+    are added to the main window. Exceptions to this are the AnimatedDocks and
+    VerticalTabs options, which may be set at any time.
+*/
+
 void QMainWindow::setDockOptions(DockOptions opt)
 {
     Q_D(QMainWindow);
@@ -680,13 +724,23 @@ bool QMainWindow::toolBarBreak(QToolBar *toolbar) const
 #ifndef QT_NO_DOCKWIDGET
 
 /*! \property QMainWindow::animated
-    \brief whether manipulating dock widgets is animated
+    \brief whether manipulating dock widgets and tool bars is animated
     \since 4.2
 
-    When a dock widget is dragged over the main window, other dock widgets in the
-    window will adjust themselves to make space for the dragged widget. If this
-    property is set to true, their movement will be animated. The default value
-    is true.
+    When a dock widget or tool bar is dragged over the
+    main window, the main window adjusts its contents
+    to indicate where the dock widget or tool bar will
+    be docked if it is dropped. Setting this property
+    causes QMainWindow to move its contents in a smooth
+    animation. Clearing this property causes the contents
+    to snap into their new positions.
+
+    By default, this property is set. It may be cleared if
+    the main window contains widgets which are slow at resizing
+    or repainting themselves.
+
+    Setting this property is identical to setting the AnimatedDocks
+    option using setDockOptions().
 */
 
 bool QMainWindow::isAnimated() const
@@ -712,18 +766,20 @@ void QMainWindow::setAnimated(bool enabled)
     \brief whether docks can be nested
     \since 4.2
 
-    If this property is set to false, dock areas can only contain a single row
-    (horizontal or vertical) of dock widgets. If this property is set to true,
+    If this property is false, dock areas can only contain a single row
+    (horizontal or vertical) of dock widgets. If this property is true,
     the area occupied by a dock widget can be split in either direction to contain
     more dock widgets.
 
     Dock nesting is only necessary in applications that contain a lot of
-    dock widgets. It gives the user greater freedom in organizing their main window.
-    However, dock nesting leads to more complex (and less intuitive) behavior when
-    a dock widget is dragged over the main window, since there are more ways in which
-    a dropped dock widget may be placed in the dock area.
+    dock widgets. It gives the user greater freedom in organizing their
+    main window. However, dock nesting leads to more complex
+    (and less intuitive) behavior when a dock widget is dragged over the
+    main window, since there are more ways in which a dropped dock widget
+    may be placed in the dock area.
 
-    This property should be set before any dock widgets are added to the main window.
+    Setting this property is identical to setting the AllowNestedDocks option
+    using setDockOptions().
 */
 
 bool QMainWindow::isDockNestingEnabled() const
