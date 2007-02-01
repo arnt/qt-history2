@@ -59,6 +59,7 @@ private slots:
     void spinBoxTest();
     void textEditTest();
     void listViewTest();
+    void mdiAreaTest();
 
 private:
     QWidget *createGUI();
@@ -1206,7 +1207,6 @@ void tst_QAccessibility::text()
     QObject *topLeft = toplevel->child("topLeft");
     QObject *topRight = toplevel->child("topRight");
     QObject *bottomLeft = toplevel->child("bottomLeft");
-    QObject *bottomRight = toplevel->child("bottomRight");
 
     QAccessibleInterface *acc_pb1 = QAccessible::queryAccessibleInterface(topLeft->child("pb1"));
 
@@ -2136,6 +2136,53 @@ void tst_QAccessibility::listViewTest()
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
+}
+
+void tst_QAccessibility::mdiAreaTest()
+{
+    QMdiArea mdiArea;
+    mdiArea.show();
+    const int subWindowCount =  5;
+    for (int i = 0; i < subWindowCount; ++i)
+        mdiArea.addSubWindow(new QWidget)->show();
+
+    QList<QMdiSubWindow *> subWindows = mdiArea.subWindowList();
+    QCOMPARE(subWindows.count(), subWindowCount);
+
+    QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&mdiArea);
+    QVERIFY(interface);
+    QCOMPARE(interface->childCount(), subWindowCount);
+
+    // Right, right, right, ...
+    for (int i = 0; i < subWindowCount; ++i) {
+        QAccessibleInterface *destination = 0;
+        int index = interface->navigate(QAccessible::Right, i + 1, &destination);
+        if (i == subWindowCount - 1) {
+            QVERIFY(!destination);
+            QCOMPARE(index, -1);
+        } else {
+            QVERIFY(destination);
+            QCOMPARE(index, i + 2);
+            QCOMPARE(destination->object(), subWindows.at(i + 1));
+            delete destination;
+        }
+    }
+
+    // Left, left, left, ...
+    for (int i = subWindowCount; i > 0; --i) {
+        QAccessibleInterface *destination = 0;
+        int index = interface->navigate(QAccessible::Left, i, &destination);
+        if (i == 1) {
+            QVERIFY(!destination);
+            QCOMPARE(index, -1);
+        } else {
+            QVERIFY(destination);
+            QCOMPARE(index, i - 1);
+            QCOMPARE(destination->object(), subWindows.at(i - 2));
+            delete destination;
+        }
+    }
+    // ### Add test for Up and Down.
 }
 
 QTEST_MAIN(tst_QAccessibility)
