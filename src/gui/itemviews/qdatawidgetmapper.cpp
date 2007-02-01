@@ -430,10 +430,10 @@ QModelIndex QDataWidgetMapper::rootIndex() const
     horizontal (the default), otherwise a row.
 
     For the following example, we assume a model \c myModel that
-    has two columns, the first one containing the name of a person,
-    the second column his age. The first column is mapped to the
-    QLineEdit \c nameLineEdit and the second to the QSpinBox
-    \c{ageSpinBox}:
+    has two columns: the first one contains the names of people in a
+    group, and the second column contains their ages. The first column
+    is mapped to the QLineEdit \c nameLineEdit, and the second is
+    mapped to the QSpinBox \c{ageSpinBox}:
 
     \code
     QDataWidgetMapper *mapper = new QDataWidgetMapper();
@@ -442,7 +442,7 @@ QModelIndex QDataWidgetMapper::rootIndex() const
     mapper->addMapping(ageSpinBox, 1);
     \endcode
 
-    Note: If the \a widget is already mapped to a section, the
+    \bold{Note:} If the \a widget is already mapped to a section, the
     old mapping will be replaced by the new one. A widget can never
     be mapped to more than one section at a time.
 
