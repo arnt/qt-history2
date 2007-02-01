@@ -522,11 +522,13 @@ void QSortFilterProxyModelPrivate::insert_source_items(
     Qt::Orientation orient, bool emit_signal)
 {
     Q_Q(QSortFilterProxyModel);
+    QModelIndex proxy_parent = QSortFilterProxyModelPrivate::source_to_proxy(source_parent);
+    if (!proxy_parent.isValid() && source_parent.isValid())
+        return; // nothing to do (source_parent is not mapped)
+
     QVector<QPair<int, QVector<int> > > proxy_intervals;
     proxy_intervals = proxy_intervals_for_source_items_to_add(
         proxy_to_source, source_items, source_parent, orient);
-
-    QModelIndex proxy_parent = QSortFilterProxyModelPrivate::source_to_proxy(source_parent);
 
     for (int i = proxy_intervals.size()-1; i >= 0; --i) {
         QPair<int, QVector<int> > interval = proxy_intervals.at(i);

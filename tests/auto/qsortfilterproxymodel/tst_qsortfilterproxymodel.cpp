@@ -89,6 +89,7 @@ private slots:
     void insertIntoChildrenlessItem();
     void invalidateMappedChildren();
     void insertRowIntoFilteredParent();
+    void filterOutParentAndFilterInChild();
 #endif // QT_VERSION
 
 protected:
@@ -2176,6 +2177,31 @@ void tst_QSortFilterProxyModel::insertRowIntoFilteredParent()
     itemA->removeRow(0);
 
     QCOMPARE(spy.count(), 0);
+}
+
+void tst_QSortFilterProxyModel::filterOutParentAndFilterInChild()
+{
+    QStandardItemModel model;
+    QSortFilterProxyModel proxy;
+    proxy.setSourceModel(&model);
+
+    proxy.setFilterRegExp("A|B");
+    QStandardItem *itemA = new QStandardItem("A");
+    model.appendRow(itemA); // not filtered
+    QStandardItem *itemB = new QStandardItem("B");
+    itemA->appendRow(itemB); // not filtered
+    QStandardItem *itemC = new QStandardItem("C");
+    itemA->appendRow(itemC); // filtered
+
+    QSignalSpy removedSpy(&proxy, SIGNAL(rowsRemoved(const QModelIndex&, int, int)));
+    QSignalSpy insertedSpy(&proxy, SIGNAL(rowsInserted(const QModelIndex&, int, int)));
+
+    proxy.setFilterRegExp("C"); // A and B will be filtered out, C filtered in
+
+    // we should now have been notified that the subtree represented by itemA has been removed
+    QCOMPARE(removedSpy.count(), 1);
+    // we should NOT get any inserts; itemC should be filtered because its parent (itemA) is
+    QCOMPARE(insertedSpy.count(), 0);
 }
 
 #endif // QT_VERSION
