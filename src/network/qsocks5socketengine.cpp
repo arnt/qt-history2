@@ -341,7 +341,7 @@ void QSocks5BindStore::add(int socketDescriptor, QSocks5BindData *bindData)
 {
     QMutexLocker lock(&mutex);
     if (store.contains(socketDescriptor)) {
-        qDebug() << "delete it";
+        // qDebug() << "delete it";
     }
     bindData->timeStamp = QDateTime::currentDateTime();
     store.insert(socketDescriptor, bindData);
@@ -981,7 +981,7 @@ bool QSocks5SocketEngine::connectToHost(const QHostAddress &address, quint16 por
         QSOCKS5_DEBUG << "not yet connected";
         return false;
     } else {
-        qDebug() << "unexpected call to contectToHost";
+        // qDebug() << "unexpected call to contectToHost";
     }
     return false;
 }
@@ -1027,7 +1027,7 @@ void QSocks5SocketEnginePrivate::_q_controlSocketReadNotification()
         case Connected: {
             QByteArray buf;
             if (!data->authenticator->unSeal(data->controlSocket, &buf))
-                qDebug() << "unseal error maybe need to wait for more data";
+                // qDebug() << "unseal error maybe need to wait for more data";
             if (buf.size()) {
                 QSOCKS5_DEBUG << dump(buf);
                 connectData->readBuffer += buf;
@@ -1544,7 +1544,7 @@ bool QSocks5SocketEngine::waitForWrite(int msecs, bool *timedOut) const
         stopWatch.start();
 
         if (!d->data->controlSocket->waitForConnected(qt_timeout_value(msecs, stopWatch.elapsed()))) {
-            qDebug() << "failed to connect to proxy";
+            // qDebug() << "failed to connect to proxy";
             if (timedOut && d->data->controlSocket->error() == QAbstractSocket::SocketTimeoutError)
                 *timedOut = true;
             return false; // ???
