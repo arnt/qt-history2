@@ -1957,7 +1957,7 @@ QList<int> QDockAreaLayout::gapIndex(const QPoint &pos) const
         || opts & QMainWindow::CollapsibleTabs)
         tabMode = QDockAreaLayoutInfo::ForceTabs;
 
-    if (tabMode == ForceTabs)
+    if (tabMode == QDockAreaLayoutInfo::ForceTabs)
         nestingEnabled = false;
 #endif
 
