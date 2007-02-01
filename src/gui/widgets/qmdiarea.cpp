@@ -170,20 +170,25 @@ void RegularTiler::rearrange(QList<QWidget *> &widgets, const QRect &domain) con
     const int ncols = qMax(int(ceil(sqrt(float(n)))), 1);
     const int nrows = qMax((n % ncols) ? (n / ncols + 1) : (n / ncols), 1);
     const int nspecial = (n % ncols) ? (ncols - n % ncols) : 0;
-    const qreal dx = domain.width()  / qreal(ncols);
-    const qreal dy = domain.height() / qreal(nrows);
+    const int dx = domain.width()  / ncols;
+    const int dy = domain.height() / nrows;
 
     int i = 0;
     for (int row = 0; row < nrows; ++row) {
         for (int col = 0; col < ncols; ++col) {
             if (row == 1 && col < nspecial)
                 continue;
-            const int x1 = int(col * dx);
-            const int y1 = int(row * dy);
+            const int x1 = int(col * (dx + 1));
+            const int y1 = int(row * (dy + 1));
             int x2 = int(x1 + dx);
             int y2 = int(y1 + dy);
-            if (row == 0 && col < nspecial)
+            if (row == 0 && col < nspecial) {
                 y2 *= 2;
+                if (nrows != 2)
+                    y2 += 1;
+                else
+                    y2 = domain.bottom();
+            }
             if (col == ncols - 1 && x2 != domain.right())
                 x2 = domain.right();
             if (row == nrows - 1 && y2 != domain.bottom())
