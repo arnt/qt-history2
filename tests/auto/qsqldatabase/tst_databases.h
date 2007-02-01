@@ -51,6 +51,13 @@ inline static QString qTableName(const QString& prefix, QSqlDriver* driver = 0)
         return driver->escapeIdentifier(prefix + "_" + qGetHostName(), QSqlDriver::TableName);
 }
 
+static bool testWhiteSpaceNames(const QString &name)
+{
+    return name.startsWith("QPSQL") 
+            || name.startsWith("QODBC") 
+            || name.startsWith("QSQLITE");
+}
+
 class tst_Databases
 {
 public:

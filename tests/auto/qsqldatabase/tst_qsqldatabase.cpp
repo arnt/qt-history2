@@ -204,7 +204,6 @@ static int createFieldTable(const FieldDef fieldDefs[], QSqlDatabase db)
     return i;
 }
 
-
 tst_QSqlDatabase::tst_QSqlDatabase()
 {
 }
@@ -236,7 +235,7 @@ void tst_QSqlDatabase::createTestTables(QSqlDatabase db)
 		tst_Databases::printError(q.lastError()));
     }
 
-    if (db.driverName().startsWith("QPSQL")) {
+    if (testWhiteSpaceNames(db.driverName())) {
         QString qry = "create table \"" + qTableName("qtest") + " test\" (\"test test\" int primary key)";
         QVERIFY2(q.exec(qry), q.lastError().text());
     }
@@ -502,8 +501,7 @@ void tst_QSqlDatabase::whitespaceInIdentifiers()
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
 
-    // TODO - check the rest of the drivers
-    if (db.driverName().startsWith("QPSQL")) {
+    if (testWhiteSpaceNames(db.driverName())) {
         QString tableName = qTableName("qtest") + " test";
         QVERIFY(db.tables().contains(tableName, Qt::CaseInsensitive));
 

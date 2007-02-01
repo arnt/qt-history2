@@ -73,6 +73,7 @@ public:
     QSqlRecord record(const QString& tablename) const;
     QSqlIndex primaryIndex(const QString &table) const;
     QVariant handle() const;
+    QString escapeIdentifier(const QString &identifier, IdentifierType) const;
 
 private:
     QSQLiteDriverPrivate* d;

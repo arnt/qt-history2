@@ -75,11 +75,6 @@ tst_QSqlTableModel::~tst_QSqlTableModel()
 {
 }
 
-static bool testWhiteSpaceNames(const QString &name)
-{
-    return name.startsWith("QPSQL") || name.startsWith("QODBC");
-}
-
 void tst_QSqlTableModel::dropTestTables()
 {
     for (int i = 0; i < dbs.dbNames.count(); ++i) {
@@ -510,7 +505,7 @@ void tst_QSqlTableModel::tablesAndSchemas()
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
 
-    if (!db.driverName().startsWith("PQSQL"))
+    if (!db.driverName().startsWith("QPSQL"))
         QSKIP("Postgres specific test", SkipSingle);
 
     QSqlQuery q(db);
