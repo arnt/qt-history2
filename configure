@@ -984,7 +984,7 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     universal)
-        if [ "$PLATFORM_MAC" = "yes" && "$VAL" = "yes" ]; then
+        if [ "$PLATFORM_MAC" = "yes" ] && [ "$VAL" = "yes" ]; then
             CFG_MAC_ARCHS="$CFG_MAC_ARCHS x86 ppc"
         else
             UNKNOWN_OPT=yes
