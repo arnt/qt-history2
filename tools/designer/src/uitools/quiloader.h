@@ -29,6 +29,7 @@ class QDir;
 class QUiLoaderPrivate;
 class QUiLoader : public QObject
 {
+    Q_OBJECT
 public:
     QUiLoader(QObject *parent = 0);
     virtual ~QUiLoader();
