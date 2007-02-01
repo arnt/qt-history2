@@ -172,8 +172,8 @@ static inline bool isChildOfQMdiSubWindow(const QWidget *child)
 template<typename T>
 static inline ControlElement<T> *ptr(QWidget *widget)
 {
-    if (widget && widget->qt_metacast("ControlElement") 
-            && strcmp(widget->className(), T::staticMetaObject.className()) == 0) {
+    if (widget && widget->qt_metacast("ControlElement")
+            && strcmp(widget->metaObject()->className(), T::staticMetaObject.className()) == 0) {
         return static_cast<ControlElement<T> *>(widget);
     }
     return 0;
