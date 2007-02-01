@@ -153,6 +153,7 @@ private slots:
 #endif
 
     void setLocale();
+    void deleteStyle();
 
 private:
     QWidget *testWidget;
@@ -3672,6 +3673,15 @@ void tst_QWidget::windowMoveResize()
         QCOMPARE(widget.pos(), rect.topLeft());
         QCOMPARE(widget.size(), rect.size());
     }
+}
+
+void tst_QWidget::deleteStyle()
+{
+    QWidget widget;
+    widget.setStyle(new QWindowsStyle);
+    widget.show();
+    delete widget.style();
+    qApp->processEvents();
 }
 
 #ifdef Q_WS_WIN
