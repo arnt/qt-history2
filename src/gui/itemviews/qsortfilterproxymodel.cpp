@@ -745,13 +745,14 @@ void QSortFilterProxyModelPrivate::updateChildrenMapping(const QModelIndex &sour
         } else {
             // below the removed items -- recompute the index
             QModelIndex new_index;
+            const int newpos = remove ? pos - delta_item_count : pos + delta_item_count;
             if (orient == Qt::Vertical) {
-                new_index = model->index(pos - delta_item_count,
+                new_index = model->index(newpos,
                                          source_child_index.column(),
                                          source_parent);
             } else {
                 new_index = model->index(source_child_index.row(),
-                                         pos - delta_item_count,
+                                         newpos,
                                          source_parent);
             }
             *it2 = new_index;
