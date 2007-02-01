@@ -128,8 +128,6 @@ public:
     void setProxyModel(QAbstractProxyModel *model);
     QAbstractProxyModel *proxyModel() const;
 
-    bool event(QEvent *e);
-
 Q_SIGNALS:
     void filesSelected(const QStringList &files);
     void currentChanged(const QString &path);
@@ -221,6 +219,8 @@ protected:
     void done(int result);
     void accept();
     void timerEvent(QTimerEvent *event);
+    void changeEvent(QEvent *e);
+    bool event(QEvent *e);
 
 private:
     Q_DECLARE_PRIVATE(QFileDialog)
