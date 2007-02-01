@@ -472,9 +472,11 @@ void tst_QRegion::operator_minus_data()
     QTest::addColumn<QRegion>("subtract");
     QTest::addColumn<QRegion>("expected");
 
+#if !defined(Q_WS_X11) || QT_VERSION >= 0x040300
     QTest::newRow("empty 0") << QRegion() << QRegion() << QRegion();
     QTest::newRow("empty 1") << QRegion() << QRegion(QRect(10, 10, 10, 10))
                              << QRegion();
+#endif
     QTest::newRow("empty 2") << QRegion(QRect(10, 10, 10, 10)) << QRegion()
                              << QRegion(QRect(10, 10, 10, 10));
 
