@@ -925,7 +925,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CC_ScrollBar         A scroll bar, like QScrollBar.
     \value CC_Slider            A slider, like QSlider.
     \value CC_ToolButton        A tool button, like QToolButton.
-    \value CC_TitleBar          A Title bar, like what is used in QWorkspace.
+    \value CC_TitleBar          A Title bar, like those used in QWorkspace.
     \value CC_Q3ListView        Used for drawing the Q3ListView class.
     \value CC_GroupBox          A group box, like QGroupBox.
     \value CC_Dial              A dial, like QDial.
