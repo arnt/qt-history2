@@ -1641,9 +1641,14 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 if (!QApplicationPrivate::tryModalHelper(widget, &top) && top && widget != top && top->isVisible())
                     top->activateWindow();
             }
-            // Ensure nothing gets consider an auto-repeat press later
-            if (LOWORD(wParam) == WA_INACTIVE)
+            if (LOWORD(wParam) == WA_INACTIVE){
+                //If the focus widget is in the inactivated window, clear the focus 
+                QWidget *fw = QApplication::focusWidget();
+                if (fw && widget->isAncestorOf(fw))
+                    QApplicationPrivate::setFocusWidget(0, Qt::ActiveWindowFocusReason);
+                // Ensure nothing gets consider an auto-repeat press later
                 qt_keymapper_private()->clearRecordedKeys();
+            }
 	    break;
 
 #ifndef Q_OS_TEMP
