@@ -2577,6 +2577,7 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect)
         if (ctx.selections.at(i).format.boolProperty(QTextFormat::FullWidthSelection)) {
             ctx.clip.setLeft(0);
             ctx.clip.setWidth(INT_MAX);
+            break;
         }
 
     ctx.palette = d->palette;
