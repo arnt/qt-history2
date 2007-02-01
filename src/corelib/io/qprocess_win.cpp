@@ -104,11 +104,12 @@ private:
     bool quitNow;
     HANDLE writePipe;
     QByteArray data;
+    bool hasWritten;
 };
 
 
 QWindowsPipeWriter::QWindowsPipeWriter(HANDLE pipe, QObject * parent)
-  : QThread(parent), quitNow(false)
+    : QThread(parent), quitNow(false), hasWritten(false)
 {
 
     DuplicateHandle(GetCurrentProcess(), pipe, GetCurrentProcess(),
@@ -130,9 +131,11 @@ QWindowsPipeWriter::~QWindowsPipeWriter()
 bool QWindowsPipeWriter::waitForWrite(int msecs)
 {
     QMutexLocker locker(&lock);
-    if (data.isEmpty())
+    bool hadWritten = hasWritten;
+    hasWritten = false;
+    if (hadWritten)
         return true;
-    return waitCondition.wait(&lock, msecs);
+    return waitCondition.wait(&lock, msecs) && hasWritten;
 }
 
 qint64 QWindowsPipeWriter::write(const char *ptr, qint64 maxlen)
@@ -143,7 +146,7 @@ qint64 QWindowsPipeWriter::write(const char *ptr, qint64 maxlen)
     QMutexLocker locker(&lock);
     if (!data.isEmpty())
         return 0;
-    data = QByteArray(ptr, maxlen);
+    data.prepend(QByteArray(ptr, maxlen));
     waitCondition.wakeOne();
     return maxlen;
 }
@@ -192,6 +195,7 @@ void QWindowsPipeWriter::run()
 #endif
             lock.lock();
             data.remove(0, written);
+            hasWritten = true;
             lock.unlock();
         }
         emit canWrite();
@@ -724,11 +728,10 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
     QIncrementalSleepTimer timer(msecs);
 
     forever {
-
-        if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0))) {
-            _q_canWrite();
+        if (!writeBuffer.isEmpty() && !_q_canWrite())
+            return false;
+        if (pipeWriter && pipeWriter->waitForWrite(0))
             timer.resetIncrements();
-        }
 
         bool readyReadEmitted = false;
         if (bytesAvailableFromStdout() != 0) {
@@ -769,10 +772,17 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 
     QIncrementalSleepTimer timer(msecs);
 
+    bool dataPending = false;
     forever {
-
-        if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0)))
-            return _q_canWrite();
+        if (!dataPending && writeBuffer.isEmpty())
+            return false;
+        if (!dataPending) {
+            dataPending = !writeBuffer.isEmpty();
+            if (!_q_canWrite())
+                return false;
+        }
+        if (pipeWriter && pipeWriter->waitForWrite(0))
+            return true;
 
         if (bytesAvailableFromStdout() != 0) {
             _q_canReadStandardOutput();
@@ -811,10 +821,10 @@ bool QProcessPrivate::waitForFinished(int msecs)
     QIncrementalSleepTimer timer(msecs);
 
     forever {
-        if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0))) {
-            _q_canWrite();
+        if (!writeBuffer.isEmpty() && !_q_canWrite())
+            return false;
+        if (pipeWriter && pipeWriter->waitForWrite(0))
             timer.resetIncrements();
-        }
 
         if (bytesAvailableFromStdout() != 0) {
             _q_canReadStandardOutput();
@@ -855,8 +865,9 @@ void QProcessPrivate::findExitCode()
 
 void QProcessPrivate::flushPipeWriter()
 {
-    if (pipeWriter)
+    if (pipeWriter && pipeWriter->bytesToWrite() > 0) {
         pipeWriter->waitForWrite(ULONG_MAX);
+    }
 }
 
 qint64 QProcessPrivate::pipeWriterBytesToWrite() const
