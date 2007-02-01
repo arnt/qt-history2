@@ -113,6 +113,7 @@ private slots:
     void setGroup();
     void nestedGroups();
     void warpChildrenIntoGroup();
+    void removeFromGroup();
     void handlesChildEvents();
     void handlesChildEvents2();
     void ensureVisible();
@@ -2440,6 +2441,39 @@ void tst_QGraphicsItem::warpChildrenIntoGroup()
 
     QCOMPARE(childRectItem->mapToScene(50, 0), QPointF(25, 0));
     QCOMPARE(childRectItem->scenePos(), QPointF(25, -50));
+}
+
+void tst_QGraphicsItem::removeFromGroup()
+{
+    QGraphicsScene scene;
+    QGraphicsRectItem *rect1 = scene.addRect(QRectF(-100, -100, 200, 200));
+    QGraphicsRectItem *rect2 = scene.addRect(QRectF(100, 100, 200, 200));
+    rect1->setFlag(QGraphicsItem::ItemIsSelectable);
+    rect2->setFlag(QGraphicsItem::ItemIsSelectable);
+    rect1->setSelected(true);
+    rect2->setSelected(true);
+
+    QGraphicsView view(&scene);
+    view.show();
+
+    qApp->processEvents(); // index items
+    qApp->processEvents(); // emit changed
+
+    QGraphicsItemGroup *group = scene.createItemGroup(scene.selectedItems());
+    QVERIFY(group);
+    QCOMPARE(group->children().size(), 2);
+
+    qApp->processEvents(); // index items
+    qApp->processEvents(); // emit changed
+
+    scene.destroyItemGroup(group); // calls removeFromGroup.
+
+    qApp->processEvents(); // index items
+    qApp->processEvents(); // emit changed
+
+    QCOMPARE(scene.items().size(), 2);
+    QVERIFY(!rect1->group());
+    QVERIFY(!rect2->group());
 }
 
 class ChildEventTester : public QGraphicsRectItem
