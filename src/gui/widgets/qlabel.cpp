@@ -200,9 +200,8 @@ QLabel::QLabel(const QString &text, QWidget *parent, const char *name,
     buddy widget, \a buddy.
 
     If the \a text contains an underlined letter (a letter preceded by
-    an ampersand, \&), and the text is in plain text format, when the
-    user presses Alt+ the underlined letter, focus is passed to the
-    buddy widget.
+    an ampersand, \&), when the user presses Alt+ the underlined letter,
+    focus is passed to the buddy widget.
 
     The \a parent, \a name and widget flag, \a f, arguments are passed
     to the QFrame constructor.
@@ -282,8 +281,8 @@ void QLabelPrivate::init()
     The default setting is Qt::AutoText; i.e. QLabel will try to
     auto-detect the format of the text set.
 
-    If the text is interpreted as a plain text and a buddy has been
-    set, the buddy mnemonic key is updated from the new text.
+    If a buddy has been set, the buddy mnemonic key is updated
+    from the new text.
 
     The label resizes itself if auto-resizing is enabled.
 
@@ -1042,7 +1041,7 @@ void QLabelPrivate::updateLabel()
     the keyboard focus is transferred to the label's buddy widget.
 
     The buddy mechanism is only available for QLabels that contain
-    plain text in which one character is prefixed with an ampersand,
+    text in which one character is prefixed with an ampersand,
     '&'.  This character is set as the shortcut key. See the \l
     {QShortcut#mnemonic}{QShortcut} documentation for details (to
     display an actual ampersand, use '&&').
