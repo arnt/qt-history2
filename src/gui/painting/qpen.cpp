@@ -890,7 +890,8 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
         s << p.brush();
         s << double(p.miterLimit());
         s << p.dashPattern();
-        s << double(p.dashOffset());
+        if (s.version() >= 9)
+            s << double(p.dashOffset());
     }
     return s;
 }
@@ -926,7 +927,8 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
         s >> brush;
         s >> miterLimit;
         s >> dashPattern;
-        s >> dashOffset;
+        if (s.version() >= 9)
+            s >> dashOffset;
     }
 
     p.detach();
