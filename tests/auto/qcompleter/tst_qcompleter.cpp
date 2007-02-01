@@ -429,7 +429,7 @@ void tst_QCompleter::directoryModel_data()
 {
     delete completer;
     completer = new CsvCompleter;
-    completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+    completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
     setSourceModel(DIRECTORY_MODEL);
     completer->setCaseSensitivity(Qt::CaseInsensitive);
 
