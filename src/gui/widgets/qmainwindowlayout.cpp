@@ -244,8 +244,8 @@ QWidget *QMainWindowLayoutState::centralWidget() const
     return 0;
 }
 
-QList<int> QMainWindowLayoutState::gapIndex(QWidget *widget, const QPoint &pos,
-                                            bool dockNestingEnabled) const
+QList<int> QMainWindowLayoutState::gapIndex(QWidget *widget,
+                                            const QPoint &pos) const
 {
     QList<int> result;
 
@@ -260,9 +260,18 @@ QList<int> QMainWindowLayoutState::gapIndex(QWidget *widget, const QPoint &pos,
 #endif
 
 #ifndef QT_NO_DOCKWIDGET
+    bool dockNestingEnabled
+        = mainWindow->dockOptions() & QMainWindow::AllowNestedDocks;
+#ifndef QT_NO_TABBAR
+    bool tabsEnabled
+        = mainWindow->dockOptions() & QMainWindow::AllowTabbedDocks;
+#else
+    bool tabsEnabled = false;
+#endif
+
     // is it a dock widget?
     if (qobject_cast<QDockWidget *>(widget) != 0) {
-        result = dockAreaLayout.gapIndex(pos, dockNestingEnabled);
+        result = dockAreaLayout.gapIndex(pos, dockNestingEnabled, tabsEnabled);
         if (!result.isEmpty())
             result.prepend(1);
         return result;
@@ -1222,13 +1231,7 @@ QList<int> QMainWindowLayout::hover(QLayoutItem *widgetItem, const QPoint &mouse
     if (!savedState.isValid())
         savedState = layoutState;
 
-#ifdef QT_NO_DOCKWIDGET
-    bool dockNestingEnabled = false;
-#else
-    bool dockNestingEnabled = dockOptions & QMainWindow::AllowNestedDocks;
-#endif
-
-    QList<int> path = savedState.gapIndex(widget, pos, dockNestingEnabled);
+    QList<int> path = savedState.gapIndex(widget, pos);
 
     if (!path.isEmpty()) {
         bool allowed = false;

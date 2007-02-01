@@ -85,7 +85,7 @@ public:
     void setCentralWidget(QWidget *widget);
     QWidget *centralWidget() const;
 
-    QList<int> gapIndex(QWidget *widget, const QPoint &pos, bool dockNestingEnabled) const;
+    QList<int> gapIndex(QWidget *widget, const QPoint &pos) const;
     bool insertGap(QList<int> path, QLayoutItem *item);
     void remove(QList<int> path);
     void clear();
