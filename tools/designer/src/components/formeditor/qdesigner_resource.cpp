@@ -40,7 +40,6 @@
 #include <ui4_p.h>
 
 // sdk
-#include <QtDesigner/QtDesigner>
 
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
@@ -407,10 +406,7 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 
 
     ui_widget->setAttributeClass(className); // fix the class name
-
-    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), w)) {
-        extra->loadWidgetExtraInfo(ui_widget);
-    }
+    applyExtensionDataFromDOM(core(), ui_widget, w);
 
     return w;
 }
@@ -651,10 +647,7 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         if (widgetInfo->name() != w->attributeClass())
             w->setAttributeClass(widgetInfo->name());
     }
-
-    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), widget)) {
-        extra->saveWidgetExtraInfo(w);
-    }
+    addExtensionDataToDOM(core(), w, widget);
 
     return w;
 }

@@ -14,6 +14,7 @@
 #include "qdesigner_formbuilder_p.h"
 #include "qdesigner_widget_p.h"
 #include "dynamicpropertysheet.h"
+#include "qsimpleresource_p.h"
 
 // sdk
 #include <QtDesigner/extrainfo.h>
@@ -138,21 +139,14 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
 DomWidget *QDesignerFormBuilder::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive)
 {
     DomWidget *ui_widget = QFormBuilder::createDom(widget, ui_parentWidget, recursive);
-
-    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(m_core->extensionManager(), widget)) {
-        extra->saveWidgetExtraInfo(ui_widget);
-    }
-
+    QSimpleResource::addExtensionDataToDOM(m_core, ui_widget, widget);
     return ui_widget;
 }
 
 QWidget *QDesignerFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
     QWidget *widget = QFormBuilder::create(ui_widget, parentWidget);
-    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(m_core->extensionManager(), widget)) {
-        extra->loadWidgetExtraInfo(ui_widget);
-    }
-
+    QSimpleResource::applyExtensionDataFromDOM(m_core, ui_widget, widget);
     return widget;
 }
 

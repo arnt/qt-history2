@@ -44,6 +44,10 @@ public:
 
     inline QDesignerFormEditorInterface *core() const
     { return m_core; }
+    
+    // Query extensions for additional data
+    static void addExtensionDataToDOM(QDesignerFormEditorInterface *core, DomWidget *ui_widget, QWidget *widget);
+    static void applyExtensionDataFromDOM(QDesignerFormEditorInterface *core, DomWidget *ui_widget, QWidget *widget);
 
 protected:
     virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath);

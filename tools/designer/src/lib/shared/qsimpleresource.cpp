@@ -12,16 +12,26 @@
 ****************************************************************************/
 
 #include "qsimpleresource_p.h"
-#include <QtDesigner/QtDesigner>
 
-using namespace qdesigner_internal;
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerLanguageExtension>
+#include <QtDesigner/QDesignerIconCacheInterface>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/extrainfo.h>
 
-QSimpleResource::QSimpleResource(QDesignerFormEditorInterface *core)
-    : QAbstractFormBuilder(), m_core(core)
+#include <QtGui/QIcon>
+#include <QtGui/QWidget>
+
+namespace qdesigner_internal {
+
+QSimpleResource::QSimpleResource(QDesignerFormEditorInterface *core) :
+    QAbstractFormBuilder(),
+    m_core(core)
 {
-    setWorkingDirectory(QDir(QDir::homePath()
-                    + QDir::separator()
-                    + QLatin1String(".designer")));
+    QString workingDirectory = QDir::homePath();
+    workingDirectory +=  QDir::separator();
+    workingDirectory +=  QLatin1String(".designer");
+    setWorkingDirectory(QDir(workingDirectory));
 }
 
 QSimpleResource::~QSimpleResource()
@@ -115,3 +125,18 @@ QString QSimpleResource::pixmapToQrcPath(const QPixmap &pm) const
     return workingDirectory().relativeFilePath(qrc_path);
 }
 
+void QSimpleResource::addExtensionDataToDOM(QDesignerFormEditorInterface *core, DomWidget *ui_widget, QWidget *widget)
+{
+    QExtensionManager *emgr = core->extensionManager();
+    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(emgr, widget)) {
+        extra->saveWidgetExtraInfo(ui_widget);
+    }
+}
+
+void QSimpleResource::applyExtensionDataFromDOM(QDesignerFormEditorInterface *core, DomWidget *ui_widget, QWidget *widget)
+{
+    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core->extensionManager(), widget)) {
+        extra->loadWidgetExtraInfo(ui_widget);
+    }
+}
+}
