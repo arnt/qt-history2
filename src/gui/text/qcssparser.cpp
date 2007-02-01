@@ -618,6 +618,8 @@ static BorderStyle parseStyleValue(Value v)
     if (v.type == Value::KnownIdentifier) {
         if (v.variant.toInt() == Value_None)
             return BorderStyle_None;
+        else if (v.variant.toInt() == Value_Solid)
+            return BorderStyle_Solid;
         return BorderStyle_Unknown;
     }
 
