@@ -306,6 +306,7 @@ static bool operator<(const QCheckPoint &checkPoint, int pos)
 
 static void fillBackground(QPainter *p, const QRectF &rect, QBrush brush, QRectF gradientRect = QRectF())
 {
+    p->save();
     if (brush.style() >= Qt::LinearGradientPattern && brush.style() <= Qt::ConicalGradientPattern) {
         if (gradientRect.isNull())
             gradientRect = rect;
@@ -313,8 +314,11 @@ static void fillBackground(QPainter *p, const QRectF &rect, QBrush brush, QRectF
         m.translate(gradientRect.left(), gradientRect.top());
         m.scale(gradientRect.width(), gradientRect.height());
         brush.setTransform(m);
+    } else {
+        p->setBrushOrigin(rect.topLeft());
     }
     p->fillRect(rect, brush);
+    p->restore();
 }
 
 class QTextDocumentLayoutPrivate : public QAbstractTextDocumentLayoutPrivate
