@@ -6381,10 +6381,13 @@ void QGraphicsItemGroup::removeFromGroup(QGraphicsItem *item)
     QGraphicsItem *newParent = parentItem();
     QPointF oldPos = item->mapToItem(newParent, 0, 0);
     item->setParentItem(newParent);
+    // ### This function should remap the item's matrix to keep the item's
+    // transformation unchanged relative to the scene.
     item->setPos(oldPos);
     item->d_func()->setIsMemberOfGroup(item->group() != 0);
 
     // ### Quite expensive. But removeFromGroup() isn't called very often.
+    prepareGeometryChange();
     d->itemsBoundingRect = childrenBoundingRect();
 }
 
