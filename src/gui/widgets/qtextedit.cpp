@@ -1677,7 +1677,7 @@ void QTextEdit::setTabStopWidth(int width)
 {
     Q_D(QTextEdit);
     QTextOption opt = d->control->document()->defaultTextOption();
-    if (opt.tabStop() == width)
+    if (opt.tabStop() == width || width < 0)
         return;
     opt.setTabStop(width);
     d->control->document()->setDefaultTextOption(opt);
