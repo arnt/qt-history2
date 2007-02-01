@@ -59,6 +59,7 @@ public:
 class QDBusAdaptorConnector: public QObject
 {
 public: // Q_OBJECT
+    Q_OBJECT_CHECK
     static const QMetaObject staticMetaObject;
     virtual const QMetaObject *metaObject() const;
     virtual void *qt_metacast(const char *);
