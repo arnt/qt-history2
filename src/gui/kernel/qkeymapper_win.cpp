@@ -399,7 +399,7 @@ static const Qt::KeyboardModifiers ModsTbl[] = {
 };
 
 // Translate a VK into a Qt key code, or unicode character
-static inline int toKeyOrUnicode(int vk, int scancode, unsigned char *kbdBuffer)
+static inline int toKeyOrUnicode(int vk, int scancode, unsigned char *kbdBuffer, bool *isDeadkey = 0)
 {
     Q_ASSERT(vk > 0 && vk < 256);
     int code = 0;
@@ -417,6 +417,9 @@ static inline int toKeyOrUnicode(int vk, int scancode, unsigned char *kbdBuffer)
     // proper Qt::Key_ code
     if (code < 0x20 || code == 0x7f) // Handles res==0 too
         code = KeyTbl[vk];
+
+    if (isDeadkey)
+        *isDeadkey = (res == -1);
 
     return code == Qt::Key_unknown ? 0 : code;
 }
@@ -544,6 +547,7 @@ public:
 */
 struct KeyboardLayoutItem {
     bool dirty;
+    quint8 deadkeys;
     quint32 qtKey[9]; // Can by any Qt::Key_<foo>, or unicode character
 };
 
@@ -650,23 +654,33 @@ void QKeyMapperPrivate::updatePossibleKeyCodes(unsigned char *kbdBuffer, quint32
     buffer[VK_RCONTROL] = 0;
     buffer[VK_LMENU   ] = 0; // Use right Alt, since left Ctrl + right Alt is considered AltGraph
 
+    bool isDeadKey = false;
+    keyLayout[vk_key]->deadkeys = 0;
     keyLayout[vk_key]->dirty = false;
     setKbdState(buffer, false, false, false);
-    keyLayout[vk_key]->qtKey[0] = toKeyOrUnicode(vk_key, scancode, buffer);
+    keyLayout[vk_key]->qtKey[0] = toKeyOrUnicode(vk_key, scancode, buffer, &isDeadKey);
+    keyLayout[vk_key]->deadkeys |= isDeadKey ? 0x01 : 0;
     setKbdState(buffer, true, false, false);
-    keyLayout[vk_key]->qtKey[1] = toKeyOrUnicode(vk_key, scancode, buffer);
+    keyLayout[vk_key]->qtKey[1] = toKeyOrUnicode(vk_key, scancode, buffer, &isDeadKey);
+    keyLayout[vk_key]->deadkeys |= isDeadKey ? 0x02 : 0;
     setKbdState(buffer, false, true, false);
-    keyLayout[vk_key]->qtKey[2] = toKeyOrUnicode(vk_key, scancode, buffer);
+    keyLayout[vk_key]->qtKey[2] = toKeyOrUnicode(vk_key, scancode, buffer, &isDeadKey);
+    keyLayout[vk_key]->deadkeys |= isDeadKey ? 0x04 : 0;
     setKbdState(buffer, true, true, false);
-    keyLayout[vk_key]->qtKey[3] = toKeyOrUnicode(vk_key, scancode, buffer);
+    keyLayout[vk_key]->qtKey[3] = toKeyOrUnicode(vk_key, scancode, buffer, &isDeadKey);
+    keyLayout[vk_key]->deadkeys |= isDeadKey ? 0x08 : 0;
     setKbdState(buffer, false, false, true);
-    keyLayout[vk_key]->qtKey[4] = toKeyOrUnicode(vk_key, scancode, buffer);
+    keyLayout[vk_key]->qtKey[4] = toKeyOrUnicode(vk_key, scancode, buffer, &isDeadKey);
+    keyLayout[vk_key]->deadkeys |= isDeadKey ? 0x10 : 0;
     setKbdState(buffer, true, false, true);
-    keyLayout[vk_key]->qtKey[5] = toKeyOrUnicode(vk_key, scancode, buffer);
+    keyLayout[vk_key]->qtKey[5] = toKeyOrUnicode(vk_key, scancode, buffer, &isDeadKey);
+    keyLayout[vk_key]->deadkeys |= isDeadKey ? 0x20 : 0;
     setKbdState(buffer, false, true, true);
-    keyLayout[vk_key]->qtKey[6] = toKeyOrUnicode(vk_key, scancode, buffer);
+    keyLayout[vk_key]->qtKey[6] = toKeyOrUnicode(vk_key, scancode, buffer, &isDeadKey);
+    keyLayout[vk_key]->deadkeys |= isDeadKey ? 0x40 : 0;
     setKbdState(buffer, true, true, true);
-    keyLayout[vk_key]->qtKey[7] = toKeyOrUnicode(vk_key, scancode, buffer);
+    keyLayout[vk_key]->qtKey[7] = toKeyOrUnicode(vk_key, scancode, buffer, &isDeadKey);
+    keyLayout[vk_key]->deadkeys |= isDeadKey ? 0x80 : 0;
     // Add a fall back key for layouts which don't do composition and show non-latin1 characters
     int fallbackKey = KeyTbl[vk_key];
     if (!fallbackKey || fallbackKey == Qt::Key_unknown) {
@@ -693,12 +707,24 @@ void QKeyMapperPrivate::updatePossibleKeyCodes(unsigned char *kbdBuffer, quint32
 #ifdef DEBUG_KEYMAPPER
     qDebug("updatePossibleKeyCodes for virtual key = 0x%02x!", vk_key);
     for (int i = 0; i < 9; ++i) {
-        qDebug("    [%d] (%d,0x%02x,'%c')", i,
+        qDebug("    [%d] (%d,0x%02x,'%c')  %s", i,
                keyLayout[vk_key]->qtKey[i],
                keyLayout[vk_key]->qtKey[i],
-               keyLayout[vk_key]->qtKey[i]);
+               keyLayout[vk_key]->qtKey[i] ? keyLayout[vk_key]->qtKey[i] : 0x03,
+               keyLayout[vk_key]->deadkeys & (1<<i) ? "deadkey" : "");
     }
 #endif // DEBUG_KEYMAPPER
+}
+
+bool QKeyMapperPrivate::isADeadKey(unsigned int vk_key, unsigned int modifiers)
+{
+    if (keyLayout && keyLayout[vk_key]) {
+        for(register int i = 0; i < 9; ++i) {
+            if (ModsTbl[i] == modifiers)
+                return bool(keyLayout[vk_key]->deadkeys & 1<<i);
+        }
+    }
+    return false;
 }
 
 QList<int> QKeyMapperPrivate::possibleKeys(QKeyEvent *e)
@@ -733,7 +759,6 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
 
     quint32 scancode = (msg.lParam >> 16) & 0xfff;
     quint32 vk_key = MapVirtualKey(scancode, 1);
-    bool isDeadKey = MapVirtualKey(msg.wParam, 2) & 0x80008000; // High-order on 95 is 0x8000
     bool isNumpad = (msg.wParam >= VK_NUMPAD0 && msg.wParam <= VK_NUMPAD9);
     quint32 nModifiers = 0;
 
@@ -765,6 +790,10 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
     state |= (nModifiers & ControlAny ? Qt::ControlModifier : 0);
     state |= (nModifiers & AltAny ? Qt::AltModifier : 0);
     state |= (nModifiers & MetaAny ? Qt::MetaModifier : 0);
+
+    // Now we know enough to either have MapVirtualKey or our own keymap tell us if it's a deadkey
+    bool isDeadKey = isADeadKey(msg.wParam, state)
+                     || MapVirtualKey(msg.wParam, 2) & 0x80008000; // High-order on 95 is 0x8000
 
     // A multi-character key not found by our look-ahead
     if (msgType == WM_CHAR) {

@@ -118,6 +118,7 @@ public:
     void updateKeyMap(const MSG &msg);
     bool translateKeyEvent(QWidget *receiver, const MSG &msg, bool grab);
     void updatePossibleKeyCodes(unsigned char *kbdBuffer, quint32 scancode, quint32 vk_key);
+    bool isADeadKey(unsigned int vk_key, unsigned int modifiers);
 
     KeyboardLayoutItem *keyLayout[256];
 
