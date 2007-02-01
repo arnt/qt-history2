@@ -1008,6 +1008,16 @@ void tst_QMdiArea::tileSubWindows()
         workspace.addSubWindow(new QWidget)->show();
     workspace.tileSubWindows();
     QCOMPARE(workspace.viewport()->childrenRect(), workspace.viewport()->rect());
+
+    QList<QMdiSubWindow *> windows = workspace.subWindowList();
+    for (int i = 0; i < windowCount; ++i) {
+        QMdiSubWindow *window = windows.at(i);
+        for (int j = 0; j < windowCount; ++j) {
+            if (i == j)
+                continue;
+            QVERIFY(!window->geometry().intersects(windows.at(j)->geometry()));
+        }
+    }
 }
 
 void tst_QMdiArea::cascadeAndTileSubWindows()
