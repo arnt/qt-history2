@@ -3414,7 +3414,7 @@ bool QSvgHandler::processingInstruction(const QString &target, const QString &da
     return true;
 }
 
-void QSvgHandler::setAnimPeriod(int start, int end)
+void QSvgHandler::setAnimPeriod(int /* start */, int end)
 {
     Q_UNUSED(start);
     m_animEnd   = qMax(end, m_animEnd);
