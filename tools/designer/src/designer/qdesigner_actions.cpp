@@ -41,9 +41,8 @@
 #include <QtAssistant/QAssistantClient>
 
 #include <QtGui/QAction>
-#include <QtGui/QStyleFactory>
-#include <QtGui/QAction>
 #include <QtGui/QActionGroup>
+#include <QtGui/QStyleFactory>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMenu>
@@ -418,16 +417,24 @@ bool QDesignerActions::openForm()
 
 bool QDesignerActions::saveFormAs(QDesignerFormWindowInterface *fw)
 {
-    QString extension = getFileExtension(core());
+    const QString extension = getFileExtension(core());
 
     QString dir = fw->fileName();
     if (dir.isEmpty()) {
-        if (!m_saveDirectory.isEmpty() || !m_openDirectory.isEmpty()) {
-            dir = m_saveDirectory.isEmpty() ? m_openDirectory + QLatin1String("/untitled.") :
-                  m_saveDirectory + QLatin1String("/untitled.") ;
-        } else {
-            dir = QDir::current().absolutePath() + QLatin1String("/untitled.");
-        }
+        do {
+            // Build untitled name
+            if (!m_saveDirectory.isEmpty()) {
+                dir = m_saveDirectory;
+                break;
+            }
+            if (!m_openDirectory.isEmpty()) {
+                dir = m_openDirectory;
+                break;
+            }
+            dir = QDir::current().absolutePath();
+        } while (false);
+        dir += QDir::separator();
+        dir += QLatin1String("untitled.");
         dir += extension;
     }
 
@@ -552,46 +559,36 @@ void QDesignerActions::previewFormLater(QAction *action)
 }
 
 void QDesignerActions::previewForm(QAction *action)
-{
-    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
-        qdesigner_internal::QDesignerFormBuilder builder(core());
-        builder.setWorkingDirectory(fw->absoluteDir());
-
-        QByteArray bytes = fw->contents().toUtf8();
-        QBuffer buffer(&bytes);
-
-        QWidget *widget = builder.load(&buffer, 0);
-        Q_ASSERT(widget);
-
-        widget->setParent(fw->window(), (widget->windowType() == Qt::Window) ?
-                                         Qt::Window | Qt::WindowMaximizeButtonHint :
-                                         Qt::Dialog);
-#ifndef Q_WS_MAC
-        widget->setWindowModality(Qt::ApplicationModal);
-#endif
-        widget->setAttribute(Qt::WA_DeleteOnClose, true);
-        widget->move(fw->window()->mapToGlobal(QPoint(0, 0)) + QPoint(10, 10));
-
-        // Apply style stored in action if any
-        if (action) {
-            const QVariant data = action->data();
-            if (data.type() == QVariant::String) {
-                if (QStyle *style = QStyleFactory::create(data.toString())) {
-                    style->setParent(widget);
-                    widget->setStyle(style);
-                    if (style->metaObject()->className() != QApplication::style()->metaObject()->className())
-                        widget->setPalette(style->standardPalette());
-                    
-                    const QList<QWidget*> lst = qFindChildren<QWidget*>(widget);
-                    foreach (QWidget *w, lst)
-                        w->setStyle(style);
-                }
-            }
-        }
-        widget->setWindowTitle(tr("%1 - [Preview]").arg(widget->windowTitle()));
-        widget->installEventFilter(this);
-        widget->show();
+{    
+    QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow();
+    if (!fw)
+        return;
+    
+    // Get style stored in action if any
+    QString styleName;
+    if (action) {
+        const QVariant data = action->data();
+        if (data.type() == QVariant::String)
+            styleName = data.toString();
     }
+
+    // create and have form builder display errors.
+    QWidget *widget =  qdesigner_internal::QDesignerFormBuilder::createPreview(fw, styleName);
+    if (!widget) 
+        return;
+    
+    // Install filter for Escape key
+    widget->setParent(fw->window(), (widget->windowType() == Qt::Window) ?
+                      Qt::Window | Qt::WindowMaximizeButtonHint :
+                      Qt::Dialog);
+#ifndef Q_WS_MAC
+    widget->setWindowModality(Qt::ApplicationModal);
+#endif
+    widget->setAttribute(Qt::WA_DeleteOnClose, true);
+    widget->move(fw->window()->mapToGlobal(QPoint(0, 0)) + QPoint(10, 10));
+
+    widget->installEventFilter(this);
+    widget->show();
 }
 
 void QDesignerActions::fixActionContext()

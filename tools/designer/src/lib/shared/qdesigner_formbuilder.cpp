@@ -21,7 +21,8 @@
 #include <QtDesigner/customwidget.h>
 #include <QtDesigner/propertysheet.h>
 #include <QtDesigner/QExtensionManager>
-#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/abstracticoncache.h>
 #include "ui4_p.h"
 
@@ -35,6 +36,10 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QMenuBar>
 #include <QtGui/QMainWindow>
+#include <QtGui/QStyleFactory>
+#include <QtGui/QStyle>
+#include <QtGui/QApplication>
+#include <QtGui/QMessageBox>
 
 #include <QtCore/QBuffer>
 #include <QtCore/qdebug.h>
@@ -161,4 +166,57 @@ void QDesignerFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, 
     QFormBuilder::loadExtraInfo(ui_widget, widget, parentWidget);
 }
 
+QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface *fw,
+                                             const QString &styleName,
+                                             QString *errorMessage)
+{
+    // style
+    QStyle *style = 0;
+    if (!styleName.isEmpty()) {
+        style = QStyleFactory::create(styleName);
+        if (!style) {
+            *errorMessage = QObject::tr("The style %1 could not be loaded.").arg(styleName);
+            return 0;
+        }
+    }
+          
+    // load
+    QDesignerFormBuilder builder(fw->core());
+    builder.setWorkingDirectory(fw->absoluteDir());
+
+    QByteArray bytes = fw->contents().toUtf8();
+    QBuffer buffer(&bytes);
+
+
+    QWidget *widget = builder.load(&buffer, 0);
+    if (!widget) { // Shouldn't happen
+        *errorMessage = QObject::tr("The preview failed to build.");
+        return  0;
+    }
+
+    // Apply style stored in action if any
+    if (style) {
+        style->setParent(widget);
+        widget->setStyle(style);
+        if (style->metaObject()->className() != QApplication::style()->metaObject()->className())
+            widget->setPalette(style->standardPalette());
+        
+        const QList<QWidget*> lst = qFindChildren<QWidget*>(widget);
+        foreach (QWidget *w, lst)
+            w->setStyle(style);
+    }
+    widget->setWindowTitle(QObject::tr("%1 - [Preview]").arg(widget->windowTitle()));
+    return widget;
+}
+    
+QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface *fw, const QString &styleName) 
+{
+    QString errorMessage;
+    QWidget *widget = createPreview(fw, styleName, &errorMessage);
+    if (!widget) {
+        QMessageBox::critical(fw->core()->topLevel(), QObject::tr("Designer"), errorMessage);
+        return 0;
+    }    
+    return widget;
+}
 } // namespace qdesigner_internal
