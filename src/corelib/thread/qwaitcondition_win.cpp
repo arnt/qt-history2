@@ -140,12 +140,15 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 
 void QWaitCondition::wakeOne()
 {
-    // wake up the first thread in the queue
+    // wake up the first waiting thread in the queue
     QMutexLocker locker(&d->mtx);
-    if (!d->queue.isEmpty()) {
-        QWaitConditionEvent *first = d->queue.first();
-        SetEvent(first->event);
-        first->wokenUp = true;
+    for (int i = 0; i < d->queue.size(); ++i) {
+        QWaitConditionEvent *current = d->queue.at(i);
+        if (current->wokenUp)
+            continue;
+        SetEvent(current->event);
+        current->wokenUp = true;
+        break;
     }
 }
 
