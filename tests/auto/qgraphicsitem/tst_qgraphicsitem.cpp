@@ -1471,7 +1471,23 @@ void tst_QGraphicsItem::shape()
     path = QPainterPath();
     path.addRegion(region);
 
-    QCOMPARE(pixmapItem.shape(), path);
+    {
+        QBitmap bitmap(300, 200);
+        bitmap.clear();
+        QPainter painter(&bitmap);
+        painter.setClipRegion(region);
+        painter.fillRect(0, 0, 300, 200, Qt::color1);
+        painter.end();
+
+        QBitmap bitmap2(300, 200);
+        bitmap2.clear();
+        painter.begin(&bitmap2);
+        painter.setClipPath(pixmapItem.shape());
+        painter.fillRect(0, 0, 300, 200, Qt::color1);
+        painter.end();
+
+        QCOMPARE(bitmap.toImage(), bitmap2.toImage());
+    }
 
     QPolygonF poly;
     poly << QPointF(0, 0) << QPointF(10, 0) << QPointF(0, 10);
