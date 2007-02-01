@@ -154,6 +154,7 @@ private slots:
 
     void setLocale();
     void deleteStyle();
+    void multipleToplevelFocusCheck();
 
 private:
     QWidget *testWidget;
@@ -3696,5 +3697,69 @@ void tst_QWidget::getDC()
     widget.releaseDC(dc);
 }
 #endif
+
+class TopLevelFocusCheck: public QWidget
+{
+    Q_OBJECT
+public:
+    QLineEdit* edit;
+    TopLevelFocusCheck(QWidget* parent = 0) : QWidget(parent)
+    {
+        edit = new QLineEdit(this);
+        edit->hide();
+        edit->installEventFilter(this);
+    }
+    
+public slots:
+    void mouseDoubleClickEvent ( QMouseEvent * event )
+    {
+        edit->show();
+        edit->setFocus(Qt::OtherFocusReason);
+        qApp->processEvents();
+    }
+    bool eventFilter(QObject *obj, QEvent *event)
+    {
+        if (obj == edit && event->type()== QEvent::FocusOut) {
+            edit->hide();
+            return true;
+        }
+        return false;
+    }
+};
+
+void tst_QWidget::multipleToplevelFocusCheck()
+{
+    TopLevelFocusCheck w1;
+    TopLevelFocusCheck w2;
+
+    w1.resize(200, 200);
+    w1.show();
+    w2.resize(200,200);
+    w2.show();
+
+    w1.activateWindow();
+    QApplication::setActiveWindow(&w1);
+    QTest::mouseDClick(&w1, Qt::LeftButton);
+    QVERIFY((QApplication::focusWidget(), w1.edit)); 
+
+    w2.activateWindow();
+    QApplication::setActiveWindow(&w2);
+    QTest::mouseClick(&w2, Qt::LeftButton);
+    QVERIFY((QApplication::focusWidget() == 0)); 
+
+    QTest::mouseDClick(&w2, Qt::LeftButton);
+    QVERIFY((QApplication::focusWidget() == w2.edit)); 
+
+    w1.activateWindow();
+    QApplication::setActiveWindow(&w1);
+    QTest::mouseDClick(&w1, Qt::LeftButton);
+    QVERIFY((QApplication::focusWidget(), w1.edit)); 
+
+    w2.activateWindow();
+    QApplication::setActiveWindow(&w2);
+    QTest::mouseClick(&w2, Qt::LeftButton);
+    QVERIFY((QApplication::focusWidget() == 0)); 
+}
+
 QTEST_MAIN(tst_QWidget)
 #include "tst_qwidget.moc"
