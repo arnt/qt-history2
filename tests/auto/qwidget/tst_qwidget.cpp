@@ -3740,25 +3740,25 @@ void tst_QWidget::multipleToplevelFocusCheck()
     w1.activateWindow();
     QApplication::setActiveWindow(&w1);
     QTest::mouseDClick(&w1, Qt::LeftButton);
-    QVERIFY((QApplication::focusWidget(), w1.edit)); 
+    QCOMPARE(QApplication::focusWidget(), w1.edit); 
 
     w2.activateWindow();
     QApplication::setActiveWindow(&w2);
     QTest::mouseClick(&w2, Qt::LeftButton);
-    QVERIFY((QApplication::focusWidget() == 0)); 
+    QCOMPARE(QApplication::focusWidget(), (QWidget *)0); 
 
     QTest::mouseDClick(&w2, Qt::LeftButton);
-    QVERIFY((QApplication::focusWidget() == w2.edit)); 
+    QCOMPARE(QApplication::focusWidget(), w2.edit); 
 
     w1.activateWindow();
     QApplication::setActiveWindow(&w1);
     QTest::mouseDClick(&w1, Qt::LeftButton);
-    QVERIFY((QApplication::focusWidget(), w1.edit)); 
+    QCOMPARE(QApplication::focusWidget(), w1.edit); 
 
     w2.activateWindow();
     QApplication::setActiveWindow(&w2);
     QTest::mouseClick(&w2, Qt::LeftButton);
-    QVERIFY((QApplication::focusWidget() == 0)); 
+    QCOMPARE(QApplication::focusWidget(), (QWidget *)0); 
 }
 
 QTEST_MAIN(tst_QWidget)
