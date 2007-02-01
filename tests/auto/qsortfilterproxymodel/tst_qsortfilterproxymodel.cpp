@@ -56,6 +56,7 @@ private slots:
     
     void insertRows_data();
     void insertRows();
+    void prependRow();
 //     void insertColumns_data();
 //     void insertColumns();
     void removeRows_data();
@@ -547,6 +548,32 @@ void tst_QSortFilterProxyModel::insertRows()
         QCOMPARE(m_proxy->data(index, Qt::DisplayRole).toString(), expected.at(row));
     }
 }
+
+void tst_QSortFilterProxyModel::prependRow()
+{
+    //this tests that data is correctly handled by the sort filter when prepending a row
+    QStandardItemModel model;
+	QSortFilterProxyModel proxy;
+    proxy.setSourceModel(&model);
+
+    QStandardItem item("root");
+    model.appendRow(&item);
+
+    QStandardItem sub("sub");
+    item.appendRow(&sub);
+
+    sub.appendRow(new QStandardItem("test1"));
+    sub.appendRow(new QStandardItem("test2"));
+
+    QStandardItem sub2("sub2");
+    sub2.appendRow(new QStandardItem("sub3"));
+    item.insertRow(0, &sub2);
+    
+    QModelIndex index_sub2 = proxy.mapFromSource(model.indexFromItem(&sub2));
+
+    QCOMPARE(sub2.rowCount(), proxy.rowCount(index_sub2));
+}
+
 
 /*
 void tst_QSortFilterProxyModel::insertColumns_data()

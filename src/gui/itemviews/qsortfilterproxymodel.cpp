@@ -193,6 +193,9 @@ public:
     void handle_filter_changed(
         QVector<int> &source_to_proxy, QVector<int> &proxy_to_source,
         const QModelIndex &source_parent, Qt::Orientation orient);
+
+    void updateChildrenMapping(const QModelIndex &source_parent, Mapping *parent_mapping,
+                               Qt::Orientation orient, int start, int end, int delta_item_count, bool remove);
 };
 
 typedef QMap<QModelIndex, QSortFilterProxyModelPrivate::Mapping *> IndexMap;
@@ -610,6 +613,9 @@ void QSortFilterProxyModelPrivate::source_items_inserted(
 
     int delta_item_count = end - start + 1;
     int old_item_count = source_to_proxy.size();
+
+    updateChildrenMapping(source_parent, m, orient, start, end, delta_item_count, false);
+
     // Expand source-to-proxy mapping to account for new items
     source_to_proxy.insert(start, delta_item_count, -1);
 
@@ -710,20 +716,31 @@ void QSortFilterProxyModelPrivate::source_items_removed(
     }
     build_source_to_proxy_mapping(proxy_to_source, source_to_proxy);
 
+    updateChildrenMapping(source_parent, m, orient, start, end, delta_item_count, true);
+
+}
+
+
+/*!
+  \internal
+  updates the mapping of the children when inserting or removing items
+*/
+void QSortFilterProxyModelPrivate::updateChildrenMapping(const QModelIndex &source_parent, Mapping *parent_mapping,
+                                                         Qt::Orientation orient, int start, int end, int delta_item_count, bool remove)
+{
     // see if any mapped children should be (re)moved
-    QVector<QModelIndex>::iterator it2 = m->mapped_children.begin();
-    for ( ; it2 != m->mapped_children.end(); ) {
+    QVector<QModelIndex>::iterator it2 = parent_mapping->mapped_children.begin();
+    for ( ; it2 != parent_mapping->mapped_children.end();) {
         const QModelIndex source_child_index = *it2;
         const int pos = (orient == Qt::Vertical)
                         ? source_child_index.row()
                         : source_child_index.column();
         if (pos < start) {
-            // not affected by removal
+            // not affected
             ++it2;
-            continue;
-        } else if (pos <= end) {
+        } else if (remove && pos <= end) {
             // in the removed interval
-            it2 = m->mapped_children.erase(it2);
+            it2 = parent_mapping->mapped_children.erase(it2);
             remove_from_mapping(source_child_index);
         } else {
             // below the removed items -- recompute the index
