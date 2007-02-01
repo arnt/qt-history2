@@ -699,6 +699,11 @@ qint64 QFSFileEnginePrivate::nativeRead(char *data, qint64 maxlen)
 
     if (fh || fd != -1) {
         // stdio / stdlib mode.
+        if (fh && nativeIsSequential() && feof(fh)) {
+            q->setError(QFile::ReadError, qt_error_string(int(errno)));
+            return -1;
+        }
+
         return readFdFh(data, maxlen);
     }
 
