@@ -21,6 +21,7 @@
 class QTextEdit;
 class QStackedWidget;
 class QToolBox;
+class QMdiArea;
 
 class QAccessibleTextEdit : public QAccessibleWidgetEx
 {
@@ -62,6 +63,7 @@ protected:
 
 class QAccessibleToolBox : public QAccessibleWidgetEx
 {
+public:
     explicit QAccessibleToolBox(QWidget *widget);
 
     QString text(Text textType, int child) const;
@@ -74,6 +76,21 @@ class QAccessibleToolBox : public QAccessibleWidgetEx
 
 protected:
     QToolBox *toolBox() const;
+};
+
+class QAccessibleMdiArea : public QAccessibleWidgetEx
+{
+public:
+    explicit QAccessibleMdiArea(QWidget *widget);
+
+    State state(int child) const;
+    QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
+    int childCount() const;
+    int indexOfChild(const QAccessibleInterface *child) const;
+    int navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const;
+
+protected:
+    QMdiArea *mdiArea() const;
 };
 
 #endif // QT_NO_ACCESSIBILITY

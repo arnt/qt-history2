@@ -20,10 +20,89 @@
 #include "qdebug.h"
 #include <QStackedWidget>
 #include <QToolBox>
+#include <QMdiArea>
+#include <QMdiSubWindow>
 
 #ifndef QT_NO_ACCESSIBILITY
 
 #ifndef QT_NO_TEXTEDIT
+
+static inline int distance(QMdiSubWindow *source, QMdiSubWindow *target,
+                           QAccessible::RelationFlag relation)
+{
+    if (!source || !target)
+        return -1;
+
+    int returnValue = -1;
+    switch (relation) {
+    case QAccessible::Up:
+        if (target->y() <= source->y())
+            returnValue = source->y() - target->y();
+        break;
+    case QAccessible::Down:
+        if (target->y() >= source->y() + source->height())
+            returnValue = target->y() - (source->y() + source->height());
+        break;
+    case QAccessible::Right:
+        if (target->x() >= source->x() + source->width())
+            returnValue = target->x() - (source->x() + source->width());
+        break;
+    case QAccessible::Left:
+        if (target->x() <= source->x())
+            returnValue = source->x() - target->x();
+        break;
+    default:
+        break;
+    }
+    return returnValue;
+}
+
+static inline QMdiSubWindow *mdiAreaNavigate(QMdiArea *mdiArea,
+                                             QAccessible::RelationFlag relation, int entry)
+{
+    if (!mdiArea)
+        return 0;
+
+    QList<QMdiSubWindow *> windows = mdiArea->subWindowList();
+    if (windows.isEmpty() || entry < 1 || entry > windows.count())
+        return 0;
+
+    QMdiSubWindow *source = windows.at(entry - 1);
+    QMap<int, QMdiSubWindow *> candidates;
+    foreach (QMdiSubWindow *window, windows) {
+        if (source == window)
+            continue;
+        int candidateDistance = distance(source, window, relation);
+        if (candidateDistance >= 0)
+            candidates.insert(candidateDistance, window);
+    }
+
+    int minimumDistance = INT_MAX;
+    QMdiSubWindow *target = 0;
+    foreach (QMdiSubWindow *candidate, candidates.values()) {
+        switch (relation) {
+        case QAccessible::Up:
+        case QAccessible::Down:
+            if (qAbs(candidate->x() - source->x()) < minimumDistance) {
+                target = candidate;
+                minimumDistance = qAbs(candidate->x() - source->x());
+            }
+            break;
+        case QAccessible::Left:
+        case QAccessible::Right:
+            if (qAbs(candidate->y() - source->y()) < minimumDistance) {
+                target = candidate;
+                minimumDistance = qAbs(candidate->y() - source->y());
+            }
+            break;
+        default:
+            break;
+        }
+        if (minimumDistance == 0)
+            break;
+    }
+    return target;
+}
 
 /*!
   \class QAccessibleTextEdit qaccessiblewidget.h
@@ -318,4 +397,75 @@ QToolBox * QAccessibleToolBox::toolBox() const
 }
 #endif // QT_NO_TOOLBOX
 
+// ======================= QAccessibleMdiArea ======================
+QAccessibleMdiArea::QAccessibleMdiArea(QWidget *widget)
+    : QAccessibleWidgetEx(widget, LayeredPane)
+{
+    Q_ASSERT(qobject_cast<QMdiArea *>(widget));
+}
+
+QAccessible::State QAccessibleMdiArea::state(int child) const
+{
+    if (child < 0)
+        return QAccessibleWidgetEx::state(child);
+    if (child == 0)
+        return QAccessible::Normal;
+    QList<QMdiSubWindow *> subWindows = mdiArea()->subWindowList();
+    if (subWindows.isEmpty() || child > subWindows.count())
+        return QAccessibleWidgetEx::state(child);
+    if (subWindows.at(child - 1) == mdiArea()->activeSubWindow())
+        return QAccessible::Focused;
+    return QAccessible::Normal;
+}
+
+QVariant QAccessibleMdiArea::invokeMethodEx(QAccessible::Method, int, const QVariantList &)
+{
+    return QVariant();
+}
+
+int QAccessibleMdiArea::childCount() const
+{
+    return mdiArea()->subWindowList().count();
+}
+
+int QAccessibleMdiArea::indexOfChild(const QAccessibleInterface *child) const
+{
+    if (!child || !child->object() || mdiArea()->subWindowList().isEmpty())
+        return -1;
+    if (QMdiSubWindow *window = qobject_cast<QMdiSubWindow *>(child->object())) {
+        int index = mdiArea()->subWindowList().indexOf(window);
+        if (index != -1)
+            return ++index;
+    }
+    return -1;
+}
+
+int QAccessibleMdiArea::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
+{
+    *target = 0;
+    QMdiSubWindow *targetObject = 0;
+    QList<QMdiSubWindow *> subWindows = mdiArea()->subWindowList();
+    switch (relation) {
+    case Child:
+        if (entry < 1 || subWindows.isEmpty() || entry > subWindows.count())
+            return -1;
+        targetObject = subWindows.at(entry - 1);
+        break;
+    case Up:
+    case Down:
+    case Left:
+    case Right:
+        targetObject = mdiAreaNavigate(mdiArea(), relation, entry);
+        break;
+    default:
+        return QAccessibleWidgetEx::navigate(relation, entry, target);
+    }
+    *target = QAccessible::queryAccessibleInterface(targetObject);
+    return indexOfChild(*target);
+}
+
+QMdiArea *QAccessibleMdiArea::mdiArea() const
+{
+    return static_cast<QMdiArea *>(object());
+}
 #endif // QT_NO_ACCESSIBILITY
