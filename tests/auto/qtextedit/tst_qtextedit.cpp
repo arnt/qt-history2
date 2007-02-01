@@ -976,11 +976,11 @@ void tst_QTextEdit::undoRedoShouldRepositionTextEditCursor()
 void tst_QTextEdit::lineWrapModes()
 {
     ed->setLineWrapMode(QTextEdit::NoWrap);
-    QCOMPARE(ed->document()->pageSize().width(), qreal(-1));
+    QVERIFY(ed->document()->pageSize().width() > qreal(0));
 
     ed->setLineWrapColumnOrWidth(10);
     ed->setLineWrapMode(QTextEdit::FixedColumnWidth);
-    QVERIFY(qIsNull(ed->document()->pageSize().width()));
+    QVERIFY(!qIsNull(ed->document()->pageSize().width()));
 
     ed->setLineWrapColumnOrWidth(1000);
     ed->setLineWrapMode(QTextEdit::FixedPixelWidth);
