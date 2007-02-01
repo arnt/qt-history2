@@ -23,6 +23,8 @@
 #include <QMdiArea>
 #include <QMdiSubWindow>
 
+#include <limits.h>
+
 #ifndef QT_NO_ACCESSIBILITY
 
 #ifndef QT_NO_TEXTEDIT
