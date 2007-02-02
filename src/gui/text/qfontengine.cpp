@@ -862,7 +862,7 @@ bool QFontEngineMulti::stringToCMap(const QChar *str, int len,
                 Q_ASSERT(engine != 0);
                 if (engine->type() == Box)
                     continue;
-                glyphs[i].advance = glyphs[i].offset = QFixedPoint();
+                glyphs[glyph_pos].advance = glyphs[glyph_pos].offset = QFixedPoint();
                 int num = 2;
                 engine->stringToCMap(str + i, surrogate ? 2 : 1, glyphs + glyph_pos, &num, flags);
                 Q_ASSERT(num == 1); // surrogates only give 1 glyph
