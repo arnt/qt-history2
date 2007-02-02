@@ -341,6 +341,11 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
 
 /*!
     \class QStandardItemEditorCreator
+
+    \brief The QStandardItemEditorCreator class provides the
+    possibility to register widgets without having to subclass
+    QItemEditorCreatorBase.
+
     \since 4.2
     \ingroup model-view
 

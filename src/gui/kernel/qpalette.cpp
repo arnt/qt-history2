@@ -1128,6 +1128,7 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
 */
 
 /*! \class QColorGroup
+    \brief The QColorGroup class contains color groups for each widget state.
     \compat
 */
 
