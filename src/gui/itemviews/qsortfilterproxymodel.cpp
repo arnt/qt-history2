@@ -1405,6 +1405,8 @@ int QSortFilterProxyModel::rowCount(const QModelIndex &parent) const
 {
     Q_D(const QSortFilterProxyModel);
     QModelIndex source_parent = d->proxy_to_source(parent);
+    if (parent.isValid() && !source_parent.isValid())
+        return 0;
     IndexMap::const_iterator it = d->create_mapping(source_parent);
     return it.value()->source_rows.count();
 }
@@ -1416,6 +1418,8 @@ int QSortFilterProxyModel::columnCount(const QModelIndex &parent) const
 {
     Q_D(const QSortFilterProxyModel);
     QModelIndex source_parent = d->proxy_to_source(parent);
+    if (parent.isValid() && !source_parent.isValid())
+        return 0;
     IndexMap::const_iterator it = d->create_mapping(source_parent);
     return it.value()->source_columns.count();
 }
@@ -1427,6 +1431,8 @@ bool QSortFilterProxyModel::hasChildren(const QModelIndex &parent) const
 {
     Q_D(const QSortFilterProxyModel);
     QModelIndex source_parent = d->proxy_to_source(parent);
+    if (parent.isValid() && !source_parent.isValid())
+        return false;
     if (!d->model->hasChildren(source_parent))
         return false;
     QSortFilterProxyModelPrivate::Mapping *m = d->create_mapping(source_parent).value();
@@ -1440,6 +1446,8 @@ QVariant QSortFilterProxyModel::data(const QModelIndex &index, int role) const
 {
     Q_D(const QSortFilterProxyModel);
     QModelIndex source_index = d->proxy_to_source(index);
+    if (index.isValid() && !source_index.isValid())
+        return QVariant();
     return d->model->data(source_index, role);
 }
 
@@ -1450,6 +1458,8 @@ bool QSortFilterProxyModel::setData(const QModelIndex &index, const QVariant &va
 {
     Q_D(QSortFilterProxyModel);
     QModelIndex source_index = d->proxy_to_source(index);
+    if (index.isValid() && !source_index.isValid())
+        return false;
     return d->model->setData(source_index, value, role);
 }
 
@@ -1554,6 +1564,8 @@ bool QSortFilterProxyModel::insertRows(int row, int count, const QModelIndex &pa
     if (row < 0 || count <= 0)
         return false;
     QModelIndex source_parent = d->proxy_to_source(parent);
+    if (parent.isValid() && !source_parent.isValid())
+        return false;
     QSortFilterProxyModelPrivate::Mapping *m = d->create_mapping(source_parent).value();
     if (row > m->source_rows.count())
         return false;
@@ -1572,6 +1584,8 @@ bool QSortFilterProxyModel::insertColumns(int column, int count, const QModelInd
     if (column < 0|| count <= 0)
         return false;
     QModelIndex source_parent = d->proxy_to_source(parent);
+    if (parent.isValid() && !source_parent.isValid())
+        return false;
     QSortFilterProxyModelPrivate::Mapping *m = d->create_mapping(source_parent).value();
     if (column > m->source_columns.count())
         return false;
@@ -1590,6 +1604,8 @@ bool QSortFilterProxyModel::removeRows(int row, int count, const QModelIndex &pa
     if (row < 0 || count <= 0)
         return false;
     QModelIndex source_parent = d->proxy_to_source(parent);
+    if (parent.isValid() && !source_parent.isValid())
+        return false;
     QSortFilterProxyModelPrivate::Mapping *m = d->create_mapping(source_parent).value();
     if (row + count > m->source_rows.count())
         return false;
@@ -1629,6 +1645,8 @@ bool QSortFilterProxyModel::removeColumns(int column, int count, const QModelInd
     if (column < 0 || count <= 0)
         return false;
     QModelIndex source_parent = d->proxy_to_source(parent);
+    if (parent.isValid() && !source_parent.isValid())
+        return false;
     QSortFilterProxyModelPrivate::Mapping *m = d->create_mapping(source_parent).value();
     if (column + count > m->source_columns.count())
         return false;
@@ -1724,6 +1742,8 @@ QSize QSortFilterProxyModel::span(const QModelIndex &index) const
 {
     Q_D(const QSortFilterProxyModel);
     QModelIndex source_index = d->proxy_to_source(index);
+    if (index.isValid() && !source_index.isValid())
+        return QSize();
     return d->model->span(source_index);
 }
 
