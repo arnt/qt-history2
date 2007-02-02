@@ -499,6 +499,10 @@ void QWSWindowSurface::setGeometry(const QRect &rect)
 
     Q_ASSERT(rect == window()->frameGeometry());
 
+    d_ptr->dirty = QRegion();
+    d_ptr->clip = QRegion();
+    d_ptr->clippedDirty = QRegion();
+
     QRegion region = rect;
 
 #ifndef QT_NO_QWS_MANAGER
@@ -557,21 +561,25 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
     Q_UNUSED(offset);
 
     const bool opaque = isWidgetOpaque(window());
+    // hw: should not add dirtyRegion(), but just the dirtyRegion that
+    // intersects with the manager.
     QRegion toFlush = (region + dirtyRegion()) & d_ptr->clip;
     const QRegion stillDirty = (d_ptr->dirty - toFlush);
 
+    if (!toFlush.isEmpty()) {
 #ifndef QT_NO_QWS_MANAGER
-    QTLWExtra *topextra = window()->d_func()->extra->topextra;
-    QWSManager *manager = topextra->qwsManager;
-    if (manager)
-        manager->d_func()->paint(paintDevice(), toFlush);
+        QTLWExtra *topextra = window()->d_func()->extra->topextra;
+        QWSManager *manager = topextra->qwsManager;
+        if (manager)
+            manager->d_func()->paint(paintDevice(), toFlush);
 #endif
 
-    flushUpdate(widget, toFlush, QPoint(0, 0));
+        flushUpdate(widget, toFlush, QPoint(0, 0));
 
-    toFlush.translate(window()->mapToGlobal(QPoint(0, 0)));
+        toFlush.translate(window()->mapToGlobal(QPoint(0, 0)));
 
-    window()->qwsDisplay()->repaintRegion(window()->data->winid, opaque, toFlush);
+        window()->qwsDisplay()->repaintRegion(window()->data->winid, opaque, toFlush);
+    }
 
     d_ptr->dirty = QRegion();
     setDirty(stillDirty);

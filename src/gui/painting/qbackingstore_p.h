@@ -49,7 +49,9 @@ public:
 #endif
 private:
     QWidget *tlw;
+#ifndef Q_WS_QWS
     QRegion dirty;
+#endif
 
     QWindowSurface *windowSurface;
 

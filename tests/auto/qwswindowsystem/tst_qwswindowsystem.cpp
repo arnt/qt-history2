@@ -31,6 +31,7 @@ private slots:
     void windowOpacity();
     void directPainter();
     void setMaxWindowRect();
+    void initialGeometry();
 
 private:
     QWSWindow* getWindow(int windId);
@@ -286,6 +287,22 @@ void tst_QWSWindowSystem::setMaxWindowRect()
     QCOMPARE(desktop.availableGeometry(), screenRect);
     QCOMPARE(w.frameGeometry(), desktop.availableGeometry());
 }
+
+void tst_QWSWindowSystem::initialGeometry()
+{
+    ColorWidget w(Qt::red);
+    w.setGeometry(100, 0, 50, 50);
+    w.show();
+
+    const QRect rect(10, 200, 100, 100);
+    w.setGeometry(rect);
+
+    QApplication::processEvents();
+
+    QCOMPARE(w.frameGeometry(), rect);
+    VERIFY_COLOR(rect, QColor(Qt::red));
+}
+
 
 QTEST_MAIN(tst_QWSWindowSystem)
 

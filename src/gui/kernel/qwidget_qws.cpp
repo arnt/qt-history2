@@ -816,11 +816,12 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     if (q->isVisible()) {
 
         bool toplevelMove = false;
+        QWSWindowSurface *surface = 0;
+
         if (q->isWindow()) {
             //### ConfigPending not implemented, do we need it?
             //setAttribute(Qt::WA_WState_ConfigPending);
             const QWidgetBackingStore *bs = maybeBackingStore();
-            QWSWindowSurface *surface = 0;
             if (bs)
                 surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
             if (isMove && !isResize && (!surface || surface->isBuffered())) {
@@ -843,7 +844,10 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         }
         if (!toplevelMove) {
             if (q->isWindow()) {
-                invalidateBuffer(q->rect()); //###
+                if (surface)
+                    surface->setGeometry(q->frameGeometry());
+                else
+                    invalidateBuffer(q->rect()); //###
             } else {
                 if (isMove && !isResize) {
                     moveRect(QRect(oldPos, olds), x - oldPos.x(), y - oldPos.y());

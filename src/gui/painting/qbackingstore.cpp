@@ -389,7 +389,15 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
         childExpose -= destRect;
 
         QPoint toplevelOffset = pw->mapTo(tlw, QPoint());
+#ifdef Q_WS_QWS
+        QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(wbs->windowSurface);
+        QRegion dirty = sourceRect.translated(toplevelOffset);
+        if (surface)
+            dirty &= surface->dirtyRegion();
+        const QRect newDirty = dirty.boundingRect().translated(QPoint(dx,dy) - toplevelOffset);
+#else
         QRect newDirty = (wbs->dirty & sourceRect.translated(toplevelOffset)).boundingRect().translated(QPoint(dx,dy) - toplevelOffset);
+#endif
         childExpose += newDirty;
 
         childExpose.translate(-data.crect.topLeft());
@@ -460,7 +468,15 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
         QRegion childExpose = scrollRect;
         childExpose -= destRect;
 //        childExpose += (wbs->dirty & sourceRect.translated(toplevelOffset)).boundingRect().translated(QPoint(dx,dy) - toplevelOffset);
+#ifdef Q_WS_QWS
+        QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(wbs->windowSurface);
+        QRegion dirty = sourceRect.translated(toplevelOffset);
+        if (surface)
+            dirty &= surface->dirtyRegion();
+        const QRect newDirty = dirty.boundingRect().translated(QPoint(dx,dy) - toplevelOffset);
+#else
         QRect newDirty = (wbs->dirty & sourceRect.translated(toplevelOffset)).boundingRect().translated(QPoint(dx,dy) - toplevelOffset);
+#endif
 //         qDebug() << "scrollRect" << q << rect << dx << dy << "dirty" << wbs->dirty << "newDirty" << newDirty;
         childExpose += newDirty;
         invalidateBuffer(childExpose);
@@ -485,7 +501,9 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
     widget->d_func()->dirtyWidget_sys(wrgn);
 #endif
     wrgn.translate(widget->mapTo(tlw, QPoint(0, 0)));
+#ifndef Q_WS_QWS
     dirty += wrgn;
+#endif
 #ifdef Q_WS_QWS
     tlw->d_func()->dirtyWidget_sys(wrgn); //optimization: don't translate twice
 #endif
@@ -570,19 +588,21 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         toClean = QRect(QPoint(0, 0), tlwRect.size());
         recursiveCopyToScreen = true;
     } else {
+#ifdef Q_WS_QWS
+        toClean = static_cast<QWSWindowSurface*>(windowSurface)->dirtyRegion();
+#else
         toClean = dirty;
+#endif
     }
 #ifdef Q_WS_QWS
     tlwOffset = static_cast<QWSWindowSurface*>(windowSurface)->painterOffset();
 #endif
     // ### move into prerender step
 
-#if defined(Q_WS_QWS)
-    toClean &= static_cast<QWSWindowSurface*>(windowSurface)->clipRegion();
-#endif
-
     if(!toClean.isEmpty()) {
+#ifndef Q_WS_QWS
         dirty -= toClean;
+#endif
         if (tlw->updatesEnabled()) {
             // Pre render config
             windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
