@@ -718,8 +718,12 @@ bool QBmpHandler::read(QImage *image)
     return true;
 }
 
-bool QBmpHandler::write(const QImage &image)
+bool QBmpHandler::write(const QImage &img)
 {
+    QImage image = img;
+    if (image.format() == QImage::Format_RGB16)
+        image = image.convertToFormat(QImage::Format_RGB32);
+
     QIODevice *d = device();
     QDataStream s(d);
     BMP_FILEHDR bf;

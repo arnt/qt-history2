@@ -45,6 +45,8 @@ private slots:
     void getSetCheck();
     void writeImage_data();
     void writeImage();
+    void writeImage2_data();
+    void writeImage2();
     void supportedFormats();
 
     void setDescription_data();
@@ -175,6 +177,79 @@ void tst_QImageWriter::writeImage()
         QCOMPARE(image.format(), image2.format());
         QCOMPARE(image.depth(), image2.depth());
     }
+}
+
+void tst_QImageWriter::writeImage2_data()
+{
+    QTest::addColumn<QString>("fileName");
+    QTest::addColumn<QByteArray>("format");
+    QTest::addColumn<QImage>("image");
+
+    const QStringList formats = QStringList() << "bmp" << "xpm" << "png"
+                                              << "ppm"; //<< "jpeg";
+    QImage image0(70, 70, QImage::Format_ARGB32);
+    image0.fill(QColor(Qt::red).rgb());
+
+    QImage::Format imgFormat = QImage::Format_Mono;
+    while (imgFormat != QImage::NImageFormats) {
+        QImage image = image0.convertToFormat(imgFormat);
+        foreach (const QString format, formats) {
+            const QString fileName = QString("solidcolor_%1.%2").arg(imgFormat)
+                                     .arg(format);
+            QTest::newRow(fileName.toLatin1()) << fileName
+                                               << format.toLatin1()
+                                               << image;
+        }
+        imgFormat = QImage::Format(int(imgFormat) + 1);
+    }
+}
+
+/*
+    Workaround for the equality operator for indexed formats
+    (which fails if the colortables are different).
+
+    Images must have the same format and size.
+*/
+static bool equalImageContents(const QImage &image1, const QImage &image2)
+{
+    switch (image1.format()) {
+    case QImage::Format_Mono:
+    case QImage::Format_Indexed8:
+        for (int y = 0; y < image1.height(); ++y)
+            for (int x = 0; x < image1.width(); ++x)
+                if (image1.pixel(x, y) != image2.pixel(x, y))
+                    return false;
+        return true;
+    default:
+        return (image1 == image2);
+    }
+}
+
+void tst_QImageWriter::writeImage2()
+{
+    QFETCH(QString, fileName);
+    QFETCH(QByteArray, format);
+    QFETCH(QImage, image);
+
+    QImageWriter writer(fileName, format);
+    QVERIFY(writer.write(image));
+
+    QImage written;
+    QImageReader reader(fileName, format);
+    QVERIFY(reader.read(&written));
+
+    written = written.convertToFormat(image.format());
+    if (!equalImageContents(written, image)) {
+        qDebug() << "image" << image.format() << image.width()
+                 << image.height() << image.depth()
+                 << hex << image.pixel(0, 0);
+        qDebug() << "written" << written.format() << written.width()
+                 << written.height() << written.depth()
+                 << hex << written.pixel(0, 0);
+    }
+    QVERIFY(equalImageContents(written, image));
+
+    QVERIFY(QFile::remove(fileName));
 }
 
 void tst_QImageWriter::supportedFormats()
