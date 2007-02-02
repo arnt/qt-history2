@@ -209,9 +209,9 @@ void tst_QFiledialog::iconProvider()
 {
     QFileDialog fd;
     QVERIFY(fd.iconProvider() != 0);
-    QFileIconProvider *ip = new QFileIconProvider;
-    fd.setIconProvider(ip);
-    QCOMPARE(fd.iconProvider(), ip);
+    QFileIconProvider ip;
+    fd.setIconProvider(&ip);
+    QCOMPARE(fd.iconProvider(), &ip);
 }
 
 void tst_QFiledialog::isReadOnly()
@@ -242,7 +242,7 @@ void tst_QFiledialog::itemDelegate()
 {
     QFileDialog fd;
     QVERIFY(fd.itemDelegate() != 0);
-    QItemDelegate *id = new QItemDelegate;
+    QItemDelegate *id = new QItemDelegate(&fd);
     fd.setItemDelegate(id);
     QCOMPARE(fd.itemDelegate(), id);
 }
