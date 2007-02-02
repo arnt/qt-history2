@@ -230,12 +230,13 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
         dev = QLatin1String("/dev/fb0");
 
     d_ptr->fd = open(dev.toLatin1().constData(), O_RDWR);
-    if (d_ptr->fd == -1 && QApplication::type() != QApplication::GuiServer)
-        d_ptr->fd = open(dev.toLatin1().constData(), O_RDONLY);
     if (d_ptr->fd == -1) {
-        perror("QScreenLinuxFb::connect");
-        qCritical("Error opening framebuffer device %s", qPrintable(dev));
-        return false;
+        if (QApplication::type() == QApplication::GuiServer) {
+            perror("QScreenLinuxFb::connect");
+            qCritical("Error opening framebuffer device %s", qPrintable(dev));
+            return false;
+        }
+        d_ptr->fd = open(dev.toLatin1().constData(), O_RDONLY);
     }
 
     fb_fix_screeninfo finfo;
@@ -247,14 +248,14 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     //#######################
 
     /* Get fixed screen information */
-    if (ioctl(d_ptr->fd, FBIOGET_FSCREENINFO, &finfo)) {
+    if (d_ptr->fd != -1 && ioctl(d_ptr->fd, FBIOGET_FSCREENINFO, &finfo)) {
         perror("QLinuxFbScreen::connect");
         qWarning("Error reading fixed information");
         return false;
     }
 
     /* Get variable screen information */
-    if (ioctl(d_ptr->fd, FBIOGET_VSCREENINFO, &vinfo)) {
+    if (d_ptr->fd != -1 && ioctl(d_ptr->fd, FBIOGET_VSCREENINFO, &vinfo)) {
         perror("QLinuxFbScreen::connect");
         qWarning("Error reading variable information");
         return false;
@@ -269,8 +270,10 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     int yoff = vinfo.yoffset;
     const char* qwssize;
     if((qwssize=::getenv("QWS_SIZE")) && sscanf(qwssize,"%dx%d",&w,&h)==2) {
-        if ((uint)w > vinfo.xres) w = vinfo.xres;
-        if ((uint)h > vinfo.yres) h = vinfo.yres;
+        if (d_ptr->fd != -1) {
+            if ((uint)w > vinfo.xres) w = vinfo.xres;
+            if ((uint)h > vinfo.yres) h = vinfo.yres;
+        }
         dw=w;
         dh=h;
         xoff += (vinfo.xres - w)/2;
@@ -278,6 +281,13 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     } else {
         dw=w=vinfo.xres;
         dh=h=vinfo.yres;
+    }
+
+    if (w == 0 || h == 0) {
+        qWarning("QScreenLinuxFb::connect(): Unable to find screen geometry, "
+                 "will use 320x240.");
+        dw = w = 320;
+        dh = h = 240;
     }
 
     // Handle display physical size spec.
@@ -321,8 +331,10 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
 
     mapsize=finfo.smem_len;
 
-    data = (unsigned char *)mmap(0, mapsize, PROT_READ | PROT_WRITE,
-                                 MAP_SHARED, d_ptr->fd, 0);
+    data = (unsigned char *)-1;
+    if (d_ptr->fd != -1)
+        data = (unsigned char *)mmap(0, mapsize, PROT_READ | PROT_WRITE,
+                                     MAP_SHARED, d_ptr->fd, 0);
 
     if ((long)data == -1) {
         if (QApplication::type() == QApplication::GuiServer) {
@@ -360,7 +372,7 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
                   malloc(sizeof(unsigned short int)*screencols);
         startcmap.transp=(unsigned short int *)
                     malloc(sizeof(unsigned short int)*screencols);
-        if (ioctl(d_ptr->fd, FBIOGETCMAP, &startcmap)) {
+        if (d_ptr->fd == -1 || ioctl(d_ptr->fd, FBIOGETCMAP, &startcmap)) {
             perror("QLinuxFbScreen::connect");
             qWarning("Error reading palette from framebuffer, using default palette");
             createPalette(startcmap, vinfo, finfo);
@@ -955,26 +967,28 @@ void QLinuxFbScreen::shutdownDevice()
 
 void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned int b)
 {
-    fb_cmap cmap;
-    cmap.start=i;
-    cmap.len=1;
-    cmap.red=(unsigned short int *)
-             malloc(sizeof(unsigned short int)*256);
-    cmap.green=(unsigned short int *)
-               malloc(sizeof(unsigned short int)*256);
-    cmap.blue=(unsigned short int *)
-              malloc(sizeof(unsigned short int)*256);
-    cmap.transp=(unsigned short int *)
-                malloc(sizeof(unsigned short int)*256);
-    cmap.red[0]=r << 8;
-    cmap.green[0]=g << 8;
-    cmap.blue[0]=b << 8;
-    cmap.transp[0]=0;
-    ioctl(d_ptr->fd, FBIOPUTCMAP, &cmap);
-    free(cmap.red);
-    free(cmap.green);
-    free(cmap.blue);
-    free(cmap.transp);
+    if (d_ptr->fd != -1) {
+        fb_cmap cmap;
+        cmap.start=i;
+        cmap.len=1;
+        cmap.red=(unsigned short int *)
+                 malloc(sizeof(unsigned short int)*256);
+        cmap.green=(unsigned short int *)
+                   malloc(sizeof(unsigned short int)*256);
+        cmap.blue=(unsigned short int *)
+                  malloc(sizeof(unsigned short int)*256);
+        cmap.transp=(unsigned short int *)
+                    malloc(sizeof(unsigned short int)*256);
+        cmap.red[0]=r << 8;
+        cmap.green[0]=g << 8;
+        cmap.blue[0]=b << 8;
+        cmap.transp[0]=0;
+        ioctl(d_ptr->fd, FBIOPUTCMAP, &cmap);
+        free(cmap.red);
+        free(cmap.green);
+        free(cmap.blue);
+        free(cmap.transp);
+    }
     screenclut[i] = qRgb(r, g, b);
 }
 
@@ -991,6 +1005,9 @@ void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned i
 
 void QLinuxFbScreen::setMode(int nw,int nh,int nd)
 {
+    if (d_ptr->fd == -1)
+        return;
+
     fb_fix_screeninfo finfo;
     fb_var_screeninfo vinfo;
     //#######################
@@ -1020,7 +1037,7 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
 
     if (ioctl(d_ptr->fd, FBIOGET_FSCREENINFO, &finfo)) {
         perror("QLinuxFbScreen::setMode");
-	qFatal("Error reading fixed information");
+        qFatal("Error reading fixed information");
     }
 
     disconnect();
@@ -1055,6 +1072,9 @@ void QLinuxFbScreen::save()
 */
 void QLinuxFbScreen::restore()
 {
+    if (d_ptr->fd == -1)
+        return;
+
     if ((d == 8) || (d == 4)) {
         fb_cmap cmap;
         cmap.start=0;
@@ -1104,6 +1124,8 @@ void QLinuxFbScreen::blank(bool on)
     if (on)
         system("apm -suspend");
 #else
+    if (d_ptr->fd == -1)
+        return;
 // Some old kernel versions don't have this.  These defines should go
 // away eventually
 #if defined(FBIOBLANK)
