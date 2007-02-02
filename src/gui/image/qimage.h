@@ -275,6 +275,7 @@ public:
     enum Endian { BigEndian, LittleEndian, IgnoreEndian };
 private:
     QImage(uchar *data, int w, int h, int depth, int pbl, const QRgb *colortable, int numColors, Endian bitOrder);
+    friend class QWSOnScreenSurface;
 #endif
 
     QImageData *d;
