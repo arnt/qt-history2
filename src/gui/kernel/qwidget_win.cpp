@@ -1010,7 +1010,10 @@ void QWidgetPrivate::hide_sys()
     Q_Q(QWidget);
     deactivateWidgetCleanup();
     Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
-    SetWindowPos(q->internalWinId(),0, 0,0,0,0, SWP_HIDEWINDOW|SWP_NOSIZE|SWP_NOMOVE|SWP_NOZORDER);
+    if (q->windowFlags() & Qt::Popup)
+        ShowWindow(q->internalWinId(), SW_HIDE);
+    else
+        SetWindowPos(q->internalWinId(),0, 0,0,0,0, SWP_HIDEWINDOW|SWP_NOSIZE|SWP_NOMOVE|SWP_NOZORDER);
     if (q->isWindow()) {
         if (QWidgetBackingStore *bs = maybeBackingStore())
             bs->releaseBuffer();
