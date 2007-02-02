@@ -443,26 +443,27 @@ Q_DECLARE_METATYPE(PointList)
 class SizeHinterFrame : public QFrame
 {
 public:
-    SizeHinterFrame(QWidget *parent = 0) 
+    SizeHinterFrame(QWidget *parent = 0)
     : QFrame(parent)
     {
         init(-1);
     }
 
-    SizeHinterFrame(const QSize &s, int numPixels = -1) 
+    SizeHinterFrame(const QSize &s, int numPixels = -1)
     : QFrame(0), sh(s) {
         init(numPixels);
     }
 
 
     SizeHinterFrame(int w, int h)
-    : QFrame(0), sh(QSize(w,h)) 
+    : QFrame(0), sh(QSize(w,h))
     {
         init(-1);
     }
 
     void setSizeHint(const QSize &s) { sh = s; }
     QSize sizeHint() const { return sh; }
+    QSize minimumSizeHint() const { return sh; }
 
     virtual int heightForWidth(int width) const;
 
@@ -617,7 +618,16 @@ void tst_QGridLayout::spacingsAndMargins()
     toplevel.show();
     toplevel.adjustSize();
     QApplication::processEvents();
-    // We are relying on the order here...
+
+    QSize topsize = toplevel.size();
+    QSize minimumsize = vbox.totalMinimumSize();
+
+#ifdef Q_WS_QWS
+    if (topsize.width() < minimumsize.width() || topsize.height() < minimumsize.height())
+        QSKIP("The screen is too small to run this test case", SkipSingle);
+#endif
+
+// We are relying on the order here...
     for (int pi = 0; pi < sizehinters.count(); ++pi) {
         QPoint pt = sizehinters.at(pi)->mapTo(&toplevel, QPoint(0, 0));
         QCOMPARE(pt, expectedpositions.at(pi));
