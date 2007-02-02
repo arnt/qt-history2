@@ -479,8 +479,8 @@ void tst_QDom::saveWithSerialization() const
         QDomDocument result;
 
         QString msg;
-        int line;
-        int column;
+        int line = 0;
+        int column = 0;
 
         QVERIFY2(result.setContent(&readDevice, &msg, &line, &column),
                  qPrintable(QString::fromLatin1("Failed for codec %1: line %2, column %3: %4")
