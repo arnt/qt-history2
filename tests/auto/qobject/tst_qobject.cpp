@@ -50,6 +50,7 @@ private slots:
     void disconnect();
     void connectByName();
     void connectSignalsToSignalsWithDefaultArguments();
+    void normalize();
     void qobject_castTemplate();
     void findChildren();
     void connectDisconnectNotify_data();
@@ -1775,6 +1776,277 @@ void tst_QObject::connectSignalsToSignalsWithDefaultArguments()
     o.emitTheOriginalSignal();
     QCOMPARE(o.result, QString("secondDefault"));
 
+}
+
+enum Enum { };
+
+struct Struct { };
+class Class { };
+
+class NormalizeObject : public QObject
+{
+    Q_OBJECT
+
+public:
+
+signals:
+    void uintPointerSignal(uint *);
+    void ulongPointerSignal(ulong *);
+    void constUintPointerSignal(const uint *);
+    void constUlongPointerSignal(const ulong *);
+
+    void structSignal(Struct s);
+    void classSignal(Class c);
+    void enumSignal(Enum e);
+
+    void structPointerSignal(Struct *s);
+    void classPointerSignal(Class *c);
+    void enumPointerSignal(Enum *e);
+
+    void constStructPointerSignal(const Struct *s);
+    void constClassPointerSignal(const Class *c);
+    void constEnumPointerSignal(const Enum *e);
+
+    void constStructPointerConstPointerSignal(const Struct * const *s);
+    void constClassPointerConstPointerSignal(const Class * const *c);
+    void constEnumPointerConstPointerSignal(const Enum * const *e);
+
+public slots:
+    void uintPointerSlot(uint *) { }
+    void ulongPointerSlot(ulong *) { }
+    void constUintPointerSlot(const uint *) { }
+    void constUlongPointerSlot(const ulong *) { }
+
+    void structSlot(Struct s) { }
+    void classSlot(Class c) { }
+    void enumSlot(Enum e) { }
+
+    void structPointerSlot(Struct *s) { }
+    void classPointerSlot(Class *c) { }
+    void enumPointerSlot(Enum *e) { }
+
+    void constStructPointerSlot(const Struct *s) { }
+    void constClassPointerSlot(const Class *c) { }
+    void constEnumPointerSlot(const Enum *e) { }
+
+    void constStructPointerConstPointerSlot(const Struct * const *s) { }
+    void constClassPointerConstPointerSlot(const Class * const *c) { }
+    void constEnumPointerConstPointerSlot(const Enum * const *e) { }
+};
+
+void tst_QObject::normalize()
+{
+    NormalizeObject object;
+
+    // unsigned int -> uint, unsigned long -> ulong
+    QVERIFY(object.connect(&object,
+                           SIGNAL(uintPointerSignal(uint *)),
+                           SLOT(uintPointerSlot(uint *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(uintPointerSignal(unsigned int *)),
+                           SLOT(uintPointerSlot(uint *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(uintPointerSignal(uint *)),
+                           SLOT(uintPointerSlot(unsigned int *))));
+
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constUintPointerSignal(const uint *)),
+                           SLOT(constUintPointerSlot(const uint *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constUintPointerSignal(const unsigned int *)),
+                           SLOT(constUintPointerSlot(const uint *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constUintPointerSignal(const uint *)),
+                           SLOT(constUintPointerSlot(const unsigned int *))));
+
+    QVERIFY(object.connect(&object,
+                           SIGNAL(ulongPointerSignal(ulong *)),
+                           SLOT(ulongPointerSlot(ulong *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(ulongPointerSignal(unsigned long *)),
+                           SLOT(ulongPointerSlot(ulong *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(ulongPointerSignal(ulong *)),
+                           SLOT(ulongPointerSlot(unsigned long *))));
+
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constUlongPointerSignal(const ulong *)),
+                           SLOT(constUlongPointerSlot(const ulong *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constUlongPointerSignal(const unsigned long *)),
+                           SLOT(constUlongPointerSlot(const ulong *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constUlongPointerSignal(const ulong *)),
+                           SLOT(constUlongPointerSlot(const unsigned long *))));
+
+    // struct, class, and enum are optional
+    QVERIFY(object.connect(&object,
+                           SIGNAL(structSignal(struct Struct)),
+                           SLOT(structSlot(struct Struct))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(structSignal(Struct)),
+                           SLOT(structSlot(struct Struct))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(structSignal(struct Struct)),
+                           SLOT(structSlot(Struct))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(classSignal(class Class)),
+                           SLOT(classSlot(class Class))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(classSignal(Class)),
+                           SLOT(classSlot(class Class))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(classSignal(class Class)),
+                           SLOT(classSlot(Class))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(enumSignal(enum Enum)),
+                           SLOT(enumSlot(enum Enum))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(enumSignal(Enum)),
+                           SLOT(enumSlot(enum Enum))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(enumSignal(enum Enum)),
+                           SLOT(enumSlot(Enum))));
+
+    QVERIFY(object.connect(&object,
+                           SIGNAL(structPointerSignal(struct Struct *)),
+                           SLOT(structPointerSlot(struct Struct *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(structPointerSignal(Struct *)),
+                           SLOT(structPointerSlot(struct Struct *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(structPointerSignal(struct Struct *)),
+                           SLOT(structPointerSlot(Struct *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(classPointerSignal(class Class *)),
+                           SLOT(classPointerSlot(class Class *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(classPointerSignal(Class *)),
+                           SLOT(classPointerSlot(class Class *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(classPointerSignal(class Class *)),
+                           SLOT(classPointerSlot(Class *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(enumPointerSignal(enum Enum *)),
+                           SLOT(enumPointerSlot(enum Enum *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(enumPointerSignal(Enum *)),
+                           SLOT(enumPointerSlot(enum Enum *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(enumPointerSignal(enum Enum *)),
+                           SLOT(enumPointerSlot(Enum *))));
+
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constStructPointerSignal(const struct Struct *)),
+                           SLOT(constStructPointerSlot(const struct Struct *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constStructPointerSignal(const Struct *)),
+                           SLOT(constStructPointerSlot(const struct Struct *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constStructPointerSignal(const struct Struct *)),
+                           SLOT(constStructPointerSlot(const Struct *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constClassPointerSignal(const class Class *)),
+                           SLOT(constClassPointerSlot(const class Class *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constClassPointerSignal(const Class *)),
+                           SLOT(constClassPointerSlot(const class Class *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constClassPointerSignal(const class Class *)),
+                           SLOT(constClassPointerSlot(const Class *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constEnumPointerSignal(const enum Enum *)),
+                           SLOT(constEnumPointerSlot(const enum Enum *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constEnumPointerSignal(const Enum *)),
+                           SLOT(constEnumPointerSlot(const enum Enum *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constEnumPointerSignal(const enum Enum *)),
+                           SLOT(constEnumPointerSlot(const Enum *))));
+
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constStructPointerSignal(struct Struct const *)),
+                           SLOT(constStructPointerSlot(struct Struct const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constStructPointerSignal(Struct const *)),
+                           SLOT(constStructPointerSlot(struct Struct const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constStructPointerSignal(struct Struct const *)),
+                           SLOT(constStructPointerSlot(Struct const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constClassPointerSignal(class Class const *)),
+                           SLOT(constClassPointerSlot(class Class const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constClassPointerSignal(Class const *)),
+                           SLOT(constClassPointerSlot(class Class const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constClassPointerSignal(class Class const *)),
+                           SLOT(constClassPointerSlot(Class const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constEnumPointerSignal(enum Enum const *)),
+                           SLOT(constEnumPointerSlot(enum Enum const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constEnumPointerSignal(Enum const *)),
+                           SLOT(constEnumPointerSlot(enum Enum const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constEnumPointerSignal(enum Enum const *)),
+                           SLOT(constEnumPointerSlot(Enum const *))));
+
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constStructPointerConstPointerSignal(const struct Struct * const *)),
+                           SLOT(constStructPointerConstPointerSlot(const struct Struct * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constStructPointerConstPointerSignal(const Struct * const *)),
+                           SLOT(constStructPointerConstPointerSlot(const struct Struct * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constStructPointerConstPointerSignal(const struct Struct * const *)),
+                           SLOT(constStructPointerConstPointerSlot(const Struct * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constClassPointerConstPointerSignal(const class Class * const *)),
+                           SLOT(constClassPointerConstPointerSlot(const class Class * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constClassPointerConstPointerSignal(const Class * const *)),
+                           SLOT(constClassPointerConstPointerSlot(const class Class * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constClassPointerConstPointerSignal(const class Class * const *)),
+                           SLOT(constClassPointerConstPointerSlot(const Class * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constEnumPointerConstPointerSignal(const enum Enum * const *)),
+                           SLOT(constEnumPointerConstPointerSlot(const enum Enum * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constEnumPointerConstPointerSignal(const Enum * const *)),
+                           SLOT(constEnumPointerConstPointerSlot(const enum Enum * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constEnumPointerConstPointerSignal(const enum Enum * const *)),
+                           SLOT(constEnumPointerConstPointerSlot(const Enum * const *))));
+
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constStructPointerConstPointerSignal(struct Struct const * const *)),
+                           SLOT(constStructPointerConstPointerSlot(struct Struct const * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constStructPointerConstPointerSignal(Struct const * const *)),
+                           SLOT(constStructPointerConstPointerSlot(struct Struct const * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constStructPointerConstPointerSignal(struct Struct const * const *)),
+                           SLOT(constStructPointerConstPointerSlot(Struct const * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constClassPointerConstPointerSignal(class Class const * const *)),
+                           SLOT(constClassPointerConstPointerSlot(class Class const * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constClassPointerConstPointerSignal(Class const * const *)),
+                           SLOT(constClassPointerConstPointerSlot(class Class const * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constClassPointerConstPointerSignal(class Class const * const *)),
+                           SLOT(constClassPointerConstPointerSlot(Class const * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constEnumPointerConstPointerSignal(enum Enum const * const *)),
+                           SLOT(constEnumPointerConstPointerSlot(enum Enum const * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constEnumPointerConstPointerSignal(Enum const * const *)),
+                           SLOT(constEnumPointerConstPointerSlot(enum Enum const * const *))));
+    QVERIFY(object.connect(&object,
+                           SIGNAL(constEnumPointerConstPointerSignal(enum Enum const * const *)),
+                           SLOT(constEnumPointerConstPointerSlot(Enum const * const *))));
 }
 
 class SiblingDeleter : public QObject

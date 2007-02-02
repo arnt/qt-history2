@@ -56,7 +56,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
              && strncmp(t + i + 1, "onst", 4) == 0
              && (i + 5 >= len || !is_ident_char(t[i + 5]))
              && !is_ident_char(t[i-1])
-            ) {
+             ) {
             constbuf = QByteArray(t, len);
             if (is_space(t[i-1]))
                 constbuf.remove(i-1, 6);
@@ -85,6 +85,14 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
     QByteArray result;
     result.reserve(len);
 
+#if 1
+    // consume initial 'const '
+    if (strncmp("const ", t, 6) == 0) {
+        t+= 6;
+        result += "const ";
+    }
+#endif
+
     // some type substitutions for 'unsigned x'
     if (strncmp("unsigned ", t, 9) == 0) {
         if (strncmp("int", t+9, 3) == 0) {
@@ -94,15 +102,34 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
                    // preserve '[unsigned] long int'
                    && (strlen(t + 9 + 4) < 4
                        || strncmp(t + 9 + 4, " int", 4) != 0
-                      )
+                       )
                    // preserve '[unsigned] long long'
                    && (strlen(t + 9 + 4) < 5
                        || strncmp(t + 9 + 4, " long", 5) != 0
-                      )
-                  ) {
+                       )
+                   ) {
             t += 9+4;
             result += "ulong";
         }
+    } else {
+        // discard 'struct', 'class', and 'enum'; they are optional
+        // and we don't want them in the normalized signature
+        struct {
+            const char *keyword;
+            int len;
+        } optional[] = {
+            { "struct ", 7 },
+            { "class ", 6 },
+            { "enum ", 5 },
+            { 0, 0 }
+        };
+        int i = 0;
+        do {
+            if (strncmp(optional[i].keyword, t, optional[i].len) == 0) {
+                t += optional[i].len;
+                break;
+            }
+        } while (optional[++i].keyword != 0);
     }
 
     while (t != e) {
@@ -112,7 +139,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
             c = *t++;
             int i = result.size() - 1;
             while (i >= 0 && is_ident_char(result.at(i)))
-                   --i;
+                --i;
             result.resize(i + 1);
         }
         result += c;
