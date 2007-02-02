@@ -654,7 +654,7 @@ int QScript::Lexer::lex()
 
     double dval = 0;
     if (state == Number) {
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN) || defined(Q_OS_SOLARIS)
         // ### This may cause autotest failure, but that's just plain weird...
         dval = strtod(buffer8, 0L);
 #else
