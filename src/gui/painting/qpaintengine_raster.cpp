@@ -3259,7 +3259,7 @@ void QRasterBuffer::prepare(QImage *image)
     m_buffer = (uchar *)image->bits();
     m_width = image->width();
     m_height = image->height();
-    bytes_per_line = 4*(depth == 32 ? m_width : (m_width*depth + 31)/32);
+    bytes_per_line = image->bytesPerLine();
 
     format = image->format();
     drawHelper = qDrawHelper + format;

@@ -1023,7 +1023,9 @@ void QWSOnScreenSurface::attachToScreen(const QScreen *s)
         return;
     }
     QWSMemorySurface::img = QImage(base, screen->width(),
-                                   screen->height(), format);
+                                   screen->height(), screen->depth(),
+                                   screen->linestep(), 0, 0,
+                                   QImage::IgnoreEndian);
 }
 
 QWSOnScreenSurface::~QWSOnScreenSurface()
