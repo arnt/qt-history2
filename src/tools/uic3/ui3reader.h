@@ -46,7 +46,7 @@ public:
 
     void generate(const QString &fn, const QString &outputFn,
          QDomDocument doc, bool decl, bool subcl, const QString &trm,
-         const QString& subclname, bool omitForwardDecls);
+         const QString& subclname, bool omitForwardDecls, const QString &convertedUiFile);
 
     void embed(const char *project, const QStringList &images);
 
@@ -56,6 +56,8 @@ public:
 
     void createFormDecl(const QDomElement &e);
     void createFormImpl(const QDomElement &e);
+
+    void createWrapperDecl(const QDomElement &e, const QString &convertedUiFile);
 
     void createSubDecl(const QDomElement &e, const QString& subclname);
     void createSubImpl(const QDomElement &e, const QString& subclname);
@@ -81,6 +83,8 @@ public:
 
 private:
     void init();
+
+    void createWrapperDeclContents(const QDomElement &e);
 
     void errorInvalidProperty(const QString &propertyName, const QString &widgetName, const QString &widgetClass,
                               int line, int col);

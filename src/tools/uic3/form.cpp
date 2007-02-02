@@ -97,7 +97,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     QMap<QString, int> customWidgets;
     QStringList forwardDecl;
     QStringList forwardDecl2;
-    QString exportMacro;
     for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
         if (n.tagName().toLower() == QLatin1String("customwidgets")) {
             QDomElement n2 = n.firstChild().toElement();
@@ -194,10 +193,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     for (i = 0; i < (int) nl.length(); i++)
         forwardDecl2 << fixDeclaration(nl.item(i).toElement().firstChild().toText().data());
 
-    nl = e.parentNode().toElement().elementsByTagName(QLatin1String("exportmacro"));
-    if (nl.length() == 1)
-        exportMacro = nl.item(0).firstChild().toText().data();
-
     forwardDecl = unique(forwardDecl);
     for (it = forwardDecl.constBegin(); it != forwardDecl.constEnd(); ++it) {
         if (!(*it).isEmpty() && (*it) != objClass) {
@@ -235,6 +230,43 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     DomUI *ui = generateUi4(e);
     d.uic(fileName, ui, &out);
     delete ui;
+
+    createWrapperDeclContents(e);
+
+    out << "#endif // " << protector << endl;
+}
+
+void Ui3Reader::createWrapperDecl(const QDomElement &e, const QString &convertedUiFile)
+{
+    QString objName = getObjectName(e);
+
+    objName = registerObject(objName);
+    QString protector = objName.toUpper() + QLatin1String("_H");
+    protector.replace(QLatin1String("::"), QLatin1String("_"));
+    out << "#ifndef " << protector << endl;
+    out << "#define " << protector << endl;
+    out << endl;
+    out << "#include \"" << convertedUiFile << "\"" << endl;
+
+    createWrapperDeclContents(e);
+    out << endl;
+    out << "#endif // " << protector << endl;
+}
+
+void Ui3Reader::createWrapperDeclContents(const QDomElement &e)
+{
+    QString objClass = getClassName(e);
+    if (objClass.isEmpty())
+        return;
+
+    QDomNodeList nl;
+    QString exportMacro;
+    int i;
+    QDomElement n;
+    QStringList::ConstIterator it;
+    nl = e.parentNode().toElement().elementsByTagName(QLatin1String("exportmacro"));
+    if (nl.length() == 1)
+        exportMacro = nl.item(0).firstChild().toText().data();
 
     QStringList::ConstIterator ns = namespaces.constBegin();
     while (ns != namespaces.constEnd()) {
@@ -451,7 +483,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
         out << "}" << endl;
 
     out << endl;
-    out << "#endif // " << protector << endl;
 }
 
 void Ui3Reader::writeFunctionsDecl(const QStringList &fuLst, const QStringList &typLst, const QStringList &specLst)

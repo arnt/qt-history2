@@ -224,7 +224,7 @@ Ui3Reader::~Ui3Reader()
 
 void Ui3Reader::generate(const QString &fn, const QString &outputFn,
           QDomDocument doc, bool decl, bool subcl, const QString &trm,
-          const QString& subClass, bool omitForwardDecls)
+          const QString& subClass, bool omitForwardDecls, const QString &convertedUiFile)
 {
     init();
 
@@ -241,7 +241,9 @@ void Ui3Reader::generate(const QString &fn, const QString &outputFn,
     bareNameOfClass = namespaces.last();
     namespaces.removeLast();
 
-    if (subcl) {
+    if (!convertedUiFile.isEmpty()) {
+        createWrapperDecl(e, convertedUiFile);
+    } else if (subcl) {
         if (decl)
             createSubDecl(e, subClass);
         else
