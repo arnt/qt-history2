@@ -330,13 +330,7 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     } else {
         newBottom = createIndex(-1, d->rec.count() - 1);
     }
-    if (columnsChanged) {
-        beginInsertColumns(QModelIndex(), 0, newBottom.column());
-        d->bottom = newBottom;
-        endInsertColumns();
-    } else {
-        d->bottom = newBottom;
-    }
+    d->bottom = newBottom;
 
     queryChange();
 
