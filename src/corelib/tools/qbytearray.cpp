@@ -2449,7 +2449,7 @@ QByteArray QByteArray::toLower() const
 QByteArray QByteArray::toUpper() const
 {
     QByteArray s(*this);
-    register char *p = s.data();
+    register uchar *p = reinterpret_cast<uchar *>(s.data());
     if (p) {
         while (*p) {
             *p = QChar::toUpper((ushort)*p);
