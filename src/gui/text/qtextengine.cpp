@@ -780,12 +780,12 @@ static void calcLineBreaks(const QString &string, QCharAttributes *charAttribute
         // handle surrogates
         if (ncls == QUnicodeTables::LineBreak_SG) {
             if (uc[i].isHighSurrogate() && i < len - 1 && uc[i+1].isLowSurrogate()) {
-                charAttributes[i].charStop = false;
                 continue;
             } else if (uc[i].isLowSurrogate() && uc[i-1].isHighSurrogate()) {
                 uint code = QChar::surrogateToUcs4(uc[i-1].unicode(), uc[i].unicode());
                 prop = QUnicodeTables::properties(code);
                 ncls = prop->line_break_class;
+                charAttributes[i].charStop = false;
             } else {
                 ncls = QUnicodeTables::LineBreak_AL;
             }

@@ -54,6 +54,7 @@ private slots:
     void charWordStopOnLineSeparator();
     void xToCursorAtEndOfLine();
     void boundingRectTopLeft();
+    void charStopForSurrogatePairs();
 
 private:
     QFont testFont;
@@ -487,6 +488,23 @@ void tst_QTextLayout::boundingRectTopLeft()
     layout.endLayout();
 
     QCOMPARE(layout.boundingRect().topLeft(), firstLine.position());
+}
+
+void tst_QTextLayout::charStopForSurrogatePairs()
+{
+    QString txt;
+    txt.append("a");
+    txt.append(0xd87e);
+    txt.append(0xdc25);
+    txt.append("b");
+    QTextLayout layout(txt, testFont);
+    QTextEngine *engine = layout.engine();
+    const QCharAttributes *attrs = engine->attributes();
+    QVERIFY(attrs);
+    QVERIFY(attrs[0].charStop);
+    QVERIFY(attrs[1].charStop);
+    QVERIFY(!attrs[2].charStop);
+    QVERIFY(attrs[3].charStop);
 }
 
 QTEST_MAIN(tst_QTextLayout)
