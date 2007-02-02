@@ -2556,7 +2556,7 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
     qreal ny2 = convertToNumber(y2, handler);
     bool  needsResolving = true;
 
-    if (qFuzzyCompare(nx2, 0.)) {
+    if (qFuzzyCompare(nx2, qreal(0.))) {
         nx2 = 1;
     } else if (units == QLatin1String("userSpaceOnUse")) {
         needsResolving = false;

@@ -877,8 +877,8 @@ static inline bool isBezierBetween(const PathVertex *prev,
 static inline bool vertexAlreadyIntersected(PathVertex *v, qreal alpha)
 {
     return (v->intersect != PathVertex::DNone &&
-            (qFuzzyCompare(alpha, 1.) ||
-             qFuzzyCompare(alpha, 0.)));
+            (qFuzzyCompare(alpha, qreal(1.)) ||
+             qFuzzyCompare(alpha, qreal(0.))));
 }
 
 static inline bool tryInjectingBezier(const PathVertex *prev,
@@ -1501,7 +1501,7 @@ public:
         par = ((p2->x - p1->x)*(q2->y - q1->y) -
                (p2->y - p1->y)*(q2->x - q1->x));
 
-        if (qFuzzyCompare(par, 0.0)) {
+        if (qFuzzyCompare(par, qreal(0.0))) {
             //FIXME
             //qDebug("possibly skipping coinciding edges...");
             return false;        /* parallel lines */
