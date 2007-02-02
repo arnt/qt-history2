@@ -44,8 +44,8 @@ public:
         Interactive,
         Stretch,
         Fixed,
-        Custom = Fixed,
-        ResizeToContents
+        ResizeToContents,
+        Custom = Fixed
     };
 
     explicit QHeaderView(Qt::Orientation orientation, QWidget *parent = 0);
