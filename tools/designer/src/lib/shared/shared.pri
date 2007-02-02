@@ -59,6 +59,7 @@ HEADERS += \
     $$PWD/newactiondialog_p.h \
     $$PWD/resourceeditor_p.h \
     $$PWD/stylesheeteditor_p.h \
+    $$PWD/csshighlighter_p.h \
     $$PWD/shared_enums_p.h \
     $$PWD/textpropertyeditor_p.h \
     $$PWD/propertylineedit_p.h \
@@ -111,6 +112,7 @@ SOURCES += \
     $$PWD/newactiondialog.cpp \
     $$PWD/resourceeditor.cpp \
     $$PWD/stylesheeteditor.cpp \
+    $$PWD/csshighlighter.cpp \
     $$PWD/textpropertyeditor.cpp \
     $$PWD/propertylineedit.cpp \
     $$PWD/promotiontaskmenu.cpp

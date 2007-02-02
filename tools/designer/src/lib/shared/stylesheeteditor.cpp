@@ -16,6 +16,7 @@ TRANSLATOR qdesigner_internal::StyleSheetEditorDialog
 */
 
 #include "stylesheeteditor_p.h"
+#include "csshighlighter_p.h"
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QVBoxLayout>
@@ -38,6 +39,7 @@ StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *fw, QWidget *widget)
     setWindowTitle(tr("Edit Style Sheet"));
     QGridLayout *layout = new QGridLayout;
     m_editor = new StyleSheetEditor;
+    new CssHighlighter(m_editor->document());
     QDialogButtonBox *buttonBox = new QDialogButtonBox;
     buttonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply);
     QObject::connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
