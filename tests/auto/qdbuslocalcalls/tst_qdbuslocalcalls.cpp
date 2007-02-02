@@ -2,7 +2,7 @@
 #include <QtCore/QVariant>
 #include <QtCore/QList>
 #include <QtCore/QVector>
-#include <QtTest>
+#include <QtTest/QtTest>
 #include <QtDBus>
 
 Q_DECLARE_METATYPE(QVariant)
