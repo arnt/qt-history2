@@ -290,7 +290,7 @@ void QUrlModel::changed(const QString &path)
 {
     for (int i = 0; i < rowCount(); ++i) {
         QModelIndex idx = index(i, 0);
-        if(idx.data(UrlRole).toUrl().toLocalFile() == path) {
+        if (idx.data(UrlRole).toUrl().toLocalFile() == path) {
             setData(idx, idx.data(UrlRole).toUrl());
         }
     }

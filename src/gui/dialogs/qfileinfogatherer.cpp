@@ -259,7 +259,7 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
     }
 
     // List drives
-    if (path.isEmpty()){
+    if (path.isEmpty()) {
         QFileInfoList infoList;
         if (files.isEmpty()) {
             infoList = QDir::drives();
