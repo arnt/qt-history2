@@ -46,14 +46,6 @@ static inline QByteArray methodName(const QMetaMethod &method)
     return signature.left(signature.indexOf('('));
 }
 
-static inline QScriptValue valueFromVariant(QScriptEngine *eng, const QVariant &v)
-{
-    QScriptValue result = QScriptEnginePrivate::get(eng)->create(v.userType(), v.data());
-    if (!result.isValid())
-        result = eng->newVariant(v);
-    return result;
-}
-
 static inline QVariant variantFromValue(int targetType, const QScriptValue &value)
 {
     QVariant v(targetType, (void *)0);
@@ -198,6 +190,7 @@ public:
             return false;
 
         QScriptEngine *eng = obj.engine();
+        QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
 
         ExtQObject::Instance *inst = ExtQObject::Instance::get(obj, m_classInfo);
         QObject *qobject = inst->value;
@@ -206,7 +199,6 @@ public:
         case PROPERTY_ID: {
             if (GeneratePropertyFunctions) {
                 const int propertyIndex = member.id();
-                QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
                 *result = eng_p->createFunction(new QtPropertyFunction(qobject, propertyIndex));
 
                 // make it persist
@@ -225,20 +217,19 @@ public:
                 QMetaProperty prop = meta->property(member.id());
                 Q_ASSERT(prop.isScriptable());
                 QVariant v = prop.read(qobject);
-                *result = valueFromVariant(eng, v);
+                *result = eng_p->valueFromVariant(v);
             }
         }   break;
 
         case DYNAPROPERTY_ID: {
             QByteArray name = qobject->dynamicPropertyNames().value(member.id());
             QVariant v = qobject->property(name);
-            *result = valueFromVariant(eng, v);
+            *result = eng_p->valueFromVariant(v);
         }   break;
 
         case METHOD_ID: {
             QScript::Member m;
             bool maybeOverloaded = (member.flags() & MAYBE_OVERLOADED) != 0;
-            QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
             *result = eng_p->createFunction(new QtFunction(qobject, member.id(),
                                                            maybeOverloaded));
             // make it persist
@@ -716,6 +707,7 @@ bool QScript::ConnectionQObject::hasTarget(const QScriptValue &receiver,
 void QScript::QtPropertyFunction::execute(QScriptContext *context)
 {
     QScriptEngine *eng = context->engine();
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
     QScriptValue result = eng->undefinedValue();
 
     QMetaProperty prop = m_object->metaObject()->property(m_index);
@@ -736,7 +728,7 @@ void QScript::QtPropertyFunction::execute(QScriptContext *context)
         if (scriptable)
             QScriptablePrivate::get(scriptable)->engine = oldEngine;
 
-        result = valueFromVariant(eng, v);
+        result = eng_p->valueFromVariant(v);
     } else {
         // set
         QVariant v = variantFromValue(prop.userType(), context->argument(0));

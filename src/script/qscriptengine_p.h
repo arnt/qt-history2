@@ -411,6 +411,16 @@ public:
         return nameId(tmp, /*persistent=*/ true);
     }
 
+    inline QScriptValue valueFromVariant(const QVariant &v)
+    {
+        Q_Q(QScriptEngine);
+        QScriptValue result = create(v.userType(), v.data());
+        if (!result.isValid())
+            result = q->newVariant(v);
+        return result;
+    }
+
+
     void rehashStringRepository(bool resize = true);
     QScriptNameIdImpl *toStringEntry(const QString &s);
     QScriptNameIdImpl *insertStringEntry(const QString &s);
@@ -426,6 +436,9 @@ public:
 
     QScriptValue arrayFromVariantList(const QVariantList &lst);
     QVariantList variantListFromArray(const QScriptValue &arr);
+
+    QScriptValue objectFromVariantMap(const QVariantMap &vmap);
+    QVariantMap variantMapFromObject(const QScriptValue &obj);
 
     bool lessThan(const QScriptValue &lhs, const QScriptValue &rhs) const;
     bool equalTo(const QScriptValue &lhs, const QScriptValue &rhs) const;

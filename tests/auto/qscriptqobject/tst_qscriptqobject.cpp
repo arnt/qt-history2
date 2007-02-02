@@ -161,6 +161,8 @@ public:
         { m_qtFunctionInvoked = 14; m_actuals << qVariantFromValue(lst); return lst; }
     Q_INVOKABLE QVariant myInvokableWithVariantArg(const QVariant &v)
         { m_qtFunctionInvoked = 15; m_actuals << v; return v; }
+    Q_INVOKABLE QVariantMap myInvokableWithVariantMapArg(const QVariantMap &vm)
+        { m_qtFunctionInvoked = 16; m_actuals << vm; return vm; }
 
     void emitMySignal()
         { emit mySignal(); }
@@ -261,18 +263,16 @@ void tst_QScriptExtQObject::getSetStaticProperty()
     QCOMPARE(m_engine->evaluate("myObject.intProperty")
              .strictEqualTo(QScriptValue(m_engine, 123.0)), true);
     QCOMPARE(m_engine->evaluate("myObject.variantProperty")
-             .equalTo(QScriptValue(m_engine, QLatin1String("foo"))), true);
+             .strictEqualTo(QScriptValue(m_engine, QLatin1String("foo"))), true);
     QCOMPARE(m_engine->evaluate("myObject.stringProperty")
              .strictEqualTo(QScriptValue(m_engine, QLatin1String("bar"))), true);
     QCOMPARE(m_engine->evaluate("myObject.variantListProperty").isArray(), true);
     QCOMPARE(m_engine->evaluate("myObject.variantListProperty.length")
              .strictEqualTo(QScriptValue(m_engine, 2)), true);
-    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[0]").isVariant(), true);
-    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[0]").toVariant(),
-             QVariant(123));
-    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[1]").isVariant(), true);
-    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[1]").toVariant(),
-             QVariant(QLatin1String("foo")));
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[0]")
+             .strictEqualTo(QScriptValue(m_engine, 123)), true);
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[1]")
+             .strictEqualTo(QScriptValue(m_engine, QLatin1String("foo"))), true);
     QCOMPARE(m_engine->evaluate("myObject.stringListProperty").isArray(), true);
     QCOMPARE(m_engine->evaluate("myObject.stringListProperty.length")
              .strictEqualTo(QScriptValue(m_engine, 2)), true);
@@ -293,10 +293,10 @@ void tst_QScriptExtQObject::getSetStaticProperty()
 
     m_myObject->setVariantProperty(QLatin1String("bar"));
     QCOMPARE(m_engine->evaluate("myObject.variantProperty")
-             .equalTo(QScriptValue(m_engine, QLatin1String("bar"))), true);
+             .strictEqualTo(QScriptValue(m_engine, QLatin1String("bar"))), true);
     m_myObject->setVariantProperty(42);
     QCOMPARE(m_engine->evaluate("myObject.variantProperty")
-             .equalTo(QScriptValue(m_engine, 42)), true);
+             .strictEqualTo(QScriptValue(m_engine, 42)), true);
 
     m_myObject->setStringProperty(QLatin1String("baz"));
     QCOMPARE(m_engine->evaluate("myObject.stringProperty")
@@ -340,15 +340,12 @@ void tst_QScriptExtQObject::getSetStaticProperty()
     QCOMPARE(m_engine->evaluate("myObject.variantListProperty = [1, 'two', true];"
                                 "myObject.variantListProperty.length")
              .strictEqualTo(QScriptValue(m_engine, 3)), true);
-    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[0]").isVariant(), true);
-    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[0]").toVariant(),
-             QVariant(1));
-    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[1]").isVariant(), true);
-    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[1]").toVariant(),
-             QVariant(QLatin1String("two")));
-    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[2]").isVariant(), true);
-    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[2]").toVariant(),
-             QVariant(true));
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[0]")
+             .strictEqualTo(QScriptValue(m_engine, 1)), true);
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[1]")
+             .strictEqualTo(QScriptValue(m_engine, QLatin1String("two"))), true);
+    QCOMPARE(m_engine->evaluate("myObject.variantListProperty[2]")
+             .strictEqualTo(QScriptValue(m_engine, true)), true);
     {
         QVariantList vl = qscriptvalue_cast<QVariantList>(m_engine->evaluate("myObject.variantListProperty"));
         QCOMPARE(vl, QVariantList()
@@ -592,6 +589,25 @@ void tst_QScriptExtQObject::callQtInvokable()
 
     m_engine->globalObject().setProperty("fishy", m_engine->newVariant(123));
     m_engine->evaluate("myObject.myInvokableWithStringArg(fishy)");
+
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithVariantMapArg({ a:123, b:'ciao' })");
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 16);
+        QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+        QVariant v = m_myObject->qtFunctionActuals().at(0);
+        QCOMPARE(v.userType(), int(QMetaType::QVariantMap));
+        QVariantMap vmap = qvariant_cast<QVariantMap>(v);
+        QCOMPARE(vmap.keys().size(), 2);
+        QCOMPARE(vmap.keys().at(0), QLatin1String("a"));
+        QCOMPARE(vmap.value("a"), QVariant(123));
+        QCOMPARE(vmap.keys().at(1), QLatin1String("b"));
+        QCOMPARE(vmap.value("b"), QVariant("ciao"));
+
+        QCOMPARE(ret.isObject(), true);
+        QCOMPARE(ret.property("a").strictEqualTo(QScriptValue(m_engine, 123)), true);
+        QCOMPARE(ret.property("b").strictEqualTo(QScriptValue(m_engine, "ciao")), true);
+    }
 }
 
 void tst_QScriptExtQObject::connectAndDisconnect()

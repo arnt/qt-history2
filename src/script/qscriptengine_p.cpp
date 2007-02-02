@@ -19,6 +19,7 @@
 #include "qscriptobject_p.h"
 #include "qscriptcontext_p.h"
 #include "qscriptvalue_p.h"
+#include "qscriptvalueiterator.h"
 
 #include "qscriptecmaglobal_p.h"
 #include "qscriptecmaobject_p.h"
@@ -990,7 +991,7 @@ QScriptValue QScriptEnginePrivate::arrayFromVariantList(const QVariantList &lst)
     Q_Q(QScriptEngine);
     QScriptValue arr = q->newArray(lst.size());
     for (int i = 0; i < lst.size(); ++i)
-        arr.setProperty(i, q->newVariant(lst.at(i)));
+        arr.setProperty(i, valueFromVariant(lst.at(i)));
     return arr;
 }
 
@@ -1001,6 +1002,27 @@ QVariantList QScriptEnginePrivate::variantListFromArray(const QScriptValue &arr)
     for (uint i = 0; i < len; ++i)
         lst.append(arr.property(i).toVariant());
     return lst;
+}
+
+QScriptValue QScriptEnginePrivate::objectFromVariantMap(const QVariantMap &vmap)
+{
+    Q_Q(QScriptEngine);
+    QScriptValue obj = q->newObject();
+    QVariantMap::const_iterator it;
+    for (it = vmap.constBegin(); it != vmap.constEnd(); ++it)
+        obj.setProperty(it.key(), valueFromVariant(it.value()));
+    return obj;
+}
+
+QVariantMap QScriptEnginePrivate::variantMapFromObject(const QScriptValue &obj)
+{
+    QVariantMap vmap;
+    QScriptValueIterator it(obj);
+    while (it.hasNext()) {
+        it.next();
+        vmap.insert(it.name(), it.value().toVariant());
+    }
+    return vmap;
 }
 
 QScriptValue QScriptEnginePrivate::create(int type, const void *ptr)
@@ -1049,6 +1071,9 @@ QScriptValue QScriptEnginePrivate::create(int type, const void *ptr)
             break;
         case QMetaType::QVariantList:
             result = arrayFromVariantList(*reinterpret_cast<const QVariantList *>(ptr));
+            break;
+        case QMetaType::QVariantMap:
+            result = objectFromVariantMap(*reinterpret_cast<const QVariantMap *>(ptr));
             break;
         case QMetaType::QDateTime: {
             QDateTime dateTime = *reinterpret_cast<const QDateTime *>(ptr);
@@ -1125,6 +1150,11 @@ bool QScriptEnginePrivate::convert(const QScriptValue &value,
     case QMetaType::QVariantList:
         if (value.isArray()) {
             *reinterpret_cast<QVariantList *>(ptr) = variantListFromArray(value);
+            return true;
+        } break;
+    case QMetaType::QVariantMap:
+        if (value.isObject()) {
+            *reinterpret_cast<QVariantMap *>(ptr) = variantMapFromObject(value);
             return true;
         } break;
     default:
