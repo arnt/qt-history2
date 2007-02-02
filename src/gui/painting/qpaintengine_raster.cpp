@@ -1141,38 +1141,23 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
             // The tricky case... When we disable clipping we still do
             // system clip so we need to rasterize the system clip and
             // replace the current clip with it. Since people might
-            // choose to set clipping to true later on we have to the
+            // choose to set clipping to true later on we have to save the
             // current one (in disabled_clip).
-            if (!d->baseClip.isEmpty()) {
-                if (!state.isClipEnabled()) { // save current clip for later
-                    Q_ASSERT(!d->rasterBuffer->disabled_clip);
-                    d->rasterBuffer->disabled_clip = d->rasterBuffer->clip;
-                    d->rasterBuffer->clip = 0;
+            if (!state.isClipEnabled()) { // save current clip for later
+                Q_ASSERT(!d->rasterBuffer->disabled_clip);
+                d->rasterBuffer->disabled_clip = d->rasterBuffer->clip;
+                d->rasterBuffer->clip = 0;
 #ifdef QT_EXPERIMENTAL_REGIONS
-                    updateClipRegion(QRegion(), Qt::NoClip);
+                updateClipRegion(QRegion(), Qt::NoClip);
 #else
-                    updateClipPath(QPainterPath(), Qt::NoClip);
+                updateClipPath(QPainterPath(), Qt::NoClip);
 #endif
-                } else { // re-enable old clip
-                    Q_ASSERT(d->rasterBuffer->disabled_clip);
-                    d->rasterBuffer->resetClip();
-                    d->rasterBuffer->clip = d->rasterBuffer->disabled_clip;
-                    d->rasterBuffer->disabled_clip = 0;
-                }
-            } else {
-                if (!state.isClipEnabled()) {
-#ifdef QT_EXPERIMENTAL_REGIONS
-                    updateClipRegion(QRegion(), Qt::NoClip);
-#else
-                    updateClipPath(QPainterPath(), Qt::NoClip);
-#endif
-                } else {
-#ifdef QT_EXPERIMENTAL_REGIONS
-                    updateClipRegion(state.clipRegion(), state.clipOperation());
-#else
-                    updateClipPath(state.clipPath(), state.clipOperation());
-#endif
-                }
+            } else { // re-enable old clip
+                Q_ASSERT(d->rasterBuffer->disabled_clip);
+                d->rasterBuffer->resetClip();
+                d->rasterBuffer->clip = d->rasterBuffer->disabled_clip;
+                d->rasterBuffer->disabled_clip = 0;
+                d->rasterBuffer->clipEnabled = true;
             }
             d->penData.adjustSpanMethods();
             d->brushData.adjustSpanMethods();
