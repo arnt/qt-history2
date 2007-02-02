@@ -1316,7 +1316,7 @@ QRectF QTextControl::selectionRect(const QTextCursor &cursor) const
         const int anchor = cursor.selectionEnd();
         const QTextBlock posBlock = d->doc->findBlock(position);
         const QTextBlock anchorBlock = d->doc->findBlock(anchor);
-        if (posBlock == anchorBlock && posBlock.layout()->lineCount()) {
+        if (posBlock == anchorBlock && posBlock.isValid() && posBlock.layout()->lineCount()) {
             const QTextLine posLine = posBlock.layout()->lineForTextPosition(position - posBlock.position());
             const QTextLine anchorLine = anchorBlock.layout()->lineForTextPosition(anchor - anchorBlock.position());
 
