@@ -463,7 +463,8 @@ public:
 
     void setSizeHint(const QSize &s) { sh = s; }
     QSize sizeHint() const { return sh; }
-    QSize minimumSizeHint() const { return sh; }
+    void setMinimumSizeHint(const QSize &s) { msh = s; }
+    QSize minimumSizeHint() const { return msh; }
 
     virtual int heightForWidth(int width) const;
 
@@ -480,6 +481,7 @@ private:
     }
 private:
     QSize sh;
+    QSize msh;
     int m_numPixels;
 };
 
@@ -591,6 +593,7 @@ void tst_QGridLayout::spacingsAndMargins()
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < columns; ++j) {
             SizeHinterFrame *sh = new SizeHinterFrame(sizehint);
+            sh->setMinimumSizeHint(sizehint);
             sizehinters.append(sh);
             grid1.addWidget(sh, i, j);
         }
@@ -605,6 +608,7 @@ void tst_QGridLayout::spacingsAndMargins()
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < columns; ++j) {
             SizeHinterFrame *sh = new SizeHinterFrame(sizehint);
+            sh->setMinimumSizeHint(sizehint);
             sizehinters.append(sh);
             grid2.addWidget(sh, i, j);
         }
