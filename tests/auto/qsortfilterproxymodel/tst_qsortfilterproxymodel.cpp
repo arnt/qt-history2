@@ -572,6 +572,7 @@ void tst_QSortFilterProxyModel::prependRow()
     QModelIndex index_sub2 = proxy.mapFromSource(model.indexFromItem(&sub2));
 
     QCOMPARE(sub2.rowCount(), proxy.rowCount(index_sub2));
+    QCOMPARE(proxy.rowCount(QModelIndex()), 1); //only the "root" item is there
 }
 
 
