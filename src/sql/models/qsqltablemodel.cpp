@@ -678,6 +678,7 @@ bool QSqlTableModel::submitAll()
         if (d->insertIndex != -1) {
             if (!insertRowIntoTable(d->editBuffer))
                 return false;
+            d->bottom = d->bottom.sibling(d->bottom.row() + 1, d->bottom.column());
         } else {
             if (!updateRowInTable(d->editIndex, d->editBuffer))
                 return false;
@@ -693,6 +694,7 @@ bool QSqlTableModel::submitAll()
             case QSqlTableModelPrivate::Insert:
                 if (!insertRowIntoTable(it.value().rec))
                     return false;
+                d->bottom = d->bottom.sibling(d->bottom.row() + 1, d->bottom.column());
                 break;
             case QSqlTableModelPrivate::Update:
                 if (!updateRowInTable(it.key(), it.value().rec))
