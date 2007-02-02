@@ -520,7 +520,8 @@
     until it runs into a timeout (see \c{QSQLITE_BUSY_TIMEOUT}
     at QSqlDatabase::setConnectOptions()).
 
-    SQLite has no support for types, every value is treated as character data.
+    SQLite doesn't have a type-system like other databases, so Qt
+    will interpret fields as strings.
 
     You can find information about SQLite on \l{http://www.sqlite.org}.
 
