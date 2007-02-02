@@ -1038,7 +1038,7 @@ void tst_QWizard::setOption_NoDefaultButton()
     wizard.setOption(QWizard::NoDefaultButton, false);
     wizard.setOption(QWizard::HaveFinishButtonOnEarlyPages, true);
     wizard.addPage(new QWizardPage);
-    wizard.page(0)->setFinal(true);
+    wizard.page(0)->setFinalPage(true);
     wizard.addPage(new QWizardPage);
 
     if (QPushButton *pb = qobject_cast<QPushButton *>(wizard.button(QWizard::NextButton)))
@@ -1119,7 +1119,7 @@ void tst_QWizard::setOption_NoBackButtonOnLastPage()
         wizard.setOption(QWizard::DisabledBackButtonOnLastPage, i == 0);    // changes nothing
         wizard.addPage(new QWizardPage);
         wizard.addPage(new QWizardPage);
-        wizard.page(1)->setFinal(true);     // changes nothing (final != last in general)
+        wizard.page(1)->setFinalPage(true);     // changes nothing (final != last in general)
         wizard.addPage(new QWizardPage);
 
         wizard.setStartId(1);
@@ -1162,7 +1162,7 @@ void tst_QWizard::setOption_DisabledBackButtonOnLastPage()
     wizard.setOption(QWizard::DisabledBackButtonOnLastPage, true);
     wizard.addPage(new QWizardPage);
     wizard.addPage(new QWizardPage);
-    wizard.page(1)->setFinal(true);     // changes nothing (final != last in general)
+    wizard.page(1)->setFinalPage(true);     // changes nothing (final != last in general)
     wizard.addPage(new QWizardPage);
 
     wizard.setStartId(1);
@@ -1205,7 +1205,7 @@ void tst_QWizard::setOption_HaveNextButtonOnLastPage()
     wizard.setOption(QWizard::HaveNextButtonOnLastPage, false);
     wizard.addPage(new QWizardPage);
     wizard.addPage(new QWizardPage);
-    wizard.page(1)->setFinal(true);     // changes nothing (final != last in general)
+    wizard.page(1)->setFinalPage(true);     // changes nothing (final != last in general)
     wizard.addPage(new QWizardPage);
 
     wizard.setStartId(1);
@@ -1248,7 +1248,7 @@ void tst_QWizard::setOption_HaveFinishButtonOnEarlyPages()
     QVERIFY(!wizard.testOption(QWizard::HaveFinishButtonOnEarlyPages));
     wizard.addPage(new QWizardPage);
     wizard.addPage(new QWizardPage);
-    wizard.page(1)->setFinal(true);
+    wizard.page(1)->setFinalPage(true);
     wizard.addPage(new QWizardPage);
 
     wizard.show();
