@@ -681,12 +681,6 @@ void QLabelPrivate::textInteractionFlagsChanged()
     Q_Q(QLabel);
     if (!doc)
         return;
-    if (textInteractionFlags & Qt::LinksAccessibleByKeyboard)
-        q->setFocusPolicy(Qt::StrongFocus);
-    else if (textInteractionFlags & Qt::TextSelectableByKeyboard)
-        q->setFocusPolicy(Qt::ClickFocus);
-    else
-        q->setFocusPolicy(Qt::NoFocus);
 
     bool richText = isRichText();
     if ((richText && textInteractionFlags != Qt::NoTextInteraction)
@@ -717,6 +711,13 @@ void QLabel::setTextInteractionFlags(Qt::TextInteractionFlags flags)
     if (d->textInteractionFlags == flags)
         return;
     d->textInteractionFlags = flags;
+    if (flags & Qt::LinksAccessibleByKeyboard)
+        setFocusPolicy(Qt::StrongFocus);
+    else if (flags & Qt::TextSelectableByKeyboard)
+        setFocusPolicy(Qt::ClickFocus);
+    else
+        setFocusPolicy(Qt::NoFocus);
+
     d->textInteractionFlagsChanged();
 }
 

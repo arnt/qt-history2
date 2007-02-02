@@ -65,6 +65,7 @@ private slots:
     void wordWrap();
     void eventPropagation_data();
     void eventPropagation();
+    void focusPolicy();
 
 private:
     QLabel *testWidget;
@@ -307,6 +308,26 @@ void tst_QLabel::eventPropagation()
     QVERIFY(int(test_label->focusPolicy()) == focusPolicy);
     QTest::mousePress(test_label, Qt::LeftButton);
     QVERIFY(test_box->events.contains(QEvent::MouseButtonPress) == propagation); // should have propagated!
+}
+
+void tst_QLabel::focusPolicy()
+{
+    delete test_label;
+    test_label = new QLabel;
+    QCOMPARE(test_label->focusPolicy(), Qt::NoFocus); // default
+    test_label->setFocusPolicy(Qt::StrongFocus);
+    test_label->setText("Whatever"); // setting text should not change the focus policy
+    QCOMPARE(test_label->focusPolicy(), Qt::StrongFocus);
+    test_label->setTextInteractionFlags(Qt::TextSelectableByKeyboard); // this should
+    QCOMPARE(test_label->focusPolicy(), Qt::ClickFocus);
+    test_label->setFocusPolicy(Qt::StrongFocus);
+    test_label->setText("Whatever"); // setting text should not change the focus policy
+    QCOMPARE(test_label->focusPolicy(), Qt::StrongFocus);
+    test_label->setTextInteractionFlags(Qt::NoTextInteraction);
+    QCOMPARE(test_label->focusPolicy(), Qt::NoFocus);
+    test_label->setFocusPolicy(Qt::StrongFocus);
+    test_label->setTextInteractionFlags(Qt::NoTextInteraction);
+    QCOMPARE(test_label->focusPolicy(), Qt::StrongFocus); // is not touched since value didn't change
 }
 
 QTEST_MAIN(tst_QLabel)
