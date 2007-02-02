@@ -11,6 +11,7 @@
 #include "../qsqldatabase/tst_databases.h"
 
 #include <QtSql>
+#include <QSignalSpy>
 
 //TESTED_CLASS=
 //TESTED_FILES=sql/gui/qsqltablemodel.h sql/gui/qsqltablemodel.cpp
@@ -63,6 +64,7 @@ private slots:
     // bug specific tests
     void insertRecordBeforeSelect();
     void submitAllOnInvalidTable();
+    void insertRecordsInLoop();
 };
 
 tst_QSqlTableModel::tst_QSqlTableModel()
@@ -741,6 +743,45 @@ void tst_QSqlTableModel::submitAllOnInvalidTable()
     QEXPECT_FAIL("", "The table doesn't exist: select() shall fail",
         Continue);
     QVERIFY2(model.select(), model.lastError().text().toLatin1());
+}
+
+// For task 147575: the rowsRemoved signal emitted from the model was lying
+void tst_QSqlTableModel::insertRecordsInLoop()
+{
+    QFETCH_GLOBAL(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlTableModel model(0, db);
+    model.setTable(qTableName("test"));
+    model.setEditStrategy(QSqlTableModel::OnManualSubmit);
+    model.select();
+
+    QSqlRecord record = model.record();
+    record.setValue(0, 10);
+    record.setValue(1, "Testman");
+    record.setValue(2, 1);
+    
+    QSignalSpy spyRowsRemoved(&model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)));
+    QSignalSpy spyRowsInserted(&model, SIGNAL(rowsInserted(const QModelIndex &, int, int)));
+    for (int i = 0; i < 10; i++) {
+        QVERIFY(model.insertRecord(model.rowCount(), record));
+        QCOMPARE(spyRowsInserted.at(i).at(1).toInt(), i+3); // The table already contains three rows
+        QCOMPARE(spyRowsInserted.at(i).at(2).toInt(), i+3);
+    }
+    model.submitAll(); // submitAll() calls select() which clears and repopulates the table
+
+    int firstRowIndex = 0, lastRowIndex = 12;
+    QCOMPARE(spyRowsRemoved.count(), 1);
+    QCOMPARE(spyRowsRemoved.at(0).at(1).toInt(), firstRowIndex);
+    QCOMPARE(spyRowsRemoved.at(0).at(2).toInt(), lastRowIndex);
+
+    QCOMPARE(spyRowsInserted.at(10).at(1).toInt(), firstRowIndex);
+    QCOMPARE(spyRowsInserted.at(10).at(2).toInt(), lastRowIndex);
+    QCOMPARE(spyRowsInserted.count(), 11);
+
+    QCOMPARE(model.rowCount(), 13);
+    QCOMPARE(model.columnCount(), 3);
 }
 
 QTEST_MAIN(tst_QSqlTableModel)
