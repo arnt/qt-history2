@@ -541,10 +541,10 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         } else if(ekind == kEventWindowResizeStarted || ekind == kEventWindowDragStarted) {
             QMacBlockingFunction::addRef();
         } else if(ekind == kEventWindowResizeCompleted) {
-            // Create a mouse up event, since such an event is not send by carbon to the 
+            // Create a mouse up event, since such an event is not send by carbon to the
             // application event handler (while a mouse down <b>is</b> on kEventWindowResizeStarted)
             EventRef mouseUpEvent;
-            CreateEvent(0, kEventClassMouse, kEventMouseUp, 0, kEventAttributeUserEvent, &mouseUpEvent);                
+            CreateEvent(0, kEventClassMouse, kEventMouseUp, 0, kEventAttributeUserEvent, &mouseUpEvent);
             UInt16 mbutton = kEventMouseButtonPrimary;
             SetEventParameter(mouseUpEvent, kEventParamMouseButton, typeMouseButton, sizeof(mbutton), &mbutton);
             WindowRef window;
@@ -862,6 +862,9 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                         p.end();
                         if (!redirectionOffset.isNull())
                             QPainter::restoreRedirected(widget);
+                    } else if(0) {
+                        QRect qrgnRect = qrgn.boundingRect();
+                        CGContextClearRect(cg, CGRectMake(qrgnRect.x(), qrgnRect.y(), qrgnRect.width(), qrgnRect.height()));
                     }
 
                     if(!HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget))
@@ -2733,7 +2736,7 @@ void QWidgetPrivate::setModal_sys()
 
 // The HIWindowChangeClass function does not work correctly. It fails to remove the jewels (e.g close button)
 // and writes the window text over it when going from document class to movable modal. So it looks crappy.
-// Bug reported to apple. When fixed, the lines below should work (task 142893).  
+// Bug reported to apple. When fixed, the lines below should work (task 142893).
 
     Q_Q(QWidget);
 
@@ -2759,5 +2762,5 @@ void QWidgetPrivate::setModal_sys()
         if (old_wclass != newClass && newClass != 0)
             HIWindowChangeClass(windowRef, newClass);
     }
-#endif    
+#endif
 }
