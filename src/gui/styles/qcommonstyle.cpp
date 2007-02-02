@@ -3393,8 +3393,10 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                 }
 
                 int frameWidth = 0;
-                if ((groupBox->features & QStyleOptionFrameV2::Flat) == 0)
+                if (!(widget && widget->inherits("Q3GroupBox"))
+                    && ((groupBox->features & QStyleOptionFrameV2::Flat) == 0)) {
                     frameWidth = pixelMetric(PM_DefaultFrameWidth, groupBox, widget);
+                }
                 ret = frameRect.adjusted(frameWidth, frameWidth + groupBox->fontMetrics.descent() + 1,
                                          -frameWidth, -frameWidth);
                 break;
