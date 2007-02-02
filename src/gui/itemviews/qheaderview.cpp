@@ -99,11 +99,10 @@ QDataStream &operator>>(QDataStream &in, QHeaderViewPrivate::SectionSpan &span)
     model, and for a vertical header the section is equivalent to a row
     in the model.
 
-    QTableWidget and QTableView creates default headers. If you want
+    QTableWidget and QTableView create default headers. If you want
     the headers to be visible, you can use \l{QFrame::}{setVisible()}.
     
     \sa {Model/View Programming}, QListView, QTableView, QTreeView
-
 */
 
 /*!
