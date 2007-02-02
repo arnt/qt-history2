@@ -395,6 +395,9 @@ bool QFileDialog::restoreState(const QByteArray &state)
     return true;
 }
 
+/*!
+    \reimp
+*/
 void QFileDialog::changeEvent(QEvent *e)
 {
     Q_D(QFileDialog);
@@ -2039,12 +2042,12 @@ void QFileDialogPrivate::_q_animateDialogH(int x)
 }
 
 /*!
-    Sets the model for the views to the given \proxyModel.  This is useful if you
+    Sets the model for the views to the given \a proxyModel.  This is useful if you
     want to modify the underlying model; for example, to add columns, filter
     data or add drives.
 
     Any existing proxy model will be removed, but not deleted.  The file dialog
-    will take ownership of the \proxyModel.
+    will take ownership of the \a proxyModel.
 
     \sa proxyModel()
 */
@@ -2085,7 +2088,7 @@ void QFileDialog::setProxyModel(QAbstractProxyModel *proxyModel)
 /*!
     Returns the proxy model used by the file dialog.  By default no proxy is set.
 
-    \sa setProxyModel();
+    \sa setProxyModel()
 */
 QAbstractProxyModel *QFileDialog::proxyModel() const
 {
