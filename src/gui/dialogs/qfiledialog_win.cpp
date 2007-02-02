@@ -399,7 +399,7 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
     modal_widget.setAttribute(Qt::WA_NoChildEventsForParent, true);
     modal_widget.setParent(args.parent, Qt::Window);
     QApplicationPrivate::enterModal(&modal_widget);
-    
+
     // This block is used below for the lpstrDefExt member.
     // Note that the current MSDN docs document this member wrong.
     // It should rather be documented as "the default extension if no extension was given and if the
@@ -426,7 +426,7 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
 					    args.options);
 
         ofn->lpstrDefExt = (TCHAR *)defaultSaveExt.utf16();
-        
+
         if (idx)
             ofn->nFilterIndex = idx + 1;
         if (GetSaveFileName(ofn)) {
@@ -443,7 +443,7 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
 					      args.options);
         QByteArray asciiExt = defaultSaveExt.toAscii();
         ofn->lpstrDefExt = asciiExt.data();
-        
+
         if (idx)
             ofn->nFilterIndex = idx + 1;
         if (GetSaveFileNameA(ofn)) {
@@ -637,6 +637,8 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
         parent = parent->window();
     else
         parent = qApp->activeWindow();
+    if (parent)
+        parent->createWinId();
 
     QWidget modal_widget;
     modal_widget.setAttribute(Qt::WA_NoChildEventsForParent, true);
