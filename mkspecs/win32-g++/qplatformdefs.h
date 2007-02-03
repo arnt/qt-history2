@@ -106,8 +106,8 @@ typedef enum {
 
 #define QT_FOPEN                ::fopen
 #ifdef QT_LARGEFILE_SUPPORT
-#define QT_FSEEK                ::_fseeki64
-#define QT_FTELL                ::_ftelli64
+#define QT_FSEEK                ::fseeko64
+#define QT_FTELL                ::ftello64
 #else
 #define QT_FSEEK                ::fseek
 #define QT_FTELL                ::ftell
@@ -116,7 +116,7 @@ typedef enum {
 #define QT_FSETPOS              ::fsetpos
 #define QT_FPOS_T               fpos_t
 #ifdef QT_LARGEFILE_SUPPORT
-#define QT_OFF_T                __int64
+#define QT_OFF_T                off64_t
 #else
 #define QT_OFF_T                long
 #endif
