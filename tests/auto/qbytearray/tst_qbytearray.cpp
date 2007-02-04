@@ -167,6 +167,11 @@ void tst_QByteArray::qUncompress_data()
 void tst_QByteArray::qUncompress()
 {
     QFETCH(QByteArray, in);
+
+#if defined Q_OS_HPUX && !defined __ia64 && defined Q_CC_GNU
+    QSKIP("Corrupt data causes this tests to lock up on HP-UX / PA-RISC with gcc", SkipAll);
+#endif
+
     QTEST(::qUncompress(in), "out");
     QTEST(::qUncompress(in + "blah"), "out");
 }
