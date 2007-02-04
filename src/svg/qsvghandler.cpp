@@ -3424,3 +3424,9 @@ int QSvgHandler::animationDuration() const
 {
     return m_animEnd;
 }
+
+QSvgHandler::~QSvgHandler()
+{
+    delete m_selector;
+    m_selector = 0;
+}

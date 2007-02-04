@@ -67,6 +67,7 @@ public:
 
 public:
     QSvgHandler();
+    ~QSvgHandler();
 
     QSvgTinyDocument *document() const;
 
