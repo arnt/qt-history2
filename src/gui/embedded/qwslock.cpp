@@ -24,19 +24,23 @@
 #include <sys/sem.h>
 #include <sys/time.h>
 #include <time.h>
+#ifdef Q_OS_LINUX
 #include <linux/version.h>
+#endif
 #include <unistd.h>
 
 #ifdef QT_NO_SEMAPHORE
 #error QWSLock currently requires semaphores
 #endif
 
+#ifndef Q_OS_BSD4
 union semun {
     int val;
     struct semid_ds *buf;
     unsigned short *array;
     struct seminfo  *__buf;
 };
+#endif
 
 QWSLock::QWSLock()
 {

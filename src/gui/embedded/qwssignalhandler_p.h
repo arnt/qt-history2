@@ -30,6 +30,10 @@
 #include <QtCore/qobjectcleanuphandler.h>
 #include <signal.h>
 
+#ifdef Q_OS_BSD4
+typedef sig_t sighandler_t;
+#endif
+
 class QWSSignalHandlerPrivate;
 
 class QWSSignalHandler

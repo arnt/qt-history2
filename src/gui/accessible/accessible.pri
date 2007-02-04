@@ -10,7 +10,7 @@ contains(QT_CONFIG, accessibility) {
 		 accessible/qaccessiblewidget.cpp \
 		 accessible/qaccessibleplugin.cpp
 
-      mac {
+      mac!embedded {
         SOURCES += accessible/qaccessible_mac.cpp
       } else:win32 { 
         SOURCES += accessible/qaccessible_win.cpp

@@ -536,7 +536,7 @@
 #  define Q_WS_PM
 #  error "Qt does not work with OS/2 Presentation Manager or Workplace Shell"
 #elif defined(Q_OS_UNIX)
-#  if defined(Q_OS_DARWIN) && !defined(__USE_WS_X11__)
+#  if defined(Q_OS_DARWIN) && !defined(__USE_WS_X11__) && !defined(Q_WS_QWS)
 #    define Q_WS_MAC
 #    define Q_WS_MACX
 #  elif !defined(Q_WS_QWS)
@@ -1103,7 +1103,7 @@ public:
     };
     static const WinVersion WindowsVersion;
 #endif
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     enum MacVersion {
         MV_Unknown = 0x0000,
 

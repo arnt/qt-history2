@@ -22,7 +22,9 @@ HEADERS += \
         dialogs/qfileinfogatherer_p.h
 
 !embedded:mac {
-    SOURCES	+= dialogs/qfiledialog_mac.cpp
+    SOURCES	+= dialogs/qfiledialog_mac.cpp \
+                   dialogs/qprintdialog_mac.cpp \
+                   dialogs/qpagesetupdialog_mac.cpp
     OBJECTIVE_SOURCES += dialogs/qcolordialog_mac.mm
 }
 win32 {
@@ -33,10 +35,6 @@ win32 {
     !win32-borland:LIBS += -lshell32 	# the filedialog needs this library
 }
 
-mac {
-	SOURCES += dialogs/qprintdialog_mac.cpp \
-                   dialogs/qpagesetupdialog_mac.cpp
-}
 !mac:!embedded:unix {
 	SOURCES += dialogs/qprintdialog_unix.cpp \
 		   dialogs/qpagesetupdialog_unix.cpp

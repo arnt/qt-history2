@@ -57,10 +57,14 @@ win32 {
 		kernel/qwineventnotifier_p.h
 }
 
+mac:!embedded {
+       SOURCES += \
+                kernel/qcoreapplication_mac.cpp
+}
+
 mac {
        SOURCES += \
-		kernel/qcore_mac.cpp \
-                kernel/qcoreapplication_mac.cpp
+		kernel/qcore_mac.cpp
 }
 
 unix {
