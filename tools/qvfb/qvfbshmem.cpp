@@ -29,7 +29,9 @@
 #include <sys/stat.h>
 #include <sys/sem.h>
 #include <sys/mman.h>
+#ifdef Q_OS_LINUX
 #include <asm/page.h>
+#endif
 #include <fcntl.h>
 #include <errno.h>
 #include <math.h>
