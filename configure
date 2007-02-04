@@ -550,6 +550,9 @@ CFG_STL=auto
 CFG_PRECOMPILE=auto
 CFG_SEPARATE_DEBUG_INFO=auto
 CFG_REDUCE_EXPORTS=auto
+CFG_MMX=auto
+CFG_SSE=auto
+CFG_SSE2=auto
 CFG_REDUCE_RELOCATIONS=no
 CFG_IPV6=auto
 CFG_NAS=no
@@ -1226,6 +1229,27 @@ while [ "$#" -gt 0 ]; do
     reduce-exports)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             CFG_REDUCE_EXPORTS="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    mmx)
+        if [ "$VAL" = "no" ]; then
+            CFG_MMX="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    sse)
+        if [ "$VAL" = "no" ]; then
+            CFG_SSE="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    sse2)
+        if [ "$VAL" = "no" ]; then
+            CFG_SSE2="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2250,12 +2274,30 @@ if [ "$CFG_REDUCE_RELOCATIONS" != "no" ]; then
     fi
 fi
 
-# detect SSE support
-if [ "$CFG_SSE" = "auto" ]; then
-    if "$unixtests/sse.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
-       CFG_SSE=no
+# detect mmx support
+if [ "${CFG_MMX}" = "auto" ]; then
+    if "$unixtests/mmx.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
+	CFG_MMX=no
     else
-       CFG_SSE=yes
+	CFG_MMX=yes
+    fi
+fi
+
+# detect sse support
+if [ "${CFG_SSE}" = "auto" ]; then
+    if "$unixtests/sse.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
+	CFG_SSE=no
+    else
+	CFG_SSE=yes
+    fi
+fi
+
+# detect sse2 support
+if [ "${CFG_SSE2}" = "auto" ]; then
+    if "$unixtests/sse2.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
+       CFG_SSE2=no
+    else
+       CFG_SSE2=yes
     fi
 fi
 
@@ -2527,6 +2569,7 @@ Usage:  $relconf [-prefix <dir>] [-prefix-install] [-bindir <dir>] [-libdir <dir
         [-no-make <part>] [-R <string>]  [-l <string>] [-no-rpath]  [-rpath] [-continue] 
         [-verbose] [-v] [-silent] [-no-nis] [-nis] [-no-cups] [-cups] [-no-iconv] 
         [-iconv] [-no-pch] [-pch] [-no-qdbus] [-qdbus] [-no-separate-debug-info] 
+        [-no-mmx] [-no-sse] [-no-sse2]
         [-separate-debug-info] [-armfpa] [-no-optimized-qmake] [-optimized-qmake]
 
         [additional platform specific options (see below)]
@@ -2643,6 +2686,10 @@ fi
 
                          See the README file for a list of supported
                          operating systems and compilers.
+
+    -no-mmx ............ Do not compile with use of MMX instructions.
+    -no-sse ............ Do not compile with use of SSE instructions.
+    -no-sse2 ........... Do not compile with use of SSE2 instructions.
 
     -D <string> ........ Add an explicit define to the preprocessor.
     -I <string> ........ Add an explicit include path.
@@ -4426,7 +4473,9 @@ if [ "$CFG_SEPARATE_DEBUG_INFO" = "yes" ]; then
     QMakeVar add QMAKE_CXXFLAGS -g
     QMAKE_CONFIG="$QMAKE_CONFIG separate_debug_info"
 fi
+[ "$CFG_MMX" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG mmx"
 [ "$CFG_SSE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sse"
+[ "$CFG_SSE2" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sse2"
 [ "$CFG_IWMMXT" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG iwmmxt"
 [ "$PLATFORM_MAC" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG $CFG_MAC_ARCHS"
 if [ "$CFG_IPV6" = "yes" ]; then
@@ -5230,7 +5279,7 @@ echo "Qt 3 compatibility .. $CFG_QT3SUPPORT"
 echo "QtDBus module ....... $CFG_QDBUS"
 echo "STL support ......... $CFG_STL"
 echo "PCH support ......... $CFG_PRECOMPILE"
-echo "MMX/SSE support ..... $CFG_SSE"
+echo "MMX/SSE/SSE2 support  ${CFG_MMX}/${CFG_SSE}/${CFG_SSE2}"
 echo "IPv6 support ........ $CFG_IPV6"
 echo "IPv6 ifname support . $CFG_IPV6IFNAME"
 echo "getaddrinfo support . $CFG_GETADDRINFO"
