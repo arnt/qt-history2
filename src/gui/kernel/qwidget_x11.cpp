@@ -2553,7 +2553,7 @@ void QWidget::setWindowOpacity(qreal opacity)
         return;
 
     Q_D(QWidget);
-    opacity = qBound(0.0, opacity, 1.0);
+    opacity = qBound(qreal(0.0), opacity, qreal(1.0));
     d->topData()->opacity = uint(opacity * 255);
     if (!testAttribute(Qt::WA_WState_Created))
         return;
