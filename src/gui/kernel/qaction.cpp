@@ -234,7 +234,7 @@ QAction::QAction(QObject* parent)
     Option..." becomes "Menu Option") as descriptive text for
     toolbuttons. You can override this by setting a specific
     description with setText(). The same text will be used for
-    tooltips unless you specify a different test using
+    tooltips unless you specify a different text using
     setToolTip().
 
 */
@@ -257,7 +257,7 @@ QAction::QAction(const QString &text, QObject* parent)
     Option..." becomes "Menu Option") as descriptive text for
     toolbuttons. You can override this by setting a specific
     description with setText(). The same text will be used for
-    tooltips unless you specify a different test using
+    tooltips unless you specify a different text using
     setToolTip().
 */
 QAction::QAction(const QIcon &icon, const QString &text, QObject* parent)
