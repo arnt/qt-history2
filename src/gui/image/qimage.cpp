@@ -4267,8 +4267,16 @@ bool QImage::operator==(const QImage & i) const
             || d->format == Format_ARGB32_Premultiplied
             || d->format == Format_RGB16
             ) {
-            if (memcmp(bits(), i.bits(), d->nbytes))
-                return false;
+            const int n = d->width * d->depth / 8;
+            if (n == d->bytes_per_line) {
+                if (memcmp(bits(), i.bits(), d->nbytes))
+                    return false;
+            } else {
+                for (int y = 0; y < d->height; ++y) {
+                    if (memcmp(scanLine(y), i.scanLine(y), n))
+                        return false;
+                }
+            }
         } else {
             int w = width();
             int h = height();
