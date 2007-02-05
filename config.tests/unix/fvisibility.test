@@ -4,6 +4,10 @@ FVISIBILITY_SUPPORT=no
 COMPILER=$1
 VERBOSE=$2
 
+case "$COMPILER" in
+    aCC*)
+    ;;
+    *)
 cat >>fvisibility.c << EOF
 __attribute__((visibility("default"))) void blah();
 #if defined(__GNUC__) && __GNUC__ < 4
@@ -13,6 +17,8 @@ EOF
 
 "$COMPILER" -c -fvisibility=hidden fvisibility.c >/dev/null 2>&1 && FVISIBILITY_SUPPORT=yes
 rm -f fvisibility.c fvisibility.o
+    ;;
+esac
 
 # done
 if [ "$FVISIBILITY_SUPPORT" != "yes" ]; then
