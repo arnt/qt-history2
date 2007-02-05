@@ -314,19 +314,30 @@ bool QDragManager::hasCustomDragCursors() const
 Qt::DropAction QDragManager::defaultAction(Qt::DropActions possibleActions,
                                            Qt::KeyboardModifiers modifiers) const
 {
-    Qt::DropAction defaultAction = Qt::CopyAction;
-
 #ifdef QDND_DEBUG
     qDebug("QDragManager::defaultAction(Qt::DropActions possibleActions)");
     qDebug("keyboard modifiers : %s", KeyboardModifiersToString(modifiers).latin1());
 #endif
+
+    QDragPrivate *d = dragPrivate();
+    Qt::DropAction defaultAction = d ? d->defaultDropAction : Qt::IgnoreAction;
+
+    if (defaultAction == Qt::IgnoreAction) {
+        //This means that the drag was initiated by QDrag::start and we need to
+        //preserve the old behavior
+#ifdef Q_WS_MAC
+        defaultAction = Qt::MoveAction;
+#else
+        defaultAction = Qt::CopyAction;
+#endif
+    }
 
 #ifdef Q_WS_MAC
     if (modifiers & Qt::ControlModifier && modifiers & Qt::AltModifier)
         defaultAction = Qt::LinkAction;
     else if (modifiers & Qt::AltModifier)
         defaultAction = Qt::CopyAction;
-    else
+    else if (modifiers & Qt::ControlModifier)
         defaultAction = Qt::MoveAction;
 #else
     if (modifiers & Qt::ControlModifier && modifiers & Qt::ShiftModifier)

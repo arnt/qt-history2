@@ -56,6 +56,7 @@ public:
     Qt::DropActions possible_actions;
     Qt::DropAction executed_action;
     QMap<Qt::DropAction, QPixmap> customCursors;
+    Qt::DropAction defaultDropAction;
 };
 
 class QInternalMimeData : public QMimeData

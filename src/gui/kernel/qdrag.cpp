@@ -87,6 +87,7 @@ QDrag::QDrag(QWidget *dragSource)
     d->hotspot = QPoint(-10, -10);
     d->possible_actions = Qt::CopyAction;
     d->executed_action = Qt::IgnoreAction;
+    d->defaultDropAction = Qt::IgnoreAction;
 }
 
 /*!
@@ -183,6 +184,69 @@ QWidget *QDrag::target() const
 }
 
 /*!
+    \since 4.3
+
+    Starts the drag and drop operation and returns a value indicating the requested
+    drop action when it is completed. The drop actions that the user can choose
+    from are specified in \a allowedActions. The default proposed action will be selected 
+    among the allowed actions in the following order : Move, Copy and Link.
+
+    \bold{Note:} Although the drag and drop operation can take some time, this function
+    does not block the event loop. Other events are still delivered to the application
+    while the operation is performed.
+*/
+
+Qt::DropAction QDrag::exec(Qt::DropActions supportedActions)
+{
+    return exec(supportedActions, Qt::IgnoreAction);
+}
+
+/*!
+    \since 4.3
+
+    Starts the drag and drop operation and returns a value indicating the requested
+    drop action when it is completed. The drop actions that the user can choose
+    from are specified in \a supportedActions. 
+    
+    The \a defaultDropAction determines which action will be proposed when the user performs a 
+    drag without using modifier keys.
+
+    \bold{Note:} Although the drag and drop operation is blocking, the function
+    does not block the event loop. Other events are still delivered to the application
+    while the operation is performed.
+*/
+
+Qt::DropAction QDrag::exec(Qt::DropActions supportedActions, Qt::DropAction defaultDropAction)
+{
+    Q_D(QDrag);
+    Q_ASSERT_X(d->data, "QDrag", "No mimedata set before starting the drag");
+    QDragManager *manager = QDragManager::self();
+    d->defaultDropAction = Qt::IgnoreAction;
+    d->possible_actions = supportedActions;
+
+    if (manager) {
+        if (defaultDropAction == Qt::IgnoreAction) {
+            if (supportedActions & Qt::MoveAction) {
+                d->defaultDropAction = Qt::MoveAction;
+            } else if (supportedActions & Qt::CopyAction) {
+                d->defaultDropAction = Qt::CopyAction;
+            } else if (supportedActions & Qt::LinkAction) {
+                d->defaultDropAction = Qt::LinkAction;
+            }
+        } else {
+            d->defaultDropAction = defaultDropAction;
+        }
+        d->executed_action = manager->drag(this);
+    }
+
+    return d->executed_action;
+}
+
+/*!
+    \obsolete
+
+    \bold{Note:} It is reccommended to use \a exec() instead of this function.
+
     Starts the drag and drop operation and returns a value indicating the requested
     drop action when it is completed. The drop actions that the user can choose
     from are specified in \a request. Qt::CopyAction is always allowed.
@@ -190,12 +254,15 @@ QWidget *QDrag::target() const
     \bold{Note:} Although the drag and drop operation can take some time, this function
     does not block the event loop. Other events are still delivered to the application
     while the operation is performed.
+
+    \sa exec()
 */
 Qt::DropAction QDrag::start(Qt::DropActions request)
 {
     Q_D(QDrag);
     Q_ASSERT_X(d->data, "QDrag", "No mimedata set before starting the drag");
     QDragManager *manager = QDragManager::self();
+    d->defaultDropAction = Qt::IgnoreAction;
     d->possible_actions = request | Qt::CopyAction;
     if (manager)
         d->executed_action = manager->drag(this);
