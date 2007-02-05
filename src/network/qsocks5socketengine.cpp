@@ -1026,8 +1026,9 @@ void QSocks5SocketEnginePrivate::_q_controlSocketReadNotification()
             break;
         case Connected: {
             QByteArray buf;
-            if (!data->authenticator->unSeal(data->controlSocket, &buf))
+            if (!data->authenticator->unSeal(data->controlSocket, &buf)) {
                 // qDebug() << "unseal error maybe need to wait for more data";
+            }
             if (buf.size()) {
                 QSOCKS5_DEBUG << dump(buf);
                 connectData->readBuffer += buf;
