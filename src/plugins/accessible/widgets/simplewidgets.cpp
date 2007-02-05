@@ -559,6 +559,10 @@ QAccessible::State QAccessibleLineEdit::state(int child) const
     state |= Selectable;
     if (l->hasSelectedText())
         state |= Selected;
+    
+    if (l->contextMenuPolicy() != Qt::NoContextMenu 
+        && l->contextMenuPolicy() != Qt::PreventContextMenu)
+        state |= HasPopup;
 
     return state;
 }

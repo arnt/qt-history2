@@ -61,6 +61,7 @@ private slots:
     void textEditTest();
     void listViewTest();
     void mdiAreaTest();
+    void lineEditTest();
 
 private:
     QWidget *createGUI();
@@ -2216,6 +2217,42 @@ void tst_QAccessibility::mdiAreaTest()
     }
     // ### Add test for Up and Down.
 }
+
+void tst_QAccessibility::lineEditTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QLineEdit *le = new QLineEdit;
+    QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(le);
+    QVERIFY(iface);
+    le->show();
+
+    QApplication::processEvents();
+    QCOMPARE(iface->childCount(), 0);
+    QVERIFY(iface->state(0) & QAccessible::Sizeable);
+    QVERIFY(iface->state(0) & QAccessible::Movable);
+    QVERIFY(iface->state(0) & QAccessible::Focusable);
+    QVERIFY(iface->state(0) & QAccessible::Selectable);
+    QVERIFY(iface->state(0) & QAccessible::HasPopup);
+    QCOMPARE(bool(iface->state(0) & QAccessible::Focused), le->hasFocus());
+    
+    QWidget *toplevel = new QWidget;
+    le->setParent(toplevel);
+    toplevel->show();
+    QApplication::processEvents();
+    QVERIFY(!(iface->state(0) & QAccessible::Sizeable));
+    QVERIFY(!(iface->state(0) & QAccessible::Movable));
+    QVERIFY(iface->state(0) & QAccessible::Focusable);
+    QVERIFY(iface->state(0) & QAccessible::Selectable);
+    QVERIFY(iface->state(0) & QAccessible::HasPopup);
+    QCOMPARE(bool(iface->state(0) & QAccessible::Focused), le->hasFocus());
+    delete le;
+    delete toplevel;
+    QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
 
 QTEST_MAIN(tst_QAccessibility)
 #include "tst_qaccessibility.moc"
