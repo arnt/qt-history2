@@ -34,6 +34,13 @@ QT_BEGIN_HEADER
 # define QTEST_NO_SPECIALIZATIONS
 #endif
 
+#if (defined Q_CC_HPACC) && (defined __ia64)
+# ifdef Q_TESTLIB_EXPORT
+#  undef Q_TESTLIB_EXPORT
+# endif
+# define Q_TESTLIB_EXPORT
+#endif
+
 #define QTEST_VERSION     0x040300
 #define QTEST_VERSION_STR "4.3.0"
 
