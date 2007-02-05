@@ -108,9 +108,12 @@ int tst_Suite::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 
             QScriptEngine eng;
             eng.globalObject().setProperty("print", eng.newFunction(qscript_void));
-            eng.evaluate(readFile(testsDir() + QDir::separator() + QLatin1String("shell.js")));
+            QScriptValue ret;
+            ret = eng.evaluate(readFile(testsDir() + QDir::separator() + QLatin1String("shell.js")));
+            if (ret.isError())
+                qWarning("%s", qPrintable(ret.toString()));
             eng.globalObject().setProperty("test", eng.newFunction(qscript_void));
-            eng.evaluate(text);
+            (void)eng.evaluate(text);
 
             QScriptValue testcases = eng.globalObject().property("testcases");
             int count = testcases.property("length").toInt32();
