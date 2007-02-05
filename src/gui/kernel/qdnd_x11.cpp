@@ -1781,11 +1781,9 @@ bool QX11Data::dndEnable(QWidget* w, bool on)
 {
     w = w->window();
 
-    if (on) {
-        if (((QExtraWidget*)w)->topData()->dnd)
-            return true; // been there, done that
-        ((QExtraWidget*)w)->topData()->dnd  = 1;
-    }
+    if (bool(((QExtraWidget*)w)->topData()->dnd) == on)
+        return true; // been there, done that
+    ((QExtraWidget*)w)->topData()->dnd = on ? 1 : 0;
 
     motifdndEnable(w, on);
     return xdndEnable(w, on);
