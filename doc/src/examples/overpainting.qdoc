@@ -36,7 +36,7 @@
     discuss the changes we have made to the rest of it:
 
     \quotefromfile opengl/overpainting/glwidget.h
-    \skipto class
+    \skipto class GLWidget
     \printuntil ~GLWidget
     \dots
     \skipto protected:
