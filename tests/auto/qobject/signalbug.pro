@@ -6,7 +6,8 @@ TEMPLATE = app
 TARGET = 
 DEPENDPATH += .
 INCLUDEPATH += .
-CONFIG -= app_bundle
+CONFIG -= app_bundle debug_and_release
+DESTDIR=.
 
 # Input
 HEADERS += signalbug.h
