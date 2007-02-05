@@ -155,6 +155,13 @@ void RegExp::newRegExp_helper(QScriptValue *result, const QRegExp &rx,
     result->setProperty(QLatin1String("lastIndex"), QScriptValue(eng, 0),
                         propertyFlags & ~QScriptValue::ReadOnly);
 }
+
+QRegExp RegExp::toRegExp(const QScriptValue &value) const
+{
+    Instance *rx_data = Instance::get(value, classInfo());
+    Q_ASSERT(rx_data != 0);
+    return rx_data->value;
+}
 #endif // QT_NO_REGEXP
 
 QScriptValue RegExp::method_exec(QScriptEngine *eng, QScriptClassInfo *classInfo)

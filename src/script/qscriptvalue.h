@@ -30,6 +30,9 @@ class QScriptClassInfo;
 class QVariant;
 class QObject;
 class QDateTime;
+#ifndef QT_NO_REGEXP
+class QRegExp;
+#endif
 
 typedef QList<QScriptValue> QScriptValueList;
 
@@ -122,6 +125,9 @@ public:
     QObject *toQObject() const;
     QScriptValue toObject() const;
     QDateTime toDateTime() const;
+#ifndef QT_NO_REGEXP
+    QRegExp toRegExp() const;
+#endif
     QScriptValue toPrimitive(TypeHint hint = NoTypeHint) const;
 
     void setVariantValue(const QVariant &v);

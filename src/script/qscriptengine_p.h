@@ -357,7 +357,7 @@ public:
     inline static quint32 toUint32(qsreal n);
     inline static quint16 toUint16(qsreal n);
 
-    QDateTime toDateTime(const QScriptValue &value);
+    QDateTime toDateTime(const QScriptValue &value) const;
 
     inline void newArray(QScriptValue *object, const QScript::Array &value)
     { arrayConstructor->newArray(object, value); }

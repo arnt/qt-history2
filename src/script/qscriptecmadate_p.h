@@ -45,7 +45,7 @@ public:
     void newDate(QScriptValue *result, const QDateTime &dt);
     void newDate(QScriptValue *result, const QDate &d);
 
-    QDateTime toDateTime(const QScriptValue &date);
+    QDateTime toDateTime(const QScriptValue &date) const;
 
 protected:
     static QScriptValue method_MakeTime(QScriptEngine *eng,

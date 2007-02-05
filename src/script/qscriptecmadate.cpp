@@ -581,7 +581,7 @@ void Date::newDate(QScriptValue *result, const QDate &d)
     newDate(result, QDateTime(d));
 }
 
-QDateTime Date::toDateTime(const QScriptValue &date)
+QDateTime Date::toDateTime(const QScriptValue &date) const
 {
     Q_ASSERT(QScriptValueImpl::get(date)->classInfo() == m_classInfo);
     qsreal t = QScriptValueImpl::get(date)->internalValue().toNumber();

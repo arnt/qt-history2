@@ -38,6 +38,7 @@
 
 #include <QtCore/QDate>
 #include <QtCore/QDateTime>
+#include <QtCore/QRegExp>
 #include <QtCore/QStringList>
 
 Q_DECLARE_METATYPE(QScriptValue)
@@ -708,7 +709,7 @@ QScriptValue QScriptEnginePrivate::toPrimitive_helper(const QScriptValue &object
     return object;
 }
 
-QDateTime QScriptEnginePrivate::toDateTime(const QScriptValue &value)
+QDateTime QScriptEnginePrivate::toDateTime(const QScriptValue &value) const
 {
     return dateConstructor->toDateTime(value);
 }
@@ -1083,6 +1084,12 @@ QScriptValue QScriptEnginePrivate::create(int type, const void *ptr)
             QDate date = *reinterpret_cast<const QDate *>(ptr);
             dateConstructor->newDate(&result, date);
         } break;
+#ifndef QT_NO_REGEXP
+        case QMetaType::QRegExp: {
+            QRegExp rx = *reinterpret_cast<const QRegExp *>(ptr);
+            regexpConstructor->newRegExp(&result, rx);
+        } break;
+#endif
 #ifndef QT_NO_QOBJECT
         case QMetaType::QObjectStar:
         case QMetaType::QWidgetStar:
@@ -1136,6 +1143,11 @@ bool QScriptEnginePrivate::convert(const QScriptValue &value,
     case QMetaType::QDate:
         *reinterpret_cast<QDate *>(ptr) = value.toDateTime().date();
         return true;
+#ifndef QT_NO_REGEXP
+    case QMetaType::QRegExp:
+        *reinterpret_cast<QRegExp *>(ptr) = value.toRegExp();
+        return true;
+#endif
 #ifndef QT_NO_QOBJECT
     case QMetaType::QObjectStar:
     case QMetaType::QWidgetStar:

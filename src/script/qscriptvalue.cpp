@@ -669,6 +669,23 @@ QDateTime QScriptValue::toDateTime() const
     return QScriptEnginePrivate::get(engine())->toDateTime(*this);
 }
 
+#ifndef QT_NO_REGEXP
+/*!
+  Returns the QRegExp representation of this value.
+  If this QScriptValue is not a regular expression, an empty
+  QRegExp is returned.
+
+  \sa isRegExp()
+*/
+QRegExp QScriptValue::toRegExp() const
+{
+    if (!isRegExp())
+        return QRegExp();
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    return eng_p->regexpConstructor->toRegExp(*this);
+}
+#endif // QT_NO_REGEXP
+
 /*!
   Returns the primitive value of this QScriptValue, as defined in
   \l{ECMA-262} section 9.1, "ToPrimitive".
