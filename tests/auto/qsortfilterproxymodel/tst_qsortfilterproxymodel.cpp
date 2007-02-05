@@ -1393,7 +1393,8 @@ void tst_QSortFilterProxyModel::insertAfterSelect()
     QTreeView view;
     view.setModel(&filter);
     view.show();
-    QModelIndex firstIndex = model.index(0, 0, QModelIndex());
+    QModelIndex firstIndex = filter.mapFromSource(model.index(0, 0, QModelIndex()));
+    QCOMPARE(firstIndex.model(), view.model());
     QVERIFY(firstIndex.isValid());
     int itemOffset = view.visualRect(firstIndex).width() / 2;
     QPoint p(itemOffset, 1);
@@ -1416,7 +1417,8 @@ void tst_QSortFilterProxyModel::removeAfterSelect()
     QTreeView view;
     view.setModel(&filter);
     view.show();
-    QModelIndex firstIndex = model.index(0, 0, QModelIndex());
+    QModelIndex firstIndex = filter.mapFromSource(model.index(0, 0, QModelIndex()));
+    QCOMPARE(firstIndex.model(), view.model());
     QVERIFY(firstIndex.isValid());
     int itemOffset = view.visualRect(firstIndex).width() / 2;
     QPoint p(itemOffset, 1);
