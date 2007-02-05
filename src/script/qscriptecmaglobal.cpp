@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+// for strtoll
+#include <qplatformdefs.h>
+
 #include "qscriptengine.h"
 #include "qscriptcontext.h"
 
