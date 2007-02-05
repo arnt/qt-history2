@@ -237,7 +237,7 @@ void tst_QItemDelegate::textRectangle_data()
     QFontMetrics fontMetrics(font);
     int pm = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin);
     int margins = 2 * (pm + 1); // margin on each side of the text
-    int height = fontMetrics.height() - 1;  // ### -1 ?
+    int height = fontMetrics.height();
 
     QTest::addColumn<QString>("text");
     QTest::addColumn<QRect>("rect");
@@ -269,7 +269,7 @@ void tst_QItemDelegate::sizeHint_data()
     QFontMetrics fontMetrics(font);
     int m = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     QTest::newRow("empty")
-        << QSize(2 * m, fontMetrics.height() - 1); // ### why -1 ?
+        << QSize(2 * m, fontMetrics.height());
 
 }
 
@@ -808,7 +808,7 @@ void tst_QItemDelegate::editorEvent_data()
             |Qt::ItemIsEnabled
             |Qt::ItemIsDragEnabled
             |Qt::ItemIsDropEnabled)
-        << QPoint(17, 10)
+        << QPoint(19, 10)
         << (int)(QEvent::MouseButtonRelease)
         << false
         << (int)(Qt::Unchecked);
