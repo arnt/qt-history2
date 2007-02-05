@@ -1729,6 +1729,13 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
     accepted, it will send a mouse event. This allows applications that
     don't utilize tablets to use a tablet like a mouse, while also
     enabling those who want to use both tablets and mouses differently.
+
+    \section1 Notes for X11 Users
+
+    Qt uses the following hard-coded names to identify tablet
+    devices from the xorg.conf file on X11 (apart from IRIX): 
+    'stylus', 'pen', and 'eraser'. If the devices have other names,
+    they will not be picked up Qt.
 */
 
 /*!
