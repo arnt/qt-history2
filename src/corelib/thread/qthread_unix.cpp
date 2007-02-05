@@ -29,7 +29,10 @@
 
 #include <sched.h>
 #include <errno.h>
-#include <string.h>
+
+#ifdef Q_OS_BSD4
+#include <sys/sysctl.h>
+#endif
 
 #  if defined(Q_OS_MAC)
 #   include <CoreServices/CoreServices.h>
@@ -214,7 +217,7 @@ int QThread::idealThreadCount()
     } else {
         cores = (int)psd.psd_proc_cnt;
     }
-#elif defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD) || defined(Q_OS_NETBSD) || defined(Q_OS_BSDI) || defined(Q_OS_MAC)
+#elif defined(Q_OS_BSD4)
     // FreeBSD, OpenBSD, NetBSD, BSD/OS
     size_t len = sizeof(cores);
     int mib[2];
