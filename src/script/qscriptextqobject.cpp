@@ -541,8 +541,9 @@ QScript::ConnectionQObject::ConnectionQObject(const QMetaMethod &method,
                                               const QScriptValue &receiver,
                                               const QScriptValue &slot)
     : m_method(method), m_sender(sender),
-      m_receiver(receiver), m_slot(slot)
+      m_receiver(receiver)
 {
+    m_slot = slot;
     m_hasReceiver = (sender.isObject() && receiver.isObject()
                      && QScriptValueImpl::get(sender)->objectValue() != QScriptValueImpl::get(receiver)->objectValue());
 
