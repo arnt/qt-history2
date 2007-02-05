@@ -23,6 +23,8 @@
 #include "os9-newlines.h"
 #endif
 #include "win-newlines.h"
+#include "escapes-in-string-literals.h"
+
 
 #if defined(PARSE_BOOST)
 #include "parse-boost.h"
@@ -424,6 +426,7 @@ private slots:
     void os9Newline();
 #endif
     void winNewline();
+    void escapesInStringLiterals();
 
 signals:
     void sigWithUnsignedArg(unsigned foo);
@@ -822,6 +825,30 @@ void tst_Moc::winNewline()
             QVERIFY(data.at(i) != '\n');
         }
     }
+}
+
+void tst_Moc::escapesInStringLiterals()
+{
+    const QMetaObject &mo = StringLiterals::staticMetaObject;
+    QCOMPARE(mo.classInfoCount(), 3);
+
+    int idx = mo.indexOfClassInfo("Test");
+    QVERIFY(idx != -1);
+    QMetaClassInfo info = mo.classInfo(idx);
+    QCOMPARE(QByteArray(info.value()),
+             QByteArray("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\x53"));
+
+    QVERIFY(idx != -1);
+    idx = mo.indexOfClassInfo("Test2");
+    info = mo.classInfo(idx);
+    QCOMPARE(QByteArray(info.value()),
+             QByteArray("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\123"));
+
+    QVERIFY(idx != -1);
+    idx = mo.indexOfClassInfo("Test3");
+    info = mo.classInfo(idx);
+    QCOMPARE(QByteArray(info.value()),
+             QByteArray("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nb"));
 }
 
 QTEST_MAIN(tst_Moc)

@@ -84,6 +84,29 @@ Generator::Generator(ClassDef *classDef, const QList<QByteArray> &metaTypes, FIL
         purestSuperClass = cdef->superclassList.first().first;
 }
 
+static inline int lengthOfEscapeSequence(const QByteArray &s, int i)
+{
+    if (s.at(i) != '\\' || i >= s.length() - 1)
+        return 1;
+    const int startPos = i;
+    ++i;
+    char ch = s.at(i);
+    if (ch == 'x') {
+        ++i;
+        while (i < s.length() && is_hex_char(s.at(i)))
+            ++i;
+    } else if (is_octal_char(ch)) {
+        while (i < startPos + 4
+               && i < s.length()
+               && is_octal_char(s.at(i))) {
+            ++i;
+        }
+    } else { // single character escape sequence
+        i = qMin(i + 1, s.length());
+    }
+    return i - startPos;
+}
+
 int Generator::strreg(const char *s)
 {
     int idx = 0;
@@ -94,7 +117,13 @@ int Generator::strreg(const char *s)
         if (str == s)
             return idx;
         idx += str.length() + 1;
-        idx -= str.count('\\');
+        for (int i = 0; i < str.length(); ++i) {
+            if (str.at(i) == '\\') {
+                int cnt = lengthOfEscapeSequence(str, i) - 1;
+                idx -= cnt;
+                i += cnt;
+            }
+        }
     }
     strings.append(s);
     return idx;
@@ -208,9 +237,12 @@ void Generator::generateCode()
                 fprintf(out, "\"\n    \"");
             }
             int spanLen = qMin(70, s.length() - idx);
-            // avoid lines ending with \"
-            if (s.at(idx + spanLen - 1) == '\\' && spanLen < s.length())
-                ++spanLen;
+            // don't cut escape sequences at the end of a line
+            int backSlashPos = s.lastIndexOf('\\', idx + spanLen - 1);
+            if (backSlashPos >= idx) {
+                int escapeLen = lengthOfEscapeSequence(s, backSlashPos);
+                spanLen = qBound(spanLen, backSlashPos + escapeLen - idx, s.length() - idx);
+            }
             fwrite(s.constData() + idx, 1, spanLen, out);
             idx += spanLen;
             col += spanLen;

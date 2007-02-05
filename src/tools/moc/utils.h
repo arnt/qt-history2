@@ -46,6 +46,11 @@ inline bool is_digit_char(char s)
     return (s >= '0' && s <= '9');
 }
 
+inline bool is_octal_char(char s)
+{
+    return (s >= '0' && s <= '7');
+}
+
 inline bool is_hex_char(char s)
 {
     return ((s >= 'a' && s <= 'f')
