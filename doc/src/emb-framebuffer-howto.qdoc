@@ -51,7 +51,7 @@
         printf("%dx%d, %dbpp\n", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel);
 
         /* Figure out the size of the screen in bytes */
-        screensize = vinfo.xres * vinfo.yres * vinfo.bits_per_pixel / 8;
+        screensize = finfo.smem_len;
 
         /* Map the device to memory */
         fbp = (char *)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED,
@@ -65,7 +65,7 @@
         x = 100; y = 100; /* Where we are going to put the pixel */
 
         /* Figure out where in memory to put the pixel */
-        for (y = 100; y < 300; y++)
+        for (y = 100; y < 300; y++) {
             for (x = 100; x < 300; x++) {
 
                 location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
@@ -85,6 +85,7 @@
                 }
 
             }
+	}
         munmap(fbp, screensize);
         close(fbfd);
         return 0;
