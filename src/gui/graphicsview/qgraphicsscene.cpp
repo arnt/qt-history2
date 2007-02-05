@@ -1495,7 +1495,9 @@ QPainterPath QGraphicsScene::selectionArea() const
     the list of all selected items by calling selectedItems().
 
     For an item to be selected, it must be marked as \e selectable
-    (QGraphicsItem::ItemIsSelectable). Items are selectable by default.
+    (QGraphicsItem::ItemIsSelectable). Items are not selectable by
+    default; they must be made selectable by setting the \c
+    ItemIsSelectable QGraphicsItem::GraphicsItemFlag.
 
     \sa clearSelection(), selectionArea()
 */
