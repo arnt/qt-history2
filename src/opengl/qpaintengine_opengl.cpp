@@ -1515,8 +1515,8 @@ void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
     qreal leftA = topZero ? (bottomLeftX - leftB) * reciprocal : (topLeftX - leftB) * reciprocal;
     qreal rightA = topZero ? (bottomRightX - rightB) * reciprocal : (topRightX - rightB) * reciprocal;
 
-    qreal invLeftA = qFuzzyCompare(leftA, 0.0) ? 0.0 : 1.0 / leftA;
-    qreal invRightA = qFuzzyCompare(rightA, 0.0) ? 0.0 : 1.0 / rightA;
+    qreal invLeftA = qFuzzyCompare(leftA, qreal(0.0)) ? 0.0 : 1.0 / leftA;
+    qreal invRightA = qFuzzyCompare(rightA, qreal(0.0)) ? 0.0 : 1.0 / rightA;
 
     // fragment program needs the negative of invRightA as it mirrors the line
     glTexCoord4f(topDist, bottomDist, invLeftA, -invRightA);
@@ -1975,7 +1975,7 @@ void QOpenGLPaintEngine::updateMatrix(const QTransform &mtx)
     // that span the entire widget...
     d->inverseScale = qMax(1 / qMax( qMax(qAbs(mtx.m11()), qAbs(mtx.m22())),
                                      qMax(qAbs(mtx.m12()), qAbs(mtx.m21())) ),
-                           0.0001);
+                           qreal(0.0001));
 
     glMatrixMode(GL_MODELVIEW);
 #ifndef Q_WS_QWS
@@ -2777,7 +2777,7 @@ QRect QGLEllipseMaskGenerator::screenRect()
                              matrix().m12() * delta.x() + matrix().m22() * delta.y());
 
         min_screen_delta_len = qMin(min_screen_delta_len,
-                                    sqrt(screen_delta.x() * screen_delta.x() + screen_delta.y() * screen_delta.y()));
+                                    qreal(sqrt(screen_delta.x() * screen_delta.x() + screen_delta.y() * screen_delta.y())));
     }
 
     const qreal padding = 2.0f;
