@@ -2221,12 +2221,14 @@ void tst_QDateTimeEdit::readOnly()
 
 void tst_QDateTimeEdit::editingFinished()
 {
+    testFocusWidget->hide();
     testFocusWidget->move(10, 10);
     QVBoxLayout *layout = new QVBoxLayout(testFocusWidget);
     QDateTimeEdit *box = new QDateTimeEdit(testFocusWidget);
     layout->addWidget(box);
     QDateTimeEdit *box2 = new QDateTimeEdit(testFocusWidget);
     layout->addWidget(box2);
+    testFocusWidget->show();
 
     box->activateWindow();
     qApp->processEvents();
