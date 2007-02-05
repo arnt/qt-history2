@@ -378,7 +378,7 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 
     There are also corresponding color() and brush() getters, and a
     commonly used convenience function to get the ColorRole for the current ColorGroup:
-    background(), foreground(), base(), etc.
+    window(), windowText(), base(), etc.
 
     You can copy a palette using the copy constructor and test to see
     if two palettes are \e identical using isCopyOf().
