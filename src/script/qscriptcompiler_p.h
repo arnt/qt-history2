@@ -282,19 +282,14 @@ protected:
 private:
     QScriptEnginePrivate *m_eng;
 
-    union {
-        struct {
-            uint m_generateReferences: 1;
-            uint m_iterationStatement: 1;
-            uint m_switchStatement: 1;
-            uint m_withStatement: 1;
-            uint m_generateLeaveWithOnBreak: 1;
-            uint m_generateFastArgumentLookup: 1;
-            uint m_parseStatements: 1;
-        }; // ### FIXME no anonymous structs!
-
-        uint m_state;
-    };
+    uint m_generateReferences: 1;
+    uint m_iterationStatement: 1;
+    uint m_switchStatement: 1;
+    uint m_withStatement: 1;
+    uint m_generateLeaveWithOnBreak: 1;
+    uint m_generateFastArgumentLookup: 1;
+    uint m_parseStatements: 1;
+    uint m_pad: 25;
 
     bool m_topLevelCompiler; // bit
     QVector<QScriptInstruction> m_instructions;

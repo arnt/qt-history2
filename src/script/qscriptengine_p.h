@@ -126,17 +126,13 @@ public:
     QString s;
     uint h;
     QScriptNameIdImpl *next;
-    union {
-        uint bits;
-        struct {
-            uint used: 1;
-            uint persistent: 1;
-            uint unique: 1;
-        };
-    };
+    uint used: 1;
+    uint persistent: 1;
+    uint unique: 1;
+    uint pad: 29;
 
     inline QScriptNameIdImpl(const QString &_s):
-        s(_s), h(0), next(0), bits(0) {}
+        s(_s), h(0), next(0), used(0), persistent(0), unique(0), pad(0) { }
 };
 
 class QScriptCustomTypeInfo

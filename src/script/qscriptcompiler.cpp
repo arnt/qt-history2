@@ -112,7 +112,10 @@ private:
 
 Compiler::Compiler(QScriptEngine *eng):
     m_eng(QScriptEnginePrivate::get(eng)),
-    m_state(0),
+    m_generateReferences(0), m_iterationStatement(0),
+    m_switchStatement(0), m_withStatement(0),
+    m_generateLeaveWithOnBreak(0), m_generateFastArgumentLookup(0),
+    m_parseStatements(0), m_pad(0),
     m_topLevelCompiler(false),
     m_activeLoop(0)
 {
@@ -135,7 +138,14 @@ void Compiler::setTopLevelCompiler(bool b)
  CompilationUnit Compiler::compile(AST::Node *node, const QList<QScriptNameIdImpl *> &formals)
 {
     m_formals = formals;
-    m_state = 0;
+    m_generateReferences = 0;
+    m_iterationStatement = 0;
+    m_switchStatement = 0;
+    m_withStatement = 0;
+    m_generateLeaveWithOnBreak = 0;
+    m_generateFastArgumentLookup = 0;
+    m_parseStatements = 0;
+    m_pad = 0;
     m_instructions.clear();
     m_exceptionHandlers.clear();
     m_generateFastArgumentLookup = false; // ### !formals.isEmpty();  // ### disabled for now.. it's buggy :(
