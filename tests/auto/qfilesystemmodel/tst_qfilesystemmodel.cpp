@@ -407,8 +407,8 @@ void tst_QFileSystemModel::filters_data()
     QTest::newRow("no dirs") << (QStringList() << "a" << "b" << "c") << QStringList() << (int)(QDir::Dirs) << QStringList() << 2;
     QTest::newRow("one dir - dotdot") << (QStringList() << "a" << "b" << "c") << (QStringList() << "Z") << (int)(QDir::Dirs | QDir::NoDotAndDotDot) << QStringList() << 1;
     QTest::newRow("one dir") << (QStringList() << "a" << "b" << "c") << (QStringList() << "Z") << (int)(QDir::Dirs) << QStringList() << 3;
-    QTest::newRow("no dir + hidden") << (QStringList() << "a" << "b" << "c") << (QStringList()) << (int)(QDir::Dirs | QDir::Hidden) << QStringList() << 2;
-    QTest::newRow("dir+hid+files") << (QStringList() << "a" << "b" << "c") << (QStringList()) <<
+    QTest::newRow("no dir + hidden") << (QStringList() << "a" << "b" << "c") << QStringList() << (int)(QDir::Dirs | QDir::Hidden) << QStringList() << 2;
+    QTest::newRow("dir+hid+files") << (QStringList() << "a" << "b" << "c") << QStringList() <<
                          (int)(QDir::Dirs | QDir::Files | QDir::Hidden) << QStringList() << 5;
     QTest::newRow("dir+file+hid-dot .A") << (QStringList() << "a" << "b" << "c") << (QStringList() << ".A") <<
                          (int)(QDir::Dirs | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot) << QStringList() << 4;
