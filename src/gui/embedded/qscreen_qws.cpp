@@ -1893,8 +1893,11 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
         } else {
             const QImage &img = surface->image();
             QPoint winoff = off - win->requestedRegion().boundingRect().topLeft();
+            // convert win->opacity() from scale [0..255] to [0..256]
+            int const_alpha = win->opacity();
+            const_alpha += (const_alpha >> 7);
             spanData.type = QSpanData::Texture;
-            spanData.initTexture(&img, win->opacity());
+            spanData.initTexture(&img, const_alpha);
             spanData.dx = winoff.x();
             spanData.dy = winoff.y();
         }
