@@ -222,6 +222,7 @@ QWindowSurface *qt_default_window_surface(QWidget *widget)
 #elif defined(Q_WS_QWS)
     if (widget->windowType() == Qt::Desktop)
         return 0;
+    widget->ensurePolished();
     return qt_screen->createSurface(widget);
 #else
     Q_UNUSED(widget);
