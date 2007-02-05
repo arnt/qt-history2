@@ -8,6 +8,9 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
+
+#ifdef Q_WS_WIN
+
 #include <qaxfactory.h>
 
 class AutoTestWidget : public QWidget
@@ -37,3 +40,7 @@ public slots:
 QAXFACTORY_BEGIN("{ae67488a-e1aa-42a7-96fd-e202ba2d75a7}", "{45cbbb77-1055-4c70-98f4-10fc7f0cd909}")
     QAXCLASS(AutoTestWidget)
 QAXFACTORY_END()
+
+#else
+QTEST_NOOP_MAIN
+#endif // Q_WS_WIN
