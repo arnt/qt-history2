@@ -2162,9 +2162,6 @@ void qt_message_output(QtMsgType msgType, const char *buf)
     \warning The internal buffer is limited to 8192 bytes, including
     the '\0'-terminator.
 
-    \warning Passing (const char *)0 as argument to qDebug might lead
-    to crashes on certain platforms due to the platform's printf() implementation.
-
     \sa qWarning(), qCritical(), qFatal(), qInstallMsgHandler(),
         {Debugging Techniques}
 */
@@ -2174,7 +2171,8 @@ void qDebug(const char *msg, ...)
     buf[QT_BUFFER_LENGTH - 1] = '\0';
     va_list ap;
     va_start(ap, msg);                        // use variable arg list
-    qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
+    if (msg)
+        qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
     va_end(ap);
 
     qt_message_output(QtDebugMsg, buf);
@@ -2217,9 +2215,6 @@ void qDebug(const char *msg, ...)
     \warning The internal buffer is limited to 8192 bytes, including
     the '\0'-terminator.
 
-    \warning Passing (const char *)0 as argument to qWarning might lead
-    to crashes on certain platforms due to the platforms printf implementation.
-
     \sa qDebug(), qCritical(), qFatal(), qInstallMsgHandler(),
         {Debugging Techniques}
 */
@@ -2229,7 +2224,8 @@ void qWarning(const char *msg, ...)
     buf[QT_BUFFER_LENGTH - 1] = '\0';
     va_list ap;
     va_start(ap, msg); // use variable arg list
-    qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
+    if (msg)
+        qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
     va_end(ap);
 
     qt_message_output(QtWarningMsg, buf);
@@ -2269,10 +2265,6 @@ void qWarning(const char *msg, ...)
     \warning The internal buffer is limited to 8192 bytes, including
     the '\0'-terminator.
 
-    \warning Passing (const char *)0 as argument to qCritical might
-    lead to crashes on certain platforms due to the platforms printf
-    implementation.
-
     \sa qDebug(), qWarning(), qFatal(), qInstallMsgHandler(),
         {Debugging Techniques}
 */
@@ -2282,7 +2274,8 @@ void qCritical(const char *msg, ...)
     buf[QT_BUFFER_LENGTH - 1] = '\0';
     va_list ap;
     va_start(ap, msg); // use variable arg list
-    qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
+    if (msg)
+        qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
     va_end(ap);
 
     qt_message_output(QtCriticalMsg, buf);
@@ -2298,7 +2291,8 @@ void qErrnoWarning(const char *msg, ...)
     buf[QT_BUFFER_LENGTH - 1] = '\0';
     va_list ap;
     va_start(ap, msg);
-    qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
+    if (msg)
+        qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
     va_end(ap);
 
     qCritical("%s (%s)", buf, qt_error_string(-1).toLocal8Bit().constData());
@@ -2310,7 +2304,8 @@ void qErrnoWarning(int code, const char *msg, ...)
     buf[QT_BUFFER_LENGTH - 1] = '\0';
     va_list ap;
     va_start(ap, msg);
-    qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
+    if (msg)
+        qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
     va_end(ap);
 
     qCritical("%s (%s)", buf, qt_error_string(code).toLocal8Bit().constData());
@@ -2345,9 +2340,6 @@ void qErrnoWarning(int code, const char *msg, ...)
     \warning The internal buffer is limited to 8192 bytes, including
     the '\0'-terminator.
 
-    \warning Passing (const char *)0 as argument to qFatal might lead
-    to crashes on certain platforms due to the platforms printf implementation.
-
     \sa qDebug(), qCritical(), qWarning(), qInstallMsgHandler(),
         {Debugging Techniques}
 */
@@ -2357,7 +2349,8 @@ void qFatal(const char *msg, ...)
     buf[QT_BUFFER_LENGTH - 1] = '\0';
     va_list ap;
     va_start(ap, msg); // use variable arg list
-    qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
+    if (msg)
+        qvsnprintf(buf, QT_BUFFER_LENGTH - 1, msg, ap);
     va_end(ap);
 
     qt_message_output(QtFatalMsg, buf);
