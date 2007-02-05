@@ -100,14 +100,52 @@ inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *n
     return ret == expected;
 }
 
-#  else // !Q_CC_GNU
+#elif defined Q_CC_HPACC
+
+#include <ia64/sys/inline.h>
+
+#define FENCE (_Asm_fence)(_UP_CALL_FENCE | _UP_SYS_FENCE | _DOWN_CALL_FENCE | _DOWN_SYS_FENCE)
+
+inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
+{
+    _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (unsigned)expected, FENCE);
+    int ret = _Asm_cmpxchg((_Asm_sz)_SZ_W, (_Asm_sem)_SEM_ACQ,
+                           ptr, (unsigned)newval, (_Asm_ldhint)_LDHINT_NONE);
+    return ret == expected;
+}
+
+inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
+{
+    _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (unsigned)expected, FENCE);
+    int ret = _Asm_cmpxchg((_Asm_sz)_SZ_W, (_Asm_sem)_SEM_REL,
+                           ptr, newval, (_Asm_ldhint)_LDHINT_NONE);
+    return ret == expected;
+}
+
+inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
+{
+    _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (unsigned)expected, FENCE);
+    int ret = _Asm_cmpxchg((_Asm_sz)_SZ_W, (_Asm_sem)_SEM_ACQ,
+                           ptr, (unsigned)newval, (_Asm_ldhint)_LDHINT_NONE);
+    return ret == expected;
+}
+
+inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
+{
+    _Asm_mov_to_ar((_Asm_app_reg)_AREG_CCV, (quint64)expected, FENCE);
+    void *ret = (void *)_Asm_cmpxchg((_Asm_sz)_SZ_D, (_Asm_sem)_SEM_ACQ,
+                                     ptr, (quint64)newval, (_Asm_ldhint)_LDHINT_NONE);
+    return ret == expected;
+}
+
+#else
 
 extern "C" {
     Q_CORE_EXPORT int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
     Q_CORE_EXPORT int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
 } // extern "C"
 
-#  endif // Q_CC_GNU
+#endif
 
 inline int q_atomic_increment(volatile int * const ptr)
 {
