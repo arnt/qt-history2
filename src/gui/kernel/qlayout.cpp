@@ -1055,7 +1055,7 @@ bool QLayout::activate()
                 for (int i = 0; i < layout->count(); ++i)
                     paintLayout(painter, layout->itemAt(i));
             }
-            painter->drawRect(lay->geometry());
+            painter->drawRect(layout->geometry());
         }
 
         void MyWidget::paintEvent(QPaintEvent *)
