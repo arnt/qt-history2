@@ -16,7 +16,9 @@
 #include <qmap.h>
 #include <time.h>
 #include <stdlib.h>
+#ifndef TEST_QNETWORK_PROXY
 #define TEST_QNETWORK_PROXY
+#endif
 #ifdef TEST_QNETWORK_PROXY
 # include <QNetworkProxy>
 #endif
@@ -867,7 +869,7 @@ void tst_QFtp::mkdir2()
     delete ftp;
 }
 
-void tst_QFtp::mkdir2Slot(int id, bool error)
+void tst_QFtp::mkdir2Slot(int id, bool)
 {
     if (id == current_id)
         ftp->mkdir("kake/test");
