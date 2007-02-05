@@ -646,11 +646,10 @@ QT_BEGIN_HEADER
    Proper for-scoping in VC++6 and MIPSpro CC
 */
 #ifndef QT_NO_KEYWORDS
-#  if (defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET) && !defined(Q_CC_INTEL)) || defined(Q_CC_MIPS)
+#  if (defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET) && !defined(Q_CC_INTEL)) || defined(Q_CC_MIPS) || (defined(Q_CC_HPACC) && defined(__ia64))
 #    define for if(0){}else for
 #  endif
 #endif
-
 
 /*
    Workaround for static const members on MSVC++.
