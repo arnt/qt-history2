@@ -110,7 +110,7 @@
             }
 
         public slots:
-            Q_ASYNC void quit()
+            Q_NOREPLY void quit()
             { app->quit(); }
 
             void reparseConfiguration()
@@ -287,7 +287,7 @@
     The public slots in the example (which will be exported as D-BUS methods) are the following:
     \code
         public slots:
-            Q_ASYNC void quit()
+            Q_NOREPLY void quit()
             { app->quit(); }
 
             void reparseConfiguration()
@@ -314,7 +314,7 @@
     \o \c quit: this method takes no parameters and is defined to be asynchronous. That is, callers
       are expected to use "fire-and-forget" mechanism when calling this method, since it provides no
       useful reply. This is represented in D-BUS by the use of the
-      org.freedesktop.DBus.Method.NoReply annotation. See \l Q_ASYNC for more information on
+      org.freedesktop.DBus.Method.NoReply annotation. See \l Q_NOREPLY for more information on
       asynchronous methods
 
     \o \c reparseConfiguration: this simple method, with no input or output arguments simply relays
@@ -329,7 +329,7 @@
       its value, it calls one function or another in the application.
     \endlist
 
-    See also: \l Q_ASYNC.
+    See also: \l Q_NOREPLY.
 
     \section1 Signals
 
@@ -395,7 +395,7 @@
     issues could change the order in which the slot is run. Code intending to
     synchronize with the caller should provide its own method of synchronization.
 
-    Asynchronous slots are marked by the keyword \l Q_ASYNC in the method
+    Asynchronous slots are marked by the keyword \l Q_NOREPLY in the method
     signature, before the \c void return type and the slot name. (See the
     \c quit() slot in the \l{D-BUS Adaptor Example}).
 
@@ -653,21 +653,21 @@
 */
 
 /*!
-    \macro Q_ASYNC
+    \macro Q_NOREPLY
     \relates QDBusAbstractAdaptor
     \since 4.2
 
-    The Q_ASYNC macro can be used to mark a method to be called and not wait for it to finish
+    The Q_NOREPLY macro can be used to mark a method to be called and not wait for it to finish
     processing before returning from QDBusInterface::call(). The called method cannot return any
     output arguments and, if it does, any such arguments will be discarded.
 
     You can use this macro in your own adaptors by placing it before your method's return value
     (which must be "void") in the class declaration, as shown in the example:
     \code
-        Q_ASYNC void myMethod();
+        Q_NOREPLY void myMethod();
     \endcode
 
     Its presence in the method implementation (outside the class declaration) is optional.
 
-    \sa {usingadaptors.html}{Using adaptors}
+    \sa {Using QtDBus Adaptors}
 */
