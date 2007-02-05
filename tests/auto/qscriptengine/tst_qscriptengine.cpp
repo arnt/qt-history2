@@ -176,6 +176,8 @@ void tst_QScriptEngine::createRegExp()
         QCOMPARE(rexp.prototype().isValid(), true);
         QCOMPARE(rexp.prototype().isRegExp(), true);
         QCOMPARE(rexp.prototype().strictEqualTo(eng.evaluate("RegExp.prototype")), true);
+
+        QCOMPARE(rexp.toRegExp().pattern(), QRegExp("foo").pattern());
     }
 }
 
