@@ -3529,8 +3529,10 @@ void QWSServerPrivate::request_region(int wid, const QString &surfaceKey,
 
     bool isShow = !changingw->isVisible() && !region.isEmpty();
 
-    if (wasOpaque != changingw->opaque && surface->isBuffered())
+    if (wasOpaque != changingw->opaque && surface->isBuffered()) {
         changingw->requested_region = QRegion(); // XXX: force update_regions
+        changingw->setAllocatedRegion(QRegion());
+    }
 
     setWindowRegion(changingw, r);
 
