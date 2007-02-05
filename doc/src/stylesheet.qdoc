@@ -466,8 +466,10 @@
     \row
         \o QFrame
         \o Supports the \l{box model}. Does not support the
-           \l{#hover-ps}{:hover} pseudo-state.
-
+           \l{#hover-ps}{:hover} pseudo-state. For QFrame and its subclasses, 
+           you must set the QFrame::frameStyle property to QFrame::StyledPanel; 
+           otherwise, the background and border attributes will not be respected.
+           
     \row
         \o QGroupBox
         \o Supports the \l{box model}. The title can be styled using the
