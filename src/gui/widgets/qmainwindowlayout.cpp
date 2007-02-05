@@ -23,6 +23,7 @@
 #include "qtoolbar.h"
 #include "qwidgetanimator_p.h"
 #include "qrubberband.h"
+#include "qdockwidget_p.h"
 
 #include <qapplication.h>
 #include <qdebug.h>
