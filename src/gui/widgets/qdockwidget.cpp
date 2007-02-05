@@ -1180,6 +1180,8 @@ bool QDockWidget::event(QEvent *event)
         // fallthrough intended
     case QEvent::Show:
         d->toggleViewAction->setChecked(event->type() == QEvent::Show);
+        if (!isFloating())
+            raise();
         break;
 #endif
     case QEvent::ApplicationLayoutDirectionChange:
@@ -1188,11 +1190,8 @@ bool QDockWidget::event(QEvent *event)
         d->updateButtons();
         break;
     case QEvent::ZOrderChange: {
-        if (isFloating())
-            break;
-        if (layout == 0)
-            break;
-        layout->raise(this);
+        if (!isFloating() && layout != 0)
+            layout->raise(this);
         break;
     }
     case QEvent::ContextMenu:
