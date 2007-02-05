@@ -1351,7 +1351,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
                   !(e->state() & Qt::AltButton) &&
 #endif
                   !(e->state() & Qt::MetaButton) ||
-                 (((e->state()&Qt::ControlButton) | Qt::AltButton) == (Qt::ControlButton|Qt::AltButton))) &&
+                 (((e->state() & (Qt::ControlButton | Qt::AltButton))) == (Qt::ControlButton|Qt::AltButton))) &&
                  (!ascii || ascii >= 32 || e->text() == QString(QLatin1Char('\t')))) {
                 clearUndoRedoInfo = false;
                 if (e->key() == Qt::Key_Tab) {
