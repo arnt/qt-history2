@@ -1089,12 +1089,18 @@ void tst_QGraphicsScene::removeItem()
     QGraphicsView view(&scene);
     view.setFixedSize(150, 150);
     view.show();
-    QTest::mouseMove(view.viewport(), view.mapFromScene(hoverItem->scenePos() + QPointF(20, 20)));
+    {
+        QMouseEvent moveEvent(QEvent::MouseMove, view.mapFromScene(hoverItem->scenePos() + QPointF(20, 20)), Qt::NoButton, 0, 0);
+        QApplication::sendEvent(view.viewport(), &moveEvent);
+    }
     qApp->processEvents(); // update
     qApp->processEvents(); // draw
     QVERIFY(!hoverItem->isHovered);
 
-    QTest::mouseMove(view.viewport(), view.mapFromScene(hoverItem->scenePos()));
+    {
+        QMouseEvent moveEvent(QEvent::MouseMove, view.mapFromScene(hoverItem->scenePos()), Qt::NoButton, 0, 0);
+        QApplication::sendEvent(view.viewport(), &moveEvent);
+    }
     qApp->processEvents(); // update
     qApp->processEvents(); // draw
     QVERIFY(hoverItem->isHovered);
