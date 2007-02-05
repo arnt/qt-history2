@@ -713,7 +713,7 @@ void QLabel::setTextInteractionFlags(Qt::TextInteractionFlags flags)
     d->textInteractionFlags = flags;
     if (flags & Qt::LinksAccessibleByKeyboard)
         setFocusPolicy(Qt::StrongFocus);
-    else if (flags & Qt::TextSelectableByKeyboard)
+    else if (flags & (Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse))
         setFocusPolicy(Qt::ClickFocus);
     else
         setFocusPolicy(Qt::NoFocus);
