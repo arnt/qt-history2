@@ -2230,8 +2230,8 @@ void tst_QDateTimeEdit::editingFinished()
     layout->addWidget(box2);
     testFocusWidget->show();
 
-    box->activateWindow();
-    qApp->processEvents();
+    box->setFocus();
+    QTestEventLoop::instance().enterLoop(1);
     QVERIFY(box->hasFocus());
 
     QSignalSpy editingFinishedSpy1(box, SIGNAL(editingFinished()));
