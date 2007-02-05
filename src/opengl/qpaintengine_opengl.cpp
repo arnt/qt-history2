@@ -477,6 +477,11 @@ inline void QGLOffscreen::release()
     if (!offscreen || !bound)
         return;
 
+#ifdef Q_WS_X11
+    // workaround for bug in nvidia driver versions 9x.xx
+    glFinish();
+#endif
+
     DEBUG_ONCE_STR("QGLOffscreen: releasing offscreen");
 
     if (drawable_fbo)
