@@ -159,7 +159,6 @@ protected:
 //
 
     QVariant toVariant(const QMetaObject *meta, DomProperty *property);
-    static bool toBool(const QString &str);
     static QString toString(const DomString *str);
 
     typedef QHash<QString, DomProperty*> DomPropertyHash;
@@ -210,6 +209,9 @@ private:
 
     QAbstractFormBuilder(const QAbstractFormBuilder &other);
     void operator = (const QAbstractFormBuilder &other);
+    
+    friend DomProperty *variantToDomProperty(QAbstractFormBuilder *abstractFormBuilder, QObject *object, const QString &propertyName, const QVariant &value);
+    friend QVariant domPropertyToVariant(QAbstractFormBuilder *abstractFormBuilder,const QMetaObject *meta, const DomProperty *property);
 };
 
 #ifdef QFORMINTERNAL_NAMESPACE
