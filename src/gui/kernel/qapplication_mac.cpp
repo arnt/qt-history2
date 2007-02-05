@@ -1683,13 +1683,13 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 window->raise();
                 if(window->windowType() != Qt::Desktop
                    && window->windowType() != Qt::Popup && !qt_mac_is_macsheet(window)
-                   && (window->isModal() || !::qobject_cast<QDockWidget *>(window))) {
-                    const bool wasActive = window->isActiveWindow();
-                    window->activateWindow();
-                    if(!wasActive && !qt_mac_can_clickThrough(widget)) {
-                        handled_event = false;
-                        break;
-                    }
+                   && (window->isModal() || !::qobject_cast<QDockWidget *>(window))
+                   && !window->isActiveWindow()) {
+                   window->activateWindow();
+                   if(!qt_mac_can_clickThrough(widget)) {
+                       handled_event = false;
+                       break;
+                   }
                 }
             }
 
