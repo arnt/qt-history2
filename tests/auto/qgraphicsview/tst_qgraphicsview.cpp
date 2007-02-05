@@ -987,7 +987,7 @@ void tst_QGraphicsView::fitInView()
     view.setFixedSize(400, 200);
     view.show();
     view.fitInView(scene.itemsBoundingRect(), Qt::IgnoreAspectRatio);
-    QTest::qWait(250);
+    qApp->processEvents();
 
     // Sampled coordinates.
     QVERIFY(!view.itemAt(45, 41));
@@ -999,7 +999,8 @@ void tst_QGraphicsView::fitInView()
     QCOMPARE(view.itemAt(332, 160), items[3]);
 
     view.fitInView(items[0], Qt::IgnoreAspectRatio);
-    QTest::qWait(250);
+    qApp->processEvents();
+    
     QCOMPARE(view.itemAt(19, 13), items[0]);
     QCOMPARE(view.itemAt(91, 47), items[0]);
     QCOMPARE(view.itemAt(202, 94), items[0]);
@@ -1010,8 +1011,9 @@ void tst_QGraphicsView::fitInView()
     QVERIFY(!view.itemAt(251, 167));
 
     view.fitInView(items[0], Qt::KeepAspectRatio);
-    QTest::qWait(250);
-    QCOMPARE(view.itemAt(328, 170), items[0]);
+    qApp->processEvents();
+
+    QCOMPARE(view.itemAt(325, 170), items[0]);
     QCOMPARE(view.itemAt(206, 74), items[0]);
     QCOMPARE(view.itemAt(190, 115), items[0]);
     QCOMPARE(view.itemAt(55, 14), items[0]);
@@ -1021,7 +1023,8 @@ void tst_QGraphicsView::fitInView()
     QVERIFY(!view.itemAt(261, 168));
 
     view.fitInView(items[0], Qt::KeepAspectRatioByExpanding);
-    QTest::qWait(250);
+    qApp->processEvents();
+
     QCOMPARE(view.itemAt(18, 10), items[0]);
     QCOMPARE(view.itemAt(95, 4), items[0]);
     QCOMPARE(view.itemAt(279, 175), items[0]);
