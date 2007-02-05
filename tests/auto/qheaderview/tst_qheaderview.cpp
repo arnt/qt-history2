@@ -483,14 +483,14 @@ void tst_QHeaderView::visualIndexAt_data()
     QTest::addColumn<QList<int> >("visual");
 
     QTest::newRow("no hidden, no moved sections")
-        << (QList<int>())
-        << (QList<int>())
-        << (QList<int>())
+        << QList<int>()
+        << QList<int>()
+        << QList<int>()
         << (QList<int>() << -1 << 0 << 31 << 91 << 99999)
         << (QList<int>() << -1 << 0 << 1 << 3 << -1);
 
     QTest::newRow("no hidden, moved sections")
-        << (QList<int>())
+        << QList<int>()
         << (QList<int>() << 0)
         << (QList<int>() << 1)
         << (QList<int>() << -1 << 0 << 31 << 91 << 99999)
@@ -498,8 +498,8 @@ void tst_QHeaderView::visualIndexAt_data()
 
     QTest::newRow("hidden, no moved sections")
         << (QList<int>() << 0)
-        << (QList<int>())
-        << (QList<int>())
+        << QList<int>()
+        << QList<int>()
         << (QList<int>() << -1 << 0 << 31 << 91 << 99999)
         << (QList<int>() << -1 << 1 << 2 << 3 << -1);
 }
@@ -649,7 +649,7 @@ void tst_QHeaderView::moveSection_data()
     QTest::addColumn<int>("count");
 
     QTest::newRow("bad args, no hidden")
-        << (QList<int>())
+        << QList<int>()
         << (QList<int>() << -1 << 1 << 99999 << 1)
         << (QList<int>() << 1 << -1 << 1 << 99999)
         << (QList<bool>() << false << false << false << false)
@@ -657,7 +657,7 @@ void tst_QHeaderView::moveSection_data()
         << 0;
 
     QTest::newRow("good args, no hidden")
-        << (QList<int>())
+        << QList<int>()
         << (QList<int>() << 1 << 1 << 2 << 1)
         << (QList<int>() << 1 << 2 << 1 << 2)
         << (QList<bool>() << false << true << true << true)
