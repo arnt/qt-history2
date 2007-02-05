@@ -1100,7 +1100,6 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &_format
             d->priv->insert(d->position, QString(text.unicode() + textStart, text.length() - textStart), formatIdx);
     }
     d->priv->endEditBlock();
-    d->setX();
 }
 
 /*!
