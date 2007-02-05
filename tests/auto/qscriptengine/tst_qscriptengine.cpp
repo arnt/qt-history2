@@ -431,6 +431,32 @@ void tst_QScriptEngine::valueConversion()
         QCOMPARE(snum, QLatin1String("123"));
     }
 #endif
+    {
+        QScriptValue num(&eng, 123);
+        QCOMPARE(qScriptValueToValue<char>(num), char(123));
+        QCOMPARE(qScriptValueToValue<unsigned char>(num), (unsigned char)(123));
+        QCOMPARE(qScriptValueToValue<short>(num), short(123));
+        QCOMPARE(qScriptValueToValue<unsigned short>(num), (unsigned short)(123));
+        QCOMPARE(qScriptValueToValue<float>(num), float(123));
+        QCOMPARE(qScriptValueToValue<double>(num), double(123));
+    }
+
+    {
+        QChar c = QLatin1Char('c');
+        QScriptValue str = QScriptValue(&eng, "ciao");
+        QCOMPARE(qScriptValueToValue<QChar>(str), c);
+        QScriptValue code = QScriptValue(&eng, c.unicode());
+        QCOMPARE(qScriptValueToValue<QChar>(code), c);
+        QCOMPARE(qScriptValueToValue<QChar>(qScriptValueFromValue(&eng, c)), c);
+    }
+
+    {
+        // a type that we don't have built-in conversion of
+        // (it's stored as a variant)
+        QTime tm(1, 2, 3, 4);
+        QScriptValue val = qScriptValueFromValue(&eng, tm);
+        QCOMPARE(qScriptValueToValue<QTime>(val), tm);
+    }
 
     {
         Foo foo;

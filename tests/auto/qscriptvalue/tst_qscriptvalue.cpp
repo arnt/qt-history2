@@ -8,6 +8,7 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
+#include <QtGui/QPushButton>
 
 #include <QtScript/qscriptvalue.h>
 #include <QtScript/qscriptengine.h>
@@ -90,27 +91,35 @@ void tst_QScriptValue::toString()
 
     QScriptValue undefined = eng.undefinedValue();
     QCOMPARE(undefined.toString(), QString("undefined"));
+    QCOMPARE(qscriptvalue_cast<QString>(undefined), QString("undefined"));
 
     QScriptValue null = eng.nullValue();
     QCOMPARE(null.toString(), QString("null"));
+    QCOMPARE(qscriptvalue_cast<QString>(null), QString("null"));
 
     QScriptValue falskt = QScriptValue(&eng, false);
     QCOMPARE(falskt.toString(), QString("false"));
+    QCOMPARE(qscriptvalue_cast<QString>(falskt), QString("false"));
 
     QScriptValue sant = QScriptValue(&eng, true);
     QCOMPARE(sant.toString(), QString("true"));
+    QCOMPARE(qscriptvalue_cast<QString>(sant), QString("true"));
 
     QScriptValue number = QScriptValue(&eng, 123);
     QCOMPARE(number.toString(), QString("123"));
+    QCOMPARE(qscriptvalue_cast<QString>(number), QString("123"));
 
     QScriptValue str = QScriptValue(&eng, QString("ciao"));
     QCOMPARE(str.toString(), QString("ciao"));
+    QCOMPARE(qscriptvalue_cast<QString>(str), QString("ciao"));
 
     QScriptValue object = eng.newObject();
     QCOMPARE(object.toString(), QString("[object Object]"));
+    QCOMPARE(qscriptvalue_cast<QString>(object), QString("[object Object]"));
 
     QScriptValue fun = eng.newFunction(myFunction);
     QCOMPARE(fun.toString(), QString("function () { [native] }"));
+    QCOMPARE(qscriptvalue_cast<QString>(fun), QString("function () { [native] }"));
 
     QScriptValue inv = QScriptValue();
     QCOMPARE(inv.toString(), QString());
@@ -122,33 +131,43 @@ void tst_QScriptValue::toNumber()
 
     QScriptValue undefined = eng.undefinedValue();
     QCOMPARE(qIsNan(undefined.toNumber()), true);
+    QCOMPARE(qIsNan(qscriptvalue_cast<qsreal>(undefined)), true);
 
     QScriptValue null = eng.nullValue();
     QCOMPARE(null.toNumber(), 0.0);
+    QCOMPARE(qscriptvalue_cast<qsreal>(null), 0.0);
 
     QScriptValue falskt = QScriptValue(&eng, false);
     QCOMPARE(falskt.toNumber(), 0.0);
+    QCOMPARE(qscriptvalue_cast<qsreal>(falskt), 0.0);
 
     QScriptValue sant = QScriptValue(&eng, true);
     QCOMPARE(sant.toNumber(), 1.0);
+    QCOMPARE(qscriptvalue_cast<qsreal>(sant), 1.0);
 
     QScriptValue number = QScriptValue(&eng, 123.0);
     QCOMPARE(number.toNumber(), 123.0);
+    QCOMPARE(qscriptvalue_cast<qsreal>(number), 123.0);
 
     QScriptValue str = QScriptValue(&eng, QString("ciao"));
     QCOMPARE(qIsNan(str.toNumber()), true);
+    QCOMPARE(qIsNan(qscriptvalue_cast<qsreal>(str)), true);
 
     QScriptValue str2 = QScriptValue(&eng, QString("123"));
     QCOMPARE(str2.toNumber(), 123.0);
+    QCOMPARE(qscriptvalue_cast<qsreal>(str2), 123.0);
 
     QScriptValue object = eng.newObject();
     QCOMPARE(qIsNan(object.toNumber()), true);
+    QCOMPARE(qIsNan(qscriptvalue_cast<qsreal>(object)), true);
 
     QScriptValue fun = eng.newFunction(myFunction);
     QCOMPARE(qIsNan(fun.toNumber()), true);
+    QCOMPARE(qIsNan(qscriptvalue_cast<qsreal>(fun)), true);
 
     QScriptValue inv = QScriptValue();
     QCOMPARE(inv.toNumber(), 0.0);
+    QCOMPARE(qscriptvalue_cast<qsreal>(inv), 0.0);
 }
 
 void tst_QScriptValue::toBoolean()
@@ -157,42 +176,55 @@ void tst_QScriptValue::toBoolean()
 
     QScriptValue undefined = eng.undefinedValue();
     QCOMPARE(undefined.toBoolean(), false);
+    QCOMPARE(qscriptvalue_cast<bool>(undefined), false);
 
     QScriptValue null = eng.nullValue();
     QCOMPARE(null.toBoolean(), false);
+    QCOMPARE(qscriptvalue_cast<bool>(null), false);
 
     QScriptValue falskt = QScriptValue(&eng, false);
     QCOMPARE(falskt.toBoolean(), false);
+    QCOMPARE(qscriptvalue_cast<bool>(falskt), false);
 
     QScriptValue sant = QScriptValue(&eng, true);
     QCOMPARE(sant.toBoolean(), true);
+    QCOMPARE(qscriptvalue_cast<bool>(sant), true);
 
     QScriptValue number = QScriptValue(&eng, 0.0);
     QCOMPARE(number.toBoolean(), false);
+    QCOMPARE(qscriptvalue_cast<bool>(number), false);
 
     QScriptValue number2 = QScriptValue(&eng, qSNan());
     QCOMPARE(number2.toBoolean(), false);
+    QCOMPARE(qscriptvalue_cast<bool>(number2), false);
 
     QScriptValue number3 = QScriptValue(&eng, 123.0);
     QCOMPARE(number3.toBoolean(), true);
+    QCOMPARE(qscriptvalue_cast<bool>(number3), true);
 
     QScriptValue number4 = QScriptValue(&eng, -456.0);
     QCOMPARE(number4.toBoolean(), true);
+    QCOMPARE(qscriptvalue_cast<bool>(number4), true);
 
     QScriptValue str = QScriptValue(&eng, QString(""));
     QCOMPARE(str.toBoolean(), false);
+    QCOMPARE(qscriptvalue_cast<bool>(str), false);
 
     QScriptValue str2 = QScriptValue(&eng, QString("123"));
     QCOMPARE(str2.toBoolean(), true);
+    QCOMPARE(qscriptvalue_cast<bool>(str2), true);
 
     QScriptValue object = eng.newObject();
     QCOMPARE(object.toBoolean(), true);
+    QCOMPARE(qscriptvalue_cast<bool>(object), true);
 
     QScriptValue fun = eng.newFunction(myFunction);
     QCOMPARE(fun.toBoolean(), true);
+    QCOMPARE(qscriptvalue_cast<bool>(fun), true);
 
     QScriptValue inv = QScriptValue();
     QCOMPARE(inv.toBoolean(), false);
+    QCOMPARE(qscriptvalue_cast<bool>(inv), false);
 }
 
 void tst_QScriptValue::toInteger()
@@ -227,30 +259,39 @@ void tst_QScriptValue::toInt32()
 
     QScriptValue number = QScriptValue(&eng, 123.0);
     QCOMPARE(number.toInt32(), 123);
+    QCOMPARE(qscriptvalue_cast<qint32>(number), 123);
 
     QScriptValue number2 = QScriptValue(&eng, qSNan());
     QCOMPARE(number2.toInt32(), 0);
+    QCOMPARE(qscriptvalue_cast<qint32>(number2), 0);
 
     QScriptValue number3 = QScriptValue(&eng, qInf());
     QCOMPARE(number3.toInt32(), 0);
+    QCOMPARE(qscriptvalue_cast<qint32>(number3), 0);
 
     QScriptValue number4 = QScriptValue(&eng, 0.5);
     QCOMPARE(number4.toInt32(), 0);
+    QCOMPARE(qscriptvalue_cast<qint32>(number4), 0);
 
     QScriptValue number5 = QScriptValue(&eng, 123.5);
     QCOMPARE(number5.toInt32(), 123);
+    QCOMPARE(qscriptvalue_cast<qint32>(number5), 123);
 
     QScriptValue number6 = QScriptValue(&eng, -456.5);
     QCOMPARE(number6.toInt32(), -456);
+    QCOMPARE(qscriptvalue_cast<qint32>(number6), -456);
 
     QScriptValue number7 = QScriptValue(&eng, Q_INT64_C(0x100000000));
     QCOMPARE(number7.toInt32(), 0);
+    QCOMPARE(qscriptvalue_cast<qint32>(number7), 0);
 
     QScriptValue number8 = QScriptValue(&eng, Q_INT64_C(0x100000001));
     QCOMPARE(number8.toInt32(), 1);
+    QCOMPARE(qscriptvalue_cast<qint32>(number8), 1);
 
     QScriptValue inv;
     QCOMPARE(inv.toInt32(), 0);
+    QCOMPARE(qscriptvalue_cast<qint32>(inv), 0);
 }
 
 void tst_QScriptValue::toUInt32()
@@ -259,12 +300,15 @@ void tst_QScriptValue::toUInt32()
 
     QScriptValue number = QScriptValue(&eng, 123.0);
     QCOMPARE(number.toUInt32(), quint32(123));
+    QCOMPARE(qscriptvalue_cast<quint32>(number), quint32(123));
 
     QScriptValue number2 = QScriptValue(&eng, qSNan());
     QCOMPARE(number2.toUInt32(), quint32(0));
+    QCOMPARE(qscriptvalue_cast<quint32>(number2), quint32(0));
 
     QScriptValue number3 = QScriptValue(&eng, qInf());
     QCOMPARE(number3.toUInt32(), quint32(0));
+    QCOMPARE(qscriptvalue_cast<quint32>(number3), quint32(0));
 
     QScriptValue number4 = QScriptValue(&eng, 0.5);
     QEXPECT_FAIL("", "toUInt32() should floor(), not round()", Continue);
@@ -276,15 +320,19 @@ void tst_QScriptValue::toUInt32()
 
     QScriptValue number6 = QScriptValue(&eng, -456.5);
     QCOMPARE(number6.toUInt32(), quint32(-456));
+    QCOMPARE(qscriptvalue_cast<quint32>(number6), quint32(-456));
 
     QScriptValue number7 = QScriptValue(&eng, Q_INT64_C(0x100000000));
     QCOMPARE(number7.toUInt32(), quint32(0));
+    QCOMPARE(qscriptvalue_cast<quint32>(number7), quint32(0));
 
     QScriptValue number8 = QScriptValue(&eng, Q_INT64_C(0x100000001));
     QCOMPARE(number8.toUInt32(), quint32(1));
+    QCOMPARE(qscriptvalue_cast<quint32>(number8), quint32(1));
 
     QScriptValue inv;
     QCOMPARE(inv.toUInt32(), quint32(0));
+    QCOMPARE(qscriptvalue_cast<quint32>(inv), quint32(0));
 }
 
 void tst_QScriptValue::toUInt16()
@@ -293,12 +341,15 @@ void tst_QScriptValue::toUInt16()
 
     QScriptValue number = QScriptValue(&eng, 123.0);
     QCOMPARE(number.toUInt16(), quint16(123));
+    QCOMPARE(qscriptvalue_cast<quint16>(number), quint16(123));
 
     QScriptValue number2 = QScriptValue(&eng, qSNan());
     QCOMPARE(number2.toUInt16(), quint16(0));
+    QCOMPARE(qscriptvalue_cast<quint16>(number2), quint16(0));
 
     QScriptValue number3 = QScriptValue(&eng, qInf());
     QCOMPARE(number3.toUInt16(), quint16(0));
+    QCOMPARE(qscriptvalue_cast<quint16>(number3), quint16(0));
 
     QScriptValue number4 = QScriptValue(&eng, 0.5);
     QEXPECT_FAIL("", "toUInt16() should floor(), not round()", Continue);
@@ -310,16 +361,22 @@ void tst_QScriptValue::toUInt16()
 
     QScriptValue number6 = QScriptValue(&eng, -456.5);
     QCOMPARE(number6.toUInt16(), quint16(-456));
+    QCOMPARE(qscriptvalue_cast<quint16>(number6), quint16(-456));
 
     QScriptValue number7 = QScriptValue(&eng, 0x10000);
     QCOMPARE(number7.toUInt16(), quint16(0));
+    QCOMPARE(qscriptvalue_cast<quint16>(number7), quint16(0));
 
     QScriptValue number8 = QScriptValue(&eng, 0x10001);
     QCOMPARE(number8.toUInt16(), quint16(1));
+    QCOMPARE(qscriptvalue_cast<quint16>(number8), quint16(1));
 
     QScriptValue inv;
     QCOMPARE(inv.toUInt16(), quint16(0));
+    QCOMPARE(qscriptvalue_cast<quint16>(inv), quint16(0));
 }
+
+Q_DECLARE_METATYPE(QVariant)
 
 void tst_QScriptValue::toVariant()
 {
@@ -327,21 +384,27 @@ void tst_QScriptValue::toVariant()
 
     QScriptValue undefined = eng.undefinedValue();
     QCOMPARE(undefined.toVariant(), QVariant());
+    QCOMPARE(qscriptvalue_cast<QVariant>(undefined), QVariant());
 
     QScriptValue null = eng.nullValue();
     QCOMPARE(null.toVariant(), QVariant(0));
+    QCOMPARE(qscriptvalue_cast<QVariant>(null), QVariant(0));
 
     QScriptValue number = QScriptValue(&eng, 123.0);
     QCOMPARE(number.toVariant(), QVariant(123.0));
+    QCOMPARE(qscriptvalue_cast<QVariant>(number), QVariant(123.0));
 
     QScriptValue falskt = QScriptValue(&eng, false);
     QCOMPARE(falskt.toVariant(), QVariant(false));
+    QCOMPARE(qscriptvalue_cast<QVariant>(falskt), QVariant(false));
 
     QScriptValue sant = QScriptValue(&eng, true);
     QCOMPARE(sant.toVariant(), QVariant(true));
+    QCOMPARE(qscriptvalue_cast<QVariant>(sant), QVariant(true));
 
     QScriptValue str = QScriptValue(&eng, QString("ciao"));
     QCOMPARE(str.toVariant(), QVariant(QString("ciao")));
+    QCOMPARE(qscriptvalue_cast<QVariant>(str), QVariant(QString("ciao")));
 
     QVariant var(QChar(0x007A));
     QScriptValue opaque = eng.newVariant(var);
@@ -366,7 +429,11 @@ void tst_QScriptValue::toVariant()
 
     QScriptValue inv;
     QCOMPARE(inv.toVariant(), QVariant());
+    QCOMPARE(qscriptvalue_cast<QVariant>(inv), QVariant());
 }
+
+// unfortunately, this is necessary in order to do qscriptvalue_cast<QPushButton*>(...)
+Q_DECLARE_METATYPE(QPushButton*)
 
 void tst_QScriptValue::toQObject()
 {
@@ -374,33 +441,56 @@ void tst_QScriptValue::toQObject()
 
     QScriptValue undefined = eng.undefinedValue();
     QCOMPARE(undefined.toQObject(), (QObject *)0);
+    QCOMPARE(qscriptvalue_cast<QObject*>(undefined), (QObject *)0);
 
     QScriptValue null = eng.nullValue();
     QCOMPARE(null.toQObject(), (QObject *)0);
+    QCOMPARE(qscriptvalue_cast<QObject*>(null), (QObject *)0);
 
     QScriptValue falskt = QScriptValue(&eng, false);
     QCOMPARE(falskt.toQObject(), (QObject *)0);
+    QCOMPARE(qscriptvalue_cast<QObject*>(falskt), (QObject *)0);
 
     QScriptValue sant = QScriptValue(&eng, true);
     QCOMPARE(sant.toQObject(), (QObject *)0);
+    QCOMPARE(qscriptvalue_cast<QObject*>(sant), (QObject *)0);
 
     QScriptValue number = QScriptValue(&eng, 123.0);
     QCOMPARE(number.toQObject(), (QObject *)0);
+    QCOMPARE(qscriptvalue_cast<QObject*>(number), (QObject *)0);
 
     QScriptValue str = QScriptValue(&eng, QString("ciao"));
     QCOMPARE(str.toQObject(), (QObject *)0);
+    QCOMPARE(qscriptvalue_cast<QObject*>(str), (QObject *)0);
 
     QScriptValue object = eng.newObject();
     QCOMPARE(object.toQObject(), (QObject *)0);
+    QCOMPARE(qscriptvalue_cast<QObject*>(object), (QObject *)0);
 
     QScriptValue qobject = eng.newQObject(this);
     QCOMPARE(qobject.toQObject(), this);
+    QCOMPARE(qscriptvalue_cast<QObject*>(qobject), this);
 
     QScriptValue qobject2 = eng.newQObject(0);
     QCOMPARE(qobject2.toQObject(), (QObject *)0);
+    QCOMPARE(qscriptvalue_cast<QObject*>(qobject2), (QObject *)0);
+
+    QWidget widget;
+    QScriptValue qwidget = eng.newQObject(&widget);
+    QCOMPARE(qwidget.toQObject(), (QObject *)&widget);
+    QCOMPARE(qscriptvalue_cast<QObject*>(qwidget), (QObject *)&widget);
+    QCOMPARE(qscriptvalue_cast<QWidget*>(qwidget), &widget);
+
+    QPushButton button;
+    QScriptValue qbutton = eng.newQObject(&button);
+    QCOMPARE(qbutton.toQObject(), (QObject *)&button);
+    QCOMPARE(qscriptvalue_cast<QObject*>(qbutton), (QObject *)&button);
+    QCOMPARE(qscriptvalue_cast<QWidget*>(qbutton), (QWidget *)&button);
+    QCOMPARE(qscriptvalue_cast<QPushButton*>(qbutton), &button);
 
     QScriptValue inv;
     QCOMPARE(inv.toQObject(), (QObject *)0);
+    QCOMPARE(qscriptvalue_cast<QObject*>(inv), (QObject *)0);
 }
 
 void tst_QScriptValue::toObject()

@@ -42,6 +42,7 @@
 #include <QtCore/QStringList>
 
 Q_DECLARE_METATYPE(QScriptValue)
+Q_DECLARE_METATYPE(QVariant)
 
 namespace QScript {
 
@@ -1067,6 +1068,9 @@ QScriptValue QScriptEnginePrivate::create(int type, const void *ptr)
         case QMetaType::UChar:
             result = QScriptValue(q, *reinterpret_cast<const unsigned char*>(ptr));
             break;
+        case QMetaType::QChar:
+            result = QScriptValue(q, (*reinterpret_cast<const QChar*>(ptr)).unicode());
+            break;
         case QMetaType::QStringList:
             result = arrayFromStringList(*reinterpret_cast<const QStringList *>(ptr));
             break;
@@ -1099,6 +1103,8 @@ QScriptValue QScriptEnginePrivate::create(int type, const void *ptr)
         default:
             if (type == qMetaTypeId<QScriptValue>())
                 result = *reinterpret_cast<const QScriptValue*>(ptr);
+            else if (type == qMetaTypeId<QVariant>())
+                result = q->newVariant(*reinterpret_cast<const QVariant*>(ptr));
             else
                 result = q->newVariant(QVariant(type, ptr));
         }
@@ -1136,6 +1142,26 @@ bool QScriptEnginePrivate::convert(const QScriptValue &value,
         return true;
     case QMetaType::Float:
         *reinterpret_cast<float*>(ptr) = value.toNumber();
+        return true;
+    case QMetaType::Short:
+        *reinterpret_cast<short*>(ptr) = short(value.toInt32());
+        return true;
+    case QMetaType::UShort:
+        *reinterpret_cast<unsigned short*>(ptr) = value.toUInt16();
+        return true;
+    case QMetaType::Char:
+        *reinterpret_cast<char*>(ptr) = char(value.toInt32());
+        return true;
+    case QMetaType::UChar:
+        *reinterpret_cast<unsigned char*>(ptr) = (unsigned char)(value.toInt32());
+        return true;
+    case QMetaType::QChar:
+        if (value.isString()) {
+            QString str = value.toString();
+            *reinterpret_cast<QChar*>(ptr) = str.isEmpty() ? QChar() : str.at(0);
+        } else {
+            *reinterpret_cast<QChar*>(ptr) = QChar(value.toUInt16());
+        }
         return true;
     case QMetaType::QDateTime:
         *reinterpret_cast<QDateTime *>(ptr) = value.toDateTime();
@@ -1186,6 +1212,9 @@ bool QScriptEnginePrivate::convert(const QScriptValue &value,
 #endif
     if (type == qMetaTypeId<QScriptValue>()) {
         *reinterpret_cast<QScriptValue*>(ptr) = value;
+        return true;
+    } else if (type == qMetaTypeId<QVariant>()) {
+        *reinterpret_cast<QVariant*>(ptr) = value.toVariant();
         return true;
     }
 #if 0
