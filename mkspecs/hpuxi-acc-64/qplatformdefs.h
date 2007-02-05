@@ -16,6 +16,7 @@
 
 // Get Qt defines/settings
 
+#define _INCLUDE_LONGLONG
 #include "qglobal.h"
 
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
@@ -27,6 +28,7 @@
 
 
 #include <pthread.h>
+#include <sys/pstat.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <grp.h>
