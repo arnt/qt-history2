@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     app.processEvents();
 
     sleep(5);
-    MainWindow window;
+    QMainWindow window;
     window.show();
     splash.finish(&window);
     return app.exec();
