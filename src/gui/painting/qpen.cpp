@@ -322,7 +322,7 @@ QPen::QPen(Qt::PenStyle style)
 
 
 /*!
-    Constructs a pen with 0 width and the given \a color.
+    Constructs a solid line pen with 0 width and the given \a color.
 
     \sa setBrush(), setColor()
 */
