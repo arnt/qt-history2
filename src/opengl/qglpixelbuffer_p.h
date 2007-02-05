@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#if defined (Q_OS_HPUX) && !defined (GLX_VERSION_1_3)
+#if defined (Q_OS_HPUX)
 typedef unsigned long GLXPbuffer;
 
 struct GLXFBConfig {
