@@ -497,6 +497,12 @@ void tst_QDir::entryList()
     
     int max = qMin(actual.count(), expected.count());
 
+    if (qstrcmp(QTest::currentDataTag(), "unprintablenames") == 0) {
+        // The purpose of this entry is to check that QDir doesn't
+        // lock up. The actual result depends on the file system.
+        return;
+    }
+
     for (int i=0; i<max; ++i)
         QCOMPARE(actual[i], expected[i]);
 
