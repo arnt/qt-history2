@@ -464,7 +464,7 @@ void QToolBar::setOrientation(Qt::Orientation orientation)
 Qt::Orientation QToolBar::orientation() const
 { Q_D(const QToolBar); return d->orientation; }
 
-/*!
+/*! 
     \property QToolBar::iconSize
     \brief size of icons in the toolbar.
 
@@ -734,11 +734,9 @@ void QToolBar::actionEvent(QActionEvent *event)
                            "internal error");
                 d->items.insert(index, item);
                 qobject_cast<QBoxLayout *>(layout())->insertWidget(index + 1, item.widget);
-                layout()->setAlignment(item.widget, Qt::AlignCenter);
             } else {
                 d->items.append(item);
                 qobject_cast<QBoxLayout *>(layout())->insertWidget(d->items.size(), item.widget);
-                layout()->setAlignment(item.widget, Qt::AlignCenter);
             }
             item.widget->setVisible(visible);
             if (isVisible())
