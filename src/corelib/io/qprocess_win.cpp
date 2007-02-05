@@ -146,7 +146,7 @@ qint64 QWindowsPipeWriter::write(const char *ptr, qint64 maxlen)
     QMutexLocker locker(&lock);
     if (!data.isEmpty())
         return 0;
-    data.prepend(QByteArray(ptr, maxlen));
+    data.append(QByteArray(ptr, maxlen));
     waitCondition.wakeOne();
     return maxlen;
 }
