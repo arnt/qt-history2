@@ -231,12 +231,21 @@ void tst_QImageWriter::writeImage2()
     QFETCH(QByteArray, format);
     QFETCH(QImage, image);
 
-    QImageWriter writer(fileName, format);
-    QVERIFY(writer.write(image));
+    //we reduce the scope of writer so that it closes the associated file
+    // and QFile::remove can actually work
+    {
+        QImageWriter writer(fileName, format);
+        QVERIFY(writer.write(image));
+    }
 
     QImage written;
-    QImageReader reader(fileName, format);
-    QVERIFY(reader.read(&written));
+
+    //we reduce the scope of reader so that it closes the associated file
+    // and QFile::remove can actually work
+    {
+        QImageReader reader(fileName, format);
+        QVERIFY(reader.read(&written));
+    }
 
     written = written.convertToFormat(image.format());
     if (!equalImageContents(written, image)) {
