@@ -617,9 +617,9 @@ QModelIndex ResourceModel::addNewPrefix()
     while (m_resource_file.contains(prefix))
         prefix = tr("/new/prefix%1").arg((++i)+1);
 
+    i = rowCount(QModelIndex());
     beginInsertRows(QModelIndex(), i, i);
     m_resource_file.addPrefix(prefix);
-    i = m_resource_file.indexOfPrefix(prefix);
     endInsertRows();
 
     setDirty(true);
