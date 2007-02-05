@@ -24,8 +24,7 @@
 #include <qtablewidget.h>
 #ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>
-#endif
-#ifdef Q_OS_UNIX
+#elif defined Q_OS_UNIX
 #include <private/qt_x11_p.h>
 #endif
 
