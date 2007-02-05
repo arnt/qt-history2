@@ -36,6 +36,66 @@
 #include <private/qlayoutengine_p.h>
 
 /******************************************************************************
+** debug
+*/
+
+#include <stdio.h>
+#include <QTextStream>
+static QTextStream qout(stderr, QIODevice::WriteOnly);
+
+void dumpLayout(const QDockAreaLayoutInfo &layout, QString indent);
+
+void dumpLayout(const QDockAreaLayoutItem &item, QString indent)
+{
+    qout << indent << "QDockAreaLayoutItem: "
+            << "pos: " << item.pos << " size:" << item.size
+            << " gap:" << item.gap << '\n';
+    if (item.widgetItem != 0) {
+        qout << indent << "widget: "
+            << item.widgetItem->widget()->metaObject()->className()
+            << ' ' << item.widgetItem->widget()->windowTitle() << '\n';
+    } else if (item.subinfo != 0) {
+        qout << indent << "subinfo:\n";
+        dumpLayout(*item.subinfo, indent + QLatin1String("  "));
+    }
+    qout.flush();
+}
+
+void dumpLayout(const QDockAreaLayoutInfo &layout, QString indent)
+{
+    qout << indent << "QDockAreaLayoutInfo: "
+            << layout.rect.left() << ','
+            << layout.rect.top() << ' '
+            << layout.rect.width() << 'x'
+            << layout.rect.height()
+            << " orient:" << layout.o
+            << " tabbed:" << layout.tabbed
+            << " tbshape:" << layout.tabBarShape << '\n';
+
+    for (int i = 0; i < layout.item_list.count(); ++i) {
+        qout << indent << "Item: " << i << '\n';
+        dumpLayout(layout.item_list.at(i), indent + QLatin1String("  "));
+    }
+    qout.flush();
+};
+
+void dumpLayout(const QDockAreaLayout &layout, QString indent)
+{
+    qout << indent << "QDockAreaLayout: "
+            << layout.rect.left() << ','
+            << layout.rect.top() << ' '
+            << layout.rect.width() << 'x'
+            << layout.rect.height() << '\n';
+
+    for (int i = 0; i < QInternal::DockCount; ++i) {
+        qout << indent << "Dock area: " << i << '\n';
+        dumpLayout(layout.docks[i], indent + QLatin1String("  "));
+    }
+    qout.flush();
+};
+
+
+/******************************************************************************
 ** QMainWindowLayoutState
 */
 
@@ -103,6 +163,7 @@ void QMainWindowLayoutState::apply(bool animated)
 #endif
 
 #ifndef QT_NO_DOCKWIDGET
+//    dumpLayout(dockAreaLayout, QString());
     dockAreaLayout.apply(animated);
 #else
     if (centralWidgetItem != 0) {
@@ -748,9 +809,17 @@ protected:
 
 bool QMainWindowTabBar::event(QEvent *e)
 {
+    // show the tooltip if tab is too small to fit label
+
     if (e->type() != QEvent::ToolTip)
         return QTabBar::event(e);
-    if (size().width() < sizeHint().width())
+    QSize size = this->size();
+    QSize hint = sizeHint();
+    if (shape() == QTabBar::RoundedWest || shape() == QTabBar::RoundedEast) {
+        size.transpose();
+        hint.transpose();
+    }
+    if (size.width() < hint.width())
         return QTabBar::event(e);
     e->accept();
     return true;
