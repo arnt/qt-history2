@@ -1846,6 +1846,23 @@ void tst_QGraphicsView::viewportUpdateMode()
     // The view gets one bounding rect update.
     QCOMPARE(view.lastUpdateRegions.last().rects().size(), 1);
     QCOMPARE(view.lastUpdateRegions.last().rects().at(0).size(), QSize(33, 33));
+
+    // Set no update mode
+    view.setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
+    QCOMPARE(view.viewportUpdateMode(), QGraphicsView::NoViewportUpdate);
+
+    // Issue two scene updates.
+    view.lastUpdateRegions.clear();
+    TestItem item;
+    scene.addItem(&item);
+    item.moveBy(10, 10);
+    scene.update(QRectF(0, 0, 10, 10));
+    scene.update(QRectF(20, 0, 10, 10));
+    qApp->processEvents();
+    qApp->processEvents();
+
+    // The view should not get any painting calls from the scene updates
+    QCOMPARE(view.lastUpdateRegions.size(), 0);
 }
 
 void tst_QGraphicsView::acceptDrops()

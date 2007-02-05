@@ -71,7 +71,8 @@ public:
     enum ViewportUpdateMode {
         FullViewportUpdate,
         MinimalViewportUpdate,
-        SmartViewportUpdate
+        SmartViewportUpdate,
+        NoViewportUpdate
     };
 
     QGraphicsView(QWidget *parent = 0);
