@@ -1814,11 +1814,11 @@ void tst_QComboBox::itemListPosition()
     else
         screen = QApplication::desktop()->availableGeometry(scrNumber);
 #else
-    screen = QApplication::desktop()->availableGeometry(screen);
+    screen = QApplication::desktop()->availableGeometry(scrNumber);
 #endif
 
     combo.move(screen.width()-combo.sizeHint().width(), 0); //puts the combo the the top-right corner
-    
+
     combo.show();
     combo.showPopup();
 
