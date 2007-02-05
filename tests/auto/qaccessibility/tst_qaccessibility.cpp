@@ -45,6 +45,7 @@ private slots:
     void navigateControllers();
     void navigateLabels();
     void text();
+    void setText();
     void hideShowTest();
 
     void userActionCount();
@@ -1218,9 +1219,9 @@ void tst_QAccessibility::text()
     QAccessibleInterface *acc_label = QAccessible::queryAccessibleInterface(bottomLeft->child("label"));
     QAccessibleInterface *acc_lineedit = QAccessible::queryAccessibleInterface(bottomLeft->child("lineedit"));
     QAccessibleInterface *acc_radiogroup = QAccessible::queryAccessibleInterface(bottomLeft->child("radiogroup"));
-        QVERIFY(bottomLeft->child("radiogroup"));
-        QAccessibleInterface *acc_radioAM = QAccessible::queryAccessibleInterface(bottomLeft->child("radiogroup")->child("radioAM"));
-        QAccessibleInterface *acc_frequency = QAccessible::queryAccessibleInterface(bottomLeft->child("radiogroup")->child("frequency"));
+    QVERIFY(bottomLeft->child("radiogroup"));
+    QAccessibleInterface *acc_radioAM = QAccessible::queryAccessibleInterface(bottomLeft->child("radiogroup")->child("radioAM"));
+    QAccessibleInterface *acc_frequency = QAccessible::queryAccessibleInterface(bottomLeft->child("radiogroup")->child("frequency"));
 
     QVERIFY(acc_pb1);
 
@@ -1291,6 +1292,37 @@ void tst_QAccessibility::text()
         delete acc_radioAM;
         delete acc_frequency;
 
+    delete toplevel;
+    QTestAccessibility::clearEvents();
+
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
+void tst_QAccessibility::setText()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QWidget *toplevel = createGUI();
+    QObject *bottomLeft = toplevel->child("bottomLeft");
+
+    QAccessibleInterface *acc_lineedit = QAccessible::queryAccessibleInterface(bottomLeft->child("lineedit"));
+    // Value, read-write
+    QString txt = acc_lineedit->text(QAccessible::Value, 0);
+    QVERIFY(txt.isEmpty());
+    txt = QLatin1String("Writable");
+    acc_lineedit->setText(QAccessible::Value, 0, txt);
+    QCOMPARE(acc_lineedit->text(QAccessible::Value, 0), txt);
+
+    // Description, read-only
+    txt = acc_lineedit->text(QAccessible::Description, 0);
+    QVERIFY(!txt.isEmpty());
+    acc_lineedit->setText(QAccessible::Description, 0, QLatin1String(""));
+    QCOMPARE(acc_lineedit->text(QAccessible::Description, 0), txt);
+
+    QVERIFY(acc_lineedit);
+
+    delete acc_lineedit;
     delete toplevel;
     QTestAccessibility::clearEvents();
 
