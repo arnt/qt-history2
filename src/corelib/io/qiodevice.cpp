@@ -951,9 +951,10 @@ QByteArray QIODevice::readAll()
         }
     \endcode
 
-    If the '\n' character is the 1023th character read then it will be
-    inserted into the buffer; if it occurs after the 1023 character then
-    it is not read.
+    The newline character ('\n') is included in the buffer. If a
+    newline is not encountered before maxSize - 1 bytes are read, a
+    newline will not be inserted into the buffer. On windows newline
+    characters are replaced with '\n'.
 
     This function calls readLineData(), which is implemented using
     repeated calls to getChar(). You can provide a more efficient
