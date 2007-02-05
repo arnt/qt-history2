@@ -212,10 +212,10 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
 {
     d_ptr->displaySpec = displaySpec;
 
-    const QStringList args = displaySpec.split(":");
-    if (args.contains("nographicsmodeswitch"))
+    const QStringList args = displaySpec.split(QLatin1Char(':'));
+    if (args.contains(QLatin1String("nographicsmodeswitch")))
         d_ptr->doGraphicsMode = false;
-    QRegExp ttyRegExp("tty=(.*)");
+    QRegExp ttyRegExp(QLatin1String("tty=(.*)"));
     if (args.indexOf(ttyRegExp) != -1)
         d_ptr->ttyDevice = ttyRegExp.cap(1);
 
@@ -291,10 +291,10 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     }
 
     // Handle display physical size spec.
-    QStringList displayArgs = displaySpec.split(':');
-    QRegExp mmWidthRx("mmWidth=?(\\d+)");
+    QStringList displayArgs = displaySpec.split(QLatin1Char(':'));
+    QRegExp mmWidthRx(QLatin1String("mmWidth=?(\\d+)"));
     int dimIdxW = displayArgs.indexOf(mmWidthRx);
-    QRegExp mmHeightRx("mmHeight=?(\\d+)");
+    QRegExp mmHeightRx(QLatin1String("mmHeight=?(\\d+)"));
     int dimIdxH = displayArgs.indexOf(mmHeightRx);
     if (dimIdxW >= 0) {
         mmWidthRx.exactMatch(displayArgs.at(dimIdxW));
