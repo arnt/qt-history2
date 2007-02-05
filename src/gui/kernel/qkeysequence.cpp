@@ -51,19 +51,51 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
     \ingroup shared
     \mainclass
 
-    A key sequence consists of up to four keyboard codes, each
-    optionally combined with modifiers, such as Qt::SHIFT, Qt::CTRL,
-    Qt::ALT or Qt::META. For example, Qt::CTRL + Qt::Key_P might be a
-    sequence used as a shortcut for printing a document. Valid codes
-    for keys and modifiers are listed in Qt::Key and Qt::Modifier. As
-    an alternative, use the unicode code point of the character; for
-    example, 'A' gives the same key sequence as Qt::Key_A.
+    In its most common form, a key sequence describes a combination of
+    keys that must be used together to perform some action. Key sequences
+    are used with QAction objects to specify which keyboard shortcuts can
+    be used to trigger actions.
 
-    Key sequences can be constructed either from an integer key code,
-    or from a human readable translatable string such as
-    "Ctrl+X,Alt+Space". A key sequence can be cast to a QString to
-    obtain a human readable translated version of the sequence.
-    Translations are done in the "QShortcut" context.
+    Key sequences can be constructed for use as keyboard shortcuts in
+    three different ways:
+
+    \list
+    \o For standard shortcuts, a \l{QKeySequence::StandardKey}{standard key}
+       can be used to request the platform-specific key sequence associated
+       with each shortcut.
+    \o For custom shortcuts, human-readable strings such as "Ctrl+X" can
+       be used, and these can be translated into the appropriate shortcuts
+       for users of different languages. Translations are made in the
+       "QShortcut" context.
+    \o For hard-coded shortcuts, integer key codes can be specified with
+       a combination of values defined by the Qt::Key and Qt::Modifier enum
+       values. Each key code consists of a single Qt::Key value and zero or
+       more modifiers, such as Qt::SHIFT, Qt::CTRL, Qt::ALT and Qt::META.
+    \endlist
+
+    For example, \gui{Ctrl+P} might be a sequence used as a shortcut for
+    printing a document, and can be specified in any of the following
+    ways:
+
+    \code
+    QKeySequence(QKeySequence::Print}
+    QKeySequence(tr("Ctrl+P"))
+    QKeySequence(Qt::CTRL + Qt::Key_P)
+    \endcode
+
+    It is preferable to use standard shortcuts where possible.
+    When creating key sequences for non-standard shortcuts, you should use
+    human-readable strings in preference to hard-coded integer values.
+
+    QKeySequence objects can be cast to a QString to obtain a human-readable
+    translated version of the sequence. Similarly, the toString() function
+    produces human-readable strings for use in menus. On Mac OS X, the
+    appropriate symbols are used to describe keyboard shortcuts using special
+    keys on the Macintosh keyboard.
+
+    An alternative way to specify hard-coded key codes is to use the Unicode
+    code point of the character; for example, 'A' gives the same key sequence
+    as Qt::Key_A.
 
     \bold{Note:} On Mac OS X, references to "Ctrl", Qt::CTRL, Qt::Control
     and Qt::ControlModifier correspond to the \key Command keys on the
@@ -71,10 +103,6 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
     Qt::MetaModifier correspond to the \key Control keys. Developers on
     Mac OS X can use the same shortcut descriptions across all platforms,
     and their applications will automatically work as expected on Mac OS X.
-
-    The toString() function produces human-readable strings for use
-    in menus. On Mac OS X, the appropriate symbols are used to describe
-    keyboard shortcuts using special keys on the Macintosh keyboard.
 
     \section1 Standard Shortcuts
 
@@ -155,6 +183,20 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
     between platforms, you still need to test your shortcuts on each platform
     to ensure that you do not unintentionally assign the same key sequence to
     many actions.
+
+    \section1 GNU Emacs Style Key Sequences
+
+    Key sequences similar to those used in \l{GNU Emacs}, allowing up to four
+    key codes, can be created by using the multiple argument constructor,
+    or by passing a human-readable string of comma-separated key sequences.
+
+    For example, the key sequence, \gui{Ctrl+X} followed by \gui{Ctrl+C}, can
+    be specified using either of the following ways:
+
+    \code
+    QKeySequence(tr("Ctrl+X, Ctrl+C"))
+    QKeySequence(Qt::CTRL + Qt::Key_X, Qt::CTRL + Qt::Key_C)
+    \endcode
 
     \sa QShortcut
 */
