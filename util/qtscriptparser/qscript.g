@@ -44,6 +44,7 @@
 %token T_VAR "var"              T_VOID "void"               T_WHILE "while"
 %token T_WITH "with"            T_XOR "^"                   T_XOR_EQ "^="
 %token T_NULL "null"            T_TRUE "true"               T_FALSE "false"
+%token T_CONST "const"
 %token T_RESERVED "reserved word"
 
 %start Program
@@ -1223,12 +1224,26 @@ case $rule_number: {
 } break;
 ./
 
-VariableStatement: T_VAR VariableDeclarationList T_AUTOMATIC_SEMICOLON ;  -- automatic semicolon
-VariableStatement: T_VAR VariableDeclarationList T_SEMICOLON ;
+VariableStatement: VariableDeclarationKind VariableDeclarationList T_AUTOMATIC_SEMICOLON ;  -- automatic semicolon
+VariableStatement: VariableDeclarationKind VariableDeclarationList T_SEMICOLON ;
 /.
 case $rule_number: {
-  sym(1).Node = QScript::makeAstNode<QScript::AST::VariableStatement> (driver->nodePool(), sym(2).VariableDeclarationList->finish ());
+  sym(1).Node = QScript::makeAstNode<QScript::AST::VariableStatement> (driver->nodePool(), sym(2).VariableDeclarationList->finish (/*readOnly=*/sym(1).ival == T_CONST));
   Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+} break;
+./
+
+VariableDeclarationKind: T_CONST ;
+/.
+case $rule_number: {
+  sym(1).ival = T_CONST;
+} break;
+./
+
+VariableDeclarationKind: T_VAR ;
+/.
+case $rule_number: {
+  sym(1).ival = T_VAR;
 } break;
 ./
 
@@ -1376,7 +1391,7 @@ case $rule_number: {
 IterationStatement: T_FOR T_LPAREN T_VAR VariableDeclarationListNotIn T_SEMICOLON ExpressionOpt T_SEMICOLON ExpressionOpt T_RPAREN Statement ;
 /.
 case $rule_number: {
-  sym(1).Node = QScript::makeAstNode<QScript::AST::LocalForStatement> (driver->nodePool(), sym(4).VariableDeclarationList->finish (), sym(6).Expression, sym(8).Expression, sym(10).Statement);
+  sym(1).Node = QScript::makeAstNode<QScript::AST::LocalForStatement> (driver->nodePool(), sym(4).VariableDeclarationList->finish (/*readOnly=*/false), sym(6).Expression, sym(8).Expression, sym(10).Statement);
   Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
 } break;
 ./

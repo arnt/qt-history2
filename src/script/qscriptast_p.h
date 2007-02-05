@@ -747,6 +747,22 @@ public:
     VariableDeclarationList *declarations;
 };
 
+class VariableDeclaration: public Node
+{
+public:
+    VariableDeclaration(QScriptNameIdImpl *n, ExpressionNode *e):
+        name (n), expression (e), readOnly(false) {}
+
+    virtual ~VariableDeclaration() {}
+
+    virtual void accept0(Visitor *visitor);
+
+// attributes
+    QScriptNameIdImpl *name;
+    ExpressionNode *expression;
+    bool readOnly;
+};
+
 class VariableDeclarationList: public Node
 {
 public:
@@ -764,31 +780,21 @@ public:
 
     virtual void accept0(Visitor *visitor);
 
-    inline VariableDeclarationList *finish ()
+    inline VariableDeclarationList *finish (bool readOnly)
     {
         VariableDeclarationList *front = next;
         next = 0;
+        if (readOnly) {
+            VariableDeclarationList *vdl;
+            for (vdl = front; vdl != 0; vdl = vdl->next)
+                vdl->declaration->readOnly = true;
+        }
         return front;
     }
 
 // attributes
     VariableDeclaration *declaration;
     VariableDeclarationList *next;
-};
-
-class VariableDeclaration: public Node
-{
-public:
-    VariableDeclaration(QScriptNameIdImpl *n, ExpressionNode *e):
-        name (n), expression (e) {}
-
-    virtual ~VariableDeclaration() {}
-
-    virtual void accept0(Visitor *visitor);
-
-// attributes
-    QScriptNameIdImpl *name;
-    ExpressionNode *expression;
 };
 
 class EmptyStatement: public Statement

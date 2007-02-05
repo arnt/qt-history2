@@ -63,6 +63,8 @@ public:
         Undeletable         = 0x00000002,
         SkipInEnumeration   = 0x00000004,
 
+        UninitializedConst  = 0x00000080,
+
         ObjectProperty      = 0x00000100,           // Stored in the member table
         NativeProperty      = 0x00000200,
 

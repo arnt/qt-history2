@@ -11,17 +11,6 @@
 **
 ****************************************************************************/
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists for the convenience
-// of other Qt classes.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
 #ifndef QSCRIPTGRAMMAR_P_H
 #define QSCRIPTGRAMMAR_P_H
 
@@ -39,6 +28,7 @@ public:
     T_CATCH = 6,
     T_COLON = 7,
     T_COMMA = 8,
+    T_CONST = 81,
     T_CONTINUE = 9,
     T_DEFAULT = 10,
     T_DELETE = 11,
@@ -91,7 +81,7 @@ public:
     T_RBRACKET = 56,
     T_REMAINDER = 57,
     T_REMAINDER_EQ = 58,
-    T_RESERVED = 81,
+    T_RESERVED = 82,
     T_RETURN = 59,
     T_RPAREN = 60,
     T_SEMICOLON = 61,
@@ -112,15 +102,15 @@ public:
     T_XOR = 76,
     T_XOR_EQ = 77,
 
-    ACCEPT_STATE = 198,
-    RULE_COUNT = 229,
-    STATE_COUNT = 404,
-    TERMINAL_COUNT = 82,
-    NON_TERMINAL_COUNT = 85,
+    ACCEPT_STATE = 200,
+    RULE_COUNT = 231,
+    STATE_COUNT = 406,
+    TERMINAL_COUNT = 83,
+    NON_TERMINAL_COUNT = 86,
 
-    GOTO_INDEX_OFFSET = 404,
-    GOTO_INFO_OFFSET = 1032,
-    GOTO_CHECK_OFFSET = 1032,
+    GOTO_INDEX_OFFSET = 406,
+    GOTO_INFO_OFFSET = 1106,
+    GOTO_CHECK_OFFSET = 1106,
   };
 
   static const char  *const spell [];

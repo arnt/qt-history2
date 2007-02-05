@@ -59,7 +59,7 @@ public:
     void iBranchTrue(int index);
     void iBranchFalse(int index);
     void iCall(int argc);
-    void iDeclareLocal(QScriptNameIdImpl *id);
+    void iDeclareLocal(QScriptNameIdImpl *id, bool readOnly);
     void iDecr();
     void iDelete();
     void iDiv();

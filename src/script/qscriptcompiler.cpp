@@ -92,7 +92,7 @@ public:
 protected:
     virtual bool visit(AST::FunctionDeclaration *node)
     {
-        compiler->iDeclareLocal(node->name);
+        compiler->iDeclareLocal(node->name, /*readOnly=*/false);
         return false;
     }
 
@@ -101,7 +101,7 @@ protected:
 
     virtual bool visit(AST::VariableDeclaration *node)
     {
-        compiler->iDeclareLocal(node->name);
+        compiler->iDeclareLocal(node->name, node->readOnly);
         return false;
     }
 
@@ -1383,12 +1383,14 @@ void Compiler::iRet()
     pushInstruction(QScriptInstruction::OP_Ret);
 }
 
-void Compiler::iDeclareLocal(QScriptNameIdImpl *id)
+void Compiler::iDeclareLocal(QScriptNameIdImpl *id, bool readOnly)
 {
     QScriptValue arg0;
     id->persistent = true;
     m_eng->newNameId(&arg0, id);
-    pushInstruction(QScriptInstruction::OP_DeclareLocal, arg0);
+    QScriptValue arg1;
+    m_eng->newInteger(&arg1, readOnly);
+    pushInstruction(QScriptInstruction::OP_DeclareLocal, arg0, arg1);
 }
 
 void Compiler::iAssign()

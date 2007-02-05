@@ -56,6 +56,9 @@ namespace QScript {
         inline bool isNativeProperty() const
             { return m_flags & QScriptValue::NativeProperty; }
 
+        inline bool isUninitializedConst() const
+            { return m_flags & QScriptValue::UninitializedConst; }
+
         inline bool isGetter() const
             { return m_flags & QScriptValue::PropertyGetter; }
         inline bool isSetter() const

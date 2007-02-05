@@ -891,11 +891,15 @@ Ltop:
         QScriptValueImpl *act = activation.impl();
 
         QScriptNameIdImpl *memberName = iPtr->operand[0].m_string_value;
+        bool readOnly = iPtr->operand[1].m_int_value != 0;
         QScript::Member member;
         QScriptValue object;
 
         if (! act->resolve(memberName, &member, &object, QScriptValue::ResolveLocal)) {
-            act->createMember(memberName, &member, QScriptValue::Undeletable);
+            QScriptValue::PropertyFlags flags = QScriptValue::Undeletable;
+            if (readOnly)
+                flags |= QScriptValue::UninitializedConst | QScriptValue::ReadOnly;
+            act->createMember(memberName, &member, flags);
             act->put(member, undefined);
         }
         ++iPtr;
@@ -978,8 +982,17 @@ Ltop:
                     base = object;
                     base.impl()->createMember(memberName, &member, /*flags=*/0);
                 }
+
                 if (member.isWritable())
                     base.impl()->put(member, value);
+
+                else if (member.isUninitializedConst()) {
+                    base.impl()->put(member, value);
+                    if (member.isObjectProperty()) {
+                        base.m_object_value->m_members[member.id()]
+                            .unsetFlags(QScriptValue::UninitializedConst);
+                    }
+                }
             }
         }
 
