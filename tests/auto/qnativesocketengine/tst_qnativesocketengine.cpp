@@ -126,7 +126,12 @@ void tst_QNativeSocketEngine::simpleConnectToIMAP()
     QVERIFY(!socketDevice.connectToHost(QHostAddress(IMAP_IP), 143));
     QVERIFY(socketDevice.state() == QAbstractSocket::ConnectingState);
     QVERIFY(socketDevice.waitForWrite());
-    QVERIFY(socketDevice.connectToHost(QHostAddress(IMAP_IP), 143));
+    int guard = 100;
+    do {
+        if (socketDevice.connectToHost(QHostAddress(IMAP_IP), 143))
+            break;
+        QTest::qWait(100);
+    } while (--guard && socketDevice.error() == QAbstractSocket::SocketError(11));
     QVERIFY(socketDevice.state() == QAbstractSocket::ConnectedState);
     QVERIFY(socketDevice.peerAddress() == QHostAddress(IMAP_IP));
 
@@ -141,11 +146,10 @@ void tst_QNativeSocketEngine::simpleConnectToIMAP()
     QVERIFY(socketDevice.read(array.data(), array.size()) == available);
 
     // Check that the greeting is what we expect it to be
-    QCOMPARE(array.constData(),
-            "* OK esparsett Cyrus IMAP4 v2.2.8 server ready\r\n");
+    QCOMPARE(array.constData(), "* OK esparsett Cyrus IMAP4 v2.2.8 server ready\r\n");
 
     // Write a logout message
-    QByteArray array2 = "XXXX LOGOUT\r\n";
+    QByteArray array2 = "ZZZ LOGOUT\r\n";
     QVERIFY(socketDevice.write(array2.data(),
                               array2.size()) == array2.size());
 
@@ -158,7 +162,9 @@ void tst_QNativeSocketEngine::simpleConnectToIMAP()
     QVERIFY(socketDevice.read(array.data(), array.size()) == available);
 
     // Check that the greeting is what we expect it to be
-    QCOMPARE(array.constData(), "* BYE LOGOUT received\r\nXXXX OK Completed\r\n");
+    QCOMPARE(array.constData(),
+             "* BYE LOGOUT received\r\n"
+             "ZZZ OK Completed\r\n");
 
     // Wait for the response
     QVERIFY(socketDevice.waitForRead());
@@ -326,14 +332,15 @@ void tst_QNativeSocketEngine::serverTest()
     // Initialize a Tcp socket
     QNativeSocketEngine client;
     QVERIFY(client.initialize(QAbstractSocket::TcpSocket));
+    QVERIFY(!client.connectToHost(QHostAddress("127.0.0.1"), port));
 
     // Connect to our server
-    if (!client.connectToHost(QHostAddress("127.0.0.1"), port)) {
-        QVERIFY(client.waitForWrite());
-        QTest::qWait(100); // ### timing problem on win32
-        QVERIFY2(client.connectToHost(QHostAddress("127.0.0.1"), port),
-                client.errorString().toLatin1());
-    }
+    int guard = 100;
+    do {
+        if (client.connectToHost(QHostAddress("127.0.0.1"), port))
+            break;
+        QTest::qWait(100);
+    } while (--guard && client.error() == QAbstractSocket::SocketError(11));
 
     // The server accepts the connection
     int socketDescriptor = server.accept();
@@ -426,7 +433,7 @@ void tst_QNativeSocketEngine::tcpLoopbackPerformance()
     QVERIFY(server.bind(QHostAddress("0.0.0.0"), 0));
     QVERIFY(server.state() == QAbstractSocket::BoundState);
     quint16 port = server.localPort();
-
+    
     // Listen for incoming connections
     QVERIFY(server.listen());
     QVERIFY(server.state() == QAbstractSocket::ListeningState);
@@ -437,8 +444,12 @@ void tst_QNativeSocketEngine::tcpLoopbackPerformance()
 
     // Connect to our server
     if (!client.connectToHost(QHostAddress("127.0.0.1"), port)) {
-        QVERIFY(client.waitForWrite());
-        QVERIFY(client.connectToHost(QHostAddress("127.0.0.1"), port));
+        int guard = 100;
+        do {
+            if (client.connectToHost(QHostAddress("127.0.0.1"), port))
+                break;
+            QTest::qWait(100);
+        } while (--guard && client.error() == QAbstractSocket::SocketError(11));
     }
 
     // The server accepts the connectio
@@ -547,7 +558,12 @@ void tst_QNativeSocketEngine::networkError()
     QVERIFY(!client.connectToHost(QHostAddress(IMAP_IP), 143));
     QVERIFY(client.state() == QAbstractSocket::ConnectingState);
     QVERIFY(client.waitForWrite());
-    QVERIFY(client.connectToHost(QHostAddress(IMAP_IP), 143));
+    int guard = 100;
+    do {
+        if (client.connectToHost(QHostAddress(IMAP_IP), 143))
+            break;
+        QTest::qWait(100);
+    } while (--guard && client.error() == QAbstractSocket::SocketError(11));
     QVERIFY(client.state() == QAbstractSocket::ConnectedState);
 
     // An unexpected network error!
@@ -579,7 +595,7 @@ void tst_QNativeSocketEngine::invalidSend()
 
     QTest::ignoreMessage(QtWarningMsg, "QNativeSocketEngine::writeDatagram() was"
                                " called by a socket other than QAbstractSocket::UdpSocket");
-    QCOMPARE(socket.writeDatagram("hei", 3, QHostAddress::LocalHost, 21),
+    QCOMPARE(socket.writeDatagram("hei", 3, QHostAddress::LocalHost, 143),
             (qlonglong) -1);
 }
 
@@ -602,10 +618,12 @@ void tst_QNativeSocketEngine::receiveUrgentData()
     QVERIFY(client.initialize(QAbstractSocket::TcpSocket));
 
     if (!client.connectToHost(QHostAddress("127.0.0.1"), port)) {
-        QVERIFY(client.waitForWrite());
-        QTest::qWait(100); // ### timing problem on win32
-        QVERIFY2(client.connectToHost(QHostAddress("127.0.0.1"), port),
-                client.errorString().toLatin1());
+        int guard = 100;
+        do {
+            if (client.connectToHost(QHostAddress("127.0.0.1"), port))
+                break;
+            QTest::qWait(100);
+        } while (--guard && client.error() == QAbstractSocket::SocketError(11));
     }
 
     int socketDescriptor = server.accept();
