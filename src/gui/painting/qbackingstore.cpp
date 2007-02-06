@@ -162,16 +162,19 @@ static void qt_showYellowThing(QWidget *widget, const QRegion &toBePainted, int 
 }
 #endif
 
+static int test_qt_flushPaint()
+{
+    static int flush_paint = qgetenv("QT_FLUSH_PAINT").toInt();
+    return flush_paint;
+}
+
 static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
 {
-    static int checked_env = -1;
-    if(checked_env == -1)
-        checked_env = qgetenv("QT_FLUSH_PAINT").toInt();
-
-    if (checked_env == 0)
+    static int flush_paint = test_qt_flushPaint();
+    if (!flush_paint)
         return false;
 
-    qt_showYellowThing(widget, toBePainted, checked_env*10, true);
+    qt_showYellowThing(widget, toBePainted, flush_paint * 10, true);
 
     return true;
 }
@@ -607,6 +610,14 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         if (tlw->updatesEnabled()) {
             // Pre render config
             windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
+
+// Avoid deadlock with QT_FLUSH_PAINT: the server will wait for
+// the BackingStore lock, so if we hold that, the server will
+// never release the Communication lock that we are waiting for in
+// sendSynchronousCommand
+            const bool flushing = (test_qt_flushPaint() > 0);
+            if (!flushing)
+                windowSurface->beginPaint(toClean);
             windowSurface->beginPaint(toClean);
             windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
 
@@ -614,7 +625,8 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 
             // Drawing the overlay...
             windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
-            windowSurface->endPaint(toClean);
+            if (!flushing)
+                windowSurface->endPaint(toClean);
             windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
         }
     }
