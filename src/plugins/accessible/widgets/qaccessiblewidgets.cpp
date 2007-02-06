@@ -570,7 +570,7 @@ int QAccessibleMdiSubWindow::navigate(RelationFlag relation, int entry, QAccessi
     case Up:
     case Down:
     case Left:
-    case Right:
+    case Right: {
         if (entry != 0)
             break;
         QWidget *parent = source->parentWidget();
@@ -587,6 +587,7 @@ int QAccessibleMdiSubWindow::navigate(RelationFlag relation, int entry, QAccessi
             return *target ? 0 : -1;
         }
         break;
+    }
     default:
         return QAccessibleWidgetEx::navigate(relation, entry, target);
     }
