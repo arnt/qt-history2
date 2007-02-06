@@ -151,6 +151,7 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
         if (isActive)
             opt.titleBarState |= QStyle::State_Active;
         opt.text = widget->windowTitle();
+        opt.icon = widget->windowIcon();
         opt.palette = pal;
         opt.rect = QRect(widget->rect().x() - titleExtra, -titleHeight,
                          widget->rect().width() + 2 * titleExtra, titleHeight);
