@@ -116,8 +116,6 @@ QRect QItemDelegatePrivate::textLayoutBounds(const QStyleOptionViewItemV2 &optio
 
 QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
 {
-    QFontMetrics fontMetrics(textLayout.font());
-    int leading = fontMetrics.leading();
     qreal height = 0;
     qreal widthUsed = 0;
     textLayout.beginLayout();
@@ -126,7 +124,6 @@ QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
         if (!line.isValid())
             break;
         line.setLineWidth(lineWidth);
-        height += leading;
         line.setPosition(QPointF(0, height));
         height += line.height();
         widthUsed = qMax(widthUsed, line.naturalTextWidth());
@@ -784,7 +781,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
 
     textRect->adjust(-textMargin, 0, textMargin, 0); // add width padding
     if (textRect->height() == 0)
-        textRect->setHeight(option.fontMetrics.lineSpacing());
+        textRect->setHeight(option.fontMetrics.height());
 
     QSize pm(0, 0);
     if (pixmapRect->isValid()) {
