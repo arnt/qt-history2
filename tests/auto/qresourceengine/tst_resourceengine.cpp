@@ -374,7 +374,8 @@ void tst_ResourceEngine::checkUnregisterResource_data()
     QTest::addColumn<int>("size");
 
     QTest::newRow("currentdir.txt") << QString("runtime_resource.rcc") << QString("/check_unregister/")
-                                    << QString(":/check_unregister/runtime_resource/test/abc/123/+++/currentdir.txt") << 27;
+                                    << QString(":/check_unregister/runtime_resource/test/abc/123/+++/currentdir.txt") 
+                                    << (int)QFileInfo("testqrc/currentdir.txt").size();
 }
 
 void tst_ResourceEngine::checkUnregisterResource()
