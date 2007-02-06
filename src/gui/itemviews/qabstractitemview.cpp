@@ -1971,7 +1971,7 @@ void QAbstractItemView::timerEvent(QTimerEvent *event)
         d->updateDirtyRegion();
     else if (event->timerId() == d->delayedEditing.timerId()) {
         d->delayedEditing.stop();
-        d->openEditor(currentIndex(), 0);
+        edit(currentIndex());
     } else if (event->timerId() == d->delayedLayout.timerId()) {
         d->delayedLayout.stop();
         doItemsLayout();
@@ -2068,6 +2068,8 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
     if (trigger == DoubleClicked) {
         d->delayedEditing.stop();
         d->delayedAutoScroll.stop();
+    } else if (trigger == CurrentChanged) {
+        d->delayedEditing.stop();
     }
 
     if (d->sendDelegateEvent(index, event)) {
