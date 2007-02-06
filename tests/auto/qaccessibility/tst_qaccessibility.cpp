@@ -58,6 +58,7 @@ private slots:
     void tabTest();
     void menuTest();
     void spinBoxTest();
+    void doubleSpinBoxTest();
     void textEditTest();
     void listViewTest();
     void mdiAreaTest();
@@ -2106,6 +2107,33 @@ void tst_QAccessibility::spinBoxTest()
     }
 
     delete spinBox;
+    QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
+void tst_QAccessibility::doubleSpinBoxTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QDoubleSpinBox *doubleSpinBox = new QDoubleSpinBox;
+    doubleSpinBox->show();
+
+    QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(doubleSpinBox);
+    QVERIFY(interface);
+
+    const QRect widgetRect = doubleSpinBox->geometry();
+    const QRect accessibleRect = interface->rect(0);
+    QCOMPARE(accessibleRect, widgetRect);
+
+    // Test that we get valid rects for all the spinbox child interfaces.
+    const int numChildren = interface->childCount();
+    for (int i = 1; i <= numChildren; ++i) {
+        const QRect childRect = interface->rect(i);
+        QVERIFY(childRect.isValid());
+    }
+
+    delete doubleSpinBox;
     QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
