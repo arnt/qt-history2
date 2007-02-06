@@ -1175,11 +1175,12 @@ bool QDockWidget::event(QEvent *event)
     case QEvent::Hide:
         if (layout != 0)
             layout->keepSize(this);
-        if (!isHidden())
-            break;
-        // fallthrough intended
+        d->toggleViewAction->setChecked(false);
+        emit visibilityChanged(false);
+        break;
     case QEvent::Show:
-        d->toggleViewAction->setChecked(event->type() == QEvent::Show);
+        d->toggleViewAction->setChecked(true);
+        emit visibilityChanged(true);
         if (!isFloating())
             raise();
         break;

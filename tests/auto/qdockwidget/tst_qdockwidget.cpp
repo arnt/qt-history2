@@ -47,6 +47,7 @@ private slots:
     void featuresChanged();
     void topLevelChanged();
     void allowedAreasChanged();
+    void visibilityChanged();
 };
 
 // Testing get/set functions
@@ -480,6 +481,76 @@ void tst_QDockWidget::toggleViewAction()
     QVERIFY(!dw.isHidden());
     toggleViewAction->trigger();
     QVERIFY(dw.isHidden());
+}
+
+void tst_QDockWidget::visibilityChanged()
+{
+    QMainWindow mw;
+    QDockWidget dw;
+    QSignalSpy spy(&dw, SIGNAL(visibilityChanged(bool)));
+
+    mw.addDockWidget(Qt::LeftDockWidgetArea, &dw);
+    mw.show();
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toBool(), true);
+    spy.clear();
+
+    dw.hide();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toBool(), false);
+    spy.clear();
+
+    dw.hide();
+    QCOMPARE(spy.count(), 0);
+
+    dw.show();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toBool(), true);
+    spy.clear();
+
+    dw.show();
+    QCOMPARE(spy.count(), 0);
+
+    QDockWidget dw2;
+    mw.tabifyDockWidget(&dw, &dw2);
+    dw2.show();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toBool(), false);
+    spy.clear();
+
+    dw2.hide();
+    qApp->processEvents();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toBool(), true);
+    spy.clear();
+
+    dw2.show();
+    qApp->processEvents();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toBool(), false);
+    spy.clear();
+
+    dw.raise();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toBool(), true);
+    spy.clear();
+
+    dw.raise();
+    QCOMPARE(spy.count(), 0);
+
+    dw2.raise();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toBool(), false);
+    spy.clear();
+
+    dw2.raise();
+    QCOMPARE(spy.count(), 0);
+
+    mw.addDockWidget(Qt::RightDockWidgetArea, &dw2);
+    qApp->processEvents();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toBool(), true);
 }
 
 void tst_QDockWidget::featuresChanged()

@@ -1321,7 +1321,18 @@ void QDockAreaLayoutInfo::apply(bool animate)
             Q_ASSERT(item.widgetItem);
             QRect r = itemRect(i);
             QWidget *w = item.widgetItem->widget();
+
+            QRect geo = w->geometry();
             widgetAnimator->animate(w, r, animate);
+            if (w->isVisible()) {
+                QDockWidget *dw = qobject_cast<QDockWidget*>(w);
+                if (!r.isValid() && geo.right() >= 0 && geo.bottom() >= 0) {
+                    emit dw->visibilityChanged(false);
+                } else if (r.isValid()
+                            && (geo.right() < 0 || geo.bottom() < 0)) {
+                    emit dw->visibilityChanged(true);
+                }
+            }
         }
     }
 }

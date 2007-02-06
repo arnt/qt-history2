@@ -83,6 +83,7 @@ Q_SIGNALS:
     void featuresChanged(QDockWidget::DockWidgetFeatures features);
     void topLevelChanged(bool topLevel);
     void allowedAreasChanged(Qt::DockWidgetAreas allowedAreas);
+    void visibilityChanged(bool visible);
 
 protected:
     void changeEvent(QEvent *event);
@@ -100,6 +101,7 @@ private:
     friend class QDockWidgetItem;
     friend class QMainWindowLayout;
     friend class QDockWidgetLayout;
+    friend class QDockAreaLayoutInfo;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWidget::DockWidgetFeatures)
