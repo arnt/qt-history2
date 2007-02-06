@@ -306,6 +306,7 @@ static int repeatCount(const QString &s, int i)
 }
 
 static const QLocalePrivate *default_lp = 0;
+static uint default_number_options = 0;
 
 #ifndef QT_NO_SYSTEMLOCALE
 static QByteArray envVarLocale()
@@ -2005,7 +2006,7 @@ QLocale::QLocale(const QString &name)
 QLocale::QLocale()
 {
     ::setDataPointer(&v, defaultPrivate());
-    ::setNumberOptions(&v, 0);
+    ::setNumberOptions(&v, default_number_options);
 }
 
 /*!
@@ -2032,11 +2033,13 @@ QLocale::QLocale(Language language, Country country)
     const QLocalePrivate *d = findLocale(language, country);
 
     // If not found, should default to system
-    if (d->languageId() == QLocale::C && language != QLocale::C)
-        d = defaultPrivate();
-
-    ::setDataPointer(&v, d);
-    ::setNumberOptions(&v, 0);
+    if (d->languageId() == QLocale::C && language != QLocale::C) {
+        ::setDataPointer(&v, defaultPrivate());
+        ::setNumberOptions(&v, default_number_options);
+    } else {
+        ::setDataPointer(&v, d);
+        ::setNumberOptions(&v, 0);
+    }
 }
 
 /*!
@@ -2106,6 +2109,7 @@ QLocale::NumberOptions QLocale::numberOptions() const
 void QLocale::setDefault(const QLocale &locale)
 {
     default_lp = locale.d();
+    default_number_options = locale.numberOptions();
 }
 
 /*!
