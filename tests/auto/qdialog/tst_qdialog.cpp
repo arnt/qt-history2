@@ -154,12 +154,14 @@ void tst_QDialog::showExtension()
     testWidget->setOrientation( horizontal ? Qt::Horizontal : Qt::Vertical );
 
     QCOMPARE( testWidget->size(), dlgSize );
+    QPoint oldPosition = testWidget->pos();
 
     // show
     ((DummyDialog*)testWidget)->showExtension( TRUE );
 //     while ( testWidget->size() == dlgSize )
 // 	qApp->processEvents();
     QTEST( testWidget->size(), "result"  );
+    QCOMPARE(testWidget->pos(), oldPosition);
 
     // hide extension. back to old size ?
     ((DummyDialog*)testWidget)->showExtension( FALSE );
