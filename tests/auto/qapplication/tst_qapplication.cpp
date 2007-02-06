@@ -1105,42 +1105,6 @@ void tst_QApplication::style()
 
     // qApp style can never be 0
     QVERIFY(QApplication::style() != 0);
-    QPointer<QStyle> style1 = new QWindowsStyle;
-    QPointer<QStyle> style2 = new QWindowsStyle;
-    qApp->setStyle(style1);
-    // Basic sanity
-    QVERIFY(qApp->style() == style1);
-    qApp->setStyle(style2);
-    QVERIFY(style1.isNull()); // qApp must have taken ownership and deleted it
-    // Setting null should not crash
-    qApp->setStyle(0);
-    QVERIFY(qApp->style() == style2);
-
-    // Set the stylesheet
-    qApp->setStyleSheet("whatever");
-    QPointer<QStyleSheetStyle> sss = (QStyleSheetStyle *)qApp->style();
-    QVERIFY(!sss.isNull());
-    QCOMPARE(sss->metaObject()->className(), "QStyleSheetStyle"); // must be our proxy now
-    QVERIFY(!style2.isNull()); // this should exist as it is the base of the proxy
-    QVERIFY(sss->baseStyle() == style2);
-    style1 = new QWindowsStyle;
-    qApp->setStyle(style1);
-    QVERIFY(style2.isNull()); // should disappear automatically
-    QVERIFY(sss.isNull()); // should disappear automatically
-
-    // Update the stylesheet and check nothing changes
-    sss = (QStyleSheetStyle *)qApp->style();
-    qApp->setStyleSheet("whatever2");
-    QVERIFY(qApp->style() == sss);
-    QVERIFY(sss->baseStyle() == style1);
-
-    // Revert the stylesheet
-    qApp->setStyleSheet("");
-    QVERIFY(sss.isNull()); // should have disappeared
-    QVERIFY(qApp->style() == style1);
-
-    qApp->setStyleSheet("");
-    QVERIFY(qApp->style() == style1);
 }
 
 void tst_QApplication::allWidgets()
