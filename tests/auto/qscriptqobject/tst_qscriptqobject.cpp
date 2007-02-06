@@ -40,6 +40,7 @@ class MyQObject : public QObject
     Q_PROPERTY(QVariantList variantListProperty READ variantListProperty WRITE setVariantListProperty)
     Q_PROPERTY(QString stringProperty READ stringProperty WRITE setStringProperty)
     Q_PROPERTY(QStringList stringListProperty READ stringListProperty WRITE setStringListProperty)
+    Q_PROPERTY(QByteArray byteArrayProperty READ byteArrayProperty WRITE setByteArrayProperty)
     Q_PROPERTY(double hiddenProperty READ hiddenProperty WRITE setHiddenProperty SCRIPTABLE false)
     Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
     Q_PROPERTY(CustomType propWithCustomType READ propWithCustomType WRITE setPropWithCustomType)
@@ -105,6 +106,11 @@ public:
     void setStringListProperty(const QStringList &value)
         { m_stringListValue = value; }
 
+    QByteArray byteArrayProperty() const
+        { return m_byteArrayValue; }
+    void setByteArrayProperty(const QByteArray &value)
+        { m_byteArrayValue = value; }
+
     double hiddenProperty() const
         { return m_hiddenValue; }
     void setHiddenProperty(double value)
@@ -163,6 +169,8 @@ public:
         { m_qtFunctionInvoked = 15; m_actuals << v; return v; }
     Q_INVOKABLE QVariantMap myInvokableWithVariantMapArg(const QVariantMap &vm)
         { m_qtFunctionInvoked = 16; m_actuals << vm; return vm; }
+    Q_INVOKABLE QList<int> myInvokableWithListOfIntArg(const QList<int> &lst)
+        { m_qtFunctionInvoked = 17; m_actuals << qVariantFromValue(lst); return lst; }
 
     void emitMySignal()
         { emit mySignal(); }
@@ -188,6 +196,7 @@ private:
     QVariantList m_variantListValue;
     QString m_stringValue;
     QStringList m_stringListValue;
+    QByteArray m_byteArrayValue;
     double m_hiddenValue;
     QKeySequence m_shortcut;
     CustomType m_customType;
@@ -467,6 +476,7 @@ Q_DECLARE_METATYPE(QVector<int>)
 Q_DECLARE_METATYPE(QVector<double>)
 Q_DECLARE_METATYPE(QVector<QString>)
 Q_DECLARE_METATYPE(QObjectList)
+Q_DECLARE_METATYPE(QList<int>)
 
 void tst_QScriptExtQObject::callQtInvokable()
 {
@@ -563,8 +573,6 @@ void tst_QScriptExtQObject::callQtInvokable()
         QCOMPARE(ret.toQObject(), m_myObject);
     }
 
-    qScriptRegisterSequenceMetaType<QObjectList>(m_engine);
-
     m_myObject->resetQtFunctionInvoked();
     {
         QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithQObjectListArg([myObject])");
@@ -607,6 +615,23 @@ void tst_QScriptExtQObject::callQtInvokable()
         QCOMPARE(ret.isObject(), true);
         QCOMPARE(ret.property("a").strictEqualTo(QScriptValue(m_engine, 123)), true);
         QCOMPARE(ret.property("b").strictEqualTo(QScriptValue(m_engine, "ciao")), true);
+    }
+
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithListOfIntArg([1, 5])");
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 17);
+        QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+        QVariant v = m_myObject->qtFunctionActuals().at(0);
+        QCOMPARE(v.userType(), qMetaTypeId<QList<int> >());
+        QList<int> ilst = qvariant_cast<QList<int> >(v);
+        QCOMPARE(ilst.size(), 2);
+        QCOMPARE(ilst.at(0), 1);
+        QCOMPARE(ilst.at(1), 5);
+
+        QCOMPARE(ret.isArray(), true);
+        QCOMPARE(ret.property("0").strictEqualTo(QScriptValue(m_engine, 1)), true);
+        QCOMPARE(ret.property("1").strictEqualTo(QScriptValue(m_engine, 5)), true);
     }
 }
 

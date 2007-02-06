@@ -306,7 +306,7 @@ QScriptValue qScriptValueFromSequence(QScriptEngine *eng, const Container &cont)
 template <class Container>
 void qScriptValueToSequence(const QScriptValue &value, Container &cont)
 {
-    quint32 len = value.property("length").toUInt32();
+    quint32 len = value.property(QLatin1String("length")).toUInt32();
     for (quint32 i = 0; i < len; ++i) {
         QScriptValue item = value.property(i);
         cont.push_back(qscriptvalue_cast<typename Container::value_type>(item));
