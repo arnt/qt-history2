@@ -21,6 +21,7 @@
 #include <qstyleoption.h>
 #include <qdebug.h>
 #include <qglobal.h>
+#include <QDoubleSpinBox>
 
 #ifndef QT_NO_ACCESSIBILITY
 extern QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
@@ -204,6 +205,139 @@ bool QAccessibleSpinBox::doAction(int action, int /*child*/, const QVariantList 
     }
     */
     return QAccessibleWidget::doAction(action, 0, params);
+}
+
+// ================================== QAccessibleDoubleSpinBox ==================================
+QAccessibleDoubleSpinBox::QAccessibleDoubleSpinBox(QWidget *widget)
+    : QAccessibleWidgetEx(widget, SpinBox)
+{
+    Q_ASSERT(qobject_cast<QDoubleSpinBox *>(widget));
+    addControllingSignal(QLatin1String("valueChanged(double)"));
+    addControllingSignal(QLatin1String("valueChanged(QString)"));
+}
+
+/*!
+    Returns the underlying QDoubleSpinBox.
+*/
+QDoubleSpinBox *QAccessibleDoubleSpinBox::doubleSpinBox() const
+{
+    return static_cast<QDoubleSpinBox*>(object());
+}
+
+/*! \reimp */
+int QAccessibleDoubleSpinBox::childCount() const
+{
+    return ValueDown;
+}
+
+/*! \reimp */
+QRect QAccessibleDoubleSpinBox::rect(int child) const
+{
+    QStyleOptionSpinBox spinBoxOption;
+    spinBoxOption.initFrom(doubleSpinBox());
+    QRect rect;
+    switch (child) {
+    case Editor:
+        rect = doubleSpinBox()->style()->subControlRect(QStyle::CC_SpinBox, &spinBoxOption,
+                                                 QStyle::SC_SpinBoxEditField, doubleSpinBox());
+        break;
+    case ValueUp:
+        rect = doubleSpinBox()->style()->subControlRect(QStyle::CC_SpinBox, &spinBoxOption,
+                                                 QStyle::SC_SpinBoxUp, doubleSpinBox());
+        break;
+    case ValueDown:
+        rect = doubleSpinBox()->style()->subControlRect(QStyle::CC_SpinBox, &spinBoxOption,
+                                                 QStyle::SC_SpinBoxDown, doubleSpinBox());
+        break;
+    default:
+        rect = spinBoxOption.rect;
+        break;
+    }
+    const QPoint globalPos = doubleSpinBox()->mapToGlobal(QPoint(0, 0));
+    return QRect(globalPos.x() + rect.x(), globalPos.y() + rect.y(), rect.width(), rect.height());
+}
+
+/*! \reimp */
+int QAccessibleDoubleSpinBox::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
+{
+    if (entry <= 0)
+        return QAccessibleWidgetEx::navigate(relation, entry, target);
+
+    *target = 0;
+    switch (relation) {
+    case Child:
+        return entry <= childCount() ? entry : -1;
+    case QAccessible::Left:
+        return (entry == ValueUp || entry == ValueDown) ? Editor : -1;
+    case QAccessible::Right:
+        return entry == Editor ? ValueUp : -1;
+    case QAccessible::Up:
+        return entry == ValueDown ? ValueUp : -1;
+    case QAccessible::Down:
+        return entry == ValueUp ? ValueDown : -1;
+    default:
+        break;
+    }
+    return QAccessibleWidgetEx::navigate(relation, entry, target);
+}
+
+QVariant QAccessibleDoubleSpinBox::invokeMethodEx(QAccessible::Method, int, const QVariantList &)
+{
+    return QVariant();
+}
+
+/*! \reimp */
+QString QAccessibleDoubleSpinBox::text(Text textType, int child) const
+{
+    switch (textType) {
+    case Name:
+        if (child == ValueUp)
+            return QDoubleSpinBox::tr("More");
+        else if (child == ValueDown)
+            return QDoubleSpinBox::tr("Less");
+        break;
+    case Value:
+        if (child == Editor || child == SpinBoxSelf)
+            return doubleSpinBox()->textFromValue(doubleSpinBox()->value());
+        break;
+    default:
+        break;
+    }
+    return QAccessibleWidgetEx::text(textType, 0);
+}
+
+/*! \reimp */
+QAccessible::Role QAccessibleDoubleSpinBox::role(int child) const
+{
+    switch (child) {
+    case Editor:
+        return EditableText;
+    case ValueUp:
+    case ValueDown:
+        return PushButton;
+    default:
+        break;
+    }
+    return QAccessibleWidgetEx::role(child);
+}
+
+/*! \reimp */
+QAccessible::State QAccessibleDoubleSpinBox::state(int child) const
+{
+    State state = QAccessibleWidgetEx::state(child);
+    switch (child) {
+    case ValueUp:
+        if (doubleSpinBox()->value() >= doubleSpinBox()->maximum())
+            state |= Unavailable;
+        break;
+    case ValueDown:
+        if (doubleSpinBox()->value() <= doubleSpinBox()->minimum())
+            state |= Unavailable;
+        break;
+    default:
+        break;
+    }
+    return state;
 }
 #endif // QT_NO_SPINBOX
 

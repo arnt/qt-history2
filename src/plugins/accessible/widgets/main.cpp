@@ -50,6 +50,7 @@ QStringList AccessibleFactory::keys() const
 #endif
 #ifndef QT_NO_SPINBOX
     list << QLatin1String("QSpinBox");
+    list << QLatin1String("QDoubleSpinBox");
 #endif
 #ifndef QT_NO_SCROLLBAR
     list << QLatin1String("QScrollBar");
@@ -118,6 +119,8 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
 #ifndef QT_NO_SPINBOX
     } else if (classname == QLatin1String("QSpinBox")) {
         iface = new QAccessibleSpinBox(widget);
+    } else if (classname == QLatin1String("QDoubleSpinBox")) {
+        iface = new QAccessibleDoubleSpinBox(widget);
 #endif
 #ifndef QT_NO_SCROLLBAR
     } else if (classname == QLatin1String("QScrollBar")) {

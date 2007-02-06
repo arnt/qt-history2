@@ -21,6 +21,7 @@
 class QScrollBar;
 class QSlider;
 class QSpinBox;
+class QDoubleSpinBox;
 
 #ifndef QT_NO_SPINBOX
 class QAccessibleSpinBox : public QAccessibleWidget
@@ -48,6 +49,30 @@ public:
 
 protected:
     QSpinBox *spinBox() const;
+};
+
+class QAccessibleDoubleSpinBox : public QAccessibleWidgetEx
+{
+public:
+    explicit QAccessibleDoubleSpinBox(QWidget *widget);
+
+    enum DoubleSpinBoxElements {
+        SpinBoxSelf = 0,
+        Editor,
+        ValueUp,
+        ValueDown
+    };
+
+    int childCount() const;
+    QRect rect(int child) const;
+    int navigate(RelationFlag rel, int entry, QAccessibleInterface **target) const;
+    QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
+    QString text(Text t, int child) const;
+    Role role(int child) const;
+    State state(int child) const;
+
+protected:
+    QDoubleSpinBox *doubleSpinBox() const;
 };
 #endif // QT_NO_SPINBOX
 
