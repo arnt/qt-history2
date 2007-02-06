@@ -332,15 +332,15 @@ void tst_QNativeSocketEngine::serverTest()
     // Initialize a Tcp socket
     QNativeSocketEngine client;
     QVERIFY(client.initialize(QAbstractSocket::TcpSocket));
-    QVERIFY(!client.connectToHost(QHostAddress("127.0.0.1"), port));
-
-    // Connect to our server
-    int guard = 100;
-    do {
-        if (client.connectToHost(QHostAddress("127.0.0.1"), port))
-            break;
-        QTest::qWait(100);
-    } while (--guard && client.error() == QAbstractSocket::SocketError(11));
+    if (!client.connectToHost(QHostAddress("127.0.0.1"), port)) {
+        // Connect to our server
+        int guard = 100;
+        do {
+            if (client.connectToHost(QHostAddress("127.0.0.1"), port))
+                break;
+            QTest::qWait(100);
+        } while (--guard && client.error() == QAbstractSocket::SocketError(11));
+    }
 
     // The server accepts the connection
     int socketDescriptor = server.accept();
