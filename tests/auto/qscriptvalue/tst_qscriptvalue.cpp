@@ -698,8 +698,18 @@ void tst_QScriptValue::toPrimitive()
 
 void tst_QScriptValue::instanceOf()
 {
-    QEXPECT_FAIL("", "implement me", Continue);
-    QCOMPARE(0, 1);
+    QScriptEngine eng;
+    QScriptValue obj = eng.newObject();
+    QCOMPARE(obj.instanceOf(eng.evaluate("Object.prototype")), true);
+    QCOMPARE(obj.instanceOf(eng.evaluate("Array.prototype")), false);
+    QCOMPARE(obj.instanceOf(QScriptValue(&eng, 123)), false);
+    QCOMPARE(obj.instanceOf(eng.undefinedValue()), false);
+    QCOMPARE(obj.instanceOf(eng.nullValue()), false);
+    QCOMPARE(obj.instanceOf(QScriptValue()), false);
+
+    QScriptValue arr = eng.newArray();
+    QCOMPARE(arr.instanceOf(eng.evaluate("Object.prototype")), true);
+    QCOMPARE(arr.instanceOf(eng.evaluate("Array.prototype")), true);
 }
 
 void tst_QScriptValue::getSetProperty()
