@@ -171,6 +171,8 @@ public:
         { m_qtFunctionInvoked = 16; m_actuals << vm; return vm; }
     Q_INVOKABLE QList<int> myInvokableWithListOfIntArg(const QList<int> &lst)
         { m_qtFunctionInvoked = 17; m_actuals << qVariantFromValue(lst); return lst; }
+    Q_INVOKABLE QObject* myInvokableWithQObjectStarArg(QObject *obj)
+        { m_qtFunctionInvoked = 18; m_actuals << qVariantFromValue(obj); return obj; }
 
     void emitMySignal()
         { emit mySignal(); }
@@ -632,6 +634,26 @@ void tst_QScriptExtQObject::callQtInvokable()
         QCOMPARE(ret.isArray(), true);
         QCOMPARE(ret.property("0").strictEqualTo(QScriptValue(m_engine, 1)), true);
         QCOMPARE(ret.property("1").strictEqualTo(QScriptValue(m_engine, 5)), true);
+    }
+
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithQObjectStarArg(myObject)");
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 18);
+        QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+        QVariant v = m_myObject->qtFunctionActuals().at(0);
+        QCOMPARE(v.userType(), int(QMetaType::QObjectStar));
+        QCOMPARE(qvariant_cast<QObject*>(v), (QObject *)m_myObject);
+
+        QCOMPARE(ret.isQObject(), true);
+        QCOMPARE(qscriptvalue_cast<QObject*>(ret), (QObject *)m_myObject);
+    }
+
+    m_myObject->resetQtFunctionInvoked();
+    {
+        // no implicit conversion from integer to QObject*
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithQObjectStarArg(123)");
+        QCOMPARE(ret.isError(), true);
     }
 }
 

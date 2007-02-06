@@ -1182,21 +1182,29 @@ bool QScriptEnginePrivate::convert(const QScriptValue &value,
         }
         return true;
     case QMetaType::QDateTime:
-        *reinterpret_cast<QDateTime *>(ptr) = value.toDateTime();
-        return true;
+        if (value.isDate()) {
+            *reinterpret_cast<QDateTime *>(ptr) = value.toDateTime();
+            return true;
+        } break;
     case QMetaType::QDate:
-        *reinterpret_cast<QDate *>(ptr) = value.toDateTime().date();
-        return true;
+        if (value.isDate()) {
+            *reinterpret_cast<QDate *>(ptr) = value.toDateTime().date();
+            return true;
+        } break;
 #ifndef QT_NO_REGEXP
     case QMetaType::QRegExp:
-        *reinterpret_cast<QRegExp *>(ptr) = value.toRegExp();
-        return true;
+        if (value.isRegExp()) {
+            *reinterpret_cast<QRegExp *>(ptr) = value.toRegExp();
+            return true;
+        } break;
 #endif
 #ifndef QT_NO_QOBJECT
     case QMetaType::QObjectStar:
     case QMetaType::QWidgetStar:
-        *reinterpret_cast<QObject* *>(ptr) = value.toQObject();
-        return true;
+        if (value.isQObject() || value.isNull()) {
+            *reinterpret_cast<QObject* *>(ptr) = value.toQObject();
+            return true;
+        } break;
 #endif
     case QMetaType::QStringList:
         if (value.isArray()) {
