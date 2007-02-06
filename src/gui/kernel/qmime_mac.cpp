@@ -198,24 +198,21 @@ QString QMacPasteboardMimeText::convertorName()
 
 QString QMacPasteboardMimeText::flavorFor(const QString &mime)
 {
-#if 1
-    if(mime == QLatin1String("text/plain"))
-        return QLatin1String("com.apple.traditional-mac-plain-text");
-#endif
-
-    if(mime == QLatin1String("text/plain"))
+    if (mime == QLatin1String("text/plain"))
         return QLatin1String("public.utf16-plain-text");
     int i = mime.indexOf(QLatin1String("charset="));
-    if(i >= 0) {
-        QString cs(mime.mid(i+8));
+    if (i >= 0) {
+        QString cs(mime.mid(i+8).toLower());
         i = cs.indexOf(QLatin1String(";"));
-        if(i>=0)
+        if (i>=0)
             cs = cs.left(i);
-        if(cs == QLatin1String("system"))
+        if (cs == QLatin1String("system"))
             return QLatin1String("public.utf8-plain-text");
-        else if(cs == QLatin1String("ISO-10646-UCS-2") ||
-                cs == QLatin1String("utf16"))
+        else if (cs == QLatin1String("iso-10646-ucs-2")
+                 || cs == QLatin1String("utf16"))
             return QLatin1String("public.utf16-plain-text");
+        else if (cs == QLatin1String("macroman") || cs == QLatin1String("ascii"))
+            return QLatin1String("com.apple.traditional-mac-plain-text");
     }
     return QString();
 }
