@@ -201,7 +201,7 @@ void tst_QAction::setStandardKeys()
     QList<QKeySequence> expected;
 #ifdef Q_WS_MAC
     expected  << QKeySequence("CTRL+C");
-#elif defined(Q_WS_WIN)
+#elif defined(Q_WS_WIN) || defined(Q_WS_QWS)
     expected  << QKeySequence("CTRL+C") << QKeySequence("CTRL+INSERT");
 #else
     expected  << QKeySequence("CTRL+C") << QKeySequence("F16") << QKeySequence("CTRL+INSERT");
