@@ -2214,7 +2214,6 @@ if [ "$CFG_PRECOMPILE" = "auto" ]; then
     if [ `echo "$CFG_MAC_ARCHS" | wc -w` -gt 1 ]; then
        CFG_PRECOMPILE=no
     elif "$unixtests/precomp.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
-	echo "precomp test failed"
        CFG_PRECOMPILE=no
     else
        CFG_PRECOMPILE=yes
