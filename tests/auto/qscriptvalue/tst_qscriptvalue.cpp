@@ -257,6 +257,10 @@ void tst_QScriptValue::toInt32()
 {
     QScriptEngine eng;
 
+    QScriptValue zer0 = QScriptValue(&eng, 0.0);
+    QCOMPARE(zer0.toInt32(), 0);
+    QCOMPARE(qscriptvalue_cast<qint32>(zer0), 0);
+
     QScriptValue number = QScriptValue(&eng, 123.0);
     QCOMPARE(number.toInt32(), 123);
     QCOMPARE(qscriptvalue_cast<qint32>(number), 123);
@@ -265,9 +269,13 @@ void tst_QScriptValue::toInt32()
     QCOMPARE(number2.toInt32(), 0);
     QCOMPARE(qscriptvalue_cast<qint32>(number2), 0);
 
-    QScriptValue number3 = QScriptValue(&eng, qInf());
+    QScriptValue number3 = QScriptValue(&eng, +qInf());
     QCOMPARE(number3.toInt32(), 0);
     QCOMPARE(qscriptvalue_cast<qint32>(number3), 0);
+
+    QScriptValue number3_2 = QScriptValue(&eng, -qInf());
+    QCOMPARE(number3_2.toInt32(), 0);
+    QCOMPARE(qscriptvalue_cast<qint32>(number3_2), 0);
 
     QScriptValue number4 = QScriptValue(&eng, 0.5);
     QCOMPARE(number4.toInt32(), 0);
@@ -298,6 +306,10 @@ void tst_QScriptValue::toUInt32()
 {
     QScriptEngine eng;
 
+    QScriptValue zer0 = QScriptValue(&eng, 0.0);
+    QCOMPARE(zer0.toUInt32(), quint32(0));
+    QCOMPARE(qscriptvalue_cast<quint32>(zer0), quint32(0));
+
     QScriptValue number = QScriptValue(&eng, 123.0);
     QCOMPARE(number.toUInt32(), quint32(123));
     QCOMPARE(qscriptvalue_cast<quint32>(number), quint32(123));
@@ -306,16 +318,18 @@ void tst_QScriptValue::toUInt32()
     QCOMPARE(number2.toUInt32(), quint32(0));
     QCOMPARE(qscriptvalue_cast<quint32>(number2), quint32(0));
 
-    QScriptValue number3 = QScriptValue(&eng, qInf());
+    QScriptValue number3 = QScriptValue(&eng, +qInf());
     QCOMPARE(number3.toUInt32(), quint32(0));
     QCOMPARE(qscriptvalue_cast<quint32>(number3), quint32(0));
 
+    QScriptValue number3_2 = QScriptValue(&eng, -qInf());
+    QCOMPARE(number3_2.toUInt32(), quint32(0));
+    QCOMPARE(qscriptvalue_cast<quint32>(number3_2), quint32(0));
+
     QScriptValue number4 = QScriptValue(&eng, 0.5);
-    QEXPECT_FAIL("", "toUInt32() should floor(), not round()", Continue);
     QCOMPARE(number4.toUInt32(), quint32(0));
 
     QScriptValue number5 = QScriptValue(&eng, 123.5);
-    QEXPECT_FAIL("", "toUInt32() should floor(), not round()", Continue);
     QCOMPARE(number5.toUInt32(), quint32(123));
 
     QScriptValue number6 = QScriptValue(&eng, -456.5);
@@ -339,6 +353,10 @@ void tst_QScriptValue::toUInt16()
 {
     QScriptEngine eng;
 
+    QScriptValue zer0 = QScriptValue(&eng, 0.0);
+    QCOMPARE(zer0.toUInt16(), quint16(0));
+    QCOMPARE(qscriptvalue_cast<quint16>(zer0), quint16(0));
+
     QScriptValue number = QScriptValue(&eng, 123.0);
     QCOMPARE(number.toUInt16(), quint16(123));
     QCOMPARE(qscriptvalue_cast<quint16>(number), quint16(123));
@@ -347,16 +365,18 @@ void tst_QScriptValue::toUInt16()
     QCOMPARE(number2.toUInt16(), quint16(0));
     QCOMPARE(qscriptvalue_cast<quint16>(number2), quint16(0));
 
-    QScriptValue number3 = QScriptValue(&eng, qInf());
+    QScriptValue number3 = QScriptValue(&eng, +qInf());
     QCOMPARE(number3.toUInt16(), quint16(0));
     QCOMPARE(qscriptvalue_cast<quint16>(number3), quint16(0));
 
+    QScriptValue number3_2 = QScriptValue(&eng, -qInf());
+    QCOMPARE(number3_2.toUInt16(), quint16(0));
+    QCOMPARE(qscriptvalue_cast<quint16>(number3_2), quint16(0));
+
     QScriptValue number4 = QScriptValue(&eng, 0.5);
-    QEXPECT_FAIL("", "toUInt16() should floor(), not round()", Continue);
     QCOMPARE(number4.toUInt16(), quint16(0));
 
     QScriptValue number5 = QScriptValue(&eng, 123.5);
-    QEXPECT_FAIL("", "toUInt32() should floor(), not round()", Continue);
     QCOMPARE(number5.toUInt16(), quint16(123));
 
     QScriptValue number6 = QScriptValue(&eng, -456.5);

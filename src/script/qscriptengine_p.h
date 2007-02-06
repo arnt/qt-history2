@@ -736,13 +736,11 @@ inline qsreal QScriptEnginePrivate::toInteger(qsreal n)
 
 inline qint32 QScriptEnginePrivate::toInt32(qsreal n)
 {
-    if (isNaN(n))
+    if (isNaN(n) || isInf(n) || (n == 0))
         return 0;
 
     double sign = (n < 0) ? -1.0 : 1.0;
     qsreal abs_n = fabs(n);
-    if (! abs_n || isInf(abs_n))
-        return 0;
 
     n = ::fmod(sign * ::floor(abs_n), D32);
     const double D31 = D32 / 2.0;
@@ -758,18 +756,38 @@ inline qint32 QScriptEnginePrivate::toInt32(qsreal n)
 
 inline quint32 QScriptEnginePrivate::toUint32(qsreal n)
 {
-    qsreal d = qRound64(n);
-    qsreal d32 = ::fmod(d, D32);
+    if (isNaN(n) || isInf(n) || (n == 0))
+        return 0;
 
-    return quint32 (d32);
+    double sign = (n < 0) ? -1.0 : 1.0;
+    qsreal abs_n = fabs(n);
+
+    n = ::fmod(sign * ::floor(abs_n), D32);
+
+    const double D31 = D32 / 2.0;
+
+    if (n < -D31)
+        n += D32;
+
+    return quint32 (n);
 }
 
 inline quint16 QScriptEnginePrivate::toUint16(qsreal n)
 {
-    qsreal d = qRound64(n);
-    qsreal d16 = ::fmod(d, D16);
+    if (isNaN(n) || isInf(n) || (n == 0))
+        return 0;
 
-    return quint16 (d16);
+    double sign = (n < 0) ? -1.0 : 1.0;
+    qsreal abs_n = fabs(n);
+
+    n = ::fmod(sign * ::floor(abs_n), D16);
+
+    const double D15 = D16 / 2.0;
+
+    if (n < -D15)
+        n += D16;
+
+    return quint16 (n);
 }
 
 inline QScript::AST::Node *QScriptEnginePrivate::abstractSyntaxTree() const
