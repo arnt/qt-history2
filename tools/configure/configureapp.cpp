@@ -2371,7 +2371,7 @@ void Configure::showSummary()
 {
     QString make = dictionary[ "MAKE" ];
     cout << endl << endl << "Qt is now configured for building. Just run " << qPrintable(make) << "." << endl;
-    cout << "To reconfigure, run " << qPrintable(make) << " clean and configure." << endl << endl;
+    cout << "To reconfigure, run " << qPrintable(make) << " confclean and configure." << endl << endl;
 }
 
 Configure::ProjectType Configure::projectType( const QString& proFileName )
