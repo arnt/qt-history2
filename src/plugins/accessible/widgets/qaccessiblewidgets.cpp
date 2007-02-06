@@ -18,6 +18,7 @@
 #include "qtextobject.h"
 #include "qscrollbar.h"
 #include "qdebug.h"
+#include <QApplication>
 #include <QStackedWidget>
 #include <QToolBox>
 #include <QMdiArea>
@@ -470,4 +471,148 @@ QMdiArea *QAccessibleMdiArea::mdiArea() const
 {
     return static_cast<QMdiArea *>(object());
 }
+
+// ======================= QAccessibleMdiSubWindow ======================
+QAccessibleMdiSubWindow::QAccessibleMdiSubWindow(QWidget *widget)
+    : QAccessibleWidgetEx(widget, QAccessible::Window)
+{
+    Q_ASSERT(qobject_cast<QMdiSubWindow *>(widget));
+}
+
+QString QAccessibleMdiSubWindow::text(Text textType, int child) const
+{
+    if (textType == QAccessible::Name && (child == 0 || child == 1)) {
+        QString title = mdiSubWindow()->windowTitle();
+        title.replace(QLatin1String("[*]"), QLatin1String(""));
+        return title;
+    }
+    return QAccessibleWidgetEx::text(textType, child);
+}
+
+void QAccessibleMdiSubWindow::setText(Text textType, int child, const QString &text)
+{
+    if (textType == QAccessible::Name && (child == 0 || child == 1))
+        mdiSubWindow()->setWindowTitle(text);
+    else
+        QAccessibleWidgetEx::setText(textType, child, text);
+}
+
+QAccessible::State QAccessibleMdiSubWindow::state(int child) const
+{
+    if (child != 0 || !mdiSubWindow()->parent())
+        return QAccessibleWidgetEx::state(child);
+    QAccessible::State state = QAccessible::Normal | QAccessible::Focusable;
+    if (!mdiSubWindow()->isMaximized())
+        state |= (QAccessible::Movable | QAccessible::Sizeable);
+    if (mdiSubWindow()->isAncestorOf(QApplication::focusWidget())
+            || QApplication::focusWidget() == mdiSubWindow())
+        state |= QAccessible::Focused;
+    if (!mdiSubWindow()->isVisible())
+        state |= QAccessible::Invisible;
+    if (!mdiSubWindow()->parentWidget()->contentsRect().contains(mdiSubWindow()->geometry()))
+        state |= QAccessible::Offscreen;
+    if (!mdiSubWindow()->isEnabled())
+        state |= QAccessible::Unavailable;
+    return state;
+}
+
+QVariant QAccessibleMdiSubWindow::invokeMethodEx(QAccessible::Method, int, const QVariantList &)
+{
+    return QVariant();
+}
+
+int QAccessibleMdiSubWindow::childCount() const
+{
+    if (mdiSubWindow()->widget())
+        return 1;
+    return 0;
+}
+
+int QAccessibleMdiSubWindow::indexOfChild(const QAccessibleInterface *child) const
+{
+    if (child && child->object() && child->object() == mdiSubWindow()->widget())
+        return 1;
+    return -1;
+}
+
+int QAccessibleMdiSubWindow::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
+{
+    if (!mdiSubWindow()->parent())
+        return QAccessibleWidgetEx::navigate(relation, entry, target);
+
+    *target = 0;
+    QWidget *targetObject = 0;
+    QMdiSubWindow *source = mdiSubWindow();
+    switch (relation) {
+    case Child:
+        if (entry != 1 || !source->widget())
+            return -1;
+        targetObject = source->widget();
+        break;
+    case Up:
+    case Down:
+    case Left:
+    case Right:
+        if (entry != 0)
+            break;
+        QWidget *parent = source->parentWidget();
+        while (parent && !parent->inherits("QMdiArea"))
+            parent = parent->parentWidget();
+        QMdiArea *mdiArea = qobject_cast<QMdiArea *>(parent);
+        if (!mdiArea)
+            break;
+        int index = mdiArea->subWindowList().indexOf(source);
+        if (index == -1)
+            break;
+        if (QMdiSubWindow *dest = mdiAreaNavigate(mdiArea, relation, index + 1)) {
+            *target = QAccessible::queryAccessibleInterface(dest);
+            return *target ? 0 : -1;
+        }
+        break;
+    default:
+        return QAccessibleWidgetEx::navigate(relation, entry, target);
+    }
+    *target = QAccessible::queryAccessibleInterface(targetObject);
+    return indexOfChild(*target);
+}
+
+QRect QAccessibleMdiSubWindow::rect(int child) const
+{
+    if (mdiSubWindow()->isHidden())
+        return QRect();
+    if (!mdiSubWindow()->parent())
+        return QAccessibleWidgetEx::rect(child);
+    const QPoint pos = mdiSubWindow()->mapToGlobal(QPoint(0, 0));
+    if (child == 0)
+        return QRect(pos, mdiSubWindow()->size());
+    if (child == 1 && mdiSubWindow()->widget()) {
+        if (mdiSubWindow()->widget()->isHidden())
+            return QRect();
+        const QRect contentsRect = mdiSubWindow()->contentsRect();
+        return QRect(pos.x() + contentsRect.x(), pos.y() + contentsRect.y(),
+                     contentsRect.width(), contentsRect.height());
+    }
+    return QRect();
+}
+
+int QAccessibleMdiSubWindow::childAt(int x, int y) const
+{
+    if (!mdiSubWindow()->parent())
+        return QAccessibleWidgetEx::childAt(x, y);
+    const QRect globalGeometry = rect(0);
+    if (!globalGeometry.isValid())
+        return -1;
+    const QRect globalChildGeometry = rect(1);
+    if (globalChildGeometry.isValid() && globalChildGeometry.contains(QPoint(x, y)))
+        return 1;
+    if (globalGeometry.contains(QPoint(x, y)))
+        return 0;
+    return -1;
+}
+
+QMdiSubWindow *QAccessibleMdiSubWindow::mdiSubWindow() const
+{
+    return static_cast<QMdiSubWindow *>(object());
+}
+
 #endif // QT_NO_ACCESSIBILITY

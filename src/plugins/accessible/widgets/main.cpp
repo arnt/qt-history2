@@ -93,6 +93,7 @@ QStringList AccessibleFactory::keys() const
     list << QLatin1String("QStackedWidget");
     list << QLatin1String("QToolBox");
     list << QLatin1String("QMdiArea");
+    list << QLatin1String("QMdiSubWindow");
 
     return list;
 }
@@ -218,6 +219,8 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleToolBox(widget);
     } else if (classname == QLatin1String("QMdiArea")) {
         iface = new QAccessibleMdiArea(widget);
+    } else if (classname == QLatin1String("QMdiSubWindow")) {
+        iface = new QAccessibleMdiSubWindow(widget);
     }
 
     return iface;

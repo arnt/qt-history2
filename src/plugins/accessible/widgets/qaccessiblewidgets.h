@@ -22,6 +22,7 @@ class QTextEdit;
 class QStackedWidget;
 class QToolBox;
 class QMdiArea;
+class QMdiSubWindow;
 
 class QAccessibleTextEdit : public QAccessibleWidgetEx
 {
@@ -91,6 +92,25 @@ public:
 
 protected:
     QMdiArea *mdiArea() const;
+};
+
+class QAccessibleMdiSubWindow : public QAccessibleWidgetEx
+{
+public:
+    explicit QAccessibleMdiSubWindow(QWidget *widget);
+
+    QString text(Text textType, int child) const;
+    void setText(Text textType, int child, const QString &text);
+    State state(int child) const;
+    QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
+    int childCount() const;
+    int indexOfChild(const QAccessibleInterface *child) const;
+    int navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const;
+    QRect rect(int child) const;
+    int childAt(int x, int y) const;
+
+protected:
+    QMdiSubWindow *mdiSubWindow() const;
 };
 
 #endif // QT_NO_ACCESSIBILITY
