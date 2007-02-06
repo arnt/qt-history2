@@ -33,7 +33,6 @@ namespace {
          rc->setObjectName(name);
          rc->setArrowType(at);
          rc->setAutoRaise(true);
-         rc->setAutoRepeat(true);
          rc->setContextMenuPolicy(Qt::PreventContextMenu);
          rc->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
          rc->setFixedSize(QSize(15, 15));

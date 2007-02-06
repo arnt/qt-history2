@@ -23,22 +23,19 @@
 #include <QtGui/QToolButton>
 
 namespace {
-     QToolButton *createToolButton(QWidget *parent, Qt::ArrowType at, const QString &name) {
+    QToolButton *createToolButton(QWidget *parent, Qt::ArrowType at, const QString &name) {
          QToolButton *rc =  new QToolButton();
          rc->setAttribute(Qt::WA_NoChildEventsForParent, true);
          rc->setParent(parent);
          rc->setObjectName(name);
          rc->setArrowType(at);
          rc->setAutoRaise(true);
-         rc->setAutoRepeat(true);
          rc->setContextMenuPolicy(Qt::PreventContextMenu);
          rc->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
          rc->setFixedSize(QSize(15, 15));
          return rc;
      }
 }
-
-
 
 QDesignerQ3WidgetStack::QDesignerQ3WidgetStack(QWidget *parent) : 
     Q3WidgetStack(parent), 
@@ -47,7 +44,6 @@ QDesignerQ3WidgetStack::QDesignerQ3WidgetStack(QWidget *parent) :
 {
     connect(m_prev, SIGNAL(clicked()), this, SLOT(prevPage()));
     connect(m_next, SIGNAL(clicked()), this, SLOT(nextPage()));
-
     updateButtons();
 
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
