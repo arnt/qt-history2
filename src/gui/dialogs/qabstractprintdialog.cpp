@@ -22,6 +22,12 @@
     \class QAbstractPrintDialog
     \brief The QAbstractPrintDialog class provides a base implementation for
     print dialogs used to configure printers.
+
+    This class implements getter and setter functions that are used to
+    customize settings shown in print dialogs, but it is not used directly.
+    Use QPrintDialog to display a print dialog in your application.
+
+    \sa QPrintDialog, QPrinter, {Printing with Qt}
 */
 
 /*!

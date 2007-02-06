@@ -101,14 +101,21 @@ void QPrinterPrivate::createDefaultEngines()
   \ingroup multimedia
   \mainclass
 
-  On Windows or Mac OS X, QPrinter uses the built-in printer drivers. On X11, QPrinter
-  generates postscript and sends that to lpr, lp, or another printProgram(). QPrinter
-  can also print to any other QPrintEngine.
+  This device represents a series of pages of printed output, and is
+  used in almost exactly the same way as other paint devices such as
+  QWidget and QPixmap.
+  A set of additional functions are provided to manage device-specific
+  features, such as orientation and resolution, and to step through
+  the pages in a document as it is generated.
 
-  QPrinter is used in much the same way as QWidget and QPixmap are
-  used. The big difference is that you must keep track of pages.
+  When printing directly to a printer on Windows or Mac OS X, QPrinter uses
+  the built-in printer drivers. On X11, QPrinter uses the
+  \l{Common Unix Printing System (CUPS)} or the standard Unix \l lpr utility
+  to send PostScript or PDF output to the printer. As an alternative,
+  the printProgram() function can be used to specify the command or utility
+  to use instead of the system default.
 
-  QPrinter supports a number of settable parameters, most of which can be
+  QPrinter supports a number of parameters, most of which can be
   changed by the end user through a \l{QPrintDialog}{print dialog}. In
   general, QPrinter passes these functions onto the underlying QPrintEngine.
 
@@ -118,24 +125,20 @@ void QPrinterPrivate::createDefaultEngines()
   \i setPageSize() tells QPrinter what page size to expect from the
   printer.
   \i setResolution() tells QPrinter what resolution you wish the
-  printer to provide (in dots per inch -- dpi).
+  printer to provide, in dots per inch (DPI).
   \i setFullPage() tells QPrinter whether you want to deal with the
-  full page or just with the part the printer can draw on. The
-  default is false, so that by default you should be able to paint
-  on (0,0). If true the origin of the coordinate system will be in
-  the top left corner of the paper and most probably the printer
-  will not be able to paint something there due to its physical
-  margins.
+  full page or just with the part the printer can draw on.
   \i setNumCopies() tells QPrinter how many copies of the document
   it should print.
   \endlist
 
-  Many of the settable functions can only be called before the actual printing
-  begins (i.e., before QPainter::begin() is called). This usually makes sense
-  (e.g., you can't change the number of copies when you are halfway through
-  printing). There are also some settings that the user sets (through the
-  printer dialog) and that applications are expected to obey. See
-  QAbstractPrintDialog's documentation for more details.
+  Many of these functions can only be called before the actual printing
+  begins (i.e., before QPainter::begin() is called). This usually makes
+  sense because, for example, it's not possible to change the number of
+  copies when you are halfway through printing. There are also some
+  settings that the user sets (through the printer dialog) and that
+  applications are expected to obey. See QAbstractPrintDialog's
+  documentation for more details.
 
   When QPainter::begin() is called, the QPrinter it operates on is prepared for
   a new page, enabling the QPainter to be used immediately to paint the first
@@ -153,9 +156,15 @@ void QPrinterPrivate::createDefaultEngines()
   If you want to abort the print job, abort() will try its best to
   stop printing. It may cancel the entire job or just part of it.
 
+  \omit
   If your current locale converts "," to ".", you will need to set
   a locale that doesn't do this (e.g. the "C" locale) before using
   QPrinter.
+  \endomit
+
+  Since QPrinter can print to any QPrintEngine subclass, it is possible to
+  extend printing support to cover new types of printing subsystem by
+  subclassing QPrintEngine and reimplementing its interface.
 
   \sa QPrintDialog, {Printing with Qt}
 */
@@ -432,14 +441,17 @@ QPrinter::~QPrinter()
     The OutputFormat enum is used to describe the format QPrinter should
     use for printing.
 
-    \value NativeFormat QPrinter will print output in the method given
-    by the platform it is running on, e.g. This is how printing was
-    traditionally done in Qt. This mode is the default.
+    \value NativeFormat QPrinter will print output using a method defined
+    by the platform it is running on. This mode is the default when printing
+    directly to a printer.
 
     \value PdfFormat QPrinter will generate its output as a searchable PDF file.
+    This mode is the default when printing to a file.
 
     \value PostScriptFormat QPrinter will generate its output as in the PostScript format.
-    Available since 4.2
+    (This feature was introduced in Qt 4.2.)
+
+    \sa outputFormat(), setOutputFormat(), setOutputFileName()
 */
 
 /*!
@@ -900,22 +912,24 @@ void QPrinter::setCollateCopies(bool collate)
 
 
 /*!
-  Sets QPrinter to have the origin of the coordinate system at the
-  top-left corner of the paper if \a fp is true, or where it thinks
-  the top-left corner of the printable area is if \a fp is false.
+  If \a fp is true, enables support for painting over the entire page;
+  otherwise restricts painting to the printable area reported by the
+  device.
 
-  The default is false. You can (probably) print on (0,0), and
-  the device metrics will report something smaller than the size
-  indicated by PageSize. (Note that QPrinter may be wrong on Unix
-  systems: it does not have perfect knowledge of the physical
-  printer.)
+  By default, full page printing is disabled. In this case, the origin
+  of the QPrinter's coordinate system coincides with the top-left
+  corner of the printable area.
 
-  If \a fp is true, the device metrics will report the exact same
-  size as indicated by \c PageSize. It probably isn't possible to
-  print on the entire page because of the printer's physical
-  margins, so the application must account for the margins itself.
+  If full page printing is enabled, the origin of the QPrinter's
+  coordinate system coincides with the top-left corner of the paper
+  itself. In this case, the
+  \l{QPaintDevice::PaintDeviceMetric}{device metrics} will report
+  the exact same dimensions as indicated by \l{PageSize}. It may not
+  be possible to print on the entire physical page because of the
+  printer's margins, so the application must account for the margins
+  itself.
 
-  \sa PageSize setPageSize() fullPage() width() height()
+  \sa fullPage(), setPageSize(), width(), height(), {Printing with Qt}
 */
 
 void QPrinter::setFullPage(bool fp)
