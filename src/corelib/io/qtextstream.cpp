@@ -91,6 +91,12 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
 
     \endlist
 
+    Since the text stream uses a buffer, you should not read from
+    the stream using the implementation of a superclass. For instance,
+    if you have a QFile and read from it directly using
+    QFile::readLine() instead of using the stream, the text stream's
+    internal position will be out of sync with the file's position.
+
     By default, when reading numbers from a stream of text,
     QTextStream will automatically detect the number's base
     representation. For example, if the number starts with "0x", it is
@@ -1123,9 +1129,10 @@ bool QTextStream::seek(qint64 pos)
     stream, or -1 if an error occurs (e.g., if there is no device or string,
     or if there's a device error).
 
-    Because QTextStream is buffered, this function may have to rewind the
-    device to reconstruct a valid device position. This operation can be
-    expensive, so you may want to avoid calling this function in a tight loop.
+    Because QTextStream is buffered, this function may have to
+    seek the device to reconstruct a valid device position. This
+    operation can be expensive, so you may want to avoid calling this
+    function in a tight loop.
 
     \sa seek()
 */
