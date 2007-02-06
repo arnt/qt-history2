@@ -61,6 +61,7 @@ private slots:
     void textEditTest();
     void listViewTest();
     void mdiAreaTest();
+    void mdiSubWindowTest();
     void lineEditTest();
 
 private:
@@ -2173,6 +2174,7 @@ void tst_QAccessibility::listViewTest()
 
 void tst_QAccessibility::mdiAreaTest()
 {
+#ifdef QTEST_ACCESSIBILITY
     QMdiArea mdiArea;
     mdiArea.show();
     const int subWindowCount =  5;
@@ -2216,6 +2218,109 @@ void tst_QAccessibility::mdiAreaTest()
         }
     }
     // ### Add test for Up and Down.
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
+void tst_QAccessibility::mdiSubWindowTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QMdiArea mdiArea;
+    mdiArea.show();
+    const int subWindowCount =  5;
+    for (int i = 0; i < subWindowCount; ++i)
+        mdiArea.addSubWindow(new QPushButton("QAccessibilityTest"))->show();
+
+    QList<QMdiSubWindow *> subWindows = mdiArea.subWindowList();
+    QCOMPARE(subWindows.count(), subWindowCount);
+
+    QMdiSubWindow *testWindow = subWindows.at(3);
+    QVERIFY(testWindow);
+    QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(testWindow);
+
+    // childCount
+    QVERIFY(interface);
+    QCOMPARE(interface->childCount(), 1);
+
+    // setText / text
+    QCOMPARE(interface->text(QAccessible::Name, 0), QString());
+    QCOMPARE(interface->text(QAccessible::Name, 1), QString());
+    testWindow->setWindowTitle(QLatin1String("ReplaceMe"));
+    QCOMPARE(interface->text(QAccessible::Name, 0), QLatin1String("ReplaceMe"));
+    QCOMPARE(interface->text(QAccessible::Name, 1), QLatin1String("ReplaceMe"));
+    interface->setText(QAccessible::Name, 0, QLatin1String("TitleSetOnWindow"));
+    QCOMPARE(interface->text(QAccessible::Name, 0), QLatin1String("TitleSetOnWindow"));
+    interface->setText(QAccessible::Name, 1, QLatin1String("TitleSetOnChild"));
+    QCOMPARE(interface->text(QAccessible::Name, 0), QLatin1String("TitleSetOnChild"));
+
+    // state
+    QAccessible::State state = QAccessible::Normal | QAccessible::Focusable
+                               | QAccessible::Movable | QAccessible::Sizeable;
+    QCOMPARE(interface->state(0), state);
+    const QRect originalGeometry = testWindow->geometry();
+    testWindow->showMaximized();
+    state &= ~QAccessible::Sizeable;
+    state &= ~QAccessible::Moveable;
+    QCOMPARE(interface->state(0), state);
+    testWindow->showNormal();
+    testWindow->move(-10, 0);
+    QVERIFY(interface->state(0) & QAccessible::Offscreen);
+    testWindow->setVisible(false);
+    QVERIFY(interface->state(0) & QAccessible::Invisible);
+    testWindow->setVisible(true);
+    testWindow->setEnabled(false);
+    QVERIFY(interface->state(0) & QAccessible::Unavailable);
+    testWindow->setEnabled(true);
+    qApp->setActiveWindow(&mdiArea);
+    mdiArea.setActiveSubWindow(testWindow);
+    QVERIFY(testWindow->isAncestorOf(qApp->focusWidget()));
+    QVERIFY(interface->state(0) & QAccessible::Focused);
+    testWindow->setGeometry(originalGeometry);
+
+    // navigate
+    QAccessibleInterface *destination = 0;
+    QCOMPARE(interface->navigate(QAccessible::Child, 1, &destination), 1);
+    QVERIFY(destination);
+    QCOMPARE(destination->object(), testWindow->widget());
+    delete destination;
+    QCOMPARE(interface->navigate(QAccessible::Left, 0, &destination), 0);
+    QVERIFY(destination);
+    QCOMPARE(destination->object(), subWindows.at(2));
+    delete destination;
+    QCOMPARE(interface->navigate(QAccessible::Right, 0, &destination), 0);
+    QVERIFY(destination);
+    QCOMPARE(destination->object(), subWindows.at(4));
+    delete destination;
+
+    // rect
+    const QPoint globalPos = testWindow->mapToGlobal(QPoint(0, 0));
+    QCOMPARE(interface->rect(0), QRect(globalPos, testWindow->size()));
+    testWindow->hide();
+    QCOMPARE(interface->rect(0), QRect());
+    QCOMPARE(interface->rect(1), QRect());
+    testWindow->showMinimized();
+    QCOMPARE(interface->rect(0).size(), testWindow->iconSize());
+    QCOMPARE(interface->rect(1), QRect());
+    testWindow->showNormal();
+    testWindow->widget()->hide();
+    QCOMPARE(interface->rect(1), QRect());
+    testWindow->widget()->show();
+    const QRect widgetGeometry = testWindow->contentsRect();
+    const QPoint globalWidgetPos = QPoint(globalPos.x() + widgetGeometry.x(),
+                                          globalPos.y() + widgetGeometry.y());
+    QCOMPARE(interface->rect(1), QRect(globalWidgetPos, widgetGeometry.size()));
+
+    // childAt
+    QCOMPARE(interface->childAt(-10, 0), -1);
+    QCOMPARE(interface->childAt(globalPos.x(), globalPos.y()), 0);
+    QCOMPARE(interface->childAt(globalWidgetPos.x(), globalWidgetPos.y()), 1);
+    testWindow->widget()->hide();
+    QCOMPARE(interface->childAt(globalWidgetPos.x(), globalWidgetPos.y()), 0);
+
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
 }
 
 void tst_QAccessibility::lineEditTest()
