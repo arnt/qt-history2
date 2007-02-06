@@ -454,7 +454,7 @@ void QTextControlPrivate::startDrag()
     Qt::DropActions actions = Qt::CopyAction;
     if (interactionFlags & Qt::TextEditable)
         actions |= Qt::MoveAction;
-    Qt::DropAction action = drag->start(actions);
+    Qt::DropAction action = drag->exec(actions, Qt::MoveAction);
 
     if (action == Qt::MoveAction && drag->target() != contextWidget)
         cursor.removeSelectedText();
