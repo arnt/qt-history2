@@ -1100,6 +1100,7 @@ Q_GUI_EXPORT QScreen* qt_get_screen(int display_id, const char *spec)
     int colon = displaySpec.indexOf(':');
     if (colon >= 0)
         driver.truncate(colon);
+    driver = driver.trimmed();
 
     bool foundDriver = false;
     QString driverName = driver;

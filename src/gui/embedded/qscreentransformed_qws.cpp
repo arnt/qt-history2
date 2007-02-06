@@ -15,6 +15,7 @@
 #ifndef QT_NO_QWS_TRANSFORMED
 
 #include "qscreentransformed_qws.h"
+#include <qscreendriverfactory_qws.h>
 #include <qvector.h>
 #include <private/qpainter_p.h>
 #include <qmatrix.h>
@@ -207,6 +208,15 @@ bool QTransformedScreen::connect(const QString &displaySpec)
         dspec = dspec.left(dspec.size() - displayIdSpec.size());
 
     d_ptr->transformation = filterTransformation(dspec);
+
+    QString driver = dspec;
+    int colon = driver.indexOf(':');
+    if (colon >= 0)
+        driver.truncate(colon);
+
+    if (!QScreenDriverFactory::keys().contains(driver, Qt::CaseInsensitive))
+        if (!dspec.isEmpty())
+            dspec.prepend(":");
 
     const int id = getDisplayId(dspec);
     d_ptr->subscreen = qt_get_screen(id, dspec.toLatin1().constData());
