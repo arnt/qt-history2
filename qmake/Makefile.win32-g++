@@ -117,6 +117,9 @@ qmake.exe: $(OBJS) $(QTOBJS)
 	$(LINKQMAKE)
 	-copy qmake.exe $(BUILD_PATH)\bin\qmake.exe
 
+Makefile: Makefile.win32-g++
+	@echo "Out of date, please rerun configure"
+
 clean::
 	-del $(OBJS) $(QTOBJS) $(ADDCLEAN)
 
