@@ -131,8 +131,8 @@ distclean:: clean
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $<
 
-qconfig.o: $(SOURCE_PATH)/src/corelib/global/qconfig.cpp
-	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/global/qconfig.cpp
+qconfig.o: $(BUILD_PATH)/src/corelib/global/qconfig.cpp
+	$(CXX) $(CXXFLAGS) $(BUILD_PATH)/src/corelib/global/qconfig.cpp
 
 qsettings_win.o: $(SOURCE_PATH)/src/corelib/io/qsettings_win.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qsettings_win.cpp
