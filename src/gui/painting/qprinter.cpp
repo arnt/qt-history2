@@ -828,8 +828,9 @@ QPrinter::ColorMode QPrinter::colorMode() const
 /*!
   Returns the number of copies to be printed. The default value is 1.
 
-  On Windows and Mac OS X, this will always return 1 as these operating systems
-  can internally handle the number of copies.
+  On Windows, Mac OS X and X11 systems that support CUPS, this will always
+  return 1 as these operating systems can internally handle the number
+  of copies.
 
   On X11, this value will return the number of times the application is
   required to print in order to match the number specified in the printer setup

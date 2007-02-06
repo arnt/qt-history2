@@ -1239,7 +1239,12 @@ QVariant QPdfBaseEngine::property(PrintEnginePropertyKey key) const
         ret = d->fullPage;
         break;
     case PPK_NumberOfCopies:
-        ret = d->copies;
+#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+        if (QCUPSSupport::isAvailable())
+            ret = 1;
+        else
+#endif
+            ret = d->copies;
         break;
     case PPK_Orientation:
         ret = d->orientation;
