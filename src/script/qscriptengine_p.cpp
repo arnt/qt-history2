@@ -43,7 +43,9 @@
 
 Q_DECLARE_METATYPE(QScriptValue)
 Q_DECLARE_METATYPE(QVariant)
+#ifndef QT_NO_QOBJECT
 Q_DECLARE_METATYPE(QObjectList)
+#endif
 Q_DECLARE_METATYPE(QList<int>)
 
 namespace QScript {
@@ -1108,11 +1110,14 @@ QScriptValue QScriptEnginePrivate::create(int type, const void *ptr)
             else if (type == qMetaTypeId<QVariant>())
                 result = q->newVariant(*reinterpret_cast<const QVariant*>(ptr));
 
+#ifndef QT_NO_QOBJECT
             // lazy registration of some common list types
             else if (type == qMetaTypeId<QObjectList>()) {
                 qScriptRegisterSequenceMetaType<QObjectList>(q);
                 return create(type, ptr);
-            } else if (type == qMetaTypeId<QList<int> >()) {
+            }
+#endif
+            else if (type == qMetaTypeId<QList<int> >()) {
                 qScriptRegisterSequenceMetaType<QList<int> >(q);
                 return create(type, ptr);
             }
@@ -1232,10 +1237,13 @@ bool QScriptEnginePrivate::convert(const QScriptValue &value,
     }
 
     // lazy registration of some common list types
+#ifndef QT_NO_QOBJECT
     else if (type == qMetaTypeId<QObjectList>()) {
         qScriptRegisterSequenceMetaType<QObjectList>(q);
         return convert(value, type, ptr);
-    } else if (type == qMetaTypeId<QList<int> >()) {
+    }
+#endif
+    else if (type == qMetaTypeId<QList<int> >()) {
         qScriptRegisterSequenceMetaType<QList<int> >(q);
         return convert(value, type, ptr);
     }
