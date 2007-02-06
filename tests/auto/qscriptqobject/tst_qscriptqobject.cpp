@@ -41,6 +41,7 @@ class MyQObject : public QObject
     Q_PROPERTY(QString stringProperty READ stringProperty WRITE setStringProperty)
     Q_PROPERTY(QStringList stringListProperty READ stringListProperty WRITE setStringListProperty)
     Q_PROPERTY(QByteArray byteArrayProperty READ byteArrayProperty WRITE setByteArrayProperty)
+    Q_PROPERTY(QBrush brushProperty READ brushProperty WRITE setBrushProperty)
     Q_PROPERTY(double hiddenProperty READ hiddenProperty WRITE setHiddenProperty SCRIPTABLE false)
     Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
     Q_PROPERTY(CustomType propWithCustomType READ propWithCustomType WRITE setPropWithCustomType)
@@ -77,6 +78,7 @@ public:
           m_variantListValue(QVariantList() << QVariant(123) << QVariant(QLatin1String("foo"))),
           m_stringValue(QLatin1String("bar")),
           m_stringListValue(QStringList() << QLatin1String("zig") << QLatin1String("zag")),
+          m_brushValue(QColor(10, 20, 30, 40)),
           m_hiddenValue(456.0),
           m_qtFunctionInvoked(-1)
         { }
@@ -110,6 +112,11 @@ public:
         { return m_byteArrayValue; }
     void setByteArrayProperty(const QByteArray &value)
         { m_byteArrayValue = value; }
+
+    QBrush brushProperty() const
+        { return m_brushValue; }
+    void setBrushProperty(const QBrush &value)
+        { m_brushValue = value; }
 
     double hiddenProperty() const
         { return m_hiddenValue; }
@@ -173,6 +180,8 @@ public:
         { m_qtFunctionInvoked = 17; m_actuals << qVariantFromValue(lst); return lst; }
     Q_INVOKABLE QObject* myInvokableWithQObjectStarArg(QObject *obj)
         { m_qtFunctionInvoked = 18; m_actuals << qVariantFromValue(obj); return obj; }
+    Q_INVOKABLE QBrush myInvokableWithQBrushArg(const QBrush &brush)
+        { m_qtFunctionInvoked = 19; m_actuals << qVariantFromValue(brush); return brush; }
 
     void emitMySignal()
         { emit mySignal(); }
@@ -199,6 +208,7 @@ private:
     QString m_stringValue;
     QStringList m_stringListValue;
     QByteArray m_byteArrayValue;
+    QBrush m_brushValue;
     double m_hiddenValue;
     QKeySequence m_shortcut;
     CustomType m_customType;
@@ -402,6 +412,24 @@ void tst_QScriptExtQObject::getSetStaticProperty()
         QVERIFY(m_myObject->propWithCustomType().string.isEmpty());
         mobj.setProperty("propWithCustomType", m_engine->newVariant(qVariantFromValue(t)));
         QVERIFY(m_myObject->propWithCustomType().string == t.string);
+    }
+
+    // test that we do value conversion if necessary when setting properties
+    {
+        QScriptValue br = m_engine->evaluate("myObject.brushProperty");
+        QCOMPARE(qscriptvalue_cast<QBrush>(br), m_myObject->brushProperty());
+        QCOMPARE(qscriptvalue_cast<QColor>(br), m_myObject->brushProperty().color());
+
+        QColor newColor(40, 30, 20, 10);
+        QScriptValue val = qScriptValueFromValue(m_engine, newColor);
+        m_engine->globalObject().setProperty("myColor", val);
+        QScriptValue ret = m_engine->evaluate("myObject.brushProperty = myColor");
+        QCOMPARE(ret.strictEqualTo(val), true);
+        br = m_engine->evaluate("myObject.brushProperty");
+        QCOMPARE(qscriptvalue_cast<QBrush>(br), QBrush(newColor));
+        QCOMPARE(qscriptvalue_cast<QColor>(br), newColor);
+
+        m_engine->globalObject().setProperty("myColor", QScriptValue());
     }
 
     // try to delete
@@ -654,6 +682,23 @@ void tst_QScriptExtQObject::callQtInvokable()
         // no implicit conversion from integer to QObject*
         QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithQObjectStarArg(123)");
         QCOMPARE(ret.isError(), true);
+    }
+
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue fun = m_engine->evaluate("myObject.myInvokableWithQBrushArg");
+        Q_ASSERT(fun.isFunction());
+        QColor color(10, 20, 30, 40);
+        // QColor should be converted to a QBrush
+        QScriptValue ret = fun.call(QScriptValue(), QScriptValueList()
+                                    << qScriptValueFromValue(m_engine, color));
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 19);
+        QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+        QVariant v = m_myObject->qtFunctionActuals().at(0);
+        QCOMPARE(v.userType(), int(QMetaType::QBrush));
+        QCOMPARE(qvariant_cast<QColor>(v), color);
+
+        QCOMPARE(qscriptvalue_cast<QColor>(ret), color);
     }
 }
 

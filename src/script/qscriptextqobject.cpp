@@ -57,8 +57,10 @@ static inline QVariant variantFromValue(int targetType, const QScriptValue &valu
         return value.toVariant();
     if (value.isVariant()) {
         v = value.toVariant();
-        if (v.userType() == targetType)
+        if (v.canConvert(QVariant::Type(targetType))) {
+            v.convert(QVariant::Type(targetType));
             return v;
+        }
     }
 
     return QVariant();
@@ -846,6 +848,13 @@ void QScript::QtFunction::execute(QScriptContext *context)
             } else {
                 argIsVariant.setBit(1 + i, false);
                 converted = QScriptEnginePrivate::get(eng)->convert(arg, atype, v.data());
+                if (!converted && arg.isVariant()) {
+                    QVariant vv = arg.toVariant();
+                    if (vv.canConvert(QVariant::Type(atype))) {
+                        v = vv;
+                        converted = v.convert(QVariant::Type(atype));
+                    }
+                }
             }
 
             if (!converted) {
