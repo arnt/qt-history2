@@ -1483,7 +1483,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *event)
 {
     Q_D(QAbstractItemView);
-    
+
     QModelIndex index = indexAt(event->pos());
     if (!index.isValid() || (d->pressedIndex != index)) {
         mousePressEvent(event);
@@ -1977,7 +1977,7 @@ void QAbstractItemView::timerEvent(QTimerEvent *event)
         doItemsLayout();
     } else if (event->timerId() == d->delayedAutoScroll.timerId()) {
         d->delayedAutoScroll.stop();
-        //end of the timer: if the current item is still the same as the one when the mouse press occurred 
+        //end of the timer: if the current item is still the same as the one when the mouse press occurred
         //we only get here if there was no double click
         if (d->pressedIndex.isValid() && d->pressedIndex == currentIndex())
             scrollTo(d->pressedIndex);
@@ -2516,8 +2516,8 @@ void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
     passing the ownership of the widget to the viewport.
 
     If \a index is invalid (e.g., if you pass the root index), this function
-    will do nothing.    
-    
+    will do nothing.
+
     Note that the given \a widget's \l
     {QWidget}{autoFillBackground} property must be set to true,
     otherwise the widget's background will be transparent, showing both
@@ -2620,7 +2620,7 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
             if (delegate) {
                 delegate->setEditorData(d->editorForIndex(topLeft), topLeft);
             }
-        } 
+        }
         if (isVisible() && !d->delayedLayout.isActive()) {
             // otherwise the items will be update later anyway
             d->viewport->update(visualRect(topLeft));
