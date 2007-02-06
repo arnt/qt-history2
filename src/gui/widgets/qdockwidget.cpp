@@ -261,7 +261,7 @@ QSize QDockWidgetLayout::sizeHint() const
 {
     QDockWidget *w = qobject_cast<QDockWidget*>(parentWidget());
 
-    QSize content;
+    QSize content(-1, -1);
     if (item_list[Content] != 0)
         content = item_list[Content]->sizeHint();
 
@@ -272,7 +272,7 @@ QSize QDockWidgetLayout::minimumSize() const
 {
     QDockWidget *w = qobject_cast<QDockWidget*>(parentWidget());
 
-    QSize content;
+    QSize content(0, 0);
     if (item_list[Content] != 0)
         content = item_list[Content]->minimumSize();
 
@@ -464,23 +464,24 @@ QDockWidgetItem::QDockWidgetItem(QDockWidget *dockWidget)
 
 QSize QDockWidgetItem::minimumSize() const
 {
+    QSize widgetMin(0, 0);
     if (QLayoutItem *item = dockWidgetChildItem())
-        return dockWidgetLayout()->sizeFromContent(item->minimumSize(), false);
-    return QWidgetItem::minimumSize();
+        widgetMin = item->minimumSize();
+    return dockWidgetLayout()->sizeFromContent(widgetMin, false);
 }
 
 QSize QDockWidgetItem::maximumSize() const
 {
     if (QLayoutItem *item = dockWidgetChildItem())
         return dockWidgetLayout()->sizeFromContent(item->maximumSize(), false);
-    return QWidgetItem::maximumSize();
+    return QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
 }
 
 QSize QDockWidgetItem::sizeHint() const
 {
     if (QLayoutItem *item = dockWidgetChildItem())
         return dockWidgetLayout()->sizeFromContent(item->sizeHint(), false);
-    return QWidgetItem::sizeHint();
+    return minimumSize();
 }
 
 /******************************************************************************
