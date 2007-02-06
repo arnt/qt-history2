@@ -16,6 +16,7 @@
 /*!
     \externalpage http://www.cups.org/
     \title Common Unix Printing System (CUPS)
+    \keyword CUPS
 */
 
 /*!
@@ -32,6 +33,11 @@
 /*!
     \externalpage http://www.gnome.org/
     \title GNOME
+*/
+
+/*!
+    \externalpage http://www.gnu.org/software/emacs/
+    \title GNU Emacs
 */
 
 /*!
@@ -71,6 +77,12 @@
 /*!
     \externalpage http://www.w3.org/Graphics/SVG/feature/1.2/#SVG-static
     \title SVG 1.2 Tiny Static Features
+*/
+
+/*!
+    \externalpage http://www.ietf.org/rfc/rfc1179.txt
+    \title RFC 1179
+    \keyword lpr
 */
 
 /*!
