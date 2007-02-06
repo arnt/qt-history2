@@ -1333,12 +1333,17 @@ void QListView::setPositionForIndex(const QPoint &position, const QModelIndex &i
         || index.parent() != d->root
         || index.column() != d->column)
         return;
+
     d->executePostedLayout();
     if (index.row() >= d->dynamicListView->items.count())
         return;
+    const QSize oldContents = d->contentsSize();
     d->setDirtyRegion(visualRect(index)); // update old position
     d->dynamicListView->moveItem(index.row(), position);
     d->setDirtyRegion(visualRect(index)); // update new position
+
+    if (d->contentsSize() != oldContents)
+        updateGeometries(); // update the scrollbars
 }
 
 /*!
@@ -2660,12 +2665,9 @@ void QDynamicListViewBase::moveItem(int index, const QPoint &dest)
     tree.insertLeaf(QRect(dest, rect.size()), index);
 
     // resize the contents area
-    int w = rect.x() + rect.width();
-    int h = rect.y() + rect.height();
-    w = w > contentsSize.width() ? w : contentsSize.width();
-    h = h > contentsSize.height() ? h : contentsSize.height();
-    contentsSize = QSize(w, h);
-
+    contentsSize = (QRect(QPoint(0, 0), contentsSize)|QRect(dest, rect.size())).size();
+    
+    // mark the item as moved
     if (moved.count() != items.count())
         moved.resize(items.count());
     moved.setBit(index, true);
