@@ -37,9 +37,7 @@
 #include <private/qpainterpath_p.h>
 #include <private/qtextengine_p.h>
 #include <private/qwidget_p.h>
-
-// Other
-#include <math.h>
+#include <private/qmath_p.h>
 
 #define QGradient_StretchToDevice 0x10000000
 #define QPaintEngine_OpaqueBackground 0x40000000
@@ -177,8 +175,8 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     if (state->clipInfo.size() != 0) {
         QPainterPath clipPath = q->clipPath() * q->deviceTransform();
         QRectF r = clipPath.boundingRect().intersected(absPathRect);
-        absPathRect.setCoords((int) floor(r.left()), (int) floor(r.top()),
-                              (int) ceil(r.right()), (int) ceil(r.bottom()));
+        absPathRect.setCoords(qFloor(r.left()), qFloor(r.top()),
+                              qCeil(r.right()), qCeil(r.bottom()));
     }
     absPathRect = absPathRect.intersected(QRect(0, 0, device->width(), device->height()));
 
@@ -4604,7 +4602,7 @@ static void drawTextItemDecoration(QPainter *painter, const QPointF &pos, const 
     QLineF line(pos.x(), pos.y(), pos.x() + ti.width.toReal(), pos.y());
     // deliberately ceil the offset to avoid the underline coming too close to
     // the text above it.
-    const int underlinePos = int(ceil(pos.y()) + ceil(fe->underlinePosition().toReal()));
+    const int underlinePos = qCeil(pos.y()) + qCeil(fe->underlinePosition().toReal());
 
     QTextCharFormat::UnderlineStyle underlineStyle = ti.underlineStyle;
     if (underlineStyle == QTextCharFormat::SpellCheckUnderline) {

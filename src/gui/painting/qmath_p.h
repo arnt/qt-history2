@@ -43,8 +43,25 @@ static const double Q_PI   = 3.14159265358979323846;   // pi
 static const double Q_2PI  = 6.28318530717958647693;   // 2*pi
 static const double Q_PI2  = 1.57079632679489661923;   // pi/2
 
-inline int qFloor(double d)
-{ return d >= 0.0 ? int(d) : int(d - 0.9999); }
+inline int qCeil(qreal v)
+{
+#ifdef QT_USE_MATH_H_FLOATS
+    if (sizeof(qreal) == sizeof(float))
+        return int(ceilf(v));
+    else
+#endif
+        return int(ceil(v));
+}
+
+inline int qFloor(qreal v)
+{
+#ifdef QT_USE_MATH_H_FLOATS
+    if (sizeof(qreal) == sizeof(float))
+        return int(floorf(v));
+    else
+#endif
+        return int(floor(v));
+}
 
 #ifdef Q_WS_X11
 #if defined(Q_CC_GNU) && defined(__i386__)

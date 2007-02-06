@@ -14,6 +14,7 @@
 #include <qdebug.h>
 #include "qpdf_p.h"
 #include <qfile.h>
+#include <private/qmath_p.h>
 #include "private/qcups_p.h"
 
 extern int qt_defaultDpi();
@@ -421,8 +422,8 @@ QByteArray QPdf::generateLinearGradientShader(const QLinearGradient *gradient, c
     for (int i = 0; i < 4; ++i) {
         qreal off = ((page_rect[i].x() - start.x()) * offset.x() + (page_rect[i].y() - start.y()) * offset.y())/length;
         qreal ort = ((page_rect[i].x() - start.x()) * orthogonal.x() + (page_rect[i].y() - start.y()) * orthogonal.y())/length;
-        off_min = qMin(off_min, (int)floor(off));
-        off_max = qMax(off_max, (int)ceil(off));
+        off_min = qMin(off_min, qFloor(off));
+        off_max = qMax(off_max, qCeil(off));
         ort_min = qMin(ort_min, ort);
         ort_max = qMax(ort_max, ort);
     }

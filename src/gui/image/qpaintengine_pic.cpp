@@ -28,7 +28,7 @@
 //#define QT_PICTURE_DEBUG
 #include <qdebug.h>
 
-#include <math.h>
+#include <private/qmath_p.h>
 
 class QPicturePaintEnginePrivate : public QPaintEnginePrivate
 {
@@ -281,10 +281,10 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRectF &r, bool corr)
         }
 
         if (br.width() > 0.0 || br.height() > 0.0) {
-            int minx = int(floor(br.left()));
-            int miny = int(floor(br.top()));
-            int maxx = int(ceil(br.right()));
-            int maxy = int(ceil(br.bottom()));
+            int minx = qFloor(br.left());
+            int miny = qFloor(br.top());
+            int maxx = qCeil(br.right());
+            int maxy = qCeil(br.bottom());
 
             if (d->pic_d->brect.width() > 0 || d->pic_d->brect.height() > 0) {
                 minx = qMin(minx, d->pic_d->brect.left());

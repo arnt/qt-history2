@@ -1,0 +1,29 @@
+#!/bin/sh
+
+COMPILER=$1
+VERBOSE=$2
+
+cat >>floatmath.c << EOF
+#include <math.h>
+int main(int argc, char **argv)
+{
+	float c = ceilf(1.3f);
+	float f = floorf(1.7f);
+        if (c == 1.0f && f == 2.0f)
+		return 0;
+	else
+		return 1;
+}
+EOF
+
+$COMPILER -lm floatmath.c >/dev/null 2>&1 && FLOATMATH_SUPPORT=yes
+rm -f floatmath.c floatmath.o
+
+# done
+if [ "$FLOATMATH_SUPPORT" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "math.h float functions disabled."
+    exit 0
+else
+    [ "$VERBOSE" = "yes" ] && echo "math.h float functions enabled."
+    exit 1
+fi

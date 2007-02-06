@@ -2274,6 +2274,13 @@ if [ "$CFG_REDUCE_RELOCATIONS" != "no" ]; then
     fi
 fi
 
+# detect availability of float math.h functions
+if "$unixtests/floatmath.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
+    CFG_USE_FLOATMATH=no
+else
+    CFG_USE_FLOATMATH=yes
+fi
+
 # detect mmx support
 if [ "${CFG_MMX}" = "auto" ]; then
     if "$unixtests/mmx.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
@@ -4937,6 +4944,10 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
         QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_MOUSE_$NODRIVER"
     done
 fi # QWS
+
+if [ "${CFG_USE_FLOATMATH}" = "yes" ]; then
+    QCONFIG_FLAGS="${QCONFIG_FLAGS} QT_USE_MATH_H_FLOATS"
+fi
 
 # Add turned on SQL drivers
 for DRIVER in $CFG_SQL_AVAILABLE; do

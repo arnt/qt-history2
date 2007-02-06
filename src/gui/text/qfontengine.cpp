@@ -19,8 +19,8 @@
 #include "qpainterpath.h"
 #include "qvarlengtharray.h"
 #include <private/qpdf_p.h>
+#include <private/qmath_p.h>
 #include <qendian.h>
-#include <math.h>
 
 QFontEngine::QFontEngine()
     : QObject()
@@ -360,10 +360,10 @@ void QFontEngine::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int n
 QImage QFontEngine::alphaMapForGlyph(glyph_t glyph)
 {
     glyph_metrics_t gm = boundingBox(glyph);
-    int glyph_x = int(floor(gm.x.toReal()));
-    int glyph_y = int(floor(gm.y.toReal()));
-    int glyph_width = int(ceil((gm.x + gm.width).toReal())) -  glyph_x + 2;
-    int glyph_height = int(ceil((gm.y + gm.height).toReal())) - glyph_y + 2;
+    int glyph_x = qFloor(gm.x.toReal());
+    int glyph_y = qFloor(gm.y.toReal());
+    int glyph_width = qCeil((gm.x + gm.width).toReal()) -  glyph_x + 2;
+    int glyph_height = qCeil((gm.y + gm.height).toReal()) - glyph_y + 2;
 
     if (glyph_width <= 0 || glyph_height <= 0)
         return QImage();

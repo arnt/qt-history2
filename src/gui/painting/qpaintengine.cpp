@@ -19,9 +19,8 @@
 #include "qapplication.h"
 #include <qdebug.h>
 #include <private/qtextengine_p.h>
+#include <private/qmath_p.h>
 #include <qvarlengtharray.h>
-
-#include <math.h>
 
 /*!
     \class QTextItem
@@ -500,8 +499,8 @@ void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF 
     QRectF baseSize(0, 0, image.width(), image.height());
     QImage im = image;
     if (baseSize != sr)
-        im = im.copy((int)floor(sr.x()), (int)floor(sr.y()),
-                     (int)ceil(sr.width()), (int)ceil(sr.height()));
+        im = im.copy(qFloor(sr.x()), qFloor(sr.y()),
+                     qCeil(sr.width()), qCeil(sr.height()));
     if (im.depth() == 1)
         im = im.convertToFormat(QImage::Format_RGB32);
     QPixmap pm = QPixmap::fromImage(im, flags);

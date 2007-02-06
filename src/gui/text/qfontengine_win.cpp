@@ -20,7 +20,6 @@
 #include <qpaintdevice.h>
 #include <qpainter.h>
 #include <limits.h>
-#include <math.h>
 
 #include <qendian.h>
 
@@ -32,6 +31,7 @@
 #include "qpaintengine.h"
 #include "qvarlengtharray.h"
 #include <private/qpaintengine_raster_p.h>
+#include <private/qmath_p.h>
 
 //### mingw needed define
 #ifndef TT_PRIM_CSPLINE
@@ -925,10 +925,10 @@ QByteArray QFontEngineWin::getSfntTable(uint tag) const
 QImage QFontEngineWin::alphaMapForGlyph(glyph_t glyph)
 {
     glyph_metrics_t gm = boundingBox(glyph);
-    int glyph_x = int(floor(gm.x.toReal()));
-    int glyph_y = int(floor(gm.y.toReal()));
-    int glyph_width = int(ceil((gm.x + gm.width).toReal())) -  glyph_x + 2;
-    int glyph_height = int(ceil((gm.y + gm.height).toReal())) - glyph_y + 2;
+    int glyph_x = qFloor(gm.x.toReal());
+    int glyph_y = qFloor(gm.y.toReal());
+    int glyph_width = qCeil((gm.x + gm.width).toReal()) -  glyph_x + 2;
+    int glyph_height = qCeil((gm.y + gm.height).toReal()) - glyph_y + 2;
 
     if (glyph_width + glyph_x <= 0 || glyph_height <= 0)
         return QImage();
