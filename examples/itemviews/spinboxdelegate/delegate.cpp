@@ -35,7 +35,6 @@ QWidget *SpinBoxDelegate::createEditor(QWidget *parent,
     QSpinBox *editor = new QSpinBox(parent);
     editor->setMinimum(0);
     editor->setMaximum(100);
-    editor->installEventFilter(const_cast<SpinBoxDelegate*>(this));
 
     return editor;
 }
