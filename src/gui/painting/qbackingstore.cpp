@@ -84,6 +84,8 @@ bool QWidgetBackingStore::paintOnScreen(QWidget *w)
 #endif
 }
 
+#ifndef QT_NO_PAINT_DEBUG
+
 #ifdef Q_WS_QWS
 static void qt_showYellowThing(QWidget *widget, const QRegion &rgn, int msec, bool)
 {
@@ -201,6 +203,8 @@ static bool qt_flushUpdate(QWidget *widget, const QRegion &rgn)
     return true;
 }
 #endif
+
+#endif // QT_NO_PAINT_DEBUG
 
 void qt_syncBackingStore(QRegion rgn, QWidget *widget, bool recursive)
 {
@@ -541,7 +545,9 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
         widget->d_func()->cleanWidget_sys(rgn);
 
+#ifndef QT_NO_FLUSH_UPDATE
         qt_flushUpdate(widget, rgn);
+#endif
 
         QPoint wOffset = widget->data->wrect.topLeft();
         windowSurface->flush(widget, rgn, offset);
@@ -615,7 +621,11 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 // the BackingStore lock, so if we hold that, the server will
 // never release the Communication lock that we are waiting for in
 // sendSynchronousCommand
+#ifndef QT_NO_PAINT_DEBUG
             const bool flushing = (test_qt_flushPaint() > 0);
+#else
+            const bool flushing = false;
+#endif
             if (!flushing)
                 windowSurface->beginPaint(toClean);
             windowSurface->beginPaint(toClean);
@@ -729,8 +739,9 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
             q->setAttribute(Qt::WA_WState_InPaintEvent);
 
             //clip away the new area
+#ifndef QT_NO_PAINT_DEBUG
             bool flushed = qt_flushPaint(q, toBePainted);
-
+#endif
             QPaintEngine *paintEngine = pdev->paintEngine();
             if (paintEngine) {
                 QPainter::setRedirected(q, pdev, -offset);
@@ -789,8 +800,10 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
             if(!q->testAttribute(Qt::WA_PaintOutsidePaintEvent) && q->paintingActive())
                 qWarning("QWidget::repaint: It is dangerous to leave painters active on a widget outside of the PaintEvent");
 
+#ifndef QT_NO_PAINT_DEBUG
             if (flushed)
                 qt_unflushPaint(q, toBePainted);
+#endif
         } else if(q->isWindow()) {
             if (pdev->paintEngine()) {
                 QPainter p(pdev);

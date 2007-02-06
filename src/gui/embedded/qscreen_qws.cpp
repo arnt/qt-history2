@@ -1774,16 +1774,21 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
 */
 QWSWindowSurface* QScreen::createSurface(const QString &key) const
 {
+#ifndef QT_NO_PAINTONSCREEN
     if (key == QLatin1String("OnScreen"))
         return new QWSOnScreenSurface;
-    else if (key == QLatin1String("mem"))
+    else
+#endif
+    if (key == QLatin1String("mem"))
         return new QWSLocalMemSurface;
 #ifndef QT_NO_QWS_MULTIPROCESS
     else if (key == QLatin1String("shm"))
         return new QWSSharedMemSurface;
 #endif
+#ifndef QT_NO_PAINT_DEBUG
     else if (key == QLatin1String("Yellow"))
         return new QWSYellowSurface;
+#endif
 #ifndef QT_NO_DIRECTPAINTER
     else if (key == QLatin1String("DirectPainter"))
         return new QWSDirectPainterSurface;
@@ -1798,6 +1803,7 @@ static inline bool isWidgetOpaque(const QWidget *w)
     return (brush.style() == Qt::NoBrush || brush.isOpaque());
 }
 
+#ifndef QT_NO_PAINTONSCREEN
 static inline bool isWidgetPaintOnScreen(const QWidget *w)
 {
     static int doOnScreen = -1;
@@ -1810,6 +1816,7 @@ static inline bool isWidgetPaintOnScreen(const QWidget *w)
     Q_ASSERT(w->isWindow());
     return w->testAttribute(Qt::WA_PaintOnScreen);
 }
+#endif
 
 /*!
     \overload
@@ -1818,9 +1825,12 @@ static inline bool isWidgetPaintOnScreen(const QWidget *w)
 */
 QWSWindowSurface* QScreen::createSurface(QWidget *widget) const
 {
+#ifndef QT_NO_PAINTONSCREEN
     if (isWidgetPaintOnScreen(widget) && isWidgetOpaque(widget) && base())
         return new QWSOnScreenSurface(widget);
-    else if (QApplication::type() == QApplication::GuiServer)
+    else
+#endif
+    if (QApplication::type() == QApplication::GuiServer)
         return new QWSLocalMemSurface(widget);
 #ifndef QT_NO_QWS_MULTIPROCESS
     else

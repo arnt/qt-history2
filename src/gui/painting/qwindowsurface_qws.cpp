@@ -992,6 +992,8 @@ const QByteArray QWSSharedMemSurface::data() const
 
 #endif // QT_NO_QWS_MULTIPROCESS
 
+#ifndef QT_NO_PAINTONSCREEN
+
 QWSOnScreenSurface::QWSOnScreenSurface(QWidget *w)
     : QWSMemorySurface(w)
 {
@@ -1077,6 +1079,10 @@ bool QWSOnScreenSurface::attach(const QByteArray &data)
     return true;
 }
 
+#endif // QT_NO_PAINTONSCREEN
+
+#ifndef QT_NO_PAINT_DEBUG
+
 QWSYellowSurface::QWSYellowSurface(bool isClient)
     : QWSWindowSurface(), delay(10)
 {
@@ -1154,6 +1160,8 @@ void QWSYellowSurface::flush(QWidget *widget, const QRegion &region,
     display->requestRegion(winId, key(), data(), QRegion());
     ::usleep(500 * delay);
 }
+
+#endif // QT_NO_PAINT_DEBUG
 
 #ifndef QT_NO_DIRECTPAINTER
 

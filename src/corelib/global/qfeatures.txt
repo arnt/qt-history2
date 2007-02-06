@@ -794,6 +794,20 @@ Requires: PRINTER LIBRARY
 Name: Common UNIX Printing System
 SeeAlso: ???
 
+Feature: PAINTONSCREEN
+Description: Supports the Qt::WA_PaintOnScreen widget attribute.
+Section: Painting
+Requires:
+Name: Qt::WA_PaintOnScreen
+SeeAlso: ???
+
+Feature: PAINT_DEBUG
+Description: Debug painting with the environment variables QT_FLUSH_UPDATE and QT_FLUSH_PAINT
+Section: Painting
+Requires:
+Name: Painting Debug Utilities
+SeeAlso: ???
+
 # Fonts
 
 Feature: FREETYPE

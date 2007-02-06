@@ -92,6 +92,12 @@
 // QNetworkProxy
 //#define QT_NO_NETWORKPROXY
 
+// Qt::WA_PaintOnScreen
+//#define QT_NO_PAINTONSCREEN
+
+// Painting Debug Utilities
+//#define QT_NO_PAINT_DEBUG
+
 // QPicture
 //#define QT_NO_PICTURE
 
@@ -331,11 +337,6 @@
 #define QT_NO_STYLE_WINDOWSXP
 #endif
 
-// QWindowsVistaStyle
-#if !defined(QT_NO_STYLE_WINDOWSVISTA) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_STYLE_WINDOWSXP))
-#define QT_NO_STYLE_WINDOWSVISTA
-#endif
-
 // SXE
 #if !defined(QT_NO_SXE) && (defined(QT_NO_QWS_MULTIPROCESS))
 #define QT_NO_SXE
@@ -414,6 +415,11 @@
 // QPlastiqueStyle
 #if !defined(QT_NO_STYLE_PLASTIQUE) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGEFORMAT_XPM))
 #define QT_NO_STYLE_PLASTIQUE
+#endif
+
+// QWindowsVistaStyle
+#if !defined(QT_NO_STYLE_WINDOWSVISTA) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_STYLE_WINDOWSXP))
+#define QT_NO_STYLE_WINDOWSVISTA
 #endif
 
 // QTabBar

@@ -173,6 +173,7 @@ private:
 };
 #endif // QT_NO_QWS_MULTIPROCESS
 
+#ifndef QT_NO_PAINTONSCREEN
 class Q_GUI_EXPORT QWSOnScreenSurface : public QWSMemorySurface
 {
 public:
@@ -198,7 +199,9 @@ private:
     mutable QRect brect;
     const QScreen *screen;
 };
+#endif // QT_NO_PAINTONSCREEN
 
+#ifndef QT_NO_PAINT_DEBUG
 class Q_GUI_EXPORT QWSYellowSurface : public QWSWindowSurface
 {
 public:
@@ -230,6 +233,7 @@ private:
     QSize surfaceSize; // client side
     QImage img; // server side
 };
+#endif // QT_NO_PAINT_DEBUG
 
 #ifndef QT_NO_DIRECTPAINTER
 
