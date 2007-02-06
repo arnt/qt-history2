@@ -798,7 +798,9 @@ void tst_QDateTimeEdit::enterKey()
     QTest::keyClick(testWidget, Qt::Key_5);
     //qDebug() << ++counter << testWidget->lineEdit()->cursorPosition();
     QTest::keyClick(testWidget, Qt::Key_Left);
+#ifndef Q_WS_QWS
     QTest::keyClick(testWidget, Qt::Key_Left);
+#endif
 
     //qDebug() << ++counter << testWidget->lineEdit()->cursorPosition();
     QTest::keyClick(testWidget, Qt::Key_Enter);
