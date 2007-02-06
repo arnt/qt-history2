@@ -1076,8 +1076,14 @@ QIcon QDirModel::fileIcon(const QModelIndex &index) const
 }
 
 /*!
-  Returns the file information for the model item \a index.
+  Returns the file information for the specified model \a index.
 
+  \bold{Note:} If the model index represents a symbolic link in the
+  underlying filing system, the file information returned will contain
+  information about the symbolic link itself, regardless of whether
+  resolveSymlinks is enabled or not.
+
+  \sa QFileInfo::symLinkTarget()
 */
 
 QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
