@@ -2074,9 +2074,15 @@ void tst_QAccessibility::menuTest()
     QEXPECT_FAIL("", "Submenus don't open, task 99301", Continue);
 #endif
     interface->doAction(QAccessible::DefaultAction, 1);
-    QTest::qWait(100);
+    QTestEventLoop::instance().enterLoop(1);
 
-    QVERIFY(file->isVisible() && fileNew->isVisible() && !edit->isVisible() && !help->isVisible());
+#if QT_VERSION < 0x040300
+    QEXPECT_FAIL("", "Don't expect the File menu to be visible in 4.2", Continue);
+#endif
+    QVERIFY(file->isVisible());
+    QVERIFY(fileNew->isVisible());
+    QVERIFY(!edit->isVisible());
+    QVERIFY(!help->isVisible());
 
     QTestAccessibility::clearEvents();
     mw.hide();
