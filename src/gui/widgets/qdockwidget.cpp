@@ -1271,6 +1271,14 @@ QAction * QDockWidget::toggleViewAction() const
 */
 
 /*!
+    \fn void QDockWidget::visibilityChanged(bool visible)
+
+    This signal is emitted when the dock widget becomes visible or invisible.
+    This happens when the widget is hidden or shown, as well as when it is
+    docked in a tabbed dock area and its tab becomes selected or unselected.
+*/
+
+/*!
     Sets an arbitrary \a widget as the dock widget's title bar. If \a widget
     is 0, the title bar widget is removed, but not deleted.
 
