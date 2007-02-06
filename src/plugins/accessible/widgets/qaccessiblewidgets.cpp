@@ -23,6 +23,7 @@
 #include <QToolBox>
 #include <QMdiArea>
 #include <QMdiSubWindow>
+#include <QWorkspace>
 
 #include <limits.h>
 
@@ -30,7 +31,7 @@
 
 #ifndef QT_NO_TEXTEDIT
 
-static inline int distance(QMdiSubWindow *source, QMdiSubWindow *target,
+static inline int distance(QWidget *source, QWidget *target,
                            QAccessible::RelationFlag relation)
 {
     if (!source || !target)
@@ -60,19 +61,29 @@ static inline int distance(QMdiSubWindow *source, QMdiSubWindow *target,
     return returnValue;
 }
 
-static inline QMdiSubWindow *mdiAreaNavigate(QMdiArea *mdiArea,
-                                             QAccessible::RelationFlag relation, int entry)
+static inline QWidget *mdiAreaNavigate(QWidget *area,
+                                       QAccessible::RelationFlag relation, int entry)
 {
-    if (!mdiArea)
+    const QMdiArea *mdiArea = qobject_cast<QMdiArea *>(area);
+    const QWorkspace *workspace = qobject_cast<QWorkspace *>(area);
+    if (!mdiArea && !workspace)
         return 0;
 
-    QList<QMdiSubWindow *> windows = mdiArea->subWindowList();
+    QWidgetList windows;
+    if (mdiArea) {
+        foreach (QMdiSubWindow *window, mdiArea->subWindowList())
+            windows.append(window);
+    } else {
+        foreach (QWidget *window, workspace->windowList())
+            windows.append(window->parentWidget());
+    }
+
     if (windows.isEmpty() || entry < 1 || entry > windows.count())
         return 0;
 
-    QMdiSubWindow *source = windows.at(entry - 1);
-    QMap<int, QMdiSubWindow *> candidates;
-    foreach (QMdiSubWindow *window, windows) {
+    QWidget *source = windows.at(entry - 1);
+    QMap<int, QWidget *> candidates;
+    foreach (QWidget *window, windows) {
         if (source == window)
             continue;
         int candidateDistance = distance(source, window, relation);
@@ -81,8 +92,8 @@ static inline QMdiSubWindow *mdiAreaNavigate(QMdiArea *mdiArea,
     }
 
     int minimumDistance = INT_MAX;
-    QMdiSubWindow *target = 0;
-    foreach (QMdiSubWindow *candidate, candidates.values()) {
+    QWidget *target = 0;
+    foreach (QWidget *candidate, candidates.values()) {
         switch (relation) {
         case QAccessible::Up:
         case QAccessible::Down:
@@ -103,6 +114,13 @@ static inline QMdiSubWindow *mdiAreaNavigate(QMdiArea *mdiArea,
         }
         if (minimumDistance == 0)
             break;
+    }
+
+    if (workspace) {
+        foreach (QWidget *widget, workspace->windowList()) {
+            if (widget->parentWidget() == target)
+                target = widget;
+        }
     }
     return target;
 }
@@ -446,7 +464,7 @@ int QAccessibleMdiArea::indexOfChild(const QAccessibleInterface *child) const
 int QAccessibleMdiArea::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
-    QMdiSubWindow *targetObject = 0;
+    QWidget *targetObject = 0;
     QList<QMdiSubWindow *> subWindows = mdiArea()->subWindowList();
     switch (relation) {
     case Child:
@@ -564,7 +582,7 @@ int QAccessibleMdiSubWindow::navigate(RelationFlag relation, int entry, QAccessi
         int index = mdiArea->subWindowList().indexOf(source);
         if (index == -1)
             break;
-        if (QMdiSubWindow *dest = mdiAreaNavigate(mdiArea, relation, index + 1)) {
+        if (QWidget *dest = mdiAreaNavigate(mdiArea, relation, index + 1)) {
             *target = QAccessible::queryAccessibleInterface(dest);
             return *target ? 0 : -1;
         }
@@ -613,6 +631,78 @@ int QAccessibleMdiSubWindow::childAt(int x, int y) const
 QMdiSubWindow *QAccessibleMdiSubWindow::mdiSubWindow() const
 {
     return static_cast<QMdiSubWindow *>(object());
+}
+
+// ======================= QAccessibleWorkspace ======================
+QAccessibleWorkspace::QAccessibleWorkspace(QWidget *widget)
+    : QAccessibleWidgetEx(widget, LayeredPane)
+{
+    Q_ASSERT(qobject_cast<QWorkspace *>(widget));
+}
+
+QAccessible::State QAccessibleWorkspace::state(int child) const
+{
+    if (child < 0)
+        return QAccessibleWidgetEx::state(child);
+    if (child == 0)
+        return QAccessible::Normal;
+    QWidgetList subWindows = workspace()->windowList();
+    if (subWindows.isEmpty() || child > subWindows.count())
+        return QAccessibleWidgetEx::state(child);
+    if (subWindows.at(child - 1) == workspace()->activeWindow())
+        return QAccessible::Focused;
+    return QAccessible::Normal;
+}
+
+QVariant QAccessibleWorkspace::invokeMethodEx(QAccessible::Method, int, const QVariantList &)
+{
+    return QVariant();
+}
+
+int QAccessibleWorkspace::childCount() const
+{
+    return workspace()->windowList().count();
+}
+
+int QAccessibleWorkspace::indexOfChild(const QAccessibleInterface *child) const
+{
+    if (!child || !child->object() || workspace()->windowList().isEmpty())
+        return -1;
+    if (QWidget *window = qobject_cast<QWidget *>(child->object())) {
+        int index = workspace()->windowList().indexOf(window);
+        if (index != -1)
+            return ++index;
+    }
+    return -1;
+}
+
+int QAccessibleWorkspace::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
+{
+    *target = 0;
+    QWidget *targetObject = 0;
+    QWidgetList subWindows = workspace()->windowList();
+    switch (relation) {
+    case Child:
+        if (entry < 1 || subWindows.isEmpty() || entry > subWindows.count())
+            return -1;
+        targetObject = subWindows.at(entry - 1);
+        break;
+    case Up:
+    case Down:
+    case Left:
+    case Right:
+        targetObject = mdiAreaNavigate(workspace(), relation, entry);
+        break;
+    default:
+        return QAccessibleWidgetEx::navigate(relation, entry, target);
+    }
+    *target = QAccessible::queryAccessibleInterface(targetObject);
+    return indexOfChild(*target);
+}
+
+QWorkspace *QAccessibleWorkspace::workspace() const
+{
+    return static_cast<QWorkspace *>(object());
 }
 
 #endif // QT_NO_ACCESSIBILITY
