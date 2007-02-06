@@ -58,6 +58,7 @@ private slots:
     void selection_data();
     void selection();
     void scrollTo();
+    void moveItems();
 };
 
 // Testing get/set functions
@@ -766,6 +767,10 @@ class PublicListView : public QListView
         QListView::setSelection(rect, flags);
     }
     QSize contentsSize() const { return QListView::contentsSize(); }
+
+    void setPositionForIndex(const QPoint &pos, const QModelIndex &index) {
+        QListView::setPositionForIndex(pos, index);
+    }
 };
 
 class TestDelegate : public QItemDelegate
@@ -1003,8 +1008,33 @@ void tst_QListView::scrollTo()
     QTest::keyClick(lv.viewport(), Qt::Key_Up, Qt::NoModifier);
     QCOMPARE(lv.visualRect(index).y(), 0);
 
+}
 
+void tst_QListView::moveItems()
+{
+    QStandardItemModel model;
+    for (int r = 0; r < 4; ++r) {
+        for (int c = 0; c < 4; ++c) {
+            QStandardItem* item = new QStandardItem(QString("standard item (%1,%2)").arg(r).arg(c));
+            model.setItem(r, c, item);
+        }
+    }
 
+    PublicListView view;
+    view.setViewMode(QListView::IconMode);
+	view.setResizeMode(QListView::Fixed);
+	view.setWordWrap(true);
+    view.setModel(&model);
+    view.setItemDelegate(new TestDelegate(&view));
+
+	for (int r = 0; r < model.rowCount(); ++r) {
+		for (int c = 0; c < model.columnCount(); ++c) {
+			const QModelIndex& idx = model.index(r, c);
+			view.setPositionForIndex(QPoint(r * 75, r * 75), idx);
+		}
+	}
+
+    QCOMPARE(view.contentsSize(), QSize(275, 275));
 }
 
 
