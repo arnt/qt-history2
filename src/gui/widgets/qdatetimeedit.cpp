@@ -1872,7 +1872,7 @@ void QDateTimeEditPrivate::emitSignals(EmitPolicy ep, const QVariant &old)
 
     updateCache(value, displayText());
 
-    if (dodate && dotime && (datechanged || timechanged))
+    if (datechanged || timechanged)
         emit q->dateTimeChanged(value.toDateTime());
     if (dodate && datechanged)
         emit q->dateChanged(value.toDate());
