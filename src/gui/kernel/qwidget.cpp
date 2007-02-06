@@ -1846,8 +1846,6 @@ void QWidget::setStyleSheet(const QString& styleSheet)
 
     if (testAttribute(Qt::WA_SetStyle)) {
         d->setStyle_helper(new QStyleSheetStyle(d->extra->style), true);
-    } else if (QStyleSheetStyle *appProxy = qobject_cast<QStyleSheetStyle *>(qApp->style())) {
-        appProxy->repolish(this);
     } else {
         d->setStyle_helper(new QStyleSheetStyle(0), true);
     }

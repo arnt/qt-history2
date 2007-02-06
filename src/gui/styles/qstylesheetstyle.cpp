@@ -48,19 +48,6 @@ static QHash<const QWidget *, StyleSheet> *styleSheetCache = 0; // parsed style 
 
 #define ceil(x) ((int)(x) + ((x) > 0 && (x) != (int)(x)))
 
-static void initStatics()
-{
-    static bool initialized = false;
-    if (initialized)
-        return;
-    initialized = true;
-    styleRulesCache = new QHash<const QWidget *, QVector<StyleRule> >;
-    renderRulesCache = new QHash<const QWidget *, QRenderRules>;
-    customPaletteWidgets = new QHash<const QWidget *, int>;
-    customFontWidgets = new QHash<const QWidget *, int>;
-    styleSheetCache = new QHash<const QWidget *, StyleSheet>;
-}
-
 struct QStyleSheetBorderImageData : public QSharedData
 {
     QStyleSheetBorderImageData()
@@ -1697,12 +1684,37 @@ static void updateWidgets(const QList<const QWidget *>& widgets)
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // The stylesheet style
+int QStyleSheetStyle::numinstances = 0;
+
 QStyleSheetStyle::QStyleSheetStyle(QStyle *base)
 : base(base), refcount(1)
 {
-    initStatics();
+    ++numinstances;
+    if (numinstances == 1) {
+        styleRulesCache = new QHash<const QWidget *, QVector<StyleRule> >;
+        renderRulesCache = new QHash<const QWidget *, QRenderRules>;
+        customPaletteWidgets = new QHash<const QWidget *, int>;
+        customFontWidgets = new QHash<const QWidget *, int>;
+        styleSheetCache = new QHash<const QWidget *, StyleSheet>;
+    }
 }
 
+QStyleSheetStyle::~QStyleSheetStyle()
+{
+    --numinstances;
+    if (numinstances == 0) {
+        delete styleRulesCache;
+        styleRulesCache = 0;
+        delete renderRulesCache;
+        renderRulesCache = 0;
+        delete customPaletteWidgets;
+        customPaletteWidgets = 0;
+        delete customFontWidgets;
+        customFontWidgets = 0;
+        delete styleSheetCache;
+        styleSheetCache = 0;
+    }
+}
 QStyle *QStyleSheetStyle::baseStyle() const
 {
     if (base)

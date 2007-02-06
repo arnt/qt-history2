@@ -3,6 +3,8 @@
 #include <QtTest/QtTest>
 #include <QtDebug>
 
+#include <private/qstylesheetstyle_p.h>
+
 class tst_QStyleSheetStyle : public QObject
 {
     Q_OBJECT
@@ -11,6 +13,7 @@ public:
     ~tst_QStyleSheetStyle();
 
 private slots:
+    void numinstances();
     void widgetsBeforeAppStyleSheet();
     void widgetsAfterAppStyleSheet();
     void applicationStyleSheet();
@@ -48,6 +51,42 @@ tst_QStyleSheetStyle::tst_QStyleSheetStyle()
 
 tst_QStyleSheetStyle::~tst_QStyleSheetStyle()
 {
+}
+
+void tst_QStyleSheetStyle::numinstances()
+{
+    QWidget w;
+    QCommonStyle *style = new QCommonStyle;
+    style->setParent(&w);
+    QWidget c(&w);
+    w.show();
+
+    // set and unset application stylesheet
+    QCOMPARE(QStyleSheetStyle::numinstances, 0);
+    qApp->setStyleSheet("* { color: red; }");
+    QCOMPARE(QStyleSheetStyle::numinstances, 1);
+    qApp->setStyleSheet("");
+    QCOMPARE(QStyleSheetStyle::numinstances, 0);
+
+    // set and unset application stylesheet+widget
+    qApp->setStyleSheet("* { color: red; }");
+    w.setStyleSheet("color: red;");
+    QCOMPARE(QStyleSheetStyle::numinstances, 2);
+    w.setStyle(style);
+    QCOMPARE(QStyleSheetStyle::numinstances, 2);
+    qApp->setStyleSheet("");
+    QCOMPARE(QStyleSheetStyle::numinstances, 1);
+    w.setStyleSheet("");
+    QCOMPARE(QStyleSheetStyle::numinstances, 0);
+
+    // set and unset widget stylesheet
+    w.setStyle(0);
+    w.setStyleSheet("color: red");
+    QCOMPARE(QStyleSheetStyle::numinstances, 1);
+    c.setStyle(style);
+    QCOMPARE(QStyleSheetStyle::numinstances, 2);
+    w.setStyleSheet("");
+    QCOMPARE(QStyleSheetStyle::numinstances, 0);
 }
 
 void tst_QStyleSheetStyle::widgetsBeforeAppStyleSheet()
@@ -124,7 +163,7 @@ void tst_QStyleSheetStyle::widgetStyleSheet()
     w1.setStyleSheet("* { color: red }");
     QVERIFY(COLOR(w1) == QColor("red"));
     QVERIFY(COLOR(w2) == QColor("red"));
-    
+
     w2.setStyleSheet("* { color: white }");
     QVERIFY(COLOR(w2) == QColor("white"));
 
@@ -152,7 +191,7 @@ void tst_QStyleSheetStyle::reparentWithNoChildStyleSheet()
     QVERIFY(COLOR(c1) == QColor("red"));
     c1.setParent(&p2);
     QVERIFY(COLOR(c1) == APPCOLOR(c1));
-    
+
     p2.setStyleSheet("* { color: white }");
     QVERIFY(COLOR(c1) == QColor("white"));
 
@@ -204,6 +243,7 @@ void tst_QStyleSheetStyle::repolish()
 // by themselves)
 void tst_QStyleSheetStyle::sharedStyle()
 {
+#if QT_VERSION < 0x040300
     qApp->setStyleSheet("* { color: red }");
 
     // parent with no ss, child has ss
@@ -258,6 +298,9 @@ void tst_QStyleSheetStyle::sharedStyle()
     pb->setParent(0);
     QVERIFY(pb->style() == qApp->style());
     }
+#else
+    QSKIP("QStyleSheetStyle:sharedStyle Widget's do not share application's style in Qt 4.3 and above", SkipAll);
+#endif
 }
 
 QTEST_MAIN(tst_QStyleSheetStyle)

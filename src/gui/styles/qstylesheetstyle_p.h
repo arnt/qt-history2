@@ -46,6 +46,7 @@ class Q_AUTOTEST_EXPORT QStyleSheetStyle : public QWindowsStyle
     Q_OBJECT
 public:
     QStyleSheetStyle(QStyle *baseStyle);
+    ~QStyleSheetStyle();
 
     void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                             const QWidget *w = 0) const;
@@ -101,6 +102,9 @@ private Q_SLOTS:
 
 private:
     int refcount;
+
+public:
+    static int numinstances;
 };
 
 #endif // QT_NO_STYLE_STYLESHEET
