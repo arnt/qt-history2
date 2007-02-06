@@ -757,10 +757,11 @@ bool QSqlQuery::isForwardOnly() const
 }
 
 /*!
-    Sets forward only mode to \a forward. If \a forward is true, only
-    next() and seek() with positive values, are allowed for
-    navigating the results. Forward only mode needs far less memory
-    since results do not need to be cached.
+    Sets forward only mode to \a forward. If \a forward is true,
+    only next() and seek() with positive values, are allowed for
+    navigating the results.  Forward only mode can be (depending on
+    the driver) more memory efficient since results do not need to be
+    cached. 
 
     Forward only mode is off by default.
 
