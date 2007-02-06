@@ -429,8 +429,10 @@ Qt::ToolBarAreas QToolBar::allowedAreas() const
 
     The default is Qt::Horizontal.
 
-    The orientation is updated automatically when the toolbar is
-    managed by QMainWindow.
+    This function should not be used when the toolbar is managed
+    by QMainWindow. You can use QMainWindow::addToolBar() or
+    QMainWindow::insertToolBar() if you wish to move a toolbar (that
+    is already added to a main window) to another Qt::ToolBarArea.
 */
 
 void QToolBar::setOrientation(Qt::Orientation orientation)
