@@ -12,14 +12,15 @@
 ****************************************************************************/
 
 #include "qmainwindowlayout_p.h"
+#include "qdockarealayout_p.h"
 
 #ifndef QT_NO_MAINWINDOW
-
 #include "qdockwidget.h"
 #include "qdockwidget_p.h"
 #include "qtoolbar_p.h"
 #include "qtoolbarhandle_p.h"
 #include "qmainwindow.h"
+#include "qmainwindowlayout_p.h"
 #include "qtoolbar.h"
 #include "qwidgetanimator_p.h"
 #include "qrubberband.h"
@@ -28,12 +29,15 @@
 #include <qapplication.h>
 #include <qdebug.h>
 #include <qstatusbar.h>
+#include <qstring.h>
 #include <qstyle.h>
 #include <qvarlengtharray.h>
 #include <qstack.h>
 #include <qmap.h>
 #include <qtimer.h>
 
+
+ 
 #include <private/qlayoutengine_p.h>
 
 /******************************************************************************
@@ -44,6 +48,7 @@
 #include <QTextStream>
 static QTextStream qout(stderr, QIODevice::WriteOnly);
 
+#ifndef QT_NO_DOCKWIDGET
 void dumpLayout(const QDockAreaLayoutInfo &layout, QString indent);
 
 void dumpLayout(const QDockAreaLayoutItem &item, QString indent)
@@ -94,6 +99,7 @@ void dumpLayout(const QDockAreaLayout &layout, QString indent)
     }
     qout.flush();
 };
+#endif
 
 
 /******************************************************************************
