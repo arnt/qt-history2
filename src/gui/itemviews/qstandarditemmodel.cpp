@@ -759,6 +759,7 @@ QVariant QStandardItem::data(int role) const
   Sets the item flags for the item to \a flags.
 
   The item flags determine how the user can interact with the item.
+  This is often used to disable an item.
 
   \sa flags(), setData()
 */
