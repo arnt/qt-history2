@@ -23,6 +23,33 @@
 #include <qstyle.h>
 #include <qstyle.h>
 #include <QStyleOptionSpinBox>
+#include <QDate>
+#include <QDateTime>
+#include <QTime>
+#include <QList>
+#include <QDateTimeEdit>
+#include <QWidget>
+#include <QLineEdit>
+#include <QObject>
+#include <QLocale>
+#include <QString>
+#include <QTest>
+#include <QSignalSpy>
+#include <QVariantList>
+#include <QTestEventList>
+#include <QVariant>
+#include <QApplication>
+#include <QPoint>
+#include <QVBoxLayout>
+#include <QTestEventLoop>
+#include <QRect>
+#include <QCursor>
+#include <QEventLoop>
+#include <QStyle>
+#include <QStyleOptionComboBox>
+#include <QTimeEdit>
+#include <QMetaType>
+#include <QDebug>
 
 #ifdef Q_OS_WIN
 # include <windows.h>
@@ -135,6 +162,7 @@ private slots:
     void newCase6();
 
     void task98554();
+    void task149097();
 
     void cursorPos();
     void calendarPopup();
@@ -1767,7 +1795,7 @@ void tst_QDateTimeEdit::dateSignalChecking()
         d = qVariantValue<QDate>(list.at(0));
         QCOMPARE(d, newDate);
     }
-    QCOMPARE(dateTimeSpy.count(), 0);
+    QCOMPARE(dateTimeSpy.count(), timesEmitted);
     QCOMPARE(timeSpy.count(), 0);
 }
 
@@ -1803,7 +1831,7 @@ void tst_QDateTimeEdit::timeSignalChecking()
         t = qVariantValue<QTime>(list.at(0));
         QCOMPARE(t, newTime);
     }
-    QCOMPARE(dateTimeSpy.count(), 0);
+    QCOMPARE(dateTimeSpy.count(), timesEmitted);
     QCOMPARE(dateSpy.count(), 0);
 }
 
@@ -2685,6 +2713,32 @@ void tst_QDateTimeEdit::task108572()
     QCOMPARE(testWidget->time(), QTime(0, 1, 2, 200));
 }
 
+void tst_QDateTimeEdit::task149097()
+{
+    QSignalSpy dtSpy(testWidget, SIGNAL(dateTimeChanged(const QDateTime &)));
+    QSignalSpy dSpy(testWidget, SIGNAL(dateChanged(const QDate &)));
+    QSignalSpy tSpy(testWidget, SIGNAL(timeChanged(const QTime &)));
+
+    testWidget->setDisplayFormat("yyyy/MM/dd hh:mm:ss");
+    testWidget->setDateTime(QDateTime(QDate(2001, 02, 03), QTime(5, 1, 2)));
+//    QTest::keyClick(testWidget, Qt::Key_Enter);
+    QCOMPARE(dtSpy.count(), 1);
+    QCOMPARE(dSpy.count(), 1);
+    QCOMPARE(tSpy.count(), 1);
+    testWidget->setCurrentSection(QDateTimeEdit::YearSection);
+    testWidget->stepBy(1);
+
+    QCOMPARE(dtSpy.count(), 2);
+    QCOMPARE(dSpy.count(), 2);
+    QCOMPARE(tSpy.count(), 1);
+
+    testWidget->setCurrentSection(QDateTimeEdit::MinuteSection);
+    testWidget->stepBy(1);
+
+    QCOMPARE(dtSpy.count(), 3);
+    QCOMPARE(dSpy.count(), 2);
+    QCOMPARE(tSpy.count(), 2);
+}
 
 QTEST_MAIN(tst_QDateTimeEdit)
 #include "tst_qdatetimeedit.moc"
