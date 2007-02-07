@@ -41,6 +41,7 @@ QSocketEngineHandler::~QSocketEngineHandler()
 
 QAbstractSocketEnginePrivate::QAbstractSocketEnginePrivate()
     : socketError(QAbstractSocket::UnknownSocketError)
+    , hasSetSocketError(false)
     , socketErrorString(QLatin1String(QT_TRANSLATE_NOOP(QSocketLayer, "Unknown error")))
     , socketState(QAbstractSocket::UnconnectedState)
     , socketType(QAbstractSocket::UnknownSocketType)

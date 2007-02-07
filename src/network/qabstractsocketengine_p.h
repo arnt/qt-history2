@@ -135,6 +135,7 @@ public:
     QAbstractSocketEnginePrivate();
 
     mutable QAbstractSocket::SocketError socketError;
+    mutable bool hasSetSocketError;
     mutable QString socketErrorString;
     QAbstractSocket::SocketState socketState;
     QAbstractSocket::SocketType socketType;

@@ -141,8 +141,15 @@ QNativeSocketEnginePrivate::~QNativeSocketEnginePrivate()
 */
 void QNativeSocketEnginePrivate::setError(QAbstractSocket::SocketError error, ErrorString errorString) const
 {
-    if (socketError != QAbstractSocket::UnknownSocketError)
+    if (hasSetSocketError) {
+        // Only set socket errors once for one engine; expect the
+        // socket to recreate its engine after an error. Note: There's
+        // one exception: SocketError(11) bypasses this as it's purely
+        // a temporary internal error condition.
         return;
+    }
+    if (error != QAbstractSocket::SocketError(11))
+        hasSetSocketError = true;
 
     socketError = error;
 
@@ -680,6 +687,7 @@ void QNativeSocketEngine::close()
         d->socketDescriptor = -1;
     }
     d->socketState = QAbstractSocket::UnconnectedState;
+    d->hasSetSocketError = false;
     d->localPort = 0;
     d->localAddress.clear();
     d->peerPort = 0;
