@@ -230,7 +230,7 @@ QScriptValue Math::method_pow(QScriptContext *context,
 QScriptValue Math::method_random(QScriptContext *,
                                  QScriptEngine *eng)
 {
-    return (QScriptValue(eng, ::rand() / (qsreal) RAND_MAX));
+    return (QScriptValue(eng, qrand() / (qsreal) RAND_MAX));
 }
 
 QScriptValue Math::method_round(QScriptContext *context,
