@@ -84,6 +84,7 @@ Q_SIGNALS:
     void topLevelChanged(bool topLevel);
     void allowedAreasChanged(Qt::DockWidgetAreas allowedAreas);
     void visibilityChanged(bool visible);
+    void dockLocationChanged(Qt::DockWidgetArea area);
 
 protected:
     void changeEvent(QEvent *event);

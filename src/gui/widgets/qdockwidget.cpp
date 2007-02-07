@@ -1280,6 +1280,15 @@ QAction * QDockWidget::toggleViewAction() const
 */
 
 /*!
+    \fn void QDockWidget::dockLocationChanged(Qt::DockWidgetArea area)
+
+    This signal is emitted when the dock widget is moved to another dock
+    area, or is moved to a different location in its current dock area.
+    This happens when the dock widget is moved programatically or is
+    dragged to a new location by the user.
+*/
+
+/*!
     Sets an arbitrary \a widget as the dock widget's title bar. If \a widget
     is 0, the title bar widget is removed, but not deleted.
 

@@ -48,6 +48,7 @@ private slots:
     void topLevelChanged();
     void allowedAreasChanged();
     void visibilityChanged();
+    void dockLocationChanged();
 };
 
 // Testing get/set functions
@@ -551,6 +552,61 @@ void tst_QDockWidget::visibilityChanged()
     qApp->processEvents();
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.at(0).at(0).toBool(), true);
+}
+
+Q_DECLARE_METATYPE(Qt::DockWidgetArea)
+
+void tst_QDockWidget::dockLocationChanged()
+{
+    qRegisterMetaType<Qt::DockWidgetArea>("Qt::DockWidgetArea");
+
+    QMainWindow mw;
+    QDockWidget dw;
+    QSignalSpy spy(&dw, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)));
+
+    mw.addDockWidget(Qt::LeftDockWidgetArea, &dw);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(qvariant_cast<Qt::DockWidgetArea>(spy.at(0).at(0)),
+                Qt::LeftDockWidgetArea);
+    spy.clear();
+
+    mw.addDockWidget(Qt::LeftDockWidgetArea, &dw);
+    QCOMPARE(spy.count(), 2);
+    QCOMPARE(qvariant_cast<Qt::DockWidgetArea>(spy.at(0).at(0)),
+                Qt::NoDockWidgetArea);
+    QCOMPARE(qvariant_cast<Qt::DockWidgetArea>(spy.at(1).at(0)),
+                Qt::LeftDockWidgetArea);
+    spy.clear();
+
+    mw.addDockWidget(Qt::RightDockWidgetArea, &dw);
+    QCOMPARE(spy.count(), 2);
+    QCOMPARE(qvariant_cast<Qt::DockWidgetArea>(spy.at(0).at(0)),
+                Qt::NoDockWidgetArea);
+    QCOMPARE(qvariant_cast<Qt::DockWidgetArea>(spy.at(1).at(0)),
+                Qt::RightDockWidgetArea);
+    spy.clear();
+
+    mw.removeDockWidget(&dw);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(qvariant_cast<Qt::DockWidgetArea>(spy.at(0).at(0)),
+                Qt::NoDockWidgetArea);
+    spy.clear();
+
+    QDockWidget dw2;
+    mw.addDockWidget(Qt::TopDockWidgetArea, &dw2);
+    mw.tabifyDockWidget(&dw2, &dw);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(qvariant_cast<Qt::DockWidgetArea>(spy.at(0).at(0)),
+                Qt::TopDockWidgetArea);
+    spy.clear();
+
+    mw.splitDockWidget(&dw2, &dw, Qt::Horizontal);
+    QCOMPARE(spy.count(), 2);
+    QCOMPARE(qvariant_cast<Qt::DockWidgetArea>(spy.at(0).at(0)),
+                Qt::NoDockWidgetArea);
+    QCOMPARE(qvariant_cast<Qt::DockWidgetArea>(spy.at(1).at(0)),
+                Qt::TopDockWidgetArea);
+    spy.clear();
 }
 
 void tst_QDockWidget::featuresChanged()

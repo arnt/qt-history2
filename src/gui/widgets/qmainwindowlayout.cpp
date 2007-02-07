@@ -37,7 +37,7 @@
 #include <qtimer.h>
 
 
- 
+
 #include <private/qlayoutengine_p.h>
 
 /******************************************************************************
@@ -753,6 +753,7 @@ void QMainWindowLayout::addDockWidget(Qt::DockWidgetArea area,
 {
     addChildWidget(dockwidget);
     layoutState.dockAreaLayout.addDockWidget(toDockPos(area), dockwidget, orientation);
+    emit dockwidget->dockLocationChanged(area);
     invalidate();
 }
 
@@ -760,6 +761,7 @@ void QMainWindowLayout::tabifyDockWidget(QDockWidget *first, QDockWidget *second
 {
     addChildWidget(second);
     layoutState.dockAreaLayout.tabifyDockWidget(first, second);
+    emit second->dockLocationChanged(dockWidgetArea(first));
     invalidate();
 }
 
@@ -787,6 +789,7 @@ void QMainWindowLayout::splitDockWidget(QDockWidget *after,
 {
     addChildWidget(dockwidget);
     layoutState.dockAreaLayout.splitDockWidget(after, dockwidget, orientation);
+    emit dockwidget->dockLocationChanged(dockWidgetArea(after));
     invalidate();
 }
 
@@ -948,8 +951,11 @@ QLayoutItem *QMainWindowLayout::takeAt(int index)
 {
     int x = 0;
 
-    if (QLayoutItem *ret = layoutState.takeAt(index, &x))
+    if (QLayoutItem *ret = layoutState.takeAt(index, &x)) {
+        if (QDockWidget *dw = qobject_cast<QDockWidget*>(ret->widget()))
+            emit dw->dockLocationChanged(Qt::NoDockWidgetArea);
         return ret;
+    }
 
     if (statusbar && x++ == index) {
         QLayoutItem *ret = statusbar;
@@ -1101,10 +1107,12 @@ bool QMainWindowLayout::plug(QLayoutItem *widgetItem)
 #endif
         applyState(layoutState);
         savedState.clear();
-        currentGapPos.clear();
 #ifndef QT_NO_DOCKWIDGET
         parentWidget()->update(layoutState.dockAreaLayout.separatorRegion());
+        if (QDockWidget *dw = qobject_cast<QDockWidget*>(widget))
+            emit dw->dockLocationChanged(toDockWidgetArea(currentGapPos.at(1)));
 #endif
+        currentGapPos.clear();
         updateGapIndicator();
     }
 
@@ -1148,6 +1156,8 @@ void QMainWindowLayout::animationFinished(QWidget *widget)
         info->setCurrentTab(widget);
     }
 #endif
+    if (QDockWidget *dw = qobject_cast<QDockWidget*>(widget))
+        emit dw->dockLocationChanged(toDockWidgetArea(currentGapPos.at(1)));
 #endif
     savedState.clear();
     currentGapPos.clear();
@@ -1256,8 +1266,9 @@ QLayoutItem *QMainWindowLayout::unplug(QWidget *widget)
     savedState = layoutState;
 
 #ifndef QT_NO_DOCKWIDGET
-    if (QDockWidget *dw = qobject_cast<QDockWidget*>(widget))
+    if (QDockWidget *dw = qobject_cast<QDockWidget*>(widget)) {
         dw->d_func()->unplug(r);
+    }
 #endif
 #ifndef QT_NO_TOOLBAR
     if (QToolBar *tb = qobject_cast<QToolBar*>(widget)) {
