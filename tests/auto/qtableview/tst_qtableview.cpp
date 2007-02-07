@@ -161,7 +161,7 @@ void tst_QTableView::getSetCheck()
     QModelIndex index = model.index(0, 0);
     obj1.setRootIndex(index);
     QCOMPARE(index, obj1.rootIndex());
-    
+
     QHeaderView *var1 = new QHeaderView(Qt::Horizontal);
     obj1.setHorizontalHeader(var1);
     QCOMPARE(var1, obj1.horizontalHeader());
@@ -183,7 +183,7 @@ class QtTestTableModel: public QAbstractTableModel
 
 signals:
     void invalidIndexEncountered() const;
-    
+
 public:
     QtTestTableModel(int rows = 0, int columns = 0, QObject *parent = 0)
         : QAbstractTableModel(parent),
@@ -206,7 +206,7 @@ public:
 
         if (role == Qt::DisplayRole || role == Qt::EditRole)
             return QString("[%1,%2,%3]").arg(idx.row()).arg(idx.column()).arg(0);
-        
+
         return QVariant();
     }
 
@@ -285,7 +285,7 @@ public:
     {
         return sizeHintForColumn(column);
     }
-    
+
     int rowHeightHint(int row) const
     {
         return sizeHintForRow(row);
@@ -380,7 +380,7 @@ void tst_QTableView::removeRows()
 {
     QFETCH(int, rowCount);
     QFETCH(int, columnCount);
-    
+
     QtTestTableModel model(rowCount, columnCount);
     QSignalSpy spy(&model, SIGNAL(invalidIndexEncountered()));
 
@@ -520,7 +520,7 @@ void tst_QTableView::headerSections()
     QFETCH(int, column);
     QFETCH(int, rowHeight);
     QFETCH(int, columnWidth);
-    
+
     QtTestTableModel model(rowCount, columnCount);
 
     QTableView view;
@@ -971,7 +971,7 @@ void tst_QTableView::hideRows()
     QFETCH(int, column);
     QFETCH(int, rowSpan);
     QFETCH(int, columnSpan);
-    
+
     QtTestTableModel model(rowCount, columnCount);
     QTableView view;
 
@@ -1004,14 +1004,14 @@ void tst_QTableView::hideColumns_data()
       << 10 << 10
       << 0
       << 3
-      << -1 << -1 
+      << -1 << -1
       << 1 << 1;
 
     QTest::newRow("show col 0, hide col 3, span")
       << 10 << 10
       << 0
       << 3
-      << 0 << 0 
+      << 0 << 0
       << 3 << 2;
 }
 
@@ -1025,7 +1025,7 @@ void tst_QTableView::hideColumns()
     QFETCH(int, column);
     QFETCH(int, rowSpan);
     QFETCH(int, columnSpan);
-    
+
     QtTestTableModel model(rowCount, columnCount);
 
     QTableView view;
@@ -1195,7 +1195,7 @@ void tst_QTableView::selection()
 
     view.setSelection(QRect(x, y, width, height),
 		      QItemSelectionModel::SelectionFlags(command));
-    
+
     QCOMPARE(view.selectedIndexes().count(), selectedCount);
 }
 
@@ -1612,7 +1612,7 @@ void tst_QTableView::resizeRowsToContents()
     QFETCH(int, rowHeight);
     QFETCH(int, columnWidth);
     Q_UNUSED(columnWidth);
-    
+
     QtTestTableModel model(rowCount, columnCount);
     QtTestTableView view;
     QtTestItemDelegate delegate;
@@ -1622,7 +1622,7 @@ void tst_QTableView::resizeRowsToContents()
     view.setShowGrid(showGrid); // the grid will add to the row height
 
     delegate.hint = QSize(cellWidth, cellHeight);
-    
+
     QSignalSpy resizedSpy(view.verticalHeader(), SIGNAL(sectionResized(int, int, int)));
     view.resizeRowsToContents();
 
@@ -1658,7 +1658,7 @@ void tst_QTableView::resizeColumnsToContents()
     QFETCH(int, rowHeight);
     QFETCH(int, columnWidth);
     Q_UNUSED(rowHeight);
-    
+
     QtTestTableModel model(rowCount, columnCount);
     QtTestTableView view;
     QtTestItemDelegate delegate;
@@ -1668,7 +1668,7 @@ void tst_QTableView::resizeColumnsToContents()
     view.setShowGrid(showGrid); // the grid will add to the row height
 
     delegate.hint = QSize(cellWidth, cellHeight);
-    
+
     QSignalSpy resizedSpy(view.horizontalHeader(), SIGNAL(sectionResized(int, int, int)));
     view.resizeColumnsToContents();
 
@@ -1706,7 +1706,7 @@ void tst_QTableView::rowViewportPosition_data()
 
     QTest::newRow("row 9, scroll per item, 5")
         << 10 << 40 << 9 << int(QAbstractItemView::ScrollPerItem) << 5 << 4 * 40;
-    
+
     QTest::newRow("row 0, scroll per pixel 0")
         << 10 << 40 << 0 << int(QAbstractItemView::ScrollPerPixel) << 0 << 0;
 
@@ -1752,7 +1752,7 @@ void tst_QTableView::rowViewportPosition()
 
     QCOMPARE(view.rowViewportPosition(row), rowViewportPosition);
 }
-    
+
 void tst_QTableView::rowAt_data()
 {
     QTest::addColumn<int>("rowCount");
@@ -1760,7 +1760,7 @@ void tst_QTableView::rowAt_data()
     QTest::addColumn<IntList>("hiddenRows");
     QTest::addColumn<int>("coordinate");
     QTest::addColumn<int>("row");
-    
+
     QTest::newRow("row at 100") << 5 << 40 << IntList() << 100 << 2;
     QTest::newRow("row at 180") << 5 << 40 << IntList() << 180 << 4;
     QTest::newRow("row at 20")  << 5 << 40 << IntList() <<  20 << 0;
@@ -1820,7 +1820,7 @@ void tst_QTableView::rowHeight()
     QFETCH(int, rowCount);
     QFETCH(IntList, rowHeights);
     QFETCH(BoolList, hiddenRows);
-    
+
     QtTestTableModel model(rowCount, 1);
     QtTestTableView view;
 
@@ -1868,7 +1868,7 @@ void tst_QTableView::columnViewportPosition_data()
 
     QTest::newRow("column 9, scroll per item, 5")
         << 10 << 40 << 9 << int(QAbstractItemView::ScrollPerItem) << 5 << 4 * 40;
-    
+
     QTest::newRow("column 0, scroll per pixel 0")
         << 10 << 40 << 0 << int(QAbstractItemView::ScrollPerPixel) << 0 << 0;
 
@@ -1922,7 +1922,7 @@ void tst_QTableView::columnAt_data()
     QTest::addColumn<IntList>("hiddenColumns");
     QTest::addColumn<int>("coordinate");
     QTest::addColumn<int>("column");
-    
+
     QTest::newRow("column at 100") << 5 << 40 << IntList() << 100 << 2;
     QTest::newRow("column at 180") << 5 << 40 << IntList() << 180 << 4;
     QTest::newRow("column at 20")  << 5 << 40 << IntList() <<  20 << 0;
@@ -1937,7 +1937,7 @@ void tst_QTableView::columnAt()
     QFETCH(IntList, hiddenColumns);
     QFETCH(int, coordinate);
     QFETCH(int, column);
-    
+
     QtTestTableModel model(1, columnCount);
     QtTestTableView view;
     view.resize(2 * columnWidth, 100);
@@ -1968,7 +1968,7 @@ void tst_QTableView::columnWidth_data()
       << 5
       << (IntList() << 60 << 50 << 40 << 30 << 20)
       << (BoolList() << false << false << false << false << false);
-    
+
     QTest::newRow("random")
       << 5
       << (IntList() << 87 << 34 << 68 << 91 << 27)
@@ -1982,7 +1982,7 @@ void tst_QTableView::columnWidth()
     QFETCH(int, columnCount);
     QFETCH(IntList, columnWidths);
     QFETCH(BoolList, hiddenColumns);
-    
+
     QtTestTableModel model(1, columnCount);
     QtTestTableView view;
 
@@ -2008,13 +2008,13 @@ void tst_QTableView::hiddenRow_data()
 
     QTest::newRow("first hidden")
       << 5 << (BoolList() << true << false << false << false << false);
-    
+
     QTest::newRow("last hidden")
       << 5 << (BoolList() << false << false << false << false << true);
-    
+
     QTest::newRow("none hidden")
       << 5 << (BoolList() << false << false << false << false << false);
-    
+
     QTest::newRow("all hidden")
       << 5 << (BoolList() << true << true << true << true << true);
  }
@@ -2024,7 +2024,7 @@ void tst_QTableView::hiddenRow()
     QFETCH(int, rowCount);
     QFETCH(BoolList, hiddenRows);
 
-    
+
     QtTestTableModel model(rowCount, 1);
     QtTestTableView view;
 
@@ -2516,6 +2516,10 @@ void tst_QTableView::tabFocus()
     QLineEdit *edit = new QLineEdit(&window);
 
     window.show();
+//wait for window manager:
+#ifdef Q_WS_QWS
+    qApp->processEvents();
+#endif
     window.setFocus();
 
     qApp->processEvents();
