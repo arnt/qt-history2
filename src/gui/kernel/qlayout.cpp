@@ -802,7 +802,7 @@ void QLayout::addChildWidget(QWidget *w)
   \compat
 
     Sets this layout's parent widget to a fixed size with width \a w
-    and height \a h, stopping the user form resizing it, and also
+    and height \a h, stopping the user from resizing it, and also
     prevents the layout from resizing it, even if the layout's size
     hint should change. Does nothing if this is not a top-level
     layout (i.e., if parent()->isWidgetType()).
