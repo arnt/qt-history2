@@ -2690,7 +2690,10 @@ void QComboBox::setFrame(bool enable)
 
 /*!
     \property QComboBox::modelColumn
-    \brief the column in the model that is visible
+    \brief the column in the model that is visible.
+
+    If set prior to populating the combobox, the popup view will
+    not be affected and will show the first column.
 */
 int QComboBox::modelColumn() const
 {
