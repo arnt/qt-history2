@@ -405,6 +405,9 @@ public:
     void layoutStep() const;
 
     QRectF frameBoundingRectInternal(QTextFrame *frame) const;
+
+    qreal scaleToDevice(qreal value) const;
+    QFixed scaleToDevice(QFixed value) const;
 };
 
 QTextDocumentLayoutPrivate::QTextDocumentLayoutPrivate()
@@ -1317,8 +1320,8 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
         columnWidthConstraints.resize(columns);
     Q_ASSERT(columnWidthConstraints.count() == columns);
 
-    const QFixed cellSpacing = td->cellSpacing = QFixed::fromReal(fmt.cellSpacing());
-    td->cellPadding = QFixed::fromReal(fmt.cellPadding());
+    const QFixed cellSpacing = td->cellSpacing = QFixed::fromReal(scaleToDevice(fmt.cellSpacing()));
+    td->cellPadding = QFixed::fromReal(scaleToDevice(fmt.cellPadding()));
     const QFixed leftMargin = td->leftMargin + td->border + td->padding;
     const QFixed rightMargin = td->rightMargin + td->border + td->padding;
     const QFixed topMargin = td->topMargin + td->border + td->padding;
@@ -2770,6 +2773,24 @@ qreal QTextDocumentLayout::idealWidth() const
     Q_D(const QTextDocumentLayout);
     d->ensureLayoutFinished();
     return d->idealWidth;
+}
+
+qreal QTextDocumentLayoutPrivate::scaleToDevice(qreal value) const
+{
+    QPaintDevice *dev = q_func()->paintDevice();
+    if (!dev)
+        return value;
+    extern int qt_defaultDpi();
+    return value * dev->logicalDpiY() / qreal(qt_defaultDpi());
+}
+
+QFixed QTextDocumentLayoutPrivate::scaleToDevice(QFixed value) const
+{
+    QPaintDevice *dev = q_func()->paintDevice();
+    if (!dev)
+        return value;
+    extern int qt_defaultDpi();
+    return value * QFixed(dev->logicalDpiY()) / QFixed(qt_defaultDpi());
 }
 
 #include "moc_qtextdocumentlayout_p.cpp"
