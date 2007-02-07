@@ -589,6 +589,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 
 #ifdef Q_WS_QWS
     if (!static_cast<QWSWindowSurface*>(windowSurface)->isValidFor(tlw)) {
+        windowSurface->release();
         delete windowSurface;
         windowSurface = qt_default_window_surface(tlw);
     }
