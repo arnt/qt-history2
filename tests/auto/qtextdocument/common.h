@@ -1,4 +1,5 @@
 #include <QAbstractTextDocumentLayout>
+#include <private/qtextdocument_p.h>
 
 #ifndef COMMON_H
 #define COMMON_H
@@ -14,6 +15,7 @@ public:
     virtual void documentChanged(int from, int oldLength, int length)
     {
         called = true;
+        lastDocumentLengths.append(document()->docHandle()->length());
 
         if (f < 0)
             return;
@@ -45,6 +47,7 @@ public:
     }
     bool error;
     bool called;
+    QList<int> lastDocumentLengths;
 };
 
 #endif

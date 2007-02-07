@@ -218,12 +218,12 @@ void QTextDocumentPrivate::clear()
     fragments.clear();
     blocks.clear();
     cachedResources.clear();
-    q->contentsChange(0, len, 0);
-    if (lout)
-        lout->documentChanged(0, len, 0);
     delete rtFrame;
     init();
     cursors = oldCursors;
+    q->contentsChange(0, len, 0);
+    if (lout)
+        lout->documentChanged(0, len, 0);
 }
 
 QTextDocumentPrivate::~QTextDocumentPrivate()

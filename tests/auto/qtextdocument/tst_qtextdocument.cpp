@@ -102,6 +102,8 @@ private slots:
 
     void blockCountChanged();
 
+    void nonZeroDocumentLengthOnClear();
+
 private:
     QTextDocument *doc;
     QTextCursor cursor;
@@ -1842,6 +1844,16 @@ void tst_QTextDocument::blockCountChanged()
 
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.at(0).value(0).toInt(), 2);
+}
+
+void tst_QTextDocument::nonZeroDocumentLengthOnClear()
+{
+    QTestDocumentLayout *lout = new QTestDocumentLayout(doc);
+    doc->setDocumentLayout(lout);
+
+    doc->clear();
+    QVERIFY(lout->called);
+    QVERIFY(!lout->lastDocumentLengths.contains(0));
 }
 
 QTEST_MAIN(tst_QTextDocument)
