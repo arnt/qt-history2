@@ -65,6 +65,7 @@ public:
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode);
     void fillPath(const QPainterPath &path, QSpanData *fillData);
+    void fillPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
 
     void drawEllipse(const QRectF &rect);
 
