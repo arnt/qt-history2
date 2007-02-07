@@ -2824,8 +2824,6 @@ void tst_QWidget::childDeletesItsSibling()
 void tst_QWidget::setMinimumSize()
 {
     QWidget w;
-    w.setGeometry(10, 10, 100, 100);
-
     QSize defaultSize = w.size();
 
     w.setMinimumSize(defaultSize + QSize(100, 100));
@@ -2844,8 +2842,6 @@ void tst_QWidget::setMinimumSize()
 void tst_QWidget::setMaximumSize()
 {
     QWidget w;
-    w.setGeometry(10, 10, 100, 100);
-
     QSize defaultSize = w.size();
 
     w.setMinimumSize(defaultSize + QSize(100, 100));
@@ -2864,8 +2860,6 @@ void tst_QWidget::setMaximumSize()
 void tst_QWidget::setFixedSize()
 {
     QWidget w;
-    w.setGeometry(10, 10, 100, 100);
-
     QSize defaultSize = w.size();
 
     w.setFixedSize(defaultSize + QSize(100, 100));
