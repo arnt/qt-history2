@@ -16,8 +16,8 @@ int main(int argc, char **argv)
 }
 EOF
 
-$COMPILER -lm floatmath.c >/dev/null 2>&1 && FLOATMATH_SUPPORT=yes
-rm -f floatmath.c floatmath.o
+$COMPILER -o floatmath -lm floatmath.c >/dev/null 2>&1 && FLOATMATH_SUPPORT=yes
+rm -f floatmath floatmath.c
 
 # done
 if [ "$FLOATMATH_SUPPORT" != "yes" ]; then
