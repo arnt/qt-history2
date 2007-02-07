@@ -604,8 +604,11 @@ void **QListData::erase(void **xi)
 
     \overload
 
-    Inserts \a value in front of the item pointed to by the iterator
-    \a before. Returns an iterator pointing at the inserted item.
+    Inserts \a value in front of the item pointed to by the
+    iterator \a before. Returns an iterator pointing at the inserted
+    item. Note that the iterator passed to the function will be
+    invalid after the call; the returned iterator should be used
+    instead.
 */
 
 /*! \fn void QList::replace(int i, const T &value)
