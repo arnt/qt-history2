@@ -1770,6 +1770,9 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
                 }
             }
 
+          if (error_message.isEmpty())
+              error_message = lexer->errorMessage();
+
           return false;
         }
     }
