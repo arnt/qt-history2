@@ -115,7 +115,7 @@ Q_GLOBAL_STATIC(QStringList, resourceSearchPaths)
     it is needed at run-time by using the registerResource() function. The
     resource file passed into registerResource() must be a binary resource
     as created by rcc. Further information about binary resources can be
-    found in {The Qt Resource System} documentation.
+    found in \l{The Qt Resource System} documentation.
 
     This can often be useful when loading a large set of application icons
     that may change based on a setting, or that can be edited by a user and
