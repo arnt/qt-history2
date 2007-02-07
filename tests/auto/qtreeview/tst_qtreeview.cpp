@@ -63,6 +63,11 @@ struct PublicView : public QTreeView
 
     inline QModelIndex moveCursor(PublicCursorAction ca, Qt::KeyboardModifiers kbm)
     { return QTreeView::moveCursor((CursorAction)ca, kbm); }
+
+    inline void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command) 
+    {
+        QTreeView::setSelection(rect, command);
+    }
 };
 
 class tst_QTreeView : public QObject
@@ -123,6 +128,7 @@ private slots:
     void keyboardNavigation();
     void headerSections();
     void moveCursor();
+    void setSelection_data();
     void setSelection();
     void indexAbove();
     void indexBelow();
@@ -148,10 +154,14 @@ class QtTestModel: public QAbstractItemModel
 {
 public:
     QtTestModel(QObject *parent = 0): QAbstractItemModel(parent),
-       rows(0), cols(0), levels(INT_MAX), wrongIndex(false) {}
+       rows(0), cols(0), levels(INT_MAX), wrongIndex(false) { init(); }
 
     QtTestModel(int _rows, int _cols, QObject *parent = 0): QAbstractItemModel(parent),
-       rows(_rows), cols(_cols), levels(INT_MAX), wrongIndex(false) {}
+       rows(_rows), cols(_cols), levels(INT_MAX), wrongIndex(false) { init(); }
+
+    void init() {
+        decorationsEnabled = false;
+    }
 
     inline qint32 level(const QModelIndex &index) const {
         return index.isValid() ? qint32(index.internalId()) : qint32(-1);
@@ -193,15 +203,23 @@ public:
 
     QVariant data(const QModelIndex &idx, int role) const
     {
-        if (!idx.isValid() || role != Qt::DisplayRole)
+        if (!idx.isValid())
             return QVariant();
 
-        if (idx.row() < 0 || idx.column() < 0 || idx.column() >= cols || idx.row() >= rows) {
-            wrongIndex = true;
-            qWarning("Invalid modelIndex [%d,%d,%p]", idx.row(), idx.column(),
-		     idx.internalPointer());
+        if (role == Qt::DisplayRole) {
+            if (idx.row() < 0 || idx.column() < 0 || idx.column() >= cols || idx.row() >= rows) {
+                wrongIndex = true;
+                qWarning("Invalid modelIndex [%d,%d,%p]", idx.row(), idx.column(),
+                         idx.internalPointer());
+            }
+            return QString("[%1,%2,%3]").arg(idx.row()).arg(idx.column()).arg(level(idx));
         }
-        return QString("[%1,%2,%3]").arg(idx.row()).arg(idx.column()).arg(level(idx));
+        if (decorationsEnabled && role == Qt::DecorationRole) {
+            QPixmap pm(16,16);
+            pm.fill(QColor::fromHsv((idx.column() % 16)*8 + 64, 254, (idx.row() % 16)*8 + 32));
+            return pm;
+        }
+        return QVariant();
     }
 
     void removeLastRow()
@@ -239,6 +257,12 @@ public:
         endInsertRows();
     }
 
+    void setDecorationsEnabled(bool enable)
+    {
+        decorationsEnabled = enable;
+    }
+
+    bool decorationsEnabled;
     int rows, cols;
     int levels;
     mutable bool wrongIndex;
@@ -1480,9 +1504,79 @@ void tst_QTreeView::moveCursor()
     QCOMPARE(actual, expected);
 }
 
+class TestDelegate : public QItemDelegate
+{
+public:
+    TestDelegate(QObject *parent) : QItemDelegate(parent) {}
+    QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const { return QSize(200, 50); }
+};
+
+typedef QList<QPoint> PointList;
+Q_DECLARE_METATYPE(PointList)
+
+void tst_QTreeView::setSelection_data()
+{
+    QTest::addColumn<QRect>("selectionRect");
+    QTest::addColumn<int>("selectionMode");
+    QTest::addColumn<int>("selectionCommand");
+    QTest::addColumn<PointList>("expectedItems");
+
+
+    QTest::newRow("(0,0,50,20),rows") << QRect(0,0,50,20) 
+                                 << int(QAbstractItemView::SingleSelection)
+                                 << int(QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows)
+                                 << (PointList() 
+                                    << QPoint(0,0) << QPoint(1,0) << QPoint(2,0) << QPoint(3,0) << QPoint(4,0)
+                                    );
+
+    QTest::newRow("(0,0,50,90),rows") << QRect(0,0,50,90) 
+                                 << int(QAbstractItemView::ExtendedSelection)
+                                 << int(QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows)
+                                 << (PointList() 
+                                    << QPoint(0,0) << QPoint(1,0) << QPoint(2,0) << QPoint(3,0) << QPoint(4,0)
+                                    << QPoint(0,1) << QPoint(1,1) << QPoint(2,1) << QPoint(3,1) << QPoint(4,1)
+                                    );
+
+    QTest::newRow("(50,0,0,90),rows,invalid rect") << QRect(QPoint(50, 0), QPoint(0, 90)) 
+                                 << int(QAbstractItemView::ExtendedSelection)
+                                 << int(QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows)
+                                 << (PointList() 
+                                    << QPoint(0,0) << QPoint(1,0) << QPoint(2,0) << QPoint(3,0) << QPoint(4,0)
+                                    << QPoint(0,1) << QPoint(1,1) << QPoint(2,1) << QPoint(3,1) << QPoint(4,1)
+                                    );
+    
+}
+
 void tst_QTreeView::setSelection()
 {
-    // ### TODO: implement me
+    QFETCH(QRect, selectionRect);
+    QFETCH(int, selectionMode);
+    QFETCH(int, selectionCommand);
+    QFETCH(PointList, expectedItems);
+
+    QtTestModel model(10,5);
+    model.levels = 1;
+    model.setDecorationsEnabled(true);
+    PublicView view;
+    view.resize(400,600);
+    view.setRootIsDecorated(false);
+    view.setItemDelegate(new TestDelegate(&view));
+    view.setSelectionMode(QAbstractItemView::SelectionMode(selectionMode));
+    view.setModel(&model);
+    QApplication::processEvents();
+    view.setSelection(selectionRect, QItemSelectionModel::SelectionFlags(selectionCommand));
+    view.show();
+    QApplication::processEvents();
+    QApplication::processEvents();
+    QItemSelectionModel *selectionModel = view.selectionModel();
+    QVERIFY(selectionModel);
+
+    QModelIndexList selectedIndexes = selectionModel->selectedIndexes();
+    QCOMPARE(selectedIndexes.count(), expectedItems.count());
+    for (int i = 0; i < selectedIndexes.count(); ++i) {
+        QModelIndex idx = selectedIndexes.at(i);
+        QVERIFY(expectedItems.contains(QPoint(idx.column(), idx.row())));
+    }
 }
 
 void tst_QTreeView::indexAbove()

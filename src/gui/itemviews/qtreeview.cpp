@@ -1819,7 +1819,7 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
 void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     Q_D(QTreeView);
-    if (!selectionModel() || !rect.isValid())
+    if (!selectionModel() || rect.isNull())
         return;
 
     QPoint tl(isRightToLeft() ? qMax(rect.left(), rect.right())
