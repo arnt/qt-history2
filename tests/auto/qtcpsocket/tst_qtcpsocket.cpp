@@ -63,6 +63,23 @@ public:
     tst_QTcpSocket();
     virtual ~tst_QTcpSocket();
 
+    static void enterLoop(int secs)
+    {
+        ++loopLevel;
+        QTestEventLoop::instance().enterLoop(secs);
+        --loopLevel;
+    }
+    static void exitLoop()
+    {
+        // Safe exit - if we aren't in an event loop, don't
+        // exit one.
+        if (loopLevel > 0)
+            QTestEventLoop::instance().exitLoop();
+    }
+    static bool timeout()
+    {
+        return QTestEventLoop::instance().timeout();
+    }
 
 public slots:
     void initTestCase_data();
@@ -140,7 +157,10 @@ private:
 
     bool gotClosedSignal;
     int numConnections;
+    static int loopLevel;
 };
+
+int tst_QTcpSocket::loopLevel = 0;
 
 tst_QTcpSocket::tst_QTcpSocket()
 {
@@ -254,7 +274,7 @@ void tst_QTcpSocket::setSocketDescriptor()
     socket.connectToHost("imap.troll.no", 143);
     QCOMPARE(socket.state(), QTcpSocket::HostLookupState);
     QCOMPARE(socket.socketDescriptor(), (int)sock);
-    QVERIFY(socket.waitForConnected(5000));
+    QVERIFY(socket.waitForConnected(10000));
 #ifdef TEST_QNETWORK_PROXY
     if (QNetworkProxy::applicationProxy().type() == QNetworkProxy::NoProxy)
         QCOMPARE(socket.socketDescriptor(), (int)sock);
@@ -369,22 +389,22 @@ void tst_QTcpSocket::nonBlockingIMAP()
     socket.connectToHost("imap.troll.no", 143);
     QCOMPARE(socket.state(), QTcpSocket::HostLookupState);
 
-    QTestEventLoop::instance().enterLoop(30);
-    if (QTestEventLoop::instance().timeout()) {
+    enterLoop(30);
+    if (timeout()) {
         QFAIL("Timed out");
     }
 
     if (socket.state() == QTcpSocket::ConnectingState) {
-        QTestEventLoop::instance().enterLoop(30);
-        if (QTestEventLoop::instance().timeout()) {
+        enterLoop(30);
+        if (timeout()) {
             QFAIL("Timed out");
         }
     }
 
     QCOMPARE(socket.state(), QTcpSocket::ConnectedState);
 
-    QTestEventLoop::instance().enterLoop(30);
-    if (QTestEventLoop::instance().timeout()) {
+    enterLoop(30);
+    if (timeout()) {
         QFAIL("Timed out");
     }
 
@@ -400,16 +420,16 @@ void tst_QTcpSocket::nonBlockingIMAP()
     QCOMPARE((int) socket.write("1 NOOP\r\n", 8), 8);
 
 
-    QTestEventLoop::instance().enterLoop(30);
-    if (QTestEventLoop::instance().timeout()) {
+    enterLoop(30);
+    if (timeout()) {
         QFAIL("Timed out");
     }
 
     QVERIFY(nonBlockingIMAP_totalWritten == 8);
 
 
-    QTestEventLoop::instance().enterLoop(30);
-    if (QTestEventLoop::instance().timeout()) {
+    enterLoop(30);
+    if (timeout()) {
         QFAIL("Timed out");
     }
 
@@ -425,16 +445,16 @@ void tst_QTcpSocket::nonBlockingIMAP()
     // Write LOGOUT
     QCOMPARE((int) socket.write("2 LOGOUT\r\n", 10), 10);
 
-    QTestEventLoop::instance().enterLoop(30);
-    if (QTestEventLoop::instance().timeout()) {
+    enterLoop(30);
+    if (timeout()) {
         QFAIL("Timed out");
     }
 
     QVERIFY(nonBlockingIMAP_totalWritten == 10);
 
     // Wait for greeting
-    QTestEventLoop::instance().enterLoop(30);
-    if (QTestEventLoop::instance().timeout()) {
+    enterLoop(30);
+    if (timeout()) {
         QFAIL("Timed out");
     }
 
@@ -452,12 +472,12 @@ void tst_QTcpSocket::nonBlockingIMAP()
 
 void tst_QTcpSocket::nonBlockingIMAP_hostFound()
 {
-    QTestEventLoop::instance().exitLoop();
+    exitLoop();
 }
 
 void tst_QTcpSocket::nonBlockingIMAP_connected()
 {
-    QTestEventLoop::instance().exitLoop();
+    exitLoop();
 }
 
 void tst_QTcpSocket::nonBlockingIMAP_readyRead()
@@ -465,13 +485,13 @@ void tst_QTcpSocket::nonBlockingIMAP_readyRead()
     while (nonBlockingIMAP_socket->canReadLine())
         nonBlockingIMAP_data.append(nonBlockingIMAP_socket->readLine());
 
-    QTestEventLoop::instance().exitLoop();
+    exitLoop();
 }
 
 void tst_QTcpSocket::nonBlockingIMAP_bytesWritten(qint64 written)
 {
     nonBlockingIMAP_totalWritten += written;
-    QTestEventLoop::instance().exitLoop();
+    exitLoop();
 }
 
 void tst_QTcpSocket::nonBlockingIMAP_closed()
@@ -488,8 +508,8 @@ void tst_QTcpSocket::delayedClose()
 
     socket.connectToHost("imap.troll.no", 143);
 
-    QTestEventLoop::instance().enterLoop(30);
-    if (QTestEventLoop::instance().timeout())
+    enterLoop(30);
+    if (timeout())
         QFAIL("Timed out");
 
     QCOMPARE(socket.state(), QTcpSocket::ConnectedState);
@@ -507,8 +527,8 @@ void tst_QTcpSocket::delayedClose()
 
     QCOMPARE((int) socket.state(), (int) QTcpSocket::ClosingState);
 
-    QTestEventLoop::instance().enterLoop(10);
-    if (QTestEventLoop::instance().timeout())
+    enterLoop(10);
+    if (timeout())
         QFAIL("Timed out");
 
     QCOMPARE(socket.state(), QTcpSocket::UnconnectedState);
@@ -589,7 +609,7 @@ void tst_QTcpSocket::unget()
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::readRegularFile_readyRead()
 {
-    QTestEventLoop::instance().exitLoop();
+    exitLoop();
 }
 
 //----------------------------------------------------------------------------------
@@ -598,8 +618,8 @@ void tst_QTcpSocket::readAllAfterClose()
     QTcpSocket socket;
     socket.connectToHost("imap.troll.no", 143);
     connect(&socket, SIGNAL(readyRead()), SLOT(readRegularFile_readyRead()));
-    QTestEventLoop::instance().enterLoop(10);
-    if (QTestEventLoop::instance().timeout())
+    enterLoop(10);
+    if (timeout())
         QFAIL("Network operation timed out");
 
     socket.close();
@@ -649,8 +669,8 @@ void tst_QTcpSocket::downloadBigFile()
 
     tmpSocket->connectToHost("ares.troll.no", 80);
 
-    QTestEventLoop::instance().enterLoop(30);
-    if (QTestEventLoop::instance().timeout()) {
+    enterLoop(30);
+    if (timeout()) {
         delete tmpSocket;
         tmpSocket = 0;
         QFAIL("Network operation timed out");
@@ -666,8 +686,8 @@ void tst_QTcpSocket::downloadBigFile()
     QTime stopWatch;
     stopWatch.start();
 
-    QTestEventLoop::instance().enterLoop(60);
-    if (QTestEventLoop::instance().timeout()) {
+    enterLoop(60);
+    if (timeout()) {
         delete tmpSocket;
         tmpSocket = 0;
         QFAIL("Network operation timed out");
@@ -689,7 +709,7 @@ void tst_QTcpSocket::downloadBigFile()
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::exitLoopSlot()
 {
-    QTestEventLoop::instance().exitLoop();
+    exitLoop();
 }
 
 //----------------------------------------------------------------------------------
@@ -697,14 +717,14 @@ void tst_QTcpSocket::downloadBigFileSlot()
 {
     bytesAvailable += tmpSocket->readAll().size();
     if (bytesAvailable == 10000281)
-        QTestEventLoop::instance().exitLoop();
+        exitLoop();
 }
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::connectToMultiIP()
 {
     QTcpSocket socket;
-
+    QSKIP("Ole", SkipAll);
     // rationale: this domain resolves to 5 A-records, 4 of them are
     // invalid. QTcpSocket should never spend more than 30 seconds per
     // IP, and 30s*5 = 150s. Allowing 10 seconds slack for processing.
@@ -821,7 +841,7 @@ void tst_QTcpSocket::flush()
 
     connect(&socket, SIGNAL(connected()), SLOT(exitLoopSlot()));
     socket.connectToHost("imap.troll.no", 143);
-    QTestEventLoop::instance().enterLoop(5000);
+    enterLoop(5000);
     QVERIFY(socket.isOpen());
 
     socket.write("1 LOGOUT\r\n");
@@ -876,12 +896,12 @@ void tst_QTcpSocket::recursiveReadyRead()
     QSignalSpy spy(&smtp, SIGNAL(readyRead()));
 
     smtp.connectToHost("smtp.trolltech.com", 25);
-    QTestEventLoop::instance().enterLoop(30);
-    QVERIFY2(!QTestEventLoop::instance().timeout(),
+    enterLoop(30);
+    QVERIFY2(!timeout(),
             "Timed out when connecting to smtp.trolltech.com:25");
 
-    QTestEventLoop::instance().enterLoop(30);
-    QVERIFY2(!QTestEventLoop::instance().timeout(),
+    enterLoop(30);
+    QVERIFY2(!timeout(),
             "Timed out when waiting for the readyRead() signal");
 
     QCOMPARE(spy.count(), 1);
@@ -904,7 +924,7 @@ void tst_QTcpSocket::recursiveReadyReadSlot()
 
     // all we really wanted to do was process some events, then exit
     // the loop
-    QTestEventLoop::instance().exitLoop();
+    exitLoop();
 }
 
 //----------------------------------------------------------------------------------
@@ -1008,35 +1028,48 @@ void tst_QTcpSocket::waitForReadyReadInASlot()
     socket.connectToHost("www.trolltech.com", 80);
     socket.write("GET / HTTP/1.0\r\n\r\n");
 
-    QTestEventLoop::instance().enterLoop(30);
-    QVERIFY(!QTestEventLoop::instance().timeout());
+    enterLoop(30);
+    QVERIFY(!timeout());
 }
 
 void tst_QTcpSocket::waitForReadyReadInASlotSlot()
 {
     QVERIFY(tmpSocket->waitForReadyRead(5000));
-    QTestEventLoop::instance().exitLoop();
+    exitLoop();
 }
+
+class RemoteCloseErrorServer : public QTcpServer
+{
+    Q_OBJECT
+public:
+    RemoteCloseErrorServer()
+    {
+        connect(this, SIGNAL(newConnection()),
+                this, SLOT(getConnection()));
+    }
+
+private slots:
+    void getConnection()
+    {
+        tst_QTcpSocket::exitLoop();
+    }
+};
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::remoteCloseError()
 {
-    QTcpServer server;
+    RemoteCloseErrorServer server;
     QVERIFY(server.listen(QHostAddress::LocalHost));
-    connect(&server, SIGNAL(newConnection()), this, SLOT(exitLoopSlot()));
+
+    enterLoop(1);
 
     QTcpSocket clientSocket;
     connect(&clientSocket, SIGNAL(readyRead()), this, SLOT(exitLoopSlot()));
 
     clientSocket.connectToHost(server.serverAddress(), server.serverPort());
 
-    QTestEventLoop::instance().enterLoop(30);
-    QVERIFY(!QTestEventLoop::instance().timeout());
-
-    if (!server.hasPendingConnections()) {
-        QTestEventLoop::instance().enterLoop(30);
-        QVERIFY(!QTestEventLoop::instance().timeout());
-    }
+    enterLoop(30);
+    QVERIFY(!timeout());
 
     QVERIFY(server.hasPendingConnections());
     QTcpSocket *serverSocket = server.nextPendingConnection();
@@ -1044,8 +1077,8 @@ void tst_QTcpSocket::remoteCloseError()
 
     serverSocket->write("Hello");
 
-    QTestEventLoop::instance().enterLoop(30);
-    QVERIFY(!QTestEventLoop::instance().timeout());
+    enterLoop(30);
+    QVERIFY(!timeout());
 
     QCOMPARE(clientSocket.bytesAvailable(), qint64(5));
 
@@ -1059,8 +1092,8 @@ void tst_QTcpSocket::remoteCloseError()
     connect(&clientSocket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(remoteCloseErrorSlot()));
 
-    QTestEventLoop::instance().enterLoop(30);
-    QVERIFY(!QTestEventLoop::instance().timeout());
+    enterLoop(30);
+    QVERIFY(!timeout());
 
     QCOMPARE(disconnectedSpy.count(), 1);
     QCOMPARE(errorSpy.count(), 1);
@@ -1070,15 +1103,15 @@ void tst_QTcpSocket::remoteCloseError()
 
     clientSocket.connectToHost(server.serverAddress(), server.serverPort());
 
-    QTestEventLoop::instance().enterLoop(30);
-    QVERIFY(!QTestEventLoop::instance().timeout());
+    enterLoop(30);
+    QVERIFY(!timeout());
 
     QVERIFY(server.hasPendingConnections());
     serverSocket = server.nextPendingConnection();
     serverSocket->disconnectFromHost();
 
-    QTestEventLoop::instance().enterLoop(30);
-    QVERIFY(!QTestEventLoop::instance().timeout());
+    enterLoop(30);
+    QVERIFY(!timeout());
 
     QCOMPARE(clientSocket.state(), QAbstractSocket::UnconnectedState);
 }
@@ -1106,7 +1139,7 @@ void tst_QTcpSocket::openMessageBoxInErrorSlot()
     QPointer<QTcpSocket> p(socket);
     connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(messageBoxSlot()));
     socket->connectToHost("imap.troll.no", 9999); // ConnectionRefusedError
-    QTestEventLoop::instance().enterLoop(30);
+    enterLoop(30);
     QVERIFY(!p);
 }
 
@@ -1119,7 +1152,7 @@ void tst_QTcpSocket::connectToLocalHostNoService()
     QTcpSocket *socket = new QTcpSocket;
     socket->connectToHost("localhost", 31415); // no service running here, one suspects
     while(socket->state() == QTcpSocket::HostLookupState || socket->state() == QTcpSocket::ConnectingState)
-        QTestEventLoop::instance().enterLoop(2);
+        enterLoop(2);
     QCOMPARE(socket->state(), QTcpSocket::UnconnectedState);
     delete socket;
 }
@@ -1141,7 +1174,7 @@ void tst_QTcpSocket::waitForConnectedInHostLookupSlot()
     QTimer timer;
     connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
     QSignalSpy timerSpy(&timer, SIGNAL(timeout()));
-    timer.start(10000);
+    timer.start(15000);
 
     connect(tmpSocket, SIGNAL(hostFound()), this, SLOT(hostLookupSlot()));
     tmpSocket->connectToHost("imap.troll.no", 143);
@@ -1155,7 +1188,7 @@ void tst_QTcpSocket::waitForConnectedInHostLookupSlot()
 void tst_QTcpSocket::hostLookupSlot()
 {
     // This will fail to cancel the pending signal
-    QVERIFY(tmpSocket->waitForConnected(5000));
+    QVERIFY(tmpSocket->waitForConnected(10000));
 }
 
 class Foo : public QObject
@@ -1189,7 +1222,7 @@ public slots:
 
     inline void exitLoop()
     {
-        QTestEventLoop::instance().exitLoop();
+        tst_QTcpSocket::exitLoop();
     }
 };
 
@@ -1209,10 +1242,10 @@ void tst_QTcpSocket::waitForConnectedInHostLookupSlot2()
     connect(&top, SIGNAL(clicked()), &foo, SLOT(doIt()));
 
     QTimer::singleShot(100, &top, SLOT(animateClick()));
-    QTimer::singleShot(5000, &foo, SLOT(exitLoop()));
+    QTimer::singleShot(10000, &foo, SLOT(exitLoop()));
 
-    QTestEventLoop::instance().enterLoop(30);
-    if (QTestEventLoop::instance().timeout())
+    enterLoop(30);
+    if (timeout())
         QFAIL("Timed out");
 
     QCOMPARE(foo.count, 1);
@@ -1234,7 +1267,7 @@ void tst_QTcpSocket::readyReadSignalsAfterWaitForReadyRead()
     socket.connectToHost("imap.troll.no", 143);
 
     // Wait for the read
-    QVERIFY(socket.waitForReadyRead(5000));
+    QVERIFY(socket.waitForReadyRead(10000));
 
     QCOMPARE(readyReadSpy.count(), 1);
 
@@ -1242,7 +1275,7 @@ void tst_QTcpSocket::readyReadSignalsAfterWaitForReadyRead()
     QCOMPARE(s.toLatin1().constData(), "* OK esparsett Cyrus IMAP4 v2.2.8 server ready\r\n");
     QCOMPARE(socket.bytesAvailable(), qint64(0));
 
-    QTestEventLoop::instance().enterLoop(1);
+    enterLoop(1);
     QCOMPARE(socket.bytesAvailable(), qint64(0));
     QCOMPARE(readyReadSpy.count(), 1);
 }
@@ -1298,7 +1331,7 @@ void tst_QTcpSocket::abortiveClose()
     QTcpSocket clientSocket;
     clientSocket.connectToHost(server.serverAddress(), server.serverPort());
 
-    QTestEventLoop::instance().enterLoop(10);
+    enterLoop(10);
     QVERIFY(server.hasPendingConnections());
 
     QVERIFY(tmpSocket = server.nextPendingConnection());
@@ -1310,7 +1343,7 @@ void tst_QTcpSocket::abortiveClose()
     connect(&clientSocket, SIGNAL(disconnected()), this, SLOT(exitLoopSlot()));
     QTimer::singleShot(0, this, SLOT(abortiveClose_abortSlot()));
 
-    QTestEventLoop::instance().enterLoop(5);
+    enterLoop(5);
 
     QCOMPARE(readyReadSpy.count(), 0);
     QCOMPARE(errorSpy.count(), 1);
@@ -1353,7 +1386,7 @@ void tst_QTcpSocket::readWriteFailsOnUnconnectedSocket()
     QTcpSocket socket;
     socket.connectToHost("www.trolltech.com", 80);
     socket.write("GET / HTTP/1.0\r\n\r\n");
-    QVERIFY(socket.waitForDisconnected(5000));
+    QVERIFY(socket.waitForDisconnected(10000));
     QCOMPARE(socket.error(), QAbstractSocket::RemoteHostClosedError);
 
     char c[16];
@@ -1396,7 +1429,7 @@ void tst_QTcpSocket::hammerTest()
 
     int timeout = 100;
     do {
-        QTestEventLoop::instance().enterLoop(1);
+        enterLoop(1);
     } while (numConnections < NumSockets && --timeout);
 
     int elapsed = stopWatch.elapsed();
@@ -1430,7 +1463,7 @@ void tst_QTcpSocket::connectionRefused()
     QSignalSpy errorSpy(&socket, SIGNAL(error(QAbstractSocket::SocketError)));
     QEventLoop loop;
     connect(&socket, SIGNAL(error(QAbstractSocket::SocketError)), &loop, SLOT(quit()));
-    QTimer::singleShot(5000, &loop, SLOT(quit()));
+    QTimer::singleShot(10000, &loop, SLOT(quit()));
 
     socket.connectToHost("fluke.troll.no", 144);
     
