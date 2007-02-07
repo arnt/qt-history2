@@ -88,19 +88,22 @@ void tst_QPixmap::convertFromImage_data()
     QTest::addColumn<QImage>("img1");
     QTest::addColumn<QImage>("img2");
 
+    const QString prefix = QLatin1String(SRCDIR) + "/convertFromImage";
     {
         QImage img1;
         QImage img2;
-        QVERIFY(img1.load("convertFromImage/task31722_0/img1.png"));
-        QVERIFY(img2.load("convertFromImage/task31722_0/img2.png"));
+	QVERIFY(img1.load("convertFromImage/task31722_0/img1.png"));
+	QVERIFY(img2.load("convertFromImage/task31722_0/img2.png"));
+	QVERIFY(img1.load(prefix + "/task31722_0/img1.png"));
+	QVERIFY(img2.load(prefix + "/task31722_0/img2.png"));
         QTest::newRow("Task 31722 0") << img1 << img2;
     }
     {
-        QImage img1;
-        QImage img2;
-        QVERIFY(img1.load("convertFromImage/task31722_1/img1.png"));
-        QVERIFY(img2.load("convertFromImage/task31722_1/img2.png"));
-        QTest::newRow("Task 31722 1") << img1 << img2;
+	QImage img1;
+	QImage img2;
+	QVERIFY(img1.load(prefix + "/task31722_1/img1.png"));
+	QVERIFY(img2.load(prefix + "/task31722_1/img2.png"));
+	QTest::newRow("Task 31722 1") << img1 << img2;
     }
 }
 
