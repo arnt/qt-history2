@@ -82,7 +82,6 @@ SUBDIRS += bic \
            qcopchannel \
            qcoreapplication \
            qcssparser \
-           qcstring \
            qdatastream \
            qdatawidgetmapper \
            qdate \
