@@ -103,6 +103,7 @@ void tst_QImage::convertBitOrder()
     QImage i(9,5,1,2,QImage::LittleEndian);
     i.setDotsPerMeterX(9);
     i.setDotsPerMeterY(5);
+    i.fill(0x12345678);
     QVERIFY(!i.isNull());
 
     QImage ni = i.convertBitOrder(QImage::BigEndian);
@@ -625,6 +626,7 @@ void tst_QImage::convertToFormatPreserveDotsPrMeter()
     int dpmy = 234;
     img.setDotsPerMeterX(dpmx);
     img.setDotsPerMeterY(dpmy);
+    img.fill(0x12345678);
 
     img = img.convertToFormat(QImage::Format_RGB32);
 
@@ -638,6 +640,7 @@ void tst_QImage::convertToFormatPreserveText()
 
     img.setText("foo", "bar");
     img.setText("foo2", "bar2");
+    img.fill(0x12345678);
 
     QStringList listResult;
     listResult << "foo" << "foo2";
