@@ -1328,6 +1328,13 @@
         win32:LIBS += c:/mylibs/math.lib
     \endcode
 
+    \bold{Note:} On Windows, specifying libraries with the \c{-l} option,
+    as in the above example, will cause the library with the highest version
+    number to be used; for example, \c{libmath2.lib} could potentially be used
+    instead of \c{libmathlib}. To avoid this ambiguity, we recommend that you
+    explicitly specify the library to be used by including the \c{.lib}
+    file name suffix.
+
     By default, the list of libraries stored in \c LIBS is reduced to a list of
     unique names before it is used. To change this behavior, add the
     \c no_lflags_merge option to the \c CONFIG variable:
