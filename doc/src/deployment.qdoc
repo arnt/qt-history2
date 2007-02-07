@@ -307,9 +307,12 @@
         #!/bin/sh
         appname=`basename $0 | sed s,\.sh$,,`
         dirname=`dirname $0`
-        LD_LIBRARY_PATH=$PWD/$dirname
+        if [ "${dirname:0:1}" != "/" ]; then
+        dirname=$PWD/$dirname
+        fi
+        LD_LIBRARY_PATH=$dirname
         export LD_LIBRARY_PATH
-        $PWD/$dirname/$appname $*
+        $dirname/$appname $*
     \endcode
 
     By running this script instead of the executable, you are sure
