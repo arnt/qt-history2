@@ -84,6 +84,9 @@
     bottom(). A null rectangle (isNull() == true) on the other hand,
     has both width and height set to 0.
 
+    Note that due to the way QRect and QRectF are defined, an
+    empty QRect is defined in essentially the same way as QRectF. 
+
     Finally, QRect objects can be streamed as well as compared.
 
     \tableofcontents
@@ -219,7 +222,7 @@
     Returns true if the rectangle is a null rectangle, otherwise
     returns false.
 
-    A null rectangle has both the width and the height set to 0 (i.e.
+    A null rectangle has both the width and the height set to 0 (i.e.,
     right() == left() - 1 and bottom() == top() - 1). A null rectangle
     is also empty, and hence is not valid.
 
@@ -232,7 +235,7 @@
     Returns true if the rectangle is empty, otherwise returns false.
 
     An empty rectangle has a left() > right() or top() > bottom(). An
-    empty rectangle is not valid (i.e isEmpty() == !isValid()).
+    empty rectangle is not valid (i.e., isEmpty() == !isValid()).
 
     Use the normalized() function to retrieve a rectangle where the
     corners are swapped.
@@ -248,14 +251,14 @@
     A valid rectangle has a left() < right() and top() <
     bottom(). Note that non-trivial operations like intersections are
     not defined for invalid rectangles. A valid rectangle is not empty
-    (i.e. isValid() == !isEmpty()).
+    (i.e., isValid() == !isEmpty()).
 
     \sa isNull(), isEmpty(), normalized()
 */
 
 
 /*!
-    Returns a normalized rectangle; i.e. a rectangle that has a
+    Returns a normalized rectangle; i.e., a rectangle that has a
     non-negative width and height.
 
     If width() < 0 the function swaps the left and right corners, and
@@ -291,7 +294,7 @@ QRect QRect::normalized() const
     \fn QRect QRect::normalize() const
     \compat
 
-    Returns a normalized rectangle, i.e. a rectangle that has a
+    Returns a normalized rectangle; i.e., a rectangle that has a
     non-negative width and height.
 
     Use the normalized() function instead
@@ -875,7 +878,7 @@ void QRect::moveCenter(const QPoint &p)
     Returns true if the the given \a point is inside or on the edge of
     the rectangle, otherwise returns false. If \a proper is true, this
     function only returns true if the given \a point is \e inside the
-    rectangle (i.e. not on the edge).
+    rectangle (i.e., not on the edge).
 
     \sa intersects()
 */
@@ -1039,7 +1042,7 @@ QRect QRect::operator&(const QRect &r) const
     \fn bool QRect::intersects(const QRect &rectangle) const
 
     Returns true if this rectangle intersects with the given \a
-    rectangle (i.e. there is at least one pixel that is within both
+    rectangle (i.e., there is at least one pixel that is within both
     rectangles), otherwise returns false.
 
     The intersection rectangle can be retrieved using the intersected()
@@ -1205,6 +1208,9 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
     and height is larger than 0. A null rectangle (isNull() == true)
     on the other hand, has both width and height set to 0.
 
+    Note that due to the way QRect and QRectF are defined, an
+    empty QRectF is defined in essentially the same way as QRect.
+
     Finally, QRectF objects can be streamed as well as compared.
 
     \tableofcontents
@@ -1330,7 +1336,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
     Returns true if the rectangle is empty, otherwise returns false.
 
     An empty rectangle has width() <= 0 or height() <= 0.  An empty
-    rectangle is not valid (i.e isEmpty() == !isValid()).
+    rectangle is not valid (i.e., isEmpty() == !isValid()).
 
     Use the normalized() function to retrieve a rectangle where the
     corners are swapped.
@@ -1345,7 +1351,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
 
     A valid rectangle has a width() > 0 and height() > 0. Note that
     non-trivial operations like intersections are not defined for
-    invalid rectangles. A valid rectangle is not empty (i.e. isValid()
+    invalid rectangles. A valid rectangle is not empty (i.e., isValid()
     == !isEmpty()).
 
     \sa isNull(), isEmpty(), normalized()
@@ -1353,7 +1359,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
 
 
 /*!
-    Returns a normalized rectangle; i.e. a rectangle that has a
+    Returns a normalized rectangle; i.e., a rectangle that has a
     non-negative width and height.
 
     If width() < 0 the function swaps the left and right corners, and
