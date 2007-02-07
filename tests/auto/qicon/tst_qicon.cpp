@@ -56,13 +56,15 @@ void tst_QIcon::actualSize_data()
     QTest::newRow("resource9") << ":/rect.png" << QSize( 15,  50) << QSize( 15,  30);
     QTest::newRow("resource10") << ":/rect.png" << QSize( 25,  50) << QSize( 20,  40);
 
-    QTest::newRow("external0") << "image.png" << QSize(128, 128) << QSize(128, 128);
-    QTest::newRow("external1") << "image.png" << QSize( 64,  64) << QSize( 64,  64);
-    QTest::newRow("external2") << "image.png" << QSize( 32,  64) << QSize( 32,  32);
-    QTest::newRow("external3") << "image.png" << QSize( 16,  64) << QSize( 16,  16);
-    QTest::newRow("external4") << "image.png" << QSize( 16,  128) << QSize( 16,  16);
-    QTest::newRow("external5") << "image.png" << QSize( 128,  16) << QSize( 16,  16);
-    QTest::newRow("external6") << "image.png" << QSize( 150,  150) << QSize( 128,  128);
+    const QString prefix = QLatin1String(SRCDIR) + QLatin1String("/");
+
+    QTest::newRow("external0") << prefix + "image.png" << QSize(128, 128) << QSize(128, 128);
+    QTest::newRow("external1") << prefix + "image.png" << QSize( 64,  64) << QSize( 64,  64);
+    QTest::newRow("external2") << prefix + "image.png" << QSize( 32,  64) << QSize( 32,  32);
+    QTest::newRow("external3") << prefix + "image.png" << QSize( 16,  64) << QSize( 16,  16);
+    QTest::newRow("external4") << prefix + "image.png" << QSize( 16,  128) << QSize( 16,  16);
+    QTest::newRow("external5") << prefix + "image.png" << QSize( 128,  16) << QSize( 16,  16);
+    QTest::newRow("external6") << prefix + "image.png" << QSize( 150,  150) << QSize( 128,  128);
     // rect image
     QTest::newRow("external7") << ":/rect.png" << QSize( 20,  40) << QSize( 20,  40);
     QTest::newRow("external8") << ":/rect.png" << QSize( 10,  20) << QSize( 10,  20);
@@ -111,8 +113,11 @@ void tst_QIcon::actualSize2_data()
 void tst_QIcon::actualSize2()
 {
     QIcon icon;
-    icon.addPixmap(QPixmap("image.png"));
-    icon.addPixmap(QPixmap("rect.png"));
+
+    const QString prefix = QLatin1String(SRCDIR) + QLatin1String("/");
+
+    icon.addPixmap(QPixmap(prefix + "image.png"));
+    icon.addPixmap(QPixmap(prefix + "rect.png"));
 
     QFETCH(QSize, argument);
     QFETCH(QSize, result);
@@ -151,13 +156,15 @@ void tst_QIcon::isNull() {
     QVERIFY(!iconNoFileSuffix.isNull());
     QVERIFY(!iconNoFileSuffix.actualSize(QSize(32, 32)).isValid());
 
+    const QString prefix = QLatin1String(SRCDIR) + QLatin1String("/");
+
     // test string constructor with existing file but unsupported format
-    QIcon iconUnsupportedFormat = QIcon("image.tga");
+    QIcon iconUnsupportedFormat = QIcon(prefix + "image.tga");
     QVERIFY(!iconUnsupportedFormat.isNull());
     QVERIFY(!iconUnsupportedFormat.actualSize(QSize(32, 32)).isValid());
 
     // test string constructor with existing file and supported format
-    QIcon iconSupportedFormat = QIcon("image.png");
+    QIcon iconSupportedFormat = QIcon(prefix + "image.png");
     QVERIFY(!iconSupportedFormat.isNull());
     QVERIFY(iconSupportedFormat.actualSize(QSize(32, 32)).isValid());
 }
