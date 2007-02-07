@@ -427,6 +427,7 @@ private slots:
 #endif
     void winNewline();
     void escapesInStringLiterals();
+    void frameworkSearchPath();
 
 signals:
     void sigWithUnsignedArg(unsigned foo);
@@ -849,6 +850,29 @@ void tst_Moc::escapesInStringLiterals()
     info = mo.classInfo(idx);
     QCOMPARE(QByteArray(info.value()),
              QByteArray("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nb"));
+}
+
+void tst_Moc::frameworkSearchPath()
+{
+#if defined(Q_OS_UNIX)
+    QVERIFY(!qgetenv("QTDIR").isNull());
+
+    QStringList args;
+    args << "-F" << srcify(".")
+         << srcify("/interface-from-framework.h")
+         ;
+
+    QProcess proc;
+    proc.start("moc", args);
+    QVERIFY(proc.waitForFinished());
+    if (proc.exitCode() != 0) {
+        qDebug() << proc.readAllStandardError();
+    }
+    QCOMPARE(proc.exitCode(), 0);
+    QCOMPARE(proc.readAllStandardError(), QByteArray());
+#else
+    QSKIP("Only tested/relevant on unixy platforms", SkipAll);
+#endif
 }
 
 QTEST_MAIN(tst_Moc)

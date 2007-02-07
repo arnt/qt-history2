@@ -255,9 +255,22 @@ int main(int _argc, char **_argv)
             if (!more) {
                 if (!(n < argc-1))
                     error("Missing path name for the -I option.");
-                pp.includes += argv[++n];
+                pp.includes += Preprocessor::IncludePath(argv[++n]);
             } else {
-                pp.includes += opt.mid(1);
+                pp.includes += Preprocessor::IncludePath(opt.mid(1));
+            }
+            break;
+        case 'F': // minimalistic framework support for the mac
+            if (!more) {
+                if (!(n < argc-1))
+                    error("Missing path name for the -F option.");
+                Preprocessor::IncludePath p(argv[++n]);
+                p.isFrameworkPath = true;
+                pp.includes += p;
+            } else {
+                Preprocessor::IncludePath p(opt.mid(1));
+                p.isFrameworkPath = true;
+                pp.includes += p;
             }
             break;
         case 'D': // define macro

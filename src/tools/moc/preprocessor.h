@@ -38,7 +38,15 @@ class Preprocessor : public Parser
 public:
     Preprocessor(){}
     static bool preprocessOnly;
-    QList<QByteArray> includes;
+    struct IncludePath
+    {
+        inline explicit IncludePath(const QByteArray &_path)
+            : path(_path), isFrameworkPath(false) {}
+        QByteArray path;
+        bool isFrameworkPath;
+    };
+    QList<IncludePath> includes;
+    QList<QByteArray> frameworks;
     QSet<QByteArray> preprocessedIncludes;
     Macros macros;
     Symbols preprocessed(const QByteArray &filename, FILE *file);
