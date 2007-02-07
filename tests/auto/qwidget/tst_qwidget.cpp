@@ -2042,7 +2042,11 @@ void tst_QWidget::testContentsPropagation()
     QSKIP("Pixmap is not antialiased whereas widget is.", SkipAll);
 #endif
     ContentsPropagationWidget widget;
+#ifdef Q_WS_QWS
+    widget.resize(500,500);
+#else
     widget.setFixedSize(500, 500);
+#endif
     widget.setContentsPropagation(false);
     QPixmap widgetSnapshot = QPixmap::grabWidget(&widget);
 
