@@ -24,6 +24,7 @@
 #include <qcdestyle.h>
 #include <qmotifstyle.h>
 #include <qcommonstyle.h>
+#include <qstylefactory.h>
 
 #if QT_VERSION >= 0x040200
 #include <QCleanlooksStyle>
@@ -66,6 +67,7 @@ private slots:
     void testWindowsVistaStyle();
     void testCleanlooksStyle();
     void testMacStyle();
+    void testStyleFactory();
     void pixelMetric();
     void progressBarChangeStyle();
 
@@ -108,6 +110,31 @@ void tst_QStyle::initTestCase()
 
 void tst_QStyle::cleanupTestCase()
 {
+}
+
+void tst_QStyle::testStyleFactory()
+{
+    QStringList keys = QStyleFactory::keys();
+    QVERIFY(keys.contains("Motif"));
+    QVERIFY(keys.contains("Cleanlooks"));
+    QVERIFY(keys.contains("Plastique"));
+    QVERIFY(keys.contains("CDE"));
+    QVERIFY(keys.contains("Windows"));
+    QVERIFY(keys.contains("Motif"));
+#ifdef Q_WS_WIN
+    if (QSysInfo::WindowsVersion >= QSysInfo::WV_XP && 
+        QSysInfo::WindowsVersion < QSysInfo::WV_NT_based)
+        QVERIFY(keys.contains("WindowsXP"));
+    if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA && 
+        QSysInfo::WindowsVersion < QSysInfo::WV_NT_based)
+        QVERIFY(keys.contains("WindowsVista"));
+#endif
+
+    foreach (QString styleName , keys) {
+        QStyle *style = QStyleFactory::create(styleName);
+        QVERIFY(style != 0);
+        delete style;
+    }
 }
 
 void tst_QStyle::drawItemPixmap()
