@@ -456,11 +456,11 @@ void tst_QDir::entryList_data()
                                   << int(QDir::NoFilter) << int(QDir::Type | QDir::DirsFirst)
                                   << QString(".,..,d,e,f,d.a,e.a,f.a,d.b,e.b,f.b,d.c,e.c,f.c,a,b,c,a.a,b.a,c.a,a.b,b.b,c.b,a.c,b.c,c.c").split(',');
     QTest::newRow("Sorting QDir::Size") << QString("types/") << QStringList("*")
-                                  << int(QDir::NoFilter) << int(QDir::Size | QDir::DirsFirst)
-                                  << QString(".,..,d,d.a,d.b,d.c,e,e.a,e.b,e.c,f,f.a,f.b,f.c,c.a,c.b,c.c,b.a,b.c,b.b,a.c,a.b,a.a,a,b,c").split(',');
+                                  << int(QDir::AllEntries|QDir::NoDotAndDotDot) << int(QDir::Size | QDir::DirsFirst)
+                                  << QString("d,d.a,d.b,d.c,e,e.a,e.b,e.c,f,f.a,f.b,f.c,c.a,c.b,c.c,b.a,b.c,b.b,a.c,a.b,a.a,a,b,c").split(',');
     QTest::newRow("Sorting QDir::Size | QDir::Reversed") << QString("types/") << QStringList("*")
-                                  << int(QDir::NoFilter) << int(QDir::Size | QDir::Reversed | QDir::DirsLast)
-                                  << QString("c,b,a,a.a,a.b,a.c,b.b,b.c,b.a,c.c,c.b,c.a,f.c,f.b,f.a,f,e.c,e.b,e.a,e,d.c,d.b,d.a,d,..,.").split(',');
+                                  << int(QDir::AllEntries|QDir::NoDotAndDotDot) << int(QDir::Size | QDir::Reversed | QDir::DirsLast)
+                                  << QString("c,b,a,a.a,a.b,a.c,b.b,b.c,b.a,c.c,c.b,c.a,f.c,f.b,f.a,f,e.c,e.b,e.a,e,d.c,d.b,d.a,d").split(',');
 }
 
 void tst_QDir::entryList()
