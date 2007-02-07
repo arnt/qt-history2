@@ -375,7 +375,9 @@ QScriptValue Global::method_parseInt(QScriptContext *context,
 
     const char *startPtr = str.toUtf8().constData();
     qsreal result;
-#if defined(Q_WS_WIN) && !defined(Q_CC_MINGW)
+//#if defined(Q_WS_WIN) && !defined(Q_CC_MINGW)
+// always use the Qt version for now
+#if 1
     const char *endPtr = 0;
     bool ok;
     result = qstrtoll(startPtr, &endPtr, int (radix), &ok);
