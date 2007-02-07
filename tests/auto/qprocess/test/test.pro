@@ -12,4 +12,4 @@ win32 {
 }
 
 QT = core network
-
+embedded: QT += gui
