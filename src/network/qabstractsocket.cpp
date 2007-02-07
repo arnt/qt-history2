@@ -109,6 +109,15 @@
     \o waitForDisconnected() blocks until the connection has closed.
     \endlist
 
+    We show an example:
+
+    \quotefromfile snippets/network/tcpwait.cpp
+    \skipto numRead
+    \printuntil /^\s\s\s\s\}/
+
+    If \l{QIODevice::}{waitForReadyRead()} returns false, the
+    connection has been closed or an error has occurred.
+
     Programming with a blocking socket is radically different from
     programming with a non-blocking socket. A blocking socket doesn't
     require an event loop and typically leads to simpler code.
