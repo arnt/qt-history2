@@ -1156,12 +1156,21 @@ public:
     }
     QString attribute(NodePtr node, const QString& name) const
     {
-        return (name == QLatin1String("class") && !WIDGET(node)->property("class").isValid())
-            ? QString::fromLatin1(WIDGET(node)->metaObject()->className())
-            : WIDGET(node)->property(name.toLatin1()).toString();
+        QVariant value = WIDGET(node)->property(name.toLatin1());
+        if (!value.isValid()) {
+            if (name == QLatin1String("class")) {
+                return QString::fromLatin1(WIDGET(node)->metaObject()->className());
+            } else if (name == QLatin1String("style")) {
+                QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle *>(WIDGET(node)->style());
+                if (proxy)
+                    return proxy->baseStyle()->metaObject()->className();
+            }
+        }
+        return value.toString();
     }
     bool hasAttribute(NodePtr node, const QString& name) const
     { return name == QLatin1String("class")
+             || name == QLatin1String("style")
              || WIDGET(node)->metaObject()->indexOfProperty(name.toLatin1()) != -1
              || WIDGET(node)->dynamicPropertyNames().contains(name.toLatin1()); }
     bool hasAttributes(NodePtr) const

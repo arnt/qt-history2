@@ -27,6 +27,7 @@ private slots:
     void sharedStyle();
     void widgetStyle();
     void appStyle();
+    void dynamicProperty();
 
 private:
     QColor COLOR(const QWidget& w) {
@@ -302,7 +303,7 @@ void tst_QStyleSheetStyle::sharedStyle()
     QVERIFY(pb->style() == qApp->style());
     }
 #else
-    QSKIP("QStyleSheetStyle:sharedStyle Widget's do not share application's style in Qt 4.3 and above", SkipAll);
+    QSKIP("QStyleSheetStyle:sharedStyle Widgets do not share application's style in Qt 4.3 and above", SkipAll);
 #endif
 }
 
@@ -486,6 +487,19 @@ void tst_QStyleSheetStyle::appStyle()
     QVERIFY(qApp->style() == style1);
 }
 
+void tst_QStyleSheetStyle::dynamicProperty()
+{
+    QString appStyle = qApp->style()->metaObject()->className();
+    QPushButton pb1, pb2;
+    pb1.setProperty("type", "critical");
+    qApp->setStyleSheet("*[class~=\"QPushButton\"] { color: red; } *[type=\"critical\"] { background: white; }");
+    QVERIFY(COLOR(pb1) == Qt::red);
+    QVERIFY(BACKGROUND(pb1) == Qt::white);
+
+    pb2.setProperty("class", "critical"); // dynamic class
+    pb2.setStyleSheet(QLatin1String(".critical[style~=\"") + appStyle + "\"] { color: blue }");
+    QVERIFY(COLOR(pb2) == Qt::blue);
+}
 
 QTEST_MAIN(tst_QStyleSheetStyle)
 #include "tst_qstylesheetstyle.moc"
