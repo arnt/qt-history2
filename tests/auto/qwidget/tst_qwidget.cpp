@@ -153,6 +153,7 @@ private slots:
     void setLocale();
     void deleteStyle();
     void multipleToplevelFocusCheck();
+    void setFocus();
 
 private:
     QWidget *testWidget;
@@ -3604,6 +3605,175 @@ void tst_QWidget::multipleToplevelFocusCheck()
     QApplication::setActiveWindow(&w2);
     QTest::mouseClick(&w2, Qt::LeftButton);
     QCOMPARE(QApplication::focusWidget(), (QWidget *)0);
+}
+
+void tst_QWidget::setFocus()
+{
+    {
+        // window and children never shown, nobody gets focus
+        QWidget window;
+
+        QWidget child1(&window);
+        child1.setFocusPolicy(Qt::StrongFocus);
+
+        QWidget child2(&window);
+        child2.setFocusPolicy(Qt::StrongFocus);
+
+        child1.setFocus();
+        QVERIFY(!child1.hasFocus());
+        QCOMPARE(window.focusWidget(), &child1);
+        QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
+
+        child2.setFocus();
+        QVERIFY(!child2.hasFocus());
+        QCOMPARE(window.focusWidget(), &child2);
+        QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
+    }
+
+    {
+        // window and children show, but window not active, nobody gets focus
+        QWidget window;
+
+        QWidget child1(&window);
+        child1.setFocusPolicy(Qt::StrongFocus);
+
+        QWidget child2(&window);
+        child2.setFocusPolicy(Qt::StrongFocus);
+
+        window.show();
+        // note: window is not active
+
+        child1.setFocus();
+        QVERIFY(!child1.hasFocus());
+        QCOMPARE(window.focusWidget(), &child1);
+        QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
+
+        child2.setFocus();
+        QVERIFY(!child2.hasFocus());
+        QCOMPARE(window.focusWidget(), &child2);
+        QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
+    }
+
+
+    {
+        // window and children show, but window *is* active, children get focus
+        QWidget window;
+
+        QWidget child1(&window);
+        child1.setFocusPolicy(Qt::StrongFocus);
+
+        QWidget child2(&window);
+        child2.setFocusPolicy(Qt::StrongFocus);
+
+        window.show();
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(testWidget);
+        QApplication::setActiveWindow(&window);
+#else
+        window.activateWindow();
+#endif
+
+        child1.setFocus();
+        QVERIFY(child1.hasFocus());
+        QCOMPARE(window.focusWidget(), &child1);
+        QCOMPARE(QApplication::focusWidget(), &child1);
+
+        child2.setFocus();
+        QVERIFY(child2.hasFocus());
+        QCOMPARE(window.focusWidget(), &child2);
+        QCOMPARE(QApplication::focusWidget(), &child2);
+    }
+
+
+    {
+        // window shown and active, children created, don't get focus, but get focus when shown
+        QWidget window;
+
+        window.show();
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(testWidget);
+        QApplication::setActiveWindow(&window);
+#else
+        window.activateWindow();
+#endif
+
+        QWidget child1(&window);
+        child1.setFocusPolicy(Qt::StrongFocus);
+
+        QWidget child2(&window);
+        child2.setFocusPolicy(Qt::StrongFocus);
+
+        child1.setFocus();
+        QVERIFY(!child1.hasFocus());
+        QCOMPARE(window.focusWidget(), static_cast<QWidget *>(0));
+        QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
+
+        child1.show();
+        QVERIFY(child1.hasFocus());
+        QCOMPARE(window.focusWidget(), &child1);
+        QCOMPARE(QApplication::focusWidget(), &child1);
+
+        child2.setFocus();
+        QVERIFY(!child2.hasFocus());
+        QCOMPARE(window.focusWidget(), &child1);
+        QCOMPARE(QApplication::focusWidget(), &child1);
+
+        child2.show();
+        QVERIFY(child2.hasFocus());
+        QCOMPARE(window.focusWidget(), &child2);
+        QCOMPARE(QApplication::focusWidget(), &child2);
+    }
+
+    {
+        // window shown and active, children created, don't get focus,
+        // even after setFocus(), hide(), then show()
+        QWidget window;
+
+        window.show();
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(testWidget);
+        QApplication::setActiveWindow(&window);
+#else
+        window.activateWindow();
+#endif
+
+        QWidget child1(&window);
+        child1.setFocusPolicy(Qt::StrongFocus);
+
+        QWidget child2(&window);
+        child2.setFocusPolicy(Qt::StrongFocus);
+
+        child1.setFocus();
+        QVERIFY(!child1.hasFocus());
+        QCOMPARE(window.focusWidget(), static_cast<QWidget *>(0));
+        QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
+
+        child1.hide();
+        QVERIFY(!child1.hasFocus());
+        QCOMPARE(window.focusWidget(), static_cast<QWidget *>(0));
+        QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
+
+        child1.show();
+        QVERIFY(!child1.hasFocus());
+        QCOMPARE(window.focusWidget(), static_cast<QWidget *>(0));
+        QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
+
+        child2.setFocus();
+        QVERIFY(!child2.hasFocus());
+        QCOMPARE(window.focusWidget(), static_cast<QWidget *>(0));
+        QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
+
+        child2.hide();
+        QVERIFY(!child2.hasFocus());
+        QCOMPARE(window.focusWidget(), static_cast<QWidget *>(0));
+        QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
+
+        child2.show();
+        QVERIFY(!child2.hasFocus());
+        QCOMPARE(window.focusWidget(), static_cast<QWidget *>(0));
+        QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
+    }
+
 }
 
 QTEST_MAIN(tst_QWidget)

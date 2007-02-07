@@ -354,6 +354,7 @@ bool qt_app_has_font = false;
 QIcon *QApplicationPrivate::app_icon = 0;
 QWidget *QApplicationPrivate::main_widget = 0;        // main application widget
 QWidget *QApplicationPrivate::focus_widget = 0;        // has keyboard input focus
+QWidget *QApplicationPrivate::hidden_focus_widget = 0; // will get keyboard input focus after show()
 QWidget *QApplicationPrivate::active_window = 0;        // toplevel with keyboard focus
 bool QApplicationPrivate::obey_desktop_settings = true;        // use winsys resources
 int QApplicationPrivate::cursor_flash_time = 1000;        // text caret flash time
@@ -1766,7 +1767,14 @@ QWidget *QApplication::focusWidget()
 
 void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
 {
+    hidden_focus_widget = 0;
+
     if (focus != focus_widget) {
+        if (focus && focus->isHidden()) {
+            hidden_focus_widget = focus;
+            return;
+        }
+
         if (focus && (reason == Qt::BacktabFocusReason || reason == Qt::TabFocusReason)
             && qt_in_tab_key_event)
             focus->window()->setAttribute(Qt::WA_KeyboardFocusChange);

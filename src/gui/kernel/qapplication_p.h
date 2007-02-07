@@ -249,6 +249,7 @@ public:
     static QFont *app_font;
     static QWidget *main_widget;
     static QWidget *focus_widget;
+    static QWidget *hidden_focus_widget;
     static QWidget *active_window;
     static QIcon *app_icon;
     static bool obey_desktop_settings;

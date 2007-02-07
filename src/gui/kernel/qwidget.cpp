@@ -4184,7 +4184,8 @@ bool QWidget::hasFocus() const
     setFocus() gives focus to a widget regardless of its focus policy,
     but does not clear any keyboard grab (see grabKeyboard()).
 
-    Be aware that if the widget is hidden, it will not accept focus.
+    Be aware that if the widget is hidden, it will not accept focus
+    until it is shown.
 
     \warning If you call setFocus() in a function which may itself be
     called from focusOutEvent() or focusInEvent(), you may get an
@@ -5143,6 +5144,11 @@ void QWidgetPrivate::show_helper()
     QAccessible::updateAccessibility(q, 0, QAccessible::ObjectShow);
 #endif
 
+    if (QApplicationPrivate::hidden_focus_widget == q) {
+        QApplicationPrivate::hidden_focus_widget = 0;
+        q->setFocus(Qt::OtherFocusReason);
+    }
+
     data.in_show = false;  // reset qws optimization
 }
 
@@ -5319,6 +5325,9 @@ void QWidget::setVisible(bool visible)
     } else { // hide
         if (testAttribute(Qt::WA_WState_ExplicitShowHide) && testAttribute(Qt::WA_WState_Hidden))
             return;
+
+        if (QApplicationPrivate::hidden_focus_widget == this)
+            QApplicationPrivate::hidden_focus_widget = 0;
 
         Q_D(QWidget);
         setAttribute(Qt::WA_WState_Hidden);
