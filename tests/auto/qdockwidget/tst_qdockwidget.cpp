@@ -181,8 +181,13 @@ void tst_QDockWidget::features()
 
     QSignalSpy spy(&dw, SIGNAL(featuresChanged(QDockWidget::DockWidgetFeatures)));
 
+    // default features for dock widgets
+    int allDockWidgetFeatures = QDockWidget::DockWidgetClosable | 
+                                QDockWidget::DockWidgetMovable  | 
+                                QDockWidget::DockWidgetFloatable;
+    
     // defaults
-    QCOMPARE(dw.features(), QDockWidget::AllDockWidgetFeatures);
+    QCOMPARE(dw.features(), allDockWidgetFeatures);
     QVERIFY(hasFeature(&dw, QDockWidget::DockWidgetClosable));
     QVERIFY(hasFeature(&dw, QDockWidget::DockWidgetMovable));
     QVERIFY(hasFeature(&dw, QDockWidget::DockWidgetFloatable));
@@ -202,7 +207,7 @@ void tst_QDockWidget::features()
     spy.clear();
 
     setFeature(&dw, QDockWidget::DockWidgetClosable);
-    QCOMPARE(dw.features(), QDockWidget::AllDockWidgetFeatures);
+    QCOMPARE(dw.features(), allDockWidgetFeatures);
     QVERIFY(hasFeature(&dw, QDockWidget::DockWidgetClosable));
     QVERIFY(hasFeature(&dw, QDockWidget::DockWidgetMovable));
     QVERIFY(hasFeature(&dw, QDockWidget::DockWidgetFloatable));
@@ -228,7 +233,7 @@ void tst_QDockWidget::features()
     spy.clear();
 
     setFeature(&dw, QDockWidget::DockWidgetMovable);
-    QCOMPARE(dw.features(), QDockWidget::AllDockWidgetFeatures);
+    QCOMPARE(dw.features(), allDockWidgetFeatures);
     QVERIFY(hasFeature(&dw, QDockWidget::DockWidgetClosable));
     QVERIFY(hasFeature(&dw, QDockWidget::DockWidgetMovable));
     QVERIFY(hasFeature(&dw, QDockWidget::DockWidgetFloatable));
@@ -254,7 +259,7 @@ void tst_QDockWidget::features()
     spy.clear();
 
     setFeature(&dw, QDockWidget::DockWidgetFloatable);
-    QCOMPARE(dw.features(), QDockWidget::AllDockWidgetFeatures);
+    QCOMPARE(dw.features(), allDockWidgetFeatures);
     QVERIFY(hasFeature(&dw, QDockWidget::DockWidgetClosable));
     QVERIFY(hasFeature(&dw, QDockWidget::DockWidgetMovable));
     QVERIFY(hasFeature(&dw, QDockWidget::DockWidgetFloatable));
