@@ -4467,6 +4467,17 @@ QString QImage::text(const QString &key) const
     The image text is embedded into the image data when you
     call save() or QImageWriter::write().
 
+    Not all image formats support embedded text. You can find out
+    if a specific image or format supports embedding text
+    by using QImageWriter::supportsOption(). We give an example:
+     
+    \quotefromfile snippets/image/supportedformat.cpp
+    \skipto QImageWriter
+    \printuntil qDebug
+
+    You can use QImageWriter::supportedImageFormats() to find out
+    which image formats are available to you.
+
     \sa text(), textKeys()
 */
 void QImage::setText(const QString &key, const QString &value)
