@@ -252,9 +252,12 @@ QIODevicePrivate::~QIODevicePrivate()
                      example '\r\n' for Win32.
     \value Unbuffered Any buffer in the device is bypassed.
 
-    Certain flags, such as QIODevice::Unbuffered and
-    QIODevice::Truncate, might be meaningless for some subclasses.
-    (For example, access to a QBuffer is always unbuffered.)
+    Certain flags, such as \c Unbuffered and \c Truncate, are meaningless
+    when used with some subclasses. Some of these restrictions are implied
+    by the type of device that is represented by a subclass; for example,
+    access to a QBuffer is always unbuffered. In other cases, the restriction
+    may be due to the implementation, or may be imposed by the underlying
+    platform; for example, QTcpSocket does not support \c Unbuffered mode.
 */
 
 /*!     \fn QIODevice::bytesWritten(qint64 bytes)

@@ -13,7 +13,8 @@
 
 //#define QABSTRACTSOCKET_DEBUG
 
-/*! \class QAbstractSocket
+/*! 
+    \class QAbstractSocket
 
     \brief The QAbstractSocket class provides the base functionality
     common to all socket types.
@@ -196,7 +197,8 @@
     \sa QHostAddress::protocol()
 */
 
-/*! \enum QAbstractSocket::SocketType
+/*! 
+    \enum QAbstractSocket::SocketType
 
     This enum describes the transport layer protocol.
 
@@ -207,7 +209,8 @@
     \sa QAbstractSocket::socketType()
 */
 
-/*! \enum QAbstractSocket::SocketError
+/*! 
+    \enum QAbstractSocket::SocketError
 
     This enum describes the socket errors that can occur.
 
@@ -2149,7 +2152,8 @@ QNetworkProxy QAbstractSocket::proxy() const
     \value ErrSocketRead Use QAbstractSocket::UnknownSocketError instead.
 */
 
-/*! \typedef QAbstractSocket::State
+/*! 
+    \typedef QAbstractSocket::State
     \compat
 
     Use QAbstractSocket::SocketState instead.
