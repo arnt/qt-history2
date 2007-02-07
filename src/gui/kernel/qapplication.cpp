@@ -1232,10 +1232,7 @@ void QApplication::setStyle(QStyle *style)
         for (QWidgetList::ConstIterator it1 = all.constBegin(); it1 != all.constEnd(); ++it1) {
             register QWidget *w = *it1;
             if (w->windowType() != Qt::Desktop && w->testAttribute(Qt::WA_WState_Polished)) {
-                // For widgets that have a custom style, we let them repolish themselves
-                // by touching the stylesheet. This is required since they may require to
-                // create a new proxy themselves (depending on whether they too have stylesheets)
-                if (!w->testAttribute(Qt::WA_SetStyle))
+                if (w->style() == QApplicationPrivate::app_style)
                     QApplicationPrivate::app_style->polish(w);                // repolish
 #ifndef QT_NO_STYLE_STYLESHEET
                 else

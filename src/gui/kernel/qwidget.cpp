@@ -1828,15 +1828,11 @@ void QWidget::setStyleSheet(const QString& styleSheet)
     QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle *>(d->extra->style);
     d->extra->styleSheet = styleSheet;
     if (styleSheet.isEmpty()) { // stylesheet removed
-        if (!proxy) {
-            if (qApp->styleSheet().isEmpty())
-                return; // no stylesheet here or on the app. what's the story?
-            // will go down and set the right style
-        } else {
-            // we had a proxy before but now our stylesheet is empty. recheck if we need a proxy
-            d->inheritStyle();
+        if (!proxy)
             return;
-        }
+
+        d->inheritStyle();
+        return;
     }
 
     if (proxy) { // style sheet update
@@ -1959,25 +1955,21 @@ void QWidgetPrivate::inheritStyle()
     QStyleSheetStyle *proxy = extra ? qobject_cast<QStyleSheetStyle *>(extra->style) : 0;
 
     if (!q->styleSheet().isEmpty()) {
-        if (!proxy)
-            proxy = qobject_cast<QStyleSheetStyle *>(qApp->style());
-        // Since, we have a non-empty stylesheet, we are guaranteed that either we or the
-        // the application is running a style sheet proxy
         Q_ASSERT(proxy);
         proxy->repolish(q);
         return;
     }
 
-    // If we have stylesheet on app or parent has stylesheet style, we need
-    // to be running a proxy
     QStyle *origStyle = proxy ? proxy->base : (extra ? (QStyle*)extra->style : 0);
     QWidget *parent = q->parentWidget();
     QStyle *parentStyle = (parent && parent->d_func()->extra) ? (QStyle*)parent->d_func()->extra->style : 0;
+    // If we have stylesheet on app or parent has stylesheet style, we need
+    // to be running a proxy
     if (!qApp->styleSheet().isEmpty() || qobject_cast<QStyleSheetStyle *>(parentStyle)) {
         QStyle *newStyle = parentStyle;
         if (q->testAttribute(Qt::WA_SetStyle))
             newStyle = new QStyleSheetStyle(origStyle);
-        else if (QStyleSheetStyle *newProxy = qobject_cast<QStyleSheetStyle *>(newStyle))
+        else if (QStyleSheetStyle *newProxy = qobject_cast<QStyleSheetStyle *>(parentStyle))
             newProxy->ref();
 
         setStyle_helper(newStyle, true);
