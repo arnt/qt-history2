@@ -10,7 +10,7 @@ function TetrixWindow(ui)
     ui.findChild("startButton").clicked.connect(this.board, this.board.start);
     ui.findChild("quitButton").clicked.connect(Qt.App.quit);
     ui.findChild("pauseButton").clicked.connect(this.board, this.board.pause);
-    boardUi.scoreChanged.connect(ui.findChild("scoreLcd").display);
-    boardUi.levelChanged.connect(ui.findChild("levelLcd").display);
-    boardUi.linesRemovedChanged.connect(ui.findChild("linesLcd").display);
+    boardUi.scoreChanged.connect(ui.findChild("scoreLcd")["display(int)"]);
+    boardUi.levelChanged.connect(ui.findChild("levelLcd")["display(int)"]);
+    boardUi.linesRemovedChanged.connect(ui.findChild("linesLcd")["display(int)"]);
 }
