@@ -221,7 +221,9 @@ void QTextDocumentPrivate::clear()
     delete rtFrame;
     init();
     cursors = oldCursors;
+    inContentsChange = true;
     q->contentsChange(0, len, 0);
+    inContentsChange = false;
     if (lout)
         lout->documentChanged(0, len, 0);
 }
