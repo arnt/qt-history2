@@ -43,6 +43,8 @@ class MyQObject : public QObject
     Q_PROPERTY(QByteArray byteArrayProperty READ byteArrayProperty WRITE setByteArrayProperty)
     Q_PROPERTY(QBrush brushProperty READ brushProperty WRITE setBrushProperty)
     Q_PROPERTY(double hiddenProperty READ hiddenProperty WRITE setHiddenProperty SCRIPTABLE false)
+    Q_PROPERTY(int writeOnlyProperty WRITE setWriteOnlyProperty)
+    Q_PROPERTY(int readOnlyProperty READ readOnlyProperty)
     Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
     Q_PROPERTY(CustomType propWithCustomType READ propWithCustomType WRITE setPropWithCustomType)
     Q_ENUMS(Policy Strategy)
@@ -80,6 +82,8 @@ public:
           m_stringListValue(QStringList() << QLatin1String("zig") << QLatin1String("zag")),
           m_brushValue(QColor(10, 20, 30, 40)),
           m_hiddenValue(456.0),
+          m_writeOnlyValue(789),
+          m_readOnlyValue(987),
           m_qtFunctionInvoked(-1)
         { }
 
@@ -122,6 +126,14 @@ public:
         { return m_hiddenValue; }
     void setHiddenProperty(double value)
         { m_hiddenValue = value; }
+
+    int writeOnlyProperty() const
+        { return m_writeOnlyValue; }
+    void setWriteOnlyProperty(int value)
+        { m_writeOnlyValue = value; }
+
+    int readOnlyProperty() const
+        { return m_readOnlyValue; }
 
     QKeySequence shortcut() const
         { return m_shortcut; }
@@ -210,6 +222,8 @@ private:
     QByteArray m_byteArrayValue;
     QBrush m_brushValue;
     double m_hiddenValue;
+    int m_writeOnlyValue;
+    int m_readOnlyValue;
     QKeySequence m_shortcut;
     CustomType m_customType;
     int m_qtFunctionInvoked;
@@ -445,6 +459,20 @@ void tst_QScriptExtQObject::getSetStaticProperty()
     QCOMPARE(m_engine->evaluate("myObject.hiddenProperty = 123;"
                                 "myObject.hiddenProperty").toInt32(), 123);
     QCOMPARE(m_myObject->hiddenProperty(), 456.0);
+
+    // write-only property
+    QCOMPARE(m_myObject->writeOnlyProperty(), 789);
+    QCOMPARE(m_engine->evaluate("myObject.writeOnlyProperty").isUndefined(), true);
+    QCOMPARE(m_engine->evaluate("myObject.writeOnlyProperty = 123;"
+                                "myObject.writeOnlyProperty").isUndefined(), true);
+    QCOMPARE(m_myObject->writeOnlyProperty(), 123);
+
+    // read-only property
+    QCOMPARE(m_myObject->readOnlyProperty(), 987);
+    QCOMPARE(m_engine->evaluate("myObject.readOnlyProperty").toInt32(), 987);
+    QCOMPARE(m_engine->evaluate("myObject.readOnlyProperty = 654;"
+                                "myObject.readOnlyProperty").toInt32(), 987);
+    QCOMPARE(m_myObject->readOnlyProperty(), 987);
 }
 
 void tst_QScriptExtQObject::getSetDynamicProperty()

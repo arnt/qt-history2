@@ -714,24 +714,25 @@ void QScript::QtPropertyFunction::execute(QScriptContext *context)
     QScriptValue result = eng->undefinedValue();
 
     QMetaProperty prop = m_object->metaObject()->property(m_index);
-    Q_ASSERT(prop.isValid());
     Q_ASSERT(prop.isScriptable());
 
     if (context->argumentCount() == 0) {
         // get
-        QScriptable *scriptable = scriptableFromQObject(m_object);
-        QScriptEngine *oldEngine = 0;
-        if (scriptable) {
-            oldEngine = QScriptablePrivate::get(scriptable)->engine;
-            QScriptablePrivate::get(scriptable)->engine = eng;
+        if (prop.isValid()) {
+            QScriptable *scriptable = scriptableFromQObject(m_object);
+            QScriptEngine *oldEngine = 0;
+            if (scriptable) {
+                oldEngine = QScriptablePrivate::get(scriptable)->engine;
+                QScriptablePrivate::get(scriptable)->engine = eng;
+            }
+            
+            QVariant v = prop.read(m_object);
+            
+            if (scriptable)
+                QScriptablePrivate::get(scriptable)->engine = oldEngine;
+            
+            result = eng_p->valueFromVariant(v);
         }
-
-        QVariant v = prop.read(m_object);
-
-        if (scriptable)
-            QScriptablePrivate::get(scriptable)->engine = oldEngine;
-
-        result = eng_p->valueFromVariant(v);
     } else {
         // set
         QVariant v = variantFromValue(prop.userType(), context->argument(0));

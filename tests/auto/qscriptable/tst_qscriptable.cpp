@@ -224,7 +224,7 @@ void tst_QScriptable::thisObject()
     }
     // property setter
     {
-        QScriptValue ret = m_engine.evaluate("scriptable.setZab(0)");
+        QScriptValue ret = m_engine.evaluate("scriptable.setZab(null)");
         QCOMPARE(ret.isQObject(), true);
         QCOMPARE(ret.toQObject(), &m_scriptable);
     }
