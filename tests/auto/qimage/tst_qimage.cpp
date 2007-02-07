@@ -122,17 +122,19 @@ void tst_QImage::formatHandlersInput_data()
     QTest::addColumn<QString>("testFormat");
     QTest::addColumn<QString>("testFile");
 
+    const QString prefix = QLatin1String(SRCDIR) + "/images/";
+
     // add a new line here when a file is added
-    QTest::newRow("ICO") << "ICO" << "images/image.ico";
-    QTest::newRow("PNG") << "PNG" << "images/image.png";
-    QTest::newRow("GIF") << "GIF" << "images/image.gif";
-    QTest::newRow("BMP") << "BMP" << "images/image.bmp";
-    QTest::newRow("JPEG") << "JPEG" << "images/image.jpg";
-    QTest::newRow("PBM") << "PBM" << "images/image.pbm";
-    QTest::newRow("PGM") << "PGM" << "images/image.pgm";
-    QTest::newRow("PPM") << "PPM" << "images/image.ppm";
-    QTest::newRow("XBM") << "XBM" << "images/image.xbm";
-    QTest::newRow("XPM") << "XPM" << "images/image.xpm";
+    QTest::newRow("ICO") << "ICO" << prefix + "image.ico";
+    QTest::newRow("PNG") << "PNG" << prefix + "image.png";
+    QTest::newRow("GIF") << "GIF" << prefix + "image.gif";
+    QTest::newRow("BMP") << "BMP" << prefix + "image.bmp";
+    QTest::newRow("JPEG") << "JPEG" << prefix + "image.jpg";
+    QTest::newRow("PBM") << "PBM" << prefix + "image.pbm";
+    QTest::newRow("PGM") << "PGM" << prefix + "image.pgm";
+    QTest::newRow("PPM") << "PPM" << prefix + "image.ppm";
+    QTest::newRow("XBM") << "XBM" << prefix + "image.xbm";
+    QTest::newRow("XPM") << "XPM" << prefix + "image.xpm";
 }
 
 void tst_QImage::formatHandlersInput()
