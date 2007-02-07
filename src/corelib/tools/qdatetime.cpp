@@ -2562,9 +2562,16 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
         return QDateTime(QDate::fromString(tmp.mid(0, 10), Qt::ISODate),
                          QTime::fromString(tmp.mid(11), Qt::ISODate), ts);
     }
-#if !defined(QT_NO_REGEXP) && !defined(QT_NO_TEXTDATE)
+#if !defined(QT_NO_TEXTDATE)
     else if (f == Qt::TextDate) {
-        QString monthName(s.mid(4, 3));
+        QStringList parts = s.split(QLatin1Char(' '));
+
+        if (parts.count() != 5) {
+            qWarning("QDateTime::fromString: Parameter out of range");
+            return QDateTime();
+        }
+
+        QString monthName = parts.at(1);
         int month = -1;
         // Assume that English monthnames are the default
         for (int i = 0; i < 12; ++i) {
@@ -2586,19 +2593,48 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
             qWarning("QDateTime::fromString: Parameter out of range");
             return QDateTime();
         }
-        int day = s.mid(8, 2).simplified().toInt();
-        int yearPos = s.lastIndexOf(QLatin1Char(' ')) + 1;
-        int year = s.mid(yearPos).toInt();
-        QDate date = strictDate(year, month, day);
-        QTime time;
-        int hour, minute, second;
-        int pivot = s.indexOf(QRegExp(QString::fromLatin1("[0-9][0-9]:[0-9][0-9]:[0-9][0-9]")));
-        if (pivot != -1) {
-            hour = s.mid(pivot, 2).toInt();
-            minute = s.mid(pivot + 3, 2).toInt();
-            second = s.mid(pivot + 6, 2).toInt();
-            time.setHMS(hour, minute, second);
+
+        bool ok;
+        int day = parts.at(2).toInt(&ok);
+        if (!ok) {
+            qWarning("QDateTime::fromString: Parameter out of range");
+            return QDateTime();
         }
+
+        int year = parts.at(4).toInt(&ok);
+        if (!ok) {
+            qWarning("QDateTime::fromString: Parameter out of range");
+            return QDateTime();
+        }
+
+        QDate date = strictDate(year, month, day);
+
+        QStringList timeParts = parts.at(3).split(QLatin1Char(':'));
+        if (timeParts.count() != 3) {
+            qWarning("QDateTime::fromString: Parameter out of range");
+            return QDateTime();
+        }
+
+        int hour = timeParts.at(0).toInt(&ok);
+        if (!ok) {
+            qWarning("QDateTime::fromString: Parameter out of range");
+            return QDateTime();
+        }
+
+        int minute = timeParts.at(1).toInt(&ok);
+        if (!ok) {
+            qWarning("QDateTime::fromString: Parameter out of range");
+            return QDateTime();
+        }
+
+        int second = timeParts.at(2).toInt(&ok);
+        if (!ok) {
+            qWarning("QDateTime::fromString: Parameter out of range");
+            return QDateTime();
+        }
+
+        QTime time(hour, minute, second);
+
         return QDateTime(date, time);
     }
 #endif //QT_NO_REGEXP
