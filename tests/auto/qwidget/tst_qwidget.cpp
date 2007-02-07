@@ -1554,46 +1554,28 @@ public:
 
 void tst_QWidget::resizeEvent()
 {
+    {
+        QWidget wParent;
+        ResizeWidget wChild(&wParent);
+        wParent.show();
+        QCOMPARE (wChild.m_resizeEventCount, 1); // initial resize event before paint
+        wParent.hide();
+        wChild.resize(QSize(640,480));
+        QCOMPARE (wChild.m_resizeEventCount, 1);
+        wParent.show();
+        QCOMPARE (wChild.m_resizeEventCount, 2);
+    }
 
-    QWidget wParent;
-    ResizeWidget wChild(&wParent);
-    wParent.show();
-    QCOMPARE (wChild.m_resizeEventCount, 1); // initial resize event before paint
-    wParent.hide();
-    wChild.resize(QSize(640,480));
-    QCOMPARE (wChild.m_resizeEventCount, 1);
-    wParent.show();
-    QCOMPARE (wChild.m_resizeEventCount, 2);
-
-    ResizeWidget wTopLevel;
-    wTopLevel.show();
-    QCOMPARE (wTopLevel.m_resizeEventCount, 1); // initial resize event before paint for toplevels
-    wTopLevel.hide();
-    wTopLevel.resize(QSize(640,480));
-    QCOMPARE (wTopLevel.m_resizeEventCount, 1);
-    wTopLevel.show();
-    QCOMPARE (wTopLevel.m_resizeEventCount, 2);
-
-
-    ResizeWidget w;
-    qApp->processEvents();
-    w.m_resizeEventCount = 0;
-    w.showFullScreen();
-    qApp->processEvents();
-    WAIT_FOR_CONDITION(w.m_resizeEventCount, 1);
-#ifdef Q_OS_WIN
-    QEXPECT_FAIL("", "Windows incorrectly sends two resize events when switching to and from fullscreen.", Continue);
-#endif
-    QCOMPARE (w.m_resizeEventCount, 1);
-
-    w.m_resizeEventCount = 0;
-    w.showNormal();
-    qApp->processEvents();
-    WAIT_FOR_CONDITION(w.m_resizeEventCount, 1);
-#ifdef Q_OS_WIN
-    QEXPECT_FAIL("", "Windows incorrectly sends two resize events when switching to and from fullscreen.", Continue);
-#endif
-    QCOMPARE (w.m_resizeEventCount, 1);
+    {
+        ResizeWidget wTopLevel;
+        wTopLevel.show();
+        QCOMPARE (wTopLevel.m_resizeEventCount, 1); // initial resize event before paint for toplevels
+        wTopLevel.hide();
+        wTopLevel.resize(QSize(640,480));
+        QCOMPARE (wTopLevel.m_resizeEventCount, 1);
+        wTopLevel.show();
+        QCOMPARE (wTopLevel.m_resizeEventCount, 2);
+    }
 }
 
 void tst_QWidget::showMinimized()
@@ -3568,7 +3550,7 @@ public:
         edit->hide();
         edit->installEventFilter(this);
     }
-    
+
 public slots:
     void mouseDoubleClickEvent ( QMouseEvent * event )
     {
@@ -3599,25 +3581,25 @@ void tst_QWidget::multipleToplevelFocusCheck()
     w1.activateWindow();
     QApplication::setActiveWindow(&w1);
     QTest::mouseDClick(&w1, Qt::LeftButton);
-    QCOMPARE(QApplication::focusWidget(), w1.edit); 
+    QCOMPARE(QApplication::focusWidget(), w1.edit);
 
     w2.activateWindow();
     QApplication::setActiveWindow(&w2);
     QTest::mouseClick(&w2, Qt::LeftButton);
-    QCOMPARE(QApplication::focusWidget(), (QWidget *)0); 
+    QCOMPARE(QApplication::focusWidget(), (QWidget *)0);
 
     QTest::mouseDClick(&w2, Qt::LeftButton);
-    QCOMPARE(QApplication::focusWidget(), w2.edit); 
+    QCOMPARE(QApplication::focusWidget(), w2.edit);
 
     w1.activateWindow();
     QApplication::setActiveWindow(&w1);
     QTest::mouseDClick(&w1, Qt::LeftButton);
-    QCOMPARE(QApplication::focusWidget(), w1.edit); 
+    QCOMPARE(QApplication::focusWidget(), w1.edit);
 
     w2.activateWindow();
     QApplication::setActiveWindow(&w2);
     QTest::mouseClick(&w2, Qt::LeftButton);
-    QCOMPARE(QApplication::focusWidget(), (QWidget *)0); 
+    QCOMPARE(QApplication::focusWidget(), (QWidget *)0);
 }
 
 QTEST_MAIN(tst_QWidget)
