@@ -41,10 +41,12 @@ void QDir::slashify(QString& n)
 }
 
 /*!
+    Use homePath() instead.
+
     Returns the user's home directory or an empty string if it cannot
     be determined.
 
-    \sa currentDirPath() rootDirPath()
+    \sa currentPath(), rootPath()
 */
 QString QDir::homeDirPath()
 {
@@ -180,10 +182,12 @@ bool QDir::setCurrent(const QString &path)
 
 
 /*!
+    Use currentPath() instead.
+
     Returns the current working directory or "/" if the current
     directory cannot be determined.
 
-    \sa homeDirPath() rootDirPath()
+    \sa homePath(), rootPath()
 */
 QString QDir::currentDirPath()
 {
@@ -200,9 +204,11 @@ QString QDir::currentDirPath()
 
 
 /*!
+    Use rootPath() instead.
+
     Returns "/".
 
-    \sa homeDirPath() currentDirPath()
+    \sa homePath(), currentPath()
 */
 QString QDir::rootDirPath()
 {
