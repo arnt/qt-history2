@@ -27,8 +27,9 @@ HttpWindow::HttpWindow(QWidget *parent)
                                 "download."));
 
     downloadButton = new QPushButton(tr("Download"));
-    quitButton = new QPushButton(tr("Quit"));
     downloadButton->setDefault(true);
+    quitButton = new QPushButton(tr("Quit"));
+    quitButton->setAutoDefault(false);
 
     buttonBox = new QDialogButtonBox;
     buttonBox->addButton(downloadButton, QDialogButtonBox::ActionRole);
