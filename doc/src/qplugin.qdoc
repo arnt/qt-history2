@@ -65,9 +65,14 @@
     \since 4.1
     \keyword Q_EXPORT_PLUGIN2
 
-    This macro exports the plugin class \a ClassName with the name \a
-    PluginName. There should be exactly one occurrence of this macro in a Qt
-    plugin's source code (in an implementation file).
+    This macro exports the plugin class \a ClassName for the plugin specified
+    by \a PluginName. The value of \a PluginName should correspond to the
+    \l{qmake Variable Reference#TARGET}{TARGET} specified in the plugin's
+    project file.
+
+    There should be exactly one occurrence of this macro in the source code
+    for a Qt plugin, and it should be used where the implementation is written
+    rather than in a header file.
 
     Example:
 
@@ -84,9 +89,12 @@
     \macro Q_IMPORT_PLUGIN(PluginName)
     \relates <QtPlugin>
 
-    This macro imports the plugin named \a PluginName. Inserting this macro
-    into your application's source code will allow you to
-    make use of a static plugin.
+    This macro imports the plugin named \a PluginName, corresponding
+    to the \l{qmake Variable Reference#TARGET}{TARGET} specified in the
+    plugin's project file.
+
+    Inserting this macro into your application's source code will allow
+    you to make use of a static plugin.
 
     Example:
 
