@@ -973,27 +973,17 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
                             break;
                         }
                     }
-                } else if (ke->modifiers() & Qt::ControlModifier) {
-                    switch (ke->key()) {
-                        case Qt::Key_C:
-                        case Qt::Key_V:
-                        case Qt::Key_X:
-                        case Qt::Key_Y:
-                        case Qt::Key_Z:
-                        case Qt::Key_Left:
-                        case Qt::Key_Right:
-                        case Qt::Key_Up:
-                        case Qt::Key_Down:
-                        case Qt::Key_Home:
-                        case Qt::Key_End:
-#if !defined(Q_WS_MAC)
-                        case Qt::Key_Insert:
-                        case Qt::Key_Delete:
-#endif
-                        ke->accept();
-                    default:
-                        break;
-                    }
+                } else if (ke == QKeySequence::Copy
+                           || ke == QKeySequence::Paste
+                           || ke == QKeySequence::Cut
+                           || ke == QKeySequence::Redo
+                           || ke == QKeySequence::Undo
+                           || ke == QKeySequence::MoveToNextWord
+                           || ke == QKeySequence::MoveToPreviousWord
+                           || ke == QKeySequence::MoveToStartOfDocument
+                           || ke == QKeySequence::MoveToEndOfDocument
+                          ) {
+                    ke->accept();
                 }
             }
             // FALL THROUGH
