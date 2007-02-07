@@ -82,7 +82,8 @@ void XmlServer::run()
                 sock->write(data.constData() + i, cnt);
                 i += cnt;
                 sock->flush();
-                usleep(15);
+                QTest::qSleep(1);
+                
                 if (quit_soon) {
                     sock->abort();
                     break;
@@ -132,7 +133,7 @@ tst_QXmlSimpleReader::tst_QXmlSimpleReader()
 {
     server = new XmlServer();
     server->start();
-    sleep(1);
+    QTest::qSleep(1000);
 }
 
 tst_QXmlSimpleReader::~tst_QXmlSimpleReader()
