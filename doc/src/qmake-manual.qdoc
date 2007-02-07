@@ -999,7 +999,8 @@
             This is ignored if \c debug is also specified.
     \row    \o debug    \o The project is to be built in debug mode.
     \row    \o debug_and_release \o The project is built in \e both debug and
-            release modes.
+            release modes. This can have some unexpected side effects (see
+            below for more information).
     \row    \o build_all \o If \c debug_and_release is specified, the project is
             built in both debug and release modes by default.
     \row    \o ordered  \o When using the \c subdirs template, this option
@@ -1032,6 +1033,15 @@
     Adding the \c build_all option to the \c CONFIG variable makes this rule
     the default when building the project, and installation targets will be
     created for both debug and release builds.
+
+    Additionally, adding \c debug_and_release to the \c CONFIG variable will
+    cause both \c debug and \c release to be defined in the contents of
+    \c CONFIG when the project file is processed, causing
+    \l{qmake Advanced Usage#Scopes}{scopes} that test for each value to be
+    processed for \e both debug and release modes. As a result, it may be
+    useful to define mode-specific variables, such as
+    \l{#QMAKE_LFLAGS_RELEASE}{QMAKE_LFLAGS_RELEASE}, instead of general
+    variables, such as \l{#QMAKE_LFLAGS}{QMAKE_LFLAGS}, where possible.
 
     The following options define the application/library type:
 
