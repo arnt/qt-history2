@@ -206,11 +206,18 @@ public:
 
 public Q_SLOTS:
     void mySlot()
-        { m_qtFunctionInvoked = 10; }
+        { m_qtFunctionInvoked = 20; }
+    void mySlotWithIntArg(int arg)
+        { m_qtFunctionInvoked = 21; m_actuals << arg; }
+    void mySlotWithDoubleArg(double arg)
+        { m_qtFunctionInvoked = 22; m_actuals << arg; }
+    void mySlotWithStringArg(const QString &arg)
+        { m_qtFunctionInvoked = 23; m_actuals << arg; }
 
 Q_SIGNALS:
     void mySignal();
     void mySignalWithIntArg(int arg);
+    void mySignalWithDoubleArg(double arg);
     void mySignal2(bool arg = false);
 
 private:
@@ -820,6 +827,44 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(myObject, 'mySlot')").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("myObject.mySignal.disconnect(yetAnotherObject, 'func')").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("myObject.mySignal.disconnect(myObject, 'mySlot')").toBoolean(), true);
+
+    // check that emitting signals from script works
+
+    // no arguments
+    QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(myObject.mySlot)").toBoolean(), true);
+    m_myObject->resetQtFunctionInvoked();
+    QCOMPARE(m_engine->evaluate("myObject.mySignal()").isUndefined(), true);
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 20);
+    QCOMPARE(m_engine->evaluate("myObject.mySignal.disconnect(myObject.mySlot)").toBoolean(), true);
+
+    // one argument
+    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myObject.mySlotWithIntArg)").toBoolean(), true);
+    m_myObject->resetQtFunctionInvoked();
+    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg(123)").isUndefined(), true);
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 21);
+    QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+    QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 123);
+    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg.disconnect(myObject.mySlotWithIntArg)").toBoolean(), true);
+
+    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myObject.mySlotWithDoubleArg)").toBoolean(), true);
+    m_myObject->resetQtFunctionInvoked();
+    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg(123)").isUndefined(), true);
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 22);
+    QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+    QEXPECT_FAIL("", "missing value conversion", Continue);
+    QCOMPARE(m_myObject->qtFunctionActuals().at(0).toDouble(), 123.0);
+    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg.disconnect(myObject.mySlotWithDoubleArg)").toBoolean(), true);
+
+// ### this will crash!
+#if 0
+    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myObject.mySlotWithStringArg)").toBoolean(), true);
+    m_myObject->resetQtFunctionInvoked();
+    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg(123)").isUndefined(), true);
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 23);
+    QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+    QCOMPARE(m_myObject->qtFunctionActuals().at(0).toString(), QLatin1String("123"));
+    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg.disconnect(myObject.mySlotWithStringArg)").toBoolean(), true);
+#endif
 }
 
 void tst_QScriptExtQObject::classEnums()
