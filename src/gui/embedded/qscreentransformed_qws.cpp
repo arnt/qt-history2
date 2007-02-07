@@ -1237,8 +1237,11 @@ QRegion QTransformedScreen::mapFromDevice(const QRegion &rgn, const QSize &s) co
 */
 void QTransformedScreen::disconnect()
 {
-    if (d_ptr->subscreen)
+    if (d_ptr->subscreen) {
         d_ptr->subscreen->disconnect();
+        delete d_ptr->subscreen;
+        d_ptr->subscreen = 0;
+    }
 }
 
 /*!
