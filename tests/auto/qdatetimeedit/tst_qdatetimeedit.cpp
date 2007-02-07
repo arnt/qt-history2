@@ -33,15 +33,11 @@
 #include <QObject>
 #include <QLocale>
 #include <QString>
-#include <QTest>
-#include <QSignalSpy>
 #include <QVariantList>
-#include <QTestEventList>
 #include <QVariant>
 #include <QApplication>
 #include <QPoint>
 #include <QVBoxLayout>
-#include <QTestEventLoop>
 #include <QRect>
 #include <QCursor>
 #include <QEventLoop>
