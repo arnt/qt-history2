@@ -570,6 +570,42 @@ static void QT_FASTCALL comp_func_XOR(uint *dest, const uint *src, int length, u
     end_mmx();
 }
 
+void QT_FASTCALL comp_func_solid_Plus(uint *dest, int length, uint color, uint const_alpha);
+void QT_FASTCALL comp_func_Plus(uint *dest, const uint *src, int length, uint const_alpha);
+
+void QT_FASTCALL comp_func_solid_Multiply(uint *dest, int length, uint color, uint const_alpha);
+void QT_FASTCALL comp_func_Multiply(uint *dest, const uint *src, int length, uint const_alpha);
+
+void QT_FASTCALL comp_func_solid_Screen(uint *dest, int length, uint color, uint const_alpha);
+void QT_FASTCALL comp_func_Screen(uint *dest, const uint *src, int length, uint const_alpha);
+
+void QT_FASTCALL comp_func_solid_Overlay(uint *dest, int length, uint color, uint const_alpha);
+void QT_FASTCALL comp_func_Overlay(uint *dest, const uint *src, int length, uint const_alpha);
+
+void QT_FASTCALL comp_func_solid_Darken(uint *dest, int length, uint color, uint const_alpha);
+void QT_FASTCALL comp_func_Darken(uint *dest, const uint *src, int length, uint const_alpha);
+
+void QT_FASTCALL comp_func_solid_Lighten(uint *dest, int length, uint color, uint const_alpha);
+void QT_FASTCALL comp_func_Lighten(uint *dest, const uint *src, int length, uint const_alpha);
+
+void QT_FASTCALL comp_func_solid_ColorDodge(uint *dest, int length, uint color, uint const_alpha);
+void QT_FASTCALL comp_func_ColorDodge(uint *dest, const uint *src, int length, uint const_alpha);
+
+void QT_FASTCALL comp_func_solid_ColorBurn(uint *dest, int length, uint color, uint const_alpha);
+void QT_FASTCALL comp_func_ColorBurn(uint *dest, const uint *src, int length, uint const_alpha);
+
+void QT_FASTCALL comp_func_solid_HardLight(uint *dest, int length, uint color, uint const_alpha);
+void QT_FASTCALL comp_func_HardLight(uint *dest, const uint *src, int length, uint const_alpha);
+
+void QT_FASTCALL comp_func_solid_SoftLight(uint *dest, int length, uint color, uint const_alpha);
+void QT_FASTCALL comp_func_SoftLight(uint *dest, const uint *src, int length, uint const_alpha);
+
+void QT_FASTCALL comp_func_solid_Difference(uint *dest, int length, uint color, uint const_alpha);
+void QT_FASTCALL comp_func_Difference(uint *dest, const uint *src, int length, uint const_alpha);
+
+void QT_FASTCALL comp_func_solid_Exclusion(uint *dest, int length, uint color, uint const_alpha);
+void QT_FASTCALL comp_func_Exclusion(uint *dest, const uint *src, int length, uint const_alpha);
+
 const CompositionFunctionSolid qt_functionForModeSolid_SSE[] = {
         comp_func_solid_SourceOver,
         comp_func_solid_DestinationOver,
@@ -582,7 +618,19 @@ const CompositionFunctionSolid qt_functionForModeSolid_SSE[] = {
         comp_func_solid_DestinationOut,
         comp_func_solid_SourceAtop,
         comp_func_solid_DestinationAtop,
-        comp_func_solid_XOR
+        comp_func_solid_XOR,
+        comp_func_solid_Plus,
+        comp_func_solid_Multiply,
+        comp_func_solid_Screen,
+        comp_func_solid_Overlay,
+        comp_func_solid_Darken,
+        comp_func_solid_Lighten,
+        comp_func_solid_ColorDodge,
+        comp_func_solid_ColorBurn,
+        comp_func_solid_HardLight,
+        comp_func_solid_SoftLight,
+        comp_func_solid_Difference,
+        comp_func_solid_Exclusion
 };
 
 const CompositionFunction qt_functionForMode_SSE[] = {
@@ -597,7 +645,19 @@ const CompositionFunction qt_functionForMode_SSE[] = {
         comp_func_DestinationOut,
         comp_func_SourceAtop,
         comp_func_DestinationAtop,
-        comp_func_XOR
+        comp_func_XOR,
+        comp_func_Plus,
+        comp_func_Multiply,
+        comp_func_Screen,
+        comp_func_Overlay,
+        comp_func_Darken,
+        comp_func_Lighten,
+        comp_func_ColorDodge,
+        comp_func_ColorBurn,
+        comp_func_HardLight,
+        comp_func_SoftLight,
+        comp_func_Difference,
+        comp_func_Exclusion
 };
 
 

@@ -1410,7 +1410,7 @@ static const uint BMASK = 0x000000ff;
   c = d+s;
   if c > 255 then result = 255 else result = c;
 */
-static void QT_FASTCALL comp_func_solid_Plus(uint *dest, int length, uint color, uint const_alpha)
+void QT_FASTCALL comp_func_solid_Plus(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
@@ -1425,7 +1425,7 @@ static void QT_FASTCALL comp_func_solid_Plus(uint *dest, int length, uint color,
     }
 }
 
-static void QT_FASTCALL comp_func_Plus(uint *dest, const uint *src, int length, uint const_alpha)
+void QT_FASTCALL comp_func_Plus(uint *dest, const uint *src, int length, uint const_alpha)
 {
 #define MIX(mask) (qMin(((s&mask) + (d&mask)), mask))
     if (const_alpha == 255) {
@@ -1453,7 +1453,7 @@ static void QT_FASTCALL comp_func_Plus(uint *dest, const uint *src, int length, 
 /*
   result = (a*b) SHR 8;
 */
-static void QT_FASTCALL comp_func_solid_Multiply(uint *dest, int length, uint color, uint const_alpha)
+void QT_FASTCALL comp_func_solid_Multiply(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
@@ -1473,7 +1473,7 @@ static void QT_FASTCALL comp_func_solid_Multiply(uint *dest, int length, uint co
         dest[i] = qRgba(r, g, b, a);
     }
 }
-static void QT_FASTCALL comp_func_Multiply(uint *dest, const uint *src, int length, uint const_alpha)
+void QT_FASTCALL comp_func_Multiply(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
@@ -1503,7 +1503,7 @@ static void QT_FASTCALL comp_func_Multiply(uint *dest, const uint *src, int leng
 /*
   result := 255 - ((255-a) * (255-b) SHR 8);
 */
-static void QT_FASTCALL comp_func_solid_Screen(uint *dest, int length, uint color, uint const_alpha)
+void QT_FASTCALL comp_func_solid_Screen(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
@@ -1525,7 +1525,7 @@ static void QT_FASTCALL comp_func_solid_Screen(uint *dest, int length, uint colo
         dest[i] = qRgba(r, g, b, a);
     }
 }
-static void QT_FASTCALL comp_func_Screen(uint *dest, const uint *src, int length, uint const_alpha)
+void QT_FASTCALL comp_func_Screen(uint *dest, const uint *src, int length, uint const_alpha)
 {
 #define OP(a, b) 255 - (((255-a) * (255-b)) >> 8)
     if (const_alpha == 255) {
@@ -1562,7 +1562,7 @@ static void QT_FASTCALL comp_func_Screen(uint *dest, const uint *src, int length
   else
     result = 255 - ((255-a) * (255-b) SHR 7);
 */
-static void QT_FASTCALL comp_func_solid_Overlay(uint *dest, int length, uint color, uint const_alpha)
+void QT_FASTCALL comp_func_solid_Overlay(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
@@ -1584,7 +1584,7 @@ static void QT_FASTCALL comp_func_solid_Overlay(uint *dest, int length, uint col
         dest[i] = qRgba(r, g, b, a);
     }
 }
-static void QT_FASTCALL comp_func_Overlay(uint *dest, const uint *src, int length, uint const_alpha)
+void QT_FASTCALL comp_func_Overlay(uint *dest, const uint *src, int length, uint const_alpha)
 {
 #define OP(a, b) (a<128) ? (a*b)>>7 : 255 - (((255-a) * (255-b)) >> 7)
     if (const_alpha == 255) {
@@ -1621,7 +1621,7 @@ static void QT_FASTCALL comp_func_Overlay(uint *dest, const uint *src, int lengt
   else
     result := b;
 */
-static void QT_FASTCALL comp_func_solid_Darken(uint *dest, int length, uint color, uint const_alpha)
+void QT_FASTCALL comp_func_solid_Darken(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
@@ -1643,7 +1643,7 @@ static void QT_FASTCALL comp_func_solid_Darken(uint *dest, int length, uint colo
         dest[i] = qRgba(r, g, b, a);
     }
 }
-static void QT_FASTCALL comp_func_Darken(uint *dest, const uint *src, int length, uint const_alpha)
+void QT_FASTCALL comp_func_Darken(uint *dest, const uint *src, int length, uint const_alpha)
 {
 #define OP(a, b) (a < b) ? a : b
     if (const_alpha == 255) {
@@ -1680,7 +1680,7 @@ static void QT_FASTCALL comp_func_Darken(uint *dest, const uint *src, int length
   else
     result = b;
 */
-static void QT_FASTCALL comp_func_solid_Lighten(uint *dest, int length, uint color, uint const_alpha)
+void QT_FASTCALL comp_func_solid_Lighten(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
@@ -1702,7 +1702,7 @@ static void QT_FASTCALL comp_func_solid_Lighten(uint *dest, int length, uint col
         dest[i] = qRgba(r, g, b, a);
     }
 }
-static void QT_FASTCALL comp_func_Lighten(uint *dest, const uint *src, int length, uint const_alpha)
+void QT_FASTCALL comp_func_Lighten(uint *dest, const uint *src, int length, uint const_alpha)
 {
 #define OP(a, b) (a > b) ? a : b
     if (const_alpha == 255) {
@@ -1753,7 +1753,7 @@ static inline short color_dodge_op(short a, short b)
             return c;
     }
 }
-static void QT_FASTCALL comp_func_solid_ColorDodge(uint *dest, int length, uint color, uint const_alpha)
+void QT_FASTCALL comp_func_solid_ColorDodge(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
@@ -1774,7 +1774,7 @@ static void QT_FASTCALL comp_func_solid_ColorDodge(uint *dest, int length, uint 
         dest[i] = qRgba(r, g, b, a);
     }
 }
-static void QT_FASTCALL comp_func_ColorDodge(uint *dest, const uint *src, int length, uint const_alpha)
+void QT_FASTCALL comp_func_ColorDodge(uint *dest, const uint *src, int length, uint const_alpha)
 {
 #define OP(a, b) color_dodge_op(a, b)
     if (const_alpha == 255) {
@@ -1825,7 +1825,7 @@ static inline short color_burn_op(short a, short b)
             return c;
     }
 }
-static void QT_FASTCALL comp_func_solid_ColorBurn(uint *dest, int length, uint color, uint const_alpha)
+void QT_FASTCALL comp_func_solid_ColorBurn(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
@@ -1847,7 +1847,7 @@ static void QT_FASTCALL comp_func_solid_ColorBurn(uint *dest, int length, uint c
         dest[i] = qRgba(r, g, b, a);
     }
 }
-static void QT_FASTCALL comp_func_ColorBurn(uint *dest, const uint *src, int length, uint const_alpha)
+void QT_FASTCALL comp_func_ColorBurn(uint *dest, const uint *src, int length, uint const_alpha)
 {
 #define OP(a, b) color_burn_op(a, b)
     if (const_alpha == 255) {
@@ -1884,7 +1884,7 @@ static void QT_FASTCALL comp_func_ColorBurn(uint *dest, const uint *src, int len
   else
     result := 255 - ((255-b) * (255-a) SHR 7);
 */
-static void QT_FASTCALL comp_func_solid_HardLight(uint *dest, int length, uint color, uint const_alpha)
+void QT_FASTCALL comp_func_solid_HardLight(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
@@ -1906,7 +1906,7 @@ static void QT_FASTCALL comp_func_solid_HardLight(uint *dest, int length, uint c
         dest[i] = qRgba(r, g, b, a);
     }
 }
-static void QT_FASTCALL comp_func_HardLight(uint *dest, const uint *src, int length, uint const_alpha)
+void QT_FASTCALL comp_func_HardLight(uint *dest, const uint *src, int length, uint const_alpha)
 {
 #define OP(a, b) (b<128) ? (a*b)>>7 : 255 - (((255-b) * (255-a)) >> 7)
     if (const_alpha == 255) {
@@ -1946,7 +1946,7 @@ static inline short soft_light_op(short a, short b)
     int c = (a * b) >> 8;
     return c + ((a * (255 - (((255-a)*(255-b)) >> 8)-c)) >> 8);
 }
-static void QT_FASTCALL comp_func_solid_SoftLight(uint *dest, int length, uint color, uint const_alpha)
+void QT_FASTCALL comp_func_solid_SoftLight(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
@@ -1968,7 +1968,7 @@ static void QT_FASTCALL comp_func_solid_SoftLight(uint *dest, int length, uint c
         dest[i] = qRgba(r, g, b, a);
     }
 }
-static void QT_FASTCALL comp_func_SoftLight(uint *dest, const uint *src, int length, uint const_alpha)
+void QT_FASTCALL comp_func_SoftLight(uint *dest, const uint *src, int length, uint const_alpha)
 {
 #define OP(a, b) soft_light_op(a, b)
     if (const_alpha == 255) {
@@ -2002,7 +2002,7 @@ static void QT_FASTCALL comp_func_SoftLight(uint *dest, const uint *src, int len
 /*
    result := abs(a-b);
 */
-static void QT_FASTCALL comp_func_solid_Difference(uint *dest, int length, uint color, uint const_alpha)
+void QT_FASTCALL comp_func_solid_Difference(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
@@ -2025,7 +2025,7 @@ static void QT_FASTCALL comp_func_solid_Difference(uint *dest, int length, uint 
     }
 }
 
-static void QT_FASTCALL comp_func_Difference(uint *dest, const uint *src, int length, uint const_alpha)
+void QT_FASTCALL comp_func_Difference(uint *dest, const uint *src, int length, uint const_alpha)
 {
 #define OP(a, b) (qAbs(a-b))
     if (const_alpha == 255) {
@@ -2059,7 +2059,7 @@ static void QT_FASTCALL comp_func_Difference(uint *dest, const uint *src, int le
 /*
   result := a + b - (a*b SHR 7);
 */
-static void QT_FASTCALL comp_func_solid_Exclusion(uint *dest, int length, uint color, uint const_alpha)
+void QT_FASTCALL comp_func_solid_Exclusion(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
@@ -2081,7 +2081,7 @@ static void QT_FASTCALL comp_func_solid_Exclusion(uint *dest, int length, uint c
         dest[i] = qRgba(r, g, b, a);
     }
 }
-static void QT_FASTCALL comp_func_Exclusion(uint *dest, const uint *src, int length, uint const_alpha)
+void QT_FASTCALL comp_func_Exclusion(uint *dest, const uint *src, int length, uint const_alpha)
 {
 #define OP(a, b) (a + b - ((a*b) >> 7))
     if (const_alpha == 255) {
