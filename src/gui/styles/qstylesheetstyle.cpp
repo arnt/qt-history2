@@ -348,19 +348,21 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
                 imageRect = QRect(0, 0, image.width(), image.height());
         } else if (decl.property.compare(QLatin1String("image-region"), Qt::CaseInsensitive) == 0) {
             imageRect = decl.rectValue();
-        } else {
-            if (!decl.property.startsWith(QLatin1String("qproperty-"), Qt::CaseInsensitive)) {
-                for (int i = 0; i < numKnownStyleHints; i++) {
-                    const char *styleHint = knownStyleHints[i];
-                    if (decl.property.compare(QLatin1String(styleHint)) == 0) {
-                        int hint;
-                        decl.intValue(&hint);
-                        styleHints[decl.property] = hint;
-                    }
+        } else if (decl.property.startsWith(QLatin1String("qproperty-"), Qt::CaseInsensitive)) {
+        } else if (decl.propertyId == UnknownProperty) {
+            bool knownStyleHint = false;
+            for (int i = 0; i < numKnownStyleHints; i++) {
+                const char *styleHint = knownStyleHints[i];
+                if (decl.property.compare(QLatin1String(styleHint)) == 0) {
+                   int hint;
+                   decl.intValue(&hint);
+                   styleHints[decl.property] = hint;
+                   knownStyleHint = true;
+                   break;
                 }
-            } else if (decl.propertyId == UnknownProperty) {
-                qWarning("Unknown property %s", qPrintable(decl.property));
             }
+            if (!knownStyleHint)
+                qWarning("Unknown property %s", qPrintable(decl.property));
         }
     }
 
@@ -1163,7 +1165,7 @@ public:
             } else if (name == QLatin1String("style")) {
                 QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle *>(WIDGET(node)->style());
                 if (proxy)
-                    return proxy->baseStyle()->metaObject()->className();
+                    return QString::fromLatin1(proxy->baseStyle()->metaObject()->className());
             }
         }
         return value.toString();
