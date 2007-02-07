@@ -65,6 +65,7 @@ private slots:
     void mdiSubWindowTest();
     void lineEditTest();
     void workspaceTest();
+    void dialogButtonBoxTest();
 
 private:
     QWidget *createGUI();
@@ -2385,6 +2386,7 @@ void tst_QAccessibility::lineEditTest()
     QVERIFY(iface->state(0) & QAccessible::Selectable);
     QVERIFY(iface->state(0) & QAccessible::HasPopup);
     QCOMPARE(bool(iface->state(0) & QAccessible::Focused), le->hasFocus());
+    delete iface;
     delete le;
     delete toplevel;
     QTestAccessibility::clearEvents();
@@ -2443,6 +2445,69 @@ void tst_QAccessibility::workspaceTest()
         }
     }
     // ### Add test for Up and Down.
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
+void tst_QAccessibility::dialogButtonBoxTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    {
+    QDialogButtonBox box(QDialogButtonBox::Reset | 
+                         QDialogButtonBox::Help | 
+                         QDialogButtonBox::Ok, Qt::Horizontal);
+    
+
+    QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&box);
+    QVERIFY(iface);
+    box.show();
+
+    QApplication::processEvents();
+    QCOMPARE(iface->childCount(), 3);
+    QStringList actualOrder;
+    QAccessibleInterface *child;
+    QAccessibleInterface *leftmost;
+    iface->navigate(QAccessible::Child, 1, &child);
+    // first find the leftmost button
+    while (child->navigate(QAccessible::Left, 1, &leftmost) != -1) {
+        delete child;
+        child = leftmost;
+    }
+    leftmost = child;
+
+    // then traverse from left to right to find the correct order of the buttons
+    int right = 0;
+    while (right != -1) {
+        actualOrder << leftmost->text(QAccessible::Name, 0);
+        right = leftmost->navigate(QAccessible::Right, 1, &child);
+        delete leftmost;
+        leftmost = child;
+    }
+
+    QDialogButtonBox::ButtonLayout btnlout = 
+        QDialogButtonBox::ButtonLayout(QApplication::style()->styleHint(QStyle::SH_DialogButtonLayout));
+    QStringList expectedOrder;
+    switch (btnlout) {
+    case QDialogButtonBox::WinLayout:
+        expectedOrder << QDialogButtonBox::tr("Reset") 
+                      << QDialogButtonBox::tr("OK")
+                      << QDialogButtonBox::tr("Help");
+        break;
+    case QDialogButtonBox::GnomeLayout:
+    case QDialogButtonBox::KdeLayout:
+    case QDialogButtonBox::MacLayout:
+        expectedOrder << QDialogButtonBox::tr("Help") 
+                      << QDialogButtonBox::tr("Reset") 
+                      << QDialogButtonBox::tr("Ok");
+        break;
+    }
+    QCOMPARE(actualOrder, expectedOrder);
+    delete iface;
+    QApplication::processEvents();
+    
+    }
+    QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
