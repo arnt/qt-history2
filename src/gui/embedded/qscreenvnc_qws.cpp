@@ -1491,7 +1491,7 @@ void QVNCScreen::exposeRegion(QRegion r, int changing)
     else
         QScreen::exposeRegion(r, changing);
 
-    const QVector<QRect> rects = r.rects();
+    const QVector<QRect> rects = (region() & r).rects();
     for (int i = 0; i < rects.size(); ++i)
         setDirty(rects.at(i));
 }
