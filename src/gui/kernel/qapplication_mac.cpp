@@ -246,33 +246,18 @@ static void qt_mac_debug_palette(const QPalette &pal, const QPalette &pal2, cons
 #endif
 
 //raise a notification
-static NMRecPtr qt_mac_notification = 0;
+static NMRec qt_mac_notification = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 void qt_mac_send_notification()
 {
-    if(qt_mac_notification)
-        return;
-
-    //only if we are inactive
-    ProcessSerialNumber mine, front;
-    if(GetCurrentProcess(&mine) == noErr && GetFrontProcess(&front) == noErr) {
-        Boolean same;
-        if(SameProcess(&mine, &front, &same) == noErr && same)
-            return;
-    }
-
     //send it
-    qt_mac_notification = (NMRecPtr)malloc(sizeof(NMRec));
-    memset(qt_mac_notification, '\0', sizeof(NMRec));
-    qt_mac_notification->nmMark = 1; //non-zero magic number
-    qt_mac_notification->qType = nmType;
+    qt_mac_notification.nmMark = 1; //non-zero magic number
+    qt_mac_notification.qType = nmType;
+    NMInstall(&qt_mac_notification);
 }
+
 void qt_mac_cancel_notification()
 {
-     if(!qt_mac_notification)
-	return;
-     NMRemove(qt_mac_notification);
-     free(qt_mac_notification);
-     qt_mac_notification = 0;
+    NMRemove(&qt_mac_notification);
 }
 
 //find widget (and part) at a given point
@@ -1942,8 +1927,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         break; }
     case kEventClassApplication:
         if(ekind == kEventAppActivated) {
-            qt_mac_cancel_notification();
-
             if(QApplication::desktopSettingsAware())
                 qt_mac_update_os_settings();
             if(qt_clipboard) { //manufacture an event so the clipboard can see if it has changed
@@ -2202,6 +2185,57 @@ void QApplicationPrivate::closePopup(QWidget *popup)
 void QApplication::beep()
 {
     qt_mac_beep();
+}
+
+void QApplication::alert(QWidget *widget, int duration)
+{
+    if (!QApplicationPrivate::checkInstance("alert"))
+        return;
+
+    QWidgetList windowsToMark;
+    if (!widget)
+        windowsToMark += topLevelWidgets();
+    else
+        windowsToMark.append(widget->window());
+
+    bool needNotification = false;
+    for (int i = 0; i < windowsToMark.size(); ++i) {
+        QWidget *window = windowsToMark.at(i);
+        if (!window->isActiveWindow() && window->isVisible()) {
+            needNotification = true; // yeah, we may set it multiple times, but that's OK.
+            if (duration != 0) {
+               QTimer *timer = new QTimer(qApp);
+               timer->setSingleShot(true);
+               connect(timer, SIGNAL(timeout()), qApp, SLOT(_q_alertTimeOut()));
+               if (QTimer *oldTimer = qApp->d_func()->alertTimerHash.value(widget)) {
+                   qApp->d_func()->alertTimerHash.remove(widget);
+                   delete oldTimer;
+               }
+               qApp->d_func()->alertTimerHash.insert(widget, timer);
+               timer->start(duration);
+            }
+        }
+    }
+    if (needNotification)
+        qt_mac_send_notification();
+}
+
+void QApplicationPrivate::_q_alertTimeOut()
+{
+    if (QTimer *timer = qobject_cast<QTimer *>(q_func()->sender())) {
+        QHash<QWidget *, QTimer *>::iterator it = alertTimerHash.begin();
+        while (it != alertTimerHash.end()) {
+            if (it.value() == timer) {
+                alertTimerHash.erase(it);
+                timer->deleteLater();
+                break;
+            }
+            ++it;
+        }
+        if (alertTimerHash.isEmpty()) {
+            qt_mac_cancel_notification();
+        }
+    }
 }
 
 void  QApplication::setCursorFlashTime(int msecs)

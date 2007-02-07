@@ -1042,6 +1042,46 @@ void QApplication::beep()
     MessageBeep(MB_OK);
 }
 
+static void alert_widget(QWidget *widget, int duration)
+{
+    if (widget && !widget->isActiveWindow()) {
+        DWORD timeOut = GetCaretBlinkTime();
+        if (timeOut <= 0)
+            timeOut = 250;
+
+        UINT flashCount;
+        if (duration <= 0)
+            flashCount = 10;
+        else
+            flashCount = duration/timeOut;
+
+        FLASHWINFO info;
+        info.cbSize = sizeof(info);
+        info.hwnd = widget->window()->winId();
+        info.dwFlags = FLASHW_TRAY;
+        info.dwTimeout = timeOut;
+        info.uCount = flashCount;
+
+        FlashWindowEx(&info);
+    }
+}
+
+void QApplication::alert(QWidget *widget, int duration)
+{
+    if (!QApplicationPrivate::checkInstance("alert"))
+        return;
+
+    if (widget) {
+        alert_widget(widget, duration);
+    } else {
+        const QWidgetList toplevels(topLevelWidgets());
+        for (int i = 0; i < toplevels.count(); ++i) {
+            QWidget *topLevel = toplevels.at(i);
+            alert_widget(topLevel, duration);
+        }
+    }
+}
+
 QString QApplicationPrivate::appName() const
 {
     return QCoreApplicationPrivate::appName();

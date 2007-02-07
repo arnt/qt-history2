@@ -2412,6 +2412,10 @@ void QApplication::beep()
 {
 }
 
+void QApplication::alert(QWidget *, int)
+{
+}
+
 /*!
     \internal
 */

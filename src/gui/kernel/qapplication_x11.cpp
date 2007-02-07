@@ -51,6 +51,7 @@
 #include <private/qcursor_p.h>
 #include "qstyle.h"
 #include "qmetaobject.h"
+#include "qtimer.h"
 
 #if !defined(QT_NO_GLIB)
 #  include "qguieventdispatcher_glib_p.h"
@@ -265,6 +266,8 @@ static Window        curWin = 0;                        // current window
 // function to update the workarea of the screen - in qdesktopwidget_x11.cpp
 extern void qt_desktopwidget_update_workarea();
 
+// Function to change the window manager state (from qwidget_x11.cpp)
+extern void qt_change_net_wm_state(const QWidget *w, bool set, Atom one, Atom two = 0);
 
 // modifier masks for alt, meta, super, hyper, and mode_switch - detected when the application starts
 // and/or keyboard layout changes
@@ -2389,7 +2392,74 @@ void QApplication::beep()
         printf("\7");
 }
 
+/*!
+      \since 4.3
 
+      Causes an alert to be shown for \a widget if the window is not the active
+      window. The alert is shown for \a msec miliseconds. If \a msec is zero (the
+      default), then the alert is shown indefinitely until the window becomes
+      active again.
+
+      Currently this function does nothing on Qtopia Core.
+
+      On Mac OS X, this works more at the application level and will cause the
+      application icon to bounce in the dock.
+
+      On Windows this causes the window's taskbar entry to flash for a time. If \a
+      msec is zero, the flashing will stop and the taskbar entry will turn a
+      different color (currently orange).
+
+      On X11, this will cause the window to be marked as "demands attention",
+      the window must not be hidden (i.e. not have hide() called on it, but be
+      visible in some sort of way) in order for this to work.
+*/
+void QApplication::alert(QWidget *widget, int msec)
+{
+    if (!QApplicationPrivate::checkInstance("alert"))
+        return;
+
+    QWidgetList windowsToMark;
+    if (!widget) {
+        windowsToMark += topLevelWidgets();
+    } else {
+        windowsToMark.append(widget->window());
+    }
+
+    for (int i = 0; i < windowsToMark.size(); ++i) {
+        QWidget *window = windowsToMark.at(i);
+        if (!window->isActiveWindow()) {
+            qt_change_net_wm_state(window, true, ATOM(_NET_WM_STATE_DEMANDS_ATTENTION));
+            if (msec != 0) {
+                QTimer *timer = new QTimer(qApp);
+                timer->setSingleShot(true);
+                connect(timer, SIGNAL(timeout()), qApp, SLOT(_q_alertTimeOut()));
+                if (QTimer *oldTimer = qApp->d_func()->alertTimerHash.value(window)) {
+                    qApp->d_func()->alertTimerHash.remove(window);
+                    delete oldTimer;
+                }
+                qApp->d_func()->alertTimerHash.insert(window, timer);
+                timer->start(msec);
+            }
+        }
+    }
+}
+
+void QApplicationPrivate::_q_alertTimeOut()
+{
+    if (QTimer *timer = qobject_cast<QTimer *>(q_func()->sender())) {
+        QHash<QObject *, QTimer *>::iterator it = alertTimerHash.begin();
+        while (it != alertTimerHash.end()) {
+            if (it.value() == timer) {
+                QWidget *window = static_cast<QWidget *>(it.key());
+                qt_change_net_wm_state(window, false, ATOM(_NET_WM_STATE_DEMANDS_ATTENTION));
+                alertTimerHash.erase(it);
+                timer->deleteLater();
+                break;
+            }
+            ++it;
+        }
+    }
+}
 
 /*****************************************************************************
   Special lookup functions for windows that have been reparented recently

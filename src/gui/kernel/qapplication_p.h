@@ -33,6 +33,7 @@
 #include "QtCore/qmutex.h"
 #include "QtCore/qtranslator.h"
 #include "QtCore/qbasictimer.h"
+#include "QtCore/qhash.h"
 #include "private/qcoreapplication_p.h"
 #include "private/qshortcutmap_p.h"
 #ifdef Q_WS_QWS
@@ -303,6 +304,10 @@ public:
 #endif
 
     void _q_tryEmitLastWindowClosed();
+#if defined(Q_WS_MAC) || defined(Q_WS_X11)
+    void _q_alertTimeOut();
+    QHash<QWidget *, QTimer *> alertTimerHash;
+#endif
     static QString styleSheet;
 
 private:

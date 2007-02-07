@@ -139,6 +139,7 @@ public:
 
     static void syncX();
     static void beep();
+    static void alert(QWidget *widget, int duration = 0);
 
     static Qt::KeyboardModifiers keyboardModifiers();
     static Qt::MouseButtons mouseButtons();
@@ -321,6 +322,9 @@ private:
 #endif
 
     Q_PRIVATE_SLOT(d_func(), void _q_tryEmitLastWindowClosed())
+#if defined(Q_WS_MAC) || defined(Q_WS_X11)
+    Q_PRIVATE_SLOT(d_func(), void _q_alertTimeOut())
+#endif
 };
 
 QT_END_HEADER
