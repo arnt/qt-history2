@@ -755,9 +755,10 @@ void tst_QTcpSocket::readLine()
     QCOMPARE(socket.readLine(buffer, 11), qint64(6));
     QCOMPARE((const char *)buffer, "eted\r\n");
 
-    QVERIFY(!socket.waitForReadyRead(250));
+    QVERIFY(!socket.waitForReadyRead(100));
     QCOMPARE(socket.readLine(buffer, sizeof(buffer)), qint64(-1));
-    QCOMPARE(socket.error(), QAbstractSocket::SocketTimeoutError);
+    QVERIFY(socket.error() == QAbstractSocket::SocketTimeoutError
+            || socket.error() == QAbstractSocket::RemoteHostClosedError);
     QCOMPARE(socket.bytesAvailable(), qint64(0));
 }
 
@@ -1126,9 +1127,6 @@ void tst_QTcpSocket::connectToLocalHostNoService()
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::waitForConnectedInHostLookupSlot()
 {
-#if QT_VERSION < 0x040100
-    QSKIP("Fixed in 4.1.", SkipSingle);
-#endif
     // This test tries to reproduce the problem where waitForConnected() is
     // called at a point where the host lookup is already done. QTcpSocket
     // will try to abort the "pending lookup", but since it's already done and
@@ -1143,7 +1141,7 @@ void tst_QTcpSocket::waitForConnectedInHostLookupSlot()
     QTimer timer;
     connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
     QSignalSpy timerSpy(&timer, SIGNAL(timeout()));
-    timer.start(3000);
+    timer.start(10000);
 
     connect(tmpSocket, SIGNAL(hostFound()), this, SLOT(hostLookupSlot()));
     tmpSocket->connectToHost("imap.troll.no", 143);
@@ -1157,7 +1155,7 @@ void tst_QTcpSocket::waitForConnectedInHostLookupSlot()
 void tst_QTcpSocket::hostLookupSlot()
 {
     // This will fail to cancel the pending signal
-    QVERIFY(tmpSocket->waitForConnected(1000));
+    QVERIFY(tmpSocket->waitForConnected(5000));
 }
 
 class Foo : public QObject
@@ -1474,7 +1472,7 @@ void tst_QTcpSocket::suddenRemoteDisconnect()
     serverProcess.start(QString::fromLatin1("stressTest/stressTest %1").arg(server),
                         QIODevice::ReadWrite | QIODevice::Text);
     while (!serverProcess.canReadLine())
-        QVERIFY(serverProcess.waitForReadyRead(1000));
+        QVERIFY(serverProcess.waitForReadyRead(10000));
     QCOMPARE(serverProcess.readLine().data(), (server.toLatin1() + "\n").data());
 
     // Start client
@@ -1483,7 +1481,7 @@ void tst_QTcpSocket::suddenRemoteDisconnect()
     clientProcess.start(QString::fromLatin1("stressTest/stressTest %1").arg(client),
                         QIODevice::ReadWrite | QIODevice::Text);
     while (!clientProcess.canReadLine())
-        QVERIFY(clientProcess.waitForReadyRead(1000));
+        QVERIFY(clientProcess.waitForReadyRead(10000));
     QCOMPARE(clientProcess.readLine().data(), (client.toLatin1() + "\n").data());
 
     // Let them play for a while
