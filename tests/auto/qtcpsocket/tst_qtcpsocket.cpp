@@ -1378,6 +1378,8 @@ void tst_QTcpSocket::readWriteFailsOnUnconnectedSocket()
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::hammerTest()
 {
+    QSKIP("This test is far too intensive, it stresses fluke so bad"
+          " that it triggers random errors.", SkipAll);
     const int NumSockets = 100;
 
     QList<QTcpSocket *> sockets;
