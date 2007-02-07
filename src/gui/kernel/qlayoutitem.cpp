@@ -134,7 +134,11 @@ QSizePolicy::operator QVariant() const
 
 /*!
     Sets the alignment of this item to \a alignment.
-    Not all subclasses support alignment.
+
+    \bold{Note:} Item alignment is only supported by QLayoutItem subclasses
+    where it would have a visual effect. Except for QSpacerItem, which provides
+    blank space for layouts, all public Qt classes that inherit QLayoutItem
+    support item alignment.
 */
 void QLayoutItem::setAlignment(Qt::Alignment alignment)
 {
