@@ -7,7 +7,11 @@ win32 {
     exists($$(QTDIR)/bin/dumpcpp.exe) {
         CONFIG += qaxcontainer
 
-        TYPELIBS += $$system(dumpcpp -getfile {98DE28B6-6CD3-4e08-B9FA-3D1DB43F1D2F})
+        MULTIPLEAX = $$system(dumpcpp -getfile {98DE28B6-6CD3-4e08-B9FA-3D1DB43F1D2F})
+
+        exists($$MULTIPLEAX) {
+            TYPELIBS += $$MULTIPLEAX
+        }
 
         TYPELIBS += $$(SystemRoot)/system32/dmocx.dll
         # If there's a C:\Program Files (x86)\Common Files, then rather use that, since we're on a 64bit OS
