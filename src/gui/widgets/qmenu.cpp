@@ -460,25 +460,29 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, SelectionReason 
     QAction *previousAction = currentAction;
 #endif
     currentAction = action;
-    if (action && !action->isSeparator()) {
-        activateAction(action, QAction::Hover);
-        if (popup != -1) {
-            hideActiveMenu = 0; //will be done "later"
-            popupAction(currentAction, popup, activateFirst);
-        }
-        q->update(actionRect(action));
-        QWidget *widget = widgetItems.value(action);
-
-        if (reason == SelectedFromKeyboard) {
-            if (widget) {
-                if (widget->focusPolicy() != Qt::NoFocus)
-                    widget->setFocus(Qt::TabFocusReason);
-            } else {
-                //when the action has no QWidget, the QMenu itself should get the focus
-                q->setFocus(Qt::TabFocusReason);
+    if (action) {
+        if (!action->isSeparator()) {
+            activateAction(action, QAction::Hover);
+            if (popup != -1) {
+                hideActiveMenu = 0; //will be done "later"
+                popupAction(currentAction, popup, activateFirst);
             }
-        }
+            q->update(actionRect(action));
+            QWidget *widget = widgetItems.value(action);
 
+            if (reason == SelectedFromKeyboard) {
+                if (widget) {
+                    if (widget->focusPolicy() != Qt::NoFocus)
+                        widget->setFocus(Qt::TabFocusReason);
+                } else {
+                    //when the action has no QWidget, the QMenu itself should get the focus
+                    q->setFocus(Qt::TabFocusReason);
+                }
+            }
+        } else { //action is a separator
+            if (popup != -1)
+                hideActiveMenu = 0; //will be done "later"
+        }
 #ifndef QT_NO_STATUSTIP
     }  else if (previousAction) {
         QWidget *w = causedPopup.widget;
