@@ -136,6 +136,27 @@ static inline void load(const QString & = QString(), int = -1)
     initializeDb();
 }
 
+static const char *styleHint(const QFontDef &request)
+{
+    const char *stylehint = 0;
+    switch (request.styleHint) {
+    case QFont::SansSerif:
+        stylehint = "Arial";
+        break;
+    case QFont::Serif:
+        stylehint = "Times New Roman";
+        break;
+    case QFont::TypeWriter:
+        stylehint = "Courier New";
+        break;
+    default:
+        if (request.fixedPitch)
+            stylehint = "Courier New";
+        break;
+    }
+    return stylehint;
+}
+
 void QFontDatabase::load(const QFontPrivate *d, int script)
 {
     // sanity checks
@@ -185,6 +206,11 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
 		    subs_list += QFont::substitutes(*it);
 	    family_list += subs_list;
     }
+
+    const char *stylehint = styleHint(req);
+    if (stylehint)
+        family_list << QLatin1String(stylehint);
+
     // add QFont::defaultFamily() to the list, for compatibility with
     // previous versions
     family_list << QApplication::font().defaultFamily();
