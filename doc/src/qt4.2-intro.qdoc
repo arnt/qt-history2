@@ -6,11 +6,10 @@
   in the Qt 4 series. This documents covers the most important features in this
   release, separated by category.
 
-  Since we will continue to improve and fine-tune Qt as a result of feedback
-  and suggestions from customers and the open source community, we have not
-  included a detailed list of changes between Qt 4.1 and this release.
-  A comprehensive list of changes between Qt 4.1 and Qt 4.2 will be included
-  in the Qt 4.2 final release.
+  A comprehensive list of changes between Qt 4.1 and Qt 4.2 is included
+  in the \c changes-4.2.3 file provided with Qt, and is also
+  \l{http://www.trolltech.com/developer/notes/changes/changes-4.2.3}{available
+  online}.
 
   A list of other Qt 4 features can be found on the
   \bold{\l{What's New in Qt 4}} page.
