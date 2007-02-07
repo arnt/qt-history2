@@ -20,7 +20,7 @@ while [ "$#" -gt 0 ]; do
         LFLAGS="$LFLAGS -framework \"$2\""
         shift
         ;;
-    -F*)
+    -F*|-m*)
         LFLAGS="$LFLAGS $PARAM"
         CXXFLAGS="$CXXFLAGS $PARAM"
         ;;
