@@ -1976,7 +1976,8 @@
 
     \e {This is used on Windows only.}
 
-    This variable contains link flags when building windows projects.
+    This variable contains link flags when building Windows GUI projects
+    (i.e. non-console applications).
     The value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
@@ -1984,7 +1985,7 @@
 
     \e {This is used on Windows only.}
 
-    This variable contains link flags when building windows dll projects.
+    This variable contains link flags when building Windows DLL projects.
     The value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
