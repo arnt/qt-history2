@@ -2447,10 +2447,10 @@ void QApplication::alert(QWidget *widget, int msec)
 void QApplicationPrivate::_q_alertTimeOut()
 {
     if (QTimer *timer = qobject_cast<QTimer *>(q_func()->sender())) {
-        QHash<QObject *, QTimer *>::iterator it = alertTimerHash.begin();
+        QHash<QWidget *, QTimer *>::iterator it = alertTimerHash.begin();
         while (it != alertTimerHash.end()) {
             if (it.value() == timer) {
-                QWidget *window = static_cast<QWidget *>(it.key());
+                QWidget *window = it.key();
                 qt_change_net_wm_state(window, false, ATOM(_NET_WM_STATE_DEMANDS_ATTENTION));
                 alertTimerHash.erase(it);
                 timer->deleteLater();
