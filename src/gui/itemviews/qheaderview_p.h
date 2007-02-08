@@ -75,6 +75,8 @@ public:
     void updateSectionIndicator(int section, int position);
     void resizeSections(QHeaderView::ResizeMode globalMode, bool useGlobalMode = false);
     void _q_sectionsRemoved(const QModelIndex &,int,int);
+    void _q_layoutAboutToBeChanged();
+    void _q_layoutChanged();
 
     bool isSectionSelected(int section) const;
 
@@ -108,6 +110,10 @@ public:
 
     inline int logicalIndex(int visualIndex) const {
         return logicalIndices.isEmpty() ? visualIndex : logicalIndices.at(visualIndex);
+    }
+
+    inline int visualIndex(int logicalIndex) const {
+        return visualIndices.isEmpty() ? logicalIndex : visualIndices.at(logicalIndex);
     }
 
     inline void setDefaultValues(Qt::Orientation o) {
@@ -225,6 +231,7 @@ public:
     Qt::Alignment defaultAlignment;
     QLabel *sectionIndicator;
     QHeaderView::ResizeMode globalResizeMode;
+    QList<QPersistentModelIndex> persistentHiddenSections;
 
     // header section spans
 

@@ -318,6 +318,9 @@ void QHeaderView::setModel(QAbstractItemModel *model)
         }
         QObject::disconnect(d->model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
                                 this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
+        QObject::disconnect(d->model, SIGNAL(layoutAboutToBeChanged()),
+                            this, SLOT(_q_layoutAboutToBeChanged()));
+        QObject::disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(_q_layoutChanged()));
     }
 
     if (model) {
@@ -338,6 +341,9 @@ void QHeaderView::setModel(QAbstractItemModel *model)
         }
         QObject::connect(model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
                          this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
+        QObject::connect(model, SIGNAL(layoutAboutToBeChanged()),
+                         this, SLOT(_q_layoutAboutToBeChanged()));
+        QObject::connect(model, SIGNAL(layoutChanged()), this, SLOT(_q_layoutChanged()));
     }
 
     d->state = QHeaderViewPrivate::NoClear;
@@ -1581,6 +1587,28 @@ void QHeaderViewPrivate::_q_sectionsRemoved(const QModelIndex &parent,
     invalidateCachedSizeHint();
     emit q->sectionCountChanged(oldCount, q->count());
     viewport->update();
+}
+
+void QHeaderViewPrivate::_q_layoutAboutToBeChanged()
+{
+    for (int i = 0; i < sectionHidden.count(); ++i)
+        if (sectionHidden.testBit(i)) // ### note that we are using column or row 0
+            persistentHiddenSections.append(orientation == Qt::Horizontal
+                                            ? model->index(0, logicalIndex(i), root)
+                                            : model->index(logicalIndex(i), 0, root));
+}
+
+void QHeaderViewPrivate::_q_layoutChanged()
+{
+    Q_Q(QHeaderView);
+    if (persistentHiddenSections.isEmpty())
+        return;
+    sectionHidden.fill(false);
+    for (int i = 0; i < persistentHiddenSections.count(); ++i)
+        sectionHidden.setBit(visualIndex(orientation == Qt::Horizontal
+                                         ? persistentHiddenSections.at(i).column()
+                                         : persistentHiddenSections.at(i).row()));
+    persistentHiddenSections.clear();
 }
 
 /*!
