@@ -34,6 +34,10 @@ Q_DECLARE_METATYPE(QPainterPath)
 Q_DECLARE_METATYPE(QPointF)
 Q_DECLARE_METATYPE(QRectF)
 
+#ifdef Q_OS_WIN32
+#include <windows.h>
+#endif
+
 class EventTester : public QGraphicsItem
 {
 public:
@@ -1384,6 +1388,13 @@ void tst_QGraphicsItem::zValue()
     view.show();
     QApplication::processEvents();
 
+#ifdef Q_OS_WIN32
+    //we try to switch the desktop: if it fails, we skip the test
+    if (::SwitchDesktop( ::GetThreadDesktop( ::GetCurrentThreadId() ) ) == 0) {
+        QSKIP("The Graphics View doesn't get the paint events", SkipSingle);
+    }
+#endif
+
     QVERIFY(!paintedItems.isEmpty());
     QVERIFY((paintedItems.size() % 4) == 0);
     for (int i = 0; i < 3; ++i)
@@ -2211,6 +2222,13 @@ void tst_QGraphicsItem::hoverEventsGenerateRepaints()
 
     qApp->processEvents();
     qApp->processEvents();
+
+#ifdef Q_OS_WIN32
+    //we try to switch the desktop: if it fails, we skip the test
+    if (::SwitchDesktop( ::GetThreadDesktop( ::GetCurrentThreadId() ) ) == 0) {
+        QSKIP("The Graphics View doesn't get the paint events", SkipSingle);
+    }
+#endif
 
     // Send a hover enter event
     QGraphicsSceneHoverEvent hoverEnterEvent(QEvent::GraphicsSceneHoverEnter);
@@ -3206,6 +3224,13 @@ void tst_QGraphicsItem::paint()
     
     view.show();
     QTest::qWait(250);
+
+#ifdef Q_OS_WIN32
+    //we try to switch the desktop: if it fails, we skip the test
+    if (::SwitchDesktop( ::GetThreadDesktop( ::GetCurrentThreadId() ) ) == 0) {
+        QSKIP("The Graphics View doesn't get the paint events", SkipSingle);
+    }
+#endif
 
     QVERIFY(paintTester.widget == view.viewport());
 }
