@@ -167,6 +167,8 @@ private slots:
     void yyTest();
     void task108572();
 
+    void task148725();
+
 #if QT_VERSION >= 0x040200
     void setSelectedSection();
     void reverseTest();
@@ -2735,6 +2737,22 @@ void tst_QDateTimeEdit::task149097()
     QCOMPARE(dSpy.count(), 2);
     QCOMPARE(tSpy.count(), 2);
 }
+
+void tst_QDateTimeEdit::task148725()
+{
+    testWidget->setDisplayFormat("dd/MM");
+    testWidget->setDate(QDate(2001, 2, 27));
+    testWidget->stepBy(1);
+    QCOMPARE(testWidget->date(), QDate(2001, 2, 28));
+    testWidget->stepBy(1);
+    QCOMPARE(testWidget->date(), QDate(2001, 2, 28));
+    testWidget->setWrapping(true);
+    testWidget->stepBy(1);
+    QCOMPARE(testWidget->date(), QDate(2001, 2, 1));
+}
+
+
+
 
 QTEST_MAIN(tst_QDateTimeEdit)
 #include "tst_qdatetimeedit.moc"
