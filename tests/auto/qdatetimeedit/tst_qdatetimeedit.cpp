@@ -168,6 +168,7 @@ private slots:
     void task108572();
 
     void task148725();
+    void task148522();
 
 #if QT_VERSION >= 0x040200
     void setSelectedSection();
@@ -2750,6 +2751,15 @@ void tst_QDateTimeEdit::task148725()
     testWidget->stepBy(1);
     QCOMPARE(testWidget->date(), QDate(2001, 2, 1));
 }
+
+void tst_QDateTimeEdit::task148522()
+{
+    QTimeEdit edit;
+    const QDateTime dt(QDate(2000, 12, 12), QTime(12, 13, 14, 15));
+    edit.setDateTime(dt);
+    QCOMPARE(edit.dateTime(), dt);
+}
+
 
 
 
