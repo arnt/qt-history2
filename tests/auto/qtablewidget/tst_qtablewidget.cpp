@@ -11,6 +11,7 @@
 #include <qeventloop.h>
 #include <qlist.h>
 #include <qpair.h>
+#include <qheaderview.h>
 
 #include <qtablewidget.h>
 
@@ -867,6 +868,8 @@ void tst_QTableWidget::sortItems_data()
     QTest::addColumn<QStringList>("initial");
     QTest::addColumn<QStringList>("expected");
     QTest::addColumn<IntList>("rows");
+    QTest::addColumn<IntList>("initialHidden");
+    QTest::addColumn<IntList>("expectedHidden");
 
     QTest::newRow("ascending")
         << 4 << 5
@@ -882,7 +885,9 @@ void tst_QTableWidget::sortItems_data()
             << "1" << "b" << "7" << "3" << "u"
             << "2" << "c" << "9" << "y" << "8"
             << "3" << "d" << "k" << "o" << "6")
-        << (IntList() << 0 << 3 << 2 << 1);
+        << (IntList() << 0 << 3 << 2 << 1)
+        << IntList()
+        << IntList();
 
     QTest::newRow("descending")
         << 4 << 5
@@ -898,7 +903,9 @@ void tst_QTableWidget::sortItems_data()
             << "2" << "c" << "9" << "y" << "8"
             << "1" << "b" << "7" << "3" << "u"
             << "0" << "a" << "o" << "8" << "k")
-        << (IntList() << 3 << 0 << 1 << 2);
+        << (IntList() << 3 << 0 << 1 << 2)
+        << IntList()
+        << IntList();
 
     QTest::newRow("empty table")
         << 4 << 5
@@ -914,6 +921,8 @@ void tst_QTableWidget::sortItems_data()
             <<  0  <<  0  <<  0  <<  0  << 0
             <<  0  <<  0  <<  0  <<  0  << 0
             <<  0  <<  0  <<  0  <<  0  << 0)
+        << IntList()
+        << IntList()
         << IntList();
 
 
@@ -931,7 +940,9 @@ void tst_QTableWidget::sortItems_data()
             <<  "2"  <<  "c"  <<  0  <<  0  << 0
             <<  "3"  <<  "d"  <<  0  <<  0  << 0
             <<   0   <<   0   <<  0  <<  0  << 0)
-        << (IntList() << 0 << 2 << 1);
+        << (IntList() << 0 << 2 << 1)
+        << IntList()
+        << IntList();
 
     QTest::newRow("empty column, should not sort.")
         << 4 << 5
@@ -947,6 +958,8 @@ void tst_QTableWidget::sortItems_data()
             <<  "3"  <<  "d"  <<  0  <<  0  << 0
             <<  "2"  <<  "c"  <<  0  <<  0  << 0
             <<   0   <<   0   <<  0  <<  0  << 0)
+        << IntList()
+        << IntList()
         << IntList();
 
     QTest::newRow("descending with null cell, the null cell should be placed at the bottom")
@@ -963,7 +976,9 @@ void tst_QTableWidget::sortItems_data()
             << "2" << "c" << "9" << "y" << "8"
             << "0" << "a" << "o" << "8" << "k"
             <<  0  << "b" << "7" << "3" << "u")
-        << (IntList() << 2 << 0 << 1);
+        << (IntList() << 2 << 0 << 1)
+        << IntList()
+        << IntList();
 
     QTest::newRow("ascending with null cell, the null cell should be placed at the bottom")
         << 4 << 5
@@ -979,7 +994,9 @@ void tst_QTableWidget::sortItems_data()
             << "2" << "c" << "9" << "y" << "8"
             << "3" << "d" << "k" << "o" << "6"
             <<  0  << "b" << "7" << "3" << "u")
-        << (IntList() << 0 << 2 << 1);
+        << (IntList() << 0 << 2 << 1)
+        << IntList()
+        << IntList();
 
     QTest::newRow("ascending with null cells, the null cells should be placed at the bottom")
         << 4 << 5
@@ -995,8 +1012,9 @@ void tst_QTableWidget::sortItems_data()
             << "3" << "d" << "k" << "o" << "6"
             <<  0  << "c" << "9" << "y" << "8"
             <<  0  << "b" << "7" << "3" << "u")
-        << (IntList() << 1 << 0);
-
+        << (IntList() << 1 << 0)
+        << IntList()
+        << IntList();
 
     QTest::newRow("ascending... Check a bug in PersistentIndexes")
         << 4 << 5
@@ -1014,7 +1032,9 @@ void tst_QTableWidget::sortItems_data()
             << "3" << "c" << "9" << "y" << "8"
             << "4" << "d" << "k" << "o" << "6"
             )
-        << (IntList() << 2 << 1 << 3 << 0);
+        << (IntList() << 2 << 1 << 3 << 0)
+        << IntList()
+        << IntList();
 
     QTest::newRow("ascending with some null cells inbetween")
         << 4 << 5
@@ -1030,8 +1050,45 @@ void tst_QTableWidget::sortItems_data()
             << "2" << "c" << "9" << "y" << "8"
             <<  0  << "a" << "o" << "8" << "k"
             <<  0  << "d" << "k" << "o" << "6")
-        << (IntList() << 1 << 0);
+        << (IntList() << 1 << 0)
+        << IntList()
+        << IntList();
 
+    QTest::newRow("ascending hidden")
+        << 4 << 5
+        << static_cast<int>(Qt::AscendingOrder)
+        << 0
+        << (QStringList()
+            << "0" << "a" << "o" << "8" << "k"
+            << "3" << "d" << "k" << "o" << "6"
+            << "2" << "c" << "9" << "y" << "8"
+            << "1" << "b" << "7" << "3" << "u")
+        << (QStringList()
+            << "0" << "a" << "o" << "8" << "k"
+            << "1" << "b" << "7" << "3" << "u"
+            << "2" << "c" << "9" << "y" << "8"
+            << "3" << "d" << "k" << "o" << "6")
+        << (IntList() << 0 << 3 << 2 << 1)
+        << (IntList() << 0 << 2)
+        << (IntList() << 0 << 2);
+
+    QTest::newRow("descending hidden")
+        << 4 << 5
+        << static_cast<int>(Qt::DescendingOrder)
+        << 0
+        << (QStringList()
+            << "0" << "a" << "o" << "8" << "k"
+            << "3" << "d" << "k" << "o" << "6"
+            << "2" << "c" << "9" << "y" << "8"
+            << "1" << "b" << "7" << "3" << "u")
+        << (QStringList()
+            << "3" << "d" << "k" << "o" << "6"
+            << "2" << "c" << "9" << "y" << "8"
+            << "1" << "b" << "7" << "3" << "u"
+            << "0" << "a" << "o" << "8" << "k")
+        << (IntList() << 3 << 0 << 1 << 2)
+        << (IntList() << 0 << 2)
+        << (IntList() << 3 << 1);
 }
 
 void tst_QTableWidget::sortItems()
@@ -1043,6 +1100,8 @@ void tst_QTableWidget::sortItems()
     QFETCH(QStringList, initial);
     QFETCH(QStringList, expected);
     QFETCH(IntList, rows);
+    QFETCH(IntList, initialHidden);
+    QFETCH(IntList, expectedHidden);
 
     testWidget->setRowCount(rowCount);
     testWidget->setColumnCount(columnCount);
@@ -1062,6 +1121,11 @@ void tst_QTableWidget::sortItems()
             persistent << model->index(r, sortColumn, QModelIndex());
     }
 
+    for (int h = 0; h < initialHidden.count(); ++h)
+        testWidget->hideRow(initialHidden.at(h));
+
+    QCOMPARE(testWidget->verticalHeader()->hiddenSectionCount(), initialHidden.count());
+
     testWidget->sortItems(sortColumn, static_cast<Qt::SortOrder>(sortOrder));
 
     int te = 0;
@@ -1076,9 +1140,11 @@ void tst_QTableWidget::sortItems()
         }
         QCOMPARE(persistent.at(i).row(), rows.at(i));
     }
+
+    for (int k = 0; k < expectedHidden.count(); ++k)
+        QVERIFY(testWidget->isRowHidden(expectedHidden.at(k)));
 }
 
-#if QT_VERSION >= 0x040200
 void tst_QTableWidget::setItemWithSorting_data()
 {
     QTest::addColumn<int>("rowCount");
@@ -1311,8 +1377,6 @@ void tst_QTableWidget::setItemData()
     QCOMPARE(table.model()->data(idx, Qt::DisplayRole).toString(), QLatin1String("dizplaye"));
     QCOMPARE(dataChangedSpy.count(), 1);
 }
-
-#endif // QT_VERSION
 
 QTEST_MAIN(tst_QTableWidget)
 #include "tst_qtablewidget.moc"
