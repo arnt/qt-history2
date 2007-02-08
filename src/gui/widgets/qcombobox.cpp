@@ -803,6 +803,8 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name)
     For the text and icon in the combobox label, the data in the model
     that has the Qt::DisplayRole and Qt::DecorationRole is used.
 
+    \image qstyle-comboboxes.png Comboboxes in the different built-in styles.
+
     \sa QLineEdit, QSpinBox, QRadioButton, QButtonGroup,
         {fowler}{GUI Design Handbook: Combo Box, Drop-Down List Box}
 */
