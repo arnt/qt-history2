@@ -73,15 +73,25 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
        more modifiers, such as Qt::SHIFT, Qt::CTRL, Qt::ALT and Qt::META.
     \endlist
 
-    For example, \gui{Ctrl+P} might be a sequence used as a shortcut for
+    For example, \gui{Ctrl P} might be a sequence used as a shortcut for
     printing a document, and can be specified in any of the following
     ways:
 
     \code
     QKeySequence(QKeySequence::Print}
     QKeySequence(tr("Ctrl+P"))
+    QKeySequence(tr("Ctrl+p"))
     QKeySequence(Qt::CTRL + Qt::Key_P)
     \endcode
+
+    Note that, for letters, the case used in the specification string does not
+    matter. In the above examples, the user does not need to hold down the
+    \key{Shift} key to activate a shortcut specified with "Ctrl+P". However,
+    for other keys, the use of \key{Shift} as an unspecified extra modifier
+    key can lead to confusion for users of an application whose keyboards have
+    different layouts to those used by the developers. See the
+    \l{#Keyboard Layout Issues}{Keyboard Layout Issues} section below for more
+    details.
 
     It is preferable to use standard shortcuts where possible.
     When creating key sequences for non-standard shortcuts, you should use
@@ -184,13 +194,59 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
     to ensure that you do not unintentionally assign the same key sequence to
     many actions.
 
+    \section1 Keyboard Layout Issues
+
+    Many key sequence specifications are chosen by developers based on the
+    layout of certain types of keyboard, rather than choosing keys that
+    represent the first letter of an action's name, such as \key{Ctrl S}
+    ("Ctrl+S") or \key{Ctrl C} ("Ctrl+C").
+    Additionally, because certain symbols can only be entered with the
+    help of modifier keys on certain keyboard layouts, key sequences intended
+    for use with one keyboard layout may map to a different key, map to no
+    keys at all, or require an additional modifier key to be used on
+    different keyboard layouts.
+
+    For example, the shortcuts, \key{Ctrl plus} and \key{Ctrl minus}, are often
+    used as shortcuts for zoom operations in graphics applications, and these
+    may be specified as "Ctrl++" and "Ctrl+-" respectively. However, the way
+    these shortcuts are specified and interpreted depends on the keyboard layout.
+    Users of Norwegian keyboards will note that the \key{+} and \key{-} keys
+    are not adjacent on the keyboard, but will still be able to activate both
+    shortcuts without needing to press the \key{Shift} key. However, users
+    with British keyboards will need to hold down the \key{Shift} key
+    to enter the \key{+} symbol, making the shortcut effectively the same as
+    "Ctrl+Shift+=".
+
+    Although some developers might resort to fully specifying all the modifiers
+    they use on their keyboards to activate a shortcut, this will also result
+    in unexpected behavior for users of different keyboard layouts.
+
+    For example, a developer using a British keyboard may decide to specify
+    "Ctrl+Shift+=" as the key sequence in order to create a shortcut that
+    coincidentally behaves in the same way as \key{Ctrl plus}. However, the
+    \key{=} key needs to be accessed using the \key{Shift} key on Norwegian
+    keyboard, making the required shortcut effectively \key{Ctrl Shift Shift =}
+    (an impossible key combination).
+
+    As a result, both human-readable strings and hard-coded key codes can both
+    be problematic to use when specifying a key sequence that can be used on
+    a variety of different keyboard layouts. Only the use of
+    \l{StandardKey}{standard shortcuts} guarantees that the user will be able
+    to use the shortcuts that the developer intended.
+
+    Despite this, we can address this issue by ensuring that human-readable
+    strings are used, making it possible for translations of key sequences to
+    be made for users of different languages. This approach will be successful
+    for users whose keyboards have the most typical layout for the language
+    they are using.
+
     \section1 GNU Emacs Style Key Sequences
 
     Key sequences similar to those used in \l{GNU Emacs}, allowing up to four
     key codes, can be created by using the multiple argument constructor,
     or by passing a human-readable string of comma-separated key sequences.
 
-    For example, the key sequence, \gui{Ctrl+X} followed by \gui{Ctrl+C}, can
+    For example, the key sequence, \key{Ctrl X} followed by \key{Ctrl C}, can
     be specified using either of the following ways:
 
     \code
