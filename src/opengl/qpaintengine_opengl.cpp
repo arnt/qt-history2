@@ -1685,9 +1685,9 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
     d->inverseScale = qMax(1 / qMax( qMax(qAbs(mtx.m11()), qAbs(mtx.m22())),
                                      qMax(qAbs(mtx.m12()), qAbs(mtx.m21())) ),
 #ifndef Q_WS_QWS
-                           0.0001f);
+                           0.0001);
 #else
-                           0.0001d);
+                           0.0001f);
 #endif
 
     glMatrixMode(GL_MODELVIEW);
