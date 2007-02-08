@@ -34,12 +34,10 @@ int main(int argc, char **argv)
     QWidget *ui = loader.load(&uiFile);
     uiFile.close();
 
-    QScriptValue calc = engine.newObject();
-    calc.ref();
-
     QScriptValue ctor = engine.evaluate("Calculator");
     QScriptValue scriptUi = engine.newQObject(ui);
-    ctor.call(calc, QScriptValueList() << scriptUi);
+    QScriptValue calc = ctor.construct(QScriptValueList() << scriptUi);
+    calc.ref();
 
     ui->show();
     return app.exec();

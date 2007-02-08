@@ -68,12 +68,10 @@ int main(int argc, char *argv[])
     QWidget *ui = loader.load(&uiFile);
     uiFile.close();
 
-    QScriptValue tetrix = engine.newObject();
-    tetrix.ref();
-
     QScriptValue ctor = engine.evaluate("TetrixWindow");
     QScriptValue scriptUi = engine.newQObject(ui);
-    ctor.call(tetrix, QScriptValueList() << scriptUi);
+    QScriptValue tetrix = ctor.construct(QScriptValueList() << scriptUi);
+    tetrix.ref();
 
     ui->resize(550, 370);
     ui->show();
