@@ -2077,7 +2077,7 @@ void tst_QAccessibility::menuTest()
     interface->doAction(QAccessible::DefaultAction, 1);
     QTestEventLoop::instance().enterLoop(1);
 
-#if QT_VERSION < 0x040300
+#if defined (Q_OS_WIN) && QT_VERSION < 0x040300
     QEXPECT_FAIL("", "Don't expect the File menu to be visible in 4.2", Continue);
 #endif
     QVERIFY(file->isVisible());
