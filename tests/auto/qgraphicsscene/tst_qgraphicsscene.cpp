@@ -28,6 +28,15 @@ QTEST_NOOP_MAIN
 #include <QtGui/QScrollBar>
 #include <QtGui/QStyleOption>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#define Q_CHECK_PAINTEVENTS \
+    if (::SwitchDesktop(::GetThreadDesktop(::GetCurrentThreadId())) == 0) \
+        QSKIP("The Graphics View doesn't get the paint events", SkipSingle);
+#else
+#define Q_CHECK_PAINTEVENTS
+#endif
+
 //TESTED_CLASS=QGraphicsScene
 //TESTED_FILES=gui/graphicsview/qgraphicsscene.cpp gui/graphicsview/qgraphicsscene_bsp.cpp
 
@@ -887,6 +896,7 @@ void tst_QGraphicsScene::selectionChanged()
 
 void tst_QGraphicsScene::addItem()
 {
+    Q_CHECK_PAINTEVENTS
     {
         // 1) Create item, then scene, then add item
         QGraphicsItem *path = new QGraphicsEllipseItem(QRectF(-10, -10, 20, 20));
@@ -1080,6 +1090,10 @@ void tst_QGraphicsScene::removeItem()
     QVERIFY(scene.selectedItems().contains(item2));
     scene.removeItem(item2);
     QVERIFY(scene.selectedItems().isEmpty());
+
+    // Check that we are in a state that can receive paint events
+    // (i.e., not logged out on Windows).
+    Q_CHECK_PAINTEVENTS
 
     // Removing a hovered item
     HoverItem *hoverItem = new HoverItem;
@@ -1297,6 +1311,8 @@ void tst_QGraphicsScene::mouseGrabberItem()
 
 void tst_QGraphicsScene::hoverEvents_siblings()
 {
+    Q_CHECK_PAINTEVENTS
+
     QGraphicsScene scene;
     QGraphicsItem *lastItem = 0;
     QList<HoverItem *> items;
@@ -1359,6 +1375,8 @@ void tst_QGraphicsScene::hoverEvents_siblings()
 
 void tst_QGraphicsScene::hoverEvents_parentChild()
 {
+    Q_CHECK_PAINTEVENTS
+
     QGraphicsScene scene;
     QGraphicsItem *lastItem = 0;
     QList<HoverItem *> items;

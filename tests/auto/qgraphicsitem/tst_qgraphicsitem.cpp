@@ -34,8 +34,13 @@ Q_DECLARE_METATYPE(QPainterPath)
 Q_DECLARE_METATYPE(QPointF)
 Q_DECLARE_METATYPE(QRectF)
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
 #include <windows.h>
+#define Q_CHECK_PAINTEVENTS \
+    if (::SwitchDesktop(::GetThreadDesktop(::GetCurrentThreadId())) == 0) \
+        QSKIP("The Graphics View doesn't get the paint events", SkipSingle); \
+#else
+#define Q_CHECK_PAINTEVENTS
 #endif
 
 class EventTester : public QGraphicsItem
@@ -1369,6 +1374,8 @@ protected:
 
 void tst_QGraphicsItem::zValue()
 {
+    Q_CHECK_PAINTEVENTS
+
     QGraphicsScene scene;
 
     QGraphicsItem *item1 = new PainterItem;
@@ -1387,13 +1394,6 @@ void tst_QGraphicsItem::zValue()
     QGraphicsView view(&scene);
     view.show();
     QApplication::processEvents();
-
-#ifdef Q_OS_WIN32
-    //we try to switch the desktop: if it fails, we skip the test
-    if (::SwitchDesktop( ::GetThreadDesktop( ::GetCurrentThreadId() ) ) == 0) {
-        QSKIP("The Graphics View doesn't get the paint events", SkipSingle);
-    }
-#endif
 
     QVERIFY(!paintedItems.isEmpty());
     QVERIFY((paintedItems.size() % 4) == 0);
