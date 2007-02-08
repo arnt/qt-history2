@@ -1531,6 +1531,8 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
                         node->cssFloat = QTextFrameFormat::FloatRight;
                 } else if (value == QLatin1String("middle")) {
                     node->charFormat.setVerticalAlignment(QTextCharFormat::AlignMiddle);
+                } else if (value == QLatin1String("top")) {
+                    node->charFormat.setVerticalAlignment(QTextCharFormat::AlignTop);
                 }
             }
         } else if (key == QLatin1String("valign")) {

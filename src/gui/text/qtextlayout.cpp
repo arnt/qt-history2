@@ -1840,7 +1840,13 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                     format.merge(selection->format);
                 setPenAndDrawBackground(p, pen, format, QRectF(iterator.x.toReal(), (y - line.ascent).toReal(), iterator.itemWidth.toReal(), line.height().toReal()));
                 if (si.isObject && eng->block.docHandle()) {
-                    QRectF itemRect(iterator.x.toReal(), (y-si.ascent).toReal(), iterator.itemWidth.toReal(), si.height().toReal());
+                    QFixed itemY = y - si.ascent;
+                    if (format.verticalAlignment() == QTextCharFormat::AlignTop) {
+                        itemY = y - line.ascent;
+                    }
+
+                    QRectF itemRect(iterator.x.toReal(), itemY.toReal(), iterator.itemWidth.toReal(), si.height().toReal());
+
                     eng->docLayout()->drawInlineObject(p, itemRect,
                                                        QTextInlineObject(iterator.item, eng),
                                                        si.position + eng->block.position(),

@@ -3173,6 +3173,20 @@ void tst_QTextDocumentFragment::html_verticalImageAlignment()
     QVERIFY(cursor.charFormat().isImageFormat());
     fmt = cursor.charFormat().toImageFormat();
     QVERIFY(fmt.verticalAlignment() == QTextCharFormat::AlignMiddle);
+
+    doc->setHtml("<img src=\"foo\" align=top />");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextCharacter);
+    QVERIFY(cursor.charFormat().isImageFormat());
+    fmt = cursor.charFormat().toImageFormat();
+    QVERIFY(fmt.verticalAlignment() == QTextCharFormat::AlignTop);
+
+    doc->setHtml("<img src=\"foo\" style=\"vertical-align: top\" />");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextCharacter);
+    QVERIFY(cursor.charFormat().isImageFormat());
+    fmt = cursor.charFormat().toImageFormat();
+    QVERIFY(fmt.verticalAlignment() == QTextCharFormat::AlignTop);
 }
 
 void tst_QTextDocumentFragment::html_verticalCellAlignment()

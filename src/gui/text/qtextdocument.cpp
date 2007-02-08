@@ -1891,6 +1891,8 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 
             if (imgFmt.verticalAlignment() == QTextCharFormat::AlignMiddle)
                 html += QLatin1String(" style=\"vertical-align: middle;\"");
+            else if (imgFmt.verticalAlignment() == QTextCharFormat::AlignTop)
+                html += QLatin1String(" style=\"vertical-align: top;\"");
 
             if (QTextFrame *imageFrame = qobject_cast<QTextFrame *>(doc->objectForFormat(imgFmt)))
                 emitFloatStyle(imageFrame->frameFormat().position());
