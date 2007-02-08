@@ -2206,6 +2206,7 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
         if (clearType) {
             DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(NULL_BRUSH)));
             DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(BLACK_PEN)));
+            SetTextColor(d->fontRasterBuffer->hdc(), RGB(0, 0, 0));
         }
 
         // Clean up alpha channel
