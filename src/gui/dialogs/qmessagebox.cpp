@@ -1611,7 +1611,6 @@ int QMessageBoxPrivate::showOldMessageBox(QWidget *parent, QMessageBox::Icon ico
 
 void QMessageBoxPrivate::retranslateStrings()
 {
-    Q_Q(QMessageBox);
     if (detailsButton)
         detailsButton->setText(detailsText->isHidden() ? detailsText->label(HideLabel) : detailsText->label(ShowLabel));
 
