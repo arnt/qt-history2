@@ -582,11 +582,10 @@ void tst_QSettings::testErrorHandling_data()
     //                         file    dir     afterCtor                      empty     afterGet                      afterSetAndSync
     QTest::newRow("0600 0700") << 0600 << 0700 << (int)QSettings::NoError     << false << (int)QSettings::NoError     << (int)QSettings::NoError;
 
-    // Behavior on the next two changed in 4.1.3 - QSettings will change the permissions if it is able to.
-#ifndef Q_WS_MAC
-    QTest::newRow("0400 0700") << 0400 << 0700 << (int)QSettings::NoError     << false << (int)QSettings::NoError     << (int)QSettings::NoError;
-    QTest::newRow("0200 0700") << 0200 << 0700 << (int)QSettings::AccessError     << false  << (int)QSettings::AccessError << (int)QSettings::AccessError;
-#endif
+    QTest::newRow("0400 0700") << 0400 << 0700 << (int)QSettings::NoError
+        << false << (int)QSettings::NoError     << (int)QSettings::AccessError;
+    QTest::newRow("0200 0700") << 0200 << 0700 << (int)QSettings::AccessError
+        << true  << (int)QSettings::AccessError << (int)QSettings::AccessError;
 
     QTest::newRow("  -1 0700") <<   -1 << 0700 << (int)QSettings::NoError     << true  << (int)QSettings::NoError     << (int)QSettings::NoError;
 
