@@ -252,6 +252,8 @@ void QDateTimeEdit::setDateTime(const QDateTime &datetime)
     if (datetime.isValid()) {
         d->cachedDay = -1;
         d->clearCache();
+        if (!(d->sections & DateSections_Mask))
+            setDateRange(datetime.date(), datetime.date());
         d->setValue(QVariant(datetime), EmitIfChanged);
         d->resetUndoHistory();
     }
@@ -274,6 +276,9 @@ void QDateTimeEdit::setDate(const QDate &date)
 {
     Q_D(QDateTimeEdit);
     if (date.isValid()) {
+        if (!(d->sections & DateSections_Mask))
+            setDateRange(date, date);
+
         d->cachedDay = -1;
         d->clearCache();
         d->setValue(QVariant(QDateTime(date, d->value.toTime())), EmitIfChanged);
