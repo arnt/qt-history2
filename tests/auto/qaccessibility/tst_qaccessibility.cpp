@@ -2499,7 +2499,7 @@ void tst_QAccessibility::dialogButtonBoxTest()
     case QDialogButtonBox::MacLayout:
         expectedOrder << QDialogButtonBox::tr("Help") 
                       << QDialogButtonBox::tr("Reset") 
-                      << QDialogButtonBox::tr("Ok");
+                      << QDialogButtonBox::tr("OK");
         break;
     }
     QCOMPARE(actualOrder, expectedOrder);
