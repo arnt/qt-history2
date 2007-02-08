@@ -24,7 +24,7 @@
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QWorkspace>
-
+#include <QDialogButtonBox>
 #include <limits.h>
 
 #ifndef QT_NO_ACCESSIBILITY
@@ -705,5 +705,21 @@ QWorkspace *QAccessibleWorkspace::workspace() const
 {
     return static_cast<QWorkspace *>(object());
 }
+
+
+#ifndef QT_NO_DIALOGBUTTONBOX
+// ======================= QAccessibleDialogButtonBox ======================
+QAccessibleDialogButtonBox::QAccessibleDialogButtonBox(QWidget *widget)
+    : QAccessibleWidgetEx(widget, Grouping)
+{
+    Q_ASSERT(qobject_cast<QDialogButtonBox*>(widget));
+}
+
+QVariant QAccessibleDialogButtonBox::invokeMethodEx(QAccessible::Method, int, const QVariantList &)
+{
+    return QVariant();
+}
+
+#endif // QT_NO_DIALOGBUTTONBOX
 
 #endif // QT_NO_ACCESSIBILITY

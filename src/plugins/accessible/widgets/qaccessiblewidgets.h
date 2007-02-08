@@ -129,6 +129,15 @@ protected:
     QWorkspace *workspace() const;
 };
 
+class QAccessibleDialogButtonBox : public QAccessibleWidgetEx
+{
+public:
+    explicit QAccessibleDialogButtonBox(QWidget *widget);
+
+    QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
+};
+
+
 #endif // QT_NO_ACCESSIBILITY
 
 #endif // QACESSIBLEWIDGETS_H

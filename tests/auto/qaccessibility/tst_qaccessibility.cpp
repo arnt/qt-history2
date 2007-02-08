@@ -2465,6 +2465,10 @@ void tst_QAccessibility::dialogButtonBoxTest()
 
     QApplication::processEvents();
     QCOMPARE(iface->childCount(), 3);
+    QCOMPARE(iface->role(0), QAccessible::Grouping);
+    QCOMPARE(iface->role(1), QAccessible::PushButton);
+    QCOMPARE(iface->role(2), QAccessible::PushButton);
+    QCOMPARE(iface->role(3), QAccessible::PushButton);
     QStringList actualOrder;
     QAccessibleInterface *child;
     QAccessibleInterface *leftmost;
@@ -2485,9 +2489,9 @@ void tst_QAccessibility::dialogButtonBoxTest()
         leftmost = child;
     }
 
+    QStringList expectedOrder;
     QDialogButtonBox::ButtonLayout btnlout = 
         QDialogButtonBox::ButtonLayout(QApplication::style()->styleHint(QStyle::SH_DialogButtonLayout));
-    QStringList expectedOrder;
     switch (btnlout) {
     case QDialogButtonBox::WinLayout:
         expectedOrder << QDialogButtonBox::tr("Reset") 
@@ -2505,7 +2509,52 @@ void tst_QAccessibility::dialogButtonBoxTest()
     QCOMPARE(actualOrder, expectedOrder);
     delete iface;
     QApplication::processEvents();
+    QTestAccessibility::clearEvents();
+    }
+
+    {
+    QDialogButtonBox box(QDialogButtonBox::Reset | 
+                         QDialogButtonBox::Help | 
+                         QDialogButtonBox::Ok, Qt::Horizontal);
     
+
+    // Test up and down navigation
+    QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&box);
+    QVERIFY(iface);
+    box.setOrientation(Qt::Vertical);
+    box.show();
+
+    QApplication::processEvents();
+    QAccessibleInterface *child;
+    QStringList actualOrder;
+    iface->navigate(QAccessible::Child, 1, &child);
+    // first find the topmost button
+    QAccessibleInterface *other;
+    while (child->navigate(QAccessible::Up, 1, &other) != -1) {
+        delete child;
+        child = other;
+    }
+    other = child;
+
+    // then traverse from top to bottom to find the correct order of the buttons
+    actualOrder.clear();
+    int right = 0;
+    while (right != -1) {
+        actualOrder << other->text(QAccessible::Name, 0);
+        right = other->navigate(QAccessible::Down, 1, &child);
+        delete other;
+        other = child;
+    }
+
+    QStringList expectedOrder;
+    expectedOrder << QDialogButtonBox::tr("OK")
+                  << QDialogButtonBox::tr("Reset")
+                  << QDialogButtonBox::tr("Help");
+
+    QCOMPARE(actualOrder, expectedOrder);
+    delete iface;
+    QApplication::processEvents();
+
     }
     QTestAccessibility::clearEvents();
 #else
