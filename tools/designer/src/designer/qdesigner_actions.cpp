@@ -87,7 +87,7 @@ static QActionGroup *createActionGroup(QObject *parent, bool exclusive = false) 
 
 QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     : QObject(workbench),
-      m_workbench(workbench), 
+      m_workbench(workbench),
       m_assistantClient(0),
       m_backupTimer(new QTimer(this)),
       m_fileActions(createActionGroup(this)),
@@ -393,6 +393,9 @@ void QDesignerActions::createForm()
 
 void QDesignerActions::showNewFormDialog(const QString &fileName)
 {
+#ifdef NONMODAL_PREVIEW
+    closePreview();
+#endif
     NewForm *dlg = new NewForm(workbench(), workbench()->core()->topLevel(), fileName);
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->setAttribute(Qt::WA_ShowModal);
@@ -404,6 +407,9 @@ void QDesignerActions::showNewFormDialog(const QString &fileName)
 
 bool QDesignerActions::openForm()
 {
+#ifdef NONMODAL_PREVIEW
+    closePreview();
+#endif
     const QString extension = getFileExtension(core());
     const QStringList fileNames = QFileDialog::getOpenFileNames(core()->topLevel(), tr("Open Form"),
         m_openDirectory, tr("Designer UI files (*.%1);;All Files (*)").arg(extension), 0, QFileDialog::DontUseSheet);
@@ -513,10 +519,8 @@ bool QDesignerActions::saveForm(QDesignerFormWindowInterface *fw)
 void QDesignerActions::closeForm()
 {
 #ifdef NONMODAL_PREVIEW
-    if (m_previewWidget) {
-        m_previewWidget->close();
+    if (closePreview())
         return;
-    }
 #endif
 
     if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow())
@@ -570,10 +574,13 @@ void QDesignerActions::previewFormLater(QAction *action)
                                 Q_ARG(QAction*, action));
 }
 
-void QDesignerActions::closePreview()
+bool QDesignerActions::closePreview()
 {
-    if (m_previewWidget)
+    if (m_previewWidget) {
         m_previewWidget->close();
+        return true;
+    }
+    return false;
 }
 
 void QDesignerActions::previewForm(QAction *action)

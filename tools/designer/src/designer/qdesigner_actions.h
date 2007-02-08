@@ -102,7 +102,7 @@ private:
     void addRecentFile(const QString &fileName);
     void showHelp(const QString &help);
     void updateCloseAction();
-    void closePreview();
+    bool closePreview();
     QRect fixDialogRect(const QRect &rect) const;
     QString fixResourceFileBackupPath(QDesignerFormWindowInterface *fwi, const QDir& backupDir);
     void showStatusBarMessage(const QString &message) const;
