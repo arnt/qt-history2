@@ -295,7 +295,7 @@
 
     If you experience very slow access of the ODBC datasource, make sure
     that ODBC call tracing is turned off in the ODBC datasource manager.
-  
+
     \section3 Stored Procedure Support
 
     With Microsoft SQL Server the result set returned by a stored 
@@ -395,6 +395,14 @@
         cd $QTDIR/src/plugins/sqldrivers/psql
         qmake -o Makefile "INCLUDEPATH+=/usr/include/pgsql" "LIBS+=-L/usr/lib -lpq" psql.pro
         make
+    \endcode
+
+    After installing Qt, as described in the \l{Installing Qt/X11} document,
+    you also need to install the plugin in the standard location:
+
+    \code
+        cd $QTDIR/src/plugins/sqldrivers/psql
+        make install
     \endcode
 
     \section3 How to Build the Plugin on Windows
