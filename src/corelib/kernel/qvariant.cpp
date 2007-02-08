@@ -1744,7 +1744,7 @@ void QVariant::load(QDataStream &s)
     qint8 is_null = false;
     if (s.version() >= QDataStream::Qt_4_2)
         s >> is_null;
-    if (u >= QVariant::UserType) {
+    if (u == QVariant::UserType) {
         QByteArray name;
         s >> name;
         u = QMetaType::type(name);

@@ -1368,6 +1368,29 @@ void tst_QVariant::writeToReadFromDataStream_data()
     QTest::newRow( "qchar_null" ) << QVariant(QChar(0)) << true;
     QTest::newRow( "regexp" ) << QVariant(QRegExp("foo", Qt::CaseInsensitive)) << false;
     QTest::newRow( "regexp_empty" ) << QVariant(QRegExp()) << false;
+
+    // types known to QMetaType, but not part of QVariant::Type
+    QTest::newRow("QMetaType::Long invalid") << QVariant(QMetaType::Long, (void *) 0) << false;
+    long longInt = -1l;
+    QTest::newRow("QMetaType::Long") << QVariant(QMetaType::Long, &longInt) << false;
+    QTest::newRow("QMetaType::Short invalid") << QVariant(QMetaType::Short, (void *) 0) << false;
+    short shortInt = 1;
+    QTest::newRow("QMetaType::Short") << QVariant(QMetaType::Short, &shortInt) << false;
+    QTest::newRow("QMetaType::Char invalid") << QVariant(QMetaType::Char, (void *) 0) << false;
+    char ch = 'c';
+    QTest::newRow("QMetaType::Char") << QVariant(QMetaType::Char, &ch) << false;
+    QTest::newRow("QMetaType::ULong invalid") << QVariant(QMetaType::ULong, (void *) 0) << false;
+    ulong ulongInt = 1ul;
+    QTest::newRow("QMetaType::ULong") << QVariant(QMetaType::ULong, &ulongInt) << false;
+    QTest::newRow("QMetaType::UShort invalid") << QVariant(QMetaType::UShort, (void *) 0) << false;
+    ushort ushortInt = 1u;
+    QTest::newRow("QMetaType::UShort") << QVariant(QMetaType::UShort, &ushortInt) << false;
+    QTest::newRow("QMetaType::UChar invalid") << QVariant(QMetaType::UChar, (void *) 0) << false;
+    uchar uch = 0xf0;
+    QTest::newRow("QMetaType::UChar") << QVariant(QMetaType::UChar, &uch) << false;
+    QTest::newRow("QMetaType::Float invalid") << QVariant(QMetaType::Float, (void *) 0) << false;
+    float f = 1.234f;
+    QTest::newRow("QMetaType::Float") << QVariant(QMetaType::Float, &f) << false;
 }
 
 void tst_QVariant::writeToReadFromDataStream()
@@ -1390,8 +1413,35 @@ void tst_QVariant::writeToReadFromDataStream()
     // I won't bother adding another bool in the data test.
     QVariant::Type writeType = writeVariant.type();
     if ( writeType != QVariant::Invalid && writeType != QVariant::Bitmap && writeType != QVariant::Pixmap
-	&& writeType != QVariant::Image && writeType != QVariant::IconSet ) {
-	QCOMPARE( readVariant, writeVariant );
+        && writeType != QVariant::Image && writeType != QVariant::IconSet ) {
+        switch (writeType) {
+        default:
+            QCOMPARE( readVariant, writeVariant );
+            break;
+
+        // compare types know by QMetaType but not QVariant (QVariant::operator==() knows nothing about them)
+        case QMetaType::Long:
+            QCOMPARE(qvariant_cast<long>(readVariant.data()), qvariant_cast<long>(writeVariant.data()));
+            break;
+        case QMetaType::ULong:
+            QCOMPARE(qvariant_cast<ulong>(readVariant.data()), qvariant_cast<ulong>(writeVariant.data()));
+            break;
+        case QMetaType::Short:
+            QCOMPARE(qvariant_cast<short>(readVariant.data()), qvariant_cast<short>(writeVariant.data()));
+            break;
+        case QMetaType::UShort:
+            QCOMPARE(qvariant_cast<ushort>(readVariant.data()), qvariant_cast<ushort>(writeVariant.data()));
+            break;
+        case QMetaType::Char:
+            QCOMPARE(qvariant_cast<char>(readVariant.data()), qvariant_cast<char>(writeVariant.data()));
+            break;
+        case QMetaType::UChar:
+            QCOMPARE(qvariant_cast<uchar>(readVariant.data()), qvariant_cast<uchar>(writeVariant.data()));
+            break;
+        case QMetaType::Float:
+            QCOMPARE(qvariant_cast<float>(readVariant.data()), qvariant_cast<float>(writeVariant.data()));
+            break;
+        }
     }
 }
 
