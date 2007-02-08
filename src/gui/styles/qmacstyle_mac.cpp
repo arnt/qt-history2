@@ -3159,8 +3159,21 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             QStyleOptionTabV2 myTab = *tab;
             ThemeTabDirection ttd = getTabDirection(myTab.shape);
             bool verticalTabs = ttd == kThemeTabWest || ttd == kThemeTabEast;
-            if (verticalTabs || w && w->testAttribute(Qt::WA_SetFont)) {
-                myTab.rect.setHeight(myTab.rect.height() - 1);
+
+            // Check to see if we use have the same as the system font
+            // (QComboMenuItem is internal and should never be seen by the
+            // outside world, unless they read the source, in which case, it's
+            // their own fault).
+            bool nonDefaultFont = p->font() != qt_app_fonts_hash()->value("QComboMenuItem");
+            if (verticalTabs || nonDefaultFont) {
+                int heightOffset = 0;
+                if (verticalTabs) {
+                    heightOffset = -1;
+                } else if (nonDefaultFont) {
+                    if (p->fontMetrics().height() == myTab.rect.height())
+                        heightOffset = 2;
+                }
+                myTab.rect.setHeight(myTab.rect.height() + heightOffset);
                 if (verticalTabs) {
                     p->save();
                     p->translate((ttd == kThemeTabWest) ? -2 : 0, 0);
@@ -3177,7 +3190,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 tti.state = tds;
                 QColor textColor = myTab.palette.windowText().color();
                 CGFloat colorComp[] = { textColor.redF(), textColor.greenF(),
-                                      textColor.blueF(), textColor.alphaF() };
+                                        textColor.blueF(), textColor.alphaF() };
                 CGContextSetFillColorSpace(cg, QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()));
                 CGContextSetFillColor(cg, colorComp);
                 switch (qt_aqua_size_constrain(w)) {
