@@ -442,9 +442,14 @@ QModelIndex QDataWidgetMapper::rootIndex() const
     mapper->addMapping(ageSpinBox, 1);
     \endcode
 
-    \bold{Note:} If the \a widget is already mapped to a section, the
-    old mapping will be replaced by the new one. A widget can never
-    be mapped to more than one section at a time.
+    \bold{Notes:}
+    \list
+    \o If the \a widget is already mapped to a section, the
+    old mapping will be replaced by the new one.
+    \o Only one-to-one mappings between sections and widgets are allowed.
+    It is not possible to map a single section to multiple widgets, or to
+    map a single widget to multiple sections.
+    \endlist
 
     \sa removeMapping(), mappedSection(), clearMapping()
  */
