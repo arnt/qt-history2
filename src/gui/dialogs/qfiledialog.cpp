@@ -652,6 +652,8 @@ void QFileDialog::setFilters(const QStringList &filters)
 {
     Q_D(QFileDialog);
     d->fileTypeCombo->clear();
+    if (filters.isEmpty())
+        return;
     d->fileTypeCombo->addItems(filters);
     d->updateFileTypeVisibility();
     d->_q_useNameFilter(filters.first());
