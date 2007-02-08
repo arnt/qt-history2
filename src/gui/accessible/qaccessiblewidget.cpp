@@ -834,6 +834,18 @@ QAccessible::Role QAccessibleWidget::role(int child) const
 {
     if (!child)
         return d->role;
+
+    QWidgetList childList = childWidgets(widget());
+    if (childList.count() > 0 && child <= childList.count()) {
+        QWidget *targetWidget = childList.at(child - 1);
+        QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(targetWidget);
+        if (iface) {
+            QAccessible::Role role = iface->role(0);
+            delete iface;
+            return role;
+        }
+    }
+
     return NoRole;
 }
 
