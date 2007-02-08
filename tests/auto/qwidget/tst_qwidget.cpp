@@ -40,11 +40,18 @@
 
 #if defined(Q_WS_WIN)
 #  include <qt_windows.h>
+#define Q_CHECK_PAINTEVENTS \
+    if (::SwitchDesktop(::GetThreadDesktop(::GetCurrentThreadId())) == 0) \
+        QSKIP("desktop is not visible, this test would fail", SkipSingle);
 #elif defined(Q_WS_X11)
 #  include <private/qt_x11_p.h>
 #  include <qx11info_x11.h>
 #elif defined(Q_WS_QWS)
 # include <qwindowsystem_qws.h>
+#endif
+
+#if !defined(Q_WS_WIN)
+#define Q_CHECK_PAINTEVENTS
 #endif
 
 #if defined(Bool)
@@ -1279,6 +1286,7 @@ void tst_QWidget::activation()
 #if !defined(Q_WS_WIN)
     QSKIP("This test is Windows-only.", SkipAll);
 #endif
+    Q_CHECK_PAINTEVENTS
 
     QWidget widget1;
     widget1.setCaption("Widget1");
@@ -2220,6 +2228,8 @@ void tst_QWidget::restoreVersion1Geometry()
 
 void tst_QWidget::widgetAt()
 {
+    Q_CHECK_PAINTEVENTS
+
     QWidget *w1 = new QWidget(0, Qt::X11BypassWindowManagerHint);
     w1->setGeometry(0,0,150,150);
     w1->setObjectName("w1");
