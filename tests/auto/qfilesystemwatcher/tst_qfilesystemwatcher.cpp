@@ -247,6 +247,7 @@ void tst_QFileSystemWatcher::watchDirectory()
     timer.start(5000);
     eventLoop.exec();
 
+    QEXPECT_FAIL("native", "See task 149637: there is a difference between native and poller", Abort);
     QCOMPARE(changedSpy.count(), 2);
     QCOMPARE(changedSpy.at(0).count(), 1);
     QCOMPARE(changedSpy.at(1).count(), 1);
