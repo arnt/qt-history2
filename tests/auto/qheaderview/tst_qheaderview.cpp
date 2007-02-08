@@ -438,14 +438,12 @@ void tst_QHeaderView::sectionSize()
         QCOMPARE(view->length(), view->viewport()->height());
         QCOMPARE(view->sectionSize(3), (view->viewport()->height() - view->sectionViewportPosition(3)));
     }
-
     //test that when hiding the last column, 
     //resizing the new last visible columns still works
     view->hideSection(3);
     view->resizeSection(2, 300);
     QCOMPARE(view->sectionSize(2), 300);
     view->showSection(3);
-
 
     view->setStretchLastSection(false);
     QCOMPARE(view->sectionSize(3), 30);
