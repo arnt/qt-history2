@@ -478,18 +478,18 @@ static const uint * QT_FASTCALL fetchTransformedBilinear_generic(uint *buffer, c
             int idistx = 256 - distx;
             int idisty = 256 - disty;
 
-            bool x1_out = ((x1 < 0) || (x1 >= image_width));
-            bool x2_out = ((x2 < 0) || (x2 >= image_width));
-            bool y1_out = ((y1 < 0) || (y1 >= image_height));
-            bool y2_out = ((y2 < 0) || (y2 >= image_height));
+            x1 = qBound(0, x1, image_width - 1);
+            x2 = qBound(0, x2, image_width - 1);
+            y1 = qBound(0, y1, image_height - 1);
+            y2 = qBound(0, y2, image_height - 1);
 
             const uchar *s1 = data->texture.scanLine(y1);
-            const uchar *s2 = s1 + data->texture.bytesPerLine;
+            const uchar *s2 = data->texture.scanLine(y2);
 
-            uint tl = (x1_out || y1_out) ? uint(0) : fetch(s1, x1, data->texture.colorTable);
-            uint tr = (x2_out || y1_out) ? uint(0) : fetch(s1, x2, data->texture.colorTable);
-            uint bl = (x1_out || y2_out) ? uint(0) : fetch(s2, x1, data->texture.colorTable);
-            uint br = (x2_out || y2_out) ? uint(0) : fetch(s2, x2, data->texture.colorTable);
+            uint tl = fetch(s1, x1, data->texture.colorTable);
+            uint tr = fetch(s1, x2, data->texture.colorTable);
+            uint bl = fetch(s2, x1, data->texture.colorTable);
+            uint br = fetch(s2, x2, data->texture.colorTable);
 
             uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
             uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
@@ -516,18 +516,18 @@ static const uint * QT_FASTCALL fetchTransformedBilinear_generic(uint *buffer, c
             int idistx = 256 - distx;
             int idisty = 256 - disty;
 
-            bool x1_out = ((x1 < 0) || (x1 >= image_width));
-            bool x2_out = ((x2 < 0) || (x2 >= image_width));
-            bool y1_out = ((y1 < 0) || (y1 >= image_height));
-            bool y2_out = ((y2 < 0) || (y2 >= image_height));
+            x1 = qBound(0, x1, image_width - 1);
+            x2 = qBound(0, x2, image_width - 1);
+            y1 = qBound(0, y1, image_height - 1);
+            y2 = qBound(0, y2, image_height - 1);
 
             const uchar *s1 = data->texture.scanLine(y1);
-            const uchar *s2 = s1 + data->texture.bytesPerLine;
+            const uchar *s2 = data->texture.scanLine(y2);
 
-            uint tl = (x1_out || y1_out) ? uint(0) : fetch(s1, x1, data->texture.colorTable);
-            uint tr = (x2_out || y1_out) ? uint(0) : fetch(s1, x2, data->texture.colorTable);
-            uint bl = (x1_out || y2_out) ? uint(0) : fetch(s2, x1, data->texture.colorTable);
-            uint br = (x2_out || y2_out) ? uint(0) : fetch(s2, x2, data->texture.colorTable);
+            uint tl = fetch(s1, x1, data->texture.colorTable);
+            uint tr = fetch(s1, x2, data->texture.colorTable);
+            uint bl = fetch(s2, x1, data->texture.colorTable);
+            uint br = fetch(s2, x2, data->texture.colorTable);
 
             uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
             uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
@@ -3009,24 +3009,24 @@ static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void 
                     int idistx = 256 - distx;
                     int idisty = 256 - disty;
 
-                    bool x1_out = ((x1 < 0) || (x1 >= image_width));
-                    bool x2_out = ((x2 < 0) || (x2 >= image_width));
-                    bool y1_out = ((y1 < 0) || (y1 >= image_height));
-                    bool y2_out = ((y2 < 0) || (y2 >= image_height));
+                    x1 = qBound(0, x1, image_width - 1);
+                    x2 = qBound(0, x2, image_width - 1);
+                    y1 = qBound(0, y1, image_height - 1);
+                    y2 = qBound(0, y2, image_height - 1);
 
                     int y1_offset = y1 * image_width;
-                    int y2_offset = y1_offset + image_width;
+                    int y2_offset = y2 * image_width;
 
 #if defined(Q_IRIX_GCC3_3_WORKAROUND)
-                    uint tl = gccBug((x1_out || y1_out) ? uint(0) : image_bits[y1_offset + x1]);
-                    uint tr = gccBug((x2_out || y1_out) ? uint(0) : image_bits[y1_offset + x2]);
-                    uint bl = gccBug((x1_out || y2_out) ? uint(0) : image_bits[y2_offset + x1]);
-                    uint br = gccBug((x2_out || y2_out) ? uint(0) : image_bits[y2_offset + x2]);
+                    uint tl = gccBug(image_bits[y1_offset + x1]);
+                    uint tr = gccBug(image_bits[y1_offset + x2]);
+                    uint bl = gccBug(image_bits[y2_offset + x1]);
+                    uint br = gccBug(image_bits[y2_offset + x2]);
 #else
-                    uint tl = (x1_out || y1_out) ? uint(0) : image_bits[y1_offset + x1];
-                    uint tr = (x2_out || y1_out) ? uint(0) : image_bits[y1_offset + x2];
-                    uint bl = (x1_out || y2_out) ? uint(0) : image_bits[y2_offset + x1];
-                    uint br = (x2_out || y2_out) ? uint(0) : image_bits[y2_offset + x2];
+                    uint tl = image_bits[y1_offset + x1];
+                    uint tr = image_bits[y1_offset + x2];
+                    uint bl = image_bits[y2_offset + x1];
+                    uint br = image_bits[y2_offset + x2];
 #endif
 
                     uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
@@ -3082,24 +3082,24 @@ static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void 
                     int idistx = 256 - distx;
                     int idisty = 256 - disty;
 
-                    bool x1_out = ((x1 < 0) || (x1 >= image_width));
-                    bool x2_out = ((x2 < 0) || (x2 >= image_width));
-                    bool y1_out = ((y1 < 0) || (y1 >= image_height));
-                    bool y2_out = ((y2 < 0) || (y2 >= image_height));
+                    x1 = qBound(0, x1, image_width - 1);
+                    x2 = qBound(0, x2, image_width - 1);
+                    y1 = qBound(0, y1, image_height - 1);
+                    y2 = qBound(0, y2, image_height - 1);
 
                     int y1_offset = y1 * image_width;
-                    int y2_offset = y1_offset + image_width;
+                    int y2_offset = y2 * image_width;
 
 #if defined(Q_IRIX_GCC3_3_WORKAROUND)
-                    uint tl = gccBug((x1_out || y1_out) ? uint(0) : image_bits[y1_offset + x1]);
-                    uint tr = gccBug((x2_out || y1_out) ? uint(0) : image_bits[y1_offset + x2]);
-                    uint bl = gccBug((x1_out || y2_out) ? uint(0) : image_bits[y2_offset + x1]);
-                    uint br = gccBug((x2_out || y2_out) ? uint(0) : image_bits[y2_offset + x2]);
+                    uint tl = gccBug(image_bits[y1_offset + x1]);
+                    uint tr = gccBug(image_bits[y1_offset + x2]);
+                    uint bl = gccBug(image_bits[y2_offset + x1]);
+                    uint br = gccBug(image_bits[y2_offset + x2]);
 #else
-                    uint tl = (x1_out || y1_out) ? uint(0) : image_bits[y1_offset + x1];
-                    uint tr = (x2_out || y1_out) ? uint(0) : image_bits[y1_offset + x2];
-                    uint bl = (x1_out || y2_out) ? uint(0) : image_bits[y2_offset + x1];
-                    uint br = (x2_out || y2_out) ? uint(0) : image_bits[y2_offset + x2];
+                    uint tl = image_bits[y1_offset + x1];
+                    uint tr = image_bits[y1_offset + x2];
+                    uint bl = image_bits[y2_offset + x1];
+                    uint br = image_bits[y2_offset + x2];
 #endif
 
                     uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
