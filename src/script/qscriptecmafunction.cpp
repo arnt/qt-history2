@@ -205,7 +205,7 @@ QScriptValue Function::method_disconnect(QScriptEngine *eng, QScriptClassInfo *)
         if (arg1.isFunction())
             slot = arg1;
         else
-            slot = receiver.property(arg1.toString());
+            slot = receiver.property(arg1.toString(), QScriptValue::ResolvePrototype);
         if (slot.isFunction() && QScriptValueImpl::get(slot)->toFunction()->type() == QScriptFunction::Qt) {
             receiver = self;
             slot = arg1;
@@ -269,7 +269,7 @@ QScriptValue Function::method_connect(QScriptEngine *eng, QScriptClassInfo *clas
         if (arg1.isFunction())
             slot = arg1;
         else
-            slot = receiver.property(arg1.toString());
+            slot = receiver.property(arg1.toString(), QScriptValue::ResolvePrototype);
         if (slot.isFunction() && QScriptValueImpl::get(slot)->toFunction()->type() == QScriptFunction::Qt) {
             receiver = self;
             slot = arg1;
