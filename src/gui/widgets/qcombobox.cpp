@@ -793,7 +793,15 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name)
     setCompleter() and whether or not the user can add duplicates
     is set with setDuplicatesEnabled().
 
-    \image qstyle-comboboxes.png Comboboxes in the different built-in styles.
+    QComboBox uses the \l{Model/View Programming}{model/view
+    framework} for its popup list and to store its items.  By default
+    a QStandardItemModel stores the items and a QListView subclass
+    displays the popuplist. You can access the model and view directly
+    (with model() and view()), but QComboBox also provides functions
+    to set and get item data (e.g., setItemData() and itemText()). You
+    can also set a new model and view (with setModel() and setView()).
+    For the text and icon in the combobox label, the data in the model
+    that has the Qt::DisplayRole and Qt::DecorationRole is used.
 
     \sa QLineEdit, QSpinBox, QRadioButton, QButtonGroup,
         {fowler}{GUI Design Handbook: Combo Box, Drop-Down List Box}
