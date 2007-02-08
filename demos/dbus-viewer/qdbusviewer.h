@@ -40,6 +40,8 @@ private slots:
     void showContextMenu(const QPoint &);
     void connectionRequested(const BusSignature &sig);
     void callMethod(const BusSignature &sig);
+    void getProperty(const BusSignature &sig);
+    void setProperty(const BusSignature &sig);
     void dumpMessage(const QDBusMessage &msg);
     void refreshChildren();
 

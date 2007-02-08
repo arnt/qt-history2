@@ -125,13 +125,49 @@ void QDBusViewer::activate(const QModelIndex &item)
     case QDBusModel::MethodItem:
         callMethod(sig);
         break;
-#if 0
     case QDBusModel::PropertyItem:
+        getProperty(sig);
         break;
-#endif
     default:
         break;
     }
+}
+
+void QDBusViewer::getProperty(const BusSignature &sig)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(sig.mService, sig.mPath, "org.freedesktop.DBus.Properties", "Get");
+    QList<QVariant> arguments;
+    arguments << sig.mInterface << sig.mName;
+    message.setArguments(arguments);
+    c.callWithCallback(message, this, SLOT(dumpMessage(QDBusMessage)));
+}
+
+void QDBusViewer::setProperty(const BusSignature &sig)
+{
+    QDBusInterface iface(sig.mService, sig.mPath, sig.mInterface, c);
+    QMetaProperty prop = iface.metaObject()->property(iface.metaObject()->indexOfProperty(sig.mName.toLatin1()));
+
+    bool ok;
+    QString input = QInputDialog::getText(this, "Arguments",
+                    QString("Please enter the value of the property %1 (type %2)").arg(
+                        sig.mName).arg(prop.typeName()),
+                    QLineEdit::Normal, QString(), &ok);
+    if (!ok)
+        return;
+
+    QVariant value = input;
+    if (!value.convert(prop.type())) {
+        QMessageBox::warning(this, "Unable to marshall",
+                "Value conversion failed, unable to set property");
+        return;
+    }
+
+    QDBusMessage message = QDBusMessage::createMethodCall(sig.mService, sig.mPath, "org.freedesktop.DBus.Properties", "Set");
+    QList<QVariant> arguments;
+    arguments << sig.mInterface << sig.mName << qVariantFromValue(QDBusVariant(value));
+    message.setArguments(arguments);
+    c.callWithCallback(message, this, SLOT(dumpMessage(QDBusMessage)));
+
 }
 
 void QDBusViewer::callMethod(const BusSignature &sig)
@@ -233,8 +269,7 @@ void QDBusViewer::showContextMenu(const QPoint &point)
         action->setData(2);
         menu.addAction(action);
         break; }
-#if 0
-    case PropertyItem: {
+    case QDBusModel::PropertyItem: {
         QAction *actionSet = new QAction("&Set value", &menu);
         actionSet->setData(3);
         QAction *actionGet = new QAction("&Get value", &menu);
@@ -242,7 +277,6 @@ void QDBusViewer::showContextMenu(const QPoint &point)
         menu.addAction(actionSet);
         menu.addAction(actionGet);
         break; }
-#endif
     default:
         break;
     }
@@ -257,6 +291,12 @@ void QDBusViewer::showContextMenu(const QPoint &point)
         break;
     case 2:
         callMethod(sig);
+        break;
+    case 3:
+        setProperty(sig);
+        break;
+    case 4:
+        getProperty(sig);
         break;
     }
 }
@@ -316,6 +356,13 @@ void QDBusViewer::dumpMessage(const QDBusMessage &message)
                         r.right()).arg(r.bottom());
             } else if (qVariantCanConvert<QDBusArgument>(arg)) {
                 out += "[QDBusArgument: " + qvariant_cast<QDBusArgument>(arg).currentSignature();
+                out += "]";
+            } else if (qVariantCanConvert<QDBusVariant>(arg)) {
+                QVariant v = qvariant_cast<QDBusVariant>(arg).variant();
+                out += "[QDBusVariant(";
+                out += v.typeName();
+                out += "): ";
+                out += Qt::escape(v.toString());
                 out += "]";
             } else if (arg.canConvert(QVariant::String)) {
                 out += "<b>\"</b>" + Qt::escape(arg.toString()) + "<b>\"</b>";
