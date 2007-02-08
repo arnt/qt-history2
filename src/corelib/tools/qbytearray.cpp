@@ -3297,8 +3297,10 @@ float QByteArray::toFloat(bool *ok) const
 
     \code
         QByteArray text("Qt is great!");
-        text.toBase64();        // returns "UXQgaXMgZ3JlYXRcIQo="
+        text.toBase64();        // returns "UXQgaXMgZ3JlYXQh"
     \endcode
+
+    The algorithm used to encode Base64-encoded data is defined in \l{RFC 2045}.
 
     \sa fromBase64()
 */
@@ -3626,12 +3628,18 @@ QByteArray QByteArray::fromRawData(const char *data, int size)
 }
 
 /*!
-    Returns a decoded copy of the Base64 array \a base64. For example:
+    Returns a decoded copy of the Base64 array \a base64. Input is not checked
+    for validity; invalid characters in the input are skipped, enabling the
+    decoding process to continue with subsequent characters.
+
+    For example:
 
     \code
-        QByteArray text = QByteArray::fromBase64("UXQgaXMgZ3JlYXRcIQo=");
+        QByteArray text = QByteArray::fromBase64("UXQgaXMgZ3JlYXQh");
         text.data();            // returns "Qt is great!"
     \endcode
+
+    The algorithm used to decode Base64-encoded data is defined in \l{RFC 2045}.
 
     \sa toBase64()
 */
