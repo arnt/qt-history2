@@ -3074,7 +3074,13 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionComm
                 return QItemSelectionModel::Toggle|selectionBehaviorFlags();
             break;
         case QEvent::MouseButtonPress:
-            if (static_cast<const QMouseEvent*>(event)->button() == Qt::LeftButton)
+            if (static_cast<const QMouseEvent*>(event)->button() == Qt::LeftButton &&
+                !selectionModel->isSelected(index))
+                return QItemSelectionModel::Toggle|selectionBehaviorFlags();
+            break;
+        case QEvent::MouseButtonRelease:
+            if (static_cast<const QMouseEvent*>(event)->button() == Qt::LeftButton &&
+                index == pressedIndex && pressedAlreadySelected)
                 return QItemSelectionModel::Toggle|selectionBehaviorFlags();
             break;
         case QEvent::MouseMove:
