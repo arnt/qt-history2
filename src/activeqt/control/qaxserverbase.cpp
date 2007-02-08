@@ -53,6 +53,8 @@ extern unsigned long qAxUnlock();
 extern HANDLE qAxInstance;
 extern bool qAxOutProcServer;
 
+static int invokeCount = 0;
+
 #ifdef QT_DEBUG
 unsigned long qaxserverbase_instance_count = 0;
 #endif
@@ -725,7 +727,7 @@ private:
 // callback for DLL server to hook into non-Qt eventloop
 LRESULT CALLBACK axs_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-    if (qApp)
+    if (qApp && !invokeCount)
         qApp->sendPostedEvents(0, -1);
 
     return CallNextHookEx(qax_hhook, nCode, wParam, lParam);
@@ -2539,8 +2541,11 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 
 	    // call the slot if everthing went fine.
 	    if (ok) {
-		qt.object->qt_metacall(QMetaObject::InvokeMetaMethod, index, argv);
-
+            ++invokeCount;
+            qt.object->qt_metacall(QMetaObject::InvokeMetaMethod, index, argv);
+            if (--invokeCount < 0)
+                invokeCount = 0;
+		
 		// update reference parameters and return value
 		for (int p = 0; p < pcount; ++p) {
 		    bool out;
