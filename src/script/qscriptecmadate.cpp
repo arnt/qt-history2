@@ -563,6 +563,7 @@ void Date::execute(QScriptContext *context)
     QScriptValueImpl::get(obj)->setClassInfo(classInfo());
     QScriptValueImpl::get(obj)->setInternalValue(QScriptValue(engine(), t));
     obj.setPrototype(publicPrototype);
+    context->setReturnValue(obj);
 }
 
 void Date::newDate(QScriptValue *result, qsreal t)

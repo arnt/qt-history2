@@ -88,6 +88,7 @@ void Number::execute(QScriptContext *context)
         QScriptValueImpl::get(obj)->setClassInfo(classInfo());
         QScriptValueImpl::get(obj)->setInternalValue(num);
         obj.setPrototype(publicPrototype);
+        context->setReturnValue(obj);
     }
 }
 

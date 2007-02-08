@@ -61,6 +61,7 @@ void Boolean::execute(QScriptContext *context)
         QScriptValueImpl::get(obj)->setClassInfo(classInfo());
         QScriptValueImpl::get(obj)->setInternalValue(boolean);
         obj.setPrototype(publicPrototype);
+        context->setReturnValue(obj);
     }
 }
 

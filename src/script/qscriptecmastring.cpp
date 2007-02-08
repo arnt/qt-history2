@@ -186,6 +186,7 @@ void String::execute(QScriptContext *context)
         QScriptValueImpl::get(obj)->setClassInfo(classInfo());
         QScriptValueImpl::get(obj)->setInternalValue(str);
         obj.setPrototype(publicPrototype);
+        context->setReturnValue(obj);
     }
 }
 

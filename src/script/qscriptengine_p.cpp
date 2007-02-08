@@ -931,6 +931,73 @@ QScriptValue QScriptEnginePrivate::newArray(const QScript::Array &value)
     return v;
 }
 
+QScriptValue QScriptEnginePrivate::call(const QScriptValue &callee,
+                                        const QScriptValue &thisObject,
+                                        const QScriptValueList &args,
+                                        bool asConstructor)
+{
+    Q_Q(QScriptEngine);
+    QScriptFunction *function = QScriptValueImpl::get(callee)->toFunction();
+    Q_ASSERT(function);
+
+    QScriptContext *nested_frame = pushContext();
+    QScriptContextPrivate *nested = QScriptContextPrivate::get(nested_frame);
+    Q_ASSERT(nested->stackPtr != 0);
+
+    newActivation(&nested->activation);
+    if (callee.m_object_value->m_scope.isValid())
+        nested->activation.m_object_value->m_scope = callee.m_object_value->m_scope;
+    else
+        nested->activation.m_object_value->m_scope = globalObject;
+
+    QScriptObject *activation_data = nested->activation.m_object_value;
+
+    QScriptValue undefined;
+    newUndefined(&undefined);
+
+    int formalCount = function->formals.count();
+    int argc = args.count();
+    int mx = qMax(formalCount, argc);
+    activation_data->m_members.resize(mx);
+    activation_data->m_objects.resize(mx);
+    for (int i = 0; i < mx; ++i) {
+        QScriptNameIdImpl *nameId = 0;
+        if (i < formalCount)
+            nameId = function->formals.at(i);
+
+        activation_data->m_members[i].object(nameId, i, QScriptValue::SkipInEnumeration);
+        QScriptValue arg = (i < argc) ? args.at(i) : undefined;
+        if (arg.isValid() && (arg.engine() != q)) {
+            qWarning("QScriptValue::call() failed: "
+                     "cannot call function with argument created in "
+                     "a different engine");
+            popContext();
+            return QScriptValue();
+        }
+        activation_data->m_objects[i] = arg;
+    }
+
+    nested->argc = argc;
+    QVector<QScriptValue> argsv = args.toVector();
+    nested->args = const_cast<QScriptValue*> (argsv.constData());
+
+    if (thisObject.isObject())
+        nested->thisObject = thisObject;
+    else
+        nested->thisObject = globalObject;
+    nested->callee = callee;
+    nested->functionNameId = 0; // ### fixme
+    nested->calledAsConstructor = asConstructor;
+
+    newUndefined(&nested->result);
+    function->execute(nested_frame);
+    QScriptValue result = nested->result;
+    nested->args = 0;
+    popContext();
+
+    return result;
+}
+
 void QScriptEnginePrivate::addReference(const QScriptValue &object)
 {
     if (! object.isObject())

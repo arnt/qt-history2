@@ -160,6 +160,7 @@ public:
 
     QScriptValue call(const QScriptValue &thisObject = QScriptValue(),
                       const QScriptValueList &args = QScriptValueList());
+    QScriptValue construct(const QScriptValueList &args = QScriptValueList());
 
     void ref() const;
     void deref() const;

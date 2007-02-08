@@ -43,6 +43,7 @@ private slots:
     void getSetProperty();
     void getSetPrototype();
     void call();
+    void construct();
     void lessThan();
     void equalTo();
     void strictEqualTo();
@@ -782,10 +783,19 @@ void tst_QScriptValue::call()
 
     QScriptValue Object = eng.evaluate("Object");
     QCOMPARE(Object.isFunction(), true);
-
     {
         QScriptValue result = Object.call(Object);
         QCOMPARE(result.isObject(), true);
+    }
+
+    // test that call() doesn't construct new objects
+    QScriptValue Number = eng.evaluate("Number");
+    QCOMPARE(Object.isFunction(), true);
+    {
+        QScriptValueList args;
+        args << QScriptValue(&eng, 123);
+        QScriptValue result = Number.call(Object, args);
+        QCOMPARE(result.strictEqualTo(args.at(0)), true);
     }
 
     // test that correct "this" object is used
@@ -859,6 +869,49 @@ void tst_QScriptValue::call()
                              "a different engine");
         QCOMPARE(fun.call(QScriptValue(), QScriptValueList() << QScriptValue(&eng, 123)).isValid(), false);
     }
+}
+
+void tst_QScriptValue::construct()
+{
+    QScriptEngine eng;
+
+    QScriptValue Number = eng.evaluate("Number");
+    QCOMPARE(Number.isFunction(), true);
+    {
+        QScriptValueList args;
+        args << QScriptValue(&eng, 123);
+        QScriptValue ret = Number.construct(args);
+        QCOMPARE(ret.isObject(), true);
+        QCOMPARE(ret.toPrimitive().strictEqualTo(args.at(0)), true);
+    }
+
+    // test that internal prototype is set correctly
+    {
+        QScriptValue fun = eng.evaluate("function() { return this.__proto__; }");
+        QCOMPARE(fun.isFunction(), true);
+        QCOMPARE(fun.property("prototype").isObject(), true);
+        QScriptValue ret = fun.construct();
+        QCOMPARE(fun.property("prototype").strictEqualTo(ret), true);
+    }
+
+    // test that we return the new object even if a non-object value is returned from the function
+    {
+        QScriptValue fun = eng.evaluate("function() { return 123; }");
+        QCOMPARE(fun.isFunction(), true);
+        QScriptValue ret = fun.construct();
+        QCOMPARE(ret.isObject(), true);
+    }
+
+    {
+        QScriptValue fun = eng.evaluate("function() { throw new Error('foo'); }");
+        QCOMPARE(fun.isFunction(), true);
+        QScriptValue ret = fun.construct();
+        QCOMPARE(ret.isError(), true);
+        QCOMPARE(eng.hasUncaughtException(), true);
+    }
+
+    QScriptValue inv;
+    QCOMPARE(inv.construct().isValid(), false);
 }
 
 void tst_QScriptValue::lessThan()

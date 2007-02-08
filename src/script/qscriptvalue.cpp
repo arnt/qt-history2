@@ -61,7 +61,8 @@
   information, see the \l{QtScript} documentation.
 
   Function objects (objects for which isFunction() returns true) can
-  be invoked by calling call().
+  be invoked by calling call(). Constructor functions can be used to
+  construct new objects by calling construct().
 
   \sa QScriptEngine
 */
@@ -994,7 +995,7 @@ void QScriptValue::setVariantValue(const QVariant &value)
   (see \l{QScriptEngine::globalObject()}) will be used as the
   `this' object.
 
-  \sa isFunction()
+  \sa construct()
 */
 QScriptValue QScriptValue::call(const QScriptValue &thisObject,
                                 const QScriptValueList &args)
@@ -1011,63 +1012,37 @@ QScriptValue QScriptValue::call(const QScriptValue &thisObject,
 
     QScriptEngine *eng = engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+    return eng_p->call(*this, thisObject, args, /*asConstructor=*/false);
+}
 
-    QScriptFunction *function = impl()->toFunction();
+/*!
+  Creates a new \c{Object} and calls this QScriptValue as a constructor,
+  using the created object as the `this' object and passing \a args
+  as arguments. If the return value from the constructor call is an
+  object, then that object is returned; otherwise the created object
+  is returned.
 
-    QScriptContext *nested_frame = eng_p->pushContext();
-    QScriptContextPrivate *nested = QScriptContextPrivate::get(nested_frame);
-    Q_ASSERT(nested->stackPtr != 0);
+  If this QScriptValue is not a function, construct() does nothing
+  and returns an invalid QScriptValue.
 
-    eng_p->newActivation(&nested->activation);
-    if (m_object_value->m_scope.isValid())
-        nested->activation.m_object_value->m_scope = m_object_value->m_scope;
-    else
-        nested->activation.m_object_value->m_scope = engine()->globalObject();
+  \sa call(), newObject()
+*/
+QScriptValue QScriptValue::construct(const QScriptValueList &args)
+{
+    if (!isFunction())
+        return QScriptValue();
 
-    QScriptObject *activation_data = nested->activation.m_object_value;
+    QScriptEngine *eng = engine();
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
 
-    QScriptValue undefined;
-    eng_p->newUndefined(&undefined);
+    QScriptValue proto = property(QLatin1String("prototype"), ResolveLocal);
+    QScriptValue object;
+    eng_p->newObject(&object, proto);
 
-    int formalCount = function->formals.count();
-    int argc = args.count();
-    int mx = qMax(formalCount, argc);
-    activation_data->m_members.resize(mx);
-    activation_data->m_objects.resize(mx);
-    for (int i = 0; i < mx; ++i) {
-        QScriptNameIdImpl *nameId = 0;
-        if (i < formalCount)
-            nameId = function->formals.at(i);
-
-        activation_data->m_members[i].object(nameId, i, SkipInEnumeration);
-        QScriptValue arg = (i < argc) ? args.at(i) : undefined;
-        if (arg.isValid() && (arg.engine() != eng)) {
-            qWarning("QScriptValue::call() failed: "
-                     "cannot call function with argument created in "
-                     "a different engine");
-            return QScriptValue();
-        }
-        activation_data->m_objects[i] = arg;
-    }
-
-    nested->argc = argc;
-    QVector<QScriptValue> argsv = args.toVector();
-    nested->args = const_cast<QScriptValue*> (argsv.constData());
-
-    if (thisObject.isObject())
-        nested->thisObject = thisObject;
-    else
-        nested->thisObject = eng_p->globalObject;
-    nested->callee = *this;
-    nested->functionNameId = 0; // ### fixme
-
-    eng_p->newUndefined(&nested->result);
-    function->execute(nested_frame);
-    QScriptValue result = nested->result;
-    nested->args = 0;
-    eng_p->popContext();
-
-    return result;
+    QScriptValue result = eng_p->call(*this, object, args, /*asConstructor=*/true);
+    if (result.isObject())
+        return result;
+    return object;
 }
 
 /*!

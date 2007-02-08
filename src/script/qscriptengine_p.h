@@ -416,6 +416,8 @@ public:
         return result;
     }
 
+    QScriptValue call(const QScriptValue &callee, const QScriptValue &thisObject,
+                      const QScriptValueList &args, bool asConstructor);
 
     void rehashStringRepository(bool resize = true);
     QScriptNameIdImpl *toStringEntry(const QString &s);
