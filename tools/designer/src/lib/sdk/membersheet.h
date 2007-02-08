@@ -41,15 +41,13 @@ public:
     virtual bool isSlot(int index) const = 0;
     virtual bool inheritedFromWidget(int index) const = 0;
 
-    virtual bool signalMatchesSlot(const QString &signal, const QString &slot) const = 0;
-
     virtual QString declaredInClass(int index) const = 0;
 
     virtual QString signature(int index) const = 0;
     virtual QList<QByteArray> parameterTypes(int index) const = 0;
     virtual QList<QByteArray> parameterNames(int index) const = 0;
 };
-Q_DECLARE_EXTENSION_INTERFACE(QDesignerMemberSheetExtension, "com.trolltech.Qt.Designer.MemberSheet.2")
+Q_DECLARE_EXTENSION_INTERFACE(QDesignerMemberSheetExtension, "com.trolltech.Qt.Designer.MemberSheet")
 
 QT_END_HEADER
 

@@ -53,13 +53,16 @@ public:
     virtual bool isLanguageResource(const QString &path) const = 0;
 
     virtual QString classNameOf(QObject *object) const = 0;
+
+    virtual bool signalMatchesSlot(const QString &signal, const QString &slot) const = 0;
+
     virtual QString enumerator(const QString &neutralName) const = 0;
     virtual QString neutralEnumerator(const QString &enumName) const = 0;
 
     virtual QString uiExtension() const = 0;
 };
 
-Q_DECLARE_EXTENSION_INTERFACE(QDesignerLanguageExtension, "com.trolltech.Qt.Designer.Language.3")
+Q_DECLARE_EXTENSION_INTERFACE(QDesignerLanguageExtension, "com.trolltech.Qt.Designer.Language.4")
 
 QT_END_HEADER
 

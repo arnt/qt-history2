@@ -13,9 +13,13 @@
 
 #include "signalsloteditor.h"
 #include "signalsloteditor_p.h"
-#include "ui4_p.h"
 
-#include <QtDesigner/QtDesigner>
+#include <qdesigner_membersheet_p.h>
+#include <ui4_p.h>
+
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QAction>
 #include <QtGui/QDialog>
@@ -31,8 +35,6 @@
 #include <QtGui/QMenu>
 
 #include <QtCore/qdebug.h>
-
-namespace {
 
 /*******************************************************************************
 ** Tools
@@ -64,6 +66,17 @@ static void merge(QDesignerFormWindowInterface *form, QStringList *lst, const QL
         lst->append(name);
     }
 }
+
+static bool signalMatchesSlot(QDesignerFormEditorInterface *core,
+                              const QString &signal,
+                              const QString &slot)
+{    
+    QExtensionManager *em = core->extensionManager();
+    const QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*> (em, core);
+    if (lang)
+        return lang->signalMatchesSlot(signal, slot);
+
+    return QDesignerMemberSheet::signalMatchesSlot(signal, slot);
 }
 
 namespace qdesigner_internal {
@@ -135,9 +148,8 @@ ClassList classList(const QString &obj_name, MemberType member_type,
     if (object == 0)
         return result;
 
-    QDesignerMemberSheetExtension *members
-        = qt_extension<QDesignerMemberSheetExtension*>
-                (form->core()->extensionManager(), object);
+    QDesignerFormEditorInterface *core = form->core();
+    QDesignerMemberSheetExtension *members = qt_extension<QDesignerMemberSheetExtension*>(core->extensionManager(), object);
     Q_ASSERT(members != 0);
 
     QString class_name;
@@ -154,7 +166,7 @@ ClassList classList(const QString &obj_name, MemberType member_type,
 
         const QString signal = member_type == SignalMember ? members->signature(i) : peer;
         const QString slot = member_type == SignalMember ? peer : members->signature(i);
-        if (!members->signalMatchesSlot(signal, slot))
+        if (!signalMatchesSlot(core, signal, slot))
             continue;
 
        const QString s = members->declaredInClass(i);
@@ -260,7 +272,7 @@ void OldSignalSlotDialog::populateSlotList(const QString &signal)
                 continue;
 
             if (members->isSlot(i)) {
-                if (!members->signalMatchesSlot(signal, members->signature(i)))
+                if (!signalMatchesSlot(m_core, signal, members->signature(i)))
                     continue;
 
                 signatures.append(members->signature(i));
@@ -812,14 +824,10 @@ void SignalSlotEditor::setSignal(SignalSlotConnection *con, const QString &membe
 {
     if (member == con->signal())
         return;
-
-    QDesignerMemberSheetExtension *members
-        = qt_extension<QDesignerMemberSheetExtension*>
-        (m_form_window->core()->extensionManager(), con->object(SignalSlotConnection::EndPoint::Target));
-
+    
     m_form_window->beginCommand(QApplication::translate("Command", "Change signal"));
     undoStack()->push(new SetMemberCommand(con, EndPoint::Source, member, this));
-    if (members && !members->signalMatchesSlot(member, con->slot()))
+    if (!signalMatchesSlot(m_form_window->core(), member, con->slot()))
         undoStack()->push(new SetMemberCommand(con, EndPoint::Target, QString(), this));
     m_form_window->endCommand();
 }
@@ -829,13 +837,9 @@ void SignalSlotEditor::setSlot(SignalSlotConnection *con, const QString &member)
     if (member == con->slot())
         return;
 
-    QDesignerMemberSheetExtension *members
-        = qt_extension<QDesignerMemberSheetExtension*>
-        (m_form_window->core()->extensionManager(), con->object(SignalSlotConnection::EndPoint::Source));
-
     m_form_window->beginCommand(QApplication::translate("Command", "Change slot"));
     undoStack()->push(new SetMemberCommand(con, EndPoint::Target, member, this));
-    if (members && !members->signalMatchesSlot(con->signal(), member))
+    if (!signalMatchesSlot(m_form_window->core(), con->signal(), member))
         undoStack()->push(new SetMemberCommand(con, EndPoint::Source, QString(), this));
     m_form_window->endCommand();
 }

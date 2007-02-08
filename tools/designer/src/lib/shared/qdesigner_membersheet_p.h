@@ -54,7 +54,7 @@ public:
     virtual bool isSlot(int index) const;
     virtual bool inheritedFromWidget(int index) const;
 
-    virtual bool signalMatchesSlot(const QString &signal, const QString &slot) const;
+    static bool signalMatchesSlot(const QString &signal, const QString &slot);
 
     virtual QString declaredInClass(int index) const;
 

@@ -123,7 +123,7 @@ QList<QByteArray> QDesignerMemberSheet::parameterNames(int index) const
     return m_meta->method(index).parameterNames();
 }
 
-bool QDesignerMemberSheet::signalMatchesSlot(const QString &signal, const QString &slot) const
+bool QDesignerMemberSheet::signalMatchesSlot(const QString &signal, const QString &slot)
 {
     bool result = true;
 
