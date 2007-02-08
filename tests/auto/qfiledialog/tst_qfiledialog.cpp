@@ -52,6 +52,7 @@ private slots:
     void viewMode();
     void isDetailsExpanded();
     void proxymodel();
+    void setFilter();
 
 };
 
@@ -348,6 +349,7 @@ void tst_QFiledialog::isDetailsExpanded()
     QCOMPARE(sidebar->isVisible(), true);
 }
 
+
 void tst_QFiledialog::proxymodel()
 {
     QFileDialog fd;
@@ -355,6 +357,13 @@ void tst_QFiledialog::proxymodel()
     QSortFilterProxyModel proxyModel;
     fd.setProxyModel(&proxyModel);
     QCOMPARE(fd.proxyModel(), &proxyModel);
+}
+
+void tst_QFiledialog::setFilter()
+{
+    QFileDialog fd;
+    fd.setFilter(QString());
+    fd.setFilters(QStringList());
 }
 
 QTEST_MAIN(tst_QFiledialog)
