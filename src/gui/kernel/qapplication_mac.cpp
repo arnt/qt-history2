@@ -40,6 +40,7 @@
 #include "qdir.h"
 #include "qtooltip.h"
 #include "qdebug.h"
+#include "qtimer.h"
 #include "private/qmacinputcontext_p.h"
 #include "private/qpaintengine_mac_p.h"
 #include "private/qcursor_p.h"
