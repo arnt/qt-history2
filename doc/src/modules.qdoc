@@ -46,5 +46,9 @@
         QT -= gui
     \endcode
 
+    On Windows, if you do not use \l qmake or the \l{Visual Studio Integration}
+    available to \l{Qt Commercial Editions}{commercial licensees}, you also
+    need to link against the \c qtmain library.
+
     \sa {Qt's Classes}
 */
