@@ -15,6 +15,7 @@
 #define QDESIGNER_ACTIONS_H
 
 #include <QtCore/QObject>
+#include <QtCore/QPointer>
 
 class QDesignerWorkbench;
 
@@ -26,6 +27,7 @@ class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 class QAssistantClient;
 class QRect;
+class QWidget;
 
 class QDesignerActions: public QObject
 {
@@ -99,6 +101,8 @@ private:
     void updateRecentFileActions();
     void addRecentFile(const QString &fileName);
     void showHelp(const QString &help);
+    void updateCloseAction();
+    void closePreview();
     QRect fixDialogRect(const QRect &rect) const;
     QString fixResourceFileBackupPath(QDesignerFormWindowInterface *fwi, const QDir& backupDir);
     void showStatusBarMessage(const QString &message) const;
@@ -149,6 +153,8 @@ private:
 
     QAction *m_sdiAction;
     QAction *m_dockedMdiAction;
+    
+    QPointer<QWidget> m_previewWidget;
 };
 
 #endif // QDESIGNER_ACTIONS_H

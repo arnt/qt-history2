@@ -55,11 +55,14 @@
 #include <QtCore/QPluginLoader>
 #include <QtCore/qdebug.h>
 #include <QtCore/QTimer>
-#include <QtXml/QDomDocument>
-
-#include <QtGui/QDesktopWidget>
 #include <QtCore/QMetaObject>
 #include <QtGui/QStatusBar>
+#include <QtGui/QDesktopWidget>
+#include <QtXml/QDomDocument>
+
+#ifdef Q_WS_MAC
+#  define NONMODAL_PREVIEW
+#endif
 
 static QString getFileExtension(QDesignerFormEditorInterface *core)
 {
@@ -168,9 +171,11 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 
     m_fileActions->addAction(createSeparator(this));
 
+    m_closeFormAction = new QAction(this);
     m_closeFormAction->setShortcut(tr("CTRL+W"));
     connect(m_closeFormAction, SIGNAL(triggered()), this, SLOT(closeForm()));
     m_fileActions->addAction(m_closeFormAction);
+    updateCloseAction();
 
     m_fileActions->addAction(createSeparator(this));
 
@@ -507,6 +512,13 @@ bool QDesignerActions::saveForm(QDesignerFormWindowInterface *fw)
 
 void QDesignerActions::closeForm()
 {
+#ifdef NONMODAL_PREVIEW
+    if (m_previewWidget) {
+        m_previewWidget->close();
+        return;
+    }
+#endif
+
     if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow())
         if (QWidget *parent = fw->parentWidget()) {
             if (QMdiSubWindow *mdiSubWindow = qobject_cast<QMdiSubWindow *>(parent->parentWidget())) {
@@ -558,8 +570,17 @@ void QDesignerActions::previewFormLater(QAction *action)
                                 Q_ARG(QAction*, action));
 }
 
+void QDesignerActions::closePreview()
+{
+    if (m_previewWidget)
+        m_previewWidget->close();
+}
+
 void QDesignerActions::previewForm(QAction *action)
-{    
+{
+#ifdef NONMODAL_PREVIEW
+    closePreview();
+#endif
     QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow();
     if (!fw)
         return;
@@ -577,18 +598,29 @@ void QDesignerActions::previewForm(QAction *action)
     if (!widget) 
         return;
     
+    Qt::WindowFlags windwowFlags = (widget->windowType() == Qt::Window) ? Qt::Window | Qt::WindowMaximizeButtonHint : Qt::Dialog;
+    windwowFlags |= Qt::WindowStaysOnTopHint;
+    
     // Install filter for Escape key
-    widget->setParent(fw->window(), (widget->windowType() == Qt::Window) ?
-                      Qt::Window | Qt::WindowMaximizeButtonHint :
-                      Qt::Dialog);
-#ifndef Q_WS_MAC
+    widget->setParent(fw->window(), windwowFlags);
+
+#ifdef NONMODAL_PREVIEW
+    connect(fw, SIGNAL(changed()), widget, SLOT(close()));
+#else
+    // Cannot do this on the Mac as the dialog would have no close button
     widget->setWindowModality(Qt::ApplicationModal);
 #endif
+
     widget->setAttribute(Qt::WA_DeleteOnClose, true);
     widget->move(fw->window()->mapToGlobal(QPoint(0, 0)) + QPoint(10, 10));
-
+    
     widget->installEventFilter(this);
     widget->show();
+    m_previewWidget = widget;
+
+#ifdef NONMODAL_PREVIEW
+    updateCloseAction();
+#endif      
 }
 
 void QDesignerActions::fixActionContext()
@@ -789,11 +821,15 @@ void QDesignerActions::shutdown()
 void QDesignerActions::activeFormWindowChanged(QDesignerFormWindowInterface *formWindow)
 {
     const bool enable = formWindow != 0;
+#ifdef NONMODAL_PREVIEW
+    closePreview();
+#endif
 
     m_saveFormAction->setEnabled(enable);
     m_saveFormAsAction->setEnabled(enable);
     m_saveAllFormsAction->setEnabled(enable);
     m_saveFormAsTemplateAction->setEnabled(enable);
+    m_closeFormAction->setEnabled(enable);
     m_closeFormAction->setEnabled(enable);
 
     m_editWidgetsAction->setEnabled(enable);
@@ -1008,7 +1044,11 @@ void QDesignerActions::showFormSettings()
 bool QDesignerActions::eventFilter(QObject *watched, QEvent *event)
 {
     QWidget *w = qobject_cast<QWidget *>(watched);
-    if (w && w->isWindow() && event->type() == QEvent::KeyPress) {
+    if (!w || !w->isWindow())
+        return QObject::eventFilter(watched, event);
+
+    switch (event->type()) {
+    case QEvent::KeyPress: {
         QKeyEvent *keyEvent = (QKeyEvent *)event;
         if (keyEvent && (keyEvent->key() == Qt::Key_Escape
 #ifdef Q_WS_MAC
@@ -1019,7 +1059,25 @@ bool QDesignerActions::eventFilter(QObject *watched, QEvent *event)
             return true;
         }
     }
+        break;
+#ifdef NONMODAL_PREVIEW
+    case QEvent::Destroy:
+        updateCloseAction();
+        break;
+#endif
+    default:
+        break;
+    }
     return QObject::eventFilter(watched, event);
+}
+
+void QDesignerActions::updateCloseAction()
+{
+    if (m_previewWidget) {
+        m_closeFormAction->setText(tr("&Close Preview"));
+    } else {
+        m_closeFormAction->setText(tr("&Close Form"));
+    }
 }
 
 void QDesignerActions::backupForms()
