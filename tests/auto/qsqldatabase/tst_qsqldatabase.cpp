@@ -113,6 +113,8 @@ private slots:
 
     void formatValueTrimStrings_data() { generic_data(); }
     void formatValueTrimStrings();
+    void odbc_reopenDatabase_data() { generic_data(); }
+    void odbc_reopenDatabase();
 
 private:
     void createTestTables(QSqlDatabase db);
@@ -1671,6 +1673,26 @@ void tst_QSqlDatabase::formatValueTrimStrings()
     QCOMPARE(db.driver()->formatValue(q.record().field(0), true), QString("''"));
     QCOMPARE(db.driver()->formatValue(q.record().field(1), true), QString("''"));
 
+}
+
+void tst_QSqlDatabase::odbc_reopenDatabase()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QODBC")) {
+        QSKIP("PostgreSQL server specific test", SkipSingle);
+        return;
+    }
+
+    QSqlQuery q(db);
+    QVERIFY2(q.exec("SELECT * from " + qTableName("qtest")), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    db.open();
+    QVERIFY2(q.exec("SELECT * from " + qTableName("qtest")), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    db.open();
 }
 
 QTEST_MAIN(tst_QSqlDatabase)

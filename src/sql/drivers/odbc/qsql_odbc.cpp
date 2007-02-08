@@ -60,7 +60,7 @@ class QODBCDriverPrivate
 {
 public:
     QODBCDriverPrivate()
-    : hEnv(0), hDbc(0), useSchema(false)
+    : hEnv(0), hDbc(0), useSchema(false), disconnectCount(0)
     {
         sql_char_type = sql_varchar_type = sql_longvarchar_type = QVariant::ByteArray;
         unicode = false;
@@ -74,6 +74,7 @@ public:
     QVariant::Type sql_char_type;
     QVariant::Type sql_varchar_type;
     QVariant::Type sql_longvarchar_type;
+    int disconnectCount;
 
     bool checkDriver() const;
     void checkUnicode();
@@ -109,7 +110,23 @@ public:
     QSqlRecord rInf;
     QVector<QVariant> fieldCache;
     int fieldCacheIdx;
+    int disconnectCount;
+
+    bool isStmtHandleValid(const QSqlDriver *driver);
+    void updateStmtHandleState(const QSqlDriver *driver);
 };
+
+bool QODBCPrivate::isStmtHandleValid(const QSqlDriver *driver)
+{
+    const QODBCDriver *odbcdriver = static_cast<const QODBCDriver*> (driver);
+    return disconnectCount == odbcdriver->d->disconnectCount;
+}
+
+void QODBCPrivate::updateStmtHandleState(const QSqlDriver *driver)
+{
+    const QODBCDriver *odbcdriver = static_cast<const QODBCDriver*> (driver);
+    disconnectCount = odbcdriver->d->disconnectCount;
+}
 
 static QString qWarnODBCHandle(int handleType, SQLHANDLE handle, int *nativeCode = 0)
 {
@@ -669,11 +686,12 @@ QODBCResult::QODBCResult(const QODBCDriver * db, QODBCDriverPrivate* p)
     d->sql_char_type = p->sql_char_type;
     d->sql_varchar_type = p->sql_varchar_type;
     d->sql_longvarchar_type = p->sql_longvarchar_type;
+    d->disconnectCount = p->disconnectCount;
 }
 
 QODBCResult::~QODBCResult()
 {
-    if (d->hStmt && driver()->isOpen()) {
+    if (d->hStmt && d->isStmtHandleValid(driver()) && driver()->isOpen()) {
         SQLRETURN r = SQLFreeHandle(SQL_HANDLE_STMT, d->hStmt);
         if (r != SQL_SUCCESS)
             qSqlWarning(QLatin1String("QODBCDriver: Unable to free statement handle ")
@@ -694,7 +712,7 @@ bool QODBCResult::reset (const QString& query)
     d->fieldCacheIdx = 0;
     // Always reallocate the statement handle - the statement attributes
     // are not reset if SQLFreeStmt() is called which causes some problems.
-    if (d->hStmt) {
+    if (d->hStmt && d->isStmtHandleValid(driver())) {
         r = SQLFreeHandle(SQL_HANDLE_STMT, d->hStmt);
         if (r != SQL_SUCCESS) {
             qSqlWarning(QLatin1String("QODBCResult::reset: Unable to free statement handle"), d);
@@ -708,6 +726,8 @@ bool QODBCResult::reset (const QString& query)
         qSqlWarning(QLatin1String("QODBCResult::reset: Unable to allocate statement handle"), d);
         return false;
     }
+
+    d->updateStmtHandleState(driver());
 
     if (isForwardOnly()) {
         r = SQLSetStmtAttr(d->hStmt,
@@ -1002,7 +1022,7 @@ bool QODBCResult::prepare(const QString& query)
     SQLRETURN r;
 
     d->rInf.clear();
-    if (d->hStmt) {
+    if (d->hStmt && d->isStmtHandleValid(driver())) {
         r = SQLFreeHandle(SQL_HANDLE_STMT, d->hStmt);
         if (r != SQL_SUCCESS) {
             qSqlWarning(QLatin1String("QODBCResult::prepare: Unable to close statement"), d);
@@ -1016,6 +1036,8 @@ bool QODBCResult::prepare(const QString& query)
         qSqlWarning(QLatin1String("QODBCResult::prepare: Unable to allocate statement handle"), d);
         return false;
     }
+
+    d->updateStmtHandleState(driver());
 
     if (isForwardOnly()) {
         r = SQLSetStmtAttr(d->hStmt,
@@ -1531,6 +1553,8 @@ void QODBCDriver::cleanup()
             r = SQLDisconnect(d->hDbc);
             if (r != SQL_SUCCESS)
                 qSqlWarning(QLatin1String("QODBCDriver::disconnect: Unable to disconnect datasource"), d);
+            else
+                d->disconnectCount++;
         }
 
         r = SQLFreeHandle(SQL_HANDLE_DBC, d->hDbc);
