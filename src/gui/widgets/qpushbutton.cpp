@@ -485,6 +485,14 @@ void QPushButton::focusOutEvent(QFocusEvent *e)
 
     Ownership of the menu is \e not transferred to the push button.
 
+    \table 100%
+    \row
+    \o \inlineimage plastique-pushbutton-menu.png Screenshot of a Plastique style push button with popup menu.
+    \o \inlineimage cleanlooks-pushbutton-menu.png Screenshot of a Cleanlooks style push button with popup menu.
+    \o Push buttons with popup menus shown in the \l{Plastique Style Widget Gallery}{Plastique widget style}
+    (left) and \l{Cleanlooks Style Widget Gallery}{Cleanlooks widget style} (right).
+    \endtable
+
     \sa menu()
 */
 void QPushButton::setMenu(QMenu* menu)
