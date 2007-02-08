@@ -73,6 +73,7 @@ private slots:
 
     void qimageFormats_data();
     void qimageFormats();
+    void textOnTransparentImage();
 
     void initFrom();
 
@@ -1130,6 +1131,23 @@ void tst_QPainter::combinedMatrix()
 
     QCOMPARE(pt.x(), 48.0);
     QCOMPARE(pt.y(), 16.0);
+}
+
+void tst_QPainter::textOnTransparentImage()
+{
+    bool foundPixel = false;
+    QImage image(10, 10, QImage::Format_ARGB32_Premultiplied);
+    image.fill(qRgba(0, 0, 0, 0)); // transparent
+    {
+        QPainter painter(&image);
+        painter.setPen(QColor(255, 255, 255));
+        painter.drawText(10, 10, "W");
+    }
+    for (int x = 0; x < image.width(); ++x)
+        for (int y = 0; y < image.height(); ++y)
+            if (image.pixel(x, y) != 0)
+                foundPixel = true;
+    QVERIFY(foundPixel);
 }
 
 void tst_QPainter::renderHints()
