@@ -18,7 +18,6 @@
 #include <qaxobject.h>
 
 #include "dmocx.h"
-#include "sapi.h"
 
 #undef max
 #undef min
