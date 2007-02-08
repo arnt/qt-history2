@@ -38,7 +38,7 @@ Q_DECLARE_METATYPE(QRectF)
 #include <windows.h>
 #define Q_CHECK_PAINTEVENTS \
     if (::SwitchDesktop(::GetThreadDesktop(::GetCurrentThreadId())) == 0) \
-        QSKIP("The Graphics View doesn't get the paint events", SkipSingle); \
+        QSKIP("The Graphics View doesn't get the paint events", SkipSingle);
 #else
 #define Q_CHECK_PAINTEVENTS
 #endif
@@ -2212,6 +2212,8 @@ void tst_QGraphicsItem::graphicsitem_cast()
 
 void tst_QGraphicsItem::hoverEventsGenerateRepaints()
 {
+    Q_CHECK_PAINTEVENTS
+
     QGraphicsScene scene;
     EventTester *tester = new EventTester;
     scene.addItem(tester);
@@ -2223,12 +2225,6 @@ void tst_QGraphicsItem::hoverEventsGenerateRepaints()
     qApp->processEvents();
     qApp->processEvents();
 
-#ifdef Q_OS_WIN32
-    //we try to switch the desktop: if it fails, we skip the test
-    if (::SwitchDesktop( ::GetThreadDesktop( ::GetCurrentThreadId() ) ) == 0) {
-        QSKIP("The Graphics View doesn't get the paint events", SkipSingle);
-    }
-#endif
 
     // Send a hover enter event
     QGraphicsSceneHoverEvent hoverEnterEvent(QEvent::GraphicsSceneHoverEnter);
