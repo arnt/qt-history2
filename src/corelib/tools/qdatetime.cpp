@@ -3387,7 +3387,7 @@ void QDateTimeParser::setDigit(QVariant &v, int index, int newVal) const
   Returns the absolute maximum for a section
 */
 
-int QDateTimeParser::absoluteMax(int s) const
+int QDateTimeParser::absoluteMax(int s, const QDateTime &cur) const
 {
     const SectionNode sn = sectionNode(s);
     switch (sn.type) {
@@ -3403,7 +3403,7 @@ int QDateTimeParser::absoluteMax(int s) const
                                    // number in count == 2 sections.
                                    // stepBy() will work on real years anyway
     case MonthSection: return 12;
-    case DaySection: return 31;
+    case DaySection: return cur.isValid() ? cur.date().daysInMonth() : 31;
     case AmPmSection: return 1;
     default: break;
     }

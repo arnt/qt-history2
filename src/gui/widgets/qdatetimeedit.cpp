@@ -1740,7 +1740,7 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
     val += steps;
 
     const int min = absoluteMin(sectionIndex);
-    const int max = absoluteMax(sectionIndex);
+    const int max = absoluteMax(sectionIndex, value.toDateTime());
 
     if (val < min) {
         val = (wrapping ? max - (min - val) + 1 : min);
@@ -1844,10 +1844,6 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
     }
 
     const QVariant ret = bound(v, value, steps);
-//     if (!test) {
-//         clearCache();
-//         updateCache(ret, textFromValue(ret));
-//     }
     return ret;
 }
 

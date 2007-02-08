@@ -162,7 +162,7 @@ public:
     void setDigit(QVariant &t, int index, int newval) const;
     int parseSection(int sectionIndex, QString &txt, int index,
                      QDateTimeParser::State &state, int *used = 0) const;
-    int absoluteMax(int index) const;
+    int absoluteMax(int index, const QDateTime &value = QDateTime()) const;
     int absoluteMin(int index) const;
     bool parseFormat(const QString &format);
 #ifndef QT_NO_DATESTRING
