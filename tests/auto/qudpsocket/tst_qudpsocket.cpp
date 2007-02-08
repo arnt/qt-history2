@@ -493,7 +493,10 @@ void tst_QUdpSocket::bindMode()
     socket2.close();
     QVERIFY2(socket2.bind(socket.localPort(), QUdpSocket::ReuseAddressHint), socket2.errorString().toLatin1().constData());
 #else
-    QVERIFY2(socket2.bind(socket.localPort(), QUdpSocket::ReuseAddressHint), socket2.errorString().toLatin1().constData());
+    // Depending on the user's privileges, this or will succeed or
+    // fail. Admins are allowed to reuse the address, but nobody else.
+    if (!socket2.bind(socket.localPort(), QUdpSocket::ReuseAddressHint), socket2.errorString().toLatin1().constData())
+        qWarning("Failed to bind with QUdpSocket::ReuseAddressHint, user isn't an adminstrator?");
     socket.close();
     QVERIFY2(socket.bind(0, QUdpSocket::ShareAddress), socket.errorString().toLatin1().constData());
     QVERIFY(!socket2.bind(socket.localPort()));
