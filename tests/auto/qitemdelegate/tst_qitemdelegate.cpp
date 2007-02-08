@@ -31,6 +31,14 @@ Q_DECLARE_METATYPE(QAbstractItemDelegate::EndEditHint)
 //TESTED_CLASS=
 //TESTED_FILES=gui/itemviews/qitemdelegate.h gui/itemviews/qitemdelegate.cpp
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#define Q_CHECK_PAINTEVENTS \
+    if (::SwitchDesktop(::GetThreadDesktop(::GetCurrentThreadId())) == 0) \
+        QSKIP("The widgets don't get the paint events", SkipSingle);
+#else
+#define Q_CHECK_PAINTEVENTS
+#endif
 
 //Begin of class definitions
 
@@ -342,6 +350,8 @@ void tst_QItemDelegate::font_data()
 
 void tst_QItemDelegate::font()
 {
+    Q_CHECK_PAINTEVENTS
+
     QFETCH(QString, itemText);
     QFETCH(QFont, itemFont);
     QFETCH(QFont, viewFont);
@@ -707,6 +717,8 @@ void tst_QItemDelegate::decoration_data()
 
 void tst_QItemDelegate::decoration()
 {
+    Q_CHECK_PAINTEVENTS
+
     QFETCH(int, type);
     QFETCH(QSize, size);
     QFETCH(QSize, expected);
