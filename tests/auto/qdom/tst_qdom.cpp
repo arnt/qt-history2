@@ -1313,8 +1313,8 @@ void tst_QDom::invalidCharData()
     }
 }
 
-static const char *s_onNullMessage;
-static QtMsgType s_onNullMessageType;
+static const char *s_onNullMessage = 0;
+static QtMsgType s_onNullMessageType = QtSystemMsg;
 
 static void myOnNullMsgHandler(QtMsgType type, const char *msg)
 {
