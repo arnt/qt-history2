@@ -122,7 +122,7 @@ private:
     bool endTrans();
     void cleanup();
     QODBCDriverPrivate* d;
-    friend QODBCPrivate;
+    friend class QODBCPrivate;
 };
 
 QT_END_HEADER
