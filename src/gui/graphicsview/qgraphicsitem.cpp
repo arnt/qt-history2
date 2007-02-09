@@ -3664,7 +3664,7 @@ QBrush QAbstractGraphicsShapeItem::brush() const
     The item's brush is used to fill the item.
 
     If you use a brush with a QGradient, the gradient
-    is relative to the items coordinate system.
+    is relative to the item's coordinate system.
 
     \sa brush()
 */
