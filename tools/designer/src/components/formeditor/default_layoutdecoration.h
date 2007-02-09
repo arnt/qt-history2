@@ -22,12 +22,13 @@
 #include <QtCore/QPair>
 #include <QtCore/QRect>
 
+class QDesignerFormWindowInterface;
+
 class QLayoutWidget;
 class QLayoutSupport;
 
 namespace qdesigner_internal {
 
-class FormWindow;
 
 class QT_FORMEDITOR_EXPORT QDesignerLayoutDecoration: public QObject, public QDesignerLayoutDecorationExtension
 {
@@ -35,7 +36,7 @@ class QT_FORMEDITOR_EXPORT QDesignerLayoutDecoration: public QObject, public QDe
     Q_INTERFACES(QDesignerLayoutDecorationExtension)
 public:
     QDesignerLayoutDecoration(QLayoutWidget *widget, QObject *parent = 0);
-    QDesignerLayoutDecoration(FormWindow *formWindow, QWidget *widget, QObject *parent = 0);
+    QDesignerLayoutDecoration(QDesignerFormWindowInterface *formWindow, QWidget *widget, QObject *parent = 0);
     virtual ~QDesignerLayoutDecoration();
 
     virtual QList<QWidget*> widgets(QLayout *layout) const;

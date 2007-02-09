@@ -12,14 +12,17 @@
 ****************************************************************************/
 
 #include "default_layoutdecoration.h"
-#include "formwindow.h"
 #include "qlayout_widget_p.h"
 #include "qdesigner_widget_p.h"
+
+#include <QtDesigner/QDesignerMetaDataBaseItemInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
 
 #include <QtGui/QGridLayout>
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner_internal;
+namespace qdesigner_internal {
 
 // ---- QDesignerLayoutDecoration ----
 QDesignerLayoutDecoration::QDesignerLayoutDecoration(QLayoutWidget *widget, QObject *parent)
@@ -29,7 +32,7 @@ QDesignerLayoutDecoration::QDesignerLayoutDecoration(QLayoutWidget *widget, QObj
     Q_ASSERT(m_layoutSupport);
 }
 
-QDesignerLayoutDecoration::QDesignerLayoutDecoration(FormWindow *formWindow, QWidget *widget, QObject *parent)
+QDesignerLayoutDecoration::QDesignerLayoutDecoration(QDesignerFormWindowInterface *formWindow, QWidget *widget, QObject *parent)
     : QObject(parent),
       m_layoutSupport(new QLayoutSupport(formWindow, widget, this))
 {
@@ -129,11 +132,12 @@ QObject *QDesignerLayoutDecorationFactory::createExtension(QObject *object, cons
     if (QLayoutWidget *widget = qobject_cast<QLayoutWidget*>(object)) {
         return new QDesignerLayoutDecoration(widget, parent);
     } else if (QWidget *widget = qobject_cast<QWidget*>(object)) {
-        if (FormWindow *fw = FormWindow::findFormWindow(widget)) {
+        if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(widget)) {
             QDesignerMetaDataBaseItemInterface *item = fw->core()->metaDataBase()->item(widget->layout());
             return item ? new QDesignerLayoutDecoration(fw, widget, parent) : 0;
         }
     }
 
     return 0;
+}
 }

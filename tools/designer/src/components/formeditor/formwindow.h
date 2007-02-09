@@ -15,10 +15,9 @@
 #define FORMWINDOW_H
 
 #include "formeditor_global.h"
-#include "formeditor.h"
 
 // sdk
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
 
 // Qt
 #include <QtCore/QHash>
@@ -26,11 +25,10 @@
 #include <QtCore/QMap>
 #include <QtCore/QSet>
 
-#include <QtGui/QWidget>
-
 class QDesignerDnDItemInterface;
 class DomConnections;
 
+class QWidget;
 class QLabel;
 class QTimer;
 class QAction;

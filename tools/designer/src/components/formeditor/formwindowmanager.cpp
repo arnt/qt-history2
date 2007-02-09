@@ -17,32 +17,24 @@ TRANSLATOR qdesigner_internal::FormWindowManager
 
 #include "formwindowmanager.h"
 #include "formwindow_dnditem.h"
+#include "formwindow.h"
+#include "formeditor.h"
+
 #include "widgetdatabase_p.h"
 #include "iconloader_p.h"
 #include "widgetselection.h"
-#include "qdesigner_resource.h"
 #include "connectionedit_p.h"
 
-#include <QtDesigner/QtDesigner>
 #include <qdesigner_command_p.h>
 #include <layoutinfo_p.h>
 #include <qlayout_widget_p.h>
 
 #include <QtGui/QUndoGroup>
-#include <QtGui/QUndoStack>
 #include <QtGui/QAction>
-#include <QtGui/QLayout>
 #include <QtGui/QSplitter>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QApplication>
-#include <QtGui/QIcon>
-#include <QtGui/QBitmap>
-#include <QtGui/QPainter>
 #include <QtGui/QSizeGrip>
-#include <QtGui/QAbstractButton>
-#include <QtGui/QToolBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMenuBar>
 #include <QtGui/QClipboard>
 #include <QtGui/QMdiArea>
 #include <QtGui/QMdiSubWindow>
@@ -52,11 +44,11 @@ TRANSLATOR qdesigner_internal::FormWindowManager
 
 namespace {
     const bool debugFWM = false;
-    
+
     inline QString whatsThisFrom(const QString &str) { /// ### implement me!
         return str;
     }
-    
+
     // find the first child of w in a sequence
     template <class Iterator>
         inline Iterator findFirstChildOf(Iterator it,Iterator end, const QWidget *w)    {

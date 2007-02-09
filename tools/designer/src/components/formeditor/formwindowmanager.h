@@ -15,9 +15,8 @@
 #define FORMWINDOWMANAGER_H
 
 #include "formeditor_global.h"
-#include "formwindow.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
@@ -27,11 +26,12 @@
 class QAction;
 class QActionGroup;
 class QUndoGroup;
-class MetaDataBase;
 class QDesignerFormEditorInterface;
 class QDesignerWidgetBoxInterface;
 
 namespace qdesigner_internal {
+
+class  FormWindow;
 
 class QT_FORMEDITOR_EXPORT FormWindowManager: public QDesignerFormWindowManagerInterface
 {
