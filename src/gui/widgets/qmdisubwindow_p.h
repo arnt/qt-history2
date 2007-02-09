@@ -30,6 +30,7 @@
 #include <QStyle>
 #include <QStyleOptionTitleBar>
 #include <QMenuBar>
+#include <QSizeGrip>
 #include <QPointer>
 #include <QDebug>
 #include <private/qwidget_p.h>
@@ -137,6 +138,7 @@ public:
     QPointer<QWidget> baseWidget;
     QPointer<QWidget> restoreFocusWidget;
     QPointer<ControlContainer> controlContainer;
+    QPointer<QSizeGrip> sizeGrip;
     QRubberBand *rubberBand;
     QPoint mousePressPosition;
     QRect oldGeometry;
@@ -185,7 +187,7 @@ public:
     QStyleOptionTitleBar titleBarOptions() const;
     void ensureWindowState(Qt::WindowState state);
     int titleBarHeight(const QStyleOptionTitleBar &options) const;
-    void sizeParameters(int *macMargin, int *margin, int *minWidth) const;
+    void sizeParameters(int *margin, int *minWidth) const;
     bool drawTitleBarWhenMaximized() const;
     void showButtonsInMenuBar(QMenuBar *menuBar);
     void removeButtonsFromMenuBar();
@@ -200,6 +202,8 @@ public:
     void setEnabled(WindowStateAction, bool enable = true);
     void setVisible(WindowStateAction, bool visible = true);
     void addToSystemMenu(WindowStateAction, const QString &text, const char *slot);
+    void setSizeGrip(QSizeGrip *sizeGrip);
+    void setSizeGripVisible(bool visible = true) const;
 
     inline int titleBarHeight() const
     {
