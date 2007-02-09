@@ -52,8 +52,6 @@
     !insertmacro QTDIR_FUNCTIONS
   !endif
 
-  ${strstr}
-  
   Function ModuleQSAOptionsPageEnter
     !insertmacro MUI_HEADER_TEXT "$(ModuleQSATitle)" "$(ModuleQSADescription)"
     push $0    
