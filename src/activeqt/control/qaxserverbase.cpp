@@ -2334,15 +2334,26 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
     if (index == -1) {
 	ensureMetaData();
 
-	BSTR bname;
-	UINT cname = 0;
-	if (m_spTypeInfo)
-	    m_spTypeInfo->GetNames(dispidMember, &bname, 1, &cname);
-	if (!cname)
-	    return res;
+        // This property or method is invoked when an ActiveX client specifies
+        // the object name without a property or method. We only support property.
+        if (dispidMember == DISPID_VALUE && (wFlags == DISPATCH_PROPERTYGET || wFlags == DISPATCH_PROPERTYPUT)) {
+            const QMetaObject *mo = qt.object->metaObject();
+            index = mo->indexOfClassInfo("DefaultProperty");
+            if (index != -1) {
+                name  = mo->classInfo(index).value();
+                index = mo->indexOfProperty(name);
+            }
+        } else {
+	    BSTR bname;
+	    UINT cname = 0;
+	    if (m_spTypeInfo)
+	        m_spTypeInfo->GetNames(dispidMember, &bname, 1, &cname);
+	    if (!cname)
+	        return res;
 
-        name = QString::fromUtf16((const ushort *)bname).toLatin1();
-	SysFreeString(bname);
+            name = QString::fromUtf16((const ushort *)bname).toLatin1();
+	    SysFreeString(bname);
+        }
     }
 
     const QMetaObject *mo = qt.object->metaObject();
@@ -2617,35 +2628,35 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 
     // maybe calling a setter? Notify client about changes
     switch(wFlags) {
-     case DISPATCH_METHOD:
-     case DISPATCH_PROPERTYPUT:
-     case DISPATCH_PROPERTYPUT|DISPATCH_PROPERTYPUTREF:
-         if (m_spAdviseSink || adviseSinks.count()) {
-             FORMATETC fmt;
-             fmt.cfFormat = 0;
-             fmt.ptd = 0;
-             fmt.dwAspect = DVASPECT_CONTENT;
-             fmt.lindex = -1;
-             fmt.tymed = TYMED_NULL;
-             
-             STGMEDIUM stg;
-             stg.tymed = TYMED_NULL;
-             stg.pUnkForRelease = 0;
-             stg.hBitmap = 0; // initializes the whole union
-             
-             if (m_spAdviseSink) {
-                 m_spAdviseSink->OnViewChange(DVASPECT_CONTENT, -1);
-                 m_spAdviseSink->OnDataChange(&fmt, &stg);
-             }
-             for (int i = 0; i < adviseSinks.count(); ++i) {
-                 adviseSinks.at(i).pAdvSink->OnDataChange(&fmt, &stg);
-             }
-         }
-
-         dirtyflag = true;
-         break;
-     default:
-         break;
+    case DISPATCH_METHOD:
+    case DISPATCH_PROPERTYPUT:
+    case DISPATCH_PROPERTYPUT|DISPATCH_PROPERTYPUTREF:
+        if (m_spAdviseSink || adviseSinks.count()) {
+            FORMATETC fmt;
+            fmt.cfFormat = 0;
+            fmt.ptd = 0;
+            fmt.dwAspect = DVASPECT_CONTENT;
+            fmt.lindex = -1;
+            fmt.tymed = TYMED_NULL;
+            
+            STGMEDIUM stg;
+            stg.tymed = TYMED_NULL;
+            stg.pUnkForRelease = 0;
+            stg.hBitmap = 0; // initializes the whole union
+            
+            if (m_spAdviseSink) {
+                m_spAdviseSink->OnViewChange(DVASPECT_CONTENT, -1);
+                m_spAdviseSink->OnDataChange(&fmt, &stg);
+            }
+            for (int i = 0; i < adviseSinks.count(); ++i) {
+                adviseSinks.at(i).pAdvSink->OnDataChange(&fmt, &stg);
+            }
+        }
+        
+        dirtyflag = true;
+        break;
+    default:
+        break;
     }
 
     if (index != -1 && uniqueIndex)
