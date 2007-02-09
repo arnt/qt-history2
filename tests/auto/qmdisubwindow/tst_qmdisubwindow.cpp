@@ -36,8 +36,10 @@ extern bool qt_tab_all_widgets;
 
 static inline bool tabAllWidgets()
 {
+#if !defined(Q_WS_WIN)
     if (qApp->style()->inherits("QMacStyle"))
         return qt_tab_all_widgets;
+#endif
     return true;
 }
 
