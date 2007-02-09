@@ -637,8 +637,8 @@ void tst_QNativeSocketEngine::receiveUrgentData()
     int available;
     QByteArray response;
 
-#if defined Q_OS_HPUX && defined Q_CC_HPACC
-    QSKIP("Native OOB data test doesn't work on HP-UX with aCC.", SkipAll);
+#if defined Q_OS_HPUX
+    QSKIP("Native OOB data test doesn't work on HP-UX.", SkipAll);
 #endif
 
     // The server sends an urgent message
