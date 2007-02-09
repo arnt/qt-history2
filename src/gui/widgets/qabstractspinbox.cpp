@@ -929,7 +929,8 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *event)
 #ifdef QT_KEYPAD_NAVIGATION
         if (QApplication::keypadNavigationEnabled()) {
             // Reserve up/down for nav - use left/right for edit.
-            if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down) {
+            if (!hasEditFocus() && (event->key() == Qt::Key_Up
+                                    || event->key() == Qt::Key_Down)) {
                 event->ignore();
                 return;
             }
@@ -951,15 +952,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Left:
     case Qt::Key_Right:
         if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
-            const bool up = (event->key() == Qt::Key_Right);
-            if (!(stepEnabled() & (up ? StepUpEnabled : StepDownEnabled)))
-                return;
-            if (!up)
-                steps *= -1;
-            if (style()->styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)) {
-                d->buttonState = (Keyboard | (up ? Up : Down));
-            }
-            stepBy(steps);
+            event->ignore();
             return;
         }
         break;
