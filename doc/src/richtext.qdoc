@@ -31,6 +31,7 @@ This document is divided up into chapters for convenient reference:
    text documents can be edited using the cursor-based interface.
 \i \l{Common Rich Text Editing Tasks} examines some
    common tasks that involve reading or manipulating rich text documents.
+\i \l{Advanced Rich Text Processing} examines advanced rich text editing tasks.
 \i \l{Supported HTML Subset} lists the HTML tags supported by QTextDocument.
 \endlist
 
@@ -598,7 +599,7 @@ The method used to derive this name is described in
 \page richtext-common-tasks.html
 \contentspage richtext.html Contents
 \previouspage The QTextCursor Interface
-\nextpage Supported HTML Subset
+\nextpage Advanced Rich Text Processing
 
 \title Common Rich Text Editing Tasks
 
@@ -702,6 +703,40 @@ The document is obtained from the text editor, and a QPrinter is constructed
 then configured using a QPrintDialog. If the user accepts the printer's
 configuration then the document is formatted and printed using the
 \l{QTextDocument::print()}{print()} function.
+
+*/
+
+/*!
+\page richtext-advanced-processing.html
+\contentspage richtext.html Contents
+\previouspage Common Rich Text Editing Tasks
+\nextpage Supported HTML Subset
+
+\title Advanced Rich Text Processing
+
+\section1 Handling Large Files
+
+Qt does not limit the size of files that are used for text
+processing.  In most cases, this will not present a problem. For
+especially large files, however, you might experience that your
+application will become unresponsive or that you will run out of
+memory. The size of the files you can load depends on your
+hardware and on Qt's and your own application's implementation.
+
+If you are faced with this problem, we recommend that you address the
+following issues:
+
+\list
+    \o You should consider breaking up large paragraphs into smaller 
+       ones as Qt handles small paragraphs better. You could also 
+       insert line breaks at regular intervals, which will look the
+       same as one large paragraph in a QTextEdit.
+    \o You can reduce the amount of blocks in a QTextDocument with 
+       \l{QTextDocument::}{maximumBlockCount()}. The document is only
+       as large as the number of blocks as far as QTextEdit is concerned.
+       It will also help QTextDocument as it does not need to build
+       the entire document structure immediately.
+\endlist
 
 \omit
 Ideas for other sections:
