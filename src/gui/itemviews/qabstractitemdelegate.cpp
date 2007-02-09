@@ -173,6 +173,12 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
     The base implementation returns 0. If you want custom editing you
     will need to reimplement this function.
 
+    The returned editor widget should have Qt::StrongFocus;
+    otherwise, \l{QMouseEvent}s received by the widget will propagate
+    to the view. The view's background will shine through unless the
+    editor paints its own background (e.g., with
+    \l{QWidget::}{setAutoFillBackground()}). 
+
     \sa setModelData() setEditorData()
 */
 QWidget *QAbstractItemDelegate::createEditor(QWidget *,
