@@ -25,6 +25,7 @@
 #include <QStyle>
 #include <QStyleOptionTitleBar>
 #include <QPushButton>
+#include <QSizeGrip>
 
 #if defined(Q_WS_X11)
 extern void qt_x11_wait_for_window_manager(QWidget *w);
@@ -583,8 +584,8 @@ void tst_QMdiSubWindow::setOpaqueResizeAndMove_data()
     QTest::addColumn<QSize>("workspaceSize");
     QTest::addColumn<QSize>("windowSize");
 
-    QTest::newRow("opaque mode") << true<< 20 << 20 << QSize(400, 400) << QSize(200, 200);
-    QTest::newRow("normal mode") << false << 20 << 1 << QSize(400, 400) << QSize(200, 200);
+    QTest::newRow("normal mode") << true<< 20 << 20 << QSize(400, 400) << QSize(200, 200);
+    QTest::newRow("rubberband mode") << false << 20 << 1 << QSize(400, 400) << QSize(200, 200);
 }
 
 void tst_QMdiSubWindow::setOpaqueResizeAndMove()
@@ -601,6 +602,13 @@ void tst_QMdiSubWindow::setOpaqueResizeAndMove()
     workspace.show();
     workspace.resize(workspaceSize);
     window->show();
+
+    QWidget *mouseReceiver = 0;
+    if (window->style()->inherits("QMacStyle"))
+        mouseReceiver = qFindChild<QSizeGrip *>(window);
+    else
+        mouseReceiver = window;
+    QVERIFY(mouseReceiver);
 
     // ----------------------------- resize -----------------------------
     {
@@ -619,19 +627,29 @@ void tst_QMdiSubWindow::setOpaqueResizeAndMove()
 
     // Enter resize mode.
     int offset = window->style()->pixelMetric(QStyle::PM_MDIFrameWidth) / 2;
-    QPoint mousePosition(window->width() - qMax(offset, 2), window->height() - qMax(offset, 2));
-    sendMouseMove(window, mousePosition, Qt::NoButton);
-    sendMousePress(window, mousePosition);
+    QPoint mousePosition(mouseReceiver->width() - qMax(offset, 2), mouseReceiver->height() - qMax(offset, 2));
+    sendMouseMove(mouseReceiver, mousePosition, Qt::NoButton);
+    sendMousePress(mouseReceiver, mousePosition);
+
+    // The window itself is the grabber in rubberband mode
+    if (!opaqueMode) {
+        mouseReceiver = window;
+        mousePosition = QPoint(window->width() - qMax(offset, 2), window->height() - qMax(offset, 2));
+    }
 
     // Trigger resize events
     for (int i = 0; i < geometryCount; ++i) {
-        ++mousePosition.rx();
-        ++mousePosition.ry();
-        sendMouseMove(window, mousePosition);
+        if (mouseReceiver == window) {
+            ++mousePosition.rx();
+            ++mousePosition.ry();
+            sendMouseMove(mouseReceiver, mousePosition);
+        } else {
+            sendMouseMove(mouseReceiver, mousePosition + QPoint(1, 1));
+        }
     }
 
     // Leave resize mode
-    sendMouseRelease(window, mousePosition);
+    sendMouseRelease(mouseReceiver, mousePosition);
     QCOMPARE(resizeSpy.count(), expectedGeometryCount);
     QCOMPARE(window->size(), windowSize + QSize(geometryCount, geometryCount));
     }
