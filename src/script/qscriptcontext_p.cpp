@@ -1544,7 +1544,7 @@ Ltop:
         BEGIN_INPLACE_OPERATOR
 
         if (isString(lhs) || isString(rhs)) {
-            if (! lhs.m_string_value->unique) {
+            if (isString(lhs) && !lhs.m_string_value->unique) {
                 lhs.m_string_value->s += eng->convertToNativeString(rhs);
                 stackPtr -= 3;
                 *stackPtr = lhs;
