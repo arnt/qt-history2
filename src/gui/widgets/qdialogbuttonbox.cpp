@@ -646,9 +646,9 @@ QDialogButtonBox::~QDialogButtonBox()
     \value RejectRole Clicking the button causes the dialog to be rejected
            (e.g. Cancel).
     \value DestructiveRole Clicking the button causes a destructive change
-           (e.g. for Discarding Changes).
-    \value ActionRole Clicking the button causes changes to the elements in
-           the dialog (e.g. reset all the values or read defaults).
+           (e.g. for Discarding Changes) and closes the dialog.
+    \value ActionRole Clicking the button causes changes to the elements within
+           the dialog, without closing the dialog.
     \value HelpRole The button can be clicked to request help.
     \value YesRole The button is a "Yes"-like button.
     \value NoRole The button is a "No"-like button.
