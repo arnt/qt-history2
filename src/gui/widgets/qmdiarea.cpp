@@ -525,12 +525,13 @@ void QMdiAreaPrivate::appendChild(QMdiSubWindow *child)
 */
 void QMdiAreaPrivate::place(const Placer &placer, QMdiSubWindow *child)
 {
+    Q_Q(QMdiArea);
     QList<QRect> rects;
-    QRect parentRect = q_func()->rect();
+    QRect parentRect = q->rect();
     foreach (QMdiSubWindow *existingChild, childWindows) {
         if (!sanityCheck(existingChild, "QMdiArea::place"))
             continue;
-        if (existingChild != child && existingChild->isVisible()) {
+        if (existingChild != child && existingChild->isVisibleTo(q)) {
             rects.append(QStyle::visualRect(child->layoutDirection(), parentRect,
                                             existingChild->geometry()));
         }
