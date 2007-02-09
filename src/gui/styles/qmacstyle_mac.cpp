@@ -636,9 +636,9 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
 }
 
 /**
-    Creates a HIThemeButtonDrawInfo structure that specifies the correct button kind and other details to 
-    use for drawing the given combobox. Which button kind depends on the size of the combo, wheter or not 
-    it is editable, explicit user style settings, etc. 
+    Creates a HIThemeButtonDrawInfo structure that specifies the correct button kind and other details to
+    use for drawing the given combobox. Which button kind depends on the size of the combo, wheter or not
+    it is editable, explicit user style settings, etc.
 */
 static void qt_mac_get_combobox_bdi(const QStyleOptionComboBox *combo, HIThemeButtonDrawInfo *bdi, const QWidget *widget, const ThemeDrawState &tds)
 {
@@ -654,7 +654,7 @@ static void qt_mac_get_combobox_bdi(const QStyleOptionComboBox *combo, HIThemeBu
         bdi->state = kThemeStateActive;
     else
         bdi->state = tds;
-    
+
     QAquaWidgetSize aSize = qt_aqua_size_constrain(widget);
     switch (aSize) {
     case QAquaSizeMini:
@@ -668,9 +668,9 @@ static void qt_mac_get_combobox_bdi(const QStyleOptionComboBox *combo, HIThemeBu
         break;
     case QAquaSizeUnknown:
     case QAquaSizeLarge:
-        // Unless the user explicitly specified large buttons, determine the 
+        // Unless the user explicitly specified large buttons, determine the
         // kind by looking at the combox size.
-        // ... specifying small and mini-buttons it not a current feature of 
+        // ... specifying small and mini-buttons it not a current feature of
         // Qt (e.g. QWidget::getAttribute(WA_ButtonSize)). But when it is, add
         // an extra check here before using the mini and small buttons.
         int h = combo->rect.size().height();
@@ -685,10 +685,10 @@ static void qt_mac_get_combobox_bdi(const QStyleOptionComboBox *combo, HIThemeBu
         }
         else {
             // Even if we specify that we want the kThemePopupButton, Carbon
-            // will use the kThemePopupButtonSmall if the size matches. So we 
+            // will use the kThemePopupButtonSmall if the size matches. So we
             // do the same size check explicit to have the size of the inner
-            // text field be correct. Therefore, do this even if the user specifies 
-            // the use of LargeButtons explicit. 
+            // text field be correct. Therefore, do this even if the user specifies
+            // the use of LargeButtons explicit.
             if (h < 21)
                 bdi->kind = kThemePopupButtonMini;
             else if (h < 27)
@@ -702,7 +702,7 @@ static void qt_mac_get_combobox_bdi(const QStyleOptionComboBox *combo, HIThemeBu
 
 /**
     Carbon draws comboboxes (and other views) outside the rect given as argument. Use this function to obtain
-    the corresponding inner rect for drawing the same combobox so that it stays inside the given outerBounds. 
+    the corresponding inner rect for drawing the same combobox so that it stays inside the given outerBounds.
 */
 static HIRect qt_mac_get_combobox_inner_bounds(const HIRect &outerBounds, HIThemeButtonDrawInfo bdi)
 {
@@ -749,11 +749,11 @@ static HIRect qt_mac_get_combobox_inner_bounds(const HIRect &outerBounds, HIThem
             innerBounds.size.height -= 8;
             break;
         default:
-            break;        
+            break;
         }
     }
-    
-    return innerBounds;       
+
+    return innerBounds;
 }
 
 /**
@@ -793,7 +793,7 @@ static QRect qt_mac_get_combobox_edit_bounds(const QRect &outerBounds, const HIT
     Carbon comboboxes don't scale (sight). If the size of the combo suggest a scaled version,
     create it manually by drawing a small Carbon combo onto a pixmap (use pixmap cache), chop
     it up, and copy it back onto the widget. Othervise, draw then combobox supplied by Carbon directly.
-*/ 
+*/
 static void qt_mac_draw_combobox(const HIRect &outerBounds, const HIThemeButtonDrawInfo &bdi, QPainter *p)
 {
     if (!(bdi.kind == kThemeComboBox && outerBounds.size.height > 28)){
@@ -801,19 +801,19 @@ static void qt_mac_draw_combobox(const HIRect &outerBounds, const HIThemeButtonD
         HIRect innerBounds = qt_mac_get_combobox_inner_bounds(outerBounds, bdi);
         HIThemeDrawButton(&innerBounds, &bdi, QMacCGContext(p), kHIThemeOrientationNormal, 0);
     }
-    else {        
+    else {
         QPixmap buffer;
-        QString key = QString("$qt_cbox%1-%2").arg(int(bdi.state)).arg(int(bdi.adornment)); 
+        QString key = QString("$qt_cbox%1-%2").arg(int(bdi.state)).arg(int(bdi.adornment));
         if (!QPixmapCache::find(key, buffer)) {
             HIRect innerBoundsSmallCombo = {{3, 3}, {29, 25}};
-            buffer = QPixmap(35, 28); 
+            buffer = QPixmap(35, 28);
             buffer.fill(Qt::transparent);
             QPainter buffPainter(&buffer);
             HIThemeDrawButton(&innerBoundsSmallCombo, &bdi, QMacCGContext(&buffPainter), kHIThemeOrientationNormal, 0);
             buffPainter.end();
             QPixmapCache::insert(key, buffer);
         }
- 
+
         const int bwidth = 20;
         const int fwidth = 10;
         const int fheight = 10;
@@ -826,19 +826,19 @@ static void qt_mac_draw_combobox(const HIRect &outerBounds, const HIThemeButtonD
         int center = (outerBounds.size.height + outerBounds.origin.y) / 2;
 
         // Draw upper and lower gap
-        p->drawPixmap(fwidth, 0, bstart - fwidth, fheight, buffer, fwidth, 0, 1, fheight);    
-        p->drawPixmap(fwidth, flower, bstart - fwidth, fheight, buffer, fwidth, buffer.height() - fheight, 1, fheight);    
+        p->drawPixmap(fwidth, 0, bstart - fwidth, fheight, buffer, fwidth, 0, 1, fheight);
+        p->drawPixmap(fwidth, flower, bstart - fwidth, fheight, buffer, fwidth, buffer.height() - fheight, 1, fheight);
         // Draw left and right gap. Right gap is drawn top and bottom separatly
-        p->drawPixmap(0, fheight, fwidth, sheight, buffer, 0, fheight, fwidth, 1);    
-        p->drawPixmap(bstart, fheight, bwidth, center - fheight, buffer, buffer.width() - bwidth, fheight - 1, bwidth, 1);    
-        p->drawPixmap(bstart, center, bwidth, sheight / 2, buffer, buffer.width() - bwidth, fheight + 6, bwidth, 1);                    
+        p->drawPixmap(0, fheight, fwidth, sheight, buffer, 0, fheight, fwidth, 1);
+        p->drawPixmap(bstart, fheight, bwidth, center - fheight, buffer, buffer.width() - bwidth, fheight - 1, bwidth, 1);
+        p->drawPixmap(bstart, center, bwidth, sheight / 2, buffer, buffer.width() - bwidth, fheight + 6, bwidth, 1);
         // Draw arrow
-        p->drawPixmap(bstart, center - 4, bwidth - 3, 6, buffer, buffer.width() - bwidth, fheight, bwidth - 3, 6);    
+        p->drawPixmap(bstart, center - 4, bwidth - 3, 6, buffer, buffer.width() - bwidth, fheight, bwidth - 3, 6);
         // Draw corners
         p->drawPixmap(0, 0, fwidth, fheight, buffer, 0, 0, fwidth, fheight);
         p->drawPixmap(bstart, 0, bwidth, fheight, buffer, buffer.width() - bwidth, 0, bwidth, fheight);
         p->drawPixmap(0, flower, fwidth, fheight, buffer, 0, buffer.height() - fheight, fwidth, fheight);
-        p->drawPixmap(bstart, h - blower, bwidth, blower, buffer, buffer.width() - bwidth, buffer.height() - blower, bwidth, blower);           
+        p->drawPixmap(bstart, h - blower, bwidth, blower, buffer, buffer.width() - bwidth, buffer.height() - blower, bwidth, blower);
     }
 }
 
@@ -1375,7 +1375,7 @@ void QMacStylePrivate::drawColorlessButton(const HIRect &macRect, HIThemeButtonD
         activePixmap.fill(Qt::transparent);
         {
             if (combo){
-                // Carbon combos don't scale. Therefore we draw it 
+                // Carbon combos don't scale. Therefore we draw it
                 // ourselves, if a scaled version is needed.
                 QPainter tmpPainter(&activePixmap);
                 qt_mac_draw_combobox(macRect, *bdi, &tmpPainter);
@@ -1414,7 +1414,7 @@ void QMacStylePrivate::drawColorlessButton(const HIRect &macRect, HIThemeButtonD
                 }
             }
             pm = QPixmap::fromImage(image);
-        } else { 
+        } else {
             QImage activeImage = activePixmap.toImage();
             QImage colorlessImage;
             {
@@ -2937,21 +2937,21 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 if (d->timerID <= -1)
                     QMetaObject::invokeMethod(d, "startAnimationTimer", Qt::QueuedConnection);
             }
-            
+
             HIRect newRect = qt_hirectForQRect(btn->rect);
             if (bdi.kind == kThemePushButton){
                 newRect.origin.x += PushButtonX;
                 newRect.origin.y += PushButtonY;
-                newRect.size.width -= PushButtonW;             
-                newRect.size.height -= PushButtonW;             
+                newRect.size.width -= PushButtonW;
+                newRect.size.height -= PushButtonW;
             }
             else if (bdi.kind == kThemePushButtonMini){
                 newRect.origin.x += PushButtonX-2;
-                newRect.origin.y += PushButtonY;             
-                newRect.size.width -= PushButtonW-4;             
+                newRect.origin.y += PushButtonY;
+                newRect.size.width -= PushButtonW-4;
             }
             HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
-            
+
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(QStyle::PM_MenuButtonIndicator, btn, w);
                 QRect ir = btn->rect;
@@ -3264,7 +3264,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
     case CE_FocusFrame: {
         int xOff = pixelMetric(PM_FocusFrameHMargin, opt, w) + 1;
         int yOff = pixelMetric(PM_FocusFrameVMargin, opt, w) + 1;
-        HIRect hirect = CGRectMake(xOff, yOff, opt->rect.width() - 2 * xOff,
+        HIRect hirect = CGRectMake(xOff+opt->rect.x(), yOff+opt->rect.y(), opt->rect.width() - 2 * xOff,
                                    opt->rect.height() - 2 * yOff);
         HIThemeDrawFocusRect(&hirect, true, QMacCGContext(p), kHIThemeOrientationNormal);
         break; }
@@ -3619,7 +3619,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
             bdi.version = qt_mac_hitheme_version;
             bdi.state = kThemeStateActive;
             bdi.value = kThemeButtonOff;
-            
+
             switch (qt_aqua_size_constrain(widget)) {
             case QAquaSizeUnknown:
             case QAquaSizeLarge:
@@ -3640,21 +3640,21 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
                 bdi.kind = kThemePushButtonMini;
                 break;
             }
-            
+
             HIRect newRect = qt_hirectForQRect(btn->rect);
             if (bdi.kind == kThemePushButton){
                 newRect.origin.x += PushButtonX;
                 newRect.origin.y += PushButtonY;
-                newRect.size.width -= PushButtonW;             
-                newRect.size.height -= PushButtonW;             
+                newRect.size.width -= PushButtonW;
+                newRect.size.height -= PushButtonW;
             }
             else if (bdi.kind == kThemePushButtonMini){
                 newRect.origin.x += PushButtonX;
-                newRect.origin.y += PushButtonY;             
-                newRect.size.width -= PushButtonW;             
+                newRect.origin.y += PushButtonY;
+                newRect.size.width -= PushButtonW;
             }
             else if (bdi.kind == kThemeBevelButton){
-                newRect.size.height -= 1;             
+                newRect.size.height -= 1;
             }
             HIRect outRect;
             bdi.adornment = kThemeAdornmentNone;
@@ -4534,7 +4534,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
         if (const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             HIThemeButtonDrawInfo bdi;
             qt_mac_get_combobox_bdi(combo, &bdi, widget, d->getDrawState(opt->state));
-            
+
             switch (sc) {
             case SC_ComboBoxEditField:{
                 ret = qt_mac_get_combobox_edit_bounds(combo->rect, bdi);
