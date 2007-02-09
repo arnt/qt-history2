@@ -166,7 +166,18 @@ void QMutex::lock()
 {
     ulong self = d->self();
 
+#if defined(Q_WS_MAC) && defined(_ARCH_PPC)
+    int contender;
+    forever {
+        contender = d->contenders;
+        if (d->contenders.testAndSetAcquire(contender, contender + 1))
+            break;
+    }
+ 
+    bool isLocked = contender == 0;
+#else     
     bool isLocked = d->contenders.fetchAndAddAcquire(1) == 0;
+#endif    
     if (!isLocked) {
         isLocked = d->recursive && d->owner == self;
         if (!isLocked) {
@@ -236,7 +247,17 @@ bool QMutex::tryLock(int timeout)
 {
     ulong self = d->self();
 
+#if defined(Q_WS_MAC) && defined(_ARCH_PPC)
+    int contender;
+    forever {
+        contender = d->contenders;
+        if (d->contenders.testAndSetAcquire(contender, contender + 1))
+            break;
+    }
+    bool isLocked = contender == 0;
+#else
     bool isLocked = d->contenders.fetchAndAddAcquire(1) == 0;
+#endif
     if (!isLocked) {
          isLocked = d->recursive && d->owner == self;
          if (!isLocked) {
