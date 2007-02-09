@@ -75,8 +75,9 @@ FunctionEnd
   
   Call IsQMsDevInstalled
   pop $0
-  IntCmp $0 0 +2
+  IntCmp $0 0 +3
     SectionSetFlags ${ADDIN60_SEC01} 16
+    MessageBox MB_OK|MB_ICONEXCLAMATION "The installer has detected that a Qt Add-In for Visual Studio 6.0 is already installed.$\r$\nUninstall the previous version before you reinstall it."
 
   ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\6.0\Setup" "VsCommonDir"
   strcmp $0 "" 0 +2
