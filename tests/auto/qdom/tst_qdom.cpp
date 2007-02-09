@@ -278,10 +278,10 @@ void tst_QDom::toString_01_data()
 */
 void tst_QDom::toString_01()
 {
-    QFETCH( QString, fileName );
+    QFETCH(QString, fileName);
 
     QFile f(fileName);
-    QVERIFY(f.open(QIODevice::ReadOnly));
+    QVERIFY2(f.open(QIODevice::ReadOnly), qPrintable(QString::fromLatin1("Failed to open file %1").arg(fileName)));
 
     QDomDocument doc;
     QString errorMsg;
