@@ -851,7 +851,7 @@ class SoftExitProcess : public QProcess
 public:
     bool waitedForFinished;
     
-    SoftExitProcess(int n) : waitedForFinished(false)
+    SoftExitProcess(int n) : waitedForFinished(false), n(n)
     {
         connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
                 this, SLOT(finishedSlot(int, QProcess::ExitStatus)));
@@ -884,6 +884,12 @@ public:
 public slots:
     void terminateSlot()
     {
+        if (n == 4 && state() != Running) {
+            // Don't try to kill the process before it is running - that can
+            // be hazardous, as the actual child process might not be running
+            // yet.
+            return;
+        }
         readAll();
         terminate();
         if ((waitedForFinished = waitForFinished(5000)) == false) {
@@ -896,6 +902,9 @@ public slots:
     {
         waitedForFinished = true;
     }
+
+private:
+    int n;
 };
 
 //-----------------------------------------------------------------------------
