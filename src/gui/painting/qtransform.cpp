@@ -45,8 +45,8 @@
     if (!isAffine()) { \
         qreal w = m_13*fx + m_23*fy + m_33; \
         w = 1/w; \
-        nx = int(nx/w); \
-        ny = int(ny/w); \
+        nx = int(nx*w); \
+        ny = int(ny*w); \
     }\
 }
 
