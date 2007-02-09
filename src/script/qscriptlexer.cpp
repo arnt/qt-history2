@@ -667,7 +667,11 @@ int QScript::Lexer::lex()
 #else
         sscanf(buffer8, "%Lx", &i);
 #endif
+#if defined Q_CC_MSVC && !defined Q_CC_MSVC_NET
+        dval = qint64(i);
+#else
         dval = i;
+#endif
         state = Number;
     } else if (state == Octal) {   // scan octal number
         quint64 ui;
@@ -676,7 +680,11 @@ int QScript::Lexer::lex()
 #else
         sscanf(buffer8, "%Lo", &ui);
 #endif
+#if defined Q_CC_MSVC && !defined Q_CC_MSVC_NET
+        dval = qint64(ui);
+#else
         dval = ui;
+#endif
         state = Number;
     }
 

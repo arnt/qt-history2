@@ -309,7 +309,11 @@ void qScriptValueToSequence(const QScriptValue &value, Container &cont)
     quint32 len = value.property(QLatin1String("length")).toUInt32();
     for (quint32 i = 0; i < len; ++i) {
         QScriptValue item = value.property(i);
+#if defined Q_CC_MSVC && !defined Q_CC_MSVC_NET
+        cont.push_back(qscriptvalue_cast<Container::value_type>(item));
+#else
         cont.push_back(qscriptvalue_cast<typename Container::value_type>(item));
+#endif
     }
 }
 
