@@ -156,6 +156,14 @@
         make
     \endcode
 
+    After installing Qt, as described in the \l{Installing Qt/X11} document,
+    you also need to install the plugin in the standard location:
+
+    \code
+        cd $QTDIR/src/plugins/sqldrivers/mysql
+        make install
+    \endcode
+
     \section3 How to Build the Plugin on Windows
 
     You need to get the MySQL installation files. Run \c SETUP.EXE and
@@ -486,6 +494,14 @@
         make
     \endcode
 
+    After installing Qt, as described in the \l{Installing Qt/X11} document,
+    you also need to install the plugin in the standard location:
+
+    \code
+        cd $QTDIR/src/plugins/sqldrivers/db2
+        make install
+    \endcode
+
     \section3 How to Build the Plugin on Windows
 
     The DB2 header and include files should already be installed in the
@@ -548,6 +564,14 @@
         cd $QTDIR/src/plugins/sqldrivers/sqlite
         qmake -o Makefile "INCLUDEPATH+=$SQLITE/include" "LIBS+=-L$SQLITE/lib -lsqlite"
         make
+    \endcode
+
+    After installing Qt, as described in the \l{Installing Qt/X11} document,
+    you also need to install the plugin in the standard location:
+
+    \code
+        cd $QTDIR/src/plugins/sqldrivers/sqlite
+        make install
     \endcode
 
     On Windows:
