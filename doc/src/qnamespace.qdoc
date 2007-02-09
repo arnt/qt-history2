@@ -1718,8 +1718,9 @@
     \value MoveAction       Move the data from the source to the target.
     \value LinkAction       Create a link from the source to the target.
     \value ActionMask
-    \value TargetMoveAction
     \value IgnoreAction     Ignore the action (do nothing with the data).
+
+    \omitvalue TargetMoveAction
 */
 
 #if defined(Q_OS_WIN) && defined(QT3_SUPPORT)
