@@ -629,7 +629,6 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #endif
             if (!flushing)
                 windowSurface->beginPaint(toClean);
-            windowSurface->beginPaint(toClean);
             windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
 
             tlw->d_func()->drawWidget(windowSurface->paintDevice(), toClean, tlwOffset);
