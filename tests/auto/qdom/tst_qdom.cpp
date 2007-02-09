@@ -63,8 +63,6 @@ private slots:
     void invalidCharData_data();
     void invalidCharData();
 
-    void appendChild();
-
     void checkWarningOnNull() const;
     void roundTripAttributes() const;
     void normalizeEndOfLine() const;
@@ -233,19 +231,6 @@ void tst_QDom::setContent()
     QVERIFY( domDoc1.setContent( doc ) );
     QVERIFY( domDoc2.setContent( eRes ) );
     QVERIFY( compareDocuments( domDoc1, domDoc2 ) );
-}
-
-void tst_QDom::appendChild()
-{
-    QDomImplementation impl;
-    const QDomDocumentType type(impl.createDocumentType("Name", QString(), "bla.dtd"));
-    QDomDocument doc(impl.createDocument("ns", "Name", type));
-
-    const QDomElement root(doc.createElement("MyMl"));
-    const QDomNode result(doc.appendChild(root));
-
-    QVERIFY(result.isNull());
-    QCOMPARE(int(doc.childNodes().length()), 1);
 }
 
 void tst_QDom::toString_01_data()
