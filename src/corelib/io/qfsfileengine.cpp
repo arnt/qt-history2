@@ -716,7 +716,10 @@ bool QFSFileEnginePrivate::isSequentialFdFh() const
 */
 bool QFSFileEngine::extension(Extension extension, const ExtensionOption *option, ExtensionReturn *output)
 {
-    Q_UNUSED(extension);
+    Q_D(QFSFileEngine);
+    if (extension == AtEndExtension && d->fh && isSequential())
+        return feof(d->fh);
+
     Q_UNUSED(option);
     Q_UNUSED(output);
     return false;
@@ -727,6 +730,8 @@ bool QFSFileEngine::extension(Extension extension, const ExtensionOption *option
 */
 bool QFSFileEngine::supportsExtension(Extension extension) const
 {
-    Q_UNUSED(extension);
+    Q_D(const QFSFileEngine);
+    if (extension == AtEndExtension && d->fh && isSequential())
+        return true;
     return false;
 }

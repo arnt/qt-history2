@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
+#include "qdebug.h"
 #include "qfile.h"
 #include "qfsfileengine.h"
 #include "qtemporaryfile.h"
@@ -1201,7 +1202,20 @@ bool QFile::atEnd() const
 {
     if (!isOpen())
         return true;
-    return QIODevice::atEnd() || (isSequential() && bytesAvailable() == 0);
+
+    // If there's buffered data left, we're not at the end.
+    if (!d_func()->buffer.isEmpty())
+        return false;
+
+    // If the file engine knows best, say what it says.
+    if (fileEngine()->supportsExtension(QAbstractFileEngine::AtEndExtension)) {
+        // Check if the file engine supports AtEndExtension, and if it does,
+        // check if the file engine claims to be at the end.
+        return fileEngine()->atEnd();
+    }
+
+    // Fall back to checking how much is available (will stat files).
+    return bytesAvailable() == 0;
 }
 
 /*!

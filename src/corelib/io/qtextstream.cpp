@@ -367,7 +367,6 @@ public:
     inline void consumeLastToken();
     inline void consume(int nchars);
     int lastTokenSize;
-    bool lastReadFailed;
 
     // Return value type for getNumber()
     enum NumberParsingStatus {
@@ -473,7 +472,6 @@ void QTextStreamPrivate::reset()
     readBufferStartDevicePos = 0;
     endOfBufferState.clear();
     lastTokenSize = 0;
-    lastReadFailed = false;
 
 #ifndef QT_NO_TEXTCODEC
     codec = QTextCodec::codecForLocale();
@@ -551,7 +549,7 @@ bool QTextStreamPrivate::fillReadBuffer(qint64 maxBytes)
            qt_prettyDebug(buf, qMin(32,int(bytesRead)) , int(bytesRead)).constData(), sizeof(buf), int(bytesRead));
 #endif
     
-    if ((lastReadFailed = (bytesRead <= 0)))
+    if (bytesRead <= 0)
         return false;
 
     int oldReadBufferSize = readBuffer.size();
@@ -1525,7 +1523,7 @@ bool QTextStream::atEnd() const
 
     if (d->string)
         return d->string->size() == d->stringOffset;
-    return d->readBuffer.isEmpty() && d->device->atEnd() && (!d->device->isSequential() || d->lastReadFailed);
+    return d->readBuffer.isEmpty() && d->device->atEnd();
 }
 
 /*!

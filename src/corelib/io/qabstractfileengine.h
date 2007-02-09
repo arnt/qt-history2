@@ -107,6 +107,7 @@ public:
     virtual QDateTime fileTime(FileTime time) const;
     virtual void setFileName(const QString &file);
     virtual int handle() const;
+    bool atEnd() const;
 
     typedef QAbstractFileEngineIterator Iterator;
     virtual Iterator *beginEntryList(QDir::Filters filters, const QStringList &filterNames);
@@ -120,6 +121,7 @@ public:
     QString errorString() const;
 
     enum Extension {
+        AtEndExtension
     };
     class ExtensionOption
     {};

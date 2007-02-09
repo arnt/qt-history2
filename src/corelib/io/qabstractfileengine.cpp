@@ -711,6 +711,23 @@ int QAbstractFileEngine::handle() const
 
 /*!
     \since 4.3
+
+    Returns true if the current position is at the end of the file; otherwise,
+    returns false.
+
+    This function bases its behavior on calling extension() with
+    AtEndExtension. If the engine does not support this extension, false is
+    returned.
+
+    \sa extension(), supportsExtension(), QFile::atEnd()
+*/
+bool QAbstractFileEngine::atEnd() const
+{
+    return const_cast<QAbstractFileEngine *>(this)->extension(AtEndExtension);
+}
+
+/*!
+    \since 4.3
     \class QAbstractFileEngineIterator
     \brief The QAbstractFileEngineIterator class provides an iterator
     interface for custom file engines.
@@ -1049,22 +1066,57 @@ qint64 QAbstractFileEngine::readLine(char *data, qint64 maxlen)
 }
 
 /*!
-   \internal
    \enum QAbstractFileEngine::Extension
+   \since 4.3
+
+   This enum describes the types of extensions that the file engine can
+   support. Before using these extensions, you must verify that the extension
+   is supported (i.e., call supportsExtension()).
+
+   \value AtEndExtension Whether the current file position is at the end of
+   the file or not. This extension allows file engines that implement local
+   buffering to report end-of-file status without having to check the size of
+   the file. It is also useful for sequential files, where the size of the
+   file cannot be used to determine whether or not you have reached the end.
+   This extension returns true if the file is at the end; otherwise it returns
+   false. The input and output arguments to extension() are ignored.
 */
 
 /*!
-   \internal
    \class QAbstractFileEngine::ExtensionOption
+   \since 4.3
+   \brief provides an extended input argument to QAbstractFileEngine's
+   extension support.
+
+   \sa QAbstractFileEngine::extension()
 */
 
 /*!
-   \internal
    \class QAbstractFileEngine::ExtensionReturn
+   \since 4.3
+   \brief provides an extended output argument to QAbstractFileEngine's
+   extension support.
+
+   \sa QAbstractFileEngine::extension()
 */
 
 /*!
-    \internal
+    \since 4.3
+
+    This virtual function can be reimplemented in a QAbstractFileEngine
+    subclass to provide support for extensions. The \a option argument is
+    provided as input to the extension, and this function can store output
+    results in \a output.
+
+    The behavior of this function is determined by \a extension; see the
+    Extension documentation for details.
+
+    You can call supportsExtension() to check if an extension is supported by
+    the file engine.
+    
+    By default, no extensions are supported, and this function returns false.
+
+    \sa supportsExtension(), Extension
 */
 bool QAbstractFileEngine::extension(Extension extension, const ExtensionOption *option, ExtensionReturn *output)
 {
@@ -1075,7 +1127,13 @@ bool QAbstractFileEngine::extension(Extension extension, const ExtensionOption *
 }
 
 /*!
-    \internal
+    \since 4.3
+
+    This virtual function returns true if the file engine supports \a
+    extension; otherwise, false is returned. By default, no extensions are
+    supported.
+
+    \sa extension()
 */
 bool QAbstractFileEngine::supportsExtension(Extension extension) const
 {
