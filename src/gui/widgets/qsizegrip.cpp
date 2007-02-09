@@ -21,6 +21,7 @@
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qdebug.h"
+#include <QDesktopWidget>
 
 #if defined(Q_WS_X11)
 #include <private/qt_x11_p.h>
@@ -46,6 +47,8 @@ public:
     QPoint p;
     QRect r;
     int d;
+    int dxMax;
+    int dyMax;
     bool hiddenByUser;
     bool atBottom;
     bool gotMousePress;
@@ -53,7 +56,7 @@ public:
 
 static QWidget *qt_sizegrip_topLevelWidget(QWidget* w)
 {
-    while (!w->isWindow() && !(w->parentWidget()->windowType() == Qt::SubWindow))
+    while (w && !w->isWindow() && w->windowType() != Qt::SubWindow)
         w = w->parentWidget();
     return w;
 }
@@ -134,6 +137,8 @@ QSizeGrip::QSizeGrip(QWidget * parent, const char* name)
 void QSizeGripPrivate::init()
 {
     Q_Q(QSizeGrip);
+    dxMax = 0;
+    dyMax = 0;
     hiddenByUser = false;
     atBottom = qt_sizegrip_atBottom(q);
     gotMousePress = false;
@@ -234,7 +239,34 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
     Q_D(QSizeGrip);
     d->gotMousePress = true;
     d->p = e->globalPos();
-    d->r = qt_sizegrip_topLevelWidget(this)->geometry();
+    d->r = tlw->geometry();
+
+    // Find available desktop/workspace geometry.
+    QRect availableGeometry;
+    if (tlw->isWindow())
+        availableGeometry = QApplication::desktop()->availableGeometry(tlw);
+    else
+        availableGeometry = tlw->parentWidget()->contentsRect();
+
+    // Find frame geometries, title bar height, and decoration sizes.
+    const QRect frameGeometry = tlw->frameGeometry();
+    const int titleBarHeight = qMax(tlw->geometry().y() - frameGeometry.y(), 0);
+    const int bottomDecoration = qMax(frameGeometry.height() - tlw->height() - titleBarHeight, 0);
+    const int leftRightDecoration = qMax((frameGeometry.width() - tlw->width()) / 2, 0);
+
+    // Determine dyMax depending on whether the sizegrip is at the bottom
+    // of the widget or not.
+    if (d->atBottom)
+        d->dyMax = availableGeometry.bottom() - d->r.bottom() - bottomDecoration;
+    else
+        d->dyMax = availableGeometry.y() - d->r.y() + titleBarHeight;
+
+    // In RTL mode, the size grip is to the left; find dxMax from the desktop/workspace
+    // geometry, the size grip geometry and the width of the decoration.
+    if (isRightToLeft())
+        d->dxMax = availableGeometry.x() - d->r.x() + leftRightDecoration;
+    else
+        d->dxMax = availableGeometry.right() - d->r.right() - leftRightDecoration;
 }
 
 
@@ -267,7 +299,7 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
     QPoint np(e->globalPos());
 
     if (!tlw->isWindow()) {
-        QWidget* ws = tlw->parentWidget()->parentWidget();
+        QWidget* ws = tlw->parentWidget();
         QPoint tmp(ws->mapFromGlobal(np));
         if (tmp.x() > ws->width())
             tmp.setX(ws->width());
@@ -276,16 +308,17 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
         np = ws->mapToGlobal(tmp);
     }
 
+    // Don't extend beyond the available geometry; bound to dyMax and dxMax.
     QSize ns;
     if (d->atBottom)
-        ns.rheight() = np.y() - d->p.y() + d->r.height();
+        ns.rheight() = d->r.height() + qMin(np.y() - d->p.y(), d->dyMax);
     else
-        ns.rheight() = d->r.height() - (np.y() - d->p.y());
+        ns.rheight() = d->r.height() - qMax(np.y() - d->p.y(), d->dyMax);
 
     if (isRightToLeft())
-        ns.rwidth() = d->r.width() - (np.x() - d->p.x());
+        ns.rwidth() = d->r.width() - qMax(np.x() - d->p.x(), d->dxMax);
     else
-        ns.rwidth() = np.x() - d->p.x() + d->r.width();
+        ns.rwidth() = d->r.width() + qMin(np.x() - d->p.x(), d->dxMax);
 
     ns = ns.expandedTo(tlw->minimumSize()).expandedTo(tlw->minimumSizeHint()).boundedTo(tlw->maximumSize());
 
