@@ -148,7 +148,10 @@ case 6: {
 
 case 7: {
   bool rx = lexer->scanRegExp();
-  Q_ASSERT(rx);
+  if (!rx) {
+      error_message = lexer->errorMessage();
+      return false;
+  }
   sym(1).Node = QScript::makeAstNode<QScript::AST::RegExpLiteral> (driver->nodePool(), lexer->pattern, lexer->flags);
   Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
 } break;

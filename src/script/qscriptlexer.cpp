@@ -953,8 +953,10 @@ bool QScript::Lexer::scanRegExp()
     bool lastWasEscape = false;
 
     while (1) {
-        if (isLineTerminator() || current == 0)
+        if (isLineTerminator() || current == 0) {
+            errmsg = QLatin1String("Unterminated regular expression literal");
             return false;
+        }
         else if (current != '/' || lastWasEscape == true)
             {
                 record16(current);
