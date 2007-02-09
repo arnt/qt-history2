@@ -68,11 +68,11 @@ public:
     \since 4.2
     \ingroup model-view
 
-    When editing the data shown by an item delegate, the QItemDelegate responsible
-    requests an editor widget from its item editor factory by calling the
-    createEditor() function. The default factory is provided by this class, but it
-    is possible to implement subclasses that provide specialized editing behavior,
-    such as row or column-specific editors, or editors for certain types of data.
+    When editing the data shown by an item delegate, the
+    QItemDelegate responsible requests an editor widget from its item
+    editor factory by calling the createEditor() function. The default
+    factory is provided by this class, but it is possible to implement
+    subclasses that provide editors for certain types of data.
 
     \section1 Standard Editing Widgets
 
@@ -80,6 +80,7 @@ public:
     types. These are created whenever a delegate needs to provide an editor for
     data supplied by a model. The following table shows the relationship between
     types and the standard editors provided.
+
     \table
     \header \o Type \o Editor Widget
     \row    \o bool \o QComboBox
