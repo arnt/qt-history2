@@ -44,7 +44,8 @@ QThreadStorageData::QThreadStorageData(void (*func)(void *))
 QThreadStorageData::~QThreadStorageData()
 {
     QMutexLocker locker(mutex());
-    destructors()->remove(id);
+    if (destructors())
+        destructors()->remove(id);
 
     DEBUG("QThreadStorageData: Released id %d", id);
 }

@@ -2376,7 +2376,8 @@ QByteArray qgetenv(const char *varName)
 
 
 #if defined(Q_OS_UNIX) && !defined(QT_NO_THREAD)
-static QThreadStorage<uint *> randTLS; // Thread Local Storage for seed value
+typedef QThreadStorage<uint *> SeedStorage;
+Q_GLOBAL_STATIC(SeedStorage, randTLS);  // Thread Local Storage for seed value
 #endif
 
 /*!
@@ -2399,9 +2400,9 @@ static QThreadStorage<uint *> randTLS; // Thread Local Storage for seed value
 void qsrand(uint seed)
 {
 #if defined(Q_OS_UNIX) && !defined(QT_NO_THREAD)
-    if (!randTLS.hasLocalData())
-        randTLS.setLocalData(new uint);
-    *randTLS.localData() = seed;
+    if (!randTLS()->hasLocalData())
+        randTLS()->setLocalData(new uint);
+    *randTLS()->localData() = seed;
 #else
     // On Windows srand() and rand() already use Thread-Local-Storage
     // to store the seed between calls
@@ -2427,12 +2428,12 @@ void qsrand(uint seed)
 int qrand()
 {
 #if defined(Q_OS_UNIX) && !defined(QT_NO_THREAD)
-    if (!randTLS.hasLocalData()) {
-        randTLS.setLocalData(new uint);
-        *randTLS.localData() = 1;
+    if (!randTLS()->hasLocalData()) {
+        randTLS()->setLocalData(new uint);
+        *randTLS()->localData() = 1;
     }
 
-    return rand_r(randTLS.localData());
+    return rand_r(randTLS()->localData());
 #else
     // On Windows srand() and rand() already use Thread-Local-Storage
     // to store the seed between calls
