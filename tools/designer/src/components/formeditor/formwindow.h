@@ -28,6 +28,7 @@
 
 #include <QtGui/QWidget>
 
+class QDesignerDnDItemInterface;
 class DomConnections;
 
 class QLabel;
@@ -41,7 +42,6 @@ namespace qdesigner_internal {
 
 class FormEditor;
 class FormWindowCursor;
-class WidgetSelection;
 class WidgetEditorTool;
 class FormWindowWidgetStack;
 class FormWindowManager;
@@ -53,14 +53,10 @@ class BreakLayoutCommand;
 class QT_FORMEDITOR_EXPORT FormWindow: public QDesignerFormWindowInterface
 {
     Q_OBJECT
+
 public:
-    enum HighlightMode
-    {
-        Restore,
-        Highlight
-    };
-    typedef QList<QWidget*> WidgetList;
-public:
+    enum HighlightMode  { Restore, Highlight };
+
     FormWindow(FormEditor *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~FormWindow();
 
@@ -111,7 +107,7 @@ public:
     virtual QPoint grid() const { return m_grid; }
     virtual void setGrid(const QPoint &grid) { m_grid = grid; }
 
-    virtual void simplifySelection(WidgetList *sel) const;
+    virtual void simplifySelection(QWidgetList *sel) const;
 
     virtual void ensureUniqueObjectName(QObject *object);
 
@@ -131,11 +127,11 @@ public:
     void selectWidget(QWidget *w, bool select=true);
 
     void selectWidgets();
-    void repaintSelection() { m_selection.repaintSelection(); }
+    void repaintSelection();
     void updateSelection(QWidget *w);
     void updateChildSelections(QWidget *w);
     void raiseChildSelections(QWidget *w);
-    void raiseSelection(QWidget *w) { m_selection.raiseWidget(w); }
+    void raiseSelection(QWidget *w);
     void hideSelection(QWidget *w);
 
     inline const QList<QWidget *>& widgets() const { return m_widgets; }
@@ -145,7 +141,7 @@ public:
     QList<QWidget *> widgets(QWidget *widget) const;
 
     QWidget *createWidget(DomUI *ui, const QRect &rect, QWidget *target);
-    void deleteWidgets(const WidgetList &widget_list);
+    void deleteWidgets(const QWidgetList &widget_list);
 
     bool isManaged(QWidget *w) const;
 
@@ -278,36 +274,7 @@ private:
 
     void handleArrowKeyEvent(int key, bool modifier);
 
-private:    
-    class Selection {
-    public:
-        Selection();
-        ~Selection();
-
-        void clear();
-        void repaintSelection(QWidget *w);
-        void repaintSelection();
-
-        bool isWidgetSelected(QWidget *w) const;
-        WidgetList selectedWidgets() const;
-
-        WidgetSelection *addWidget(FormWindow* fw, QWidget *w);
-        // remove widget, return new current widget or 0
-        QWidget* removeWidget(QWidget *w);
-
-        void raiseList(const WidgetList& l);
-        void raiseWidget(QWidget *w);
-
-        void updateGeometry(QWidget *w);
-
-    private:
-        typedef QList<WidgetSelection *> SelectionPool;
-        SelectionPool m_selectionPool;
-
-        typedef QHash<QWidget *, WidgetSelection *> SelectionHash;
-        SelectionHash m_usedSelections;
-    };
-    
+private:   
     Feature m_feature;
     FormEditor *m_core;
     FormWindowCursor *m_cursor;
@@ -321,10 +288,11 @@ private:
     QPoint m_rectAnchor;
     QRect m_currRect;
 
-    WidgetList m_widgets;
+    QWidgetList m_widgets;
     QSet<QWidget*> m_insertedWidgets;
 
-    Selection m_selection;
+    class Selection;
+    Selection *m_selection;
 
     QPoint m_startPos;
    
