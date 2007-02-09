@@ -66,6 +66,7 @@ private:
     void updateEditor();
     void moveColumnsLeft(int fromColumn, int toColumn);
     void moveColumnsRight(int fromColumn, int toColumn);
+    void closeEditors();
 
     Ui::TreeWidgetEditor ui;
     QDesignerFormWindowInterface *m_form;
