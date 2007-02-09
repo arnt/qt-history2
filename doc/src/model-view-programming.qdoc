@@ -2457,6 +2457,14 @@
     \l{QAbstractItemModel::insertColumns()}{insertColumns()}, to ensure that the
     model behaves consistently.
 
+    It is important that the functions that remove data from the
+    model (
+    \l{QAbstractItemModel}'s \l{QAbstractItemModel::}{removeRows()},
+    \l{QAbstractItemModel::}{removeRow()},
+    \l{QAbstractItemModel::}{removeColumns()},
+    and \l{QAbstractItemModel::}{removeColumn()}) are reimplemented for
+    drags that move data to work properly.
+
     \section2 Convenience Views
 
     The convenience views (QListWidget, QTableWidget, and QTreeWidget) override
@@ -2465,7 +2473,9 @@
     since it is more common to drop data into cells in a QTableWidget, replacing
     the existing contents with the data being transferred, the underlying model
     will set the data of the target items rather than insert new rows and columns
-    into the model.
+    into the model. For more information on drag and drop in convenience views,
+    you can see \l{Using Drag and Drop with Item Views}.
+
 
     \sa {http://www.phptr.com/content/images/0131872494/samplechapter/blanchette_ch10.pdf}{"Item View Classes" Chapter of C++ GUI Programming with Qt 4}
 */
