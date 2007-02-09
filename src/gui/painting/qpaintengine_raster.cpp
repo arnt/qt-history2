@@ -829,6 +829,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     d->matrix = QTransform();
     d->txop = QTransform::TxNone;
+    d->txscale = 1;
 
     d->outlineMapper->setMatrix(d->matrix, d->txop);
     d->outlineMapper->m_clipper.setBoundingRect(d->deviceRect.adjusted(-10, -10, 10, 10));
@@ -1024,6 +1025,13 @@ void QRasterPaintEngine::updateMatrix(const QTransform &matrix)
         d->txop = QTransform::TxNone;
         d->int_xform = true;
     }
+
+    d->txscale = d->txop > QTransform::TxTranslate ?
+        sqrt(qMax(d->matrix.m11() * d->matrix.m11()
+                  + d->matrix.m21() * d->matrix.m21(),
+                  d->matrix.m12() * d->matrix.m12()
+                  + d->matrix.m22() * d->matrix.m22()))
+        : 1.0;
 
     // 1/10000 == 0.0001, so we have good enough res to cover curves
     // that span the entire widget...
@@ -2260,7 +2268,9 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     if (!d->penData.blend)
         return;
 
-    if (QT_WA_INLINE(false, d->txop >= QTransform::TxScale)) {
+    if (QT_WA_INLINE(false, d->txop >= QTransform::TxScale)
+        || d->txscale * textItem.font().pointSize() > 64)
+    {
         QPaintEngine::drawTextItem(p, textItem);
         return;
     }

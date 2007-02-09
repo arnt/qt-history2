@@ -204,6 +204,8 @@ public:
 
     int deviceDepth;
 
+    qreal txscale;
+
     uint txop;
 
     uint fast_pen : 1;
