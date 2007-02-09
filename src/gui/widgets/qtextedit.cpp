@@ -476,7 +476,8 @@ void QTextEditPrivate::ensureViewportLayouted()
     will select the character to the right, and \e{Shift+Ctrl+Right
     Arrow} will select the word to the right, etc.
 
-    \sa QTextDocument, QTextCursor, {Application Example}, {Syntax Highlighter Example}
+    \sa QTextDocument, QTextCursor, {Application Example},
+	{Syntax Highlighter Example}, {Rich Text Processing}
 */
 
 /*!
