@@ -28,7 +28,7 @@ class Q_CORE_EXPORT QTimer : public QObject
     Q_OBJECT
     Q_PROPERTY(bool singleShot READ isSingleShot WRITE setSingleShot)
     Q_PROPERTY(int interval READ interval WRITE setInterval)
-    Q_PROPERTY(int active READ isActive)
+    Q_PROPERTY(bool active READ isActive)
 public:
     explicit QTimer(QObject *parent = 0);
 #ifdef QT3_SUPPORT
