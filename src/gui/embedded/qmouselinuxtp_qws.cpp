@@ -232,9 +232,10 @@ void QWSLinuxTPMouseHandlerPrivate::readMouseData()
                     totalMousePos -= samples[lastSample];
 
                 mousePos = totalMousePos / (sampleCount - 1);
-
+# if defined(QT_QWS_IPAQ_RAW) || defined(QT_QWS_EBX_RAW)
+                  // fixme: for transformed display only
                 mousePos = handler->transform(mousePos);
-
+#endif
                 if(!waspressed)
                     oldmouse = mousePos;
                 QPoint dp = mousePos - oldmouse;
