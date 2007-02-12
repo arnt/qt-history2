@@ -3841,6 +3841,7 @@ qlonglong QLocalePrivate::bytearrayToLongLong(const char *num, int base, bool *o
             // input string is overflow
             *overflow = *endptr != '\0';
         }
+        return 0;
     }
 
     if (*endptr != '\0') {
