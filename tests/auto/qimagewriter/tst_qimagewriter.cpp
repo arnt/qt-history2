@@ -63,6 +63,8 @@ private slots:
     void saveToTemporaryFile();
 };
 
+static const QLatin1String prefix(SRCDIR "/images/");
+
 // Testing get/set functions
 void tst_QImageWriter::getSetCheck()
 {
@@ -150,24 +152,24 @@ void tst_QImageWriter::writeImage()
 
     QImage image;
     {
-        QImageReader reader("images/" + fileName);
+        QImageReader reader(prefix + fileName);
         image = reader.read();
         QVERIFY2(!image.isNull(), qPrintable(reader.errorString()));
     }
     {
-        QImageWriter writer("images/gen-" + fileName, format);
+        QImageWriter writer(prefix + "gen-" + fileName, format);
         QVERIFY(writer.write(image));
     }
 
     {
         // Shouldn't be able to write to read-only file
-        QImageWriter writer("images/" + fileName, format);
+        QImageWriter writer(prefix + fileName, format);
         QVERIFY(!writer.write(image));
     }
 
     QImage image2;
     {
-        QImageReader reader("images/gen-" + fileName);
+        QImageReader reader(prefix + "gen-" + fileName);
         image2 = reader.read();
         QVERIFY(!image2.isNull());
     }
@@ -295,7 +297,7 @@ void tst_QImageWriter::setDescription_data()
     willem["Software"] = "Created on a NeXTstation color using \"pnmtopng\".";
     willem["Disclaimer"] = "Freeware.";
 
-    QTest::newRow("PNG") << QString("images/gen-pngwithtext.png") << willem;
+    QTest::newRow("PNG") << prefix + QString("gen-pngwithtext.png") << willem;
 }
 
 void tst_QImageWriter::setDescription()
@@ -306,7 +308,7 @@ void tst_QImageWriter::setDescription()
     QImageWriter writer(fileName, "png");
     foreach (QString key, description.keys())
         writer.setText(key, description.value(key));
-    QVERIFY(writer.write(QImage(QLatin1String("images/kollada.png"))));
+    QVERIFY(writer.write(QImage(prefix + "kollada.png")));
 
     QImageReader reader(fileName);
     foreach (QString key, description.keys())
@@ -347,7 +349,7 @@ void tst_QImageWriter::supportsOption_data()
     QTest::addColumn<QString>("fileName");
     QTest::addColumn<QIntList>("options");
 
-    QTest::newRow("png") << QString("images/gen-black.png")
+    QTest::newRow("png") << QString(prefix + "gen-black.png")
                          << (QIntList() << QImageIOHandler::Gamma
                               << QImageIOHandler::Description
                               << QImageIOHandler::Quality
@@ -396,15 +398,15 @@ void tst_QImageWriter::saveWithNoFormat_data()
     QTest::addColumn<QByteArray>("format");
     QTest::addColumn<QImageWriter::ImageWriterError>("error");
 
-    QTest::newRow("garble") << QString("images/gen-out.garble") << QByteArray("jpeg") << QImageWriter::UnsupportedFormatError;
-    QTest::newRow("bmp") << QString("images/gen-out.bmp") << QByteArray("bmp") << QImageWriter::ImageWriterError(0);
-    QTest::newRow("xbm") << QString("images/gen-out.xbm") << QByteArray("xbm") << QImageWriter::ImageWriterError(0);
-    QTest::newRow("xpm") << QString("images/gen-out.xpm") << QByteArray("xpm") << QImageWriter::ImageWriterError(0);
-    QTest::newRow("png") << QString("images/gen-out.png") << QByteArray("png") << QImageWriter::ImageWriterError(0);
-    QTest::newRow("ppm") << QString("images/gen-out.ppm") << QByteArray("ppm") << QImageWriter::ImageWriterError(0);
-    QTest::newRow("pbm") << QString("images/gen-out.pbm") << QByteArray("pbm") << QImageWriter::ImageWriterError(0);
+    QTest::newRow("garble") << prefix + QString("gen-out.garble") << QByteArray("jpeg") << QImageWriter::UnsupportedFormatError;
+    QTest::newRow("bmp") << prefix + QString("gen-out.bmp") << QByteArray("bmp") << QImageWriter::ImageWriterError(0);
+    QTest::newRow("xbm") << prefix + QString("gen-out.xbm") << QByteArray("xbm") << QImageWriter::ImageWriterError(0);
+    QTest::newRow("xpm") << prefix + QString("gen-out.xpm") << QByteArray("xpm") << QImageWriter::ImageWriterError(0);
+    QTest::newRow("png") << prefix + QString("gen-out.png") << QByteArray("png") << QImageWriter::ImageWriterError(0);
+    QTest::newRow("ppm") << prefix + QString("gen-out.ppm") << QByteArray("ppm") << QImageWriter::ImageWriterError(0);
+    QTest::newRow("pbm") << prefix + QString("gen-out.pbm") << QByteArray("pbm") << QImageWriter::ImageWriterError(0);
 #if defined QTEST_HAVE_TIFF
-    QTest::newRow("tiff") << QString("images/gen-out.tiff") << QByteArray("tiff") << QImageWriter::ImageWriterError(0);
+    QTest::newRow("tiff") << prefix + QString("gen-out.tiff") << QByteArray("tiff") << QImageWriter::ImageWriterError(0);
 #endif
 }
 
@@ -436,7 +438,7 @@ void tst_QImageWriter::saveWithNoFormat()
 
 void tst_QImageWriter::saveToTemporaryFile()
 {
-    QImage image(QLatin1String("images/kollada.png"));
+    QImage image(prefix + "kollada.png");
     QVERIFY(!image.isNull());
 
     {
