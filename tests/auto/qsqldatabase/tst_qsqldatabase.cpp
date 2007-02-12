@@ -92,10 +92,8 @@ private slots:
 
     void psql_schemas_data();
     void psql_schemas();
-
     void psql_escapedIdentifiers_data(){ psql_schemas_data(); }
     void psql_escapedIdentifiers();
-    
     void psql_escapeBytea_data() { generic_data(); }
     void psql_escapeBytea();
 
@@ -104,6 +102,8 @@ private slots:
 
     void mysqlOdbc_unsignedIntegers_data() { generic_data(); }
     void mysqlOdbc_unsignedIntegers();
+    void mysql_multiselect_data() { generic_data(); }
+    void mysql_multiselect();  // For task 144331
 
     void accessOdbc_strings_data() { generic_data(); }
     void accessOdbc_strings();
@@ -1693,6 +1693,25 @@ void tst_QSqlDatabase::odbc_reopenDatabase()
     QVERIFY2(q.exec("SELECT * from " + qTableName("qtest")), q.lastError().text());
     QVERIFY2(q.next(), q.lastError().text());
     db.open();
+}
+
+void tst_QSqlDatabase::mysql_multiselect()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QMYSQL")) {
+        QSKIP("MySQL server specific test", SkipSingle);
+        return;
+    }
+
+    QSqlQuery q(db);
+    QVERIFY2(q.exec("SELECT * FROM " + qTableName("qtest") + "; SELECT * FROM " + qTableName("qtest")), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QVERIFY2(q.exec("SELECT * FROM " + qTableName("qtest") + "; SELECT * FROM " + qTableName("qtest")), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QVERIFY2(q.exec("SELECT * FROM " + qTableName("qtest")), q.lastError().text());
 }
 
 QTEST_MAIN(tst_QSqlDatabase)

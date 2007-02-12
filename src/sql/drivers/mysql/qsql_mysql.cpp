@@ -373,6 +373,16 @@ void QMYSQLResult::cleanup()
     if (d->result)
         mysql_free_result(d->result);
 
+// must iterate trough leftover result sets from multi-selects or stored procedures
+// if this isn't done subsequent queries will fail with "Commands out of sync"
+#if MYSQL_VERSION_ID >= 40100
+    while (mysql_next_result(d->mysql) == 0) {
+        MYSQL_RES *res = mysql_store_result(d->mysql);
+        if (res)
+            mysql_free_result(res);
+    }
+#endif
+
 #if MYSQL_VERSION_ID >= 40108
     if (d->stmt) {
         if (mysql_stmt_close(d->stmt))
