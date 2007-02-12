@@ -30,6 +30,16 @@
 #include <QtGui/QLabel>
 
 class QDesignerFormWindowInterface;
+class QPaintEvent;
+
+namespace qdesigner_internal {
+
+// Paint the designer grid on a top-level widget.
+QDESIGNER_SHARED_EXPORT void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow, QPaintEvent *e, bool needFrame = false);
+QDESIGNER_SHARED_EXPORT void paintGrid(QWidget *widget, const QPoint &grid, QPaintEvent *e, bool needFrame = false);
+
+}
+
 
 class QDESIGNER_SHARED_EXPORT QDesignerWidget : public QWidget
 {
