@@ -220,7 +220,7 @@ void tst_QLibrary::unload()
 
 void tst_QLibrary::unload_after_implicit_load()
 {
-    QLibrary library( "mylib" );
+    QLibrary library( "./mylib" );
     void *p = library.resolve("version");
     QVERIFY(p); // Check if it was loaded
     QVERIFY(library.isLoaded());
