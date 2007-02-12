@@ -3048,6 +3048,9 @@ void QMetaObject::activate(QObject *sender, const QMetaObject *m,
   Changing the value of a dynamic property causes a QDynamicPropertyChangeEvent
   to be sent to the object.
 
+  \bold{Note:} Dynamic properties starting with "_q_" are reserved for internal
+  purposes.
+
   \sa property(), metaObject(), dynamicPropertyNames()
 */
 bool QObject::setProperty(const char *name, const QVariant &value)
