@@ -26,6 +26,7 @@
 #include <QWorkspace>
 #include <QDialogButtonBox>
 #include <limits.h>
+#include <QRubberBand>
 
 #ifndef QT_NO_ACCESSIBILITY
 
@@ -719,7 +720,20 @@ QVariant QAccessibleDialogButtonBox::invokeMethodEx(QAccessible::Method, int, co
 {
     return QVariant();
 }
-
 #endif // QT_NO_DIALOGBUTTONBOX
+
+#ifndef QT_NO_RUBBERBAND
+// ======================= QAccessibleRubberBand =========================
+QAccessibleRubberBand::QAccessibleRubberBand(QWidget *widget)
+    : QAccessibleWidgetEx(widget, Border)
+{
+    Q_ASSERT(qobject_cast<QRubberBand *>(widget));
+}
+
+QVariant QAccessibleRubberBand::invokeMethodEx(QAccessible::Method, int, const QVariantList &)
+{
+    return QVariant();
+}
+#endif // QT_NO_RUBBERBAND
 
 #endif // QT_NO_ACCESSIBILITY

@@ -100,6 +100,9 @@ QStringList AccessibleFactory::keys() const
 #ifndef QT_NO_DIAL
     list << QLatin1String("QDial");
 #endif
+#ifndef QT_NO_RUBBERBAND
+    list << QLatin1String("QRubberBand");
+#endif
 
     return list;
 }
@@ -236,6 +239,10 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
 #ifndef QT_NO_DIAL
     } else if (classname == QLatin1String("QDial")) {
         iface = new QAccessibleDial(widget);
+#endif
+#ifndef QT_NO_RUBBERBAND
+    } else if (classname == QLatin1String("QRubberBand")) {
+        iface = new QAccessibleRubberBand(widget);
 #endif
     }
 

@@ -24,6 +24,7 @@ class QToolBox;
 class QMdiArea;
 class QMdiSubWindow;
 class QWorkspace;
+class QRubberBand;
 
 class QAccessibleTextEdit : public QAccessibleWidgetEx
 {
@@ -137,6 +138,15 @@ public:
     QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
 };
 
+#ifndef QT_NO_RUBBERBAND
+class QAccessibleRubberBand : public QAccessibleWidgetEx
+{
+public:
+    explicit QAccessibleRubberBand(QWidget *widget);
+
+    QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
+};
+#endif // QT_NO_RUBBERBAND
 
 #endif // QT_NO_ACCESSIBILITY
 
