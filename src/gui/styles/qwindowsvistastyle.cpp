@@ -280,11 +280,11 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
             // Retrieve and update the dynamic properties tracking
             // the previous state of the widget:
             QWidget *w = const_cast<QWidget *> (widget);
-            int oldState = w->property("qt_stylestate").toInt();
-            oldRect = w->property("qt_stylerect").toRect();
+            int oldState = w->property("_q_stylestate").toInt();
+            oldRect = w->property("_q_stylerect").toRect();
             newRect = w->rect();
-            w->setProperty("qt_stylestate", (int)option->state);
-            w->setProperty("qt_stylerect", w->rect());
+            w->setProperty("_q_stylestate", (int)option->state);
+            w->setProperty("_q_stylerect", w->rect());
 
             bool doTransition = ((state & State_Sunken)     != (oldState & State_Sunken) ||
                                  (state & State_On)         != (oldState & State_On)     ||
@@ -498,15 +498,15 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
             if ((qobject_cast<const QPushButton*>(widget) && element == CE_PushButtonBevel))
             {
                 QWidget *w = const_cast<QWidget *> (widget);
-                int oldState = w->property("qt_stylestate").toInt();
-                oldRect = w->property("qt_stylerect").toRect();
+                int oldState = w->property("_q_stylestate").toInt();
+                oldRect = w->property("_q_stylerect").toRect();
                 newRect = w->rect();
-                w->setProperty("qt_stylestate", (int)option->state);
-                w->setProperty("qt_stylerect", w->rect());
+                w->setProperty("_q_stylestate", (int)option->state);
+                w->setProperty("_q_stylerect", w->rect());
 
-                bool wasDefault = w->property("qt_isdefault").toBool();
+                bool wasDefault = w->property("_q_isdefault").toBool();
                 bool isDefault = button->features & QStyleOptionButton::DefaultButton;
-                w->setProperty("qt_isdefault", isDefault);
+                w->setProperty("_q_isdefault", isDefault);
 
                 bool doTransition = ((state & State_Sunken)     != (oldState & State_Sunken) ||
                                      (state & State_On)         != (oldState & State_On)     ||
@@ -1044,12 +1044,12 @@ void QWindowsVistaStyle::drawComplexControl(ComplexControl control, const QStyle
         {
             QWidget *w = const_cast<QWidget *> (widget);
 
-            int oldState = w->property("qt_stylestate").toInt();
-            int oldActiveControls = w->property("qt_stylecontrols").toInt();
-            QRect oldRect = w->property("qt_stylerect").toRect();
-            w->setProperty("qt_stylestate", (int)option->state);
-            w->setProperty("qt_stylecontrols", (int)option->activeSubControls);
-            w->setProperty("qt_stylerect", w->rect());
+            int oldState = w->property("_q_stylestate").toInt();
+            int oldActiveControls = w->property("_q_stylecontrols").toInt();
+            QRect oldRect = w->property("_q_stylerect").toRect();
+            w->setProperty("_q_stylestate", (int)option->state);
+            w->setProperty("_q_stylecontrols", (int)option->activeSubControls);
+            w->setProperty("_q_stylerect", w->rect());
 
             bool doTransition = ((state & State_Sunken)     != (oldState & State_Sunken)    ||
                                  (state & State_On)         != (oldState & State_On)        ||
@@ -1058,9 +1058,9 @@ void QWindowsVistaStyle::drawComplexControl(ComplexControl control, const QStyle
 
 
             if (const QStyleOptionSlider *slider= qstyleoption_cast<const QStyleOptionSlider *>(option)) {
-                QRect oldSliderPos = w->property("qt_stylesliderpos").toRect();
+                QRect oldSliderPos = w->property("_q_stylesliderpos").toRect();
                 QRect currentPos = subControlRect(CC_ScrollBar, option, SC_ScrollBarSlider, widget);
-                w->setProperty("qt_stylesliderpos", currentPos);
+                w->setProperty("_q_stylesliderpos", currentPos);
                 if (oldSliderPos != currentPos) {
                     doTransition = false;
                     d->stopAnimation(widget);
