@@ -246,24 +246,23 @@ void QListModel::sort(int column, Qt::SortOrder order)
 
     emit layoutAboutToBeChanged();
 
+    QModelIndexList fromIndexes;
     QVector < QPair<QListWidgetItem*,int> > sorting(items.count());
     for (int i = 0; i < items.count(); ++i) {
-        sorting[i].first = items.at(i);
+        QListWidgetItem *item = items.at(i);
+        sorting[i].first = item;
         sorting[i].second = i;
+        fromIndexes.append(createIndex(i, 0, item));
     }
 
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qSort(sorting.begin(), sorting.end(), compare);
 
-    QModelIndexList fromIndexes;
     QModelIndexList toIndexes;
     for (int r = 0; r < sorting.count(); ++r) {
         QListWidgetItem *item = sorting.at(r).first;
         items[r] = item;
-        QModelIndex from = createIndex(sorting.at(r).second, 0, item);
-        QModelIndex to = createIndex(r, 0, item);
-        fromIndexes.append(from);
-        toIndexes.append(to);
+        toIndexes.append(createIndex(sorting.at(r).second, 0, item));
     }
     changePersistentIndexList(fromIndexes, toIndexes);
 
