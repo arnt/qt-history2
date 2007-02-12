@@ -338,6 +338,14 @@ void QGraphicsViewPrivate::recalculateContentSize()
     int height = maxSize.height();
     QRectF viewRect = matrix.mapRect(q->sceneRect());
 
+    // Adjust the maximum width and height of the viewport based on the width
+    // of visible scrollbars.
+    int scrollBarExtent = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q);
+    if (viewRect.width() >= maxSize.width())
+        height -= scrollBarExtent;
+    if (viewRect.height() >= maxSize.height())
+        width -= scrollBarExtent;
+
     // Setting the ranges of these scroll bars can/will cause the values to
     // change, and scrollContentsBy() will be called correspondingly. This
     // will reset the last center point.
