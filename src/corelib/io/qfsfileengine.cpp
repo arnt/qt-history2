@@ -733,5 +733,7 @@ bool QFSFileEngine::supportsExtension(Extension extension) const
     Q_D(const QFSFileEngine);
     if (extension == AtEndExtension && d->fh && isSequential())
         return true;
+    if (extension == FastReadLineExtension && d->fh)
+        return true;
     return false;
 }

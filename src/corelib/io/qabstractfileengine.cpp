@@ -1080,6 +1080,16 @@ qint64 QAbstractFileEngine::readLine(char *data, qint64 maxlen)
    file cannot be used to determine whether or not you have reached the end.
    This extension returns true if the file is at the end; otherwise it returns
    false. The input and output arguments to extension() are ignored.
+
+   \value FastReadLineExtension Whether the file engine provides a
+   fast implementation for readLine() or not. If readLine() remains
+   unimplemented in the file engine, QAbstractFileEngine will provide
+   an implementation based on calling read() repeatedly. If
+   supportsExtension() returns false for this extension, however,
+   QIODevice can provide a faster implementation by making use of its
+   internal buffer. For engines that already provide a fast readLine()
+   implementation, returning false for this extension can avoid
+   unnnecessary double-buffering in QIODevice.
 */
 
 /*!

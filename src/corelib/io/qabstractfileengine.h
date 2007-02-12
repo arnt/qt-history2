@@ -121,7 +121,8 @@ public:
     QString errorString() const;
 
     enum Extension {
-        AtEndExtension
+        AtEndExtension,
+        FastReadLineExtension
     };
     class ExtensionOption
     {};

@@ -1246,7 +1246,12 @@ bool QFile::seek(qint64 off)
 */
 qint64 QFile::readLineData(char *data, qint64 maxlen)
 {
-    return fileEngine()->readLine(data, maxlen);
+    if (fileEngine()->supportsExtension(QAbstractFileEngine::FastReadLineExtension))
+        return fileEngine()->readLine(data, maxlen);
+
+    // Fall back to QIODevice's readLine implementation if the engine
+    // cannot do it faster.
+    return QIODevice::readLineData(data, maxlen);
 }
 
 /*!

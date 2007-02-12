@@ -996,6 +996,13 @@ qint64 QIODevice::readLine(char *data, qint64 maxSize)
             debugBinaryString(data, int(readSoFar));
 #endif
         if (readSoFar && data[readSoFar - 1] == '\n') {
+            if (d->openMode & Text) {
+                // QRingBuffer::readLine() isn't Text aware.
+                if (readSoFar > 1 && data[readSoFar - 2] == '\r') {
+                    --readSoFar;
+                    data[readSoFar - 1] = '\n';
+                }
+            }
             data[readSoFar] = '\0';
             return readSoFar;
         }
