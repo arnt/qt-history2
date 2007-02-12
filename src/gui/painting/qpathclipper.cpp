@@ -42,10 +42,10 @@
 
 //#define QDEBUG_CLIPPER
 #ifdef QDEBUG_CLIPPER
-#include <qdebug.h>>
+#include <qdebug.h>
 static QDebug operator<<(QDebug str, const QBezier &b)
 {
-    QString out = QString("Bezier([%1, %2],[%3, %4],[%5, %6],[%7, %8])")
+    QString out = QString::fromLatin1("Bezier([%1, %2],[%3, %4],[%5, %6],[%7, %8])")
                   .arg(b.x1)
                   .arg(b.y1)
                   .arg(b.x2)
@@ -542,66 +542,6 @@ public:
 #endif
 };
 
-
-struct VertexListHandle {
-
-    const VertexList& h;
-
-    PathVertex*	cur;
-    PathVertex*	first;
-
-    VertexListHandle(const VertexList& hh)
-	: h(hh), cur(hh.first_node), first(hh.first_node)
-    {
-    }
-
-    ~VertexListHandle()
-    {}
-
-    inline operator bool() const
-    {
-	return cur ? true : false;
-    }
-
-    inline PathVertex* next()
-    {
-	PathVertex* d = 0;
-	if (cur)
-            d = cur;
-
-	cur = cur ? cur->next : 0;
-
-	return d;
-    }
-
-    inline void setCur(PathVertex* node)
-    {
-	if (node == 0) return;
-
-	VertexList* vd = (VertexList*)&h;
-
-	vd->setCurrentNode(node);
-	cur = vd->getCurrentNode();
-    }
-
-    inline PathVertex* getNextNode()
-    {
-	PathVertex *nn = cur ? cur->next: 0;
-
-	return nn;
-    }
-
-    inline PathVertex* getNode()
-    {
-	return cur;
-    }
-
-    inline PathVertex* getFirstNode()
-    {
-	return first;
-    }
-};
-
 struct VertexListNavigate {
 
     const VertexList &h;
@@ -620,6 +560,12 @@ struct VertexListNavigate {
     {
     }
 
+    
+    inline operator bool() const
+    {
+	return cur ? true : false;
+    }
+
     inline void forward()
     {
 	cur = cur->next ? cur->next : first;
@@ -630,14 +576,9 @@ struct VertexListNavigate {
 	cur = cur->prev ? cur->prev : last;
     }
 
-    inline void setCur(PathVertex* node)
+    inline void next()
     {
-	if (node == 0) return;
-
-	VertexList* vd = (VertexList*)&h;
-
-	vd->setCurrentNode(node);
-	cur = vd->getCurrentNode();
+	cur = cur ? cur->next : 0;
     }
 
     inline PathVertex* getNextNode()
@@ -976,7 +917,7 @@ public:
 
     PathVertex *getUnprocessed()
     {
-        for (VertexListHandle dh(*subject); dh ; dh.next()) {
+        for (VertexListNavigate dh(*subject); dh ; dh.next()) {
             PathVertex *cur = dh.getNode();
             PathVertex::TraversalFlag now = cur->code;
 
@@ -1373,10 +1314,12 @@ public:
               p1(pp1), p2(pp2), q1(qq1), q2(qq2),
               pList(pLst), qList(qLst)
         {
-            //qDebug()<<qSetRealNumberPrecision(12)<<"Intersection at "<<xx<<yy
-            //        <<"between : "<<p1->getPoint()<<" and "<<p2->getPoint()
-            //        <<" --- "<<q1->getPoint()<<" and "<<q2->getPoint()
-            //        <<" at "<<alpha_p<<alpha_q;
+#ifdef QDEBUG_CLIPPER
+            qDebug()<<qSetRealNumberPrecision(12)<<"Intersection at "<<xx<<yy
+                    <<"between : "<<p1->getPoint()<<" and "<<p2->getPoint()
+                    <<" --- "<<q1->getPoint()<<" and "<<q2->getPoint()
+                    <<" at "<<alpha_p<<alpha_q;
+#endif
         }
         qreal x, y;
         PathVertex::Type type;
@@ -1583,7 +1526,7 @@ public:
         }
 
         PathVertex *lastSubjMove = 0, *lastClipMove = 0;
-        for (VertexListHandle subj(*subject); subj ; subj.next()) {
+        for (VertexListNavigate subj(*subject); subj ; subj.next()) {
             PathVertex *a = subj.getNode();
             PathVertex *b = (subj.getNextNode())?subj.getNextNode():subj.getFirstNode();
             if (!b)
@@ -1593,7 +1536,7 @@ public:
             if (a->getType(0) == PathVertex::MoveTo)
                 lastSubjMove = a;
 
-            for (VertexListHandle obj(*clipper); obj ; obj.next()) {
+            for (VertexListNavigate obj(*clipper); obj ; obj.next()) {
                 PathVertex *c = obj.getNode();
                 PathVertex *d = (obj.getNextNode())?obj.getNextNode():obj.getFirstNode();;
                 if (!d)
@@ -1626,7 +1569,7 @@ public:
         }
 
         PathVertex *lastSubjMove = 0, *lastClipMove = 0;
-        for (VertexListHandle subj(*subject); subj ; subj.next()) {
+        for (VertexListNavigate subj(*subject); subj ; subj.next()) {
             PathVertex *a = subj.getNode();
             PathVertex *b = (subj.getNextNode())?subj.getNextNode():subj.getFirstNode();
             if (!b)
@@ -1636,7 +1579,7 @@ public:
             if (a->getType(0) == PathVertex::MoveTo)
                 lastSubjMove = a;
 
-            for (VertexListHandle obj(*clipper); obj ; obj.next()) {
+            for (VertexListNavigate obj(*clipper); obj ; obj.next()) {
                 PathVertex *c = obj.getNode();
                 PathVertex *d = (obj.getNextNode())?obj.getNextNode():obj.getFirstNode();;
                 if (!d)
