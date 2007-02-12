@@ -27,6 +27,7 @@
 #include <QDialogButtonBox>
 #include <limits.h>
 #include <QRubberBand>
+#include <QTextBrowser>
 
 #ifndef QT_NO_ACCESSIBILITY
 
@@ -735,5 +736,20 @@ QVariant QAccessibleRubberBand::invokeMethodEx(QAccessible::Method, int, const Q
     return QVariant();
 }
 #endif // QT_NO_RUBBERBAND
+
+#ifndef QT_NO_TEXTBROWSER
+QAccessibleTextBrowser::QAccessibleTextBrowser(QWidget *widget)
+    : QAccessibleTextEdit(widget)
+{
+    Q_ASSERT(qobject_cast<QTextBrowser *>(widget));
+}
+
+QAccessible::Role QAccessibleTextBrowser::role(int child) const
+{
+    if (child != 0)
+        return QAccessibleTextEdit::role(child);
+    return QAccessible::StaticText;
+}
+#endif // QT_NO_TEXTBROWSER
 
 #endif // QT_NO_ACCESSIBILITY

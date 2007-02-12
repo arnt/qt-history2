@@ -25,6 +25,7 @@ class QMdiArea;
 class QMdiSubWindow;
 class QWorkspace;
 class QRubberBand;
+class QTextBrowser;
 
 class QAccessibleTextEdit : public QAccessibleWidgetEx
 {
@@ -147,6 +148,16 @@ public:
     QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
 };
 #endif // QT_NO_RUBBERBAND
+
+#ifndef QT_NO_TEXTBROWSER
+class QAccessibleTextBrowser : public QAccessibleTextEdit
+{
+public:
+    explicit QAccessibleTextBrowser(QWidget *widget);
+
+    Role role(int child) const;
+};
+#endif // QT_NO_TEXTBROWSER
 
 #endif // QT_NO_ACCESSIBILITY
 

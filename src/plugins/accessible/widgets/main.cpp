@@ -103,6 +103,9 @@ QStringList AccessibleFactory::keys() const
 #ifndef QT_NO_RUBBERBAND
     list << QLatin1String("QRubberBand");
 #endif
+#ifndef QT_NO_TEXTBROWSER
+    list << QLatin1String("QTextBrowser");
+#endif
 
     return list;
 }
@@ -243,6 +246,10 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
 #ifndef QT_NO_RUBBERBAND
     } else if (classname == QLatin1String("QRubberBand")) {
         iface = new QAccessibleRubberBand(widget);
+#endif
+#ifndef QT_NO_TEXTBROWSER
+    } else if (classname == QLatin1String("QTextBrowser")) {
+        iface = new QAccessibleTextBrowser(widget);
 #endif
     }
 
