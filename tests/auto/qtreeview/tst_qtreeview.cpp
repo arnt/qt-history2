@@ -834,6 +834,11 @@ void tst_QTreeView::indexAt()
         QModelIndex index = view.indexAt(pos);
         QCOMPARE(index, model.index(k, 0));
     }
+
+    view.show();
+    view.resize(600, 600);
+    view.header()->setStretchLastSection(false);
+    QCOMPARE(view.indexAt(QPoint(550, 20)), QModelIndex());
 }
 
 void tst_QTreeView::indexWidget()
