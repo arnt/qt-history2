@@ -576,11 +576,12 @@ void QTextEngine::shapeText(int item) const
             ensureSpace(si.num_glyphs);
             si.glyph_data_offset = layoutData->used;
             QGlyphLayout *g = this->glyphs(&si);
+            const int direction = (si.analysis.bidiLevel % 2) ? -1 : 1;
             for(int i = 0; i < si.num_glyphs; ++i) {
                 g[i].glyph = glyphs[i];
                 g[i].advance.x = advances[i];
                 g[i].advance.y = 0;
-                g[i].offset.x = offsets[i].du;
+                g[i].offset.x = offsets[i].du * direction;
                 g[i].offset.y = offsets[i].dv;
                 g[i].attributes = glyphAttributes[i];
             }
