@@ -22,6 +22,7 @@ class QScrollBar;
 class QSlider;
 class QSpinBox;
 class QDoubleSpinBox;
+class QDial;
 
 #ifndef QT_NO_SPINBOX
 class QAccessibleSpinBox : public QAccessibleWidget
@@ -133,6 +134,30 @@ protected:
     QSlider *slider() const;
 };
 #endif // QT_NO_SLIDER
+
+#ifndef QT_NO_DIAL
+class QAccessibleDial : public QAccessibleWidgetEx
+{
+public:
+    explicit QAccessibleDial(QWidget *w);
+
+    enum DialElements {
+        Self  = 0,
+        SpeedoMeter,
+        SliderHandle,
+    };
+
+    int childCount() const;
+    QRect rect(int child) const;
+    QString text(Text textType, int child) const;
+    Role role(int child) const;
+    State state(int child) const;
+    QVariant invokeMethodEx(Method method, int child, const QVariantList &params);
+
+protected:
+    QDial *dial() const;
+};
+#endif // QT_NO_DIAL
 
 #endif // QT_NO_ACCESSIBILITY
 
