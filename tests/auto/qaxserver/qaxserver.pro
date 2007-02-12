@@ -1,3 +1,5 @@
+message("QT_SOURCE_TREE" $$QT_SOURCE_TREE)
+
 win: CONFIG += qaxserver 
 else: CONFIG += qtestlib
 
