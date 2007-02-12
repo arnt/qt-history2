@@ -1600,14 +1600,18 @@ void QHeaderViewPrivate::_q_layoutAboutToBeChanged()
 
 void QHeaderViewPrivate::_q_layoutChanged()
 {
-    Q_Q(QHeaderView);
     if (persistentHiddenSections.isEmpty())
         return;
     sectionHidden.fill(false);
-    for (int i = 0; i < persistentHiddenSections.count(); ++i)
-        sectionHidden.setBit(visualIndex(orientation == Qt::Horizontal
-                                         ? persistentHiddenSections.at(i).column()
-                                         : persistentHiddenSections.at(i).row()));
+    for (int i = 0; i < persistentHiddenSections.count(); ++i) {
+        QModelIndex index = persistentHiddenSections.at(i);
+        if (index.isValid()) {
+            int logical = (orientation == Qt::Horizontal
+                           ? persistentHiddenSections.at(i).column()
+                           : persistentHiddenSections.at(i).row());
+            sectionHidden.setBit(visualIndex(logical));
+        }
+    }
     persistentHiddenSections.clear();
 }
 
