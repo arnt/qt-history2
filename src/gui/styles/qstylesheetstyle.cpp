@@ -29,10 +29,12 @@
 #include "private/qcssparser_p.h"
 #include "private/qmath_p.h"
 #include <qabstractscrollarea.h>
+#include "private/qabstractscrollarea_p.h"
 #include <qtooltip.h>
 #include <qshareddata.h>
 #include <qradiobutton.h>
 #include <qtoolbutton.h>
+#include <qscrollbar.h>
 #include <qstring.h>
 
 #include <limits.h>
@@ -45,6 +47,7 @@ static QHash<const QWidget *, QRenderRules> *renderRulesCache = 0;
 static QHash<const QWidget *, int> *customPaletteWidgets = 0; // widgets whose palette we tampered
 static QHash<const QWidget *, int> *customFontWidgets = 0; // widgets whose font we tampered
 static QHash<const QWidget *, StyleSheet> *styleSheetCache = 0; // parsed style sheets
+static QSet<const QWidget *> *autoFillDisabledWidgets = 0;
 
 #define ceil(x) ((int)(x) + ((x) > 0 && (x) != (int)(x)))
 
@@ -69,8 +72,8 @@ struct QStyleSheetBorderImageData : public QSharedData
 struct QStyleSheetBackgroundData : public QSharedData
 {
     QStyleSheetBackgroundData(const QBrush& b, const QPixmap& p, QCss::Repeat r,
-                              Qt::Alignment a, QCss::Origin o)
-        : brush(b), pixmap(p), repeat(r), position(a), origin(o) { }
+                              Qt::Alignment a, QCss::Origin o, Attachment t)
+        : brush(b), pixmap(p), repeat(r), position(a), origin(o), attachment(t) { }
 
     bool isTransparent() const {
         if (brush.style() != Qt::NoBrush)
@@ -82,6 +85,7 @@ struct QStyleSheetBackgroundData : public QSharedData
     QCss::Repeat repeat;
     Qt::Alignment position;
     QCss::Origin origin;
+    QCss::Attachment attachment;
 };
 
 struct QStyleSheetBorderData : public QSharedData
@@ -181,8 +185,8 @@ public:
     bool paintsOver(Edge e1, Edge e2);
     void drawBorder(QPainter *, const QRect&);
     void drawBorderImage(QPainter *, const QRect&);
-    void drawBackground(QPainter *, const QRect&);
-    void drawBackgroundImage(QPainter *, const QRect&);
+    void drawBackground(QPainter *, const QRect&, const QPoint& = QPoint(0, 0));
+    void drawBackgroundImage(QPainter *, const QRect&, const QPoint);
     void drawFrame(QPainter *, const QRect&);
     void drawImage(QPainter *p, const QRect &rect);
     void drawRule(QPainter *, const QRect&);
@@ -305,9 +309,10 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
     QString uri;
     Repeat repeat = Repeat_XY;
     Qt::Alignment alignment = Qt::AlignTop | Qt::AlignLeft;
+    Attachment attachment = Attachment_Scroll;
     origin = Origin_Padding;
-    if (v.extractBackground(&brush, &uri, &repeat, &alignment, &origin))
-        bg = new QStyleSheetBackgroundData(brush, QPixmap(uri), repeat, alignment, origin);
+    if (v.extractBackground(&brush, &uri, &repeat, &alignment, &origin, &attachment))
+        bg = new QStyleSheetBackgroundData(brush, QPixmap(uri), repeat, alignment, origin, attachment);
 
     QColor sfg, fg;
     QBrush sbg, abg;
@@ -907,12 +912,16 @@ QRect QRenderRule::originRect(const QRect &rect, Origin origin) const
     }
 }
 
-void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect)
+void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, QPoint off)
 {
     Q_ASSERT(hasBackground());
     const QPixmap& bgp = background()->pixmap;
     if (bgp.isNull())
         return;
+
+    if (background()->attachment == Attachment_Fixed)
+        off = QPoint(0, 0);
+
     QRect r = originRect(rect, background()->origin);
     QRect aligned = QStyle::alignedRect(Qt::LeftToRight, background()->position, bgp.size(), r);
     QRect inter = aligned.intersected(r);
@@ -920,23 +929,23 @@ void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect)
     switch (background()->repeat) {
     case Repeat_Y:
         p->drawTiledPixmap(inter.x(), r.y(), inter.width(), r.height(), bgp,
-                           inter.x() - aligned.x(),
-                           bgp.height() - int(aligned.y() - r.y()) % bgp.height());
+                           inter.x() - aligned.x() + off.x(),
+                           bgp.height() - int(aligned.y() - r.y()) % bgp.height() + off.y());
         break;
     case Repeat_X:
         p->drawTiledPixmap(r.x(), inter.y(), r.width(), inter.height(), bgp,
-                           bgp.width() - int(aligned.x() - r.x())%bgp.width(),
-                           inter.y() - aligned.y());
+                           bgp.width() - int(aligned.x() - r.x())%bgp.width() + off.x(),
+                           inter.y() - aligned.y() + off.y());
         break;
     case Repeat_XY:
         p->drawTiledPixmap(r, bgp,
-                           QPoint(bgp.width() - int(aligned.x() - r.x())% bgp.width(),
-                                  bgp.height() - int(aligned.y() - r.y())%bgp.height()));
+                           QPoint(bgp.width() - int(aligned.x() - r.x())% bgp.width() + off.x(),
+                                  bgp.height() - int(aligned.y() - r.y())%bgp.height() + off.y()));
         break;
     case Repeat_None:
     default:
-        p->drawPixmap(inter.x(), inter.y(), bgp, inter.x() - aligned.x(),
-                      inter.y() - aligned.y(), inter.width(), inter.height());
+        p->drawPixmap(inter.x(), inter.y(), bgp, inter.x() - aligned.x() + off.x(),
+                      inter.y() - aligned.y() + off.y(), inter.width(), inter.height());
         break;
     }
 }
@@ -1024,7 +1033,7 @@ void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
     }
 }
 
-void QRenderRule::drawBackground(QPainter *p, const QRect& rect)
+void QRenderRule::drawBackground(QPainter *p, const QRect& rect, const QPoint& off)
 {
     if (!hasBackground())
         return;
@@ -1041,7 +1050,7 @@ void QRenderRule::drawBackground(QPainter *p, const QRect& rect)
         }
         p->fillRect(fillRect, brush);
     }
-    drawBackgroundImage(p, rect);
+    drawBackgroundImage(p, rect, off);
 }
 
 void QRenderRule::drawFrame(QPainter *p, const QRect& rect)
@@ -1644,6 +1653,14 @@ static void setPalette(QWidget *w)
         if (i == 0) {
             customFontWidgets->insert(w, rule.font.resolve() & ~w->font().resolve());
             w->setFont(rule.font);
+
+            if (ew->autoFillBackground() &&
+                (rule.hasBackground()
+                 || (rule.hasBorder() && rule.border()->hasBorderImage()
+                     && rule.border()->borderImage()->middleRect.isValid()))) {
+                ew->setAutoFillBackground(false);
+                autoFillDisabledWidgets->insert(w);
+            }
         }
 
         rule.configurePalette(&p, map[i].group, ew, ew != w);
@@ -1670,6 +1687,10 @@ static void unsetPalette(QWidget *w)
         f.resolve(w->font());
         w->setFont(f);
         customFontWidgets->remove(w);
+    }
+    if (autoFillDisabledWidgets->contains(w)) {
+        embeddedWidget(w)->setAutoFillBackground(true);
+        autoFillDisabledWidgets->remove(w);
     }
 }
 
@@ -1707,6 +1728,7 @@ QStyleSheetStyle::QStyleSheetStyle(QStyle *base)
         customPaletteWidgets = new QHash<const QWidget *, int>;
         customFontWidgets = new QHash<const QWidget *, int>;
         styleSheetCache = new QHash<const QWidget *, StyleSheet>;
+        autoFillDisabledWidgets = new QSet<const QWidget *>;
     }
 }
 
@@ -1724,6 +1746,8 @@ QStyleSheetStyle::~QStyleSheetStyle()
         customFontWidgets = 0;
         delete styleSheetCache;
         styleSheetCache = 0;
+        delete autoFillDisabledWidgets;
+        autoFillDisabledWidgets = 0;
     }
 }
 QStyle *QStyleSheetStyle::baseStyle() const
@@ -1786,6 +1810,18 @@ void QStyleSheetStyle::polish(QWidget *w)
     if (!rules.isEmpty()) {
         setPalette(w);
     }
+
+    if (QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(w)) {
+        QRenderRule rule = renderRule(sa, 0);
+        if ((rule.hasBorder() && rule.border()->hasBorderImage())
+            || (rule.hasBackground() && !rule.background()->pixmap.isNull())) {
+            QObject::connect(sa->horizontalScrollBar(), SIGNAL(valueChanged(int)),
+                             sa, SLOT(update()));
+            QObject::connect(sa->verticalScrollBar(), SIGNAL(valueChanged(int)),
+                             sa, SLOT(update()));
+        }
+    }
+
     updateWidget(w);
 }
 
@@ -1823,7 +1859,13 @@ void QStyleSheetStyle::unpolish(QWidget *w)
     baseStyle()->unpolish(w);
     unsetPalette(w);
     QObject::disconnect(w, SIGNAL(destroyed(QObject*)),
-                       this, SLOT(widgetDestroyed(QObject*)));
+                      this, SLOT(widgetDestroyed(QObject*)));
+    if (QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(w)) {
+        QObject::disconnect(sa->horizontalScrollBar(), SIGNAL(valueChanged(int)),
+                            sa, SLOT(update()));
+        QObject::disconnect(sa->verticalScrollBar(), SIGNAL(valueChanged(int)),
+                            sa, SLOT(update()));
+    }
 }
 
 void QStyleSheetStyle::unpolish(QApplication *app)
@@ -2304,18 +2346,35 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         return;
 
     case PE_Frame:
+        if (const QAbstractScrollArea *sa = qobject_cast<const QAbstractScrollArea *>(w)) {
+            const QAbstractScrollAreaPrivate *sap = sa->d_func();
+            rule.drawBackground(p, opt->rect, sap->contentsOffset());
+        } else {
+            rule.drawBackground(p, opt->rect);
+        }
+
+        if (!rule.hasBorder()) {
+            if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+                QStyleOptionFrame frmOpt(*frm);
+                rule.configurePalette(&frmOpt.palette, QPalette::Text, QPalette::Base);
+                frmOpt.rect = rule.borderRect(frmOpt.rect); // apply margin
+                baseStyle()->drawPrimitive(pe, &frmOpt, p, w);
+            }
+        } else {
+            rule.drawBorder(p, rule.borderRect(opt->rect));
+        }
+        return;
+
     case PE_PanelLineEdit:
         if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
             // Only solid background brush is supported on a LineEdit
-            if (!rule.hasBorder() && (pe == PE_Frame || !rule.hasGradientBackground())) {
-                if (pe == PE_Frame)
-                    rule.drawBackground(p, opt->rect);
+            if (!rule.hasBorder() && !rule.hasGradientBackground()) {
                 QStyleOptionFrame frmOpt(*frm);
                 rule.configurePalette(&frmOpt.palette, QPalette::Text, QPalette::Base);
                 frmOpt.rect = rule.borderRect(frmOpt.rect); // apply margin
                 baseStyle()->drawPrimitive(pe, &frmOpt, p, w);
             } else {
-                rule.drawFrame(p, opt->rect);
+                rule.drawBorder(p, opt->rect);
             }
         }
         return;
@@ -2989,6 +3048,24 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
 
     return baseStyle()->subElementRect(se, opt, w);
 }
+
+#if 0
+void QStyleSheetStyle::updateBackground()
+{
+    QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(sender()->parent());
+    Q_ASSERT(sa);
+
+    if (!hasStyleRule(sa))
+        return;
+
+    QRenderRule rule = renderRule(sa, 0);
+
+    if ((rule.hasBorder() && rule.border()->hasBorderImage())
+        || (rule.hasBackground() && !rule.background()->pixmap.isNull())) {
+        sa->update();
+    }
+}
+#endif
 
 #include "moc_qstylesheetstyle_p.cpp"
 

@@ -61,7 +61,7 @@ public:
 
 protected Q_SLOTS:
     void setupViewport(QWidget *viewport);
-    
+
 protected:
     QAbstractScrollArea(QAbstractScrollAreaPrivate &dd, QWidget *parent = 0);
     void setViewportMargins(int left, int top, int right, int bottom);
@@ -97,6 +97,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_vslide(int))
     Q_PRIVATE_SLOT(d_func(), void _q_showOrHideScrollBars())
 
+    friend class QStyleSheetStyle;
 };
 
 #endif // QT_NO_SCROLLAREA

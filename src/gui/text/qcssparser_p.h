@@ -98,6 +98,7 @@ enum Property {
     BackgroundOrigin,
     BackgroundRepeat,
     BackgroundPosition,
+    BackgroundAttachment,
     BackgroundImage,
     BorderImage,
     QtSpacing,
@@ -222,6 +223,13 @@ enum PositionMode {
     NumKnownPositionModes
 };
 
+enum Attachment {
+    Attachment_Unknown,
+    Attachment_Fixed,
+    Attachment_Scroll,
+    NumKnownAttachments
+};
+
 struct Q_GUI_EXPORT Value
 {
     enum Type {
@@ -270,6 +278,7 @@ struct Q_GUI_EXPORT Declaration
     Repeat repeatValue() const;
     Qt::Alignment alignmentValue() const;
     PositionMode positionValue() const;
+    Attachment attachmentValue() const;
 
     bool intValue(int *i, const char *unit = 0) const;
     bool realValue(qreal *r, const char *unit = 0) const;
@@ -359,7 +368,7 @@ struct Q_GUI_EXPORT ValueExtractor
     ValueExtractor(const QVector<Declaration> &declarations);
 
     void extractFont(QFont *font, int *fontSizeAdjustment);
-    bool extractBackground(QBrush *, QString *, Repeat *, Qt::Alignment *, QCss::Origin *);
+    bool extractBackground(QBrush *, QString *, Repeat *, Qt::Alignment *, QCss::Origin *, QCss::Attachment *);
     bool extractGeometry(int *w, int *h, int *mw, int *mh);
     bool extractPosition(int *l, int *t, int *r, int *b, QCss::Origin *, Qt::Alignment *,
                          QCss::PositionMode *);
@@ -412,6 +421,11 @@ enum StyleSheetOrigin {
     StyleSheetOrigin_User,
     StyleSheetOrigin_Author,
     StyleSheetOrigin_Inline
+};
+
+enum StyleSheetAttachment {
+    StyleSheetAttachment_Scroll,
+    StyleSheetAttachment_Fixed
 };
 
 struct Q_GUI_EXPORT StyleSheet

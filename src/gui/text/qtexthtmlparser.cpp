@@ -1271,8 +1271,9 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
         QString bgImage;
         QBrush bgBrush;
         QCss::Origin ignoredOrigin;
+        QCss::Attachment ignoredAttachment;
         extractor.extractBackground(&bgBrush, &bgImage, &ignoredRepeat, &ignoredAlignment,
-                                    &ignoredOrigin);
+                                    &ignoredOrigin, &ignoredAttachment);
 
         if (!bgImage.isEmpty() && resourceProvider) {
             QVariant val = resourceProvider->resource(QTextDocument::ImageResource, bgImage);

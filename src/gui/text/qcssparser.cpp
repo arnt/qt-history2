@@ -77,6 +77,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "-qt-table-type", QtTableType },
     { "alternate-background-color", QtAlternateBackground },
     { "background", Background },
+    { "background-attachment", BackgroundAttachment },
     { "background-color", BackgroundColor },
     { "background-image", BackgroundImage },
     { "background-origin", BackgroundOrigin },
@@ -240,6 +241,11 @@ static const QCssKnownValue positions[NumKnownPositionModes - 1] = {
     { "fixed", PositionMode_Fixed },
     { "relative", PositionMode_Relative },
     { "static", PositionMode_Static }
+};
+
+static const QCssKnownValue attachments[NumKnownAttachments - 1] = {
+    { "fixed", Attachment_Fixed },
+    { "scroll", Attachment_Scroll }
 };
 
 static bool operator<(const QString &name, const QCssKnownValue &prop)
@@ -431,19 +437,19 @@ bool ValueExtractor::extractBorder(int *borders, QColor *colors, BorderStyle *st
         case BorderBottomRightRadius: radii[3] = sizeValue(decl); break;
         case BorderRadius: sizeValues(decl, radii); break;
 
-        case BorderLeft: 
-            borderValue(decl, &borders[LeftEdge], &styles[LeftEdge], &colors[LeftEdge]); 
+        case BorderLeft:
+            borderValue(decl, &borders[LeftEdge], &styles[LeftEdge], &colors[LeftEdge]);
             break;
-        case BorderTop: 
-            borderValue(decl, &borders[TopEdge], &styles[TopEdge], &colors[TopEdge]); 
+        case BorderTop:
+            borderValue(decl, &borders[TopEdge], &styles[TopEdge], &colors[TopEdge]);
             break;
-        case BorderRight: 
-            borderValue(decl, &borders[RightEdge], &styles[RightEdge], &colors[RightEdge]); 
+        case BorderRight:
+            borderValue(decl, &borders[RightEdge], &styles[RightEdge], &colors[RightEdge]);
             break;
-        case BorderBottom: 
-            borderValue(decl, &borders[BottomEdge], &styles[BottomEdge], &colors[BottomEdge]); 
+        case BorderBottom:
+            borderValue(decl, &borders[BottomEdge], &styles[BottomEdge], &colors[BottomEdge]);
             break;
-        case Border: 
+        case Border:
             borderValue(decl, &borders[LeftEdge], &styles[LeftEdge], &colors[LeftEdge]);
             borders[TopEdge] = borders[RightEdge] = borders[BottomEdge] = borders[LeftEdge];
             styles[TopEdge] = styles[RightEdge] = styles[BottomEdge] = styles[LeftEdge];
@@ -699,7 +705,7 @@ static void parseShorthandBackgroundProperty(const QVector<Value> &values, QBrus
 }
 
 bool ValueExtractor::extractBackground(QBrush *brush, QString *image, Repeat *repeat,
-                                       Qt::Alignment *alignment, Origin *origin)
+                                       Qt::Alignment *alignment, Origin *origin, Attachment *attachment)
 {
     bool hit = false;
     for (int i = 0; i < declarations.count(); ++i) {
@@ -725,6 +731,9 @@ bool ValueExtractor::extractBackground(QBrush *brush, QString *image, Repeat *re
                 break;
             case Background:
                 parseShorthandBackgroundProperty(decl.values, brush, image, repeat, alignment);
+                break;
+            case BackgroundAttachment:
+                *attachment = decl.attachmentValue();
                 break;
             default: continue;
         }
@@ -1056,6 +1065,14 @@ PositionMode Declaration::positionValue() const
         return PositionMode_Unknown;
     return static_cast<PositionMode>(findKnownValue(values.first().variant.toString(),
                                      positions, NumKnownPositionModes));
+}
+
+Attachment Declaration::attachmentValue() const
+{
+    if (values.count() != 1)
+        return Attachment_Unknown;
+    return static_cast<Attachment>(findKnownValue(values.first().variant.toString(),
+                                   attachments, NumKnownAttachments));
 }
 
 QString Declaration::uriValue() const

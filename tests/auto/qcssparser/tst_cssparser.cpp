@@ -1226,7 +1226,8 @@ void tst_CssParser::shorthandBackgroundProperty()
     QCss::Repeat repeat = QCss::Repeat_XY;
     Qt::Alignment alignment = Qt::AlignTop | Qt::AlignLeft;
     QCss::Origin origin = QCss::Origin_Padding;
-    v.extractBackground(&brush, &image, &repeat, &alignment, &origin);
+    QCss::Attachment attachment;
+    v.extractBackground(&brush, &image, &repeat, &alignment, &origin, &attachment);
 
     QFETCH(QBrush, expectedBrush);
     QVERIFY(expectedBrush.color() == brush.color());
