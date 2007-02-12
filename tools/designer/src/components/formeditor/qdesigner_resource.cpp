@@ -535,6 +535,8 @@ QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *par
     }
 
     w->setWindowFlags(w->windowFlags() & ~Qt::Window);
+    // Make sure it is non-modal (for example, KDialog calls setModal(true) in the constructor).
+    w->setWindowModality(Qt::NonModal);
 
     return w;
 }
