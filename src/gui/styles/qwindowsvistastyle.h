@@ -54,11 +54,11 @@ public:
     
     void polish(QWidget *widget);
     void unpolish(QWidget *widget);
-    void polish(QPalette pal);
+    void polish(QPalette &pal);
     void polish(QApplication *app);
     void unpolish(QApplication *app);
     bool event(QEvent *event);
-    QPalette standardPalette();
+    QPalette standardPalette() const;
 
 private:
     Q_DISABLE_COPY(QWindowsVistaStyle)

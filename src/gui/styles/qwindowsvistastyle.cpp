@@ -1765,7 +1765,7 @@ int QWindowsVistaStyle::pixelMetric(PixelMetric metric, const QStyleOption *opti
 /*!
  \reimp
  */
-QPalette QWindowsVistaStyle::standardPalette()
+QPalette QWindowsVistaStyle::standardPalette() const
 {
     return QWindowsXPStyle::standardPalette();
 }
@@ -1818,7 +1818,7 @@ void QWindowsVistaStyle::unpolish(QApplication *app)
 /*!
  \reimp
  */
-void QWindowsVistaStyle::polish(QPalette pal)
+void QWindowsVistaStyle::polish(QPalette &pal)
 {
     QWindowsXPStyle::polish(pal);
 }
