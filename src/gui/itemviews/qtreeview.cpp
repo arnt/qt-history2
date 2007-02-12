@@ -1634,10 +1634,11 @@ QModelIndex QTreeView::indexAt(const QPoint &point) const
         return idx;
 
     int column = d->columnAt(point.x());
-    if (column >= 0)
-        return d->model->sibling(idx.row(), column, idx);
-
-    return idx;
+    if (column == idx.column())
+        return idx;
+    if (column < 0)
+        return QModelIndex();
+    return d->model->sibling(idx.row(), column, idx);
 }
 
 /*!
@@ -2871,7 +2872,7 @@ int QTreeViewPrivate::firstVisibleItem(int *offset) const
 
 int QTreeViewPrivate::columnAt(int x) const
 {
-    return header->logicalIndexAt(x);
+    return header->logicalIndexAt(x); 
 }
 
 void QTreeViewPrivate::relayout(const QModelIndex &parent)
