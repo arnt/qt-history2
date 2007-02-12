@@ -639,6 +639,9 @@ QWSClient::~QWSClient()
 {
     qDeleteAll(cursors);
     delete command;
+#ifndef QT_NO_QWS_MULTIPROCESS
+    delete csocket;
+#endif
 }
 
 /*!
