@@ -96,8 +96,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "DEFINES       = "
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
       << varGlue("DEFINES","-D"," -D","") << endl;
-    t << "CFLAGS        = " << var("QMAKE_CFLAGS") << " " << var("QMAKE_FRAMEWORKDIR_FLAGS") << " $(DEFINES)" << endl;
-    t << "CXXFLAGS      = " << var("QMAKE_CXXFLAGS") << " " << var("QMAKE_FRAMEWORKDIR_FLAGS") << " $(DEFINES)" << endl;
+    t << "CFLAGS        = " << var("QMAKE_CFLAGS") << " $(DEFINES)" << endl;
+    t << "CXXFLAGS      = " << var("QMAKE_CXXFLAGS") << " $(DEFINES)" << endl;
     t << "LEXFLAGS      = " << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS     = " << var("QMAKE_YACCFLAGS") << endl;
     t << "INCPATH       = " << "-I" << specdir();
@@ -112,6 +112,13 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         for(QStringList::ConstIterator incit = incs.begin(); incit != incs.end(); ++incit)
             t << " " << "-I" << escapeFilePath((*incit));
     }
+    {
+        const QStringList &incs = project->values("INCLUDEPATH");
+        for(QStringList::ConstIterator incit = incs.begin(); incit != incs.end(); ++incit)
+            t << " " << "-I" << escapeFilePath((*incit));
+    }
+    if(!project->isEmpty("QMAKE_FRAMEWORKPATH_FLAGS"))
+       t << " " << var("QMAKE_FRAMEWORKPATH_FLAGS");
     t << endl;
 
     if(!project->isActiveConfig("staticlib")) {

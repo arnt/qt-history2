@@ -22,9 +22,7 @@ defineTest(qtAddLibrary) {
     unset(LINKAGE)
     mac {
        CONFIG(qt_framework, qt_framework|qt_no_framework) { #forced
-          QMAKE_CFLAGS *= -F$${QMAKE_LIBDIR_QT}
-          QMAKE_CXXFLAGS *= -F$${QMAKE_LIBDIR_QT}
-          QMAKE_LIBDIR_FLAGS *= -F$${QMAKE_LIBDIR_QT}
+          QMAKE_FRAMEWORKPATH *= ${QMAKE_LIBDIR_QT}
           FRAMEWORK_INCLUDE = $$QMAKE_LIBDIR_QT/$${LIB_NAME}.framework/Headers
           !qt_no_framework_direct_includes:exists($$FRAMEWORK_INCLUDE) {
              INCLUDEPATH -= $$FRAMEWORK_INCLUDE
@@ -34,9 +32,7 @@ defineTest(qtAddLibrary) {
         } else:!qt_no_framework { #detection
            for(frmwrk_dir, $$list($$QMAKE_LIBDIR_QT $$QMAKE_LIBDIR $$(DYLD_FRAMEWORK_PATH) /Library/Frameworks)) {
        	      exists($${frmwrk_dir}/$${LIB_NAME}.framework) {
-    	        QMAKE_CFLAGS *= -F$${frmwrk_dir}
-    	        QMAKE_CXXFLAGS *= -F$${frmwrk_dir}
-    	        QMAKE_LIBDIR_FLAGS *= -F$${frmwrk_dir}
+                QMAKE_FRAMEWORKPATH *= $${frmwrk_dir}
     	        FRAMEWORK_INCLUDE = $$frmwrk_dir/$${LIB_NAME}.framework/Headers
     	        !qt_no_framework_direct_includes:exists($$FRAMEWORK_INCLUDE) {
     	          INCLUDEPATH -= $$FRAMEWORK_INCLUDE
@@ -58,8 +54,6 @@ defineTest(qtAddLibrary) {
     LIBS += $$LINKAGE
     export(LIBS)
     export(INCLUDEPATH)
-    export(QMAKE_CFLAGS)
-    export(QMAKE_CXXFLAGS)
-    export(QMAKE_LIBDIR_FLAGS)
+    export(QMAKE_FRAMEWORKPATH)
     return(true)
 }

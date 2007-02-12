@@ -18,7 +18,7 @@
 #include <qhash.h>
 #include <qdir.h>
 #include <time.h>
-
+#include <qdebug.h>
 
 void
 UnixMakefileGenerator::init()
@@ -115,10 +115,10 @@ UnixMakefileGenerator::init()
             project->values("QMAKE_LIBDIR_FLAGS") += "-L" + escapeFilePath(libdirs[i]);
         }
     }
-    if(project->isActiveConfig("macx") && !project->isEmpty("QMAKE_FRAMEWORKDIR")) {
-        const QStringList &fwdirs = project->values("QMAKE_FRAMEWORKDIR");
+    if(project->isActiveConfig("macx") && !project->isEmpty("QMAKE_FRAMEWORKPATH")) {
+        const QStringList &fwdirs = project->values("QMAKE_FRAMEWORKPATH");
         for(int i = 0; i < fwdirs.size(); ++i) {
-            project->values("QMAKE_FRAMEWORKDIR_FLAGS") += "-F" + escapeFilePath(fwdirs[i]);
+            project->values("QMAKE_FRAMEWORKPATH_FLAGS") += "-F" + escapeFilePath(fwdirs[i]);
         }
     }
     if(!project->isEmpty("QMAKE_RPATHDIR")) {
@@ -245,7 +245,7 @@ UnixMakefileGenerator::init()
     project->values("DISTFILES") += project->projectFile();
 
     init2();
-    project->values("QMAKE_INTERNAL_PRL_LIBS") << "QMAKE_LIBDIR_FLAGS" << "QMAKE_FRAMEWORKDIR_FLAG" << "QMAKE_LIBS";
+    project->values("QMAKE_INTERNAL_PRL_LIBS") << "QMAKE_LIBDIR_FLAGS" << "QMAKE_FRAMEWORKPATH_FLAGS" << "QMAKE_LIBS";
     if(!project->isEmpty("QMAKE_MAX_FILES_PER_AR")) {
         bool ok;
         int max_files = project->first("QMAKE_MAX_FILES_PER_AR").toInt(&ok);
@@ -396,7 +396,7 @@ UnixMakefileGenerator::findLibraries()
     QList<QMakeLocalFileName> libdirs, frameworkdirs;
     frameworkdirs.append(QMakeLocalFileName("/System/Library/Frameworks"));
     frameworkdirs.append(QMakeLocalFileName("/Library/Frameworks"));
-    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_FRAMEWORKDIR_FLAGS", "QMAKE_LFLAGS", "QMAKE_LIBS", QString() };
+    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_FRAMEWORKPATH_FLAGS", "QMAKE_LFLAGS", "QMAKE_LIBS", QString() };
     for(int i = 0; !lflags[i].isNull(); i++) {
         QStringList &l = project->values(lflags[i]);
         for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
@@ -498,7 +498,7 @@ UnixMakefileGenerator::processPrlFiles()
     QList<QMakeLocalFileName> libdirs, frameworkdirs;
     frameworkdirs.append(QMakeLocalFileName("/System/Library/Frameworks"));
     frameworkdirs.append(QMakeLocalFileName("/Library/Frameworks"));
-    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_FRAMEWORKDIR_FLAGS", "QMAKE_LFLAGS", "QMAKE_LIBS", QString() };
+    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_FRAMEWORKPATH_FLAGS", "QMAKE_LFLAGS", "QMAKE_LIBS", QString() };
     for(int i = 0; !lflags[i].isNull(); i++) {
         QStringList &l = project->values(lflags[i]);
         for(int lit = 0; lit < l.size(); ++lit) {

@@ -259,6 +259,10 @@ static QString varMap(const QString &x)
         ret = "QMAKE_EXTRA_VARIABLES";
     else if(ret == "QMAKE_RPATH")
         ret = "QMAKE_LFLAGS_RPATH";
+    else if(ret == "QMAKE_FRAMEWORKDIR")
+        ret = "QMAKE_FRAMEWORKPATH";
+    else if(ret == "QMAKE_FRAMEWORKDIR_FLAGS")
+        ret = "QMAKE_FRAMEWORKPATH_FLAGS";
     return ret;
 }
 

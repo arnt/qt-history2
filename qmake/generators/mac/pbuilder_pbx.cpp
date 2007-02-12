@@ -743,8 +743,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
     if(!project->isActiveConfig("staticlib")) { //DUMP LIBRARIES
         QStringList &libdirs = project->values("QMAKE_PBX_LIBPATHS"),
-              &frameworkdirs = project->values("QMAKE_FRAMEWORKDIR");
-        QString libs[] = { "QMAKE_LFLAGS", "QMAKE_LIBDIR_FLAGS", "QMAKE_FRAMEWORKDIR_FLAGS",
+              &frameworkdirs = project->values("QMAKE_FRAMEWORKPATH");
+        QString libs[] = { "QMAKE_LFLAGS", "QMAKE_LIBDIR_FLAGS", "QMAKE_FRAMEWORKPATH_FLAGS",
                            "QMAKE_LIBS", QString() };
         for(int i = 0; !libs[i].isNull(); i++) {
             tmp = project->values(libs[i]);
@@ -1240,8 +1240,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
            project->isActiveConfig("lib_bundle"))
             t << "\t\t\t\t" << writeSettings("FRAMEWORK_VERSION", project->first("QMAKE_FRAMEWORK_VERSION")) << ";" << "\n";
     }
-    if(!project->isEmpty("COMPAT_FRAMEWORKDIR"))
-        t << "\t\t\t\t" << writeSettings("FRAMEWORK_SEARCH_PATHS", fixListForOutput("QMAKE_FRAMEWORKDIR"), SettingsAsList, 5) << ";" << "\n";
+    if(!project->isEmpty("COMPAT_FRAMEWORKPATH"))
+        t << "\t\t\t\t" << writeSettings("FRAMEWORK_SEARCH_PATHS", fixListForOutput("QMAKE_FRAMEWORKPATH"), SettingsAsList, 5) << ";" << "\n";
     if(!project->isEmpty("COMPAT_VERSION"))
         t << "\t\t\t\t" << writeSettings("DYLIB_COMPATIBILITY_VERSION", project->first("COMPAT_VERSION")) << ";" << "\n";
     if(!project->isEmpty("QMAKE_MACOSX_DEPLOYMENT_TARGET"))
