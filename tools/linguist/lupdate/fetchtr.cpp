@@ -32,6 +32,7 @@ static const char MagicComment[] = "TRANSLATOR ";
 static QMap<QByteArray, int> needs_Q_OBJECT;
 static QMap<QByteArray, int> lacks_Q_OBJECT;
 
+//#define DIAGNOSE_RETRANSLATABILITY
 /*
   The first part of this source file is the C++ tokenizer.  We skip
   most of C++; the only tokens that interest us are defined here.
@@ -642,6 +643,9 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
     QByteArray com;
     QByteArray functionContext = initialContext;
     QByteArray prefix;
+#ifdef DIAGNOSE_RETRANSLATABILITY
+    QByteArray functionName;
+#endif
     bool utf8 = false;
     bool missing_Q_OBJECT = false;
 
@@ -707,7 +711,6 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                 com = "";
                 bool plural = false;
 
-
                 if ( match(Tok_RightParen) ) {
                     // no comment
                 } else if (match(Tok_Comma) && matchStringOrNull(&com)) {   //comment
@@ -720,6 +723,15 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                 if ( prefix.isNull() ) {
                     context = functionContext;
                 } else {
+#ifdef DIAGNOSE_RETRANSLATABILITY
+                    int last = prefix.lastIndexOf("::");
+                    QByteArray className = prefix.mid(last == -1 ? 0 : last + 2);
+                    if (!className.isEmpty() && className == functionName) {
+                        qWarning( "%s::%d: It is not recommended to call tr() from within a constructor '%s::%s' ",
+                                  (const char *) yyFileName, yyLineNo,
+                                  className.constData(), functionName.constData() );
+                    }
+#endif
                     context = getFullyQualifiedClassName(classes, namespaces, prefix);
                 }
                 prefix = (const char *) 0;
@@ -831,6 +843,11 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
             if ( yyBraceDepth == (int) namespaces.count() && yyParenDepth == 0 )
                 functionContext = ::getFullyQualifiedClassName(classes, namespaces, prefix);
             yyTok = getToken();
+#ifdef DIAGNOSE_RETRANSLATABILITY
+            if ( yyTok == Tok_Ident && yyBraceDepth == (int) namespaces.count() && yyParenDepth == 0 ) {
+                functionName = yyIdent;
+            }
+#endif
             break;
         case Tok_RightBrace:
         case Tok_Semicolon:
