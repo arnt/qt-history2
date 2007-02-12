@@ -64,6 +64,7 @@ private slots:
     void spinBoxTest();
     void doubleSpinBoxTest();
     void textEditTest();
+    void textBrowserTest();
     void listViewTest();
     void mdiAreaTest();
     void mdiSubWindowTest();
@@ -2170,6 +2171,26 @@ void tst_QAccessibility::textEditTest()
     QCOMPARE(iface->text(QAccessible::Value, 4), QString("hello world"));
     QCOMPARE(iface->text(QAccessible::Value, 5), QString("how are you today?"));
     QCOMPARE(iface->text(QAccessible::Value, 6), QString());
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
+void tst_QAccessibility::textBrowserTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QTextBrowser textBrowser;
+    QString text = QLatin1String("Hello world\nhow are you today?\n");
+    textBrowser.setText(text);
+
+    QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&textBrowser);
+    QVERIFY(interface);
+    QCOMPARE(interface->role(0), QAccessible::StaticText);
+    QCOMPARE(interface->text(QAccessible::Value, 0), text);
+    QCOMPARE(interface->childCount(), 6);
+    QCOMPARE(interface->text(QAccessible::Value, 4), QString("Hello world"));
+    QCOMPARE(interface->text(QAccessible::Value, 5), QString("how are you today?"));
+    QCOMPARE(interface->text(QAccessible::Value, 6), QString());
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
