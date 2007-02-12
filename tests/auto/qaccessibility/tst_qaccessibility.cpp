@@ -707,9 +707,10 @@ void tst_QAccessibility::navigateGeometric()
     QVERIFY(iface->isValid());
 
     w->show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(w);
+#endif
 
-    // this is an evil evil fix to bypass the whole delayed widget creation
-    QApplication::syncX();
 
     // let one widget rotate around center
     for (i = 0; i < 360; i+=skip) {
@@ -815,6 +816,9 @@ void tst_QAccessibility::navigateCovered()
     QWidget *w1 = new QWidget(w, "1");
     QWidget *w2 = new QWidget(w, "2");
     w->show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(w);
+#endif
 
     w->setFixedSize(6, 6);
     w1->setFixedSize(5, 5);
@@ -2269,6 +2273,9 @@ void tst_QAccessibility::mdiSubWindowTest()
 #ifdef QTEST_ACCESSIBILITY
     QMdiArea mdiArea;
     mdiArea.show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
     const int subWindowCount =  5;
     for (int i = 0; i < subWindowCount; ++i)
         mdiArea.addSubWindow(new QPushButton("QAccessibilityTest"))->show();
@@ -2467,6 +2474,9 @@ void tst_QAccessibility::dialogButtonBoxTest()
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&box);
     QVERIFY(iface);
     box.show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(&box);
+#endif
 
     QApplication::processEvents();
     QCOMPARE(iface->childCount(), 3);
