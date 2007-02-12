@@ -3799,6 +3799,7 @@ double QLocalePrivate::bytearrayToDouble(const char *num, bool *ok, bool *overfl
             *ok = false;
         if (overflow != 0)
             *overflow = *endptr != '\0';
+        return 0.0;
     }
 
     if (*endptr != '\0') {
