@@ -402,12 +402,7 @@ public:
         reset();
     }
 
-    void del()
-    {
-	delNode(current_node);
-    }
-
-    void setCurrentNode(PathVertex* a)
+    void setCurrentNode(PathVertex *a)
     {
 	if (a)
             current_node = a;
@@ -447,7 +442,7 @@ public:
 	last_node->next = 0;
     }
 
-    void delNode(PathVertex* a)
+    void delNode(PathVertex *a)
     {
 	if (a == 0) return;
 
@@ -462,25 +457,6 @@ public:
 	if (a == first_node)
 	    first_node = a->next;
 	delete a;
-    }
-
-    PathVertex *getNextNode(PathVertex *a)
-    {
-	setCurrentNode(a);
-
-	if (a != current_node)
-            return 0;
-	return getNextNode();
-    }
-
-    PathVertex *getNextNode()
-    {
-	if (current_node == 0)
-	    current_node = first_node;
-	else
-	    current_node = current_node->next;
-
-	return getCurrentNode();
     }
 
     void appendNode(PathVertex *a)
@@ -524,19 +500,9 @@ public:
     PathVertex *getFirstNode()
     {
 	current_node = first_node;
-	return getCurrentNode();
-    }
-
-    PathVertex *getLastNode()
-    {
-	current_node = last_node;
-	return getCurrentNode();
-    }
-
-    PathVertex *getCurrentNode()
-    {
 	return current_node;
     }
+
 #ifdef QDEBUG_CLIPPER
     void dump();
 #endif
@@ -581,18 +547,18 @@ struct VertexListNavigate {
 	cur = cur ? cur->next : 0;
     }
 
-    inline PathVertex* getNextNode()
+    inline PathVertex *getNextNode()
     {
-	PathVertex* nn = cur? cur->next: 0;
+	PathVertex *nn = cur ? cur->next: 0;
 	return nn;
     }
 
-    inline PathVertex* getNode()
+    inline PathVertex *getNode()
     {
 	return cur;
     }
 
-    inline PathVertex* getFirstNode()
+    inline PathVertex *getFirstNode()
     {
 	return first;
     }
@@ -1010,8 +976,8 @@ public:
         AoutsideB
     };
 
-    void getExpressions(PointTest& op1,
-                        PointTest& op2)
+    void getExpressions(PointTest &op1,
+                        PointTest &op2)
     {
         if (op == BoolAnd) {
             op1 = AinsideB;
@@ -1208,7 +1174,7 @@ public:
                       c.x() * (a.y() - b.y()));
     }
 
-    void encodeCrossTransfer(PathVertex* c)
+    void encodeCrossTransfer(PathVertex *c)
     {
         QPointF p  = c->getPoint();
         QPointF p1 = c->prev->getPoint();
