@@ -2706,7 +2706,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 if (!tb->icon.isNull()) {
                     tb->icon.paint(p, ir);
                 } else {
-                    pm = standardIcon(SP_TitleBarMenuButton, &tool, widget).pixmap(10, 10);
+                    int iconSize = pixelMetric(PM_SmallIconSize, tb, widget);
+                    pm = standardIcon(SP_TitleBarMenuButton, &tool, widget).pixmap(iconSize, iconSize);
                     tool.rect = ir;
                     p->save();
                     drawItemPixmap(p, ir, Qt::AlignCenter, pm);

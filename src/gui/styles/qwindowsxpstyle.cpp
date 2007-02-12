@@ -2942,7 +2942,8 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                         SIZE sz;
                         pGetThemePartSize(theme.handle(), qt_win_display_dc(), theme.partId, theme.stateId, 0, TS_TRUE, &sz);
                         if (sz.cx == 0 || sz.cy == 0) {
-                            QPixmap pm = standardIcon(SP_TitleBarMenuButton, tb, widget).pixmap(10, 10);
+                            int iconSize = pixelMetric(PM_SmallIconSize, tb, widget);
+                            QPixmap pm = standardIcon(SP_TitleBarMenuButton, tb, widget).pixmap(iconSize, iconSize);
                             p->save();
                             drawItemPixmap(p, theme.rect, Qt::AlignCenter, pm);
                             p->restore();
