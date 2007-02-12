@@ -71,6 +71,7 @@ private slots:
     void workspaceTest();
     void dialogButtonBoxTest();
     void dialTest();
+    void rubberBandTest();
 
 private:
     QWidget *createGUI();
@@ -2618,6 +2619,18 @@ void tst_QAccessibility::dialTest()
     QVERIFY(!interface->rect(3).isValid());
 
     QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
+void tst_QAccessibility::rubberBandTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QRubberBand rubberBand(QRubberBand::Rectangle);
+    QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&rubberBand);
+    QVERIFY(interface);
+    QCOMPARE(interface->role(0), QAccessible::Border);
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
