@@ -1,4 +1,10 @@
 # -*- Mode: makefile -*-
+
+# Investigating autotest build error
+message("QT_SOURCE_TREE" $$QT_SOURCE_TREE)
+message("ARTHUR" $$ARTHUR)
+message("PWD" $$PWD)
+
 ARTHUR=$$QT_SOURCE_TREE/tests/arthur
 COMMON_FOLDER = $$ARTHUR/common
 include($$ARTHUR/arthurtester.pri)
