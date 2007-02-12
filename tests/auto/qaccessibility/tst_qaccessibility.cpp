@@ -13,6 +13,10 @@
 #include <math.h>
 
 #include "QtTest/qtestaccessible.h"
+#if defined(Q_WS_X11)
+extern void qt_x11_wait_for_window_manager(QWidget *w);
+#endif
+
 
 //TESTED_FILES=
 
@@ -66,6 +70,7 @@ private slots:
     void lineEditTest();
     void workspaceTest();
     void dialogButtonBoxTest();
+    void dialTest();
 
 private:
     QWidget *createGUI();
@@ -2556,6 +2561,52 @@ void tst_QAccessibility::dialogButtonBoxTest()
     QApplication::processEvents();
 
     }
+    QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
+void tst_QAccessibility::dialTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QDial dial;
+    dial.setValue(20);
+    QCOMPARE(dial.value(), 20);
+    dial.show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(&dial);
+#endif
+
+    QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&dial);
+    QVERIFY(interface);
+
+    // Child count; 1 = SpeedoMeter, 2 = SliderHandle.
+    QCOMPARE(interface->childCount(), 2);
+
+    QCOMPARE(interface->role(0), QAccessible::Dial);
+    QCOMPARE(interface->role(1), QAccessible::Slider);
+    QCOMPARE(interface->role(2), QAccessible::Indicator);
+
+    QCOMPARE(interface->text(QAccessible::Value, 0), QString::number(dial.value()));
+    QCOMPARE(interface->text(QAccessible::Value, 1), QString::number(dial.value()));
+    QCOMPARE(interface->text(QAccessible::Value, 2), QString::number(dial.value()));
+    QCOMPARE(interface->text(QAccessible::Name, 0), QLatin1String("QDial"));
+    QCOMPARE(interface->text(QAccessible::Name, 1), QLatin1String("SpeedoMeter"));
+    QCOMPARE(interface->text(QAccessible::Name, 2), QLatin1String("SliderHandle"));
+    QCOMPARE(interface->text(QAccessible::Name, 3), QLatin1String(""));
+
+    QCOMPARE(interface->state(1), interface->state(0));
+    QCOMPARE(interface->state(2), interface->state(0) | QAccessible::HotTracked);
+
+    // Rect
+    QCOMPARE(interface->rect(0), dial.geometry());
+    QVERIFY(interface->rect(1).isValid());
+    QVERIFY(dial.geometry().contains(interface->rect(1)));
+    QVERIFY(interface->rect(2).isValid());
+    QVERIFY(interface->rect(1).contains(interface->rect(2)));
+    QVERIFY(!interface->rect(3).isValid());
+
     QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
