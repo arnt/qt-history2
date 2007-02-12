@@ -63,7 +63,6 @@ private slots:
     void invalidCharData_data();
     void invalidCharData();
 
-    void checkWarningOnNull() const;
     void roundTripAttributes() const;
     void normalizeEndOfLine() const;
     void normalizeAttributes() const;
@@ -767,11 +766,11 @@ void tst_QDom::parentNode()
     QFETCH( QString, doc );
     QFETCH( QList<QVariant>, pathToNode );
     QFETCH( bool, deep );
-    Q_UNUSED( deep );
     QDomDocument domDoc;
     QVERIFY( domDoc.setContent( doc ) );
     QDomNode node = findDomNode( domDoc, pathToNode );
     QVERIFY(!node.isNull());
+    Q_UNUSED(deep);
 
     // test QDomDocument::create...()
     {
@@ -1002,20 +1001,10 @@ void tst_QDom::domNodeMapAndList()
 
     QDomNamedNodeMap map = doc.documentElement().attributes();
     QCOMPARE(map.item(0).nodeName(), QString("ding"));
-
-    QTest::ignoreMessage(QtDebugMsg, "Function nodeName() does nothing on a null "
-                                     "node(see QDomNode::isNull()). Create non-null "
-                                     "nodes with the factory functions such as "
-                                     "QDomDocument::createElement().");
     QCOMPARE(map.item(1).nodeName(), QString()); // Make sure we don't assert
 
     QDomNodeList list = doc.elementsByTagName("foo");
     QCOMPARE(list.item(0).nodeName(), QString("foo"));
-
-    QTest::ignoreMessage(QtDebugMsg, "Function nodeName() does nothing on a null "
-                                     "node(see QDomNode::isNull()). Create non-null "
-                                     "nodes with the factory functions such as "
-                                     "QDomDocument::createElement().");
     QCOMPARE(list.item(1).nodeName(), QString()); // Make sure we don't assert
 }
 
@@ -1296,113 +1285,6 @@ void tst_QDom::invalidCharData()
             QCOMPARE(text_elt.nodeValue(), in_text);
         }
     }
-}
-
-static const char *s_onNullMessage = 0;
-static QtMsgType s_onNullMessageType = QtSystemMsg;
-
-static void myOnNullMsgHandler(QtMsgType type, const char *msg)
-{
-    s_onNullMessage = msg;
-    s_onNullMessageType = type;
-}
-
-QString tst_QDom::onNullWarning(const char *const functionName)
-{
-        return QString::fromLatin1("Function %1() does nothing on a null node(see "
-                                   "QDomNode::isNull()). Create non-null nodes with the factory functions "
-                                   "such as QDomDocument::createElement().").arg(QString::fromLatin1(functionName));
-}
-
-void tst_QDom::checkWarningOnNull() const
-{
-    qInstallMsgHandler(myOnNullMsgHandler);
-
-    QDomNode n;
-
-    n.nodeName();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("nodeName")));
-
-    n.nodeValue();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("nodeValue")));
-
-    n.setNodeValue(QLatin1String("a value"));
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("setNodeValue")));
-
-    n.parentNode();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("parentNode")));
-
-    n.childNodes();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("childNodes")));
-
-    n.firstChild();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("firstChild")));
-
-    n.lastChild();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("lastChild")));
-
-    n.previousSibling();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("previousSibling")));
-
-    n.nextSibling();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("nextSibling")));
-
-    n.attributes();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("attributes")));
-
-    n.ownerDocument();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("ownerDocument")));
-
-    n.cloneNode();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("cloneNode")));
-
-    n.normalize();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("normalize")));
-
-    n.namespaceURI();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("namespaceURI")));
-
-    n.prefix();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("prefix")));
-
-    n.setPrefix(QLatin1String("aprefix"));
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("setPrefix")));
-
-    n.localName();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("localName")));
-
-    n.hasAttributes();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("hasAttributes")));
-
-    n.insertBefore(QDomNode(), QDomNode());
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("insertBefore")));
-
-    n.insertAfter(QDomNode(), QDomNode());
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("insertAfter")));
-
-    n.replaceChild(QDomNode(), QDomNode());
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("replaceChild")));
-
-    n.removeChild(QDomNode());
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("removeChild")));
-
-    n.appendChild(QDomNode());
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("appendChild")));
-
-    n.hasChildNodes();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("hasChildNodes")));
-
-    n.clear();
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("clear")));
-
-    n.namedItem(QLatin1String("aName"));
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("namedItem")));
-
-    QTextStream stream;
-    n.save(stream, 3);
-    QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("save")));
-    
-    qInstallMsgHandler(0);
 }
 
 void tst_QDom::roundTripAttributes() const
