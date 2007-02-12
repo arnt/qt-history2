@@ -526,13 +526,18 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
             WindowRef window;
             GetEventParameter(event, kEventParamDirectObject, typeWindowRef, 0,
                               sizeof(window), 0, &window);
-            CallNextEventHandler(er, event);
             WindowRegionCode wcode;
             GetEventParameter(event, kEventParamWindowRegionCode, typeWindowRegionCode, 0,
                               sizeof(wcode), 0, &wcode);
             RgnHandle rgn;
             GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, 0,
                               sizeof(rgn), 0, &rgn);
+            if (wcode != kWindowOpaqueRgn){
+                // If the region is kWindowOpaqueRgn, don't call next
+                // event handler cause this will make the shadow of
+                // masked windows become offset. Unfortunatly, we're not sure why.
+                CallNextEventHandler(er, event);
+            }
             if(QWidgetPrivate::qt_widget_rgn(qt_mac_find_window(window), wcode, rgn, false))
                 SetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, sizeof(rgn), &rgn);
         } else if(ekind == kEventWindowProxyBeginDrag) {
