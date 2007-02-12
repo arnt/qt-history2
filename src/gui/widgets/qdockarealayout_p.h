@@ -71,7 +71,8 @@ class Q_AUTOTEST_EXPORT QDockAreaLayoutInfo
 {
 public:
     QDockAreaLayoutInfo();
-    QDockAreaLayoutInfo(int _sep, Qt::Orientation _o, int tbhape, QMainWindow *window);
+    QDockAreaLayoutInfo(int _sep, QInternal::DockPosition _dockPos, Qt::Orientation _o,
+                        int tbhape, QMainWindow *window);
 
     QSize minimumSize() const;
     QSize maximumSize() const;
@@ -130,6 +131,7 @@ public:
     QMainWindowLayout *mainWindowLayout() const;
 
     int sep;
+    QInternal::DockPosition dockPos;
     Qt::Orientation o;
     QRect rect;
     QMainWindow *mainWindow;

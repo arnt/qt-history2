@@ -144,16 +144,17 @@ static quintptr tabId(const QDockAreaLayoutItem &item)
 }
 
 QDockAreaLayoutInfo::QDockAreaLayoutInfo()
-    : sep(0), o(Qt::Horizontal), rect(0, 0, -1, -1), mainWindow(0)
+    : sep(0), dockPos(QInternal::LeftDock), o(Qt::Horizontal), rect(0, 0, -1, -1), mainWindow(0)
 #ifndef QT_NO_TABBAR
     , tabbed(false), tabBar(0), tabBarShape(QTabBar::RoundedSouth)
 #endif
 {
 }
 
-QDockAreaLayoutInfo::QDockAreaLayoutInfo(int _sep, Qt::Orientation _o, int tbshape,
+QDockAreaLayoutInfo::QDockAreaLayoutInfo(int _sep, QInternal::DockPosition _dockPos,
+                                            Qt::Orientation _o, int tbshape,
                                             QMainWindow *window)
-    : sep(_sep), o(_o), rect(0, 0, -1, -1), mainWindow(window)
+    : sep(_sep), dockPos(_dockPos), o(_o), rect(0, 0, -1, -1), mainWindow(window)
 #ifndef QT_NO_TABBAR
     , tabbed(false), tabBar(0), tabBarShape(static_cast<QTabBar::Shape>(tbshape))
 #endif
@@ -635,7 +636,7 @@ QList<int> QDockAreaLayoutInfo::gapIndex(const QPoint& _pos,
     Q_ASSERT(!item_rect.isNull());
 
     QInternal::DockPosition dock_pos
-        = dockPos(item_rect, _pos, o, nestingEnabled, tabMode);
+        = ::dockPos(item_rect, _pos, o, nestingEnabled, tabMode);
 
     switch (dock_pos) {
         case QInternal::LeftDock:
@@ -1009,6 +1010,7 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QLayoutItem *dockWidgetItem
             || item.subinfo->tabbed && !insert_tabbed
 #endif
             ) {
+
             // this is not yet a nested layout - make it
 
             QDockAreaLayoutInfo *subinfo = item.subinfo;
@@ -1020,7 +1022,7 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QLayoutItem *dockWidgetItem
             const int tabBarShape = 0;
 #endif
             QDockAreaLayoutInfo *new_info
-                = new QDockAreaLayoutInfo(sep, opposite, tabBarShape, mainWindow);
+                = new QDockAreaLayoutInfo(sep, dockPos, opposite, tabBarShape, mainWindow);
 
             item.subinfo = new_info;
             item.widgetItem = 0;
@@ -1057,7 +1059,28 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QLayoutItem *dockWidgetItem
         // find out how much space we have in the layout
         int space = 0;
         if (isEmpty()) {
-            space = pick(o, rect.size());
+            // I am an empty dock area, therefore I am a top-level dock area.
+            switch (dockPos) {
+                case QInternal::LeftDock:
+                case QInternal::RightDock:
+                    if (o == Qt::Vertical) {
+                        // the "size" is the height of the dock area (remember we are empty)
+                        space = pick(Qt::Vertical, rect.size());
+                    } else {
+                        space = pick(Qt::Horizontal, dockWidgetItem->widget()->size());
+                    }
+                    break;
+                case QInternal::TopDock:
+                case QInternal::BottomDock:
+                default:
+                    if (o == Qt::Horizontal) {
+                        // the "size" is width of the dock area
+                        space = pick(Qt::Horizontal, rect.size());
+                    } else {
+                        space = pick(Qt::Vertical, dockWidgetItem->widget()->size());
+                    }
+                    break;
+            }
         } else {
             for (int i = 0; i < item_list.count(); ++i) {
                 const QDockAreaLayoutItem &item = item_list.at(i);
@@ -1442,7 +1465,7 @@ void QDockAreaLayoutInfo::tab(int index, QLayoutItem *dockWidgetItem)
         item_list.append(QDockAreaLayoutItem(dockWidgetItem));
     } else {
         QDockAreaLayoutInfo *new_info
-            = new QDockAreaLayoutInfo(sep, o, tabBarShape, mainWindow);
+            = new QDockAreaLayoutInfo(sep, dockPos, o, tabBarShape, mainWindow);
         item_list[index].subinfo = new_info;
         new_info->item_list.append(item_list.at(index).widgetItem);
         item_list[index].widgetItem = 0;
@@ -1462,7 +1485,7 @@ void QDockAreaLayoutInfo::split(int index, Qt::Orientation orientation,
         const int tabBarShape = 0;
 #endif
         QDockAreaLayoutInfo *new_info
-            = new QDockAreaLayoutInfo(sep, orientation, tabBarShape, mainWindow);
+            = new QDockAreaLayoutInfo(sep, dockPos, orientation, tabBarShape, mainWindow);
         item_list[index].subinfo = new_info;
         new_info->item_list.append(item_list.at(index).widgetItem);
         item_list[index].widgetItem = 0;
@@ -1661,7 +1684,7 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
 #ifdef QT_NO_TABBAR
             const int tabBarShape = 0;
 #endif
-            QDockAreaLayoutInfo *info = new QDockAreaLayoutInfo(sep, o,
+            QDockAreaLayoutInfo *info = new QDockAreaLayoutInfo(sep, dockPos, o,
                                                                 tabBarShape, mainWindow);
             QDockAreaLayoutItem item(info);
             stream >> item.pos >> item.size >> dummy >> dummy;
@@ -1864,10 +1887,14 @@ QDockAreaLayout::QDockAreaLayout(QMainWindow *win)
 #else
     const int tabShape = 0;
 #endif
-    docks[QInternal::LeftDock] = QDockAreaLayoutInfo(sep, Qt::Vertical, tabShape, win);
-    docks[QInternal::RightDock] = QDockAreaLayoutInfo(sep, Qt::Vertical, tabShape, win);
-    docks[QInternal::TopDock] = QDockAreaLayoutInfo(sep, Qt::Horizontal, tabShape, win);
-    docks[QInternal::BottomDock] = QDockAreaLayoutInfo(sep, Qt::Horizontal, tabShape, win);
+    docks[QInternal::LeftDock]
+        = QDockAreaLayoutInfo(sep, QInternal::LeftDock, Qt::Vertical, tabShape, win);
+    docks[QInternal::RightDock]
+        = QDockAreaLayoutInfo(sep, QInternal::RightDock, Qt::Vertical, tabShape, win);
+    docks[QInternal::TopDock]
+        = QDockAreaLayoutInfo(sep, QInternal::TopDock, Qt::Horizontal, tabShape, win);
+    docks[QInternal::BottomDock]
+        = QDockAreaLayoutInfo(sep, QInternal::BottomDock, Qt::Horizontal, tabShape, win);
     centralWidgetItem = 0;
     centralWidgetRect = QRect(0, 0, -1, -1);
 
@@ -2547,7 +2574,11 @@ void QDockAreaLayout::addDockWidget(QInternal::DockPosition pos, QDockWidget *do
 {
     QLayoutItem *dockWidgetItem = new QDockWidgetItem(dockWidget);
     QDockAreaLayoutInfo &info = docks[pos];
-    if (orientation == info.o || info.isEmpty()) {
+    if (orientation == info.o || info.item_list.count() <= 1) {
+        // empty dock areas, or dock areas containing exactly one widget can have their orientation
+        // switched.
+        info.o = orientation;
+
         QDockAreaLayoutItem new_item(dockWidgetItem);
         info.item_list.append(new_item);
 #ifndef QT_NO_TABBAR
@@ -2578,7 +2609,7 @@ void QDockAreaLayout::addDockWidget(QInternal::DockPosition pos, QDockWidget *do
 #else
         int tbshape = 0;
 #endif
-        QDockAreaLayoutInfo new_info(sep, orientation, tbshape, mainWindow);
+        QDockAreaLayoutInfo new_info(sep, pos, orientation, tbshape, mainWindow);
         new_info.item_list.append(new QDockAreaLayoutInfo(info));
         new_info.item_list.append(dockWidgetItem);
         info = new_info;

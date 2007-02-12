@@ -1015,10 +1015,21 @@ QCursor QMainWindowPrivate::separatorCursor(const QList<int> &path) const
 {
     QDockAreaLayoutInfo *info = layout->layoutState.dockAreaLayout.info(path);
     Q_ASSERT(info != 0);
-    if (path.size() == 1) {
-        return info->o == Qt::Horizontal
-                ? Qt::SplitVCursor : Qt::SplitHCursor;
+    if (path.size() == 1) { // is this the "top-level" separator which separates a dock area
+                            // from the central widget?
+        switch (path.first()) {
+            case QInternal::LeftDock:
+            case QInternal::RightDock:
+                return Qt::SplitHCursor;
+            case QInternal::TopDock:
+            case QInternal::BottomDock:
+                return Qt::SplitVCursor;
+            default:
+                break;
+        }
     }
+
+    // no, it's a splitter inside a dock area, separating two dock widgets
 
     return info->o == Qt::Horizontal
             ? Qt::SplitHCursor : Qt::SplitVCursor;
