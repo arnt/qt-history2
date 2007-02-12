@@ -28,7 +28,7 @@
 #ifndef QT_NO_TOOLTIP
 
 #ifdef Q_WS_MAC
-#include <Carbon/Carbon.h>
+# include <private/qcore_mac_p.h>
 #endif
 
 /*!
@@ -275,7 +275,7 @@ void QTipLabel::placeTip(const QPoint &pos, QWidget *w)
 #else
     QRect screen = QApplication::desktop()->screenGeometry(getTipScreen(pos, w));
 #endif
-    
+
     QPoint p = pos;
     p += QPoint(2,
 #ifdef Q_WS_WIN
@@ -303,14 +303,14 @@ bool QTipLabel::tipChanged(const QPoint &pos, const QString &text, QObject *o)
 {
     if (QTipLabel::instance->text() != text)
         return true;
-        
+
     if (o != widget)
         return true;
-        
+
     if (!rect.isNull())
         return !rect.contains(pos);
     else
-       return false; 
+       return false;
 }
 
 /*!
@@ -345,7 +345,7 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w, cons
                 QTipLabel::instance->placeTip(pos, w);
             }
             return;
-        }    
+        }
     }
 
     if (!text.isEmpty()){ // no tip can be reused, create new tip:

@@ -13,28 +13,12 @@
 
 #ifndef QT_NO_DESKTOPSERVICES
 
-#include <Carbon/Carbon.h>
-#include <ApplicationServices/ApplicationServices.h>
-#include <CoreFoundation/CoreFoundation.h>
 #include <qprocess.h>
 #include <qstringlist.h>
 #include <qdir.h>
 #include <qurl.h>
 #include <qstringlist.h>
-#include <private/qcore_mac_p.h> // Remove if released as a solution
-
-/*
-    Extends HFSUniStr255 with a QString conversion operator.
-*/
-class QHFSUniStr255 : public HFSUniStr255
-{
-public:
-    operator QString()
-    {
-        QChar *charPointer =  reinterpret_cast<QChar*>(unicode);
-        return QString(charPointer, length);
-    }
-};
+#include <private/qcore_mac_p.h>
 
 /*
     Translates a QDesktopServices::Location into the mac equivalent.
@@ -104,6 +88,15 @@ static bool openDocument(const QUrl &file)
 
 #if 0
 /*
+    Returns a QString given an HFSUniStr255.
+*/
+static QString qt_mac_hfsunistr_to_qstring(const HFSUniStr255 *hfs)
+{
+    const QChar *charPointer =  reinterpret_cast<const QChar*>(hfs->unicode);
+    return QString(charPointer, hfs->length);
+}
+
+/*
     Returns wether the given fsRef is something valid.
 */
 static Boolean FSRefIsValid(const FSRef &fsRef)
@@ -120,13 +113,13 @@ static QString getFullPath(FSRef ref)
     QString path;
     FSRef parent;
     do {
-        QHFSUniStr255 name;
+        HFSUniStr255 name;
         OSErr err = FSGetCatalogInfo(&ref, kFSCatInfoNone, NULL, &name, NULL, &parent);
         if (err)
             return QString();
 
         if (FSRefIsValid(parent))
-            path.prepend(static_cast<QString>(name) + "/");
+            path.prepend(qt_mac_hfsunistr_to_qstring(name) + "/");
         ref = parent;
     } while (FSRefIsValid(ref));
 

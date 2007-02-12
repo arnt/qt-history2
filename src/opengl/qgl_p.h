@@ -37,7 +37,16 @@ class QGLContext;
 class QGLOverlayWidget;
 class QPixmap;
 #ifdef Q_WS_MAC
-#include <AGL/agl.h>
+# ifdef qDebug
+#   define old_qDebug qDebug
+#   undef qDebug
+# endif
+# include <AGL/agl.h>
+# ifdef old_qDebug
+#   undef qDebug
+#   define qDebug QT_QDEBUG_MACRO
+#   undef old_qDebug
+# endif
 class QMacWindowChangeEvent;
 #endif
 

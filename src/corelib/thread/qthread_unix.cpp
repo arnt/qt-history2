@@ -34,9 +34,18 @@
 #include <sys/sysctl.h>
 #endif
 
-#  if defined(Q_OS_MAC)
-#   include <CoreServices/CoreServices.h>
-#  endif
+#if defined(Q_OS_MAC)
+# ifdef qDebug
+#   define old_qDebug qDebug
+#   undef qDebug
+# endif
+# include <CoreServices/CoreServices.h>
+# ifdef old_qDebug
+#   undef qDebug
+#   define qDebug QT_QDEBUG_MACRO
+#   undef old_qDebug
+# endif
+#endif
 
 #ifndef QT_NO_THREAD
 

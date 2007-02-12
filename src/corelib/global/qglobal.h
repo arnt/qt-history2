@@ -1247,11 +1247,14 @@ inline QNoDebug qDebug();
 #endif
 
 #ifdef QT_NO_DEBUG_OUTPUT
-#  define qDebug if(1); else qDebug
+#  define QT_QDEBUG_MACRO if(1); else qDebug
+#  define qDebug QT_QDEBUG_MACRO
 #endif
 #ifdef QT_NO_WARNING_OUTPUT
-#  define qWarning if(1); else qWarning
+#  define QT_QWARNING_MACRO if(1); else qWarning
+#  define qWarning QT_QWARNING_MACRO
 #endif
+
 
 inline void qt_noop() {}
 

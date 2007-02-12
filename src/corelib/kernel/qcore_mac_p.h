@@ -27,34 +27,34 @@
 
 #undef OLD_DEBUG
 #ifdef DEBUG
-#define OLD_DEBUG DEBUG
-#undef DEBUG
+# define OLD_DEBUG DEBUG
+# undef DEBUG
 #endif
 #define DEBUG 0
+#ifdef qDebug
+#  define old_qDebug qDebug
+#  undef qDebug
+#endif
 
 #ifndef __IMAGECAPTURE__
-#define __IMAGECAPTURE__
+#  define __IMAGECAPTURE__
 #endif
-#ifdef qDebug
-#    undef qDebug
-#    include <Carbon/Carbon.h>
-#    ifdef QT_NO_DEBUG
-#        define qDebug qt_noop(),1?(void)0:qDebug
-#    endif
-#else
-#    include <Carbon/Carbon.h>
-#endif
-
+#include <Carbon/Carbon.h>
 #include <QuickTime/Movies.h>
 
 #undef DEBUG
 #ifdef OLD_DEBUG
-#define DEBUG OLD_DEBUG
+#  define DEBUG OLD_DEBUG
+#  undef OLD_DEBUG
 #endif
-#undef OLD_DEBUG
+
+#ifdef old_qDebug
+#  undef qDebug
+#  define qDebug QT_QDEBUG_MACRO
+#  undef old_qDebug
+#endif
 
 #include "qstring.h"
-
 
 /*
     Helper class that automates refernce counting for CFtypes.
