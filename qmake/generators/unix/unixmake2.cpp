@@ -891,7 +891,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << endl << endl;
 
     if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")) {
-        QString pchInput = fileFixify(project->first("PRECOMPILED_HEADER"));
+        QString pchInput = project->first("PRECOMPILED_HEADER");
         t << "###### Prefix headers" << endl;
         QString comps[] = { "C", "CXX", "OBJC", "OBJCXX", QString() };
         for(int i = 0; !comps[i].isNull(); i++) {
