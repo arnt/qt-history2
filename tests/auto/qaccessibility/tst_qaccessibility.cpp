@@ -2242,6 +2242,7 @@ void tst_QAccessibility::listViewTest()
 void tst_QAccessibility::mdiAreaTest()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     QMdiArea mdiArea;
     mdiArea.show();
     const int subWindowCount =  5;
@@ -2285,6 +2286,9 @@ void tst_QAccessibility::mdiAreaTest()
         }
     }
     // ### Add test for Up and Down.
+    
+    }
+    QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
@@ -2293,6 +2297,7 @@ void tst_QAccessibility::mdiAreaTest()
 void tst_QAccessibility::mdiSubWindowTest()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     QMdiArea mdiArea;
     mdiArea.show();
 #if defined(Q_WS_X11)
@@ -2388,6 +2393,8 @@ void tst_QAccessibility::mdiSubWindowTest()
     testWindow->widget()->hide();
     QCOMPARE(interface->childAt(globalWidgetPos.x(), globalWidgetPos.y()), 0);
 
+    }
+    QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
@@ -2432,6 +2439,7 @@ void tst_QAccessibility::lineEditTest()
 void tst_QAccessibility::workspaceTest()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     QWorkspace workspace;
     workspace.show();
     const int subWindowCount =  5;
@@ -2479,6 +2487,9 @@ void tst_QAccessibility::workspaceTest()
         }
     }
     // ### Add test for Up and Down.
+    
+    }
+    QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
