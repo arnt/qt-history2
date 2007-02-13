@@ -695,7 +695,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 int mbi = pixelMetric(PM_MenuButtonIndicator, btn, widget);
                 QRect ir = btn->rect;
                 QStyleOptionButton newBtn = *btn;
-                newBtn.rect = QRect(ir.right() - mbi, ir.height() - 20, mbi, ir.height() - 4);
+                newBtn.rect = QRect(ir.right() - mbi + 2, ir.height()/2 - mbi/2 + 3, mbi - 6, mbi - 6);
                 drawPrimitive(PE_IndicatorArrowDown, &newBtn, p, widget);
             }
         }
@@ -742,6 +742,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                     ir.translate(-4, 0);
                 else
                     ir.translate(pixw + 4, 0);
+
                 ir.setWidth(ir.width() - (pixw + 4));
                 // left-align text if there is
                 if (!btn->text.isEmpty())
@@ -749,6 +750,9 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             } else {
                 tf |= Qt::AlignHCenter;
             }
+            
+            if (btn->features & QStyleOptionButton::HasMenu)
+                ir = ir.adjusted(0, 0, -pixelMetric(PM_MenuButtonIndicator, btn, widget), 0);
             drawItemText(p, ir, tf, btn->palette, (btn->state & State_Enabled),
                          btn->text, QPalette::ButtonText);
         }

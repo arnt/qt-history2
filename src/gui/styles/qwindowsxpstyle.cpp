@@ -1917,17 +1917,17 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbiw = 0, mbih = 0;
-                XPThemeData theme(widget, 0, QLatin1String("TOOLBAR"), TP_DROPDOWNBUTTON);
+                XPThemeData theme(widget, 0, "TOOLBAR", TP_SPLITBUTTONDROPDOWN);
                 if (theme.isValid()) {
                     SIZE size;
-                    if (pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size) == S_OK) {
-                        mbiw = size.cx;
-                        mbih = size.cy;
-                    }
+                    pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
+                    mbiw = size.cx;
+                    mbih = size.cy;
                 }
-                QRect ir = subElementRect(SE_PushButtonContents, option, widget);
+
+                QRect ir = btn->rect;
                 QStyleOptionButton newBtn = *btn;
-                newBtn.rect = QRect(ir.right() - mbiw - 1, (option->rect.height()/2) - (mbih/2), mbiw, mbih);
+                newBtn.rect = QRect(ir.right() - mbiw - 1, (ir.height()/2) - (mbih/2), mbiw, mbih);
                 drawPrimitive(PE_IndicatorArrowDown, &newBtn, p, widget);
             }
             return;

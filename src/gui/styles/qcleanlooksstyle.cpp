@@ -2076,6 +2076,8 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             if (button->fontMetrics.height() > 14)
                 ir.translate(0, 1);
 
+            if (button->features & QStyleOptionButton::HasMenu)
+                ir = ir.adjusted(0, 0, -pixelMetric(PM_MenuButtonIndicator, button, widget), 0);
             drawItemText(painter, ir, tf, button->palette, (button->state & State_Enabled),
                          button->text, QPalette::ButtonText);
         }
