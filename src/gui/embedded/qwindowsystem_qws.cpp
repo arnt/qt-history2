@@ -1331,6 +1331,7 @@ void QWSServerPrivate::_q_newConnection()
     Q_Q(QWSServer);
     while (QWS_SOCK_BASE *sock = ssocket->nextPendingConnection()) {
         int socket = sock->socketDescriptor();
+        sock->setParent(0);
 
         QWSClient *client = new QWSClient(q,sock, get_object_id());
         clientMap[socket] = client;
