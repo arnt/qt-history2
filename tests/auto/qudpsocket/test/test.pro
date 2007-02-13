@@ -8,4 +8,15 @@ exists($$(QTDIR)/src/network/qnetworkproxy.h) {
     DEFINES += TEST_QNETWORK_PROXY
 }
 
-TARGET = ../tst_qudpsocket
+
+win32 {
+  CONFIG(debug, debug|release) {
+    DESTDIR = ../debug
+} else {
+    DESTDIR = ../release
+  }
+} else {
+    DESTDIR = ../
+}
+
+TARGET = tst_qudpsocket
