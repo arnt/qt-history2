@@ -458,6 +458,8 @@ void tst_QAccessibility::childCount()
     QVERIFY(acc_bottomLeft);
     QVERIFY(acc_bottomRight);
 
+    QCOMPARE(acc_toplevel->childCount(), 0);
+    toplevel->show();
     QCOMPARE(acc_toplevel->childCount(), toplevel->queryList("QWidget", 0, 0, 0).count());
     QCOMPARE(acc_topLeft->childCount(), topLeft->queryList("QWidget", 0, 0, 0).count());
     QCOMPARE(acc_topRight->childCount(), topRight->queryList("QWidget", 0, 0, 0).count());
@@ -786,6 +788,7 @@ void tst_QAccessibility::navigateSlider()
 {
 #ifdef QTEST_ACCESSIBILITY
     QSlider *slider = new QSlider(0, "Slidy");
+    slider->show();
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(slider);
     QAccessibleInterface *target = 0;
     QVERIFY(iface != 0);
@@ -919,10 +922,15 @@ void tst_QAccessibility::navigateHierarchy()
 {
 #ifdef QTEST_ACCESSIBILITY
     QWidget *w = new QWidget(0, "Hans");
+    w->show();
     QWidget *w1 = new QWidget(w, "1");
+    w1->show();
     QWidget *w2 = new QWidget(w, "2");
+    w2->show();
     QWidget *w3 = new QWidget(w, "3");
+    w3->show();
     QWidget *w31 = new QWidget(w3, "31");
+    w31->show();
 
     QAccessibleInterface *target = 0;
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(w);
@@ -1015,6 +1023,7 @@ void tst_QAccessibility::navigateControllers()
     QLCDNumber	lcd1(&vbox);
     QLCDNumber	lcd2(&vbox);
     QLabel	label(&vbox);
+    vbox.show();
 
     slider.setObjectName("slider");
     spinBox.setObjectName("spinBox");
@@ -1115,6 +1124,7 @@ void tst_QAccessibility::navigateLabels()
 
     Q3GroupBox border(&vbox);
     QLineEdit	lineedit3(&border);
+    vbox.show();
     QTestAccessibility::clearEvents();
 
     QAccessibleInterface *acc_label = QAccessible::queryAccessibleInterface(&label);
@@ -1221,6 +1231,10 @@ void tst_QAccessibility::text()
 {
 #ifdef QTEST_ACCESSIBILITY
     QWidget *toplevel = createGUI();
+    toplevel->show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(toplevel);
+#endif
     QObject *topLeft = toplevel->child("topLeft");
     QObject *topRight = toplevel->child("topRight");
     QObject *bottomLeft = toplevel->child("bottomLeft");
@@ -1320,6 +1334,7 @@ void tst_QAccessibility::setText()
 {
 #ifdef QTEST_ACCESSIBILITY
     QWidget *toplevel = createGUI();
+    toplevel->show();
     QObject *bottomLeft = toplevel->child("bottomLeft");
 
     QAccessibleInterface *acc_lineedit = QAccessible::queryAccessibleInterface(bottomLeft->child("lineedit"));
@@ -1422,6 +1437,7 @@ void tst_QAccessibility::actionText()
 {
 #ifdef QTEST_ACCESSIBILITY
     QWidget widget;
+    widget.show();
 
     QAccessibleInterface *test = QAccessible::queryAccessibleInterface(&widget);
     QVERIFY(test);
@@ -1651,6 +1667,7 @@ void tst_QAccessibility::sliderTest()
     QLabel labelVertical("Vertical", &vbox);
     QSlider sliderVertical(Qt::Vertical, &vbox);
     labelVertical.setBuddy(&sliderVertical);
+    vbox.show();
 
     // test horizontal slider
     test = QAccessible::queryAccessibleInterface(&sliderHorizontal);
@@ -1801,6 +1818,10 @@ void tst_QAccessibility::sliderTest()
     // Test that the rects are ok.
     {
         QSlider *slider  = new QSlider(Qt::Horizontal);
+        slider->show();
+#if defined(Q_WS_X11)
+        qt_x11_wait_for_window_manager(slider);
+#endif
         QAccessibleInterface * const sliderInterface = QAccessible::queryAccessibleInterface(slider);
         QVERIFY(sliderInterface);
 
@@ -1892,6 +1913,11 @@ void tst_QAccessibility::scrollBarTest()
     // Test that the rects are ok.
     {
         QScrollBar *scrollBar  = new QScrollBar(Qt::Horizontal);
+        scrollBar->resize(100, 50);
+        scrollBar->show();
+#if defined(Q_WS_X11)
+        qt_x11_wait_for_window_manager(scrollBar);
+#endif
         QAccessibleInterface * const scrollBarInterface = QAccessible::queryAccessibleInterface(scrollBar);
         QVERIFY(scrollBarInterface);
 
@@ -2164,13 +2190,14 @@ void tst_QAccessibility::textEditTest()
     QTextEdit edit;
     QString text = "hello world\nhow are you today?\n";
     edit.setText(text);
+    edit.show();
 
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&edit);
     QCOMPARE(iface->text(QAccessible::Value, 0), text);
-    QCOMPARE(iface->childCount(), 6);
-    QCOMPARE(iface->text(QAccessible::Value, 4), QString("hello world"));
-    QCOMPARE(iface->text(QAccessible::Value, 5), QString("how are you today?"));
-    QCOMPARE(iface->text(QAccessible::Value, 6), QString());
+    QCOMPARE(iface->childCount(), 4);
+    QCOMPARE(iface->text(QAccessible::Value, 2), QString("hello world"));
+    QCOMPARE(iface->text(QAccessible::Value, 3), QString("how are you today?"));
+    QCOMPARE(iface->text(QAccessible::Value, 4), QString());
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
@@ -2182,15 +2209,16 @@ void tst_QAccessibility::textBrowserTest()
     QTextBrowser textBrowser;
     QString text = QLatin1String("Hello world\nhow are you today?\n");
     textBrowser.setText(text);
+    textBrowser.show();
 
     QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&textBrowser);
     QVERIFY(interface);
     QCOMPARE(interface->role(0), QAccessible::StaticText);
     QCOMPARE(interface->text(QAccessible::Value, 0), text);
-    QCOMPARE(interface->childCount(), 6);
-    QCOMPARE(interface->text(QAccessible::Value, 4), QString("Hello world"));
-    QCOMPARE(interface->text(QAccessible::Value, 5), QString("how are you today?"));
-    QCOMPARE(interface->text(QAccessible::Value, 6), QString());
+    QCOMPARE(interface->childCount(), 4);
+    QCOMPARE(interface->text(QAccessible::Value, 2), QString("Hello world"));
+    QCOMPARE(interface->text(QAccessible::Value, 3), QString("how are you today?"));
+    QCOMPARE(interface->text(QAccessible::Value, 4), QString());
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
@@ -2571,6 +2599,9 @@ void tst_QAccessibility::dialogButtonBoxTest()
     QVERIFY(iface);
     box.setOrientation(Qt::Vertical);
     box.show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(&box);
+#endif
 
     QApplication::processEvents();
     QAccessibleInterface *child;
