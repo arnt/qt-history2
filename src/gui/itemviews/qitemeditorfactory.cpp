@@ -275,6 +275,7 @@ const QItemEditorFactory *QItemEditorFactory::defaultFactory()
 
 /*!
     Sets the default item editor factory to the given \a factory.
+    Both new and existing delegates will use the new factory.
 
     \sa defaultFactory()
 */
