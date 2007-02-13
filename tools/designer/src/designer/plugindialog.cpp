@@ -11,12 +11,17 @@
 **
 ****************************************************************************/
 
-#include <QtDesigner/QtDesigner>
-#include <pluginmanager_p.h>
-
-#include <QtGui/QtGui>
 
 #include "plugindialog.h"
+#include <pluginmanager_p.h>
+
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerCustomWidgetCollectionInterface>
+
+#include <QtGui/QStyle>
+#include <QtGui/QHeaderView>
+#include <QtCore/QFileInfo>
+#include <QtCore/QPluginLoader>
 
 PluginDialog::PluginDialog(QDesignerFormEditorInterface *core, QWidget *parent)
     : QDialog(parent

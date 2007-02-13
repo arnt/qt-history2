@@ -22,6 +22,7 @@
 #include "saveformastemplate.h"
 #include "plugindialog.h"
 #include "formwindowsettings.h"
+#include "qdesigner_toolwindow.h"
 
 #include <pluginmanager_p.h>
 #include <qdesigner_formbuilder_p.h>

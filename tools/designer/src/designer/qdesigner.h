@@ -17,13 +17,13 @@
 #include <QtCore/QPointer>
 #include <QtGui/QApplication>
 
-#include "qdesigner_toolwindow.h"
 
 #define qDesigner \
     (static_cast<QDesigner*>(QCoreApplication::instance()))
 
 class QDesignerSettings;
 class QDesignerWorkbench;
+class QDesignerToolWindow;
 class QDesignerServer;
 class QDesignerClient;
 

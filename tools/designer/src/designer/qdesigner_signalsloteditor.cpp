@@ -11,16 +11,11 @@
 **
 ****************************************************************************/
 
-#include "qdesigner.h"
 #include "qdesigner_signalsloteditor.h"
 #include "qdesigner_workbench.h"
-#include "qdesigner_settings.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerComponents>
-
-#include <QtCore/qdebug.h>
-
 
 QDesignerSignalSlotEditor::QDesignerSignalSlotEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
@@ -39,10 +34,10 @@ QDesignerSignalSlotEditor::~QDesignerSignalSlotEditor()
 
 QRect QDesignerSignalSlotEditor::geometryHint() const
 {
-    QRect g = workbench()->availableGeometry();
-    int margin = workbench()->marginHint();
+    const QRect g = workbench()->availableGeometry();
+    const int margin = workbench()->marginHint();
 
-    QSize sz(g.width() * 1/3, g.height() * 1/6);
+    const QSize sz(g.width() * 1/3, g.height() * 1/6);
     QRect r(QPoint(0, 0), sz);
     r.moveCenter(g.center());
     r.moveTop(margin);

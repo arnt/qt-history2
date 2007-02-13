@@ -16,10 +16,9 @@
 #include "qdesigner_workbench.h"
 #include "qdesigner_settings.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerWidgetBoxInterface>
 #include <QtDesigner/QDesignerComponents>
-
-#include <QtCore/qdebug.h>
+#include <QtDesigner/QDesignerFormEditorInterface>
 
 QDesignerWidgetBox::QDesignerWidgetBox(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
@@ -44,7 +43,7 @@ QDesignerWidgetBox::~QDesignerWidgetBox()
 
 QRect QDesignerWidgetBox::geometryHint() const
 {
-    QRect g = workbench()->availableGeometry();
+    const QRect g = workbench()->availableGeometry();
 
     return QRect(workbench()->marginHint(), workbench()->marginHint(),
                  g.width() * 1/4, g.height() * 5/6);

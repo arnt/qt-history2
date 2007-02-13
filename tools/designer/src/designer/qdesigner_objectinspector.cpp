@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "qdesigner.h"
 #include "qdesigner_objectinspector.h"
 #include "qdesigner_workbench.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerObjectInspectorInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerComponents>
 
 QDesignerObjectInspector::QDesignerObjectInspector(QDesignerWorkbench *workbench)
@@ -36,10 +36,10 @@ QDesignerObjectInspector::~QDesignerObjectInspector()
 
 QRect QDesignerObjectInspector::geometryHint() const
 {
-    QRect g = workbench()->availableGeometry();
-    int margin = workbench()->marginHint();
+    const QRect g = workbench()->availableGeometry();
+    const int margin = workbench()->marginHint();
 
-    QSize sz(g.width() * 1/4, g.height() * 1/6);
+    const QSize sz(g.width() * 1/4, g.height() * 1/6);
 
     return QRect((g.width() - sz.width() - margin), margin,
                   sz.width(), sz.height());

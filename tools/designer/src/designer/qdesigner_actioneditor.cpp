@@ -11,12 +11,13 @@
 **
 ****************************************************************************/
 
-#include "qdesigner.h"
 #include "qdesigner_actioneditor.h"
 #include "qdesigner_workbench.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerActionEditorInterface>
 #include <QtDesigner/QDesignerComponents>
+
 
 QDesignerActionEditor::QDesignerActionEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
@@ -36,10 +37,10 @@ QDesignerActionEditor::~QDesignerActionEditor()
 
 QRect QDesignerActionEditor::geometryHint() const
 {
-    QRect g = workbench()->availableGeometry();
-    int margin = workbench()->marginHint();
+    const QRect g = workbench()->availableGeometry();
+    const int margin = workbench()->marginHint();
 
-    QSize sz(g.width() * 1/4, g.height() * 1/6);
+    const QSize sz(g.width() * 1/4, g.height() * 1/6);
 
     return QRect((g.width() - sz.width() - margin), margin,
                   sz.width(), sz.height());

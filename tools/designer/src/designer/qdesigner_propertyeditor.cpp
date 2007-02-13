@@ -11,14 +11,15 @@
 **
 ****************************************************************************/
 
-#include "qdesigner.h"
+
 #include "qdesigner_propertyeditor.h"
 #include "qdesigner_workbench.h"
 
-#include <QtGui/QAction>
-
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerComponents>
+
+#include <QtGui/QAction>
 
 QDesignerPropertyEditor::QDesignerPropertyEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
@@ -39,11 +40,11 @@ QDesignerPropertyEditor::~QDesignerPropertyEditor()
 
 QRect QDesignerPropertyEditor::geometryHint() const
 {
-    QRect g = workbench()->availableGeometry();
-    int margin = workbench()->marginHint();
-    int spacing = 40;
+    const QRect g = workbench()->availableGeometry();
+    const int margin = workbench()->marginHint();
+    const int spacing = 40;
 
-    QSize sz(g.width() * 1/4, g.height() * 4/6);
+    const QSize sz(g.width() * 1/4, g.height() * 4/6);
 
     return QRect((g.width() - sz.width() - margin), (margin + g.height() * 1/6) + spacing,
                   sz.width(), sz.height());

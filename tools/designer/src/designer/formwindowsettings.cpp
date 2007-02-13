@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "formwindowsettings.h"
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtGui/QStyle>
 
 FormWindowSettings::FormWindowSettings(QDesignerFormWindowInterface *parent)
@@ -49,7 +49,7 @@ FormWindowSettings::FormWindowSettings(QDesignerFormWindowInterface *parent)
         ui.layoutFunctionGroupBox->setChecked(false);
     }
 
-    QString pixFunction = formWindow()->pixmapFunction();
+    const QString pixFunction = formWindow()->pixmapFunction();
     ui.pixmapFunctionGroupBox->setChecked(!pixFunction.isEmpty());
     ui.pixmapFunctionLineEdit->setText(pixFunction);
 
