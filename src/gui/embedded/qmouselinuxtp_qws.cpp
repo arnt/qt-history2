@@ -32,6 +32,7 @@
 
 #if defined(QT_QWS_IPAQ)
  #define QT_QWS_IPAQ_RAW
+ #define QT_QWS_SCREEN_COORDINATES
  typedef struct {
         unsigned short pressure;
         unsigned short x;
@@ -40,7 +41,8 @@
  } TS_EVENT;
 #elif defined(QT_QWS_EBX)
  #define QT_QWS_EBX_RAW
- #ifndef QT_QWS_SHARP
+ #define QT_QWS_SCREEN_COORDINATES
+#ifndef QT_QWS_SHARP
   typedef struct {
         unsigned short pressure;
         unsigned short x;
@@ -232,8 +234,7 @@ void QWSLinuxTPMouseHandlerPrivate::readMouseData()
                     totalMousePos -= samples[lastSample];
 
                 mousePos = totalMousePos / (sampleCount - 1);
-# if defined(QT_QWS_IPAQ_RAW) || defined(QT_QWS_EBX_RAW)
-                  // fixme: for transformed display only
+#if defined(QT_QWS_SCREEN_COORDINATES)
                 mousePos = handler->transform(mousePos);
 #endif
                 if(!waspressed)
