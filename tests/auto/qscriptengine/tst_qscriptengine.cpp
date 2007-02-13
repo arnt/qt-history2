@@ -291,7 +291,7 @@ void tst_QScriptEngine::evaluate_data()
     QTest::newRow("0")      << QString("0")             << false        << 0;
     QTest::newRow("0=1")    << QString("\n0=1\n")       << true         << 1;
     QTest::newRow("a=1")    << QString("a=1\n")         << false        << 0;
-    QTest::newRow("a=1;K")  << QString("a=1;\nK")       << true         << 1;
+    QTest::newRow("a=1;K")  << QString("a=1;\nK")       << true         << 2; /// ### checkme
 }
 
 void tst_QScriptEngine::evaluate()
