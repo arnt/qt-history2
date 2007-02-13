@@ -4197,23 +4197,6 @@ if [ "$CFG_LIBFREETYPE" = "auto" ]; then
     fi
 fi
 
-if [ "$CFG_ARMFPA" = "auto" ]; then
-    "$unixtests/armfpa.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath"
-    F="$?"
-    if [ "$F" -eq 0 ]; then
-        CFG_ARMFPA="yes"
-    elif [ "$F" -eq 1 ]; then
-        CFG_ARMFPA="no"
-    else
-        echo
-        echo "The ARM-FPA test could not be run!"
-        echo "Turn on verbose messaging (-v) to see the final report."
-        echo "You can use the -armfpa or -no-armfpa switch to"
-        echo "$0 to continue."
-        exit 101
-    fi
-fi
-
 if [ "$CFG_ENDIAN" = "auto" ]; then
     if [ "$PLATFORM_MAC" = "yes" ]; then
 	true #leave as auto
@@ -4235,6 +4218,19 @@ if [ "$CFG_ENDIAN" = "auto" ]; then
     fi
 fi
 
+if [ "$CFG_ARMFPA" != "auto" ]; then
+    if [ "$CFG_ARMFPA" = "yes" ]; then
+        if [ "$CFG_ENDIAN" = "Q_LITTLE_ENDIAN" ]; then
+            CFG_DOUBLEFORMAT="Q_DOUBLE_LITTLE_SWAPPED"
+        else
+            CFG_DOUBLEFORMAT="Q_DOUBLE_BIG_SWAPPED"
+        fi
+    else
+        CFG_DOUBLEFORMAT="normal"
+    fi
+fi
+
+
 if [ "$CFG_DOUBLEFORMAT" = "auto" ]; then
     if [ "$PLATFORM_QWS" != "yes" ]; then
         CFG_DOUBLEFORMAT=normal
@@ -4251,8 +4247,10 @@ if [ "$CFG_DOUBLEFORMAT" = "auto" ]; then
             CFG_DOUBLEFORMAT="Q_DOUBLE_BIG"
         elif [ "$F" -eq 12 ]; then
             CFG_DOUBLEFORMAT="Q_DOUBLE_LITTLE_SWAPPED"
+            CFG_ARMFPA="yes"
         elif [ "$F" -eq 13 ]; then
             CFG_DOUBLEFORMAT="Q_DOUBLE_BIG_SWAPPED"
+            CFG_ARMFPA="yes"
         else
             echo
 	    echo "The system floating point format could not be detected."
