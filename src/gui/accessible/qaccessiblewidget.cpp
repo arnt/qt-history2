@@ -30,7 +30,7 @@ static QList<QWidget*> childWidgets(const QWidget *widget)
     QList<QWidget*> widgets;
     for (int i = 0; i < list.size(); ++i) {
         QWidget *w = qobject_cast<QWidget *>(list.at(i));
-        if (w && !w->isWindow())
+        if (w && w->isVisible() && !w->isWindow())
             widgets.append(w);
     }
     return widgets;
@@ -190,6 +190,8 @@ QObject *QAccessibleWidget::parentObject() const
 int QAccessibleWidget::childAt(int x, int y) const
 {
     QWidget *w = widget();
+    if (!w->isVisible())
+        return -1;
     QPoint gp = w->mapToGlobal(QPoint(0, 0));
     if (!QRect(gp.x(), gp.y(), w->width(), w->height()).contains(x, y))
         return -1;
@@ -219,10 +221,14 @@ int QAccessibleWidget::childAt(int x, int y) const
 /*! \reimp */
 QRect QAccessibleWidget::rect(int child) const
 {
-    if (child)
-        qWarning("QAccessibleWidget::rect: This implementation does not support subelements! (ID %d unknown for %s)", child, widget()->metaObject()->className());
+    if (child) {
+        qWarning("QAccessibleWidget::rect: This implementation does not support subelements! "
+                 "(ID %d unknown for %s)", child, widget()->metaObject()->className());
+    }
 
     QWidget *w = widget();
+    if (!w->isVisible())
+        return QRect();
     QPoint wpos = w->mapToGlobal(QPoint(0, 0));
 
     return QRect(wpos.x(), wpos.y(), w->width(), w->height());
@@ -582,7 +588,6 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
             QAccessibleInterface *sibling = 0;
             for (int i = pIface->indexOfChild(this) + 1; i <= sibCount && entry; ++i) {
                 pIface->navigate(Child, i, &sibling);
-                Q_ASSERT(sibling);
                 if (!sibling || (sibling->state(0) & Invisible)) {
                     delete sibling;
                     sibling = 0;
@@ -726,6 +731,10 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
     default:
         break;
     }
+
+    QWidget *targetWidget = qobject_cast<QWidget *>(targetObject);
+    if (targetWidget && !targetWidget->isVisible())
+        return -1;
     *target = QAccessible::queryAccessibleInterface(targetObject);
     return *target ? 0 : -1;
 }
@@ -733,6 +742,8 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
 /*! \reimp */
 int QAccessibleWidget::childCount() const
 {
+    if (!widget()->isVisible())
+        return 0;
     QWidgetList cl = childWidgets(widget());
     return cl.size();
 }
@@ -740,6 +751,8 @@ int QAccessibleWidget::childCount() const
 /*! \reimp */
 int QAccessibleWidget::indexOfChild(const QAccessibleInterface *child) const
 {
+    if (!widget()->isVisible())
+        return -1;
     QWidgetList cl = childWidgets(widget());
     int index = cl.indexOf(qobject_cast<QWidget *>(child->object()));
     if (index != -1)
@@ -754,6 +767,8 @@ extern QString qt_setWindowTitle_helperHelper(const QString &, QWidget*);
 QString QAccessibleWidget::text(Text t, int child) const
 {
     QString str;
+    if (!widget()->isVisible())
+        return str;
 
     switch (t) {
     case Name:
@@ -806,6 +821,8 @@ QString QAccessibleWidget::text(Text t, int child) const
 /*! \reimp */
 QString QAccessibleWidget::actionText(int action, Text t, int child) const
 {
+    if (!widget()->isVisible())
+        return QString();
     if (action == DefaultAction)
         action = SetFocus;
 
@@ -815,6 +832,8 @@ QString QAccessibleWidget::actionText(int action, Text t, int child) const
 /*! \reimp */
 bool QAccessibleWidget::doAction(int action, int child, const QVariantList &params)
 {
+    if (!widget()->isVisible())
+        return false;
     if (action == SetFocus || action == DefaultAction) {
         if (child || !widget()->isEnabled())
             return false;
