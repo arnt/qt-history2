@@ -27,6 +27,9 @@ General Improvements
 
 - qmake
 
+- moc
+    * Don't create trigraphs in the generated code for C++ casts
+
 Third party components
 ----------------------
 
@@ -48,12 +51,30 @@ General improvements
 
 - QDBus
 
+- QTextDocument
+    * Fixed find() with backward searches
+    * Match CSS style selector case insensitively
+
+- QSyntaxHighlighter
+    * Fixed failing assertion when installing a syntax highlighter before the document
+      has created a layout
+
+- QPluginLoader
+    * Fixed compilation of Q_EXPORT_PLUGIN when used with templates
+
+- QTextLayout
+    * Fixed rendering of surrogate pairs and cursor navigation with them
+
+- QTextEdit
+    * Fixed crash in QTextEdit::setExtraSelection when used with null cursors
+
 ****************************************************************************
 *                      Platform Specific Changes                           *
 ****************************************************************************
 
 X11
 ---
+    * Fix detection of Type1 symbol fonts
 
 Windows
 -------
