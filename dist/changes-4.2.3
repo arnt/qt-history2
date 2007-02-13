@@ -14,6 +14,9 @@ General Improvements
 - Configuration/Compilation
 
 - Documentation
+    * Completed documentation for "Implementing Atomic Operations,"
+      which is useful for people porting Qt to a new hardware
+      architecture.
 
 - Demos / Examples
 
@@ -165,6 +168,14 @@ General improvements
     * Prevents crashes in QSqlQuery after reopening a closed ODBC connection.
     * Prevents crash when retrieving binary data from ODBC.
     * The Interbase driver now returns a valid handle trough QSqlDriver::handle().
+
+- QMutex
+    * Fixed race condition in QMutex::tryLock() that would prevent all
+      other threads from acquiring the mutex
+
+- QList
+    * Fixed crash when modifying a QList that much detach from a
+      separate thread
     
 ****************************************************************************
 *                      Platform Specific Changes                           *
@@ -172,13 +183,23 @@ General improvements
 
 X11
 ---
-    * Fix detection of Type1 symbol fonts
+    * Fixed detection of Type1 symbol fonts
+    * Fixed architecture detection on UltraSPARC-T1 systems
+    * Fixed crash on exit in QSystemTrayIcon when QApplication is used
+      as the parent
+    * Fixed animation GUI effects on tooltips, menus, and comboboxes
+    * Fixed crashes in threaded programs when Qt uses the Glib main
+      loop
 
 Windows
 -------
     * Fixed compilation with -no-stl
     * Fixed compilation with Windows SDK for Vista
     * Fixed an issue that could cause missing text when Cleartype was used.
+    * Fixed the hot-spot location for OpenHandCursor and
+      CloseHandCursor
+    * Fixed infinite warning loop about adopted threads in
+      applications with many threads
 
 Mac OS X
 --------
