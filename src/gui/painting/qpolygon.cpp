@@ -767,3 +767,51 @@ bool QPolygon::contains(const QPointF &pt, Qt::FillRule fillRule) const
             ? (winding_number != 0)
             : ((winding_number % 2) != 0));   
 }
+
+QPolygon QPolygon::united(const QPolygon &r) const
+{
+    QPainterPath subject; subject.addPolygon(*this);
+    QPainterPath clip; clip.addPolygon(r);
+
+    return subject.united(clip).toFillPolygon().toPolygon();
+}
+
+QPolygon QPolygon::intersected(const QPolygon &r) const
+{
+    QPainterPath subject; subject.addPolygon(*this);
+    QPainterPath clip; clip.addPolygon(r);
+
+    return subject.intersected(clip).toFillPolygon().toPolygon();
+}
+
+QPolygon QPolygon::subtracted(const QPolygon &r) const
+{
+    QPainterPath subject; subject.addPolygon(*this);
+    QPainterPath clip; clip.addPolygon(r);
+
+    return subject.subtracted(clip).toFillPolygon().toPolygon();
+}
+
+QPolygonF QPolygonF::united(const QPolygonF &r) const
+{
+    QPainterPath subject; subject.addPolygon(*this);
+    QPainterPath clip; clip.addPolygon(r);
+
+    return subject.united(clip).toFillPolygon();
+}
+
+QPolygonF QPolygonF::intersected(const QPolygonF &r) const
+{
+    QPainterPath subject; subject.addPolygon(*this);
+    QPainterPath clip; clip.addPolygon(r);
+
+    return subject.intersected(clip).toFillPolygon();
+}
+
+QPolygonF QPolygonF::subtracted(const QPolygonF &r) const
+{
+    QPainterPath subject; subject.addPolygon(*this);
+    QPainterPath clip; clip.addPolygon(r);
+
+    return subject.subtracted(clip).toFillPolygon();
+}

@@ -54,6 +54,10 @@ public:
     void putPoints(int index, int nPoints, const QPolygon & from, int fromIndex=0);
 
     bool contains(const QPointF &pt, Qt::FillRule fillRule) const;
+
+    QPolygon united(const QPolygon &r) const;
+    QPolygon intersected(const QPolygon &r) const;
+    QPolygon subtracted(const QPolygon &r) const;
 };
 
 inline QPolygon::QPolygon(int asize) : QVector<QPoint>(asize) {}
@@ -101,6 +105,10 @@ public:
     QRectF boundingRect() const;
 
     bool contains(const QPointF &pt, Qt::FillRule fillRule) const;
+
+    QPolygonF united(const QPolygonF &r) const;
+    QPolygonF intersected(const QPolygonF &r) const;
+    QPolygonF subtracted(const QPolygonF &r) const;
 };
 
 inline QPolygonF::QPolygonF(int asize) : QVector<QPointF>(asize) {}
