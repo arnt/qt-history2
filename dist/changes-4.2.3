@@ -82,7 +82,18 @@ General improvements
 - QMenuBar
     * Properly mark the "text heuristic matching" strings for translation.
 
+- QSqlRelationalTableModel
+    * Ensure that the internal cashe is cleared after 
+      QSqlRelationalTableModel::submitAll() is called. 
 
+- QSqlDriver
+    * Ensure that QSqlDriver::formatValue() doesn't cut of characters from field names.
+
+- SQL plugins
+    * Prevents crashes in QSqlQuery after reopening a closed ODBC connection.
+    * Prevents crash when retrieving binary data from ODBC.
+    * The Interbase driver now returns a valid handle trough QSqlDriver::handle().
+    
 ****************************************************************************
 *                      Platform Specific Changes                           *
 ****************************************************************************
