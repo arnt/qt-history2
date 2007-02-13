@@ -21,8 +21,10 @@
 // msvc and friends crap out on it
 #if !defined(Q_CC_MSVC)
 #include "os9-newlines.h"
-#endif
+// msvc and friends crap out on this file too,
+// it seems to contain Mac 9 EOLs, and not windows EOLs.
 #include "win-newlines.h"
+#endif
 #include "escapes-in-string-literals.h"
 
 
@@ -424,8 +426,8 @@ private slots:
     void forgottenQInterface();
 #if !defined(Q_CC_MSVC)
     void os9Newline();
-#endif
     void winNewline();
+#endif
     void escapesInStringLiterals();
     void frameworkSearchPath();
 
@@ -807,7 +809,6 @@ void tst_Moc::os9Newline()
     QVERIFY(!data.contains('\n'));
     QVERIFY(data.contains('\r'));
 }
-#endif
 
 void tst_Moc::winNewline()
 {
@@ -827,6 +828,7 @@ void tst_Moc::winNewline()
         }
     }
 }
+#endif
 
 void tst_Moc::escapesInStringLiterals()
 {
