@@ -937,7 +937,6 @@ bool QGuiEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flag
 
     if (configRequests)                        // any pending configs?
         qWinProcessConfigRequests();
-    QCoreApplication::sendPostedEvents();
 
     return true;
 }
