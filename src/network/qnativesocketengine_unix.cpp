@@ -28,6 +28,9 @@
 #ifndef QT_NO_IPV6IFNAME
 #include <net/if.h>
 #endif
+#ifdef QT_LSB
+#include <arpa/inet.h>
+#endif
 
 #if defined QNATIVESOCKETENGINE_DEBUG
 #include <qstring.h>

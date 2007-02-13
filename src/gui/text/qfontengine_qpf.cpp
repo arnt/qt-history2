@@ -40,6 +40,28 @@
 #include "qwsdisplay_qws.h"
 #endif
 
+#ifdef QT_LSB
+
+#include <dlfcn.h>
+
+#  define MREMAP_MAYMOVE 1
+#  define RTLD_DEFAULT   ((void *) 0)
+
+// LSB doesn't standardize mremap - resolve it dynamically at runtime
+static void *mremap (void *__addr, size_t __old_len, size_t __new_len, int __flags)
+{
+    typedef void *(*RemapAddress)(void*, size_t, size_t, int, ...);
+    static RemapAddress remapAddr = 0;
+    if (!remapAddr) {
+        *(void **)(&remapAddr) = ::dlsym(RTLD_DEFAULT, "mremap");
+        if (!remapAddr)
+            qFatal("Unable to call mremap");
+    }
+
+    return remapAddr(__addr, __old_len, __new_len, __flags);
+}
+#endif
+
 //#define DEBUG_HEADER
 //#define DEBUG_FONTENGINE
 

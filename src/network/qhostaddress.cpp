@@ -19,6 +19,10 @@
 #include <qdatastream.h>
 #endif
 
+#ifdef QT_LSB
+#  include <arpa/inet.h>
+#endif
+
 #define QT_ENSURE_PARSED(a) \
     do { \
         if (!(a)->d->isParsed) \

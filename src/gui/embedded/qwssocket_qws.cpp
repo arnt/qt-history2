@@ -33,23 +33,22 @@
 # endif
 #endif
 
-#if defined (Q_OS_SOLARIS)
+#if defined(Q_OS_SOLARIS) || defined (QT_LSB)
 // uff-da apparently Solaris doesn't have the SUN_LEN macro, here is
 // an implementation of it...
-#ifndef SUN_LEN
-#define SUN_LEN(su) \
-        sizeof(*(su)) - sizeof((su)->sun_path) + strlen((su)->sun_path)
-#endif
+#  ifndef SUN_LEN
+#    define SUN_LEN(su) \
+            sizeof(*(su)) - sizeof((su)->sun_path) + strlen((su)->sun_path)
+#  endif
 
 // nor the POSIX names of UNIX domain sockets *sigh*
-#ifndef AF_LOCAL
-#define AF_LOCAL        AF_UNIX
-#endif
-#ifndef PF_LOCAL
-#define PF_LOCAL        PF_UNIX
-#endif
-
-#endif
+#  ifndef AF_LOCAL
+#    define AF_LOCAL        AF_UNIX
+#  endif
+#  ifndef PF_LOCAL
+#    define PF_LOCAL        PF_UNIX
+#  endif
+#endif // Q_OS_SOLARIS || QT_LSB
 
 /***********************************************************************
  *

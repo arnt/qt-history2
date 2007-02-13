@@ -205,6 +205,11 @@ Qt::HANDLE QThread::currentThreadId()
     return (Qt::HANDLE)pthread_self();
 }
 
+#if defined(QT_LSB) && !defined(_SC_NPROCESSORS_ONLN)
+// LSB doesn't define _SC_NPROCESSORS_ONLN.
+#  define _SC_NPROCESSORS_ONLN 84
+#endif
+
 /*!
     Returns the ideal number of threads that can be run on the system. This is done querying
     the number of processor cores, both real and logical, in the system. This function returns -1
