@@ -19,7 +19,6 @@ load(qttest_p4)
 HEADERS += atWrapper.h
 SOURCES += atWrapperAutotest.cpp atWrapper.cpp
 
-# Experiment: Lowercase the target name.
 unix:TARGET=tst_atwrapper
 
 #include($$COMMON_FOLDER/common.pri)
