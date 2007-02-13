@@ -110,7 +110,7 @@ QString QAccessibleButton::actionText(int action, Text text, int child) const
 /*! \reimp */
 bool QAccessibleButton::doAction(int action, int child, const QVariantList &params)
 {
-    if (child || !widget()->isEnabled())
+    if (child || !widget()->isEnabled() || !widget()->isVisible())
         return false;
 
     switch (action) {
@@ -134,6 +134,8 @@ bool QAccessibleButton::doAction(int action, int child, const QVariantList &para
 QString QAccessibleButton::text(Text t, int child) const
 {
     QString str;
+    if (!widget()->isVisible())
+        return str;
 
     switch (t) {
     case Accelerator:
@@ -259,6 +261,8 @@ QAccessible::State QAccessibleToolButton::state(int child) const
 /*! \reimp */
 int QAccessibleToolButton::childCount() const
 {
+    if (!toolButton()->isVisible())
+        return 0;
     return isSplitButton() ? ButtonDropMenu : 0;
 }
 
@@ -270,6 +274,8 @@ int QAccessibleToolButton::childCount() const
 */
 QRect QAccessibleToolButton::rect(int child) const
 {
+    if (!toolButton()->isVisible())
+        return QRect();
     if (!child)
         return QAccessibleButton::rect(child);
 
@@ -295,6 +301,8 @@ QRect QAccessibleToolButton::rect(int child) const
 QString QAccessibleToolButton::text(Text t, int child) const
 {
     QString str;
+    if (!toolButton()->isVisible())
+        return str;
 
     switch (t) {
     case Name:
@@ -367,7 +375,7 @@ QString QAccessibleToolButton::actionText(int action, Text text, int child) cons
 */
 bool QAccessibleToolButton::doAction(int action, int child, const QVariantList &params)
 {
-    if (!widget()->isEnabled())
+    if (!widget()->isEnabled() || !widget()->isVisible())
         return false;
     if (action == 1 || child == ButtonDropMenu) {
         if(!child)
@@ -426,6 +434,8 @@ QAccessible::Role QAccessibleDisplay::role(int child) const
 QString QAccessibleDisplay::text(Text t, int child) const
 {
     QString str;
+    if (!widget()->isVisible())
+        return str;
     switch (t) {
     case Name:
         if (qobject_cast<QLabel*>(object())) {
@@ -555,6 +565,8 @@ int QAccessibleLineEdit::childCount () const
 QString QAccessibleLineEdit::text(Text t, int child) const
 {
     QString str;
+    if (!lineEdit()->isVisible())
+        return str;
     switch (t) {
     case Value:
         str = lineEdit()->text();
@@ -570,6 +582,8 @@ QString QAccessibleLineEdit::text(Text t, int child) const
 /*! \reimp */
 void QAccessibleLineEdit::setText(Text t, int control, const QString &text)
 {
+    if (!lineEdit()->isVisible())
+        return;
     if (t != Value || control) {
         QAccessibleWidgetEx::setText(t, control, text);
         return;

@@ -155,7 +155,7 @@ QAccessible::Relation QAccessibleItemRow::relationTo(int child, const QAccessibl
 
 int QAccessibleItemRow::childAt(int x, int y) const
 {
-    if (!view)
+    if (!view || !view->isVisible())
         return -1;
 
     QModelIndex idx = view->indexAt(view->viewport()->mapFromGlobal(QPoint(x, y)));
@@ -562,7 +562,7 @@ QTabBar *QAccessibleTabBar::tabBar() const
 
 QAbstractButton *QAccessibleTabBar::button(int child) const
 {
-    if (child <= tabBar()->count())
+    if (child <= tabBar()->count() || !tabBar()->isVisible())
         return 0;
     QTabBarPrivate * const tabBarPrivate = tabBar()->d_func();
     if (child - tabBar()->count() == 1)
@@ -576,7 +576,7 @@ QAbstractButton *QAccessibleTabBar::button(int child) const
 /*! \reimp */
 QRect QAccessibleTabBar::rect(int child) const
 {
-    if (!child)
+    if (!child || !tabBar()->isVisible())
         return QAccessibleWidget::rect(0);
 
     QPoint tp = tabBar()->mapToGlobal(QPoint(0,0));
@@ -594,6 +594,8 @@ QRect QAccessibleTabBar::rect(int child) const
 int QAccessibleTabBar::childCount() const
 {
     // tabs + scroll buttons
+    if (!tabBar()->isVisible())
+        return 0;
     return tabBar()->count() + 2;
 }
 
@@ -601,6 +603,8 @@ int QAccessibleTabBar::childCount() const
 QString QAccessibleTabBar::text(Text t, int child) const
 {
     QString str;
+    if (!tabBar()->isVisible())
+        return str;
 
     if (child > tabBar()->count()) {
         bool left = child - tabBar()->count() == 1;
@@ -673,7 +677,7 @@ QAccessible::State QAccessibleTabBar::state(int child) const
 /*! \reimp */
 bool QAccessibleTabBar::doAction(int action, int child, const QVariantList &)
 {
-    if (!child)
+    if (!child || !tabBar()->isVisible())
         return false;
 
     if (action != QAccessible::DefaultAction && action != QAccessible::Press)
@@ -681,7 +685,7 @@ bool QAccessibleTabBar::doAction(int action, int child, const QVariantList &)
 
     if (child > tabBar()->count()) {
         QAbstractButton *bt = button(child);
-        if (!bt->isEnabled())
+        if (!bt->isEnabled() || !bt->isVisible())
             return false;
         bt->animateClick();
         return true;
@@ -833,6 +837,8 @@ int QAccessibleComboBox::childCount() const
 /*! \reimp */
 int QAccessibleComboBox::childAt(int x, int y) const
 {
+    if (!comboBox()->isVisible())
+        return -1;
     QPoint gp = widget()->mapToGlobal(QPoint(0, 0));
     if (!QRect(gp.x(), gp.y(), widget()->width(), widget()->height()).contains(x, y))
         return -1;

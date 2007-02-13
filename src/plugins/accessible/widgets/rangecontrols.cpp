@@ -76,6 +76,8 @@ QSpinBox *QAccessibleSpinBox::spinBox() const
 /*! \reimp */
 int QAccessibleSpinBox::childCount() const
 {
+    if (!spinBox()->isVisible())
+        return 0;
     return ValueDown;
 }
 
@@ -83,6 +85,8 @@ int QAccessibleSpinBox::childCount() const
 QRect QAccessibleSpinBox::rect(int child) const
 {
     QRect rect;
+    if (!spinBox()->isVisible())
+        return rect;
     QStyleOptionSpinBox so;
     so.rect = widget()->rect();
     switch(child) {
@@ -131,6 +135,8 @@ int QAccessibleSpinBox::navigate(RelationFlag rel, int entry, QAccessibleInterfa
 /*! \reimp */
 QString QAccessibleSpinBox::text(Text t, int child) const
 {
+    if (!spinBox()->isVisible())
+        return QString();
     switch (t) {
     case Name:
         switch (child) {
@@ -229,15 +235,19 @@ QDoubleSpinBox *QAccessibleDoubleSpinBox::doubleSpinBox() const
 /*! \reimp */
 int QAccessibleDoubleSpinBox::childCount() const
 {
+    if (!doubleSpinBox()->isVisible())
+        return 0;
     return ValueDown;
 }
 
 /*! \reimp */
 QRect QAccessibleDoubleSpinBox::rect(int child) const
 {
+    QRect rect;
+    if (!doubleSpinBox()->isVisible())
+        return rect;
     QStyleOptionSpinBox spinBoxOption;
     spinBoxOption.initFrom(doubleSpinBox());
-    QRect rect;
     switch (child) {
     case Editor:
         rect = doubleSpinBox()->style()->subControlRect(QStyle::CC_SpinBox, &spinBoxOption,
@@ -291,6 +301,8 @@ QVariant QAccessibleDoubleSpinBox::invokeMethodEx(QAccessible::Method, int, cons
 /*! \reimp */
 QString QAccessibleDoubleSpinBox::text(Text textType, int child) const
 {
+    if (!doubleSpinBox()->isVisible())
+        return QString();
     switch (textType) {
     case Name:
         if (child == ValueUp)
@@ -385,6 +397,9 @@ QScrollBar *QAccessibleScrollBar::scrollBar() const
 /*! \reimp */
 QRect QAccessibleScrollBar::rect(int child) const
 {
+    if (!scrollBar()->isVisible())
+        return QRect();
+
     QStyle::SubControl subControl;
     switch (child) {
     case LineUp:
@@ -409,6 +424,7 @@ QRect QAccessibleScrollBar::rect(int child) const
     const QStyleOptionSlider option = qt_qscrollbarStyleOption(scrollBar());
     const QRect rect = scrollBar()->style()->subControlRect(QStyle::CC_ScrollBar, &option,
                                                        subControl, scrollBar());
+    qDebug() << "rect returned from subControlRect" << rect;
 
     const QPoint tp = scrollBar()->mapToGlobal(QPoint(0,0));
     return QRect(tp.x() + rect.x(), tp.y() + rect.y(), rect.width(), rect.height());
@@ -417,12 +433,16 @@ QRect QAccessibleScrollBar::rect(int child) const
 /*! \reimp */
 int QAccessibleScrollBar::childCount() const
 {
+    if (!scrollBar()->isVisible())
+        return 0;
     return LineDown;
 }
 
 /*! \reimp */
 QString        QAccessibleScrollBar::text(Text t, int child) const
 {
+    if (!scrollBar()->isVisible())
+        return QString();
     switch (t) {
     case Value:
         if (!child || child == Position)
@@ -560,6 +580,8 @@ QSlider *QAccessibleSlider::slider() const
 QRect QAccessibleSlider::rect(int child) const
 {
     QRect rect;
+    if (!slider()->isVisible())
+        return rect;
     const QStyleOptionSlider option = qt_qsliderStyleOption(slider());
     QRect srect = slider()->style()->subControlRect(QStyle::CC_Slider, &option,
                                                     QStyle::SC_SliderHandle, slider());
@@ -591,12 +613,16 @@ QRect QAccessibleSlider::rect(int child) const
 /*! \reimp */
 int QAccessibleSlider::childCount() const
 {
+    if (!slider()->isVisible())
+        return 0;
     return PageRight;
 }
 
 /*! \reimp */
 QString        QAccessibleSlider::text(Text t, int child) const
 {
+    if (!slider()->isVisible())
+        return QString();
     switch (t) {
     case Value:
         if (!child || child == 2)
@@ -742,6 +768,8 @@ QAccessibleDial::QAccessibleDial(QWidget *widget)
 QRect QAccessibleDial::rect(int child) const
 {
     QRect rect;
+    if (!dial()->isVisible())
+        return rect;
     switch (child) {
     case Self:
         return QAccessibleWidgetEx::rect(child);
@@ -811,11 +839,15 @@ QRect QAccessibleDial::rect(int child) const
 
 int QAccessibleDial::childCount() const
 {
+    if (!dial()->isVisible())
+        return 0;
     return SliderHandle;
 }
 
 QString QAccessibleDial::text(Text textType, int child) const
 {
+    if (!dial()->isVisible())
+        return QString();
     if (textType == Value && child >= Self && child <= SliderHandle)
         return QString::number(dial()->value());
     if (textType == Name) {

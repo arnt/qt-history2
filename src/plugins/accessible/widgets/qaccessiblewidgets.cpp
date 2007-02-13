@@ -198,6 +198,8 @@ QRect QAccessibleTextEdit::rect(int child) const
 int QAccessibleTextEdit::childAt(int x, int y) const
 {
     QTextEdit *edit = textEdit();
+    if (!edit->isVisible())
+        return -1;
 
     QPoint point = edit->viewport()->mapFromGlobal(QPoint(x, y));
     QTextBlock block = edit->cursorForPosition(point).block();
@@ -210,6 +212,8 @@ int QAccessibleTextEdit::childAt(int x, int y) const
 /*! \reimp */
 QString QAccessibleTextEdit::text(Text t, int child) const
 {
+    if (!textEdit()->isVisible())
+        return QString();
     if (t == Value) {
         if (child > childOffset)
             return qTextBlockAt(textEdit()->document(), child - childOffset - 1).text();
@@ -223,6 +227,8 @@ QString QAccessibleTextEdit::text(Text t, int child) const
 /*! \reimp */
 void QAccessibleTextEdit::setText(Text t, int child, const QString &text)
 {
+    if (!textEdit()->isVisible())
+        return;
     if (t != Value || (child > 0 && child <= childOffset)) {
         QAccessibleWidgetEx::setText(t, child, text);
         return;
@@ -277,6 +283,8 @@ QVariant QAccessibleTextEdit::invokeMethodEx(QAccessible::Method method, int chi
 
 int QAccessibleTextEdit::childCount() const
 {
+    if (!textEdit()->isVisible())
+        return 0;
     return childOffset + textEdit()->document()->blockCount();
 }
 #endif // QT_NO_TEXTEDIT
@@ -297,6 +305,8 @@ QVariant QAccessibleStackedWidget::invokeMethodEx(QAccessible::Method, int, cons
 
 int QAccessibleStackedWidget::childAt(int x, int y) const
 {
+    if (!stackedWidget()->isVisible())
+        return -1;
     QWidget *currentWidget = stackedWidget()->currentWidget();
     if (!currentWidget)
         return -1;
@@ -308,6 +318,8 @@ int QAccessibleStackedWidget::childAt(int x, int y) const
 
 int QAccessibleStackedWidget::childCount() const
 {
+    if (!stackedWidget()->isVisible())
+        return 0;
     return stackedWidget()->count();
 }
 
@@ -321,6 +333,9 @@ int QAccessibleStackedWidget::indexOfChild(const QAccessibleInterface *child) co
 int QAccessibleStackedWidget::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
+    if (!stackedWidget()->isVisible())
+        return -1;
+
     QObject *targetObject = 0;
     switch (relation) {
     case Child:
@@ -351,6 +366,8 @@ QAccessibleToolBox::QAccessibleToolBox(QWidget *widget)
 
 QString QAccessibleToolBox::text(Text textType, int child) const
 {
+    if (!toolBox()->isVisible())
+        return QString();
     if (textType != Value || child <= 0 || child > toolBox()->count())
         return QAccessibleWidgetEx::text(textType, child);
     return toolBox()->itemText(child - 1);
@@ -358,6 +375,8 @@ QString QAccessibleToolBox::text(Text textType, int child) const
 
 void QAccessibleToolBox::setText(Text textType, int child, const QString &text)
 {
+    if (!toolBox()->isVisible())
+        return;
     if (textType != Value || child <= 0 || child > toolBox()->count()) {
         QAccessibleWidgetEx::setText(textType, child, text);
         return;
@@ -385,6 +404,8 @@ QVariant QAccessibleToolBox::invokeMethodEx(QAccessible::Method, int, const QVar
 
 int QAccessibleToolBox::childCount() const
 {
+    if (!toolBox()->isVisible())
+        return 0;
     return toolBox()->count();
 }
 
@@ -403,6 +424,9 @@ int QAccessibleToolBox::indexOfChild(const QAccessibleInterface *child) const
 
 int QAccessibleToolBox::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
 {
+    *target = 0;
+    if (!toolBox()->isVisible())
+        return -1;
     if (entry <= 0 || entry > toolBox()->count())
         return QAccessibleWidgetEx::navigate(relation, entry, target);
     int index = -1;
@@ -448,6 +472,8 @@ QVariant QAccessibleMdiArea::invokeMethodEx(QAccessible::Method, int, const QVar
 
 int QAccessibleMdiArea::childCount() const
 {
+    if (!mdiArea()->isVisible())
+        return 0;
     return mdiArea()->subWindowList().count();
 }
 
@@ -466,6 +492,8 @@ int QAccessibleMdiArea::indexOfChild(const QAccessibleInterface *child) const
 int QAccessibleMdiArea::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
+    if (!mdiArea()->isVisible())
+        return -1;
     QWidget *targetObject = 0;
     QList<QMdiSubWindow *> subWindows = mdiArea()->subWindowList();
     switch (relation) {
@@ -501,6 +529,8 @@ QAccessibleMdiSubWindow::QAccessibleMdiSubWindow(QWidget *widget)
 
 QString QAccessibleMdiSubWindow::text(Text textType, int child) const
 {
+    if (!mdiSubWindow()->isVisible())
+        return QString();
     if (textType == QAccessible::Name && (child == 0 || child == 1)) {
         QString title = mdiSubWindow()->windowTitle();
         title.replace(QLatin1String("[*]"), QLatin1String(""));
@@ -511,6 +541,8 @@ QString QAccessibleMdiSubWindow::text(Text textType, int child) const
 
 void QAccessibleMdiSubWindow::setText(Text textType, int child, const QString &text)
 {
+        if (!mdiSubWindow()->isVisible())
+        return;
     if (textType == QAccessible::Name && (child == 0 || child == 1))
         mdiSubWindow()->setWindowTitle(text);
     else
@@ -543,6 +575,8 @@ QVariant QAccessibleMdiSubWindow::invokeMethodEx(QAccessible::Method, int, const
 
 int QAccessibleMdiSubWindow::childCount() const
 {
+    if (!mdiSubWindow()->isVisible())
+        return 0;
     if (mdiSubWindow()->widget())
         return 1;
     return 0;
@@ -557,10 +591,13 @@ int QAccessibleMdiSubWindow::indexOfChild(const QAccessibleInterface *child) con
 
 int QAccessibleMdiSubWindow::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
 {
+    *target = 0;
+    if (!mdiSubWindow()->isVisible())
+        return -1;
+
     if (!mdiSubWindow()->parent())
         return QAccessibleWidgetEx::navigate(relation, entry, target);
 
-    *target = 0;
     QWidget *targetObject = 0;
     QMdiSubWindow *source = mdiSubWindow();
     switch (relation) {
@@ -618,6 +655,8 @@ QRect QAccessibleMdiSubWindow::rect(int child) const
 
 int QAccessibleMdiSubWindow::childAt(int x, int y) const
 {
+    if (!mdiSubWindow()->isVisible())
+        return -1;
     if (!mdiSubWindow()->parent())
         return QAccessibleWidgetEx::childAt(x, y);
     const QRect globalGeometry = rect(0);
@@ -664,6 +703,8 @@ QVariant QAccessibleWorkspace::invokeMethodEx(QAccessible::Method, int, const QV
 
 int QAccessibleWorkspace::childCount() const
 {
+    if (!workspace()->isVisible())
+        return 0;
     return workspace()->windowList().count();
 }
 
@@ -682,6 +723,8 @@ int QAccessibleWorkspace::indexOfChild(const QAccessibleInterface *child) const
 int QAccessibleWorkspace::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
+    if (!workspace()->isVisible())
+        return -1;
     QWidget *targetObject = 0;
     QWidgetList subWindows = workspace()->windowList();
     switch (relation) {
