@@ -1196,6 +1196,10 @@ bool QDockWidget::event(QEvent *event)
             layout->raise(this);
         break;
     }
+    case QEvent::WindowActivate:
+    case QEvent::WindowDeactivate:
+        update(qobject_cast<QDockWidgetLayout *>(this->layout())->titleArea());
+        break;
     case QEvent::ContextMenu:
         if (d->state) {
             event->accept();
