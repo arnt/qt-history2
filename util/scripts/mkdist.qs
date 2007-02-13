@@ -57,7 +57,6 @@ var checkoutRemove = [ new RegExp("^LICENSE.TROLL"),
                        new RegExp("^src/plugins/styles/sgi"),
                        new RegExp("^tests"),
                        new RegExp("^tmake"),
-                       new RegExp("^tools/designer/data"),
                        new RegExp("^tools/designer/tests"),
                        new RegExp("^tools/linguist/.*\\.1"),
                        new RegExp("^tools/mergetr"),
@@ -218,7 +217,8 @@ var binaryFileList = [ new RegExp("examples/tools/codecs/encodedfiles/utf-16.txt
                        new RegExp("tools/designer/src/designer/extra/names.txt") ];
 
 var finalRemove = [ new RegExp("^dist"),
-                    new RegExp("^doc/html/qt.index") ];
+                    new RegExp("^doc/html/qt.index"),
+                    new RegExp("^tools/designer/data") ];
 
 /************************************************************
  * Mapping from directories to module names
