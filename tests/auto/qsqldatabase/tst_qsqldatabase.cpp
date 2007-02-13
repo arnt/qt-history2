@@ -110,6 +110,8 @@ private slots:
 
     void ibase_numericFields_data() { generic_data(); }
     void ibase_numericFields(); // For task 125053
+    void ibase_fetchBlobs_data() { generic_data(); }
+    void ibase_fetchBlobs(); // For task 143471
 
     void formatValueTrimStrings_data() { generic_data(); }
     void formatValueTrimStrings();
@@ -1641,6 +1643,47 @@ void tst_QSqlDatabase::ibase_numericFields()
     QCOMPARE(r.field(4).precision(), 18);
     QVERIFY(r.field(0).requiredStatus() == QSqlField::Required);
     QVERIFY(r.field(1).requiredStatus() == QSqlField::Optional);
+
+    q.exec(QString("DROP TABLE %1").arg(tableName));
+
+}
+
+void tst_QSqlDatabase::ibase_fetchBlobs()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QIBASE")) {
+       QSKIP("InterBase specific test", SkipSingle);
+       return;
+    }
+
+    QString tableName = qTableName("qtest_ibaseblobs");
+    QSqlQuery q(db);
+    q.exec(QString("DROP TABLE %1").arg(tableName));
+    QVERIFY2(q.exec(QString("CREATE TABLE %1 (blob1 BLOB segment size 256)").arg(tableName)), q.lastError().text());
+    
+    QVERIFY2(q.prepare(QString("INSERT INTO %1 VALUES (?)").arg(tableName)), q.lastError().text());
+    q.bindValue(0, QByteArray().fill('x', 1024));
+    QVERIFY2(q.exec(), q.lastError().text());
+
+    QVERIFY2(q.prepare(QString("INSERT INTO %1 VALUES (?)").arg(tableName)), q.lastError().text());
+    q.bindValue(0, QByteArray().fill('x', 16383));
+    QVERIFY2(q.exec(), q.lastError().text());
+
+    QVERIFY2(q.prepare(QString("INSERT INTO %1 VALUES (?)").arg(tableName)), q.lastError().text());
+    q.bindValue(0, QByteArray().fill('x', 17408));
+    QVERIFY2(q.exec(), q.lastError().text());
+
+    QVERIFY2(q.exec(QString("SELECT * FROM %1").arg(tableName)), q.lastError().text());
+
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).toByteArray().size(), 1024);
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).toByteArray().size(), 16383);
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).toByteArray().size(), 17408);
 
     q.exec(QString("DROP TABLE %1").arg(tableName));
 

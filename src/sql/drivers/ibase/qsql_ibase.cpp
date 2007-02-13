@@ -366,15 +366,18 @@ QVariant QIBaseResultPrivate::fetchBlob(ISC_QUAD *bId)
     int chunkSize = QIBaseChunkSize;
     ba.resize(chunkSize);
     int read = 0;
-    while ( isc_get_segment(status, &handle, &len, chunkSize, ba.data() + read) == 0 || status[1] == isc_segment ){
-	read += len;
-	if ( len < chunkSize  )
-	    break;
-	ba.resize(ba.size() + chunkSize);
+    while (isc_get_segment(status, &handle, &len, chunkSize, ba.data() + read) == 0 || status[1] == isc_segment) {
+        read += len;
+        if (status[1] != isc_segment && len < chunkSize)
+            break;
+        ba.resize(ba.size() + chunkSize);
     }
 
-    bool isErr = isError(QT_TRANSLATE_NOOP("QIBaseResult", "Unable to read BLOB"),
-                         QSqlError::StatementError);
+    bool isErr = (status[1] == isc_segstr_eof ? false : 
+                    isError(QT_TRANSLATE_NOOP("QIBaseResult", 
+                                                "Unable to read BLOB"),
+                                                QSqlError::StatementError));
+
     isc_close_blob(status, &handle);
 
     if (isErr)
