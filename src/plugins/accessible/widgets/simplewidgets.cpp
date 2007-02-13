@@ -28,6 +28,22 @@
 
 #ifndef QT_NO_ACCESSIBILITY
 
+#ifndef Q_OS_MAC
+#include <qfocusframe.h>
+#endif
+
+static QList<QWidget*> childWidgets(const QWidget *widget)
+{
+    QList<QObject*> list = widget->children();
+    QList<QWidget*> widgets;
+    for (int i = 0; i < list.size(); ++i) {
+        QWidget *w = qobject_cast<QWidget *>(list.at(i));
+        if (w && !w->isWindow())
+            widgets.append(w);
+    }
+    return widgets;
+}
+
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 QString Q_GUI_EXPORT qt_accHotKey(const QString &text);
 
@@ -518,6 +534,21 @@ QAccessibleLineEdit::QAccessibleLineEdit(QWidget *w, const QString &name)
 QLineEdit *QAccessibleLineEdit::lineEdit() const
 {
     return qobject_cast<QLineEdit*>(object());
+}
+int QAccessibleLineEdit::childCount () const
+{
+    QList<QWidget*> children = childWidgets(lineEdit());
+#ifndef Q_OS_MAC
+    QList<QWidget*>::iterator it = children.begin();
+    while (it != children.end()) {
+        if (qobject_cast<QFocusFrame*>(*it)) {
+            it = children.erase(it);
+        } else {
+            ++it;
+        }
+    }
+#endif
+    return children.count();
 }
 
 /*! \reimp */
