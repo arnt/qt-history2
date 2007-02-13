@@ -42,6 +42,25 @@ General improvements
 
 - Accessibility
 
+- Graphics View
+
+    * Calling QGraphicsScene::update() without arguments now correctly updates
+      the entire scene.
+    * Changing the background brush in QGraphicsScene now correctly updates
+      the entire scene
+    * Fixed a crash in QGraphicsScene due to stale pointers in the BSP tree.
+    * QGraphicsScene::createItemGroup() now allows you to create an empty
+      group (previously caused an assert in debug mode).
+    * Fixed rendering bugs with QGraphicsPixmapItem::offset().
+    * Adding an item to a QGraphicsScene now always implicitly causes an
+      update.
+    * Fixed a crash when deleting a QGraphicsScene that is being viewed by a
+      QGraphicsView.
+    * Items with 0 width or height (e.g., a horizontal or vertical line with a
+      0-width cosmetic pen) are now rendered correctly.
+    * Fixed a crash in QGraphicsScene::destroyItemGroup(), and when removing
+      items from a group.
+
 - Item views
     * QTreeWidget, QTableWidget & QListWidget Data loss when there is data in
       custom roles and a DND copy is performed.
@@ -64,7 +83,28 @@ General improvements
 
 - Qt3 support
 
+- Q3TextEdit
+    * Fix regression where some shortcuts didn't work on Mac.
+
+- Q3Canvas
+    * Fix potential memory overrun when determining a clipping chunk.
+
+- Q3Socket
+    * Fixed unexpected remote disconnection bugs (also QTcpSocket).
+
 - QDBus
+
+- QFile
+    * Performance enhancements in QFile::copy().
+    * Allow reading past the previous end of the file if the file grows.
+    * You can now reliably use QFile::readLine() and QFile::readAll() to
+      read from stdin on all platforms.
+
+- QProcess
+    * Fixed a crash when calling QProcess::waitForFinished() from inside a
+      slot connected to one of QProcess' signals.
+    * Fixed a race condition on Windows where QProcess::bytesToWrite() would
+      return a short byte count.
 
 - QTextDocument
     * Fixed find() with backward searches
@@ -77,23 +117,34 @@ General improvements
 - QPluginLoader
     * Fixed compilation of Q_EXPORT_PLUGIN when used with templates
 
+- QTcpSocket
+    * Fixed a bug where QTcpSocket would time out when connecting to a closed
+      service on Windows.
+    * Fixed a race condition when calling waitFor...() functions with a very
+      short timeout value.
+    * Fixed unexpected remote disconnect problems on Windows.
+    * Improved the reliability of the waitFor...() functions with SOCKS5 proxy
+      support.
+
 - QTextLayout
     * Fixed rendering of surrogate pairs and cursor navigation with them
 
 - QTextEdit
     * Fixed crash in QTextEdit::setExtraSelection when used with null cursors
 
+- QTextStream
+    * Fix QTextStream::readLine() so it can be used reliably with stdin on all
+      platforms. Documentation has also been updated.
+
 - QMacStyle
     * Draw tabbars correctly regardless of the font used.
 
-- Q3TextEdit
-    * Fix regression where some shortcuts didn't work on Mac.
-
-- Q3Canvas
-    * Fix potential memory overrun when determining a clipping chunk.
-
 - QMenuBar
     * Properly mark the "text heuristic matching" strings for translation.
+
+- QPlastiqueStyle
+    * Indeterminate progress bars are now always animated, and a rendering bug
+      was fixed.
 
 - QSqlRelationalTableModel
     * Ensure that the internal cashe is cleared after 
@@ -101,6 +152,14 @@ General improvements
 
 - QSqlDriver
     * Ensure that QSqlDriver::formatValue() doesn't cut of characters from field names.
+
+- QUdpSocket
+    * Fixed a busy-wait causing the event loop to spin when writing a datagram
+      to an unbound port.
+    * QUdpSocket now reliably emits readyRead() in connected mode.
+
+- QUrl
+    * Fixed a crash when calling errorString() on an empty URL.
 
 - SQL plugins
     * Prevents crashes in QSqlQuery after reopening a closed ODBC connection.
@@ -137,9 +196,13 @@ Mac OS X
       label in "non-metal" look.
     * Fix the open source binary package to have the correct defines for development.
 
-
 Qtopia Core
 -----------
+
+    * Fixed a data corruption bug in QDataStream on ARM processors when
+      reading and writing doubles on devices where doubles have swapped word
+      order, and qreals where qreal isn't a double. Corrupt data streams
+      cannot be read.
 
 ****************************************************************************
 *                      Compiler Specific Changes                           *
