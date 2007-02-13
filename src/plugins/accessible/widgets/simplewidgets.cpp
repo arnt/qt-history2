@@ -28,7 +28,7 @@
 
 #ifndef QT_NO_ACCESSIBILITY
 
-#ifndef Q_OS_MAC
+#ifdef Q_OS_MAC
 #include <qfocusframe.h>
 #endif
 
@@ -538,7 +538,7 @@ QLineEdit *QAccessibleLineEdit::lineEdit() const
 int QAccessibleLineEdit::childCount () const
 {
     QList<QWidget*> children = childWidgets(lineEdit());
-#ifndef Q_OS_MAC
+#ifdef Q_OS_MAC
     QList<QWidget*>::iterator it = children.begin();
     while (it != children.end()) {
         if (qobject_cast<QFocusFrame*>(*it)) {
