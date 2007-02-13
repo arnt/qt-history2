@@ -478,8 +478,6 @@ void QTableModel::sort(int column, Qt::SortOrder order)
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qStableSort(sortable.begin(), sortable.end(), compare);
 
-    emit layoutAboutToBeChanged();
-
     QVector<QTableWidgetItem*> sorted_table(tableItems.count());
     QModelIndexList from;
     QModelIndexList to;
@@ -488,12 +486,13 @@ void QTableModel::sort(int column, Qt::SortOrder order)
                  ? sortable.at(i).second
                  : unsortable.at(i - sortable.count()));
         for (int c = 0; c < columnCount(); ++c) {
-            QTableWidgetItem *itm = item(r, c);
-            sorted_table[tableIndex(i, c)] = itm;
-            from << createIndex(r, c, 0);
-            to << createIndex(i, c, 0);
+            sorted_table[tableIndex(i, c)] = item(r, c);
+            from.append(createIndex(r, c, 0));
+            to.append(createIndex(i, c, 0));
         }
     }
+
+    emit layoutAboutToBeChanged();
 
     tableItems = sorted_table;
     changePersistentIndexList(from, to); // ### slow
