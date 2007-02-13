@@ -94,7 +94,7 @@
     description of how to install qvfb please consult the
     documentation at:
 
-	http://doc.trolltech.com/4.2/emb-qvfb.html
+	http://doc.trolltech.com/4.2/qtopiacore-qvfb.html
 
     Please note that qvfb requires a Qt/X11 installation.
 
