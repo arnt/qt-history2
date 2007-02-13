@@ -1139,6 +1139,8 @@ void tst_QTableWidget::sortItems()
             QCOMPARE(value, expected.at(te++));
         }
         QCOMPARE(persistent.at(i).row(), rows.at(i));
+        //qDebug() << "persistent" << persistent.at(i).row()
+        //         << "expected" << rows.at(i);
     }
 
     for (int k = 0; k < expectedHidden.count(); ++k)
@@ -1294,12 +1296,12 @@ void tst_QTableWidget::setItemWithSorting()
             persistent << model->index(r, sortColumn);
         }
         
-        w.setSortingEnabled(true);
         w.sortItems(sortColumn, static_cast<Qt::SortOrder>(sortOrder));
+        w.setSortingEnabled(true);
         
         QSignalSpy dataChangedSpy(model, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)));
         QSignalSpy layoutChangedSpy(model, SIGNAL(layoutChanged()));
-        
+
         if (i == 0) {
             // set a new item
             QTableWidgetItem *item = new QTableWidgetItem(newValue);
@@ -1309,7 +1311,7 @@ void tst_QTableWidget::setItemWithSorting()
             QTableWidgetItem *item = w.item(row, column);
             item->setText(newValue);
         }
-        
+
         ti = 0;
         for (int r = 0; r < rowCount; ++r) {
             for (int c = 0; c < columnCount; ++c) {
@@ -1318,13 +1320,17 @@ void tst_QTableWidget::setItemWithSorting()
             }
         }
         
-        for (int k = 0; k < persistent.count(); ++k)
+        for (int k = 0; k < persistent.count(); ++k) {
             QCOMPARE(persistent.at(k).row(), expectedRows.at(k));
-        
+            int i = (persistent.at(k).row() * columnCount) + sortColumn;
+            QCOMPARE(persistent.at(k).data().toString(), expectedValues.at(i));
+        }
+
         if (i == 0)
             QCOMPARE(dataChangedSpy.count(), reorderingExpected ? 0 : 1);
         else
             QCOMPARE(dataChangedSpy.count(), 1);
+
         QCOMPARE(layoutChangedSpy.count(), reorderingExpected ? 1 : 0);
     }
 }
