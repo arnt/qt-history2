@@ -373,7 +373,8 @@ QScriptValue Global::method_parseInt(QScriptContext *context,
         }
     }
 
-    const char *startPtr = str.toUtf8().constData();
+    const QByteArray ba = str.toUtf8();
+    const char *startPtr = ba.constData();
     qsreal result;
 //#if defined(Q_WS_WIN) && !defined(Q_CC_MINGW)
 // always use the Qt version for now
