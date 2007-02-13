@@ -197,6 +197,31 @@ static QPainterPath samplePath12()
                  QPointF(333.297085225735, 61.53486494396167));
     return path;
 }
+
+static QPainterPath samplePath13()
+{
+    QPainterPath path;
+    path.moveTo(QPointF(160, 200));
+    path.lineTo(QPointF(100, 200));
+    path.lineTo(QPointF(100, 130));
+    path.lineTo(QPointF(160, 130));
+    path.lineTo(QPointF(160, 200));
+    return path;
+}
+
+static QPainterPath samplePath14()
+{
+    QPainterPath path;
+    path.moveTo(QPointF(100, 180));
+    path.lineTo(QPointF(100, 80));
+    path.lineTo(QPointF(120, 80));
+    path.lineTo(QPointF(120, 100));
+    path.lineTo(QPointF(160, 100));
+    path.lineTo(QPointF(160, 180));
+    path.lineTo(QPointF(100, 180));
+    return path;
+}
+
 void tst_QPathClipper::clip_data()
 {
     //create the testtable instance and define the elements
@@ -265,6 +290,16 @@ void tst_QPathClipper::clip_data()
                                              << Paths::mailbox()*QTransform().translate(-85, 34)
                                              << QPathClipper::BoolAnd
                                              << samplePath12();
+
+    QTest::newRow( "simple_move_to1" )  << Paths::rect4()
+                                       << Paths::rect2() * QTransform().translate(-20, 50)
+                                       << QPathClipper::BoolAnd
+                                       << samplePath13();
+
+    QTest::newRow( "simple_move_to2" )  << Paths::rect4()
+                                        << Paths::rect2() * QTransform().translate(-20, 0)
+                                        << QPathClipper::BoolAnd
+                                        << samplePath14();
 }
 
 void tst_QPathClipper::clip()

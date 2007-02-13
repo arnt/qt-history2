@@ -191,6 +191,32 @@ public:
     QPointF ctrl1, ctrl2;
 };
 
+#ifdef QDEBUG_CLIPPER
+static QDebug operator<<(QDebug str, const PathVertex::TraversalFlag &b)
+{
+    QString out;
+
+    switch (b) {
+    case PathVertex::TNone:
+        out = QString::fromLatin1("TNone");
+        break;
+    case PathVertex::TEnEx:
+        out = QString::fromLatin1("TEnEx");
+        break;
+    case PathVertex::TExEn:
+        out = QString::fromLatin1("TExEn");
+        break;
+    case PathVertex::TEn:
+        out = QString::fromLatin1("TEn");
+        break;
+    case PathVertex::TEx:
+        out = QString::fromLatin1("TEx");
+        break;
+    }
+    str.nospace()<<out;
+    return str;
+}
+#endif
 
 PathVertex::PathVertex()
 {
@@ -383,7 +409,6 @@ PathVertex::~PathVertex()
 
 struct VertexList {
 public:
-    static QPainterPath toPainterPath(const VertexList *lst);
     static VertexList *fromPainterPath(const QPainterPath &path);
 public:
     PathVertex *node;
@@ -497,12 +522,6 @@ public:
 	}
     }
 
-    PathVertex *getFirstNode()
-    {
-	current_node = first_node;
-	return current_node;
-    }
-
 #ifdef QDEBUG_CLIPPER
     void dump();
 #endif
@@ -515,18 +534,22 @@ struct VertexListNavigate {
     PathVertex *cur;
     PathVertex *first;
     PathVertex *last;
+    PathVertex *prev;
+
+    PathVertex *lastMove;
 
     VertexListNavigate(const VertexList &hh)
 	: h(hh), cur(hh.first_node),
-          first(hh.first_node), last(hh.last_node)
+          first(hh.first_node), last(hh.last_node),
+          prev(hh.first_node->prev)
     {
+        lastMove = cur;
     }
 
     ~VertexListNavigate()
     {
     }
 
-    
     inline operator bool() const
     {
 	return cur ? true : false;
@@ -544,70 +567,35 @@ struct VertexListNavigate {
 
     inline void next()
     {
+        prev = cur;
+        if (cur->getType(0) == PathVertex::MoveTo)
+            lastMove = cur;
 	cur = cur ? cur->next : 0;
     }
 
-    inline PathVertex *getNextNode()
+    inline PathVertex *getNextNode() const
     {
 	PathVertex *nn = cur ? cur->next: 0;
+        if (nn && nn->getType(0) == PathVertex::MoveTo)
+            return lastMove;
 	return nn;
     }
 
-    inline PathVertex *getNode()
+    inline PathVertex *getPrevNode() const
+    {
+        return prev;
+    }
+
+    inline PathVertex *getNode() const
     {
 	return cur;
     }
 
-    inline PathVertex *getFirstNode()
+    inline PathVertex *getLastMove() const
     {
-	return first;
+        return lastMove;
     }
 };
-
-
-QPainterPath VertexList::toPainterPath(const VertexList *lst)
-{
-    QPainterPath path;
-
-    VertexListNavigate navigator(*lst);
-
-    PathVertex *start = navigator.getNode();
-    PathVertex *cur   = start;
-    PathVertex *prev = 0;
-
-    while (1) {
-        //do something
-        switch(cur->getType(prev)) {
-        case PathVertex::MoveTo:
-            path.moveTo(cur->getPoint());
-            break;
-        case PathVertex::LineTo:
-            path.lineTo(cur->getPoint());
-            break;
-        case PathVertex::CurveTo:
-            path.cubicTo(cur->ctrl1, cur->ctrl2,
-                         cur->getPoint());
-            break;
-        case PathVertex::MoveCurveTo:
-            qWarning("Can't handle move/curve");
-            break;
-        case PathVertex::MoveLineTo:
-            qWarning("Can't handle move/line");
-            break;
-        case PathVertex::BezierIntersection:
-        case PathVertex::LineIntersection:
-            qFatal("Should never happen");
-            break;
-        }
-
-        navigator.forward();
-        cur = navigator.getNode();
-        if (start == cur)
-            break;
-    }
-
-    return path;
-}
 
 VertexList *VertexList::fromPainterPath(const QPainterPath &path)
 {
@@ -1073,6 +1061,8 @@ public:
                 prev_s = LIn;
             else
                 prev_s = classifyPointLocation(midPoint(prev, cur), B_p, op);
+
+            //Q_ASSERT(prev_s == classifyPointLocation(midPoint(prev, cur), B_p, op));
         }
 
         if (isEdgeIn(cur, next))
@@ -1080,7 +1070,9 @@ public:
         else {
             next_s = classifyPointLocation(midPoint(cur, next), B_p, op);
         }
-        //qDebug()<<prev_p<<cur_p<<next_p<<prev_s<<next_s;
+#ifdef QDEBUG_CLIPPER
+        qDebug()<<"XXX Generating code = "<<prev_p<<cur_p<<next_p<<prev_s<<next_s;
+#endif
         if (prev_s == LOn  && next_s == LOn)  return PathVertex::TNone;
         if (prev_s == LOn  && next_s == LOut) return PathVertex::TEx;
         if (prev_s == LOn  && next_s == LIn)  return PathVertex::TEn;
@@ -1103,9 +1095,10 @@ public:
 
         PathVertex *start, *cur, *prev, *next;
 
-        start = cur = subject->getFirstNode();
-        prev = cur->prev;
-        next = cur->next;
+        VertexListNavigate subjItr(*subject);
+        start = cur = subjItr.getNode();
+        prev = subjItr.getPrevNode();
+        next = subjItr.getNextNode();
 
         PathVertex::TraversalFlag prev_code = PathVertex::TNone;
 
@@ -1119,16 +1112,17 @@ public:
 
             cur->setCode(code);
 
+            subjItr.next();
             prev = cur;
-            cur	 = next;
-            next = cur->next;
+            cur	 = subjItr.getNode();
+            next = subjItr.getNextNode();
 
             if (cur == start) break;
         }
-
-        start = cur = clipper->getFirstNode();
-        prev = cur->prev;
-        next = cur->next;
+        VertexListNavigate clipItr(*clipper);
+        start = cur = clipItr.getNode();
+        prev = clipItr.getPrevNode();
+        next = clipItr.getNextNode();
 
         prev_code = PathVertex::TNone;
         //qDebug()<<"//////////////////////////////////////////////////////";
@@ -1142,9 +1136,10 @@ public:
 
             cur->setCode(code);
 
+            clipItr.next();
             prev = cur;
-            cur	 = next;
-            next = cur->next;
+            cur	 = clipItr.getNode();
+            next = clipItr.getNextNode();
 
             if (cur == start) break;
         }
@@ -1312,7 +1307,7 @@ public:
                 v->alpha = alpha;
                 one = one->next;
                 while (one && one != two &&
-                       (one->intersect == PathVertex::DNone ||
+                       (one->intersect != PathVertex::DNone &&
                         alpha > one->alpha))
                     one = one->next;
                 if (one)
@@ -1491,27 +1486,18 @@ public:
             return;
         }
 
-        PathVertex *lastSubjMove = 0, *lastClipMove = 0;
         for (VertexListNavigate subj(*subject); subj ; subj.next()) {
             PathVertex *a = subj.getNode();
-            PathVertex *b = (subj.getNextNode())?subj.getNextNode():subj.getFirstNode();
+            PathVertex *b = (subj.getNextNode())?subj.getNextNode():subj.getLastMove();
             if (!b)
                 break;
-            if (b->getType(0) == PathVertex::MoveTo)
-                b = lastSubjMove;
-            if (a->getType(0) == PathVertex::MoveTo)
-                lastSubjMove = a;
 
             for (VertexListNavigate obj(*clipper); obj ; obj.next()) {
                 PathVertex *c = obj.getNode();
-                PathVertex *d = (obj.getNextNode())?obj.getNextNode():obj.getFirstNode();;
+                PathVertex *d = (obj.getNextNode())?obj.getNextNode():obj.getLastMove();;
                 if (!d)
                     break;
 
-                if (d->getType(0) == PathVertex::MoveTo)
-                    d = lastClipMove;
-                if (c->getType(0) == PathVertex::MoveTo)
-                    lastClipMove = c;
                 intersectEdges(a, b,
                                c, d);
             }
@@ -1534,27 +1520,18 @@ public:
             return intersects;
         }
 
-        PathVertex *lastSubjMove = 0, *lastClipMove = 0;
         for (VertexListNavigate subj(*subject); subj ; subj.next()) {
             PathVertex *a = subj.getNode();
-            PathVertex *b = (subj.getNextNode())?subj.getNextNode():subj.getFirstNode();
+            PathVertex *b = (subj.getNextNode())?subj.getNextNode():subj.getLastMove();
             if (!b)
                 break;
-            if (b->getType(0) == PathVertex::MoveTo)
-                b = lastSubjMove;
-            if (a->getType(0) == PathVertex::MoveTo)
-                lastSubjMove = a;
 
             for (VertexListNavigate obj(*clipper); obj ; obj.next()) {
                 PathVertex *c = obj.getNode();
-                PathVertex *d = (obj.getNextNode())?obj.getNextNode():obj.getFirstNode();;
+                PathVertex *d = (obj.getNextNode())?obj.getNextNode():obj.getLastMove();;
                 if (!d)
                     break;
 
-                if (d->getType(0) == PathVertex::MoveTo)
-                    d = lastClipMove;
-                if (c->getType(0) == PathVertex::MoveTo)
-                    lastClipMove = c;
                 intersects = doEdgesIntersect(a, b,
                                               c, d);
                 if (intersects)
@@ -1734,6 +1711,14 @@ QPainterPath QPathClipper::clipPath() const
 QPainterPath QPathClipper::clip(Operation op)
 {
     d->op = op;
+
+
+#ifdef QDEBUG_CLIPPER
+    qDebug("xxxxxxxxxxxxxxxxxxxxxxxxx");
+    d->subject->dump();
+    d->clipper->dump();
+    qDebug("uuuuuyyyyyyyyyyyyyyyyyyyyy");
+#endif
 
     d->findIntersections();
 
