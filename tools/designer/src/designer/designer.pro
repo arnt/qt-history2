@@ -51,7 +51,8 @@ HEADERS += \
     extra/itemdialog.h \
     extra/oubliette.h \
     extra/oublietteplan.h \
-    extra/oublietteview.h
+    extra/oublietteview.h \
+    designer_enums.h
 
 SOURCES += main.cpp \
     qdesigner.cpp \

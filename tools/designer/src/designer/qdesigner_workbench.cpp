@@ -130,7 +130,7 @@ void QDesignerWorkbench::Position::applyTo(QDockWidget *dockWidget) const
 // -------- QDesignerWorkbench
 
 QDesignerWorkbench::QDesignerWorkbench()
-    : m_mode(QDesignerWorkbench::NeutralMode), m_mdiArea(0)
+    : m_mode(NeutralMode), m_mdiArea(0)
 {
     m_initializing = true;
     initialize();
@@ -184,7 +184,7 @@ void QDesignerWorkbench::saveGeometries()
     }
 }
 
-QDesignerWorkbench::UIMode QDesignerWorkbench::mode() const
+UIMode QDesignerWorkbench::mode() const
 {
     return m_mode;
 }
@@ -929,7 +929,7 @@ bool QDesignerWorkbench::readInBackup()
     if(!backupFileMap.isEmpty()) {
         if (QMessageBox::question(0, tr("Backup Information"),
                                     tr("Designer was not correctly terminated during your last session."
-                                       "There are existing Backup files, do you wan't to load them?"),
+                                       "There are existing Backup files, do you want to load them?"),
                                     tr("&Yes"), tr("&No"), QString(), 0, 1) == 0)
         {
             QMapIterator<QString, QString> it(backupFileMap);

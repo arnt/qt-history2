@@ -26,26 +26,44 @@
 
 #include <QtCore/qdebug.h>
 
-QDesignerSettings::QDesignerSettings()
-    : QSettings()
+static bool ensurePath(const QString &path)
 {
-    m_designerPath = QLatin1String("/.designer");
+    QDir current(QDir::current());
+    if (current.exists(path) || current.mkpath(path))
+        return true;
 
-    QStringList paths = defaultFormTemplatePaths();
-    foreach (QString path, paths) {
-        if (!QDir::current().exists(path))
-            QDir::current().mkpath(path);
-    }
+    qWarning() << "Unable to create the template path " << path << '.';
+    return false;
 }
 
-QDesignerSettings::~QDesignerSettings()
+QDesignerSettings::QDesignerSettings() :
+   m_designerPath(QLatin1String("/.designer"))
 {
+}
+
+QStringList QDesignerSettings::defaultFormTemplatePaths() const
+{
+    QStringList rc;
+    // Ensure default form template paths
+    const QString templatePath = QLatin1String("/templates");
+    // home
+    QString path = QDir::homePath();
+    path += m_designerPath;
+    path += templatePath;
+    if (ensurePath(path))
+        rc += path;
+
+    // designer/bin
+    path = qDesigner->applicationDirPath();
+    path += templatePath;
+    if (ensurePath(path))
+        rc += path;
+    return rc;
 }
 
 QStringList QDesignerSettings::formTemplatePaths() const
 {
-    return value(QLatin1String("FormTemplatePaths"),
-                 defaultFormTemplatePaths()).toStringList();
+    return value(QLatin1String("FormTemplatePaths"),defaultFormTemplatePaths()).toStringList();
 }
 
 void QDesignerSettings::setFormTemplatePaths(const QStringList &paths)
@@ -55,19 +73,10 @@ void QDesignerSettings::setFormTemplatePaths(const QStringList &paths)
 
 QString QDesignerSettings::defaultUserWidgetBoxXml() const
 {
-    return QDir::homePath() + m_designerPath + QLatin1String("/widgetbox.xml");
-}
-
-QStringList QDesignerSettings::defaultFormTemplatePaths() const
-{
-    QStringList paths;
-
-    QString templatePath = QLatin1String("/templates");
-
-    paths.append(QDir::homePath() + m_designerPath + templatePath);
-    paths.append(qDesigner->applicationDirPath() + templatePath);
-
-    return paths;
+    QString rc = QDir::homePath();
+    rc +=  m_designerPath;
+    rc += QLatin1String("/widgetbox.xml");
+    return rc;
 }
 
 void QDesignerSettings::saveGeometryFor(const QWidget *w)
@@ -100,10 +109,9 @@ void QDesignerSettings::saveGeometryHelper(const QWidget *w, const QString &key)
 void QDesignerSettings::setGeometryHelper(QWidget *w, const QString &key,
                                           const QRect &fallBack) const
 {
-//    beginGroup();
-    int screen = value(key + QLatin1String("/screen"), 0).toInt();
+    const int screen = value(key + QLatin1String("/screen"), 0).toInt();
     QRect g = value(key + QLatin1String("/geometry"), fallBack).toRect();
-    QRect screenRect = QApplication::desktop()->availableGeometry(screen);
+    const QRect screenRect = QApplication::desktop()->availableGeometry(screen);
 
     // Do geometry in a couple of steps
     // 1) Make sure the rect is within the specified geometry
@@ -148,7 +156,6 @@ void QDesignerSettings::setGeometryHelper(QWidget *w, const QString &key,
 
     if (value(key + QLatin1String("/visible"), true).toBool())
         w->show();
-//    endGroup();
 }
 
 QStringList QDesignerSettings::recentFilesList() const
@@ -171,18 +178,19 @@ bool QDesignerSettings::showNewFormOnStartup() const
     return value(QLatin1String("newFormDialog/ShowOnStartup"), true).toBool();
 }
 
-void QDesignerSettings::setUIMode(int mode)
+void QDesignerSettings::setUIMode(UIMode mode)
 {
     setValue(QLatin1String("UI/currentMode"), mode);
 }
 
-int QDesignerSettings::uiMode() const
+UIMode QDesignerSettings::uiMode() const
 {
-#if defined(Q_WS_WIN)
-    return value(QLatin1String("UI/currentMode"), QDesignerWorkbench::DockedMode).toInt();
+#ifdef Q_WS_WIN
+    const UIMode defaultMode = DockedMode;
 #else
-    return value(QLatin1String("UI/currentMode"), QDesignerWorkbench::TopLevelMode).toInt();
+    const UIMode defaultMode = TopLevelMode;
 #endif
+    return static_cast<UIMode>(value(QLatin1String("UI/currentMode"), defaultMode).toInt());
 }
 
 QByteArray QDesignerSettings::mainWindowState() const
@@ -203,13 +211,8 @@ void QDesignerSettings::clearBackup()
 
 void QDesignerSettings::setBackup(const QMap<QString, QString> &map)
 {
-    QMapIterator<QString, QString> it(map);
-    QStringList org, bak;
-    while (it.hasNext()) {
-        it.next();
-        bak.append(it.value());
-        org.append(it.key());
-    }
+    const QStringList org = map.keys();
+    const QStringList bak = map.values();
 
     setValue(QLatin1String("backup/fileListOrg"), org);
     setValue(QLatin1String("backup/fileListBak"), bak);
@@ -217,10 +220,9 @@ void QDesignerSettings::setBackup(const QMap<QString, QString> &map)
 
 QMap<QString, QString> QDesignerSettings::backup() const
 {
-    QStringList org, bak;
-    org = value(QLatin1String("backup/fileListOrg"), QStringList()).toStringList();
-    bak = value(QLatin1String("backup/fileListBak"), QStringList()).toStringList();
-    
+    const QStringList org = value(QLatin1String("backup/fileListOrg"), QStringList()).toStringList();
+    const QStringList bak = value(QLatin1String("backup/fileListBak"), QStringList()).toStringList();
+
     QMap<QString, QString> map;
     for (int i = 0; i < org.count(); ++i)
         map.insert(org.at(i), bak.at(i));

@@ -14,6 +14,8 @@
 #ifndef QDESIGNER_WORKBENCH_H
 #define QDESIGNER_WORKBENCH_H
 
+#include "designer_enums.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QHash>
 #include <QtCore/QSet>
@@ -45,13 +47,6 @@ class QDesignerIntegration;
 class QDesignerWorkbench: public QObject
 {
     Q_OBJECT
-public:
-    enum UIMode
-    {
-        NeutralMode,
-        TopLevelMode,
-        DockedMode
-    };
 
 public:
     QDesignerWorkbench();

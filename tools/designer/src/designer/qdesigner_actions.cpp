@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qdesigner_actions.h"
+#include "designer_enums.h"
 #include "qdesigner.h"
 #include "qdesigner_workbench.h"
 #include "qdesigner_formwindow.h"
@@ -241,10 +242,10 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     switch (settings.uiMode()) {
         default: Q_ASSERT(0); break;
 
-        case QDesignerWorkbench::TopLevelMode:
+        case TopLevelMode:
             m_sdiAction->setChecked(true);
             break;
-        case QDesignerWorkbench::DockedMode:
+        case DockedMode:
             m_dockedMdiAction->setChecked(true);
             break;
     }
@@ -558,14 +559,11 @@ void QDesignerActions::notImplementedYet()
 
 void QDesignerActions::updateUIMode(QAction *act)
 {
-    QDesignerWorkbench::UIMode mode = QDesignerWorkbench::TopLevelMode;
-    if (act == m_dockedMdiAction)
-        mode = QDesignerWorkbench::DockedMode;
-
+    const UIMode mode = act == m_dockedMdiAction ? DockedMode : TopLevelMode;
     QDesignerSettings settings;
     settings.setUIMode(mode);
 
-    m_workbench->setUIMode(QDesignerWorkbench::UIMode(settings.uiMode()));
+    m_workbench->setUIMode(mode);
 }
 
 void QDesignerActions::previewFormLater(QAction *action)
@@ -1187,7 +1185,7 @@ QRect QDesignerActions::fixDialogRect(const QRect &rect) const
     QRect frameGeometry;
     const QRect availableGeometry = QApplication::desktop()->availableGeometry(core()->topLevel());
 
-    if (workbench()->mode() == QDesignerWorkbench::DockedMode) {
+    if (workbench()->mode() == DockedMode) {
         frameGeometry = core()->topLevel()->frameGeometry();
     } else
         frameGeometry = availableGeometry;
@@ -1206,7 +1204,7 @@ QRect QDesignerActions::fixDialogRect(const QRect &rect) const
 
 void QDesignerActions::showStatusBarMessage(const QString &message) const
 {
-    if (workbench()->mode() == QDesignerWorkbench::DockedMode) {
+    if (workbench()->mode() == DockedMode) {
         QStatusBar *bar = qDesigner->mainWindow()->statusBar();
         if (bar && !bar->isHidden())
             bar->showMessage(message, 3000);
