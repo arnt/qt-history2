@@ -46,6 +46,16 @@ General improvements
     * QTreeWidget, QTableWidget & QListWidget Data loss when there is data in
       custom roles and a DND copy is performed.
 
+  * Fixed signal emission bugs in QSqlQueryModel and QSqlTableModel that
+    caused the view to contain invalid items when used with a
+    QSortFilterProxyModel.
+
+  * Fixed crash in QSortFilterProxyModel when calling filterChanged().
+
+  * Fixed a bug in QSortFilterProxyModel that could cause it to enter an
+    invalid state when filtering items in a hierarchy, causing items in a
+    QTreeView to erroneously be collapsed.
+
 - QComboBox
     * Fixed broken case sensitive completion
 
