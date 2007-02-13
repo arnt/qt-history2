@@ -561,6 +561,7 @@ CFG_USER_BUILD_KEY=
 CFG_ACCESSIBILITY=auto
 CFG_QT3SUPPORT=yes
 CFG_ENDIAN=auto
+CFG_DOUBLEFORMAT=auto
 CFG_ARMFPA=auto
 CFG_IWMMXT=no
 CFG_CLOCK_MONOTONIC=auto
@@ -4234,6 +4235,35 @@ if [ "$CFG_ENDIAN" = "auto" ]; then
     fi
 fi
 
+if [ "$CFG_DOUBLEFORMAT" = "auto" ]; then
+    if [ "$PLATFORM_QWS" != "yes" ]; then
+        CFG_DOUBLEFORMAT=normal
+    else
+        "$unixtests/doubleformat.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath"
+	F="$?"
+        if [ "$F" -eq 10 ] && [ "$CFG_ENDIAN" = "Q_LITTLE_ENDIAN" ]; then
+            CFG_DOUBLEFORMAT=normal
+        elif [ "$F" -eq 11 ] && [ "$CFG_ENDIAN" = "Q_BIG_ENDIAN" ]; then
+            CFG_DOUBLEFORMAT=normal
+        elif [ "$F" -eq 10 ]; then
+            CFG_DOUBLEFORMAT="Q_DOUBLE_LITTLE"
+        elif [ "$F" -eq 11 ]; then
+            CFG_DOUBLEFORMAT="Q_DOUBLE_BIG"
+        elif [ "$F" -eq 12 ]; then
+            CFG_DOUBLEFORMAT="Q_DOUBLE_LITTLE_SWAPPED"
+        elif [ "$F" -eq 13 ]; then
+            CFG_DOUBLEFORMAT="Q_DOUBLE_BIG_SWAPPED"
+        else
+            echo
+	    echo "The system floating point format could not be detected."
+	    echo "This may cause data to be generated in a wrong format"
+	    echo "Turn on verbose messaging (-v) to see the final report."
+	    # we do not fail on this since this is a new test, and if it fails, 
+	    # the old behavior should be correct in most cases
+            CFG_DOUBLEFORMAT=normal
+        fi
+    fi
+fi
 if [ "$CFG_STL" != "no" ]; then
     if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/stl "STL" $L_FLAGS $I_FLAGS $l_FLAGS; then
         CFG_STL=yes
@@ -4874,6 +4904,16 @@ else
     echo "#define Q_BYTE_ORDER $CFG_ENDIAN" >>"$outpath/src/corelib/global/qconfig.h.new"
 fi
 
+if [ "$CFG_DOUBLEFORMAT" != "normal" ]; then
+    cat >>"$outpath/src/corelib/global/qconfig.h.new" <<EOF
+/* Non-IEEE double format */
+#define Q_DOUBLE_LITTLE "01234567"
+#define Q_DOUBLE_BIG "76543210"
+#define Q_DOUBLE_LITTLE_SWAPPED "45670123"
+#define Q_DOUBLE_BIG_SWAPPED "32107654"
+#define Q_DOUBLE_FORMAT $CFG_DOUBLEFORMAT
+EOF
+fi 
 if [ "$CFG_ARMFPA" = "yes" ]; then
     echo "#define QT_ARMFPA" >>"$outpath/src/corelib/global/qconfig.h.new"
 fi

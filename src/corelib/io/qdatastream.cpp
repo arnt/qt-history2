@@ -753,6 +753,9 @@ QDataStream &QDataStream::operator>>(float &f)
     return *this;
 }
 
+#if defined(Q_DOUBLE_FORMAT)
+#define Q_DF(x) Q_DOUBLE_FORMAT[(x)] - '0'
+#endif
 
 /*!
     \overload
@@ -766,6 +769,7 @@ QDataStream &QDataStream::operator>>(double &f)
 {
     f = 0.0;
     CHECK_STREAM_PRECOND(*this)
+#ifndef Q_DOUBLE_FORMAT
     if (noswap) {
         if (dev->read((char *)&f, 8) != 8) {
             f = 0.0;
@@ -787,6 +791,34 @@ QDataStream &QDataStream::operator>>(double &f)
             setStatus(ReadPastEnd);
         }
     }
+#else
+    //non-standard floating point format
+    register uchar *p = (uchar *)(&f);
+    char b[8];
+    if (dev->read(b, 8) == 8) {
+        if (noswap) {
+            *p++ = b[Q_DF(0)];
+            *p++ = b[Q_DF(1)];
+            *p++ = b[Q_DF(2)];
+            *p++ = b[Q_DF(3)];
+            *p++ = b[Q_DF(4)];
+            *p++ = b[Q_DF(5)];
+            *p++ = b[Q_DF(6)];
+            *p = b[Q_DF(7)];
+        } else {
+            *p++ = b[Q_DF(7)];
+            *p++ = b[Q_DF(6)];
+            *p++ = b[Q_DF(5)];
+            *p++ = b[Q_DF(4)];
+            *p++ = b[Q_DF(3)];
+            *p++ = b[Q_DF(2)];
+            *p++ = b[Q_DF(1)];
+            *p = b[Q_DF(0)];
+        }
+    } else {
+        setStatus(ReadPastEnd);
+    }
+#endif
     return *this;
 }
 
@@ -1055,6 +1087,7 @@ QDataStream &QDataStream::operator<<(float f)
 QDataStream &QDataStream::operator<<(double f)
 {
     CHECK_STREAM_PRECOND(*this)
+#ifndef Q_DOUBLE_FORMAT
     if (noswap) {
         dev->write((char *)&f, sizeof(double));
     } else {
@@ -1070,6 +1103,30 @@ QDataStream &QDataStream::operator<<(double f)
         b[0] = *p;
         dev->write(b, 8);
     }
+#else
+    register uchar *p = (uchar *)(&f);
+    char b[8];
+    if (noswap) {
+        b[Q_DF(0)] = *p++;
+        b[Q_DF(1)] = *p++;
+        b[Q_DF(2)] = *p++;
+        b[Q_DF(3)] = *p++;
+        b[Q_DF(4)] = *p++;
+        b[Q_DF(5)] = *p++;
+        b[Q_DF(6)] = *p++;
+        b[Q_DF(7)] = *p;
+    } else {
+        b[Q_DF(7)] = *p++;
+        b[Q_DF(6)] = *p++;
+        b[Q_DF(5)] = *p++;
+        b[Q_DF(4)] = *p++;
+        b[Q_DF(3)] = *p++;
+        b[Q_DF(2)] = *p++;
+        b[Q_DF(1)] = *p++;
+        b[Q_DF(0)] = *p;
+    }
+    dev->write(b, 8);
+#endif
     return *this;
 }
 
