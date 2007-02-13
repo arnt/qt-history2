@@ -477,10 +477,8 @@ void tst_QPrinter::changingOutputFormat()
 {
     QPrinter p;
     p.setOutputFormat(QPrinter::PostScriptFormat);
-    p.setNumCopies(42);
     p.setPageSize(QPrinter::A8);
     p.setOutputFormat(QPrinter::PdfFormat);
-    QCOMPARE(p.numCopies(), 42);
     QCOMPARE(p.pageSize(), QPrinter::A8);
 }
 
