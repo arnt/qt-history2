@@ -27,7 +27,7 @@
 #ifndef QUNICODETABLES_P_H
 #define QUNICODETABLES_P_H
 
-#include <qchar.h>
+#include <QtCore/qchar.h>
 
 namespace QUnicodeTables {
     struct Properties {
