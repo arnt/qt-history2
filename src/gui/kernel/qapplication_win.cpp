@@ -2496,7 +2496,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         }
     }
 
-    for (i=0; (UINT)mouseTbl[i] != msg.message || !mouseTbl[i]; i += 3)
+    for (i=0; (UINT)mouseTbl[i] != msg.message && mouseTbl[i]; i += 3)
         ;
     if (!mouseTbl[i])
         return false;
