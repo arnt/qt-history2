@@ -2977,6 +2977,8 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 if (idx != -1) {
                     X11->deferred_map.removeAt(idx);
                     Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
+                    widget->setAttribute(Qt::WA_Mapped);
+                    widget->d_func()->topData()->waitingForMapNotify = 1;
                     XMapWindow(X11->display, widget->internalWinId());
                 }
             }
@@ -4099,6 +4101,8 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
             // map the window if we were waiting for a transition to
             // withdrawn
             if (X11->deferred_map.removeAll(this)) {
+                setAttribute(Qt::WA_Mapped);
+                d->topData()->waitingForMapNotify = 1;
                 XMapWindow(X11->display, internalWinId());
             } else if (isVisible()
                        && !testAttribute(Qt::WA_Mapped)
@@ -4134,6 +4138,8 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                     // map the window if we were waiting for a
                     // transition to withdrawn
                     if (X11->deferred_map.removeAll(this)) {
+                        setAttribute(Qt::WA_Mapped);
+                        d->topData()->waitingForMapNotify = 1;
                         XMapWindow(X11->display, internalWinId());
                     } else if (isVisible()
                                && !testAttribute(Qt::WA_Mapped)
