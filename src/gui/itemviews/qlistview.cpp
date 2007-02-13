@@ -1057,16 +1057,14 @@ void QListView::paintEvent(QPaintEvent *e)
                     alternateBase = (row & 1) != 0;
                 }
             }
-            QBrush fill;
             if (alternateBase) {
                 option.features |= QStyleOptionViewItemV2::Alternate;
-                fill = option.palette.brush(QPalette::AlternateBase);
             } else {
                 option.features &= ~QStyleOptionViewItemV2::Alternate;
-                fill = option.palette.brush(QPalette::Base);
             }
+            if (alternateBase)
+                painter.fillRect(option.rect, option.palette.alternateBase());
             alternateBase = !alternateBase;
-            painter.fillRect(option.rect, fill);
             previousRow = row;
         }
 
