@@ -524,14 +524,10 @@ bool QMainWindowLayoutState::restoreState(QDataStream &stream,
         if (path.isEmpty()) {
             QList<int> oldPath = oldState.dockAreaLayout.indexOf(w);
             if (oldPath.isEmpty()) {
-                qWarning("QMainWindowLayout::restoreState(): failed to find %p "
-                        "in the old layout", w);
                 continue;
             }
             QDockAreaLayoutInfo *info = dockAreaLayout.info(oldPath);
             if (info == 0) {
-                qWarning("QMainWindowLayout::restoreState(): failed to find location for %p "
-                        "in the new layout", w);
                 continue;
             }
             info->item_list.append(QDockAreaLayoutItem(new QDockWidgetItem(w)));
@@ -550,8 +546,6 @@ bool QMainWindowLayoutState::restoreState(QDataStream &stream,
         if (path.isEmpty()) {
             QList<int> oldPath = oldState.toolBarAreaLayout.indexOf(w);
             if (oldPath.isEmpty()) {
-                qWarning("QMainWindowLayout::restoreState(): failed to find %p "
-                        "in the old layout", w);
                 continue;
             }
             toolBarAreaLayout.docks[oldPath.at(0)].insertToolBar(0, w);
