@@ -2602,6 +2602,7 @@ void tst_QAccessibility::dialogButtonBoxTest()
 void tst_QAccessibility::dialTest()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     QDial dial;
     dial.setValue(20);
     QCOMPARE(dial.value(), 20);
@@ -2609,7 +2610,6 @@ void tst_QAccessibility::dialTest()
 #if defined(Q_WS_X11)
     qt_x11_wait_for_window_manager(&dial);
 #endif
-
     QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&dial);
     QVERIFY(interface);
 
@@ -2639,6 +2639,7 @@ void tst_QAccessibility::dialTest()
     QVERIFY(interface->rect(1).contains(interface->rect(2)));
     QVERIFY(!interface->rect(3).isValid());
 
+    }
     QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
