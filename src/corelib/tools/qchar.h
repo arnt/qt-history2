@@ -245,10 +245,10 @@ public:
     inline void setRow(uchar row);
 
     static inline uint surrogateToUcs4(ushort high, ushort low) {
-        return (high<<10) + low - 0x35fdc00;
+        return (uint(high)<<10) + low - 0x35fdc00;
     }
     static inline uint surrogateToUcs4(QChar high, QChar low) {
-        return (high.ucs<<10) + low.ucs - 0x35fdc00;
+        return (uint(high.ucs)<<10) + low.ucs - 0x35fdc00;
     }
     static inline ushort highSurrogate(uint ucs4) {
         return (ucs4>>10) + 0xd7c0;
