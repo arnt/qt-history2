@@ -18,6 +18,84 @@ extern void qt_x11_wait_for_window_manager(QWidget *w);
 #endif
 
 
+static inline bool verifyChild(QWidget *child, QAccessibleInterface *interface,
+                               int index, const QRect &domain)
+{
+    if (!child) {
+        qWarning("tst_QAccessibility::verifyChild: null pointer to child.");
+        return false;
+    }
+
+    if (!interface) {
+        qWarning("tst_QAccessibility::verifyChild: null pointer to interface.");
+        return false;
+    }
+
+    // QAccessibleInterface::childAt():
+    // Calculate global child position and check that the interface
+    // returns the correct index for that position.
+    QPoint globalChildPos = child->mapToGlobal(QPoint(0, 0));
+    int indexFromChildAt = interface->childAt(globalChildPos.x(), globalChildPos.y());
+    if (indexFromChildAt != index) {
+        qWarning("tst_QAccessibility::verifyChild (childAt()):");
+        qWarning() << "Expected:" << index;
+        qWarning() << "Actual:  " << indexFromChildAt;
+        return false;
+    }
+
+    // QAccessibleInterface::rect():
+    // Calculate global child geometry and check that the interface
+    // returns a QRect which is equal to the calculated QRect.
+    const QRect expectedGlobalRect = QRect(globalChildPos, child->size());
+    const QRect rectFromInterface = interface->rect(index);
+    if (expectedGlobalRect != rectFromInterface) {
+        qWarning("tst_QAccessibility::verifyChild (rect()):");
+        qWarning() << "Expected:" << expectedGlobalRect;
+        qWarning() << "Actual:  " << rectFromInterface;
+        return false;
+    }
+
+    // Verify that the child is within its domain.
+    if (!domain.contains(rectFromInterface)) {
+        qWarning("tst_QAccessibility::verifyChild: Child is not within its domain.");
+        return false;
+    }
+
+    // Verify that we get a valid QAccessibleInterface for the child.
+    QAccessibleInterface *childInterface = QAccessible::queryAccessibleInterface(child);
+    if (!childInterface) {
+        qWarning("tst_QAccessibility::verifyChild: Failed to retrieve interface for child.");
+        return false;
+    }
+
+    // QAccessibleInterface::indexOfChild():
+    // Verify that indexOfChild() returns an index equal to the index passed by,
+    // or -1 if child is "Self" (index == 0).
+    int indexFromIndexOfChild = interface->indexOfChild(childInterface);
+    delete childInterface;
+    int expectedIndex = index == 0 ? -1 : index;
+    if (indexFromIndexOfChild != expectedIndex) {
+        qWarning("tst_QAccessibility::verifyChild (indexOfChild()):");
+        qWarning() << "Expected:" << expectedIndex;
+        qWarning() << "Actual:  " << indexFromIndexOfChild;
+        return false;
+    }
+    return true;
+}
+
+static inline int indexOfChild(QAccessibleInterface *parentInterface, QWidget *childWidget)
+{
+    if (!parentInterface || !childWidget)
+        return -1;
+    QAccessibleInterface *childInterface = QAccessibleInterface::queryAccessibleInterface(childWidget);
+    if (!childInterface)
+        return -1;
+    int index = parentInterface->indexOfChild(childInterface);
+    delete childInterface;
+    return index;
+}
+
+
 //TESTED_FILES=
 
 class tst_QAccessibility : public QObject
@@ -73,6 +151,7 @@ private slots:
     void dialogButtonBoxTest();
     void dialTest();
     void rubberBandTest();
+    void abstractScrollAreaTest();
 
 private:
     QWidget *createGUI();
@@ -2695,6 +2774,218 @@ void tst_QAccessibility::rubberBandTest()
     QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&rubberBand);
     QVERIFY(interface);
     QCOMPARE(interface->role(0), QAccessible::Border);
+    QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
+void tst_QAccessibility::abstractScrollAreaTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QAbstractScrollArea abstractScrollArea;
+
+    QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&abstractScrollArea);
+    QVERIFY(interface);
+    QCOMPARE(interface->childCount(), 0);
+    QVERIFY(!interface->rect(0).isValid());
+    QVERIFY(!interface->rect(1).isValid());
+    QCOMPARE(interface->childAt(200, 200), -1);
+
+    abstractScrollArea.resize(400, 400);
+    abstractScrollArea.show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(&abstractScrollArea);
+#endif
+    const QRect globalGeometry = QRect(abstractScrollArea.mapToGlobal(QPoint(0, 0)),
+                                       abstractScrollArea.size());
+    QVERIFY(verifyChild(&abstractScrollArea, interface, 0, globalGeometry));
+
+    // Viewport.
+    QCOMPARE(interface->childCount(), 1);
+    QWidget *viewport = abstractScrollArea.viewport();
+    QVERIFY(viewport);
+    QVERIFY(verifyChild(viewport, interface, 1, globalGeometry));
+
+    // Horizontal scrollBar.
+    abstractScrollArea.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    QCOMPARE(interface->childCount(), 2);
+    QWidget *horizontalScrollBar = abstractScrollArea.horizontalScrollBar();
+    QVERIFY(verifyChild(horizontalScrollBar, interface, 2, globalGeometry));
+
+    // Horizontal scrollBar widgets.
+    QLabel *secondLeftLabel = new QLabel(QLatin1String("L2"));
+    abstractScrollArea.addScrollBarWidget(secondLeftLabel, Qt::AlignLeft);
+    QCOMPARE(interface->childCount(), 3);
+    QVERIFY(verifyChild(secondLeftLabel, interface, 3, globalGeometry));
+
+    QLabel *firstLeftLabel = new QLabel(QLatin1String("L1"));
+    abstractScrollArea.addScrollBarWidget(firstLeftLabel, Qt::AlignLeft);
+    QCOMPARE(interface->childCount(), 4);
+    // NB! index = 2 because firstLeftLabel is the first left label.
+    QVERIFY(verifyChild(firstLeftLabel, interface, 3, globalGeometry));
+
+    QLabel *secondRightLabel = new QLabel(QLatin1String("R2"));
+    abstractScrollArea.addScrollBarWidget(secondRightLabel, Qt::AlignRight);
+    QCOMPARE(interface->childCount(), 5);
+    QVERIFY(verifyChild(secondRightLabel, interface, 5, globalGeometry));
+
+    QLabel *firstRightLabel = new QLabel(QLatin1String("R1"));
+    abstractScrollArea.addScrollBarWidget(firstRightLabel, Qt::AlignRight);
+    QCOMPARE(interface->childCount(), 6);
+    QVERIFY(verifyChild(secondRightLabel, interface, 6, globalGeometry));
+
+    // Vertical scrollBar.
+    abstractScrollArea.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    QCOMPARE(interface->childCount(), 7);
+    QWidget *verticalScrollBar = abstractScrollArea.verticalScrollBar();
+    QVERIFY(verifyChild(verticalScrollBar, interface, 7, globalGeometry));
+
+    // Vertical scrollBar widgets.
+    QLabel *secondTopLabel = new QLabel(QLatin1String("T2"));
+    abstractScrollArea.addScrollBarWidget(secondTopLabel, Qt::AlignTop);
+    QCOMPARE(interface->childCount(), 8);
+    QVERIFY(verifyChild(secondTopLabel, interface, 8, globalGeometry));
+
+    QLabel *firstTopLabel = new QLabel(QLatin1String("T1"));
+    abstractScrollArea.addScrollBarWidget(firstTopLabel, Qt::AlignTop);
+    QCOMPARE(interface->childCount(), 9);
+    // NB! index = 8 because firstTopLabel is the first top label.
+    QVERIFY(verifyChild(firstTopLabel, interface, 8, globalGeometry));
+
+    QLabel *secondBottomLabel = new QLabel(QLatin1String("B2"));
+    abstractScrollArea.addScrollBarWidget(secondBottomLabel, Qt::AlignBottom);
+    QCOMPARE(interface->childCount(), 10);
+    QVERIFY(verifyChild(secondBottomLabel, interface, 10, globalGeometry));
+
+    QLabel *firstBottomLabel = new QLabel(QLatin1String("B1"));
+    abstractScrollArea.addScrollBarWidget(firstBottomLabel, Qt::AlignBottom);
+    QCOMPARE(interface->childCount(), 11);
+    // NB! index = 10 because firstBottomLabel is the first bottom label.
+    QVERIFY(verifyChild(firstBottomLabel, interface, 10, globalGeometry));
+
+    // CornerWidget.
+    abstractScrollArea.setCornerWidget(new QLabel(QLatin1String("C")));
+    QCOMPARE(interface->childCount(), 12);
+    QWidget *cornerWidget = abstractScrollArea.cornerWidget();
+    QVERIFY(verifyChild(cornerWidget, interface, 12, globalGeometry));
+
+    // Test navigate.
+    QAccessibleInterface *target = 0;
+    // viewport -> Down -> horizontalScrollBar
+    const int viewportIndex = indexOfChild(interface, viewport);
+    QVERIFY(viewportIndex != -1);
+    const int horizontalScrollBarIndex = indexOfChild(interface, horizontalScrollBar);
+    QVERIFY(horizontalScrollBarIndex != -1);
+    QCOMPARE(interface->navigate(QAccessible::Down, viewportIndex, &target), horizontalScrollBarIndex);
+    QVERIFY(target);
+    QCOMPARE(target->object(), horizontalScrollBar);
+    delete target;
+    target = 0;
+
+    // horizontalScrollBar -> Right -> firstRightLabel
+    const int firstRightLabelIndex = indexOfChild(interface, firstRightLabel);
+    QVERIFY(firstRightLabelIndex != -1);
+    QCOMPARE(interface->navigate(QAccessible::Right, horizontalScrollBarIndex, &target), firstRightLabelIndex);
+    QVERIFY(target);
+    QCOMPARE(target->object(), firstRightLabel);
+    delete target;
+    target = 0;
+
+    // firstRightLabel -> Right -> secondRightLagel
+    const int secondRightLabelIndex = indexOfChild(interface, secondRightLabel);
+    QVERIFY(secondRightLabelIndex != -1);
+    QCOMPARE(interface->navigate(QAccessible::Right, firstRightLabelIndex, &target), secondRightLabelIndex);
+    QVERIFY(target);
+    QCOMPARE(target->object(), secondRightLabel);
+    delete target;
+    target = 0;
+
+    // secondRightLabel -> Right -> cornerWidget
+    const int cornerWidgetIndex = indexOfChild(interface, cornerWidget);
+    QVERIFY(cornerWidgetIndex != -1);
+    QCOMPARE(interface->navigate(QAccessible::Right, secondRightLabelIndex, &target), cornerWidgetIndex);
+    QVERIFY(target);
+    QCOMPARE(target->object(), cornerWidget);
+    delete target;
+    target = 0;
+
+    // cornerWidget -> Right -> NOTHING
+    QVERIFY(cornerWidgetIndex != -1);
+    QCOMPARE(interface->navigate(QAccessible::Right, cornerWidgetIndex, &target), -1);
+    QVERIFY(!target);
+
+    // cornerWidget -> Up -> secondBottomLabel
+    const int secondBottomLabelIndex = indexOfChild(interface, secondBottomLabel);
+    QVERIFY(secondBottomLabelIndex != -1);
+    QCOMPARE(interface->navigate(QAccessible::Up, cornerWidgetIndex, &target), secondBottomLabelIndex);
+    QVERIFY(target);
+    QCOMPARE(target->object(), secondBottomLabel);
+    delete target;
+    target = 0;
+
+    // secondBottomLabel -> Up -> firstBottomLabel
+    const int firstBottomLabelIndex = indexOfChild(interface, firstBottomLabel);
+    QVERIFY(firstBottomLabelIndex != -1);
+    QCOMPARE(interface->navigate(QAccessible::Up, secondBottomLabelIndex, &target), firstBottomLabelIndex);
+    QVERIFY(target);
+    QCOMPARE(target->object(), firstBottomLabel);
+    delete target;
+    target = 0;
+
+    // firstBottomLabel -> Up -> verticalScrollBar
+    const int verticalScrollBarIndex = indexOfChild(interface, verticalScrollBar);
+    QVERIFY(verticalScrollBarIndex != -1);
+    QCOMPARE(interface->navigate(QAccessible::Up, firstBottomLabelIndex, &target), verticalScrollBarIndex);
+    QVERIFY(target);
+    QCOMPARE(target->object(), verticalScrollBar);
+    delete target;
+    target = 0;
+
+    // verticalScrollBar -> Up -> secondTopLabel
+    const int secondTopLabelIndex = indexOfChild(interface, secondTopLabel);
+    QVERIFY(secondTopLabelIndex != -1);
+    QCOMPARE(interface->navigate(QAccessible::Up, verticalScrollBarIndex, &target), secondTopLabelIndex);
+    QVERIFY(target);
+    QCOMPARE(target->object(), secondTopLabel);
+    delete target;
+    target = 0;
+
+    // secondTopLabel -> Up -> firstTopLabel
+    const int firstTopLabelIndex = indexOfChild(interface, firstTopLabel);
+    QVERIFY(firstTopLabelIndex != -1);
+    QCOMPARE(interface->navigate(QAccessible::Up, secondTopLabelIndex, &target), firstTopLabelIndex);
+    QVERIFY(target);
+    QCOMPARE(target->object(), firstTopLabel);
+    delete target;
+    target = 0;
+
+    // firstTopLabel -> Up -> NOTHING
+    QCOMPARE(interface->navigate(QAccessible::Up, firstTopLabelIndex, &target), -1);
+    QVERIFY(!target);
+
+    // firstTopLabel -> Left -> viewport
+    QCOMPARE(interface->navigate(QAccessible::Left, firstTopLabelIndex, &target), viewportIndex);
+    QVERIFY(target);
+    QCOMPARE(target->object(), viewport);
+    delete target;
+    target = 0;
+
+    // firstRightLabel -> Left -> horizontalScrollBar
+    QCOMPARE(interface->navigate(QAccessible::Left, firstRightLabelIndex, &target), horizontalScrollBarIndex);
+    QVERIFY(target);
+    QCOMPARE(target->object(), horizontalScrollBar);
+    delete target;
+    target = 0;
+
+    // secondTopLabel -> Down -> verticalScrollBar
+    QCOMPARE(interface->navigate(QAccessible::Down, secondTopLabelIndex, &target), verticalScrollBarIndex);
+    QVERIFY(target);
+    QCOMPARE(target->object(), verticalScrollBar);
+    delete target;
+    target = 0;
+
+    QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
