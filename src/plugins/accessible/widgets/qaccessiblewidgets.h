@@ -27,6 +27,7 @@ class QWorkspace;
 class QRubberBand;
 class QTextBrowser;
 class QAbstractScrollArea;
+class QScrollArea;
 
 class QAccessibleTextEdit : public QAccessibleWidgetEx
 {
@@ -195,6 +196,13 @@ private:
     AbstractScrollAreaElement elementType(QWidget *widget) const;
     bool isLeftToRight() const;
 };
+
+class QAccessibleScrollArea : public QAccessibleAbstractScrollArea
+{
+public:
+    explicit QAccessibleScrollArea(QWidget *widget);
+};
+
 #endif // QT_NO_SCROLLAREA
 
 #endif // QT_NO_ACCESSIBILITY

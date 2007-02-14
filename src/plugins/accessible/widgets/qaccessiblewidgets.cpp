@@ -29,6 +29,7 @@
 #include <QRubberBand>
 #include <QTextBrowser>
 #include <QAbstractScrollArea>
+#include <QScrollArea>
 
 #ifndef QT_NO_ACCESSIBILITY
 
@@ -809,6 +810,7 @@ QAccessible::Role QAccessibleTextBrowser::role(int child) const
 #endif // QT_NO_TEXTBROWSER
 
 #ifndef QT_NO_SCROLLAREA
+// ======================= QAccessibleAbstractScrollArea =======================
 QAccessibleAbstractScrollArea::QAccessibleAbstractScrollArea(QWidget *widget)
     : QAccessibleWidgetEx(widget, ScrollBar)
 {
@@ -1218,6 +1220,13 @@ QAccessibleAbstractScrollArea::elementType(QWidget *widget) const
 bool QAccessibleAbstractScrollArea::isLeftToRight() const
 {
     return abstractScrollArea()->isLeftToRight();
+}
+
+// ======================= QAccessibleScrollArea ===========================
+QAccessibleScrollArea::QAccessibleScrollArea(QWidget *widget)
+    : QAccessibleAbstractScrollArea(widget)
+{
+    Q_ASSERT(qobject_cast<QScrollArea *>(widget));
 }
 #endif // QT_NO_SCROLLAREA
 

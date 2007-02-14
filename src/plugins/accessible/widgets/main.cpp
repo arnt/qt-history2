@@ -108,6 +108,7 @@ QStringList AccessibleFactory::keys() const
 #endif
 #ifndef QT_NO_SCROLLAREA
     list << QLatin1String("QAbstractScrollArea");
+    list << QLatin1String("QScrollArea");
 #endif
 
     return list;
@@ -257,6 +258,8 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
 #ifndef QT_NO_SCROLLAREA
     } else if (classname == QLatin1String("QAbstractScrollArea")) {
         iface = new QAccessibleAbstractScrollArea(widget);
+    } else if (classname == QLatin1String("QScrollArea")) {
+        iface = new QAccessibleScrollArea(widget);
 #endif
     }
 
