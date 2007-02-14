@@ -13,6 +13,7 @@
 
 #include "qdesigner_workbench.h"
 #include "qdesigner.h"
+#include "preferences.h"
 #include "qdesigner_actions.h"
 #include "qdesigner_toolwindow.h"
 #include "qdesigner_formwindow.h"
@@ -134,8 +135,9 @@ QDesignerWorkbench::QDesignerWorkbench()
 {
     m_initializing = true;
     initialize();
+    
+    applyPreferences(QDesignerSettings().preferences());
 
-    setUIMode(UIMode(QDesignerSettings().uiMode()));
     m_initializing = false;
 }
 
@@ -273,10 +275,7 @@ void QDesignerWorkbench::initialize()
     }
 
     m_editMenu->addSeparator();
-    QMenu *menu = m_editMenu->addMenu(tr("User Interface &Mode"));
-    foreach (QAction *action, m_actionManager->uiMode()->actions())
-        menu->addAction(action);
-
+    m_editMenu->addAction(m_actionManager->preferencesAction());
 
     m_formMenu = m_globalMenuBar->addMenu(tr("F&orm"));
     foreach (QAction *action, m_actionManager->formActions()->actions()) {
@@ -1135,3 +1134,11 @@ void QDesignerWorkbench::setFormWindowMinimized(QDesignerFormWindow *fw, bool mi
     }
 }
  
+void QDesignerWorkbench::applyPreferences(const Preferences &preferences)
+{    
+    if (preferences.m_uiMode != mode())
+        setUIMode(preferences.m_uiMode);
+        
+    if (preferences.m_font != qApp->font())
+        qApp->setFont(preferences.m_font);
+}

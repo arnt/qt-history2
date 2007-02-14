@@ -13,6 +13,7 @@
 
 #include "saveformastemplate.h"
 #include "qdesigner_settings.h"
+#include "preferencesdialog.h"
 
 #include <QtCore/QFile>
 #include <QtGui/QFileDialog>
@@ -48,7 +49,9 @@ SaveFormAsTemplate::~SaveFormAsTemplate()
 
 void SaveFormAsTemplate::accept()
 {
-    QString templateFileName = ui.categoryCombo->currentText() + QLatin1Char('/') + ui.templateNameEdit->text();
+    QString templateFileName = ui.categoryCombo->currentText();
+    templateFileName += QLatin1Char('/');
+    templateFileName += ui.templateNameEdit->text();
     if (!templateFileName.endsWith(QLatin1String(".ui")))
         templateFileName.append(QLatin1String(".ui"));
     QFile file(templateFileName);
@@ -102,8 +105,7 @@ void SaveFormAsTemplate::checkToAddPath(int itemIndex)
     if (itemIndex != m_addPathIndex)
         return;
 
-    QString dir = QFileDialog::getExistingDirectory(this,
-                                                    tr("Pick a directory to save templates in"));
+    const QString dir = PreferencesDialog::chooseTemplatePath(this);
     if (dir.isEmpty()) {
         ui.categoryCombo->setCurrentIndex(0);
         return;

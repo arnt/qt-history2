@@ -27,6 +27,8 @@ contains(CONFIG, static) {
 
 TARGET = designer
 
+include($$QT_SOURCE_TREE/tools/shared/fontpanel/fontpanel.pri)
+
 HEADERS += \
     qdesigner.h \
     qdesigner_toolwindow.h \
@@ -52,7 +54,9 @@ HEADERS += \
     extra/oubliette.h \
     extra/oublietteplan.h \
     extra/oublietteview.h \
-    designer_enums.h
+    designer_enums.h \
+    preferencesdialog.h \
+    preferences.h
 
 SOURCES += main.cpp \
     qdesigner.cpp \
@@ -79,7 +83,9 @@ SOURCES += main.cpp \
     extra/oubliette.cpp \
     extra/oublietteplan.cpp \
     extra/oublietteresource.cpp \
-    extra/oublietteview.cpp
+    extra/oublietteview.cpp \
+    preferencesdialog.cpp \
+    preferences.cpp
 
 
 PRECOMPILED_HEADER=qdesigner_pch.h

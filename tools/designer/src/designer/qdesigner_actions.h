@@ -51,6 +51,7 @@ public:
     QActionGroup *toolActions() const;
     QActionGroup *helpActions() const;
     QActionGroup *uiMode() const;
+    QAction *preferencesAction() const;
     QActionGroup *styleActions() const;
 
     // window actions
@@ -89,11 +90,11 @@ private slots:
     void showWhatsNew();
     void aboutPlugins();
     void aboutDesigner();
-    void updateUIMode(QAction *act);
     void showWidgetSpecificHelp();
     void showFormSettings();
     void backupForms();
     void showNewFormDialog(const QString &fileName);
+    void showPreferencesDialog();
 
 private:
     bool saveFormAs(QDesignerFormWindowInterface *fw);
@@ -129,7 +130,6 @@ private:
     QActionGroup *m_windowActions;
     QActionGroup *m_toolActions;
     QActionGroup *m_helpActions;
-    QActionGroup *m_uiMode;
     QActionGroup *m_styleActions;
 
     QAction *m_editWidgetsAction;
@@ -151,8 +151,7 @@ private:
     QAction *m_bringAllToFrontSeparator;
     QAction *m_bringAllToFrontAction;
 
-    QAction *m_sdiAction;
-    QAction *m_dockedMdiAction;
+    QAction *m_preferencesAction;
     
     QPointer<QWidget> m_previewWidget;
 };

@@ -25,6 +25,7 @@
 class QDesignerActions;
 class QDesignerToolWindow;
 class QDesignerFormWindow;
+struct Preferences;
 
 class QAction;
 class QActionGroup;
@@ -81,6 +82,7 @@ public:
     int marginHint() const;
 
     void saveSettings() const;
+    void applyPreferences(const Preferences&);
 
     bool readInForm(const QString &fileName) const;
     bool writeOutForm(QDesignerFormWindowInterface *formWindow, const QString &fileName) const;
@@ -134,7 +136,7 @@ private:
     void saveGeometries();
     bool isFormWindowMinimized(const QDesignerFormWindow *fw);
     void setFormWindowMinimized(QDesignerFormWindow *fw, bool minimized);
-    
+
     QDesignerFormEditorInterface *m_core;
     qdesigner_internal::QDesignerIntegration *m_integration;
 

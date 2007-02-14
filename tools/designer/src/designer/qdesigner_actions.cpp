@@ -24,6 +24,8 @@
 #include "plugindialog.h"
 #include "formwindowsettings.h"
 #include "qdesigner_toolwindow.h"
+#include "preferencesdialog.h"
+#include "preferences.h"
 
 #include <pluginmanager_p.h>
 #include <qdesigner_formbuilder_p.h>
@@ -99,7 +101,6 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
       m_windowActions(createActionGroup(this)),
       m_toolActions(createActionGroup(this)),
       m_helpActions(createHelpActions()),
-      m_uiMode(createActionGroup(this, true)),
       m_styleActions(createActionGroup(this, true)),
       m_editWidgetsAction(new QAction(tr("Edit Widgets"), this)),
       m_newFormAction(new QAction(tr("&New Form..."), this)),
@@ -115,8 +116,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
       m_minimizeAction(new QAction(tr("&Minimize"), this)),
       m_bringAllToFrontSeparator(createSeparator(this)),
       m_bringAllToFrontAction(new QAction(tr("Bring All to Front"), this)),
-      m_sdiAction(m_uiMode->addAction(tr("Multiple Top-Level Windows"))),
-      m_dockedMdiAction(m_uiMode->addAction(tr("Docked Window")))  
+      m_preferencesAction(new QAction(tr("Preferences..."), this))
 {
     Q_ASSERT(m_workbench != 0);
 
@@ -221,10 +221,10 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_editWidgetsAction->setChecked(true);
     m_editWidgetsAction->setEnabled(false);
     m_toolActions->addAction(m_editWidgetsAction);
- 
+
     connect(formWindowManager, SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
                 this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface*)));
-    
+
     QList<QObject*> builtinPlugins = QPluginLoader::staticInstances();
     builtinPlugins += m_core->pluginManager()->instances();
     foreach (QObject *plugin, builtinPlugins) {
@@ -236,22 +236,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
         }
     }
 
-    m_sdiAction->setCheckable(true);
-    m_dockedMdiAction->setCheckable(true);
-
-    switch (settings.uiMode()) {
-        default: Q_ASSERT(0); break;
-
-        case TopLevelMode:
-            m_sdiAction->setChecked(true);
-            break;
-        case DockedMode:
-            m_dockedMdiAction->setChecked(true);
-            break;
-    }
-
-    connect(m_uiMode, SIGNAL(triggered(QAction*)), this, SLOT(updateUIMode(QAction*)));
-
+    connect(m_preferencesAction, SIGNAL(triggered()),  this, SLOT(showPreferencesDialog()));
 //
 // form actions
 //
@@ -306,12 +291,12 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     connect(m_backupTimer, SIGNAL(timeout()), this, SLOT(backupForms()));
 }
 
-QActionGroup *QDesignerActions::createHelpActions() 
+QActionGroup *QDesignerActions::createHelpActions()
 {
     QActionGroup *helpActions = createActionGroup(this);
-    
+
     QAction *mainHelpAction = new QAction(tr("Qt Designer &Help"), this);
-    connect(mainHelpAction, SIGNAL(triggered()), this, SLOT(showDesignerHelp()));    
+    connect(mainHelpAction, SIGNAL(triggered()), this, SLOT(showDesignerHelp()));
     mainHelpAction->setShortcut(Qt::CTRL + Qt::Key_Question);
     helpActions->addAction(mainHelpAction);
 
@@ -557,15 +542,6 @@ void QDesignerActions::notImplementedYet()
     QMessageBox::information(core()->topLevel(), tr("Designer"), tr("Feature not implemented yet!"));
 }
 
-void QDesignerActions::updateUIMode(QAction *act)
-{
-    const UIMode mode = act == m_dockedMdiAction ? DockedMode : TopLevelMode;
-    QDesignerSettings settings;
-    settings.setUIMode(mode);
-
-    m_workbench->setUIMode(mode);
-}
-
 void QDesignerActions::previewFormLater(QAction *action)
 {
     qRegisterMetaType<QAction*>("QAction*");
@@ -590,7 +566,7 @@ void QDesignerActions::previewForm(QAction *action)
     QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow();
     if (!fw)
         return;
-    
+
     // Get style stored in action if any
     QString styleName;
     if (action) {
@@ -601,12 +577,12 @@ void QDesignerActions::previewForm(QAction *action)
 
     // create and have form builder display errors.
     QWidget *widget =  qdesigner_internal::QDesignerFormBuilder::createPreview(fw, styleName);
-    if (!widget) 
+    if (!widget)
         return;
-    
+
     Qt::WindowFlags windwowFlags = (widget->windowType() == Qt::Window) ? Qt::Window | Qt::WindowMaximizeButtonHint : Qt::Dialog;
     windwowFlags |= Qt::WindowStaysOnTopHint;
-    
+
     // Install filter for Escape key
     widget->setParent(fw->window(), windwowFlags);
 
@@ -619,14 +595,14 @@ void QDesignerActions::previewForm(QAction *action)
 
     widget->setAttribute(Qt::WA_DeleteOnClose, true);
     widget->move(fw->window()->mapToGlobal(QPoint(0, 0)) + QPoint(10, 10));
-    
+
     widget->installEventFilter(this);
     widget->show();
     m_previewWidget = widget;
 
 #ifdef NONMODAL_PREVIEW
     updateCloseAction();
-#endif      
+#endif
 }
 
 void QDesignerActions::fixActionContext()
@@ -673,13 +649,13 @@ bool QDesignerActions::readInForm(const QString &fileName)
             QMessageBox box(QMessageBox::Warning, tr("Read error"),
                             tr("%1\nDo you want to update the file location or generate a new form?").arg(errorMessage),
                             QMessageBox::Cancel, core()->topLevel());
-            
+
             QPushButton *updateButton = box.addButton(tr("&Update"), QMessageBox::ActionRole);
             QPushButton *newButton    = box.addButton(tr("&New Form"), QMessageBox::ActionRole);
             box.exec();
             if (box.clickedButton() == box.button(QMessageBox::Cancel))
                 return false;
-            
+
             if (box.clickedButton() == updateButton) {
                 const QString extension = getFileExtension(core());
                 fn = QFileDialog::getOpenFileName(core()->topLevel(),
@@ -961,11 +937,10 @@ void QDesignerActions::aboutDesigner()
     }
 }
 
-QActionGroup *QDesignerActions::uiMode() const
+QAction *QDesignerActions::preferencesAction() const
 {
-    return m_uiMode;
+    return m_preferencesAction;
 }
-
 
 QAction *QDesignerActions::editWidgets() const
 {
@@ -1251,4 +1226,20 @@ bool QDesignerActions::ensureBackupDirectories() {
         }
     }
     return true;
+}
+
+void QDesignerActions::showPreferencesDialog()
+{
+    QDesignerSettings settings;
+    Preferences preferences = settings.preferences();
+
+    { // It is important that the dialog be deleted before UI mode changes.
+        PreferencesDialog preferencesDialog(workbench()->core()->topLevel());
+        if (!preferencesDialog.showDialog(preferences))  {
+            return;
+        }
+    }
+
+    settings.setPreferences(preferences);
+    m_workbench->applyPreferences(preferences);
 }

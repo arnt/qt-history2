@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qdesigner.h"
+#include "preferences.h"
 #include "qdesigner_settings.h"
 #include "qdesigner_widgetbox.h"
 #include "qdesigner_workbench.h"
@@ -26,6 +27,8 @@
 
 #include <QtCore/qdebug.h>
 
+static const char *designerPath = "/.designer";
+
 static bool ensurePath(const QString &path)
 {
     QDir current(QDir::current());
@@ -36,28 +39,29 @@ static bool ensurePath(const QString &path)
     return false;
 }
 
-QDesignerSettings::QDesignerSettings() :
-   m_designerPath(QLatin1String("/.designer"))
+QDesignerSettings::QDesignerSettings()
 {
 }
 
-QStringList QDesignerSettings::defaultFormTemplatePaths() const
+const QStringList &QDesignerSettings::defaultFormTemplatePaths()
 {
-    QStringList rc;
-    // Ensure default form template paths
-    const QString templatePath = QLatin1String("/templates");
-    // home
-    QString path = QDir::homePath();
-    path += m_designerPath;
-    path += templatePath;
-    if (ensurePath(path))
-        rc += path;
+    static QStringList rc;
+    if (rc.empty()) {
+        // Ensure default form template paths
+        const QString templatePath = QLatin1String("/templates");
+        // home
+        QString path = QDir::homePath();
+        path += QLatin1String(designerPath);
+        path += templatePath;
+        if (ensurePath(path))
+            rc += path;
 
-    // designer/bin
-    path = qDesigner->applicationDirPath();
-    path += templatePath;
-    if (ensurePath(path))
-        rc += path;
+        // designer/bin
+        path = qDesigner->applicationDirPath();
+        path += templatePath;
+        if (ensurePath(path))
+            rc += path;
+    }
     return rc;
 }
 
@@ -74,7 +78,7 @@ void QDesignerSettings::setFormTemplatePaths(const QStringList &paths)
 QString QDesignerSettings::defaultUserWidgetBoxXml() const
 {
     QString rc = QDir::homePath();
-    rc +=  m_designerPath;
+    rc += QLatin1String(designerPath);
     rc += QLatin1String("/widgetbox.xml");
     return rc;
 }
@@ -178,21 +182,6 @@ bool QDesignerSettings::showNewFormOnStartup() const
     return value(QLatin1String("newFormDialog/ShowOnStartup"), true).toBool();
 }
 
-void QDesignerSettings::setUIMode(UIMode mode)
-{
-    setValue(QLatin1String("UI/currentMode"), mode);
-}
-
-UIMode QDesignerSettings::uiMode() const
-{
-#ifdef Q_WS_WIN
-    const UIMode defaultMode = DockedMode;
-#else
-    const UIMode defaultMode = TopLevelMode;
-#endif
-    return static_cast<UIMode>(value(QLatin1String("UI/currentMode"), defaultMode).toInt());
-}
-
 QByteArray QDesignerSettings::mainWindowState() const
 {
     return value(QLatin1String("MainWindowState")).toByteArray();
@@ -228,4 +217,44 @@ QMap<QString, QString> QDesignerSettings::backup() const
         map.insert(org.at(i), bak.at(i));
 
     return map;
+}
+
+void QDesignerSettings::setPreferences(const Preferences& p)
+{
+    beginGroup(QLatin1String("UI"));
+    setValue(QLatin1String("currentMode"), p.m_uiMode);
+    setValue(QLatin1String("font"), p.m_font);
+    setValue(QLatin1String("writingSystem"), p.m_writingSystem);
+    endGroup();
+    // merge template paths
+    QStringList templatePaths = defaultFormTemplatePaths();
+    templatePaths += p.m_additionalTemplatePaths;
+    setFormTemplatePaths(templatePaths);
+}
+
+Preferences QDesignerSettings::preferences() const
+{
+    Preferences rc;
+#ifdef Q_WS_WIN
+    const UIMode defaultMode = DockedMode;
+#else
+    const UIMode defaultMode = TopLevelMode;
+#endif
+    rc.m_uiMode = static_cast<UIMode>(value(QLatin1String("UI/currentMode"), defaultMode).toInt());
+    rc.m_writingSystem = static_cast<QFontDatabase::WritingSystem>(value(QLatin1String("UI/writingSystem"), QFontDatabase::Latin).toInt());
+    rc.m_font = qVariantValue<QFont>(value(QLatin1String("UI/font")));
+    rc.m_additionalTemplatePaths = additionalFormTemplatePaths();
+    return rc;
+}
+
+QStringList QDesignerSettings::additionalFormTemplatePaths() const
+{
+    // get template paths excluding internal ones
+    QStringList rc = formTemplatePaths();
+    foreach (QString internalTemplatePath, defaultFormTemplatePaths()) {
+        const int index = rc.indexOf(internalTemplatePath);
+        if (index != -1)
+            rc.removeAt(index);
+    }
+    return rc;
 }

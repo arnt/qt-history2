@@ -14,12 +14,12 @@
 #ifndef QDESIGNER_SETTINGS_H
 #define QDESIGNER_SETTINGS_H
 
-#include "designer_enums.h"
-
 #include <QtCore/QMap>
 #include <QtCore/QRect>
 #include <QtCore/QSettings>
 #include <QtCore/QStringList>
+
+struct Preferences;
 
 class QDesignerSettings : public QSettings
 {
@@ -39,9 +39,9 @@ public:
 
     void setShowNewFormOnStartup(bool showIt);
     bool showNewFormOnStartup() const;
-
-    void setUIMode(UIMode mode);
-    UIMode uiMode() const;
+    
+    void setPreferences(const Preferences&);
+    Preferences preferences() const;
 
     QByteArray mainWindowState() const;
     void setMainWindowState(const QByteArray &mainWindowState);
@@ -49,14 +49,12 @@ public:
     void clearBackup();
     void setBackup(const QMap<QString, QString> &map);
     QMap<QString, QString> backup() const;
-
+    
+    static const QStringList &defaultFormTemplatePaths();
 private:
     void setGeometryHelper(QWidget *w, const QString &key, const QRect &fallBack) const;
     void saveGeometryHelper(const QWidget *w, const QString &key);
-
-    QStringList defaultFormTemplatePaths() const;
-
-    const QString m_designerPath;
+    QStringList additionalFormTemplatePaths() const;
 };
 
 #endif // QDESIGNER_SETTINGS_H
