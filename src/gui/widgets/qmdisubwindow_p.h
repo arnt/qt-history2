@@ -138,7 +138,9 @@ public:
     QPointer<QWidget> baseWidget;
     QPointer<QWidget> restoreFocusWidget;
     QPointer<ControlContainer> controlContainer;
+#ifndef QT_NO_SIZEGRIP
     QPointer<QSizeGrip> sizeGrip;
+#endif
     QRubberBand *rubberBand;
     QPoint mousePressPosition;
     QRect oldGeometry;
@@ -202,8 +204,10 @@ public:
     void setEnabled(WindowStateAction, bool enable = true);
     void setVisible(WindowStateAction, bool visible = true);
     void addToSystemMenu(WindowStateAction, const QString &text, const char *slot);
+#ifndef QT_NO_SIZEGRIP
     void setSizeGrip(QSizeGrip *sizeGrip);
     void setSizeGripVisible(bool visible = true) const;
+#endif
 
     inline int titleBarHeight() const
     {
