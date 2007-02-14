@@ -42,7 +42,7 @@
 static inline ushort qt_convRgbTo16(QRgb c)
 {
     return ((c >> 8) & 0xf800)
-        | ((c >> 5) & 0x07e)
+        | ((c >> 3) & 0x07e0)
         | ((c >> 3) & 0x1f);
 }
 
@@ -79,6 +79,7 @@ struct QImageData {        // internal image data
     QImageData();
     ~QImageData();
     static QImageData *create(const QSize &size, QImage::Format format, int numColors = 0);
+    static QImageData *create(uchar *data, int w, int h,  int bpl, QImage::Format format, bool readOnly);
 
     QAtomic ref;
 
@@ -772,6 +773,46 @@ QImage::QImage(const QSize &size, Format format)
     d = QImageData::create(size, format, 0);
 }
 
+
+
+QImageData *QImageData::create(uchar *data, int width, int height,  int bpl, QImage::Format format, bool readOnly)
+{
+    QImageData *d = 0;
+
+    if (format == QImage::Format_Invalid)
+        return d;
+
+    const int depth = depthForFormat(format);
+    const int calc_bytes_per_line = ((width * depth + 31)/32) * 4;
+
+    if (bpl <= 0)
+        bpl = calc_bytes_per_line;
+
+    if (width <= 0 || height <= 0 || !data
+        || INT_MAX/sizeof(uchar *) < uint(height)
+        || INT_MAX/uint(depth) < uint(width)
+        || bpl <= 0
+        || bpl < calc_bytes_per_line
+        || INT_MAX/uint(bpl) < uint(height))
+        return d;                                        // invalid parameter(s)
+
+    d = new QImageData;
+    d->ref.ref();
+
+    d->own_data = false;
+    d->ro_data = readOnly;
+    d->data = data;
+    d->width = width;
+    d->height = height;
+    d->depth = depth;
+    d->format = format;
+
+    d->bytes_per_line = bpl;
+    d->nbytes = d->bytes_per_line * height;
+
+    return d;
+}
+
 /*!
     Constructs an image with the given \a width, \a height and \a
     format, that uses an existing memory buffer, \a data. The \a width
@@ -787,30 +828,7 @@ QImage::QImage(const QSize &size, Format format)
 QImage::QImage(uchar* data, int width, int height, Format format)
     : QPaintDevice()
 {
-    d = 0;
-
-    if (format == Format_Invalid )
-        return;
-    const int depth = depthForFormat(format);
-    const int bytes_per_line = ((width * depth + 31)/32) * 4;
-    if (width <= 0 || height <= 0 || !data
-        || INT_MAX/sizeof(uchar *) < uint(height)
-        || INT_MAX/uint(depth) < uint(width)
-        || bytes_per_line <= 0
-        || INT_MAX/uint(bytes_per_line) < uint(height))
-        return;                                        // invalid parameter(s)
-    d = new QImageData;
-    d->ref.ref();
-
-    d->own_data = false;
-    d->data = data;
-    d->width = width;
-    d->height = height;
-    d->depth = depth;
-    d->format = format;
-
-    d->bytes_per_line = bytes_per_line;
-    d->nbytes = d->bytes_per_line * height;
+    d = QImageData::create(data, width, height, 0, format, false);
 }
 
 /*!
@@ -836,23 +854,56 @@ QImage::QImage(uchar* data, int width, int height, Format format)
 QImage::QImage(const uchar* data, int width, int height, Format format)
     : QPaintDevice()
 {
-    d = 0;
-    if (format == Format_Invalid || width <= 0 || height <= 0 || !data)
-        return;                                        // invalid parameter(s)
-    d = new QImageData;
-    d->ref.ref();
-
-    d->own_data = false;
-    d->ro_data = true;
-    d->data = (uchar *)data;
-    d->width = width;
-    d->height = height;
-    d->depth = depthForFormat(format);
-    d->format = format;
-
-    d->bytes_per_line = ((width * d->depth + 31)/32) * 4;
-    d->nbytes = d->bytes_per_line * height;
+    d = QImageData::create(const_cast<uchar*>(data), width, height, 0, format, true);
 }
+
+/*!
+
+    Constructs an image with the given \a width, \a height and \a
+    format, that uses an existing memory buffer, \a data. The \a width
+    and \a height must be specified in pixels. \a bytesPerLine
+    specifies the number of bytes per line (stride).
+
+    The buffer must remain valid throughout the life of the
+    QImage. The image does not delete the buffer at destruction.
+
+    If the image is in an indexed color format, set the color table
+    for the image using setColorTable().
+*/
+QImage::QImage(uchar *data, int width, int height, int bytesPerLine, Format format)
+    :QPaintDevice()
+{
+    d = QImageData::create(data, width, height, bytesPerLine, format, false);
+}
+
+
+/*!
+    Constructs an image with the given \a width, \a height and \a
+    format, that uses an existing memory buffer, \a data. The \a width
+    and \a height must be specified in pixels. \a bytesPerLine
+    specifies the number of bytes per line (stride).
+
+    The buffer must remain valid throughout the life of the
+    QImage. The image does not delete the buffer at destruction.
+
+    If the image is in an indexed color format, set the color table
+    for the image using setColorTable().
+
+    Unlike the similar QImage constructor that takes a non-const data buffer,
+    this version will never alter the contents of the buffer.  For example,
+    calling QImage::bits() will return a deep copy of the image, rather than
+    the buffer passed to the constructor.  This allows for the efficiency of
+    constructing a QImage from raw data, without the possibility of the raw
+    data being changed.
+
+*/
+
+QImage::QImage(const uchar *data, int width, int height, int bytesPerLine, Format format)
+    :QPaintDevice()
+{
+    d = QImageData::create(const_cast<uchar*>(data), width, height, bytesPerLine, format, true);
+}
+
 /*!
     Constructs an image and tries to load the image from the file with
     the given \a fileName.
@@ -1264,7 +1315,6 @@ QImage QImage::copy(const QRect& r) const
         if (image.isNull())
             return image;
 
-#ifdef Q_WS_QWS
         // Qtopia Core can create images with non-default bpl
         // make sure we don't crash.
         if (image.d->nbytes != d->nbytes) {
@@ -1272,7 +1322,6 @@ QImage QImage::copy(const QRect& r) const
             for (int i = 0; i < height(); i++)
                 memcpy(image.scanLine(i), scanLine(i), bpl);
         } else
-#endif
             memcpy(image.bits(), bits(), d->nbytes);
         image.d->colortable = d->colortable;
         image.d->dpmx = d->dpmx;
@@ -4470,7 +4519,7 @@ QString QImage::text(const QString &key) const
     Not all image formats support embedded text. You can find out
     if a specific image or format supports embedding text
     by using QImageWriter::supportsOption(). We give an example:
-     
+
     \quotefromfile snippets/image/supportedformat.cpp
     \skipto QImageWriter
     \printuntil qDebug
