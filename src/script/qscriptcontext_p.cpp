@@ -449,7 +449,7 @@ Ltop:
     I(LoadThis):
     {
         CHECK_TEMPSTACK(1);
-        Q_ASSERT(isObject(m_thisObject));
+        Q_ASSERT(m_thisObject.isObject());
         *++stackPtr = m_thisObject;
         ++iPtr;
     }   Next();
@@ -550,7 +550,7 @@ Ltop:
 
     I(Resolve):
     {
-        Q_ASSERT(isString(iPtr->operand[0]));
+        Q_ASSERT(iPtr->operand[0].isString());
 
         CHECK_TEMPSTACK(2);
         *++stackPtr = m_scopeChain;
@@ -605,8 +605,8 @@ Ltop:
             HandleException();
         }
 
-        Q_ASSERT(isValid(base));
-        Q_ASSERT(isValid(callee));
+        Q_ASSERT(base.isValid());
+        Q_ASSERT(callee.isValid());
 
         QScriptFunction *function = eng->convertToNativeFunction(callee);
         if (! function) {
@@ -718,8 +718,8 @@ Ltop:
             HandleException();
         }
 
-        // Q_ASSERT(isValid(base));
-        Q_ASSERT(isValid(callee));
+        // Q_ASSERT(base.isValid());
+        Q_ASSERT(callee.isValid());
 
         QScriptFunction *function = eng->convertToNativeFunction(callee);
         if (! function) {
@@ -1961,7 +1961,7 @@ Lhandle_exception:
     errorLineNumber = currentLine;
 
 Ldone:
-    Q_ASSERT(isValid(m_result));
+    Q_ASSERT(m_result.isValid());
 
     if (m_state == QScriptContext::ExceptionState) {
         if (catching) {
