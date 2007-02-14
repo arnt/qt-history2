@@ -5488,10 +5488,11 @@ static QImage rotated90(const QImage &image) {
     case QImage::Format_Indexed8:
         {
             uchar *dst = out.bits();
+            int bytes_per_line = out.bytesPerLine();
             for (int y=0; y<h; ++y) {
                 const uchar *src = image.scanLine(y);
                 for (int x=0; x<w; ++x) {
-                    dst[x*h + h-y-1] = *src++;
+                    dst[x*bytes_per_line + h-y-1] = *src++;
                 }
             }
         }
@@ -5538,10 +5539,11 @@ static QImage rotated270(const QImage &image) {
     case QImage::Format_Indexed8:
         {
             uchar *dst = out.bits();
+            int bytes_per_line = out.bytesPerLine();
             for (int y=0; y<h; ++y) {
                 const uchar *src = image.scanLine(y);
                 for (int x=0; x<w; ++x) {
-                    dst[y + (w-x-1)*h] = *src++;
+                    dst[y + (w-x-1)*bytes_per_line] = *src++;
                 }
             }
         }
