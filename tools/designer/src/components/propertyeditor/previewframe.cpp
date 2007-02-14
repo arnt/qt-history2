@@ -47,26 +47,26 @@ namespace {
 
 namespace qdesigner_internal {
 
-PreviewFrame::PreviewFrame(QWidget *parent) : 
+PreviewFrame::PreviewFrame(QWidget *parent) :
     QFrame(parent),
     m_mdiArea(new PreviewMdiArea(this))
 {
-    setMinimumSize(200, 200);
+    m_mdiArea->setScrollBarsEnabled(true);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setLineWidth(1);
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
     vbox->addWidget(m_mdiArea);
-    
-    ensureMdiSubWindow();
+
+    setMinimumSize(ensureMdiSubWindow()->minimumSizeHint());
 }
 
 void PreviewFrame::setPreviewPalette(const QPalette &pal)
 {
     ensureMdiSubWindow()->widget()->setPalette(pal);
 }
-    
+
 void PreviewFrame::setSubWindowActive(bool active)
 {
     m_mdiArea->setActiveSubWindow (active ? ensureMdiSubWindow() : static_cast<QMdiSubWindow *>(0));
@@ -75,10 +75,16 @@ void PreviewFrame::setSubWindowActive(bool active)
 QMdiSubWindow *PreviewFrame::ensureMdiSubWindow()
 {
     if (!m_mdiSubWindow) {
-        m_mdiSubWindow = m_mdiArea->addSubWindow(new PreviewWidget(m_mdiArea), Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint);
+        PreviewWidget *previewWidget = new PreviewWidget(m_mdiArea);
+        m_mdiSubWindow = m_mdiArea->addSubWindow(previewWidget, Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
         m_mdiSubWindow->move(10,10);
         m_mdiSubWindow->show();
     }
+
+    const Qt::WindowStates state = m_mdiSubWindow->windowState();
+    if (state & Qt::WindowMinimized)
+        m_mdiSubWindow->setWindowState(state & ~Qt::WindowMinimized);
+
     return m_mdiSubWindow;
 }
 }
