@@ -34,8 +34,8 @@
 
 #include <stdio.h>
 
-//TESTED_CLASS=
-//TESTED_FILES=corelib/thread/qmutex.h corelib/thread/qmutex.cpp
+//TESTED_CLASS=QReadWriteLock
+//TESTED_FILES=corelib/thread/qreadwritelock.h corelib/thread/qreadwritelock.cpp
 
 class tst_QReadWriteLock : public QObject
 {
@@ -80,6 +80,9 @@ void deleteOnUnlock();
 private slots:
 void uncontendedLocks();
 
+    // recursive locking tests
+    void recursiveReadLock();
+    void recursiveWriteLock();
 };
 
 tst_QReadWriteLock::tst_QReadWriteLock()
@@ -292,7 +295,10 @@ void tst_QReadWriteLock::tryWriteLock()
     rwlock.unlock();
 
     rwlock.lockForWrite();
-    QVERIFY(!rwlock.tryLockForWrite());
+    QVERIFY(rwlock.tryLockForWrite());
+    QVERIFY(rwlock.tryLockForWrite());
+    rwlock.unlock();
+    rwlock.unlock();
     rwlock.unlock();
 
     rwlock.lockForRead();
@@ -890,6 +896,157 @@ void tst_QReadWriteLock::uncontendedLocks()
     printf("%u uncontended read locks/unlocks\n", read);
     printf("%u uncontended write locks/unlocks\n", write);
 }
+
+enum { RecursiveLockCount = 10 };
+
+void tst_QReadWriteLock::recursiveReadLock()
+{
+    // thread to attempt locking for writing while the test recursively locks for reading
+    class RecursiveReadLockThread : public QThread
+    {
+    public:
+        QReadWriteLock *lock;
+        bool tryLockForWriteResult;
+
+        void run()
+        {
+            testsTurn.release();
+
+            // test is recursively locking for writing
+            for (int i = 0; i < RecursiveLockCount; ++i) {
+                threadsTurn.acquire();
+                tryLockForWriteResult = lock->tryLockForWrite();
+                testsTurn.release();
+            }
+
+            // test is releasing recursive write lock
+            for (int i = 0; i < RecursiveLockCount - 1; ++i) {
+                threadsTurn.acquire();
+                tryLockForWriteResult = lock->tryLockForWrite();
+                testsTurn.release();
+            }
+
+            // after final unlock in test, we should get the lock
+            threadsTurn.acquire();
+            tryLockForWriteResult = lock->tryLockForWrite();
+            testsTurn.release();
+
+            // cleanup
+            lock->unlock();
+        }
+    };
+
+    // init
+    QReadWriteLock lock;
+    RecursiveReadLockThread thread;
+    thread.lock = &lock;
+    thread.start();
+
+    testsTurn.acquire();
+
+    // verify that we can get multiple read locks in the same thread
+    for (int i = 0; i < RecursiveLockCount; ++i) {
+        QVERIFY(lock.tryLockForRead());
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        QVERIFY(!thread.tryLockForWriteResult);
+    }
+
+    // have to unlock the same number of times that we locked
+    for (int i = 0;i < RecursiveLockCount - 1; ++i) {
+        lock.unlock();
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        QVERIFY(!thread.tryLockForWriteResult);
+    }
+
+    // after the final unlock, we should be able to get the write lock
+    lock.unlock();
+    threadsTurn.release();
+
+    testsTurn.acquire();
+    QVERIFY(thread.tryLockForWriteResult);
+
+    // cleanup
+    QVERIFY(thread.wait());
+}
+
+void tst_QReadWriteLock::recursiveWriteLock()
+{
+    // thread to attempt locking for reading while the test recursively locks for writing
+    class RecursiveWriteLockThread : public QThread
+    {
+    public:
+        QReadWriteLock *lock;
+        bool tryLockForReadResult;
+
+        void run()
+        {
+            testsTurn.release();
+
+            // test is recursively locking for writing
+            for (int i = 0; i < RecursiveLockCount; ++i) {
+                threadsTurn.acquire();
+                tryLockForReadResult = lock->tryLockForRead();
+                testsTurn.release();
+            }
+
+            // test is releasing recursive write lock
+            for (int i = 0; i < RecursiveLockCount - 1; ++i) {
+                threadsTurn.acquire();
+                tryLockForReadResult = lock->tryLockForRead();
+                testsTurn.release();
+            }
+
+            // after final unlock in test, we should get the lock
+            threadsTurn.acquire();
+            tryLockForReadResult = lock->tryLockForRead();
+            testsTurn.release();
+
+            // cleanup
+            lock->unlock();
+        }
+    };
+
+    // init
+    QReadWriteLock lock;
+    RecursiveWriteLockThread thread;
+    thread.lock = &lock;
+    thread.start();
+
+    testsTurn.acquire();
+
+    // verify that we can get multiple read locks in the same thread
+    for (int i = 0; i < RecursiveLockCount; ++i) {
+        QVERIFY(lock.tryLockForWrite());
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        QVERIFY(!thread.tryLockForReadResult);
+    }
+
+    // have to unlock the same number of times that we locked
+    for (int i = 0;i < RecursiveLockCount - 1; ++i) {
+        lock.unlock();
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        QVERIFY(!thread.tryLockForReadResult);
+    }
+
+    // after the final unlock, thread should be able to get the read lock
+    lock.unlock();
+    threadsTurn.release();
+
+    testsTurn.acquire();
+    QVERIFY(thread.tryLockForReadResult);
+
+    // cleanup
+    QVERIFY(thread.wait());
+}
+
 QTEST_MAIN(tst_QReadWriteLock)
 
 #include "tst_qreadwritelock.moc"
