@@ -40,6 +40,8 @@
 
 #include <private/qlayoutengine_p.h>
 
+#if 0
+
 /******************************************************************************
 ** debug
 */
@@ -99,7 +101,9 @@ void dumpLayout(const QDockAreaLayout &layout, QString indent)
     }
     qout.flush();
 };
-#endif
+#endif // QT_NO_DOCKWIDGET
+
+#endif // 0
 
 
 /******************************************************************************
