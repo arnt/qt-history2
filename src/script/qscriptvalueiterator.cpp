@@ -293,7 +293,7 @@ QScriptValue::PropertyFlags QScriptValueIterator::flags() const
     if (!member.isValid())
         return 0;
 
-    return static_cast<QScriptValue::PropertyFlags>(member.flags());
+    return QScriptValue::PropertyFlags(member.flags());
 }
 
 /*!
