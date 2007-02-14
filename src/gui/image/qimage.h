@@ -224,14 +224,16 @@ public:
     void setText(const char* key, const char* lang, const QString&);
 #endif
 
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) || defined(Q_WS_QWS)
     enum Endian { BigEndian, LittleEndian, IgnoreEndian };
+#endif
+#ifdef Q_WS_QWS
+    QImage(uchar *data, int w, int h, int depth, int pbl, const QRgb *colortable, int numColors, Endian bitOrder);
+#endif
+#ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QImage(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
     QT3_SUPPORT_CONSTRUCTOR QImage(const QSize&, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
     QT3_SUPPORT_CONSTRUCTOR QImage(uchar *data, int w, int h, int depth, const QRgb *colortable, int numColors, Endian bitOrder);
-#ifdef Q_WS_QWS
-    QT3_SUPPORT_CONSTRUCTOR QImage(uchar *data, int w, int h, int depth, int pbl, const QRgb *colortable, int numColors, Endian bitOrder);
-#endif
     inline QT3_SUPPORT Endian bitOrder() const {
         Format f = format();
         return f == Format_Mono ? BigEndian : (f == Format_MonoLSB ? LittleEndian : IgnoreEndian);
