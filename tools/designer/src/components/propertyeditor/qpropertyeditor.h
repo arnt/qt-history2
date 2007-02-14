@@ -50,10 +50,12 @@ protected:
     virtual QStyleOptionViewItem viewOptions() const;
     virtual void focusInEvent(QFocusEvent *event);
 
+private slots:
+    void headerDoubleClicked(int);
+
 private:
     QPropertyEditorModel *m_model;
     QPropertyEditorDelegate *m_itemDelegate;
-    bool m_contentsResized;
 };
 
 }  // namespace qdesigner_internal

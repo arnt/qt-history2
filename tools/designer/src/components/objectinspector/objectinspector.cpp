@@ -19,7 +19,7 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 #include "formwindow.h"
 
 // sdk
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
 
 // shared
 #include <tree_widget_p.h>
@@ -69,6 +69,9 @@ ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *pa
 
     connect(m_treeWidget, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
             this, SLOT(slotSelectionChanged()));
+
+    connect(m_treeWidget->header(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotHeaderDoubleClicked(int)));
+
 }
 
 ObjectInspector::~ObjectInspector()
@@ -122,7 +125,7 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
 
     if (!fw || !fw->mainContainer())
         return;
-    
+
     const QDesignerFormWindowCursorInterface* cursor=fw->cursor();
     const QDesignerWidgetDataBaseInterface *db = fw->core()->widgetDataBase();
 
@@ -136,7 +139,7 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
     // remember the selection and apply later
     typedef QVector<QTreeWidgetItem*> SelectionList;
     SelectionList selectionList;
-        
+
     while (!workingList.isEmpty()) {
         QTreeWidgetItem *item = workingList.top().first;
         QObject *object = workingList.top().second;
@@ -148,7 +151,7 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
         if (isWidget && (cursor && cursor->isWidgetSelected(static_cast<QWidget*>(object)) ||
                          object == cursor->current())) {
             selectionList.push_back(item);
-        } 
+        }
 
         QString className = QLatin1String(object->metaObject()->className());
         if (QDesignerWidgetDataBaseItemInterface *widgetItem = db->item(db->indexOfObject(object, true))) {
@@ -225,7 +228,7 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
 
     m_treeWidget->horizontalScrollBar()->setValue(xoffset);
     m_treeWidget->verticalScrollBar()->setValue(yoffset);
-    
+
     switch (selectionList.size()) {
     case 0:
         break;
@@ -338,5 +341,10 @@ void ObjectInspector::getSelection(Selection &s) const
             }
         }
     }
+}
+
+void ObjectInspector::slotHeaderDoubleClicked(int column)
+{
+    m_treeWidget->resizeColumnToContents(column);
 }
 }

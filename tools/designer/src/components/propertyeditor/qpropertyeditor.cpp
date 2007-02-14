@@ -25,14 +25,16 @@ namespace qdesigner_internal {
 
 Q_GLOBAL_STATIC_WITH_ARGS(PropertyCollection, dummy_collection, (QLatin1String("<empty>")))
 
-QPropertyEditor::QPropertyEditor(QWidget *parent)    : 
-    QTreeView(parent), 
+QPropertyEditor::QPropertyEditor(QWidget *parent)    :
+    QTreeView(parent),
     m_model(new QPropertyEditorModel(this)),
-    m_itemDelegate(new QPropertyEditorDelegate(this)),
-    m_contentsResized(false)
+    m_itemDelegate(new QPropertyEditorDelegate(this))
 {
     setModel(m_model);
     setItemDelegate(m_itemDelegate);
+
+    connect(header(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(headerDoubleClicked(int)));
+
     connect(m_itemDelegate, SIGNAL(resetProperty(const QString &)), m_model, SIGNAL(resetProperty(const QString &)));
     setInitialInput(0);
 
@@ -45,7 +47,7 @@ QPropertyEditor::QPropertyEditor(QWidget *parent)    :
 
     connect(m_model, SIGNAL(propertyChanged(IProperty*)),
             this, SIGNAL(propertyChanged(IProperty*)));
-    
+
     setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
@@ -65,13 +67,12 @@ void QPropertyEditor::setReadOnly(bool readOnly)
 
 void QPropertyEditor::setInitialInput(IProperty *initialInput)
 {
+    const int oldColumnWidth  = columnWidth(0);
+
     QScrollBar *sb = verticalScrollBar();
+
     const int position = sb->value();
-    bool needResize = false;
-    if (!m_model->initialInput() || m_model->initialInput() == dummy_collection()) {
-        if (initialInput)
-            needResize = true;
-    }
+    const bool resizeToColumn = !m_model->initialInput() || m_model->initialInput() == dummy_collection();
 
     if (!initialInput)
         initialInput = dummy_collection();
@@ -85,9 +86,10 @@ void QPropertyEditor::setInitialInput(IProperty *initialInput)
     setEditTriggers(QAbstractItemView::CurrentChanged|QAbstractItemView::SelectedClicked);
     setRootIndex(m_model->indexOf(initialInput));
 
-    if (needResize && !m_contentsResized) {
-        m_contentsResized = true;
+    if (resizeToColumn) {
         resizeColumnToContents(0);
+    } else {
+        setColumnWidth (0, oldColumnWidth);
     }
     sb->setValue(position);
 }
@@ -157,4 +159,10 @@ void QPropertyEditor::focusInEvent(QFocusEvent *event)
     QAbstractScrollArea::focusInEvent(event);
     viewport()->update();
 }
+
+void QPropertyEditor::headerDoubleClicked(int column)
+{
+    resizeColumnToContents(column);
 }
+}
+

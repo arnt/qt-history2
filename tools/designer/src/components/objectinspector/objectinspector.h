@@ -17,7 +17,6 @@
 #include "objectinspector_global.h"
 #include "qdesigner_objectinspector_p.h"
 
-#include <QtDesigner/QtDesigner>
 #include <QtCore/QPointer>
 
 class QDesignerFormEditorInterface;
@@ -43,6 +42,7 @@ public:
 private slots:
     void slotSelectionChanged();
     void slotPopupContextMenu(const QPoint &pos);
+    void slotHeaderDoubleClicked(int column);
 
 protected:
     virtual void showEvent(QShowEvent *enent);
