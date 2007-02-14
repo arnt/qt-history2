@@ -12,6 +12,7 @@ General Improvements
 --------------------
 
 - Configuration/Compilation
+    * Fixed architecture detection on UltraSPARC-T1 systems
 
 - Documentation
     * Completed documentation for "Implementing Atomic Operations,"
@@ -176,7 +177,16 @@ General improvements
 - QList
     * Fixed crash when modifying a QList that much detach from a
       separate thread
-    
+
+- QWidget
+    * Fixed modal dialogs being stacked below parent windows when the
+      dialog was shown first
+    * Fixed an erroneous hideEvent() from being sent immediately after
+      window creation
+
+- QVariant
+    * Fixed ASSERT caused by streaming in a variant containing a float
+
 ****************************************************************************
 *                      Platform Specific Changes                           *
 ****************************************************************************
@@ -184,12 +194,19 @@ General improvements
 X11
 ---
     * Fixed detection of Type1 symbol fonts
-    * Fixed architecture detection on UltraSPARC-T1 systems
     * Fixed crash on exit in QSystemTrayIcon when QApplication is used
       as the parent
     * Fixed animation GUI effects on tooltips, menus, and comboboxes
     * Fixed crashes in threaded programs when Qt uses the Glib main
       loop
+    * Fixed empty LANG environment variable from preventing input of
+      non-ascii chars in Qt widgets
+    * Fixed leak of initial style created by QApplication after
+      calling QApplication::setStyle()
+    * Fixed erroneous event delivery to a widget that has been
+      destroyed
+    * Prevent shortcuts for arrow keys of keypad from being activated
+      when numlock is on
 
 Windows
 -------
@@ -200,6 +217,8 @@ Windows
       CloseHandCursor
     * Fixed infinite warning loop about adopted threads in
       applications with many threads
+    * Fixed ASSERT caused by hiding child widget whose widnow has not
+      yet been created
 
 Mac OS X
 --------
