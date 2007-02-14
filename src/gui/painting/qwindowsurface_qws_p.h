@@ -133,7 +133,7 @@ class Q_GUI_EXPORT QWSLocalMemSurface : public QWSMemorySurface
 public:
     QWSLocalMemSurface();
     QWSLocalMemSurface(QWidget *widget);
-    ~QWSLocalMemSurface() {}
+    ~QWSLocalMemSurface();
 
     void setGeometry(const QRect &rect);
 

@@ -675,12 +675,14 @@ QRect QWSMemorySurface::geometry() const
 void QWSMemorySurface::release()
 {
     QWSWindowSurface::release();
+    // release is only called on the client side where QWSDisplay owns memlock
     memlock = 0;
     img = QImage();
 }
 
 void QWSMemorySurface::detach()
 {
+    // detach is only called on the server side where we own memlock
     delete memlock;
     memlock = 0;
     img = QImage();
@@ -763,6 +765,12 @@ QWSLocalMemSurface::QWSLocalMemSurface()
 QWSLocalMemSurface::QWSLocalMemSurface(QWidget *w)
     : QWSMemorySurface(w), mem(0), memsize(0)
 {
+}
+
+QWSLocalMemSurface::~QWSLocalMemSurface()
+{
+    if (memsize)
+        delete[] mem;
 }
 
 void QWSLocalMemSurface::setGeometry(const QRect &rect)
@@ -879,6 +887,7 @@ QWSSharedMemSurface::QWSSharedMemSurface(QWidget *widget)
 
 QWSSharedMemSurface::~QWSSharedMemSurface()
 {
+    // mem.detach() is done automatically by ~QSharedMemory
 }
 
 bool QWSSharedMemSurface::setMemory(int memId)
