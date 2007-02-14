@@ -32,13 +32,13 @@ namespace QScript { namespace Ecma {
 class String: public Core
 {
 public:
-    String(QScriptEngine *engine);
+    String(QScriptEnginePrivate *engine);
     virtual ~String();
 
     inline QScriptClassInfo *classInfo() const
         { return m_classInfo; }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
     class StringClassData: public QScriptClassData
     {
@@ -51,56 +51,56 @@ public:
         inline QScriptClassInfo *classInfo() const
             { return m_classInfo; }
 
-        virtual bool resolve(const QScriptValue &object,
+        virtual bool resolve(const QScriptValueImpl &object,
                              QScriptNameIdImpl *nameId,
-                             QScript::Member *member, QScriptValue *base);
-        virtual bool get(const QScriptValue &obj, const Member &m,
-                         QScriptValue *out_value);
-        virtual int extraMemberCount(const QScriptValue &object);
-        virtual bool extraMember(const QScriptValue &object,
+                             QScript::Member *member, QScriptValueImpl *base);
+        virtual bool get(const QScriptValueImpl &obj, const Member &m,
+                         QScriptValueImpl *out_value);
+        virtual int extraMemberCount(const QScriptValueImpl &object);
+        virtual bool extraMember(const QScriptValueImpl &object,
                                  int index, Member *member);
     };
 
-    void newString(QScriptValue *result, const QString &value = QString());
+    void newString(QScriptValueImpl *result, const QString &value = QString());
 
 protected:
-    static QScriptValue method_toString(QScriptEngine *eng,
+    static QScriptValueImpl method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                         QScriptClassInfo *classInfo);
-    static QScriptValue method_valueOf(QScriptEngine *eng,
+    static QScriptValueImpl method_valueOf(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_charAt(QScriptEngine *eng,
+    static QScriptValueImpl method_charAt(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                       QScriptClassInfo *classInfo);
-    static QScriptValue method_charCodeAt(QScriptEngine *eng,
+    static QScriptValueImpl method_charCodeAt(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                           QScriptClassInfo *classInfo);
-    static QScriptValue method_concat(QScriptEngine *eng,
+    static QScriptValueImpl method_concat(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                       QScriptClassInfo *classInfo);
-    static QScriptValue method_indexOf(QScriptEngine *eng,
+    static QScriptValueImpl method_indexOf(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_lastIndexOf(QScriptEngine *eng,
+    static QScriptValueImpl method_lastIndexOf(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                            QScriptClassInfo *classInfo);
-    static QScriptValue method_localeCompare(QScriptEngine *eng,
+    static QScriptValueImpl method_localeCompare(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                              QScriptClassInfo *classInfo);
-    static QScriptValue method_match(QScriptEngine *eng,
+    static QScriptValueImpl method_match(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                      QScriptClassInfo *classInfo);
-    static QScriptValue method_replace(QScriptEngine *eng,
+    static QScriptValueImpl method_replace(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_search(QScriptEngine *eng,
+    static QScriptValueImpl method_search(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                       QScriptClassInfo *classInfo);
-    static QScriptValue method_slice(QScriptEngine *eng,
+    static QScriptValueImpl method_slice(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                      QScriptClassInfo *classInfo);
-    static QScriptValue method_split(QScriptEngine *eng,
+    static QScriptValueImpl method_split(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                      QScriptClassInfo *classInfo);
-    static QScriptValue method_substring(QScriptEngine *eng,
+    static QScriptValueImpl method_substring(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                          QScriptClassInfo *classInfo);
-    static QScriptValue method_toLowerCase(QScriptEngine *eng,
+    static QScriptValueImpl method_toLowerCase(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                            QScriptClassInfo *classInfo);
-    static QScriptValue method_toLocaleLowerCase(QScriptEngine *eng,
+    static QScriptValueImpl method_toLocaleLowerCase(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                                  QScriptClassInfo *classInfo);
-    static QScriptValue method_toUpperCase(QScriptEngine *eng,
+    static QScriptValueImpl method_toUpperCase(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                            QScriptClassInfo *classInfo);
-    static QScriptValue method_toLocaleUpperCase(QScriptEngine *eng,
+    static QScriptValueImpl method_toLocaleUpperCase(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                                  QScriptClassInfo *classInfo);
-    static QScriptValue method_fromCharCode(QScriptEngine *eng,
+    static QScriptValueImpl method_fromCharCode(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                             QScriptClassInfo *classInfo);
 
 private:

@@ -33,6 +33,7 @@ SOURCES += \
     $$PWD/qscriptprettypretty.cpp \
     $$PWD/qscriptsyntaxchecker.cpp \
     $$PWD/qscriptvalueiterator.cpp \
+    $$PWD/qscriptvalueimpl.cpp \
     $$PWD/qscriptvalue.cpp
 
 HEADERS += \
@@ -79,6 +80,7 @@ HEADERS += \
     $$PWD/qscriptsyntaxchecker_p.h \
     $$PWD/qscriptvalue.h \
     $$PWD/qscriptvalue_p.h \
+    $$PWD/qscriptvalueimpl_p.h \
     $$PWD/qscriptvalueiterator.h \
     $$PWD/qscriptvalueiterator_p.h \
     $$PWD/qscriptclassdata_p.h

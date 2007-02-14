@@ -24,6 +24,7 @@
 #include <QtCore/QBitArray>
 #include <QtCore/QtDebug>
 #include <QtCore/QMetaMethod>
+#include <QtCore/QRegExp>
 #include "qscriptextqobject_p.h"
 
 // we use bits 15..12 of property flags
@@ -46,7 +47,7 @@ static inline QByteArray methodName(const QMetaMethod &method)
     return signature.left(signature.indexOf('('));
 }
 
-static inline QVariant variantFromValue(int targetType, const QScriptValue &value)
+static inline QVariant variantFromValue(int targetType, const QScriptValueImpl &value)
 {
     QVariant v(targetType, (void *)0);
     QScriptEngine *eng = value.engine();
@@ -66,16 +67,16 @@ static inline QVariant variantFromValue(int targetType, const QScriptValue &valu
     return QVariant();
 }
 
-ExtQObject::Instance *ExtQObject::Instance::get(const QScriptValue &object, QScriptClassInfo *klass)
+ExtQObject::Instance *ExtQObject::Instance::get(const QScriptValueImpl &object, QScriptClassInfo *klass)
 {
-    if (! klass || klass == QScriptValueImpl::get(object)->classInfo())
-        return static_cast<Instance*> (QScriptValueImpl::get(object)->objectData().data());
+    if (! klass || klass == object.classInfo())
+        return static_cast<Instance*> (object.objectData().data());
 
     return 0;
 }
 
 
-void ExtQObject::Instance::execute(QScriptContext *context)
+void ExtQObject::Instance::execute(QScriptContextPrivate *context)
 {
     const QMetaObject *meta = value->metaObject();
     // look for qscript_call()
@@ -104,13 +105,13 @@ static inline QScriptable *scriptableFromQObject(QObject *qobj)
 class ExtQObjectData: public QScriptClassData
 {
 public:
-    ExtQObjectData(QScriptEngine *, QScriptClassInfo *classInfo)
+    ExtQObjectData(QScriptEnginePrivate *, QScriptClassInfo *classInfo)
         : m_classInfo(classInfo)
     {
     }
 
-    virtual bool resolve(const QScriptValue &object, QScriptNameIdImpl *nameId,
-                         QScript::Member *member, QScriptValue *)
+    virtual bool resolve(const QScriptValueImpl &object, QScriptNameIdImpl *nameId,
+                         QScript::Member *member, QScriptValueImpl *)
     {
         QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
 
@@ -186,13 +187,12 @@ public:
         return false;
      }
 
-    virtual bool get(const QScriptValue &obj, const QScript::Member &member, QScriptValue *result)
+    virtual bool get(const QScriptValueImpl &obj, const QScript::Member &member, QScriptValueImpl *result)
     {
         if (! member.isNativeProperty())
             return false;
 
-        QScriptEngine *eng = obj.engine();
-        QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+        QScriptEnginePrivate *eng = QScriptEnginePrivate::get(obj.engine());
 
         ExtQObject::Instance *inst = ExtQObject::Instance::get(obj, m_classInfo);
         QObject *qobject = inst->value;
@@ -201,11 +201,11 @@ public:
         case PROPERTY_ID: {
             if (GeneratePropertyFunctions) {
                 const int propertyIndex = member.id();
-                *result = eng_p->createFunction(new QtPropertyFunction(qobject, propertyIndex));
+                *result = eng->createFunction(new QtPropertyFunction(qobject, propertyIndex));
 
                 // make it persist
                 QScript::Member m;
-                QScriptObject *instance = QScriptValueImpl::get(obj)->objectValue();
+                QScriptObject *instance = obj.objectValue();
                 if (!instance->findMember(member.nameId(), &m)) {
                     instance->createMember(member.nameId(), &m,
                                            QScriptValue::Undeletable
@@ -219,23 +219,23 @@ public:
                 QMetaProperty prop = meta->property(member.id());
                 Q_ASSERT(prop.isScriptable());
                 QVariant v = prop.read(qobject);
-                *result = eng_p->valueFromVariant(v);
+                *result = eng->valueFromVariant(v);
             }
         }   break;
 
         case DYNAPROPERTY_ID: {
             QByteArray name = qobject->dynamicPropertyNames().value(member.id());
             QVariant v = qobject->property(name);
-            *result = eng_p->valueFromVariant(v);
+            *result = eng->valueFromVariant(v);
         }   break;
 
         case METHOD_ID: {
             QScript::Member m;
             bool maybeOverloaded = (member.flags() & MAYBE_OVERLOADED) != 0;
-            *result = eng_p->createFunction(new QtFunction(qobject, member.id(),
+            *result = eng->createFunction(new QtFunction(qobject, member.id(),
                                                            maybeOverloaded));
             // make it persist
-            QScriptObject *instance = QScriptValueImpl::get(obj)->objectValue();
+            QScriptObject *instance = obj.objectValue();
             if (!instance->findMember(member.nameId(), &m)) {
                 instance->createMember(member.nameId(), &m,
                                        QScriptValue::SkipInEnumeration);
@@ -253,7 +253,7 @@ public:
         return true;
     }
 
-    virtual bool put(QScriptValue *object, const QScript::Member &member, const QScriptValue &value)
+    virtual bool put(QScriptValueImpl *object, const QScript::Member &member, const QScriptValueImpl &value)
     {
         if (! member.isNativeProperty() || ! member.isWritable())
             return false;
@@ -267,7 +267,7 @@ public:
 
         case METHOD_ID: {
             QScript::Member m;
-            QScriptObject *instance = QScriptValueImpl::get(*object)->objectValue();
+            QScriptObject *instance = object->objectValue();
             if (!instance->findMember(member.nameId(), &m)) {
                 instance->createMember(member.nameId(), &m,
                                        QScriptValue::SkipInEnumeration);
@@ -299,7 +299,7 @@ public:
         return false;
     }
 
-    virtual int extraMemberCount(const QScriptValue &object)
+    virtual int extraMemberCount(const QScriptValueImpl &object)
     {
         QObject *qobject = object.toQObject();
         if (! qobject)
@@ -311,7 +311,7 @@ public:
             + meta->methodCount();
     }
 
-    virtual bool extraMember(const QScriptValue &object, int index, QScript::Member *member)
+    virtual bool extraMember(const QScriptValueImpl &object, int index, QScript::Member *member)
     {
         QScriptEngine *eng = object.engine();
         QObject *qobject = object.toQObject();
@@ -348,7 +348,7 @@ public:
         return false;
     }
 
-    virtual bool removeMember(const QScriptValue &object,
+    virtual bool removeMember(const QScriptValueImpl &object,
                               const QScript::Member &member)
     {
         QObject *qobject = object.toQObject();
@@ -364,7 +364,7 @@ public:
         return false;
     }
 
-    virtual void mark(const QScriptValue &object, int generation)
+    virtual void mark(const QScriptValueImpl &object, int generation)
     {
         ExtQObject::Instance *inst = ExtQObject::Instance::get(object, m_classInfo);
         inst->thisObject.mark(generation);
@@ -386,10 +386,10 @@ struct StaticQtMetaObject : public QObject
         { return &static_cast<StaticQtMetaObject*> (0)->staticQtMetaObject; }
 };
 
-bool ExtQMetaObjectData::resolve(const QScriptValue &object, QScriptNameIdImpl *nameId,
-                                 QScript::Member *member, QScriptValue *base)
+bool ExtQMetaObjectData::resolve(const QScriptValueImpl &object, QScriptNameIdImpl *nameId,
+                                 QScript::Member *member, QScriptValueImpl *base)
 {
-    QScript::ExtQMetaObject *self = static_cast<QScript::ExtQMetaObject*> (QScriptValueImpl::get(object)->toFunction());
+    QScript::ExtQMetaObject *self = static_cast<QScript::ExtQMetaObject*> (object.toFunction());
     const QMetaObject *meta = self->m_meta;
 
     QScriptEngine *eng = object.engine();
@@ -419,19 +419,19 @@ bool ExtQMetaObjectData::resolve(const QScriptValue &object, QScriptNameIdImpl *
     return false;
 }
 
-bool ExtQMetaObjectData::get(const QScriptValue &obj, const QScript::Member &member,
-                             QScriptValue *result)
+bool ExtQMetaObjectData::get(const QScriptValueImpl &obj, const QScript::Member &member,
+                             QScriptValueImpl *result)
 {
     if (! member.isNativeProperty())
         return false;
 
-    *result = QScriptValue(obj.engine(), member.id());
+    *result = QScriptValueImpl(QScriptEnginePrivate::get(obj.engine()), member.id());
     return true;
 }
 
-void ExtQMetaObjectData::mark(const QScriptValue &object, int generation)
+void ExtQMetaObjectData::mark(const QScriptValueImpl &object, int generation)
 {
-    QScript::ExtQMetaObject *self = static_cast<QScript::ExtQMetaObject*> (QScriptValueImpl::get(object)->toFunction());
+    QScript::ExtQMetaObject *self = static_cast<QScript::ExtQMetaObject*> (object.toFunction());
     if (self->m_ctor.isObject())
         self->m_ctor.mark(generation);
 }
@@ -440,22 +440,20 @@ void ExtQMetaObjectData::mark(const QScriptValue &object, int generation)
 
 
 
-QScript::ExtQObject::ExtQObject(QScriptEngine *eng, QScriptClassInfo *classInfo):
+QScript::ExtQObject::ExtQObject(QScriptEnginePrivate *eng, QScriptClassInfo *classInfo):
     Ecma::Core(eng), m_classInfo(classInfo)
 {
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-
     publicPrototype.invalidate();
     newQObject(&publicPrototype, 0);
 
-    eng_p->newConstructor(&ctor, this, publicPrototype);
+    eng->newConstructor(&ctor, this, publicPrototype);
     const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
     publicPrototype.setProperty(QLatin1String("toString"),
-                                eng_p->createFunction(method_toString, 0, m_classInfo), flags);
+                                eng->createFunction(method_toString, 0, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("findChild"),
-                                eng_p->createFunction(method_findChild, 1, m_classInfo), flags);
+                                eng->createFunction(method_findChild, 1, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("findChildren"),
-                                eng_p->createFunction(method_findChildren, 1, m_classInfo), flags);
+                                eng->createFunction(method_findChildren, 1, m_classInfo), flags);
 
     QExplicitlySharedDataPointer<QScriptClassData> data(new QScript::ExtQObjectData(eng, classInfo));
     m_classInfo->setData(data);
@@ -465,26 +463,25 @@ QScript::ExtQObject::~ExtQObject()
 {
 }
 
-void QScript::ExtQObject::execute(QScriptContext *context)
+void QScript::ExtQObject::execute(QScriptContextPrivate *context)
 {
-    QScriptValue tmp;
+    QScriptValueImpl tmp;
     newQObject(&tmp, 0);
     context->setReturnValue(tmp);
 }
 
-void QScript::ExtQObject::newQObject(QScriptValue *result, QObject *value, bool isConnection)
+void QScript::ExtQObject::newQObject(QScriptValueImpl *result, QObject *value, bool isConnection)
 {
     Instance *instance = new Instance();
     instance->value = value;
     instance->isConnection = isConnection;
 
-    QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
-    QScriptValueImpl::get(*result)->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+    engine()->newObject(result, publicPrototype, classInfo());
+    result->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
 }
 
-QScriptValue QScript::ExtQObject::method_findChild(QScriptEngine *eng, QScriptClassInfo *classInfo)
+QScriptValueImpl QScript::ExtQObject::method_findChild(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
 {
-    QScriptContext *context = eng->currentContext();
     if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
         QObject *obj = instance->value;
         QString name = context->argument(0).toString();
@@ -496,16 +493,15 @@ QScriptValue QScript::ExtQObject::method_findChild(QScriptEngine *eng, QScriptCl
     return eng->undefinedValue();
 }
 
-QScriptValue QScript::ExtQObject::method_findChildren(QScriptEngine *eng, QScriptClassInfo *classInfo)
+QScriptValueImpl QScript::ExtQObject::method_findChildren(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
 {
-    QScriptContext *context = eng->currentContext();
     if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
         QObject *obj = instance->value;
         QList<QObject*> found;
-        QScriptValue arg = context->argument(0);
-#if 0
+        QScriptValueImpl arg = context->argument(0);
+#ifndef QT_NO_REGEXP
         if (arg.isRegExp()) {
-            QRegExp re = arg.toRegExp(); // ### need toRegExp()
+            QRegExp re = arg.toRegExp();
             found = qFindChildren<QObject*>(obj, re);
         } else
 #endif
@@ -513,9 +509,9 @@ QScriptValue QScript::ExtQObject::method_findChildren(QScriptEngine *eng, QScrip
             QString name = arg.toString();
             found = qFindChildren<QObject*>(obj, name);
         }
-        QScriptValue result = eng->newArray(found.size());
+        QScriptValueImpl result = eng->newArray(found.size());
         for (int i = 0; i < found.size(); ++i) {
-            QScriptValue value = eng->newQObject(found.at(i));
+            QScriptValueImpl value = eng->newQObject(found.at(i));
             result.setProperty(i, value);
         }
         return result;
@@ -523,9 +519,8 @@ QScriptValue QScript::ExtQObject::method_findChildren(QScriptEngine *eng, QScrip
     return eng->undefinedValue();
 }
 
-QScriptValue QScript::ExtQObject::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)
+QScriptValueImpl QScript::ExtQObject::method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
 {
-    QScriptContext *context = eng->currentContext();
     if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
         QObject *obj = instance->value;
         const QMetaObject *meta = obj ? obj->metaObject() : &QObject::staticMetaObject;
@@ -533,35 +528,35 @@ QScriptValue QScript::ExtQObject::method_toString(QScriptEngine *eng, QScriptCla
 
         QString str = QString::fromUtf8("%0(name = \"%1\")")
                       .arg(QLatin1String(meta->className())).arg(name);
-        return QScriptValue(eng, str);
+        return QScriptValueImpl(eng, str);
     }
     return eng->undefinedValue();
 }
 
 QScript::ConnectionQObject::ConnectionQObject(const QMetaMethod &method,
-                                              const QScriptValue &sender,
-                                              const QScriptValue &receiver,
-                                              const QScriptValue &slot)
+                                              const QScriptValueImpl &sender,
+                                              const QScriptValueImpl &receiver,
+                                              const QScriptValueImpl &slot)
     : m_method(method), m_sender(sender),
       m_receiver(receiver)
 {
     m_slot = slot;
     m_hasReceiver = (sender.isObject() && receiver.isObject()
-                     && QScriptValueImpl::get(sender)->objectValue() != QScriptValueImpl::get(receiver)->objectValue());
+                     && sender.objectValue() != receiver.objectValue());
 
     QScriptEngine *eng = m_slot.engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-    eng_p->qobjectConstructor->newQObject(&m_self, this, true);
-    m_self.ref();
+    QScriptValueImpl me;
+    eng_p->qobjectConstructor->newQObject(&me, this, true);
+    QScriptValuePrivate::init(m_self, eng_p->registerValue(me));
 
-    QObject *qobject = static_cast<QtFunction*>(QScriptValueImpl::get(sender)->toFunction())->object();
+    QObject *qobject = static_cast<QtFunction*>(sender.toFunction())->object();
     Q_ASSERT(qobject);
     connect(qobject, SIGNAL(destroyed()), this, SLOT(deleteLater()));
 }
 
 QScript::ConnectionQObject::~ConnectionQObject()
 {
-    m_self.deref();
 }
 
 static const uint qt_meta_data_ConnectionQObject[] = {
@@ -620,19 +615,18 @@ void QScript::ConnectionQObject::execute(void **argv)
 {
     Q_ASSERT(m_slot.isValid());
 
-    QScriptEngine *eng = m_slot.engine();
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+    QScriptEnginePrivate *eng = QScriptEnginePrivate::get(m_slot.engine());
 
-    QScriptFunction *fun = eng_p->convertToNativeFunction(m_slot);
+    QScriptFunction *fun = eng->convertToNativeFunction(m_slot);
     Q_ASSERT(fun != 0);
 
     QList<QByteArray> parameterTypes = m_method.parameterTypes();
     int argc = parameterTypes.count();
 
-    QScriptValue activation;
-    QScriptEnginePrivate::get(eng)->newActivation(&activation);
-    QScriptObject *activation_data = QScriptValueImpl::get(activation)->objectValue();
-    activation_data->m_scope = QScriptValueImpl::get(m_slot)->scope();
+    QScriptValueImpl activation;
+    eng->newActivation(&activation);
+    QScriptObject *activation_data = activation.objectValue();
+    activation_data->m_scope = m_slot.scope();
 
     int formalCount = fun->formals.count();
     int mx = qMax(formalCount, argc);
@@ -649,36 +643,36 @@ void QScript::ConnectionQObject::execute(void **argv)
                                              | QScriptValue::SkipInEnumeration);
         if (i < argc) {
             int argType = QMetaType::type(parameterTypes.at(i));
-            activation_data->m_objects[i] = eng_p->create(argType, argv[i + 1]);
+            activation_data->m_objects[i] = eng->create(argType, argv[i + 1]);
         } else {
             activation_data->m_objects[i] = eng->undefinedValue();
         }
     }
 
-    QScriptValue senderObject;
-    eng_p->qobjectConstructor->newQObject(&senderObject, sender());
+    QScriptValueImpl senderObject;
+    eng->qobjectConstructor->newQObject(&senderObject, sender());
 
-    QScriptValue thisObject;
+    QScriptValueImpl thisObject;
     if (m_hasReceiver)
         thisObject = m_receiver;
     else
         thisObject = senderObject;
 
-    QScriptContext *context = eng_p->pushContext();
+    QScriptContext *context = eng->pushContext();
     QScriptContextPrivate *context_data = QScriptContextPrivate::get(context);
-    context_data->activation = activation;
-    context_data->callee = m_slot;
-    context_data->thisObject = thisObject;
+    context_data->m_activation = activation;
+    context_data->m_callee = m_slot;
+    context_data->m_thisObject = thisObject;
     context_data->argc = argc;
-    context_data->args = const_cast<QScriptValue*> (activation_data->m_objects.constData());
+    context_data->args = const_cast<QScriptValueImpl*> (activation_data->m_objects.constData());
 
-    QScriptValue tmp;
+    QScriptValueImpl tmp;
     if (m_hasReceiver) {
         tmp = m_receiver.property(QLatin1String("sender"));
         m_receiver.setProperty(QLatin1String("sender"), senderObject);
     }
 
-    fun->execute(context);
+    fun->execute(context_data);
 
     if (m_hasReceiver)
         m_receiver.setProperty(QLatin1String("sender"), tmp);
@@ -687,7 +681,7 @@ void QScript::ConnectionQObject::execute(void **argv)
         qWarning() << "***" << context->returnValue().toString(); // ### fixme
     }
 
-    eng_p->popContext();
+    eng->popContext();
 }
 
 void QScript::ConnectionQObject::mark(int generation)
@@ -700,18 +694,18 @@ void QScript::ConnectionQObject::mark(int generation)
         m_slot.mark(generation);
 }
 
-bool QScript::ConnectionQObject::hasTarget(const QScriptValue &receiver,
-                                           const QScriptValue &slot) const
+bool QScript::ConnectionQObject::hasTarget(const QScriptValueImpl &receiver,
+                                           const QScriptValueImpl &slot) const
 {
-    return ((QScriptValueImpl::get(receiver)->objectValue() == QScriptValueImpl::get(m_receiver)->objectValue())
-            && (QScriptValueImpl::get(slot)->objectValue() == QScriptValueImpl::get(m_slot)->objectValue()));
+    return ((receiver.objectValue() == m_receiver.objectValue())
+            && (slot.objectValue() == m_slot.objectValue()));
 }
 
-void QScript::QtPropertyFunction::execute(QScriptContext *context)
+void QScript::QtPropertyFunction::execute(QScriptContextPrivate *context)
 {
     QScriptEngine *eng = context->engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-    QScriptValue result = eng->undefinedValue();
+    QScriptValueImpl result = eng_p->undefinedValue();
 
     QMetaProperty prop = m_object->metaObject()->property(m_index);
     Q_ASSERT(prop.isScriptable());
@@ -751,14 +745,15 @@ void QScript::QtPropertyFunction::execute(QScriptContext *context)
 
         result = context->argument(0);
     }
-    QScriptContextPrivate::get(context)->result = result;
+    context->m_result = result;
 }
 
-void QScript::QtFunction::execute(QScriptContext *context)
+void QScript::QtFunction::execute(QScriptContextPrivate *context)
 {
     QScriptEngine *eng = context->engine();
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(context->engine());
 
-    QScriptValue result = eng->undefinedValue();
+    QScriptValueImpl result = eng_p->undefinedValue();
 
     Q_ASSERT(m_object);
     const QMetaObject *meta = m_object->metaObject();
@@ -824,7 +819,7 @@ void QScript::QtFunction::execute(QScriptContext *context)
         vlist.append(QVariant(rtype, (void *)0)); // the result
 
         for (int i = 0; converted && i < context->argumentCount(); ++i) {
-            QScriptValue arg = context->argument(i);
+            QScriptValueImpl arg = context->argument(i);
             QByteArray argTypeName = parameterTypes.at(i);
             int atype = QMetaType::type(argTypeName);
             QVariant v(atype, (void *)0);
@@ -848,7 +843,7 @@ void QScript::QtFunction::execute(QScriptContext *context)
                 }
             } else {
                 argIsVariant.setBit(1 + i, false);
-                converted = QScriptEnginePrivate::get(eng)->convert(arg, atype, v.data());
+                converted = eng_p->convert(arg, atype, v.data());
                 if (!converted && arg.isVariant()) {
                     QVariant vv = arg.toVariant();
                     if (vv.canConvert(QVariant::Type(atype))) {
@@ -904,13 +899,13 @@ void QScript::QtFunction::execute(QScriptContext *context)
                 result = context->returnValue(); // propagate
             } else {
                 if (rtype != 0) {
-                    result = QScriptEnginePrivate::get(eng)->create(rtype, params[0]);
+                    result = eng_p->create(rtype, params[0]);
                     if (!result.isValid())
-                        result = eng->newVariant(QVariant(rtype, params[0]));
+                        result = eng_p->newVariant(QVariant(rtype, params[0]));
                 } else if (returnTypeName == "QVariant") {
-                    result = eng->newVariant(*(QVariant *)params[0]);
+                    result = eng_p->newVariant(*(QVariant *)params[0]);
                 } else {
-                    result = eng->undefinedValue();
+                    result = eng_p->undefinedValue();
                 }
             }
 
@@ -921,12 +916,12 @@ void QScript::QtFunction::execute(QScriptContext *context)
         }
     }
 
-    QScriptContextPrivate::get(context)->result = result;
+    context->m_result = result;
 }
 
-bool QScript::QtFunction::createConnection(const QScriptValue &self,
-                                           const QScriptValue &receiver,
-                                           const QScriptValue &slot)
+bool QScript::QtFunction::createConnection(const QScriptValueImpl &self,
+                                           const QScriptValueImpl &receiver,
+                                           const QScriptValueImpl &slot)
 {
     Q_ASSERT(slot.isFunction());
 
@@ -945,9 +940,9 @@ bool QScript::QtFunction::createConnection(const QScriptValue &self,
     return QMetaObject::connect(m_object, index, conn, conn->metaObject()->methodOffset());
 }
 
-bool QScript::QtFunction::destroyConnection(const QScriptValue &,
-                                            const QScriptValue &receiver,
-                                            const QScriptValue &slot)
+bool QScript::QtFunction::destroyConnection(const QScriptValueImpl &,
+                                            const QScriptValueImpl &receiver,
+                                            const QScriptValueImpl &slot)
 {
     Q_ASSERT(slot.isFunction());
     // find the connection with the given receiver+slot
@@ -983,22 +978,22 @@ QScript::QtFunction::~QtFunction()
     qDeleteAll(m_connections);
 }
 
-QScript::ExtQMetaObject::ExtQMetaObject(const QMetaObject *meta, const QScriptValue &ctor):
+QScript::ExtQMetaObject::ExtQMetaObject(const QMetaObject *meta, const QScriptValueImpl &ctor):
     m_meta(meta), m_ctor(ctor)
 {
 }
 
-void QScript::ExtQMetaObject::execute(QScriptContext *context)
+void QScript::ExtQMetaObject::execute(QScriptContextPrivate *context)
 {
     if (m_ctor.isFunction()) {
-        QScriptValueList args;
+        QScriptValueImplList args;
         for (int i = 0; i < context->argumentCount(); ++i)
             args << context->argument(i);
-        QScriptValue result = m_ctor.call(context->thisObject(), args);
-        QScriptContextPrivate::get(context)->thisObject = result;
-        QScriptContextPrivate::get(context)->result = result;
+        QScriptValueImpl result = m_ctor.call(context->thisObject(), args);
+        context->m_thisObject = result;
+        context->m_result = result;
     } else {
-        QScriptContextPrivate::get(context)->result = context->throwError(
+        context->m_result = context->throwError(
             QScriptContext::TypeError,
             QString::fromUtf8("no constructor for %s")
             .arg(QLatin1String(m_meta->className())));

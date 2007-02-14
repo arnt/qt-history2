@@ -12,7 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptcontext.h"
+#include "qscriptcontext_p.h"
 #include "qscriptengine.h"
+#include "qscriptengine_p.h"
 #include "qscriptecmamath_p.h"
 #include "qscriptvalue_p.h"
 
@@ -23,7 +25,7 @@
 
 namespace QScript { namespace Ecma {
 
-Math::Math(QScriptEngine *engine, QScriptClassInfo *classInfo):
+Math::Math(QScriptEnginePrivate *engine, QScriptClassInfo *classInfo):
     m_engine(engine),
     m_classInfo(classInfo)
 {
@@ -33,152 +35,161 @@ Math::~Math()
 {
 }
 
-void Math::construct(QScriptValue *object, QScriptEngine *eng)
+void Math::construct(QScriptValueImpl *object, QScriptEnginePrivate *eng)
 {
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-    QScriptClassInfo *classInfo = eng_p->registerClass(QLatin1String("Math"));
+    QScriptClassInfo *classInfo = eng->registerClass(QLatin1String("Math"));
 
     Math *instance = new Math(eng, classInfo);
-    *object = eng_p->createObject(classInfo);
-    QScriptValueImpl::get(*object)->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+    eng->newObject(object, classInfo);
+    object->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
 
     QScriptValue::PropertyFlags flags = QScriptValue::Undeletable
                                         | QScriptValue::ReadOnly
                                         | QScriptValue::SkipInEnumeration;
 
     object->setProperty(QLatin1String("E"),
-                        QScriptValue(eng, ::exp(1.0)), flags);
+                        QScriptValueImpl(eng, ::exp(1.0)), flags);
     object->setProperty(QLatin1String("LN2"),
-                        QScriptValue(eng, ::log(2.0)), flags);
+                        QScriptValueImpl(eng, ::log(2.0)), flags);
     object->setProperty(QLatin1String("LN10"),
-                        QScriptValue(eng, ::log(10.0)), flags);
+                        QScriptValueImpl(eng, ::log(10.0)), flags);
     object->setProperty(QLatin1String("LOG2E"),
-                        QScriptValue(eng, 1.0/::log(2.0)), flags);
+                        QScriptValueImpl(eng, 1.0/::log(2.0)), flags);
     object->setProperty(QLatin1String("LOG10E"),
-                        QScriptValue(eng, 1.0/::log(10.0)), flags);
+                        QScriptValueImpl(eng, 1.0/::log(10.0)), flags);
     object->setProperty(QLatin1String("PI"),
-                        QScriptValue(eng, 2.0 * ::asin(1.0)), flags);
+                        QScriptValueImpl(eng, 2.0 * ::asin(1.0)), flags);
     object->setProperty(QLatin1String("SQRT1_2"),
-                        QScriptValue(eng, ::sqrt(0.5)), flags);
+                        QScriptValueImpl(eng, ::sqrt(0.5)), flags);
     object->setProperty(QLatin1String("SQRT2"),
-                        QScriptValue(eng, ::sqrt(2.0)), flags);
+                        QScriptValueImpl(eng, ::sqrt(2.0)), flags);
 
     flags = QScriptValue::SkipInEnumeration;
-
     object->setProperty(QLatin1String("abs"),
-                        eng->newFunction(method_abs, 1), flags);
+                        eng->createFunction(method_abs, 1, classInfo), flags);
     object->setProperty(QLatin1String("acos"),
-                        eng->newFunction(method_acos, 1), flags);
+                        eng->createFunction(method_acos, 1, classInfo), flags);
     object->setProperty(QLatin1String("asin"),
-                        eng->newFunction(method_asin, 0), flags);
+                        eng->createFunction(method_asin, 0, classInfo), flags);
     object->setProperty(QLatin1String("atan"),
-                        eng->newFunction(method_atan, 1), flags);
+                        eng->createFunction(method_atan, 1, classInfo), flags);
     object->setProperty(QLatin1String("atan2"),
-                        eng->newFunction(method_atan2, 2), flags);
+                        eng->createFunction(method_atan2, 2, classInfo), flags);
     object->setProperty(QLatin1String("ceil"),
-                        eng->newFunction(method_ceil, 1), flags);
+                        eng->createFunction(method_ceil, 1, classInfo), flags);
     object->setProperty(QLatin1String("cos"),
-                        eng->newFunction(method_cos, 1), flags);
+                        eng->createFunction(method_cos, 1, classInfo), flags);
     object->setProperty(QLatin1String("exp"),
-                        eng->newFunction(method_exp, 1), flags);
+                        eng->createFunction(method_exp, 1, classInfo), flags);
     object->setProperty(QLatin1String("floor"),
-                        eng->newFunction(method_floor, 1), flags);
+                        eng->createFunction(method_floor, 1, classInfo), flags);
     object->setProperty(QLatin1String("log"),
-                        eng->newFunction(method_log, 1), flags);
+                        eng->createFunction(method_log, 1, classInfo), flags);
     object->setProperty(QLatin1String("max"),
-                        eng->newFunction(method_max, 2), flags);
+                        eng->createFunction(method_max, 2, classInfo), flags);
     object->setProperty(QLatin1String("min"),
-                        eng->newFunction(method_min, 2), flags);
+                        eng->createFunction(method_min, 2, classInfo), flags);
     object->setProperty(QLatin1String("pow"),
-                        eng->newFunction(method_pow, 2), flags);
+                        eng->createFunction(method_pow, 2, classInfo), flags);
     object->setProperty(QLatin1String("random"),
-                        eng->newFunction(method_random, 0), flags);
+                        eng->createFunction(method_random, 0, classInfo), flags);
     object->setProperty(QLatin1String("round"),
-                        eng->newFunction(method_round, 1), flags);
+                        eng->createFunction(method_round, 1, classInfo), flags);
     object->setProperty(QLatin1String("sin"),
-                        eng->newFunction(method_sin, 1), flags);
+                        eng->createFunction(method_sin, 1, classInfo), flags);
     object->setProperty(QLatin1String("sqrt"),
-                        eng->newFunction(method_sqrt, 1), flags);
+                        eng->createFunction(method_sqrt, 1, classInfo), flags);
     object->setProperty(QLatin1String("tan"),
-                        eng->newFunction(method_tan, 1), flags);
+                        eng->createFunction(method_tan, 1, classInfo), flags);
 }
 
-QScriptValue Math::method_abs(QScriptContext *context,
-                              QScriptEngine *eng)
+QScriptValueImpl Math::method_abs(QScriptContextPrivate *context,
+                                  QScriptEnginePrivate *eng,
+                                  QScriptClassInfo *)
 {
     qsreal v = context->argument(0).toNumber();
     if (v == 0) // 0 | -0
-        return (QScriptValue(eng, 0));
+        return (QScriptValueImpl(eng, 0));
     else
-        return (QScriptValue(eng, v < 0 ? -v : v));
+        return (QScriptValueImpl(eng, v < 0 ? -v : v));
 }
 
-QScriptValue Math::method_acos(QScriptContext *context,
-                               QScriptEngine *eng)
+QScriptValueImpl Math::method_acos(QScriptContextPrivate *context,
+                                   QScriptEnginePrivate *eng,
+                                   QScriptClassInfo *)
 {
     qsreal v = context->argument(0).toNumber();
-    return (QScriptValue(eng, ::acos(v)));
+    return (QScriptValueImpl(eng, ::acos(v)));
 }
 
-QScriptValue Math::method_asin(QScriptContext *context,
-                               QScriptEngine *eng)
+QScriptValueImpl Math::method_asin(QScriptContextPrivate *context,
+                                   QScriptEnginePrivate *eng,
+                                   QScriptClassInfo *)
 {
     qsreal v = context->argument(0).toNumber();
-    return (QScriptValue(eng, ::asin(v)));
+    return (QScriptValueImpl(eng, ::asin(v)));
 }
 
-QScriptValue Math::method_atan(QScriptContext *context,
-                               QScriptEngine *eng)
+QScriptValueImpl Math::method_atan(QScriptContextPrivate *context,
+                                   QScriptEnginePrivate *eng,
+                                   QScriptClassInfo *)
 {
     qsreal v = context->argument(0).toNumber();
-    return (QScriptValue(eng, ::atan(v)));
+    return (QScriptValueImpl(eng, ::atan(v)));
 }
 
-QScriptValue Math::method_atan2(QScriptContext *context,
-                                QScriptEngine *eng)
+QScriptValueImpl Math::method_atan2(QScriptContextPrivate *context,
+                                    QScriptEnginePrivate *eng,
+                                    QScriptClassInfo *)
 {
     qsreal v1 = context->argument(0).toNumber();
     qsreal v2 = context->argument(1).toNumber();
-    return (QScriptValue(eng, ::atan2(v1, v2)));
+    return (QScriptValueImpl(eng, ::atan2(v1, v2)));
 }
 
-QScriptValue Math::method_ceil(QScriptContext *context,
-                               QScriptEngine *eng)
+QScriptValueImpl Math::method_ceil(QScriptContextPrivate *context,
+                                   QScriptEnginePrivate *eng,
+                                   QScriptClassInfo *)
 {
     qsreal v = context->argument(0).toNumber();
-    return (QScriptValue(eng, ::ceil(v)));
+    return (QScriptValueImpl(eng, ::ceil(v)));
 }
 
-QScriptValue Math::method_cos(QScriptContext *context,
-                              QScriptEngine *eng)
+QScriptValueImpl Math::method_cos(QScriptContextPrivate *context,
+                                  QScriptEnginePrivate *eng,
+                                  QScriptClassInfo *)
 {
     qsreal v = context->argument(0).toNumber();
-    return (QScriptValue(eng, ::cos(v)));
+    return (QScriptValueImpl(eng, ::cos(v)));
 }
 
-QScriptValue Math::method_exp(QScriptContext *context,
-                              QScriptEngine *eng)
+QScriptValueImpl Math::method_exp(QScriptContextPrivate *context,
+                                  QScriptEnginePrivate *eng,
+                                  QScriptClassInfo *)
 {
     qsreal v = context->argument(0).toNumber();
-    return (QScriptValue(eng, ::exp(v)));
+    return (QScriptValueImpl(eng, ::exp(v)));
 }
 
-QScriptValue Math::method_floor(QScriptContext *context,
-                                QScriptEngine *eng)
+QScriptValueImpl Math::method_floor(QScriptContextPrivate *context,
+                                    QScriptEnginePrivate *eng,
+                                    QScriptClassInfo *)
 {
     qsreal v = context->argument(0).toNumber();
-    return (QScriptValue(eng, ::floor(v)));
+    return (QScriptValueImpl(eng, ::floor(v)));
 }
 
-QScriptValue Math::method_log(QScriptContext *context,
-                              QScriptEngine *eng)
+QScriptValueImpl Math::method_log(QScriptContextPrivate *context,
+                                  QScriptEnginePrivate *eng,
+                                  QScriptClassInfo *)
 {
     qsreal v = context->argument(0).toNumber();
-    return (QScriptValue(eng, ::log(v)));
+    return (QScriptValueImpl(eng, ::log(v)));
 }
 
-QScriptValue Math::method_max(QScriptContext *context,
-                              QScriptEngine *eng)
+QScriptValueImpl Math::method_max(QScriptContextPrivate *context,
+                                  QScriptEnginePrivate *eng,
+                                  QScriptClassInfo *)
 {
     qsreal mx = -qInf();
     for (int i = 0; i < context->argumentCount(); ++i) {
@@ -186,7 +197,7 @@ QScriptValue Math::method_max(QScriptContext *context,
         if (x > mx || qIsNan(x))
             mx = x;
     }
-    return (QScriptValue(eng, mx));
+    return (QScriptValueImpl(eng, mx));
 }
 
 /* copies the sign from y to x and returns the result */
@@ -201,8 +212,9 @@ static qsreal copySign(qsreal x, qsreal y)
     return x;
 }
 
-QScriptValue Math::method_min(QScriptContext *context,
-                              QScriptEngine *eng)
+QScriptValueImpl Math::method_min(QScriptContextPrivate *context,
+                                  QScriptEnginePrivate *eng,
+                                  QScriptClassInfo *)
 {
     qsreal mx = qInf();
     for (int i = 0; i < context->argumentCount(); ++i) {
@@ -212,54 +224,60 @@ QScriptValue Math::method_min(QScriptContext *context,
             mx = x;
         }
     }
-    return (QScriptValue(eng, mx));
+    return (QScriptValueImpl(eng, mx));
 }
 
-QScriptValue Math::method_pow(QScriptContext *context,
-                              QScriptEngine *eng)
+QScriptValueImpl Math::method_pow(QScriptContextPrivate *context,
+                                  QScriptEnginePrivate *eng,
+                                  QScriptClassInfo *)
 {
     qsreal x = context->argument(0).toNumber();
     qsreal y = context->argument(1).toNumber();
     if (qIsNan(y))
-        return QScriptValue(eng, qSNan());
+        return QScriptValueImpl(eng, qSNan());
     if ((x == 1) && qIsInf(y))
-        return QScriptValue(eng, qSNan());
-    return (QScriptValue(eng, ::pow(x, y)));
+        return QScriptValueImpl(eng, qSNan());
+    return (QScriptValueImpl(eng, ::pow(x, y)));
 }
 
-QScriptValue Math::method_random(QScriptContext *,
-                                 QScriptEngine *eng)
+QScriptValueImpl Math::method_random(QScriptContextPrivate *,
+                                     QScriptEnginePrivate *eng,
+                                     QScriptClassInfo *)
 {
-    return (QScriptValue(eng, qrand() / (qsreal) RAND_MAX));
+    return (QScriptValueImpl(eng, qrand() / (qsreal) RAND_MAX));
 }
 
-QScriptValue Math::method_round(QScriptContext *context,
-                                QScriptEngine *eng)
+QScriptValueImpl Math::method_round(QScriptContextPrivate *context,
+                                    QScriptEnginePrivate *eng,
+                                    QScriptClassInfo *)
 {
     qsreal v = context->argument(0).toNumber();
     v = copySign(::floor(v + 0.5), v);
-    return (QScriptValue(eng, v));
+    return (QScriptValueImpl(eng, v));
 }
 
-QScriptValue Math::method_sin(QScriptContext *context,
-                              QScriptEngine *eng)
+QScriptValueImpl Math::method_sin(QScriptContextPrivate *context,
+                                  QScriptEnginePrivate *eng,
+                                  QScriptClassInfo *)
 {
     qsreal v = context->argument(0).toNumber();
-    return (QScriptValue(eng, ::sin(v)));
+    return (QScriptValueImpl(eng, ::sin(v)));
 }
 
-QScriptValue Math::method_sqrt(QScriptContext *context,
-                               QScriptEngine *eng)
+QScriptValueImpl Math::method_sqrt(QScriptContextPrivate *context,
+                                   QScriptEnginePrivate *eng,
+                                   QScriptClassInfo *)
 {
     qsreal v = context->argument(0).toNumber();
-    return (QScriptValue(eng, ::sqrt(v)));
+    return (QScriptValueImpl(eng, ::sqrt(v)));
 }
 
-QScriptValue Math::method_tan(QScriptContext *context,
-                              QScriptEngine *eng)
+QScriptValueImpl Math::method_tan(QScriptContextPrivate *context,
+                                  QScriptEnginePrivate *eng,
+                                  QScriptClassInfo *)
 {
     qsreal v = context->argument(0).toNumber();
-    return (QScriptValue(eng, ::tan(v)));
+    return (QScriptValueImpl(eng, ::tan(v)));
 }
 
 } } // namespace QScript::Ecma

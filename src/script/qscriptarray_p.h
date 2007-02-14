@@ -28,7 +28,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QVector>
 
-#include "qscriptvalue.h"
+#include "qscriptvalueimpl_p.h"
 
 namespace QScript {
 
@@ -44,16 +44,16 @@ public:
     inline bool isEmpty() const;
     inline uint size() const;
     inline uint count() const;
-    inline QScriptValue at(uint index) const;
-    inline void assign(uint index, const QScriptValue &v);
+    inline QScriptValueImpl at(uint index) const;
+    inline void assign(uint index, const QScriptValueImpl &v);
     inline void clear();
     inline void mark(int generation);
     inline void resize(uint size);
     inline void concat(const Array &other);
-    inline QScriptValue pop();
-    inline void sort(const QScriptValue &comparefn);
+    inline QScriptValueImpl pop();
+    inline void sort(const QScriptValueImpl &comparefn);
     inline void splice(qsreal start, qsreal deleteCount,
-                       const QVector<QScriptValue> &items,
+                       const QVector<QScriptValueImpl> &items,
                        Array &other);
 
 private:
@@ -66,18 +66,18 @@ private:
     int m_instances;
 
     union {
-        QMap<uint, QScriptValue> *to_map;
-        QVector<QScriptValue> *to_vector;
+        QMap<uint, QScriptValueImpl> *to_map;
+        QVector<QScriptValueImpl> *to_vector;
     };
 };
 
 class ArrayElementLessThan
 {
 public:
-    inline ArrayElementLessThan(const QScriptValue &comparefn)
+    inline ArrayElementLessThan(const QScriptValueImpl &comparefn)
         : m_comparefn(comparefn) {}
 
-    inline bool operator()(const QScriptValue &v1, const QScriptValue &v2) const
+    inline bool operator()(const QScriptValueImpl &v1, const QScriptValueImpl &v2) const
     {
         if (v1.isUndefined())
             return false;
@@ -85,15 +85,15 @@ public:
             return true;
         if (!m_comparefn.isUndefined()) {
             ArrayElementLessThan *that = const_cast<ArrayElementLessThan*>(this);
-            QScriptValue result = that->m_comparefn.call(QScriptValue(),
-                                                         QScriptValueList() << v1 << v2);
+            QScriptValueImpl result = that->m_comparefn.call(QScriptValueImpl(),
+                                                             QScriptValueImplList() << v1 << v2);
             return result.toNumber() <= 0;
         }
         return v1.toString() < v2.toString();
     }
 
 private:
-    QScriptValue m_comparefn;
+    QScriptValueImpl m_comparefn;
 };
 
 } // namespace QScript
@@ -102,7 +102,7 @@ inline QScript::Array::Array():
     m_mode(VectorMode),
     m_instances(0)
 {
-    to_vector = new QVector<QScriptValue>();
+    to_vector = new QVector<QScriptValueImpl>();
 }
 
 inline QScript::Array::Array(const Array &other):
@@ -110,9 +110,9 @@ inline QScript::Array::Array(const Array &other):
     m_instances(other.m_instances)
 {
     if (m_mode == VectorMode)
-        to_vector = new QVector<QScriptValue> (*other.to_vector);
+        to_vector = new QVector<QScriptValueImpl> (*other.to_vector);
     else
-        to_map = new QMap<uint, QScriptValue> (*other.to_map);
+        to_map = new QMap<uint, QScriptValueImpl> (*other.to_map);
 }
 
 inline QScript::Array::~Array()
@@ -134,9 +134,9 @@ inline QScript::Array &QScript::Array::operator = (const Array &other)
         m_instances = other.m_instances;
 
         if (m_mode == VectorMode)
-            to_vector = new QVector<QScriptValue> (*other.to_vector);
+            to_vector = new QVector<QScriptValueImpl> (*other.to_vector);
         else
-            to_map = new QMap<uint, QScriptValue> (*other.to_map);
+            to_map = new QMap<uint, QScriptValueImpl> (*other.to_map);
     }
 
     if (m_mode == VectorMode)
@@ -171,9 +171,9 @@ inline uint QScript::Array::count() const
     return size();
 }
 
-inline QScriptValue QScript::Array::at(uint index) const
+inline QScriptValueImpl QScript::Array::at(uint index) const
 {
-    QScriptValue v;
+    QScriptValueImpl v;
 
     if (m_mode == VectorMode) {
         if (index < uint(to_vector->size()))
@@ -183,12 +183,12 @@ inline QScriptValue QScript::Array::at(uint index) const
     }
 
     else
-        v = to_map->value(index, QScriptValue());
+        v = to_map->value(index, QScriptValueImpl());
 
     return v;
 }
 
-inline void QScript::Array::assign(uint index, const QScriptValue &v)
+inline void QScript::Array::assign(uint index, const QScriptValueImpl &v)
 {
     if (index >= size())
         resize(index + 1);
@@ -223,7 +223,7 @@ inline void QScript::Array::mark(int generation)
         for (int i = 0; i < to_vector->size(); ++i)
             to_vector->at(i).mark(generation);
     } else {
-        QMap<uint, QScriptValue>::const_iterator it = to_map->constBegin();
+        QMap<uint, QScriptValueImpl>::const_iterator it = to_map->constBegin();
         for (; it != to_map->constEnd(); ++it)
             it.value().mark(generation);
     }
@@ -244,10 +244,10 @@ inline void QScript::Array::resize(uint s)
         }
 
         else {
-            QMap<uint, QScriptValue> *m = new QMap<uint, QScriptValue>();
+            QMap<uint, QScriptValueImpl> *m = new QMap<uint, QScriptValueImpl>();
             for (uint i = 0; i < uint(to_vector->size()); ++i)
                 m->insert(i, to_vector->at(i));
-            m->insert(s, QScriptValue());
+            m->insert(s, QScriptValueImpl());
             delete to_vector;
             to_map = m;
             m_mode = MapMode;
@@ -256,9 +256,9 @@ inline void QScript::Array::resize(uint s)
 
     else {
         if (s < N) {
-            QVector<QScriptValue> *v = new QVector<QScriptValue> ();
-            v->fill(QScriptValue(), s);
-            QMap<uint, QScriptValue>::const_iterator it = to_map->constBegin();
+            QVector<QScriptValueImpl> *v = new QVector<QScriptValueImpl> ();
+            v->fill(QScriptValueImpl(), s);
+            QMap<uint, QScriptValueImpl>::const_iterator it = to_map->constBegin();
             uint i = 0;
             for (; i < s && it != to_map->constEnd(); ++it, ++i)
                 (*v) [i] = it.value();
@@ -269,10 +269,10 @@ inline void QScript::Array::resize(uint s)
         }
 
         if (! to_map->isEmpty()) {
-            QMap<uint, QScriptValue>::iterator it = to_map->insert(s, QScriptValue());
+            QMap<uint, QScriptValueImpl>::iterator it = to_map->insert(s, QScriptValueImpl());
             for (++it; it != to_map->end(); )
                 it = to_map->erase(it);
-            to_map->insert(s, QScriptValue()); // ### hmm
+            to_map->insert(s, QScriptValueImpl()); // ### hmm
         }
     }
 }
@@ -281,10 +281,10 @@ inline void QScript::Array::concat(const QScript::Array &other)
 {
     int k = size();
     resize (k + other.size());
-    QScriptValue def;
+    QScriptValueImpl def;
     def.invalidate();
     for (uint i = 0; i < other.size(); ++i) {
-        QScriptValue v = other.at(i);
+        QScriptValueImpl v = other.at(i);
         if (! v.isValid())
             continue;
 
@@ -292,12 +292,12 @@ inline void QScript::Array::concat(const QScript::Array &other)
     }
 }
 
-inline QScriptValue QScript::Array::pop()
+inline QScriptValueImpl QScript::Array::pop()
 {
     if (isEmpty())
-        return QScriptValue();
+        return QScriptValueImpl();
 
-    QScriptValue v;
+    QScriptValueImpl v;
 
     if (m_mode == VectorMode)
         v = to_vector->last();
@@ -310,14 +310,14 @@ inline QScriptValue QScript::Array::pop()
     return v;
 }
 
-inline void QScript::Array::sort(const QScriptValue &comparefn)
+inline void QScript::Array::sort(const QScriptValueImpl &comparefn)
 {
     ArrayElementLessThan lessThan(comparefn);
     if (m_mode == VectorMode) {
         qSort(to_vector->begin(), to_vector->end(), lessThan);
     } else {
         QList<uint> keys = to_map->keys();
-        QList<QScriptValue> values = to_map->values();
+        QList<QScriptValueImpl> values = to_map->values();
         qSort(values.begin(), values.end(), lessThan);
         const uint len = size();
         for (uint i = 0; i < len; ++i)
@@ -326,7 +326,7 @@ inline void QScript::Array::sort(const QScriptValue &comparefn)
 }
 
 inline void QScript::Array::splice(qsreal start, qsreal deleteCount,
-                                   const QVector<QScriptValue> &items,
+                                   const QVector<QScriptValueImpl> &items,
                                    Array &other)
 {
     const qsreal len = size();
@@ -343,7 +343,7 @@ inline void QScript::Array::splice(qsreal start, qsreal deleteCount,
     if (m_mode == VectorMode) {
 
         for (uint i = 0; i < dc; ++i) {
-            QScriptValue v = to_vector->at(st + i);
+            QScriptValueImpl v = to_vector->at(st + i);
             other.assign(i, v);
             if (i < uint(items.size()))
                 to_vector->replace(st + i, items.at(i));
@@ -353,7 +353,7 @@ inline void QScript::Array::splice(qsreal start, qsreal deleteCount,
     } else {
 
         for (uint i = 0; i < dc; ++i) {
-            QScriptValue v = to_map->value(st + i, QScriptValue());
+            QScriptValueImpl v = to_map->value(st + i, QScriptValueImpl());
             other.assign(i, v);
             if (i < uint(items.size()))
                 to_map->insert(st + i, items.at(i));
@@ -363,7 +363,7 @@ inline void QScript::Array::splice(qsreal start, qsreal deleteCount,
         if (del != 0) {
             for (uint j = st + items.size(); j < uint(len); ++j) {
                 if (to_map->contains(j)) {
-                    QScriptValue v = to_map->take(j);
+                    QScriptValueImpl v = to_map->take(j);
                     to_map->insert(j - del, v);
                 }
             }

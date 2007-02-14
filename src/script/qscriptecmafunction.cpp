@@ -31,10 +31,10 @@
 
 namespace QScript { namespace Ecma {
 
-Function::Function(QScriptEngine *eng, QScriptClassInfo *classInfo):
+Function::Function(QScriptEnginePrivate *eng, QScriptClassInfo *classInfo):
     Core(eng), m_classInfo(classInfo)
 {
-    newFunction(&publicPrototype, new QScript::C2Function(&method_void, 0, m_classInfo)); // public prototype
+    publicPrototype = eng->createFunction(method_void, 0, m_classInfo); // public prototype
 }
 
 Function::~Function()
@@ -43,33 +43,30 @@ Function::~Function()
 
 void Function::initialize()
 {
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
-
-    eng_p->newConstructor(&ctor, this, publicPrototype);
+    QScriptEnginePrivate *eng = engine();
+    eng->newConstructor(&ctor, this, publicPrototype);
 
     const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
     publicPrototype.setProperty(QLatin1String("toString"),
-                                eng_p->createFunction(method_toString, 1, m_classInfo), flags);
+                                eng->createFunction(method_toString, 1, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("apply"),
-                                eng_p->createFunction(method_apply, 1, m_classInfo), flags);
+                                eng->createFunction(method_apply, 1, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("call"),
-                                eng_p->createFunction(method_call, 1, m_classInfo), flags);
+                                eng->createFunction(method_call, 1, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("connect"),
-                                eng_p->createFunction(method_connect, 1, m_classInfo), flags);
+                                eng->createFunction(method_connect, 1, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("disconnect"),
-                                eng_p->createFunction(method_disconnect, 1, m_classInfo), flags);
+                                eng->createFunction(method_disconnect, 1, m_classInfo), flags);
 }
 
-void Function::execute(QScriptContext *context)
+void Function::execute(QScriptContextPrivate *context)
 {
-    QScriptEngine *eng = context->engine();
-    QScriptEnginePrivate *driver = QScriptEnginePrivate::get(eng);
-    int lineNumber = QScriptContextPrivate::get(context)->currentLine;
+    int lineNumber = context->currentLine;
     QString contents = buildFunction(context);
-    driver->evaluate(context, contents, lineNumber);
+    engine()->evaluate(context, contents, lineNumber);
 }
 
-QString Function::buildFunction(QScriptContext *context)
+QString Function::buildFunction(QScriptContextPrivate *context)
 {
     int argc = context->argumentCount();
 
@@ -95,76 +92,71 @@ QString Function::buildFunction(QScriptContext *context)
     return code;
 }
 
-void Function::newFunction(QScriptValue *result, QScriptFunction *foo)
+void Function::newFunction(QScriptValueImpl *result, QScriptFunction *foo)
 {
-    QScriptEnginePrivate::get(engine())->newFunction(result, foo);
+    engine()->newFunction(result, foo);
 }
 
-QScriptValue Function::method_toString(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValueImpl Function::method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
-    QScriptValue self = context->thisObject();
-    if (QScriptFunction *foo = QScriptValueImpl::get(self)->toFunction()) {
+    QScriptValueImpl self = context->thisObject();
+    if (QScriptFunction *foo = self.toFunction()) {
         QString code = foo->toString(context);
-        return QScriptValue(eng, code);
+        return QScriptValueImpl(eng, code);
     }
 
     return context->throwError(QScriptContext::TypeError,
                                QLatin1String("Function.prototype.toString"));
 }
 
-QScriptValue Function::method_call(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValueImpl Function::method_call(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
     if (! context->thisObject().isFunction()) {
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.call"));
     }
 
-    QScriptValue thisObject = context->argument(0).toObject();
+    QScriptValueImpl thisObject = context->argument(0).toObject();
     if (! (thisObject.isValid () && thisObject.isObject()))
         thisObject = eng->globalObject();
 
-    QScriptValueList args;
+    QScriptValueImplList args;
     for (int i = 1; i < context->argumentCount(); ++i)
         args << context->argument(i);
 
     return context->thisObject().call(thisObject, args);
 }
 
-QScriptValue Function::method_apply(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValueImpl Function::method_apply(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-
     if (! context->thisObject().isFunction()) {
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.apply"));
     }
 
-    QScriptValue thisObject = context->argument(0).toObject();
+    QScriptValueImpl thisObject = context->argument(0).toObject();
     if (! (thisObject.isValid () && thisObject.isObject()))
-        thisObject = eng_p->globalObject;
+        thisObject = eng->globalObject();
 
-    QScriptValueList args;
-    QScriptValue undefined = eng->undefinedValue();
+    QScriptValueImplList args;
+    QScriptValueImpl undefined = eng->undefinedValue();
 
-    QScriptValue arg = context->argument(1);
+    QScriptValueImpl arg = context->argument(1);
 
-    if (Ecma::Array::Instance *arr = eng_p->arrayConstructor->get(arg)) {
+    if (Ecma::Array::Instance *arr = eng->arrayConstructor->get(arg)) {
         QScript::Array actuals = arr->value;
 
         for (quint32 i = 0; i < actuals.count(); ++i) {
-            QScriptValue a = actuals.at(i);
+            QScriptValueImpl a = actuals.at(i);
             if (! a.isValid())
                 args << undefined;
             else
                 args << a;
         }
-    } else if (QScriptValueImpl::get(arg)->classInfo() == eng_p->m_class_arguments) {
+    } else if (arg.classInfo() == eng->m_class_arguments) {
         QScript::ArgumentsObjectData *arguments;
-        arguments = static_cast<QScript::ArgumentsObjectData*> (QScriptValueImpl::get(arg)->objectData().data());
-        QScriptObject *activation = QScriptValueImpl::get(arguments->activation)->objectValue();
+        arguments = static_cast<QScript::ArgumentsObjectData*> (arg.objectData().data());
+        QScriptObject *activation = arguments->activation.objectValue();
         for (uint i = 0; i < arguments->length; ++i)
             args << activation->m_objects[i];
     } else if (!(arg.isUndefined() || arg.isNull())) {
@@ -175,44 +167,43 @@ QScriptValue Function::method_apply(QScriptEngine *eng, QScriptClassInfo *)
     return context->thisObject().call(thisObject, args);
 }
 
-QScriptValue Function::method_void(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValueImpl Function::method_void(QScriptContextPrivate *, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
     return eng->undefinedValue();
 }
 
-QScriptValue Function::method_disconnect(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValueImpl Function::method_disconnect(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
 #ifndef QT_NO_QOBJECT
     if (context->argumentCount() == 0)
-        return QScriptValue(context->engine(), false);
+        return QScriptValueImpl(eng, false);
 
-    QScriptValue self = context->thisObject();
-    QScriptFunction *fun = QScriptValueImpl::get(self)->toFunction();
+    QScriptValueImpl self = context->thisObject();
+    QScriptFunction *fun = self.toFunction();
     if ((fun == 0) || (fun->type() != QScriptFunction::Qt))
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.disconnect"));
 
-    QScriptValue receiver;
-    QScriptValue slot;
-    QScriptValue arg0 = context->argument(0);
+    QScriptValueImpl receiver;
+    QScriptValueImpl slot;
+    QScriptValueImpl arg0 = context->argument(0);
     if (arg0.isFunction()) {
         receiver = self;
         slot = arg0;
     } else {
         receiver = arg0;
-        QScriptValue arg1 = context->argument(1);
+        QScriptValueImpl arg1 = context->argument(1);
         if (arg1.isFunction())
             slot = arg1;
         else
             slot = receiver.property(arg1.toString(), QScriptValue::ResolvePrototype);
-        if (slot.isFunction() && QScriptValueImpl::get(slot)->toFunction()->type() == QScriptFunction::Qt) {
+        if (slot.isFunction() && slot.toFunction()->type() == QScriptFunction::Qt) {
             receiver = self;
             slot = arg1;
         }
     }
 
-    QScriptFunction *otherFun = QScriptValueImpl::get(slot)->toFunction();
+    QScriptFunction *otherFun = slot.toFunction();
     if (otherFun == 0)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.disconnect"));
@@ -235,48 +226,47 @@ QScriptValue Function::method_disconnect(QScriptEngine *eng, QScriptClassInfo *)
     } else {
         ok = qtSignal->destroyConnection(self, receiver, slot);
     }
-    return QScriptValue(context->engine(), ok);
+    return QScriptValueImpl(eng, ok);
 #else
     return context->throwError(QScriptContext::TypeError,
                                QLatin1String("Function.prototype.disconnect"));
 #endif // QT_NO_QOBJECT
 }
 
-QScriptValue Function::method_connect(QScriptEngine *eng, QScriptClassInfo *classInfo)
+QScriptValueImpl Function::method_connect(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
 {
-    QScriptContext *context = eng->currentContext();
     Q_UNUSED(classInfo);
 
 #ifndef QT_NO_QOBJECT
     if (context->argumentCount() == 0)
-        return QScriptValue(context->engine(), false);
+        return QScriptValueImpl(eng, false);
 
-    QScriptValue self = context->thisObject();
-    QScriptFunction *fun = QScriptValueImpl::get(self)->toFunction();
+    QScriptValueImpl self = context->thisObject();
+    QScriptFunction *fun = self.toFunction();
     if ((fun == 0) || (fun->type() != QScriptFunction::Qt))
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.connect"));
 
-    QScriptValue receiver;
-    QScriptValue slot;
-    QScriptValue arg0 = context->argument(0);
+    QScriptValueImpl receiver;
+    QScriptValueImpl slot;
+    QScriptValueImpl arg0 = context->argument(0);
     if (arg0.isFunction()) {
         receiver = self;
         slot = arg0;
     } else {
         receiver = arg0;
-        QScriptValue arg1 = context->argument(1);
+        QScriptValueImpl arg1 = context->argument(1);
         if (arg1.isFunction())
             slot = arg1;
         else
             slot = receiver.property(arg1.toString(), QScriptValue::ResolvePrototype);
-        if (slot.isFunction() && QScriptValueImpl::get(slot)->toFunction()->type() == QScriptFunction::Qt) {
+        if (slot.isFunction() && slot.toFunction()->type() == QScriptFunction::Qt) {
             receiver = self;
             slot = arg1;
         }
     }
 
-    QScriptFunction *otherFun = QScriptValueImpl::get(slot)->toFunction();
+    QScriptFunction *otherFun = slot.toFunction();
     if (otherFun == 0)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.connect"));
@@ -301,7 +291,7 @@ QScriptValue Function::method_connect(QScriptEngine *eng, QScriptClassInfo *clas
     } else {
         ok = qtSignal->createConnection(self, receiver, slot);
     }
-    return QScriptValue(context->engine(), ok);
+    return QScriptValueImpl(eng, ok);
 #else
     Q_UNUSED(eng);
     Q_UNUSED(classInfo);

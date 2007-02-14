@@ -34,20 +34,20 @@ namespace QScript { namespace Ecma {
 class RegExp: public Core
 {
 public:
-    RegExp(QScriptEngine *engine);
+    RegExp(QScriptEnginePrivate *engine);
     virtual ~RegExp();
 
     inline QScriptClassInfo *classInfo() const
         { return m_classInfo; }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
     class Instance: public QScriptObjectData {
     public:
         Instance() {}
         virtual ~Instance() {}
 
-        static Instance *get(const QScriptValue &object,
+        static Instance *get(const QScriptValueImpl &object,
                              QScriptClassInfo *klass);
 
     public: // attributes
@@ -59,27 +59,30 @@ public:
         QString flags;
     };
 
-    inline Instance *get(const QScriptValue &object) const
+    inline Instance *get(const QScriptValueImpl &object) const
         { return Instance::get(object, m_classInfo); }
 
-    void newRegExp(QScriptValue *result, const QString &pattern,
+    void newRegExp(QScriptValueImpl *result, const QString &pattern,
                    const QString &flags);
 #ifndef QT_NO_REGEXP
-    void newRegExp(QScriptValue *result, const QRegExp &rx);
-    QRegExp toRegExp(const QScriptValue &value) const;
+    void newRegExp(QScriptValueImpl *result, const QRegExp &rx);
+    QRegExp toRegExp(const QScriptValueImpl &value) const;
 #endif
 
 protected:
-    static QScriptValue method_exec(QScriptEngine *eng,
-                                    QScriptClassInfo *classInfo);
-    static QScriptValue method_test(QScriptEngine *eng,
-                                    QScriptClassInfo *classInfo);
-    static QScriptValue method_toString(QScriptEngine *eng,
+    static QScriptValueImpl method_exec(QScriptContextPrivate *context,
+                                        QScriptEnginePrivate *eng,
                                         QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_test(QScriptContextPrivate *context,
+                                        QScriptEnginePrivate *eng,
+                                        QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toString(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
 
 private:
 #ifndef QT_NO_REGEXP
-    void newRegExp_helper(QScriptValue *result, const QRegExp &rx,
+    void newRegExp_helper(QScriptValueImpl *result, const QRegExp &rx,
                           const QString &flags);
 #endif
 

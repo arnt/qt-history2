@@ -51,6 +51,7 @@ public:
     inline bool operator==(const QScriptNameId &other) const    { return m_id == other.m_id; }
     inline bool operator!=(const QScriptNameId &other) const    { return !(*this == other); }
 
+    // ### kill
     inline operator QScriptNameIdImpl*() const                  { return m_id; }
 
 private:

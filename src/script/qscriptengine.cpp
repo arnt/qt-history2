@@ -207,7 +207,7 @@ QScriptNameId QScriptEngine::nameId(const QString &name)
 QScriptValue QScriptEngine::globalObject() const
 {
     Q_D(const QScriptEngine);
-    return d->globalObject;
+    return d->m_globalObject;
 }
 
 /*!
@@ -216,9 +216,7 @@ QScriptValue QScriptEngine::globalObject() const
 QScriptValue QScriptEngine::nullValue()
 {
     Q_D(QScriptEngine);
-    QScriptValue v;
-    d->newNull(&v);
-    return v;
+    return d->nullValue();
 }
 
 /*!
@@ -227,9 +225,7 @@ QScriptValue QScriptEngine::nullValue()
 QScriptValue QScriptEngine::undefinedValue()
 {
     Q_D(QScriptEngine);
-    QScriptValue v;
-    d->newUndefined(&v);
-    return v;
+    return d->undefinedValue();
 }
 
 /*!
@@ -243,9 +239,10 @@ QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun,
                                         int length)
 {
     Q_D(QScriptEngine);
-    QScriptValue v = d->createFunction(new QScript::CFunction(fun, length));
-    v.setProperty(d->idTable()->id_prototype, prototype);
-    QScriptValueImpl::get(prototype)->setProperty(d->idTable()->id_constructor, v);
+    QScriptValueImpl v = d->createFunction(new QScript::CFunction(fun, length));
+    QScriptValueImpl proto = QScriptValuePrivate::valueOf(prototype);
+    v.setProperty(d->idTable()->id_prototype, proto);
+    proto.setProperty(d->idTable()->id_constructor, v);
     return v;
 }
 
@@ -257,7 +254,7 @@ QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun,
 QScriptValue QScriptEngine::newRegExp(const QRegExp &regexp)
 {
     Q_D(QScriptEngine);
-    QScriptValue v;
+    QScriptValueImpl v;
     d->regexpConstructor->newRegExp(&v, regexp);
     return v;
 }
@@ -277,14 +274,7 @@ QScriptValue QScriptEngine::newRegExp(const QRegExp &regexp)
 QScriptValue QScriptEngine::newVariant(const QVariant &value)
 {
     Q_D(QScriptEngine);
-    Q_ASSERT(d->variantConstructor != 0);
-
-    QScriptValue v;
-    d->variantConstructor->newVariant(&v, value);
-    QScriptValue proto = defaultPrototype(value.userType());
-    if (proto.isValid())
-        v.setPrototype(proto);
-    return v;
+    return d->newVariant(value);
 }
 
 #ifndef QT_NO_QOBJECT
@@ -300,24 +290,7 @@ QScriptValue QScriptEngine::newVariant(const QVariant &value)
 QScriptValue QScriptEngine::newQObject(QObject *object)
 {
     Q_D(QScriptEngine);
-    Q_ASSERT(d->qobjectConstructor != 0);
-
-    QScriptValue v;
-    d->qobjectConstructor->newQObject(&v, object);
-
-    if (object) {
-        // see if we have a default prototype
-        QByteArray typeString = object->metaObject()->className();
-        typeString.append('*');
-        int typeId = QMetaType::type(typeString);
-        if (typeId != 0) {
-            QScriptValue proto = defaultPrototype(typeId);
-            if (proto.isValid())
-                v.setPrototype(proto);
-        }
-    }
-
-    return v;
+    return d->newQObject(object);
 }
 
 #endif // QT_NO_QOBJECT
@@ -331,7 +304,7 @@ QScriptValue QScriptEngine::newQObject(QObject *object)
 QScriptValue QScriptEngine::newObject()
 {
     Q_D(QScriptEngine);
-    QScriptValue v;
+    QScriptValueImpl v;
     d->newObject(&v, d->objectConstructor->publicPrototype);
     return v;
 }
@@ -354,10 +327,10 @@ QScriptValue QScriptEngine::newObject()
 QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun, int length)
 {
     Q_D(QScriptEngine);
-    QScriptValue v = d->createFunction(new QScript::CFunction(fun, length));
-    QScriptValue prototype = newObject();
+    QScriptValueImpl v = d->createFunction(new QScript::CFunction(fun, length));
+    QScriptValueImpl prototype = d->newObject();
     v.setProperty(d->idTable()->id_prototype, prototype);
-    QScriptValueImpl::get(prototype)->setProperty(d->idTable()->id_constructor, v);
+    prototype.setProperty(d->idTable()->id_constructor, v);
     return v;
 }
 
@@ -368,7 +341,7 @@ QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun, in
 QScriptValue QScriptEngine::newArray(uint length)
 {
     Q_D(QScriptEngine);
-    QScriptValue v;
+    QScriptValueImpl v;
     QScript::Array a;
     a.resize(length);
     d->newArray(&v, a);
@@ -382,7 +355,7 @@ QScriptValue QScriptEngine::newArray(uint length)
 QScriptValue QScriptEngine::newRegExp(const QString &pattern, const QString &flags)
 {
     Q_D(QScriptEngine);
-    QScriptValue v;
+    QScriptValueImpl v;
     d->regexpConstructor->newRegExp(&v, pattern, flags);
     return v;
 }
@@ -395,7 +368,7 @@ QScriptValue QScriptEngine::newRegExp(const QString &pattern, const QString &fla
 QScriptValue QScriptEngine::newDate(qsreal value)
 {
     Q_D(QScriptEngine);
-    QScriptValue v;
+    QScriptValueImpl v;
     d->dateConstructor->newDate(&v, value);
     return v;
 }
@@ -407,7 +380,7 @@ QScriptValue QScriptEngine::newDate(qsreal value)
 QScriptValue QScriptEngine::newDate(const QDateTime &value)
 {
     Q_D(QScriptEngine);
-    QScriptValue v;
+    QScriptValueImpl v;
     d->dateConstructor->newDate(&v, value);
     return v;
 }
@@ -425,10 +398,10 @@ QScriptValue QScriptEngine::newQMetaObject(
     const QMetaObject *metaObject, const QScriptValue &ctor)
 {
     Q_D(QScriptEngine);
-    QScriptValue v;
-    d->newFunction(&v, new QScript::ExtQMetaObject(metaObject, ctor));
-    v.setPrototype(ctor); // ###
-    QScriptValueImpl::get(v)->setClassInfo(d->m_class_qclass);
+    QScriptValueImpl v;
+    d->newFunction(&v, new QScript::ExtQMetaObject(metaObject, QScriptValuePrivate::valueOf(ctor)));
+    v.setPrototype(QScriptValuePrivate::valueOf(ctor)); // ###
+    v.setClassInfo(d->m_class_qclass);
     return v;
 }
 
@@ -491,9 +464,9 @@ bool QScriptEngine::canEvaluate(const QString &program) const
 QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber)
 {
     Q_D(QScriptEngine);
-    QScriptContext *ctx = d->context();
-    d->evaluate(ctx, program, lineNumber);
-    return QScriptContextPrivate::get(ctx)->result;
+    QScriptContextPrivate *ctx_p = QScriptContextPrivate::get(d->currentContext());
+    d->evaluate(ctx_p, program, lineNumber);
+    return ctx_p->m_result;
 }
 
 /*!
@@ -506,8 +479,8 @@ QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber)
 QScriptValue QScriptEngine::evaluate(const QString &program)
 {
     Q_D(QScriptEngine);
-    QScriptContextPrivate *ctx = QScriptContextPrivate::get(d->context());
-    return evaluate(program, ctx->currentLine);
+    QScriptContextPrivate *ctx_p = QScriptContextPrivate::get(d->currentContext());
+    return evaluate(program, ctx_p->currentLine);
 }
 
 /*!
@@ -519,7 +492,7 @@ QScriptValue QScriptEngine::evaluate(const QString &program)
 QScriptContext *QScriptEngine::currentContext() const
 {
     Q_D(const QScriptEngine);
-    return d->context();
+    return d->currentContext();
 }
 
 /*!
@@ -552,8 +525,7 @@ int QScriptEngine::uncaughtExceptionLineNumber() const
 QScriptValue QScriptEngine::defaultPrototype(int metaTypeId) const
 {
     Q_D(const QScriptEngine);
-    QScriptCustomTypeInfo info = d->m_customTypes.value(metaTypeId);
-    return info.prototype;
+    return d->defaultPrototype(metaTypeId);
 }
 
 /*!
@@ -564,11 +536,7 @@ QScriptValue QScriptEngine::defaultPrototype(int metaTypeId) const
 void QScriptEngine::setDefaultPrototype(int metaTypeId, const QScriptValue &prototype)
 {
     Q_D(QScriptEngine);
-    QScriptCustomTypeInfo info = d->m_customTypes.value(metaTypeId);
-    info.prototype.deref();
-    info.prototype = prototype;
-    prototype.ref();
-    d->m_customTypes.insert(metaTypeId, info);
+    d->setDefaultPrototype(metaTypeId, QScriptValuePrivate::valueOf(prototype));
 }
 
 /*!
@@ -606,7 +574,7 @@ QScriptValue QScriptEngine::create(int type, const void *ptr)
 bool QScriptEngine::convert(const QScriptValue &value, int type, void *ptr)
 {
     Q_D(QScriptEngine);
-    return d->convert(value, type, ptr);
+    return d->convert(QScriptValuePrivate::valueOf(value), type, ptr);
 }
 
 /*!
@@ -618,11 +586,9 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
 {
     Q_D(QScriptEngine);
     QScriptCustomTypeInfo info = d->m_customTypes.value(type);
-    info.prototype.deref();
     info.marshal = mf;
     info.demarshal = df;
-    info.prototype = prototype;
-    prototype.ref();
+    info.prototype = QScriptValuePrivate::valueOf(prototype);
     d->m_customTypes.insert(type, info);
 }
 

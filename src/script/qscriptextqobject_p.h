@@ -40,37 +40,37 @@ namespace QScript {
 class ExtQObject: public Ecma::Core
 {
 public:
-    ExtQObject(QScriptEngine *engine, QScriptClassInfo *classInfo);
+    ExtQObject(QScriptEnginePrivate *engine, QScriptClassInfo *classInfo);
     virtual ~ExtQObject();
 
     inline QScriptClassInfo *classInfo() const { return m_classInfo; }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
     class Instance: public QScriptFunction {
     public:
         Instance() { thisObject.invalidate(); }
         virtual ~Instance() { }
 
-        static Instance *get(const QScriptValue &object, QScriptClassInfo *klass);
+        static Instance *get(const QScriptValueImpl &object, QScriptClassInfo *klass);
 
-        virtual void execute(QScriptContext *context);
+        virtual void execute(QScriptContextPrivate *context);
 
     public:
-        QScriptValue thisObject;
+        QScriptValueImpl thisObject;
         QPointer<QObject> value;
         bool isConnection;
     };
 
-    inline Instance *get(const QScriptValue &object) const
+    inline Instance *get(const QScriptValueImpl &object) const
         { return Instance::get(object, classInfo()); }
 
-    void newQObject(QScriptValue *result, QObject *value, bool isConnection = false);
+    void newQObject(QScriptValueImpl *result, QObject *value, bool isConnection = false);
 
 protected:
-    static QScriptValue method_findChild(QScriptEngine *eng, QScriptClassInfo *classInfo);
-    static QScriptValue method_findChildren(QScriptEngine *eng, QScriptClassInfo *classInfo);
-    static QScriptValue method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_findChild(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_findChildren(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
 
     QScriptClassInfo *m_classInfo;
 };
@@ -78,8 +78,8 @@ protected:
 class ConnectionQObject: public QObject
 {
 public:
-    ConnectionQObject(const QMetaMethod &m, const QScriptValue &sender,
-                      const QScriptValue &receiver, const QScriptValue &slot);
+    ConnectionQObject(const QMetaMethod &m, const QScriptValueImpl &sender,
+                      const QScriptValueImpl &receiver, const QScriptValueImpl &slot);
     ~ConnectionQObject();
 
     static const QMetaObject staticMetaObject;
@@ -90,14 +90,14 @@ public:
     void execute(void **argv);
 
     void mark(int generation);
-    bool hasTarget(const QScriptValue &, const QScriptValue &) const;
+    bool hasTarget(const QScriptValueImpl &, const QScriptValueImpl &) const;
 
 private:
     QMetaMethod m_method;
     QScriptValue m_self;
-    QScriptValue m_sender;
-    QScriptValue m_receiver;
-    QScriptValue m_slot;
+    QScriptValueImpl m_sender;
+    QScriptValueImpl m_receiver;
+    QScriptValueImpl m_slot;
     bool m_hasReceiver;
 };
 
@@ -111,7 +111,7 @@ public:
 
     virtual ~QtFunction();
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
     virtual Type type() const { return QScriptFunction::Qt; }
 
@@ -119,12 +119,12 @@ public:
     inline const QMetaObject *metaObject() const { return m_object->metaObject(); }
     inline int initialIndex() const { return m_initialIndex; }
     inline bool maybeOverloaded() const { return m_maybeOverloaded; }
-    bool createConnection(const QScriptValue &self,
-                          const QScriptValue &receiver,
-                          const QScriptValue &slot);
-    bool destroyConnection(const QScriptValue &self,
-                           const QScriptValue &receiver,
-                           const QScriptValue &slot);
+    bool createConnection(const QScriptValueImpl &self,
+                          const QScriptValueImpl &receiver,
+                          const QScriptValueImpl &slot);
+    bool destroyConnection(const QScriptValueImpl &self,
+                           const QScriptValueImpl &receiver,
+                           const QScriptValueImpl &slot);
 
 private:
     QPointer<QObject> m_object;
@@ -142,7 +142,7 @@ public:
 
     ~QtPropertyFunction() { }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
     virtual Type type() const { return QScriptFunction::QtProperty; }
 
@@ -154,22 +154,22 @@ private:
 class ExtQMetaObjectData: public QScriptClassData
 {
 public:
-    virtual bool resolve(const QScriptValue &object, QScriptNameIdImpl *nameId,
-                         QScript::Member *member, QScriptValue *base);
-    virtual bool get(const QScriptValue &obj, const QScript::Member &member,
-                     QScriptValue *result);
-    virtual void mark(const QScriptValue &object, int generation);
+    virtual bool resolve(const QScriptValueImpl &object, QScriptNameIdImpl *nameId,
+                         QScript::Member *member, QScriptValueImpl *base);
+    virtual bool get(const QScriptValueImpl &obj, const QScript::Member &member,
+                     QScriptValueImpl *result);
+    virtual void mark(const QScriptValueImpl &object, int generation);
 };
 
 class ExtQMetaObject: public QScriptFunction
 {
 public:
-    ExtQMetaObject(const QMetaObject *meta, const QScriptValue &ctor);
+    ExtQMetaObject(const QMetaObject *meta, const QScriptValueImpl &ctor);
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
     const QMetaObject *m_meta;
-    QScriptValue m_ctor;
+    QScriptValueImpl m_ctor;
 };
 
 } // namespace QScript

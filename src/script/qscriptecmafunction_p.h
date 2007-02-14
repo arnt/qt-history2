@@ -32,32 +32,38 @@ namespace QScript { namespace Ecma {
 class Function: public Core
 {
 public:
-    Function(QScriptEngine *engine, QScriptClassInfo *classInfo);
+    Function(QScriptEnginePrivate *engine, QScriptClassInfo *classInfo);
     virtual ~Function();
 
     void initialize();
 
     inline QScriptClassInfo *classInfo() const { return m_classInfo; }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
-    void newFunction(QScriptValue *result, QScriptFunction *foo);
+    void newFunction(QScriptValueImpl *result, QScriptFunction *foo);
 
 protected:
-    QString buildFunction(QScriptContext *context);
+    QString buildFunction(QScriptContextPrivate *context);
 
-    static QScriptValue method_toString(QScriptEngine *eng,
+    static QScriptValueImpl method_toString(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_apply(QScriptContextPrivate *context,
+                                         QScriptEnginePrivate *eng,
+                                         QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_call(QScriptContextPrivate *context,
+                                        QScriptEnginePrivate *eng,
                                         QScriptClassInfo *classInfo);
-    static QScriptValue method_apply(QScriptEngine *eng,
-                                     QScriptClassInfo *classInfo);
-    static QScriptValue method_call(QScriptEngine *eng,
-                                    QScriptClassInfo *classInfo);
-    static QScriptValue method_void(QScriptEngine *eng,
-                                    QScriptClassInfo *classInfo); // internal
-    static QScriptValue method_disconnect(QScriptEngine *eng,
-                                          QScriptClassInfo *classInfo);
-    static QScriptValue method_connect(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_void(QScriptContextPrivate *context,
+                                        QScriptEnginePrivate *eng,
+                                        QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_disconnect(QScriptContextPrivate *context,
+                                              QScriptEnginePrivate *eng,
+                                              QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_connect(QScriptContextPrivate *context,
+                                           QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
 
 private:
     QScriptClassInfo *m_classInfo;

@@ -32,45 +32,45 @@ namespace QScript { namespace Ecma {
 class Error: public Core
 {
 public:
-    Error(QScriptEngine *engine);
+    Error(QScriptEnginePrivate *engine);
     virtual ~Error();
 
     inline QScriptClassInfo *classInfo() const { return m_objectClass; }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
-    void newError(QScriptValue *result, const QString &message = QString());
-    void newEvalError(QScriptValue *result, const QString &message = QString());
-    void newRangeError(QScriptValue *result, const QString &message = QString());
-    void newReferenceError(QScriptValue *result, const QString &message = QString());
-    void newSyntaxError(QScriptValue *result, const QString &message = QString());
-    void newTypeError(QScriptValue *result, const QString &message = QString());
-    void newURIError(QScriptValue *result, const QString &message = QString());
+    void newError(QScriptValueImpl *result, const QString &message = QString());
+    void newEvalError(QScriptValueImpl *result, const QString &message = QString());
+    void newRangeError(QScriptValueImpl *result, const QString &message = QString());
+    void newReferenceError(QScriptValueImpl *result, const QString &message = QString());
+    void newSyntaxError(QScriptValueImpl *result, const QString &message = QString());
+    void newTypeError(QScriptValueImpl *result, const QString &message = QString());
+    void newURIError(QScriptValueImpl *result, const QString &message = QString());
 
-    QScriptValue evalErrorCtor;
-    QScriptValue rangeErrorCtor;
-    QScriptValue referenceErrorCtor;
-    QScriptValue syntaxErrorCtor;
-    QScriptValue typeErrorCtor;
-    QScriptValue uriErrorCtor;
+    QScriptValueImpl evalErrorCtor;
+    QScriptValueImpl rangeErrorCtor;
+    QScriptValueImpl referenceErrorCtor;
+    QScriptValueImpl syntaxErrorCtor;
+    QScriptValueImpl typeErrorCtor;
+    QScriptValueImpl uriErrorCtor;
 
-    QScriptValue evalErrorPrototype;
-    QScriptValue rangeErrorPrototype;
-    QScriptValue referenceErrorPrototype;
-    QScriptValue syntaxErrorPrototype;
-    QScriptValue typeErrorPrototype;
-    QScriptValue uriErrorPrototype;
+    QScriptValueImpl evalErrorPrototype;
+    QScriptValueImpl rangeErrorPrototype;
+    QScriptValueImpl referenceErrorPrototype;
+    QScriptValueImpl syntaxErrorPrototype;
+    QScriptValueImpl typeErrorPrototype;
+    QScriptValueImpl uriErrorPrototype;
 
 protected:
-    static QScriptValue method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
 
     QScriptClassInfo *m_objectClass;
 
 private:
-    void newError(QScriptValue *result, const QScriptValue &proto,
+    void newError(QScriptValueImpl *result, const QScriptValueImpl &proto,
                   const QString &message = QString());
-    void newErrorPrototype(QScriptValue *result, const QScriptValue &proto,
-                           QScriptValue &ztor, const QString &name);
+    void newErrorPrototype(QScriptValueImpl *result, const QScriptValueImpl &proto,
+                           QScriptValueImpl &ztor, const QString &name);
 };
 
 } } // namespace QScript::Ecma

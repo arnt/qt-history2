@@ -34,13 +34,13 @@ namespace QScript { namespace Ecma {
 class Array: public Core
 {
 public:
-    Array(QScriptEngine *engine);
+    Array(QScriptEnginePrivate *engine);
     virtual ~Array();
 
     inline QScriptClassInfo *classInfo() const
         { return m_classInfo; }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
     class ArrayClassData: public QScriptClassData
     {
@@ -53,17 +53,17 @@ public:
         inline QScriptClassInfo *classInfo() const
             { return m_classInfo; }
 
-        virtual void mark(const QScriptValue &object, int generation);
-        virtual bool resolve(const QScriptValue &object,
+        virtual void mark(const QScriptValueImpl &object, int generation);
+        virtual bool resolve(const QScriptValueImpl &object,
                              QScriptNameIdImpl *nameId,
                              QScript::Member *member,
-                             QScriptValue *base);
-        virtual bool get(const QScriptValue &obj, const Member &m,
-                         QScriptValue *out_value);
-        virtual bool put(QScriptValue *object, const Member &member,
-                         const QScriptValue &value);
-        virtual int extraMemberCount(const QScriptValue &object);
-        virtual bool extraMember(const QScriptValue &object,
+                             QScriptValueImpl *base);
+        virtual bool get(const QScriptValueImpl &obj, const Member &m,
+                         QScriptValueImpl *out_value);
+        virtual bool put(QScriptValueImpl *object, const Member &member,
+                         const QScriptValueImpl &value);
+        virtual int extraMemberCount(const QScriptValueImpl &object);
+        virtual bool extraMember(const QScriptValueImpl &object,
                                  int index, Member *member);
     };
 
@@ -72,44 +72,56 @@ public:
         Instance() {}
         virtual ~Instance() {}
 
-        static Instance *get(const QScriptValue &object,
+        static Instance *get(const QScriptValueImpl &object,
                              QScriptClassInfo *klass);
 
     public: // attributes
         QScript::Array value;
     };
 
-    inline Instance *get(const QScriptValue &object) const
+    inline Instance *get(const QScriptValueImpl &object) const
     { return Instance::get(object, m_classInfo); }
 
-    void newArray(QScriptValue *result,
+    void newArray(QScriptValueImpl *result,
                   const QScript::Array &value = QScript::Array());
 
 protected:
-    static QScriptValue method_toString(QScriptEngine *eng,
+    static QScriptValueImpl method_toString(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toLocaleString(QScriptContextPrivate *context,
+                                                  QScriptEnginePrivate *eng,
+                                                  QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_concat(QScriptContextPrivate *context,
+                                          QScriptEnginePrivate *eng,
+                                          QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_join(QScriptContextPrivate *context,
+                                        QScriptEnginePrivate *eng,
                                         QScriptClassInfo *classInfo);
-    static QScriptValue method_toLocaleString(QScriptEngine *eng,
-                                              QScriptClassInfo *classInfo);
-    static QScriptValue method_concat(QScriptEngine *eng,
-                                      QScriptClassInfo *classInfo);
-    static QScriptValue method_join(QScriptEngine *eng,
-                                    QScriptClassInfo *classInfo);
-    static QScriptValue method_pop(QScriptEngine *eng,
-                                   QScriptClassInfo *classInfo);
-    static QScriptValue method_push(QScriptEngine *eng,
-                                    QScriptClassInfo *classInfo);
-    static QScriptValue method_reverse(QScriptEngine *eng,
+    static QScriptValueImpl method_pop(QScriptContextPrivate *context,
+                                       QScriptEnginePrivate *eng,
                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_shift(QScriptEngine *eng,
-                                     QScriptClassInfo *classInfo);
-    static QScriptValue method_slice(QScriptEngine *eng,
-                                     QScriptClassInfo *classInfo);
-    static QScriptValue method_sort(QScriptEngine *eng,
-                                    QScriptClassInfo *classInfo);
-    static QScriptValue method_splice(QScriptEngine *eng,
-                                      QScriptClassInfo *classInfo);
-    static QScriptValue method_unshift(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_push(QScriptContextPrivate *context,
+                                        QScriptEnginePrivate *eng,
+                                        QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_reverse(QScriptContextPrivate *context,
+                                           QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_shift(QScriptContextPrivate *context,
+                                         QScriptEnginePrivate *eng,
+                                         QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_slice(QScriptContextPrivate *context,
+                                         QScriptEnginePrivate *eng,
+                                         QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_sort(QScriptContextPrivate *context,
+                                        QScriptEnginePrivate *eng,
+                                        QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_splice(QScriptContextPrivate *context,
+                                          QScriptEnginePrivate *eng,
+                                          QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_unshift(QScriptContextPrivate *context,
+                                           QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
 
     QScriptClassInfo *m_classInfo;
 };

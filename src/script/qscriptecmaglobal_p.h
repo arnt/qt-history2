@@ -32,48 +32,60 @@ namespace QScript { namespace Ecma {
 class Global: public QScriptObjectData
 {
 protected:
-    Global(QScriptEngine *engine, QScriptClassInfo *classInfo);
+    Global(QScriptEnginePrivate *engine, QScriptClassInfo *classInfo);
 
 public:
     virtual ~Global();
 
-    inline QScriptEngine *engine() const;
+    inline QScriptEnginePrivate *engine() const;
 
-    static void construct(QScriptValue *object, QScriptEngine *eng);
-    static void initialize(QScriptValue *object, QScriptEngine *eng);
+    static void construct(QScriptValueImpl *object, QScriptEnginePrivate *eng);
+    static void initialize(QScriptValueImpl *object, QScriptEnginePrivate *eng);
 
 protected:
-    static QScriptValue method_parseInt(QScriptContext *context,
-                                        QScriptEngine *eng);
-    static QScriptValue method_parseFloat(QScriptContext *context,
-                                          QScriptEngine *eng);
-    static QScriptValue method_isNaN(QScriptContext *context,
-                                     QScriptEngine *eng);
-    static QScriptValue method_isFinite(QScriptContext *context,
-                                        QScriptEngine *eng);
-    static QScriptValue method_decodeURI(QScriptContext *context,
-                                         QScriptEngine *eng);
-    static QScriptValue method_decodeURIComponent(QScriptContext *context,
-                                                  QScriptEngine *eng);
-    static QScriptValue method_encodeURI(QScriptContext *context,
-                                         QScriptEngine *eng);
-    static QScriptValue method_encodeURIComponent(QScriptContext *context,
-                                                  QScriptEngine *eng);
-    static QScriptValue method_escape(QScriptContext *context,
-                                      QScriptEngine *eng);
-    static QScriptValue method_unescape(QScriptContext *context,
-                                        QScriptEngine *eng);
-    static QScriptValue method_version(QScriptContext *context,
-                                       QScriptEngine *eng);
-    static QScriptValue method_gc(QScriptContext *context,
-                                  QScriptEngine *eng);
+    static QScriptValueImpl method_parseInt(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_parseFloat(QScriptContextPrivate *context,
+                                              QScriptEnginePrivate *eng,
+                                              QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_isNaN(QScriptContextPrivate *context,
+                                         QScriptEnginePrivate *eng,
+                                         QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_isFinite(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_decodeURI(QScriptContextPrivate *context,
+                                             QScriptEnginePrivate *eng,
+                                             QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_decodeURIComponent(QScriptContextPrivate *context,
+                                                      QScriptEnginePrivate *eng,
+                                                      QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_encodeURI(QScriptContextPrivate *context,
+                                             QScriptEnginePrivate *eng,
+                                             QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_encodeURIComponent(QScriptContextPrivate *context,
+                                                      QScriptEnginePrivate *eng,
+                                                      QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_escape(QScriptContextPrivate *context,
+                                          QScriptEnginePrivate *eng,
+                                          QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_unescape(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_version(QScriptContextPrivate *context,
+                                           QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_gc(QScriptContextPrivate *context,
+                                      QScriptEnginePrivate *eng,
+                                      QScriptClassInfo *classInfo);
 
 private:
-    QScriptEngine *m_engine;
+    QScriptEnginePrivate *m_engine;
     QScriptClassInfo *m_classInfo;
 };
 
-inline QScriptEngine *Global::engine() const
+inline QScriptEnginePrivate *Global::engine() const
 { return m_engine; }
 
 

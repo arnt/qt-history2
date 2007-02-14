@@ -32,22 +32,22 @@ namespace QScript { namespace Ecma {
 class Number: public Core
 {
 public:
-    Number(QScriptEngine *engine);
+    Number(QScriptEnginePrivate *engine);
     virtual ~Number();
 
     inline QScriptClassInfo *classInfo() const { return m_classInfo; }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
-    void newNumber(QScriptValue *result, double value = 0);
+    void newNumber(QScriptValueImpl *result, double value = 0);
 
 protected:
-    static QScriptValue method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo);
-    static QScriptValue method_toLocaleString(QScriptEngine *eng, QScriptClassInfo *classInfo);
-    static QScriptValue method_valueOf(QScriptEngine *eng, QScriptClassInfo *classInfo);
-    static QScriptValue method_toFixed(QScriptEngine *eng, QScriptClassInfo *classInfo);
-    static QScriptValue method_toExponential(QScriptEngine *eng, QScriptClassInfo *classInfo);
-    static QScriptValue method_toPrecision(QScriptEngine *eng, QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toLocaleString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_valueOf(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toFixed(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toExponential(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toPrecision(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
 
     QScriptClassInfo *m_classInfo;
 };

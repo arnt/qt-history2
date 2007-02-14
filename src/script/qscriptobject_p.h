@@ -27,10 +27,9 @@
 
 #include <QtCore/qshareddata.h>
 
-#include "qscriptengine.h"
 #include "qscriptbuffer_p.h"
 #include "qscriptmember_p.h"
-#include "qscriptvalue.h"
+#include "qscriptvalueimpl_p.h"
 
 namespace QScript
 {
@@ -119,22 +118,22 @@ public:
     {
         member->object(nameId, m_objects.size(), flags);
         m_members.append(*member);
-        m_objects.append(QScriptValue());
+        m_objects.append(QScriptValueImpl());
     }
 
     inline void member(int index, QScript::Member *member) {
         *member = m_members[index];
     }
 
-    inline void put(const QScript::Member &m, const QScriptValue &v) {
+    inline void put(const QScript::Member &m, const QScriptValueImpl &v) {
         m_objects[m.id()] = v;
     }
 
-    inline QScriptValue &reference(const QScript::Member &m) {
+    inline QScriptValueImpl &reference(const QScript::Member &m) {
         return m_objects[m.id()];
     }
 
-    inline void get(const QScript::Member &m, QScriptValue *v) {
+    inline void get(const QScript::Member &m, QScriptValueImpl *v) {
         Q_ASSERT(m.isObjectProperty());
         *v = m_objects[m.id()];
     }
@@ -144,12 +143,12 @@ public:
         m_objects[member.id()].invalidate();
     }
 
-    QScriptValue m_prototype;
-    QScriptValue m_scope;
-    QScriptValue m_internalValue; // [[value]]
+    QScriptValueImpl m_prototype;
+    QScriptValueImpl m_scope;
+    QScriptValueImpl m_internalValue; // [[value]]
     QExplicitlySharedDataPointer<QScriptObjectData> m_data;
     QScript::Buffer<QScript::Member> m_members;
-    QScript::Buffer<QScriptValue> m_objects;
+    QScript::Buffer<QScriptValueImpl> m_objects;
 };
 
 inline void QScriptObject::finalize()

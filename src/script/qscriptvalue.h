@@ -23,10 +23,7 @@ QT_MODULE(Script)
 
 class QScriptValue;
 class QScriptEngine;
-class QScriptObject;
-class QScriptNameIdImpl;
 class QScriptNameId;
-class QScriptClassInfo;
 class QVariant;
 class QObject;
 class QDateTime;
@@ -38,8 +35,7 @@ typedef QList<QScriptValue> QScriptValueList;
 
 typedef double qsreal;
 
-class QScriptValueImpl;
-
+class QScriptValuePrivate;
 class Q_SCRIPT_EXPORT QScriptValue
 {
 public:
@@ -81,9 +77,9 @@ public:
     };
 
 public:
-    inline QScriptValue()
-        : m_class(0) {}
-
+    QScriptValue();
+    ~QScriptValue();
+    QScriptValue(const QScriptValue &other);
     QScriptValue(QScriptEngine *engine, SpecialValue val);
     QScriptValue(QScriptEngine *engine, bool val);
     QScriptValue(QScriptEngine *engine, int val);
@@ -97,11 +93,11 @@ public:
     QT_ASCII_CAST_WARN_CONSTRUCTOR QScriptValue(QScriptEngine *engine, const char *val);
 #endif
 
-    bool isValid() const;
-    void invalidate();
+    QScriptValue &operator=(const QScriptValue &other);
 
     QScriptEngine *engine() const;
 
+    bool isValid() const;
     bool isBoolean() const;
     bool isNumber() const;
     bool isFunction() const;
@@ -162,29 +158,10 @@ public:
                       const QScriptValueList &args = QScriptValueList());
     QScriptValue construct(const QScriptValueList &args = QScriptValueList());
 
-    void ref() const;
-    void deref() const;
-
-    void mark(int generation) const; // ### kill me
-
 private:
-    friend class QScriptValueImpl;
-    inline QScriptValueImpl *impl() const
-    { return const_cast<QScriptValueImpl*>(reinterpret_cast<const QScriptValueImpl*>(this)); }
+    QScriptValuePrivate *d_ptr;
 
-private:
-    union {
-        bool m_bool_value;
-        int m_int_value;
-        qsreal m_number_value;
-        void *m_ptr_value;
-        QScriptObject *m_object_value;
-        QScriptNameIdImpl *m_string_value;
-    };
-    QScriptClassInfo *m_class;
-
-    friend class QScriptContextPrivate;
-    friend class QScriptEnginePrivate;
+    Q_DECLARE_PRIVATE(QScriptValue)
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QScriptValue::ResolveFlags)

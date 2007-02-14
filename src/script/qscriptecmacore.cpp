@@ -21,7 +21,7 @@
 
 namespace QScript { namespace Ecma {
 
-Core::Core(QScriptEngine *engine)
+Core::Core(QScriptEnginePrivate *engine)
     : m_engine(engine)
 {
     this->length = 1;

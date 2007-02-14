@@ -32,20 +32,22 @@ namespace QScript { namespace Ecma {
 class Boolean: public Core
 {
 public:
-    Boolean(QScriptEngine *engine);
+    Boolean(QScriptEnginePrivate *engine);
     virtual ~Boolean();
 
     inline QScriptClassInfo *classInfo() const { return m_classInfo; }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
-    void newBoolean(QScriptValue *result, bool value = false);
+    void newBoolean(QScriptValueImpl *result, bool value = false);
 
 protected:
-    static QScriptValue method_toString(QScriptEngine *eng,
-                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_valueOf(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toString(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_valueOf(QScriptContextPrivate *context,
+                                           QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
 
     QScriptClassInfo *m_classInfo;
 };

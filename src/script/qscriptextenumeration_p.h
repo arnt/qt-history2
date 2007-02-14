@@ -41,52 +41,52 @@ public:
     inline QScriptClassInfo *classInfo() const
         { return m_classInfo; }
 
-    virtual void mark(const QScriptValue &object, int generation);
+    virtual void mark(const QScriptValueImpl &object, int generation);
 };
 
 class Enumeration: public QScript::Ecma::Core
 {
 public:
-    Enumeration(QScriptEngine *engine);
+    Enumeration(QScriptEnginePrivate *engine);
     virtual ~Enumeration();
 
     inline QScriptClassInfo *classInfo() const
         { return m_classInfo; }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
     class Instance: public QScriptObjectData {
     public:
         Instance() {}
         virtual ~Instance() {}
 
-        static Instance *get(const QScriptValue &object,
+        static Instance *get(const QScriptValueImpl &object,
                              QScriptClassInfo *klass);
 
         void toFirst();
-        void hasNext(QScriptContext *context, QScriptValue *result);
-        void next(QScriptContext *context, QScriptValue *result);
+        void hasNext(QScriptContextPrivate *context, QScriptValueImpl *result);
+        void next(QScriptContextPrivate *context, QScriptValueImpl *result);
 
     public: // attributes
-        QScriptValue object;
-        QScriptValue value;
+        QScriptValueImpl object;
+        QScriptValueImpl value;
         int index;
     };
 
-    void newEnumeration(QScriptValue *result, const QScriptValue &value);
+    void newEnumeration(QScriptValueImpl *result, const QScriptValueImpl &value);
 
-    inline Instance *get(const QScriptValue &object) const
+    inline Instance *get(const QScriptValueImpl &object) const
     {
         return Instance::get(object, m_classInfo);
     }
 
 protected:
-    static QScriptValue method_toFirst(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
-    static QScriptValue method_hasNext(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
-    static QScriptValue method_next(QScriptEngine *eng,
-                                    QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toFirst(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_hasNext(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_next(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
+                                        QScriptClassInfo *classInfo);
 
 private:
     QScriptClassInfo *m_classInfo;

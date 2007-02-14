@@ -30,6 +30,8 @@
 
 #include "qscriptvalue.h"
 
+class QScriptNameIdImpl;
+
 namespace QScript {
 
     class Member

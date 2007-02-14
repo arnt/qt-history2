@@ -13,7 +13,7 @@
 
 #include "qscriptengine.h"
 #include "qscriptcontext.h"
-
+#include "qscriptcontext_p.h"
 #include "qscriptengine_p.h"
 #include "qscriptextvariant_p.h"
 #include "qscriptecmaobject_p.h"
@@ -34,100 +34,96 @@
 
 namespace QScript { namespace Ext {
 
-Variant::Variant(QScriptEngine *eng, QScriptClassInfo *classInfo):
+Variant::Variant(QScriptEnginePrivate *eng, QScriptClassInfo *classInfo):
     Ecma::Core(eng), m_classInfo(classInfo)
 {
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-
     publicPrototype.invalidate();
     newVariant(&publicPrototype, QVariant());
 
-    eng_p->newConstructor(&ctor, this, publicPrototype);
+    eng->newConstructor(&ctor, this, publicPrototype);
 
     const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
     publicPrototype.setProperty(QLatin1String("toString"),
-                eng_p->createFunction(method_toString, 0, m_classInfo), flags);
+                eng->createFunction(method_toString, 0, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("valueOf"),
-                eng_p->createFunction(method_valueOf, 0, m_classInfo), flags);
+                eng->createFunction(method_valueOf, 0, m_classInfo), flags);
 }
 
 Variant::~Variant()
 {
 }
 
-Variant::Instance *Variant::Instance::get(const QScriptValue &object, QScriptClassInfo *klass)
+Variant::Instance *Variant::Instance::get(const QScriptValueImpl &object, QScriptClassInfo *klass)
 {
-    if (! klass || klass == QScriptValueImpl::get(object)->classInfo())
-        return static_cast<Instance*> (QScriptValueImpl::get(object)->objectData().data());
+    if (! klass || klass == object.classInfo())
+        return static_cast<Instance*> (object.objectData().data());
 
     return 0;
 }
 
-void Variant::execute(QScriptContext *context)
+void Variant::execute(QScriptContextPrivate *context)
 {
-    QScriptValue tmp;
+    QScriptValueImpl tmp;
     newVariant(&tmp, QVariant());
     context->setReturnValue(tmp);
 }
 
-void Variant::newVariant(QScriptValue *result, const QVariant &value)
+void Variant::newVariant(QScriptValueImpl *result, const QVariant &value)
 {
     Instance *instance = new Instance();
     instance->value = value;
 
-    QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
-    QScriptValueImpl::get(*result)->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+    engine()->newObject(result, publicPrototype, classInfo());
+    result->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
 }
 
-QScriptValue Variant::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)
+QScriptValueImpl Variant::method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
 {
-    QScriptContext *context = eng->currentContext();
     if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
-        QScriptValue value = method_valueOf(eng, classInfo);
+        QScriptValueImpl value = method_valueOf(context, eng, classInfo);
         QString valueStr = value.isObject() ? QString::fromUtf8("...") : value.toString();
         QString str = QString::fromUtf8("variant(%0, %1)")
                       .arg(QLatin1String(instance->value.typeName()))
                       .arg(valueStr);
-        return QScriptValue(eng, str);
+        return QScriptValueImpl(eng, str);
     }
     return context->throwError(QScriptContext::TypeError,
                                QLatin1String("Variant.prototype.toString"));
 }
 
-QScriptValue Variant::method_valueOf(QScriptEngine *eng, QScriptClassInfo *classInfo)
+QScriptValueImpl Variant::method_valueOf(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
 {
-    QScriptContext *context = eng->currentContext();
     if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
         QVariant v = instance->value;
         switch (v.type ()) {
         case QVariant::String:
-            return (QScriptValue(eng, v.toString()));
+            return (QScriptValueImpl(eng, v.toString()));
 
         case QVariant::Int:
-            return (QScriptValue(eng, v.toInt()));
+            return (QScriptValueImpl(eng, v.toInt()));
 
         case QVariant::Bool:
-            return (QScriptValue(eng, v.toBool()));
+            return (QScriptValueImpl(eng, v.toBool()));
 
         case QVariant::Double:
-            return (QScriptValue(eng, v.toDouble())); // ### hmmm
+            return (QScriptValueImpl(eng, v.toDouble())); // ### hmmm
 
         case QVariant::Char:
-            return (QScriptValue(eng, v.toChar().unicode()));
+            return (QScriptValueImpl(eng, v.toChar().unicode()));
 
         case QVariant::UInt:
-            return (QScriptValue(eng, v.toUInt()));
+            return (QScriptValueImpl(eng, v.toUInt()));
 
         case QVariant::LongLong:
-            return QScriptValue(eng, qsreal(v.toLongLong())); // ###
+            return QScriptValueImpl(eng, qsreal(v.toLongLong())); // ###
 
 
         case QVariant::ULongLong:
 #if defined(Q_OS_WIN) && _MSC_FULL_VER <= 12008804
 #pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
-            return QScriptValue(eng, qsreal(v.toLongLong()));
+            return QScriptValueImpl(eng, qsreal(v.toLongLong()));
 #else
-            return QScriptValue(eng, qsreal(v.toULongLong()));
+            return QScriptValueImpl(eng, qsreal(v.toULongLong()));
 #endif
 
         default:

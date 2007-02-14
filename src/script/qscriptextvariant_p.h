@@ -36,35 +36,35 @@ class Instance;
 class Variant: public Ecma::Core
 {
 public:
-    Variant(QScriptEngine *engine, QScriptClassInfo *classInfo);
+    Variant(QScriptEnginePrivate *engine, QScriptClassInfo *classInfo);
     virtual ~Variant();
 
     inline QScriptClassInfo *classInfo() const { return m_classInfo; }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
     class Instance: public QScriptObjectData {
     public:
         Instance() {}
         virtual ~Instance() {}
 
-        static Instance *get(const QScriptValue &object,
+        static Instance *get(const QScriptValueImpl &object,
                              QScriptClassInfo *klass);
 
     public:
         QVariant value;
     };
 
-    inline Instance *get(const QScriptValue &object) const
+    inline Instance *get(const QScriptValueImpl &object) const
         { return Instance::get(object, classInfo()); }
 
-    void newVariant(QScriptValue *result, const QVariant &value);
+    void newVariant(QScriptValueImpl *result, const QVariant &value);
 
 protected:
-    static QScriptValue method_toString(QScriptEngine *eng,
-                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_valueOf(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_valueOf(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
 
 protected:
     QScriptClassInfo *m_classInfo;

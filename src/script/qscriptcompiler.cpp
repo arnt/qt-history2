@@ -1311,7 +1311,7 @@ void Compiler::iLoadUndefined()
 
 void Compiler::iLoadThis()
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     m_eng->newNameId(&arg0, m_eng->idTable()->id_this);
     pushInstruction(QScriptInstruction::OP_LoadThis, arg0);
 }
@@ -1323,14 +1323,14 @@ void Compiler::iLoadNull()
 
 void Compiler::iLoadNumber(double number)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     m_eng->newNumber(&arg0, number);
     pushInstruction(QScriptInstruction::OP_LoadNumber, arg0);
 }
 
 void Compiler::iLoadString(QScriptNameIdImpl *id)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     id->persistent = true;
     m_eng->newNameId(&arg0, id);
     pushInstruction(QScriptInstruction::OP_LoadString, arg0);
@@ -1343,7 +1343,7 @@ void Compiler::iDuplicate()
 
 void Compiler::iResolve(QScriptNameIdImpl *id)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     id->persistent = true;
     m_eng->newNameId(&arg0, id);
     pushInstruction(QScriptInstruction::OP_Resolve, arg0);
@@ -1356,14 +1356,14 @@ void Compiler::iPutField()
 
 void Compiler::iCall(int argc)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     m_eng->newInteger(&arg0, argc);
     pushInstruction(QScriptInstruction::OP_Call, arg0);
 }
 
 void Compiler::iNew(int argc)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     m_eng->newInteger(&arg0, argc);
     pushInstruction(QScriptInstruction::OP_New, arg0);
 }
@@ -1385,10 +1385,10 @@ void Compiler::iRet()
 
 void Compiler::iDeclareLocal(QScriptNameIdImpl *id, bool readOnly)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     id->persistent = true;
     m_eng->newNameId(&arg0, id);
-    QScriptValue arg1;
+    QScriptValueImpl arg1;
     m_eng->newInteger(&arg1, readOnly);
     pushInstruction(QScriptInstruction::OP_DeclareLocal, arg0, arg1);
 }
@@ -1495,31 +1495,31 @@ void Compiler::iStrictNotEqual()
 
 void Compiler::iBranch(int index)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     m_eng->newInteger(&arg0, index);
     pushInstruction(QScriptInstruction::OP_Branch, arg0);
 }
 
 void Compiler::iBranchFalse(int index)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     m_eng->newInteger(&arg0, index);
     pushInstruction(QScriptInstruction::OP_BranchFalse, arg0);
 }
 
 void Compiler::iBranchTrue(int index)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     m_eng->newInteger(&arg0, index);
     pushInstruction(QScriptInstruction::OP_BranchTrue, arg0);
 }
 
 void Compiler::iNewClosure(AST::FormalParameterList *formals, AST::Node *body)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     m_eng->newPointer(&arg0, formals);
 
-    QScriptValue arg1;
+    QScriptValueImpl arg1;
     m_eng->newPointer(&arg1, body);
 
     pushInstruction(QScriptInstruction::OP_NewClosure, arg0, arg1);
@@ -1546,14 +1546,14 @@ void Compiler::iFetch(QScriptNameIdImpl *id)
         int index = m_formals.indexOf(id);
 
         if (index != -1) {
-            QScriptValue arg0;
+            QScriptValueImpl arg0;
             m_eng->newInteger(&arg0, index);
             pushInstruction(QScriptInstruction::OP_Receive, arg0);
             return;
         }
     }
 
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     id->persistent = true;
     m_eng->newNameId(&arg0, id);
     pushInstruction(QScriptInstruction::OP_Fetch, arg0);
@@ -1679,10 +1679,10 @@ void Compiler::iLine(AST::Node *node)
     if (! node)
         return;
 
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     m_eng->newInteger(&arg0, node->startLine);
 
-    QScriptValue arg1;
+    QScriptValueImpl arg1;
     m_eng->newInteger(&arg1, node->startColumn);
 
     pushInstruction(QScriptInstruction::OP_Line, arg0, arg1);
@@ -1700,7 +1700,7 @@ void Compiler::iNot()
 
 void Compiler::iNewRegExp(QScriptNameIdImpl *pattern)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     pattern->persistent = true;
     m_eng->newNameId(&arg0, pattern);
     pushInstruction(QScriptInstruction::OP_NewRegExp, arg0);
@@ -1708,11 +1708,11 @@ void Compiler::iNewRegExp(QScriptNameIdImpl *pattern)
 
 void Compiler::iNewRegExp(QScriptNameIdImpl *pattern, QScriptNameIdImpl *flags)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     pattern->persistent = true;
     m_eng->newNameId(&arg0, pattern);
 
-    QScriptValue arg1;
+    QScriptValueImpl arg1;
     flags->persistent = true;
     m_eng->newNameId(&arg1, flags);
 
@@ -1751,7 +1751,7 @@ void Compiler::iLeaveWith()
 
 void Compiler::iBeginCatch(QScriptNameIdImpl *id)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     id->persistent = true;
     m_eng->newNameId(&arg0, id);
     pushInstruction(QScriptInstruction::OP_BeginCatch, arg0);
@@ -1784,7 +1784,7 @@ void Compiler::iIn()
 
 void Compiler::iNewString(QScriptNameIdImpl *id)
 {
-    QScriptValue arg0;
+    QScriptValueImpl arg0;
     id->persistent = true;
     m_eng->newNameId(&arg0, id);
     pushInstruction(QScriptInstruction::OP_NewString, arg0);

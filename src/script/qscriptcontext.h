@@ -71,9 +71,6 @@ public:
     const QScriptInstruction *firstInstruction() const;
     const QScriptInstruction *lastInstruction() const;
 
-    const QScriptValue *baseStackPointer() const;
-    const QScriptValue *currentStackPointer() const;
-
     QScriptValue throwValue(const QScriptValue &value);
     QScriptValue throwError(Error error, const QString &text);
     QScriptValue throwError(const QString &text);

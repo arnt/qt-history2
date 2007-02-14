@@ -32,18 +32,18 @@ namespace QScript { namespace Ecma {
 class Core: public QScriptFunction
 {
 public:
-    Core(QScriptEngine *engine);
+    Core(QScriptEnginePrivate *engine);
     virtual ~Core();
 
-    inline QScriptEngine *engine() const
+    inline QScriptEnginePrivate *engine() const
     { return m_engine; }
 
 public: // attributes
-    QScriptValue ctor;
-    QScriptValue publicPrototype;
+    QScriptValueImpl ctor;
+    QScriptValueImpl publicPrototype;
 
 private:
-    QScriptEngine *m_engine;
+    QScriptEnginePrivate *m_engine;
 };
 
 } } // namespace QScript::Ecma

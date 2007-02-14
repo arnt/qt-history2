@@ -51,8 +51,8 @@ public:
         { }
     virtual ~QScriptFunction();
 
-    virtual void execute(QScriptContext *context) = 0;
-    virtual QString toString(QScriptContext *context) const;
+    virtual void execute(QScriptContextPrivate *context) = 0;
+    virtual QString toString(QScriptContextPrivate *context) const;
 
     virtual Type type() const { return Unknown; }
 
@@ -72,7 +72,7 @@ public:
 
     virtual ~CFunction() { }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
     virtual Type type() const { return QScriptFunction::C; }
 
@@ -91,7 +91,7 @@ public:
 
     virtual ~C2Function() {}
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
     virtual Type type() const { return QScriptFunction::C2; }
 

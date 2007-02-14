@@ -34,116 +34,164 @@ namespace QScript { namespace Ecma {
 class Date: public Core
 {
 public:
-    Date(QScriptEngine *engine);
+    Date(QScriptEnginePrivate *engine);
     virtual ~Date();
 
     inline QScriptClassInfo *classInfo() const { return m_classInfo; }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
-    void newDate(QScriptValue *result, double t);
-    void newDate(QScriptValue *result, const QDateTime &dt);
-    void newDate(QScriptValue *result, const QDate &d);
+    void newDate(QScriptValueImpl *result, double t);
+    void newDate(QScriptValueImpl *result, const QDateTime &dt);
+    void newDate(QScriptValueImpl *result, const QDate &d);
 
-    QDateTime toDateTime(const QScriptValue &date) const;
+    QDateTime toDateTime(const QScriptValueImpl &date) const;
 
 protected:
-    static QScriptValue method_MakeTime(QScriptEngine *eng,
-                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_MakeDate(QScriptEngine *eng,
-                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_TimeClip(QScriptEngine *eng,
-                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_parse(QScriptEngine *eng,
-                                     QScriptClassInfo *classInfo);
-    static QScriptValue method_UTC(QScriptEngine *eng,
-                                   QScriptClassInfo *classInfo);
-    static QScriptValue method_toString(QScriptEngine *eng,
-                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_toDateString(QScriptEngine *eng,
+    static QScriptValueImpl method_MakeTime(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
                                             QScriptClassInfo *classInfo);
-    static QScriptValue method_toTimeString(QScriptEngine *eng,
+    static QScriptValueImpl method_MakeDate(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
                                             QScriptClassInfo *classInfo);
-    static QScriptValue method_toLocaleString(QScriptEngine *eng,
-                                              QScriptClassInfo *classInfo);
-    static QScriptValue method_toLocaleDateString(QScriptEngine *eng,
-                                                  QScriptClassInfo *classInfo);
-    static QScriptValue method_toLocaleTimeString(QScriptEngine *eng,
-                                                  QScriptClassInfo *classInfo);
-    static QScriptValue method_valueOf(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
-    static QScriptValue method_getTime(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
-    static QScriptValue method_getYear(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
-    static QScriptValue method_getFullYear(QScriptEngine *eng,
-                                           QScriptClassInfo *classInfo);
-    static QScriptValue method_getUTCFullYear(QScriptEngine *eng,
-                                              QScriptClassInfo *classInfo);
-    static QScriptValue method_getMonth(QScriptEngine *eng,
-                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_getUTCMonth(QScriptEngine *eng,
-                                           QScriptClassInfo *classInfo);
-    static QScriptValue method_getDate(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
-    static QScriptValue method_getUTCDate(QScriptEngine *eng,
-                                          QScriptClassInfo *classInfo);
-    static QScriptValue method_getDay(QScriptEngine *eng,
-                                      QScriptClassInfo *classInfo);
-    static QScriptValue method_getUTCDay(QScriptEngine *eng,
+    static QScriptValueImpl method_TimeClip(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_parse(QScriptContextPrivate *context,
+                                         QScriptEnginePrivate *eng,
                                          QScriptClassInfo *classInfo);
-    static QScriptValue method_getHours(QScriptEngine *eng,
-                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_getUTCHours(QScriptEngine *eng,
-                                           QScriptClassInfo *classInfo);
-    static QScriptValue method_getMinutes(QScriptEngine *eng,
-                                          QScriptClassInfo *classInfo);
-    static QScriptValue method_getUTCMinutes(QScriptEngine *eng,
-                                             QScriptClassInfo *classInfo);
-    static QScriptValue method_getSeconds(QScriptEngine *eng,
-                                          QScriptClassInfo *classInfo);
-    static QScriptValue method_getUTCSeconds(QScriptEngine *eng,
-                                             QScriptClassInfo *classInfo);
-    static QScriptValue method_getMilliseconds(QScriptEngine *eng,
-                                               QScriptClassInfo *classInfo);
-    static QScriptValue method_getUTCMilliseconds(QScriptEngine *eng,
+    static QScriptValueImpl method_UTC(QScriptContextPrivate *context,
+                                       QScriptEnginePrivate *eng,
+                                       QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toString(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toDateString(QScriptContextPrivate *context,
+                                                QScriptEnginePrivate *eng,
+                                                QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toTimeString(QScriptContextPrivate *context,
+                                                QScriptEnginePrivate *eng,
+                                                QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toLocaleString(QScriptContextPrivate *context,
+                                                  QScriptEnginePrivate *eng,
                                                   QScriptClassInfo *classInfo);
-    static QScriptValue method_getTimezoneOffset(QScriptEngine *eng,
-                                                 QScriptClassInfo *classInfo);
-    static QScriptValue method_setTime(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
-    static QScriptValue method_setMilliseconds(QScriptEngine *eng,
+    static QScriptValueImpl method_toLocaleDateString(QScriptContextPrivate *context,
+                                                      QScriptEnginePrivate *eng,
+                                                      QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toLocaleTimeString(QScriptContextPrivate *context,
+                                                      QScriptEnginePrivate *eng,
+                                                      QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_valueOf(QScriptContextPrivate *context,
+                                           QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getTime(QScriptContextPrivate *context,
+                                           QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getYear(QScriptContextPrivate *context,
+                                           QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getFullYear(QScriptContextPrivate *context,
+                                               QScriptEnginePrivate *eng,
                                                QScriptClassInfo *classInfo);
-    static QScriptValue method_setUTCMilliseconds(QScriptEngine *eng,
+    static QScriptValueImpl method_getUTCFullYear(QScriptContextPrivate *context,
+                                                  QScriptEnginePrivate *eng,
                                                   QScriptClassInfo *classInfo);
-    static QScriptValue method_setSeconds(QScriptEngine *eng,
-                                          QScriptClassInfo *classInfo);
-    static QScriptValue method_setUTCSeconds(QScriptEngine *eng,
-                                             QScriptClassInfo *classInfo);
-    static QScriptValue method_setMinutes(QScriptEngine *eng,
-                                          QScriptClassInfo *classInfo);
-    static QScriptValue method_setUTCMinutes(QScriptEngine *eng,
-                                             QScriptClassInfo *classInfo);
-    static QScriptValue method_setHours(QScriptEngine *eng,
-                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_setUTCHours(QScriptEngine *eng,
+    static QScriptValueImpl method_getMonth(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getUTCMonth(QScriptContextPrivate *context,
+                                               QScriptEnginePrivate *eng,
+                                               QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getDate(QScriptContextPrivate *context,
+                                           QScriptEnginePrivate *eng,
                                            QScriptClassInfo *classInfo);
-    static QScriptValue method_setDate(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
-    static QScriptValue method_setUTCDate(QScriptEngine *eng,
-                                          QScriptClassInfo *classInfo);
-    static QScriptValue method_setMonth(QScriptEngine *eng,
-                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_setUTCMonth(QScriptEngine *eng,
-                                           QScriptClassInfo *classInfo);
-    static QScriptValue method_setYear(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
-    static QScriptValue method_setFullYear(QScriptEngine *eng,
-                                           QScriptClassInfo *classInfo);
-    static QScriptValue method_setUTCFullYear(QScriptEngine *eng,
+    static QScriptValueImpl method_getUTCDate(QScriptContextPrivate *context,
+                                              QScriptEnginePrivate *eng,
                                               QScriptClassInfo *classInfo);
-    static QScriptValue method_toUTCString(QScriptEngine *eng,
+    static QScriptValueImpl method_getDay(QScriptContextPrivate *context,
+                                          QScriptEnginePrivate *eng,
+                                          QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getUTCDay(QScriptContextPrivate *context,
+                                             QScriptEnginePrivate *eng,
+                                             QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getHours(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getUTCHours(QScriptContextPrivate *context,
+                                               QScriptEnginePrivate *eng,
+                                               QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getMinutes(QScriptContextPrivate *context,
+                                              QScriptEnginePrivate *eng,
+                                              QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getUTCMinutes(QScriptContextPrivate *context,
+                                                 QScriptEnginePrivate *eng,
+                                                 QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getSeconds(QScriptContextPrivate *context,
+                                              QScriptEnginePrivate *eng,
+                                              QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getUTCSeconds(QScriptContextPrivate *context,
+                                                 QScriptEnginePrivate *eng,
+                                                 QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getMilliseconds(QScriptContextPrivate *context,
+                                                   QScriptEnginePrivate *eng,
+                                                   QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getUTCMilliseconds(QScriptContextPrivate *context,
+                                                      QScriptEnginePrivate *eng,
+                                                      QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_getTimezoneOffset(QScriptContextPrivate *context,
+                                                     QScriptEnginePrivate *eng,
+                                                     QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setTime(QScriptContextPrivate *context,
+                                           QScriptEnginePrivate *eng,
                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setMilliseconds(QScriptContextPrivate *context,
+                                                   QScriptEnginePrivate *eng,
+                                                   QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setUTCMilliseconds(QScriptContextPrivate *context,
+                                                      QScriptEnginePrivate *eng,
+                                                      QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setSeconds(QScriptContextPrivate *context,
+                                              QScriptEnginePrivate *eng,
+                                              QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setUTCSeconds(QScriptContextPrivate *context,
+                                                 QScriptEnginePrivate *eng,
+                                                 QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setMinutes(QScriptContextPrivate *context,
+                                              QScriptEnginePrivate *eng,
+                                              QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setUTCMinutes(QScriptContextPrivate *context,
+                                                 QScriptEnginePrivate *eng,
+                                                 QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setHours(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setUTCHours(QScriptContextPrivate *context,
+                                               QScriptEnginePrivate *eng,
+                                               QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setDate(QScriptContextPrivate *context,
+                                           QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setUTCDate(QScriptContextPrivate *context,
+                                              QScriptEnginePrivate *eng,
+                                              QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setMonth(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setUTCMonth(QScriptContextPrivate *context,
+                                               QScriptEnginePrivate *eng,
+                                               QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setYear(QScriptContextPrivate *context,
+                                           QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setFullYear(QScriptContextPrivate *context,
+                                               QScriptEnginePrivate *eng,
+                                               QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_setUTCFullYear(QScriptContextPrivate *context,
+                                                  QScriptEnginePrivate *eng,
+                                                  QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toUTCString(QScriptContextPrivate *context,
+                                               QScriptEnginePrivate *eng,
+                                               QScriptClassInfo *classInfo);
 
 private:
     QScriptClassInfo *m_classInfo;

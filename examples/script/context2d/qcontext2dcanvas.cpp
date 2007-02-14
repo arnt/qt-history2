@@ -356,13 +356,11 @@ QContext2DCanvas::QContext2DCanvas(QWidget *parent)
     m_context = new Context2D(this);
 
     m_self = m_engine.newQObject(this);
-    m_self.ref();
 
     FakeDomEvent::setup(&m_engine);
     DomImage::setup(&m_engine);
 
     m_doc = m_engine.newObject();
-    m_doc.ref();
     m_doc.setProperty("getElementById",
                     m_engine.newFunction(::getElementById,
                                             /*argc = */ 1));
@@ -521,8 +519,6 @@ QObject * QContext2DCanvas::getContext(const QString &str) const
 
 QContext2DCanvas::~QContext2DCanvas()
 {
-    m_self.deref();
-    m_doc.deref();
 }
 
 void QContext2DCanvas::setInterval(const QScriptValue &func,

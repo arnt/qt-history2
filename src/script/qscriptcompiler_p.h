@@ -208,18 +208,18 @@ protected:
 
     inline void pushInstruction(QScriptInstruction::Operator op)
     {
-        pushInstruction(op, QScriptValue(), QScriptValue());
+        pushInstruction(op, QScriptValueImpl(), QScriptValueImpl());
     }
 
     inline void pushInstruction(QScriptInstruction::Operator op,
-                                const QScriptValue &arg1)
+                                const QScriptValueImpl &arg1)
     {
-        pushInstruction(op, arg1, QScriptValue());
+        pushInstruction(op, arg1, QScriptValueImpl());
     }
 
     inline void pushInstruction(QScriptInstruction::Operator op,
-                                const QScriptValue &arg1,
-                                const QScriptValue &arg2)
+                                const QScriptValueImpl &arg1,
+                                const QScriptValueImpl &arg2)
     {
         QScriptInstruction i;
         i.op = op;

@@ -13,7 +13,7 @@
 
 #include "qscriptengine.h"
 #include "qscriptcontext.h"
-
+#include "qscriptcontext_p.h"
 #include "qscriptengine_p.h"
 #include "qscriptecmastring_p.h"
 #include "qscriptecmaobject_p.h"
@@ -23,81 +23,74 @@
 
 namespace QScript { namespace Ecma {
 
-static QString getMessage(QScriptContext *context)
+static QString getMessage(QScriptContextPrivate *context)
 {
     if (context->argumentCount() > 0)
         return context->argument(0).toString();
     return QString();
 }
 
-static QScriptValue method_EvalError(QScriptEngine *eng, QScriptClassInfo *)
+static QScriptValueImpl method_EvalError(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
-    QScriptValue result;
-    QScriptEnginePrivate::get(eng)->errorConstructor->newError(&result, getMessage(context));
+    QScriptValueImpl result;
+    eng->errorConstructor->newError(&result, getMessage(context));
     return result;
 }
 
-static QScriptValue method_RangeError(QScriptEngine *eng, QScriptClassInfo *)
+static QScriptValueImpl method_RangeError(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
-    QScriptValue result;
-    QScriptEnginePrivate::get(eng)->errorConstructor->newRangeError(&result, getMessage(context));
+    QScriptValueImpl result;
+    eng->errorConstructor->newRangeError(&result, getMessage(context));
     return result;
 }
 
-static QScriptValue method_ReferenceError(QScriptEngine *eng, QScriptClassInfo *)
+static QScriptValueImpl method_ReferenceError(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
-    QScriptValue result;
-    QScriptEnginePrivate::get(eng)->errorConstructor->newReferenceError(&result, getMessage(context));
+    QScriptValueImpl result;
+    eng->errorConstructor->newReferenceError(&result, getMessage(context));
     return result;
 }
 
-static QScriptValue method_SyntaxError(QScriptEngine *eng, QScriptClassInfo *)
+static QScriptValueImpl method_SyntaxError(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
-    QScriptValue result;
-    QScriptEnginePrivate::get(eng)->errorConstructor->newSyntaxError(&result, getMessage(context));
+    QScriptValueImpl result;
+    eng->errorConstructor->newSyntaxError(&result, getMessage(context));
     return result;
 }
 
-static QScriptValue method_TypeError(QScriptEngine *eng, QScriptClassInfo *)
+static QScriptValueImpl method_TypeError(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
-    QScriptValue result;
-    QScriptEnginePrivate::get(eng)->errorConstructor->newTypeError(&result, getMessage(context));
+    QScriptValueImpl result;
+    eng->errorConstructor->newTypeError(&result, getMessage(context));
     return result;
 }
 
-static QScriptValue method_UriError(QScriptEngine *eng, QScriptClassInfo *)
+static QScriptValueImpl method_UriError(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
-    QScriptValue result;
-    QScriptEnginePrivate::get(eng)->errorConstructor->newURIError(&result, getMessage(context));
+    QScriptValueImpl result;
+    eng->errorConstructor->newURIError(&result, getMessage(context));
     return result;
 }
 
-Error::Error(QScriptEngine *eng):
+Error::Error(QScriptEnginePrivate *eng):
     Core(eng)
 {
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-    m_objectClass = eng_p->registerClass(QLatin1String("Error"));
+    m_objectClass = eng->registerClass(QLatin1String("Error"));
 
-    eng_p->newFunction(&ctor, this);
-    newErrorPrototype(&publicPrototype, QScriptValue(), ctor, QLatin1String("Error"));
+    eng->newFunction(&ctor, this);
+    newErrorPrototype(&publicPrototype, QScriptValueImpl(), ctor, QLatin1String("Error"));
     publicPrototype.setProperty(QLatin1String("toString"),
-                                eng_p->createFunction(method_toString, 0, m_objectClass),
+                                eng->createFunction(method_toString, 0, m_objectClass),
                                 QScriptValue::SkipInEnumeration);
 
     // native errors
 
-    evalErrorCtor = eng_p->createFunction(method_EvalError, 3, m_objectClass);
-    rangeErrorCtor = eng_p->createFunction(method_RangeError, 3, m_objectClass);
-    referenceErrorCtor = eng_p->createFunction(method_ReferenceError, 3, m_objectClass);
-    syntaxErrorCtor = eng_p->createFunction(method_SyntaxError, 3, m_objectClass);
-    typeErrorCtor = eng_p->createFunction(method_TypeError, 3, m_objectClass);
-    uriErrorCtor = eng_p->createFunction(method_UriError, 3, m_objectClass);
+    evalErrorCtor = eng->createFunction(method_EvalError, 3, m_objectClass);
+    rangeErrorCtor = eng->createFunction(method_RangeError, 3, m_objectClass);
+    referenceErrorCtor = eng->createFunction(method_ReferenceError, 3, m_objectClass);
+    syntaxErrorCtor = eng->createFunction(method_SyntaxError, 3, m_objectClass);
+    typeErrorCtor = eng->createFunction(method_TypeError, 3, m_objectClass);
+    uriErrorCtor = eng->createFunction(method_UriError, 3, m_objectClass);
 
     newErrorPrototype(&evalErrorPrototype, publicPrototype,
                       evalErrorCtor, QLatin1String("EvalError"));
@@ -117,65 +110,65 @@ Error::~Error()
 {
 }
 
-void Error::execute(QScriptContext *context)
+void Error::execute(QScriptContextPrivate *context)
 {
     QString message = QString();
 
     if (context->argumentCount() > 0)
         message = context->argument(0).toString();
 
-    QScriptValue result;
+    QScriptValueImpl result;
     newError(&result, publicPrototype, message);
     context->setReturnValue(result);
 }
 
-void Error::newError(QScriptValue *result, const QString &message)
+void Error::newError(QScriptValueImpl *result, const QString &message)
 {
     newError(result, publicPrototype, message);
 }
 
-void Error::newEvalError(QScriptValue *result, const QString &message)
+void Error::newEvalError(QScriptValueImpl *result, const QString &message)
 {
     newError(result, evalErrorPrototype, message);
 }
 
-void Error::newRangeError(QScriptValue *result, const QString &message)
+void Error::newRangeError(QScriptValueImpl *result, const QString &message)
 {
     newError(result, rangeErrorPrototype, message);
 }
 
-void Error::newReferenceError(QScriptValue *result, const QString &message)
+void Error::newReferenceError(QScriptValueImpl *result, const QString &message)
 {
     newError(result, referenceErrorPrototype, message);
 }
 
-void Error::newSyntaxError(QScriptValue *result, const QString &message)
+void Error::newSyntaxError(QScriptValueImpl *result, const QString &message)
 {
     newError(result, syntaxErrorPrototype, message);
 }
 
-void Error::newTypeError(QScriptValue *result, const QString &message)
+void Error::newTypeError(QScriptValueImpl *result, const QString &message)
 {
     newError(result, typeErrorPrototype, message);
 }
 
-void Error::newURIError(QScriptValue *result, const QString &message)
+void Error::newURIError(QScriptValueImpl *result, const QString &message)
 {
     newError(result, uriErrorPrototype, message);
 }
 
-void Error::newError(QScriptValue *result, const QScriptValue &proto,
+void Error::newError(QScriptValueImpl *result, const QScriptValueImpl &proto,
                      const QString &message)
 {
-    QScriptEnginePrivate::get(engine())->newObject(result, proto, classInfo());
-    result->setProperty(QLatin1String("message"), QScriptValue(engine(), message));
+    engine()->newObject(result, proto, classInfo());
+    result->setProperty(QLatin1String("message"), QScriptValueImpl(engine(), message));
 }
 
-void Error::newErrorPrototype(QScriptValue *result, const QScriptValue &proto,
-                              QScriptValue &ztor, const QString &name)
+void Error::newErrorPrototype(QScriptValueImpl *result, const QScriptValueImpl &proto,
+                              QScriptValueImpl &ztor, const QString &name)
 {
     newError(result, proto);
-    result->setProperty(QLatin1String("name"), QScriptValue(engine(), name));
+    result->setProperty(QLatin1String("name"), QScriptValueImpl(engine(), name));
     result->setProperty(QLatin1String("constructor"), ztor,
                         QScriptValue::Undeletable
                         | QScriptValue::SkipInEnumeration);
@@ -185,13 +178,12 @@ void Error::newErrorPrototype(QScriptValue *result, const QScriptValue &proto,
                      | QScriptValue::SkipInEnumeration);
 }
 
-QScriptValue Error::method_toString(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValueImpl Error::method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
-    QScriptValue name = context->thisObject().property(QLatin1String("name"),
-                                                       QScriptValue::ResolvePrototype);
-    QScriptValue message = context->thisObject().property(QLatin1String("message"),
-                                                          QScriptValue::ResolvePrototype);
+    QScriptValueImpl name = context->thisObject().property(QLatin1String("name"),
+                                                           QScriptValue::ResolvePrototype);
+    QScriptValueImpl message = context->thisObject().property(QLatin1String("message"),
+                                                              QScriptValue::ResolvePrototype);
     QString result = QLatin1String("");
     if (name.isValid())
         result = name.toString();
@@ -203,7 +195,7 @@ QScriptValue Error::method_toString(QScriptEngine *eng, QScriptClassInfo *)
             result += str;
         }
     }
-    return (QScriptValue(eng, result));
+    return (QScriptValueImpl(eng, result));
 }
 
 } } // namespace QSA::Ecma

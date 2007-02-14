@@ -28,7 +28,7 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/qvector.h>
 
-#include "qscriptvalue.h"
+#include "qscriptvalueimpl_p.h"
 
 class QTextStream;
 
@@ -43,7 +43,7 @@ public:
 
 public:
     Operator op;
-    QScriptValue operand[2];
+    QScriptValueImpl operand[2];
 #if defined(Q_SCRIPT_DIRECT_CODE)
     void *code;
 #endif
@@ -115,7 +115,7 @@ public: // attributes
     QScriptInstruction *firstInstruction;
     QScriptInstruction *lastInstruction;
     QVector<ExceptionHandlerDescriptor> exceptionHandlers;
-    QScriptValue value;
+    QScriptValueImpl value;
 
 private:
     Q_DISABLE_COPY(Code)

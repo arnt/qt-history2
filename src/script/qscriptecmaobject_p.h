@@ -32,34 +32,42 @@ namespace QScript { namespace Ecma {
 class Object: public Core
 {
 public:
-    Object(QScriptEngine *engine, QScriptClassInfo *classInfo);
+    Object(QScriptEnginePrivate *engine, QScriptClassInfo *classInfo);
     virtual ~Object();
 
     void initialize();
 
     inline QScriptClassInfo *classInfo() const { return m_classInfo; }
 
-    virtual void execute(QScriptContext *context);
+    virtual void execute(QScriptContextPrivate *context);
 
-    void newObject(QScriptValue *result, const QScriptValue &proto = QScriptValue());
+    void newObject(QScriptValueImpl *result, const QScriptValueImpl &proto = QScriptValueImpl());
 
 protected:
-    static QScriptValue method_toString(QScriptEngine *eng,
-                                        QScriptClassInfo *classInfo);
-    static QScriptValue method_toLocaleString(QScriptEngine *eng,
-                                              QScriptClassInfo *classInfo);
-    static QScriptValue method_valueOf(QScriptEngine *eng,
-                                       QScriptClassInfo *classInfo);
-    static QScriptValue method_hasOwnProperty(QScriptEngine *eng,
-                                              QScriptClassInfo *classInfo);
-    static QScriptValue method_isPrototypeOf(QScriptEngine *eng,
-                                             QScriptClassInfo *classInfo);
-    static QScriptValue method_propertyIsEnumerable(QScriptEngine *eng,
-                                                    QScriptClassInfo *classInfo);
-    static QScriptValue method_defineGetter(QScriptEngine *eng,
+    static QScriptValueImpl method_toString(QScriptContextPrivate *context,
+                                            QScriptEnginePrivate *eng,
                                             QScriptClassInfo *classInfo);
-    static QScriptValue method_defineSetter(QScriptEngine *eng,
-                                            QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_toLocaleString(QScriptContextPrivate *context,
+                                                  QScriptEnginePrivate *eng,
+                                                  QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_valueOf(QScriptContextPrivate *context,
+                                           QScriptEnginePrivate *eng,
+                                           QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_hasOwnProperty(QScriptContextPrivate *context,
+                                                  QScriptEnginePrivate *eng,
+                                                  QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_isPrototypeOf(QScriptContextPrivate *context,
+                                                 QScriptEnginePrivate *eng,
+                                                 QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_propertyIsEnumerable(QScriptContextPrivate *context,
+                                                        QScriptEnginePrivate *eng,
+                                                        QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_defineGetter(QScriptContextPrivate *context,
+                                                QScriptEnginePrivate *eng,
+                                                QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_defineSetter(QScriptContextPrivate *context,
+                                                QScriptEnginePrivate *eng,
+                                                QScriptClassInfo *classInfo);
 
 private:
     QScriptClassInfo *m_classInfo;

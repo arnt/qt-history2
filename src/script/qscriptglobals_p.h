@@ -28,10 +28,14 @@
 #include <QtCore/qglobal.h>
 
 class QScriptValue;
+class QScriptValueImpl;
 class QScriptClassInfo;
 class QScriptEngine;
+class QScriptEnginePrivate;
+class QScriptContext;
+class QScriptContextPrivate;
 
-typedef QScriptValue (*QScriptInternalFunctionSignature)(QScriptEngine *, QScriptClassInfo *);
+typedef QScriptValueImpl (*QScriptInternalFunctionSignature)(QScriptContextPrivate *, QScriptEnginePrivate *, QScriptClassInfo *);
 typedef QScriptValue (*QScriptFunctionSignature)(QScriptContext *, QScriptEngine *);
 
 namespace QScript {
@@ -66,12 +70,6 @@ enum Type {
 
     CustomType          = 1000
 };
-
-#define Q_SCRIPT_DECLARE_IMPL(klass) \
-public: \
-    friend class klass##Impl; \
-    inline klass##Impl *impl() const \
-    { return const_cast<klass##Impl*>(reinterpret_cast<const klass##Impl*>(this)); }
 
 } // namespace QScript
 

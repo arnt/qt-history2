@@ -47,7 +47,10 @@
 #include "qscriptecmanumber_p.h"
 #include "qscriptecmastring_p.h"
 #include "qscriptecmafunction_p.h"
+#include "qscriptextvariant_p.h"
+#include "qscriptextqobject_p.h"
 #include "qscriptclassinfo_p.h"
+#include "qscriptvalue_p.h"
 
 #include <math.h>
 
@@ -93,29 +96,29 @@ public:
     virtual ~ArgumentsObjectData() {}
 
 public: // attributes
-    QScriptValue activation;
+    QScriptValueImpl activation;
     uint length;
-    QScriptValue callee;
+    QScriptValueImpl callee;
 };
 
 class IdTable
 {
 public:
-    QScriptNameId id_constructor;
-    QScriptNameId id_false;
-    QScriptNameId id_null;
-    QScriptNameId id_object;
-    QScriptNameId id_pointer;
-    QScriptNameId id_prototype;
-    QScriptNameId id_arguments;
-    QScriptNameId id_this;
-    QScriptNameId id_toString;
-    QScriptNameId id_true;
-    QScriptNameId id_undefined;
-    QScriptNameId id_valueOf;
-    QScriptNameId id_length;
-    QScriptNameId id_callee;
-    QScriptNameId id___proto__;
+    QScriptNameIdImpl *id_constructor;
+    QScriptNameIdImpl *id_false;
+    QScriptNameIdImpl *id_null;
+    QScriptNameIdImpl *id_object;
+    QScriptNameIdImpl *id_pointer;
+    QScriptNameIdImpl *id_prototype;
+    QScriptNameIdImpl *id_arguments;
+    QScriptNameIdImpl *id_this;
+    QScriptNameIdImpl *id_toString;
+    QScriptNameIdImpl *id_true;
+    QScriptNameIdImpl *id_undefined;
+    QScriptNameIdImpl *id_valueOf;
+    QScriptNameIdImpl *id_length;
+    QScriptNameIdImpl *id_callee;
+    QScriptNameIdImpl *id___proto__;
 };
 
 } // namespace QScript
@@ -144,7 +147,7 @@ public:
     QByteArray signature;
     QScriptEngine::MarshalFunction marshal;
     QScriptEngine::DemarshalFunction demarshal;
-    QScriptValue prototype;
+    QScriptValueImpl prototype;
 };
 
 class QScriptEnginePrivate
@@ -173,7 +176,7 @@ public:
     inline QScript::AST::Node *abstractSyntaxTree() const;
     inline QString errorMessage() const;
 
-    inline QScriptContext *context() const;
+    QScriptContext *currentContext() const;
     QScriptContext *pushContext();
     void popContext();
 
@@ -202,16 +205,17 @@ public:
 
     inline bool blockGC(bool block) { return objectAllocator.blockGC(block); }
 
-    void markObject(const QScriptValue &object, int generation);
-    void markFrame(QScriptContext *context, int generation);
+    void markObject(const QScriptValueImpl &object, int generation);
+    void markFrame(QScriptContextPrivate *context, int generation);
 
     inline void markString(QScriptNameIdImpl *id, int /*generation*/)
     { id->used = true; }
 
-    QScriptValue createFunction(QScriptFunction *fun);
-    QScriptValue newArray(const QScript::Array &value);
+    QScriptValueImpl createFunction(QScriptFunction *fun);
+    QScriptValueImpl newArray(const QScript::Array &value);
+    QScriptValueImpl newArray(uint length = 0);
 
-    void evaluate(QScriptContext *context, const QString &contents, int lineNumber);
+    void evaluate(QScriptContextPrivate *context, const QString &contents, int lineNumber);
 
     inline QScript::Code *findCode(QScript::AST::Node *node) const
     { return m_codeCache.value(node); }
@@ -241,45 +245,38 @@ public:
     inline QScriptClassInfo *registerClass(const QString &name)
         { return registerClass(name, QScript::Type(-1)); }
 
-    inline QScriptValue createFunction(QScriptInternalFunctionSignature fun,
-                                       int length, QScriptClassInfo *classInfo)
+    inline QScriptValueImpl createFunction(QScriptInternalFunctionSignature fun,
+                                           int length, QScriptClassInfo *classInfo)
     {
         return createFunction(new QScript::C2Function(fun, length, classInfo));
     }
 
-    inline QScriptValue createObject(QScriptClassInfo *classInfo)
-    {
-        QScriptValue v;
-        newObject(&v, objectConstructor->publicPrototype, classInfo);
-        return v;
-    }
-
     inline QString toString(QScriptNameIdImpl *id) const;
     inline QString memberName(const QScript::Member &member) const;
-    inline void newReference(QScriptValue *object, int mode);
-    inline void newActivation(QScriptValue *object);
-    inline void newBoolean(QScriptValue *object, bool b);
-    inline void newNumber(QScriptValue *object, qsreal d);
-    void newFunction(QScriptValue *object, QScriptFunction *function);
-    void newConstructor(QScriptValue *ctor, QScriptFunction *function,
-                        QScriptValue &proto);
-    inline void newInteger(QScriptValue *object, int i);
-    inline void newNull(QScriptValue *object);
-    inline void newPointer(QScriptValue *object, void *ptr);
-    inline void newNameId(QScriptValue *object, const QString &s);
-    inline void newNameId(QScriptValue *object, QScriptNameIdImpl *id);
-    inline void newString(QScriptValue *object, const QString &s);
-    inline void newUndefined(QScriptValue *object);
-    void newArguments(QScriptValue *object, const QScriptValue &activation,
-                      uint length, const QScriptValue &callee);
-    inline QString convertToNativeString(const QScriptValue &object);
-    QString convertToNativeString_helper(const QScriptValue &object);
-    inline qsreal convertToNativeDouble(const QScriptValue &object);
-    qsreal convertToNativeDouble_helper(const QScriptValue &object);
-    inline bool convertToNativeBoolean(const QScriptValue &object);
-    bool convertToNativeBoolean_helper(const QScriptValue &object);
-    inline qint32 convertToNativeInt32(const QScriptValue &object);
-    QScriptFunction *convertToNativeFunction(const QScriptValue &object);
+    inline void newReference(QScriptValueImpl *object, int mode);
+    inline void newActivation(QScriptValueImpl *object);
+    inline void newBoolean(QScriptValueImpl *object, bool b);
+    inline void newNumber(QScriptValueImpl *object, qsreal d);
+    void newFunction(QScriptValueImpl *object, QScriptFunction *function);
+    void newConstructor(QScriptValueImpl *ctor, QScriptFunction *function,
+                        QScriptValueImpl &proto);
+    inline void newInteger(QScriptValueImpl *object, int i);
+    inline void newNull(QScriptValueImpl *object);
+    inline void newPointer(QScriptValueImpl *object, void *ptr);
+    inline void newNameId(QScriptValueImpl *object, const QString &s);
+    inline void newNameId(QScriptValueImpl *object, QScriptNameIdImpl *id);
+    inline void newString(QScriptValueImpl *object, const QString &s);
+    inline void newUndefined(QScriptValueImpl *object);
+    void newArguments(QScriptValueImpl *object, const QScriptValueImpl &activation,
+                      uint length, const QScriptValueImpl &callee);
+    inline QString convertToNativeString(const QScriptValueImpl &object);
+    QString convertToNativeString_helper(const QScriptValueImpl &object);
+    inline qsreal convertToNativeDouble(const QScriptValueImpl &object);
+    qsreal convertToNativeDouble_helper(const QScriptValueImpl &object);
+    inline bool convertToNativeBoolean(const QScriptValueImpl &object);
+    bool convertToNativeBoolean_helper(const QScriptValueImpl &object);
+    inline qint32 convertToNativeInt32(const QScriptValueImpl &object);
+    QScriptFunction *convertToNativeFunction(const QScriptValueImpl &object);
 
     inline static qsreal toNumber(const QString &value);
     inline static QString toString(qsreal value);
@@ -293,21 +290,21 @@ public:
     inline static bool isFinite(qsreal d);
     inline const QScript::IdTable *idTable() const;
 
-    static inline QScript::Type type(const QScriptValue &v)
+    static inline QScript::Type type(const QScriptValueImpl &v)
         { return v.m_class->type(); }
-    static inline bool isValid(const QScriptValue &v)
+    static inline bool isValid(const QScriptValueImpl &v)
         { return v.m_class && v.m_class->engine(); }
-    static inline bool isString(const QScriptValue &v)
+    static inline bool isString(const QScriptValueImpl &v)
         { return v.m_class && (v.m_class->type() == QScript::StringType); }
-    static inline bool isObject(const QScriptValue &v)
+    static inline bool isObject(const QScriptValueImpl &v)
         { return v.m_class && (v.m_class->type() & QScript::ObjectBased); }
 
-    inline QScriptValue toObject(const QScriptValue &value)
+    inline QScriptValueImpl toObject(const QScriptValueImpl &value)
     {
         if (!isValid(value))
             return value;
 
-        QScriptValue result;
+        QScriptValueImpl result;
 
         switch (type(value)) {
         case QScript::UndefinedType:
@@ -335,8 +332,8 @@ public:
         return result;
     }
 
-    inline QScriptValue toPrimitive(const QScriptValue &object,
-                                    QScriptValue::TypeHint hint = QScriptValue::NoTypeHint)
+    inline QScriptValueImpl toPrimitive(const QScriptValueImpl &object,
+                                        QScriptValue::TypeHint hint = QScriptValue::NoTypeHint)
     {
         Q_ASSERT(object.isValid());
 
@@ -346,8 +343,8 @@ public:
         return toPrimitive_helper(object, hint);
     }
 
-    QScriptValue toPrimitive_helper(const QScriptValue &object,
-                                    QScriptValue::TypeHint hint);
+    QScriptValueImpl toPrimitive_helper(const QScriptValueImpl &object,
+                                        QScriptValue::TypeHint hint);
 
     static const qsreal D16;
     static const qsreal D32;
@@ -357,12 +354,12 @@ public:
     inline static quint32 toUint32(qsreal n);
     inline static quint16 toUint16(qsreal n);
 
-    QDateTime toDateTime(const QScriptValue &value) const;
+    QDateTime toDateTime(const QScriptValueImpl &value) const;
 
-    inline void newArray(QScriptValue *object, const QScript::Array &value)
+    inline void newArray(QScriptValueImpl *object, const QScript::Array &value)
     { arrayConstructor->newArray(object, value); }
 
-    inline void newObject(QScriptValue *o, const QScriptValue &proto,
+    inline void newObject(QScriptValueImpl *o, const QScriptValueImpl &proto,
                           QScriptClassInfo *oc = 0)
     {
         Q_ASSERT(o != 0);
@@ -381,7 +378,51 @@ public:
         o->m_object_value = od;
     }
 
-    inline QScriptNameIdImpl *nameId(const QString &str, bool persistent)
+    inline void newObject(QScriptValueImpl *o, QScriptClassInfo *oc = 0)
+    {
+        newObject(o, objectConstructor->publicPrototype, oc);
+    }
+
+    inline QScriptValueImpl newObject()
+    {
+        QScriptValueImpl v;
+        newObject(&v);
+        return v;
+    }
+
+    inline QScriptValueImpl newVariant(const QVariant &value)
+    {
+        Q_ASSERT(variantConstructor != 0);
+        QScriptValueImpl v;
+        variantConstructor->newVariant(&v, value);
+        QScriptValueImpl proto = defaultPrototype(value.userType());
+        if (proto.isValid())
+            v.setPrototype(proto);
+        return v;
+    }
+
+#ifndef QT_NO_QOBJECT
+    inline QScriptValueImpl newQObject(QObject *object)
+    {
+        Q_ASSERT(qobjectConstructor != 0);
+        QScriptValueImpl v;
+        qobjectConstructor->newQObject(&v, object);
+        if (object) {
+            // see if we have a default prototype
+            QByteArray typeString = object->metaObject()->className();
+            typeString.append('*');
+            int typeId = QMetaType::type(typeString);
+            if (typeId != 0) {
+                QScriptValueImpl proto = defaultPrototype(typeId);
+                if (proto.isValid())
+                    v.setPrototype(proto);
+            }
+        }
+        return v;
+    }
+#endif
+
+    inline QScriptNameIdImpl *nameId(const QString &str, bool persistent = false)
     {
         QScriptNameIdImpl *entry = toStringEntry(str);
         if (! entry)
@@ -407,44 +448,89 @@ public:
         return nameId(tmp, /*persistent=*/ true);
     }
 
-    inline QScriptValue valueFromVariant(const QVariant &v)
+    inline QScriptValueImpl valueFromVariant(const QVariant &v)
     {
-        Q_Q(QScriptEngine);
-        QScriptValue result = create(v.userType(), v.data());
+        QScriptValueImpl result = create(v.userType(), v.data());
         if (!result.isValid())
-            result = q->newVariant(v);
+            result = newVariant(v);
         return result;
     }
 
-    QScriptValue call(const QScriptValue &callee, const QScriptValue &thisObject,
-                      const QScriptValueList &args, bool asConstructor);
+    inline QScriptValueImpl undefinedValue()
+    {
+        QScriptValueImpl v;
+        newUndefined(&v);
+        return v;
+    }
+
+    inline QScriptValueImpl nullValue()
+    {
+        QScriptValueImpl v;
+        newNull(&v);
+        return v;
+    }
+
+    inline QScriptValueImpl defaultPrototype(int metaTypeId) const
+    {
+        QScriptCustomTypeInfo info = m_customTypes.value(metaTypeId);
+        return info.prototype;
+    }
+
+    inline void setDefaultPrototype(int metaTypeId, const QScriptValueImpl &prototype)
+    {
+        QScriptCustomTypeInfo info = m_customTypes.value(metaTypeId);
+        info.prototype = prototype;
+        m_customTypes.insert(metaTypeId, info);
+    }
+
+    QScriptValueImpl call(const QScriptValueImpl &callee, const QScriptValueImpl &thisObject,
+                          const QScriptValueImplList &args, bool asConstructor);
 
     void rehashStringRepository(bool resize = true);
     QScriptNameIdImpl *toStringEntry(const QString &s);
     QScriptNameIdImpl *insertStringEntry(const QString &s);
 
-    void addReference(const QScriptValue &object);
-    void removeReference(const QScriptValue &object);
+    QScriptValueImpl create(int type, const void *ptr);
+    bool convert(const QScriptValueImpl &value, int type, void *ptr);
 
-    QScriptValue create(int type, const void *ptr);
-    bool convert(const QScriptValue &value, int type, void *ptr);
+    QScriptValueImpl arrayFromStringList(const QStringList &lst);
+    QStringList stringListFromArray(const QScriptValueImpl &arr);
 
-    QScriptValue arrayFromStringList(const QStringList &lst);
-    QStringList stringListFromArray(const QScriptValue &arr);
+    QScriptValueImpl arrayFromVariantList(const QVariantList &lst);
+    QVariantList variantListFromArray(const QScriptValueImpl &arr);
 
-    QScriptValue arrayFromVariantList(const QVariantList &lst);
-    QVariantList variantListFromArray(const QScriptValue &arr);
+    QScriptValueImpl objectFromVariantMap(const QVariantMap &vmap);
+    QVariantMap variantMapFromObject(const QScriptValueImpl &obj);
 
-    QScriptValue objectFromVariantMap(const QVariantMap &vmap);
-    QVariantMap variantMapFromObject(const QScriptValue &obj);
+    bool lessThan(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const;
+    bool equalTo(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const;
+    bool strictEqualTo(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const;
 
-    bool lessThan(const QScriptValue &lhs, const QScriptValue &rhs) const;
-    bool equalTo(const QScriptValue &lhs, const QScriptValue &rhs) const;
-    bool strictEqualTo(const QScriptValue &lhs, const QScriptValue &rhs) const;
+    QScriptValuePrivate *registerValue(const QScriptValueImpl &value);
+
+    inline void unregisterValue(QScriptValuePrivate *p)
+    {
+        QScriptValueImpl &v = p->value;
+        Q_ASSERT(v.isValid());
+        if (v.isString()) {
+            QScriptNameIdImpl *id = v.stringValue();
+            m_stringHandles.remove(id);
+        } else if (v.isObject()) {
+            QScriptObject *instance = v.objectValue();
+            m_objectHandles.remove(instance);
+        } else {
+            int i = m_otherHandles.indexOf(p);
+            Q_ASSERT(i != -1);
+            m_otherHandles.remove(i);
+        }
+    }
+
+    inline QScriptValueImpl globalObject() const
+    { return m_globalObject; }
 
 public: // attributes
     int m_gc_depth;
-    QScriptValue globalObject;
+    QScriptValueImpl m_globalObject;
     int m_oldStringRepositorySize;
     int m_oldTempStringRepositorySize;
     QVector<QScriptNameIdImpl*> m_stringRepository;
@@ -454,8 +540,8 @@ public: // attributes
     QScript::GCAlloc<QScriptObject> objectAllocator;
     QScript::Repository<QScriptContext, QScriptContextPrivate> m_frameRepository;
     QScriptContext *m_context;
-    QScriptValue *tempStackBegin;
-    QScriptValue *tempStackEnd;
+    QScriptValueImpl *tempStackBegin;
+    QScriptValueImpl *tempStackEnd;
     QString m_errorMessage;
     QScript::AST::Node *m_abstractSyntaxTree;
     QScript::Lexer *m_lexer;
@@ -501,9 +587,9 @@ public: // attributes
     QHash<QScript::Type, QScriptClassInfo*> m_classes;
     int m_class_prev_id;
 
-    QList<QScriptValue> rootObjects;
-    QList<int> rootObjectRefs;
-    QMutex rootMutex;
+    QHash<QScriptObject*, QScriptValuePrivate*> m_objectHandles;
+    QHash<QScriptNameIdImpl*, QScriptValuePrivate*> m_stringHandles;
+    QVector<QScriptValuePrivate*> m_otherHandles;
 
     QScript::IdTable m_id_table;
 
@@ -525,67 +611,67 @@ inline QString QScriptEnginePrivate::memberName(const QScript::Member &member) c
     return toString(member.nameId());
 }
 
-inline void QScriptEnginePrivate::newReference(QScriptValue *o, int mode)
+inline void QScriptEnginePrivate::newReference(QScriptValueImpl *o, int mode)
 {
     Q_ASSERT(o);
     o->m_class = (m_class_reference);
     o->m_int_value = (mode);
 }
 
-inline void QScriptEnginePrivate::newActivation(QScriptValue *o)
+inline void QScriptEnginePrivate::newActivation(QScriptValueImpl *o)
 {
     Q_ASSERT(o);
     newObject(o, objectConstructor->publicPrototype, m_class_activation);
 }
 
-inline void QScriptEnginePrivate::newBoolean(QScriptValue *o, bool b)
+inline void QScriptEnginePrivate::newBoolean(QScriptValueImpl *o, bool b)
 {
     Q_ASSERT(o);
     o->m_class = (m_class_boolean);
     o->m_bool_value = (b);
 }
 
-inline void QScriptEnginePrivate::newNull(QScriptValue *o)
+inline void QScriptEnginePrivate::newNull(QScriptValueImpl *o)
 {
     Q_ASSERT(o);
     o->m_class = (m_class_null);
 }
 
-inline void QScriptEnginePrivate::newUndefined(QScriptValue *o)
+inline void QScriptEnginePrivate::newUndefined(QScriptValueImpl *o)
 {
     Q_ASSERT(o);
     o->m_class = (m_class_undefined);
 }
 
-inline void QScriptEnginePrivate::newPointer(QScriptValue *o, void *ptr)
+inline void QScriptEnginePrivate::newPointer(QScriptValueImpl *o, void *ptr)
 {
     Q_ASSERT(o);
     o->m_class = (m_class_pointer);
     o->m_ptr_value = ptr;
 }
 
-inline void QScriptEnginePrivate::newInteger(QScriptValue *o, int i)
+inline void QScriptEnginePrivate::newInteger(QScriptValueImpl *o, int i)
 {
     Q_ASSERT(o);
     o->m_class = (m_class_int);
     o->m_int_value = (i);
 }
 
-inline void QScriptEnginePrivate::newNumber(QScriptValue *o, qsreal d)
+inline void QScriptEnginePrivate::newNumber(QScriptValueImpl *o, qsreal d)
 {
     Q_ASSERT(o);
     o->m_class = (m_class_double);
     o->m_number_value = (d);
 }
 
-inline void QScriptEnginePrivate::newNameId(QScriptValue *o, const QString &s)
+inline void QScriptEnginePrivate::newNameId(QScriptValueImpl *o, const QString &s)
 {
     Q_ASSERT(o);
     o->m_class = (m_class_string);
     o->m_string_value = (nameId(s, /*persistent=*/false));
 }
 
-inline void QScriptEnginePrivate::newString(QScriptValue *o, const QString &s)
+inline void QScriptEnginePrivate::newString(QScriptValueImpl *o, const QString &s)
 {
     Q_ASSERT(o);
     o->m_class = (m_class_string);
@@ -594,7 +680,7 @@ inline void QScriptEnginePrivate::newString(QScriptValue *o, const QString &s)
     o->m_string_value = (entry);
 }
 
-inline void QScriptEnginePrivate::newNameId(QScriptValue *o, QScriptNameIdImpl *id)
+inline void QScriptEnginePrivate::newNameId(QScriptValueImpl *o, QScriptNameIdImpl *id)
 {
     Q_ASSERT(o);
     o->m_class = (m_class_string);
@@ -654,7 +740,7 @@ inline qsreal QScriptEnginePrivate::toNumber(const QString &repr)
     return SNaN();
 }
 
-inline qsreal QScriptEnginePrivate::convertToNativeDouble(const QScriptValue &object)
+inline qsreal QScriptEnginePrivate::convertToNativeDouble(const QScriptValueImpl &object)
 {
     Q_ASSERT (object.isValid());
 
@@ -664,7 +750,7 @@ inline qsreal QScriptEnginePrivate::convertToNativeDouble(const QScriptValue &ob
     return convertToNativeDouble_helper(object);
 }
 
-inline qint32 QScriptEnginePrivate::convertToNativeInt32(const QScriptValue &object)
+inline qint32 QScriptEnginePrivate::convertToNativeInt32(const QScriptValueImpl &object)
 {
     Q_ASSERT (object.isValid());
 
@@ -672,7 +758,7 @@ inline qint32 QScriptEnginePrivate::convertToNativeInt32(const QScriptValue &obj
 }
 
 
-inline bool QScriptEnginePrivate::convertToNativeBoolean(const QScriptValue &object)
+inline bool QScriptEnginePrivate::convertToNativeBoolean(const QScriptValueImpl &object)
 {
     Q_ASSERT (object.isValid());
 
@@ -682,7 +768,7 @@ inline bool QScriptEnginePrivate::convertToNativeBoolean(const QScriptValue &obj
     return convertToNativeBoolean_helper(object);
 }
 
-inline QString QScriptEnginePrivate::convertToNativeString(const QScriptValue &object)
+inline QString QScriptEnginePrivate::convertToNativeString(const QScriptValueImpl &object)
 {
     Q_ASSERT (object.isValid());
 
@@ -822,7 +908,7 @@ inline QScriptObject *QScriptEnginePrivate::allocObject()
     return objectAllocator();
 }
 
-inline QScriptContext *QScriptEnginePrivate::context() const
+inline QScriptContext *QScriptEnginePrivate::currentContext() const
 {
     return m_context;
 }

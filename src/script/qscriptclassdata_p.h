@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-class QScriptValue;
+class QScriptValueImpl;
 class QScriptNameIdImpl;
 #include "qscriptmember_p.h"
 #include <QtCore/qshareddata.h>
@@ -38,17 +38,17 @@ protected:
 public:
     virtual ~QScriptClassData() {}
 
-    virtual void mark(const QScriptValue &object, int generation);
-    virtual bool resolve(const QScriptValue &object, QScriptNameIdImpl *nameId,
-                         QScript::Member *member, QScriptValue *base);
-    virtual bool get(const QScriptValue &obj, const QScript::Member &m,
-                     QScriptValue *result);
-    virtual bool put(QScriptValue *object, const QScript::Member &member,
-                     const QScriptValue &value);
-    virtual bool removeMember(const QScriptValue &object,
+    virtual void mark(const QScriptValueImpl &object, int generation);
+    virtual bool resolve(const QScriptValueImpl &object, QScriptNameIdImpl *nameId,
+                         QScript::Member *member, QScriptValueImpl *base);
+    virtual bool get(const QScriptValueImpl &obj, const QScript::Member &m,
+                     QScriptValueImpl *result);
+    virtual bool put(QScriptValueImpl *object, const QScript::Member &member,
+                     const QScriptValueImpl &value);
+    virtual bool removeMember(const QScriptValueImpl &object,
                               const QScript::Member &member);
-    virtual int extraMemberCount(const QScriptValue &object);
-    virtual bool extraMember(const QScriptValue &object, int index,
+    virtual int extraMemberCount(const QScriptValueImpl &object);
+    virtual bool extraMember(const QScriptValueImpl &object, int index,
                              QScript::Member *member);
 
 private:

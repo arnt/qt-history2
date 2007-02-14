@@ -20,35 +20,33 @@ QScriptFunction::~QScriptFunction()
 {
 }
 
-QString QScriptFunction::toString(QScriptContext *) const
+QString QScriptFunction::toString(QScriptContextPrivate *) const
 {
     QString result;
     result += QLatin1String("function () { [native] }");
     return result;
 }
 
-void QScript::CFunction::execute(QScriptContext *context)
+void QScript::CFunction::execute(QScriptContextPrivate *context)
 {
-    QScriptContextPrivate *context_p = QScriptContextPrivate::get(context);
-    QScriptEngine *eng = context_p->engine();
+    QScriptEngine *eng = context->engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
 
-    eng_p->newUndefined(&context_p->result);
+    eng_p->newUndefined(&context->m_result);
 
     bool blocked = eng_p->blockGC(true);
-    context_p->result = (*m_funPtr)(eng->currentContext(), eng);
+    context->m_result = QScriptValuePrivate::valueOf((*m_funPtr)(eng->currentContext(), eng));
     eng_p->blockGC(blocked);
 }
 
-void QScript::C2Function::execute(QScriptContext *context)
+void QScript::C2Function::execute(QScriptContextPrivate *context)
 {
-    QScriptContextPrivate *context_p = QScriptContextPrivate::get(context);
-    QScriptEngine *eng = context_p->engine();
+    QScriptEngine *eng = context->engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
 
-    eng_p->newUndefined(&context_p->result);
+    eng_p->newUndefined(&context->m_result);
 
     bool blocked = eng_p->blockGC(true);
-    context_p->result = (*m_funPtr)(eng, m_classInfo);
+    context->m_result = (*m_funPtr)(context, eng_p, m_classInfo);
     eng_p->blockGC(blocked);
 }

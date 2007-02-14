@@ -153,6 +153,7 @@ QTOBJS= \
 	qscriptprettypretty.obj \
 	qscriptsyntaxchecker.obj \
 	qscriptvalue.obj \
+	qscriptvalueimpl.obj \
 	qscriptvalueiterator.obj
 
 
@@ -250,6 +251,7 @@ clean::
 	-del qscriptprettypretty.obj \
 	-del qscriptsyntaxchecker.obj \
 	-del qscriptvalue.obj \
+	-del qscriptvalueimpl.obj \
 	-del qscriptvalueiterator.obj
 	-del vc60.pdb
 	-del vc70.pdb
@@ -538,6 +540,9 @@ qscriptsyntaxchecker.obj: $(SOURCE_PATH)\src\script\qscriptsyntaxchecker.cpp
 
 qscriptvalue.obj: $(SOURCE_PATH)\src\script\qscriptvalue.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\script\qscriptvalue.cpp
+
+qscriptvalueimpl.obj: $(SOURCE_PATH)\src\script\qscriptvalueimpl.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\script\qscriptvalueimpl.cpp
 
 qscriptvalueiterator.obj: $(SOURCE_PATH)\src\script\qscriptvalueiterator.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\script\qscriptvalueiterator.cpp

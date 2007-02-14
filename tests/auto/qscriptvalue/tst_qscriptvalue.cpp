@@ -26,7 +26,6 @@ public:
 
 private slots:
     void ctor();
-    void invalidate();
     void engine();
     void toString();
     void toNumber();
@@ -60,18 +59,66 @@ tst_QScriptValue::~tst_QScriptValue()
 
 void tst_QScriptValue::ctor()
 {
-    QScriptValue v;
-    QCOMPARE(v.isValid(), false);
-    QCOMPARE(v.engine(), (QScriptEngine *)0);
-}
-
-void tst_QScriptValue::invalidate()
-{
     QScriptEngine eng;
-    QScriptValue object = eng.newObject();
-    object.invalidate();
-    QCOMPARE(object.isObject(), false);
-    QCOMPARE(object.isValid(), false);
+    {
+        QScriptValue v;
+        QCOMPARE(v.isValid(), false);
+        QCOMPARE(v.engine(), (QScriptEngine *)0);
+    }
+    {
+        QScriptValue v(&eng, QScriptValue::UndefinedValue);
+        QCOMPARE(v.isValid(), true);
+        QCOMPARE(v.isUndefined(), true);
+        QCOMPARE(v.isObject(), false);
+    }
+    {
+        QScriptValue v(&eng, QScriptValue::NullValue);
+        QCOMPARE(v.isValid(), true);
+        QCOMPARE(v.isNull(), true);
+        QCOMPARE(v.isObject(), false);
+    }
+    {
+        QScriptValue v(&eng, false);
+        QCOMPARE(v.isValid(), true);
+        QCOMPARE(v.isBoolean(), true);
+        QCOMPARE(v.isObject(), false);
+    }
+    {
+        QScriptValue v(&eng, int(1));
+        QCOMPARE(v.isValid(), true);
+        QCOMPARE(v.isNumber(), true);
+        QCOMPARE(v.isObject(), false);
+    }
+    {
+        QScriptValue v(&eng, uint(1));
+        QCOMPARE(v.isValid(), true);
+        QCOMPARE(v.isNumber(), true);
+        QCOMPARE(v.isObject(), false);
+    }
+    {
+        QScriptValue v(&eng, qlonglong(1));
+        QCOMPARE(v.isValid(), true);
+        QCOMPARE(v.isNumber(), true);
+        QCOMPARE(v.isObject(), false);
+    }
+    {
+        QScriptValue v(&eng, 1.0);
+        QCOMPARE(v.isValid(), true);
+        QCOMPARE(v.isNumber(), true);
+        QCOMPARE(v.isObject(), false);
+    }
+    {
+        QScriptValue v(&eng, "ciao");
+        QCOMPARE(v.isValid(), true);
+        QCOMPARE(v.isString(), true);
+        QCOMPARE(v.isObject(), false);
+    }
+    {
+        QScriptValue v(&eng, QString("ciao"));
+        QCOMPARE(v.isValid(), true);
+        QCOMPARE(v.isString(), true);
+        QCOMPARE(v.isObject(), false);
+    }
 }
 
 void tst_QScriptValue::engine()

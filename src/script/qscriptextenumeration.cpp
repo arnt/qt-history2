@@ -33,64 +33,63 @@ EnumerationClassData::~EnumerationClassData()
 {
 }
 
-void EnumerationClassData::mark(const QScriptValue &object, int generation)
+void EnumerationClassData::mark(const QScriptValueImpl &object, int generation)
 {
     Q_ASSERT(object.isValid());
 
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(object.engine());
+    QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
 
     if (Enumeration::Instance *instance = Enumeration::Instance::get(object, classInfo())) {
-        eng_p->markObject(instance->object, generation);
-        eng_p->markObject(instance->value, generation);
+        eng->markObject(instance->object, generation);
+        eng->markObject(instance->value, generation);
     }
 }
 
 
-Enumeration::Enumeration(QScriptEngine *eng):
+Enumeration::Enumeration(QScriptEnginePrivate *eng):
     Ecma::Core(eng)
 {
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-    m_classInfo = eng_p->registerClass(QLatin1String("Enumeration"));
+    m_classInfo = eng->registerClass(QLatin1String("Enumeration"));
     QExplicitlySharedDataPointer<QScriptClassData> data(new EnumerationClassData(m_classInfo));
     m_classInfo->setData(data);
 
     publicPrototype.invalidate();
     newEnumeration(&publicPrototype, eng->newArray());
 
-    eng_p->newConstructor(&ctor, this, publicPrototype);
+    eng->newConstructor(&ctor, this, publicPrototype);
 
     const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
     publicPrototype.setProperty(QLatin1String("toFirst"),
-                                eng_p->createFunction(method_toFirst, 0, m_classInfo), flags);
+                                eng->createFunction(method_toFirst, 0, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("hasNext"),
-                                eng_p->createFunction(method_hasNext, 0, m_classInfo), flags);
+                                eng->createFunction(method_hasNext, 0, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("next"),
-                                eng_p->createFunction(method_next, 0, m_classInfo), flags);
+                                eng->createFunction(method_next, 0, m_classInfo), flags);
 }
 
 Enumeration::~Enumeration()
 {
 }
 
-Enumeration::Instance *Enumeration::Instance::get(const QScriptValue &object, QScriptClassInfo *klass)
+Enumeration::Instance *Enumeration::Instance::get(const QScriptValueImpl &object, QScriptClassInfo *klass)
 {
-    if (! klass || klass == QScriptValueImpl::get(object)->classInfo())
-        return static_cast<Instance*> (QScriptValueImpl::get(object)->objectData().data());
+    if (! klass || klass == object.classInfo())
+        return static_cast<Instance*> (object.objectData().data());
     
     return 0;
 }
 
-void Enumeration::execute(QScriptContext *context)
+void Enumeration::execute(QScriptContextPrivate *context)
 {
     if (context->argumentCount() > 0) {
-        newEnumeration(&QScriptContextPrivate::get(context)->result, context->argument(0));
+        newEnumeration(&context->m_result, context->argument(0));
     } else {
         context->throwError(QScriptContext::TypeError,
                             QLatin1String("Enumeration.execute"));
     }
 }
 
-void Enumeration::newEnumeration(QScriptValue *result, const QScriptValue &object)
+void Enumeration::newEnumeration(QScriptValueImpl *result, const QScriptValueImpl &object)
 {
     Instance *instance = new Instance();
     instance->object = object;
@@ -98,13 +97,12 @@ void Enumeration::newEnumeration(QScriptValue *result, const QScriptValue &objec
     instance->index = -1;
     instance->toFirst();
 
-    QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
-    QScriptValueImpl::get(*result)->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+    engine()->newObject(result, publicPrototype, classInfo());
+    result->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
 }
 
-QScriptValue Enumeration::method_toFirst(QScriptEngine *eng, QScriptClassInfo *classInfo)
+QScriptValueImpl Enumeration::method_toFirst(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
 {
-    QScriptContext *context = eng->currentContext();
     if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
         instance->toFirst();
         return eng->undefinedValue();
@@ -114,28 +112,26 @@ QScriptValue Enumeration::method_toFirst(QScriptEngine *eng, QScriptClassInfo *c
     }
 }
 
-QScriptValue Enumeration::method_hasNext(QScriptEngine *eng, QScriptClassInfo *classInfo)
+QScriptValueImpl Enumeration::method_hasNext(QScriptContextPrivate *context, QScriptEnginePrivate *, QScriptClassInfo *classInfo)
 {
-    QScriptContext *context = eng->currentContext();
     Instance *instance = Instance::get(context->thisObject(), classInfo);
     if (! instance || ! instance->value.isObject())
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Enumeration.hasNext"));
 
-    QScriptValue v;
+    QScriptValueImpl v;
     instance->hasNext(context, &v);
     return v;
 }
 
-QScriptValue Enumeration::method_next(QScriptEngine *eng, QScriptClassInfo *classInfo)
+QScriptValueImpl Enumeration::method_next(QScriptContextPrivate *context, QScriptEnginePrivate *, QScriptClassInfo *classInfo)
 {
-    QScriptContext *context = eng->currentContext();
     Instance *instance = Instance::get(context->thisObject(), classInfo);
     if (! instance || ! instance->value.isObject())
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Enumeration.next"));
 
-    QScriptValue v;
+    QScriptValueImpl v;
     instance->next(context, &v);
     return v;
 }
@@ -146,26 +142,26 @@ void Enumeration::Instance::toFirst()
     index = -1;
 }
 
-void Enumeration::Instance::hasNext(QScriptContext *context, QScriptValue *result)
+void Enumeration::Instance::hasNext(QScriptContextPrivate *context, QScriptValueImpl *result)
 {
-    QScriptEngine *eng = context->engine();
+    QScriptEnginePrivate *eng = QScriptEnginePrivate::get(context->engine());
 Lagain:
-    int count = QScriptValueImpl::get(value)->memberCount();
+    int count = value.memberCount();
     bool found = false;
     while (! found && ++index < count) {
         QScript::Member member;
-        QScriptValueImpl::get(value)->member(index, &member);
+        value.member(index, &member);
         found = member.isValid() && ! member.dontEnum();
         if (found) {
-            QScriptValue current;
-            QScriptValueImpl::get(value)->get(member, &current);
+            QScriptValueImpl current;
+            value.get(member, &current);
             found = current.isValid();
 
             if (found && member.nameId()) {
                 Member m;
-                QScriptValue b;
-                if (QScriptValueImpl::get(object)->resolve(member.nameId(), &m, &b, QScriptValue::ResolvePrototype))
-                    found = (QScriptValueImpl::get(b)->objectValue() == QScriptValueImpl::get(value)->objectValue());
+                QScriptValueImpl b;
+                if (object.resolve(member.nameId(), &m, &b, QScriptValue::ResolvePrototype))
+                    found = (b.objectValue() == value.objectValue());
             }
         }
     }
@@ -176,25 +172,24 @@ Lagain:
         goto Lagain;
     }
 
-    *result = QScriptValue(eng, found);
+    *result = QScriptValueImpl(eng, found);
 }
 
-void Enumeration::Instance::next(QScriptContext *context, QScriptValue *result)
+void Enumeration::Instance::next(QScriptContextPrivate *context, QScriptValueImpl *result)
 {
-    QScriptEngine *eng = context->engine();
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+    QScriptEnginePrivate *eng = QScriptEnginePrivate::get(context->engine());
 
     QScript::Member member;
-    QScriptValueImpl::get(value)->member(index, &member);
+    value.member(index, &member);
 
     if (member.isObjectProperty() || member.nameId())
-        eng_p->newNameId(result, member.nameId());
+        eng->newNameId(result, member.nameId());
 
     else if (member.isNativeProperty() && ! member.nameId())
-        eng_p->newNumber(result, member.id());
+        eng->newNumber(result, member.id());
 
     else
-        eng_p->newUndefined(result);
+        eng->newUndefined(result);
 }
 
 } } // namespace QScript::Ext

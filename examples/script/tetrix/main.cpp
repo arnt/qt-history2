@@ -71,7 +71,6 @@ int main(int argc, char *argv[])
     QScriptValue ctor = engine.evaluate("TetrixWindow");
     QScriptValue scriptUi = engine.newQObject(ui);
     QScriptValue tetrix = ctor.construct(QScriptValueList() << scriptUi);
-    tetrix.ref();
 
     ui->resize(550, 370);
     ui->show();

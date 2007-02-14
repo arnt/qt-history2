@@ -110,6 +110,7 @@ QTOBJS= \
 	qscriptprettypretty.o \
 	qscriptsyntaxchecker.o \
 	qscriptvalue.o \
+	qscriptvalueimpl.o \
 	qscriptvalueiterator.o
 
 
@@ -401,6 +402,9 @@ qscriptsyntaxchecker.o: $(SOURCE_PATH)/src/script/qscriptsyntaxchecker.cpp
 
 qscriptvalue.o: $(SOURCE_PATH)/src/script/qscriptvalue.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptvalue.cpp
+
+qscriptvalueimpl.o: $(SOURCE_PATH)/src/script/qscriptvalueimpl.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptvalueimpl.cpp
 
 qscriptvalueiterator.o: $(SOURCE_PATH)/src/script/qscriptvalueiterator.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptvalueiterator.cpp

@@ -26,40 +26,39 @@
 
 namespace QScript { namespace Ecma {
 
-RegExp::RegExp(QScriptEngine *eng):
+RegExp::RegExp(QScriptEnginePrivate *eng):
     Core(eng)
 {
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-    m_classInfo = eng_p->registerClass(QLatin1String("RegExp"));
+    m_classInfo = eng->registerClass(QLatin1String("RegExp"));
 
     publicPrototype.invalidate();
     newRegExp(&publicPrototype, QString(), QString());
 
-    eng_p->newConstructor(&ctor, this, publicPrototype);
+    eng->newConstructor(&ctor, this, publicPrototype);
 
     QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
 
     publicPrototype.setProperty(QLatin1String("exec"),
-                                eng_p->createFunction(method_exec, 1, m_classInfo), flags);
+                                eng->createFunction(method_exec, 1, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("test"),
-                                eng_p->createFunction(method_test, 1, m_classInfo), flags);
+                                eng->createFunction(method_test, 1, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("toString"),
-                                eng_p->createFunction(method_toString, 1, m_classInfo), flags);
+                                eng->createFunction(method_toString, 1, m_classInfo), flags);
 }
 
 RegExp::~RegExp()
 {
 }
 
-RegExp::Instance *RegExp::Instance::get(const QScriptValue &object, QScriptClassInfo *klass)
+RegExp::Instance *RegExp::Instance::get(const QScriptValueImpl &object, QScriptClassInfo *klass)
 {
-    if (! klass || klass == QScriptValueImpl::get(object)->classInfo())
-        return QExplicitlySharedDataPointer<Instance> (static_cast<Instance*> (QScriptValueImpl::get(object)->objectData().data()));
+    if (! klass || klass == object.classInfo())
+        return QExplicitlySharedDataPointer<Instance> (static_cast<Instance*> (object.objectData().data()));
     
     return 0;
 }
 
-void RegExp::execute(QScriptContext *context)
+void RegExp::execute(QScriptContextPrivate *context)
 {
     QString source;
     QString flags;
@@ -84,10 +83,10 @@ void RegExp::execute(QScriptContext *context)
         }
     }
 
-    newRegExp(&QScriptContextPrivate::get(context)->result, source, flags);
+    newRegExp(&context->m_result, source, flags);
 }
 
-void RegExp::newRegExp(QScriptValue *result, const QString &pattern, const QString &flags)
+void RegExp::newRegExp(QScriptValueImpl *result, const QString &pattern, const QString &flags)
 {
 #ifndef QT_NO_REGEXP
     bool ignoreCase = flags.contains(QLatin1Char('i'));
@@ -105,16 +104,14 @@ void RegExp::newRegExp(QScriptValue *result, const QString &pattern, const QStri
     instance->pattern = pattern;
     instance->flags = flags;
 
-    QScriptEngine *eng = engine();
-
-    QScriptEnginePrivate::get(eng)->newObject(result, publicPrototype, classInfo());
-    result->impl()->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
-    result->setProperty(QLatin1String("source"), QScriptValue(eng, pattern), QScriptValue::ReadOnly);
+    eng->newObject(result, publicPrototype, classInfo());
+    result->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+    result->setProperty(QLatin1String("source"), QScriptValueImpl(eng, pattern), QScriptValue::ReadOnly);
 #endif // QT_NO_REGEXP
 }
 
 #ifndef QT_NO_REGEXP
-void RegExp::newRegExp(QScriptValue *result, const QRegExp &rx)
+void RegExp::newRegExp(QScriptValueImpl *result, const QRegExp &rx)
 {
     bool ignoreCase = rx.caseSensitivity() == Qt::CaseInsensitive;
     QString flags;
@@ -124,7 +121,7 @@ void RegExp::newRegExp(QScriptValue *result, const QRegExp &rx)
     newRegExp_helper(result, rx, flags);
 }
 
-void RegExp::newRegExp_helper(QScriptValue *result, const QRegExp &rx,
+void RegExp::newRegExp_helper(QScriptValueImpl *result, const QRegExp &rx,
                               const QString &flags)
 {
     bool global = flags.contains(QLatin1Char('g'));
@@ -135,28 +132,27 @@ void RegExp::newRegExp_helper(QScriptValue *result, const QRegExp &rx,
     instance->value = rx;
     instance->flags = flags;
 
-    QScriptEngine *eng = engine();
-
-    QScriptEnginePrivate::get(eng)->newObject(result, publicPrototype, classInfo());
-    QScriptValueImpl::get(*result)->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+    QScriptEnginePrivate *eng = engine();
+    eng->newObject(result, publicPrototype, classInfo());
+    result->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
 
     QScriptValue::PropertyFlags propertyFlags = QScriptValue::SkipInEnumeration
                                                 | QScriptValue::Undeletable
                                                 | QScriptValue::ReadOnly;
 
-    result->setProperty(QLatin1String("global"), QScriptValue(eng, global),
+    result->setProperty(QLatin1String("global"), QScriptValueImpl(eng, global),
                         propertyFlags);
-    result->setProperty(QLatin1String("ignoreCase"), QScriptValue(eng, ignoreCase),
+    result->setProperty(QLatin1String("ignoreCase"), QScriptValueImpl(eng, ignoreCase),
                         propertyFlags);
-    result->setProperty(QLatin1String("multiline"), QScriptValue(eng, multiline),
+    result->setProperty(QLatin1String("multiline"), QScriptValueImpl(eng, multiline),
                         propertyFlags);
-    result->setProperty(QLatin1String("source"), QScriptValue(eng, rx.pattern()),
+    result->setProperty(QLatin1String("source"), QScriptValueImpl(eng, rx.pattern()),
                         propertyFlags);
-    result->setProperty(QLatin1String("lastIndex"), QScriptValue(eng, 0),
+    result->setProperty(QLatin1String("lastIndex"), QScriptValueImpl(eng, 0),
                         propertyFlags & ~QScriptValue::ReadOnly);
 }
 
-QRegExp RegExp::toRegExp(const QScriptValue &value) const
+QRegExp RegExp::toRegExp(const QScriptValueImpl &value) const
 {
     Instance *rx_data = Instance::get(value, classInfo());
     Q_ASSERT(rx_data != 0);
@@ -164,11 +160,10 @@ QRegExp RegExp::toRegExp(const QScriptValue &value) const
 }
 #endif // QT_NO_REGEXP
 
-QScriptValue RegExp::method_exec(QScriptEngine *eng, QScriptClassInfo *classInfo)
+QScriptValueImpl RegExp::method_exec(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
 {
-    QScriptContext *context = eng->currentContext();
-    QScriptValue self = context->thisObject();
-    if (QScriptValueImpl::get(self)->classInfo() != classInfo)
+    QScriptValueImpl self = context->thisObject();
+    if (self.classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("RegExp.prototype.exec"));
 
@@ -198,33 +193,30 @@ QScriptValue RegExp::method_exec(QScriptEngine *eng, QScriptClassInfo *classInfo
     int e = index + rx_data->value.matchedLength();
 
     if (global)
-        self.setProperty(QLatin1String("lastIndex"), QScriptValue(eng, e));
+        self.setProperty(QLatin1String("lastIndex"), QScriptValueImpl(eng, e));
 
     QScript::Array elts;
     QStringList capturedTexts = rx_data->value.capturedTexts();
     for (int i = 0; i < capturedTexts.count(); ++i)
-        elts.assign(i, QScriptValue(eng, capturedTexts.at(i)));
+        elts.assign(i, QScriptValueImpl(eng, capturedTexts.at(i)));
 
-    QScriptValue r = QScriptEnginePrivate::get(eng)->newArray(elts);
+    QScriptValueImpl r = eng->newArray(elts);
 
-    r.setProperty(QLatin1String("index"), QScriptValue(eng, index));
-    r.setProperty(QLatin1String("input"), QScriptValue(eng, S));
+    r.setProperty(QLatin1String("index"), QScriptValueImpl(eng, index));
+    r.setProperty(QLatin1String("input"), QScriptValueImpl(eng, S));
 
     return r;
 #endif // QT_NO_REGEXP
 }
 
-QScriptValue RegExp::method_test(QScriptEngine *eng, QScriptClassInfo *classInfo)
+QScriptValueImpl RegExp::method_test(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
 {
-    QScriptContext *context = eng->currentContext();
-
-    method_exec(eng, classInfo);
-    return (QScriptValue(eng, ! context->returnValue().isNull()));
+    method_exec(context, eng, classInfo);
+    return (QScriptValueImpl(eng, ! context->returnValue().isNull()));
 }
 
-QScriptValue RegExp::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)
+QScriptValueImpl RegExp::method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
 {
-    QScriptContext *context = eng->currentContext();
     if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
         QString pattern;
         pattern += QLatin1Char('/');
@@ -233,7 +225,7 @@ QScriptValue RegExp::method_toString(QScriptEngine *eng, QScriptClassInfo *class
 #endif
         pattern += QLatin1Char('/');
         pattern += instance->flags;
-        return (QScriptValue(eng, pattern));
+        return (QScriptValueImpl(eng, pattern));
     }
 
     return context->throwError(QScriptContext::TypeError,

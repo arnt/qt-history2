@@ -99,8 +99,8 @@
 QScriptValue QScriptContext::throwValue(const QScriptValue &value)
 {
     Q_D(QScriptContext);
-    d->result = value;
-    d->state = QScriptContext::ExceptionState;
+    d->m_result = QScriptValuePrivate::valueOf(value);
+    d->m_state = QScriptContext::ExceptionState;
     return value;
 }
 
@@ -116,29 +116,7 @@ QScriptValue QScriptContext::throwValue(const QScriptValue &value)
 QScriptValue QScriptContext::throwError(Error error, const QString &text)
 {
     Q_D(QScriptContext);
-    QScript::Ecma::Error *ctor = QScriptEnginePrivate::get(engine())->errorConstructor;
-    switch (error) {
-    case ReferenceError:
-        ctor->newReferenceError(&d->result, text);
-        break;
-    case SyntaxError:
-        ctor->newSyntaxError(&d->result, text);
-        break;
-    case TypeError:
-        ctor->newTypeError(&d->result, text);
-        break;
-    case RangeError:
-        ctor->newRangeError(&d->result, text);
-        break;
-    case URIError:
-        ctor->newURIError(&d->result, text);
-        break;
-    case UnknownError:
-    default:
-        ctor->newError(&d->result, text);
-    }
-    d->state = QScriptContext::ExceptionState;
-    return d->result;
+    return d->throwError(error, text);
 }
 
 /*!
@@ -152,10 +130,7 @@ QScriptValue QScriptContext::throwError(Error error, const QString &text)
 QScriptValue QScriptContext::throwError(const QString &text)
 {
     Q_D(QScriptContext);
-    QScript::Ecma::Error *ctor = QScriptEnginePrivate::get(engine())->errorConstructor;
-    ctor->newError(&d->result, text);
-    d->state = QScriptContext::ExceptionState;
-    return d->result;
+    return d->throwError(text);
 }
 
 /*!
@@ -206,7 +181,7 @@ QScriptValue QScriptContext::argument(int index) const
 QScriptValue QScriptContext::callee() const
 {
     Q_D(const QScriptContext);
-    return d->callee;
+    return d->m_callee;
 }
 
 /*!
@@ -219,7 +194,7 @@ QScriptValue QScriptContext::callee() const
 bool QScriptContext::calledAsConstructor() const
 {
     Q_D(const QScriptContext);
-    return d->calledAsConstructor;
+    return d->m_calledAsConstructor;
 }
 
 /*!
@@ -249,7 +224,7 @@ int QScriptContext::argumentCount() const
 QScriptValue QScriptContext::returnValue() const
 {
     Q_D(const QScriptContext);
-    return d->result;
+    return d->m_result;
 }
 
 /*!
@@ -258,7 +233,7 @@ QScriptValue QScriptContext::returnValue() const
 void QScriptContext::setReturnValue(const QScriptValue &result)
 {
     Q_D(QScriptContext);
-    d->result = result;
+    d->m_result = QScriptValuePrivate::valueOf(result);
 }
 
 /*!
@@ -267,7 +242,7 @@ void QScriptContext::setReturnValue(const QScriptValue &result)
 QScriptValue QScriptContext::activationObject() const
 {
     Q_D(const QScriptContext);
-    return d->activation;
+    return d->m_activation;
 }
 
 /*!
@@ -276,7 +251,7 @@ QScriptValue QScriptContext::activationObject() const
 void QScriptContext::setActivationObject(const QScriptValue &activation)
 {
     Q_D(QScriptContext);
-    d->activation = activation;
+    d->m_activation = QScriptValuePrivate::valueOf(activation);
 }
 
 /*!
@@ -285,7 +260,7 @@ void QScriptContext::setActivationObject(const QScriptValue &activation)
 QScriptValue QScriptContext::thisObject() const
 {
     Q_D(const QScriptContext);
-    return d->thisObject;
+    return d->m_thisObject;
 }
 
 /*!
@@ -295,7 +270,7 @@ QScriptValue QScriptContext::thisObject() const
 void QScriptContext::setThisObject(const QScriptValue &thisObject)
 {
     Q_D(QScriptContext);
-    d->thisObject = thisObject;
+    d->m_thisObject = QScriptValuePrivate::valueOf(thisObject);
 }
 
 /*!
@@ -314,24 +289,6 @@ void QScriptContext::setInstructionPointer(const QScriptInstruction *instruction
 {
     Q_D(QScriptContext);
     d->iPtr = instructionPointer;
-}
-
-/*!
-  \internal
-*/
-const QScriptValue *QScriptContext::baseStackPointer() const
-{
-    Q_D(const QScriptContext);
-    return d->tempStack;
-}
-
-/*!
-  \internal
-*/
-const QScriptValue *QScriptContext::currentStackPointer() const
-{
-    Q_D(const QScriptContext);
-    return d->stackPtr;
 }
 
 /*!
@@ -358,7 +315,7 @@ const QScriptInstruction *QScriptContext::lastInstruction() const
 QScriptContext::ExecutionState QScriptContext::state() const
 {
     Q_D(const QScriptContext);
-    return d->state;
+    return d->m_state;
 }
 
 /*!

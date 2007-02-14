@@ -15,6 +15,7 @@
 #include "qscriptvalueiterator_p.h"
 #include "qscriptvalue_p.h"
 #include "qscriptmember_p.h"
+#include "qscriptengine_p.h" // ### QScriptNameIdImpl, move in separate header file
 
 /*!
   \since 4.3
@@ -88,20 +89,20 @@ bool QScriptValueIterator::hasNext() const
     if (!d->object.isObject())
         return false;
 
-    QScriptValue v = d->object;
+    QScriptValueImpl v = QScriptValuePrivate::valueOf(d->object);
     int i = d->index;
     if ((i != -1) && !d->forward)
         --i;
 
-    int count = QScriptValueImpl::get(v)->memberCount();
+    int count = v.memberCount();
     bool found = false;
     while (! found && ++i < count) {
         QScript::Member member;
-        QScriptValueImpl::get(v)->member(i, &member);
+        v.member(i, &member);
         found = member.isValid();
         if (found) {
-            QScriptValue vv;
-            QScriptValueImpl::get(v)->get(member, &vv);
+            QScriptValueImpl vv;
+            v.get(member, &vv);
             found = vv.isValid();
         }
     }
@@ -147,7 +148,7 @@ bool QScriptValueIterator::hasPrevious() const
     if (!d->object.isObject())
         return false;
 
-    QScriptValue v = d->object;
+    QScriptValueImpl v = QScriptValuePrivate::valueOf(d->object);
     int i = d->index;
     if ((i != -1) && d->forward)
         ++i;
@@ -155,11 +156,11 @@ bool QScriptValueIterator::hasPrevious() const
     bool found = false;
     while (! found && --i >= 0) {
         QScript::Member member;
-        QScriptValueImpl::get(v)->member(i, &member);
+        v.member(i, &member);
         found = member.isValid();
         if (found) {
-            QScriptValue vv;
-            QScriptValueImpl::get(v)->get(member, &vv);
+            QScriptValueImpl vv;
+            v.get(member, &vv);
             found = vv.isValid();
         }
     }
@@ -210,7 +211,7 @@ void QScriptValueIterator::toFront()
 void QScriptValueIterator::toBack()
 {
     Q_D(QScriptValueIterator);
-    d->index = QScriptValueImpl::get(d->object)->memberCount();
+    d->index = QScriptValuePrivate::valueOf(d->object).memberCount();
     d->nextIndex = -1;
 }
 
@@ -225,7 +226,7 @@ QString QScriptValueIterator::name() const
         return QString();
 
     QScript::Member member;
-    QScriptValueImpl::get(d->object)->member(d->index, &member);
+    QScriptValuePrivate::valueOf(d->object).member(d->index, &member);
 
     if (member.isObjectProperty() || member.nameId())
         return member.nameId()->s;
@@ -250,12 +251,12 @@ QScriptValue QScriptValueIterator::value() const
         return QScriptValue();
 
     QScript::Member member;
-    QScriptValueImpl::get(d->object)->member(d->index, &member);
+    QScriptValuePrivate::valueOf(d->object).member(d->index, &member);
     if (!member.isValid())
         return QScriptValue();
 
-    QScriptValue result;
-    QScriptValueImpl::get(d->object)->get(member, &result);
+    QScriptValueImpl result;
+    QScriptValuePrivate::valueOf(d->object).get(member, &result);
     return result;
 }
 
@@ -270,11 +271,11 @@ void QScriptValueIterator::setValue(const QScriptValue &value)
         return;
 
     QScript::Member member;
-    QScriptValueImpl::get(d->object)->member(d->index, &member);
+    QScriptValuePrivate::valueOf(d->object).member(d->index, &member);
     if (!member.isValid())
         return;
 
-    QScriptValueImpl::get(d->object)->put(member, value);
+    QScriptValuePrivate::valueOf(d->object).put(member, QScriptValuePrivate::valueOf(value));
 }
 
 /*!
@@ -288,7 +289,7 @@ QScriptValue::PropertyFlags QScriptValueIterator::flags() const
         return 0;
 
     QScript::Member member;
-    QScriptValueImpl::get(d->object)->member(d->index, &member);
+    QScriptValuePrivate::valueOf(d->object).member(d->index, &member);
     if (!member.isValid())
         return 0;
 
@@ -306,11 +307,11 @@ void QScriptValueIterator::remove()
         return;
 
     QScript::Member member;
-    QScriptValueImpl::get(d->object)->member(d->index, &member);
+    QScriptValuePrivate::valueOf(d->object).member(d->index, &member);
     if (!member.isValid())
         return;
 
-    QScriptValueImpl::get(d->object)->removeMember(member);
+    QScriptValuePrivate::valueOf(d->object).removeMember(member);
 }
 
 /*!

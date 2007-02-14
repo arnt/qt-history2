@@ -13,7 +13,7 @@
 
 #include "qscriptengine.h"
 #include "qscriptcontext.h"
-
+#include "qscriptcontext_p.h"
 #include "qscriptengine_p.h"
 #include "qscriptecmaobject_p.h"
 #include "qscriptecmastring_p.h"
@@ -24,7 +24,7 @@
 
 namespace QScript { namespace Ecma {
 
-Object::Object(QScriptEngine *eng, QScriptClassInfo *classInfo):
+Object::Object(QScriptEnginePrivate *eng, QScriptClassInfo *classInfo):
     Core(eng), m_classInfo(classInfo)
 {
     newObject(&publicPrototype, eng->nullValue());
@@ -36,33 +36,33 @@ Object::~Object()
 
 void Object::initialize()
 {
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    QScriptEnginePrivate *eng = engine();
 
-    eng_p->newConstructor(&ctor, this, publicPrototype);
+    eng->newConstructor(&ctor, this, publicPrototype);
 
     const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
     publicPrototype.setProperty(QLatin1String("toString"),
-                                eng_p->createFunction(method_toString, 1, m_classInfo), flags);
+                                eng->createFunction(method_toString, 1, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("toLocaleString"),
-                                eng_p->createFunction(method_toLocaleString, 1, m_classInfo), flags);
+                                eng->createFunction(method_toLocaleString, 1, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("valueOf"),
-                                eng_p->createFunction(method_valueOf, 0, m_classInfo), flags);
+                                eng->createFunction(method_valueOf, 0, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("hasOwnProperty"),
-                                eng_p->createFunction(method_hasOwnProperty, 1, m_classInfo), flags);
+                                eng->createFunction(method_hasOwnProperty, 1, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("isPrototypeOf"),
-                                eng_p->createFunction(method_isPrototypeOf, 1, m_classInfo), flags);
+                                eng->createFunction(method_isPrototypeOf, 1, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("propertyIsEnumerable"),
-                                eng_p->createFunction(method_propertyIsEnumerable, 1, m_classInfo), flags);
+                                eng->createFunction(method_propertyIsEnumerable, 1, m_classInfo), flags);
 
     publicPrototype.setProperty(QLatin1String("__defineGetter__"),
-                                eng_p->createFunction(method_defineGetter, 2, m_classInfo), flags);
+                                eng->createFunction(method_defineGetter, 2, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("__defineSetter__"),
-                                eng_p->createFunction(method_defineSetter, 2, m_classInfo), flags);
+                                eng->createFunction(method_defineSetter, 2, m_classInfo), flags);
 }
 
-void Object::execute(QScriptContext *context)
+void Object::execute(QScriptContextPrivate *context)
 {
-    QScriptValue value;
+    QScriptValueImpl value;
 
     if (context->argumentCount() > 0)
         value = context->argument(0).toObject();
@@ -75,48 +75,44 @@ void Object::execute(QScriptContext *context)
     context->setReturnValue(value);
 }
 
-void Object::newObject(QScriptValue *result, const QScriptValue &proto)
+void Object::newObject(QScriptValueImpl *result, const QScriptValueImpl &proto)
 {
-    QScriptEnginePrivate::get(engine())->newObject(result, proto, classInfo());
+    engine()->newObject(result, proto, classInfo());
 }
 
-QScriptValue Object::method_toString(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValueImpl Object::method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
-    QScriptValue glo = eng->globalObject();
+    QScriptValueImpl glo = eng->globalObject();
     QString s = QLatin1String("[object ");
-    QScriptValue self = context->thisObject();
-    if (QScriptValueImpl::get(self)->objectValue() == QScriptValueImpl::get(glo)->objectValue())
+    QScriptValueImpl self = context->thisObject();
+    if (self.objectValue() == glo.objectValue())
         s += QLatin1String("global");
     else
-        s += QScriptValueImpl::get(self)->classInfo()->name();
+        s += self.classInfo()->name();
     s += QLatin1String("]");
-    return (QScriptValue(eng, s));
+    return (QScriptValueImpl(eng, s));
 }
 
-QScriptValue Object::method_toLocaleString(QScriptEngine *eng, QScriptClassInfo *classInfo)
+QScriptValueImpl Object::method_toLocaleString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
 {
-    return method_toString(eng, classInfo);
+    return method_toString(context, eng, classInfo);
 }
 
-QScriptValue Object::method_valueOf(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValueImpl Object::method_valueOf(QScriptContextPrivate *context, QScriptEnginePrivate *, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
     return (context->thisObject());
 }
 
-QScriptValue Object::method_hasOwnProperty(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValueImpl Object::method_hasOwnProperty(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
-
     bool result = false;
 
     if (context->thisObject().isObject() && (context->argumentCount() > 0)) {
-        QScriptValue arg = context->argument(0);
+        QScriptValueImpl arg = context->argument(0);
 
         QScriptNameIdImpl *id = 0;
         if (arg.isString())
-            id = QScriptValueImpl::get(arg)->stringValue();
+            id = arg.stringValue();
 
         if (! id || ! id->unique) {
             QString str = arg.toString();
@@ -124,47 +120,45 @@ QScriptValue Object::method_hasOwnProperty(QScriptEngine *eng, QScriptClassInfo 
         }
 
         QScript::Member member;
-        QScriptValue base;
-        QScriptValue self = context->thisObject();
-        if (QScriptValueImpl::get(self)->resolve(id, &member, &base, QScriptValue::ResolveLocal))
+        QScriptValueImpl base;
+        QScriptValueImpl self = context->thisObject();
+        if (self.resolve(id, &member, &base, QScriptValue::ResolveLocal))
             result = true;
     }
 
-    return (QScriptValue(eng, result));
+    return (QScriptValueImpl(eng, result));
 }
 
-QScriptValue Object::method_isPrototypeOf(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValueImpl Object::method_isPrototypeOf(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
     bool result = false;
 
     if (context->thisObject().isObject() && (context->argumentCount() > 0)) {
-        QScriptValue arg = context->argument(0);
+        QScriptValueImpl arg = context->argument(0);
 
         if (arg.isObject()) {
-            QScriptValue proto = arg.prototype();
+            QScriptValueImpl proto = arg.prototype();
 
             if (proto.isObject()) {
-                QScriptValue self = context->thisObject();
-                result = QScriptValueImpl::get(self)->objectValue() == QScriptValueImpl::get(proto)->objectValue();
+                QScriptValueImpl self = context->thisObject();
+                result = self.objectValue() == proto.objectValue();
             }
         }
     }
 
-    return (QScriptValue(eng, result));
+    return (QScriptValueImpl(eng, result));
 }
 
-QScriptValue Object::method_propertyIsEnumerable(QScriptEngine *eng, QScriptClassInfo *)
+QScriptValueImpl Object::method_propertyIsEnumerable(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
-    QScriptContext *context = eng->currentContext();
     bool result = false;
 
     if (context->thisObject().isObject() && (context->argumentCount() > 0)) {
-        QScriptValue arg = context->argument(0);
+        QScriptValueImpl arg = context->argument(0);
 
         QScriptNameIdImpl *id = 0;
         if (arg.isString())
-            id = QScriptValueImpl::get(arg)->stringValue();
+            id = arg.stringValue();
 
         if (! id || ! id->unique) {
             QString str = arg.toString();
@@ -172,42 +166,40 @@ QScriptValue Object::method_propertyIsEnumerable(QScriptEngine *eng, QScriptClas
         }
 
         QScript::Member member;
-        QScriptValue base;
-        QScriptValue self = context->thisObject();
-        if (QScriptValueImpl::get(self)->resolve(id, &member, &base, QScriptValue::ResolveLocal)) {
+        QScriptValueImpl base;
+        QScriptValueImpl self = context->thisObject();
+        if (self.resolve(id, &member, &base, QScriptValue::ResolveLocal)) {
             result = ! member.dontEnum();
             if (result) {
-                QScriptValue tmp;
-                QScriptValueImpl::get(base)->get(member, &tmp);
+                QScriptValueImpl tmp;
+                base.get(member, &tmp);
                 result = tmp.isValid();
             }
         }
     }
 
-    return (QScriptValue(eng, result));
+    return (QScriptValueImpl(eng, result));
 }
 
-QScriptValue Object::method_defineGetter(QScriptEngine *eng,
-                                         QScriptClassInfo *)
+QScriptValueImpl Object::method_defineGetter(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
+                                             QScriptClassInfo *)
 {
-    QScriptContext *ctx = eng->currentContext();
-    QString propertyName = ctx->argument(0).toString();
-    QScriptValue getter = ctx->argument(1);
+    QString propertyName = context->argument(0).toString();
+    QScriptValueImpl getter = context->argument(1);
     if (!getter.isFunction())
-        return ctx->throwError(QLatin1String("getter must be a function"));
-    ctx->thisObject().setProperty(propertyName, getter, QScriptValue::PropertyGetter);
+        return context->throwError(QLatin1String("getter must be a function"));
+    context->thisObject().setProperty(propertyName, getter, QScriptValue::PropertyGetter);
     return eng->undefinedValue();
 }
 
-QScriptValue Object::method_defineSetter(QScriptEngine *eng,
-                                         QScriptClassInfo *)
+QScriptValueImpl Object::method_defineSetter(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
+                                             QScriptClassInfo *)
 {
-    QScriptContext *ctx = eng->currentContext();
-    QString propertyName = ctx->argument(0).toString();
-    QScriptValue setter = ctx->argument(1);
+    QString propertyName = context->argument(0).toString();
+    QScriptValueImpl setter = context->argument(1);
     if (!setter.isFunction())
-        return ctx->throwError(QLatin1String("setter must be a function"));
-    ctx->thisObject().setProperty(propertyName, setter, QScriptValue::PropertySetter);
+        return context->throwError(QLatin1String("setter must be a function"));
+    context->thisObject().setProperty(propertyName, setter, QScriptValue::PropertySetter);
     return eng->undefinedValue();
 }
 

@@ -32,59 +32,77 @@ namespace QScript { namespace Ecma {
 class Math: public QScriptObjectData
 {
 protected:
-    Math(QScriptEngine *engine, QScriptClassInfo *classInfo);
+    Math(QScriptEnginePrivate *engine, QScriptClassInfo *classInfo);
 
 public:
     virtual ~Math();
 
-    static void construct(QScriptValue *object, QScriptEngine *eng);
+    static void construct(QScriptValueImpl *object, QScriptEnginePrivate *eng);
 
-    inline QScriptEngine *engine() const;
+    inline QScriptEnginePrivate *engine() const;
 
 protected:
-    static QScriptValue method_abs(QScriptContext *context,
-                                   QScriptEngine *eng);
-    static QScriptValue method_acos(QScriptContext *context,
-                                    QScriptEngine *eng);
-    static QScriptValue method_asin(QScriptContext *context,
-                                    QScriptEngine *eng);
-    static QScriptValue method_atan(QScriptContext *context,
-                                    QScriptEngine *eng);
-    static QScriptValue method_atan2(QScriptContext *context,
-                                     QScriptEngine *eng);
-    static QScriptValue method_ceil(QScriptContext *context,
-                                    QScriptEngine *eng);
-    static QScriptValue method_cos(QScriptContext *context,
-                                   QScriptEngine *eng);
-    static QScriptValue method_exp(QScriptContext *context,
-                                   QScriptEngine *eng);
-    static QScriptValue method_floor(QScriptContext *context,
-                                     QScriptEngine *eng);
-    static QScriptValue method_log(QScriptContext *context,
-                                   QScriptEngine *eng);
-    static QScriptValue method_max(QScriptContext *context,
-                                   QScriptEngine *eng);
-    static QScriptValue method_min(QScriptContext *context,
-                                   QScriptEngine *eng);
-    static QScriptValue method_pow(QScriptContext *context,
-                                   QScriptEngine *eng);
-    static QScriptValue method_random(QScriptContext *context,
-                                      QScriptEngine *eng);
-    static QScriptValue method_round(QScriptContext *context,
-                                     QScriptEngine *eng);
-    static QScriptValue method_sin(QScriptContext *context,
-                                   QScriptEngine *eng);
-    static QScriptValue method_sqrt(QScriptContext *context,
-                                    QScriptEngine *eng);
-    static QScriptValue method_tan(QScriptContext *context,
-                                   QScriptEngine *eng);
+    static QScriptValueImpl method_abs(QScriptContextPrivate *context,
+                                       QScriptEnginePrivate *eng,
+                                       QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_acos(QScriptContextPrivate *context,
+                                        QScriptEnginePrivate *eng,
+                                        QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_asin(QScriptContextPrivate *context,
+                                        QScriptEnginePrivate *eng,
+                                        QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_atan(QScriptContextPrivate *context,
+                                        QScriptEnginePrivate *eng,
+                                        QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_atan2(QScriptContextPrivate *context,
+                                         QScriptEnginePrivate *eng,
+                                         QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_ceil(QScriptContextPrivate *context,
+                                        QScriptEnginePrivate *eng,
+                                        QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_cos(QScriptContextPrivate *context,
+                                       QScriptEnginePrivate *eng,
+                                       QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_exp(QScriptContextPrivate *context,
+                                       QScriptEnginePrivate *eng,
+                                       QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_floor(QScriptContextPrivate *context,
+                                         QScriptEnginePrivate *eng,
+                                         QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_log(QScriptContextPrivate *context,
+                                       QScriptEnginePrivate *eng,
+                                       QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_max(QScriptContextPrivate *context,
+                                       QScriptEnginePrivate *eng,
+                                       QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_min(QScriptContextPrivate *context,
+                                       QScriptEnginePrivate *eng,
+                                       QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_pow(QScriptContextPrivate *context,
+                                       QScriptEnginePrivate *eng,
+                                       QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_random(QScriptContextPrivate *context,
+                                          QScriptEnginePrivate *eng,
+                                          QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_round(QScriptContextPrivate *context,
+                                         QScriptEnginePrivate *eng,
+                                         QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_sin(QScriptContextPrivate *context,
+                                       QScriptEnginePrivate *eng,
+                                       QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_sqrt(QScriptContextPrivate *context,
+                                        QScriptEnginePrivate *eng,
+                                        QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_tan(QScriptContextPrivate *context,
+                                       QScriptEnginePrivate *eng,
+                                       QScriptClassInfo *classInfo);
 
 private:
-    QScriptEngine *m_engine;
+    QScriptEnginePrivate *m_engine;
     QScriptClassInfo *m_classInfo;
 };
 
-inline QScriptEngine *Math::engine() const
+inline QScriptEnginePrivate *Math::engine() const
 { return m_engine; }
 
 
