@@ -64,12 +64,13 @@ int Model::columnCount(const QModelIndex &parent) const
 
 QVariant Model::data(const QModelIndex &index, int role) const
 {
-    static QIcon folder(QPixmap(":/images/folder.png"));
-
     if (role == Qt::DisplayRole)
 	return "Item " + QString::number(index.row()) + ":" + QString::number(index.column());
-    if (role == Qt::DecorationRole)
-	return qVariantFromValue(folder);
+    if (role == Qt::DecorationRole) {
+        if (index.column() == 0)
+            return iconProvider.icon(QFileIconProvider::Folder);
+        return iconProvider.icon(QFileIconProvider::File);
+    }
     return QVariant();
 }
 
