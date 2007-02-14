@@ -567,15 +567,15 @@ void QTransform::reset()
 */
 QDataStream & operator<<(QDataStream &s, const QTransform &m)
 {
-    s << m.m11()
-      << m.m12()
-      << m.m13()
-      << m.m21()
-      << m.m22()
-      << m.m23()
-      << m.m31()
-      << m.m32()
-      << m.m33();
+    s << double(m.m11())
+      << double(m.m12())
+      << double(m.m13())
+      << double(m.m21())
+      << double(m.m22())
+      << double(m.m23())
+      << double(m.m31())
+      << double(m.m32())
+      << double(m.m33());
     return s;
 }
 

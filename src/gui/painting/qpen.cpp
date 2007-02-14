@@ -915,7 +915,7 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
     QBrush brush;
     double miterLimit = 2;
     QVector<qreal> dashPattern;
-    qreal dashOffset = 0;
+    double dashOffset = 0;
     s >> style;
     if (s.version() < 7) {
         s >> width8;
