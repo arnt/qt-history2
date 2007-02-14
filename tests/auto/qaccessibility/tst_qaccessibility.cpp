@@ -2799,7 +2799,6 @@ void tst_QAccessibility::abstractScrollAreaTest()
 #endif
     const QRect globalGeometry = QRect(abstractScrollArea.mapToGlobal(QPoint(0, 0)),
                                        abstractScrollArea.size());
-    QVERIFY(verifyChild(&abstractScrollArea, interface, 0, globalGeometry));
 
     // Viewport.
     QCOMPARE(interface->childCount(), 1);
