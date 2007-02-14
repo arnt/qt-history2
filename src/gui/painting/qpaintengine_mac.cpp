@@ -418,7 +418,7 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushO
     d->setFillBrush(brush, brushOrigin);
 }
 
-void 
+void
 QCoreGraphicsPaintEngine::updateOpacity(qreal opacity)
 {
     Q_D(QCoreGraphicsPaintEngine);
@@ -839,7 +839,7 @@ QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
     Q_D(QCoreGraphicsPaintEngine);
     CGContextSetShouldAntialias(d->hd, hints & QPainter::Antialiasing);
     CGContextSetInterpolationQuality(d->hd, (hints & QPainter::SmoothPixmapTransform) ?
-                                     kCGInterpolationDefault : kCGInterpolationNone);
+                                     kCGInterpolationHigh : kCGInterpolationNone);
     CGContextSetShouldSmoothFonts(d->hd, hints & QPainter::TextAntialiasing);
 }
 
@@ -1123,7 +1123,7 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
 
         // Translate a fraction of a pixel size in the y direction
         // to make sure that primitves painted at pixel borders
-        // fills the right pixel. This is needed since the y xais 
+        // fills the right pixel. This is needed since the y xais
         // in the Quartz coordinate system is inverted compared to Qt.
         if (!(q->state->renderHints() & QPainter::Antialiasing))
             CGContextTranslateCTM(hd, 0, double(pixelSize.y()) / 10.0);
