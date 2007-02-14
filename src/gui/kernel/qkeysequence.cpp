@@ -1101,7 +1101,11 @@ QKeySequence::SequenceMatch QKeySequence::matches(const QKeySequence &seq) const
 /*!
     \obsolete
 
-    Use toString() instead.
+    Use toString() instead. 
+    
+    Returns the key sequence as a QString. This is equivalent to 
+    calling toString(QKeySequence::NativeText). Note that the
+    result is not platform independent.
 */
 QKeySequence::operator QString() const
 {
