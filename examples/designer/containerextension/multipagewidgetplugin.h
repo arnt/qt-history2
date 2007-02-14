@@ -37,6 +37,7 @@ public:
     bool isInitialized() const;
     void initialize(QDesignerFormEditorInterface *formEditor);
     QString domXml() const;
+    QString codeTemplate() const;
 
 private slots:
     void currentIndexChanged(int index);

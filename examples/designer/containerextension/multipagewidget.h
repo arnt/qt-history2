@@ -31,17 +31,16 @@ public:
 
     QSize sizeHint() const;
 
-    void addPage(QWidget *page);
-    void removePage(int index);
     int count() const;
     int currentIndex() const;
-    void insertPage(int index, QWidget *page);
     QWidget *widget(int index);
-
     QString pageTitle() const;
+    
+public slots:   
+    void addPage(QWidget *page);
+    void insertPage(int index, QWidget *page);
+    void removePage(int index);
     void setPageTitle(QString const &newTitle);
-
-public slots:
     void setCurrentIndex(int index);
 
 signals:

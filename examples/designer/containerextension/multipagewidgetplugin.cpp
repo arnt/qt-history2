@@ -33,27 +33,27 @@ MultiPageWidgetPlugin::MultiPageWidgetPlugin(QObject *parent)
 
 QString MultiPageWidgetPlugin::name() const
 {
-    return QString("MultiPageWidget");
+    return QLatin1String("MultiPageWidget");
 }
 
 QString MultiPageWidgetPlugin::group() const
 {
-    return QString("Display Widgets [Examples]");
+    return QLatin1String("Display Widgets [Examples]");
 }
 
 QString MultiPageWidgetPlugin::toolTip() const
 {
-    return "";
+    return QString();
 }
 
 QString MultiPageWidgetPlugin::whatsThis() const
 {
-    return "";
+    return QString();
 }
 
 QString MultiPageWidgetPlugin::includeFile() const
 {
-    return QString("multipagewidget.h");
+    return QLatin1String("multipagewidget.h");
 }
 
 QIcon MultiPageWidgetPlugin::icon() const
@@ -97,7 +97,7 @@ void MultiPageWidgetPlugin::initialize(QDesignerFormEditorInterface *formEditor)
 
 QString MultiPageWidgetPlugin::domXml() const
 {
-    return QString("\
+    return QLatin1String("\
     <widget class=\"MultiPageWidget\" name=\"multipagewidget\">\
         <widget class=\"QWidget\" name=\"page\" />\
     </widget>\
@@ -109,8 +109,7 @@ void MultiPageWidgetPlugin::currentIndexChanged(int index)
     Q_UNUSED(index);
     MultiPageWidget *widget = qobject_cast<MultiPageWidget*>(sender());
     if (widget) {
-        QDesignerFormWindowInterface *form;
-        form = QDesignerFormWindowInterface::findFormWindow(widget);
+        QDesignerFormWindowInterface *form = QDesignerFormWindowInterface::findFormWindow(widget);
         if (form)
             form->emitSelectionChanged();
     }
@@ -129,10 +128,18 @@ void MultiPageWidgetPlugin::pageTitleChanged(const QString &title)
             QExtensionManager *manager = editor->extensionManager();
             QDesignerPropertySheetExtension *sheet;
             sheet = qt_extension<QDesignerPropertySheetExtension*>(manager, page);
-            int propertyIndex = sheet->indexOf(QLatin1String("windowTitle"));
+            const int propertyIndex = sheet->indexOf(QLatin1String("windowTitle"));
             sheet->setChanged(propertyIndex, true);
         }
     }
+}
+
+QString MultiPageWidgetPlugin::codeTemplate() const
+{
+    return QLatin1String("\
+    var i;\n\
+    for (i = 0; i < childWidgets.length ; i++)\n\
+        widget.addPage(childWidgets[i]);\n");
 }
 
 Q_EXPORT_PLUGIN2(containerextension, MultiPageWidgetPlugin)
