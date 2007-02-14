@@ -4267,7 +4267,20 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
         }
     case SP_FileIcon:
         {
-            pixmap = d->findIcon(16, QLatin1String("stock_new.png"));
+            pixmap = d->findIcon(16, QLatin1String("unknown.png"));
+            if (pixmap.isNull())
+                pixmap = d->findIcon(16, QLatin1String("gnome-fs-regular.png"));
+            if (pixmap.isNull())
+                pixmap = d->findIcon(16, QLatin1String("stock_new.png"));
+            if (!pixmap.isNull())
+                icon.addPixmap(pixmap);
+            break;
+        }
+    case SP_DirHomeIcon:
+        {
+            pixmap = d->findIcon(24, QLatin1String("folder_home.png"));
+            if (pixmap.isNull())
+                pixmap = d->findIcon(24, QLatin1String("gnome_home.png"));
             if (!pixmap.isNull())
                 icon.addPixmap(pixmap);
             break;
@@ -4387,6 +4400,15 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
                 return pixmap;
             break;
         }
+    case SP_DirHomeIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("folder_home.png"));
+            if (pixmap.isNull())
+                pixmap = d->findIcon(16, QLatin1String("gnome_home.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
     case SP_DialogOpenButton:
     case SP_DirOpenIcon:
         {
@@ -4398,6 +4420,8 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     case SP_FileIcon:
         {
             pixmap = d->findIcon(24, QLatin1String("unknown.png"));
+            if (pixmap.isNull())
+                pixmap = d->findIcon(24, QLatin1String("gnome-fs-regular.png"));
             if (pixmap.isNull())
                 pixmap = d->findIcon(24, QLatin1String("stock_new.png"));
             if (!pixmap.isNull())
