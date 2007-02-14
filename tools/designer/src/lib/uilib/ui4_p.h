@@ -113,6 +113,8 @@ class DomConnections;
 class DomConnection;
 class DomConnectionHints;
 class DomConnectionHint;
+class DomScript;
+class DomWidgetData;
 
 /*******************************************************************************
 ** Declarations
@@ -1221,6 +1223,12 @@ public:
     inline QList<DomProperty*> elementProperty() const { return m_property; }
     void setElementProperty(const QList<DomProperty*>& a);
 
+    inline QList<DomScript*> elementScript() const { return m_script; }
+    void setElementScript(const QList<DomScript*>& a);
+
+    inline QList<DomWidgetData*> elementWidgetData() const { return m_widgetData; }
+    void setElementWidgetData(const QList<DomWidgetData*>& a);
+
     inline QList<DomProperty*> elementAttribute() const { return m_attribute; }
     void setElementAttribute(const QList<DomProperty*>& a);
 
@@ -1265,6 +1273,8 @@ private:
     // child element data
     QStringList m_class;
     QList<DomProperty*> m_property;
+    QList<DomScript*> m_script;
+    QList<DomWidgetData*> m_widgetData;
     QList<DomProperty*> m_attribute;
     QList<DomRow*> m_row;
     QList<DomColumn*> m_column;
@@ -2802,6 +2812,72 @@ private:
 
     DomConnectionHint(const DomConnectionHint &other);
     void operator = (const DomConnectionHint&other);
+};
+
+class QDESIGNER_UILIB_EXPORT DomScript {
+public:
+    DomScript();
+    ~DomScript();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString()) const;
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    inline bool hasAttributeSource() const { return m_has_attr_source; }
+    inline QString attributeSource() const { return m_attr_source; }
+    inline void setAttributeSource(const QString& a) { m_attr_source = a; m_has_attr_source = true; }
+    inline void clearAttributeSource() { m_has_attr_source = false; }
+
+    inline bool hasAttributeLanguage() const { return m_has_attr_language; }
+    inline QString attributeLanguage() const { return m_attr_language; }
+    inline void setAttributeLanguage(const QString& a) { m_attr_language = a; m_has_attr_language = true; }
+    inline void clearAttributeLanguage() { m_has_attr_language = false; }
+
+    // child element accessors
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    QString m_attr_source;
+    bool m_has_attr_source;
+
+    QString m_attr_language;
+    bool m_has_attr_language;
+
+    // child element data
+
+    DomScript(const DomScript &other);
+    void operator = (const DomScript&other);
+};
+
+class QDESIGNER_UILIB_EXPORT DomWidgetData {
+public:
+    DomWidgetData();
+    ~DomWidgetData();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString()) const;
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    // child element accessors
+    inline QList<DomProperty*> elementProperty() const { return m_property; }
+    void setElementProperty(const QList<DomProperty*>& a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    // child element data
+    QList<DomProperty*> m_property;
+
+    DomWidgetData(const DomWidgetData &other);
+    void operator = (const DomWidgetData&other);
 };
 
 

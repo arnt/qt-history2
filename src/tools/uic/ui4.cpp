@@ -2512,6 +2512,12 @@ void DomWidget::clear(bool clear_all)
     for (int i = 0; i < m_property.size(); ++i)
         delete m_property[i];
     m_property.clear();
+    for (int i = 0; i < m_script.size(); ++i)
+        delete m_script[i];
+    m_script.clear();
+    for (int i = 0; i < m_widgetData.size(); ++i)
+        delete m_widgetData[i];
+    m_widgetData.clear();
     for (int i = 0; i < m_attribute.size(); ++i)
         delete m_attribute[i];
     m_attribute.clear();
@@ -2564,6 +2570,12 @@ DomWidget::~DomWidget()
     for (int i = 0; i < m_property.size(); ++i)
         delete m_property[i];
     m_property.clear();
+    for (int i = 0; i < m_script.size(); ++i)
+        delete m_script[i];
+    m_script.clear();
+    for (int i = 0; i < m_widgetData.size(); ++i)
+        delete m_widgetData[i];
+    m_widgetData.clear();
     for (int i = 0; i < m_attribute.size(); ++i)
         delete m_attribute[i];
     m_attribute.clear();
@@ -2615,6 +2627,18 @@ void DomWidget::read(const QDomElement &node)
             DomProperty *v = new DomProperty();
             v->read(e);
             m_property.append(v);
+            continue;
+        }
+        if (tag == QLatin1String("script")) {
+            DomScript *v = new DomScript();
+            v->read(e);
+            m_script.append(v);
+            continue;
+        }
+        if (tag == QLatin1String("widgetdata")) {
+            DomWidgetData *v = new DomWidgetData();
+            v->read(e);
+            m_widgetData.append(v);
             continue;
         }
         if (tag == QLatin1String("attribute")) {
@@ -2706,6 +2730,16 @@ QDomElement DomWidget::write(QDomDocument &doc, const QString &tagName) const
         QDomNode child = v->write(doc, QLatin1String("property"));
         e.appendChild(child);
     }
+    for (int i = 0; i < m_script.size(); ++i) {
+        DomScript* v = m_script[i];
+        QDomNode child = v->write(doc, QLatin1String("script"));
+        e.appendChild(child);
+    }
+    for (int i = 0; i < m_widgetData.size(); ++i) {
+        DomWidgetData* v = m_widgetData[i];
+        QDomNode child = v->write(doc, QLatin1String("widgetdata"));
+        e.appendChild(child);
+    }
     for (int i = 0; i < m_attribute.size(); ++i) {
         DomProperty* v = m_attribute[i];
         QDomNode child = v->write(doc, QLatin1String("attribute"));
@@ -2765,6 +2799,16 @@ void DomWidget::setElementClass(const QStringList& a)
 void DomWidget::setElementProperty(const QList<DomProperty*>& a)
 {
     m_property = a;
+}
+
+void DomWidget::setElementScript(const QList<DomScript*>& a)
+{
+    m_script = a;
+}
+
+void DomWidget::setElementWidgetData(const QList<DomWidgetData*>& a)
+{
+    m_widgetData = a;
 }
 
 void DomWidget::setElementAttribute(const QList<DomProperty*>& a)
@@ -6722,6 +6766,134 @@ void DomConnectionHint::clearElementX()
 void DomConnectionHint::clearElementY()
 {
     m_children &= ~Y;
+}
+
+void DomScript::clear(bool clear_all)
+{
+
+    if (clear_all) {
+    m_text = QString();
+    m_has_attr_source = false;
+    m_has_attr_language = false;
+    }
+
+}
+
+DomScript::DomScript()
+{
+    m_has_attr_source = false;
+    m_has_attr_language = false;
+}
+
+DomScript::~DomScript()
+{
+}
+
+void DomScript::read(const QDomElement &node)
+{
+    if (node.hasAttribute(QLatin1String("source")))
+        setAttributeSource(node.attribute(QLatin1String("source")));
+    if (node.hasAttribute(QLatin1String("language")))
+        setAttributeLanguage(node.attribute(QLatin1String("language")));
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+    }
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomScript::write(QDomDocument &doc, const QString &tagName) const
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("script") : tagName.toLower());
+
+    QDomElement child;
+
+    if (hasAttributeSource())
+        e.setAttribute(QLatin1String("source"), attributeSource());
+
+    if (hasAttributeLanguage())
+        e.setAttribute(QLatin1String("language"), attributeLanguage());
+
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomWidgetData::clear(bool clear_all)
+{
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
+    m_property.clear();
+
+    if (clear_all) {
+    m_text = QString();
+    }
+
+}
+
+DomWidgetData::DomWidgetData()
+{
+}
+
+DomWidgetData::~DomWidgetData()
+{
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
+    m_property.clear();
+}
+
+void DomWidgetData::read(const QDomElement &node)
+{
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("property")) {
+            DomProperty *v = new DomProperty();
+            v->read(e);
+            m_property.append(v);
+            continue;
+        }
+    }
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomWidgetData::write(QDomDocument &doc, const QString &tagName) const
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("widgetdata") : tagName.toLower());
+
+    QDomElement child;
+
+    for (int i = 0; i < m_property.size(); ++i) {
+        DomProperty* v = m_property[i];
+        QDomNode child = v->write(doc, QLatin1String("property"));
+        e.appendChild(child);
+    }
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomWidgetData::setElementProperty(const QList<DomProperty*>& a)
+{
+    m_property = a;
 }
 
 

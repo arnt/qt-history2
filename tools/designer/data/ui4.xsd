@@ -210,6 +210,8 @@
                 <xs:sequence maxOccurs="unbounded">
                         <xs:element name="class" type="xs:string" />
                         <xs:element name="property" type="Property" />
+                        <xs:element name="script" type="Script" />
+                        <xs:element name="widgetData" type="WidgetData" />
                         <xs:element name="attribute" type="Property" />
 <!-- item view begin -->
                         <xs:element name="row" type="Row" />
@@ -495,5 +497,17 @@
                 <xs:element name="y" type="xs:integer"/>
             </xs:sequence>
             <xs:attribute name="type" type="xs:string" />
+        </xs:complexType>
+
+        <xs:complexType name="Script">
+            <xs:sequence/>
+            <xs:attribute name="source"   type="xs:string"/>
+            <xs:attribute name="language" type="xs:string"/>
+        </xs:complexType>
+        
+        <xs:complexType name="WidgetData">
+            <xs:sequence maxOccurs="unbounded">
+                <xs:element name="property" type="Property" />
+            </xs:sequence>
         </xs:complexType>
 </xs:schema>
