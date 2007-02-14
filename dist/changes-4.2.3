@@ -82,7 +82,7 @@ General improvements
       QTreeView to erroneously be collapsed.
 
     * Fixed a bug in QSortFilterProxyModel that could cause invalid items to 
-      be added when inserting new ones.
+      be added when inserting new items to the source model.
 
     * Fixed a crash in QTreeView that could appear when removing all the child from 
       an item.
@@ -205,7 +205,7 @@ General improvements
       window creation
 
 - QWindowsStyle
-    * Fixed a crash where deleting a QProgressBar after its style.
+    * Fixed a crash where deleting a QProgressBar after its style is changed.
 
 - QVariant
     * Fixed ASSERT caused by streaming in a variant containing a float
