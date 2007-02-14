@@ -51,9 +51,15 @@ defineTest(qtAddLibrary) {
        }
        isEmpty(LINKAGE):LINKAGE = -l$${LIB_NAME}
     }
+    !isEmpty(QMAKE_LSB) {
+        QMAKE_LFLAGS *= --lsb-libpath=$$$$QMAKE_LIBDIR_QT
+        QMAKE_LFLAGS *= -L/opt/lsb/lib
+        QMAKE_LFLAGS *= --lsb-shared-libs=$${LIB_NAME}
+    }
     LIBS += $$LINKAGE
     export(LIBS)
     export(INCLUDEPATH)
     export(QMAKE_FRAMEWORKPATH)
+    export(QMAKE_LFLAGS)
     return(true)
 }
