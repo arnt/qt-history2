@@ -2514,8 +2514,8 @@ QPixmap QTreeViewPrivate::renderTreeToPixmap(const QRect &rect) const
 {
     Q_Q(const QTreeView);
     QPixmap pixmap(rect.size());
-    pixmap.fill(q->palette().base());
     QPainter painter(&pixmap);
+    painter.fillRect(QRect(QPoint(0,0), rect.size()), q->palette().base());
     painter.translate(0, -rect.top());
     q->drawTree(&painter, QRegion(rect));
     painter.end();
