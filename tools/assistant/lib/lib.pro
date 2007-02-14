@@ -62,3 +62,12 @@ qt_install_headers {
     assistant_headers.path = $$[QT_INSTALL_HEADERS]/QtAssistant
     INSTALLS        += assistant_headers
 }
+
+unix {
+   CONFIG     += create_pc
+   QMAKE_PKGCONFIG_LIBDIR = $$[QT_INSTALL_LIBS]
+   QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]/$$TARGET
+   QMAKE_PKGCONFIG_CFLAGS = -I$$[QT_INSTALL_HEADERS]
+   QMAKE_PKGCONFIG_DESTDIR = $$QMAKE_LIBDIR_QT/pkgconfig
+}
+
