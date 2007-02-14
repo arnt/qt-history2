@@ -2717,7 +2717,6 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             }
             if (sub & SC_SliderHandle) {
                 theme.rect = subControlRect(CC_Slider, option, SC_SliderHandle, widget);
-                p->fillRect(theme.rect, option->palette.background());
                 if (slider->orientation == Qt::Horizontal) {
                     if (slider->tickPosition == QSlider::TicksAbove)
                         partId = TKP_THUMBTOP;
