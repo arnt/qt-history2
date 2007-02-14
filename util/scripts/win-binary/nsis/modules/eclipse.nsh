@@ -3,6 +3,7 @@
 ;------------------------------------------------------------------------------------------------
 !macro ECLIPSE_INITIALIZE
 
+!define ECLIPSE_LOCATION_KEY "EclipseLocation"
 var ECLIPSE_LOCATION
 var ECLIPSE_MINGW_LOCATION
 
@@ -16,12 +17,27 @@ var ECLIPSE_MINGW_LOCATION
   !define MODULE_ECLIPSE_VERSION ${PRODUCT_VERSION}
 !endif
 
+!define MODULE_ECLIPSE_QT_ID "com.trolltech.qt_4.2.0"
+
 !define MODULE_ECLIPSE_QTSTARTUP_ID "com.trolltech.qtstartup_${MODULE_ECLIPSE_VERSION}"
+
 !define MODULE_ECLIPSE_QTPROJECT_ID "com.trolltech.qtproject_${MODULE_ECLIPSE_VERSION}"
-!define MODULE_ECLIPSE_QTPROJECT_X86_ID "com.trolltech.qtproject.win32.x86_${MODULE_ECLIPSE_VERSION}"
+!define MODULE_ECLIPSE_QTPROJECT_LABEL "Qt Project Integration"
+!define MODULE_ECLIPSE_QTPROJECT_INSTALLEDKEY "EclipseQtProjectInstalled"
+
 !define MODULE_ECLIPSE_QTDESIGNER_ID "com.trolltech.qtdesigner_${MODULE_ECLIPSE_VERSION}"
-!define MODULE_ECLIPSE_QTDESIGNER_X86_ID "com.trolltech.qtdesigner.win32.x86_${MODULE_ECLIPSE_VERSION}"
-!define MODULE_ECLIPSE_QTHELP_ID "com.trolltech.help_${MODULE_ECLIPSE_VERSION}"
+!define MODULE_ECLIPSE_QTDESIGNER_LABEL "Qt Designer Integration"
+!define MODULE_ECLIPSE_QTDESIGNER_INSTALLEDKEY "EclipseQtDesignerInstalled"
+;; qdesignerplugins
+;; !define MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID "com.trolltech.qtdesignerplugins"
+
+!define MODULE_ECLIPSE_QTINTEGRATIONHELP_ID "com.trolltech.qtintegrationhelp_${MODULE_ECLIPSE_VERSION}"
+!define MODULE_ECLIPSE_QTINTEGRATIONHELP_LABEL "Qt Integration Help"
+!define MODULE_ECLIPSE_QTINTEGRATIONHELP_INSTALLEDKEY "EclipseQtIntegrationHelpInstalled"
+
+!define MODULE_ECLIPSE_QTREFERENCE_ID "com.trolltech.help_${MODULE_ECLIPSE_VERSION}"
+!define MODULE_ECLIPSE_QTREFERENCE_LABEL "Qt Reference documentation"
+!define MODULE_ECLIPSE_QTREFERENCE_INSTALLEDKEY "EclipseQtReferenceInstalled"
 
 LangString ModuleEclipsePageTitle ${LANG_ENGLISH} "Eclipse Installation Location"
 LangString ModuleEclipsePageDescription ${LANG_ENGLISH} "Select where eclipse is installed, and where MinGW is located."
@@ -37,18 +53,18 @@ Page custom ModuleEclipsePageEnter ModuleEclipsePageExit
 !macro ECLIPSE_SECTIONS
 
 Section -PreEclipseSection
-  WriteRegStr SHCTX "$PRODUCT_UNIQUE_KEY" "EclipseLocation" $ECLIPSE_LOCATION
+  WriteRegStr SHCTX "$PRODUCT_UNIQUE_KEY" "${ECLIPSE_LOCATION_KEY}" $ECLIPSE_LOCATION
 SectionEnd
 
 SectionGroup "Eclipse Integration"
 
-Section "Qt Project Integration" ECLIPSE_SEC01
-  WriteRegDWORD SHCTX "$PRODUCT_UNIQUE_KEY" "EclipseQtProjectInstalled" 1
+Section "${MODULE_ECLIPSE_QTPROJECT_LABEL}" ECLIPSE_SEC01
+  WriteRegDWORD SHCTX "$PRODUCT_UNIQUE_KEY" "${MODULE_ECLIPSE_QTPROJECT_INSTALLEDKEY}" 1
   SetOutPath "$ECLIPSE_LOCATION\plugins\"
   SetOverwrite ifnewer
+  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QT_ID}.jar"
   File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTSTARTUP_ID}.jar"
   File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTPROJECT_ID}.jar"
-  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTPROJECT_X86_ID}.jar"
 
   Call InstallQtModules
   
@@ -69,12 +85,16 @@ Section "Qt Project Integration" ECLIPSE_SEC01
   done:
 SectionEnd
 
-Section "Qt Designer Integration" ECLIPSE_SEC02
-  WriteRegDWORD SHCTX "$PRODUCT_UNIQUE_KEY" "EclipseQtDesignerInstalled" 1
+Section "${MODULE_ECLIPSE_QTDESIGNER_LABEL}" ECLIPSE_SEC02
+  WriteRegDWORD SHCTX "$PRODUCT_UNIQUE_KEY" "${MODULE_ECLIPSE_QTDESIGNER_INSTALLEDKEY}" 1
   SetOutPath "$ECLIPSE_LOCATION\plugins\"
   SetOverwrite ifnewer
   File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNER_ID}.jar"
-  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNER_X86_ID}.jar"
+  
+;; qdesignerplugins
+;;  SetOutPath "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID}\"
+;;  SetOverwrite ifnewer
+;;  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID}\qt3supportwidgets.dll"
   
   Call InstallQtModules
   
@@ -91,14 +111,21 @@ Section "Qt Designer Integration" ECLIPSE_SEC02
     MessageBox MB_OK|MB_ICONEXCLAMATION "Could not register qtdesigner.dll"
 SectionEnd
 
-Section "Qt Help Integration" ECLIPSE_SEC03
-  WriteRegDWORD SHCTX "$PRODUCT_UNIQUE_KEY" "EclipseQtHelpInstalled" 1
-  SetOutPath "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTHELP_ID}"
+Section "${MODULE_ECLIPSE_QTINTEGRATIONHELP_LABEL}" ECLIPSE_SEC03
+  WriteRegDWORD SHCTX "$PRODUCT_UNIQUE_KEY" "${MODULE_ECLIPSE_QTINTEGRATIONHELP_INSTALLEDKEY}" 1
+  SetOutPath "$ECLIPSE_LOCATION\plugins\"
+  SetOverwrite ifnewer
+  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTINTEGRATIONHELP_ID}.jar"
+SectionEnd
+
+Section "${MODULE_ECLIPSE_QTREFERENCE_LABEL}" ECLIPSE_SEC04
+  WriteRegDWORD SHCTX "$PRODUCT_UNIQUE_KEY" "${MODULE_ECLIPSE_QTREFERENCE_INSTALLEDKEY}" 1
+  SetOutPath "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}"
   SetOverwrite ifnewer
   File "${MODULE_ECLIPSE_ROOT}\plugins\com.trolltech.help\doc.zip"
   File "${MODULE_ECLIPSE_ROOT}\plugins\com.trolltech.help\plugin.xml"
   File "${MODULE_ECLIPSE_ROOT}\plugins\com.trolltech.help\qt.xml"
-  SetOutPath "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTHELP_ID}"
+  SetOutPath "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTREFERENCE_ID}"
   SetOverwrite ifnewer
   File "${MODULE_ECLIPSE_ROOT}\features\com.trolltech.help\feature.xml"
 SectionEnd
@@ -127,7 +154,7 @@ Function MakeEclipseStartFile
   FileWrite $0 "set PATH=%PATH%;%SystemRoot%\System32$\r$\n"
   FileWrite $0 "$\r$\n"
   FileWrite $0 "echo Starting eclipse...$\r$\n"
-  FileWrite $0 'call \"$ECLIPSE_LOCATION\eclipse.exe\"'
+  FileWrite $0 'call "$ECLIPSE_LOCATION\eclipse.exe"'
   FileWrite $0 "$\r$\n"
   FileClose $0
   
@@ -138,11 +165,15 @@ FunctionEnd
 Function InstallQtModules
   SetOutPath "$ECLIPSE_INSTDIR"
   SetOverwrite ifnewer
-  File "${MODULE_ECLIPSE_ROOT}\bin\msvcp71.dll"
-  File "${MODULE_ECLIPSE_ROOT}\bin\msvcr71.dll"
+  File "${MODULE_ECLIPSE_ROOT}\bin\msvcp80.dll"
+  File "${MODULE_ECLIPSE_ROOT}\bin\msvcr80.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\QtCore4.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\QtGui4.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\QtXml4.dll"
+;; qdesignerplugins
+;;  File "${MODULE_ECLIPSE_ROOT}\bin\QtSql4.dll"
+;;  File "${MODULE_ECLIPSE_ROOT}\bin\QtNetwork4.dll"
+;;  File "${MODULE_ECLIPSE_ROOT}\bin\Qt3Support4.dll"
 FunctionEnd
 
 Function ModuleEclipsePageEnter
@@ -189,13 +220,16 @@ FunctionEnd
 ;------------------------------------------------------------------------------------------------
 !macro ECLIPSE_DESCRIPTION
 !ifdef ECLIPSE_SEC01
-  !insertmacro MUI_DESCRIPTION_TEXT ${ECLIPSE_SEC01} "This installs the Qt project management system into Eclipse."
+  !insertmacro MUI_DESCRIPTION_TEXT ${ECLIPSE_SEC01} "This installs the ${MODULE_ECLIPSE_QTPROJECT_LABEL} into Eclipse."
 !endif
 !ifdef ECLIPSE_SEC02
-  !insertmacro MUI_DESCRIPTION_TEXT ${ECLIPSE_SEC02} "This installs the Qt Designer Integration."
+  !insertmacro MUI_DESCRIPTION_TEXT ${ECLIPSE_SEC02} "This installs the ${MODULE_ECLIPSE_QTDESIGNER_LABEL} into Eclipse."
 !endif
 !ifdef ECLIPSE_SEC03
-  !insertmacro MUI_DESCRIPTION_TEXT ${ECLIPSE_SEC03} "This installs the Qt Reference documentation into Eclipse."
+  !insertmacro MUI_DESCRIPTION_TEXT ${ECLIPSE_SEC03} "This installs the ${MODULE_ECLIPSE_QTINTEGRATIONHELP_LABEL} into Eclipse."
+!endif
+!ifdef ECLIPSE_SEC04
+  !insertmacro MUI_DESCRIPTION_TEXT ${ECLIPSE_SEC04} "This installs the ${MODULE_ECLIPSE_QTREFERENCE_LABEL} into Eclipse."
 !endif
 !macroend
 
@@ -215,10 +249,11 @@ FunctionEnd
 
 ;------------------------------------------------------------------------------------------------
 !macro ECLIPSE_UNSTARTUP
-  ReadRegStr $ECLIPSE_LOCATION SHCTX "$PRODUCT_UNIQUE_KEY" "EclipseLocation"
-  !insertmacro ConfirmOnRemove "EclipseQtProjectInstalled" "Qt Project Integration"
-  !insertmacro ConfirmOnRemove "EclipseQtDesignerInstalled" "Qt Designer Integration"
-  !insertmacro ConfirmOnRemove "EclipseQtHelpInstalled" "Qt Help Integration"
+  ReadRegStr $ECLIPSE_LOCATION SHCTX "$PRODUCT_UNIQUE_KEY" "${ECLIPSE_LOCATION_KEY}"
+  !insertmacro ConfirmOnRemove "${MODULE_ECLIPSE_QTPROJECT_INSTALLEDKEY}" "${MODULE_ECLIPSE_QTPROJECT_LABEL}"
+  !insertmacro ConfirmOnRemove "${MODULE_ECLIPSE_QTDESIGNER_INSTALLEDKEY}" "${MODULE_ECLIPSE_QTDESIGNER_LABEL}"
+  !insertmacro ConfirmOnRemove "${MODULE_ECLIPSE_QTINTEGRATIONHELP_INSTALLEDKEY}" "${MODULE_ECLIPSE_QTINTEGRATIONHELP_LABEL}"
+  !insertmacro ConfirmOnRemove "${MODULE_ECLIPSE_QTREFERENCE_INSTALLEDKEY}" "${MODULE_ECLIPSE_QTREFERENCE_LABEL}"
 !macroend
 
 ;------------------------------------------------------------------------------------------------
@@ -226,46 +261,57 @@ FunctionEnd
 Section un."Eclipse Integration"
   push $0
 
-  ReadRegDWORD $0 SHCTX "$PRODUCT_UNIQUE_KEY" "EclipseQtProjectInstalled"
+  ReadRegDWORD $0 SHCTX "$PRODUCT_UNIQUE_KEY" "${MODULE_ECLIPSE_QTPROJECT_INSTALLEDKEY}"
   intcmp $0 1 0 DoneUnInstallQtProject
     push "$ECLIPSE_INSTDIR\qtproparser.dll"
     call un.RegSvr
   
+    Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QT_ID}.jar"
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTSTARTUP_ID}.jar"
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTPROJECT_ID}.jar"
-    Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTPROJECT_X86_ID}.jar"
     Delete "$ECLIPSE_INSTDIR\qtproparser.dll"
     Delete "$SMPROGRAMS\$STARTMENU_STRING\Start Eclipse with MinGW.lnk"
     Delete "$ECLIPSE_INSTDIR\start.bat"
   DoneUnInstallQtProject:
 
-  ReadRegDWORD $0 SHCTX "$PRODUCT_UNIQUE_KEY" "EclipseQtDesignerInstalled"
+  ReadRegDWORD $0 SHCTX "$PRODUCT_UNIQUE_KEY" ${MODULE_ECLIPSE_QTDESIGNER_INSTALLEDKEY}
   intcmp $0 1 0 DoneUnInstallQtDesigner
     push "$ECLIPSE_INSTDIR\qtdesigner.dll"
     call un.RegSvr
-  
+
+;; qdesignerplugins  
+;;    Delete "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID}\qt3supportwidgets.dll"
+
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTDESIGNER_ID}.jar"
-    Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTDESIGNER_X86_ID}.jar"
     Delete "$ECLIPSE_INSTDIR\QtDesigner4.dll"
     Delete "$ECLIPSE_INSTDIR\QtDesignerComponents4.dll"
     Delete "$ECLIPSE_INSTDIR\qtdesigner.dll"
   DoneUnInstallQtDesigner:
   
-  ReadRegDWORD $0 SHCTX "$PRODUCT_UNIQUE_KEY" "EclipseQtHelpInstalled"
-  intcmp $0 1 0 DoneUnInstallQtHelp
-    Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTHELP_ID}\doc.zip"
-    Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTHELP_ID}\plugin.xml"
-    Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTHELP_ID}\qt.xml"
-    RMDir "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTHELP_ID}"
-    Delete "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTHELP_ID}\feature.xml"
-    RMDir "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTHELP_ID}"
-  DoneUnInstallQtHelp:
+  ReadRegDWORD $0 SHCTX "$PRODUCT_UNIQUE_KEY" "${MODULE_ECLIPSE_QTINTEGRATIONHELP_INSTALLEDKEY}"
+  intcmp $0 1 0 DoneUnInstallQtIntegrationHelp
+    Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTINTEGRATIONHELP_ID}.jar"
+  DoneUnInstallQtIntegrationHelp:
+
+  ReadRegDWORD $0 SHCTX "$PRODUCT_UNIQUE_KEY" "${MODULE_ECLIPSE_QTREFERENCE_INSTALLEDKEY}"
+  intcmp $0 1 0 DoneUnInstallQtReference
+    Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}\doc.zip"
+    Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}\plugin.xml"
+    Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}\qt.xml"
+    RMDir "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}"
+    Delete "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTREFERENCE_ID}\feature.xml"
+    RMDir "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTREFERENCE_ID}"
+  DoneUnInstallQtReference:
   
-  Delete "$ECLIPSE_INSTDIR\msvcp71.dll"
-  Delete "$ECLIPSE_INSTDIR\msvcr71.dll"
+  Delete "$ECLIPSE_INSTDIR\msvcp80.dll"
+  Delete "$ECLIPSE_INSTDIR\msvcr80.dll"
   Delete "$ECLIPSE_INSTDIR\QtCore4.dll"
   Delete "$ECLIPSE_INSTDIR\QtGui4.dll"
   Delete "$ECLIPSE_INSTDIR\QtXml4.dll"
+;; qdesignerplugins
+;;  Delete "$ECLIPSE_INSTDIR\QtSql4.dll"
+;;  Delete "$ECLIPSE_INSTDIR\QtNetwork4.dll"
+;;  Delete "$ECLIPSE_INSTDIR\Qt3Support4.dll"
   
   RMDir "$ECLIPSE_INSTDIR"
 
