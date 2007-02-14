@@ -659,12 +659,6 @@ void QScriptValueImpl::setProperty(QScriptNameIdImpl *nameId,
     if (!isObject())
         return;
 
-    if (value.isValid() && (value.engine() != engine())) {
-        qWarning("QScriptValue::setProperty() failed: "
-                 "cannot set value created in a different engine");
-        return;
-    }
-
     QScriptValueImpl base;
     QScript::Member member;
 
@@ -776,13 +770,6 @@ QScriptValueImpl QScriptValueImpl::call(const QScriptValueImpl &thisObject,
     if (!isFunction())
         return QScriptValueImpl();
 
-    if (thisObject.isValid() && (thisObject.engine() != engine())) {
-         qWarning("QScriptValue::call() failed: "
-                  "cannot call function with thisObject created in "
-                  "a different engine");
-         return QScriptValueImpl();
-     }
-
     QScriptEngine *eng = engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
     return eng_p->call(*this, thisObject, args, /*asConstructor=*/false);
@@ -823,13 +810,6 @@ bool QScriptValueImpl::lessThan(const QScriptValueImpl &other) const
     if (!isValid() || !other.isValid())
         return false;
 
-    if (other.engine() != engine()) {
-        qWarning("QScriptValue::lessThan: "
-                 "cannot compare to a value created in "
-                 "a different engine");
-        return false;
-    }
-
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
     return eng_p->lessThan(*this, other);
 }
@@ -839,13 +819,6 @@ bool QScriptValueImpl::equalTo(const QScriptValueImpl &other) const
     if (!isValid() || !other.isValid())
         return isValid() == other.isValid();
 
-    if (other.engine() != engine()) {
-        qWarning("QScriptValue::equalTo: "
-                 "cannot compare to a value created in "
-                 "a different engine");
-        return false;
-    }
-
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
     return eng_p->equalTo(*this, other);
 }
@@ -854,13 +827,6 @@ bool QScriptValueImpl::strictEqualTo(const QScriptValueImpl &other) const
 {
     if (!isValid() || !other.isValid())
         return isValid() == other.isValid();
-    
-    if (other.engine() != engine()) {
-        qWarning("QScriptValue::strictEqualTo: "
-                 "cannot compare to a value created in "
-                 "a different engine");
-        return false;
-    }
     
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
     return eng_p->strictEqualTo(*this, other);

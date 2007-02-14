@@ -371,6 +371,12 @@ bool QScriptValue::instanceOf(const QScriptValue &ctorValue) const
 */
 bool QScriptValue::lessThan(const QScriptValue &other) const
 {
+    if (isValid() && other.isValid() && (other.engine() != engine())) {
+        qWarning("QScriptValue::lessThan: "
+                 "cannot compare to a value created in "
+                 "a different engine");
+        return false;
+    }
     return QScriptValuePrivate::valueOf(*this).lessThan(QScriptValuePrivate::valueOf(other));
 }
 
@@ -382,6 +388,12 @@ bool QScriptValue::lessThan(const QScriptValue &other) const
 */
 bool QScriptValue::equalTo(const QScriptValue &other) const
 {
+    if (isValid() && other.isValid() && (other.engine() != engine())) {
+        qWarning("QScriptValue::equalTo: "
+                 "cannot compare to a value created in "
+                 "a different engine");
+        return false;
+    }
     return QScriptValuePrivate::valueOf(*this).equalTo(QScriptValuePrivate::valueOf(other));
 }
 
@@ -393,6 +405,12 @@ bool QScriptValue::equalTo(const QScriptValue &other) const
 */
 bool QScriptValue::strictEqualTo(const QScriptValue &other) const
 {
+    if (isValid() && other.isValid() && (other.engine() != engine())) {
+        qWarning("QScriptValue::strictEqualTo: "
+                 "cannot compare to a value created in "
+                 "a different engine");
+        return false;
+    }
     return QScriptValuePrivate::valueOf(*this).strictEqualTo(QScriptValuePrivate::valueOf(other));
 }
 
@@ -579,6 +597,12 @@ void QScriptValue::setProperty(const QScriptNameId &nameId,
                                const QScriptValue &value,
                                const PropertyFlags &flags)
 {
+
+    if (isValid() && value.isValid() && (value.engine() != engine())) {
+        qWarning("QScriptValue::setProperty() failed: "
+                 "cannot set value created in a different engine");
+        return;
+    }
     QScriptValuePrivate::valueOf(*this).setProperty(nameId, QScriptValuePrivate::valueOf(value), flags);
 }
 
@@ -597,6 +621,11 @@ void QScriptValue::setProperty(const QScriptNameId &nameId,
 void QScriptValue::setProperty(const QString &name, const QScriptValue &value,
                                const PropertyFlags &flags)
 {
+    if (isValid() && value.isValid() && (value.engine() != engine())) {
+        qWarning("QScriptValue::setProperty() failed: "
+                 "cannot set value created in a different engine");
+        return;
+    }
     QScriptValuePrivate::valueOf(*this).setProperty(name, QScriptValuePrivate::valueOf(value), flags);
 }
 
@@ -635,6 +664,11 @@ QScriptValue QScriptValue::property(quint32 arrayIndex,
 void QScriptValue::setProperty(quint32 arrayIndex, const QScriptValue &value,
                                const PropertyFlags &flags)
 {
+    if (isValid() && value.isValid() && (value.engine() != engine())) {
+        qWarning("QScriptValue::setProperty() failed: "
+                 "cannot set value created in a different engine");
+        return;
+    }
     QScriptValuePrivate::valueOf(*this).setProperty(arrayIndex, QScriptValuePrivate::valueOf(value), flags);
 }
 
@@ -668,7 +702,7 @@ void QScriptValue::setVariantValue(const QVariant &value)
 QScriptValue QScriptValue::call(const QScriptValue &thisObject,
                                 const QScriptValueList &args)
 {
-    if (thisObject.isValid() && (thisObject.engine() != engine())) {
+    if (isFunction() && thisObject.isValid() && (thisObject.engine() != engine())) {
         qWarning("QScriptValue::call() failed: "
                  "cannot call function with thisObject created in "
                  "a different engine");
