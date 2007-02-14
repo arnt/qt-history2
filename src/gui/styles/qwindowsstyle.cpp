@@ -1790,9 +1790,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
                 // Delete border
                 if (selected) {
-                    p->setPen(background);
-                    p->drawLine(x1, y2 - 1, x2, y2 - 1);
-                    p->drawLine(x1, y2, x2, y2);
+                    p->fillRect(QRect(x1,y2-1,x2-x1,1), tab->palette.background());
+                    p->fillRect(QRect(x1,y2,x2-x1,1), tab->palette.background());
                 }
                 // Left
                 if (firstTab || selected || onlyOne || !previousSelected) {
