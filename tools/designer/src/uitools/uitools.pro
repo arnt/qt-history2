@@ -30,3 +30,12 @@ INSTALLS        += quitools_headers
 
 target.path=$$[QT_INSTALL_LIBS]
 INSTALLS        += target
+
+unix {
+   CONFIG     += create_pc
+   QMAKE_PKGCONFIG_LIBDIR = $$[QT_INSTALL_LIBS]
+   QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]/$$TARGET
+   QMAKE_PKGCONFIG_CFLAGS = -I$$[QT_INSTALL_HEADERS]
+   QMAKE_PKGCONFIG_DESTDIR = $$QMAKE_LIBDIR_QT/pkgconfig
+}
+
