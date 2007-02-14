@@ -103,7 +103,9 @@ void tst_QTreeWidgetItemIterator::initTestCase()
             case 9:  top->setFlags(Qt::ItemIsEnabled);break;
 
             case 10:  top->setFlags(Qt::ItemIsEnabled);break;
-            case 11:  top->setFlags(0);break;
+            case 11:  
+                top->setFlags(0);
+                break;
 
             case 12:  top->setFlags(Qt::ItemIsEnabled | Qt::ItemIsEditable);break;
             case 13:  top->setFlags(Qt::ItemIsEnabled);break;
@@ -831,7 +833,24 @@ void tst_QTreeWidgetItemIterator::iteratorflags_data()
                                                                             << "top9,child11"
                                                                             << "top10,child11"
                                                                 << "top11"
+                                                                            << "top11,child0"
+                                                                            << "top11,child1"
+                                                                            << "top11,child2"
+                                                                            << "top11,child3"
+                                                                            << "top11,child4"
+                                                                            << "top11,child5"
+                                                                            << "top11,child6"
+                                                                            << "top11,child7"
+                                                                            << "top11,child8"
+                                                                            << "top11,child9"
+                                                                            << "top11,child10"
                                                                             << "top11,child11"
+                                                                            << "top11,child12"
+                                                                            << "top11,child13"
+                                                                            << "top11,child14"
+                                                                            << "top11,child15"
+                                                                            << "top11,child16"
+
                                                                             << "top12,child11"
                                                                             << "top13,child11"
                                                                             << "top14,child11"

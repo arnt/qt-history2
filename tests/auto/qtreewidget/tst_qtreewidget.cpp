@@ -95,6 +95,7 @@ private slots:
 
     void expandAndCallapse();
     void itemData();
+    void setDisabled();
 
 private:
     QTreeWidget *testWidget;
@@ -2390,6 +2391,61 @@ void tst_QTreeWidget::expandAndCallapse()
     QCOMPARE(spy0.count(), 3);
     QCOMPARE(spy1.count(), 2);
 }
+
+void tst_QTreeWidget::setDisabled()
+{
+    QTreeWidget w;
+    QTreeWidgetItem *i1 = new QTreeWidgetItem();
+    QTreeWidgetItem *i2 = new QTreeWidgetItem(i1);
+    QTreeWidgetItem *i3 = new QTreeWidgetItem(i1);
+
+    QTreeWidgetItem *top = new QTreeWidgetItem(&w);
+    top->setDisabled(true);
+    top->addChild(i1);
+    QCOMPARE(i1->isDisabled(), true);
+    QCOMPARE(i2->isDisabled(), true);
+    QCOMPARE(i3->isDisabled(), true);
+
+    i1 = top->takeChild(0);
+    QCOMPARE(i1->isDisabled(), false);
+    QCOMPARE(i2->isDisabled(), false);
+    QCOMPARE(i3->isDisabled(), false);
+
+    top->addChild(i1);
+    QCOMPARE(i1->isDisabled(), true);
+    QCOMPARE(i2->isDisabled(), true);
+    QCOMPARE(i3->isDisabled(), true);
+
+    top->setDisabled(false);
+    QCOMPARE(i1->isDisabled(), false);
+    QCOMPARE(i2->isDisabled(), false);
+    QCOMPARE(i3->isDisabled(), false);
+
+
+
+    QList<QTreeWidgetItem*> children;
+    children.append(new QTreeWidgetItem());
+    children.append(new QTreeWidgetItem());
+    children.append(new QTreeWidgetItem());
+    i1 = top->takeChild(0);
+
+    top->addChildren(children);
+    QCOMPARE(top->child(0)->isDisabled(), false);
+    QCOMPARE(top->child(1)->isDisabled(), false);
+    QCOMPARE(top->child(1)->isDisabled(), false);
+
+    top->setDisabled(true);
+    QCOMPARE(top->child(0)->isDisabled(), true);
+    QCOMPARE(top->child(1)->isDisabled(), true);
+    QCOMPARE(top->child(1)->isDisabled(), true);
+
+    children = top->takeChildren();
+    QCOMPARE(children.at(0)->isDisabled(), false);
+    QCOMPARE(children.at(1)->isDisabled(), false);
+    QCOMPARE(children.at(1)->isDisabled(), false);
+
+}
+
 
 QTEST_MAIN(tst_QTreeWidget)
 #include "tst_qtreewidget.moc"

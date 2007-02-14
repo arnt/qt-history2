@@ -35,6 +35,7 @@ class Q_GUI_EXPORT QTreeWidgetItem
     friend class QTreeModel;
     friend class QTreeWidget;
     friend class QTreeWidgetItemIterator;
+    friend class QTreeWidgetItemPrivate;
 public:
     enum ItemType { Type = 0, UserType = 1000 };
     QTreeWidgetItem(int type = Type);

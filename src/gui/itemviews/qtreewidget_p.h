@@ -140,6 +140,7 @@ class QTreeWidgetItemPrivate
 public:
     QTreeWidgetItemPrivate(QTreeWidgetItem *item)
         : q(item), disabled(false), policy(QTreeWidgetItem::ShowForChildren) {}
+    void propagateDisabled(QTreeWidgetItem *item);
     QTreeWidgetItem *q;
     QVariantList display;
     uint disabled : 1;

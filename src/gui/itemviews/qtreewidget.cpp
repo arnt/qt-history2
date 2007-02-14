@@ -1543,6 +1543,29 @@ void QTreeWidgetItem::setFlags(Qt::ItemFlags flags)
     itemChanged();
 }
 
+void QTreeWidgetItemPrivate::propagateDisabled(QTreeWidgetItem *item)
+{
+    Q_ASSERT(item);
+    const bool enable = item->par ? (item->par->itemFlags & Qt::ItemIsEnabled) : true;
+    
+    QStack<QTreeWidgetItem*> parents;
+    parents.push(item);
+    while (!parents.isEmpty()) {
+        QTreeWidgetItem *parent = parents.pop();
+        if (!parent->d->disabled) { // if not explicitly disabled
+            if (enable)
+                parent->itemFlags = parent->itemFlags | Qt::ItemIsEnabled;
+            else
+                parent->itemFlags = parent->itemFlags & ~Qt::ItemIsEnabled;
+            parent->itemChanged(); // ### we may want to optimize this
+        }
+
+        for (int i = 0; i < parent->children.count(); ++i) {
+            QTreeWidgetItem *child = parent->children.at(i);
+            parents.push(child);
+        }
+    }
+}
 /*!
     \fn Qt::ItemFlags QTreeWidgetItem::flags() const
 
@@ -1798,6 +1821,8 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
         child->par = this;
         children.insert(index, child);
     }
+    if (child->par)
+        d->propagateDisabled(child);
 }
 
 /*!
@@ -1823,6 +1848,7 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
         if (model) model->beginRemoveItems(this, index, 1);
         QTreeWidgetItem *item = children.takeAt(index);
         item->par = 0;
+        d->propagateDisabled(item);
         QStack<QTreeWidgetItem*> stack;
         stack.push(item);
         while (!stack.isEmpty()) {
@@ -1890,8 +1916,12 @@ void QTreeWidgetItem::insertChildren(int index, const QList<QTreeWidgetItem*> &c
                 stack.push(i->children.at(c));
         }
         if (model) model->beginInsertItems(this, index, itemsToInsert.count());
-        for (int n = 0; n < itemsToInsert.count(); ++n)
-            this->children.insert(index + n, itemsToInsert.at(n));
+        for (int n = 0; n < itemsToInsert.count(); ++n) {
+            QTreeWidgetItem *child = itemsToInsert.at(n);
+            this->children.insert(index + n, child);
+            if (child->par)
+                d->propagateDisabled(child);
+        }
         if (model) model->endInsertItems();
     }
 }
@@ -1912,6 +1942,7 @@ QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
         for (int n = 0; n < children.count(); ++n) {
             QTreeWidgetItem *item = children.at(n);
             item->par = 0;
+            d->propagateDisabled(item);
             QStack<QTreeWidgetItem*> stack;
             stack.push(item);
             while (!stack.isEmpty()) {
