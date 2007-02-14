@@ -290,23 +290,14 @@ public:
     inline static bool isFinite(qsreal d);
     inline const QScript::IdTable *idTable() const;
 
-    static inline QScript::Type type(const QScriptValueImpl &v)
-        { return v.m_class->type(); }
-    static inline bool isValid(const QScriptValueImpl &v)
-        { return v.m_class && v.m_class->engine(); }
-    static inline bool isString(const QScriptValueImpl &v)
-        { return v.m_class && (v.m_class->type() == QScript::StringType); }
-    static inline bool isObject(const QScriptValueImpl &v)
-        { return v.m_class && (v.m_class->type() & QScript::ObjectBased); }
-
     inline QScriptValueImpl toObject(const QScriptValueImpl &value)
     {
-        if (!isValid(value))
+        if (!value.isValid())
             return value;
 
         QScriptValueImpl result;
 
-        switch (type(value)) {
+        switch (value.type()) {
         case QScript::UndefinedType:
         case QScript::NullType:
             break;
@@ -324,7 +315,7 @@ public:
             break;
 
         default:
-            if (isObject(value))
+            if (value.isObject())
                 result = value;
             break;
         } // switch
@@ -337,7 +328,7 @@ public:
     {
         Q_ASSERT(object.isValid());
 
-        if (! isObject(object))
+        if (! object.isObject())
             return object;
 
         return toPrimitive_helper(object, hint);
@@ -367,7 +358,7 @@ public:
         QScriptObject *od = allocObject();
         od->reset();
 
-        if (isValid(proto))
+        if (proto.isValid())
             od->m_prototype = proto;
         else {
             Q_ASSERT(objectConstructor);
@@ -762,7 +753,7 @@ inline bool QScriptEnginePrivate::convertToNativeBoolean(const QScriptValueImpl 
 {
     Q_ASSERT (object.isValid());
 
-    if (type(object) == QScript::BooleanType)
+    if (object.type() == QScript::BooleanType)
         return object.m_bool_value;
 
     return convertToNativeBoolean_helper(object);
@@ -772,7 +763,7 @@ inline QString QScriptEnginePrivate::convertToNativeString(const QScriptValueImp
 {
     Q_ASSERT (object.isValid());
 
-    if (isString(object))
+    if (object.isString())
         return object.m_string_value->s;
 
     return convertToNativeString_helper(object);

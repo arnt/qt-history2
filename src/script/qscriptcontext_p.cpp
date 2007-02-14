@@ -87,7 +87,7 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
     --stackPtr; \
     const QScriptValueImpl &object = stackPtr[-1]; \
     QScriptNameIdImpl *memberName = 0; \
-    if (isString(stackPtr[0]) && stackPtr[0].m_string_value->unique) \
+    if (stackPtr[0].isString() && stackPtr[0].m_string_value->unique) \
         memberName = stackPtr[0].m_string_value; \
     else \
         memberName = eng->nameId(stackPtr[0].toString(), /*persistent=*/false); \
@@ -161,13 +161,13 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
     mode = static_cast<QScriptValue::ResolveFlags> (stackPtr[-1].m_int_value) \
            | QScriptValue::ResolvePrototype; \
     QScriptValueImpl object = eng->toObject(stackPtr[-3]); \
-    if (! isValid(object)) { \
+    if (! object.isValid()) { \
         stackPtr -= 4; \
         throwTypeError(QLatin1String("not an object")); \
         HandleException(); \
     } \
     QScriptNameIdImpl *memberName = 0; \
-    if (isString(stackPtr[-2]) && stackPtr[-2].m_string_value->unique) \
+    if (stackPtr[-2].isString() && stackPtr[-2].m_string_value->unique) \
         memberName = stackPtr[-2].m_string_value; \
     else \
         memberName = eng->nameId(stackPtr[-2].toString(), /*persistent=*/false); \
@@ -292,10 +292,10 @@ bool QScriptContextPrivate::resolveField(QScriptValueImpl *stackPtr)
     const QScriptValueImpl &m = stackPtr[0];
     QScriptValueImpl &object = stackPtr[-1];
 
-    if (! isObject(object))
+    if (! object.isObject())
         object = eng->toObject(object);
 
-    if (! isValid(object))
+    if (! object.isValid())
         return false;
 
     QScriptValueImpl undefined;
@@ -304,10 +304,10 @@ bool QScriptContextPrivate::resolveField(QScriptValueImpl *stackPtr)
     if (QScript::Ecma::Array::Instance *arrayInstance = eng->arrayConstructor->get(object)) {
         qint32 pos = -1;
 
-        if (isNumber(m))
+        if (m.isNumber())
             pos = eng->convertToNativeInt32(m);
 
-        else if (isString(m)) {
+        else if (m.isString()) {
             QByteArray bytes = m.m_string_value->s.toUtf8();
             char *eptr;
             pos = strtoul(bytes.constData(), &eptr, 10);
@@ -325,7 +325,7 @@ bool QScriptContextPrivate::resolveField(QScriptValueImpl *stackPtr)
         }
     }
 
-    QScriptNameIdImpl *nameId = isString(m) ? m.m_string_value : 0;
+    QScriptNameIdImpl *nameId = m.isString() ? m.m_string_value : 0;
 
     if (! nameId || ! nameId->unique)
         nameId = eng->nameId(eng->convertToNativeString(m), /*persistent=*/false); // ### slow!
@@ -679,7 +679,7 @@ Ltop:
         QString pattern = eng->toString(iPtr->operand[0].m_string_value);
         QString flags;
 
-        if (isValid(iPtr->operand[1]))
+        if (iPtr->operand[1].isValid())
             flags = eng->toString(iPtr->operand[1].m_string_value);
 
         eng->regexpConstructor->newRegExp(++stackPtr, pattern, flags);
@@ -768,7 +768,7 @@ Ltop:
         QScript::Member proto;
         if (callee.resolve(eng->idTable()->id_prototype, &proto, &dummy, QScriptValue::ResolveLocal))
             callee.get(proto, &instance->m_prototype);
-        if (!isObject(instance->m_prototype))
+        if (!instance->m_prototype.isObject())
             instance->m_prototype = eng->objectConstructor->publicPrototype;
 
         function->execute(nested_data);
@@ -777,9 +777,9 @@ Ltop:
         if (isReference)
             stackPtr -= 2;
 
-        if (! isValid(nested_data->m_result))
+        if (! nested_data->m_result.isValid())
             eng->newUndefined(&nested_data->m_result);
-        else if (! isObject(nested_data->m_result))
+        else if (! nested_data->m_result.isObject())
             nested_data->m_result = nested_data->m_thisObject;
 
         if (nested_data->m_state == QScriptContext::ExceptionState) {
@@ -799,7 +799,7 @@ Ltop:
     I(FetchField):
     {
         QScriptValueImpl object = eng->toObject(stackPtr[-1]);
-        if (! isValid(object)) {
+        if (! object.isValid()) {
             stackPtr -= 2;
             throwTypeError(QLatin1String("not an object"));
             HandleException();
@@ -813,11 +813,11 @@ Ltop:
 
         if (arrayInstance) {
             qint32 pos = -1;
-            bool ok = isNumber(m);
+            bool ok = m.isNumber();
 
             if (ok)
                 pos = QScriptEnginePrivate::toUint32(eng->convertToNativeDouble(m));
-            else if (isString(m)) {
+            else if (m.isString()) {
                 QByteArray bytes = m.m_string_value->s.toUtf8();
                 char *eptr;
                 pos = strtoul(bytes.constData(), &eptr, 10);
@@ -835,12 +835,12 @@ Ltop:
             }
         }
 
-        QScriptNameIdImpl *nameId = isString(m) ? m.m_string_value : 0;
+        QScriptNameIdImpl *nameId = m.isString() ? m.m_string_value : 0;
 
         if (! nameId || ! nameId->unique) {
             QString str;
 
-            if (isNumber(m))
+            if (m.isNumber())
                 qscript_uint_to_string(m.m_number_value, str);
 
             if (str.isEmpty())
@@ -919,7 +919,7 @@ Ltop:
                | QScriptValue::ResolvePrototype;
 
         QScriptValueImpl object = eng->toObject(stackPtr[-3]);
-        if (! isValid(object)) {
+        if (! object.isValid()) {
             stackPtr -= 4;
             throwTypeError(QLatin1String("invalid assignment lvalue"));
             HandleException();
@@ -943,7 +943,7 @@ Ltop:
         else {
             QScriptNameIdImpl *memberName;
 
-            if (isString(m) && m.m_string_value->unique)
+            if (m.isString() && m.m_string_value->unique)
                 memberName = m.m_string_value;
             else
                 memberName = eng->nameId(eng->convertToNativeString(m), /*persistent=*/false);
@@ -961,7 +961,7 @@ Ltop:
                 base.createMember(memberName, &member, /*flags=*/0);
             }
 
-            if (isString(value) && ! value.m_string_value->unique)
+            if (value.isString() && ! value.m_string_value->unique)
                 eng->newNameId(&value, value.m_string_value->s);
             if (object.m_class == eng->m_class_with)
                 object = object.prototype();
@@ -1078,7 +1078,7 @@ Ltop:
         QScriptValueImpl ctor = stackPtr[0];
         bool result = false;
 
-        if (!isObject(ctor)) {
+        if (!ctor.isObject()) {
             stackPtr -= 2;
             throwTypeError(QLatin1String("invalid 'instanceof' operand"));
             HandleException();
@@ -1086,9 +1086,9 @@ Ltop:
 
         // ### fixme, this is not according to spec
         // only Function implements [[hasInstance]]
-        if (isObject(object)) {
+        if (object.isObject()) {
             QScriptValueImpl prototype = ctor.property(eng->idTable()->id_prototype);
-            if (!(isValid(prototype) && isObject(prototype))) {
+            if (!(prototype.isValid() && prototype.isObject())) {
                 stackPtr -= 2;
                 throwTypeError(QLatin1String("instanceof: 'prototype' property is not an object"));
                 HandleException();
@@ -1103,7 +1103,7 @@ Ltop:
     I(In):
     {
         QScriptValueImpl object = stackPtr[0];
-        if (!isObject(object)) {
+        if (!object.isObject()) {
             stackPtr -= 2;
             throwTypeError(QLatin1String("invalid 'in' operand"));
             HandleException();
@@ -1119,7 +1119,7 @@ Ltop:
         QScriptValueImpl lhs = eng->toPrimitive(stackPtr[-1], QScriptValue::NoTypeHint);
         QScriptValueImpl rhs = eng->toPrimitive(stackPtr[0], QScriptValue::NoTypeHint);
 
-        if (isString(lhs) || isString(rhs)) {
+        if (lhs.isString() || rhs.isString()) {
             QString tmp = eng->convertToNativeString(lhs);
             tmp += eng->convertToNativeString(rhs);
             eng->newNameId(--stackPtr, tmp);
@@ -1352,7 +1352,7 @@ Ltop:
 
         const QScriptValueImpl &object = stackPtr[-1];
         QScriptNameIdImpl *memberName = 0;
-        if (isString(stackPtr[0]) && stackPtr[0].m_string_value->unique)
+        if (stackPtr[0].isString() && stackPtr[0].m_string_value->unique)
             memberName = stackPtr[0].m_string_value;
         else
             memberName = eng->nameId(stackPtr[0].toString(), /*persistent=*/false);
@@ -1365,7 +1365,7 @@ Ltop:
         if (instance->findMember(memberName, &member)) {
             if (!member.isGetterOrSetter()) {
                 QScriptValueImpl &r = instance->reference(member);
-                if (isNumber(r)) {
+                if (r.isNumber()) {
                     eng->newNumber(--stackPtr, r.m_number_value);
                     r.incr();
                     ++iPtr;
@@ -1452,7 +1452,7 @@ Ltop:
 
         const QScriptValueImpl &object = stackPtr[-1];
         QScriptNameIdImpl *memberName = 0;
-        if (isString(stackPtr[0]) && stackPtr[0].m_string_value->unique)
+        if (stackPtr[0].isString() && stackPtr[0].m_string_value->unique)
             memberName = stackPtr[0].m_string_value;
         else
             memberName = eng->nameId(stackPtr[0].toString(), /*persistent=*/false);
@@ -1465,7 +1465,7 @@ Ltop:
         if (instance->findMember(memberName, &member)) {
             if (!member.isGetterOrSetter()) {
                 QScriptValueImpl &r = instance->reference(member);
-                if (isNumber(r)) {
+                if (r.isNumber()) {
                     eng->newNumber(--stackPtr, r.m_number_value);
                     r.decr();
                     ++iPtr;
@@ -1544,8 +1544,8 @@ Ltop:
     {
         BEGIN_INPLACE_OPERATOR
 
-        if (isString(lhs) || isString(rhs)) {
-            if (isString(lhs) && !lhs.m_string_value->unique) {
+        if (lhs.isString() || rhs.isString()) {
+            if (lhs.isString() && !lhs.m_string_value->unique) {
                 lhs.m_string_value->s += eng->convertToNativeString(rhs);
                 stackPtr -= 3;
                 *stackPtr = lhs;
@@ -1720,7 +1720,7 @@ Ltop:
 
         QString typeName;
 
-        switch (type(object)) {
+        switch (object.type()) {
 
         case QScript::UndefinedType:
             typeName = QLatin1String("undefined");
@@ -1789,11 +1789,11 @@ Ltop:
 
         else {
             QScriptValueImpl object = stackPtr[-2];
-            if (!isObject(object))
+            if (!object.isObject())
                 object = eng->toObject(object);
 
             QScriptNameIdImpl *nameId = 0;
-            if (isString(stackPtr[-1]))
+            if (stackPtr[-1].isString())
                 nameId = stackPtr[-1].m_string_value;
             else
                 nameId = eng->nameId(eng->convertToNativeString(stackPtr[-1]),
@@ -1821,7 +1821,7 @@ Ltop:
     I(NewEnumeration): {
         QScriptValueImpl e;
         QScriptValueImpl object = eng->toObject(stackPtr[0]);
-        if (! isValid(object)) {
+        if (! object.isValid()) {
             stackPtr -= 1;
             throwTypeError(QLatin1String("QScript.VM.NewEnumeration"));
             HandleException();
@@ -1909,7 +1909,7 @@ Ltop:
     I(EnterWith):
     {
         QScriptValueImpl object = eng->toObject(*stackPtr--);
-        if (! isValid(object)) {
+        if (! object.isValid()) {
             throwTypeError(QLatin1String("value has no properties"));
             HandleException();
         }

@@ -328,19 +328,19 @@ void QScriptEnginePrivate::markObject(const QScriptValueImpl &object, int genera
     if (QScriptClassData *data = object.m_class->data())
         data->mark(object, generation);
 
-    if (isObject(instance->m_prototype))
+    if (instance->m_prototype.isObject())
         markObject(instance->m_prototype, generation);
 
-    if (isObject(instance->m_scope))
+    if (instance->m_scope.isObject())
         markObject(instance->m_scope, generation);
 
     const QScriptValueImpl &internalValue = instance->m_internalValue;
 
-    if (isValid(internalValue)) {
-        if (isObject(internalValue))
+    if (internalValue.isValid()) {
+        if (internalValue.isObject())
             markObject(internalValue, generation);
 
-        else if (isString(internalValue))
+        else if (internalValue.isString())
             markString(internalValue.m_string_value, generation);
     }
 
@@ -363,13 +363,13 @@ void QScriptEnginePrivate::markObject(const QScriptValueImpl &object, int genera
         if (m.nameId())
             markString(m.nameId(), generation);
 
-        if (! isValid(child))
+        if (! child.isValid())
             continue;
 
-        else if (isObject(child))
+        else if (child.isObject())
             markObject(child, generation);
 
-        else if (isString(child))
+        else if (child.isString())
             markString(child.m_string_value, generation);
     }
 
@@ -407,23 +407,23 @@ void QScriptEnginePrivate::markFrame(QScriptContextPrivate *context, int generat
     if (context->m_functionNameId)
         markString(context->m_functionNameId, generation);
 
-    if (isObject(activation))
+    if (activation.isObject())
         markObject(activation, generation);
 
-    if (isObject(scopeChain))
+    if (scopeChain.isObject())
         markObject(scopeChain, generation);
 
-    if (isObject(thisObject))
+    if (thisObject.isObject())
         markObject(thisObject, generation);
 
-    if (isObject(callee))
+    if (callee.isObject())
         markObject(callee, generation);
 
-    if (isValid(context->returnValue())) {
-        if (isObject(context->returnValue()))
+    if (context->returnValue().isValid()) {
+        if (context->returnValue().isObject())
             markObject(context->returnValue(), generation);
 
-        else if (isString(context->returnValue()))
+        else if (context->returnValue().isString())
             markString(context->returnValue().m_string_value, generation);
     }
 
@@ -485,7 +485,7 @@ void QScriptEnginePrivate::maybeGC_helper(bool do_string_gc)
         while (it.hasNext()) {
             it.next();
             QScriptValueImpl v = it.value()->value;
-            if (isValid(v)) {
+            if (v.isValid()) {
                 QScriptObject *o = v.objectValue();
                 QScript::GCBlock *block = QScript::GCBlock::get(o);
                 
@@ -603,7 +603,7 @@ qsreal QScriptEnginePrivate::convertToNativeDouble_helper(const QScriptValueImpl
 
     default: {
         QScriptValueImpl p = toPrimitive(object, QScriptValue::NumberTypeHint);
-        if (! isValid(p) || isObject(p))
+        if (! p.isValid() || p.isObject())
             break;
 
         return convertToNativeDouble(p);
@@ -646,14 +646,14 @@ bool QScriptEnginePrivate::convertToNativeBoolean_helper(const QScriptValueImpl 
 
     case QScript::VariantType: {
         QScriptValueImpl p = toPrimitive(object, QScriptValue::NumberTypeHint);
-        if (! isValid(p) || isObject(p))
+        if (! p.isValid() || p.isObject())
             break;
 
         return convertToNativeBoolean(p);
     }
 
     default:
-        if (isObject(object))
+        if (object.isObject())
             return true;
 
         break;
@@ -695,7 +695,7 @@ QString QScriptEnginePrivate::convertToNativeString_helper(const QScriptValueImp
     default: {
         QScriptValueImpl p = toPrimitive(object, QScriptValue::StringTypeHint);
 
-        if (! isValid(p) || isObject(p))
+        if (! p.isValid() || p.isObject())
             return klass->name();
 
         return convertToNativeString(p);
@@ -742,7 +742,7 @@ QScriptValueImpl QScriptEnginePrivate::toPrimitive_helper(const QScriptValueImpl
             foo->execute(me);
             QScriptValueImpl result = me->returnValue();
             popContext();
-            if (isValid(result) && !isObject(result))
+            if (result.isValid() && !result.isObject())
                 return result;
         }
     }
@@ -1192,7 +1192,7 @@ QScriptValueImpl QScriptEnginePrivate::create(int type, const void *ptr)
                 result = newVariant(QVariant(type, ptr));
         }
     }
-    if (isObject(result) && isValid(info.prototype))
+    if (result.isObject() && info.prototype.isValid())
         result.setPrototype(info.prototype);
     return result;
 }

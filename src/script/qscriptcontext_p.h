@@ -63,26 +63,9 @@ public:
     inline void throwException();
     inline void recover();
 
-    static inline bool isValid(const QScriptValueImpl &v)
-        { return v.m_class && v.m_class->engine(); }
-    static inline bool isUndefined(const QScriptValueImpl &v)
-        { return v.m_class && (v.m_class->type() == QScript::UndefinedType); }
-    static inline bool isNull(const QScriptValueImpl &v)
-        { return v.m_class && (v.m_class->type() == QScript::NullType); }
-    static inline bool isNumber(const QScriptValueImpl &v)
-        { return v.m_class && (v.m_class->type() == QScript::NumberType); }
-    static inline bool isString(const QScriptValueImpl &v)
-        { return v.m_class && (v.m_class->type() == QScript::StringType); }
-    static inline bool isObject(const QScriptValueImpl &v)
-        { return v.m_class && (v.m_class->type() & QScript::ObjectBased); }
-    static inline QScript::Type type(const QScriptValueImpl &v)
-        { return v.m_class->type(); }
-    static inline void invalidate(QScriptValueImpl &v)
-        { v.m_class = 0; }
-
     inline bool isNumerical(const QScriptValueImpl &v) const
     {
-        switch (type(v)) {
+        switch (v.type()) {
         case QScript::BooleanType:
         case QScript::IntegerType:
         case QScript::NumberType:
@@ -97,8 +80,8 @@ public:
     {
         QScriptEnginePrivate *eng = enginePrivate();
 
-        if (type(lhs) == type(rhs)) {
-            switch (type(lhs)) {
+        if (lhs.type() == rhs.type()) {
+            switch (lhs.type()) {
             case QScript::UndefinedType:
             case QScript::NullType:
                 return true;
@@ -121,22 +104,22 @@ public:
                 return lhs.m_object_value == rhs.m_object_value || lhs.toVariant() == rhs.toVariant();
 
             default:
-                if (isObject(lhs))
+                if (lhs.isObject())
                     return lhs.m_object_value == rhs.m_object_value;
                 break;
             }
         }
 
-        if (isNull(lhs) && isUndefined(rhs))
+        if (lhs.isNull() && rhs.isUndefined())
             return true;
 
-        else if (isUndefined(lhs) && isNull(rhs))
+        else if (lhs.isUndefined() && rhs.isNull())
             return true;
 
-        else if (isNumerical(lhs) && isString(rhs))
+        else if (isNumerical(lhs) && rhs.isString())
             return eng->convertToNativeDouble(lhs) == eng->convertToNativeDouble(rhs);
 
-        else if (isString(lhs) && isNumerical(rhs))
+        else if (lhs.isString() && isNumerical(rhs))
             return eng->convertToNativeString(lhs) == eng->convertToNativeString(rhs);
 
         return eq_cmp_helper(lhs, rhs, eng);
@@ -144,17 +127,17 @@ public:
 
     bool eq_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng)
     {
-        if (isObject(lhs) && ! isNull(rhs)) {
+        if (lhs.isObject() && ! rhs.isNull()) {
             lhs = eng->toPrimitive(lhs);
 
-            if (isValid(lhs) && ! isObject(lhs))
+            if (lhs.isValid() && ! lhs.isObject())
                 return eq_cmp(lhs, rhs);
         }
 
-        else if (isObject(rhs) && ! isNull(lhs)) {
+        else if (rhs.isObject() && ! lhs.isNull()) {
             rhs = eng->toPrimitive(rhs);
 
-            if (isValid(rhs) && ! isObject(rhs))
+            if (rhs.isValid() && ! rhs.isObject())
                 return eq_cmp(lhs, rhs);
         }
 
@@ -165,8 +148,8 @@ public:
     {
         QScriptEnginePrivate *eng = enginePrivate();
 
-        if (type(lhs) == type(rhs)) {
-            switch (type(lhs)) {
+        if (lhs.type() == rhs.type()) {
+            switch (lhs.type()) {
             case QScript::UndefinedType:
             case QScript::NullType:
                 return false;
@@ -193,13 +176,13 @@ public:
 
     bool lt_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng)
     {
-        if (isObject(lhs))
+        if (lhs.isObject())
             lhs = eng->toPrimitive(lhs, QScriptValue::NumberTypeHint);
 
-        if (isObject(rhs))
+        if (rhs.isObject())
             rhs = eng->toPrimitive(rhs, QScriptValue::NumberTypeHint);
 
-        if (isString(lhs) && isString(rhs))
+        if (lhs.isString() && rhs.isString())
             return eng->convertToNativeString(lhs) < eng->convertToNativeString(rhs);
 
         qsreal n1 = eng->convertToNativeDouble(lhs);
@@ -211,8 +194,8 @@ public:
     {
         QScriptEnginePrivate *eng = enginePrivate();
 
-        if (type(lhs) == type(rhs)) {
-            switch (type(lhs)) {
+        if (lhs.type() == rhs.type()) {
+            switch (lhs.type()) {
             case QScript::UndefinedType:
             case QScript::NullType:
                 return true;
@@ -239,13 +222,13 @@ public:
 
     bool le_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng)
     {
-        if (isObject(lhs))
+        if (lhs.isObject())
             lhs = eng->toPrimitive(lhs, QScriptValue::NumberTypeHint);
 
-        if (isObject(rhs))
+        if (rhs.isObject())
             rhs = eng->toPrimitive(rhs, QScriptValue::NumberTypeHint);
 
-        if (isString(lhs) && isString(rhs))
+        if (lhs.isString() && rhs.isString())
             return eng->convertToNativeString(lhs) <= eng->convertToNativeString(rhs);
 
         qsreal n1 = eng->convertToNativeDouble(lhs);
@@ -255,10 +238,10 @@ public:
 
     inline static bool strict_eq_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
     {
-        if (type(lhs) != type(rhs))
+        if (lhs.type() != rhs.type())
             return false;
 
-        switch (type(lhs)) {
+        switch (lhs.type()) {
         case QScript::UndefinedType:
         case QScript::NullType:
             return true;
@@ -283,7 +266,7 @@ public:
             return lhs.m_object_value == rhs.m_object_value || lhs.toVariant() == rhs.toVariant();
 
         default:
-            if (isObject(lhs))
+            if (lhs.isObject())
                 return lhs.m_object_value == rhs.m_object_value;
             break;
         }
@@ -387,11 +370,11 @@ inline void QScriptContextPrivate::init(QScriptContext *parent)
     abstractSyntaxTree = 0;
     iPtr = firstInstruction = lastInstruction = 0;
     stackPtr = tempStack = (parent != 0) ? parent->d_func()->stackPtr : 0;
-    invalidate(m_activation);
-    invalidate(m_thisObject);
-    invalidate(m_result);
-    invalidate(m_scopeChain);
-    invalidate(m_callee);
+    m_activation.invalidate();
+    m_thisObject.invalidate();
+    m_result.invalidate();
+    m_scopeChain.invalidate();
+    m_callee.invalidate();
     currentLine = 0;
     currentColumn = 0;
     errorLineNumber = 0;
