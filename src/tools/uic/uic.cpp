@@ -114,14 +114,14 @@ void Uic::writeCopyrightHeader(DomUI *ui)
     if (comment.size())
         out << "/*\n" << comment << "\n*/\n\n";
 
-	out << "/********************************************************************************\n";
-	out << "** Form generated from reading ui file '" << QFileInfo(opt.inputFile).fileName() << "'\n";
-	out << "**\n";
-	out << "** Created: " << QDateTime::currentDateTime().toString() << "\n";
-	out << "**      " << QString::fromLatin1("by: Qt User Interface Compiler version %1\n").arg(QLatin1String(QT_VERSION_STR));
-	out << "**\n";
-	out << "** WARNING! All changes made in this file will be lost when recompiling ui file!\n";
-	out << "********************************************************************************/\n\n";
+        out << "/********************************************************************************\n";
+        out << "** Form generated from reading ui file '" << QFileInfo(opt.inputFile).fileName() << "'\n";
+        out << "**\n";
+        out << "** Created: " << QDateTime::currentDateTime().toString() << "\n";
+        out << "**      " << QString::fromLatin1("by: Qt User Interface Compiler version %1\n").arg(QLatin1String(QT_VERSION_STR));
+        out << "**\n";
+        out << "** WARNING! All changes made in this file will be lost when recompiling ui file!\n";
+        out << "********************************************************************************/\n\n";
 }
 
 bool Uic::write(QIODevice *in)
@@ -204,10 +204,11 @@ bool Uic::write(DomUI *ui)
 
     info.acceptUI(ui);
     cWidgetsInfo.acceptUI(ui);
-    WriteIncludes(this).acceptUI(ui);
+    WriteIncludes writeIncludes(this);
+    writeIncludes.acceptUI(ui);
 
     Validator(this).acceptUI(ui);
-    WriteDeclaration(this).acceptUI(ui);
+    WriteDeclaration(this, writeIncludes.scriptsActivated()).acceptUI(ui);
 
     if (opt.headerProtection)
         writeHeaderProtectionEnd();

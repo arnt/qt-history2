@@ -42,7 +42,8 @@ static ClassInfoEntry qclass_lib_map[] = {
 
 WriteIncludes::WriteIncludes(Uic *uic)    :
     m_uic(uic),
-    m_output(uic->output())
+    m_output(uic->output()),
+    m_scriptsActivated(false)
 {
     for(const ClassInfoEntry *it = &qclass_lib_map[0]; it->klass != 0;  ++it) {
         QString newHeader = QLatin1String(it->module);
@@ -215,4 +216,12 @@ void WriteIncludes::writeHeaders(const OrderedSet &headers, bool global)
         }
     }
 }
+
+void WriteIncludes::acceptScripts(const DomScripts &, DomWidget *, const  DomWidgets &)
+{
+    insertIncludeForClass(QLatin1String("QScriptEngine"));
+    insertIncludeForClass(QLatin1String("QDebug"));
+    m_scriptsActivated = true;
+}
+
 } // namespace CPP

@@ -48,15 +48,49 @@ namespace {
             }
         }
     }
+
+    void writeScriptContextClass(const QString &indent, QTextStream &str) {
+         str << indent << "class ScriptContext\n"
+             << indent << "{\n"
+             << indent << "public:\n"
+             << indent << "    void run(const QString &script, QWidget *widget, const QWidgetList &childWidgets)\n"
+             << indent << "    {\n"
+             << indent << "        QScriptValue widgetObject =  scriptEngine.newQObject(widget);\n"
+             << indent << "        QScriptValue childWidgetArray = scriptEngine.newArray (childWidgets.size());\n"
+             << indent << "        for (int i = 0; i < childWidgets.size(); i++)\n"
+             << indent << "               childWidgetArray.setProperty(i, scriptEngine.newQObject(childWidgets[i]));\n"
+             << indent << "        scriptEngine.globalObject().setProperty(\"widget\", widgetObject);\n"
+             << indent << "        scriptEngine.globalObject().setProperty(\"childWidgets\", childWidgetArray);\n\n"
+             << indent << "        if (!scriptEngine.canEvaluate(script)) {\n"
+             << indent << "            qWarning() << \"Cannot evaluate script for \" << widget->objectName() << \": \" << script;\n"
+             << indent << "            return;\n"
+             << indent << "        }\n\n"
+             << indent << "        scriptEngine.evaluate(script);\n"
+             << indent << "        if (scriptEngine.hasUncaughtException ()) {\n"
+             << indent << "            qWarning() << \"An exception has occurred at line \" << scriptEngine.uncaughtExceptionLineNumber()\n"
+             << indent << "                       << \" of the script for \" << widget->objectName() << \": \" << engineError() << '\\n'\n"
+             << indent << "                       << script;\n"
+             << indent << "        }\n\n"
+             << indent << "    }\n\n"
+             << indent << "private:\n"
+             << indent << "    QString engineError()\n"
+             << indent << "    {\n"
+             << indent << "        QScriptValue error = scriptEngine.evaluate(\"Error\");\n"
+             << indent << "        return error.toString();\n"
+             << indent << "    }\n\n"
+             << indent << "    QScriptEngine scriptEngine;\n"
+             << indent << "};\n\n";
+    }
 }
 
 namespace CPP {
 
-WriteDeclaration::WriteDeclaration(Uic *uic)  :
+WriteDeclaration::WriteDeclaration(Uic *uic, bool activateScripts)  :
     m_uic(uic),
     m_driver(uic->driver()),
     m_output(uic->output()),
-    m_option(uic->option())
+    m_option(uic->option()),
+    m_activateScripts(activateScripts)
 {
 }
 
@@ -101,7 +135,7 @@ void WriteDeclaration::acceptUI(DomUI *node)
 
     m_output << "\n";
 
-    WriteInitialization(m_uic).acceptUI(node);
+    WriteInitialization(m_uic, m_activateScripts).acceptUI(node);
 
     if (node->elementImages()) {
         m_output << "\n"
@@ -114,6 +148,11 @@ void WriteDeclaration::acceptUI(DomUI *node)
             << m_option.indent << "};\n";
 
         WriteIconInitialization(m_uic).acceptUI(node);
+    }
+
+    if (m_activateScripts) {
+        m_output << "\nprivate:\n\n";
+        writeScriptContextClass(m_option.indent, m_output);
     }
 
     m_output << "};\n\n";

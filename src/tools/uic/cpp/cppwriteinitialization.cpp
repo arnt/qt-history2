@@ -100,6 +100,11 @@ namespace {
         void writeSetter(const QString &indent, const QString &varName,const QString &setter, Value v, QTextStream &str) {
             str << indent << varName << "->" << setter << '(' << v << ");\n";
         }
+
+    void writeSetupUIScriptVariableDeclarations(const QString &indent, QTextStream &str)  {
+        str << indent << "ScriptContext scriptContext;\n"
+            << indent << "QWidgetList childWidgets;\n";
+    }
 }
 
 namespace CPP {
@@ -293,12 +298,13 @@ void WriteInitialization::LayoutDefaultHandler::writeProperties(const QString &i
 }
 
 // ---  WriteInitialization
-WriteInitialization::WriteInitialization(Uic *uic) :
+WriteInitialization::WriteInitialization(Uic *uic, bool activateScripts) :
       m_uic(uic),
       m_driver(uic->driver()), m_output(uic->output()), m_option(uic->option()),
       m_delayedOut(&m_delayedInitialization, QIODevice::WriteOnly),
       m_refreshOut(&m_refreshInitialization, QIODevice::WriteOnly),
-      m_actionOut(&m_delayedActionInitialization, QIODevice::WriteOnly)
+      m_actionOut(&m_delayedActionInitialization, QIODevice::WriteOnly),
+      m_activateScripts(activateScripts)
 {
 }
 
@@ -335,6 +341,9 @@ void WriteInitialization::acceptUI(DomUI *node)
 
     m_output << m_option.indent << "void " << "setupUi(" << widgetClassName << " *" << varName << ")\n"
            << m_option.indent << "{\n";
+
+    if (m_activateScripts)
+        writeSetupUIScriptVariableDeclarations( m_option.indent, m_output);
 
     const QStringList connections = m_uic->databaseInfo()->connections();
     for (int i=0; i<connections.size(); ++i) {
@@ -2003,6 +2012,34 @@ void WriteInitialization::acceptImage(DomImage *image)
         return;
 
     m_registeredImages.insert(image->attributeName(), image);
+}
+
+void WriteInitialization::acceptScripts(const DomScripts &scripts, DomWidget *node, const  DomWidgets &childWidgets)
+{
+    // concatenate script
+    QString script;
+    foreach (const DomScript *domScript, scripts) {
+        const QString snippet = domScript->text();
+        if (!snippet.isEmpty()) {
+            script += snippet.trimmed();
+            script += QLatin1Char('\n');
+        }
+    }
+    if (script.isEmpty())
+        return;
+
+    // Build the list of children and insert call
+    m_output << m_option.indent << "childWidgets.clear();\n";
+    if (!childWidgets.empty()) {
+        m_output << m_option.indent <<  "childWidgets";
+        foreach (DomWidget *child, childWidgets) {
+            m_output << " << " << m_driver->findOrInsertWidget(child);
+        }
+        m_output << ";\n";
+    }
+    m_output << m_option.indent << "scriptContext.run(QString::fromUtf8("
+             << fixString(script, m_option.indent) << "), "
+             << m_driver->findOrInsertWidget(node) << ", childWidgets);\n";
 }
 
 } // namespace CPP

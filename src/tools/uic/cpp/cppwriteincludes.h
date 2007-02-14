@@ -34,6 +34,7 @@ struct WriteIncludes : public TreeWalker
     void acceptWidget(DomWidget *node);
     void acceptLayout(DomLayout *node);
     void acceptSpacer(DomSpacer *node);
+    void acceptScripts(const DomScripts &, DomWidget *, const DomWidgets &);
 
 //
 // custom widgets
@@ -46,6 +47,8 @@ struct WriteIncludes : public TreeWalker
 //
     void acceptIncludes(DomIncludes *node);
     void acceptInclude(DomInclude *node);
+
+    bool scriptsActivated() const { return m_scriptsActivated; }
 
 private:
     void add(const QString &className);
@@ -69,6 +72,7 @@ private:
     typedef QMap<QString, QString> StringMap;
     StringMap m_classToHeader;
     StringMap m_oldHeaderToNewHeader;
+    bool m_scriptsActivated;
 };
 
 } // namespace CPP

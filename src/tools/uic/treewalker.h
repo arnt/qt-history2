@@ -14,6 +14,8 @@
 #ifndef TREEWALKER_H
 #define TREEWALKER_H
 
+#include <QList>
+
 class DomUI;
 class DomLayoutDefault;
 class DomLayoutFunction;
@@ -52,6 +54,7 @@ class DomConnections;
 class DomConnection;
 class DomConnectionHints;
 class DomConnectionHint;
+class DomScript;
 
 struct TreeWalker
 {
@@ -79,6 +82,9 @@ struct TreeWalker
     virtual void acceptTime(DomTime *time);
     virtual void acceptDateTime(DomDateTime *dateTime);
     virtual void acceptProperty(DomProperty *property);
+    typedef QList<DomScript *> DomScripts;
+    typedef QList<DomWidget *> DomWidgets;
+    virtual void acceptScripts(const DomScripts &, DomWidget *node, const  DomWidgets &childWidgets);
     virtual void acceptImages(DomImages *images);
     virtual void acceptImage(DomImage *image);
     virtual void acceptIncludes(DomIncludes *includes);

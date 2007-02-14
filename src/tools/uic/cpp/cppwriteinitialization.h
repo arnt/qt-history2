@@ -58,13 +58,15 @@ struct WriteInitialization : public TreeWalker
     typedef QList<DomProperty*> DomPropertyList;
     typedef QHash<QString, DomProperty*> DomPropertyMap;
 
-    WriteInitialization(Uic *uic);
+    WriteInitialization(Uic *uic, bool activateScripts);
 
 //
 // widgets
 //
     void acceptUI(DomUI *node);
     void acceptWidget(DomWidget *node);
+    void acceptScripts(const DomScripts &, DomWidget *node, const  DomWidgets &childWidgets);
+
     void acceptLayout(DomLayout *node);
     void acceptLayoutItem(DomLayoutItem *node);
 
@@ -215,6 +217,7 @@ private:
 
     QString m_delayedActionInitialization;
     QTextStream m_actionOut;
+    const bool m_activateScripts;
 };
 
 } // namespace CPP
