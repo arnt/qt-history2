@@ -766,6 +766,7 @@ void tst_QAccessibility::relationTo()
 void tst_QAccessibility::navigateGeometric()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     static const int skip = 20; //speed the test up significantly
     static const double step = Q_PI / 180;
     QWidget *w = new QWidget(0, "Josef");
@@ -857,6 +858,7 @@ void tst_QAccessibility::navigateGeometric()
 
     delete iface;
     delete w;
+    }
     QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
@@ -866,6 +868,7 @@ void tst_QAccessibility::navigateGeometric()
 void tst_QAccessibility::navigateSlider()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     QSlider *slider = new QSlider(0, "Slidy");
     slider->show();
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(slider);
@@ -888,6 +891,8 @@ void tst_QAccessibility::navigateSlider()
 
     delete iface;
     delete slider;
+    }
+    QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
@@ -896,6 +901,7 @@ void tst_QAccessibility::navigateSlider()
 void tst_QAccessibility::navigateCovered()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     QWidget *w = new QWidget(0, "Harry");
     QWidget *w1 = new QWidget(w, "1");
     QWidget *w2 = new QWidget(w, "2");
@@ -991,6 +997,7 @@ void tst_QAccessibility::navigateCovered()
     delete iface1; iface1 = 0;
     delete iface2; iface2 = 0;
     delete w;
+    }
     QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
@@ -1000,6 +1007,7 @@ void tst_QAccessibility::navigateCovered()
 void tst_QAccessibility::navigateHierarchy()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     QWidget *w = new QWidget(0, "Hans");
     w->show();
     QWidget *w1 = new QWidget(w, "1");
@@ -1087,7 +1095,8 @@ void tst_QAccessibility::navigateHierarchy()
     delete target; target = 0;
 
     delete w;
-
+    }
+    QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
@@ -1096,6 +1105,7 @@ void tst_QAccessibility::navigateHierarchy()
 void tst_QAccessibility::navigateControllers()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     Q3VBox vbox;
     QSlider	slider(&vbox);
     QSpinBox	spinBox(&vbox);
@@ -1174,6 +1184,8 @@ void tst_QAccessibility::navigateControllers()
     delete acc_lcd1;
     delete acc_spinBox;
     delete acc_slider;
+    }
+    QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
@@ -1182,6 +1194,7 @@ void tst_QAccessibility::navigateControllers()
 void tst_QAccessibility::navigateLabels()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     Q3VBox vbox;
     Q3HBox hbox(&vbox);
 
@@ -1300,7 +1313,8 @@ void tst_QAccessibility::navigateLabels()
     delete acc_grandchild;
     delete acc_border;
     delete acc_lineedit3;
-
+    }
+    QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
@@ -2072,6 +2086,7 @@ void tst_QAccessibility::tabTest()
 void tst_QAccessibility::menuTest()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     QMainWindow mw;
     QMenu *file = mw.menuBar()->addMenu("&File");
     QMenu *fileNew = file->addMenu("&New...");
@@ -2203,6 +2218,7 @@ void tst_QAccessibility::menuTest()
 
     QTestAccessibility::clearEvents();
     mw.hide();
+    }
     QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
@@ -2266,6 +2282,7 @@ void tst_QAccessibility::doubleSpinBoxTest()
 void tst_QAccessibility::textEditTest()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     QTextEdit edit;
     QString text = "hello world\nhow are you today?\n";
     edit.setText(text);
@@ -2277,6 +2294,8 @@ void tst_QAccessibility::textEditTest()
     QCOMPARE(iface->text(QAccessible::Value, 2), QString("hello world"));
     QCOMPARE(iface->text(QAccessible::Value, 3), QString("how are you today?"));
     QCOMPARE(iface->text(QAccessible::Value, 4), QString());
+    }
+    QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
@@ -2285,6 +2304,7 @@ void tst_QAccessibility::textEditTest()
 void tst_QAccessibility::textBrowserTest()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     QTextBrowser textBrowser;
     QString text = QLatin1String("Hello world\nhow are you today?\n");
     textBrowser.setText(text);
@@ -2298,6 +2318,8 @@ void tst_QAccessibility::textBrowserTest()
     QCOMPARE(interface->text(QAccessible::Value, 2), QString("Hello world"));
     QCOMPARE(interface->text(QAccessible::Value, 3), QString("how are you today?"));
     QCOMPARE(interface->text(QAccessible::Value, 4), QString());
+    }
+    QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
@@ -2783,6 +2805,7 @@ void tst_QAccessibility::rubberBandTest()
 void tst_QAccessibility::abstractScrollAreaTest()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     QAbstractScrollArea abstractScrollArea;
 
     QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&abstractScrollArea);
@@ -2983,6 +3006,7 @@ void tst_QAccessibility::abstractScrollAreaTest()
     QCOMPARE(target->object(), verticalScrollBar);
     delete target;
     target = 0;
+    }
 
     QTestAccessibility::clearEvents();
 #else
