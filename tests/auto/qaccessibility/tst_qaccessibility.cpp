@@ -152,6 +152,7 @@ private slots:
     void dialTest();
     void rubberBandTest();
     void abstractScrollAreaTest();
+    void scrollAreaTest();
 
 private:
     QWidget *createGUI();
@@ -2796,6 +2797,7 @@ void tst_QAccessibility::rubberBandTest()
     QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&rubberBand);
     QVERIFY(interface);
     QCOMPARE(interface->role(0), QAccessible::Border);
+    delete interface;
     QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
@@ -3006,8 +3008,30 @@ void tst_QAccessibility::abstractScrollAreaTest()
     QCOMPARE(target->object(), verticalScrollBar);
     delete target;
     target = 0;
+
+    delete interface;
     }
 
+    QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
+void tst_QAccessibility::scrollAreaTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    {
+    QScrollArea scrollArea;
+    scrollArea.show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(&scrollArea);
+#endif
+    QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&scrollArea);
+    QVERIFY(interface);
+    QCOMPARE(interface->childCount(), 1); // The viewport.
+    delete interface;
+    }
     QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
