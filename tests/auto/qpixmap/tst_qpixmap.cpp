@@ -51,8 +51,11 @@ private slots:
 
     void mask();
     void bitmapMask();
-
     void cacheKey();
+
+#ifdef Q_WS_QWS
+    void convertFromImageNoDetach();
+#endif
 
 #ifdef Q_WS_WIN
     void toWinHBITMAP_data();
@@ -319,6 +322,27 @@ void tst_QPixmap::cacheKey()
     QVERIFY(pixmap2.cacheKey() != pixmap1.cacheKey());
     QVERIFY(pixmap1.cacheKey() == pixmap1_key);
 }
+
+#ifdef Q_WS_QWS
+void tst_QPixmap::convertFromImageNoDetach()
+{
+    //first get the screen format
+    QPixmap randomPixmap(10,10);
+    QImage::Format screenFormat = randomPixmap.toImage().format();
+    QVERIFY(screenFormat != QImage::Format_Invalid);
+
+    QImage orig(100,100, screenFormat);
+
+    QPixmap pix = QPixmap::fromImage(orig);
+    QImage copy = pix.toImage();
+
+    QVERIFY(copy.format() == screenFormat);
+
+    const QImage constOrig = orig;
+    const QImage constCopy = copy;
+    QVERIFY(constOrig.bits() == constCopy.bits());
+}
+#endif //Q_WS_QWS
 
 #ifdef Q_WS_WIN
 void tst_QPixmap::toWinHBITMAP_data()
