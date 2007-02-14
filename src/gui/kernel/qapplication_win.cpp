@@ -58,6 +58,24 @@
 #include <winable.h>
 #endif
 
+#ifndef FLASHW_STOP
+typedef struct {
+    UINT  cbSize;
+    HWND  hwnd;
+    DWORD dwFlags;
+    UINT  uCount;
+    DWORD dwTimeout;
+} FLASHWINFO, *PFLASHWINFO;
+#define FLASHW_STOP         0
+#define FLASHW_CAPTION      0x00000001
+#define FLASHW_TRAY         0x00000002
+#define FLASHW_ALL          (FLASHW_CAPTION | FLASHW_TRAY)
+#define FLASHW_TIMER        0x00000004
+#define FLASHW_TIMERNOFG    0x0000000C
+#endif /* FLASHW_STOP */
+typedef BOOL (WINAPI *PtrFlashWindowEx)(PFLASHWINFO pfwi);
+static PtrFlashWindowEx pFlashWindowEx = 0;
+
 #include <oleacc.h>
 #ifndef WM_GETOBJECT
 #define WM_GETOBJECT                    0x003D
@@ -1043,7 +1061,12 @@ void QApplication::beep()
 
 static void alert_widget(QWidget *widget, int duration)
 {
-    if (widget && !widget->isActiveWindow()) {
+    if (!pFlashWindowEx) {
+        QLibrary themeLib(QLatin1String("user32"));
+        pFlashWindowEx  = (PtrFlashWindowEx)themeLib.resolve("FlashWindowEx");
+    }
+    
+    if (pFlashWindowEx && widget && !widget->isActiveWindow()) {
         DWORD timeOut = GetCaretBlinkTime();
         if (timeOut <= 0)
             timeOut = 250;
@@ -1061,7 +1084,7 @@ static void alert_widget(QWidget *widget, int duration)
         info.dwTimeout = timeOut;
         info.uCount = flashCount;
 
-        FlashWindowEx(&info);
+        pFlashWindowEx(&info);
     }
 }
 
