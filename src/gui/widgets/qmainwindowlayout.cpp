@@ -946,8 +946,10 @@ QLayoutItem *QMainWindowLayout::takeAt(int index)
     int x = 0;
 
     if (QLayoutItem *ret = layoutState.takeAt(index, &x)) {
+#ifndef QT_NO_DOCKWIDGET
         if (QDockWidget *dw = qobject_cast<QDockWidget*>(ret->widget()))
             emit dw->dockLocationChanged(Qt::NoDockWidgetArea);
+#endif
         return ret;
     }
 
