@@ -69,8 +69,14 @@ static inline QWidget *mdiAreaNavigate(QWidget *area,
                                        QAccessible::RelationFlag relation, int entry)
 {
     const QMdiArea *mdiArea = qobject_cast<QMdiArea *>(area);
+#ifndef QT_NO_WORKSPACE
     const QWorkspace *workspace = qobject_cast<QWorkspace *>(area);
-    if (!mdiArea && !workspace)
+#endif
+    if (!mdiArea
+#ifndef QT_NO_WORKSPACE
+    && !workspace
+#endif
+    )
         return 0;
 
     QWidgetList windows;
@@ -78,8 +84,10 @@ static inline QWidget *mdiAreaNavigate(QWidget *area,
         foreach (QMdiSubWindow *window, mdiArea->subWindowList())
             windows.append(window);
     } else {
+#ifndef QT_NO_WORKSPACE
         foreach (QWidget *window, workspace->windowList())
             windows.append(window->parentWidget());
+#endif
     }
 
     if (windows.isEmpty() || entry < 1 || entry > windows.count())
@@ -120,12 +128,14 @@ static inline QWidget *mdiAreaNavigate(QWidget *area,
             break;
     }
 
+#ifndef QT_NO_WORKSPACE
     if (workspace) {
         foreach (QWidget *widget, workspace->windowList()) {
             if (widget->parentWidget() == target)
                 target = widget;
         }
     }
+#endif
     return target;
 }
 
@@ -690,6 +700,7 @@ QMdiSubWindow *QAccessibleMdiSubWindow::mdiSubWindow() const
 }
 
 // ======================= QAccessibleWorkspace ======================
+#ifndef QT_NO_WORKSPACE
 QAccessibleWorkspace::QAccessibleWorkspace(QWidget *widget)
     : QAccessibleWidgetEx(widget, LayeredPane)
 {
@@ -764,6 +775,7 @@ QWorkspace *QAccessibleWorkspace::workspace() const
 {
     return static_cast<QWorkspace *>(object());
 }
+#endif
 
 
 #ifndef QT_NO_DIALOGBUTTONBOX

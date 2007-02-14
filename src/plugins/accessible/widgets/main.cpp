@@ -239,8 +239,10 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleMdiArea(widget);
     } else if (classname == QLatin1String("QMdiSubWindow")) {
         iface = new QAccessibleMdiSubWindow(widget);
+#ifndef QT_NO_WORKSPACE
     } else if (classname == QLatin1String("QWorkspace")) {
         iface = new QAccessibleWorkspace(widget);
+#endif
     } else if (classname == QLatin1String("QDialogButtonBox")) {
         iface = new QAccessibleDialogButtonBox(widget);
 #ifndef QT_NO_DIAL

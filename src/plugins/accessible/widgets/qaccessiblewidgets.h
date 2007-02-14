@@ -118,6 +118,7 @@ protected:
     QMdiSubWindow *mdiSubWindow() const;
 };
 
+#ifndef QT_NO_WORKSPACE
 class QAccessibleWorkspace : public QAccessibleWidgetEx
 {
 public:
@@ -132,6 +133,7 @@ public:
 protected:
     QWorkspace *workspace() const;
 };
+#endif
 
 class QAccessibleDialogButtonBox : public QAccessibleWidgetEx
 {
