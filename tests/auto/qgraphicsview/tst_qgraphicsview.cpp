@@ -102,6 +102,7 @@ private slots:
     void resizeAnchor();
     void viewportUpdateMode();
     void acceptDrops();
+    void optimizationFlags();
 };
 
 void tst_QGraphicsView::construction()
@@ -1903,6 +1904,32 @@ void tst_QGraphicsView::acceptDrops()
     // Switching the view to not accept drops.
     view.setAcceptDrops(false);
     QVERIFY(!view.viewport()->acceptDrops());
+}
+
+void tst_QGraphicsView::optimizationFlags()
+{
+    QGraphicsView view;
+    QVERIFY(!view.optimizationFlags());
+
+    view.setOptimizationFlag(QGraphicsView::DontClipPainter);
+    QVERIFY(view.optimizationFlags() & QGraphicsView::DontClipPainter);
+    view.setOptimizationFlag(QGraphicsView::DontClipPainter, false);
+    QVERIFY(!view.optimizationFlags());
+
+    view.setOptimizationFlag(QGraphicsView::DontSavePainterState);
+    QVERIFY(view.optimizationFlags() & QGraphicsView::DontSavePainterState);
+    view.setOptimizationFlag(QGraphicsView::DontSavePainterState, false);
+    QVERIFY(!view.optimizationFlags());
+
+    view.setOptimizationFlag(QGraphicsView::DontAdjustForAntialiasing);
+    QVERIFY(view.optimizationFlags() & QGraphicsView::DontAdjustForAntialiasing);
+    view.setOptimizationFlag(QGraphicsView::DontAdjustForAntialiasing, false);
+    QVERIFY(!view.optimizationFlags());
+
+    view.setOptimizationFlags(QGraphicsView::DontAdjustForAntialiasing
+                              | QGraphicsView::DontClipPainter);
+    QCOMPARE(view.optimizationFlags(), QGraphicsView::OptimizationFlags(QGraphicsView::DontAdjustForAntialiasing
+             | QGraphicsView::DontClipPainter));
 }
 
 QTEST_MAIN(tst_QGraphicsView)
