@@ -25,6 +25,8 @@
 #ifndef UILIBPROPERTIES_H
 #define UILIBPROPERTIES_H
 
+#include <QtDesigner/uilib_global.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QMetaProperty>
 #include <QtGui/QWidget>
@@ -37,11 +39,12 @@ namespace QFormInternal
 class QAbstractFormBuilder;
 class DomProperty;
 
-DomProperty *variantToDomProperty(const QString &propertyName, const QVariant &value, bool translateString);
-DomProperty *variantToDomProperty(QAbstractFormBuilder *abstractFormBuilder, QObject *object, const QString &propertyName, const QVariant &value);
+QDESIGNER_UILIB_EXPORT DomProperty *variantToDomProperty(const QString &propertyName, const QVariant &value, bool translateString);
+QDESIGNER_UILIB_EXPORT DomProperty *variantToDomProperty(QAbstractFormBuilder *abstractFormBuilder, QObject *object, const QString &propertyName, const QVariant &value);
 
-QVariant domPropertyToVariant(const DomProperty *property);
-QVariant domPropertyToVariant(QAbstractFormBuilder *abstractFormBuilder, const QMetaObject *meta, const  DomProperty *property);
+
+QDESIGNER_UILIB_EXPORT QVariant domPropertyToVariant(const DomProperty *property);
+QDESIGNER_UILIB_EXPORT QVariant domPropertyToVariant(QAbstractFormBuilder *abstractFormBuilder, const QMetaObject *meta, const  DomProperty *property);
 
 // This class exists to provide meta information
 // for enumerations only.

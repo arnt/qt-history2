@@ -60,12 +60,16 @@ public:
     
     const PropertyComments &comments() const { return m_comments; }
 
+    QString script() const;
+    void setScript(const QString &script);
+
 private:
     QObject *m_object;
     TabOrder m_tabOrder;
     PropertyComments m_comments;
     bool m_enabled;
     QString m_customClassName;
+    QString m_script;
 };
 
 class QDESIGNER_SHARED_EXPORT MetaDataBase: public QDesignerMetaDataBaseInterface

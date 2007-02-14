@@ -68,6 +68,10 @@ class DomUI;
 class DomWidget;
 class DomResourcePixmap;
 
+#ifndef QT_FORMBUILDER_NO_SCRIPT
+class QFormScriptRunner;
+#endif    
+
 class QDESIGNER_UILIB_EXPORT QAbstractFormBuilder
 {
 public:
@@ -170,6 +174,9 @@ protected:
     DomBrush *saveBrush(const QBrush &brush);
 
     void reset();
+#ifndef QT_FORMBUILDER_NO_SCRIPT
+    QFormScriptRunner *formScriptRunner() const;
+#endif
 //
 //  utils
 //

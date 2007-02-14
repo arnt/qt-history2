@@ -20,6 +20,9 @@
 #include "spacer_widget_p.h"
 #include "textpropertyeditor_p.h"
 #include "promotiontaskmenu_p.h"
+#include "metadatabase_p.h"
+#include "scriptdialog_p.h"
+#include "scriptcommand_p.h"
 
 #include <shared_enums_p.h>
 
@@ -114,6 +117,7 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent) :
     m_separator(createSeparator()),
     m_separator2(createSeparator()),
     m_separator3(createSeparator()),
+    m_separator4(createSeparator()),
     m_changeObjectNameAction(createAction(tr("Change objectName..."), this, SLOT(changeObjectName()))),
     m_changeToolTip(createAction(tr("Change toolTip..."), this, SLOT(changeToolTip()))),
     m_changeWhatsThis(createAction(tr("Change whatsThis..."), this, SLOT(changeWhatsThis()))),
@@ -122,6 +126,7 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent) :
     m_addToolBar(createAction(tr("Add Tool Bar"), this, SLOT(addToolBar()))),
     m_addStatusBar(createAction(tr("Create Status Bar"), this, SLOT(createStatusBar()))),
     m_removeStatusBar(createAction(tr("Remove Status Bar"), this, SLOT(removeStatusBar()))),
+    m_changeScript(createAction(tr("Change script..."), this, SLOT(changeScript()))),
     m_promotionTaskMenu(new PromotionTaskMenu(widget, PromotionTaskMenu::ModeMultiSelection, this))
 {
     Q_ASSERT(qobject_cast<QDesignerFormWindowInterface*>(widget) == 0);
@@ -247,7 +252,11 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
     actions.append(m_changeStyleSheet);
 
     m_promotionTaskMenu->addActions(formWindow, PromotionTaskMenu::LeadingSeparator, actions);
-
+    
+    if (!isMainContainer) {
+        actions.append(m_separator4);
+        actions.append(m_changeScript);
+    }
     return actions;
 }
 
@@ -329,5 +338,46 @@ void QDesignerTaskMenu::changeStyleSheet()
         StyleSheetEditorDialog dlg(fw, m_widget);
         dlg.exec();
     }
+}
+    
+void QDesignerTaskMenu::changeScript()
+{
+    QDesignerFormWindowInterface *fw = formWindow();
+    if (!fw)
+        return;
+
+    MetaDataBase *metaDataBase = qobject_cast<MetaDataBase*>(fw->core()->metaDataBase());
+    if (!metaDataBase)
+        return;
+
+    const MetaDataBaseItem* item = metaDataBase->item(m_widget);
+    if (!item)
+        return;
+    
+    const QString oldScript = item->script();
+    QString newScript = oldScript;
+   
+    ScriptDialog scriptDialog(fw);
+    if (!scriptDialog.editScript(newScript))
+        return;
+    
+    // compile list of selected objects
+    ScriptCommand::ObjectList objects;
+    objects += m_widget;
+
+    const QDesignerFormWindowCursorInterface *cursor = fw->cursor();
+    const int selectionCount =  cursor->selectedWidgetCount();
+    for (int i = 0; i < selectionCount; i++) {
+        QWidget *w = cursor->selectedWidget(i);
+        if (w != m_widget)
+             objects += w;
+    }
+    ScriptCommand *scriptCommand = new ScriptCommand(fw);
+    if (!scriptCommand->init(objects, newScript)) {
+        delete scriptCommand;
+        return;
+    }
+    
+    fw->commandHistory()->push(scriptCommand); 
 }
 } // namespace qdesigner_internal

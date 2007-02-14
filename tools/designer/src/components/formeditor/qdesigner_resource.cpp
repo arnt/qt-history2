@@ -406,7 +406,19 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 
 
     ui_widget->setAttributeClass(className); // fix the class name
-    applyExtensionDataFromDOM(core(), ui_widget, w);
+    applyExtensionDataFromDOM(this, core(), ui_widget, w, true);
+
+    // store user-defined scripts
+    if (MetaDataBase *metaDataBase = qobject_cast<MetaDataBase *>(core()->metaDataBase())) {
+        const DomScripts domScripts = ui_widget->elementScript();
+        if (!domScripts.empty()) {
+            foreach (const DomScript *script, domScripts) {
+                if (script->hasAttributeSource() && script->attributeSource() == QLatin1String("designer")) {
+                    metaDataBase->item(w)->setScript(script->text());
+                }
+            }
+        }
+    }
 
     return w;
 }
@@ -649,8 +661,9 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         if (widgetInfo->name() != w->attributeClass())
             w->setAttributeClass(widgetInfo->name());
     }
-    addExtensionDataToDOM(core(), w, widget);
+    addExtensionDataToDOM(this, core(), w, widget);
 
+    addScripts(widget, w);
     return w;
 }
 
@@ -1546,5 +1559,21 @@ QActionGroup *QDesignerResource::createActionGroup(QObject *parent, const QStrin
 void QDesignerResource::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
     QAbstractFormBuilder::loadExtraInfo(ui_widget, widget, parentWidget);
+}
+    
+// Add scripts (except extensions) belonging to QWidget to DomWidget.
+void QDesignerResource::addScripts(QWidget *w, DomWidget *ui_widget)
+{
+    QDesignerFormEditorInterface *core = m_formWindow->core();
+    DomScripts domScripts = ui_widget->elementScript();
+    // Look up user-defined scripts of designer
+    if (const qdesigner_internal::MetaDataBase *metaDataBase = qobject_cast<const qdesigner_internal::MetaDataBase *>(core->metaDataBase())) {
+        if (const qdesigner_internal::MetaDataBaseItem *metaItem = metaDataBase->item(w)) {
+            addScript(metaItem->script(), ScriptDesigner, domScripts);
+        }
+    }
+    // Look up matching custom widgets for scripts
+    addScript(customWidgetScript(core, w), ScriptCustomWidgetPlugin, domScripts);
+    ui_widget->setElementScript(domScripts);
 }
 }

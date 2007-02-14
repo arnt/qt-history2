@@ -16,21 +16,21 @@
 #include "dynamicpropertysheet.h"
 #include "qsimpleresource_p.h"
 
+#include <ui4_p.h>
 // sdk
-#include <QtDesigner/extrainfo.h>
 #include <QtDesigner/container.h>
 #include <QtDesigner/customwidget.h>
 #include <QtDesigner/propertysheet.h>
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerWidgetFactoryInterface>
+#include <QtDesigner/QDesignerCustomWidgetInterface>
 #include <QtDesigner/abstracticoncache.h>
-#include "ui4_p.h"
 
 // shared
 #include <resourcefile_p.h>
-#include <widgetfactory_p.h>
-#include <pluginmanager_p.h>
+#include <scripterrordialog_p.h>
 
 #include <QtGui/QWidget>
 #include <QtGui/QMenu>
@@ -45,12 +45,34 @@
 #include <QtCore/QBuffer>
 #include <QtCore/qdebug.h>
 
+static QString summarizeScriptErrors(const QFormScriptRunner::Errors &errors) 
+{
+    QString rc =  QObject::tr("Script errors occurred:");
+    foreach (QFormScriptRunner::Error error, errors) {
+        rc += QLatin1Char('\n');
+        rc += error.errorMessage;
+    }
+    return rc;
+}
+ 
 namespace qdesigner_internal {
 
-QDesignerFormBuilder::QDesignerFormBuilder(QDesignerFormEditorInterface *core)
-    : m_core(core)
+QDesignerFormBuilder::QDesignerFormBuilder(QDesignerFormEditorInterface *core, Mode mode) : 
+    m_core(core),
+    m_mode(mode)
 {
     Q_ASSERT(m_core);
+    // Disable scripting in the editors.
+    QFormScriptRunner::Options options = formScriptRunner()->options();
+    switch (m_mode) {
+    case UseContainerExtension:
+        options |= QFormScriptRunner::DisableScripts;
+        break;
+    case RunScripts:
+        options |= QFormScriptRunner::DisableWarnings;
+        break;
+    }
+    formScriptRunner()-> setOptions(options);
 }
 
 QWidget *QDesignerFormBuilder::createWidgetFromContents(const QString &contents, QWidget *parentWidget)
@@ -60,6 +82,11 @@ QWidget *QDesignerFormBuilder::createWidgetFromContents(const QString &contents,
     return load(&buffer, parentWidget);
 }
 
+QWidget *QDesignerFormBuilder::create(DomUI *ui, QWidget *parentWidget)
+{
+    m_customWidgetsWithScript.clear();
+    return QFormBuilder::create(ui, parentWidget);
+}
 
 QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name)
 {
@@ -75,20 +102,40 @@ QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *
         widget = core()->widgetFactory()->createWidget(widgetName, parentWidget);
     }
 
-    if (widget)
+    if (widget) {
         widget->setObjectName(name);
+        if (QSimpleResource::hasCustomWidgetScript(m_core, widget))
+            m_customWidgetsWithScript.insert(widget);
+    }
 
     return widget;
 }
 
+bool QDesignerFormBuilder::addItemContainerExtension(QWidget *widget, QWidget *parentWidget)
+{ 
+    QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget);
+    if (!container)
+        return false;
+
+    container->addWidget(widget);
+    return true;
+}
+
 bool QDesignerFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    if (! QFormBuilder::addItem(ui_widget, widget, parentWidget) || qobject_cast<QMainWindow*> (parentWidget)) {
-        if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget))
-            container->addWidget(widget);
-    }
+    // Use container extension or rely on scripts unless main window.
+    if (QFormBuilder::addItem(ui_widget, widget, parentWidget))
+        return true;
 
-    return true;
+    // Use for mainwindow at any event
+    if (qobject_cast<const QMainWindow*>(parentWidget))
+        return addItemContainerExtension(widget, parentWidget);
+
+    // Assume the script populates the container
+    if (m_mode ==  RunScripts && m_customWidgetsWithScript.contains(parentWidget))
+         return true;
+
+    return addItemContainerExtension(widget, parentWidget);;
 }
 
 bool QDesignerFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
@@ -139,14 +186,15 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
 DomWidget *QDesignerFormBuilder::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive)
 {
     DomWidget *ui_widget = QFormBuilder::createDom(widget, ui_parentWidget, recursive);
-    QSimpleResource::addExtensionDataToDOM(m_core, ui_widget, widget);
+    QSimpleResource::addExtensionDataToDOM(this, m_core, ui_widget, widget);
     return ui_widget;
 }
 
 QWidget *QDesignerFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
     QWidget *widget = QFormBuilder::create(ui_widget, parentWidget);
-    QSimpleResource::applyExtensionDataFromDOM(m_core, ui_widget, widget);
+    // Do not apply state if scripts are to be run in preview mode
+    QSimpleResource::applyExtensionDataFromDOM(this, m_core, ui_widget, widget, m_mode != RunScripts);
     return widget;
 }
 
@@ -162,8 +210,10 @@ void QDesignerFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, 
 
 QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface *fw,
                                              const QString &styleName,
+                                             ScriptErrors *scriptErrors, 
                                              QString *errorMessage)
 {
+    scriptErrors->clear();
     // style
     QStyle *style = 0;
     if (!styleName.isEmpty()) {
@@ -173,19 +223,25 @@ QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface 
             return 0;
         }
     }
-          
+
     // load
-    QDesignerFormBuilder builder(fw->core());
+    QDesignerFormBuilder builder(fw->core(), RunScripts);
     builder.setWorkingDirectory(fw->absoluteDir());
 
     QByteArray bytes = fw->contents().toUtf8();
     QBuffer buffer(&bytes);
 
-
     QWidget *widget = builder.load(&buffer, 0);
     if (!widget) { // Shouldn't happen
         *errorMessage = QObject::tr("The preview failed to build.");
         return  0;
+    }
+    // Check for script errors
+    *scriptErrors = builder.formScriptRunner()->errors();
+    if (!scriptErrors->empty()) {
+        *errorMessage = summarizeScriptErrors(*scriptErrors);
+        delete widget;
+        return  0;        
     }
 
     // Apply style stored in action if any
@@ -205,12 +261,21 @@ QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface 
     
 QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface *fw, const QString &styleName) 
 {
+    ScriptErrors scriptErrors;
     QString errorMessage;
-    QWidget *widget = createPreview(fw, styleName, &errorMessage);
+    QWidget *widget = createPreview(fw, styleName, &scriptErrors, &errorMessage);
     if (!widget) {
-        QMessageBox::critical(fw->core()->topLevel(), QObject::tr("Designer"), errorMessage);
+        // Display Script errors or message box
+        QWidget *dialogParent = fw->core()->topLevel();
+        if (scriptErrors.empty()) {
+            QMessageBox::critical(dialogParent, QObject::tr("Designer"), errorMessage);
+        } else {
+            ScriptErrorDialog scriptErrorDialog(scriptErrors, dialogParent);
+            scriptErrorDialog.exec();
+        }
         return 0;
     }    
     return widget;
 }
+
 } // namespace qdesigner_internal

@@ -15,7 +15,7 @@
 #include "ui4_p.h"
 #include <spacer_widget_p.h>
 #include <qdesigner_formbuilder_p.h>
-
+#include <formscriptrunner_p.h>
 
 namespace qdesigner_internal {
 /*******************************************************************************
@@ -25,8 +25,7 @@ namespace qdesigner_internal {
 class WidgetBoxResource : public QDesignerFormBuilder
 {
 public:
-    WidgetBoxResource(QDesignerFormEditorInterface *core)
-        : QDesignerFormBuilder(core) {}
+    WidgetBoxResource(QDesignerFormEditorInterface *core);
 
     virtual QWidget *createWidget(DomWidget *ui_widget, QWidget *parentWidget)
     { return QDesignerFormBuilder::createWidget(ui_widget, parentWidget); }
@@ -38,6 +37,12 @@ protected:
     virtual QWidget *create(DomWidget *ui_widget, QWidget *parents);
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
 };
+    
+WidgetBoxResource::WidgetBoxResource(QDesignerFormEditorInterface *core) :
+    QDesignerFormBuilder(core, UseContainerExtension)    
+{
+}
+
 
 QWidget *WidgetBoxResource::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name)
 {

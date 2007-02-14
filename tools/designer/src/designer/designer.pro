@@ -1,6 +1,6 @@
 
 DESTDIR = ../../../../bin
-QT += xml network
+QT += xml network script
 CONFIG += qt assistant
 build_all:!build_pass {
     CONFIG -= build_all

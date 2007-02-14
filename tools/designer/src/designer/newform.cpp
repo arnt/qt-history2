@@ -158,7 +158,7 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
 
     QFile f(fileName);
     if (f.open(QFile::ReadOnly)) {
-        qdesigner_internal::QDesignerFormBuilder formBuilder(workbench()->core());
+        qdesigner_internal::QDesignerFormBuilder formBuilder(workbench()->core(), qdesigner_internal::QDesignerFormBuilder::UseContainerExtension);
 
         QWidget *fake = new QWidget(0);
 

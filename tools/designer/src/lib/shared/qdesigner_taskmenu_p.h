@@ -71,12 +71,14 @@ private slots:
     void addToolBar();
     void createStatusBar();
     void removeStatusBar();
+    void changeScript();
 
 private:
     QPointer<QWidget> m_widget;
     QAction *m_separator;
     QAction *m_separator2;
     QAction *m_separator3;
+    QAction *m_separator4;
     QAction *m_changeObjectNameAction;
     QAction *m_changeToolTip;
     QAction *m_changeWhatsThis;
@@ -86,6 +88,7 @@ private:
     QAction *m_addToolBar;
     QAction *m_addStatusBar;
     QAction *m_removeStatusBar;
+    QAction *m_changeScript;
     mutable PromotionTaskMenu* m_promotionTaskMenu;
 };
 

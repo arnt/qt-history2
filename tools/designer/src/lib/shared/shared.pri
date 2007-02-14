@@ -63,7 +63,11 @@ HEADERS += \
     $$PWD/shared_enums_p.h \
     $$PWD/textpropertyeditor_p.h \
     $$PWD/propertylineedit_p.h \
-    $$PWD/promotiontaskmenu_p.h
+    $$PWD/promotiontaskmenu_p.h \
+    $$PWD/scripterrordialog_p.h \
+    $$PWD/scriptcommand_p.h \
+    $$PWD/scriptdialog_p.h \
+    $$PWD/qscripthighlighter_p.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -115,4 +119,9 @@ SOURCES += \
     $$PWD/csshighlighter.cpp \
     $$PWD/textpropertyeditor.cpp \
     $$PWD/propertylineedit.cpp \
-    $$PWD/promotiontaskmenu.cpp
+    $$PWD/promotiontaskmenu.cpp \
+    $$PWD/scripterrordialog.cpp \
+    $$PWD/scriptcommand.cpp \
+    $$PWD/scriptdialog.cpp \
+    $$PWD/qscripthighlighter.cpp
+

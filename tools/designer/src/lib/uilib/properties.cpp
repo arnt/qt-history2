@@ -272,7 +272,7 @@ QVariant domPropertyToVariant(const DomProperty *p)
         return QVariant(p->elementStringList()->elementString());
 
     default:
-        qWarning() << "variantToDomProperty:" << p->kind() << " not implemented yet!";
+        qWarning() << "domPropertyToVariant:" << p->kind() << " not implemented yet!";
         break;
     }
 
@@ -533,13 +533,10 @@ DomProperty *variantToDomProperty(const QString &pname, const QVariant &v, bool 
 }
 
 // Convert complex variant types to DOM properties with the help of  QAbstractFormBuilder
+// Does not perform a check using  QAbstractFormBuilder::checkProperty().
 DomProperty *variantToDomProperty(QAbstractFormBuilder *afb, QObject *obj,
                                   const QString &pname, const QVariant &v)
 {
-    if (!afb->checkProperty(obj, pname)) {
-        return 0;
-    }
-
     DomProperty *dom_prop = new DomProperty();
     dom_prop->setAttributeName(pname);
 

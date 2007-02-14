@@ -27,7 +27,8 @@ HEADERS += $$PWD/abstractformeditor.h \
     $$PWD/abstractwidgetbox.h \
     $$PWD/layoutdecoration.h \
     $$PWD/abstractdnditem.h \
-    $$PWD/abstractpromotioninterface.h
+    $$PWD/abstractpromotioninterface.h \
+    $$PWD/script.h
 
 SOURCES += $$PWD/abstractformeditor.cpp \
     $$PWD/abstractformeditorplugin.cpp \
@@ -45,4 +46,5 @@ SOURCES += $$PWD/abstractformeditor.cpp \
     $$PWD/abstractactioneditor.cpp \
     $$PWD/abstractwidgetbox.cpp \
     $$PWD/extrainfo.cpp \
-    $$PWD/abstractpromotioninterface.cpp
+    $$PWD/abstractpromotioninterface.cpp \
+    $$PWD/script.cpp

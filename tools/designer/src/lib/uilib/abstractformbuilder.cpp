@@ -14,12 +14,16 @@
 #include "abstractformbuilder.h"
 #include "ui4_p.h"
 #include "properties_p.h"
+#ifndef QT_FORMBUILDER_NO_SCRIPT
+#    include "formscriptrunner_p.h"
+#endif
 
 #include <QtCore/QVariant>
 #include <QtCore/QMetaProperty>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/QQueue>
+#include <QtCore/QHash>
 
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
@@ -67,6 +71,14 @@ public:
     friend class QAbstractFormBuilder;
 #endif
 };
+
+#ifndef QT_FORMBUILDER_NO_SCRIPT
+namespace {
+    // Work around BC
+    typedef QHash<const QAbstractFormBuilder *, QFormScriptRunner *> BuilderScriptRunnerHash;
+    Q_GLOBAL_STATIC(BuilderScriptRunnerHash, g_BuilderScriptRunners)
+}
+#endif
 
 /*!
     \class QAbstractFormBuilder
@@ -124,17 +136,25 @@ public:
 
 /*!
     Constructs a new form builder.*/
-QAbstractFormBuilder::QAbstractFormBuilder()
+QAbstractFormBuilder::QAbstractFormBuilder() :
+    m_defaultMargin(INT_MIN),
+    m_defaultSpacing(INT_MIN)
 {
-    m_defaultMargin = INT_MIN;
-    m_defaultSpacing = INT_MIN;
+#ifndef QT_FORMBUILDER_NO_SCRIPT
+    g_BuilderScriptRunners()->insert(this, new QFormScriptRunner);
+#endif
 }
 
 /*!
     Destroys the form builder.*/
 QAbstractFormBuilder::~QAbstractFormBuilder()
 {
+#ifndef QT_FORMBUILDER_NO_SCRIPT
+    BuilderScriptRunnerHash::iterator it = g_BuilderScriptRunners()->find(this);
+    g_BuilderScriptRunners()->erase(it);
+#endif
 }
+
 
 /*!
     \fn QWidget *QAbstractFormBuilder::load(QIODevice *device, QWidget *parent)
@@ -162,6 +182,9 @@ QWidget *QAbstractFormBuilder::load(QIODevice *dev, QWidget *parentWidget)
 */
 QWidget *QAbstractFormBuilder::create(DomUI *ui, QWidget *parentWidget)
 {
+#ifndef QT_FORMBUILDER_NO_SCRIPT
+    formScriptRunner()->clearErrors();
+#endif
     if (const DomLayoutDefault *def = ui->elementLayoutDefault()) {
         m_defaultMargin = def->hasAttributeMargin() ? def->attributeMargin() : INT_MIN;
         m_defaultSpacing = def->hasAttributeSpacing() ? def->attributeSpacing() : INT_MIN;
@@ -206,9 +229,13 @@ QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
         Q_UNUSED( child_action_group );
     }
 
+    QWidgetList children;
     foreach (DomWidget *ui_child, ui_widget->elementWidget()) {
-        QWidget *child_w = create(ui_child, w);
-        Q_UNUSED( child_w );
+        if (QWidget *child  = create(ui_child, w)) {
+            children += child;
+        } else {
+            qWarning() << "Failed to create " << ui_child->elementClass();
+        }
     }
 
     foreach (DomLayout *ui_lay, ui_widget->elementLayout()) {
@@ -232,8 +259,11 @@ QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
             addMenuAction(menu->menuAction());
         }
     }
-
     loadExtraInfo(ui_widget, w, parentWidget);
+#ifndef QT_FORMBUILDER_NO_SCRIPT
+    QString scriptErrorMessage;
+    formScriptRunner()->run(ui_widget, w, children, &scriptErrorMessage);
+#endif
     addItem(ui_widget, w, parentWidget);
 
     if (qobject_cast<QDialog *>(w) && parentWidget)
@@ -1104,6 +1134,9 @@ DomSpacer *QAbstractFormBuilder::createDom(QSpacerItem *spacer, DomLayout *ui_la
 */
 DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &pname, const QVariant &v)
 {
+    if (!checkProperty(obj, pname)) {
+        return 0;
+    }
     return variantToDomProperty(this, obj, pname, v);
 }
 
@@ -1163,7 +1196,7 @@ QList<DomProperty*> QAbstractFormBuilder::computeProperties(QObject *obj)
 
 
 /*!
-   \internal 
+   \internal
    \typedef QAbstractFormBuilder::DomPropertyHash
    \typedef QAbstractFormBuilder::IconPaths
 */
@@ -1919,7 +1952,7 @@ void QAbstractFormBuilder::setIconProperty(DomProperty &p, const IconPaths &ip) 
     p.setAttributeName(QLatin1String("icon"));
     p.setElementIconSet(pix);
 }
- 
+
 /*!
     \internal
     Set up a DOM property with pixmap.
@@ -1939,7 +1972,7 @@ void QAbstractFormBuilder::setPixmapProperty(DomProperty &p, const IconPaths &ip
 
 /*!
     \internal
-    Convenience. Return DOM property for icon; 0 if icon.isNull(). 
+    Convenience. Return DOM property for icon; 0 if icon.isNull().
 */
 
 DomProperty* QAbstractFormBuilder::iconToDomProperty(const QIcon &icon) const
@@ -1994,7 +2027,7 @@ QIcon QAbstractFormBuilder::domPropertyToIcon(const DomProperty* p)
 
 
 /*!
-    \internal 
+    \internal
     Create pixmap from DOM.
 */
 
@@ -2032,3 +2065,16 @@ QPixmap QAbstractFormBuilder::domPropertyToPixmap(const DomProperty* p)
     \fn void QAbstractFormBuilder::createResources ( DomResources * )
     \internal
 */
+
+/*!
+     \fn void QFormScriptRunner *QAbstractFormBuilder::formScriptRunner()
+     \internal
+*/
+#ifndef QT_FORMBUILDER_NO_SCRIPT
+QFormScriptRunner *QAbstractFormBuilder::formScriptRunner() const
+{
+    BuilderScriptRunnerHash::const_iterator it = g_BuilderScriptRunners()->constFind(this);
+    Q_ASSERT(it != g_BuilderScriptRunners()->constEnd());
+    return it.value();
+}
+#endif

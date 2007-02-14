@@ -117,6 +117,8 @@ protected:
     DomProperty *applyProperStdSetAttribute(QObject *object, const QString &propertyName, DomProperty *property);
 
 private:
+    void addScripts(QWidget *w, DomWidget *ui_widget);
+
     typedef QList<DomCustomWidget*> DomCustomWidgetList;
     void addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& list);
     void fixIconPath(IconPaths &) const;

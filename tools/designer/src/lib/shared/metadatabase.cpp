@@ -89,6 +89,15 @@ void MetaDataBaseItem::setEnabled(bool b)
     m_enabled = b;
 }
 
+QString MetaDataBaseItem::script() const 
+{
+    return m_script;
+}
+
+void MetaDataBaseItem::setScript(const QString &script)
+{
+    m_script = script;
+}
 // -----------------------------------------------------
 MetaDataBase::MetaDataBase(QDesignerFormEditorInterface *core, QObject *parent)
     : QDesignerMetaDataBaseInterface(parent),
