@@ -1,0 +1,142 @@
+/*!
+    \example itemviews/coloreditorfactory
+    \title Color Editor Factory Example
+
+    This example shows how to create an editor that can be used by
+    a QItemDelegate.
+
+    \image coloreditorfactoryimage.png
+
+    When editing data in a QListView, QTableView, or QTreeView,
+    editors are created and displayed by a \l{Delegate
+    Classes}{delegate}. QItemDelegate, which is the delegate used by
+    Qt's \l{View Classes}{item views}, uses a QItemEditorFactory to
+    create editors for it. A unique instance provided by
+    QItemEditorFactory is by default installed on all delegates.
+
+    An item editor factory contains a collection of
+    QItemEditorCreatorBase instances, which are specialized factories
+    that produce editors for one particular QVariant data type (all
+    models in Qt store their data in \l{QVariant}s). An editor can be any
+    Qt or custom widget.
+
+    In this example, we will create an editor (implemented in the
+    \c ColorListEditor class) that can edit the QColor data type and
+    be used by \l{QItemDelegate}s. We do this by creating a new
+    QItemEditorCreatorBase that produces \c ColorListEditors and
+    register it with the default editor item factory (the unique
+    factory instance). To test our editor, we have implemented the \c
+    Window class, which displays a QTableWidget in which \l{QColor}s
+    can be edited.
+
+    \section1 Window Class Implementation
+
+    In the Window class, we create the item editor creator
+    base for our color editor and add it to the default factory.
+    We also create a QTableWidget in which our editor can be
+    tested. It is filled with some data and displayed in a window.
+
+    We take a closer look at the constructor:
+
+    \quotefromfile itemviews/coloreditorfactory/window.cpp
+    \skipto /::Window/
+    \printuntil /^\}/
+
+    The QItemEditorFactory only provides a const pointer to the
+    default factory. We therefore make a copy to which we can add our
+    color editor; the default factory can then be set to the copy.
+
+    The QStandardItemEditorCreator is a utility class that
+    inherits QItemEditorCreatorBase. Its constructor takes a template
+    class of which instances are returned from
+    \l{QStandardItemEditorCreator::}{createEditor()}. The creator uses
+    a constructor that takes a QWidget as parameter; the template
+    class must provide this. This way, there is no need to subclass
+    QStandardItemEditorCreator.
+
+    After the new factory has been set all standard item delegates
+    will use it as the instance is unique (i.e, this is also true for
+    delegates that were created before the new default factory was
+    set). 
+
+    The \c createGUI() function sets up the table and fills it
+    with data.
+
+    \section1 ColorListEditor Definition
+
+    The ColorListEditor inherits QComboBox and lets the user
+    select a QColor from its popup list.
+
+    \quotefromfile itemviews/coloreditorfactory/colorlisteditor.h
+    \skipto /class Col/    
+    \printuntil /^\};/
+
+    QItemDelegate manages the interaction between the editors and
+    the model, i.e., it retrieves data to edit from the model and
+    store data from the editor in the model. The data that is edited
+    by an editor is stored in a Qt property, and the delegate uses
+    Qt's \l{Qt's Property System}{property system} to access it by
+    name. It is the factory that provides the delegate with the name,
+    which it in turn asks the individual item editor creators for
+    using \l{QItemEditorCreatorBase::}{valuePropertyName()}. The
+    QStandardItemEditorCreator returns the name of the user data
+    property of its template class. We declare our user data type with
+    the Q_PROPERTY macro; it is set to be the user type with the USER
+    keyword.
+
+    \section1 ColorListEditor Implementation
+
+    The constructor of \c ColorListEditor simply calls \c
+    populateList(), which we will look at later. We move on to the
+    \c color() function:
+
+    \quotefromfile itemviews/coloreditorfactory/colorlisteditor.cpp
+    \skipto /::color/
+    \printuntil /^\}/
+
+    We return the data that is selected in the combobox. The data
+    is stored in the Qt::DecorationRole as the color is then also
+    displayed in the popup list as shown in the image above.
+
+    \skipto /::setColor/
+    \printuntil /^\}/
+
+    The \c findData() function searches the items in the combobox
+    and returns the index of the item that has \c color in the
+    Qt::Decoration role.
+
+    \skipto /::populateList/
+    \printuntil /^\}/
+
+    Qt knows some predefined colors by name. We simply loop
+    through these to fill our editor with items.
+
+    \section1 Further Customization of Item View Editors
+
+    You can customize Qt's \l{Model/View Programming}{model view
+    framework} in many ways. The procedure shown in this example is
+    usually sufficient to provide custom editors. Further
+    customization is achieved by subclassing QItemEditorFactory
+    and QItemEditorCreatorBase. It is also possible to subclass
+    QItemDelegate if you don't wish to use a factory at all.
+
+    Possible suggestions are:
+
+    \list
+	\o If you want to use another property than the user property
+	   for editing data, you need to reimplement 
+	   QItemEditorCreatorBase::valuePropertyName().
+	\o If the editor requires other constructors or other
+	   initialization than provided by QItemEditorCreatorBase, you
+	   must reimplement
+	   QItemEditorCreatorBase::createEditor().
+	\o You could also subclass QItemEditorFactory if you only want
+	   to provide editors for certain kinds of data or use another
+	   method of creating the editors than using creator bases.
+    \endlist
+
+    In this example, we use a standard QVariant data type. You can
+    also use custom types. In the \l{Star Delegate Example}, we
+    show how to store a custom data type in a QVariant and paint
+    and edit it in a class that inherits QItemDelegate.
+*/

@@ -38,6 +38,7 @@
   <category dirname="itemviews" name="Item Views">
     <example filename="basicsortfiltermodel" name="Basic Sort/Filter Model" />
     <example filename="chart" name="Chart" />
+    <example filename="coloreditorfactory" name="Color Editor Factory" />
     <example filename="customsortfiltermodel" name="Custom Sort/Filter Model" />
     <example filename="dirview" name="Directory View" />
     <example filename="pixelator" name="Pixelator" />
@@ -145,6 +146,7 @@
     <example filename="spinboxes" name="Spin Boxes" />
     <example filename="styles" name="Styles" />
     <example filename="stylesheet" name="Style Sheet" />
+    <example filename="tablet" name="Tablet" />
     <example filename="tetrix" name="Tetrix" />
     <example filename="tooltips" name="Tool Tips" />
     <example filename="wiggly" name="Wiggly" />

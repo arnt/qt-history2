@@ -1,6 +1,7 @@
 TEMPLATE      = subdirs
 SUBDIRS       = basicsortfiltermodel \
                 chart \
+		coloreditorfactory \
                 customsortfiltermodel \
                 dirview \
                 pixelator \

@@ -63,6 +63,7 @@
     \o \l{widgets/spinboxes}{Spin Boxes}\raisedaster
     \o \l{widgets/styles}{Styles}\raisedaster
     \o \l{widgets/stylesheet}{Style Sheet}\raisedaster
+    \o \l{widgets/tablet}{Tablet}\raisedaster
     \o \l{widgets/tetrix}{Tetrix}\raisedaster
     \o \l{widgets/tooltips}{Tooltips}\raisedaster
     \o \l{widgets/wiggly}{Wiggly}\raisedaster
@@ -104,6 +105,7 @@
     \list
     \o \l{itemviews/basicsortfiltermodel}{Basic Sort/Filter Model}
     \o \l{itemviews/chart}{Chart}
+    \o \l{itemviews/coloreditorfactory}{Color Editor Factory}\raisedaster
     \o \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}\raisedaster
     \o \l{itemviews/dirview}{Dir View}
     \o \l{itemviews/pixelator}{Pixelator}\raisedaster
