@@ -48,7 +48,7 @@
 #include <qtimeline.h>
 #include <qdebug.h>
 
-#ifdef Q_OS_UNIX
+#ifdef Q_OS_UNIX && !defined (Q_OS_MAC)
 #include <sys/statvfs.h>
 #endif
 
@@ -142,7 +142,7 @@ public:
     }
 
     int maxNameLength(const QString &path) {
-#ifdef Q_OS_UNIX
+#ifdef Q_OS_UNIX && !defined (Q_OS_MAC)
         struct statvfs vfs;
         if (statvfs(path.toLocal8Bit().constData(), &vfs) >= 0)
             return vfs.f_namemax;
