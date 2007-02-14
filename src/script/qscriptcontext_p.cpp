@@ -82,7 +82,7 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
 
 #define BEGIN_PREFIX_OPERATOR \
     QScriptValue::ResolveFlags mode; \
-    mode = static_cast<QScriptValue::ResolveFlags> (stackPtr[0].m_int_value) \
+    mode = QScriptValue::ResolveFlags(stackPtr[0].m_int_value) \
     | QScriptValue::ResolvePrototype; \
     --stackPtr; \
     const QScriptValueImpl &object = stackPtr[-1]; \
@@ -158,7 +158,7 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
         HandleException(); \
     } \
     QScriptValue::ResolveFlags mode; \
-    mode = static_cast<QScriptValue::ResolveFlags> (stackPtr[-1].m_int_value) \
+    mode = QScriptValue::ResolveFlags(stackPtr[-1].m_int_value) \
            | QScriptValue::ResolvePrototype; \
     QScriptValueImpl object = eng->toObject(stackPtr[-3]); \
     if (! object.isValid()) { \
@@ -915,7 +915,7 @@ Ltop:
         }
 
         QScriptValue::ResolveFlags mode;
-        mode = static_cast<QScriptValue::ResolveFlags> (stackPtr[-1].m_int_value)
+        mode = QScriptValue::ResolveFlags(stackPtr[-1].m_int_value)
                | QScriptValue::ResolvePrototype;
 
         QScriptValueImpl object = eng->toObject(stackPtr[-3]);
@@ -1345,7 +1345,7 @@ Ltop:
         }
 
         QScriptValue::ResolveFlags mode;
-        mode = static_cast<QScriptValue::ResolveFlags> (stackPtr[0].m_int_value)
+        mode = QScriptValue::ResolveFlags(stackPtr[0].m_int_value)
                | QScriptValue::ResolvePrototype;
 
         --stackPtr;
@@ -1446,7 +1446,7 @@ Ltop:
             HandleException();
         }
 
-        QScriptValue::ResolveFlags mode = static_cast<QScriptValue::ResolveFlags> (stackPtr[0].m_int_value);
+        QScriptValue::ResolveFlags mode = QScriptValue::ResolveFlags(stackPtr[0].m_int_value);
 
         --stackPtr;
 
