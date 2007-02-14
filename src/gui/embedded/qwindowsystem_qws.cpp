@@ -1205,7 +1205,7 @@ void QWSServerPrivate::initServer(int flags)
 #ifndef QT_NO_QWS_MULTIPROCESS
 
     if (!geteuid()) {
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(Q_OS_DARWIN)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(Q_OS_DARWIN) && !defined(QT_LSB)
         if(mount(0,"/var/shm", "shm", 0, 0)) {
             /* This just confuses people with 2.2 kernels
             if (errno != EBUSY)
