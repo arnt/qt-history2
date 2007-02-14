@@ -196,6 +196,7 @@ static const int QGRAPHICSSCENE_INDEXTIMER_TIMEOUT = 2000;
 #include <QtGui/qtransform.h>
 #include <QtGui/qmatrix.h>
 #include <QtGui/qpainter.h>
+#include <QtGui/qpaintengine.h>
 #include <QtGui/qpolygon.h>
 #include <QtGui/qstyleoption.h>
 #include <QtGui/qtooltip.h>
@@ -622,6 +623,21 @@ void QGraphicsScenePrivate::storeMouseButtonsForMouseGrabber(QGraphicsSceneMouse
 void QGraphicsScenePrivate::installSceneEventFilter(QGraphicsItem *watched, QGraphicsItem *filter)
 {
     sceneEventFilters.insert(watched, filter);
+}
+
+/*!
+    \internal
+*/
+bool QGraphicsScenePrivate::painterStateProtection(const QPainter *painter) const
+{
+    // Detect if painter state protection is disabled.
+    QPaintDevice *device = painter->paintEngine()->paintDevice();
+    for (int i = 0; i < views.size(); ++i) {
+        QWidget *viewport = views.at(i)->viewport();
+        if ((QPaintDevice *)viewport == device)
+            return !(views.at(i)->optimizationFlags() & QGraphicsView::DontSavePainterState);
+    }
+    return true;
 }
 
 /*!
@@ -3051,14 +3067,16 @@ void QGraphicsScene::inputMethodEvent(QInputMethodEvent *event)
 void QGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect)
 {
     Q_D(QGraphicsScene);
+
     if (d->backgroundBrush.style() != Qt::NoBrush) {
-        painter->save();
+        bool painterStateProtection = d->painterStateProtection(painter);
+        if (painterStateProtection)
+            painter->save();
         painter->setBrushOrigin(0, 0);
         painter->fillRect(rect, backgroundBrush());
-        painter->restore();
-    }/* else if (viewport()->inherits("QGLWidget")) {
-        painter->fillRect(rect, viewport()->palette().brush(viewport()->backgroundRole()));
-        }*/
+        if (painterStateProtection)
+            painter->restore();
+    }
 }
 
 /*!
@@ -3074,11 +3092,15 @@ void QGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect)
 void QGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
 {
     Q_D(QGraphicsScene);
+
     if (d->foregroundBrush.style() != Qt::NoBrush) {
-        painter->save();
+        bool painterStateProtection = d->painterStateProtection(painter);
+        if (painterStateProtection)
+            painter->save();
         painter->setBrushOrigin(0, 0);
         painter->fillRect(rect, foregroundBrush());
-        painter->restore();
+        if (painterStateProtection)
+            painter->restore();
     }
 }
 
@@ -3127,9 +3149,18 @@ void QGraphicsScene::drawItems(QPainter *painter,
                                QGraphicsItem *items[],
                                const QStyleOptionGraphicsItem options[], QWidget *widget)
 {
+    Q_D(QGraphicsScene);
+
+    // Detect if painter state protection is disabled.
+    bool painterStateProtection = d->painterStateProtection(painter);
+    QTransform oldTransform = painter->worldTransform();
+
     for (int i = 0; i < numItems; ++i) {
+        // Save painter
+        if (painterStateProtection)
+            painter->save();
+
         QGraphicsItem *item = items[i];
-        painter->save();
 
         if (item->d_ptr->itemIsUntransformable()) {
             painter->setTransform(item->d_ptr->sceneTransform(painter->worldTransform()), false);
@@ -3152,7 +3183,11 @@ void QGraphicsScene::drawItems(QPainter *painter,
 
         item->paint(painter, &options[i], widget);
 
-        painter->restore();
+        // Restore painter
+        if (painterStateProtection)
+            painter->restore();
+        else
+            painter->setWorldTransform(oldTransform);
     }
 }
 
@@ -3231,7 +3266,9 @@ void QGraphicsScene::itemUpdated(QGraphicsItem *item, const QRectF &rect)
         // "pixels" of compensation.
         foreach (QGraphicsView *view, d->views) {
             QRectF viewportRect = item->d_ptr->sceneTransform(view->viewportTransform()).mapRect(boundingRect);
-            view->viewport()->update(viewportRect.adjusted(-2, -2, 3, 3).toRect());
+            if (!(view->optimizationFlags() & QGraphicsView::DontAdjustForAntialiasing))
+                viewportRect.adjust(-2, -2, 3, 3);
+            view->viewport()->update(viewportRect.toRect());
         }
     } else {
         QRectF sceneBoundingRect = item->sceneTransform().mapRect(boundingRect);

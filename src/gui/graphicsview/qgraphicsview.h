@@ -35,7 +35,7 @@ class Q_GUI_EXPORT QGraphicsView : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_FLAGS(QPainter::RenderHints CacheMode)
-    Q_ENUMS(ViewportAnchor DragMode ViewportUpdateMode)
+    Q_ENUMS(ViewportAnchor DragMode ViewportUpdateMode OptimizationFlags)
     Q_PROPERTY(QBrush backgroundBrush READ backgroundBrush WRITE setBackgroundBrush)
     Q_PROPERTY(QBrush foregroundBrush READ foregroundBrush WRITE setForegroundBrush)
     Q_PROPERTY(bool interactive READ isInteractive WRITE setInteractive)
@@ -48,6 +48,7 @@ class Q_GUI_EXPORT QGraphicsView : public QAbstractScrollArea
     Q_PROPERTY(ViewportAnchor resizeAnchor READ resizeAnchor WRITE setResizeAnchor)
     Q_PROPERTY(ViewportUpdateMode viewportUpdateMode READ viewportUpdateMode WRITE setViewportUpdateMode)
     Q_PROPERTY(Qt::ItemSelectionMode rubberBandSelectionMode READ rubberBandSelectionMode WRITE setRubberBandSelectionMode)
+    Q_PROPERTY(OptimizationFlags optimizationFlags READ optimizationFlags WRITE setOptimizationFlags)
 
 public:
     enum ViewportAnchor {
@@ -75,6 +76,13 @@ public:
         NoViewportUpdate
     };
 
+    enum OptimizationFlag {
+        DontClipPainter = 0x1,
+        DontSavePainterState = 0x2,
+        DontAdjustForAntialiasing = 0x4
+    };
+    Q_DECLARE_FLAGS(OptimizationFlags, OptimizationFlag)
+
     QGraphicsView(QWidget *parent = 0);
     QGraphicsView(QGraphicsScene *scene, QWidget *parent = 0);
     ~QGraphicsView();
@@ -97,6 +105,10 @@ public:
     ViewportUpdateMode viewportUpdateMode() const;
     void setViewportUpdateMode(ViewportUpdateMode mode);
 
+    OptimizationFlags optimizationFlags() const;
+    void setOptimizationFlag(OptimizationFlag flag, bool enabled = true);
+    void setOptimizationFlags(OptimizationFlags flags);
+    
     DragMode dragMode() const;
     void setDragMode(DragMode mode);
 
@@ -225,6 +237,7 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QGraphicsView::CacheMode)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QGraphicsView::OptimizationFlags)
 
 inline void QGraphicsView::setSceneRect(qreal ax, qreal ay, qreal aw, qreal ah)
 { setSceneRect(QRectF(ax, ay, aw, ah)); }

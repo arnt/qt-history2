@@ -159,6 +159,44 @@ static const int QGRAPHICSVIEW_REGION_RECT_THRESHOLD = 50;
 */
 
 /*!
+    \enum QGraphicsView::OptimizationFlag
+
+    \since 4.3
+
+    This enum describes flags that you can enable to improve rendering
+    performance in QGraphicsView. By default, none of these flags are set.
+    Note that setting a flag usually imposes a side effect, and this effect
+    can vary between paint devices and platforms.
+
+    \value DontClipPainter QGraphicsView sometimes clips the painter when
+    rendering the scene contents. This can generally improve performance
+    (e.g., rendering only small parts of a large pixmap), and protects against
+    rendering mistakes (e.g., drawing outside bounding rectangles, or outside
+    the exposed area). In some situations, however, the painter clip can slow
+    down rendering; especially when all painting is restricted to inside
+    exposed areas. By enabling this flag, QGraphicsView will completely
+    disable its implicit clipping.
+
+    \value DontSavePainterState When rendering, QGraphicsView protects the
+    painter state (see QPainter::save()) when rendering the background or
+    foreground, and when rendering each item. This allows you to leave the
+    painter in an altered state (i.e., you can call QPainter::setPen() or
+    QPainter::setBrush() without restoring the state after painting). However,
+    if the items consistently do restore the state, you should enable this
+    flag to prevent QGraphicsView from doing the same.
+
+    \value DontAdjustForAntialiasing Disables QGraphicsView's antialiasing
+    auto-adjustment of exposed areas. Items that render antialiased lines on
+    the boundaries of their QGraphicsItem::boundingRect() can end up rendering
+    parts of the line outside. To prevent rendering artifacts, QGraphicsView
+    expands all exposed regions by 2 pixels in all directions. If you enable
+    this flag, QGraphicsView will no longer perform these adjustments,
+    minimizing the areas that require redrawing, which improves performance. A
+    common side effect is that items that do draw with antialiasing can leave
+    painting traces behind on the scene as they are moved.
+*/
+
+/*!
     \enum QGraphicsView::CacheModeFlag
 
     This enum describes the flags that you can set for a QGraphicsView's cache
@@ -267,6 +305,7 @@ public:
     QGraphicsView::ViewportAnchor transformationAnchor;
     QGraphicsView::ViewportAnchor resizeAnchor;
     QGraphicsView::ViewportUpdateMode viewportUpdateMode;
+    QGraphicsView::OptimizationFlags optimizationFlags;
 
     QGraphicsScene *scene;
 #ifndef QT_NO_RUBBERBAND
@@ -313,6 +352,7 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
       alignment(Qt::AlignCenter),
       transformationAnchor(QGraphicsView::AnchorViewCenter), resizeAnchor(QGraphicsView::NoAnchor),
       viewportUpdateMode(QGraphicsView::MinimalViewportUpdate),
+      optimizationFlags(0),
       scene(0),
 #ifndef QT_NO_RUBBERBAND
       rubberBanding(false),
@@ -844,6 +884,49 @@ void QGraphicsView::setViewportUpdateMode(ViewportUpdateMode mode)
 {
     Q_D(QGraphicsView);
     d->viewportUpdateMode = mode;
+}
+
+/*!
+    \property QGraphicsView::optimizationFlags
+    \brief flags that can be used to tune QGraphicsView's performance.
+
+    \since 4.3
+
+    QGraphicsView uses clipping, extra bounding rect adjustments, and certain
+    other aids to improve rendering quality and performance for the common
+    case graphics scene. However, depending on the target platform, the scene,
+    and the viewport in use, some of these operations can degrade performance.
+
+    The effect varies from flag to flag; see the OptimizationFlags
+    documentation for details.
+
+    By default, no optimization flags are enabled.
+
+    \sa setOptimizationFlag()
+*/
+QGraphicsView::OptimizationFlags QGraphicsView::optimizationFlags() const
+{
+    Q_D(const QGraphicsView);
+    return d->optimizationFlags;
+}
+void QGraphicsView::setOptimizationFlags(OptimizationFlags flags)
+{
+    Q_D(QGraphicsView);
+    d->optimizationFlags = flags;
+}
+
+/*!
+    Enables \a flag if \a enabled is true; otherwise disables \a flag.
+
+    \sa optimizationFlags
+*/
+void QGraphicsView::setOptimizationFlag(OptimizationFlag flag, bool enabled)
+{
+    Q_D(QGraphicsView);
+    if (enabled)
+        d->optimizationFlags |= flag;
+    else
+        d->optimizationFlags &= ~flag;
 }
 
 /*!
@@ -2033,7 +2116,9 @@ void QGraphicsView::updateScene(const QList<QRectF> &rects)
     foreach (QRectF rect, rects) {
         // Find the item's bounding rect and map it to view coordiates.
         // Adjust with 2 pixels for antialiasing.
-        QRect mappedRect = mapFromScene(rect).boundingRect().adjusted(-2, -2, 2, 2);
+        QRect mappedRect = mapFromScene(rect).boundingRect();
+        if (!(d->optimizationFlags & DontAdjustForAntialiasing))
+            mappedRect.adjust(-2, -2, 2, 2);
         if (viewportRect.contains(mappedRect) || viewportRect.intersects(mappedRect)) {
             if (!smartUpdate) {
                 // Add the exposed rect to the update region. In smart update
@@ -2813,11 +2898,16 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
         QPainter backgroundPainter(&d->backgroundPixmap);
         backgroundPainter.setTransform(viewportTransform());
         foreach (QRect rect, d->backgroundPixmapExposed.rects()) {
-            backgroundPainter.save();
+            if (!(d->optimizationFlags & DontSavePainterState))
+                backgroundPainter.save();
+
             QRectF exposedSceneRect = mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
-            backgroundPainter.setClipRect(exposedSceneRect.adjusted(-1, -1, 1, 1));
+            if (!(d->optimizationFlags & DontClipPainter))
+                backgroundPainter.setClipRect(exposedSceneRect.adjusted(-1, -1, 1, 1));
             drawBackground(&backgroundPainter, exposedSceneRect);
-            backgroundPainter.restore();
+
+            if (!(d->optimizationFlags & DontSavePainterState))
+                backgroundPainter.restore();
         }
         d->backgroundPixmapExposed = QRegion();
 
@@ -2830,10 +2920,15 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     } else {
         // Draw the background directly
         foreach (QRectF rect, exposedRects) {
-            painter.save();
-            painter.setClipRect(rect.adjusted(-1, -1, 1, 1));
+            if (!(d->optimizationFlags & DontSavePainterState))
+                painter.save();
+
+            if (!(d->optimizationFlags & DontClipPainter))
+                painter.setClipRect(rect.adjusted(-1, -1, 1, 1));
             drawBackground(&painter, rect);
-            painter.restore();
+
+            if (!(d->optimizationFlags & DontSavePainterState))
+                painter.restore();
         }
     }
 
@@ -2885,10 +2980,15 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 
     // Foreground
     foreach (QRectF rect, exposedRects) {
-        painter.save();
-        painter.setClipRect(rect.adjusted(-1, -1, 1, 1));
+        if (!(d->optimizationFlags & DontSavePainterState))
+            painter.save();
+
+        if (!(d->optimizationFlags & DontClipPainter))
+            painter.setClipRect(rect.adjusted(-1, -1, 1, 1));
         drawForeground(&painter, rect);
-        painter.restore();
+
+        if (!(d->optimizationFlags & DontSavePainterState))
+            painter.restore();
     }
 
     delete [] itemArray;
