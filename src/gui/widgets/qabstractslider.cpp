@@ -506,6 +506,11 @@ void QAbstractSlider::setValue(int value)
     If this property is false (the default), the minimum and maximum will
     be shown in its classic position for the inherited widget. If the
     value is true, the minimum and maximum appear at their opposite location.
+
+    Note: This property makes most sense for sliders and dials. For
+    scrollbars, the visual effect of the scrollbar subcontrols depends on
+    whether or not the styles understand inverted appearance; most styles
+    ignore this property for scrollbars.
 */
 
 bool QAbstractSlider::invertedAppearance() const
