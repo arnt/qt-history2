@@ -69,15 +69,32 @@ General improvements
     * QTreeWidget, QTableWidget & QListWidget Data loss when there is data in
       custom roles and a DND copy is performed.
 
-  * Fixed signal emission bugs in QSqlQueryModel and QSqlTableModel that
-    caused the view to contain invalid items when used with a
-    QSortFilterProxyModel.
+    * Fixed signal emission bugs in QSqlQueryModel and QSqlTableModel that
+      caused the view to contain invalid items when used with a
+      QSortFilterProxyModel.
 
-  * Fixed crash in QSortFilterProxyModel when calling filterChanged().
+    * Fixed crash in QSortFilterProxyModel when calling filterChanged().
 
-  * Fixed a bug in QSortFilterProxyModel that could cause it to enter an
-    invalid state when filtering items in a hierarchy, causing items in a
-    QTreeView to erroneously be collapsed.
+    * Fixed crash in QSortFilterProxyModel when removing items from the source model.
+
+    * Fixed a bug in QSortFilterProxyModel that could cause it to enter an
+      invalid state when filtering items in a hierarchy, causing items in a
+      QTreeView to erroneously be collapsed.
+
+    * Fixed a bug in QSortFilterProxyModel that could cause invalid items to 
+      be added when inserting new ones.
+
+    * Fixed a crash in QTreeView that could appear when removing all the child from 
+      an item.
+
+    * Fixed a bug in QHeaderView that could prevent the user from resizing the last 
+      visible section if the "real" last section was invisible.
+
+    * Fixed a bug in item views where the wordwrap would cause to remove all new-line
+      characters and the last line in string containing at least 1 new-line character.
+
+- QAction
+    * Fixed a possible crash when using alternate shortcuts on a QAction.
 
 - QCleanlooksStyle
     * Indeterminate progressbars are now correctly animated.
@@ -157,6 +174,9 @@ General improvements
 - QSqlDriver
     * Ensure that QSqlDriver::formatValue() doesn't cut of characters from field names.
 
+- QToolTip
+    * Fix size of QToolTip with HTML tags like <BR>.
+
 - QUdpSocket
     * Fixed a busy-wait causing the event loop to spin when writing a datagram
       to an unbound port.
@@ -183,6 +203,9 @@ General improvements
       dialog was shown first
     * Fixed an erroneous hideEvent() from being sent immediately after
       window creation
+
+- QWindowsStyle
+    * Fixed a crash where deleting a QProgressBar after its style.
 
 - QVariant
     * Fixed ASSERT caused by streaming in a variant containing a float
@@ -219,6 +242,9 @@ Windows
       applications with many threads
     * Fixed ASSERT caused by hiding child widget whose widnow has not
       yet been created
+    * Fix QWindowsXPStyle so that it is possible to draw a QStyle::CE_DockWidgetTitle 
+      without having an actual instance of QDockWidget.
+
 
 Mac OS X
 --------
