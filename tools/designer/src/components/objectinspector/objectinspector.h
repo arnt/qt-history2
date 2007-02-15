@@ -44,9 +44,6 @@ private slots:
     void slotPopupContextMenu(const QPoint &pos);
     void slotHeaderDoubleClicked(int column);
 
-protected:
-    virtual void showEvent(QShowEvent *enent);
-
 private:
     static bool sortEntry(const QObject *a, const QObject *b);
     void showContainersCurrentPage(QWidget *widget);

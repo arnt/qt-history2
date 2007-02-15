@@ -116,8 +116,10 @@ bool ObjectInspector::sortEntry(const QObject *a, const QObject *b)
 
 void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
 {
+    const bool resizeToColumn =  m_formWindow != fw;
     m_formWindow = fw;
 
+    const int oldWidth = m_treeWidget->columnWidth(0);
     const int xoffset = m_treeWidget->horizontalScrollBar()->value();
     const int yoffset = m_treeWidget->verticalScrollBar()->value();
 
@@ -247,7 +249,11 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
     m_treeWidget->setUpdatesEnabled(true);
     m_treeWidget->update();
 
-    m_treeWidget->resizeColumnToContents(0);
+    if (resizeToColumn) {
+        m_treeWidget->resizeColumnToContents(0);
+    } else {
+        m_treeWidget->setColumnWidth(0, oldWidth);
+    }
 }
 
 void ObjectInspector::showContainersCurrentPage(QWidget *widget)
@@ -311,20 +317,14 @@ void ObjectInspector::slotSelectionChanged()
     QMetaObject::invokeMethod(m_formWindow->core()->formWindowManager(), "slotUpdateActions");
 }
 
-void ObjectInspector::showEvent(QShowEvent *event)
-{
-    m_treeWidget->resizeColumnToContents(0);
-    QDesignerObjectInspectorInterface::showEvent(event);
-}
-
 void ObjectInspector::getSelection(Selection &s) const
 {
     s.clear();
-        
+
     const QList<QTreeWidgetItem*> items = m_treeWidget->selectedItems();
-    if (items.empty()) 
+    if (items.empty())
         return;
-    
+
     // sort objects
     foreach (QTreeWidgetItem *item, items) {
         QObject *object = qvariant_cast<QObject *>(item->data(0, 1000));
