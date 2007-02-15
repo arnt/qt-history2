@@ -3437,7 +3437,7 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
   A session manager in a desktop environment (in which Qt GUI
   applications live) keeps track of a session, which is a group of
   running applications, each of which has a particular state. The
-  state of an application contains (most notably) which documents the
+  state of an application contains (most notably) the documents the
   application has open and the position and size of its windows.
 
   The session manager is used to save the session, e.g. when the
@@ -3472,7 +3472,7 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
   setRestartHint(), setProperty(), requestPhase2(). See the respective
   function descriptions for further details.
 
-  \sa QApplication, Session Management
+  \sa QApplication, {Session Management}
 */
 
 /*! \enum QSessionManager::RestartHint
