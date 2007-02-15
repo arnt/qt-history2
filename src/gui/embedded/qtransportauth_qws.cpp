@@ -463,9 +463,9 @@ QIODevice *QTransportAuth::passThroughByClient( QWSClient *client ) const
     Q_D(const QTransportAuth);
 
     if ( client == 0 ) return 0;
-    if ( d->buffersByClient.contains( reinterpret_cast<void*>( client )))
+    if ( d->buffersByClient.contains( client ))
     {
-        return d->buffersByClient[reinterpret_cast<void*>(client)];
+        return d->buffersByClient[client];
     }
     // qWarning( "buffer not found for client %p", client );
     return 0;
@@ -546,6 +546,25 @@ QMutex *QTransportAuth::getKeyFileMutex()
     Q_D(QTransportAuth);
     return &d->keyfileMutex;
 }
+
+/*
+   \internal
+   Respond to the destroyed(QObject*) signal of the QAuthDevice's
+   client object and remove it from the buffersByClient lookup hash.
+*/
+void QTransportAuth::bufferDestroyed( QObject *cli )
+{
+    Q_D(QTransportAuth);
+    if ( cli == NULL ) return;
+
+    if ( d->buffersByClient.contains( cli ))
+    {
+        d->buffersByClient.remove( cli );
+        // qDebug( "@@@@@@@ client %p removed @@@@@@@@@", cli );
+    }
+    // qDebug( "           client count %d", d->buffersByClient.count() );
+}
+
 
 static struct AuthRecord *keyCache[ KEY_CACHE_SIZE ] = { 0 };
 
@@ -766,13 +785,17 @@ QAuthDevice::~QAuthDevice()
   Store a pointer to the related device or instance which this
   authorizer is proxying for
 */
-void QAuthDevice::setClient( void *cli )
+void QAuthDevice::setClient( QObject *cli )
 {
     m_client = cli;
     QTransportAuth::getInstance()->d_func()->buffersByClient[cli] = this;
+    QObject::connect( cli, SIGNAL(destroyed(QObject*)),
+            QTransportAuth::getInstance(), SLOT(bufferDestroyed(QObject*)) );
+    // qDebug( "@@@@@@@@@@@@ client set %p @@@@@@@@@", cli );
+    // qDebug( "           client count %d", QTransportAuth::getInstance()->d_func()->buffersByClient.count() );
 }
 
-void *QAuthDevice::client() const
+QObject *QAuthDevice::client() const
 {
     return m_client;
 }
@@ -1023,7 +1046,7 @@ bool QAuthDevice::authorizeMessage()
     }
     else
     {
-        qWarning( "%s - denied: for Program Id %u [PID %lu]"
+        qWarning( "%s - denied: for Program Id %u [PID %i]"
 #if defined(SXE_DISCOVERY)
                 "(to turn on discovery mode, export SXE_DISCOVERY_MODE=1)"
 #endif

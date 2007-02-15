@@ -89,8 +89,8 @@ public:
     ~QAuthDevice();
     void setTarget( QIODevice *t ) { m_target = t; }
     QIODevice *target() const { return m_target; }
-    void setClient( void* );
-    void *client() const;
+    void setClient( QObject* );
+    QObject *client() const;
     bool authToMessage( QTransportAuth::Data &, char *, const char *, int );
     bool authFromMessage( QTransportAuth::Data &, const char *, int );
     void setRequestAnalyzer( RequestAnalyzer * );
@@ -115,7 +115,7 @@ private:
     QTransportAuth::Data *d;
     AuthDirection way;
     QIODevice *m_target;
-    void *m_client;
+    QObject *m_client;
     QByteArray msgQueue;
     qint64 m_bytesAvailable;
     qint64 m_skipWritten;
@@ -275,7 +275,7 @@ public:
     QList<QTransportAuth::Data*> data;
     QHash<QTransportAuth::Data*,QAuthDevice*> buffers;
     QList< QPointer<QObject> > policyReceivers;
-    QHash<void*,QIODevice*> buffersByClient;
+    QHash< QObject*, QIODevice*> buffersByClient;
     QMutex keyfileMutex;
 };
 

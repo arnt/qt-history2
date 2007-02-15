@@ -119,6 +119,9 @@ public:
     void registerPolicyReceiver( QObject * );
     void unregisterPolicyReceiver( QObject * );
 
+private slots:
+    void bufferDestroyed( QObject * );
+
 private:
     // users should never construct their own
     QTransportAuth();
