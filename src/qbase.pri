@@ -121,7 +121,16 @@ unix {
    QMAKE_PKGCONFIG_LIBDIR = $$[QT_INSTALL_LIBS]
    QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]/$$TARGET
    QMAKE_PKGCONFIG_CFLAGS = -I$$[QT_INSTALL_HEADERS]
-   QMAKE_PKGCONFIG_DESTDIR = $$QMAKE_LIBDIR_QT/pkgconfig
+   QMAKE_PKGCONFIG_DESTDIR = pkgconfig
+   include_replace.match = $$QMAKE_INCDIR_QT
+   include_replace.replace = $$[QT_INSTALL_HEADERS]
+   lib_replace.match = $$QMAKE_LIBDIR_QT
+   lib_replace.replace = $$[QT_INSTALL_LIBS]
+   prefix_replace.match = $$QT_BUILD_TREE
+   prefix_replace.replace = $$[QT_INSTALL_PREFIX]
+   QMAKE_PRL_INSTALL_REPLACE += include_replace lib_replace
+   QMAKE_LIBTOOL_INSTALL_REPLACE += include_replace lib_replace
+   QMAKE_PKGCONFIG_INSTALL_REPLACE += include_replace lib_replace prefix_replace
 }
 
 contains(QT_PRODUCT, OpenSource.*):DEFINES *= QT_OPENSOURCE
