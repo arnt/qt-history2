@@ -31,11 +31,18 @@
 # define SUFFIX         ".dylib"
 # define PREFIX         "lib"
 
-#elif defined(Q_OS_HPUX) && !defined(__ia64)
+#elif defined(Q_OS_HPUX)
 # undef sl_VALID
 # define sl_VALID       true
-# define SUFFIX         ".sl"
-# define PREFIX         "lib"
+#  ifndef __ia64
+#   define SUFFIX         ".sl"
+#   define PREFIX         "lib"
+#  else
+#   undef so_VALID
+#   define so_VALID       true
+#   define SUFFIX         ".so"
+#   define PREFIX         "lib"
+#  endif
 
 #elif defined(Q_OS_AIX)
 # undef a_VALID
