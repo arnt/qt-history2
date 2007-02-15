@@ -173,7 +173,7 @@
 
     When implementing a custom style, you cannot assume that the
     widget is a QSpinBox just because the enum value is called
-    PE_IndicatorSpinUp or PE_IndicatorSpinUp.
+    PE_IndicatorSpinUp or PE_IndicatorSpinDown.
 
     The documentation for the \l{widgets/styles}{Styles} example
     covers this topic in more detail.
