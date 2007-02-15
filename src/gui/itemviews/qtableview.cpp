@@ -1686,6 +1686,29 @@ bool QTableView::wordWrap() const
 }
 
 /*!
+    \property QTableView::cornerButtonEnabled
+    \brief whether the button in the top-left corner is enabled
+    \since 4.3
+
+    If this property is true then button in the top-left corner
+    of the table view is enabled. Clicking on this button will
+    select all the cells in the table view.
+
+    This property is true by default.
+*/
+void QTableView::setCornerButtonEnabled(bool enable)
+{
+    Q_D(QTableView);
+    d->cornerWidget->setEnabled(enable);
+}
+
+bool QTableView::isCornerButtonEnabled() const
+{
+    Q_D(const QTableView);
+    return d->cornerWidget->isEnabled();
+}
+
+/*!
     \internal
 
     Returns the rectangle on the viewport occupied by the given \a

@@ -32,6 +32,7 @@ class Q_GUI_EXPORT QTableView : public QAbstractItemView
     Q_PROPERTY(Qt::PenStyle gridStyle READ gridStyle WRITE setGridStyle)
     Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
     Q_PROPERTY(bool wordWrap READ wordWrap WRITE setWordWrap)
+    Q_PROPERTY(bool cornerButtonEnabled READ isCornerButtonEnabled WRITE setCornerButtonEnabled)
 
 public:
     explicit QTableView(QWidget *parent = 0);
@@ -74,6 +75,9 @@ public:
 
     void setWordWrap(bool on);
     bool wordWrap() const;
+    
+    void setCornerButtonEnabled(bool enable);
+    bool isCornerButtonEnabled() const;
 
     QRect visualRect(const QModelIndex &index) const;
     void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible);
