@@ -927,18 +927,22 @@ void QMdiSubWindowPrivate::setMinimizeMode()
 */
 void QMdiSubWindowPrivate::setNormalMode()
 {
-    Q_ASSERT(q_func()->parent());
+    Q_Q(QMdiSubWindow);
+    Q_ASSERT(q->parent());
 
     isShadeMode = false;
     ensureWindowState(Qt::WindowNoState);
     removeButtonsFromMenuBar();
-    if (baseWidget)
-        baseWidget->show();
 
-    updateGeometryConstraints();
+    // Don't show the widget before we have updated the geometry,
+    // otherwise the widget will get a resize event, which it shouldn't.
     QRect newGeometry = oldGeometry;
     newGeometry.setSize(restoreSize);
-    setNewGeometry(&newGeometry);
+    q->setGeometry(newGeometry);
+    if (baseWidget)
+        baseWidget->show();
+    updateGeometryConstraints();
+
 #ifndef QT_NO_SIZEGRIP
     setSizeGripVisible(true);
 #endif
