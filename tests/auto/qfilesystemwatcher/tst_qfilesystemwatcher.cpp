@@ -77,7 +77,7 @@ void tst_QFileSystemWatcher::basicTest()
     QVERIFY(testFile.open(QIODevice::WriteOnly | QIODevice::Truncate));
     testFile.write(QByteArray("hello"));
     testFile.close();
-    
+
     // set some file permissions
     testFile.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ReadOther);
 
@@ -160,7 +160,7 @@ void tst_QFileSystemWatcher::basicTest()
 
     // readd the file watch
     watcher.addPath(testFile.fileName());
-    
+
     // remove the file, should get a signal from the watcher
     QVERIFY(testFile.remove());
 
@@ -247,11 +247,10 @@ void tst_QFileSystemWatcher::watchDirectory()
     timer.start(5000);
     eventLoop.exec();
 
-    QEXPECT_FAIL("native", "See task 149637: there is a difference between native and poller", Abort);
     QCOMPARE(changedSpy.count(), 2);
     QCOMPARE(changedSpy.at(0).count(), 1);
     QCOMPARE(changedSpy.at(1).count(), 1);
-    
+
     fileName = changedSpy.at(0).at(0).toString();
     QCOMPARE(fileName, testDir.dirName());
     fileName = changedSpy.at(1).at(0).toString();

@@ -37,12 +37,41 @@ class QPollingFileSystemWatcherEngine : public QFileSystemWatcherEngine
 {
     Q_OBJECT
 
+    class FileInfo
+    {
+        uint ownerId;
+        uint groupId;
+        QFile::Permissions permissions;
+        QDateTime lastModified;
+
+    public:
+        FileInfo(const QFileInfo &fileInfo)
+            : ownerId(fileInfo.ownerId()),
+              groupId(fileInfo.groupId()),
+              permissions(fileInfo.permissions()),
+              lastModified(fileInfo.lastModified())
+        { }
+        FileInfo &operator=(const QFileInfo &fileInfo)
+        {
+            *this = FileInfo(fileInfo);
+            return *this;
+        }
+
+        bool operator!=(const QFileInfo &fileInfo) const
+        {
+            return (ownerId != fileInfo.ownerId()
+                    || groupId != fileInfo.groupId()
+                    || permissions != fileInfo.permissions()
+                    || lastModified != fileInfo.lastModified());
+        }
+    };
+
     mutable QMutex mutex;
-    QHash<QString, QDateTime> files, directories;
+    QHash<QString, FileInfo> files, directories;
 
 public:
     QPollingFileSystemWatcherEngine();
-    
+
     void run();
 
     QStringList addPaths(const QStringList &paths, QStringList *files, QStringList *directories);
@@ -82,11 +111,11 @@ QStringList QPollingFileSystemWatcherEngine::addPaths(const QStringList &paths,
         if (fi.isDir()) {
             if (!directories->contains(path))
                 directories->append(path);
-            this->directories.insert(path, fi.lastModified());
+            this->directories.insert(path, fi);
         } else {
             if (!files->contains(path))
                 files->append(path);
-            this->files.insert(path, fi.lastModified());
+            this->files.insert(path, fi);
         }
         it.remove();
     }
@@ -127,29 +156,29 @@ void QPollingFileSystemWatcherEngine::stop()
 void QPollingFileSystemWatcherEngine::timeout()
 {
     QMutexLocker locker(&mutex);
-    QMutableHashIterator<QString, QDateTime> fit(files);
+    QMutableHashIterator<QString, FileInfo> fit(files);
     while (fit.hasNext()) {
-        QHash<QString, QDateTime>::iterator x = fit.next();
+        QHash<QString, FileInfo>::iterator x = fit.next();
         QString path = x.key();
         QFileInfo fi(path);
         if (!fi.exists()) {
             fit.remove();
             emit fileChanged(path, true);
-        } else if (x.value() != fi.lastModified()) {
-            x.value() = fi.lastModified();
+        } else if (x.value() != fi) {
+            x.value() = fi;
             emit fileChanged(path, false);
         }
     }
-    QMutableHashIterator<QString, QDateTime> dit(directories);
+    QMutableHashIterator<QString, FileInfo> dit(directories);
     while (dit.hasNext()) {
-        QHash<QString, QDateTime>::iterator x = dit.next();
+        QHash<QString, FileInfo>::iterator x = dit.next();
         QString path = x.key();
         QFileInfo fi(path);
         if (!fi.exists()) {
             dit.remove();
             emit directoryChanged(path, true);
-        } else if (x.value() != fi.lastModified()) {
-            x.value() = fi.lastModified();
+        } else if (x.value() != fi) {
+            x.value() = fi;
             emit directoryChanged(path, false);
         }
     }
