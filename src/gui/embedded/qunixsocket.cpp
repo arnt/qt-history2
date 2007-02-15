@@ -33,6 +33,31 @@ extern "C" {
 
 #define UNIX_PATH_MAX 108 // From unix(7)
 
+#ifdef QT_LSB
+// LSB doesn't declare ucred
+struct ucred
+{
+    pid_t pid;                    /* PID of sending process.  */
+    uid_t uid;                    /* UID of sending process.  */
+    gid_t gid;                    /* GID of sending process.  */
+};
+
+// LSB doesn't define the ones below
+#ifndef SO_PASSCRED
+#  define SO_PASSCRED   16
+#endif
+#ifndef SCM_CREDENTIALS
+#  define SCM_CREDENTIALS 0x02
+#endif
+#ifndef MSG_DONTWAIT
+#  define MSG_DONTWAIT 0x40
+#endif
+#ifndef MSG_NOSIGNAL
+#  define MSG_NOSIGNAL 0x4000
+#endif
+
+#endif // QT_LSB
+
 ///////////////////////////////////////////////////////////////////////////////
 // class QUnixSocketRights
 ///////////////////////////////////////////////////////////////////////////////
