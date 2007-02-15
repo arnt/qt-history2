@@ -45,9 +45,6 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
         h = grabRect.height() - y;
     grabRect &= QRect(x, y, w, h);
 
-    QImage::Endian endian = (QSysInfo::ByteOrder == QSysInfo::LittleEndian ?
-                             QImage::LittleEndian : QImage::BigEndian);
-
     QWSDisplay::grab(false);
 
     QImage img(qt_screen->base(),

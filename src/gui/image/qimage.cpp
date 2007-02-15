@@ -722,7 +722,7 @@ const uchar *qt_get_bitflip_array()                        // called from QPixma
     return bitflip;
 }
 
-#if defined(QT3_SUPPORT) || defined(Q_WS_QWS)
+#if defined(QT3_SUPPORT)
 static QImage::Format formatFor(int depth, QImage::Endian bitOrder)
 {
     QImage::Format format;
