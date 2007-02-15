@@ -15,6 +15,7 @@
 #include "preferences.h"
 #include "fontpanel.h"
 #include <iconloader_p.h>
+#include <gridpanel_p.h>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -33,6 +34,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parentWidget) :
     QDialog(parentWidget),
     m_uiModeCombo(new QComboBox),
     m_fontPanel(new FontPanel),
+    m_gridPanel(new qdesigner_internal::GridPanel),
     m_templatePathListWidget(new QListWidget),
     m_removeTemplatePathButton(new QPushButton(qdesigner_internal::createIconSet(QString::fromUtf8("minus.png")), QString())),
     m_dialogButtonBox(new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Close))
@@ -48,6 +50,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parentWidget) :
 
     leftColumnLayout->addWidget(initUIModeControls());
     leftColumnLayout->addWidget(m_fontPanel);
+    m_gridPanel->setTitle(tr("Default Grid"));
+    leftColumnLayout->addWidget(m_gridPanel);
     leftColumnLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
 
     QVBoxLayout *rightColumnLayout = new QVBoxLayout;
@@ -120,6 +124,7 @@ void PreferencesDialog::setPreferences(const Preferences &p)
             m_templatePathListWidget->addItem(templatePath);
         m_templatePathListWidget->setCurrentItem(m_templatePathListWidget->item(0));
     }
+    m_gridPanel->setGrid(p.m_defaultGrid);
 }
 
 void PreferencesDialog::getPreferences(Preferences &p) const
@@ -133,6 +138,7 @@ void PreferencesDialog::getPreferences(Preferences &p) const
     for (int i = 0; i <  count; i++) {
         p.m_additionalTemplatePaths += m_templatePathListWidget->item(i)->text();
     }
+    p.m_defaultGrid = m_gridPanel->grid();
 }
 
 void PreferencesDialog::addTemplatePath()

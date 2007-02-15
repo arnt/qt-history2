@@ -67,7 +67,10 @@ HEADERS += \
     $$PWD/scripterrordialog_p.h \
     $$PWD/scriptcommand_p.h \
     $$PWD/scriptdialog_p.h \
-    $$PWD/qscripthighlighter_p.h
+    $$PWD/qscripthighlighter_p.h \
+    $$PWD/gridpanel_p.h \
+    $$PWD/grid_p.h \
+    $$PWD/formwindowbase_p.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -123,5 +126,7 @@ SOURCES += \
     $$PWD/scripterrordialog.cpp \
     $$PWD/scriptcommand.cpp \
     $$PWD/scriptdialog.cpp \
-    $$PWD/qscripthighlighter.cpp
-
+    $$PWD/qscripthighlighter.cpp\
+    $$PWD/gridpanel.cpp \
+    $$PWD/grid.cpp \
+    $$PWD/formwindowbase.cpp  

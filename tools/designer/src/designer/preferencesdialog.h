@@ -24,6 +24,10 @@ class QDialogButtonBox;
 class QComboBox;
 class QPushButton;
 
+namespace qdesigner_internal {
+    class GridPanel;
+}
+
 class PreferencesDialog: public QDialog
 {
     Q_OBJECT
@@ -48,6 +52,7 @@ private:
 
     QComboBox *m_uiModeCombo;
     FontPanel *m_fontPanel;
+    qdesigner_internal::GridPanel *m_gridPanel;
     QListWidget *m_templatePathListWidget;
     QPushButton *m_removeTemplatePathButton;
     QDialogButtonBox *m_dialogButtonBox;

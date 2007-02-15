@@ -235,7 +235,7 @@ void FormWindow::Selection::updateGeometry(QWidget *w)
 
 // ------------------------ FormWindow
 FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WindowFlags flags)
-    : QDesignerFormWindowInterface(parent, flags),
+    : FormWindowBase(parent, flags),
       m_core(core), m_selection(new Selection()), m_widgetStack(0)
 {
     init();
@@ -275,11 +275,6 @@ QDesignerFormWindowCursorInterface *FormWindow::cursor() const
     return m_cursor;
 }
 
-bool FormWindow::hasFeature(Feature f) const
-{
-    return f & m_feature;
-}
-
 void FormWindow::updateWidgets()
 {
     if (!m_mainContainer)
@@ -305,30 +300,6 @@ bool FormWindow::isChildOf(const QWidget *c, const QWidget *p)
         c = c->parentWidget();
     }
     return false;
-}
-
-FormWindow::Feature FormWindow::features() const
-{
-    return m_feature;
-}
-
-static void recursiveUpdate(QWidget *w)
-{
-    w->update();
-
-    const QObjectList &l = w->children();
-    const QObjectList::const_iterator cend = l.constEnd();
-    for (QObjectList::const_iterator it = l.constBegin(); it != cend; ++it) {
-        if (QWidget *w = qobject_cast<QWidget*>(*it))
-            recursiveUpdate(w);
-    }
-}
-
-void FormWindow::setFeatures(Feature f)
-{
-    m_feature = f;
-    emit featureChanged(f);
-    recursiveUpdate(this);
 }
 
 void FormWindow::setCursorToAll(const QCursor &c, QWidget *start)
@@ -361,8 +332,6 @@ void FormWindow::init()
     connect(m_widgetStack, SIGNAL(currentToolChanged(int)), this, SIGNAL(toolChanged(int)));
     layout->addWidget(m_widgetStack);
 
-    m_feature = DefaultFeature;
-
     m_selectionChangedTimer = new QTimer(this);
     m_selectionChangedTimer->setSingleShot(true);
     connect(m_selectionChangedTimer, SIGNAL(timeout()), this, SLOT(selectionChangedTimerDone()));
@@ -376,8 +345,6 @@ void FormWindow::init()
     connect(m_geometryChangedTimer, SIGNAL(timeout()), this, SIGNAL(geometryChanged()));
 
     m_rubberBand = 0;
-
-    setGrid(QPoint(10,10));
 
     setFocusPolicy(Qt::StrongFocus);
 
@@ -679,7 +646,7 @@ void FormWindow::checkPreviewGeometry(QRect &r)
 
 void FormWindow::startRectDraw(const QPoint &pos, QWidget *, RectType t)
 {
-    m_rectAnchor = (t == Insert) ? gridPoint(pos) : pos;
+    m_rectAnchor = (t == Insert) ? designerGrid().snapPoint(pos) : pos;
 
     m_currRect = QRect(m_rectAnchor, QSize(0, 0));
     if (!m_rubberBand)
@@ -690,7 +657,7 @@ void FormWindow::startRectDraw(const QPoint &pos, QWidget *, RectType t)
 
 void FormWindow::continueRectDraw(const QPoint &pos, QWidget *, RectType t)
 {
-    const QPoint p2 = (t == Insert) ? gridPoint(pos) : pos;
+    const QPoint p2 = (t == Insert) ? designerGrid().snapPoint(pos) : pos;
 
     QRect r(m_rectAnchor, p2);
     r = r.normalized();
@@ -711,12 +678,6 @@ void FormWindow::endRectDraw()
         delete m_rubberBand;
         m_rubberBand = 0;
     }
-}
-
-QPoint FormWindow::gridPoint(const QPoint &p) const
-{
-    return QPoint(((p.x() + grid().x()/2) / grid().x()) * grid().x(),
-                   ((p.y() + grid().y()/2) / grid().y()) * grid().y());
 }
 
 QWidget *FormWindow::currentWidget() const
@@ -969,7 +930,7 @@ void FormWindow::insertWidget(QWidget *w, const QRect &rect, QWidget *container,
      * geometry of the widget. */
     QRect r = rect;
     Q_ASSERT(r.isValid());
-    r.moveTopLeft(gridPoint(container->mapFromGlobal(r.topLeft())));
+    r.moveTopLeft(designerGrid().snapPoint(container->mapFromGlobal(r.topLeft())));
     SetPropertyCommand *geom_cmd = new SetPropertyCommand(this);
     geom_cmd->init(w, QLatin1String("geometry"), r); // ### use rc.size()
 
@@ -1023,7 +984,7 @@ void FormWindow::resizeWidget(QWidget *widget, const QRect &geometry)
     Q_ASSERT(isDescendant(this, widget));
 
     QRect r = geometry;
-    r.moveTopLeft(gridPoint(geometry.topLeft()));
+    r.moveTopLeft(designerGrid().snapPoint(geometry.topLeft()));
     SetPropertyCommand *cmd = new SetPropertyCommand(this);
     cmd->init(widget, QLatin1String("geometry"), r);
     cmd->setText(tr("Resize"));
@@ -1204,7 +1165,7 @@ void FormWindow::handleArrowKeyEvent(int key, bool modifier)
         }
 
         if (!modifier)
-            geom.moveTopLeft(gridPoint(geom.topLeft()));
+            geom.moveTopLeft(designerGrid().snapPoint(geom.topLeft()));
 
         SetPropertyCommand *cmd = 0;
 

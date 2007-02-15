@@ -35,6 +35,7 @@
 #include <QtDesigner/QDesignerComponents>
 #include <QtDesigner/private/qdesigner_integration_p.h>
 #include <QtDesigner/private/pluginmanager_p.h>
+#include <QtDesigner/private/formwindowbase_p.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -1141,4 +1142,7 @@ void QDesignerWorkbench::applyPreferences(const Preferences &preferences)
         
     if (preferences.m_font != qApp->font())
         qApp->setFont(preferences.m_font);
+
+    qdesigner_internal::FormWindowBase::setDefaultDesignerGrid(preferences.m_defaultGrid);
+
 }

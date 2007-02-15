@@ -16,14 +16,17 @@
 #include "formwindowmanager.h"
 
 // sdk
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerTaskMenuExtension>
 
 // shared
 #include <qdesigner_command_p.h>
 #include <qdesigner_propertycommand_p.h>
 #include <layout_p.h>
 #include <layoutinfo_p.h>
+#include <formwindowbase_p.h>
+#include <grid_p.h>
 
 #include <QtGui/QMenu>
 #include <QtGui/QWidget>
@@ -187,9 +190,6 @@ void WidgetHandle::mousePressEvent(QMouseEvent *e)
 
 }
 
-int WidgetHandle::adjustPoint(int x, int dx)
-{ return (x / dx) * dx + 1; }
-
 void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
 {
     if (!(m_widget && m_active && e->buttons() & Qt::LeftButton))
@@ -206,7 +206,10 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
     const QPoint d = rp - m_origPressPos;
 
     const QRect pr = container->rect();
-    const QPoint grid =  m_formWindow->grid();
+
+    qdesigner_internal::Grid grid;
+    if (const qdesigner_internal::FormWindowBase *fwb = qobject_cast<const qdesigner_internal::FormWindowBase*>(m_formWindow))
+        grid = fwb->designerGrid();
 
     switch (m_type) {
 
@@ -219,11 +222,11 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
 
         int w = m_origGeom.width() - d.x();
         m_geom.setWidth(w);
-        w = adjustPoint(w, grid.x());
+        w = grid.widgetHandleAdjustX(w);
 
         int h = m_origGeom.height() - d.y();
         m_geom.setHeight(h);
-        h = adjustPoint(h, grid.y());
+        h = grid.widgetHandleAdjustY(h);
 
         const int dx = m_widget->width() - w;
         const int dy = m_widget->height() - h;
@@ -237,7 +240,7 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
 
         int h = m_origGeom.height() - d.y();
         m_geom.setHeight(h);
-        h = adjustPoint(h, grid.y());
+        h = grid.widgetHandleAdjustY(h);
 
         const int dy = m_widget->height() - h;
         trySetGeometry(m_widget, m_widget->x(), m_widget->y() + dy, m_widget->width(), h);
@@ -249,13 +252,13 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
 
         int h = m_origGeom.height() - d.y();
         m_geom.setHeight(h);
-        h = adjustPoint(h, grid.y());
+        h = grid.widgetHandleAdjustY(h);
 
         const int dy = m_widget->height() - h;
 
         int w = m_origGeom.width() + d.x();
         m_geom.setWidth(w);
-        w = adjustPoint(w, grid.x());
+        w = grid.widgetHandleAdjustX(w);
 
         trySetGeometry(m_widget, m_widget->x(), m_widget->y() + dy, w, h);
     } break;
@@ -266,7 +269,7 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
 
         int w = m_origGeom.width() + d.x();
         m_geom.setWidth(w);
-        w = adjustPoint(w, grid.x());
+        w = grid.widgetHandleAdjustX(w);
 
         tryResize(m_widget, w, m_widget->height());
     } break;
@@ -277,11 +280,11 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
 
         int w = m_origGeom.width() + d.x();
         m_geom.setWidth(w);
-        w = adjustPoint(w, grid.x());
+        w = grid.widgetHandleAdjustX(w);
 
         int h = m_origGeom.height() + d.y();
         m_geom.setHeight(h);
-        h = adjustPoint(h, grid.y());
+        h = grid.widgetHandleAdjustY(h);
 
         tryResize(m_widget, w, h);
     } break;
@@ -292,7 +295,7 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
 
         int h = m_origGeom.height() + d.y();
         m_geom.setHeight(h);
-        h = adjustPoint(h, grid.y());
+        h = grid.widgetHandleAdjustY(h);
 
         tryResize(m_widget, m_widget->width(), h);
     } break;
@@ -303,11 +306,11 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
 
         int w = m_origGeom.width() - d.x();
         m_geom.setWidth(w);
-        w = adjustPoint(w, grid.x());
+        w = grid.widgetHandleAdjustX(w);
 
         int h = m_origGeom.height() + d.y();
         m_geom.setHeight(h);
-        h = adjustPoint(h, grid.y());
+        h = grid.widgetHandleAdjustY(h);
 
         int dx = m_widget->width() - w;
 
@@ -320,7 +323,7 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
 
         int w = m_origGeom.width() - d.x();
         m_geom.setWidth(w);
-        w = adjustPoint(w, grid.x());
+        w = grid.widgetHandleAdjustX(w);
 
         const int dx = m_widget->width() - w;
 

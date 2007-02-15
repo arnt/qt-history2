@@ -67,7 +67,6 @@ protected:
 private:
     void trySetGeometry(QWidget *w, int x, int y, int width, int height);
     void tryResize(QWidget *w, int width, int height);
-    static int adjustPoint(int x, int dx);
 
 private:
     QWidget *m_widget;

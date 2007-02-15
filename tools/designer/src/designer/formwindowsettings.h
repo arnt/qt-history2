@@ -18,20 +18,21 @@
 
 class QDesignerFormWindowInterface;
 
+namespace qdesigner_internal {
+    class FormWindowBase;
+}
+
 class FormWindowSettings: public QDialog
 {
     Q_OBJECT
 public:
     FormWindowSettings(QDesignerFormWindowInterface *formWindow);
-    virtual ~FormWindowSettings();
-
-    QDesignerFormWindowInterface *formWindow() const;
 
     virtual void accept();
 
 private:
     Ui::FormWindowSettings ui;
-    QDesignerFormWindowInterface *m_formWindow;
+    qdesigner_internal::FormWindowBase *m_formWindow;
 };
 
 #endif // FORMWINDOWSETTINGS_H

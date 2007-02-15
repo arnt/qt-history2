@@ -226,6 +226,8 @@ void QDesignerSettings::setPreferences(const Preferences& p)
     setValue(QLatin1String("font"), p.m_font);
     setValue(QLatin1String("writingSystem"), p.m_writingSystem);
     endGroup();
+    // grid
+    setValue(QLatin1String("defaultGrid"), p.m_defaultGrid.toVariantMap());
     // merge template paths
     QStringList templatePaths = defaultFormTemplatePaths();
     templatePaths += p.m_additionalTemplatePaths;
@@ -243,6 +245,9 @@ Preferences QDesignerSettings::preferences() const
     rc.m_uiMode = static_cast<UIMode>(value(QLatin1String("UI/currentMode"), defaultMode).toInt());
     rc.m_writingSystem = static_cast<QFontDatabase::WritingSystem>(value(QLatin1String("UI/writingSystem"), QFontDatabase::Latin).toInt());
     rc.m_font = qVariantValue<QFont>(value(QLatin1String("UI/font")));
+    const QVariantMap defaultGridMap = value(QLatin1String("defaultGrid"), QVariantMap()).toMap();
+    if (!defaultGridMap.empty())
+        rc.m_defaultGrid.fromVariantMap(defaultGridMap);
     rc.m_additionalTemplatePaths = additionalFormTemplatePaths();
     return rc;
 }

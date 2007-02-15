@@ -15,6 +15,7 @@
 #define QDESIGNER_PREFERENCES_H
 
 #include "designer_enums.h"
+#include <grid_p.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QPoint>
@@ -29,6 +30,7 @@ struct Preferences
     QFont m_font;
     QFontDatabase::WritingSystem m_writingSystem;
     QStringList m_additionalTemplatePaths;
+    qdesigner_internal::Grid m_defaultGrid;    
 };
 
 #endif // QDESIGNER_PREFERENCES_H

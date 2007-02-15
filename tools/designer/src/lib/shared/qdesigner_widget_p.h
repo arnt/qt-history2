@@ -30,16 +30,10 @@
 #include <QtGui/QLabel>
 
 class QDesignerFormWindowInterface;
-class QPaintEvent;
 
 namespace qdesigner_internal {
-
-// Paint the designer grid on a top-level widget.
-QDESIGNER_SHARED_EXPORT void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow, QPaintEvent *e, bool needFrame = false);
-QDESIGNER_SHARED_EXPORT void paintGrid(QWidget *widget, const QPoint &grid, QPaintEvent *e, bool needFrame = false);
-
+    class FormWindowBase;
 }
-
 
 class QDESIGNER_SHARED_EXPORT QDesignerWidget : public QWidget
 {
@@ -48,8 +42,7 @@ public:
     QDesignerWidget(QDesignerFormWindowInterface* formWindow, QWidget *parent = 0);
     virtual ~QDesignerWidget();
 
-    inline QDesignerFormWindowInterface* formWindow() const
-    { return m_formWindow; }
+    QDesignerFormWindowInterface* formWindow() const;
 
     void updatePixmap();
 
@@ -61,15 +54,14 @@ protected:
     virtual void dragEnterEvent(QDragEnterEvent *e);
 
 private:
-    QDesignerFormWindowInterface* m_formWindow;
+    qdesigner_internal::FormWindowBase* m_formWindow;
 };
 
 class QDESIGNER_SHARED_EXPORT QDesignerDialog : public QDialog
 {
     Q_OBJECT
 public:
-    QDesignerDialog(QDesignerFormWindowInterface *fw, QWidget *parent)
-        : QDialog(parent), m_formWindow(fw) {}
+    QDesignerDialog(QDesignerFormWindowInterface *fw, QWidget *parent);
 
     virtual QSize minimumSizeHint() const
     { return QWidget::minimumSizeHint().expandedTo(QSize(16, 16)); }
@@ -78,7 +70,7 @@ protected:
     void paintEvent(QPaintEvent *e);
 
 private:
-    QDesignerFormWindowInterface *m_formWindow;
+    qdesigner_internal::FormWindowBase* m_formWindow;
 };
 
 class QDESIGNER_SHARED_EXPORT QDesignerLabel : public QLabel

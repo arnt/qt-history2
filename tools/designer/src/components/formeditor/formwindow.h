@@ -15,9 +15,7 @@
 #define FORMWINDOW_H
 
 #include "formeditor_global.h"
-
-// sdk
-#include <QtDesigner/QDesignerFormWindowInterface>
+#include <formwindowbase_p.h>
 
 // Qt
 #include <QtCore/QHash>
@@ -48,7 +46,7 @@ class SetPropertyCommand;
 class BreakLayoutCommand;
 
 
-class QT_FORMEDITOR_EXPORT FormWindow: public QDesignerFormWindowInterface
+class QT_FORMEDITOR_EXPORT FormWindow: public FormWindowBase
 {
     Q_OBJECT
 
@@ -67,10 +65,6 @@ public:
     virtual void setCurrentTool(int index);
     virtual QDesignerFormWindowToolInterface *tool(int index) const;
     virtual void registerTool(QDesignerFormWindowToolInterface *tool);
-
-    virtual bool hasFeature(Feature f) const;
-    virtual Feature features() const;
-    virtual void setFeatures(Feature f);
 
     virtual QString author() const;
     virtual void setAuthor(const QString &author);
@@ -101,9 +95,6 @@ public:
     virtual void setContents(QIODevice *dev);
 
     virtual QDir absoluteDir() const;
-
-    virtual QPoint grid() const { return m_grid; }
-    virtual void setGrid(const QPoint &grid) { m_grid = grid; }
 
     virtual void simplifySelection(QWidgetList *sel) const;
 
@@ -223,8 +214,6 @@ private:
     void init();
     void initializeCoreTools();
 
-    QPoint gridPoint(const QPoint &p) const;
-
     enum RectType { Insert, Rubber };
 
     void startRectDraw(const QPoint &global, QWidget *, RectType t);
@@ -272,13 +261,11 @@ private:
 
     void handleArrowKeyEvent(int key, bool modifier);
 
-private:   
-    Feature m_feature;
+private:
     FormEditor *m_core;
     FormWindowCursor *m_cursor;
     QWidget *m_mainContainer;
     QWidget *m_currentWidget;
-    QPoint m_grid;
 
     bool m_blockSelectionChanged;
     bool m_drawRubber;
