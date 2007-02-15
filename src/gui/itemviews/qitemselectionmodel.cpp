@@ -391,10 +391,10 @@ QModelIndexList QItemSelection::indexes() const
 */
 void QItemSelection::merge(const QItemSelection &other, QItemSelectionModel::SelectionFlags command)
 {
-    if (!(command & QItemSelectionModel::Select ||
+    if (other.isEmpty() ||
+          !(command & QItemSelectionModel::Select ||
           command & QItemSelectionModel::Deselect ||
-          command & QItemSelectionModel::Toggle) ||
-        other.isEmpty())
+          command & QItemSelectionModel::Toggle))
         return;
 
     QItemSelection newSelection = other;
