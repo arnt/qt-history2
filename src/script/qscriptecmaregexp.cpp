@@ -209,8 +209,8 @@ QScriptValueImpl RegExp::method_exec(QScriptContextPrivate *context, QScriptEngi
 
 QScriptValueImpl RegExp::method_test(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
 {
-    method_exec(context, eng, classInfo);
-    return (QScriptValueImpl(eng, ! context->returnValue().isNull()));
+    QScriptValueImpl r = method_exec(context, eng, classInfo);
+    return QScriptValueImpl(eng, !r.isNull());
 }
 
 QScriptValueImpl RegExp::method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
