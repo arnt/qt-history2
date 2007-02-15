@@ -4876,7 +4876,8 @@ static void myanmar_attributes(int script, const QString &text, int from, int le
 	int boundary = myanmar_nextSyllableBoundary(text, from+i, end, &invalid) - from;
 
 	attributes[i].charStop = true;
-        attributes[i-1].lineBreakType = QCharAttributes::Break;
+        if (from || i)
+            attributes[i-1].lineBreakType = QCharAttributes::Break;
 
 	if (boundary > len-1)
             boundary = len;
