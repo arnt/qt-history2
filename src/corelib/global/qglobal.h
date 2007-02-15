@@ -1246,13 +1246,12 @@ Q_CORE_EXPORT_INLINE QDebug qCritical();
 inline QNoDebug qDebug();
 #endif
 
+#define QT_NO_QDEBUG_MACRO if(1); else qDebug
 #ifdef QT_NO_DEBUG_OUTPUT
-#  define QT_QDEBUG_MACRO if(1); else qDebug
-#  define qDebug QT_QDEBUG_MACRO
+#  define qDebug QT_NO_QDEBUG_MACRO
 #endif
 #ifdef QT_NO_WARNING_OUTPUT
-#  define QT_QWARNING_MACRO if(1); else qWarning
-#  define qWarning QT_QWARNING_MACRO
+#  define qWarning if(1); else qWarning
 #endif
 
 

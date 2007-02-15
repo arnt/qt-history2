@@ -207,7 +207,7 @@ public:
 };
 #undef qDebug
 inline QNoDebug qDebug() { return QNoDebug(); }
-#define qDebug if(1) ; else qDebug
+#define qDebug QT_NO_QDEBUG_MACRO
 
 #ifdef QT_NO_MEMBER_TEMPLATES
 template<typename T>

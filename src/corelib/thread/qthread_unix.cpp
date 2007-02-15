@@ -42,7 +42,7 @@
 # include <CoreServices/CoreServices.h>
 # ifdef old_qDebug
 #   undef qDebug
-#   define qDebug QT_QDEBUG_MACRO
+#   define qDebug QT_NO_QDEBUG_MACRO
 #   undef old_qDebug
 # endif
 #endif
