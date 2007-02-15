@@ -434,7 +434,8 @@ void QHeaderView::setOffsetToSectionPosition(int visualIndex)
 */
 void QHeaderView::setOffsetToLastSection()
 {
-    int size = (orientation() == Qt::Horizontal ? viewport()->width() : viewport()->height());
+    Q_D(const QHeaderView);
+    int size = (d->orientation == Qt::Horizontal ? viewport()->width() : viewport()->height());
     int position = length() - size;
     setOffset(position);
 }
@@ -816,7 +817,7 @@ void QHeaderView::resizeSection(int logical, int size)
     int h = d->viewport->height();
     int pos = sectionViewportPosition(logical);
     QRect r;
-    if (orientation() == Qt::Horizontal)
+    if (d->orientation == Qt::Horizontal)
         if (isRightToLeft())
             r.setRect(0, 0, pos + size, h);
         else
@@ -1315,7 +1316,7 @@ int QHeaderView::minimumSectionSize() const
     if (d->minimumSectionSize == -1) {
         QSize strut = QApplication::globalStrut();
         int margin = style()->pixelMetric(QStyle::PM_HeaderMargin);
-        if (orientation() == Qt::Horizontal)
+        if (d->orientation == Qt::Horizontal)
             return qMax(strut.width(), (fontMetrics().maxWidth() + margin));
         return qMax(strut.height(), (fontMetrics().lineSpacing() + margin));
     }
@@ -1488,7 +1489,7 @@ void QHeaderView::headerDataChanged(Qt::Orientation orientation, int logicalFirs
 void QHeaderView::updateSection(int logicalIndex)
 {
     Q_D(QHeaderView);
-    if (orientation() == Qt::Horizontal)
+    if (d->orientation == Qt::Horizontal)
         d->viewport->update(QRect(sectionViewportPosition(logicalIndex),
                                   0, sectionSize(logicalIndex), d->viewport->height()));
     else
@@ -1761,7 +1762,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 
     int start = -1;
     int end = -1;
-    if (orientation() == Qt::Horizontal) {
+    if (d->orientation == Qt::Horizontal) {
         start = visualIndexAt(translatedEventRect.left());
         end = visualIndexAt(translatedEventRect.right());
     } else {
@@ -1794,7 +1795,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         painter.save();
         logical = logicalIndex(i);
         bool highlight = false;
-        if (orientation() == Qt::Horizontal) {
+        if (d->orientation == Qt::Horizontal) {
             currentSectionRect.setRect(sectionViewportPosition(logical), 0, sectionSize(logical), height);
             if (d->highlightSelected && active)
                 highlight = d->columnIntersectsSelection(logical);
@@ -1805,7 +1806,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         }
         currentSectionRect.translate(offset);
 
-        QVariant variant = d->model->headerData(logical, orientation(),
+        QVariant variant = d->model->headerData(logical, d->orientation,
                                                 Qt::FontRole);
         if (variant.isValid() && qVariantCanConvert<QFont>(variant)) {
             QFont sectionFont = qvariant_cast<QFont>(variant);
@@ -1849,7 +1850,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     // ### visualize section spans
     for (int a = 0, i = 0; i < d->sectionSpans.count(); ++i) {
         QColor color((i & 4 ? 255 : 0), (i & 2 ? 255 : 0), (i & 1 ? 255 : 0));
-        if (orientation() == Qt::Horizontal)
+        if (d->orientation == Qt::Horizontal)
             painter.fillRect(a - d->offset, 0, d->sectionSpans.at(i).size, 4, color);
         else
             painter.fillRect(0, a - d->offset, 4, d->sectionSpans.at(i).size, color);
@@ -1868,7 +1869,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
     Q_D(QHeaderView);
     if (d->state != QHeaderViewPrivate::NoState || e->button() != Qt::LeftButton)
         return;
-    int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
+    int pos = d->orientation == Qt::Horizontal ? e->x() : e->y();
     int handle = d->sectionHandleAt(pos);
     d->originalSize = -1; // clear the stored original size
     while (handle > -1 && isSectionHidden(handle)) --handle;
@@ -1904,7 +1905,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
 void QHeaderView::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QHeaderView);
-    int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
+    int pos = d->orientation == Qt::Horizontal ? e->x() : e->y();
     if (pos < 0)
         return;
     if (e->buttons() == Qt::NoButton) {
@@ -1927,7 +1928,7 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
         }
         case QHeaderViewPrivate::MoveSection: {
             if (qAbs(pos - d->firstPos) >= QApplication::startDragDistance()) {
-                int indicatorCenter = (orientation() == Qt::Horizontal
+                int indicatorCenter = (d->orientation == Qt::Horizontal
                                        ? d->sectionIndicator->width()
                                        : d->sectionIndicator->height()) / 2;
                 int centerOffset = indicatorCenter - d->sectionIndicatorOffset;
@@ -1962,7 +1963,7 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
 #ifndef QT_NO_CURSOR
             int handle = d->sectionHandleAt(pos);
             if (handle != -1 && (resizeMode(handle) == Interactive))
-                setCursor(orientation() == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor);
+                setCursor(d->orientation == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor);
             else
                 setCursor(Qt::ArrowCursor);
 #endif
@@ -1980,7 +1981,7 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
 void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QHeaderView);
-    int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
+    int pos = d->orientation == Qt::Horizontal ? e->x() : e->y();
     switch (d->state) {
     case QHeaderViewPrivate::MoveSection:
         if (!d->sectionIndicator->isHidden()) { // moving
@@ -2029,13 +2030,13 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
 void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
 {
     Q_D(QHeaderView);
-    int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
+    int pos = d->orientation == Qt::Horizontal ? e->x() : e->y();
     int handle = d->sectionHandleAt(pos);
     while (handle > -1 && isSectionHidden(handle)) handle--;
     if (handle > -1 && resizeMode(handle) == Interactive) {
         emit sectionHandleDoubleClicked(handle);
 #ifndef QT_NO_CURSOR
-        Qt::CursorShape splitCursor = (orientation() == Qt::Horizontal)
+        Qt::CursorShape splitCursor = (d->orientation == Qt::Horizontal)
                                       ? Qt::SplitHCursor : Qt::SplitVCursor;
         if (cursor().shape() == splitCursor) {
             // signal handlers may have changed the section size
@@ -2065,7 +2066,7 @@ bool QHeaderView::viewportEvent(QEvent *e)
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
         if (logical != -1) {
-            QVariant variant = d->model->headerData(logical, orientation(), Qt::ToolTipRole);
+            QVariant variant = d->model->headerData(logical, d->orientation, Qt::ToolTipRole);
             if (variant.isValid()) {
                 QToolTip::showText(he->globalPos(), variant.toString(), this);
                 return true;
@@ -2078,14 +2079,14 @@ bool QHeaderView::viewportEvent(QEvent *e)
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
         if (logical != -1
-            && d->model->headerData(logical, orientation(), Qt::WhatsThisRole).isValid())
+            && d->model->headerData(logical, d->orientation, Qt::WhatsThisRole).isValid())
             return true;
         break; }
     case QEvent::WhatsThis: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
         if (logical != -1) {
-             QVariant whatsthis = d->model->headerData(logical, orientation(),
+             QVariant whatsthis = d->model->headerData(logical, d->orientation,
                                                       Qt::WhatsThisRole);
              if (whatsthis.isValid()) {
                  QWhatsThis::showText(he->globalPos(), whatsthis.toString(), this);
@@ -2099,7 +2100,7 @@ bool QHeaderView::viewportEvent(QEvent *e)
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
         if (logical != -1) {
-            QString statustip = d->model->headerData(logical, orientation(),
+            QString statustip = d->model->headerData(logical, d->orientation,
                                                     Qt::StatusTipRole).toString();
             if (!statustip.isEmpty())
                 setStatusTip(statustip);
@@ -2155,7 +2156,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
                             ? QStyleOptionHeader::SortDown : QStyleOptionHeader::SortUp;
 
     // setup the style options structure
-    QVariant textAlignment = d->model->headerData(logicalIndex, orientation(),
+    QVariant textAlignment = d->model->headerData(logicalIndex, d->orientation,
                                                   Qt::TextAlignmentRole);
     opt.rect = rect;
     opt.section = logicalIndex;
@@ -2165,23 +2166,23 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
                                       : d->defaultAlignment);
 
     opt.iconAlignment = Qt::AlignVCenter;
-    opt.text = d->model->headerData(logicalIndex, orientation(),
+    opt.text = d->model->headerData(logicalIndex, d->orientation,
                                     Qt::DisplayRole).toString();
     if (d->textElideMode != Qt::ElideNone)
         opt.text = opt.fontMetrics.elidedText(opt.text, d->textElideMode , rect.width() - 4);
 
-    QVariant variant = d->model->headerData(logicalIndex, orientation(),
+    QVariant variant = d->model->headerData(logicalIndex, d->orientation,
                                     Qt::DecorationRole);
     opt.icon = qvariant_cast<QIcon>(variant);
     if (opt.icon.isNull())
         opt.icon = qvariant_cast<QPixmap>(variant);
-    QVariant foregroundBrush = d->model->headerData(logicalIndex, orientation(),
+    QVariant foregroundBrush = d->model->headerData(logicalIndex, d->orientation,
                                                     Qt::ForegroundRole);
     if (qVariantCanConvert<QBrush>(foregroundBrush))
         opt.palette.setBrush(QPalette::ButtonText, qvariant_cast<QBrush>(foregroundBrush));
 
     QPointF oldBO = painter->brushOrigin();
-    QVariant backgroundBrush = d->model->headerData(logicalIndex, orientation(),
+    QVariant backgroundBrush = d->model->headerData(logicalIndex, d->orientation,
                                                     Qt::BackgroundRole);
     if (qVariantCanConvert<QBrush>(backgroundBrush)) {
         opt.palette.setBrush(QPalette::Button, qvariant_cast<QBrush>(backgroundBrush));
@@ -2231,14 +2232,14 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
     QSize size(100, 30); // ### make this depend on the font size
 
     // use SizeHintRole
-    QVariant variant = d->model->headerData(logicalIndex, orientation(), Qt::SizeHintRole);
+    QVariant variant = d->model->headerData(logicalIndex, d->orientation, Qt::SizeHintRole);
     if (variant.isValid())
         return qvariant_cast<QSize>(variant);
 
     // otherwise use the contents
     QStyleOptionHeader opt;
     initStyleOption(&opt);
-    QVariant var = d->model->headerData(logicalIndex, orientation(),
+    QVariant var = d->model->headerData(logicalIndex, d->orientation,
                                             Qt::FontRole);
     QFont fnt;
     if (var.isValid() && qVariantCanConvert<QFont>(var))
@@ -2247,9 +2248,9 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
         fnt = font();
     fnt.setBold(true);
     opt.fontMetrics = QFontMetrics(fnt);
-    opt.text = d->model->headerData(logicalIndex, orientation(),
+    opt.text = d->model->headerData(logicalIndex, d->orientation,
                                     Qt::DisplayRole).toString();
-    variant = d->model->headerData(logicalIndex, orientation(), Qt::DecorationRole);
+    variant = d->model->headerData(logicalIndex, d->orientation, Qt::DecorationRole);
     opt.icon = qvariant_cast<QIcon>(variant);
     if (opt.icon.isNull())
         opt.icon = qvariant_cast<QPixmap>(variant);
@@ -2257,7 +2258,7 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
 
     if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex) {
         int margin = style()->pixelMetric(QStyle::PM_HeaderMargin);
-        if (orientation() == Qt::Horizontal)
+        if (d->orientation == Qt::Horizontal)
             size.rwidth() += size.height() + margin;
         else
             size.rheight() += size.width() + margin;
@@ -2275,7 +2276,7 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
 int QHeaderView::horizontalOffset() const
 {
     Q_D(const QHeaderView);
-    if (orientation() == Qt::Horizontal)
+    if (d->orientation == Qt::Horizontal)
         return d->offset;
     return 0;
 }
@@ -2290,7 +2291,7 @@ int QHeaderView::horizontalOffset() const
 int QHeaderView::verticalOffset() const
 {
     Q_D(const QHeaderView);
-    if (orientation() == Qt::Vertical)
+    if (d->orientation == Qt::Vertical)
         return d->offset;
     return 0;
 }
@@ -2422,7 +2423,7 @@ QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) c
 {
     Q_D(const QHeaderView);
     const int max = d->modelSectionCount();
-    if (orientation() == Qt::Horizontal) {
+    if (d->orientation == Qt::Horizontal) {
         int left = max;
         int right = 0;
         int rangeLeft, rangeRight;
