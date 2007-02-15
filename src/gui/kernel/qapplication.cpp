@@ -3434,41 +3434,45 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
   \ingroup application
   \ingroup environment
 
-  The session manager is responsible for session management, most
-  importantly for interruption and resumption. A "session" is a kind
-  of record of the state of the system, e.g. which applications were
-  run at start up and which applications are currently running. The
-  session manager is used to save the session, e.g. when the machine
-  is shut down; and to restore a session, e.g. when the machine is
-  started up. Use QSettings to save and restore an individual
-  application's settings, e.g. window positions, recently used files,
-  etc.
+  A session manager in a desktop environment (in which Qt GUI
+  applications live) keeps track of a session, which is a group of
+  running applications, each of which has a particular state. The
+  state of an application contains (most notably) which documents the
+  application has open and the position and size of its windows.
 
-  QSessionManager provides an interface between the application and
-  the session manager so that the program can work well with the
-  session manager. In Qt, session management requests for action
-  are handled by the two virtual functions QApplication::commitData()
-  and QApplication::saveState(). Both provide a reference to
-  a session manager object as argument, to allow the application
-  to communicate with the session manager.
+  The session manager is used to save the session, e.g. when the
+  machine is shut down, and to restore a session, e.g. when the
+  machine is started up. We recommend that you use QSettings to save
+  an individual application's settings, e.g. window positions,
+  recently used files, etc. When the application is restarted by the
+  session manager, you can restore the settings.
 
-  During a session management action (i.e. within
-  \l{QApplication::commitData()}{commitData()} and
-  \l{QApplication::saveState()}{saveState()}), no user interaction is
-  possible \e unless the application got explicit permission from the
-  session manager. You ask for permission by calling allowsInteraction()
-  or, if it's really urgent, allowsErrorInteraction(). Qt does not
-  enforce this, but the session manager may.
+  QSessionManager provides an interface between the application
+  and the session manager so that the program can work well with the
+  session manager. In Qt, session management requests for action are
+  handled by the two virtual functions QApplication::commitData()
+  and QApplication::saveState(). Both provide a reference to a
+  session manager object as argument, to allow the application to
+  communicate with the session manager. The session manager can only
+  be accessed through these functions.
+
+  No user interaction is possible \e unless the application gets
+  explicit permission from the session manager. You ask for permission
+  by calling allowsInteraction() or, if it's really urgent,
+  allowsErrorInteraction(). Qt does not enforce this, but the session
+  manager may.
 
   You can try to abort the shutdown process by calling cancel(). The
   default commitData() function does this if some top-level window
   rejected its closeEvent().
 
   For sophisticated session managers provided on Unix/X11, QSessionManager
-  offers further possibilites to fine-tune an application's session
+  offers further possibilities to fine-tune an application's session
   management behavior: setRestartCommand(), setDiscardCommand(),
   setRestartHint(), setProperty(), requestPhase2(). See the respective
   function descriptions for further details.
+
+  \sa QApplication, Session Management
 */
 
 /*! \enum QSessionManager::RestartHint
