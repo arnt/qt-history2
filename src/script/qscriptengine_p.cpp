@@ -59,6 +59,7 @@ public:
         QScript::AST::Node *program = eng_p->createAbstractSyntaxTree(contents, lineNo);
 
         if (! program) {
+            context->errorLineNumber = lineNo;
             context->throwError(QScriptContext::SyntaxError, eng_p->errorMessage());
             return;
         }
@@ -250,7 +251,7 @@ QScript::AST::Node *QScriptEnginePrivate::changeAbstractSyntaxTree(QScript::AST:
     return was;
 }
 
-QScript::AST::Node *QScriptEnginePrivate::createAbstractSyntaxTree(const QString &source, int lineNumber)
+QScript::AST::Node *QScriptEnginePrivate::createAbstractSyntaxTree(const QString &source, int &lineNumber)
 {
     m_errorMessage.clear();
 
@@ -262,12 +263,7 @@ QScript::AST::Node *QScriptEnginePrivate::createAbstractSyntaxTree(const QString
 
     if (! parser.parse(this)) {
         m_errorMessage = parser.errorMessage();
-
-        //### if (! m_errorMessage.isEmpty())
-        //###    m_errorMessage += QLatin1String(" ");
-
-        //### m_errorMessage += QLatin1String("line ");
-        //### m_errorMessage += QString::number(lex.lineNo());
+        lineNumber = lex.lineNo();
         return 0;
     }
 

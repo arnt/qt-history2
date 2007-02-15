@@ -292,6 +292,14 @@ void tst_QScriptEngine::evaluate_data()
     QTest::newRow("0=1")    << QString("\n0=1\n")       << true         << 1;
     QTest::newRow("a=1")    << QString("a=1\n")         << false        << 0;
     QTest::newRow("a=1;K")  << QString("a=1;\nK")       << true         << 2; /// ### checkme
+
+    QTest::newRow("f()") << QString("function f()\n"
+                                    "{\n"
+                                    "  var a;\n"
+                                    "  var b=\";\n" // here's the error
+                                    "}\n"
+                                    "f();\n")
+                         << true << 3;
 }
 
 void tst_QScriptEngine::evaluate()
