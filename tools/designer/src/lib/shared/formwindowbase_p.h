@@ -32,6 +32,8 @@
 
 #include <QtCore/QVariantMap>
 
+class QMenu;
+
 namespace qdesigner_internal {
 
 class QDESIGNER_SHARED_EXPORT FormWindowBase: public QDesignerFormWindowInterface
@@ -61,6 +63,9 @@ public:
 
     static const Grid &defaultDesignerGrid() { return m_defaultGrid; }
     static void setDefaultDesignerGrid(const  Grid& grid);
+
+    // Overwrite to initialize and return a popup menu for a managed widget
+    virtual QMenu *initializePopupMenu(QWidget *managedWidget);
 
 private:
     void syncGridFeature();

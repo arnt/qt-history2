@@ -174,6 +174,10 @@ public:
     QWidget *findContainer(QWidget *w, bool excludeLayout) const;
     // for WidgetSelection only.
     QWidget *designerWidget(QWidget *w) const;
+
+    //  Initialize and return a popup menu for a managed widget
+    QMenu *initializePopupMenu(QWidget *managedWidget);
+
 signals:
     void contextMenuRequested(QMenu *menu, QWidget *widget);
 

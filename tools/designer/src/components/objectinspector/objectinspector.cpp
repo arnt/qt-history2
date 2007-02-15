@@ -20,7 +20,7 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 
 // sdk
 #include <QtDesigner/QDesignerFormEditorInterface>
-
+#include <QtDesigner/QDesignerTaskMenuExtension>
 // shared
 #include <tree_widget_p.h>
 
@@ -93,20 +93,26 @@ void ObjectInspector::slotPopupContextMenu(const QPoint &pos)
     if (!object)
         return;
 
-#if defined(TASKMENU_INTEGRATION)
-    QDesignerTaskMenuExtension *task;
-
-    if (0 != (task = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), object))) {
-        QList<QAction*> actions = task->taskActions();
-
-        if (!actions.isEmpty()) {
-            QMenu menu(this);
-
-            menu.addActions(actions);
-            menu.exec(m_treeWidget->viewport()->mapToGlobal(pos));
+    QMenu *menu = 0;
+    if (object->isWidgetType()) {
+        if (qdesigner_internal::FormWindowBase *fwb = qobject_cast<qdesigner_internal::FormWindowBase*>(m_formWindow))
+            menu = fwb->initializePopupMenu(qobject_cast<QWidget *>(object));
+    } else {
+        // Pull extension for non-widget
+        QDesignerTaskMenuExtension *taskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), object);
+        if (taskMenu) {
+            QList<QAction*> actions = taskMenu->taskActions();
+            if (!actions.isEmpty()) {
+                menu = new QMenu(this);
+                menu->addActions(actions);
+            }
         }
     }
-#endif
+
+    if (menu) {
+        menu->exec(m_treeWidget->viewport()->mapToGlobal(pos));
+        delete menu;
+    }
 }
 
 bool ObjectInspector::sortEntry(const QObject *a, const QObject *b)

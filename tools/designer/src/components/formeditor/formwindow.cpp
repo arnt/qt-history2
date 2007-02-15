@@ -1490,9 +1490,11 @@ bool FormWindow::handleMouseButtonDblClickEvent(QWidget *, QWidget *managedWidge
     return true;
 }
 
-bool FormWindow::handleContextMenu(QWidget *, QWidget *managedWidget, QContextMenuEvent *e)
+
+QMenu *FormWindow::initializePopupMenu(QWidget *managedWidget)
 {
-    e->accept();
+    if (!isManaged(managedWidget))
+        return 0;
 
     // Make sure the managedWidget is selected and current since
     // the SetPropertyCommands must use the right reference
@@ -1529,14 +1531,25 @@ bool FormWindow::handleContextMenu(QWidget *, QWidget *managedWidget, QContextMe
         }
     }
 
-    if (contextMenuWidget) {
-        if (QMenu *contextMenu = createPopupMenu(contextMenuWidget)) {
-            emit contextMenuRequested(contextMenu, contextMenuWidget);
-            contextMenu->exec(e->globalPos());
-            delete contextMenu;
-        }
-    }
+    if (!contextMenuWidget)
+        return 0;
 
+    QMenu *contextMenu = createPopupMenu(contextMenuWidget);
+    if (!contextMenu)
+        return 0;
+
+    emit contextMenuRequested(contextMenu, contextMenuWidget);
+    return contextMenu;
+}
+
+bool FormWindow::handleContextMenu(QWidget *, QWidget *managedWidget, QContextMenuEvent *e)
+{
+    QMenu *contextMenu = initializePopupMenu(managedWidget);
+    if (!contextMenu)
+        return false;
+    contextMenu->exec(e->globalPos());
+    delete contextMenu;
+    e->accept();
     return true;
 }
 
@@ -2105,10 +2118,6 @@ void FormWindow::editContents()
         if (QDesignerTaskMenuExtension *taskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), widget)) {
             if (QAction *a = taskMenu->preferredEditAction()) {
                 a->trigger();
-            } else if (isPromoted(core(),widget)) {
-                QDesignerTaskMenuExtension *baseTaskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(),widget);
-                if (QAction *b = baseTaskMenu->preferredEditAction())
-                    b->trigger();
             }
         }
     }

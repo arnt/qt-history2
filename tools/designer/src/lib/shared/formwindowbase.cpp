@@ -17,6 +17,7 @@ TRANSLATOR qdesigner_internal::FormWindowBase
 
 #include "formwindowbase_p.h"
 #include <QtCore/qdebug.h>
+#include <QtGui/QMenu>
 
 namespace qdesigner_internal {
 
@@ -109,5 +110,10 @@ void FormWindowBase::setDesignerGrid(const  Grid& grid)
 void FormWindowBase::setDefaultDesignerGrid(const  Grid& grid)
 {
     m_defaultGrid = grid;
+}
+
+QMenu *FormWindowBase::initializePopupMenu(QWidget * /*managedWidget*/)
+{
+    return 0;
 }
 } // namespace
