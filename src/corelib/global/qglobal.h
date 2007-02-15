@@ -1285,7 +1285,7 @@ Q_CORE_EXPORT void qt_check_pointer(const char *, int);
 #  define Q_CHECK_PTR(p)
 #endif
 
-#ifdef Q_CC_GNU
+#if defined Q_CC_GNU || defined Q_CC_HPACC
 #  define Q_FUNC_INFO __PRETTY_FUNCTION__
 #elif defined(_MSC_VER) && _MSC_VER > 1300
 #  define Q_FUNC_INFO __FUNCSIG__
