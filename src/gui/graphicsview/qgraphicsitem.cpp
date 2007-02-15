@@ -3083,7 +3083,7 @@ void QGraphicsItem::focusOutEvent(QFocusEvent *event)
 
     Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
 
-    \sa hoverMoveEvent(), hoverLeaveEvent(), sceneEvent()
+    \sa hoverMoveEvent(), hoverLeaveEvent(), sceneEvent(), setAcceptsHoverEvents()
 */
 void QGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
@@ -3097,7 +3097,7 @@ void QGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 
     Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
 
-    \sa hoverEnterEvent(), hoverLeaveEvent(), sceneEvent()
+    \sa hoverEnterEvent(), hoverLeaveEvent(), sceneEvent(), setAcceptsHoverEvents()
 */
 void QGraphicsItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
@@ -3111,7 +3111,7 @@ void QGraphicsItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 
     Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
 
-    \sa hoverEnterEvent(), hoverMoveEvent(), sceneEvent()
+    \sa hoverEnterEvent(), hoverMoveEvent(), sceneEvent(), setAcceptsHoverEvents()
 */
 void QGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
