@@ -1239,7 +1239,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_ListViewIconSize The default size for icons in a list view.
 
     \value PM_ToolTipLabelFrameWidth The frame width for a tool tip label.
-    \value PM_CheckBoxLabelSpacing The spacing between a check box and its label.
+    \value PM_CheckBoxLabelSpacing The spacing between a check box indicator and its label.
+    \value PM_RadioButtonLabelSpacing The spacing between a radio button indicator and its label.
     \value PM_TabBarIconSize The default icon size for a tab bar.
     \value PM_SizeGripSize The size of a size grip.
     \value PM_MessageBoxIconSize The size of the standard icons in a message box

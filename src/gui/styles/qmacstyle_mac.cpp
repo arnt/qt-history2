@@ -1722,7 +1722,8 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         break;
 
     case PM_CheckBoxLabelSpacing:
-        ret = 3;
+    case PM_RadioButtonLabelSpacing:
+        ret = 2;
         break;
     case PM_MenuScrollerHeight:
 #if 0
@@ -1730,7 +1731,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         GetThemeMenuItemExtra(kThemeMenuItemScrollUpArrow, &ash, &asw);
         ret = ash;
 #else
-        ret = 15; //I hate having magic numbers in here...
+        ret = 15; // I hate having magic numbers in here...
 #endif
         break;
     case PM_DefaultFrameWidth:
@@ -3778,19 +3779,6 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
                 rect.adjust(0, 0, -8, 0);
                 break;
             }
-        }
-        break;
-    case SE_RadioButtonContents:
-    case SE_CheckBoxContents:
-        {
-            QRect ir = visualRect(opt->direction, opt->rect,
-                                  subElementRect(sr == SE_RadioButtonContents
-                                                        ? SE_RadioButtonIndicator
-                                                        : SE_CheckBoxIndicator, opt, widget));
-            rect.setRect(ir.right() + 2, opt->rect.y(),
-                         opt->rect.width() - ir.width() - 2, opt->rect.height());
-            rect = visualRect(opt->direction, opt->rect, rect);
-            break;
         }
         break;
     case SE_LineEditContents:

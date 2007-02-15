@@ -1744,6 +1744,11 @@ int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt,
         ret = 5;
         break;
 
+    case PM_CheckBoxLabelSpacing:
+    case PM_RadioButtonLabelSpacing:
+        ret = 10;
+        break;
+
     case PM_ToolBarFrameWidth:
         ret = pixelMetric(PM_DefaultFrameWidth);
         break;
@@ -2110,16 +2115,6 @@ QMotifStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidge
             rect = visualRect(pb->direction, pb->rect, rect);
         }
         break;
-    case SE_CheckBoxContents:
-    case SE_RadioButtonContents: {
-        QRect ir = visualRect(opt->direction, opt->rect,
-                              subElementRect(sr == SE_CheckBoxContents ? SE_CheckBoxIndicator
-                                                                       : SE_RadioButtonIndicator,
-                                             opt, widget));
-        rect.setRect(ir.right() + 10, opt->rect.y(),
-                     opt->rect.width() - ir.width() - 10, opt->rect.height());
-        rect = visualRect(opt->direction, opt->rect, rect);
-        break; }
     case SE_CheckBoxClickRect:
     case SE_RadioButtonClickRect:
         rect = visualRect(opt->direction, opt->rect, opt->rect);

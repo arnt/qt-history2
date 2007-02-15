@@ -1635,7 +1635,8 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
             // Deal with the logical first, then convert it back to screen coords.
             QRect ir = visualRect(opt->direction, opt->rect,
                                   subElementRect(SE_CheckBoxIndicator, opt, widget));
-            r.setRect(ir.right() + 6, opt->rect.y(), opt->rect.width() - ir.width() - 6,
+            int spacing = pixelMetric(PM_CheckBoxLabelSpacing, opt, widget);
+            r.setRect(ir.right() + spacing, opt->rect.y(), opt->rect.width() - ir.width() - spacing,
                       opt->rect.height());
             r = visualRect(opt->direction, opt->rect, r);
         }
@@ -1685,8 +1686,9 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
         {
             QRect ir = visualRect(opt->direction, opt->rect,
                                   subElementRect(SE_RadioButtonIndicator, opt, widget));
-            r.setRect(ir.right() + 6, opt->rect.y(),
-                      opt->rect.width() - ir.width() - 6, opt->rect.height());
+            int spacing = pixelMetric(PM_RadioButtonLabelSpacing, opt, widget);
+            r.setRect(ir.right() + spacing, opt->rect.y(), opt->rect.width() - ir.width() - spacing,
+                      opt->rect.height());
             r = visualRect(opt->direction, opt->rect, r);
             break;
         }
@@ -1706,7 +1708,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                 textRect = itemTextRect(opt->fontMetrics, cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
                                  | Qt::TextShowMnemonic, btn->state & State_Enabled, btn->text);
             }
-            if(!btn->icon.isNull()) {
+            if (!btn->icon.isNull()) {
                 iconRect = itemPixmapRect(cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                                    btn->icon.pixmap(btn->iconSize, QIcon::Normal));
                 if (!textRect.isEmpty())
@@ -3775,6 +3777,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         ret = 1;
         break;
     case PM_CheckBoxLabelSpacing:
+    case PM_RadioButtonLabelSpacing:
         ret = 6;
         break;
     case PM_SizeGripSize:
@@ -3824,7 +3827,10 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                                                             : SE_CheckBoxIndicator, btn, widget));
             int h = pixelMetric(isRadio ? PM_ExclusiveIndicatorHeight
                                         : PM_IndicatorHeight, btn, widget);
-            int margins = (!btn->icon.isNull() && btn->text.isEmpty()) ? 0 : 10;
+            int margins = 0;
+            if (btn->icon.isNull() || !btn->text.isEmpty())
+                margins = pixelMetric(isRadio ? PM_RadioButtonLabelSpacing
+                                              : PM_CheckBoxLabelSpacing, opt, widget);
             sz += QSize(irect.right() + margins, 4);
             sz.setHeight(qMax(sz.height(), h));
         }
