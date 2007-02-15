@@ -25,11 +25,11 @@
 // We mean it.
 //
 
-#include "qfont.h"
-#include "qmap.h"
-#include "qobject.h"
+#include "QtGui/qfont.h"
+#include "QtCore/qmap.h"
+#include "QtCore/qobject.h"
 #include <private/qunicodetables_p.h>
-#include <qfontdatabase.h>
+#include <QtGui/qfontdatabase.h>
 
 // forwards
 class QFontEngine;
