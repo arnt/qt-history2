@@ -1018,6 +1018,82 @@ void tst_QMdiArea::tileSubWindows()
             QVERIFY(!window->geometry().intersects(windows.at(j)->geometry()));
         }
     }
+
+    // Keep the views tiled through any subsequent resize events.
+    for (int i = 0; i < 5; ++i) {
+        workspace.resize(workspace.size() - QSize(10, 10));
+        qApp->processEvents();
+    }
+    QCOMPARE(workspace.viewport()->childrenRect(), workspace.viewport()->rect());
+
+    QMdiSubWindow *window = windows.at(0);
+
+    // Change the geometry of one of the children and verify
+    // that the views are not tiled anymore.
+    window->move(window->x() + 1, window->y());
+    workspace.resize(workspace.size() - QSize(10, 10));
+    QVERIFY(workspace.viewport()->childrenRect() != workspace.viewport()->rect());
+    qApp->processEvents();
+
+    // Re-tile.
+    workspace.tileSubWindows();
+    QCOMPARE(workspace.viewport()->childrenRect(), workspace.viewport()->rect());
+
+    // Close one of the children and verify that the views
+    // are not tiled anymore.
+    window->close();
+    workspace.resize(workspace.size() - QSize(10, 10));
+    QVERIFY(workspace.viewport()->childrenRect() != workspace.viewport()->rect());
+    qApp->processEvents();
+
+    // Re-tile.
+    workspace.tileSubWindows();
+    QCOMPARE(workspace.viewport()->childrenRect(), workspace.viewport()->rect());
+
+    window = windows.at(1);
+
+    // Maximize one of the children and verify that the views
+    // are not tiled anymore.
+    workspace.tileSubWindows();
+    window->showMaximized();
+    workspace.resize(workspace.size() - QSize(10, 10));
+    QVERIFY(workspace.viewport()->childrenRect() != workspace.viewport()->rect());
+    qApp->processEvents();
+
+    // Re-tile.
+    workspace.tileSubWindows();
+    QCOMPARE(workspace.viewport()->childrenRect(), workspace.viewport()->rect());
+
+    // Minimize one of the children and verify that the views
+    // are not tiled anymore.
+    workspace.tileSubWindows();
+    window->showMinimized();
+    workspace.resize(workspace.size() - QSize(10, 10));
+    QVERIFY(workspace.viewport()->childrenRect() != workspace.viewport()->rect());
+    qApp->processEvents();
+
+    // Re-tile.
+    workspace.tileSubWindows();
+    QCOMPARE(workspace.viewport()->childrenRect(), workspace.viewport()->rect());
+
+    // Active/deactivate windows and verify that the views are tiled.
+    workspace.setActiveSubWindow(windows.at(5));
+    workspace.resize(workspace.size() - QSize(10, 10));
+    QCOMPARE(workspace.viewport()->childrenRect(), workspace.viewport()->rect());
+
+    // Add another window and verify that the views are not tiled anymore.
+    workspace.addSubWindow(new QPushButton(QLatin1String("I'd like to mess up tiled views")))->show();
+    workspace.resize(workspace.size() - QSize(10, 10));
+    QVERIFY(workspace.viewport()->childrenRect() != workspace.viewport()->rect());
+
+    // Re-tile.
+    workspace.tileSubWindows();
+    QCOMPARE(workspace.viewport()->childrenRect(), workspace.viewport()->rect());
+
+    // Cascade and verify that the views are not tiled anymore.
+    workspace.cascadeSubWindows();
+    workspace.resize(workspace.size() - QSize(10, 10));
+    QVERIFY(workspace.viewport()->childrenRect() != workspace.viewport()->rect());
 }
 
 void tst_QMdiArea::cascadeAndTileSubWindows()
