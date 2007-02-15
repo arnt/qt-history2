@@ -249,6 +249,7 @@ WidgetBoxTreeView::WidgetBoxTreeView(QDesignerFormEditorInterface *core, QWidget
     setColumnCount(1);
     header()->hide();
     header()->setResizeMode(QHeaderView::Stretch);
+    setTextElideMode (Qt::ElideMiddle);
 
     connect(this, SIGNAL(itemPressed(QTreeWidgetItem*,int)),
             this, SLOT(handleMousePress(QTreeWidgetItem*)));

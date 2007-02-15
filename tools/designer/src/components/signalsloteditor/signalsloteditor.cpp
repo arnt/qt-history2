@@ -358,6 +358,8 @@ OldSignalSlotDialog::OldSignalSlotDialog(QDesignerFormEditorInterface *core, QWi
     m_core(core),
     m_show_all_checkbox(new QCheckBox(tr("Show all signals and slots")))
 {
+    m_signal_list->setTextElideMode (Qt::ElideMiddle);
+    m_slot_list->setTextElideMode (Qt::ElideMiddle);
 
     connect(m_signal_list,
                 SIGNAL(itemClicked(QListWidgetItem*)),

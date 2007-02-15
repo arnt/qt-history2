@@ -527,6 +527,7 @@ SignalSlotEditorWindow::SignalSlotEditorWindow(QDesignerFormEditorInterface *cor
     m_view->setEditTriggers(QAbstractItemView::DoubleClicked
                                 | QAbstractItemView::EditKeyPressed);
     m_view->setRootIsDecorated(false);
+    m_view->setTextElideMode (Qt::ElideMiddle);
     connect(m_view, SIGNAL(activated(QModelIndex)), this, SLOT(updateUi()));
 
     QVBoxLayout *layout = new QVBoxLayout(this);

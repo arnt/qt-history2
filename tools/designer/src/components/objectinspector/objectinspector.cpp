@@ -57,7 +57,7 @@ ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *pa
     m_treeWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     m_treeWidget->header()->setResizeMode(1, QHeaderView::Stretch);
     m_treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
-
+    m_treeWidget->setTextElideMode (Qt::ElideMiddle);
 
     m_treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 

@@ -32,6 +32,7 @@ QPropertyEditor::QPropertyEditor(QWidget *parent)    :
 {
     setModel(m_model);
     setItemDelegate(m_itemDelegate);
+    setTextElideMode (Qt::ElideMiddle);
 
     connect(header(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(headerDoubleClicked(int)));
 
