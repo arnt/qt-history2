@@ -105,6 +105,7 @@ public:
     QBrush background;
     bool ignoreGeometryChange;
     bool isActivated;
+    bool isSubWindowsTiled;
     int indexToNextWindow;
     int indexToPreviousWindow;
 

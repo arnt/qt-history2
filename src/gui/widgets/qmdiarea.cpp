@@ -428,6 +428,7 @@ QPoint MinOverlapPlacer::place(const QSize &size, const QList<QRect> &rects,
 QMdiAreaPrivate::QMdiAreaPrivate()
     : ignoreGeometryChange(false),
       isActivated(false),
+      isSubWindowsTiled(false),
       indexToNextWindow(-1),
       indexToPreviousWindow(-1)
 {
@@ -923,6 +924,7 @@ void QMdiArea::closeAllSubWindows()
     if (d->childWindows.isEmpty())
         return;
 
+    d->isSubWindowsTiled = false;
     foreach (QMdiSubWindow *child, d->childWindows) {
         if (!sanityCheck(child, "QMdiArea::closeAllSubWindows"))
             continue;
@@ -1153,8 +1155,36 @@ void QMdiArea::resizeEvent(QResizeEvent *resizeEvent)
         resizeEvent->ignore();
         return;
     }
+
+    // Re-tile the views if we're in tiled mode. Re-tile means we will change
+    // the geometry of the children, which in turn means 'isSubWindowsTiled'
+    // is set to false, so we have to update the state at the end.
+    if (d->isSubWindowsTiled) {
+        tileSubWindows();
+        d->isSubWindowsTiled = true;
+    }
+
     d->updateScrollBars();
     arrangeMinimizedSubWindows();
+
+    // We don't have any maximized views.
+    if (d->isSubWindowsTiled)
+        return;
+
+    // Resize maximized views.
+    foreach (QMdiSubWindow *child, d->childWindows) {
+        if (!sanityCheck(child, "QMdiArea::resizeEvent"))
+            continue;
+        if (child->isMaximized()) {
+            Qt::WindowStates oldChildState = child->windowState();
+            Qt::WindowStates oldWidgetState = child->widget() ?
+                child->widget()->windowState() : Qt::WindowNoState;
+            child->resize(resizeEvent->size());
+            child->overrideWindowState(oldChildState | Qt::WindowMaximized);
+            if (child->widget())
+                child->widget()->overrideWindowState(oldWidgetState | Qt::WindowMaximized);
+        }
+    }
 }
 
 /*!
@@ -1165,6 +1195,7 @@ bool QMdiArea::viewportEvent(QEvent *event)
     Q_D(QMdiArea);
     switch (event->type()) {
     case QEvent::ChildRemoved: {
+        d->isSubWindowsTiled = false;
         QObject *removedChild = static_cast<QChildEvent *>(event)->child();
         for (int i = 0; i < d->childWindows.size(); ++i) {
             QObject *child = d->childWindows.at(i);
@@ -1179,29 +1210,13 @@ bool QMdiArea::viewportEvent(QEvent *event)
         break;
     }
     case QEvent::Destroy:
+        d->isSubWindowsTiled = false;
         d->indexToNextWindow = -1;
         d->indexToPreviousWindow = -1;
         d->resetActiveWindow();
         d->childWindows.clear();
         qWarning("QMdiArea: Deleting the view port is undefined, use setViewport instead.");
         break;
-    case QEvent::Resize: {
-        QResizeEvent *resizeEvent = static_cast<QResizeEvent *>(event);
-        foreach (QMdiSubWindow *child, d->childWindows) {
-            if (!sanityCheck(child, "QMdiArea::viewportEvent"))
-                continue;
-            if (child->isMaximized()) {
-                Qt::WindowStates oldChildState = child->windowState();
-                Qt::WindowStates oldWidgetState = child->widget() ?
-                                                  child->widget()->windowState() : Qt::WindowNoState;
-                child->resize(resizeEvent->size());
-                child->overrideWindowState(oldChildState | Qt::WindowMaximized);
-                if (child->widget())
-                    child->widget()->overrideWindowState(oldWidgetState | Qt::WindowMaximized);
-            }
-        }
-        break;
-    }
     default:
         break;
     }
@@ -1214,6 +1229,7 @@ bool QMdiArea::viewportEvent(QEvent *event)
 void QMdiArea::scrollContentsBy(int dx, int dy)
 {
     Q_D(QMdiArea);
+    d->isSubWindowsTiled = false;
     d->ignoreGeometryChange = true;
     viewport()->scroll(isLeftToRight() ? dx : -dx, dy);
     d->ignoreGeometryChange = false;
@@ -1226,7 +1242,9 @@ void QMdiArea::scrollContentsBy(int dx, int dy)
 */
 void QMdiArea::tileSubWindows()
 {
-    d_func()->rearrange(RegularTiler(), false);
+    Q_D(QMdiArea);
+    d->rearrange(RegularTiler(), false);
+    d->isSubWindowsTiled = true;
 }
 
 /*!
@@ -1236,7 +1254,9 @@ void QMdiArea::tileSubWindows()
 */
 void QMdiArea::cascadeSubWindows()
 {
-    d_func()->rearrange(SimpleCascader());
+    Q_D(QMdiArea);
+    d->isSubWindowsTiled = false;
+    d->rearrange(SimpleCascader());
 }
 
 /*!
@@ -1257,15 +1277,28 @@ void QMdiArea::arrangeMinimizedSubWindows()
 bool QMdiArea::event(QEvent *event)
 {
     Q_D(QMdiArea);
-    if (event->type() == QEvent::WindowActivate) {
+    switch (event->type()) {
+    case QEvent::WindowActivate:
         d->isActivated = true;
         if (d->childWindows.isEmpty())
-            return QAbstractScrollArea::event(event);
+            break;
         if (!d->active)
             d->activateWindow(d->childWindows.at(d->indicesToStackedChildren.at(0)));
         return true;
-    } else if (event->type() == QEvent::WindowDeactivate) {
+    case QEvent::WindowDeactivate:
         d->isActivated = false;
+        break;
+    case QEvent::StyleChange:
+        // Re-tile the views if we're in tiled mode. Re-tile means we will change
+        // the geometry of the children, which in turn means 'isSubWindowsTiled'
+        // is set to false, so we have to update the state at the end.
+        if (d->isSubWindowsTiled) {
+            tileSubWindows();
+            d->isSubWindowsTiled = true;
+        }
+        break;
+    default:
+        break;
     }
     return QAbstractScrollArea::event(event);
 }
@@ -1275,8 +1308,20 @@ bool QMdiArea::event(QEvent *event)
 */
 bool QMdiArea::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::Move || event->type() == QEvent::Resize)
-        d_func()->updateScrollBars();
+    Q_D(QMdiArea);
+    switch (event->type()) {
+    case QEvent::Move:
+    case QEvent::Resize:
+        d->updateScrollBars();
+        d->isSubWindowsTiled = false;
+        break;
+    case QEvent::Show:
+    case QEvent::Hide:
+        d->isSubWindowsTiled = false;
+        break;
+    default:
+        break;
+    }
     return QAbstractScrollArea::eventFilter(object, event);
 }
 
