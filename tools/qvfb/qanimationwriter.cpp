@@ -19,6 +19,10 @@
 #include <limits.h>
 #include <netinet/in.h> // for htonl
 
+#ifdef QT_LSB
+#  include <arpa/inet.h> // for htonl (LSB only)
+#endif
+
 class QAnimationWriterData
 {
 public:
@@ -78,7 +82,11 @@ public:
 
     void writePNG(const QImage& image)
     {
+#ifndef QT_LSB
+        // LSB disallows accessing the info_ptr directly. LSB's png_set_IHDR sets
+        // the channels anyways, so just comment it out for LSB usage
         info_ptr->channels = 4;
+#endif
         png_set_sig_bytes(png_ptr, 8); // Pretend we already wrote the sig
         png_set_IHDR(png_ptr, info_ptr, image.width(), image.height(),
                      8, image.hasAlphaChannel()
