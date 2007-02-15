@@ -631,30 +631,46 @@ CFG_SQL_tds=no
 CFG_SQL_oci=no
 CFG_SQL_db2=no
 
-CFG_SQL_AVAILABLE=`find "$relpath"/src/plugins/sqldrivers/* -prune -type d -exec basename {} \;`
-CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`               # normalize whitespace
-# by default, auto-detect which sql drivers can be built
-for i in $CFG_SQL_AVAILABLE; do
-    eval "CFG_SQL_$i=auto"
-done
+CFG_SQL_AVAILABLE=
+if [ -d "$relpath/src/plugins/sqldrivers" ]; then
+  for a in "$relpath/src/plugins/sqldrivers/"*; do
+     if [ -d "$a" ]; then
+	 base_a=`basename $a`
+  	 CFG_SQL_AVAILABLE="${CFG_SQL_AVAILABLE} ${base_a}"
+	 eval "CFG_SQL_${base_a}=auto"
+     fi
+  done
+fi
 
-CFG_DECORATION_PLUGIN_AVAILABLE=""
+CFG_DECORATION_PLUGIN_AVAILABLE=
 if [ -d "$relpath/src/plugins/decorations" ]; then
-    CFG_DECORATION_PLUGIN_AVAILABLE=`find "$relpath"/src/plugins/decorations/* -prune -type d -exec basename {} \;`
-    CFG_DECORATION_PLUGIN_AVAILABLE=`echo $CFG_DECORATION_PLUGIN_AVAILABLE` # normalize whitespace
+  for a in "$relpath/src/plugins/decorations/"*; do
+     if [ -d "$a" ]; then
+	 base_a=`basename $a`
+  	 CFG_DECORATION_PLUGIN_AVAILABLE="${CFG_SQL_AVAILABLE} ${base_a}"
+     fi
+  done
 fi
 
-CFG_MOUSE_PLUGIN_AVAILABLE=""
+CFG_MOUSE_PLUGIN_AVAILABLE=
 if [ -d "$relpath/src/plugins/mousedrivers" ]; then
-    CFG_MOUSE_PLUGIN_AVAILABLE=`find "$relpath"/src/plugins/mousedrivers/* -prune -type d -exec basename {} \;`
-    CFG_MOUSE_PLUGIN_AVAILABLE=`echo $CFG_MOUSE_PLUGIN_AVAILABLE` # normalize whitespace
+  for a in "$relpath/src/plugins/mousedrivers/"*; do
+     if [ -d "$a" ]; then
+	 base_a=`basename $a`
+  	 CFG_MOUSE_PLUGIN_AVAILABLE="${CFG_SQL_AVAILABLE} ${base_a}"
+     fi
+  done
 fi
 
-CFG_GFX_PLUGIN_AVAILABLE=""
+CFG_GFX_PLUGIN_AVAILABLE=
 if [ -d "$relpath/src/plugins/gfxdrivers" ]; then
-    CFG_GFX_PLUGIN_AVAILABLE=`find "$relpath"/src/plugins/gfxdrivers/* -prune -type d -exec basename {} \;`
-    CFG_GFX_PLUGIN_AVAILABLE=`echo $CFG_GFX_PLUGIN_AVAILABLE` # normalize whitespace
-    CFG_GFX_OFF="$CFG_GFX_AVAILABLE" # assume all off
+  for a in "$relpath/src/plugins/gfxdrivers/"*; do
+     if [ -d "$a" ]; then
+	 base_a=`basename $a`
+  	 CFG_GFX_PLUGIN_AVAILABLE="${CFG_SQL_AVAILABLE} ${base_a}"
+     fi
+  done
+  CFG_GFX_OFF="$CFG_GFX_AVAILABLE" # assume all off
 fi
 
 #-------------------------------------------------------------------------------
