@@ -167,16 +167,17 @@ QStyleOption::~QStyleOption()
 */
 void QStyleOption::init(const QWidget *widget)
 {
+    QWidget *window = widget->window();
     state = QStyle::State_None;
     if (widget->isEnabled())
         state |= QStyle::State_Enabled;
     if (widget->hasFocus())
         state |= QStyle::State_HasFocus;
-    if (widget->window()->testAttribute(Qt::WA_KeyboardFocusChange))
+    if (window->testAttribute(Qt::WA_KeyboardFocusChange))
         state |= QStyle::State_KeyboardFocusChange;
     if (widget->underMouse())
         state |= QStyle::State_MouseOver;
-    if (widget->window()->isActiveWindow())
+    if (window->isActiveWindow())
         state |= QStyle::State_Active;
 #ifdef Q_WS_MAC
     extern bool qt_mac_can_clickThrough(const QWidget *w); //qwidget_mac.cpp
