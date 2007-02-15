@@ -73,7 +73,8 @@ void tst_QFileSystemWatcher::basicTest()
 
     // create test file
     QFile testFile("testfile.txt");
-    testFile.remove();
+    testFile.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
+    QVERIFY(testFile.remove());
     QVERIFY(testFile.open(QIODevice::WriteOnly | QIODevice::Truncate));
     testFile.write(QByteArray("hello"));
     testFile.close();
