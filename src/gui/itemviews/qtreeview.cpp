@@ -2235,8 +2235,7 @@ void QTreeView::updateGeometries()
         QRect vg = d->viewport->geometry();
         QRect geometryRect(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
         d->header->setGeometry(geometryRect);
-        d->header->setOffset(horizontalScrollBar()->value()); // ### bug ???
-        // ### Qt 4.3 introduce hasAutoResizeSections()
+        //d->header->setOffset(horizontalScrollBar()->value()); // ### bug ???
         QMetaObject::invokeMethod(d->header, "updateGeometries");
         d->updateScrollBars();
     }
@@ -2957,6 +2956,11 @@ void QTreeViewPrivate::updateScrollBars()
         if (maxSize.width() >= horizontalLength && q->verticalScrollBar()->maximum() <= 0)
             viewportSize = maxSize;
         q->horizontalScrollBar()->setPageStep(viewportSize.width());
+
+        QWidget *w = q;
+        while (w->parentWidget())
+            w = w->parentWidget();
+
         q->horizontalScrollBar()->setRange(0, qMax(horizontalLength - viewportSize.width(), 0));
     }
 }
