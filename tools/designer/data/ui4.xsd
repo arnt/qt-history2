@@ -19,6 +19,7 @@
                         <xs:element name="includes" type="Includes" />
                         <xs:element name="resources" type="Resources" />
                         <xs:element name="connections" type="Connections" />
+                        <xs:element name="designerdata" type="DesignerData" />
                 </xs:sequence>
                 <xs:attribute name="version" type="xs:string" />
                 <xs:attribute name="language" type="xs:string" />
@@ -506,6 +507,11 @@
         </xs:complexType>
         
         <xs:complexType name="WidgetData">
+            <xs:sequence maxOccurs="unbounded">
+                <xs:element name="property" type="Property" />
+            </xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="DesignerData">
             <xs:sequence maxOccurs="unbounded">
                 <xs:element name="property" type="Property" />
             </xs:sequence>

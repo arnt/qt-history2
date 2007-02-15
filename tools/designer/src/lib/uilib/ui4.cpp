@@ -32,6 +32,7 @@ void DomUI::clear(bool clear_all)
     delete m_includes;
     delete m_resources;
     delete m_connections;
+    delete m_designerdata;
 
     if (clear_all) {
     m_text = QString();
@@ -51,6 +52,7 @@ void DomUI::clear(bool clear_all)
     m_includes = 0;
     m_resources = 0;
     m_connections = 0;
+    m_designerdata = 0;
 }
 
 DomUI::DomUI()
@@ -69,6 +71,7 @@ DomUI::DomUI()
     m_includes = 0;
     m_resources = 0;
     m_connections = 0;
+    m_designerdata = 0;
 }
 
 DomUI::~DomUI()
@@ -82,6 +85,7 @@ DomUI::~DomUI()
     delete m_includes;
     delete m_resources;
     delete m_connections;
+    delete m_designerdata;
 }
 
 void DomUI::read(const QDomElement &node)
@@ -172,6 +176,12 @@ void DomUI::read(const QDomElement &node)
             setElementConnections(v);
             continue;
         }
+        if (tag == QLatin1String("designerdata")) {
+            DomDesignerData *v = new DomDesignerData();
+            v->read(e);
+            setElementDesignerdata(v);
+            continue;
+        }
     }
 
     m_text.clear();
@@ -260,6 +270,10 @@ QDomElement DomUI::write(QDomDocument &doc, const QString &tagName) const
 
     if (m_children & Connections) {
         e.appendChild(m_connections->write(doc, QLatin1String("connections")));
+    }
+
+    if (m_children & Designerdata) {
+        e.appendChild(m_designerdata->write(doc, QLatin1String("designerdata")));
     }
 
     if (!m_text.isEmpty())
@@ -361,6 +375,13 @@ void DomUI::setElementConnections(DomConnections* a)
     m_connections = a;
 }
 
+void DomUI::setElementDesignerdata(DomDesignerData* a)
+{
+    delete m_designerdata;
+    m_children |= Designerdata;
+    m_designerdata = a;
+}
+
 void DomUI::clearElementAuthor()
 {
     m_children &= ~Author;
@@ -447,6 +468,13 @@ void DomUI::clearElementConnections()
     delete m_connections;
     m_connections = 0;
     m_children &= ~Connections;
+}
+
+void DomUI::clearElementDesignerdata()
+{
+    delete m_designerdata;
+    m_designerdata = 0;
+    m_children &= ~Designerdata;
 }
 
 void DomIncludes::clear(bool clear_all)
@@ -6892,6 +6920,74 @@ QDomElement DomWidgetData::write(QDomDocument &doc, const QString &tagName) cons
 }
 
 void DomWidgetData::setElementProperty(const QList<DomProperty*>& a)
+{
+    m_property = a;
+}
+
+void DomDesignerData::clear(bool clear_all)
+{
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
+    m_property.clear();
+
+    if (clear_all) {
+    m_text = QString();
+    }
+
+}
+
+DomDesignerData::DomDesignerData()
+{
+}
+
+DomDesignerData::~DomDesignerData()
+{
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
+    m_property.clear();
+}
+
+void DomDesignerData::read(const QDomElement &node)
+{
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("property")) {
+            DomProperty *v = new DomProperty();
+            v->read(e);
+            m_property.append(v);
+            continue;
+        }
+    }
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomDesignerData::write(QDomDocument &doc, const QString &tagName) const
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("designerdata") : tagName.toLower());
+
+    QDomElement child;
+
+    for (int i = 0; i < m_property.size(); ++i) {
+        DomProperty* v = m_property[i];
+        QDomNode child = v->write(doc, QLatin1String("property"));
+        e.appendChild(child);
+    }
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomDesignerData::setElementProperty(const QList<DomProperty*>& a)
 {
     m_property = a;
 }

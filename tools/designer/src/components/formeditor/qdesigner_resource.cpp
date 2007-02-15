@@ -64,6 +64,10 @@
 
 #include <QtXml/QDomDocument>
 
+namespace {
+    typedef QList<DomProperty*> DomPropertyList;
+}
+
 namespace qdesigner_internal {
 
 QDesignerResource::QDesignerResource(FormWindow *formWindow)
@@ -152,7 +156,23 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
         ui->setElementExportMacro(exportMacro);
     }
 
+    const QVariantMap designerFormData = m_formWindow->formData();
+    if (!designerFormData.empty()) {
+        DomPropertyList domPropertyList;
+        const  QVariantMap::const_iterator cend = designerFormData.constEnd();
+        for (QVariantMap::const_iterator it = designerFormData.constBegin(); it != cend; ++it) {
+            if (DomProperty *prop = variantToDomProperty(this, widget, it.key(), it.value()))
+                domPropertyList += prop;
+        }
+        if (!domPropertyList.empty()) {
+            DomDesignerData* domDesignerFormData = new DomDesignerData;
+            domDesignerFormData->setElementProperty(domPropertyList);
+            ui->setElementDesignerdata(domDesignerFormData);
+        }
+    }
+
     if (!m_formWindow->includeHints().isEmpty()) {
+        const QString emptyString;
         QList<DomInclude*> ui_includes;
         foreach (QString includeHint, m_formWindow->includeHints()) {
             if (includeHint.isEmpty())
@@ -164,9 +184,9 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
                 location = QLatin1String("global");
 
             includeHint = includeHint
-                .replace(QLatin1Char('"'), QLatin1String(""))
-                .replace(QLatin1Char('<'), QLatin1String(""))
-                .replace(QLatin1Char('>'), QLatin1String(""));
+                .replace(QLatin1Char('"'), emptyString)
+                .replace(QLatin1Char('<'), emptyString)
+                .replace(QLatin1Char('>'), emptyString);
 
             incl->setAttributeLocation(location);
             incl->setText(includeHint);
@@ -231,7 +251,7 @@ static bool convert3(const QString &fileName, QByteArray& ba, QString &errorMess
         errorMessage = QApplication::translate("Designer", "%1 timed out.").arg(binary);
         return false;
     }
-    if (uic3.exitCode()) {        
+    if (uic3.exitCode()) {
         errorMessage =  uic3.readAllStandardError();
         return false;
     }
@@ -290,6 +310,20 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
         m_formWindow->setAuthor(ui->elementAuthor());
         m_formWindow->setComment(ui->elementComment());
         m_formWindow->setExportMacro(ui->elementExportMacro());
+
+        // Designer data
+        QVariantMap designerFormData;
+        if (ui->hasElementDesignerdata()) {
+            const DomPropertyList domPropertyList = ui->elementDesignerdata()->elementProperty();
+            const DomPropertyList::const_iterator cend = domPropertyList.constEnd();
+            for (DomPropertyList::const_iterator it = domPropertyList.constBegin(); it != cend; ++it) {
+                const QVariant vprop = domPropertyToVariant(this, mainWidget->metaObject(), *it);
+                if (vprop.type() != QVariant::Invalid)
+                    designerFormData.insert((*it)->attributeName(), vprop);
+            }
+        }
+        m_formWindow->setFormData(designerFormData);
+
         m_formWindow->setPixmapFunction(ui->elementPixmapFunction());
 
         if (DomLayoutDefault *def = ui->elementLayoutDefault()) {
@@ -745,7 +779,6 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
     return ui_item;
 }
 
-    
 void QDesignerResource::addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& custom_widget_list)
 {
     // Perform one iteration of adding the custom widgets to the database,
@@ -780,7 +813,7 @@ void QDesignerResource::addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& cu
         } else {
             // Create a new entry cloned from base class. Note that this will ignore existing
             // classes, eg, plugin custom widgets.
-            QDesignerWidgetDataBaseItemInterface *item = 
+            QDesignerWidgetDataBaseItemInterface *item =
                 appendDerived(db, customClassName, QApplication::translate("Designer", "Promoted Widgets"),
                               base_class,
                               buildIncludeFile(includeFile, includeType),

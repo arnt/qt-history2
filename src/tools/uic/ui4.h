@@ -115,6 +115,7 @@ class DomConnectionHints;
 class DomConnectionHint;
 class DomScript;
 class DomWidgetData;
+class DomDesignerData;
 
 /*******************************************************************************
 ** Declarations
@@ -217,6 +218,11 @@ public:
     inline bool hasElementConnections() const { return m_children & Connections; }
     void clearElementConnections();
 
+    inline DomDesignerData* elementDesignerdata() const { return m_designerdata; }
+    void setElementDesignerdata(DomDesignerData* a);
+    inline bool hasElementDesignerdata() const { return m_children & Designerdata; }
+    void clearElementDesignerdata();
+
 private:
     QString m_text;
     void clear(bool clear_all = true);
@@ -247,6 +253,7 @@ private:
     DomIncludes* m_includes;
     DomResources* m_resources;
     DomConnections* m_connections;
+    DomDesignerData* m_designerdata;
     enum Child {
         Author = 1,
         Comment = 2,
@@ -261,7 +268,8 @@ private:
         Images = 1024,
         Includes = 2048,
         Resources = 4096,
-        Connections = 8192
+        Connections = 8192,
+        Designerdata = 16384
     };
 
     DomUI(const DomUI &other);
@@ -2878,6 +2886,33 @@ private:
 
     DomWidgetData(const DomWidgetData &other);
     void operator = (const DomWidgetData&other);
+};
+
+class QDESIGNER_UILIB_EXPORT DomDesignerData {
+public:
+    DomDesignerData();
+    ~DomDesignerData();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString()) const;
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    // child element accessors
+    inline QList<DomProperty*> elementProperty() const { return m_property; }
+    void setElementProperty(const QList<DomProperty*>& a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    // child element data
+    QList<DomProperty*> m_property;
+
+    DomDesignerData(const DomDesignerData &other);
+    void operator = (const DomDesignerData&other);
 };
 
 
