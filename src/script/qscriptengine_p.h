@@ -509,16 +509,16 @@ inline QScriptClassInfo *QScriptEnginePrivate::registerClass(const QString &pnam
 {
     if (type == -1)
         type = QScript::Type(QScript::ObjectBased | ++m_class_prev_id);
-    
+
     QScriptClassInfo *oc = &*m_allocated_classes.insert(
         m_allocated_classes.end (), QScriptClassInfo());
     oc->m_engine = q_func();
     oc->m_type = type;
     oc->m_name = pname;
     oc->m_data = 0;
-    
+
     m_classes[type] = oc;
-    
+
     return oc;
 }
 
@@ -761,7 +761,7 @@ inline void QScriptEnginePrivate::setDefaultPrototype(int metaTypeId, const QScr
     m_customTypes.insert(metaTypeId, info);
 }
 
-inline QScriptNameIdImpl *QScriptEnginePrivate::QScriptEnginePrivate::toStringEntry(const QString &s)
+inline QScriptNameIdImpl *QScriptEnginePrivate::toStringEntry(const QString &s)
 {
     uint h = qHash(s) % m_string_hash_size;
 
