@@ -175,6 +175,10 @@ void tst_QTableView::getSetCheck()
     obj1.setVerticalHeader((QHeaderView *)0);
     QCOMPARE(var2, obj1.verticalHeader());
     delete var2;
+
+    QCOMPARE(obj1.isCornerButtonEnabled(), true);
+    obj1.setCornerButtonEnabled(false);
+    QCOMPARE(obj1.isCornerButtonEnabled(), false);
 }
 
 class QtTestTableModel: public QAbstractTableModel
