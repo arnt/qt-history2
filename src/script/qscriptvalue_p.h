@@ -14,8 +14,7 @@
 #ifndef QSCRIPTVALUE_P_H
 #define QSCRIPTVALUE_P_H
 
-#include <QtCore/qatomic.h>
-#include "qscriptvalueimpl_p.h"
+#include "qscriptvaluefwd_p.h"
 
 //
 //  W A R N I N G
@@ -28,42 +27,44 @@
 // We mean it.
 //
 
-class QScriptValuePrivate
+inline QScriptValuePrivate::QScriptValuePrivate()
 {
-public:
-    inline QScriptValuePrivate() { ref.init(); }
-    inline QScriptValuePrivate(const QScriptValueImpl &value)
-        : value(value) { ref.init(); }
+    ref.init();
+}
 
-    static inline QScriptValuePrivate *get(const QScriptValue &value)
-    { return const_cast<QScriptValuePrivate*>(value.d_func()); }
+inline QScriptValuePrivate::QScriptValuePrivate(const QScriptValueImpl &value)
+    : value(value)
+{
+    ref.init();
+}
 
-    static inline QScriptValueImpl valueOf(const QScriptValue &value)
-    {
-        const QScriptValuePrivate *p = value.d_func();
-        if (!p)
-            return QScriptValueImpl();
-        return p->value;
-    }
+inline QScriptValuePrivate *QScriptValuePrivate::get(const QScriptValue &value)
+{
+    return const_cast<QScriptValuePrivate*>(value.d_func());
+}
 
-    static inline void init(QScriptValue &value, QScriptValuePrivate *p)
-    {
-        Q_ASSERT(value.d_ptr == 0);
-        value.d_ptr = p;
-        value.d_ptr->ref.ref();
-    }
+inline QScriptValueImpl QScriptValuePrivate::valueOf(const QScriptValue &value)
+{
+    const QScriptValuePrivate *p = value.d_func();
+    if (!p)
+        return QScriptValueImpl();
+    return p->value;
+}
 
-    static inline QScriptValueImplList toImplList(const QScriptValueList &lst)
-    {
-        QScriptValueImplList result;
-        QScriptValueList::const_iterator it;
-        for (it = lst.constBegin(); it != lst.constEnd(); ++it)
-            result.append((*it).d_ptr->value);
-        return result;
-    }
+inline void QScriptValuePrivate::init(QScriptValue &value, QScriptValuePrivate *p)
+{
+    Q_ASSERT(value.d_ptr == 0);
+    value.d_ptr = p;
+    value.d_ptr->ref.ref();
+}
 
-    QScriptValueImpl value;
-    QBasicAtomic ref;
-};
+inline QScriptValueImplList QScriptValuePrivate::toImplList(const QScriptValueList &lst)
+{
+    QScriptValueImplList result;
+    QScriptValueList::const_iterator it;
+    for (it = lst.constBegin(); it != lst.constEnd(); ++it)
+        result.append((*it).d_ptr->value);
+    return result;
+}
 
 #endif

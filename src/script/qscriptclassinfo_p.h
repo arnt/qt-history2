@@ -28,6 +28,7 @@
 class QScriptEngine;
 #include "qscriptglobals_p.h"
 #include "qscriptclassdata_p.h"
+#include <QtCore/qstring.h>
 #include <QtCore/qshareddata.h>
 
 class QScriptClassInfo

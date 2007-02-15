@@ -25,10 +25,14 @@
 // We mean it.
 //
 
+#include <QtCore/qshareddata.h>
+
 class QScriptValueImpl;
 class QScriptNameIdImpl;
-#include "qscriptmember_p.h"
-#include <QtCore/qshareddata.h>
+
+namespace QScript {
+    class Member;
+}
 
 class QScriptClassData: public QSharedData
 {

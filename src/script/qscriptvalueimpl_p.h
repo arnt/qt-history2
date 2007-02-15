@@ -14,12 +14,18 @@
 #ifndef QSCRIPTVALUEIMPL_P_H
 #define QSCRIPTVALUEIMPL_P_H
 
-#include "qscriptclassinfo_p.h"
-#include "qscriptvalue.h"
+#include "qscriptvalueimplfwd_p.h"
+#include "qscriptecmaarray_p.h"
+#include "qscriptecmadate_p.h"
+#include "qscriptecmaerror_p.h"
+#include "qscriptecmaregexp_p.h"
+#include "qscriptextqobject_p.h"
+#include "qscriptextvariant_p.h"
+#include "qscriptvaluefwd_p.h"
+#include "qscriptnameid_p.h"
+#include "qscriptenginefwd_p.h"
 
-#include <QtCore/qstring.h>
-#include <QtCore/qlist.h>
-#include <QtCore/qshareddata.h>
+#include <QtCore/QDateTime>
 
 //
 //  W A R N I N G
@@ -32,205 +38,756 @@
 // We mean it.
 //
 
-class QScriptValueImpl;
-typedef QList<QScriptValueImpl> QScriptValueImplList;
+inline QScriptValueImpl::QScriptValueImpl()
+    : m_class(0) {}
 
-class QScriptObject;
-class QScriptObjectData;
-class QScriptNameIdImpl;
-class QScriptClassInfo;
-class QScriptFunction;
-
-class QScriptValueImpl
+inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, QScriptValue::SpecialValue val)
 {
-public:
-    inline QScriptValueImpl() : m_class(0) {}
-    QScriptValueImpl(QScriptEnginePrivate *engine, QScriptValue::SpecialValue val);
-    QScriptValueImpl(QScriptEnginePrivate *engine, bool val);
-    QScriptValueImpl(QScriptEnginePrivate *engine, int val);
-    QScriptValueImpl(QScriptEnginePrivate *engine, uint val);
-    QScriptValueImpl(QScriptEnginePrivate *engine, qlonglong val);
-    QScriptValueImpl(QScriptEnginePrivate *engine, qulonglong val);
-    QScriptValueImpl(QScriptEnginePrivate *engine, qsreal val);
-    QScriptValueImpl(QScriptEnginePrivate *engine, const QString &val);
+    if (val == QScriptValue::NullValue)
+        engine->newNull(this);
+    else if (val == QScriptValue::UndefinedValue)
+        engine->newUndefined(this);
+}
 
-#ifndef QT_NO_CAST_FROM_ASCII
-    QT_ASCII_CAST_WARN_CONSTRUCTOR QScriptValueImpl(QScriptEnginePrivate *engine, const char *val);
+inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, bool val)
+{
+    engine->newBoolean(this, val);
+}
+
+inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, int val)
+{
+    engine->newNumber(this, val);
+}
+
+inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, uint val)
+{
+    engine->newNumber(this, val);
+}
+
+inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, qlonglong val)
+{
+    engine->newNumber(this, val);
+}
+
+inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, qulonglong val)
+{
+#if defined(Q_OS_WIN) && _MSC_FULL_VER <= 12008804
+#pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
+    engine->newNumber(this, (qlonglong)val);
+#else
+    engine->newNumber(this, val);
+#endif
+}
+
+inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, qsreal val)
+{
+    engine->newNumber(this, val);
+}
+
+inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, const QString &val)
+{
+    engine->newString(this, val);
+}
+
+inline QScript::Type QScriptValueImpl::type() const
+{
+    Q_ASSERT(isValid());
+    return m_class->type();
+}
+
+inline QScriptEngine *QScriptValueImpl::engine() const
+{
+    if (! m_class)
+        return 0;
+    return m_class->engine();
+}
+
+inline QScriptClassInfo *QScriptValueImpl::classInfo() const
+{
+    return m_class;
+}
+
+inline void QScriptValueImpl::setClassInfo(QScriptClassInfo *cls)
+{
+    m_class = cls;
+}
+
+inline QScriptNameIdImpl *QScriptValueImpl::stringValue() const
+{
+    Q_ASSERT(isString());
+    return m_string_value;
+}
+
+inline QScriptObject *QScriptValueImpl::objectValue() const
+{
+    Q_ASSERT(isObject());
+    return m_object_value;
+}
+
+inline void QScriptValueImpl::incr()
+{
+    ++m_number_value;
+}
+
+inline void QScriptValueImpl::decr()
+{
+    --m_number_value;
+}
+
+inline void QScriptValueImpl::invalidate()
+{
+    m_class = 0;
+}
+
+inline bool QScriptValueImpl::isValid() const
+{
+    return m_class && m_class->engine();
+}
+
+inline bool QScriptValueImpl::isBoolean() const
+{
+    return m_class && m_class->type() == QScript::BooleanType;
+}
+
+inline bool QScriptValueImpl::isNumber() const
+{
+    return m_class && m_class->type() == QScript::NumberType;
+}
+
+inline bool QScriptValueImpl::isString() const
+{
+    return m_class && m_class->type() == QScript::StringType;
+}
+
+inline bool QScriptValueImpl::isFunction() const
+{
+    return m_class && (m_class->type() & QScript::FunctionBased);
+}
+
+inline bool QScriptValueImpl::isObject() const
+{
+    return m_class && (m_class->type() & QScript::ObjectBased);
+}
+
+inline bool QScriptValueImpl::isUndefined() const
+{
+    return m_class && m_class->type() == QScript::UndefinedType;
+}
+
+inline bool QScriptValueImpl::isNull() const
+{
+    return m_class && m_class->type() == QScript::NullType;
+}
+
+inline bool QScriptValueImpl::isVariant() const
+{
+    return m_class && m_class->type() == QScript::VariantType;
+}
+
+inline bool QScriptValueImpl::isQObject() const
+{
+    return m_class && m_class->type() == QScript::QObjectType;
+}
+
+inline bool QScriptValueImpl::isReference() const
+{
+    Q_ASSERT(isValid());
+    return m_class->type() == QScript::ReferenceType;
+}
+
+inline QScriptValueImpl::operator QScriptValue() const
+{
+    if (!isValid())
+        return QScriptValue();
+
+    QScriptValuePrivate *p = QScriptEnginePrivate::get(engine())->registerValue(*this);
+    QScriptValue v;
+    QScriptValuePrivate::init(v, p);
+    return v;
+}
+
+inline bool QScriptValueImpl::isArray() const
+{
+    if (!isObject())
+        return false;
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    return m_class == eng_p->arrayConstructor->classInfo();
+}
+
+inline bool QScriptValueImpl::isDate() const
+{
+    if (!isObject())
+        return false;
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    return m_class == eng_p->dateConstructor->classInfo();
+}
+
+inline bool QScriptValueImpl::isError() const
+{
+    if (!isObject())
+        return false;
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    return m_class == eng_p->errorConstructor->classInfo();
+}
+
+inline bool QScriptValueImpl::isRegExp() const
+{
+    if (!isObject())
+        return false;
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    return m_class == eng_p->regexpConstructor->classInfo();
+}
+
+inline qsreal QScriptValueImpl::toNumber() const
+{
+    if (!isValid())
+        return 0;
+    return QScriptEnginePrivate::get(engine())->convertToNativeDouble(*this);
+}
+
+inline bool QScriptValueImpl::toBoolean() const
+{
+    if (!isValid())
+        return false;
+    return QScriptEnginePrivate::get(engine())->convertToNativeBoolean(*this);
+}
+
+inline QString QScriptValueImpl::toString() const
+{
+    if (!isValid())
+        return QString();
+    return QScriptEnginePrivate::get(engine())->convertToNativeString(*this);
+}
+
+inline qint32 QScriptValueImpl::toInt32() const
+{
+    if (!isValid())
+        return 0;
+    double d = QScriptEnginePrivate::get(engine())->convertToNativeDouble(*this);
+    return QScriptEnginePrivate::toInt32(d);
+}
+
+inline quint32 QScriptValueImpl::toUInt32() const
+{
+    if (!isValid())
+        return 0;
+    double d = QScriptEnginePrivate::get(engine())->convertToNativeDouble(*this);
+    return QScriptEnginePrivate::toUint32(d);
+}
+
+inline quint16 QScriptValueImpl::toUInt16() const
+{
+    if (!isValid())
+        return 0;
+    double d = QScriptEnginePrivate::get(engine())->convertToNativeDouble(*this);
+    return QScriptEnginePrivate::toUint16(d);
+}
+
+inline qsreal QScriptValueImpl::toInteger() const
+{
+    if (!isValid())
+        return 0;
+    double d = QScriptEnginePrivate::get(engine())->convertToNativeDouble(*this);
+    return QScriptEnginePrivate::toInteger(d);
+}
+
+inline QVariant QScriptValueImpl::toVariant() const
+{
+    if (!isValid())
+        return QVariant();
+    switch (m_class->type()) {
+
+    case QScript::UndefinedType:
+    case QScript::PointerType:
+    case QScript::FunctionType:
+        break;
+
+    case QScript::NullType:
+        return QVariant(0); // ### hmm...
+
+    case QScript::BooleanType:
+        return QVariant(m_bool_value);
+
+    case QScript::IntegerType:
+        return QVariant(m_int_value);
+
+    case QScript::NumberType:
+        return QVariant(m_number_value);
+
+    case QScript::StringType:
+        return QVariant(m_string_value->s);
+
+    case QScript::VariantType:
+        return variantValue();
+
+#ifndef QT_NO_QOBJECT
+    case QScript::QObjectType:
+        return qVariantFromValue(toQObject());
 #endif
 
-    inline QScript::Type type() const
-    {
-        Q_ASSERT(isValid());
-        return m_class->type();
+    default: {
+        QScriptValue v = toPrimitive();
+
+        if (!v.isObject())
+            return v.toVariant();
     }
 
-    inline QScriptEngine *engine() const
-    {
-        if (! m_class)
-            return 0;
-        return m_class->engine();
-    }
+    } // switch
+    return QVariant();
+}
 
-    inline QScriptClassInfo *classInfo() const
-    { return m_class; }
+inline QScriptValueImpl QScriptValueImpl::toObject() const
+{
+    if (!isValid())
+        return QScriptValueImpl();
+    return QScriptEnginePrivate::get(engine())->toObject(*this);
+}
 
-    inline void setClassInfo(QScriptClassInfo *cls)
-    { m_class = cls; }
+inline QDateTime QScriptValueImpl::toDateTime() const
+{
+    if (!isDate())
+        return QDateTime();
+    return QScriptEnginePrivate::get(engine())->toDateTime(*this);
+}
 
-    inline QScriptNameIdImpl *stringValue() const
-    {
-        Q_ASSERT(isString());
-        return m_string_value;
-    }
-
-    inline QScriptObject *objectValue() const
-    {
-        Q_ASSERT(isObject());
-        return m_object_value;
-    }
-
-    inline void incr() {
-        ++m_number_value;
-    }
-
-    inline void decr() {
-        --m_number_value;
-    }
-
-    inline void invalidate()
-    { m_class = 0; }
-
-    inline bool isValid() const
-    { return m_class && m_class->engine(); }
-
-    inline bool isBoolean() const
-    { return m_class && m_class->type() == QScript::BooleanType; }
-
-    inline bool isNumber() const
-    { return m_class && m_class->type() == QScript::NumberType; }
-
-    inline bool isString() const
-    { return m_class && m_class->type() == QScript::StringType; }
-
-    inline bool isFunction() const
-    { return m_class && (m_class->type() & QScript::FunctionBased); }
-
-    inline bool isObject() const
-    { return m_class && (m_class->type() & QScript::ObjectBased); }
-
-    inline bool isUndefined() const
-    { return m_class && m_class->type() == QScript::UndefinedType; }
-
-    inline bool isNull() const
-    { return m_class && m_class->type() == QScript::NullType; }
-
-    inline bool isVariant() const
-    { return m_class && m_class->type() == QScript::VariantType; }
-
-    inline bool isQObject() const
-    { return m_class && m_class->type() == QScript::QObjectType; }
-
-    inline bool isReference() const
-    {
-        Q_ASSERT(isValid());
-        return m_class->type() == QScript::ReferenceType;
-    }
-
-    bool isError() const;
-    bool isArray() const;
-    bool isDate() const;
-    bool isRegExp() const;
-
-    QString toString() const;
-    qsreal toNumber() const;
-    bool toBoolean() const;
-    qsreal toInteger() const;
-    qint32 toInt32() const;
-    quint32 toUInt32() const;
-    quint16 toUInt16() const;
-    QVariant toVariant() const;
-    QObject *toQObject() const;
-    QScriptValueImpl toObject() const;
-    QDateTime toDateTime() const;
 #ifndef QT_NO_REGEXP
-    QRegExp toRegExp() const;
+inline QRegExp QScriptValueImpl::toRegExp() const
+{
+    if (!isRegExp())
+        return QRegExp();
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    return eng_p->regexpConstructor->toRegExp(*this);
+}
+#endif // QT_NO_REGEXP
+
+inline QScriptValueImpl QScriptValueImpl::toPrimitive(QScriptValue::TypeHint hint) const
+{
+    if (!isValid())
+        return QScriptValueImpl();
+    return QScriptEnginePrivate::get(engine())->toPrimitive(*this, hint);
+}
+
+inline QObject *QScriptValueImpl::toQObject() const
+{
+#ifndef QT_NO_QOBJECT
+    if (isQObject()) {
+        QScript::ExtQObject *ctor = QScriptEnginePrivate::get(engine())->qobjectConstructor;
+        Q_ASSERT(ctor != 0);
+
+        QScript::ExtQObject::Instance *data = ctor->get(*this);
+        Q_ASSERT(data != 0);
+
+        return data->value;
+    }
 #endif
-    QScriptValueImpl toPrimitive(QScriptValue::TypeHint hint = QScriptValue::NoTypeHint) const;
 
-    QVariant variantValue() const;
-    void setVariantValue(const QVariant &v);
+    return 0;
+}
 
-    bool instanceOf(const QScriptValueImpl &ctor) const;
+inline QScriptValueImpl QScriptValueImpl::prototype() const
+{
+    if (!isObject())
+        return QScriptValueImpl();
+    return m_object_value->m_prototype;
+}
 
-    QScriptValueImpl prototype() const;
-    void setPrototype(const QScriptValueImpl &prototype);
+inline void QScriptValueImpl::setPrototype(const QScriptValueImpl &prototype)
+{
+    if (isObject())
+        m_object_value->m_prototype = prototype;
+}
 
-    QScriptValueImpl property(QScriptNameIdImpl *nameId,
-                              const QScriptValue::ResolveFlags &mode = QScriptValue::ResolveLocal) const;
-    void setProperty(QScriptNameIdImpl *nameId, const QScriptValueImpl &value,
-                     const QScriptValue::PropertyFlags &flags = 0);
+inline QExplicitlySharedDataPointer<QScriptObjectData> QScriptValueImpl::objectData() const
+{
+    Q_ASSERT(isObject());
+    return m_object_value->m_data;
+}
 
-    QScriptValueImpl property(const QString &name,
-                              const QScriptValue::ResolveFlags &mode = QScriptValue::ResolveLocal) const;
-    void setProperty(const QString &name, const QScriptValueImpl &value,
-                     const QScriptValue::PropertyFlags &flags = 0);
+inline void QScriptValueImpl::setObjectData(QExplicitlySharedDataPointer<QScriptObjectData> data)
+{
+    Q_ASSERT(isObject());
+    m_object_value->m_data = data;
+}
 
-    QScriptValueImpl property(quint32 arrayIndex,
-                              const QScriptValue::ResolveFlags &mode = QScriptValue::ResolveLocal) const;
-    void setProperty(quint32 arrayIndex, const QScriptValueImpl &value,
-                     const QScriptValue::PropertyFlags &flags = 0);
+inline bool QScriptValueImpl::resolve(QScriptNameIdImpl *nameId, QScript::Member *member,
+                               QScriptValueImpl *object, QScriptValue::ResolveFlags mode) const
+{
+    Q_ASSERT(isValid());
+    Q_ASSERT(isObject());
+    Q_ASSERT(member);
+    Q_ASSERT(object);
+    
+    Q_ASSERT(nameId->unique);
+    
+    QScriptObject *object_data = m_object_value;
+    
+    // Search in properties...
+    if (object_data->findMember(nameId, member)) {
+        *object = *this;
+        return true;
+    }
+    
+    return resolve_helper(nameId, member, object, mode);
+}
 
-    QScriptValueImpl call(const QScriptValueImpl &thisObject = QScriptValueImpl(),
-                          const QScriptValueImplList &args = QScriptValueImplList());
-    QScriptValueImpl construct(const QScriptValueImplList &args = QScriptValueImplList());
+inline void QScriptValueImpl::get(const QScript::Member &member, QScriptValueImpl *obj) const
+{
+    Q_ASSERT(obj);
+    Q_ASSERT(isObject());
+    Q_ASSERT(member.isValid());
+    
+    if (! member.isObjectProperty()) {
+        get_helper(member, obj);
+        return;
+    }
 
-    void mark(int) const;
+    Q_ASSERT(member.id() >= 0);
+    Q_ASSERT(member.id() < m_object_value->memberCount());
+    Q_ASSERT(member.nameId());
+    Q_ASSERT(member.nameId()->unique);
 
-    operator QScriptValue() const;
+    m_object_value->get(member, obj);
+}
 
-    QScriptValueImpl internalValue() const;
-    void setInternalValue(const QScriptValueImpl &internalValue);
+inline void QScriptValueImpl::get(QScriptNameIdImpl *nameId, QScriptValueImpl *out)
+{
+    QScript::Member m;
+    QScriptValueImpl o;
+    if (resolve(nameId, &m, &o, QScriptValue::ResolvePrototype))
+        o.get(m, out);
+    else
+        QScriptEnginePrivate::get(engine())->newUndefined(out);
+}
 
-    void setQObjectValue(QObject *object);
+inline void QScriptValueImpl::get_helper(const QScript::Member &member, QScriptValueImpl *obj) const
+{
+    QScriptEnginePrivate *eng = QScriptEnginePrivate::get(engine());
 
-    QExplicitlySharedDataPointer<QScriptObjectData> objectData() const;
-    void setObjectData(QExplicitlySharedDataPointer<QScriptObjectData> data);
+    if (member.nameId() == eng->idTable()->id___proto__) {
+        *obj = prototype();
 
-    void createMember(QScriptNameIdImpl *nameId,
-                      QScript::Member *member, uint flags); // ### remove me
-    int memberCount() const;
-    void member(int index, QScript::Member *member) const;
+        if (!obj->isValid())
+            eng->newUndefined(obj);
 
-    bool resolve(QScriptNameIdImpl *nameId, QScript::Member *member,
-                 QScriptValueImpl *object, QScriptValue::ResolveFlags mode) const;
-    bool resolve_helper(QScriptNameIdImpl *nameId, QScript::Member *member,
-                        QScriptValueImpl *object, QScriptValue::ResolveFlags mode) const;
-    void get(const QScript::Member &member, QScriptValueImpl *obj) const;
-    void get_helper(const QScript::Member &member, QScriptValueImpl *obj) const;
-    void get(QScriptNameIdImpl *nameId, QScriptValueImpl *out);
-    void put(const QScript::Member &member, const QScriptValueImpl &object);
-    void removeMember(const QScript::Member &member);
-   
-    QScriptValueImpl scope() const;
-    void setScope(const QScriptValueImpl &scope);
+        return;
+    }
 
-    QScriptFunction *toFunction() const;
+    if (QScriptClassData *data = classInfo()->data()) {
+        if (data->get(*this, member, obj))
+            return;
+    }
 
-    bool lessThan(const QScriptValueImpl &other) const;
-    bool equalTo(const QScriptValueImpl &other) const;
-    bool strictEqualTo(const QScriptValueImpl &other) const;
+    obj->invalidate();
 
-    bool detectedCycle() const;
+    if (! isFunction()) {
+        return;
+    } else if (member.nameId() == eng->idTable()->id_length) {
+        QScriptFunction *foo = eng->convertToNativeFunction(*this);
+        Q_ASSERT(foo != 0);
+        eng->newNumber(obj, foo->length);
+    } else if (member.nameId() == eng->idTable()->id_arguments) {
+        eng->newNull(obj);
+    }
+}
 
-    union {
-        bool m_bool_value;
-        int m_int_value;
-        qsreal m_number_value;
-        void *m_ptr_value;
-        QScriptObject *m_object_value;
-        QScriptNameIdImpl *m_string_value;
-    };
-    QScriptClassInfo *m_class;
-};
+inline void QScriptValueImpl::put(const QScript::Member &member, const QScriptValueImpl &object)
+{
+    Q_ASSERT(isObject());
+    Q_ASSERT(member.isValid());
+    // Q_ASSERT(member.isWritable());
+
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+
+    if (member.isObjectProperty()) {
+        Q_ASSERT(member.nameId()->unique);
+        Q_ASSERT(member.id() >= 0);
+        Q_ASSERT(member.id() < m_object_value->memberCount());
+        m_object_value->put(member, object);
+    }
+
+    else if (member.nameId() == eng_p->idTable()->id___proto__) {
+        if (object.isNull()) // only Object.prototype.__proto__ can be null
+            setPrototype(eng_p->undefinedValue());
+        else {
+            QScriptValueImpl was = prototype();
+            setPrototype(object);
+            if (detectedCycle()) {
+                qWarning() << "*** cycle detected"; // ### throw an exception
+                setPrototype(was);
+            }
+        }
+    }
+
+    else {
+        Q_ASSERT(classInfo()->data());
+        classInfo()->data()->put(this, member, object);
+    }
+}
+
+inline void QScriptValueImpl::setQObjectValue(QObject *object)
+{
+#ifndef QT_NO_QOBJECT
+    Q_ASSERT(isQObject());
+
+    QScript::ExtQObject *ctor = QScriptEnginePrivate::get(engine())->qobjectConstructor;
+    Q_ASSERT(ctor != 0);
+
+    QScript::ExtQObject::Instance *data = ctor->get(*this);
+    Q_ASSERT(data != 0);
+
+    data->value = object;
+#else
+    Q_UNUSED(object);
+#endif
+}
+
+inline QVariant QScriptValueImpl::variantValue() const
+{
+    Q_ASSERT(isVariant());
+
+    QScript::Ext::Variant *ctor = QScriptEnginePrivate::get(engine())->variantConstructor;
+    Q_ASSERT(ctor != 0);
+
+    QScript::Ext::Variant::Instance *data = ctor->get(*this);
+    Q_ASSERT(data != 0);
+
+    return data->value;
+}
+
+inline void QScriptValueImpl::setVariantValue(const QVariant &value)
+{
+    if (!isVariant())
+        return;
+
+    QScript::Ext::Variant *ctor = QScriptEnginePrivate::get(engine())->variantConstructor;
+    Q_ASSERT(ctor != 0);
+
+    QScript::Ext::Variant::Instance *data = ctor->get(*this);
+    Q_ASSERT(data != 0);
+
+    data->value = value;
+}
+
+inline QScriptValueImpl QScriptValueImpl::internalValue() const
+{
+    Q_ASSERT(isObject());
+    return m_object_value->m_internalValue;
+}
+
+inline void QScriptValueImpl::setInternalValue(const QScriptValueImpl &internalValue)
+{
+    Q_ASSERT(isObject());
+    m_object_value->m_internalValue = internalValue;
+}
+
+inline void QScriptValueImpl::removeMember(const QScript::Member &member)
+{
+    if (member.isObjectProperty())
+        m_object_value->removeMember(member);
+
+    else if (QScriptClassData *data = m_class->data())
+        data->removeMember(*this, member);
+}
+
+inline void QScriptValueImpl::createMember(QScriptNameIdImpl *nameId,
+                                    QScript::Member *member, uint flags)
+{
+    Q_ASSERT(isObject());
+    
+    QScriptObject *object_data = m_object_value;
+    object_data->createMember(nameId, member, flags);
+    Q_ASSERT(member->isObjectProperty());
+}
+
+inline QScriptValueImpl QScriptValueImpl::scope() const
+{
+    Q_ASSERT(isObject());
+    return m_object_value->m_scope;
+}
+
+inline void QScriptValueImpl::setScope(const QScriptValueImpl &scope)
+{
+    Q_ASSERT(isObject());
+    m_object_value->m_scope = scope;
+}
+
+inline int QScriptValueImpl::memberCount() const
+{
+    Q_ASSERT(isObject());
+
+    int count = m_object_value->memberCount();
+    
+    if (m_class->data())
+        count += m_class->data()->extraMemberCount(*this);
+    
+    return count;
+}
+
+inline void QScriptValueImpl::member(int index, QScript::Member *member) const
+{
+    Q_ASSERT(isObject());
+
+    if (QScriptClassData *data = m_class->data()) {
+        int extra = data->extraMemberCount(*this);
+        if (index < extra) {
+            data->extraMember(*this, index, member);
+            return;
+        }
+        index -= extra;
+    }
+    
+    m_object_value->member(index, member);
+}
+
+inline QScriptFunction *QScriptValueImpl::toFunction() const
+{
+    if (!isFunction())
+        return 0;
+    return QScriptEnginePrivate::get(engine())->convertToNativeFunction(*this);
+}
+
+inline QScriptValueImpl QScriptValueImpl::property(QScriptNameIdImpl *nameId,
+                                            const QScriptValue::ResolveFlags &mode) const
+{
+    if (!isObject())
+        return QScriptValueImpl();
+
+    QScriptValueImpl base;
+    QScript::Member member;
+
+    if (! resolve(nameId, &member, &base, mode))
+        return QScriptValueImpl();
+
+    QScriptValueImpl value;
+    base.get(nameId, &value);
+    if (member.isGetterOrSetter()) {
+        QScriptValueImpl getter;
+        if (member.isObjectProperty() && !member.isGetter())
+            base.m_object_value->findGetter(&member);
+        base.get(member, &getter);
+        value = getter.call(*this);
+    }
+    return value;
+}
+
+inline void QScriptValueImpl::setProperty(const QString &name, const QScriptValueImpl &value,
+                                   const QScriptValue::PropertyFlags &flags)
+{
+    if (!isObject())
+        return;
+    QScriptNameIdImpl *nameId = QScriptEnginePrivate::get(engine())->nameId(name);
+    setProperty(nameId, value, flags);
+}
+
+inline QScriptValueImpl QScriptValueImpl::property(const QString &name,
+                                            const QScriptValue::ResolveFlags &mode) const
+{
+    if (!isObject())
+        return QScriptValueImpl();
+    QScriptNameIdImpl *nameId = QScriptEnginePrivate::get(engine())->nameId(name);
+    return property(nameId, mode);
+}
+
+inline QScriptValueImpl QScriptValueImpl::property(quint32 arrayIndex,
+                                            const QScriptValue::ResolveFlags &mode) const
+{
+    if (!isObject())
+        return QScriptValueImpl();
+
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    QScript::Ecma::Array::Instance *instance = eng_p->arrayConstructor->get(*this);
+    if (instance)
+        return instance->value.at(arrayIndex);
+
+    QScriptValueImpl id;
+    eng_p->newNumber(&id, arrayIndex);
+    return property(id.toString(), mode);
+}
+
+inline void QScriptValueImpl::setProperty(quint32 arrayIndex, const QScriptValueImpl &value,
+                                   const QScriptValue::PropertyFlags &flags)
+{
+    if (!isObject())
+        return;
+
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    QScript::Ecma::Array::Instance *instance = eng_p->arrayConstructor->get(*this);
+    if (instance) {
+        instance->value.assign(arrayIndex, value);
+        return;
+    }
+
+    QScriptValueImpl id;
+    eng_p->newNumber(&id, arrayIndex);
+    setProperty(id.toString(), value, flags);
+}
+
+inline QScriptValueImpl QScriptValueImpl::call(const QScriptValueImpl &thisObject,
+                                        const QScriptValueImplList &args)
+{
+    if (!isFunction())
+        return QScriptValueImpl();
+
+    QScriptEngine *eng = engine();
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+    return eng_p->call(*this, thisObject, args, /*asConstructor=*/false);
+}
+
+inline QScriptValueImpl QScriptValueImpl::construct(const QScriptValueImplList &args)
+{
+    if (!isFunction())
+        return QScriptValueImpl();
+
+    QScriptEngine *eng = engine();
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+
+    QScriptValueImpl proto = property(QLatin1String("prototype"), QScriptValue::ResolveLocal);
+    QScriptValueImpl object;
+    eng_p->newObject(&object, proto);
+
+    QScriptValueImpl result = eng_p->call(*this, object, args, /*asConstructor=*/true);
+    if (result.isObject())
+        return result;
+    return object;
+}
+
+inline void QScriptValueImpl::mark(int generation) const
+{
+    if (! isValid())
+        return;
+
+    else if (isString())
+        QScriptEnginePrivate::get(engine())->markString(m_string_value, generation);
+
+    else if (isObject())
+        QScriptEnginePrivate::get(engine())->markObject(*this, generation);
+}
+
+inline bool QScriptValueImpl::lessThan(const QScriptValueImpl &other) const
+{
+    if (!isValid() || !other.isValid())
+        return false;
+
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    return eng_p->lessThan(*this, other);
+}
+
+inline bool QScriptValueImpl::equalTo(const QScriptValueImpl &other) const
+{
+    if (!isValid() || !other.isValid())
+        return isValid() == other.isValid();
+
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    return eng_p->equalTo(*this, other);
+}
+
+inline bool QScriptValueImpl::strictEqualTo(const QScriptValueImpl &other) const
+{
+    if (!isValid() || !other.isValid())
+        return isValid() == other.isValid();
+    
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    return eng_p->strictEqualTo(*this, other);
+}
 
 #endif

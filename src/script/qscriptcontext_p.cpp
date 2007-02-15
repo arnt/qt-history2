@@ -13,23 +13,15 @@
 
 #include <QtCore/QtDebug>
 
-#include "qscriptcontext.h"
-#include "qscriptasm_p.h"
-#include "qscriptvalue_p.h"
 #include "qscriptcontext_p.h"
 #include "qscriptengine_p.h"
-#include "qscriptast_p.h"
-#include "qscriptengine_p.h"
-#include "qscriptcompiler_p.h"
+#include "qscriptvalueimpl_p.h"
+#include "qscriptcontext_p.h"
+#include "qscriptmember_p.h"
+#include "qscriptobject_p.h"
 #include "qscriptprettypretty_p.h"
-#include "qscriptecmaobject_p.h"
-#include "qscriptecmaarray_p.h"
-#include "qscriptecmaerror_p.h"
-#include "qscriptecmastring_p.h"
-#include "qscriptecmanumber_p.h"
-#include "qscriptecmaregexp_p.h"
-#include "qscriptecmaboolean_p.h"
-#include "qscriptecmafunction_p.h"
+#include "qscriptast_p.h"
+#include "qscriptcompiler_p.h"
 #include "qscriptextenumeration_p.h"
 
 #include <math.h> // floor & friends...
@@ -2038,4 +2030,55 @@ QScriptValueImpl QScriptContextPrivate::throwNotDefined(const QString &name)
 QScriptValueImpl QScriptContextPrivate::throwNotDefined(QScriptNameIdImpl *nameId)
 {
     return throwNotDefined(QScriptEnginePrivate::get(engine())->toString(nameId));
+}
+
+bool QScriptContextPrivate::eq_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng)
+{
+    if (lhs.isObject() && ! rhs.isNull()) {
+        lhs = eng->toPrimitive(lhs);
+
+        if (lhs.isValid() && ! lhs.isObject())
+            return eq_cmp(lhs, rhs);
+    }
+
+    else if (rhs.isObject() && ! lhs.isNull()) {
+        rhs = eng->toPrimitive(rhs);
+
+        if (rhs.isValid() && ! rhs.isObject())
+            return eq_cmp(lhs, rhs);
+    }
+
+    return false;
+}
+
+bool QScriptContextPrivate::lt_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng)
+{
+    if (lhs.isObject())
+        lhs = eng->toPrimitive(lhs, QScriptValue::NumberTypeHint);
+
+    if (rhs.isObject())
+        rhs = eng->toPrimitive(rhs, QScriptValue::NumberTypeHint);
+
+    if (lhs.isString() && rhs.isString())
+        return eng->convertToNativeString(lhs) < eng->convertToNativeString(rhs);
+
+    qsreal n1 = eng->convertToNativeDouble(lhs);
+    qsreal n2 = eng->convertToNativeDouble(rhs);
+    return n1 < n2;
+}
+
+bool QScriptContextPrivate::le_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng)
+{
+    if (lhs.isObject())
+        lhs = eng->toPrimitive(lhs, QScriptValue::NumberTypeHint);
+
+    if (rhs.isObject())
+        rhs = eng->toPrimitive(rhs, QScriptValue::NumberTypeHint);
+
+    if (lhs.isString() && rhs.isString())
+        return eng->convertToNativeString(lhs) <= eng->convertToNativeString(rhs);
+
+    qsreal n1 = eng->convertToNativeDouble(lhs);
+    qsreal n2 = eng->convertToNativeDouble(rhs);
+    return n1 <= n2;
 }

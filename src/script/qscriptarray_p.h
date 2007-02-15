@@ -28,7 +28,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QVector>
 
-#include "qscriptvalueimpl_p.h"
+#include "qscriptvalueimplfwd_p.h"
 
 namespace QScript {
 

@@ -45,6 +45,7 @@ HEADERS += \
     $$PWD/qscriptbuffer_p.h \
     $$PWD/qscriptcompiler_p.h \
     $$PWD/qscriptcontext.h \
+    $$PWD/qscriptcontextfwd_p.h \
     $$PWD/qscriptcontext_p.h \
     $$PWD/qscriptecmaarray_p.h \
     $$PWD/qscriptecmaboolean_p.h \
@@ -59,6 +60,7 @@ HEADERS += \
     $$PWD/qscriptecmastring_p.h \
     $$PWD/qscriptecmaerror_p.h \
     $$PWD/qscriptengine.h \
+    $$PWD/qscriptenginefwd_p.h \
     $$PWD/qscriptengine_p.h \
     $$PWD/qscriptable.h \
     $$PWD/qscriptable_p.h \
@@ -68,8 +70,11 @@ HEADERS += \
     $$PWD/qscriptgc_p.h \
     $$PWD/qscriptglobals_p.h \
     $$PWD/qscriptgrammar_p.h \
+    $$PWD/qscriptobjectdata_p.h \
+    $$PWD/qscriptobjectfwd_p.h \
     $$PWD/qscriptobject_p.h \
     $$PWD/qscriptlexer_p.h \
+    $$PWD/qscriptmemberfwd_p.h \
     $$PWD/qscriptmember_p.h \
     $$PWD/qscriptmemorypool_p.h \
     $$PWD/qscriptnodepool_p.h \
@@ -79,10 +84,13 @@ HEADERS += \
     $$PWD/qscriptrepository_p.h \
     $$PWD/qscriptsyntaxchecker_p.h \
     $$PWD/qscriptvalue.h \
+    $$PWD/qscriptvaluefwd_p.h \
     $$PWD/qscriptvalue_p.h \
+    $$PWD/qscriptvalueimplfwd_p.h \
     $$PWD/qscriptvalueimpl_p.h \
     $$PWD/qscriptvalueiterator.h \
     $$PWD/qscriptvalueiterator_p.h \
+    $$PWD/qscriptnameid_p.h \
     $$PWD/qscriptclassdata_p.h
 
 !contains(DEFINES, QT_NO_QOBJECT) {

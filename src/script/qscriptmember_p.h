@@ -14,6 +14,8 @@
 #ifndef QSCRIPTMEMBER_P_H
 #define QSCRIPTMEMBER_P_H
 
+#include "qscriptmemberfwd_p.h"
+
 //
 //  W A R N I N G
 //  -------------
@@ -25,74 +27,90 @@
 // We mean it.
 //
 
-#include <QtCore/QHash>
-#include <QtCore/QVector>
+inline void QScript::Member::resetFlags(uint flags)
+{
+    m_flags = flags;
+}
 
-#include "qscriptvalue.h"
+inline void QScript::Member::setFlags(uint flags)
+{
+    m_flags |= flags;
+}
 
-class QScriptNameIdImpl;
+inline void QScript::Member::unsetFlags(uint flags)
+{
+    m_flags &= ~flags;
+}
 
-namespace QScript {
+inline uint QScript::Member::flags() const
+{
+    return m_flags;
+}
 
-    class Member
-    {
-    public:
-        inline void resetFlags(uint flags) { m_flags = flags; }
-        inline void setFlags(uint flags) { m_flags |= flags; }
-        inline void unsetFlags(uint flags) { m_flags &= ~flags; }
-        inline uint flags() const { return m_flags; }
-        inline bool testFlags(uint mask) const { return m_flags & mask; }
+inline bool QScript::Member::testFlags(uint mask) const
+{
+    return m_flags & mask;
+}
 
-        inline bool isValid() const { return m_flags & 0x00000300; }
+inline bool QScript::Member::isValid() const
+{
+    return m_flags & 0x00000300;
+}
 
-        inline bool isWritable() const
-            { return !(m_flags & QScriptValue::ReadOnly); }
-        inline bool isDeletable() const
-            { return !(m_flags & QScriptValue::Undeletable); }
+inline bool QScript::Member::isWritable() const
+{
+    return !(m_flags & QScriptValue::ReadOnly);
+}
 
-        inline bool dontEnum() const
-            { return m_flags & QScriptValue::SkipInEnumeration; }
+inline bool QScript::Member::isDeletable() const
+{
+    return !(m_flags & QScriptValue::Undeletable);
+}
 
-        inline bool isObjectProperty() const
-            { return m_flags & QScriptValue::ObjectProperty; }
-        inline bool isNativeProperty() const
-            { return m_flags & QScriptValue::NativeProperty; }
+inline bool QScript::Member::dontEnum() const
+{
+    return m_flags & QScriptValue::SkipInEnumeration;
+}
 
-        inline bool isUninitializedConst() const
-            { return m_flags & QScriptValue::UninitializedConst; }
+inline bool QScript::Member::isObjectProperty() const
+{
+    return m_flags & QScriptValue::ObjectProperty;
+}
 
-        inline bool isGetter() const
-            { return m_flags & QScriptValue::PropertyGetter; }
-        inline bool isSetter() const
-            { return m_flags & QScriptValue::PropertySetter; }
-        inline bool isGetterOrSetter() const
-            { return m_flags & (QScriptValue::PropertyGetter | QScriptValue::PropertySetter); }
+inline bool QScript::Member::isNativeProperty() const
+{
+    return m_flags & QScriptValue::NativeProperty;
+}
 
-        inline int id() const { return m_id; }
-        inline QScriptNameIdImpl *nameId() const { return m_nameId; }
+inline bool QScript::Member::isUninitializedConst() const
+{
+    return m_flags & QScriptValue::UninitializedConst;
+}
 
-        inline bool operator==(const Member &other) const;
-        inline bool operator!=(const Member &other) const;
+inline bool QScript::Member::isGetter() const
+{
+    return m_flags & QScriptValue::PropertyGetter;
+}
 
-        inline static Member invalid();
-        inline void invalidate();
+inline bool QScript::Member::isSetter() const
+{
+    return m_flags & QScriptValue::PropertySetter;
+}
 
-        inline void native(QScriptNameIdImpl *nameId, int id, uint flags);
-        inline void object(QScriptNameIdImpl *nameId, int id, uint flags);
+inline bool QScript::Member::isGetterOrSetter() const
+{
+    return m_flags & (QScriptValue::PropertyGetter | QScriptValue::PropertySetter);
+}
 
-    private:
-        QScriptNameIdImpl *m_nameId;
-        int m_id;
-        uint m_flags;
-    };
+inline int QScript::Member::id() const
+{
+    return m_id;
+}
 
-    inline uint qHash(const QScript::Member &m)
-    {
-        return ::qHash(m.nameId());
-    }
-
-} // namespace QScript
-
+inline QScriptNameIdImpl *QScript::Member::nameId() const
+{
+    return m_nameId;
+}
 
 inline QScript::Member QScript::Member::invalid()
 {
@@ -135,4 +153,3 @@ inline bool QScript::Member::operator!=(const QScript::Member &other) const
 }
 
 #endif
-

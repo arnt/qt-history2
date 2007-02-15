@@ -12,11 +12,11 @@
 ****************************************************************************/
 
 #include "qscriptcontext.h"
-#include "qscriptcontext_p.h"
-#include "qscriptengine.h"
 #include "qscriptengine_p.h"
-#include "qscriptecmastring_p.h"
-#include "qscriptecmaerror_p.h"
+#include "qscriptvalueimpl_p.h"
+#include "qscriptcontext_p.h"
+#include "qscriptmember_p.h"
+#include "qscriptobject_p.h"
 
 /*!
   \since 4.3

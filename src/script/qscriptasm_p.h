@@ -28,7 +28,7 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/qvector.h>
 
-#include "qscriptvalueimpl_p.h"
+#include "qscriptvalueimplfwd_p.h"
 
 class QTextStream;
 
@@ -86,14 +86,20 @@ public:
     bool isValid() const { return m_valid; }
     void setValid(bool v) { m_valid = v; }
 
-    QString errorMessage() const { return m_errorMessage; }
-    void setErrorMessage(const QString &errorMessage) { m_errorMessage = errorMessage; }
+    QString errorMessage() const
+        { return m_errorMessage; }
+    void setErrorMessage(const QString &errorMessage)
+        { m_errorMessage = errorMessage; }
 
-    QVector<QScriptInstruction> instructions() const { return m_instructions; }
-    void setInstructions(const QVector<QScriptInstruction> &instructions) { m_instructions = instructions; }
+    QVector<QScriptInstruction> instructions() const
+        { return m_instructions; }
+    void setInstructions(const QVector<QScriptInstruction> &instructions)
+        { m_instructions = instructions; }
 
-    QVector<QScript::ExceptionHandlerDescriptor> exceptionHandlers() const { return m_exceptionHandlers; }
-    void setExceptionHandlers(const QVector<QScript::ExceptionHandlerDescriptor> &exceptionHandlers) { m_exceptionHandlers = exceptionHandlers; }
+    QVector<QScript::ExceptionHandlerDescriptor> exceptionHandlers() const
+        { return m_exceptionHandlers; }
+    void setExceptionHandlers(const QVector<QScript::ExceptionHandlerDescriptor> &exceptionHandlers)
+        { m_exceptionHandlers = exceptionHandlers; }
 
 private:
     bool m_valid;

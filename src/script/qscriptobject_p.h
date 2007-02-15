@@ -14,6 +14,8 @@
 #ifndef QSCRIPTOBJECT_P_H
 #define QSCRIPTOBJECT_P_H
 
+#include "qscriptobjectfwd_p.h"
+
 //
 //  W A R N I N G
 //  -------------
@@ -25,131 +27,98 @@
 // We mean it.
 //
 
-#include <QtCore/qshareddata.h>
-
-#include "qscriptbuffer_p.h"
-#include "qscriptmember_p.h"
-#include "qscriptvalueimpl_p.h"
-
-namespace QScript
+inline bool QScriptObject::findMember(QScriptNameIdImpl *nameId,
+                       QScript::Member *m) const
 {
-    class Member;
-} // namespace QScript
+    const QScript::Member *members = m_members.constData();
+    const int size = m_members.size();
 
+    const QScript::Member *first = &members[-1];
+    const QScript::Member *last = &members[size - 1];
 
-class QScriptObjectData: public QSharedData
+    for (const QScript::Member *it = last; it != first; --it) {
+        if (it->nameId() == nameId && it->isValid()) {
+            *m = *it;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// assumes that m already points to the setter
+inline bool QScriptObject::findGetter(QScript::Member *m) const
 {
-protected:
-    QScriptObjectData() {}
+    const QScript::Member *members = m_members.constData();
+    const QScript::Member *first = &members[-1];
+    const QScript::Member *last = &members[m->id() - 1];
 
-public:
-    virtual ~QScriptObjectData() {}
+    for (const QScript::Member *it = last; it != first; --it) {
+        if (it->nameId() == m->nameId() && it->isValid() && it->isGetter()) {
+            *m = *it;
+            return true;
+        }
+    }
 
-private:
-    Q_DISABLE_COPY(QScriptObjectData)
-};
+    return false;
+}
 
-class QScriptObject
+// assumes that m already points to the getter
+inline bool QScriptObject::findSetter(QScript::Member *m) const
 {
-public:
-    inline void reset();
-    inline void finalize();
+    const QScript::Member *members = m_members.constData();
+    const QScript::Member *first = &members[-1];
+    const QScript::Member *last = &members[m->id() - 1];
 
-    inline bool findMember(QScriptNameIdImpl *nameId,
-                           QScript::Member *m) const
-    {
-        const QScript::Member *members = m_members.constData();
-        const int size = m_members.size();
-
-        const QScript::Member *first = &members[-1];
-        const QScript::Member *last = &members[size - 1];
-
-        for (const QScript::Member *it = last; it != first; --it) {
-            if (it->nameId() == nameId && it->isValid()) {
-                *m = *it;
-                return true;
-            }
+    for (const QScript::Member *it = last; it != first; --it) {
+        if (it->nameId() == m->nameId() && it->isValid() && it->isSetter()) {
+            *m = *it;
+            return true;
         }
-
-        return false;
     }
 
-    // assumes that m already points to the setter
-    inline bool findGetter(QScript::Member *m) const
-    {
-        const QScript::Member *members = m_members.constData();
-        const QScript::Member *first = &members[-1];
-        const QScript::Member *last = &members[m->id() - 1];
+    return false;
+}
 
-        for (const QScript::Member *it = last; it != first; --it) {
-            if (it->nameId() == m->nameId() && it->isValid() && it->isGetter()) {
-                *m = *it;
-                return true;
-            }
-        }
+inline int QScriptObject::memberCount() const
+{
+    return m_members.size();
+}
 
-        return false;
-    }
+inline void QScriptObject::createMember(QScriptNameIdImpl *nameId,
+                         QScript::Member *member, uint flags)
+{
+    member->object(nameId, m_objects.size(), flags);
+    m_members.append(*member);
+    m_objects.append(QScriptValueImpl());
+}
 
-    // assumes that m already points to the getter
-    inline bool findSetter(QScript::Member *m) const
-    {
-        const QScript::Member *members = m_members.constData();
-        const QScript::Member *first = &members[-1];
-        const QScript::Member *last = &members[m->id() - 1];
+inline void QScriptObject::member(int index, QScript::Member *member)
+{
+    *member = m_members[index];
+}
 
-        for (const QScript::Member *it = last; it != first; --it) {
-            if (it->nameId() == m->nameId() && it->isValid() && it->isSetter()) {
-                *m = *it;
-                return true;
-            }
-        }
+inline void QScriptObject::put(const QScript::Member &m, const QScriptValueImpl &v)
+{
+    m_objects[m.id()] = v;
+}
 
-        return false;
-    }
+inline QScriptValueImpl &QScriptObject::reference(const QScript::Member &m)
+{
+    return m_objects[m.id()];
+}
 
-    inline int memberCount() const
-    {
-        return m_members.size();
-    }
+inline void QScriptObject::get(const QScript::Member &m, QScriptValueImpl *v)
+{
+    Q_ASSERT(m.isObjectProperty());
+    *v = m_objects[m.id()];
+}
 
-    inline void createMember(QScriptNameIdImpl *nameId,
-                             QScript::Member *member, uint flags)
-    {
-        member->object(nameId, m_objects.size(), flags);
-        m_members.append(*member);
-        m_objects.append(QScriptValueImpl());
-    }
-
-    inline void member(int index, QScript::Member *member) {
-        *member = m_members[index];
-    }
-
-    inline void put(const QScript::Member &m, const QScriptValueImpl &v) {
-        m_objects[m.id()] = v;
-    }
-
-    inline QScriptValueImpl &reference(const QScript::Member &m) {
-        return m_objects[m.id()];
-    }
-
-    inline void get(const QScript::Member &m, QScriptValueImpl *v) {
-        Q_ASSERT(m.isObjectProperty());
-        *v = m_objects[m.id()];
-    }
-
-    inline void removeMember(const QScript::Member &member) {
-        m_members[member.id()].invalidate();
-        m_objects[member.id()].invalidate();
-    }
-
-    QScriptValueImpl m_prototype;
-    QScriptValueImpl m_scope;
-    QScriptValueImpl m_internalValue; // [[value]]
-    QExplicitlySharedDataPointer<QScriptObjectData> m_data;
-    QScript::Buffer<QScript::Member> m_members;
-    QScript::Buffer<QScriptValueImpl> m_objects;
-};
+inline void QScriptObject::removeMember(const QScript::Member &member)
+{
+    m_members[member.id()].invalidate();
+    m_objects[member.id()].invalidate();
+}
 
 inline void QScriptObject::finalize()
 {
@@ -167,4 +136,3 @@ inline void QScriptObject::reset()
 }
 
 #endif
-

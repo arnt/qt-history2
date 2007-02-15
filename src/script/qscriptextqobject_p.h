@@ -25,14 +25,13 @@
 // We mean it.
 //
 
-#include <QtCore/QPointer>
-
 #include "qscriptecmacore_p.h"
 #include "qscriptclassdata_p.h"
 #include "qscriptfunction_p.h"
 
 #ifndef QT_NO_QOBJECT
 
+#include <QtCore/QPointer>
 #include <QtCore/QObject>
 
 namespace QScript {

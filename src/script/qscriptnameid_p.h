@@ -11,28 +11,22 @@
 **
 ****************************************************************************/
 
-#include "qscriptecmacore_p.h"
-#include "qscriptengine_p.h"
-#include "qscriptvalueimpl_p.h"
-#include "qscriptcontext_p.h"
-#include "qscriptmember_p.h"
-#include "qscriptobject_p.h"
+#ifndef QSCRIPTNAMEID_P_H
+#define QSCRIPTNAMEID_P_H
 
-namespace QScript { namespace Ecma {
-
-Core::Core(QScriptEnginePrivate *engine)
-    : m_engine(engine)
+class QScriptNameIdImpl
 {
-    this->length = 1;
-    ctor.invalidate();
-}
+public:
+    QString s;
+    uint h;
+    QScriptNameIdImpl *next;
+    uint used: 1;
+    uint persistent: 1;
+    uint unique: 1;
+    uint pad: 29;
 
-Core::~Core()
-{
-}
+    inline QScriptNameIdImpl(const QString &_s):
+        s(_s), h(0), next(0), used(0), persistent(0), unique(0), pad(0) { }
+};
 
-
-} // namespace Ecma
-
-
-} // namespace QScript
+#endif // QSCRIPTNAMEID_P_H

@@ -12,12 +12,11 @@
 ****************************************************************************/
 
 #include "qscriptextqobject_p.h"
-#include "qscriptengine.h"
 #include "qscriptengine_p.h"
-#include "qscriptecmaobject_p.h"
-#include "qscriptecmafunction_p.h"
+#include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
-#include "qscriptfunction_p.h"
+#include "qscriptmember_p.h"
+#include "qscriptobject_p.h"
 #include "qscriptable.h"
 #include "qscriptable_p.h"
 

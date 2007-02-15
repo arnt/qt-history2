@@ -13,9 +13,12 @@
 
 #include <QtCore/QTextStream>
 
-#include "qscriptengine.h"
 #include "qscriptasm_p.h"
-
+#include "qscriptvalueimpl_p.h"
+#include "qscriptengine_p.h"
+#include "qscriptcontext_p.h"
+#include "qscriptmember_p.h"
+#include "qscriptobject_p.h"
 
 const char *QScriptInstruction::opcode[] = {
 #define STR(a) #a

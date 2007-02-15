@@ -11,8 +11,10 @@
 **
 ****************************************************************************/
 
-#ifndef QSCRIPTECMACORE_P_H
-#define QSCRIPTECMACORE_P_H
+#ifndef QSCRIPTOBJECTDATA_P_H
+#define QSCRIPTOBJECTDATA_P_H
+
+#include <QtCore/qshareddata.h>
 
 //
 //  W A R N I N G
@@ -25,29 +27,16 @@
 // We mean it.
 //
 
-#include "qscriptfunction_p.h"
-#include "qscriptvalueimplfwd_p.h"
-
-namespace QScript { namespace Ecma {
-
-class Core: public QScriptFunction
+class QScriptObjectData: public QSharedData
 {
+protected:
+    inline QScriptObjectData() {}
+
 public:
-    Core(QScriptEnginePrivate *engine);
-    virtual ~Core();
-
-    inline QScriptEnginePrivate *engine() const
-    { return m_engine; }
-
-public: // attributes
-    QScriptValueImpl ctor;
-    QScriptValueImpl publicPrototype;
+    virtual ~QScriptObjectData() {}
 
 private:
-    QScriptEnginePrivate *m_engine;
+    Q_DISABLE_COPY(QScriptObjectData)
 };
 
-} } // namespace QScript::Ecma
-
 #endif
-

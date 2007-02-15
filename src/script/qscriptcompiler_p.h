@@ -25,6 +25,7 @@
 // We mean it.
 //
 
+#include <QtCore/QMap>
 #include <QtCore/QVector>
 
 #include "qscriptastvisitor_p.h"

@@ -14,6 +14,12 @@
 #ifndef QSCRIPTCONTEXT_P_H
 #define QSCRIPTCONTEXT_P_H
 
+#include "qscriptcontextfwd_p.h"
+#include "qscriptenginefwd_p.h"
+#include "qscriptnameid_p.h"
+
+#include <QtCore/qnumeric.h>
+
 //
 //  W A R N I N G
 //  -------------
@@ -25,341 +31,34 @@
 // We mean it.
 //
 
-#include <QtCore/QVariant>
-#include <QtCore/qnumeric.h>
-
-#include "qscriptengine.h"
-#include "qscriptengine_p.h"
-#include "qscriptvalue_p.h"
-#include "qscriptcontext.h"
-#include "qscriptecmaboolean_p.h"
-#include "qscriptecmanumber_p.h"
-#include "qscriptecmafunction_p.h"
-#include "qscriptecmastring_p.h"
-#include "qscriptecmadate_p.h"
-
-class QScriptContextPrivate
+inline QScriptContextPrivate::QScriptContextPrivate()
 {
-    Q_DECLARE_PUBLIC(QScriptContext)
-public:
-    inline QScriptContextPrivate() { }
-
-    static inline QScriptContextPrivate *get(QScriptContext *q)
-        { return q->d_func(); }
-
-    static inline QScriptContext *create()
-        { return new QScriptContext; }
-
-    inline QScriptEngine *engine() const
-    { return m_activation.engine(); }
-    inline QScriptEnginePrivate *enginePrivate() const
-    { return QScriptEnginePrivate::get(engine()); }
-    inline QScriptContext *parentContext() const
-    { return previous; }
-
-    inline void init(QScriptContext *parent);
-    inline QScriptValueImpl argument(int index) const;
-    inline int argumentCount() const;
-    inline void throwException();
-    inline void recover();
-
-    inline bool isNumerical(const QScriptValueImpl &v) const
-    {
-        switch (v.type()) {
-        case QScript::BooleanType:
-        case QScript::IntegerType:
-        case QScript::NumberType:
-            return true;
-
-        default:
-            return false;
-        }
-    }
-
-    inline bool eq_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
-    {
-        QScriptEnginePrivate *eng = enginePrivate();
-
-        if (lhs.type() == rhs.type()) {
-            switch (lhs.type()) {
-            case QScript::UndefinedType:
-            case QScript::NullType:
-                return true;
-
-            case QScript::NumberType:
-                return lhs.m_number_value == rhs.m_number_value;
-
-            case QScript::IntegerType:
-                return lhs.m_int_value == rhs.m_int_value;
-
-            case QScript::BooleanType:
-                return lhs.m_bool_value == rhs.m_bool_value;
-
-            case QScript::StringType:
-                if (lhs.m_string_value->unique && rhs.m_string_value->unique)
-                    return lhs.m_string_value == rhs.m_string_value;
-                return lhs.m_string_value->s == rhs.m_string_value->s;
-
-            case QScript::VariantType:
-                return lhs.m_object_value == rhs.m_object_value || lhs.toVariant() == rhs.toVariant();
-
-            default:
-                if (lhs.isObject())
-                    return lhs.m_object_value == rhs.m_object_value;
-                break;
-            }
-        }
-
-        if (lhs.isNull() && rhs.isUndefined())
-            return true;
-
-        else if (lhs.isUndefined() && rhs.isNull())
-            return true;
-
-        else if (isNumerical(lhs) && rhs.isString())
-            return eng->convertToNativeDouble(lhs) == eng->convertToNativeDouble(rhs);
-
-        else if (lhs.isString() && isNumerical(rhs))
-            return eng->convertToNativeString(lhs) == eng->convertToNativeString(rhs);
-
-        return eq_cmp_helper(lhs, rhs, eng);
-    }
-
-    bool eq_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng)
-    {
-        if (lhs.isObject() && ! rhs.isNull()) {
-            lhs = eng->toPrimitive(lhs);
-
-            if (lhs.isValid() && ! lhs.isObject())
-                return eq_cmp(lhs, rhs);
-        }
-
-        else if (rhs.isObject() && ! lhs.isNull()) {
-            rhs = eng->toPrimitive(rhs);
-
-            if (rhs.isValid() && ! rhs.isObject())
-                return eq_cmp(lhs, rhs);
-        }
-
-        return false;
-    }
-
-    inline bool lt_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
-    {
-        QScriptEnginePrivate *eng = enginePrivate();
-
-        if (lhs.type() == rhs.type()) {
-            switch (lhs.type()) {
-            case QScript::UndefinedType:
-            case QScript::NullType:
-                return false;
-
-            case QScript::NumberType:
-                return lhs.m_number_value < rhs.m_number_value;
-
-            case QScript::IntegerType:
-                return lhs.m_int_value < rhs.m_int_value;
-
-            case QScript::BooleanType:
-                return lhs.m_bool_value < rhs.m_bool_value;
-
-            case QScript::StringType:
-                return lhs.m_string_value->s < rhs.m_string_value->s;
-
-            default:
-                break;
-            } // switch
-        }
-
-        return lt_cmp_helper(lhs, rhs, eng);
-    }
-
-    bool lt_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng)
-    {
-        if (lhs.isObject())
-            lhs = eng->toPrimitive(lhs, QScriptValue::NumberTypeHint);
-
-        if (rhs.isObject())
-            rhs = eng->toPrimitive(rhs, QScriptValue::NumberTypeHint);
-
-        if (lhs.isString() && rhs.isString())
-            return eng->convertToNativeString(lhs) < eng->convertToNativeString(rhs);
-
-        qsreal n1 = eng->convertToNativeDouble(lhs);
-        qsreal n2 = eng->convertToNativeDouble(rhs);
-        return n1 < n2;
-    }
-
-    inline bool le_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
-    {
-        QScriptEnginePrivate *eng = enginePrivate();
-
-        if (lhs.type() == rhs.type()) {
-            switch (lhs.type()) {
-            case QScript::UndefinedType:
-            case QScript::NullType:
-                return true;
-
-            case QScript::NumberType:
-                return lhs.m_number_value <= rhs.m_number_value;
-
-            case QScript::IntegerType:
-                return lhs.m_int_value <= rhs.m_int_value;
-
-            case QScript::BooleanType:
-                return lhs.m_bool_value <= rhs.m_bool_value;
-
-            case QScript::StringType:
-                return lhs.m_string_value->s <= rhs.m_string_value->s;
-
-            default:
-                break;
-            } // switch
-        }
-
-        return le_cmp_helper(lhs, rhs, eng);
-    }
-
-    bool le_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng)
-    {
-        if (lhs.isObject())
-            lhs = eng->toPrimitive(lhs, QScriptValue::NumberTypeHint);
-
-        if (rhs.isObject())
-            rhs = eng->toPrimitive(rhs, QScriptValue::NumberTypeHint);
-
-        if (lhs.isString() && rhs.isString())
-            return eng->convertToNativeString(lhs) <= eng->convertToNativeString(rhs);
-
-        qsreal n1 = eng->convertToNativeDouble(lhs);
-        qsreal n2 = eng->convertToNativeDouble(rhs);
-        return n1 <= n2;
-    }
-
-    inline static bool strict_eq_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
-    {
-        if (lhs.type() != rhs.type())
-            return false;
-
-        switch (lhs.type()) {
-        case QScript::UndefinedType:
-        case QScript::NullType:
-            return true;
-
-        case QScript::NumberType:
-            if (qIsNan(lhs.m_number_value) || qIsNan(rhs.m_number_value))
-                return false;
-            return lhs.m_number_value == rhs.m_number_value;
-
-        case QScript::IntegerType:
-            return lhs.m_int_value == rhs.m_int_value;
-
-        case QScript::BooleanType:
-            return lhs.m_bool_value == rhs.m_bool_value;
-
-        case QScript::StringType:
-            if (lhs.m_string_value->unique && rhs.m_string_value->unique)
-                return lhs.m_string_value == rhs.m_string_value;
-            return lhs.m_string_value->s == rhs.m_string_value->s;
-
-        case QScript::VariantType:
-            return lhs.m_object_value == rhs.m_object_value || lhs.toVariant() == rhs.toVariant();
-
-        default:
-            if (lhs.isObject())
-                return lhs.m_object_value == rhs.m_object_value;
-            break;
-        }
-
-        return false;
-    }
-
-    bool resolveField(QScriptValueImpl *stackPtr);
-    void execute(QScript::Code *code);
-
-    QScriptValueImpl throwError(QScriptContext::Error error, const QString &text);
-    QScriptValueImpl throwError(const QString &text);
-
-    QScriptValueImpl throwNotImplemented(const QString &name);
-    QScriptValueImpl throwNotDefined(const QString &name);
-    QScriptValueImpl throwNotDefined(QScriptNameIdImpl *nameId);
-
-    inline QScriptValueImpl throwTypeError(const QString &text)
-    { return throwError(QScriptContext::TypeError, text); }
-
-    inline QScriptValueImpl throwSyntaxError(const QString &text)
-    { return throwError(QScriptContext::SyntaxError, text); }
-
-    inline QScriptValueImpl thisObject() const
-        { return m_thisObject; }
-
-    inline void setThisObject(const QScriptValueImpl &object)
-        { m_thisObject = object; }
-
-    inline QScriptValueImpl callee() const
-        { return m_callee; }
-
-    inline bool calledAsConstructor() const
-        { return m_calledAsConstructor; }
-
-    inline QScriptValueImpl returnValue() const
-        { return m_result; }
-
-    inline void setReturnValue(const QScriptValueImpl &value)
-        { m_result = value; }
-
-    inline QScriptValueImpl activationObject() const
-        { return m_activation; }
-
-    inline void setActivationObject(const QScriptValueImpl &activation)
-        { m_activation = activation; }
-
-    inline const QScriptInstruction *instructionPointer()
-        { return iPtr; }
-
-    inline void setInstructionPointer(const QScriptInstruction *instructionPointer)
-        {iPtr = instructionPointer; }
-
-    inline const QScriptValueImpl *baseStackPointer() const
-        { return tempStack; }
-
-    inline const QScriptValueImpl *currentStackPointer() const
-        { return stackPtr; }
-
-    inline QScriptContext::ExecutionState state() const
-        { return m_state; }
-
-public:
-    QScriptContext *previous;
-    int argc;
-    QScriptContext::ExecutionState m_state;
-
-    QScriptValueImpl m_activation;
-    QScriptValueImpl m_thisObject;
-    QScriptValueImpl m_result;
-    QScriptValueImpl m_scopeChain;
-    QScriptValueImpl m_callee;
-
-    QScript::AST::Node *abstractSyntaxTree;
-    QScriptValueImpl *args;
-    QScriptValueImpl *tempStack;
-    QScriptValueImpl *stackPtr;
-
-    const QScriptInstruction *iPtr;
-    const QScriptInstruction *firstInstruction;
-    const QScriptInstruction *lastInstruction;
-
-    int currentLine;
-    int currentColumn;
-
-    int errorLineNumber;
-
-    QScriptNameIdImpl *m_functionNameId;
-    bool catching;
-    bool m_calledAsConstructor;
-
-    QScriptContext *q_ptr;
-};
+}
+
+inline QScriptContextPrivate *QScriptContextPrivate::get(QScriptContext *q)
+{
+    return q->d_func();
+}
+
+inline QScriptContext *QScriptContextPrivate::create()
+{
+    return new QScriptContext;
+}
+
+inline QScriptEngine *QScriptContextPrivate::engine() const
+{
+    return m_activation.engine();
+}
+
+inline QScriptEnginePrivate *QScriptContextPrivate::enginePrivate() const
+{
+    return QScriptEnginePrivate::get(engine());
+}
+
+inline QScriptContext *QScriptContextPrivate::parentContext() const
+{
+    return previous;
+}
 
 inline void QScriptContextPrivate::init(QScriptContext *parent)
 {
@@ -409,5 +108,239 @@ inline void QScriptContextPrivate::recover()
     errorLineNumber = 0;
 }
 
-#endif
+inline bool QScriptContextPrivate::isNumerical(const QScriptValueImpl &v) const
+{
+    switch (v.type()) {
+    case QScript::BooleanType:
+    case QScript::IntegerType:
+    case QScript::NumberType:
+        return true;
 
+    default:
+        return false;
+    }
+}
+
+inline bool QScriptContextPrivate::eq_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
+{
+    QScriptEnginePrivate *eng = enginePrivate();
+
+    if (lhs.type() == rhs.type()) {
+        switch (lhs.type()) {
+        case QScript::UndefinedType:
+        case QScript::NullType:
+            return true;
+
+        case QScript::NumberType:
+            return lhs.m_number_value == rhs.m_number_value;
+
+        case QScript::IntegerType:
+            return lhs.m_int_value == rhs.m_int_value;
+
+        case QScript::BooleanType:
+            return lhs.m_bool_value == rhs.m_bool_value;
+
+        case QScript::StringType:
+            if (lhs.m_string_value->unique && rhs.m_string_value->unique)
+                return lhs.m_string_value == rhs.m_string_value;
+            return lhs.m_string_value->s == rhs.m_string_value->s;
+
+        case QScript::VariantType:
+            return lhs.m_object_value == rhs.m_object_value || lhs.toVariant() == rhs.toVariant();
+
+        default:
+            if (lhs.isObject())
+                return lhs.m_object_value == rhs.m_object_value;
+            break;
+        }
+    }
+
+    if (lhs.isNull() && rhs.isUndefined())
+        return true;
+
+    else if (lhs.isUndefined() && rhs.isNull())
+        return true;
+
+    else if (isNumerical(lhs) && rhs.isString())
+        return eng->convertToNativeDouble(lhs) == eng->convertToNativeDouble(rhs);
+
+    else if (lhs.isString() && isNumerical(rhs))
+        return eng->convertToNativeString(lhs) == eng->convertToNativeString(rhs);
+
+    return eq_cmp_helper(lhs, rhs, eng);
+}
+
+inline bool QScriptContextPrivate::lt_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
+{
+    QScriptEnginePrivate *eng = enginePrivate();
+
+    if (lhs.type() == rhs.type()) {
+        switch (lhs.type()) {
+        case QScript::UndefinedType:
+        case QScript::NullType:
+            return false;
+
+        case QScript::NumberType:
+            return lhs.m_number_value < rhs.m_number_value;
+
+        case QScript::IntegerType:
+            return lhs.m_int_value < rhs.m_int_value;
+
+        case QScript::BooleanType:
+            return lhs.m_bool_value < rhs.m_bool_value;
+
+        case QScript::StringType:
+            return lhs.m_string_value->s < rhs.m_string_value->s;
+
+        default:
+            break;
+        } // switch
+    }
+
+    return lt_cmp_helper(lhs, rhs, eng);
+}
+
+inline bool QScriptContextPrivate::le_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
+{
+    QScriptEnginePrivate *eng = enginePrivate();
+
+    if (lhs.type() == rhs.type()) {
+        switch (lhs.type()) {
+        case QScript::UndefinedType:
+        case QScript::NullType:
+            return true;
+
+        case QScript::NumberType:
+            return lhs.m_number_value <= rhs.m_number_value;
+
+        case QScript::IntegerType:
+            return lhs.m_int_value <= rhs.m_int_value;
+
+        case QScript::BooleanType:
+            return lhs.m_bool_value <= rhs.m_bool_value;
+
+        case QScript::StringType:
+            return lhs.m_string_value->s <= rhs.m_string_value->s;
+
+        default:
+            break;
+        } // switch
+    }
+
+    return le_cmp_helper(lhs, rhs, eng);
+}
+
+inline bool QScriptContextPrivate::strict_eq_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
+{
+    if (lhs.type() != rhs.type())
+        return false;
+
+    switch (lhs.type()) {
+    case QScript::UndefinedType:
+    case QScript::NullType:
+        return true;
+
+    case QScript::NumberType:
+        if (qIsNan(lhs.m_number_value) || qIsNan(rhs.m_number_value))
+            return false;
+        return lhs.m_number_value == rhs.m_number_value;
+
+    case QScript::IntegerType:
+        return lhs.m_int_value == rhs.m_int_value;
+
+    case QScript::BooleanType:
+        return lhs.m_bool_value == rhs.m_bool_value;
+
+    case QScript::StringType:
+        if (lhs.m_string_value->unique && rhs.m_string_value->unique)
+            return lhs.m_string_value == rhs.m_string_value;
+        return lhs.m_string_value->s == rhs.m_string_value->s;
+
+    case QScript::VariantType:
+        return lhs.m_object_value == rhs.m_object_value || lhs.toVariant() == rhs.toVariant();
+
+    default:
+        if (lhs.isObject())
+            return lhs.m_object_value == rhs.m_object_value;
+        break;
+    }
+
+    return false;
+}
+
+inline QScriptValueImpl QScriptContextPrivate::throwTypeError(const QString &text)
+{
+    return throwError(QScriptContext::TypeError, text);
+}
+
+inline QScriptValueImpl QScriptContextPrivate::throwSyntaxError(const QString &text)
+{
+    return throwError(QScriptContext::SyntaxError, text);
+}
+
+inline QScriptValueImpl QScriptContextPrivate::thisObject() const
+{
+    return m_thisObject;
+}
+
+inline void QScriptContextPrivate::setThisObject(const QScriptValueImpl &object)
+{
+    m_thisObject = object;
+}
+
+inline QScriptValueImpl QScriptContextPrivate::callee() const
+{
+    return m_callee;
+}
+
+inline bool QScriptContextPrivate::calledAsConstructor() const
+{
+    return m_calledAsConstructor;
+}
+
+inline QScriptValueImpl QScriptContextPrivate::returnValue() const
+{
+    return m_result;
+}
+
+inline void QScriptContextPrivate::setReturnValue(const QScriptValueImpl &value)
+{
+    m_result = value;
+}
+
+inline QScriptValueImpl QScriptContextPrivate::activationObject() const
+{
+    return m_activation;
+}
+
+inline void QScriptContextPrivate::setActivationObject(const QScriptValueImpl &activation)
+{
+    m_activation = activation;
+}
+
+inline const QScriptInstruction *QScriptContextPrivate::instructionPointer()
+{
+    return iPtr;
+}
+
+inline void QScriptContextPrivate::setInstructionPointer(const QScriptInstruction *instructionPointer)
+{
+    iPtr = instructionPointer;
+}
+
+inline const QScriptValueImpl *QScriptContextPrivate::baseStackPointer() const
+{
+    return tempStack;
+}
+
+inline const QScriptValueImpl *QScriptContextPrivate::currentStackPointer() const
+{
+    return stackPtr;
+}
+
+inline QScriptContext::ExecutionState QScriptContextPrivate::state() const
+{
+    return m_state;
+}
+
+#endif

@@ -11,14 +11,12 @@
 **
 ****************************************************************************/
 
-#include "qscriptengine.h"
-#include "qscriptcontext.h"
-#include "qscriptcontext_p.h"
-#include "qscriptengine_p.h"
 #include "qscriptecmaobject_p.h"
-#include "qscriptecmastring_p.h"
-#include "qscriptecmafunction_p.h"
-#include "qscriptvalue_p.h"
+#include "qscriptengine_p.h"
+#include "qscriptvalueimpl_p.h"
+#include "qscriptcontext_p.h"
+#include "qscriptmember_p.h"
+#include "qscriptobject_p.h"
 
 #include <QtCore/QtDebug>
 

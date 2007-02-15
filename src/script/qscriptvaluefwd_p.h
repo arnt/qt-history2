@@ -11,8 +11,11 @@
 **
 ****************************************************************************/
 
-#ifndef QSCRIPTECMACORE_P_H
-#define QSCRIPTECMACORE_P_H
+#ifndef QSCRIPTVALUEFWD_P_H
+#define QSCRIPTVALUEFWD_P_H
+
+#include <QtCore/qatomic.h>
+#include "qscriptvalueimplfwd_p.h"
 
 //
 //  W A R N I N G
@@ -25,29 +28,22 @@
 // We mean it.
 //
 
-#include "qscriptfunction_p.h"
-#include "qscriptvalueimplfwd_p.h"
-
-namespace QScript { namespace Ecma {
-
-class Core: public QScriptFunction
+class QScriptValuePrivate
 {
 public:
-    Core(QScriptEnginePrivate *engine);
-    virtual ~Core();
+    inline QScriptValuePrivate();
+    inline QScriptValuePrivate(const QScriptValueImpl &value);
 
-    inline QScriptEnginePrivate *engine() const
-    { return m_engine; }
+    static inline QScriptValuePrivate *get(const QScriptValue &value);
 
-public: // attributes
-    QScriptValueImpl ctor;
-    QScriptValueImpl publicPrototype;
+    static inline QScriptValueImpl valueOf(const QScriptValue &value);
 
-private:
-    QScriptEnginePrivate *m_engine;
+    static inline void init(QScriptValue &value, QScriptValuePrivate *p);
+
+    static inline QScriptValueImplList toImplList(const QScriptValueList &lst);
+
+    QScriptValueImpl value;
+    QBasicAtomic ref;
 };
 
-} } // namespace QScript::Ecma
-
 #endif
-

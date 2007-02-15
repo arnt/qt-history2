@@ -11,23 +11,15 @@
 **
 ****************************************************************************/
 
-#include "qscriptengine.h"
-#include "qscriptcontext.h"
-#include "qscriptcontext_p.h"
-#include "qscriptengine_p.h"
 #include "qscriptextvariant_p.h"
-#include "qscriptecmaobject_p.h"
-#include "qscriptecmafunction_p.h"
-#include "qscriptecmaregexp_p.h"
-#include "qscriptvalue_p.h"
+#include "qscriptengine_p.h"
+#include "qscriptvalueimpl_p.h"
+#include "qscriptcontext_p.h"
+#include "qscriptmember_p.h"
+#include "qscriptobject_p.h"
 
 #include <QtCore/QtDebug>
 
-#ifndef QT_NO_GEOM_VARIANT
-#include <QtCore/QPoint>
-#include <QtCore/QRect>
-#include <QtCore/QSize>
-#endif
 #include <QtCore/QStringList>
 
 #include <limits.h>

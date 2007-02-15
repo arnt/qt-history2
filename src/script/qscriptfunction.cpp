@@ -12,9 +12,11 @@
 ****************************************************************************/
 
 #include "qscriptfunction_p.h"
-#include "qscriptengine.h"
 #include "qscriptengine_p.h"
+#include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
+#include "qscriptmember_p.h"
+#include "qscriptobject_p.h"
 
 QScriptFunction::~QScriptFunction()
 {

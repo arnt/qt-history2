@@ -13,6 +13,10 @@
 
 #include "qscriptprettypretty_p.h"
 #include "qscriptengine_p.h"
+#include "qscriptvalueimpl_p.h"
+#include "qscriptcontext_p.h"
+#include "qscriptmember_p.h"
+#include "qscriptobject_p.h"
 #include "qscriptast_p.h"
 
 #include <QtCore/QString>

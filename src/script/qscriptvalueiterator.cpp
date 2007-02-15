@@ -13,9 +13,11 @@
 
 #include "qscriptvalueiterator.h"
 #include "qscriptvalueiterator_p.h"
-#include "qscriptvalue_p.h"
+#include "qscriptengine_p.h"
+#include "qscriptvalueimpl_p.h"
+#include "qscriptcontext_p.h"
 #include "qscriptmember_p.h"
-#include "qscriptengine_p.h" // ### QScriptNameIdImpl, move in separate header file
+#include "qscriptobject_p.h"
 
 /*!
   \since 4.3

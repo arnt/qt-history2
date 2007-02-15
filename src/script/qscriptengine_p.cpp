@@ -12,34 +12,24 @@
 ****************************************************************************/
 
 #include "qscriptengine_p.h"
-#include "qscriptlexer_p.h"
-#include "qscriptasm_p.h"
-#include "qscriptcompiler_p.h"
-#include "qscriptparser_p.h"
-#include "qscriptobject_p.h"
+#include "qscriptengine_p.h"
+#include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
-#include "qscriptvalue_p.h"
+#include "qscriptmember_p.h"
+#include "qscriptobject_p.h"
+#include "qscriptlexer_p.h"
+#include "qscriptparser_p.h"
+#include "qscriptcompiler_p.h"
 #include "qscriptvalueiterator.h"
-
 #include "qscriptecmaglobal_p.h"
-#include "qscriptecmaobject_p.h"
-#include "qscriptecmanumber_p.h"
-#include "qscriptecmaboolean_p.h"
 #include "qscriptecmamath_p.h"
-#include "qscriptecmadate_p.h"
-#include "qscriptecmafunction_p.h"
-#include "qscriptecmaarray_p.h"
-#include "qscriptecmastring_p.h"
-#include "qscriptecmaregexp_p.h"
-#include "qscriptecmaerror_p.h"
 #include "qscriptextenumeration_p.h"
-#include "qscriptextvariant_p.h"
-#include "qscriptextqobject_p.h"
 
 #include <QtCore/QDate>
 #include <QtCore/QDateTime>
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
+#include <QtCore/QVariant>
 
 Q_DECLARE_METATYPE(QScriptValue)
 Q_DECLARE_METATYPE(QVariant)
@@ -225,10 +215,6 @@ void ArgumentsClassData::mark(const QScriptValueImpl &object, int generation)
 const qsreal QScriptEnginePrivate::D16 = 65536.0;
 const qsreal QScriptEnginePrivate::D32 = 4294967296.0;
 
-QScriptEnginePrivate::QScriptEnginePrivate()
-{
-}
-
 QScriptEnginePrivate::~QScriptEnginePrivate()
 {
     // invalidate values that we have references to
@@ -286,30 +272,6 @@ QScript::AST::Node *QScriptEnginePrivate::createAbstractSyntaxTree(const QString
     }
 
     return abstractSyntaxTree();
-}
-
-QScript::Code *QScriptEnginePrivate::compiledCode(QScript::AST::Node *node)
-{
-    QHash<QScript::AST::Node*, QScript::Code*>::iterator it = m_codeCache.find(node);
-    if (it == m_codeCache.end())
-        return 0;
-
-    return it.value();
-}
-
-QScript::Code *QScriptEnginePrivate::createCompiledCode(QScript::AST::Node *node, const QScript::CompilationUnit &compilation)
-{
-    Q_ASSERT(compilation.isValid());
-
-    QHash<QScript::AST::Node*, QScript::Code*>::iterator it = m_codeCache.find(node);
-    if (it != m_codeCache.end())
-        return it.value();
-
-    QScript::Code *code = new QScript::Code();
-    code->init(compilation);
-
-    m_codeCache.insert(node, code);
-    return code;
 }
 
 void QScriptEnginePrivate::markObject(const QScriptValueImpl &object, int generation)
@@ -567,13 +529,6 @@ void QScriptEnginePrivate::evaluate(QScriptContextPrivate *context, const QStrin
     evalFunction->evaluate(context, contents, lineNumber, /*calledFromScript=*/ false);
 }
 
-QScriptFunction *QScriptEnginePrivate::convertToNativeFunction(const QScriptValueImpl &object)
-{
-    if (object.isFunction())
-        return static_cast<QScriptFunction*> (object.objectData().data());
-    return 0;
-}
-
 qsreal QScriptEnginePrivate::convertToNativeDouble_helper(const QScriptValueImpl &object)
 {
     QScriptClassInfo *klass = object.m_class;
@@ -750,26 +705,6 @@ QScriptValueImpl QScriptEnginePrivate::toPrimitive_helper(const QScriptValueImpl
     return object;
 }
 
-QDateTime QScriptEnginePrivate::toDateTime(const QScriptValueImpl &value) const
-{
-    return dateConstructor->toDateTime(value);
-}
-
-bool QScriptEnginePrivate::lessThan(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const
-{
-    return QScriptContextPrivate::get(currentContext())->lt_cmp(lhs, rhs);
-}
-
-bool QScriptEnginePrivate::equalTo(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const
-{
-    return QScriptContextPrivate::get(currentContext())->eq_cmp(lhs, rhs);
-}
-
-bool QScriptEnginePrivate::strictEqualTo(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const
-{
-    return QScriptContextPrivate::strict_eq_cmp(lhs, rhs);
-}
-
 void QScriptEnginePrivate::rehashStringRepository(bool resize)
 {
     if (resize) {
@@ -790,18 +725,6 @@ void QScriptEnginePrivate::rehashStringRepository(bool resize)
     }
 }
 
-QScriptNameIdImpl *QScriptEnginePrivate::toStringEntry(const QString &s)
-{
-    uint h = qHash(s) % m_string_hash_size;
-
-    for (QScriptNameIdImpl *entry = m_string_hash_base[h]; entry && entry->h == h; entry = entry->next) {
-        if (entry->s == s)
-            return entry;
-    }
-
-    return 0;
-}
-
 QScriptNameIdImpl *QScriptEnginePrivate::insertStringEntry(const QString &s)
 {
     QScriptNameIdImpl *entry = new QScriptNameIdImpl(s);
@@ -817,57 +740,6 @@ QScriptNameIdImpl *QScriptEnginePrivate::insertStringEntry(const QString &s)
         rehashStringRepository();
 
     return entry;
-}
-
-void QScriptEnginePrivate::newFunction(QScriptValueImpl *o, QScriptFunction *function)
-{
-    QScriptValueImpl proto;
-    if (functionConstructor)
-        proto = functionConstructor->publicPrototype;
-    else {
-        // creating the Function prototype object
-        Q_ASSERT(objectConstructor);
-        proto = objectConstructor->publicPrototype;
-    }
-    newObject(o, proto, m_class_function);
-    o->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(function));
-}
-
-void QScriptEnginePrivate::newConstructor(QScriptValueImpl *ctor,
-                                          QScriptFunction *function,
-                                          QScriptValueImpl &proto)
-{
-    newFunction(ctor, function);
-    ctor->setProperty(QLatin1String("prototype"), proto,
-                      QScriptValue::Undeletable
-                      | QScriptValue::ReadOnly
-                      | QScriptValue::SkipInEnumeration);
-    proto.setProperty(QLatin1String("constructor"), *ctor,
-                      QScriptValue::Undeletable
-                      | QScriptValue::SkipInEnumeration);
-}
-
-void QScriptEnginePrivate::newArguments(QScriptValueImpl *object,
-                                             const QScriptValueImpl &activation,
-                                             uint length,
-                                             const QScriptValueImpl &callee)
-{
-    QScript::ArgumentsObjectData *data = new QScript::ArgumentsObjectData();
-    data->activation = activation;
-    data->length = length;
-    Q_ASSERT(callee.isFunction());
-    data->callee = callee;
-
-    newObject(object, m_class_arguments);
-    object->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(data));
-}
-
-QScriptContext *QScriptEnginePrivate::pushContext()
-{
-    QScriptContext *context = m_frameRepository.get();
-    QScriptContextPrivate::get(context)->init(m_context);
-    m_context = context;
-    return m_context;
 }
 
 extern double qstrtod(const char *s00, const char **se, bool *ok);
@@ -936,44 +808,6 @@ QString QScriptEnginePrivate::toString_helper(qsreal d)
     free(result);
 
     return QString::fromLatin1(buf);
-}
-
-void QScriptEnginePrivate::popContext()
-{
-    Q_ASSERT(m_context != 0);
-
-    QScriptContext *context = m_context;
-    m_context = context->parentContext();
-    if (m_context) {
-        // propagate the state
-        QScriptContextPrivate::get(m_context)->m_result = QScriptContextPrivate::get(context)->m_result;
-        QScriptContextPrivate::get(m_context)->m_state = QScriptContextPrivate::get(context)->m_state;
-        QScriptContextPrivate::get(m_context)->errorLineNumber = QScriptContextPrivate::get(context)->errorLineNumber;
-    }
-    m_frameRepository.release(context);
-}
-
-QScriptValueImpl QScriptEnginePrivate::createFunction(QScriptFunction *fun)
-{
-    QScriptValueImpl v;
-    newFunction(&v, fun);
-    return v;
-}
-
-QScriptValueImpl QScriptEnginePrivate::newArray(const QScript::Array &value)
-{
-    QScriptValueImpl v;
-    newArray(&v, value);
-    return v;
-}
-
-QScriptValueImpl QScriptEnginePrivate::newArray(uint length)
-{
-    QScriptValueImpl v;
-    QScript::Array a;
-    a.resize(length);
-    newArray(&v, a);
-    return v;
 }
 
 QScriptValueImpl QScriptEnginePrivate::call(const QScriptValueImpl &callee,

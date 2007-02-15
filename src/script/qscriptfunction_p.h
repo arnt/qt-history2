@@ -25,15 +25,17 @@
 // We mean it.
 //
 
-#include "qscriptobject_p.h"
+#include "qscriptobjectdata_p.h"
 #include "qscriptglobals_p.h"
 
+#include <QtCore/QList>
 #ifndef QT_NO_QOBJECT
 #include <QtCore/QPointer>
 #include <QtCore/QMetaMethod>
 #endif
 
 class QScriptContext;
+class QScriptNameIdImpl;
 
 class QScriptFunction: public QScriptObjectData
 {
