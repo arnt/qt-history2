@@ -18,13 +18,13 @@
 
 MainWindow::MainWindow()
 {
-    workspace = new QWorkspace;
-    setCentralWidget(workspace);
-    connect(workspace, SIGNAL(windowActivated(QWidget *)),
+    mdiArea = new QMdiArea;
+    setCentralWidget(mdiArea);
+    connect(mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)),
             this, SLOT(updateMenus()));
     windowMapper = new QSignalMapper(this);
     connect(windowMapper, SIGNAL(mapped(QWidget *)),
-            workspace, SLOT(setActiveWindow(QWidget *)));
+            this, SLOT(setActiveSubWindow(QWidget *)));
 
     createActions();
     createMenus();
@@ -39,7 +39,7 @@ MainWindow::MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    workspace->closeAllWindows();
+    mdiArea->closeAllSubWindows();
     if (activeMdiChild()) {
         event->ignore();
     } else {
@@ -59,9 +59,9 @@ void MainWindow::open()
 {
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty()) {
-        MdiChild *existing = findMdiChild(fileName);
+        QMdiSubWindow *existing = findMdiChild(fileName);
         if (existing) {
-            workspace->setActiveWindow(existing);
+            mdiArea->setActiveSubWindow(existing);
             return;
         }
 
@@ -77,29 +77,32 @@ void MainWindow::open()
 
 void MainWindow::save()
 {
-    if (activeMdiChild()->save())
+    if (activeMdiChild() && activeMdiChild()->save())
         statusBar()->showMessage(tr("File saved"), 2000);
 }
 
 void MainWindow::saveAs()
 {
-    if (activeMdiChild()->saveAs())
+    if (activeMdiChild() && activeMdiChild()->saveAs())
         statusBar()->showMessage(tr("File saved"), 2000);
 }
 
 void MainWindow::cut()
 {
-    activeMdiChild()->cut();
+    if (activeMdiChild())
+        activeMdiChild()->cut();
 }
 
 void MainWindow::copy()
 {
-    activeMdiChild()->copy();
+    if (activeMdiChild())
+        activeMdiChild()->copy();
 }
 
 void MainWindow::paste()
 {
-    activeMdiChild()->paste();
+    if (activeMdiChild())
+        activeMdiChild()->paste();
 }
 
 void MainWindow::about()
@@ -144,11 +147,11 @@ void MainWindow::updateWindowMenu()
     windowMenu->addAction(previousAct);
     windowMenu->addAction(separatorAct);
 
-    QList<QWidget *> windows = workspace->windowList();
+    QList<QMdiSubWindow *> windows = mdiArea->subWindowList();
     separatorAct->setVisible(!windows.isEmpty());
 
     for (int i = 0; i < windows.size(); ++i) {
-        MdiChild *child = qobject_cast<MdiChild *>(windows.at(i));
+        MdiChild *child = qobject_cast<MdiChild *>(windows.at(i)->widget());
 
         QString text;
         if (i < 9) {
@@ -162,14 +165,14 @@ void MainWindow::updateWindowMenu()
         action->setCheckable(true);
         action ->setChecked(child == activeMdiChild());
         connect(action, SIGNAL(triggered()), windowMapper, SLOT(map()));
-        windowMapper->setMapping(action, child);
+        windowMapper->setMapping(action, windows.at(i));
     }
 }
 
 MdiChild *MainWindow::createMdiChild()
 {
     MdiChild *child = new MdiChild;
-    workspace->addWindow(child);
+    mdiArea->addSubWindow(child);
 
     connect(child, SIGNAL(copyAvailable(bool)),
             cutAct, SLOT(setEnabled(bool)));
@@ -227,35 +230,35 @@ void MainWindow::createActions()
     closeAct->setShortcut(tr("Ctrl+F4"));
     closeAct->setStatusTip(tr("Close the active window"));
     connect(closeAct, SIGNAL(triggered()),
-            workspace, SLOT(closeActiveWindow()));
+            mdiArea, SLOT(closeActiveSubWindow()));
 
     closeAllAct = new QAction(tr("Close &All"), this);
     closeAllAct->setStatusTip(tr("Close all the windows"));
     connect(closeAllAct, SIGNAL(triggered()),
-            workspace, SLOT(closeAllWindows()));
+            mdiArea, SLOT(closeAllSubWindows()));
 
     tileAct = new QAction(tr("&Tile"), this);
     tileAct->setStatusTip(tr("Tile the windows"));
-    connect(tileAct, SIGNAL(triggered()), workspace, SLOT(tile()));
+    connect(tileAct, SIGNAL(triggered()), mdiArea, SLOT(tileSubWindows()));
 
     cascadeAct = new QAction(tr("&Cascade"), this);
     cascadeAct->setStatusTip(tr("Cascade the windows"));
-    connect(cascadeAct, SIGNAL(triggered()), workspace, SLOT(cascade()));
+    connect(cascadeAct, SIGNAL(triggered()), mdiArea, SLOT(cascadeSubWindows()));
 
     arrangeAct = new QAction(tr("Arrange &icons"), this);
     arrangeAct->setStatusTip(tr("Arrange the icons"));
-    connect(arrangeAct, SIGNAL(triggered()), workspace, SLOT(arrangeIcons()));
+    connect(arrangeAct, SIGNAL(triggered()), mdiArea, SLOT(arrangeMinimizedSubWindows()));
 
     nextAct = new QAction(tr("Ne&xt"), this);
     nextAct->setStatusTip(tr("Move the focus to the next window"));
     connect(nextAct, SIGNAL(triggered()),
-            workspace, SLOT(activateNextWindow()));
+            mdiArea, SLOT(activateNextSubWindow()));
 
     previousAct = new QAction(tr("Pre&vious"), this);
     previousAct->setStatusTip(tr("Move the focus to the previous "
                                  "window"));
     connect(previousAct, SIGNAL(triggered()),
-            workspace, SLOT(activatePreviousWindow()));
+            mdiArea, SLOT(activatePreviousSubWindow()));
 
     separatorAct = new QAction(this);
     separatorAct->setSeparator(true);
@@ -333,17 +336,19 @@ void MainWindow::writeSettings()
 
 MdiChild *MainWindow::activeMdiChild()
 {
-    return qobject_cast<MdiChild *>(workspace->activeWindow());
+    if (QMdiSubWindow *activeSubWindow = mdiArea->activeSubWindow())
+        return qobject_cast<MdiChild *>(activeSubWindow->widget());
+    return 0;
 }
 
-MdiChild *MainWindow::findMdiChild(const QString &fileName)
+QMdiSubWindow *MainWindow::findMdiChild(const QString &fileName)
 {
     QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
 
-    foreach (QWidget *window, workspace->windowList()) {
-        MdiChild *mdiChild = qobject_cast<MdiChild *>(window);
+    foreach (QMdiSubWindow *window, mdiArea->subWindowList()) {
+        MdiChild *mdiChild = qobject_cast<MdiChild *>(window->widget());
         if (mdiChild->currentFile() == canonicalFilePath)
-            return mdiChild;
+            return window;
     }
     return 0;
 }
@@ -354,4 +359,11 @@ void MainWindow::switchLayoutDirection()
         qApp->setLayoutDirection(Qt::RightToLeft);
     else
         qApp->setLayoutDirection(Qt::LeftToRight);
+}
+
+void MainWindow::setActiveSubWindow(QWidget *window)
+{
+    if (!window)
+        return;
+    mdiArea->setActiveSubWindow(qobject_cast<QMdiSubWindow *>(window));
 }
