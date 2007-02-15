@@ -101,6 +101,7 @@ Section "${MODULE_ECLIPSE_QTDESIGNER_LABEL}" ECLIPSE_SEC02
   SetOutPath "$ECLIPSE_INSTDIR"
   SetOverwrite ifnewer
   File "${MODULE_ECLIPSE_ROOT}\bin\QtDesigner4.dll"
+  File "${MODULE_ECLIPSE_ROOT}\bin\QtScript4.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\QtDesignerComponents4.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\qtdesigner.dll"
   
@@ -284,6 +285,7 @@ Section un."Eclipse Integration"
 
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTDESIGNER_ID}.jar"
     Delete "$ECLIPSE_INSTDIR\QtDesigner4.dll"
+    Delete "$ECLIPSE_INSTDIR\QtScript4.dll"
     Delete "$ECLIPSE_INSTDIR\QtDesignerComponents4.dll"
     Delete "$ECLIPSE_INSTDIR\qtdesigner.dll"
   DoneUnInstallQtDesigner:
