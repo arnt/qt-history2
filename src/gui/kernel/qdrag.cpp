@@ -109,6 +109,8 @@ QDrag::~QDrag()
 void QDrag::setMimeData(QMimeData *data)
 {
     Q_D(QDrag);
+    if (d->data == data)
+        return;
     if (d->data != 0)
         delete d->data;
     d->data = data;

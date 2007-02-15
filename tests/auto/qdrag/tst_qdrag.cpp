@@ -46,6 +46,8 @@ void tst_QDrag::getSetCheck()
     QMimeData *var1 = new QMimeData;
     obj1.setMimeData(var1);
     QCOMPARE(var1, obj1.mimeData());
+    obj1.setMimeData(var1);
+    QCOMPARE(var1, obj1.mimeData());
     obj1.setMimeData((QMimeData *)0);
     QCOMPARE((QMimeData *)0, obj1.mimeData());
     // delete var1; // No delete, since QDrag takes ownership
