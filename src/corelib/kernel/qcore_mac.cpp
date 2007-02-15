@@ -17,6 +17,8 @@
 
 QString QCFString::toQString(CFStringRef str)
 {
+    if(!str)
+        return QString();
     CFIndex length = CFStringGetLength(str);
     const UniChar *chars = CFStringGetCharactersPtr(str);
     if (chars)
