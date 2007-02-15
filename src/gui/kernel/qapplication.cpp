@@ -1042,6 +1042,7 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
             } else {
                 continue;
             }
+            delete event;
             return true;
         }
         return false;

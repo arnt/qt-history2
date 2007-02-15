@@ -874,7 +874,6 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event, int priority)
         // if this is one of the compressible events, do compression
         if (receiver->d_func()->postedEvents
             && self && self->compressEvent(event, receiver, &data->postEventList)) {
-            delete event;
             return;
         }
 
@@ -919,7 +918,7 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event, int priority)
 
 /*!
   \internal
-  Returns true if \a event should be blocked and deleted
+  Returns true if \a event was compressed away (possibly deleted) and should not be added to the list.
 */
 bool QCoreApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventList *postedEvents)
 {
@@ -934,8 +933,10 @@ bool QCoreApplication::compressEvent(QEvent *event, QObject *receiver, QPostEven
         for (int i=0; i<postedEvents->size(); ++i) {
             const QPostEvent &e = postedEvents->at(i);
             if (e.receiver == receiver && e.event && e.event->type() == QEvent::Timer
-                && ((QTimerEvent *) e.event)->timerId() == timerId)
+                && ((QTimerEvent *) e.event)->timerId() == timerId) {
+                delete event;
                 return true;
+            }
         }
     }
 #else
