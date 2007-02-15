@@ -81,9 +81,9 @@ QString MakefileGenerator::mkdir_p_asstring(const QString &dir, bool escape) con
     return ret;
 }
 
-static bool createDir(QString path)
+bool MakefileGenerator::mkdir(const QString &in_path) const
 {
-    path = Option::fixPathToLocalOS(path);
+    QString path = Option::fixPathToLocalOS(in_path);
     if(QFile::exists(path))
         return true;
 
@@ -222,7 +222,7 @@ MakefileGenerator::initOutPaths()
             path = fileFixify(path, currentDir, Option::output_dir);
             debug_msg(3, "Fixed output_dir %s (%s) into %s", dirs[x].toLatin1().constData(),
                       orig_path.toLatin1().constData(), path.toLatin1().constData());
-            if(!createDir(path))
+            if(!mkdir(path))
                 warn_msg(WarnLogic, "%s: Cannot access directory '%s'", dirs[x].toLatin1().constData(),
                          path.toLatin1().constData());
         }
@@ -245,7 +245,7 @@ MakefileGenerator::initOutPaths()
                 if(slash != -1) {
                     path = path.left(slash);
                     if(path != "." &&
-                       !createDir(fileFixify(path, qmake_getpwd(), Option::output_dir)))
+                       !mkdir(fileFixify(path, qmake_getpwd(), Option::output_dir)))
                         warn_msg(WarnLogic, "%s: Cannot access directory '%s'",
                                  (*it).toLatin1().constData(), path.toLatin1().constData());
                 }
@@ -1090,6 +1090,31 @@ MakefileGenerator::write()
     return true;
 }
 
+QString
+MakefileGenerator::prlFileName(bool fixify)
+{
+    QString ret = project->first("TARGET_PRL");;
+    if(ret.isEmpty())
+        ret = project->first("TARGET");
+    int slsh = ret.lastIndexOf(Option::dir_sep);
+    if(slsh != -1)
+        ret = ret.right(ret.length() - slsh);
+    if(!ret.endsWith(Option::prl_ext)) {
+        int dot = ret.indexOf('.');
+        if(dot != -1)
+            ret = ret.left(dot);
+        ret += Option::prl_ext;
+    }
+    if(!project->isEmpty("QMAKE_BUNDLE"))
+        ret.prepend(project->first("QMAKE_BUNDLE") + Option::dir_sep);
+    if(fixify) {
+	if(!project->isEmpty("DESTDIR"))
+	    ret.prepend(project->first("DESTDIR"));
+        ret = Option::fixPathToLocalOS(fileFixify(ret, qmake_getpwd(), Option::output_dir));
+    }
+    return ret;
+}
+
 void
 MakefileGenerator::writePrlFile()
 {
@@ -1100,25 +1125,9 @@ MakefileGenerator::writePrlFile()
        && (project->first("TEMPLATE") == "lib"
 	   || project->first("TEMPLATE") == "vclib")
        && !project->isActiveConfig("plugin")) { //write prl file
-
-	QString prl = project->first("TARGET_PRL");;
-        if(prl.isEmpty())
-            prl = project->first("TARGET");
-	int slsh = prl.lastIndexOf(Option::dir_sep);
-	if(slsh != -1)
-	    prl = prl.right(prl.length() - slsh);
-        if(!prl.endsWith(Option::prl_ext)) {
-            int dot = prl.indexOf('.');
-            if(dot != -1)
-                prl = prl.left(dot);
-            prl += Option::prl_ext;
-        }
-        if(!project->isEmpty("QMAKE_BUNDLE"))
-            prl.prepend(project->first("QMAKE_BUNDLE") + Option::dir_sep);
-	if(!project->isEmpty("DESTDIR"))
-	    prl.prepend(var("DESTDIR"));
-	QString local_prl = Option::fixPathToLocalOS(fileFixify(prl, qmake_getpwd(), Option::output_dir));
-        createDir(fileInfo(local_prl).path());
+        QString local_prl = prlFileName();
+        QString prl = fileFixify(local_prl);
+        mkdir(fileInfo(local_prl).path());
 	QFile ft(local_prl);
 	if(ft.open(QIODevice::WriteOnly)) {
 	    project->values("ALL_DEPS").append(prl);
@@ -3148,7 +3157,7 @@ MakefileGenerator::openOutput(QFile &file, const QString &build) const
         project->values("QMAKE_MAKEFILE").append(file.fileName());
     int slsh = file.fileName().lastIndexOf(Option::dir_sep);
     if(slsh != -1)
-        createDir(file.fileName().left(slsh));
+        mkdir(file.fileName().left(slsh));
     if(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
         QFileInfo fi(fileInfo(Option::output.fileName()));
         QString od;

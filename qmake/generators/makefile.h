@@ -138,6 +138,7 @@ protected:
     inline bool canExecute(const QString &cmdline) const
     { return canExecute(cmdline.split(' '), 0); }
 
+    bool mkdir(const QString &dir) const;
     QString mkdir_p_asstring(const QString &dir, bool escape=true) const;
 
     //subclasses can use these to query information about how the generator was "run"
@@ -157,6 +158,7 @@ protected:
     virtual QString defaultInstall(const QString &);
 
     //for prl
+    QString prlFileName(bool fixify=true);
     void writePrlFile();
     bool processPrlFile(QString &);
     virtual void processPrlVariable(const QString &, const QStringList &);

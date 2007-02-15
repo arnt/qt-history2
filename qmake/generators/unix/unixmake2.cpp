@@ -136,6 +136,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(project->isActiveConfig("compile_libtool"))
         t << "LIBTOOL       = " << var("QMAKE_LIBTOOL") << endl;
     t << "COPY          = " << var("QMAKE_COPY") << endl;
+    t << "SED           = " << var("QMAKE_STREAM_EDITOR") << endl;
     t << "COPY_FILE     = " << var("QMAKE_COPY_FILE") << endl;
     t << "COPY_DIR      = " << var("QMAKE_COPY_DIR") << endl;
     t << "INSTALL_FILE  = " << var("QMAKE_INSTALL_FILE") << endl;
@@ -1213,7 +1214,7 @@ void UnixMakefileGenerator::init2()
 }
 
 QString
-UnixMakefileGenerator::libtoolFileName()
+UnixMakefileGenerator::libtoolFileName(bool fixify)
 {
     QString ret = var("TARGET");
     int slsh = ret.lastIndexOf(Option::dir_sep);
@@ -1223,13 +1224,11 @@ UnixMakefileGenerator::libtoolFileName()
     if(dot != -1)
         ret = ret.left(dot);
     ret += Option::libtool_ext;
-    QString destdir;
-    if(!project->isEmpty("QMAKE_LIBDIR_DESTDIR"))
-        destdir = project->first("QMAKE_LIBDIR_DESTDIR");
-    else if(!project->isEmpty("DESTDIR"))
-        destdir = project->first("DESTDIR");
-    if(!destdir.isEmpty()) {
-        ret.prepend(destdir);
+    if(!project->isEmpty("QMAKE_LIBTOOL_DESTDIR"))
+        ret.prepend(project->first("QMAKE_LIBTOOL_DESTDIR") + Option::dir_sep);
+    if(fixify) {
+        if(QDir::isRelativePath(ret) && !project->isEmpty("DESTDIR"))
+            ret.prepend(project->first("DESTDIR"));
         ret = Option::fixPathToLocalOS(fileFixify(ret, qmake_getpwd(), Option::output_dir));
     }
     return ret;
@@ -1239,6 +1238,7 @@ void
 UnixMakefileGenerator::writeLibtoolFile()
 {
     QString fname = libtoolFileName(), lname = fname;
+    mkdir(fileInfo(fname).path());
     int slsh = lname.lastIndexOf(Option::dir_sep);
     if(slsh != -1)
         lname = lname.right(lname.length() - slsh - 1);
@@ -1307,7 +1307,7 @@ UnixMakefileGenerator::writeLibtoolFile()
 }
 
 QString
-UnixMakefileGenerator::pkgConfigFileName()
+UnixMakefileGenerator::pkgConfigFileName(bool fixify)
 {
     QString ret = var("TARGET");
     int slsh = ret.lastIndexOf(Option::dir_sep);
@@ -1319,13 +1319,11 @@ UnixMakefileGenerator::pkgConfigFileName()
     if(dot != -1)
         ret = ret.left(dot);
     ret += Option::pkgcfg_ext;
-    QString destdir;
     if(!project->isEmpty("QMAKE_PKGCONFIG_DESTDIR"))
-        destdir = project->first("QMAKE_PKGCONFIG_DESTDIR");
-    else if(!project->isEmpty("DESTDIR"))
-        destdir = project->first("DESTDIR");
-    if(!destdir.isEmpty()) {
-        ret.prepend(destdir);
+        ret.prepend(project->first("QMAKE_PKGCONFIG_DESTDIR") + Option::dir_sep);
+    if(fixify) {
+        if(QDir::isRelativePath(ret) && !project->isEmpty("DESTDIR"))
+            ret.prepend(project->first("DESTDIR"));
         ret = Option::fixPathToLocalOS(fileFixify(ret, qmake_getpwd(), Option::output_dir));
     }
     return ret;
@@ -1349,9 +1347,10 @@ UnixMakefileGenerator::pkgConfigFixPath(QString path) const
 }
 
 void
-UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for libqt so far
+UnixMakefileGenerator::writePkgConfigFile()
 {
     QString fname = pkgConfigFileName(), lname = fname;
+    mkdir(fileInfo(fname).path());
     int slsh = lname.lastIndexOf(Option::dir_sep);
     if(slsh != -1)
         lname = lname.right(lname.length() - slsh - 1);

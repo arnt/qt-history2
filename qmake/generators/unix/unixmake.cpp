@@ -46,6 +46,8 @@ UnixMakefileGenerator::init()
         project->values("QMAKE_EXTENSION_PLUGIN").append(project->first("QMAKE_EXTENSION_SHLIB"));
     if(project->isEmpty("QMAKE_COPY_FILE"))
         project->values("QMAKE_COPY_FILE").append("$(COPY)");
+    if(project->isEmpty("QMAKE_STREAM_EDITOR"))
+        project->values("QMAKE_STREAM_EDITOR").append("sed");
     if(project->isEmpty("QMAKE_COPY_DIR"))
         project->values("QMAKE_COPY_DIR").append("$(COPY) -R");
     if(project->isEmpty("QMAKE_INSTALL_FILE"))
@@ -643,13 +645,6 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     } else if(project->first("TEMPLATE") == "app") {
         target = "$(QMAKE_TARGET)";
     } else if(project->first("TEMPLATE") == "lib") {
-        if(project->isActiveConfig("create_prl") && !project->isActiveConfig("no_install_prl") &&
-           !project->isEmpty("QMAKE_INTERNAL_PRL_FILE"))
-            targets += project->first("QMAKE_INTERNAL_PRL_FILE");
-        if(project->isActiveConfig("create_libtool") && !project->isActiveConfig("compile_libtool"))
-            targets += libtoolFileName();
-        if(project->isActiveConfig("create_pc"))
-            targets += pkgConfigFileName();
         if(project->isEmpty("QMAKE_CYGWIN_SHLIB")) {
             if(!project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin")) {
                 if(project->isEmpty("QMAKE_HPUX_SHLIB")) {
@@ -752,6 +747,56 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
                     if(!uninst.isEmpty())
                         uninst.append("\n\t");
                     uninst.append("-$(DEL_FILE) \"" + dst_link + "\"");
+                }
+            }
+        }
+    }
+    if(project->first("TEMPLATE") == "lib") {
+        QStringList types;
+        types << "prl" << "libtool" << "pkgconfig";
+        for(int i = 0; i < types.size(); ++i) {
+            const QString type = types.at(i);
+            QString meta;
+            if(type == "prl" && project->isActiveConfig("create_prl") && !project->isActiveConfig("no_install_prl") &&
+               !project->isEmpty("QMAKE_INTERNAL_PRL_FILE"))
+                meta = prlFileName(false);
+            if(type == "libtool" && project->isActiveConfig("create_libtool") && !project->isActiveConfig("compile_libtool"))
+                meta = libtoolFileName(false);
+            if(type == "pkgconfig" && project->isActiveConfig("create_pc"))
+                meta = pkgConfigFileName(false);
+            if(!meta.isEmpty()) {
+                QString src_meta = meta;
+                if(!destdir.isEmpty())
+                    src_meta = Option::fixPathToTargetOS(destdir + meta, false);
+                QString dst_meta = filePrefixRoot(root, fileFixify(targetdir + meta, FileFixifyAbsolute));
+                if(!uninst.isEmpty())
+                    uninst.append("\n\t");
+                uninst.append("-$(DEL_FILE) \"" + dst_meta + "\"");
+                const QString replace_rule("QMAKE_" + type.toUpper() + "_INSTALL_REPLACE");
+                const QString dst_meta_dir = fileInfo(dst_meta).path();
+                if(!dst_meta_dir.isEmpty()) {
+                    if(!ret.isEmpty())
+                        ret += "\n\t";
+                    ret += mkdir_p_asstring(dst_meta_dir, true);
+                }
+                QString install_meta = "$(INSTALL_FILE) \"" + src_meta + "\" \"" + dst_meta + "\"";
+                if(project->isEmpty(replace_rule) || project->isActiveConfig("no_sed_meta_install")) {
+                    if(!ret.isEmpty())
+                        ret += "\n\t";
+                    ret += "-" + install_meta;
+                } else {
+                    if(!ret.isEmpty())
+                        ret += "\n\t";
+                    ret += "-$(SED)";
+                    QStringList replace_rules = project->values(replace_rule);
+                    for(int r = 0; r < replace_rules.size(); ++r) {
+                        const QString match = project->first(replace_rules.at(r) + ".match"),
+                                    replace = project->first(replace_rules.at(r) + ".replace");
+                        if(!match.isEmpty() /*&& match != replace*/)
+                            ret += " -e \"s," + match + "," + replace + ",g\"";
+                    }
+                    ret += " \"" + src_meta + "\" >\"" + dst_meta + "\"";
+                    //ret += " || " + install_meta;
                 }
             }
         }
