@@ -82,42 +82,75 @@ void tst_QScriptValue::ctor()
         QCOMPARE(v.isValid(), true);
         QCOMPARE(v.isBoolean(), true);
         QCOMPARE(v.isObject(), false);
+        QCOMPARE(v.toBoolean(), false);
     }
     {
         QScriptValue v(&eng, int(1));
         QCOMPARE(v.isValid(), true);
         QCOMPARE(v.isNumber(), true);
         QCOMPARE(v.isObject(), false);
+        QCOMPARE(v.toNumber(), 1.0);
     }
     {
         QScriptValue v(&eng, uint(1));
         QCOMPARE(v.isValid(), true);
         QCOMPARE(v.isNumber(), true);
         QCOMPARE(v.isObject(), false);
+        QCOMPARE(v.toNumber(), 1.0);
     }
     {
         QScriptValue v(&eng, qlonglong(1));
         QCOMPARE(v.isValid(), true);
         QCOMPARE(v.isNumber(), true);
         QCOMPARE(v.isObject(), false);
+        QCOMPARE(v.toNumber(), 1.0);
     }
     {
         QScriptValue v(&eng, 1.0);
         QCOMPARE(v.isValid(), true);
         QCOMPARE(v.isNumber(), true);
         QCOMPARE(v.isObject(), false);
+        QCOMPARE(v.toNumber(), 1.0);
     }
     {
         QScriptValue v(&eng, "ciao");
         QCOMPARE(v.isValid(), true);
         QCOMPARE(v.isString(), true);
         QCOMPARE(v.isObject(), false);
+        QCOMPARE(v.toString(), QLatin1String("ciao"));
     }
     {
         QScriptValue v(&eng, QString("ciao"));
         QCOMPARE(v.isValid(), true);
         QCOMPARE(v.isString(), true);
         QCOMPARE(v.isObject(), false);
+        QCOMPARE(v.toString(), QLatin1String("ciao"));
+    }
+    // copy constructor, operator=
+    {
+        QScriptValue v(&eng, 1.0);
+        QScriptValue v2(v);
+        QCOMPARE(v2.strictEqualTo(v), true);
+
+        QScriptValue v3(v);
+        QCOMPARE(v3.strictEqualTo(v), true);
+        QCOMPARE(v3.strictEqualTo(v2), true);
+
+        QScriptValue v4(&eng, 2.0);
+        QCOMPARE(v4.strictEqualTo(v), false);
+        v3 = v4;
+        QCOMPARE(v3.strictEqualTo(v), false);
+        QCOMPARE(v3.strictEqualTo(v4), true);
+
+        v2 = QScriptValue();
+        QCOMPARE(v2.strictEqualTo(v), false);
+        QCOMPARE(v.toNumber(), 1.0);
+
+        QScriptValue v5(v);
+        QCOMPARE(v5.strictEqualTo(v), true);
+        v = QScriptValue();
+        QCOMPARE(v5.strictEqualTo(v), false);
+        QCOMPARE(v5.toNumber(), 1.0);
     }
 }
 

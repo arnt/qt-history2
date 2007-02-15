@@ -32,7 +32,8 @@ class QScriptValuePrivate
 {
 public:
     inline QScriptValuePrivate();
-    inline QScriptValuePrivate(const QScriptValueImpl &value);
+
+    static inline QScriptValuePrivate *create();
 
     static inline QScriptValuePrivate *get(const QScriptValue &value);
 

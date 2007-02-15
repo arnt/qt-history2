@@ -1168,7 +1168,8 @@ QScriptValuePrivate *QScriptEnginePrivate::registerValue(const QScriptValueImpl 
         QScriptValuePrivate *p = m_stringHandles.value(id);
         if (p)
             return p;
-        p = new QScriptValuePrivate(value);
+        p = m_handleRepository.get();
+        p->value = value;
         m_stringHandles.insert(id, p);
         return p;
     } else if (value.isObject()) {
@@ -1176,7 +1177,8 @@ QScriptValuePrivate *QScriptEnginePrivate::registerValue(const QScriptValueImpl 
         QScriptValuePrivate *p = m_objectHandles.value(instance);
         if (p)
             return p;
-        p = new QScriptValuePrivate(value);
+        p = m_handleRepository.get();
+        p->value = value;
         m_objectHandles.insert(instance, p);
         return p;
     }
@@ -1187,7 +1189,8 @@ QScriptValuePrivate *QScriptEnginePrivate::registerValue(const QScriptValueImpl 
             return *it;
     }
 
-    QScriptValuePrivate *p = new QScriptValuePrivate(value);
+    QScriptValuePrivate *p = m_handleRepository.get();
+    p->value = value;
     m_otherHandles.append(p);
     return p;
 }

@@ -32,10 +32,9 @@ inline QScriptValuePrivate::QScriptValuePrivate()
     ref.init();
 }
 
-inline QScriptValuePrivate::QScriptValuePrivate(const QScriptValueImpl &value)
-    : value(value)
+inline QScriptValuePrivate *QScriptValuePrivate::create()
 {
-    ref.init();
+    return new QScriptValuePrivate();
 }
 
 inline QScriptValuePrivate *QScriptValuePrivate::get(const QScriptValue &value)

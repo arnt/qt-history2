@@ -354,6 +354,7 @@ public: // attributes
     QHash<QScript::Type, QScriptClassInfo*> m_classes;
     int m_class_prev_id;
 
+    QScript::Repository<QScriptValuePrivate, QScriptValuePrivate> m_handleRepository;
     QHash<QScriptObject*, QScriptValuePrivate*> m_objectHandles;
     QHash<QScriptNameIdImpl*, QScriptValuePrivate*> m_stringHandles;
     QVector<QScriptValuePrivate*> m_otherHandles;

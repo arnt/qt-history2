@@ -123,9 +123,12 @@ QScriptValue::QScriptValue()
 QScriptValue::~QScriptValue()
 {
     if (d_ptr && !d_ptr->ref.deref()) {
-        if (isValid())
+        if (isValid()) {
             QScriptEnginePrivate::get(engine())->unregisterValue(d_ptr);
-        delete d_ptr;
+        } else {
+            // the engine has already been deleted
+            delete d_ptr;
+        }
         d_ptr = 0;
     }
 }
@@ -194,7 +197,6 @@ QScriptValue::QScriptValue(QScriptEngine *engine, uint val)
   Constructs a new QScriptValue with a qlonglong value, \a val.
 */
 QScriptValue::QScriptValue(QScriptEngine *engine, qlonglong val)
-    : d_ptr(new QScriptValuePrivate())
 {
     QScriptValueImpl v;
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine);
@@ -268,9 +270,12 @@ QScriptValue &QScriptValue::operator=(const QScriptValue &other)
     if (d_ptr == other.d_ptr)
         return *this;
     if (d_ptr && !d_ptr->ref.deref()) {
-        if (isValid())
+        if (isValid()) {
             QScriptEnginePrivate::get(engine())->unregisterValue(d_ptr);
-        delete d_ptr;
+        } else {
+            // the engine has already been deleted
+            delete d_ptr;
+        }
     }
     d_ptr = other.d_ptr;
     if (d_ptr)

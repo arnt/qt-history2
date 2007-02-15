@@ -803,6 +803,7 @@ inline void QScriptEnginePrivate::unregisterValue(QScriptValuePrivate *p)
         Q_ASSERT(i != -1);
         m_otherHandles.remove(i);
     }
+    m_handleRepository.release(p);
 }
 
 inline QScriptValueImpl QScriptEnginePrivate::globalObject() const
