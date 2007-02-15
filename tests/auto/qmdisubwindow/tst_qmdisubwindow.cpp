@@ -149,6 +149,8 @@ private slots:
     void changeFocusWithTab();
     void closeEvent();
     void setWindowTitle();
+    void resizeEvents_data();
+    void resizeEvents();
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -1176,6 +1178,56 @@ void tst_QMdiSubWindow::setWindowTitle()
     QCOMPARE(window->windowTitle(), QString());
     QVERIFY(!window->isWindowModified());
     delete textEdit;
+}
+
+void tst_QMdiSubWindow::resizeEvents_data()
+{
+    QTest::addColumn<Qt::WindowState>("windowState");
+    QTest::addColumn<int>("expectedWindowResizeEvents");
+    QTest::addColumn<int>("expectedWidgetResizeEvents");
+    QTest::addColumn<bool>("isShadeMode");
+
+    QTest::newRow("maximized") << Qt::WindowMinimized << 1 << 0 << false;
+    QTest::newRow("minimized") << Qt::WindowMaximized << 1 << 1 << false;
+    QTest::newRow("shaded") << Qt::WindowMinimized << 1 << 0 << true;
+}
+
+void tst_QMdiSubWindow::resizeEvents()
+{
+    QFETCH(Qt::WindowState, windowState);
+    QFETCH(int, expectedWindowResizeEvents);
+    QFETCH(int, expectedWidgetResizeEvents);
+    QFETCH(bool, isShadeMode);
+
+    QMdiArea mdiArea;
+    mdiArea.show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+
+    QMdiSubWindow *window = mdiArea.addSubWindow(new QTextEdit);
+    window->show();
+
+    EventSpy windowResizeEventSpy(window, QEvent::Resize);
+    QCOMPARE(windowResizeEventSpy.count(), 0);
+    EventSpy widgetResizeEventSpy(window->widget(), QEvent::Resize);
+    QCOMPARE(widgetResizeEventSpy.count(), 0);
+
+    // Set the window state and check how many resize events we got.
+    if (!isShadeMode)
+        window->setWindowState(windowState);
+    else
+        window->showShaded();
+    QCOMPARE(windowResizeEventSpy.count(), expectedWindowResizeEvents);
+    QCOMPARE(widgetResizeEventSpy.count(), expectedWidgetResizeEvents);
+
+    windowResizeEventSpy.clear();
+    widgetResizeEventSpy.clear();
+
+    // Normalize and check how many resize events we got.
+    window->showNormal();
+    QCOMPARE(windowResizeEventSpy.count(), expectedWindowResizeEvents);
+    QCOMPARE(widgetResizeEventSpy.count(), expectedWidgetResizeEvents);
 }
 
 QTEST_MAIN(tst_QMdiSubWindow)
