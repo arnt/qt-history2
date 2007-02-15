@@ -15,6 +15,8 @@
 #include <QLibraryInfo>
 #include <QDir>
 
+#include <stdlib.h>
+
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(designer);
@@ -27,7 +29,7 @@ int main(int argc, char *argv[])
     reporterPath += QLatin1String(".exe");
 #endif
     if (QFile::exists(reporterPath))
-        system(qPrintable(reporterPath + QLatin1String(" designer")));
+        ::system(qPrintable(reporterPath + QLatin1String(" designer")));
 #endif
 
     QDesigner app(argc, argv);
