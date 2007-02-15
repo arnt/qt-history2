@@ -704,7 +704,7 @@ QGraphicsItem::~QGraphicsItem()
     Returns the current scene for the item, or 0 if the item is not stored in
     a scene.
 
-    Too add or move an item to a scene, call QGraphicsScene::addItem().
+    To add or move an item to a scene, call QGraphicsScene::addItem().
 */
 QGraphicsScene *QGraphicsItem::scene() const
 {
