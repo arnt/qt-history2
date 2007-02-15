@@ -1609,8 +1609,10 @@ void QMdiSubWindowPrivate::setWindowFlags(Qt::WindowFlags windowFlags)
             stayOnTopAction->setChecked(false);
     }
 
+#ifndef QT_NO_SIZEGRIP
     if ((windowFlags & Qt::FramelessWindowHint) && sizeGrip)
         delete sizeGrip;
+#endif
 
     q->setWindowFlags(windowFlags);
     updateGeometryConstraints();
