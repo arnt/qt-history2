@@ -1609,6 +1609,9 @@ void QMdiSubWindowPrivate::setWindowFlags(Qt::WindowFlags windowFlags)
             stayOnTopAction->setChecked(false);
     }
 
+    if ((windowFlags & Qt::FramelessWindowHint) && sizeGrip)
+        delete sizeGrip;
+
     q->setWindowFlags(windowFlags);
     updateGeometryConstraints();
     updateActions();
@@ -1646,10 +1649,10 @@ void QMdiSubWindowPrivate::addToSystemMenu(WindowStateAction action, const QStri
 */
 void QMdiSubWindowPrivate::setSizeGrip(QSizeGrip *newSizeGrip)
 {
-    if (!newSizeGrip || sizeGrip)
+    Q_Q(QMdiSubWindow);
+    if (!newSizeGrip || sizeGrip || q->windowFlags() & Qt::FramelessWindowHint)
         return;
 
-    Q_Q(QMdiSubWindow);
     if (q->layout() && q->layout()->indexOf(newSizeGrip) != -1)
         return;
     newSizeGrip->setFixedSize(newSizeGrip->sizeHint());
@@ -2220,7 +2223,8 @@ void QMdiSubWindow::showEvent(QShowEvent *showEvent)
     }
 
 #ifndef QT_NO_SIZEGRIP
-    if (style()->inherits("QMacStyle") && !d->sizeGrip) {
+    if (style()->inherits("QMacStyle") && !d->sizeGrip
+            && !(windowFlags() & Qt::FramelessWindowHint)) {
         d->setSizeGrip(new QSizeGrip(0));
         Q_ASSERT(d->sizeGrip);
         d->sizeGrip->show();
