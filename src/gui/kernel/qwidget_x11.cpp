@@ -253,7 +253,7 @@ Q_GUI_EXPORT void qt_x11_enforce_cursor(QWidget * w)
 {
     if (!w->testAttribute(Qt::WA_WState_Created))
         return;
-    if (w->testAttribute(Qt::WA_SetCursor)) {
+    if (w->isWindow() || w->testAttribute(Qt::WA_SetCursor)) {
         QCursor *oc = QApplication::overrideCursor();
         if (oc) {
             XDefineCursor(X11->display, w->internalWinId(), oc->handle());
@@ -671,7 +671,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     if (desktop) {
         q->setAttribute(Qt::WA_WState_Visible);
     } else if (topLevel) {                        // set X cursor
-        q->setAttribute(Qt::WA_SetCursor);
         if (initializeWindow) {
             qt_x11_enforce_cursor(q);
 

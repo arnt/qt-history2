@@ -165,6 +165,7 @@ private slots:
     void deleteStyle();
     void multipleToplevelFocusCheck();
     void setFocus();
+    void setCursor();
 
 private:
     bool ensureScreenSize(int width, int height);
@@ -3821,7 +3822,104 @@ void tst_QWidget::setFocus()
         QCOMPARE(window.focusWidget(), static_cast<QWidget *>(0));
         QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
     }
+}
 
+void tst_QWidget::setCursor()
+{
+    {
+        QWidget window;
+        QWidget child(&window);
+
+        QVERIFY(!window.testAttribute(Qt::WA_SetCursor));
+        QVERIFY(!child.testAttribute(Qt::WA_SetCursor));
+
+        window.setCursor(window.cursor());
+        QVERIFY(window.testAttribute(Qt::WA_SetCursor));
+        QVERIFY(!child.testAttribute(Qt::WA_SetCursor));
+        QCOMPARE(child.cursor().shape(), window.cursor().shape());
+    }
+
+    // do it again, but with window show()n
+    {
+        QWidget window;
+        QWidget child(&window);
+        window.show();
+
+        QVERIFY(!window.testAttribute(Qt::WA_SetCursor));
+        QVERIFY(!child.testAttribute(Qt::WA_SetCursor));
+
+        window.setCursor(window.cursor());
+        QVERIFY(window.testAttribute(Qt::WA_SetCursor));
+        QVERIFY(!child.testAttribute(Qt::WA_SetCursor));
+        QCOMPARE(child.cursor().shape(), window.cursor().shape());
+    }
+
+
+    {
+        QWidget window;
+        QWidget child(&window);
+
+        window.setCursor(Qt::WaitCursor);
+        QVERIFY(window.testAttribute(Qt::WA_SetCursor));
+        QVERIFY(!child.testAttribute(Qt::WA_SetCursor));
+        QCOMPARE(child.cursor().shape(), window.cursor().shape());
+    }
+
+    // same thing again, just with window show()n
+    {
+        QWidget window;
+        QWidget child(&window);
+
+        window.show();
+        window.setCursor(Qt::WaitCursor);
+        QVERIFY(window.testAttribute(Qt::WA_SetCursor));
+        QVERIFY(!child.testAttribute(Qt::WA_SetCursor));
+        QCOMPARE(child.cursor().shape(), window.cursor().shape());
+    }
+
+    // reparenting child should not cause the WA_SetCursor to become set
+    {
+        QWidget window;
+        QWidget window2;
+        QWidget child(&window);
+
+        window.setCursor(Qt::WaitCursor);
+
+        child.setParent(0);
+        QVERIFY(!child.testAttribute(Qt::WA_SetCursor));
+        QCOMPARE(child.cursor().shape(), QCursor().shape());
+
+        child.setParent(&window2);
+        QVERIFY(!child.testAttribute(Qt::WA_SetCursor));
+        QCOMPARE(child.cursor().shape(), window2.cursor().shape());
+
+            window2.setCursor(Qt::WaitCursor);
+        QVERIFY(!child.testAttribute(Qt::WA_SetCursor));
+        QCOMPARE(child.cursor().shape(), window2.cursor().shape());
+    }
+
+    // again, with windows show()n
+    {
+        QWidget window;
+        QWidget window2;
+        QWidget child(&window);
+
+        window.setCursor(Qt::WaitCursor);
+        window.show();
+
+        child.setParent(0);
+        QVERIFY(!child.testAttribute(Qt::WA_SetCursor));
+        QCOMPARE(child.cursor().shape(), QCursor().shape());
+
+        child.setParent(&window2);
+        QVERIFY(!child.testAttribute(Qt::WA_SetCursor));
+        QCOMPARE(child.cursor().shape(), window2.cursor().shape());
+
+        window2.show();
+        window2.setCursor(Qt::WaitCursor);
+        QVERIFY(!child.testAttribute(Qt::WA_SetCursor));
+        QCOMPARE(child.cursor().shape(), window2.cursor().shape());
+    }
 }
 
 QTEST_MAIN(tst_QWidget)
