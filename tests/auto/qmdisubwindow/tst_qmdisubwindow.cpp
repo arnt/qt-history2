@@ -151,6 +151,9 @@ private slots:
     void setWindowTitle();
     void resizeEvents_data();
     void resizeEvents();
+#if defined(Q_WS_MAC)
+    void defaultSizeGrip();
+#endif
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -1229,6 +1232,24 @@ void tst_QMdiSubWindow::resizeEvents()
     QCOMPARE(windowResizeEventSpy.count(), expectedWindowResizeEvents);
     QCOMPARE(widgetResizeEventSpy.count(), expectedWidgetResizeEvents);
 }
+
+#if defined(Q_WS_MAC)
+void tst_QMdiSubWindow::defaultSizeGrip()
+{
+    QMdiArea mdiArea;
+    mdiArea.show();
+
+    // QSizeGrip on windows with decoration.
+    QMdiSubWindow *windowWithDecoration = mdiArea.addSubWindow(new QWidget);
+    windowWithDecoration->show();
+    QVERIFY(qFindChild<QSizeGrip *>(windowWithDecoration));
+
+    // ...but not on windows without decoration (Qt::FramelessWindowHint).
+    QMdiSubWindow *windowWithoutDecoration = mdiArea.addSubWindow(new QWidget, Qt::FramelessWindowHint);
+    windowWithoutDecoration->show();
+    QVERIFY(!qFindChild<QSizeGrip *>(windowWithoutDecoration));
+}
+#endif
 
 QTEST_MAIN(tst_QMdiSubWindow)
 #include "tst_qmdisubwindow.moc"
