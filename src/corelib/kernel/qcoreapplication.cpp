@@ -327,7 +327,9 @@ QString qAppName()
     Some Qt classes, such as QString, can be used without a
     QCoreApplication object. However, in general, we recommend that
     you create a QCoreApplication or a QApplication object in your \c
-    main() function as early as possible.
+    main() function as early as possible. The application will enter
+    the event loop when exec() is called. exit() will not return
+    until the event loop exits, e.g., when quit() is called.
 
     An application has an applicationDirPath() and an
     applicationFilePath(). Translation files can be added or removed
@@ -346,7 +348,8 @@ QString qAppName()
     QLibrary) can be retrieved with libraryPaths() and manipulated by
     setLibraryPaths(), addLibraryPath(), and removeLibraryPath().
 
-    \sa QApplication, QAbstractEventDispatcher, QEventLoop
+    \sa QApplication, QAbstractEventDispatcher, QEventLoop,
+    {Semaphores Example}, {Wait Conditions Example}
 */
 
 /*!
