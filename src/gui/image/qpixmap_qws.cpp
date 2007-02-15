@@ -49,11 +49,10 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
                              QImage::LittleEndian : QImage::BigEndian);
 
     QWSDisplay::grab(false);
+
     QImage img(qt_screen->base(),
                qt_screen->width(), qt_screen->height(),
-               qt_screen->depth(), qt_screen->linestep(),
-               qt_screen->clut(), qt_screen->numCols(),
-               endian);
+               qt_screen->linestep(), qt_screen->pixelFormat());
     QPixmap pixmap = fromImage(img.copy(grabRect));
     QWSDisplay::ungrab();
 

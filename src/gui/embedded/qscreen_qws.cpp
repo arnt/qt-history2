@@ -887,6 +887,30 @@ extern bool qws_accel; //in qapplication_qws.cpp
 */
 
 /*!
+  Returns the pixel format of the screen, or \c QImage::Format_Invalid
+  if the pixel format is not a supported image format.
+
+*/
+//#### Must be able to distinguish between 565 and 1555 and between Indexed8 and 8-bit grayscale
+QImage::Format QScreen::pixelFormat() const
+{
+    switch (d) {
+    case 1:
+        return QImage::Format_Mono; //### LSB???
+    case 8:
+        return QImage::Format_Indexed8;
+    case 16:
+        return QImage::Format_RGB16;
+    case 32:
+        return QImage::Format_ARGB32_Premultiplied;
+    default:
+        return QImage::Format_Invalid; // Unsupported screen depth
+    }
+}
+
+
+
+/*!
     \fn int QScreen::alloc(unsigned int red, unsigned int green, unsigned int blue)
 
     Returns the index in the screen's palette which is the closest

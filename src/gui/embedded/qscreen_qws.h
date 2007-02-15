@@ -197,6 +197,8 @@ public:
     virtual uchar * cache(int) { return 0; }
     virtual void uncache(uchar *) {}
 
+    QImage::Format pixelFormat() const;
+
     int screenSize() const { return size; }
     int totalSize() const { return mapsize; }
 

@@ -1020,23 +1020,16 @@ void QWSOnScreenSurface::attachToScreen(const QScreen *s)
 {
     screen = s;
     uchar *base = screen->base();
-    QImage::Format format;
-    switch (screen->depth()) {
-    case 16:
-        format = QImage::Format_RGB16;
-        break;
-    case 32:
-        format = QImage::Format_ARGB32_Premultiplied;
-        break;
-    default:
+    QImage::Format format  = screen->pixelFormat();
+
+    if (format == QImage::Format_Invalid || format == QImage::Format_Indexed8) {
+        //### currently we have no paint engine for indexed image formats
         qFatal("QWSOnScreenSurface::attachToScreen(): screen depth %d "
                "not implemented", screen->depth());
         return;
     }
-    QWSMemorySurface::img = QImage(base, screen->width(),
-                                   screen->height(), screen->depth(),
-                                   screen->linestep(), 0, 0,
-                                   QImage::IgnoreEndian);
+    QWSMemorySurface::img = QImage(base, screen->width(), screen->height(),
+                                   screen->linestep(), format );
 }
 
 QWSOnScreenSurface::~QWSOnScreenSurface()

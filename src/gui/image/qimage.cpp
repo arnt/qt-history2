@@ -1153,7 +1153,6 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
     }
 }
 
-#endif
 #ifdef Q_WS_QWS
 
 /*!
@@ -1205,6 +1204,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colort
     }
 }
 #endif // Q_WS_QWS
+#endif // QT3_SUPPORT
 
 /*!
     Destroys the image and cleans up.
