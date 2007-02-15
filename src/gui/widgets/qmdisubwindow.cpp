@@ -601,7 +601,8 @@ QMdiSubWindowPrivate::QMdiSubWindowPrivate()
       keyboardPageStep(20),
       currentOperation(None),
       hoveredSubControl(QStyle::SC_None),
-      activeSubControl(QStyle::SC_None)
+      activeSubControl(QStyle::SC_None),
+      focusInReason(Qt::ActiveWindowFocusReason)
 {
     initOperationMap();
 }

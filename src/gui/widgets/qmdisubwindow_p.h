@@ -157,11 +157,11 @@ public:
     Operation currentOperation;
     QStyle::SubControl hoveredSubControl;
     QStyle::SubControl activeSubControl;
+    Qt::FocusReason focusInReason;
     OperationInfoMap operationMap;
     QPointer<QMenu> systemMenu;
     QPointer<QAction> actions[NumWindowStateActions];
     QMdiSubWindow::SubWindowOptions options;
-    Qt::FocusReason focusInReason;
     QString lastChildWindowTitle;
 
     // Slots.
