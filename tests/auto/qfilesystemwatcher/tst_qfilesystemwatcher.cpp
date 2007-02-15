@@ -79,7 +79,7 @@ void tst_QFileSystemWatcher::basicTest()
     testFile.close();
 
     // set some file permissions
-    testFile.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ReadOther);
+    testFile.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
 
     // create watcher, forcing it to use a specific backend
     QFileSystemWatcher watcher;
@@ -134,7 +134,7 @@ void tst_QFileSystemWatcher::basicTest()
     watcher.addPath(testFile.fileName());
 
     // change the permissions, should get a signal from the watcher
-    testFile.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
+    testFile.setPermissions(QFile::ReadOwner);
 
     // qDebug() << "waiting max 5 seconds for notification for file permission modification to trigger(1)";
     timer.start(5000);
