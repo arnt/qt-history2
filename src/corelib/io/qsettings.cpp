@@ -2012,6 +2012,11 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     \o Avoid key names that are identical except for the case. For
        example, if you have a key called "MainWindow", don't try to
        save another key as "mainwindow".
+
+    \o Do not use slashes  ('/' and '\\') in key names; the
+       backslash character is used to separate sub keys (see below). On
+       windows '\\' are converted by QSettings to '/', which makes
+       them identical.
     \endlist
 
     You can form hierarchical keys using the '/' character as a
@@ -2271,6 +2276,12 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     \code
         settings.setValue("11.0/Outlook/Security/DontTrustInstalledFiles", 0);
     \endcode
+
+    Note that the backslash character is, as mentioned, used by
+    QSettings to separate subkeys. As a result, you cannot read or
+    write windows registry entries that contain slashes or
+    backslashes; you should use a native windows API if you need to do
+    so.
 
     \section2 Platform Limitations
 
