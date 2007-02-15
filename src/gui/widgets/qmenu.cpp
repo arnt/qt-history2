@@ -47,6 +47,7 @@
 #endif
 
 
+QPointer<QMenu> QMenuPrivate::mouseDown;
 QBasicTimer QMenuPrivate::menuDelayTimer;
 QBasicTimer QMenuPrivate::sloppyDelayTimer;
 
@@ -790,9 +791,11 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
             next_widget = m->d_func()->causedPopup.widget;
         }
         if (passOnEvent) {
+            if(e->type() != QEvent::MouseButtonRelease || mouseDown == caused) {
             QMouseEvent new_e(e->type(), cpos, e->button(), e->buttons(), e->modifiers());
             QApplication::sendEvent(caused, &new_e);
             return true;
+        }
         }
         if (!next_widget)
             break;
@@ -1758,7 +1761,7 @@ void QMenu::hideEvent(QHideEvent *)
     if (QMenuBar *mb = qobject_cast<QMenuBar*>(d->causedPopup.widget))
         mb->d_func()->setCurrentAction(0);
 #endif
-    d->mouseDown = false;
+    d->mouseDown = 0;
     d->hasHadMouse = false;
     d->causedPopup.widget = 0;
     d->causedPopup.action = 0;
@@ -1892,7 +1895,7 @@ void QMenu::mousePressEvent(QMouseEvent *e)
         d->hideUpToMenuBar();
         return;
     }
-    d->mouseDown = true;
+    d->mouseDown = this;
 
     QAction *action = d->actionAt(e->pos());
     d->setCurrentAction(action, 20);
@@ -1907,8 +1910,12 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
     Q_D(QMenu);
     if (d->mouseEventTaken(e))
         return;
+    if(d->mouseDown != this) {
+        d->mouseDown = 0;
+        return;
+    }
 
-    d->mouseDown = false;
+    d->mouseDown = 0;
     d->setSyncAction();
     QAction *action = d->actionAt(e->pos());
     if (action && action == d->currentAction) {
@@ -1973,6 +1980,7 @@ QMenu::event(QEvent *e)
         d->updateActions();
         break;
     case QEvent::Show:
+        d->mouseDown = 0;
         d->updateActions();
         break;
 #ifndef QT_NO_WHATSTHIS
@@ -2394,8 +2402,8 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
         if (d->hasHadMouse && !rect().contains(e->pos()))
             d->setCurrentAction(0);
         return;
-    } else {
-        d->mouseDown = e->buttons() & Qt::LeftButton;
+    } else if(e->buttons() & Qt::LeftButton) {
+        d->mouseDown = this;
     }
     if (d->sloppyRegion.contains(e->pos())) {
         d->sloppyAction = action;
