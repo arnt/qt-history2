@@ -2824,15 +2824,19 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 #endif
 
     // Transform the exposed viewport rects to scene polygons
+    QList<QPolygonF> exposedPolys;
     QList<QRectF> exposedRects;
-    foreach (QRect rect, exposedRegion.rects())
-        exposedRects << mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
+    foreach (QRect rect, exposedRegion.rects()) {
+        QPolygonF exposedPoly = mapToScene(rect.adjusted(-1, -1, 1, 1));
+        exposedPolys << exposedPoly;
+        exposedRects << exposedPoly.boundingRect();
+    }
 
     // Find all exposed items
     QList<QGraphicsItem *> itemList;
     QSet<QGraphicsItem *> tmp;
-    foreach (QRectF rect, exposedRects) {
-        foreach (QGraphicsItem *item, d->scene->items(rect, Qt::IntersectsItemBoundingRect)) {
+    foreach (QPolygonF poly, exposedPolys) {
+        foreach (QGraphicsItem *item, d->scene->items(poly, Qt::IntersectsItemBoundingRect)) {
             if (!tmp.contains(item)) {
                 tmp << item;
                 itemList << item;

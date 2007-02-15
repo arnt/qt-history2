@@ -1380,11 +1380,20 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPolygonF &polygon, Qt::ItemS
 
     QPainterPath polyPath;
     polyPath.addPolygon(polygon);
-    
+
+    QRectF polyRect = polygon.boundingRect();
+
     // The index returns a rough estimate of what items are inside the rect.
     // Refine it by iterating through all returned items.
-    foreach (QGraphicsItem *item, d->estimateItemsInRect(polygon.boundingRect()))
-        _qt_pathIntersectsItem(polyPath, item, mode, &itemsInPolygon);
+    foreach (QGraphicsItem *item, d->estimateItemsInRect(polygon.boundingRect())) {
+        if (mode == Qt::IntersectsItemBoundingRect
+            && polygon.contains(item->mapToScene(item->boundingRect().topLeft()),
+                                Qt::OddEvenFill)) {
+            itemsInPolygon << item;
+        } else if (polyRect.intersects(item->sceneBoundingRect())) {
+            _qt_pathIntersectsItem(polyPath, item, mode, &itemsInPolygon);
+        }
+    }
 
     d->sortItems(&itemsInPolygon);
     return itemsInPolygon;
