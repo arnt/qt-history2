@@ -27,6 +27,7 @@ View::View(const QString &name, QWidget *parent)
     graphicsView = new QGraphicsView;
     graphicsView->setRenderHint(QPainter::Antialiasing, false);
     graphicsView->setDragMode(QGraphicsView::RubberBandDrag);
+    graphicsView->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
 
     int size = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
     QSize iconSize(size, size);
