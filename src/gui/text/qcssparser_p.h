@@ -25,12 +25,12 @@
 // We mean it.
 //
 
-#include <QStringList>
-#include <QVector>
-#include <QVariant>
-#include <QPair>
-#include <QSize>
-#include <QFont>
+#include <QtCore/QStringList>
+#include <QtCore/QVector>
+#include <QtCore/QVariant>
+#include <QtCore/QPair>
+#include <QtCore/QSize>
+#include <QtGui/QFont>
 
 namespace QCss
 {
