@@ -392,6 +392,42 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
     QRect rect = option->rect;
 
     switch (element) {
+    case PE_IndicatorBranch: 
+        {
+            static const int decoration_size = 9;
+            int mid_h = option->rect.x() + option->rect.width() / 2;
+            int mid_v = option->rect.y() + option->rect.height() / 2;
+            int bef_h = mid_h;
+            int bef_v = mid_v;
+            int aft_h = mid_h;
+            int aft_v = mid_v;
+            if (option->state & State_Children) {
+                int delta = decoration_size - 2;
+                bef_h -= delta;
+                bef_v -= delta;
+                aft_h += delta;
+                aft_v += delta;
+                HWND id = NULL;
+                XPThemeData theme(widget, painter, QLatin1String("TREEVIEW"));
+                theme.rect = option->rect.adjusted(0, -1, 0, 1);
+                theme.partId = TVP_GLYPH;
+                theme.stateId = option->state & QStyle::State_Open ? GLPS_OPENED : GLPS_CLOSED;
+                d->drawBackground(theme);
+            }
+            QBrush brush(option->palette.dark().color(), Qt::Dense4Pattern);
+            if (option->state & State_Item) {
+                if (option->direction == Qt::RightToLeft)
+                    painter->fillRect(option->rect.left(), mid_v, bef_h - option->rect.left(), 1, brush);
+                else
+                    painter->fillRect(aft_h, mid_v, option->rect.right() - aft_h + 1, 1, brush);
+            }
+            if (option->state & State_Sibling)
+                painter->fillRect(mid_h, aft_v, 1, option->rect.bottom() - aft_v + 1, brush);
+            if (option->state & (State_Open | State_Children | State_Item | State_Sibling))
+                painter->fillRect(mid_h, option->rect.y(), 1, bef_v - option->rect.y(), brush);
+        }
+        break; 
+
     case PE_PanelButtonBevel:
     case PE_IndicatorCheckBox:
     case PE_IndicatorRadioButton:
