@@ -48,7 +48,7 @@
 #include <qtimeline.h>
 #include <qdebug.h>
 
-#ifdef Q_OS_UNIX && !defined (Q_OS_MAC)
+#if defined (Q_OS_UNIX) && !defined (Q_OS_MAC)
 #include <sys/statvfs.h>
 #endif
 
@@ -111,7 +111,8 @@ public:
     deleteAction(0),
     showHiddenAction(0),
     saveState(false),
-    useDefaultCaption(true)
+    useDefaultCaption(true),
+    defaultFileTypes(true)
     {};
 
     void createToolButtons();
@@ -142,7 +143,7 @@ public:
     }
 
     int maxNameLength(const QString &path) {
-#ifdef Q_OS_UNIX && !defined (Q_OS_MAC)
+#if defined (Q_OS_UNIX) && !defined (Q_OS_MAC)
         struct statvfs vfs;
         if (statvfs(path.toLocal8Bit().constData(), &vfs) >= 0)
             return vfs.f_namemax;
@@ -264,6 +265,7 @@ public:
     QSize oldSize;
     bool saveState;
     bool useDefaultCaption;
+    bool defaultFileTypes;
 };
 
 class QFileDialogLineEdit : public QLineEdit

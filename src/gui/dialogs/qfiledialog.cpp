@@ -422,9 +422,13 @@ void QFileDialogPrivate::retranslateWindowTitle()
 
 void QFileDialogPrivate::retranslateStrings()
 {
+    Q_Q(QFileDialog);
     /* WIDGETS */
     lookInLabel->setText(QFileDialog::tr("Where:"));
     fileTypeLabel->setText(QFileDialog::tr("Files of type:"));
+
+    if (defaultFileTypes)
+        q->setFilter(QFileDialog::tr("All Files (*.*)"));
 
     QList<QAction*> actions = treeView->header()->actions();
     QAbstractItemModel *abstractModel = model;
@@ -651,6 +655,7 @@ void QFileDialog::setFilter(const QString &filter)
 void QFileDialog::setFilters(const QStringList &filters)
 {
     Q_D(QFileDialog);
+    d->defaultFileTypes = (filters == QStringList(QFileDialog::tr("All Files (*.*)")));
     d->fileTypeCombo->clear();
     if (filters.isEmpty())
         return;
@@ -809,9 +814,8 @@ void QFileDialog::setAcceptMode(QFileDialog::AcceptMode mode)
 void QFileDialogPrivate::updateFileTypeVisibility()
 {
     bool showFilterGUI = true;
-    if (fileTypeCombo->count() == 1
-        && fileTypeCombo->itemText(0) == QFileDialog::tr("All Files (*)"))
-            showFilterGUI = false;
+    if (fileTypeCombo->count() == 1 && defaultFileTypes)
+        showFilterGUI = false;
     fileTypeCombo->setVisible(showFilterGUI);
     fileTypeLabel->setVisible(showFilterGUI);
 }
@@ -1650,7 +1654,7 @@ void QFileDialog::timerEvent(QTimerEvent *event)
 
     Create widgets, layout and set default values
 */
-void QFileDialogPrivate::init(const QString &directory, const QString &nameFilter, 
+void QFileDialogPrivate::init(const QString &directory, const QString &nameFilter,
                               const QString &caption)
 {
     Q_Q(QFileDialog);
@@ -1666,7 +1670,8 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
     oldSize = q->sizeHint();
 
     // Default case
-    q->setFilter(nameFilter.isEmpty() ? QFileDialog::tr("All Files (*)") : nameFilter);
+    if (!nameFilter.isEmpty())
+        q->setFilter(nameFilter);
     q->setFileMode(fileMode);
     q->setAcceptMode(QFileDialog::AcceptOpen);
     q->setDirectory(workingDirectory(directory));
