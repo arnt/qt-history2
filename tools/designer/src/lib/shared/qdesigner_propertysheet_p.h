@@ -83,13 +83,26 @@ protected:
     bool isFakeLayoutProperty(int index) const;
     bool isDynamic(int index) const;
 
+public: // For MSVC 6
+    enum PropertyType { PropertyNone, PropertyMargin,
+                        PropertyLayoutMargin, PropertyLayoutSpacing, PropertySizeConstraint, PropertyBuddy,
+                        PropertyAccessibility };
+
 protected:
+    enum ObjectType { ObjectNone, ObjectLabel, ObjectLayout, ObjectLayoutWidget, ObjectQ3GroupBox };
+    static ObjectType objectType(const QObject *o);
+    static  PropertyType propertyTypeFromName(const QString &name);
+    PropertyType propertyType(int index) const;
+
     QObject *m_object;
     const QMetaObject *m_meta;
+    const ObjectType m_objectType;
 
     class Info
     {
     public:
+        Info();
+
         QString group;
         QVariant defaultValue;
         uint changed: 1;
@@ -97,25 +110,23 @@ protected:
         uint attribute: 1;
         uint reset: 1;
         uint defaultDynamic: 1;
-
-        inline Info()
-            : changed(0),
-              visible(1),
-              attribute(0),
-              reset(1),
-              defaultDynamic(0)
-        {}
+        PropertyType propertyType;
     };
 
-    QHash<int, Info> m_info;
+    Info &ensureInfo(int index);
+
+    typedef QHash<int, Info> InfoHash;
+    InfoHash m_info;
     QHash<int, QVariant> m_fakeProperties;
     QHash<int, QVariant> m_addProperties;
     QHash<QString, int> m_addIndex;
+
 private:
+    QString transformLayoutPropertyName(int index) const;
     QLayout* layout(QDesignerPropertySheetExtension **layoutPropertySheet = 0) const;
-    
+
     const bool m_canHaveLayoutAttributes;
-    
+
     // Variables used for caching the layout, access via layout().
     mutable QLayout *m_lastLayout;
     mutable QDesignerPropertySheetExtension *m_lastLayoutPropertySheet;
@@ -130,8 +141,10 @@ public:
     QDesignerPropertySheetFactory(QExtensionManager *parent = 0);
 
     QObject *extension(QObject *object, const QString &iid) const;
+
 private slots:
     void objectDestroyed(QObject *object);
+
 private:
     mutable QMap<QObject*, QObject*> m_extensions;
     mutable QHash<QObject*, bool> m_extended;
