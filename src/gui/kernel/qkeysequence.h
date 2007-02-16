@@ -113,7 +113,7 @@ public:
     QKeySequence(StandardKey key);
     ~QKeySequence();
 
-    uint count() const;
+    uint count() const; // ### Qt 5: return 'int'
     bool isEmpty() const;
 
     enum SequenceMatch {
