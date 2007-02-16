@@ -127,7 +127,9 @@ private:
 
 void QGLDrawable::setDevice(QPaintDevice *pdev)
 {
-    widget = buffer = fbo = 0;
+    widget = 0;
+    buffer = 0;
+    fbo = 0;
     if (pdev->devType() == QInternal::Widget)
         widget = static_cast<QGLWidget *>(pdev);
     else if (pdev->devType() == QInternal::Pbuffer)
