@@ -48,7 +48,9 @@ typedef HRESULT (WINAPI *PtrGetThemePosition)(HTHEME hTheme, int iPartId, int iS
 typedef HRESULT (WINAPI *PtrGetThemeRect)(HTHEME hTheme, int iPartId, int iStateId, int iPropId, OUT RECT *pRect);
 typedef HRESULT (WINAPI *PtrGetThemeString)(HTHEME hTheme, int iPartId, int iStateId, int iPropId, OUT LPWSTR pszBuff, int cchMaxBuffChars);
 typedef HRESULT (WINAPI *PtrGetThemeTransitionDuration)(HTHEME hTheme, int iPartId, int iStateFromId, int iStateToId, int iPropId, int *pDuration);
+typedef HRESULT (WINAPI *PtrIsThemePartDefined)(HTHEME hTheme, int iPartId, int iStateId);
 
+static PtrIsThemePartDefined pIsThemePartDefined = 0;
 static PtrIsAppThemed pIsAppThemed = 0;
 static PtrIsThemeActive pIsThemeActive = 0;
 static PtrOpenThemeData pOpenThemeData = 0;
@@ -394,37 +396,40 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
     switch (element) {
     case PE_IndicatorBranch: 
         {
-            static const int decoration_size = 9;
-            int mid_h = option->rect.x() + option->rect.width() / 2;
-            int mid_v = option->rect.y() + option->rect.height() / 2;
-            int bef_h = mid_h;
-            int bef_v = mid_v;
-            int aft_h = mid_h;
-            int aft_v = mid_v;
-            if (option->state & State_Children) {
-                int delta = decoration_size - 2;
-                bef_h -= delta;
-                bef_v -= delta;
-                aft_h += delta;
-                aft_v += delta;
-                HWND id = NULL;
-                XPThemeData theme(widget, painter, QLatin1String("TREEVIEW"));
-                theme.rect = option->rect.adjusted(0, -1, 0, 1);
-                theme.partId = TVP_GLYPH;
-                theme.stateId = option->state & QStyle::State_Open ? GLPS_OPENED : GLPS_CLOSED;
-                d->drawBackground(theme);
+            XPThemeData theme(widget, painter, QLatin1String("TREEVIEW"));
+            if (pIsThemePartDefined(theme.handle(), TVP_HOTGLYPH, 0)) {
+                static const int decoration_size = 16;
+                int mid_h = option->rect.x() + option->rect.width() / 2;
+                int mid_v = option->rect.y() + option->rect.height() / 2;
+                int bef_h = mid_h;
+                int bef_v = mid_v;
+                int aft_h = mid_h;
+                int aft_v = mid_v;
+                if (option->state & State_Children) {
+                    int delta = decoration_size / 2;
+                    theme.rect = QRect(bef_h - delta, bef_v - delta, decoration_size, decoration_size);
+                    theme.partId = option->state & State_MouseOver ? TVP_HOTGLYPH : TVP_GLYPH;
+                    theme.stateId = option->state & QStyle::State_Open ? GLPS_OPENED : GLPS_CLOSED;
+                    d->drawBackground(theme);
+                    bef_h -= delta + 2;
+                    bef_v -= delta + 2;
+                    aft_h += delta - 2;
+                    aft_v += delta - 2;
+                }
+                QBrush brush(option->palette.dark().color(), Qt::Dense4Pattern);
+                if (option->state & State_Item) {
+                    if (option->direction == Qt::RightToLeft)
+                        painter->fillRect(option->rect.left(), mid_v, bef_h - option->rect.left(), 1, brush);
+                    else
+                        painter->fillRect(aft_h, mid_v, option->rect.right() - aft_h + 1, 1, brush);
+                }
+                if (option->state & State_Sibling && option->rect.bottom() > aft_v)
+                    painter->fillRect(mid_h, aft_v, 1, option->rect.bottom() - aft_v + 1, brush);
+                if (option->state & (State_Open | State_Children | State_Item | State_Sibling) && (bef_v > option->rect.y()))
+                    painter->fillRect(mid_h, option->rect.y(), 1, bef_v - option->rect.y(), brush);
+            } else {
+                QWindowsXPStyle::drawPrimitive(element, option, painter, widget);
             }
-            QBrush brush(option->palette.dark().color(), Qt::Dense4Pattern);
-            if (option->state & State_Item) {
-                if (option->direction == Qt::RightToLeft)
-                    painter->fillRect(option->rect.left(), mid_v, bef_h - option->rect.left(), 1, brush);
-                else
-                    painter->fillRect(aft_h, mid_v, option->rect.right() - aft_h + 1, 1, brush);
-            }
-            if (option->state & State_Sibling)
-                painter->fillRect(mid_h, aft_v, 1, option->rect.bottom() - aft_v + 1, brush);
-            if (option->state & (State_Open | State_Children | State_Item | State_Sibling))
-                painter->fillRect(mid_h, option->rect.y(), 1, bef_v - option->rect.y(), brush);
         }
         break; 
 
@@ -1958,6 +1963,7 @@ bool QWindowsVistaStylePrivate::resolveSymbols()
     if (!tried) {
         tried = true;
         QLibrary themeLib(QLatin1String("uxtheme"));
+        pIsThemePartDefined     = (PtrIsThemePartDefined    )themeLib.resolve("IsThemePartDefined");
         pGetThemePartSize       = (PtrGetThemePartSize      )themeLib.resolve("GetThemePartSize");
         pOpenThemeData          = (PtrOpenThemeData         )themeLib.resolve("OpenThemeData");
         pCloseThemeData         = (PtrCloseThemeData        )themeLib.resolve("CloseThemeData");
