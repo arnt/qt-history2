@@ -24,13 +24,13 @@
     buttons. The user can change the style of the boxes; the styles
     available depend on the platform on which the example is run. 
     
-    The dialog button box example example consists of two classes:
+    The dialog button box example consists of two classes:
     MainWindow and AddButtonDialog.  MainWindow inherits QMainWindow
-    and provides a workspace to which the user can add dialog boxes
-    and a table that shows the text and role of the buttons in the
-    active dialog button box in the workspace.  AddButtonDialog lets
-    the user select buttons to add to the dialog boxes. We have used
-    the designer for the GUI in this example.
+    and provides a workspace to which the user can add dialog boxes.
+    It also provides a table that shows the texts and roles of the
+    buttons in the active dialog button box in the workspace.
+    AddButtonDialog lets the user select buttons to add to the dialog
+    boxes. We have used the designer for the GUI in this example.
     
     \section1 MainWindow Class Definition
     

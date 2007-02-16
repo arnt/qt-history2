@@ -9,10 +9,11 @@
 
     When editing data in a QListView, QTableView, or QTreeView,
     editors are created and displayed by a \l{Delegate
-    Classes}{delegate}. QItemDelegate, which is the delegate used by
-    Qt's \l{View Classes}{item views}, uses a QItemEditorFactory to
-    create editors for it. A unique instance provided by
-    QItemEditorFactory is by default installed on all delegates.
+    Classes}{delegate}. QItemDelegate, which is the default delegate
+    used by Qt's \l{View Classes}{item views}, uses a
+    QItemEditorFactory to create editors for it. A unique instance
+    provided by QItemEditorFactory is by default installed on all
+    item delegates.
 
     An item editor factory contains a collection of
     QItemEditorCreatorBase instances, which are specialized factories
@@ -46,18 +47,17 @@
     default factory. We therefore make a copy to which we can add our
     color editor; the default factory can then be set to the copy.
 
-    The QStandardItemEditorCreator is a utility class that
+    The QStandardItemEditorCreator is a convenience class that
     inherits QItemEditorCreatorBase. Its constructor takes a template
-    class of which instances are returned from
-    \l{QStandardItemEditorCreator::}{createEditor()}. The creator uses
-    a constructor that takes a QWidget as parameter; the template
-    class must provide this. This way, there is no need to subclass
-    QStandardItemEditorCreator.
+    class, of which instances are returned from
+    \l{QItemEditorCreatorBase::}{createWidget()}. The creator uses a
+    constructor that takes a QWidget as its only parameter; the
+    template class must provide this. This way, there is no need to
+    subclass QStandardItemEditorCreator.
 
-    After the new factory has been set all standard item delegates
-    will use it as the instance is unique (i.e, this is also true for
-    delegates that were created before the new default factory was
-    set). 
+    After the new factory has been set, all standard item delegates
+    will use it (i.e, also delegates that were created before the new
+    default factory was set). 
 
     The \c createGUI() function sets up the table and fills it
     with data.
@@ -71,18 +71,14 @@
     \skipto /class Col/    
     \printuntil /^\};/
 
-    QItemDelegate manages the interaction between the editors and
+    QItemDelegate manages the interaction between the editor and
     the model, i.e., it retrieves data to edit from the model and
     store data from the editor in the model. The data that is edited
-    by an editor is stored in a Qt property, and the delegate uses
-    Qt's \l{Qt's Property System}{property system} to access it by
-    name. It is the factory that provides the delegate with the name,
-    which it in turn asks the individual item editor creators for
-    using \l{QItemEditorCreatorBase::}{valuePropertyName()}. The
-    QStandardItemEditorCreator returns the name of the user data
-    property of its template class. We declare our user data type with
-    the Q_PROPERTY macro; it is set to be the user type with the USER
-    keyword.
+    by an editor is stored in the editor's user data property, and the
+    delegate uses Qt's \l{Qt's Property System}{property system} to
+    access it by name. We declare our user data property with the
+    Q_PROPERTY macro. The property is set to be the user type with the
+    USER keyword.
 
     \section1 ColorListEditor Implementation
 
@@ -96,7 +92,7 @@
 
     We return the data that is selected in the combobox. The data
     is stored in the Qt::DecorationRole as the color is then also
-    displayed in the popup list as shown in the image above.
+    displayed in the popup list (as shown in the image above).
 
     \skipto /::setColor/
     \printuntil /^\}/
@@ -123,9 +119,11 @@
     Possible suggestions are:
 
     \list
-	\o If you want to use another property than the user property
-	   for editing data, you need to reimplement 
-	   QItemEditorCreatorBase::valuePropertyName().
+	\o If the editor widget has no user property defined, the delegate
+	   asks the factory for the property name, which it in turn
+	   asks the item editor creator for. In this case, you can use 
+	   the QItemEditorCreator class, which takes the property 
+	   name to use for editing as a constructor argument.
 	\o If the editor requires other constructors or other
 	   initialization than provided by QItemEditorCreatorBase, you
 	   must reimplement

@@ -25,7 +25,7 @@
     available in the tablet event.
 
     In this example we implement a drawing program. You can use
-    the stylus to draw on the tablet like you use a pencil on paper.
+    the stylus to draw on the tablet as you use a pencil on paper.
     When you draw with the airbrush you get a spray of paint; the
     finger wheel is used to change the density of the spray. The
     pressure and tilt can be used to change the alpha and saturation
