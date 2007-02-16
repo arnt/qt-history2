@@ -1834,9 +1834,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
                 // Delete border
                 if (selected) {
-                    p->setPen(background);
-                    p->drawLine(x1, y1 + 1, x2 - 1, y1 + 1);
-                    p->drawLine(x1, y1, x2 - 1, y1);
+                    p->fillRect(QRect(x1, y1 + 1, (x2 - 1)-x1, 1), tab->palette.background());
+                    p->fillRect(QRect(x1, y1, (x2 - 1)-x1, 1), tab->palette.background());
                 }
                 // Left
                 if (firstTab || selected || onlyOne || !previousSelected) {
@@ -1877,9 +1876,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
                 // Delete border
                 if (selected) {
-                    p->setPen(background);
-                    p->drawLine(x2 - 1, y1, x2 - 1, y2);
-                    p->drawLine(x2, y1, x2, y2);
+                    p->fillRect(QRect(x2 - 1, y1, 1, y2-y1), tab->palette.background());
+                    p->fillRect(QRect(x2, y1, 1, y2-y1), tab->palette.background());
                 }
                 // Top
                 if (firstTab || selected || onlyOne || !previousSelected) {
@@ -1924,9 +1922,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
                 // Delete border
                 if (selected) {
-                    p->setPen(background);
-                    p->drawLine(x1 + 1, y1, x1 + 1, y2 - 1);
-                    p->drawLine(x1, y1, x1, y2 - 1);
+                    p->fillRect(QRect(x1 + 1, y1, 1, (y2 - 1)-y1),tab->palette.background());
+                    p->fillRect(QRect(x1, y1, 1, (y2-1)-y1), tab->palette.background());
                 }
                 // Top
                 if (firstTab || selected || onlyOne || !previousSelected) {
