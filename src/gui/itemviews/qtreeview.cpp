@@ -1127,6 +1127,25 @@ void QTreeView::dragMoveEvent(QDragMoveEvent *event)
 /*!
   \reimp
 */
+bool QTreeView::viewportEvent(QEvent *event)
+{
+    Q_D(QTreeView);
+    switch (event->type()) {
+    case QEvent::HoverEnter:
+    case QEvent::HoverLeave:
+    case QEvent::HoverMove: {
+        QHoverEvent *he = static_cast<QHoverEvent*>(event);
+        d->hoverBranch = d->itemDecorationAt(he->pos());
+        break; }
+    default:
+        break;
+    }
+    return QAbstractItemView::viewportEvent(event);
+}
+
+/*!
+  \reimp
+*/
 void QTreeView::paintEvent(QPaintEvent *event)
 {
     Q_D(QTreeView);
@@ -1283,9 +1302,8 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         position = columnViewportPosition(headerSection) + offset.x();
         width = (spanning ? header->length() : header->sectionSize(headerSection));
         modelIndex = d->model->index(index.row(), headerSection, parent);
-        if (!modelIndex.isValid()) {
+        if (!modelIndex.isValid())
             continue;
-        }
         opt.state = state;
 
         // fake activeness when row editor has focus
@@ -1393,6 +1411,10 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         extraFlags |= QStyle::State_Enabled;
     if (window()->isActiveWindow())
         extraFlags |= QStyle::State_Active;
+    if (item == d->hoverBranch)
+        opt.state |= QStyle::State_MouseOver;
+    else
+        opt.state &= ~QStyle::State_MouseOver;
 
     QPoint oldBO = painter->brushOrigin();
     if (verticalScrollMode() == QAbstractItemView::ScrollPerPixel)

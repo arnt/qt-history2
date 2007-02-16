@@ -51,7 +51,8 @@ public:
           uniformRowHeights(false), rootDecoration(true),
           itemsExpandable(true), sortingEnabled(false),
           allColumnsShowFocus(false), wrapItemText(false),
-          animationsEnabled(false), columnResizeTimerID(0), autoExpandDelay(-1) {}
+          animationsEnabled(false), columnResizeTimerID(0),
+          autoExpandDelay(-1), hoverBranch(-1) {}
 
     ~QTreeViewPrivate() {}
     void initialize();
@@ -163,6 +164,9 @@ public:
     // used for the automatic opening of nodes during DND
     int autoExpandDelay;
     QBasicTimer openTimer;
+
+    // used for drawing hilighted expand/collapse indicators
+    int hoverBranch;
 
 };
 

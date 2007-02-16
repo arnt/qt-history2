@@ -163,6 +163,7 @@ protected:
 #ifndef QT_NO_DRAGANDDROP
     void dragMoveEvent(QDragMoveEvent *event);
 #endif
+    bool viewportEvent(QEvent *event);
 
     void updateGeometries();
 
