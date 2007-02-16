@@ -146,7 +146,8 @@ public:
     QRect oldGeometry;
     QSize internalMinimumSize;
     QSize restoreSize;
-    bool isResizeEnabled;
+    bool resizeEnabled;
+    bool moveEnabled;
     bool isInInteractiveMode;
     bool isInRubberBandMode;
     bool isShadeMode;
@@ -251,6 +252,16 @@ public:
     {
         Q_Q(const QMdiSubWindow);
         return q->style()->styleHint(QStyle::SH_TitleBar_AutoRaise, 0, q);
+    }
+
+    inline bool isResizeOperation() const
+    {
+        return currentOperation != None && currentOperation != Move;
+    }
+
+    inline bool isMoveOperation() const
+    {
+        return currentOperation == Move;
     }
 };
 

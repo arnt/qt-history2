@@ -591,7 +591,8 @@ QMdiSubWindowPrivate::QMdiSubWindowPrivate()
       sizeGrip(0),
 #endif
       rubberBand(0),
-      isResizeEnabled(true),
+      resizeEnabled(true),
+      moveEnabled(true),
       isInInteractiveMode(false),
       isInRubberBandMode(false),
       isShadeMode(false),
@@ -817,7 +818,8 @@ void QMdiSubWindowPrivate::updateGeometryConstraints()
     int margin, minWidth;
     sizeParameters(&margin, &minWidth);
     q->setContentsMargins(margin, titleBarHeight(), margin, margin);
-    isResizeEnabled = true;
+    resizeEnabled = true;
+    moveEnabled = true;
     updateDirtyRegions();
 }
 
@@ -915,6 +917,9 @@ void QMdiSubWindowPrivate::setMinimizeMode()
     q->showShaded();
     isShadeRequestFromMinimizeMode = false;
 
+    moveEnabled = false;
+    setEnabled(MoveAction, false);
+
     Q_ASSERT(q->windowState() & Qt::WindowMinimized);
     Q_ASSERT(!(q->windowState() & Qt::WindowMaximized));
     Q_ASSERT(baseWidget ? baseWidget->isHidden() : true);
@@ -943,19 +948,19 @@ void QMdiSubWindowPrivate::setNormalMode()
         baseWidget->show();
     updateGeometryConstraints();
 
+    // Invalidate the restore size.
+    restoreSize.setWidth(-1);
+    restoreSize.setHeight(-1);
+
 #ifndef QT_NO_SIZEGRIP
     setSizeGripVisible(true);
 #endif
 
     setEnabled(MoveAction, true);
-    setEnabled(MoveAction, true);
     setEnabled(MaximizeAction, true);
     setEnabled(MinimizeAction, true);
     setEnabled(RestoreAction, false);
-    if (isResizeEnabled)
-        setEnabled(ResizeAction, true);
-    else
-        setEnabled(ResizeAction, false);
+    setEnabled(ResizeAction, true);
 
     Q_ASSERT(!(q_func()->windowState() & (Qt::WindowMinimized | Qt::WindowMaximized)));
     Q_ASSERT(!isShadeMode);
@@ -989,11 +994,17 @@ void QMdiSubWindowPrivate::setMaximizeMode()
 #ifndef QT_NO_SIZEGRIP
     setSizeGripVisible(false);
 #endif
-    isResizeEnabled = false;
 
-    oldGeometry = q->geometry();
-    restoreSize.setWidth(oldGeometry.width());
-    restoreSize.setHeight(oldGeometry.height());
+    resizeEnabled = false;
+    moveEnabled = false;
+
+    // Store old geometry and set restore size if not already set.
+    if (!restoreSize.isValid()) {
+        oldGeometry = q->geometry();
+        restoreSize.setWidth(oldGeometry.width());
+        restoreSize.setHeight(oldGeometry.height());
+    }
+
     // setGeometry() will reset the Qt::WindowMaximized flag because
     // this window is not a top level window.
     setNewGeometry(&availableRect);
@@ -1062,8 +1073,11 @@ void QMdiSubWindowPrivate::processClickedSubControl()
         break;
     case QStyle::SC_TitleBarShadeButton:
         q->showShaded();
+        hoveredSubControl = QStyle::SC_TitleBarUnshadeButton;
         break;
     case QStyle::SC_TitleBarUnshadeButton:
+        if (q->isShaded())
+            hoveredSubControl = QStyle::SC_TitleBarShadeButton;
         q->showNormal();
         break;
     case QStyle::SC_TitleBarMinButton:
@@ -1077,6 +1091,8 @@ void QMdiSubWindowPrivate::processClickedSubControl()
         }
         break;
     case QStyle::SC_TitleBarNormalButton:
+        if (q->isShaded())
+            hoveredSubControl = QStyle::SC_TitleBarMinButton;
         q->showNormal();
         break;
     case QStyle::SC_TitleBarMaxButton:
@@ -2028,11 +2044,14 @@ void QMdiSubWindow::showShaded()
     setFocus();
 
     d->updateGeometryConstraints();
-    d->oldGeometry = geometry();
-    d->restoreSize.setWidth(d->oldGeometry.width());
-    d->restoreSize.setHeight(d->oldGeometry.height());
+    if (!d->restoreSize.isValid() || d->isShadeMode) {
+        d->oldGeometry = geometry();
+        d->restoreSize.setWidth(d->oldGeometry.width());
+        d->restoreSize.setHeight(d->oldGeometry.height());
+    }
+
     resize(d->internalMinimumSize);
-    d->isResizeEnabled = false;
+    d->resizeEnabled = false;
     d->updateDirtyRegions();
 
     d->setEnabled(QMdiSubWindowPrivate::MinimizeAction, false);
@@ -2410,12 +2429,10 @@ void QMdiSubWindow::mousePressEvent(QMouseEvent *mouseEvent)
     if (d->currentOperation != QMdiSubWindowPrivate::None) {
         d->updateCursor();
         d->mousePressPosition = mapToParent(mouseEvent->pos());
-        if (!isMaximized())
+        if (d->resizeEnabled || d->moveEnabled)
             d->oldGeometry = geometry();
-        if ((testOption(QMdiSubWindow::TransparentResize)
-                    && d->currentOperation != QMdiSubWindowPrivate::Move)
-                || (testOption(QMdiSubWindow::TransparentMove)
-                    && d->currentOperation == QMdiSubWindowPrivate::Move)) {
+        if (testOption(QMdiSubWindow::TransparentResize) && d->isResizeOperation()
+                || testOption(QMdiSubWindow::TransparentMove) && d->isMoveOperation()) {
             d->enterRubberBandMode();
         }
         return;
@@ -2439,7 +2456,7 @@ void QMdiSubWindow::mouseDoubleClickEvent(QMouseEvent *mouseEvent)
         return;
     }
 
-    if (d_func()->currentOperation != QMdiSubWindowPrivate::Move) {
+    if (!d_func()->isMoveOperation()) {
         mouseEvent->ignore();
         return;
     }
@@ -2484,7 +2501,7 @@ void QMdiSubWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
     if (d->currentOperation != QMdiSubWindowPrivate::None) {
         if (d->isInRubberBandMode && !d->isInInteractiveMode)
             d->leaveRubberBandMode();
-        if (!isMaximized())
+        if (d->resizeEnabled || d->moveEnabled)
             d->oldGeometry = geometry();
         d->updateDirtyRegions();
     }
@@ -2496,7 +2513,6 @@ void QMdiSubWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
     if (d->activeSubControl != QStyle::SC_None
             && d->activeSubControl == d->hoveredSubControl) {
         d->processClickedSubControl();
-        d->hoveredSubControl = d->getSubControl(mouseEvent->pos());
     }
     d->activeSubControl = QStyle::SC_None;
     update(QRegion(0, 0, width(), d->titleBarHeight()));
@@ -2516,17 +2532,16 @@ void QMdiSubWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
     d->hoveredSubControl = d->getSubControl(mouseEvent->pos());
     update(QRegion(0, 0, width(), d->titleBarHeight()));
     if ((mouseEvent->buttons() & Qt::LeftButton) || d->isInInteractiveMode) {
-        if (d->currentOperation != QMdiSubWindowPrivate::None && !isMaximized())
+        if (d->isResizeOperation() && d->resizeEnabled || d->isMoveOperation() && d->moveEnabled)
             d->setNewGeometry(mapToParent(mouseEvent->pos()));
         return;
     }
 
-    // Do not resize if not allowed
+    // Do not resize/move if not allowed.
     d->currentOperation = d->getOperation(mouseEvent->pos());
-    if (d->currentOperation != QMdiSubWindowPrivate::None
-            && d->currentOperation != QMdiSubWindowPrivate::Move
-            && !d->isResizeEnabled) {
+    if (d->isResizeOperation() && !d->resizeEnabled || d->isMoveOperation() && !d->moveEnabled) {
         d->currentOperation = QMdiSubWindowPrivate::None;
+        d->hoveredSubControl = QStyle::SC_None;
     }
     d->updateCursor();
 }
@@ -2589,7 +2604,7 @@ void QMdiSubWindow::keyPressEvent(QKeyEvent *keyEvent)
     // Update cursor position
 
     QPoint actualDelta;
-    if (d->currentOperation == QMdiSubWindowPrivate::Move) {
+    if (d->isMoveOperation()) {
         actualDelta = QPoint(currentGeometry.x() - oldGeometry.x(),
                              currentGeometry.y() - oldGeometry.y());
     } else {
