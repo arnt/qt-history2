@@ -437,13 +437,13 @@ static inline QDebug operator<<(QDebug debug, const QNetworkAddressEntry &entry)
     return debug.space();
 }
 
-QDebug operator<<(QDebug debug, const QNetworkInterface &interface)
+QDebug operator<<(QDebug debug, const QNetworkInterface &networkInterface)
 {
-    debug.nospace() << "QNetworkInterface(name = " << interface.name()
-                    << ", hardware address = " << interface.hardwareAddress()
+    debug.nospace() << "QNetworkInterface(name = " << networkInterface.name()
+                    << ", hardware address = " << networkInterface.hardwareAddress()
                     << ", flags = ";
-    flagsDebug(debug, interface.flags());
-    debug.nospace() << ", entries = " << interface.addressEntries()
+    flagsDebug(debug, networkInterface.flags());
+    debug.nospace() << ", entries = " << networkInterface.addressEntries()
                     << ")\n";
     return debug.space();
 }
