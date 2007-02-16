@@ -142,11 +142,7 @@ public:
     QPainterPath clipPath() const;
 
     void setClipRect(const QRectF &, Qt::ClipOperation op = Qt::ReplaceClip);
-#ifdef QT_EXPERIMENTAL_REGIONS
     void setClipRect(const QRect &, Qt::ClipOperation op = Qt::ReplaceClip);
-#else
-    inline void setClipRect(const QRect &, Qt::ClipOperation op = Qt::ReplaceClip);
-#endif
     inline void setClipRect(int x, int y, int w, int h, Qt::ClipOperation op = Qt::ReplaceClip);
 
     void setClipRegion(const QRegion &, Qt::ClipOperation op = Qt::ReplaceClip);
@@ -449,6 +445,7 @@ private:
     friend class QX11PaintEnginePrivate;
     friend class QWin32PaintEngine;
     friend class QWin32PaintEnginePrivate;
+    friend class QRasterPaintEngine;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPainter::RenderHints)
@@ -632,19 +629,8 @@ inline void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
 
 inline void QPainter::setClipRect(int x, int y, int w, int h, Qt::ClipOperation op)
 {
-#ifdef QT_EXPERIMENTAL_REGIONS
     setClipRect(QRect(x, y, w, h), op);
-#else
-    setClipRect(QRectF(x, y, w, h), op);
-#endif
 }
-
-#ifndef QT_EXPERIMENTAL_REGIONS
-inline void QPainter::setClipRect(const QRect &rect, Qt::ClipOperation op)
-{
-    setClipRect(QRectF(rect), op);
-}
-#endif
 
 inline void QPainter::eraseRect(const QRect &rect)
 {

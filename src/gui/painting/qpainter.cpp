@@ -1238,7 +1238,10 @@ bool QPainter::begin(QPaintDevice *pd)
     }
 
     // Ensure fresh painter state
-    d->state->init(d->state->painter);
+    if (d->emptyState && !d->state->dirtyFlags)
+        d->emptyState = false;
+    else
+        d->state->init(d->state->painter);
 
     d->original_device = pd;
     QPaintDevice *rpd = redirected(pd, &d->redirection_offset);
@@ -1855,6 +1858,15 @@ QPainterPath QPainter::clipPath() const
 */
 void QPainter::setClipRect(const QRectF &rect, Qt::ClipOperation op)
 {
+    if (qreal(int(rect.top())) == rect.top()
+        && qreal(int(rect.bottom())) == rect.bottom()
+        && qreal(int(rect.left())) == rect.left()
+        && qreal(int(rect.right())) == rect.right())
+    {
+        setClipRect(rect.toRect(), op);
+        return;
+    }
+
     QPainterPath path;
     path.addRect(rect);
     setClipPath(path, op);
@@ -1867,7 +1879,6 @@ void QPainter::setClipRect(const QRectF &rect, Qt::ClipOperation op)
     Enables clipping, and sets the clip region to the given \a rectangle using the given
     clip \a operation.
 */
-#ifdef QT_EXPERIMENTAL_REGIONS
 void QPainter::setClipRect(const QRect &rect, Qt::ClipOperation op)
 {
     if (!isActive())
@@ -1887,7 +1898,6 @@ void QPainter::setClipRect(const QRect &rect, Qt::ClipOperation op)
     d->state->dirtyFlags |= QPaintEngine::DirtyClipRegion | QPaintEngine::DirtyClipEnabled;
     d->updateState(d->state);
 }
-#endif // QT_EXPERIMENTAL_REGIONS
 
 /*!
     \fn void QPainter::setClipRect(int x, int y, int width, int height, Qt::ClipOperation operation)
@@ -4590,6 +4600,11 @@ static QPainterPath generateWavyPath(qreal minWidth, QPaintDevice *device)
 
 static void drawTextItemDecoration(QPainter *painter, const QPointF &pos, const QTextItemInt &ti)
 {
+    QTextCharFormat::UnderlineStyle underlineStyle = ti.underlineStyle;
+    if (underlineStyle == QTextCharFormat::NoUnderline
+        && !(ti.flags & (QTextItem::StrikeOut | QTextItem::Overline)))
+        return;
+
     QFontEngine *fe = ti.fontEngine;
 
     const QPen oldPen = painter->pen();
@@ -4604,7 +4619,6 @@ static void drawTextItemDecoration(QPainter *painter, const QPointF &pos, const 
     // the text above it.
     const int underlinePos = qCeil(pos.y()) + qCeil(fe->underlinePosition().toReal());
 
-    QTextCharFormat::UnderlineStyle underlineStyle = ti.underlineStyle;
     if (underlineStyle == QTextCharFormat::SpellCheckUnderline) {
         underlineStyle = QTextCharFormat::UnderlineStyle(QApplication::style()->styleHint(QStyle::SH_SpellCheckUnderlineStyle));
     }
@@ -5150,6 +5164,17 @@ void QPainter::fillRect(const QRect &r, const QBrush &brush)
 {
     if (!isActive())
         return;
+
+#ifdef QT_EXPERIMENTAL_REGIONS
+    Q_D(QPainter);
+    if (d->fillrect_func && !(d->state->renderHints & QPainter::Antialiasing) && d->state->txop <= QPainterPrivate::TxTranslate) {
+        const QRect rt = r.translated(int(d->state->matrix.dx()),
+                                      int(d->state->matrix.dy()));
+        ((d->engine)->*(d->fillrect_func))(rt, brush);
+        return;
+    }
+#endif // QT_EXPERIMENTAL_REGIONS
+
     QPen oldPen   = pen();
     bool swap = oldPen.style() != Qt::NoPen;
     if (swap)
@@ -6023,45 +6048,34 @@ Qt::LayoutDirection QPainter::layoutDirection() const
 }
 
 QPainterState::QPainterState(const QPainterState *s)
+    : bgOrigin(s->bgOrigin), font(s->font), deviceFont(s->deviceFont),
+      pen(s->pen), brush(s->brush), bgBrush(s->bgBrush),
+      clipRegion(s->clipRegion), clipPath(s->clipPath),
+      clipOperation(s->clipOperation),
+      renderHints(s->renderHints), clipInfo(s->clipInfo),
+      worldMatrix(s->worldMatrix), matrix(s->matrix), txop(s->txop),
+      wx(s->wx), wy(s->wy), ww(s->ww), wh(s->wh),
+      vx(s->vx), vy(s->vy), vw(s->vw), vh(s->vh),
+      opacity(s->opacity), WxF(s->WxF), VxF(s->VxF),
+      clipEnabled(s->clipEnabled), bgMode(s->bgMode), painter(s->painter),
+      layoutDirection(s->layoutDirection),
+      composition_mode(s->composition_mode),
+      emulationSpecifier(s->emulationSpecifier), changeFlags(0)
 {
-    font = s->font;
-    deviceFont = s->deviceFont;
-    pen = QPen(s->pen);
-    brush = QBrush(s->brush);
-    bgOrigin = s->bgOrigin;
-    bgBrush = QBrush(s->bgBrush);
-    clipRegion = QRegion(s->clipRegion);
-    clipPath = s->clipPath;
-    clipOperation = s->clipOperation;
-    clipEnabled = s->clipEnabled;
-    bgMode = s->bgMode;
-    VxF = s->VxF;
-    WxF = s->WxF;
-    worldMatrix = s->worldMatrix;
-    matrix = s->matrix;
-    txop = s->txop;
-    wx = s->wx;
-    wy = s->wy;
-    ww = s->ww;
-    wh = s->wh;
-    vx = s->vx;
-    vy = s->vy;
-    vw = s->vw;
-    vh = s->vh;
-    painter = s->painter;
-    clipInfo = s->clipInfo;
-    layoutDirection = s->layoutDirection;
-    composition_mode = s->composition_mode;
-    emulationSpecifier = s->emulationSpecifier;
     dirtyFlags = s->dirtyFlags;
-    changeFlags = 0;
-    renderHints = s->renderHints;
-    opacity = s->opacity;
 }
 
 QPainterState::QPainterState()
+    : bgOrigin(0, 0), bgBrush(Qt::white), clipOperation(Qt::NoClip),
+      renderHints(0),
+      txop(0), wx(0), wy(0), ww(0), wh(0), vx(0), vy(0), vw(0), vh(0),
+      opacity(1), WxF(false), VxF(false), clipEnabled(true),
+      bgMode(Qt::TransparentMode), painter(0),
+      layoutDirection(QApplication::layoutDirection()),
+      composition_mode(QPainter::CompositionMode_SourceOver),
+      emulationSpecifier(0), changeFlags(0)
 {
-    init(0);
+    dirtyFlags = 0;
 }
 
 QPainterState::~QPainterState()
