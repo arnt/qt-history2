@@ -1493,7 +1493,7 @@ bool FormWindow::handleMouseButtonDblClickEvent(QWidget *, QWidget *managedWidge
 
 QMenu *FormWindow::initializePopupMenu(QWidget *managedWidget)
 {
-    if (!isManaged(managedWidget))
+    if (!isManaged(managedWidget) || currentTool())
         return 0;
 
     // Make sure the managedWidget is selected and current since
