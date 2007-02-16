@@ -80,6 +80,7 @@
 #define CP_DROPDOWNBUTTONRIGHT      6
 #define CP_DROPDOWNBUTTONLEFT       7
 #define SCRBS_HOVER                 5
+#define TVP_HOTGLYPH                4
 #define SPI_GETCLIENTAREAANIMATION  0x1042
 #endif
 
