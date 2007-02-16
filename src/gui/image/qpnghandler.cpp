@@ -23,6 +23,7 @@
 #include <qvector.h>
 
 #include <png.h>
+#include <pngconf.h>
 
 #ifdef Q_OS_TEMP
 #define CALLBACK_CALL_TYPE        __cdecl
@@ -428,7 +429,7 @@ bool QPngHandlerPrivate::readPngHeader()
         return false;
     }
 
-    if (setjmp(png_ptr->jmpbuf)) {
+    if (setjmp(png_jmpbuf(png_ptr))) {
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
         png_ptr = 0;
         return false;
@@ -485,7 +486,7 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
     }
 
     row_pointers = 0;
-    if (setjmp(png_ptr->jmpbuf)) {
+    if (setjmp(png_jmpbuf(png_ptr))) {
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
         delete [] row_pointers;
         png_ptr = 0;
@@ -723,7 +724,7 @@ bool QPNGImageWriter::writeImage(const QImage& image_in, int quality_in, const Q
         return false;
     }
 
-    if (setjmp(png_ptr->jmpbuf)) {
+    if (setjmp(png_jmpbuf(png_ptr))) {
         png_destroy_write_struct(&png_ptr, &info_ptr);
         return false;
     }
