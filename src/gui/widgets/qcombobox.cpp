@@ -2317,13 +2317,15 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
     initStyleOption(&opt);
     QStyle::SubControl sc = style()->hitTestComplexControl(QStyle::CC_ComboBox, &opt, e->pos(),
                                                            this);
-    if ((sc == QStyle::SC_ComboBoxArrow || !isEditable())
+    if (e->button() == Qt::LeftButton && (sc == QStyle::SC_ComboBoxArrow || !isEditable())
         && !d->viewContainer()->isVisible()) {
         if (sc == QStyle::SC_ComboBoxArrow)
             d->updateArrow(QStyle::State_Sunken);
         d->viewContainer()->blockMouseReleaseTimer.start(QApplication::doubleClickInterval());
         d->viewContainer()->initialClickPosition = e->pos();
         showPopup();
+    } else {
+        QWidget::mousePressEvent(e);
     }
 }
 
