@@ -415,6 +415,12 @@ void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
             }
         }
 
+        if (isDynamicProperty(index)) {
+            m_object->setProperty(propertyName(index).toUtf8(), value);
+            QWidget *w = qobject_cast<QWidget *>(m_object);
+            if (w)
+                w->setStyleSheet(w->styleSheet());
+        }
         m_addProperties[index] = value;
     } else if (isFakeProperty(index)) {
         setFakeProperty(index, value);
