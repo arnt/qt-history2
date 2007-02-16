@@ -23,7 +23,7 @@
 QT_BEGIN_HEADER
 
 QT_MODULE(Core)
-    
+
 class QFileExtension;
 class QFileExtensionResult;
 class QVariant;
@@ -44,6 +44,7 @@ public:
         LinkType      = 0x10000,
         FileType      = 0x20000,
         DirectoryType = 0x40000,
+        BundleType    = 0x80000,
 
         //flags
         HiddenFlag     = 0x0100000,
@@ -68,7 +69,8 @@ public:
         AbsolutePathName,
         LinkName,
         CanonicalName,
-        CanonicalPathName
+        CanonicalPathName,
+        BundleName
     };
     enum FileOwner {
         OwnerUser,
@@ -178,8 +180,8 @@ protected:
     enum EntryInfoType {
     };
     virtual QVariant entryInfo(EntryInfoType type) const;
-    
-private:            
+
+private:
     Q_DISABLE_COPY(QAbstractFileEngineIterator)
     friend class QDirIterator;
     friend class QDirIteratorPrivate;

@@ -270,7 +270,7 @@ QDateTime
     ends with a slash '/' as a directory (e.g., "C:/WINDOWS/"), and
     those without a trailing slash (e.g., "C:/WINDOWS/hosts.txt")
     are treated as files.
-    
+
     To speed up performance, QFileInfo caches information about the
     file. Because files can be changed by other users or programs, or
     even by other parts of the same program, there is a function that
@@ -778,6 +778,30 @@ QFileInfo::fileName() const
 }
 
 /*!
+    Returns the name of the bundle.
+
+    On Mac OS X this returns the proper localized name for a bundle if the
+    path isBundle(). On all other platforms an empty QString is returned.
+
+    Example:
+    \code
+        QFileInfo fi("/Applications/Safari.app");
+        QString bundle = fi.bundleName();                // name = "Safari"
+    \endcode
+
+    \sa isBundle(), filePath(), baseName(), extension()
+*/
+
+QString
+QFileInfo::bundleName() const
+{
+    Q_D(const QFileInfo);
+    if(!d->data->fileEngine)
+        return QLatin1String("");
+    return d->getFileName(QAbstractFileEngine::BundleName);
+}
+
+/*!
     Returns the base name of the file without the path.
 
     The base name consists of all characters in the file up to (but
@@ -999,7 +1023,7 @@ QFileInfo::isHidden() const
     link to a file. Returns false if the
     object points to something which isn't a file, such as a directory.
 
-    \sa isDir(), isSymLink()
+    \sa isDir(), isSymLink(), isBundle()
 */
 
 bool
@@ -1015,7 +1039,7 @@ QFileInfo::isFile() const
     Returns true if this object points to a directory or to a symbolic
     link to a directory; otherwise returns false.
 
-    \sa isFile(), isSymLink()
+    \sa isFile(), isSymLink(), isBundle()
 */
 
 bool
@@ -1025,6 +1049,24 @@ QFileInfo::isDir() const
     if(!d->data->fileEngine)
         return false;
     return d->getFileFlags(QAbstractFileEngine::DirectoryType);
+}
+
+
+/*!
+    Returns true if this object points to a file or to a symbolic
+    link to a file. Returns false if the
+    object points to something which isn't a file, such as a directory.
+
+    \sa isDir(), isSymLink(), isFile()
+*/
+
+bool
+QFileInfo::isBundle() const
+{
+    Q_D(const QFileInfo);
+    if(!d->data->fileEngine)
+        return false;
+    return d->getFileFlags(QAbstractFileEngine::BundleType);
 }
 
 /*!

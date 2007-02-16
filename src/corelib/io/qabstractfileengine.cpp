@@ -149,7 +149,7 @@ QAbstractFileEngineHandler::~QAbstractFileEngineHandler()
     \endcode
 
     \sa QAbstractFileEngine::create()
-*/    
+*/
 
 /*!
     Creates and returns a QAbstractFileEngine suitable for processing \a
@@ -239,9 +239,10 @@ QAbstractFileEngine *QAbstractFileEngine::create(const QString &fileName)
     \value AbsolutePathName The absolute path to the file (excluding
     the base name).
     \value LinkName The full file name of the file that this file is a
-link to. (This will be empty if this file is not a link.)
+    link to. (This will be empty if this file is not a link.)
     \value CanonicalName Often very similar to LinkName. Will return the true path to the file.
     \value CanonicalPathName Same as CanonicalName, excluding the base name.
+    \value BundleName Returns the name of the bundle implies BundleType is set.
 
     \sa fileName(), setFileName()
 */
@@ -278,6 +279,7 @@ link to. (This will be empty if this file is not a link.)
     the file system (i.e. not a file or directory).
     \value FileType The file is a regular file to the file system
     (i.e. not a link or directory)
+    \value BundleType The file is a Mac OS X bundle implies DirectoryType
     \value DirectoryType The file is a directory in the file system
     (i.e. not a link or file).
 
@@ -1123,7 +1125,7 @@ qint64 QAbstractFileEngine::readLine(char *data, qint64 maxlen)
 
     You can call supportsExtension() to check if an extension is supported by
     the file engine.
-    
+
     By default, no extensions are supported, and this function returns false.
 
     \sa supportsExtension(), Extension

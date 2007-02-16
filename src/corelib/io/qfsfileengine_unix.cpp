@@ -73,7 +73,7 @@ static int openModeToOpenFlags(QIODevice::OpenMode mode)
     } else if (mode & QFile::WriteOnly) {
         oflags = QT_OPEN_WRONLY | QT_OPEN_CREAT;
     }
-    
+
     if (mode & QFile::Append) {
         oflags |= QT_OPEN_APPEND;
     } else if (mode & QFile::WriteOnly) {
@@ -143,7 +143,7 @@ bool QFSFileEnginePrivate::nativeOpen(QIODevice::OpenMode openMode)
                         qt_error_string(int(errno)));
             return false;
         }
-        
+
         // Seek to the end when in Append mode.
         if (openMode & QIODevice::Append) {
             int ret;
@@ -188,7 +188,7 @@ bool QFSFileEnginePrivate::nativeFlush()
 qint64 QFSFileEnginePrivate::nativeRead(char *data, qint64 len)
 {
     Q_Q(QFSFileEngine);
-    
+
     if (fh && nativeIsSequential()) {
         size_t readBytes = 0;
         int oldFlags = fcntl(QT_FILENO(fh), F_GETFL);
@@ -554,6 +554,17 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(FileFlags type) const
         if (!foundAlias)
 #endif
         {
+#if !defined(QWS) && defined(Q_OS_MAC)
+            {
+                QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(0, QCFString(d->filePath),
+                                                                      kCFURLPOSIXPathStyle, true);
+                QCFType<CFBundleRef> bundle = CFBundleCreate(0, url);
+                if(bundle) {
+                    if(CFBundleGetIdentifier(bundle))
+                        ret |= BundleType;
+                }
+            }
+#endif
             if ((type & LinkType) && d->isSymlink())
                 ret |= LinkType;
             if (exists && (d->st.st_mode & S_IFMT) == S_IFREG)
@@ -581,7 +592,20 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(FileFlags type) const
 QString QFSFileEngine::fileName(FileName file) const
 {
     Q_D(const QFSFileEngine);
-    if (file == BaseName) {
+    if (file == BundleName) {
+#if !defined(QWS) && defined(Q_OS_MAC)
+        QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(0, QCFString(d->filePath),
+                                                              kCFURLPOSIXPathStyle, true);
+        QCFType<CFBundleRef> bundle = CFBundleCreate(0, url);
+        if(bundle) {
+            if(CFTypeRef name = CFBundleGetValueForInfoDictionaryKey(bundle, kCFBundleNameKey)) {
+                if(CFGetTypeID(name) == CFStringGetTypeID())
+                    return QCFString::toQString((CFStringRef)name);
+            }
+        }
+#endif
+        return QString();
+    } else if (file == BaseName) {
         int slash = d->filePath.lastIndexOf(QLatin1Char('/'));
         if (slash != -1)
             return d->filePath.mid(slash + 1);
