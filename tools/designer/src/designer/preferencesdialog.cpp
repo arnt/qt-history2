@@ -41,6 +41,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parentWidget) :
 {
     setModal(true);
     setWindowTitle(tr("Preferences"));
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     QVBoxLayout *mainVLayout = new QVBoxLayout(this);
     QHBoxLayout *hboxLayout = new QHBoxLayout;

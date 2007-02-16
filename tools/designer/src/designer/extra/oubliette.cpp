@@ -202,6 +202,7 @@ void Oubliette::showInventory()
 {
     QDialog *d = new QDialog();
     d->setWindowTitle(tr("Inventory"));
+    d->setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     QGridLayout *gl = new QGridLayout(d);
     int row = 0;
     QLabel *label;

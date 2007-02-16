@@ -21,6 +21,7 @@ FormWindowSettings::FormWindowSettings(QDesignerFormWindowInterface *parent) :
 {
     Q_ASSERT(m_formWindow);
     ui.setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     int defaultMargin = INT_MIN, defaultSpacing = INT_MIN;
     m_formWindow->layoutDefault(&defaultMargin, &defaultSpacing);

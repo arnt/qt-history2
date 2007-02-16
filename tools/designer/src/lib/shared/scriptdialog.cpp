@@ -37,6 +37,12 @@ namespace qdesigner_internal {
 
         QVBoxLayout *vboxLayout = new QVBoxLayout(this);
 
+        const QString textHelp = QLatin1String("\
+<html>Enter a Qt Script snippet to be executed while loading the form.<br>\
+The widget and its children are accessible via the \
+variables <i>widget</i> and <i>childWidgets</i>, respectively.");
+        m_textEdit->setToolTip(textHelp);
+        m_textEdit->setWhatsThis(textHelp);
         m_textEdit->setMinimumSize(QSize(600, 400));
         vboxLayout->addWidget(m_textEdit);
         new QScriptHighlighter(m_textEdit->document());

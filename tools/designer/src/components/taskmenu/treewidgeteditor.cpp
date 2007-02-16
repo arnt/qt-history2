@@ -20,7 +20,9 @@ TRANSLATOR qdesigner_internal::TreeWidgetEditor
 #include <iconloader_p.h>
 #include <qdesigner_command_p.h>
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerIconCacheInterface>
 #include <QtCore/QDir>
 #include <QtCore/QQueue>
 #include <QHeaderView>
@@ -31,6 +33,7 @@ TreeWidgetEditor::TreeWidgetEditor(QDesignerFormWindowInterface *form, QWidget *
     : QDialog(parent), m_updating(false)
 {
     ui.setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_form = form;
     QIcon resetIcon = createIconSet(QString::fromUtf8("editdelete.png"));
     ui.deletePixmapItemButton->setIcon(resetIcon);

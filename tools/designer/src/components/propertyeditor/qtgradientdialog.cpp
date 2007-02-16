@@ -36,6 +36,7 @@ public:
 QtGradientDialog::QtGradientDialog(QWidget *parent)
     : QDialog(parent)
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     d_ptr = new QtGradientDialogPrivate();
     d_ptr->q_ptr = this;
     d_ptr->m_ui.setupUi(this);

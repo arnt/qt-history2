@@ -57,6 +57,7 @@ namespace qdesigner_internal {
         m_textEdit(new QTextEdit)
     {
         setWindowTitle(tr("Script errors"));
+        setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
         setModal(true);
 
         QVBoxLayout *vboxLayout = new QVBoxLayout(this);

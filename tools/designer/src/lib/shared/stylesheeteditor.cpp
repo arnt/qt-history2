@@ -17,10 +17,16 @@ TRANSLATOR qdesigner_internal::StyleSheetEditorDialog
 
 #include "stylesheeteditor_p.h"
 #include "csshighlighter_p.h"
+
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormWindowCursorInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QExtensionManager>
+
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QVBoxLayout>
-#include <QtDesigner/QtDesigner>
 #include <QtGui/QMessageBox>
 #include "private/qcssparser_p.h"
 
@@ -37,6 +43,7 @@ StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *fw, QWidget *widget)
     m_fw = qobject_cast<QDesignerFormWindowInterface *>(fw);
     Q_ASSERT(m_fw != 0);
     setWindowTitle(tr("Edit Style Sheet"));
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     QGridLayout *layout = new QGridLayout;
     m_editor = new StyleSheetEditor;
     new CssHighlighter(m_editor->document());

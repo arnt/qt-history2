@@ -28,6 +28,7 @@ NewActionDialog::NewActionDialog(ActionEditor *parent)
       m_actionEditor(parent)
 {
     ui.setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     ui.editActionText->setFocus();
     m_auto_update_object_name = true;
     updateButtons();

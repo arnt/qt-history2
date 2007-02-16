@@ -303,7 +303,7 @@ RichTextEditorDialog::RichTextEditorDialog(QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle(tr("Edit text"));
-
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(1);
     m_editor = new RichTextEditor(this);

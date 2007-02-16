@@ -9,6 +9,7 @@ NewDynamicPropertyDialog::NewDynamicPropertyDialog(QWidget *parent)
       m_ui(new Ui::NewDynamicPropertyDialog)
 {
     m_ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     const NameToValueMap::const_iterator mcend = nameToValueMap().constEnd();
     int idx = 0;

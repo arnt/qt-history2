@@ -20,7 +20,9 @@ TRANSLATOR qdesigner_internal::TableWidgetEditor
 #include <iconloader_p.h>
 #include <qdesigner_command_p.h>
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerIconCacheInterface>
 #include <QtCore/QDir>
 #include <QtCore/QQueue>
 
@@ -32,6 +34,7 @@ TableWidgetEditor::TableWidgetEditor(QDesignerFormWindowInterface *form, QWidget
       m_updating(false)
 {
     ui.setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     QIcon resetIcon = createIconSet(QString::fromUtf8("editdelete.png"));
     ui.deletePixmapItemButton->setIcon(resetIcon);
     ui.deletePixmapColumnButton->setIcon(resetIcon);

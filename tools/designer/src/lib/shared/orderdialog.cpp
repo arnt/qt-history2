@@ -16,7 +16,7 @@ TRANSLATOR qdesigner_internal::OrderDialog
 */
 
 #include "orderdialog_p.h"
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
 
 using namespace qdesigner_internal;
 
@@ -24,6 +24,7 @@ OrderDialog::OrderDialog(QDesignerFormWindowInterface *form, QWidget *parent)
     : QDialog(parent), m_pages(0)
 {
     ui.setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_form = form;
 
     ui.upButton->setEnabled(false);

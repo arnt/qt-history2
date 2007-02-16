@@ -26,6 +26,7 @@ ItemDialog::ItemDialog(QWidget *parent, const Item *item)
     : QDialog(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     QGridLayout *layout = new QGridLayout(this);
     QLabel *lblPix = new QLabel();
     const BusinessCard *bcard = static_cast<const BusinessCard *>(item);

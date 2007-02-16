@@ -35,6 +35,7 @@ public:
 QtBrushPatternDialog::QtBrushPatternDialog(QWidget *parent)
     : QDialog(parent)
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     d_ptr = new QtBrushPatternDialogPrivate();
     d_ptr->q_ptr = this;
     d_ptr->m_ui.setupUi(this);

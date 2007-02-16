@@ -101,6 +101,7 @@ FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *pare
       m_language_editor(0)
 {
     ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     const QSize icon_size(24, 24);
     ui->m_icon_view->setViewMode(QListWidget::IconMode);
     ui->m_icon_view->setMovement(QListWidget::Static);
