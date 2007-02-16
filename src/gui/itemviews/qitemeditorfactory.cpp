@@ -342,6 +342,58 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
 */
 
 /*!
+    \class QItemEditorCreator
+    \brief The QItemEditorCreator class makes it possible to create
+	   item editor creator bases without subclassing
+	   QItemEditorCreatorBase.
+
+    \since 4.2
+    \ingroup model-view
+
+    QItemEditorCreator is a convenience template class. It uses
+    the template class to create editors for QItemEditorFactory.
+    This way, it is not necessary to subclass
+    QItemEditorCreatorBase.
+
+    \code
+    QItemEditorCreator<MyEditor> *itemCreator =
+        new QItemEditorCreator<MyEditor>("myProperty");
+
+    QItemEditorFactory *factory = new QItemEditorFactory;
+    \endcode
+
+    Only use this class if your editor does not define a user
+    property (using the USER keyword in the Q_PROPERTY macro).  If the
+    widget has a user property, you should use
+    QStandardItemEditorCreator in stead. 
+
+    \sa QItemEditorCreatorBase, QStandardItemEditorCreator,
+	QItemEditorFactory, {Color Editor Factory Example}
+*/
+
+/*!
+    \fn QItemEditorCreator::QItemEditorCreator(const QByteArray &valuePropertyName)
+
+    Constructs an editor creator object using \a valuePropertyName
+    as the name of the property to be used for editing. The
+    property name is used by QItemDelegate when setting and
+    getting editor data.
+
+    Note that the \a valuePropertyName is only used if the editor
+    widget does not have a user property defined.
+*/
+
+/*!
+    \fn QWidget *QItemEditorCreator::createWidget(QWidget *parent) const
+    \reimp
+*/
+
+/*!
+    \fn QByteArray QItemEditorCreator::valuePropertyName() const
+    \reimp
+*/
+
+/*!
     \class QStandardItemEditorCreator
 
     \brief The QStandardItemEditorCreator class provides the
@@ -366,7 +418,8 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     QItemDelegate::setItemEditorFactory() makes sure that all values of type
     QVariant::DateTime will be edited in \c{MyFancyDateTimeEdit}.
 
-    \sa QItemEditorCreatorBase, QItemEditorFactory, QItemDelegate
+    \sa QItemEditorCreatorBase, QItemEditorCreator,
+	QItemEditorFactory, QItemDelegate, {Color Editor Factory Example}
 */
 
 /*!
