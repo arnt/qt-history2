@@ -1108,7 +1108,7 @@ QStyle *QApplication::style()
             delete QApplicationPrivate::styleOverride;
             QApplicationPrivate::styleOverride = 0;
         } else {
-#  if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
+#if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
             style = QLatin1String("PocketPC");
 #elif defined(Q_WS_WIN)
             if ((QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA
@@ -1123,12 +1123,14 @@ QStyle *QApplication::style()
             style = QLatin1String("CDE");                        // default style for X11 on Solaris
 #elif defined(Q_WS_X11) && defined(Q_OS_IRIX)
             style = QLatin1String("SGI");                        // default style for X11 on IRIX
+#elif defined(Q_WS_X11) && defined(Q_OS_MAC)
+            style = QLatin1String("Plastique");                  // default style for X11 on Darwin
 #elif defined(Q_WS_X11)
-                style = QLatin1String("Motif");                // default style for X11
+                style = QLatin1String("Motif");                  // default style for X11
 #elif defined(Q_WS_MAC)
-                style = QLatin1String("Macintosh");                // default style for all Mac's
+                style = QLatin1String("Macintosh");              // default style for all Mac's
 #elif defined(Q_WS_QWS)
-            style = QLatin1String("Plastique");                // default style for small devices
+            style = QLatin1String("Plastique");                  // default style for small devices
 #endif
         }
 
