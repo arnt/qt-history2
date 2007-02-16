@@ -1275,6 +1275,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     int headerSection;
     QModelIndex modelIndex;
 
+    const bool widgetHasFocus = hasFocus();
     for (int headerIndex = left; headerIndex <= right; ++headerIndex) {
         headerSection = header->logicalIndex(headerIndex);
         if (header->isSectionHidden(headerSection))
@@ -1282,10 +1283,10 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         position = columnViewportPosition(headerSection) + offset.x();
         width = (spanning ? header->length() : header->sectionSize(headerSection));
         modelIndex = d->model->index(index.row(), headerSection, parent);
-        opt.state = state;
         if (!modelIndex.isValid()) {
             continue;
         }
+        opt.state = state;
 
         // fake activeness when row editor has focus
         if (indexWidgetHasFocus)
@@ -1293,7 +1294,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
 
         if (d->selectionModel->isSelected(modelIndex))
             opt.state |= QStyle::State_Selected;
-        if ((current == modelIndex) && hasFocus()) {
+        if (widgetHasFocus && (current == modelIndex)) {
             if (allColumnsShowFocus)
                 currentRowHasFocus = true;
             else
@@ -2044,9 +2045,7 @@ void QTreeView::rowsInserted(const QModelIndex &parent, int start, int end)
         }
 
         d->updateChildCount(parentItem, delta);
-
-        updateGeometries();
-        d->viewport->update();
+        d->doDelayedItemsLayout();
     } else if ((parentItem != -1) && d->viewItems.at(parentItem).expanded) {
         d->doDelayedItemsLayout();
     }
