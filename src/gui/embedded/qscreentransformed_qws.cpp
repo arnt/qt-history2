@@ -18,6 +18,7 @@
 #include <qscreendriverfactory_qws.h>
 #include <qvector.h>
 #include <private/qpainter_p.h>
+#include <private/qdrawhelper_p.h>
 #include <qmatrix.h>
 
 #include <unistd.h>
@@ -279,105 +280,11 @@ static inline QRect correctNormalized(const QRect &r) {
     return QRect( QPoint(x1,y1), QPoint(x2,y2) );
 }
 
-template <class SRC, class DST>
-static inline DST colorConvert(SRC color)
-{
-    return color;
-}
-
-#if defined(QT_QWS_DEPTH_16) && defined(QT_QWS_DEPTH_32)
-template <>
-static inline quint32 colorConvert(quint16 color)
-{
-    return qt_conv16ToRgb(color);
-}
-#endif
-
-#ifdef QT_QWS_DEPTH_16
-template <>
-static inline quint16 colorConvert(quint32 color)
-{
-    return qt_convRgbTo16(color);
-}
-#endif
-
-#ifdef QT_QWS_DEPTH_8
-template <>
-static inline quint8 colorConvert(quint32 color)
-{
-    uchar r = (qRed(color) + 0x19) / 0x33;
-    uchar g = (qGreen(color) + 0x19) / 0x33;
-    uchar b = (qBlue(color) + 0x19) / 0x33;
-
-    return r*6*6 + g*6 + b;
-}
-
-template <>
-static inline quint8 colorConvert(quint16 color)
-{
-    return colorConvert<quint32, quint8>(qt_conv16ToRgb(color));
-}
-#endif // QT_QWS_DEPTH_8
-
-#ifdef QT_QWS_DEPTH_24
-
-// XXX: endianess??
-class quint24
-{
-public:
-    quint24(quint32 v)
-    {
-        data[0] = v & 0xff;
-        data[1] = (v >> 8) & 0xff;
-        data[2] = (v >> 16) & 0xff;
-    }
-
-private:
-    uchar data[3];
-} Q_PACKED;
-
-template<>
-static inline quint24 colorConvert(quint32 color)
-{
-    return quint24(color);
-}
-
-#endif // QT_QWS_DEPTH_24
-
-#ifdef QT_QWS_DEPTH_18
-
-// XXX: endianess??
-class quint18
-{
-public:
-    quint18(quint32 v)
-    {
-        uchar b = v & 0xff;
-        uchar g = (v >> 8) & 0xff;
-        uchar r = (v >> 16) & 0xff;
-        uint p = (b>>2) | ((g>>2) << 6) | ((r>>2) << 12);
-        data[0] = p & 0xff;
-        data[1] = (p >> 8) & 0xff;
-        data[2] = (p >> 16) & 0xff;
-    }
-
-private:
-    uchar data[3];
-} Q_PACKED;
-
-template<>
-static inline quint18 colorConvert(quint32 color)
-{
-    return quint18(color);
-}
-
-#endif // QT_QWS_DEPTH_18
-
 typedef void (*BlitFunc)(QScreen *, const QImage &, const QRect &, const QPoint &);
 
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD || defined(QT_QWS_DEPTH_18) || defined(QT_QWS_DEPTH_24)
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static inline void blit90_cachedRead(QScreen *screen, const QImage &image,
                                      const QRect &rect, const QPoint &topLeft)
 {
@@ -392,13 +299,13 @@ static inline void blit90_cachedRead(QScreen *screen, const QImage &image,
 
     for (int y = 0; y < h; ++y) {
         for (int x = w - 1; x >= 0; --x) {
-            dest[(w - x - 1) * dstride + y] = colorConvert<SRC,DST>(src[x]);
+            dest[(w - x - 1) * dstride + y] = qt_colorConvert<DST,SRC>(src[x]);
         }
         src += sstride;
     }
 }
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static void blit270_cachedRead(QScreen *screen, const QImage &image,
                                const QRect &rect, const QPoint &topLeft)
 {
@@ -414,7 +321,7 @@ static void blit270_cachedRead(QScreen *screen, const QImage &image,
     src += (h - 1) * sstride;
     for (int y = h - 1; y >= 0; --y) {
         for (int x = 0; x < w; ++x) {
-            dest[x * dstride + h - y - 1] = colorConvert<SRC,DST>(src[x]);
+            dest[x * dstride + h - y - 1] = qt_colorConvert<DST,SRC>(src[x]);
         }
         src -= sstride;
     }
@@ -424,7 +331,7 @@ static void blit270_cachedRead(QScreen *screen, const QImage &image,
 
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDWRITE
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static inline void blit90_cachedWrite(QScreen *screen, const QImage &image,
                                       const QRect &rect, const QPoint &topLeft)
 {
@@ -440,13 +347,13 @@ static inline void blit90_cachedWrite(QScreen *screen, const QImage &image,
     for (int x = w - 1; x >= 0; --x) {
         DST *d = dest + (w - x - 1) * dstride;
         for (int y = 0; y < h; ++y) {
-            *d++ = colorConvert<SRC,DST>(src[y * sstride + x]);
+            *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
         }
     }
 
 }
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static void blit270_cachedWrite(QScreen *screen, const QImage &image,
                                 const QRect &rect, const QPoint &topLeft)
 {
@@ -462,7 +369,7 @@ static void blit270_cachedWrite(QScreen *screen, const QImage &image,
     for (int x = 0; x < w; ++x) {
         DST *d = dest + x * dstride;
         for (int y = h - 1; y >= 0; --y) {
-            *d++ = colorConvert<SRC,DST>(src[y * sstride + x]);
+            *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
         }
     }
 }
@@ -471,7 +378,7 @@ static void blit270_cachedWrite(QScreen *screen, const QImage &image,
 
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_PACKING
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static inline void blit90_packing(QScreen *screen, const QImage &image,
                                   const QRect &rect, const QPoint &topLeft)
 {
@@ -492,7 +399,7 @@ static inline void blit90_packing(QScreen *screen, const QImage &image,
 
         for (int i = 0; i < unaligned; ++i) {
             dest[(w - x - 1) * dstride + y]
-                = colorConvert<SRC,DST>(src[y * sstride + x]);
+                = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
             ++y;
         }
 
@@ -500,9 +407,9 @@ static inline void blit90_packing(QScreen *screen, const QImage &image,
                                                 + unaligned);
         const int rest = (h - unaligned) % pack;
         while (y < h - rest) {
-            quint32 c = colorConvert<SRC,DST>(src[y * sstride + x]);
+            quint32 c = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
             for (int i = 1; i < pack; ++i) {
-                c |= colorConvert<SRC,DST>(src[(y + i) * sstride + x])
+                c |= qt_colorConvert<DST,SRC>(src[(y + i) * sstride + x])
                      << (sizeof(int) * 8 / pack * i);
             }
             *d++ = c;
@@ -511,13 +418,13 @@ static inline void blit90_packing(QScreen *screen, const QImage &image,
 
         while (y < h) {
             dest[(w - x - 1) * dstride + y]
-                 = colorConvert<SRC,DST>(src[y * sstride + x]);
+                 = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
             ++y;
         }
     }
 }
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static inline void blit270_packing(QScreen *screen, const QImage &image,
                                    const QRect &rect, const QPoint &topLeft)
 {
@@ -538,7 +445,7 @@ static inline void blit270_packing(QScreen *screen, const QImage &image,
 
         for (int i = 0; i < unaligned; ++i) {
             dest[x * dstride + h - y - 1]
-                = colorConvert<SRC,DST>(src[y * sstride + x]);
+                = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
             --y;
         }
 
@@ -546,9 +453,9 @@ static inline void blit270_packing(QScreen *screen, const QImage &image,
                                                 + unaligned);
         const int rest = (h - unaligned) % pack;
         while (y > rest) {
-            quint32 c = colorConvert<SRC,DST>(src[y * sstride + x]);
+            quint32 c = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
             for (int i = 1; i < pack; ++i) {
-                c |= colorConvert<SRC,DST>(src[(y - i) * sstride + x])
+                c |= qt_colorConvert<DST,SRC>(src[(y - i) * sstride + x])
                      << (sizeof(int) * 8 / pack * i);
             }
             *d++ = c;
@@ -556,7 +463,7 @@ static inline void blit270_packing(QScreen *screen, const QImage &image,
         }
         while (y >= 0) {
             dest[x * dstride + h - y - 1]
-                = colorConvert<SRC,DST>(src[y * sstride + x]);
+                = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
             --y;
         }
     }
@@ -565,7 +472,7 @@ static inline void blit270_packing(QScreen *screen, const QImage &image,
 #endif // QT_ROTATION_PACKING
 
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_TILED
-template <class SRC, class DST>
+template <class DST, class SRC>
 static inline void blit90_tiled(QScreen *screen, const QImage &image,
                                 const QRect &rect, const QPoint &topLeft)
 {
@@ -595,7 +502,7 @@ static inline void blit90_tiled(QScreen *screen, const QImage &image,
             for (int x = startx; x >= stopx; --x) {
                 DST *d = dest + (w - x - 1) * dstride;
                 for (int y = 0; y < unaligned; ++y) {
-                    *d++ = colorConvert<SRC,DST>(src[y * sstride + x]);
+                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
                 }
             }
         }
@@ -607,10 +514,10 @@ static inline void blit90_tiled(QScreen *screen, const QImage &image,
             for (int x = startx; x >= stopx; --x) {
                 quint32 *d = reinterpret_cast<quint32*>(dest + (w - x - 1) * dstride + starty);
                 for (int y = starty; y < stopy; y += pack) {
-                    quint32 c = colorConvert<SRC,DST>(src[y * sstride + x]);
+                    quint32 c = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
                     for (int i = 1; i < pack; ++i) {
                         const int shift = (sizeof(int) * 8 / pack * i);
-                        const DST color = colorConvert<SRC,DST>(src[(y + i) * sstride + x]);
+                        const DST color = qt_colorConvert<DST,SRC>(src[(y + i) * sstride + x]);
                         c |= color << shift;
                     }
                     *d++ = c;
@@ -623,14 +530,14 @@ static inline void blit90_tiled(QScreen *screen, const QImage &image,
             for (int x = startx; x >= stopx; --x) {
                 DST *d = dest + (w - x - 1) * dstride + starty;
                 for (int y = starty; y < h; ++y) {
-                    *d++ = colorConvert<SRC,DST>(src[y * sstride + x]);
+                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
                 }
             }
         }
     }
 }
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static inline void blit90_tiled_unpacked(QScreen *screen, const QImage &image,
                                          const QRect &rect,
                                          const QPoint &topLeft)
@@ -658,13 +565,13 @@ static inline void blit90_tiled_unpacked(QScreen *screen, const QImage &image,
             for (int x = startx; x >= stopx; --x) {
                 DST *d = dest + (w - x - 1) * dstride + starty;
                 for (int y = starty; y < stopy; ++y)
-                    *d++ = colorConvert<SRC,DST>(src[y * sstride + x]);
+                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
             }
         }
     }
 }
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static inline void blit270_tiled(QScreen *screen, const QImage &image,
                                  const QRect &rect, const QPoint &topLeft)
 {
@@ -694,7 +601,7 @@ static inline void blit270_tiled(QScreen *screen, const QImage &image,
             for (int x = startx; x < stopx; ++x) {
                 DST *d = dest + x * dstride;
                 for (int y = h - 1; y >= h - unaligned; --y) {
-                    *d++ = colorConvert<SRC,DST>(src[y * sstride + x]);
+                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
                 }
             }
         }
@@ -707,10 +614,10 @@ static inline void blit270_tiled(QScreen *screen, const QImage &image,
                 quint32 *d = reinterpret_cast<quint32*>(dest + x * dstride
                                                         + h - 1 - starty);
                 for (int y = starty; y > stopy; y -= pack) {
-                    quint32 c = colorConvert<SRC,DST>(src[y * sstride + x]);
+                    quint32 c = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
                     for (int i = 1; i < pack; ++i) {
                         const int shift = (sizeof(int) * 8 / pack * i);
-                        const DST color = colorConvert<SRC,DST>(src[(y - i) * sstride + x]);
+                        const DST color = qt_colorConvert<DST,SRC>(src[(y - i) * sstride + x]);
                         c |= color << shift;
                     }
                     *d++ = c;
@@ -722,14 +629,14 @@ static inline void blit270_tiled(QScreen *screen, const QImage &image,
             for (int x = startx; x < stopx; ++x) {
                 DST *d = dest + x * dstride + h - 1 - starty;
                 for (int y = starty; y >= 0; --y) {
-                    *d++ = colorConvert<SRC,DST>(src[y * sstride + x]);
+                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
                 }
             }
         }
     }
 }
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static inline void blit270_tiled_unpacked(QScreen *screen, const QImage &image,
                                           const QRect &rect,
                                           const QPoint &topLeft)
@@ -757,7 +664,7 @@ static inline void blit270_tiled_unpacked(QScreen *screen, const QImage &image,
             for (int x = startx; x < stopx; ++x) {
                 DST *d = dest + x * dstride + h - 1 - starty;
                 for (int y = starty; y >= stopy; --y)
-                    *d++ = colorConvert<SRC,DST>(src[y * sstride + x]);
+                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
             }
         }
     }
@@ -765,38 +672,38 @@ static inline void blit270_tiled_unpacked(QScreen *screen, const QImage &image,
 
 #endif // QT_ROTATION_ALFORITHM
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static void blit90(QScreen *screen, const QImage &image,
                    const QRect &rect, const QPoint &topLeft)
 {
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD
-    blit90_cachedRead<SRC,DST>(screen, image, rect, topLeft);
+    blit90_cachedRead<DST,SRC>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDWRITE
-    blit90_cachedWrite<SRC,DST>(screen, image, rect, topLeft);
+    blit90_cachedWrite<DST,SRC>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_PACKING
-    blit90_packing<SRC,DST>(screen, image, rect, topLeft);
+    blit90_packing<DST,SRC>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_TILED
-    blit90_tiled<SRC,DST>(screen, image, rect, topLeft);
+    blit90_tiled<DST,SRC>(screen, image, rect, topLeft);
 #endif
 }
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static void blit90_unpacked(QScreen *screen, const QImage &image,
                             const QRect &rect, const QPoint &topLeft)
 {
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD
-    blit90_cachedRead<SRC,DST>(screen, image, rect, topLeft);
+    blit90_cachedRead<DST,SRC>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDWRITE
-    blit90_cachedWrite<SRC,DST>(screen, image, rect, topLeft);
+    blit90_cachedWrite<DST,SRC>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_PACKING
 #warning Packing algorithm not implemented for this depth.
-    blit90_cachedRead<SRC,DST>(screen, image, rect, topLeft);
+    blit90_cachedRead<DST,SRC>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_TILED
-    blit90_tiled_unpacked<SRC,DST>(screen, image, rect, topLeft);
+    blit90_tiled_unpacked<DST,SRC>(screen, image, rect, topLeft);
 #endif
 }
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static void blit180(QScreen *screen, const QImage &image,
                     const QRect &rect, const QPoint &topLeft)
 {
@@ -812,72 +719,72 @@ static void blit180(QScreen *screen, const QImage &image,
     src += (h - 1) * sstride;
     for (int y = h - 1; y >= 0; --y) {
         for (int x = w - 1; x >= 0; --x) {
-            dest[(h - y - 1) * dstride + w - x - 1] = colorConvert<SRC,DST>(src[x]);
+            dest[(h - y - 1) * dstride + w - x - 1] = qt_colorConvert<DST,SRC>(src[x]);
         }
         src -= sstride;
     }
 }
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static void blit270(QScreen *screen, const QImage &image,
                     const QRect &rect, const QPoint &topLeft)
 {
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD
-    blit270_cachedRead<SRC,DST>(screen, image, rect, topLeft);
+    blit270_cachedRead<DST,SRC>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDWRITE
-    blit270_cachedWrite<SRC,DST>(screen, image, rect, topLeft);
+    blit270_cachedWrite<DST,SRC>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_PACKING
 #warning Packing algorithm not implemented for this depth.
-    blit270_packing<SRC,DST>(screen, image, rect, topLeft);
+    blit270_packing<DST,SRC>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_TILED
-    blit270_tiled_unpacked<SRC,DST>(screen, image, rect, topLeft);
+    blit270_tiled_unpacked<DST,SRC>(screen, image, rect, topLeft);
 #endif
 }
 
-template <class SRC, class DST>
+template <class DST, class SRC>
 static void blit270_unpacked(QScreen *screen, const QImage &image,
                              const QRect &rect, const QPoint &topLeft)
 {
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD
-    blit270_cachedRead<SRC,DST>(screen, image, rect, topLeft);
+    blit270_cachedRead<DST,SRC>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDWRITE
-    blit270_cachedWrite<SRC,DST>(screen, image, rect, topLeft);
+    blit270_cachedWrite<DST,SRC>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_PACKING
 #warning Packing algorithm not implemented for this depth.
-    blit270_cachedRead<SRC,DST>(screen, image, rect, topLeft);
+    blit270_cachedRead<DST,SRC>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_TILED
-    blit270_tiled_unpacked<SRC,DST>(screen, image, rect, topLeft);
+    blit270_tiled_unpacked<DST,SRC>(screen, image, rect, topLeft);
 #endif
 }
 
-#define SET_BLIT_FUNC(src, dst, rotation, func) \
+#define SET_BLIT_FUNC(dst, src, rotation, func) \
 do {                                            \
     switch (rotation) {                         \
     case Rot90:                                 \
-        func = blit90<src, dst>;                \
+        func = blit90<dst, src>;                \
         break;                                  \
     case Rot180:                                \
-        func = blit180<src, dst>;               \
+        func = blit180<dst, src>;               \
         break;                                  \
     case Rot270:                                \
-        func = blit270<src, dst>;               \
+        func = blit270<dst, src>;               \
         break;                                  \
     default:                                    \
         break;                                  \
     }                                           \
 } while (0)
 
-#define SET_BLIT_FUNC_UNPACKED(src, dst, rotation, func)       \
+#define SET_BLIT_FUNC_UNPACKED(dst, src, rotation, func)       \
 do {                                                           \
     switch (rotation) {                                        \
     case Rot90:                                                \
-        func = blit90_unpacked<src, dst>;                      \
+        func = blit90_unpacked<dst, src>;                      \
         break;                                                 \
     case Rot180:                                               \
-        func = blit180<src, dst>;                              \
+        func = blit180<dst, src>;                              \
         break;                                                 \
     case Rot270:                                               \
-        func = blit270_unpacked<src, dst>;                     \
+        func = blit270_unpacked<dst, src>;                     \
         break;                                                 \
     default:                                                   \
         break;                                                 \
@@ -906,7 +813,7 @@ void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
     case 32:
 #ifdef QT_QWS_DEPTH_16
         if (image.depth() == 16)
-            SET_BLIT_FUNC(quint16, quint32, trans, func);
+            SET_BLIT_FUNC(quint32, quint16, trans, func);
         else
 #endif
             SET_BLIT_FUNC(quint32, quint32, trans, func);
@@ -914,12 +821,12 @@ void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
 #endif
 #ifdef QT_QWS_DEPTH_24
     case 24:
-        SET_BLIT_FUNC_UNPACKED(quint32, quint24, trans, func);
+        SET_BLIT_FUNC_UNPACKED(quint24, quint32, trans, func);
         break;
 #endif
 #ifdef QT_QWS_DEPTH_18
     case 18:
-        SET_BLIT_FUNC_UNPACKED(quint32, quint18, trans, func);
+        SET_BLIT_FUNC_UNPACKED(quint18, quint32, trans, func);
         break;
 #endif
 #ifdef QT_QWS_DEPTH_16
@@ -927,15 +834,15 @@ void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
         if (image.depth() == 16)
             SET_BLIT_FUNC(quint16, quint16, trans, func);
         else
-            SET_BLIT_FUNC(quint32, quint16, trans, func);
+            SET_BLIT_FUNC(quint16, quint32, trans, func);
         break;
 #endif
 #ifdef QT_QWS_DEPTH_8
     case 8:
         if (image.depth() == 16)
-            SET_BLIT_FUNC(quint16, quint8, trans, func);
+            SET_BLIT_FUNC(quint8, quint16, trans, func);
         else
-            SET_BLIT_FUNC(quint32, quint8, trans, func);
+            SET_BLIT_FUNC(quint8, quint32, trans, func);
         break;
 #endif
     default:
