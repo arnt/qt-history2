@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-#include <QtDesigner/QtDesigner>
-
 #include "qdesigner_command_p.h"
 #include "qdesigner_utils_p.h"
 #include "layout_p.h"
@@ -21,6 +19,15 @@
 #include "qdesigner_menu_p.h"
 #include "metadatabase_p.h"
 
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QDesignerActionEditorInterface>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QDesignerLayoutDecorationExtension>
+#include <QtDesigner/QDesignerWidgetFactoryInterface>
 #include <QtCore/qdebug.h>
 
 #include <QtGui/QMenuBar>
@@ -108,16 +115,7 @@ void InsertWidgetCommand::redo()
         parentWidget->layout()->invalidate();
     }
 
-    const QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(formWindow());
-    foreach (QDesignerLabel *label, label_list) {
-        if (QDesignerPropertySheetExtension* sheet = propertySheet(label)) {
-            const int idx = sheet->indexOf(QLatin1String("buddy"));
-            if (idx == -1)
-                continue;
-            if (sheet->property(idx).toString() == m_widget->objectName())
-                sheet->setProperty(idx, m_widget->objectName());
-        }
-    }
+    refreshBuddyLabels();
 }
 
 void InsertWidgetCommand::undo()
@@ -138,14 +136,27 @@ void InsertWidgetCommand::undo()
     }
     formWindow()->emitSelectionChanged();
 
-    const QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(formWindow());
-    foreach (QDesignerLabel *label, label_list) {
-        if (QDesignerPropertySheetExtension* sheet = propertySheet(label)) {
-            const int idx = sheet->indexOf(QLatin1String("buddy"));
-            if (idx == -1)
-                continue;
-            if (sheet->property(idx).toString() == m_widget->objectName())
-                sheet->setProperty(idx, m_widget->objectName());
+    refreshBuddyLabels();
+
+}
+
+void InsertWidgetCommand::refreshBuddyLabels()
+{
+    typedef QList<QDesignerLabel*> LabelList;
+
+    const LabelList label_list = qFindChildren<QDesignerLabel*>(formWindow());
+    if (label_list.empty())
+        return;
+
+    const QString buddyProperty = QLatin1String("buddy");
+    const QString objectName = m_widget->objectName();
+
+    const LabelList::const_iterator cend = label_list.constEnd();
+    for (LabelList::const_iterator it = label_list.constBegin(); it != cend; ++it ) {
+        if (QDesignerPropertySheetExtension* sheet = propertySheet(*it)) {
+            const int idx = sheet->indexOf(buddyProperty);
+            if (idx != -1 && sheet->property(idx).toString() == objectName)
+                sheet->setProperty(idx, objectName);
         }
     }
 }

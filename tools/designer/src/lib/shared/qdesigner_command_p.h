@@ -73,6 +73,8 @@ public:
     virtual void undo();
 
 private:
+    void refreshBuddyLabels();
+
     QPointer<QWidget> m_widget;
     QDesignerLayoutDecorationExtension::InsertMode m_insertMode;
     QPair<int, int> m_cell;
