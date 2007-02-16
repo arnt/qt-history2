@@ -148,6 +148,9 @@ private:
     void ensureData_helper();
     inline void detach();
     void detach_helper();
+    void setDirty(bool);
+    void computeBoundingRect() const;
+    void computeControlPointRect() const;
 
     QPainterPathData *d_func() const { return reinterpret_cast<QPainterPathData *>(d_ptr); }
 
@@ -307,6 +310,7 @@ inline void QPainterPath::detach()
 {
     if (d_ptr->ref != 1)
         detach_helper();
+    setDirty(true);
 }
 
 QT_END_HEADER

@@ -35,14 +35,18 @@ class QPainterPathData : public QPainterPathPrivate
 {
 public:
     QPainterPathData() :
-        cStart(0), fillRule(Qt::OddEvenFill)
+        cStart(0), fillRule(Qt::OddEvenFill),
+        dirtyBounds(false), dirtyControlBounds(false)
     {
         ref = 1;
         require_moveTo = false;
     }
 
     QPainterPathData(const QPainterPathData &other) :
-        QPainterPathPrivate(), cStart(other.cStart), fillRule(other.fillRule)
+        QPainterPathPrivate(), cStart(other.cStart), fillRule(other.fillRule),
+        dirtyBounds(other.dirtyBounds), bounds(other.bounds),
+        dirtyControlBounds(other.dirtyControlBounds),
+        controlBounds(other.controlBounds)
     {
         ref = 1;
         require_moveTo = false;
@@ -57,6 +61,11 @@ public:
     Qt::FillRule fillRule;
 
     bool require_moveTo;
+
+    bool   dirtyBounds;
+    QRectF bounds;
+    bool   dirtyControlBounds;
+    QRectF controlBounds;
 };
 
 

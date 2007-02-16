@@ -1361,45 +1361,10 @@ static QRectF qt_painterpath_bezier_extrema(const QBezier &b)
 */
 QRectF QPainterPath::boundingRect() const
 {
-    Q_D(QPainterPath);
-    if (isEmpty())
-        return QRect();
-
-    qreal minx, maxx, miny, maxy;
-    minx = maxx = d->elements.at(0).x;
-    miny = maxy = d->elements.at(0).y;
-    for (int i=1; i<d->elements.size(); ++i) {
-        const Element &e = d->elements.at(i);
-
-        switch (e.type) {
-        case MoveToElement:
-        case LineToElement:
-            if (e.x > maxx) maxx = e.x;
-            else if (e.x < minx) minx = e.x;
-            if (e.y > maxy) maxy = e.y;
-            else if (e.y < miny) miny = e.y;
-            break;
-        case CurveToElement:
-            {
-                QBezier b = QBezier::fromPoints(d->elements.at(i-1),
-                                                e,
-                                                d->elements.at(i+1),
-                                                d->elements.at(i+2));
-                QRectF r = qt_painterpath_bezier_extrema(b);
-                qreal right = r.right();
-                qreal bottom = r.bottom();
-                if (r.x() < minx) minx = r.x();
-                if (right > maxx) maxx = right;
-                if (r.y() < miny) miny = r.y();
-                if (bottom > maxy) maxy = bottom;
-                i += 2;
-            }
-            break;
-        default:
-            break;
-        }
-    }
-    return QRectF(minx, miny, maxx - minx, maxy - miny);
+    QPainterPathData *d = d_func();
+    if (d->dirtyBounds)
+        computeBoundingRect();
+    return d->bounds;
 }
 
 /*!
@@ -1414,21 +1379,10 @@ QRectF QPainterPath::boundingRect() const
 */
 QRectF QPainterPath::controlPointRect() const
 {
-    Q_D(QPainterPath);
-    if (isEmpty())
-        return QRect();
-
-    qreal minx, maxx, miny, maxy;
-    minx = maxx = d->elements.at(0).x;
-    miny = maxy = d->elements.at(0).y;
-    for (int i=1; i<d->elements.size(); ++i) {
-        const Element &e = d->elements.at(i);
-        if (e.x > maxx) maxx = e.x;
-        else if (e.x < minx) minx = e.x;
-        if (e.y > maxy) maxy = e.y;
-        else if (e.y < miny) miny = e.y;
-    }
-    return QRectF(minx, miny, maxx - minx, maxy - miny);
+    QPainterPathData *d = d_func();
+    if (d->dirtyControlBounds)
+        computeControlPointRect();
+    return d->controlBounds;
 }
 
 
@@ -2962,4 +2916,78 @@ bool QPainterPath::contains(const QPainterPath &p) const
         return false;
     QPathClipper clipper(*this, p);
     return clipper.contains();
+}
+
+void QPainterPath::setDirty(bool dirty)
+{
+    d_func()->dirtyBounds        = dirty;
+    d_func()->dirtyControlBounds = dirty;
+}
+
+void QPainterPath::computeBoundingRect() const
+{
+    QPainterPathData *d = d_func();
+    d->dirtyBounds = false;
+    if (isEmpty()) {
+        d->bounds = QRect();
+        return;
+    }
+
+    qreal minx, maxx, miny, maxy;
+    minx = maxx = d->elements.at(0).x;
+    miny = maxy = d->elements.at(0).y;
+    for (int i=1; i<d->elements.size(); ++i) {
+        const Element &e = d->elements.at(i);
+
+        switch (e.type) {
+        case MoveToElement:
+        case LineToElement:
+            if (e.x > maxx) maxx = e.x;
+            else if (e.x < minx) minx = e.x;
+            if (e.y > maxy) maxy = e.y;
+            else if (e.y < miny) miny = e.y;
+            break;
+        case CurveToElement:
+            {
+                QBezier b = QBezier::fromPoints(d->elements.at(i-1),
+                                                e,
+                                                d->elements.at(i+1),
+                                                d->elements.at(i+2));
+                QRectF r = qt_painterpath_bezier_extrema(b);
+                qreal right = r.right();
+                qreal bottom = r.bottom();
+                if (r.x() < minx) minx = r.x();
+                if (right > maxx) maxx = right;
+                if (r.y() < miny) miny = r.y();
+                if (bottom > maxy) maxy = bottom;
+                i += 2;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    d->bounds = QRectF(minx, miny, maxx - minx, maxy - miny);
+}
+
+void QPainterPath::computeControlPointRect() const
+{
+    QPainterPathData *d = d_func();
+    d->dirtyControlBounds = false;
+    if (isEmpty()) {
+        d->controlBounds = QRect();
+        return;
+    }
+
+    qreal minx, maxx, miny, maxy;
+    minx = maxx = d->elements.at(0).x;
+    miny = maxy = d->elements.at(0).y;
+    for (int i=1; i<d->elements.size(); ++i) {
+        const Element &e = d->elements.at(i);
+        if (e.x > maxx) maxx = e.x;
+        else if (e.x < minx) minx = e.x;
+        if (e.y > maxy) maxy = e.y;
+        else if (e.y < miny) miny = e.y;
+    }
+    d->controlBounds = QRectF(minx, miny, maxx - minx, maxy - miny);
 }
