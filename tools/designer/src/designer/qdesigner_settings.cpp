@@ -224,6 +224,7 @@ void QDesignerSettings::setPreferences(const Preferences& p)
     beginGroup(QLatin1String("UI"));
     setValue(QLatin1String("currentMode"), p.m_uiMode);
     setValue(QLatin1String("font"), p.m_font);
+    setValue(QLatin1String("useFont"), p.m_useFont);
     setValue(QLatin1String("writingSystem"), p.m_writingSystem);
     endGroup();
     // grid
@@ -245,6 +246,7 @@ Preferences QDesignerSettings::preferences() const
     rc.m_uiMode = static_cast<UIMode>(value(QLatin1String("UI/currentMode"), defaultMode).toInt());
     rc.m_writingSystem = static_cast<QFontDatabase::WritingSystem>(value(QLatin1String("UI/writingSystem"), QFontDatabase::Latin).toInt());
     rc.m_font = qVariantValue<QFont>(value(QLatin1String("UI/font")));
+    rc.m_useFont = value(QLatin1String("UI/useFont"), QVariant(false)).toBool();
     const QVariantMap defaultGridMap = value(QLatin1String("defaultGrid"), QVariantMap()).toMap();
     if (!defaultGridMap.empty())
         rc.m_defaultGrid.fromVariantMap(defaultGridMap);

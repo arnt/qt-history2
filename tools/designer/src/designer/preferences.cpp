@@ -15,6 +15,7 @@
 
 Preferences::Preferences() :
     m_uiMode(DockedMode),
-    m_writingSystem(QFontDatabase::Latin)
+    m_writingSystem(QFontDatabase::Latin),
+    m_useFont(false)
 {
 }

@@ -1139,10 +1139,18 @@ void QDesignerWorkbench::applyPreferences(const Preferences &preferences)
 {    
     if (preferences.m_uiMode != mode())
         setUIMode(preferences.m_uiMode);
-        
-    if (preferences.m_font != qApp->font())
-        qApp->setFont(preferences.m_font);
+
+    setDesignerUIFont(preferences.m_useFont ? preferences.m_font : qApp->font());
 
     qdesigner_internal::FormWindowBase::setDefaultDesignerGrid(preferences.m_defaultGrid);
 
+}
+
+void QDesignerWorkbench::setDesignerUIFont(const QFont &font)
+{
+    if (font == m_toolWindows.front()->font())
+        return;
+
+    foreach(QDesignerToolWindow *tw, m_toolWindows)
+        tw->setFont(font);
 }

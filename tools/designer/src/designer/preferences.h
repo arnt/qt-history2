@@ -29,8 +29,9 @@ struct Preferences
     UIMode m_uiMode;
     QFont m_font;
     QFontDatabase::WritingSystem m_writingSystem;
+    bool m_useFont;
     QStringList m_additionalTemplatePaths;
-    qdesigner_internal::Grid m_defaultGrid;    
+    qdesigner_internal::Grid m_defaultGrid;
 };
 
 #endif // QDESIGNER_PREFERENCES_H

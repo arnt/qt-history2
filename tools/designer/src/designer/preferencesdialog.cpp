@@ -50,6 +50,9 @@ PreferencesDialog::PreferencesDialog(QWidget *parentWidget) :
     hboxLayout->addLayout(leftColumnLayout);
 
     leftColumnLayout->addWidget(initUIModeControls());
+
+    m_fontPanel->setCheckable(true);
+    m_fontPanel->setTitle(tr("Toolwindow Font"));
     leftColumnLayout->addWidget(m_fontPanel);
     m_gridPanel->setTitle(tr("Default Grid"));
     leftColumnLayout->addWidget(m_gridPanel);
@@ -114,7 +117,7 @@ void PreferencesDialog::setPreferences(const Preferences &p)
     m_uiModeCombo->setCurrentIndex(m_uiModeCombo->findData(QVariant(p.m_uiMode)));
     m_fontPanel-> setWritingSystem(p.m_writingSystem);
     m_fontPanel->setSelectedFont(p.m_font);
-
+    m_fontPanel->setChecked(p.m_useFont);
     // add paths and select 0
     m_templatePathListWidget->clear();
     if (p.m_additionalTemplatePaths.empty()) {
@@ -132,6 +135,7 @@ void PreferencesDialog::getPreferences(Preferences &p) const
 {
     p.m_uiMode = static_cast<UIMode>(m_uiModeCombo->itemData(m_uiModeCombo->currentIndex()).toInt());
     p.m_font = m_fontPanel->selectedFont();
+    p.m_useFont = m_fontPanel->isChecked();
     p.m_writingSystem =  m_fontPanel->writingSystem();
 
     p.m_additionalTemplatePaths.clear();

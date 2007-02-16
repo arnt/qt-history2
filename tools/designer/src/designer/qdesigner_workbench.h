@@ -36,6 +36,7 @@ class QToolBar;
 class QMdiArea;
 class QMdiSubWindow;
 class QCloseEvent;
+class QFont;
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
@@ -136,6 +137,7 @@ private:
     void saveGeometries();
     bool isFormWindowMinimized(const QDesignerFormWindow *fw);
     void setFormWindowMinimized(QDesignerFormWindow *fw, bool minimized);
+    void setDesignerUIFont(const QFont &);
 
     QDesignerFormEditorInterface *m_core;
     qdesigner_internal::QDesignerIntegration *m_integration;
