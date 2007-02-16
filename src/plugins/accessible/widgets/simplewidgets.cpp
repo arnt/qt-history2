@@ -38,7 +38,7 @@ static QList<QWidget*> childWidgets(const QWidget *widget)
     QList<QWidget*> widgets;
     for (int i = 0; i < list.size(); ++i) {
         QWidget *w = qobject_cast<QWidget *>(list.at(i));
-        if (w && !w->isWindow())
+        if (w && !w->isWindow() && w->isVisible())
             widgets.append(w);
     }
     return widgets;
