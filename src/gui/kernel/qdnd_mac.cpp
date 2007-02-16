@@ -243,6 +243,47 @@ void QDragManager::drop()
 {
 }
 
+/**
+    If a drop action is already set on the carbon event, we
+    insert the same action on the Qt event.
+*/
+static inline bool qt_mac_set_existing_drop_action(const DragRef &dragRef, QDropEvent &event)
+{
+    DragActions currentAction = kDragActionNothing;        
+    OSStatus err = GetDragDropAction(dragRef, &currentAction);
+    if (err == noErr && currentAction != kDragActionNothing) {
+        // This looks a bit evil, but we only ever set one action, so it's OK.
+        event.setDropAction(Qt::DropAction(int(qt_mac_dnd_map_mac_actions(currentAction))));
+        return true;
+    }
+    return false;
+}
+
+/**
+    If an answer rect has been set on the event (after beeing sendt
+    to the global event processor), we store that rect so we can
+    check if the mouse is in the same area upon next drag move event. 
+*/
+static inline void qt_mac_copy_answer_rect(const QDragMoveEvent &event)
+{
+    if (!event.answerRect().isEmpty()) {
+        qt_mac_dnd_answer_rec.rect = event.answerRect();
+        qt_mac_dnd_answer_rec.buttons = event.mouseButtons();
+        qt_mac_dnd_answer_rec.modifiers = event.keyboardModifiers();
+        qt_mac_dnd_answer_rec.lastAction = event.dropAction();
+    }    
+}
+
+static inline bool qt_mac_mouse_inside_answer_rect(QPoint mouse)
+{
+    if (!qt_mac_dnd_answer_rec.rect.isEmpty()
+            && qt_mac_dnd_answer_rec.rect.contains(mouse)
+            && QApplication::mouseButtons() == qt_mac_dnd_answer_rec.buttons
+            && QApplication::keyboardModifiers() == qt_mac_dnd_answer_rec.modifiers)
+        return true;
+    else
+        return false;
+}
 
 bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
 {
@@ -278,44 +319,54 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
 
     //Dispatch events
     bool ret = true;
-    if(kind == kEventControlDragWithin) {
-        if (!qt_mac_dnd_answer_rec.rect.isEmpty()) {
-            if (qt_mac_dnd_answer_rec.rect.contains(q->mapFromGlobal(QPoint(mouse.h, mouse.v)))
-                    && QApplication::mouseButtons() == qt_mac_dnd_answer_rec.buttons
-                    && QApplication::keyboardModifiers() == qt_mac_dnd_answer_rec.modifiers) {
-                return qt_mac_dnd_answer_rec.lastAction == Qt::IgnoreAction;
-            } else {
-                qt_mac_dnd_answer_rec.clear();
-            }
-        }
-        QDragMoveEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
+    if (kind == kEventControlDragWithin) {
+        if (qt_mac_mouse_inside_answer_rect(q->mapFromGlobal(QPoint(mouse.h, mouse.v))))
+            return qt_mac_dnd_answer_rec.lastAction == Qt::IgnoreAction;
+        else
+            qt_mac_dnd_answer_rec.clear();
+        
+        QDragMoveEvent qDMEvent(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
                 QApplication::mouseButtons(), QApplication::keyboardModifiers());
-        DragActions currentAction = kDragActionNothing;
-        OSStatus err = GetDragDropAction(dragRef, &currentAction);
-        if (err == noErr && currentAction != kDragActionNothing) {
-            // This looks a bit evil, but we only ever set one action, so it's OK.
-            de.setDropAction(Qt::DropAction(int(qt_mac_dnd_map_mac_actions(currentAction))));
-            de.accept();
-        }
-        QApplication::sendEvent(q, &de);
-        if(!de.isAccepted() || de.dropAction() == Qt::IgnoreAction)
+                
+        // Accept the event by default if a
+        // drag action exists on the carbon event
+        if (qt_mac_set_existing_drop_action(dragRef, qDMEvent))
+            qDMEvent.accept();
+            
+        QApplication::sendEvent(q, &qDMEvent);
+        if (!qDMEvent.isAccepted() || qDMEvent.dropAction() == Qt::IgnoreAction)
             ret = false;
 
-        if (!de.answerRect().isEmpty()) {
-            qt_mac_dnd_answer_rec.rect = de.answerRect();
-            qt_mac_dnd_answer_rec.buttons = de.mouseButtons();
-            qt_mac_dnd_answer_rec.modifiers = de.keyboardModifiers();
-            qt_mac_dnd_answer_rec.lastAction = de.dropAction();
-        }
-        SetDragDropAction(dragRef, qt_mac_dnd_map_qt_actions(de.dropAction()));
-    } else if(kind == kEventControlDragEnter) {
+        qt_mac_copy_answer_rect(qDMEvent);
+        SetDragDropAction(dragRef, qt_mac_dnd_map_qt_actions(qDMEvent.dropAction()));
+        
+    } else if (kind == kEventControlDragEnter) {
         qt_mac_dnd_answer_rec.clear();
-        QDragEnterEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
-                           QApplication::mouseButtons(), QApplication::keyboardModifiers());
-        QApplication::sendEvent(q, &de);
-        if(!de.isAccepted())
+        
+        QDragEnterEvent qDEEvent(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
+                QApplication::mouseButtons(), QApplication::keyboardModifiers());
+                
+        QApplication::sendEvent(q, &qDEEvent);
+        SetDragDropAction(dragRef, qt_mac_dnd_map_qt_actions(qDEEvent.dropAction()));
+        
+        if (!qDEEvent.isAccepted())
             ret = false;
-        SetDragDropAction(dragRef, qt_mac_dnd_map_qt_actions(de.dropAction()));
+        else {
+            // Documentation states that a drag move event is sendt immidiatly after
+            // a drag enter event. So we do that. This will honour widgets overriding
+            // 'dragMoveEvent' only, and not 'dragEnterEvent' 
+            QDragMoveEvent qDMEvent(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
+                    QApplication::mouseButtons(), QApplication::keyboardModifiers());
+            qDMEvent.accept(); // accept by default, since enter event was accepted.
+            qt_mac_set_existing_drop_action(dragRef, qDMEvent);         
+            QApplication::sendEvent(q, &qDMEvent);
+            if (!qDMEvent.isAccepted() || qDMEvent.dropAction() == Qt::IgnoreAction)
+                ret = false;
+            
+            qt_mac_copy_answer_rect(qDMEvent);           
+            SetDragDropAction(dragRef, qt_mac_dnd_map_qt_actions(qDMEvent.dropAction()));
+        }
+        
     } else if(kind == kEventControlDragLeave) {
         QDragLeaveEvent de;
         QApplication::sendEvent(q, &de);
