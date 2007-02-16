@@ -244,8 +244,9 @@ void QDragManager::drop()
 }
 
 /**
-    If a drop action is already set on the carbon event, we
-    insert the same action on the Qt event.
+    If a drop action is already set on the carbon event
+    (from e.g. an earlier enter event), we insert the same
+    action on the new Qt event that has yet to be sendt.
 */
 static inline bool qt_mac_set_existing_drop_action(const DragRef &dragRef, QDropEvent &event)
 {
@@ -312,13 +313,16 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     GetDragAllowableActions(dragRef, &allowed);
     Qt::DropActions qtAllowed = qt_mac_dnd_map_mac_actions(allowed);
 
-    //lookup the source
+    //lookup the source dragAccepted 
     QMimeData *dropdata = QDragManager::self()->dropData;
     if(QDragManager::self()->source())
         dropdata = QDragManager::self()->dragPrivate()->data;
 
+    // 'interrestedInDrag' should end up beeing 'true' if a later drop
+    // will be accepted by the widget for the current mouse position 
+    bool interrestedInDrag = true;
+
     //Dispatch events
-    bool ret = true;
     if (kind == kEventControlDragWithin) {
         if (qt_mac_mouse_inside_answer_rect(q->mapFromGlobal(QPoint(mouse.h, mouse.v))))
             return qt_mac_dnd_answer_rec.lastAction == Qt::IgnoreAction;
@@ -335,7 +339,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
             
         QApplication::sendEvent(q, &qDMEvent);
         if (!qDMEvent.isAccepted() || qDMEvent.dropAction() == Qt::IgnoreAction)
-            ret = false;
+            interrestedInDrag = false;
 
         qt_mac_copy_answer_rect(qDMEvent);
         SetDragDropAction(dragRef, qt_mac_dnd_map_qt_actions(qDMEvent.dropAction()));
@@ -345,12 +349,15 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         
         QDragEnterEvent qDEEvent(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
                 QApplication::mouseButtons(), QApplication::keyboardModifiers());
-                
+        qt_mac_set_existing_drop_action(dragRef, qDEEvent);                         
         QApplication::sendEvent(q, &qDEEvent);
         SetDragDropAction(dragRef, qt_mac_dnd_map_qt_actions(qDEEvent.dropAction()));
         
         if (!qDEEvent.isAccepted())
-            ret = false;
+            // Qt (or the client app) is simply not interrested in this
+            // drag. So tell carbon this by returning 'false'. We will then
+            // not receive any further move, drop or leave events.
+            return false;
         else {
             // Documentation states that a drag move event is sendt immidiatly after
             // a drag enter event. So we do that. This will honour widgets overriding
@@ -358,10 +365,10 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
             QDragMoveEvent qDMEvent(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
                     QApplication::mouseButtons(), QApplication::keyboardModifiers());
             qDMEvent.accept(); // accept by default, since enter event was accepted.
-            qt_mac_set_existing_drop_action(dragRef, qDMEvent);         
+            qDMEvent.setDropAction(qDEEvent.dropAction());         
             QApplication::sendEvent(q, &qDMEvent);
             if (!qDMEvent.isAccepted() || qDMEvent.dropAction() == Qt::IgnoreAction)
-                ret = false;
+                interrestedInDrag = false;
             
             qt_mac_copy_answer_rect(qDMEvent);           
             SetDragDropAction(dragRef, qt_mac_dnd_map_qt_actions(qDMEvent.dropAction()));
@@ -377,15 +384,13 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
             QDragManager::self()->dragPrivate()->target = q;
         QApplication::sendEvent(q, &de);
         if(!de.isAccepted()) {
-            ret = false;
+            interrestedInDrag = false;
             SetDragDropAction(dragRef, kDragActionNothing);
         } else {
             if(QDragManager::self()->object)
                 QDragManager::self()->dragPrivate()->executed_action = de.dropAction();
             SetDragDropAction(dragRef, qt_mac_dnd_map_qt_actions(de.dropAction()));
         }
-    } else {
-        return false;
     }
 
 #ifdef DEBUG_DRAG_EVENTS
@@ -411,7 +416,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     if(kind == kEventControlDragWithin || kind == kEventControlDragEnter) {
         ThemeCursor cursor = kThemeNotAllowedCursor;
         found_cursor = true;
-        if(ret) {
+        if (interrestedInDrag) {
             DragActions action = kDragActionNothing;
             GetDragDropAction(dragRef, &action);
             switch(qt_mac_dnd_map_mac_default_action(action)) {
@@ -456,7 +461,13 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         QApplication::sendPostedEvents();
         QApplication::flush();
     }
-    return ret;
+    
+    // If this was not a drop, tell carbon that we will be interresed in receiving more
+    // events for the current drag. We do that by returning true. 
+    if (kind == kEventControlDragReceive)
+        return interrestedInDrag;
+    else
+        return true;
 }
 
 Qt::DropAction QDragManager::drag(QDrag *o)
