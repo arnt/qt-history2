@@ -879,10 +879,6 @@ bool QRasterPaintEngine::end()
 
     setActive(false);
 
-#ifdef Q_WS_QWS
-    qResetDrawhelper();
-#endif
-
     return true;
 }
 
@@ -3455,10 +3451,6 @@ void QRasterBuffer::prepare(QCustomRasterPaintDevice *device)
     m_width = device->width();
     m_height = device->height();
     bytes_per_line = device->bytesPerLine();
-
-    if (!m_buffer)
-        qResetDrawhelper();
-
     format = device->format();
     drawHelper = qDrawHelper + format;
 }

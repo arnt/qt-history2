@@ -35,6 +35,10 @@
 #endif
 #include "private/qrasterdefs_p.h"
 
+#ifdef Q_WS_QWS
+#include "QtGui/qscreen_qws.h"
+#endif
+
 /*******************************************************************************
  * QSpan
  *
@@ -50,32 +54,36 @@ struct RadialGradientData;
 struct ConicalGradientData;
 struct QSpanData;
 class QGradient;
+class QRasterBuffer;
 
 typedef QT_FT_SpanFunc ProcessSpans;
+typedef void (*BitmapBlitFunc)(QRasterBuffer *rasterBuffer,
+                               int x, int y, quint32 color,
+                               const uchar *bitmap,
+                               int mapWidth, int mapHeight, int mapStride);
+typedef void (*RectFillFunc)(QRasterBuffer *rasterBuffer,
+                             int x, int y, int width, int height,
+                             quint32 color);
 
 struct DrawHelper {
     ProcessSpans blendColor;
     ProcessSpans blendGradient;
+    BitmapBlitFunc bitmapBlit;
+    RectFillFunc fillRect;
 };
 
 extern DrawHelper qDrawHelper[QImage::NImageFormats];
 void qBlendTexture(int count, const QSpan *spans, void *userData);
+#ifdef Q_WS_QWS
+extern DrawHelper qDrawHelperCallback[QImage::NImageFormats];
+void qBlendTextureCallback(int count, const QSpan *spans, void *userData);
+#endif
 
 typedef void QT_FASTCALL (*CompositionFunction)(uint *dest, const uint *src, int length, uint const_alpha);
 typedef void QT_FASTCALL (*CompositionFunctionSolid)(uint *dest, int length, uint color, uint const_alpha);
 
-#ifdef QT_HAVE_SSE
-extern const CompositionFunction qt_functionForMode_SSE[];
-extern const CompositionFunctionSolid qt_functionForModeSolid_SSE[];
-#endif
-
-
 void qInitDrawhelperAsm();
-#ifdef Q_WS_QWS
-void qResetDrawhelper();
-#endif
 
-class QRasterBuffer;
 class QRasterPaintEngine;
 
 struct SolidData
@@ -164,6 +172,8 @@ struct QSpanData
 #endif
     ProcessSpans blend;
     ProcessSpans unclipped_blend;
+    BitmapBlitFunc bitmapBlit;
+    RectFillFunc fillRect;
     qreal m11, m12, m13, m21, m22, m23, dx, dy;   // inverse xform matrix
     enum Type {
         None,
@@ -188,45 +198,169 @@ struct QSpanData
     void adjustSpanMethods();
 };
 
-#define QT_MEMFILL_UINT(dest, length, color)\
-do {                                        \
-    /* Duff's device */                     \
-    uint *_d = (dest);                       \
-    uint _c = (color);                       \
-    register int n = ((length) + 7) / 8;    \
-    switch ((length) & 0x07)                \
-    {                                       \
-    case 0: do { *_d++ = _c;                  \
-    case 7:      *_d++ = _c;                  \
-    case 6:      *_d++ = _c;                  \
-    case 5:      *_d++ = _c;                  \
-    case 4:      *_d++ = _c;                  \
-    case 3:      *_d++ = _c;                  \
-    case 2:      *_d++ = _c;                  \
-    case 1:      *_d++ = _c;                  \
-    } while (--n > 0);                      \
-    }                                       \
-} while (0)
+template <class DST, class SRC>
+static inline DST qt_colorConvert(SRC color)
+{
+    return color;
+}
+
+#if defined(QT_QWS_DEPTH_16) && defined(QT_QWS_DEPTH_32)
+template <>
+static inline quint32 qt_colorConvert(quint16 color)
+{
+    return qt_conv16ToRgb(color);
+}
+#endif
+
+#ifdef QT_QWS_DEPTH_16
+template <>
+static inline quint16 qt_colorConvert(quint32 color)
+{
+    return qt_convRgbTo16(color);
+}
+#endif
+
+#ifdef QT_QWS_DEPTH_8
+template <>
+static inline quint8 qt_colorConvert(quint32 color)
+{
+    uchar r = (qRed(color) + 0x19) / 0x33;
+    uchar g = (qGreen(color) + 0x19) / 0x33;
+    uchar b = (qBlue(color) + 0x19) / 0x33;
+
+    return r*6*6 + g*6 + b;
+}
+
+template <>
+static inline quint8 qt_colorConvert(quint16 color)
+{
+    return qt_colorConvert<quint32, quint8>(qt_conv16ToRgb(color));
+}
+#endif // QT_QWS_DEPTH_8
+
+#ifdef QT_QWS_DEPTH_24
+
+// hw: endianess??
+class quint24
+{
+public:
+    inline quint24(quint32 v)
+    {
+        data[0] = qBlue(v);
+        data[1] = qGreen(v);
+        data[2] = qRed(v);
+    }
+
+private:
+    uchar data[3];
+} Q_PACKED;
+
+template <>
+static inline quint24 qt_colorConvert(quint32 color)
+{
+    return quint24(color);
+}
+
+#endif // QT_QWS_DEPTH_24
+
+#ifdef QT_QWS_DEPTH_18
+
+// hw: endianess??
+class quint18
+{
+public:
+    inline quint18(quint32 v)
+    {
+        uchar b = qBlue(v);
+        uchar g = qGreen(v);
+        uchar r = qRed(v);
+        uint p = (b >> 2) | ((g >> 2) << 6) | ((r >> 2) << 12);
+        data[0] = qBlue(p);
+        data[1] = qGreen(p);
+        data[2] = qRed(p);
+    }
+
+private:
+    uchar data[3];
+} Q_PACKED;
+
+template <>
+static inline quint18 qt_colorConvert(quint32 color)
+{
+    return quint18(color);
+}
+
+#endif // QT_QWS_DEPTH_18
+
+template <class T>
+void qt_memfill(T *dest, T value, int count);
+
+template<> inline void qt_memfill(quint32 *dest, quint32 color, int count)
+{
+    extern void (*qt_memfill32)(quint32 *dest, quint32 value, int count);
+    qt_memfill32(dest, color, count);
+}
+
+template<> inline void qt_memfill(quint16 *dest, quint16 color, int count)
+{
+    extern void (*qt_memfill16)(quint16 *dest, quint16 value, int count);
+    qt_memfill16(dest, color, count);
+}
+
+template <class T>
+inline void qt_memfill(T *dest, T value, int count)
+{
+    int n = (count + 7) / 8;
+    switch (count & 0x07)
+    {
+    case 0: do { *dest++ = value;
+    case 7:      *dest++ = value;
+    case 6:      *dest++ = value;
+    case 5:      *dest++ = value;
+    case 4:      *dest++ = value;
+    case 3:      *dest++ = value;
+    case 2:      *dest++ = value;
+    case 1:      *dest++ = value;
+    } while (--n > 0);
+    }
+}
+
+template <class T>
+static void qt_rectfill(T *dest, T value,
+                        int x, int y, int width, int height, int stride)
+{
+    stride /= sizeof(T);
+    dest += y * stride + x;
+    for (int j = 0; j < height; ++j) {
+        qt_memfill(dest, value, width);
+        dest += stride;
+    }
+}
+
+template <class DST, class SRC>
+static inline void qt_memconvert(DST *dest, const SRC *src, int count)
+{
+    /* Duff's device */
+    int n = (count + 7) / 8;
+    switch (count & 0x07)
+    {
+    case 0: do { *dest++ = qt_colorConvert<DST, SRC>(*src++);
+    case 7:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
+    case 6:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
+    case 5:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
+    case 4:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
+    case 3:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
+    case 2:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
+    case 1:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
+    } while (--n > 0);
+    }
+}
+
+#define QT_MEMFILL_UINT(dest, length, color)            \
+    qt_memfill<quint32>(dest, color, length);
 
 #define QT_MEMFILL_USHORT(dest, length, color) \
-do {                                           \
-    /* Duff's device */                        \
-    ushort *_d = (dest);                        \
-    ushort _c = (color);                        \
-    register int n = ((length) + 7) / 8;       \
-    switch ((length) & 0x07)                   \
-    {                                          \
-    case 0: do { *_d++ = _c;                     \
-    case 7:      *_d++ = _c;                     \
-    case 6:      *_d++ = _c;                     \
-    case 5:      *_d++ = _c;                     \
-    case 4:      *_d++ = _c;                     \
-    case 3:      *_d++ = _c;                     \
-    case 2:      *_d++ = _c;                     \
-    case 1:      *_d++ = _c;                     \
-    } while (--n > 0);                         \
-    }                                          \
-} while (0)
+    qt_memfill<quint16>(dest, color, length);
 
 #define QT_MEMCPY_REV_UINT(dest, src, length) \
 do {                                          \
@@ -267,7 +401,6 @@ do {                                          \
     } while (--n > 0);                        \
     }                                         \
 } while (0)
-
 
 
 static inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
