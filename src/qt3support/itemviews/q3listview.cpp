@@ -6732,7 +6732,7 @@ void Q3ListView::setOpen(Q3ListViewItem * item, bool open)
         Q3ListViewItem* tmp;
         while (true) {
             tmp = lastChild->itemBelow();
-            if (tmp == nextParent)
+            if (!tmp || tmp == nextParent)
                 break;
             lastChild = tmp;
         }
