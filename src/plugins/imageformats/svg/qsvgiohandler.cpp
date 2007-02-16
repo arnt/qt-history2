@@ -23,17 +23,35 @@ class QSvgIOHandlerPrivate
 {
 public:
     QSvgIOHandlerPrivate()
-        : r(new QSvgRenderer())
+        : r(new QSvgRenderer()), loaded(false)
     {}
     ~QSvgIOHandlerPrivate()
     {
         delete r;
     }
 
+    bool load(QIODevice *device);
+
     QSvgRenderer *r;
     QSize         defaultSize;
     QSize         currentSize;
+    bool          loaded;
 };
+
+bool QSvgIOHandlerPrivate::load(QIODevice *device)
+{
+    if (loaded)
+        return true;
+
+    if (r->load(device->readAll())) {
+        defaultSize = QSize(r->viewBox().width(), r->viewBox().height());
+        if (currentSize.isEmpty())
+            currentSize = defaultSize;
+    }
+    loaded = r->isValid();
+
+    return loaded;
+}
 
 QSvgIOHandler::QSvgIOHandler()
     : d(new QSvgIOHandlerPrivate())
@@ -64,19 +82,16 @@ QByteArray QSvgIOHandler::name() const
 
 bool QSvgIOHandler::read(QImage *image)
 {
+    if (d->load(device())) {
+        *image = QImage(d->currentSize, QImage::Format_ARGB32_Premultiplied);
+        image->fill(0x00000000);
+        QPainter p(image);
+        d->r->render(&p);
+        p.end();
+        return true;
+    }
 
-    d->r->load(device()->readAll());
-    d->defaultSize = QSize(d->r->viewBox().width(), d->r->viewBox().height());
-    if (d->currentSize.isEmpty())
-        d->currentSize = d->defaultSize;
-    if (!d->r->isValid())
-        return false;
-    *image = QImage(d->currentSize, QImage::Format_ARGB32_Premultiplied);
-    image->fill(0x00000000);
-    QPainter p(image);
-    d->r->render(&p);
-    p.end();
-    return true;
+    return false;
 }
 
 
@@ -84,6 +99,7 @@ QVariant QSvgIOHandler::option(ImageOption option) const
 {
     switch(option) {
     case Size:
+        d->load(device());
         return d->defaultSize;
         break;
     case ScaledSize:
