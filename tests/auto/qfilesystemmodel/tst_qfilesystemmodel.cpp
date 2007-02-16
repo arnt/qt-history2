@@ -338,8 +338,6 @@ void tst_QFileSystemModel::rowsRemoved()
     for (int i = count - 1; i >= 0; --i) {
         qDebug() << "removing" <<  model->index(i, 0, root).data().toString();
         QVERIFY(QFile::remove(tmp + QDir::separator() + model->index(i, 0, root).data().toString()));
-        // Workaround for QFileSystemWatcher issue #141001
-        QTest::qWait(WAITTIME);
     }
     for (int i = 0 ; i < 10; ++i) {
         QTest::qWait(WAITTIME);
