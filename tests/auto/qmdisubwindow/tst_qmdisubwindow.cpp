@@ -496,6 +496,18 @@ void tst_QMdiSubWindow::showShaded()
     QCOMPARE(window->geometry(), restoreGeometry);
     window->showShaded();
 
+    window->showNormal();
+    QVERIFY(!window->isShaded());
+    QVERIFY(!window->isMinimized());
+    QCOMPARE(window->geometry(), restoreGeometry);
+    window->showMinimized();
+    window->showMaximized();
+    window->showShaded();
+    QCOMPARE(window->width(), workspace.contentsRect().width());
+    window->showNormal();
+    QCOMPARE(window->geometry(), workspace.contentsRect());
+
+    window->showShaded();
     window->setParent(0);
     window->show();
     QVERIFY(!window->isShaded());
