@@ -454,8 +454,15 @@ QSize QAbstractScrollArea::maximumViewportSize() const
     Q_D(const QAbstractScrollArea);
     int hsbExt = d->hbar->sizeHint().height();
     int vsbExt = d->vbar->sizeHint().width();
+    int f = d->frameWidth;
 
-    int f = 2 * d->frameWidth;
+    // Adjust with frame width if there is a frame around the contents.
+    QStyleOption opt(0);
+    opt.init(this);
+    if (style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, &opt, this))
+        f += style()->pixelMetric(QStyle::PM_DefaultFrameWidth, &opt, this);
+
+    f *= 2;
     QSize max = size() - QSize(f + d->left + d->right, f + d->top + d->bottom);
     if (d->vbarpolicy == Qt::ScrollBarAlwaysOn)
         max.rwidth() -= vsbExt;
