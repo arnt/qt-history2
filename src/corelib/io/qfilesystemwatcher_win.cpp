@@ -78,7 +78,7 @@ void QWindowsFileSystemWatcherEngine::run()
                 // When removing a path, FindCloseChangeNotification might actually fire a notification
                 // for some reason, so we must check if the handle exist in the handles vector
                 if (handles.contains(handle)) {
-                    //qDebug("Acknowledged handle: %d, %p", at, handle);
+                    // qDebug("Acknowledged handle: %d, %p", at, handle);
                     if (!FindNextChangeNotification(handle)) {
                         qErrnoWarning("QFileSystemWatcher: FindNextChangeNotification failed");
                     }
@@ -88,7 +88,7 @@ void QWindowsFileSystemWatcherEngine::run()
                     while (it.hasNext()) {
                         QHash<QString, PathInfo>::iterator x = it.next();
                         QFileInfo fileInfo(x.value().path);
-                        //qDebug() << "checking" << x.key();
+                        // qDebug() << "checking" << x.key();
                         if (!fileInfo.exists()) {
                             // qDebug() << x.key() << "removed!";
                             if (x.value().isDir)
@@ -96,13 +96,13 @@ void QWindowsFileSystemWatcherEngine::run()
                             else
                                 emit fileChanged(x.value().path, true);
                             h.erase(x);
-                        } else if (fileInfo.lastModified() != x.value().timestamp) {
+                        } else if (x.value() != fileInfo) {
                             // qDebug() << x.key() << "changed!";
                             if (x.value().isDir)
                                 emit directoryChanged(x.value().path, false);
                             else
                                 emit fileChanged(x.value().path, false);
-                            x.value().timestamp = fileInfo.lastModified();
+                            x.value() = fileInfo;
                         }
                     }
                 }
@@ -145,15 +145,14 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
                 continue;
         }
 
-        const QString absolutePath = fileInfo.absolutePath();
+        const QString absolutePath = isDir ? fileInfo.absoluteFilePath() : fileInfo.absolutePath();
         HANDLE handle = handleForDir.value(absolutePath);
         if (!handle) {
             QT_WA({
                 handle = FindFirstChangeNotificationW((TCHAR *) absolutePath.utf16(),
                                                       false,
-                                                      ((isDir
-                                                        ? FILE_NOTIFY_CHANGE_DIR_NAME
-                                                        : FILE_NOTIFY_CHANGE_FILE_NAME)
+                                                      (FILE_NOTIFY_CHANGE_DIR_NAME
+                                                       | FILE_NOTIFY_CHANGE_FILE_NAME
                                                        | FILE_NOTIFY_CHANGE_ATTRIBUTES
                                                        | FILE_NOTIFY_CHANGE_SIZE
                                                        | FILE_NOTIFY_CHANGE_LAST_WRITE
@@ -161,9 +160,8 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
             },{
                 handle = FindFirstChangeNotificationA(absolutePath.toLocal8Bit(),
                                                       false,
-                                                      ((isDir
-                                                        ? FILE_NOTIFY_CHANGE_DIR_NAME
-                                                        : FILE_NOTIFY_CHANGE_FILE_NAME)
+                                                      (FILE_NOTIFY_CHANGE_DIR_NAME
+                                                       | FILE_NOTIFY_CHANGE_FILE_NAME
                                                        | FILE_NOTIFY_CHANGE_ATTRIBUTES
                                                        | FILE_NOTIFY_CHANGE_SIZE
                                                        | FILE_NOTIFY_CHANGE_LAST_WRITE
@@ -171,7 +169,7 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
             })
             if (!handle)
                 continue;
-            //qDebug("Added handle: %p", handle);
+            // qDebug() << "Added handle" << handle << "for" << absolutePath << "to watch" << fileInfo.absoluteFilePath();
             handles.append(handle);
             handleForDir.insert(absolutePath, handle);
         }
@@ -180,7 +178,7 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
         pathInfo.absolutePath = absolutePath;
         pathInfo.isDir = isDir;
         pathInfo.path = path;
-        pathInfo.timestamp = fileInfo.lastModified();
+        pathInfo = fileInfo;
         QHash<QString, PathInfo> &h = pathInfoForHandle[handle];
         if (!h.contains(fileInfo.absoluteFilePath())) {
             pathInfoForHandle[handle].insert(fileInfo.absoluteFilePath(), pathInfo);
@@ -216,10 +214,15 @@ QStringList QWindowsFileSystemWatcherEngine::removePaths(const QStringList &path
             normalPath.chop(1);
         QFileInfo fileInfo(normalPath.toLower());
 
-        const QString absolutePath = fileInfo.absolutePath();
+        QString absolutePath = fileInfo.absoluteFilePath();
         HANDLE handle = handleForDir.value(absolutePath);
-        if (!handle)
-            continue;
+        if (!handle) {
+            // perhaps path is a file?
+            absolutePath = fileInfo.absolutePath();
+            handle = handleForDir.value(absolutePath);
+            if (!handle)
+                continue;
+        }
 
         QHash<QString, PathInfo> &h = pathInfoForHandle[handle];
         if (h.remove(fileInfo.absoluteFilePath())) {
@@ -228,8 +231,8 @@ QStringList QWindowsFileSystemWatcherEngine::removePaths(const QStringList &path
             directories->removeAll(path);
 
             if (h.isEmpty()) {
+                // qDebug() << "Closing handle" << handle;
                 FindCloseChangeNotification(handle);    // This one might generate a notification
-                //qDebug() << "Closed handle";
 
                 int indexOfHandle = handles.indexOf(handle);
                 Q_ASSERT(indexOfHandle != -1);

@@ -30,6 +30,8 @@
 #include <windows.h>
 
 #include <QtCore/qdatetime.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qfileinfo.h>
 #include <QtCore/qhash.h>
 #include <QtCore/qmutex.h>
 #include <QtCore/qvector.h>
@@ -61,7 +63,29 @@ private:
         QString absolutePath;
         QString path;
         bool isDir;
-        QDateTime timestamp;
+
+        // fileinfo bits
+        uint ownerId;
+        uint groupId;
+        QFile::Permissions permissions;
+        QDateTime lastModified;
+
+        PathInfo &operator=(const QFileInfo &fileInfo)
+        {
+            ownerId = fileInfo.ownerId();
+            groupId = fileInfo.groupId();
+            permissions = fileInfo.permissions();
+            lastModified = fileInfo.lastModified();
+            return *this;
+        }
+
+        bool operator!=(const QFileInfo &fileInfo) const
+        {
+            return (ownerId != fileInfo.ownerId()
+                    || groupId != fileInfo.groupId()
+                    || permissions != fileInfo.permissions()
+                    || lastModified != fileInfo.lastModified());
+        }
     };
     QHash<HANDLE, QHash<QString, PathInfo> > pathInfoForHandle;
 };
