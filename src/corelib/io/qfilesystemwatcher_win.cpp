@@ -87,6 +87,7 @@ void QWindowsFileSystemWatcherEngine::run()
                     QMutableHashIterator<QString, PathInfo> it(h);
                     while (it.hasNext()) {
                         QHash<QString, PathInfo>::iterator x = it.next();
+                        QString absolutePath = x.value().absolutePath;
                         QFileInfo fileInfo(x.value().path);
                         // qDebug() << "checking" << x.key();
                         if (!fileInfo.exists()) {
@@ -96,6 +97,19 @@ void QWindowsFileSystemWatcherEngine::run()
                             else
                                 emit fileChanged(x.value().path, true);
                             h.erase(x);
+
+                            // close the notification handle if the directory has been removed
+                            if (h.isEmpty()) {
+                                // qDebug() << "Thread closing handle" << handle;
+                                FindCloseChangeNotification(handle);    // This one might generate a notification
+
+                                int indexOfHandle = handles.indexOf(handle);
+                                Q_ASSERT(indexOfHandle != -1);
+                                handles.remove(indexOfHandle);
+
+                                handleForDir.remove(absolutePath);
+                                // h is now invalid
+                            }
                         } else if (x.value() != fileInfo) {
                             // qDebug() << x.key() << "changed!";
                             if (x.value().isDir)
