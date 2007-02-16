@@ -86,7 +86,9 @@ private slots:
     void flags();
     void toolTip();
     void visible();
+    void explicitlyVisible();
     void enabled();
+    void explicitlyEnabled();
     void selected();
     void selected2();
     void selected_group();
@@ -682,6 +684,114 @@ void tst_QGraphicsItem::visible()
     QVERIFY(!item->hasFocus());
 }
 
+void tst_QGraphicsItem::explicitlyVisible()
+{
+    QGraphicsScene scene;
+    QGraphicsItem *parent = scene.addRect(QRectF(0, 0, 100, 100));
+    QGraphicsItem *child = scene.addRect(QRectF(25, 25, 50, 50));
+    child->setParentItem(parent);
+
+    QVERIFY(parent->isVisible());
+    QVERIFY(child->isVisible());
+
+    parent->hide();
+
+    QVERIFY(!parent->isVisible());
+    QVERIFY(!child->isVisible());
+
+    parent->show();
+    child->hide();
+
+    QVERIFY(parent->isVisible());
+    QVERIFY(!child->isVisible());
+
+    parent->hide();
+    
+    QVERIFY(!parent->isVisible());
+    QVERIFY(!child->isVisible());
+
+    parent->show();
+
+    QVERIFY(parent->isVisible());
+    QVERIFY(!child->isVisible()); // <- explicitly hidden
+
+    child->show();
+
+    QVERIFY(child->isVisible());
+
+    parent->hide();
+
+    QVERIFY(!parent->isVisible());
+    QVERIFY(!child->isVisible()); // <- explicit show doesn't work
+
+    parent->show();
+
+    QVERIFY(parent->isVisible());
+    QVERIFY(child->isVisible()); // <- no longer explicitly hidden
+
+    // ------------------- Reparenting ------------------------------
+
+    QGraphicsItem *parent2 = scene.addRect(-50, -50, 200, 200);
+    QVERIFY(parent2->isVisible());
+
+    // Reparent implicitly hidden item to a visible parent.
+    parent->hide();
+    QVERIFY(!parent->isVisible());
+    QVERIFY(!child->isVisible());
+    child->setParentItem(parent2);
+    QVERIFY(parent2->isVisible());
+    QVERIFY(child->isVisible());
+
+    // Reparent implicitly hidden item to a hidden parent.
+    child->setParentItem(parent);
+    parent2->hide();
+    child->setParentItem(parent2);
+    QVERIFY(!parent2->isVisible());
+    QVERIFY(!child->isVisible());
+
+    // Reparent explicitly hidden item to a visible parent.
+    child->hide();
+    parent->show();
+    child->setParentItem(parent);
+    QVERIFY(parent->isVisible());
+    QVERIFY(!child->isVisible());
+
+    // Reparent explicitly hidden item to a hidden parent.
+    child->setParentItem(parent2);
+    QVERIFY(!parent2->isVisible());
+    QVERIFY(!child->isVisible());
+
+    // Reparent explicitly hidden item to a visible parent.
+    parent->show();
+    child->setParentItem(parent);
+    QVERIFY(parent->isVisible());
+    QVERIFY(!child->isVisible());
+
+    // Reparent visible item to a hidden parent.
+    child->show();
+    parent2->hide();
+    child->setParentItem(parent2);
+    QVERIFY(!parent2->isVisible());
+    QVERIFY(!child->isVisible());
+    parent2->show();
+    QVERIFY(parent2->isVisible());
+    QVERIFY(child->isVisible());
+
+    // Reparent implicitly hidden child to root.
+    parent2->hide();
+    QVERIFY(!child->isVisible());
+    child->setParentItem(0);
+    QVERIFY(child->isVisible());
+
+    // Reparent an explicitly hidden child to root.
+    child->hide();
+    child->setParentItem(parent2);
+    parent2->show();
+    QVERIFY(!child->isVisible());
+    child->setParentItem(0);
+    QVERIFY(!child->isVisible());
+}
+
 void tst_QGraphicsItem::enabled()
 {
     QGraphicsRectItem *item = new QGraphicsRectItem(QRectF(-10, -10, 20, 20));
@@ -712,6 +822,114 @@ void tst_QGraphicsItem::enabled()
     QCOMPARE(scene.mouseGrabberItem(), (QGraphicsItem *)item);
     item->setEnabled(false);
     QCOMPARE(scene.mouseGrabberItem(), (QGraphicsItem *)0);
+}
+
+void tst_QGraphicsItem::explicitlyEnabled()
+{
+    QGraphicsScene scene;
+    QGraphicsItem *parent = scene.addRect(QRectF(0, 0, 100, 100));
+    QGraphicsItem *child = scene.addRect(QRectF(25, 25, 50, 50));
+    child->setParentItem(parent);
+
+    QVERIFY(parent->isEnabled());
+    QVERIFY(child->isEnabled());
+
+    parent->setEnabled(false);
+
+    QVERIFY(!parent->isEnabled());
+    QVERIFY(!child->isEnabled());
+
+    parent->setEnabled(true);
+    child->setEnabled(false);
+
+    QVERIFY(parent->isEnabled());
+    QVERIFY(!child->isEnabled());
+
+    parent->setEnabled(false);
+    
+    QVERIFY(!parent->isEnabled());
+    QVERIFY(!child->isEnabled());
+
+    parent->setEnabled(true);
+
+    QVERIFY(parent->isEnabled());
+    QVERIFY(!child->isEnabled()); // <- explicitly disabled
+
+    child->setEnabled(true);
+
+    QVERIFY(child->isEnabled());
+
+    parent->setEnabled(false);
+
+    QVERIFY(!parent->isEnabled());
+    QVERIFY(!child->isEnabled()); // <- explicit enabled doesn't work
+
+    parent->setEnabled(true);
+
+    QVERIFY(parent->isEnabled());
+    QVERIFY(child->isEnabled()); // <- no longer explicitly disabled
+
+    // ------------------- Reparenting ------------------------------
+
+    QGraphicsItem *parent2 = scene.addRect(-50, -50, 200, 200);
+    QVERIFY(parent2->isEnabled());
+
+    // Reparent implicitly hidden item to a enabled parent.
+    parent->setEnabled(false);
+    QVERIFY(!parent->isEnabled());
+    QVERIFY(!child->isEnabled());
+    child->setParentItem(parent2);
+    QVERIFY(parent2->isEnabled());
+    QVERIFY(child->isEnabled());
+
+    // Reparent implicitly hidden item to a hidden parent.
+    child->setParentItem(parent);
+    parent2->setEnabled(false);
+    child->setParentItem(parent2);
+    QVERIFY(!parent2->isEnabled());
+    QVERIFY(!child->isEnabled());
+
+    // Reparent explicitly hidden item to a enabled parent.
+    child->setEnabled(false);
+    parent->setEnabled(true);
+    child->setParentItem(parent);
+    QVERIFY(parent->isEnabled());
+    QVERIFY(!child->isEnabled());
+
+    // Reparent explicitly hidden item to a hidden parent.
+    child->setParentItem(parent2);
+    QVERIFY(!parent2->isEnabled());
+    QVERIFY(!child->isEnabled());
+
+    // Reparent explicitly hidden item to a enabled parent.
+    parent->setEnabled(true);
+    child->setParentItem(parent);
+    QVERIFY(parent->isEnabled());
+    QVERIFY(!child->isEnabled());
+
+    // Reparent enabled item to a hidden parent.
+    child->setEnabled(true);
+    parent2->setEnabled(false);
+    child->setParentItem(parent2);
+    QVERIFY(!parent2->isEnabled());
+    QVERIFY(!child->isEnabled());
+    parent2->setEnabled(true);
+    QVERIFY(parent2->isEnabled());
+    QVERIFY(child->isEnabled());
+
+    // Reparent implicitly hidden child to root.
+    parent2->setEnabled(false);
+    QVERIFY(!child->isEnabled());
+    child->setParentItem(0);
+    QVERIFY(child->isEnabled());
+
+    // Reparent an explicitly hidden child to root.
+    child->setEnabled(false);
+    child->setParentItem(parent2);
+    parent2->setEnabled(true);
+    QVERIFY(!child->isEnabled());
+    child->setParentItem(0);
+    QVERIFY(!child->isEnabled());
 }
 
 class SelectChangeItem : public QGraphicsRectItem
