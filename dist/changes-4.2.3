@@ -270,6 +270,13 @@ Qtopia Core
       reading and writing doubles on devices where doubles have swapped word
       order, and qreals where qreal isn't a double. Corrupt data streams
       cannot be read.
+    * Fixed a possible buffer overflow in the VNC driver.
+    * Fixed a memory leak in the windowing system.
+    * Fixed painting errors occuring with use of QT::WA_PaintOnScreen on
+      certain screen configurations.
+    * Improve performance when using a 16-bit brush as the background on a 
+      16-bit screen.
+    * Fixed crash when saving a 16-bit image in BMP or PPM format.
 
 ****************************************************************************
 *                      Compiler Specific Changes                           *
