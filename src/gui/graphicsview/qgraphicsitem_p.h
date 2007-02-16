@@ -51,7 +51,9 @@ public:
     {
         acceptedMouseButtons = 0x1f;
         visible = 1;
+        explicitlyHidden = 0;
         enabled = 1;
+        explicitlyDisabled = 0;
         selected = 0;
         acceptsHover = 0;
         acceptDrops = 0;
@@ -75,6 +77,9 @@ public:
     QTransform sceneTransform(const QTransform &worldTransform) const;
     QPointF genericMapFromScene(const QPointF &pos, const QWidget *viewport) const;
     bool itemIsUntransformable() const;
+
+    void setVisibleHelper(bool newVisible, bool explicitly);
+    void setEnabledHelper(bool newEnabled, bool explicitly);
 
     inline QVariant extra(Extra type) const
     {
@@ -134,7 +139,9 @@ public:
     int index;
     quint32 acceptedMouseButtons : 5;
     quint32 visible : 1;
+    quint32 explicitlyHidden : 1;
     quint32 enabled : 1;
+    quint32 explicitlyDisabled : 1;
     quint32 selected : 1;
     quint32 acceptsHover : 1;
     quint32 acceptDrops : 1;
@@ -145,7 +152,7 @@ public:
     quint32 hasCursor : 1;
     quint32 ancestorFlags : 3;
     quint32 flags : 11;
-    quint32 pad : 3;
+    quint32 pad : 1;
 
     QGraphicsItem *q_ptr;
 };

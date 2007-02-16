@@ -826,11 +826,28 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
         d_ptr->updateAncestorFlag(QGraphicsItem::GraphicsItemFlag(-1));
         d_ptr->updateAncestorFlag(ItemClipsChildrenToShape);
         d_ptr->updateAncestorFlag(ItemIgnoresTransformations);
+
+        // Update item visible / enabled.
+        if (d_ptr->parent->isVisible() != d_ptr->visible) {
+            if (!d_ptr->parent->isVisible() || !d_ptr->explicitlyHidden)
+                d_ptr->setVisibleHelper(d_ptr->parent->isVisible(), /* explicit = */ false);
+        }
+        if (d_ptr->parent->isEnabled() != d_ptr->enabled) {
+            if (!d_ptr->parent->isEnabled() || !d_ptr->explicitlyDisabled)
+                d_ptr->setEnabledHelper(d_ptr->parent->isEnabled(), /* explicit = */ false);
+        }
+
     } else {
         // Inherit ancestor flags from the new parent.
         d_ptr->updateAncestorFlag(QGraphicsItem::GraphicsItemFlag(-1));
         d_ptr->updateAncestorFlag(ItemClipsChildrenToShape);
         d_ptr->updateAncestorFlag(ItemIgnoresTransformations);
+
+        // Update item visible / enabled.
+        if (!d_ptr->visible && !d_ptr->explicitlyHidden)
+            d_ptr->setVisibleHelper(true, /* explicit = */ false);
+        if (!d_ptr->enabled && !d_ptr->explicitlyDisabled)
+            d_ptr->setEnabledHelper(true, /* explicit = */ false);
 
         update();
     }
@@ -1066,6 +1083,46 @@ bool QGraphicsItem::isVisible() const
 }
 
 /*!
+    \internal
+
+    Sets this item's visibility to \a newVisible. If \a explicitly is true,
+    this item will be "explicitly" \a newVisible; otherwise, it.. will not be.
+*/
+void QGraphicsItemPrivate::setVisibleHelper(bool newVisible, bool explicitly)
+{
+    // Update explicit bit.
+    if (explicitly)
+        explicitlyHidden = newVisible ? 0 : 1;
+
+    // Check if there's nothing to do.
+    if (visible == quint32(newVisible))
+        return;
+
+    // Certain properties are dropped as an item becomes invisible.
+    if (!newVisible) {
+        if (scene && scene->mouseGrabberItem() == q_ptr)
+            scene->d_func()->mouseGrabberItem = 0;
+        if (q_ptr->hasFocus())
+            q_ptr->clearFocus();
+        if (q_ptr->isSelected())
+            q_ptr->setSelected(false);
+    }
+
+    // Schedule redrawing, and modify the property.
+    if (!newVisible)
+        q_ptr->update();
+    visible = q_ptr->itemChange(QGraphicsItem::ItemVisibleChange, quint32(newVisible)).toBool();
+    if (newVisible)
+        q_ptr->update();
+
+    // Update children with explicitly = false.
+    foreach (QGraphicsItem *child, children) {
+        if (!newVisible || !child->d_ptr->explicitlyHidden)
+            child->d_ptr->setVisibleHelper(newVisible, false);
+    }
+}
+
+/*!
     If \a visible is true, the item is made visible. Otherwise, the item is
     made invisible. Invisible items are not painted, nor do they receive any
     events. In particular, mouse events pass right through invisible items,
@@ -1082,6 +1139,11 @@ bool QGraphicsItem::isVisible() const
     when it becomes invisible, it will lose focus, and the focus is not
     regained by simply making the item visible again.
 
+    If you hide a parent item, all its children will also be hidden. If you
+    show a parent item, all children will be shown, unless they have been
+    explicitly hidden (i.e., if you call setVisible(false) on a child, it will
+    not be reshown even if its parent is hidden, and then shown again).
+
     Items are visible by default; it is unnecessary to call
     setVisible() on a new item.
 
@@ -1089,25 +1151,7 @@ bool QGraphicsItem::isVisible() const
 */
 void QGraphicsItem::setVisible(bool visible)
 {
-    if (d_ptr->visible == quint32(visible))
-        return;
-    if (!visible) {
-        if (d_ptr->scene && d_ptr->scene->mouseGrabberItem() == this)
-            d_ptr->scene->d_func()->mouseGrabberItem = 0;
-        if (hasFocus())
-            clearFocus();
-        if (isSelected())
-            setSelected(false);
-    }
-
-    if (!visible)
-        update();
-    d_ptr->visible = itemChange(ItemVisibleChange, quint32(visible)).toBool();
-    if (visible)
-        update();
-
-    foreach (QGraphicsItem *child, children())
-        child->setVisible(visible);
+    d_ptr->setVisibleHelper(visible, /* explicit = */ true);
 }
 
 /*!
@@ -1141,6 +1185,44 @@ bool QGraphicsItem::isEnabled() const
 }
 
 /*!
+    \internal
+
+    Sets this item's visibility to \a newEnabled. If \a explicitly is true,
+    this item will be "explicitly" \a newEnabled; otherwise, it.. will not be.
+*/
+void QGraphicsItemPrivate::setEnabledHelper(bool newEnabled, bool explicitly)
+{
+    // Update explicit bit.
+    if (explicitly)
+        explicitlyDisabled = newEnabled ? 0 : 1;
+
+    // Check if there's nothing to do.
+    if (enabled == quint32(newEnabled))
+        return;
+
+    // Certain properties are dropped when an item is disabled.
+    if (!newEnabled) {
+        if (scene && scene->mouseGrabberItem() == q_ptr)
+            scene->d_func()->mouseGrabberItem = 0;
+        if (q_ptr->hasFocus())
+            q_ptr->clearFocus();
+        if (q_ptr->isSelected())
+            q_ptr->setSelected(false);
+    }
+
+    // Modify the property.
+    enabled = q_ptr->itemChange(QGraphicsItem::ItemEnabledChange, quint32(newEnabled)).toBool();
+
+    // Schedule redraw.
+    q_ptr->update();
+
+    foreach (QGraphicsItem *child, children) {
+        if (!newEnabled || !child->d_ptr->explicitlyDisabled)
+            child->d_ptr->setEnabledHelper(newEnabled, /* explicitly = */ false);
+    }
+}
+
+/*!
     If \a enabled is true, the item is enabled; otherwise, it is disabled.
 
     Disabled items are visible, but they do not receive any events, and cannot
@@ -1154,27 +1236,19 @@ bool QGraphicsItem::isEnabled() const
     Disabled items are traditionally drawn using grayed-out colors (see \l
     QPalette::Disabled).
 
+    If you disable a parent item, all its children will also be disabled. If
+    you enable a parent item, all children will be enabled, unless they have
+    been explicitly disabled (i.e., if you call setEnabled(false) on a child,
+    it will not be reenabled if its parent is disabled, and then enabled
+    again).
+
     Items are enabled by default.
 
     \sa isEnabled()
 */
 void QGraphicsItem::setEnabled(bool enabled)
 {
-    if (d_ptr->enabled == quint32(enabled))
-        return;
-    if (!enabled) {
-        if (d_ptr->scene && d_ptr->scene->mouseGrabberItem() == this)
-            d_ptr->scene->d_func()->mouseGrabberItem = 0;
-        if (hasFocus())
-            clearFocus();
-        if (isSelected())
-            setSelected(false);
-    }
-    d_ptr->enabled = itemChange(ItemEnabledChange, quint32(enabled)).toBool();
-    update();
-
-    foreach (QGraphicsItem *child, children())
-        child->setEnabled(enabled);
+    d_ptr->setEnabledHelper(enabled, /* explicitly = */ true);
 }
 
 /*!
