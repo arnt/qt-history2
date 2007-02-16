@@ -257,28 +257,33 @@ QAccessible::State QAccessibleItemRow::state(int child) const
     if (!view)
         return st;
 
-    if (child) {
-        QModelIndex idx = childIndex(child);
-        if (!idx.isValid())
-            return st;
-
-        if (view->selectionModel()->isSelected(idx))
-            st |= Selected;
-        if (idx.model()->data(idx, Qt::CheckStateRole).toInt() == Qt::Checked)
-            st |= Checked;
-
-        Qt::ItemFlags flags = idx.flags();
-        if (flags & Qt::ItemIsSelectable) {
-            st |= Selectable;
-            if (view->selectionMode() == QAbstractItemView::MultiSelection)
-                st |= MultiSelectable;
-            if (view->selectionMode() == QAbstractItemView::ExtendedSelection)
-                st |= ExtSelectable;
-        }
-
+    QRect globalRect = view->viewport()->rect().translated(view->viewport()->mapToGlobal(QPoint(0,0)));
+    if (!globalRect.intersects(rect(child))) {
+        st |= Invisible;
     } else {
-        if (view->selectionModel()->isRowSelected(row.row(), row.parent()))
-            st |= Selected;
+        if (child) {
+            QModelIndex idx = childIndex(child);
+            if (!idx.isValid())
+                return st;
+
+            if (view->selectionModel()->isSelected(idx))
+                st |= Selected;
+            if (idx.model()->data(idx, Qt::CheckStateRole).toInt() == Qt::Checked)
+                st |= Checked;
+
+            Qt::ItemFlags flags = idx.flags();
+            if (flags & Qt::ItemIsSelectable) {
+                st |= Selectable;
+                if (view->selectionMode() == QAbstractItemView::MultiSelection)
+                    st |= MultiSelectable;
+                if (view->selectionMode() == QAbstractItemView::ExtendedSelection)
+                    st |= ExtSelectable;
+            }
+
+        } else {
+            if (view->selectionModel()->isRowSelected(row.row(), row.parent()))
+                st |= Selected;
+        }
     }
 
 
@@ -354,6 +359,20 @@ QAccessibleItemView::QAccessibleItemView(QWidget *w)
 QAbstractItemView *QAccessibleItemView::itemView() const
 {
     return qobject_cast<QAbstractItemView *>(object());
+}
+
+
+int QAccessibleItemView::indexOfChild(const QAccessibleInterface *iface) const
+{
+    if (!iface || iface->role(0) != Row)
+        return -1;
+
+    // ### This will fail if a row is hidden.
+    QModelIndex idx = static_cast<const QAccessibleItemRow *>(iface)->row;
+    if (!idx.isValid())
+        return -1;
+
+    return idx.row() + 1;
 }
 
 QModelIndex QAccessibleItemView::childIndex(int child) const

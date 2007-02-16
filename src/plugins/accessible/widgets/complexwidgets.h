@@ -45,6 +45,7 @@ protected:
 
 class QAccessibleItemRow: public QAccessibleInterface
 {
+    friend class QAccessibleItemView;
 public:
     QAccessibleItemRow(QAbstractItemView *view, const QModelIndex &index);
     QRect rect(int child) const;
@@ -84,6 +85,7 @@ public:
     int childCount() const;
     QString text(Text t, int child) const;
     void setText(Text t, int child, const QString &text);
+    int indexOfChild(const QAccessibleInterface *iface) const;
 
     QModelIndex childIndex(int child) const;
     int navigate(RelationFlag relation, int index, QAccessibleInterface **iface) const;
