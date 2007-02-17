@@ -5167,7 +5167,9 @@ void QPainter::fillRect(const QRect &r, const QBrush &brush)
 
 #ifdef QT_EXPERIMENTAL_REGIONS
     Q_D(QPainter);
-    if (d->fillrect_func && !(d->state->renderHints & QPainter::Antialiasing) && d->state->txop <= QPainterPrivate::TxTranslate) {
+    if (d->fillrect_func && !(d->state->renderHints & QPainter::Antialiasing)
+        && d->state->txop <= QTransform::TxTranslate)
+    {
         const QRect rt = r.translated(int(d->state->matrix.dx()),
                                       int(d->state->matrix.dy()));
         ((d->engine)->*(d->fillrect_func))(rt, brush);
