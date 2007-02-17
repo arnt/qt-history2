@@ -61,11 +61,11 @@ static inline QRgb qt_conv16ToRgb(ushort c)
 #pragma message disable narrowptr
 #endif
 
-// remove in Qt 5.0
+// ### Qt 5: remove
 typedef void (*_qt_image_cleanup_hook)(int);
 Q_GUI_EXPORT _qt_image_cleanup_hook qt_image_cleanup_hook = 0;
 
-// rename in Qt 5.0
+// ### Qt 5: rename
 typedef void (*_qt_image_cleanup_hook_64)(qint64);
 Q_GUI_EXPORT _qt_image_cleanup_hook_64 qt_image_cleanup_hook_64 = 0;
 
@@ -137,7 +137,7 @@ struct QImageData {        // internal image data
     QPaintEngine *paintEngine;
 };
 
-// remove for Qt 5.0
+// ### Qt 5: remove
 Q_GUI_EXPORT qint64 qt_image_id(const QImage &image)
 {
     return image.cacheKey();

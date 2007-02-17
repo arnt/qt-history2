@@ -34,15 +34,15 @@
 
 extern int qt_defaultDpi();
 
-// remove in Qt 5.0
+// ### Qt 5: remove
 typedef void (*_qt_pixmap_cleanup_hook)(int);
 Q_GUI_EXPORT _qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook = 0;
 
-// rename in Qt 5.0
+// ### Qt 5: rename
 typedef void (*_qt_pixmap_cleanup_hook_64)(qint64);
 Q_GUI_EXPORT _qt_pixmap_cleanup_hook_64 qt_pixmap_cleanup_hook_64 = 0;
 
-// remove in Qt 5.0
+// ### Qt 5: remove
 Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap)
 {
     return pixmap.cacheKey();

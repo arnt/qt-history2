@@ -115,7 +115,7 @@ public:
     enum SizeAdjustPolicy {
         AdjustToContents,
         AdjustToContentsOnFirstShow,
-        AdjustToMinimumContentsLength, // ### remove in Qt 5
+        AdjustToMinimumContentsLength, // ### Qt 5: remove
         AdjustToMinimumContentsLengthWithIcon
     };
 

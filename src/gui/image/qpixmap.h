@@ -76,7 +76,7 @@ public:
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
     QBitmap createHeuristicMask(bool clipTight = true) const;
 #endif
-    QBitmap createMaskFromColor(const QColor &maskColor) const; /* remove for Qt 5.0 */
+    QBitmap createMaskFromColor(const QColor &maskColor) const; // ### Qt 5: remove
     QBitmap createMaskFromColor(const QColor &maskColor, Qt::MaskMode mode) const;
 
     static QPixmap grabWindow(WId, int x=0, int y=0, int w=-1, int h=-1);

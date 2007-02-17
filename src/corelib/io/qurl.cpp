@@ -151,7 +151,7 @@
 #include "qfileinfo.h"
 #endif
 
-// Qt 5 ###: Consider accepting empty strings as valid. See task 144227.
+// ### Qt 5: Consider accepting empty strings as valid. See task 144227.
 
 //#define QURL_DEBUG
 

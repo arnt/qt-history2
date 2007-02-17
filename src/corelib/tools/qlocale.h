@@ -517,7 +517,7 @@ public:
 private:
     friend struct QLocalePrivate;
     // ### We now use this field to pack an index into locale_data and NumberOptions.
-    // change to a QLocaleData *d; uint numberOptions; in Qt 5
+    // ### Qt 5: change to a QLocaleData *d; uint numberOptions.
     void *v;
     const QLocalePrivate *d() const;
 };

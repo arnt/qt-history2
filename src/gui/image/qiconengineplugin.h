@@ -44,7 +44,7 @@ public:
     virtual QIconEngine *create(const QString &filename) = 0;
 };
 
-// ### version 2 - will be removed in Qt 5
+// ### Qt 5: remove version 2
 struct Q_GUI_EXPORT QIconEngineFactoryInterfaceV2 : public QFactoryInterface
 {
     virtual QIconEngineV2 *create(const QString &filename = QString()) = 0;

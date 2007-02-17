@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-// ### Remove for Qt 5
+// ### Qt 5: remove
 class Q_GUI_EXPORT QKeyEventEx : public QKeyEvent
 {
 public:

@@ -1117,8 +1117,8 @@ bool QDate::isLeapYear(int y)
     \internal
 
     This function has a confusing name and shouldn't be part of the
-    API anyway, since we have toJulian() and fromJulian(). Remove it
-    in Qt 5.
+    API anyway, since we have toJulian() and fromJulian().
+    ### Qt 5: remove it
 */
 uint QDate::gregorianToJulian(int y, int m, int d)
 {
@@ -1129,8 +1129,8 @@ uint QDate::gregorianToJulian(int y, int m, int d)
     \internal
 
     This function has a confusing name and shouldn't be part of the
-    API anyway, since we have toJulian() and fromJulian(). Remove it
-    in Qt 5.
+    API anyway, since we have toJulian() and fromJulian().
+    ### Qt 5: remove it
 */
 void QDate::julianToGregorian(uint jd, int &y, int &m, int &d)
 {

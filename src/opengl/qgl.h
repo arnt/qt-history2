@@ -261,7 +261,7 @@ protected:
     void setWindowCreated(bool on);
     bool initialized() const;
     void setInitialized(bool on);
-    void generateFontDisplayLists(const QFont & fnt, int listBase); /* remove in Qt 5 */
+    void generateFontDisplayLists(const QFont & fnt, int listBase); // ### Qt 5: remove
 
     uint colorIndex(const QColor& c) const;
     void setValid(bool valid);
@@ -324,7 +324,7 @@ public:
     bool isValid() const;
     bool isSharing() const;
 
-    // ### Qt 5.0: return bools
+    // ### Qt 5: return bools
     void makeCurrent();
     void doneCurrent();
 
@@ -387,7 +387,7 @@ protected:
 
     virtual void glInit();
     virtual void glDraw();
-    int fontDisplayListBase(const QFont & fnt, int listBase = 2000); /* remove in Qt 5 */
+    int fontDisplayListBase(const QFont & fnt, int listBase = 2000); // ### Qt 5: remove
 
 private:
     Q_DISABLE_COPY(QGLWidget)

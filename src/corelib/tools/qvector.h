@@ -694,7 +694,7 @@ Q_DECLARE_SEQUENTIAL_ITERATOR(Vector)
 Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR(Vector)
 
 /*
-   ### Fix for Qt 5
+   ### Qt 5:
    ### This needs to be removed for next releases of Qt. It is a workaround for vc++ because
    ### Qt exports QPolygon and QPolygonF that inherit QVector<QPoint> and
    ### QVector<QPointF> respectively.

@@ -1456,7 +1456,7 @@ bool QFileSystemModelPrivate::filtersAcceptsNode(const QFileSystemNode *node) co
     const bool hideDotAndDotDot  = (filters & QDir::NoDotAndDotDot);
 
     // Note that we match the behavior of entryList and not QFileInfo on this and this
-    // incompatibility wont be fixed until Qt 5 at least
+    // incompatibility won't be fixed until Qt 5 at least
     bool isDotOrDot = (  (node->fileName == QLatin1String(".")
                        || node->fileName == QLatin1String("..")));
     if (   (hideHidden && (!isDotOrDot && node->isHidden()))

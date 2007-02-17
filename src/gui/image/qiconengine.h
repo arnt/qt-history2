@@ -38,7 +38,7 @@ public:
 #endif
 };
 
-// ### move the below into QIconEngine in Qt 5.0
+// ### Qt 5: move the below into QIconEngine
 class Q_GUI_EXPORT QIconEngineV2 : public QIconEngine
 {
 public:

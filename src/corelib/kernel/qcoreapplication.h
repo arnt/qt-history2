@@ -100,7 +100,7 @@ public:
     static void removeTranslator(QTranslator * messageFile);
 #endif
     enum Encoding { CodecForTr, UnicodeUTF8, DefaultCodec = CodecForTr };
-    // ### merge in Qt 5
+    // ### Qt 5: merge
     static QString translate(const char * context,
                              const char * key,
                              const char * comment = 0,

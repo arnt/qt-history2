@@ -473,9 +473,10 @@ void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) con
     QVariant v = index.data(Qt::EditRole);
     QByteArray n = editor->metaObject()->userProperty().name();
 
-    // ### Remove in Qt 5: A work-around for missing "USER true" in
-    // qdatetimeedit.h for QTimeEdit's time property and QDateEdit's date
-    // property. It only triggers if the default user property "dateTime" is
+    // ### Qt 5: remove
+    // A work-around for missing "USER true" in qdatetimeedit.h for
+    // QTimeEdit's time property and QDateEdit's date property.
+    // It only triggers if the default user property "dateTime" is
     // reported for QTimeEdit and QDateEdit.
     if (n == "dateTime") {
         if (editor->inherits("QTimeEdit"))
