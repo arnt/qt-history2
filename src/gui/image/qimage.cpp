@@ -1774,30 +1774,30 @@ void QImage::fill(uint pixel)
 
     detach();
     if (d->depth == 1 || d->depth == 8) {
+        int w = d->width;
         if (d->depth == 1) {
             if (pixel & 1)
                 pixel = 0xffffffff;
             else
                 pixel = 0;
+            w = (w + 7) / 8;
         } else {
             pixel &= 0xff;
         }
-        memset(d->data, pixel, d->nbytes);
+        qt_rectfill<quint8>(d->data, pixel, 0, 0,
+                            w, d->height, d->bytes_per_line);
         return;
     } else if (d->depth == 16) {
-        pixel = (pixel << 16) | (pixel & 0xffff);
+        qt_rectfill<quint16>(reinterpret_cast<quint16*>(d->data), pixel,
+                             0, 0, d->width, d->height, d->bytes_per_line);
+        return;
     }
 
     if (d->format == Format_RGB32)
         pixel |= 0xff000000;
-    if (pixel == 0 || pixel == 0xffffffff) {
-        memset(d->data, (pixel & 0xff), d->nbytes);
-    } else {
-        uint *data = (uint *)d->data;
-        uint *end = (uint *)(d->data + d->nbytes);
-        while (data < end)
-            *data++ = pixel;
-    }
+
+    qt_rectfill<uint>(reinterpret_cast<uint*>(d->data), pixel,
+                      0, 0, d->width, d->height, d->bytes_per_line);
 }
 
 /*!
