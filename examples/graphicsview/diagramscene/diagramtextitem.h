@@ -14,7 +14,7 @@ class DiagramTextItem : public QGraphicsTextItem
     Q_OBJECT
 
 public:
-    enum Type { Type = UserType + 3 };
+    enum { Type = UserType + 3 };
 
     DiagramTextItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
 

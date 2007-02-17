@@ -20,7 +20,7 @@ class Arrow;
 class DiagramItem : public QGraphicsPolygonItem
 {
 public:
-    enum Type { Type = UserType + 15 };
+    enum { Type = UserType + 15 };
     enum DiagramType { Step, Conditional, StartEnd, Io };
 
     DiagramItem(DiagramType diagramType, QMenu *contextMenu, 
