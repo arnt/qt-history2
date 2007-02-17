@@ -142,25 +142,35 @@ x11|embedded {
 
 mac {
 
-} else:sse|win32-g++ {
-    sse_compiler.commands = $$QMAKE_CXX -c -msse $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-    sse_compiler.dependency_type = TYPE_C
-    sse_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
-    sse_compiler.input = SSE_SOURCES
-    sse_compiler.variable_out = OBJECTS
-    sse_compiler.name = compiling[sse] ${QMAKE_FILE_IN}
-    silent:sse_compiler.commands = @echo compiling[sse] ${QMAKE_FILE_IN} && $$sse_compiler.commands
-    QMAKE_EXTRA_COMPILERS += sse_compiler
-    DEFINES += QT_HAVE_SSE
+} else:mmx|sse|sse2|iwmmxt {
+    x86_compiler.commands = $$QMAKE_CXX -c
+    win32-g++|!win32 {
+        sse2: x86_compiler.commands += -msse2
+        sse: x86_compiler.commands += -msse
+        mmx: x86_compiler.commands += -mmmx
+        iwmmxt: x86_compiler.commands += -mcpu=iwmmxt
+        x86_compiler.commands += $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        x86_compiler.dependency_type = TYPE_C
+        x86_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        x86_compiler.input = X86_SOURCES
+        x86_compiler.variable_out = OBJECTS
+        x86_compiler.name = compiling[x86] ${QMAKE_FILE_IN}
+        silent:x86_compiler.commands = @echo compiling[x86] ${QMAKE_FILE_IN} && $$x86_compiler.commands
+        QMAKE_EXTRA_COMPILERS += x86_compiler
+    }
+    
+    sse2: DEFINES += QT_HAVE_SSE2
+    sse: DEFINES += QT_HAVE_SSE
+    mmx: DEFINES += QT_HAVE_MMX
+    iwmmxt: DEFINES += QT_HAVE_IWMMXT
 
-    SSE_SOURCES += painting/qdrawhelper_x86.cpp
-} else:iwmmxt {
-    SOURCES += painting/qdrawhelper_x86.cpp
-    DEFINES += QT_HAVE_IWMMXT
-    DEFINES += QT_HAVE_SSE
-} else:win32:!win32-msvc {
-    SOURCES += painting/qdrawhelper_x86.cpp
-    DEFINES += QT_HAVE_SSE
+    X86_HEADERS += painting/qdrawhelper_x86_p.h
+    X86_SOURCES += painting/qdrawhelper_x86.cpp
+
+    win32:!win32-msvc {
+        HEADERS += $$X86_HEADERS
+        SOURCES += $$X86_SOURCES
+    }
 }
 
 win32|x11|embedded {
