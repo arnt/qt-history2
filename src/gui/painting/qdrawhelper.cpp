@@ -4712,7 +4712,7 @@ static inline void qt_memfill_template(DST *dest, SRC color, int count)
 }
 
 template <>
-static inline void qt_memfill_template(quint16 *dest, quint16 value, int count)
+inline void qt_memfill_template(quint16 *dest, quint16 value, int count)
 {
     if (count < 3) {
         switch (count) {
