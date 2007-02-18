@@ -30,22 +30,37 @@
 
 #include <stdlib.h>
 
+#ifdef __MMX__
+#include <mmintrin.h>
+#endif
+
+// TODO:
+// optimize memcmp/memcpy for tiles for 16/32 bit (32/64 bytes per tile line)
+// do two-color test in parallel?
+// read from double buffer instead (avoid locking and framebuffer memory)?
+// get rid of mmx instructions (use drawhelper)
+
 //#define QT_QWS_VNC_DEBUG
 
 extern QString qws_qtePipeFilename();
+
+inline void QVNCCursor::setDirty(const QRect &r) const
+{
+    screen->d_ptr->setDirty(r, true);
+}
 
 void QVNCCursor::hide()
 {
     QScreenCursor::hide();
     if (enable)
-        screen->setDirty(boundingRect());
+        setDirty(boundingRect());
 }
 
 void QVNCCursor::show()
 {
     QScreenCursor::show();
     if (!enable)
-        screen->setDirty(boundingRect());
+        setDirty(boundingRect());
 }
 
 void QVNCCursor::set(const QImage &image, int hotx, int hoty)
@@ -56,7 +71,7 @@ void QVNCCursor::set(const QImage &image, int hotx, int hoty)
     if (enable) {
         const QVector<QRect> rects = dirty.rects();
         for (int i = 0; i < rects.size(); ++i)
-            screen->setDirty(rects.at(i));
+            setDirty(rects.at(i));
     }
 }
 
@@ -68,7 +83,7 @@ void QVNCCursor::move(int x, int y)
     if (enable) {
         const QVector<QRect> rects = dirty.rects();
         for (int i = 0; i < rects.size(); ++i)
-            screen->setDirty(rects.at(i));
+            setDirty(rects.at(i));
     }
 }
 
@@ -194,7 +209,7 @@ void QRfbRect::read(QTcpSocket *s)
     h = ntohs(buf[3]);
 }
 
-void QRfbRect::write(QTcpSocket *s)
+void QRfbRect::write(QTcpSocket *s) const
 {
     quint16 buf[4];
     buf[0] = htons(x);
@@ -410,9 +425,13 @@ void QVNCServer::init(uint port)
     encodingsPending = 0;
     cutTextPending = 0;
     keymod = 0;
+    state = Unconnected;
+
     refreshRate = 25;
     timer = new QTimer(this);
+    timer->setSingleShot(true);
     connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdate()));
+
     serverSocket = new QTcpServer(this);
     if (!serverSocket->listen(QHostAddress::Any, port))
         qDebug() << "QVNCServer could not connect:" << serverSocket->errorString();
@@ -420,12 +439,20 @@ void QVNCServer::init(uint port)
         qDebug("QVNCServer created on port %d", port);
 
     connect(serverSocket, SIGNAL(newConnection()), this, SLOT(newConnection()));
+
+    encoder = 0;
 }
 
 QVNCServer::~QVNCServer()
 {
     discardClient();
     delete client;
+}
+
+void QVNCServer::setDirty()
+{
+    if (state == Connected && !timer->isActive() && dirtyMap()->numDirty > 0)
+        timer->start();
 }
 
 void QVNCServer::newConnection()
@@ -441,7 +468,9 @@ void QVNCServer::newConnection()
     cutTextPending = 0;
     supportHextile = false;
     wantUpdate = false;
+
     timer->start(1000 / refreshRate);
+    qvnc_screen->d_ptr->dirty->reset();
 
     // send protocol version
     char *proto = "RFB 003.003\n";
@@ -477,62 +506,51 @@ void QVNCServer::readClient()
                 QRfbServerInit sim;
                 QRfbPixelFormat &format = sim.format;
                 switch (qvnc_screen->depth()) {
-                    case 32:
-                        format.bitsPerPixel = 32;
-                        format.depth = 32;
-                        format.bigEndian = 0;
-                        format.trueColor = true;
-                        format.redBits = 8;
-                        format.greenBits = 8;
-                        format.blueBits = 8;
-                        format.redShift = 16;
-                        format.greenShift = 8;
-                        format.blueShift = 0;
-                        break;
+                case 32:
+                    format.bitsPerPixel = 32;
+                    format.depth = 32;
+                    format.bigEndian = 0;
+                    format.trueColor = true;
+                    format.redBits = 8;
+                    format.greenBits = 8;
+                    format.blueBits = 8;
+                    format.redShift = 16;
+                    format.greenShift = 8;
+                    format.blueShift = 0;
+                    break;
 
-                    case 16:
-                        format.bitsPerPixel = 16;
-                        format.depth = 16;
-                        format.bigEndian = 0;
-                        format.trueColor = true;
-                        format.redBits = 5;
-                        format.greenBits = 6;
-                        format.blueBits = 5;
-                        format.redShift = 11;
-                        format.greenShift = 5;
-                        format.blueShift = 0;
-                        break;
+                case 16:
+                    format.bitsPerPixel = 16;
+                    format.depth = 16;
+                    format.bigEndian = 0;
+                    format.trueColor = true;
+                    format.redBits = 5;
+                    format.greenBits = 6;
+                    format.blueBits = 5;
+                    format.redShift = 11;
+                    format.greenShift = 5;
+                    format.blueShift = 0;
+                    break;
 
-                    case 8:
-                        format.bitsPerPixel = 8;
-                        format.depth = 8;
-                        format.bigEndian = 0;
-                        format.trueColor = false;
-                        format.redBits = 0;
-                        format.greenBits = 0;
-                        format.blueBits = 0;
-                        format.redShift = 0;
-                        format.greenShift = 0;
-                        format.blueShift = 0;
-                        break;
 
-                    case 4:
-                        format.bitsPerPixel = 8;
-                        format.depth = 8;
-                        format.bigEndian = 0;
-                        format.trueColor = false;
-                        format.redBits = 0;
-                        format.greenBits = 0;
-                        format.blueBits = 0;
-                        format.redShift = 0;
-                        format.greenShift = 0;
-                        format.blueShift = 0;
-                        break;
+                case 8:
+                case 4:
+                    format.bitsPerPixel = 8;
+                    format.depth = 8;
+                    format.bigEndian = 0;
+                    format.trueColor = false;
+                    format.redBits = 0;
+                    format.greenBits = 0;
+                    format.blueBits = 0;
+                    format.redShift = 0;
+                    format.greenShift = 0;
+                    format.blueShift = 0;
+                    break;
 
-                    default:
-                        qDebug("QVNC cannot drive depth %d", qvnc_screen->depth());
-                        discardClient();
-                        return;
+                default:
+                    qDebug("QVNC cannot drive depth %d", qvnc_screen->depth());
+                    discardClient();
+                    return;
                 }
                 sim.width = qvnc_screen->deviceWidth();
                 sim.height = qvnc_screen->deviceHeight();
@@ -550,35 +568,37 @@ void QVNCServer::readClient()
                 }
                 if (handleMsg) {
                     switch (msgType ) {
-                        case SetPixelFormat:
-                            setPixelFormat();
-                            break;
-                        case FixColourMapEntries:
-                            qDebug("Not supported: FixColourMapEntries");
-                            handleMsg = false;
-                            break;
-                        case SetEncodings:
-                            setEncodings();
-                            break;
-                        case FramebufferUpdateRequest:
-                            frameBufferUpdateRequest();
-                            break;
-                        case KeyEvent:
-                            keyEvent();
-                            break;
-                        case PointerEvent:
-                            pointerEvent();
-                            break;
-                        case ClientCutText:
-                            clientCutText();
-                            break;
-                        default:
-                            qDebug("Unknown message type: %d", (int)msgType);
-                            handleMsg = false;
+                    case SetPixelFormat:
+                        setPixelFormat();
+                        break;
+                    case FixColourMapEntries:
+                        qDebug("Not supported: FixColourMapEntries");
+                        handleMsg = false;
+                        break;
+                    case SetEncodings:
+                        setEncodings();
+                        break;
+                    case FramebufferUpdateRequest:
+                        frameBufferUpdateRequest();
+                        break;
+                    case KeyEvent:
+                        keyEvent();
+                        break;
+                    case PointerEvent:
+                        pointerEvent();
+                        break;
+                    case ClientCutText:
+                        clientCutText();
+                        break;
+                    default:
+                        qDebug("Unknown message type: %d", (int)msgType);
+                        handleMsg = false;
                     }
                 }
             } while (!handleMsg && client->bytesAvailable());
             break;
+    default:
+        break;
     }
 }
 
@@ -601,12 +621,13 @@ void QVNCServer::setPixelFormat()
             int(pixelFormat.greenShift),
             int(pixelFormat.blueShift));
 #endif
-        if (pixelFormat.bitsPerPixel != 16 && pixelFormat.bitsPerPixel != 32) {
-            qDebug("Cannot handle %d bpp client", pixelFormat.bitsPerPixel);
+        if (!pixelFormat.trueColor) {
+            qDebug("Can only handle true color clients");
             discardClient();
         }
         handleMsg = false;
         sameEndian = (QSysInfo::ByteOrder == QSysInfo::BigEndian) == !!pixelFormat.bigEndian;
+        needConversion = pixelConversionNeeded();
     }
 }
 
@@ -620,20 +641,98 @@ void QVNCServer::setEncodings()
             handleMsg = false;
     }
 
+    if (encoder) {
+        delete encoder;
+        encoder = 0;
+    }
+
+    enum Encodings {
+        Raw = 0,
+        CopyRect = 1,
+        RRE = 2,
+        CoRRE = 4,
+        Hextile = 5,
+        ZRLE = 16,
+        Cursor = -239,
+        DesktopSize = -223
+    };
+
     if (encodingsPending && (unsigned)client->bytesAvailable() >=
                                 encodingsPending * sizeof(quint32)) {
-        for (int i = 0; i < encodingsPending; i++) {
-            quint32 enc;
-            client->read((char *)&enc, sizeof(quint32));
+        for (int i = 0; i < encodingsPending; ++i) {
+            qint32 enc;
+            client->read((char *)&enc, sizeof(qint32));
             enc = ntohl(enc);
-            if (enc == 5)
-                supportHextile = true;
 #ifdef QT_QWS_VNC_DEBUG
-            qDebug("Can do %d", enc);
+            qDebug("QVNCServer::setEncodings: %d", enc);
 #endif
+            switch (enc) {
+            case Raw:
+                if (!encoder) {
+                    encoder = new QRfbRawEncoder(this);
+#ifdef QT_QWS_VNC_DEBUG
+                    qDebug("QVNCServer::setEncodings: using raw");
+#endif
+                }
+               break;
+            case CopyRect:
+                supportCopyRect = true;
+                break;
+            case RRE:
+                supportRRE = true;
+                break;
+            case CoRRE:
+                supportCoRRE = true;
+                break;
+            case Hextile:
+                supportHextile = true;
+                if (encoder)
+                    break;
+                switch (qvnc_screen->depth()) {
+#ifdef QT_QWS_DEPTH_8
+                case 8:
+                    encoder = new QRfbHextileEncoder<quint8>(this);
+                    break;
+#endif
+#ifdef QT_QWS_DEPTH_16
+                case 16:
+                    encoder = new QRfbHextileEncoder<quint16>(this);
+                    break;
+#endif
+#ifdef QT_QWS_DEPTH_32
+                case 32:
+                    encoder = new QRfbHextileEncoder<quint32>(this);
+                    break;
+#endif
+                default:
+                    break;
+                }
+#ifdef QT_QWS_VNC_DEBUG
+                qDebug("QVNCServer::setEncodings: using hextile");
+#endif
+                break;
+            case ZRLE:
+                supportZRLE = true;
+                break;
+            case Cursor:
+                supportCursor = true;
+                break;
+            case DesktopSize:
+                supportDesktopSize = true;
+                break;
+            default:
+                break;
+            }
         }
         handleMsg = false;
         encodingsPending = 0;
+    }
+
+    if (!encoder) {
+        encoder = new QRfbRawEncoder(this);
+#ifdef QT_QWS_VNC_DEBUG
+        qDebug("QVNCServer::setEncodings: fallback using raw");
+#endif
     }
 }
 
@@ -644,7 +743,8 @@ void QVNCServer::frameBufferUpdateRequest()
     if (ev.read(client)) {
         if (!ev.incremental) {
             QRect r(ev.rect.x, ev.rect.y, ev.rect.w, ev.rect.h);
-            qvnc_screen->setDirty(r.translated(qvnc_screen->offset()));
+            r.translated(qvnc_screen->offset());
+            qvnc_screen->d_ptr->setDirty(r, true);
         }
         wantUpdate = true;
         checkUpdate();
@@ -702,10 +802,19 @@ void QVNCServer::clientCutText()
 }
 
 // stride in bytes
-bool QVNCServer::checkFill(const uchar *data, int width, int height,
-                                 int stride)
+template <class SRC>
+bool QRfbSingleColorHextile<SRC>::read(const uchar *data,
+                                       int width, int height, int stride)
 {
-    switch (qvnc_screen->depth()) {
+    const int depth = encoder->server->screen()->depth();
+    if (width % (depth / 8)) // hw: should rather fallback to simple loop
+        return false;
+
+    static int alwaysFalse = qgetenv("QT_VNC_NOCHECKFILL").toInt();
+    if (alwaysFalse)
+        return false;
+
+    switch (depth) {
     case 4: {
         const quint8 *data8 = reinterpret_cast<const quint8*>(data);
         if ((data8[0] & 0xf) != (data8[0] >> 4))
@@ -735,17 +844,299 @@ bool QVNCServer::checkFill(const uchar *data, int width, int height,
             }
             data32 += linestep;
         }
-        return true;
+        break;
     }
     default:
         return false;
     }
 
+    SRC color = reinterpret_cast<const SRC*>(data)[0];
+    encoder->newBg |= (color != encoder->bg);
+    encoder->bg = color;
+    return true;
+}
+
+template <class SRC>
+void QRfbSingleColorHextile<SRC>::write(QTcpSocket *socket) const
+{
+    if (true || encoder->newBg) {
+        const int bpp = encoder->server->clientBytesPerPixel();
+        const int padding = 3;
+        char buffer[padding + 1 + bpp];
+        buffer[padding] = 2; // BackgroundSpecified
+        encoder->server->convertPixels(buffer + padding + 1,
+                                       reinterpret_cast<char*>(&encoder->bg),
+                                       1);
+        socket->write(buffer + padding, bpp + 1);
+//        encoder->newBg = false;
+    } else {
+        char subenc = 0;
+        socket->write(&subenc, 1);
+    }
+}
+
+template <class SRC>
+bool QRfbDualColorHextile<SRC>::read(const uchar *data,
+                                     int width, int height, int stride)
+{
+    const SRC *ptr = reinterpret_cast<const SRC*>(data);
+    const int linestep = (stride / sizeof(SRC)) - width;
+
+    SRC c1;
+    SRC c2 = 0;
+    int n1 = 0;
+    int n2 = 0;
+    int x = 0;
+    int y = 0;
+
+    c1 = *ptr;
+
+    // find second color
+    while (y < height) {
+        while (x < width) {
+            if (*ptr == c1) {
+                ++n1;
+            } else {
+                c2 = *ptr;
+                goto found_second_color;
+            }
+            ++ptr;
+            ++x;
+        }
+        x = 0;
+        ptr += linestep;
+        ++y;
+    }
+
+found_second_color:
+    // finish counting
+    while (y < height) {
+        while (x < width) {
+            if (*ptr == c1) {
+                ++n1;
+            } else if (*ptr == c2) {
+                ++n2;
+            } else {
+                return false;
+            }
+            ++ptr;
+            ++x;
+        }
+        x = 0;
+        ptr += linestep;
+        ++y;
+    }
+
+    if (n2 > n1) {
+        const quint32 tmpC = c1;
+        c1 = c2;
+        c2 = tmpC;
+    }
+
+    encoder->newBg |= (c1 != encoder->bg);
+    encoder->newFg |= (c2 != encoder->fg);
+
+    encoder->bg = c1;
+    encoder->fg = c2;
+
+    // create map
+    bool inRect = false;
+    numRects = 0;
+    ptr = reinterpret_cast<const SRC*>(data);
+    for (y = 0; y < height; ++y) {
+        for (x = 0; x < width; ++x) {
+            if (inRect && *ptr == encoder->bg) {
+                // rect finished
+                setWidth(x - lastx());
+                next();
+                inRect = false;
+            } else if (!inRect && *ptr == encoder->fg) {
+                // rect start
+                setX(x);
+                setY(y);
+                setHeight(1);
+                inRect = true;
+            }
+            ++ptr;
+        }
+        if (inRect) {
+            // finish rect
+            setWidth(width - lastx());
+            next();
+            inRect = false;
+        }
+        ptr += linestep;
+    }
+
+    return true;
+}
+
+template <class SRC>
+void QRfbDualColorHextile<SRC>::write(QTcpSocket *socket) const
+{
+    const int bpp = encoder->server->clientBytesPerPixel();
+    char buffer[2 * bpp + sizeof(char) + sizeof(numRects)];
+    char &subenc = buffer[0];
+    int n = sizeof(subenc);
+
+    subenc = 0x8; // AnySubrects
+
+    if (encoder->newBg) {
+        subenc |= 0x2; // Background
+        encoder->server->convertPixels(buffer + n, (char*)&encoder->bg, 1);
+        n += bpp;
+//        encoder->newBg = false;
+    }
+
+    if (encoder->newFg) {
+        subenc |= 0x4; // Foreground
+        encoder->server->convertPixels(buffer + n, (char*)&encoder->fg, 1);
+        n += bpp;
+//        encoder->newFg = false;
+    }
+    buffer[n] = numRects;
+    n += sizeof(numRects);
+
+    socket->write(buffer, n);
+    socket->write((char*)rects, numRects * sizeof(Rect));
+}
+
+template <class SRC>
+void QRfbDualColorHextile<SRC>::next()
+{
+    for (int r = numRects - 1; r >= 0; --r) {
+        if (recty(r) == lasty())
+            continue;
+        if (recty(r) < lasty() - 1) // only search previous scanline
+            break;
+        if (rectx(r) == lastx() && width(r) == width(numRects)) {
+            ++rects[r].wh;
+            return;
+        }
+    }
+    ++numRects;
+}
+
+template <class SRC>
+inline void QRfbMultiColorHextile<SRC>::setColor(SRC color)
+{
+    encoder->server->convertPixels(reinterpret_cast<char*>(rect(numRects)),
+                                   (const char*)&color, 1);
+}
+
+template <class SRC>
+inline bool QRfbMultiColorHextile<SRC>::beginRect()
+{
+    if ((rects.size() + bpp + 2) > maxRectsSize)
+        return false;
+    rects.resize(rects.size() + bpp + 2);
+    return true;
+}
+
+template <class SRC>
+inline void QRfbMultiColorHextile<SRC>::endRect()
+{
+    setHeight(numRects, 1);
+    ++numRects;
+}
+
+template <class SRC>
+bool QRfbMultiColorHextile<SRC>::read(const uchar *data,
+                                      int width, int height, int stride)
+{
+    const SRC *ptr = reinterpret_cast<const SRC*>(data);
+    const int linestep = (stride / sizeof(SRC)) - width;
+
+    bpp = encoder->server->clientBytesPerPixel();
+
+    if (encoder->newBg)
+        encoder->bg = ptr[0];
+
+    const SRC bg = encoder->bg;
+    SRC color = bg;
+    bool inRect = false;
+
+    numRects = 0;
+    rects.clear();
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            if (inRect && *ptr != color) { // end rect
+                setWidth(numRects, x - rectx(numRects));
+                endRect();
+                inRect = false;
+            }
+
+            if (!inRect && *ptr != bg) { // begin rect
+                if (!beginRect())
+                    return false;
+                inRect = true;
+                color = *ptr;
+                setColor(color);
+                setX(numRects, x);
+                setY(numRects, y);
+            }
+            ++ptr;
+        }
+        if (inRect) { // end rect
+            setWidth(numRects, width - rectx(numRects));
+            endRect();
+            inRect = false;
+        }
+        ptr += linestep;
+    }
+
+    return true;
+}
+
+template <class SRC>
+void QRfbMultiColorHextile<SRC>::write(QTcpSocket *socket) const
+{
+    quint8 buffer[bpp + sizeof(char) + sizeof(numRects)];
+    quint8 &subenc = buffer[0];
+    int n = sizeof(subenc);
+
+    subenc = 8 | 16; // AnySubrects | SubrectsColoured
+
+    if (encoder->newBg) {
+        subenc |= 0x2; // Background
+        encoder->server->convertPixels(reinterpret_cast<char*>(buffer + n),
+                                       reinterpret_cast<const char*>(&encoder->bg),
+                                       1);
+        n += bpp;
+//        encoder->newBg = false;
+    }
+
+    buffer[n] = numRects;
+    n += sizeof(numRects);
+
+    socket->write(reinterpret_cast<const char*>(buffer), n);
+    socket->write(reinterpret_cast<const char*>(rects.constData()),
+                  rects.size());
+}
+
+bool QVNCServer::pixelConversionNeeded() const
+{
+    if (!sameEndian)
+        return true;
+
+    const int screendepth = qvnc_screen->depth();
+    if (screendepth != pixelFormat.bitsPerPixel)
+        return true;
+
+    switch (screendepth) {
+    case 32:
+        return false;
+    case 16:
+        return (pixelFormat.redBits == 5
+                && pixelFormat.greenBits == 6
+                && pixelFormat.blueBits == 5);
+    }
     return true;
 }
 
 // count: number of pixels
-void QVNCServer::convertPixels(char *dst, const char *src, int count)
+void QVNCServer::convertPixels(char *dst, const char *src, int count) const
 {
     const int screendepth = qvnc_screen->depth();
 
@@ -767,22 +1158,92 @@ void QVNCServer::convertPixels(char *dst, const char *src, int count)
                 }
             }
         } else if (screendepth == 16 && pixelFormat.bitsPerPixel == 32) {
-            const quint16 *src16 = reinterpret_cast<const quint16*>(src);
+#ifdef __MMX__
+            const quint64 *src64 = reinterpret_cast<const quint64*>(src);
+            quint64 *dst64 = reinterpret_cast<quint64*>(dst);
+            int count64 = count / 4; // sizeof(quint16) / sizeof(quint64);
+            while (count64--) {
+                __m64 result1;
+                __m64 result2;
+                __m64 s = __m64(*src64++);
+
+                __m64 reds = _m_pand(s, _mm_set_pi32(0xf800f800, 0xf800f800));
+                reds = _mm_srli_pi16(reds, 8);
+                __m64 red1 = _mm_unpackhi_pi16(_mm_setzero_si64(), reds);
+                __m64 red2 = _mm_unpacklo_pi16(_mm_setzero_si64(), reds);
+                result1 = red1;
+                result2 = red2;
+
+                __m64 greens = _m_pand(s, _mm_set_pi32(0x07e007e0, 0x07e007e0));
+                greens = _mm_slli_pi16(greens, 5);
+                __m64 green1 = _mm_unpackhi_pi16(greens, _mm_setzero_si64());
+                __m64 green2 = _mm_unpacklo_pi16(greens, _mm_setzero_si64());
+                result1 = _m_por(result1, green1);
+                result2 = _m_por(result2, green2);
+
+                __m64 blues = _m_pand(s, _mm_set_pi32(0x001f001f, 0x001f001f));
+                blues = _mm_slli_pi16(blues, 3);
+                __m64 blue1 = _mm_unpackhi_pi16(blues, _mm_setzero_si64());
+                __m64 blue2 = _mm_unpacklo_pi16(blues, _mm_setzero_si64());
+                result1 = _m_por(result1, blue1);
+                result2 = _m_por(result2, blue2);
+
+                *dst64++ = (quint64)result2;
+                *dst64++ = (quint64)result1;
+            }
+            _mm_empty();
+
+            if (count & 0x3) {
+                const quint16 *src16 = reinterpret_cast<const quint16*>(src);
+                quint32 *dst32 = reinterpret_cast<quint32*>(dst);
+                switch (count & 0x3) {
+                case 3: dst32[count - 3] = qt_conv16ToRgb(src16[count - 3]);
+                case 2: dst32[count - 2] = qt_conv16ToRgb(src16[count - 2]);
+                case 1: dst32[count - 1] = qt_conv16ToRgb(src16[count - 1]);
+                }
+            }
+#else // __MMX__
+            const quint32 *src32 = reinterpret_cast<const quint32*>(src);
             quint32 *dst32 = reinterpret_cast<quint32*>(dst);
-            for (int i = 0; i < count; ++i)
-                *dst32++ = qt_conv16ToRgb(*src16++);
+            int count32 = count * sizeof(quint16) / sizeof(quint32);
+            while (count32--) {
+                const quint32 s = *src32++;
+                quint32 result1;
+                quint32 result2;
+
+                // red
+                result1 = ((s & 0xf8000000) | ((s & 0xe0000000) >> 5)) >> 8;
+                result2 = ((s & 0x0000f800) | ((s & 0x0000e000) >> 5)) << 8;
+
+                // green
+                result1 |= ((s & 0x07e00000) | ((s & 0x06000000) >> 6)) >> 11;
+                result2 |= ((s & 0x000007e0) | ((s & 0x00000600) >> 6)) << 5;
+
+                // blue
+                result1 |= ((s & 0x001f0000) | ((s & 0x001c0000) >> 5)) >> 13;
+                result2 |= ((s & 0x0000001f) | ((s & 0x0000001c) >> 5)) << 3;
+
+                *dst32++ = result2;
+                *dst32++ = result1;
+            }
+            if (count & 0x1) {
+                const quint16 *src16 = reinterpret_cast<const quint16*>(src);
+                dst32[count - 1] = qt_conv16ToRgb(src16[count - 1]);
+            }
+#endif
             return;
         }
     }
 
     const int bytesPerPixel = pixelFormat.bitsPerPixel / 8;
 
-    nibble = 0;
+//    nibble = 0;
 
     for (int i = 0; i < count; ++i) {
         int r, g, b;
 
         switch (screendepth) {
+#if 0
         case 4: {
             if (!nibble) {
                 r = ((*src) & 0x0f) << 4;
@@ -794,6 +1255,7 @@ void QVNCServer::convertPixels(char *dst, const char *src, int count)
             g = b = r;
             break;
         }
+#endif
         case 8: {
             QRgb rgb = qvnc_screen->clut()[*src];
             r = qRed(rgb);
@@ -908,224 +1370,347 @@ static void blendCursor(QImage &image, const QRect &imageRect)
     painter.end();
 }
 
+QVNCDirtyMap::QVNCDirtyMap(QScreen *s)
+    : bytesPerPixel(0), numDirty(0), screen(s)
+{
+    bytesPerPixel = screen->depth() / 8;
+    bufferWidth = screen->deviceWidth();
+    bufferHeight = screen->deviceHeight();
+    bufferStride = bufferWidth * bytesPerPixel;
+    buffer = new uchar[bufferHeight * bufferStride];
+
+    mapWidth = (bufferWidth + MAP_TILE_SIZE - 1) / MAP_TILE_SIZE;
+    mapHeight = (bufferHeight + MAP_TILE_SIZE - 1) / MAP_TILE_SIZE;
+    map = new uchar[mapWidth * mapHeight];
+
+    numTiles = mapWidth * mapHeight;
+}
+
+QVNCDirtyMap::~QVNCDirtyMap()
+{
+    delete map;
+    delete buffer;
+}
+
+void QVNCDirtyMap::reset()
+{
+    memset(map, 1, numTiles);
+    memset(buffer, 0, bufferHeight * bufferStride);
+    numDirty = numTiles;
+}
+
+inline bool QVNCDirtyMap::dirty(int x, int y) const
+{
+    return map[y * mapWidth + x];
+}
+
+inline void QVNCDirtyMap::setClean(int x, int y)
+{
+    map[y * mapWidth + x] = 0;
+    --numDirty;
+}
+
+template <class T>
+void QVNCDirtyMapOptimized<T>::setDirty(int tileX, int tileY, bool force)
+{
+    static bool alwaysForce = qgetenv("QT_VNC_NO_COMPAREBUFFER").toInt();
+    if (alwaysForce)
+        force = true;
+
+    bool changed = false;
+
+    if (!force) {
+        const int lstep = screen->linestep();
+        const int startX = tileX * MAP_TILE_SIZE;
+        const int startY = tileY * MAP_TILE_SIZE;
+        const uchar *scrn = screen->base()
+                            + startY * lstep + startX * bytesPerPixel;
+        uchar *old = buffer + startY * bufferStride + startX * sizeof(T);
+
+        const int tileHeight = (startY + MAP_TILE_SIZE > bufferHeight ?
+                                bufferHeight - startY : MAP_TILE_SIZE);
+        const int tileWidth = (startX + MAP_TILE_SIZE > bufferWidth ?
+                               bufferWidth - startX : MAP_TILE_SIZE);
+        const bool doInlines = (tileWidth == MAP_TILE_SIZE);
+
+        int y = tileHeight;
+
+        if (doInlines) { // hw: memcmp/memcpy is inlined when using constants
+            while (y) {
+                if (memcmp(old, scrn, sizeof(T) * MAP_TILE_SIZE)) {
+                    changed = true;
+                    break;
+                }
+                scrn += lstep;
+                old += bufferStride;
+                --y;
+            }
+
+            while (y) {
+                memcpy(old, scrn, sizeof(T) * MAP_TILE_SIZE);
+                scrn += lstep;
+                old += bufferStride;
+                --y;
+            }
+        } else {
+            while (y) {
+                if (memcmp(old, scrn, sizeof(T) * tileWidth)) {
+                    changed = true;
+                    break;
+                }
+                scrn += lstep;
+                old += bufferStride;
+                --y;
+            }
+
+            while (y) {
+                memcpy(old, scrn, sizeof(T) * tileWidth);
+                scrn += lstep;
+                old += bufferStride;
+                --y;
+            }
+        }
+    }
+
+    const int mapIndex = tileY * mapWidth + tileX;
+    if ((force || changed) && !map[mapIndex]) {
+        map[mapIndex] = 1;
+        ++numDirty;
+    }
+}
+
+template <class SRC>
+QRfbHextileEncoder<SRC>::QRfbHextileEncoder(QVNCServer *s)
+    : QRfbEncoder(s),
+      singleColorHextile(this), dualColorHextile(this), multiColorHextile(this)
+{
+}
+
 /*
-  Send dirty rects using hextile encoding.  We only actually use the Raw
-  and BackgroundSpecified subencodings.  The BackgroundSpecified encoding
-  is only used to send areas of a single color.
+    \internal
+    Send dirty rects using hextile encoding.
 */
-void QVNCServer::sendHextile()
+template <class SRC>
+void QRfbHextileEncoder<SRC>::write()
 {
     QWSDisplay::grab(true);
 
-    const quint32 encoding = htonl(5); // hextile encoding
-    const int bytesPerPixel = pixelFormat.bitsPerPixel / 8;
+    QVNCDirtyMap *map = server->dirtyMap();
+    QTcpSocket *socket = server->clientSocket();
 
-    quint16 count = 0;
-    int vtiles = (qvnc_screen->deviceHeight()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
-    int htiles = (qvnc_screen->deviceWidth()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
-    if (header()->dirty) {
-        for (int y = 0; y < vtiles; ++y)
-            for (int x = 0; x < htiles; ++x)
-                if (header()->map[y][x])
-                    ++count;
+    const quint32 encoding = htonl(5); // hextile encoding
+    const int bytesPerPixel = server->clientBytesPerPixel();
+
+    {
+        const char tmp[2] = { 0, 0 }; // msg type, padding
+        socket->write(tmp, sizeof(tmp));
+    }
+    {
+        const quint16 count = htons(map->numDirty);
+        socket->write((char *)&count, sizeof(count));
     }
 
-    char tmp[2] = { 0, 0 }; // msg type, padding
-    client->write(tmp, sizeof(tmp));
-    count = htons(count);
-    client->write((char *)&count, sizeof(count));
-
-    if (!header()->dirty) {
+    if (map->numDirty <= 0) {
         QWSDisplay::ungrab();
         return;
     }
 
-    const QImage screenImage(qvnc_screen->base(), qvnc_screen->deviceWidth(),
-                             qvnc_screen->deviceHeight(),
-                             formatForDepth(qvnc_screen->depth()));
+    newBg = true;
+    newFg = true;
 
-    QRfbRect rect;
-    rect.h = MAP_TILE_SIZE;
-    rect.y = 0;
-    for (int y = 0; y < vtiles; ++y) {
-        if (rect.y + MAP_TILE_SIZE > qvnc_screen->height())
-            rect.h = qvnc_screen->height() - rect.y;
+    const QImage screenImage = server->screenImage();
+    QRfbRect rect(0, 0, MAP_TILE_SIZE, MAP_TILE_SIZE);
+
+    for (int y = 0; y < map->mapHeight; ++y) {
+        if (rect.y + MAP_TILE_SIZE > server->screen()->height())
+            rect.h = server->screen()->height() - rect.y;
         rect.w = MAP_TILE_SIZE;
-        for (int x = 0; x < htiles; ++x) {
-            if (!header()->map[y][x])
+        for (int x = 0; x < map->mapWidth; ++x) {
+            if (!map->dirty(x, y))
                 continue;
-            header()->map[y][x] = 0;
+            map->setClean(x, y);
 
             rect.x = x * MAP_TILE_SIZE;
-            if (rect.x + MAP_TILE_SIZE > qvnc_screen->deviceWidth())
-                rect.w = qvnc_screen->deviceWidth() - rect.x;
-            rect.write(client);
+            if (rect.x + MAP_TILE_SIZE > server->screen()->deviceWidth())
+                rect.w = server->screen()->deviceWidth() - rect.x;
+            rect.write(socket);
 
-            client->write((char *)&encoding, sizeof(encoding));
+            socket->write((char *)&encoding, sizeof(encoding));
 
-            const uchar *screendata = qvnc_screen->base() +
-                                      rect.y * qvnc_screen->linestep() +
-                                      rect.x * qvnc_screen->depth() / 8;
-            int linestep = qvnc_screen->linestep();
+            const uchar *screendata = screenImage.scanLine(rect.y)
+                                      + rect.x * screenImage.depth() / 8;
+            int linestep = screenImage.bytesPerLine();
 
             // hardware cursors must be blended with the screen memory
             QImage tileImage;
             if (qt_screencursor->isAccelerated()) {
                 const QRect tileRect(rect.x, rect.y, rect.w, rect.h);
                 const QRect cursorRect = qt_screencursor->boundingRect()
-                                         .translated(-qvnc_screen->offset());
+                                         .translated(-server->screen()->offset());
                 if (tileRect.intersects(cursorRect)) {
                     tileImage = screenImage.copy(tileRect);
                     blendCursor(tileImage,
-                                tileRect.translated(qvnc_screen->offset()));
+                                tileRect.translated(server->screen()->offset()));
                     screendata = tileImage.bits();
                     linestep = tileImage.bytesPerLine();
                 }
             }
 
-            if (checkFill(screendata, rect.w, rect.h, linestep)) {
-                // This area is a single color
-                //qDebug("Send empty block");
-                quint8 subenc = 2; // BackgroundSpecified subencoding
-                client->write((char *)&subenc, 1);
-
-                char buffer[4];
-                convertPixels(buffer, (const char*)screendata, 1);
-                client->write(buffer, bytesPerPixel);
-            } else {
-                const int bytesPerPixel = pixelFormat.bitsPerPixel / 8;
+            if (singleColorHextile.read(screendata, rect.w, rect.h, linestep)) {
+                singleColorHextile.write(socket);
+            } else if (dualColorHextile.read(screendata, rect.w, rect.h, linestep)) {
+                dualColorHextile.write(socket);
+            } else if (multiColorHextile.read(screendata, rect.w, rect.h, linestep)) {
+                multiColorHextile.write(socket);
+            } else if (server->doPixelConversion()) {
                 const int bufferSize = rect.w * rect.h * bytesPerPixel + 1;
                 const int padding = sizeof(quint32) - sizeof(char);
-                char *buffer = new char[bufferSize + padding];
+                buffer.resize(bufferSize + padding);
 
                 buffer[padding] = 1; // Raw subencoding
 
                 // convert pixels
-                char *b = buffer + padding + 1;
+                char *b = buffer.data() + padding + 1;
                 const int bstep = rect.w * bytesPerPixel;
                 for (int i = 0; i < rect.h; ++i) {
-                    convertPixels(b, (const char*)screendata, rect.w);
+                    server->convertPixels(b, (const char*)screendata, rect.w);
                     screendata += linestep;
                     b += bstep;
                 }
-                client->write(buffer + padding, bufferSize);
-                delete[] buffer;
+                socket->write(buffer.constData() + padding, bufferSize);
+            } else {
+                quint8 subenc = 1; // Raw subencoding
+                socket->write((char *)&subenc, 1);
+
+                // send pixels
+                for (int i = 0; i < rect.h; ++i) {
+                    socket->write((const char*)screendata,
+                                  rect.w * bytesPerPixel);
+                    screendata += linestep;
+                }
             }
         }
-        if (client->state() == QAbstractSocket::UnconnectedState)
+        if (socket->state() == QAbstractSocket::UnconnectedState)
             break;
         rect.y += MAP_TILE_SIZE;
     }
-    client->flush();
-    header()->dirty = false;
+    socket->flush();
+    Q_ASSERT(map->numDirty == 0);
 
     QWSDisplay::ungrab();
 }
 
-/*
-  Send dirty rects as raw data.  The rectangles are merged into larger
-  rects before sending.
-*/
-void QVNCServer::sendRaw()
+void QRfbRawEncoder::write()
 {
-    QWSDisplay::grab(true);
+    QWSDisplay::grab(false);
 
-    const int bytesPerPixel = pixelFormat.bitsPerPixel / 8;
-    const quint32 encoding = htonl(0); // raw
+    QVNCDirtyMap *map = server->dirtyMap();
+    QTcpSocket *socket = server->clientSocket();
 
-    quint16 count = 0;
-    int vtiles = (qvnc_screen->deviceHeight()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
-    int htiles = (qvnc_screen->deviceWidth()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
-    if (header()->dirty) {
-        for (int y = 0; y < vtiles; ++y)
-            for (int x = 0; x < htiles; ++x)
-                if (header()->map[y][x])
-                    ++count;
+    const int bytesPerPixel = server->clientBytesPerPixel();
+
+    // create a region from the dirty rects and send the region's merged rects.
+    QRegion rgn;
+    if (map) {
+        for (int y = 0; y < map->mapHeight; ++y) {
+            for (int x = 0; x < map->mapWidth; ++x) {
+                if (!map->dirty(x, y))
+                    continue;
+                rgn += QRect(x * MAP_TILE_SIZE, y * MAP_TILE_SIZE,
+                             MAP_TILE_SIZE, MAP_TILE_SIZE);
+                map->setClean(x, y);
+            }
+        }
+
+        rgn &= QRect(0, 0, server->screen()->deviceWidth(),
+                     server->screen()->deviceHeight());
+    }
+    const QVector<QRect> rects = rgn.rects();
+
+    {
+        const char tmp[2] = { 0, 0 }; // msg type, padding
+        socket->write(tmp, sizeof(tmp));
     }
 
-    char tmp[2] = { 0, 0 }; // msg type, padding
-    client->write(tmp, sizeof(tmp));
-    client->write((char *)&count, sizeof(count));
+    {
+        const quint16 count = htons(rects.size());
+        socket->write((char *)&count, sizeof(count));
+    }
 
-    if (!header()->dirty) {
+    if (rects.size() <= 0) {
         QWSDisplay::ungrab();
         return;
     }
 
-    const QImage screenImage(qvnc_screen->base(), qvnc_screen->deviceWidth(),
-                             qvnc_screen->deviceHeight(),
-                             formatForDepth(qvnc_screen->depth()));
+    const QImage screenImage = server->screenImage();
 
-    QRfbRect rect;
-    rect.h = MAP_TILE_SIZE;
-    rect.y = 0;
-    for (int y = 0; y < vtiles; ++y) {
-        if (rect.y + MAP_TILE_SIZE > qvnc_screen->height())
-            rect.h = qvnc_screen->height() - rect.y;
-        rect.w = MAP_TILE_SIZE;
-        for (int x = 0; x < htiles; ++x) {
-            if (!header()->map[y][x])
-                continue;
-            header()->map[y][x] = 0;
+    for (int i = 0; i < rects.size(); ++i) {
+        const QRect tileRect = rects.at(i);
+        const QRfbRect rect(tileRect.x(), tileRect.y(),
+                            tileRect.width(), tileRect.height());
+        rect.write(socket);
 
-            rect.x = x * MAP_TILE_SIZE;
-            if (rect.x + MAP_TILE_SIZE > qvnc_screen->deviceWidth())
-                rect.w = qvnc_screen->deviceWidth() - rect.x;
-            rect.write(client);
+        const quint32 encoding = htonl(0); // raw encoding
+        socket->write((char *)&encoding, sizeof(encoding));
 
-            client->write((char *)&encoding, sizeof(encoding));
+        int linestep = screenImage.bytesPerLine();
+        const uchar *screendata = screenImage.scanLine(rect.y)
+                                  + rect.x * screenImage.depth() / 8;
 
-            const uchar *screendata = qvnc_screen->base() +
-                                      rect.y * qvnc_screen->linestep() +
-                                      rect.x * qvnc_screen->depth() / 8;
-            int linestep = qvnc_screen->linestep();
-
-            // hardware cursors must be blended with the screen memory
-            QImage tileImage;
-            if (qt_screencursor->isAccelerated()) {
-                const QRect tileRect(rect.x, rect.y, rect.w, rect.h);
-                const QRect cursorRect = qt_screencursor->boundingRect()
-                                         .translated(-qvnc_screen->offset());
-                if (tileRect.intersects(cursorRect)) {
-                    tileImage = screenImage.copy(tileRect);
-                    blendCursor(tileImage,
-                                tileRect.translated(qvnc_screen->offset()));
-                    screendata = tileImage.bits();
-                    linestep = tileImage.bytesPerLine();
-                }
+        // hardware cursors must be blended with the screen memory
+        QImage tileImage;
+        if (qt_screencursor->isAccelerated()) {
+            const QRect cursorRect = qt_screencursor->boundingRect()
+                                     .translated(-server->screen()->offset());
+            if (tileRect.intersects(cursorRect)) {
+                tileImage = screenImage.copy(tileRect);
+                blendCursor(tileImage,
+                            tileRect.translated(server->screen()->offset()));
+                screendata = tileImage.bits();
+                linestep = tileImage.bytesPerLine();
             }
+        }
 
+        if (server->doPixelConversion()) {
             const int bufferSize = rect.w * rect.h * bytesPerPixel;
-            char *buffer = new char[bufferSize];
+            if (bufferSize > buffer.size())
+                buffer.resize(bufferSize);
 
             // convert pixels
-            char *b = buffer;
+            char *b = buffer.data();
             const int bstep = rect.w * bytesPerPixel;
             for (int i = 0; i < rect.h; ++i) {
-                convertPixels(b, (const char*)screendata, rect.w);
+                server->convertPixels(b, (const char*)screendata, rect.w);
                 screendata += linestep;
                 b += bstep;
             }
-            client->write(buffer, bufferSize);
-            delete[] buffer;
+            socket->write(buffer.constData(), bufferSize);
+        } else {
+            for (int i = 0; i < rect.h; ++i) {
+                socket->write((const char*)screendata, rect.w * bytesPerPixel);
+                screendata += linestep;
+            }
         }
-        if (client->state() == QAbstractSocket::UnconnectedState)
+        if (socket->state() == QAbstractSocket::UnconnectedState)
             break;
-        rect.y += MAP_TILE_SIZE;
     }
-    client->flush();
-    header()->dirty = false;
+    socket->flush();
 
     QWSDisplay::ungrab();
 }
 
+inline QImage QVNCServer::screenImage() const
+{
+    return QImage(qvnc_screen->base(), qvnc_screen->deviceWidth(),
+                  qvnc_screen->deviceHeight(),
+                  formatForDepth(qvnc_screen->depth()));
+}
+
 void QVNCServer::checkUpdate()
 {
-    if (wantUpdate && header()->dirty) {
-        if (supportHextile)
-            sendHextile();
-        else
-            sendRaw();
+    if (wantUpdate && dirtyMap()->numDirty > 0) {
+        if (encoder)
+            encoder->write();
         wantUpdate = false;
     }
 }
@@ -1133,6 +1718,9 @@ void QVNCServer::checkUpdate()
 void QVNCServer::discardClient()
 {
     timer->stop();
+    state = Unconnected;
+    delete encoder;
+    encoder = 0;
     if (!qvnc_screen->d_ptr->subscreen)
         QWSServer::instance()->enablePainting(false);
 }
@@ -1141,8 +1729,6 @@ void QVNCServer::discardClient()
 //===========================================================================
 
 /*!
-    \internal
-
     \class QVNCScreen
     \ingroup qws
 
@@ -1191,24 +1777,33 @@ QVNCScreen::~QVNCScreen()
 */
 void QVNCScreen::setDirty(const QRect& rect)
 {
+    d_ptr->setDirty(rect);
+}
+
+void QVNCScreenPrivate::setDirty(const QRect& rect, bool force)
+{
     if (rect.isEmpty())
         return;
 
-    const QRect r = rect.translated(-offset());
-    d_ptr->hdr.dirty = true;
-    int x1 = r.x()/MAP_TILE_SIZE;
-    int y1 = r.y()/MAP_TILE_SIZE;
-    for (int y = y1; y <= r.bottom()/MAP_TILE_SIZE && y < MAP_HEIGHT; y++)
-        for (int x = x1; x <= r.right()/MAP_TILE_SIZE && x < MAP_WIDTH; x++)
-            d_ptr->hdr.map[y][x] = 1;
+    if (subscreen)
+        subscreen->setDirty(rect);
 
-    if (d_ptr->subscreen)
-        d_ptr->subscreen->setDirty(rect);
+    if (!vncServer || !vncServer->isConnected())
+        return;
+
+    const QRect r = rect.translated(-q_ptr->offset());
+    int x1 = r.x() / MAP_TILE_SIZE;
+    int y1 = r.y() / MAP_TILE_SIZE;
+    for (int y = y1; y <= r.bottom() / MAP_TILE_SIZE && y < dirty->mapHeight; y++)
+        for (int x = x1; x <= r.right() / MAP_TILE_SIZE && x < dirty->mapWidth; x++)
+            dirty->setDirty(x, y, force);
+
+    vncServer->setDirty();
 }
 
 static int getDisplayId(const QString &spec)
 {
-    QRegExp regexp(":(\\d+)\\b");
+    QRegExp regexp(QLatin1String(":(\\d+)\\b"));
     if (regexp.lastIndexIn(spec) != -1) {
         const QString capture = regexp.cap(1);
         return capture.toInt();
@@ -1222,9 +1817,9 @@ static int getDisplayId(const QString &spec)
 bool QVNCScreen::connect(const QString &displaySpec)
 {
     QString dspec = displaySpec;
-    if (dspec.startsWith("VNC:", Qt::CaseInsensitive))
-        dspec = dspec.mid(QString("VNC:").size());
-    else if (dspec.compare(QLatin1String("VNC"), Qt::CaseInsensitive) == 0)
+    if (dspec.startsWith(QLatin1String("vnc:"), Qt::CaseInsensitive))
+        dspec = dspec.mid(QString("vnc:").size());
+    else if (dspec.compare(QLatin1String("vnc"), Qt::CaseInsensitive) == 0)
         dspec = QString();
 
     const QString displayIdSpec = QString(" :%1").arg(displayId);
@@ -1233,7 +1828,7 @@ bool QVNCScreen::connect(const QString &displaySpec)
 
     QStringList args = dspec.split(QLatin1Char(':'),
                                    QString::SkipEmptyParts);
-    QRegExp refreshRegexp("^refreshrate=(\\d+)$");
+    QRegExp refreshRegexp(QLatin1String("^refreshrate=(\\d+)$"));
     int index = args.indexOf(refreshRegexp);
     if (index >= 0) {
         d_ptr->refreshRate = refreshRegexp.cap(1).toInt();
@@ -1242,13 +1837,28 @@ bool QVNCScreen::connect(const QString &displaySpec)
     }
 
     QString driver = dspec;
-    int colon = driver.indexOf(':');
+    int colon = driver.indexOf(QLatin1Char(':'));
     if (colon >= 0)
         driver.truncate(colon);
 
+    QScreen *screen;
     if (QScreenDriverFactory::keys().contains(driver, Qt::CaseInsensitive)) {
         const int id = getDisplayId(dspec);
-        d_ptr->subscreen = qt_get_screen(id, dspec.toLatin1().constData());
+        screen = qt_get_screen(id, dspec.toLatin1().constData());
+
+        QScreen::d = screen->depth();
+        QScreen::w = screen->width();
+        QScreen::h = screen->height();
+        QScreen::dw = screen->deviceWidth();
+        QScreen::dh = screen->deviceHeight();
+        QScreen::lstep = screen->linestep();
+        QScreen::data = screen->base();
+        QScreen::physWidth = screen->physicalWidth();
+        QScreen::physHeight = screen->physicalHeight();
+        setOffset(screen->offset());
+
+        d_ptr->subscreen = screen;
+
     } else { // create virtual screen
         d = qgetenv("QWS_DEPTH").toInt();
         if (!d)
@@ -1264,21 +1874,43 @@ bool QVNCScreen::connect(const QString &displaySpec)
             dh = h = 480;
         }
 
+        const QStringList args = displaySpec.split(QLatin1Char(':'),
+                                                   QString::SkipEmptyParts);
+
         if (args.contains(QLatin1String("paintonscreen"), Qt::CaseInsensitive))
             d_ptr->doOnScreenSurface = true;
 
-        QRegExp depthRegexp("^depth=(\\d+)$");
+        QRegExp depthRegexp(QLatin1String("^depth=(\\d+)$"));
         if (args.indexOf(depthRegexp) != -1)
             d = depthRegexp.cap(1).toInt();
 
-        QRegExp sizeRegexp("^size=(\\d+)x(\\d+)$");
+        QRegExp sizeRegexp(QLatin1String("^size=(\\d+)x(\\d+)$"));
         if (args.indexOf(sizeRegexp) != -1) {
             dw = w = sizeRegexp.cap(1).toInt();
             dh = h = sizeRegexp.cap(2).toInt();
         }
 
+        const int dpi = 72;
+        physWidth = qRound(dw * 25.4 / dpi);
+        physHeight = qRound(dh * 25.4 / dpi);
+
+        lstep = (dw * d + 7) / 8;
+        size = h * lstep;
+        mapsize = size;
+
         QWSServer::setDefaultMouse("None");
         QWSServer::setDefaultKeyboard("None");
+
+#ifndef QT_NO_QWS_MULTIPROCESS
+        d_ptr->shm = new QSharedMemory(size, qws_qtePipeFilename(), displayId);
+        if (!d_ptr->shm->create())
+            qDebug("QVNCScreen could not create shared memory");
+        if (!d_ptr->shm->attach())
+            qDebug("QVNCScreen could not attach to shared memory");
+        QScreen::data = reinterpret_cast<uchar*>(d_ptr->shm->base());
+#else
+        QScreen::data = new uchar[size];
+#endif
     }
 
     d_ptr->configure();
@@ -1313,21 +1945,41 @@ bool QVNCScreen::initDevice()
         screencols = 16;
         int val = 0;
         for (int idx = 0; idx < 16; idx++, val += 17) {
-            screenclut[idx]=qRgb(val, val, val);
+            screenclut[idx] = qRgb(val, val, val);
         }
     }
     d_ptr->vncServer = new QVNCServer(this, displayId);
     d_ptr->vncServer->setRefreshRate(d_ptr->refreshRate);
 
-    d_ptr->hdr.dirty = false;
-    memset(d_ptr->hdr.map, 0, MAP_WIDTH * MAP_HEIGHT);
-
-#ifndef QT_NO_QWS_CURSOR
-    QScreenCursor::initSoftwareCursor();
-#endif
     if (d_ptr->subscreen)
         return d_ptr->subscreen->initDevice();
 
+    switch (depth()) {
+#ifdef QT_QWS_DEPTH_32
+    case 32:
+        d_ptr->dirty = new QVNCDirtyMapOptimized<quint32>(this);
+        break;
+#endif
+#ifdef QT_QWS_DEPTH_16
+    case 16:
+        d_ptr->dirty = new QVNCDirtyMapOptimized<quint16>(this);
+        break;
+#endif
+#ifdef QT_QWS_DEPTH_8
+    case 8:
+        d_ptr->dirty = new QVNCDirtyMapOptimized<quint8>(this);
+        break;
+#endif
+    default:
+        qWarning("QVNCScreen::initDevice: No support for screen depth %d",
+                 depth());
+        d_ptr->dirty = 0;
+        return false;
+    }
+
+#ifndef QT_NO_QWS_CURSOR
+    qt_screencursor = new QVNCCursor(this);
+#endif
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor = new QVNCCursor(this);
 #endif
@@ -1352,6 +2004,7 @@ void QVNCScreen::shutdownDevice()
             d_ptr->shm->destroy();
 #endif
     }
+    delete d_ptr->dirty;
 }
 
 /*!
@@ -1486,14 +2139,15 @@ void QVNCScreen::resumeUpdates()
 */
 void QVNCScreen::exposeRegion(QRegion r, int changing)
 {
-    if (d_ptr->subscreen)
+    if (d_ptr->subscreen) {
         d_ptr->subscreen->exposeRegion(r, changing);
-    else
-        QScreen::exposeRegion(r, changing);
 
-    const QVector<QRect> rects = (region() & r).rects();
-    for (int i = 0; i < rects.size(); ++i)
-        setDirty(rects.at(i));
+        const QVector<QRect> rects = (region() & r).rects();
+        for (int i = 0; i < rects.size(); ++i)
+            setDirty(rects.at(i));
+    } else {
+        QScreen::exposeRegion(r, changing);
+    }
 }
 
 /*!

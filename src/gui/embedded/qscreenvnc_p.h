@@ -29,6 +29,7 @@
 
 #ifndef QT_NO_QWS_VNC
 
+#include <QtCore/qvarlengtharray.h>
 #include <QtNetwork/qtcpsocket.h>
 #include <QtNetwork/qtcpserver.h>
 #include <private/qsharedmemory_p.h>
@@ -46,6 +47,7 @@ public:
     void move(int x, int y);
 
 private:
+    void setDirty(const QRect &r) const;
     QVNCScreen *screen;
 };
 #endif // QT_NO_QWS_CURSOR
@@ -54,10 +56,41 @@ private:
 #define MAP_WIDTH 1280 / MAP_TILE_SIZE
 #define MAP_HEIGHT 1024 / MAP_TILE_SIZE
 
-struct QVNCHeader
+class QVNCDirtyMap
 {
-    bool dirty;
-    uchar map[MAP_HEIGHT][MAP_WIDTH];
+public:
+    QVNCDirtyMap(QScreen *screen);
+    virtual ~QVNCDirtyMap();
+
+    void reset();
+    bool dirty(int x, int y) const;
+    virtual void setDirty(int x, int y, bool force = false) = 0;
+    void setClean(int x, int y);
+
+    int bytesPerPixel;
+
+    int numDirty;
+    int mapWidth;
+    int mapHeight;
+
+protected:
+    uchar *map;
+    QScreen *screen;
+    uchar *buffer;
+    int bufferWidth;
+    int bufferHeight;
+    int bufferStride;
+    int numTiles;
+};
+
+template <class T>
+class QVNCDirtyMapOptimized : public QVNCDirtyMap
+{
+public:
+    QVNCDirtyMapOptimized(QScreen *screen) : QVNCDirtyMap(screen) {}
+    ~QVNCDirtyMapOptimized() {}
+
+    void setDirty(int x, int y, bool force = false);
 };
 
 class QRfbRect
@@ -69,7 +102,7 @@ public:
     }
 
     void read(QTcpSocket *s);
-    void write(QTcpSocket *s);
+    void write(QTcpSocket *s) const;
 
     quint16 x;
     quint16 y;
@@ -168,11 +201,12 @@ public:
     QVNCScreenPrivate(QVNCScreen *parent);
     ~QVNCScreenPrivate();
 
+    void setDirty(const QRect &rect, bool force = false);
     void configure();
 
     bool doOnScreenSurface;
+    QVNCDirtyMap *dirty;
     int refreshRate;
-    QVNCHeader hdr;
     QVNCServer *vncServer;
     QScreen *subscreen;
 
@@ -183,6 +217,171 @@ public:
     QVNCScreen *q_ptr;
 };
 
+class QRfbEncoder
+{
+public:
+    QRfbEncoder(QVNCServer *s) : server(s) {}
+    virtual ~QRfbEncoder() {}
+
+    virtual void write() = 0;
+
+protected:
+    QVNCServer *server;
+};
+
+class QRfbRawEncoder : public QRfbEncoder
+{
+public:
+    QRfbRawEncoder(QVNCServer *s) : QRfbEncoder(s) {}
+
+    void write();
+
+private:
+    QByteArray buffer;
+};
+
+template <class SRC> class QRfbHextileEncoder;
+
+template <class SRC>
+class QRfbSingleColorHextile
+{
+public:
+    QRfbSingleColorHextile(QRfbHextileEncoder<SRC> *e) : encoder(e) {}
+    bool read(const uchar *data, int width, int height, int stride);
+    void write(QTcpSocket *socket) const;
+
+private:
+    QRfbHextileEncoder<SRC> *encoder;
+};
+
+template <class SRC>
+class QRfbDualColorHextile
+{
+public:
+    QRfbDualColorHextile(QRfbHextileEncoder<SRC> *e) : encoder(e) {}
+    bool read(const uchar *data, int width, int height, int stride);
+    void write(QTcpSocket *socket) const;
+
+private:
+    struct Rect {
+        quint8 xy;
+        quint8 wh;
+    } rects[8 * 16];
+
+    quint8 numRects;
+    QRfbHextileEncoder<SRC> *encoder;
+
+private:
+    inline int lastx() const { return rectx(numRects); }
+    inline int lasty() const { return recty(numRects); }
+    inline int rectx(int r) const { return rects[r].xy >> 4; }
+    inline int recty(int r) const { return rects[r].xy & 0x0f; }
+    inline int width(int r) const { return (rects[r].wh >> 4) + 1; }
+    inline int height(int r) const { return (rects[r].wh & 0x0f) + 1; }
+
+    inline void setX(int r, int x) {
+        rects[r].xy = (x << 4) | (rects[r].xy & 0x0f);
+    }
+    inline void setY(int r, int y) {
+        rects[r].xy = (rects[r].xy & 0xf0) | y;
+    }
+    inline void setWidth(int r, int width) {
+        rects[r].wh = ((width - 1) << 4) | (rects[r].wh & 0x0f);
+    }
+    inline void setHeight(int r, int height) {
+        rects[r].wh = (rects[r].wh & 0xf0) | (height - 1);
+    }
+
+    inline void setWidth(int width) { setWidth(numRects, width); }
+    inline void setHeight(int height) { setHeight(numRects, height); }
+    inline void setX(int x) { setX(numRects, x); }
+    inline void setY(int y) { setY(numRects, y); }
+    void next();
+};
+
+template <class SRC>
+class QRfbMultiColorHextile
+{
+public:
+    QRfbMultiColorHextile(QRfbHextileEncoder<SRC> *e) : encoder(e) {}
+    bool read(const uchar *data, int width, int height, int stride);
+    void write(QTcpSocket *socket) const;
+
+private:
+    inline quint8* rect(int r) {
+        return rects.data() + r * (bpp + 2);
+    }
+    inline const quint8* rect(int r) const {
+        return rects.constData() + r * (bpp + 2);
+    }
+    inline void setX(int r, int x) {
+        quint8 *ptr = rect(r) + bpp;
+        *ptr = (x << 4) | (*ptr & 0x0f);
+    }
+    inline void setY(int r, int y) {
+        quint8 *ptr = rect(r) + bpp;
+        *ptr = (*ptr & 0xf0) | y;
+    }
+    void setColor(SRC color);
+    inline int rectx(int r) const {
+        const quint8 *ptr = rect(r) + bpp;
+        return *ptr >> 4;
+    }
+    inline int recty(int r) const {
+        const quint8 *ptr = rect(r) + bpp;
+        return *ptr & 0x0f;
+    }
+    inline void setWidth(int r, int width) {
+        quint8 *ptr = rect(r) + bpp + 1;
+        *ptr = ((width - 1) << 4) | (*ptr & 0x0f);
+    }
+    inline void setHeight(int r, int height) {
+        quint8 *ptr = rect(r) + bpp + 1;
+        *ptr = (*ptr & 0xf0) | (height - 1);
+    }
+
+    bool beginRect();
+    void endRect();
+
+    static const int maxRectsSize = 16 * 16;
+    QVarLengthArray<quint8, maxRectsSize> rects;
+
+    quint8 bpp;
+    quint8 numRects;
+    QRfbHextileEncoder<SRC> *encoder;
+};
+
+template <class SRC>
+class QRfbHextileEncoder : public QRfbEncoder
+{
+public:
+    QRfbHextileEncoder(QVNCServer *s);
+    void write();
+
+private:
+    enum SubEncoding {
+        Raw = 1,
+        BackgroundSpecified = 2,
+        ForegroundSpecified = 4,
+        AnySubrects = 8,
+        SubrectsColoured = 16
+    };
+
+    QByteArray buffer;
+    QRfbSingleColorHextile<SRC> singleColorHextile;
+    QRfbDualColorHextile<SRC> dualColorHextile;
+    QRfbMultiColorHextile<SRC> multiColorHextile;
+
+    SRC bg;
+    SRC fg;
+    bool newBg;
+    bool newFg;
+
+    friend class QRfbSingleColorHextile<SRC>;
+    friend class QRfbDualColorHextile<SRC>;
+    friend class QRfbMultiColorHextile<SRC>;
+};
+
 class QVNCServer : public QObject
 {
     Q_OBJECT
@@ -191,7 +390,9 @@ public:
     QVNCServer(QVNCScreen *screen, int id);
     ~QVNCServer();
 
-    void setRefreshRate(int rate) { refreshRate = rate; }
+    void setDirty();
+    inline bool isConnected() const { return state == Connected; }
+    inline void setRefreshRate(int rate) { refreshRate = rate; }
 
     enum ClientMsg { SetPixelFormat = 0,
                      FixColourMapEntries = 1,
@@ -204,6 +405,18 @@ public:
     enum ServerMsg { FramebufferUpdate = 0,
                      SetColourMapEntries = 1 };
 
+    void convertPixels(char *dst, const char *src, int count) const;
+
+    inline int clientBytesPerPixel() const {
+        return pixelFormat.bitsPerPixel / 8;
+    }
+
+    inline QVNCScreen* screen() const { return qvnc_screen; }
+    inline QVNCDirtyMap* dirtyMap() const { return qvnc_screen->d_ptr->dirty; }
+    inline QTcpSocket* clientSocket() const { return client; }
+    QImage screenImage() const;
+    inline bool doPixelConversion() const { return needConversion; }
+
 private:
     void setPixelFormat();
     void setEncodings();
@@ -211,11 +424,7 @@ private:
     void pointerEvent();
     void keyEvent();
     void clientCutText();
-    bool checkFill(const uchar *data, int width, int height, int stride);
-    void convertPixels(char *dst, const char *src, int count);
-    void sendHextile();
-    void sendRaw();
-    inline QVNCHeader* header() { return &qvnc_screen->d_ptr->hdr; }
+    bool pixelConversionNeeded() const;
 
 private slots:
     void newConnection();
@@ -225,7 +434,7 @@ private slots:
 
 private:
     void init(uint port);
-    enum ClientState { Protocol, Init, Connected };
+    enum ClientState { Unconnected, Protocol, Init, Connected };
     QTimer *timer;
     QTcpServer *serverSocket;
     QTcpSocket *client;
@@ -236,12 +445,20 @@ private:
     Qt::KeyboardModifiers keymod;
     int encodingsPending;
     int cutTextPending;
-    bool supportHextile;
+    uint supportCopyRect : 1;
+    uint supportRRE : 1;
+    uint supportCoRRE : 1;
+    uint supportHextile : 1;
+    uint supportZRLE : 1;
+    uint supportCursor : 1;
+    uint supportDesktopSize : 1;
     bool wantUpdate;
-    int nibble;
     bool sameEndian;
+    bool needConversion;
     int refreshRate;
     QVNCScreen *qvnc_screen;
+
+    QRfbEncoder *encoder;
 };
 
 #endif // QT_NO_QWS_VNC

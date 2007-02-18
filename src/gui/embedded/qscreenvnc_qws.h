@@ -14,7 +14,7 @@
 #ifndef QSCREENVNC_QWS_H
 #define QSCREENVNC_QWS_H
 
-#include <QtGui/qscreenlinuxfb_qws.h>
+#include <QtGui/qscreen_qws.h>
 
 #ifndef QT_NO_QWS_VNC
 
@@ -64,6 +64,7 @@ public:
     QRegion region() const;
 
 private:
+    friend class QVNCCursor;
     friend class QVNCServer;
     friend class QVNCScreenPrivate;
     QVNCScreenPrivate *d_ptr;
