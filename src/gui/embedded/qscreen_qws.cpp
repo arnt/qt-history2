@@ -1241,7 +1241,10 @@ void QScreen::exposeRegion(QRegion r, int changing)
         blit(blendBuffer, topLeft, blendRegion);
     }
 #endif // QT_EXPERIMENTAL_REGIONS
-    setDirty(r.boundingRect());
+
+    const QVector<QRect> rects = r.rects();
+    for (int i = 0; i < rects.size(); ++i)
+        setDirty(rects.at(i));
 }
 
 struct blit_data {
