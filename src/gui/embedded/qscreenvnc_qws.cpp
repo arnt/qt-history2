@@ -1202,7 +1202,8 @@ void QVNCServer::convertPixels(char *dst, const char *src, int count) const
                 case 1: dst32[count - 1] = qt_conv16ToRgb(src16[count - 1]);
                 }
             }
-#else // __MMX__
+            return;
+#elif defined(__i386__) // Currently fails on ARM if dst is not 4 byte aligned
             const quint32 *src32 = reinterpret_cast<const quint32*>(src);
             quint32 *dst32 = reinterpret_cast<quint32*>(dst);
             int count32 = count * sizeof(quint16) / sizeof(quint32);
@@ -1230,8 +1231,8 @@ void QVNCServer::convertPixels(char *dst, const char *src, int count) const
                 const quint16 *src16 = reinterpret_cast<const quint16*>(src);
                 dst32[count - 1] = qt_conv16ToRgb(src16[count - 1]);
             }
-#endif
             return;
+#endif
         }
     }
 

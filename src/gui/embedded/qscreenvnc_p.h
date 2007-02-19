@@ -266,7 +266,7 @@ private:
     struct Rect {
         quint8 xy;
         quint8 wh;
-    } rects[8 * 16];
+    } Q_PACKED rects[8 * 16];
 
     quint8 numRects;
     QRfbHextileEncoder<SRC> *encoder;
