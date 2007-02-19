@@ -161,7 +161,7 @@ mac {
         x86_compiler.name = compiling[x86] ${QMAKE_FILE_IN}
         silent:x86_compiler.commands = @echo compiling[x86] ${QMAKE_FILE_IN} && $$x86_compiler.commands
         QMAKE_EXTRA_COMPILERS += x86_compiler
-    } else:win32!win32-msvc {
+    } else:win32:!win32-msvc {
         HEADERS += $$X86_HEADERS
         SOURCES += $$X86_SOURCES
     }
