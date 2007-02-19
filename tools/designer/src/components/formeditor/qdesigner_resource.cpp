@@ -1391,11 +1391,6 @@ DomProperty *QDesignerResource::applyProperStdSetAttribute(QObject *object, cons
     if (!property)
         return 0;
 
-    if (qobject_cast<const QLabel *>(object) && propertyName == QLatin1String("buddy")) {
-        property->setAttributeStdset(0);
-        return property;
-    }
-
     QExtensionManager *mgr = core()->extensionManager();
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(mgr, object)) {
         QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(mgr, object);

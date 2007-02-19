@@ -173,7 +173,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         }
 
         if (m_objectType == ObjectLabel)
-            createFakeProperty(QLatin1String("buddy"), QVariant(QString()));
+            createFakeProperty(QLatin1String("buddy"), QVariant(QByteArray()));
     }
 
     if (qobject_cast<const QDialog*>(object)) {
@@ -467,11 +467,21 @@ void QDesignerPropertySheet::setFakeProperty(int index, const QVariant &value)
     }
 }
 
+// Buddy needs to be byte array, else uic won't work
+static QVariant toByteArray(const QVariant &value) {
+    if (value.type() == QVariant::ByteArray)
+        return value;
+    const QByteArray ba = value.toString().toUtf8();
+    return QVariant(ba);    
+}
+
 void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
 {
     if (isAdditionalProperty(index)) {
         if (m_objectType == ObjectLabel && propertyType(index) == PropertyBuddy) {
             QFormBuilderExtra::applyBuddy(value.toString(), QFormBuilderExtra::BuddyApplyVisibleOnly, qobject_cast<QLabel *>(m_object));
+            m_addProperties[index] = toByteArray(value);
+            return;
         }
 
         if (isFakeLayoutProperty(index)) {
@@ -529,7 +539,7 @@ bool QDesignerPropertySheet::reset(int index)
         const PropertyType pType = propertyType(index);
 
         if (m_objectType == ObjectLabel && pType == PropertyBuddy) {
-            setProperty(index, QVariant(QString()));
+            setProperty(index, QVariant(QByteArray()));
             return true;
         }
 
