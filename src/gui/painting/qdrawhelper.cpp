@@ -4578,6 +4578,16 @@ inline void qt_bitmapblit_template(QRasterBuffer *rasterBuffer,
     }
 }
 
+static void qt_bitmapblit_quint32(QRasterBuffer *rasterBuffer,
+                                   int x, int y, quint32 color,
+                                   const uchar *map,
+                                   int mapWidth, int mapHeight, int mapStride)
+{
+    qt_bitmapblit_template<quint32>(rasterBuffer, x,  y,  color,
+                                    map, mapWidth, mapHeight, mapStride);
+}
+
+
 template <class T>
 inline void qt_rectfill_template(QRasterBuffer *rasterBuffer,
                                  int x, int y, int width, int height,
@@ -4587,6 +4597,14 @@ inline void qt_rectfill_template(QRasterBuffer *rasterBuffer,
                    qt_colorConvert<T, quint32>(color),
                    x, y, width, height, rasterBuffer->bytesPerLine());
 }
+
+static void qt_rectfill_quint32(QRasterBuffer *rasterBuffer,
+                                 int x, int y, int width, int height,
+                                 quint32 color)
+{
+    qt_rectfill_template<quint32>(rasterBuffer, x, y, width, height, color);
+}
+
 
 DrawHelper qDrawHelper[QImage::NImageFormats] =
 {
@@ -4614,22 +4632,22 @@ DrawHelper qDrawHelper[QImage::NImageFormats] =
     {
         blend_color_generic,
         blend_src_generic,
-        qt_bitmapblit_template<quint32>,
-        qt_rectfill_template<quint32>
+        qt_bitmapblit_quint32,
+        qt_rectfill_quint32
     },
     // Format_ARGB32,
     {
         blend_color_generic,
         blend_src_generic,
-        qt_bitmapblit_template<quint32>,
-        qt_rectfill_template<quint32>
+        qt_bitmapblit_quint32,
+        qt_rectfill_quint32
     },
     // Format_ARGB32_Premultiplied
     {
         blend_color_argb,
         blend_src_argb,
-        qt_bitmapblit_template<quint32>,
-        qt_rectfill_template<quint32>
+        qt_bitmapblit_quint32,
+        qt_rectfill_quint32
     }
 #ifdef Q_WS_QWS
     ,
@@ -4693,7 +4711,7 @@ DrawHelper qDrawHelperCallback[QImage::NImageFormats] =
 #endif // Q_WS_QWS
 
 template <class DST, class SRC>
-static inline void qt_memfill_template(DST *dest, SRC color, int count)
+inline void qt_memfill_template(DST *dest, SRC color, int count)
 {
     const DST c = qt_colorConvert<DST, SRC>(color);
     int n = (count + 7) / 8;
@@ -4731,6 +4749,11 @@ inline void qt_memfill_template(quint16 *dest, quint16 value, int count)
     qt_memfill(reinterpret_cast<quint32*>(dest), value32, count / 2);
     if (count & 0x1)
         dest[count - 1] = value;
+}
+
+static void qt_memfill_quint16(quint16 *dest, quint16 color, int count)
+{
+    qt_memfill_template<quint16, quint16>(dest, color, count);
 }
 
 typedef void (*qt_memfill32_func)(quint32 *dest, quint32 value, int count);
@@ -4841,7 +4864,7 @@ void qInitDrawhelperAsm()
     features = detectCPUFeatures();
 
     qt_memfill32 = qt_memfill_template<quint32, quint32>;
-    qt_memfill16 = qt_memfill_template<quint16, quint16>;
+    qt_memfill16 = qt_memfill_quint16; //qt_memfill_template<quint16, quint16>;
 
 #ifdef QT_NO_DEBUG
     if (false) {
