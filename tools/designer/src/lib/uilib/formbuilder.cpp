@@ -24,19 +24,21 @@ namespace QFormInternal {
 class QFormBuilderExtra
 {
 public:
+    typedef QHash<QLabel*, QString> BuddyHash;
+
     void reset()
     { m_buddies.clear(); rootWidget = 0; }
 
     void addBuddy(QLabel *label, const QString &buddyName)
     { m_buddies.insert(label, buddyName); }
 
-    QHash<QLabel*, QString> buddies() const
+    const BuddyHash &buddies() const
     { return m_buddies; }
 
     QPointer<QWidget> rootWidget;
 
 private:
-    QHash<QLabel*, QString> m_buddies;
+    BuddyHash m_buddies;
 };
 
 typedef QHash<QFormBuilder*, QFormBuilderExtra> ExtraInfoTable;
@@ -186,8 +188,9 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
     if (qobject_cast<QDialog *>(w))
         w->setParent(parentWidget);
 
-    if (!extraInfo(this).rootWidget)
-        extraInfo(this).rootWidget = w;
+    QFormBuilderExtra &extra(extraInfo(this));
+    if (!extra.rootWidget)
+        extra.rootWidget = w;
 
     return w;
 }
@@ -280,24 +283,28 @@ static QObject *objectByName(QWidget *topLevel, const QString &name)
 */
 void QFormBuilder::createConnections(DomConnections *ui_connections, QWidget *widget)
 {
+    typedef QList<DomConnection*> DomConnectionList;
     Q_ASSERT(widget != 0);
 
     if (ui_connections == 0)
         return;
 
-    QList<DomConnection*> connections = ui_connections->elementConnection();
-    foreach (DomConnection *c, connections) {
-        QObject *sender = objectByName(widget, c->elementSender());
-        QObject *receiver = objectByName(widget, c->elementReceiver());
-        if (!sender || !receiver)
-            continue;
+    const DomConnectionList connections = ui_connections->elementConnection();
+    if (!connections.empty()) {
+        const DomConnectionList::const_iterator cend = connections.constEnd();
+        for (DomConnectionList::const_iterator it = connections.constBegin(); it != cend; ++it) {
 
-        QByteArray sig = c->elementSignal().toUtf8();
-        sig.prepend("2");
-        QByteArray sl = c->elementSlot().toUtf8();
-        sl.prepend("1");
+            QObject *sender = objectByName(widget, (*it)->elementSender());
+            QObject *receiver = objectByName(widget, (*it)->elementReceiver());
+            if (!sender || !receiver)
+                continue;
 
-        QObject::connect(sender, sig, receiver, sl);
+            QByteArray sig = (*it)->elementSignal().toUtf8();
+            sig.prepend("2");
+            QByteArray sl = (*it)->elementSlot().toUtf8();
+            sl.prepend("1");
+            QObject::connect(sender, sig, receiver, sl);
+        }
     }
 }
 
@@ -309,19 +316,17 @@ QWidget *QFormBuilder::create(DomUI *ui, QWidget *parentWidget)
     if (ui->hasAttributeLanguage() && ui->attributeLanguage().toLower() != QLatin1String("c++"))
         return 0;
 
-    extraInfo(this).reset();
+    QFormBuilderExtra &extra(extraInfo(this));
+    extra.reset();
 
-    if (QWidget *widget = QAbstractFormBuilder::create(ui, parentWidget))
-    {
-        QHash<QLabel*, QString> buddies = extraInfo(this).buddies();
-        QHashIterator<QLabel*, QString> it(buddies);
-        while (it.hasNext()) {
-            it.next();
-
-            it.key()->setBuddy(widgetByName(widget, it.value()));
+    if (QWidget *widget = QAbstractFormBuilder::create(ui, parentWidget)) {
+        const QFormBuilderExtra::BuddyHash &buddies = extra.buddies();
+        if (!buddies.empty()) {
+            const QFormBuilderExtra::BuddyHash::const_iterator cend = buddies.constEnd();
+            for (QFormBuilderExtra::BuddyHash::const_iterator it = buddies.constBegin(); it != cend; ++it )
+                it.key()->setBuddy(widgetByName(widget, it.value()));
         }
-        extraInfo(this).reset();
-
+        extra.reset();
         return widget;
     }
 
@@ -414,26 +419,28 @@ void QFormBuilder::updateCustomWidgets()
     m_customWidgets.clear();
 
     foreach (QString path, m_pluginPaths) {
-        QDir dir(path);
-        QStringList candidates = dir.entryList(QDir::Files);
+        const QDir dir(path);
+        const QStringList candidates = dir.entryList(QDir::Files);
 
         foreach (QString plugin, candidates) {
             if (!QLibrary::isLibrary(plugin))
                 continue;
 
-            QPluginLoader loader(path + QLatin1String("/") + plugin);
+            QString loaderPath = path;
+            loaderPath += QLatin1Char('/');
+            loaderPath += plugin;
+
+            QPluginLoader loader(loaderPath);
             if (loader.load()) {
                 // step 1) try with a normal plugin
-                QDesignerCustomWidgetInterface *iface = 0;
-                iface = qobject_cast<QDesignerCustomWidgetInterface *>(loader.instance());
+                QDesignerCustomWidgetInterface *iface = qobject_cast<QDesignerCustomWidgetInterface *>(loader.instance());
                 if (iface != 0) {
                     m_customWidgets.insert(iface->name(), iface);
                     continue;
                 }
 
                 // step 2) try with a collection of plugins
-                QDesignerCustomWidgetCollectionInterface *c = 0;
-                c = qobject_cast<QDesignerCustomWidgetCollectionInterface *>(loader.instance());
+                QDesignerCustomWidgetCollectionInterface *c = qobject_cast<QDesignerCustomWidgetCollectionInterface *>(loader.instance());
                 if (c != 0) {
                     foreach (QDesignerCustomWidgetInterface *iface, c->customWidgets()) {
                         m_customWidgets.insert(iface->name(), iface);
@@ -459,22 +466,32 @@ QList<QDesignerCustomWidgetInterface*> QFormBuilder::customWidgets() const
 */
 void QFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &properties)
 {
-    foreach (DomProperty *p, properties) {
-        QVariant v = toVariant(o->metaObject(), p);
+    typedef QList<DomProperty*> DomPropertyList;
+
+    if (properties.empty())
+        return;
+
+    QFormBuilderExtra &extra(extraInfo(this));
+
+    const DomPropertyList::const_iterator cend = properties.constEnd();
+    for (DomPropertyList::const_iterator it = properties.constBegin(); it != cend; ++it) {
+        const QVariant v = toVariant(o->metaObject(), *it);
         if (v.isNull())
             continue;
 
-        if (o == extraInfo(this).rootWidget && p->attributeName() == QLatin1String("geometry")) {
+        const QString attributeName = (*it)->attributeName();
+        if (o == extra.rootWidget && attributeName == QLatin1String("geometry")) {
             // apply only the size for the rootWidget
-            extraInfo(this).rootWidget->resize(qvariant_cast<QRect>(v).size());
-        } else if (qobject_cast<QLabel*>(o) && p->attributeName() == QLatin1String("buddy")) {
-            // save the buddy and continue
-            extraInfo(this).addBuddy(qobject_cast<QLabel*>(o), v.toString());
-        } else if (!qstrcmp("QFrame", o->metaObject()->className ()) && p->attributeName() == QLatin1String("orientation")) {
+            extra.rootWidget->resize(qvariant_cast<QRect>(v).size());
+        } else if (QLabel *label = qobject_cast<QLabel*>(o)) {
+            // Only save the buddy for now (might not exist yet) and continue
+            if (attributeName == QLatin1String("buddy"))
+                extra.addBuddy(label, v.toString());
+        } else if (!qstrcmp("QFrame", o->metaObject()->className ()) && attributeName == QLatin1String("orientation")) {
             // ### special-casing for Line (QFrame) -- try to fix me
             o->setProperty("frameShape", v); // v is of QFrame::Shape enum
         } else {
-            o->setProperty(p->attributeName().toUtf8(), v);
+            o->setProperty(attributeName.toUtf8(), v);
         }
     }
 }
