@@ -375,7 +375,7 @@ typedef struct TRaster_Instance_  TRaster_Instance;
 #define precision (1 << precision_bits)
 #define precision_shift (precision_bits - Pixel_Bits)
 
-// only used for debugging
+/* only used for debugging */
 #define FIXED_TO_FLOAT(x) ((x)/(float) precision)
 #define INT_TO_FIXED(x) ((x) << precision_bits)
 
