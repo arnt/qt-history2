@@ -1446,4 +1446,5 @@ UnixMakefileGenerator::writePkgConfigFile()
       << project->values("QMAKE_PKGCONFIG_CFLAGS").join(" ")
         //      << varGlue("DEFINES","-D"," -D"," ")
       << " -I${includedir}" << endl;
+    t << endl;
 }
