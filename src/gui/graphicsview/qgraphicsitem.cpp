@@ -830,11 +830,11 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
         // Update item visible / enabled.
         if (d_ptr->parent->isVisible() != d_ptr->visible) {
             if (!d_ptr->parent->isVisible() || !d_ptr->explicitlyHidden)
-                d_ptr->setVisibleHelper(d_ptr->parent->isVisible(), /* explicit = */ false);
+                d_ptr->setVisibleHelper(d_ptr->parent->isVisible(), /* explicit = */ false, /* update = */ !implicitUpdate);
         }
         if (d_ptr->parent->isEnabled() != d_ptr->enabled) {
             if (!d_ptr->parent->isEnabled() || !d_ptr->explicitlyDisabled)
-                d_ptr->setEnabledHelper(d_ptr->parent->isEnabled(), /* explicit = */ false);
+                d_ptr->setEnabledHelper(d_ptr->parent->isEnabled(), /* explicit = */ false, /* update = */ !implicitUpdate);
         }
 
     } else {
@@ -1088,7 +1088,7 @@ bool QGraphicsItem::isVisible() const
     Sets this item's visibility to \a newVisible. If \a explicitly is true,
     this item will be "explicitly" \a newVisible; otherwise, it.. will not be.
 */
-void QGraphicsItemPrivate::setVisibleHelper(bool newVisible, bool explicitly)
+void QGraphicsItemPrivate::setVisibleHelper(bool newVisible, bool explicitly, bool update)
 {
     // Update explicit bit.
     if (explicitly)
@@ -1109,10 +1109,10 @@ void QGraphicsItemPrivate::setVisibleHelper(bool newVisible, bool explicitly)
     }
 
     // Schedule redrawing, and modify the property.
-    if (!newVisible)
+    if (update && !newVisible)
         q_ptr->update();
     visible = q_ptr->itemChange(QGraphicsItem::ItemVisibleChange, quint32(newVisible)).toBool();
-    if (newVisible)
+    if (update && newVisible)
         q_ptr->update();
 
     // Update children with explicitly = false.
@@ -1190,7 +1190,7 @@ bool QGraphicsItem::isEnabled() const
     Sets this item's visibility to \a newEnabled. If \a explicitly is true,
     this item will be "explicitly" \a newEnabled; otherwise, it.. will not be.
 */
-void QGraphicsItemPrivate::setEnabledHelper(bool newEnabled, bool explicitly)
+void QGraphicsItemPrivate::setEnabledHelper(bool newEnabled, bool explicitly, bool update)
 {
     // Update explicit bit.
     if (explicitly)
@@ -1214,7 +1214,8 @@ void QGraphicsItemPrivate::setEnabledHelper(bool newEnabled, bool explicitly)
     enabled = q_ptr->itemChange(QGraphicsItem::ItemEnabledChange, quint32(newEnabled)).toBool();
 
     // Schedule redraw.
-    q_ptr->update();
+    if (update)
+        q_ptr->update();
 
     foreach (QGraphicsItem *child, children) {
         if (!newEnabled || !child->d_ptr->explicitlyDisabled)

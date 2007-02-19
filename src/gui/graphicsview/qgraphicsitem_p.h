@@ -78,8 +78,8 @@ public:
     QPointF genericMapFromScene(const QPointF &pos, const QWidget *viewport) const;
     bool itemIsUntransformable() const;
 
-    void setVisibleHelper(bool newVisible, bool explicitly);
-    void setEnabledHelper(bool newEnabled, bool explicitly);
+    void setVisibleHelper(bool newVisible, bool explicitly, bool update = true);
+    void setEnabledHelper(bool newEnabled, bool explicitly, bool update = true);
 
     inline QVariant extra(Extra type) const
     {
