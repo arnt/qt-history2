@@ -419,6 +419,11 @@ void QTextBrowserPrivate::keypadMove(bool next)
         }
     }
 
+    // setTextCursor ensures that the cursor is visible. save & restore
+    // the scrollbar values therefore
+    const int savedXOffset = hbar->value();
+    const int savedYOffset = vbar->value();
+
     // Now actually process our decision
     if (focusIt && control->setFocusToAnchor(anchorToFocus)) {
         // Save the focus for next time
@@ -427,6 +432,7 @@ void QTextBrowserPrivate::keypadMove(bool next)
         // Scroll
         vbar->setValue(focusedPos);
         lastKeypadScrollValue = focusedPos;
+        hbar->setValue(savedXOffset);
 
         // Ensure that the new selection is highlighted.
         const QString href = control->anchorAtCursor();
@@ -441,11 +447,6 @@ void QTextBrowserPrivate::keypadMove(bool next)
         // now make sure we don't have a focused anchor
         QTextCursor cursor = control->textCursor();
         cursor.clearSelection();
-
-        // setTextCursor ensures that the cursor is visible. save & restore
-        // the scrollbar values therefore
-        const int savedXOffset = hbar->value();
-        const int savedYOffset = vbar->value();
 
         control->setTextCursor(cursor);
 
