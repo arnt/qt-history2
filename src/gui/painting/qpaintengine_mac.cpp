@@ -289,12 +289,12 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
         return false;
     }
 
-    d->complexXForm = false;
-
     //initialization
+    d->complexXForm = false;
+    d->cosmeticPen = true;
     d->cosmeticPenSize = 1;
     d->current.clipEnabled = false;
-    d->pdev = pdev;
+    d->pixelSize = QPoint(1,1);
     d->hd = qt_mac_cg_context(pdev);
     if(d->hd) {
         CGContextSaveGState(d->hd);

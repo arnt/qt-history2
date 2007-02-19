@@ -108,10 +108,6 @@ public:
     {
         hd = 0;
         shading = 0;
-        complexXForm = false;
-        cosmeticPen = true;
-        pixelSize = QPoint(1,1);
-        cosmeticPenSize = 1;
     }
 
 
