@@ -124,6 +124,11 @@ General improvements
 - QLineEdit
     * Fixed crash when moving the cursor over a QChar::LineSeparator in the text.
 
+- QPainter
+    * Fixed bug in QPainter::drawPoints() when using the raster paint engine
+      which caused some points to be missing.
+    * Removed memory leak in raster paint engine when drawing complex polygons/paths.
+
 - QProcess
     * Fixed a crash when calling QProcess::waitForFinished() from inside a
       slot connected to one of QProcess' signals.
@@ -133,6 +138,7 @@ General improvements
 - QTextDocument
     * Fixed find() with backward searches
     * Match CSS style selector case insensitively
+    * Fixed HTML import for tables with missing cells and rowspan/colspan attributes. 
 
 - QSyntaxHighlighter
     * Fixed failing assertion when installing a syntax highlighter before the document
@@ -155,6 +161,7 @@ General improvements
 
 - QTextEdit
     * Fixed crash in QTextEdit::setExtraSelection when used with null cursors
+    * Fixed scrollbar bug which could cause the bottom of the text to be unreachable.
 
 - QTextStream
     * Fix QTextStream::readLine() so it can be used reliably with stdin on all
@@ -180,6 +187,12 @@ General improvements
 - QSqlDriver
     * Ensure that QSqlDriver::formatValue() doesn't cut of characters from field names.
 
+- QTextTable
+    * Removed false assert when deleting first row or column of a QTextTable.
+    * Fixed crash when splitting cells in the rightmost column of a QTextTable.
+    * Fixed issue where QTextTable::splitCells() would shift cells further down in the table.
+    * Fixed crash in QTextTable::mergeCells() when merging an already merged cell.
+    
 - QToolTip
     * Fix size of QToolTip with HTML tags like <BR>.
 
@@ -209,6 +222,7 @@ General improvements
       dialog was shown first
     * Fixed an erroneous hideEvent() from being sent immediately after
       window creation
+    * Fixed problem with missing text in QWidget::whatsThis().
 
 - QWindowsStyle
     * Fixed a crash where deleting a QProgressBar after its style is changed.
@@ -236,6 +250,7 @@ X11
       destroyed
     * Prevent shortcuts for arrow keys of keypad from being activated
       when numlock is on
+    * Fixed bug which caused incorrect drawing of subrectangles of bitmaps.
 
 Windows
 -------
@@ -250,6 +265,7 @@ Windows
       yet been created
     * Fix QWindowsXPStyle so that it is possible to draw a QStyle::CE_DockWidgetTitle 
       without having an actual instance of QDockWidget.
+    * Fixed crash when drawing text with large font sizes.
 
 
 Mac OS X
