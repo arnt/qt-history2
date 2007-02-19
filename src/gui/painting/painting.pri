@@ -143,8 +143,12 @@ x11|embedded {
 mac {
 
 } else:mmx|sse|sse2|iwmmxt {
-    x86_compiler.commands = $$QMAKE_CXX -c
+
+    X86_HEADERS += painting/qdrawhelper_x86_p.h
+    X86_SOURCES += painting/qdrawhelper_x86.cpp
+
     win32-g++|!win32 {
+        x86_compiler.commands = $$QMAKE_CXX -c
         sse2: x86_compiler.commands += -msse2
         sse: x86_compiler.commands += -msse
         mmx: x86_compiler.commands += -mmmx
@@ -157,20 +161,15 @@ mac {
         x86_compiler.name = compiling[x86] ${QMAKE_FILE_IN}
         silent:x86_compiler.commands = @echo compiling[x86] ${QMAKE_FILE_IN} && $$x86_compiler.commands
         QMAKE_EXTRA_COMPILERS += x86_compiler
+    } else:win32!win32-msvc {
+        HEADERS += $$X86_HEADERS
+        SOURCES += $$X86_SOURCES
     }
     
     sse2: DEFINES += QT_HAVE_SSE2
     sse: DEFINES += QT_HAVE_SSE
     mmx: DEFINES += QT_HAVE_MMX
     iwmmxt: DEFINES += QT_HAVE_IWMMXT
-
-    X86_HEADERS += painting/qdrawhelper_x86_p.h
-    X86_SOURCES += painting/qdrawhelper_x86.cpp
-
-    win32:!win32-msvc {
-        HEADERS += $$X86_HEADERS
-        SOURCES += $$X86_SOURCES
-    }
 }
 
 win32|x11|embedded {
