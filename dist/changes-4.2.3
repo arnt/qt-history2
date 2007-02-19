@@ -121,6 +121,9 @@ General improvements
     * You can now reliably use QFile::readLine() and QFile::readAll() to
       read from stdin on all platforms.
 
+- QLineEdit
+    * Fixed crash when moving the cursor over a QChar::LineSeparator in the text.
+
 - QProcess
     * Fixed a crash when calling QProcess::waitForFinished() from inside a
       slot connected to one of QProcess' signals.
@@ -162,6 +165,9 @@ General improvements
 
 - QMenuBar
     * Properly mark the "text heuristic matching" strings for translation.
+
+- QMenu
+    * Fixed incorrect scrolling on large menus on Mac.
 
 - QPlastiqueStyle
     * Indeterminate progress bars are now always animated, and a rendering bug
