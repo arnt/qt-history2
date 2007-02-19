@@ -78,9 +78,9 @@ static QColor colorFromString(const QString &name)
         if (compo.size() != 3) {
             return QColor();
         }
-        return QColor((int)qClamp(compo[0], 0., 255.),
-                      (int)qClamp(compo[1], 0., 255.), 
-                      (int)qClamp(compo[2], 0., 255.));
+        return QColor((int)qClamp(compo[0], qreal(0), qreal(255)),
+                      (int)qClamp(compo[1], qreal(0), qreal(255)),
+                      (int)qClamp(compo[2], qreal(0), qreal(255)));
     } else {
         //QRgb color;
         //CSSParser::parseColor(name, color);
