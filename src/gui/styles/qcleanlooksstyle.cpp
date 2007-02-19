@@ -3517,7 +3517,11 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                                                 slider->rect.right() - tickSize, pos);
                             }
                         }
-                        v += interval;
+                        // in the case where maximum is max int
+                        int nextInterval = v + interval;
+                        if (nextInterval < v)
+                            break;
+                        v = nextInterval;
                     }
                 }
         }

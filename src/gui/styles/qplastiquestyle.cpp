@@ -3930,7 +3930,11 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                         }
                     }
 
-                    v += interval;
+                    // in the case where maximum is max int
+                    int nextInterval = v + interval;
+                    if (nextInterval < v)
+                        break;
+                    v = nextInterval;
                 }
                 painter->drawLines(lines.constData(), lines.size());
                 painter->setPen(oldPen);

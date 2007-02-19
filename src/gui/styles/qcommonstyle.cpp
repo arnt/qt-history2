@@ -2318,7 +2318,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                             p->drawLine(tickOffset + thickness + 1, pos,
                                         tickOffset + thickness + 1 + available - 2, pos);
                     }
-                    v += interval;
+                    // in the case where maximum is max int
+                    int nextInterval = v + interval;
+                    if (nextInterval < v)
+                        break;
+                    v = nextInterval;
                 }
                 p->restore();
             }
