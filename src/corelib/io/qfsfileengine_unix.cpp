@@ -554,23 +554,21 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(FileFlags type) const
         if (!foundAlias)
 #endif
         {
-#if !defined(QWS) && defined(Q_OS_MAC)
-            {
-                QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(0, QCFString(d->filePath),
-                                                                      kCFURLPOSIXPathStyle, true);
-                QCFType<CFBundleRef> bundle = CFBundleCreate(0, url);
-                if(bundle) {
-                    if(CFBundleGetIdentifier(bundle))
-                        ret |= BundleType;
-                }
-            }
-#endif
             if ((type & LinkType) && d->isSymlink())
                 ret |= LinkType;
             if (exists && (d->st.st_mode & S_IFMT) == S_IFREG)
                 ret |= FileType;
             else if (exists && (d->st.st_mode & S_IFMT) == S_IFDIR)
                 ret |= DirectoryType;
+#if !defined(QWS) && defined(Q_OS_MAC)
+            if(ret & DirectoryType) {
+                QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(0, QCFString(d->filePath),
+                                                                      kCFURLPOSIXPathStyle, true);
+                QCFType<CFBundleRef> bundle = CFBundleCreate(0, url);
+                if(bundle && CFBundleGetIdentifier(bundle))
+                    ret |= BundleType;
+            }
+#endif
         }
     }
     if (type & FlagsMask) {
