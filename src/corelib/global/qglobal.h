@@ -897,7 +897,7 @@ class QDataStream;
 #  endif
 #endif
 #ifndef Q_DECL_IMPORT
-#  ifdef Q_OS_WIN && (__INTEL_COMPILER != 910)  
+#  if defined(Q_OS_WIN) && (__INTEL_COMPILER != 910)
 #    define Q_DECL_IMPORT __declspec(dllimport)
 #  else
 #    define Q_DECL_IMPORT
