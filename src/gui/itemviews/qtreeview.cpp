@@ -1135,7 +1135,14 @@ bool QTreeView::viewportEvent(QEvent *event)
     case QEvent::HoverLeave:
     case QEvent::HoverMove: {
         QHoverEvent *he = static_cast<QHoverEvent*>(event);
+        int oldBranch = d->hoverBranch;
         d->hoverBranch = d->itemDecorationAt(he->pos());
+        if (oldBranch != d->hoverBranch) {
+            QRect oldRect = visualRect(d->modelIndex(oldBranch));
+            QRect newRect = visualRect(d->modelIndex(d->hoverBranch));
+            viewport()->update(oldRect.left() - d->indent, oldRect.top(), d->indent, oldRect.height());
+            viewport()->update(newRect.left() - d->indent, newRect.top(), d->indent, newRect.height());
+        }
         break; }
     default:
         break;
@@ -1411,11 +1418,6 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         extraFlags |= QStyle::State_Enabled;
     if (window()->isActiveWindow())
         extraFlags |= QStyle::State_Active;
-    if (item == d->hoverBranch)
-        opt.state |= QStyle::State_MouseOver;
-    else
-        opt.state &= ~QStyle::State_MouseOver;
-
     QPoint oldBO = painter->brushOrigin();
     if (verticalScrollMode() == QAbstractItemView::ScrollPerPixel)
         painter->setBrushOrigin(QPoint(0, verticalOffset()));
@@ -1439,6 +1441,10 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
                     | (moreSiblings ? QStyle::State_Sibling : QStyle::State_None)
                     | (children ? QStyle::State_Children : QStyle::State_None)
                     | (expanded ? QStyle::State_Open : QStyle::State_None);
+        if (item == d->hoverBranch)
+            opt.state |= QStyle::State_MouseOver;
+        else
+            opt.state &= ~QStyle::State_MouseOver;
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
     }
     // then go out level by level
