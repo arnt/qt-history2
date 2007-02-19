@@ -436,6 +436,9 @@ void tst_QRegion::operator_plus_data()
     QTest::newRow("adjacent y-rects") << QRegion(50, 0, 50, 1)
                                       << QRegion(50, 1, 50, 1)
                                       << expected;
+    QTest::newRow("adjacent y-rects reversed") << QRegion(50, 1, 50, 1)
+                                               << QRegion(50, 0, 50, 1)
+                                               << expected;
 
     rects.clear();
     rects << QRect(50, 0, 2, 1);
@@ -443,7 +446,9 @@ void tst_QRegion::operator_plus_data()
     QTest::newRow("adjacent x-rects") << QRegion(50, 0, 1, 1)
                                       << QRegion(51, 0, 1, 1)
                                       << expected;
-
+    QTest::newRow("adjacent x-rects reversed") << QRegion(51, 0, 1, 1)
+                                               << QRegion(50, 0, 1, 1)
+                                               << expected;
 }
 
 void tst_QRegion::operator_plus()
