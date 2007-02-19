@@ -485,6 +485,7 @@ CFG_INCREMENTAL=auto
 CFG_QCONFIG=full
 CFG_EMBEDDED=no
 CFG_DEBUG=auto
+CFG_MYSQL_CONFIG=
 CFG_DEBUG_RELEASE=no
 CFG_SHARED=yes
 CFG_SM=auto
@@ -729,7 +730,7 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_ARG=yes
         fi
         ;;
-    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-examplesdir|-demosdir|-depths|-make|-nomake|-platform|-xplatform|-buildkey|-sdk|-arch)
+    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-examplesdir|-demosdir|-depths|-make|-nomake|-platform|-xplatform|-buildkey|-sdk|-arch|-mysql_config)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         shift
         VAL="$1"
@@ -863,6 +864,9 @@ while [ "$#" -gt 0 ]; do
     gnumake)
         CFG_USE_GNUMAKE="$VAL"
         ;;
+    mysql_config)
+	CFG_MSYQL_CONFIG="$VAL"
+	;;
     prefix)
         QT_INSTALL_PREFIX="$VAL"
         ;;
@@ -3658,15 +3662,17 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
         case $_SQLDR in
         mysql)
             if [ "$CFG_SQL_mysql" != "no" ]; then
-                if "$WHICH" mysql_config >/dev/null 2>&1; then
-                    QT_CFLAGS_MYSQL=`mysql_config --include 2>/dev/null`
-                    QT_LFLAGS_MYSQL_R=`mysql_config --libs_r 2>/dev/null`
-                    QT_LFLAGS_MYSQL=`mysql_config --libs 2>/dev/null`
-                    QT_MYSQL_VERSION=`mysql_config --version | cut -d . -f 1`
+		[ -z "$CFG_MYSQL_CONFIG" ] && CFG_MSYQL_CONFIG=`$WHICH mysql_config`
+                if [ -x "$CFG_MSYQL_CONFIG" ]; then
+                    QT_CFLAGS_MYSQL=`$CFG_MYSQL_CONFIG --include 2>/dev/null`
+                    QT_LFLAGS_MYSQL_R=`$CFG_MYSQL_CONFIG --libs_r 2>/dev/null`
+                    QT_LFLAGS_MYSQL=`$CFG_MYSQL_CONFIG --libs 2>/dev/null`
+		    QT_MYSQL_VERSION=`$CFG_MYSQL_VERSION --version 2>/dev/null`
+                    QT_MYSQL_VERSION_MAJOR=`echo $QT_MYSQL_VERSION | cut -d . -f 1`
                 fi
-                if [ -n "$QT_MYSQL_VERSION" ] && [ "$QT_MYSQL_VERSION" -lt 4 ]; then
+                if [ -n "$QT_MYSQL_VERSION" ] && [ "$QT_MYSQL_VERSION_MAJOR" -lt 4 ]; then
                     if [ "$CFG_SQL_mysql" != "auto" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
-                        echo "This version of MySql is not supported (`mysql_config --version`)."
+                        echo "This version of MySql is not supported ($QT_MYSQL_VERSION)."
                         echo " You need MySql 4 or higher."
                         echo " If you believe this message is in error you may use the continue"
                         echo " switch (-continue) to $0 to continue."
