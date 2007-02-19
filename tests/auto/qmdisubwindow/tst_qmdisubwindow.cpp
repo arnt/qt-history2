@@ -1202,8 +1202,8 @@ void tst_QMdiSubWindow::resizeEvents_data()
     QTest::addColumn<int>("expectedWidgetResizeEvents");
     QTest::addColumn<bool>("isShadeMode");
 
-    QTest::newRow("maximized") << Qt::WindowMinimized << 1 << 0 << false;
-    QTest::newRow("minimized") << Qt::WindowMaximized << 1 << 1 << false;
+    QTest::newRow("minimized") << Qt::WindowMinimized << 1 << 0 << false;
+    QTest::newRow("maximized") << Qt::WindowMaximized << 1 << 1 << false;
     QTest::newRow("shaded") << Qt::WindowMinimized << 1 << 0 << true;
 }
 
@@ -1248,6 +1248,8 @@ void tst_QMdiSubWindow::resizeEvents()
 #if defined(Q_WS_MAC)
 void tst_QMdiSubWindow::defaultSizeGrip()
 {
+    if (!qApp->style()->inherits("QMacStyle"))
+        return;
     QMdiArea mdiArea;
     mdiArea.show();
 
