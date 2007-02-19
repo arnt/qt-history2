@@ -388,7 +388,7 @@ bool QSlider::event(QEvent *event)
     default:
         break;
     }
-    return QWidget::event(event);
+    return QAbstractSlider::event(event);
 }
 
 /*!

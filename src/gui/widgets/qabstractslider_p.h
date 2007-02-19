@@ -49,6 +49,10 @@ public:
     QBasicTimer repeatActionTimer;
     int repeatActionTime;
     QAbstractSlider::SliderAction repeatAction;
+    
+#ifdef QT_KEYPAD_NAVIGATION
+    int origValue;
+#endif
 
     inline int bound(int val) const { return qMax(minimum, qMin(maximum, val)); }
     inline void setAdjustedSliderPosition(int position)

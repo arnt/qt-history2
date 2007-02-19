@@ -1124,6 +1124,12 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
         // fall through
     case Qt::Key_Right:
     case Qt::Key_Down:
+#ifdef QT_KEYPAD_NAVIGATION
+        if (QApplication::keypadNavigationEnabled() && (e->key() == Qt::Key_Left || e->key() == Qt::Key_Right)) {
+            e->ignore();
+            return;
+        }
+#endif
 #ifndef QT_NO_BUTTONGROUP
         if (d->group || d->autoExclusive) {
 #else
@@ -1133,11 +1139,6 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
             if (hasFocus()) // nothing happend, propagate
                 e->ignore();
         } else {
-#ifdef QT_KEYPAD_NAVIGATION
-            if (QApplication::keypadNavigationEnabled() && (e->key() == Qt::Key_Left || e->key() == Qt::Key_Right))
-                e->ignore();
-            else
-#endif
             focusNextPrevChild(next);
         }
         break;
