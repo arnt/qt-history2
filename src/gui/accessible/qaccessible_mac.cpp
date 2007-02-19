@@ -881,7 +881,7 @@ static CFStringRef macRole(QInterfaceItem interface)
     const QAccessible::Role qtRole = interface.role();
 
     // Qt accessibility:  QAccessible::Splitter contains QAccessible::Grip.
-    // Mac accessibility: AXSplitGroup contains AXSplitter. 
+    // Mac accessibility: AXSplitGroup contains AXSplitter.
     if (qtRole == QAccessible::Grip) {
         const QInterfaceItem parent = interface.parent();
         if (parent.isValid() && parent.role() == QAccessible::Splitter)
@@ -944,7 +944,7 @@ static int textForRoleAndAttribute(QAccessible::Role role, CFStringRef attribute
 }
 
 /*
-    Returns the subrole string constant for the interface if it has one, 
+    Returns the subrole string constant for the interface if it has one,
     else returns an empty string.
 */
 static QCFString subrole(QInterfaceItem interface)
@@ -952,7 +952,7 @@ static QCFString subrole(QInterfaceItem interface)
     const QInterfaceItem parent = interface.parent();
     if (parent.isValid() == false)
         return QCFString();
-    
+
     if (parent.role() == QAccessible::ScrollBar) {
         QCFString subrole;
         switch(interface.id()) {
@@ -1358,7 +1358,7 @@ static OSStatus handleOrientationAttribute(EventHandlerCallRef next_ref, EventRe
     } else {
         return CallNextEventHandler(next_ref, event);
     }
-    const CFStringRef orientationString = (orientation == Qt::Vertical) 
+    const CFStringRef orientationString = (orientation == Qt::Vertical)
         ? kAXVerticalOrientationValue : kAXHorizontalOrientationValue;
     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, sizeof(orientationString), &orientationString);
     return noErr;
@@ -1375,11 +1375,11 @@ static OSStatus handleSplitterContentsAttribute(EventHandlerCallRef next_ref, Ev
 
     if (parent.role() != QAccessible::Splitter)
         return CallNextEventHandler(next_ref, event);
-    
+
     const QSplitter * const splitter = qobject_cast<const QSplitter * const>(parent.object());
     if (splitter == 0)
         return CallNextEventHandler(next_ref, event);
-       
+
     QWidget * const splitterHandle = qobject_cast<QWidget * const>(interface.object());
     const int splitterHandleIndex = splitter->indexOf(splitterHandle);
     const int widgetIndex = (nextOrPrev == QCFString(kAXPreviousContentsAttribute)) ? splitterHandleIndex - 1 : splitterHandleIndex;
