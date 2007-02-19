@@ -930,12 +930,12 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
             bright_mode = true;
         }
 
-        QPalette pal(fg, btn, btn.lighter(), btn.darker(), btn.darker(150), fg, Qt::white, base, bg);
+        QPalette pal(fg, btn, btn.lighter(125), btn.darker(130), btn.darker(120), fg, Qt::white, base, bg);
         QColor disabled((fg.red()   + btn.red())  / 2,
                         (fg.green() + btn.green())/ 2,
                         (fg.blue()  + btn.blue()) / 2);
         pal.setColorGroup(QPalette::Disabled, disabled, btn, btn.lighter(125),
-                          btn.darker(), btn.darker(150), disabled, Qt::white, Qt::white, bg);
+                          btn.darker(130), btn.darker(150), disabled, Qt::white, Qt::white, bg);
 
         QColor highlight, highlightText;
         if (!selectBackground.isEmpty() && !selectForeground.isEmpty()) {
