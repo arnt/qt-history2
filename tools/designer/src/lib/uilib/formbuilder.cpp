@@ -188,7 +188,7 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
     if (qobject_cast<QDialog *>(w))
         w->setParent(parentWidget);
 
-    QFormBuilderExtra &extra(extraInfo(this));
+    QFormBuilderExtra &extra = extraInfo(this);
     if (!extra.rootWidget)
         extra.rootWidget = w;
 
@@ -316,7 +316,7 @@ QWidget *QFormBuilder::create(DomUI *ui, QWidget *parentWidget)
     if (ui->hasAttributeLanguage() && ui->attributeLanguage().toLower() != QLatin1String("c++"))
         return 0;
 
-    QFormBuilderExtra &extra(extraInfo(this));
+    QFormBuilderExtra &extra = extraInfo(this);
     extra.reset();
 
     if (QWidget *widget = QAbstractFormBuilder::create(ui, parentWidget)) {
@@ -471,7 +471,7 @@ void QFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &proper
     if (properties.empty())
         return;
 
-    QFormBuilderExtra &extra(extraInfo(this));
+    QFormBuilderExtra &extra = extraInfo(this);
 
     const DomPropertyList::const_iterator cend = properties.constEnd();
     for (DomPropertyList::const_iterator it = properties.constBegin(); it != cend; ++it) {
