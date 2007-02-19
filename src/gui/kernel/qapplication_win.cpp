@@ -1065,7 +1065,7 @@ static void alert_widget(QWidget *widget, int duration)
         QLibrary themeLib(QLatin1String("user32"));
         pFlashWindowEx  = (PtrFlashWindowEx)themeLib.resolve("FlashWindowEx");
     }
-    
+
     if (pFlashWindowEx && widget && !widget->isActiveWindow()) {
         DWORD timeOut = GetCaretBlinkTime();
         if (timeOut <= 0)
@@ -1704,7 +1704,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     top->activateWindow();
             }
             if (LOWORD(wParam) == WA_INACTIVE){
-                //If the focus widget is in the inactivated window, clear the focus 
+                //If the focus widget is in the inactivated window, clear the focus
                 QWidget *fw = QApplication::focusWidget();
                 if (fw && widget->isAncestorOf(fw))
                     QApplicationPrivate::setFocusWidget(0, Qt::ActiveWindowFocusReason);
@@ -2622,7 +2622,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         QWidget *target = activePopupWidget;
 
         if (target != this) {
-            if ((windowType() == Qt::Popup) && rect().contains(pos))
+            if ((windowType() == Qt::Popup) && rect().contains(pos) && 0)
                 target = this;
             else                                // send to last popup
                 pos = target->mapFromGlobal(QPoint(gpos.x, gpos.y));

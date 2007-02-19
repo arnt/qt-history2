@@ -3601,7 +3601,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         if (popup != this) {
             if (event->type == LeaveNotify)
                 return false;
-            if ((windowType() == Qt::Popup) && rect().contains(pos))
+            if ((windowType() == Qt::Popup) && rect().contains(pos) && 0)
                 popup = this;
             else                                // send to last popup
                 pos = popup->mapFromGlobal(globalPos);
