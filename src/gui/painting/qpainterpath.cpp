@@ -1361,7 +1361,10 @@ static QRectF qt_painterpath_bezier_extrema(const QBezier &b)
 */
 QRectF QPainterPath::boundingRect() const
 {
+    if (isEmpty())
+        return QRectF();
     QPainterPathData *d = d_func();
+
     if (d->dirtyBounds)
         computeBoundingRect();
     return d->bounds;
@@ -1379,7 +1382,10 @@ QRectF QPainterPath::boundingRect() const
 */
 QRectF QPainterPath::controlPointRect() const
 {
+    if (isEmpty())
+        return QRectF();
     QPainterPathData *d = d_func();
+
     if (d->dirtyControlBounds)
         computeControlPointRect();
     return d->controlBounds;
