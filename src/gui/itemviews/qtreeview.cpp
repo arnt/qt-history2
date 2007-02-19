@@ -2390,6 +2390,7 @@ void QTreeViewPrivate::initialize()
     QHeaderView *header = new QHeaderView(Qt::Horizontal, q);
     header->setMovable(true);
     header->setStretchLastSection(true);
+    header->setDefaultAlignment(Qt::AlignLeft|Qt::AlignVCenter);
     q->setHeader(header);
 
     // animation
