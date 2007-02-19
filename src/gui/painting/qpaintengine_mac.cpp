@@ -799,6 +799,12 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
 void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem &item)
 {
     Q_D(QCoreGraphicsPaintEngine);
+#ifndef QMAC_NATIVE_GRADIENTS
+    if(painter()->pen().brush().gradient()) { //Just let the base engine "emulate" the gradient
+        QPaintEngine::drawTextItem(pos, item);
+        return;
+    }
+#endif
 
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(item);
 
