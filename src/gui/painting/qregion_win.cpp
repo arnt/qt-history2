@@ -387,3 +387,10 @@ bool QRegion::operator==(const QRegion &r) const
     return d->rgn == 0 ? true // both empty
                        : EqualRgn(d->rgn, r.d->rgn); // both non-empty
 }
+
+bool qt_region_strictContains(const QRegion &region, const QRect &rect)
+{
+    Q_UNUSED(region);
+    Q_UNUSED(rect);
+    return false;
+}

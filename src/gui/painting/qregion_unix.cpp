@@ -77,7 +77,9 @@ struct QRegionPrivate {
     }
 
     void append(const QRegionPrivate *r);
+    void prepend(const QRegionPrivate *r);
     inline bool canAppend(const QRegionPrivate *r) const;
+    inline bool canPrepend(const QRegionPrivate *r) const;
 };
 
 static inline bool isEmpty(const QRegionPrivate *preg)
@@ -133,6 +135,35 @@ void QRegionPrivate::append(const QRegionPrivate *r)
     numRects = newNumRects;
 }
 
+void QRegionPrivate::prepend(const QRegionPrivate *r)
+{
+    Q_ASSERT(!isEmpty(r));
+
+
+    // move existing rectangles
+    memmove(rects.data() + r->numRects, rects.constData(),
+            numRects * sizeof(QRect));
+
+    // prepend new rectangles
+    memcpy(rects.data(), r->rects.constData(), r->numRects * sizeof(QRect));
+
+    // update inner rectangle
+    if (innerArea < r->innerArea) {
+        innerArea = r->innerArea;
+        innerRect = r->innerRect;
+    }
+
+    // update extents
+    destRect = &extents;
+    srcRect = &r->extents;
+    extents.setCoords(qMin(destRect->left(), srcRect->left()),
+                      qMin(destRect->top(), srcRect->top()),
+                      qMax(destRect->right(), srcRect->right()),
+                      qMax(destRect->bottom(), srcRect->bottom()));
+
+    numRects = newNumRects;
+}
+
 bool QRegionPrivate::canAppend(const QRegionPrivate *r) const
 {
     Q_ASSERT(!isEmpty(r));
@@ -140,7 +171,6 @@ bool QRegionPrivate::canAppend(const QRegionPrivate *r) const
     const QRect *rFirst = r->rects.constData();
     const QRect *myLast = rects.constData() + (numRects - 1);
     // XXX: possible improvements:
-    //   - same technique for prepending
     //   - nFirst->top() == myLast->bottom() + 1, must possibly merge bands
     if (rFirst->top() > (myLast->bottom() + 1)
         || (rFirst->top() == myLast->top()
@@ -151,6 +181,15 @@ bool QRegionPrivate::canAppend(const QRegionPrivate *r) const
     }
 
     return false;
+}
+
+bool QRegionPrivate::canPrepend(const QRegionPrivate *r) const
+{
+#if 1
+    return false;
+#else
+    return r->canAppend(this);
+#endif
 }
 
 #if defined(Q_WS_X11)
@@ -369,14 +408,7 @@ static void UnionRectWithRegion(register const QRect *rect, const QRegionPrivate
     if (!rect->width() || !rect->height())
         return;
 
-    QRegionPrivate region;
-    region.rects.resize(1);
-    region.numRects = 1;
-    region.rects[0] = *rect;
-    region.extents = *rect;
-    region.innerRect = *rect;
-    region.innerArea = rect->width() * rect->height();
-
+    QRegionPrivate region(*rect);
     UnionRegion(&region, source, dest);
     return;
 }
@@ -2576,6 +2608,11 @@ QRegion QRegion::unite(const QRegion &r) const
     if (r.isEmpty())
         return *this;
 
+    if (qt_region_strictContains(*this, r.d->qt_rgn->extents))
+        return *this;
+    if (qt_region_strictContains(r, d->qt_rgn->extents))
+        return r;
+
     QRegion result;
     result.detach();
     UnionRegion(d->qt_rgn, r.d->qt_rgn, *result.d->qt_rgn);
@@ -2589,9 +2626,15 @@ QRegion& QRegion::operator+=(const QRegion &r)
     if (r.isEmpty())
         return *this;
 
-    if (d->qt_rgn->canAppend(r.d->qt_rgn)) {
+    if (qt_region_strictContains(*this, r.d->qt_rgn->extents)) {
+        return *this;
+    } else if (d->qt_rgn->canAppend(r.d->qt_rgn)) {
         detach();
         d->qt_rgn->append(r.d->qt_rgn);
+        return *this;
+    } else if (d->qt_rgn->canPrepend(r.d->qt_rgn)) {
+        detach();
+        d->qt_rgn->prepend(r.d->qt_rgn);
         return *this;
     }
 
@@ -2718,7 +2761,6 @@ QRect QRegion::boundingRect() const
     return d->qt_rgn->extents;
 }
 
-#ifdef QT_EXPERIMENTAL_REGIONS
 /*! \internal
     Returns a rectangle that is completely contained the region.
 
@@ -2758,7 +2800,6 @@ bool qt_region_strictContains(const QRegion &region, const QRect &rect)
     return (r2.left() >= r1.left() && r2.right() <= r1.right()
             && r2.top() >= r1.top() && r2.bottom() <= r1.bottom());
 }
-#endif // QT_EXPERIMENTAL_REGIONS
 
 /*!
     Returns an array of non-overlapping rectangles that make up the
