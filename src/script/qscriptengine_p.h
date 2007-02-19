@@ -761,9 +761,25 @@ inline void QScriptEnginePrivate::setDefaultPrototype(int metaTypeId, const QScr
     m_customTypes.insert(metaTypeId, info);
 }
 
+inline uint _q_scriptHash(const QString &key)
+{
+    const QChar *p = key.unicode();
+    int n = qMin(key.size(), 128);
+    uint h = key.size();
+    uint g;
+
+    while (n--) {
+        h = (h << 4) + (*p++).unicode();
+        if ((g = (h & 0xf0000000)) != 0)
+            h ^= g >> 23;
+        h &= ~g;
+    }
+    return h;
+}
+
 inline QScriptNameIdImpl *QScriptEnginePrivate::toStringEntry(const QString &s)
 {
-    uint h = qHash(s) % m_string_hash_size;
+    uint h = _q_scriptHash(s) % m_string_hash_size;
 
     for (QScriptNameIdImpl *entry = m_string_hash_base[h]; entry && entry->h == h; entry = entry->next) {
         if (entry->s == s)

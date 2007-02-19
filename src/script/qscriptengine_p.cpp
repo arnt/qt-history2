@@ -714,7 +714,7 @@ void QScriptEnginePrivate::rehashStringRepository(bool resize)
 
     for (int index = 0; index < m_stringRepository.size(); ++index) {
         QScriptNameIdImpl *entry = m_stringRepository.at(index);
-        uint h = qHash(entry->s) % m_string_hash_size;
+        uint h = _q_scriptHash(entry->s) % m_string_hash_size;
         entry->h = h;
         entry->next = m_string_hash_base[h];
         m_string_hash_base[h] = entry;
@@ -727,7 +727,7 @@ QScriptNameIdImpl *QScriptEnginePrivate::insertStringEntry(const QString &s)
     entry->unique = true;
     m_stringRepository.append(entry);
 
-    uint h = qHash(s) % m_string_hash_size;
+    uint h = _q_scriptHash(s) % m_string_hash_size;
     entry->h = h;
     entry->next = m_string_hash_base[h];
     m_string_hash_base[h] = entry;
