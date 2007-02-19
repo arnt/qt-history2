@@ -2225,7 +2225,7 @@ else
 fi
 
 TEST_COMPILER="$CC"
-[ -z "$TEST_COMPILE" ] && TEST_COMPILER=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
+[ -z "$TEST_COMPILE" ] && TEST_COMPILER=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CXX[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
 
 # auto-detect precompiled header support
 if [ "$CFG_PRECOMPILE" = "auto" ]; then
