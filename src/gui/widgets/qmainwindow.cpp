@@ -1088,9 +1088,13 @@ bool QMainWindow::event(QEvent *event)
             break;
         }
 
+        // We don't want QWidget to call update() on the entire QMainWindow
+        // on HoverEnter and HoverLeave, hence accept the event (return true).
+        case QEvent::HoverEnter:
+            return true;
         case QEvent::HoverLeave:
             d->adjustCursor(QPoint(0, 0));
-            break;
+            return true;
 #endif // QT_NO_CURSOR
 
         case QEvent::MouseButtonPress: {
