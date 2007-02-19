@@ -184,8 +184,9 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         for (ByteArrayList::const_iterator it = names.constBegin(); it != cend; ++it) {
             const char* cName = it->constData();
             const QString name = QString::fromLatin1(cName);
-            addDynamicProperty(name, object->property(cName));
-            ensureInfo(indexOf(name)).defaultDynamic = true;
+            const int idx = addDynamicProperty(name, object->property(cName));
+            if (idx != -1)
+                ensureInfo(idx).defaultDynamic = true;
         }
     }
 }
@@ -211,6 +212,8 @@ bool QDesignerPropertySheet::canAddDynamicProperty(const QString &propName) cons
         else
             return true;
     }
+    if (propName.startsWith(QLatin1String("_q_")))
+        return false;
     return true;
 }
 

@@ -89,6 +89,9 @@ void NewDynamicPropertyDialog::on_m_buttonBox_clicked(QAbstractButton *btn)
             if (m_reservedNames.contains(name)) {
                 QMessageBox::information(this, tr("Set Property Name"), tr("The current object already has a property named '%1'.\nPlease select another, unique one.").arg(name));
                     break;
+            } else if (name.startsWith(QLatin1String("_q_"))) {
+                QMessageBox::information(this, tr("Set Property Name"), tr("The '_q_' prefix is reserved for Qt library.\nPlease select another name."));
+                    break;
             }
             accept();
             break;

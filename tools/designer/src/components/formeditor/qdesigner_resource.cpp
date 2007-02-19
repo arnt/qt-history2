@@ -541,8 +541,10 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                 sheet->setChanged(index, true);
             } else if (dynamicSheet && dynamicSheet->dynamicPropertiesAllowed()) {
                 const int idx = dynamicSheet->addDynamicProperty(p->attributeName(), QVariant(v.type()));
-                sheet->setProperty(idx, v);
-                sheet->setChanged(idx, v != QVariant(v.type()));
+                if (idx != -1) {
+                    sheet->setProperty(idx, v);
+                    sheet->setChanged(idx, v != QVariant(v.type()));
+                }
             }
 
             if (propertyName == QLatin1String("objectName"))
