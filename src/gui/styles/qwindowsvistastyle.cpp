@@ -25,8 +25,6 @@ static const int windowsRightBorder      = 15; // right border on windows
 // Runtime resolved theme engine function calls
 
 
-typedef bool (WINAPI *PtrIsAppThemed)();
-typedef bool (WINAPI *PtrIsThemeActive)();
 typedef HRESULT (WINAPI *PtrGetThemePartSize)(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, OPTIONAL RECT *prc, enum THEMESIZE eSize, OUT SIZE *psz);
 typedef HTHEME (WINAPI *PtrOpenThemeData)(HWND hwnd, LPCWSTR pszClassList);
 typedef HTHEME (WINAPI *PtrOpenThemeData)(HWND hwnd, LPCWSTR pszClassList);
@@ -49,10 +47,9 @@ typedef HRESULT (WINAPI *PtrGetThemeRect)(HTHEME hTheme, int iPartId, int iState
 typedef HRESULT (WINAPI *PtrGetThemeString)(HTHEME hTheme, int iPartId, int iStateId, int iPropId, OUT LPWSTR pszBuff, int cchMaxBuffChars);
 typedef HRESULT (WINAPI *PtrGetThemeTransitionDuration)(HTHEME hTheme, int iPartId, int iStateFromId, int iStateToId, int iPropId, int *pDuration);
 typedef HRESULT (WINAPI *PtrIsThemePartDefined)(HTHEME hTheme, int iPartId, int iStateId);
+typedef HRESULT (WINAPI *PtrSetWindowTheme)(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
 
 static PtrIsThemePartDefined pIsThemePartDefined = 0;
-static PtrIsAppThemed pIsAppThemed = 0;
-static PtrIsThemeActive pIsThemeActive = 0;
 static PtrOpenThemeData pOpenThemeData = 0;
 static PtrCloseThemeData pCloseThemeData = 0;
 static PtrDrawThemeBackground pDrawThemeBackground = 0;
@@ -72,6 +69,7 @@ static PtrGetThemePosition pGetThemePosition = 0;
 static PtrGetThemeRect pGetThemeRect = 0;
 static PtrGetThemeString pGetThemeString = 0;
 static PtrGetThemeTransitionDuration pGetThemeTransitionDuration= 0;
+static PtrSetWindowTheme pSetWindowTheme = 0;
 
 /* \internal
     Checks if we should use Vista style , or if we should
@@ -396,40 +394,43 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
     switch (element) {
     case PE_IndicatorBranch: 
         {
-            XPThemeData theme(widget, painter, QLatin1String("TREEVIEW"));
-            if (pIsThemePartDefined(theme.handle(), TVP_HOTGLYPH, 0)) {
-                static const int decoration_size = 16;
-                int mid_h = option->rect.x() + option->rect.width() / 2;
-                int mid_v = option->rect.y() + option->rect.height() / 2;
-                int bef_h = mid_h;
-                int bef_v = mid_v;
-                int aft_h = mid_h;
-                int aft_v = mid_v;
-                if (option->state & State_Children) {
-                    int delta = decoration_size / 2;
-                    theme.rect = QRect(bef_h - delta, bef_v - delta, decoration_size, decoration_size);
-                    theme.partId = option->state & State_MouseOver ? TVP_HOTGLYPH : TVP_GLYPH;
-                    theme.stateId = option->state & QStyle::State_Open ? GLPS_OPENED : GLPS_CLOSED;
-                    d->drawBackground(theme);
-                    bef_h -= delta + 2;
-                    bef_v -= delta + 2;
-                    aft_h += delta - 2;
-                    aft_v += delta - 2;
-                }
-                QBrush brush(option->palette.dark().color(), Qt::Dense4Pattern);
-                if (option->state & State_Item) {
-                    if (option->direction == Qt::RightToLeft)
-                        painter->fillRect(option->rect.left(), mid_v, bef_h - option->rect.left(), 1, brush);
-                    else
-                        painter->fillRect(aft_h, mid_v, option->rect.right() - aft_h + 1, 1, brush);
-                }
-                if (option->state & State_Sibling && option->rect.bottom() > aft_v)
-                    painter->fillRect(mid_h, aft_v, 1, option->rect.bottom() - aft_v + 1, brush);
-                if (option->state & (State_Open | State_Children | State_Item | State_Sibling) && (bef_v > option->rect.y()))
-                    painter->fillRect(mid_h, option->rect.y(), 1, bef_v - option->rect.y(), brush);
-            } else {
-                QWindowsXPStyle::drawPrimitive(element, option, painter, widget);
+            //enable vista explorer style tree branches for tree views 
+            if (!qobject_cast<const QTreeView *>(widget))
+                return QWindowsXPStyle::drawPrimitive(element, option, painter, widget);
+            if (!d->treeViewHelper) {
+                d->treeViewHelper = new QWidget(0);
+                pSetWindowTheme(d->treeViewHelper ->winId(), L"explorer", NULL);
             }
+            XPThemeData theme(d->treeViewHelper, painter, QLatin1String("TREEVIEW"));
+            static const int decoration_size = 16;
+            int mid_h = option->rect.x() + option->rect.width() / 2;
+            int mid_v = option->rect.y() + option->rect.height() / 2;
+            int bef_h = mid_h;
+            int bef_v = mid_v;
+            int aft_h = mid_h;
+            int aft_v = mid_v;
+            if (option->state & State_Children) {
+                int delta = decoration_size / 2;
+                theme.rect = QRect(bef_h - delta, bef_v - delta, decoration_size, decoration_size);
+                theme.partId = option->state & State_MouseOver ? TVP_HOTGLYPH : TVP_GLYPH;
+                theme.stateId = option->state & QStyle::State_Open ? GLPS_OPENED : GLPS_CLOSED;
+                d->drawBackground(theme);
+                bef_h -= delta + 2;
+                bef_v -= delta + 2;
+                aft_h += delta - 2;
+                aft_v += delta - 2;
+            }
+            QBrush brush(option->palette.dark().color(), Qt::Dense4Pattern);
+            if (option->state & State_Item) {
+                if (option->direction == Qt::RightToLeft)
+                    painter->fillRect(option->rect.left(), mid_v, bef_h - option->rect.left(), 1, brush);
+                else
+                    painter->fillRect(aft_h, mid_v, option->rect.right() - aft_h + 1, 1, brush);
+            }
+            if (option->state & State_Sibling && option->rect.bottom() > aft_v)
+                painter->fillRect(mid_h, aft_v, 1, option->rect.bottom() - aft_v + 1, brush);
+            if (option->state & (State_Open | State_Children | State_Item | State_Sibling) && (bef_v > option->rect.y()))
+                painter->fillRect(mid_h, option->rect.y(), 1, bef_v - option->rect.y(), brush);
         }
         break; 
 
@@ -1876,6 +1877,12 @@ QPixmap QWindowsVistaStyle::standardPixmap(StandardPixmap standardPixmap, const 
     return QWindowsXPStyle::standardPixmap(standardPixmap, option, widget);
 }
 
+QWindowsVistaStylePrivate::QWindowsVistaStylePrivate() :
+    QWindowsXPStylePrivate(), treeViewHelper(0)
+{   
+    resolveSymbols();    
+}
+
 void QWindowsVistaStylePrivate::timerEvent()
 {
     for (int i = animations.size() - 1 ; i >= 0 ; --i) {
@@ -1963,6 +1970,7 @@ bool QWindowsVistaStylePrivate::resolveSymbols()
     if (!tried) {
         tried = true;
         QLibrary themeLib(QLatin1String("uxtheme"));
+        pSetWindowTheme         = (PtrSetWindowTheme        )themeLib.resolve("SetWindowTheme");
         pIsThemePartDefined     = (PtrIsThemePartDefined    )themeLib.resolve("IsThemePartDefined");
         pGetThemePartSize       = (PtrGetThemePartSize      )themeLib.resolve("GetThemePartSize");
         pOpenThemeData          = (PtrOpenThemeData         )themeLib.resolve("OpenThemeData");
@@ -1983,7 +1991,6 @@ bool QWindowsVistaStylePrivate::resolveSymbols()
         pGetThemePosition       = (PtrGetThemePosition      )themeLib.resolve("GetThemePosition");
         pGetThemeRect           = (PtrGetThemeRect          )themeLib.resolve("GetThemeRect");
         pGetThemeString         = (PtrGetThemeString        )themeLib.resolve("GetThemeString");
-        pIsAppThemed            = (PtrIsAppThemed           )themeLib.resolve("IsAppThemed");
         pGetThemeTransitionDuration = (PtrGetThemeTransitionDuration)themeLib.resolve("GetThemeTransitionDuration");
     }
     return pGetThemeTransitionDuration != 0;

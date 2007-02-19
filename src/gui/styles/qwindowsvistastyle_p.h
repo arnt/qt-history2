@@ -48,6 +48,7 @@
 #include <qscrollbar.h>
 #include <qprogressbar.h>
 #include <qdockwidget.h>
+#include <qtreeview.h>
 
 #if !defined(SCHEMA_VERIFY_VSSYM32)
 #define TMT_ANIMATIONDURATION	    5006
@@ -143,12 +144,7 @@ class QWindowsVistaStylePrivate :  public QWindowsXPStylePrivate
     Q_DECLARE_PUBLIC(QWindowsVistaStyle)
 
 public:
-    QWindowsVistaStylePrivate() : 
-        QWindowsXPStylePrivate()
-    {   
-        resolveSymbols();
-    }
-
+    QWindowsVistaStylePrivate();
     static bool resolveSymbols();
     static inline bool useVista();
     void startAnimation(Animation *);
@@ -160,6 +156,7 @@ public:
 private:
     QList <Animation*> animations;
     QBasicTimer animationTimer;
+    QWidget *treeViewHelper;
 };
 
 #endif // QT_NO_STYLE_WINDOWSVISTA
