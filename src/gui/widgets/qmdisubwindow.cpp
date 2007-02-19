@@ -2047,13 +2047,13 @@ void QMdiSubWindow::showShaded()
         d->ensureWindowState(Qt::WindowActive);
     setFocus();
 
-    d->updateGeometryConstraints();
     if (!d->restoreSize.isValid() || d->isShadeMode) {
         d->oldGeometry = geometry();
         d->restoreSize.setWidth(d->oldGeometry.width());
         d->restoreSize.setHeight(d->oldGeometry.height());
     }
 
+    d->internalMinimumSize = minimumSizeHint();
     resize(d->internalMinimumSize);
     d->resizeEnabled = false;
     d->updateDirtyRegions();
@@ -2100,7 +2100,11 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
         show();
         break;
     case QEvent::Hide:
-        d->updateGeometryConstraints();
+        // We don't want to call updateGeometryConstraints when minimized
+        // because it can trigger a resize event (due to setContentsMargins),
+        // which is not something we want.
+        if (!isMinimized())
+            d->updateGeometryConstraints();
         break;
     case QEvent::WindowStateChange: {
         QWindowStateChangeEvent *changeEvent = static_cast<QWindowStateChangeEvent*>(event);
