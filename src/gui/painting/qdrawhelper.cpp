@@ -4756,7 +4756,7 @@ static uint detectCPUFeatures() {
     return MMX|SSE|SSE2;
 #elif defined(__IWMMXT__)
     return MMX|SSE;
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(_M_IX86)
     uint result = 0;
     /* see p. 118 of amd64 instruction set manual Vol3 */
 #if defined(Q_CC_GNU)
