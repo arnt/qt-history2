@@ -14,11 +14,18 @@
 
 #include "qdesigner_formwindowcommand_p.h"
 #include "layout_p.h"
-#include "qdesigner_widget_p.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerObjectInspectorInterface>
+#include <QtDesigner/QDesignerActionEditorInterface>
+#include <QtDesigner/QDesignerMetaDataBaseInterface>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QExtensionManager>
+
 #include <QtCore/QVariant>
 #include <QtGui/QWidget>
+#include <QtGui/QLabel>
 
 namespace qdesigner_internal {
 
@@ -83,13 +90,19 @@ void QDesignerFormWindowCommand::updateBuddies(QDesignerFormWindowInterface *for
 {
     QExtensionManager* extensionManager = form->core()->extensionManager();
 
-    const QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(form);
-    foreach (QDesignerLabel *label, label_list) {
-        if (QDesignerPropertySheetExtension* sheet = qt_extension<QDesignerPropertySheetExtension*>(extensionManager, label)) {
-            const int idx = sheet->indexOf(QLatin1String("buddy"));
-            if (idx == -1)
-                continue;
-            if (sheet->property(idx).toString() == old_name)
+    typedef QList<QLabel*> LabelList;
+
+    const LabelList label_list = qFindChildren<QLabel*>(form);
+    if (label_list.empty())
+        return;
+    
+    const QString buddyProperty = QLatin1String("buddy");
+
+    const LabelList::const_iterator cend = label_list.constEnd();
+    for (LabelList::const_iterator it = label_list.constBegin(); it != cend; ++it ) {
+        if (QDesignerPropertySheetExtension* sheet = qt_extension<QDesignerPropertySheetExtension*>(extensionManager, *it)) {
+            const int idx = sheet->indexOf(buddyProperty);
+            if (idx != -1 && sheet->property(idx).toString() == old_name)
                 sheet->setProperty(idx, new_name);
         }
     }

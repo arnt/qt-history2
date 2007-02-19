@@ -20,7 +20,7 @@
 #include "paletteeditorbutton.h"
 
 // sdk
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QExtensionManager>
 
 // shared
@@ -531,14 +531,14 @@ struct Group
 
 // A pair <ValidationMode, bool hasComment>.
 typedef QPair<TextPropertyValidationMode, bool> StringPropertyParameters;
-    
+
+// Return a pair of validation mode and flag indicating whether property has a comment
+// for textual properties.
+
 StringPropertyParameters textPropertyValidationMode(const QObject *object,const QString &pname,
                                                     QVariant::Type type, bool isMainContainer)   
 {
-    // Legacy: buddy comes along as ByteArray for some reason. Else we do not know.
     if (type == QVariant::ByteArray) {
-        if (pname == QLatin1String("buddy"))
-            return StringPropertyParameters(ValidationObjectName, false);
         return StringPropertyParameters(ValidationMultiLine, false);
     }
     // object name - no comment
@@ -549,11 +549,11 @@ StringPropertyParameters textPropertyValidationMode(const QObject *object,const 
 
     // Any names
     if (pname == QLatin1String("buddy") || pname.endsWith(QLatin1String("Name")))
-        return StringPropertyParameters(ValidationObjectName, true);
+        return StringPropertyParameters(ValidationObjectName, false);
         
     // Multi line?
     if (pname == QLatin1String("styleSheet")) 
-        return StringPropertyParameters(ValidationStyleSheet, true);
+        return StringPropertyParameters(ValidationStyleSheet, false);
     
     if (pname == QLatin1String("styleSheet")     || pname == QLatin1String("toolTip")   || 
         pname.endsWith(QLatin1String("ToolTip")) || pname == QLatin1String("whatsThis") ||

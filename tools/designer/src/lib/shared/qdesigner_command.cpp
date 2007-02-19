@@ -142,9 +142,9 @@ void InsertWidgetCommand::undo()
 
 void InsertWidgetCommand::refreshBuddyLabels()
 {
-    typedef QList<QDesignerLabel*> LabelList;
+    typedef QList<QLabel*> LabelList;
 
-    const LabelList label_list = qFindChildren<QDesignerLabel*>(formWindow());
+    const LabelList label_list = qFindChildren<QLabel*>(formWindow());
     if (label_list.empty())
         return;
 

@@ -17,6 +17,7 @@
 #include "qsimpleresource_p.h"
 
 #include <ui4_p.h>
+#include <formbuilderextra_p.h>
 // sdk
 #include <QtDesigner/container.h>
 #include <QtDesigner/customwidget.h>
@@ -112,7 +113,7 @@ QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *
 }
 
 bool QDesignerFormBuilder::addItemContainerExtension(QWidget *widget, QWidget *parentWidget)
-{ 
+{
     QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget);
     if (!container)
         return false;
@@ -160,6 +161,7 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
     if (properties.empty())
         return;
 
+    QFormBuilderExtra *formBuilderExtra = QFormBuilderExtra::instance(this);
     const QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core()->extensionManager(), o);
     const QMetaObject *meta = o->metaObject();
     const bool dynamicPropertiesAllowed = dynamicSheet && dynamicSheet->dynamicPropertiesAllowed() && strcmp(meta->className(), "QAxWidget") != 0;
@@ -172,6 +174,9 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
             continue;
 
         const QString attributeName = (*it)->attributeName();
+        if (formBuilderExtra->applyPropertyInternally(o, attributeName, v))
+            continue;
+
         const QByteArray pname = attributeName.toUtf8();
         const int index = meta->indexOfProperty(pname);
 

@@ -13,6 +13,7 @@
 
 #include "customwidget.h"
 #include "formbuilder.h"
+#include "formbuilderextra_p.h"
 #include "ui4_p.h"
 
 #include <QtGui/QtGui>
@@ -20,35 +21,6 @@
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal {
 #endif
-
-class QFormBuilderExtra
-{
-public:
-    typedef QHash<QLabel*, QString> BuddyHash;
-
-    void reset()
-    { m_buddies.clear(); rootWidget = 0; }
-
-    void addBuddy(QLabel *label, const QString &buddyName)
-    { m_buddies.insert(label, buddyName); }
-
-    const BuddyHash &buddies() const
-    { return m_buddies; }
-
-    QPointer<QWidget> rootWidget;
-
-private:
-    BuddyHash m_buddies;
-};
-
-typedef QHash<QFormBuilder*, QFormBuilderExtra> ExtraInfoTable;
-Q_GLOBAL_STATIC(ExtraInfoTable, q_formbuilder_extra_info_table)
-
-static QFormBuilderExtra &extraInfo(QFormBuilder *builder)
-{
-    return (*q_formbuilder_extra_info_table())[builder];
-}
-
 
 /*!
     \class QFormBuilder
@@ -130,7 +102,6 @@ QFormBuilder::QFormBuilder()
 */
 QFormBuilder::~QFormBuilder()
 {
-    q_formbuilder_extra_info_table()->remove(this);
 }
 
 /*!
@@ -188,9 +159,9 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
     if (qobject_cast<QDialog *>(w))
         w->setParent(parentWidget);
 
-    QFormBuilderExtra &extra = extraInfo(this);
-    if (!extra.rootWidget)
-        extra.rootWidget = w;
+    QFormBuilderExtra *fb = QFormBuilderExtra::instance(this);
+    if (!fb->rootWidget())
+        fb->setRootWidget(w);
 
     return w;
 }
@@ -316,21 +287,7 @@ QWidget *QFormBuilder::create(DomUI *ui, QWidget *parentWidget)
     if (ui->hasAttributeLanguage() && ui->attributeLanguage().toLower() != QLatin1String("c++"))
         return 0;
 
-    QFormBuilderExtra &extra = extraInfo(this);
-    extra.reset();
-
-    if (QWidget *widget = QAbstractFormBuilder::create(ui, parentWidget)) {
-        const QFormBuilderExtra::BuddyHash &buddies = extra.buddies();
-        if (!buddies.empty()) {
-            const QFormBuilderExtra::BuddyHash::const_iterator cend = buddies.constEnd();
-            for (QFormBuilderExtra::BuddyHash::const_iterator it = buddies.constBegin(); it != cend; ++it )
-                it.key()->setBuddy(widgetByName(widget, it.value()));
-        }
-        extra.reset();
-        return widget;
-    }
-
-    return 0;
+    return QAbstractFormBuilder::create(ui, parentWidget);
 }
 
 /*!
@@ -471,7 +428,7 @@ void QFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &proper
     if (properties.empty())
         return;
 
-    QFormBuilderExtra &extra = extraInfo(this);
+    QFormBuilderExtra *fb = QFormBuilderExtra::instance(this);
 
     const DomPropertyList::const_iterator cend = properties.constEnd();
     for (DomPropertyList::const_iterator it = properties.constBegin(); it != cend; ++it) {
@@ -480,13 +437,10 @@ void QFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &proper
             continue;
 
         const QString attributeName = (*it)->attributeName();
-        if (o == extra.rootWidget && attributeName == QLatin1String("geometry")) {
+        if (o == fb->rootWidget() && attributeName == QLatin1String("geometry")) {
             // apply only the size for the rootWidget
-            extra.rootWidget->resize(qvariant_cast<QRect>(v).size());
-        } else if (QLabel *label = qobject_cast<QLabel*>(o)) {
-            // Only save the buddy for now (might not exist yet) and continue
-            if (attributeName == QLatin1String("buddy"))
-                extra.addBuddy(label, v.toString());
+            fb->rootWidget()->resize(qvariant_cast<QRect>(v).size());
+        } else if (fb->applyPropertyInternally(o, attributeName, v)) {
         } else if (!qstrcmp("QFrame", o->metaObject()->className ()) && attributeName == QLatin1String("orientation")) {
             // ### special-casing for Line (QFrame) -- try to fix me
             o->setProperty("frameShape", v); // v is of QFrame::Shape enum

@@ -16,6 +16,8 @@
 #include "layoutinfo_p.h"
 #include "qlayout_widget_p.h"
 
+#include <formbuilderextra_p.h>
+
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerWidgetDataBaseInterface>
@@ -27,6 +29,7 @@
 #include <QtGui/QLayout>
 #include <QtGui/QDockWidget>
 #include <QtGui/QDialog>
+#include <QtGui/QLabel>
 #include <QtGui/QStyle>
 
 static const QMetaObject *propertyIntroducedBy(const QMetaObject *meta, int index)
@@ -84,11 +87,11 @@ QDesignerPropertySheet::ObjectType QDesignerPropertySheet::objectType(const QObj
     if (qobject_cast<const QLayoutWidget *>(o))
         return ObjectLayoutWidget;
 
+    if (qobject_cast<const QLabel*>(o))
+        return ObjectLabel;
+
     if (o->inherits("Q3GroupBox"))
         return ObjectQ3GroupBox;
-
-    if (o->inherits("QLabel"))
-        return  ObjectLabel;
 
     return ObjectNone;
 }
@@ -168,6 +171,9 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
             setAttribute(pindex, true);
             setPropertyGroup(pindex, tr("Layout"));
         }
+
+        if (m_objectType == ObjectLabel)
+            createFakeProperty(QLatin1String("buddy"), QVariant(QString()));
     }
 
     if (qobject_cast<const QDialog*>(object)) {
@@ -260,6 +266,10 @@ bool QDesignerPropertySheet::isDynamic(int index) const
         return false;
 
     switch (propertyType(index)) {
+    case PropertyBuddy:
+        if (m_objectType == ObjectLabel)
+            return false;
+        break;
     case PropertyLayoutMargin:
     case PropertyLayoutSpacing:
         if (m_object->isWidgetType() && m_canHaveLayoutAttributes)
@@ -460,6 +470,10 @@ void QDesignerPropertySheet::setFakeProperty(int index, const QVariant &value)
 void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
 {
     if (isAdditionalProperty(index)) {
+        if (m_objectType == ObjectLabel && propertyType(index) == PropertyBuddy) {
+            QFormBuilderExtra::applyBuddy(value.toString(), QFormBuilderExtra::BuddyApplyVisibleOnly, qobject_cast<QLabel *>(m_object));
+        }
+
         if (isFakeLayoutProperty(index)) {
             QDesignerPropertySheetExtension *layoutPropertySheet;
             if (layout(&layoutPropertySheet) && layoutPropertySheet) {
@@ -512,8 +526,14 @@ bool QDesignerPropertySheet::reset(int index)
         return true;
     }
     if (isAdditionalProperty(index)) {
+        const PropertyType pType = propertyType(index);
+
+        if (m_objectType == ObjectLabel && pType == PropertyBuddy) {
+            setProperty(index, QVariant(QString()));
+            return true;
+        }
+
         if (isFakeLayoutProperty(index)) {
-            const PropertyType pType = propertyType(index);
             int value = -1;
             switch (m_objectType) {
             case ObjectQ3GroupBox: {
@@ -561,7 +581,7 @@ bool QDesignerPropertySheet::isChanged(int index) const
         if (isFakeLayoutProperty(index)) {
             QDesignerPropertySheetExtension *layoutPropertySheet;
             if (layout(&layoutPropertySheet) && layoutPropertySheet) {
-                QString newPropName = transformLayoutPropertyName(index);
+                const QString newPropName = transformLayoutPropertyName(index);
                 if (!newPropName.isEmpty())
                     return layoutPropertySheet->isChanged(layoutPropertySheet->indexOf(newPropName));
             }
@@ -582,10 +602,7 @@ void QDesignerPropertySheet::setChanged(int index, bool changed)
             }
         }
     }
-    if (!m_info.contains(index))
-        m_info.insert(index, Info());
-
-    m_info[index].changed = changed;
+    ensureInfo(index).changed = changed;
 }
 
 bool QDesignerPropertySheet::isFakeLayoutProperty(int index) const

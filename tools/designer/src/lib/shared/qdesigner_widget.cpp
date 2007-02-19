@@ -34,25 +34,6 @@ void QDesignerDialog::paintEvent(QPaintEvent *e)
     }
 }
 
-void QDesignerLabel::updateBuddy()
-{
-    if (myBuddy.isEmpty()) {
-        QLabel::setBuddy(0);
-        return;
-    }
-
-    const QList<QWidget *> widgets = qFindChildren<QWidget*>(topLevelWidget(), QString::fromUtf8(myBuddy));
-    QListIterator<QWidget *> it(widgets);
-    while (it.hasNext()) {
-        QWidget *widget = it.next();
-        if (widget && !widget->isHidden()) {
-            QLabel::setBuddy(widget);
-            return;
-        }
-    }
-    QLabel::setBuddy(0);
-}
-
 QDesignerWidget::QDesignerWidget(QDesignerFormWindowInterface* formWindow, QWidget *parent)  :
     QWidget(parent),
     m_formWindow(qobject_cast<qdesigner_internal::FormWindowBase*>(formWindow))
@@ -80,14 +61,4 @@ void QDesignerWidget::paintEvent(QPaintEvent *e)
 void QDesignerWidget::dragEnterEvent(QDragEnterEvent *)
 {
 //    e->setAccepted(QTextDrag::canDecode(e));
-}
-
-QDesignerLabel::QDesignerLabel(QWidget *parent)
-    : QLabel(parent)
-{
-}
-
-void QDesignerLabel::setBuddy(QWidget *widget)
-{
-    QLabel::setBuddy(widget);
 }

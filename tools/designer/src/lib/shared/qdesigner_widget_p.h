@@ -73,37 +73,6 @@ private:
     qdesigner_internal::FormWindowBase* m_formWindow;
 };
 
-class QDESIGNER_SHARED_EXPORT QDesignerLabel : public QLabel
-{
-    Q_OBJECT
-    Q_PROPERTY(QByteArray buddy READ buddy WRITE setBuddy)
-public:
-    QDesignerLabel(QWidget *parent = 0);
-
-    inline void setBuddy(const QByteArray &b)
-    {
-        myBuddy = b;
-        updateBuddy();
-    }
-
-    inline QByteArray buddy() const
-    { return myBuddy; }
-
-    void setBuddy(QWidget *widget);
-
-protected:
-    void showEvent(QShowEvent *e)
-    {
-        QLabel::showEvent(e);
-        updateBuddy();
-    }
-
-private:
-    void updateBuddy();
-
-    QByteArray myBuddy;
-};
-
 class QDESIGNER_SHARED_EXPORT Line : public QFrame
 {
     Q_OBJECT

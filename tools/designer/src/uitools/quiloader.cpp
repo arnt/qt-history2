@@ -125,26 +125,33 @@ private:
 
 void FormBuilderPrivate::applyProperties(QObject *o, const QList<DomProperty*> &properties)
 {
+    typedef QList<DomProperty*> DomPropertyList;
+
     QFormBuilder::applyProperties(o, properties);
 
+    if (properties.empty())
+        return;
+
     // translate string properties
-    foreach (DomProperty *p, properties) {
+    const DomPropertyList::const_iterator cend = properties.constEnd();
+    for (DomPropertyList::const_iterator it = properties.constBegin(); it != cend; ++it) {
+        const DomProperty *p = *it;
         if (p->kind() != DomProperty::String)
             continue;
-        DomString *dom_str = p->elementString();
+        const DomString *dom_str = p->elementString();
         if (dom_str->hasAttributeNotr()) {
-            QString notr = dom_str->attributeNotr();
+            const QString notr = dom_str->attributeNotr();
             if (notr == QLatin1String("yes") || notr == QLatin1String("true"))
                 continue;
         }
-        QByteArray name = p->attributeName().toUtf8();
-        QVariant v = o->property(name);
+        const QByteArray name = p->attributeName().toUtf8();
+        const QVariant v = o->property(name);
         if (v.type() != QVariant::String)
             continue;
-        QString text = QApplication::translate(m_class.toUtf8(),
-                                                v.toString().toUtf8(),
-                                                dom_str->attributeComment().toUtf8(),
-                                                QCoreApplication::UnicodeUTF8);
+        const QString text = QApplication::translate(m_class.toUtf8(),
+                                                     v.toString().toUtf8(),
+                                                     dom_str->attributeComment().toUtf8(),
+                                                     QCoreApplication::UnicodeUTF8);
         o->setProperty(name, text);
     }
 }
@@ -178,9 +185,9 @@ QWidget *FormBuilderPrivate::create(DomWidget *ui_widget, QWidget *parentWidget)
         return 0;
 
     if (QTabWidget *tabw = qobject_cast<QTabWidget*>(w)) {
-        int cnt = tabw->count();
+        const int cnt = tabw->count();
         for (int i = 0; i < cnt; ++i) {
-            QString text = QApplication::translate(m_class.toUtf8(),
+            const QString text = QApplication::translate(m_class.toUtf8(),
                                                     tabw->tabText(i).toUtf8(),
                                                     "",
                                                     QCoreApplication::UnicodeUTF8);
@@ -188,30 +195,30 @@ QWidget *FormBuilderPrivate::create(DomWidget *ui_widget, QWidget *parentWidget)
             tabw->setTabText(i, text);
         }
     } else if (QListWidget *listw = qobject_cast<QListWidget*>(w)) {
-        int cnt = listw->count();
+        const int cnt = listw->count();
         for (int i = 0; i < cnt; ++i) {
             QListWidgetItem *item = listw->item(i);
-            QString text = QApplication::translate(m_class.toUtf8(),
+            const QString text = QApplication::translate(m_class.toUtf8(),
                                                     item->text().toUtf8(),
                                                     "",
                                                     QCoreApplication::UnicodeUTF8);
             item->setText(text);
         }
     } else if (QTreeWidget *treew = qobject_cast<QTreeWidget*>(w)) {
-        int cnt = treew->topLevelItemCount();
+        const int cnt = treew->topLevelItemCount();
         for (int i = 0; i < cnt; ++i) {
             QTreeWidgetItem *item = treew->topLevelItem(i);
             recursiveTranslate(item, m_class);
         }
     } else if (QTableWidget *tablew = qobject_cast<QTableWidget*>(w)) {
-        int row_cnt = tablew->rowCount();
-        int col_cnt = tablew->columnCount();
+        const int row_cnt = tablew->rowCount();
+        const int col_cnt = tablew->columnCount();
         for (int i = 0; i < row_cnt; ++i) {
             for (int j = 0; j < col_cnt; ++j) {
                 QTableWidgetItem *item = tablew->item(i, j);
                 if (item == 0)
                     continue;
-                QString text = QApplication::translate(m_class.toUtf8(),
+                const QString text = QApplication::translate(m_class.toUtf8(),
                                                         item->text().toUtf8(),
                                                         "",
                                                         QCoreApplication::UnicodeUTF8);
@@ -220,9 +227,9 @@ QWidget *FormBuilderPrivate::create(DomWidget *ui_widget, QWidget *parentWidget)
         }
     } else if (QComboBox *combow = qobject_cast<QComboBox*>(w)) {
         if (!qobject_cast<QFontComboBox*>(w)) {
-            int cnt = combow->count();
+            const int cnt = combow->count();
             for (int i = 0; i < cnt; ++i) {
-                QString text = QApplication::translate(m_class.toUtf8(),
+                const QString text = QApplication::translate(m_class.toUtf8(),
                         combow->itemText(i).toUtf8(),
                         "",
                         QCoreApplication::UnicodeUTF8);
@@ -230,9 +237,9 @@ QWidget *FormBuilderPrivate::create(DomWidget *ui_widget, QWidget *parentWidget)
             }
         }
     } else if (QToolBox *toolw = qobject_cast<QToolBox*>(w)) {
-        int cnt = toolw->count();
+        const int cnt = toolw->count();
         for (int i = 0; i < cnt; ++i) {
-            QString text = QApplication::translate(m_class.toUtf8(),
+            const QString text = QApplication::translate(m_class.toUtf8(),
                                                     toolw->itemText(i).toUtf8(),
                                                     "",
                                                     QCoreApplication::UnicodeUTF8);
@@ -348,7 +355,10 @@ QUiLoader::QUiLoader(QObject *parent)
 
     QStringList paths;
     foreach (const QString &path, QApplication::libraryPaths()) {
-        paths.append(path + QDir::separator() + QLatin1String("designer"));
+        QString libPath = path;
+        libPath  += QDir::separator();
+        libPath  += QLatin1String("designer");
+        paths.append(libPath);
     }
 
     d->builder.setPluginPath(paths);
@@ -500,8 +510,8 @@ QStringList QUiLoader::availableWidgets() const
 }
 
 /*!
-    Sets the working directory of the loader to \a dir. The loader 
-    looks for other resources, such as icons and resource files, 
+    Sets the working directory of the loader to \a dir. The loader
+    looks for other resources, such as icons and resource files,
     in paths relative to this directory.
 
     \sa workingDirectory()

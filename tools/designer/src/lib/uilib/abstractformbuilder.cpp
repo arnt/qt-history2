@@ -12,11 +12,9 @@
 ****************************************************************************/
 
 #include "abstractformbuilder.h"
+#include "formbuilderextra_p.h"
 #include "ui4_p.h"
 #include "properties_p.h"
-#ifndef QT_FORMBUILDER_NO_SCRIPT
-#    include "formscriptrunner_p.h"
-#endif
 
 #include <QtCore/QVariant>
 #include <QtCore/QMetaProperty>
@@ -71,14 +69,6 @@ public:
     friend class QAbstractFormBuilder;
 #endif
 };
-
-#ifndef QT_FORMBUILDER_NO_SCRIPT
-namespace {
-    // Work around BC
-    typedef QHash<const QAbstractFormBuilder *, QFormScriptRunner *> BuilderScriptRunnerHash;
-    Q_GLOBAL_STATIC(BuilderScriptRunnerHash, g_BuilderScriptRunners)
-}
-#endif
 
 /*!
     \class QAbstractFormBuilder
@@ -140,19 +130,13 @@ QAbstractFormBuilder::QAbstractFormBuilder() :
     m_defaultMargin(INT_MIN),
     m_defaultSpacing(INT_MIN)
 {
-#ifndef QT_FORMBUILDER_NO_SCRIPT
-    g_BuilderScriptRunners()->insert(this, new QFormScriptRunner);
-#endif
 }
 
 /*!
     Destroys the form builder.*/
 QAbstractFormBuilder::~QAbstractFormBuilder()
 {
-#ifndef QT_FORMBUILDER_NO_SCRIPT
-    BuilderScriptRunnerHash::iterator it = g_BuilderScriptRunners()->find(this);
-    g_BuilderScriptRunners()->erase(it);
-#endif
+    QFormBuilderExtra::removeInstance(this);
 }
 
 
@@ -182,9 +166,8 @@ QWidget *QAbstractFormBuilder::load(QIODevice *dev, QWidget *parentWidget)
 */
 QWidget *QAbstractFormBuilder::create(DomUI *ui, QWidget *parentWidget)
 {
-#ifndef QT_FORMBUILDER_NO_SCRIPT
-    formScriptRunner()->clearErrors();
-#endif
+    QFormBuilderExtra *formBuilderPrivate = QFormBuilderExtra::instance(this);
+    formBuilderPrivate->clear();
     if (const DomLayoutDefault *def = ui->elementLayoutDefault()) {
         m_defaultMargin = def->hasAttributeMargin() ? def->attributeMargin() : INT_MIN;
         m_defaultSpacing = def->hasAttributeSpacing() ? def->attributeSpacing() : INT_MIN;
@@ -200,11 +183,12 @@ QWidget *QAbstractFormBuilder::create(DomUI *ui, QWidget *parentWidget)
         createConnections(ui->elementConnections(), widget);
         createResources(ui->elementResources());
         applyTabStops(widget, ui->elementTabStops());
+        formBuilderPrivate->applyInternalProperties();
         reset();
-
+        formBuilderPrivate->clear();
         return widget;
     }
-
+    formBuilderPrivate->clear();
     return 0;
 }
 
@@ -262,7 +246,7 @@ QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
     loadExtraInfo(ui_widget, w, parentWidget);
 #ifndef QT_FORMBUILDER_NO_SCRIPT
     QString scriptErrorMessage;
-    formScriptRunner()->run(ui_widget, w, children, &scriptErrorMessage);
+    QFormBuilderExtra::instance(this)->formScriptRunner().run(ui_widget, w, children, &scriptErrorMessage);
 #endif
     addItem(ui_widget, w, parentWidget);
 
@@ -593,11 +577,34 @@ QLayoutItem *QAbstractFormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout 
 */
 void QAbstractFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &properties)
 {
-    foreach (DomProperty *p, properties) {
-        QVariant v = toVariant(o->metaObject(), p);
-        if (!v.isNull())
-            o->setProperty(p->attributeName().toUtf8(), v);
+    typedef QList<DomProperty*> DomPropertyList;
+
+    if (properties.empty())
+        return;
+
+    QFormBuilderExtra *fb = QFormBuilderExtra::instance(this);
+
+    const DomPropertyList::const_iterator cend = properties.constEnd();
+    for (DomPropertyList::const_iterator it = properties.constBegin(); it != cend; ++it) {
+        const QVariant v = toVariant(o->metaObject(), *it);
+        if (!v.isNull()) {
+            const  QString attributeName = (*it)->attributeName();
+            if (!fb->applyPropertyInternally(o, attributeName, v))
+                o->setProperty(attributeName.toUtf8(), v);
+        }
     }
+}
+
+
+/*!
+    \internal
+    Check whether a property is applied internally by QAbstractFormBuilder. Call this
+   from overwritten applyProperties().
+*/
+
+bool QAbstractFormBuilder::applyPropertyInternally(QObject *o, const QString &propertyName, const QVariant &value)
+{
+    return QFormBuilderExtra::instance(this)->applyPropertyInternally(o,propertyName, value);
 }
 
 /*!
@@ -2073,8 +2080,6 @@ QPixmap QAbstractFormBuilder::domPropertyToPixmap(const DomProperty* p)
 #ifndef QT_FORMBUILDER_NO_SCRIPT
 QFormScriptRunner *QAbstractFormBuilder::formScriptRunner() const
 {
-    BuilderScriptRunnerHash::const_iterator it = g_BuilderScriptRunners()->constFind(this);
-    Q_ASSERT(it != g_BuilderScriptRunners()->constEnd());
-    return it.value();
+    return &(QFormBuilderExtra::instance(this)->formScriptRunner());
 }
 #endif

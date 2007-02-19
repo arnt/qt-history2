@@ -98,8 +98,6 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         w = f->createWidget(parentWidget);
     } else if (widgetName == QLatin1String("Line")) {
         w = new Line(parentWidget);
-    } else if (widgetName == QLatin1String("QLabel")) {
-        w = new QDesignerLabel(parentWidget);
     } else if (widgetName == QLatin1String("QDockWidget")) {
         w = new QDesignerDockWidget(parentWidget);
     } else if (widgetName == QLatin1String("QTabWidget")) {
@@ -204,8 +202,6 @@ QString WidgetFactory::classNameOf(QDesignerFormEditorInterface *c, QObject* o)
         return QLatin1String("QDialog");
     else if (qobject_cast<QDesignerWidget*>(o))
         return QLatin1String("QWidget");
-    else if (qobject_cast<QDesignerLabel*>(o))
-        return QLatin1String("QLabel");
     else if (qstrcmp(o->metaObject()->className(), "QAxBase") == 0)
         return QLatin1String("QAxWidget");
     else if (qstrcmp(o->metaObject()->className(), "QDesignerQ3WidgetStack") == 0)

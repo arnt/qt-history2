@@ -21,7 +21,8 @@
 #include "qdesigner_dockwidget_p.h"
 #include "qdesigner_menu_p.h"
 #include "qdesigner_menubar_p.h"
-#include "ui4_p.h"
+#include <ui4_p.h>
+#include <formbuilderextra_p.h>
 
 // shared
 #include <widgetdatabase_p.h>
@@ -86,7 +87,6 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
     m_internal_to_qt.insert(QLatin1String("QDesignerStackedWidget"), QLatin1String("QStackedWidget"));
     m_internal_to_qt.insert(QLatin1String("QDesignerTabWidget"), QLatin1String("QTabWidget"));
     m_internal_to_qt.insert(QLatin1String("QDesignerDialog"), QLatin1String("QDialog"));
-    m_internal_to_qt.insert(QLatin1String("QDesignerLabel"), QLatin1String("QLabel"));
     m_internal_to_qt.insert(QLatin1String("QDesignerToolBox"), QLatin1String("QToolBox"));
     m_internal_to_qt.insert(QLatin1String("QDesignerToolBar"), QLatin1String("QToolBar"));
     m_internal_to_qt.insert(QLatin1String("QDesignerMenuBar"), QLatin1String("QMenuBar"));
@@ -518,6 +518,7 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
     if (!sheet)
         return;
 
+    QFormBuilderExtra *formBuilderExtra = QFormBuilderExtra::instance(this);
     QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core()->extensionManager(), o);
     const bool dynamicPropertiesAllowed = dynamicSheet && dynamicSheet->dynamicPropertiesAllowed();
 
@@ -544,6 +545,8 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                     setPropertyComment(core(), o, propertyName, str->attributeComment());
             }
         }
+
+        formBuilderExtra->applyPropertyInternally(o, propertyName, v);
 
         if (index != -1) {
             sheet->setProperty(index, v);
@@ -1388,6 +1391,11 @@ DomProperty *QDesignerResource::applyProperStdSetAttribute(QObject *object, cons
     if (!property)
         return 0;
 
+    if (qobject_cast<const QLabel *>(object) && propertyName == QLatin1String("buddy")) {
+        property->setAttributeStdset(0);
+        return property;
+    }
+
     QExtensionManager *mgr = core()->extensionManager();
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(mgr, object)) {
         QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(mgr, object);
@@ -1419,7 +1427,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
             const QMetaObject *meta = object->metaObject();
             const int pindex = meta->indexOfProperty(propertyName.toLatin1());
             if (pindex != -1) {
-                QMetaProperty meta_property = meta->property(pindex);
+                const QMetaProperty meta_property = meta->property(pindex);
                 if (!meta_property.hasStdCppSet())
                     p->setAttributeStdset(0);
             }
@@ -1451,9 +1459,9 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
                 DomProperty *p = new DomProperty;
                 // check if we have a standard cpp set function
                 const QMetaObject *meta = object->metaObject();
-                int pindex = meta->indexOfProperty(propertyName.toLatin1());
+                const int pindex = meta->indexOfProperty(propertyName.toLatin1());
                 if (pindex != -1) {
-                    QMetaProperty meta_property = meta->property(pindex);
+                    const QMetaProperty meta_property = meta->property(pindex);
                     if (!meta_property.hasStdCppSet())
                         p->setAttributeStdset(0);
                 }

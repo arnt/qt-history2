@@ -100,6 +100,8 @@ protected:
     virtual void addMenuAction(QAction *action);
 
     virtual void applyProperties(QObject *o, const QList<DomProperty*> &properties);
+    bool applyPropertyInternally(QObject *o, const QString &propertyName, const QVariant &value);
+
     virtual void applyTabStops(QWidget *widget, DomTabStops *tabStops);
 
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
