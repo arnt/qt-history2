@@ -292,6 +292,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     d->complexXForm = false;
 
     //initialization
+    d->cosmeticPenSize = 1;
     d->current.clipEnabled = false;
     d->pdev = pdev;
     d->hd = qt_mac_cg_context(pdev);
