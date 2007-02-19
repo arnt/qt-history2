@@ -2853,6 +2853,7 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     Q_D(const QAbstractItemView);
     QStyleOptionViewItem option;
     option.init(this);
+    option.state &= ~QStyle::State_MouseOver;
     option.font = font();
     if (!hasFocus())
         option.state &= ~QStyle::State_Active;
