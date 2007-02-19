@@ -137,6 +137,9 @@ void QRegionPrivate::append(const QRegionPrivate *r)
 
 void QRegionPrivate::prepend(const QRegionPrivate *r)
 {
+#if 1
+    Q_UNUSED(r);
+#else
     Q_ASSERT(!isEmpty(r));
 
 
@@ -162,6 +165,7 @@ void QRegionPrivate::prepend(const QRegionPrivate *r)
                       qMax(destRect->bottom(), srcRect->bottom()));
 
     numRects = newNumRects;
+#endif
 }
 
 bool QRegionPrivate::canAppend(const QRegionPrivate *r) const
@@ -186,6 +190,7 @@ bool QRegionPrivate::canAppend(const QRegionPrivate *r) const
 bool QRegionPrivate::canPrepend(const QRegionPrivate *r) const
 {
 #if 1
+    Q_UNUSED(r);
     return false;
 #else
     return r->canAppend(this);
