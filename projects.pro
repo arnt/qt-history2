@@ -32,7 +32,9 @@ isEmpty(QT_PROJECTS) {
           !cross_compile:SUBDIRS += tools
           else:SUBDIRS += tools/qtestlib
        } else:isEqual(PROJECT, examples) {
-          SUBDIRS += demos examples
+          SUBDIRS += examples
+       } else:isEqual(PROJECT, demos) {
+          SUBDIRS += demos
        } else:isEqual(PROJECT, libs) {
           include(src/src.pro)
        } else:isEqual(PROJECT, qmake) {
