@@ -155,23 +155,27 @@ QPixmap QDesignerFormBuilder::nameToPixmap(const QString &filePath, const QStrin
 
 void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &properties)
 {
-    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), o);
-    QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core()->extensionManager(), o);
-    Q_ASSERT(sheet != 0);
+    typedef QList<DomProperty*> DomPropertyList;
 
+    if (properties.empty())
+        return;
+
+    const QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core()->extensionManager(), o);
     const QMetaObject *meta = o->metaObject();
+    const bool dynamicPropertiesAllowed = dynamicSheet && dynamicSheet->dynamicPropertiesAllowed() && strcmp(meta->className(), "QAxWidget") != 0;
 
-    foreach (DomProperty *p, properties) {
-        QVariant v = toVariant(meta, p);
+    const DomPropertyList::const_iterator cend = properties.constEnd();
+    for (DomPropertyList::const_iterator it = properties.constBegin(); it != cend; ++it) {
+        const QVariant v = toVariant(meta, *it);
 
         if (v.isNull())
             continue;
 
-        QByteArray pname = p->attributeName().toUtf8();
-        int index = o->metaObject()->indexOfProperty(pname);
+        const QString attributeName = (*it)->attributeName();
+        const QByteArray pname = attributeName.toUtf8();
+        const int index = meta->indexOfProperty(pname);
 
-        if (index != -1 || (dynamicSheet && dynamicSheet->dynamicPropertiesAllowed() &&
-                        strcmp(meta->className(), "QAxWidget") != 0)) {
+        if (index != -1 || dynamicPropertiesAllowed) {
             // a real property
             o->setProperty(pname, v);
         }

@@ -511,48 +511,57 @@ void QDesignerResource::changeObjectName(QObject *o, QString objName)
 
 void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &properties)
 {
-    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), o)) {
-        QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core()->extensionManager(), o);
+    if (properties.empty())
+        return;
 
-        for (int i=0; i<properties.size(); ++i) {
-            DomProperty *p = properties.at(i);
-            const QString propertyName = p->attributeName();
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), o);
+    if (!sheet)
+        return;
 
-            const int index = sheet->indexOf(propertyName);
-            QVariant v = toVariant(o->metaObject(), p);
+    QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core()->extensionManager(), o);
+    const bool dynamicPropertiesAllowed = dynamicSheet && dynamicSheet->dynamicPropertiesAllowed();
 
-            QDesignerMetaDataBaseItemInterface *item = 0;
-            if (core()->metaDataBase())
-                item = core()->metaDataBase()->item(o);
+    const QString objectNameProperty = QLatin1String("objectName");
+    const DomPropertyList::const_iterator cend = properties.constEnd();
+    for (DomPropertyList::const_iterator it = properties.constBegin(); it != cend; ++it) {
+        const DomProperty *p = *it;
+        const QString propertyName = p->attributeName();
 
-            if (!item) {
-                qWarning() << "** WARNING no ``meta database item'' for object:" << o;
-            }
+        const int index = sheet->indexOf(propertyName);
+        const QVariant v = toVariant(o->metaObject(), *it);
 
-            if (p->kind() == DomProperty::String && item) {
-                const DomString *str = p->elementString();
-                if (str->hasAttributeComment()) {
+        QDesignerMetaDataBaseItemInterface *item = 0;
+        if (core()->metaDataBase())
+            item = core()->metaDataBase()->item(o);
+
+        if (!item) {
+            qWarning() << "** WARNING no ``meta database item'' for object:" << o;
+        }
+
+        if (p->kind() == DomProperty::String && item) {
+            const DomString *str = p->elementString();
+            if (str->hasAttributeComment()) {
                     setPropertyComment(core(), o, propertyName, str->attributeComment());
-                }
             }
+        }
 
-            if (index != -1) {
-                sheet->setProperty(index, v);
-                sheet->setChanged(index, true);
-            } else if (dynamicSheet && dynamicSheet->dynamicPropertiesAllowed()) {
-                const int idx = dynamicSheet->addDynamicProperty(p->attributeName(), QVariant(v.type()));
-                if (idx != -1) {
-                    sheet->setProperty(idx, v);
-                    sheet->setChanged(idx, v != QVariant(v.type()));
-                }
+        if (index != -1) {
+            sheet->setProperty(index, v);
+            sheet->setChanged(index, true);
+        } else if (dynamicPropertiesAllowed) {
+            const int idx = dynamicSheet->addDynamicProperty(p->attributeName(), QVariant(v.type()));
+            if (idx != -1) {
+                sheet->setProperty(idx, v);
+                sheet->setChanged(idx, v != QVariant(v.type()));
             }
+        }
 
-            if (propertyName == QLatin1String("objectName"))
-                changeObjectName(o, o->objectName());
-        }
-        if (QSplitter *splitter = qobject_cast<QSplitter *>(o)) {
-            WidgetFactory::createUnmanagedLayout(splitter, splitter->orientation() == Qt::Horizontal ? LayoutInfo::HBox : LayoutInfo::VBox);
-        }
+        if (propertyName == objectNameProperty)
+            changeObjectName(o, o->objectName());
+    }
+
+    if (QSplitter *splitter = qobject_cast<QSplitter *>(o)) {
+        WidgetFactory::createUnmanagedLayout(splitter, splitter->orientation() == Qt::Horizontal ? LayoutInfo::HBox : LayoutInfo::VBox);
     }
 }
 
