@@ -91,6 +91,7 @@ void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
 /********************************************************************************
  * Span functions
  */
+static void qt_span_fill_simpleClip(int count, const QSpan *spans, void *userData);
 static void qt_span_fill_clipped(int count, const QSpan *spans, void *userData);
 static void qt_span_clip(int count, const QSpan *spans, void *userData);
 
@@ -715,7 +716,17 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->int_xform = true;
     d->user_clip_enabled = false;
     d->opacity = 256;
+    d->fast_text = true;
+    d->paint_unclipped = false;
 
+    const QPaintDevice *originalDevice = painter()->d_ptr->original_device;
+    if (originalDevice->devType() == QInternal::Widget) {
+        const QWidget *widget = static_cast<const QWidget *>(originalDevice);
+        if (widget->testAttribute(Qt::WA_PaintUnclipped))
+            d->paint_unclipped = true;
+    }
+
+    painter()->d_func()->fillrect_func = static_cast<QPainterPrivate::FillRectBackdoor>(&QRasterPaintEngine::fastFillRect);
     d->inverseScale = qreal(1);
 
 #if defined(Q_WS_WIN)
@@ -745,26 +756,30 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     // reset paintevent clip
     d->baseClip = QPainterPath();
     if (device->devType() == QInternal::Widget) {
-        QRegion sysClip = systemClip();
-        if (!sysClip.isEmpty()) {
-            d->baseClip.addRegion(sysClip);
-            d->deviceRect = sysClip.boundingRect();
-            // Shift the baseclip to absolute
-            d->baseClip = d->baseClip * QTransform(1, 0, 0, 1,
-                                                -d->deviceRect.x(),
-                                                -d->deviceRect.y());
+        if (!d->paint_unclipped) {
+            QRegion sysClip = systemClip();
+            if (!sysClip.isEmpty()) {
+                d->baseClip.addRegion(sysClip);
+                d->deviceRect = sysClip.boundingRect();
+                // Shift the baseclip to absolute
+                d->baseClip = d->baseClip * QMatrix(1, 0, 0, 1,
+                                                    -d->deviceRect.x(),
+                                                    -d->deviceRect.y());
+            }
         }
         gccaps &= ~PaintOutsidePaintEvent;
     }
 #if defined(Q_WS_QWS)
     else if (device->devType() == QInternal::Pixmap) {
-        // Only embedded uses system clipping on pixmaps
-        QRegion sysClip = systemClip();
-        if (!sysClip.isEmpty())
-            d->baseClip.addRegion(sysClip);
+        if (!d->paint_unclipped) {
+            // Only embedded uses system clipping on pixmaps
+            QRegion sysClip = systemClip();
+            if (!sysClip.isEmpty())
+                d->baseClip.addRegion(sysClip);
+        }
     }
 #endif
-    else {
+    else if (!d->paint_unclipped) {
         QRegion sysClip = systemClip();
         if (!sysClip.isEmpty()) {
             d->baseClip.addRegion(sysClip);
@@ -825,8 +840,6 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         d->rasterBuffer->prepare(d->deviceRect.width(), d->deviceRect.height());
     }
 
-    d->rasterBuffer->resetClip();
-
     d->matrix = QTransform();
     d->txop = QTransform::TxNone;
     d->txscale = 1;
@@ -850,11 +863,8 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->brushData.init(d->rasterBuffer, this);
     d->brushData.setup(d->brush, d->opacity);
 
-#ifdef QT_EXPERIMENTAL_REGIONS
-    updateClipRegion(QRegion(), Qt::NoClip);
-#else
-    updateClipPath(QPainterPath(), Qt::NoClip);
-#endif
+    if (!d->paint_unclipped)
+        updateClipRegion(QRegion(), Qt::NoClip);
 
     setDirty(DirtyBrushOrigin);
 
@@ -1002,6 +1012,9 @@ void QRasterPaintEngine::updateMatrix(const QTransform &matrix)
 {
     Q_D(QRasterPaintEngine);
 
+    if (d->matrix == matrix)
+        return;
+
     d->matrix = matrix;
     d->int_xform = false;
     if (d->matrix.m12() != 0 || d->matrix.m21() != 0 ||
@@ -1051,6 +1064,7 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
     QPaintEngine::DirtyFlags flags = state.state();
 
     bool update_fast_pen = false;
+    bool update_fast_text = false;
 
     if (flags & DirtyTransform) {
         update_fast_pen = true;
@@ -1058,20 +1072,25 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
     }
 
     if (flags & DirtyOpacity) {
-        update_fast_pen = true;
-        d->opacity = qRound(state.opacity() * 256.0);
-        if (d->opacity > 256)
-            d->opacity = 256;
-        if (d->opacity < 0)
-            d->opacity = 0;
+        int newOpacity = qRound(state.opacity() * 256.0);
+        if (d->opacity != newOpacity) {
+            update_fast_pen = true;
+            update_fast_text = true;
+            d->opacity = newOpacity;
+            if (d->opacity > 256)
+                d->opacity = 256;
+            if (d->opacity < 0)
+                d->opacity = 0;
 
-        // Force update pen/brush as to get proper alpha colors propagated
-        flags |= DirtyPen;
-        flags |= DirtyBrush;
+            // Force update pen/brush as to get proper alpha colors propagated
+            flags |= DirtyPen;
+            flags |= DirtyBrush;
+        }
     }
 
-    if (flags & DirtyPen) {
+    if (flags & DirtyPen && d->pen != state.pen()) {
         update_fast_pen = true;
+        update_fast_text = true;
         d->pen = state.pen();
 
         if (d->pen.style() == Qt::CustomDashLine && d->pen.dashPattern().size() == 0)
@@ -1116,7 +1135,7 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->updateMatrixData(&d->brushData, d->brush, d->brushMatrix());
     }
 
-    if (flags & (DirtyClipPath | DirtyClipRegion)) {
+    if (!d->paint_unclipped && (flags & (DirtyClipPath | DirtyClipRegion))) {
         d->user_clip_enabled = true;
         // If we're setting a clip, we kill the old clip
         if (d->rasterBuffer->disabled_clip) {
@@ -1125,18 +1144,11 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         }
     }
 
-    if (flags & DirtyClipPath) {
-#ifdef QT_EXPERIMENTAL_REGIONS
-        QPolygon polygon = state.clipPath().toFillPolygon().toPolygon();
-        updateClipRegion(QRegion(polygon, state.clipPath().fillRule()),
-                         state.clipOperation());
-#else
+    if (d->paint_unclipped) {
+    } else if (flags & DirtyClipPath) {
         updateClipPath(state.clipPath(), state.clipOperation());
-
-#endif
     } else if (flags & DirtyClipRegion) {
         updateClipRegion(state.clipRegion(), state.clipOperation());
-
     } else if (flags & DirtyClipEnabled) {
 
         if (state.isClipEnabled() != d->user_clip_enabled) {
@@ -1151,17 +1163,15 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
                 Q_ASSERT(!d->rasterBuffer->disabled_clip);
                 d->rasterBuffer->disabled_clip = d->rasterBuffer->clip;
                 d->rasterBuffer->clip = 0;
-#ifdef QT_EXPERIMENTAL_REGIONS
+                d->disabledClipRegion = d->clipRegion;
                 updateClipRegion(QRegion(), Qt::NoClip);
-#else
-                updateClipPath(QPainterPath(), Qt::NoClip);
-#endif
             } else { // re-enable old clip
                 Q_ASSERT(d->rasterBuffer->disabled_clip);
                 d->rasterBuffer->resetClip();
                 d->rasterBuffer->clip = d->rasterBuffer->disabled_clip;
                 d->rasterBuffer->disabled_clip = 0;
-                d->rasterBuffer->clipEnabled = true;
+                d->clipRegion = d->disabledClipRegion;
+                d->disabledClipRegion = QRegion();
             }
             d->penData.adjustSpanMethods();
             d->brushData.adjustSpanMethods();
@@ -1181,6 +1191,7 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         }
 
         if (flags & DirtyCompositionMode) {
+            update_fast_text = true;
             d->rasterBuffer->compositionMode = state.compositionMode();
         }
     }
@@ -1190,6 +1201,15 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
                       && (d->pen.widthF() == 0
                           || (d->pen.widthF() <= 1
                               && (d->txop <= QTransform::TxTranslate || d->pen.isCosmetic())));
+    }
+
+    if (update_fast_text) {
+        const QPainter::CompositionMode mode = d->rasterBuffer->compositionMode;
+        d->fast_text = d->rasterBuffer->buffer()
+                       && (d->penData.type == QSpanData::Solid)
+                       && (mode == QPainter::CompositionMode_Source
+                           || (mode == QPainter::CompositionMode_SourceOver
+                               && qAlpha(d->penData.solid.color) == 255));
     }
 }
 
@@ -1227,56 +1247,58 @@ void QRasterPaintEngine::updateClipRegion(const QRegion &r, Qt::ClipOperation op
     qDebug() << " - QRasterPaintEngine::updateClipRegion() op=" << op << r;
 #endif
 
-#ifdef QT_EXPERIMENTAL_REGIONS
     Q_D(QRasterPaintEngine);
 
-    switch (op) {
-    case Qt::NoClip:
-        d->clipRegion = d->deviceRect;
-        break;
-    case Qt::IntersectClip:
-        d->clipRegion &= d->matrix.map(r);
-        break;
-    case Qt::ReplaceClip:
-        if (r.isEmpty())
-            d->clipRegion = d->deviceRect;
-        else
-            d->clipRegion = d->matrix.map(r);
-        break;
-    case Qt::UniteClip:
-        d->clipRegion |= d->matrix.map(r);
-        break;
-    default:
-        break;
-    }
-
-    const QRegion sysClip = systemClip();
-    if (!sysClip.isEmpty())
-        d->clipRegion &= sysClip;
-
-    if (!d->clipRegion.isEmpty() && d->clipRegion.rects().count() == 1) {
-        d->setSimpleClip(d->clipRegion.boundingRect());
+    if (d->paint_unclipped)
         return;
+
+    if (!d->rasterBuffer->clip || op == Qt::NoClip || op == Qt::ReplaceClip) {
+        switch (op) {
+        case Qt::NoClip:
+            d->clipRegion = d->deviceRect;
+            break;
+        case Qt::IntersectClip:
+            d->clipRegion &= d->matrix.map(r);
+            break;
+        case Qt::ReplaceClip:
+            if (r.isEmpty())
+                d->clipRegion = d->deviceRect;
+            else
+                d->clipRegion = d->matrix.map(r);
+            break;
+        case Qt::UniteClip:
+            d->clipRegion |= d->matrix.map(r);
+            break;
+        default:
+            break;
+        }
+
+        const QRegion sysClip = systemClip();
+        if (!sysClip.isEmpty())
+            d->clipRegion &= sysClip;
+
+        if (!d->clipRegion.isEmpty()) {
+            if (d->clipRegion.rects().count() == 1) {
+                d->setSimpleClip(d->clipRegion.boundingRect());
+                return;
+            }
+        }
     }
-#endif // QT_EXPERIMENTAL_REGIONS
 
     QPainterPath p;
     p.addRegion(r);
     updateClipPath(p, op);
 }
 
-#ifdef QT_EXPERIMENTAL_REGIONS
 void QRasterPaintEnginePrivate::setSimpleClip(const QRect &rect)
 {
-    if (!rasterBuffer->clip)
-        rasterBuffer->clip = new QClipData(rasterBuffer->height());
-    rasterBuffer->clip->setSimpleClip(rect);
+    rasterBuffer->resetClip();
+    rasterBuffer->simpleClip = rect;
     rasterBuffer->clipEnabled = true;
 
     penData.adjustSpanMethods();
     brushData.adjustSpanMethods();
 }
-#endif // QT_EXPERIMENTAL_REGIONS
 
 /*!
     \internal
@@ -1289,6 +1311,20 @@ void QRasterPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperat
              << op
              << path.boundingRect();
 #endif
+
+    if (d->paint_unclipped)
+        return;
+
+    // Convert old simpleClip if necessary
+    if (!d->rasterBuffer->simpleClip.isEmpty()) {
+        if (op == Qt::UniteClip || op == Qt::IntersectClip) {
+            if (!d->rasterBuffer->clip)
+                d->rasterBuffer->clip = new QClipData(d->rasterBuffer->height());
+            d->rasterBuffer->clip->setSimpleClip(d->rasterBuffer->simpleClip);
+        }
+        d->rasterBuffer->simpleClip = QRect();
+    }
+
     d->updateClip_helper(path, op);
 
     // Reset the baseClip if the operation requires it.
@@ -1320,14 +1356,19 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, QSpanData *fillData)
         return;
 
     Q_D(QRasterPaintEngine);
-    d->rasterize(d->outlineMapper->convertPath(path), fillData->blend, fillData, d->rasterBuffer);
-}
 
 #ifdef QT_EXPERIMENTAL_REGIONS
-static void fillRect(const QRect &r, const QRegion &clipRegion, QSpanData *data)
+    // hw: XXX is this safe? what about the size of the pen/brush?
+    ProcessSpans blend = d->getSpanFunc(d->matrix.mapRect(path.controlPointRect()),
+                                        fillData);
+    d->rasterize(d->outlineMapper->convertPath(path), blend, fillData, d->rasterBuffer);
 #else
-static void fillRect(const QRect &r, QSpanData *data)
+    d->rasterize(d->outlineMapper->convertPath(path), fillData->blend, fillData, d->rasterBuffer);
 #endif
+}
+
+static void fillRect(const QRect &r, QSpanData *data,
+                     QRasterPaintEnginePrivate *pe)
 {
     QRect rect = r.normalized();
     int x1 = qMax(rect.x(), 0);
@@ -1335,6 +1376,7 @@ static void fillRect(const QRect &r, QSpanData *data)
     int y1 = qMax(rect.y(), 0);
     int y2 = qMin(rect.height() + rect.y(), data->rasterBuffer->height());
     QClipData *clip = data->rasterBuffer->clipEnabled ? data->rasterBuffer->clip : 0;
+
     if (clip) {
         x1 = qMax(x1, clip->xmin);
         x2 = qMin(x2, clip->xmax);
@@ -1342,37 +1384,39 @@ static void fillRect(const QRect &r, QSpanData *data)
         y2 = qMin(y2, clip->ymax);
     }
 
-#ifdef QT_EXPERIMENTAL_REGIONS
-    ProcessSpans blend = qt_region_strictContains(clipRegion, rect) ?
-                         data->unclipped_blend : data->blend;
-#endif
+    const int width = x2 - x1;
+    const int height = y2 - y1;
 
-    int len = x2 - x1;
+    rect = QRect(x1, y1, width, height);
+    if (rect.isEmpty())
+        return;
+    
+    if (pe && data->fillRect && pe->isUnclipped(rect)) {
+        data->fillRect(data->rasterBuffer, x1, y1, width, height,
+                       data->solid.color);                       
+        return;
+    }
+    
+    ProcessSpans blend = pe ? pe->getSpanFunc(rect, data) : data->blend;
 
-    if (len > 0) {
-        const int nspans = 256;
-        QT_FT_Span spans[nspans];
+    const int nspans = 256;
+    QT_FT_Span spans[nspans];
 
-        Q_ASSERT(data->blend);
-        int y = y1;
-        while (y < y2) {
-            int n = qMin(nspans, y2 - y);
-            int i = 0;
-            while (i < n) {
-                spans[i].x = x1;
-                spans[i].len = len;
-                spans[i].y = y + i;
-                spans[i].coverage = 255;
-                ++i;
-            }
-
-#ifdef QT_EXPERIMENTAL_REGIONS
-            blend(n, spans, data);
-#else
-            data->blend(n, spans, data);
-#endif
-            y += n;
+    Q_ASSERT(data->blend);
+    int y = y1;
+    while (y < y2) {
+        int n = qMin(nspans, y2 - y);
+        int i = 0;
+        while (i < n) {
+            spans[i].x = x1;
+            spans[i].len = width;
+            spans[i].y = y + i;
+            spans[i].coverage = 255;
+            ++i;
         }
+
+        blend(n, spans, data);
+        y += n;
     }
 }
 
@@ -1396,11 +1440,7 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
             QRect rect = rects->normalized();
             if (d->brushData.blend) {
                 QRect r = rect.translated(offset_x, offset_y);
-#ifdef QT_EXPERIMENTAL_REGIONS
-                fillRect(r, d->clipRegion, &d->brushData);
-#else
-                fillRect(r, &d->brushData);
-#endif
+                fillRect(r, &d->brushData, d);
             }
 
             if (d->penData.blend) {
@@ -1423,6 +1463,26 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
     } else {
         QPaintEngine::drawRects(rects, rectCount);
     }
+}
+
+void QRasterPaintEngine::fastFillRect(const QRect &rect, const QBrush &brush)
+{
+    Q_D(QRasterPaintEngine);
+    Q_ASSERT(!d->antialiased && d->txop <= QTransform::TxTranslate);
+
+//     int offset_x = int(d->matrix.dx());
+//     int offset_y = int(d->matrix.dy());
+
+    QSpanData brushData;
+    brushData.init(d->rasterBuffer, this);
+    brushData.setup(brush, d->opacity);
+
+    if (!brushData.blend)
+        return;
+
+//    QRect r = rect.translated(offset_x, offset_y);
+
+    fillRect(rect, &brushData, d);
 }
 
 /*!
@@ -1479,7 +1539,14 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
         }
         d->outlineMapper->endOutline();
 
+#ifdef QT_EXPERIMENTAL_REGIONS
+        // hw: XXX is this safe? what about the size of the pen/brush?
+        const QRectF brect = d->matrix.mapRect(path.controlPointRect());
+        ProcessSpans blend = d->getSpanFunc(brect, &d->penData);
+        d->rasterize(d->outlineMapper->outline(), blend, &d->penData, d->rasterBuffer);
+#else
         d->rasterize(d->outlineMapper->outline(), d->penData.blend, &d->penData, d->rasterBuffer);
+#endif
         d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
 
@@ -1913,11 +1980,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
 
         QRectF rr = r;
         rr.translate(d->matrix.dx(), d->matrix.dy());
-#ifdef QT_EXPERIMENTAL_REGIONS
-        fillRect(rr.toRect(), d->clipRegion, &textureData);
-#else
-        fillRect(rr.toRect(), &textureData);
-#endif
+        fillRect(rr.toRect(), &textureData, d);
     }
 }
 
@@ -1961,11 +2024,7 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
 
         QRectF rr = r;
         rr.translate(d->matrix.dx(), d->matrix.dy());
-#ifdef QT_EXPERIMENTAL_REGIONS
-        fillRect(rr.toRect(), d->clipRegion, &textureData);
-#else
-        fillRect(rr.toRect(), &textureData);
-#endif
+        fillRect(rr.toRect(), &textureData, d);
     }
 
 }
@@ -1995,7 +2054,6 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
     w = qMin(w, rb->width() - rx);
     h = qMin(h, rb->height() - ry);
 
-#ifdef QT_EXPERIMENTAL_REGIONS
     if (w <= 0 || h <= 0)
         return;
 
@@ -2005,19 +2063,24 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
         const QRect bound = QRect(clip->xmin, clip->ymin,
                                   clip->xmax - clip->xmin,
                                   clip->ymax - clip->ymin);
-        if ((bound & rect).isEmpty())
+        if (!bound.intersects(rect))
             return;
     }
 
-    const bool unclipped = qt_region_strictContains(d->clipRegion, rect);
-    ProcessSpans blend = unclipped ? d->penData.unclipped_blend : d->penData.blend;
-#endif
+    const bool unclipped = d->isUnclipped(rect);
+    ProcessSpans blend = d->getSpanFunc(rect, &d->penData);
+    const uchar * scanline = static_cast<const uchar *>(src) + y0*bpl;
+
+    if (unclipped && d->fast_text && mono && d->penData.bitmapBlit) {
+        d->penData.bitmapBlit(rb, rx, ry, d->penData.solid.color,
+                              scanline, w, h, bpl);
+        return;
+    }
 
     const int NSPANS = 256;
     QSpan spans[NSPANS];
     int current = 0;
 
-    const uchar * scanline = static_cast<const uchar *>(src) + y0*bpl;
     if (mono) {
         for (int y=y0; y < h; ++y) {
             for (int x = x0; x < w; ) {
@@ -2027,11 +2090,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
                 }
 
                 if (current == NSPANS) {
-#ifdef QT_EXPERIMENTAL_REGIONS
                     blend(current, spans, &d->penData);
-#else
-                    d->penData.blend(current, spans, &d->penData);
-#endif
                     current = 0;
                 }
                 spans[current].x = x + rx;
@@ -2059,11 +2118,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
                 }
 
                 if (current == NSPANS) {
-#ifdef QT_EXPERIMENTAL_REGIONS
                     blend(current, spans, &d->penData);
-#else
-                    d->penData.blend(current, spans, &d->penData);
-#endif
                     current = 0;
                 }
                 int coverage = scanline[x];
@@ -2088,11 +2143,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
 //              << "span:" << spans->x << spans->y << spans->len << spans->coverage;
         // Call span func for current set of spans.
     if (current != 0)
-#ifdef QT_EXPERIMENTAL_REGIONS
         blend(current, spans, &d->penData);
-#else
-        d->penData.blend(current, spans, &d->penData);
-#endif
 }
 
 #ifdef Q_WS_QWS
@@ -2120,6 +2171,7 @@ void QRasterPaintEngine::qwsFillRect(int x, int y, int w, int h)
 
         // draw the fill
         for (int y=y1; y<y2; ++y) {
+            // hw: why isn't span.y adjusted???
             d->penData.blend(1, &span, &d->penData);
         }
     }
@@ -2246,6 +2298,40 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
 }
 #endif // Q_WS_WIN
 
+inline bool QRasterPaintEnginePrivate::isUnclipped(const QRect &rect) const
+{
+    if (paint_unclipped)
+        return true;
+
+    if (rasterBuffer->clip) 
+        return baseClip.contains(rect);
+
+    if (!rasterBuffer->simpleClip.isEmpty())
+        return rasterBuffer->simpleClip.contains(rect);
+    else
+        return qt_region_strictContains(clipRegion, rect);
+}
+
+inline bool QRasterPaintEnginePrivate::isUnclipped(const QRectF &rect) const
+{
+    const QRect r(qFloor(rect.x()), qFloor(rect.y()),
+                  qCeil(rect.width()), qCeil(rect.height()));
+    return isUnclipped(r);
+}
+
+inline ProcessSpans
+QRasterPaintEnginePrivate::getSpanFunc(const QRect &rect,
+                                       const QSpanData *data) const
+{
+    return isUnclipped(rect) ? data->unclipped_blend : data->blend;
+}
+
+inline ProcessSpans
+QRasterPaintEnginePrivate::getSpanFunc(const QRectF &rect,
+                                       const QSpanData *data) const
+{
+    return isUnclipped(rect) ? data->unclipped_blend : data->blend;
+}
 
 /*!
     \reimp
@@ -2366,7 +2452,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         data.dx = -devRect.x();
         data.dy = -devRect.y();
         data.adjustSpanMethods();
-        fillRect(QRect(xmin, ymin, xmax - xmin, ymax - ymin), &data);
+        fillRect(QRect(xmin, ymin, xmax - xmin, ymax - ymin), &data, d);
     } else if (d->clear_type_text) {
         for (int y=ymin; y<ymax; ++y) {
             QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
@@ -2602,15 +2688,8 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
                 int x2 = l.x2() * m11 + dx;
                 int y2 = l.y2() * m22 + dy;
 
-#ifdef QT_EXPERIMENTAL_REGIONS
                 const QRect brect(QPoint(x1, y1), QPoint(x2, y2));
-                const bool unclipped = qt_region_strictContains(d->clipRegion,
-                                                                brect);
-                ProcessSpans penBlend;
-                if (unclipped)
-                    penBlend = d->penData.unclipped_blend;
-                else
-                    penBlend = d->penData.blend;
+                ProcessSpans penBlend = d->getSpanFunc(brect, &d->penData);
                 if (d->pen.style() == Qt::SolidLine)
                     drawLine_midpoint_i(x1, y1, x2, y2,
                                         penBlend, &d->penData, mode, bounds);
@@ -2619,28 +2698,12 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
                                                &d->pen, penBlend,
                                                &d->penData, mode, bounds,
                                                &dashOffset);
-#else
-                if (d->pen.style() == Qt::SolidLine)
-                    drawLine_midpoint_i(x1, y1, x2, y2,
-                                        d->penData.blend, &d->penData, mode, bounds);
-                else
-                    drawLine_midpoint_dashed_i(x1, y1, x2, y2,
-                                               &d->pen, d->penData.blend,
-                                               &d->penData, mode, bounds,
-                                               &dashOffset);
-#endif
             } else {
                 QLineF line = lines[i] * d->matrix;
 #ifdef QT_EXPERIMENTAL_REGIONS
                 const QRect brect(QPoint(int(line.x1()), int(line.y1())),
                                   QPoint(int(line.x2()), int(line.y2())));
-                const bool unclipped = qt_region_strictContains(d->clipRegion,
-                                                                brect);
-                ProcessSpans penBlend;
-                if (unclipped)
-                    penBlend = d->penData.unclipped_blend;
-                else
-                    penBlend = d->penData.blend;
+                ProcessSpans penBlend = d->getSpanFunc(brect, &d->penData);
                 if (d->pen.style() == Qt::SolidLine)
                     drawLine_midpoint_i(int(line.x1()), int(line.y1()),
                                         int(line.x2()), int(line.y2()),
@@ -2693,13 +2756,7 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
 #ifdef QT_EXPERIMENTAL_REGIONS
             const QRect brect(QPoint(int(line.x1()), int(line.y1())),
                               QPoint(int(line.x2()), int(line.y2())));
-            const bool unclipped = qt_region_strictContains(d->clipRegion,
-                                                            brect);
-            ProcessSpans penBlend;
-            if (unclipped)
-                penBlend = d->penData.unclipped_blend;
-            else
-                penBlend = d->penData.blend;
+            ProcessSpans penBlend = d->getSpanFunc(brect, &d->penData);
             if (d->pen.style() == Qt::SolidLine)
                 drawLine_midpoint_i(brect.left(), brect.top(),
                                     brect.right(), brect.bottom(),
@@ -2750,29 +2807,13 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         && d->txop <= QTransform::TxScale) // no shear
     {
         const QRect devRect(0, 0, d->deviceRect.width(), d->deviceRect.height());
-#ifdef QT_EXPERIMENTAL_REGIONS
         const QRect brect = QRect(int(r.x()), int(r.y()),
                                   int_dim(r.x(), r.width()),
                                   int_dim(r.y(), r.height()));
-        const bool unclipped = qt_region_strictContains(d->clipRegion, brect);
-        ProcessSpans penBlend;
-        ProcessSpans brushBlend;
-        if (unclipped) {
-            penBlend = d->penData.unclipped_blend;
-            brushBlend = d->brushData.unclipped_blend;
-        } else {
-            penBlend = d->penData.blend;
-            brushBlend = d->brushData.blend;
-        }
+        ProcessSpans penBlend = d->getSpanFunc(brect, &d->penData);
+        ProcessSpans brushBlend = d->getSpanFunc(brect, &d->brushData);
         drawEllipse_midpoint_i(brect, devRect, penBlend, brushBlend,
                                &d->penData, &d->brushData);
-#else
-        drawEllipse_midpoint_i(QRect(int(r.x()), int(r.y()),
-                                     int_dim(r.x(), r.width()), int_dim(r.y(), r.height())),
-                               devRect,
-                               d->penData.blend, d->brushData.blend,
-                               &d->penData, &d->brushData);
-#endif
         return;
     }
 
@@ -3099,7 +3140,6 @@ void QRasterPaintEnginePrivate::rasterize(QT_FT_Outline *outline,
             // move ymin to something greater 0.
             clip_box.yMin = qMax((int)clip_box.yMin, rasterBuffer->clip->ymin);
         clip_box.yMax = qMin((int)clip_box.yMax, rasterBuffer->clip->ymax);
-        Q_ASSERT(callback == qt_span_fill_clipped);
     }
 
     QT_FT_Raster_Params rasterParams;
@@ -3182,15 +3222,7 @@ void QRasterPaintEnginePrivate::updateClip_helper(const QPainterPath &path, Qt::
     } else if (path.isEmpty()) {
         if (op == Qt::ReplaceClip || op == Qt::IntersectClip) {
             rasterBuffer->resetClip();
-#ifdef QT_EXPERIMENTAL_REGIONS
             rasterBuffer->clip = new QClipData(rasterBuffer->height());
-#else
-            QClipData *clip = rasterBuffer->clip = new QClipData(rasterBuffer->height());
-            for (int i=0; i<clip->clipSpanHeight; ++i) {
-                clip->appendSpan(0, i, 0, 0);
-            }
-            clip->fixup();
-#endif
         }
     } else if (op == Qt::ReplaceClip) {
         rasterBuffer->resetClip();
@@ -3274,6 +3306,7 @@ void QRasterBuffer::init()
     disabled_clip = 0;
 
     compositionMode = QPainter::CompositionMode_SourceOver;
+    simpleClip = QRect();
     delete clip;
     clip = 0;
     format = QImage::Format_ARGB32_Premultiplied;
@@ -3452,7 +3485,7 @@ void QRasterBuffer::prepare(QCustomRasterPaintDevice *device)
     m_height = device->height();
     bytes_per_line = device->bytesPerLine();
     format = device->format();
-    drawHelper = qDrawHelper + format;
+    drawHelper = (m_buffer ? qDrawHelper : qDrawHelperCallback) + format;
 }
 
 void QRasterBuffer::prepareBuffer(int /*width*/, int /*height*/)
@@ -3609,7 +3642,6 @@ void QClipData::fixup()
 //     qDebug("xmin=%d,xmax=%d,ymin=%d,ymax=%d", xmin, xmax, ymin, ymax);
 }
 
-#ifdef QT_EXPERIMENTAL_REGIONS
 void QClipData::setSimpleClip(const QRect &rect)
 {
 //    qDebug() << "setSimpleClip" << clipSpanHeight << count << allocated << rect;
@@ -3650,7 +3682,6 @@ void QClipData::setSimpleClip(const QRect &rect)
         ++y;
     }
 }
-#endif // QT_EXPERIMENTAL_REGIONS
 
 /*!
     \internal
@@ -3740,6 +3771,57 @@ static void qt_span_fill_clipped(int spanCount, const QSpan *spans, void *userDa
         if (clipped - cspans)
             fillData->unclipped_blend(clipped - cspans, cspans, fillData);
     }
+}
+
+/*
+    \internal
+    Clip spans to \a{clip}-rectangle. Returns number of unclipped spans
+*/
+static int qt_intersect_spans(QT_FT_Span *spans, int numSpans,
+                              const QRect &clip)
+{
+    const short minx = clip.left();
+    const short miny = clip.top();
+    const short maxx = clip.right();
+    const short maxy = clip.bottom();
+
+    int n = 0;
+    for (int i = 0; i < numSpans; ++i) {
+        if (spans[i].y > maxy
+            || spans[i].y < miny
+            || spans[i].x > maxx
+            || spans[i].x + spans[i].len <= minx) {
+            continue;
+        }
+        if (spans[i].x < minx) {
+            spans[n].len = qMin(spans[i].len - (minx - spans[i].x), maxx - minx + 1);
+            spans[n].x = minx;
+        } else {
+            spans[n].x = spans[i].x;
+            spans[n].len = qMin(spans[i].len, ushort(maxx - spans[n].x + 1));
+        }
+        spans[n].y = spans[i].y;
+        spans[n].coverage = spans[i].coverage;
+
+        ++n;
+    }
+    return n;
+}
+
+static void qt_span_fill_simpleClip(int count, const QSpan *spans,
+                                    void *userData)
+{
+    QSpanData *fillData = reinterpret_cast<QSpanData *>(userData);
+    Q_ASSERT(fillData->blend && fillData->unclipped_blend);
+
+    QRasterBuffer *rb = fillData->rasterBuffer;
+    Q_ASSERT(!rb->simpleClip.isEmpty());
+
+    // hw: check if this const_cast<> is safe!!!
+    count = qt_intersect_spans(const_cast<QSpan*>(spans), count,
+                               rb->simpleClip);
+    if (count > 0)
+        fillData->unclipped_blend(count, spans, fillData);
 }
 
 static void qt_span_clip(int count, const QSpan *spans, void *userData)
@@ -4077,12 +4159,17 @@ void QSpanData::setup(const QBrush &brush, int alpha)
 
 void QSpanData::adjustSpanMethods()
 {
+    bitmapBlit = 0;
+    fillRect = 0;    
+    
     switch(type) {
     case None:
         unclipped_blend = 0;
         break;
     case Solid:
         unclipped_blend = rasterBuffer->drawHelper->blendColor;
+        bitmapBlit = rasterBuffer->drawHelper->bitmapBlit;
+        fillRect = rasterBuffer->drawHelper->fillRect;
         break;
     case LinearGradient:
     case RadialGradient:
@@ -4090,14 +4177,24 @@ void QSpanData::adjustSpanMethods()
         unclipped_blend = rasterBuffer->drawHelper->blendGradient;
         break;
     case Texture:
+#ifdef Q_WS_QWS
+        if (!rasterBuffer->buffer())
+            unclipped_blend = qBlendTextureCallback;
+        else
+            unclipped_blend = qBlendTexture;
+#else
         unclipped_blend = qBlendTexture;
+#endif
         break;
     }
     // setup clipping
     if (!unclipped_blend) {
         blend = 0;
     } else if (rasterBuffer->clipEnabled) {
-        blend = rasterBuffer->clip ? qt_span_fill_clipped : unclipped_blend;
+        if (rasterBuffer->simpleClip.isEmpty())
+            blend = rasterBuffer->clip ? qt_span_fill_clipped : unclipped_blend;
+        else
+            blend = qt_span_fill_simpleClip;
     } else {
         blend = unclipped_blend;
     }
@@ -4329,13 +4426,9 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
             int len = stop_clipped - start;
             if (style == LineDrawNormal && stop == stop_clipped)
                 len--;
-#ifdef QT_EXPERIMENTAL_REGIONS
+            // hw: create spans directly instead to possibly avoid clipping
             if (len > 0)
-                fillRect(QRect(x1, start, 1, len), QRegion(), data);
-#else
-            if (len > 0)
-                fillRect(QRect(x1, start, 1, len), data);
-#endif
+                fillRect(QRect(x1, start, 1, len), data, 0);
         }
         return;
     }
@@ -5032,7 +5125,7 @@ static inline int ellipseSpansClipped(QT_FT_Span *spans, int numSpans,
         if (spans[i].y > maxy
             || spans[i].y < miny
             || spans[i].x > maxx
-            || spans[i].x + spans[i].len < minx) {
+            || spans[i].x + spans[i].len <= minx) {
             continue;
         }
         if (spans[i].x < minx) {

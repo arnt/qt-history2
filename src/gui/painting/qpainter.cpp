@@ -5165,7 +5165,6 @@ void QPainter::fillRect(const QRect &r, const QBrush &brush)
     if (!isActive())
         return;
 
-#ifdef QT_EXPERIMENTAL_REGIONS
     Q_D(QPainter);
     if (d->fillrect_func && !(d->state->renderHints & QPainter::Antialiasing)
         && d->state->txop <= QTransform::TxTranslate)
@@ -5175,7 +5174,6 @@ void QPainter::fillRect(const QRect &r, const QBrush &brush)
         ((d->engine)->*(d->fillrect_func))(rt, brush);
         return;
     }
-#endif // QT_EXPERIMENTAL_REGIONS
 
     QPen oldPen   = pen();
     bool swap = oldPen.style() != Qt::NoPen;

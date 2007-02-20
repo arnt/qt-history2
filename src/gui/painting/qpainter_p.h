@@ -103,10 +103,7 @@ class QPainterPrivate
 public:
     QPainterPrivate(QPainter *painter)
         : q_ptr(painter), txinv(0), emptyState(true), device(0)
-        , original_device(0), engine(0)
-#ifdef QT_EXPERIMENTAL_REGIONS
-        , fillrect_func(0)
-#endif
+        , original_device(0), engine(0), fillrect_func(0)
     {
         states.push_back(new QPainterState());
         state = states.back();
@@ -155,10 +152,8 @@ public:
     QPaintDevice *original_device;
     QPaintEngine *engine;
 
-#ifdef QT_EXPERIMENTAL_REGIONS
     typedef void (QPaintEngine::*FillRectBackdoor)(const QRect&, const QBrush&);
     FillRectBackdoor fillrect_func;
-#endif
 };
 
 QString qt_generate_brush_key(const QBrush &brush);

@@ -71,6 +71,7 @@ public:
 
     void drawRects(const QRect  *rects, int rectCount);
     void drawRects(const QRectF *rects, int rectCount);
+    void fastFillRect(const QRect &rect, const QBrush &brush);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
     void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
@@ -155,9 +156,7 @@ public:
     void drawBitmap(const QPointF &pos, const QPixmap &image, QSpanData *fill);
 
     void rasterize(QT_FT_Outline *outline, ProcessSpans callback, void *userData, QRasterBuffer *rasterBuffer);
-#ifdef QT_EXPERIMENTAL_REGIONS
     void setSimpleClip(const QRect &rect);
-#endif
     void updateMatrixData(QSpanData *spanData, const QBrush &brush, const QTransform &brushMatrix);
 
     QTransform brushMatrix() const {
@@ -165,6 +164,11 @@ public:
         m.translate(brushOffset.x(), brushOffset.y());
         return m;
     }
+
+    bool isUnclipped(const QRect &rect) const;
+    bool isUnclipped(const QRectF &rect) const;
+    ProcessSpans getSpanFunc(const QRect &rect, const QSpanData *data) const;
+    ProcessSpans getSpanFunc(const QRectF &rect, const QSpanData *data) const;
 
     QPointF brushOffset;
     QBrush brush;
@@ -182,9 +186,8 @@ public:
 
     QPainterPath baseClip;
     QRect deviceRect;
-#ifdef QT_EXPERIMENTAL_REGIONS
     QRegion clipRegion;
-#endif
+    QRegion disabledClipRegion;
 
     QSpanData penData;
     QSpanData brushData;
@@ -215,7 +218,8 @@ public:
     uint mono_surface : 1;
     uint int_xform : 1;
     uint user_clip_enabled : 1;
-
+    uint fast_text : 1;
+    uint paint_unclipped : 1;
 };
 
 class QClipData {
@@ -235,9 +239,7 @@ public:
 
     void appendSpan(int x, int length, int y, int coverage);
     void appendSpans(const QSpan *s, int num);
-#ifdef QT_EXPERIMENTAL_REGIONS
     void setSimpleClip(const QRect &rect);
-#endif
     void fixup();
 };
 
@@ -357,6 +359,7 @@ void prepare(QCustomRasterPaintDevice *device);
 
     uchar *buffer() const { return m_buffer; }
 
+    QRect simpleClip;
     QClipData *clip;
     QClipData *disabled_clip;
     bool clipEnabled;
