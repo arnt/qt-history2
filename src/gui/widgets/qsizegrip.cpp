@@ -268,11 +268,11 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
 #ifdef Q_WS_WIN
     // Use a native Windows sizegrip for "real" top-level windows.
     if (tlw->isWindow()) {
-        if (d->atBottom())
-            PostMessage(w->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZEBOTTOMLEFT
+        if (d->atBottom()) {
+            PostMessage(tlw->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZEBOTTOMLEFT
                                                                : SZ_SIZEBOTTOMRIGHT, 0);
         } else {
-            PostMessage(w->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZETOPLEFT
+            PostMessage(tlw->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZETOPLEFT
                                                                : SZ_SIZETOPRIGHT, 0);
         }
         return;
