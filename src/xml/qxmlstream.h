@@ -20,6 +20,7 @@
 
 QT_BEGIN_HEADER
 
+QT_MODULE(Xml)
 
 class QXmlStreamReaderPrivate;
 class QXmlStreamAttributes;
