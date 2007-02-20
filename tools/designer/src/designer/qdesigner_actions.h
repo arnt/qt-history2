@@ -61,8 +61,9 @@ public:
     // form actions
     QAction *previewFormAction() const;
 
-    void setBringAllToFrontVisibility(bool visible);
-    
+    void setBringAllToFrontVisible(bool visible);
+    void setWindowListSeparatorVisible(bool visible);
+
     virtual bool eventFilter(QObject *watched, QEvent *event);
 
 public slots:
@@ -109,7 +110,7 @@ private:
     void showStatusBarMessage(const QString &message) const;
     QActionGroup *createHelpActions();
     bool ensureBackupDirectories();
-    
+
     enum { MaxRecentFiles = 10 };
     QDesignerWorkbench *m_workbench;
     QDesignerFormEditorInterface *m_core;
@@ -122,7 +123,7 @@ private:
     QString m_backupTmpPath;
 
     QTimer* m_backupTimer;
-    
+
     QActionGroup *m_fileActions;
     QActionGroup *m_recentFilesActions;
     QActionGroup *m_editActions;
@@ -150,9 +151,10 @@ private:
     QAction *m_minimizeAction;
     QAction *m_bringAllToFrontSeparator;
     QAction *m_bringAllToFrontAction;
+    QAction *m_windowListSeparatorAction;
 
     QAction *m_preferencesAction;
-    
+
     QPointer<QWidget> m_previewWidget;
 };
 

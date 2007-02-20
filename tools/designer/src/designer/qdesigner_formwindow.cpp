@@ -26,7 +26,6 @@
 
 #include <QtCore/QEvent>
 #include <QtCore/QFile>
-#include <QtCore/QTimer>
 
 #include <QtGui/QAction>
 #include <QtGui/QCloseEvent>
@@ -177,10 +176,6 @@ void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
                 break;
         }
     }
-
-    if (m_workbench->core()->formWindowManager()->formWindowCount() == 1 && ev->isAccepted()
-            && QDesignerSettings().showNewFormOnStartup())
-        QTimer::singleShot(200, m_workbench->actionManager(), SLOT(createForm()));  // Use timer in case we are quitting.
 }
 
 void QDesignerFormWindow::updateChanged()

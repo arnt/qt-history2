@@ -62,7 +62,7 @@ public:
     QDesignerFormWindow *findFormWindow(QWidget *widget) const;
 
     QDesignerFormWindow *createFormWindow();
-    
+
     QDesignerFormWindow *openForm(const QString &fileName, QString *errorMessage);
     QDesignerFormWindow *openTemplate(const QString &templateFileName,
                                       const QString &editorFileName,
@@ -121,7 +121,7 @@ private slots:
     void showToolBars();
     void adjustMDIFormPositions();
     void minimizationStateChanged(QDesignerFormWindowInterface *formWindow, bool minimized);
-  
+
 private:
     QWidget *magicalParent() const;
     Qt::WindowFlags magicalWindowFlags(const QWidget *widgetForFlags) const;
@@ -164,7 +164,7 @@ private:
     QList<QDesignerFormWindow*> m_formWindows;
 
     QMdiArea *m_mdiArea;
-    
+
     // Helper class to remember the position of a window while switching user interface modes.
     class Position {
     public:
@@ -187,7 +187,9 @@ private:
 
     QSet<QDesignerToolWindow*> m_toolWindowExtras;
     QSet<QDesignerFormWindow*> m_formWindowExtras;
-    bool m_initializing;
+
+    enum State { StateInitializing, StateUp, StateClosing };
+    State m_state;
 };
 
 #endif // QDESIGNER_WORKBENCH_H

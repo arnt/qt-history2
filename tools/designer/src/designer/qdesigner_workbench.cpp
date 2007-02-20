@@ -40,6 +40,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QUrl>
+#include <QtCore/QTimer>
 #include <QtCore/QPluginLoader>
 #include <QtCore/qdebug.h>
 
@@ -132,14 +133,11 @@ void QDesignerWorkbench::Position::applyTo(QDockWidget *dockWidget) const
 // -------- QDesignerWorkbench
 
 QDesignerWorkbench::QDesignerWorkbench()
-    : m_mode(NeutralMode), m_mdiArea(0)
+    : m_mode(NeutralMode), m_mdiArea(0), m_state(StateInitializing)
 {
-    m_initializing = true;
     initialize();
-    
     applyPreferences(QDesignerSettings().preferences());
-
-    m_initializing = false;
+    m_state = StateUp;
 }
 
 QDesignerWorkbench::~QDesignerWorkbench()
@@ -159,7 +157,7 @@ QDesignerWorkbench::~QDesignerWorkbench()
         delete m_toolWindows.takeLast();
 }
 
-void QDesignerWorkbench::saveGeometries() 
+void QDesignerWorkbench::saveGeometries()
 {
     m_Positions.clear();
     switch (m_mode) {
@@ -215,8 +213,9 @@ void QDesignerWorkbench::addFormWindow(QDesignerFormWindow *formWindow)
     // ### Q_ASSERT(formWindow->windowTitle().isEmpty() == false);
 
     m_formWindows.append(formWindow);
-    if (m_windowActions->actions().isEmpty())
-        m_windowMenu->addSeparator();
+
+
+    m_actionManager->setWindowListSeparatorVisible(true);
 
     if (QAction *action = formWindow->action()) {
         m_windowActions->addAction(action);
@@ -511,17 +510,17 @@ void QDesignerWorkbench::switchToDockedMode()
     }
 
     mw->restoreState(settings.mainWindowState(), 2);
-    
+
     foreach (QDesignerFormWindow *fw, m_formWindows) {
         QMdiSubWindow *w = m_mdiArea->addSubWindow(fw, magicalWindowFlags(fw));
         w->setMinimumSize(QSize(0, 0));
         w->hide();
     }
-    m_actionManager->setBringAllToFrontVisibility(false);
+    m_actionManager->setBringAllToFrontVisible(false);
     mw->show();
     // Trigger adjustMDIFormPositions() delayed as viewport size is not yet known.
 
-    if (!m_initializing)
+    if (m_state != StateInitializing)
         QMetaObject::invokeMethod(this, "adjustMDIFormPositions", Qt::QueuedConnection);
 }
 
@@ -607,7 +606,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
     if (!m_toolWindows.isEmpty() && !found_visible_window)
         m_toolWindows.first()->show();
 
-    m_actionManager->setBringAllToFrontVisibility(true);
+    m_actionManager->setBringAllToFrontVisible(true);
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
         fw->setParent(magicalParent(), magicalWindowFlags(fw));
@@ -711,7 +710,7 @@ void QDesignerWorkbench::removeToolWindow(QDesignerToolWindow *toolWindow)
 void QDesignerWorkbench::removeFormWindow(QDesignerFormWindow *formWindow)
 {
     updateBackup(formWindow->editor());
-    int index = m_formWindows.indexOf(formWindow);
+    const int index = m_formWindows.indexOf(formWindow);
     if (index != -1) {
         m_formWindows.removeAt(index);
         m_formWindowExtras.remove(formWindow);
@@ -722,15 +721,11 @@ void QDesignerWorkbench::removeFormWindow(QDesignerFormWindow *formWindow)
         m_windowMenu->removeAction(action);
     }
 
-    if (formWindowCount() == 0) {
-        m_actionManager->minimizeAction()->setEnabled(false);
-        QList<QAction *> actions = m_windowMenu->actions();
-        for (int i = actions.size() - 1; i >= 0; --i) {
-            QAction *act = actions.at(i);
-            if (act->isSeparator()) {
-                delete act;
-                break;
-            }
+    if (m_formWindows.empty()) {
+        m_actionManager->setWindowListSeparatorVisible(false);
+        // Show up new form dialog unless closing
+        if (m_state == StateUp &&  QDesignerSettings().showNewFormOnStartup()) {
+            QTimer::singleShot(200, m_actionManager, SLOT(createForm()));
         }
     }
 }
@@ -800,6 +795,7 @@ QDesignerFormWindow *QDesignerWorkbench::findFormWindow(QWidget *widget) const
 
 bool QDesignerWorkbench::handleClose()
 {
+    m_state = StateClosing;
     QList<QDesignerFormWindow *> dirtyForms;
     foreach (QDesignerFormWindow *w, m_formWindows) {
         if (w->editor()->isDirty())
@@ -809,6 +805,7 @@ bool QDesignerWorkbench::handleClose()
     if (dirtyForms.size()) {
         if (dirtyForms.size() == 1) {
             if (!dirtyForms.at(0)->close()) {
+                m_state = StateUp;
                 return false;
             }
         } else {
@@ -824,12 +821,14 @@ bool QDesignerWorkbench::handleClose()
             box.setDefaultButton(save);
             switch (box.exec()) {
             case QMessageBox::Cancel:
+                m_state = StateUp;
                 return false;
             case QMessageBox::Save:
                foreach (QDesignerFormWindow *fw, dirtyForms) {
                    fw->show();
                    fw->raise();
                    if (!fw->close()) {
+                       m_state = StateUp;
                        return false;
                    }
                }
@@ -877,19 +876,19 @@ void QDesignerWorkbench::updateWindowMenu(QDesignerFormWindowInterface *fwi)
     QDesignerFormWindow *fw = qobject_cast<QDesignerFormWindow *>(fwi->parentWidget());
     if (!fw)
         return;
-    
-    fw->action()->setChecked(true);    
-    m_actionManager->minimizeAction()->setChecked(isFormWindowMinimized(fw));    
+
+    fw->action()->setChecked(true);
+    m_actionManager->minimizeAction()->setChecked(isFormWindowMinimized(fw));
 }
 
 void QDesignerWorkbench::formWindowActionTriggered(QAction *a)
 {
     QDesignerFormWindow *fw = qobject_cast<QDesignerFormWindow *>(a->parentWidget());
     Q_ASSERT(fw);
-    
+
     if (isFormWindowMinimized(fw))
         setFormWindowMinimized(fw, false);
-    
+
     if (m_mode == DockedMode) {
         if (QMdiSubWindow *subWindow = qobject_cast<QMdiSubWindow *>(fw->parent())) {
             m_mdiArea->setActiveSubWindow(subWindow);
@@ -1025,7 +1024,7 @@ QDesignerFormWindow * QDesignerWorkbench::loadForm(const QString &fileName,
     QDesignerFormWindowInterface *editor = formWindow->editor();
     Q_ASSERT(editor);
 
-    
+
     // Temporarily set the file name. It is needed when converting a UIC 3 file.
     // In this case, the file name will we be cleared on return to force a save box.
     editor->setFileName(fileName);
@@ -1101,7 +1100,7 @@ bool QDesignerWorkbench::isFormWindowMinimized(const QDesignerFormWindow *fw)
     switch (m_mode) {
     case DockedMode:
         return mdiSubWindowOf(fw)->isShaded();
-    case TopLevelMode: 
+    case TopLevelMode:
         return fw->window()->isMinimized();
     default:
         break;
@@ -1134,9 +1133,9 @@ void QDesignerWorkbench::setFormWindowMinimized(QDesignerFormWindow *fw, bool mi
         break;
     }
 }
- 
+
 void QDesignerWorkbench::applyPreferences(const Preferences &preferences)
-{    
+{
     if (preferences.m_uiMode != mode())
         setUIMode(preferences.m_uiMode);
 

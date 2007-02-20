@@ -116,6 +116,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
       m_minimizeAction(new QAction(tr("&Minimize"), this)),
       m_bringAllToFrontSeparator(createSeparator(this)),
       m_bringAllToFrontAction(new QAction(tr("Bring All to Front"), this)),
+      m_windowListSeparatorAction(createSeparator(this)),
       m_preferencesAction(new QAction(tr("Preferences..."), this))
 {
     Q_ASSERT(m_workbench != 0);
@@ -280,6 +281,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_windowActions->addAction(m_bringAllToFrontSeparator);
     connect(m_bringAllToFrontAction, SIGNAL(triggered()), m_workbench, SLOT(bringAllToFront()));
     m_windowActions->addAction(m_bringAllToFrontAction);
+    m_windowActions->addAction(m_windowListSeparatorAction);
 
 //
 // connections
@@ -1186,10 +1188,15 @@ void QDesignerActions::showStatusBarMessage(const QString &message) const
     }
 }
 
-void QDesignerActions::setBringAllToFrontVisibility(bool visible)
+void QDesignerActions::setBringAllToFrontVisible(bool visible)
 {
       m_bringAllToFrontSeparator->setVisible(visible);
       m_bringAllToFrontAction->setVisible(visible);
+}
+
+void QDesignerActions::setWindowListSeparatorVisible(bool visible)
+{
+    m_windowListSeparatorAction->setVisible(visible);
 }
 
 bool QDesignerActions::ensureBackupDirectories() {
