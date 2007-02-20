@@ -35,6 +35,7 @@
 #include <qpushbutton.h>
 #include <qtoolbar.h>
 #include <qlabel.h>
+#include <qvarlengtharray.h>
 #include <qdebug.h>
 
 // Undefined for some compile environments
@@ -2690,6 +2691,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 int pos;
                 int bothOffset = (ticks & QSlider::TicksAbove && ticks & QSlider::TicksBelow) ? 1 : 0;
                 p->setPen(d->sliderTickColor);
+                QVarLengthArray<QLine, 32> lines;
                 int v = slider->minimum;
                 while (v <= slider->maximum) {
                     int tickLength = (v == slider->minimum || v >= slider->maximum) ? 4 : 3;
@@ -2697,23 +2699,25 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                                                           v, available) + fudge;
                     if (slider->orientation == Qt::Horizontal) {
                         if (ticks & QSlider::TicksAbove)
-                            p->drawLine(pos, tickOffset - 1 - bothOffset,
-                                        pos, tickOffset - 1 - bothOffset - tickLength);
+                            lines.append(QLine(pos, tickOffset - 1 - bothOffset,
+                                               pos, tickOffset - 1 - bothOffset - tickLength));
 
                         if (ticks & QSlider::TicksBelow)
-                            p->drawLine(pos, tickOffset + thickness + bothOffset,
-                                        pos, tickOffset + thickness + bothOffset + tickLength);
+                            lines.append(QLine(pos, tickOffset + thickness + bothOffset,
+                                               pos, tickOffset + thickness + bothOffset + tickLength));
                     } else {
                         if (ticks & QSlider::TicksAbove)
-                            p->drawLine(tickOffset - 1 - bothOffset, pos,
-                                        tickOffset - 1 - bothOffset - tickLength, pos);
+                            lines.append(QLine(tickOffset - 1 - bothOffset, pos,
+                                               tickOffset - 1 - bothOffset - tickLength, pos));
 
                         if (ticks & QSlider::TicksBelow)
-                            p->drawLine(tickOffset + thickness + bothOffset, pos,
-                                        tickOffset + thickness + bothOffset + tickLength, pos);
+                            lines.append(QLine(tickOffset + thickness + bothOffset, pos,
+                                               tickOffset + thickness + bothOffset + tickLength, pos));
                     }
                     v += interval;
                 }
+                if (lines.size() > 0)
+                    p->drawLines(lines.constData(), lines.size());
             }
             if (sub & SC_SliderHandle) {
                 theme.rect = subControlRect(CC_Slider, option, SC_SliderHandle, widget);
