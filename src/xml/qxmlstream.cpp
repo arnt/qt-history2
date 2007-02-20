@@ -2938,7 +2938,7 @@ void QXmlStreamWriter::writeNamespace(const QString &namespaceUri, const QString
     if (prefix.isEmpty()) {
         d->findNamespace(namespaceUri, d->inStartElement);
     } else {
-        Q_ASSERT(!(prefix == QLatin1String("xml") xor namespaceUri == QLatin1String("http://www.w3.org/XML/1998/namespace")));
+        Q_ASSERT(!(prefix == QLatin1String("xml") ^ namespaceUri == QLatin1String("http://www.w3.org/XML/1998/namespace")));
         Q_ASSERT(namespaceUri != QLatin1String("http://www.w3.org/2000/xmlns/"));
         QXmlStreamWriterPrivate::NamespaceDeclaration &namespaceDeclaration = d->namespaceDeclarations.push();
         namespaceDeclaration.prefix = d->addToStringStorage(prefix);
