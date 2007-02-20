@@ -134,7 +134,7 @@
   possible to raise custom errors that then trigger the same error
   handling code path.
 
-  The {QXmlStream Bookmarks Example} illustrates how to use the
+  The \l{QXmlStream Bookmarks Example} illustrates how to use the
   recursive descent technique with a subclassed stream reader to read
   an XML bookmark file (XBEL).
 
