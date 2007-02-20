@@ -147,7 +147,6 @@ private slots:
 
     void timeSignalChecking_data();
     void timeSignalChecking();
-    void editingFinished();
 
     void weirdCase();
     void newCase();
@@ -2246,53 +2245,6 @@ void tst_QDateTimeEdit::readOnly()
     dt.setReadOnly(false);
     QTest::keyClick(&dt, Qt::Key_Up);
     QCOMPARE(dt.date(), QDate(2000, 2, 4));
-}
-
-void tst_QDateTimeEdit::editingFinished()
-{
-    testFocusWidget->hide();
-    testFocusWidget->move(10, 10);
-    QVBoxLayout *layout = new QVBoxLayout(testFocusWidget);
-    QDateTimeEdit *box = new QDateTimeEdit(testFocusWidget);
-    layout->addWidget(box);
-    QDateTimeEdit *box2 = new QDateTimeEdit(testFocusWidget);
-    layout->addWidget(box2);
-    testFocusWidget->show();
-
-    box->setFocus();
-    QTestEventLoop::instance().enterLoop(1);
-    QVERIFY(box->hasFocus());
-
-    QSignalSpy editingFinishedSpy1(box, SIGNAL(editingFinished()));
-    QSignalSpy editingFinishedSpy2(box2, SIGNAL(editingFinished()));
-
-    QTest::keyClick(box, Qt::Key_Up);
-    QTest::keyClick(box, Qt::Key_Up);
-    QCOMPARE(editingFinishedSpy1.count(), 0);
-    QCOMPARE(editingFinishedSpy2.count(), 0);
-
-    QTest::keyClick(box, Qt::Key_Return);
-    QCOMPARE(editingFinishedSpy1.count(), 1);
-    QCOMPARE(editingFinishedSpy2.count(), 0);
-
-    QTest::keyClick(box, Qt::Key_Enter);
-    QCOMPARE(editingFinishedSpy1.count(), 2);
-    QCOMPARE(editingFinishedSpy2.count(), 0);
-
-    box2->setFocus();
-    for (int i = 0; i < 10; ++i) {
-        if (box2->hasFocus())
-            break;
-        QTest::qWait(100);
-    }
-    if (!box2->hasFocus())
-        QSKIP("Your window manager is too broken for this test", SkipAll);
-    QCOMPARE(editingFinishedSpy1.count(), 3);
-    QCOMPARE(editingFinishedSpy2.count(), 0);
-
-    testFocusWidget->hide();
-    QCOMPARE(editingFinishedSpy1.count(), 3); // box has already lost focus
-    QCOMPARE(editingFinishedSpy2.count(), 1);
 }
 
 void tst_QDateTimeEdit::weirdCase()
