@@ -2541,7 +2541,7 @@ void QLineEditPrivate::init(const QString& txt)
     q->setAttribute(Qt::WA_InputMethodEnabled);
     //   Specifies that this widget can use more, but is able to survive on
     //   less, horizontal space; and is fixed vertically.
-    q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::LineEdit));
     q->setBackgroundRole(QPalette::Base);
     q->setAttribute(Qt::WA_KeyCompression);
     q->setMouseTracking(true);

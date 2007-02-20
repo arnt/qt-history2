@@ -142,6 +142,7 @@
 class QTabWidgetPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QTabWidget)
+
 public:
     QTabWidgetPrivate();
     ~QTabWidgetPrivate();
@@ -173,9 +174,13 @@ QTabWidgetPrivate::~QTabWidgetPrivate()
 void QTabWidgetPrivate::init()
 {
     Q_Q(QTabWidget);
+
     stack = new QStackedWidget(q);
     stack->setObjectName(QLatin1String("qt_tabwidget_stackedwidget"));
     stack->setLineWidth(0);
+    // hack so that QMacStyle::layoutSpacing() can detect tab widget pages
+    stack->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred, QSizePolicy::TabWidget));
+
     QObject::connect(stack, SIGNAL(widgetRemoved(int)), q, SLOT(_q_removeTab(int)));
     QTabBar *tabBar = new QTabBar(q);
     tabBar->setObjectName(QLatin1String("qt_tabwidget_tabbar"));
@@ -186,7 +191,8 @@ void QTabWidgetPrivate::init()
     pos = QTabWidget::South;
 #endif
 
-    q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding, 
+                                 QSizePolicy::TabWidget));
 #ifdef QT_KEYPAD_NAVIGATION
     if (QApplication::keypadNavigationEnabled())
         q->setFocusPolicy(Qt::NoFocus);
@@ -664,12 +670,16 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     if (onlyCheck && !d->dirty)
         return; // nothing to do
 
+    QStyleOptionTabWidgetFrame option;
+    initStyleOption(&option);
+
+    // this must be done immediately, because QWidgetItem relies on it (even if !isVisible())
+    d->setLayoutItemMargins(QStyle::SE_TabWidgetLayoutItem, &option);
+
     if (!isVisible()) {
         d->dirty = true;
         return; // we'll do it later
     }
-    QStyleOptionTabWidgetFrame option;
-    initStyleOption(&option);
 
     QRect tabRect = style()->subElementRect(QStyle::SE_TabWidgetTabBar, &option, this);
     d->panelRect = style()->subElementRect(QStyle::SE_TabWidgetTabPane, &option, this);
@@ -853,7 +863,11 @@ bool QTabWidget::event(QEvent *ev)
  */
 void QTabWidget::changeEvent(QEvent *ev)
 {
-    if(ev->type() == QEvent::StyleChange)
+    if (ev->type() == QEvent::StyleChange
+#ifdef Q_WS_MAC
+            || ev->type() == QEvent::MacSizeChange
+#endif
+            )
         setUpLayout();
     QWidget::changeEvent(ev);
 }

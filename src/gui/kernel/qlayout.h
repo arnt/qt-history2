@@ -34,7 +34,7 @@ class Q_GUI_EXPORT QLayoutIterator
 public:
     inline QT3_SUPPORT_CONSTRUCTOR QLayoutIterator(QLayout *i) : layout(i), index(0) {}
     inline QLayoutIterator(const QLayoutIterator &i)
-	: layout(i.layout), index(i.index) {}
+        : layout(i.layout), index(i.index) {}
     inline QLayoutIterator &operator=(const QLayoutIterator &i) {
         layout = i.layout;
         index = i.index;
@@ -65,7 +65,7 @@ class Q_GUI_EXPORT QLayout : public QObject, public QLayoutItem
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int spacing READ spacing WRITE setSpacing)
     Q_PROPERTY(SizeConstraint sizeConstraint READ sizeConstraint WRITE setSizeConstraint)
-
+    Q_PROPERTY(ItemRectPolicy itemRectPolicy READ itemRectPolicy WRITE setItemRectPolicy)
 public:
     enum SizeConstraint {
         SetDefaultConstraint,
@@ -82,6 +82,11 @@ public:
 #endif
     };
 
+    enum ItemRectPolicy {
+        LayoutItemRect,
+        WidgetRect
+    };
+
     QLayout(QWidget *parent);
     QLayout();
     ~QLayout();
@@ -91,6 +96,10 @@ public:
 
     void setMargin(int);
     void setSpacing(int);
+
+    void setContentsMargins(int left, int top, int right, int bottom);
+    void getContentsMargins(int *left, int *top, int *right, int *bottom) const;
+    QRect contentsRect() const;
 
     bool setAlignment(QWidget *w, Qt::Alignment alignment);
     bool setAlignment(QLayout *l, Qt::Alignment alignment);
@@ -140,6 +149,9 @@ public:
 
     void setEnabled(bool);
     bool isEnabled() const;
+
+    void setItemRectPolicy(ItemRectPolicy policy);
+    ItemRectPolicy QLayout::itemRectPolicy() const;
 
 #ifdef QT3_SUPPORT
     QT3_SUPPORT void freeze(int w=0, int h=0);

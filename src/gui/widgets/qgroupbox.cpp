@@ -27,11 +27,13 @@
 #endif
 #include <private/qwidget_p.h>
 
+#include "qdebug.h"
+
 class QGroupBoxPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QGroupBox)
-public:
 
+public:
     void skip();
     void init();
     void calculateFrame();
@@ -187,6 +189,7 @@ QGroupBox::~QGroupBox()
 
 void QGroupBoxPrivate::init()
 {
+    Q_Q(QGroupBox);
     align = Qt::AlignLeft;
 #ifndef QT_NO_SHORTCUT
     shortcutId = 0;
@@ -197,8 +200,9 @@ void QGroupBoxPrivate::init()
     hover = false;
     pressedControl = QStyle::SC_None;
     calculateFrame();
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred, 
+                     QSizePolicy::GroupBox));
 }
-
 
 void QGroupBox::setTitle(const QString &title)
 {
@@ -425,7 +429,6 @@ void QGroupBoxPrivate::_q_fixFocus(Qt::FocusReason reason)
         fw->setFocus(reason);
 }
 
-
 /*
     Sets the right frame rect depending on the title.
 */
@@ -437,9 +440,8 @@ void QGroupBoxPrivate::calculateFrame()
     QRect contentsRect = q->style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxContents, q);
     q->setContentsMargins(contentsRect.left() - box.rect.left(), contentsRect.top() - box.rect.top(),
                           box.rect.right() - contentsRect.right(), box.rect.bottom() - contentsRect.bottom());
+    setLayoutItemMargins(QStyle::SE_GroupBoxLayoutItem, &box);
 }
-
-
 
 /*! \reimp
  */
@@ -467,8 +469,10 @@ QSize QGroupBox::minimumSizeHint() const
     QStyleOptionGroupBox option;
     initStyleOption(&option);
 
-    int baseWidth = fontMetrics().width(d->title + QLatin1Char(' '));
-    int baseHeight = fontMetrics().height();
+    QFontMetrics metrics(fontMetrics());
+
+    int baseWidth = metrics.width(d->title) + metrics.width(QLatin1Char(' '));
+    int baseHeight = metrics.height();
     if (d->checkable) {
         baseWidth += style()->pixelMetric(QStyle::PM_IndicatorWidth);
         baseWidth += style()->pixelMetric(QStyle::PM_CheckBoxLabelSpacing);
@@ -552,8 +556,10 @@ void QGroupBox::setCheckable(bool checkable)
         d->_q_setChildrenEnabled(true);
     }
 
-    if (wasCheckable != checkable)
+    if (wasCheckable != checkable) {
+        d->calculateFrame();
         update();
+    }
 }
 
 bool QGroupBox::isCheckable() const
@@ -651,14 +657,17 @@ void QGroupBoxPrivate::_q_setChildrenEnabled(bool b)
 void QGroupBox::changeEvent(QEvent *ev)
 {
     Q_D(QGroupBox);
-    if(ev->type() == QEvent::EnabledChange) {
+    if (ev->type() == QEvent::EnabledChange) {
         if (d->checkable && isEnabled()) {
             // we are being enabled - disable children
             if (!d->checked)
                 d->_q_setChildrenEnabled(false);
         }
-    } else if(ev->type() == QEvent::FontChange || ev->type() == QEvent::StyleChange) {
-        updateGeometry();
+    } else if (ev->type() == QEvent::FontChange
+#ifdef Q_WS_MAC
+               || ev->type() == QEvent::MacSizeChange
+#endif
+               || ev->type() == QEvent::StyleChange) {
         d->calculateFrame();
     }
     QWidget::changeEvent(ev);

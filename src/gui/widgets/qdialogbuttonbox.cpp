@@ -276,17 +276,21 @@ void QDialogButtonBoxPrivate::initLayout()
         else
             buttonLayout = new QVBoxLayout(q);
     }
-    if (layoutPolicy == QDialogButtonBox::MacLayout)
-        buttonLayout->setSpacing(0);
-    buttonLayout->setMargin(0);
+
+	int left, top, right, bottom;
+    setLayoutItemMargins(QStyle::SE_PushButtonLayoutItem);
+	getLayoutItemMargins(&left, &top, &right, &bottom);
+    buttonLayout->setContentsMargins(-left, -top, -right, -bottom);
 
     if (!q->testAttribute(Qt::WA_WState_OwnSizePolicy)) {
-        QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::ButtonBox);
         if (orientation == Qt::Vertical)
             sp.transpose();
         q->setSizePolicy(sp);
         q->setAttribute(Qt::WA_WState_OwnSizePolicy, false);
     }
+
+    // ### move to a real init() function
     q->setFocusPolicy(Qt::TabFocus);
 }
 
@@ -299,7 +303,6 @@ void QDialogButtonBoxPrivate::resetLayout()
 
 void QDialogButtonBoxPrivate::addButtonsToLayout(const QList<QAbstractButton *> &buttonList,
                                                  bool reverse)
-
 {
     int start = reverse ? buttonList.count() - 1 : 0;
     int end = reverse ? -1 : buttonList.count();
@@ -315,7 +318,7 @@ void QDialogButtonBoxPrivate::addButtonsToLayout(const QList<QAbstractButton *> 
 void QDialogButtonBoxPrivate::layoutButtons()
 {
     Q_Q(QDialogButtonBox);
-    const int MacGap = 19;
+    const int MacGap = 24 - 8;	// 8 is the default gap between a widget and a spacer item
 
     for (int i = buttonLayout->count() - 1; i >= 0; --i) {
         QLayoutItem *item = buttonLayout->takeAt(i);
@@ -330,11 +333,12 @@ void QDialogButtonBoxPrivate::layoutButtons()
     static int ModalRoles[M] = { AcceptRole, RejectRole, DestructiveRole, YesRole, NoRole };
     if (tmpPolicy == QDialogButtonBox::MacLayout) {
         bool hasModalButton = false;
-        for (int i = 0; i < M; ++i)
+        for (int i = 0; i < M; ++i) {
             if (!buttonLists[ModalRoles[i]].isEmpty()) {
                 hasModalButton = true;
                 break;
             }
+        }
         if (!hasModalButton)
             tmpPolicy = 4;  // Mac modeless
     }
@@ -382,8 +386,8 @@ void QDialogButtonBoxPrivate::layoutButtons()
                     buttons to ensure that they don't get too close to
                     the help and action buttons (but only if there are
                     some buttons to the left of the destructive buttons
-                    (and the stretch, whence buttonLayout->count > 1 and
-                    not 0)).
+                    (and the stretch, whence buttonLayout->count() > 1
+                    and not 0)).
                 */
                 if (tmpPolicy == QDialogButtonBox::MacLayout
                         && !list.isEmpty() && buttonLayout->count() > 1)
@@ -1032,6 +1036,9 @@ void QDialogButtonBox::changeEvent(QEvent *event)
 
     switch (event->type()) {
     case QEvent::StyleChange:
+#ifdef Q_WS_MAC
+    case QEvent::MacSizeChange:
+#endif
         d->resetLayout();
         QWidget::changeEvent(event);
         break;

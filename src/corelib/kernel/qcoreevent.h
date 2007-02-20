@@ -210,6 +210,8 @@ public:
         NonClientAreaMouseButtonRelease = 175,
         NonClientAreaMouseButtonDblClick = 176,
 
+        MacSizeChange = 177,                    // when the Qt::WA_Mac{Normal,Small,Mini}Size changes
+
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id
     };

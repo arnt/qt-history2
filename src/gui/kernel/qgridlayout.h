@@ -31,6 +31,9 @@ class Q_GUI_EXPORT QGridLayout : public QLayout
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGridLayout)
+    QDOC_PROPERTY(int horizontalSpacing READ horizontalSpacing WRITE setHorizontalSpacing)
+    QDOC_PROPERTY(int verticalSpacing READ verticalSpacing WRITE setVerticalSpacing)
+
 public:
     explicit QGridLayout(QWidget *parent);
     QGridLayout();
@@ -47,6 +50,13 @@ public:
     QSize sizeHint() const;
     QSize minimumSize() const;
     QSize maximumSize() const;
+
+    void setHorizontalSpacing(int spacing);
+    int horizontalSpacing() const;
+    void setVerticalSpacing(int spacing);
+    int verticalSpacing() const;
+    void setSpacing(int spacing);
+    int spacing() const;
 
     void setRowStretch(int row, int stretch);
     void setColumnStretch(int column, int stretch);

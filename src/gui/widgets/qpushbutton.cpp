@@ -39,11 +39,17 @@ class QPushButtonPrivate : public QAbstractButtonPrivate
 {
     Q_DECLARE_PUBLIC(QPushButton)
 public:
-    enum AutoDefaultValue {Off = 0, On = 1, Auto = 2};
-    QPushButtonPrivate():autoDefault(Auto), defaultButton(false), flat(false), menuOpen(false){}
-    void init();
+    enum AutoDefaultValue { Off = 0, On = 1, Auto = 2 };
+
+    QPushButtonPrivate()
+        : QAbstractButtonPrivate(QSizePolicy::PushButton), autoDefault(Auto),
+          defaultButton(false), flat(false), menuOpen(false) {}
+
+    inline void init() { resetLayoutItemMargins(); }
+	void resetLayoutItemMargins();
     void _q_popupPressed();
     QDialog *dialogParent() const;
+
     QPointer<QMenu> menu;
     uint autoDefault : 2;
     uint defaultButton : 1;
@@ -241,8 +247,8 @@ QPushButton::QPushButton(const QString &text, QWidget *parent)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
     Q_D(QPushButton);
-    d->init();
     setText(text);
+    d->init();
 }
 
 
@@ -257,9 +263,9 @@ QPushButton::QPushButton(const QIcon& icon, const QString &text, QWidget *parent
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
     Q_D(QPushButton);
-    d->init();
     setText(text);
     setIcon(icon);
+    d->init();
 }
 
 
@@ -280,12 +286,6 @@ QDialog *QPushButtonPrivate::dialogParent() const
             return const_cast<QDialog *>(dialog);
     }
     return 0;
-}
-
-void QPushButtonPrivate::init()
-{
-    Q_Q(QPushButton);
-    q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 
 /*!
@@ -510,6 +510,8 @@ void QPushButton::setMenu(QMenu* menu)
     d->menu = menu;
     if (d->menu)
         addAction(d->menu->menuAction());
+
+	d->resetLayoutItemMargins();
     update();
     updateGeometry();
 }
@@ -538,6 +540,14 @@ void QPushButton::showMenu()
         return;
     setDown(true);
     d->_q_popupPressed();
+}
+
+void QPushButtonPrivate::resetLayoutItemMargins()
+{
+	Q_Q(QPushButton);
+	QStyleOptionButton opt;
+	q->initStyleOption(&opt);
+    setLayoutItemMargins(QStyle::SE_PushButtonLayoutItem, &opt);
 }
 
 void QPushButtonPrivate::_q_popupPressed()
@@ -591,6 +601,7 @@ void QPushButton::setFlat(bool flat)
     if (d->flat == flat)
         return;
     d->flat = flat;
+	d->resetLayoutItemMargins();
     update();
     updateGeometry();
 }
@@ -610,6 +621,13 @@ bool QPushButton::event(QEvent *e)
             if (d->defaultButton)
                 dialog->d_func()->setMainDefault(this);
         }
+    } else if (e->type() == QEvent::StyleChange
+#ifdef Q_WS_MAC
+               || e->type() == QEvent::MacSizeChange
+#endif
+               ) {
+		d->resetLayoutItemMargins();
+		updateGeometry();
     }
     return QAbstractButton::event(e);
 }
@@ -636,8 +654,8 @@ QPushButton::QPushButton(const QString &text, QWidget *parent, const char *name)
 {
     Q_D(QPushButton);
     setObjectName(QString::fromAscii(name));
-    d->init();
     setText(text);
+    d->init();
 }
 
 /*!
@@ -649,9 +667,9 @@ QPushButton::QPushButton(const QIcon& icon, const QString &text, QWidget *parent
 {
     Q_D(QPushButton);
     setObjectName(QString::fromAscii(name));
-    d->init();
     setText(text);
     setIcon(icon);
+    d->init();
 }
 #endif
 

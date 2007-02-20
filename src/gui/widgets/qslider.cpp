@@ -34,6 +34,7 @@ public:
     int clickOffset;
     int snapBackPosition;
     void init();
+	void resetLayoutItemMargins();
     int pixelPosToRangeValue(int pos) const;
     inline int pick(const QPoint &pt) const;
 
@@ -51,13 +52,21 @@ void QSliderPrivate::init()
     tickPosition = QSlider::NoTicks;
     hoverControl = QStyle::SC_None;
     q->setFocusPolicy(Qt::FocusPolicy(q->style()->styleHint(QStyle::SH_Button_FocusPolicy)));
-    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::Slider);
     if (orientation == Qt::Vertical)
         sp.transpose();
     q->setSizePolicy(sp);
     q->setAttribute(Qt::WA_WState_OwnSizePolicy, false);
+	resetLayoutItemMargins();
 }
 
+void QSliderPrivate::resetLayoutItemMargins()
+{
+    Q_Q(QSlider);
+    QStyleOptionSlider opt;
+    q->initStyleOption(&opt);
+    setLayoutItemMargins(QStyle::SE_SliderLayoutItem, &opt);
+}
 
 int QSliderPrivate::pixelPosToRangeValue(int pos) const
 {
@@ -378,12 +387,18 @@ void QSlider::paintEvent(QPaintEvent *)
 
 bool QSlider::event(QEvent *event)
 {
+    Q_D(QSlider);
+
     switch(event->type()) {
     case QEvent::HoverEnter:
     case QEvent::HoverLeave:
     case QEvent::HoverMove:
-    if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event))
-        d_func()->updateHoverControl(he->pos());
+        if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event))
+            d->updateHoverControl(he->pos());
+        break;
+    case QEvent::StyleChange:
+    case QEvent::MacSizeChange:
+        d->resetLayoutItemMargins();
         break;
     default:
         break;
@@ -551,8 +566,11 @@ QSize QSlider::minimumSizeHint() const
 
 void QSlider::setTickPosition(TickPosition position)
 {
-    d_func()->tickPosition = position;
+    Q_D(QSlider);
+    d->tickPosition = position;
+    d->resetLayoutItemMargins();
     update();
+    updateGeometry();
 }
 
 QSlider::TickPosition QSlider::tickPosition() const
@@ -596,7 +614,6 @@ int QSlider::tickInterval() const
 {
     return d_func()->tickInterval;
 }
-
 
 /*!
     \fn void QSlider::addStep()

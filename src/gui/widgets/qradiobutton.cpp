@@ -25,11 +25,25 @@
 class QRadioButtonPrivate : public QAbstractButtonPrivate
 {
     Q_DECLARE_PUBLIC(QRadioButton)
+
 public:
-    QRadioButtonPrivate():hovering(true){}
+    QRadioButtonPrivate() : QAbstractButtonPrivate(QSizePolicy::RadioButton), hovering(true) {}
+    void init();
     uint hovering : 1;
 };
 
+/*
+    Initializes the radio button.
+*/
+void QRadioButtonPrivate::init()
+{
+    Q_Q(QRadioButton);
+    q->setCheckable(true);
+    q->setAutoExclusive(true);
+    q->setMouseTracking(true);
+    q->setForegroundRole(QPalette::WindowText);
+    setLayoutItemMargins(QStyle::SE_RadioButtonLayoutItem);
+}
 
 /*!
     \class QRadioButton
@@ -87,18 +101,6 @@ public:
 */
 
 
-/*
-    Initializes the radio button.
-*/
-static void qRadioButtonInit(QRadioButton *button)
-{
-    button->setCheckable(true);
-    button->setAutoExclusive(true);
-    button->setMouseTracking(true);
-    button->setForegroundRole(QPalette::WindowText);
-}
-
-
 /*!
     Constructs a radio button with the given \a parent, but with no text or
     pixmap.
@@ -109,7 +111,8 @@ static void qRadioButtonInit(QRadioButton *button)
 QRadioButton::QRadioButton(QWidget *parent)
     : QAbstractButton(*new QRadioButtonPrivate, parent)
 {
-    qRadioButtonInit(this);
+    Q_D(QRadioButton);
+    d->init();
 }
 
 /*!
@@ -121,7 +124,8 @@ QRadioButton::QRadioButton(QWidget *parent)
 QRadioButton::QRadioButton(const QString &text, QWidget *parent)
     : QAbstractButton(*new QRadioButtonPrivate, parent)
 {
-    qRadioButtonInit(this);
+    Q_D(QRadioButton);
+    d->init();
     setText(text);
 }
 
@@ -211,6 +215,13 @@ void QRadioButton::paintEvent(QPaintEvent *)
 /*! \reimp */
 bool QRadioButton::event(QEvent *e)
 {
+    Q_D(QRadioButton);
+    if (e->type() == QEvent::StyleChange
+#ifdef Q_WS_MAC
+            || e->type() == QEvent::MacSizeChange
+#endif
+            )
+        d->setLayoutItemMargins(QStyle::SE_RadioButtonLayoutItem);
     return QAbstractButton::event(e);
 }
 
@@ -222,8 +233,9 @@ bool QRadioButton::event(QEvent *e)
 QRadioButton::QRadioButton(QWidget *parent, const char* name)
     : QAbstractButton(*new QRadioButtonPrivate, parent)
 {
+    Q_D(QRadioButton);
+    d->init();
     setObjectName(QString::fromAscii(name));
-    qRadioButtonInit(this);
 }
 
 /*!
@@ -233,8 +245,9 @@ QRadioButton::QRadioButton(QWidget *parent, const char* name)
 QRadioButton::QRadioButton(const QString &text, QWidget *parent, const char* name)
     : QAbstractButton(*new QRadioButtonPrivate, parent)
 {
+    Q_D(QRadioButton);
+    d->init();
     setObjectName(QString::fromAscii(name));
-    qRadioButtonInit(this);
     setText(text);
 }
 

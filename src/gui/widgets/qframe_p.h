@@ -45,6 +45,9 @@ public:
     short       leftFrameWidth, rightFrameWidth;
     short       topFrameWidth, bottomFrameWidth;
     short       oldFrameStyle;
+
+    inline void init();
+
 };
 
 #endif // QFRAME_P_H

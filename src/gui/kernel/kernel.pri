@@ -21,6 +21,8 @@ HEADERS += \
 	kernel/qgridlayout.h \
 	kernel/qkeysequence.h \
 	kernel/qlayout.h \
+	kernel/qlayout_p.h \
+	kernel/qlayoutengine_p.h \
 	kernel/qlayoutitem.h \
 	kernel/qmime.h \
 	kernel/qsessionmanager.h \

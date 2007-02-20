@@ -76,9 +76,9 @@
 #  endif
     typedef struct _DTBGOPTS
     {
-	DWORD dwSize;
-	DWORD dwFlags;
-	RECT rcClip;
+        DWORD dwSize;
+        DWORD dwFlags;
+        RECT rcClip;
     } DTBGOPTS, *PDTBGOPTS;
 #endif // _DTBGOPTS
 

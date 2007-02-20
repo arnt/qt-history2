@@ -322,10 +322,10 @@ int QStackedLayout::currentIndex() const
 void QStackedLayout::setCurrentWidget(QWidget *widget)
 {
     int index = indexOf(widget);
-	if (index == -1) {
-		qWarning("QStackedLayout::setCurrentWidget: widget %p not contained in stack", widget);
-		return;
-	}
+    if (index == -1) {
+        qWarning("QStackedLayout::setCurrentWidget: Widget %p not contained in stack", widget);
+        return;
+    }
     setCurrentIndex(index);
 }
 

@@ -54,6 +54,7 @@ public:
 
     Qt::Alignment alignment() const { return align; }
     void setAlignment(Qt::Alignment a);
+    QSizePolicy::ControlTypes QLayoutItem::controlTypes() const;
 
 protected:
     Qt::Alignment align;

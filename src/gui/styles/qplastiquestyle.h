@@ -45,9 +45,9 @@ public:
                          SubControl sc, const QWidget *widget) const;
 
     int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0,
-		  QStyleHintReturn *returnData = 0) const;
+                  QStyleHintReturn *returnData = 0) const;
     SubControl hitTestComplexControl(ComplexControl control, const QStyleOptionComplex *option,
-				     const QPoint &pos, const QWidget *widget = 0) const;
+                                     const QPoint &pos, const QWidget *widget = 0) const;
 
     int pixelMetric(PixelMetric metric, const QStyleOption *option = 0, const QWidget *widget = 0) const;
 
@@ -65,6 +65,11 @@ public:
 protected Q_SLOTS:
     QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt = 0,
                                      const QWidget *widget = 0) const;
+    int layoutSpacingImplementation(QSizePolicy::ControlType control1,
+                                    QSizePolicy::ControlType control2, 
+                                    Qt::Orientation orientation,
+                                    const QStyleOption *option = 0, 
+                                    const QWidget *widget = 0) const;
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event);

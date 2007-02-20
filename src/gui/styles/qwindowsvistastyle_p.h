@@ -51,14 +51,14 @@
 #include <qtreeview.h>
 
 #if !defined(SCHEMA_VERIFY_VSSYM32)
-#define TMT_ANIMATIONDURATION	    5006
-#define TMT_TRANSITIONDURATIONS	    6000
-#define	EP_EDITBORDER_NOSCROLL      6
-#define	PBS_DEFAULTED_ANIMATING     6
-#define	MBI_NORMAL                  1
-#define	MBI_HOT                     2
-#define	MBI_PUSHED                  3
-#define	MBI_DISABLED                4
+#define TMT_ANIMATIONDURATION       5006
+#define TMT_TRANSITIONDURATIONS     6000
+#define EP_EDITBORDER_NOSCROLL      6
+#define PBS_DEFAULTED_ANIMATING     6
+#define MBI_NORMAL                  1
+#define MBI_HOT                     2
+#define MBI_PUSHED                  3
+#define MBI_DISABLED                4
 #define PP_FILL                     5
 #define PP_FILLVERT                 6
 #define PP_MOVEOVERLAY              8

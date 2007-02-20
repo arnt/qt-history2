@@ -813,7 +813,9 @@ void QComboBoxPrivate::init()
 {
     Q_Q(QComboBox);
     q->setFocusPolicy(Qt::WheelFocus);
-    q->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed, 
+                                 QSizePolicy::ComboBox));
+    setLayoutItemMargins(QStyle::SE_ComboBoxLayoutItem);
 }
 
 QComboBoxPrivateContainer* QComboBoxPrivate::viewContainer()
@@ -2200,11 +2202,15 @@ void QComboBox::changeEvent(QEvent *e)
     Q_D(QComboBox);
     switch (e->type()) {
     case QEvent::StyleChange:
+#ifdef Q_WS_MAC
+    case QEvent::MacSizeChange:
+#endif
         d->sizeHint = QSize(); // invalidate size hint
         d->updateLayoutDirection();
         if (d->lineEdit)
             d->updateLineEditGeometry();
-        //### need to update scrollers etc. as well here
+        d->setLayoutItemMargins(QStyle::SE_ComboBoxLayoutItem);
+        // ### need to update scrollers etc. as well here
         break;
     case QEvent::EnabledChange:
         if (!isEnabled())

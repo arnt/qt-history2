@@ -69,6 +69,51 @@ static const int MiniButtonH = 26;
 static const int BevelButtonW = 50;
 static const int BevelButtonH = 22;
 
+/*
+    AHIG:
+        Apple Human Interface Guidelines
+        http://developer.apple.com/documentation/UserExperience/Conceptual/OSXHIGuidelines/
+
+    Builder:
+        Apple Interface Builder v. 2.54
+*/
+
+// this works as long as we have at most 16 different control types
+#define CT1(c) CT2(c, c)
+#define CT2(c1, c2) ((uint(c1) << 16) | uint(c2))
+
+enum QAquaWidgetSize { QAquaSizeLarge = 0, QAquaSizeSmall = 1, QAquaSizeMini = 2,
+                       QAquaSizeUnknown = -1 };
+
+#define SIZE(large, small, mini) \
+    (controlSize == QAquaSizeLarge ? (large) : controlSize == QAquaSizeSmall ? (small) : (mini))
+
+// same as return SIZE(...) but optimized
+#define return_SIZE(large, small, mini) \
+    do { \
+        static const int sizes[] = { (large), (small), (mini) }; \
+        return sizes[controlSize]; \
+    } while (0)
+
+static int getControlSize(const QStyleOption *option, const QWidget *widget)
+{
+    if (option) {
+        if (option->state & (QStyle::State_Small | QStyle::State_Mini))
+            return (option->state & QStyle::State_Mini) ? QAquaSizeMini : QAquaSizeSmall;
+    } else if (widget) {
+        switch (QMacStyle::widgetSizePolicy(widget)) {
+        case QMacStyle::SizeSmall:
+            return QAquaSizeSmall;
+        case QMacStyle::SizeMini:
+            return QAquaSizeMini;
+        default:
+            break;
+        }
+    }
+    return QAquaSizeLarge;
+}
+
+
 static inline bool isTreeView(const QWidget *widget)
 {
     return (widget && widget->parentWidget() &&
@@ -127,18 +172,10 @@ static inline ThemeTabDirection getTabDirection(QTabBar::Shape shape)
     return ttd;
 }
 
-class QMacStylePrivateObjectWatcher : public QObject
-{
-    Q_OBJECT
-public:
-    QMacStylePrivateObjectWatcher(QObject *p) : QObject(p) {}
-public slots:
-    void destroyedObject(QObject *o);
-};
-
 class QMacStylePrivate : public QObject
 {
     Q_OBJECT
+
 public:
     QMacStylePrivate(QMacStyle *style);
 
@@ -154,14 +191,6 @@ public:
 
     bool doAnimate(Animates);
     inline int animateSpeed(Animates) const { return 33; }
-
-    struct PolicyState {
-        static QMap<const QWidget*, QMacStyle::FocusRectPolicy> focusMap;
-        static QMap<const QWidget*, QMacStyle::WidgetSizePolicy> sizeMap;
-        static QPointer<QMacStylePrivateObjectWatcher> watcher;
-        static void watchObject(const QObject *o);
-        static void stopWatch(const QObject *o);
-    };
 
     // Utility functions
     void drawColorlessButton(const HIRect &macRect, HIThemeButtonDrawInfo *bdi,
@@ -190,10 +219,6 @@ public:
     CFAbsoluteTime defaultButtonStart;
     QMacStyle *q;
 };
-
-QPointer<QMacStylePrivateObjectWatcher> QMacStylePrivate::PolicyState::watcher;
-QMap<const QWidget*, QMacStyle::FocusRectPolicy> QMacStylePrivate::PolicyState::focusMap;
-QMap<const QWidget*, QMacStyle::WidgetSizePolicy> QMacStylePrivate::PolicyState::sizeMap;
 
 #include "qmacstyle_mac.moc"
 
@@ -245,7 +270,7 @@ static inline const QRect qt_qrectForHIRect(const HIRect &hirect)
 inline bool qt_mac_is_metal(const QWidget *w)
 {
     for (; w; w = w->parentWidget()) {
-        if (w->testAttribute(Qt::WA_MacMetalStyle))
+        if (w->testAttribute(Qt::WA_MacBrushedMetal))
             return true;
         if (w->isWindow() && w->testAttribute(Qt::WA_WState_Created)) {  // If not created will fall through to the opaque check and be fine anyway.
             WindowAttributes currentAttributes;
@@ -264,8 +289,6 @@ static int qt_mac_aqua_get_metric(ThemeMetric met)
     GetThemeMetric(met, &ret);
     return ret;
 }
-
-enum QAquaWidgetSize { QAquaSizeLarge, QAquaSizeSmall, QAquaSizeMini, QAquaSizeUnknown };
 
 static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg, QSize szHint,
                                     QAquaWidgetSize sz)
@@ -465,7 +488,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         if (sz == QAquaSizeLarge)
             finalValue = qt_mac_aqua_get_metric(kThemeMetricLargeProgressBarThickness)
                             + qt_mac_aqua_get_metric(kThemeMetricProgressBarShadowOutset);
-        else if (sz == QAquaSizeSmall)
+        else
             finalValue = qt_mac_aqua_get_metric(kThemeMetricNormalProgressBarThickness)
                             + qt_mac_aqua_get_metric(kThemeMetricSmallProgressBarShadowOutset);
         if (orient == Qt::Horizontal)
@@ -851,7 +874,7 @@ static void qt_mac_draw_combobox(const HIRect &outerBounds, const HIThemeButtonD
 enum ScrollBarCutoffType { thumbIndicatorCutoff = 0, scrollButtonsCutoff = 1 };
 static int scrollButtonsCutoffSize(ScrollBarCutoffType cutoffType, QMacStyle::WidgetSizePolicy widgetSize)
 {
-    // Mini scrollbars does not exist as of version 10.4.
+    // Mini scrollbars doe not exist as of version 10.4.
     if (widgetSize ==  QMacStyle::SizeMini)
         return 0;
 
@@ -1199,24 +1222,6 @@ ThemeDrawState QMacStylePrivate::getDrawState(QStyle::State flags)
             tds = kThemeStateUnavailableInactive;
     }
     return tds;
-}
-
-void QMacStylePrivate::PolicyState::watchObject(const QObject *o)
-{
-    if (!watcher)
-        watcher = new QMacStylePrivateObjectWatcher(0);
-    QObject::connect(o, SIGNAL(destroyed(QObject*)), watcher, SLOT(destroyedObject(QObject*)));
-}
-
-void QMacStylePrivate::PolicyState::stopWatch(const QObject *o)
-{
-    QObject::disconnect(o, SIGNAL(destroyed(QObject*)), watcher, SLOT(destroyedObject(QObject*)));
-}
-
-void QMacStylePrivateObjectWatcher::destroyedObject(QObject *o)
-{
-    QMacStylePrivate::PolicyState::focusMap.remove(static_cast<QWidget *>(o));
-    QMacStylePrivate::PolicyState::sizeMap.remove(static_cast<QWidget *>(o));
 }
 
 void QMacStylePrivate::timerEvent(QTimerEvent *)
@@ -1667,7 +1672,9 @@ void QMacStyle::unpolish(QWidget* w)
 /*! \reimp */
 int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QWidget *widget) const
 {
+    int controlSize = getControlSize(opt, widget);
     SInt32 ret = 0;
+
     switch (metric) {
     case PM_ToolBarIconSize:
         ret = pixelMetric(PM_LargeIconSize);
@@ -1946,6 +1953,61 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case PM_SplitterWidth:
         ret = qMax(7, QApplication::globalStrut().width());
         break;
+    case PM_LayoutLeftMargin:
+    case PM_LayoutTopMargin:
+    case PM_LayoutRightMargin:
+    case PM_LayoutBottomMargin:
+        {
+            bool isWindow = false;
+            if (opt) {
+                isWindow = (opt->state & State_Window);
+            } else if (widget) {
+                isWindow = widget->isWindow();
+            }
+
+            if (isWindow) {
+                bool isMetal = widget && widget->testAttribute(Qt::WA_MacBrushedMetal);
+                if (isMetal) {
+                    if (metric == PM_LayoutTopMargin) {
+                        return_SIZE(9 /* AHIG */, 6 /* guess */, 6 /* guess */);
+                    } else if (metric == PM_LayoutBottomMargin) {
+                        return_SIZE(18 /* AHIG */, 15 /* guess */, 13 /* guess */);
+                    } else {
+                        return_SIZE(14 /* AHIG */, 11 /* guess */, 9 /* guess */);
+                    }
+                } else {
+                    /*
+                        AHIG would have (20, 8, 10) here but that makes
+                        no sense. It would also have 14 for the top margin
+                        but this contradicts both Builder and most
+                        applications.
+                    */
+                    return_SIZE(20, 10, 10);    // AHIG
+                }
+            } else {
+                // hack to detect QTabWidget
+                if (widget && widget->parentWidget()
+                        && widget->parentWidget()->sizePolicy().controlType() == QSizePolicy::TabWidget) {
+                    if (metric == PM_LayoutTopMargin) {
+                        /*
+                            Builder would have 14 (= 20 - 6) instead of 12,
+                            but that makes the tab look disproportionate.
+                        */
+                        return_SIZE(12, 6, 6);  // guess
+                    } else {
+                        return_SIZE(20 /* Builder */, 8 /* guess */, 8 /* guess */);
+                    }
+                } else {
+                    /*
+                        Child margins are highly inconsistent in AHIG and Builder.
+                    */
+                    return_SIZE(12, 8, 6);    // guess
+                }
+            }
+        }
+    case PM_LayoutHorizontalSpacing:
+    case PM_LayoutVerticalSpacing:
+        return -1;
     default:
         ret = QWindowsStyle::pixelMetric(metric, opt, widget);
         break;
@@ -2302,53 +2364,40 @@ QMacStyle::FocusRectPolicy QMacStyle::focusRectPolicy(const QWidget *w)
 }
 
 /*!
-    Sets the widget size policy of \a w. The \a policy can be one of
-    \l{QMacStyle::WidgetSizePolicy}.
+    \obsolete
 
-    \sa widgetSizePolicy()
+    Call QWidget::setAttribute() with Qt::WA_MacMiniSize, Qt::WA_MacSmallSize,
+    or Qt::WA_MacNormalSize instead.
 */
-void QMacStyle::setWidgetSizePolicy(const QWidget *w, WidgetSizePolicy policy)
+void QMacStyle::setWidgetSizePolicy(const QWidget *widget, WidgetSizePolicy policy)
 {
-    bool alreadyIn = QMacStylePrivate::PolicyState::sizeMap.contains(w);
-    if (policy == SizeDefault) {
-        if (alreadyIn) {
-            QMacStylePrivate::PolicyState::sizeMap.remove(w);
-            QMacStylePrivate::PolicyState::stopWatch(w);
-        }
-    } else {
-        QMacStylePrivate::PolicyState::sizeMap.insert(w, policy);
-        if (!alreadyIn)
-            QMacStylePrivate::PolicyState::watchObject(w);
-    }
+    QWidget *wadget = const_cast<QWidget *>(widget);
+    wadget->setAttribute(Qt::WA_MacNormalSize, policy == SizeLarge);
+    wadget->setAttribute(Qt::WA_MacSmallSize, policy == SizeSmall);
+    wadget->setAttribute(Qt::WA_MacMiniSize, policy == SizeMini);
 }
 
 /*!
-    Returns the widget size policy for the widget \a w.
+    \obsolete
 
-    The widget size policy can be one of \l{QMacStyle::WidgetSizePolicy}.
-
-    \sa setWidgetSizePolicy()
+    Call QWidget::testAttribute() with Qt::WA_MacMiniSize, Qt::WA_MacSmallSize,
+    or Qt::WA_MacNormalSize instead.
 */
-QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy(const QWidget *w)
+QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy(const QWidget *widget)
 {
-    WidgetSizePolicy ret = SizeDefault;
-    if (w) {
-        if (QMacStylePrivate::PolicyState::sizeMap.contains(w))
-            ret = QMacStylePrivate::PolicyState::sizeMap[w];
-        if (ret == SizeDefault) {
-            for (QWidget *p = w->parentWidget(); p; p = p->parentWidget()) {
-                if (QMacStylePrivate::PolicyState::sizeMap.contains(p)) {
-                    ret = QMacStylePrivate::PolicyState::sizeMap[p];
-                    if (ret != SizeDefault)
-                        break;
-                }
-                if (p->isWindow())
-                    break;
-            }
+    while (widget) {
+        if (widget->testAttribute(Qt::WA_MacMiniSize)) {
+            return SizeMini;
+        } else if (widget->testAttribute(Qt::WA_MacSmallSize)) {
+            return SizeSmall;
+        } else if (widget->testAttribute(Qt::WA_MacNormalSize)) {
+            return SizeLarge;
         }
+        widget = widget->parentWidget();
     }
-    return ret;
+    return SizeDefault;
 }
+
 /*! \reimp */
 void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                               const QWidget *w) const
@@ -3500,9 +3549,6 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                                             : kThemeLargeIndeterminateBar;
                 break;
             case QAquaSizeMini:
-                tdi.kind = !isIndeterminate ? kThemeMiniProgressBar
-                           : kThemeMiniIndeterminateBar;
-                break;
             case QAquaSizeSmall:
                 tdi.kind = !isIndeterminate ? kThemeProgressBar : kThemeIndeterminateBar;
                 break;
@@ -3611,9 +3657,12 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
 }
 
 /*! \reimp */
-QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidget *widget) const
+QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
+                                const QWidget *widget) const
 {
     QRect rect;
+    int controlSize = getControlSize(opt, widget);
+
     switch (sr) {
     case SE_ToolBoxTabContents:
         rect = QCommonStyle::subElementRect(sr, opt, widget);
@@ -3657,7 +3706,6 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
             else if (bdi.kind == kThemePushButtonMini){
                 newRect.origin.y += PushButtonY;
             }
-
             HIRect outRect;
             bdi.adornment = kThemeAdornmentNone;
             HIThemeGetButtonContentBounds(&newRect, &bdi, &outRect);
@@ -3765,20 +3813,19 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
     case SE_TabWidgetTabContents:
         rect = QWindowsStyle::subElementRect(sr, opt, widget);
         if (const QStyleOptionTabWidgetFrame *twf
-            = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+                = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
             switch (getTabDirection(twf->shape)) {
             case kThemeTabNorth:
-                rect.adjust(0, 8, 0, 0);
+                rect.adjust(+1, +14, -1, -1);
                 break;
             case kThemeTabSouth:
-                rect.adjust(0, 0, 0, -8);
+                rect.adjust(+1, +1, -1, -14);
                 break;
             case kThemeTabWest:
-                rect.adjust(8, 0, 0, 0);
+                rect.adjust(+14, +1, -1, -1);
                 break;
             case kThemeTabEast:
-                rect.adjust(0, 0, -8, 0);
-                break;
+                rect.adjust(+1, +1, -14, -1);
             }
         }
         break;
@@ -3788,6 +3835,144 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
             rect.adjust(-1, -2, 0, 0);
         else
             rect.adjust(0, +2, 0, 0);
+        break;
+    case SE_CheckBoxLayoutItem:
+        rect = opt->rect;
+        if (controlSize == QAquaSizeLarge) {
+            rect.adjust(+2, +4, -9, -5);
+        } else if (controlSize == QAquaSizeSmall) {
+            rect.adjust(+1, +5, 0 /* fix */, -6);
+        } else {
+            rect.adjust(0, +7, 0 /* fix */, -6);
+        }
+        break;
+    case SE_ComboBoxLayoutItem:
+        rect = opt->rect;
+        if (controlSize == QAquaSizeLarge) {
+            rect.adjust(+3, +2, -3, -4);
+        } else if (controlSize == QAquaSizeSmall) {
+            rect.adjust(+2, +1, -3, -4);
+        } else {
+            rect.adjust(+1, 0, -2, 0);
+        }
+        break;
+    case SE_LabelLayoutItem:
+        rect = opt->rect;
+        rect.adjust(+1, -1, 0, -1);
+        break;
+    case SE_ProgressBarLayoutItem:
+        rect = opt->rect;
+        int bottom = SIZE(3, 8, 8);
+        if (opt->state & State_Horizontal) {
+            rect.adjust(0, +1, 0, -bottom);
+        } else {
+            rect.adjust(+1, 0, -bottom, 0);
+        }
+        break;
+    case SE_PushButtonLayoutItem:
+        if (const QStyleOptionButton *buttonOpt
+                = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
+            if ((buttonOpt->features & (QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
+                break;  // leave rect alone
+        }
+        rect = opt->rect;
+        if (controlSize == QAquaSizeLarge) {
+            rect.adjust(+6, +4, -6, -8);
+        } else if (controlSize == QAquaSizeSmall) {
+            rect.adjust(+5, +4, -5, -6);
+        } else {
+            rect.adjust(+1, 0, -1, -2);
+        }
+        break;
+    case SE_RadioButtonLayoutItem:
+        rect = opt->rect;
+        if (controlSize == QAquaSizeLarge) {
+            rect.adjust(+2, +4, -9, -4);
+        } else if (controlSize == QAquaSizeSmall) {
+            rect.adjust(0, +6, 0 /* fix */, -5);
+        } else {
+            rect.adjust(0, +6, 0 /* fix */, -7);
+        }
+        break;
+    case SE_SliderLayoutItem:
+        if (const QStyleOptionSlider *sliderOpt
+                = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
+            rect = opt->rect;
+            if (sliderOpt->tickPosition == QSlider::NoTicks) {
+                int above = SIZE(3, 0, 2);
+                int below = SIZE(4, 3, 0);
+                if (sliderOpt->orientation == Qt::Horizontal) {
+                    rect.adjust(0, +above, 0, -below);
+                } else {
+                    rect.adjust(+above, 0, -below, 0);
+                }
+            } else if (sliderOpt->tickPosition == QSlider::TicksAbove) {
+                int below = SIZE(3, 2, 0);
+                if (sliderOpt->orientation == Qt::Horizontal) {
+                    rect.setHeight(rect.height() - below);
+                } else {
+                    rect.setWidth(rect.width() - below);
+                }
+            } else if (sliderOpt->tickPosition == QSlider::TicksBelow) {
+                int above = SIZE(3, 2, 0);
+                if (sliderOpt->orientation == Qt::Horizontal) {
+                    rect.setTop(rect.top() + above);
+                } else {
+                    rect.setLeft(rect.left() + above);
+                }
+            }
+        }
+        break;
+    case SE_FrameLayoutItem:
+        // hack because QStyleOptionFrameV2 doesn't have a frameStyle member
+        if (const QFrame *frame = qobject_cast<const QFrame *>(widget)) {
+            rect = opt->rect;
+            switch (frame->frameStyle() & QFrame::Shape_Mask) {
+            case QFrame::HLine:
+                rect.adjust(0, +1, 0, -1);
+                break;
+            case QFrame::VLine:
+                rect.adjust(+1, 0, -1, 0);
+                break;
+            default:
+                ;
+            }
+        }
+        break;
+    case SE_GroupBoxLayoutItem:
+        rect = opt->rect;
+        if (const QStyleOptionGroupBox *groupBoxOpt =
+                qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
+            /*
+                AHIG is very inconsistent when it comes to group boxes.
+                Basically, we make sure that (non-checkable) group boxes
+                and tab widgets look good when laid out side by side.
+            */
+            if (groupBoxOpt->subControls & (QStyle::SC_GroupBoxCheckBox
+                                            | QStyle::SC_GroupBoxLabel)) {
+                int delta;
+                if (groupBoxOpt->subControls & QStyle::SC_GroupBoxCheckBox) {
+                    delta = SIZE(8, 4, 4);       // guess
+                } else {
+                    delta = SIZE(15, 12, 12);    // guess
+                }
+                rect.setTop(rect.top() + delta);
+            }
+        }
+        rect.setBottom(rect.bottom() - 1);
+        break;
+    case SE_TabWidgetLayoutItem:
+        if (const QStyleOptionTabWidgetFrame *tabWidgetOpt =
+                qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+            /*
+                AHIG specifies "12 or 14" as the distance from the window
+                edge. We choose 14 and since the default top margin is 20,
+                the overlap is 6.
+            */
+            rect = tabWidgetOpt->rect;
+            if (tabWidgetOpt->shape == QTabBar::RoundedNorth)
+                rect.setTop(rect.top() + SIZE(6 /* AHIG */, 3 /* guess */, 2 /* AHIG */));
+        }
         break;
     default:
         rect = QWindowsStyle::subElementRect(sr, opt, widget);
@@ -4558,7 +4743,6 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
             case SC_GroupBoxCheckBox: {
                 // Cheat and use the smaller font if we need to
                 bool checkable = groupBox->subControls & SC_GroupBoxCheckBox;
-                bool flat = (groupBox->features & QStyleOptionFrameV2::Flat);
                 bool fontIsSet = (widget && widget->testAttribute(Qt::WA_SetFont));
                 int tw;
                 int h;
@@ -4637,7 +4821,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
 
                 ret = opt->rect.adjusted(0, fm.height() + yOffset, 0, 0);
                 if (sc == SC_GroupBoxContents)
-                    ret.adjust(6, 4, -6, -6);
+                    ret.adjust(3, 3, -3, -4);    // guess
             }
                 break;
             default:
@@ -5126,4 +5310,94 @@ QIcon QMacStyle::standardIconImplementation(StandardPixmap standardIcon, const Q
         return retIcon;
     }
     return QWindowsStyle::standardIconImplementation(standardIcon, opt, widget);
+}
+
+int QMacStyle::layoutSpacingImplementation(QSizePolicy::ControlType control1,
+                                           QSizePolicy::ControlType control2,
+                                           Qt::Orientation orientation,
+                                           const QStyleOption *option,
+                                           const QWidget *widget) const
+{
+    const int ButtonMask = QSizePolicy::ButtonBox | QSizePolicy::PushButton;
+    bool isMetal = (widget && widget->testAttribute(Qt::WA_MacBrushedMetal));
+    int controlSize = getControlSize(option, widget);
+
+    if (control2 == QSizePolicy::ButtonBox) {
+        /*
+            AHIG seems to prefer a 12-pixel margin between group
+            boxes and the row of buttons. The 20 pixel comes from
+            Builder.
+        */
+        if (isMetal                                         // (AHIG, guess, guess)
+                || (control1 & (QSizePolicy::Frame          // guess
+                                | QSizePolicy::GroupBox     // (AHIG, guess, guess)
+                                | QSizePolicy::TabWidget    // guess
+                                | ButtonMask)))    {        // AHIG
+            return_SIZE(12, 8, 8);
+        } else {
+            return_SIZE(20 /* Builder */, 8 /* guess */, 8 /* guess */);
+        }
+    }
+
+    if ((control1 | control2) & ButtonMask)
+        return_SIZE(12, 10, 8);     // AHIG
+
+    switch (CT2(control1, control2)) {
+    case CT1(QSizePolicy::Label):                             // guess
+    case CT2(QSizePolicy::Label, QSizePolicy::DefaultType):   // guess
+    case CT2(QSizePolicy::Label, QSizePolicy::CheckBox):      // AHIG
+    case CT2(QSizePolicy::Label, QSizePolicy::ComboBox):      // AHIG
+    case CT2(QSizePolicy::Label, QSizePolicy::LineEdit):      // guess
+    case CT2(QSizePolicy::Label, QSizePolicy::RadioButton):   // AHIG
+    case CT2(QSizePolicy::Label, QSizePolicy::Slider):        // guess
+    case CT2(QSizePolicy::Label, QSizePolicy::SpinBox):       // guess
+    case CT2(QSizePolicy::Label, QSizePolicy::ToolButton):    // guess
+        return_SIZE(8, 6, 5);
+    case CT1(QSizePolicy::ToolButton):
+        return 8;   // AHIG
+    case CT1(QSizePolicy::CheckBox):
+    case CT2(QSizePolicy::CheckBox, QSizePolicy::RadioButton):
+    case CT2(QSizePolicy::RadioButton, QSizePolicy::CheckBox):
+        if (orientation == Qt::Vertical)
+            return_SIZE(8, 8, 7);        // AHIG and Builder
+        break;
+    case CT1(QSizePolicy::RadioButton):
+        if (orientation == Qt::Vertical)
+            return_SIZE(6, 6, 5);       // AHIG
+    }
+
+    if (orientation == Qt::Horizontal
+            && (control2 & (QSizePolicy::CheckBox | QSizePolicy::RadioButton)))
+        return_SIZE(12, 10, 8);        // guess
+
+    if ((control1 | control2) & (QSizePolicy::Frame
+                                 | QSizePolicy::GroupBox
+                                 | QSizePolicy::TabWidget)) {
+        /*
+            These values were chosen so that nested container widgets
+            look good side by side. Builder uses 8, which looks way
+            too small, and AHIG doesn't say anything.
+        */
+        return_SIZE(16, 10, 10);    // guess
+    }
+
+    if ((control1 | control2) & (QSizePolicy::Line | QSizePolicy::Slider))
+        return_SIZE(12, 10, 8);     // AHIG
+
+    if ((control1 | control2) & QSizePolicy::LineEdit)
+        return_SIZE(10, 8, 8);      // AHIG
+
+    /*
+        AHIG and Builder differ by up to 4 pixels for stacked editable
+        comboboxes. We use some values that work fairly well in all
+        cases.
+    */
+    if ((control1 | control2) & QSizePolicy::ComboBox)
+        return_SIZE(10, 8, 7);      // guess
+
+    /*
+        Builder defaults to 8, 6, 5 in lots of cases, but most of the time the
+        result looks too cramped.
+    */
+    return_SIZE(10, 8, 6);  // guess
 }

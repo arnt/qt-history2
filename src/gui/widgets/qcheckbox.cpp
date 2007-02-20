@@ -26,11 +26,15 @@ class QCheckBoxPrivate : public QAbstractButtonPrivate
 {
     Q_DECLARE_PUBLIC(QCheckBox)
 public:
-    QCheckBoxPrivate():tristate(false), noChange(false), hovering(true), publishedState(Qt::Unchecked){}
+    QCheckBoxPrivate()
+        : QAbstractButtonPrivate(QSizePolicy::CheckBox), tristate(false), noChange(false),
+          hovering(true), publishedState(Qt::Unchecked) {}
+
     uint tristate : 1;
     uint noChange : 1;
     uint hovering : 1;
     uint publishedState : 2;
+
     void init();
 };
 
@@ -125,6 +129,7 @@ void QCheckBoxPrivate::init()
     q->setCheckable(true);
     q->setMouseTracking(true);
     q->setForegroundRole(QPalette::WindowText);
+    setLayoutItemMargins(QStyle::SE_CheckBoxLayoutItem);
 }
 
 /*!
@@ -319,6 +324,13 @@ void QCheckBox::nextCheckState()
 */
 bool QCheckBox::event(QEvent *e)
 {
+    Q_D(QCheckBox);
+    if (e->type() == QEvent::StyleChange
+#ifdef Q_WS_MAC
+            || e->type() == QEvent::MacSizeChange
+#endif
+            )
+        d->setLayoutItemMargins(QStyle::SE_CheckBoxLayoutItem);
     return QAbstractButton::event(e);
 }
 

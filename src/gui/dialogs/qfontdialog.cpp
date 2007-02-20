@@ -281,10 +281,22 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WindowFlags f)
         d->familyList->setCurrentItem(0);
 
     // grid layout
-    QGridLayout * mainGrid = new QGridLayout(this);
-    int margin = mainGrid->margin();
+    QGridLayout *mainGrid = new QGridLayout(this);
+
     int spacing = mainGrid->spacing();
-    mainGrid->setSpacing(0);
+    if (spacing >= 0) {     // uniform spacing
+       mainGrid->setSpacing(0);
+
+       mainGrid->setColumnMinimumWidth(1, spacing);
+       mainGrid->setColumnMinimumWidth(3, spacing);
+
+       int margin = 0;
+       mainGrid->getContentsMargins(0, 0, 0, &margin);
+
+       mainGrid->setRowMinimumHeight(3, margin);
+       mainGrid->setRowMinimumHeight(6, 2);
+       mainGrid->setRowMinimumHeight(8, margin);
+    }
 
     mainGrid->addWidget(d->familyAccel, 0, 0);
     mainGrid->addWidget(d->familyEdit, 1, 0);
@@ -302,20 +314,12 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WindowFlags f)
     mainGrid->setColumnStretch(2, 24);
     mainGrid->setColumnStretch(4, 10);
 
-    mainGrid->setColumnMinimumWidth(1, spacing);
-    mainGrid->setColumnMinimumWidth(3, spacing);
-
-    mainGrid->setRowMinimumHeight(3, margin);
-
     mainGrid->addWidget(d->effects, 4, 0);
 
     mainGrid->addWidget(d->sample, 4, 2, 4, 3);
 
     mainGrid->addWidget(d->writingSystemAccel, 5, 0);
-    mainGrid->setRowMinimumHeight(6, 2);
     mainGrid->addWidget(d->writingSystemCombo, 7, 0);
-
-    mainGrid->setRowMinimumHeight(8, margin);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
     mainGrid->addWidget(buttonBox, 9, 0, 1, 5);

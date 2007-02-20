@@ -23,12 +23,13 @@ private slots:
     void reparentWithNoChildStyleSheet();
     void reparentWithChildStyleSheet();
     void repolish();
-
     void sharedStyle();
     void widgetStyle();
     void appStyle();
     void dynamicProperty();
-
+#ifdef Q_OS_MAC
+    void layoutSpacing();
+#endif
 private:
     QColor COLOR(const QWidget& w) {
         w.ensurePolished();
@@ -500,6 +501,24 @@ void tst_QStyleSheetStyle::dynamicProperty()
     pb2.setStyleSheet(QLatin1String(".critical[style~=\"") + appStyle + "\"] { color: blue }");
     QVERIFY(COLOR(pb2) == Qt::blue);
 }
+
+#ifdef Q_OS_MAC
+#include <QtGui/QMacStyle>
+void tst_QStyleSheetStyle::layoutSpacing()
+{
+    QMacStyle *style = new QMacStyle();
+    QApplication::setStyle(style);
+    qApp->setStyleSheet("* { color: red }");
+    QCheckBox ck1;
+    QCheckBox ck2;
+    QWidget window;
+    int spacing_widgetstyle = window.style()->layoutSpacing(ck1.sizePolicy().controlType(), ck2.sizePolicy().controlType(), Qt::Vertical);
+    int spacing_style = style->layoutSpacing(ck1.sizePolicy().controlType(), ck2.sizePolicy().controlType(), Qt::Vertical);
+    QCOMPARE(spacing_widgetstyle, spacing_style);
+    delete style;
+}
+#endif
+
 
 QTEST_MAIN(tst_QStyleSheetStyle)
 #include "tst_qstylesheetstyle.moc"

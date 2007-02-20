@@ -26,12 +26,19 @@ class Q_GUI_EXPORT QSizePolicy
 {
     Q_GADGET
     Q_ENUMS(Policy)
+
 private:
     enum SizePolicyMasks {
         HSize = 4,
         HMask = 0x0f,
-        VMask = HMask << HSize
+        VMask = HMask << HSize,
+		CTShift = 9,
+		CTSize = 5,
+		CTMask = ((0x1 << CTSize) - 1) << CTShift,
+		UnusedShift = CTShift + CTSize,
+		UnusedSize = 2
     };
+
 public:
     enum PolicyFlag {
         GrowFlag = 1,
@@ -47,19 +54,43 @@ public:
         Preferred = GrowFlag | ShrinkFlag,
         MinimumExpanding = GrowFlag | ExpandFlag,
         Expanding = GrowFlag | ShrinkFlag | ExpandFlag,
-        Ignored = ShrinkFlag|GrowFlag|IgnoreFlag
+        Ignored = ShrinkFlag | GrowFlag | IgnoreFlag
     };
+
+    enum ControlType {
+        DefaultType      = 0x00000001,
+        ButtonBox        = 0x00000002,
+        CheckBox         = 0x00000004,
+        ComboBox         = 0x00000008,
+        Frame            = 0x00000010,
+        GroupBox         = 0x00000020,
+        Label            = 0x00000040,
+        Line             = 0x00000080,
+        LineEdit         = 0x00000100,
+        PushButton       = 0x00000200,
+        RadioButton      = 0x00000400,
+        Slider           = 0x00000800,
+        SpinBox          = 0x00001000,
+        TabWidget        = 0x00002000,
+        ToolButton       = 0x00004000
+    };
+    Q_DECLARE_FLAGS(ControlTypes, ControlType)
 
     QSizePolicy() : data(0) { }
 
+    // Qt 5: merge these two constructors (with type == DefaultType)
     QSizePolicy(Policy horizontal, Policy vertical)
-        : data(horizontal | (vertical<<HSize)) { }
+        : data(horizontal | (vertical << HSize)) { }
+    QSizePolicy(Policy horizontal, Policy vertical, ControlType type)
+        : data(horizontal | (vertical << HSize)) { setControlType(type); }
 
     Policy horizontalPolicy() const { return static_cast<Policy>(data & HMask); }
     Policy verticalPolicy() const { return static_cast<Policy>((data & VMask) >> HSize); }
+    ControlType controlType() const;
 
     void setHorizontalPolicy(Policy d) { data = (data & ~HMask) | d; }
     void setVerticalPolicy(Policy d) { data = (data & ~(HMask << HSize)) | (d << HSize); }
+    void setControlType(ControlType type);
 
     Qt::Orientations expandingDirections() const {
         Qt::Orientations result;
@@ -139,6 +170,8 @@ private:
 
     quint32 data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QSizePolicy::ControlTypes)
 
 // implemented in qlayout.cpp
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QSizePolicy &);

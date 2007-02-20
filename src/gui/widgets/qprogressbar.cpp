@@ -26,9 +26,12 @@
 class QProgressBarPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QProgressBar)
+
 public:
     QProgressBarPrivate();
+
     void init();
+    inline void resetLayoutItemMargins();
 
     int minimum;
     int maximum;
@@ -59,6 +62,15 @@ void QProgressBarPrivate::init()
         sp.transpose();
     q->setSizePolicy(sp);
     q->setAttribute(Qt::WA_WState_OwnSizePolicy, false);
+    resetLayoutItemMargins();
+}
+
+void QProgressBarPrivate::resetLayoutItemMargins()
+{
+    Q_Q(QProgressBar);
+    QStyleOptionProgressBar option;
+    q->initStyleOption(&option);
+    setLayoutItemMargins(QStyle::SE_ProgressBarLayoutItem, &option);
 }
 
 /*!
@@ -77,6 +89,8 @@ void QProgressBar::initStyleOption(QStyleOptionProgressBar *option) const
     Q_D(const QProgressBar);
     option->initFrom(this);
 
+    if (d->orientation == Qt::Horizontal)
+        option->state |= QStyle::State_Horizontal;
     option->minimum = d->minimum;
     option->maximum = d->maximum;
     option->progress = d->value;
@@ -86,7 +100,7 @@ void QProgressBar::initStyleOption(QStyleOptionProgressBar *option) const
 
     if (QStyleOptionProgressBarV2 *optionV2
             = qstyleoption_cast<QStyleOptionProgressBarV2 *>(option)) {
-        optionV2->orientation = d->orientation;
+        optionV2->orientation = d->orientation;  // ### Qt 5: use State_Horizontal instead
         optionV2->invertedAppearance = d->invertedAppearance;
         optionV2->bottomToTop = (d->textDirection == QProgressBar::BottomToTop);
     }
@@ -448,6 +462,7 @@ void QProgressBar::setOrientation(Qt::Orientation orientation)
         setSizePolicy(sp);
         setAttribute(Qt::WA_WState_OwnSizePolicy, false);
     }
+    d->resetLayoutItemMargins();
     update();
     updateGeometry();
 }
@@ -509,6 +524,13 @@ QProgressBar::Direction QProgressBar::textDirection()
 /*! \reimp */
 bool QProgressBar::event(QEvent *e)
 {
+    Q_D(QProgressBar);
+    if (e->type() == QEvent::StyleChange
+#ifdef Q_WS_MAC
+            || e->type() == QEvent::MacSizeChange
+#endif
+            )
+        d->resetLayoutItemMargins();
     return QWidget::event(e);
 }
 

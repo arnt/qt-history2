@@ -1,20 +1,21 @@
 /****************************************************************************
- **
- ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
- **
- ** This file is part of the $MODULE$ of the Qt Toolkit.
- **
- ** $TROLLTECH_DUAL_LICENSE$
- **
- ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
- ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
- **
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
 ****************************************************************************/
 
 #include "qstyleoption.h"
 #include "qapplication.h"
 #ifdef Q_WS_MAC
 # include "private/qt_mac_p.h"
+# include "qmacstyle_mac.h"
 #endif
 #ifndef QT_NO_DEBUG
 #include <qdebug.h>
@@ -179,10 +180,23 @@ void QStyleOption::init(const QWidget *widget)
         state |= QStyle::State_MouseOver;
     if (window->isActiveWindow())
         state |= QStyle::State_Active;
+    if (widget->isWindow())
+        state |= QStyle::State_Window;
 #ifdef Q_WS_MAC
     extern bool qt_mac_can_clickThrough(const QWidget *w); //qwidget_mac.cpp
     if (!(state & QStyle::State_Active) && !qt_mac_can_clickThrough(widget))
         state &= ~QStyle::State_Enabled;
+
+    switch (QMacStyle::widgetSizePolicy(widget)) {
+    case QMacStyle::SizeSmall:
+        state |= QStyle::State_Small;
+        break;
+    case QMacStyle::SizeMini:
+        state |= QStyle::State_Mini;
+        break;
+    default:
+        ;
+    }
 #endif
 #ifdef QT_KEYPAD_NAVIGATION
     if (widget->hasEditFocus())
@@ -1121,7 +1135,7 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 
     This enum describles the different types of features a push button can have.
 
-    \value None	Indicates a normal push button.
+    \value None Indicates a normal push button.
     \value Flat Indicates a flat push button.
     \value HasMenu Indicates that the button has a drop down menu.
     \value DefaultButton Indicates that the button is a default button.

@@ -45,6 +45,10 @@ public:
                                   QValidator::State &state) const;
     bool isIntermediateValue(const QString &str) const;
     QChar thousand;
+
+    inline void init() {
+        setLayoutItemMargins(QStyle::SE_SpinBoxLayoutItem);
+    }
 };
 
 class QDoubleSpinBoxPrivate : public QAbstractSpinBoxPrivate
@@ -167,6 +171,8 @@ public:
 QSpinBox::QSpinBox(QWidget *parent)
     : QAbstractSpinBox(*new QSpinBoxPrivate, parent)
 {
+    Q_D(QSpinBox);
+    d->init();
 }
 
 #ifdef QT3_SUPPORT
@@ -177,7 +183,9 @@ QSpinBox::QSpinBox(QWidget *parent)
 QSpinBox::QSpinBox(QWidget *parent, const char *name)
     : QAbstractSpinBox(*new QSpinBoxPrivate, parent)
 {
+    Q_D(QSpinBox);
     setObjectName(QString::fromAscii(name));
+    d->init();
 }
 
 /*!
@@ -192,6 +200,7 @@ QSpinBox::QSpinBox(int minimum, int maximum, int step, QWidget *parent, const ch
     d->maximum = QVariant(qMax<int>(minimum, maximum));
     d->singleStep = QVariant(step);
     setObjectName(QString::fromAscii(name));
+    d->init();
 }
 
 #endif
@@ -1506,6 +1515,13 @@ static bool isIntermediateValueHelper(qint64 num, qint64 min, qint64 max, qint64
 /*! \reimp */
 bool QSpinBox::event(QEvent *event)
 {
+    Q_D(QSpinBox);
+    if (event->type() == QEvent::StyleChange
+#ifdef Q_WS_MAC
+            || event->type() == QEvent::MacSizeChange
+#endif
+            )
+        d->setLayoutItemMargins(QStyle::SE_SpinBoxLayoutItem);
     return QAbstractSpinBox::event(event);
 }
 

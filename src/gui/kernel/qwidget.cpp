@@ -77,6 +77,8 @@ QWidgetPrivate::QWidgetPrivate(int version) :
         QObjectPrivate(version), extra(0), focus_child(0)
         ,layout(0)
         ,leftmargin(0), topmargin(0), rightmargin(0), bottommargin(0)
+        ,leftLayoutItemMargin(0), topLayoutItemMargin(0), rightLayoutItemMargin(0)
+        ,bottomLayoutItemMargin(0)
         ,fg_role(QPalette::NoRole)
         ,bg_role(QPalette::NoRole)
         ,hd(0)
@@ -1379,13 +1381,11 @@ void QWidgetPrivate::propagatePaletteChange()
     Q_Q(QWidget);
     QEvent pc(QEvent::PaletteChange);
     QApplication::sendEvent(q, &pc);
-    if(!children.isEmpty()) {
-        for(int i = 0; i < children.size(); ++i) {
-            QWidget *w = qobject_cast<QWidget*>(children.at(i));
-            if (w && (!w->isWindow()
-                      || w->testAttribute(Qt::WA_WindowPropagation)))
-                w->d_func()->resolvePalette();
-        }
+    for (int i = 0; i < children.size(); ++i) {
+        QWidget *w = qobject_cast<QWidget*>(children.at(i));
+        if (w && (!w->isWindow()
+                  || w->testAttribute(Qt::WA_WindowPropagation)))
+            w->d_func()->resolvePalette();
     }
 #if defined(QT3_SUPPORT)
     q->paletteChange(q->palette()); // compatibility
@@ -4602,6 +4602,14 @@ int QWidgetPrivate::pointToRect(const QPoint &p, const QRect &r)
     return dx + dy;
 }
 
+QRect QWidgetPrivate::fromOrToLayoutItemRect(const QRect &rect, int sign) const
+{
+    QRect r = rect;
+    r.adjust(-sign * leftLayoutItemMargin, -sign * topLayoutItemMargin, 
+             +sign * rightLayoutItemMargin, +sign * bottomLayoutItemMargin);
+    return r;
+}
+
 /*!
     \property QWidget::frameSize
     \brief the size of the widget including any window frame
@@ -5604,7 +5612,7 @@ void QWidget::adjustSize()
         if (exp & Qt::Horizontal)
             s.setWidth(qMax(s.width(), 200));
         if (exp & Qt::Vertical)
-            s.setHeight(qMax(s.height(), 150));
+            s.setHeight(qMax(s.height(), 100));
 #if defined(Q_WS_X11)
         QRect screen = QApplication::desktop()->screenGeometry(x11Info().screen());
 #else // all others
@@ -5998,6 +6006,7 @@ bool QWidget::event(QEvent *event)
     case QEvent::ParentChange:
     case QEvent::WindowStateChange:
     case QEvent::LocaleChange:
+    case QEvent::MacSizeChange:
         changeEvent(event);
         break;
 
@@ -6189,6 +6198,12 @@ void QWidget::changeEvent(QEvent * event)
     case QEvent::PaletteChange:
         update();
         break;
+
+#ifdef Q_WS_MAC
+    case QEvent::MacSizeChange:
+        updateGeometry();
+        break;
+#endif
 
     default:
         break;
@@ -7559,8 +7574,8 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
     case Qt::WA_NoChildEventsFromChildren:
         d->receiveChildEvents = !on;
         break;
+    case Qt::WA_MacBrushedMetal:
 #ifdef Q_WS_MAC
-    case Qt::WA_MacMetalStyle:
         d->setStyle_helper(style(), false, true);  // Make sure things get unpolished/polished correctly.
         // fall through since changing the metal attribute affects the opaque size grip.
     case Qt::WA_MacOpaqueSizeGrip:
@@ -7574,6 +7589,13 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         }
         break;
 #endif
+    case Qt::WA_MacNormalSize:
+    case Qt::WA_MacSmallSize:
+    case Qt::WA_MacMiniSize:
+#ifdef Q_WS_MAC
+        d->macSizeChange();
+#endif
+        break;
     case Qt::WA_ShowModal:
         if (!on) {
             if (isVisible())
@@ -8576,6 +8598,57 @@ QWidgetData *qt_qwidget_data(QWidget *widget)
     return widget->data;
 }
 
+void QWidgetPrivate::getLayoutItemMargins(int *left, int *top, int *right, int *bottom) const
+{
+    if (left) 
+        *left = (int)leftLayoutItemMargin;
+    if (top) 
+        *top = (int)topLayoutItemMargin;
+    if (right) 
+        *right = (int)rightLayoutItemMargin;
+    if (bottom) 
+        *bottom = (int)bottomLayoutItemMargin;
+}
+
+void QWidgetPrivate::setLayoutItemMargins(int left, int top, int right, int bottom)
+{
+    if (leftLayoutItemMargin == left
+		    && topLayoutItemMargin == top
+			&& rightLayoutItemMargin == right
+			&& bottomLayoutItemMargin == bottom)
+		return;
+
+	Q_Q(QWidget);
+    leftLayoutItemMargin = (signed char)left;
+    topLayoutItemMargin = (signed char)top;
+    rightLayoutItemMargin = (signed char)right;
+    bottomLayoutItemMargin = (signed char)bottom;
+	q->updateGeometry();
+}
+
+void QWidgetPrivate::setLayoutItemMargins(QStyle::SubElement element, const QStyleOption *opt)
+{
+    Q_Q(QWidget);
+    QStyleOption myOpt;
+    if (!opt) {
+        myOpt.initFrom(q);
+        myOpt.rect.setRect(0, 0, 32768, 32768);     // arbitrary
+        opt = &myOpt;
+    }
+
+    QRect liRect = q->style()->subElementRect(element, opt, q);
+    if (liRect.isValid()) {
+        leftLayoutItemMargin = (signed char)(opt->rect.left() - liRect.left());
+        topLayoutItemMargin = (signed char)(opt->rect.top() - liRect.top());
+        rightLayoutItemMargin = (signed char)(liRect.right() - opt->rect.right());
+        bottomLayoutItemMargin = (signed char)(liRect.bottom() - opt->rect.bottom());
+    } else {
+        leftLayoutItemMargin = 0;
+        topLayoutItemMargin = 0;
+        rightLayoutItemMargin = 0;
+        bottomLayoutItemMargin = 0;
+    }
+}
 
 /*!
     \typedef QWidgetList

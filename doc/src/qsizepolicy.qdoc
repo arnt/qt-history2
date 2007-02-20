@@ -121,13 +121,27 @@
     \fn QSizePolicy::QSizePolicy(Policy horizontal, Policy vertical)
 
     Constructs a QSizePolicy object with the given \a horizontal and
-    \a vertical policies.
+    \a vertical policies, and DefaultType as the control type.
 
     Use setHeightForWidth() if the preferred height of the widget is
     dependent on the width of the widget (for example, a QLabel with
     line wrapping).
 
     \sa setHorizontalStretch(), setVerticalStretch()
+*/
+
+/*!
+    \fn QSizePolicy::QSizePolicy(Policy horizontal, Policy vertical, ControlType type)
+    \since 4.3
+
+    Constructs a QSizePolicy object with the given \a horizontal and
+    \a vertical policies, and the specified control \a type.
+
+    Use setHeightForWidth() if the preferred height of the widget is
+    dependent on the width of the widget (for example, a QLabel with
+    line wrapping).
+
+    \sa setHorizontalStretch(), setVerticalStretch(), controlType()
 */
 
 /*!
@@ -175,6 +189,31 @@
     dimensions.
 
     \sa horizontalPolicy(), verticalPolicy()
+*/
+
+/*!
+    \fn ControlType QSizePolicy::controlType() const
+    \since 4.3
+
+    Returns the control type associated with the widget for which
+    this size policy applies.
+*/
+
+/*!
+    \fn void QSizePolicy::setControlType(ControlType type)
+    \since 4.3
+
+    Sets the control type associated with the widget for which this
+    size policy applies to \a type.
+
+    The control type specifies the type of the widget for which this
+    size policy applies. It is used by some styles, notably
+    QMacStyle, to insert proper spacing between widgets. For example,
+    the Mac OS X Aqua guidelines specify that push buttons should be
+    separated by 12 pixels, whereas vertically stacked radio buttons
+    only require 6 pixels.
+
+    \sa QStyle::layoutSpacing()
 */
 
 /*!
@@ -251,6 +290,32 @@
     \fn void QSizePolicy::transpose()
 
     Swaps the horizontal and vertical policies and stretches.
+*/
+
+/*!
+    \enum QSizePolicy::ControlType
+    \since 4.3
+
+    This enum specifies the different types of widgets in terms of
+    layout interaction:
+
+    \value DefaultType  The default type, when none is specified.
+    \value ButtonBox  A QDialogButtonBox instance.
+    \value CheckBox  A QCheckBox instance.
+    \value ComboBox  A QComboBox instance.
+    \value Frame  A QFrame instance.
+    \value GroupBox  A QGroupBox instance.
+    \value Label  A QLabel instance.
+    \value Line  A QFrame instance with QFrame::HLine or QFrame::VLine.
+    \value LineEdit  A QLineEdit instance.
+    \value PushButton  A QPushButton instance.
+    \value RadioButton  A QRadioButton instance.
+    \value Slider  A QAbstractSlider instance.
+    \value SpinBox  A QAbstractSpinBox instance.
+    \value TabWidget  A QTabWidget instance.
+    \value ToolButton  A QToolButton instance.
+
+    \sa setControlType(), controlType()
 */
 
 #ifdef QT3_SUPPORT

@@ -191,10 +191,11 @@ private:
 
         // Write out the layout margin and spacing properties applying the defaults.
         void writeProperties(const QString &indent, const QString &varName,
-                             const DomPropertyMap &pm, bool suppressMarginDefault, QTextStream &str) const;
+                             const DomPropertyMap &pm, int marginType,
+                             bool suppressMarginDefault, QTextStream &str) const;
     private:
         void writeProperty(int p, const QString &indent, const QString &objectName, const DomPropertyMap &pm,
-                           const QString &propertyName, const QString &setter,
+                           const QString &propertyName, const QString &setter, int defaultStyleValue,
                            bool suppressDefault, QTextStream &str) const;
 
         enum Properties { Margin, Spacing, NumProperties };
@@ -206,6 +207,14 @@ private:
 
     // layout defaults
     LayoutDefaultHandler m_LayoutDefaultHandler;
+    enum {
+        Use43UiFile = 0,
+        TopLevelMargin,
+        ChildMargin,
+        SubLayoutMargin
+    };
+    int m_layoutMarginType;
+    int ui_version;
 
     QString m_generatedClass;
 

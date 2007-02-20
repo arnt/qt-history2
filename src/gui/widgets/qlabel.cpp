@@ -262,10 +262,13 @@ void QLabelPrivate::init()
     control = 0;
     textInteractionFlags = Qt::LinksAccessibleByMouse;
 
-    q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred, 
+                                 QSizePolicy::Label));
 
     hasCustomCursor = false;
     openExternalLinks = false;
+
+    setLayoutItemMargins(QStyle::SE_LabelLayoutItem);
 }
 
 
@@ -894,7 +897,12 @@ bool QLabel::event(QEvent *e)
 #endif
     if (type == QEvent::Resize && d->doc) {
         d->textLayoutDirty = true;
-    } else if (e->type() == QEvent::StyleChange) {
+    } else if (e->type() == QEvent::StyleChange
+#ifdef Q_WS_MAC
+               || e->type() == QEvent::MacSizeChange
+#endif
+               ) {
+        d->setLayoutItemMargins(QStyle::SE_LabelLayoutItem);
         d->updateLabel();
     }
 
@@ -1026,7 +1034,7 @@ void QLabelPrivate::updateLabel()
         QSizePolicy policy = q->sizePolicy();
         const bool wrap = align & Qt::TextWordWrap;
         policy.setHeightForWidth(wrap);
-        if (policy != q->sizePolicy())
+        if (policy != q->sizePolicy())  // ### should be replaced by WA_WState_OwnSizePolicy idiom
             q->setSizePolicy(policy);
         textLayoutDirty = true;
     }

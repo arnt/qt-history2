@@ -34,6 +34,11 @@ QFramePrivate::QFramePrivate()
 {
 }
 
+inline void QFramePrivate::init()
+{
+    setLayoutItemMargins(QStyle::SE_FrameLayoutItem);
+}
+
 /*!
     \class QFrame
     \brief The QFrame class is the base class of widgets that can have a frame.
@@ -180,12 +185,16 @@ QFramePrivate::QFramePrivate()
 QFrame::QFrame(QWidget* parent, Qt::WindowFlags f)
     : QWidget(*new QFramePrivate, parent, f)
 {
+    Q_D(QFrame);
+    d->init();
 }
 
 /*! \internal */
 QFrame::QFrame(QFramePrivate &dd, QWidget* parent, Qt::WindowFlags f)
     : QWidget(dd, parent, f)
 {
+    Q_D(QFrame);
+    d->init();
 }
 
 #ifdef QT3_SUPPORT
@@ -196,7 +205,9 @@ QFrame::QFrame(QFramePrivate &dd, QWidget* parent, Qt::WindowFlags f)
 QFrame::QFrame(QWidget *parent, const char *name, Qt::WindowFlags f)
     : QWidget(*new QFramePrivate, parent, f)
 {
+    Q_D(QFrame);
     setObjectName(QString::fromAscii(name));
+    d->init();
 }
 #endif
 
@@ -280,17 +291,19 @@ void QFrame::setFrameStyle(int style)
 {
     Q_D(QFrame);
     if (!testAttribute(Qt::WA_WState_OwnSizePolicy)) {
+        QSizePolicy sp;
+
         switch (style & Shape_Mask) {
         case HLine:
-            setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+            sp = QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::Line);
             break;
         case VLine:
-            setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+            sp = QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum, QSizePolicy::Line);
             break;
         default:
-            if ((d->frameStyle & Shape_Mask) == HLine || (d->frameStyle & Shape_Mask) == VLine)
-                setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+            sp = QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred, QSizePolicy::Frame);
         }
+        setSizePolicy(sp);
         setAttribute(Qt::WA_WState_OwnSizePolicy, false);
     }
     d->frameStyle = (short)style;
@@ -411,7 +424,6 @@ void QFramePrivate::updateFrameWidth()
         frameWidth = 2;
         break;
 
-
     case QFrame::Panel:
         switch (frameShadow) {
         case QFrame::Plain:
@@ -427,8 +439,9 @@ void QFramePrivate::updateFrameWidth()
         frameWidth = 0;
 
     q->setFrameRect(fr);
-}
 
+    setLayoutItemMargins(QStyle::SE_FrameLayoutItem);
+}
 
 /*!
     \property QFrame::frameWidth
@@ -602,7 +615,11 @@ void QFrame::drawFrame(QPainter *p)
 void QFrame::changeEvent(QEvent *ev)
 {
     Q_D(QFrame);
-    if(ev->type() == QEvent::StyleChange)
+    if (ev->type() == QEvent::StyleChange
+#ifdef Q_WS_MAC
+            || ev->type() == QEvent::MacSizeChange
+#endif
+            )
         d->updateFrameWidth();
     QWidget::changeEvent(ev);
 }

@@ -19,7 +19,7 @@
 static const int windowsItemFrame        =  2; // menu item frame width
 static const int windowsItemHMargin      =  3; // menu item hor text margin
 static const int windowsItemVMargin      =  4; // menu item ver text margin
-static const int windowsArrowHMargin	 =  6; // arrow horizontal margin
+static const int windowsArrowHMargin     =  6; // arrow horizontal margin
 static const int windowsRightBorder      = 15; // right border on windows
 
 // Runtime resolved theme engine function calls
@@ -1735,7 +1735,7 @@ QRect QWindowsVistaStyle::subControlRect(ComplexControl control, const QStyleOpt
                         iconSize = QSize(controlHeight, controlHeight);
                     int hPad = (controlHeight - iconSize.height())/2;
                     int vPad = (controlHeight - iconSize.width())/2;
-		            rect = QRect(frameWidth + hPad, controlTop + vPad, iconSize.width(), iconSize.height());
+                    rect = QRect(frameWidth + hPad, controlTop + vPad, iconSize.width(), iconSize.height());
                     rect.translate(0, 3);
                     rect = visualRect(option->direction, option->rect, rect);
                 }

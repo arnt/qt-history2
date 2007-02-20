@@ -131,7 +131,7 @@
     \sa QButtonGroup
 */
 
-QAbstractButtonPrivate::QAbstractButtonPrivate()
+QAbstractButtonPrivate::QAbstractButtonPrivate(QSizePolicy::ControlType type)
     :
 #ifndef QT_NO_SHORTCUT
     shortcutId(0),
@@ -142,7 +142,8 @@ QAbstractButtonPrivate::QAbstractButtonPrivate()
     group(0),
 #endif
     autoRepeatDelay(AUTO_REPEAT_DELAY),
-    autoRepeatInterval(AUTO_REPEAT_INTERVAL)
+    autoRepeatInterval(AUTO_REPEAT_INTERVAL),
+    controlType(type)
 {}
 
 #ifndef QT_NO_BUTTONGROUP
@@ -450,7 +451,7 @@ void QAbstractButtonPrivate::init()
     Q_Q(QAbstractButton);
 
     q->setFocusPolicy(Qt::FocusPolicy(q->style()->styleHint(QStyle::SH_Button_FocusPolicy)));
-    q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed, controlType));
     q->setForegroundRole(QPalette::ButtonText);
     q->setBackgroundRole(QPalette::Button);
 }
@@ -542,7 +543,7 @@ void QAbstractButtonPrivate::emitReleased()
     Constructs an abstract button with a \a parent.
 */
 QAbstractButton::QAbstractButton(QWidget *parent)
-    :QWidget(*new QAbstractButtonPrivate, parent, 0)
+    : QWidget(*new QAbstractButtonPrivate, parent, 0)
 {
     Q_D(QAbstractButton);
     d->init();

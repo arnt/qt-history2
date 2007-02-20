@@ -236,7 +236,7 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     label->setOpenExternalLinks(true);
 #if defined(Q_WS_MAC)
-    label->setContentsMargins(16, 0, 0, 10);
+    label->setContentsMargins(16, 0, 0, 8);
 #elif !defined(Q_WS_QWS)
     label->setContentsMargins(2, 0, 0, 0);
     label->setIndent(9);
@@ -261,12 +261,13 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
 #else
     grid->setMargin(0);
     grid->setSpacing(0);
-    buttonBox->layout()->setMargin(0);
-    q->setContentsMargins(24, 15, 18, 12);
+    q->setContentsMargins(24, 15, 24, 20);
     grid->addWidget(iconLabel, 0, 0, 2, 1, Qt::AlignTop | Qt::AlignLeft);
     grid->addWidget(label, 0, 1, 1, 1);
     // -- leave space for information label --
-    grid->addWidget(buttonBox, 2, 1, 1, 1);
+    grid->setRowStretch(1, 100);
+    grid->setRowMinimumHeight(2, 10);
+    grid->addWidget(buttonBox, 3, 1, 1, 1);
 #endif
 
     grid->setSizeConstraint(QLayout::SetNoConstraint);
@@ -1068,7 +1069,6 @@ void QMessageBox::setIconPixmap(const QPixmap &pixmap)
 {
     Q_D(QMessageBox);
     d->iconLabel->setPixmap(pixmap);
-    d->iconLabel->setFixedSize(d->iconLabel->sizeHint());
     d->updateSize();
     d->icon = NoIcon;
 }
@@ -2147,7 +2147,7 @@ void QMessageBox::setInformativeText(const QString &text)
         QLabel *label = new QLabel;
         label->setObjectName(QLatin1String("qt_msgbox_informativelabel"));
         label->setTextInteractionFlags(Qt::TextInteractionFlags(style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags, 0, this)));
-        label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+        label->setAlignment(Qt::AlignTop | Qt::AlignLeft);
         label->setOpenExternalLinks(true);
         label->setWordWrap(true);
 #ifndef Q_WS_MAC
@@ -2155,7 +2155,7 @@ void QMessageBox::setInformativeText(const QString &text)
         label->setContentsMargins(2, 0, 0, 6);
         label->setIndent(9);
 #else
-        label->setContentsMargins(16, 0, 0, 10);
+        label->setContentsMargins(16, 0, 0, 0);
         // apply a smaller font the information label on the mac
         extern QHash<QByteArray, QFont> *qt_app_fonts_hash();
         label->setFont(qt_app_fonts_hash()->value("QTipLabel"));

@@ -1494,7 +1494,7 @@ void QAbstractSpinBoxPrivate::init()
 
     spinClickThresholdTimerInterval = thresholdTime;
     q->setFocusPolicy(Qt::WheelFocus);
-    q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::SpinBox));
     q->setAttribute(Qt::WA_InputMethodEnabled);
 
     q->setLineEdit(new QLineEdit(q));

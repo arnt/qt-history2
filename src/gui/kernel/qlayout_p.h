@@ -26,24 +26,30 @@
 //
 
 #include "private/qobject_p.h"
+#include "qstyle.h"
 
 class Q_GUI_EXPORT QLayoutPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QLayout)
+
 public:
     QLayoutPrivate();
 
+    void getMargin(int *result, int userMargin, QStyle::PixelMetric pm) const;
     void doResize(const QSize &);
-
     void reparentChildWidgets(QWidget *mw);
 
     int insideSpacing;
-    int outsideBorder;
+    int leftMargin;
+    int topMargin;
+    int rightMargin;
+    int bottomMargin;
     uint topLevel : 1;
     uint enabled : 1;
     uint activated : 1;
     uint autoNewChild : 1;
     QLayout::SizeConstraint constraint;
+    QLayout::ItemRectPolicy itemRectPolicy;
     QRect rect;
     QWidget *menubar;
 };

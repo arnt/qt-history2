@@ -255,7 +255,7 @@ void WriteInitialization::LayoutDefaultHandler::acceptLayoutFunction(DomLayoutFu
 
 void WriteInitialization::LayoutDefaultHandler::writeProperty(int p, const QString &indent, const QString &objectName,
                                                               const DomPropertyMap &properties, const QString &propertyName, const QString &setter,
-                                                              bool suppressDefault, QTextStream &str) const
+                                                              int defaultStyleValue, bool suppressDefault, QTextStream &str) const
 {
     // User value
     const DomPropertyMap::const_iterator mit = properties.constFind(propertyName);
@@ -266,7 +266,13 @@ void WriteInitialization::LayoutDefaultHandler::writeProperty(int p, const QStri
         // the default value, layout properties were always written
         const bool useLayoutFunctionPre43 = !suppressDefault && (m_state[p] == (HasDefaultFunction|HasDefaultValue)) && value == m_defaultValues[p];
         if (!useLayoutFunctionPre43) {
+            bool ifndefMac = (!(m_state[p] & (HasDefaultFunction|HasDefaultValue)) 
+                             && value == defaultStyleValue);
+            if (ifndefMac)
+                str << "#ifndef Q_OS_MAC\n";
             writeSetter(indent, objectName, setter, value, str);
+            if (ifndefMac)
+                str << "#endif\n";
             return;
         }
     }
@@ -285,22 +291,25 @@ void WriteInitialization::LayoutDefaultHandler::writeProperty(int p, const QStri
 
 
 void WriteInitialization::LayoutDefaultHandler::writeProperties(const QString &indent, const QString &varName,
-                                                                const DomPropertyMap &properties,
+                                                                const DomPropertyMap &properties, int marginType,
                                                                 bool suppressMarginDefault,
-                                                                QTextStream &str) const
-{
+                                                                QTextStream &str) const {
     // Write out properties and ignore the ones found in
     // subsequent writing of the property list.
+    int defaultSpacing = marginType == WriteInitialization::Use43UiFile ? -1 : 6;
     writeProperty(Spacing, indent, varName, properties, QLatin1String("spacing"), QLatin1String("setSpacing"),
-                  false, str);
+                  defaultSpacing, false, str);
+    // We use 9 as TopLevelMargin, since Designer seem to always use 9.
+    static const int layoutmargins[4] = {-1, 9, 9, 0};
     writeProperty(Margin,  indent, varName, properties, QLatin1String("margin"),  QLatin1String("setMargin"),
-                  suppressMarginDefault, str);
+                  layoutmargins[marginType], suppressMarginDefault, str);
 }
 
 // ---  WriteInitialization
 WriteInitialization::WriteInitialization(Uic *uic, bool activateScripts) :
       m_uic(uic),
       m_driver(uic->driver()), m_output(uic->output()), m_option(uic->option()),
+      m_layoutMarginType(TopLevelMargin),
       m_delayedOut(&m_delayedInitialization, QIODevice::WriteOnly),
       m_refreshOut(&m_refreshInitialization, QIODevice::WriteOnly),
       m_actionOut(&m_delayedActionInitialization, QIODevice::WriteOnly),
@@ -314,6 +323,15 @@ void WriteInitialization::acceptUI(DomUI *node)
     m_actionGroupChain.push(0);
     m_widgetChain.push(0);
     m_layoutChain.push(0);
+
+    QStringList majorminor = node->attributeVersion().split(QLatin1Char('.'));
+    // Convert the version to an int using the QT_VERSION convention (e.g. "4.1" -> 0x040100)
+    int vers = 0;
+    for (int i = 0; i < 2; ++i) {
+        vers |= majorminor.value(i).toInt();
+        vers <<= 8;
+    }
+    ui_version = vers;
 
     acceptLayoutDefault(node->elementLayoutDefault());
     acceptLayoutFunction(node->elementLayoutFunction());
@@ -410,6 +428,7 @@ void WriteInitialization::acceptUI(DomUI *node)
 
 void WriteInitialization::acceptWidget(DomWidget *node)
 {
+    m_layoutMarginType = m_widgetChain.count() == 1 ? TopLevelMargin : ChildMargin;
     const QString className = node->attributeClass();
     const QString varName = m_driver->findOrInsertWidget(node);
     m_registeredWidgets.insert(varName, node); // register the current widget
@@ -589,6 +608,7 @@ void WriteInitialization::acceptWidget(DomWidget *node)
         m_layoutChain.pop();
 }
 
+
 void WriteInitialization::acceptLayout(DomLayout *node)
 {
     const QString className = node->attributeClass();
@@ -607,10 +627,16 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
             isGroupBox = true;
             // special case for group box
+
             m_output << m_option.indent << parent << "->setColumnLayout(0, Qt::Vertical);\n";
             QString objectName = parent;
             objectName += "->layout()";
-            m_LayoutDefaultHandler.writeProperties(m_option.indent, objectName, properties, false, m_output);
+            int marginType = Use43UiFile;
+            if (ui_version <= 0x040000)
+                marginType = m_layoutMarginType;
+
+            m_LayoutDefaultHandler.writeProperties(m_option.indent, 
+                                    objectName, properties, marginType, false, m_output);
         }
     }
 
@@ -629,8 +655,13 @@ void WriteInitialization::acceptLayout(DomLayout *node)
     }  else {
         // Suppress margin on a read child layout
         const bool suppressMarginDefault = m_layoutChain.top();
-        m_LayoutDefaultHandler.writeProperties(m_option.indent, varName, properties, suppressMarginDefault, m_output);
+        int marginType = Use43UiFile;
+        if (ui_version <= 0x040000)
+            marginType = m_layoutMarginType;
+        m_LayoutDefaultHandler.writeProperties(m_option.indent, varName, properties, marginType, suppressMarginDefault, m_output);
     }
+
+    m_layoutMarginType = SubLayoutMargin;
 
     writeProperties(varName, className, node->elementProperty(), WritePropertyIgnoreMargin|WritePropertyIgnoreSpacing);
 

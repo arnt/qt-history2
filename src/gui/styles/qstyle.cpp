@@ -29,6 +29,27 @@
 
 #include <limits.h>
 
+static const int MaxBits = 8 * sizeof(QSizePolicy::ControlType);
+
+static int unpackControlTypes(QSizePolicy::ControlTypes controls, QSizePolicy::ControlType *array)
+{
+    if (!controls)
+        return 0;
+
+    // optimization: exactly one bit is set
+    if ((controls & (controls - 1)) == 0) {
+        array[0] = QSizePolicy::ControlType(uint(controls));
+        return 1;
+    }
+
+    int count = 0;
+    for (int i = 0; i < MaxBits; ++i) {
+        if (uint bit = (controls & (0x1 << i)))
+            array[count++] = QSizePolicy::ControlType(bit);
+    }
+    return count;
+}
+
 /*!
     \class QStyle
     \brief The QStyle class is an abstract base class that encapsulates the look and feel of a GUI.
@@ -566,11 +587,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     Note that not all primitives use all of these flags, and that the
     flags may mean different things to different items.
 
+    \value State_None
     \value State_Active
     \value State_AutoRaise
     \value State_Bottom
     \value State_Children
-    \value State_None
     \value State_DownArrow
     \value State_Editing
     \value State_Enabled
@@ -579,19 +600,21 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value State_HasFocus
     \value State_Horizontal
     \value State_Item
+    \value State_KeyboardFocusChange
+    \value State_Mini
     \value State_MouseOver
     \value State_NoChange
     \value State_Off
     \value State_On
     \value State_Open
     \value State_Raised
+    \value State_ReadOnly
     \value State_Selected
     \value State_Sibling
+    \value State_Small
     \value State_Sunken
     \value State_Top
     \value State_UpArrow
-    \value State_KeyboardFocusChange
-    \value State_ReadOnly
     \omitvalue State_Default
 
     \sa drawPrimitive()
@@ -826,20 +849,28 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         with text or pixmap).
     \value SE_PushButtonFocusRect  Area for the focus rect (usually
         larger than the contents rect).
+    \value SE_PushButtonLayoutItem  Area that counts for the parent layout.
 
     \value SE_CheckBoxIndicator  Area for the state indicator (e.g., check mark).
     \value SE_CheckBoxContents  Area for the label (text or pixmap).
     \value SE_CheckBoxFocusRect  Area for the focus indicator.
     \value SE_CheckBoxClickRect  Clickable area, defaults to SE_CheckBoxFocusRect.
+    \value SE_CheckBoxLayoutItem  Area that counts for the parent layout.
+
+    \value SE_DateTimeEditLayoutItem  Area that counts for the parent layout.
 
     \value SE_RadioButtonIndicator  Area for the state indicator.
     \value SE_RadioButtonContents  Area for the label.
     \value SE_RadioButtonFocusRect  Area for the focus indicator.
     \value SE_RadioButtonClickRect  Clickable area, defaults to SE_RadioButtonFocusRect.
+    \value SE_RadioButtonLayoutItem  Area that counts for the parent layout.
 
     \value SE_ComboBoxFocusRect  Area for the focus indicator.
 
     \value SE_SliderFocusRect  Area for the focus indicator.
+    \value SE_SliderLayoutItem  Area that counts for the parent layout.
+
+    \value SE_SpinBoxLayoutItem  Area that counts for the parent layout.
 
     \value SE_Q3DockWindowHandleRect  Area for the tear-off handle.
 
@@ -847,20 +878,23 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SE_ProgressBarContents  Area for the progress indicator.
     \value SE_ProgressBarLabel  Area for the text label.
 
-    \value SE_DialogButtonAccept  Area for a dialog's accept button.
-    \value SE_DialogButtonReject  Area for a dialog's reject button.
-    \value SE_DialogButtonApply  Area for a dialog's apply button.
-    \value SE_DialogButtonHelp  Area for a dialog's help button.
-    \value SE_DialogButtonAll  Area for a dialog's all button.
-    \value SE_DialogButtonRetry  Area for a dialog's retry button.
-    \value SE_DialogButtonAbort  Area for a dialog's abort button.
-    \value SE_DialogButtonIgnore  Area for a dialog's ignore button.
-    \value SE_DialogButtonCustom  Area for a dialog's custom widget area (in the button row).
+    \omitvalue SE_DialogButtonAccept
+    \omitvalue SE_DialogButtonReject
+    \omitvalue SE_DialogButtonApply
+    \omitvalue SE_DialogButtonHelp
+    \omitvalue SE_DialogButtonAll
+    \omitvalue SE_DialogButtonRetry
+    \omitvalue SE_DialogButtonAbort
+    \omitvalue SE_DialogButtonIgnore
+    \omitvalue SE_DialogButtonCustom
 
     \value SE_FrameContents  Area for a frame's contents.
+    \value SE_FrameLayoutItem  Area that counts for the parent layout.
 
     \value SE_HeaderArrow Area for the sort indicator for a header.
     \value SE_HeaderLabel Area for the label in a header.
+
+    \value SE_LabelLayoutItem  Area that counts for the parent layout.
 
     \value SE_LineEditContents  Area for a line edit's contents.
 
@@ -869,13 +903,21 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SE_TabWidgetTabBar Area for the tab bar widget in a tab widget.
     \value SE_TabWidgetTabContents Area for the contents of the tab widget.
     \value SE_TabWidgetTabPane Area for the pane of a tab widget.
+    \value SE_TabWidgetLayoutItem  Area that counts for the parent layout.
+
     \value SE_ToolBoxTabContents  Area for a toolbox tab's icon and label.
+
+    \value SE_ToolButtonLayoutItem  Area that counts for the parent layout.
 
     \value SE_ViewItemCheckIndicator Area for a view item's check mark.
 
     \value SE_TabBarTearIndicator Area for the tear indicator on a tab bar with scroll arrows.
 
     \value SE_TreeViewDisclosureItem Area for the actual disclosure item in a tree branch.
+
+    \value SE_DialogButtonBoxLayoutItem  Area that counts for the parent layout.
+
+    \value SE_GroupBoxLayoutItem  Area that counts for the parent layout.
 
     \value SE_CustomBase  Base value for custom sub-elements.
     Custom values must be greater than this value.
@@ -1137,6 +1179,17 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_MDIFrameWidth  Frame width of an MDI window.
     \value PM_MDIMinimizedWidth  Width of a minimized MDI window.
 
+    \value PM_LayoutLeftMargin  Default \l{QLayout::setContentsMargins()}{left margin} for a
+                                QLayout.
+    \value PM_LayoutTopMargin  Default \l{QLayout::setContentsMargins()}{top margin} for a QLayout.
+    \value PM_LayoutRightMargin  Default \l{QLayout::setContentsMargins()}{right margin} for a
+                                 QLayout.
+    \value PM_LayoutBottomMargin  Default \l{QLayout::setContentsMargins()}{bottom margin} for a
+                                  QLayout.
+    \value PM_LayoutHorizontalSpacing  Default \l{QLayout::spacing}{horizontal spacing} for a
+                                       QLayout.
+    \value PM_LayoutVerticalSpacing  Default \l{QLayout::spacing}{vertical spacing} for a QLayout.
+
     \value PM_MaximumDragDistance The maximum allowed distance between
     the mouse and a slider when dragging. Exceeding the specified
     distance will cause the slider to jump back to the original
@@ -1225,10 +1278,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_HeaderMargin The size of the margin between the sort indicator and the text.
     \value PM_SpinBoxSliderHeight The height of the optional spin box slider.
 
-    \value PM_DefaultTopLevelMargin The margin for a QProgressDialog.
-    \value PM_DefaultChildMargin The default margin for children in a layout.
-    \value PM_DefaultLayoutSpacing The spacing between the buttons in a progress dialog.
-
     \value PM_ToolBarIconSize Default tool bar icon size
     \value PM_SmallIconSize Default small icon size
     \value PM_LargeIconSize Default large icon size
@@ -1248,6 +1297,20 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value PM_CustomBase Base value for custom pixel metrics.  Custom
     values must be greater than this value.
+
+    The following values are obsolete:
+
+    \value PM_DefaultTopLevelMargin  Use PM_LayoutLeftMargin,
+                                     PM_LayoutTopMargin,
+                                     PM_LayoutRightMargin, and
+                                     PM_LayoutBottomMargin instead.
+    \value PM_DefaultChildMargin  Use PM_LayoutLeftMargin,
+                                  PM_LayoutTopMargin,
+                                  PM_LayoutRightMargin, and
+                                  PM_LayoutBottomMargin instead.
+    \value PM_DefaultLayoutSpacing  Use PM_LayoutHorizontalSpacing
+                                    and PM_LayoutVerticalSpacing
+                                    instead.
 
     \sa pixelMetric()
 */
@@ -2020,7 +2083,115 @@ QIcon QStyle::standardIconImplementation(StandardPixmap standardIcon, const QSty
     return QIcon(standardPixmap(standardIcon, option, widget));
 }
 
+/*!
+    \since 4.3
+
+    Returns the spacing that should be used between \a control1 and
+    \a control2 in a layout. \a orientation specifies whether the
+    controls are laid out side by side or stacked vertically. The \a
+    option parameter can be used to pass extra information about the
+    parent widget. The \a widget parameter is optional and can also
+    be used if \a option is 0.
+
+    This function is called by the layout system. It is used only if
+    PM_LayoutHorizontalSpacing or PM_LayoutVerticalSpacing returns a
+    negative value.
+
+    For binary compatibility reasons, this function is not virtual.
+    If you want to specify custom layout spacings in a QStyle
+    subclass, implement a slot called layoutSpacingImplementation().
+    QStyle will discover the slot at run-time (using Qt's
+    \l{meta-object system}) and direct all calls to layoutSpacing()
+    to layoutSpacingImplementation().
+
+    \sa combinedLayoutSpacing(), layoutSpacingImplementation()
+*/
+int QStyle::layoutSpacing(QSizePolicy::ControlType control1, QSizePolicy::ControlType control2,
+                          Qt::Orientation orientation, const QStyleOption *option,
+                          const QWidget *widget) const
+{
+    int result;
+    QMetaObject::invokeMethod(const_cast<QStyle *>(this),
+                              "layoutSpacingImplementation", Qt::DirectConnection,
+                              Q_RETURN_ARG(int, result),
+                              Q_ARG(QSizePolicy::ControlType, control1),
+                              Q_ARG(QSizePolicy::ControlType, control2),
+                              Q_ARG(Qt::Orientation, orientation),
+                              Q_ARG(const QStyleOption *, option),
+                              Q_ARG(const QWidget *, widget));
+    return result;
+}
+
+/*!
+    \since 4.3
+
+    Returns the spacing that should be used between \a controls1 and
+    \a controls2 in a layout. \a orientation specifies whether the
+    controls are laid out side by side or stacked vertically. The \a
+    option parameter can be used to pass extra information about the
+    parent widget. The \a widget parameter is optional and can also
+    be used if \a option is 0.
+
+    \a controls1 and \a controls2 are OR-combination of zero or more
+    \l{QSizePolicy::ControlTypes}{control types}.
+
+    This function is called by the layout system. It is used only if
+    PM_LayoutHorizontalSpacing or PM_LayoutVerticalSpacing returns a
+    negative value.
+
+    \sa layoutSpacing(), layoutSpacingImplementation()
+*/
+int QStyle::combinedLayoutSpacing(QSizePolicy::ControlTypes controls1,
+                                  QSizePolicy::ControlTypes controls2, Qt::Orientation orientation,
+                                  QStyleOption *option, QWidget *widget) const
+{
+    QSizePolicy::ControlType array1[MaxBits];
+    QSizePolicy::ControlType array2[MaxBits];
+    int count1 = unpackControlTypes(controls1, array1);
+    int count2 = unpackControlTypes(controls2, array2);
+    int result = -1;
+
+    for (int i = 0; i < count1; ++i) {
+        for (int j = 0; j < count2; ++j) {
+            int spacing = layoutSpacing(array1[i], array2[j], orientation, option, widget);
+            result = qMax(spacing, result);
+        }
+    }
+    return result;
+}
+
+/*!
+    \since 4.3
+
+    This slot is called by layoutSpacing() to determine the spacing
+    that should be used between \a control1 and \a control2 in a
+    layout. \a orientation specifies whether the controls are laid
+    out side by side or stacked vertically. The \a option parameter
+    can be used to pass extra information about the parent widget.
+    The \a widget parameter is optional and can also be used if \a
+    option is 0.
+
+    If you want to provide custom layout spacings in a QStyle
+    subclass, implement a slot called layoutSpacingImplementation()
+    in your subclass. Be aware that this slot will only be called if
+    PM_LayoutHorizontalSpacing or PM_LayoutVerticalSpacing returns a
+    negative value.
+
+    The default implementation returns -1.
+
+    \sa layoutSpacing(), combinedLayoutSpacing()
+*/
+int QStyle::layoutSpacingImplementation(QSizePolicy::ControlType /* control1 */,
+                                        QSizePolicy::ControlType /* control2 */,
+                                        Qt::Orientation /*orientation*/, 
+                                        const QStyleOption * /* option */,
+                                        const QWidget * /* widget */) const
+{
+    return -1;
+}
+
 #if !defined(QT_NO_DEBUG) && !defined(QT_NO_DEBUG_STREAM)
+#include <QDebug>
 QDebug operator<<(QDebug debug, QStyle::State state)
 {
     debug << "QStyle::State(";

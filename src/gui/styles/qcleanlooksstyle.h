@@ -51,7 +51,7 @@ public:
     QPixmap generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap,
                                         const QStyleOption *opt) const;
     int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0,
-		  QStyleHintReturn *returnData = 0) const;
+                  QStyleHintReturn *returnData = 0) const;
     QRect itemPixmapRect(const QRect &r, int flags, const QPixmap &pixmap) const;
     QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                            const QWidget *widget = 0) const;

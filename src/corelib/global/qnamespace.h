@@ -324,7 +324,8 @@ public:
         WA_Moved = 43,
         WA_PendingUpdate = 44,
         WA_InvalidSize = 45,
-        WA_MacMetalStyle = 46, // Mac only
+        WA_MacBrushedMetal = 46, // Mac only
+        WA_MacMetalStyle = WA_MacBrushedMetal, // obsolete
         WA_CustomWhatsThis = 47,
         WA_LayoutOnEntireRect = 48,
         WA_OutsideWSRange = 49,
@@ -373,7 +374,11 @@ public:
         WA_SetStyle = 86,
 
         WA_SetLocale = 87,
-        WA_MacShowFocusRect,
+        WA_MacShowFocusRect = 88,
+
+        WA_MacNormalSize = 89,  // Mac only
+        WA_MacSmallSize = 90,   // Mac only
+        WA_MacMiniSize = 91,    // Mac only
 
         // Add new attributes before this line
         WA_AttributeCount

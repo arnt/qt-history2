@@ -373,7 +373,7 @@ void QScrollBarPrivate::init()
     pressedControl = hoverControl = QStyle::SC_None;
     pointerOutsidePressedControl = false;
     q->setFocusPolicy(Qt::NoFocus);
-    QSizePolicy sp(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    QSizePolicy sp(QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::Slider);
     if (orientation == Qt::Vertical)
         sp.transpose();
     q->setSizePolicy(sp);

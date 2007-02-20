@@ -61,6 +61,9 @@ public:
     void insertWidget(int index, QWidget *widget, int stretch = 0, Qt::Alignment alignment = 0);
     void insertLayout(int index, QLayout *layout, int stretch = 0);
 
+    int spacing() const;
+    void setSpacing(int spacing);
+
     bool setStretchFactor(QWidget *w, int stretch);
     bool setStretchFactor(QLayout *l, int stretch);
 

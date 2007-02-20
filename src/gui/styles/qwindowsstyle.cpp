@@ -58,8 +58,8 @@ static const int windowsItemFrame        =  2; // menu item frame width
 static const int windowsSepHeight        =  9; // separator item height
 static const int windowsItemHMargin      =  3; // menu item hor text margin
 static const int windowsItemVMargin      =  2; // menu item ver text margin
-static const int windowsArrowHMargin	 =  6; // arrow horizontal margin
-static const int windowsTabSpacing	 = 12; // space between text and tab
+static const int windowsArrowHMargin     =  6; // arrow horizontal margin
+static const int windowsTabSpacing       = 12; // space between text and tab
 static const int windowsCheckMarkHMargin =  2; // horiz. margins of check mark
 static const int windowsRightBorder      = 15; // right border on windows
 static const int windowsCheckMarkWidth   = 12; // checkmarks width on windows
@@ -136,18 +136,18 @@ bool QWindowsStyle::eventFilter(QObject *o, QEvent *e)
         }
         break;
     case QEvent::KeyRelease:
-	if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Alt) {
-	    widget = widget->window();
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Alt) {
+            widget = widget->window();
 
-	    // Update state and repaint the menubars.
-	    d->alt_down = false;
+            // Update state and repaint the menubars.
+            d->alt_down = false;
 #ifndef QT_NO_MENUBAR
             QList<QMenuBar *> l = qFindChildren<QMenuBar *>(widget);
             for (int i = 0; i < l.size(); ++i)
                 l.at(i)->update();
 #endif
-	}
-	break;
+        }
+        break;
     case QEvent::Close:
         // Reset widget when closing
         d->seenAlt.removeAll(widget);

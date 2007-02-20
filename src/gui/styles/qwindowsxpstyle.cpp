@@ -656,8 +656,8 @@ void QWindowsXPStylePrivate::drawBackground(XPThemeData &themeData)
                        || painter->opacity() != 1.0
                        || themeData.rotate
                        || complexXForm
-	               || themeData.mirrorVertically
-	               || (themeData.mirrorHorizontally && pDrawThemeBackgroundEx == 0);
+                       || themeData.mirrorVertically
+                       || (themeData.mirrorHorizontally && pDrawThemeBackgroundEx == 0);
     if (!useFallback)
         drawBackgroundDirectly(themeData);
     else
@@ -707,36 +707,36 @@ void QWindowsXPStylePrivate::drawBackgroundDirectly(XPThemeData &themeData)
     if (pDrawThemeBackgroundEx != 0) {
         pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawRECT), &drawOptions);
     } else {
-	// We are running on a system where the uxtheme.dll does not have
-	// the DrawThemeBackgroundEx function, so we need to clip away
-	// borders or contents manually. All flips and mirrors uses the
-	// fallback implementation
+        // We are running on a system where the uxtheme.dll does not have
+        // the DrawThemeBackgroundEx function, so we need to clip away
+        // borders or contents manually. All flips and mirrors uses the
+        // fallback implementation
 
-	int borderSize = 0;
-	PROPERTYORIGIN origin = PO_NOTFOUND;
-	pGetThemePropertyOrigin(themeData.handle(), themeData.partId, themeData.stateId, TMT_BORDERSIZE, &origin);
+        int borderSize = 0;
+        PROPERTYORIGIN origin = PO_NOTFOUND;
+        pGetThemePropertyOrigin(themeData.handle(), themeData.partId, themeData.stateId, TMT_BORDERSIZE, &origin);
         pGetThemeInt(themeData.handle(), themeData.partId, themeData.stateId, TMT_BORDERSIZE, &borderSize);
 
-	// Clip away border region
+        // Clip away border region
         QRegion extraClip = sysRgn;
-	if ((origin == PO_CLASS || origin == PO_PART || origin == PO_STATE) && borderSize > 0) {
-	    if (themeData.noBorder) {
-		// extraClip &= area is already done
-		drawRECT = themeData.toRECT(area.adjusted(-borderSize, -borderSize, borderSize, borderSize));
-	    }
+        if ((origin == PO_CLASS || origin == PO_PART || origin == PO_STATE) && borderSize > 0) {
+            if (themeData.noBorder) {
+                // extraClip &= area is already done
+                drawRECT = themeData.toRECT(area.adjusted(-borderSize, -borderSize, borderSize, borderSize));
+            }
 
-	    // Clip away content region
-	    if (themeData.noContent) {
-		QRegion content = area.adjusted(borderSize, borderSize, -borderSize, -borderSize);
-		extraClip ^= content;
-	    }
+            // Clip away content region
+            if (themeData.noContent) {
+                QRegion content = area.adjusted(borderSize, borderSize, -borderSize, -borderSize);
+                extraClip ^= content;
+            }
 
-	    // Set the clip region, if used..
-	    if (themeData.noBorder || themeData.noContent)
-		SelectClipRgn(dc, extraClip.handle());
+            // Set the clip region, if used..
+            if (themeData.noBorder || themeData.noContent)
+                SelectClipRgn(dc, extraClip.handle());
         }
 
-	pDrawThemeBackground(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawRECT), &(drawOptions.rcClip));
+        pDrawThemeBackground(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawRECT), &(drawOptions.rcClip));
     }
     SelectClipRgn(dc, 0);
 }
@@ -837,30 +837,30 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
     QRegion extraClip;
     QRect area = rect;
     if (themeData.noBorder || themeData.noContent) {
-	extraClip = area;
-	// We are running on a system where the uxtheme.dll does not have
-	// the DrawThemeBackgroundEx function, so we need to clip away
-	// borders or contents manually.
+        extraClip = area;
+        // We are running on a system where the uxtheme.dll does not have
+        // the DrawThemeBackgroundEx function, so we need to clip away
+        // borders or contents manually.
 
-	int borderSize = 0;
-	PROPERTYORIGIN origin = PO_NOTFOUND;
-	pGetThemePropertyOrigin(themeData.handle(), themeData.partId, themeData.stateId, TMT_BORDERSIZE, &origin);
-	pGetThemeInt(themeData.handle(), themeData.partId, themeData.stateId, TMT_BORDERSIZE, &borderSize);
+        int borderSize = 0;
+        PROPERTYORIGIN origin = PO_NOTFOUND;
+        pGetThemePropertyOrigin(themeData.handle(), themeData.partId, themeData.stateId, TMT_BORDERSIZE, &origin);
+        pGetThemeInt(themeData.handle(), themeData.partId, themeData.stateId, TMT_BORDERSIZE, &borderSize);
 
-	// Clip away border region
-	if ((origin == PO_CLASS || origin == PO_PART || origin == PO_STATE) && borderSize > 0) {
-	    if (themeData.noBorder) {
-		extraClip &= area;
-		area = area.adjusted(-borderSize, -borderSize, borderSize, borderSize);
-	    }
+        // Clip away border region
+        if ((origin == PO_CLASS || origin == PO_PART || origin == PO_STATE) && borderSize > 0) {
+            if (themeData.noBorder) {
+                extraClip &= area;
+                area = area.adjusted(-borderSize, -borderSize, borderSize, borderSize);
+            }
 
-	    // Clip away content region
-	    if (themeData.noContent) {
-		QRegion content = area.adjusted(borderSize, borderSize, -borderSize, -borderSize);
-		extraClip ^= content;
-	    }
-	}
-	addBorderContentClipping = (themeData.noBorder | themeData.noContent);
+            // Clip away content region
+            if (themeData.noContent) {
+                QRegion content = area.adjusted(borderSize, borderSize, -borderSize, -borderSize);
+                extraClip ^= content;
+            }
+        }
+        addBorderContentClipping = (themeData.noBorder | themeData.noContent);
     }
 
     QImage img;
@@ -874,16 +874,16 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
             memset(bufferPixels, inspectData ? 0xFF : 0x00, bufferW * h * 4);
         }
 
-	// Difference between area and rect
-	int dx = area.x() - rect.x();
-	int dy = area.y() - rect.y();
-	int dr = area.right() - rect.right();
-	int db = area.bottom() - rect.bottom();
+        // Difference between area and rect
+        int dx = area.x() - rect.x();
+        int dy = area.y() - rect.y();
+        int dr = area.right() - rect.right();
+        int db = area.bottom() - rect.bottom();
 
-	// Adjust so painting rect starts from Origo
-	rect.moveTo(0,0);
+        // Adjust so painting rect starts from Origo
+        rect.moveTo(0,0);
         area.moveTo(dx,dy);
-	DTBGOPTS drawOptions;
+        DTBGOPTS drawOptions;
         drawOptions.dwSize = sizeof(drawOptions);
         drawOptions.rcClip = themeData.toRECT(rect);
         drawOptions.dwFlags = DTBG_CLIPRECT
@@ -891,21 +891,21 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
                             | (themeData.noContent ? DTBG_OMITCONTENT : 0);
 
         // Drawing the part into the backing store
-	if (pDrawThemeBackgroundEx != 0) {
+        if (pDrawThemeBackgroundEx != 0) {
             pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(themeData.toRECT(area)), &drawOptions);
-	} else {
-	    // Set the clip region, if used..
-	    if (addBorderContentClipping) {
-		SelectClipRgn(dc, extraClip.handle());
-		// Compensate for the noBorder area difference (noContent has the same area)
-		drawOptions.rcClip = themeData.toRECT(rect.adjusted(dx, dy, dr, db));
-	    }
+        } else {
+            // Set the clip region, if used..
+            if (addBorderContentClipping) {
+                SelectClipRgn(dc, extraClip.handle());
+                // Compensate for the noBorder area difference (noContent has the same area)
+                drawOptions.rcClip = themeData.toRECT(rect.adjusted(dx, dy, dr, db));
+            }
 
-	    pDrawThemeBackground(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), 0);
+            pDrawThemeBackground(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), 0);
 
-	    if (addBorderContentClipping)
-		SelectClipRgn(dc, 0);
-	}
+            if (addBorderContentClipping)
+                SelectClipRgn(dc, 0);
+        }
 
         // If not cached, analyze the buffer data to figure
         // out alpha type, and if it contains data
@@ -970,7 +970,7 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
     }
 
     if (addBorderContentClipping)
-	painter->setClipRegion(extraClip, Qt::IntersectClip);
+        painter->setClipRegion(extraClip, Qt::IntersectClip);
 
     if (!themeData.mirrorHorizontally && !themeData.mirrorVertically && !themeData.rotate) {
         if (!haveCachedPixmap)
@@ -1508,10 +1508,10 @@ case PE_Frame:
                     QBrush fillColor = option->palette.brush(QPalette::Base);
 
                     if (!isEnabled) {
-	                PROPERTYORIGIN origin = PO_NOTFOUND;
-	                pGetThemePropertyOrigin(theme.handle(), theme.partId, theme.stateId, TMT_FILLCOLOR, &origin);
-	                // Use only if the fill property comes from our part
-	                if ((origin == PO_PART || origin == PO_STATE)) {
+                        PROPERTYORIGIN origin = PO_NOTFOUND;
+                        pGetThemePropertyOrigin(theme.handle(), theme.partId, theme.stateId, TMT_FILLCOLOR, &origin);
+                        // Use only if the fill property comes from our part
+                        if ((origin == PO_PART || origin == PO_STATE)) {
                             COLORREF bgRef;
                             pGetThemeColor(theme.handle(), partId, stateId, TMT_FILLCOLOR, &bgRef);
                             fillColor = QBrush(qRgb(GetRValue(bgRef), GetGValue(bgRef), GetBValue(bgRef)));
@@ -3306,7 +3306,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
             res = 0;
         break;
 
-	default:
+    default:
         res = QWindowsStyle::pixelMetric(pm, option, widget);
     }
 
@@ -3453,7 +3453,7 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
                         iconSize = QSize(controlHeight, controlHeight);
                     int hPad = (controlHeight - iconSize.height())/2;
                     int vPad = (controlHeight - iconSize.width())/2;
-		            rect = QRect(frameWidth + hPad, controlTop + vPad, iconSize.width(), iconSize.height());
+                    rect = QRect(frameWidth + hPad, controlTop + vPad, iconSize.width(), iconSize.height());
                 }
                 break;
             }

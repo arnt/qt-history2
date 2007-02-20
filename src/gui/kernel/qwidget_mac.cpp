@@ -395,11 +395,17 @@ void qt_mac_update_metal_style(QWidget *w)
     if (!w->testAttribute(Qt::WA_WState_Created))
         return;
 
-    if(w->isWindow()) {
-        if(w->testAttribute(Qt::WA_MacMetalStyle))
+    if (w->isWindow()) {
+        if(w->testAttribute(Qt::WA_MacBrushedMetal))
             ChangeWindowAttributes(qt_mac_window_for(w), kWindowMetalAttribute, 0);
         else
             ChangeWindowAttributes(qt_mac_window_for(w), 0, kWindowMetalAttribute);
+
+        // We need to tell the windows, so they can call setLayoutItemMargins() anew
+        // (metal margins are smaller than standard margins). We don't really need
+        // to propagate or to do it for non-windows.
+        QEvent event(QEvent::StyleChange);
+        QApplication::sendEvent(w, &event);
     }
 }
 
@@ -2785,5 +2791,20 @@ void QWidgetPrivate::setModal_sys()
         WindowClass newClass = q->window()->d_func()->topData()->wclass;
         if (old_wclass != newClass && newClass != 0)
             HIWindowChangeClass(windowRef, newClass);
+    }
+}
+
+void QWidgetPrivate::macSizeChange()
+{
+    Q_Q(QWidget);
+    QEvent event(QEvent::MacSizeChange);
+    QApplication::sendEvent(q, &event);
+    for (int i = 0; i < children.size(); ++i) {
+        QWidget *w = qobject_cast<QWidget *>(children.at(i));
+        if (w && (!w->isWindow() || w->testAttribute(Qt::WA_WindowPropagation))
+              && !w->testAttribute(Qt::WA_MacMiniSize) // no attribute set? inherit from parent
+              && !w->testAttribute(Qt::WA_MacSmallSize)
+              && !w->testAttribute(Qt::WA_MacNormalSize))
+            w->d_func()->macSizeChange();
     }
 }

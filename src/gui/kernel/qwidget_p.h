@@ -31,6 +31,7 @@
 #include "QtCore/qlocale.h"
 #include "QtGui/qregion.h"
 #include "QtGui/qsizepolicy.h"
+#include "QtGui/qstyle.h"
 
 #ifdef Q_WS_WIN
 #include "QtCore/qt_windows.h"
@@ -186,6 +187,10 @@ public:
     void setMask_sys(const QRegion &);
 #endif
 
+#ifdef Q_WS_MAC
+    void macSizeChange();
+#endif
+
     void raise_sys();
     void lower_sys();
     void stackUnder_sys(QWidget *);
@@ -268,6 +273,7 @@ public:
     void reparentFocusWidgets(QWidget *oldtlw);
 
     static int pointToRect(const QPoint &p, const QRect &r);
+    QRect fromOrToLayoutItemRect(const QRect &rect, int sign) const;
 
     void setWinId(WId);
     void showChildren(bool spontaneous);
@@ -318,6 +324,10 @@ public:
     bool setMaximumSize_helper(int &maxw, int &maxh);
     void setConstraints_sys();
 
+    void getLayoutItemMargins(int *left, int *top, int *right, int *bottom) const;
+    void setLayoutItemMargins(int left, int top, int right, int bottom);
+    void setLayoutItemMargins(QStyle::SubElement element, const QStyleOption *opt = 0);
+
 #if defined(Q_WS_QWS)
     QRegion localRequestedRegion() const;
     QRegion localAllocatedRegion() const;
@@ -359,7 +369,13 @@ public:
     static QWidgetMapper *mapper;
     static QWidgetSet *uncreatedWidgets;
 
-    int leftmargin, topmargin, rightmargin, bottommargin;
+    short leftmargin, topmargin, rightmargin, bottommargin;
+
+    signed char leftLayoutItemMargin;
+    signed char topLayoutItemMargin;
+    signed char rightLayoutItemMargin;
+    signed char bottomLayoutItemMargin;
+
     // ### TODO: reorganize private/extra/topextra to save memory
     QPointer<QWidget> compositeChildGrab;
 #ifndef QT_NO_TOOLTIP

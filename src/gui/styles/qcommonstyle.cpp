@@ -1586,7 +1586,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
 /*!
   \reimp
 */
-QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidget *widget) const
+QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, 
+                                   const QWidget *widget) const
 {
     QRect r;
     switch (sr) {
@@ -2150,7 +2151,6 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
         break;
     }
 #endif
-
     default:
         break;
     }
@@ -3747,6 +3747,24 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
     case PM_TabBarScrollButtonWidth:
         ret = 16;
+        break;
+    case PM_LayoutLeftMargin:
+    case PM_LayoutTopMargin:
+    case PM_LayoutRightMargin:
+    case PM_LayoutBottomMargin:
+        {
+            bool isWindow = false;
+            if (opt) {
+                isWindow = (opt->state & State_Window);
+            } else if (widget) {
+                isWindow = widget->isWindow();
+            }
+            ret = pixelMetric(isWindow ? PM_DefaultTopLevelMargin : PM_DefaultChildMargin);
+        }
+        break;
+    case PM_LayoutHorizontalSpacing:
+    case PM_LayoutVerticalSpacing:
+        ret = pixelMetric(PM_DefaultLayoutSpacing);
         break;
 
     case PM_DefaultTopLevelMargin:

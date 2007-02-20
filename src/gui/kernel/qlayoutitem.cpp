@@ -20,6 +20,34 @@
 #include "qevent.h"
 #include "qstyle.h"
 #include "qvariant.h"
+#include "qwidget_p.h"
+
+inline static QRect fromLayoutItemRect(QWidgetPrivate *priv, const QRect &rect)
+{
+    return priv->fromOrToLayoutItemRect(rect, -1);
+}
+
+inline static QSize fromLayoutItemSize(QWidgetPrivate *priv, const QSize &size)
+{
+    return fromLayoutItemRect(priv, QRect(QPoint(0, 0), size)).size();
+}
+
+inline static QRect toLayoutItemRect(QWidgetPrivate *priv, const QRect &rect)
+{
+    return priv->fromOrToLayoutItemRect(rect, +1);
+}
+
+inline static QSize toLayoutItemSize(QWidgetPrivate *priv, const QSize &size)
+{
+    return toLayoutItemRect(priv, QRect(QPoint(0, 0), size)).size();
+}
+
+inline static QLayout::ItemRectPolicy layoutItemRectPolicy_helper(const QWidget *wid)
+{
+    QWidget *par = wid->parentWidget();
+    QLayout *layout = par ? par->layout() : 0;
+    return layout ? layout->itemRectPolicy() : QLayout::WidgetRect;
+}
 
 /*!
    Returns a QVariant storing this QSizePolicy.
@@ -361,6 +389,27 @@ int QLayoutItem::heightForWidth(int /* w */) const
 }
 
 /*!
+    Returns the control type(s) for the layout item. For a
+    QWidgetItem, the control type comes from the widget's size
+    policy; for a QLayoutItem, the control types is derived from the
+    layout's contents.
+
+    \sa QSizePolicy::controlType()
+*/
+QSizePolicy::ControlTypes QLayoutItem::controlTypes() const
+{
+    // ### Qt 5: This function should probably be virtual instead
+    if (const QWidget *widget = const_cast<QLayoutItem*>(this)->widget()) {
+        return widget->sizePolicy().controlType();
+    } else if (const QLayout *layout = const_cast<QLayoutItem*>(this)->layout()) {
+        QSizePolicy::ControlTypes types;
+        for (int i = layout->count() - 1; i >= 0; --i)
+            types |= layout->itemAt(i)->controlTypes();
+    }
+    return QSizePolicy::DefaultType;
+}
+
+/*!
     \reimp
 */
 void QSpacerItem::setGeometry(const QRect &r)
@@ -371,10 +420,14 @@ void QSpacerItem::setGeometry(const QRect &r)
 /*!
     \reimp
 */
-void QWidgetItem::setGeometry(const QRect &r)
+void QWidgetItem::setGeometry(const QRect &rect)
 {
     if (isEmpty())
         return;
+
+    QRect r = layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+            ? fromLayoutItemRect(wid->d_func(), rect)
+            : rect;
     QSize s = r.size().boundedTo(qSmartMaxSize(this));
     int x = r.x();
     int y = r.y();
@@ -416,7 +469,9 @@ QRect QSpacerItem::geometry() const
 */
 QRect QWidgetItem::geometry() const
 {
-    return wid->geometry();
+    return layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+           ? toLayoutItemRect(wid->d_func(), wid->geometry())
+           : wid->geometry();
 }
 
 
@@ -439,6 +494,11 @@ int QWidgetItem::heightForWidth(int w) const
 {
     if (isEmpty())
         return -1;
+
+    w = layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+      ? fromLayoutItemSize(wid->d_func(), QSize(w, 0)).width()
+      : w;
+
     int hfw;
     if (wid->layout())
         hfw = wid->layout()->totalHeightForWidth(w);
@@ -449,6 +509,11 @@ int QWidgetItem::heightForWidth(int w) const
         hfw = wid->maximumHeight();
     if (hfw < wid->minimumHeight())
         hfw = wid->minimumHeight();
+
+    hfw = layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+        ? toLayoutItemSize(wid->d_func(), QSize(0, hfw)).height()
+        : hfw;
+
     if (hfw < 0)
         hfw = 0;
     return hfw;
@@ -508,7 +573,9 @@ QSize QWidgetItem::minimumSize() const
 {
     if (isEmpty())
         return QSize(0, 0);
-    return qSmartMinSize(this);
+    return layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+           ? toLayoutItemSize(wid->d_func(), qSmartMinSize(this))
+           : qSmartMinSize(this);
 }
 
 /*!
@@ -528,7 +595,9 @@ QSize QWidgetItem::maximumSize() const
     if (isEmpty()) {
         return QSize(0, 0);
     } else {
-        return qSmartMaxSize(this, align);
+        return layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+               ? toLayoutItemSize(wid->d_func(), qSmartMaxSize(this, align))
+               : qSmartMaxSize(this, align);
     }
 }
 
@@ -545,17 +614,19 @@ QSize QSpacerItem::sizeHint() const
 */
 QSize QWidgetItem::sizeHint() const
 {
-    QSize s;
-    if (isEmpty()) {
-        s = QSize(0, 0);
-    } else {
+    QSize s(0, 0);
+    if (!isEmpty()) {
         s = wid->sizeHint().expandedTo(wid->minimumSizeHint());
+        s = s.boundedTo(wid->maximumSize())
+             .expandedTo(wid->minimumSize());
+        s = layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+           ? toLayoutItemSize(wid->d_func(), s)
+           : s;
+
         if (wid->sizePolicy().horizontalPolicy() == QSizePolicy::Ignored)
             s.setWidth(0);
         if (wid->sizePolicy().verticalPolicy() == QSizePolicy::Ignored)
             s.setHeight(0);
-        s = s.boundedTo(wid->maximumSize())
-            .expandedTo(wid->minimumSize());
     }
     return s;
 }
@@ -577,4 +648,3 @@ bool QWidgetItem::isEmpty() const
 {
     return wid->isHidden() || wid->isWindow();
 }
-

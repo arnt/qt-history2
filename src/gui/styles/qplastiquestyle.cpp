@@ -5017,10 +5017,17 @@ QRect QPlastiqueStyle::subElementRect(SubElement element, const QStyleOption *op
     case SE_ProgressBarGroove:
         return option->rect;
 #endif // QT_NO_PROGRESSBAR
-    default:
-        rect = visualRect(option->direction, option->rect,
-                          QWindowsStyle::subElementRect(element, option, widget));
+    case SE_GroupBoxLayoutItem:
+        rect = option->rect;
+        if (const QStyleOptionGroupBox *groupBoxOpt =
+                qstyleoption_cast<const QStyleOptionGroupBox *>(option)) {
+            if (groupBoxOpt->subControls & (QStyle::SC_GroupBoxCheckBox
+                                            | QStyle::SC_GroupBoxLabel))
+                rect.setTop(rect.top() + 2);    // eat the top margin a little bit
+        }
         break;
+    default:
+        return QWindowsStyle::subElementRect(element, option, widget);
     }
 
     return visualRect(option->direction, option->rect, rect);
@@ -5580,6 +5587,27 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
         return -1;
     case PM_DockWidgetTitleMargin:
         return 2;
+    case PM_LayoutHorizontalSpacing:
+    case PM_LayoutVerticalSpacing:
+        return -1;  // rely on layoutHorizontalSpacing()
+    case PM_LayoutLeftMargin:
+    case PM_LayoutTopMargin:
+    case PM_LayoutRightMargin:
+    case PM_LayoutBottomMargin:
+        {
+            bool isWindow = false;
+            if (option) {
+                isWindow = (option->state & State_Window);
+            } else if (widget) {
+                isWindow = widget->isWindow();
+            }
+
+            if (isWindow) {
+                ret = 11;
+            } else {
+                ret = 9;
+            }
+        }
     default:
         break;
     }
@@ -5900,10 +5928,10 @@ Q_D(const QPlastiqueStyle);
 }
 
 /*!
- \reimp
- */
+    \reimp
+*/
 QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
-                                      const QWidget *widget) const
+                                        const QWidget *widget) const
 {
     Q_D(const QPlastiqueStyle);
     QPixmap pixmap;
@@ -6106,6 +6134,65 @@ QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
     return QWindowsStyle::standardPixmap(standardPixmap, opt, widget);
 }
 
+// this works as long as we have at most 16 different control types
+#define CT1(c) CT2(c, c)
+#define CT2(c1, c2) ((uint(c1) << 16) | uint(c2))
+
+/*!
+    \internal
+*/
+int QPlastiqueStyle::layoutSpacingImplementation(QSizePolicy::ControlType control1,
+                                                 QSizePolicy::ControlType control2, 
+                                                 Qt::Orientation orientation,
+                                                 const QStyleOption * /* option */, 
+                                                 const QWidget * /* widget */) const
+{
+    const int ButtonMask = QSizePolicy::ButtonBox | QSizePolicy::PushButton;
+
+    if (control2 == QSizePolicy::ButtonBox)
+        return 11;
+
+    if ((control1 | control2) & ButtonMask)
+        return (orientation == Qt::Horizontal) ? 10 : 9;
+
+    switch (CT2(control1, control2)) {
+    case CT1(QSizePolicy::Label):
+    case CT2(QSizePolicy::Label, QSizePolicy::DefaultType):
+    case CT2(QSizePolicy::Label, QSizePolicy::CheckBox):
+    case CT2(QSizePolicy::Label, QSizePolicy::ComboBox):
+    case CT2(QSizePolicy::Label, QSizePolicy::LineEdit):
+    case CT2(QSizePolicy::Label, QSizePolicy::RadioButton):
+    case CT2(QSizePolicy::Label, QSizePolicy::Slider):
+    case CT2(QSizePolicy::Label, QSizePolicy::SpinBox):
+    case CT2(QSizePolicy::Label, QSizePolicy::ToolButton):
+        return 5;
+    case CT2(QSizePolicy::CheckBox, QSizePolicy::RadioButton):
+    case CT2(QSizePolicy::RadioButton, QSizePolicy::CheckBox):
+    case CT1(QSizePolicy::CheckBox):
+        if (orientation == Qt::Vertical)
+            return 2;
+    case CT1(QSizePolicy::RadioButton):
+        if (orientation == Qt::Vertical)
+            return 1;
+    }
+
+    if (orientation == Qt::Horizontal
+            && (control2 & (QSizePolicy::CheckBox | QSizePolicy::RadioButton)))
+        return 8;
+
+    if ((control1 | control2) & (QSizePolicy::Frame
+                                 | QSizePolicy::GroupBox
+                                 | QSizePolicy::TabWidget)) {
+        return 11;
+    }
+
+    if ((control1 | control2) & (QSizePolicy::Line | QSizePolicy::Slider
+                                 | QSizePolicy::LineEdit | QSizePolicy::ComboBox
+                                 | QSizePolicy::SpinBox))
+        return 7;
+
+    return 6;
+}
 
 /*!
     \reimp

@@ -253,9 +253,13 @@ void QToolButtonPrivate::init()
     toolButtonStyle = Qt::ToolButtonIconOnly;
 
     q->setFocusPolicy(Qt::TabFocus);
-    q->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed, 
+                                 QSizePolicy::ToolButton));
 
     QObject::connect(q, SIGNAL(pressed()), q, SLOT(_q_buttonPressed()));
+
+    setLayoutItemMargins(QStyle::SE_ToolButtonLayoutItem);
+
 }
 
 /*!
@@ -575,12 +579,16 @@ void QToolButton::changeEvent(QEvent *e)
     if (e->type() == QEvent::ParentChange) {
         if (qobject_cast<QToolBar*>(parentWidget()))
             d->autoRaise = true;
-    } else if (e->type() == QEvent::StyleChange) {
-
+    } else if (e->type() == QEvent::StyleChange
+#ifdef Q_WS_MAC
+               || e->type() == QEvent::MacSizeChange
+#endif
+               ) {
 #ifdef QT3_SUPPORT
         if (!d->userDefinedPopupDelay)
 #endif
         d->delay = style()->styleHint(QStyle::SH_ToolButton_PopupDelay, 0, this);
+        d->setLayoutItemMargins(QStyle::SE_ToolButtonLayoutItem);
     }
 #endif
     QAbstractButton::changeEvent(e);

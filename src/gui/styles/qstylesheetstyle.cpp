@@ -2748,6 +2748,22 @@ QPixmap QStyleSheetStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     return baseStyle()->standardPixmap(standardPixmap, option, w);
 }
 
+int QStyleSheetStyle::layoutSpacing(QSizePolicy::ControlType control1, QSizePolicy::ControlType control2,
+                          Qt::Orientation orientation, const QStyleOption *option,
+                          const QWidget *widget) const
+{
+    return baseStyle()->layoutSpacing(control1, control2, orientation, option, widget);
+}
+
+int QStyleSheetStyle::layoutSpacingImplementation(QSizePolicy::ControlType  control1 ,
+                                        QSizePolicy::ControlType  control2,
+                                        Qt::Orientation orientation, 
+                                        const QStyleOption *  option ,
+                                        const QWidget *  widget) const
+{
+    return baseStyle()->layoutSpacing(control1, control2, orientation, option, widget);
+}
+
 int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *widget,
                            QStyleHintReturn *shret) const
 {
