@@ -44,15 +44,12 @@ QSvgTinyDocument * QSvgTinyDocument::load(const QString &fileName)
         return 0;
     }
 
-    QTime time;
-    time.start();
     QSvgTinyDocument *doc = 0;
     QSvgHandler handler(&file);
     if (handler.ok()) {
         doc = handler.document();
         doc->m_animationDuration = handler.animationDuration();
     }
-    qDebug() << "Parse time" << time.elapsed();
     return doc;
 }
 
