@@ -56,6 +56,10 @@
     \skipto setHotSpot
     \printuntil ;
 
+    \bold{Note:} on X11, the pixmap may not be able to keep up with the mouse
+    movements if the hot spot causes the pixmap to be displayed
+    directly under the cursor.
+
     The source and target widgets can be found with source() and target().
     These functions are often used to determine whether drag and drop operations
     started and finished at the same widget, so that special behavior can be
@@ -148,6 +152,10 @@ QPixmap QDrag::pixmap() const
 /*!
     Sets the position of the hot spot relative to the top-left corner of the
     pixmap used to the point specified by \a hotspot.
+
+    \bold{Note:} on X11, the pixmap may not be able to keep up with the mouse
+    movements if the hot spot causes the pixmap to be displayed
+    directly under the cursor.
 */
 void QDrag::setHotSpot(const QPoint& hotspot)
 {
@@ -190,7 +198,7 @@ QWidget *QDrag::target() const
 
     Starts the drag and drop operation and returns a value indicating the requested
     drop action when it is completed. The drop actions that the user can choose
-    from are specified in \a allowedActions. The default proposed action will be selected 
+    from are specified in \a allowedActions. The default proposed action will be selected
     among the allowed actions in the following order : Move, Copy and Link.
 
     \bold{Note:} Although the drag and drop operation can take some time, this function
@@ -208,9 +216,9 @@ Qt::DropAction QDrag::exec(Qt::DropActions supportedActions)
 
     Starts the drag and drop operation and returns a value indicating the requested
     drop action when it is completed. The drop actions that the user can choose
-    from are specified in \a supportedActions. 
-    
-    The \a defaultDropAction determines which action will be proposed when the user performs a 
+    from are specified in \a supportedActions.
+
+    The \a defaultDropAction determines which action will be proposed when the user performs a
     drag without using modifier keys.
 
     \bold{Note:} Although the drag and drop operation is blocking, the function
