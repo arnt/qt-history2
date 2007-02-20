@@ -2950,7 +2950,9 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
             ::queued_activate(sender, *c, argv, from_signal_index, to_signal_index);
             continue;
         } else if (c->type == Qt::BlockingQueuedConnection) {
+            locker.unlock();
             ::blocking_activate(sender, *c, argv, from_signal_index, to_signal_index);
+            locker.relock();
             continue;
         }
 
