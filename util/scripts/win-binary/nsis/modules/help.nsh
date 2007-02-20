@@ -176,6 +176,7 @@ Section un."${MODULE_HELP_NAME}"
 
   DeleteRegKey /ifempty SHCTX "SOFTWARE\Trolltech\QtHelp"
 
+  push "$HELP_INSTDIR"
   Call un.DeleteH2RegFiles
 
   Module_Help_End:

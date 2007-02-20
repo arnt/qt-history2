@@ -710,8 +710,8 @@ FunctionEnd
     StrCpy $VS_VERSION "2003"
     Push $VS_VERSION_SHORT
     Call un.InstallVSIP
-    !insertmacro un.InstallHelp "$VSIP_INSTDIR\help" "qt4vs" "$VS_VERSION_SHORT"
-
+    !insertmacro un.InstallHelpInVS "qt4vs" "$VS_VERSION_SHORT"
+    
   MODULE_VSIP_UNINSTALL2005:
     ReadRegDWord $1 SHCTX "$PRODUCT_UNIQUE_KEY" "Qt4VS2005"
     IntCmp $1 1 0 MODULE_VSIP_UNINSTALL_COMMON
@@ -719,13 +719,15 @@ FunctionEnd
       StrCpy $VS_VERSION "2005"
       Push $VS_VERSION_SHORT
       Call un.InstallVSIP
-      !insertmacro un.InstallHelp "$VSIP_INSTDIR\help" "qt4vs" "$VS_VERSION_SHORT"
-  
+      !insertmacro un.InstallHelpInVS "qt4vs" "$VS_VERSION_SHORT"
+    
   MODULE_VSIP_UNINSTALL_COMMON:
   Delete "$SMPROGRAMS\$STARTMENU_STRING\Visual Studio Integration Readme.lnk"
   
   IfFileExists "$VSIP_INSTDIR\help\h2reg.exe" 0 MODULE_VSIP_UNINSTALL_HELP_DONE
   !insertmacro un.RegisterHelp "$VSIP_INSTDIR\help" "qt4vs"
+  !insertmacro un.InstallHelp "$VSIP_INSTDIR\help" "qt4vs" "0.0"
+  Push "$VSIP_INSTDIR\help"
   Call un.DeleteH2RegFiles
   MODULE_VSIP_UNINSTALL_HELP_DONE:
 
