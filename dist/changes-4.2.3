@@ -84,23 +84,6 @@ General improvements
       caused the view to contain invalid items when used with a
       QSortFilterProxyModel.
 
-    * Fixed crash in QSortFilterProxyModel when calling filterChanged().
-
-    * Fixed crash in QSortFilterProxyModel when removing items from the source model.
-
-    * Fixed a bug in QSortFilterProxyModel that could cause it to enter an
-      invalid state when filtering items in a hierarchy, causing items in a
-      QTreeView to erroneously be collapsed.
-
-    * Fixed a bug in QSortFilterProxyModel that could cause invalid items to 
-      be added when inserting new items to the source model.
-
-    * Fixed a crash in QTreeView that could appear when removing all the child from 
-      an item.
-
-    * Fixed a bug in QHeaderView that could prevent the user from resizing the last 
-      visible section if the "real" last section was invisible.
-
     * Fixed a bug in item views where the wordwrap would cause to remove all new-line
       characters and the last line in string containing at least 1 new-line character.
 
@@ -160,6 +143,17 @@ General improvements
     * Fixed find() with backward searches
     * Match CSS style selector case insensitively
     * Fixed HTML import for tables with missing cells and rowspan/colspan attributes. 
+
+- QSortFilterProxyModel
+    * Fixed a crash when calling filterChanged().
+
+    * Fixed a crash when removing items from the source model.
+
+    * Fixed a bug that could cause it to enter an invalid state when filtering items
+      in a hierarchy, causing items in a QTreeView to erroneously be collapsed.
+
+    * Fixed a bug that could cause invalid items to be added when inserting new items
+      to the source model.
 
 - QSyntaxHighlighter
     * Fixed failing assertion when installing a syntax highlighter before the document
@@ -263,12 +257,18 @@ General improvements
 
 - QHeaderView
     * Fixed assert when removing all sections when sections had been moved.
+    * Fixed a bug that could prevent the user from resizing the last 
+      visible section if the "real" last section was invisible.
 
 - QListView
     * Fixed crash when calling reset.
 
 - QTableWidget
     * Fixed painting problem when rows were swapped.
+
+- QTreeView
+    * Fixed a crash that could appear when removing all the child from an item.
+
 
 ****************************************************************************
 *                      Platform Specific Changes                           *
