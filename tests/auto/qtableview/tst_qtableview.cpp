@@ -2124,7 +2124,7 @@ void tst_QTableView::scrollTo_data()
     QTest::addColumn<int>("expectedHorizontalScroll");
     QTest::addColumn<int>("expectedVerticalScroll");
 
-    QTest::newRow("no hidden, no span, no scroll, (20,20) per item")
+    QTest::newRow("no hidden, no span, no scroll, per item")
         << (int)QAbstractItemView::ScrollPerItem
         << (int)QAbstractItemView::ScrollPerItem
         << 10 << 10  // table
@@ -2136,7 +2136,7 @@ void tst_QTableView::scrollTo_data()
         << (int)QAbstractItemView::PositionAtTop
         << 0 << 0;   // expected
 
-    QTest::newRow("no hidden, no span, no scroll, (20,20) per pixel")
+    QTest::newRow("no hidden, no span, no scroll, per pixel")
         << (int)QAbstractItemView::ScrollPerPixel
         << (int)QAbstractItemView::ScrollPerPixel
         << 10 << 10  // table
@@ -2147,6 +2147,18 @@ void tst_QTableView::scrollTo_data()
         << 0 << 0    // scroll
         << (int)QAbstractItemView::PositionAtTop
         << 0 << 0;   // expected
+
+    QTest::newRow("hidden, no span, no scroll, per item")
+        << (int)QAbstractItemView::ScrollPerItem
+        << (int)QAbstractItemView::ScrollPerItem
+        << 10 << 10  // table
+        << 40 << 40  // size
+        << 3 << 3    // hide
+        << 5 << 5    // cell
+        << 1 << 1    // span
+        << 0 << 0    // scroll
+        << (int)QAbstractItemView::PositionAtTop
+        << 4 << 4;   // expected
 }
 
 void tst_QTableView::scrollTo()
@@ -2173,6 +2185,7 @@ void tst_QTableView::scrollTo()
     QtTestTableView view;
 
     view.show();
+    view.resize(columnWidth * 2, rowHeight * 2);
     view.setModel(&model);
     view.setSpan(row, column, rowSpan, columnSpan);
     view.hideRow(hiddenRow);
