@@ -1,0 +1,6 @@
+StartDocument( standalone )
+Comment( text="comment me" )
+ProcessingInstruction( processingInstructionTarget="process" processingInstructionData="me" )
+StartElement( name="nothing" qualifiedName="nothing" )
+EndElement( name="nothing" qualifiedName="nothing" )
+EndDocument( )

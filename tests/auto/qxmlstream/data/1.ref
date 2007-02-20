@@ -1,0 +1,5 @@
+StartElement( name="doc" namespaceUri="namespaceUri" qualifiedName="ns:doc"
+    Attribute( name="space" namespaceUri="http://www.w3.org/XML/1998/namespace" qualifiedName="xml:space" value="preserve" )
+ )
+EndElement( name="doc" namespaceUri="namespaceUri" qualifiedName="ns:doc" )
+EndDocument( )

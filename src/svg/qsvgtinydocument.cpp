@@ -37,11 +37,6 @@ QSvgTinyDocument::~QSvgTinyDocument()
 
 QSvgTinyDocument * QSvgTinyDocument::load(const QString &fileName)
 {
-    QSvgHandler handler;
-    QXmlSimpleReader reader;
-    reader.setContentHandler(&handler);
-    reader.setErrorHandler(&handler);
-
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         qWarning("Cannot open file '%s', because: %s",
@@ -49,26 +44,24 @@ QSvgTinyDocument * QSvgTinyDocument::load(const QString &fileName)
         return 0;
     }
 
+    QTime time;
+    time.start();
     QSvgTinyDocument *doc = 0;
-    QXmlInputSource xmlInputSource(&file);
-    if (reader.parse(xmlInputSource)) {
+    QSvgHandler handler(&file);
+    if (handler.ok()) {
         doc = handler.document();
         doc->m_animationDuration = handler.animationDuration();
     }
+    qDebug() << "Parse time" << time.elapsed();
     return doc;
 }
 
 QSvgTinyDocument * QSvgTinyDocument::load(const QByteArray &contents)
 {
-    QSvgHandler handler;
-    QXmlSimpleReader reader;
-    reader.setContentHandler(&handler);
-    reader.setErrorHandler(&handler);
+    QSvgHandler handler(contents);
 
     QSvgTinyDocument *doc = 0;
-    QXmlInputSource xmlInputSource;
-    xmlInputSource.setData(contents);
-    if (reader.parse(xmlInputSource)) {
+    if (handler.ok()) {
         doc = handler.document();
         doc->m_animationDuration = handler.animationDuration();
     }
