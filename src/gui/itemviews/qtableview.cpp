@@ -874,8 +874,9 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
     while (bottom >= 0 && isRowHidden(bottom)) --bottom;
 
     int right = d->model->columnCount(d->root) - 1;
-    // make sure that right is the rightmost *visible* column
-    while (right >= 0 && isColumnHidden(right)) --right;
+
+    while (right >= 0 && isColumnHidden(right))
+        --right;
 
     if (bottom == -1 || right == -1)
         return QModelIndex(); // model is empty
@@ -1005,11 +1006,14 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
             visualRow = bottom;
         break;
     case MovePageUp: {
-        int newRow = rowAt(visualRect(current).top() - d->viewport->height());
+        int top = 0;
+        while (top < bottom && isRowHidden(d->logicalRow(top)))
+            ++top;
+        int newRow = qMax(rowAt(visualRect(current).top() - d->viewport->height()), top);
         return d->model->index(qBound(0, newRow, bottom), current.column(), d->root);
     }
     case MovePageDown: {
-        int newRow = rowAt(visualRect(current).bottom() + d->viewport->height());
+        int newRow = qMin(rowAt(visualRect(current).bottom() + d->viewport->height()), bottom);
         if (newRow < 0)
             newRow = bottom;
         return d->model->index(qBound(0, newRow, bottom), current.column(), d->root);
@@ -1768,8 +1772,11 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
                     : d->horizontalHeader->sectionSize(index.column());
 
     if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {
-        if (hint == PositionAtCenter // center or right
-            || (horizontalPosition - horizontalOffset + cellWidth > viewportWidth)) {
+
+        bool positionAtLeft = (horizontalPosition - horizontalOffset < 0);
+        bool positionAtRight = (horizontalPosition - horizontalOffset + cellWidth > viewportWidth);
+
+        if (hint == PositionAtCenter || positionAtRight) {
             int w = (hint == PositionAtCenter ? viewportWidth / 2 : viewportWidth);
             int x = cellWidth;
             while (horizontalIndex > 0) {
@@ -1778,10 +1785,20 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
                     break;
                 --horizontalIndex;
             }
-            horizontalScrollBar()->setValue(horizontalIndex);
-        } else if (horizontalPosition - horizontalOffset < 0) {
-            horizontalScrollBar()->setValue(horizontalIndex);
         }
+
+        if (positionAtRight || hint == PositionAtCenter || positionAtLeft) {
+            int hiddenSections = 0;
+            if (d->horizontalHeader->sectionsHidden()) {
+                for (int s = horizontalIndex; s >= 0; --s) {
+                    int column = d->horizontalHeader->logicalIndex(s);
+                    if (d->horizontalHeader->isSectionHidden(column))
+                        ++hiddenSections;
+                }
+            }
+            horizontalScrollBar()->setValue(horizontalIndex - hiddenSections);
+        }
+
     } else { // ScrollPerPixel
         if (hint == PositionAtCenter) {
             horizontalScrollBar()->setValue(horizontalPosition - ((viewportWidth - cellWidth) / 2));
@@ -1812,19 +1829,31 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     }
 
     if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
-        if (hint == PositionAtTop)
-            verticalScrollBar()->setValue(verticalIndex);
-        else if (hint == PositionAtBottom || hint == PositionAtCenter) {
+
+        if (hint == PositionAtBottom || hint == PositionAtCenter) {
             int h = (hint == PositionAtCenter ? viewportHeight / 2 : viewportHeight);
             int y = cellHeight;
             while (verticalIndex > 0) {
-                y += rowHeight(d->verticalHeader->logicalIndex(verticalIndex-1));
+                int row = d->verticalHeader->logicalIndex(verticalIndex - 1);
+                y += d->verticalHeader->sectionSize(row);
                 if (y > h)
                     break;
                 --verticalIndex;
             }
-            verticalScrollBar()->setValue(verticalIndex);
         }
+        
+        if (hint == PositionAtBottom || hint == PositionAtCenter || hint == PositionAtTop) {
+            int hiddenSections = 0;
+            if (d->verticalHeader->sectionsHidden()) {
+                for (int s = verticalIndex; s >= 0; --s) {
+                    int row = d->verticalHeader->logicalIndex(s);
+                    if (d->verticalHeader->isSectionHidden(row))
+                        ++hiddenSections;
+                }
+            }
+            verticalScrollBar()->setValue(verticalIndex - hiddenSections);
+        }
+
     } else { // ScrollPerPixel
         if (hint == PositionAtTop) {
             verticalScrollBar()->setValue(verticalPosition);
