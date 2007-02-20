@@ -145,7 +145,7 @@ void tst_QFiledialog::fileMode()
 void tst_QFiledialog::filters()
 {
     QFileDialog fd;
-    QCOMPARE(fd.filters(), QStringList("All Files (*)"));
+    QCOMPARE(fd.filters(), QStringList("All Files (*.*)"));
 
     // effects
     QList<QComboBox*> views = fd.findChildren<QComboBox*>("qt_file_type_combo");
@@ -155,25 +155,25 @@ void tst_QFiledialog::filters()
     QStringList filters;
     filters << "Image files (*.png *.xpm *.jpg)"
          << "Text files (*.txt)"
-         << "Any files (*)";
+         << "Any files (*.*)";
     fd.setFilters(filters);
     QCOMPARE(views.at(0)->isVisible(), false);
     fd.show();
     fd.setAcceptMode(QFileDialog::AcceptSave);
     QCOMPARE(views.at(0)->isVisible(), true);
     QCOMPARE(fd.filters(), filters);
-    fd.setFilter("Image files (*.png *.xpm *.jpg);;Text files (*.txt);;Any files (*)");
+    fd.setFilter("Image files (*.png *.xpm *.jpg);;Text files (*.txt);;Any files (*.*)");
     QCOMPARE(fd.filters(), filters);
 }
 
 void tst_QFiledialog::selectFilter()
 {
     QFileDialog fd;
-    QCOMPARE(fd.selectedFilter(), QString("All Files (*)"));
+    QCOMPARE(fd.selectedFilter(), QString("All Files (*.*)"));
     QStringList filters;
     filters << "Image files (*.png *.xpm *.jpg)"
          << "Text files (*.txt)"
-         << "Any files (*)";
+         << "Any files (*.*)";
     fd.setFilters(filters);
     QCOMPARE(fd.selectedFilter(), filters.at(0));
     fd.selectFilter(filters.at(1));
