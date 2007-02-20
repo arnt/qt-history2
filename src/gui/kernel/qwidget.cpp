@@ -108,12 +108,16 @@ QWidgetPrivate::QWidgetPrivate(int version) :
 
 QWidgetPrivate::~QWidgetPrivate()
 {
+#ifndef Q_WS_MAC
     if (!dirty.isEmpty()) {
         Q_Q(QWidget);
+ 
         QWidgetBackingStore *bs = maybeBackingStore();
         if (bs)
             bs->dirtyWidgets.remove(q);
     }
+#endif
+
     if (extra)
         deleteExtra();
 }
@@ -5177,9 +5181,11 @@ void QWidgetPrivate::hide_helper()
         }
     }
 
+#ifndef Q_WS_MAC
     QWidgetBackingStore *bs = maybeBackingStore();
     if (bs)
         bs->removeDirtyWidget(q);
+#endif
 
 #ifndef QT_NO_ACCESSIBILITY
     if (wasVisible)
@@ -7242,11 +7248,13 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
 
     d->setParent_sys(parent, f);
 
+#ifndef Q_WS_MAC
     if (newParent) {
         QWidgetBackingStore *oldBs = oldtlw->d_func()->maybeBackingStore();
         if (oldBs)
             oldBs->removeDirtyWidget(this);
     }
+#endif
 
     if ((QApplicationPrivate::app_compile_version < 0x040200
          || QApplicationPrivate::testAttribute(Qt::AA_ImmediateWidgetCreation))
