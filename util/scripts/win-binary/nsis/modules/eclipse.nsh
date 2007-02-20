@@ -71,13 +71,14 @@ Section "${MODULE_ECLIPSE_QTPROJECT_LABEL}" ECLIPSE_SEC01
   SetOutPath "$ECLIPSE_INSTDIR"
   SetOverwrite ifnewer
   File "${MODULE_ECLIPSE_ROOT}\bin\qtproparser.dll"
+  File "${MODULE_ECLIPSE_ROOT}\bin\qtqrceditor.dll"
   
-  ClearErrors
   push "$ECLIPSE_INSTDIR\qtproparser.dll"
-  call RegSvr
-  IfErrors 0 +2
-    MessageBox MB_OK|MB_ICONEXCLAMATION "Could not register qtproparser.dll"
-    
+  call RegEclipseSvr
+  
+  push "$ECLIPSE_INSTDIR\qtqrceditor.dll"
+  call RegEclipseSvr
+  
   IfFileExists "$ECLIPSE_MINGW_LOCATION\gcc.exe" 0 done
   Call MakeEclipseStartFile
   CreateShortCut "$SMPROGRAMS\$STARTMENU_STRING\Start Eclipse with MinGW.lnk" "%COMSPEC%" '/c "$ECLIPSE_INSTDIR\start.bat"'
@@ -105,11 +106,8 @@ Section "${MODULE_ECLIPSE_QTDESIGNER_LABEL}" ECLIPSE_SEC02
   File "${MODULE_ECLIPSE_ROOT}\bin\QtDesignerComponents4.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\qtdesigner.dll"
   
-  ClearErrors
   push "$ECLIPSE_INSTDIR\qtdesigner.dll"
-  call RegSvr
-  IfErrors 0 +2
-    MessageBox MB_OK|MB_ICONEXCLAMATION "Could not register qtdesigner.dll"
+  call RegEclipseSvr
 SectionEnd
 
 Section "${MODULE_ECLIPSE_QTINTEGRATIONHELP_LABEL}" ECLIPSE_SEC03
@@ -132,6 +130,21 @@ Section "${MODULE_ECLIPSE_QTREFERENCE_LABEL}" ECLIPSE_SEC04
 SectionEnd
 
 SectionGroupEnd
+
+; usage:
+; push dll to register
+; call RegEclipseSvr
+Function RegEclipseSvr
+  exch $0 ;filename
+
+  ClearErrors
+  push $0
+  call RegSvr
+  IfErrors 0 +2
+    MessageBox MB_OK|MB_ICONEXCLAMATION 'Could not register "$0"'
+
+  pop $0
+FunctionEnd
 
 #
 # creates a start.bat file with mingw in the path
@@ -265,6 +278,8 @@ Section un."Eclipse Integration"
   ReadRegDWORD $0 SHCTX "$PRODUCT_UNIQUE_KEY" "${MODULE_ECLIPSE_QTPROJECT_INSTALLEDKEY}"
   intcmp $0 1 0 DoneUnInstallQtProject
     push "$ECLIPSE_INSTDIR\qtproparser.dll"
+    call un.RegSvr
+    push "$ECLIPSE_INSTDIR\qtqrceditor.dll"
     call un.RegSvr
   
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QT_ID}.jar"
