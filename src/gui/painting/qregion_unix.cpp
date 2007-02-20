@@ -2767,11 +2767,8 @@ QRect QRegion::boundingRect() const
 }
 
 /*! \internal
-    Returns a rectangle that is completely contained the region.
-
-    There's no guarantee that this is the largest possible rectangle and the
-    function might return an empty rectangle even though the region is not
-    empty.
+    Returns true if r is guaranteed to be fully contained in this region.
+    A false return value does not guarantee the opposite.
 */
 bool qt_region_strictContains(const QRegion &region, const QRect &rect)
 {
