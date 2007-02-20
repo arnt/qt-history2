@@ -466,16 +466,12 @@ void QPaintEngine::drawTiledPixmap(const QRectF &rect, const QPixmap &pixmap, co
         while (tw*th < 32678 && th < rect.height()/2)
             th *= 2;
         QPixmap tile;
-        if (pixmap.hasAlphaChannel()) {
-            // ####################
-            QImage image(tw, th, QImage::Format_ARGB32_Premultiplied);
-            image.fill(qRgba(127, 0, 0, 127));
-            tile = QPixmap::fromImage(image);
+        if (pixmap.depth() == 1) {
+            tile = QBitmap(tw, th);
         } else {
-            if (pixmap.depth() == 1)
-                tile = QBitmap(tw, th);
-            else
-                tile = QPixmap(tw, th);
+            tile = QPixmap(tw, th);
+            if (pixmap.hasAlphaChannel())
+                tile.fill(Qt::transparent);
         }
         qt_fill_tile(&tile, pixmap);
         qt_draw_tile(this, rect.x(), rect.y(), rect.width(), rect.height(), tile, p.x(), p.y());
