@@ -13,6 +13,7 @@ General Improvements
 
 - Configuration/Compilation
     * Fixed architecture detection on UltraSPARC-T1 systems
+    * Fixed compilation on embedded architectures when qreal is not double
 
 - Documentation
     * Completed documentation for "Implementing Atomic Operations,"
@@ -138,6 +139,8 @@ General improvements
 
 - QFileDialog
     * Fixed crash when the filter began with ';;'.
+    * Fixed assert when setFilters() is called with an empty list.
+    * Fixed problem with file entries not being laid out correctly.
 
 - QLineEdit
     * Fixed crash when moving the cursor over a QChar::LineSeparator in the text.
@@ -251,6 +254,21 @@ General improvements
 
 - QVariant
     * Fixed ASSERT caused by streaming in a variant containing a float
+
+- QAbstractItemView
+    * Fixed focus problem with cell widgets.
+
+- QTableView
+    * Fixed problem with context menus clearing the selections.
+
+- QHeaderView
+    * Fixed assert when removing all sections when sections had been moved.
+
+- QListView
+    * Fixed crash when calling reset.
+
+- QTableWidget
+    * Fixed painting problem when rows were swapped.
 
 ****************************************************************************
 *                      Platform Specific Changes                           *
