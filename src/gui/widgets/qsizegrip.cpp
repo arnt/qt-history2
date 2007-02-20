@@ -59,6 +59,9 @@ public:
     bool hiddenByUser;
     Qt::Corner m_corner;
     bool gotMousePress;
+#ifdef Q_WS_MAC
+    void updateMacSizer(bool hide) const;
+#endif
     Qt::Corner corner() const;
     inline bool atBottom() const
     {
@@ -71,6 +74,18 @@ public:
     }
 };
 
+#ifdef Q_WS_MAC
+void QSizeGripPrivate::updateMacSizer(bool hide) const
+{
+    Q_Q(const QSizeGrip);
+    if (QApplication::closingDown() || !q->parentWidget())
+        return;
+    QWidget *topLevelWindow = qt_sizegrip_topLevelWidget(const_cast<QSizeGrip *>(q));
+    if(topLevelWindow && topLevelWindow->isWindow())
+        QWidgetPrivate::qt_mac_update_sizer(topLevelWindow, hide ? -1 : 1);
+}
+#endif
+
 Qt::Corner QSizeGripPrivate::corner() const
 {
     Q_Q(const QSizeGrip);
@@ -78,7 +93,6 @@ Qt::Corner QSizeGripPrivate::corner() const
     const QPoint globalPos = tlw->mapFromGlobal(q->mapToGlobal(QPoint(0, 0)));
     bool isAtBottom = globalPos.y() >= tlw->height() / 2;
     bool isAtLeft = globalPos.x() <= tlw->width() / 2;
-
     if (isAtLeft)
         return isAtBottom ? Qt::BottomLeftCorner : Qt::TopLeftCorner;
     else
@@ -216,6 +230,11 @@ void QSizeGrip::paintEvent(QPaintEvent *event)
 */
 void QSizeGrip::mousePressEvent(QMouseEvent * e)
 {
+    if (e->button() != Qt::LeftButton) {
+        QWidget::mousePressEvent(e);
+        return;
+    }
+
     Q_D(QSizeGrip);
     QWidget *tlw = qt_sizegrip_topLevelWidget(this);
     d->p = e->globalPos();
@@ -223,9 +242,8 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
     d->r = tlw->geometry();
 
 #ifdef Q_WS_X11
-    if (e->button() == Qt::LeftButton
-        && X11->isSupportedByWM(ATOM(_NET_WM_MOVERESIZE))
-        && tlw->isWindow()) {
+    // Use a native X11 sizegrip for "real" top-level windows if supported.
+    if (tlw->isWindow() && X11->isSupportedByWM(ATOM(_NET_WM_MOVERESIZE))) {
         XEvent xev;
         xev.xclient.type = ClientMessage;
         xev.xclient.message_type = ATOM(_NET_WM_MOVERESIZE);
@@ -245,7 +263,21 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
                    SubstructureRedirectMask | SubstructureNotifyMask, &xev);
         return;
     }
-#endif
+#endif // Q_WS_X11
+
+#ifdef Q_WS_WIN
+    // Use a native Windows sizegrip for "real" top-level windows.
+    if (tlw->isWindow()) {
+        if (d->atBottom())
+            PostMessage(w->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZEBOTTOMLEFT
+                                                               : SZ_SIZEBOTTOMRIGHT, 0);
+        } else {
+            PostMessage(w->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZETOPLEFT
+                                                               : SZ_SIZETOPRIGHT, 0);
+        }
+        return;
+    }
+#endif // Q_WS_WIN
 
     // Find available desktop/workspace geometry.
     QRect availableGeometry;
@@ -283,24 +315,28 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
 */
 void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 {
+    if (e->buttons() != Qt::LeftButton) {
+        QWidget::mouseMoveEvent(e);
+        return;
+    }
+
+    Q_D(QSizeGrip);
     QWidget* tlw = qt_sizegrip_topLevelWidget(this);
+    if (!d->gotMousePress || tlw->testAttribute(Qt::WA_WState_ConfigPending))
+        return;
 
 #ifdef Q_WS_X11
-    if (e->button() == Qt::LeftButton
-        && X11->isSupportedByWM(ATOM(_NET_WM_MOVERESIZE))
+    if (tlw->isWindow() && X11->isSupportedByWM(ATOM(_NET_WM_MOVERESIZE))
         && tlw->isTopLevel())
         return;
 #endif
-
-    if (e->buttons() != Qt::LeftButton)
+#ifdef Q_WS_WIN
+    if (tlw->isWindow()) {
+        MSG msg;
+        while(PeekMessage(&msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE));
         return;
-
-    Q_D(QSizeGrip);
-    if (d->gotMousePress == false)
-        return;
-
-    if (tlw->testAttribute(Qt::WA_WState_ConfigPending))
-        return;
+    }
+#endif
 
     QPoint np(e->globalPos());
 
@@ -343,12 +379,20 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
     }
 
     tlw->setGeometry(nr);
+}
 
-#ifdef Q_WS_WIN
-    MSG msg;
-    while(PeekMessage(&msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
-      ;
-#endif
+/*!
+  \reimp
+*/
+void QSizeGrip::mouseReleaseEvent(QMouseEvent *mouseEvent)
+{
+    if (mouseEvent->button() == Qt::LeftButton) {
+        Q_D(QSizeGrip);
+        d->gotMousePress = false;
+        d->p = QPoint();
+    } else {
+        QWidget::mouseReleaseEvent(mouseEvent);
+    }
 }
 
 /*!
@@ -368,6 +412,28 @@ void QSizeGrip::moveEvent(QMoveEvent * /*moveEvent*/)
 #endif
 }
 
+/*!
+  \reimp
+*/
+void QSizeGrip::showEvent(QShowEvent *showEvent)
+{
+#ifdef Q_WS_MAC
+    d_func()->updateMacSizer(false);
+#endif
+    return QWidget::showEvent(showEvent);
+}
+
+/*!
+  \reimp
+*/
+void QSizeGrip::hideEvent(QHideEvent *hideEvent)
+{
+#ifdef Q_WS_MAC
+    d_func()->updateMacSizer(true);
+#endif
+    return QWidget::hideEvent(hideEvent);
+}
+
 /*! \reimp */
 void QSizeGrip::setVisible(bool visible)
 {
@@ -376,66 +442,27 @@ void QSizeGrip::setVisible(bool visible)
     QWidget::setVisible(visible);
 }
 
-
 /*! \reimp */
 bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
 {
     Q_D(QSizeGrip);
+    if (d->hiddenByUser || e->type() != QEvent::WindowStateChange)
+        return QWidget::eventFilter(o, e);
     QWidget *tlw = qt_sizegrip_topLevelWidget(this);
-    if (!d->hiddenByUser && e->type() == QEvent::WindowStateChange && o == tlw) {
-        QWidget::setVisible((tlw->windowState() &
+    if (o != tlw)
+        return QWidget::eventFilter(o, e);
+    QWidget::setVisible((tlw->windowState() &
                              (Qt::WindowFullScreen
 #ifndef Q_WS_MAC
                               | Qt::WindowMaximized
 #endif
                               ))==0);
-    }
     return false;
 }
 
-/*! \reimp */
-bool QSizeGrip::event(QEvent *e)
+bool QSizeGrip::event(QEvent *event)
 {
-    Q_D(QSizeGrip);
-    switch(e->type()) {
-#if defined(Q_WS_MAC)
-    case QEvent::Hide:
-    case QEvent::Show:
-        d->m_corner = d->corner();
-        if(!QApplication::closingDown() && parentWidget()) {
-            if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
-                if(w->isWindow())
-                    QWidgetPrivate::qt_mac_update_sizer(w, e->type() == QEvent::Hide ? -1 : 1);
-            }
-        }
-        break;
-#endif
-    case QEvent::MouseButtonRelease:
-        d->gotMousePress = false;
-        d->p = QPoint();
-        break;
-    default:
-        break;
-    }
-    return QWidget::event(e);
+    return QWidget::event(event);
 }
-
-#ifdef Q_WS_WIN
-/*! \reimp */
-bool QSizeGrip::winEvent( MSG *m, long *result )
-{
-    if (m->message == WM_LBUTTONDOWN) {
-        // toplevel windows use the native size grip on Windows
-        if (QWidget *w = qt_sizegrip_topLevelWidget(this)) {
-            if (w->isWindow()) {
-                PostMessage(w->winId(), WM_SYSCOMMAND,
-                            qApp->isLeftToRight() ? SZ_SIZEBOTTOMRIGHT : SZ_SIZEBOTTOMLEFT, 0);
-                return true;
-            }
-        }
-    }
-    return QWidget::winEvent(m, result);
-}
-#endif
 
 #endif //QT_NO_SIZEGRIP

@@ -21,7 +21,6 @@ QT_BEGIN_HEADER
 QT_MODULE(Gui)
 
 #ifndef QT_NO_SIZEGRIP
-
 class QSizeGripPrivate;
 class Q_GUI_EXPORT QSizeGrip : public QWidget
 {
@@ -31,28 +30,28 @@ public:
     ~QSizeGrip();
 
     QSize sizeHint() const;
-
     void setVisible(bool);
+
 protected:
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *mouseEvent);
     void moveEvent(QMoveEvent *moveEvent);
-
+    void showEvent(QShowEvent *showEvent);
+    void hideEvent(QHideEvent *hideEvent);
     bool eventFilter(QObject *, QEvent *);
     bool event(QEvent *);
-#ifdef Q_WS_WIN
-    bool winEvent( MSG *m, long *result );
-#endif
+
 public:
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QSizeGrip(QWidget *parent, const char *name);
 #endif
+
 private:
     Q_DECLARE_PRIVATE(QSizeGrip)
     Q_DISABLE_COPY(QSizeGrip)
 };
-
 #endif // QT_NO_SIZEGRIP
 
 QT_END_HEADER
