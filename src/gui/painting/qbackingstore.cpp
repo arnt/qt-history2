@@ -636,10 +636,10 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         if (tlw->updatesEnabled()) {
 
             // hw: XXX the toClean region is not correct if !dirtyWidgets.isEmpty()
-            
+
             // Pre render config
             windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
-            
+
 // Avoid deadlock with QT_FLUSH_PAINT: the server will wait for
 // the BackingStore lock, so if we hold that, the server will
 // never release the Communication lock that we are waiting for in
@@ -668,7 +668,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
                 w->d_func()->dirty = QRegion();
             }
             dirtyWidgets.clear();
-            
+
             if (!toClean.isEmpty())
                 tlw->d_func()->drawWidget(windowSurface->paintDevice(),
                                           toClean, tlwOffset);
@@ -680,7 +680,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
             windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
         }
     }
-    
+
     if (recursiveCopyToScreen) {
         toFlush.translate(widget->mapTo(tlw, QPoint()));
         copyToScreen(toFlush, tlw, tlwOffset, recursiveCopyToScreen);
@@ -988,7 +988,7 @@ void QWidget::update(const QRegion& rgn)
     if (wrgn.isEmpty())
         return;
 
-#ifndef Q_WS_WIN
+#ifdef Q_WS_QWS
     if (qt_region_strictContains(d->dirty, wrgn.boundingRect()))
         return; // already dirty
 
@@ -1002,7 +1002,7 @@ void QWidget::update(const QRegion& rgn)
         return;
     }
 #endif
-    
+
     bs->dirtyRegion(wrgn, this);
 }
 
