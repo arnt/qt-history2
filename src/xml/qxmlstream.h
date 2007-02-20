@@ -50,6 +50,12 @@ public:
     inline QStringRef value() const
         {return QStringRef(&buffer[value_buffer], value_pos, value_size);}
     inline bool isDefault() const { return m_isDefault; }
+#if  _MSC_VER >= 1400
+    bool operator==(const QXmlStreamAttribute & /*other*/) {
+        Q_ASSERT(false);
+        return false;
+    }
+#endif
 };
 
 Q_DECLARE_TYPEINFO(QXmlStreamAttribute, Q_MOVABLE_TYPE);
