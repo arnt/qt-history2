@@ -101,9 +101,8 @@ public:
     virtual bool waitForBytesWritten(int msecs);
 
     void ungetChar(char c);
-    inline bool putChar(char c) { return write(&c, 1) == 1; }
-    inline bool getChar(char *c)
-    { char ch; bool result = read(&ch, 1) == 1; if (c) *c = ch; return result; }
+    bool putChar(char c);
+    bool getChar(char *c);
 
     QString errorString() const;
 

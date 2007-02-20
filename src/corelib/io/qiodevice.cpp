@@ -65,6 +65,8 @@ static const qint64 QIODEVICE_BUFFERSIZE = 16384;
 #define CHECK_WRITABLE(function, returnType) \
    do { \
        if ((d->openMode & WriteOnly) == 0) { \
+           if (d->openMode == NotOpen) \
+               return returnType; \
            qWarning("QIODevice::"#function": ReadOnly device"); \
            return returnType; \
        } \
@@ -73,17 +75,12 @@ static const qint64 QIODEVICE_BUFFERSIZE = 16384;
 #define CHECK_READABLE(function, returnType) \
    do { \
        if ((d->openMode & ReadOnly) == 0) { \
+           if (d->openMode == NotOpen) \
+               return returnType; \
            qWarning("QIODevice::"#function": WriteOnly device"); \
            return returnType; \
        } \
    } while (0)
-
-#define CHECK_OPEN(function, returnType) \
-    do { \
-        if (d->openMode == NotOpen) { \
-            return returnType; \
-        } \
-    } while (0)
 
 /*! \internal
  */
@@ -703,7 +700,6 @@ qint64 QIODevice::bytesToWrite() const
 qint64 QIODevice::read(char *data, qint64 maxSize)
 {
     Q_D(QIODevice);
-    CHECK_OPEN(read, qint64(-1));
     CHECK_READABLE(read, qint64(-1));
     CHECK_MAXLEN(read, qint64(-1));
 
@@ -1154,15 +1150,6 @@ bool QIODevice::canReadLine() const
     return d_func()->buffer.canReadLine();
 }
 
-/*! \fn bool QIODevice::getChar(char *c)
-
-    Reads one character from the device and stores it in \a c. If \a c
-    is 0, the character is discarded. Returns true on success;
-    otherwise returns false.
-
-    \sa read() putChar() ungetChar()
-*/
-
 /*!
     Writes at most \a maxSize bytes of data from \a data to the
     device. Returns the number of bytes that were actually written, or
@@ -1173,7 +1160,6 @@ bool QIODevice::canReadLine() const
 qint64 QIODevice::write(const char *data, qint64 maxSize)
 {
     Q_D(QIODevice);
-    CHECK_OPEN(write, qint64(-1));
     CHECK_WRITABLE(write, qint64(-1));
     CHECK_MAXLEN(write, qint64(-1));
 
@@ -1255,14 +1241,6 @@ qint64 QIODevice::write(const char *data, qint64 maxSize)
     \sa read() writeData()
 */
 
-/*! \fn bool QIODevice::putChar(char c)
-
-    Writes the character \a c to the device. Returns true on success;
-    otherwise returns false.
-
-    \sa write() getChar() ungetChar()
-*/
-
 /*!
     Puts the character \a c back into the device, and decrements the
     current position unless the position is 0. This function is
@@ -1275,7 +1253,6 @@ qint64 QIODevice::write(const char *data, qint64 maxSize)
 void QIODevice::ungetChar(char c)
 {
     Q_D(QIODevice);
-    CHECK_OPEN(write, Q_VOID);
     CHECK_READABLE(read, Q_VOID);
 
 #if defined QIODEVICE_DEBUG
@@ -1285,6 +1262,72 @@ void QIODevice::ungetChar(char c)
     d->buffer.ungetChar(c);
     if (!d->isSequential())
         --d->pos;
+}
+
+/*! \fn bool QIODevice::putChar(char c)
+
+    Writes the character \a c to the device. Returns true on success;
+    otherwise returns false.
+
+    \sa write() getChar() ungetChar()
+*/
+bool QIODevice::putChar(char c)
+{
+    return d_func()->putCharHelper(c);
+}
+
+/*!
+    \internal
+*/
+bool QIODevicePrivate::putCharHelper(char c)
+{
+    return q_func()->write(&c, 1) == 1;
+}
+
+/*! \fn bool QIODevice::getChar(char *c)
+
+    Reads one character from the device and stores it in \a c. If \a c
+    is 0, the character is discarded. Returns true on success;
+    otherwise returns false.
+
+    \sa read() putChar() ungetChar()
+*/
+bool QIODevice::getChar(char *c)
+{
+    Q_D(QIODevice);
+    const OpenMode openMode = d->openMode;
+    if (!(openMode & ReadOnly)) {
+        if (openMode == NotOpen)
+            qWarning("QIODevice::getChar: Closed device");
+        else
+            qWarning("QIODevice::getChar: WriteOnly device");
+        return false;
+    }
+
+    // Shortcut for QIODevice::read(c, 1)
+    QRingBuffer *buffer = &d->buffer;
+    const int chint = buffer->getChar();
+    if (chint != -1) {
+        char ch = char(uchar(chint));
+        if ((openMode & Text) && ch == '\r') {
+            buffer->ungetChar(ch);
+        } else {
+            if (c)
+                *c = ch;
+            if (!d->isSequential())
+                ++d->pos;
+            return true;
+        }
+    }
+
+    // Fall back to read().
+    char ch;
+    if (read(&ch, 1) == 1) {
+        if (c)
+            *c = ch;
+        return true;
+    }
+    return false;
 }
 
 /*!

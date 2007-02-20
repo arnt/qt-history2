@@ -1332,6 +1332,62 @@ qint64 QFile::readData(char *data, qint64 len)
 }
 
 /*!
+    \internal
+*/
+bool QFilePrivate::putCharHelper(char c)
+{
+#ifdef QT_NO_QOBJECT
+    return QIODevicePrivate::putCharHelper(c);
+#else
+
+    // Cutoff for code that doesn't only touch the buffer.
+    int writeBufferSize = writeBuffer.size();
+    if ((openMode & QIODevice::Unbuffered) || writeBufferSize + 1 >= QFILE_WRITEBUFFER_SIZE
+#ifdef Q_OS_WIN
+        || ((openMode & QIODevice::Text) && c == '\n' && writeBufferSize + 2 >= QFILE_WRITEBUFFER_SIZE)
+#endif
+        ) {
+        return QIODevicePrivate::putCharHelper(c);
+    }
+
+    if (!(openMode & QIODevice::WriteOnly)) {
+        if (openMode == QIODevice::NotOpen)
+            qWarning("QIODevice::putChar: Closed device");
+        else
+            qWarning("QIODevice::putChar: ReadOnly device");
+        return false;
+    }
+
+    // Make sure the device is positioned correctly.
+    const bool sequential = isSequential();
+    if (pos != devicePos && !sequential && !q_func()->seek(pos))
+        return false;
+
+    lastWasWrite = true;
+
+    int len = 1;
+#ifdef Q_OS_WIN
+    if ((openMode & QIODevice::Text) && c == '\n') {
+        ++len;
+        *writeBuffer.reserve(1) = '\r';
+    }
+#endif
+
+    // Write to buffer.
+    *writeBuffer.reserve(1) = c;
+
+    if (!sequential) {
+        pos += len;
+        devicePos += len;
+        if (!buffer.isEmpty())
+            buffer.skip(len);
+    }
+
+    return true;
+#endif
+}
+
+/*!
   \reimp
 */
 
