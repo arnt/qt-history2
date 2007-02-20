@@ -183,16 +183,6 @@ void QSizeGrip::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     Q_D(QSizeGrip);
-    if (d->p.isNull()) { // update "bottomness" unless we are resizing
-#ifndef QT_NO_CURSOR
-#ifndef Q_WS_MAC
-        if (qt_sizegrip_atBottom(this) != d->atBottom) {
-            d->atBottom = !d->atBottom;
-            setCursor(isRightToLeft() ^ d->atBottom ? Qt::SizeFDiagCursor : Qt::SizeBDiagCursor);
-        }
-#endif
-#endif
-    }
     QPainter painter(this);
     QStyleOptionSizeGrip opt;
     opt.init(this);
@@ -390,6 +380,19 @@ bool QSizeGrip::event(QEvent *e)
     case QEvent::MouseButtonRelease:
         d->gotMousePress = false;
         d->p = QPoint();
+        break;
+    case QEvent::Move:
+        // We're inside a resize operation; no update necessary.
+        if (!d->p.isNull())
+            break;
+
+        // Update "bottomness" and cursor.
+        if (qt_sizegrip_atBottom(this) != d->atBottom) {
+            d->atBottom = !d->atBottom;
+#if !defined(QT_NO_CURSOR) && !defined(Q_WS_MAC)
+            setCursor(isRightToLeft() ^ d->atBottom ? Qt::SizeFDiagCursor : Qt::SizeBDiagCursor);
+#endif
+        }
         break;
     default:
         break;
