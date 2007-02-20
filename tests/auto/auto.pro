@@ -305,6 +305,7 @@ SUBDIRS += bic \
            qx11info \
            qxml \
            qxmlsimplereader \
+           qxmlstream \
            selftests \
            symbols \
            qrand 
