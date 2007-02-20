@@ -585,8 +585,6 @@ const int QXmlStreamReader_Table::action_check [] = {
   -1, -1, -1, -1, -1, -1, -1, -1};
 
 
-#line 83 "qxmlstream.g"
-
 template <typename T> class QXmlStreamSimpleStack {
     T *data;
     int tos, cap;
@@ -1165,13 +1163,9 @@ bool QXmlStreamReaderPrivate::parse()
         ResumeReduction:
             switch (r) {
 
-#line 664 "qxmlstream.g"
-
         case 0:
             type = QXmlStreamReader::EndDocument;
         break;
-
-#line 671 "qxmlstream.g"
 
         case 1:
             if (type != QXmlStreamReader::Invalid) {
@@ -1188,14 +1182,10 @@ bool QXmlStreamReaderPrivate::parse()
             }
         break;
 
-#line 699 "qxmlstream.g"
-
         case 10:
             entityReferenceStack.pop()->isCurrentlyReferenced = false;
             clearSym();
         break;
-
-#line 708 "qxmlstream.g"
 
         case 11:
             xmlDeclOK = (characterOffset + readBufferPos - putStack.size() == 2);
@@ -1205,16 +1195,12 @@ bool QXmlStreamReaderPrivate::parse()
             }
         break;
 
-#line 719 "qxmlstream.g"
-
         case 12:
             if (!scanString(spell[VERSION], VERSION, false) && atEnd) {
                 resume(12);
                 return false;
             }
         break;
-
-#line 729 "qxmlstream.g"
 
         case 13:
             type = QXmlStreamReader::StartDocument;
@@ -1224,20 +1210,14 @@ bool QXmlStreamReaderPrivate::parse()
                 raiseWellFormedError(QObject::tr("XML declaration not at start of document."));
         break;
 
-#line 740 "qxmlstream.g"
-
         case 14:
             referenceToUnparsedEntityDetected = true;
         break;
-
-#line 746 "qxmlstream.g"
 
         case 15:
             checkPublicLiteral(symString(2));
             referenceToUnparsedEntityDetected = true;
         break;
-
-#line 755 "qxmlstream.g"
 
         case 17:
             if (!scanPublicOrSystem() && atEnd) {
@@ -1246,35 +1226,21 @@ bool QXmlStreamReaderPrivate::parse()
             }
         break;
 
-#line 765 "qxmlstream.g"
-
         case 18:
-#line 768 "qxmlstream.g"
-
         case 19:
-#line 771 "qxmlstream.g"
-
         case 20:
-#line 774 "qxmlstream.g"
-
         case 21:
             type = QXmlStreamReader::DTD;
             text = &textBuffer;
         break;
 
-#line 782 "qxmlstream.g"
-
         case 22:
             scanDtd = true;
         break;
 
-#line 789 "qxmlstream.g"
-
         case 23:
             scanDtd = false;
         break;
-
-#line 803 "qxmlstream.g"
 
         case 37:
             if (!scanString(spell[EMPTY], EMPTY, false)
@@ -1285,8 +1251,6 @@ bool QXmlStreamReaderPrivate::parse()
             }
         break;
 
-#line 820 "qxmlstream.g"
-
         case 43:
             if (!scanString(spell[PCDATA], PCDATA, false) && atEnd) {
                 resume(43);
@@ -1294,13 +1258,9 @@ bool QXmlStreamReaderPrivate::parse()
             }
         break;
 
-#line 861 "qxmlstream.g"
-
         case 68: {
             lastAttributeIsCData = true;
         } break;
-
-#line 872 "qxmlstream.g"
 
         case 79:
             if (!scanAfterDefaultDecl() && atEnd) {
@@ -1308,8 +1268,6 @@ bool QXmlStreamReaderPrivate::parse()
                 return false;
             }
         break;
-
-#line 886 "qxmlstream.g"
 
         case 84:
                 sym(1) = sym(2);
@@ -1320,8 +1278,6 @@ bool QXmlStreamReaderPrivate::parse()
                     return false;
                 }
         break;
-
-#line 899 "qxmlstream.g"
 
         case 85: {
             DtdAttribute &dtdAttribute = dtdAttributes.push();
@@ -1340,8 +1296,6 @@ bool QXmlStreamReaderPrivate::parse()
 
             }
         } break;
-
-#line 924 "qxmlstream.g"
 
         case 89: {
             if (referenceToUnparsedEntityDetected && !standalone)
@@ -1363,8 +1317,6 @@ bool QXmlStreamReaderPrivate::parse()
             }
         } break;
 
-#line 947 "qxmlstream.g"
-
         case 90: {
             if (!scanPublicOrSystem() && atEnd) {
                 resume(90);
@@ -1374,8 +1326,6 @@ bool QXmlStreamReaderPrivate::parse()
             entityDeclaration.clear();
             entityDeclaration.name = symString(3);
         } break;
-
-#line 960 "qxmlstream.g"
 
         case 91: {
             if (!scanPublicOrSystem() && atEnd) {
@@ -1388,8 +1338,6 @@ bool QXmlStreamReaderPrivate::parse()
             entityDeclaration.parameter = true;
         } break;
 
-#line 974 "qxmlstream.g"
-
         case 92: {
             if (!scanNData() && atEnd) {
                 resume(92);
@@ -1399,8 +1347,6 @@ bool QXmlStreamReaderPrivate::parse()
             entityDeclaration.systemId = symString(3);
             entityDeclaration.external = true;
         } break;
-
-#line 987 "qxmlstream.g"
 
         case 93: {
             if (!scanNData() && atEnd) {
@@ -1413,8 +1359,6 @@ bool QXmlStreamReaderPrivate::parse()
             entityDeclaration.external = true;
         } break;
 
-#line 1001 "qxmlstream.g"
-
         case 94: {
             EntityDeclaration &entityDeclaration = entityDeclarations.top();
             entityDeclaration.notationName = symString(3);
@@ -1423,11 +1367,7 @@ bool QXmlStreamReaderPrivate::parse()
         }
         //fall through
 
-#line 1012 "qxmlstream.g"
-
         case 95:
-#line 1016 "qxmlstream.g"
-
         case 96: {
             if (referenceToUnparsedEntityDetected && !standalone) {
                 entityDeclarations.pop();
@@ -1446,8 +1386,6 @@ bool QXmlStreamReaderPrivate::parse()
             }
         } break;
 
-#line 1038 "qxmlstream.g"
-
         case 97: {
             type = QXmlStreamReader::ProcessingInstruction;
             int pos = sym(3).pos + sym(3).len;
@@ -1463,8 +1401,6 @@ bool QXmlStreamReaderPrivate::parse()
             }
         } break;
 
-#line 1056 "qxmlstream.g"
-
         case 98:
             type = QXmlStreamReader::ProcessingInstruction;
             processingInstructionTarget = symString(2);
@@ -1472,16 +1408,12 @@ bool QXmlStreamReaderPrivate::parse()
                 raiseWellFormedError(QObject::tr("Invalid processing instruction name."));
         break;
 
-#line 1067 "qxmlstream.g"
-
         case 99:
             if (!scanAfterLangleBang() && atEnd) {
                 resume(99);
                 return false;
             }
         break;
-
-#line 1077 "qxmlstream.g"
 
         case 100: {
             type = QXmlStreamReader::Comment;
@@ -1493,8 +1425,6 @@ bool QXmlStreamReaderPrivate::parse()
                 return false;
             }
         } break;
-
-#line 1094 "qxmlstream.g"
 
         case 102:
             type = QXmlStreamReader::Characters;
@@ -1509,8 +1439,6 @@ bool QXmlStreamReaderPrivate::parse()
             }
         break;
 
-#line 1110 "qxmlstream.g"
-
         case 103: {
             if (!scanPublicOrSystem() && atEnd) {
                 resume(103);
@@ -1520,15 +1448,11 @@ bool QXmlStreamReaderPrivate::parse()
             notationDeclaration.name = symString(3);
         } break;
 
-#line 1122 "qxmlstream.g"
-
         case 104: {
             NotationDeclaration &notationDeclaration = notationDeclarations.top();
             notationDeclaration.systemId = symString(3);
             notationDeclaration.publicId.clear();
         } break;
-
-#line 1131 "qxmlstream.g"
 
         case 105: {
             NotationDeclaration &notationDeclaration = notationDeclarations.top();
@@ -1536,28 +1460,18 @@ bool QXmlStreamReaderPrivate::parse()
             checkPublicLiteral((notationDeclaration.publicId = symString(3)));
         } break;
 
-#line 1140 "qxmlstream.g"
-
         case 106: {
             NotationDeclaration &notationDeclaration = notationDeclarations.top();
             checkPublicLiteral((notationDeclaration.publicId = symString(3)));
             notationDeclaration.systemId = symString(5);
         } break;
 
-#line 1153 "qxmlstream.g"
-
         case 128:
             isWhitespace = true;
             // fall through
 
-#line 1159 "qxmlstream.g"
-
         case 129:
-#line 1162 "qxmlstream.g"
-
         case 130:
-#line 1165 "qxmlstream.g"
-
         case 131:
             type = QXmlStreamReader::Characters;
             sym(1).len += fastScanContentCharList();
@@ -1568,46 +1482,26 @@ bool QXmlStreamReaderPrivate::parse()
             text = &textBuffer;
         break;
 
-#line 1180 "qxmlstream.g"
-
         case 132:
-#line 1183 "qxmlstream.g"
-
         case 133:
             clearSym();
         break;
 
-#line 1189 "qxmlstream.g"
-
         case 134:
-#line 1192 "qxmlstream.g"
-
         case 135:
             sym(1) = sym(2);
         break;
 
-#line 1199 "qxmlstream.g"
-
         case 136:
-#line 1202 "qxmlstream.g"
-
         case 137:
-#line 1205 "qxmlstream.g"
-
         case 138:
-#line 1208 "qxmlstream.g"
-
         case 139:
             sym(1).len += sym(2).len;
         break;
 
-#line 1221 "qxmlstream.g"
-
         case 165:
             textBuffer.data()[textBuffer.size()-1] = QLatin1Char(' ');
         break;
-
-#line 1228 "qxmlstream.g"
 
         case 166:
             sym(1).len += fastScanLiteralContent();
@@ -1617,68 +1511,38 @@ bool QXmlStreamReaderPrivate::parse()
             }
         break;
 
-#line 1240 "qxmlstream.g"
-
         case 168:
             clearSym();
         break;
 
-#line 1247 "qxmlstream.g"
-
         case 169:
-#line 1250 "qxmlstream.g"
-
         case 170:
 	    sym(1) = sym(2);
         break;
 
-#line 1257 "qxmlstream.g"
-
         case 171:
-#line 1260 "qxmlstream.g"
-
         case 172:
-#line 1263 "qxmlstream.g"
-
         case 173:
-#line 1266 "qxmlstream.g"
-
         case 174:
             sym(1).len += sym(2).len;
         break;
-
-#line 1281 "qxmlstream.g"
 
         case 205:
             clearSym();
         break;
 
-#line 1287 "qxmlstream.g"
-
         case 206:
-#line 1290 "qxmlstream.g"
-
         case 207:
             sym(1) = sym(2);
             lastAttributeValue = symString(1);
         break;
 
-#line 1298 "qxmlstream.g"
-
         case 208:
-#line 1301 "qxmlstream.g"
-
         case 209:
-#line 1304 "qxmlstream.g"
-
         case 210:
-#line 1307 "qxmlstream.g"
-
         case 211:
             sym(1).len += sym(2).len;
         break;
-
-#line 1318 "qxmlstream.g"
 
         case 220: {
             QStringRef prefix = symPrefix(1);
@@ -1739,8 +1603,6 @@ bool QXmlStreamReaderPrivate::parse()
             }
         } break;
 
-#line 1385 "qxmlstream.g"
-
         case 226: {
             Tag &tag = tagStack_push();
             prefix = tag.namespaceDeclaration.prefix  = addToStringStorage(symPrefix(2));
@@ -1750,13 +1612,9 @@ bool QXmlStreamReaderPrivate::parse()
                 raiseWellFormedError(QObject::tr("Invalid XML name."));
         } break;
 
-#line 1398 "qxmlstream.g"
-
         case 227:
             isEmptyElement = true;
         // fall through
-
-#line 1406 "qxmlstream.g"
 
         case 228:
             type = QXmlStreamReader::StartElement;
@@ -1765,8 +1623,6 @@ bool QXmlStreamReaderPrivate::parse()
                 raiseWellFormedError(QObject::tr("Extra content at end of document."));
             hasSeenTag = true;
         break;
-
-#line 1418 "qxmlstream.g"
 
         case 229: {
             type = QXmlStreamReader::EndElement;
@@ -1778,8 +1634,6 @@ bool QXmlStreamReaderPrivate::parse()
             if (qualifiedName != symName(3))
                 raiseWellFormedError(QObject::tr("Opening and ending tag mismatch."));
         } break;
-
-#line 1432 "qxmlstream.g"
 
         case 230: {
             sym(1).len += sym(2).len + 1;
@@ -1810,8 +1664,6 @@ bool QXmlStreamReaderPrivate::parse()
 
         } break;
 
-#line 1464 "qxmlstream.g"
-
         case 231: {
             sym(1).len += sym(2).len + 1;
             QString reference = symString(2).toString();
@@ -1830,13 +1682,9 @@ bool QXmlStreamReaderPrivate::parse()
             }
         } break;
 
-#line 1487 "qxmlstream.g"
-
         case 232:
             sym(1).len += sym(2).len + 1;
         break;
-
-#line 1494 "qxmlstream.g"
 
         case 233: {
             sym(1).len += sym(2).len + 1;
@@ -1862,8 +1710,6 @@ bool QXmlStreamReaderPrivate::parse()
             }
         } break;
 
-#line 1521 "qxmlstream.g"
-
         case 234: {
             if (uint s = resolveCharRef(3)) {
                 if (s >= 0xffff)
@@ -1877,8 +1723,6 @@ bool QXmlStreamReaderPrivate::parse()
                 raiseWellFormedError(QObject::tr("Invalid character reference."));
             }
         } break;
-
-#line 1538 "qxmlstream.g"
 
         case 235: {
             if (uint s = resolveCharRef(3)) {
@@ -1898,16 +1742,10 @@ bool QXmlStreamReaderPrivate::parse()
             }
         } break;
 
-#line 1561 "qxmlstream.g"
-
         case 238:
-#line 1564 "qxmlstream.g"
-
         case 239:
             sym(1).len += sym(2).len;
         break;
-
-#line 1586 "qxmlstream.g"
 
         case 252:
             sym(1).len += fastScanSpace();
@@ -1917,8 +1755,6 @@ bool QXmlStreamReaderPrivate::parse()
             }
         break;
 
-#line 1606 "qxmlstream.g"
-
         case 255: {
             sym(1).len += fastScanName(&sym(1).prefix);
             if (atEnd) {
@@ -1926,8 +1762,6 @@ bool QXmlStreamReaderPrivate::parse()
                 return false;
             }
         } break;
-
-#line 1622 "qxmlstream.g"
 
         case 256:
             sym(1).len += fastScanName();
@@ -1937,20 +1771,10 @@ bool QXmlStreamReaderPrivate::parse()
             }
         break;
 
-#line 1633 "qxmlstream.g"
-
         case 257:
-#line 1636 "qxmlstream.g"
-
         case 258:
-#line 1639 "qxmlstream.g"
-
         case 259:
-#line 1642 "qxmlstream.g"
-
         case 260:
-#line 1645 "qxmlstream.g"
-
         case 261:
             sym(1).len += fastScanName();
             if (atEnd) {
@@ -1958,8 +1782,6 @@ bool QXmlStreamReaderPrivate::parse()
                 return false;
             }
         break;
-
-#line 1656 "qxmlstream.g"
 
     default:
         ;
