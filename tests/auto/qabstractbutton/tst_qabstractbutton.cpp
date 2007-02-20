@@ -14,8 +14,8 @@
 #include <qapplication.h>
 #include <qpainter.h>
 #include <qstyleoption.h>
-
-
+#include <qkeysequence.h>
+#include <qevent.h>
 
 
 
@@ -570,7 +570,8 @@ void tst_QAbstractButton::shortcutEvents()
     QSignalSpy clickedSpy(&button, SIGNAL(clicked(bool)));
 
     for (int i = 0; i < 4; ++i) {
-        QShortcutEvent event(QKeySequence(), false);
+        QKeySequence sequence;
+        QShortcutEvent event(sequence, false);
         QApplication::sendEvent(&button, &event);
         if (i < 2)
             QTest::qWait(500);
