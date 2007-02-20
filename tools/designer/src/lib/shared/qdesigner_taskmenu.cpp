@@ -351,7 +351,7 @@ void QDesignerTaskMenu::changeScript()
     if (!metaDataBase)
         return;
 
-    const MetaDataBaseItem* item = metaDataBase->item(m_widget);
+    const MetaDataBaseItem* item = metaDataBase->metaDataBaseItem(m_widget);
     if (!item)
         return;
     

@@ -454,7 +454,7 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
         if (!domScripts.empty()) {
             foreach (const DomScript *script, domScripts) {
                 if (script->hasAttributeSource() && script->attributeSource() == QLatin1String("designer")) {
-                    metaDataBase->item(w)->setScript(script->text());
+                    metaDataBase->metaDataBaseItem(w)->setScript(script->text());
                 }
             }
         }
@@ -1625,7 +1625,7 @@ void QDesignerResource::addUserDefinedScripts(QWidget *w, DomWidget *ui_widget)
     DomScripts domScripts = ui_widget->elementScript();
     // Look up user-defined scripts of designer
     if (const qdesigner_internal::MetaDataBase *metaDataBase = qobject_cast<const qdesigner_internal::MetaDataBase *>(core->metaDataBase())) {
-        if (const qdesigner_internal::MetaDataBaseItem *metaItem = metaDataBase->item(w)) {
+        if (const qdesigner_internal::MetaDataBaseItem *metaItem = metaDataBase->metaDataBaseItem(w)) {
             addScript(metaItem->script(), ScriptDesigner, domScripts);
         }
     }

@@ -233,7 +233,7 @@ namespace qdesigner_internal {
         const QList<QObject*> objs = metaDataBase->objects();
         const QList<QObject*>::const_iterator cend = objs.constEnd();
         for ( QList<QObject*>::const_iterator it = objs.constBegin(); it != cend; ++it) {
-            const QString customClass = metaDataBase->item(*it)->customClassName();
+            const QString customClass = metaDataBase->metaDataBaseItem(*it)->customClassName();
             if (!customClass.isEmpty())
                 rc.insert(customClass);
 
@@ -302,7 +302,7 @@ namespace qdesigner_internal {
         dbItem->setName(newClassName);
         bool foundReferences = false;
         foreach (QObject* object, metaDataBase->objects()) {
-            MetaDataBaseItem *item =  metaDataBase->item(object);
+            MetaDataBaseItem *item =  metaDataBase->metaDataBaseItem(object);
             Q_ASSERT(item);
             if (item->customClassName() == oldclassName) {
                 item->setCustomClassName(newClassName);

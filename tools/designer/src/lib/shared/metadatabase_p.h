@@ -81,7 +81,8 @@ public:
 
     virtual QDesignerFormEditorInterface *core() const;
 
-    virtual MetaDataBaseItem *item(QObject *object) const;
+    virtual QDesignerMetaDataBaseItemInterface *item(QObject *object) const { return metaDataBaseItem(object); }
+    virtual MetaDataBaseItem *metaDataBaseItem(QObject *object) const;
     virtual void add(QObject *object);
     virtual void remove(QObject *object);
 

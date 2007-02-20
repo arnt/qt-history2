@@ -33,7 +33,7 @@ bool ScriptCommand::init(const ObjectList &list, const QString &script)
     // Save old values
     m_oldValues.clear();
     foreach (QObject *obj, list) {
-        const MetaDataBaseItem* item = metaDataBase->item(obj);
+        const MetaDataBaseItem* item = metaDataBase->metaDataBaseItem(obj);
         if (!item)
             return false;
         m_oldValues.insert(obj, item->script());
@@ -49,7 +49,7 @@ void ScriptCommand::redo()
 
     foreach (QPointer<QObject> obj, m_oldValues.keys()) {
         if (obj)
-            metaDataBase->item(obj)->setScript(m_script);
+            metaDataBase->metaDataBaseItem(obj)->setScript(m_script);
     }
 }
 
@@ -61,7 +61,7 @@ void ScriptCommand::undo()
     ObjectScriptMap::const_iterator cend = m_oldValues.constEnd();
     for (ObjectScriptMap::const_iterator it = m_oldValues.constBegin();it != cend; ++it )  {
         if (it.key())
-            metaDataBase->item(it.key())->setScript(it.value());
+            metaDataBase->metaDataBaseItem(it.key())->setScript(it.value());
     }
 }
 } // namespace qdesigner_internal
