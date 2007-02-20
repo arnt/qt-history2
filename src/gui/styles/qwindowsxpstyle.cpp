@@ -1542,8 +1542,8 @@ case PE_Frame:
                     WCHAR* offset;
                     if ((offset = wcsrchr(themeFileName, QChar(QLatin1Char('\\')).unicode())) != NULL) {
                         offset++;
-                        if (QString::fromStdWString(offset) == QString(QLatin1String("Luna.msstyles")) && 
-                            QString::fromStdWString(themeColor) == QString(QLatin1String("Metallic")) )
+                        if (QString::fromUtf16(offset) == QString(QLatin1String("Luna.msstyles")) && 
+                            QString::fromUtf16(themeColor) == QString(QLatin1String("Metallic")))
                             useGradient = false;
                     }
                 }
@@ -1917,7 +1917,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbiw = 0, mbih = 0;
-                XPThemeData theme(widget, 0, "TOOLBAR", TP_SPLITBUTTONDROPDOWN);
+                XPThemeData theme(widget, 0, QLatin1String("TOOLBAR"), TP_SPLITBUTTONDROPDOWN);
                 if (theme.isValid()) {
                     SIZE size;
                     pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
