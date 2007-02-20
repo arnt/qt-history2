@@ -28,6 +28,13 @@ General Improvements
 - Qt Designer
 
 - Qt Linguist
+    * Make the columns in the phrasebook resizeable.
+
+- lupdate
+    * Fixed bug in the proparser of lupdate. It should accept backslashes.
+    * Fixed a severe slowdown in lupdate. (~400x speedup...)
+    * Fixed traversal of subdirs
+
 
 - qmake
 
@@ -96,6 +103,8 @@ General improvements
     * Fixed a bug in item views where the wordwrap would cause to remove all new-line
       characters and the last line in string containing at least 1 new-line character.
 
+    * Fixed bug in QListView where the last item of a batch was not always displayed.
+
 - QAction
     * Fixed a possible crash when using alternate shortcuts on a QAction.
 
@@ -126,6 +135,9 @@ General improvements
     * Allow reading past the previous end of the file if the file grows.
     * You can now reliably use QFile::readLine() and QFile::readAll() to
       read from stdin on all platforms.
+
+- QFileDialog
+    * Fixed crash when the filter began with ';;'.
 
 - QLineEdit
     * Fixed crash when moving the cursor over a QChar::LineSeparator in the text.
