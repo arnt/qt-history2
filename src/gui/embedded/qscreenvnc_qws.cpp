@@ -1389,8 +1389,8 @@ QVNCDirtyMap::QVNCDirtyMap(QScreen *s)
 
 QVNCDirtyMap::~QVNCDirtyMap()
 {
-    delete map;
-    delete buffer;
+    delete[] map;
+    delete[] buffer;
 }
 
 void QVNCDirtyMap::reset()
