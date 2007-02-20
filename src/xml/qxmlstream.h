@@ -24,7 +24,7 @@ QT_MODULE(Xml)
 
 class QXmlStreamReaderPrivate;
 class QXmlStreamAttributes;
-class QXmlStreamAttribute {
+class Q_XML_EXPORT QXmlStreamAttribute {
     int name_buffer, name_pos, name_size;
     int namespaceUri_buffer, namespaceUri_pos, namespaceUri_size;
     int qualifiedName_buffer, qualifiedName_pos, qualifiedName_size;
@@ -54,7 +54,7 @@ public:
 
 Q_DECLARE_TYPEINFO(QXmlStreamAttribute, Q_MOVABLE_TYPE);
 
-class QXmlStreamAttributes : public QVector<QXmlStreamAttribute>
+class Q_XML_EXPORT QXmlStreamAttributes : public QVector<QXmlStreamAttribute>
 {
 public:
     QStringRef value(const QString &namespaceUri, const QString &name) const;
@@ -72,7 +72,7 @@ public:
 #endif
 };
 
-class QXmlStreamNamespaceDeclaration {
+class Q_XML_EXPORT QXmlStreamNamespaceDeclaration {
     QString buffer;
     int prefix_pos, prefix_size;
     int namespaceUri_pos, namespaceUri_size;
@@ -91,7 +91,7 @@ public:
 Q_DECLARE_TYPEINFO(QXmlStreamNamespaceDeclaration, Q_MOVABLE_TYPE);
 typedef QVector<QXmlStreamNamespaceDeclaration> QXmlStreamNamespaceDeclarations;
 
-class QXmlStreamNotationDeclaration {
+class Q_XML_EXPORT QXmlStreamNotationDeclaration {
     QString buffer;
     int name_pos, name_size;
     int systemId_pos, systemId_size;
@@ -112,7 +112,7 @@ public:
 Q_DECLARE_TYPEINFO(QXmlStreamNotationDeclaration, Q_MOVABLE_TYPE);
 typedef QVector<QXmlStreamNotationDeclaration> QXmlStreamNotationDeclarations;
 
-class QXmlStreamEntityDeclaration {
+class Q_XML_EXPORT QXmlStreamEntityDeclaration {
     QString buffer;
     int name_pos, name_size;
     int notationName_pos, notationName_size;
@@ -139,7 +139,7 @@ typedef QVector<QXmlStreamEntityDeclaration> QXmlStreamEntityDeclarations;
 
 
 
-class QXmlStreamReader {
+class Q_XML_EXPORT QXmlStreamReader {
 public:
     enum TokenType {
         NoToken = 0,
@@ -235,7 +235,7 @@ private:
 
 class QXmlStreamWriterPrivate;
 
-class QXmlStreamWriter
+class Q_XML_EXPORT QXmlStreamWriter
 {
     QDOC_PROPERTY(bool autoFormatting READ autoFormatting WRITE setAutoFormatting)
 public:
