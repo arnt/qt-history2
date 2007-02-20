@@ -1,6 +1,5 @@
 #include <QtTest/QtTest>
-#include "../../qxmlstream.cpp"
-
+#include <qxmlstream.h>
 class tst_QXmlStream: public QObject
 {
     Q_OBJECT
