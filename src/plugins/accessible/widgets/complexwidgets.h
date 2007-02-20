@@ -25,6 +25,52 @@ class QHeaderView;
 class QTabBar;
 class QComboBox;
 class QTitleBar;
+class QAbstractScrollArea;
+class QScrollArea;
+
+#ifndef QT_NO_SCROLLAREA
+class QAccessibleAbstractScrollArea : public QAccessibleWidgetEx
+{
+public:
+    explicit QAccessibleAbstractScrollArea(QWidget *widget);
+
+    enum AbstractScrollAreaElement {
+        Self = 0,
+        Viewport,
+        HorizontalScrollBar,
+        VerticalScrollBar,
+        CornerWidget,
+        HorizontalScrollBarWidget,
+        VerticalScrollBarWidget,
+        Undefined
+    };
+
+    QString text(Text textType, int child) const;
+    void setText(Text textType, int child, const QString &text);
+    State state(int child) const;
+    QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
+    int childCount() const;
+    int indexOfChild(const QAccessibleInterface *child) const;
+    int navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const;
+    QRect rect(int child) const;
+    int childAt(int x, int y) const;
+
+protected:
+    QAbstractScrollArea *abstractScrollArea() const;
+
+private:
+    QWidgetList accessibleChildren() const;
+    AbstractScrollAreaElement elementType(QWidget *widget) const;
+    bool isLeftToRight() const;
+};
+
+class QAccessibleScrollArea : public QAccessibleAbstractScrollArea
+{
+public:
+    explicit QAccessibleScrollArea(QWidget *widget);
+};
+
+#endif // QT_NO_SCROLLAREA
 
 #ifndef QT_NO_ITEMVIEWS
 class QAccessibleHeader : public QAccessibleWidget
@@ -58,6 +104,7 @@ public:
 
     int childCount() const;
     int indexOfChild(const QAccessibleInterface *) const;
+    QList<QModelIndex> children() const;
 
     Relation relationTo(int child, const QAccessibleInterface *other, int otherChild) const;
     int childAt(int x, int y) const;
@@ -74,10 +121,10 @@ private:
     QPointer<QAbstractItemView> view;
 };
 
-class QAccessibleItemView: public QAccessibleWidget
+class QAccessibleItemView: public QAccessibleAbstractScrollArea
 {
 public:
-    explicit QAccessibleItemView(QWidget *w);
+    explicit QAccessibleItemView(QWidget *w, bool atViewport = false);
 
     Role role(int child) const;
     State state(int child) const;
@@ -92,6 +139,8 @@ public:
 
 protected:
     QAbstractItemView *itemView() const;
+private:
+    bool atViewport;
 };
 
 #endif

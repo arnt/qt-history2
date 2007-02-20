@@ -26,8 +26,6 @@ class QMdiSubWindow;
 class QWorkspace;
 class QRubberBand;
 class QTextBrowser;
-class QAbstractScrollArea;
-class QScrollArea;
 
 class QAccessibleTextEdit : public QAccessibleWidgetEx
 {
@@ -162,50 +160,6 @@ public:
     Role role(int child) const;
 };
 #endif // QT_NO_TEXTBROWSER
-
-#ifndef QT_NO_SCROLLAREA
-class QAccessibleAbstractScrollArea : public QAccessibleWidgetEx
-{
-public:
-    explicit QAccessibleAbstractScrollArea(QWidget *widget);
-
-    enum AbstractScrollAreaElement {
-        Self = 0,
-        Viewport,
-        HorizontalScrollBar,
-        VerticalScrollBar,
-        CornerWidget,
-        HorizontalScrollBarWidget,
-        VerticalScrollBarWidget,
-        Undefined
-    };
-
-    QString text(Text textType, int child) const;
-    void setText(Text textType, int child, const QString &text);
-    State state(int child) const;
-    QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
-    int childCount() const;
-    int indexOfChild(const QAccessibleInterface *child) const;
-    int navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const;
-    QRect rect(int child) const;
-    int childAt(int x, int y) const;
-
-protected:
-    QAbstractScrollArea *abstractScrollArea() const;
-
-private:
-    QWidgetList accessibleChildren() const;
-    AbstractScrollAreaElement elementType(QWidget *widget) const;
-    bool isLeftToRight() const;
-};
-
-class QAccessibleScrollArea : public QAccessibleAbstractScrollArea
-{
-public:
-    explicit QAccessibleScrollArea(QWidget *widget);
-};
-
-#endif // QT_NO_SCROLLAREA
 
 #endif // QT_NO_ACCESSIBILITY
 

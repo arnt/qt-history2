@@ -153,6 +153,7 @@ private slots:
     void rubberBandTest();
     void abstractScrollAreaTest();
     void scrollAreaTest();
+    void tableViewTest();
 
 private:
     QWidget *createGUI();
@@ -2336,16 +2337,25 @@ void tst_QAccessibility::listViewTest()
         QCOMPARE(iface->childCount(), 0);
         delete iface;
     }
-
+    {
     QListWidget listView;
-    listView.addItem("A");
-    listView.addItem("B");
-    listView.addItem("C");
+    listView.addItem(tr("A"));
+    listView.addItem(tr("B"));
+    listView.addItem(tr("C"));
+    listView.resize(400,400);
+    listView.show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(w);
+#endif
 
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&listView);
-    QCOMPARE(iface->role(0), QAccessible::List);
-    QCOMPARE(iface->role(1), QAccessible::Row);
-    QCOMPARE(iface->childCount(), 3);
+    QCOMPARE((int)iface->role(0), (int)QAccessible::Client);
+    QCOMPARE((int)iface->role(1), (int)QAccessible::List);
+    QCOMPARE(iface->childCount(), 1);
+    QAccessibleInterface *child;
+    iface->navigate(QAccessible::Child, 1, &child);
+    delete iface;
+    iface = child;
     QCOMPARE(iface->text(QAccessible::Value, 1), QString("A"));
     QCOMPARE(iface->text(QAccessible::Value, 2), QString("B"));
     QCOMPARE(iface->text(QAccessible::Value, 3), QString("C"));
@@ -2354,16 +2364,23 @@ void tst_QAccessibility::listViewTest()
     QCOMPARE(iface->navigate(QAccessible::Child, 1, &childA), 0);
     QVERIFY(childA);
     QCOMPARE(childA->text(QAccessible::Value, 1), QString("A"));
+    delete childA;
 
     QAccessibleInterface *childB = 0;
     QCOMPARE(iface->navigate(QAccessible::Child, 2, &childB), 0);
     QVERIFY(childB);
     QCOMPARE(childB->text(QAccessible::Value, 1), QString("B"));
+    delete childB;
 
     QAccessibleInterface *childC = 0;
     QCOMPARE(iface->navigate(QAccessible::Child, 3, &childC), 0);
     QVERIFY(childC);
     QCOMPARE(childC->text(QAccessible::Value, 1), QString("C"));
+    delete childC;
+
+    delete iface;
+    }
+    QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
@@ -3038,5 +3055,48 @@ void tst_QAccessibility::scrollAreaTest()
 #endif
 }
 
+void tst_QAccessibility::tableViewTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QTableWidget *w = new QTableWidget(8,4);
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 4; ++c) {
+            w->setItem(r, c, new QTableWidgetItem(tr("%1,%2").arg(c).arg(r)));
+        }
+    }
+    w->resize(100, 100);
+    w->show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(w);
+#endif
+    QAccessibleInterface *client = QAccessible::queryAccessibleInterface(w);
+    QCOMPARE(client->role(0), QAccessible::Client);
+    QCOMPARE(client->childCount(), 3);
+    QAccessibleInterface *view = 0;
+    client->navigate(QAccessible::Child, 1, &view);
+    QCOMPARE(view->role(0), QAccessible::Table);
+    QAccessibleInterface *ifRow;
+    view->navigate(QAccessible::Child, 1, &ifRow);
+    QCOMPARE(ifRow->role(0), QAccessible::Row);
+    QAccessibleInterface *item;
+    int entry = ifRow->navigate(QAccessible::Child, 1, &item);
+    QCOMPARE(entry, 1);
+    QCOMPARE(item , (QAccessibleInterface*)0);
+    QCOMPARE(ifRow->text(QAccessible::Value, 1), QLatin1String("0,0"));
+    QCOMPARE(ifRow->text(QAccessible::Value, 2), QLatin1String("1,0"));
+
+    
+    delete ifRow;
+    delete view;
+    delete client;
+    delete w;
+
+    QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+
+#endif
+
+}
 QTEST_MAIN(tst_QAccessibility)
 #include "tst_qaccessibility.moc"

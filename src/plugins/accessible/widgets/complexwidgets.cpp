@@ -26,8 +26,10 @@
 #include <qstyleoption.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
-#include <qdebug.h>
 #include <private/qtabbar_p.h>
+#include <QAbstractScrollArea>
+#include <QScrollArea>
+#include <QScrollBar>
 
 #ifndef QT_NO_ACCESSIBILITY
 
@@ -109,7 +111,21 @@ void QAccessibleItemRow::setText(Text t, int child, const QString &text)
 
 QModelIndex QAccessibleItemRow::childIndex(int child) const
 {
-    return row.sibling(row.row(), child - 1);
+    QList<QModelIndex> kids = children();
+    Q_ASSERT(child >= 1 && child <= kids.count());
+    return kids.at(child - 1);
+}
+
+QList<QModelIndex> QAccessibleItemRow::children() const
+{
+    QList<QModelIndex> kids;
+    for (int i = 0; i < row.model()->columnCount(row.parent()); ++i) {
+        QModelIndex idx = row.model()->index(row.row(), i, row.parent());
+        if (!view->isIndexHidden(idx)) {
+            kids << idx;
+        }
+    }
+    return kids;
 }
 
 bool QAccessibleItemRow::isValid() const
@@ -124,7 +140,7 @@ QObject *QAccessibleItemRow::object() const
 
 int QAccessibleItemRow::childCount() const
 {
-    return row.model()->columnCount(row.parent());
+    return children().count();
 }
 
 int QAccessibleItemRow::indexOfChild(const QAccessibleInterface *iface) const
@@ -132,11 +148,11 @@ int QAccessibleItemRow::indexOfChild(const QAccessibleInterface *iface) const
     if (!iface || iface->role(0) != Row)
         return -1;
 
+    QList<QModelIndex> kids = children();
     QModelIndex idx = static_cast<const QAccessibleItemRow *>(iface)->row;
     if (!idx.isValid())
         return -1;
-
-    return idx.column() + 1;
+    return kids.indexOf(idx) + 1;
 }
 
 QAccessible::Relation QAccessibleItemRow::relationTo(int child, const QAccessibleInterface *other,
@@ -159,8 +175,10 @@ int QAccessibleItemRow::childAt(int x, int y) const
         return -1;
 
     QModelIndex idx = view->indexAt(view->viewport()->mapFromGlobal(QPoint(x, y)));
-    if (idx.isValid() && idx.parent() == row.parent() && idx.row() == row.row())
-        return idx.column() + 1;
+    if (idx.isValid() && idx.parent() == row.parent() && idx.row() == row.row()) {
+        QList<QModelIndex> kids = children();
+        return kids.indexOf(idx) + 1;
+    }
 
     return -1;
 }
@@ -193,23 +211,24 @@ int QAccessibleItemRow::navigate(RelationFlag relation, int index,
 
     switch (relation) {
     case Ancestor: {
-        QObject *object = view;
-        for (int i = 0; i < index - 1; ++i) {
-            if (object)
-                object = object->parent();
+        if (!index)
+            return -1;
+        QAccessibleItemView *ancestor = new QAccessibleItemView(view, true);
+        if (index == 1) {
+            *iface = ancestor;
+            return 1;
         }
-        if (object) {
-            *iface = QAccessibleInterface::queryAccessibleInterface(object);
-            return 0;
+        else if (index > 1)
+            return ancestor->navigate(Ancestor, index - 1, iface);
         }
-        return -1; }
     case Child: {
         if (!index)
             return -1;
-        QModelIndex idx = childIndex(index);
-        if (!idx.isValid())
+        QList<QModelIndex> kids = children();
+        if (index < 1 && index > kids.count())
             return -1;
-        return idx.column() + 1; }
+
+        return index;}
     case Sibling:
 	if (index)
             return navigate(Child, index, iface);
@@ -223,7 +242,8 @@ int QAccessibleItemRow::navigate(RelationFlag relation, int index,
         // and restore the index as well as the old selection
         view->setUpdatesEnabled(false);
         const QModelIndex oldIdx = view->currentIndex();
-        const QModelIndex currentIndex = index ? childIndex(index) : QModelIndex(row);
+        QList<QModelIndex> kids = children();
+        const QModelIndex currentIndex = index ? kids.at(index - 1) : QModelIndex(row);
         const QItemSelection oldSelection = view->selectionModel()->selection();
         view->setCurrentIndex(currentIndex);
         const QModelIndex idx = view->moveCursor(toCursorAction(relation), Qt::NoModifier);
@@ -235,7 +255,7 @@ int QAccessibleItemRow::navigate(RelationFlag relation, int index,
 
         if (idx.parent() != row.parent() || idx.row() != row.row())
             *iface = new QAccessibleItemRow(view, idx);
-        return index ? idx.column() + 1 : 0; }
+        return index ? kids.indexOf(idx) + 1 : 0; }
     default:
         break;
     }
@@ -350,8 +370,8 @@ bool QAccessibleItemRow::doAction(int action, int child, const QVariantList & /*
     return true;
 }
 
-QAccessibleItemView::QAccessibleItemView(QWidget *w)
-    : QAccessibleWidget(w)
+QAccessibleItemView::QAccessibleItemView(QWidget *w, bool atViewport)
+    : QAccessibleAbstractScrollArea(w), atViewport(atViewport)
 {
     Q_ASSERT(itemView());
 }
@@ -361,101 +381,148 @@ QAbstractItemView *QAccessibleItemView::itemView() const
     return qobject_cast<QAbstractItemView *>(object());
 }
 
-
 int QAccessibleItemView::indexOfChild(const QAccessibleInterface *iface) const
 {
-    if (!iface || iface->role(0) != Row)
-        return -1;
+    if (atViewport) {
+        if (!iface || iface->role(0) != Row)
+            return -1;
+        
+        // ### This will fail if a row is hidden.
+        QModelIndex idx = static_cast<const QAccessibleItemRow *>(iface)->row;
+        if (!idx.isValid())
+            return -1;
 
-    // ### This will fail if a row is hidden.
-    QModelIndex idx = static_cast<const QAccessibleItemRow *>(iface)->row;
-    if (!idx.isValid())
-        return -1;
-
-    return idx.row() + 1;
+        return idx.row() + 1;
+    } else {
+        return QAccessibleAbstractScrollArea::indexOfChild(iface);
+    }
 }
 
 QModelIndex QAccessibleItemView::childIndex(int child) const
 {
+    if (!atViewport)
+        return QModelIndex();
     return itemView()->model()->index(child - 1, 0);
 }
 
 int QAccessibleItemView::childCount() const
 {
-    if (itemView()->model() == 0)
-        return 0;
-    return itemView()->model()->rowCount();
+    if (atViewport) {
+        if (itemView()->model() == 0)
+            return 0;
+        return itemView()->model()->rowCount();
+    } else {
+        return QAccessibleAbstractScrollArea::childCount();
+    }
 }
 
 QString QAccessibleItemView::text(Text t, int child) const
 {
-    if (!child)
-        return QAccessibleWidget::text(t, child);
+    if (atViewport) {
+        if (!child)
+            return QAccessibleAbstractScrollArea::text(t, child);
 
-    QAccessibleItemRow item(itemView(), childIndex(child));
-    return item.text(t, 1);
+        QAccessibleItemRow item(itemView(), childIndex(child));
+        return item.text(t, 1);
+    } else {
+        return QAccessibleAbstractScrollArea::text(t, child);        
+    }
 }
 
 void QAccessibleItemView::setText(Text t, int child, const QString &text)
 {
-    if (!child) {
-        QAccessibleWidget::setText(t, child, text);
-        return;
-    }
+    if (atViewport) {
+        if (!child) {
+            QAccessibleAbstractScrollArea::setText(t, child, text);
+            return;
+        }
 
-    QAccessibleItemRow item(itemView(), childIndex(child));
-    item.setText(t, 1, text);
+        QAccessibleItemRow item(itemView(), childIndex(child));
+        item.setText(t, 1, text);
+    } else {
+        QAccessibleAbstractScrollArea::setText(t, child, text);
+    }
 }
 
 QRect QAccessibleItemView::rect(int child) const
 {
-    if (!child)
-        return QAccessibleWidget::rect(child);
-
-    QAccessibleItemRow item(itemView(), childIndex(child));
-    return item.rect(0);
+    if (atViewport) {
+        QRect r;
+        if (!child) {
+            QWidget *w = itemView()->viewport();
+            QPoint globalPos = w->mapToGlobal(QPoint(0,0));
+            r = w->rect().translated(globalPos);
+        } else {
+            QModelIndex idx = childIndex(child);
+            QAccessibleInterface *iface = new QAccessibleItemRow(itemView(), idx);
+            r = iface->rect(0);
+            delete iface;
+        }
+        return r;
+    } else {
+        return QAccessibleAbstractScrollArea::rect(child);
+    }
 }
 
 QAccessible::Role QAccessibleItemView::role(int child) const
 {
-    if (child)
-        return Row;
-
-    QAbstractItemView *view = itemView();
+    if ((!atViewport && child) || (atViewport && child == 0)) {
+        QAbstractItemView *view = itemView();
 #ifndef QT_NO_TABLEVIEW
-    if (qobject_cast<QTableView *>(view))
-        return Table;
+        if (qobject_cast<QTableView *>(view))
+            return Table;
 #endif
 #ifndef QT_NO_LISTVIEW
-    if (qobject_cast<QListView *>(view))
-        return List;
+        if (qobject_cast<QListView *>(view))
+            return List;
 #endif
-    return Tree;
+        return Tree;
+    }
+    if (atViewport) {
+        if (child)
+            return Row;
+    } else {
+        return QAccessibleAbstractScrollArea::role(child);
+    }
 }
 
 QAccessible::State QAccessibleItemView::state(int child) const
 {
-    if (!child)
-        return QAccessibleWidget::state(child);
+    if (atViewport) {
+        if (!child)
+            return QAccessibleAbstractScrollArea::state(child);
 
-    QAccessibleItemRow item(itemView(), childIndex(child));
-    return item.state(0);
+        QAccessibleItemRow item(itemView(), childIndex(child));
+        return item.state(0);
+    } else {
+        return QAccessibleAbstractScrollArea::state(child);
+    }
 }
 
 int QAccessibleItemView::navigate(RelationFlag relation, int index,
                                   QAccessibleInterface **iface) const
 {
-    if (relation == Child) {
-        QModelIndex idx = childIndex(index);
-        if (!idx.isValid()) {
-            *iface = 0;
-            return -1;
+    if (atViewport) {
+        if (relation == Ancestor && index == 1) {
+            *iface = new QAccessibleItemView(itemView());
+            return 0;
+        } else {
+            QModelIndex idx = childIndex(index);
+            if (!idx.isValid()) {
+                *iface = 0;
+                return -1;
+            }
+            *iface = new QAccessibleItemRow(itemView(), idx);
+            return 0;
         }
-        *iface = new QAccessibleItemRow(itemView(), childIndex(index));
-        return 0;
+    } else {
+        if (relation == Child && index == 1) {
+            *iface = new QAccessibleItemView(itemView(), true);
+            return 0;
+        } else {
+            return QAccessibleAbstractScrollArea::navigate(relation, index, iface);
+        }
     }
-
-    return QAccessibleWidget::navigate(relation, index, iface);
 }
 
 
@@ -942,5 +1009,439 @@ bool QAccessibleComboBox::doAction(int, int child, const QVariantList &)
     return true;
 }
 #endif // QT_NO_COMBOBOX
+
+static inline void removeInvisibleWidgetsFromList(QWidgetList *list)
+{
+    if (!list || list->isEmpty())
+        return;
+
+    for (int i = 0; i < list->count(); ++i) {
+        QWidget *widget = list->at(i);
+        if (!widget->isVisible())
+            list->removeAt(i);
+    }
+}
+
+#ifndef QT_NO_SCROLLAREA
+// ======================= QAccessibleAbstractScrollArea =======================
+QAccessibleAbstractScrollArea::QAccessibleAbstractScrollArea(QWidget *widget)
+    : QAccessibleWidgetEx(widget, Client)
+{
+    Q_ASSERT(qobject_cast<QAbstractScrollArea *>(widget));
+}
+
+QString QAccessibleAbstractScrollArea::text(Text textType, int child) const
+{
+    if (!abstractScrollArea()->isVisible())
+        return QString();
+    if (child == Self)
+        return QAccessibleWidgetEx::text(textType, 0);
+    QWidgetList children = accessibleChildren();
+    if (child < 1 || child > children.count())
+        return QString();
+    QAccessibleInterface *childInterface = queryAccessibleInterface(children.at(child - 1));
+    if (!childInterface)
+        return QString();
+    QString string = childInterface->text(textType, 0);
+    delete childInterface;
+    return string;
+}
+
+void QAccessibleAbstractScrollArea::setText(Text textType, int child, const QString &text)
+{
+    if (!abstractScrollArea()->isVisible() || text.isEmpty())
+        return;
+    if (child == 0) {
+        QAccessibleWidgetEx::setText(textType, 0, text);
+        return;
+    }
+    QWidgetList children = accessibleChildren();
+    if (child < 1 || child > children.count())
+        return;
+    QAccessibleInterface *childInterface = queryAccessibleInterface(children.at(child - 1));
+    if (!childInterface)
+        return;
+    childInterface->setText(textType, 0, text);
+    delete childInterface;
+}
+
+QAccessible::State QAccessibleAbstractScrollArea::state(int child) const
+{
+    if (child == Self)
+        return QAccessibleWidgetEx::state(child);
+    QWidgetList children = accessibleChildren();
+    if (child < 1 || child > children.count())
+        return QAccessibleWidgetEx::state(Self);
+    QAccessibleInterface *childInterface = queryAccessibleInterface(children.at(child - 1));
+    if (!childInterface)
+        return QAccessibleWidgetEx::state(Self);
+    QAccessible::State returnState = childInterface->state(0);
+    delete childInterface;
+    return returnState;
+}
+
+QVariant QAccessibleAbstractScrollArea::invokeMethodEx(QAccessible::Method, int, const QVariantList &)
+{
+    return QVariant();
+}
+
+int QAccessibleAbstractScrollArea::childCount() const
+{
+    if (!abstractScrollArea()->isVisible())
+        return 0;
+    return accessibleChildren().count();
+}
+
+int QAccessibleAbstractScrollArea::indexOfChild(const QAccessibleInterface *child) const
+{
+    if (!child || !child->object() || !abstractScrollArea()->isVisible())
+        return -1;
+    int index = accessibleChildren().indexOf(qobject_cast<QWidget *>(child->object()));
+    if (index >= 0)
+        return ++index;
+    return -1;
+}
+
+int QAccessibleAbstractScrollArea::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
+{
+    if (!abstractScrollArea()->isVisible() || !target)
+        return -1;
+
+    *target = 0;
+    QWidgetList children = accessibleChildren();
+    if (entry < 0 || entry > children.count())
+        return -1;
+
+    QWidget *targetWidget = 0;
+    QWidget *entryWidget = 0;
+    if (entry == 0)
+        entryWidget = abstractScrollArea();
+    else if (entry > 0)
+        entryWidget = children.at(entry - 1);
+    AbstractScrollAreaElement entryElement = elementType(entryWidget);
+
+    // Widgets to the left for the horizontal scrollBar.
+    QWidgetList leftScrollBarWidgets = abstractScrollArea()
+        ->scrollBarWidgets(isLeftToRight() ? Qt::AlignLeft : Qt::AlignRight);
+    removeInvisibleWidgetsFromList(&leftScrollBarWidgets);
+
+    // Widgets to the right for the horizontal scrollBar.
+    QWidgetList rightScrollBarWidgets = abstractScrollArea()
+        ->scrollBarWidgets(isLeftToRight() ? Qt::AlignRight : Qt::AlignLeft);
+    removeInvisibleWidgetsFromList(&rightScrollBarWidgets);
+
+    // Widgets above the vertical scrollBar.
+    QWidgetList topScrollBarWidgets = abstractScrollArea()->scrollBarWidgets(Qt::AlignTop);
+    removeInvisibleWidgetsFromList(&topScrollBarWidgets);
+
+    // Widgets below the vertical scrollBar.
+    QWidgetList bottomScrollBarWidgets = abstractScrollArea()->scrollBarWidgets(Qt::AlignBottom);
+    removeInvisibleWidgetsFromList(&bottomScrollBarWidgets);
+
+    // Not one of the most beautiful switches I've ever seen, but I believe it has
+    // to be like this since each case need special handling.
+    // It might be possible to make it more general, but I'll leave that as an exercise
+    // to the reader. :-)
+    switch (relation) {
+    case Child:
+        if (entry > 0)
+            targetWidget = children.at(entry - 1);
+        break;
+    case Left:
+        if (entry < 1)
+            break;
+        switch (entryElement) {
+        case Viewport:
+            if (!isLeftToRight())
+                targetWidget = abstractScrollArea()->verticalScrollBar();
+            break;
+        case HorizontalScrollBar:
+            if (leftScrollBarWidgets.count() >= 1)
+                targetWidget = leftScrollBarWidgets.back();
+            else if (!isLeftToRight())
+                targetWidget = abstractScrollArea()->cornerWidget();
+            break;
+        case VerticalScrollBar:
+        case VerticalScrollBarWidget:
+            if (isLeftToRight())
+                targetWidget = abstractScrollArea()->viewport();
+            break;
+        case CornerWidget:
+            if (!isLeftToRight())
+                break;
+            if (rightScrollBarWidgets.count() >= 1)
+                targetWidget = rightScrollBarWidgets.back();
+            else
+                targetWidget = abstractScrollArea()->horizontalScrollBar();
+            break;
+        case HorizontalScrollBarWidget: {
+            int index = leftScrollBarWidgets.indexOf(entryWidget);
+            if (index != -1) {
+                if (index > 0)
+                    targetWidget = leftScrollBarWidgets.at(index - 1);
+                else if (!isLeftToRight())
+                    targetWidget = abstractScrollArea()->cornerWidget();
+                break;
+            }
+            index = rightScrollBarWidgets.indexOf(entryWidget);
+            if (index > 0)
+                targetWidget = rightScrollBarWidgets.at(index - 1);
+            else
+                targetWidget = abstractScrollArea()->horizontalScrollBar();
+            break;
+        }
+        default:
+            break;
+        }
+        break;
+    case Right:
+        if (entry < 1)
+            break;
+        switch (entryElement) {
+        case Viewport:
+            if (isLeftToRight())
+                targetWidget = abstractScrollArea()->verticalScrollBar();
+            break;
+        case HorizontalScrollBar:
+            if (rightScrollBarWidgets.count() >= 1)
+                targetWidget = rightScrollBarWidgets.at(0);
+            else
+                targetWidget = abstractScrollArea()->cornerWidget();
+            break;
+        case VerticalScrollBar:
+        case VerticalScrollBarWidget:
+            if (!isLeftToRight())
+                targetWidget = abstractScrollArea()->viewport();
+            break;
+        case CornerWidget:
+            if (isLeftToRight())
+                break;
+            if (leftScrollBarWidgets.count() >= 1)
+                targetWidget = rightScrollBarWidgets.at(0);
+            else
+                targetWidget = abstractScrollArea()->horizontalScrollBar();
+            break;
+        case HorizontalScrollBarWidget: {
+            int index = leftScrollBarWidgets.indexOf(entryWidget);
+            if (index != -1) {
+                if (index < leftScrollBarWidgets.count() - 1)
+                    targetWidget = leftScrollBarWidgets.at(index + 1);
+                break;
+            }
+            index = rightScrollBarWidgets.indexOf(entryWidget);
+            if (index != -1 && index < rightScrollBarWidgets.count() - 1) {
+                targetWidget = rightScrollBarWidgets.at(index + 1);
+                break;
+            }
+            if (isLeftToRight())
+                targetWidget = abstractScrollArea()->cornerWidget();
+            break;
+        }
+        default:
+            break;
+        }
+        break;
+    case Up:
+        if (entry < 1)
+            break;
+        switch (entryElement) {
+        case HorizontalScrollBar:
+        case HorizontalScrollBarWidget:
+            targetWidget = abstractScrollArea()->viewport();
+            break;
+        case VerticalScrollBar: {
+            if (topScrollBarWidgets.count() >= 1)
+                targetWidget = topScrollBarWidgets.back();
+            break;
+        }
+        case VerticalScrollBarWidget: {
+            int index = topScrollBarWidgets.indexOf(entryWidget);
+            if (index != -1) {
+                if (index > 0)
+                    targetWidget = topScrollBarWidgets.at(index - 1);
+                break;
+            }
+            index = bottomScrollBarWidgets.indexOf(entryWidget);
+            if (index > 0) {
+                targetWidget = bottomScrollBarWidgets.at(index - 1);
+                break;
+            }
+            targetWidget = abstractScrollArea()->verticalScrollBar();
+            break;
+        }
+        case CornerWidget:
+            if (bottomScrollBarWidgets.count() >= 1)
+                targetWidget = bottomScrollBarWidgets.back();
+            break;
+        default:
+            break;
+        }
+        break;
+    case Down:
+        if (entry < 1)
+            break;
+        switch (entryElement) {
+        case Viewport:
+            targetWidget = abstractScrollArea()->horizontalScrollBar();
+            break;
+        case VerticalScrollBar:
+            if (bottomScrollBarWidgets.count() >= 1)
+                targetWidget = bottomScrollBarWidgets.at(0);
+            break;
+        case VerticalScrollBarWidget: {
+            int index = topScrollBarWidgets.indexOf(entryWidget);
+            if (index != -1) {
+                if (index < topScrollBarWidgets.count() - 1)
+                    targetWidget = topScrollBarWidgets.at(index + 1);
+                else
+                    targetWidget = abstractScrollArea()->verticalScrollBar();
+                break;
+            }
+            index = bottomScrollBarWidgets.indexOf(entryWidget);
+            if (index != -1) {
+                if (index < bottomScrollBarWidgets.count() - 1)
+                    targetWidget = bottomScrollBarWidgets.at(index + 1);
+                break;
+            }
+            targetWidget = abstractScrollArea()->cornerWidget();
+            break;
+        }
+        default:
+            break;
+        }
+        break;
+    default:
+        return QAccessibleWidgetEx::navigate(relation, entry, target);
+    }
+
+    if (targetWidget && !targetWidget->isVisible())
+        return -1;
+    *target = QAccessible::queryAccessibleInterface(targetWidget);
+    return indexOfChild(*target);
+}
+
+QRect QAccessibleAbstractScrollArea::rect(int child) const
+{
+    if (!abstractScrollArea()->isVisible())
+        return QRect();
+    if (child == Self)
+        return QAccessibleWidgetEx::rect(child);
+    QWidgetList children = accessibleChildren();
+    if (child < 1 || child > children.count())
+        return QRect();
+    const QWidget *childWidget = children.at(child - 1);
+    if (!childWidget->isVisible())
+        return QRect();
+    return QRect(childWidget->mapToGlobal(QPoint(0, 0)), childWidget->size());
+}
+
+int QAccessibleAbstractScrollArea::childAt(int x, int y) const
+{
+    if (!abstractScrollArea()->isVisible())
+        return -1;
+    const QRect globalSelfGeometry = rect(Self);
+    if (!globalSelfGeometry.isValid() || !globalSelfGeometry.contains(QPoint(x, y)))
+        return -1;
+    const QWidgetList children = accessibleChildren();
+    for (int i = 0; i < children.count(); ++i) {
+        const QWidget *child = children.at(i);
+        const QRect globalChildGeometry = QRect(child->mapToGlobal(QPoint(0, 0)), child->size());
+        if (globalChildGeometry.contains(QPoint(x, y))) {
+            return ++i;
+        }
+    }
+    return 0;
+}
+
+QAbstractScrollArea *QAccessibleAbstractScrollArea::abstractScrollArea() const
+{
+    return static_cast<QAbstractScrollArea *>(object());
+}
+
+QWidgetList QAccessibleAbstractScrollArea::accessibleChildren() const
+{
+    QWidgetList children;
+
+    // Viewport.
+    QWidget * viewport = abstractScrollArea()->viewport();
+    if (viewport && viewport->isVisible())
+        children.append(viewport);
+
+    // Horizontal scrollBar and all its scrollWidgets.
+    QScrollBar *horizontalScrollBar = abstractScrollArea()->horizontalScrollBar();
+    if (horizontalScrollBar && horizontalScrollBar->isVisible()) {
+        children.append(horizontalScrollBar);
+        QWidgetList scrollWidgets = abstractScrollArea()->scrollBarWidgets(Qt::AlignLeft | Qt::AlignRight);
+        foreach (QWidget *widget, scrollWidgets) {
+            if (widget->isVisible())
+                children.append(widget);
+        }
+    }
+
+    // Vertical scrollBar and all its scrollWidgets.
+    QScrollBar *verticalScrollBar = abstractScrollArea()->verticalScrollBar();
+    if (verticalScrollBar && verticalScrollBar->isVisible()) {
+        children.append(verticalScrollBar);
+        QWidgetList scrollWidgets = abstractScrollArea()->scrollBarWidgets(Qt::AlignTop | Qt::AlignBottom);
+        foreach (QWidget *widget, scrollWidgets) {
+            if (widget->isVisible())
+                children.append(widget);
+        }
+    }
+
+    // CornerWidget.
+    QWidget *cornerWidget = abstractScrollArea()->cornerWidget();
+    if (cornerWidget && cornerWidget->isVisible())
+        children.append(cornerWidget);
+
+    return children;
+}
+
+QAccessibleAbstractScrollArea::AbstractScrollAreaElement
+QAccessibleAbstractScrollArea::elementType(QWidget *widget) const
+{
+    if (!widget)
+        return Undefined;
+
+    if (widget == abstractScrollArea())
+        return Self;
+    if (widget == abstractScrollArea()->viewport())
+        return Viewport;
+    if (widget == abstractScrollArea()->horizontalScrollBar())
+        return HorizontalScrollBar;
+    if (widget == abstractScrollArea()->verticalScrollBar())
+        return VerticalScrollBar;
+    if (widget == abstractScrollArea()->cornerWidget())
+        return CornerWidget;
+
+    // Check horizontal scrollBar widgets.
+    QWidgetList list = abstractScrollArea()->scrollBarWidgets(Qt::AlignLeft | Qt::AlignRight);
+    foreach (QWidget *candidate, list) {
+        if (widget == candidate)
+            return HorizontalScrollBarWidget;
+    }
+
+    // Check vertical scrollBar widgets.
+    list = abstractScrollArea()->scrollBarWidgets(Qt::AlignTop | Qt::AlignBottom);
+    foreach (QWidget *candidate, list) {
+        if (widget == candidate)
+            return VerticalScrollBarWidget;
+    }
+
+    return Undefined;
+}
+
+bool QAccessibleAbstractScrollArea::isLeftToRight() const
+{
+    return abstractScrollArea()->isLeftToRight();
+}
+
+// ======================= QAccessibleScrollArea ===========================
+QAccessibleScrollArea::QAccessibleScrollArea(QWidget *widget)
+    : QAccessibleAbstractScrollArea(widget)
+{
+    Q_ASSERT(qobject_cast<QScrollArea *>(widget));
+}
+#endif // QT_NO_SCROLLAREA
 
 #endif // QT_NO_ACCESSIBILITY
