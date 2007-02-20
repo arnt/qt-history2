@@ -2087,7 +2087,7 @@ void QDateTimeEdit::initStyleOption(QStyleOptionSpinBox *option) const
     QAbstractSpinBox::initStyleOption(option);
     if (d->showCalendarPopup()) {
         option->subControls = QStyle::SC_ComboBoxFrame | QStyle::SC_ComboBoxEditField
-                           | QStyle::SC_ComboBoxArrow;
+                              | QStyle::SC_ComboBoxArrow;
         if (d->arrowState == QStyle::State_Sunken)
             option->state |= QStyle::State_Sunken;
         else
@@ -2156,6 +2156,12 @@ void QDateTimeEditPrivate::updateEditFieldGeometry()
 bool QDateTimeEditPrivate::isSeparatorKey(const QKeyEvent *ke) const
 {
     if (!ke->text().isEmpty() && currentSectionIndex + 1 < sectionNodes.size() && currentSectionIndex >= 0) {
+        if (fieldInfo(currentSectionIndex) & Numeric) {
+            if (ke->text().at(0).isNumber())
+                return false;
+        } else if (ke->text().at(0).isLetterOrNumber()) {
+            return false;
+        }
         return separators.at(currentSectionIndex + 1).contains(ke->text());
     }
     return false;
