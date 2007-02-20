@@ -223,14 +223,12 @@ public:
     bool isOpaque() const;
     bool hasBackground() const;
 
-#ifdef QT_EXPERIMENTAL_REGIONS
     QRegion getOpaqueRegion() const;
     QRegion getOpaqueChildren() const;
     void setDirtyOpaqueRegion();
 
-    mutable QRegion opaqueChildren;
-    mutable bool dirtyOpaqueChildren;
-#endif
+    QRegion opaqueChildren;
+    bool dirtyOpaqueChildren;
 
     enum CloseMode {
         CloseNoEvent,
@@ -379,6 +377,7 @@ public:
     QPalette::ColorRole bg_role : 8;
     uint high_attributes[2]; // the low ones are in QWidget::widget_attributes
     Qt::HANDLE hd;
+    QRegion dirty;
 #if defined(Q_WS_X11)
     QX11Info xinfo;
     Qt::HANDLE picture;
@@ -408,10 +407,6 @@ public:
     uint clp_serial : 8;
     inline QRegion clippedRegion(bool = true) { return clp; }
     inline uint clippedSerial(bool =true) { return clp_serial; }
-#endif
-
-#ifdef QT_EXPERIMENTAL_REGIONS
-    QRegion dirty;
 #endif
 
 #if defined(Q_WS_X11) || defined (Q_WS_WIN) || defined(Q_WS_MAC)

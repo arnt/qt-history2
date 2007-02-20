@@ -95,9 +95,7 @@ QWidgetPrivate::QWidgetPrivate(int version) :
     if (version != QObjectPrivateVersion)
         qFatal("Cannot mix incompatible Qt libraries");
 
-#ifdef QT_EXPERIMENTAL_REGIONS
     dirtyOpaqueChildren = true;
-#endif
 
     isWidget = true;
     memset(high_attributes, 0, sizeof(high_attributes));
@@ -110,14 +108,12 @@ QWidgetPrivate::QWidgetPrivate(int version) :
 
 QWidgetPrivate::~QWidgetPrivate()
 {
-#ifdef QT_EXPERIMENTAL_REGIONS
     if (!dirty.isEmpty()) {
         Q_Q(QWidget);
         QWidgetBackingStore *bs = maybeBackingStore();
         if (bs)
             bs->dirtyWidgets.remove(q);
     }
-#endif
     if (extra)
         deleteExtra();
 }
@@ -1456,7 +1452,6 @@ QRegion QWidgetPrivate::clipRegion() const
     return r;
 }
 
-#ifdef QT_EXPERIMENTAL_REGIONS
 void QWidgetPrivate::setDirtyOpaqueRegion()
 {
     Q_Q(QWidget);
@@ -1480,15 +1475,10 @@ QRegion QWidgetPrivate::getOpaqueRegion() const
 {
     Q_Q(const QWidget);
 
-    if (isOpaque()) {
-        QRegion clip = q->rect();
-        if (extra && !extra->mask.isEmpty())
-            clip &= extra->mask;
-
-        return clip;
-    }
-
-    return getOpaqueChildren();
+    QRegion r = isOpaque() ? q->rect() : getOpaqueChildren();
+    if (extra && !extra->mask.isEmpty())
+        r &= extra->mask;
+    return r & clipRect();
 }
 
 QRegion QWidgetPrivate::getOpaqueChildren() const
@@ -1496,7 +1486,8 @@ QRegion QWidgetPrivate::getOpaqueChildren() const
     if (!dirtyOpaqueChildren)
         return opaqueChildren;
 
-    opaqueChildren = QRegion();
+    QWidgetPrivate *that = const_cast<QWidgetPrivate*>(this);    
+    that->opaqueChildren = QRegion();
 
     for (int i = 0; i < children.size(); ++i) {
         QWidget *child = qobject_cast<QWidget *>(children.at(i));
@@ -1504,12 +1495,12 @@ QRegion QWidgetPrivate::getOpaqueChildren() const
             continue;
 
         const QPoint offset = child->geometry().topLeft();
-        opaqueChildren += child->d_func()->getOpaqueRegion().translated(offset);
+        that->opaqueChildren += child->d_func()->getOpaqueRegion().translated(offset);
     }
 
-    dirtyOpaqueChildren = false;
+    that->dirtyOpaqueChildren = false;
 
-    return opaqueChildren;
+    return that->opaqueChildren;
 }
 
 void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn, const QPoint &offset, int startIdx) const
@@ -1521,40 +1512,13 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn
         rgn -= (r.translated(offset) & clipRgn);
 }
 
-
-void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) const
-{
-    Q_UNUSED(rgn);
-    Q_UNUSED(offset);
-}
-
-#else
-void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn, const QPoint &offset, int startIdx) const
-{
-    for (int i=startIdx; i < children.size(); ++i) {
-        if (QWidget *child = qobject_cast<QWidget *>(children.at(i))) {
-            if (child->isVisible() && !child->isWindow()) {
-                QRegion childRgn = clipRgn & child->geometry().translated(offset);
-                QWidgetPrivate *cd = child->d_func();
-                if (cd->extra && !cd->extra->mask.isEmpty())
-                    childRgn &= cd->extra->mask.translated(offset + cd->data.crect.topLeft());
-
-                if (childRgn.isEmpty())
-                    continue;
-
-                if (cd->isOpaque())
-                    rgn -= childRgn;
-                else
-                    cd->subtractOpaqueChildren(rgn, childRgn, offset + child->geometry().topLeft());
-            }
-        }
-    }
-}
-
 //subtract any relatives that are higher up than me --- is this too expensive ???
-
 void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) const
 {
+    static int disableSubtractOpaqueSiblings = qgetenv("QT_NO_SUBTRACTOPAQUESIBLINGS").toInt();
+    if (disableSubtractOpaqueSiblings)
+        return;
+    
     Q_Q(const QWidget);
 
     if (q->isWindow())
@@ -1566,8 +1530,6 @@ void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) 
     int idx = pd->children.indexOf(const_cast<QWidget*>(q)) + 1; // argh, list<QObject*> is not compatible with const QObject*
     pd->subtractOpaqueChildren(rgn, q->rect(), myOffset, idx);
 }
-
-#endif // QT_EXPERIMENTAL_REGIONS
 
 bool QWidgetPrivate::hasBackground() const
 {
@@ -1594,10 +1556,8 @@ void QWidgetPrivate::updateIsOpaque()
     extern void qt_mac_set_widget_is_opaque(QWidget*, bool); //qwidget_mac.cpp
     qt_mac_set_widget_is_opaque(q, isOpaque());
 #endif
-#ifdef QT_EXPERIMENTAL_REGIONS
-    // hw: only needed if opacity actually changed
+    // hw: todo: only needed if opacity actually changed
     setDirtyOpaqueRegion();
-#endif
 }
 
 bool QWidgetPrivate::isOpaque() const
@@ -4670,9 +4630,7 @@ void QWidget::move(const QPoint &p)
         d->setGeometry_sys(p.x() + geometry().x() - QWidget::x(),
                        p.y() + geometry().y() - QWidget::y(),
                        width(), height(), true);
-#ifdef QT_EXPERIMENTAL_REGIONS
         d->setDirtyOpaqueRegion();
-#endif
     } else {
         data->crect.moveTopLeft(p); // no frame yet
         setAttribute(Qt::WA_PendingMoveEvent);
@@ -4691,9 +4649,7 @@ void QWidget::resize(const QSize &s)
     setAttribute(Qt::WA_Resized);
     if (testAttribute(Qt::WA_WState_Created)) {
         d->setGeometry_sys(geometry().x(), geometry().y(), s.width(), s.height(), false);
-#ifdef QT_EXPERIMENTAL_REGIONS
         d->setDirtyOpaqueRegion();
-#endif
     } else {
         data->crect.setSize(s);
         setAttribute(Qt::WA_PendingResizeEvent);
@@ -4709,9 +4665,7 @@ void QWidget::setGeometry(const QRect &r)
         d->topData()->posFromMove = false;
     if (testAttribute(Qt::WA_WState_Created)) {
         d->setGeometry_sys(r.x(), r.y(), r.width(), r.height(), true);
-#ifdef QT_EXPERIMENTAL_REGIONS
         d->setDirtyOpaqueRegion();
-#endif
     } else {
         data->crect = r;
         setAttribute(Qt::WA_PendingMoveEvent);
@@ -5223,11 +5177,9 @@ void QWidgetPrivate::hide_helper()
         }
     }
 
-#ifdef QT_EXPERIMENTAL_REGIONS
     QWidgetBackingStore *bs = maybeBackingStore();
     if (bs)
         bs->removeDirtyWidget(q);
-#endif
 
 #ifndef QT_NO_ACCESSIBILITY
     if (wasVisible)
@@ -5316,11 +5268,8 @@ void QWidget::setVisible(bool visible)
                     break;
                 parent = parent->parentWidget();
             }
-#ifdef QT_EXPERIMENTAL_REGIONS
             if (parent && !d->getOpaqueRegion().isEmpty())
                 parent->d_func()->setDirtyOpaqueRegion();
-#endif
-
         }
 
         // adjust size if necessary
@@ -5362,10 +5311,8 @@ void QWidget::setVisible(bool visible)
                 parentWidget()->d_func()->layout->update();
             else if (parentWidget()->isVisible())
                 QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
-#ifdef QT_EXPERIMENTAL_REGIONS
             if (!d->getOpaqueRegion().isEmpty())
                 parentWidget()->d_func()->setDirtyOpaqueRegion();
-#endif
         }
 
         QEvent hideToParentEvent(QEvent::HideToParent);
@@ -7295,13 +7242,11 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
 
     d->setParent_sys(parent, f);
 
-#ifdef QT_EXPERIMENTAL_REGIONS
     if (newParent) {
         QWidgetBackingStore *oldBs = oldtlw->d_func()->maybeBackingStore();
         if (oldBs)
             oldBs->removeDirtyWidget(this);
     }
-#endif
 
     if ((QApplicationPrivate::app_compile_version < 0x040200
          || QApplicationPrivate::testAttribute(Qt::AA_ImmediateWidgetCreation))

@@ -291,11 +291,7 @@ void qt_syncBackingStore(QWidget *widget)
     QRegion toClean;
     if (surface)
         toClean = surface->dirtyRegion();
-#ifdef QT_EXPERIMENTAL_REGIONS
     if (!toClean.isEmpty() || !bs->dirtyWidgets.isEmpty())
-#else
-    if (!toClean.isEmpty())
-#endif
         topData->backingStore->cleanRegion(toClean, tlw);
 }
 #elif defined(Q_WS_WIN)
@@ -592,13 +588,8 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
 
 void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool recursiveCopyToScreen)
 {
-#ifdef QT_EXPERIMENTAL_REGIONS
     if (!widget->isVisible() || !widget->updatesEnabled() || !tlw->testAttribute(Qt::WA_Mapped))
         return;
-#else
-    if (!widget->isVisible() || !widget->updatesEnabled() || !tlw->testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
-        return;
-#endif
 
     if(QWidgetBackingStore::paintOnScreen(widget))
         return;
@@ -621,11 +612,9 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         windowSurface->setGeometry(tlwRect);
         toClean = QRect(QPoint(0, 0), tlwRect.size());
         recursiveCopyToScreen = true;
-#ifdef QT_EXPERIMENTAL_REGIONS
         for (int i = 0; i < dirtyWidgets.size(); ++i)
             dirtyWidgets.at(i)->d_func()->dirty = QRegion();
         dirtyWidgets.clear();
-#endif
     } else {
 #ifdef Q_WS_QWS
         toClean = static_cast<QWSWindowSurface*>(windowSurface)->dirtyRegion();
@@ -664,7 +653,6 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
                 windowSurface->beginPaint(toClean);
             windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
 
-#ifdef QT_EXPERIMENTAL_REGIONS
 #ifdef Q_WS_QWS
             const QPoint poffset = static_cast<QWSWindowSurface*>(windowSurface)->painterOffset();
 #else
@@ -682,7 +670,6 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
             dirtyWidgets.clear();
             
             if (!toClean.isEmpty())
-#endif
                 tlw->d_func()->drawWidget(windowSurface->paintDevice(),
                                           toClean, tlwOffset);
 
@@ -766,7 +753,6 @@ void QWidgetBackingStore::paintSiblingsRecursive(QPaintDevice *pdev, const QObje
     }
 }
 
-#ifdef QT_EXPERIMENTAL_REGIONS
 void QWidgetBackingStore::removeDirtyWidget(QWidget *w)
 {
     if (!w->d_func()->dirty.isEmpty()) {
@@ -780,7 +766,6 @@ void QWidgetBackingStore::removeDirtyWidget(QWidget *w)
             removeDirtyWidget(child);
     }
 }
-#endif
 
 void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QPoint &offset, int flags)
 {
@@ -1000,13 +985,10 @@ void QWidget::update(const QRegion& rgn)
     d->subtractOpaqueSiblings(wrgn, QPoint());
     d->subtractOpaqueChildren(wrgn, rect(), QPoint());
 
-#if defined(QT_EXPERIMENTAL_REGIONS) 
-    // TODO: move this into QWidgetBackingStore::dirtyRegion.
-    // Implement for windows?
-
     if (wrgn.isEmpty())
         return;
 
+#ifndef Q_WS_WIN
     if (qt_region_strictContains(d->dirty, wrgn.boundingRect()))
         return; // already dirty
 
