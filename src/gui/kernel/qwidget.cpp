@@ -110,6 +110,14 @@ QWidgetPrivate::QWidgetPrivate(int version) :
 
 QWidgetPrivate::~QWidgetPrivate()
 {
+#ifdef QT_EXPERIMENTAL_REGIONS
+    if (!dirty.isEmpty()) {
+        Q_Q(QWidget);
+        QWidgetBackingStore *bs = maybeBackingStore();
+        if (bs)
+            bs->dirtyWidgets.remove(q);
+    }
+#endif
     if (extra)
         deleteExtra();
 }
@@ -1455,8 +1463,11 @@ void QWidgetPrivate::setDirtyOpaqueRegion()
 
     dirtyOpaqueChildren = true;
 
+    if (q->isWindow())
+        return;
+
     QWidget *parent = q->parentWidget();
-    if (!parent || parent->isWindow())
+    if (!parent)
         return;
 
     // TODO: instead of setting dirtyflag, manipulate the dirtyregion directly?
@@ -1469,12 +1480,13 @@ QRegion QWidgetPrivate::getOpaqueRegion() const
 {
     Q_Q(const QWidget);
 
-    QRegion clip = q->rect();
-    if (extra && !extra->mask.isEmpty())
-        clip &= extra->mask;
+    if (isOpaque()) {
+        QRegion clip = q->rect();
+        if (extra && !extra->mask.isEmpty())
+            clip &= extra->mask;
 
-    if (isOpaque())
         return clip;
+    }
 
     return getOpaqueChildren();
 }
@@ -1581,6 +1593,10 @@ void QWidgetPrivate::updateIsOpaque()
     Q_Q(QWidget);
     extern void qt_mac_set_widget_is_opaque(QWidget*, bool); //qwidget_mac.cpp
     qt_mac_set_widget_is_opaque(q, isOpaque());
+#endif
+#ifdef QT_EXPERIMENTAL_REGIONS
+    // hw: only needed if opacity actually changed
+    setDirtyOpaqueRegion();
 #endif
 }
 
@@ -5207,6 +5223,11 @@ void QWidgetPrivate::hide_helper()
         }
     }
 
+#ifdef QT_EXPERIMENTAL_REGIONS
+    QWidgetBackingStore *bs = maybeBackingStore();
+    if (bs)
+        bs->removeDirtyWidget(q);
+#endif
 
 #ifndef QT_NO_ACCESSIBILITY
     if (wasVisible)
@@ -6068,9 +6089,11 @@ bool QWidget::event(QEvent *event)
         changeEvent(event);
         break;
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_WIN)
     case QEvent::UpdateRequest: {
+#ifndef Q_WS_WIN
         extern void qt_syncBackingStore(QWidget *widget);
+#endif
         qt_syncBackingStore(this);
         break; }
 #endif
@@ -7271,6 +7294,14 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
         focusWidget()->clearFocus();
 
     d->setParent_sys(parent, f);
+
+#ifdef QT_EXPERIMENTAL_REGIONS
+    if (newParent) {
+        QWidgetBackingStore *oldBs = oldtlw->d_func()->maybeBackingStore();
+        if (oldBs)
+            oldBs->removeDirtyWidget(this);
+    }
+#endif
 
     if ((QApplicationPrivate::app_compile_version < 0x040200
          || QApplicationPrivate::testAttribute(Qt::AA_ImmediateWidgetCreation))

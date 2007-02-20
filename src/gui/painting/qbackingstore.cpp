@@ -289,13 +289,30 @@ void qt_syncBackingStore(QWidget *widget)
                  (void*)widget);
 
     QRegion toClean;
-
     if (surface)
         toClean = surface->dirtyRegion();
+#ifdef QT_EXPERIMENTAL_REGIONS
+    if (!toClean.isEmpty() || !bs->dirtyWidgets.isEmpty())
+#else
     if (!toClean.isEmpty())
+#endif
         topData->backingStore->cleanRegion(toClean, tlw);
 }
-#endif
+#elif defined(Q_WS_WIN)
+void qt_syncBackingStore(QWidget *widget)
+{
+    QWidget *tlw = widget->window();
+    QTLWExtra *topData = tlw->d_func()->topData();
+
+    QWidgetBackingStore *bs = topData->backingStore;
+    if (!bs)
+        return;
+
+    const QRegion toClean = bs->dirty;
+    if (!toClean.isEmpty() || !bs->dirtyWidgets.isEmpty())
+        topData->backingStore->cleanRegion(toClean, tlw);
+}
+#endif // Q_WS_WIN
 
 /*
    A version of QRect::intersects() that does not normalize the rects.
@@ -505,6 +522,7 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
     wrgn &= widget->d_func()->clipRect();
     if (!widget->mask().isEmpty())
         wrgn &= widget->mask();
+
 #ifndef Q_WS_QWS
     widget->d_func()->dirtyWidget_sys(wrgn);
 #endif
@@ -574,8 +592,13 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
 
 void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool recursiveCopyToScreen)
 {
+#ifdef QT_EXPERIMENTAL_REGIONS
+    if (!widget->isVisible() || !widget->updatesEnabled() || !tlw->testAttribute(Qt::WA_Mapped))
+        return;
+#else
     if (!widget->isVisible() || !widget->updatesEnabled() || !tlw->testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
         return;
+#endif
 
     if(QWidgetBackingStore::paintOnScreen(widget))
         return;
@@ -598,6 +621,11 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         windowSurface->setGeometry(tlwRect);
         toClean = QRect(QPoint(0, 0), tlwRect.size());
         recursiveCopyToScreen = true;
+#ifdef QT_EXPERIMENTAL_REGIONS
+        for (int i = 0; i < dirtyWidgets.size(); ++i)
+            dirtyWidgets.at(i)->d_func()->dirty = QRegion();
+        dirtyWidgets.clear();
+#endif
     } else {
 #ifdef Q_WS_QWS
         toClean = static_cast<QWSWindowSurface*>(windowSurface)->dirtyRegion();
@@ -610,14 +638,19 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #endif
     // ### move into prerender step
 
-    if(!toClean.isEmpty()) {
+    QRegion toFlush = rgn;
+
+    if(!toClean.isEmpty() || !dirtyWidgets.isEmpty()) {
 #ifndef Q_WS_QWS
         dirty -= toClean;
 #endif
         if (tlw->updatesEnabled()) {
+
+            // hw: XXX the toClean region is not correct if !dirtyWidgets.isEmpty()
+            
             // Pre render config
             windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
-
+            
 // Avoid deadlock with QT_FLUSH_PAINT: the server will wait for
 // the BackingStore lock, so if we hold that, the server will
 // never release the Communication lock that we are waiting for in
@@ -631,7 +664,27 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
                 windowSurface->beginPaint(toClean);
             windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
 
-            tlw->d_func()->drawWidget(windowSurface->paintDevice(), toClean, tlwOffset);
+#ifdef QT_EXPERIMENTAL_REGIONS
+#ifdef Q_WS_QWS
+            const QPoint poffset = static_cast<QWSWindowSurface*>(windowSurface)->painterOffset();
+#else
+            const QPoint poffset(0,0);
+#endif
+            for (int i = 0; i < dirtyWidgets.size(); ++i) {
+                QWidget *w = dirtyWidgets.at(i);
+                const QPoint offset = w->mapTo(tlw, QPoint());
+                const QRegion dirty = w->d_func()->dirty;
+                w->d_func()->drawWidget(windowSurface->paintDevice(), dirty,
+                                        poffset + offset, 0);
+                toFlush += dirty.translated(offset);
+                w->d_func()->dirty = QRegion();
+            }
+            dirtyWidgets.clear();
+            
+            if (!toClean.isEmpty())
+#endif
+                tlw->d_func()->drawWidget(windowSurface->paintDevice(),
+                                          toClean, tlwOffset);
 
             // Drawing the overlay...
             windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
@@ -640,8 +693,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
             windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
         }
     }
-
-    QRegion toFlush = rgn;
+    
     if (recursiveCopyToScreen) {
         toFlush.translate(widget->mapTo(tlw, QPoint()));
         copyToScreen(toFlush, tlw, tlwOffset, recursiveCopyToScreen);
@@ -713,6 +765,22 @@ void QWidgetBackingStore::paintSiblingsRecursive(QPaintDevice *pdev, const QObje
             w->d_func()->drawWidget(pdev, wRegion, offset+w->pos(), flags);
     }
 }
+
+#ifdef QT_EXPERIMENTAL_REGIONS
+void QWidgetBackingStore::removeDirtyWidget(QWidget *w)
+{
+    if (!w->d_func()->dirty.isEmpty()) {
+        dirtyWidgets.removeAll(w);
+        w->d_func()->dirty = QRegion();
+    }
+
+    const int n = w->children().count();
+    for (int i = 0; i < n; ++i) {
+        if (QWidget *child = qobject_cast<QWidget*>(w->children().at(i)))
+            removeDirtyWidget(child);
+    }
+}
+#endif
 
 void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QPoint &offset, int flags)
 {
@@ -921,13 +989,38 @@ void QWidget::update(const QRegion& rgn)
     Q_D(QWidget);
     if (testAttribute(Qt::WA_WState_InPaintEvent)) {
         QApplication::postEvent(this, new QUpdateLaterEvent(rgn));
-    } else {
-        if (QWidgetBackingStore *bs = d->maybeBackingStore()) {
-            QRegion wrgn(rgn);
-            d->subtractOpaqueSiblings(wrgn, QPoint());
-            d->subtractOpaqueChildren(wrgn, rect(), QPoint());
-            bs->dirtyRegion(wrgn, this);
-        }
+        return;
     }
+
+    QWidgetBackingStore *bs = d->maybeBackingStore();
+    if (!bs)
+        return;
+
+    QRegion wrgn = rgn & d->clipRect();
+    d->subtractOpaqueSiblings(wrgn, QPoint());
+    d->subtractOpaqueChildren(wrgn, rect(), QPoint());
+
+#if defined(QT_EXPERIMENTAL_REGIONS) 
+    // TODO: move this into QWidgetBackingStore::dirtyRegion.
+    // Implement for windows?
+
+    if (wrgn.isEmpty())
+        return;
+
+    if (qt_region_strictContains(d->dirty, wrgn.boundingRect()))
+        return; // already dirty
+
+    if (d->isOpaque()) {
+        // TODO: overlapping non-opaque siblings
+        if (bs->dirtyWidgets.isEmpty())
+            QApplication::postEvent(window(), new QEvent(QEvent::UpdateRequest));
+        if (d->dirty.isEmpty())
+            bs->dirtyWidgets.append(this);
+        d->dirty += wrgn;
+        return;
+    }
+#endif
+    
+    bs->dirtyRegion(wrgn, this);
 }
 

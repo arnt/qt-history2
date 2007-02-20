@@ -47,11 +47,16 @@ public:
 #ifdef Q_WS_WIN
     static void blitToScreen(const QRegion &rgn, QWidget *w);
 #endif
+#ifdef QT_EXPERIMENTAL_REGIONS
+    void removeDirtyWidget(QWidget *w);
+#endif
+
 private:
     QWidget *tlw;
 #ifndef Q_WS_QWS
     QRegion dirty;
 #endif
+    QList<QWidget*> dirtyWidgets;
 
     QWindowSurface *windowSurface;
 
@@ -64,13 +69,14 @@ private:
     static void paintSiblingsRecursive(QPaintDevice *pdev, const QObjectList& children, int index, const QRegion &rgn, const QPoint &offset, int flags);
 
     friend void qt_syncBackingStore(QRegion, QWidget *);
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_WIN)
     friend void qt_syncBackingStore(QWidget *);
 #endif
     friend class QWidgetPrivate;
     friend class QWidget;
     friend class QWSManagerPrivate;
     friend class QETWidget;
+    friend class QWSWindowSurface;
 };
 
 #endif // QBACKINGSTORE_P_H

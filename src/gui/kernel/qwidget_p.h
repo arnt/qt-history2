@@ -410,6 +410,10 @@ public:
     inline uint clippedSerial(bool =true) { return clp_serial; }
 #endif
 
+#ifdef QT_EXPERIMENTAL_REGIONS
+    QRegion dirty;
+#endif
+
 #if defined(Q_WS_X11) || defined (Q_WS_WIN) || defined(Q_WS_MAC)
     void setWSGeometry(bool dontShow=false);
 
