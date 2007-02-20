@@ -272,6 +272,7 @@ public:
 
     QWidget *itemWidget(QTreeWidgetItem *item, int column) const;
     void setItemWidget(QTreeWidgetItem *item, int column, QWidget *widget);
+    inline void removeItemWidget(QTreeWidgetItem *item, int column);
 
     bool isItemSelected(const QTreeWidgetItem *item) const;
     void setItemSelected(const QTreeWidgetItem *item, bool select);
@@ -342,6 +343,9 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight))
     Q_PRIVATE_SLOT(d_func(), void _q_itemsSorted())
 };
+
+inline void QTreeWidget::removeItemWidget(QTreeWidgetItem *item, int column)
+{ setItemWidget(item, column, 0); }
 
 inline QTreeWidgetItem *QTreeWidget::itemAt(int ax, int ay) const
 { return itemAt(QPoint(ax, ay)); }

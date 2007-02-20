@@ -1773,6 +1773,12 @@ void QTableWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
   currentColumn is the new current cell.
 */
 
+/*!
+  \since 4.3
+  \fn void QTableWidget::removeCellWidget(int row, int column)
+
+  Removes the widget set on the cell indicated by \a row and \a column.
+*/
 
 /*!
     \fn QTableWidgetItem *QTableWidget::itemAt(int ax, int ay) const

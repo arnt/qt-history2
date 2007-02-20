@@ -237,6 +237,7 @@ public:
 
     QWidget *cellWidget(int row, int column) const;
     void setCellWidget(int row, int column, QWidget *widget);
+    inline void removeCellWidget(int row, int column);
 
     bool isItemSelected(const QTableWidgetItem *item) const;
     void setItemSelected(const QTableWidgetItem *item, bool select);
@@ -315,6 +316,9 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_sort())
     Q_PRIVATE_SLOT(d_func(), void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight))
 };
+
+inline void QTableWidget::removeCellWidget(int row, int column)
+{ setCellWidget(row, column, 0); }
 
 inline QTableWidgetItem *QTableWidget::itemAt(int ax, int ay) const
 { return itemAt(QPoint(ax, ay)); }

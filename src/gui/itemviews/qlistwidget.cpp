@@ -1229,6 +1229,14 @@ void QListWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
 */
 
 /*!
+  \since 4.3
+  
+  \fn void QListWidget::removeItemWidget(QListWidgetItem *item)
+
+  Removes the widget set on the given \a item.
+*/
+
+/*!
     Constructs an empty QListWidget with the given \a parent.
 */
 

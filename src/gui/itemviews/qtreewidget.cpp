@@ -2347,6 +2347,13 @@ void QTreeWidgetPrivate::_q_itemsSorted()
 */
 
 /*!
+  \since 4.3
+
+  \fn void QTreeWidget::removeItemWidget(QTreeWidgetItem *item, int column)
+
+  Removes the widget set in the given \a item in the given \a column.
+
+/*!
   Constructs a tree widget with the given \a parent.
 */
 
