@@ -815,7 +815,7 @@ void tst_QListView::selection_data()
         << QSize()                              // gridSize
         << IntList()                            // hiddenRows
         << QRect(10, 250, 1, 1)                 // selection rectangle
-        << (IntList());                         // expected items
+        << IntList();                           // expected items
 
     QTest::newRow("select below 2, (on viewport)")
         << 4                                    // itemCount
@@ -826,7 +826,7 @@ void tst_QListView::selection_data()
         << QSize()                              // gridSize
         << IntList()                            // hiddenRows
         << QRect(10, 250, 1, 1)                 // selection rectangle
-        << (IntList());                         // expected items
+        << IntList();                           // expected items
     
     QTest::newRow("select to the right, (on viewport)")
         << 40                                   // itemCount
@@ -837,7 +837,7 @@ void tst_QListView::selection_data()
         << QSize()                              // gridSize
         << IntList()                            // hiddenRows
         << QRect(300, 10, 1, 1)                 // selection rectangle
-        << (IntList());                         // expected items
+        << IntList();                           // expected items
     
     QTest::newRow("select to the right, (on viewport)")
         << 40                                   // itemCount
@@ -848,7 +848,7 @@ void tst_QListView::selection_data()
         << QSize()                              // gridSize
         << IntList()                            // hiddenRows
         << QRect(300, 0, 1, 300)                // selection rectangle
-        << (IntList());                         // expected items
+        << IntList();                           // expected items
 
   
     QTest::newRow("select inside contents, (on viewport)")
@@ -860,7 +860,7 @@ void tst_QListView::selection_data()
         << QSize()                              // gridSize
         << IntList()                            // hiddenRows
         << QRect(175, 275, 1, 1)                // selection rectangle
-        << (IntList());                         // expected items
+        << IntList();                           // expected items
 }
 
 void tst_QListView::selection()
