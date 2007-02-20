@@ -4159,7 +4159,6 @@ QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
 
             tmp = QVariant(QDateTime(strictDate(year, month, day), QTime(hour, minute, second, msec)));
             QDTPDEBUG << year << month << day << hour << minute << second << msec;
-
         }
         QDTPDEBUGN("'%s' => '%s'(%s)", input.toLatin1().constData(),
                    tmp.toDateTime().toString(QLatin1String("yyyy/MM/dd hh:mm:ss.zzz")).toLatin1().constData(), stateName(state).toLatin1().constData());
@@ -4169,8 +4168,9 @@ end:
         if (state != Invalid && dateTimeCompare(tmp, minimum) < 0) {
             state = checkIntermediate(tmp.toDateTime(), input);
         } else {
-            if (dateTimeCompare(tmp, maximum) > 0)
+            if (dateTimeCompare(tmp, maximum) > 0) {
                 state = Invalid;
+            }
             QDTPDEBUG << "not checking intermediate because tmp is" << tmp  << minimum << maximum;
         }
     }
@@ -4179,7 +4179,7 @@ end:
     node.state = state;
     node.conflicts = conflicts;
     node.value = tmp;
-    text = input; // ### do I need this?
+    text = input;
     return node;
 }
 #endif // QT_NO_DATESTRING
@@ -4584,14 +4584,13 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
 
     const QVariant minimum = getMinimum();
     const QVariant maximum = getMaximum();
+
     Q_ASSERT(dateTimeCompare(dt, minimum) < 0);
 
-    bool found = false;
     for (int i=0; i<sectionNodes.size(); ++i) {
         const SectionNode &sn = sectionNodes.at(i);
         QString t = sectionText(s, i, sn.pos).toLower();
         if (t.contains(space) || (t.size() < sectionMaxSize(i) && (((int)fieldInfo(i) & (FixedWidth|Numeric)) != Numeric))) {
-            found = true;
             switch (sn.type) {
             case AmPmSection:
                 switch (findAmPm(t, i)) {
@@ -4604,7 +4603,7 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
                     const QVariant copy(dt.addSecs(12 * 60 * 60));
                     if (dateTimeCompare(copy, minimum) >= 0 && dateTimeCompare(copy, maximum) <= 0)
                         return Intermediate;
-                    return Invalid; }
+                    break; }
                 }
             case MonthSection:
                 if (sn.count >= 3) {
@@ -4613,22 +4612,21 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
                     while ((tmp = findMonth(t, tmp + 1, i)) != -1) {
                         const QVariant copy(dt.addMonths(tmp - dt.date().month()));
                         if (dateTimeCompare(copy, minimum) >= 0 && dateTimeCompare(copy, maximum) <= 0)
-                            break;
+                            break; // break out of while
                     }
                     if (tmp == -1) {
-                        return Invalid;
+                        break;
                     }
+                    return Intermediate;
                 }
                 // fallthrough
-
             default: {
                 int toMin;
                 int toMax;
 
                 if (sn.type & TimeSectionMask) {
                     if (dt.daysTo(minimum.toDateTime()) != 0) {
-                        QDTPDEBUG << "if (dt.daysTo(minimum.toDateTime()) != 0)" << dt.daysTo(minimum.toDateTime());
-                        return Invalid;
+                        break;
                     }
                     toMin = dt.time().msecsTo(minimum.toDateTime().time());
                     if (dt.daysTo(maximum.toDateTime()) > 0) {
@@ -4644,8 +4642,7 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
                 if (toMin > maxChange) {
                     QDTPDEBUG << "invalid because toMin > maxChange" << toMin
                               << maxChange << t << dt << minimum.toDateTime();
-
-                    return Invalid;
+                    break;
                 } else if (toMax > maxChange) {
                     toMax = -1; // can't get to max
                 }
@@ -4661,24 +4658,24 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
                 if (tmp == -1) {
                     QDTPDEBUG << "invalid because potentialValue(" << t << min << max
                               << sectionName(sn.type) << "returned" << tmp << toMax;
-                    return Invalid;
+                    break;
                 } else if (tmp > absoluteMax(i)) {
                     QDTPDEBUG << "invalid because potentialValue(" << t << min << max
                               << sectionName(sn.type) << "returned a larger number than absoluteMax" << tmp << absoluteMax(i);
-                    return Invalid;
+                    break;
                 }
 
                 QVariant var(dt);
                 setDigit(var, i, tmp);
                 if (dateTimeCompare(var, maximum) > 0) {
                     QDTPDEBUG << "invalid because" << var.toString() << ">" << maximum.toString();
-                    return Invalid;
+                    break;
                 }
-                break; }
+                return Intermediate; }
             }
         }
     }
-    return found ? Intermediate : Invalid;
+    return Invalid;
 }
 #endif // QT_NO_DATESTRING
 
