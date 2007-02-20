@@ -125,6 +125,13 @@ General improvements
     * Fixed assert when setFilters() is called with an empty list.
     * Fixed problem with file entries not being laid out correctly.
 
+- QGridLayout
+    * Fixed bug in handling of fixed size spacers spanning multiple rows/columns
+
+- QLayout
+    * Fixed bug when setting minimumSize and SizePolicy::Fixed on a widget 
+      that implements minimumSizeHint(), but not sizeHint().
+
 - QLineEdit
     * Fixed crash when moving the cursor over a QChar::LineSeparator in the text.
 
@@ -311,6 +318,8 @@ Windows
     * Fixed incorrect frameGeometry() after the window is closed.
     * Fixed crash when spurious WM_CHAR from Remote Desktop Client.
     * Fixed crash in jpeg plugin while loading.
+    * Fixed crash in QFileDialog::getExistingDirectory() when specifying
+      a parent that has not been shown yet.
 
 Mac OS X
 --------
@@ -332,17 +341,23 @@ Mac OS X
 Qtopia Core
 -----------
 
-    * Fixed a data corruption bug in QDataStream on ARM processors when
-      reading and writing doubles on devices where doubles have swapped word
-      order, and qreals where qreal isn't a double. Corrupt data streams
-      cannot be read.
+    * Fixed a data corruption bug in QDataStream on ARM processors where
+      reading and writing doubles/qreals would be incompatible with streams
+      on other platforms. Note: corrupt data streams generated with previous
+      versions of Qtopia Core on ARM cannot be read with this version.
     * Fixed a possible buffer overflow in the VNC driver.
     * Fixed a memory leak in the windowing system.
     * Fixed painting errors occuring with use of QT::WA_PaintOnScreen on
       certain screen configurations.
-    * Improve performance when using a 16-bit brush as the background on a 
+    * Improved performance when using a 16-bit brush as the background on a 
       16-bit screen.
+    * Improved performance of 16bpp semi-transparent solid fill.
     * Fixed crash when saving a 16-bit image in BMP or PPM format.
+    * Fixed bug where window icon would not be shown in Plastique style
+    * Fixed bug in QWSServer::setMaxWindowRect() on rotated displays.
+    * Fixed crash with normalized Unicode characters and QPF fonts.
+    * Make sure that QWidget::minimumSize() does not become larger than 
+      the screen.
 
 ****************************************************************************
 *                      Compiler Specific Changes                           *
