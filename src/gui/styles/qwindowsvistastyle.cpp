@@ -395,8 +395,10 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
     case PE_IndicatorBranch: 
         {
             //enable vista explorer style tree branches for tree views 
-            if (!qobject_cast<const QTreeView *>(widget))
-                return QWindowsXPStyle::drawPrimitive(element, option, painter, widget);
+            if (!qobject_cast<const QTreeView *>(widget)) {
+                QWindowsXPStyle::drawPrimitive(element, option, painter, widget);
+                return;
+            }
             if (!d->treeViewHelper) {
                 d->treeViewHelper = new QWidget(0);
                 pSetWindowTheme(d->treeViewHelper ->winId(), L"explorer", NULL);
