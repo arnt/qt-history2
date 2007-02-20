@@ -270,10 +270,10 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
     if (tlw->isWindow()) {
         if (d->atBottom()) {
             PostMessage(tlw->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZEBOTTOMLEFT
-                                                               : SZ_SIZEBOTTOMRIGHT, 0);
+                                                                 : SZ_SIZEBOTTOMRIGHT, 0);
         } else {
             PostMessage(tlw->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZETOPLEFT
-                                                               : SZ_SIZETOPRIGHT, 0);
+                                                                 : SZ_SIZETOPRIGHT, 0);
         }
         return;
     }
