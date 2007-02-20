@@ -286,6 +286,7 @@ Section un."Eclipse Integration"
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTSTARTUP_ID}.jar"
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTPROJECT_ID}.jar"
     Delete "$ECLIPSE_INSTDIR\qtproparser.dll"
+    Delete "$ECLIPSE_INSTDIR\qtqrceditor.dll"
     Delete "$SMPROGRAMS\$STARTMENU_STRING\Start Eclipse with MinGW.lnk"
     Delete "$ECLIPSE_INSTDIR\start.bat"
   DoneUnInstallQtProject:
