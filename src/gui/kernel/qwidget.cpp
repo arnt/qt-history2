@@ -113,7 +113,7 @@ QWidgetPrivate::~QWidgetPrivate()
 #ifndef Q_WS_MAC
     if (!dirty.isEmpty()) {
         Q_Q(QWidget);
- 
+
         QWidgetBackingStore *bs = maybeBackingStore();
         if (bs)
             bs->dirtyWidgets.remove(q);
@@ -1490,7 +1490,7 @@ QRegion QWidgetPrivate::getOpaqueChildren() const
     if (!dirtyOpaqueChildren)
         return opaqueChildren;
 
-    QWidgetPrivate *that = const_cast<QWidgetPrivate*>(this);    
+    QWidgetPrivate *that = const_cast<QWidgetPrivate*>(this);
     that->opaqueChildren = QRegion();
 
     for (int i = 0; i < children.size(); ++i) {
@@ -1507,6 +1507,9 @@ QRegion QWidgetPrivate::getOpaqueChildren() const
     return that->opaqueChildren;
 }
 
+// hw: currently disable opaque children cache.
+// Doesn't play nice with subtractOpaqueSiblings
+#if 0
 void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn, const QPoint &offset, int startIdx) const
 {
     Q_UNUSED(startIdx);
@@ -1516,13 +1519,37 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn
         rgn -= (r.translated(offset) & clipRgn);
 }
 
+#else
+void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn, const QPoint &offset, int startIdx) const
+{
+    for (int i=startIdx; i < children.size(); ++i) {
+        if (QWidget *child = qobject_cast<QWidget *>(children.at(i))) {
+            if (child->isVisible() && !child->isWindow()) {
+                QRegion childRgn = clipRgn & child->geometry().translated(offset);
+                QWidgetPrivate *cd = child->d_func();
+                if (cd->extra && !cd->extra->mask.isEmpty())
+                    childRgn &= cd->extra->mask.translated(offset + cd->data.crect.topLeft());
+
+                if (childRgn.isEmpty())
+                    continue;
+
+                if (cd->isOpaque())
+                    rgn -= childRgn;
+                else
+                    cd->subtractOpaqueChildren(rgn, childRgn, offset + child->geometry().topLeft());
+            }
+        }
+    }
+}
+#endif
+
 //subtract any relatives that are higher up than me --- is this too expensive ???
 void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) const
 {
     static int disableSubtractOpaqueSiblings = qgetenv("QT_NO_SUBTRACTOPAQUESIBLINGS").toInt();
     if (disableSubtractOpaqueSiblings)
         return;
-    
+
     Q_Q(const QWidget);
 
     if (q->isWindow())
@@ -4605,7 +4632,7 @@ int QWidgetPrivate::pointToRect(const QPoint &p, const QRect &r)
 QRect QWidgetPrivate::fromOrToLayoutItemRect(const QRect &rect, int sign) const
 {
     QRect r = rect;
-    r.adjust(-sign * leftLayoutItemMargin, -sign * topLayoutItemMargin, 
+    r.adjust(-sign * leftLayoutItemMargin, -sign * topLayoutItemMargin,
              +sign * rightLayoutItemMargin, +sign * bottomLayoutItemMargin);
     return r;
 }
@@ -8600,13 +8627,13 @@ QWidgetData *qt_qwidget_data(QWidget *widget)
 
 void QWidgetPrivate::getLayoutItemMargins(int *left, int *top, int *right, int *bottom) const
 {
-    if (left) 
+    if (left)
         *left = (int)leftLayoutItemMargin;
-    if (top) 
+    if (top)
         *top = (int)topLayoutItemMargin;
-    if (right) 
+    if (right)
         *right = (int)rightLayoutItemMargin;
-    if (bottom) 
+    if (bottom)
         *bottom = (int)bottomLayoutItemMargin;
 }
 
