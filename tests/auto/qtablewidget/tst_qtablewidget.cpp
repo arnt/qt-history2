@@ -66,6 +66,7 @@ private slots:
     void setItemWithSorting();
     void itemData();
     void setItemData();
+    void cellWidget();
 
 private:
     QTableWidget *testWidget;
@@ -1382,6 +1383,18 @@ void tst_QTableWidget::setItemData()
     table.model()->setItemData(idx, data);
     QCOMPARE(table.model()->data(idx, Qt::DisplayRole).toString(), QLatin1String("dizplaye"));
     QCOMPARE(dataChangedSpy.count(), 1);
+}
+
+void tst_QTableWidget::cellWidget()
+{
+    QTableWidget table(10, 10);
+    QWidget widget;
+
+    QCOMPARE(table.cellWidget(5, 5), static_cast<QWidget*>(0));
+    table.setCellWidget(5, 5, &widget);
+    QCOMPARE(table.cellWidget(5, 5), &widget);
+    table.removeCellWidget(5, 5);
+    QCOMPARE(table.cellWidget(5, 5), static_cast<QWidget*>(0));
 }
 
 QTEST_MAIN(tst_QTableWidget)

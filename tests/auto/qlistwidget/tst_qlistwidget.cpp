@@ -85,6 +85,7 @@ private slots:
     void changeDataWithSorting_data();
     void changeDataWithSorting();
     void itemData();
+    void itemWidget();
 
 protected slots:
     void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last)
@@ -1002,7 +1003,6 @@ void tst_QListWidget::setData()
     }
 }
 
-#if QT_VERSION >= 0x040200
 void tst_QListWidget::insertItemsWithSorting_data()
 {
     QTest::addColumn<int>("sortOrder");
@@ -1266,7 +1266,21 @@ void tst_QListWidget::changeDataWithSorting()
     QCOMPARE(dataChangedSpy.count(), 1);
     QCOMPARE(layoutChangedSpy.count(), reorderingExpected ? 1 : 0);
 }
-#endif // QT_VERSION
+
+void tst_QListWidget::itemWidget()
+{
+    QListWidget list;
+    QWidget widget;
+
+    QListWidgetItem *item = new QListWidgetItem(&list);
+    
+
+    QCOMPARE(list.itemWidget(item), static_cast<QWidget*>(0));
+    list.setItemWidget(item, &widget);
+    QCOMPARE(list.itemWidget(item), &widget);
+    list.removeItemWidget(item);
+    QCOMPARE(list.itemWidget(item), static_cast<QWidget*>(0));
+}
 
 QTEST_MAIN(tst_QListWidget)
 #include "tst_qlistwidget.moc"

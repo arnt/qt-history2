@@ -1951,7 +1951,7 @@ void tst_QTreeWidget::itemWidget()
                     QWidget *editor = new QLineEdit();
                     tree.setItemWidget(item, col, editor);
                     QCOMPARE(tree.itemWidget(item, col), editor);
-                    tree.setItemWidget(item, col, 0);
+                    tree.removeItemWidget(item, col);
                     QCOMPARE(tree.itemWidget(item, col), static_cast<QWidget*>(0));
                 } else {
                     // ### should you really be able to open a persistent
