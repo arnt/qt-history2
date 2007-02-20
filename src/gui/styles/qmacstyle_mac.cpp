@@ -2940,6 +2940,9 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                     QMetaObject::invokeMethod(d, "startAnimationTimer", Qt::QueuedConnection);
             }
 
+            // Unlike Carbon, we want the button to always be drawn inside its bounds.
+            // Therefore, make the button a bit smaller, so that even if it got focus,
+            // the focus 'shadow' will be inside.
             HIRect newRect = qt_hirectForQRect(btn->rect);
             if (bdi.kind == kThemePushButton){
                 newRect.origin.x += PushButtonX;
@@ -3643,6 +3646,9 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
                 break;
             }
 
+            // Unlike Carbon, we want the button to always be drawn inside its bounds.
+            // Therefore, the button is a bit smaller, so that even if it got focus,
+            // the focus 'shadow' will be inside. Adjust the content rect likewise.
             HIRect newRect = qt_hirectForQRect(btn->rect);
             if (bdi.kind == kThemePushButton){
                 newRect.origin.y += PushButtonY;
