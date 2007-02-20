@@ -64,6 +64,7 @@ extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
 static const int PushButtonX = 6;
 static const int PushButtonY = 4;
 static const int PushButtonW = 12;
+static const int PushButtonH = 12;
 static const int MiniButtonH = 26;
 static const int BevelButtonW = 50;
 static const int BevelButtonH = 22;
@@ -3644,15 +3645,11 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
 
             HIRect newRect = qt_hirectForQRect(btn->rect);
             if (bdi.kind == kThemePushButton){
-                newRect.origin.x += PushButtonX;
                 newRect.origin.y += PushButtonY;
-                newRect.size.width -= PushButtonW;
-                newRect.size.height -= PushButtonW;
+                newRect.size.height -= PushButtonH;
             }
             else if (bdi.kind == kThemePushButtonMini){
-                newRect.origin.x += PushButtonX;
                 newRect.origin.y += PushButtonY;
-                newRect.size.width -= PushButtonW;
             }
             else if (bdi.kind == kThemeBevelButton){
                 newRect.size.height -= 1;
