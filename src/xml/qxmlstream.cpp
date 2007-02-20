@@ -2285,7 +2285,7 @@ bool QXmlStreamReader::isStandaloneDocument() const
 
   Other functions are writeCDATA(), writeComment(),
   writeProcessingInstruction(), and writeDTD(). Chaining of XML
-  streams is supported with writeToken().
+  streams is supported with writeCurrentToken().
 
   By default, QXmlStreamWriter encodes XML in UTF-8. Different
   encodings can be enforced using setCodec().
@@ -3125,7 +3125,7 @@ void QXmlStreamWriter::writeCurrentToken(const QXmlStreamReader &reader)
         break;
     default:
         Q_ASSERT(reader.tokenType() != QXmlStreamReader::Invalid);
-        qWarning("QXmlStreamWriter: writeToken() with invalid state.");
+        qWarning("QXmlStreamWriter: writeCurrentToken() with invalid state.");
         break;
     }
 }
