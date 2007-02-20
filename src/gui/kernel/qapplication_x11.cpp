@@ -2887,9 +2887,10 @@ int QApplication::x11ProcessEvent(XEvent* event)
             break;
         if (d->inPopupMode() && widget->window() != activePopupWidget())
             break;
-        if (event->xcrossing.mode != NotifyNormal ||
-            event->xcrossing.detail == NotifyVirtual  ||
-            event->xcrossing.detail == NotifyNonlinearVirtual)
+        if ((event->xcrossing.mode != NotifyNormal
+             && event->xcrossing.mode != NotifyUngrab)
+            || event->xcrossing.detail == NotifyVirtual
+            || event->xcrossing.detail == NotifyNonlinearVirtual)
             break;
         if (event->xcrossing.focus &&
             !(widget->windowType() == Qt::Desktop) && !widget->isActiveWindow()) {
@@ -2909,7 +2910,8 @@ int QApplication::x11ProcessEvent(XEvent* event)
             break;
         if (curWin && widget->internalWinId() != curWin)
             break;
-        if (event->xcrossing.mode != NotifyNormal)
+        if (event->xcrossing.mode != NotifyNormal
+            && event->xcrossing.mode != NotifyUngrab)
             break;
         if (!(widget->windowType() == Qt::Desktop))
             widget->translateMouseEvent(event); //we don't get MotionNotify, emulate it
@@ -2922,7 +2924,8 @@ int QApplication::x11ProcessEvent(XEvent* event)
             if(event_widget && event_widget->x11Event(&ev))
                 break;
             if (ev.type == LeaveNotify
-                || ev.xcrossing.mode != NotifyNormal
+                || (ev.xcrossing.mode != NotifyNormal
+                    && ev.xcrossing.mode != NotifyUngrab)
                 || ev.xcrossing.detail == NotifyVirtual
                 || ev.xcrossing.detail == NotifyNonlinearVirtual)
                 continue;
