@@ -401,7 +401,7 @@ bool QSizeGrip::event(QEvent *e)
 #if defined(Q_WS_MAC)
     case QEvent::Hide:
     case QEvent::Show:
-        m_corner = corner();
+        d->m_corner = d->corner();
         if(!QApplication::closingDown() && parentWidget()) {
             if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
                 if(w->isWindow())
