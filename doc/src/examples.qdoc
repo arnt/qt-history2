@@ -208,6 +208,8 @@
     \list
     \o \l{xml/dombookmarks}{DOM Bookmarks}
     \o \l{xml/saxbookmarks}{SAX Bookmarks}
+    \o \l{xml/streambookmarks}{QXmlStream Bookmarks}
+    \o \l{xml/rsslisting}{RSS-Listing}
     \endlist
 
     \section1 Network Examples

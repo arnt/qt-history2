@@ -1,0 +1,13 @@
+/*!
+    \example xml/streambookmarks
+    \title QXmlStream Bookmarks Example
+
+    The QXmlStream Bookmarks example provides a reader for XML Bookmark Exchange Language (XBEL)
+    files that uses Qt's QXmlStreamReader class for reading, and
+    QXmlStreamWriter class for writing the files.
+
+    \image saxbookmarks-example.png
+
+    See the \l{http://pyxml.sourceforge.net/topics/xbel/}{XML Bookmark Exchange Language
+    Resource Page} for more information about XBEL files.
+*/

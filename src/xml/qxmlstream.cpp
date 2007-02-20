@@ -134,7 +134,7 @@
   possible to raise custom errors that then trigger the same error
   handling code path.
 
-  The QXmlStream Bookmarks example illustrates how to use the
+  The {QXmlStream Bookmarks Example} illustrates how to use the
   recursive descent technique with a subclassed stream reader to read
   an XML bookmark file (XBEL).
 
@@ -2290,7 +2290,7 @@ bool QXmlStreamReader::isStandaloneDocument() const
   By default, QXmlStreamWriter encodes XML in UTF-8. Different
   encodings can be enforced using setCodec().
 
-  The \l{QXmlStream Bookmarks example} illustrates how to use the a
+  The \l{QXmlStream Bookmarks Example} illustrates how to use the a
   subclassed stream writer to write an XML bookmark file (XBEL) that
   was previously read in by a QXmlStreamReader.
 
