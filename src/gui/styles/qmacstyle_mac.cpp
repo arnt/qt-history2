@@ -3887,7 +3887,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
     case SE_RadioButtonLayoutItem:
         rect = opt->rect;
         if (controlSize == QAquaSizeLarge) {
-            rect.adjust(+2, +4, -9, -4);
+            rect.adjust(+2, +3, -9, -3);
         } else if (controlSize == QAquaSizeSmall) {
             rect.adjust(0, +6, 0 /* fix */, -5);
         } else {
@@ -5340,7 +5340,7 @@ int QMacStyle::layoutSpacingImplementation(QSizePolicy::ControlType control1,
     }
 
     if ((control1 | control2) & ButtonMask)
-        return_SIZE(12, 10, 8);     // AHIG
+        return_SIZE(12, 10, 8);     // AHIG 
 
     switch (CT2(control1, control2)) {
     case CT1(QSizePolicy::Label):                             // guess
@@ -5363,7 +5363,7 @@ int QMacStyle::layoutSpacingImplementation(QSizePolicy::ControlType control1,
         break;
     case CT1(QSizePolicy::RadioButton):
         if (orientation == Qt::Vertical)
-            return_SIZE(6, 6, 5);       // AHIG
+            return 5;                   // (Builder, guess, AHIG)
     }
 
     if (orientation == Qt::Horizontal
