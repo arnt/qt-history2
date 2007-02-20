@@ -711,7 +711,7 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     }
     addExtensionDataToDOM(this, core(), w, widget);
 
-    addScripts(widget, w);
+    addUserDefinedScripts(widget, w);
     return w;
 }
 
@@ -1329,7 +1329,8 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
 
     // We would like the list to be in order of the widget database indexes 
     // to ensure that base classes come first (nice optics)
-    QDesignerWidgetDataBaseInterface *db = m_formWindow->core()->widgetDataBase();
+    QDesignerFormEditorInterface *core = m_formWindow->core();
+    QDesignerWidgetDataBaseInterface *db = core->widgetDataBase();
     typedef QMap<int,DomCustomWidget*>  OrderedDBIndexDomCustomWidgetMap;
     OrderedDBIndexDomCustomWidgetMap orderedMap;
 
@@ -1351,6 +1352,9 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
             custom_widget->setElementHeader(header);
             custom_widget->setElementExtends(item->extends());
         }
+        // Look up static per-class scripts of designer
+        if (DomScript *domScript = createScript( customWidgetScript(core, name), ScriptCustomWidgetPlugin))
+            custom_widget->setElementScript(domScript);
 
         orderedMap.insert(db->indexOfClassName(name), custom_widget);
     }
@@ -1607,9 +1611,9 @@ void QDesignerResource::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWi
 {
     QAbstractFormBuilder::loadExtraInfo(ui_widget, widget, parentWidget);
 }
-    
-// Add scripts (except extensions) belonging to QWidget to DomWidget.
-void QDesignerResource::addScripts(QWidget *w, DomWidget *ui_widget)
+
+// Add user defined scripts (dialog box) belonging to QWidget to DomWidget.
+void QDesignerResource::addUserDefinedScripts(QWidget *w, DomWidget *ui_widget)
 {
     QDesignerFormEditorInterface *core = m_formWindow->core();
     DomScripts domScripts = ui_widget->elementScript();
@@ -1619,8 +1623,7 @@ void QDesignerResource::addScripts(QWidget *w, DomWidget *ui_widget)
             addScript(metaItem->script(), ScriptDesigner, domScripts);
         }
     }
-    // Look up matching custom widgets for scripts
-    addScript(customWidgetScript(core, w), ScriptCustomWidgetPlugin, domScripts);
-    ui_widget->setElementScript(domScripts);
+    if (!domScripts.empty())
+        ui_widget->setElementScript(domScripts);
 }
 }

@@ -106,7 +106,9 @@ QFormScriptRunner::~QFormScriptRunner()
     delete m_impl;
 }
 
-bool QFormScriptRunner::run(const DomWidget *domWidget, QWidget *widget, const WidgetList &children,
+bool QFormScriptRunner::run(const DomWidget *domWidget,
+                            const QString &customWidgetScript,
+                            QWidget *widget, const WidgetList &children,
                             QString *errorMessage)
 {
     typedef QList<DomScript*> DomScripts;
@@ -116,18 +118,13 @@ bool QFormScriptRunner::run(const DomWidget *domWidget, QWidget *widget, const W
         return true;
     // get list
     const DomScripts domScripts = domWidget->elementScript();
-    if (domScripts.empty())
+    // Concatenate snippets, starting with custom widget script
+    QString  script = (scriptOptions & DisableCustomWidgetScripts) ? QString() : customWidgetScript;
+
+    if (script.isEmpty() && domScripts.empty())
         return true;
 
-    // Concatenate snippets
-    QString  script;
     foreach (const DomScript *scriptSnippet, domScripts) {
-        // Skip custom stuff?
-        if (scriptOptions & DisableCustomWidgetScripts) {
-            if (scriptSnippet->hasAttributeSource() && scriptSnippet->attributeSource() ==  QLatin1String("customwidgetplugin")) {
-                continue;
-            }
-        }
         // Ensure new line
         if (!script.isEmpty() && !script.endsWith(QLatin1Char('\n')))
             script += QLatin1Char('\n');

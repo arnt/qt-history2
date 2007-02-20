@@ -177,7 +177,20 @@ QWidget *QAbstractFormBuilder::create(DomUI *ui, QWidget *parentWidget)
     if (!ui_widget)
         return 0;
 
-    createCustomWidgets(ui->elementCustomWidgets());
+    DomCustomWidgets *domCustomWidgets  = ui->elementCustomWidgets();
+    createCustomWidgets(domCustomWidgets);
+
+#ifndef QT_FORMBUILDER_NO_SCRIPT    
+    if (domCustomWidgets) {
+        foreach(const DomCustomWidget* cw, domCustomWidgets->elementCustomWidget()) {
+            if (const DomScript *domScript = cw->elementScript()) {
+                const QString script = domScript->text();
+                if (!script.isEmpty())
+                    formBuilderPrivate->storeCustomWidgetScript(cw->elementClass(), script);            
+            }
+        }
+    }
+#endif
 
     if (QWidget *widget = create(ui_widget, parentWidget)) {
         createConnections(ui->elementConnections(), widget);
@@ -246,7 +259,10 @@ QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
     loadExtraInfo(ui_widget, w, parentWidget);
 #ifndef QT_FORMBUILDER_NO_SCRIPT
     QString scriptErrorMessage;
-    QFormBuilderExtra::instance(this)->formScriptRunner().run(ui_widget, w, children, &scriptErrorMessage);
+    QFormBuilderExtra *extra = QFormBuilderExtra::instance(this);
+    extra->formScriptRunner().run(ui_widget,
+                                  extra->customWidgetScript(ui_widget->attributeClass()),
+                                  w, children, &scriptErrorMessage);
 #endif
     addItem(ui_widget, w, parentWidget);
 
@@ -930,6 +946,7 @@ DomConnections *QAbstractFormBuilder::saveConnections()
 /*!
     \internal
 */
+
 DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive)
 {
     DomWidget *ui_widget = new DomWidget();

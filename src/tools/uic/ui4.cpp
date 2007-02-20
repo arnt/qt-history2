@@ -1363,6 +1363,7 @@ void DomCustomWidget::clear(bool clear_all)
     delete m_header;
     delete m_sizeHint;
     delete m_sizePolicy;
+    delete m_script;
     delete m_properties;
 
     if (clear_all) {
@@ -1374,6 +1375,7 @@ void DomCustomWidget::clear(bool clear_all)
     m_sizeHint = 0;
     m_container = 0;
     m_sizePolicy = 0;
+    m_script = 0;
     m_properties = 0;
 }
 
@@ -1384,6 +1386,7 @@ DomCustomWidget::DomCustomWidget()
     m_sizeHint = 0;
     m_container = 0;
     m_sizePolicy = 0;
+    m_script = 0;
     m_properties = 0;
 }
 
@@ -1392,6 +1395,7 @@ DomCustomWidget::~DomCustomWidget()
     delete m_header;
     delete m_sizeHint;
     delete m_sizePolicy;
+    delete m_script;
     delete m_properties;
 }
 
@@ -1435,6 +1439,12 @@ void DomCustomWidget::read(const QDomElement &node)
         }
         if (tag == QLatin1String("pixmap")) {
             setElementPixmap(e.text());
+            continue;
+        }
+        if (tag == QLatin1String("script")) {
+            DomScript *v = new DomScript();
+            v->read(e);
+            setElementScript(v);
             continue;
         }
         if (tag == QLatin1String("properties")) {
@@ -1494,6 +1504,10 @@ QDomElement DomCustomWidget::write(QDomDocument &doc, const QString &tagName) co
         e.appendChild(child);
     }
 
+    if (m_children & Script) {
+        e.appendChild(m_script->write(doc, QLatin1String("script")));
+    }
+
     if (m_children & Properties) {
         e.appendChild(m_properties->write(doc, QLatin1String("properties")));
     }
@@ -1549,6 +1563,13 @@ void DomCustomWidget::setElementPixmap(const QString& a)
     m_pixmap = a;
 }
 
+void DomCustomWidget::setElementScript(DomScript* a)
+{
+    delete m_script;
+    m_children |= Script;
+    m_script = a;
+}
+
 void DomCustomWidget::setElementProperties(DomProperties* a)
 {
     delete m_properties;
@@ -1595,6 +1616,13 @@ void DomCustomWidget::clearElementSizePolicy()
 void DomCustomWidget::clearElementPixmap()
 {
     m_children &= ~Pixmap;
+}
+
+void DomCustomWidget::clearElementScript()
+{
+    delete m_script;
+    m_script = 0;
+    m_children &= ~Script;
 }
 
 void DomCustomWidget::clearElementProperties()

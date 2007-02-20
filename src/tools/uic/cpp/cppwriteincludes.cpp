@@ -56,6 +56,7 @@ WriteIncludes::WriteIncludes(Uic *uic)    :
 
 void WriteIncludes::acceptUI(DomUI *node)
 {
+    m_scriptsActivated = false;
     m_localIncludes.clear();
     m_globalIncludes.clear();
     m_knownClasses.clear();
@@ -158,6 +159,10 @@ void WriteIncludes::acceptCustomWidget(DomCustomWidget *node)
         add(QLatin1String("Q3Header"));
     }
 
+    if (const DomScript *domScript = node->elementScript())
+        if (!domScript->text().isEmpty())
+            activateScripts();
+
     if (node->elementHeader() && node->elementHeader()->text().size()) {
         bool global = node->elementHeader()->attributeLocation().toLower() == QLatin1String("global");
         QString header = node->elementHeader()->text();
@@ -217,11 +222,19 @@ void WriteIncludes::writeHeaders(const OrderedSet &headers, bool global)
     }
 }
 
-void WriteIncludes::acceptScripts(const DomScripts &, DomWidget *, const  DomWidgets &)
+void WriteIncludes::acceptWidgetScripts(const DomScripts &scripts, DomWidget *, const  DomWidgets &)
 {
-    insertIncludeForClass(QLatin1String("QScriptEngine"));
-    insertIncludeForClass(QLatin1String("QDebug"));
-    m_scriptsActivated = true;
+    if (!scripts.empty()) {
+        activateScripts();
+    }
 }
 
+void WriteIncludes::activateScripts()
+{
+    if (!m_scriptsActivated) {
+        insertIncludeForClass(QLatin1String("QScriptEngine"));
+        insertIncludeForClass(QLatin1String("QDebug"));
+        m_scriptsActivated = true;
+    }
+}
 } // namespace CPP

@@ -84,7 +84,7 @@ struct TreeWalker
     virtual void acceptProperty(DomProperty *property);
     typedef QList<DomScript *> DomScripts;
     typedef QList<DomWidget *> DomWidgets;
-    virtual void acceptScripts(const DomScripts &, DomWidget *node, const  DomWidgets &childWidgets);
+    virtual void acceptWidgetScripts(const DomScripts &, DomWidget *node, const  DomWidgets &childWidgets);
     virtual void acceptImages(DomImages *images);
     virtual void acceptImage(DomImage *image);
     virtual void acceptIncludes(DomIncludes *includes);

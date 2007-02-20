@@ -16,6 +16,7 @@
 
 #include <QtCore/QVariant>
 #include <QtGui/QLabel>
+#include <QtCore/qdebug.h>
 
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal {
@@ -31,6 +32,7 @@ void QFormBuilderExtra::clear()
     m_rootWidget = 0;
 #ifndef QT_FORMBUILDER_NO_SCRIPT
     m_FormScriptRunner.clearErrors();
+    m_customWidgetScriptHash.clear();
 #endif
 }
 
@@ -95,6 +97,20 @@ QFormScriptRunner &QFormBuilderExtra::formScriptRunner()
 {
     return m_FormScriptRunner;
 }
+
+void QFormBuilderExtra::storeCustomWidgetScript(const QString &className, const QString &script)
+{
+    m_customWidgetScriptHash.insert(className, script);
+}
+
+QString QFormBuilderExtra::customWidgetScript(const QString &className) const
+{
+    const CustomWidgetScriptHash::const_iterator it = m_customWidgetScriptHash.constFind(className);
+    if ( it == m_customWidgetScriptHash.constEnd())
+        return QString();
+    return it.value();
+}
+
 #endif
 
 namespace {
@@ -121,6 +137,8 @@ void QFormBuilderExtra::removeInstance(const QAbstractFormBuilder *afb)
     if (it != fbHash.end())
         fbHash.erase(it);
 }
+
+
 
 #ifdef QFORMINTERNAL_NAMESPACE
 } // namespace QFormInternal

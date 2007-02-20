@@ -47,7 +47,7 @@ QSimpleResource::QSimpleResource(QDesignerFormEditorInterface *core) :
     workingDirectory +=  QLatin1String(".designer");
     setWorkingDirectory(QDir(workingDirectory));
     // Disable scripting in the editors.
-    formScriptRunner()-> setOptions(QFormScriptRunner::DisableScripts); 
+    formScriptRunner()-> setOptions(QFormScriptRunner::DisableScripts);
 }
 
 QSimpleResource::~QSimpleResource()
@@ -141,13 +141,10 @@ QString QSimpleResource::pixmapToQrcPath(const QPixmap &pm) const
     return workingDirectory().relativeFilePath(qrc_path);
 }
 
-
-// Add a script to a list of DomScripts unless empty
-void QSimpleResource::addScript(const QString &script, ScriptSource source, DomScripts &domScripts)
+DomScript *QSimpleResource::createScript(const QString &script, ScriptSource source)
 {
     if (script.isEmpty())
-       return;
-
+        return 0;
     DomScript *domScript = new DomScript();
     switch (source) {
     case ScriptExtension:
@@ -162,7 +159,15 @@ void QSimpleResource::addScript(const QString &script, ScriptSource source, DomS
     }
     domScript->setAttributeLanguage(QLatin1String("Qt Script"));
     domScript->setText(script);
-    domScripts += domScript;
+    return domScript;
+}
+
+// Add a script to a list of DomScripts unless empty
+void QSimpleResource::addScript(const QString &script, ScriptSource source, DomScripts &domScripts)
+{
+    if (DomScript *domScript = createScript(script, source)) {
+        domScripts += domScript;
+    }
 }
 
 void QSimpleResource::addExtensionDataToDOM(QAbstractFormBuilder *afb,
@@ -251,14 +256,18 @@ static const ClassNameScriptHash &customWidgetClassNameScriptHash(const QDesigne
     return classNameScriptHash;
 }
 
+QString QSimpleResource::customWidgetScript(QDesignerFormEditorInterface *core, QObject *object)
+{
+    return customWidgetScript(core, qdesigner_internal::WidgetFactory::classNameOf(core, object));
+}
+
 bool QSimpleResource::hasCustomWidgetScript(QDesignerFormEditorInterface *core, QObject *object)
 {
     return customWidgetClassNameScriptHash(core).contains(qdesigner_internal::WidgetFactory::classNameOf(core, object));
 }
 
-QString QSimpleResource::customWidgetScript(QDesignerFormEditorInterface *core, QObject *object)
+QString QSimpleResource::customWidgetScript(QDesignerFormEditorInterface *core, const QString &className)
 {
-    const QString className = qdesigner_internal::WidgetFactory::classNameOf(core, object);
     const ClassNameScriptHash &classNameScriptHash(customWidgetClassNameScriptHash(core));
 
     const ClassNameScriptHash::const_iterator it = classNameScriptHash.constFind(className);

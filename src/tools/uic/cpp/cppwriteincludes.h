@@ -34,7 +34,7 @@ struct WriteIncludes : public TreeWalker
     void acceptWidget(DomWidget *node);
     void acceptLayout(DomLayout *node);
     void acceptSpacer(DomSpacer *node);
-    void acceptScripts(const DomScripts &, DomWidget *, const DomWidgets &);
+    void acceptWidgetScripts(const DomScripts &, DomWidget *, const DomWidgets &);
 
 //
 // custom widgets
@@ -59,6 +59,7 @@ private:
     void insertInclude(const QString &header, bool global);
     void writeHeaders(const OrderedSet &headers, bool global);
     QString headerForClassName(const QString &className) const;
+    void activateScripts();
 
     const Uic *m_uic;
     QTextStream &m_output;

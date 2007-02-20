@@ -121,6 +121,7 @@
                         <xs:element name="container" type="xs:integer" />
                         <xs:element name="sizePolicy" type="SizePolicyData" />
                         <xs:element name="pixmap" type="xs:string" />
+                        <xs:element name="script" type="Script" />
                         <xs:element name="properties" type="Properties" />
                 </xs:sequence>
         </xs:complexType>

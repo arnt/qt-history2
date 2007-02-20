@@ -65,7 +65,7 @@ struct WriteInitialization : public TreeWalker
 //
     void acceptUI(DomUI *node);
     void acceptWidget(DomWidget *node);
-    void acceptScripts(const DomScripts &, DomWidget *node, const  DomWidgets &childWidgets);
+    void acceptWidgetScripts(const DomScripts &, DomWidget *node, const  DomWidgets &childWidgets);
 
     void acceptLayout(DomLayout *node);
     void acceptLayoutItem(DomLayoutItem *node);

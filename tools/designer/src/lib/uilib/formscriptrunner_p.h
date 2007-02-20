@@ -37,6 +37,7 @@ public:
     typedef QList<QWidget*> WidgetList;
 
     bool run(const DomWidget *domWidget,
+             const QString &customWidgetScript,
              QWidget *widget, const WidgetList &children,
              QString *errorMessage);
 

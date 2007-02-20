@@ -745,6 +745,11 @@ public:
     inline bool hasElementPixmap() const { return m_children & Pixmap; }
     void clearElementPixmap();
 
+    inline DomScript* elementScript() const { return m_script; }
+    void setElementScript(DomScript* a);
+    inline bool hasElementScript() const { return m_children & Script; }
+    void clearElementScript();
+
     inline DomProperties* elementProperties() const { return m_properties; }
     void setElementProperties(DomProperties* a);
     inline bool hasElementProperties() const { return m_children & Properties; }
@@ -764,6 +769,7 @@ private:
     int m_container;
     DomSizePolicyData* m_sizePolicy;
     QString m_pixmap;
+    DomScript* m_script;
     DomProperties* m_properties;
     enum Child {
         Class = 1,
@@ -773,7 +779,8 @@ private:
         Container = 16,
         SizePolicy = 32,
         Pixmap = 64,
-        Properties = 128
+        Script = 128,
+        Properties = 256
     };
 
     DomCustomWidget(const DomCustomWidget &other);

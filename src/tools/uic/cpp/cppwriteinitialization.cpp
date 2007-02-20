@@ -2014,9 +2014,18 @@ void WriteInitialization::acceptImage(DomImage *image)
     m_registeredImages.insert(image->attributeName(), image);
 }
 
-void WriteInitialization::acceptScripts(const DomScripts &scripts, DomWidget *node, const  DomWidgets &childWidgets)
+void WriteInitialization::acceptWidgetScripts(const DomScripts &widgetScripts, DomWidget *node, const  DomWidgets &childWidgets)
 {
-    // concatenate script
+    // Add the per-class custom scripts to the per-widget ones.
+    DomScripts scripts(widgetScripts);
+
+    if (DomScript *customWidgetScript = m_uic->customWidgetsInfo()->customWidgetScript(node->attributeClass()))
+        scripts.push_front(customWidgetScript);
+
+    if (scripts.empty())
+        return;
+
+    // concatenate script snippets
     QString script;
     foreach (const DomScript *domScript, scripts) {
         const QString snippet = domScript->text();

@@ -43,7 +43,6 @@ Uic::Uic(Driver *d)
        out(d->output()),
        opt(d->option()),
        info(d),
-       cWidgetsInfo(d),
        externalPix(true)
 {
 }

@@ -19,11 +19,12 @@
 #include <QMap>
 
 class Driver;
+class DomScript;
 
 class CustomWidgetsInfo : public TreeWalker
 {
 public:
-    CustomWidgetsInfo(Driver *driver);
+    CustomWidgetsInfo();
 
     void acceptUI(DomUI *node);
 
@@ -39,13 +40,16 @@ public:
     inline DomCustomWidget *customWidget(const QString &name) const
     { return m_customWidgets.value(name); }
 
+    DomScript *customWidgetScript(const QString &name) const;
+
     QString realClassName(const QString &className) const;
 
     bool extends(const QString &className, const QString &baseClassName) const;
 
 private:
-    Driver *driver;
-    QMap<QString, DomCustomWidget*> m_customWidgets;
+    typedef QMap<QString, DomCustomWidget*> NameCustomWidgetMap;
+    NameCustomWidgetMap m_customWidgets;
+    bool m_scriptsActivated;
 };
 
 #endif // CUSTOMWIDGETSINFO_H

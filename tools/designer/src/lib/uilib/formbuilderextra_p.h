@@ -55,6 +55,8 @@ public:
 
 #ifndef QT_FORMBUILDER_NO_SCRIPT
     QFormScriptRunner &formScriptRunner();
+    void storeCustomWidgetScript(const QString &className, const QString &script);
+    QString customWidgetScript(const QString &className) const;
 #endif
 
     static QFormBuilderExtra *instance(const QAbstractFormBuilder *afb);
@@ -68,6 +70,9 @@ private:
 
 #ifndef QT_FORMBUILDER_NO_SCRIPT
     QFormScriptRunner m_FormScriptRunner;
+
+    typedef QHash<QString, QString> CustomWidgetScriptHash;
+    CustomWidgetScriptHash m_customWidgetScriptHash;
 #endif
 
     QPointer<QWidget> m_rootWidget;

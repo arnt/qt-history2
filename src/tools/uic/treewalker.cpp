@@ -94,8 +94,7 @@ void TreeWalker::acceptWidget(DomWidget *widget)
         acceptLayout(widget->elementLayout().at(0));
 
     const DomScripts scripts(widget->elementScript());
-    if (!scripts.empty())
-        acceptScripts(scripts, widget, childWidgets);
+    acceptWidgetScripts(scripts, widget, childWidgets);
 }
 
 void TreeWalker::acceptSpacer(DomSpacer *spacer)
@@ -274,6 +273,6 @@ void TreeWalker::acceptConnectionHint(DomConnectionHint *connectionHint)
     Q_UNUSED(connectionHint);
 }
 
-void TreeWalker::acceptScripts(const DomScripts &, DomWidget *, const  DomWidgets &)
+void TreeWalker::acceptWidgetScripts(const DomScripts &, DomWidget *, const  DomWidgets &)
 {
 }
