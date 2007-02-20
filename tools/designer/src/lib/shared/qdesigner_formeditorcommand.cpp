@@ -13,7 +13,7 @@
 
 
 #include "qdesigner_formeditorcommand_p.h"
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
 
 namespace qdesigner_internal {
 

@@ -19,7 +19,7 @@ TRANSLATOR qdesigner_internal::SignalSlotEditorTool
 #include "signalsloteditor.h"
 #include "ui4_p.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtGui/QAction>
 #include <QtCore/qdebug.h>
@@ -28,9 +28,9 @@ using namespace qdesigner_internal;
 
 SignalSlotEditorTool::SignalSlotEditorTool(QDesignerFormWindowInterface *formWindow, QObject *parent)
     : QDesignerFormWindowToolInterface(parent),
-      m_formWindow(formWindow)
+      m_formWindow(formWindow),
+      m_action(new QAction(tr("Edit Signals/Slots"), this))
 {
-    m_action = new QAction(tr("Edit Signals/Slots"), this);
 }
 
 SignalSlotEditorTool::~SignalSlotEditorTool()

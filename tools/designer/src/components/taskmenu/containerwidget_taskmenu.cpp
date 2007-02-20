@@ -17,8 +17,10 @@ TRANSLATOR qdesigner_internal::ContainerWidgetTaskMenu
 
 #include "containerwidget_taskmenu.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerContainerExtension>
 
 #include <qdesigner_command_p.h>
 #include <qdesigner_stackedbox_p.h>

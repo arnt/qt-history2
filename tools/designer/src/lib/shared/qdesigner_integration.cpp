@@ -18,7 +18,11 @@
 #include "qdesigner_objectinspector_p.h"
 
 // sdk
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QDesignerFormWindowCursorInterface>
+#include <QtDesigner/QDesignerActionEditorInterface>
 #include <QtDesigner/QExtensionManager>
 
 #include <QtCore/QVariant>

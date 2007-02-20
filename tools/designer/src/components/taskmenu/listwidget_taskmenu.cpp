@@ -20,7 +20,7 @@ TRANSLATOR qdesigner_internal::ListWidgetTaskMenu
 #include "listwidgeteditor.h"
 #include <qdesigner_command_p.h>
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtGui/QAction>
 #include <QtGui/QStyle>

@@ -16,7 +16,7 @@
 
 #include "formeditor_global.h"
 #include "formwindow.h"
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowCursorInterface>
 
 #include <QtCore/QObject>
 

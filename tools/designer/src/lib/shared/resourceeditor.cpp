@@ -38,7 +38,8 @@ TRANSLATOR qdesigner_internal::ResourceEditor
 #include <QtGui/QDrag>
 #include <QtGui/QDockWidget>
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
 
 #include <resourcefile_p.h>
 #include <iconloader_p.h>

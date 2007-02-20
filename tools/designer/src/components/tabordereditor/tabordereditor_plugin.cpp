@@ -20,7 +20,9 @@ TRANSLATOR qdesigner_internal::TabOrderEditorPlugin
 #include "tabordereditor_plugin.h"
 #include "tabordereditor_tool.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
 
 using namespace qdesigner_internal;
 

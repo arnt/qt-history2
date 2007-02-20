@@ -23,7 +23,11 @@ TRANSLATOR qdesigner_internal::ActionEditor
 #include "qdesigner_command_p.h"
 #include "qdesigner_propertycommand_p.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>

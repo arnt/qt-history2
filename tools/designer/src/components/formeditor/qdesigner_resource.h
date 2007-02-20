@@ -15,9 +15,6 @@
 #define QDESIGNER_RESOURCE_H
 
 #include "formeditor_global.h"
-
-#include <QtDesigner/QtDesigner>
-
 #include "qsimpleresource_p.h"
 
 #include <QtCore/QHash>
@@ -30,6 +27,7 @@ class DomCustomWidgets;
 class QDesignerContainerExtension;
 class QDesignerFormEditorInterface;
 class QDesignerCustomWidgetInterface;
+class QDesignerWidgetDataBaseItemInterface;
 
 class QDesignerTabWidget;
 class QDesignerStackedWidget;

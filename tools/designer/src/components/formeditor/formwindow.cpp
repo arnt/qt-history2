@@ -41,6 +41,13 @@ TRANSLATOR qdesigner_internal::FormWindow
 #include <connectionedit_p.h>
 #include <actionprovider_p.h>
 
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerWidgetDataBaseInterface>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QDesignerWidgetFactoryInterface>
+#include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QDesignerTaskMenuExtension>
+#include <QtDesigner/QDesignerWidgetBoxInterface>
 
 #include <QtCore/QtDebug>
 #include <QtCore/QBuffer>

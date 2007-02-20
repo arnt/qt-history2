@@ -16,7 +16,7 @@
 
 #include "tabordereditor_global.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorPluginInterface>
 
 #include <QtCore/QPointer>
 #include <QtCore/QHash>

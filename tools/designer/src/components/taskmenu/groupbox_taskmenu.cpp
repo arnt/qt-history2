@@ -18,7 +18,8 @@ TRANSLATOR qdesigner_internal::GroupBoxTaskMenu
 #include "groupbox_taskmenu.h"
 #include "inplace_editor.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormWindowCursorInterface>
 
 #include <QtGui/QAction>
 #include <QtGui/QStyle>

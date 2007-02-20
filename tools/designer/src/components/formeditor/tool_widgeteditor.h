@@ -14,9 +14,10 @@
 #ifndef TOOL_WIDGETEDITOR_H
 #define TOOL_WIDGETEDITOR_H
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowToolInterface>
 
 #include <QtGui/qevent.h>
+#include <QtCore/QPointer>
 
 class QAction;
 class QMainWindow;

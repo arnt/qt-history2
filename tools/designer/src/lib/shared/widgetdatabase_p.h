@@ -28,11 +28,12 @@
 
 #include "shared_global_p.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerWidgetDataBaseInterface>
 
 #include <QtGui/QIcon>
 #include <QtCore/QString>
 #include <QtCore/QVariant>
+#include <QtCore/QPair>
 
 class QObject;
 class QDesignerCustomWidgetInterface;

@@ -18,11 +18,10 @@
 #include "qpropertyeditor.h"
 #include <qdesigner_propertyeditor_p.h>
 
-#include <QtDesigner/QtDesigner>
-
 #include <QtCore/QPointer>
 
 class DomProperty;
+class QDesignerMetaDataBaseItemInterface;
 class QDesignerPropertySheetExtension;
 
 namespace qdesigner_internal {

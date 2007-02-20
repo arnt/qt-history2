@@ -21,6 +21,13 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 // sdk
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerTaskMenuExtension>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerFormWindowCursorInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QDesignerWidgetDataBaseInterface>
+#include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QDesignerMetaDataBaseInterface>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
 // shared
 #include <tree_widget_p.h>
 

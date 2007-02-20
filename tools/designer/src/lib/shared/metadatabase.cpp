@@ -15,9 +15,10 @@
 #include "widgetdatabase_p.h"
 
 // sdk
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
 
 // Qt
+#include <QtGui/QWidget>
 #include <QtCore/qalgorithms.h>
 #include <QtCore/qdebug.h>
 

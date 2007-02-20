@@ -23,6 +23,11 @@ TRANSLATOR qdesigner_internal::WidgetBoxTreeView
 #include <iconloader_p.h>
 #include <ui4_p.h>
 
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QDesignerCustomWidgetInterface>
+#include <QtDesigner/QDesignerWidgetDataBaseInterface>
+
 #include <QtGui/QApplication>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QHeaderView>

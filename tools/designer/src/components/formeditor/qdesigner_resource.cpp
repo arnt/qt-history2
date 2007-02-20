@@ -41,6 +41,12 @@
 #include <ui4_p.h>
 
 // sdk
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerExtraInfoExtension>
+#include <QtDesigner/QDesignerFormWindowToolInterface>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerContainerExtension>
 
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>

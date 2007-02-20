@@ -18,7 +18,7 @@ TRANSLATOR qdesigner_internal::BuddyEditorTool
 #include "buddyeditor_tool.h"
 #include "buddyeditor.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtGui/QAction>
 
@@ -26,9 +26,9 @@ using namespace qdesigner_internal;
 
 BuddyEditorTool::BuddyEditorTool(QDesignerFormWindowInterface *formWindow, QObject *parent)
     : QDesignerFormWindowToolInterface(parent),
-      m_formWindow(formWindow)
+      m_formWindow(formWindow),
+      m_action(new QAction(tr("Edit Buddies"), this))
 {
-    m_action = new QAction(tr("Edit Buddies"), this);
 }
 
 BuddyEditorTool::~BuddyEditorTool()

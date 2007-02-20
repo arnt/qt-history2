@@ -19,7 +19,7 @@ TRANSLATOR qdesigner_internal::TreeWidgetTaskMenu
 #include "inplace_editor.h"
 #include "treewidgeteditor.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtGui/QAction>
 #include <QtGui/QStyle>
@@ -33,10 +33,9 @@ using namespace qdesigner_internal;
 
 TreeWidgetTaskMenu::TreeWidgetTaskMenu(QTreeWidget *button, QObject *parent)
     : QDesignerTaskMenu(button, parent),
-      m_treeWidget(button)
+      m_treeWidget(button),
+      m_editItemsAction(new QAction(tr("Edit Items..."), this))
 {
-    m_editItemsAction = new QAction(this);
-    m_editItemsAction->setText(tr("Edit Items..."));
     connect(m_editItemsAction, SIGNAL(triggered()), this, SLOT(editItems()));
     m_taskActions.append(m_editItemsAction);
 

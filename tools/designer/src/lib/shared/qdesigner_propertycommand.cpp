@@ -15,7 +15,16 @@
 #include "qdesigner_utils_p.h"
 #include "dynamicpropertysheet.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormWindowCursorInterface>
+#include <QtDesigner/QDesignerDynamicPropertySheetExtension>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
+#include <QtDesigner/QDesignerObjectInspectorInterface>
+#include <QtDesigner/QDesignerIntegrationInterface>
+#include <QtDesigner/QDesignerWidgetDataBaseInterface>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtCore/QSize>
 #include <QtCore/QTextStream>

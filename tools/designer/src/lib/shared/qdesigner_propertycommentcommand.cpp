@@ -15,7 +15,11 @@
 #include "metadatabase_p.h"
 #include "qdesigner_propertyeditor_p.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QExtensionManager>
+
 #include <QtGui/QApplication>
 #include <qdebug.h>
 

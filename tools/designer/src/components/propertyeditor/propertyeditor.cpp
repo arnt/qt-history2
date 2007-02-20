@@ -22,7 +22,11 @@
 // sdk
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QExtensionManager>
-
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QDesignerIconCacheInterface>
+#include <QtDesigner/QDesignerIconCacheInterface>
+#include <QtDesigner/QDesignerLanguageExtension>
+#include <QtDesigner/QDesignerPropertySheetExtension>
 // shared
 #include <iconloader_p.h>
 #include <qdesigner_utils_p.h>

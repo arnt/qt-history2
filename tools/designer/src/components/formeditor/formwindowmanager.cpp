@@ -29,6 +29,11 @@ TRANSLATOR qdesigner_internal::FormWindowManager
 #include <layoutinfo_p.h>
 #include <qlayout_widget_p.h>
 
+#include <QtDesigner/QDesignerWidgetFactoryInterface>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QDesignerWidgetBoxInterface>
+
 #include <QtGui/QUndoGroup>
 #include <QtGui/QAction>
 #include <QtGui/QSplitter>

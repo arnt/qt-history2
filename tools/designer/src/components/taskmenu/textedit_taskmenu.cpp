@@ -18,7 +18,9 @@ TRANSLATOR qdesigner_internal::TextEditTaskMenu
 #include "textedit_taskmenu.h"
 #include "inplace_editor.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormWindowCursorInterface>
+
 #include <richtexteditor_p.h>
 
 #include <QtGui/QAction>
@@ -33,10 +35,9 @@ using namespace qdesigner_internal;
 
 TextEditTaskMenu::TextEditTaskMenu(QTextEdit *textEdit, QObject *parent)
     : QDesignerTaskMenu(textEdit, parent),
-      m_textEdit(textEdit)
+      m_textEdit(textEdit),
+      m_editTextAction(new QAction(tr("Change HTML..."), this))
 {
-    m_editTextAction= new QAction(this);
-    m_editTextAction->setText(tr("Change HTML..."));
     connect(m_editTextAction, SIGNAL(triggered()), this, SLOT(editText()));
     m_taskActions.append(m_editTextAction);
 

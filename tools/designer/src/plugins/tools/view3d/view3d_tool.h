@@ -16,7 +16,7 @@
 
 #include "view3d_global.h"
 #include "view3d.h"
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowToolInterface>
 
 class VIEW3D_EXPORT QView3DTool : public QDesignerFormWindowToolInterface
 {

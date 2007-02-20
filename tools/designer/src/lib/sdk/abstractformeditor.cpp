@@ -14,7 +14,20 @@
 #include "abstractformeditor.h"
 #include "private/qobject_p.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerWidgetBoxInterface>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerMetaDataBaseInterface>
+#include <QtDesigner/QDesignerWidgetDataBaseInterface>
+#include <QtDesigner/QDesignerWidgetFactoryInterface>
+#include <QtDesigner/QDesignerObjectInspectorInterface>
+#include <QtDesigner/QDesignerBrushManagerInterface>
+#include <QtDesigner/QDesignerIntegrationInterface>
+#include <QtDesigner/QDesignerIconCacheInterface>
+#include <QtDesigner/QDesignerActionEditorInterface>
+#include <pluginmanager_p.h>
+#include <QtDesigner/QDesignerPromotionInterface>
 
 class QDesignerFormEditorInterfacePrivate : public  QObjectPrivate {
 public:

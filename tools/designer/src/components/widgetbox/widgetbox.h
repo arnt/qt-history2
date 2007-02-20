@@ -15,7 +15,7 @@
 #define WIDGETBOX_H
 
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerWidgetBoxInterface>
 #include "widgetbox_global.h"
 
 

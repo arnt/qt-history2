@@ -19,7 +19,10 @@ TRANSLATOR qdesigner_internal::WidgetEditorTool
 #include "formwindow.h"
 
 // sdk
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerWidgetFactoryInterface>
+#include <QtDesigner/QDesignerWidgetBoxInterface>
+
 #include <layoutinfo_p.h>
 
 #include <QtGui/qevent.h>

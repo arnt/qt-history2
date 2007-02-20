@@ -27,7 +27,7 @@
 #define DESIGNEROBJECTINSPECTOR_H
 
 #include "shared_global_p.h"
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerObjectInspectorInterface>
 #include <QtCore/QList>
 
 namespace qdesigner_internal {

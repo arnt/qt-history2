@@ -17,7 +17,7 @@ TRANSLATOR qdesigner_internal::ToolBarTaskMenu
 
 #include "toolbar_taskmenu.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtGui/QAction>
 #include <QtGui/QStyle>
@@ -31,11 +31,9 @@ using namespace qdesigner_internal;
 
 ToolBarTaskMenu::ToolBarTaskMenu(QToolBar *toolbar, QObject *parent)
     : QDesignerTaskMenu(toolbar, parent),
-      m_toolbar(toolbar)
+      m_toolbar(toolbar),
+      m_editTextAction(new QAction(tr("Customize..."), this))
 {
-    m_editTextAction = new QAction(this);
-    m_editTextAction->setText(tr("Customize..."));
-
     connect(m_editTextAction, SIGNAL(triggered()), this, SLOT(editToolBar()));
     m_taskActions.append(m_editTextAction);
 

@@ -21,7 +21,12 @@ TRANSLATOR qdesigner_internal::Sentinel
 #include "actionprovider_p.h"
 #include "qdesigner_utils_p.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <actionprovider_p.h>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerWidgetFactoryInterface>
 
 #include <QtCore/QTimer>
 

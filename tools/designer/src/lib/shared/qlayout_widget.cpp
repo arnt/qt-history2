@@ -17,8 +17,12 @@
 #include "layout_p.h"
 #include "invisible_widget_p.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerLayoutDecorationExtension>
 #include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QDesignerWidgetFactoryInterface>
 
 #include <QtGui/QBitmap>
 #include <QtGui/QPixmapCache>

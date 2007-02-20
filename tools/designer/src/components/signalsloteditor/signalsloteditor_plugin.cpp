@@ -15,12 +15,13 @@
 TRANSLATOR qdesigner_internal::SignalSlotEditorPlugin
 */
 
-#include <QtGui/QAction>
-
 #include "signalsloteditor_plugin.h"
 #include "signalsloteditor_tool.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+
+#include <QtGui/QAction>
 
 using namespace qdesigner_internal;
 

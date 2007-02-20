@@ -20,6 +20,7 @@
 #include <QtDesigner/customwidget.h>
 #include <QtDesigner/propertysheet.h>
 #include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerFormEditorInterface>
 
 #include <qalgorithms.h>
 #include <QtCore/qdebug.h>

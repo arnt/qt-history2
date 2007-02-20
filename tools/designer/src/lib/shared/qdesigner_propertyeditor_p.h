@@ -27,7 +27,7 @@
 #define DESIGNERPROPERTYEDITOR_H
 
 #include "shared_global_p.h"
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
 
 namespace qdesigner_internal {
 

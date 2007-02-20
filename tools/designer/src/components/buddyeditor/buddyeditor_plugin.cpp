@@ -20,7 +20,9 @@ TRANSLATOR qdesigner_internal::BuddyEditorPlugin
 #include "buddyeditor_plugin.h"
 #include "buddyeditor_tool.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
 
 using namespace qdesigner_internal;
 

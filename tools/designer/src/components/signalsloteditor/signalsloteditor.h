@@ -17,7 +17,6 @@
 #include "signalsloteditor_global.h"
 
 #include <QtDesigner/private/connectionedit_p.h>
-#include <QtDesigner/QtDesigner>
 
 #include <QtXml/QDomDocument>
 #include <QtXml/QDomElement>

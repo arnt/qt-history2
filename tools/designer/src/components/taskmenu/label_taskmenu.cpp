@@ -17,7 +17,8 @@ TRANSLATOR qdesigner_internal::LabelTaskMenu
 
 #include "label_taskmenu.h"
 #include "inplace_editor.h"
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormWindowCursorInterface>
 #include <richtexteditor_p.h>
 
 #include <QtGui/QAction>

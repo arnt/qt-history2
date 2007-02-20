@@ -19,7 +19,10 @@ TRANSLATOR qdesigner_internal::ListWidgetEditor
 #include <findicondialog_p.h>
 #include <iconloader_p.h>
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerIconCacheInterface>
+
 #include <QtGui/QComboBox>
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>

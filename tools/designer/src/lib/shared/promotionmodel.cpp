@@ -18,7 +18,10 @@ TRANSLATOR qdesigner_internal::PromotionModel
 #include "promotionmodel_p.h"
 #include "widgetdatabase_p.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerWidgetDataBaseInterface>
+#include <QtDesigner/QDesignerPromotionInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+
 #include <QtGui/QStandardItem>
 #include <QtGui/QMessageBox>
 #include <qdebug.h>

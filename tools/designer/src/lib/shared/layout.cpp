@@ -19,7 +19,12 @@
 #include "layoutdecoration.h"
 #include "widgetfactory_p.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QDesignerWidgetDataBaseInterface>
 
 #include <QtCore/qdebug.h>
 #include <QtCore/QVector>

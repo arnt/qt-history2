@@ -21,10 +21,13 @@
 #include "actioneditor_p.h"
 #include "qdesigner_utils_p.h"
 
-#include <QtDesigner/QtDesigner>
-
 #include <QtCore/QTimer>
 #include <QtCore/qdebug.h>
+
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerWidgetFactoryInterface>
+#include <QtDesigner/QDesignerMetaDataBaseInterface>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>

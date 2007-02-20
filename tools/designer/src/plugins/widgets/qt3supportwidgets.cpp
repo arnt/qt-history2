@@ -30,7 +30,7 @@
 #include "q3progressbar/q3progressbar_plugin.h"
 #include "q3textbrowser/q3textbrowser_plugin.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerCustomWidgetCollectionInterface>
 #include <QtCore/qplugin.h>
 #include <QtCore/qdebug.h>
 

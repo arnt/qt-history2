@@ -35,7 +35,11 @@ TRANSLATOR qdesigner_internal::WidgetFactory
 #include "layout_p.h"
 
 // sdk
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QDesignerCustomWidgetInterface>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerPropertySheetExtension>
 
 #include <QtGui/QtGui>
 #include <QtCore/qdebug.h>

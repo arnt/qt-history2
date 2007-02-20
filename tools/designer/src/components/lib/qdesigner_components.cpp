@@ -29,6 +29,10 @@
 #include <signalsloteditor/signalsloteditor_plugin.h>
 #include <tabordereditor/tabordereditor_plugin.h>
 
+#include <QtDesigner/QDesignerLanguageExtension>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerResourceBrowserInterface>
+
 #include <QtCore/qplugin.h>
 
 // ### keep it in sync with Q_IMPORT_PLUGIN in qplugin.h

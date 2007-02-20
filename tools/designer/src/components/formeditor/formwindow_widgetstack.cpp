@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#include <QtDesigner/QtDesigner>
 #include "formwindow_widgetstack.h"
+#include <QtDesigner/QDesignerFormWindowToolInterface>
 
 #include <QtGui/QWidget>
 #include <QtGui/qevent.h>

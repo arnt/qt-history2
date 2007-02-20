@@ -16,7 +16,7 @@
 
 #include <QtCore/QList>
 #include <QtCore/QHash>
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorPluginInterface>
 #include "view3d_global.h"
 
 class QView3DTool;

@@ -18,7 +18,7 @@ TRANSLATOR qdesigner_internal::TabOrderEditorTool
 #include "tabordereditor_tool.h"
 #include "tabordereditor.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtCore/QEvent>
 #include <QtGui/QAction>
@@ -27,9 +27,9 @@ using namespace qdesigner_internal;
 
 TabOrderEditorTool::TabOrderEditorTool(QDesignerFormWindowInterface *formWindow, QObject *parent)
     : QDesignerFormWindowToolInterface(parent),
-      m_formWindow(formWindow)
+      m_formWindow(formWindow),
+      m_action(new QAction(tr("Edit Tab Order"), this))
 {
-    m_action = new QAction(tr("Edit Tab Order"), this);
 }
 
 TabOrderEditorTool::~TabOrderEditorTool()

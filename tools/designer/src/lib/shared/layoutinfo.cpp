@@ -13,7 +13,10 @@
 
 #include "layoutinfo_p.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QDesignerMetaDataBaseInterface>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QSplitter>

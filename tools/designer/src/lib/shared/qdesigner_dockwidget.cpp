@@ -13,7 +13,12 @@
 
 #include "qdesigner_dockwidget_p.h"
 #include "layoutinfo_p.h"
-#include <QtDesigner/QtDesigner>
+
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QExtensionManager>
+
 #include <QtGui/QMainWindow>
 #include <QLayout>
 
