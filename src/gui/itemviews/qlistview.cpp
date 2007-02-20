@@ -2371,7 +2371,7 @@ bool QDynamicListViewBase::doBatchedItemLayout(const QListViewLayoutInfo &info, 
 
 QListViewItem QDynamicListViewBase::indexToListViewItem(const QModelIndex &index) const
 {
-    if (index.row() < items.count())
+    if (index.isValid() && index.row() < items.count())
         return items.at(index.row());
     return QListViewItem();
 }
