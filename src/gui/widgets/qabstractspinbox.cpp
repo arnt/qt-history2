@@ -1258,7 +1258,7 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *event)
     d->updateHoverControl(event->pos());
     event->accept();
 
-    const StepEnabled se = d->buttonSymbols == NoButtons ? StepNone : stepEnabled();
+    const StepEnabled se = (d->buttonSymbols == NoButtons) ? StepEnabled(StepNone) : stepEnabled();
     if ((se & StepUpEnabled) && d->hoverControl == QStyle::SC_SpinBoxUp) {
         d->updateState(true);
     } else if ((se & StepDownEnabled) && d->hoverControl == QStyle::SC_SpinBoxDown) {
