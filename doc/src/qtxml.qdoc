@@ -5,8 +5,8 @@
     \previouspage QtSvg
     \nextpage QtDesigner
 
-    \brief The QtXml module provides C++ implementations
-    of SAX and DOM.
+    \brief The QtXml module provides a stream reader and writer for
+    XML documents, and C++ implementations of SAX and DOM.
 
     SAX is an event-based standard interface for XML parsers.
     The Qt interface follows the design of the SAX2 Java implementation.
@@ -24,7 +24,10 @@
     For more information about the DOM classes in Qt is provided, see
     \l{The Qt DOM Classes}.
 
-    In addition to SAX and DOM support, QSvgRenderer can read a
+    Since version 4.3, Qt provides two new classes for reading and
+    writing XML: QXmlStreamReader and QXmlStreamWriter.
+
+    In addition to core XML support, QSvgRenderer can read a
     subset of SVG. Additional XML support is provided by the \l{Qt
     Solutions} group who provide, for example, classes that support
     SOAP and MML with the Qt XML classes.
