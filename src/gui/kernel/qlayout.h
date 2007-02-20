@@ -151,7 +151,7 @@ public:
     bool isEnabled() const;
 
     void setItemRectPolicy(ItemRectPolicy policy);
-    ItemRectPolicy QLayout::itemRectPolicy() const;
+    ItemRectPolicy itemRectPolicy() const;
 
 #ifdef QT3_SUPPORT
     QT3_SUPPORT void freeze(int w=0, int h=0);
