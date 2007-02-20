@@ -4610,7 +4610,7 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
                 if (sn.count >= 3) {
                     int tmp = dt.date().month();
                     // I know the first possible month makes the date too early
-                    while ((tmp = findMonth(t, tmp + 1, sn.count)) != -1) {
+                    while ((tmp = findMonth(t, tmp + 1, i)) != -1) {
                         const QVariant copy(dt.addMonths(tmp - dt.date().month()));
                         if (dateTimeCompare(copy, minimum) >= 0 && dateTimeCompare(copy, maximum) <= 0)
                             break;
