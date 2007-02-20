@@ -637,7 +637,8 @@ public:
     enum StyleOptionType { Type = SO_ToolButton };
     enum StyleOptionVersion { Version = 1 };
 
-    enum ToolButtonFeature { None = 0x00, Arrow = 0x01, Menu = 0x04, PopupDelay = 0x08 };
+    enum ToolButtonFeature { None = 0x00, Arrow = 0x01, Menu = 0x04, MenuButtonPopup = Menu, PopupDelay = 0x08,
+                             HasMenu = 0x10 };
     Q_DECLARE_FLAGS(ToolButtonFeatures, ToolButtonFeature)
 
     ToolButtonFeatures features;

@@ -39,9 +39,6 @@ public:
 
     QSize sizeHint() const;
 
-protected:
-    void paintEvent(QPaintEvent *);
-
 public Q_SLOTS:
     void setOrientation(Qt::Orientation o);
 };

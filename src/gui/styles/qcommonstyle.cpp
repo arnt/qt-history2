@@ -2536,7 +2536,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 QStyleOptionFocusRect fr;
                 fr.QStyleOption::operator=(*toolbutton);
                 fr.rect.adjust(3, 3, -3, -3);
-                if (toolbutton->features & QStyleOptionToolButton::Menu)
+                if (toolbutton->features & QStyleOptionToolButton::MenuButtonPopup)
                     fr.rect.adjust(0, 0, -pixelMetric(QStyle::PM_MenuButtonIndicator,
                                                       toolbutton, widget), 0);
                 drawPrimitive(PE_FrameFocusRect, &fr, p, widget);
@@ -3251,14 +3251,14 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             switch (sc) {
             case SC_ToolButton:
                 if ((tb->features
-                     & (QStyleOptionToolButton::Menu | QStyleOptionToolButton::PopupDelay))
-                    == QStyleOptionToolButton::Menu)
+                     & (QStyleOptionToolButton::MenuButtonPopup | QStyleOptionToolButton::PopupDelay))
+                    == QStyleOptionToolButton::MenuButtonPopup)
                     ret.adjust(0, 0, -mbi, 0);
                 break;
             case SC_ToolButtonMenu:
                 if ((tb->features
-                     & (QStyleOptionToolButton::Menu | QStyleOptionToolButton::PopupDelay))
-                    == QStyleOptionToolButton::Menu)
+                     & (QStyleOptionToolButton::MenuButtonPopup | QStyleOptionToolButton::PopupDelay))
+                    == QStyleOptionToolButton::MenuButtonPopup)
                     ret.adjust(ret.width() - mbi, 0, 0, 0);
                 break;
             default:

@@ -316,7 +316,7 @@ void QToolButton::initStyleOption(QStyleOptionToolButton *option) const
     option->features = QStyleOptionToolButton::None;
     if (d->popupMode == QToolButton::MenuButtonPopup) {
         option->subControls |= QStyle::SC_ToolButtonMenu;
-        option->features |= QStyleOptionToolButton::Menu;
+        option->features |= QStyleOptionToolButton::MenuButtonPopup;
         if (d->menuButtonDown || d->down) {
             option->state |= QStyle::State_MouseOver;
             option->activeSubControls |= QStyle::SC_ToolButtonMenu;
@@ -324,13 +324,13 @@ void QToolButton::initStyleOption(QStyleOptionToolButton *option) const
     } else {
         if (d->menuButtonDown)
             option->state  |= QStyle::State_Sunken;
-        if (d->hasMenu())
-            option->features |= QStyleOptionToolButton::Menu;
     }
     if (d->arrowType != Qt::NoArrow)
         option->features |= QStyleOptionToolButton::Arrow;
     if (d->popupMode == QToolButton::DelayedPopup)
         option->features |= QStyleOptionToolButton::PopupDelay;
+    if (d->hasMenu())
+        option->features |= QStyleOptionToolButton::HasMenu;
     option->toolButtonStyle = d->toolButtonStyle;
     if (d->icon.isNull() && d->arrowType == Qt::NoArrow && !forceNoText) {
         if (!d->text.isEmpty())

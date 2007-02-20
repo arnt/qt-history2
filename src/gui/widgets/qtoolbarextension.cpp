@@ -14,9 +14,6 @@
 #include "qtoolbarextension_p.h"
 #include <qpixmap.h>
 #include <qstyle.h>
-#include <qpainter.h>
-#include <qstyleoption.h>
-#include <qstylepainter.h>
 
 
 #ifndef QT_NO_TOOLBUTTON
@@ -46,16 +43,6 @@ QSize QToolBarExtension::sizeHint() const
 {
     int ext = style()->pixelMetric(QStyle::PM_ToolBarExtensionExtent);
     return QSize(ext, ext);
-}
-
-void QToolBarExtension::paintEvent(QPaintEvent *)
-{
-    QStylePainter p(this);
-    QStyleOptionToolButton opt;
-    initStyleOption(&opt);
-    //remove menu arrow from tool button
-    opt.features &= ~QStyleOptionToolButton::Menu;
-    p.drawComplexControl(QStyle::CC_ToolButton, opt);
 }
 
 #endif // QT_NO_TOOLBUTTON

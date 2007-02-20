@@ -30,8 +30,6 @@
 #include <qspinbox.h>
 #include <qmenu.h>
 #include <qapplication.h>
-#include <qstyle.h>
-#include <qstylepainter.h>
 #include <qbasictimer.h>
 
 enum {
@@ -1473,12 +1471,7 @@ protected:
             oldState = newState;
         }
 
-        // don't draw the menu arrow though we have a menu
-        QStylePainter p(this);
-        QStyleOptionToolButton opt;
-        initStyleOption(&opt);
-        opt.features &= ~QStyleOptionToolButton::Menu;
-        p.drawComplexControl(QStyle::CC_ToolButton, opt);
+        QToolButton::paintEvent(e);
     }
 };
 
