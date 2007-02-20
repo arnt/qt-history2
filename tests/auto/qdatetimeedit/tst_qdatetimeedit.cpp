@@ -169,10 +169,10 @@ private slots:
     void task148725();
     void task148522();
 
-#if QT_VERSION >= 0x040200
     void setSelectedSection();
     void reverseTest();
-#endif
+
+    void ddMMMMyyyy();
 private:
     EditorDateEdit* testWidget;
     QWidget *testFocusWidget;
@@ -2504,8 +2504,6 @@ void tst_QDateTimeEdit::setCurrentSection()
 }
 
 
-#if QT_VERSION >= 0x040200
-
 void tst_QDateTimeEdit::setSelectedSection()
 {
     testWidget->setDisplayFormat("mm.ss.zzz('ms') m");
@@ -2592,7 +2590,6 @@ void tst_QDateTimeEdit::reverseTest()
     QCOMPARE(testWidget->lineEdit()->displayText(), QString("2001/03/31"));
 }
 
-#endif
 
 void tst_QDateTimeEdit::hour12Test()
 {
@@ -2715,6 +2712,22 @@ void tst_QDateTimeEdit::task148522()
 
 
 
+
+void tst_QDateTimeEdit::ddMMMMyyyy()
+{
+    testWidget->setDisplayFormat("dd.MMMM.yyyy");
+    testWidget->setDate(QDate(2000, 1, 1));
+    testWidget->setCurrentSection(QDateTimeEdit::YearSection);
+    QTest::keyClick(testWidget, Qt::Key_Enter);
+    QCOMPARE(testWidget->lineEdit()->selectedText(), QString("2000"));
+#ifdef Q_WS_MAC
+    QTest::keyClick(testWidget, Qt::Key_Right, Qt::ControlModifier);
+#else
+    QTest::keyClick(testWidget, Qt::Key_End);
+#endif
+    QTest::keyClick(testWidget, Qt::Key_Backspace);
+    QCOMPARE(testWidget->lineEdit()->text(), QString("01.January.200"));
+}
 
 QTEST_MAIN(tst_QDateTimeEdit)
 #include "tst_qdatetimeedit.moc"
