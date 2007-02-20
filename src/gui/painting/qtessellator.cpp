@@ -5,6 +5,7 @@
 #include <QDebug>
 
 #include <limits.h>
+#include <math.h>
 
 //#define DEBUG
 #ifdef DEBUG
@@ -1237,3 +1238,210 @@ QRectF QTessellator::tessellate(const QPointF *points, int nPoints)
     return br;
 }
 
+// tessellates the given convex polygon
+void QTessellator::tessellateConvex(const QPointF *points, int nPoints)
+{
+    Q_ASSERT(points[0] == points[nPoints-1]);
+    --nPoints;
+
+    d->vertices.nPoints = nPoints;
+    d->vertices.init(nPoints);
+
+    for (int i = 0; i < nPoints; ++i) {
+        d->vertices[i]->x = FloatToQ27Dot5(points[i].x());
+        d->vertices[i]->y = FloatToQ27Dot5(points[i].y());
+    }
+
+    int left = 0, right = 0;
+
+    int top = 0;
+    for (int i = 1; i < nPoints; ++i) {
+        if (d->vertices[i]->y < d->vertices[top]->y)
+            top = i;
+    }
+
+    left = (top + nPoints - 1) % nPoints;
+    right = (top + 1) % nPoints;
+
+    while (d->vertices[left]->x == d->vertices[top]->x && d->vertices[left]->y == d->vertices[top]->y && left != right)
+        left = (left + nPoints - 1) % nPoints;
+
+    while (d->vertices[right]->x == d->vertices[top]->x && d->vertices[right]->y == d->vertices[top]->y && left != right)
+        right = (right + 1) % nPoints;
+
+    if (left == right)
+        return;
+
+    int dir = 1;
+
+    Vertex dLeft = { d->vertices[top]->x - d->vertices[left]->x,
+                     d->vertices[top]->y - d->vertices[left]->y };
+
+    Vertex dRight = { d->vertices[right]->x - d->vertices[top]->x,
+                      d->vertices[right]->y - d->vertices[top]->y };
+
+    Q27Dot5 cross = dLeft.x * dRight.y - dLeft.y * dRight.x;
+
+    // flip direction if polygon is clockwise
+    if (cross < 0 || cross == 0 && dLeft.x > 0) {
+        qSwap(left, right);
+        dir = -1;
+    }
+
+    Vertex *lastLeft = d->vertices[top];
+    Vertex *lastRight = d->vertices[top];
+
+    QTessellator::Trapezoid trap;
+
+    while (lastLeft->y == d->vertices[left]->y && left != right) {
+        lastLeft = d->vertices[left];
+        left = (left + nPoints - dir) % nPoints;
+    }
+
+    while (lastRight->y == d->vertices[right]->y && left != right) {
+        lastRight = d->vertices[right];
+        right = (right + nPoints + dir) % nPoints;
+    }
+
+    while (true) {
+        trap.top = qMax(lastRight->y, lastLeft->y);
+        trap.bottom = qMin(d->vertices[left]->y, d->vertices[right]->y);
+        trap.topLeft = lastLeft;
+        trap.topRight = lastRight;
+        trap.bottomLeft = d->vertices[left];
+        trap.bottomRight = d->vertices[right];
+
+        if (trap.bottom > trap.top)
+            addTrap(trap);
+
+        if (left == right)
+            break;
+
+        if (d->vertices[right]->y < d->vertices[left]->y) {
+            do {
+                lastRight = d->vertices[right];
+                right = (right + nPoints + dir) % nPoints;
+            }
+            while (lastRight->y == d->vertices[right]->y && left != right);
+        } else {
+            do {
+                lastLeft = d->vertices[left];
+                left = (left + nPoints - dir) % nPoints;
+            }
+            while (lastLeft->y == d->vertices[left]->y && left != right);
+        }
+    }
+}
+
+// tessellates the stroke of the line from a_ to b_ with the given width and a flat cap
+void QTessellator::tessellateRect(const QPointF &a_, const QPointF &b_, qreal width)
+{
+    Vertex a = { FloatToQ27Dot5(a_.x()), FloatToQ27Dot5(a_.y()) };
+    Vertex b = { FloatToQ27Dot5(b_.x()), FloatToQ27Dot5(b_.y()) };
+
+    QPointF pa = a_, pb = b_;
+
+    if (a.y > b.y) {
+        qSwap(a, b);
+        qSwap(pa, pb);
+    }
+
+    Vertex delta = { b.x - a.x, b.y - a.y };
+
+    if (delta.x == 0 && delta.y == 0)
+        return;
+
+    qreal hw = 0.5 * width;
+
+    if (delta.x == 0) {
+        Q27Dot5 halfWidth = FloatToQ27Dot5(hw);
+
+        if (halfWidth == 0)
+            return;
+
+        Vertex topLeft = { a.x - halfWidth, a.y };
+        Vertex topRight = { a.x + halfWidth, a.y };
+        Vertex bottomLeft = { a.x - halfWidth, b.y };
+        Vertex bottomRight = { a.x + halfWidth, b.y };
+
+        QTessellator::Trapezoid trap = { topLeft.y, bottomLeft.y, &topLeft, &bottomLeft, &topRight, &bottomRight };
+        addTrap(trap);
+    } else if (delta.y == 0) {
+        Q27Dot5 halfWidth = FloatToQ27Dot5(hw);
+
+        if (halfWidth == 0)
+            return;
+
+        if (a.x > b.x)
+            qSwap(a.x, b.x);
+
+        Vertex topLeft = { a.x, a.y - halfWidth };
+        Vertex topRight = { b.x, a.y - halfWidth };
+        Vertex bottomLeft = { a.x, a.y + halfWidth };
+        Vertex bottomRight = { b.x, a.y + halfWidth };
+
+        QTessellator::Trapezoid trap = { topLeft.y, bottomLeft.y, &topLeft, &bottomLeft, &topRight, &bottomRight };
+        addTrap(trap);
+    } else {
+        QPointF perp(pb.y() - pa.y(), pa.x() - pb.x());
+        qreal length = sqrt(perp.x() * perp.x() + perp.y() * perp.y());
+
+        if (qFuzzyCompare(length, static_cast<qreal>(0)))
+            return;
+
+        // need the half of the width
+        perp *= hw / length;
+
+        QPointF pta = pa + perp;
+        QPointF ptb = pa - perp;
+        QPointF ptc = pb - perp;
+        QPointF ptd = pb + perp;
+
+        Vertex ta = { FloatToQ27Dot5(pta.x()), FloatToQ27Dot5(pta.y()) };
+        Vertex tb = { FloatToQ27Dot5(ptb.x()), FloatToQ27Dot5(ptb.y()) };
+        Vertex tc = { FloatToQ27Dot5(ptc.x()), FloatToQ27Dot5(ptc.y()) };
+        Vertex td = { FloatToQ27Dot5(ptd.x()), FloatToQ27Dot5(ptd.y()) };
+
+        if (ta.y < tb.y) {
+            if (tb.y < td.y) {
+                QTessellator::Trapezoid top = { ta.y, tb.y, &ta, &tb, &ta, &td };
+                QTessellator::Trapezoid bottom = { td.y, tc.y, &tb, &tc, &td, &tc };
+                addTrap(top);
+                addTrap(bottom);
+
+                QTessellator::Trapezoid middle = { tb.y, td.y, &tb, &tc, &ta, &td };
+                addTrap(middle);
+            } else {
+                QTessellator::Trapezoid top = { ta.y, td.y, &ta, &tb, &ta, &td };
+                QTessellator::Trapezoid bottom = { tb.y, tc.y, &tb, &tc, &td, &tc };
+                addTrap(top);
+                addTrap(bottom);
+
+                if (tb.y != td.y) {
+                    QTessellator::Trapezoid middle = { td.y, tb.y, &ta, &tb, &td, &tc };
+                    addTrap(middle);
+                }
+            }
+        } else {
+            if (ta.y < tc.y) {
+                QTessellator::Trapezoid top = { tb.y, ta.y, &tb, &tc, &tb, &ta };
+                QTessellator::Trapezoid bottom = { tc.y, td.y, &tc, &td, &ta, &td };
+                addTrap(top);
+                addTrap(bottom);
+
+                QTessellator::Trapezoid middle = { ta.y, tc.y, &tb, &tc, &ta, &td };
+                addTrap(middle);
+            } else {
+                QTessellator::Trapezoid top = { tb.y, tc.y, &tb, &tc, &tb, &ta };
+                QTessellator::Trapezoid bottom = { ta.y, td.y, &tc, &td, &ta, &td };
+                addTrap(top);
+                addTrap(bottom);
+
+                if (ta.y != tc.y) {
+                    QTessellator::Trapezoid middle = { tc.y, ta.y, &tc, &td, &tb, &ta };
+                    addTrap(middle);
+                }
+            }
+        }
+    }
+}

@@ -11,6 +11,7 @@
 #include "simple.h"
 #include "arc.h"
 
+#include "math.h"
 
 //TESTED_CLASS=
 //TESTED_FILES=
@@ -27,6 +28,9 @@ private slots:
     void testStandardSet();
     void testRandom();
     void testArc();
+    void testRects();
+    void testConvexRects();
+    void testConvex();
 };
 
 
@@ -37,7 +41,7 @@ QPointF creatPoint()
     return QPointF(x, y);
 }
 
-bool test(const QPointF *pg, int pgSize, bool winding)
+bool test(const QPointF *pg, int pgSize, bool winding, tessellate_function tessellate = test_tesselate_polygon, qreal maxDiff = 0.005)
 {
     QVector<XTrapezoid> traps;
     double area1 = 0;
@@ -48,14 +52,15 @@ bool test(const QPointF *pg, int pgSize, bool winding)
 
     traps.clear();
 
-    test_tesselate_polygon(&traps, pg, pgSize, winding);
+    tessellate(&traps, pg, pgSize, winding);
     area2 = compute_area_for_x(traps);
 
-    bool result = (area2 - area1 < 0.005);
+    bool result = (qAbs(area2 - area1) < maxDiff);
     if (!result && area1)
-        result = (qAbs(area1 - area2)/area1 < .005);
+        result = (qAbs(area1 - area2)/area1 < maxDiff);
 
-//     qDebug() << area1 << area2 << result;
+    if (!result)
+        qDebug() << area1 << area2;
 
     return result;
 }
@@ -173,6 +178,147 @@ void tst_QTessellator::testArc()
     }
 }
 
+static bool isConvex(const QVector<QPointF> &v)
+{
+    int nPoints = v.size() - 1;
+
+    qreal lastCross = 0;
+    for (int i = 0; i < nPoints; ++i) {
+        QPointF a = v[i];
+        QPointF b = v[(i + 1) % nPoints];
+
+        QPointF d1 = b - a;
+
+        for (int j = 0; j < nPoints; ++j) {
+            if (j == i || j == i + 1)
+                continue;
+
+            QPointF p = v[j];
+            QPointF d2 = p - a;
+
+            qreal cross = d1.x() * d2.y() - d1.y() * d2.x();
+
+            if (!qFuzzyCompare(cross, (qreal)0)
+                && !qFuzzyCompare(cross, (qreal)0)
+                && (lastCross > 0) != (cross > 0))
+                return false;
+
+            lastCross = cross;
+        }
+    }
+
+    return true;
+}
+
+static void fillRectVec(QVector<QPointF> &v)
+{
+    int numRects = v.size() / 5;
+
+    int first = 0;
+    v[first++] = QPointF(0, 0);
+    v[first++] = QPointF(10, 0);
+    v[first++] = QPointF(10, 10);
+    v[first++] = QPointF(0, 10);
+    v[first++] = QPointF(0, 0);
+
+    v[first++] = QPointF(0, 0);
+    v[first++] = QPointF(2, 2);
+    v[first++] = QPointF(4, 0);
+    v[first++] = QPointF(2, -2);
+    v[first++] = QPointF(0, 0);
+
+    v[first++] = QPointF(0, 0);
+    v[first++] = QPointF(4, 4);
+    v[first++] = QPointF(6, 2);
+    v[first++] = QPointF(2, -2);
+    v[first++] = QPointF(0, 0);
+
+    for (int i = first / 5; i < numRects; ++i) {
+        QPointF a = creatPoint();
+        QPointF b = creatPoint();
+
+        QPointF delta = a - b;
+        QPointF perp(delta.y(), -delta.x());
+
+        perp *= ((int)(20.0 * rand() / (RAND_MAX + 1.0))) / 20.0;
+
+        int j = 5 * i;
+        v[j++] = a + perp;
+        v[j++] = a - perp;
+        v[j++] = b - perp;
+        v[j++] = b + perp;
+        v[j++] = a + perp;
+    }
+}
+
+const int numRects = 5000;
+
+void tst_QTessellator::testConvexRects()
+{
+    return;
+    int failures = 0;
+    QVector<QPointF> vec(numRects * 5);
+    fillRectVec(vec);
+    for (int rect = 0; rect < numRects; ++rect) {
+        QVector<QPointF> v(5);
+        for (int i = 0; i < 5; ++i)
+            v[i] = vec[5 * rect + i];
+        if (!test(v.data(), v.size(), false, test_tessellate_polygon_convex)) {
+            simplifyTestFailure(v, false);
+            ++failures;
+        }
+        if (!test(v.data(), v.size(), true, test_tessellate_polygon_convex)) {
+            simplifyTestFailure(v, true);
+            ++failures;
+        }
+    }
+    QVERIFY(failures == 0);
+}
+
+void tst_QTessellator::testConvex()
+{
+    int failures = 0;
+    for (int i = 4; i < 10; ++i) {
+        QVector<QPointF> vec(i);
+        int k = 5000;
+        while (k--) {
+            fillRandomVec(vec);
+            if (!isConvex(vec))
+                continue;
+            if (!test(vec.data(), vec.size(), false, test_tessellate_polygon_convex)) {
+                simplifyTestFailure(vec, false);
+                ++failures;
+            }
+            if (!test(vec.data(), vec.size(), true, test_tessellate_polygon_convex)) {
+                simplifyTestFailure(vec, true);
+                ++failures;
+            }
+        }
+    }
+    QVERIFY(failures == 0);
+}
+
+
+void tst_QTessellator::testRects()
+{
+    int failures = 0;
+    QVector<QPointF> vec(numRects * 5);
+    fillRectVec(vec);
+    for (int rect = 0; rect < numRects; ++rect) {
+        QVector<QPointF> v(5);
+        for (int i = 0; i < 5; ++i)
+            v[i] = vec[5 * rect + i];
+        if (!test(v.data(), v.size(), false, test_tessellate_polygon_rect, 0.05)) {
+            simplifyTestFailure(v, false);
+            ++failures;
+        }
+        if (!test(v.data(), v.size(), true, test_tessellate_polygon_rect, 0.05)) {
+            simplifyTestFailure(v, true);
+            ++failures;
+        }
+    }
+    QVERIFY(failures == 0);
+}
 
 
 QTEST_MAIN(tst_QTessellator)
