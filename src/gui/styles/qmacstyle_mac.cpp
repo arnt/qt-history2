@@ -2945,12 +2945,12 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 newRect.origin.x += PushButtonX;
                 newRect.origin.y += PushButtonY;
                 newRect.size.width -= PushButtonW;
-                newRect.size.height -= PushButtonW;
+                newRect.size.height -= PushButtonH;
             }
             else if (bdi.kind == kThemePushButtonMini){
-                newRect.origin.x += PushButtonX-2;
+                newRect.origin.x += PushButtonX - 2;
                 newRect.origin.y += PushButtonY;
-                newRect.size.width -= PushButtonW-4;
+                newRect.size.width -= PushButtonW - 4;
             }
             HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
 
@@ -3651,9 +3651,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
             else if (bdi.kind == kThemePushButtonMini){
                 newRect.origin.y += PushButtonY;
             }
-            else if (bdi.kind == kThemeBevelButton){
-                newRect.size.height -= 1;
-            }
+
             HIRect outRect;
             bdi.adornment = kThemeAdornmentNone;
             HIThemeGetButtonContentBounds(&newRect, &bdi, &outRect);
