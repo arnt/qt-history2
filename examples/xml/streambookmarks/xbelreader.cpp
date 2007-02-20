@@ -14,8 +14,6 @@
 #include <QtGui>
 
 #include "xbelreader.h"
-#include "xbelreader.h"
-#include "../../qxmlstream.cpp"
 
 XbelReader::XbelReader(QTreeWidget *treeWidget)
     : treeWidget(treeWidget)

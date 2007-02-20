@@ -15,7 +15,7 @@
 #define XBELREADER_H
 
 #include <QIcon>
-#include "../../qxmlstream.h"
+#include <QXmlStreamReader>
 
 class QTreeWidget;
 class QTreeWidgetItem;

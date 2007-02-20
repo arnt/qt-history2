@@ -31,7 +31,6 @@ its operation, and also allows very large data sources to be read.
 #include <QtNetwork>
 
 #include "rsslisting.h"
-#include "../../qxmlstream.cpp"
 
 
 /*

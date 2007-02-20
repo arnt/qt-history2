@@ -5,7 +5,7 @@ SOURCES       = main.cpp \
                 mainwindow.cpp \
                 xbelreader.cpp \
                 xbelwriter.cpp
-#QT           += xml
+QT           += xml
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/xml/streambookmarks

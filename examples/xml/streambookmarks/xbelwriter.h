@@ -14,7 +14,7 @@
 #ifndef XBELWRITER_H
 #define XBELWRITER_H
 
-#include "../../qxmlstream.h"
+#include <QXmlStreamWriter>
 
 class QTreeWidget;
 class QTreeWidgetItem;

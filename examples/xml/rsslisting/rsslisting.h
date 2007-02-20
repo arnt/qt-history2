@@ -16,8 +16,7 @@
 #include <QHttp>
 #include <QWidget>
 #include <QBuffer>
-#include "../../qxmlstream.h"
-
+#include <QXmlStreamReader>
 class QLineEdit;
 class QTreeWidget;
 class QTreeWidgetItem;
