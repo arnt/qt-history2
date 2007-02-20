@@ -593,7 +593,7 @@
             </property>
         </widget>
 
-        <widget class="Line" name="Vertical Line" icon="widgets/line.png">
+        <widget class="Line" name="Vertical Line" icon="widgets/vline.png">
             <property name="orientation" >
                 <enum>Qt::Vertical</enum>
             </property>
