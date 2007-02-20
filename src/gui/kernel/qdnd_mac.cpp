@@ -160,7 +160,7 @@ static void qt_mac_dnd_update_action(DragReference dragRef) {
     Qt::DropAction qtAction = Qt::IgnoreAction;
     {
         DragActions macAllowed = kDragActionNothing;
-        GetDragAllowableActions(dragRef, &macAllowed);
+        GetDragDropAction(dragRef, &macAllowed);
         Qt::DropActions qtAllowed = qt_mac_dnd_map_mac_actions(macAllowed);
         qtAction = QDragManager::self()->defaultAction(qtAllowed, QApplication::keyboardModifiers());
 #if 1
