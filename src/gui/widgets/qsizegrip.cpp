@@ -39,6 +39,13 @@
 #define SZ_SIZETOPLEFT      0xf004
 #define SZ_SIZETOPRIGHT     0xf005
 
+static QWidget *qt_sizegrip_topLevelWidget(QWidget* w)
+{
+    while (w && !w->isWindow() && w->windowType() != Qt::SubWindow)
+        w = w->parentWidget();
+    return w;
+}
+
 class QSizeGripPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QSizeGrip)
@@ -50,21 +57,32 @@ public:
     int dxMax;
     int dyMax;
     bool hiddenByUser;
-    bool atBottom;
+    Qt::Corner m_corner;
     bool gotMousePress;
+    Qt::Corner corner() const;
+    inline bool atBottom() const
+    {
+        return m_corner == Qt::BottomRightCorner || m_corner == Qt::BottomLeftCorner;
+    }
+
+    inline bool atLeft() const
+    {
+        return m_corner == Qt::BottomLeftCorner || m_corner == Qt::TopLeftCorner;
+    }
 };
 
-static QWidget *qt_sizegrip_topLevelWidget(QWidget* w)
+Qt::Corner QSizeGripPrivate::corner() const
 {
-    while (w && !w->isWindow() && w->windowType() != Qt::SubWindow)
-        w = w->parentWidget();
-    return w;
-}
+    Q_Q(const QSizeGrip);
+    QWidget *tlw = qt_sizegrip_topLevelWidget(const_cast<QSizeGrip *>(q));
+    const QPoint globalPos = tlw->mapFromGlobal(q->mapToGlobal(QPoint(0, 0)));
+    bool isAtBottom = globalPos.y() >= tlw->height() / 2;
+    bool isAtLeft = globalPos.x() <= tlw->width() / 2;
 
-static bool qt_sizegrip_atBottom(QWidget* sg)
-{
-    QWidget *tlw = qt_sizegrip_topLevelWidget(sg);
-    return tlw->mapFromGlobal(sg->mapToGlobal(QPoint(0, 0))).y() >= (tlw->height() / 2);
+    if (isAtLeft)
+        return isAtBottom ? Qt::BottomLeftCorner : Qt::TopLeftCorner;
+    else
+        return isAtBottom ? Qt::BottomRightCorner : Qt::TopRightCorner;
 }
 
 /*!
@@ -140,13 +158,12 @@ void QSizeGripPrivate::init()
     dxMax = 0;
     dyMax = 0;
     hiddenByUser = false;
-    atBottom = qt_sizegrip_atBottom(q);
+    m_corner = corner();
     gotMousePress = false;
 
-#ifndef QT_NO_CURSOR
-#ifndef Q_WS_MAC
-    q->setCursor(q->isRightToLeft() ^ atBottom ? Qt::SizeFDiagCursor : Qt::SizeBDiagCursor);
-#endif
+#if !defined(QT_NO_CURSOR) && !defined(Q_WS_MAC)
+    q->setCursor(m_corner == Qt::TopLeftCorner || m_corner == Qt::BottomRightCorner
+                 ? Qt::SizeFDiagCursor : Qt::SizeBDiagCursor);
 #endif
     q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
     QWidget *tlw = qt_sizegrip_topLevelWidget(q);
@@ -186,10 +203,7 @@ void QSizeGrip::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     QStyleOptionSizeGrip opt;
     opt.init(this);
-    if (isRightToLeft())
-        opt.corner = d->atBottom ? Qt::BottomLeftCorner : Qt::TopLeftCorner;
-    else
-        opt.corner = d->atBottom ? Qt::BottomRightCorner : Qt::TopRightCorner;
+    opt.corner = d->m_corner;
     style()->drawControl(QStyle::CE_SizeGrip, &opt, &painter, this);
 }
 
@@ -202,7 +216,11 @@ void QSizeGrip::paintEvent(QPaintEvent *event)
 */
 void QSizeGrip::mousePressEvent(QMouseEvent * e)
 {
+    Q_D(QSizeGrip);
     QWidget *tlw = qt_sizegrip_topLevelWidget(this);
+    d->p = e->globalPos();
+    d->gotMousePress = true;
+    d->r = tlw->geometry();
 
 #ifdef Q_WS_X11
     if (e->button() == Qt::LeftButton
@@ -216,7 +234,10 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
         xev.xclient.format = 32;
         xev.xclient.data.l[0] = e->globalPos().x();
         xev.xclient.data.l[1] = e->globalPos().y();
-        xev.xclient.data.l[2] = (QApplication::layoutDirection() == Qt::RightToLeft) ? 6 : 4; // bottomleft/bottomright
+        if (d->atBottom())
+            xev.xclient.data.l[2] = d->atLeft() ? 6 : 4; // bottomleft/bottomright
+        else
+            xev.xclient.data.l[2] = d->atLeft() ? 0 : 2; // topleft/topright
         xev.xclient.data.l[3] = Button1;
         xev.xclient.data.l[4] = 0;
         XUngrabPointer(X11->display, X11->time);
@@ -225,11 +246,6 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
         return;
     }
 #endif
-
-    Q_D(QSizeGrip);
-    d->gotMousePress = true;
-    d->p = e->globalPos();
-    d->r = tlw->geometry();
 
     // Find available desktop/workspace geometry.
     QRect availableGeometry;
@@ -246,14 +262,14 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
 
     // Determine dyMax depending on whether the sizegrip is at the bottom
     // of the widget or not.
-    if (d->atBottom)
+    if (d->atBottom())
         d->dyMax = availableGeometry.bottom() - d->r.bottom() - bottomDecoration;
     else
         d->dyMax = availableGeometry.y() - d->r.y() + titleBarHeight;
 
     // In RTL mode, the size grip is to the left; find dxMax from the desktop/workspace
     // geometry, the size grip geometry and the width of the decoration.
-    if (isRightToLeft())
+    if (d->atLeft())
         d->dxMax = availableGeometry.x() - d->r.x() + leftRightDecoration;
     else
         d->dxMax = availableGeometry.right() - d->r.right() - leftRightDecoration;
@@ -300,12 +316,12 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 
     // Don't extend beyond the available geometry; bound to dyMax and dxMax.
     QSize ns;
-    if (d->atBottom)
+    if (d->atBottom())
         ns.rheight() = d->r.height() + qMin(np.y() - d->p.y(), d->dyMax);
     else
         ns.rheight() = d->r.height() - qMax(np.y() - d->p.y(), d->dyMax);
 
-    if (isRightToLeft())
+    if (d->atLeft())
         ns.rwidth() = d->r.width() - qMax(np.x() - d->p.x(), d->dxMax);
     else
         ns.rwidth() = d->r.width() + qMin(np.x() - d->p.x(), d->dxMax);
@@ -314,13 +330,13 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 
     QPoint p;
     QRect nr(p, ns);
-    if (d->atBottom) {
-        if (isRightToLeft())
+    if (d->atBottom()) {
+        if (d->atLeft())
             nr.moveTopRight(d->r.topRight());
         else
             nr.moveTopLeft(d->r.topLeft());
     } else {
-        if (isRightToLeft())
+        if (d->atLeft())
             nr.moveBottomRight(d->r.bottomRight());
         else
             nr.moveBottomLeft(d->r.bottomLeft());
@@ -332,6 +348,23 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
     MSG msg;
     while(PeekMessage(&msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
       ;
+#endif
+}
+
+/*!
+  \reimp
+*/
+void QSizeGrip::moveEvent(QMoveEvent * /*moveEvent*/)
+{
+    Q_D(QSizeGrip);
+    // We're inside a resize operation; no update necessary.
+    if (!d->p.isNull())
+        return;
+
+    d->m_corner = d->corner();
+#if !defined(QT_NO_CURSOR) && !defined(Q_WS_MAC)
+    setCursor(d->m_corner == Qt::TopLeftCorner || d->m_corner == Qt::BottomRightCorner
+              ? Qt::SizeFDiagCursor : Qt::SizeBDiagCursor);
 #endif
 }
 
@@ -368,7 +401,7 @@ bool QSizeGrip::event(QEvent *e)
 #if defined(Q_WS_MAC)
     case QEvent::Hide:
     case QEvent::Show:
-        d->atBottom = qt_sizegrip_atBottom(this);
+        m_corner = corner();
         if(!QApplication::closingDown() && parentWidget()) {
             if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
                 if(w->isWindow())
@@ -380,19 +413,6 @@ bool QSizeGrip::event(QEvent *e)
     case QEvent::MouseButtonRelease:
         d->gotMousePress = false;
         d->p = QPoint();
-        break;
-    case QEvent::Move:
-        // We're inside a resize operation; no update necessary.
-        if (!d->p.isNull())
-            break;
-
-        // Update "bottomness" and cursor.
-        if (qt_sizegrip_atBottom(this) != d->atBottom) {
-            d->atBottom = !d->atBottom;
-#if !defined(QT_NO_CURSOR) && !defined(Q_WS_MAC)
-            setCursor(isRightToLeft() ^ d->atBottom ? Qt::SizeFDiagCursor : Qt::SizeBDiagCursor);
-#endif
-        }
         break;
     default:
         break;

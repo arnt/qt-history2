@@ -37,6 +37,7 @@ protected:
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
+    void moveEvent(QMoveEvent *moveEvent);
 
     bool eventFilter(QObject *, QEvent *);
     bool event(QEvent *);
