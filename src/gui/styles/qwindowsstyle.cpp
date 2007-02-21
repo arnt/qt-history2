@@ -1364,6 +1364,18 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             bool enabled = opt->state & State_Enabled;
             bool on = opt->state & State_On;
             QPolygon a;
+            
+            //center when rect is larger than indicator size
+            int xOffset = 0;
+            int yOffset = 0;
+            int indicatorWidth = pixelMetric(PM_ExclusiveIndicatorWidth);
+            int indicatorHeight = pixelMetric(PM_ExclusiveIndicatorWidth);
+            if (ir.width() > indicatorWidth)
+                xOffset += (ir.width() - indicatorWidth)/2;
+            if (ir.height() > indicatorHeight)
+                yOffset += (ir.height() - indicatorHeight)/2;
+            p->translate(xOffset, yOffset);
+
             p->translate(ir.x(), ir.y());
 
             p->setPen(opt->palette.dark().color());

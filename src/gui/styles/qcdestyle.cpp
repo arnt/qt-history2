@@ -206,6 +206,18 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             bool down = opt->state & State_Sunken;
             bool on = opt->state & State_On;
             QPolygon a(INTARRLEN(pts1), pts1);
+
+            //center when rect is larger than indicator size
+            int xOffset = 0;
+            int yOffset = 0;
+            int indicatorWidth = pixelMetric(PM_ExclusiveIndicatorWidth);
+            int indicatorHeight = pixelMetric(PM_ExclusiveIndicatorWidth);
+            if (r.width() > indicatorWidth)
+                xOffset += (r.width() - indicatorWidth)/2;
+            if (r.height() > indicatorHeight)
+                yOffset += (r.height() - indicatorHeight)/2;
+            p->translate(xOffset, yOffset);
+
             a.translate(r.x(), r.y());
             QPen oldPen = p->pen();
             QBrush oldBrush = p->brush();
@@ -226,6 +238,9 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
                 p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
             p->setPen(oldPen);
             p->setBrush(oldBrush);
+
+            p->translate(-xOffset, -yOffset);
+
         } break;
     default:
         QMotifStyle::drawPrimitive(pe, opt, p, widget);
