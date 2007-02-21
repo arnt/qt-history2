@@ -30,16 +30,6 @@
 
 #include <stdlib.h>
 
-#ifdef __MMX__
-#include <mmintrin.h>
-#endif
-
-// TODO:
-// optimize memcmp/memcpy for tiles for 16/32 bit (32/64 bytes per tile line)
-// do two-color test in parallel?
-// read from double buffer instead (avoid locking and framebuffer memory)?
-// get rid of mmx instructions (use drawhelper)
-
 //#define QT_QWS_VNC_DEBUG
 
 extern QString qws_qtePipeFilename();
@@ -1158,52 +1148,7 @@ void QVNCServer::convertPixels(char *dst, const char *src, int count) const
                 }
             }
         } else if (screendepth == 16 && pixelFormat.bitsPerPixel == 32) {
-#ifdef __MMX__
-            const quint64 *src64 = reinterpret_cast<const quint64*>(src);
-            quint64 *dst64 = reinterpret_cast<quint64*>(dst);
-            int count64 = count / 4; // sizeof(quint16) / sizeof(quint64);
-            while (count64--) {
-                __m64 result1;
-                __m64 result2;
-                __m64 s = __m64(*src64++);
-
-                __m64 reds = _m_pand(s, _mm_set_pi32(0xf800f800, 0xf800f800));
-                reds = _mm_srli_pi16(reds, 8);
-                __m64 red1 = _mm_unpackhi_pi16(_mm_setzero_si64(), reds);
-                __m64 red2 = _mm_unpacklo_pi16(_mm_setzero_si64(), reds);
-                result1 = red1;
-                result2 = red2;
-
-                __m64 greens = _m_pand(s, _mm_set_pi32(0x07e007e0, 0x07e007e0));
-                greens = _mm_slli_pi16(greens, 5);
-                __m64 green1 = _mm_unpackhi_pi16(greens, _mm_setzero_si64());
-                __m64 green2 = _mm_unpacklo_pi16(greens, _mm_setzero_si64());
-                result1 = _m_por(result1, green1);
-                result2 = _m_por(result2, green2);
-
-                __m64 blues = _m_pand(s, _mm_set_pi32(0x001f001f, 0x001f001f));
-                blues = _mm_slli_pi16(blues, 3);
-                __m64 blue1 = _mm_unpackhi_pi16(blues, _mm_setzero_si64());
-                __m64 blue2 = _mm_unpacklo_pi16(blues, _mm_setzero_si64());
-                result1 = _m_por(result1, blue1);
-                result2 = _m_por(result2, blue2);
-
-                *dst64++ = (quint64)result2;
-                *dst64++ = (quint64)result1;
-            }
-            _mm_empty();
-
-            if (count & 0x3) {
-                const quint16 *src16 = reinterpret_cast<const quint16*>(src);
-                quint32 *dst32 = reinterpret_cast<quint32*>(dst);
-                switch (count & 0x3) {
-                case 3: dst32[count - 3] = qt_conv16ToRgb(src16[count - 3]);
-                case 2: dst32[count - 2] = qt_conv16ToRgb(src16[count - 2]);
-                case 1: dst32[count - 1] = qt_conv16ToRgb(src16[count - 1]);
-                }
-            }
-            return;
-#elif defined(__i386__) // Currently fails on ARM if dst is not 4 byte aligned
+#if defined(__i386__) // Currently fails on ARM if dst is not 4 byte aligned
             const quint32 *src32 = reinterpret_cast<const quint32*>(src);
             quint32 *dst32 = reinterpret_cast<quint32*>(dst);
             int count32 = count * sizeof(quint16) / sizeof(quint32);
