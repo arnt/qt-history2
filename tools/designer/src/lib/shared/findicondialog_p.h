@@ -60,6 +60,7 @@ public:
     virtual void accept();
 
 private slots:
+    void setActiveBox(int box);
     void setActiveBox();
     void updateButtons();
 
@@ -78,9 +79,8 @@ private slots:
     void itemChanged(const QString &file_name);
 
 private:
-    enum InputBox { FileBox, ResourceBox, LanguageBox };
+    enum InputBox { ResourceBox, FileBox, LanguageBox };
 
-    void setActiveBox(InputBox box);
     InputBox activeBox() const;
 
     qdesigner_internal::Ui::FindIconDialog *ui;
