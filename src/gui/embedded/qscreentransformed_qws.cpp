@@ -173,7 +173,7 @@ QTransformedScreen::~QTransformedScreen()
 
 static int getDisplayId(const QString &spec)
 {
-    QRegExp regexp(":(\\d+)\\b");
+    QRegExp regexp(QLatin1String(":(\\d+)\\b"));
     if (regexp.lastIndexIn(spec) != -1) {
         const QString capture = regexp.cap(1);
         return capture.toInt();
@@ -183,7 +183,7 @@ static int getDisplayId(const QString &spec)
 
 static QTransformedScreen::Transformation filterTransformation(QString &spec)
 {
-    QRegExp regexp("\\bRot(\\d+):?\\b", Qt::CaseInsensitive);
+    QRegExp regexp(QLatin1String("\\bRot(\\d+):?\\b"), Qt::CaseInsensitive);
     if (regexp.indexIn(spec) == -1)
         return QTransformedScreen::None;
 
@@ -199,25 +199,25 @@ static QTransformedScreen::Transformation filterTransformation(QString &spec)
 bool QTransformedScreen::connect(const QString &displaySpec)
 {
     QString dspec = displaySpec.trimmed();
-    if (dspec.startsWith("Transformed:", Qt::CaseInsensitive))
-        dspec = dspec.mid(QString("Transformed:").size());
+    if (dspec.startsWith(QLatin1String("Transformed:"), Qt::CaseInsensitive))
+        dspec = dspec.mid(QString(QLatin1String("Transformed:")).size());
     else if (!dspec.compare(QLatin1String("Transformed"), Qt::CaseInsensitive))
         dspec = QString();
 
-    const QString displayIdSpec = QString(" :%1").arg(displayId);
+    const QString displayIdSpec = QString(QLatin1String(" :%1")).arg(displayId);
     if (dspec.endsWith(displayIdSpec))
         dspec = dspec.left(dspec.size() - displayIdSpec.size());
 
     d_ptr->transformation = filterTransformation(dspec);
 
     QString driver = dspec;
-    int colon = driver.indexOf(':');
+    int colon = driver.indexOf(QLatin1Char(':'));
     if (colon >= 0)
         driver.truncate(colon);
 
     if (!QScreenDriverFactory::keys().contains(driver, Qt::CaseInsensitive))
         if (!dspec.isEmpty())
-            dspec.prepend(":");
+            dspec.prepend(QLatin1String(":"));
 
     const int id = getDisplayId(dspec);
     d_ptr->subscreen = qt_get_screen(id, dspec.toLatin1().constData());

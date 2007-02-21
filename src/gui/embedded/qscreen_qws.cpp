@@ -1119,9 +1119,9 @@ to make a dynamically loadable driver.
 
 Q_GUI_EXPORT QScreen* qt_get_screen(int display_id, const char *spec)
 {
-    QString displaySpec(spec);
+    QString displaySpec = QString::fromAscii(spec);
     QString driver = displaySpec;
-    int colon = displaySpec.indexOf(':');
+    int colon = displaySpec.indexOf(QLatin1Char(':'));
     if (colon >= 0)
         driver.truncate(colon);
     driver = driver.trimmed();
@@ -1140,7 +1140,7 @@ Q_GUI_EXPORT QScreen* qt_get_screen(int display_id, const char *spec)
         qt_screen = QScreenDriverFactory::create(driverName, display_id);
         if (qt_screen) {
             foundDriver = true;
-            if (qt_screen->connect(spec)) {
+            if (qt_screen->connect(displaySpec)) {
                 return qt_screen;
             } else {
                 delete qt_screen;

@@ -154,7 +154,7 @@ QString qws_dataDir()
     static QString result;
     if (!result.isEmpty())
         return result;
-    QByteArray dataDir = QString("/tmp/qtembedded-%1").arg(qws_display_id).toLocal8Bit();
+    QByteArray dataDir = QString(QLatin1String("/tmp/qtembedded-%1")).arg(qws_display_id).toLocal8Bit();
     if (mkdir(dataDir, 0700)) {
         if (errno != EEXIST) {
             qFatal("Cannot create Qtopia Core data directory: %s", dataDir.constData());
@@ -174,14 +174,14 @@ QString qws_dataDir()
         qFatal("Qtopia Core data directory has incorrect permissions: %s", dataDir.constData());
     dataDir += "/";
 
-    result = QString(dataDir);
+    result = QString::fromLocal8Bit(dataDir);
     return result;
 }
 
 // Get the filename of the pipe Qtopia Core uses for server/client comms
 Q_GUI_EXPORT QString qws_qtePipeFilename()
 {
-    return (qws_dataDir() + QString(QTE_PIPE).arg(qws_display_id));
+    return (qws_dataDir() + QString(QLatin1String(QTE_PIPE)).arg(qws_display_id));
 }
 
 static void setMaxWindowRect(const QRect &rect)
@@ -578,7 +578,7 @@ void QWSDisplay::Data::reinit( const QString& newAppName )
     if (shm.attach(connected_event->simpleData.servershmid)) {
         sharedRam = static_cast<uchar *>(shm.address());
         QScreen *s = qt_get_screen(qws_display_id, qws_display_spec.constData());
-        sharedRamSize += s->memoryNeeded(qws_display_spec.constData());
+        sharedRamSize += s->memoryNeeded(QLatin1String(qws_display_spec.constData()));
     } else {
         perror("QWSDisplay::Data::init");
         qFatal("Client can't attach to main ram memory.");
@@ -665,7 +665,7 @@ void QWSDisplay::Data::init()
         if (shm.attach(connected_event->simpleData.servershmid)) {
             sharedRam = static_cast<uchar *>(shm.address());
             QScreen *s = qt_get_screen(qws_display_id, qws_display_spec.constData());
-            sharedRamSize += s->memoryNeeded(qws_display_spec.constData());
+            sharedRamSize += s->memoryNeeded(QLatin1String(qws_display_spec.constData()));
         } else {
             perror("QWSDisplay::Data::init");
             qFatal("Client can't attach to main ram memory.");
@@ -686,7 +686,7 @@ void QWSDisplay::Data::init()
             qFatal("Cannot get display lock");
 
         QScreen *s = qt_get_screen(qws_display_id, qws_display_spec.constData());
-        sharedRamSize += s->memoryNeeded(qws_display_spec.constData());
+        sharedRamSize += s->memoryNeeded(QLatin1String(qws_display_spec.constData()));
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 
@@ -1643,7 +1643,7 @@ static void qt_set_qws_resources()
         QApplicationPrivate::qws_apply_settings();
 
     if (appFont)
-        QApplication::setFont(QFont(appFont));
+        QApplication::setFont(QFont(QString::fromLocal8Bit(appFont)));
 
     if (appBGCol || appBTNCol || appFGCol) {
         (void) QApplication::style();  // trigger creation of application style and system palettes
@@ -1923,7 +1923,7 @@ void qt_init(QApplicationPrivate *priv, int type)
 
     if (argv && *argv) { //apparently, we allow people to pass 0 on the other platforms
         p = strrchr(argv[0], '/');
-        appName = p ? p + 1 : argv[0];
+        appName = QString::fromLocal8Bit(p ? p + 1 : argv[0]);
     }
 
     // Get command line params
@@ -1950,7 +1950,7 @@ void qt_init(QApplicationPrivate *priv, int type)
                 appFGCol = argv[i];
         } else if (arg == "-name") {
             if (++i < argc)
-                appName = argv[i];
+                appName = QString::fromLocal8Bit(argv[i]);
         } else if (arg == "-title") {
             if (++i < argc)
                 mwTitle = argv[i];
@@ -1986,7 +1986,7 @@ void qt_init(QApplicationPrivate *priv, int type)
                 qws_display_spec = argv[i];
         } else if (arg == "-decoration") {
             if (++i < argc)
-                decoration = argv[i];
+                decoration = QString::fromLocal8Bit(argv[i]);
         } else {
             argv[j++] = argv[i];
         }
@@ -1998,8 +1998,8 @@ void qt_init(QApplicationPrivate *priv, int type)
 
     mouseInWidget = new QPointer<QWidget>;
 
-    const QString disp(qws_display_spec);
-    QRegExp regexp(":(\\d+)$");
+    const QString disp = QString::fromLatin1(qws_display_spec);
+    QRegExp regexp(QLatin1String(":(\\d+)$"));
     if (regexp.lastIndexIn(disp) != -1) {
         const QString capture = regexp.cap(1);
         bool ok = false;
@@ -2276,7 +2276,7 @@ void QApplicationPrivate::applyQWSSpecificCommandLineArguments(QWidget *main_wid
     if (qApp->windowIcon().isNull() && main_widget->testAttribute(Qt::WA_SetWindowIcon))
         qApp->setWindowIcon(main_widget->windowIcon());
     if (mwTitle) //  && main_widget->windowTitle().isEmpty())
-        main_widget->setWindowTitle(mwTitle);
+        main_widget->setWindowTitle(QString::fromLocal8Bit(mwTitle));
     if (mwGeometry) { // parse geometry
         int x = 0;
         int y = 0;

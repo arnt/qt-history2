@@ -154,7 +154,7 @@ QVFbScreen::~QVFbScreen()
 
 bool QVFbScreen::connect(const QString &displaySpec)
 {
-    QStringList displayArgs = displaySpec.split(':');
+    QStringList displayArgs = displaySpec.split(QLatin1Char(':'));
     if (displayArgs.contains(QLatin1String("Gray")))
         grayscale = true;
 
@@ -183,9 +183,9 @@ bool QVFbScreen::connect(const QString &displaySpec)
     lstep = d_ptr->hdr->linestep;
 
     // Handle display physical size spec.
-    QRegExp mmWidthRx("mmWidth=?(\\d+)");
+    QRegExp mmWidthRx(QLatin1String("mmWidth=?(\\d+)"));
     int dimIdxW = displayArgs.indexOf(mmWidthRx);
-    QRegExp mmHeightRx("mmHeight=?(\\d+)");
+    QRegExp mmHeightRx(QLatin1String("mmHeight=?(\\d+)"));
     int dimIdxH = displayArgs.indexOf(mmHeightRx);
     if (dimIdxW >= 0) {
         mmWidthRx.exactMatch(displayArgs.at(dimIdxW));
@@ -214,15 +214,19 @@ bool QVFbScreen::connect(const QString &displaySpec)
     memcpy(screenclut, d_ptr->hdr->clut, sizeof(QRgb) * screencols);
 
     if (qApp->type() == QApplication::GuiServer) {
-        const QString mouseDev = QString(QT_VFB_MOUSE_PIPE).arg(displayId);
-        d_ptr->mouse = QMouseDriverFactory::create("QVFbMouse", mouseDev);
+        const QString mouseDev = QString(QLatin1String(QT_VFB_MOUSE_PIPE))
+                                 .arg(displayId);
+        d_ptr->mouse = QMouseDriverFactory::create(QLatin1String("QVFbMouse"),
+                                                   mouseDev);
         qwsServer->setDefaultMouse("None");
         if (d_ptr->mouse)
             d_ptr->mouse->setScreen(this);
 
-        const QString keyboardDev = QString(QT_VFB_KEYBOARD_PIPE).arg(displayId);
+        const QString keyboardDev = QString(QLatin1String(QT_VFB_KEYBOARD_PIPE))
+                                    .arg(displayId);
 #ifndef QT_NO_QWS_KEYBOARD
-        d_ptr->keyboard = QKbdDriverFactory::create("QVFbKbd", keyboardDev);
+        d_ptr->keyboard = QKbdDriverFactory::create(QLatin1String("QVFbKbd"),
+                                                    keyboardDev);
         qwsServer->setDefaultKeyboard("None");
 #endif
 

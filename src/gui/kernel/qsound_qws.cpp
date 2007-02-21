@@ -219,7 +219,7 @@ QAuServerQWS::QAuServerQWS(QObject* parent) :
     QAuServer(parent)
 {
 #ifndef MEDIA_SERVER
-    setObjectName( "qauserverqws" );
+    setObjectName(QLatin1String("qauserverqws"));
 
 #ifdef QT_NO_QWS_SOUNDSERVER
     server = new QWSSoundServer( this ); // ### only suitable for single application
