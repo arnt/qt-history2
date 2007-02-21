@@ -440,8 +440,13 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         pt.x = 0;
         pt.y = 0;
         ClientToScreen(id, &pt);
-        data.crect = QRect(QPoint(pt.x, pt.y),
-                            QPoint(pt.x + cr.right - 1, pt.y + cr.bottom - 1));
+
+        if (data.crect.width() == 0 || data.crect.height() == 0) {
+            data.crect = QRect(pt.x, pt.y, data.crect.width(), data.crect.height());
+        } else {
+            data.crect = QRect(QPoint(pt.x, pt.y),
+                               QPoint(pt.x + cr.right - 1, pt.y + cr.bottom - 1));
+        }
 
         if (data.fstrut_dirty) {
             // be nice to activeqt
@@ -482,6 +487,10 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
     if (maybeTopData() && maybeTopData()->opacity != 255)
         q->setWindowOpacity(maybeTopData()->opacity/255.);
+
+    if (topLevel && (data.crect.width() == 0 || data.crect.height() == 0)) {
+        q->setAttribute(Qt::WA_OutsideWSRange, true);
+    }
 }
 
 
@@ -1020,7 +1029,7 @@ void QWidgetPrivate::hide_sys()
     } else {
         invalidateBuffer(q->rect());
     }
-
+    q->setAttribute(Qt::WA_Mapped, false);
 }
 
 
@@ -1298,11 +1307,8 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         w = qMax(w,extra->minw);
         h = qMax(h,extra->minh);
     }
-    if (q->isWindow()) {
+    if (q->isWindow())
         topData()->normalGeometry = QRect(0, 0, -1, -1);
-        w = qMax(1, w);
-        h = qMax(1, h);
-    }
 
     QSize  oldSize(q->size());
     QPoint oldPos(q->pos());
@@ -1355,22 +1361,40 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 fs.setRight((x + w - 1) + fs.right());
                 fs.setBottom((y + h - 1) + fs.bottom());
             }
-            //If the window is hidden and in maximized state, instead of moving the 
-            // window, set the normal position of the window. 
-            WINDOWPLACEMENT wndpl;
-            GetWindowPlacement(q->internalWinId(), &wndpl);
-            if (wndpl.showCmd == SW_MAXIMIZE && !IsWindowVisible(q->internalWinId())) {
-                RECT normal = {fs.x(), fs.y(), fs.x()+fs.width(), fs.y()+fs.height()};
-                wndpl.rcNormalPosition = normal;
-                wndpl.showCmd = SW_HIDE;
-                SetWindowPlacement(q->internalWinId(), &wndpl);
-            }else 
+            if (w == 0 || h == 0) {
+                q->setAttribute(Qt::WA_OutsideWSRange, true);
+                if (q->isVisible() && q->testAttribute(Qt::WA_Mapped))
+                    hide_sys();
+                data.crect = QRect(x, y, w, h);
+            } else if (q->isVisible() && !q->testAttribute(Qt::WA_Mapped)) {
+                q->setAttribute(Qt::WA_OutsideWSRange, false);
+
+                // put the window in its place and show it
                 MoveWindow(q->internalWinId(), fs.x(), fs.y(), fs.width(), fs.height(), true);
-            if (!q->isVisible())
-                InvalidateRect(q->internalWinId(), 0, FALSE);
-            RECT rect;
-            GetClientRect(q->internalWinId(), &rect);
-            data.crect.setRect(x, y, rect.right - rect.left, rect.bottom - rect.top);
+                RECT rect;
+                GetClientRect(q->internalWinId(), &rect);
+                data.crect.setRect(x, y, rect.right - rect.left, rect.bottom - rect.top);
+
+                show_sys();
+            } else {
+                //If the window is hidden and in maximized state, instead of moving the 
+                // window, set the normal position of the window. 
+                WINDOWPLACEMENT wndpl;
+                GetWindowPlacement(q->internalWinId(), &wndpl);
+                if (wndpl.showCmd == SW_MAXIMIZE && !IsWindowVisible(q->internalWinId())) {
+                    RECT normal = {fs.x(), fs.y(), fs.x()+fs.width(), fs.y()+fs.height()};
+                    wndpl.rcNormalPosition = normal;
+                    wndpl.showCmd = SW_HIDE;
+                    SetWindowPlacement(q->internalWinId(), &wndpl);
+                } else {
+                    MoveWindow(q->internalWinId(), fs.x(), fs.y(), fs.width(), fs.height(), true);
+                }
+                if (!q->isVisible())
+                    InvalidateRect(q->internalWinId(), 0, FALSE);
+                RECT rect;
+                GetClientRect(q->internalWinId(), &rect);
+                data.crect.setRect(x, y, rect.right - rect.left, rect.bottom - rect.top);
+            }
         } else {
             QRect oldGeom(data.crect);
             data.crect.setRect(x, y, w, h);
