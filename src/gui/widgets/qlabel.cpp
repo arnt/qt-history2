@@ -287,8 +287,6 @@ void QLabelPrivate::init()
     If a buddy has been set, the buddy mnemonic key is updated
     from the new text.
 
-    The label resizes itself if auto-resizing is enabled.
-
     Note that QLabel is well-suited to display small rich text
     documents, such as small documents that get their document
     specific settings (font, text color, link color) from the label's
