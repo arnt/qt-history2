@@ -1055,8 +1055,14 @@ void tst_QApplication::focusChanged()
 
     parent1.activateWindow();
     QApplication::setActiveWindow(&parent1); // needs this on twm (focus follows mouse)
-    QVERIFY(spy.count() > 0); // one for deactivation, one for activation on Windows
-    old = qVariantValue<QWidget*>(spy.at(spy.count()-1).at(0));
+    QVERIFY(spy.count() == 1 || spy.count() == 2); // one for deactivation, one for activation on Windows
+    
+    //on windows, the change of focus is made in 2 steps 
+    //(the focusChanged SIGNAL is emitted twice)
+    if (spy.count()==1)
+        old = qVariantValue<QWidget*>(spy.at(spy.count()-1).at(0));
+    else
+        old = qVariantValue<QWidget*>(spy.at(spy.count()-2).at(0));
     now = qVariantValue<QWidget*>(spy.at(spy.count()-1).at(1));
     QVERIFY(now == &le1);
     QVERIFY(now == QApplication::focusWidget());
