@@ -1180,10 +1180,7 @@ bool QItemDelegate::editorEvent(QEvent *event,
         const QWidget *widget = d->widget(option);
         QStyle *style = widget ? widget->style() : QApplication::style();
         const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, widget) + 1;
-        QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignLeft | Qt::AlignVCenter,
-                                              check(option, option.rect, Qt::Checked).size(),
-                                              QRect(option.rect.x() + textMargin, option.rect.y(),
-                                                    option.rect.width(), option.rect.height()));
+        QRect checkRect = check(option, option.rect, Qt::Checked);
         if (!checkRect.contains(static_cast<QMouseEvent*>(event)->pos()))
             return false;
 
