@@ -2347,7 +2347,7 @@ void tst_QAccessibility::listViewTest()
     listView.resize(400,400);
     listView.show();
 #if defined(Q_WS_X11)
-    qt_x11_wait_for_window_manager(w);
+    qt_x11_wait_for_window_manager(&listView);
 #endif
 
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&listView);
@@ -3181,6 +3181,7 @@ public:
 void tst_QAccessibility::tableViewTest()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     QtTestTableModel *model = new QtTestTableModel(8, 4);
     QTableView *w = new QTableView();
     w->setModel(model);
@@ -3222,6 +3223,11 @@ void tst_QAccessibility::tableViewTest()
 
     delete w;
     delete model;
+    }
+    QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
 }
 
 void tst_QAccessibility::calendarWidgetTest()
