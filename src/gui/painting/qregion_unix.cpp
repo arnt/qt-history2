@@ -2767,7 +2767,7 @@ QRect QRegion::boundingRect() const
 }
 
 /*! \internal
-    Returns true if r is guaranteed to be fully contained in this region.
+    Returns true if \a rect is guaranteed to be fully contained in \a region.
     A false return value does not guarantee the opposite.
 */
 bool qt_region_strictContains(const QRegion &region, const QRect &rect)
