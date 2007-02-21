@@ -2916,8 +2916,9 @@ bool QGraphicsItem::sceneEvent(QEvent *event)
         }
 
         QGraphicsItem *handler = this;
-        while (!handler->handlesChildEvents())
+        do {
             handler = handler->parentItem();
+        } while (handler->d_ptr->ancestorFlags & QGraphicsItemPrivate::AncestorHandlesChildEvents);
         if (handler) {
             // Forward the event to the closest parent that handles child
             // events, mapping existing item-local coordinates to its
