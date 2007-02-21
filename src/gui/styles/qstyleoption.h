@@ -483,6 +483,7 @@ public:
     enum StyleOptionVersion { Version = 3 };
 
     QLocale locale;
+    const QWidget *widget;
 
     QStyleOptionViewItemV3();
     QStyleOptionViewItemV3(const QStyleOptionViewItemV3 &other)

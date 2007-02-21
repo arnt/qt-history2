@@ -781,6 +781,7 @@ QStyleOptionViewItemV3 &QStyleOptionViewItemV3::operator = (const QStyleOptionVi
     QStyleOptionViewItemV2::operator=(other);
     const QStyleOptionViewItemV3 *v3 = qstyleoption_cast<const QStyleOptionViewItemV3*>(&other);
     locale = v3 ? v3->locale : QLocale();
+    widget = v3 ? v3->widget : 0;
     return *this;
 }
 
