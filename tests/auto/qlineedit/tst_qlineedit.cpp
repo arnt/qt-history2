@@ -2531,13 +2531,13 @@ void tst_QLineEdit::setAlignment()
 #endif
 
     testWidget->setAlignment(Qt::AlignTop);
-    QVERIFY(testWidget->alignment() != Qt::AlignTop);
+    QVERIFY(testWidget->alignment() == Qt::AlignTop);
 
     testWidget->setAlignment(Qt::AlignBottom);
-    QVERIFY(testWidget->alignment() != Qt::AlignBottom);
+    QVERIFY(testWidget->alignment() == Qt::AlignBottom);
 
     testWidget->setAlignment(Qt::AlignCenter);
-    QVERIFY(testWidget->alignment() != Qt::AlignCenter);
+    QVERIFY(testWidget->alignment() == Qt::AlignCenter);
 }
 
 void tst_QLineEdit::isModified()
