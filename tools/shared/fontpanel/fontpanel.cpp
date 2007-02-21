@@ -24,7 +24,7 @@
 namespace {
     // Add a row consisting of widget and a description label to a grid.
     void addGridRow(const QString &description, QGridLayout *gridLayout, QWidget *w, int &row) {
-        QLabel *label(new QLabel(description));
+        QLabel *label = new QLabel(description);
         label->setBuddy(w);
         gridLayout->addWidget(label, row, 0);
         gridLayout->addWidget(w, row, 1);
@@ -102,7 +102,7 @@ void FontPanel::setSelectedFont(const QFont &f)
 
     updateFamily(family());
 
-    const int pointSizeIndex = m_pointSizeComboBox->findData(QVariant(f.pointSize()));
+    const int pointSizeIndex = closestPointSizeIndex(f.pointSize());
     m_pointSizeComboBox->setCurrentIndex( pointSizeIndex);
 
     const QString styleString = m_fontDatabase.styleString(f);
@@ -214,6 +214,24 @@ void FontPanel::updateFamily(const QString &family)
     updatePointSizes(family, styleString());
 }
 
+int FontPanel::closestPointSizeIndex(int desiredPointSize) const
+{
+    //  try to maintain selection or select closest.
+    int closestIndex = -1;
+    int closestAbsError = 0xFFFF;
+
+    const int pointSizeCount = m_pointSizeComboBox->count();
+    for (int i = 0; i < pointSizeCount; i++) {
+        const int itemPointSize = m_pointSizeComboBox->itemData(i).toInt();
+        const int absError = qAbs(desiredPointSize - itemPointSize);
+        if (absError < closestAbsError) {
+                closestIndex  = i;
+                closestAbsError = absError;
+        }
+    }
+    return closestIndex;
+}
+
 
 void FontPanel::updatePointSizes(const QString &family, const QString &styleString)
 {
@@ -227,20 +245,11 @@ void FontPanel::updatePointSizes(const QString &family, const QString &styleStri
     m_pointSizeComboBox->setCurrentIndex(-1);
 
     //  try to maintain selection or select closest.
-    int closestIndex = -1;
-    int closestAbsError = 0xFFFF;
-
     if (hasSizes) {
         QString n;
-        foreach (int pointSize, pointSizes) {
-            const int index = m_pointSizeComboBox->count();
-            const int absError = qAbs(pointSize - oldPointSize);
-            if (absError < closestAbsError) {
-                closestIndex  = index;
-                closestAbsError = absError;
-            }
+        foreach (int pointSize, pointSizes)
             m_pointSizeComboBox->addItem(n.setNum(pointSize), QVariant(pointSize));
-        }
+        const int closestIndex = closestPointSizeIndex(oldPointSize);
         if (closestIndex != -1)
             m_pointSizeComboBox->setCurrentIndex(closestIndex);
     }

@@ -42,7 +42,7 @@ public:
 
     QFont selectedFont() const;
     void setSelectedFont(const QFont &);
-        
+
     QFontDatabase::WritingSystem writingSystem() const;
     void setWritingSystem(QFontDatabase::WritingSystem ws);
 
@@ -57,12 +57,13 @@ private:
     QString family() const;
     QString styleString() const;
     int pointSize() const;
+    int closestPointSizeIndex(int ps) const;
 
     void updateWritingSystem(QFontDatabase::WritingSystem ws);
     void updateFamily(const QString &family);
     void updatePointSizes(const QString &family, const QString &style);
     void delayedPreviewFontUpdate();
-    
+
     QFontDatabase m_fontDatabase;
     QLineEdit *m_previewLineEdit;
     QComboBox *m_writingSystemComboBox;
