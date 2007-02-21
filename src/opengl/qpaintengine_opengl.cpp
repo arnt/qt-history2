@@ -2056,6 +2056,7 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
         d->has_clipping = false;
         d->crgn = QRegion();
         glDisable(GL_DEPTH_TEST);
+        return;
     }
 
 #ifndef Q_WS_QWS
@@ -3193,7 +3194,7 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
                 path.lineTo(l.x2(), l.y2());
             }
 
-            if (d->has_fast_pen)
+            if (d->has_fast_pen && d->high_quality_antialiasing)
                 d->strokeLines(path);
             else
                 d->strokePath(path, false);
@@ -3270,6 +3271,8 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
 void QOpenGLPaintEnginePrivate::strokeLines(const QPainterPath &path)
 {
+    DEBUG_ONCE_STR("QOpenGLPaintEnginePrivate::strokeLines()");
+
     qreal penWidth = cpen.widthF();
 
     QGLLineMaskGenerator maskGenerator(path, matrix, penWidth == 0 ? 1.0 : penWidth,
