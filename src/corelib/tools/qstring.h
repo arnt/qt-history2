@@ -1034,7 +1034,7 @@ public:
     inline void clear() { m_string = 0; m_position = m_size = 0; }
     QString toString() const;
     inline bool isEmpty() const { return m_size == 0; }
-    inline bool isNull() const { return m_string == 0; }
+    inline bool isNull() const { return m_string == 0 || m_string->isNull(); }
 
     QStringRef appendTo(QString *string) const;
 

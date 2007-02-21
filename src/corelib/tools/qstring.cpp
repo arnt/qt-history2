@@ -7011,7 +7011,7 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 
 
 
-/*!     
+/*!
     \class QStringRef
     \brief The QStringRef class provides a thin wrapper around QString substrings.
     \reentrant
@@ -7050,7 +7050,7 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 */
 
 
-/*! 
+/*!
  \fn QStringRef::QStringRef()
 
  Constructs an empty string reference.
@@ -7121,7 +7121,7 @@ ownership of it, no memory is freed when instances are destroyed.
 */
 
 
-/*! 
+/*!
     \fn bool QStringRef::isEmpty() const
 
     Returns true if the string reference has no characters; otherwise returns
@@ -7132,15 +7132,16 @@ ownership of it, no memory is freed when instances are destroyed.
     \sa size()
 */
 
-/*! 
+/*!
     \fn bool QStringRef::isNull() const
 
-    Returns true if string() returns a null pointer; otherwise returns true.
+    Returns true if string() returns a null pointer or a pointer to a
+    null string; otherwise returns true.
 
     \sa size()
 */
 
-/*! 
+/*!
     \fn const QString *QStringRef::string() const
 
     Returns a pointer to the string referred to by the string reference, or
@@ -7150,7 +7151,7 @@ ownership of it, no memory is freed when instances are destroyed.
 */
 
 
-/*! 
+/*!
     \fn const QChar *QStringRef::unicode() const
 
     Returns a Unicode representation of the string reference. Since
@@ -7288,7 +7289,7 @@ bool operator<(const QStringRef &s1,const QStringRef &s2)
 */
 
 
-/*! 
+/*!
     \fn const QChar QStringRef::at(int position) const
 
     Returns the character at the given index \a position in the
@@ -7298,7 +7299,7 @@ bool operator<(const QStringRef &s1,const QStringRef &s2)
     (i.e., 0 <= \a position < size()).
 */
 
-/*! 
+/*!
     \fn void QStringRef::clear()
 
     Clears the contents of the string reference by making it null and empty.
@@ -7306,14 +7307,14 @@ bool operator<(const QStringRef &s1,const QStringRef &s2)
     \sa isEmpty(), isNull()
 */
 
-/*! 
+/*!
     \fn QStringRef &QStringRef::operator=(const QStringRef &other)
 
     Assigns the \a other string reference to this string reference, and
     returns the result.
 */
 
-/*! 
+/*!
     \fn QStringRef &QStringRef::operator=(const QString *string)
 
     Constructs a string reference to the given \a string and assigns it to
