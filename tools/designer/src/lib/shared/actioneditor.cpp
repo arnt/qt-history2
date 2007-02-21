@@ -27,6 +27,7 @@ TRANSLATOR qdesigner_internal::ActionEditor
 #include <QtDesigner/QDesignerPropertyEditorInterface>
 #include <QtDesigner/QDesignerPropertySheetExtension>
 #include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerMetaDataBaseInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtGui/QMenu>
