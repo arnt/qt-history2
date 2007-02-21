@@ -565,7 +565,7 @@ void QMdiAreaPrivate::rearrange(const Rearranger &rearranger, bool icons)
     }
 
     if (active) {
-        int indexToActive = widgets.indexOf(active);
+        int indexToActive = widgets.indexOf((QWidget *)active);
         if (indexToActive >= 0)
             widgets.move(indexToActive, widgets.size() - 1);
     }
@@ -1178,7 +1178,7 @@ void QMdiArea::resizeEvent(QResizeEvent *resizeEvent)
         if (child->isMaximized()) {
             Qt::WindowStates oldChildState = child->windowState();
             Qt::WindowStates oldWidgetState = child->widget() ?
-                child->widget()->windowState() : Qt::WindowNoState;
+                child->widget()->windowState() : Qt::WindowStates(Qt::WindowNoState);
             child->resize(resizeEvent->size());
             child->overrideWindowState(oldChildState | Qt::WindowMaximized);
             if (child->widget())
