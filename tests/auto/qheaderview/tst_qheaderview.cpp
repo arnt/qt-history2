@@ -433,7 +433,7 @@ void tst_QHeaderView::sectionSize()
     // even with stretchLastSection,  the stretched last section cant become
     // smaller than the minimum section size.
     if (view->length() > view->viewport()->height()) {
-        QCOMPARE(view->sectionSize(3), view->fontMetrics().height()); // minimum
+        QCOMPARE(view->sectionSize(3), view->fontMetrics().height() + view->style()->pixelMetric(QStyle::PM_HeaderMargin)); // minimum
     } else {
         QCOMPARE(view->length(), view->viewport()->height());
         QCOMPARE(view->sectionSize(3), (view->viewport()->height() - view->sectionViewportPosition(3)));
@@ -528,7 +528,13 @@ void tst_QHeaderView::length()
     view->setStretchLastSection(true);
     view->show();
 
-    int length = view->viewport()->height();
+    //minimumSectionSize should be the size of the last section of the widget is not tall enough
+    int length = view->minimumSectionSize();
+    for (int i=0; i < view->count()-1; i++) {
+        length += view->sectionSize(i);
+    }
+
+    length = qMax(length, view->viewport()->height());
     QCOMPARE(length, view->length());
 
     view->setStretchLastSection(false);
