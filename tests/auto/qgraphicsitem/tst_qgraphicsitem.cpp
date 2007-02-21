@@ -127,6 +127,7 @@ private slots:
     void removeFromGroup();
     void handlesChildEvents();
     void handlesChildEvents2();
+    void handlesChildEvents3();
     void ensureVisible();
     void cursor();
     //void textControlGetterSetter();
@@ -2715,21 +2716,18 @@ public:
         : QGraphicsRectItem(rect, parent), counter(0)
     { }
 
-    int numMouseEvents() const
-    { return counter; }
+    int counter;
 
 protected:
+    void focusInEvent(QFocusEvent *event)
+    { ++counter; QGraphicsRectItem::focusInEvent(event); }
     void mousePressEvent(QGraphicsSceneMouseEvent *)
     { ++counter; }
     void mouseMoveEvent(QGraphicsSceneMouseEvent *)
     { ++counter; }
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *)
     { ++counter; }
-
-private:
-    int counter;
 };
-
 void tst_QGraphicsItem::handlesChildEvents()
 {
     ChildEventTester *item2_level2 = new ChildEventTester(QRectF(0, 0, 25, 25));
@@ -2785,7 +2783,7 @@ void tst_QGraphicsItem::handlesChildEvents()
 
     QTest::qWait(1000);
 
-    QCOMPARE(item_level0->numMouseEvents(), 0);
+    QCOMPARE(item_level0->counter, 0);
 
     // Send events to the toplevel item
     QGraphicsSceneMouseEvent pressEvent(QEvent::GraphicsSceneMousePress);
@@ -2800,7 +2798,7 @@ void tst_QGraphicsItem::handlesChildEvents()
     QApplication::sendEvent(&scene, &pressEvent);
     QApplication::sendEvent(&scene, &releaseEvent);
 
-    QCOMPARE(item_level0->numMouseEvents(), 2);
+    QCOMPARE(item_level0->counter, 2);
 
     // Send events to a level1 item
     pressEvent.setScenePos(item1_level1->mapToScene(5, 5));
@@ -2810,8 +2808,8 @@ void tst_QGraphicsItem::handlesChildEvents()
     QApplication::sendEvent(&scene, &pressEvent);
     QApplication::sendEvent(&scene, &releaseEvent);
 
-    QCOMPARE(item_level0->numMouseEvents(), 2);
-    QCOMPARE(item1_level1->numMouseEvents(), 2);
+    QCOMPARE(item_level0->counter, 2);
+    QCOMPARE(item1_level1->counter, 2);
 
     // Send events to a level2 item
     pressEvent.setScenePos(item1_level2->mapToScene(5, 5));
@@ -2821,9 +2819,9 @@ void tst_QGraphicsItem::handlesChildEvents()
     QApplication::sendEvent(&scene, &pressEvent);
     QApplication::sendEvent(&scene, &releaseEvent);
 
-    QCOMPARE(item_level0->numMouseEvents(), 2);
-    QCOMPARE(item1_level1->numMouseEvents(), 2);
-    QCOMPARE(item1_level2->numMouseEvents(), 2);
+    QCOMPARE(item_level0->counter, 2);
+    QCOMPARE(item1_level1->counter, 2);
+    QCOMPARE(item1_level2->counter, 2);
 
     item_level0->setHandlesChildEvents(true);
 
@@ -2835,8 +2833,8 @@ void tst_QGraphicsItem::handlesChildEvents()
     QApplication::sendEvent(&scene, &pressEvent);
     QApplication::sendEvent(&scene, &releaseEvent);
 
-    QCOMPARE(item_level0->numMouseEvents(), 4);
-    QCOMPARE(item1_level1->numMouseEvents(), 2);
+    QCOMPARE(item_level0->counter, 4);
+    QCOMPARE(item1_level1->counter, 2);
 
     // Send events to a level2 item
     pressEvent.setScenePos(item1_level2->mapToScene(5, 5));
@@ -2846,9 +2844,9 @@ void tst_QGraphicsItem::handlesChildEvents()
     QApplication::sendEvent(&scene, &pressEvent);
     QApplication::sendEvent(&scene, &releaseEvent);
 
-    QCOMPARE(item_level0->numMouseEvents(), 6);
-    QCOMPARE(item1_level1->numMouseEvents(), 2);
-    QCOMPARE(item1_level2->numMouseEvents(), 2);
+    QCOMPARE(item_level0->counter, 6);
+    QCOMPARE(item1_level1->counter, 2);
+    QCOMPARE(item1_level2->counter, 2);
 
     item_level0->setHandlesChildEvents(false);
 
@@ -2860,8 +2858,8 @@ void tst_QGraphicsItem::handlesChildEvents()
     QApplication::sendEvent(&scene, &pressEvent);
     QApplication::sendEvent(&scene, &releaseEvent);
 
-    QCOMPARE(item_level0->numMouseEvents(), 6);
-    QCOMPARE(item1_level1->numMouseEvents(), 4);
+    QCOMPARE(item_level0->counter, 6);
+    QCOMPARE(item1_level1->counter, 4);
 
     // Send events to a level2 item
     pressEvent.setScenePos(item1_level2->mapToScene(5, 5));
@@ -2871,9 +2869,9 @@ void tst_QGraphicsItem::handlesChildEvents()
     QApplication::sendEvent(&scene, &pressEvent);
     QApplication::sendEvent(&scene, &releaseEvent);
 
-    QCOMPARE(item_level0->numMouseEvents(), 6);
-    QCOMPARE(item1_level1->numMouseEvents(), 4);
-    QCOMPARE(item1_level2->numMouseEvents(), 4);
+    QCOMPARE(item_level0->counter, 6);
+    QCOMPARE(item1_level1->counter, 4);
+    QCOMPARE(item1_level2->counter, 4);
 }
 
 void tst_QGraphicsItem::handlesChildEvents2()
@@ -2905,7 +2903,46 @@ void tst_QGraphicsItem::handlesChildEvents2()
                       view.viewport()->mapToGlobal(view.mapFromScene(5, 5)), Qt::LeftButton, 0, 0);
     QApplication::sendEvent(view.viewport(), &event);
 
-    QCOMPARE(root->numMouseEvents(), 1);
+    QCOMPARE(root->counter, 1);
+}
+
+void tst_QGraphicsItem::handlesChildEvents3()
+{
+    QGraphicsScene scene;
+    ChildEventTester *group2 = new ChildEventTester(QRectF(), 0);
+    ChildEventTester *group1 = new ChildEventTester(QRectF(), group2);
+    ChildEventTester *leaf = new ChildEventTester(QRectF(), group1);
+    scene.addItem(group2);
+
+    leaf->setFlag(QGraphicsItem::ItemIsFocusable);
+    group1->setFlag(QGraphicsItem::ItemIsFocusable);
+    group1->setHandlesChildEvents(true);
+    group2->setFlag(QGraphicsItem::ItemIsFocusable);
+    group2->setHandlesChildEvents(true);
+
+    leaf->setFocus();
+    QVERIFY(leaf->hasFocus()); // group2 stole the event, but leaf still got focus
+    QVERIFY(!group1->hasFocus());
+    QVERIFY(!group2->hasFocus());
+    QCOMPARE(leaf->counter, 0);
+    QCOMPARE(group1->counter, 0);
+    QCOMPARE(group2->counter, 1);
+
+    group1->setFocus();
+    QVERIFY(group1->hasFocus()); // group2 stole the event, but group1 still got focus
+    QVERIFY(!leaf->hasFocus());
+    QVERIFY(!group2->hasFocus());
+    QCOMPARE(leaf->counter, 0);
+    QCOMPARE(group1->counter, 0);
+    QCOMPARE(group2->counter, 2);
+
+    group2->setFocus();
+    QVERIFY(group2->hasFocus()); // group2 stole the event, and now group2 also has focus
+    QVERIFY(!leaf->hasFocus());
+    QVERIFY(!group1->hasFocus());
+    QCOMPARE(leaf->counter, 0);
+    QCOMPARE(group1->counter, 0);
+    QCOMPARE(group2->counter, 3);
 }
 
 class CustomItem : public QGraphicsItem
