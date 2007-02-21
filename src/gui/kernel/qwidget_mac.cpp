@@ -396,16 +396,10 @@ void qt_mac_update_metal_style(QWidget *w)
         return;
 
     if (w->isWindow()) {
-        if(w->testAttribute(Qt::WA_MacBrushedMetal))
+        if (w->testAttribute(Qt::WA_MacBrushedMetal))
             ChangeWindowAttributes(qt_mac_window_for(w), kWindowMetalAttribute, 0);
         else
             ChangeWindowAttributes(qt_mac_window_for(w), 0, kWindowMetalAttribute);
-
-        // We need to tell the windows, so they can call setLayoutItemMargins() anew
-        // (metal margins are smaller than standard margins). We don't really need
-        // to propagate or to do it for non-windows.
-        QEvent event(QEvent::StyleChange);
-        QApplication::sendEvent(w, &event);
     }
 }
 
