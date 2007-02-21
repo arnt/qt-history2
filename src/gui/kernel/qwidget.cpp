@@ -5229,7 +5229,7 @@ void QWidgetPrivate::hide_helper()
         }
     }
 
-#ifndef Q_WS_MAC
+#ifdef Q_WIDGET_USE_DIRTYLIST
     QWidgetBackingStore *bs = maybeBackingStore();
     if (bs)
         bs->removeDirtyWidget(q);
@@ -7307,7 +7307,7 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
 
     d->setParent_sys(parent, f);
 
-#ifndef Q_WS_MAC
+#ifdef Q_WIDGET_USE_DIRTYLIST
     if (newParent) {
         QWidgetBackingStore *oldBs = oldtlw->d_func()->maybeBackingStore();
         if (oldBs)

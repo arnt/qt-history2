@@ -48,7 +48,9 @@ public:
 #ifdef Q_WS_WIN
     static void blitToScreen(const QRegion &rgn, QWidget *w);
 #endif
+#ifdef Q_WIDGET_USE_DIRTYLIST
     void removeDirtyWidget(QWidget *w);
+#endif
 
 private:
     QWidget *tlw;
