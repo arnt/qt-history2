@@ -1,3 +1,27 @@
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+General Improvements
+--------------------
+
+- Configuration/Compilation
+    * Fixed OpenBSD and NetBSD build issues.
+
+Third party components
+----------------------
+
+- Updated Qt's SQLite version to 3.3.13.
+
+- Updated Qt's FreeType version to 2.3.0.
+
+- Updated Qt's libpng version to 1.2.16.
+
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
  - QPrinter
         Added QPrinter::supportedPaperSources()
 
