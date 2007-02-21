@@ -904,20 +904,20 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
     sig.append(member, len);
     sig.append('(');
 
-    enum { ParamCount = 11 };
+    enum { MaximumParamCount = 11 };
     const char *typeNames[] = {ret.name(), val0.name(), val1.name(), val2.name(), val3.name(),
                                val4.name(), val5.name(), val6.name(), val7.name(), val8.name(),
                                val9.name()};
 
-    int i;
-    for (i = 1; i < ParamCount; ++i) {
-        len = qstrlen(typeNames[i]);
+    int paramCount;
+    for (paramCount = 1; paramCount < MaximumParamCount; ++paramCount) {
+        len = qstrlen(typeNames[paramCount]);
         if (len <= 0)
             break;
-        sig.append(typeNames[i], len);
+        sig.append(typeNames[paramCount], len);
         sig.append(',');
     }
-    if (i == 1)
+    if (paramCount == 1)
         sig.append(')'); // no parameters
     else
         sig[sig.size() - 1] = ')';
@@ -970,11 +970,11 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
             return false;
         }
         int nargs = 1; // include return type
-        void **args = (void **) qMalloc(ParamCount * sizeof(void *));
-        int *types = (int *) qMalloc(ParamCount * sizeof(int));
+        void **args = (void **) qMalloc(paramCount * sizeof(void *));
+        int *types = (int *) qMalloc(paramCount * sizeof(int));
         types[0] = 0; // return type
         args[0] = 0;
-        for (i = 1; i < ParamCount; ++i) {
+        for (int i = 1; i < paramCount; ++i) {
             types[i] = QMetaType::type(typeNames[i]);
             if (types[i]) {
                 args[i] = QMetaType::construct(types[i], param[i]);
