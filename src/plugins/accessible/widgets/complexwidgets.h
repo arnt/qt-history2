@@ -129,6 +129,7 @@ public:
     Role role(int child) const;
     State state(int child) const;
     QRect rect(int child) const;
+    int childAt(int x, int y) const;
     int childCount() const;
     QString text(Text t, int child) const;
     void setText(Text t, int child, const QString &text);

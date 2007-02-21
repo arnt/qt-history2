@@ -153,6 +153,7 @@ private slots:
     void rubberBandTest();
     void abstractScrollAreaTest();
     void scrollAreaTest();
+    void tableWidgetTest();
     void tableViewTest();
 
 private:
@@ -3055,7 +3056,7 @@ void tst_QAccessibility::scrollAreaTest()
 #endif
 }
 
-void tst_QAccessibility::tableViewTest()
+void tst_QAccessibility::tableWidgetTest()
 {
 #ifdef QTEST_ACCESSIBILITY
     QTableWidget *w = new QTableWidget(8,4);
@@ -3094,9 +3095,137 @@ void tst_QAccessibility::tableViewTest()
     QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
-
 #endif
 
 }
+
+class QtTestTableModel: public QAbstractTableModel
+{
+    Q_OBJECT
+
+signals:
+    void invalidIndexEncountered() const;
+
+public:
+    QtTestTableModel(int rows = 0, int columns = 0, QObject *parent = 0)
+        : QAbstractTableModel(parent),
+          row_count(rows),
+          column_count(columns) {}
+
+    int rowCount(const QModelIndex& = QModelIndex()) const { return row_count; }
+    int columnCount(const QModelIndex& = QModelIndex()) const { return column_count; }
+
+    QVariant data(const QModelIndex &idx, int role) const
+    {
+        if (!idx.isValid() || idx.row() >= row_count || idx.column() >= column_count) {
+            qWarning() << "Invalid modelIndex [%d,%d,%p]" << idx;
+            emit invalidIndexEncountered();
+            return QVariant();
+        }
+
+        if (role == Qt::DisplayRole || role == Qt::EditRole)
+            return QString("[%1,%2,%3]").arg(idx.row()).arg(idx.column()).arg(0);
+
+        return QVariant();
+    }
+
+    void removeLastRow()
+    {
+        beginRemoveRows(QModelIndex(), row_count - 1, row_count - 1);
+        --row_count;
+        endRemoveRows();
+    }
+
+    void removeAllRows()
+    {
+        beginRemoveRows(QModelIndex(), 0, row_count - 1);
+        row_count = 0;
+        endRemoveRows();
+    }
+
+    void removeLastColumn()
+    {
+        beginRemoveColumns(QModelIndex(), column_count - 1, column_count - 1);
+        --column_count;
+        endRemoveColumns();
+    }
+
+    void removeAllColumns()
+    {
+        beginRemoveColumns(QModelIndex(), 0, column_count - 1);
+        column_count = 0;
+        endRemoveColumns();
+    }
+
+    void reset()
+    {
+        QAbstractTableModel::reset();
+    }
+
+    int row_count;
+    int column_count;
+};
+
+class QtTestDelegate : public QItemDelegate
+{
+public:
+    QtTestDelegate(QWidget *parent = 0) : QItemDelegate(parent) {}
+
+    virtual QSize sizeHint(const QStyleOptionViewItem &/*option*/, const QModelIndex &/*index*/) const
+    {
+        return QSize(100,50);
+    }
+};
+
+void tst_QAccessibility::tableViewTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QtTestTableModel *model = new QtTestTableModel(8, 4);
+    QTableView *w = new QTableView();
+    w->setModel(model);
+    w->setItemDelegate(new QtTestDelegate(w));
+    w->resize(400,900);
+    w->resizeColumnsToContents();
+    w->resizeRowsToContents();
+    w->show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(w);
+#endif
+    QAccessibleInterface *client = QAccessible::queryAccessibleInterface(w);
+    for (int y = 0; y < 8; ++y) {
+        QCOMPARE(client->role(0), QAccessible::Client);
+        QRect globalRect = client->rect(0);
+        QVERIFY(globalRect.isValid());
+        QPoint p = globalRect.topLeft() + QPoint(40,40);
+        p.ry() += 50 * y;
+        int index = client->childAt(p.x(), p.y());
+        QCOMPARE(index, 1);
+        QCOMPARE(client->role(index), QAccessible::Table);
+        QAccessibleInterface *table;
+        client->navigate(QAccessible::Child, 1, &table);
+        QVERIFY(table);
+        index = table->childAt(p.x(), p.y());
+        QCOMPARE(index, y + 1);
+        QCOMPARE(table->role(index), QAccessible::Row);
+        QAccessibleInterface *row;
+        table->navigate(QAccessible::Child, index, &row);
+        QVERIFY(row);
+        index = row->childAt(p.x(), p.y());
+        QVERIFY(index > 0);
+        QCOMPARE(row->role(index), QAccessible::Cell);
+        QCOMPARE(row->text(QAccessible::Value, index), QString::fromAscii("[%1,0,0]").arg(y));
+        delete table;
+        delete row;
+    }
+    delete client;
+
+    delete w;
+    delete model;
+    QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
 QTEST_MAIN(tst_QAccessibility)
 #include "tst_qaccessibility.moc"

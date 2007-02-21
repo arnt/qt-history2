@@ -464,6 +464,17 @@ QRect QAccessibleItemView::rect(int child) const
     }
 }
 
+int QAccessibleItemView::childAt(int x, int y) const
+{
+    if (atViewport) {
+        QPoint localPos = itemView()->viewport()->mapFromGlobal(QPoint(x, y));
+        QModelIndex idx = itemView()->indexAt(localPos);
+        return idx.row() + 1;
+    } else {
+        return QAccessibleAbstractScrollArea::childAt(x, y);
+    }
+}
+
 QAccessible::Role QAccessibleItemView::role(int child) const
 {
     if ((!atViewport && child) || (atViewport && child == 0)) {
@@ -507,6 +518,7 @@ int QAccessibleItemView::navigate(RelationFlag relation, int index,
             *iface = new QAccessibleItemView(itemView());
             return 0;
         } else {
+            //###JAS hidden rows..
             QModelIndex idx = childIndex(index);
             if (!idx.isValid()) {
                 *iface = 0;
