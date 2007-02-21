@@ -354,7 +354,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     scrollBarContainers[Qt::Horizontal]->setVisible(needh);
     scrollBarContainers[Qt::Vertical]->setVisible(needv);
 
-    if (QApplication::isRightToLeft())
+    if (q->isRightToLeft())
         viewportRect.adjust(right, top, -left, -bottom);
     else
         viewportRect.adjust(left, top, -right, -bottom);

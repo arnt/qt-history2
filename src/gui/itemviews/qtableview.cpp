@@ -1244,14 +1244,17 @@ void QTableView::updateGeometries()
         height = qMax(d->horizontalHeader->minimumHeight(), d->horizontalHeader->sizeHint().height());
         height = qMin(height, d->horizontalHeader->maximumHeight());
     }
-    
-    setViewportMargins(width, height, 0, 0);
+    bool reverse = isRightToLeft();
+     if (reverse)
+         setViewportMargins(0, height, width, 0);
+     else
+         setViewportMargins(width, height, 0, 0);
 
     // update headers
 
     QRect vg = d->viewport->geometry();
 
-    int verticalLeft = isRightToLeft() ? vg.right() + 1 : (vg.left() - width);
+    int verticalLeft = reverse ? vg.right() + 1 : (vg.left() - width);
     d->verticalHeader->setGeometry(verticalLeft, vg.top(), width, vg.height());
     if (d->verticalHeader->isHidden())
         QMetaObject::invokeMethod(d->verticalHeader, "updateGeometries");
