@@ -345,10 +345,8 @@ void QTableViewPrivate::drawCell(QPainter *painter, const QStyleOptionViewItemV3
             opt.state |= QStyle::State_HasFocus;
     }
 
-    QBrush fill = (opt.features & QStyleOptionViewItemV2::Alternate)
-                  ? opt.palette.brush(QPalette::AlternateBase)
-                  : opt.palette.brush(QPalette::Base);
-    painter->fillRect(opt.rect, fill);
+    if (opt.features & QStyleOptionViewItemV2::Alternate)
+        painter->fillRect(opt.rect, opt.palette.brush(QPalette::AlternateBase));
 
     q->itemDelegate(index)->paint(painter, opt, index);
 }
@@ -665,15 +663,22 @@ void QTableView::paintEvent(QPaintEvent *event)
     QPainter painter(d->viewport);
 
     // if there's nothing to do, clear the area and return
-    if (horizontalHeader->count() == 0 || verticalHeader->count() == 0 || !d->itemDelegate) {
-        painter.fillRect(event->rect(), option.palette.brush(QPalette::Base));
+    if (horizontalHeader->count() == 0 || verticalHeader->count() == 0 || !d->itemDelegate)
         return;
-    }
+
+    int x = horizontalHeader->length() - horizontalHeader->offset() - 1;
+    int y = verticalHeader->length() - verticalHeader->offset() - 1;
 
     QVector<QRect> rects = event->region().rects();
     for (int i = 0; i < rects.size(); ++i) {
         QRect dirtyArea = rects.at(i);
         dirtyArea.translate(offset);
+        dirtyArea.setBottom(qMin(dirtyArea.bottom(), y));
+        if (rightToLeft) {
+            dirtyArea.setLeft(qMax(dirtyArea.left(), d->viewport->width() - x));
+        } else {
+            dirtyArea.setRight(qMin(dirtyArea.right(), x));
+        }
 
         if (d->hasSpans())
             d->drawAndClipSpans(dirtyArea, &painter, option);
@@ -776,28 +781,6 @@ void QTableView::paintEvent(QPaintEvent *event)
                 painter.drawLine(0, dirtyArea.top(), 0, dirtyArea.bottom());
 
             painter.setPen(old);
-        }
-
-        option.palette.setCurrentColorGroup(state & QStyle::State_Enabled
-                                            ? QPalette::Normal : QPalette::Disabled);
-
-        // Fill white space under and to the right of the viewport
-        uint viewportWidth = d->viewport->width();
-        uint viewportHeight = d->viewport->height();
-        uint x = horizontalHeader->length() - horizontalHeader->offset();
-        uint y = verticalHeader->length() - verticalHeader->offset();
-        QRect bottomEmptyArea(0, y, viewportWidth, viewportHeight - y);
-        if (y < viewportHeight && dirtyArea.intersects(bottomEmptyArea))
-            painter.fillRect(bottomEmptyArea, option.palette.brush(QPalette::Base));
-
-        if (rightToLeft) {
-            QRect rightEmptyArea(0, 0, viewportWidth - x, viewportHeight);
-            if ((viewportWidth - x) > 0 && dirtyArea.intersects(rightEmptyArea))
-                painter.fillRect(rightEmptyArea, option.palette.brush(QPalette::Base));
-        } else {
-            QRect leftEmptyArea(x, 0, viewportWidth - x, viewportHeight);
-            if (x < viewportWidth && dirtyArea.intersects(leftEmptyArea))
-                painter.fillRect(leftEmptyArea, option.palette.brush(QPalette::Base));
         }
     }
 
@@ -1841,7 +1824,7 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
                 --verticalIndex;
             }
         }
-        
+
         if (hint == PositionAtBottom || hint == PositionAtCenter || hint == PositionAtTop) {
             int hiddenSections = 0;
             if (d->verticalHeader->sectionsHidden()) {
