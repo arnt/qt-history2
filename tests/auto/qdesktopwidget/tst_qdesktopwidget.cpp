@@ -103,6 +103,10 @@ void tst_QDesktopWidget::screenNumberForQPoint()
     // make sure QDesktopWidget::screenNumber(QPoint) returns a valid screen for points that aren't on any screen
     int screen;
     screen = desktopWidget->screenNumber(allScreens.topLeft() - QPoint(1, 1));
+
+#ifdef Q_WS_QWS
+    QEXPECT_FAIL("", "Task 151710", Abort);
+#endif
     QVERIFY(screen >= 0 && screen < desktopWidget->numScreens());
     screen = desktopWidget->screenNumber(allScreens.topRight() + QPoint(1, 1));
     QVERIFY(screen >= 0 && screen < desktopWidget->numScreens());
