@@ -116,7 +116,7 @@ QWidgetPrivate::~QWidgetPrivate()
 
         QWidgetBackingStore *bs = maybeBackingStore();
         if (bs)
-            bs->dirtyWidgets.remove(q);
+            bs->removeDirtyWidget(q);
     }
 #endif
 
