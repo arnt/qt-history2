@@ -104,6 +104,42 @@ static void qt_add_texcoords_to_array(qreal x1, qreal y1, qreal x2, qreal y2, fl
     array[7] = y2;
 }
 
+struct QGLTrapezoid
+{
+    QGLTrapezoid()
+    {}
+
+    QGLTrapezoid(qreal top_, qreal bottom_, qreal topLeftX_, qreal topRightX_, qreal bottomLeftX_, qreal bottomRightX_)
+        : top(top_),
+          bottom(bottom_),
+          topLeftX(topLeftX_),
+          topRightX(topRightX_),
+          bottomLeftX(bottomLeftX_),
+          bottomRightX(bottomRightX_)
+    {}
+
+    const QGLTrapezoid translated(const QPointF &delta) const;
+
+    qreal top;
+    qreal bottom;
+    qreal topLeftX;
+    qreal topRightX;
+    qreal bottomLeftX;
+    qreal bottomRightX;
+};
+
+const QGLTrapezoid QGLTrapezoid::translated(const QPointF &delta) const
+{
+    QGLTrapezoid trap(*this);
+    trap.top += delta.y();
+    trap.bottom += delta.y();
+    trap.topLeftX += delta.x();
+    trap.topRightX += delta.x();
+    trap.bottomLeftX += delta.x();
+    trap.bottomRightX += delta.x();
+    return trap;
+}
+
 class QGLDrawable {
 public:
     QGLDrawable() : widget(0), buffer(0), fbo(0) {}
@@ -252,11 +288,12 @@ public:
     };
 
     struct CacheInfo {
-        inline CacheInfo(const QPainterPath &p, const QTransform &m) :
-            path(p), matrix(m), age(0) {}
+        inline CacheInfo(const QPainterPath &p, const QTransform &m, qreal w = -1) :
+            path(p), matrix(m), stroke_width(w), age(0) {}
 
         QPainterPath path;
         QTransform matrix;
+        qreal stroke_width;
 
         CacheLocation loc;
 
@@ -281,7 +318,7 @@ public:
     void clearCache();
 
 private:
-    quint64 hash(const QPainterPath &p, const QTransform &m);
+    quint64 hash(const QPainterPath &p, const QTransform &m, qreal w);
 
     void createMask(quint64 key, CacheInfo &info, QGLMaskGenerator &maskGenerator);
 
@@ -632,6 +669,7 @@ public:
     void drawFastRect(const QRectF &rect);
     void strokePath(const QPainterPath &path, bool use_cache);
     void strokePathFastPen(const QPainterPath &path);
+    void strokeLines(const QPainterPath &path);
 
     void cleanupGLContextRefs(const QGLContext *context) {
         if (context == shader_ctx)
@@ -1430,98 +1468,82 @@ class QOpenGLTessellator : public QTessellator
 public:
     QOpenGLTessellator() {}
     ~QOpenGLTessellator() { }
-    inline void addTrapHelper(const Trapezoid &trap,
-                              qreal &topLeftX,
-                              qreal &topRightX,
-                              qreal &bottomLeftX,
-                              qreal &bottomRightX,
-                              qreal &top,
-                              qreal &bottom) {
-
-        top = Q27Dot5ToDouble(trap.top);
-        bottom = Q27Dot5ToDouble(trap.bottom);
-
-        Q27Dot5 y = trap.topLeft->y - trap.bottomLeft->y;
-
-        qreal topLeftY = Q27Dot5ToDouble(trap.topLeft->y);
-
-        qreal tx = Q27Dot5ToDouble(trap.topLeft->x);
-        qreal m = (-tx + Q27Dot5ToDouble(trap.bottomLeft->x)) / Q27Dot5ToDouble(y);
-        topLeftX = tx + m * (topLeftY - top);
-        bottomLeftX = tx + m * (topLeftY - bottom);
-
-//     qDebug() << "trap: top=" << Q27Dot5ToDouble(trap.top)
-//              << "bottom=" << Q27Dot5ToDouble(trap.bottom);
-//     qDebug() << "      topLeft=" << Q27Dot5ToDouble(trap.topLeft->x) << Q27Dot5ToDouble(trap.topLeft->y);
-//     qDebug() << "      bottomLeft=" << Q27Dot5ToDouble(trap.bottomLeft->x) << Q27Dot5ToDouble(trap.bottomLeft->y);
-
-//     qDebug() << " -> m=" << m << "tx=" << tx;
-//     qDebug() << " -> topLeftX" << topLeftX << "bottomLeftX" << bottomLeftX;
-
-        y = trap.topRight->y - trap.bottomRight->y;
-
-        qreal topRightY = Q27Dot5ToDouble(trap.topRight->y);
-
-        tx = Q27Dot5ToDouble(trap.topRight->x);
-        m = (-tx + Q27Dot5ToDouble(trap.bottomRight->x)) / Q27Dot5ToDouble(y);
-        topRightX = tx + m * (topRightY - Q27Dot5ToDouble(trap.top));
-        bottomRightX = tx + m * (topRightY - Q27Dot5ToDouble(trap.bottom));
-    }
+    QGLTrapezoid toGLTrapezoid(const Trapezoid &trap);
 };
+
+QGLTrapezoid QOpenGLTessellator::toGLTrapezoid(const Trapezoid &trap)
+{
+    QGLTrapezoid t;
+
+    t.top = Q27Dot5ToDouble(trap.top);
+    t.bottom = Q27Dot5ToDouble(trap.bottom);
+
+    Q27Dot5 y = trap.topLeft->y - trap.bottomLeft->y;
+
+    qreal topLeftY = Q27Dot5ToDouble(trap.topLeft->y);
+
+    qreal tx = Q27Dot5ToDouble(trap.topLeft->x);
+    qreal m = (-tx + Q27Dot5ToDouble(trap.bottomLeft->x)) / Q27Dot5ToDouble(y);
+    t.topLeftX = tx + m * (topLeftY - t.top);
+    t.bottomLeftX = tx + m * (topLeftY - t.bottom);
+
+    y = trap.topRight->y - trap.bottomRight->y;
+
+    qreal topRightY = Q27Dot5ToDouble(trap.topRight->y);
+
+    tx = Q27Dot5ToDouble(trap.topRight->x);
+    m = (-tx + Q27Dot5ToDouble(trap.bottomRight->x)) / Q27Dot5ToDouble(y);
+
+    t.topRightX = tx + m * (topRightY - Q27Dot5ToDouble(trap.top));
+    t.bottomRightX = tx + m * (topRightY - Q27Dot5ToDouble(trap.bottom));
+
+    return t;
+}
 
 class QOpenGLImmediateModeTessellator : public QOpenGLTessellator
 {
 public:
-    QOpenGLImmediateModeTessellator(qreal offscrHeight, QGLContext *cx) :
-        offscreenHeight(offscrHeight), ctx(cx) {}
-    ~QOpenGLImmediateModeTessellator() {}
     void addTrap(const Trapezoid &trap);
     void tessellate(const QPointF *points, int nPoints, bool winding) {
+        trapezoids.reserve(trapezoids.size() + nPoints);
         setWinding(winding);
         QTessellator::tessellate(points, nPoints);
     }
-    void done() {}
 
-    qreal offscreenHeight;
-    QGLContext *ctx;
+    QVector<QGLTrapezoid> trapezoids;
 };
 
 void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
 {
-    qreal topLeftX;
-    qreal topRightX;
-    qreal bottomLeftX;
-    qreal bottomRightX;
-    qreal top;
-    qreal bottom;
+    trapezoids.append(toGLTrapezoid(trap));
+}
 
-    addTrapHelper(trap, topLeftX, topRightX, bottomLeftX, bottomRightX,
-                  top, bottom);
+static void drawTrapezoid(const QGLTrapezoid &trap, const qreal offscreenHeight, QGLContext *ctx)
+{
+    qreal minX = qMin(trap.topLeftX, trap.bottomLeftX);
+    qreal maxX = qMax(trap.topRightX, trap.bottomRightX);
 
-    qreal minX = qMin(topLeftX, bottomLeftX);
-    qreal maxX = qMax(topRightX, bottomRightX);
-
-    if (qFuzzyCompare(top, bottom) || qFuzzyCompare(minX, maxX) ||
-        qFuzzyCompare(topLeftX, topRightX) && qFuzzyCompare(bottomLeftX, bottomRightX))
+    if (qFuzzyCompare(trap.top, trap.bottom) || qFuzzyCompare(minX, maxX) ||
+        qFuzzyCompare(trap.topLeftX, trap.topRightX) && qFuzzyCompare(trap.bottomLeftX, trap.bottomRightX))
         return;
 
     const qreal xpadding = 1.0;
     const qreal ypadding = 1.0;
 
-    qreal topDist = offscreenHeight - top;
-    qreal bottomDist = offscreenHeight - bottom;
+    qreal topDist = offscreenHeight - trap.top;
+    qreal bottomDist = offscreenHeight - trap.bottom;
 
     qreal reciprocal = bottomDist / (bottomDist - topDist);
 
-    qreal leftB = bottomLeftX + (topLeftX - bottomLeftX) * reciprocal;
-    qreal rightB = bottomRightX + (topRightX - bottomRightX) * reciprocal;
+    qreal leftB = trap.bottomLeftX + (trap.topLeftX - trap.bottomLeftX) * reciprocal;
+    qreal rightB = trap.bottomRightX + (trap.topRightX - trap.bottomRightX) * reciprocal;
 
     const bool topZero = qFuzzyCompare(topDist, 0);
 
     reciprocal = topZero ? 1.0 / bottomDist : 1.0 / topDist;
 
-    qreal leftA = topZero ? (bottomLeftX - leftB) * reciprocal : (topLeftX - leftB) * reciprocal;
-    qreal rightA = topZero ? (bottomRightX - rightB) * reciprocal : (topRightX - rightB) * reciprocal;
+    qreal leftA = topZero ? (trap.bottomLeftX - leftB) * reciprocal : (trap.topLeftX - leftB) * reciprocal;
+    qreal rightA = topZero ? (trap.bottomRightX - rightB) * reciprocal : (trap.topRightX - rightB) * reciprocal;
 
     qreal invLeftA = qFuzzyCompare(leftA, qreal(0.0)) ? 0.0 : 1.0 / leftA;
     qreal invRightA = qFuzzyCompare(rightA, qreal(0.0)) ? 0.0 : 1.0 / rightA;
@@ -1530,8 +1552,8 @@ void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
     glTexCoord4f(topDist, bottomDist, invLeftA, -invRightA);
     glMultiTexCoord4f(GL_TEXTURE1, leftA, leftB, rightA, rightB);
 
-    qreal topY = top - ypadding;
-    qreal bottomY = bottom + ypadding;
+    qreal topY = trap.top - ypadding;
+    qreal bottomY = trap.bottom + ypadding;
 
     qreal bounds_bottomLeftX = leftA * (offscreenHeight - bottomY) + leftB;
     qreal bounds_bottomRightX = rightA * (offscreenHeight - bottomY) + rightB;
@@ -1568,13 +1590,6 @@ public:
         setWinding(winding);
         QTessellator::tessellate(points, nPoints);
     }
-    void done() {
-        if (allocated > 512) {
-            free(vertices);
-            vertices = 0;
-            allocated = 0;
-        }
-    }
 };
 
 void QOpenGLTrapezoidToArrayTessellator::addTrap(const Trapezoid &trap)
@@ -1588,39 +1603,31 @@ void QOpenGLTrapezoidToArrayTessellator::addTrap(const Trapezoid &trap)
         vertices = (float *)realloc(vertices, allocated * sizeof(float));
     }
 
-    qreal topLeftX;
-    qreal topRightX;
-    qreal bottomLeftX;
-    qreal bottomRightX;
-    qreal top;
-    qreal bottom;
-
-    addTrapHelper(trap, topLeftX, topRightX, bottomLeftX, bottomRightX,
-                  top, bottom);
+    QGLTrapezoid t = toGLTrapezoid(trap);
 
 #ifndef Q_WS_QWS
-    vertices[size++] = topLeftX;
-    vertices[size++] = top;
-    vertices[size++] = topRightX;
-    vertices[size++] = top;
-    vertices[size++] = bottomRightX;
-    vertices[size++] = bottom;
-    vertices[size++] = bottomLeftX;
-    vertices[size++] = bottom;
+    vertices[size++] = t.topLeftX;
+    vertices[size++] = t.top;
+    vertices[size++] = t.topRightX;
+    vertices[size++] = t.top;
+    vertices[size++] = t.bottomRightX;
+    vertices[size++] = t.bottom;
+    vertices[size++] = t.bottomLeftX;
+    vertices[size++] = t.bottom;
 #else
-    vertices[size++] = topLeftX;
-    vertices[size++] = top;
-    vertices[size++] = topRightX;
-    vertices[size++] = top;
-    vertices[size++] = bottomRightX;
-    vertices[size++] = bottom;
+    vertices[size++] = t.topLeftX;
+    vertices[size++] = t.top;
+    vertices[size++] = t.topRightX;
+    vertices[size++] = t.top;
+    vertices[size++] = t.bottomRightX;
+    vertices[size++] = t.bottom;
 
-    vertices[size++] = bottomLeftX;
-    vertices[size++] = bottom;
-    vertices[size++] = topLeftX;
-    vertices[size++] = top;
-    vertices[size++] = bottomRightX;
-    vertices[size++] = bottom;
+    vertices[size++] = t.bottomLeftX;
+    vertices[size++] = t.bottom;
+    vertices[size++] = t.topLeftX;
+    vertices[size++] = t.top;
+    vertices[size++] = t.bottomRightX;
+    vertices[size++] = t.bottom;
 #endif
 }
 
@@ -2004,6 +2011,8 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
     if (!useDepthBuffer)
         return;
 
+    d->flushDrawQueue();
+
     if (op == Qt::NoClip) {
         d->has_clipping = false;
         d->crgn = QRegion();
@@ -2011,9 +2020,23 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
         return;
     }
 
-    QRegion region = clipRegion * d->matrix;
+    bool isScreenClip = false;
+    QVector<QRect> untransformedRects = clipRegion.rects();
+
+    if (untransformedRects.size() == 1) {
+        QPainterPath path;
+        path.addRect(untransformedRects[0]);
+        path = d->matrix.map(path);
+
+        if (path.contains(QRectF(QPointF(), d->drawable.size())))
+            isScreenClip = true;
+    }
+
+    QRegion region = isScreenClip ? QRegion() : clipRegion * d->matrix;
     switch (op) {
     case Qt::IntersectClip:
+        if (isScreenClip)
+            return;
         if (d->has_clipping) {
             d->crgn &= region;
             break;
@@ -2029,7 +2052,11 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
         break;
     }
 
-    d->flushDrawQueue();
+    if (isScreenClip) {
+        d->has_clipping = false;
+        d->crgn = QRegion();
+        glDisable(GL_DEPTH_TEST);
+    }
 
 #ifndef Q_WS_QWS
     glClearDepth(0x0);
@@ -2217,9 +2244,10 @@ void QOpenGLPaintEngine::updateCompositionMode(QPainter::CompositionMode composi
 class QGLMaskGenerator
 {
 public:
-    QGLMaskGenerator(const QPainterPath &path, const QTransform &matrix)
+    QGLMaskGenerator(const QPainterPath &path, const QTransform &matrix, qreal stroke_width = -1)
         : p(path),
-          m(matrix)
+          m(matrix),
+          w(stroke_width)
     {
     }
 
@@ -2228,12 +2256,14 @@ public:
 
     QPainterPath path() const { return p; }
     QTransform matrix() const { return m; }
+    qreal strokeWidth() const { return w; }
 
     virtual ~QGLMaskGenerator() {}
 
 private:
     QPainterPath p;
     QTransform m;
+    qreal w;
 };
 
 void QGLMaskTextureCache::setOffscreenSize(const QSize &sz)
@@ -2296,16 +2326,18 @@ QGLMaskTextureCache::CacheLocation QGLMaskTextureCache::getMask(QGLMaskGenerator
 #ifndef DISABLE_MASK_CACHE
     engine = e;
 
-    quint64 key = hash(maskGenerator.path(), maskGenerator.matrix());
+    quint64 key = hash(maskGenerator.path(), maskGenerator.matrix(), maskGenerator.strokeWidth());
 
     if (key == 0)
         key = 1;
+
+    CacheInfo info(maskGenerator.path(), maskGenerator.matrix(), maskGenerator.strokeWidth());
 
     QGLTextureCacheHash::iterator it = cache.find(key);
 
     while (it != cache.end() && it.key() == key) {
         CacheInfo &cache_info = it.value();
-        if (cache_info.path == maskGenerator.path() && cache_info.matrix == maskGenerator.matrix()) {
+        if (info.stroke_width == cache_info.stroke_width && info.matrix == cache_info.matrix && info.path == cache_info.path) {
             DEBUG_ONCE_STR("QGLMaskTextureCache::getMask(): Using cached mask");
 
             cache_info.age = 0;
@@ -2315,7 +2347,6 @@ QGLMaskTextureCache::CacheLocation QGLMaskTextureCache::getMask(QGLMaskGenerator
     }
 
     // mask was not found, create new mask
-    CacheInfo info(maskGenerator.path(), maskGenerator.matrix());
 
     DEBUG_ONCE_STR("QGLMaskTextureCache::getMask(): Creating new mask...");
 
@@ -2335,7 +2366,7 @@ QGLMaskTextureCache::CacheLocation QGLMaskTextureCache::getMask(QGLMaskGenerator
 #define FloatToQuint64(i) (quint64)((i) * 32)
 #endif
 
-quint64 QGLMaskTextureCache::hash(const QPainterPath &p, const QTransform &m)
+quint64 QGLMaskTextureCache::hash(const QPainterPath &p, const QTransform &m, qreal w)
 {
     Q_ASSERT(sizeof(quint64) == 8);
 
@@ -2356,6 +2387,8 @@ quint64 QGLMaskTextureCache::hash(const QPainterPath &p, const QTransform &m)
     h += FloatToQuint64(m.m31()) << 24;
     h += FloatToQuint64(m.m32()) << 28;
     h += FloatToQuint64(m.m33()) << 32;
+
+    h += FloatToQuint64(w);
 
     return h;
 }
@@ -2629,22 +2662,60 @@ void QGLMaskTextureCache::quadtreeAllocate(quint64 key, const QSize &size, QRect
 #endif
 }
 
-class QGLPathMaskGenerator : public QGLMaskGenerator
+class QGLTrapezoidMaskGenerator : public QGLMaskGenerator
 {
 public:
-    QGLPathMaskGenerator(const QPainterPath &path, const QTransform &matrix, QGLOffscreen &offscreen, GLuint maskFragmentProgram);
+    QGLTrapezoidMaskGenerator(const QPainterPath &path, const QTransform &matrix, QGLOffscreen &offscreen, GLuint maskFragmentProgram, qreal strokeWidth = -1.0);
 
     QRect screenRect();
     void drawMask(const QRect &rect);
 
 private:
     QRect screen_rect;
+    bool has_screen_rect;
 
     QGLOffscreen *offscreen;
 
     GLuint maskFragmentProgram;
 
-    QList<QPolygonF> polys;
+    virtual QVector<QGLTrapezoid> generateTrapezoids() = 0;
+    virtual QRect computeScreenRect() = 0;
+};
+
+class QGLPathMaskGenerator : public QGLTrapezoidMaskGenerator
+{
+public:
+    QGLPathMaskGenerator(const QPainterPath &path, const QTransform &matrix, QGLOffscreen &offscreen, GLuint maskFragmentProgram);
+
+private:
+    QVector<QGLTrapezoid> generateTrapezoids();
+    QRect computeScreenRect();
+
+    QPolygonF poly;
+};
+
+class QGLLineMaskGenerator : public QGLTrapezoidMaskGenerator
+{
+public:
+    QGLLineMaskGenerator(const QPainterPath &path, const QTransform &matrix, qreal width, QGLOffscreen &offscreen, GLuint maskFragmentProgram);
+
+private:
+    QVector<QGLTrapezoid> generateTrapezoids();
+    QRect computeScreenRect();
+
+    QPainterPath transformedPath;
+};
+
+class QGLRectMaskGenerator : public QGLTrapezoidMaskGenerator
+{
+public:
+    QGLRectMaskGenerator(const QPainterPath &path, const QTransform &matrix, QGLOffscreen &offscreen, GLuint maskFragmentProgram);
+
+private:
+    QVector<QGLTrapezoid> generateTrapezoids();
+    QRect computeScreenRect();
+
+    QPainterPath transformedPath;
 };
 
 class QGLEllipseMaskGenerator : public QGLMaskGenerator
@@ -2669,46 +2740,25 @@ private:
     float vertexArray[4 * 2];
 };
 
-QGLPathMaskGenerator::QGLPathMaskGenerator(const QPainterPath &path, const QTransform &matrix, QGLOffscreen &offs, GLuint program)
-    : QGLMaskGenerator(path, matrix),
-      offscreen(&offs),
-      maskFragmentProgram(program)
+QGLTrapezoidMaskGenerator::QGLTrapezoidMaskGenerator(const QPainterPath &path, const QTransform &matrix, QGLOffscreen &offs, GLuint program, qreal stroke_width)
+    : QGLMaskGenerator(path, matrix, stroke_width)
+    ,  has_screen_rect(false)
+    ,  offscreen(&offs)
+    ,  maskFragmentProgram(program)
 {
 }
 
-QRect QGLPathMaskGenerator::screenRect()
+void QGLTrapezoidMaskGenerator::drawMask(const QRect &rect)
 {
-    polys << path().toFillPolygon(matrix());
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
 
-    QRectF boundingRect = polys.at(0).boundingRect();
-
-    for (int i = 1; i < polys.size(); ++i)
-        boundingRect = boundingRect.united(polys.at(i).boundingRect());
-
-    boundingRect = boundingRect.adjusted(-2, -2, 2, 2);
-
-    screen_rect = QRect(boundingRect.topLeft().toPoint(), boundingRect.bottomRight().toPoint());
-
-    //screen_rect = screen_rect.intersected(QRect(QPoint(), offscreen->drawableSize()));
-
-    return screen_rect;
-}
-
-void QGLPathMaskGenerator::drawMask(const QRect &rect)
-{
     QGLContext *ctx = offscreen->context();
     offscreen->bind();
 
     glDisable(GL_TEXTURE_GEN_S);
     glDisable(GL_TEXTURE_1D);
-
-    QOpenGLImmediateModeTessellator tessellator(offscreen->offscreenSize().height(), offscreen->context());
-
-    QPoint delta = rect.topLeft() - screen_rect.topLeft();
-
-    for (int i = 0; i < polys.size(); ++i)
-        for (int j = 0; j < polys[i].size(); ++j)
-            polys[i][j] += delta;
 
     GLfloat vertexArray[4 * 2];
     qt_add_rect_to_array(rect, vertexArray);
@@ -2719,6 +2769,8 @@ void QGLPathMaskGenerator::drawMask(const QRect &rect)
         glEnable(GL_SCISSOR_TEST);
         glScissor(rect.left(), offscreen->offscreenSize().height() - rect.bottom(), rect.width(), rect.height());
     }
+
+    QVector<QGLTrapezoid> trapezoids = generateTrapezoids();
 
     // clear mask
     glBlendFunc(GL_ZERO, GL_ZERO); // clear
@@ -2731,19 +2783,123 @@ void QGLPathMaskGenerator::drawMask(const QRect &rect)
     glEnable(GL_FRAGMENT_PROGRAM_ARB);
     glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, maskFragmentProgram);
 
+    QPoint delta = rect.topLeft() - screen_rect.topLeft();
     glBegin(GL_QUADS);
-    for (int i = 0; i < polys.size(); ++i) {
-        const QPolygonF &poly = polys.at(i);
-
-        // draw mask to offscreen
-        tessellator.tessellate(poly.data(), poly.count(), path().fillRule() == Qt::WindingFill);
-    }
+    for (int i = 0; i < trapezoids.size(); ++i)
+        drawTrapezoid(trapezoids[i].translated(delta), offscreen->offscreenSize().height(), ctx);
     glEnd();
 
     if (needs_scissor)
         glDisable(GL_SCISSOR_TEST);
 
     glDisable(GL_FRAGMENT_PROGRAM_ARB);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+}
+
+QRect QGLTrapezoidMaskGenerator::screenRect()
+{
+    if (!has_screen_rect) {
+        screen_rect = computeScreenRect();
+        has_screen_rect = true;
+    }
+
+    return screen_rect;
+}
+
+QGLPathMaskGenerator::QGLPathMaskGenerator(const QPainterPath &path, const QTransform &matrix, QGLOffscreen &offs, GLuint program)
+    : QGLTrapezoidMaskGenerator(path, matrix, offs, program)
+{
+}
+
+QRect QGLPathMaskGenerator::computeScreenRect()
+{
+    poly = path().toFillPolygon(matrix());
+    return poly.boundingRect().adjusted(-2, -2, 2, 2).toAlignedRect();
+}
+
+QVector<QGLTrapezoid> QGLPathMaskGenerator::generateTrapezoids()
+{
+    QOpenGLImmediateModeTessellator tessellator;
+    tessellator.tessellate(poly.data(), poly.count(), path().fillRule() == Qt::WindingFill);
+    return tessellator.trapezoids;
+}
+
+QGLRectMaskGenerator::QGLRectMaskGenerator(const QPainterPath &path, const QTransform &matrix, QGLOffscreen &offs, GLuint program)
+    : QGLTrapezoidMaskGenerator(path, matrix, offs, program)
+{
+}
+
+QGLLineMaskGenerator::QGLLineMaskGenerator(const QPainterPath &path, const QTransform &matrix, qreal width, QGLOffscreen &offs, GLuint program)
+    : QGLTrapezoidMaskGenerator(path, matrix, offs, program, width)
+{
+}
+
+QRect QGLRectMaskGenerator::computeScreenRect()
+{
+    transformedPath = matrix().map(path());
+
+    return transformedPath.controlPointRect().adjusted(-2, -2, 2, 2).toAlignedRect();
+}
+
+QRect QGLLineMaskGenerator::computeScreenRect()
+{
+    transformedPath = matrix().map(path());
+
+    return transformedPath.controlPointRect().adjusted(-2, -2, 2, 2).toAlignedRect();
+}
+
+QVector<QGLTrapezoid> QGLLineMaskGenerator::generateTrapezoids()
+{
+    QOpenGLImmediateModeTessellator tessellator;
+    QPointF last;
+    for (int i = 0; i < transformedPath.elementCount(); ++i) {
+        QPainterPath::Element element = transformedPath.elementAt(i);
+
+        Q_ASSERT(!element.isCurveTo());
+
+        if (element.isLineTo())
+            tessellator.tessellateRect(last, element, strokeWidth());
+
+        last = element;
+    }
+
+    return tessellator.trapezoids;
+}
+
+QVector<QGLTrapezoid> QGLRectMaskGenerator::generateTrapezoids()
+{
+    Q_ASSERT(transformedPath.elementCount() == 5);
+
+    QOpenGLImmediateModeTessellator tessellator;
+    if (matrix().type() <= QTransform::TxScale) {
+        QPointF a = transformedPath.elementAt(0);
+        QPointF b = transformedPath.elementAt(1);
+        QPointF c = transformedPath.elementAt(2);
+        QPointF d = transformedPath.elementAt(3);
+
+        QPointF first = (a + d) * 0.5;
+        QPointF last = (b + c) * 0.5;
+
+        QPointF delta = a - d;
+
+        // manhattan distance (no rotation)
+        qreal width = qAbs(delta.x()) + qAbs(delta.y());
+
+        Q_ASSERT(qFuzzyCompare(delta.x(), static_cast<qreal>(0))
+                 || qFuzzyCompare(delta.y(), static_cast<qreal>(0)));
+
+        tessellator.tessellateRect(first, last, width);
+    } else {
+        QPointF points[5];
+
+        for (int i = 0; i < 5; ++i)
+            points[i] = transformedPath.elementAt(i);
+
+        tessellator.tessellateConvex(points, 5);
+    }
+    return tessellator.trapezoids;
 }
 
 QPainterPath ellipseRectToPath(const QRectF &rect)
@@ -2954,21 +3110,27 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
         if (!d->high_quality_antialiasing || d->isFastRect(r)) {
             d->drawFastRect(r);
         } else {
-            qreal left = r.left();
-            qreal right = r.right();
-            qreal top = r.top();
-            qreal bottom = r.bottom();
-
             QPainterPath path;
-            path.setFillRule(Qt::WindingFill);
+            path.addRect(r);
 
-            path.moveTo(left, top);
-            path.lineTo(right, top);
-            path.lineTo(right, bottom);
-            path.lineTo(left, bottom);
-            path.lineTo(left, top);
+            if (d->has_brush) {
+                if (d->has_clipping)
+                    glDisable(GL_DEPTH_TEST);
 
-            drawPath(path);
+                QGLRectMaskGenerator maskGenerator(path, d->matrix, d->offscreen, d->mask_fragment_programs[FRAGMENT_PROGRAM_MASK_TRAPEZOID_AA]);
+
+                d->addItem(qt_mask_texture_cache()->getMask(maskGenerator, d));
+
+                if (d->has_clipping)
+                    glEnable(GL_DEPTH_TEST);
+            }
+
+            if (d->has_pen) {
+                if (d->has_fast_pen)
+                    d->strokeLines(path);
+                else
+                    d->strokePath(path, false);
+            }
         }
     }
 }
@@ -3023,15 +3185,18 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
             glDrawArrays(GL_LINES, 0, lineCount*2);
             glDisableClientState(GL_VERTEX_ARRAY);
         } else {
+            QPainterPath path;
+            path.setFillRule(Qt::WindingFill);
             for (int i=0; i<lineCount; ++i) {
                 const QLineF &l = lines[i];
-                QPainterPath path;
-                path.setFillRule(Qt::WindingFill);
                 path.moveTo(l.x1(), l.y1());
                 path.lineTo(l.x2(), l.y2());
-
-                d->strokePath(path, false);
             }
+
+            if (d->has_fast_pen)
+                d->strokeLines(path);
+            else
+                d->strokePath(path, false);
         }
     }
 }
@@ -3101,6 +3266,31 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             d->strokePath(path, true);
         }
     }
+}
+
+void QOpenGLPaintEnginePrivate::strokeLines(const QPainterPath &path)
+{
+    qreal penWidth = cpen.widthF();
+
+    QGLLineMaskGenerator maskGenerator(path, matrix, penWidth == 0 ? 1.0 : penWidth,
+                                       offscreen, mask_fragment_programs[FRAGMENT_PROGRAM_MASK_TRAPEZOID_AA]);
+
+    if (has_clipping)
+        glDisable(GL_DEPTH_TEST);
+
+    QBrush temp = cbrush;
+    QPointF origin = brush_origin;
+
+    cbrush = cpen.brush();
+    brush_origin = QPointF();
+
+    addItem(qt_mask_texture_cache()->getMask(maskGenerator, this));
+
+    cbrush = temp;
+    brush_origin = origin;
+
+    if (has_clipping)
+        glEnable(GL_DEPTH_TEST);
 }
 
 void QOpenGLPaintEnginePrivate::strokePath(const QPainterPath &path, bool use_cache)
@@ -4208,6 +4398,9 @@ void QOpenGLPaintEnginePrivate::flushDrawQueue()
 {
     Q_Q(QOpenGLPaintEngine);
 
+    glPushMatrix();
+    glLoadIdentity();
+
     offscreen.release();
 
     if (!drawQueue.isEmpty()) {
@@ -4223,14 +4416,8 @@ void QOpenGLPaintEnginePrivate::flushDrawQueue()
 
         high_quality_antialiasing = true;
 
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-
         foreach (const QDrawQueueItem &item, drawQueue)
             drawItem(item);
-
-        glPopMatrix();
 
         opacity = old_opacity;
         brush_origin = old_brush_origin;
@@ -4246,6 +4433,8 @@ void QOpenGLPaintEnginePrivate::flushDrawQueue()
 
         drawQueue.clear();
     }
+
+    glPopMatrix();
 
     glDisable(GL_FRAGMENT_PROGRAM_ARB);
 }
