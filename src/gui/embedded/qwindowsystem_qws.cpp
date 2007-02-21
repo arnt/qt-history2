@@ -99,8 +99,8 @@ extern QString qws_qtePipeFilename();
 extern void qt_client_enqueue(const QWSEvent *); //qapplication_qws.cpp
 extern QList<QWSCommand*> *qt_get_server_queue();
 
-Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultMouse, ("Auto"));
-Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultKeyboard, ("TTY"));
+Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultMouse, (QLatin1String("Auto")));
+Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultKeyboard, (QLatin1String("TTY")));
 static const int FontCleanupInterval = 60 * 1000;
 
 static int qws_keyModifiers = 0;
@@ -1521,7 +1521,7 @@ static void cleanupFontsDir()
         return;
 
     extern QString qws_fontCacheDir();
-    QDir dir(qws_fontCacheDir(), "*.qsf");
+    QDir dir(qws_fontCacheDir(), QLatin1String("*.qsf"));
     for (uint i = 0; i < dir.count(); ++i) {
 #if defined(QWS_DEBUG_FONTCLEANUP)
         qDebug() << "removing stale font file" << dir[i];
@@ -2147,7 +2147,7 @@ QList<QWSInternalWindowInfo*> * QWSServer::windowList()
             char * buf=(char *)malloc(len+2);
             strncpy(buf,name,len);
             buf[len]=0;
-            qwi->name=buf;
+            qwi->name = QLatin1String(buf);
             free(buf);
         } else {
             qwi->name = QLatin1String("unknown");
@@ -3339,8 +3339,8 @@ QWSMouseHandler* QWSServerPrivate::newMouseHandler(const QString& spec)
 
     int screen = -1;
     const QList<QRegExp> regexps = QList<QRegExp>()
-                                   << QRegExp(":screen=(\\d+)\\b")
-                                   << QRegExp("\\bscreen=(\\d+):");
+                                   << QRegExp(QLatin1String(":screen=(\\d+)\\b"))
+                                   << QRegExp(QLatin1String("\\bscreen=(\\d+):"));
     for (int i = 0; i < regexps.size(); ++i) {
         QRegExp regexp = regexps.at(i);
         if (regexp.indexIn(mouseDev) == -1)

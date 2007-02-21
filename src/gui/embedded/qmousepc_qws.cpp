@@ -472,7 +472,7 @@ QWSPcMouseHandlerPrivate::QWSPcMouseHandlerPrivate(QWSPcMouseHandler *h,
     int index;
 
     accel = qreal(2.0);
-    QRegExp accelRegex("^accel=(\\d+\\.?\\d*)$");
+    QRegExp accelRegex(QLatin1String("^accel=(\\d+\\.?\\d*)$"));
     index = args.indexOf(accelRegex);
     if (index >= 0) {
         accel = qreal(accelRegex.cap(1).toDouble());
@@ -480,7 +480,7 @@ QWSPcMouseHandlerPrivate::QWSPcMouseHandlerPrivate(QWSPcMouseHandler *h,
     }
 
     accel_limit = 5;
-    QRegExp accelLimitRegex("^accel_limit=(\\d+)$");
+    QRegExp accelLimitRegex(QLatin1String("^accel_limit=(\\d+)$"));
     index = args.indexOf(accelLimitRegex);
     if (index >= 0) {
         accel_limit = accelLimitRegex.cap(1).toInt();
