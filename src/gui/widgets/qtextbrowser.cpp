@@ -422,7 +422,6 @@ void QTextBrowserPrivate::keypadMove(bool next)
     // setTextCursor ensures that the cursor is visible. save & restore
     // the scrollbar values therefore
     const int savedXOffset = hbar->value();
-    const int savedYOffset = vbar->value();
 
     // Now actually process our decision
     if (focusIt && control->setFocusToAnchor(anchorToFocus)) {
@@ -451,7 +450,7 @@ void QTextBrowserPrivate::keypadMove(bool next)
         control->setTextCursor(cursor);
 
         hbar->setValue(savedXOffset);
-        vbar->setValue(savedYOffset);
+        vbar->setValue(scrollYOffset);
 
         emit q->highlighted(QUrl());
         emit q->highlighted(QString());
