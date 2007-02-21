@@ -73,8 +73,11 @@ public slots:
     void loadPlugins();
 
 private:
+    QWidget* createCustomWidget(const QString &className, QWidget *parentWidget) const;
+    
     QDesignerFormEditorInterface *m_core;
-    QMap<QString, QDesignerCustomWidgetInterface*> m_customFactory;
+    typedef QMap<QString, QDesignerCustomWidgetInterface*> CustomWidgetFactoryMap;
+    CustomWidgetFactoryMap m_customFactory;
     QDesignerFormWindowInterface *m_formWindow;
 
     static QPointer<QWidget> *m_lastPassiveInteractor;

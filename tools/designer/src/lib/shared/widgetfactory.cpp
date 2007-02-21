@@ -83,11 +83,32 @@ void WidgetFactory::loadPlugins()
 // Convencience to create non-widget objects. Returns 0 if unknown
 QObject* WidgetFactory::createObject(const QString &className, QObject* parent) const
 {
-    if (className == QLatin1String("QAction")) 
+    if (className == QLatin1String("QAction"))
         return new QAction(parent);
     return 0;
 }
- 
+
+QWidget*  WidgetFactory::createCustomWidget(const QString &className, QWidget *parentWidget) const
+{
+    const CustomWidgetFactoryMap::const_iterator it = m_customFactory.constFind(className);
+    if (it == m_customFactory.constEnd())
+        return 0;
+
+    QDesignerCustomWidgetInterface *factory = it.value();
+    QWidget *rc = factory->createWidget(parentWidget);
+    // shouldn't happen
+    if (!rc) {
+        qWarning() << "The custom widget factory registered for widgets of class " << className << " returned 0.";
+        return 0;
+    }
+    // Check for mismatched class names which is hard to track
+    const QString createdClassName = QString::fromUtf8(rc->metaObject()->className());
+    if (className != createdClassName) {
+        qWarning() << "A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class "
+            << className << ". It returned a widget of class " <<createdClassName << '.';
+    }
+    return rc;
+}
 
 QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentWidget) const
 {
@@ -95,11 +116,9 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
     if (! fw)
         fw = QDesignerFormWindowInterface::findFormWindow(parentWidget);
 
-    QWidget *w = 0;
+    QWidget *w = createCustomWidget(widgetName, parentWidget);
 
-// ### cleanup
-    if (QDesignerCustomWidgetInterface *f = m_customFactory.value(widgetName)) {
-        w = f->createWidget(parentWidget);
+    if (w) {
     } else if (widgetName == QLatin1String("Line")) {
         w = new Line(parentWidget);
     } else if (widgetName == QLatin1String("QDockWidget")) {

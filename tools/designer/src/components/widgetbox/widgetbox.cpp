@@ -194,7 +194,7 @@ public:
     bool save();
 
 signals:
-    void pressed(const QString dom_xml, const QPoint &global_mouse_pos);
+    void pressed(const QString name, const QString dom_xml, bool custom, const QPoint &global_mouse_pos);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e);
@@ -365,7 +365,7 @@ void WidgetBoxTreeView::handleMousePress(QTreeWidgetItem *item)
     if (wgt.isNull())
         return;
 
-    emit pressed(widgetDomXml(wgt), QCursor::pos());
+    emit pressed(wgt.name(), widgetDomXml(wgt), wgt.type() == QDesignerWidgetBoxInterface::Widget::Custom, QCursor::pos());
 }
 
 int WidgetBoxTreeView::indexOfScratchpad()
@@ -890,7 +890,7 @@ void WidgetBoxTreeView::dropWidgets(const QList<QDesignerDnDItemInterface*> &ite
 */
 
 WidgetBox::WidgetBox(QDesignerFormEditorInterface *core, QWidget *parent, Qt::WindowFlags flags)
-    : QDesignerWidgetBoxInterface(parent, flags), 
+    : QDesignerWidgetBoxInterface(parent, flags),
       m_core(core),
       m_view(new WidgetBoxTreeView(m_core, this))
 {
@@ -900,8 +900,8 @@ WidgetBox::WidgetBox(QDesignerFormEditorInterface *core, QWidget *parent, Qt::Wi
 
     l->addWidget(m_view);
 
-    connect(m_view, SIGNAL(pressed(QString,QPoint)),
-            this, SLOT(handleMousePress(QString,QPoint)));
+    connect(m_view, SIGNAL(pressed(QString,QString,bool,QPoint)),
+            this, SLOT(handleMousePress(QString,QString,bool,QPoint)));
 }
 
 WidgetBox::~WidgetBox()
@@ -913,11 +913,21 @@ QDesignerFormEditorInterface *WidgetBox::core() const
     return m_core;
 }
 
-void WidgetBox::handleMousePress(const QString &xml, const QPoint &global_mouse_pos)
+void WidgetBox::handleMousePress(const QString &name, const QString &xml, bool custom, const QPoint &global_mouse_pos)
 {
     DomWidget *dom_widget = xmlToUi(xml);
     if (dom_widget == 0)
         return;
+    // Sanity check: Do the names match?
+    if (custom) {
+        if (dom_widget->hasAttributeClass()) {
+            const QString domClassName = dom_widget->attributeClass();
+            if (domClassName != name)
+                qWarning() << "The class attribute for the class " << domClassName  << " does not match the class name " << name << '.';
+        } else {
+            qWarning() << "The class attribute for the class "<< name << " is missing.";
+        }
+    }
     if (QApplication::mouseButtons() == Qt::LeftButton) {
         QList<QDesignerDnDItemInterface*> item_list;
         item_list.append(new WidgetBoxDnDItem(core(), dom_widget, global_mouse_pos));

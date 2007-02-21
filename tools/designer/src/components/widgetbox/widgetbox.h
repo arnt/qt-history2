@@ -55,7 +55,7 @@ public:
     virtual bool save();
 
 private slots:
-    void handleMousePress(const QString &xml, const QPoint &global_mouse_pos);
+    void handleMousePress(const QString &name, const QString &xml, bool custom, const QPoint &global_mouse_pos);
 
 private:
     QDesignerFormEditorInterface *m_core;
