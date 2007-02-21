@@ -753,6 +753,10 @@ void tst_QAbstractItemView::dragAndDrop()
 {
     // From Task 137729
 
+#ifdef Q_WS_QWS
+    QSKIP("Embedded drag-and-drop not good enough yet...", SkipAll);
+#endif
+
     const int attempts = 10;
     int successes = 0;
     for (int i = 0; i < attempts; ++i) {
