@@ -66,6 +66,7 @@ macro.oslash.HTML       = "&oslash;"
 macro.ouml.HTML         = "&ouml;"
 macro.Auml.HTML         = "&Auml;"
 macro.uuml.HTML         = "&uuml;"
+macro.starslash         = "\\c{*/}"
 
 Cpp.ignoretokens        = QAXFACTORY_EXPORT \
                           QDESIGNER_COMPONENTS_LIBRARY \
