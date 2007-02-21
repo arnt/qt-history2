@@ -97,7 +97,9 @@ QWidgetPrivate::QWidgetPrivate(int version) :
     if (version != QObjectPrivateVersion)
         qFatal("Cannot mix incompatible Qt libraries");
 
+#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
     dirtyOpaqueChildren = true;
+#endif
 
     isWidget = true;
     memset(high_attributes, 0, sizeof(high_attributes));
@@ -110,7 +112,7 @@ QWidgetPrivate::QWidgetPrivate(int version) :
 
 QWidgetPrivate::~QWidgetPrivate()
 {
-#ifndef Q_WS_MAC
+#ifdef Q_WIDGET_USE_DIRTYLIST
     if (!dirty.isEmpty()) {
         Q_Q(QWidget);
 
@@ -1456,6 +1458,8 @@ QRegion QWidgetPrivate::clipRegion() const
     return r;
 }
 
+#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
+
 void QWidgetPrivate::setDirtyOpaqueRegion()
 {
     Q_Q(QWidget);
@@ -1509,7 +1513,6 @@ QRegion QWidgetPrivate::getOpaqueChildren() const
 
 // hw: currently disable opaque children cache.
 // Doesn't play nice with subtractOpaqueSiblings
-#if 0
 void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn, const QPoint &offset, int startIdx) const
 {
     Q_UNUSED(startIdx);
@@ -1519,7 +1522,8 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn
         rgn -= (r.translated(offset) & clipRgn);
 }
 
-#else
+#else // Q_WIDGET_CACHE_OPAQUEREGIONS
+
 void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn, const QPoint &offset, int startIdx) const
 {
     for (int i=startIdx; i < children.size(); ++i) {
@@ -1541,7 +1545,8 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn
         }
     }
 }
-#endif
+
+#endif // Q_WIDGET_CACHE_OPAQUEREGIONS
 
 //subtract any relatives that are higher up than me --- is this too expensive ???
 void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) const
@@ -1587,8 +1592,10 @@ void QWidgetPrivate::updateIsOpaque()
     extern void qt_mac_set_widget_is_opaque(QWidget*, bool); //qwidget_mac.cpp
     qt_mac_set_widget_is_opaque(q, isOpaque());
 #endif
+#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
     // hw: todo: only needed if opacity actually changed
     setDirtyOpaqueRegion();
+#endif
 }
 
 bool QWidgetPrivate::isOpaque() const
@@ -4669,7 +4676,9 @@ void QWidget::move(const QPoint &p)
         d->setGeometry_sys(p.x() + geometry().x() - QWidget::x(),
                        p.y() + geometry().y() - QWidget::y(),
                        width(), height(), true);
+#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
         d->setDirtyOpaqueRegion();
+#endif
     } else {
         data->crect.moveTopLeft(p); // no frame yet
         setAttribute(Qt::WA_PendingMoveEvent);
@@ -4688,7 +4697,9 @@ void QWidget::resize(const QSize &s)
     setAttribute(Qt::WA_Resized);
     if (testAttribute(Qt::WA_WState_Created)) {
         d->setGeometry_sys(geometry().x(), geometry().y(), s.width(), s.height(), false);
+#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
         d->setDirtyOpaqueRegion();
+#endif
     } else {
         data->crect.setSize(s);
         setAttribute(Qt::WA_PendingResizeEvent);
@@ -4704,7 +4715,9 @@ void QWidget::setGeometry(const QRect &r)
         d->topData()->posFromMove = false;
     if (testAttribute(Qt::WA_WState_Created)) {
         d->setGeometry_sys(r.x(), r.y(), r.width(), r.height(), true);
+#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
         d->setDirtyOpaqueRegion();
+#endif
     } else {
         data->crect = r;
         setAttribute(Qt::WA_PendingMoveEvent);
@@ -5309,8 +5322,10 @@ void QWidget::setVisible(bool visible)
                     break;
                 parent = parent->parentWidget();
             }
+#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
             if (parent && !d->getOpaqueRegion().isEmpty())
                 parent->d_func()->setDirtyOpaqueRegion();
+#endif
         }
 
         // adjust size if necessary
@@ -5352,8 +5367,10 @@ void QWidget::setVisible(bool visible)
                 parentWidget()->d_func()->layout->update();
             else if (parentWidget()->isVisible())
                 QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
+#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
             if (!d->getOpaqueRegion().isEmpty())
                 parentWidget()->d_func()->setDirtyOpaqueRegion();
+#endif
         }
 
         QEvent hideToParentEvent(QEvent::HideToParent);

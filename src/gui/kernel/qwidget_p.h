@@ -46,6 +46,14 @@
 #include "QtGui/qscreen_qws.h"
 #endif
 
+#if defined(Q_WS_QWS) || defined(Q_WS_X11)
+//#define Q_WIDGET_USE_DIRTYLIST
+#endif
+
+#ifndef Q_WS_MAC
+//#define Q_WIDGET_CACHE_OPAQUEREGIONS
+#endif
+
 // Extra QWidget data
 //  - to minimize memory usage for members that are seldom used.
 //  - top-level widgets have extra extra data to reduce cost further
@@ -228,12 +236,14 @@ public:
     bool isOpaque() const;
     bool hasBackground() const;
 
+#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
     QRegion getOpaqueRegion() const;
     QRegion getOpaqueChildren() const;
     void setDirtyOpaqueRegion();
 
     QRegion opaqueChildren;
     bool dirtyOpaqueChildren;
+#endif
 
     enum CloseMode {
         CloseNoEvent,
@@ -393,7 +403,9 @@ public:
     QPalette::ColorRole bg_role : 8;
     uint high_attributes[2]; // the low ones are in QWidget::widget_attributes
     Qt::HANDLE hd;
+#if defined(Q_WIDGET_USE_DIRTYLIST)
     QRegion dirty;
+#endif
 #if defined(Q_WS_X11)
     QX11Info xinfo;
     Qt::HANDLE picture;

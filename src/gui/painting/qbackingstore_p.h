@@ -26,6 +26,7 @@
 //
 
 #include "private/qpaintengine_raster_p.h"
+#include "private/qwidget_p.h"
 
 class QWindowSurface;
 
@@ -54,7 +55,9 @@ private:
 #ifndef Q_WS_QWS
     QRegion dirty;
 #endif
+#ifdef Q_WIDGET_USE_DIRTYLIST
     QList<QWidget*> dirtyWidgets;
+#endif
 
     QWindowSurface *windowSurface;
 
