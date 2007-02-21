@@ -36,7 +36,7 @@ bool ScriptCommand::init(const ObjectList &list, const QString &script)
         const MetaDataBaseItem* item = metaDataBase->metaDataBaseItem(obj);
         if (!item)
             return false;
-        m_oldValues.insert(obj, item->script());
+        m_oldValues.push_back(ObjectScriptPair(obj, item->script()));
     }
     m_script = script;
     return true;
@@ -47,9 +47,10 @@ void ScriptCommand::redo()
     MetaDataBase *metaDataBase = qobject_cast<MetaDataBase*>(formWindow()->core()->metaDataBase());
     Q_ASSERT(metaDataBase);
 
-    foreach (QPointer<QObject> obj, m_oldValues.keys()) {
-        if (obj)
-            metaDataBase->metaDataBaseItem(obj)->setScript(m_script);
+    ObjectScriptList::const_iterator cend = m_oldValues.constEnd();
+    for (ObjectScriptList::const_iterator it = m_oldValues.constBegin();it != cend; ++it )  {
+        if (it->first)
+            metaDataBase->metaDataBaseItem(it->first)->setScript(m_script);
     }
 }
 
@@ -58,10 +59,10 @@ void ScriptCommand::undo()
     MetaDataBase *metaDataBase = qobject_cast<MetaDataBase*>(formWindow()->core()->metaDataBase());
     Q_ASSERT(metaDataBase);
 
-    ObjectScriptMap::const_iterator cend = m_oldValues.constEnd();
-    for (ObjectScriptMap::const_iterator it = m_oldValues.constBegin();it != cend; ++it )  {
-        if (it.key())
-            metaDataBase->metaDataBaseItem(it.key())->setScript(it.value());
+    ObjectScriptList::const_iterator cend = m_oldValues.constEnd();
+    for (ObjectScriptList::const_iterator it = m_oldValues.constBegin();it != cend; ++it )  {
+        if (it->first)
+            metaDataBase->metaDataBaseItem(it->first)->setScript(it->second);
     }
 }
 } // namespace qdesigner_internal

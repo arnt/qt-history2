@@ -27,7 +27,8 @@
 
 #include "qdesigner_formwindowcommand_p.h"
 
-#include <QtCore/QMap>
+#include <QtCore/QPair>
+#include <QtCore/QList>
 #include <QtCore/QPointer>
 
 class QDesignerFormWindowInterface;
@@ -49,8 +50,9 @@ public:
     virtual void undo();
 
 private:
-    typedef QMap<QPointer<QObject>, QString> ObjectScriptMap;
-    ObjectScriptMap m_oldValues;
+    typedef QPair<QPointer<QObject>, QString> ObjectScriptPair;
+    typedef QList<ObjectScriptPair> ObjectScriptList;
+    ObjectScriptList m_oldValues;
     QString m_script;
 };
 
