@@ -3160,7 +3160,7 @@ void tst_QWidget::qobject_castInDestroyedSlot()
 
 Q_DECLARE_METATYPE(QList<QRect>)
 
-    void tst_QWidget::setWindowGeometry_data()
+void tst_QWidget::setWindowGeometry_data()
 {
     QTest::addColumn<QList<QRect> >("rects");
     QTest::addColumn<int>("windowFlags");
@@ -3200,7 +3200,10 @@ Q_DECLARE_METATYPE(QList<QRect>)
     QList<int> windowFlags;
     windowFlags << 0
                 << Qt::FramelessWindowHint
-                << Qt::X11BypassWindowManagerHint;
+#ifdef Q_WS_X11
+                << Qt::X11BypassWindowManagerHint
+#endif
+                ;
 
     foreach (QList<QRect> l, rects) {
         QRect rect = l.first();
