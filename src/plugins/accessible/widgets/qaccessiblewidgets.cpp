@@ -28,6 +28,8 @@
 #include <limits.h>
 #include <QRubberBand>
 #include <QTextBrowser>
+#include <QCalendarWidget>
+#include <QAbstractItemView>
 
 #ifndef QT_NO_ACCESSIBILITY
 
@@ -806,5 +808,120 @@ QAccessible::Role QAccessibleTextBrowser::role(int child) const
     return QAccessible::StaticText;
 }
 #endif // QT_NO_TEXTBROWSER
+
+#ifndef QT_NO_CALENDARWIDGET
+// ===================== QAccessibleCalendarWidget ========================
+QAccessibleCalendarWidget::QAccessibleCalendarWidget(QWidget *widget)
+    : QAccessibleWidgetEx(widget, Table)
+{
+    Q_ASSERT(qobject_cast<QCalendarWidget *>(widget));
+}
+
+QVariant QAccessibleCalendarWidget::invokeMethodEx(QAccessible::Method, int, const QVariantList &)
+{
+    return QVariant();
+}
+
+int QAccessibleCalendarWidget::childCount() const
+{
+   if (!calendarWidget()->isVisible())
+       return 0;
+   return calendarWidget()->isNavigationBarVisible() ? 2 : 1;
+}
+
+int QAccessibleCalendarWidget::indexOfChild(const QAccessibleInterface *child) const
+{
+    if (!child || !child->object() || childCount() <= 0)
+        return -1;
+    if (qobject_cast<QAbstractItemView *>(child->object()))
+        return childCount();
+    return 1;
+}
+
+int QAccessibleCalendarWidget::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
+{
+    *target = 0;
+    if (!calendarWidget()->isVisible())
+        return -1;
+    if (entry <= 0 || entry > childCount())
+        return QAccessibleWidgetEx::navigate(relation, entry, target);
+    QWidget *targetWidget = 0;
+    switch (relation) {
+    case Child:
+        if (childCount() == 1) {
+            targetWidget = calendarView();
+        } else {
+            if (entry == 1)
+                targetWidget = navigationBar();
+            else
+                targetWidget = calendarView();
+        }
+        break;
+    case Up:
+        if (entry == 2)
+            targetWidget = navigationBar();
+        break;
+    case Down:
+        if (entry == 1 && childCount() == 2)
+            targetWidget = calendarView();
+        break;
+    default:
+        return QAccessibleWidgetEx::navigate(relation, entry, target);
+    }
+    if (targetWidget && !targetWidget->isVisible())
+        return -1;
+    *target = queryAccessibleInterface(targetWidget);
+    return indexOfChild(*target);
+}
+
+QRect QAccessibleCalendarWidget::rect(int child) const
+{
+    if (!calendarWidget()->isVisible() || child > childCount())
+        return QRect();
+    if (child == 0)
+        return QAccessibleWidgetEx::rect(child);
+    QWidget *childWidget = 0;
+    if (childCount() == 2)
+        childWidget = child == 1 ? navigationBar() : calendarView();
+    else
+        childWidget = calendarView();
+    return QRect(childWidget->mapToGlobal(QPoint(0, 0)), childWidget->size());
+}
+
+int QAccessibleCalendarWidget::childAt(int x, int y) const
+{
+    const QPoint globalTargetPos = QPoint(x, y);
+    if (!rect(0).contains(globalTargetPos))
+        return -1;
+    if (rect(1).contains(globalTargetPos))
+        return 1;
+    if (rect(2).contains(globalTargetPos))
+        return 2;
+    return 0;
+}
+
+QCalendarWidget *QAccessibleCalendarWidget::calendarWidget() const
+{
+    return static_cast<QCalendarWidget *>(object());
+}
+
+QAbstractItemView *QAccessibleCalendarWidget::calendarView() const
+{
+    foreach (QObject *child, calendarWidget()->children()) {
+        if (child->objectName() == QLatin1String("qt_calendar_calendarview"))
+            return static_cast<QAbstractItemView *>(child);
+    }
+    return 0;
+}
+
+QWidget *QAccessibleCalendarWidget::navigationBar() const
+{
+    foreach (QObject *child, calendarWidget()->children()) {
+        if (child->objectName() == QLatin1String("qt_calendar_navigationbar"))
+            return static_cast<QWidget *>(child);
+    }
+    return 0;
+}
+#endif // QT_NO_CALENDARWIDGET
 
 #endif // QT_NO_ACCESSIBILITY

@@ -26,6 +26,8 @@ class QMdiSubWindow;
 class QWorkspace;
 class QRubberBand;
 class QTextBrowser;
+class QCalendarWidget;
+class QAbstractItemView;
 
 class QAccessibleTextEdit : public QAccessibleWidgetEx
 {
@@ -160,6 +162,28 @@ public:
     Role role(int child) const;
 };
 #endif // QT_NO_TEXTBROWSER
+
+#ifndef QT_NO_CALENDARWIDGET
+class QAccessibleCalendarWidget : public QAccessibleWidgetEx
+{
+public:
+    explicit QAccessibleCalendarWidget(QWidget *widget);
+
+    QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
+    int childCount() const;
+    int indexOfChild(const QAccessibleInterface *child) const;
+    int navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const;
+    QRect rect(int child) const;
+    int childAt(int x, int y) const;
+
+protected:
+    QCalendarWidget *calendarWidget() const;
+
+private:
+    QAbstractItemView *calendarView() const;
+    QWidget *navigationBar() const;
+};
+#endif // QT_NO_CALENDARWIDGET
 
 #endif // QT_NO_ACCESSIBILITY
 

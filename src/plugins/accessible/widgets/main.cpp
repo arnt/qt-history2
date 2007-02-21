@@ -110,6 +110,9 @@ QStringList AccessibleFactory::keys() const
     list << QLatin1String("QAbstractScrollArea");
     list << QLatin1String("QScrollArea");
 #endif
+#ifndef QT_NO_CALENDARWIDGET
+    list << QLatin1String("QCalendarWidget");
+#endif
 
     return list;
 }
@@ -262,6 +265,10 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleAbstractScrollArea(widget);
     } else if (classname == QLatin1String("QScrollArea")) {
         iface = new QAccessibleScrollArea(widget);
+#endif
+#ifndef QT_NO_CALENDARWIDGET
+    } else if (classname == QLatin1String("QCalendarWidget")) {
+        iface = new QAccessibleCalendarWidget(widget);
 #endif
     }
 
