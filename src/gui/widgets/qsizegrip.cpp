@@ -420,7 +420,7 @@ void QSizeGrip::showEvent(QShowEvent *showEvent)
 #ifdef Q_WS_MAC
     d_func()->updateMacSizer(false);
 #endif
-    return QWidget::showEvent(showEvent);
+    QWidget::showEvent(showEvent);
 }
 
 /*!
@@ -431,7 +431,7 @@ void QSizeGrip::hideEvent(QHideEvent *hideEvent)
 #ifdef Q_WS_MAC
     d_func()->updateMacSizer(true);
 #endif
-    return QWidget::hideEvent(hideEvent);
+    QWidget::hideEvent(hideEvent);
 }
 
 /*! \reimp */
