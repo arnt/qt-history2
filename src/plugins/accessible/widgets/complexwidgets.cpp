@@ -492,9 +492,9 @@ QAccessible::Role QAccessibleItemView::role(int child) const
     if (atViewport) {
         if (child)
             return Row;
-    } else {
-        return QAccessibleAbstractScrollArea::role(child);
     }
+
+    return QAccessibleAbstractScrollArea::role(child);
 }
 
 QAccessible::State QAccessibleItemView::state(int child) const
