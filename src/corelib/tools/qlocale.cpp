@@ -4083,7 +4083,7 @@ Q_CORE_EXPORT qlonglong qstrtoll(const char *nptr, const char **endptr, register
         acc = (~acc) + 1;
     }
     if (endptr != 0)
-        *endptr = (any ? s - 1 : nptr);
+        *endptr = (any >= 0 ? s - 1 : nptr);
 
     if (ok != 0)
         *ok = any > 0;
