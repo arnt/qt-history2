@@ -309,7 +309,11 @@ void qt_syncBackingStore(QWidget *widget)
         return;
 
     const QRegion toClean = bs->dirty;
+#ifdef Q_WIDGET_USE_DIRTYLIST
     if (!toClean.isEmpty() || !bs->dirtyWidgets.isEmpty())
+#else
+    if (!toClean.isEmpty())
+#endif
         topData->backingStore->cleanRegion(toClean, tlw);
 }
 #endif // Q_WS_WIN
