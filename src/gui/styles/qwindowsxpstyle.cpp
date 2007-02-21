@@ -2465,16 +2465,20 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(option))
         {
             if (sub & SC_ComboBoxEditField) {
-                partId = EP_EDITTEXT;
-                if (!(flags & State_Enabled))
-                    stateId = ETS_DISABLED;
-                else if (flags & State_HasFocus)
-                    stateId = ETS_FOCUSED;
-                else
-                    stateId = ETS_NORMAL;
-                XPThemeData theme(widget, p, QLatin1String("EDIT"), partId, stateId, r);
-
-                d->drawBackground(theme);
+                if (cmb->frame) {
+                    partId = EP_EDITTEXT;
+                    if (!(flags & State_Enabled))
+                        stateId = ETS_DISABLED;
+                    else if (flags & State_HasFocus)
+                        stateId = ETS_FOCUSED;
+                    else
+                        stateId = ETS_NORMAL;
+                    XPThemeData theme(widget, p, QLatin1String("EDIT"), partId, stateId, r);
+                    d->drawBackground(theme);
+                } else {
+                    QBrush editBrush = cmb->palette.brush(QPalette::Base);
+                    p->fillRect(option->rect, editBrush);
+                }
                 if (!cmb->editable) {
                     QRect re = subControlRect(CC_ComboBox, option, SC_ComboBoxEditField, widget);
                     if (widget && widget->hasFocus()) {
