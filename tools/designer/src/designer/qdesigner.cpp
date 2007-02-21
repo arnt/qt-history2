@@ -23,6 +23,7 @@
 #include <QtGui/QCloseEvent>
 #include <QtGui/QMessageBox>
 #include <QtGui/QIcon>
+#include <QtGui/QErrorMessage>
 #include <QtCore/QMetaObject>
 #include <QtCore/QFile>
 #include <QtCore/QLibraryInfo>
@@ -33,20 +34,33 @@
 
 #include <QtDesigner/QDesignerComponents>
 
+static const char *designerApplicationName = "Designer";
+
+static void designerMessageHandler(QtMsgType type, const char *msg)
+{
+    // Only warnings are displayed as box
+    QDesigner *designerApp = qDesigner;
+    if (type != QtWarningMsg || !designerApp) {
+        fprintf(stderr, "%s\n",  msg);
+        return;
+    }
+    designerApp->showErrorMessage(QString::fromUtf8(msg));
+}
+
 QDesigner::QDesigner(int &argc, char **argv)
     : QApplication(argc, argv),
       m_server(0),
       m_client(0),
       m_workbench(0), m_suppressNewFormShow(false)
 {
+    qInstallMsgHandler (designerMessageHandler);
     setOrganizationName(QLatin1String("Trolltech"));
-    setApplicationName(QLatin1String("Designer"));
+    setApplicationName(QLatin1String(designerApplicationName));
     QDesignerComponents::initializeResources();
 
 #ifndef Q_WS_MAC
     setWindowIcon(QIcon(QLatin1String(":/trolltech/designer/images/designer.png")));
 #endif
-
     initialize();
 }
 
@@ -58,6 +72,26 @@ QDesigner::~QDesigner()
         delete m_server;
     if (m_client)
         delete m_client;
+}
+
+void QDesigner::showErrorMessage(const QString &msg)
+{
+    // Manually suppress consecutive messages.
+    // This happens if for example sth is wrong with custom widget creation.
+    // The same warning will be displayed by Widget box D&D and form Drop
+    // while trying to create instance.
+    if (m_errorMessageDialog && m_lastErrorMessage == msg)
+        return;
+
+    if (!m_errorMessageDialog) {
+        m_lastErrorMessage.clear();
+        m_errorMessageDialog = new QErrorMessage(m_mainWindow);
+        const QString title = QObject::tr("%1 - warning").arg(QLatin1String(designerApplicationName));
+        m_errorMessageDialog->setWindowTitle(title);
+    }
+
+    m_errorMessageDialog->showMessage(msg);
+    m_lastErrorMessage = msg;
 }
 
 QDesignerWorkbench *QDesigner::workbench() const

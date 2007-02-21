@@ -26,6 +26,7 @@ class QDesignerWorkbench;
 class QDesignerToolWindow;
 class QDesignerServer;
 class QDesignerClient;
+class QErrorMessage;
 
 class QDesigner: public QApplication
 {
@@ -45,6 +46,9 @@ protected:
 signals:
     void initialized();
 
+public slots:
+    void showErrorMessage(const QString &);
+
 private slots:
     void initialize();
     void callCreateForm();
@@ -54,6 +58,8 @@ private:
     QDesignerClient *m_client;
     QDesignerWorkbench *m_workbench;
     QPointer<QDesignerToolWindow> m_mainWindow;
+    QPointer<QErrorMessage> m_errorMessageDialog;
+    QString m_lastErrorMessage;
     bool m_suppressNewFormShow;
 };
 
