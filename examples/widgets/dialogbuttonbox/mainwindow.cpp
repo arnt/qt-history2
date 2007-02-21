@@ -13,14 +13,17 @@ MainWindow::MainWindow()
 
     connectActions();
 
-    workspace = new QWorkspace;
-    connect(workspace, SIGNAL(windowActivated(QWidget *)),
-	    this, SLOT(windowActivated(QWidget *)));
-    workspace->addWindow(createDialogButtonBox(ReallyQuit));
+    mdiArea = new QMdiArea;
+    mdiArea->setScrollBarsEnabled(true);
+    connect(mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)),
+	    this, SLOT(subWindowActivated(QMdiSubWindow *)));
+    currentWindow =
+	mdiArea->addSubWindow(createDialogButtonBox(ReallyQuit));
+
     resolveButtons();
 
     QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(workspace);
+    layout->addWidget(mdiArea);
     layout->setMargin(0);
     myCentralWidget->setLayout(layout);
 
@@ -32,15 +35,18 @@ MainWindow::MainWindow()
 
 void MainWindow::addButton()
 {
-    QWidget *window = workspace->activeWindow();
-    QDialogButtonBox *box = window->findChild<QDialogButtonBox *>();
+    if (!currentWindow)
+	return;
+
+    QDialogButtonBox *box = currentWindow->findChild<QDialogButtonBox *>();
 
     if (box) {
-	AddButtonDialog *window = new AddButtonDialog(box ,this);
-	window->setModal(true);
-	QDialog::DialogCode code = QDialog::DialogCode(window->exec());
+	AddButtonDialog *dialog = new AddButtonDialog(box ,this);
+	dialog->setModal(true);
+	QDialog::DialogCode code = QDialog::DialogCode(dialog->exec());
+
 	if (code == QDialog::Accepted)
-	    window->addButton(); 
+	    dialog->addButton(); 
 	box->adjustSize();
 	resolveButtons();
     }    
@@ -56,7 +62,7 @@ void MainWindow::deleteButton()
 	QString buttonText = tableWidget->item(row, 0)->text();
 	tableWidget->removeRow(row);
 	QDialogButtonBox *box = 
-	    workspace->activeWindow()->findChild<QDialogButtonBox *>();
+	    currentWindow->findChild<QDialogButtonBox *>();
 
 	if (box) {
 	    foreach (QAbstractButton *button, box->buttons()) {
@@ -73,46 +79,56 @@ void MainWindow::loadPresetBox()
 {   
     QAction *action = qobject_cast<QAction *>(sender());
 
-    workspace->addWindow(createDialogButtonBox(
-			 Presets(action->data().value<int>())))->show();
+    currentWindow =
+	mdiArea->addSubWindow(
+	    createDialogButtonBox(Presets(action->data().value<int>())));
+    currentWindow->show();
+
     resolveButtons();
 }
 
 void MainWindow::newStyle(QAction *action)
 {
-    QWidget *window = workspace->activeWindow();
-
-    if (window)	{
-	QDialogButtonBox *box = window->findChild<QDialogButtonBox *>();
+    if (currentWindow)	{
+	QDialogButtonBox *box = currentWindow->findChild<QDialogButtonBox *>();
 	QStyle *newStyle = QStyleFactory::create(action->text());
 	setStyle(box, newStyle);
-	window->adjustSize();
+	currentWindow->adjustSize();
     }
 }
 
 void MainWindow::newOrientation(QAction *action)
 {
-    QWidget *window = workspace->activeWindow();
-
-    if (window) {
-	QDialogButtonBox *box = window->findChild<QDialogButtonBox *>();
+    if (currentWindow) {
+	QDialogButtonBox *box = currentWindow->findChild<QDialogButtonBox *>();
 	box->setOrientation(Qt::Orientation(action->data().value<int>()));	
 	box->adjustSize();
 	resizeActiveWindow();
     }
 }
 
-void MainWindow::windowActivated(QWidget *)
+void MainWindow::subWindowActivated(QMdiSubWindow *window)
 {
-    QWidget *window = (workspace->activeWindow());
-    QDialogButtonBox *box = window->findChild<QDialogButtonBox *>();
+    currentWindow = window;
+    
+    QDialogButtonBox *box = currentWindow->findChild<QDialogButtonBox *>();
 
-    if (box->orientation() == Qt::Vertical)
-	verticalAction->setChecked(true);
-    else
-	horizontalAction->setChecked(true);
+    if (box) {
+	if (box->orientation() == Qt::Vertical)
+	    verticalAction->setChecked(true);
+	else
+	    horizontalAction->setChecked(true);
 
-    resolveButtons();
+	foreach (QAction *action, styleGroup->actions()) {
+	    if (QStyleFactory::create(action->text())->metaObject()->className()
+		== box->style()->metaObject()->className()) {
+		action->setChecked(true);
+	    }
+	}
+
+	resolveButtons();
+    } else
+	tableWidget->setRowCount(0);
 }
 
 void MainWindow::connectActions()
@@ -129,6 +145,7 @@ void MainWindow::connectActions()
     foreach (QString style, QStyleFactory::keys()) {
 	QAction *action = new QAction(style, this);
 	action->setCheckable(true);
+	action->setData(QStyleFactory::create(style));
 	stylesMenu->addAction(action);
 	styleGroup->addAction(action);
     }
@@ -162,7 +179,7 @@ void MainWindow::connectActions()
 QWidget *MainWindow::createDialogButtonBox(Presets preset)
 {
     QDialogButtonBox *box;
-    QWidget *window = new QWidget;
+    QWidget *widget = new QWidget;
 
      switch (preset) {
         case SaveChanges:
@@ -171,22 +188,22 @@ QWidget *MainWindow::createDialogButtonBox(Presets preset)
                                        QDialogButtonBox::No |
                                        QDialogButtonBox::NoToAll |
                                        QDialogButtonBox::Help);
-	    window->setWindowTitle(tr("Save Changes"));
+	    widget->setWindowTitle(tr("Save Changes"));
             break;
         case ReallyQuit:
             box = new QDialogButtonBox(QDialogButtonBox::Cancel |
                                        QDialogButtonBox::Yes);
-	    window->setWindowTitle(tr("Really Quit"));
+	    widget->setWindowTitle(tr("Really Quit"));
             break;
         case FileError:
             box = new QDialogButtonBox(QDialogButtonBox::Retry |
                                        QDialogButtonBox::Abort |
                                        QDialogButtonBox::Ignore);
-	    window->setWindowTitle(tr("File Error"));
+	    widget->setWindowTitle(tr("File Error"));
             break;
         default:
             box = new QDialogButtonBox;
-	    window->setWindowTitle(tr("Magic Box"));
+	    widget->setWindowTitle(tr("Magic Box"));
             box->resize(180, 27);
     }
     setStyle(box,
@@ -196,28 +213,32 @@ QWidget *MainWindow::createDialogButtonBox(Presets preset)
     QGridLayout *layout = new QGridLayout;
     layout->addItem(new QSpacerItem(box->width() + 50, 75), 0, 0);
     layout->addWidget(box, 1, 0);
-    window->setLayout(layout);
-    window->adjustSize();
+    widget->setLayout(layout);
+    widget->adjustSize();
     horizontalAction->setChecked(true);
 
-    return window;
+    return widget;
 }
 
 void MainWindow::setStyle(QDialogButtonBox *box, QStyle *style)
 {	
     box->setStyle(style);
+    box->setPalette(style->standardPalette());
+
     foreach (QObject *child, box->children()) {
 	QWidget *widget = qobject_cast<QWidget *>(child);
+
 	if (widget) {
 	    widget->setStyle(style);
+	    widget->setPalette(style->standardPalette());
 	}
     }
 }
 
 void MainWindow::resolveButtons()
 {
-    QWidget *window = (workspace->activeWindow());
-    QDialogButtonBox *box = window->findChild<QDialogButtonBox *>();
+    QDialogButtonBox *box =
+	currentWindow->findChild<QDialogButtonBox *>();
 
     if (box) {
 	int i = 0;
@@ -242,10 +263,8 @@ void MainWindow::resolveButtons()
 
 void MainWindow::resizeActiveWindow()
 {
-    QWidget *window = workspace->activeWindow();
-    Q_ASSERT(window);
-    QDialogButtonBox *box = window->findChild<QDialogButtonBox *>();
-    delete window->layout();
+    QDialogButtonBox *box = currentWindow->findChild<QDialogButtonBox *>();
+    delete currentWindow->layout();
     QGridLayout *layout = new QGridLayout;
 
     box->adjustSize(); 
@@ -259,6 +278,6 @@ void MainWindow::resizeActiveWindow()
 	layout->setColumnStretch(1, 10);
 	layout->addWidget(box, 0, 2);	
     }
-    window->setLayout(layout);
-    window->adjustSize();
+    currentWindow->setLayout(layout);
+    currentWindow->adjustSize();
 }

@@ -19,31 +19,9 @@
      <x>0</x>
      <y>0</y>
      <width>431</width>
-     <height>29</height>
+     <height>23</height>
     </rect>
    </property>
-   <widget class="QMenu" name="dialogBoxMenu" >
-    <property name="title" >
-     <string>Dialog Box</string>
-    </property>
-    <widget class="QMenu" name="stylesMenu" >
-     <property name="title" >
-      <string>&amp;Styles</string>
-     </property>
-    </widget>
-    <widget class="QMenu" name="orientationMenu" >
-     <property name="title" >
-      <string>&amp;Orientation</string>
-     </property>
-     <addaction name="horizontalAction" />
-     <addaction name="verticalAction" />
-    </widget>
-    <addaction name="addButtonAction" />
-    <addaction name="deleteButtonAction" />
-    <addaction name="separator" />
-    <addaction name="orientationMenu" />
-    <addaction name="stylesMenu" />
-   </widget>
    <widget class="QMenu" name="menuFile" >
     <property name="title" >
      <string>File</string>
@@ -61,15 +39,32 @@
     <addaction name="separator" />
     <addaction name="exitAction" />
    </widget>
+   <widget class="QMenu" name="dialogBoxMenu" >
+    <property name="title" >
+     <string>Dialog Box</string>
+    </property>
+    <widget class="QMenu" name="stylesMenu" >
+     <property name="title" >
+      <string>&amp;Styles</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="orientationMenu" >
+     <property name="title" >
+      <string>&amp;Orientation</string>
+     </property>
+     <addaction name="horizontalAction" />
+     <addaction name="verticalAction" />
+    </widget>
+    <addaction name="orientationMenu" />
+    <addaction name="stylesMenu" />
+   </widget>
    <addaction name="menuFile" />
    <addaction name="dialogBoxMenu" />
   </widget>
   <widget class="QStatusBar" name="statusbar" />
   <widget class="QDockWidget" name="dockWidget" >
    <property name="sizePolicy" >
-    <sizepolicy>
-     <hsizetype>5</hsizetype>
-     <vsizetype>5</vsizetype>
+    <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -94,9 +89,7 @@
         <bool>true</bool>
        </property>
        <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>7</hsizetype>
-         <vsizetype>7</vsizetype>
+        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>

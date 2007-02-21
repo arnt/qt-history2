@@ -6,12 +6,14 @@
 
 #include "ui_mainwindow.h"
 
-class QWorkspace;
+class QMdiArea;
+class QMdiSubWindow;
 class QGroupBox;
 class QAction;
 class QActionGroup;
 class QMenu;
 class QDialogButtonBox;
+class QCloseEvent;
 
 class MainWindow : public QMainWindow, Ui::MainWindow
 {
@@ -28,7 +30,7 @@ private slots:
     void loadPresetBox();
     void newStyle(QAction *action);
     void newOrientation(QAction *action);
-    void windowActivated(QWidget *widget);
+    void subWindowActivated(QMdiSubWindow *widget);
 
 private:
     void connectActions();
@@ -37,7 +39,10 @@ private:
     void resolveButtons();
     void resizeActiveWindow();
     
-    QWorkspace *workspace;
+    int windowCount;
+
+    QMdiArea *mdiArea;
+    QMdiSubWindow *currentWindow;
 
     QActionGroup *styleGroup;
     QActionGroup *orientationGroup;
