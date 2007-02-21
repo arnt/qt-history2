@@ -221,6 +221,8 @@ public:
         return QPoint(q->horizontalOffset(), q->verticalOffset());
     }
 
+    QStyleOptionViewItemV3 viewOptionsV3() const;
+
     QAbstractItemModel *model;
     QPointer<QAbstractItemDelegate> itemDelegate;
     QMap<int, QPointer<QAbstractItemDelegate> > rowDelegates;
@@ -284,6 +286,8 @@ public:
     QAbstractItemView::ScrollMode horizontalScrollMode;
 
     bool currentIndexSet;
+
+    bool wrapItemText;
 };
 
 #include <qvector.h>

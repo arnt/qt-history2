@@ -58,7 +58,8 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         textElideMode(Qt::ElideRight),
         verticalScrollMode(QAbstractItemView::ScrollPerItem),
         horizontalScrollMode(QAbstractItemView::ScrollPerItem),
-        currentIndexSet(false)
+        currentIndexSet(false),
+        wrapItemText(false)
 {
 }
 
@@ -2871,6 +2872,17 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     option.textElideMode = d->textElideMode;
     option.rect = QRect();
     option.showDecorationSelected = style()->styleHint(QStyle::SH_ItemView_ShowDecorationSelected, 0, this);
+    return option;
+}
+
+QStyleOptionViewItemV3 QAbstractItemViewPrivate::viewOptionsV3() const
+{
+    Q_Q(const QAbstractItemView);
+    QStyleOptionViewItemV3 option = q->viewOptions();
+    if (wrapItemText)
+        option.features = QStyleOptionViewItemV2::WrapText;
+    option.locale = q->locale();
+    option.widget = q;
     return option;
 }
 

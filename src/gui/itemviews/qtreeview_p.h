@@ -50,7 +50,7 @@ public:
           header(0), indent(20), lastViewedItem(0), defaultItemHeight(-1),
           uniformRowHeights(false), rootDecoration(true),
           itemsExpandable(true), sortingEnabled(false),
-          allColumnsShowFocus(false), wrapItemText(false),
+          allColumnsShowFocus(false),
           animationsEnabled(false), columnResizeTimerID(0),
           autoExpandDelay(-1), hoverBranch(-1) {}
 
@@ -120,9 +120,6 @@ public:
 
     QPair<int,int> startAndEndColumns(const QRect &rect) const;
 
-    QStyleOptionViewItemV2 viewOptionsV2() const;
-    QStyleOptionViewItemV3 viewOptionsV3() const;
-
     void updateChildCount(const int parentItem, const int delta);
     void rowsRemoved(const QModelIndex &parent,
                      int start, int end, bool before);
@@ -138,7 +135,6 @@ public:
     bool itemsExpandable;
     bool sortingEnabled;
     bool allColumnsShowFocus;
-    bool wrapItemText;
 
     // used for drawing
     mutable QPair<int,int> leftAndRight;

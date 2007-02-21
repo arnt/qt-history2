@@ -38,8 +38,9 @@ public:
           rowSectionAnchor(-1), columnSectionAnchor(-1),
           columnResizeTimerID(0), rowResizeTimerID(0),
           horizontalHeader(0), verticalHeader(0),
-          sortingEnabled(false), wrapItemText(true)
+          sortingEnabled(false)
  {
+    wrapItemText = true;
 #ifndef QT_NO_DRAGANDDROP
     overwrite = true;
 #endif
@@ -75,9 +76,6 @@ public:
                           const QStyleOptionViewItemV3 &option);
     void drawCell(QPainter *painter, const QStyleOptionViewItemV3 &option, const QModelIndex &index);
 
-    QStyleOptionViewItemV2 viewOptionsV2() const;
-    QStyleOptionViewItemV3 viewOptionsV3() const;
-
     bool showGrid;
     Qt::PenStyle gridStyle;
     int rowSectionAnchor;
@@ -90,7 +88,6 @@ public:
     QHeaderView *verticalHeader;
     QWidget *cornerWidget;
     bool sortingEnabled;
-    bool wrapItemText;
 
     struct Span
     {

@@ -1735,8 +1735,7 @@ QListViewPrivate::QListViewPrivate()
       modeProperties(0),
       column(0),
       uniformItemSizes(false),
-      batchSize(100),
-      wrapItemText(false)
+      batchSize(100)
 {
 }
 
@@ -1879,23 +1878,6 @@ QSize QListViewPrivate::itemSize(const QStyleOptionViewItem &option, const QMode
         cachedItemSize = delegate ? delegate->sizeHint(option, sample) : QSize();
     }
     return cachedItemSize;
-}
-
-QStyleOptionViewItemV2 QListViewPrivate::viewOptionsV2() const
-{
-    Q_Q(const QListView);
-    QStyleOptionViewItemV2 option = q->viewOptions();
-    if (wrapItemText)
-        option.features = QStyleOptionViewItemV2::WrapText;
-    return option;
-}
-
-QStyleOptionViewItemV3 QListViewPrivate::viewOptionsV3() const
-{
-    Q_Q(const QListView);
-    QStyleOptionViewItemV3 option = viewOptionsV2();
-    option.locale = q->locale();
-    return option;
 }
 
 QItemSelection QListViewPrivate::selection(const QRect &rect) const

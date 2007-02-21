@@ -81,6 +81,14 @@ public:
     mutable QTextLayout textLayout;
     mutable QTextOption textOption;
 
+    const QWidget *widget(const QStyleOptionViewItem &option) const
+    {
+        if (const QStyleOptionViewItemV3 *v3 = qstyleoption_cast<const QStyleOptionViewItemV3 *>(&option))
+            return v3->widget;
+
+        return 0;
+    }
+
     // ### temporary hack until we have QStandardItemDelegate
     mutable struct Icon {
         QIcon icon;
@@ -346,6 +354,7 @@ void QItemDelegate::paint(QPainter *painter,
                     : QStyleOptionViewItemV2::ViewItemFeatures(QStyleOptionViewItemV2::None);
     const QStyleOptionViewItemV3 *v3 = qstyleoption_cast<const QStyleOptionViewItemV3 *>(&option);
     opt.locale = v3 ? v3->locale : QLocale();
+    opt.widget = v3 ? v3->widget : 0;
 
     // prepare
     painter->save();
@@ -602,8 +611,11 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         painter->restore();
     }
 
-    const QStyleOptionViewItemV2 opt = option;
-    const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
+    const QStyleOptionViewItemV3 opt = option;
+
+    const QWidget *widget = d->widget(option);
+    QStyle *style = widget ? widget->style() : QApplication::style();
+    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, widget) + 1;
     QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0); // remove width padding
     const bool wrapText = opt.features & QStyleOptionViewItemV2::WrapText;
     d->textOption.setWrapMode(wrapText ? QTextOption::WordWrap : QTextOption::ManualWrap);
@@ -691,6 +703,7 @@ void QItemDelegate::drawFocus(QPainter *painter,
                               const QStyleOptionViewItem &option,
                               const QRect &rect) const
 {
+    Q_D(const QItemDelegate);
     if ((option.state & QStyle::State_HasFocus) == 0 || !rect.isValid())
         return;
     QStyleOptionFocusRect o;
@@ -701,7 +714,9 @@ void QItemDelegate::drawFocus(QPainter *painter,
                               ? QPalette::Normal : QPalette::Disabled;
     o.backgroundColor = option.palette.color(cg, (option.state & QStyle::State_Selected)
                                              ? QPalette::Highlight : QPalette::Window);
-    QApplication::style()->drawPrimitive(QStyle::PE_FrameFocusRect, &o, painter);
+    const QWidget *widget = d->widget(option);
+    QStyle *style = widget ? widget->style() : QApplication::style();
+    style->drawPrimitive(QStyle::PE_FrameFocusRect, &o, painter, widget);
 }
 
 /*!
@@ -714,6 +729,7 @@ void QItemDelegate::drawCheck(QPainter *painter,
                               const QStyleOptionViewItem &option,
                               const QRect &rect, Qt::CheckState state) const
 {
+    Q_D(const QItemDelegate);
     if (!rect.isValid())
         return;
 
@@ -733,7 +749,9 @@ void QItemDelegate::drawCheck(QPainter *painter,
         break;
     }
 
-    QApplication::style()->drawPrimitive(QStyle::PE_IndicatorViewItemCheck, &opt, painter);
+    const QWidget *widget = d->widget(option);
+    QStyle *style = widget ? widget->style() : QApplication::style();
+    style->drawPrimitive(QStyle::PE_IndicatorViewItemCheck, &opt, painter, widget);
 }
 
 /*!
@@ -775,7 +793,10 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
                              bool hint) const
 {
     Q_ASSERT(checkRect && pixmapRect && textRect);
-    const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
+    Q_D(const QItemDelegate);
+    const QWidget *widget = d->widget(option);
+    QStyle *style = widget ? widget->style() : QApplication::style();
+    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, widget) + 1;
     int x = option.rect.left();
     int y = option.rect.top();
     int w, h;
@@ -1016,10 +1037,13 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
                            const QRect &bounding, const QVariant &value) const
 {
     if (value.isValid()) {
+        Q_D(const QItemDelegate);
         QStyleOptionButton opt;
         opt.QStyleOption::operator=(option);
         opt.rect = bounding;
-        return QApplication::style()->subElementRect(QStyle::SE_ViewItemCheckIndicator, &opt);
+        const QWidget *widget = d->widget(option); // cast
+        QStyle *style = widget ? widget->style() : QApplication::style();
+        return style->subElementRect(QStyle::SE_ViewItemCheckIndicator, &opt, widget);
     }
     return QRect();
 }
@@ -1036,6 +1060,7 @@ QRect QItemDelegate::textRectangle(QPainter * /*painter*/, const QRect &rect,
     d->textLayout.setFont(font);
     d->textLayout.setText(QItemDelegatePrivate::replaceNewLine(text));
     const QSize size = d->doTextLayout(rect.width()).toSize();
+    // ###: textRectangle should take style option as argument
     const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     return QRect(0, 0, size.width() + 2 * textMargin, size.height());
 }
@@ -1151,7 +1176,10 @@ bool QItemDelegate::editorEvent(QEvent *event,
     // make sure that we have the right event type
     if ((event->type() == QEvent::MouseButtonRelease)
         || (event->type() == QEvent::MouseButtonDblClick)) {
-        const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
+        Q_D(QItemDelegate);
+        const QWidget *widget = d->widget(option);
+        QStyle *style = widget ? widget->style() : QApplication::style();
+        const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, widget) + 1;
         QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignLeft | Qt::AlignVCenter,
                                               check(option, option.rect, Qt::Checked).size(),
                                               QRect(option.rect.x() + textMargin, option.rect.y(),

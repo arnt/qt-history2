@@ -3112,23 +3112,6 @@ bool QTreeViewPrivate::hasVisibleChildren(const QModelIndex& parent) const
     return false;
 }
 
-QStyleOptionViewItemV2 QTreeViewPrivate::viewOptionsV2() const
-{
-    Q_Q(const QTreeView);
-    QStyleOptionViewItemV2 option = q->viewOptions();
-    if (wrapItemText)
-        option.features = QStyleOptionViewItemV2::WrapText;
-    return option;
-}
-
-QStyleOptionViewItemV3 QTreeViewPrivate::viewOptionsV3() const
-{
-    Q_Q(const QTreeView);
-    QStyleOptionViewItemV3 option = viewOptionsV2();
-    option.locale = q->locale();
-    return option;
-}
-
 void QTreeViewPrivate::rowsRemoved(const QModelIndex &parent,
                                    int start, int end, bool after)
 {

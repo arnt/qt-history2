@@ -289,11 +289,8 @@ public:
     bool selectionAllowed(const QModelIndex &index) const
         { if (viewMode == QListView::ListMode && !showElasticBand) return index.isValid(); return true; }
 
-    QStyleOptionViewItemV2 viewOptionsV2() const;
     int horizontalScrollToValue(const QModelIndex &index, const QRect &rect, QListView::ScrollHint hint) const;
     int verticalScrollToValue(const QModelIndex &index, const QRect &rect, QListView::ScrollHint hint) const;
-
-    QStyleOptionViewItemV3 viewOptionsV3() const;
 
     QItemSelection selection(const QRect &rect) const;
 
@@ -353,7 +350,6 @@ public:
     bool uniformItemSizes;
     mutable QSize cachedItemSize;
     int batchSize;
-    bool wrapItemText;
 
     QRect elasticBand;
     bool showElasticBand;

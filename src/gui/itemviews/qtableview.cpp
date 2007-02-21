@@ -351,23 +351,6 @@ void QTableViewPrivate::drawCell(QPainter *painter, const QStyleOptionViewItemV3
     q->itemDelegate(index)->paint(painter, opt, index);
 }
 
-QStyleOptionViewItemV2 QTableViewPrivate::viewOptionsV2() const
-{
-    Q_Q(const QTableView);
-    QStyleOptionViewItemV2 option = q->viewOptions();
-    if (wrapItemText)
-        option.features = QStyleOptionViewItemV2::WrapText;
-    return option;
-}
-
-QStyleOptionViewItemV3 QTableViewPrivate::viewOptionsV3() const
-{
-    Q_Q(const QTableView);
-    QStyleOptionViewItemV3 option = viewOptionsV2();
-    option.locale = q->locale();
-    return option;
-}
-
 /*!
     \class QTableView
 
