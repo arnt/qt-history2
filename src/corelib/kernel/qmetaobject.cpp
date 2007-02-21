@@ -1657,7 +1657,7 @@ QVariant QMetaProperty::read(const QObject *object) const
     if (!object || !mobj)
         return QVariant();
 
-    int  t = QVariant::Int;
+    uint t = QVariant::Int;
     if (!isEnumType()) {
         int handle = priv(mobj->d.data)->propertyData + 3*idx;
         uint flags = mobj->d.data[handle + 2];
@@ -1677,7 +1677,7 @@ QVariant QMetaProperty::read(const QObject *object) const
     }
     QVariant value;
     void *argv[1];
-    if (t == int(QVariant::LastType)) {
+    if (t == QVariant::LastType) {
         argv[0] = &value;
     } else {
         value = QVariant(t, (void*)0);
@@ -1686,7 +1686,7 @@ QVariant QMetaProperty::read(const QObject *object) const
     const_cast<QObject*>(object)->qt_metacall(QMetaObject::ReadProperty,
                                               idx + mobj->propertyOffset(),
                                               argv);
-    if (t != int(QVariant::LastType) && argv[0] != value.data())
+    if (t != QVariant::LastType && argv[0] != value.data())
         return QVariant((QVariant::Type)t, argv[0]);
     return value;
 }
