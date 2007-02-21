@@ -582,9 +582,12 @@ void QDesignerActions::previewForm(QAction *action)
     if (!widget)
         return;
 
+    // Only Dialogs have close buttons on mac
+#ifdef Q_WS_MAC
+    Qt::WindowFlags windwowFlags = Qt::Dialog;  
+#else
     Qt::WindowFlags windwowFlags = (widget->windowType() == Qt::Window) ? Qt::Window | Qt::WindowMaximizeButtonHint : Qt::Dialog;
-    windwowFlags |= Qt::WindowStaysOnTopHint;
-
+#endif
     // Install filter for Escape key
     widget->setParent(fw->window(), windwowFlags);
 
