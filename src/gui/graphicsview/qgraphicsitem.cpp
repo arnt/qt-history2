@@ -1027,8 +1027,14 @@ void QGraphicsItem::setCursor(const QCursor &cursor)
     d_ptr->hasCursor = 1;
     if (d_ptr->scene) {
         foreach (QGraphicsView *view, d_ptr->scene->views()) {
-            if (view->underMouse() && view->itemAt(view->mapFromGlobal(QCursor::pos())) == this) {
-                QMetaObject::invokeMethod(view, "setViewportCursor", Q_ARG(QCursor, cursor));
+            // Note: Some of this logic is duplicated in QGraphicsView's mouse events.
+            if (view->underMouse()) {
+                foreach (QGraphicsItem *itemUnderCursor, view->items(view->mapFromGlobal(QCursor::pos()))) {
+                    if (itemUnderCursor->hasCursor()) {
+                        QMetaObject::invokeMethod(view, "_q_setViewportCursor", Q_ARG(QCursor, cursor));
+                        break;
+                    }
+                }
                 break;
             }
         }
@@ -1060,7 +1066,7 @@ void QGraphicsItem::unsetCursor()
     if (d_ptr->scene) {
         foreach (QGraphicsView *view, d_ptr->scene->views()) {
             if (view->underMouse() && view->itemAt(view->mapFromGlobal(QCursor::pos())) == this) {
-                QMetaObject::invokeMethod(view, "unsetViewportCursor");
+                QMetaObject::invokeMethod(view, "_q_unsetViewportCursor");
                 break;
             }
         }
