@@ -1236,6 +1236,9 @@ bool QAbstractItemView::event(QEvent *event)
     case QEvent::ApplicationLayoutDirectionChange:
         updateGeometries();
         break;
+    case QEvent::StyleChange:
+        doItemsLayout();
+        break;
     default:
         break;
     }
@@ -1278,7 +1281,7 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
     case QEvent::WhatsThis: {
         QHelpEvent *he = static_cast<QHelpEvent*>(event);
         const QModelIndex index = indexAt(he->pos());
-        QStyleOptionViewItem option = viewOptions();
+        QStyleOptionViewItemV3 option = d->viewOptionsV3();
         option.rect = visualRect(index);
         option.state |= (index == currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
         bool retval = false;
@@ -2126,7 +2129,7 @@ void QAbstractItemView::updateEditorData()
 void QAbstractItemView::updateEditorGeometries()
 {
     Q_D(QAbstractItemView);
-    QStyleOptionViewItem option = viewOptions();
+    QStyleOptionViewItemV3 option = d->viewOptionsV3();
     _q_abstractitemview_editor_iterator it = d->editors.begin();
     while (it != d->editors.end()) {
         QModelIndex index = d->indexForIterator(it);
@@ -2414,7 +2417,7 @@ QSize QAbstractItemView::sizeHintForIndex(const QModelIndex &index) const
     Q_D(const QAbstractItemView);
     if (!d->isIndexValid(index) || !d->itemDelegate)
         return QSize();
-    return d->delegateForIndex(index)->sizeHint(viewOptions(), index);
+    return d->delegateForIndex(index)->sizeHint(d->viewOptionsV3(), index);
 }
 
 /*!
@@ -2440,7 +2443,7 @@ int QAbstractItemView::sizeHintForRow(int row) const
     if (row < 0 || row >= d->model->rowCount() || !model())
         return -1;
 
-    QStyleOptionViewItem option = viewOptions();
+    QStyleOptionViewItemV3 option = d->viewOptionsV3();
     int height = 0;
     int colCount = d->model->columnCount(d->root);
     QModelIndex index;
@@ -2469,7 +2472,7 @@ int QAbstractItemView::sizeHintForColumn(int column) const
     if (column < 0 || column >= d->model->columnCount() || !model())
         return -1;
 
-    QStyleOptionViewItem option = viewOptions();
+    QStyleOptionViewItemV3 option = d->viewOptionsV3();
     int width = 0;
     int rows = d->model->rowCount(d->root);
     QModelIndex index;
@@ -2492,7 +2495,7 @@ int QAbstractItemView::sizeHintForColumn(int column) const
 void QAbstractItemView::openPersistentEditor(const QModelIndex &index)
 {
     Q_D(QAbstractItemView);
-    QStyleOptionViewItem options = viewOptions();
+    QStyleOptionViewItemV3 options = d->viewOptionsV3();
     options.rect = visualRect(index);
     options.state |= (index == currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
 
@@ -3436,7 +3439,7 @@ bool QAbstractItemViewPrivate::sendDelegateEvent(const QModelIndex &index, QEven
 {
     Q_Q(const QAbstractItemView);
     QModelIndex buddy = model->buddy(index);
-    QStyleOptionViewItem options = q->viewOptions();
+    QStyleOptionViewItemV3 options = viewOptionsV3();
     options.rect = q->visualRect(buddy);
     options.state |= (buddy == q->currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
     QAbstractItemDelegate *delegate = delegateForIndex(index);
@@ -3448,7 +3451,7 @@ bool QAbstractItemViewPrivate::openEditor(const QModelIndex &index, QEvent *even
     Q_Q(QAbstractItemView);
 
     QModelIndex buddy = model->buddy(index);
-    QStyleOptionViewItem options = q->viewOptions();
+    QStyleOptionViewItemV3 options = viewOptionsV3();
     options.rect = q->visualRect(buddy);
     options.state |= (buddy == q->currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
 
@@ -3479,7 +3482,7 @@ QPixmap QAbstractItemViewPrivate::renderToPixmap(const QModelIndexList &indexes,
     QPixmap pixmap(rect.size());
     pixmap.fill(q->palette().base().color());
     QPainter painter(&pixmap);
-    QStyleOptionViewItem option = q->viewOptions();
+    QStyleOptionViewItemV3 option = viewOptionsV3();
     option.state |= QStyle::State_Selected;
     for (int j = 0; j < indexes.count(); ++j) {
         option.rect = QRect(rects.at(j).topLeft() - rect.topLeft(), rects.at(j).size());
