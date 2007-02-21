@@ -1138,30 +1138,13 @@ void QXmlStreamReaderPrivate::resolveTag()
         QStringRef qualifiedName(symName(attrib.key));
         QStringRef value(symString(attrib.value));
 
-        attribute.buffer[0] = textBuffer;
-
-        attribute.name_buffer = 0;
-        attribute.name_pos = name.position();
-        attribute.name_size = name.size();
-
-        attribute.qualifiedName_buffer = 0;
-        attribute.qualifiedName_pos = qualifiedName.position();
-        attribute.qualifiedName_size = qualifiedName.size();
-
-        attribute.value_buffer = 0;
-        attribute.value_pos = value.position();
-        attribute.value_size = value.size();
+        attribute.m_name = QXmlStreamStringRef(name);
+        attribute.m_qualifiedName = QXmlStreamStringRef(qualifiedName);
+        attribute.m_value = QXmlStreamStringRef(value);
 
         if (!prefix.isEmpty()) {
-            attribute.buffer[1] = tagStackStringStorage;
             QStringRef attributeNamespaceUri = namespaceForPrefix(prefix);
-            attribute.namespaceUri_buffer = 1;
-            attribute.namespaceUri_pos = attributeNamespaceUri.position();
-            attribute.namespaceUri_size = attributeNamespaceUri.size();
-        } else {
-            attribute.namespaceUri_buffer = 1;
-            attribute.namespaceUri_pos = 0;
-            attribute.namespaceUri_size = 0;
+            attribute.m_namespaceUri = QXmlStreamStringRef(attributeNamespaceUri);
         }
 
         for (int j = 0; j < i; ++j) {
@@ -1184,29 +1167,13 @@ void QXmlStreamReaderPrivate::resolveTag()
 
 
         QXmlStreamAttribute attribute;
-        attribute.buffer[0] = tagStackStringStorage;
-
-        attribute.name_buffer = 0;
-        attribute.name_pos = dtdAttribute.attributeName.position();
-        attribute.name_size = dtdAttribute.attributeName.size();
-
-        attribute.qualifiedName_buffer = 0;
-        attribute.qualifiedName_pos = dtdAttribute.attributeQualifiedName.position();
-        attribute.qualifiedName_size = dtdAttribute.attributeQualifiedName.size();
-
-        attribute.value_buffer = 0;
-        attribute.value_pos =  dtdAttribute.defaultValue.position();
-        attribute.value_size = dtdAttribute.defaultValue.size();
+        attribute.m_name = QXmlStreamStringRef(dtdAttribute.attributeName);
+        attribute.m_qualifiedName = QXmlStreamStringRef(dtdAttribute.attributeQualifiedName);
+        attribute.m_value = QXmlStreamStringRef(dtdAttribute.defaultValue);
 
         if (!dtdAttribute.attributePrefix.isEmpty()) {
             QStringRef attributeNamespaceUri = namespaceForPrefix(dtdAttribute.attributePrefix);
-            attribute.namespaceUri_buffer = 0;
-            attribute.namespaceUri_pos = attributeNamespaceUri.position();
-            attribute.namespaceUri_size = attributeNamespaceUri.size();
-        } else {
-            attribute.namespaceUri_buffer = 0;
-            attribute.namespaceUri_pos = 0;
-            attribute.namespaceUri_size = 0;
+            attribute.m_namespaceUri = QXmlStreamStringRef(attributeNamespaceUri);
         }
         attribute.m_isDefault = true;
         attributes.append(attribute);
@@ -1223,11 +1190,8 @@ void QXmlStreamReaderPrivate::resolvePublicNamespaces()
     for (int i = 0; i < n; ++i) {
         const NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.at(tag.namespaceDeclarationsSize + i);
         QXmlStreamNamespaceDeclaration &publicNamespaceDeclaration = publicNamespaceDeclarations[i];
-        publicNamespaceDeclaration.buffer = tagStackStringStorage;
-        publicNamespaceDeclaration.prefix_pos = namespaceDeclaration.prefix.position();
-        publicNamespaceDeclaration.prefix_size = namespaceDeclaration.prefix.size();
-        publicNamespaceDeclaration.namespaceUri_pos = namespaceDeclaration.namespaceUri.position();
-        publicNamespaceDeclaration.namespaceUri_size = namespaceDeclaration.namespaceUri.size();
+        publicNamespaceDeclaration.m_prefix = QXmlStreamStringRef(namespaceDeclaration.prefix);
+        publicNamespaceDeclaration.m_namespaceUri = QXmlStreamStringRef(namespaceDeclaration.namespaceUri);
     }
 }
 
@@ -1237,13 +1201,9 @@ void QXmlStreamReaderPrivate::resolveDtd()
     for (int i = 0; i < notationDeclarations.size(); ++i) {
         const QXmlStreamReaderPrivate::NotationDeclaration &notationDeclaration = notationDeclarations.at(i);
         QXmlStreamNotationDeclaration &publicNotationDeclaration = publicNotationDeclarations[i];
-        publicNotationDeclaration.buffer = textBuffer;
-        publicNotationDeclaration.name_pos = notationDeclaration.name.position();
-        publicNotationDeclaration.name_size = notationDeclaration.name.size();
-        publicNotationDeclaration.systemId_pos = notationDeclaration.systemId.position();
-        publicNotationDeclaration.systemId_size = notationDeclaration.systemId.size();
-        publicNotationDeclaration.publicId_pos = notationDeclaration.publicId.position();
-        publicNotationDeclaration.publicId_size = notationDeclaration.publicId.size();
+        publicNotationDeclaration.m_name = QXmlStreamStringRef(notationDeclaration.name);
+        publicNotationDeclaration.m_systemId = QXmlStreamStringRef(notationDeclaration.systemId);
+        publicNotationDeclaration.m_publicId = QXmlStreamStringRef(notationDeclaration.publicId);
 
     }
     notationDeclarations.clear();
@@ -1251,18 +1211,11 @@ void QXmlStreamReaderPrivate::resolveDtd()
     for (int i = 0; i < entityDeclarations.size(); ++i) {
         const QXmlStreamReaderPrivate::EntityDeclaration &entityDeclaration = entityDeclarations.at(i);
         QXmlStreamEntityDeclaration &publicEntityDeclaration = publicEntityDeclarations[i];
-        publicEntityDeclaration.buffer = textBuffer;
-        publicEntityDeclaration.name_pos = entityDeclaration.name.position();
-        publicEntityDeclaration.name_size = entityDeclaration.name.size();
-        publicEntityDeclaration.notationName_pos = entityDeclaration.notationName.position();
-        publicEntityDeclaration.notationName_size = entityDeclaration.notationName.size();
-        publicEntityDeclaration.systemId_pos = entityDeclaration.systemId.position();
-        publicEntityDeclaration.systemId_size = entityDeclaration.systemId.size();
-        publicEntityDeclaration.publicId_pos = entityDeclaration.publicId.position();
-        publicEntityDeclaration.publicId_size = entityDeclaration.publicId.size();
-        publicEntityDeclaration.value_pos = entityDeclaration.value.position();
-        publicEntityDeclaration.value_size = entityDeclaration.value.size();
-
+        publicEntityDeclaration.m_name = QXmlStreamStringRef(entityDeclaration.name);
+        publicEntityDeclaration.m_notationName = QXmlStreamStringRef(entityDeclaration.notationName);
+        publicEntityDeclaration.m_systemId = QXmlStreamStringRef(entityDeclaration.systemId);
+        publicEntityDeclaration.m_publicId = QXmlStreamStringRef(entityDeclaration.publicId);
+        publicEntityDeclaration.m_value = QXmlStreamStringRef(entityDeclaration.value);
     }
     entityDeclarations.clear();
     parameterEntityHash.clear();
@@ -1687,10 +1640,6 @@ QXmlStreamAttributes QXmlStreamReader::attributes() const
  */
 QXmlStreamAttribute::QXmlStreamAttribute()
 {
-    namespaceUri_buffer = namespaceUri_pos= namespaceUri_size = 0;
-    name_buffer = name_pos = name_size = 0;
-    qualifiedName_buffer = qualifiedName_pos= qualifiedName_size = 0;
-    value_buffer = value_pos = value_size = 0;
     m_isDefault = false;
 }
 
@@ -1706,25 +1655,10 @@ QXmlStreamAttribute::~QXmlStreamAttribute()
  */
 QXmlStreamAttribute::QXmlStreamAttribute(const QString &namespaceUri, const QString &name, const QString &value)
 {
-    buffer[0] = namespaceUri;
-    buffer[1] = name;
-    buffer[2] = value;
-
-    namespaceUri_buffer = 0;
-    namespaceUri_pos = 0;
-    namespaceUri_size = namespaceUri.size();
-
-    name_buffer = 1;
-    name_pos = 0;
-    name_size = name.size();
-
-    qualifiedName_buffer = 1;
-    qualifiedName_pos = 0;
-    qualifiedName_size = name.size();
-
-    value_buffer = 2;
-    value_pos = 0;
-    value_size = value.size();
+    m_namespaceUri = QXmlStreamStringRef(QStringRef(&namespaceUri));
+    m_name = m_qualifiedName = QXmlStreamStringRef(QStringRef(&name));
+    m_value = QXmlStreamStringRef(QStringRef(&value));
+    m_namespaceUri = QXmlStreamStringRef(QStringRef(&namespaceUri));
 }
 
 /*!
@@ -1732,26 +1666,12 @@ QXmlStreamAttribute::QXmlStreamAttribute(const QString &namespaceUri, const QStr
  */
 QXmlStreamAttribute::QXmlStreamAttribute(const QString &qualifiedName, const QString &value)
 {
-    buffer[0] = qualifiedName;
-    buffer[2] = value;
-
     int colon = qualifiedName.indexOf(QLatin1Char(':'));
-
-    namespaceUri_buffer = 0;
-    namespaceUri_pos = 0;
-    namespaceUri_size = 0;
-
-    name_buffer = 0;
-    name_pos = colon + 1;
-    name_size = qualifiedName.size() - (colon + 1);
-
-    qualifiedName_buffer = 0;
-    qualifiedName_pos = 0;
-    qualifiedName_size = qualifiedName.size();
-
-    value_buffer = 2;
-    value_pos = 0;
-    value_size = value.size();
+    m_name = QXmlStreamStringRef(QStringRef(&qualifiedName,
+                                            colon + 1,
+                                            qualifiedName.size() - (colon + 1)));
+    m_qualifiedName = QXmlStreamStringRef(QStringRef(&qualifiedName));
+    m_value = QXmlStreamStringRef(QStringRef(&value));
 }
 
 /*! \fn QStringRef QXmlStreamAttribute::namespaceUri() const
@@ -1783,7 +1703,16 @@ QXmlStreamAttribute::QXmlStreamAttribute(const QString &qualifiedName, const QSt
    value following an ATTLIST declaration in the DTD; otherwise
    returns false.
 */
+/*! \fn bool operator==(const QXmlStreamAttribute &other)
 
+    Compares this attribute with \a other and returns true if they are
+    equal; otherwise returns false.
+ */
+/*! \fn bool operator!=(const QXmlStreamAttribute &other)
+
+    Compares this attribute with \a other and returns true if they are
+    not equal; otherwise returns false.
+ */
 
 
 /*!
@@ -1799,21 +1728,10 @@ QXmlStreamAttribute::QXmlStreamAttribute(const QXmlStreamAttribute &other)
  */
 QXmlStreamAttribute& QXmlStreamAttribute::operator=(const QXmlStreamAttribute &other)
 {
-    name_buffer = other.name_buffer;
-    name_pos = other.name_pos;
-    name_size = other.name_size;
-    namespaceUri_buffer = other.namespaceUri_buffer;
-    namespaceUri_pos = other.namespaceUri_pos;
-    namespaceUri_size = other.namespaceUri_size;
-    qualifiedName_buffer = other.qualifiedName_buffer;
-    qualifiedName_pos = other.qualifiedName_pos;
-    qualifiedName_size = other.qualifiedName_size;
-    value_buffer = other.value_buffer;
-    value_pos = other.value_pos;
-    value_size = other.value_size;
-    buffer[0] = other.buffer[0];
-    buffer[1] = other.buffer[1];
-    buffer[2] = other.buffer[2];
+    m_name = other.m_name;
+    m_namespaceUri = other.m_namespaceUri;
+    m_qualifiedName = other.m_qualifiedName;
+    m_value = other.m_value;
     m_isDefault = other.m_isDefault;
     return *this;
 }
@@ -1865,7 +1783,6 @@ QXmlStreamAttribute& QXmlStreamAttribute::operator=(const QXmlStreamAttribute &o
 */
 QXmlStreamNotationDeclaration::QXmlStreamNotationDeclaration()
 {
-    name_pos = name_size = systemId_pos = systemId_size = publicId_pos = publicId_size = 0;
 }
 /*!
   Creates a copy of \a other.
@@ -1880,18 +1797,14 @@ QXmlStreamNotationDeclaration::QXmlStreamNotationDeclaration(const QXmlStreamNot
  */
 QXmlStreamNotationDeclaration& QXmlStreamNotationDeclaration::operator=(const QXmlStreamNotationDeclaration &other)
 {
-    buffer = other.buffer;
-    name_pos = other.name_pos;
-    name_size = other.name_size;
-    systemId_pos = other.systemId_pos;
-    systemId_size = other.systemId_size;
-    publicId_pos = other.publicId_pos;
-    publicId_size = other.publicId_size;
+    m_name = other.m_name;
+    m_systemId = other.m_systemId;
+    m_publicId = other.m_publicId;
     return *this;
 }
 
 /*!
-Destrucs this notation declaration.
+Destructs this notation declaration.
 */
 QXmlStreamNotationDeclaration::~QXmlStreamNotationDeclaration()
 {
@@ -1910,6 +1823,16 @@ Returns the system identifier.
 Returns the public identifier.
 */
 
+/*! \fn bool operator==(const QXmlStreamNotationDeclaration &other)
+
+    Compares this notation declaration with \a other and returns true
+    if they are equal; otherwise returns false.
+ */
+/*! \fn bool operator!=(const QXmlStreamNotationDeclaration &other)
+
+    Compares this notation declaration with \a other and returns true
+    if they are not equal; otherwise returns false.
+ */
 
 /*!
     \typedef QXmlStreamNamespaceDeclarations
@@ -1928,13 +1851,22 @@ Returns the public identifier.
 
     An namespace declaration consists of a prefix() and a namespaceUri().
 */
+/*! \fn bool operator==(const QXmlStreamNamespaceDeclaration &other)
+
+    Compares this namespace declaration with \a other and returns true
+    if they are equal; otherwise returns false.
+ */
+/*! \fn bool operator!=(const QXmlStreamNamespaceDeclaration &other)
+
+    Compares this namespace declaration with \a other and returns true
+    if they are not equal; otherwise returns false.
+ */
 
 /*!
   Creates an empty namespace declaration.
 */
 QXmlStreamNamespaceDeclaration::QXmlStreamNamespaceDeclaration()
 {
-    prefix_pos = prefix_size = namespaceUri_pos = namespaceUri_size = 0;
 }
 
 /*!
@@ -1950,15 +1882,12 @@ QXmlStreamNamespaceDeclaration::QXmlStreamNamespaceDeclaration(const QXmlStreamN
  */
 QXmlStreamNamespaceDeclaration& QXmlStreamNamespaceDeclaration::operator=(const QXmlStreamNamespaceDeclaration &other)
 {
-    buffer = other.buffer;
-    prefix_pos = other.prefix_pos;
-    prefix_size = other.prefix_size;
-    namespaceUri_pos = other.namespaceUri_pos;
-    namespaceUri_size = other.namespaceUri_size;
+    m_prefix = other.m_prefix;
+    m_namespaceUri = other.m_namespaceUri;
     return *this;
 }
 /*!
-Destrucs this namespace declaration.
+Destructs this namespace declaration.
 */
 QXmlStreamNamespaceDeclaration::~QXmlStreamNamespaceDeclaration()
 {
@@ -1984,6 +1913,11 @@ Returns the namespaceUri.
 */
 
 /*!
+    \class QXmlStreamStringRef
+    \internal
+*/
+
+/*!
     \class QXmlStreamEntityDeclaration
     \reentrant
     \brief The QXmlStreamEntityDeclaration class represents a DTD entity declaration.
@@ -2000,7 +1934,6 @@ Returns the namespaceUri.
 */
 QXmlStreamEntityDeclaration::QXmlStreamEntityDeclaration()
 {
-    name_pos = name_size = systemId_pos = systemId_size = publicId_pos = publicId_size = 0;
 }
 
 /*!
@@ -2016,22 +1949,16 @@ QXmlStreamEntityDeclaration::QXmlStreamEntityDeclaration(const QXmlStreamEntityD
  */
 QXmlStreamEntityDeclaration& QXmlStreamEntityDeclaration::operator=(const QXmlStreamEntityDeclaration &other)
 {
-    buffer = other.buffer;
-    name_pos = other.name_pos;
-    name_size = other.name_size;
-    notationName_pos = other.notationName_pos;
-    notationName_size = other.notationName_size;
-    systemId_pos = other.systemId_pos;
-    systemId_size = other.systemId_size;
-    publicId_pos = other.publicId_pos;
-    publicId_size = other.publicId_size;
-    value_pos = other.value_pos;
-    value_size = other.value_size;
+    m_name = other.m_name;
+    m_notationName = other.m_notationName;
+    m_systemId = other.m_systemId;
+    m_publicId = other.m_publicId;
+    m_value = other.m_value;
     return *this;
 }
 
 /*!
-  Destrucs this entity declaration.
+  Destructs this entity declaration.
 */
 QXmlStreamEntityDeclaration::~QXmlStreamEntityDeclaration()
 {
@@ -2058,6 +1985,16 @@ Returns the public identifier.
 Returns the entity's value.
 */
 
+/*! \fn bool operator==(const QXmlStreamEntityDeclaration &other)
+
+    Compares this entity declaration with \a other and returns true if
+    they are equal; otherwise returns false.
+ */
+/*! \fn bool operator!=(const QXmlStreamEntityDeclaration &other)
+
+    Compares this entity declaration with \a other and returns true if
+    they are not equal; otherwise returns false.
+ */
 
 /*!  Returns the value of the attribute \a name in the namespace
   described with \a namespaceUri, or an empty string reference if the
