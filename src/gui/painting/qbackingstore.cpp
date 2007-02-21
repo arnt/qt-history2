@@ -1006,7 +1006,7 @@ void QWidget::update(const QRegion& rgn)
     if (wrgn.isEmpty())
         return;
 
-#ifdef Q_WS_QWS
+#ifdef Q_WIDGET_USE_DIRTYLIST
     if (qt_region_strictContains(d->dirty, wrgn.boundingRect()))
         return; // already dirty
 
