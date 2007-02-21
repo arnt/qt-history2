@@ -42,14 +42,13 @@ TRANSLATOR qdesigner_internal::QDesignerPromotionDialog
 #include <QtGui/QLabel>
 #include <QtGui/QSpacerItem>
 
-namespace {
-    // Add a row consisting of widget and a description label to a grid.
-    void addGridRow(const QString &description, QGridLayout *gridLayout, QWidget *w, int &row) {
-        QLabel *label(new QLabel(description));
-        gridLayout->addWidget(label, row, 0);
-        gridLayout->addWidget(w, row, 1);
-        ++row;
-    }
+
+// Add a row consisting of widget and a description label to a grid.
+static void addGridRow(const QString &description, QGridLayout *gridLayout, QWidget *w, int &row) {
+    QLabel *label = new QLabel(description);
+    gridLayout->addWidget(label, row, 0);
+    gridLayout->addWidget(w, row, 1);
+    ++row;
 }
 
 namespace qdesigner_internal {

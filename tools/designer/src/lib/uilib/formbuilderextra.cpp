@@ -121,7 +121,7 @@ Q_GLOBAL_STATIC(FormBuilderPrivateHash, g_FormBuilderPrivateHash)
 
 QFormBuilderExtra *QFormBuilderExtra::instance(const QAbstractFormBuilder *afb)
 {
-    FormBuilderPrivateHash& fbHash(*g_FormBuilderPrivateHash());
+    FormBuilderPrivateHash &fbHash = *g_FormBuilderPrivateHash();
 
     FormBuilderPrivateHash::iterator it = fbHash.find(afb);
     if (it == fbHash.end())
@@ -131,7 +131,7 @@ QFormBuilderExtra *QFormBuilderExtra::instance(const QAbstractFormBuilder *afb)
 
 void QFormBuilderExtra::removeInstance(const QAbstractFormBuilder *afb)
 {
-    FormBuilderPrivateHash& fbHash(*g_FormBuilderPrivateHash());
+    FormBuilderPrivateHash &fbHash = *g_FormBuilderPrivateHash();
 
     FormBuilderPrivateHash::iterator it = fbHash.find(afb);
     if (it != fbHash.end())

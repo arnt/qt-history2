@@ -26,37 +26,37 @@
 
 #include <QtCore/QMultiMap>
 
-namespace  {
-    const int BG_ALPHA =              32;
-    const int LINE_PROXIMITY_RADIUS =  3;
-    const int LOOP_MARGIN  =          20;
-    const int VLABEL_MARGIN =          1;
-    const int HLABEL_MARGIN =          3;
-    const int GROUND_W =              20;
-    const int GROUND_H =              25;
+
+static const int BG_ALPHA =              32;
+static const int LINE_PROXIMITY_RADIUS =  3;
+static const int LOOP_MARGIN  =          20;
+static const int VLABEL_MARGIN =          1;
+static const int HLABEL_MARGIN =          3;
+static const int GROUND_W =              20;
+static const int GROUND_H =              25;
 
 /*******************************************************************************
 ** Tools
 */
 
-QRect fixRect(const QRect &r)
+static QRect fixRect(const QRect &r)
 {
     return QRect(r.x(), r.y(), r.width() - 1, r.height() - 1);
 }
 
-QRect expand(const QRect &r, int i)
+static QRect expand(const QRect &r, int i)
 {
     return QRect(r.x() - i, r.y() - i, r.width() + 2*i, r.height() + 2*i);
 }
 
-QRect endPointRect(const QPoint &pos)
+static QRect endPointRect(const QPoint &pos)
 {
     const QRect r(pos + QPoint(-LINE_PROXIMITY_RADIUS, -LINE_PROXIMITY_RADIUS),
                   QSize(2*LINE_PROXIMITY_RADIUS, 2*LINE_PROXIMITY_RADIUS));
     return r;
 }
 
-void paintGround(QPainter *p, QRect r)
+static void paintGround(QPainter *p, QRect r)
 {
     const QPoint mid = r.center();
     p->drawLine(mid.x(), r.top(), mid.x(), mid.y());
@@ -70,14 +70,14 @@ void paintGround(QPainter *p, QRect r)
     p->drawLine(mid.x(), r.bottom(), mid.x() + 1, r.bottom());
 }
 
-void paintEndPoint(QPainter *p, const QPoint &pos)
+static void paintEndPoint(QPainter *p, const QPoint &pos)
 {
     const QRect r(pos + QPoint(-LINE_PROXIMITY_RADIUS, -LINE_PROXIMITY_RADIUS),
                   QSize(2*LINE_PROXIMITY_RADIUS, 2*LINE_PROXIMITY_RADIUS));
     p->fillRect(fixRect(r), p->pen().color());
 }
 
-qdesigner_internal::CETypes::LineDir classifyLine(const QPoint &p1, const QPoint &p2)
+static qdesigner_internal::CETypes::LineDir classifyLine(const QPoint &p1, const QPoint &p2)
 {
     if (p1.x() == p2.x())
         return p1.y() < p2.y() ? qdesigner_internal::CETypes::DownDir : qdesigner_internal::CETypes::UpDir;
@@ -85,7 +85,7 @@ qdesigner_internal::CETypes::LineDir classifyLine(const QPoint &p1, const QPoint
     return p1.x() < p2.x() ? qdesigner_internal::CETypes::RightDir : qdesigner_internal::CETypes::LeftDir;
 }
 
-QPoint pointInsideRect(const QRect &r, QPoint p)
+static QPoint pointInsideRect(const QRect &r, QPoint p)
 {
     if (p.x() < r.left())
         p.setX(r.left());
@@ -98,8 +98,6 @@ QPoint pointInsideRect(const QRect &r, QPoint p)
         p.setY(r.bottom());
 
     return p;
-}
-
 }
 
 namespace qdesigner_internal {

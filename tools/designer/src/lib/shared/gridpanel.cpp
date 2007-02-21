@@ -22,7 +22,7 @@
 
 // Add a row consisting of widget1, widget2 and a description label to a grid.
 static void addGridRow(const QString &description, QGridLayout *gridLayout, QWidget *w1,  QWidget *w2, int &row) {
-    QLabel *label(new QLabel(description));
+    QLabel *label = new QLabel(description);
     label->setBuddy(w1);
     gridLayout->addWidget(label, row, 0);
     gridLayout->addWidget(w1, row, 1);

@@ -268,7 +268,7 @@ bool QSimpleResource::hasCustomWidgetScript(QDesignerFormEditorInterface *core, 
 
 QString QSimpleResource::customWidgetScript(QDesignerFormEditorInterface *core, const QString &className)
 {
-    const ClassNameScriptHash &classNameScriptHash(customWidgetClassNameScriptHash(core));
+    const ClassNameScriptHash &classNameScriptHash = customWidgetClassNameScriptHash(core);
 
     const ClassNameScriptHash::const_iterator it = classNameScriptHash.constFind(className);
     if (it != classNameScriptHash.constEnd())
