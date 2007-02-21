@@ -340,6 +340,8 @@ bool QAbstractSpinBox::isAccelerated() const
 /*!
     \property QAbstractSpinBox::undoAvailable
     \brief whether undo is available
+
+    \since 4.3
 */
 
 bool QAbstractSpinBox::isUndoAvailable() const
@@ -351,6 +353,8 @@ bool QAbstractSpinBox::isUndoAvailable() const
 /*!
     \property QAbstractSpinBox::redoAvailable
     \brief whether redo is available
+
+    \since 4.3
 */
 
 bool QAbstractSpinBox::isRedoAvailable() const
@@ -471,6 +475,8 @@ void QAbstractSpinBox::clear()
 /*!
     Undoes the last operation if undo is \link
     QAbstractSpinBox::undoAvailable available\endlink.
+
+    \since 4.3
 */
 
 void QAbstractSpinBox::undo()
@@ -490,6 +496,8 @@ void QAbstractSpinBox::undo()
 /*!
     Redoes the last operation if redo is \link
     QAbstractSpinBox::redoAvailable available\endlink.
+
+    \since 4.3
 */
 
 void QAbstractSpinBox::redo()
