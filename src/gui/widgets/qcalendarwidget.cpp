@@ -1556,6 +1556,7 @@ void QCalendarWidgetPrivate::createNavigationBar(QWidget *widget)
 {
     Q_Q(QCalendarWidget);
     navBarBackground = new QWidget(widget);
+    navBarBackground->setObjectName(QLatin1String("qt_calendar_navigationbar"));
     navBarBackground->setAutoFillBackground(true);
     navBarBackground->setBackgroundRole(QPalette::Highlight);
 
