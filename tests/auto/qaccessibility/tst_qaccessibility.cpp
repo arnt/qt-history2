@@ -155,6 +155,7 @@ private slots:
     void scrollAreaTest();
     void tableWidgetTest();
     void tableViewTest();
+    void calendarWidgetTest();
 
 private:
     QWidget *createGUI();
@@ -3059,6 +3060,7 @@ void tst_QAccessibility::scrollAreaTest()
 void tst_QAccessibility::tableWidgetTest()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
     QTableWidget *w = new QTableWidget(8,4);
     for (int r = 0; r < 8; ++r) {
         for (int c = 0; c < 4; ++c) {
@@ -3086,12 +3088,11 @@ void tst_QAccessibility::tableWidgetTest()
     QCOMPARE(ifRow->text(QAccessible::Value, 1), QLatin1String("0,0"));
     QCOMPARE(ifRow->text(QAccessible::Value, 2), QLatin1String("1,0"));
 
-    
     delete ifRow;
     delete view;
     delete client;
     delete w;
-
+    }
     QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
@@ -3221,10 +3222,108 @@ void tst_QAccessibility::tableViewTest()
 
     delete w;
     delete model;
+}
+
+void tst_QAccessibility::calendarWidgetTest()
+{
+#ifndef QT_NO_CALENDARWIDGET
+#ifdef QTEST_ACCESSIBILITY
+    {
+    QCalendarWidget calendarWidget;
+
+    QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&calendarWidget);
+    QVERIFY(interface);
+    QCOMPARE(interface->role(0), QAccessible::Table);
+    QCOMPARE(interface->childCount(), 0);
+    QVERIFY(!interface->rect(0).isValid());
+    QVERIFY(!interface->rect(1).isValid());
+    QCOMPARE(interface->childAt(200, 200), -1);
+
+    calendarWidget.resize(400, 300);
+    calendarWidget.show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(&calendarWidget);
+#endif
+
+    // 1 = navigationBar, 2 = view.
+    QCOMPARE(interface->childCount(), 2);
+
+    const QRect globalGeometry = QRect(calendarWidget.mapToGlobal(QPoint(0, 0)),
+                                       calendarWidget.size());
+    QCOMPARE(interface->rect(0), globalGeometry);
+
+    QWidget *navigationBar = 0;
+    foreach (QObject *child, calendarWidget.children()) {
+        if (child->objectName() == QLatin1String("qt_calendar_navigationbar")) {
+            navigationBar = static_cast<QWidget *>(child);
+            break;
+        }
+    }
+    QVERIFY(navigationBar);
+    QVERIFY(verifyChild(navigationBar, interface, 1, globalGeometry));
+
+    QAbstractItemView *calendarView = 0;
+    foreach (QObject *child, calendarWidget.children()) {
+        if (child->objectName() == QLatin1String("qt_calendar_calendarview")) {
+            calendarView = static_cast<QAbstractItemView *>(child);
+            break;
+        }
+    }
+    QVERIFY(calendarView);
+    QVERIFY(verifyChild(calendarView, interface, 2, globalGeometry));
+
+    // Hide navigation bar.
+    calendarWidget.setNavigationBarVisible(false);
+    QCOMPARE(interface->childCount(), 1);
+    QVERIFY(!navigationBar->isVisible());
+
+    QVERIFY(verifyChild(calendarView, interface, 1, globalGeometry));
+
+    // Show navigation bar.
+    calendarWidget.setNavigationBarVisible(true);
+    QCOMPARE(interface->childCount(), 2);
+    QVERIFY(navigationBar->isVisible());
+
+    // Navigate to the navigation bar via Child.
+    QAccessibleInterface *navigationBarInterface = 0;
+    QCOMPARE(interface->navigate(QAccessible::Child, 1, &navigationBarInterface), 1);
+    QVERIFY(navigationBarInterface);
+    QCOMPARE(navigationBarInterface->object(), navigationBar);
+    delete navigationBarInterface;
+    navigationBarInterface = 0;
+
+    // Navigate to the view via Child.
+    QAccessibleInterface *calendarViewInterface = 0;
+    QCOMPARE(interface->navigate(QAccessible::Child, 2, &calendarViewInterface), 2);
+    QVERIFY(calendarViewInterface);
+    QCOMPARE(calendarViewInterface->object(), calendarView);
+    delete calendarViewInterface;
+    calendarViewInterface = 0;
+
+    QAccessibleInterface *doesNotExistsInterface = 0;
+    QCOMPARE(interface->navigate(QAccessible::Child, 3, &doesNotExistsInterface), -1);
+    QVERIFY(!doesNotExistsInterface);
+
+    // Navigate from navigation bar -> view (Down).
+    QCOMPARE(interface->navigate(QAccessible::Down, 1, &calendarViewInterface), 2);
+    QVERIFY(calendarViewInterface);
+    QCOMPARE(calendarViewInterface->object(), calendarView);
+    delete calendarViewInterface;
+    calendarViewInterface = 0;
+
+    // Navigate from view -> navigation bar (Up).
+    QCOMPARE(interface->navigate(QAccessible::Up, 2, &navigationBarInterface), 1);
+    QVERIFY(navigationBarInterface);
+    QCOMPARE(navigationBarInterface->object(), navigationBar);
+    delete navigationBarInterface;
+    navigationBarInterface = 0;
+
+    }
     QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
+#endif // QT_NO_CALENDARWIDGET
 }
 
 QTEST_MAIN(tst_QAccessibility)
