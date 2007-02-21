@@ -6136,7 +6136,7 @@ QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
 
 // this works as long as we have at most 16 different control types
 #define CT1(c) CT2(c, c)
-#define CT2(c1, c2) ((uint(c1) << 16) | uint(c2))
+#define CT2(c1, c2) ((unsigned int(c1) << 16) | unsigned int(c2))
 
 /*!
     \internal
