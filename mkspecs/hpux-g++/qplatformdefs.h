@@ -26,6 +26,7 @@
 // We are hot - unistd.h should have turned on the specific APIs we requested
 
 #define _REENTRANT // otherwise we don't get readdir_r, etc.
+#include <sys/pstat.h>
 #include <pthread.h>
 #include <dirent.h>
 #include <fcntl.h>
