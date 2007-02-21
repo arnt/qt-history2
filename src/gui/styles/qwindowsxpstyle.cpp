@@ -920,6 +920,8 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
                 return;
             }
             hasAlpha = hasAlphaChannel(rect);
+            if (!hasAlpha && partIsTransparent)
+                potentialInvalidAlpha = true;
 #if defined(DEBUG_XP_STYLE) && 1
             dumpNativeDIB(w, h);
 #endif
@@ -1532,7 +1534,7 @@ case PE_Frame:
         {
             name = QLatin1String("TAB");
             partId = TABP_PANE;
-               
+
             if (widget) {
                 bool useGradient = true;
                 const int maxlength = 256;
@@ -1543,7 +1545,7 @@ case PE_Frame:
                     WCHAR* offset;
                     if ((offset = wcsrchr(themeFileName, QChar(QLatin1Char('\\')).unicode())) != NULL) {
                         offset++;
-                        if (QString::fromUtf16(offset) == QString(QLatin1String("Luna.msstyles")) && 
+                        if (QString::fromUtf16(offset) == QString(QLatin1String("Luna.msstyles")) &&
                             QString::fromUtf16(themeColor) == QString(QLatin1String("Metallic")))
                             useGradient = false;
                     }
@@ -3081,7 +3083,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         {
             QRect buttonRect;
             XPThemeData theme(widget, p, QLatin1String("WINDOW"), WP_MDICLOSEBUTTON, CBS_NORMAL);
-                    
+
             if (option->subControls & SC_MDICloseButton) {
                 buttonRect = subControlRect(CC_MDIControls, option, SC_MDICloseButton, widget);
                 if (theme.isValid()) {
@@ -3097,7 +3099,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                         theme.stateId = CBS_NORMAL;
                     d->drawBackground(theme);
                 }
-            } 
+            }
             if (option->subControls & SC_MDINormalButton) {
                 buttonRect = subControlRect(CC_MDIControls, option, SC_MDINormalButton, widget);
                 if (theme.isValid()) {
@@ -3496,7 +3498,7 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
         int offset = 0;
         switch (sc) {
         case SC_MDICloseButton:
-            offset += buttonWidth;   
+            offset += buttonWidth;
             //FALL THROUGH
         case SC_MDINormalButton:
             offset += buttonWidth;
@@ -3579,7 +3581,7 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
                 sz.setHeight(sz.height() - 2);
                 return sz;
             }
-        } 
+        }
         sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
         break;
 
