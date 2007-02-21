@@ -1390,13 +1390,19 @@ static void fillRect(const QRect &r, QSpanData *data,
     rect = QRect(x1, y1, width, height);
     if (rect.isEmpty())
         return;
-    
+
     if (pe && data->fillRect && pe->isUnclipped(rect)) {
-        data->fillRect(data->rasterBuffer, x1, y1, width, height,
-                       data->solid.color);                       
-        return;
+        const QPainter::CompositionMode mode = pe->rasterBuffer->compositionMode;
+        if (mode == QPainter::CompositionMode_Source
+            || (mode == QPainter::CompositionMode_SourceOver
+                && qAlpha(data->solid.color) == 255))
+        {
+            data->fillRect(data->rasterBuffer, x1, y1, width, height,
+                           data->solid.color);
+            return;
+        }
     }
-    
+
     ProcessSpans blend = pe ? pe->getSpanFunc(rect, data) : data->blend;
 
     const int nspans = 256;
@@ -2303,7 +2309,7 @@ inline bool QRasterPaintEnginePrivate::isUnclipped(const QRect &rect) const
     if (paint_unclipped)
         return true;
 
-    if (rasterBuffer->clip) 
+    if (rasterBuffer->clip)
         return baseClip.contains(rect);
 
     if (!rasterBuffer->simpleClip.isEmpty())
@@ -4160,8 +4166,8 @@ void QSpanData::setup(const QBrush &brush, int alpha)
 void QSpanData::adjustSpanMethods()
 {
     bitmapBlit = 0;
-    fillRect = 0;    
-    
+    fillRect = 0;
+
     switch(type) {
     case None:
         unclipped_blend = 0;
