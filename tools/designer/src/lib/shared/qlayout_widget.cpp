@@ -275,7 +275,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
             gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
             m_currentCell = qMakePair(row, column);
         } else {
-            qWarning("Warning: found a fake spacer inside a vbox layout");
+            qDebug("Warning: found a fake spacer inside a vbox layout");
             m_currentCell = qMakePair(0, 0);
         }
     } else {
@@ -438,7 +438,7 @@ void QLayoutSupport::insertWidget(QWidget *widget, const QPair<int, int> &cell)
 
         default: {
 #ifdef QD_DEBUG
-            qWarning() << "expected a layout here!";
+            qDebug() << "expected a layout here!";
             Q_ASSERT(0);
 #endif
         }
@@ -554,7 +554,7 @@ void QLayoutSupport::insertWidget(int index, QWidget *widget)
     QLayoutItem *item = gridLayout->itemAt(index);
 
     if (!item || !isEmptyItem(item)) {
-        qWarning() << "the cell is not empty";
+        qDebug() << "the cell is not empty";
         return;
     }
 
@@ -604,9 +604,9 @@ void QLayoutSupport::createEmptyCells(QGridLayout *&gridLayout)
                 if (!item) {
                     /* skip */
                 } else if (item->layout()) {
-                    qWarning("unexpected layout");
+                    qDebug("unexpected layout");
                 } else if (item->spacerItem()) {
-                    qWarning("unexpected spacer");
+                    qDebug("unexpected spacer");
                 }
             }
         }

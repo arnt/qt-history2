@@ -79,7 +79,7 @@ QVariant domPropertyToVariant(QAbstractFormBuilder *afb,const QMetaObject *meta,
         const QByteArray pname = p->attributeName().toUtf8();
         const int index = meta->indexOfProperty(pname);
         if (index == -1) {
-            qWarning() << "property" << pname << "is not supported";
+            qWarning() << QObject::tr("The set-type property %1 could not be read.").arg(p->attributeName());
             return QVariant();
         }
 
@@ -97,7 +97,7 @@ QVariant domPropertyToVariant(QAbstractFormBuilder *afb,const QMetaObject *meta,
                 && (pname == QByteArray("orientation"))) {
                 return QVariant((p->elementEnum() == QLatin1String("Qt::Horizontal")) ? QFrame::HLine : QFrame::VLine);
             } else {
-                qWarning() << "property" << pname << "is not supported";
+                qWarning() << QObject::tr("The enumeration-type property %1 could not be read.").arg(p->attributeName());
                 return QVariant();
             }
         }
@@ -272,7 +272,7 @@ QVariant domPropertyToVariant(const DomProperty *p)
         return QVariant(p->elementStringList()->elementString());
 
     default:
-        qWarning() << "domPropertyToVariant:" << p->kind() << " not implemented yet!";
+        qWarning() << QObject::tr("Reading properties of the type %1 is not supported yet.").arg(p->kind());
         break;
     }
 
@@ -527,8 +527,7 @@ DomProperty *variantToDomProperty(const QString &pname, const QVariant &v, bool 
         return dom_prop;
 
     delete dom_prop;
-    qWarning("support for property `%s' of type `%d' not implemented yet!!", pname.toUtf8().data(), v.type());
-
+    qWarning() <<  "The property " << pname << " could not be written. The type " << QVariant::typeToName (v.type()) << " is not supported yet.";
     return 0;
 }
 
@@ -581,8 +580,7 @@ DomProperty *variantToDomProperty(QAbstractFormBuilder *afb, QObject *obj,
 
     default:
         delete dom_prop;
-        qWarning("support for property `%s' of type `%d' not implemented yet!!",
-                 pname.toUtf8().data(), v.type());
+        qWarning() <<  "The property " << pname << " could not be written. The type " << QVariant::typeToName (v.type()) << " is not supported yet.";
         return 0;
     }
     return dom_prop;

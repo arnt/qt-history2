@@ -526,7 +526,7 @@ void WidgetSelection::setWidget(QWidget *w)
         const int index = grid->indexOf(m_wid);
         if (index == -1) {
 #if defined(QD_DEBUG)
-            qWarning() << "unexpected call to WidgetSelection::setWidget()" << "widget:" << m_wid << "grid:"<< grid;
+            qDebug() << "unexpected call to WidgetSelection::setWidget()" << "widget:" << m_wid << "grid:"<< grid;
 #endif
             return;
         }
@@ -549,7 +549,7 @@ void WidgetSelection::setWidget(QWidget *w)
             // right cellg59
             m_handles[WidgetHandle::Right]->setActive(true);
         } else {
-            qWarning() << "no QDesignerLayoutDecorationExtension for widget:" << m_wid;
+            qDebug() << "no QDesignerLayoutDecorationExtension for widget:" << m_wid;
         }
     }
 

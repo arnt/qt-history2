@@ -98,14 +98,14 @@ QWidget*  WidgetFactory::createCustomWidget(const QString &className, QWidget *p
     QWidget *rc = factory->createWidget(parentWidget);
     // shouldn't happen
     if (!rc) {
-        qWarning() << "The custom widget factory registered for widgets of class " << className << " returned 0.";
+        qWarning() << QObject::tr("The custom widget factory registered for widgets of class %1 returned 0.").arg(className);
         return 0;
     }
     // Check for mismatched class names which is hard to track
     const QString createdClassName = QString::fromUtf8(rc->metaObject()->className());
     if (className != createdClassName) {
-        qWarning() << "A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class "
-            << className << ". It returned a widget of class " <<createdClassName << '.';
+        qWarning() << QObject::tr("A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class %1."
+                                  " It returned a widget of class %2.").arg(className).arg(createdClassName);
     }
     return rc;
 }
@@ -179,7 +179,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
             item = appendDerived(db,widgetName,tr("%1 Widget").arg(widgetName),fallBackBaseClass, 
                                  includeFile, true, true);
             Q_ASSERT(item);
-        }               
+        }
         QString baseClass = item->extends();
         if (baseClass.isEmpty()) {
             // Currently happens in the case of Q3-Support widgets
@@ -201,11 +201,11 @@ QString WidgetFactory::classNameOf(QDesignerFormEditorInterface *c, QObject* o)
 {
     if (o == 0)
         return QString();
-    
+
     // check promoted before designer special
     if (o->isWidgetType()) {
         const QString customClassName = promotedCustomClassName(c,qobject_cast<QWidget*>(o));
-        if (!customClassName.isEmpty()) 
+        if (!customClassName.isEmpty())
             return customClassName;
     }
 
@@ -232,7 +232,7 @@ QString WidgetFactory::classNameOf(QDesignerFormEditorInterface *c, QObject* o)
 
     return QLatin1String(o->metaObject()->className());
 }
-    
+
 QLayout *WidgetFactory::createUnmanagedLayout(QWidget *parentWidget, int type)
 {
     switch (type) {

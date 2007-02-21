@@ -203,7 +203,7 @@ QDESIGNER_SHARED_EXPORT bool promoteWidget(QDesignerFormEditorInterface *core,QW
     // Recursive promotion occurs if there is a plugin missing.
     const QString oldCustomClassName = item->customClassName();
     if (!oldCustomClassName.isEmpty()) {
-        qWarning() << "WARNING: Recursive promotion of " << oldCustomClassName << " to " << customClassName
+        qDebug() << "WARNING: Recursive promotion of " << oldCustomClassName << " to " << customClassName
             << ". A plugin is missing.";
     }
     item->setCustomClassName(customClassName);  

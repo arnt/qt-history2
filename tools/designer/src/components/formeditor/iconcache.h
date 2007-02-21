@@ -24,6 +24,7 @@
 #include <QtCore/QVariant>
 #include <QtCore/QString>
 #include <QtCore/QPair>
+#include <QtCore/qdebug.h>
 
 #include <QtGui/QPixmap>
 #include <QtGui/QIcon>
@@ -67,9 +68,7 @@ Item ResourceCache<Item>::keyToItem(const QString &filePath, const QString &qrcP
         if (rf.load()) {
             real_path = rf.resolvePath(filePath);
         } else {
-            qWarning("IconCache::nameToIcon(): failed to open \"%s\": %s",
-                        qrcPath.toUtf8().constData(),
-                        rf.errorMessage().toUtf8().constData());
+            qWarning() <<  QObject::tr("The icon specified by %1 could not be opened: %2").arg(qrcPath).arg(rf.errorMessage());
         }
     } else {
        real_path = filePath;

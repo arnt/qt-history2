@@ -246,7 +246,7 @@ void BuddyEditor::endConnection(QWidget *target, const QPoint &pos)
         QWidget *source = new_con->widget(EndPoint::Source);
         QWidget *target = new_con->widget(EndPoint::Target);
         if (qobject_cast<QLabel*>(source) == 0) {
-            qWarning("BuddyEditor::endConnection(): not a label");
+            qDebug("BuddyEditor::endConnection(): not a label");
         } else {
             undoStack()->beginMacro(tr("Add buddy"));
             SetPropertyCommand *command = new SetPropertyCommand(formWindow());
@@ -283,7 +283,7 @@ void BuddyEditor::widgetRemoved(QWidget *widget)
             con->update();
             QWidget *source = con->widget(EndPoint::Source);
             if (qobject_cast<QLabel*>(source) == 0) {
-                qWarning("BuddyConnection::widgetRemoved(): not a label");
+                qDebug("BuddyConnection::widgetRemoved(): not a label");
             } else {
                 ResetPropertyCommand *command = new ResetPropertyCommand(formWindow());
                 command->init(source, QLatin1String("buddy"));
@@ -310,7 +310,7 @@ void BuddyEditor::deleteSelected()
             con->update();
             QWidget *source = con->widget(EndPoint::Source);
             if (qobject_cast<QLabel*>(source) == 0) {
-                qWarning("BuddyConnection::deleteSelected(): not a label");
+                qDebug("BuddyConnection::deleteSelected(): not a label");
             } else {
                 ResetPropertyCommand *command = new ResetPropertyCommand(formWindow());
                 command->init(source, QLatin1String("buddy"));

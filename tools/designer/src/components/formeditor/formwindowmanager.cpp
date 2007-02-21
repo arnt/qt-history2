@@ -768,7 +768,7 @@ QAction *FormWindowManager::actionRedo() const
 void FormWindowManager::dragItems(const QList<QDesignerDnDItemInterface*> &item_list)
 {
     if (!m_drag_item_list.isEmpty()) {
-        qWarning("FormWindowManager::dragItem(): called while already dragging");
+        qDebug("FormWindowManager::dragItem(): called while already dragging");
         return;
     }
 

@@ -150,7 +150,7 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
     }
 
     if (w == 0) { // nothing to do
-        qWarning("QFormBuilder: Cannot create widget of class %s.", widgetName.toLatin1().constData());
+        qWarning() << QObject::tr("QFormBuilder was unable to create a widget of the class '%1'.").arg(widgetName);
         return 0;
     }
 
@@ -206,7 +206,7 @@ QLayout *QFormBuilder::createLayout(const QString &layoutName, QObject *parent, 
             }
         }
     } else {
-        qWarning("layout `%s' not supported", layoutName.toUtf8().data());
+        qWarning() << QObject::tr("The layout type `%1' is not supported.").arg(layoutName);
     }
 
     return l;

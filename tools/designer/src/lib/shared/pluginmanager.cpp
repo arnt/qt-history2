@@ -161,14 +161,11 @@ void QDesignerPluginManager::registerPlugin(const QString &plugin)
     QPluginLoader loader(plugin);
     if (loader.load())
         m_registeredPlugins += plugin;
-    
+
     if (!loader.isLoaded()) {
-        m_failedPlugins.insert(plugin, loader.errorString());
-        qWarning("QDesignerPluginManager: failed to load plugin\n"
-                 " - pluginName='%s'\n"
-                 " - error='%s'\n",
-                 qPrintable(plugin),
-                 qPrintable(loader.errorString()));
+        const QString errorMessage = loader.errorString();
+        m_failedPlugins.insert(plugin, errorMessage);
+        qWarning() << QObject::tr("The plugin '%1' failed to load: %2").arg(plugin).arg(errorMessage);
     } else {
         if (m_failedPlugins.contains(plugin))
             m_failedPlugins.remove(plugin);

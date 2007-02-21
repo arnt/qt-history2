@@ -542,7 +542,7 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
             item = core()->metaDataBase()->item(o);
 
         if (!item) {
-            qWarning() << "** WARNING no ``meta database item'' for object:" << o;
+            qDebug() << "** WARNING no ``meta database item'' for object:" << o;
         }
 
         if (p->kind() == DomProperty::String && item) {
@@ -876,7 +876,7 @@ void QDesignerResource::createCustomWidgets(DomCustomWidgets *dom_custom_widgets
         DomCustomWidget *custom_widget = custom_widget_list[i];
         const QString customClassName = custom_widget->elementClass();
         const QString base_class = custom_widget->elementExtends();
-        qWarning() << "** WARNING The base class " << base_class << " of the custom widget class " << customClassName 
+        qDebug() << "** WARNING The base class " << base_class << " of the custom widget class " << customClassName 
             << " could not be found. Defaulting to " << fallBackBaseClass << '.';
         custom_widget->setElementExtends(fallBackBaseClass);
     }

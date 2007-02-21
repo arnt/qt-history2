@@ -22,6 +22,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QQueue>
 #include <QtCore/QHash>
+#include <QtCore/qdebug.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
@@ -231,7 +232,8 @@ QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
         if (QWidget *child  = create(ui_child, w)) {
             children += child;
         } else {
-            qWarning() << "Failed to create " << ui_child->elementClass();
+            const QString className = ui_child->elementClass().empty() ? QString() : ui_child->elementClass().front();
+            qWarning() << QObject::tr("The creation of a widget of the class '%1' failed.").arg(className);
         }
     }
 
@@ -1193,7 +1195,7 @@ QList<DomProperty*> QAbstractFormBuilder::computeProperties(QObject *obj)
             dom_prop = new DomProperty();
 
             if (prop.isFlagType())
-                qWarning("flags property not supported yet!!");
+                qWarning() << QObject::tr("Flags property are not supported yet.");
 
             if (prop.isEnumType()) {
                 QString scope = QString::fromUtf8(prop.enumerator().scope());
@@ -1270,11 +1272,11 @@ void QAbstractFormBuilder::applyTabStops(QWidget *widget, DomTabStops *tabStops)
 
     const QStringList l = tabStops->elementTabStop();
     for (int i=0; i<l.size(); ++i) {
-        QString name = l.at(i);
+        const QString name = l.at(i);
 
         QWidget *child = qFindChild<QWidget*>(widget, name);
         if (!child) {
-            qWarning("'%s' isn't a valid widget\n", name.toUtf8().data());
+            qWarning() << QObject::tr("While applying tab stops: The widget '%1' could not be found.").arg(name);
             continue;
         }
 

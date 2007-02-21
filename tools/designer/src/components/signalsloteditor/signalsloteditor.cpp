@@ -760,13 +760,13 @@ void SignalSlotEditor::fromUi(const DomConnections *connections, QWidget *parent
     foreach (const DomConnection *dom_con, list) {
         QObject *source = objectByName(parent, dom_con->elementSender());
         if (source == 0) {
-            qWarning("SignalSlotEditor::fromUi(): no source widget called \"%s\"",
+            qDebug("SignalSlotEditor::fromUi(): no source widget called \"%s\"",
                         dom_con->elementSender().toUtf8().constData());
             continue;
         }
         QObject *destination = objectByName(parent, dom_con->elementReceiver());
         if (destination == 0) {
-            qWarning("SignalSlotEditor::fromUi(): no destination widget called \"%s\"",
+            qDebug("SignalSlotEditor::fromUi(): no destination widget called \"%s\"",
                         dom_con->elementReceiver().toUtf8().constData());
             continue;
         }

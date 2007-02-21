@@ -105,7 +105,7 @@ void LayoutInfo::deleteLayout(QDesignerFormEditorInterface *core, QWidget *widge
         return;
     }
 
-    qWarning() << "trying to delete an unmanaged layout:" << "widget:" << widget << "layout:" << layout;
+    qDebug() << "trying to delete an unmanaged layout:" << "widget:" << widget << "layout:" << layout;
 }
 
 void LayoutInfo::cells(QLayout *layout, IntervalList *rows, IntervalList *columns)

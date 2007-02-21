@@ -35,7 +35,7 @@ static bool ensurePath(const QString &path)
     if (current.exists(path) || current.mkpath(path))
         return true;
 
-    qWarning() << "Unable to create the template path " << path << '.';
+    qWarning() << QObject::tr("The template path %1 could not be created.").arg(path);
     return false;
 }
 

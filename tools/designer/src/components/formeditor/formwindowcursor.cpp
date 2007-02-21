@@ -154,7 +154,7 @@ void FormWindowCursor::setProperty(const QString &name, const QVariant &value)
         m_formWindow->commandHistory()->push(setPropertyCommand);
     } else {
         delete setPropertyCommand;
-        qWarning() << "Unable to set property " << name << '.';
+        qDebug() << "Unable to set property " << name << '.';
     }
 }
 
@@ -165,7 +165,7 @@ void FormWindowCursor::setWidgetProperty(QWidget *widget, const QString &name, c
         m_formWindow->commandHistory()->push(cmd);
     } else {
         delete cmd;
-        qWarning() << "Unable to set property " << name << '.';
+        qDebug() << "Unable to set property " << name << '.';
     }
 }
 
@@ -176,7 +176,7 @@ void FormWindowCursor::resetWidgetProperty(QWidget *widget, const QString &name)
         m_formWindow->commandHistory()->push(cmd);
     } else {
         delete cmd;
-        qWarning() << "Unable to reset property " << name << '.';
+        qDebug() << "Unable to reset property " << name << '.';
     }
 }
 

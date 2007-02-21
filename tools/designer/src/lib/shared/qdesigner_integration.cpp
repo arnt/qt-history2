@@ -88,7 +88,7 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
             formWindow->commandHistory()->push(cmd);
         } else {
             delete cmd;
-            qWarning() << "Unable to set  property " << name << '.';
+            qDebug() << "Unable to set  property " << name << '.';
         }
     }
 
@@ -113,7 +113,7 @@ void QDesignerIntegration::updatePropertyComment(const QString &name, const QStr
         formWindow->commandHistory()->push(cmd);
     } else {
         delete cmd;
-        qWarning() << "** WARNING Unable to update property comment of " << name << '.';
+        qDebug() << "** WARNING Unable to update property comment of " << name << '.';
     }
 
 }
@@ -136,7 +136,7 @@ void QDesignerIntegration::resetProperty(const QString &name)
         formWindow->commandHistory()->push(cmd);
     } else {
         delete cmd;
-        qWarning() << "** WARNING Unable to reset property " << name << '.';
+        qDebug() << "** WARNING Unable to reset property " << name << '.';
     } 
 }
 
@@ -156,7 +156,7 @@ void QDesignerIntegration::addDynamicProperty(const QString &name, const QVarian
         formWindow->commandHistory()->push(cmd);
     } else {
         delete cmd;
-        qWarning() << "** WARNING Unable to add dynamic property " << name << '.';
+        qDebug() <<  "** WARNING Unable to add dynamic property " << name << '.';
     }
 }
 
@@ -176,7 +176,7 @@ void QDesignerIntegration::removeDynamicProperty(const QString &name)
         formWindow->commandHistory()->push(cmd);
     } else {
         delete cmd;
-        qWarning() << "** WARNING Unable to remove dynamic property " << name << '.';
+        qDebug() << "** WARNING Unable to remove dynamic property " << name << '.';
     }
 
 }

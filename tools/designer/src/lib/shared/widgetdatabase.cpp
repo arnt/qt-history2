@@ -338,7 +338,7 @@ QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
     if (!object)
         object = factory.createWidget(name, 0);
     if (!object) {
-        qWarning() << "** WARNING Factory failed to create " << name;
+        qDebug() << "** WARNING Factory failed to create " << name;
         return QList<QVariant>();
     }
     // Get properties from sheet.
@@ -416,7 +416,7 @@ QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *
             return derivedItem;
         
         // Warn about mismatches
-        qWarning() << "** WARNING The base class of " << className << " (" << baseClassName 
+        qDebug() << "** WARNING The base class of " << className << " (" << baseClassName 
                    << ") does not correspond to the one in the widget database (" <<  existingBaseClass << ").";
         return derivedItem;
     }

@@ -746,7 +746,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new StringListProperty(qvariant_cast<QStringList>(value), pname);
                 break;
             default:
-                // ### qWarning() << "property" << pname << "with type" << value.type() << "not supported yet!";
+                // ### qDebug() << "property" << pname << "with type" << value.type() << "not supported yet!";
                 break;
             } // end switch
         }
@@ -928,7 +928,7 @@ void PropertyEditor::slotResetProperty(const QString &prop_name)
 {
     QDesignerFormWindowInterface *form = m_core->formWindowManager()->activeFormWindow();
     if (form == 0) {
-        qWarning("PropertyEditor::resetProperty(): widget does not belong to any form");
+        qDebug("PropertyEditor::resetProperty(): widget does not belong to any form");
         return;
     }
     emit resetProperty(prop_name);

@@ -121,7 +121,7 @@ int Layout::margin() const
     if (m_layoutBase && m_layoutBase->layout())
         return m_layoutBase->layout()->margin();
 
-    qWarning("unknown margin");
+    qDebug("unknown margin");
     return 0;
 }
 
@@ -130,7 +130,7 @@ int Layout::spacing() const
     if (m_layoutBase && m_layoutBase->layout())
         return m_layoutBase->layout()->spacing();
 
-    qWarning("unknown spacing");
+    qDebug("unknown spacing");
     return 0;
 }
 
@@ -931,7 +931,7 @@ void GridLayout::doLayout()
 
             w->show();
         } else {
-            qWarning("ooops, widget '%s' does not fit in layout", w->objectName().toUtf8().constData());
+            qDebug("ooops, widget '%s' does not fit in layout", w->objectName().toUtf8().constData());
         }
     }
 

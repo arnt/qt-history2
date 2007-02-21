@@ -125,7 +125,7 @@ DomWidget *xmlToUi(const QString &xml)
     QString err_msg;
     int err_line, err_col;
     if (!doc.setContent(xml, &err_msg, &err_line, &err_col)) {
-        qWarning("xmlToUi: parse failed:\n%s\n:%d:%d: %s",
+        qDebug("xmlToUi: parse failed:\n%s\n:%d:%d: %s",
                     xml.toUtf8().constData(),
                     err_line, err_col,
                     err_msg.toUtf8().constData());
@@ -134,7 +134,7 @@ DomWidget *xmlToUi(const QString &xml)
 
     const QDomElement dom_elt = doc.firstChildElement();
     if (dom_elt.nodeName() != QLatin1String("widget")) {
-        qWarning("xmlToUi: invalid root element:\n%s", xml.toUtf8().constData());
+        qDebug("xmlToUi: invalid root element:\n%s", xml.toUtf8().constData());
         return 0;
     }
 
@@ -404,7 +404,7 @@ bool WidgetBoxTreeView::load()
     int line, col;
     QDomDocument doc;
     if (!doc.setContent(&f, &error_msg, &line, &col)) {
-        qWarning("WidgetBox: failed to parse \"%s\": on line %d: %s",
+        qDebug("WidgetBox: failed to parse \"%s\": on line %d: %s",
                     name.toUtf8().constData(), line, error_msg.toUtf8().constData());
         return false;
     }
@@ -500,14 +500,14 @@ WidgetBoxTreeView::CategoryList
 
     const QDomElement root = doc.firstChildElement();
     if (root.nodeName() != QLatin1String("widgetbox")) {
-        qWarning("WidgetCollectionModel::xmlToModel(): not a widgetbox file");
+        qDebug("WidgetCollectionModel::xmlToModel(): not a widgetbox file");
         return result;
     }
 
     QDomElement cat_elt = root.firstChildElement();
     for (; !cat_elt.isNull(); cat_elt = cat_elt.nextSiblingElement()) {
         if (cat_elt.nodeName() != QLatin1String("category")) {
-            qWarning("WidgetCollectionModel::xmlToModel(): bad child of widgetbox: \"%s\"", cat_elt.nodeName().toUtf8().constData());
+            qDebug("WidgetCollectionModel::xmlToModel(): bad child of widgetbox: \"%s\"", cat_elt.nodeName().toUtf8().constData());
             return result;
         }
 
@@ -923,9 +923,9 @@ void WidgetBox::handleMousePress(const QString &name, const QString &xml, bool c
         if (dom_widget->hasAttributeClass()) {
             const QString domClassName = dom_widget->attributeClass();
             if (domClassName != name)
-                qWarning() << "The class attribute for the class " << domClassName  << " does not match the class name " << name << '.';
+                qWarning() << QObject::tr("The class attribute for the class %1 does not match the class name %2.").arg(domClassName).arg(name);
         } else {
-            qWarning() << "The class attribute for the class "<< name << " is missing.";
+            qWarning() << QObject::tr("The class attribute for the class %1 is missing.").arg(name);
         }
     }
     if (QApplication::mouseButtons() == Qt::LeftButton) {
