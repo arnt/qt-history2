@@ -61,11 +61,14 @@
 extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
 extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
 
-static const int PushButtonX = 6;
-static const int PushButtonY = 4;
-static const int PushButtonW = 12;
-static const int PushButtonH = 12;
+// The following constants are used for adjusting the size
+// of push buttons so that they are drawn inside their bounds.
+static const int PushButtonLeftOffset = 6;
+static const int PushButtonTopOffset = 4;
+static const int PushButtonRightOffset = 12;
+static const int PushButtonBottomOffset = 12;
 static const int MiniButtonH = 26;
+static const int SmallButtonH = 30;
 static const int BevelButtonW = 50;
 static const int BevelButtonH = 22;
 
@@ -657,6 +660,105 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
     Q_UNUSED(szHint);
     return QAquaSizeUnknown;
 #endif
+}
+
+/**
+    Returns the free space awailable for contents inside the
+    button (and not the size of the contents itself)
+*/
+static inline HIRect qt_mac_get_pushbutton_content_bounds(const QStyleOptionButton *btn, const HIThemeButtonDrawInfo &bdi)
+{
+    HIRect outerBounds = qt_hirectForQRect(btn->rect);
+    // Adjust the bounds to correct for
+    // carbon not calculating the content bounds fully correct
+    if (bdi.kind == kThemePushButton || bdi.kind == kThemePushButtonSmall){
+        outerBounds.origin.y += PushButtonTopOffset;
+        outerBounds.size.height -= PushButtonBottomOffset;
+    }
+    else if (bdi.kind == kThemePushButtonMini){
+        outerBounds.origin.y += PushButtonTopOffset;
+    }
+    
+    HIRect contentBounds;
+    HIThemeGetButtonContentBounds(&outerBounds, &bdi, &contentBounds);
+    return contentBounds;
+}
+
+/**
+    Checks if the actual contents of btn fits inside the free content bounds of
+    'buttonKindToCheck'. Meant as a helper function for 'qt_mac_get_pushbutton_bdi'
+    for determining which button kind to use for drawing.
+*/
+static inline bool qt_mac_content_fits_in_push_button(const QStyleOptionButton *btn, HIThemeButtonDrawInfo &bdi, uint buttonKindToCheck)
+{
+    uint tmp = bdi.kind;
+    bdi.kind = buttonKindToCheck;
+    QRect freeContentRect = qt_qrectForHIRect(qt_mac_get_pushbutton_content_bounds(btn, bdi));
+    QRect contentRect = btn->fontMetrics.boundingRect(freeContentRect, Qt::AlignCenter, btn->text);
+    bdi.kind = tmp;
+    return freeContentRect.contains(contentRect, false);
+}
+
+/**
+    Creates a HIThemeButtonDrawInfo structure that specifies the correct button kind and other details to
+    use for drawing the given push button. Which button kind depends on the size of the button, the size
+    of the contents, explicit user style settings, etc.
+*/
+static inline HIThemeButtonDrawInfo qt_mac_get_pushbutton_bdi(const QStyleOptionButton *btn, const QWidget *widget, const ThemeDrawState &tds)
+{
+    HIThemeButtonDrawInfo bdi;
+    bool drawColorless = btn->palette.currentColorGroup() == QPalette::Active;   
+    ThemeDrawState tdsModified = tds;
+    if (btn->state & QStyle::State_On)
+        tdsModified = kThemeStatePressed;        
+    bdi.version = qt_mac_hitheme_version;
+    bdi.state = tdsModified;
+    bdi.value = kThemeButtonOff;
+    
+    if (drawColorless && tdsModified == kThemeStateInactive)
+        bdi.state = kThemeStateActive;
+    if (btn->state & QStyle::State_HasFocus &&
+            QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
+        bdi.adornment = kThemeAdornmentFocus;
+    else
+        bdi.adornment = kThemeAdornmentNone;
+
+
+    if (btn->features & (QStyleOptionButton::Flat | QStyleOptionButton::HasMenu))
+        bdi.kind = kThemeBevelButton;
+    else {
+        switch (qt_aqua_size_constrain(widget)) {
+        case QAquaSizeSmall:
+            bdi.kind = kThemePushButtonSmall;
+            break;
+        case QAquaSizeMini:
+            bdi.kind = kThemePushButtonMini;
+            break;
+        case QAquaSizeLarge:
+            // ... We should honour if the user is explicit about using the
+            // large button. But right now Qt will specify the large button 
+            // as default rather than QAquaSizeUnknown.
+            // So we treat it like QAquaSizeUnknown
+            // to get the dynamic choosing of button kind.
+        case QAquaSizeUnknown:
+            // Choose the button kind that closest match the button rect, but at the
+            // same time displays the button contents without clipping.         
+
+            bdi.kind = kThemeBevelButton;
+            if (btn->rect.width() > BevelButtonW && btn->rect.height() > BevelButtonH){
+                if (btn->rect.height() < MiniButtonH){
+                    if (qt_mac_content_fits_in_push_button(btn, bdi, kThemePushButtonMini))
+                        bdi.kind = kThemePushButtonMini;
+                } else if (btn->rect.height() < SmallButtonH){
+                    if (qt_mac_content_fits_in_push_button(btn, bdi, kThemePushButtonSmall))
+                        bdi.kind = kThemePushButtonSmall;
+                } else if (qt_mac_content_fits_in_push_button(btn, bdi, kThemePushButton))
+                    bdi.kind = kThemePushButton;
+            }
+        }
+    }
+
+    return bdi;
 }
 
 /**
@@ -2945,41 +3047,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
         if (const QStyleOptionButton *btn = ::qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             if (!(btn->state & (State_Raised | State_Sunken | State_On)))
                 break;
-            bool drawColorless = btn->palette.currentColorGroup() == QPalette::Active;
-            if (btn->state & State_On)
-                tds = kThemeStatePressed;
-            HIThemeButtonDrawInfo bdi;
-            bdi.version = qt_mac_hitheme_version;
-            bdi.state = tds;
-            if (drawColorless && tds == kThemeStateInactive)
-                bdi.state = kThemeStateActive;
-            bdi.adornment = kThemeAdornmentNone;
-            bdi.value = kThemeButtonOff;
-
-            switch (qt_aqua_size_constrain(w)) {
-            case QAquaSizeUnknown:
-            case QAquaSizeLarge:
-                if (btn->features & (QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)
-                    || btn->rect.width() < BevelButtonW || btn->rect.height() < BevelButtonH)
-                    bdi.kind = kThemeBevelButton;
-                else if (btn->rect.height() < MiniButtonH)
-                    bdi.kind = kThemePushButtonMini;
-                else if (btn->rect.width() < BevelButtonH)
-                    bdi.kind = kThemeBevelButton;
-                else
-                    bdi.kind = kThemePushButton;
-                break;
-            case QAquaSizeSmall:
-                bdi.kind = kThemePushButtonSmall;
-                break;
-            case QAquaSizeMini:
-                bdi.kind = kThemePushButtonMini;
-                break;
-            }
-
-            if (btn->state & State_HasFocus
-                    && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
-                bdi.adornment |= kThemeAdornmentFocus;
+            HIThemeButtonDrawInfo bdi = qt_mac_get_pushbutton_bdi(btn, w, tds);
             if (btn->features & QStyleOptionButton::DefaultButton
                     && d->animatable(QMacStylePrivate::AquaPushButton, w)) {
                 bdi.adornment |= kThemeAdornmentDefault;
@@ -2988,21 +3056,20 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 if (d->timerID <= -1)
                     QMetaObject::invokeMethod(d, "startAnimationTimer", Qt::QueuedConnection);
             }
-
             // Unlike Carbon, we want the button to always be drawn inside its bounds.
             // Therefore, make the button a bit smaller, so that even if it got focus,
             // the focus 'shadow' will be inside.
             HIRect newRect = qt_hirectForQRect(btn->rect);
-            if (bdi.kind == kThemePushButton){
-                newRect.origin.x += PushButtonX;
-                newRect.origin.y += PushButtonY;
-                newRect.size.width -= PushButtonW;
-                newRect.size.height -= PushButtonH;
+            if (bdi.kind == kThemePushButton || bdi.kind == kThemePushButtonSmall){
+                newRect.origin.x += PushButtonLeftOffset;
+                newRect.origin.y += PushButtonTopOffset;
+                newRect.size.width -= PushButtonRightOffset;
+                newRect.size.height -= PushButtonBottomOffset;
             }
             else if (bdi.kind == kThemePushButtonMini){
-                newRect.origin.x += PushButtonX - 2;
-                newRect.origin.y += PushButtonY;
-                newRect.size.width -= PushButtonW - 4;
+                newRect.origin.x += PushButtonLeftOffset - 2;
+                newRect.origin.y += PushButtonTopOffset;
+                newRect.size.width -= PushButtonRightOffset - 4;
             }
             HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
 
@@ -3010,6 +3077,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 int mbi = pixelMetric(QStyle::PM_MenuButtonIndicator, btn, w);
                 QRect ir = btn->rect;
                 HIRect arrowRect = CGRectMake(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
+                bool drawColorless = btn->palette.currentColorGroup() == QPalette::Active;
                 if (drawColorless && tds == kThemeStateInactive)
                     tds = kThemeStateActive;
 
@@ -3669,48 +3737,12 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
         break;
     case SE_PushButtonContents:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
-            HIThemeButtonDrawInfo bdi;
-            bdi.version = qt_mac_hitheme_version;
-            bdi.state = kThemeStateActive;
-            bdi.value = kThemeButtonOff;
-
-            switch (qt_aqua_size_constrain(widget)) {
-            case QAquaSizeUnknown:
-            case QAquaSizeLarge:
-                if (btn->features & (QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)
-                    || btn->rect.width() < BevelButtonW || btn->rect.height() < BevelButtonH)
-                    bdi.kind = kThemeBevelButton;
-                else if (btn->rect.height() < MiniButtonH)
-                    bdi.kind = kThemePushButtonMini;
-                else if (btn->rect.width() < BevelButtonW)
-                    bdi.kind = kThemeBevelButton;
-                else
-                    bdi.kind = kThemePushButton;
-                break;
-            case QAquaSizeSmall:
-                bdi.kind = kThemePushButtonSmall;
-                break;
-            case QAquaSizeMini:
-                bdi.kind = kThemePushButtonMini;
-                break;
-            }
-
             // Unlike Carbon, we want the button to always be drawn inside its bounds.
             // Therefore, the button is a bit smaller, so that even if it got focus,
             // the focus 'shadow' will be inside. Adjust the content rect likewise.
-            HIRect newRect = qt_hirectForQRect(btn->rect);
-            if (bdi.kind == kThemePushButton){
-                newRect.origin.y += PushButtonY;
-                newRect.size.height -= PushButtonH;
-            }
-            else if (bdi.kind == kThemePushButtonMini){
-                newRect.origin.y += PushButtonY;
-            }
-            HIRect outRect;
-            bdi.adornment = kThemeAdornmentNone;
-            HIThemeGetButtonContentBounds(&newRect, &bdi, &outRect);
-            rect.setRect(int(outRect.origin.x), int(outRect.origin.y),
-                         int(outRect.size.width), int(outRect.size.height));
+            HIThemeButtonDrawInfo bdi = qt_mac_get_pushbutton_bdi(btn, widget, d->getDrawState(opt->state));
+            HIRect contentRect = qt_mac_get_pushbutton_content_bounds(btn, bdi);
+            rect = qt_qrectForHIRect(contentRect);
         }
         break;
     case SE_HeaderLabel:
@@ -4985,7 +5017,11 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         }
         break;
     case QStyle::CT_PushButton:
-        sz.rwidth() += 32;
+        // By default, we fit the contents inside a normal rounded push button.
+        // Do this by add enough space around the contents so that rounded
+        // borders (including highlighting when active) will show. 
+        sz.rwidth() += PushButtonLeftOffset + PushButtonRightOffset + 10;
+        sz.rheight() += PushButtonTopOffset + PushButtonBottomOffset;
         break;
     case QStyle::CT_MenuItem:
         if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
