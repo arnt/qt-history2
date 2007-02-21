@@ -103,6 +103,13 @@ struct WriteInitialization : public TreeWalker
 // images
 //
     void acceptImage(DomImage *image);
+    
+    enum {
+        Use43UiFile = 0,
+        TopLevelMargin,
+        ChildMargin,
+        SubLayoutMargin
+    };
 
 private:
     static QString domColor2QString(const DomColor *c);
@@ -207,12 +214,6 @@ private:
 
     // layout defaults
     LayoutDefaultHandler m_LayoutDefaultHandler;
-    enum {
-        Use43UiFile = 0,
-        TopLevelMargin,
-        ChildMargin,
-        SubLayoutMargin
-    };
     int m_layoutMarginType;
     int ui_version;
 
