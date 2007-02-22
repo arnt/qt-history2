@@ -865,39 +865,6 @@ public:
     inline QMultiHash operator+(const QMultiHash &other) const
     { QMultiHash result = *this; result += other; return result; }
 
-#ifndef Q_NO_USING_KEYWORD
-    using QHash<Key, T>::contains;
-    using QHash<Key, T>::remove;
-    using QHash<Key, T>::count;
-    using QHash<Key, T>::find;
-    using QHash<Key, T>::constFind;
-#else
-    inline bool contains(const Key &key) const
-    { return QHash<Key, T>::contains(key); }
-    inline int remove(const Key &key)
-    { return QHash<Key, T>::remove(key); }
-    inline int count(const Key &key) const
-    { return QHash<Key, T>::count(key); }
-    inline int count() const
-    { return QHash<Key, T>::count(); }
-    inline typename QHash<Key, T>::iterator find(const Key &key)
-    { return QHash<Key, T>::find(key); }
-    inline typename QHash<Key, T>::const_iterator find(const Key &key) const
-    { return QHash<Key, T>::find(key); }
-    inline typename QHash<Key, T>::const_iterator constFind(const Key &key) const
-    { return QHash<Key, T>::constFind(key); }
-#endif
-
-    bool contains(const Key &key, const T &value) const;
-
-    int remove(const Key &key, const T &value);
-
-    int count(const Key &key, const T &value) const;
-
-    typename QHash<Key, T>::iterator find(const Key &key, const T &value);
-    typename QHash<Key, T>::const_iterator find(const Key &key, const T &value) const;
-    typename QHash<Key, T>::const_iterator constFind(const Key &key, const T &value) const;
-
 private:
     T &operator[](const Key &key);
     const T operator[](const Key &key) const;
@@ -911,77 +878,6 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE Q_TYPENAME QHash<Key, T>::iterator QMultiHash<Key, T>::insert(const Key &akey, const T &avalue)
 { return QHash<Key, T>::insertMulti(akey, avalue); }
 
-template <class Key, class T>
-Q_INLINE_TEMPLATE bool QMultiHash<Key, T>::contains(const Key &key, const T &value) const
-{
-    return constFind(key, value) != constEnd();
-}
-
-template <class Key, class T>
-Q_INLINE_TEMPLATE int QMultiHash<Key, T>::remove(const Key &key, const T &value)
-{
-    int n = 0;
-    typename QHash<Key, T>::iterator i(find(key));
-    typename QHash<Key, T>::const_iterator end(constEnd());
-    while (i != end && i.key() == key) {
-        if (i.value() == value) {
-            i = erase(i);
-            ++n;
-        } else {
-            ++i;
-        }
-    }
-    return n;
-}
-
-template <class Key, class T>
-Q_INLINE_TEMPLATE int QMultiHash<Key, T>::count(const Key &key, const T &value) const
-{
-    int n = 0;
-    typename QHash<Key, T>::const_iterator i(constFind(key));
-    typename QHash<Key, T>::const_iterator end(constEnd());
-    while (i != end && i.key() == key) {
-        if (i.value() == value)
-            ++n;
-        ++i;
-    }
-    return n;
-}
-
-template <class Key, class T>
-Q_INLINE_TEMPLATE Q_TYPENAME
-QHash<Key, T>::iterator QMultiHash<Key, T>::find(const Key &key, const T &value)
-{
-    typename QHash<Key, T>::iterator i(find(key));
-    typename QHash<Key, T>::iterator end(this->end());
-    while (i != end && i.key() == key) {
-        if (i.value() == value)
-            return i;
-        ++i;
-    }
-    return end;
-}
-
-template <class Key, class T>
-Q_INLINE_TEMPLATE Q_TYPENAME
-QHash<Key, T>::const_iterator QMultiHash<Key, T>::find(const Key &key, const T &value) const
-{
-    typename QHash<Key, T>::const_iterator i(constFind(key));
-    typename QHash<Key, T>::const_iterator end(constEnd());
-    while (i != end && i.key() == key) {
-        if (i.value() == value)
-            return i;
-        ++i;
-    }
-    return end;
-}
-
-template <class Key, class T>
-Q_INLINE_TEMPLATE Q_TYPENAME
-QHash<Key, T>::const_iterator QMultiHash<Key, T>::constFind(const Key &key, const T &value) const
-{
-    return find(key, value);
-}
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(Hash)
 Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR(Hash)

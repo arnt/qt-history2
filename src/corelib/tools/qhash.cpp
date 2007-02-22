@@ -750,7 +750,7 @@ void QHashData::checkSanity()
     be 0 if the key isn't in the hash, or greater than 1 if
     insertMulti() has been used with the \a key.
 
-    \sa clear(), take(), QMultiHash::remove()
+    \sa clear(), take()
 */
 
 /*! \fn T QHash::take(const Key &key)
@@ -773,7 +773,7 @@ void QHashData::checkSanity()
     Returns true if the hash contains an item with key \a key;
     otherwise returns false.
 
-    \sa count(), QMultiHash::contains()
+    \sa count()
 */
 
 /*! \fn const T QHash::value(const Key &key) const
@@ -1010,7 +1010,7 @@ void QHashData::checkSanity()
         }
     \endcode
 
-    \sa value(), values(), QMultiHash::find()
+    \sa value(), values()
 */
 
 /*! \fn QHash::const_iterator QHash::find(const Key &key) const
@@ -1027,7 +1027,7 @@ void QHashData::checkSanity()
     If the hash contains no item with key \a key, the function
     returns constEnd().
 
-    \sa find(), QMultiHash::constFind()
+    \sa find()
 */
 
 /*! \fn QHash::iterator QHash::insert(const Key &key, const T &value)
@@ -1879,68 +1879,4 @@ void QHashData::checkSanity()
     hashes, the resulting hash will contain the key multiple times.
 
     \sa operator+=()
-*/
-
-/*!
-    \fn bool QMultiHash::contains(const Key &key, const T &value) const
-    \since 4.3
-
-    Returns true if the hash contains an item with key \a key and
-    value \a value; otherwise returns false.
-
-    \sa QHash::contains()
-*/
-
-/*!
-    \fn int QMultiHash::remove(const Key &key, const T &value)
-    \since 4.3
-
-    Removes all the items that have the key \a key and the value \a
-    value from the hash. Returns the number of items removed.
-
-    \sa QHash::remove()
-*/
-
-/*!
-    \fn int QMultiHash::count(const Key &key, const T &value) const
-    \since 4.3
-
-    Returns the number of items with key \a key and value \a value.
-
-    \sa QHash::count()
-*/
-
-/*!
-    \fn typename QHash<Key, T>::iterator QMultiHash::find(const Key &key, const T &value)
-    \since 4.3
-
-    Returns an iterator pointing to the item with key \a key and
-    value \a value in the hash.
-
-    If the hash contains no such item, the function returns end().
-
-    If the hash contains multiple items with key \a key, this
-    function returns an iterator that points to the most recently
-    inserted value.
-
-    \sa QHash::find()
-*/
-
-/*!
-    \fn typename QHash<Key, T>::const_iterator QMultiHash::find(const Key &key, const T &value) const
-    \since 4.3
-    \overload
-*/
-
-/*!
-    \fn typename QHash<Key, T>::const_iterator QMultiHash::constFind(const Key &key, const T &value) const
-    \since 4.3
-
-    Returns an iterator pointing to the item with key \a key and the
-    value \a value in the hash.
-
-    If the hash contains no such item, the function returns
-    constEnd().
-
-    \sa QHash::constFind()
 */
