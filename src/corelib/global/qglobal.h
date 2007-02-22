@@ -1039,10 +1039,12 @@ class QDataStream;
 */
 #if defined(QT_BUILD_INTERNAL) && defined(Q_OS_WIN) && defined(QT_MAKEDLL)
 #    define Q_AUTOTEST_EXPORT Q_DECL_EXPORT
+#elif defined(QT_BUILD_INTERNAL) && defined(Q_OS_WIN) && defined(QT_DLL)
+#    define Q_AUTOTEST_EXPORT Q_DECL_IMPORT
 #elif defined(QT_BUILD_INTERNAL) && !defined(Q_OS_WIN) && defined(QT_SHARED)
 #    define Q_AUTOTEST_EXPORT Q_DECL_EXPORT
 #else
-#    define Q_AUTOTEST_EXPORT Q_DECL_IMPORT
+#    define Q_AUTOTEST_EXPORT
 #endif
 
 /*
