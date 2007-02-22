@@ -3903,7 +3903,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
     case SE_CheckBoxLayoutItem:
         rect = opt->rect;
         if (controlSize == QAquaSizeLarge) {
-            rect.adjust(+2, +4, -9, -5);
+            rect.adjust(+2, +3, -9, -4);
         } else if (controlSize == QAquaSizeSmall) {
             rect.adjust(+1, +5, 0 /* fix */, -6);
         } else {
