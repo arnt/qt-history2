@@ -2615,7 +2615,7 @@ void QFileDialogPrivate::_q_goToDirectory(const QString &path)
 }
 
 const char *qt_file_dialog_filter_reg_exp =
-    "([a-zA-Z0-9]*)\\(([a-zA-Z0-9_.*? +;#\\-\\[\\]@\\{\\}/!<>\\$%&=^~:\\|]*)\\)$";
+    "([a-zA-Z0-9 ]*)\\(([a-zA-Z0-9_.*? +;#\\-\\[\\]@\\{\\}/!<>\\$%&=^~:\\|]*)\\)$";
 
 // Makes a list of filters from a normal filter string "Image Files (*.png *.jpg)"
 static QStringList qt_clean_filter_list(const QString &filter)
