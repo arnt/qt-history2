@@ -58,9 +58,14 @@ public:
         ExportNonScriptableContents = 0xf00,
 
         ExportAllSlots = ExportScriptableSlots|ExportNonScriptableSlots,
-        ExportAllSignal = ExportScriptableSignals|ExportNonScriptableSignals,
+        ExportAllSignals = ExportScriptableSignals|ExportNonScriptableSignals,
         ExportAllProperties = ExportScriptableProperties|ExportNonScriptableProperties,
         ExportAllContents = ExportScriptableContents|ExportNonScriptableContents,
+
+#ifndef Q_QDOC
+        // Qt 4.2 had a misspelling here
+        ExportAllSignal = ExportAllSignals,
+#endif
 
         ExportChildObjects = 0x1000
     };
