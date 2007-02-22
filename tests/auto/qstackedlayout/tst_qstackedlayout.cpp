@@ -8,6 +8,7 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
+#include <QLineEdit>
 #include <QStackedLayout>
 #include <qapplication.h>
 #include <qwidget.h>
@@ -36,6 +37,7 @@ private slots:
     void testCase();
     void deleteCurrent();
     void removeWidget();
+    void keepFocusAfterSetCurrent();
 
 private:
     QWidget *testWidget;
@@ -69,6 +71,7 @@ void tst_QStackedLayout::getSetCheck()
 
 
 tst_QStackedLayout::tst_QStackedLayout()
+    : testWidget(0)
 {
 }
 
@@ -78,23 +81,27 @@ tst_QStackedLayout::~tst_QStackedLayout()
 
 void tst_QStackedLayout::initTestCase()
 {
+}
+
+void tst_QStackedLayout::cleanupTestCase()
+{
+}
+
+void tst_QStackedLayout::init()
+{
+    if (testWidget) {
+        delete testWidget;
+        testWidget = 0;
+    }
     testWidget = new QWidget(0);
     testWidget->resize( 200, 200 );
     testWidget->show();
 }
 
-void tst_QStackedLayout::cleanupTestCase()
+void tst_QStackedLayout::cleanup()
 {
     delete testWidget;
     testWidget = 0;
-}
-
-void tst_QStackedLayout::init()
-{
-}
-
-void tst_QStackedLayout::cleanup()
-{
 }
 
 
@@ -241,6 +248,64 @@ void tst_QStackedLayout::removeWidget()
     testLayout->removeWidget(w1);
 
     QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(top));
+}
+
+class LineEdit : public QLineEdit
+{
+public:
+    LineEdit() : hasFakeEditFocus(false)
+    { }
+
+    bool hasFakeEditFocus;
+
+protected:
+    bool isSingleFocusWidget() const
+    {
+        const QWidget *w = this;
+        while ((w = w->nextInFocusChain()) != this) {
+            if (w->isVisible() && this != w->focusProxy()
+                && w->focusPolicy() & Qt::TabFocus) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void focusInEvent(QFocusEvent *event)
+    {
+        QLineEdit::focusInEvent(event);
+        hasFakeEditFocus = isSingleFocusWidget();
+    }
+
+    void focusOutEvent(QFocusEvent *event)
+    {
+        hasFakeEditFocus = false;
+        QLineEdit::focusOutEvent(event);
+    }
+};
+
+void tst_QStackedLayout::keepFocusAfterSetCurrent()
+{
+    if (testWidget->layout()) delete testWidget->layout();
+    QStackedLayout *stackLayout = new QStackedLayout(testWidget);
+    testWidget->setFocusPolicy(Qt::NoFocus);
+
+    LineEdit *edit1 = new LineEdit;
+    LineEdit *edit2 = new LineEdit;
+    stackLayout->addWidget(edit1);
+    stackLayout->addWidget(edit2);
+
+    stackLayout->setCurrentIndex(0);
+
+    edit1->setFocus();
+    QTest::qWait(250);
+
+    QVERIFY(edit1->hasFocus());
+
+    stackLayout->setCurrentIndex(1);
+    QVERIFY(!edit1->hasFocus());
+    QVERIFY(edit2->hasFocus());
+    QVERIFY(edit2->hasFakeEditFocus);
 }
 
 QTEST_MAIN(tst_QStackedLayout)

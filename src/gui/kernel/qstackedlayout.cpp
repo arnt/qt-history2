@@ -271,11 +271,16 @@ void QStackedLayout::setCurrentIndex(int index)
     next->raise();
     next->show();
 
+    QWidget *fw = parent ? parent->window()->focusWidget() : 0;
+    if (prev) {
+        prev->clearFocus();
+        prev->hide();
+    }
+        
     // try to move focus onto the incoming widget if focus
     // was somewhere on the outgoing widget.
 
     if (parent) {
-        QWidget * fw = parent->window()->focusWidget();
         if (fw && (prev && prev->isAncestorOf(fw))) { // focus was on old page
             // look for the best focus widget we can find
             if (QWidget *nfw = next->focusWidget())
@@ -297,8 +302,6 @@ void QStackedLayout::setCurrentIndex(int index)
             }
         }
     }
-    if (prev)
-        prev->hide();
     if (reenableUpdates)
         parent->setUpdatesEnabled(true);
     emit currentChanged(index);
