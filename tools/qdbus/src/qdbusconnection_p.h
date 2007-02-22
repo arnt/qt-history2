@@ -137,7 +137,8 @@ public:
     QDBusMessage sendWithReply(const QDBusMessage &message, int mode, int timeout = -1);
     QDBusMessage sendWithReplyLocal(const QDBusMessage &message);
     int sendWithReplyAsync(const QDBusMessage &message, QObject *receiver,
-                           const char *method, int timeout = -1);
+                           const char *returnMethod, const char *errorMethod,
+                           int timeout = -1);
     void connectSignal(const QString &key, const SignalHook &hook);
     void disconnectSignal(SignalHookHash::Iterator &it);
     void registerObject(const ObjectTreeNode *node);
@@ -226,6 +227,18 @@ public:
     static QDBusConnectionPrivate *d(const QDBusConnection& q) { return q.d; }
 
     static void setSender(const QDBusConnectionPrivate *s);
+    static void setConnection(const QString &name, QDBusConnectionPrivate *c);
+};
+
+class QDBusErrorHelper: public QObject
+{
+    Q_OBJECT
+    friend class QDBusConnectionPrivate;
+public:
+    inline QDBusErrorHelper(QObject *target, const char *member)
+    { connect(this, SIGNAL(pendingCallError(QDBusError,QDBusMessage)), target, member); }
+signals:
+    void pendingCallError(const QDBusError &, const QDBusMessage &);
 };
 
 class QDBusReplyWaiter: public QEventLoop
@@ -236,6 +249,7 @@ public:
 
 public slots:
     void reply(const QDBusMessage &msg);
+    void error(const QDBusError &error);
 };
 
 // in qdbusmisc.cpp

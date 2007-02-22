@@ -48,6 +48,7 @@ struct QDBusPendingCall
     int methodIdx;
     DBusPendingCall *pending;
     const QDBusConnectionPrivate *connection;
+    const char *errorMethod;
     QDBusMessage message;
 };
 
@@ -1333,14 +1334,17 @@ void QDBusConnectionPrivate::messageResultReceived(DBusPendingCall *pending, voi
 
         QDBusMessage msg = QDBusMessagePrivate::fromDBusMessage(reply);
         qDBusDebug() << "got message: " << msg;
-        CallDeliveryEvent *e = prepareReply(call->receiver, call->methodIdx, call->metaTypes, msg);
-        if (e)
-            connection->postCallDeliveryEvent(e);
-        else
-            qDBusDebug() << "Deliver failed!";
-
-        if (msg.type() == QDBusMessage::ErrorMessage)
+        if (msg.type() == QDBusMessage::ErrorMessage) {
+            // got an error, emit it
+            emit QDBusErrorHelper(call->receiver, call->errorMethod).pendingCallError(QDBusError(msg), call->message);
             emit connection->callWithCallbackFailed(QDBusError(msg), call->message);
+        } else {
+            CallDeliveryEvent *e = prepareReply(call->receiver, call->methodIdx, call->metaTypes, msg);
+            if (e)
+                connection->postCallDeliveryEvent(e);
+            else
+                qDBusDebug() << "Deliver failed!";
+        }
     }
     dbus_pending_call_unref(pending);
     delete call;
@@ -1418,7 +1422,8 @@ QDBusMessage QDBusConnectionPrivate::sendWithReply(const QDBusMessage &message,
         return amsg;
     } else { // use the event loop
         QDBusReplyWaiter waiter;
-        if (sendWithReplyAsync(message, &waiter, SLOT(reply(QDBusMessage)), timeout) > 0) {
+        if (sendWithReplyAsync(message, &waiter, SLOT(reply(QDBusMessage)),
+                               SLOT(error()), timeout) > 0) {
             // enter the event loop and wait for a reply
             waiter.exec(QEventLoop::ExcludeUserInputEvents | QEventLoop::WaitForMoreEvents);
 
@@ -1460,29 +1465,30 @@ QDBusMessage QDBusConnectionPrivate::sendWithReplyLocal(const QDBusMessage &mess
 }    
 
 int QDBusConnectionPrivate::sendWithReplyAsync(const QDBusMessage &message, QObject *receiver,
-                                               const char *method, int timeout)
+                                               const char *returnMethod, const char *errorMethod,
+                                               int timeout)
 {
-    if (!receiver || !method || !*method) {
+    if (!receiver || !returnMethod || !*returnMethod) {
         // would not be able to deliver a reply
         qWarning("QDBusConnection::sendWithReplyAsync: error: cannot deliver a reply to %s::%s (%s)",
                  receiver ? receiver->metaObject()->className() : "(null)",
-                 method ? method + 1 : "(null)",
+                 returnMethod ? returnMethod + 1 : "(null)",
                  receiver ? qPrintable(receiver->objectName()) : "no name");
         return send(message);
     }
 
     int slotIdx = -1;
     QList<int> metaTypes;
-    slotIdx = findSlot(receiver, method + 1, metaTypes);
+    slotIdx = findSlot(receiver, returnMethod + 1, metaTypes);
     if (slotIdx == -1) {
-        QByteArray normalizedName = QMetaObject::normalizedSignature(method + 1);
+        QByteArray normalizedName = QMetaObject::normalizedSignature(returnMethod + 1);
         slotIdx = findSlot(receiver, normalizedName, metaTypes);
     }
     if (slotIdx == -1) {
         // would not be able to deliver a reply
         qWarning("QDBusConnection::sendWithReplyAsync: error: cannot deliver a reply to %s::%s (%s)",
                  receiver->metaObject()->className(),
-                 method + 1, qPrintable(receiver->objectName()));
+                 returnMethod + 1, qPrintable(receiver->objectName()));
         return send(message);
     }
 
@@ -1506,6 +1512,7 @@ int QDBusConnectionPrivate::sendWithReplyAsync(const QDBusMessage &message, QObj
         pcall->methodIdx = slotIdx;
         pcall->connection = this;
         pcall->pending = pending;
+        pcall->errorMethod = errorMethod;
         pcall->message = message;
         dbus_pending_call_set_notify(pending, qDBusResultReceived, pcall, 0);
 
@@ -1749,5 +1756,11 @@ QString QDBusConnectionPrivate::baseService() const
 void QDBusReplyWaiter::reply(const QDBusMessage &msg)
 {
     replyMsg = msg;
+    quit();
+}
+
+void QDBusReplyWaiter::error(const QDBusError &err)
+{
+    replyMsg = QDBusMessage::createError(err);
     quit();
 }

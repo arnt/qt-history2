@@ -21,6 +21,7 @@ QT_BEGIN_HEADER
 
 class QDBusConnectionPrivate;
 class QDBusError;
+class QDBusConnection;
 
 class QDBUS_EXPORT QDBusServer: public QObject
 {
@@ -31,6 +32,9 @@ public:
     bool isConnected() const;
     QDBusError lastError() const;
     QString address() const;
+
+Q_SIGNALS:
+    void newConnection(const QDBusConnection &connection);
 
 private:
     Q_DISABLE_COPY(QDBusServer)

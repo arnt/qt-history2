@@ -202,16 +202,11 @@ void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionP
                                                 ExportNonScriptableProperties
 
     \value ExportAllSlots                       export all of this object's slots
-    \value ExportAllSignal                      export all of this object's signals
+    \value ExportAllSignals                     export all of this object's signals
     \value ExportAllProperties                  export all of this object's properties
     \value ExportAllContents                    export all of this object's contents
 
     \value ExportChildObjects                   export this object's child objects
-
-    \warning It is currently not possible to export signals from
-    objects. If you pass the ExportScriptableSignals,
-    ExportNonScriptableSignals, or ExportAllSignal, the
-    registerObject() function will print a warning.
 
     \sa registerObject(), QDBusAbstractAdaptor, {usingadaptors.html}{Using adaptors}
 */
@@ -355,12 +350,18 @@ QDBusConnection QDBusConnection::connectToBus(const QString &address,
         return QDBusConnection(name);
 
     d = new QDBusConnectionPrivate;
+ 
     // setConnection does the error handling for us
-    d->setConnection(dbus_connection_open(address.toUtf8().constData(), &d->error));
-
-    _q_manager()->setConnection(name, d);
+    d->setConnection(dbus_connection_open_private(address.toUtf8().constData(), &d->error));
 
     QDBusConnection retval(name);
+    dbus_bus_register(d->connection, &d->error);
+    if (d->handleError()) {
+        d->closeConnection();
+        return retval;
+    }
+
+    _q_manager()->setConnection(name, d);
 
     // create the bus service
     // will lock in QDBusConnectionPrivate::connectRelay()
@@ -409,32 +410,59 @@ bool QDBusConnection::send(const QDBusMessage &message) const
 }
 
 /*!
-    Sends the \a message over this connection and blocks, waiting for
-    a reply, for at most \a timeout milliseconds.  When the reply is
-    received, the given \a method is called in the \a receiver object.
-    The default \a timeout is -1, meaning that the function won't wait
-    for a reply before calling the specified \a method.
+    Sends the \a message over this connection and returns immediately.
+    When the reply is received, the method \a returnMethod is called in
+    the \a receiver object. If an error occurs, the method \a errorMethod
+    will be called instead.
+ 
+    If no reply is received within \a timeout milliseconds, an automatic
+    error will be delivered indicating the expiration of the call.
+    The default \a timeout is -1, which will be replaced with an
+    implementation-defined value that is suitable for inter-process
+    communications (generally, 25 seconds).
 
     This function is suitable for method calls only. It is guaranteed
     that the slot will be called exactly once with the reply, as long
-    as the parameter types match. If they don't, the reply cannot be
-    delivered.
+    as the parameter types match and no error occurs.
 
-    Returns the identification of the message that was sent or 0 if
-    nothing was sent.
-
+    Returns true if the message was sent, or false if the message could
+    not be sent.
 */
 bool QDBusConnection::callWithCallback(const QDBusMessage &message, QObject *receiver,
-                                       const char *method, int timeout) const
+                                       const char *returnMethod, const char *errorMethod,
+                                       int timeout) const
 {
     if (!d || !d->connection) {
         QDBusError err = QDBusError(QDBusError::Disconnected,
                                     QLatin1String("Not connected to D-BUS server"));
         if (d)
             d->lastError = err;
-        return 0;
+        return false;
     }
-    return d->sendWithReplyAsync(message, receiver, method, timeout) != 0;
+    return d->sendWithReplyAsync(message, receiver, returnMethod, errorMethod, timeout) != 0;
+}
+
+/*!
+    \overload
+    \deprecated
+    Sends the \a message over this connection and returns immediately.
+    When the reply is received, the method \a returnMethod is called in
+    the \a receiver object.
+
+    This function is suitable for method calls only. It is guaranteed
+    that the slot will be called exactly once with the reply, as long
+    as the parameter types match and no error occurs.
+
+    This function is dangerous because it cannot report errors, including
+    the expiration of the timeout.
+
+    Returns true if the message was sent, or false if the message could
+    not be sent.
+*/
+bool QDBusConnection::callWithCallback(const QDBusMessage &message, QObject *receiver,
+                                       const char *returnMethod, int timeout) const
+{
+    return callWithCallback(message, receiver, returnMethod, 0, timeout);
 }
 
 /*!
@@ -890,6 +918,15 @@ void QDBusConnectionPrivate::setSender(const QDBusConnectionPrivate *s)
 {
     _q_manager()->setSender(s);
 }
+
+/*!
+  \internal
+*/
+void QDBusConnectionPrivate::setConnection(const QString &name, QDBusConnectionPrivate *c)
+{
+    _q_manager()->setConnection(name, c);
+}
+
 
 /*!
     \namespace QDBus

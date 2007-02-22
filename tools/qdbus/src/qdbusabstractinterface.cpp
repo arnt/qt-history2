@@ -301,7 +301,37 @@ QDBusMessage QDBusAbstractInterface::callWithArgumentList(QDBus::CallMode mode,
 }
 
 /*!
+    Places a call to the remote method specified by \a method on this interface, using \a args as
+    arguments. This function will return immediately after queueing the call. The reply from the
+    remote function will be delivered to the \a returnMethod slot on object \a receiver.
+    If an error occurs, the \a errorMethod slot is called instead.
+    This function returns true if the queueing succeeded: it does not indicate that the call
+    succeeded. If it fails, the error slot will be called.
+ 
+    The \a returnMember member must have as its parameters the types returned by the function call.
+    Optionally, it may have a QDBusMessage parameter as its last or as its only parameter. The
+    \a errorMember function must have a QDBusError as its only parameter.
+
+    \since 4.3
+    \sa QDBusError, QDBusMessage
+ */
+bool QDBusAbstractInterface::callWithCallback(const QString &method,
+                                              const QList<QVariant> &args,
+                                              QObject *receiver, const char *returnMethod,
+                                              const char *errorMethod)
+{
+    Q_D(QDBusAbstractInterface);
+
+    QDBusMessage msg = QDBusMessage::createMethodCall(service(), path(), interface(), method);
+    msg.setArguments(args);
+
+    d->lastError = 0;           // clear
+    return d->connection.callWithCallback(msg, receiver, returnMethod, errorMethod);
+}
+
+/*!
     \overload
+    \deprecate
     Places a call to the remote method specified by \a method on this interface, using \a args as
     arguments. This function will return immediately after queueing the call. The reply from the
     remote function or any errors emitted by it will be delivered to the \a slot slot on object \a
@@ -317,19 +347,7 @@ bool QDBusAbstractInterface::callWithCallback(const QString &method,
                                               const QList<QVariant> &args,
                                               QObject *receiver, const char *slot)
 {
-    Q_D(QDBusAbstractInterface);
-
-    QString m = method;
-    // split out the signature from the method
-    int pos = method.indexOf(QLatin1Char('.'));
-    if (pos != -1)
-        m.truncate(pos);
-
-    QDBusMessage msg = QDBusMessage::createMethodCall(service(), path(), interface(), m);
-    msg.setArguments(args);
-
-    d->lastError = 0;           // clear
-    return d->connection.callWithCallback(msg, receiver, slot);
+    return callWithCallback(method, args, receiver, slot, 0);
 }
 
 /*!

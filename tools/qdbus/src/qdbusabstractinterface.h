@@ -71,6 +71,9 @@ public:
 
     bool callWithCallback(const QString &method,
                           const QList<QVariant> &args,
+                          QObject *receiver, const char *member, const char *errorSlot);
+    bool callWithCallback(const QString &method,
+                          const QList<QVariant> &args,
                           QObject *receiver, const char *member);
 
 protected:
