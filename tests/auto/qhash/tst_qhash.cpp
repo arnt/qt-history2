@@ -44,6 +44,7 @@ private slots:
     void rehash_isnt_quadratic();
     void dont_need_default_constructor();
     void qhash();
+    void qmultihash_specific();
 
     void compare();
 #if QT_VERSION > 0x040100
@@ -1042,6 +1043,91 @@ void tst_QHash::qhash()
         QPair<int, int> pB(0x12345675, 0x12345675);
 
         QVERIFY(qHash(pA) != qHash(pB));
+    }
+}
+
+void tst_QHash::qmultihash_specific()
+{
+    QMultiHash<int, int> hash1;
+    for (int i = 1; i <= 9; ++i) {
+        for (int j = 1; j <= i; ++j) {
+            int k = i * 10 + j;
+            QVERIFY(!hash1.contains(i, k));
+            hash1.insert(i, k);
+            QVERIFY(hash1.contains(i, k));
+        }
+    }
+
+    for (int i = 1; i <= 9; ++i) {
+        for (int j = 1; j <= i; ++j) {
+            int k = i * 10 + j;
+            QVERIFY(hash1.contains(i, k));
+        }
+    }
+
+    QVERIFY(hash1.contains(9, 99));
+    QCOMPARE(hash1.count(), 45);
+    hash1.remove(9, 99);
+    QVERIFY(!hash1.contains(9, 99));
+    QCOMPARE(hash1.count(), 44);
+
+    hash1.remove(9, 99);
+    QVERIFY(!hash1.contains(9, 99));
+    QCOMPARE(hash1.count(), 44);
+
+    hash1.remove(1, 99);
+    QCOMPARE(hash1.count(), 44);
+
+    hash1.insert(1, 99);
+    hash1.insert(1, 99);
+
+    QCOMPARE(hash1.count(), 46);
+    hash1.remove(1, 99);
+    QCOMPARE(hash1.count(), 44);
+    hash1.remove(1, 99);
+    QCOMPARE(hash1.count(), 44);
+
+    {
+    QMultiHash<int, int>::const_iterator i = hash1.constFind(1, 11);
+    QVERIFY(i.key() == 1);
+    QVERIFY(i.value() == 11);
+
+    i = hash1.constFind(2, 22);
+    QVERIFY(i.key() == 2);
+    QVERIFY(i.value() == 22);
+
+    i = hash1.constFind(9, 98);
+    QVERIFY(i.key() == 9);
+    QVERIFY(i.value() == 98);
+    }
+
+    {
+    const QMultiHash<int, int> hash2(hash1);
+    QMultiHash<int, int>::const_iterator i = hash2.find(1, 11);
+    QVERIFY(i.key() == 1);
+    QVERIFY(i.value() == 11);
+
+    i = hash2.find(2, 22);
+    QVERIFY(i.key() == 2);
+    QVERIFY(i.value() == 22);
+
+    i = hash2.find(9, 98);
+    QVERIFY(i.key() == 9);
+    QVERIFY(i.value() == 98);
+    }
+
+    {
+    QMultiHash<int, int>::iterator i = hash1.find(1, 11);
+    QVERIFY(i.key() == 1);
+    QVERIFY(i.value() == 11);
+
+    i = hash1.find(2, 22);
+    QVERIFY(i.key() == 2);
+    QVERIFY(i.value() == 22);
+
+    i = hash1.find(9, 98);
+    QVERIFY(i.key() == 9);
+    QVERIFY(i.value() == 98);
     }
 }
 
