@@ -1535,11 +1535,13 @@
     must be entered by the user in a context where the shortcut is
     active. The possible contexts are these:
 
-    \value WidgetShortcut The shortcut is only triggered when its
+    \value WidgetShortcut The shortcut is active when its
     parent widget has focus.
-    \value WindowShortcut The shortcut is triggered when its
-    parent widget is a logical subwidget of the active top-level window.
-    \value ApplicationShortcut The shortcut is triggered when the application is active.
+    \value WindowShortcut The shortcut is active when its 
+    parent widget is a logical subwidget of the
+    active top-level window.
+    \value ApplicationShortcut The shortcut is active when one of
+    the applications windows are active.
 */
 
 /*!

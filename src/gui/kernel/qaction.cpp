@@ -163,7 +163,10 @@ void QActionPrivate::setShortcutEnabled(bool enable, QShortcutMap &map)
     setStatusTip(), setWhatsThis(), and setToolTip(). For menu items,
     it is possible to set an individual font with setFont().
 
-    Actions are added to widgets using QWidget::addAction().
+    Actions are added to widgets using QWidget::addAction(). Note
+    that an action must be added to a widget before it can be used;
+    this is also true when the shortcut should be global (i.e.,
+    Qt::ApplicationShortcut as Qt::ShortcutContext).
 
     Once a QAction has been created it should be added to the relevant
     menu and toolbar, then connected to the slot which will perform
