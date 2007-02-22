@@ -361,6 +361,7 @@ void QScriptEnginePrivate::markFrame(QScriptContextPrivate *context, int generat
     QScriptValueImpl thisObject = context->thisObject();
     QScriptValueImpl scopeChain = context->m_scopeChain;
     QScriptValueImpl callee = context->m_callee;
+    QScriptValueImpl arguments = context->m_arguments;
 
     if (context->m_functionNameId)
         markString(context->m_functionNameId, generation);
@@ -376,6 +377,9 @@ void QScriptEnginePrivate::markFrame(QScriptContextPrivate *context, int generat
 
     if (callee.isObject())
         markObject(callee, generation);
+
+    if (arguments.isObject())
+        markObject(arguments, generation);
 
     if (context->returnValue().isValid()) {
         if (context->returnValue().isObject())

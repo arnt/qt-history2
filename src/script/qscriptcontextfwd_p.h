@@ -114,6 +114,7 @@ public:
     QScriptValueImpl m_result;
     QScriptValueImpl m_scopeChain;
     QScriptValueImpl m_callee;
+    QScriptValueImpl m_arguments;
 
     QScript::AST::Node *abstractSyntaxTree;
     QScriptValueImpl *args;

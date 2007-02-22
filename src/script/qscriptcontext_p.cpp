@@ -872,10 +872,13 @@ Ltop:
     I(FetchArguments):
     {
         CHECK_TEMPSTACK(1);
-        if (m_activation.objectValue() == m_thisObject.objectValue())
-            eng->newUndefined(++stackPtr); // ### arguments array parsed from command line
-        else
-            eng->newArguments(++stackPtr, m_activation, argc, m_callee);
+        if (!m_arguments.isValid()) {
+            if (m_activation.objectValue() == m_thisObject.objectValue())
+                eng->newUndefined(&m_arguments); // ### arguments array parsed from command line
+            else
+                eng->newArguments(&m_arguments, m_activation, argc, m_callee);
+        }
+        *++stackPtr = m_arguments;
         ++iPtr;
     }   Next();
 

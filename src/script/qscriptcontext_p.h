@@ -74,6 +74,7 @@ inline void QScriptContextPrivate::init(QScriptContext *parent)
     m_result.invalidate();
     m_scopeChain.invalidate();
     m_callee.invalidate();
+    m_arguments.invalidate();
     currentLine = 0;
     currentColumn = 0;
     errorLineNumber = 0;
