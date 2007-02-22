@@ -436,8 +436,8 @@ class QCleanlooksStylePrivate : public QWindowsStylePrivate
 public:
     QCleanlooksStylePrivate()
         : QWindowsStylePrivate()
-    { 
-        animationFps = 24; 
+    {
+        animationFps = 24;
     }
 ~QCleanlooksStylePrivate()
     { }
@@ -503,7 +503,7 @@ static void qt_cleanlooks_draw_buttongradient(QPainter *painter, const QRect &re
         else {
             int size = horizontal ? rect.width() : rect.height() ;
             if (size < 1)
-                size = 1.0;
+                size = 1;
             float edge = 4.0/(float)size;
             gradient->setColorAt(0, gradientStart);
             gradient->setColorAt(edge, gradientMid.lighter(104));

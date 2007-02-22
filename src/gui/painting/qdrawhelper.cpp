@@ -2378,7 +2378,6 @@ static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
         int ialpha = qAlpha(~color);
         ushort c = qConvertRgb32To16(color);
         ushort *target = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
-        const ushort *end = target + spans->len;
 #if 1
         int len = spans->len;
         bool pre = (((unsigned long)target) & 0x3) != 0;
@@ -2408,6 +2407,7 @@ static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
             *target = c + BYTE_MUL_RGB16(*target, ialpha);
         }
 #else
+        const ushort *end = target + spans->len;
         while (target != end) {
             *target = c + BYTE_MUL_RGB16(*target, ialpha);
             ++target;

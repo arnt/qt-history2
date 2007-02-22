@@ -216,7 +216,7 @@ QString qws_fontCacheDir()
 #else
     dir = QDir::tempPath();
 #endif
-    dir.append("/fonts/");
+    dir.append(QLatin1String("/fonts/"));
     QDir qd(dir);
     if (!qd.exists() && !qd.mkpath(dir))
         dir = QDir::tempPath();
@@ -226,7 +226,7 @@ QString qws_fontCacheDir()
 QList<QByteArray> QFontEngineQPF::cleanUpAfterClientCrash(const QList<int> &crashedClientIds)
 {
     QList<QByteArray> removedFonts;
-    QDir dir(qws_fontCacheDir(), "*.qsf");
+    QDir dir(qws_fontCacheDir(), QLatin1String("*.qsf"));
     for (int i = 0; i < int(dir.count()); ++i) {
         const QByteArray fileName = QFile::encodeName(dir.absoluteFilePath(dir[i]));
 
@@ -238,7 +238,7 @@ QList<QByteArray> QFontEngineQPF::cleanUpAfterClientCrash(const QList<int> &cras
 
                 if (lockValue && crashedClientIds.contains(lockValue)) {
                     removedFonts.append(fileName);
-                    QFile::remove(fileName);
+                    QFile::remove(QFile::decodeName(fileName));
                 }
 
                 ::munmap(header, sizeof(QFontEngineQPF::Header));
@@ -291,11 +291,13 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef &def, int fileDescriptor, QFontEng
         if (!renderingFontEngine)
             return;
 
-        fileName = fontDef.family.toLower() + "_" + QString::number(fontDef.pixelSize)
-                   + "_" + QString::number(fontDef.weight)
-                   + (fontDef.style != QFont::StyleNormal ? "_italic" : "")
-                   + ".qsf";
-        fileName.replace(' ', '_');
+        fileName = fontDef.family.toLower() + QLatin1String("_")
+                   + QString::number(fontDef.pixelSize)
+                   + QLatin1String("_") + QString::number(fontDef.weight)
+                   + (fontDef.style != QFont::StyleNormal ?
+                      QLatin1String("_italic") : QLatin1String(""))
+                   + QLatin1String(".qsf");
+        fileName.replace(QLatin1Char(' '), QLatin1Char('_'));
         fileName.prepend(qws_fontCacheDir());
         fd = ::open(QFile::encodeName(fileName), O_RDWR | O_EXCL | O_CREAT, 0644);
         if (fd >= 0) {

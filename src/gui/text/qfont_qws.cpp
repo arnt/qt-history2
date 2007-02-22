@@ -60,7 +60,7 @@ Qt::HANDLE QFont::handle() const
 
 QString QFont::rawName() const
 {
-    return "unknown";
+    return QLatin1String("unknown");
 }
 
 void QFont::setRawName(const QString &)
@@ -131,7 +131,7 @@ void QFontPrivate::load(int)
     QStringList family_list;
 
     if (!req.family.isEmpty()) {
-        family_list = req.family.split(',');
+        family_list = req.family.split(QLatin1Char(','));
 
         // append the substitute list for each family in family_list
         QStringList subs_list;

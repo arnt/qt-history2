@@ -262,7 +262,7 @@ void QLabelPrivate::init()
     control = 0;
     textInteractionFlags = Qt::LinksAccessibleByMouse;
 
-    q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred, 
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,
                                  QSizePolicy::Label));
 
     hasCustomCursor = false;
@@ -679,7 +679,6 @@ void QLabel::setOpenExternalLinks(bool open)
 
 void QLabelPrivate::textInteractionFlagsChanged()
 {
-    Q_Q(QLabel);
     if (!doc)
         return;
 

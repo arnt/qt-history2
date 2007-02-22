@@ -3378,7 +3378,6 @@ void QRasterBuffer::prepare(int w, int h)
 
 void QRasterBuffer::prepare(QImage *image)
 {
-    int depth = image->depth();
     m_buffer = (uchar *)image->bits();
     m_width = image->width();
     m_height = image->height();

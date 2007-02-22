@@ -395,7 +395,7 @@ class QFontDatabasePrivate : public QObject
 {
     Q_OBJECT
 public:
-    QFontDatabasePrivate() 
+    QFontDatabasePrivate()
         : count(0), families(0), reregisterAppFonts(false)
 #if defined(Q_WS_QWS)
           , stream(0)
@@ -1187,7 +1187,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
             QFontDef def = request;
             if (def.family.isEmpty()) {
                 def.family = fp->request.family;
-                def.family = def.family.left(def.family.indexOf(','));
+                def.family = def.family.left(def.family.indexOf(QLatin1Char(',')));
             }
             QFontCache::Key key(def, script
 #if defined(Q_WS_X11)

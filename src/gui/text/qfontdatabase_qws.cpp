@@ -220,7 +220,7 @@ static void initializeDb()
         }
     }
     QString dbFileName = binaryDb.fileName();
-    binaryDb.setFileName(dbFileName + ".tmp");
+    binaryDb.setFileName(dbFileName + QLatin1String(".tmp"));
     binaryDb.open(QIODevice::WriteOnly | QIODevice::Truncate);
     db->stream = new QDataStream(&binaryDb);
     *db->stream << DatabaseVersion;
@@ -261,17 +261,17 @@ static void initializeDb()
     }
 
 
-    QDir dir(fontpath,"*.qpf");
+    QDir dir(fontpath, QLatin1String("*.qpf"));
     for (int i=0; i<int(dir.count()); i++) {
-        int u0 = dir[i].indexOf('_');
-        int u1 = dir[i].indexOf('_',u0+1);
-        int u2 = dir[i].indexOf('_',u1+1);
-        int u3 = dir[i].indexOf('.',u1+1);
+        int u0 = dir[i].indexOf(QLatin1Char('_'));
+        int u1 = dir[i].indexOf(QLatin1Char('_'), u0+1);
+        int u2 = dir[i].indexOf(QLatin1Char('_'), u1+1);
+        int u3 = dir[i].indexOf(QLatin1Char('.'), u1+1);
         if (u2 < 0) u2 = u3;
 
         QString familyname = dir[i].left(u0);
         int pixelSize = dir[i].mid(u0+1,u1-u0-1).toInt()/10;
-        bool italic = dir[i].mid(u2-1,1) == "i";
+        bool italic = dir[i].mid(u2-1,1) == QLatin1String("i");
         int weight = dir[i].mid(u1+1,u2-u1-1-(italic?1:0)).toInt();
 
         db->addFont(familyname, /*foundry*/ "qt", weight, italic, pixelSize, QFile::encodeName(dir.absoluteFilePath(dir[i])),
@@ -279,7 +279,9 @@ static void initializeDb()
     }
 
 #ifndef QT_NO_FREETYPE
-    dir.setNameFilters(QStringList() << "*.ttf" << "*.ttc" << "*.pfa" << "*.pfb");
+    dir.setNameFilters(QStringList() << QLatin1String("*.ttf")
+                       << QLatin1String("*.ttc") << QLatin1String("*.pfa")
+                       << QLatin1String("*.pfb"));
     dir.refresh();
     for (int i = 0; i < int(dir.count()); ++i) {
         const QByteArray file = QFile::encodeName(dir.absoluteFilePath(dir[i]));
@@ -288,7 +290,7 @@ static void initializeDb()
     }
 #endif
 #ifndef QT_NO_QWS_QPF2
-    dir.setNameFilters(QStringList() << "*.qpf2");
+    dir.setNameFilters(QStringList() << QLatin1String("*.qpf2"));
     dir.refresh();
     for (int i = 0; i < int(dir.count()); ++i) {
         const QByteArray file = QFile::encodeName(dir.absoluteFilePath(dir[i]));
@@ -433,9 +435,10 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
         fn += QLatin1String("/lib/fonts/");
 #endif
         fn += family->name.toLower()
-              + "_" + QString::number(pixelSize*10)
-              + "_" + QString::number(style->key.weight)
-              + (style->key.style == QFont::StyleItalic ? "i.qpf" : ".qpf");
+              + QLatin1String("_") + QString::number(pixelSize*10)
+              + QLatin1String("_") + QString::number(style->key.weight)
+              + (style->key.style == QFont::StyleItalic ?
+                 QLatin1String("i.qpf") : QLatin1String(".qpf"));
         //###rotation ###
 
         QFontEngine *fe = new QFontEngineQPF1(request, fn);
