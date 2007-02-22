@@ -67,12 +67,19 @@ static QScriptValue get_arguments(QScriptContext *ctx, QScriptEngine *eng)
     return array;
 }
 
+static QScriptValue get_argumentsObject(QScriptContext *ctx, QScriptEngine *)
+{
+    return ctx->argumentsObject();
+}
+
 void tst_QScriptContext::arguments()
 {
     QScriptEngine eng;
 
-    QScriptValue fun = eng.newFunction(get_arguments);
-    eng.globalObject().setProperty("get_arguments", fun);
+    {
+        QScriptValue fun = eng.newFunction(get_arguments);
+        eng.globalObject().setProperty("get_arguments", fun);
+    }
 
     {
         QScriptValue result = eng.evaluate("get_arguments()");
@@ -91,6 +98,40 @@ void tst_QScriptContext::arguments()
     {
         QScriptValue result = eng.evaluate("get_arguments(\"ciao\", null, true, undefined)");
         QCOMPARE(result.isArray(), true);
+        QCOMPARE(result.property("length").toUInt32(), quint32(4));
+        QCOMPARE(result.property("0").isString(), true);
+        QCOMPARE(result.property("0").toString(), QString("ciao"));
+        QCOMPARE(result.property("1").isNull(), true);
+        QCOMPARE(result.property("2").isBoolean(), true);
+        QCOMPARE(result.property("2").toBoolean(), true);
+        QCOMPARE(result.property("3").isUndefined(), true);
+    }
+
+    {
+        QScriptValue fun = eng.newFunction(get_argumentsObject);
+        eng.globalObject().setProperty("get_argumentsObject", fun);
+    }
+
+    {
+        QScriptValue fun = eng.evaluate("get_argumentsObject");
+        QCOMPARE(fun.isFunction(), true);
+        QScriptValue result = eng.evaluate("get_argumentsObject()");
+        QCOMPARE(result.isArray(), false);
+        QCOMPARE(result.property("length").toUInt32(), quint32(0));
+        QCOMPARE(result.property("callee").strictEqualTo(fun), true);
+    }
+
+    {
+        QScriptValue result = eng.evaluate("get_argumentsObject(123)");
+        QCOMPARE(result.isArray(), false);
+        QCOMPARE(result.property("length").toUInt32(), quint32(1));
+        QCOMPARE(result.property("0").isNumber(), true);
+        QCOMPARE(result.property("0").toNumber(), 123.0);
+    }
+
+    {
+        QScriptValue result = eng.evaluate("get_argumentsObject(\"ciao\", null, true, undefined)");
+        QCOMPARE(result.isArray(), false);
         QCOMPARE(result.property("length").toUInt32(), quint32(4));
         QCOMPARE(result.property("0").isString(), true);
         QCOMPARE(result.property("0").toString(), QString("ciao"));

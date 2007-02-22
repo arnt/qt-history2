@@ -736,7 +736,7 @@ QScriptValue QScriptValue::call(const QScriptValue &thisObject,
   (see \l{QScriptEngine::globalObject()}) will be used as the
   `this' object.
 
-  \sa construct()
+  \sa construct(), QScriptContext::argumentsObject()
 */
 QScriptValue QScriptValue::call(const QScriptValue &thisObject,
                                 const QScriptValue &arguments)
@@ -784,7 +784,7 @@ QScriptValue QScriptValue::construct(const QScriptValueList &args)
   \a arguments can be an arguments object, an array, null or
   undefined. Any other type will cause a TypeError to be thrown.
 
-  \sa call(), newObject()
+  \sa call(), newObject(), QScriptContext::argumentsObject()
 */
 QScriptValue QScriptValue::construct(const QScriptValue &arguments)
 {

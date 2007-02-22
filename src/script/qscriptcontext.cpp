@@ -185,6 +185,33 @@ QScriptValue QScriptContext::callee() const
 }
 
 /*!
+  Returns the arguments object of this QScriptContext.
+
+  The arguments object has properties \c callee (equal to callee())
+  and \c length (equal to argumentCount()), and properties \c 0, \c 1,
+  ..., argumentCount() - 1 that provide access to the argument
+  values. Initially, property \c P (0 <= \c P < argumentCount()) has
+  the same value as argument(\c P). In the case when \c P is less
+  than the number of formal parameters of the function, \c P shares
+  its value with the corresponding property of the activation object
+  (activationObject()). This means that changing this property changes
+  the corresponding property of the activation object and vice versa.
+
+  \sa argument(), activationObject()
+*/
+QScriptValue QScriptContext::argumentsObject() const
+{
+    Q_D(const QScriptContext);
+    if (!d->m_arguments.isValid()) {
+        QScriptContextPrivate *dd = const_cast<QScriptContextPrivate*>(d);
+        QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+        eng_p->newArguments(&dd->m_arguments, d->m_activation,
+                            d->argc, d->m_callee);
+    }
+    return d->m_arguments;
+}
+
+/*!
   Returns true if the function was called as a constructor
   (e.g. \c{"new foo()"}); otherwise returns false.
 
@@ -237,7 +264,11 @@ void QScriptContext::setReturnValue(const QScriptValue &result)
 }
 
 /*!
-  \internal
+  Returns the activation object of this QScriptContext. The activation
+  objects provides access to the local variables associated with this
+  context.
+
+  \sa argument(), argumentsObject()
 */
 QScriptValue QScriptContext::activationObject() const
 {
@@ -246,7 +277,7 @@ QScriptValue QScriptContext::activationObject() const
 }
 
 /*!
-  \internal
+  Sets the activation object of this QScriptContext.
 */
 void QScriptContext::setActivationObject(const QScriptValue &activation)
 {

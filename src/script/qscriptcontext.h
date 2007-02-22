@@ -53,6 +53,7 @@ public:
 
     int argumentCount() const;
     QScriptValue argument(int index) const;
+    QScriptValue argumentsObject() const;
 
     QScriptValue returnValue() const;
     void setReturnValue(const QScriptValue &result);
