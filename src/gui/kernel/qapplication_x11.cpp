@@ -337,7 +337,6 @@ extern bool qt_xdnd_dragging;
 
 // gui or non-gui from qapplication.cpp
 extern bool qt_is_gui_used;
-extern bool qt_app_has_font;
 
 class QETWidget : public QWidget                // event translator widget
 {
@@ -562,13 +561,12 @@ bool QApplicationPrivate::x11_apply_settings()
     if (groupCount == QPalette::NColorGroups)
         QApplicationPrivate::setSystemPalette(pal);
 
-    if (!qt_app_has_font && !appFont) {
-        QFont font(QApplication::font());
+    if (!appFont) {
         QString str = settings.value(QLatin1String("font")).toString();
         if (!str.isEmpty()) {
+            QFont font(QApplication::font());
             font.fromString(str);
-            if (font != QApplication::font())
-                QApplication::setFont(font);
+            QApplicationPrivate::setSystemFont(font);
         }
     }
 
@@ -863,7 +861,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         resBG = QString::fromLocal8Bit(bg);
     if (resButton.isEmpty())
         resButton = QString::fromLocal8Bit(button);
-    if (!qt_app_has_font && !resFont.isEmpty()) { // set application font
+    if (!resFont.isEmpty()) { // set application font
         QFont fnt;
         fnt.setRawName(resFont);
 
@@ -1718,10 +1716,11 @@ void qt_init(QApplicationPrivate *priv, int,
                     : (int) (((QX11Info::appDpiY() >= 95 ? 17. : 12.) *
                               72. / (float) QX11Info::appDpiY()) + 0.5));
 
-        if (!qt_app_has_font) {
+        if (!QApplicationPrivate::sys_font) {
+            // no font from settings or RESOURCE_MANAGER, provide a fallback
             QFont f(X11->has_fontconfig ? QLatin1String("Sans Serif") : QLatin1String("Helvetica"),
                     ptsz);
-            QApplication::setFont(f);
+            QApplicationPrivate::setSystemFont(f);
         }
 
 #if !defined (QT_NO_TABLET)

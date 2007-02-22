@@ -389,7 +389,7 @@ static void qt_set_windows_resources()
     LOGFONT lf;
     HGDIOBJ stockFont = GetStockObject(SYSTEM_FONT);
     GetObject(stockFont, sizeof(lf), &lf);
-    QApplication::setFont(qt_LOGFONTtoQFont(lf, true));
+    QApplicationPrivate::setSystemFont(qt_LOGFONTtoQFont(lf, true));
 #endif// Q_OS_TEMP
 
     // Do the color settings
@@ -544,9 +544,6 @@ void QApplicationPrivate::initializeWidgetPaletteHash()
   qt_init() - initializes Qt for Windows
  *****************************************************************************/
 
-// need to get default font?
-extern bool qt_app_has_font;
-
 void qt_init(QApplicationPrivate *priv, int)
 {
 
@@ -615,26 +612,24 @@ void qt_init(QApplicationPrivate *priv, int)
     qApp->setObjectName(QLatin1String(appName));
 
     // default font
-    if (!qt_app_has_font) {
-        HFONT hfont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-        QFont f(QLatin1String("MS Sans Serif"),8);
-        int result = 0;
-        QT_WA({
+    HFONT hfont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+    QFont f(QLatin1String("MS Sans Serif"),8);
+    int result = 0;
+    QT_WA({
             LOGFONT lf;
             if (result = GetObject(hfont, sizeof(lf), &lf))
                 f = qt_LOGFONTtoQFont((LOGFONT&)lf,true);
         } , {
-            LOGFONTA lf;
-            if (result = GetObjectA(hfont, sizeof(lf), &lf))
-                f = qt_LOGFONTtoQFont((LOGFONT&)lf,true);
-        });
-        if (result
-            && QSysInfo::WindowsVersion >= QSysInfo::WV_2000
-            && QSysInfo::WindowsVersion <= QSysInfo::WV_NT_based
-            && f.family() == QLatin1String("MS Shell Dlg"))
-            f.setFamily(QLatin1String("MS Shell Dlg 2"));
-        QApplication::setFont(f);
-    }
+              LOGFONTA lf;
+              if (result = GetObjectA(hfont, sizeof(lf), &lf))
+                  f = qt_LOGFONTtoQFont((LOGFONT&)lf,true);
+          });
+    if (result
+        && QSysInfo::WindowsVersion >= QSysInfo::WV_2000
+        && QSysInfo::WindowsVersion <= QSysInfo::WV_NT_based
+        && f.family() == QLatin1String("MS Shell Dlg"))
+        f.setFamily(QLatin1String("MS Shell Dlg 2"));
+    QApplicationPrivate::setSystemFont(f);
 
     // QFont::locale_init();  ### Uncomment when it does something on Windows
 

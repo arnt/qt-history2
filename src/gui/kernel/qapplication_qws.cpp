@@ -95,7 +95,6 @@ extern void qt_directpainter_embedevent(QDirectPainter *dp,
 const int qwsSharedRamSize = 1 * 1024; // misc data, written by server, read by clients
 
 extern QApplication::Type qt_appType;
-extern bool qt_app_has_font;
 
 //these used to be environment variables, they are initialized from
 //environment variables in
@@ -1740,14 +1739,11 @@ bool QApplicationPrivate::qws_apply_settings()
     if (groupCount == QPalette::NColorGroups)
         QApplicationPrivate::setSystemPalette(pal);
 
-    if (!qt_app_has_font) {
+    QString str = settings.value(QLatin1String("font")).toString();
+    if (!str.isEmpty()) {
         QFont font(QApplication::font());
-        QString str = settings.value(QLatin1String("font")).toString();
-        if (!str.isEmpty()) {
-            font.fromString(str);
-            if (font != QApplication::font())
-                QApplication::setFont(font);
-        }
+        font.fromString(str);
+        QApplication::setSystemFont(font);
     }
 
     // read library (ie. plugin) path list

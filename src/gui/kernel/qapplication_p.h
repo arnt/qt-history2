@@ -247,6 +247,8 @@ public:
     static QPalette *sys_pal;
     static QPalette *set_pal;
     static QFont *app_font;
+    static QFont *sys_font;
+    static QFont *set_font;
     static QWidget *main_widget;
     static QWidget *focus_widget;
     static QWidget *hidden_focus_widget;
@@ -270,6 +272,7 @@ public:
     static void setSystemPalette(const QPalette &pal);
     static void setPalette_helper(const QPalette &palette, const char* className, bool clearWidgetPaletteHash);
     static void initializeWidgetPaletteHash();
+    static void setSystemFont(const QFont &font);
 
 #if defined(Q_WS_X11)
     static void applyX11SpecificCommandLineArguments(QWidget *main_widget);

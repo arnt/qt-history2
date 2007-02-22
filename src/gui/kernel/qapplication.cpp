@@ -350,7 +350,8 @@ QPalette *QApplicationPrivate::app_pal = 0;        // default application palett
 QPalette *QApplicationPrivate::sys_pal = 0;        // default system palette
 QPalette *QApplicationPrivate::set_pal = 0;        // default palette set by programmer
 QFont *QApplicationPrivate::app_font = 0;        // default application font
-bool qt_app_has_font = false;
+QFont *QApplicationPrivate::sys_font = 0;        // default system font
+QFont *QApplicationPrivate::set_font = 0;        // default font set by programmer
 QIcon *QApplicationPrivate::app_icon = 0;
 QWidget *QApplicationPrivate::main_widget = 0;        // main application widget
 QWidget *QApplicationPrivate::focus_widget = 0;        // has keyboard input focus
@@ -917,7 +918,6 @@ QApplication::~QApplication()
     d->session_manager = 0;
 #endif //QT_NO_SESSIONMANAGER
 
-    qt_app_has_font = false;
     QApplicationPrivate::obey_desktop_settings = true;
     QApplicationPrivate::cursor_flash_time = 1000;
     QApplicationPrivate::mouse_double_click_time = 400;
@@ -1638,7 +1638,6 @@ void QApplication::setFont(const QFont &font, const char *className)
     bool all = false;
     FontHash *hash = app_fonts();
     if (!className) {
-        qt_app_has_font = true;
         if (!QApplicationPrivate::app_font)
             QApplicationPrivate::app_font = new QFont(font);
         else
@@ -1659,6 +1658,25 @@ void QApplication::setFont(const QFont &font, const char *className)
                 sendEvent(w, &e);
         }
     }
+    if (!className && (!QApplicationPrivate::sys_font || !font.isCopyOf(*QApplicationPrivate::sys_font))) {
+        if (!QApplicationPrivate::set_font)
+            QApplicationPrivate::set_font = new QFont(font);
+        else
+            *QApplicationPrivate::set_font = font;
+    }
+}
+
+/*! \internal
+*/
+void QApplicationPrivate::setSystemFont(const QFont &font)
+{
+     if (!sys_font)
+        sys_font = new QFont(font);
+    else
+        *sys_font = font;
+
+    if (!QApplicationPrivate::set_font)
+        QApplication::setFont(*sys_font);
 }
 
 /*!

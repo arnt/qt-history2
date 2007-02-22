@@ -119,7 +119,6 @@ static bool app_do_modal = false;       // modal mode
 extern QWidgetList *qt_modal_stack;     // stack of modal widgets
 extern bool qt_mac_in_drag;             // from qdnd_mac.cpp
 extern bool qt_tab_all_widgets;         // from qapplication.cpp
-extern bool qt_app_has_font;
 bool qt_mac_app_fullscreen = false;
 bool qt_scrollbar_jump_to_pos = false;
 static bool qt_mac_collapse_on_dblclick = true;
@@ -427,21 +426,21 @@ void qt_mac_update_os_settings()
         qt_mac_debug_palette(pal, QApplication::palette(), "Global Palette");
 #endif
     }
-    if(!qt_app_has_font) {
-        //setup the global font
-        Str255 f_name;
-        SInt16 f_size;
-        Style f_style;
-        GetThemeFont(kThemeApplicationFont, smSystemScript, f_name, &f_size, &f_style);
-        QFont fnt(qt_mac_from_pascal_string(f_name), f_size,
-                  (f_style & ::bold) ? QFont::Bold : QFont::Normal,
-                  (bool)(f_style & ::italic));
+
+    //setup the global font
+    Str255 f_name;
+    SInt16 f_size;
+    Style f_style;
+    GetThemeFont(kThemeApplicationFont, smSystemScript, f_name, &f_size, &f_style);
+    QFont fnt(qt_mac_from_pascal_string(f_name), f_size,
+              (f_style & ::bold) ? QFont::Bold : QFont::Normal,
+              (bool)(f_style & ::italic));
 #ifdef DEBUG_PLATFORM_SETTINGS
-        qDebug("qt-internal: Font for Application [%s::%d::%d::%d]",
-               fnt.family().toLatin1().constData(), fnt.pointSize(), fnt.bold(), fnt.italic());
+    qDebug("qt-internal: Font for Application [%s::%d::%d::%d]",
+           fnt.family().toLatin1().constData(), fnt.pointSize(), fnt.bold(), fnt.italic());
 #endif
-        QApplication::setFont(fnt);
-    }
+    QApplicationPrivate::setSystemFont(fnt);
+
     { //setup the fonts
         struct FontMap {
             FontMap(const char *qc, short fk) : qt_class(qc), font_key(fk) { }
