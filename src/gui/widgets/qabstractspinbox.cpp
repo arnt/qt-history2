@@ -147,6 +147,9 @@ QAbstractSpinBox::~QAbstractSpinBox()
     The possible values can be either \c UpDownArrows or \c PlusMinus.
     The default is \c UpDownArrows.
 
+    Note that some styles might render PlusMinus and UpDownArrows
+    identically.
+
     \sa ButtonSymbols
 */
 
