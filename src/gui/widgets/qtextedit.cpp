@@ -1356,6 +1356,10 @@ void QTextEditPrivate::_q_currentCharFormatChanged(const QTextCharFormat &fmt)
 void QTextEdit::mousePressEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
+#ifdef QT_KEYPAD_NAVIGATION
+    if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
+        setEditFocus(true);
+#endif
     d->sendControlEvent(e);
 }
 
