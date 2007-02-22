@@ -82,6 +82,8 @@ private slots:
     void combinedMatrix();
     void renderHints();
 
+    void setClipRect();
+
 private:
     void fillData();
     QColor baseColor( int k, int intensity=255 );
@@ -1173,6 +1175,17 @@ void tst_QPainter::renderHints()
 
     p.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform, false);
     QVERIFY(!(p.renderHints() & (QPainter::Antialiasing | QPainter::SmoothPixmapTransform)));
+}
+
+void tst_QPainter::setClipRect()
+{
+    QImage img(10, 10, QImage::Format_RGB32);
+    // simple test to let valgrind check for buffer overflow
+    {
+        QPainter p(&img);
+        p.setClipRect(-10, -10, 100, 100);
+        p.fillRect(-10, -10, 100, 100, QBrush(QColor(Qt::red)));
+    }
 }
 
 QTEST_MAIN(tst_QPainter)
