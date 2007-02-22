@@ -49,7 +49,6 @@ public:
     uint activated : 1;
     uint autoNewChild : 1;
     QLayout::SizeConstraint constraint;
-    QLayout::ItemRectPolicy itemRectPolicy;
     QRect rect;
     QWidget *menubar;
 };

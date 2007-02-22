@@ -61,11 +61,10 @@ class Q_GUI_EXPORT QLayout : public QObject, public QLayoutItem
     Q_OBJECT
     Q_DECLARE_PRIVATE(QLayout)
 
-    Q_ENUMS(SizeConstraint ItemRectPolicy)
+    Q_ENUMS(SizeConstraint)
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int spacing READ spacing WRITE setSpacing)
     Q_PROPERTY(SizeConstraint sizeConstraint READ sizeConstraint WRITE setSizeConstraint)
-    Q_PROPERTY(ItemRectPolicy itemRectPolicy READ itemRectPolicy WRITE setItemRectPolicy)
 public:
     enum SizeConstraint {
         SetDefaultConstraint,
@@ -80,11 +79,6 @@ public:
         Minimum = SetMinimumSize,
         Fixed = SetFixedSize
 #endif
-    };
-
-    enum ItemRectPolicy {
-        LayoutItemRect,
-        WidgetRect
     };
 
     QLayout(QWidget *parent);
@@ -149,9 +143,6 @@ public:
 
     void setEnabled(bool);
     bool isEnabled() const;
-
-    void setItemRectPolicy(ItemRectPolicy policy);
-    ItemRectPolicy itemRectPolicy() const;
 
 #ifdef QT3_SUPPORT
     QT3_SUPPORT void freeze(int w=0, int h=0);

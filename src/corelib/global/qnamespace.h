@@ -380,6 +380,8 @@ public:
         WA_MacSmallSize = 90,   // Mac only
         WA_MacMiniSize = 91,    // Mac only
 
+        WA_LayoutUsesWidgetRect = 92,
+
         // Add new attributes before this line
         WA_AttributeCount
     };

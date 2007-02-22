@@ -42,13 +42,6 @@ inline static QSize toLayoutItemSize(QWidgetPrivate *priv, const QSize &size)
     return toLayoutItemRect(priv, QRect(QPoint(0, 0), size)).size();
 }
 
-inline static QLayout::ItemRectPolicy layoutItemRectPolicy_helper(const QWidget *wid)
-{
-    QWidget *par = wid->parentWidget();
-    QLayout *layout = par ? par->layout() : 0;
-    return layout ? layout->itemRectPolicy() : QLayout::LayoutItemRect;
-}
-
 /*!
    Returns a QVariant storing this QSizePolicy.
 */
@@ -425,7 +418,7 @@ void QWidgetItem::setGeometry(const QRect &rect)
     if (isEmpty())
         return;
 
-    QRect r = layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+    QRect r = !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
             ? fromLayoutItemRect(wid->d_func(), rect)
             : rect;
     QSize s = r.size().boundedTo(qSmartMaxSize(this));
@@ -469,7 +462,7 @@ QRect QSpacerItem::geometry() const
 */
 QRect QWidgetItem::geometry() const
 {
-    return layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+    return !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
            ? toLayoutItemRect(wid->d_func(), wid->geometry())
            : wid->geometry();
 }
@@ -495,7 +488,7 @@ int QWidgetItem::heightForWidth(int w) const
     if (isEmpty())
         return -1;
 
-    w = layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+    w = !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
       ? fromLayoutItemSize(wid->d_func(), QSize(w, 0)).width()
       : w;
 
@@ -510,7 +503,7 @@ int QWidgetItem::heightForWidth(int w) const
     if (hfw < wid->minimumHeight())
         hfw = wid->minimumHeight();
 
-    hfw = layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+    hfw = !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
         ? toLayoutItemSize(wid->d_func(), QSize(0, hfw)).height()
         : hfw;
 
@@ -573,7 +566,7 @@ QSize QWidgetItem::minimumSize() const
 {
     if (isEmpty())
         return QSize(0, 0);
-    return layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+    return !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
            ? toLayoutItemSize(wid->d_func(), qSmartMinSize(this))
            : qSmartMinSize(this);
 }
@@ -595,7 +588,7 @@ QSize QWidgetItem::maximumSize() const
     if (isEmpty()) {
         return QSize(0, 0);
     } else {
-        return layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+        return !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
                ? toLayoutItemSize(wid->d_func(), qSmartMaxSize(this, align))
                : qSmartMaxSize(this, align);
     }
@@ -619,7 +612,7 @@ QSize QWidgetItem::sizeHint() const
         s = wid->sizeHint().expandedTo(wid->minimumSizeHint());
         s = s.boundedTo(wid->maximumSize())
              .expandedTo(wid->minimumSize());
-        s = layoutItemRectPolicy_helper(wid) == QLayout::LayoutItemRect 
+        s = !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
            ? toLayoutItemSize(wid->d_func(), s)
            : s;
 

@@ -923,6 +923,9 @@
     this attribute. Not that the QWidget::focusPolicy also plays the main role
     in whether something is given focus or not, this only controls whether or
     not this gets the focus frame. This attribute only does something on Mac OS X.
+    \value WA_LayoutUsesWidgetRect Ignore the layout item rect from the style when laying out
+                                   this widget with QLayout. This makes a difference in QMacStyle
+                                   and QPlastiqueStyle for some widgets. 
 
     \omitvalue WA_SetLayoutDirection
     \omitvalue WA_InputMethodTransparent

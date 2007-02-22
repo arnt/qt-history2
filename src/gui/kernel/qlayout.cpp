@@ -115,7 +115,7 @@ QLayout::QLayout(QLayoutPrivate &dd, QLayout *lay, QWidget *w)
 QLayoutPrivate::QLayoutPrivate()
     : QObjectPrivate(), insideSpacing(-1), leftMargin(-1), topMargin(-1), rightMargin(-1),
       bottomMargin(-1), topLevel(false), enabled(true), activated(true), autoNewChild(false),
-      constraint(QLayout::SetDefaultConstraint), itemRectPolicy(QLayout::LayoutItemRect), menubar(0)
+      constraint(QLayout::SetDefaultConstraint), menubar(0)
 {
 }
 
@@ -1423,40 +1423,6 @@ QSize QLayout::closestAcceptableSize(const QWidget *widget, const QSize &size)
         }
     }
     return result;
-}
-
-/*!
-    \enum QLayout::ItemRectPolicy
-
-    The possible values are:
-
-    \value LayoutItemRect The layout will use the layout item rectangle to distribute all its items, which might
-        be different from the widget rect if the style reimplements \l QStyle::subElementRect.
-    \value WidgetRect The layout will use the widgets rectangle directly to distribute all its items.
-    \sa setItemRectPolicy()
-*/
-
-
-/*!
-    \since 4.3
-    Allows the layout to respect/disrespect the layoutitem rect that the style might define for widgets.
-    If you want disregard any adjustment that the style does \a policy should be \l WidgetItemRect.
-    The default value is \l LayoutItemRect.
- 
-    \sa QStyle::subElementRect
-*/
-void QLayout::setItemRectPolicy(ItemRectPolicy policy)
-{
-    Q_D(QLayout);
-    d->itemRectPolicy = policy;
-}
-/*!
-    \since 4.3
-*/
-QLayout::ItemRectPolicy QLayout::itemRectPolicy() const
-{
-    Q_D(const QLayout);
-    return d->itemRectPolicy;
 }
 
 /*!
