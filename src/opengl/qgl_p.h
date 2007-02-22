@@ -209,7 +209,11 @@ public:
 
     static QGLSignalProxy *signalProxy()
     {
+#if defined Q_OS_HPUX && defined Q_CC_HPACC
+        static QGLProxy this_proxy; // <- workaround for aCC bug.
+#else
         static QGLProxy this_proxy = { 0 , false };
+#endif
         if (!this_proxy.pointer && !this_proxy.destroyed) {
             QGLSignalProxy *x = new QGLSignalProxy;
             if (!q_atomic_test_and_set_ptr(&this_proxy.pointer, 0, x))
