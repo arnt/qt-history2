@@ -29,6 +29,7 @@ class QLineEditPrivate;
 class QCompleter;
 class QStyleOptionFrame;
 class QAbstractSpinBox;
+class QDateTimeEdit;
 
 class Q_GUI_EXPORT QLineEdit : public QWidget
 {
@@ -226,6 +227,9 @@ Q_SIGNALS:
 
 private:
     friend class QAbstractSpinBox;
+#ifdef QT_KEYPAD_NAVIGATION
+    friend class QDateTimeEdit;
+#endif
     Q_DISABLE_COPY(QLineEdit)
     Q_DECLARE_PRIVATE(QLineEdit)
     Q_PRIVATE_SLOT(d_func(), void _q_clipboardChanged())

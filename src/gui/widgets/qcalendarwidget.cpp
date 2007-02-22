@@ -862,6 +862,9 @@ public:
     bool readOnly;
 private:
     bool validDateClicked;
+#ifdef QT_KEYPAD_NAVIGATION
+    QDate origDate;
+#endif
 };
 
 QCalendarModel::QCalendarModel(QObject *parent)
@@ -1264,6 +1267,15 @@ void QCalendarView::keyPressEvent(QKeyEvent *event)
                 return;
             }
         }
+    } else if (event->key() == Qt::Key_Back) {
+        if (QApplication::keypadNavigationEnabled() && hasEditFocus()) {
+            if (QCalendarModel *calendarModel = qobject_cast<QCalendarModel *>(model())) {
+                calendarModel->setDate(origDate);
+                emit editingFinished();
+                setEditFocus(false);
+                return;
+            }
+        }
     }
 #endif
 
@@ -1283,6 +1295,14 @@ void QCalendarView::keyPressEvent(QKeyEvent *event)
 
 bool QCalendarView::event(QEvent *event)
 {
+#ifdef QT_KEYPAD_NAVIGATION
+    if (event->type() == QEvent::FocusIn) {
+        if (QCalendarModel *calendarModel = qobject_cast<QCalendarModel *>(model())) {
+            origDate = calendarModel->date;
+        }
+    }
+#endif
+
     return QTableView::event(event);
 }
 
@@ -1578,6 +1598,10 @@ void QCalendarWidgetPrivate::createNavigationBar(QWidget *widget)
     monthButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     monthButton->setAutoRaise(true);
     monthButton->setPopupMode(QToolButton::InstantPopup);
+#ifdef QT_KEYPAD_NAVIGATION
+    if (QApplication::keypadNavigationEnabled()) 
+        monthButton->setFocusPolicy(Qt::NoFocus);
+#endif
     monthMenu = new QMenu(monthButton);
     for (int i = 1; i <= 12; i++) {
         QString monthName(QDate::longMonthName(i));
@@ -1589,6 +1613,10 @@ void QCalendarWidgetPrivate::createNavigationBar(QWidget *widget)
     yearButton = new QCalToolButton(navBarBackground);
     yearButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     yearButton->setAutoRaise(true);
+#ifdef QT_KEYPAD_NAVIGATION
+    if (QApplication::keypadNavigationEnabled())
+        yearButton->setFocusPolicy(Qt::NoFocus);
+#endif
     yearEdit = new QSpinBox(navBarBackground);
 
     QFont font = q->font();
