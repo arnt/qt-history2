@@ -895,10 +895,6 @@ void QComboBoxPrivate::_q_rowsInserted(const QModelIndex &parent, int start, int
         q->setCurrentIndex(0);
     // need to emit changed if model updated index "silently"
     } else if (currentIndex.row() != indexBeforeChange) {
-        if (lineEdit) {
-            lineEdit->setText(q->itemText(currentIndex.row()));
-            updateLineEditGeometry();
-        }
         q->update();
         _q_emitCurrentIndexChanged(currentIndex.row());
     }
@@ -930,7 +926,7 @@ void QComboBoxPrivate::_q_rowsRemoved(const QModelIndex &parent, int /*start*/, 
             q->setCurrentIndex(qMin(q->count() - 1, qMax(indexBeforeChange, 0)));
             return;
         }
-
+        
         if (lineEdit) {
             lineEdit->setText(q->itemText(currentIndex.row()));
             updateLineEditGeometry();

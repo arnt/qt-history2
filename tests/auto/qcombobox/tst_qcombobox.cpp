@@ -721,6 +721,12 @@ void tst_QComboBox::virtualAutocompletion()
 
 void tst_QComboBox::autoCompletionCaseSensitivity()
 {
+    //we have put the focus because the completer
+    //is only used when the widget actually has the focus
+    testWidget->setFocus();
+    qApp->processEvents();
+    QCOMPARE(qApp->focusWidget(), testWidget);
+
     testWidget->clear();
     testWidget->setAutoCompletion(true);
     testWidget->addItem("Cow");
@@ -1135,16 +1141,19 @@ void tst_QComboBox::insertItem_data()
     QTest::addColumn<QString>("itemLabel");
     QTest::addColumn<int>("expectedIndex");
     QTest::addColumn<bool>("testQt3Support");
+    QTest::addColumn<bool>("editable");
 
     QStringList initialItems;
     initialItems << "foo" << "bar";
-    QTest::newRow("Insert less then 0") << initialItems << -1 << "inserted" << 0 << false;
-    QTest::newRow("Insert at 0") << initialItems << 0 << "inserted" << 0 << false;
-    QTest::newRow("Insert beyond count") << initialItems << 3 << "inserted" << 2 << false;
-    QTest::newRow("Insert at count") << initialItems << 2 << "inserted" << 2 << false;
-    QTest::newRow("Insert in the middle") << initialItems << 1 << "inserted" << 1 << false;
-
-    QTest::newRow("Qt3Support: Insert less then 0") << initialItems << -1 << "inserted" << 2 << true;
+    for(int e = 0 ; e<2 ; e++) {
+        bool editable = (e==0);
+        QTest::newRow("Insert less then 0") << initialItems << -1 << "inserted" << 0 << false << editable;
+        QTest::newRow("Insert at 0") << initialItems << 0 << "inserted" << 0 << false << editable;
+        QTest::newRow("Insert beyond count") << initialItems << 3 << "inserted" << 2 << false << editable;
+        QTest::newRow("Insert at count") << initialItems << 2 << "inserted" << 2 << false << editable;
+        QTest::newRow("Insert in the middle") << initialItems << 1 << "inserted" << 1 << false << editable;
+        QTest::newRow("Qt3Support: Insert less then 0") << initialItems << -1 << "inserted" << 2 << true << editable;
+    }
 }
 
 void tst_QComboBox::insertItem()
@@ -1154,10 +1163,14 @@ void tst_QComboBox::insertItem()
     QFETCH(QString, itemLabel);
     QFETCH(int, expectedIndex);
     QFETCH(bool, testQt3Support);
+    QFETCH(bool, editable);
 
     testWidget->insertItems(0, initialItems);
     QCOMPARE(testWidget->count(), initialItems.count());
 
+    testWidget->setEditable(true);
+    if (editable)
+        testWidget->setEditText("FOO");
 
     if (testQt3Support)
         testWidget->insertItem(itemLabel, insertIndex);
@@ -1166,6 +1179,9 @@ void tst_QComboBox::insertItem()
 
     QCOMPARE(testWidget->count(), initialItems.count() + 1);
     QCOMPARE(testWidget->itemText(expectedIndex), itemLabel);
+    
+    if (editable)
+        QCOMPARE(testWidget->currentText(), QString("FOO"));
 }
 
 void tst_QComboBox::insertOnCurrentIndex()
@@ -1662,6 +1678,14 @@ void tst_QComboBox::flaggedItems()
 
     comboBox.setModel(listWidget.model());
     comboBox.setView(&listWidget);
+
+    //we have to show and put the focus because the completer
+    //is only used when the widget actually has the focus
+    comboBox.show();
+    comboBox.setFocus();
+    qApp->processEvents();
+
+    QCOMPARE(qApp->focusWidget(), &comboBox);
 
     if (editable)
         comboBox.lineEdit()->selectAll();
