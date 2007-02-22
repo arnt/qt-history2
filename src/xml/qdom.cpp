@@ -446,7 +446,7 @@ public:
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode(bool deep = true);
-    bool isEntityReference() { return true; }
+    bool isEntityReference() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::EntityReferenceNode; }
     virtual void save(QTextStream& s, int, int) const;
 };
