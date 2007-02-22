@@ -132,6 +132,7 @@ public:
     QVector<Command> commands;
     int currentCommand;
     bool inUndoRedo;
+    bool undoRedoEnabled;
 };
 
 class QSpinBoxValidator : public QValidator

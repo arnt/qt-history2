@@ -347,7 +347,7 @@ bool QAbstractSpinBox::isAccelerated() const
 bool QAbstractSpinBox::isUndoAvailable() const
 {
     Q_D(const QAbstractSpinBox);
-    return d->currentCommand > 0;
+    return d->undoRedoEnabled && d->currentCommand > 0;
 }
 
 /*!
@@ -360,7 +360,29 @@ bool QAbstractSpinBox::isUndoAvailable() const
 bool QAbstractSpinBox::isRedoAvailable() const
 {
     Q_D(const QAbstractSpinBox);
-    return d->currentCommand + 1< d->commands.size();
+    return d->undoRedoEnabled && d->currentCommand + 1 < d->commands.size();
+}
+
+/*!
+    \property QAbstractSpinBox::undoRedoEnabled
+    \brief whether undo/redo are enabled for this spin box
+
+    This defaults to true. If disabled, the undo stack is cleared and
+    no items will be added to it.
+*/
+void QAbstractSpinBox::setUndoRedoEnabled(bool enable)
+{
+    Q_D(QAbstractSpinBox);
+    if (enable != d->undoRedoEnabled) {
+        d->resetUndoHistory();
+        d->undoRedoEnabled = enable;
+    }
+}
+
+bool QAbstractSpinBox::isUndoRedoEnabled() const
+{
+    Q_D(const QAbstractSpinBox);
+    return d->undoRedoEnabled;
 }
 
 /*!
@@ -1303,7 +1325,7 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
       ignoreCursorPositionChanged(false), frame(true), accelerate(false),
       correctionMode(QAbstractSpinBox::CorrectToPreviousValue), acceleration(0),
       hoverControl(QStyle::SC_None), buttonSymbols(QAbstractSpinBox::UpDownArrows), validator(0), currentCommand(0),
-      inUndoRedo(false)
+      inUndoRedo(false), undoRedoEnabled(true)
 {
 }
 
@@ -1656,9 +1678,10 @@ void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
         emitSignals(ep, old);
     }
 
-    if (!inUndoRedo && (commands.isEmpty()
-                        || currentCommand == 0
-                        || commands.at(currentCommand - 1).text != edit->displayText())) {
+    if (undoRedoEnabled
+        && !inUndoRedo
+        && (commands.isEmpty() || currentCommand == 0
+            || commands.at(currentCommand - 1).text != edit->displayText())) {
         if (currentCommand + 1 < commands.size()) {
             commands.resize(currentCommand + 1);
         }
@@ -1791,7 +1814,7 @@ void QAbstractSpinBoxPrivate::interpret(EmitPolicy ep)
 
     if (q->validate(tmp, pos) != QValidator::Acceptable) {
         const QString copy = tmp;
-	q->fixup(tmp);
+        q->fixup(tmp);
         QASBDEBUG() << "QAbstractSpinBoxPrivate::interpret() text '"
                     << edit->displayText()
                     << "' >> '" << copy << "'"
