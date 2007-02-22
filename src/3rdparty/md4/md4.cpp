@@ -65,8 +65,8 @@
 static const unsigned char *body(struct md4_context *ctx, const unsigned char *data, size_t size)
 {
 	const unsigned char *ptr;
-	uint32_t a, b, c, d;
-	uint32_t saved_a, saved_b, saved_c, saved_d;
+	quint32 a, b, c, d;
+	quint32 saved_a, saved_b, saved_c, saved_d;
 
 	ptr = data;
 
