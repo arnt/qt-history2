@@ -2243,12 +2243,14 @@ void tst_QWidget::restoreVersion1Geometry()
 
     QWidget widget;
     QVERIFY(widget.restoreGeometry(savedGeometry));
-//    QCOMPARE(widget.pos(), position);
-    QCOMPARE(widget.pos().x(), position.x());
+    QCOMPARE(widget.pos(), position);
     QCOMPARE(widget.size(), size);
     widget.show();
-//    QCOMPARE(widget.pos(), position);
-    QCOMPARE(widget.pos().x(), position.x());
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&widget);
+#endif
+    QTest::qWait(100);
+    QCOMPARE(widget.pos(), position);
     QCOMPARE(widget.size(), size);
 }
 
