@@ -172,7 +172,7 @@ static void md4_init(struct md4_context *ctx)
 static void md4_update(struct md4_context *ctx, const unsigned char *data, size_t size)
 {
 	/* @UNSAFE */
-	uint_fast32_t saved_lo;
+	quint32 saved_lo;
 	unsigned long used, free;
 
 	saved_lo = ctx->lo;
