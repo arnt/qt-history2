@@ -60,7 +60,7 @@ static QString generateSubObjectXml(QObject *object)
     for ( ; it != end; ++it) {
         QString name = (*it)->objectName();
         if (!name.isEmpty() && QDBusUtil::isValidPartOfObjectPath(name))
-            retval += QString(QLatin1String("  <node name=\"%1\"/>\n"))
+            retval += QString::fromLatin1("  <node name=\"%1\"/>\n")
                       .arg(name);
     }
     return retval;
@@ -127,7 +127,7 @@ QString qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode *node
         for ( ; it != end; ++it) {
             const QDBusConnectionPrivate::ObjectTreeNode::Data &entry = *it;
             if (entry.node && (entry.node->obj || !entry.node->children.isEmpty()))
-                xml_data += QString(QLatin1String("  <node name=\"%1\"/>\n"))
+                xml_data += QString::fromLatin1("  <node name=\"%1\"/>\n")
                             .arg(entry.name);
         }
     }

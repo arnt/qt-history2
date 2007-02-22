@@ -490,7 +490,7 @@ QDBusMessage QDBusConnection::call(const QDBusMessage &message, QDBus::CallMode 
         if (d)
             d->lastError = err;
 
-        return QDBusMessagePrivate::fromError(err);
+        return QDBusMessage::createError(err);
     }
 
     if (mode != QDBus::NoBlock)
@@ -843,7 +843,7 @@ QDBusError QDBusConnection::lastError() const
 */
 QString QDBusConnection::baseService() const
 {
-    return d->baseService();
+    return d ? d->baseService : QString();
 }
 
 /*!
@@ -855,8 +855,11 @@ QString QDBusConnection::baseService() const
 */
 bool QDBusConnection::registerService(const QString &serviceName)
 {
-    if (d) d->registerService(serviceName);
-    return interface()->registerService(serviceName);
+    if (interface()->unregisterService(serviceName)) {
+        if (d) d->unregisterService(serviceName);
+        return true;
+    }
+    return false;
 }
 
 /*!

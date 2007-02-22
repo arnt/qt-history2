@@ -155,8 +155,9 @@ QDBusAbstractInterface::QDBusAbstractInterface(QDBusAbstractInterfacePrivate &d,
     : QObject(d, parent)
 {
     // keep track of the service owner
-    QObject::connect(d_func()->connectionPrivate(), SIGNAL(serviceOwnerChanged(QString,QString,QString)),
-                     this, SLOT(_q_serviceOwnerChanged(QString,QString,QString)));
+    if (d_func()->connection.isConnected())
+        QObject::connect(d_func()->connectionPrivate(), SIGNAL(serviceOwnerChanged(QString,QString,QString)),
+                         this, SLOT(_q_serviceOwnerChanged(QString,QString,QString)));
 }
 
 /*!
@@ -171,8 +172,9 @@ QDBusAbstractInterface::QDBusAbstractInterface(const QString &service, const QSt
                                                  con, false), parent)
 {
     // keep track of the service owner
-    QObject::connect(d_func()->connectionPrivate(), SIGNAL(serviceOwnerChanged(QString,QString,QString)),
-                     this, SLOT(_q_serviceOwnerChanged(QString,QString,QString)));
+    if (d_func()->connection.isConnected())
+        QObject::connect(d_func()->connectionPrivate(), SIGNAL(serviceOwnerChanged(QString,QString,QString)),
+                         this, SLOT(_q_serviceOwnerChanged(QString,QString,QString)));
 }
 
 /*!

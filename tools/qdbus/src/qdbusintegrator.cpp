@@ -39,8 +39,6 @@ typedef void (*QDBusSpyHook)(const QDBusMessage&);
 typedef QVarLengthArray<QDBusSpyHook, 4> QDBusSpyHookList;
 Q_GLOBAL_STATIC(QDBusSpyHookList, qDBusSpyHookList)
 
-Q_GLOBAL_STATIC(QStringList, qDBusServicesRegisteredByThread)
-
 struct QDBusPendingCall
 {
     QPointer<QObject> receiver;
@@ -633,31 +631,35 @@ void QDBusConnectionPrivate::deliverCall(const CallDeliveryEvent& data) const
 
     // add the input parameters
     int i;
-    for (i = 1; i <= qMin(msg.arguments().count(), metaTypes.count() - 1); ++i) {
+    int pCount = qMin(msg.arguments().count(), metaTypes.count() - 1);
+    for (i = 1; i <= pCount; ++i) {
         int id = metaTypes[i];
         if (id == QDBusMetaTypeId::message)
             break;
 
-        if (id == int(msg.arguments().at(i - 1).userType()))
+        const QVariant &arg = msg.arguments().at(i - 1);
+        if (arg.userType() == id)
             // no conversion needed
-            params.append(const_cast<void *>(msg.arguments().at(i - 1).constData() ));
-        else if (msg.arguments().at(i - 1).userType() == qMetaTypeId<QDBusArgument>()) {
+            params.append(const_cast<void *>(arg.constData()));
+        else if (arg.userType() == qMetaTypeId<QDBusArgument>()) {
             // convert to what the function expects
             void *null = 0;
             auxParameters.append(QVariant(id, null));
 
             const QDBusArgument &in =
-                *reinterpret_cast<const QDBusArgument *>(msg.arguments().at(i - 1).constData());
+                *reinterpret_cast<const QDBusArgument *>(arg.constData());
             QVariant &out = auxParameters[auxParameters.count() - 1];
 
             if (!QDBusMetaType::demarshall(in, out.userType(), out.data()))
                 qFatal("Internal error: demarshalling function for type '%s' (%d) failed!",
                        out.typeName(), out.userType());
 
-            params.append(const_cast<void *>(out.constData()) );
+            params.append(const_cast<void *>(out.constData()));
         } else {
-            qFatal("Internal error: got invalid meta type %d when trying to convert to meta type %d",
-                   msg.arguments().at(i - 1).userType(), id);
+            qFatal("Internal error: got invalid meta type %d (%s) "
+                   "when trying to convert to meta type %d (%s)",
+                   arg.userType(), QMetaType::typeName(arg.userType()),
+                   id, QMetaType::typeName(id));
         }
     }
 
@@ -760,6 +762,7 @@ void QDBusConnectionPrivate::closeConnection()
     QWriteLocker locker(&lock);
     ConnectionMode oldMode = mode;
     mode = InvalidMode; // prevent reentrancy
+    baseService.clear();
     if (oldMode == ServerMode) {
         if (server) {
             dbus_server_disconnect(server);
@@ -908,9 +911,9 @@ void QDBusConnectionPrivate::relaySignal(QObject *obj, const QMetaObject *mo, in
 void QDBusConnectionPrivate::_q_serviceOwnerChanged(const QString &name,
                                                     const QString &oldOwner, const QString &newOwner)
 {
-    if (oldOwner == baseService())
+    if (oldOwner == baseService)
         unregisterService(name);
-    if (newOwner == baseService())
+    if (newOwner == baseService)
         registerService(name);
 
     QMutableHashIterator<QString, SignalHook> it(signalHooks);
@@ -1296,6 +1299,8 @@ void QDBusConnectionPrivate::setConnection(DBusConnection *dbc)
             closeConnection();
             return;
         }
+
+        baseService = QString::fromUtf8(service);
     } else {
         qWarning("QDBusConnectionPrivate::SetConnection: Unable to get base service");
     }
@@ -1410,7 +1415,7 @@ QDBusMessage QDBusConnectionPrivate::sendWithReply(const QDBusMessage &message,
         dbus_message_unref(msg);
 
         if (lastError.isValid())
-            return QDBusMessagePrivate::fromError(lastError);
+            return QDBusMessage::createError(lastError);
 
         QDBusMessage amsg = QDBusMessagePrivate::fromDBusMessage(reply);
         dbus_message_unref(reply);
@@ -1692,7 +1697,7 @@ QDBusConnectionPrivate::findMetaObject(const QString &service, const QString &pa
         qdbus_Introspect apply;
         if (!applyForObject(&rootNode, path, apply)) {
             lastError = QDBusError(QDBusError::InvalidArgs,
-                                   QString(QLatin1String("No object at %1")).arg(path));
+                                   QString::fromLatin1("No object at %1").arg(path));
             return 0;           // no object at path
         }
 
@@ -1732,26 +1737,23 @@ QDBusConnectionPrivate::findMetaObject(const QString &service, const QString &pa
 
 void QDBusConnectionPrivate::registerService(const QString &serviceName)
 {
-    qDBusServicesRegisteredByThread()->append(serviceName);
+    QWriteLocker locker(&lock);
+    serviceNames.append(serviceName);
 }
 
 void QDBusConnectionPrivate::unregisterService(const QString &serviceName)
 {
-    qDBusServicesRegisteredByThread()->removeAll(serviceName);
+    QWriteLocker locker(&lock);
+    serviceNames.removeAll(serviceName);
 }
 
 bool QDBusConnectionPrivate::isServiceRegisteredByThread(const QString &serviceName) const
 {
-    return (serviceName == baseService() || qDBusServicesRegisteredByThread()->contains(serviceName));
+    if (serviceName == baseService)
+        return true;
+    QStringList copy = serviceNames;
+    return copy.contains(serviceName);
 }
-
-QString QDBusConnectionPrivate::baseService() const
-{
-    return connection ?
-           QString::fromUtf8(dbus_bus_get_unique_name(connection))
-           : QString();
-}
-
 
 void QDBusReplyWaiter::reply(const QDBusMessage &msg)
 {

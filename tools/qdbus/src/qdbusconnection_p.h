@@ -36,6 +36,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qpointer.h>
 #include <QtCore/qreadwritelock.h>
+#include <QtCore/qstringlist.h>
 #include <QtCore/qvarlengtharray.h>
 #include <QtCore/qvector.h>
 
@@ -170,7 +171,6 @@ public:
     void registerService(const QString &serviceName);
     void unregisterService(const QString &serviceName);
     bool isServiceRegisteredByThread(const QString &serviceName) const;
-    QString baseService() const;
 
 protected:
     virtual void customEvent(QEvent *event);
@@ -191,6 +191,8 @@ signals:
 public:
     // public member variables
     QString name;               // this connection's name
+    QString baseService;
+    QStringList serviceNames;
 
     DBusError error;
     QDBusError lastError;

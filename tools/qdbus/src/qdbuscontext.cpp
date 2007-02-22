@@ -203,6 +203,6 @@ void QDBusContext::sendErrorReply(const QString &name, const QString &msg) const
 void QDBusContext::sendErrorReply(QDBusError::ErrorType type, const QString &msg) const
 {
     setDelayedReply(true);
-    connection().send(message().createErrorReply(QDBusError(type, msg)));
+    connection().send(message().createErrorReply(type, msg));
 }
 

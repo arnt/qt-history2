@@ -50,8 +50,6 @@ public:
 
     static DBusMessage *toDBusMessage(const QDBusMessage &message);
     static QDBusMessage fromDBusMessage(DBusMessage *dmsg);
-    static QDBusMessage fromError(const QDBusError& error);
-    static QDBusMessage updateSignature(const QDBusMessage &message, DBusMessage *dmsg);
 
     static bool isLocal(const QDBusMessage &msg);
     static QDBusMessage makeLocal(const QDBusConnectionPrivate &conn,

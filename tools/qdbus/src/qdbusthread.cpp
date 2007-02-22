@@ -100,9 +100,13 @@ struct DBusCondVar: public QWaitCondition
 
 bool qDBusInitThreads()
 {
-    // ### Disable the recursive mutex functions,
-    // ### as they fail an assert in libdbus-0.94.
 
+#ifdef dbus_threads_init_default
+
+    return dbus_threads_init_default();
+
+#else
+    // ### Disable the recursive mutex functions.
     static DBusThreadFunctions fcn = {
         DBUS_THREAD_FUNCTIONS_MUTEX_NEW_MASK |
         DBUS_THREAD_FUNCTIONS_MUTEX_FREE_MASK |
@@ -142,5 +146,7 @@ bool qDBusInitThreads()
     };
 
     dbus_threads_init(&fcn);
+
     return true;
+#endif
 }

@@ -41,6 +41,8 @@ public:
     QDBusCustomTypeInfo() : signature(0, '\0'), marshall(0), demarshall(0)
     { }
 
+    // Suggestion:
+    // change 'signature' to char* and make QDBusCustomTypeInfo a Movable type
     QByteArray signature;
     QDBusMetaType::MarshallFunction marshall;
     QDBusMetaType::DemarshallFunction demarshall;

@@ -45,19 +45,6 @@ QDBusMessagePrivate::~QDBusMessagePrivate()
 }
 
 /*!
-    \internal
-    Creates a QDBusMessage that represents the same error as the QDBusError object.
-*/
-QDBusMessage QDBusMessagePrivate::fromError(const QDBusError &error)
-{
-    QDBusMessage message;
-    message.d_ptr->type = DBUS_MESSAGE_TYPE_ERROR;
-    message.d_ptr->name = error.name();
-    message.d_ptr->message = error.message();
-    return message;
-}
-
-/*!
     \since 4.3
      Returns the human-readable message associated with the error that was received.
 */
@@ -193,14 +180,6 @@ QDBusMessage QDBusMessagePrivate::fromDBusMessage(DBusMessage *dmsg)
     return message;
 }
 
-QDBusMessage QDBusMessagePrivate::updateSignature(const QDBusMessage &message, DBusMessage *dmsg)
-{
-    QDBusMessage messageWithSignature = message; // no signature
-    QString signature = QString::fromUtf8(dbus_message_get_signature(dmsg));
-    messageWithSignature.d_ptr->signature = signature;
-    return messageWithSignature;
-}
-
 bool QDBusMessagePrivate::isLocal(const QDBusMessage &message)
 {
     return message.d_ptr->localMessage;
@@ -215,7 +194,7 @@ QDBusMessage QDBusMessagePrivate::makeLocal(const QDBusConnectionPrivate &conn,
     // so we simply set the sender to our unique name
 
     // determine if we are carrying any complex types
-    QByteArray computedSignature;
+    QString computedSignature;
     QVariantList::ConstIterator it = asSent.d_ptr->arguments.constBegin();
     QVariantList::ConstIterator end = asSent.d_ptr->arguments.constEnd();
     for ( ; it != end; ++it) {
@@ -227,17 +206,16 @@ QDBusMessage QDBusMessagePrivate::makeLocal(const QDBusConnectionPrivate &conn,
             // we must marshall and demarshall again so as to create QDBusArgument
             // entries for the complex types
             DBusMessage *message = toDBusMessage(asSent);
-            QByteArray baseService = dbus_bus_get_unique_name(conn.connection);
-            dbus_message_set_sender(message, baseService);
+            dbus_message_set_sender(message, conn.baseService.toUtf8());
 
             QDBusMessage retval = fromDBusMessage(message);
             retval.d_ptr->localMessage = true;
             dbus_message_unref(message);
             if (retval.d_ptr->service.isEmpty())
-                retval.d_ptr->service = QString::fromUtf8(baseService);
+                retval.d_ptr->service = conn.baseService;
             return retval;
         } else {
-            computedSignature += signature;
+            computedSignature += QLatin1String(signature);
         }
     }
 
@@ -252,8 +230,8 @@ QDBusMessage QDBusMessagePrivate::makeLocal(const QDBusConnectionPrivate &conn,
     d->message = asSent.d_ptr->message;
     d->type = asSent.d_ptr->type;
 
-    d->service = conn.baseService();
-    d->signature = QString::fromUtf8(computedSignature);
+    d->service = conn.baseService;
+    d->signature = computedSignature;
     d->localMessage = true;
     return retval;
 }
@@ -755,11 +733,16 @@ static void debugVariantMap(QDebug dbg, const QVariantMap &map)
 QDebug operator<<(QDebug dbg, const QDBusMessage &msg)
 {
     dbg.nospace() << "QDBusMessage(type=" << msg.type()
-                  << ", service=" << msg.service()
-                  << ", path=" << msg.path()
-                  << ", interface=" << msg.interface()
-                  << ", member=" << msg.member()
-                  << ", signature=" << msg.signature()
+                  << ", service=" << msg.service();
+    if (msg.type() == QDBusMessage::MethodCallMessage ||
+        msg.type() == QDBusMessage::SignalMessage)
+        dbg.nospace() << ", path=" << msg.path()
+                      << ", interface=" << msg.interface()
+                      << ", member=" << msg.member();
+    if (msg.type() == QDBusMessage::ErrorMessage)
+        dbg.nospace() << ", error name=" << msg.errorName()
+                      << ", error message=" << msg.errorMessage();
+    dbg.nospace() << ", signature=" << msg.signature()
                   << ", contents=(";
     debugVariantList(dbg, msg.arguments());
     dbg.nospace() << ") )";
