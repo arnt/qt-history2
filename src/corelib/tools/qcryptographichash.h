@@ -18,7 +18,7 @@
 
 class QCryptographicHashPrivate;
 
-class QCryptographicHash
+class Q_CORE_EXPORT QCryptographicHash
 {
 public:
     enum HashMethod {

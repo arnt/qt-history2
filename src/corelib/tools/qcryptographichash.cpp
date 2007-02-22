@@ -78,8 +78,6 @@ void QCryptographicHash::reset()
     case Md5:
         MD5Init(&d->md5Context);
         break;
-    case Sha1:
-        break;
     }
 }
 
@@ -94,8 +92,6 @@ void QCryptographicHash::addData(const char *data, int length)
         break;
     case Md5:
         MD5Update(&d->md5Context, (const unsigned char *)data, length);
-        break;
-    case Sha1:
         break;
     }    
 }
@@ -122,8 +118,6 @@ QByteArray QCryptographicHash::result() const
     case Md5:
         result.resize(16);
         MD5Final(&d->md5Context, (unsigned char *)result.data());
-        break;
-    case Sha1:
         break;
     }
     return result;
