@@ -45,6 +45,8 @@ public:
     static QDBusMessage createError(const QString &name, const QString &msg);
     static inline QDBusMessage createError(const QDBusError &err)
     { return createError(err.name(), err.message()); }
+    static inline QDBusMessage createError(QDBusError::ErrorType type, const QString &msg)
+    { return createError(QDBusError::errorString(type), msg); }
 
     QDBusMessage createReply(const QList<QVariant> &arguments = QList<QVariant>()) const;
     inline QDBusMessage createReply(const QVariant &argument) const
@@ -53,6 +55,8 @@ public:
     QDBusMessage createErrorReply(const QString name, const QString &msg) const;
     inline QDBusMessage createErrorReply(const QDBusError &err) const
     { return createErrorReply(err.name(), err.message()); }
+    inline QDBusMessage createErrorReply(QDBusError::ErrorType type, const QString &msg) const
+    { return createErrorReply(QDBusError::errorString(type), msg); }
 
     QString service() const;
     QString path() const;

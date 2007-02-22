@@ -47,10 +47,11 @@ public:
         InvalidSignature,
         UnknownInterface,
         InternalError,
+        UnknownObject,
 
 #ifndef Q_QDOC
         // don't use this one!
-        LastErrorType = InternalError
+        LastErrorType = UnknownObject
 #endif
     };
 
@@ -64,6 +65,8 @@ public:
     QString name() const;
     QString message() const;
     bool isValid() const;
+
+    static QString errorString(ErrorType error);
 
 private:
     ErrorType code;
