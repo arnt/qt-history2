@@ -984,49 +984,65 @@ void tst_QHash::dont_need_default_constructor()
 
 void tst_QHash::qhash()
 {
-    QBitArray a1;
-    QBitArray a2;
-    QVERIFY(qHash(a1) == 0);
+    {
+        QBitArray a1;
+        QBitArray a2;
+        QVERIFY(qHash(a1) == 0);
 
-    a1.resize(1);
-    a1.setBit(0, true);
+        a1.resize(1);
+        a1.setBit(0, true);
 
-    a2.resize(1);
-    a2.setBit(0, false);
+        a2.resize(1);
+        a2.setBit(0, false);
 
-    uint h1 = qHash(a1);
-    uint h2 = qHash(a2);
+        uint h1 = qHash(a1);
+        uint h2 = qHash(a2);
 
-    QVERIFY(h1 != h2);
+        QVERIFY(h1 != h2);
 
-    a2.setBit(0, true);
-    QVERIFY(h1 == qHash(a2));
+        a2.setBit(0, true);
+        QVERIFY(h1 == qHash(a2));
 
-    a1.fill(true, 8);
-    a1.resize(7);
+        a1.fill(true, 8);
+        a1.resize(7);
 
-    h1 = qHash(a1);
+        h1 = qHash(a1);
 
-    a2.fill(true, 7);
-    h2 = qHash(a2);
+        a2.fill(true, 7);
+        h2 = qHash(a2);
 
-    QVERIFY(h1 == h2);
+        QVERIFY(h1 == h2);
 
-    a2.setBit(0, false);
-    uint h3 = qHash(a2);
-    QVERIFY(h2 != h3);
+        a2.setBit(0, false);
+        uint h3 = qHash(a2);
+        QVERIFY(h2 != h3);
 
-    a2.setBit(0, true);
-    QVERIFY(h2 == qHash(a2));
+        a2.setBit(0, true);
+        QVERIFY(h2 == qHash(a2));
 
-    a2.setBit(6, false);
-    uint h4 = qHash(a2);
-    QVERIFY(h2 != h4);
+        a2.setBit(6, false);
+        uint h4 = qHash(a2);
+        QVERIFY(h2 != h4);
 
-    a2.setBit(6, true);
-    QVERIFY(h2 == qHash(a2));
+        a2.setBit(6, true);
+        QVERIFY(h2 == qHash(a2));
 
-    QVERIFY(h3 != h4);
+        QVERIFY(h3 != h4);
+    }
+
+    {
+        QPair<int, int> p12(1, 2);
+        QPair<int, int> p21(2, 1);
+
+        QVERIFY(qHash(p12) == qHash(p12));
+        QVERIFY(qHash(p21) == qHash(p21));
+        QVERIFY(qHash(p12) != qHash(p21));
+
+        QPair<int, int> pA(0x12345678, 0x12345678);
+        QPair<int, int> pB(0x12345675, 0x12345675);
+
+        QVERIFY(qHash(pA) != qHash(pB));
+    }
 }
 
 template <typename T>

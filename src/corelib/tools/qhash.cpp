@@ -1720,6 +1720,13 @@ void QHashData::checkSanity()
     Returns the hash value for \a key.
 */
 
+/*! \fn uint qHash(const QPair<T1, T2> &key)
+
+    Returns the hash value for \a key.
+
+    Types \c T1 and \c T2 must be supported by qHash().
+*/
+
 /*! \fn QDataStream &operator<<(QDataStream &out, const QHash<Key, T>& hash)
     \relates QHash
 

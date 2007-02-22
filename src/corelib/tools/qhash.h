@@ -18,6 +18,7 @@
 #include <QtCore/qchar.h>
 #include <QtCore/qiterator.h>
 #include <QtCore/qlist.h>
+#include <QtCore/qpair.h>
 
 QT_BEGIN_HEADER
 
@@ -74,6 +75,13 @@ template <class T> inline uint qHash(const T *key)
 #if defined(Q_CC_MSVC)
 #pragma warning( pop )
 #endif
+
+template <typename T1, typename T2> inline uint qHash(const QPair<T1, T2> &key)
+{
+    uint h1 = qHash(key.first);
+    uint h2 = qHash(key.second);
+    return ((h1 << 16) | (h1 >> 16)) ^ h2;
+}
 
 struct Q_CORE_EXPORT QHashData
 {
