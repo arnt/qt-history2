@@ -27,6 +27,7 @@ TRANSLATOR qdesigner_internal::WidgetFactory
 #include "qdesigner_menubar_p.h"
 #include "qdesigner_menu_p.h"
 #include "qdesigner_dockwidget_p.h"
+#include "qdesigner_utils_p.h"
 #include "abstractformwindow.h"
 
 // shared
@@ -98,14 +99,14 @@ QWidget*  WidgetFactory::createCustomWidget(const QString &className, QWidget *p
     QWidget *rc = factory->createWidget(parentWidget);
     // shouldn't happen
     if (!rc) {
-        qWarning() << QObject::tr("The custom widget factory registered for widgets of class %1 returned 0.").arg(className);
+        designerWarning(QObject::tr("The custom widget factory registered for widgets of class %1 returned 0.").arg(className));
         return 0;
     }
     // Check for mismatched class names which is hard to track
     const QString createdClassName = QString::fromUtf8(rc->metaObject()->className());
     if (className != createdClassName) {
-        qWarning() << QObject::tr("A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class %1."
-                                  " It returned a widget of class %2.").arg(className).arg(createdClassName);
+        designerWarning(QObject::tr("A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class %1."
+                                  " It returned a widget of class %2.").arg(className).arg(createdClassName));
     }
     return rc;
 }

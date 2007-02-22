@@ -22,6 +22,12 @@
 namespace QFormInternal {
 #endif
 
+void uiLibWarning(const QString &message) {
+    QString prefixedMessage = QLatin1String("Designer: ");
+    prefixedMessage += message;
+    qWarning(prefixedMessage.toUtf8().constData());
+}
+
 QFormBuilderExtra::QFormBuilderExtra() :
     m_buddyPropertyName(QLatin1String("buddy"))
 {

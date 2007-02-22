@@ -35,16 +35,22 @@
 #include <QtDesigner/QDesignerComponents>
 
 static const char *designerApplicationName = "Designer";
+static const char *designerWarningPrefix = "Designer: ";
+static void defaultMessageOutput(const char *msg)
+{
+    fputs(msg, stderr);
+    fputc('\n', stderr);
+}
 
 static void designerMessageHandler(QtMsgType type, const char *msg)
 {
-    // Only warnings are displayed as box
+    // Only Designer warnings are displayed as box
     QDesigner *designerApp = qDesigner;
-    if (type != QtWarningMsg || !designerApp) {
-        fprintf(stderr, "%s\n",  msg);
+    if (type != QtWarningMsg || !designerApp || qstrncmp(designerWarningPrefix, msg, qstrlen(designerWarningPrefix))) {
+        defaultMessageOutput(msg);
         return;
     }
-    designerApp->showErrorMessage(QString::fromUtf8(msg));
+    designerApp->showErrorMessage(msg);
 }
 
 QDesigner::QDesigner(int &argc, char **argv)
@@ -74,7 +80,22 @@ QDesigner::~QDesigner()
         delete m_client;
 }
 
-void QDesigner::showErrorMessage(const QString &msg)
+void QDesigner::showErrorMessage(const char *message)
+{
+    // strip the prefix
+    const QString qMessage = QString::fromUtf8(message + qstrlen(designerWarningPrefix));
+    // If there is no main window yet, just store the message.
+    // The QErrorMessage would otherwise be hidden by the main window.
+    if (m_mainWindow) {
+        showErrorMessageBox(qMessage);
+    } else {
+        defaultMessageOutput(message); // just in case we crash
+        m_initializationErrors += qMessage;
+        m_initializationErrors += QLatin1Char('\n');
+    }
+}
+
+void QDesigner::showErrorMessageBox(const QString &msg)
 {
     // Manually suppress consecutive messages.
     // This happens if for example sth is wrong with custom widget creation.
@@ -88,8 +109,9 @@ void QDesigner::showErrorMessage(const QString &msg)
         m_errorMessageDialog = new QErrorMessage(m_mainWindow);
         const QString title = QObject::tr("%1 - warning").arg(QLatin1String(designerApplicationName));
         m_errorMessageDialog->setWindowTitle(title);
+        m_errorMessageDialog->setMinimumSize(QSize(600, 250));
+        m_errorMessageDialog->setWindowFlags(m_errorMessageDialog->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     }
-
     m_errorMessageDialog->showMessage(msg);
     m_lastErrorMessage = msg;
 }
@@ -164,8 +186,14 @@ void QDesigner::initialize()
     if ( m_workbench->formWindowCount())
         m_suppressNewFormShow = true;
 
-    if (!m_suppressNewFormShow && QDesignerSettings().showNewFormOnStartup())
-        QTimer::singleShot(100, this, SLOT(callCreateForm())); // won't show anything if suppressed
+    // Show up error box with parent now if something went wrong
+    if (m_initializationErrors.isEmpty()) {
+        if (!m_suppressNewFormShow && QDesignerSettings().showNewFormOnStartup())
+            QTimer::singleShot(100, this, SLOT(callCreateForm())); // won't show anything if suppressed
+    } else {
+        showErrorMessageBox(m_initializationErrors);
+        m_initializationErrors.clear();
+    }
 }
 
 bool QDesigner::event(QEvent *ev)

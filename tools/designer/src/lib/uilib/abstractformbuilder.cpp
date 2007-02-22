@@ -233,7 +233,7 @@ QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
             children += child;
         } else {
             const QString className = ui_child->elementClass().empty() ? QString() : ui_child->elementClass().front();
-            qWarning() << QObject::tr("The creation of a widget of the class '%1' failed.").arg(className);
+            uiLibWarning(QObject::tr("The creation of a widget of the class '%1' failed.").arg(className));
         }
     }
 
@@ -1195,7 +1195,7 @@ QList<DomProperty*> QAbstractFormBuilder::computeProperties(QObject *obj)
             dom_prop = new DomProperty();
 
             if (prop.isFlagType())
-                qWarning() << QObject::tr("Flags property are not supported yet.");
+                uiLibWarning(QObject::tr("Flags property are not supported yet."));
 
             if (prop.isEnumType()) {
                 QString scope = QString::fromUtf8(prop.enumerator().scope());
@@ -1276,7 +1276,7 @@ void QAbstractFormBuilder::applyTabStops(QWidget *widget, DomTabStops *tabStops)
 
         QWidget *child = qFindChild<QWidget*>(widget, name);
         if (!child) {
-            qWarning() << QObject::tr("While applying tab stops: The widget '%1' could not be found.").arg(name);
+            uiLibWarning(QObject::tr("While applying tab stops: The widget '%1' could not be found.").arg(name));
             continue;
         }
 

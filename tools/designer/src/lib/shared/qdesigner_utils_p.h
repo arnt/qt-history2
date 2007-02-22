@@ -25,12 +25,17 @@
 #ifndef QDESIGNER_UTILS_H
 #define QDESIGNER_UTILS_H
 
+#include "shared_global_p.h"
+
+#include <QtDesigner/QDesignerFormWindowInterface>
+
 #include <QtCore/QVariant>
 #include <QtCore/QMap>
 #include <QtGui/QMainWindow>
-#include "abstractformwindow.h"
 
 namespace qdesigner_internal {
+
+QDESIGNER_SHARED_EXPORT void designerWarning(const QString &message);
 
 class EnumType
 {

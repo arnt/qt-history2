@@ -14,6 +14,7 @@
 #include "properties_p.h"
 #include "ui4_p.h"
 #include "abstractformbuilder.h"
+#include "formbuilderextra_p.h"
 
 #include <QtCore/QDateTime>
 #include <QtCore/QUrl>
@@ -79,7 +80,7 @@ QVariant domPropertyToVariant(QAbstractFormBuilder *afb,const QMetaObject *meta,
         const QByteArray pname = p->attributeName().toUtf8();
         const int index = meta->indexOfProperty(pname);
         if (index == -1) {
-            qWarning() << QObject::tr("The set-type property %1 could not be read.").arg(p->attributeName());
+            uiLibWarning(QObject::tr("The set-type property %1 could not be read.").arg(p->attributeName()));
             return QVariant();
         }
 
@@ -97,7 +98,7 @@ QVariant domPropertyToVariant(QAbstractFormBuilder *afb,const QMetaObject *meta,
                 && (pname == QByteArray("orientation"))) {
                 return QVariant((p->elementEnum() == QLatin1String("Qt::Horizontal")) ? QFrame::HLine : QFrame::VLine);
             } else {
-                qWarning() << QObject::tr("The enumeration-type property %1 could not be read.").arg(p->attributeName());
+                uiLibWarning(QObject::tr("The enumeration-type property %1 could not be read.").arg(p->attributeName()));
                 return QVariant();
             }
         }
@@ -272,7 +273,7 @@ QVariant domPropertyToVariant(const DomProperty *p)
         return QVariant(p->elementStringList()->elementString());
 
     default:
-        qWarning() << QObject::tr("Reading properties of the type %1 is not supported yet.").arg(p->kind());
+        uiLibWarning(QObject::tr("Reading properties of the type %1 is not supported yet.").arg(p->kind()));
         break;
     }
 
@@ -517,7 +518,12 @@ static bool applySimpleProperty(const QVariant &v, bool translateString, DomProp
 
     return false;
 }
+static QString msgCannotWriteProperty(const QString &pname, const QVariant &v)
+{
+    return QObject::tr("The property %1 could not be written. The type %2 is not supported yet.").
+                       arg(pname).arg(QVariant::typeToName (v.type()));
 
+}
 // Convert simple variant types to DOM properties
 DomProperty *variantToDomProperty(const QString &pname, const QVariant &v, bool translateString)
 {
@@ -527,7 +533,7 @@ DomProperty *variantToDomProperty(const QString &pname, const QVariant &v, bool 
         return dom_prop;
 
     delete dom_prop;
-    qWarning() <<  "The property " << pname << " could not be written. The type " << QVariant::typeToName (v.type()) << " is not supported yet.";
+    uiLibWarning(msgCannotWriteProperty(pname, v));
     return 0;
 }
 
@@ -580,7 +586,7 @@ DomProperty *variantToDomProperty(QAbstractFormBuilder *afb, QObject *obj,
 
     default:
         delete dom_prop;
-        qWarning() <<  "The property " << pname << " could not be written. The type " << QVariant::typeToName (v.type()) << " is not supported yet.";
+        uiLibWarning(msgCannotWriteProperty(pname, v));
         return 0;
     }
     return dom_prop;

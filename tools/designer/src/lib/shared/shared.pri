@@ -70,7 +70,8 @@ HEADERS += \
     $$PWD/qscripthighlighter_p.h \
     $$PWD/gridpanel_p.h \
     $$PWD/grid_p.h \
-    $$PWD/formwindowbase_p.h
+    $$PWD/formwindowbase_p.h \
+    $$PWD/qdesigner_utils_p.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -129,4 +130,5 @@ SOURCES += \
     $$PWD/qscripthighlighter.cpp\
     $$PWD/gridpanel.cpp \
     $$PWD/grid.cpp \
-    $$PWD/formwindowbase.cpp  
+    $$PWD/formwindowbase.cpp \
+    $$PWD/qdesigner_utils.cpp

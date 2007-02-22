@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "pluginmanager_p.h"
+#include "qdesigner_utils_p.h"
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerCustomWidgetInterface>
@@ -27,7 +28,7 @@
 
 static QStringList unique(const QStringList &lst)
 {
-    QSet<QString> s = QSet<QString>::fromList(lst);
+    const QSet<QString> s = QSet<QString>::fromList(lst);
     return s.toList();
 }
 
@@ -35,16 +36,23 @@ QStringList QDesignerPluginManager::defaultPluginPaths() const
 {
     QStringList result;
 
-    QStringList path_list = QCoreApplication::libraryPaths();
-    foreach (const QString &path, path_list)
-        result.append(path + QDir::separator() + QLatin1String("designer"));
+    const QStringList path_list = QCoreApplication::libraryPaths();
 
-    result.append(QDir::homePath()
-                    + QDir::separator()
-                    + QLatin1String(".designer")
-                    + QDir::separator()
-                    + QLatin1String("plugins"));
+    const QString designer = QLatin1String("designer");
+    foreach (const QString &path, path_list) {
+        QString libPath = path;
+        libPath += QDir::separator();
+        libPath += designer;
+        result.append(libPath);
+    }
 
+    QString homeLibPath = QDir::homePath();
+    homeLibPath += QDir::separator();
+    homeLibPath += QLatin1String(".designer");
+    homeLibPath += QDir::separator();
+    homeLibPath += QLatin1String("plugins");
+
+    result.append(homeLibPath);
     return result;
 }
 
@@ -111,7 +119,7 @@ QStringList QDesignerPluginManager::failedPlugins() const
 {
     return m_failedPlugins.keys();
 }
- 
+
 QString QDesignerPluginManager::failureReason(const QString &pluginName) const
 {
     return m_failedPlugins.value(pluginName);
@@ -165,7 +173,7 @@ void QDesignerPluginManager::registerPlugin(const QString &plugin)
     if (!loader.isLoaded()) {
         const QString errorMessage = loader.errorString();
         m_failedPlugins.insert(plugin, errorMessage);
-        qWarning() << QObject::tr("The plugin '%1' failed to load: %2").arg(plugin).arg(errorMessage);
+        qdesigner_internal::designerWarning(QObject::tr("The plugin '%1' failed to load: %2").arg(plugin).arg(errorMessage));
     } else {
         if (m_failedPlugins.contains(plugin))
             m_failedPlugins.remove(plugin);

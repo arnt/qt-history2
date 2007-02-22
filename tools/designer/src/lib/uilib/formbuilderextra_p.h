@@ -78,6 +78,8 @@ private:
     QPointer<QWidget> m_rootWidget;
 };
 
+void uiLibWarning(const QString &message);
+
 #ifdef QFORMINTERNAL_NAMESPACE
 }
 #endif

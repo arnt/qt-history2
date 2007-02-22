@@ -22,6 +22,7 @@ TRANSLATOR qdesigner_internal::WidgetBoxTreeView
 #include <sheet_delegate_p.h>
 #include <iconloader_p.h>
 #include <ui4_p.h>
+#include <qdesigner_utils_p.h>
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
@@ -43,14 +44,14 @@ TRANSLATOR qdesigner_internal::WidgetBoxTreeView
 
 
 namespace {
-
     enum { SCRATCHPAD_ITEM=1,CUSTOM_ITEM=2 };
-
+    typedef QList<QDomElement> ElementList;
+}
 
 /*******************************************************************************
 ** Tools
 */
-QDomElement childElement(const QDomNode &node, const QString &tag,
+static QDomElement childElement(const QDomNode &node, const QString &tag,
                                 const QString &attr_name,
                                 const QString &attr_value)
 {
@@ -78,8 +79,7 @@ QDomElement childElement(const QDomNode &node, const QString &tag,
     return QDomElement();
 }
 
-typedef QList<QDomElement> ElementList;
-void _childElementList(const QDomNode &node, const QString &tag,
+static void _childElementList(const QDomNode &node, const QString &tag,
                                     const QString &attr_name,
                                     const QString &attr_value,
                                     ElementList *result)
@@ -103,7 +103,7 @@ void _childElementList(const QDomNode &node, const QString &tag,
         _childElementList(child, tag, attr_name, attr_value, result);
 }
 
-QString domToString(const QDomElement &elt)
+static QString domToString(const QDomElement &elt)
 {
     QString result;
     QTextStream stream(&result, QIODevice::WriteOnly);
@@ -112,29 +112,28 @@ QString domToString(const QDomElement &elt)
     return result;
 }
 
-QDomDocument stringToDom(const QString &xml)
+static QDomDocument stringToDom(const QString &xml)
 {
     QDomDocument result;
     result.setContent(xml);
     return result;
 }
 
-DomWidget *xmlToUi(const QString &xml)
+static DomWidget *xmlToUi(const QString &name, const QString &xml, QString &errorMessage)
 {
     QDomDocument doc;
     QString err_msg;
     int err_line, err_col;
     if (!doc.setContent(xml, &err_msg, &err_line, &err_col)) {
-        qDebug("xmlToUi: parse failed:\n%s\n:%d:%d: %s",
-                    xml.toUtf8().constData(),
-                    err_line, err_col,
-                    err_msg.toUtf8().constData());
+        errorMessage = QObject::tr("A parse error occurred at line %1, column %2 of the XML code specified for the widget %3: %4\n%5").
+                                arg(err_line).arg(err_col).arg(name).arg(err_msg).arg( xml);
         return 0;
     }
 
     const QDomElement dom_elt = doc.firstChildElement();
     if (dom_elt.nodeName() != QLatin1String("widget")) {
-        qDebug("xmlToUi: invalid root element:\n%s", xml.toUtf8().constData());
+        errorMessage = QObject::tr("The XML code specified for the widget %1 contains an invalid root element %2.\n%3").
+                                      arg(name).arg(dom_elt.nodeName()).arg(xml);
         return 0;
     }
 
@@ -142,7 +141,13 @@ DomWidget *xmlToUi(const QString &xml)
     widget->read(dom_elt);
     return widget;
 }
-
+static DomWidget *xmlToUi(const QString &name, const QString &xml)
+{
+    QString errorMessage;
+    DomWidget *rc = xmlToUi(name, xml, errorMessage);
+    if (!rc)
+        qdesigner_internal::designerWarning(errorMessage);
+    return rc;
 }
 /*******************************************************************************
 ** WidgetBoxItemDelegate
@@ -404,8 +409,9 @@ bool WidgetBoxTreeView::load()
     int line, col;
     QDomDocument doc;
     if (!doc.setContent(&f, &error_msg, &line, &col)) {
-        qDebug("WidgetBox: failed to parse \"%s\": on line %d: %s",
-                    name.toUtf8().constData(), line, error_msg.toUtf8().constData());
+        const QString msg = QObject::tr("The widgetbox could not parse the file %1. An error occurred at line %2: %3").
+            arg(name).arg(line).arg(error_msg);
+        qdesigner_internal::designerWarning(msg);
         return false;
     }
 
@@ -479,7 +485,7 @@ QDomDocument WidgetBoxTreeView::categoryListToDom(const CategoryList &cat_list) 
             if (wgt.type() == Widget::Custom)
                 continue;
 
-            const DomWidget *dom_wgt = xmlToUi(widgetDomXml(wgt));
+            const DomWidget *dom_wgt = xmlToUi(wgt.name(), widgetDomXml(wgt));
             QDomElement wgt_elt = dom_wgt->write(doc);
             wgt_elt.setAttribute(QLatin1String("name"), wgt.name());
             const QString iconName = wgt.iconName();
@@ -500,14 +506,15 @@ WidgetBoxTreeView::CategoryList
 
     const QDomElement root = doc.firstChildElement();
     if (root.nodeName() != QLatin1String("widgetbox")) {
-        qDebug("WidgetCollectionModel::xmlToModel(): not a widgetbox file");
+        qdesigner_internal::designerWarning(QObject::tr("The file %1 does not appear to be a widgetbox file.").arg(m_file_name));
         return result;
     }
 
     QDomElement cat_elt = root.firstChildElement();
     for (; !cat_elt.isNull(); cat_elt = cat_elt.nextSiblingElement()) {
         if (cat_elt.nodeName() != QLatin1String("category")) {
-            qDebug("WidgetCollectionModel::xmlToModel(): bad child of widgetbox: \"%s\"", cat_elt.nodeName().toUtf8().constData());
+            qdesigner_internal::designerWarning(QObject::tr("An error occurred while parsing the file %1: %2 is not a valid child of the root element.").
+                                                arg(m_file_name).arg( cat_elt.nodeName()));
             return result;
         }
 
@@ -629,7 +636,7 @@ QTreeWidgetItem *WidgetBoxTreeView::widgetToItem(const Widget &wgt,
       icon = createIconSet(icon_name);
     item->setIcon(0, icon);
     item->setData(0, Qt::UserRole, qVariantFromValue(wgt));
-    
+
     const QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
     const int dbIndex = db->indexOfClassName(wgt.name());
     if (dbIndex != -1) {
@@ -915,7 +922,7 @@ QDesignerFormEditorInterface *WidgetBox::core() const
 
 void WidgetBox::handleMousePress(const QString &name, const QString &xml, bool custom, const QPoint &global_mouse_pos)
 {
-    DomWidget *dom_widget = xmlToUi(xml);
+    DomWidget *dom_widget = xmlToUi(name, xml);
     if (dom_widget == 0)
         return;
     // Sanity check: Do the names match?
@@ -923,9 +930,9 @@ void WidgetBox::handleMousePress(const QString &name, const QString &xml, bool c
         if (dom_widget->hasAttributeClass()) {
             const QString domClassName = dom_widget->attributeClass();
             if (domClassName != name)
-                qWarning() << QObject::tr("The class attribute for the class %1 does not match the class name %2.").arg(domClassName).arg(name);
+                qdesigner_internal::designerWarning(QObject::tr("The class attribute for the class %1 does not match the class name %2.").arg(domClassName).arg(name));
         } else {
-            qWarning() << QObject::tr("The class attribute for the class %1 is missing.").arg(name);
+                qdesigner_internal::designerWarning(QObject::tr("The class attribute for the class %1 is missing.").arg(name));
         }
     }
     if (QApplication::mouseButtons() == Qt::LeftButton) {

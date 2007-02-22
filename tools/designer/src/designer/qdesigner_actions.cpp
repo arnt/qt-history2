@@ -29,6 +29,7 @@
 
 #include <pluginmanager_p.h>
 #include <qdesigner_formbuilder_p.h>
+#include <qdesigner_utils_p.h>
 // sdk
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
@@ -1095,7 +1096,7 @@ void QDesignerActions::backupForms()
             const QByteArray utf8Array = fixResourceFileBackupPath(fwi, backupDir).toUtf8();
             if (file.write(utf8Array, utf8Array.size()) != utf8Array.size()) {
                 backupMap.remove(fwn);
-                qWarning() << QObject::tr("The backup file %1 could not be written.").arg(file.fileName());
+                qdesigner_internal::designerWarning(QObject::tr("The backup file %1 could not be written.").arg(file.fileName()));
             } else
                 tmpFiles.append(formBackupName);
 
@@ -1118,7 +1119,7 @@ void QDesignerActions::backupForms()
             name.replace(m_backupTmpPath, m_backupPath);
             QFile tmpFile(tmpName);
             if (!tmpFile.copy(name))
-                qWarning() << QObject::tr("The backup file %1 could not be written.").arg(name);
+                qdesigner_internal::designerWarning(QObject::tr("The backup file %1 could not be written.").arg(name));
             tmpFile.remove();
         }
 
@@ -1224,13 +1225,13 @@ bool QDesignerActions::ensureBackupDirectories() {
 
     if (!backupDir.exists()) {
         if (!backupDir.mkpath(m_backupPath)) {
-            qWarning() << QObject::tr("The backup directory %1 could not be created.").arg(m_backupPath);
+            qdesigner_internal::designerWarning(QObject::tr("The backup directory %1 could not be created.").arg(m_backupPath));
             return false;
         }
     }
     if (!backupTmpDir.exists()) {
         if (!backupTmpDir.mkpath(m_backupTmpPath)) {
-            qWarning() << QObject::tr("The temporary backup directory %1 could not be created.").arg(m_backupTmpPath);
+            qdesigner_internal::designerWarning(QObject::tr("The temporary backup directory %1 could not be created.").arg(m_backupTmpPath));
             return false;
         }
     }

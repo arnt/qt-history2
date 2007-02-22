@@ -19,6 +19,8 @@
 #include "qdesigner_propertyeditor.h"
 #include "qdesigner_objectinspector.h"
 
+#include <qdesigner_utils_p.h>
+
 #include <QtCore/QVariant>
 #include <QtCore/QDir>
 
@@ -35,7 +37,7 @@ static bool ensurePath(const QString &path)
     if (current.exists(path) || current.mkpath(path))
         return true;
 
-    qWarning() << QObject::tr("The template path %1 could not be created.").arg(path);
+    qdesigner_internal::designerWarning(QObject::tr("The template path %1 could not be created.").arg(path));
     return false;
 }
 
