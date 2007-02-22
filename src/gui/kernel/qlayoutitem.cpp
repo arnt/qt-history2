@@ -46,7 +46,7 @@ inline static QLayout::ItemRectPolicy layoutItemRectPolicy_helper(const QWidget 
 {
     QWidget *par = wid->parentWidget();
     QLayout *layout = par ? par->layout() : 0;
-    return layout ? layout->itemRectPolicy() : QLayout::WidgetRect;
+    return layout ? layout->itemRectPolicy() : QLayout::LayoutItemRect;
 }
 
 /*!
