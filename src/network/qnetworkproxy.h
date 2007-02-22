@@ -32,7 +32,8 @@ public:
     enum ProxyType {
         DefaultProxy,
         Socks5Proxy,
-        NoProxy
+        NoProxy,
+        HttpProxy
     };
 
     QNetworkProxy();

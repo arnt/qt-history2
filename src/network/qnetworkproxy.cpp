@@ -101,6 +101,10 @@
     \value DefaultProxy Proxy is determined based on the application proxy set using setApplicationProxy()
     \value Socks5Proxy \l Socks5 proxying is used
     \value NoProxy No proxying is used
+    \value HttpProxy Http proxying is used
+
+    While Socks5 proxying works for both Tcp and Udp sockets, Http proxying is limited to Tcp connections.
+    Http proxying also doesn't support binding sockets.
 
     \sa setType(), type()
 */
@@ -110,6 +114,7 @@
 #ifndef QT_NO_NETWORKPROXY
 
 #include "qsocks5socketengine_p.h"
+#include "qhttpsocketengine_p.h"
 #include "qmutex.h"
 #include "qatomic.h"
 
@@ -121,6 +126,7 @@ public:
 #ifndef QT_NO_SOCKS5
         , socks5SocketEngineHandler(0)
 #endif
+        , httpSocketEngineHandler(0)
     {
     }
 
@@ -129,6 +135,7 @@ public:
 #ifndef QT_NO_SOCKS5
         delete socks5SocketEngineHandler;
 #endif
+        delete httpSocketEngineHandler;
     }
 
     void init()
@@ -138,6 +145,8 @@ public:
         if (!socks5SocketEngineHandler)
             socks5SocketEngineHandler = new QSocks5SocketEngineHandler();
 #endif
+        if (!httpSocketEngineHandler)
+            httpSocketEngineHandler = new QHttpSocketEngineHandler();
     }
 
     void setApplicationProxy(const QNetworkProxy &proxy)
@@ -158,6 +167,7 @@ private:
 #ifndef QT_NO_SOCKS5
     QSocks5SocketEngineHandler *socks5SocketEngineHandler;
 #endif
+    QHttpSocketEngineHandler *httpSocketEngineHandler;
 };
 
 Q_GLOBAL_STATIC(QGlobalNetworkProxy, globalNetworkProxy);

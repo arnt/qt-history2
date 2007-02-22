@@ -37,6 +37,7 @@
 #include <QTime>
 #include <QTimer>
 #include <QDebug>
+#define TEST_QNETWORK_PROXY
 #ifdef TEST_QNETWORK_PROXY
 # include <QNetworkProxy>
 #endif
@@ -180,6 +181,7 @@ void tst_QTcpSocket::initTestCase_data()
     QTest::newRow("WithoutProxy") << false << 0;
 #ifdef TEST_QNETWORK_PROXY
     QTest::newRow("WithSocks5Proxy") << true << int(QNetworkProxy::Socks5Proxy);
+    QTest::newRow("WithHttpProxy") << true << int(QNetworkProxy::HttpProxy);
 #endif
 }
 
@@ -192,6 +194,9 @@ void tst_QTcpSocket::init()
         if (proxyType == QNetworkProxy::Socks5Proxy) {
             QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::Socks5Proxy,
                                                              QHostInfo::fromName("fluke.troll.no").addresses().first().toString(), 1080));
+        } else if (proxyType == QNetworkProxy::HttpProxy) {
+            QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::HttpProxy,
+                                                             QHostInfo::fromName("fluke.troll.no").addresses().first().toString(), 3128));
         }
 #endif
     }
@@ -724,7 +729,6 @@ void tst_QTcpSocket::downloadBigFileSlot()
 void tst_QTcpSocket::connectToMultiIP()
 {
     QTcpSocket socket;
-    QSKIP("Ole", SkipAll);
     // rationale: this domain resolves to 5 A-records, 4 of them are
     // invalid. QTcpSocket should never spend more than 30 seconds per
     // IP, and 30s*5 = 150s. Allowing 10 seconds slack for processing.
@@ -1242,7 +1246,7 @@ void tst_QTcpSocket::waitForConnectedInHostLookupSlot2()
     connect(&top, SIGNAL(clicked()), &foo, SLOT(doIt()));
 
     QTimer::singleShot(100, &top, SLOT(animateClick()));
-    QTimer::singleShot(10000, &foo, SLOT(exitLoop()));
+    QTimer::singleShot(1000, &foo, SLOT(exitLoop()));
 
     enterLoop(30);
     if (timeout())
@@ -1495,8 +1499,8 @@ void tst_QTcpSocket::suddenRemoteDisconnect()
     QFETCH(QString, client);
     QFETCH(QString, server);
     
-    QFETCH_GLOBAL(int, proxyType);
-    if (proxyType == QNetworkProxy::Socks5Proxy)
+    QFETCH_GLOBAL(bool, setProxy);
+    if (setProxy)
         return;
 
     // Start server

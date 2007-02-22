@@ -938,6 +938,7 @@ void QAbstractSocketPrivate::fetchConnectionParameters()
     Q_Q(QAbstractSocket);
     state = QAbstractSocket::ConnectedState;
     emit q->stateChanged(state);
+    emit q->connected();
 
     peerName = hostName;
     if (socketEngine) {
@@ -949,7 +950,6 @@ void QAbstractSocketPrivate::fetchConnectionParameters()
         peerAddress = socketEngine->peerAddress();
     }
 
-    emit q->connected();
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::fetchConnectionParameters() connection to %s:%i established",
            host.toString().toLatin1().constData(), port);

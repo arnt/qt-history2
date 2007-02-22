@@ -14,6 +14,7 @@ HEADERS += qftp.h \
            qhostaddress.h \
            qabstractsocketengine_p.h \
            qnativesocketengine_p.h \
+           qhttpsocketengine_p.h \
            qsocks5socketengine_p.h \
            qabstractsocket.h \
            qabstractsocket_p.h \
@@ -32,6 +33,7 @@ SOURCES	= qftp.cpp \
           qhostaddress.cpp \
           qabstractsocketengine.cpp \
           qnativesocketengine.cpp \
+          qhttpsocketengine.cpp \
           qsocks5socketengine.cpp \
           qabstractsocket.cpp \
           qtcpsocket.cpp \
