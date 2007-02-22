@@ -305,10 +305,13 @@ QVariant applySubProperty(const QVariant &oldValue, const QVariant &newValue, qd
     default:
         // Enumerations, flags
         switch (specialProperty) {
-        case qdesigner_internal::SP_Alignment:
-            return QVariant(static_cast<uint>(applyAlignmentSubProperty(variantToAlignment(oldValue),
-                                                                        variantToAlignment(newValue),
-                                                                        mask)));
+        case qdesigner_internal::SP_Alignment: {
+            qdesigner_internal::FlagType f = qvariant_cast<qdesigner_internal::FlagType>(oldValue);
+            f.value = static_cast<uint>(applyAlignmentSubProperty(variantToAlignment(oldValue), variantToAlignment(newValue), mask));
+            QVariant v;
+            qVariantSetValue(v, f);
+            return v;
+                                               }
         default:
         break;
         }
