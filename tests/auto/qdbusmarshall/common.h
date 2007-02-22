@@ -9,8 +9,6 @@ Q_DECLARE_METATYPE(QList<uint>)
 Q_DECLARE_METATYPE(QList<qlonglong>)
 Q_DECLARE_METATYPE(QList<qulonglong>)
 Q_DECLARE_METATYPE(QList<double>)
-Q_DECLARE_METATYPE(QList<QDBusObjectPath>)
-Q_DECLARE_METATYPE(QList<QDBusSignature>)
 Q_DECLARE_METATYPE(QList<QDBusVariant>)
 Q_DECLARE_METATYPE(QList<QDateTime>)
 

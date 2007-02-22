@@ -11,13 +11,15 @@ public slots:
     void method(const QDBusMessage &msg);
 
 public:
-    QString path;
-    MyObject() { }
+    static QString path;
+    int callCount;
+    MyObject(QObject *parent = 0) : QObject(parent), callCount(0) {}
 };
 
 void MyObject::method(const QDBusMessage &msg)
 {
     path = msg.path();
+    ++callCount;
     //qDebug() << msg;
 }
 
@@ -39,6 +41,9 @@ private slots:
 
     void registerObject_data();
     void registerObject();
+    void registerObject2();
+
+    void registerQObjectChildren();
 
     void callSelf();
 
@@ -206,7 +211,6 @@ void tst_QDBusConnection::registerObject()
     QDBusConnection con = QDBusConnection::sessionBus();
     QVERIFY(con.isConnected());
 
-#if 1
     //QVERIFY(!callMethod(con, path));
     {
         // register one object at root:
@@ -218,8 +222,12 @@ void tst_QDBusConnection::registerObject()
     }
     // make sure it's gone
     QVERIFY(!callMethod(con, path));
+}
 
-#else
+void tst_QDBusConnection::registerObject2()
+{
+    QDBusConnection con = QDBusConnection::sessionBus();
+    QVERIFY(con.isConnected());
 
     // make sure nothing is using our paths:
      QVERIFY(!callMethod(con, "/"));
@@ -231,7 +239,7 @@ void tst_QDBusConnection::registerObject()
     {
         // register one object at root:
         MyObject obj;
-        QVERIFY(con.registerObject("/", &obj, QDBusConnection::ExportSlots));
+        QVERIFY(con.registerObject("/", &obj, QDBusConnection::ExportAllSlots));
         QVERIFY(callMethod(con, "/"));
         qDebug() << obj.path;
         QCOMPARE(obj.path, QString("/"));
@@ -242,14 +250,14 @@ void tst_QDBusConnection::registerObject()
     {
         // register one at an element:
         MyObject obj;
-        QVERIFY(con.registerObject("/p1", &obj, QDBusConnection::ExportSlots));
+        QVERIFY(con.registerObject("/p1", &obj, QDBusConnection::ExportAllSlots));
         QVERIFY(!callMethod(con, "/"));
         QVERIFY(callMethod(con, "/p1"));
         qDebug() << obj.path;
         QCOMPARE(obj.path, QString("/p1"));
 
         // re-register it somewhere else
-        QVERIFY(con.registerObject("/p2", &obj, QDBusConnection::ExportSlots));
+        QVERIFY(con.registerObject("/p2", &obj, QDBusConnection::ExportAllSlots));
         QVERIFY(callMethod(con, "/p1"));
         QCOMPARE(obj.path, QString("/p1"));
         QVERIFY(callMethod(con, "/p2"));
@@ -262,7 +270,7 @@ void tst_QDBusConnection::registerObject()
     {
         // register at a deep path
         MyObject obj;
-        QVERIFY(con.registerObject("/p1/q/r", &obj, QDBusConnection::ExportSlots));
+        QVERIFY(con.registerObject("/p1/q/r", &obj, QDBusConnection::ExportAllSlots));
         QVERIFY(!callMethod(con, "/"));
         QVERIFY(!callMethod(con, "/p1"));
         QVERIFY(!callMethod(con, "/p1/q"));
@@ -274,7 +282,7 @@ void tst_QDBusConnection::registerObject()
 
     {
         MyObject obj;
-        QVERIFY(con.registerObject("/p1/q2", &obj, QDBusConnection::ExportSlots));
+        QVERIFY(con.registerObject("/p1/q2", &obj, QDBusConnection::ExportAllSlots));
         QVERIFY(callMethod(con, "/p1/q2"));
         QCOMPARE(obj.path, QString("/p1/q2"));
 
@@ -283,7 +291,7 @@ void tst_QDBusConnection::registerObject()
         QVERIFY(!callMethod(con, "/p1/q2"));
 
         // register it again
-        QVERIFY(con.registerObject("/p1/q2", &obj, QDBusConnection::ExportSlots));
+        QVERIFY(con.registerObject("/p1/q2", &obj, QDBusConnection::ExportAllSlots));
         QVERIFY(callMethod(con, "/p1/q2"));
         QCOMPARE(obj.path, QString("/p1/q2"));
 
@@ -307,35 +315,80 @@ void tst_QDBusConnection::registerObject()
         con.unregisterObject("/p1", QDBusConnection::UnregisterTree);
         QVERIFY(!callMethod(con, "/p1/q2")); // we removed the full tree
     }
-#endif
+}
+
+void tst_QDBusConnection::registerQObjectChildren()
+{
+    // make sure no one is there
+    QDBusConnection con = QDBusConnection::sessionBus();
+    QVERIFY(!callMethod(con, "/p1"));
+
+    {
+        MyObject obj, *a, *b, *c, *cc;
+
+        a = new MyObject(&obj);
+        a->setObjectName("a");
+
+        b = new MyObject(&obj);
+        b->setObjectName("b");
+
+        c = new MyObject(&obj);
+        c->setObjectName("c");
+
+        cc = new MyObject(c);
+        cc->setObjectName("cc");
+
+        con.registerObject("/p1", &obj, QDBusConnection::ExportAllSlots |
+                           QDBusConnection::ExportChildObjects);
+
+        // make calls
+        QVERIFY(callMethod(con, "/p1"));
+        QCOMPARE(obj.callCount, 1);
+        QVERIFY(callMethod(con, "/p1/a"));
+        QCOMPARE(a->callCount, 1);
+        QVERIFY(callMethod(con, "/p1/b"));
+        QCOMPARE(b->callCount, 1);
+        QVERIFY(callMethod(con, "/p1/c"));
+        QCOMPARE(c->callCount, 1);
+        QVERIFY(callMethod(con, "/p1/c/cc"));
+        QCOMPARE(cc->callCount, 1);
+
+        QVERIFY(!callMethod(con, "/p1/d"));
+        QVERIFY(!callMethod(con, "/p1/c/abc"));
+
+        // pull an object, see if it goes away:
+        delete b;
+        QVERIFY(!callMethod(con, "/p1/b"));
+
+        delete c;
+        QVERIFY(!callMethod(con, "/p1/c"));
+        QVERIFY(!callMethod(con, "/p1/c/cc"));
+    }
+
+    QVERIFY(!callMethod(con, "/p1"));
+    QVERIFY(!callMethod(con, "/p1/a"));
+    QVERIFY(!callMethod(con, "/p1/b"));
+    QVERIFY(!callMethod(con, "/p1/c"));
+    QVERIFY(!callMethod(con, "/p1/c/cc"));
 }
 
 bool tst_QDBusConnection::callMethod(const QDBusConnection &conn, const QString &path)
 {
     QDBusMessage msg = QDBusMessage::createMethodCall(conn.baseService(), path, "", "method");
     QDBusMessage reply = conn.call(msg, QDBus::Block/*WithGui*/);
-#if 0
-    switch (reply.type()) {
-        case QDBusMessage::InvalidMessage:
-            qDebug() << "InvalidMessage:" << reply;
-            break;
-        case QDBusMessage::MethodCallMessage:
-            qDebug() << "MethodCallMessage:" << reply;
-            break;
-        case QDBusMessage::ReplyMessage:
-            qDebug() << "ReplyMessage:" << reply;
-            break;
-        case QDBusMessage::ErrorMessage:
-            qDebug() << "ErrorMessage:" << reply;
-            break;
-        case QDBusMessage::SignalMessage:
-            qDebug() << "SignalMessage:" << reply;
-            break;
-        default:
-            break;
+
+    if (reply.type() != QDBusMessage::ReplyMessage)
+        return false;
+    if (MyObject::path == path) {
+        QTest::compare_helper(true, "COMPARE()", __FILE__, __LINE__);
+    } else {
+        QTest::compare_helper(false, "Compared values are not the same",
+                              QTest::toString(MyObject::path), QTest::toString(path),
+                              "MyObject::path", "path", __FILE__, __LINE__);
+        return false;
     }
-#endif
-    return reply.type() == QDBusMessage::ReplyMessage;
+
+    return true;
 }
 
 class TestObject : public QObject
@@ -374,7 +427,7 @@ void tst_QDBusConnection::callSelf()
     QCOMPARE(reply.arguments().value(0).toInt(), 43);
 
     QDBusMessage msg = QDBusMessage::createMethodCall(serviceName(), "/test",
-            serviceName(), "test3");
+                                                      QString(), "test3");
     msg << 44;
     reply = connection.call(msg);
     QCOMPARE(reply.arguments().value(0).toInt(), 45);
@@ -406,6 +459,7 @@ void tst_QDBusConnection::slotsWithLessParameters()
     QCOMPARE(signalsReceived, 1);
 }
 
+QString MyObject::path;
 QTEST_MAIN(tst_QDBusConnection)
 
 #include "tst_qdbusconnection.moc"

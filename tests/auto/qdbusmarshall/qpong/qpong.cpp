@@ -4,6 +4,7 @@
 class Pong: public QObject
 {
     Q_OBJECT
+    Q_CLASSINFO("D-Bus Interface", "org.kde.selftest")
 public slots:
 
     void ping(QDBusMessage msg)

@@ -43,6 +43,7 @@ private slots:
     void initTestCase() { commonInit(); }
     void methodCalls_data();
     void methodCalls();
+    void methodCallScriptable();
     void signalEmissions_data();
     void signalEmissions();
     void sameSignalDifferentPaths();
@@ -120,6 +121,7 @@ public:
 
 public slots:
     void method() { slotSpy = __PRETTY_FUNCTION__; }
+    Q_SCRIPTABLE void scriptableMethod() { slotSpy = __PRETTY_FUNCTION__; }
 
 signals:
     void signal();
@@ -584,6 +586,20 @@ void tst_QDBusAbstractAdaptor::methodCalls()
     QCOMPARE(if4.call(QDBus::BlockWithGui, "method.s", QString()).type(), QDBusMessage::ReplyMessage);
     QCOMPARE(slotSpy, "void Interface4::method(QString)");
 
+}
+
+void tst_QDBusAbstractAdaptor::methodCallScriptable()
+{
+    QDBusConnection con = QDBusConnection::sessionBus();
+    QVERIFY(con.isConnected());
+
+    QDBusInterface if2(con.baseService(), "/", "local.Interface2", con);
+
+    MyObject obj(2);
+    con.registerObject("/", &obj);
+
+    QCOMPARE(if2.call(QDBus::BlockWithGui,"scriptableMethod").type(), QDBusMessage::ReplyMessage);
+    QCOMPARE(slotSpy, "void Interface2::scriptableMethod()");
 }
 
 static void emitSignal(MyObject *obj, const QString &iface, const QString &name,
