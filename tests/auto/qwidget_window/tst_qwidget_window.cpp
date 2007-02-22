@@ -76,9 +76,9 @@ void tst_QWidget_window::tst_show_move_hide_show()
 void tst_QWidget_window::tst_resize_show()
 {
     QWidget w;
-    w.resize(100, 100);
+    w.resize(200, 200);
     w.show();
-    QCOMPARE(w.size(), QSize(100, 100));
+    QCOMPARE(w.size(), QSize(200, 200));
 //    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
 }
 
@@ -86,8 +86,8 @@ void tst_QWidget_window::tst_show_resize()
 {
     QWidget w;
     w.show();
-    w.resize(100, 100);
-    QCOMPARE(w.size(), QSize(100, 100));
+    w.resize(200, 200);
+    QCOMPARE(w.size(), QSize(200, 200));
 //    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
 }
 
@@ -95,10 +95,10 @@ void tst_QWidget_window::tst_show_resize_hide_show()
 {
     QWidget w;
     w.show();
-    w.resize(100, 100);
+    w.resize(200, 200);
     w.hide();
     w.show();
-    QCOMPARE(w.size(), QSize(100, 100));
+    QCOMPARE(w.size(), QSize(200, 200));
 //    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
 }
 
