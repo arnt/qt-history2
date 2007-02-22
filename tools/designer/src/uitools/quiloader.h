@@ -49,6 +49,9 @@ public:
     void setWorkingDirectory(const QDir &dir);
     QDir workingDirectory() const;
 
+    void setScriptingEnabled(bool enabled);
+    bool isScriptingEnabled() const;
+
 private:
     Q_DECLARE_PRIVATE(QUiLoader)
     Q_DISABLE_COPY(QUiLoader)

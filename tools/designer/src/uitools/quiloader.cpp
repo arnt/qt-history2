@@ -534,3 +534,24 @@ QDir QUiLoader::workingDirectory() const
     Q_D(const QUiLoader);
     return d->builder.workingDirectory();
 }
+
+/*!
+   Enable the execution of scripts.
+*/
+
+void QUiLoader::setScriptingEnabled(bool enabled)
+{
+    Q_D(QUiLoader);
+    d->builder.setScriptingEnabled(enabled);
+}
+
+/*!
+   Returns whether the execution of scripts is enabled.
+  \sa setScriptingEnabled()
+*/
+
+bool QUiLoader::isScriptingEnabled() const
+{
+    Q_D(const QUiLoader);
+    return d->builder.isScriptingEnabled();
+}

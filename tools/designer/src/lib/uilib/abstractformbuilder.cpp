@@ -2102,3 +2102,36 @@ QFormScriptRunner *QAbstractFormBuilder::formScriptRunner() const
     return &(QFormBuilderExtra::instance(this)->formScriptRunner());
 }
 #endif
+
+/*!
+   Enable the execution of scripts.
+*/
+
+void QAbstractFormBuilder::setScriptingEnabled(bool enabled)
+{
+#ifdef QT_FORMBUILDER_NO_SCRIPT
+    if (enabled)
+        uiLibWarning(QObject::tr("This version of the uitools library is linked without script support."));
+#else
+    QFormScriptRunner::Options options = formScriptRunner()->options();
+    if (enabled)
+        options &= ~QFormScriptRunner::DisableScripts;
+    else
+        options |= QFormScriptRunner::DisableScripts;
+    formScriptRunner()->setOptions(options);
+#endif
+}
+
+/*!
+   Returns whether the execution of scripts is enabled.
+  \sa setScriptingEnabled()
+*/
+
+bool QAbstractFormBuilder::isScriptingEnabled() const
+{
+#ifdef QT_FORMBUILDER_NO_SCRIPT
+    return false;
+#else
+    return !(formScriptRunner()->options() & QFormScriptRunner::DisableScripts);
+#endif
+}

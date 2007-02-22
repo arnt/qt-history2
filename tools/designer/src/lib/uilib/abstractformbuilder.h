@@ -70,7 +70,7 @@ class DomResourcePixmap;
 
 #ifndef QT_FORMBUILDER_NO_SCRIPT
 class QFormScriptRunner;
-#endif    
+#endif 
 
 class QDESIGNER_UILIB_EXPORT QAbstractFormBuilder
 {
@@ -83,6 +83,9 @@ public:
 
     virtual QWidget *load(QIODevice *dev, QWidget *parentWidget=0);
     virtual void save(QIODevice *dev, QWidget *widget);
+
+    void setScriptingEnabled(bool enabled);
+    bool isScriptingEnabled() const;
 
 protected:
 //
@@ -190,13 +193,13 @@ protected:
 //
     // A Pair of icon path/qrc path.
     typedef QPair<QString, QString> IconPaths;
-    
+ 
     IconPaths iconPaths(const QIcon &) const;
     IconPaths pixmapPaths(const QPixmap &) const;
     void setIconProperty(DomProperty &, const IconPaths &) const;
     void setPixmapProperty(DomProperty &, const IconPaths &) const;
     DomProperty* iconToDomProperty(const QIcon &) const;
-    
+
     static const DomResourcePixmap *domPixmap(const DomProperty* p);
     QIcon domPropertyToIcon(const DomResourcePixmap *);
     QIcon domPropertyToIcon(const DomProperty* p);
@@ -210,7 +213,7 @@ protected:
     int m_defaultSpacing;
     QDir m_workingDirectory;
 
-private:    
+private:
 //
 //  utils
 //
@@ -218,7 +221,7 @@ private:
 
     QAbstractFormBuilder(const QAbstractFormBuilder &other);
     void operator = (const QAbstractFormBuilder &other);
-    
+
     friend QDESIGNER_UILIB_EXPORT DomProperty *variantToDomProperty(QAbstractFormBuilder *abstractFormBuilder, QObject *object, const QString &propertyName, const QVariant &value);
     friend QDESIGNER_UILIB_EXPORT QVariant domPropertyToVariant(QAbstractFormBuilder *abstractFormBuilder,const QMetaObject *meta, const DomProperty *property);
 };
