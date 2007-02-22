@@ -347,22 +347,31 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     switch (ct) {
     case QStyle::CT_PushButton: {
         const QPushButton *psh = static_cast<const QPushButton *>(widg);
-        int minw = -1;
-        // Aqua Style guidelines restrict the size of OK and Cancel buttons to 68 pixels.
-        // However, this doesn't work for German, therefore only do it for English,
-        // I suppose it would be better to do some sort of lookups for languages
-        // that like to have really long words.
-        QString buttonText = removeMnemonics(psh->text());
-        if (buttonText == QLatin1String("OK") || buttonText == QLatin1String("Cancel"))
-            minw = 77 - 8;
+        QString buttonText = removeMnemonics(psh->text());            
         if (buttonText.contains(QLatin1Char('\n')))
-            ret = QSize(minw, -1);
+            ret = QSize(-1, -1);
         else if (sz == QAquaSizeLarge)
-            ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricPushButtonHeight));
+            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricPushButtonHeight));
         else if (sz == QAquaSizeSmall)
-            ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricSmallPushButtonHeight));
+            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallPushButtonHeight));
         else if (sz == QAquaSizeMini)
-            ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricMiniPushButtonHeight));
+            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricMiniPushButtonHeight));
+
+        if (!psh->icon().isNull()){
+            // If the button got an icon, and the icon is larger than the
+            // button, we cant decide on a default size 
+            ret.setWidth(-1);
+            if (ret.height() < psh->iconSize().height())
+                ret.setHeight(-1);
+        }
+        else if (buttonText == QLatin1String("OK") || buttonText == QLatin1String("Cancel")){
+            // Aqua Style guidelines restrict the size of OK and Cancel buttons to 68 pixels.
+            // However, this doesn't work for German, therefore only do it for English,
+            // I suppose it would be better to do some sort of lookups for languages
+            // that like to have really long words.
+            ret.setWidth(77 - 8);
+        }
+
 #if 0 //Not sure we are applying the rules correctly for RadioButtons/CheckBoxes --Sam
     } else if (ct == QStyle::CT_RadioButton) {
         QRadioButton *rdo = static_cast<QRadioButton *>(widg);
@@ -685,6 +694,20 @@ static inline HIRect qt_mac_get_pushbutton_content_bounds(const QStyleOptionButt
 }
 
 /**
+    Calculates the size of the button contents.
+    This includes both the text and the icon.
+*/
+static inline QSize qt_mac_get_push_button_size_for_contents(const QStyleOptionButton *btn)
+{
+    QSize csz;
+    QSize iconSize = btn->icon.isNull() ? QSize() : (btn->iconSize + QSize(2, 0));
+    QRect textRect = btn->fontMetrics.boundingRect(QRect(), Qt::AlignCenter, btn->text);
+    csz.setWidth(iconSize.width() + textRect.width());
+    csz.setHeight(qMax(iconSize.height(), textRect.height()));
+    return csz;
+}
+
+/**
     Checks if the actual contents of btn fits inside the free content bounds of
     'buttonKindToCheck'. Meant as a helper function for 'qt_mac_get_pushbutton_bdi'
     for determining which button kind to use for drawing.
@@ -693,10 +716,10 @@ static inline bool qt_mac_content_fits_in_push_button(const QStyleOptionButton *
 {
     uint tmp = bdi.kind;
     bdi.kind = buttonKindToCheck;
+    QSize contentSize = qt_mac_get_push_button_size_for_contents(btn);
     QRect freeContentRect = qt_qrectForHIRect(qt_mac_get_pushbutton_content_bounds(btn, bdi));
-    QRect contentRect = btn->fontMetrics.boundingRect(freeContentRect, Qt::AlignCenter, btn->text);
     bdi.kind = tmp;
-    return freeContentRect.contains(contentRect, false);
+    return freeContentRect.contains(QRect(freeContentRect.x(), freeContentRect.y(), contentSize.width(), contentSize.height()));
 }
 
 /**
@@ -5017,6 +5040,10 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         }
         break;
     case QStyle::CT_PushButton:
+        // The given content size does not include the icon, if any (!).
+        // So we need to do the calculation our selves:
+        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt))
+            sz = qt_mac_get_push_button_size_for_contents(btn);
         // By default, we fit the contents inside a normal rounded push button.
         // Do this by add enough space around the contents so that rounded
         // borders (including highlighting when active) will show. 
@@ -5158,7 +5185,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         HIThemeGetButtonBackgroundBounds(&myRect, &bdi, &macRect);
         sz.setWidth(sz.width() + int(macRect.size.width - myRect.size.width));
         sz.setHeight(sz.height() + int(macRect.size.height - myRect.size.height));
-    }
+    } 
     return sz;
 }
 
