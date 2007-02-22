@@ -2520,21 +2520,23 @@ void QWidgetPrivate::setConstraints_sys()
 {
 }
 
-void QWidget::scroll(int dx, int dy)
+void QWidgetPrivate::scroll_sys(int dx, int dy)
 {
-    scroll(dx, dy, QRect());
+    scroll_sys(dx, dy, QRect());
 }
 
-void QWidget::scroll(int dx, int dy, const QRect& r)
+void QWidgetPrivate::scroll_sys(int dx, int dy, const QRect &r)
 {
+    Q_Q(QWidget);
+
     const bool valid_rect = r.isValid();
-    if(!updatesEnabled() &&  (valid_rect || children().isEmpty()))
+    if (!q->updatesEnabled() &&  (valid_rect || q->children().isEmpty()))
         return;
 
     if(!valid_rect) {        // scroll children
         QPoint pd(dx, dy);
         QWidgetList moved;
-        QObjectList chldrn = children();
+        QObjectList chldrn = q->children();
         for(int i = 0; i < chldrn.size(); i++) {  //first move all children
             QObject *obj = chldrn.at(i);
             if(obj->isWidgetType()) {
@@ -2558,17 +2560,17 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         }
     }
 
-    if (!testAttribute(Qt::WA_WState_Created))
+    if (!q->testAttribute(Qt::WA_WState_Created))
         return;
 
-    if (HIViewGetNeedsDisplay(qt_mac_hiview_for(this))) {
-        update(valid_rect ? r : rect());
+    if (HIViewGetNeedsDisplay(qt_mac_hiview_for(q))) {
+        q->update(valid_rect ? r : q->rect());
         return;
     }
 
-    if(isVisible()) {
+    if (q->isVisible()) {
         HIRect scrollrect = CGRectMake(r.x(), r.y(), r.width(), r.height());
-        HIViewScrollRect(qt_mac_hiview_for(this), valid_rect ? &scrollrect : 0, dx, dy);
+        HIViewScrollRect(qt_mac_hiview_for(q), valid_rect ? &scrollrect : 0, dx, dy);
     }
 }
 

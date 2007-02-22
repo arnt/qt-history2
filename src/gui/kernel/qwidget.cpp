@@ -7380,6 +7380,60 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
 }
 
 /*!
+    Scrolls the widget including its children \a dx pixels to the
+    right and \a dy downward. Both \a dx and \a dy may be negative.
+
+    After scrolling, the widgets will receive paint events for
+    the areas that need to be repainted. For widgets that Qt knows to
+    be opaque, this is only the newly exposed parts.
+    For example, if an opaque widget is scrolled 8 pixels to the left,
+    only an 8-pixel wide stripe at the right edge needs updating.
+
+    Since widgets propagate the contents of their parents by default,
+    you need to set the \l autoFillBackground property, or use
+    setAttribute() to set the Qt::WA_OpaquePaintEvent attribute, to make
+    a widget opaque.
+
+    For widgets that use contents propagation, a scroll will cause an
+    update of the entire scroll area.
+
+    \sa {Transparency and Double Buffering}
+*/
+
+void QWidget::scroll(int dx, int dy)
+{
+    if (!updatesEnabled() && children().size() == 0 || !isVisible())
+        return;
+    if (dx == 0 && dy == 0)
+        return;
+
+    Q_D(QWidget);
+    d->scroll_sys(dx, dy);
+}
+
+/*!
+    \overload
+
+    This version only scrolls \a r and does not move the children of
+    the widget.
+
+    If \a r is empty or invalid, the result is undefined.
+
+    \sa QScrollArea bitBlt()
+*/
+void QWidget::scroll(int dx, int dy, const QRect &r)
+{
+
+    if (!updatesEnabled() && children().size() == 0 || !isVisible())
+        return;
+    if (dx == 0 && dy == 0)
+        return;
+
+    Q_D(QWidget);
+    d->scroll_sys(dx, dy, r);
+}
+
+/*!
     Repaints the widget directly by calling paintEvent() immediately,
     unless updates are disabled or the widget is hidden.
 

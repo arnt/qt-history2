@@ -786,7 +786,7 @@ LRESULT CALLBACK qJournalRecordProc(int nCode, WPARAM wParam, LPARAM lParam)
    which is good enough for QDockWidget.
 
    Doesn't call SetWindowsHookExA() - this function causes a system-wide
-   freeze if any other app on the system installs a hook and fails to 
+   freeze if any other app on the system installs a hook and fails to
    process events. */
 void QWidgetPrivate::grabMouseWhileInWindow()
 {
@@ -1377,8 +1377,8 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
                 show_sys();
             } else {
-                //If the window is hidden and in maximized state, instead of moving the 
-                // window, set the normal position of the window. 
+                //If the window is hidden and in maximized state, instead of moving the
+                // window, set the normal position of the window.
                 WINDOWPLACEMENT wndpl;
                 GetWindowPlacement(q->internalWinId(), &wndpl);
                 if (wndpl.showCmd == SW_MAXIMIZE && !IsWindowVisible(q->internalWinId())) {
@@ -1444,39 +1444,29 @@ void QWidgetPrivate::setConstraints_sys()
 {
 }
 
-void QWidget::scroll(int dx, int dy)
+void QWidgetPrivate::scroll_sys(int dx, int dy)
 {
-    if (!updatesEnabled() && children().size() == 0 || !isVisible())
-        return;
-    if (dx == 0 && dy == 0)
-        return;
+    Q_Q(QWidget);
+    scrollChildren(dx, dy);
 
-    Q_D(QWidget);
-    d->scrollChildren(dx, dy);
-
-    if (!QWidgetBackingStore::paintOnScreen(this)) {
-        d->scrollRect(rect(), dx, dy);
+    if (!QWidgetBackingStore::paintOnScreen(q)) {
+        scrollRect(q->rect(), dx, dy);
     } else {
         UINT flags = SW_INVALIDATE;
-        if (!testAttribute(Qt::WA_OpaquePaintEvent))
+        if (!q->testAttribute(Qt::WA_OpaquePaintEvent))
             flags |= SW_ERASE;
-        Q_ASSERT(testAttribute(Qt::WA_WState_Created));
-        ScrollWindowEx(internalWinId(), dx, dy, 0, 0, 0, 0, flags);
-        UpdateWindow(internalWinId());
+        Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
+        ScrollWindowEx(q->internalWinId(), dx, dy, 0, 0, 0, 0, flags);
+        UpdateWindow(q->internalWinId());
     }
 }
 
-void QWidget::scroll(int dx, int dy, const QRect& r)
+void QWidgetPrivate::scroll_sys(int dx, int dy, const QRect &r)
 {
-    if (!updatesEnabled() || !isVisible())
-        return;
-    if (dx == 0 && dy == 0)
-        return;
+    Q_Q(QWidget);
 
-    Q_D(QWidget);
-
-    if (!QWidgetBackingStore::paintOnScreen(this)) {
-        d->scrollRect(rect(), dx, dy);
+    if (!QWidgetBackingStore::paintOnScreen(q)) {
+        scrollRect(q->rect(), dx, dy);
     } else {
         RECT wr;
         wr.top = r.top();
@@ -1485,11 +1475,11 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         wr.right = r.right()+1;
 
         UINT flags = SW_INVALIDATE;
-        if (!testAttribute(Qt::WA_OpaquePaintEvent))
+        if (!q->testAttribute(Qt::WA_OpaquePaintEvent))
             flags |= SW_ERASE;
-        Q_ASSERT(testAttribute(Qt::WA_WState_Created));
-        ScrollWindowEx(internalWinId(), dx, dy, &wr, &wr, 0, 0, flags);
-        UpdateWindow(internalWinId());
+        Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
+        ScrollWindowEx(q->internalWinId(), dx, dy, &wr, &wr, 0, 0, flags);
+        UpdateWindow(q->internalWinId());
     }
 }
 

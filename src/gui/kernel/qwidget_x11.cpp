@@ -2120,73 +2120,34 @@ void QWidgetPrivate::setConstraints_sys()
         do_size_hints(q, extra);
 }
 
-
-/*!
-    Scrolls the widget including its children \a dx pixels to the
-    right and \a dy downward. Both \a dx and \a dy may be negative.
-
-    After scrolling, the widgets will receive paint events for
-    the areas that need to be repainted. For widgets that Qt knows to
-    be opaque, this is only the newly exposed parts.
-    For example, if an opaque widget is scrolled 8 pixels to the left,
-    only an 8-pixel wide stripe at the right edge needs updating.
-
-    Since widgets propagate the contents of their parents by default,
-    you need to set the \l autoFillBackground property, or use
-    setAttribute() to set the Qt::WA_OpaquePaintEvent attribute, to make
-    a widget opaque.
-
-    For widgets that use contents propagation, a scroll will cause an
-    update of the entire scroll area.
-
-    \sa {Transparency and Double Buffering}
-*/
-
-void QWidget::scroll(int dx, int dy)
+void QWidgetPrivate::scroll_sys(int dx, int dy)
 {
-    Q_D(QWidget);
-    if (!updatesEnabled() && children().size() == 0 || !isVisible())
-        return;
-    if (dx == 0 && dy == 0)
-        return;
-    d->scrollChildren(dx, dy);
-    if (!QWidgetBackingStore::paintOnScreen(this)) {
-        d->scrollRect(rect(), dx, dy);
+    Q_Q(QWidget);
+
+    scrollChildren(dx, dy);
+    if (!QWidgetBackingStore::paintOnScreen(q)) {
+        scrollRect(q->rect(), dx, dy);
     } else {
-        scroll(dx, dy, QRect());
+        scroll_sys(dx, dy, QRect());
     }
 }
 
-/*!
-    \overload
-
-    This version only scrolls \a r and does not move the children of
-    the widget.
-
-    If \a r is empty or invalid, the result is undefined.
-
-    \sa QScrollArea bitBlt()
-*/
-void QWidget::scroll(int dx, int dy, const QRect& r)
+void QWidgetPrivate::scroll_sys(int dx, int dy, const QRect &r)
 {
+    Q_Q(QWidget);
 
-    Q_D(QWidget);
-    if (!updatesEnabled() && children().size() == 0 || !isVisible())
-        return;
-    if (dx == 0 && dy == 0)
-        return;
-    if (!QWidgetBackingStore::paintOnScreen(this)) {
-        d->scrollRect(r, dx, dy);
-        d->dirtyWidget_sys(r);
+    if (!QWidgetBackingStore::paintOnScreen(q)) {
+        scrollRect(r, dx, dy);
+        dirtyWidget_sys(r);
         return;
     }
     bool valid_rect = r.isValid();
-    bool just_update = qAbs(dx) > width() || qAbs(dy) > height();
-    QRect sr = valid_rect ? r : d->clipRect();
+    bool just_update = qAbs(dx) > q->width() || qAbs(dy) > q->height();
+    QRect sr = valid_rect ? r : clipRect();
     if (just_update) {
-        update();
+        q->update();
     } else if (!valid_rect){
-        d->dirtyOnScreen.translate(dx,dy);
+        dirtyOnScreen.translate(dx,dy);
     }
 
     int x1, y1, x2, y2, w = sr.width(), h = sr.height();
@@ -2215,16 +2176,16 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     Display *dpy = X11->display;
     // Want expose events
     if (w > 0 && h > 0 && !just_update) {
-        GC gc = XCreateGC(dpy, internalWinId(), 0, 0);
+        GC gc = XCreateGC(dpy, q->internalWinId(), 0, 0);
         XSetGraphicsExposures(dpy, gc, True);
-        XCopyArea(dpy, internalWinId(), internalWinId(), gc, x1, y1, w, h, x2, y2);
+        XCopyArea(dpy, q->internalWinId(), q->internalWinId(), gc, x1, y1, w, h, x2, y2);
         XFreeGC(dpy, gc);
     }
 
-    if (!valid_rect && !d->children.isEmpty()) {        // scroll children
+    if (!valid_rect && !children.isEmpty()) {        // scroll children
         QPoint pd(dx, dy);
-        for (int i = 0; i < d->children.size(); ++i) { // move all children
-            register QObject *object = d->children.at(i);
+        for (int i = 0; i < children.size(); ++i) { // move all children
+            register QObject *object = children.at(i);
             if (object->isWidgetType()) {
                 QWidget *w = static_cast<QWidget *>(object);
                 if (!w->isWindow())
@@ -2237,24 +2198,24 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         return;
 
     // Don't let the server be bogged-down with repaint events
-    bool repaint_immediately = (qt_sip_count(this) < 3 && !testAttribute(Qt::WA_WState_InPaintEvent));
+    bool repaint_immediately = (qt_sip_count(q) < 3 && !q->testAttribute(Qt::WA_WState_InPaintEvent));
 
     if (dx) {
         int x = x2 == sr.x() ? sr.x()+w : sr.x();
         if (repaint_immediately)
-            repaint(x, sr.y(), qAbs(dx), sr.height());
+            q->repaint(x, sr.y(), qAbs(dx), sr.height());
         else
-            XClearArea(dpy, data->winid, x, sr.y(), qAbs(dx), sr.height(), True);
+            XClearArea(dpy, data.winid, x, sr.y(), qAbs(dx), sr.height(), True);
     }
     if (dy) {
         int y = y2 == sr.y() ? sr.y()+h : sr.y();
         if (repaint_immediately)
-            repaint(sr.x(), y, sr.width(), qAbs(dy));
+            q->repaint(sr.x(), y, sr.width(), qAbs(dy));
         else
-            XClearArea(dpy, data->winid, sr.x(), y, sr.width(), qAbs(dy), True);
+            XClearArea(dpy, data.winid, sr.x(), y, sr.width(), qAbs(dy), True);
     }
 
-    qt_insert_sip(this, dx, dy); // #### ignores r
+    qt_insert_sip(q, dx, dy); // #### ignores r
 }
 
 /*!

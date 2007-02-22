@@ -885,26 +885,16 @@ QScreen* QWidgetPrivate::getScreen() const
     return qt_screen->subScreens().at(screen < 0 ? 0 : screen);
 }
 
-void QWidget::scroll(int dx, int dy)
+void QWidgetPrivate::scroll_sys(int dx, int dy)
 {
-
-    Q_D(QWidget);
-    if (!updatesEnabled() && children().size() == 0 || !isVisible())
-        return;
-    if (dx == 0 && dy == 0)
-        return;
-    d->scrollChildren(dx, dy);
-    d->scrollRect(rect(), dx, dy);
+    Q_Q(QWidget);
+    scrollChildren(dx, dy);
+    scrollRect(q->rect(), dx, dy);
 }
 
-void QWidget::scroll(int dx, int dy, const QRect& r)
+void QWidgetPrivate::scroll_sys(int dx, int dy, const QRect &r)
 {
-   Q_D(QWidget);
-    if (!updatesEnabled() && children().size() == 0 || !isVisible())
-        return;
-    if (dx == 0 && dy == 0)
-        return;
-    d->scrollRect(r, dx, dy);
+    scrollRect(r, dx, dy);
 }
 
 int QWidget::metric(PaintDeviceMetric m) const

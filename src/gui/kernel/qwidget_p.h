@@ -289,6 +289,8 @@ public:
     void showChildren(bool spontaneous);
     void hideChildren(bool spontaneous);
     void setParent_sys(QWidget *parent, Qt::WindowFlags);
+    void scroll_sys(int dx, int dy);
+    void scroll_sys(int dx, int dy, const QRect &r);
     void deactivateWidgetCleanup();
     void setGeometry_sys(int, int, int, int, bool);
 #ifdef Q_WS_MAC
