@@ -2801,7 +2801,7 @@ void QLineEditPrivate::addCommand(const Command& cmd)
 {
     if (separator && undoState && history[undoState-1].type != Separator) {
         history.resize(undoState + 2);
-        history[undoState++] = Command(Separator, 0, 0);
+        history[undoState++] = Command(Separator, cursor, 0, selstart, selend);
     } else {
         history.resize(undoState + 1);
     }
@@ -2811,11 +2811,12 @@ void QLineEditPrivate::addCommand(const Command& cmd)
 
 void QLineEditPrivate::insert(const QString& s)
 {
+    addCommand(Command(SetSelection, cursor, 0, selstart, selend));
     if (maskData) {
         QString ms = maskString(cursor, s);
         for (int i = 0; i < (int) ms.length(); ++i) {
-            addCommand (Command(DeleteSelection, cursor+i, text.at(cursor+i)));
-            addCommand(Command(Insert, cursor+i, ms.at(i)));
+            addCommand (Command(DeleteSelection, cursor+i, text.at(cursor+i), -1, -1));
+            addCommand(Command(Insert, cursor+i, ms.at(i), -1, -1));
         }
         text.replace(cursor, ms.length(), ms);
         cursor += ms.length();
@@ -2824,7 +2825,7 @@ void QLineEditPrivate::insert(const QString& s)
         int remaining = maxLength - text.length();
         text.insert(cursor, s.left(remaining));
         for (int i = 0; i < (int) s.left(remaining).length(); ++i)
-            addCommand(Command(Insert, cursor++, s.at(i)));
+            addCommand(Command(Insert, cursor++, s.at(i), -1, -1));
     }
     textDirty = true;
 }
@@ -2832,10 +2833,11 @@ void QLineEditPrivate::insert(const QString& s)
 void QLineEditPrivate::del(bool wasBackspace)
 {
     if (cursor < (int) text.length()) {
-        addCommand (Command((CommandType)((maskData?2:0)+(wasBackspace?Remove:Delete)), cursor, text.at(cursor)));
+        addCommand(Command(SetSelection, cursor, 0, selstart, selend));
+        addCommand (Command((CommandType)((maskData?2:0)+(wasBackspace?Remove:Delete)), cursor, text.at(cursor), -1, -1));
         if (maskData) {
             text.replace(cursor, 1, clearString(cursor, 1));
-            addCommand(Command(Insert, cursor, text.at(cursor)));
+            addCommand(Command(Insert, cursor, text.at(cursor), -1, -1));
         } else {
             text.remove(cursor, 1);
         }
@@ -2848,21 +2850,22 @@ void QLineEditPrivate::removeSelectedText()
     if (selstart < selend && selend <= (int) text.length()) {
         separate();
         int i ;
+        addCommand(Command(SetSelection, cursor, 0, selstart, selend));
         if (selstart <= cursor && cursor < selend) {
             // cursor is within the selection. Split up the commands
             // to be able to restore the correct cursor position
             for (i = cursor; i >= selstart; --i)
-                addCommand (Command(DeleteSelection, i, text.at(i)));
+                addCommand (Command(DeleteSelection, i, text.at(i), -1, 1));
             for (i = selend - 1; i > cursor; --i)
-                addCommand (Command(DeleteSelection, i - cursor + selstart - 1, text.at(i)));
+                addCommand (Command(DeleteSelection, i - cursor + selstart - 1, text.at(i), -1, -1));
         } else {
             for (i = selend-1; i >= selstart; --i)
-                addCommand (Command(RemoveSelection, i, text.at(i)));
+                addCommand (Command(RemoveSelection, i, text.at(i), -1, -1));
         }
         if (maskData) {
             text.replace(selstart, selend - selstart,  clearString(selstart, selend - selstart));
             for (int i = 0; i < selend - selstart; ++i)
-                addCommand(Command(Insert, selstart + i, text.at(selstart + i)));
+                addCommand(Command(Insert, selstart + i, text.at(selstart + i), -1, -1));
         } else {
             text.remove(selstart, selend - selstart);
         }
@@ -3224,6 +3227,11 @@ void QLineEditPrivate::undo(int until)
             text.remove(cmd.pos, 1);
             cursor = cmd.pos;
             break;
+        case SetSelection:
+            selstart = cmd.selStart;
+            selend = cmd.selEnd;
+            cursor = cmd.pos;
+            break;
         case Remove:
         case RemoveSelection:
             text.insert(cmd.pos, cmd.uc);
@@ -3240,7 +3248,7 @@ void QLineEditPrivate::undo(int until)
         if (until < 0 && undoState) {
             Command& next = history[undoState-1];
             if (next.type != cmd.type && next.type < RemoveSelection
-                 && !(cmd.type >= RemoveSelection && next.type != Separator))
+                 && (cmd.type < RemoveSelection || next.type == Separator))
                 break;
         }
     }
@@ -3259,6 +3267,11 @@ void QLineEditPrivate::redo() {
             text.insert(cmd.pos, cmd.uc);
             cursor = cmd.pos + 1;
             break;
+        case SetSelection:
+            selstart = cmd.selStart;
+            selend = cmd.selEnd;
+            cursor = cmd.pos;
+            break;
         case Remove:
         case Delete:
         case RemoveSelection:
@@ -3267,12 +3280,15 @@ void QLineEditPrivate::redo() {
             cursor = cmd.pos;
             break;
         case Separator:
-            continue;
+            selstart = cmd.selStart;
+            selend = cmd.selEnd;
+            cursor = cmd.pos;
+            break;
         }
         if (undoState < (int)history.size()) {
             Command& next = history[undoState];
-            if (next.type != cmd.type && cmd.type < RemoveSelection
-                 && !(next.type >= RemoveSelection && cmd.type != Separator))
+            if (next.type != cmd.type && cmd.type < RemoveSelection && next.type != Separator
+                 && (next.type < RemoveSelection || cmd.type == Separator))
                 break;
         }
     }

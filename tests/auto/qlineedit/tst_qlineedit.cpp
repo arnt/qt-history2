@@ -1193,6 +1193,12 @@ void tst_QLineEdit::undo_keypressevents_data()
         // undoing deletion of 'AB'
 	keys.addKeyClick(Qt::Key_Z, Qt::ControlModifier);
 
+        // unselect any current selection
+        keys.addKeyClick(Qt::Key_Right);
+#ifndef Q_WS_MAC //Mac has a specialcase to handle jumping to the end of a selection
+        keys.addKeyClick(Qt::Key_Left);
+#endif
+
         // selecting '12'
 	keys.addKeyClick(Qt::Key_Right, Qt::ShiftModifier);
 	keys.addKeyClick(Qt::Key_Right, Qt::ShiftModifier);
@@ -1204,6 +1210,49 @@ void tst_QLineEdit::undo_keypressevents_data()
 	expectedString << "AB12";
 
 	QTest::newRow("Inserts,moving,selection, delete and undo") << keys << expectedString;
+    }
+
+    {
+	QTestEventList keys;
+	QStringList expectedString;
+
+	// inserting 'ABCD'
+	keys.addKeyClick(Qt::Key_A);
+	keys.addKeyClick(Qt::Key_B);
+	keys.addKeyClick(Qt::Key_C);
+	keys.addKeyClick(Qt::Key_D);
+
+        //move left two
+	keys.addKeyClick(Qt::Key_Left);
+	keys.addKeyClick(Qt::Key_Left);
+
+	// inserting '1234'
+	keys.addKeyClick(Qt::Key_1);
+	keys.addKeyClick(Qt::Key_2);
+	keys.addKeyClick(Qt::Key_3);
+	keys.addKeyClick(Qt::Key_4);
+
+	// selecting '1234'
+	keys.addKeyClick(Qt::Key_Left, Qt::ShiftModifier);
+	keys.addKeyClick(Qt::Key_Left, Qt::ShiftModifier);
+	keys.addKeyClick(Qt::Key_Left, Qt::ShiftModifier);
+	keys.addKeyClick(Qt::Key_Left, Qt::ShiftModifier);
+
+        // overwriting '1234' with '5'
+	keys.addKeyClick(Qt::Key_5);
+
+        // undoing deletion of 'AB'
+	keys.addKeyClick(Qt::Key_Z, Qt::ControlModifier);
+
+        // overwriting '1234' with '6'
+	keys.addKeyClick(Qt::Key_6);
+
+	expectedString << "ab6cd";
+	// for versions previous to 3.2 we overwrite needed two undo operations
+	expectedString << "ab1234cd";
+	expectedString << "abcd";
+
+	QTest::newRow("Inserts,moving,selection and undo, removing selection") << keys << expectedString;
     }
 
     {
