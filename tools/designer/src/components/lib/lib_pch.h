@@ -11,7 +11,5 @@
 **
 ****************************************************************************/
 
-#if defined __cplusplus && !defined __OBJC__
 #include <QtDesigner/QtDesigner>
 #include <QtDesigner/QExtensionManager>
-#endif
