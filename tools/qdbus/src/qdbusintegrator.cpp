@@ -592,6 +592,7 @@ bool QDBusConnectionPrivate::activateCall(QObject* object, int flags,
     if (QDBusMessagePrivate::isLocal(msg)) {
         //qDebug() << "QDBusConnectionPrivate::activateCall" << msg.d_ptr->msg;
         sendCallDeliveryEvent(call);
+        delete call;
     } else {
         postCallDeliveryEvent(call);
     }
