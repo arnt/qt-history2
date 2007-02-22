@@ -242,13 +242,13 @@ AGLPixelFormat QGLContextPrivate::tryFormat(const QGLFormat &format)
     }
     if(format.accum()) {
         attribs[cnt++] = AGL_ACCUM_RED_SIZE;
-        attribs[cnt++] = format.accumBufferSize() == -1 ? 16 : format.accumBufferSize();
+        attribs[cnt++] = format.accumBufferSize() == -1 ? 1 : format.accumBufferSize();
         attribs[cnt++] = AGL_ACCUM_BLUE_SIZE;
-        attribs[cnt++] = format.accumBufferSize() == -1 ? 16 : format.accumBufferSize();
+        attribs[cnt++] = format.accumBufferSize() == -1 ? 1 : format.accumBufferSize();
         attribs[cnt++] = AGL_ACCUM_GREEN_SIZE;
-        attribs[cnt++] = format.accumBufferSize() == -1 ? 16 : format.accumBufferSize();
+        attribs[cnt++] = format.accumBufferSize() == -1 ? 1 : format.accumBufferSize();
         attribs[cnt++] = AGL_ACCUM_ALPHA_SIZE;
-        attribs[cnt++] = format.accumBufferSize() == -1 ? 16 : format.accumBufferSize();
+        attribs[cnt++] = format.accumBufferSize() == -1 ? 1 : format.accumBufferSize();
     }
     if(format.sampleBuffers()) {
         attribs[cnt++] = AGL_SAMPLE_BUFFERS_ARB;
