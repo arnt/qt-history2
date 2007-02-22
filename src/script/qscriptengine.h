@@ -207,8 +207,9 @@ inline QScriptValue qScriptValueFromQMetaObject(
     QScriptEngine *engine
     )
 {
+    QScriptEngine::FunctionSignature fun = qscriptQMetaObjectConstructor<T>;
     return engine->newQMetaObject(&T::staticMetaObject,
-                                  engine->newFunction(qscriptQMetaObjectConstructor<T>));
+                                  engine->newFunction(fun));
 }
 
 #define Q_SCRIPT_DECLARE_QMETAOBJECT(T, _Arg1) \
