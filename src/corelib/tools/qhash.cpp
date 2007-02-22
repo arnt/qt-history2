@@ -17,7 +17,7 @@
 #undef truncate
 #endif
 
-#include <qbytearray.h>
+#include <qbitarray.h>
 #include <qstring.h>
 #include <stdlib.h>
 
@@ -28,10 +28,8 @@
     "a", "aa", "aaa", "aaaa", ...
 */
 
-uint qHash(const QByteArray &key)
+static uint hash(const uchar *p, int n)
 {
-    const uchar *p = reinterpret_cast<const uchar *>(key.data());
-    int n = key.size();
     uint h = 0;
     uint g;
 
@@ -44,10 +42,8 @@ uint qHash(const QByteArray &key)
     return h;
 }
 
-uint qHash(const QString &key)
+static uint hash(const QChar *p, int n)
 {
-    const QChar *p = key.unicode();
-    int n = key.size();
     uint h = 0;
     uint g;
 
@@ -60,20 +56,32 @@ uint qHash(const QString &key)
     return h;
 }
 
+uint qHash(const QByteArray &key)
+{
+    return hash(reinterpret_cast<const uchar *>(key.data()), key.size());
+}
+
+uint qHash(const QString &key)
+{
+    return hash(key.unicode(), key.size());
+}
+
 uint qHash(const QStringRef &key)
 {
-    const QChar *p = key.unicode();
-    int n = key.size();
-    uint h = 0;
-    uint g;
+    return hash(key.unicode(), key.size());
+}
 
-    while (n--) {
-        h = (h << 4) + (*p++).unicode();
-        if ((g = (h & 0xf0000000)) != 0)
-            h ^= g >> 23;
-        h &= ~g;
-    }
-    return h;
+uint qHash(const QBitArray &bitArray)
+{
+    int m = bitArray.d.size() - 1;
+    uint result = hash(reinterpret_cast<const uchar *>(bitArray.d.data()), qMax(0, m));
+
+    // deal with the last 0 to 7 bits manually, because we can't trust that
+    // the padding is initialized to 0 in bitArray.d
+    int n = bitArray.size();
+    if (n & 0x7)
+        result = (result << 4) + bitArray.d.at(m) & ((1 << n) - 1);
+    return result;
 }
 
 /*
@@ -1691,6 +1699,7 @@ void QHashData::checkSanity()
 */
 
 /*! \fn uint qHash(const QByteArray &key)
+    \fn uint qHash(const QBitArray &key)
     \relates QHash
     \overload
 

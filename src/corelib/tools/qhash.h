@@ -24,6 +24,7 @@ QT_BEGIN_HEADER
 #undef QT_QHASH_DEBUG
 QT_MODULE(Core)
 
+class QBitArray;
 class QByteArray;
 class QString;
 class QStringRef;
@@ -57,6 +58,7 @@ inline uint qHash(QChar key) { return qHash(key.unicode()); }
 Q_CORE_EXPORT uint qHash(const QByteArray &key);
 Q_CORE_EXPORT uint qHash(const QString &key);
 Q_CORE_EXPORT uint qHash(const QStringRef &key);
+Q_CORE_EXPORT uint qHash(const QBitArray &key);
 
 #if defined(Q_CC_MSVC)
 #pragma warning( push )
