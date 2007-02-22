@@ -87,7 +87,7 @@ public:
 
     static QDateTimeEdit::Sections convertSections(QDateTimeParser::Sections s);
     static QDateTimeEdit::Section convertToPublic(QDateTimeParser::Section s);
-    
+
     void initCalendarPopup();
     void positionCalendarPopup();
 
@@ -100,7 +100,7 @@ public:
     bool hasHadFocus, formatExplicitlySet, calendarPopup;
     QStyle::StateFlag arrowState;
     QCalendarPopup *monthCalendar;
-    
+
 #ifdef QT_KEYPAD_NAVIGATION
     bool focusOnButton;
 #endif
@@ -265,7 +265,6 @@ void QDateTimeEdit::setDateTime(const QDateTime &datetime)
         if (!(d->sections & DateSections_Mask))
             setDateRange(datetime.date(), datetime.date());
         d->setValue(QVariant(datetime), EmitIfChanged);
-        d->resetUndoHistory();
     }
 }
 
@@ -292,7 +291,6 @@ void QDateTimeEdit::setDate(const QDate &date)
         d->cachedDay = -1;
         d->clearCache();
         d->setValue(QVariant(QDateTime(date, d->value.toTime())), EmitIfChanged);
-        d->resetUndoHistory();
     }
 }
 
@@ -316,7 +314,6 @@ void QDateTimeEdit::setTime(const QTime &time)
         d->clearCache();
         d->cachedDay = -1;
         d->setValue(QVariant(QDateTime(d->value.toDate(), time)), EmitIfChanged);
-        d->resetUndoHistory();
     }
 }
 
@@ -757,7 +754,6 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
         d->edit->setCursorPosition(0);
         QDTEDEBUG << 0;
         d->_q_editorCursorPositionChanged(-1, 0);
-        d->resetUndoHistory();
     }
 }
 
@@ -885,8 +881,8 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *event)
 #ifdef QT_KEYPAD_NAVIGATION
     case Qt::Key_NumberSign:    //shortcut to popup calendar
         if (QApplication::keypadNavigationEnabled() && d->calendarPopup) {
-            d->initCalendarPopup();   
-            d->positionCalendarPopup();        
+            d->initCalendarPopup();
+            d->positionCalendarPopup();
             d->monthCalendar->show();
             return;
         }
@@ -905,13 +901,13 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *event)
                 selectAll();
             } else {
                 setEditFocus(true);
-                
+
                 //hide cursor
                 d->edit->d_func()->setCursorVisible(false);
                 if (d->edit->d_func()->cursorTimer > 0)
                     killTimer(d->edit->d_func()->cursorTimer);
                 d->edit->d_func()->cursorTimer = 0;
-                
+
                 d->setSelected(0);
             }
         }
@@ -1468,7 +1464,7 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
     arrowState = QStyle::State_None;
     monthCalendar = 0;
     readLocaleSettings();
-    
+
 #ifdef QT_KEYPAD_NAVIGATION
     focusOnButton = false;
 #endif
@@ -2248,7 +2244,7 @@ void QDateTimeEditPrivate::positionCalendarPopup()
         pos.setY(screen.top());
     if (pos.y()+size.height() > screen.bottom())
         pos.setY(screen.bottom()-size.height());
-    monthCalendar->move(pos);   
+    monthCalendar->move(pos);
 }
 
 bool QDateTimeEditPrivate::showCalendarPopup() const

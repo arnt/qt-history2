@@ -34,6 +34,7 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
 
     Q_ENUMS(ButtonSymbols)
     Q_ENUMS(CorrectionMode)
+    Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
     Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)
     Q_PROPERTY(bool frame READ hasFrame WRITE setFrame)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
@@ -45,7 +46,6 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_PROPERTY(CorrectionMode correctionMode READ correctionMode WRITE setCorrectionMode)
     Q_PROPERTY(bool undoAvailable READ isUndoAvailable)
     Q_PROPERTY(bool redoAvailable READ isRedoAvailable)
-    Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
     Q_PROPERTY(bool acceptableInput READ hasAcceptableInput)
 public:
     explicit QAbstractSpinBox(QWidget *parent = 0);
@@ -89,8 +89,8 @@ public:
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
 
-    bool isUndoRedoEnabled() const;
-    void setUndoRedoEnabled(bool enable);
+    bool isModified() const;
+    void setModified(bool);
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
