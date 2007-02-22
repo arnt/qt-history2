@@ -71,6 +71,7 @@ static const int MiniButtonH = 26;
 static const int SmallButtonH = 30;
 static const int BevelButtonW = 50;
 static const int BevelButtonH = 22;
+static const int PushButtonContentPadding = 6;
 
 /*
     AHIG:
@@ -359,7 +360,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 
         if (!psh->icon().isNull()){
             // If the button got an icon, and the icon is larger than the
-            // button, we cant decide on a default size 
+            // button, we can't decide on a default size 
             ret.setWidth(-1);
             if (ret.height() < psh->iconSize().height())
                 ret.setHeight(-1);
@@ -700,7 +701,7 @@ static inline HIRect qt_mac_get_pushbutton_content_bounds(const QStyleOptionButt
 static inline QSize qt_mac_get_pushbutton_size_for_contents(const QStyleOptionButton *btn)
 {
     QSize csz;
-    QSize iconSize = btn->icon.isNull() ? QSize() : (btn->iconSize + QSize(2, 0));
+    QSize iconSize = btn->icon.isNull() ? QSize() : (btn->iconSize + QSize(PushButtonContentPadding, 0));
     QRect textRect = btn->fontMetrics.boundingRect(QRect(), Qt::AlignCenter, btn->text);
     csz.setWidth(iconSize.width() + textRect.width());
     csz.setHeight(qMax(iconSize.height(), textRect.height()));
@@ -3167,26 +3168,34 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                     p->restore();
                 }
             } else {
-                QRect br = p->boundingRect(btn->rect, Qt::AlignCenter, btn->text);
-                QIcon::Mode mode = btn->state & State_Enabled ? QIcon::Normal
-                                                              : QIcon::Disabled;
+                // Decide if icon should be normal, active or disabled:
+                QIcon::Mode mode = btn->state & State_Enabled ? QIcon::Normal : QIcon::Disabled;
                 if (mode == QIcon::Normal && btn->state & State_HasFocus)
                     mode = QIcon::Active;
+                // Decide if the icon is should be on or off:    
                 QIcon::State state = QIcon::Off;
                 if (btn->state & State_On)
                     state = QIcon::On;
+                // Calculate the combined with of the actual content:
                 QPixmap pixmap = btn->icon.pixmap(btn->iconSize, mode, state);
-                int pixw = pixmap.width();
-                int pixh = pixmap.height();
-                QPoint btl = br.isEmpty() ? QPoint(btn->rect.center().x() + pixw / 2 + 2, btn->rect.center().y())
-                                          : QPoint(br.x(), br.y() + br.height() / 2);
-                QPoint pixTL(btl.x() - pixw - 2, btl.y() - pixh / 2);
-                int alignmentFlags = Qt::AlignHCenter | Qt::AlignVCenter | Qt::TextShowMnemonic;
-                drawItemPixmap(p, visualRect(btn->direction, btn->rect,
-                                             QRect(pixTL, pixmap.size())), alignmentFlags, pixmap);
-                drawItemText(p, visualRect(btn->direction, btn->rect, br), alignmentFlags,
-                             btn->palette, (btn->state & State_Enabled), btn->text,
-                             QPalette::ButtonText);
+                QRect textRect = btn->fontMetrics.boundingRect(QRect(), Qt::AlignCenter, btn->text);
+                int contentW = pixmap.width() + PushButtonContentPadding + textRect.width();                
+                // Get the free content space inside the button that can be used:
+                HIThemeButtonDrawInfo bdi = qt_mac_get_pushbutton_bdi(btn, w, tds);
+                QRect freeContentRect = qt_qrectForHIRect(qt_mac_get_pushbutton_content_bounds(btn, bdi));
+                // Draw the icon: 
+                int iconLeftOffset = freeContentRect.x() + (freeContentRect.width() - contentW) / 2;
+                int iconTopOffset = freeContentRect.y() + (freeContentRect.height() - pixmap.height()) / 2;
+                QRect iconDestRect = QRect(iconLeftOffset, iconTopOffset, pixmap.width(), pixmap.height());
+                QRect visualIconDestRect = visualRect(btn->direction, freeContentRect, iconDestRect);
+                drawItemPixmap(p, visualIconDestRect, Qt::AlignLeft | Qt::AlignVCenter, pixmap);
+                // Draw the text:
+                int textLeftOffset = iconDestRect.x() + iconDestRect.width() + PushButtonContentPadding;
+                int textTopOffset = freeContentRect.y() + (freeContentRect.height() - textRect.height()) / 2;
+                QRect textDestRect = QRect(textLeftOffset, textTopOffset, textRect.width(), textRect.height());
+                QRect visualTextDestRect = visualRect(btn->direction, freeContentRect, textDestRect);
+                drawItemText(p, visualTextDestRect, Qt::AlignLeft | Qt::AlignVCenter, btn->palette,
+                    (btn->state & State_Enabled), btn->text, QPalette::ButtonText);
             }
         }
         break;
