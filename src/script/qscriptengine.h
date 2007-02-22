@@ -63,7 +63,7 @@ private:
 #ifndef QT_NO_QOBJECT
 
 template <class T>
-static inline QScriptValue qscriptQMetaObjectConstructor(QScriptContext *, QScriptEngine *)
+inline QScriptValue qscriptQMetaObjectConstructor(QScriptContext *, QScriptEngine *)
 {
     return 0;
 }
@@ -218,7 +218,7 @@ inline QScriptValue qScriptValueFromQMetaObject(
 }
 
 #define Q_SCRIPT_DECLARE_QMETAOBJECT(T, _Arg1) \
-template<> static inline QScriptValue qscriptQMetaObjectConstructor<T>(QScriptContext *ctx, QScriptEngine *eng) \
+template<> inline QScriptValue qscriptQMetaObjectConstructor<T>(QScriptContext *ctx, QScriptEngine *eng) \
 { \
     _Arg1 arg1 = qscriptvalue_cast<_Arg1> (ctx->argument(0)); \
     return eng->newQObject(new T(arg1)); \

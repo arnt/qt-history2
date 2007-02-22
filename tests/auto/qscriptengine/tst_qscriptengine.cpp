@@ -243,11 +243,15 @@ void tst_QScriptEngine::createQClass()
     QScriptValue qclass = eng.createQClass<QObject>();
 #else
     QScriptValue qclass = qScriptValueFromQMetaObject<QObject>(&eng);
+    QScriptValue qclass2 = qScriptValueFromQMetaObject<QObject>(&eng);
 #endif
     QCOMPARE(qclass.isValid(), true);
     QCOMPARE(qclass.isObject(), true);
+    QCOMPARE(qclass2.isValid(), true);
+    QCOMPARE(qclass2.isObject(), true);
     // prototype should be QClass.prototype
     QCOMPARE(qclass.prototype().isValid(), true);
+    QCOMPARE(qclass2.prototype().isValid(), true);
 }
 
 void tst_QScriptEngine::globalObject()
