@@ -30,6 +30,7 @@
 #include "qdbusabstractadaptor_p.h"
 #include "qdbusutil_p.h"
 #include "qdbusmessage_p.h"
+#include "qdbuscontext_p.h"
 
 static bool isDebugging;
 #define qDBusDebug              if (!::isDebugging); else qDebug
@@ -216,12 +217,39 @@ static void qDBusToggleWatch(DBusWatch *watch, void *data)
     }
 }
 
-static void qDBusNewConnection(DBusServer *server, DBusConnection *c, void *data)
+static void qDBusNewConnection(DBusServer *server, DBusConnection *connection, void *data)
 {
-    Q_ASSERT(data); Q_ASSERT(server); Q_ASSERT(c);
-    Q_UNUSED(data); Q_UNUSED(server); Q_UNUSED(c);
+    Q_ASSERT(data); Q_UNUSED(data);
+    //QDBusConnectionPrivate *d = static_cast<QDBusConnectionPrivate *>(data);
 
-    qDebug("SERVER: GOT A NEW CONNECTION"); // TODO
+    Q_ASSERT(server); Q_UNUSED(server);
+    //const char *address = dbus_server_get_address(server);
+    //Q_ASSERT(address); // ### for now; handle this case gracefully
+    //delete address;
+    
+    // ### This is an initial untested implementation
+    // ### TODO: test and verify that it works
+    // ### We may want to separate the server from the QDBusConnectionPrivate
+
+    Q_ASSERT(connection);
+
+    dbus_connection_ref(connection); // keep the connection alive
+
+    QDBusConnectionPrivate *d = new QDBusConnectionPrivate;
+
+    // setConnection does the error handling for us
+    d->setConnection(connection);
+
+    const char *name = dbus_bus_get_unique_name(connection);
+    Q_ASSERT(name); // ### for now; handle this case gracefully
+    QString _name = QLatin1String(name);
+    delete name;
+
+    // register the name with the connection manager
+    QDBusConnectionPrivate::setConnection(_name, d);
+
+    QDBusConnection retval(_name);
+    //d->emitNewServerConnection(retval);
 }
 
 static QByteArray buildMatchRule(const QString &service, const QString & /*owner*/,
@@ -659,10 +687,13 @@ void QDBusConnectionPrivate::deliverCall(const CallDeliveryEvent& data) const
         fail = true;
     } else {
         // FIXME: save the old sender!
+        QDBusContextPrivate context(QDBusConnection(name), msg);
+	QDBusContextPrivate *old = QDBusContextPrivate::set(data.object, &context);
         QDBusConnectionPrivate::setSender(this);
         fail = data.object->qt_metacall(QMetaObject::InvokeMetaMethod,
                                         data.slotIdx, params.data()) >= 0;
         QDBusConnectionPrivate::setSender(0);
+	QDBusContextPrivate::set(data.object, old);
     }
 
     // do we create a reply? Only if the caller is waiting for a reply and one hasn't been sent
@@ -1713,6 +1744,7 @@ QString QDBusConnectionPrivate::baseService() const
            QString::fromUtf8(dbus_bus_get_unique_name(connection))
            : QString();
 }
+
 
 void QDBusReplyWaiter::reply(const QDBusMessage &msg)
 {
