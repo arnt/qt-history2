@@ -10,8 +10,7 @@
 #define __MD4_H
 
 #define	MD4_RESULTLEN (128/8)
-#include <stdint.h>
-#include <stdlib.h>
+#include <inttypes.h>
 
 struct md4_context {
 	uint32_t lo, hi;
