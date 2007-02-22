@@ -1743,7 +1743,7 @@ bool QApplicationPrivate::qws_apply_settings()
     if (!str.isEmpty()) {
         QFont font(QApplication::font());
         font.fromString(str);
-        QApplication::setSystemFont(font);
+        QApplicationPrivate::setSystemFont(font);
     }
 
     // read library (ie. plugin) path list
