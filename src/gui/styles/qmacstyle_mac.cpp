@@ -697,7 +697,7 @@ static inline HIRect qt_mac_get_pushbutton_content_bounds(const QStyleOptionButt
     Calculates the size of the button contents.
     This includes both the text and the icon.
 */
-static inline QSize qt_mac_get_push_button_size_for_contents(const QStyleOptionButton *btn)
+static inline QSize qt_mac_get_pushbutton_size_for_contents(const QStyleOptionButton *btn)
 {
     QSize csz;
     QSize iconSize = btn->icon.isNull() ? QSize() : (btn->iconSize + QSize(2, 0));
@@ -716,7 +716,7 @@ static inline bool qt_mac_content_fits_in_push_button(const QStyleOptionButton *
 {
     uint tmp = bdi.kind;
     bdi.kind = buttonKindToCheck;
-    QSize contentSize = qt_mac_get_push_button_size_for_contents(btn);
+    QSize contentSize = qt_mac_get_pushbutton_size_for_contents(btn);
     QRect freeContentRect = qt_qrectForHIRect(qt_mac_get_pushbutton_content_bounds(btn, bdi));
     bdi.kind = tmp;
     return freeContentRect.contains(QRect(freeContentRect.x(), freeContentRect.y(), contentSize.width(), contentSize.height()));
@@ -5043,7 +5043,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         // The given content size does not include the icon, if any (!).
         // So we need to do the calculation our selves:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt))
-            sz = qt_mac_get_push_button_size_for_contents(btn);
+            sz = qt_mac_get_pushbutton_size_for_contents(btn);
         // By default, we fit the contents inside a normal rounded push button.
         // Do this by add enough space around the contents so that rounded
         // borders (including highlighting when active) will show. 
