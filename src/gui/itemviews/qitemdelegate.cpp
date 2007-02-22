@@ -895,7 +895,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
                                          checkRect->size(), check);
         *pixmapRect = QStyle::alignedRect(option.direction, option.decorationAlignment,
                                           pixmapRect->size(), decoration);
-        // the text takes up all awailable space, unless the decoration is not shown as selected
+        // the text takes up all available space, unless the decoration is not shown as selected
         if (option.showDecorationSelected)
             *textRect = display;
         else
