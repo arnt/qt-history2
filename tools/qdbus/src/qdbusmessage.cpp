@@ -53,8 +53,23 @@ QDBusMessage QDBusMessagePrivate::fromError(const QDBusError &error)
     QDBusMessage message;
     message.d_ptr->type = DBUS_MESSAGE_TYPE_ERROR;
     message.d_ptr->name = error.name();
-    message << error.message();
+    message.d_ptr->message = error.message();
     return message;
+}
+
+/*!
+    \since 4.3
+     Returns the human-readable message associated with the error that was received.
+*/
+QString QDBusMessage::errorMessage() const
+{
+    if (d_ptr->type == ErrorMessage) {
+        if (!d_ptr->message.isEmpty())
+           return d_ptr->message;
+        if (!d_ptr->arguments.isEmpty())
+            return d_ptr->arguments.at(0).toString();
+    }
+    return QString();
 }
 
 /*!

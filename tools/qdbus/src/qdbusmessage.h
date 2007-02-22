@@ -59,6 +59,7 @@ public:
     QString interface() const;
     QString member() const;
     QString errorName() const;
+    QString errorMessage() const;
     MessageType type() const;
     QString signature() const;
 

@@ -183,11 +183,9 @@ QDBusError::QDBusError(const QDBusMessage &qdmsg)
     if (qdmsg.type() != QDBusMessage::ErrorMessage)
         return;
 
-    if (qdmsg.arguments().count())
-        msg = qdmsg.arguments().at(0).toString();
-
     code = errorMessages()->get(qdmsg.errorName().toUtf8().constData());
     nm = qdmsg.errorName();
+    msg = qdmsg.errorMessage();
 }
 
 /*!
