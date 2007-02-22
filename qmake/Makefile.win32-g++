@@ -17,7 +17,6 @@ CFLAGS	    =	-c -o$@ -O \
 		-I$(BUILD_PATH)/include -I$(BUILD_PATH)/include/QtCore \
 		-I$(SOURCE_PATH)/include -I$(SOURCE_PATH)/include/QtCore \
 		-I$(BUILD_PATH)/src/corelib/global \
-		-I$(SOURCE_PATH)/src/3rdparty/md5  \
 		-I$(SOURCE_PATH)/mkspecs/win32-g++  \
 		-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NO_PCRE \
 	       	-DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP \
@@ -31,7 +30,7 @@ ADDCLEAN    =
 
 #qmake code
 OBJS        = project.o main.o makefile.o unixmake.o unixmake2.o mingw_make.o \
-              option.o winmakefile.o projectgenerator.o property.o meta.o md5.o \
+              option.o winmakefile.o projectgenerator.o property.o meta.o \
               makefiledeps.o metamakefile.o xmloutput.o pbuilder_pbx.o
 
 ifndef QMAKE_OPENSOURCE_EDITION
@@ -46,6 +45,7 @@ QTOBJS= \
 	qbitarray.o \
 	qbuffer.o \
 	qbytearray.o \
+        qcryptographichash.o \
 	qvsnprintf.o \
 	qbytearraymatcher.o \
 	qconfig.o \
@@ -172,6 +172,9 @@ qhash.o: $(SOURCE_PATH)/src/corelib/tools/qhash.cpp
 qbytearray.o: $(SOURCE_PATH)/src/corelib/tools/qbytearray.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qbytearray.cpp
 
+qcryptographichash.o: $(SOURCE_PATH)/src/corelib/tools/qcryptographichash.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qcryptographichash.cpp
+
 qvsnprintf.o: $(SOURCE_PATH)/src/corelib/tools/qvsnprintf.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qvsnprintf.cpp
 
@@ -279,9 +282,6 @@ msvc_vcproj.o: $(SOURCE_PATH)/qmake/generators/win32/msvc_vcproj.cpp
 
 msvc_objectmodel.o: $(SOURCE_PATH)/qmake/generators/win32/msvc_objectmodel.cpp
 	$(CXX) $(CXXFLAGS) generators/win32/msvc_objectmodel.cpp
-
-md5.o: $(SOURCE_PATH)/src/3rdparty/md5/md5.cpp
-	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/3rdparty/md5/md5.cpp
 
 project.o: $(SOURCE_PATH)/qmake/project.cpp $(SOURCE_PATH)/qmake/project.h $(SOURCE_PATH)/qmake/option.h
 	$(CXX) $(CXXFLAGS) project.cpp

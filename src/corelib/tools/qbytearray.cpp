@@ -3683,6 +3683,81 @@ QByteArray QByteArray::fromBase64(const QByteArray &base64)
     return tmp;
 }
 
+/*!
+    Returns a decoded copy of the hex encoded array \a hexEncoded. Input is not checked
+    for validity; invalid characters in the input are skipped, enabling the
+    decoding process to continue with subsequent characters.
+
+    For example:
+
+    \code
+        QByteArray text = QByteArray::fromHexEncoded("UXQgaXMgZ3JlYXQh");
+        text.data();            // returns "Qt is great!"
+    \endcode
+
+    \sa toHexEncoded()
+*/
+QByteArray QByteArray::fromHex(const QByteArray &hexEncoded)
+{
+    QByteArray res;
+    res.resize(hexEncoded.size() / 2);
+    uchar *result = (uchar *)res.data();
+
+    int i = 0;
+    bool first = true;
+    while (i < hexEncoded.size() - 1) {
+	int ch = hexEncoded.at(i);
+        int tmp;
+        if (ch >= '0' && ch <= '9')
+            tmp = ch - '0';
+        else if (ch >= 'a' && ch <= 'f')
+            tmp = ch - 'a';
+        else if (ch >= 'A' && ch <= 'F')
+            tmp = ch - 'A';
+        else
+            continue;
+        if (first) {
+            *result = tmp << 4;
+            first = false;
+        } else {
+            *result |= tmp;
+            ++result;
+            first = true;
+        }
+    }
+
+    res.truncate(result - (const uchar *)res.constData());
+    return res;
+}
+
+/*!
+    Returns a hex encoded copy of the byte array. The hex encoding uses the numbers 0-9 and
+    the letters a-f.
+
+    \sa toHexEncoded()
+*/
+QByteArray QByteArray::toHex() const
+{
+    QByteArray hex;
+    hex.resize(d->size*2);
+    char *hexData = hex.data();
+    const uchar *data = (const uchar *)d->data;
+    for (int i = 0; i < d->size; ++i) {
+        int j = (data[i] >> 4) & 0xf;
+        if (j <= 9)
+            hexData[i*2] = (j + '0');
+         else
+            hexData[i*2] = (j + 'a' - 10);
+        j = data[i] & 0xf;
+        if (j <= 9)
+            hexData[i*2+1] = (j + '0');
+         else
+            hexData[i*2+1] = (j + 'a' - 10);
+    }
+    return hex;
+}
+
+
 /*! \typedef QByteArray::ConstIterator
     \internal
 */

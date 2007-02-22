@@ -8,7 +8,7 @@ LFLAGS = @QMAKE_LFLAGS@
 #qmake code
 OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o  \
      mingw_make.o option.o winmakefile.o projectgenerator.o \
-     meta.o md5.o makefiledeps.o metamakefile.o xmloutput.o pbuilder_pbx.o \
+     meta.o makefiledeps.o metamakefile.o xmloutput.o pbuilder_pbx.o \
      $(COMMERCIAL_OBJS)
 
 #qt code
@@ -18,7 +18,7 @@ QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o \
       qfsfileengine_iterator.o qregexp.o qvector.o qbitarray.o qdir.o qdiriterator.o quuid.o qhash.o \
       qfileinfo.o qdatetime.o qstringlist.o qabstractfileengine.o qtemporaryfile.o \
       qmap.o qmetatype.o qsettings.o qlibraryinfo.o qvariant.o qvsnprintf.o \
-      qlocale.o qlinkedlist.o qurl.o qnumeric.o \
+      qlocale.o qlinkedlist.o qurl.o qnumeric.o qcryptographichash.o \
       qscriptasm.o qscriptast.o qscriptastvisitor.o \
       qscriptcompiler.o qscriptecmaarray.o qscriptecmaboolean.o \
       qscriptecmacore.o qscriptecmadate.o qscriptecmafunction.o \
@@ -58,7 +58,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp generators/makefile.cpp ge
 	   $(SOURCE_PATH)/src/corelib/tools/qhash.cpp $(SOURCE_PATH)/src/corelib/kernel/qcore_mac.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qtemporaryfile.cpp $(SOURCE_PATH)/src/corelib/kernel/qmetatype.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qsettings.cpp $(SOURCE_PATH)/src/corelib/kernel/qvariant.cpp \
-	   $(SOURCE_PATH)/src/corelib/global/qlibraryinfo.cpp $(SOURCE_PATH)/src/3rdparty/md5/md5.cpp \
+	   $(SOURCE_PATH)/src/corelib/global/qlibraryinfo.cpp $(SOURCE_PATH)/src/corelib/tools/qcryptographichash.cpp \
 	   $(SOURCE_PATH)/src/corelib/tools/qvsnprintf.cpp $(SOURCE_PATH)/src/corelib/global/qnumeric.cpp \
 	   $(SOURCE_PATH)/src/script/qscriptasm.cpp \
 	   $(SOURCE_PATH)/src/script/qscriptast.cpp $(SOURCE_PATH)/src/script/qscriptastvisitor.cpp \
@@ -82,7 +82,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp generators/makefile.cpp ge
 CPPFLAGS = -I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
 	   -I$(SOURCE_PATH)/src/corelib/arch/generic -I$(BUILD_PATH)/include -I$(BUILD_PATH)/include/QtCore \
 	   -I$(SOURCE_PATH)/include -I$(SOURCE_PATH)/include/QtCore -I$(BUILD_PATH)/src/corelib/global \
-	   -I$(SOURCE_PATH)/src/3rdparty/md5 -I$(SOURCE_PATH)/src/script -DQT_NO_PCRE \
+	   -I$(SOURCE_PATH)/src/script -DQT_NO_PCRE \
 	   -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_NO_COMPONENT -DQT_NO_STL -DQT_BUILD_QMAKE \
 	   -DQT_NO_COMPRESS -I$(QMAKESPEC) -DHAVE_QCONFIG_CPP -DQT_NO_THREAD -DQT_NO_QOBJECT \
            -DQT_NO_GEOM_VARIANT $(OPENSOURCE_CXXFLAGS)
@@ -237,8 +237,8 @@ main.o: main.cpp project.h
 option.o: option.cpp option.h $(BUILD_PATH)/src/corelib/global/qconfig.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) option.cpp
 
-md5.o:  $(SOURCE_PATH)/src/3rdparty/md5/md5.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/3rdparty/md5/md5.cpp
+qcryptographichash.o:  $(SOURCE_PATH)/src/corelib/tools/qcryptographichash.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qcryptographichash.cpp
 
 metamakefile.o: generators/metamakefile.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) generators/metamakefile.cpp

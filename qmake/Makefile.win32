@@ -33,7 +33,7 @@ CFLAGS	     = -c -Fo$@ \
 	      -I$(BUILD_PATH)\include -I$(BUILD_PATH)\include\QtCore \
 	      -I$(SOURCE_PATH)\include -I$(SOURCE_PATH)\include\QtCore \
 	      -I$(BUILD_PATH)\src\corelib\global \
-	      -I$(SOURCE_PATH)\src\3rdparty\md5 -I$(SOURCE_PATH)\include\QtScript \
+	      -I$(SOURCE_PATH)\include\QtScript \
               -I$(SOURCE_PATH)\mkspecs\win32-msvc  \
               -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL \
               -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE -DQT_NO_THREAD \
@@ -60,7 +60,6 @@ CFLAGS	    = -c -o$@ \
 	-I$(BUILD_PATH)\include -I$(BUILD_PATH)\include\QtCore \
 	-I$(SOURCE_PATH)\include -I$(SOURCE_PATH)\include\QtCore \
 	-I$(BUILD_PATH)\src\corelib\global \
-	-I$(SOURCE_PATH)\src\3rdparty\md5  \
         -I$(SOURCE_PATH)\mkspecs\win32-msvc  \
 	-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL \
 	-DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE -DQT_NO_THREAD \
@@ -74,7 +73,7 @@ ADDCLEAN    = qmake.tds
 
 #qmake code
 OBJS        = project.obj main.obj makefile.obj unixmake.obj unixmake2.obj mingw_make.obj \
-              option.obj winmakefile.obj projectgenerator.obj property.obj meta.obj md5.obj \
+              option.obj winmakefile.obj projectgenerator.obj property.obj meta.obj \
               makefiledeps.obj metamakefile.obj xmloutput.obj pbuilder_pbx.obj
 
 !IFNDEF QMAKE_OPENSOURCE_EDITION
@@ -88,6 +87,7 @@ CFLAGS      = $(CFLAGS) -DQMAKE_OPENSOURCE_EDITION
 QTOBJS= \
 	qbitarray.obj \
 	qbuffer.obj \
+        qcryptographichash.obj \
 	qfsfileengine.obj \
 	qfsfileengine_iterator.obj \
 	qbytearray.obj \
@@ -166,6 +166,7 @@ qmake.exe: $(OBJS) $(QTOBJS)
 clean::
 	-del qbitarray.obj
 	-del qbuffer.obj
+	-del qcryptograpichash.obj
 	-del qfsfileengine.obj
 	-del qfsfileengine_iterator.obj
 	-del qbytearray.obj
@@ -210,7 +211,6 @@ clean::
 	-del projectgenerator.obj
 	-del property.obj
 	-del meta.obj
-	-del md5.obj
 	-del makefiledeps.obj
 	-del metamakefile.obj
 	-del xmloutput.obj
@@ -309,6 +309,9 @@ qhash.obj: $(SOURCE_PATH)\src\corelib\tools\qhash.cpp
 
 qbytearray.obj: $(SOURCE_PATH)\src\corelib\tools\qbytearray.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qbytearray.cpp
+
+qcryptographichash.obj: $(SOURCE_PATH)\src\corelib\tools\qcryptographichash.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qcryptographichash.cpp
 
 qvsnprintf.obj: $(SOURCE_PATH)\src\corelib\tools\qvsnprintf.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qvsnprintf.cpp
@@ -417,9 +420,6 @@ msvc_vcproj.obj: $(SOURCE_PATH)/qmake/generators/win32/msvc_vcproj.cpp
 
 msvc_objectmodel.obj: $(SOURCE_PATH)/qmake/generators/win32/msvc_objectmodel.cpp
 	$(CXX) $(CXXFLAGS) generators/win32/msvc_objectmodel.cpp
-
-md5.obj: $(SOURCE_PATH)\src\3rdparty\md5\md5.cpp
-	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\3rdparty\md5\md5.cpp
 
 project.obj: $(SOURCE_PATH)/qmake/project.cpp $(SOURCE_PATH)/qmake/project.h $(SOURCE_PATH)/qmake/option.h
 	$(CXX) $(CXXFLAGS) project.cpp

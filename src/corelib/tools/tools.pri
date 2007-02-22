@@ -8,6 +8,7 @@ HEADERS +=  \
 	tools/qcache.h \
 	tools/qchar.h \
 	tools/qcontainerfwd.h \
+	tools/qcryptographichash.h \
 	tools/qdatetime.h \
 	tools/qdatetime_p.h \
 	tools/qhash.h \
@@ -40,6 +41,7 @@ SOURCES += \
 	tools/qbitarray.cpp \
 	tools/qbytearray.cpp \
 	tools/qbytearraymatcher.cpp \
+	tools/qcryptographichash.cpp \
 	tools/qdatetime.cpp \
 	tools/qhash.cpp \
         tools/qline.cpp \

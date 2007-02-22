@@ -13,9 +13,9 @@
 
 #include "msvc_vcproj.h"
 #include "option.h"
-#include "md5.h" // SG's MD5 addon
 #include "xmloutput.h"
 #include <qdir.h>
+#include <qcryptographichash.h>
 #include <qregexp.h>
 #include <qhash.h>
 #include <quuid.h>
@@ -385,7 +385,8 @@ QUuid VcprojGenerator::getProjectUUID(const QString &filename)
     // If none, create one based on the MD5 of absolute project path
     if(uuid.isNull() || !filename.isEmpty()) {
         QString abspath = filename.isEmpty()?project->first("QMAKE_MAKEFILE"):filename;
-        qtMD5(abspath.toUtf8(), (unsigned char*)(&uuid));
+        QByteArray digest = QCryptographicHash::hash(abspath.toUtf8(), QCryptographicHash::Md5);
+        memcpy((unsigned char*)(&uuid), digest.constData(), sizeof(QUuid));
         validUUID = !uuid.isNull();
         uuid.data4[0] = (uuid.data4[0] & 0x3F) | 0x80; // UV_DCE variant
         uuid.data3 = (uuid.data3 & 0x0FFF) | (QUuid::Name<<12);

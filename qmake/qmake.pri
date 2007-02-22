@@ -36,6 +36,7 @@ bootstrap { #Qt code
         qbuffer.cpp \
         qbytearray.cpp \
         qbytearraymatcher.cpp \
+        qcryptographichash.cpp \
         qdatetime.cpp \
         qdir.cpp \
         qdiriterator.cpp \
@@ -64,8 +65,7 @@ bootstrap { #Qt code
 	qlibraryinfo.cpp \
 	qvariant.cpp \
         qvector.cpp \
-        qvsnprintf.cpp \
-        md5.cpp
+        qvsnprintf.cpp 
 
    HEADERS+= \
         qbitarray.h \
@@ -73,6 +73,7 @@ bootstrap { #Qt code
         qbytearray.h \
         qbytearraymatcher.h \
         qchar.h \
+        qcryptographichash.h \
         qdatetime.h \
         qdatetime_p.h \
         qdir.h \
@@ -98,8 +99,7 @@ bootstrap { #Qt code
         qtextstream.h \
         qurl.h \
         quuid.h \
-        qvector.h \
-        md5.h
+        qvector.h 
 
     unix {
         SOURCES += qfsfileengine_unix.cpp qfsfileengine_iterator_unix.cpp

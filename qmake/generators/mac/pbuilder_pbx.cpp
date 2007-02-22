@@ -14,9 +14,9 @@
 #include "pbuilder_pbx.h"
 #include "option.h"
 #include "meta.h"
-#include "md5.h"
 #include <qdir.h>
 #include <qregexp.h>
+#include <qcryptographichash.h>
 #include <qdebug.h>
 #include <stdlib.h>
 #include <time.h>
@@ -28,6 +28,12 @@
 //#define GENERATE_AGGREGRATE_SUBDIR
 
 // Note: this is fairly hacky, but it does the job...
+
+static QString qtMD5(const QByteArray &src)
+{
+    QByteArray digest = QCryptographicHash::hash(src, QCryptographicHash::Md5);
+    return QString::fromLatin1(digest.toHex());
+}
 
 ProjectBuilderMakefileGenerator::ProjectBuilderMakefileGenerator() : UnixMakefileGenerator()
 {
