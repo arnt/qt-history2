@@ -9,14 +9,15 @@
 #ifndef __MD4_H
 #define __MD4_H
 
+#include <qglobal.h>
+
 #define	MD4_RESULTLEN (128/8)
-#include <inttypes.h>
 
 struct md4_context {
-	uint32_t lo, hi;
-	uint32_t a, b, c, d;
+	quint32 lo, hi;
+	quint32 a, b, c, d;
 	unsigned char buffer[64];
-	uint32_t block[MD4_RESULTLEN];
+	quint32 block[MD4_RESULTLEN];
 };
 
 static void md4_init(struct md4_context *ctx);

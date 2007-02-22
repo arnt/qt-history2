@@ -42,18 +42,18 @@
  * memory accesses is just an optimization.  Nothing will break if it
  * doesn't work.
  */
-#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#if defined(__i386__) || defined(__x86_64__)
 #define SET(n) \
-	(*(const uint_fast32_t *)&ptr[(n) * 4])
+	(*(const quint32 *)&ptr[(n) * 4])
 #define GET(n) \
 	SET(n)
 #else
 #define SET(n) \
 	(ctx->block[(n)] = \
-	(uint_fast32_t)ptr[(n) * 4] | \
-	((uint_fast32_t)ptr[(n) * 4 + 1] << 8) | \
-	((uint_fast32_t)ptr[(n) * 4 + 2] << 16) | \
-	((uint_fast32_t)ptr[(n) * 4 + 3] << 24))
+	(quint32)ptr[(n) * 4] | \
+	((quint32)ptr[(n) * 4 + 1] << 8) | \
+	((quint32)ptr[(n) * 4 + 2] << 16) | \
+	((quint32)ptr[(n) * 4 + 3] << 24))
 #define GET(n) \
 	(ctx->block[(n)])
 #endif
