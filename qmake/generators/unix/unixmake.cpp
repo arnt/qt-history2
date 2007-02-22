@@ -140,8 +140,8 @@ UnixMakefileGenerator::init()
             QString pchFlags = var("QMAKE_" + comps[i] + "FLAGS_USE_PRECOMPILE");
 
             QString pchBaseName;
-            if(!project->isEmpty("OBJECTS_DIR")) {
-                pchBaseName = Option::fixPathToTargetOS(project->first("OBJECTS_DIR"));
+            if(!project->isEmpty("PRECOMPILED_DIR")) {
+                pchBaseName = Option::fixPathToTargetOS(project->first("PRECOMPILED_DIR"));
                 if(!pchBaseName.endsWith(Option::dir_sep))
                     pchBaseName += Option::dir_sep;
             }
@@ -334,8 +334,8 @@ QStringList
     if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")
        && file != project->first("QMAKE_IMAGE_COLLECTION")) {
         QString header_prefix;
-        if(!project->isEmpty("OBJECTS_DIR"))
-            header_prefix = project->first("OBJECTS_DIR");
+        if(!project->isEmpty("PRECOMPILED_DIR"))
+            header_prefix = project->first("PRECOMPILED_DIR");
         header_prefix += project->first("QMAKE_ORIG_TARGET") + project->first("QMAKE_PCH_OUTPUT_EXT");
         if (project->isActiveConfig("icc_pch_style")) {
             // icc style

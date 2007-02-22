@@ -201,7 +201,7 @@ void MingwMakefileGenerator::init()
     project->values("TARGET_PRL").append(project->first("TARGET"));
 
     processVars();
-    
+
     if (!project->values("RES_FILE").isEmpty()) {
         project->values("QMAKE_LIBS") += escapeFilePaths(project->values("RES_FILE"));
     }
@@ -233,7 +233,7 @@ void MingwMakefileGenerator::init()
     // precomp
     if (!project->first("PRECOMPILED_HEADER").isEmpty()
         && project->isActiveConfig("precompile_header")) {
-        QString preCompHeader = var("OBJECTS_DIR")
+        QString preCompHeader = var("PRECOMPILED_DIR")
 		         + QFileInfo(project->first("PRECOMPILED_HEADER")).fileName();
 	preCompHeaderOut = preCompHeader + ".gch";
 	project->values("QMAKE_CLEAN").append(preCompHeaderOut + Option::dir_sep + "c");
@@ -272,7 +272,7 @@ void MingwMakefileGenerator::fixTargetExt()
 void MingwMakefileGenerator::writeIncPart(QTextStream &t)
 {
     t << "INCPATH       = ";
-    
+
     QStringList &incs = project->values("INCLUDEPATH");
     for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
         QString inc = (*incit);

@@ -194,38 +194,38 @@ MakefileGenerator::initOutPaths()
     QString currentDir = qmake_getpwd(); //just to go back to
 
     //some builtin directories
+    if(project->isEmpty("PRECOMPILED_DIR") && !project->isEmpty("OBJECTS_DIR"))
+        v["PRECOMPILED_DIR"] = v["OBJECTS_DIR"];
     QString dirs[] = { QString("OBJECTS_DIR"), QString("DESTDIR"), QString("QMAKE_PKGCONFIG_DESTDIR"),
                        QString("SUBLIBS_DIR"), QString("DLLDESTDIR"), QString("QMAKE_LIBTOOL_DESTDIR"),
                        QString("PRECOMPILED_DIR"), QString() };
-    for(int x = 0; true; x++) {
-        if(dirs[x].isNull())
-            break;
-        if(!v[dirs[x]].isEmpty()) {
-            const QString orig_path = v[dirs[x]].first();
+    for(int x = 0; !dirs[x].isEmpty(); x++) {
+        if(v[dirs[x]].isEmpty())
+            continue;
+        const QString orig_path = v[dirs[x]].first();
 
-            QString &pathRef = v[dirs[x]].first();
-            pathRef = fileFixify(pathRef, Option::output_dir, Option::output_dir);
+        QString &pathRef = v[dirs[x]].first();
+        pathRef = fileFixify(pathRef, Option::output_dir, Option::output_dir);
 
 #ifdef Q_OS_WIN
-            // We don't want to add a separator for DLLDESTDIR on Windows
-            if(!(dirs[x] == "DLLDESTDIR"))
+        // We don't want to add a separator for DLLDESTDIR on Windows (###why?)
+        if(!(dirs[x] == "DLLDESTDIR"))
 #endif
-            {
-                if(pathRef.right(Option::dir_sep.length()) != Option::dir_sep)
-                    pathRef += Option::dir_sep;
-            }
-
-            if(noIO())
-                continue;
-
-            QString path = project->first(dirs[x]); //not to be changed any further
-            path = fileFixify(path, currentDir, Option::output_dir);
-            debug_msg(3, "Fixed output_dir %s (%s) into %s", dirs[x].toLatin1().constData(),
-                      orig_path.toLatin1().constData(), path.toLatin1().constData());
-            if(!mkdir(path))
-                warn_msg(WarnLogic, "%s: Cannot access directory '%s'", dirs[x].toLatin1().constData(),
-                         path.toLatin1().constData());
+        {
+            if(pathRef.right(Option::dir_sep.length()) != Option::dir_sep)
+                pathRef += Option::dir_sep;
         }
+
+        if(noIO())
+            continue;
+
+        QString path = project->first(dirs[x]); //not to be changed any further
+        path = fileFixify(path, currentDir, Option::output_dir);
+        debug_msg(3, "Fixed output_dir %s (%s) into %s", dirs[x].toLatin1().constData(),
+                  orig_path.toLatin1().constData(), path.toLatin1().constData());
+        if(!mkdir(path))
+            warn_msg(WarnLogic, "%s: Cannot access directory '%s'", dirs[x].toLatin1().constData(),
+                     path.toLatin1().constData());
     }
 
     //out paths from the extra compilers
@@ -1149,38 +1149,23 @@ MakefileGenerator::usePlatformDir()
     QChar sep = QDir::separator();
     QString slashPltDir = sep + pltDir;
 
-    QString filePath = project->first("DESTDIR");
-    project->values("DESTDIR") = QStringList(filePath + (filePath.isEmpty() ? pltDir : slashPltDir));
+    QString dirs[] = { QString("OBJECTS_DIR"), QString("DESTDIR"), QString("QMAKE_PKGCONFIG_DESTDIR"),
+                       QString("SUBLIBS_DIR"), QString("DLLDESTDIR"), QString("QMAKE_LIBTOOL_DESTDIR"),
+                       QString("PRECOMPILED_DIR"), QString("QMAKE_LIBDIR_QT"), QString() };
+    for(int i = 0; !dirs[i].isEmpty(); ++i) {
+        QString filePath = project->first(dirs[i]);
+        project->values(dirs[i]) = QStringList(filePath + (filePath.isEmpty() ? pltDir : slashPltDir));
+    }
 
-    filePath = project->first("DLLDESTDIR");
-    project->values("DLLDESTDIR") = QStringList(filePath + (filePath.isEmpty() ? pltDir : slashPltDir));
-
-    filePath = project->first("OBJECTS_DIR");
-    project->values("OBJECTS_DIR") = QStringList(filePath + (filePath.isEmpty() ? pltDir : slashPltDir));
-
-    filePath = project->first("QMAKE_LIBDIR_QT");
-    project->values("QMAKE_LIBDIR_QT") = QStringList(filePath + (filePath.isEmpty() ? pltDir : slashPltDir));
-
-    filePath = project->first("QMAKE_LIBS_QT");
-    int fpi = filePath.lastIndexOf(sep);
-    if(fpi == -1)
-        project->values("QMAKE_LIBS_QT").prepend(pltDir + sep);
-    else
-        project->values("QMAKE_LIBS_QT") = QStringList(filePath.left(fpi) + slashPltDir + filePath.mid(fpi));
-
-    filePath = project->first("QMAKE_LIBS_QT_THREAD");
-    fpi = filePath.lastIndexOf(sep);
-    if(fpi == -1)
-        project->values("QMAKE_LIBS_QT_THREAD").prepend(pltDir + sep);
-    else
-        project->values("QMAKE_LIBS_QT_THREAD") = QStringList(filePath.left(fpi) + slashPltDir + filePath.mid(fpi));
-
-    filePath = project->first("QMAKE_LIBS_QT_ENTRY");
-    fpi = filePath.lastIndexOf(sep);
-    if(fpi == -1)
-        project->values("QMAKE_LIBS_QT_ENTRY").prepend(pltDir + sep);
-    else
-        project->values("QMAKE_LIBS_QT_ENTRY") = QStringList(filePath.left(fpi) + slashPltDir + filePath.mid(fpi));
+    QString libs[] = { QString("QMAKE_LIBS_QT"), QString("QMAKE_LIBS_QT_THREAD"), QString("QMAKE_LIBS_QT_ENTRY"), QString() };
+    for(int i = 0; !libs[i].isEmpty(); ++i) {
+        QString filePath = project->first(libs[i]);
+        int fpi = filePath.lastIndexOf(sep);
+        if(fpi == -1)
+            project->values(libs[i]).prepend(pltDir + sep);
+        else
+            project->values(libs[i]) = QStringList(filePath.left(fpi) + slashPltDir + filePath.mid(fpi));
+    }
 }
 
 void

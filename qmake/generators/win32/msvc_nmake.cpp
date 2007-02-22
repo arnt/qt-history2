@@ -168,8 +168,8 @@ void NmakeMakefileGenerator::init()
     usePCH = !precompH.isEmpty() && project->isActiveConfig("precompile_header");
     if (usePCH) {
         // Created files
-        precompObj = var("OBJECTS_DIR") + project->first("TARGET") + "_pch" + Option::obj_ext;
-        precompPch = var("OBJECTS_DIR") + project->first("TARGET") + "_pch.pch";
+        precompObj = var("PRECOMPILED_DIR") + project->first("TARGET") + "_pch" + Option::obj_ext;
+        precompPch = var("PRECOMPILED_DIR") + project->first("TARGET") + "_pch.pch";
         // Add linking of precompObj (required for whole precompiled classes)
         project->values("OBJECTS")                  += precompObj;
         // Add pch file to cleanup

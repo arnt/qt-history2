@@ -816,16 +816,16 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         QStringList precomp_files;
         QString precomph_out_dir;
 
-        if(!project->isEmpty("OBJECTS_DIR"))
-            precomph_out_dir = project->first("OBJECTS_DIR");
+        if(!project->isEmpty("PRECOMPILED_DIR"))
+            precomph_out_dir = project->first("PRECOMPILED_DIR");
         precomph_out_dir += project->first("QMAKE_ORIG_TARGET") + project->first("QMAKE_PCH_OUTPUT_EXT");
 
         if (project->isActiveConfig("icc_pch_style")) {
             // icc style
             QString pchBaseName = project->first("QMAKE_ORIG_TARGET");
             QString pchOutput;
-            if(!project->isEmpty("OBJECTS_DIR"))
-                pchOutput = project->first("OBJECTS_DIR");
+            if(!project->isEmpty("PRECOMPILED_DIR"))
+                pchOutput = project->first("PRECOMPILED_DIR");
             pchOutput += pchBaseName + project->first("QMAKE_PCH_OUTPUT_EXT");
             QString sourceFile = pchOutput + Option::cpp_ext.first();
             QString objectFile = createObjectList(QStringList(sourceFile)).first();
@@ -908,8 +908,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
             QString pchBaseName = project->first("QMAKE_ORIG_TARGET");
             QString pchOutput;
-            if(!project->isEmpty("OBJECTS_DIR"))
-                pchOutput = project->first("OBJECTS_DIR");
+            if(!project->isEmpty("PRECOMPILED_DIR"))
+                pchOutput = project->first("PRECOMPILED_DIR");
             pchOutput += pchBaseName + project->first("QMAKE_PCH_OUTPUT_EXT");
 
             if (project->isActiveConfig("icc_pch_style")) {

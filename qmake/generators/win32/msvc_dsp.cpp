@@ -353,8 +353,8 @@ DspMakefileGenerator::init()
     usePCH = !precompH.isEmpty() && project->isActiveConfig("precompile_header");
     if (usePCH) {
         // Created files
-        precompObj = var("OBJECTS_DIR") + project->first("TARGET") + "_pch" + Option::obj_ext;
-        precompPch = var("OBJECTS_DIR") + project->first("TARGET") + "_pch.pch";
+        precompObj = var("PRECOMPILED_DIR") + project->first("TARGET") + "_pch" + Option::obj_ext;
+        precompPch = var("PRECOMPILED_DIR") + project->first("TARGET") + "_pch.pch";
 
         // Add PRECOMPILED_HEADER to HEADERS
         if (!project->values("HEADERS").contains(precompH))
