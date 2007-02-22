@@ -84,30 +84,17 @@ public:
     };
 
     struct ObjectTreeNode
-    {
-        struct Data
-        {
-            QString name;
-            ObjectTreeNode *node;
-
-            inline bool operator<(const QString &other) const
-            { return name < other; }
-        };
-        typedef QVector<Data> DataList;
+    {    
+        typedef QVector<ObjectTreeNode> DataList;
 
         inline ObjectTreeNode() : obj(0), flags(0) { }
-        inline ~ObjectTreeNode() { clear(); }
-        inline void clear()
-        {
-            DataList::ConstIterator it = children.constBegin();
-            DataList::ConstIterator end = children.constEnd();
-            for ( ; it != end; ++it) {
-                it->node->clear();
-                delete it->node;
-            }
-            children.clear();
-        }
+        inline ObjectTreeNode(const QString &n) // intentionally implicit
+            : name(n), obj(0), flags(0) { }
+        inline ~ObjectTreeNode() { }
+        inline bool operator<(const QString &other) const
+             { return name < other; }
 
+        QString name;
         QObject* obj;
         int flags;
         DataList children;

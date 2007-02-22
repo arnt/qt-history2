@@ -124,12 +124,10 @@ QString qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode *node
             node->children.constBegin();
         QDBusConnectionPrivate::ObjectTreeNode::DataList::ConstIterator end =
             node->children.constEnd();
-        for ( ; it != end; ++it) {
-            const QDBusConnectionPrivate::ObjectTreeNode::Data &entry = *it;
-            if (entry.node && (entry.node->obj || !entry.node->children.isEmpty()))
+        for ( ; it != end; ++it)
+            if (it->obj || !it->children.isEmpty())
                 xml_data += QString::fromLatin1("  <node name=\"%1\"/>\n")
-                            .arg(entry.name);
-        }
+                            .arg(it->name);
     }
 
     xml_data += QLatin1String("</node>\n");

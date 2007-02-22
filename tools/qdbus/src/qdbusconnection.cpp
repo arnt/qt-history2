@@ -687,11 +687,11 @@ bool QDBusConnection::registerObject(const QString &path, QObject *object, Regis
         }
 
         // find the position where we'd insert the node
-        QVector<QDBusConnectionPrivate::ObjectTreeNode::Data>::Iterator it =
+        QDBusConnectionPrivate::ObjectTreeNode::DataList::Iterator it =
             qLowerBound(node->children.begin(), node->children.end(), pathComponents.at(i));
-        if (it != node->children.constEnd() && it->name == pathComponents.at(i)) {
+        if (it != node->children.end() && it->name == pathComponents.at(i)) {
             // match: this node exists
-            node = it->node;
+            node = it;
 
             // are we allowed to go deeper?
             if (node->flags & ExportChildObjects) {
@@ -702,12 +702,7 @@ bool QDBusConnection::registerObject(const QString &path, QObject *object, Regis
             }
         } else {
             // add entry
-            QDBusConnectionPrivate::ObjectTreeNode::Data entry;
-            entry.name = pathComponents.at(i);
-            entry.node = new QDBusConnectionPrivate::ObjectTreeNode;
-            node->children.insert(it, entry);
-
-            node = entry.node;
+            node = node->children.insert(it, pathComponents.at(i));
         }
 
         // iterate
@@ -743,19 +738,19 @@ void QDBusConnection::unregisterObject(const QString &path, UnregisterMode mode)
 
             if (mode == UnregisterTree) {
                 // clear the sub-tree as well
-                node->clear();  // can't disconnect the objects because we really don't know if they can
-                                // be found somewhere else in the path too
+                node->children.clear();  // can't disconnect the objects because we really don't know if they can
+                                         // be found somewhere else in the path too
             }
 
             return;
         }
 
-        QVector<QDBusConnectionPrivate::ObjectTreeNode::Data>::ConstIterator it =
-            qLowerBound(node->children.constBegin(), node->children.constEnd(), pathComponents.at(i));
-        if (it == node->children.constEnd() || it->name != pathComponents.at(i))
+        QDBusConnectionPrivate::ObjectTreeNode::DataList::Iterator it =
+            qLowerBound(node->children.begin(), node->children.end(), pathComponents.at(i));
+        if (it == node->children.end() || it->name != pathComponents.at(i))
             break;              // node not found
 
-        node = it->node;
+        node = it;
         ++i;
     }
 }
@@ -776,19 +771,19 @@ QObject *QDBusConnection::objectRegisteredAt(const QString &path) const
         pathComponents.removeLast();
 
     // lower-bound search for where this object should enter in the tree
-    QDBusConnectionPrivate::ObjectTreeNode *node = &d->rootNode;
+    const QDBusConnectionPrivate::ObjectTreeNode *node = &d->rootNode;
 
     int i = 1;
     while (node) {
         if (pathComponents.count() == i)
             return node->obj;
 
-        QVector<QDBusConnectionPrivate::ObjectTreeNode::Data>::ConstIterator it =
+        QDBusConnectionPrivate::ObjectTreeNode::DataList::ConstIterator it =
             qLowerBound(node->children.constBegin(), node->children.constEnd(), pathComponents.at(i));
         if (it == node->children.constEnd() || it->name != pathComponents.at(i))
             break;              // node not found
 
-        node = it->node;
+        node = it;
         ++i;
     }
     return 0;

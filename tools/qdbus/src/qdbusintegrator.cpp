@@ -325,10 +325,10 @@ bool QDBusConnectionPrivate::handleMessage(const QDBusMessage &amsg)
 
 static void huntAndDestroy(QObject *needle, QDBusConnectionPrivate::ObjectTreeNode *haystack)
 {
-    QDBusConnectionPrivate::ObjectTreeNode::DataList::ConstIterator it = haystack->children.constBegin();
-    QDBusConnectionPrivate::ObjectTreeNode::DataList::ConstIterator end = haystack->children.constEnd();
+    QDBusConnectionPrivate::ObjectTreeNode::DataList::Iterator it = haystack->children.begin();
+    QDBusConnectionPrivate::ObjectTreeNode::DataList::Iterator end = haystack->children.end();
     for ( ; it != end; ++it)
-        huntAndDestroy(needle, it->node);
+        huntAndDestroy(needle, it);
 
     if (needle == haystack->obj) {
         haystack->obj = 0;
@@ -337,13 +337,13 @@ static void huntAndDestroy(QObject *needle, QDBusConnectionPrivate::ObjectTreeNo
 }
 
 static void huntAndEmit(DBusConnection *connection, DBusMessage *msg,
-                        QObject *needle, QDBusConnectionPrivate::ObjectTreeNode *haystack,
+                        QObject *needle, const QDBusConnectionPrivate::ObjectTreeNode *haystack,
                         bool isScriptable, bool isAdaptor, const QString &path = QString())
 {
     QDBusConnectionPrivate::ObjectTreeNode::DataList::ConstIterator it = haystack->children.constBegin();
     QDBusConnectionPrivate::ObjectTreeNode::DataList::ConstIterator end = haystack->children.constEnd();
     for ( ; it != end; ++it)
-        huntAndEmit(connection, msg, needle, it->node, isScriptable, isAdaptor, path + QLatin1String("/") + it->name);
+        huntAndEmit(connection, msg, needle, it, isScriptable, isAdaptor, path + QLatin1String("/") + it->name);
 
     if (needle == haystack->obj) {
         // is this a signal we should relay?
@@ -730,7 +730,8 @@ void QDBusConnectionPrivate::customEvent(QEvent *e)
 }
 
 QDBusConnectionPrivate::QDBusConnectionPrivate(QObject *p)
-    : QObject(p), ref(1), mode(InvalidMode), connection(0), server(0), busService(0)
+    : QObject(p), ref(1), mode(InvalidMode), connection(0), server(0), busService(0),
+      rootNode(QString(QLatin1Char('/')))
 {
     extern bool qDBusInitThreads();
     static const bool threads = qDBusInitThreads();
@@ -754,7 +755,7 @@ QDBusConnectionPrivate::~QDBusConnectionPrivate()
         dbus_error_free(&error);
 
     closeConnection();
-    rootNode.clear();        // free resources
+    rootNode.children.clear();  // free resources
     qDeleteAll(cachedMetaObjects);
 }
 
@@ -1074,15 +1075,15 @@ bool QDBusConnectionPrivate::activateObject(const ObjectTreeNode *node, const QD
 }
 
 template<typename Func>
-static bool applyForObject(QDBusConnectionPrivate::ObjectTreeNode *root, const QString &fullpath,
-                           Func& functor)
+static bool applyForObject(const QDBusConnectionPrivate::ObjectTreeNode *root,
+                           const QString &fullpath, Func& functor)
 {
     // walk the object tree
     QStringList path = fullpath.split(QLatin1Char('/'));
     if (path.last().isEmpty())
         path.removeLast();      // happens if path is "/"
     int i = 1;
-    QDBusConnectionPrivate::ObjectTreeNode *node = root;
+    const QDBusConnectionPrivate::ObjectTreeNode *node = root;
 
     // try our own tree first
     while (node && !(node->flags & QDBusConnection::ExportChildObjects) ) {
@@ -1092,11 +1093,11 @@ static bool applyForObject(QDBusConnectionPrivate::ObjectTreeNode *root, const Q
             return true;
         }
 
-        QVector<QDBusConnectionPrivate::ObjectTreeNode::Data>::ConstIterator it =
+        QDBusConnectionPrivate::ObjectTreeNode::DataList::ConstIterator it =
             qLowerBound(node->children.constBegin(), node->children.constEnd(), path.at(i));
         if (it != node->children.constEnd() && it->name == path.at(i))
             // match
-            node = it->node;
+            node = it;
         else
             node = 0;
 
@@ -1151,7 +1152,7 @@ struct qdbus_callObject
         : self(s), msg(m), returnVal(false)
     { }
 
-    inline void operator()(QDBusConnectionPrivate::ObjectTreeNode *node)
+    inline void operator()(const QDBusConnectionPrivate::ObjectTreeNode *node)
     { }
 };
 
@@ -1178,7 +1179,7 @@ struct qdbus_activateObject
         : self(s), msg(m), returnVal(false)
     { }
 
-    inline void operator()(QDBusConnectionPrivate::ObjectTreeNode *node)
+    inline void operator()(const QDBusConnectionPrivate::ObjectTreeNode *node)
     { returnVal = self->activateObject(node, msg); }
 };
 
@@ -1670,8 +1671,8 @@ QString QDBusConnectionPrivate::getNameOwner(const QString& serviceName)
 struct qdbus_Introspect
 {
     QString xml;
-    inline void operator()(QDBusConnectionPrivate::ObjectTreeNode *node)
-  { xml = qDBusIntrospectObject(node); }
+    inline void operator()(const QDBusConnectionPrivate::ObjectTreeNode *node)
+    { xml = qDBusIntrospectObject(node); }
 };
 
 QDBusMetaObject *
