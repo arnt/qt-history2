@@ -71,9 +71,6 @@ inline QScriptValue qscriptQMetaObjectConstructor(QScriptContext *, QScriptEngin
 template <class T>
 inline QScriptValue qScriptValueFromQMetaObject(
     QScriptEngine *engine
-#ifndef qdoc
-    , T * /* dummy */ = 0
-#endif
     );
 
 #endif // QT_NO_QOBJECT
@@ -208,9 +205,6 @@ private:
 template <class T>
 inline QScriptValue qScriptValueFromQMetaObject(
     QScriptEngine *engine
-#ifndef qdoc
-    , T * /* dummy */ = 0
-#endif
     )
 {
     return engine->newQMetaObject(&T::staticMetaObject,
