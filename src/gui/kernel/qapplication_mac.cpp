@@ -431,7 +431,11 @@ void qt_mac_update_os_settings()
     Str255 f_name;
     SInt16 f_size;
     Style f_style;
-    GetThemeFont(kThemeApplicationFont, smSystemScript, f_name, &f_size, &f_style);
+    // Set this to Roman here, the reason why is that ATSU apparently does the correct thing
+    // for interpreting characters for other locales (I hope).
+    static const ScriptCode Script = smRoman;
+
+    GetThemeFont(kThemeApplicationFont, Script, f_name, &f_size, &f_style);
     QFont fnt(qt_mac_from_pascal_string(f_name), f_size,
               (f_style & ::bold) ? QFont::Bold : QFont::Normal,
               (bool)(f_style & ::italic));
@@ -467,7 +471,7 @@ void qt_mac_update_os_settings()
         SInt16 f_size;
         Style f_style;
         for(int i = 0; mac_widget_fonts[i].qt_class; i++) {
-            GetThemeFont(mac_widget_fonts[i].font_key, smSystemScript, f_name, &f_size, &f_style);
+            GetThemeFont(mac_widget_fonts[i].font_key, Script, f_name, &f_size, &f_style);
             QFont fnt(qt_mac_from_pascal_string(f_name), f_size, (f_style & ::bold) ? QFont::Bold : QFont::Normal,
                       (bool)(f_style & ::italic));
             bool set_font = true;
