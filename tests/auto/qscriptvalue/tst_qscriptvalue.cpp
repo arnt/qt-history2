@@ -39,8 +39,8 @@ private slots:
     void toObject();
     void toPrimitive();
     void instanceOf();
-    void getSetProperty();
     void getSetPrototype();
+    void getSetProperty();
     void call();
     void construct();
     void lessThan();
@@ -833,6 +833,23 @@ void tst_QScriptValue::getSetProperty()
     QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setProperty() failed: cannot set value created in a different engine");
     object.setProperty("oof", num);
     QCOMPARE(object.property("oof").isValid(), false);
+
+    // test ResolveMode
+    QScriptValue object2 = eng.newObject();
+    object.setPrototype(object2);
+    QScriptValue num2 = QScriptValue(&eng, 456.0);
+    object2.setProperty("propertyInPrototype", num2);
+    // default is ResolvePrototype
+    QCOMPARE(object.property("propertyInPrototype")
+             .strictEqualTo(num2), true);
+    QCOMPARE(object.property("propertyInPrototype", QScriptValue::ResolvePrototype)
+             .strictEqualTo(num2), true);
+    QCOMPARE(object.property("propertyInPrototype", QScriptValue::ResolveLocal)
+             .isValid(), false);
+    QCOMPARE(object.property("propertyInPrototype", QScriptValue::ResolveScope)
+             .strictEqualTo(num2), false);
+    QCOMPARE(object.property("propertyInPrototype", QScriptValue::ResolveFull)
+             .strictEqualTo(num2), true);
 }
 
 void tst_QScriptValue::getSetPrototype()

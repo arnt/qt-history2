@@ -140,17 +140,17 @@ public:
     void setPrototype(const QScriptValue &prototype);
 
     QScriptValue property(const QScriptNameId &nameId,
-                          const ResolveFlags &mode = ResolveLocal) const;
+                          const ResolveFlags &mode = ResolvePrototype) const;
     void setProperty(const QScriptNameId &nameId, const QScriptValue &value,
                      const PropertyFlags &flags = 0);
 
     QScriptValue property(const QString &name,
-                          const ResolveFlags &mode = ResolveLocal) const;
+                          const ResolveFlags &mode = ResolvePrototype) const;
     void setProperty(const QString &name, const QScriptValue &value,
                      const PropertyFlags &flags = 0);
 
     QScriptValue property(quint32 arrayIndex,
-                          const ResolveFlags &mode = ResolveLocal) const;
+                          const ResolveFlags &mode = ResolvePrototype) const;
     void setProperty(quint32 arrayIndex, const QScriptValue &value,
                      const PropertyFlags &flags = 0);
 

@@ -100,9 +100,9 @@
 
     This enum specifies how to look up a property of an object.
 
-    \value ResolveLocal Only check the object's own properties. This is the default.
+    \value ResolveLocal Only check the object's own properties.
 
-    \value ResolvePrototype Check the object's own properties first, then search the prototype chain.
+    \value ResolvePrototype Check the object's own properties first, then search the prototype chain. This is the default.
 
     \value ResolveScope Check the object's own properties first, then search the scope chain.
 
