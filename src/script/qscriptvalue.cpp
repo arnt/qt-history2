@@ -721,6 +721,37 @@ QScriptValue QScriptValue::call(const QScriptValue &thisObject,
 }
 
 /*!
+  Calls this QScriptValue as a function, using \a thisObject as
+  the `this' object in the function call, and passing \a arguments
+  as arguments to the function. Returns the value returned from
+  the function.
+
+  If this QScriptValue is not a function, call() does nothing
+  and returns an invalid QScriptValue.
+
+  \a arguments can be an arguments object, an array, null or
+  undefined; any other type will cause a TypeError to be thrown.
+
+  Note that if \a thisObject is not an object, the global object
+  (see \l{QScriptEngine::globalObject()}) will be used as the
+  `this' object.
+
+  \sa construct()
+*/
+QScriptValue QScriptValue::call(const QScriptValue &thisObject,
+                                const QScriptValue &arguments)
+{
+    if (isFunction() && thisObject.isValid() && (thisObject.engine() != engine())) {
+        qWarning("QScriptValue::call() failed: "
+                 "cannot call function with thisObject created in "
+                 "a different engine");
+        return QScriptValue();
+    }
+    return QScriptValuePrivate::valueOf(*this).call(QScriptValuePrivate::valueOf(thisObject),
+                                                    QScriptValuePrivate::valueOf(arguments));
+}
+
+/*!
   Creates a new \c{Object} and calls this QScriptValue as a constructor,
   using the created object as the `this' object and passing \a args
   as arguments. If the return value from the constructor call is an
@@ -730,6 +761,9 @@ QScriptValue QScriptValue::call(const QScriptValue &thisObject,
   If this QScriptValue is not a function, construct() does nothing
   and returns an invalid QScriptValue.
 
+  \a arguments can be an arguments object, an array, null or
+  undefined; any other type will cause a TypeError to be thrown.
+
   \sa call(), newObject()
 */
 QScriptValue QScriptValue::construct(const QScriptValueList &args)
@@ -737,6 +771,25 @@ QScriptValue QScriptValue::construct(const QScriptValueList &args)
     return QScriptValuePrivate::valueOf(*this).construct(QScriptValuePrivate::toImplList(args));
 }
 
+/*!
+  Creates a new \c{Object} and calls this QScriptValue as a constructor,
+  using the created object as the `this' object and passing \a arguments
+  as arguments. If the return value from the constructor call is an
+  object, then that object is returned; otherwise the created object
+  is returned.
+
+  If this QScriptValue is not a function, construct() does nothing
+  and returns an invalid QScriptValue.
+
+  \a arguments can be an arguments object, an array, null or
+  undefined. Any other type will cause a TypeError to be thrown.
+
+  \sa call(), newObject()
+*/
+QScriptValue QScriptValue::construct(const QScriptValue &arguments)
+{
+    return QScriptValuePrivate::valueOf(*this).construct(QScriptValuePrivate::valueOf(arguments));
+}
 
 /*!
   Returns the QScriptEngine that created this QScriptValue,

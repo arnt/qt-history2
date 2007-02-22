@@ -156,7 +156,10 @@ public:
 
     QScriptValue call(const QScriptValue &thisObject = QScriptValue(),
                       const QScriptValueList &args = QScriptValueList());
+    QScriptValue call(const QScriptValue &thisObject,
+                      const QScriptValue &arguments);
     QScriptValue construct(const QScriptValueList &args = QScriptValueList());
+    QScriptValue construct(const QScriptValue &arguments);
 
 private:
     QScriptValuePrivate *d_ptr;

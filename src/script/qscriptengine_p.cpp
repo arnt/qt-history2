@@ -23,6 +23,7 @@
 #include "qscriptvalueiterator.h"
 #include "qscriptecmaglobal_p.h"
 #include "qscriptecmamath_p.h"
+#include "qscriptecmaarray_p.h"
 #include "qscriptextenumeration_p.h"
 
 #include <QtCore/QDate>
@@ -875,6 +876,35 @@ QScriptValueImpl QScriptEnginePrivate::call(const QScriptValueImpl &callee,
     popContext();
 
     return result;
+}
+
+QScriptValueImpl QScriptEnginePrivate::call(const QScriptValueImpl &callee,
+                                        const QScriptValueImpl &thisObject,
+                                        const QScriptValueImpl &args,
+                                        bool asConstructor)
+{
+    QScriptValueImplList argsList;
+    if (QScript::Ecma::Array::Instance *arr = arrayConstructor->get(args)) {
+        QScript::Array actuals = arr->value;
+        for (quint32 i = 0; i < actuals.count(); ++i) {
+            QScriptValueImpl a = actuals.at(i);
+            if (! a.isValid())
+                argsList << undefinedValue();
+            else
+                argsList << a;
+        }
+    } else if (args.classInfo() == m_class_arguments) {
+        QScript::ArgumentsObjectData *arguments;
+        arguments = static_cast<QScript::ArgumentsObjectData*> (args.objectData().data());
+        QScriptObject *activation = arguments->activation.objectValue();
+        for (uint i = 0; i < arguments->length; ++i)
+            argsList << activation->m_objects[i];
+    } else if (!(args.isUndefined() || args.isNull())) {
+        return QScriptContextPrivate::get(currentContext())->throwError(
+            QScriptContext::TypeError,
+            QLatin1String("QScriptValue::call(): arguments must be an array"));
+    }
+    return call(callee, thisObject, argsList, asConstructor);
 }
 
 QScriptValueImpl QScriptEnginePrivate::arrayFromStringList(const QStringList &lst)

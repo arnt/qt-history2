@@ -723,7 +723,18 @@ inline void QScriptValueImpl::setProperty(quint32 arrayIndex, const QScriptValue
 }
 
 inline QScriptValueImpl QScriptValueImpl::call(const QScriptValueImpl &thisObject,
-                                        const QScriptValueImplList &args)
+                                               const QScriptValueImplList &args)
+{
+    if (!isFunction())
+        return QScriptValueImpl();
+
+    QScriptEngine *eng = engine();
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+    return eng_p->call(*this, thisObject, args, /*asConstructor=*/false);
+}
+
+inline QScriptValueImpl QScriptValueImpl::call(const QScriptValueImpl &thisObject,
+                                               const QScriptValueImpl &args)
 {
     if (!isFunction())
         return QScriptValueImpl();
@@ -734,6 +745,24 @@ inline QScriptValueImpl QScriptValueImpl::call(const QScriptValueImpl &thisObjec
 }
 
 inline QScriptValueImpl QScriptValueImpl::construct(const QScriptValueImplList &args)
+{
+    if (!isFunction())
+        return QScriptValueImpl();
+
+    QScriptEngine *eng = engine();
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+
+    QScriptValueImpl proto = property(QLatin1String("prototype"), QScriptValue::ResolveLocal);
+    QScriptValueImpl object;
+    eng_p->newObject(&object, proto);
+
+    QScriptValueImpl result = eng_p->call(*this, object, args, /*asConstructor=*/true);
+    if (result.isObject())
+        return result;
+    return object;
+}
+
+inline QScriptValueImpl QScriptValueImpl::construct(const QScriptValueImpl &args)
 {
     if (!isFunction())
         return QScriptValueImpl();

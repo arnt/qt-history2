@@ -121,8 +121,11 @@ public:
                      const QScriptValue::PropertyFlags &flags = 0);
 
     inline QScriptValueImpl call(const QScriptValueImpl &thisObject = QScriptValueImpl(),
-                          const QScriptValueImplList &args = QScriptValueImplList());
+                                 const QScriptValueImplList &args = QScriptValueImplList());
+    inline QScriptValueImpl call(const QScriptValueImpl &thisObject,
+                                 const QScriptValueImpl &arguments);
     inline QScriptValueImpl construct(const QScriptValueImplList &args = QScriptValueImplList());
+    inline QScriptValueImpl construct(const QScriptValueImpl &arguments);
 
     inline void mark(int) const;
 

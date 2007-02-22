@@ -46,7 +46,6 @@ private slots:
     void lessThan();
     void equalTo();
     void strictEqualTo();
-    // isXXX functions are tested in qscriptengine tests.
 };
 
 tst_QScriptValue::tst_QScriptValue()
@@ -966,6 +965,39 @@ void tst_QScriptValue::call()
                              "a different engine");
         QCOMPARE(fun.call(QScriptValue(), QScriptValueList() << QScriptValue(&eng, 123)).isValid(), false);
     }
+
+    {
+        QScriptValue fun = eng.evaluate("function() { return arguments; }");
+        QScriptValue array = eng.newArray(3);
+        array.setProperty(0, QScriptValue(&eng, 123.0));
+        array.setProperty(1, QScriptValue(&eng, 456.0));
+        array.setProperty(2, QScriptValue(&eng, 789.0));
+        // call with single array object as arguments
+        QScriptValue ret = fun.call(QScriptValue(), array);
+        QCOMPARE(ret.isError(), false);
+        QCOMPARE(ret.property(0).strictEqualTo(array.property(0)), true);
+        QCOMPARE(ret.property(1).strictEqualTo(array.property(1)), true);
+        QCOMPARE(ret.property(2).strictEqualTo(array.property(2)), true);
+        // call with arguments object as arguments
+        QScriptValue ret2 = fun.call(QScriptValue(), ret);
+        QCOMPARE(ret2.isError(), false);
+        QCOMPARE(ret2.property(0).strictEqualTo(ret.property(0)), true);
+        QCOMPARE(ret2.property(1).strictEqualTo(ret.property(1)), true);
+        QCOMPARE(ret2.property(2).strictEqualTo(ret.property(2)), true);
+        // call with null as arguments
+        QScriptValue ret3 = fun.call(QScriptValue(), eng.nullValue());
+        QCOMPARE(ret3.isError(), false);
+        QCOMPARE(ret3.property("length").isNumber(), true);
+        QCOMPARE(ret3.property("length").toNumber(), 0.0);
+        // call with undefined as arguments
+        QScriptValue ret4 = fun.call(QScriptValue(), eng.undefinedValue());
+        QCOMPARE(ret4.isError(), false);
+        QCOMPARE(ret4.property("length").isNumber(), true);
+        QCOMPARE(ret4.property("length").toNumber(), 0.0);
+        // call with something else as arguments
+        QScriptValue ret5 = fun.call(QScriptValue(), QScriptValue(&eng, 123.0));
+        QCOMPARE(ret5.isError(), true);
+    }
 }
 
 void tst_QScriptValue::construct()
@@ -1009,6 +1041,37 @@ void tst_QScriptValue::construct()
 
     QScriptValue inv;
     QCOMPARE(inv.construct().isValid(), false);
+
+    {
+        QScriptValue fun = eng.evaluate("function() { return arguments; }");
+        QScriptValue array = eng.newArray(3);
+        array.setProperty(0, QScriptValue(&eng, 123.0));
+        array.setProperty(1, QScriptValue(&eng, 456.0));
+        array.setProperty(2, QScriptValue(&eng, 789.0));
+        // construct with single array object as arguments
+        QScriptValue ret = fun.construct(array);
+        QCOMPARE(ret.property(0).strictEqualTo(array.property(0)), true);
+        QCOMPARE(ret.property(1).strictEqualTo(array.property(1)), true);
+        QCOMPARE(ret.property(2).strictEqualTo(array.property(2)), true);
+        // construct with arguments object as arguments
+        QScriptValue ret2 = fun.construct(ret);
+        QCOMPARE(ret2.property(0).strictEqualTo(ret.property(0)), true);
+        QCOMPARE(ret2.property(1).strictEqualTo(ret.property(1)), true);
+        QCOMPARE(ret2.property(2).strictEqualTo(ret.property(2)), true);
+        // construct with null as arguments
+        QScriptValue ret3 = fun.construct(eng.nullValue());
+        QCOMPARE(ret3.isError(), false);
+        QCOMPARE(ret3.property("length").isNumber(), true);
+        QCOMPARE(ret3.property("length").toNumber(), 0.0);
+        // construct with undefined as arguments
+        QScriptValue ret4 = fun.construct(eng.undefinedValue());
+        QCOMPARE(ret4.isError(), false);
+        QCOMPARE(ret4.property("length").isNumber(), true);
+        QCOMPARE(ret4.property("length").toNumber(), 0.0);
+        // construct with something else as arguments
+        QScriptValue ret5 = fun.construct(QScriptValue(&eng, 123.0));
+        QCOMPARE(ret5.isError(), true);
+    }
 }
 
 void tst_QScriptValue::lessThan()

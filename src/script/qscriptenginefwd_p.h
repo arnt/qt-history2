@@ -268,6 +268,8 @@ public:
 
     QScriptValueImpl call(const QScriptValueImpl &callee, const QScriptValueImpl &thisObject,
                           const QScriptValueImplList &args, bool asConstructor);
+    QScriptValueImpl call(const QScriptValueImpl &callee, const QScriptValueImpl &thisObject,
+                          const QScriptValueImpl &args, bool asConstructor);
 
     void rehashStringRepository(bool resize = true);
     inline QScriptNameIdImpl *toStringEntry(const QString &s);
