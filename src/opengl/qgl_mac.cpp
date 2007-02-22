@@ -111,7 +111,10 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     if (d->glFormat.alpha())
         d->glFormat.setAlphaBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_ACCUM_RED_SIZE, &res);
-    d->glFormat.setAccum(res);
+    // Bug in Apple OpenGL (rdr://5015603), when we don't have an accumulation
+    // buffer, it still claims that we have a 16-bit one (which is pretty rare).
+    // So, we just assume we can never have a buffer that small.
+    d->glFormat.setAccum(res > 5);
     if (d->glFormat.accum())
         d->glFormat.setAccumBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_STENCIL_SIZE, &res);
