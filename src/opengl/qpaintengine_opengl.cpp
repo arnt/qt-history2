@@ -2404,7 +2404,7 @@ void QGLMaskTextureCache::createMask(quint64 key, CacheInfo &info, QGLMaskGenera
         return;
     }
 
-    quadtreeAllocate(key, info.loc.screen_rect.translated(-info.loc.screen_rect.topLeft()).size(), &info.loc.rect, &info.loc.channel);
+    quadtreeAllocate(key, info.loc.screen_rect.size(), &info.loc.rect, &info.loc.channel);
 
     int ch = info.loc.channel;
     glColorMask(ch == 0, ch == 1, ch == 2, ch == 3);
@@ -2805,6 +2805,8 @@ QRect QGLTrapezoidMaskGenerator::screenRect()
         screen_rect = computeScreenRect();
         has_screen_rect = true;
     }
+
+    screen_rect = screen_rect.intersected(QRect(QPoint(), offscreen->drawableSize()));
 
     return screen_rect;
 }
@@ -3264,7 +3266,10 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             if (mode != PolylineMode)
                 path.lineTo(points[0]);
 
-            d->strokePath(path, true);
+            if (d->has_fast_pen)
+                d->strokeLines(path);
+            else
+                d->strokePath(path, true);
         }
     }
 }
