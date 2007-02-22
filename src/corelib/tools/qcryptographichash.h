@@ -14,7 +14,11 @@
 #ifndef QCRYPTOGRAPHICSHASH_H
 #define QCRYPTOGRAPHICSHASH_H
 
-#include <qbytearray.h>
+#include <QtCore/qbytearray.h>
+
+QT_BEGIN_HEADER
+
+QT_MODULE(Core)
 
 class QCryptographicHashPrivate;
 
@@ -41,5 +45,7 @@ private:
     Q_DISABLE_COPY(QCryptographicHash);
     QCryptographicHashPrivate *d;
 };
+
+QT_END_HEADER
 
 #endif
