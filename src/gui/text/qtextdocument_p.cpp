@@ -27,7 +27,6 @@
 #include "qtextengine_p.h"
 
 #include <stdlib.h>
-#include <new>
 
 #define PMDEBUG if(0) qDebug
 
