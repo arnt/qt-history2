@@ -1143,7 +1143,7 @@ void tst_QPainter::textOnTransparentImage()
     {
         QPainter painter(&image);
         painter.setPen(QColor(255, 255, 255));
-        painter.drawText(10, 10, "W");
+        painter.drawText(0, 10, "W");
     }
     for (int x = 0; x < image.width(); ++x)
         for (int y = 0; y < image.height(); ++y)
