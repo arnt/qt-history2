@@ -278,8 +278,8 @@ void tst_QXmlSimpleReader::testGoodXmlFile()
     QFile ref_file(file_name + ".ref");
     QVERIFY(ref_file.open(QIODevice::ReadOnly | QIODevice::Text));
     QTextStream ref_stream(&ref_file);
-    ref_stream.setEncoding(QTextStream::UnicodeUTF8);
-    QString ref_file_contents = ref_stream.read();
+    ref_stream.setCodec("UTF-8");
+    QString ref_file_contents = ref_stream.readAll();
 
     QCOMPARE(parser.result(), ref_file_contents);
 }
@@ -353,8 +353,8 @@ void tst_QXmlSimpleReader::testBadXmlFile()
     QFile ref_file(file_name + ".ref");
     QVERIFY(ref_file.open(QIODevice::ReadOnly | QIODevice::Text));
     QTextStream ref_stream(&ref_file);
-    ref_stream.setEncoding(QTextStream::UnicodeUTF8);
-    QString ref_file_contents = ref_stream.read();
+    ref_stream.setCodec("UTF-8");
+    QString ref_file_contents = ref_stream.readAll();
 
     QCOMPARE(parser.result(), ref_file_contents);
 }
@@ -421,7 +421,7 @@ void tst_QXmlSimpleReader::testIncrementalParsing()
     QFile ref_file(file_name + ".ref");
     QVERIFY(ref_file.open(QIODevice::ReadOnly | QIODevice::Text));
     QTextStream ref_stream(&ref_file);
-    ref_stream.setEncoding(QTextStream::UnicodeUTF8);
+    ref_stream.setCodec("UTF-8");
     QString ref_file_contents = ref_stream.readAll();
 
     QCOMPARE(parser.result(), ref_file_contents);

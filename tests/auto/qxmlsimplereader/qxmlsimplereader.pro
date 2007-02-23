@@ -9,5 +9,4 @@ SOURCES += tst_qxmlsimplereader.cpp parser/parser.cpp
 
 QT += xml
 CONFIG += no_batch
-QT += qt3support
 QT += network
