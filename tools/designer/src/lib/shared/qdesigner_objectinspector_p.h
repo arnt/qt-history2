@@ -22,7 +22,6 @@
 // We mean it.
 //
 
-
 #ifndef DESIGNEROBJECTINSPECTOR_H
 #define DESIGNEROBJECTINSPECTOR_H
 
@@ -34,7 +33,6 @@ namespace qdesigner_internal {
 
 struct QDESIGNER_SHARED_EXPORT Selection {
     typedef QList<QObject *> ObjectList;
-    typedef QList<QWidget *> WidgetList;
 
     bool empty() const;
     void clear();
@@ -42,7 +40,7 @@ struct QDESIGNER_SHARED_EXPORT Selection {
     ObjectList selection() const;
 
     // Selection in cursor
-    WidgetList m_cursorSelection;
+    QWidgetList m_cursorSelection;
     // Remaining selected objects (non-widgets)
     ObjectList m_selectedObjects;
 };
@@ -56,6 +54,8 @@ class QDESIGNER_SHARED_EXPORT QDesignerObjectInspector: public QDesignerObjectIn
 public:
     QDesignerObjectInspector(QWidget *parent = 0, Qt::WindowFlags flags = 0);
 
+    // Select a qobject unmanaged by form window
+    virtual bool selectObject(QObject *o) = 0;
     virtual void getSelection(Selection &s) const = 0;
 };
 

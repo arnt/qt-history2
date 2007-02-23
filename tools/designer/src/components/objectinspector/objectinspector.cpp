@@ -45,6 +45,11 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 #include <QtCore/QPair>
 #include <QtCore/qdebug.h>
 
+
+static inline QObject *objectOfItem(QTreeWidgetItem *item) {
+    return qvariant_cast<QObject *>(item->data(0, 1000));
+}
+
 namespace qdesigner_internal {
 
 ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *parent)
@@ -99,7 +104,7 @@ void ObjectInspector::slotPopupContextMenu(const QPoint &pos)
     if (!item)
         return;
 
-    QObject *object = qvariant_cast<QObject *>(item->data(0, 1000));
+    QObject *object = objectOfItem(item);
     if (!object)
         return;
 
@@ -158,6 +163,11 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
     typedef QVector<QTreeWidgetItem*> SelectionList;
     SelectionList selectionList;
 
+    const QString qLayoutWidget = QLatin1String("QLayoutWidget");
+    const QString designerPrefix = QLatin1String("QDesigner");
+    static const QString noName = tr("<noname>");
+    static const QString separator =  tr("separator");
+
     while (!workingList.isEmpty()) {
         QTreeWidgetItem *item = workingList.top().first;
         QObject *object = workingList.top().second;
@@ -175,7 +185,7 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
         if (QDesignerWidgetDataBaseItemInterface *widgetItem = db->item(db->indexOfObject(object, true))) {
             className = widgetItem->name();
 
-            if (isWidget && className == QLatin1String("QLayoutWidget")
+            if (isWidget && className == qLayoutWidget
                     && static_cast<QWidget*>(object)->layout()) {
                 className = QLatin1String(static_cast<QWidget*>(object)->layout()->metaObject()->className());
             }
@@ -183,8 +193,8 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
             item->setIcon(0, widgetItem->icon());
         }
 
-        if (className.startsWith(QLatin1String("QDesigner")))
-            className.remove(1, 8);
+        if (className.startsWith(designerPrefix))
+            className.remove(1, designerPrefix.size() - 1);
 
         item->setText(1, className);
         item->setToolTip(1, className);
@@ -192,11 +202,11 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
 
         QString objectName = object->objectName();
         if (objectName.isEmpty())
-            objectName = tr("<noname>");
+            objectName = noName;
 
         if (const QAction *act = qobject_cast<const QAction*>(object)) { // separator is reserved
             if (act->isSeparator()) {
-                objectName = tr("separator");
+                objectName = separator;
             }
             item->setIcon(0, act->icon());
         }
@@ -343,7 +353,7 @@ void ObjectInspector::getSelection(Selection &s) const
 
     // sort objects
     foreach (QTreeWidgetItem *item, items) {
-        QObject *object = qvariant_cast<QObject *>(item->data(0, 1000));
+        QObject *object = objectOfItem(item);
         QWidget *widget = qobject_cast<QWidget*>(object);
         if (widget && m_formWindow->isManaged(widget)) {
             s.m_cursorSelection.push_back(widget);
@@ -357,6 +367,50 @@ void ObjectInspector::getSelection(Selection &s) const
             }
         }
     }
+}
+
+void ObjectInspector::findRecursion(QTreeWidgetItem *item, QObject *o,  ItemList &matchList)
+{
+    if (objectOfItem(item) == o)
+        matchList += item;
+
+    if (const int cc = item->childCount())
+        for (int i = 0;i < cc; i++)
+            findRecursion(item->child(i), o, matchList);
+}
+
+ObjectInspector::ItemList ObjectInspector::findItemsOfObject(QObject *o) const
+{
+    ItemList rc;
+    if (const int tlc = m_treeWidget->topLevelItemCount())
+        for (int i = 0;i < tlc; i++)
+            findRecursion(m_treeWidget->topLevelItem (i), o, rc);
+    return rc;
+}
+
+bool ObjectInspector::selectObject(QObject *o)
+{
+
+    if (!core()->metaDataBase()->item(o))
+        return false;
+
+    const ItemList items = findItemsOfObject(o);
+    if (items.empty())
+        return false;
+
+    // Change in selection?
+    const  ItemList currentSelectedItems = m_treeWidget->selectedItems();
+    if (!currentSelectedItems.empty() && currentSelectedItems.toSet() == items.toSet()) {
+        return true;
+    }
+    // do select and update
+    m_treeWidget->clearSelection();
+    const ItemList::const_iterator cend = items.constEnd();
+    for (ItemList::const_iterator it = items.constBegin(); it != cend; ++it )  {
+        (*it)->setSelected(true);
+    }
+    slotSelectionChanged();
+    return true;
 }
 
 void ObjectInspector::slotHeaderDoubleClicked(int column)

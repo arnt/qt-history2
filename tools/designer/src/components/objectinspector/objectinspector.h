@@ -18,9 +18,12 @@
 #include "qdesigner_objectinspector_p.h"
 
 #include <QtCore/QPointer>
+#include <QtCore/QList>
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
+
+class QTreeWidgetItem;
 
 namespace qdesigner_internal {
 
@@ -34,8 +37,9 @@ public:
     virtual ~ObjectInspector();
 
     virtual QDesignerFormEditorInterface *core() const;
-    
+
     virtual void getSelection(Selection &s) const;
+    virtual bool selectObject(QObject *o);
 
     void setFormWindow(QDesignerFormWindowInterface *formWindow);
 
@@ -49,6 +53,11 @@ private:
     void showContainersCurrentPage(QWidget *widget);
 
 private:
+    typedef QList<QTreeWidgetItem *> ItemList;
+    static void findRecursion(QTreeWidgetItem *item, QObject *o, ItemList &matchList);
+
+    ItemList findItemsOfObject(QObject *o) const;
+
     QDesignerFormEditorInterface *m_core;
     TreeWidget *m_treeWidget;
     QPointer<QDesignerFormWindowInterface> m_formWindow;

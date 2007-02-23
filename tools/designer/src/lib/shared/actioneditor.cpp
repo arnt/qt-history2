@@ -23,6 +23,7 @@ TRANSLATOR qdesigner_internal::ActionEditor
 #include "qdesigner_command_p.h"
 #include "qdesigner_propertycommand_p.h"
 #include "resourcemimedata_p.h"
+#include "qdesigner_objectinspector_p.h"
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerPropertyEditorInterface>
@@ -291,18 +292,25 @@ void ActionEditor::updatePropertyEditor(QAction *action)
 
 void ActionEditor::slotItemChanged(QListWidgetItem *item)
 {
-    if (core()->propertyEditor() == 0 || formWindow() == 0)
+    QDesignerFormWindowInterface *fw = formWindow();
+    if (!fw)
         return;
 
     m_actionDelete->setEnabled(item != 0);
 
-    if (!item) {
-        core()->propertyEditor()->setObject(formWindow()->mainContainer());
+    QAction *action = 0;
+    if (item)
+        action = itemToAction(item);
+
+    m_actionDelete->setEnabled(action != 0);
+
+    if (!action) {
+        fw->clearSelection();
         return;
     }
 
-    if (QAction *action = itemToAction(item)) {
-        updatePropertyEditor(action);
+    if (QDesignerObjectInspector *oi = qobject_cast<QDesignerObjectInspector *>(core()->objectInspector())) {
+        oi->selectObject(action);
     }
 }
 
