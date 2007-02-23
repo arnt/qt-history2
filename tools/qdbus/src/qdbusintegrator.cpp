@@ -60,6 +60,7 @@ struct QDBusSlotCache
     typedef QHash<QString, Data> Hash;
     Hash hash;
 };
+
 Q_DECLARE_METATYPE(QDBusSlotCache)
 
 class CallDeliveryEvent: public QEvent
@@ -1074,9 +1075,9 @@ bool QDBusConnectionPrivate::activateObject(const ObjectTreeNode *node, const QD
     return false;
 }
 
-template<typename Func>
-static bool applyForObject(const QDBusConnectionPrivate::ObjectTreeNode *root,
-                           const QString &fullpath, Func& functor)
+static bool findObject(const QDBusConnectionPrivate::ObjectTreeNode *root,
+                       const QString &fullpath,
+                       QDBusConnectionPrivate::ObjectTreeNode &result)
 {
     // walk the object tree
     QStringList path = fullpath.split(QLatin1Char('/'));
@@ -1089,7 +1090,7 @@ static bool applyForObject(const QDBusConnectionPrivate::ObjectTreeNode *root,
     while (node && !(node->flags & QDBusConnection::ExportChildObjects) ) {
         if (i == path.count()) {
             // found our object
-            functor(node);
+            result = *node;
             return true;
         }
 
@@ -1112,8 +1113,8 @@ static bool applyForObject(const QDBusConnectionPrivate::ObjectTreeNode *root,
             if (i == path.count()) {
                 // we're at the correct level
                 QDBusConnectionPrivate::ObjectTreeNode fakenode(*node);
-                fakenode.obj = obj;
-                functor(&fakenode);
+                result = *node;
+                result.obj = obj;
                 return true;
             }
 
@@ -1141,56 +1142,13 @@ static bool applyForObject(const QDBusConnectionPrivate::ObjectTreeNode *root,
     return false;
 }
 
-#if 0
-
-struct qdbus_callObject
-{
-    QDBusConnectionPrivate *self;
-    const QDBusMessage &msg;
-    bool returnVal;
-    inline qdbus_callObject(QDBusConnectionPrivate *s, const QDBusMessage &m)
-        : self(s), msg(m), returnVal(false)
-    { }
-
-    inline void operator()(const QDBusConnectionPrivate::ObjectTreeNode *node)
-    { }
-};
-
-bool QDBusConnectionPrivate::doDirectObjectCall(const QDBusMessage &msg)
-{
-    QReadLocker locker(&lock);
-
-    qdbus_callObject call(this, msg);
-    if (applyForObject(&rootNode, msg.path(), call))
-        return call.returnVal;
-
-    // qDebug("Call failed: no object found at %s", qPrintable(msg.path()));
-    return false;
-}
-
-#endif
-
-struct qdbus_activateObject
-{
-    QDBusConnectionPrivate *self;
-    const QDBusMessage &msg;
-    bool returnVal;
-    inline qdbus_activateObject(QDBusConnectionPrivate *s, const QDBusMessage &m)
-        : self(s), msg(m), returnVal(false)
-    { }
-
-    inline void operator()(const QDBusConnectionPrivate::ObjectTreeNode *node)
-    { returnVal = self->activateObject(node, msg); }
-};
-
 bool QDBusConnectionPrivate::handleObjectCall(const QDBusMessage &msg)
 {
     QReadLocker locker(&lock);
 
-    qdbus_activateObject apply(this, msg);
-    if (applyForObject(&rootNode, msg.path(), apply))
-        return apply.returnVal;
-
+    ObjectTreeNode result;
+    if (findObject(&rootNode, msg.path(), result))
+        return activateObject(&result, msg);
     // qDebug("Call failed: no object found at %s", qPrintable(msg.path()));
     return false;
 }
@@ -1668,46 +1626,11 @@ QString QDBusConnectionPrivate::getNameOwner(const QString& serviceName)
     return QString();
 }
 
-struct qdbus_Introspect
-{
-    QString xml;
-    inline void operator()(const QDBusConnectionPrivate::ObjectTreeNode *node)
-    { xml = qDBusIntrospectObject(node); }
-};
-
 QDBusMetaObject *
 QDBusConnectionPrivate::findMetaObject(const QString &service, const QString &path,
                                        const QString &interface)
 {
-    // service must be a unique connection name
-    if (!interface.isEmpty()) {
-        QReadLocker locker(&lock);
-        QDBusMetaObject *mo = cachedMetaObjects.value(interface, 0);
-        if (mo)
-            return mo;
-    }
-    if (service == QLatin1String(dbus_bus_get_unique_name(connection))) {
-        // it's one of our own
-        QWriteLocker locker(&lock);
-        QDBusMetaObject *mo = 0;
-        if (!interface.isEmpty())
-            mo = cachedMetaObjects.value(interface, 0);
-        if (mo)
-            // maybe it got created when we switched from read to write lock
-            return mo;
-
-        qdbus_Introspect apply;
-        if (!applyForObject(&rootNode, path, apply)) {
-            lastError = QDBusError(QDBusError::InvalidArgs,
-                                   QString::fromLatin1("No object at %1").arg(path));
-            return 0;           // no object at path
-        }
-
-        // release the lock and return
-        return QDBusMetaObject::createMetaObject(interface, apply.xml, cachedMetaObjects, lastError);
-    }
-
-    // not local: introspect the target object:
+    // introspect the target object
     QDBusMessage msg = QDBusMessage::createMethodCall(service, path,
                                                 QLatin1String(DBUS_INTERFACE_INTROSPECTABLE),
                                                 QLatin1String("Introspect"));
