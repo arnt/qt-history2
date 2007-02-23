@@ -708,6 +708,27 @@ void tst_QMdiArea::addAndRemoveWindows()
     QMdiSubWindow *fakeWindow = new QMdiSubWindow;
     workspace.removeSubWindow(fakeWindow);
     delete fakeWindow;
+
+    // Check that newly added windows don't occupy minimized/maximized windows'
+    // restore space.
+    workspace.closeAllSubWindows();
+    QMdiSubWindow *window1 = workspace.addSubWindow(new QWidget);
+    window1->show();
+    const QRect window1RestoreGeometry = window1->geometry();
+    QCOMPARE(window1RestoreGeometry.topLeft(), QPoint(0, 0));
+
+    window1->showMinimized();
+
+    QMdiSubWindow *window2 = workspace.addSubWindow(new QWidget);
+    window2->show();
+    const QRect window2RestoreGeometry = window2->geometry();
+    QCOMPARE(window2RestoreGeometry.topLeft(), QPoint(window1RestoreGeometry.right() + 1, 0));
+
+    window2->showMaximized();
+
+    QMdiSubWindow *window3 = workspace.addSubWindow(new QWidget);
+    window3->show();
+    QCOMPARE(window3->geometry().topLeft(), QPoint(window2RestoreGeometry.right() + 1, 0));
 }
 
 void tst_QMdiArea::addAndRemoveWindowsWithReparenting()
