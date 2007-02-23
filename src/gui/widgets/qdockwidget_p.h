@@ -94,7 +94,7 @@ public:
     void plug(const QRect &rect);
 };
 
-class QDockWidgetLayout : public QLayout
+class Q_GUI_EXPORT QDockWidgetLayout : public QLayout
 {
     Q_OBJECT
 public:
