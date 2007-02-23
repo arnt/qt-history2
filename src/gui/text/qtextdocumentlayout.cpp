@@ -1399,15 +1399,17 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
 
     // set fixed values, figure out total percentages used and number of
     // variable length cells. Also assign the minimum width for variable columns.
-    qreal totalPercentage = 0;
+    QFixed totalPercentage;
     int variableCols = 0;
+    int colsWithPercentage = 0;
     for (int i = 0; i < columns; ++i) {
         const QTextLength &length = columnWidthConstraints.at(i);
         if (length.type() == QTextLength::FixedLength) {
             td->minWidths[i] = td->widths[i] = qMax(QFixed::fromReal(length.rawValue()), td->minWidths.at(i));
             totalWidth -= td->widths.at(i);
         } else if (length.type() == QTextLength::PercentageLength) {
-            totalPercentage += length.rawValue();
+            totalPercentage += QFixed::fromReal(length.rawValue());
+            ++colsWithPercentage;
         } else if (length.type() == QTextLength::VariableLength) {
             variableCols++;
 
@@ -1418,11 +1420,22 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
 
     // set percentage values
     {
-        const QFixed totalPercentagedWidth = initialTotalWidth * QFixed::fromReal(totalPercentage) / 100;
+        QFixed overhangingPercent;
+        const QFixed totalPercentagedWidth = initialTotalWidth * totalPercentage / 100;
         for (int i = 0; i < columns; ++i)
             if (columnWidthConstraints.at(i).type() == QTextLength::PercentageLength) {
-                const QFixed percentWidth = totalPercentagedWidth * QFixed::fromReal(columnWidthConstraints.at(i).rawValue()) / QFixed::fromReal(totalPercentage);
-                td->widths[i] = qMax(percentWidth, td->minWidths.at(i));
+                --colsWithPercentage;
+
+                const QFixed allottedPercentage = QFixed::fromReal(columnWidthConstraints.at(i).rawValue()) - overhangingPercent;
+
+                const QFixed percentWidth = totalPercentagedWidth * allottedPercentage / totalPercentage;
+                if (percentWidth >= td->minWidths.at(i)) {
+                    td->widths[i] = percentWidth;
+                } else {
+                    td->widths[i] = td->minWidths.at(i);
+                    QFixed effectivePercentage = td->widths.at(i) * 100 / totalPercentagedWidth;
+                    overhangingPercent += (effectivePercentage - allottedPercentage) / colsWithPercentage;
+                }
                 totalWidth -= td->widths.at(i);
             }
     }
