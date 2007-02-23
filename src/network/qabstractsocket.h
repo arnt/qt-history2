@@ -51,7 +51,8 @@ public:
         AddressInUseError,
         SocketAddressNotAvailableError,
         UnsupportedSocketOperationError,
-        /* UnfinishedSocketOperationError = 11, ### add in 4.3 */
+        UnfinishedSocketOperationError,
+        ProxyAuthenticationRequiredError, 
         UnknownSocketError = -1
     };
     enum SocketState {

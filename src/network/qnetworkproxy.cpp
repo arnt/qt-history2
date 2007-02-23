@@ -115,6 +115,8 @@
 
 #include "qsocks5socketengine_p.h"
 #include "qhttpsocketengine_p.h"
+#include "qauthenticator.h"
+#include "qhash.h"
 #include "qmutex.h"
 #include "qatomic.h"
 
@@ -176,10 +178,10 @@ class QNetworkProxyPrivate
 {
 public:
     QNetworkProxy::ProxyType type;
-    QString user;
-    QString password;
     QString hostName;
     quint16 port;
+    QString user;
+    QString password;
 };
 
 /*!
@@ -204,11 +206,14 @@ QNetworkProxy::QNetworkProxy(ProxyType type, const QString &hostName, quint16 po
                   const QString &user, const QString &password)
  : d_ptr(new QNetworkProxyPrivate)
 {
-    setType(type);
-    setHostName(hostName);
-    setPort(port);
-    setUser(user);
-    setPassword(password);
+    globalNetworkProxy()->init();
+
+    Q_D(QNetworkProxy);
+    d->type = type;
+    d->hostName = hostName;
+    d->port = port;
+    d->user = user;
+    d->password = password;
 }
 
 /*!
@@ -247,9 +252,6 @@ QNetworkProxy &QNetworkProxy::operator=(const QNetworkProxy &other)
 void QNetworkProxy::setType(QNetworkProxy::ProxyType type)
 {
     Q_D(QNetworkProxy);
-
-    globalNetworkProxy()->init();
-
     d->type = type;
 }
 
@@ -261,9 +263,6 @@ void QNetworkProxy::setType(QNetworkProxy::ProxyType type)
 QNetworkProxy::ProxyType QNetworkProxy::type() const
 {
     Q_D(const QNetworkProxy);
-
-    globalNetworkProxy()->init();
-
     return d->type;
 }
 
@@ -275,9 +274,6 @@ QNetworkProxy::ProxyType QNetworkProxy::type() const
 void QNetworkProxy::setUser(const QString &user)
 {
     Q_D(QNetworkProxy);
-
-    globalNetworkProxy()->init();
-
     d->user = user;
 }
 
@@ -289,9 +285,6 @@ void QNetworkProxy::setUser(const QString &user)
 QString QNetworkProxy::user() const
 {
     Q_D(const QNetworkProxy);
-
-    globalNetworkProxy()->init();
-
     return d->user;
 }
 
@@ -303,9 +296,6 @@ QString QNetworkProxy::user() const
 void QNetworkProxy::setPassword(const QString &password)
 {
     Q_D(QNetworkProxy);
-
-    globalNetworkProxy()->init();
-
     d->password = password;
 }
 
@@ -317,9 +307,6 @@ void QNetworkProxy::setPassword(const QString &password)
 QString QNetworkProxy::password() const
 {
     Q_D(const QNetworkProxy);
-
-    globalNetworkProxy()->init();
-
     return d->password;
 }
 
@@ -331,9 +318,6 @@ QString QNetworkProxy::password() const
 void QNetworkProxy::setHostName(const QString &hostName)
 {
     Q_D(QNetworkProxy);
-
-    globalNetworkProxy()->init();
-
     d->hostName = hostName;
 }
 
@@ -345,9 +329,6 @@ void QNetworkProxy::setHostName(const QString &hostName)
 QString QNetworkProxy::hostName() const
 {
     Q_D(const QNetworkProxy);
-
-    globalNetworkProxy()->init();
-
     return d->hostName;
 }
 
@@ -359,9 +340,6 @@ QString QNetworkProxy::hostName() const
 void QNetworkProxy::setPort(quint16 port)
 {
     Q_D(QNetworkProxy);
-
-    globalNetworkProxy()->init();
-
     d->port = port;
 }
 
@@ -373,9 +351,6 @@ void QNetworkProxy::setPort(quint16 port)
 quint16 QNetworkProxy::port() const
 {
     Q_D(const QNetworkProxy);
-
-    globalNetworkProxy()->init();
-
     return d->port;
 }
 

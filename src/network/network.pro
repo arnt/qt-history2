@@ -9,7 +9,9 @@ include(../qbase.pri)
 # Qt network module
 
 PRECOMPILED_HEADER = ../corelib/global/qt_pch.h
-HEADERS += qftp.h \
+HEADERS += qauthenticator.h \
+	   qauthenticator_p.h \
+	   qftp.h \
            qhttp.h \
            qhostaddress.h \
            qabstractsocketengine_p.h \
@@ -28,7 +30,8 @@ HEADERS += qftp.h \
 	   qnetworkinterface.h \
 	   qnetworkinterface_p.h
 
-SOURCES	= qftp.cpp \
+SOURCES	= qauthenticator.cpp \
+          qftp.cpp \
           qhttp.cpp \
           qhostaddress.cpp \
           qabstractsocketengine.cpp \

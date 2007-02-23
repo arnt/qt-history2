@@ -73,6 +73,12 @@ void QHttpSocketEngine::setProxy(const QNetworkProxy &proxy)
 {
     Q_D(QHttpSocketEngine);
     d->proxy = proxy;
+    QString user = proxy.user();
+    if (!user.isEmpty())
+        d->authenticator.setUser(user);
+    QString password = proxy.password();
+    if (!password.isEmpty())
+        d->authenticator.setPassword(password);
 }
 
 int QHttpSocketEngine::socketDescriptor() const
@@ -378,14 +384,29 @@ void QHttpSocketEngine::slotSocketConnected()
     // Send the greeting.
     QByteArray data = "CONNECT ";
     data += d->peerAddress.toString().toLatin1() + ':' + QByteArray::number(d->peerPort);
-    data += " HTTP/1.0\r\n\r\n";
+    data += " HTTP/1.1\r\n";
+    QByteArray request = data;
+    data += "Proxy-Connection: keep-alive\r\n"
+            "Host: " + d->peerAddress.toString().toLatin1() + "\r\n";
+    QAuthenticatorPrivate *priv = QAuthenticatorPrivate::getPrivate(d->authenticator);
+//     qDebug() << "priv=" << priv << (priv ? (int)priv->method : -1);
+    if (priv && priv->method != QAuthenticatorPrivate::None) {
+        data += "Proxy-Authorization: " + priv->calculateResponse(data);
+        data += "\r\n";
+    }
+    data += "\r\n";
+//     qDebug() << ">>>>>>>> sending request" << this;
+//     qDebug() << data;
+//     qDebug() << ">>>>>>>";
     d->socket->write(data);
     d->state = ConnectSent;
 }
 
 void QHttpSocketEngine::slotSocketDisconnected()
 {
-    setState(QAbstractSocket::UnconnectedState);
+    Q_D(QHttpSocketEngine);
+    if (d->state != SendAuthentication)
+        setState(QAbstractSocket::UnconnectedState);
 }
 
 void QHttpSocketEngine::slotSocketReadNotification()
@@ -420,10 +441,29 @@ void QHttpSocketEngine::slotSocketReadNotification()
         d->socket->close();
         setState(QAbstractSocket::UnconnectedState);
         setError(QAbstractSocket::ConnectionRefusedError, QAbstractSocket::tr("Connection refused"));
+    } else if (d->readBuffer.startsWith("HTTP/1.0 407")) {        
+        if (d->authenticator.isNull())
+            d->authenticator.detach();
+        QAuthenticatorPrivate *priv = QAuthenticatorPrivate::getPrivate(d->authenticator);
+        bool passOk;
+        priv->parseHttpResponse(d->readBuffer, true, &passOk);
+//         qDebug("%x: GOT 407: [%s] method=%d, realm=%s challenge=%s", this, d->readBuffer.trimmed().data(),
+//                  priv->method, priv->realm.toLatin1().data(), priv->challenge.data());
+//         qDebug() << "d->state=" << d->state << "socketState=" << d->socketState << passOk;
+        d->readBuffer.clear();
+        if (passOk) {
+            // close the connection if it isn't already and reconnect using the chose authentication method
+            d->state = SendAuthentication;
+            d->socket->disconnectFromHost();
+            d->socket->readAll();
+            d->socket->connectToHost(d->proxy.hostName(), d->proxy.port());
+        } else {
+            setError(QAbstractSocket::ProxyAuthenticationRequiredError, tr("Authentication required"));
+            d->socket->disconnectFromHost();
+        }
     } else {
-        // ###### Lars: Authentication logics go here.
         qWarning("UNEXPECTED RESPONSE: [%s]", d->readBuffer.trimmed().data());
-        d->socket->close();
+        d->socket->disconnectFromHost();
     }
 
     // The handshake is done; request a new connection attempt by sending a write
@@ -442,6 +482,8 @@ void QHttpSocketEngine::slotSocketError(QAbstractSocket::SocketError error)
 {
     Q_D(QHttpSocketEngine);
     d->readBuffer.clear();
+    if (d->state == SendAuthentication)
+        return;
     d->state = None;
     setError(error, d->socket->errorString());
     if (error == QAbstractSocket::RemoteHostClosedError)
@@ -457,24 +499,16 @@ void QHttpSocketEngine::emitPendingReadNotification()
 {
     Q_D(QHttpSocketEngine);
     d->readNotificationPending = false;
-    if (d->readNotificationEnabled) {
-        QPointer<QHttpSocketEngine> that = this;
+    if (d->readNotificationEnabled) 
         emit readNotification();
-        if (!that)
-            return;
-    }
 }
 
 void QHttpSocketEngine::emitPendingWriteNotification()
 {
     Q_D(QHttpSocketEngine);
     d->writeNotificationPending = false;
-    if (d->writeNotificationEnabled) {
-        QPointer<QHttpSocketEngine> that = this;
+    if (d->writeNotificationEnabled) 
         emit writeNotification();
-        if (!that)
-            return;
-    }
 }
 
 void QHttpSocketEngine::emitReadNotification()

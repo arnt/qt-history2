@@ -28,6 +28,7 @@
 #include "qabstractsocketengine_p.h"
 #include "qabstractsocket.h"
 #include "qnetworkproxy.h"
+#include "qauthenticator_p.h"
 
 class QTcpSocket;
 class QHttpSocketEnginePrivate;
@@ -39,7 +40,8 @@ public:
     enum HttpState {
         None,
         ConnectSent,
-        Connected
+        Connected,
+        SendAuthentication
     };
     QHttpSocketEngine(QObject *parent = 0);
     ~QHttpSocketEngine();
@@ -122,6 +124,7 @@ public:
     QTcpSocket *socket;
     QByteArray readBuffer;
     QHttpSocketEngine::HttpState state;
+    QAuthenticator authenticator;
     bool readNotificationEnabled;
     bool writeNotificationEnabled;
     bool exceptNotificationEnabled;
