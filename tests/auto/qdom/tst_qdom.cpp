@@ -919,12 +919,12 @@ bool tst_QDom::compareNodes( const QDomNode &node1, const QDomNode &node2, bool 
     if ( deep ) {
         QString str1;
         {
-            QTextOStream stream( &str1 );
+            QTextStream stream( &str1 );
             stream << node1;
         }
         QString str2;
         {
-            QTextOStream stream( &str2 );
+            QTextStream stream( &str2 );
             stream << node2;
         }
         return str1 == str2;
