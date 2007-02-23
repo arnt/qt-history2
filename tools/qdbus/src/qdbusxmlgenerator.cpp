@@ -202,6 +202,62 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
     return retval;
 }
 
+QString qDBusInterfaceFromMetaObject(const QMetaObject *mo)
+{
+    QString interface;
+
+    int idx = mo->indexOfClassInfo(QCLASSINFO_DBUS_INTERFACE);
+    if (idx >= mo->classInfoOffset()) {
+        interface = QLatin1String(mo->classInfo(idx).value());
+    } else {
+        interface = QLatin1String(mo->className());
+        interface.replace(QLatin1String("::"), QLatin1String("."));
+
+        if (interface.startsWith(QLatin1String("QDBus"))) {
+            interface.prepend(QLatin1String("com.trolltech.QtDBus."));
+        } else if (interface.startsWith(QLatin1Char('Q')) &&
+                   interface.length() >= 2 && interface.at(1).isUpper()) {
+            // assume it's Qt
+            interface.prepend(QLatin1String("com.trolltech.Qt."));
+        } else if (!QCoreApplication::instance()||
+                   QCoreApplication::instance()->applicationName().isEmpty()) {
+            interface.prepend(QLatin1String("local."));
+         } else {
+            interface.prepend(QLatin1Char('.')).prepend(QCoreApplication::instance()->applicationName());
+            QStringList domainName =
+                QCoreApplication::instance()->organizationDomain().split(QLatin1Char('.'),
+                                                                         QString::SkipEmptyParts);
+            if (domainName.isEmpty())
+                 interface.prepend(QLatin1String("local."));
+            else
+                for (int i = 0; i < domainName.count(); ++i)
+                    interface.prepend(QLatin1Char('.')).prepend(domainName.at(i));
+         }
+     }
+ 
+    return interface;
+ }
+
+QString qDBusGenerateMetaObjectXml(QString interface, const QMetaObject *mo,
+                                   const QMetaObject *base, int flags)
+{
+    if (interface.isEmpty())
+        // generate the interface name from the meta object
+        interface = qDBusInterfaceFromMetaObject(mo);
+
+    QString xml;
+    int idx = mo->indexOfClassInfo(QCLASSINFO_DBUS_INTROSPECTION);
+    if (idx >= mo->classInfoOffset())
+        return QString::fromUtf8(mo->classInfo(idx).value());
+    else
+        xml = generateInterfaceXml(mo, flags, base->methodCount(), base->propertyCount());
+
+    if (xml.isEmpty())
+        return QString();       // don't add an empty interface
+    return QString::fromLatin1("  <interface name=\"%1\">\n%2  </interface>\n")
+        .arg(interface, xml);
+}
+#if 0
 QString qDBusGenerateMetaObjectXml(QString interface, const QMetaObject *mo, const QMetaObject *base,
                                    int flags)
 {
@@ -250,3 +306,4 @@ QString qDBusGenerateMetaObjectXml(QString interface, const QMetaObject *mo, con
         .arg(interface, xml);
 }
 
+#endif
