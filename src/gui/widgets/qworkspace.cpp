@@ -815,7 +815,7 @@ QSize QWorkspaceTitleBar::sizeHint() const
 
     \quotefromfile mainwindows/mdi/mainwindow.cpp
     \skipto MainWindow::MainWindow()
-    \printuntil setCentralWidget(workspace);
+    \printuntil setCentralWidget(mdiArea);
     \dots
     \skipto /^\}/
     \printuntil /^\}/
