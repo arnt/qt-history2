@@ -7,6 +7,6 @@ INCLUDEPATH += . parser
 HEADERS +=  parser/parser.h
 SOURCES += tst_qxmlsimplereader.cpp parser/parser.cpp 
 
-QT += xml
 CONFIG += no_batch
-QT += network
+QT += network xml
+QT -= gui
