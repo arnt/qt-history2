@@ -126,7 +126,7 @@ void QMainWindowPrivate::init()
 
     Main windows have either a single (SDI) or multiple (MDI)
     document interface. You create MDI applications in Qt by using a
-    QWorkspace as the central widget.
+    QMdiArea as the central widget.
 
     We will now examine each of the other widgets that can be
     added to a main window. We give examples on how to create and add
