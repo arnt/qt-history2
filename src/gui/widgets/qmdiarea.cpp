@@ -13,67 +13,69 @@
 
 /*!
     \class QMdiArea
-    \brief The QMdiArea widget provides a workspace window that can be
-    used in an MDI application.
+    \brief The QMdiArea widget provides an area in which
+    MDI windows are displayed.
     \ingroup application
     \mainclass
 
-    Multiple Document Interface (MDI) applications are typically
-    composed of a main window containing a menu bar, a toolbar, and
-    a central QMdiArea widget. The workspace itself is used to display
-    a number of child windows, each of which is a widget.
+    QMdiArea functions, essentially, like a window manager for MDI
+    windows. For instance, it draws the windows it manages on itself
+    and arranges them in a cascading or tile pattern. QMdiArea is
+    commonly used as the center widget in a QMainWindow to create MDI
+    applications, but can also be placed in any layout. The following
+    code adds an area to a main window:
 
-    The workspace itself is an ordinary Qt widget. It has a standard
-    constructor that takes a parent widget.
-    Workspaces can be placed in any layout, but are typically given
-    as the central widget in a QMainWindow:
+    \quotefromfile snippets/mdiareasnippets.cpp
+    \skipto /QMainWindow/
+    \printuntil /setCentralWidget/
 
-    \quotefromfile mainwindows/mdi/mainwindow.cpp
-    \skipto MainWindow::MainWindow()
-    \printuntil setCentralWidget(workspace);
-    \dots
-    \skipto /^\}/
-    \printuntil /^\}/
+    Unlike the window managers for top-level windows,
+    all window flags (Qt::WindowFlags) are supported by QMdiArea as
+    long as the flags are supported by the current widget style. If a
+    specific flag is not supported by the style (e.g., the
+    \l{Qt::}{WindowShadeButtonHint}), you can programmatically set the
+    flag (e.g., by using QMdiSubWindow::showShaded()).
 
-    Child windows (MDI windows) are standard Qt widgets that are
-    inserted into the workspace with addSubWindow(). As with top-level
-    widgets, you can call functions such as show(), hide(),
-    showMaximized(), and setWindowTitle() on a child window to change
-    its appearance within the workspace. You can also provide widget
-    flags to determine the layout of the decoration or the behavior of
-    the widget itself.
+    Subwindows in QMdiArea are instances of QMdiSubWindow. They
+    are added to a MDI area with addSubWindow(). It is common to send
+    a QWidget, which is set as the internal widget, to this function,
+    but it is also possible to send a QMdiSubWindow directly.The class
+    inherits QWidget, and you can use the same API as with a normal
+    top-level window when programming. QMdiSubWindow also has behavior
+    that is specific to MDI windows. See the QMdiSubWindow class
+    description for more details.
 
-    To change or retrieve the geometry of a child window, you must
-    operate on its parentWidget(). The parentWidget() provides
-    access to the decorated frame that contains the child window
-    widget. When a child window is maximised, its decorated frame
-    is hidden. If the top-level widget contains a menu bar, it will display
-    the maximised window's operations menu to the left of the menu
-    entries, and the window's controls to the right.
+    A subwindow becomes active when it gets the keyboard focus, or
+    when setFocus() is called. The user activates a window by
+    moving focus in the usual ways, for example by clicking a window
+    or by pressing Tab. The workspace emits a signal
+    (subWindowActivated()) when the active window changes, and the
+    function activeWindow() returns the active subwindow.
 
-    A child window becomes active when it gets the keyboard focus,
-    or when setFocus() is called. The user can activate a window by moving
-    focus in the usual ways, for example by clicking a window or by pressing
-    Tab. The workspace emits a signal subWindowActivated() when the active
-    window changes, and the function activeWindow() returns a pointer to the
-    active child window, or 0 if no window is active.
+    The convenience function subWindowList() returns a list of all
+    subwindows. This information could be used in a popup menu
+    containing a list of windows, for example.
 
-    The convenience function windowList() returns a list of all child
-    windows. This information could be used in a popup menu
-    containing a list of windows, for example. This feature is also
-    available as part of the \l{Window Menu} Solution.
+    \omit
+	// does this still hold?
+	This feature is also
+	available as part of the \l{Window Menu} Solution.
+    \endomit
 
-    QMdiArea provides two built-in layout strategies for child
-    windows: cascadeSubWindows() and tileSubWindows(). Both are slots so you can easily
-    connect menu entries to them.
+    QMdiArea provides two built-in layout strategies for
+    subwindows: cascadeSubWindows() and tileSubWindows(). Both are
+    slots and is easily connected to menu entries.
+
+    (keyboard move/resize. Here or in QMdiSubWindow, should
+    mention here about Qt::WA_DeleteOnClose)
 
     \img qmdiarea-arrange.png
 
     If you want your users to be able to work with child windows
-    larger than the visible workspace area, set the scrollBarsEnabled
+    larger than the visible MDI area, set the scrollBarsEnabled
     property to true.
 
-    \sa QMdiSubWindow QDockWindow, {MDI Example}
+    \sa QMdiSubWindow
 */
 
 /*!
@@ -89,10 +91,15 @@
 /*!
     \enum QMdiArea::WindowOrder
 
-    Specifies the order in which child windows are returned from windowList().
+    Specifies the order in which child windows are returned from
+    subWindowList(). The cascadeSubWindows() and tileSubWindows()
+    functions follow this order when arranging the windows.
 
-    \value CreationOrder The windows are returned in the order of their creation
-    \value StackingOrder The windows are returned in the order of their stacking
+    \value CreationOrder The windows are returned in the order of
+    their creation
+    \value StackingOrder The windows are returned in the order in
+    which they are stacked; the top-most window is
+    last in the list.
 */
 
 #include "qmdiarea_p.h"
@@ -751,7 +758,7 @@ void QMdiAreaPrivate::internalRaise(QMdiSubWindow *mdiChild) const
 }
 
 /*!
-    Constructs an empty workspace widget. \a parent is passed to QWidget's
+    Constructs an empty mdi area. \a parent is passed to QWidget's
     constructor.
 */
 QMdiArea::QMdiArea(QWidget *parent)
@@ -766,7 +773,7 @@ QMdiArea::QMdiArea(QWidget *parent)
 }
 
 /*!
-    Destroys the workspace.
+    Destroys the MDI area.
 */
 QMdiArea::~QMdiArea()
 {
@@ -815,10 +822,16 @@ QSize QMdiArea::minimumSizeHint() const
 }
 
 /*!
-    Returns a pointer to the current active subwindow. If no window is
-    currently active, 0 is returned.
+    Returns a pointer to the current active subwindow. If no
+    window is currently active, 0 is returned.
 
-    \sa setActiveSubWindow()
+    Subwindows are treated as top-level windows with respect to
+    window state, i.e., if a widget outside the MDI area is the active
+    window, no subwindow will be active. Note that if a widget in the
+    window in which the MDI area lives gains focus, the window will be
+    activated. (may skip last sentence)
+
+    \sa setActiveSubWindow(), Qt::WindowState
 */
 QMdiSubWindow *QMdiArea::activeSubWindow() const
 {
@@ -829,8 +842,8 @@ QMdiSubWindow *QMdiArea::activeSubWindow() const
 }
 
 /*!
-    Activates the subwindow \a window. If \a window is 0, any current active
-    window is deactivated.
+    Activates the subwindow \a window. If \a window is 0, any
+    current active window is deactivated. 
 
     \sa activeSubWindow()
 */
@@ -868,13 +881,13 @@ void QMdiArea::closeActiveSubWindow()
 }
 
 /*!
-    Returns a list of all visible or minimized subwindows. If \a order is
-    CreationOrder (the default), the windows are listed in the order in which
-    they were inserted into the workspace. If \a order is StackingOrder, the
-    windows are listed in their stacking order, with the topmost window as the
-    last item in the list.
+    Returns a list of all subwindows in the MDI area. If \a order
+    is CreationOrder (the default), the windows are sorted in the
+    order in which they were inserted into the workspace. If \a order
+    is StackingOrder, the windows are listed in their stacking order,
+    with the topmost window as the last item in the list.
 
-    \sa windowList(), WindowOrder
+    \sa WindowOrder
 */
 QList<QMdiSubWindow *> QMdiArea::subWindowList(WindowOrder order) const
 {
@@ -912,9 +925,12 @@ QList<QMdiSubWindow *> QMdiArea::subWindowList(WindowOrder order) const
 }
 
 /*!
-    Closes all subwindows by sending one QCloseEvent to each window.
+    Closes all subwindows by sending a QCloseEvent to each window.
+    You may recieve subWindowActivated() signals from subwindows
+    before they are closed (if the MDI area activates the subwindow
+    when another is closing).
 
-    Subwindows that ignore the close event will remain open.
+    Subwindows that ignore the close event will remain open. 
 
     \sa closeActiveSubWindow()
 */
@@ -933,7 +949,9 @@ void QMdiArea::closeAllSubWindows()
 }
 
 /*!
-    Gives the input focus to the next window in the list of child windows.
+    Gives the keyboard focus to the next window in the list of child
+    windows.  The windows are activated in the order in which they are
+    stacked (StackingOrder).
 
     \sa activatePreviousSubWindow()
 */
@@ -961,8 +979,9 @@ void QMdiArea::activateNextSubWindow()
 }
 
 /*!
-    Gives the input focus to the previous window in the list of child
-    windows.
+    Gives the keyboard focus to the previous window in the list of
+    child windows. The windows are activated in the order in which
+    they are stacked (StackingOrder).
 
     \sa activateNextSubWindow()
 */
@@ -991,12 +1010,27 @@ void QMdiArea::activatePreviousSubWindow()
 }
 
 /*!
-    Adds widget \a widget as new sub window to the workspace.  If \a
-    windowFlags are non-zero, they will override the flags set on the widget.
+    Adds \a widget as a new subwindow to the MDI area.  If \a
+    windowFlags are non-zero, they will override the flags set on the
+    widget.
 
-    Returns the widget used for the window frame.
+    The \a widget can be either a QMdiSubWindow or another QWidget
+    (in which case the MDI area will create a subwindow and set the \a
+    widget as the internal widget).
 
-    \sa addChildWindow(), removeSubWindow()
+    \quotefromfile snippets/mdiareasnippets.cpp
+    \skipto /QMdiArea mdiArea/
+    \printto /subWindow1->show/
+
+    When you create your own subwindow, you must set the
+    Qt::WA_DeleteOnClose widget attribute for the window to be
+    deleted when closed in the MDI area. If not, the window will
+    be hidden and the MDI area will not activate the next
+    subwindow.
+
+    Returns the QMdiSubWindow that is added to the MDI area.
+
+    \sa removeSubWindow()
 */
 QMdiSubWindow *QMdiArea::addSubWindow(QWidget *widget, Qt::WindowFlags windowFlags)
 {
@@ -1032,7 +1066,10 @@ QMdiSubWindow *QMdiArea::addSubWindow(QWidget *widget, Qt::WindowFlags windowFla
 }
 
 /*!
-    Removes the widget \a widget from the workspace.
+    Removes \a widget from the MDI area. The \a widget must be
+    either a QMdiSubWindow or a widget that is the internal widget of
+    a subwindow. Note that the subwindow is not deleted by QMdiArea
+    and that its parent is set to 0.
 
     \sa addSubWindow()
 */
@@ -1086,17 +1123,22 @@ bool QMdiArea::scrollBarsEnabled() const
     \property QMdiArea::scrollBarsEnabled
     \brief whether the workspace provides scrollbars
 
-    If this property is true, the workspace will provide scrollbars if any
-    of the child windows extend beyond the edges of the visible
-    workspace. The workspace area will automatically increase to
-    contain child windows if they are resized beyond the right or
-    bottom edges of the visible area.
+    If this property is true, the MDI area will provide scroll
+    bars if any of the subwindows extend beyond the edges of the MDI
+    area. The scroll bar policy is Qt::ScrollBarAsNeeded.
 
-    If this property is false (the default), resizing child windows
-    out of the visible area of the workspace is not permitted, although
-    it is still possible to position them partially outside the visible area.
+    When subwindows are resized the MDI area will increase in size
+    to contain the subwindows. If this property is false (the
+    default), resizing child windows out of the visible area of the
+    workspace is not permitted, although it is still possible to
+    position them partially outside the visible area. Unless the
+    \l{QMdiSubWindow::}{AllowOutsideArea} subwindow option is enabled,
+    it is not possible to place the windows so that they can not be
+    handled by the mouse.
 
-    \sa QAbstractScrollArea::horizontalScrollBar(), QAbstractScrollArea::verticalScrollBar()
+    \sa QAbstractScrollArea::horizontalScrollBar(),
+    QAbstractScrollArea::verticalScrollBar(),
+    QMdiSubWindow::SubWindowOption
 */
 void QMdiArea::setScrollBarsEnabled(bool enable)
 {
@@ -1117,19 +1159,13 @@ void QMdiArea::setScrollBarsEnabled(bool enable)
     \property QMdiArea::background
     \brief the background brush for the workspace
 
-    This property sets the background brush for the workspace area itself. By
-    default, a gray color is used, but you can use any brush for the
-    background (e.g., colors, gradients or pixmaps) by assigning a custom
-    background brush.
+    This property sets the background brush for the workspace area
+    itself. By default, it is a gray color, but can be any brush
+    (e.g., colors, gradients or pixmaps).
 */
-QBrush QMdiArea::background() const
-{
-    return d_func()->background;
-}
-void QMdiArea::setBackground(const QBrush &brush)
-{
-    d_func()->background = brush;
-}
+QBrush QMdiArea::background() const { return d_func()->background;
+} void QMdiArea::setBackground(const QBrush &brush) {
+d_func()->background = brush; }
 
 /*!
     \reimp
@@ -1238,7 +1274,7 @@ void QMdiArea::scrollContentsBy(int dx, int dy)
 /*!
     Arranges all child windows in a tile pattern.
 
-    \sa cascadeSubWindows(), arrangeMinimizedSubWindows()
+    \sa cascadeSubWindows()
 */
 void QMdiArea::tileSubWindows()
 {
@@ -1250,7 +1286,7 @@ void QMdiArea::tileSubWindows()
 /*!
     Arranges all the child windows in a cascade pattern.
 
-    \sa tileSubWindows(), arrangeMinimizedSubWindows()
+    \sa tileSubWindows()
 */
 void QMdiArea::cascadeSubWindows()
 {
@@ -1260,7 +1296,9 @@ void QMdiArea::cascadeSubWindows()
 }
 
 /*!
-    Arranges all iconified windows at the bottom of the workspace.
+    \internal
+
+    Arranges all minimized windows at the bottom of the workspace.
 
     \sa cascadeSubWindows(), tileSubWindows()
 */
@@ -1340,7 +1378,7 @@ void QMdiArea::paintEvent(QPaintEvent *paintEvent)
 /*!
     This slot is called by QAbstractScrollArea after setViewport() has been
     called. Reimplement this function in a subclass of QMdiArea to
-    initialize the new viewport \a viewport before it is used.
+    initialize the new \a viewport before it is used.
 
     \sa setViewport()
 */

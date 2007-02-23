@@ -13,57 +13,82 @@
 
 /*!
     \class QMdiSubWindow
-    \brief The QMdiSubWindow class provides a subwindow class for QWorkspace.
+    \brief The QMdiSubWindow class provides a subwindow class for
+    QMdiArea.
     \since 4.3
     \ingroup application
     \mainclass
 
-    It represents the toplevel window in a QWorkspace, and consists of a
-    titlebar with window decorations, an internal widget, and depending on the
-    current style, a window frame.
+    QMdiArea represents a top-level window in a QMdiArea, and consists
+    of a title bar with window decorations, an internal widget, and
+    (depending on the current style) a window frame and a size
+    grip. QMdiSubWindow has its own layout, which consists of the
+    title bar and a center area for the internal widget.
 
-    QMdiSubWindow shares many properties with regular (top-level) windows, but
-    it is designed to work optimally as a subwindow of QWorkspace.
+    \image qmdisubwindowlayout.png
 
     The most common way to construct a QMdiSubWindow is to call
-    QWorkspace::addSubWindow(), but you can also construct one manually, and
-    assign an internal widget by calling setWidget().
+    QMdiArea::addSubWindow() with the internal widget as the argument.
+    You can also create a subwindow yourself, and set an internal
+    widget by calling setWidget(). 
 
-    By default, QMdiSubWindow keeps itself visible inside the workspace
-    viewport when it is moved around. You can customize this behavior by
-    calling setOption(). You can also set options that enable opaque
-    (rubberband) resize and move.
+    You use the same API when programming with subwindows as with
+    regular top-level windows (e.g., you can call functions such as
+    show(), hide(), showMaximized(), and setWindowTitle()). The
+    difference is that setWidget() instead of QWidget::setLayout()
+    sets the window contents.
 
-    You can call isShaded() to detect whether the subwindow is currently
-    shaded. To enter shaded mode, call showShaded(). QMdiSubWindow emits the
-    windowStateChanged() signal whenever the window state has changed (i.e.,
-    when the window becomes minimized, or is restored). It also emits
-    aboutToActivate() before it is activated.
+    \section1 Subwindow Handling
 
-    \sa QWorkspace
+    QMdiSubWindow also supports behavior specific to subwindows in
+    an MDI area.
+
+    By default, each QMdiSubWindow is visible inside the MDI area
+    viewport when moved around, but it is also possible to have
+    a rubberband when moving or resizing the window. You enable this
+    behavior with setOption().
+
+    The isShaded() function detects whether the subwindow is
+    currently shaded (i.e., the window is collapsed so that only the
+    title bar is visible). To enter shaded mode, call showShaded().
+    QMdiSubWindow emits the windowStateChanged() signal whenever the
+    window state has changed (i.e., when the window becomes minimized,
+    or is restored). It also emits aboutToActivate() before it is
+    activated.
+    
+    In keyboard-interactive mode, the windows are moved and
+    resized with the keyboard. You can enter this mode through the
+    system menu of the window. The keyboardSingleStep and
+    keyboardPageStep properties control the distance the widget is
+    moved or resized for each keypress event.
+
+    \sa QMdiArea
 */
 
 /*!
     \enum QMdiSubWindow::SubWindowOption
 
-    This enum describes options that you can toggle to customize the behavior
+    This enum describes options that customize the behavior
     of QMdiSubWindow.
 
     \value AllowOutsideArea If you enable this option, QWorkspace
-    will allow this window to move outside the workspace area. This option is
-    disabled by default.
+    will allow this window to be moved outside the workspace area
+    with the mouse so that you cannot handle it with the mouse
+    again. This option is disabled by default. The window may
+    still be placed outside the area programmatically or when the
+    area is resized.
 
-    \value TransparentResize If you enable this option, QMdiSubWindow will
-    show a rubberband control while resizing, leaving the widget unchanged
-    until the resize operation has completed. In contrast, when this option is
-    disabled, the subwindow will continuously resize as you move the mouse or
-    use the keyboard. By default, this option is disabled.
+    \value TransparentResize If you enable this option,
+    QMdiSubWindow will show a rubberband control while resizing.  As a
+    result, the window will only recieve one QResizeEvent (when the
+    resize operation is completed). By default, this option is
+    disabled.
 
-    \value TransparentMove If you enable this option, QMdiSubWindow will show
-    a rubberband control while moving, leaving the widget unchanged until the
-    move operation has completed. In contrast, when this option is disabled,
-    the subwindow will continuously move as you move the mouse or use the
-    keyboard. By default, this option is disabled.
+    \value TransparentMove If you enable this option,
+    QMdiSubWindow will show a rubberband control while moving, leaving
+    the window in its original position until the move operation has
+    completed, at which time a QMoveEvent is sendt to the window. By
+    default, this option is disabled.
 */
 
 /*!
@@ -77,7 +102,12 @@
 /*!
     \fn QMdiSubWindow::aboutToActivate()
 
-    QMdiSubWindow emits this signal immediately before it is activated.
+    QMdiSubWindow emits this signal immediately before it is
+    activated. After the window has been activated, the QMdiArea in
+    which the window lives will also emit the
+    \{QMdiArea::}{subWindowActivated()} signal.
+
+    \sa QMdiArea::subWindowActivated()
 */
 
 #include "qmdisubwindow_p.h"
@@ -1192,9 +1222,6 @@ QMdiSubWindowPrivate::Operation QMdiSubWindowPrivate::getOperation(const QPoint 
     return None;
 }
 
-/*!
-    \internal from QWidget.cpp
-*/
 extern QString qt_setWindowTitle_helperHelper(const QString &, QWidget *);
 
 /*!
@@ -1242,7 +1269,7 @@ QStyleOptionTitleBar QMdiSubWindowPrivate::titleBarOptions() const
     QString title = q->isWindowModified() ? q->windowTitle()
                 : qt_setWindowTitle_helperHelper(q->windowTitle(), const_cast<QMdiSubWindow *>(q));
     title.replace(QLatin1String("[*]"), QLatin1String("*"));
-    // Set the text here before asking for the width of the titlebar label
+    // Set the text here before asking for the width of the title bar label
     // in case people uses the actual text to calculate the width.
     titleBarOptions.text = title;
     int width = q->style()->subControlRect(QStyle::CC_TitleBar, &titleBarOptions,
@@ -1709,10 +1736,22 @@ void QMdiSubWindowPrivate::setSizeGripVisible(bool visible) const
 #endif
 
 /*!
-    Constructs a new QMdiSubWindow widget. The \a parent and \a flags
-    arguments are passed to QWidget's constructor.
+    Constructs a new QMdiSubWindow widget. The \a parent and \a
+    flags arguments are passed to QWidget's constructor. The parent of
+    the window should be a QMdiArea. If it is created without a
+    parent, it must be added to a QMdiArea before being shown.
+    Instead of using addSubWindow(), it is also simply possible to
+    use \{QObject::}{setParent()}.
 
-    \sa QWorkspace::addSubWindow()
+    Note that only pointers to \l{QMdiSubWindow}s can be set as
+    children of a QMdiArea; you cannot, for instance, write:
+
+    \badcode
+	QMdiArea mdiArea;
+	QTextArea area(&mdiArea);
+    \endcode
+
+    \sa QMdiArea::addSubWindow()
 */
 QMdiSubWindow::QMdiSubWindow(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(*new QMdiSubWindowPrivate, parent, 0)
@@ -1736,7 +1775,7 @@ QMdiSubWindow::QMdiSubWindow(QWidget *parent, Qt::WindowFlags flags)
 /*!
     Destructs the subwindow.
 
-    \sa QWorkspace::removeSubWindow()
+    \sa QMdiArea::removeSubWindow()
 */
 QMdiSubWindow::~QMdiSubWindow()
 {
@@ -1746,12 +1785,13 @@ QMdiSubWindow::~QMdiSubWindow()
 }
 
 /*!
-    Sets \a widget as the internal widget of this subwindow. The widget will
-    be added to the subwindow's base layout.
+    Sets \a widget as the internal widget of this subwindow. (The
+    internal widget is displayed in the centre of the subwindow
+    beneath the title bar.)
 
-    QMdiSubWindow takes temporary ownership of \a widget; you do not have to
-    delete it. Any existing internal widget will be removed and reparented to
-    the root window.
+    QMdiSubWindow takes temporary ownership of \a widget; you do
+    not have to delete it. Any existing internal widget will be
+    removed and reparented to the root window.
 
     \sa widget()
 */
@@ -1852,8 +1892,10 @@ bool QMdiSubWindow::isShaded() const
 }
 
 /*!
-    Returns the size of the titlebar icon. This size depends on the height of
-    the title bar, and is controlled by the current style.
+    Returns the size of window in its minimized state. 
+    This size depends on the height of the title bar, and
+    is controlled by the current style. The size of windows in
+    minimized state is fixed.
 
     \sa QIcon, QStyle::styleHint()
 */
@@ -1951,16 +1993,17 @@ void QMdiSubWindow::setKeyboardPageStep(int step)
 
     QMdiSubWindow creates a system menu by default.
 
-    QActions for the system menu created by QMdiSubWindow will automatically
-    be updated depending on the current window state,
-    e.g. will the minimize action be disabled after the window is minimized.
+    QActions for the system menu created by QMdiSubWindow will
+    automatically be updated depending on the current window state,
+    e.g., the minimize action will be disabled after the window is
+    minimized.
 
     QActions added by the user are not updated by QMdiSubWindow.
 
     QMdiSubWindow takes ownership of \a systemMenu; you do not have to
     delete it. Any existing menus will be deleted.
 
-    \sa systemMenu, showSystemMenu
+    \sa systemMenu(), showSystemMenu()
 */
 void QMdiSubWindow::setSystemMenu(QMenu *systemMenu)
 {
@@ -1984,9 +2027,11 @@ void QMdiSubWindow::setSystemMenu(QMenu *systemMenu)
 }
 
 /*!
-    Returns a pointer to the current system menu or zero if not set.
+    Returns a pointer to the current system menu or zero if not
+    set. QMdiSubWindow provides a default system menu, but you can
+    also set the menu with setSystemMenu().
 
-    \sa setSystemMenu, showSystemMenu
+    \sa setSystemMenu(), showSystemMenu()
 */
 QMenu *QMdiSubWindow::systemMenu() const
 {
@@ -1996,7 +2041,7 @@ QMenu *QMdiSubWindow::systemMenu() const
 /*!
     Shows the system menu below the system menu icon in the title bar.
 
-    \sa setSystemMenu, systemMenu
+    \sa setSystemMenu(), systemMenu()
 */
 void QMdiSubWindow::showSystemMenu()
 {
@@ -2012,7 +2057,15 @@ void QMdiSubWindow::showSystemMenu()
 }
 
 /*!
+    Calling this function makes the window enter the shaded mode.
+    When the window is shaded, only the title bar is visible.
 
+    Note that not all styles support shading; this function will
+    still show the window as shaded. The user will then not be able to
+    return from shaded mode through the user interface (e.g., through
+    a shade button in the title bar).
+
+    \sa isShaded()
 */
 void QMdiSubWindow::showShaded()
 {
@@ -2647,11 +2700,17 @@ void QMdiSubWindow::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
     }
 }
 
+/*!
+    \reimp
+*/
 void QMdiSubWindow::focusInEvent(QFocusEvent *focusInEvent)
 {
     d_func()->focusInReason = focusInEvent->reason();
 }
 
+/*!
+    \reimp
+*/
 void QMdiSubWindow::childEvent(QChildEvent *childEvent)
 {
     if (childEvent->type() != QEvent::ChildPolished)
