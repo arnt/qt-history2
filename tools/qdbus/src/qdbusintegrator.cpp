@@ -50,6 +50,16 @@ struct QDBusPendingCall
     QDBusMessage message;
 };
 
+class ActivateObjectEvent: public QEvent
+{
+public:
+    ActivateObjectEvent(const QDBusConnectionPrivate::ObjectTreeNode &n, const QDBusMessage &m)
+        : QEvent(QEvent::Type(QEvent::User + 1)), node(n), message(m) {}
+
+    QDBusConnectionPrivate::ObjectTreeNode node;
+    QDBusMessage message;
+};
+
 struct QDBusSlotCache
 {
     struct Data
@@ -305,56 +315,55 @@ bool QDBusConnectionPrivate::handleMessage(const QDBusMessage &amsg)
         (*(*list)[i])(amsg);
     }
 
-    bool handled = false;
     switch (amsg.type()) {
     case QDBusMessage::SignalMessage:
-        handled = handleSignal(amsg);
-        break;
+        handleSignal(amsg);
+        return true;
     case QDBusMessage::MethodCallMessage:
-        handled = handleObjectCall(amsg);
-        break;
+        handleObjectCall(amsg);
+        return true;
     case QDBusMessage::ReplyMessage:
     case QDBusMessage::ErrorMessage:
-        break;
+        return false; // we should never get here
     case QDBusMessage::InvalidMessage:
         Q_ASSERT_X(false, "QDBusConnection", "Invalid message found when processing");
         break;
     }
 
-    return handled;
+    return false;
 }
 
-static void huntAndDestroy(QObject *needle, QDBusConnectionPrivate::ObjectTreeNode *haystack)
+static void huntAndDestroy(QObject *needle, QDBusConnectionPrivate::ObjectTreeNode &haystack)
 {
-    QDBusConnectionPrivate::ObjectTreeNode::DataList::Iterator it = haystack->children.begin();
-    QDBusConnectionPrivate::ObjectTreeNode::DataList::Iterator end = haystack->children.end();
+    QDBusConnectionPrivate::ObjectTreeNode::DataList::Iterator it = haystack.children.begin();
+    QDBusConnectionPrivate::ObjectTreeNode::DataList::Iterator end = haystack.children.end();
     for ( ; it != end; ++it)
-        huntAndDestroy(needle, it);
+        huntAndDestroy(needle, *it);
 
-    if (needle == haystack->obj) {
-        haystack->obj = 0;
-        haystack->flags = 0;
+    if (needle == haystack.obj) {
+        haystack.obj = 0;
+        haystack.flags = 0;
     }
 }
 
 static void huntAndEmit(DBusConnection *connection, DBusMessage *msg,
-                        QObject *needle, const QDBusConnectionPrivate::ObjectTreeNode *haystack,
+                        QObject *needle, const QDBusConnectionPrivate::ObjectTreeNode &haystack,
                         bool isScriptable, bool isAdaptor, const QString &path = QString())
 {
-    QDBusConnectionPrivate::ObjectTreeNode::DataList::ConstIterator it = haystack->children.constBegin();
-    QDBusConnectionPrivate::ObjectTreeNode::DataList::ConstIterator end = haystack->children.constEnd();
+    QDBusConnectionPrivate::ObjectTreeNode::DataList::ConstIterator it = haystack.children.constBegin();
+    QDBusConnectionPrivate::ObjectTreeNode::DataList::ConstIterator end = haystack.children.constEnd();
     for ( ; it != end; ++it)
-        huntAndEmit(connection, msg, needle, it, isScriptable, isAdaptor, path + QLatin1String("/") + it->name);
+        huntAndEmit(connection, msg, needle, *it, isScriptable, isAdaptor, path + QLatin1String("/") + it->name);
 
-    if (needle == haystack->obj) {
+    if (needle == haystack.obj) {
         // is this a signal we should relay?
-        if (isAdaptor && (haystack->flags & QDBusConnection::ExportAdaptors) == 0)
+        if (isAdaptor && (haystack.flags & QDBusConnection::ExportAdaptors) == 0)
             return;             // no: it comes from an adaptor and we're not exporting adaptors
         else if (!isAdaptor) {
             int mask = isScriptable
                        ? QDBusConnection::ExportScriptableSignals
                        : QDBusConnection::ExportNonScriptableSignals;
-            if ((haystack->flags & mask) == 0)
+            if ((haystack.flags & mask) == 0)
                 return;         // signal was not exported
         }
 
@@ -487,7 +496,7 @@ static CallDeliveryEvent* prepareReply(QObject *object, int idx, const QList<int
     return data;
 }
 
-bool QDBusConnectionPrivate::activateSignal(const QDBusConnectionPrivate::SignalHook& hook,
+void QDBusConnectionPrivate::activateSignal(const QDBusConnectionPrivate::SignalHook& hook,
                                             const QDBusMessage &msg)
 {
     // This is called by QDBusConnectionPrivate::handleSignal to deliver a signal
@@ -498,15 +507,13 @@ bool QDBusConnectionPrivate::activateSignal(const QDBusConnectionPrivate::Signal
     // Slots can optionally have one final parameter that is a QDBusMessage
     // Slots receive read-only copies of the message (i.e., pass by value or by const-ref)
     CallDeliveryEvent *call = prepareReply(hook.obj, hook.midx, hook.params, msg);
-    if (call) {
-        postCallDeliveryEvent(call);
-        return true;
-    }
-    return false;
+    if (call)
+        QCoreApplication::postEvent(this, call);
+    
 }
 
-bool QDBusConnectionPrivate::activateCall(QObject* object, int flags,
-                                          const QDBusMessage &msg)
+CallDeliveryEvent *QDBusConnectionPrivate::activateCall(QObject* object, int flags,
+                                                        const QDBusMessage &msg)
 {
     // This is called by QDBusConnectionPrivate::handleObjectCall to place a call
     // to a slot on the object.
@@ -531,7 +538,7 @@ bool QDBusConnectionPrivate::activateCall(QObject* object, int flags,
     static const char cachePropertyName[] = "_qdbus_slotCache";
 
     if (!object)
-        return false;
+        return 0;
 
     QDBusSlotCache::Data slotData;
 
@@ -563,7 +570,7 @@ bool QDBusConnectionPrivate::activateCall(QObject* object, int flags,
                 slotData.metaTypes.clear();
                 slotCache.hash.insert(cacheKey, slotData);
                 object->setProperty(cachePropertyName, qVariantFromValue(slotCache));
-                return false;
+                return 0;
 	  }
         }
 
@@ -572,7 +579,7 @@ bool QDBusConnectionPrivate::activateCall(QObject* object, int flags,
         object->setProperty(cachePropertyName, qVariantFromValue(slotCache));
     } else if (cacheIt->slotIdx == -1) {
         // negative cache
-        return false;
+        return 0;
     } else {
         slotData = cacheIt.value();
     }
@@ -590,30 +597,8 @@ bool QDBusConnectionPrivate::activateCall(QObject* object, int flags,
     call->metaTypes = slotData.metaTypes;
     call->slotIdx = slotData.slotIdx;
 
-    if (QDBusMessagePrivate::isLocal(msg)) {
-        //qDebug() << "QDBusConnectionPrivate::activateCall" << msg.d_ptr->msg;
-        sendCallDeliveryEvent(call);
-        delete call;
-    } else {
-        postCallDeliveryEvent(call);
-    }
-
     // ready
-    return true;
-}
-
-void QDBusConnectionPrivate::sendCallDeliveryEvent(CallDeliveryEvent *data)
-{
-    Q_ASSERT(data);
-    data->conn = this;
-    QCoreApplication::sendEvent(this, data);
-}
-
-void QDBusConnectionPrivate::postCallDeliveryEvent(CallDeliveryEvent *data)
-{
-    Q_ASSERT(data);
-    data->conn = this;
-    QCoreApplication::postEvent(this, data);
+    return call;
 }
 
 void QDBusConnectionPrivate::deliverCall(const CallDeliveryEvent& data) const
@@ -711,8 +696,8 @@ void QDBusConnectionPrivate::deliverCall(const CallDeliveryEvent& data) const
         } else {
             // generate internal error
             qWarning("Internal error: Failed to deliver message");
-            send(msg.createErrorReply(QDBusError(QDBusError::InternalError,
-                                                 QLatin1String("Failed to deliver message"))));
+            send(msg.createErrorReply(QDBusError::InternalError,
+                                      QLatin1String("Failed to deliver message")));
         }
     }
 
@@ -721,13 +706,16 @@ void QDBusConnectionPrivate::deliverCall(const CallDeliveryEvent& data) const
 
 void QDBusConnectionPrivate::customEvent(QEvent *e)
 {
-    // nothing else should be sending custom events at us
-    CallDeliveryEvent* call = static_cast<CallDeliveryEvent *>(e);
-
-    // self check:
-    Q_ASSERT(call->conn == this);
-
-    deliverCall(*call);
+    switch (int(e->type())) {
+    case QEvent::User: {
+        CallDeliveryEvent* call = static_cast<CallDeliveryEvent *>(e);
+        deliverCall(*call);
+        break; }
+    case QEvent::User + 1: {
+        ActivateObjectEvent *activate = static_cast<ActivateObjectEvent *>(e);
+        activateObject(activate->node, activate->message);
+        break; }
+    }
 }
 
 QDBusConnectionPrivate::QDBusConnectionPrivate(QObject *p)
@@ -858,7 +846,7 @@ void QDBusConnectionPrivate::socketWrite(int fd)
 void QDBusConnectionPrivate::objectDestroyed(QObject *obj)
 {
     QWriteLocker locker(&lock);
-    huntAndDestroy(obj, &rootNode);
+    huntAndDestroy(obj, rootNode);
 
     SignalHookHash::iterator sit = signalHooks.begin();
     while (sit != signalHooks.end()) {
@@ -907,7 +895,7 @@ void QDBusConnectionPrivate::relaySignal(QObject *obj, const QMetaObject *mo, in
     //qDBusDebug() << "Emitting signal" << message;
     //qDBusDebug() << "for paths:";
     dbus_message_set_no_reply(msg, true); // the reply would not be delivered to anything
-    huntAndEmit(connection, msg, obj, &rootNode, isScriptable, isAdaptor);
+    huntAndEmit(connection, msg, obj, rootNode, isScriptable, isAdaptor);
     dbus_message_unref(msg);
 }
 
@@ -987,7 +975,21 @@ bool QDBusConnectionPrivate::prepareHook(QDBusConnectionPrivate::SignalHook &hoo
     return true;                // connect to this signal
 }
 
-bool QDBusConnectionPrivate::activateInternalFilters(const ObjectTreeNode *node, const QDBusMessage &msg)
+void QDBusConnectionPrivate::sendNoSuchMethodError(const QDBusMessage &msg)
+{
+    QString interfaceMsg;
+    if (msg.interface().isEmpty())
+        interfaceMsg = QLatin1String("any interface");
+    else
+        interfaceMsg = QString::fromLatin1("interface '%1'").arg(msg.interface());
+
+    send(msg.createErrorReply(QDBusError::UnknownMethod,
+                              QString::fromLatin1("No such method '%1' in %2 at object path '%3' "
+                                                  "(signature '%4')")
+                              .arg(msg.member(), interfaceMsg, msg.path(), msg.signature())));
+}
+
+bool QDBusConnectionPrivate::activateInternalFilters(const ObjectTreeNode &node, const QDBusMessage &msg)
 {
     // object may be null
 
@@ -996,30 +998,35 @@ bool QDBusConnectionPrivate::activateInternalFilters(const ObjectTreeNode *node,
             //qDebug() << "QDBusConnectionPrivate::activateInternalFilters introspect" << msg.d_ptr->msg;
             QDBusMessage reply = msg.createReply(qDBusIntrospectObject(node));
             send(reply);
-        }
-        if (msg.interface() == QLatin1String(DBUS_INTERFACE_INTROSPECTABLE))
             return true;
+        }
     }
 
-    if (node->obj && (msg.interface().isEmpty() ||
-                      msg.interface() == QLatin1String(DBUS_INTERFACE_PROPERTIES))) {
+    if (node.obj && (msg.interface().isEmpty() ||
+                     msg.interface() == QLatin1String(DBUS_INTERFACE_PROPERTIES))) {
         //qDebug() << "QDBusConnectionPrivate::activateInternalFilters properties" << msg.d_ptr->msg;
         if (msg.member() == QLatin1String("Get") && msg.signature() == QLatin1String("ss")) {
             QDBusMessage reply = qDBusPropertyGet(node, msg);
             send(reply);
+            return true;
         } else if (msg.member() == QLatin1String("Set") && msg.signature() == QLatin1String("ssv")) {
             QDBusMessage reply = qDBusPropertySet(node, msg);
             send(reply);
-        }
-
-        if (msg.interface() == QLatin1String(DBUS_INTERFACE_PROPERTIES))
             return true;
+        }
+    }
+
+    if (msg.interface() == QLatin1String(DBUS_INTERFACE_INTROSPECTABLE) ||
+        msg.interface() == QLatin1String(DBUS_INTERFACE_PROPERTIES)) {
+        // if we didn't handle above, it's because the method doesn't exist
+        sendNoSuchMethodError(msg);
+        return true;
     }
 
     return false;
 }
 
-bool QDBusConnectionPrivate::activateObject(const ObjectTreeNode *node, const QDBusMessage &msg)
+void QDBusConnectionPrivate::activateObject(const ObjectTreeNode &node, const QDBusMessage &msg)
 {
     // This is called by QDBusConnectionPrivate::handleObjectCall to place a call to a slot
     // on the object.
@@ -1027,11 +1034,12 @@ bool QDBusConnectionPrivate::activateObject(const ObjectTreeNode *node, const QD
     // The call is routed through the adaptor sub-objects if we have any
 
     // object may be null
+    CallDeliveryEvent *result;
 
     QDBusAdaptorConnector *connector;
-    if (node->flags & QDBusConnection::ExportAdaptors &&
-        (connector = qDBusFindAdaptorConnector(node->obj))) {
-        int newflags = node->flags | QDBusConnection::ExportNonScriptableSlots;
+    if (node.flags & QDBusConnection::ExportAdaptors &&
+        (connector = qDBusFindAdaptorConnector(node.obj))) {
+        int newflags = node.flags | QDBusConnection::ExportNonScriptableSlots;
 
         if (msg.interface().isEmpty()) {
             // place the call in all interfaces
@@ -1041,38 +1049,61 @@ bool QDBusConnectionPrivate::activateObject(const ObjectTreeNode *node, const QD
             QDBusAdaptorConnector::AdaptorMap::ConstIterator end =
                 connector->adaptors.constEnd();
 
-            for ( ; it != end; ++it)
-                if (activateCall(it->adaptor, newflags, msg))
-                    return true;
+            for ( ; it != end; ++it) {
+                if ((result = activateCall(it->adaptor, newflags, msg))) {
+                    deliverCall(*result);
+                    delete result;
+                    return;
+                }
+            }
         } else {
             // check if we have an interface matching the name that was asked:
             QDBusAdaptorConnector::AdaptorMap::ConstIterator it;
             it = qLowerBound(connector->adaptors.constBegin(), connector->adaptors.constEnd(),
                              msg.interface());
-            if (it != connector->adaptors.constEnd() && msg.interface() == QLatin1String(it->interface))
-                if (activateCall(it->adaptor, newflags, msg))
-                return true;
+            if (it != connector->adaptors.constEnd() && msg.interface() == QLatin1String(it->interface)) {
+                result = activateCall(it->adaptor, newflags, msg);
+                if (result) {
+                    deliverCall(*result);
+                    delete result;
+                } else {
+                    sendNoSuchMethodError(msg);
+                }
+                return;
+            }
         }
     }
 
     // no adaptors matched or were exported
     // try our standard filters
     if (activateInternalFilters(node, msg))
-        return true;
+        return;
 
     // try the object itself:
-    if (node->flags & (QDBusConnection::ExportScriptableSlots|QDBusConnection::ExportNonScriptableSlots) &&
-        activateCall(node->obj, node->flags, msg)) {
-        return true;
-    }
-#if 0
-    // nothing matched
-    qDebug("Call failed: no match for %s%s%s at %s",
-           qPrintable(msg.interface()), msg.interface().isEmpty() ? "" : ".",
-           qPrintable(msg.signature()),
-           qPrintable(msg.path()));
-#endif
-    return false;
+    if (node.flags & (QDBusConnection::ExportScriptableSlots|QDBusConnection::ExportNonScriptableSlots)) {
+        bool interfaceFound = true;
+        if (!msg.interface().isEmpty())
+            interfaceFound = msg.interface() == qDBusInterfaceFromMetaObject(node.obj->metaObject());
+
+        if (interfaceFound) {
+            result = activateCall(node.obj, node.flags, msg);
+            if (result) {
+                deliverCall(*result);
+                delete result;
+                return;
+            } else {
+                sendNoSuchMethodError(msg);
+            }
+        }
+     }
+
+    // nothing matched, send an error code
+    if (!msg.interface().isEmpty())
+        send(msg.createErrorReply(QDBusError::UnknownMethod,
+                                  QString::fromLatin1("No such interface '%1' at object '%2'")
+                                  .arg(msg.interface(), msg.path())));
+    else
+        sendNoSuchMethodError(msg);
 }
 
 static bool findObject(const QDBusConnectionPrivate::ObjectTreeNode *root,
@@ -1142,20 +1173,27 @@ static bool findObject(const QDBusConnectionPrivate::ObjectTreeNode *root,
     return false;
 }
 
-bool QDBusConnectionPrivate::handleObjectCall(const QDBusMessage &msg)
+void QDBusConnectionPrivate::handleObjectCall(const QDBusMessage &msg)
 {
     QReadLocker locker(&lock);
 
     ObjectTreeNode result;
-    if (findObject(&rootNode, msg.path(), result))
-        return activateObject(&result, msg);
+    if (findObject(&rootNode, msg.path(), result)) {
+        if (QDBusMessagePrivate::isLocal(msg)) {
+            //qDebug() << "QDBusConnectionPrivate::activateCall" << msg.d_ptr->msg;
+            activateObject(result, msg);
+        } else {
+            QCoreApplication::postEvent(this, new ActivateObjectEvent(result, msg));
+        } 
+        return;
+    }
     // qDebug("Call failed: no object found at %s", qPrintable(msg.path()));
-    return false;
+    send(msg.createErrorReply(QDBusError::UnknownMethod,
+                              QString::fromLatin1("No such object '%1'").arg(msg.path())));
 }
 
-bool QDBusConnectionPrivate::handleSignal(const QString &key, const QDBusMessage& msg)
+void QDBusConnectionPrivate::handleSignal(const QString &key, const QDBusMessage& msg)
 {
-    bool result = false;
     SignalHookHash::const_iterator it = signalHooks.find(key);
     SignalHookHash::const_iterator end = signalHooks.constEnd();
     //qDebug("looking for: %s", path.toLocal8Bit().constData());
@@ -1171,13 +1209,11 @@ bool QDBusConnectionPrivate::handleSignal(const QString &key, const QDBusMessage
         if (hook.signature.isEmpty() && !hook.signature.isNull() && !msg.signature().isEmpty())
             continue;
 
-        // yes, |=
-        result |= activateSignal(hook, msg);
+        activateSignal(hook, msg);
     }
-    return result;
 }
 
-bool QDBusConnectionPrivate::handleSignal(const QDBusMessage& msg)
+void QDBusConnectionPrivate::handleSignal(const QDBusMessage& msg)
 {
     // We call handlesignal(QString, QDBusMessage) three times:
     //  one with member:interface
@@ -1192,15 +1228,14 @@ bool QDBusConnectionPrivate::handleSignal(const QDBusMessage& msg)
     key += msg.interface();
 
     QReadLocker locker(&lock);
-    bool result = handleSignal(key, msg);    // one try
+    handleSignal(key, msg);                  // one try
 
     key.truncate(msg.member().length() + 1); // keep the ':'
-    result |= handleSignal(key, msg);        // second try
+    handleSignal(key, msg);                  // second try
 
     key = QLatin1Char(':');
     key += msg.interface();
-    result |= handleSignal(key, msg);        // third try
-    return result;
+    handleSignal(key, msg);                  // third try
 }
 
 static dbus_int32_t server_slot = -1;
@@ -1306,7 +1341,7 @@ void QDBusConnectionPrivate::messageResultReceived(DBusPendingCall *pending, voi
         } else {
             CallDeliveryEvent *e = prepareReply(call->receiver, call->methodIdx, call->metaTypes, msg);
             if (e)
-                connection->postCallDeliveryEvent(e);
+                QCoreApplication::postEvent(connection, e);
             else
                 qDBusDebug() << "Deliver failed!";
         }
@@ -1318,7 +1353,7 @@ void QDBusConnectionPrivate::messageResultReceived(DBusPendingCall *pending, voi
 int QDBusConnectionPrivate::send(const QDBusMessage& message) const
 {
     if (QDBusMessagePrivate::isLocal(message))
-        return 0;               // don't send; the reply will be retrieved by the caller
+        return -1;              // don't send; the reply will be retrieved by the caller
                                 // through the d_ptr->localReply link
 
     DBusMessage *msg = QDBusMessagePrivate::toDBusMessage(message);
@@ -1407,11 +1442,15 @@ QDBusMessage QDBusConnectionPrivate::sendWithReplyLocal(const QDBusMessage &mess
     QDBusMessage localCallMsg = QDBusMessagePrivate::makeLocal(*this, message);
     bool handled = handleMessage(localCallMsg);
 
-    if (!handled)
-        return QDBusMessage::createError(
-            QDBusError(QDBusError::UnknownMethod,
-                       QString::fromLatin1("no method '%1' at object %2 (with signature '%3')")
-                       .arg(message.member(), message.path(), message.signature())));
+    if (!handled) {
+        QString interface = message.interface();
+        if (interface.isEmpty())
+            interface = QLatin1String("<no-interface>");
+        return QDBusMessage::createError(QDBusError::InternalError,
+                                         QString::fromLatin1("Internal error trying to call %1.%2 at %3 (signature '%4'")
+                                         .arg(interface, message.member(),
+                                              message.path(), message.signature()));
+    }
 
     // if the message was handled, there might be a reply
     QDBusMessage localReplyMsg = QDBusMessagePrivate::makeLocalReply(*this, localCallMsg);

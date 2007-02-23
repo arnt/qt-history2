@@ -108,7 +108,7 @@ public:
     typedef QHash<QString, QDBusMetaObject* > MetaObjectHash;
 
 public:
-    // public methods
+    // public methods are entry points from other objects
     explicit QDBusConnectionPrivate(QObject *parent = 0);
     ~QDBusConnectionPrivate();
 
@@ -117,7 +117,6 @@ public:
     void setConnection(DBusConnection *connection);
     void setServer(DBusServer *server);
     void closeConnection();
-    void timerEvent(QTimerEvent *e);
 
     QString getNameOwner(const QString &service);
 
@@ -138,29 +137,32 @@ public:
                          QDBusAbstractInterface *receiver, const char *signal);
 
     bool handleMessage(const QDBusMessage &msg);
-    bool handleSignal(const QString &key, const QDBusMessage &msg);
-    bool handleSignal(const QDBusMessage &msg);
-    bool handleObjectCall(const QDBusMessage &message);
     bool handleError();
-
-    bool activateSignal(const SignalHook& hook, const QDBusMessage &msg);
-    bool activateCall(QObject* object, int flags, const QDBusMessage &msg);
-    bool activateObject(const ObjectTreeNode *node, const QDBusMessage &msg);
-    bool activateInternalFilters(const ObjectTreeNode *node, const QDBusMessage &msg);
-
-    void sendCallDeliveryEvent(CallDeliveryEvent *data);
-    void postCallDeliveryEvent(CallDeliveryEvent *data);
-    void deliverCall(const CallDeliveryEvent &data) const;
 
     QDBusMetaObject *findMetaObject(const QString &service, const QString &path,
                                     const QString &interface);
 
     void registerService(const QString &serviceName);
     void unregisterService(const QString &serviceName);
+
+private:
+    void handleSignal(const QString &key, const QDBusMessage &msg);
+    void handleSignal(const QDBusMessage &msg);
+    void handleObjectCall(const QDBusMessage &message);
+
+    void activateSignal(const SignalHook& hook, const QDBusMessage &msg);
+    void activateObject(const ObjectTreeNode &node, const QDBusMessage &msg);
+    bool activateInternalFilters(const ObjectTreeNode &node, const QDBusMessage &msg);
+    CallDeliveryEvent *activateCall(QObject* object, int flags, const QDBusMessage &msg);
+
+    void sendNoSuchMethodError(const QDBusMessage &msg);
+    void deliverCall(const CallDeliveryEvent &data) const;
+
     bool isServiceRegisteredByThread(const QString &serviceName) const;
 
 protected:
-    virtual void customEvent(QEvent *event);
+    void timerEvent(QTimerEvent *e);
+    void customEvent(QEvent *event);
 
 public slots:
     // public slots
@@ -247,10 +249,13 @@ extern int qDBusNameToTypeId(const char *name);
 extern bool qDBusCheckAsyncTag(const char *tag);
 
 // in qdbusinternalfilters.cpp
-extern QString qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode *node);
-extern QDBusMessage qDBusPropertyGet(const QDBusConnectionPrivate::ObjectTreeNode *node,
+extern QString qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode &node);
+extern QDBusMessage qDBusPropertyGet(const QDBusConnectionPrivate::ObjectTreeNode &node,
                                      const QDBusMessage &msg);
-extern QDBusMessage qDBusPropertySet(const QDBusConnectionPrivate::ObjectTreeNode *node,
+extern QDBusMessage qDBusPropertySet(const QDBusConnectionPrivate::ObjectTreeNode &node,
                                      const QDBusMessage &msg);
+
+// in qdbusxmlgenerator.cpp
+extern QString qDBusInterfaceFromMetaObject(const QMetaObject *mo);
 
 #endif
