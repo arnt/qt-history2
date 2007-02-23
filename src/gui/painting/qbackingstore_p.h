@@ -30,7 +30,7 @@
 
 class QWindowSurface;
 
-class QWidgetBackingStore
+class Q_AUTOTEST_EXPORT QWidgetBackingStore
 {
 public:
     QWidgetBackingStore(QWidget *t);
@@ -52,6 +52,8 @@ public:
     void removeDirtyWidget(QWidget *w);
 #endif
 
+    static bool isOpaque(const QWidget *widget);
+
 private:
     QWidget *tlw;
 #ifndef Q_WS_QWS
@@ -64,8 +66,6 @@ private:
     QWindowSurface *windowSurface;
 
     QPoint tlwOffset;
-
-    static bool isOpaque(const QWidget *widget);
 
     void copyToScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool recursive = true);
 

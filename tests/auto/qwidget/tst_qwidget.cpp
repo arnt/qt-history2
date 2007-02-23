@@ -25,6 +25,7 @@
 #include <qwindowsstyle.h>
 #include <qinputcontext.h>
 #include <qdesktopwidget.h>
+#include <private/qbackingstore_p.h>
 
 #ifdef Q_WS_QWS
 # include <qscreen_qws.h>
@@ -147,6 +148,9 @@ private slots:
 
     void showHideEvent_data();
     void showHideEvent();
+
+    void update();
+    void isOpaque();
 
     // tests QWidget::setGeometry() on windows only
     void setWindowGeometry_data();
@@ -3149,6 +3153,245 @@ void tst_QWidget::showHideEvent()
 
     QCOMPARE(widget.numberOfShowEvents, expectedShowEvents);
     QCOMPARE(widget.numberOfHideEvents, expectedHideEvents);
+}
+
+class UpdateWidget : public QWidget
+{
+public:
+    UpdateWidget(QWidget *parent = 0) : QWidget(parent) {
+        reset();
+    }
+
+    void paintEvent(QPaintEvent *e) {
+        paintedRegion += e->region();
+        ++numPaintEvents;
+    }
+
+    void reset() {
+        numPaintEvents = 0;
+        paintedRegion = QRegion();
+    }
+
+    int numPaintEvents;
+    QRegion paintedRegion;
+};
+
+void tst_QWidget::update()
+{
+    UpdateWidget w;
+    w.setGeometry(50, 50, 100, 100);
+    w.show();
+    QApplication::processEvents();
+    QApplication::processEvents();
+
+    QCOMPARE(w.numPaintEvents, 1);
+    QCOMPARE(w.visibleRegion(), QRegion(w.rect()));
+    QCOMPARE(w.paintedRegion, w.visibleRegion());
+    w.reset();
+
+    UpdateWidget child(&w);
+    child.setGeometry(10, 10, 80, 80);
+    child.show();
+
+    QPoint childOffset = child.mapToParent(QPoint());
+
+    // widgets are transparent by default, so both should get repaints
+    {
+        QApplication::processEvents();
+        QApplication::processEvents();
+        QCOMPARE(child.numPaintEvents, 1);
+        QCOMPARE(child.visibleRegion(), QRegion(child.rect()));
+        QCOMPARE(child.paintedRegion, child.visibleRegion());
+        QCOMPARE(w.numPaintEvents, 1);
+        QCOMPARE(w.visibleRegion(), QRegion(w.rect()));
+        QCOMPARE(w.paintedRegion, child.visibleRegion().translated(childOffset));
+
+        w.reset();
+        child.reset();
+
+        w.update();
+        QApplication::processEvents();
+        QApplication::processEvents();
+        QCOMPARE(child.numPaintEvents, 1);
+        QCOMPARE(child.visibleRegion(), QRegion(child.rect()));
+        QCOMPARE(child.paintedRegion, child.visibleRegion());
+        QCOMPARE(w.numPaintEvents, 1);
+        QCOMPARE(w.visibleRegion(), QRegion(w.rect()));
+        QCOMPARE(w.paintedRegion, w.visibleRegion());
+    }
+
+    QPalette opaquePalette = child.palette();
+    opaquePalette.setColor(child.backgroundRole(), QColor(Qt::red));
+
+    // setting an opaque background on the child should prevent paint-events
+    // for the parent in the child area
+    {
+        child.setPalette(opaquePalette);
+        child.setAutoFillBackground(true);
+        QApplication::processEvents();
+
+        w.reset();
+        child.reset();
+
+        w.update();
+        QApplication::processEvents();
+        QApplication::processEvents();
+
+        QCOMPARE(w.numPaintEvents, 1);
+        QRegion expectedVisible = QRegion(w.rect())
+                                  - child.visibleRegion().translated(childOffset);
+        QEXPECT_FAIL("", "Task 151858", Continue);
+        QCOMPARE(w.visibleRegion(), expectedVisible);
+        QCOMPARE(w.paintedRegion, expectedVisible);
+        QCOMPARE(child.numPaintEvents, 0);
+
+        w.reset();
+        child.reset();
+
+        child.update();
+        QApplication::processEvents();
+        QApplication::processEvents();
+
+        QCOMPARE(w.numPaintEvents, 0);
+        QCOMPARE(child.numPaintEvents, 1);
+        QCOMPARE(child.paintedRegion, child.visibleRegion());
+
+        w.reset();
+        child.reset();
+    }
+
+    // overlapping sibling
+    UpdateWidget sibling(&w);
+    child.setGeometry(10, 10, 20, 20);
+    sibling.setGeometry(15, 15, 20, 20);
+    sibling.show();
+
+    QApplication::processEvents();
+    w.reset();
+    child.reset();
+    sibling.reset();
+
+    const QPoint siblingOffset = sibling.mapToParent(QPoint());
+
+    sibling.update();
+    QApplication::processEvents();
+    QApplication::processEvents();
+
+    // child is opaque, sibling transparent
+    {
+        QCOMPARE(sibling.numPaintEvents, 1);
+        QCOMPARE(sibling.paintedRegion, sibling.visibleRegion());
+
+        QCOMPARE(child.numPaintEvents, 1);
+        QCOMPARE(child.paintedRegion.translated(childOffset),
+                 child.visibleRegion().translated(childOffset)
+                 & sibling.visibleRegion().translated(siblingOffset));
+
+        QCOMPARE(w.numPaintEvents, 1);
+        QEXPECT_FAIL("", "Task 151858", Continue);
+        QCOMPARE(w.paintedRegion,
+                 w.visibleRegion() & sibling.visibleRegion().translated(siblingOffset));
+        QCOMPARE(w.paintedRegion,
+                 (w.visibleRegion() - child.visibleRegion().translated(childOffset))
+                 & sibling.visibleRegion().translated(siblingOffset));
+
+    }
+    w.reset();
+    child.reset();
+    sibling.reset();
+
+    sibling.setPalette(opaquePalette);
+    sibling.setAutoFillBackground(true);
+
+    sibling.update();
+    QApplication::processEvents();
+    QApplication::processEvents();
+
+    // child opaque, sibling opaque
+    {
+        QCOMPARE(sibling.numPaintEvents, 1);
+        QCOMPARE(sibling.paintedRegion, sibling.visibleRegion());
+
+        QCOMPARE(child.numPaintEvents, 0);
+        QEXPECT_FAIL("", "Task 151858", Continue);
+        QCOMPARE(child.visibleRegion(),
+                 QRegion(child.rect())
+                 - sibling.visibleRegion().translated(siblingOffset - childOffset));
+
+        QCOMPARE(w.numPaintEvents, 0);
+        QEXPECT_FAIL("", "Task 151858", Continue);
+        QCOMPARE(w.visibleRegion(),
+                 QRegion(w.rect())
+                 - child.visibleRegion().translated(childOffset)
+                 - sibling.visibleRegion().translated(siblingOffset));
+    }
+}
+
+void tst_QWidget::isOpaque()
+{
+    QWidget w;
+    QVERIFY(QWidgetBackingStore::isOpaque(&w));
+
+    QWidget child(&w);
+    QVERIFY(!QWidgetBackingStore::isOpaque(&child));
+
+    child.setAutoFillBackground(true);
+    QVERIFY(QWidgetBackingStore::isOpaque(&child));
+
+    QPalette palette;
+
+    // background color
+
+    palette = child.palette();
+    palette.setColor(child.backgroundRole(), QColor(255, 0, 0, 127));
+    child.setPalette(palette);
+    QVERIFY(!QWidgetBackingStore::isOpaque(&child));
+
+    palette.setColor(child.backgroundRole(), QColor(255, 0, 0, 255));
+    child.setPalette(palette);
+    QVERIFY(QWidgetBackingStore::isOpaque(&child));
+
+    palette.setColor(QPalette::Window, QColor(0, 0, 255, 127));
+    w.setPalette(palette);
+
+#ifdef Q_WS_QWS // only platform that currently supports transparent top-levels
+    QVERIFY(!QWidgetBackingStore::isOpaque(&w));
+#else
+    QVERIFY(QWidgetBackingStore::isOpaque(&w));
+#endif
+
+    child.setAutoFillBackground(false);
+    QVERIFY(!QWidgetBackingStore::isOpaque(&child));
+
+    // Qt::WA_OpaquePaintEvent
+
+    child.setAttribute(Qt::WA_OpaquePaintEvent);
+    QVERIFY(QWidgetBackingStore::isOpaque(&child));
+
+    child.setAttribute(Qt::WA_OpaquePaintEvent, false);
+    QVERIFY(!QWidgetBackingStore::isOpaque(&child));
+
+    // Qt::WA_NoSystemBackground
+
+    child.setAttribute(Qt::WA_NoSystemBackground);
+    QVERIFY(!QWidgetBackingStore::isOpaque(&child));
+
+    child.setAttribute(Qt::WA_NoSystemBackground, false);
+    QVERIFY(!QWidgetBackingStore::isOpaque(&child));
+
+    palette.setColor(QPalette::Window, QColor(0, 0, 255, 255));
+    w.setPalette(palette);
+    QVERIFY(QWidgetBackingStore::isOpaque(&w));
+
+    w.setAttribute(Qt::WA_NoSystemBackground);
+#ifdef Q_WS_QWS
+    QVERIFY(!QWidgetBackingStore::isOpaque(&w));
+#else
+    QVERIFY(QWidgetBackingStore::isOpaque(&w));
+#endif
+
+    w.setAttribute(Qt::WA_NoSystemBackground, false);
+    QVERIFY(QWidgetBackingStore::isOpaque(&w));
 }
 
 class DestroyedSlotChecker : public QObject

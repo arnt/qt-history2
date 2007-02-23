@@ -1606,18 +1606,31 @@ bool QWidgetPrivate::isOpaque() const
 	return false;
 #endif
     if (q->testAttribute(Qt::WA_OpaquePaintEvent)
-        || q->testAttribute(Qt::WA_PaintOnScreen)
-        || q->testAttribute(Qt::WA_NoSystemBackground))
+        || q->testAttribute(Qt::WA_PaintOnScreen))
         return true;
 
-    if (!q->autoFillBackground())
-        return false;
-
     const QPalette &pal = q->palette();
-    QPalette::ColorRole bg = q->backgroundRole();
-    QBrush bgBrush = pal.brush(bg);
-    return bgBrush.style() != Qt::NoBrush && bgBrush.isOpaque();
+
+    if (q->autoFillBackground()) {
+        const QBrush autoFillBrush = pal.brush(q->backgroundRole());
+        if (autoFillBrush != Qt::NoBrush && autoFillBrush.isOpaque())
+            return true;
+    }
+
+#ifdef Q_WS_QWS
+    if (q->isWindow() && !q->testAttribute(Qt::WA_NoSystemBackground)) {
+        const QBrush windowBrush = q->palette().brush(QPalette::Window);
+        if (windowBrush != Qt::NoBrush && windowBrush.isOpaque())
+            return true;
+    }
+#else
+    if (q->isWindow())
+        return true;
+#endif
+
+    return false;
 }
+
 
 /*!
     \fn void QPixmap::fill(const QWidget *widget, const QPoint &offset)
