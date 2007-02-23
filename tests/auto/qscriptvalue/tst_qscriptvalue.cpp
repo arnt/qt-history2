@@ -828,9 +828,9 @@ void tst_QScriptValue::getSetProperty()
     QCOMPARE(array.property(1).isValid(), false);
 
     QScriptEngine otherEngine;
-    num = QScriptValue(&otherEngine, 123);
+    QScriptValue otherNum = QScriptValue(&otherEngine, 123);
     QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setProperty() failed: cannot set value created in a different engine");
-    object.setProperty("oof", num);
+    object.setProperty("oof", otherNum);
     QCOMPARE(object.property("oof").isValid(), false);
 
     // test ResolveMode
@@ -849,6 +849,24 @@ void tst_QScriptValue::getSetProperty()
              .strictEqualTo(num2), false);
     QCOMPARE(object.property("propertyInPrototype", QScriptValue::ResolveFull)
              .strictEqualTo(num2), true);
+
+    // test property removal (setProperty(QScriptValue()))
+    QScriptValue object3 = eng.newObject();
+    object3.setProperty("foo", num);
+    QCOMPARE(object3.property("foo").strictEqualTo(num), true);
+    object3.setProperty("bar", str);
+    QCOMPARE(object3.property("bar").strictEqualTo(str), true);
+    object3.setProperty("foo", QScriptValue());
+    QCOMPARE(object3.property("foo").isValid(), false);
+    QCOMPARE(object3.property("bar").strictEqualTo(str), true);
+    object3.setProperty("foo", num);
+    QCOMPARE(object3.property("foo").strictEqualTo(num), true);
+    QCOMPARE(object3.property("bar").strictEqualTo(str), true);
+    object3.setProperty("bar", QScriptValue());
+    QCOMPARE(object3.property("bar").isValid(), false);
+    QCOMPARE(object3.property("foo").strictEqualTo(num), true);
+    object3.setProperty("foo", QScriptValue());
+    object3.setProperty("foo", QScriptValue());
 }
 
 void tst_QScriptValue::getSetPrototype()

@@ -594,8 +594,10 @@ QScriptValue QScriptValue::property(const QScriptNameId &nameId,
 /*!
   \internal
 
-  Sets the value of this QScriptValue's property identified by \a nameId to
-  the given \a value.
+  Sets the value of this QScriptValue's property identified by \a
+  nameId to the given \a value.
+
+  Setting the property to an invalid value will remove the property.
 
   If this QScriptValue is not an object, this function does nothing.
 
