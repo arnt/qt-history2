@@ -2819,7 +2819,7 @@ QGLPathMaskGenerator::QGLPathMaskGenerator(const QPainterPath &path, const QTran
 QRect QGLPathMaskGenerator::computeScreenRect()
 {
     poly = path().toFillPolygon(matrix());
-    return poly.boundingRect().adjusted(-2, -2, 2, 2).toAlignedRect();
+    return poly.boundingRect().toAlignedRect();
 }
 
 QVector<QGLTrapezoid> QGLPathMaskGenerator::generateTrapezoids()
@@ -2843,14 +2843,14 @@ QRect QGLRectMaskGenerator::computeScreenRect()
 {
     transformedPath = matrix().map(path());
 
-    return transformedPath.controlPointRect().adjusted(-2, -2, 2, 2).toAlignedRect();
+    return transformedPath.controlPointRect().adjusted(-1, -1, 1, 1).toAlignedRect();
 }
 
 QRect QGLLineMaskGenerator::computeScreenRect()
 {
     transformedPath = matrix().map(path());
 
-    return transformedPath.controlPointRect().adjusted(-2, -2, 2, 2).toAlignedRect();
+    return transformedPath.controlPointRect().adjusted(-1, -1, 1, 1).toAlignedRect();
 }
 
 QVector<QGLTrapezoid> QGLLineMaskGenerator::generateTrapezoids()
