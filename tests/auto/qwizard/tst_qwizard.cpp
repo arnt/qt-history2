@@ -17,7 +17,7 @@
 #include <QPushButton>
 #include <QToolButton>
 #include <QVBoxLayout>
-//#include "/home/jasplin/dev/research/qwizard/src/qwizard.h"
+#include "/home/jasplin/dev/research/qwizard/src/qwizard.h"
 
 //TESTED_CLASS=QWizard
 //TESTED_FILES=gui/dialogs/qwizard.h corelib/tools/qwizard.cpp
@@ -66,7 +66,11 @@ private slots:
     void combinations_data();
     void combinations();
     void showCurrentPageOnly();
+    void setButtonText();
+    void setCommitPage();
+    void setWizardStyle();
 */
+
     /*
         Things that could be added:
 
@@ -90,6 +94,8 @@ private slots:
         6. Test done() and restart().
 
         7. Test default properties of built-in widgets.
+
+        8. Test mutual exclusiveness of Next and Commit buttons.
     */
 };
 
@@ -2003,6 +2009,120 @@ void tst_QWizard::showCurrentPageOnly()
 
     QCOMPARE(pages.shown().count(), 1);
     QCOMPARE(pages.shown().first(), pages.all().first());
+}
+
+void tst_QWizard::setButtonText()
+{
+    QWizard wizard;
+    wizard.setWizardStyle(QWizard::ClassicStyle);
+    QWizardPage* page1 = new QWizardPage;
+    QWizardPage* page2 = new QWizardPage;
+    wizard.addPage(page1);
+    wizard.addPage(page2);
+
+    wizard.show();
+    qApp->processEvents();
+    QVERIFY(wizard.button(QWizard::NextButton)->text().contains("Next"));
+    QVERIFY(wizard.buttonText(QWizard::NextButton).contains("Next"));
+    QVERIFY(page1->buttonText(QWizard::NextButton).contains("Next"));
+    QVERIFY(page2->buttonText(QWizard::NextButton).contains("Next"));
+
+    page2->setButtonText(QWizard::NextButton, "Page2");
+    QVERIFY(wizard.button(QWizard::NextButton)->text().contains("Next"));
+    QVERIFY(wizard.buttonText(QWizard::NextButton).contains("Next"));
+    QVERIFY(page1->buttonText(QWizard::NextButton).contains("Next"));
+    QCOMPARE(page2->buttonText(QWizard::NextButton), QString("Page2"));
+
+    wizard.next();
+    qApp->processEvents();
+    QCOMPARE(wizard.button(QWizard::NextButton)->text(), QString("Page2"));
+    QVERIFY(wizard.buttonText(QWizard::NextButton).contains("Next"));
+    QVERIFY(page1->buttonText(QWizard::NextButton).contains("Next"));
+    QCOMPARE(page2->buttonText(QWizard::NextButton), QString("Page2"));
+
+    wizard.back();
+    qApp->processEvents();
+    QVERIFY(wizard.button(QWizard::NextButton)->text().contains("Next"));
+    QVERIFY(wizard.buttonText(QWizard::NextButton).contains("Next"));
+    QVERIFY(page1->buttonText(QWizard::NextButton).contains("Next"));
+    QCOMPARE(page2->buttonText(QWizard::NextButton), QString("Page2"));
+
+    wizard.setButtonText(QWizard::NextButton, "Wizard");
+    QVERIFY(wizard.button(QWizard::NextButton)->text().contains("Wizard"));
+    QCOMPARE(wizard.buttonText(QWizard::NextButton), QString("Wizard"));
+    QCOMPARE(page1->buttonText(QWizard::NextButton), QString("Wizard"));
+    QCOMPARE(page2->buttonText(QWizard::NextButton), QString("Page2"));
+
+    wizard.next();
+    qApp->processEvents();
+    QCOMPARE(wizard.button(QWizard::NextButton)->text(), QString("Page2"));
+    QVERIFY(wizard.buttonText(QWizard::NextButton).contains("Wizard"));
+    QCOMPARE(page1->buttonText(QWizard::NextButton), QString("Wizard"));
+    QCOMPARE(page2->buttonText(QWizard::NextButton), QString("Page2"));
+}
+
+void tst_QWizard::setCommitPage()
+{
+    QWizard wizard;
+    QWizardPage* page1 = new QWizardPage;
+    QWizardPage* page2 = new QWizardPage;
+    wizard.addPage(page1);
+    wizard.addPage(page2);
+    wizard.show();
+    qApp->processEvents();
+
+    QVERIFY(!page1->isCommitPage());
+    QVERIFY(!wizard.button(QWizard::BackButton)->isEnabled());
+
+    wizard.next();
+    QVERIFY(wizard.button(QWizard::BackButton)->isEnabled());
+
+    page1->setCommitPage(true);
+    QVERIFY(page1->isCommitPage());
+
+    wizard.back();
+    QVERIFY(!wizard.button(QWizard::BackButton)->isEnabled());
+
+    wizard.next();
+    QVERIFY(!wizard.button(QWizard::BackButton)->isEnabled());
+
+    page1->setCommitPage(false);
+    QVERIFY(!page1->isCommitPage());
+
+    wizard.back();
+    QVERIFY(!wizard.button(QWizard::BackButton)->isEnabled());
+
+    wizard.next();
+    QVERIFY(wizard.button(QWizard::BackButton)->isEnabled());
+
+    // ### test relabeling of the Cancel button to "Close" once this is implemented
+}
+
+void tst_QWizard::setWizardStyle()
+{
+    QWizard wizard;
+    wizard.addPage(new QWizardPage);
+    wizard.show();
+    qApp->processEvents();
+
+    // defaults
+#if defined(Q_WS_WIN)
+    // note: AeroStyle requires alpha compositing which will normally be enabled
+    // on Windows Vista (except when the Classic theme is applied)
+    QVERIFY(
+        wizard.wizardStyle() == QWizard::ModernStyle
+        || wizard.wizardStyle() == QWizard::AeroStyle);
+#elif defined(Q_WS_MAC)
+    QCOMPARE(wizard.wizardStyle(), QWizard::MacStyle);
+#else
+    QCOMPARE(wizard.wizardStyle(), QWizard::ClassicStyle);
+#endif   
+
+    // set/get consistency
+    for (int wstyle = 0; wstyle < QWizard::NStyles; ++wstyle) {
+        wizard.setWizardStyle((QWizard::WizardStyle)wstyle);
+        QCOMPARE((int)wizard.wizardStyle(), wstyle);
+    }
 }
 */
 
