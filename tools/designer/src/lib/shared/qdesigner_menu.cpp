@@ -122,7 +122,7 @@ bool QDesignerMenu::handleEvent(QWidget *widget, QEvent *event)
 
 void QDesignerMenu::startDrag(const QPoint &pos)
 {
-    int index = findAction(pos);
+    const int index = findAction(pos);
     if (index >= realActionCount())
         return;
 
@@ -135,11 +135,9 @@ void QDesignerMenu::startDrag(const QPoint &pos)
     QDrag *drag = new QDrag(this);
     drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
 
-    ActionRepositoryMimeData *data = new ActionRepositoryMimeData();
-    data->items.append(action);
-    drag->setMimeData(data);
+    drag->setMimeData(new ActionRepositoryMimeData(action));
 
-    int old_index = m_currentIndex;
+    const int old_index = m_currentIndex;
     m_currentIndex = -1;
 
     if (drag->start() == Qt::IgnoreAction) {
@@ -658,9 +656,9 @@ void QDesignerMenu::adjustIndicator(const QPoint &pos)
 QAction *QDesignerMenu::actionMimeData(const QMimeData *mimeData) const
 {
     if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(mimeData)) {
-        Q_ASSERT(!d->items.isEmpty());
+        Q_ASSERT(!d->actionList().isEmpty());
 
-        return d->items.first();
+        return d->actionList().first();
     }
 
     return 0;

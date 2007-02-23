@@ -157,7 +157,7 @@ QWidget *QDesignerComponents::createResourceEditor(QDesignerFormEditorInterface 
         if (w)
             return w;
     }
-    return new qdesigner_internal::ResourceEditor(core, parent);
+    return new qdesigner_internal::ResourceEditor(core, true, parent);
 }
 
 /*!

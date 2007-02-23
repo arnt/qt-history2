@@ -154,6 +154,8 @@ public:
     bool dirty() const { return m_dirty; }
     void setDirty(bool b);
 
+    virtual QMimeData *mimeData (const QModelIndexList & indexes) const;
+
     static bool iconFileExtension(const QString &path);
     static QString resourcePath(const QString &prefix, const QString &file);
 

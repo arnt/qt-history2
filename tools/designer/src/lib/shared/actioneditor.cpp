@@ -22,6 +22,7 @@ TRANSLATOR qdesigner_internal::ActionEditor
 #include "qdesigner_menu_p.h"
 #include "qdesigner_command_p.h"
 #include "qdesigner_propertycommand_p.h"
+#include "resourcemimedata_p.h"
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerPropertyEditorInterface>
@@ -29,6 +30,7 @@ TRANSLATOR qdesigner_internal::ActionEditor
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QDesignerMetaDataBaseInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerIconCacheInterface>
 
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
@@ -163,6 +165,8 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
 #endif
 
     m_actionRepository = new ActionRepository(splitter);
+    connect(m_actionRepository, SIGNAL(resourceImageDropped(const ResourceMimeData*,QAction*)),
+            this, SLOT(resourceImageDropped(const ResourceMimeData*,QAction*)));
     splitter->addWidget(m_actionRepository);
 
     connect(m_actionRepository, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
@@ -269,7 +273,7 @@ QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
     QVariant itemData;
     qVariantSetValue(itemData, action);
     item->setData(ActionRepository::ActionRole, itemData);
-
+    item->setFlags(item->flags() | Qt::ItemIsDropEnabled);
     return item;
 }
 
@@ -518,6 +522,21 @@ QString ActionEditor::actionTextToName(const QString &text)
 
     return name;
 }
+
+void  ActionEditor::resourceImageDropped(const ResourceMimeData *data, QAction *action)
+{
+    QDesignerFormWindowInterface *fw =  formWindow();
+    if (!fw)
+        return;
+
+    const QIcon icon = data->icon(fw);
+
+    if (icon.isNull() || isSameIcon(icon, action->icon()))
+        return;
+
+    fw->commandHistory()->push(setIconPropertyCommand(icon , action, fw));
+}
+
 } // namespace qdesigner_internal
 
 #include "actioneditor.moc"

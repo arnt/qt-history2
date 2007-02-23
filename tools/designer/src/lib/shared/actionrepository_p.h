@@ -31,27 +31,30 @@
 
 namespace qdesigner_internal {
 
+class ResourceMimeData;
+
 class QDESIGNER_SHARED_EXPORT ActionRepository: public QListWidget
 {
     Q_OBJECT
 public:
-    enum
-    {
-        ActionRole = Qt::UserRole + 1000
-    };
+    enum   { ActionRole = Qt::UserRole + 1000 };
 
 public:
     ActionRepository(QWidget *parent = 0);
-    virtual ~ActionRepository();
+    bool event ( QEvent * event );
 
 signals:
     void contextMenuRequested(QContextMenuEvent *event, QListWidgetItem *item);
+    void resourceImageDropped(const ResourceMimeData *data, QAction *action);
 
 public slots:
     void filter(const QString &text);
 
 protected:
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dragMoveEvent(QDragMoveEvent *event);
     virtual void startDrag(Qt::DropActions supportedActions);
+    virtual bool dropMimeData (int index, const QMimeData * data, Qt::DropAction action );
     virtual QMimeData *mimeData(const QList<QListWidgetItem*> items) const;
     virtual void focusInEvent(QFocusEvent *event);
     virtual void contextMenuEvent(QContextMenuEvent *event);
@@ -61,14 +64,17 @@ class QDESIGNER_SHARED_EXPORT ActionRepositoryMimeData: public QMimeData
 {
     Q_OBJECT
 public:
-    ActionRepositoryMimeData() {}
-    virtual ~ActionRepositoryMimeData() {}
+    typedef QList<QAction*> ActionList;
 
-    QList<QAction*> items;
+    ActionRepositoryMimeData(const ActionList &);
+    ActionRepositoryMimeData(QAction *);
 
-    virtual QStringList formats() const { return QStringList() << QLatin1String("action-repository/actions"); }
+    const ActionList &actionList() const { return m_actionList; }
+    virtual QStringList formats() const;
+
+private:
+    ActionList m_actionList;
 };
-
 } // namespace qdesigner_internal
 
 #endif // ACTIONREPOSITORY_H

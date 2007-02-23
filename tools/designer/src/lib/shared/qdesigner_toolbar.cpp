@@ -97,9 +97,7 @@ void QDesignerToolBar::startDrag(const QPoint &pos)
     QDrag *drag = new QDrag(this);
     drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
 
-    ActionRepositoryMimeData *data = new ActionRepositoryMimeData();
-    data->items.append(action);
-    drag->setMimeData(data);
+    drag->setMimeData(new ActionRepositoryMimeData(action));
 
     if (drag->start() == Qt::IgnoreAction) {
         QAction *previous = actions().at(index);
@@ -282,9 +280,9 @@ void QDesignerToolBar::adjustIndicator(const QPoint &pos)
 void QDesignerToolBar::dragEnterEvent(QDragEnterEvent *event)
 {
     if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
-        Q_ASSERT(!d->items.isEmpty());
+        Q_ASSERT(!d->actionList().isEmpty());
 
-        QAction *action = d->items.first();
+        QAction *action = d->actionList().first();
         if (action && !action->menu() && !actions().contains(action) &&
             Utils::isObjectAncestorOf(formWindow()->mainContainer(), action)) {
             event->acceptProposedAction();
@@ -296,9 +294,9 @@ void QDesignerToolBar::dragEnterEvent(QDragEnterEvent *event)
 void QDesignerToolBar::dragMoveEvent(QDragMoveEvent *event)
 {
     if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
-        Q_ASSERT(!d->items.isEmpty());
+        Q_ASSERT(!d->actionList().isEmpty());
 
-        QAction *action = d->items.first();
+        QAction *action = d->actionList().first();
         if (action && !action->menu() && !actions().contains(action)) {
             event->acceptProposedAction();
             adjustIndicator(event->pos());
@@ -318,7 +316,7 @@ void QDesignerToolBar::dropEvent(QDropEvent *event)
     if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
         event->acceptProposedAction();
 
-        QAction *action = d->items.first();
+        QAction *action = d->actionList().first();
         if (action && !actions().contains(action)) {
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);

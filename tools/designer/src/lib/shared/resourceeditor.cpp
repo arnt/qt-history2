@@ -254,7 +254,8 @@ class EditableResourceModel : public ResourceModel
     Q_OBJECT
 
 public:
-    EditableResourceModel(const ResourceFile &resource_file, QObject *parent = 0);
+    EditableResourceModel(const ResourceFile &resource_file,
+                          QObject *parent = 0);
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     virtual QModelIndex addFiles(const QModelIndex &idx, const QStringList &file_list);
     virtual bool reload();
@@ -279,7 +280,7 @@ Qt::ItemFlags EditableResourceModel::flags(const QModelIndex &index) const
         return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
 
     if (iconFileExtension(file))
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+        return Qt::ItemIsDragEnabled | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
     return Qt::ItemFlags();
 }
@@ -403,10 +404,13 @@ ResourceModel *ModelCache::model(const QString &file)
 ** ResourceEditor
 */
 
-ResourceEditor::ResourceEditor(QDesignerFormEditorInterface *core, QWidget *parent):
+ResourceEditor::ResourceEditor(QDesignerFormEditorInterface *core,
+                               bool dragEnabled,
+                               QWidget *parent):
     QWidget(parent),
     m_form(0),
-    m_ignore_update(false)
+    m_ignore_update(false),
+    m_dragEnabled(dragEnabled)
 {
     Ui::ResourceEditor ui;
     ui.setupUi(this);
@@ -704,6 +708,7 @@ void ResourceEditor::addView(const QString &qrc_file)
     const int idx = qrcCount();
 
     QTreeView *view = new QrcView;
+    view->setDragEnabled(m_dragEnabled);
     ResourceModel *model = g_model_cache()->model(qrc_file);
     if (model == 0)
         return;
@@ -745,8 +750,6 @@ void ResourceEditor::setCurrentFile(const QString &_qrc_path, const QString &fil
 
     updateUi();
 }
-
-
 
 void ResourceEditor::itemChanged(const QModelIndex &index)
 {
@@ -933,7 +936,6 @@ void ResourceEditor::setActiveForm(QDesignerFormWindowInterface *form)
 
     setEnabled(m_form != 0);
 }
-
 } // namespace qdesigner_internal
 
 #include "resourceeditor.moc"

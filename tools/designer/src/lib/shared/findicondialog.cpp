@@ -124,7 +124,7 @@ FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *pare
     QWidget *page = ui->m_widget_stack->widget(ResourceBox);
     QVBoxLayout *layout = new QVBoxLayout(page);
     layout->setMargin(0);
-    m_resource_editor = new ResourceEditor(form->core(), page);
+    m_resource_editor = new ResourceEditor(form->core(), false, page);
 
     disconnect(form->core()->formWindowManager(),
                 SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),

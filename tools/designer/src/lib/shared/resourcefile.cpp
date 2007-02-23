@@ -16,6 +16,7 @@ TRANSLATOR qdesigner_internal::ResourceModel
 */
 
 #include "resourcefile_p.h"
+#include "resourcemimedata_p.h"
 
 #include <QtDesigner/abstractformbuilder.h>
 
@@ -392,6 +393,8 @@ QString ResourceFile::alias(int prefix_idx, int file_idx) const
 ResourceModel::ResourceModel(const ResourceFile &resource_file, QObject *parent)
     : QAbstractItemModel(parent), m_resource_file(resource_file),  m_dirty(false)
 {
+    // Only action that works for QListWidget and the like.
+    setSupportedDragActions(Qt::CopyAction);
 }
 
 void ResourceModel::setDirty(bool b)
@@ -779,5 +782,20 @@ QString ResourceModel::resourcePath(const QString &prefix, const QString &file)
     rc += QLatin1Char('/');
     rc += file;
     return QDir::cleanPath(rc);
+}
+
+QMimeData *ResourceModel::mimeData(const QModelIndexList & indexes) const
+{
+    if (indexes.size() != 1)
+        return 0;
+
+    QString prefix, file;
+    getItem(indexes.front(), prefix, file);
+    if (prefix.isEmpty() || file.isEmpty())
+        return 0;
+    ResourceMimeData *rc = new ResourceMimeData(iconFileExtension(file) ?  ResourceMimeData::Image : ResourceMimeData::File);
+    rc->setQrcPath(m_resource_file.fileName());
+    rc->setFilePath(resourcePath(prefix, file));
+    return rc;
 }
 } // namespace qdesigner_internal

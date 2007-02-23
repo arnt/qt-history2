@@ -47,8 +47,10 @@ class QDESIGNER_SHARED_EXPORT ResourceEditor : public QWidget
     Q_OBJECT
 
 public:
-    ResourceEditor(QDesignerFormEditorInterface *core, QWidget *parent = 0);
-
+    ResourceEditor(QDesignerFormEditorInterface *core,
+                   bool dragEnabled,
+                   QWidget *parent = 0);
+    
     QDesignerFormWindowInterface *form() const { return m_form; }
     int qrcCount() const;
     void setCurrentFile(const QString &qrc_path, const QString &file_path);
@@ -99,6 +101,7 @@ private:
     QPushButton *m_add_files_button;
     QToolButton *m_remove_qrc_button;
     bool m_ignore_update;
+    const bool m_dragEnabled;
 };
 
 } // namespace qdesigner_internal

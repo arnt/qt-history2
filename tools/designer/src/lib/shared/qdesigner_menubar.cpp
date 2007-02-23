@@ -298,9 +298,7 @@ void QDesignerMenuBar::startDrag(const QPoint &pos)
     QDrag *drag = new QDrag(this);
     drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
 
-    ActionRepositoryMimeData *data = new ActionRepositoryMimeData();
-    data->items.append(action);
-    drag->setMimeData(data);
+    drag->setMimeData(new ActionRepositoryMimeData(action));
 
     const int old_index = m_currentIndex;
     m_currentIndex = -1;
@@ -628,9 +626,9 @@ void QDesignerMenuBar::adjustIndicator(const QPoint &pos)
 QAction *QDesignerMenuBar::actionMimeData(const QMimeData *mimeData) const
 {
     if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(mimeData)) {
-        Q_ASSERT(!d->items.isEmpty());
+        Q_ASSERT(!d->actionList().isEmpty());
 
-        return d->items.first();
+        return d->actionList().first();
     }
 
     return 0;
@@ -693,7 +691,7 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
 
     if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
 
-        QAction *action = d->items.first();
+        QAction *action = d->actionList().first();
         if (checkAction(action)) {
             event->acceptProposedAction();
             int index = findAction(event->pos());

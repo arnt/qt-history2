@@ -71,7 +71,8 @@ HEADERS += \
     $$PWD/gridpanel_p.h \
     $$PWD/grid_p.h \
     $$PWD/formwindowbase_p.h \
-    $$PWD/qdesigner_utils_p.h
+    $$PWD/qdesigner_utils_p.h \
+    $$PWD/resourcemimedata_p.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -131,4 +132,5 @@ SOURCES += \
     $$PWD/gridpanel.cpp \
     $$PWD/grid.cpp \
     $$PWD/formwindowbase.cpp \
-    $$PWD/qdesigner_utils.cpp
+    $$PWD/qdesigner_utils.cpp \
+    $$PWD/resourcemimedata.cpp
