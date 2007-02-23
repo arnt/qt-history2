@@ -17,6 +17,7 @@
 #include "abstractlanguage.h"
 
 #include <pluginmanager_p.h>
+#include <qdesigner_utils_p.h>
 #include <QtDesigner/customwidget.h>
 #include <QtDesigner/propertysheet.h>
 #include <QtDesigner/QExtensionManager>
@@ -28,7 +29,6 @@
 
 namespace {
     const bool debugWidgetDataBase=false;
-    const  QLatin1String qWidgetName("QWidget");
 }
 
 namespace qdesigner_internal {
@@ -414,16 +414,18 @@ QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *
         const QString existingBaseClass = derivedItem->extends();
         if (existingBaseClass.isEmpty() || baseClassName ==  existingBaseClass)
             return derivedItem;
-        
+
         // Warn about mismatches
-        qDebug() << "** WARNING The base class of " << className << " (" << baseClassName 
-                   << ") does not correspond to the one in the widget database (" <<  existingBaseClass << ").";
+        const char *baseWarning = "The file contains a custom widget '%1' whose base class (%2)"
+          " differs from the current entry in the widget database (%3)."
+           " The widget database is left unchanged.";
+        designerWarning(QObject::tr(baseWarning).arg(className).arg(baseClassName).arg(existingBaseClass));
         return derivedItem;
     }
     // Create this item, inheriting its base properties
     const int baseIndex = db->indexOfClassName(baseClassName);
     if (baseIndex == -1) {
-        if (debugWidgetDataBase) 
+        if (debugWidgetDataBase)
             qDebug() << "appendDerived failed due to missing base class";
         return 0;
     }
@@ -431,6 +433,7 @@ QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *
     derivedItem = WidgetDataBaseItem::clone(baseItem);
     // Sort of hack: If base class is QWidget, we most likely
     // do not want to inherit the container attribute.
+    static const QString qWidgetName = QLatin1String("QWidget");
     if (baseItem->name() == qWidgetName)
         derivedItem->setContainer(false);
     // set new props
