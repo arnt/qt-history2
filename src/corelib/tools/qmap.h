@@ -850,7 +850,7 @@ Q_OUTOFLINE_TEMPLATE QMap<Key, T>::QMap(const std::map<Key, T> &other)
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE  std::map<Key, T> QMap<Key, T>::toStdMap() const
+Q_OUTOFLINE_TEMPLATE std::map<Key, T> QMap<Key, T>::toStdMap() const
 {
     std::map<Key, T> map;
     const_iterator it = end();
@@ -878,6 +878,39 @@ public:
     inline QMultiMap operator+(const QMultiMap &other) const
     { QMultiMap result = *this; result += other; return result; }
 
+#ifndef Q_NO_USING_KEYWORD
+    using QMap<Key, T>::contains;
+    using QMap<Key, T>::remove;
+    using QMap<Key, T>::count;
+    using QMap<Key, T>::find;
+    using QMap<Key, T>::constFind;
+#else
+    inline bool contains(const Key &key) const
+    { return QMap<Key, T>::contains(key); }
+    inline int remove(const Key &key)
+    { return QMap<Key, T>::remove(key); }
+    inline int count(const Key &key) const
+    { return QMap<Key, T>::count(key); }
+    inline int count() const
+    { return QMap<Key, T>::count(); }
+    inline typename QMap<Key, T>::iterator find(const Key &key)
+    { return QMap<Key, T>::find(key); }
+    inline typename QMap<Key, T>::const_iterator find(const Key &key) const
+    { return QMap<Key, T>::find(key); }
+    inline typename QMap<Key, T>::const_iterator constFind(const Key &key) const
+    { return QMap<Key, T>::constFind(key); }
+#endif
+
+    bool contains(const Key &key, const T &value) const;
+
+    int remove(const Key &key, const T &value);
+
+    int count(const Key &key, const T &value) const;
+
+    typename QMap<Key, T>::iterator find(const Key &key, const T &value);
+    typename QMap<Key, T>::const_iterator find(const Key &key, const T &value) const;
+    typename QMap<Key, T>::const_iterator constFind(const Key &key, const T &value) const;
+
 private:
     T &operator[](const Key &key);
     const T operator[](const Key &key) const;
@@ -891,6 +924,77 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE Q_TYPENAME QMap<Key, T>::iterator QMultiMap<Key, T>::insert(const Key &akey, const T &avalue)
 { return QMap<Key, T>::insertMulti(akey, avalue); }
 
+template <class Key, class T>
+Q_INLINE_TEMPLATE bool QMultiMap<Key, T>::contains(const Key &key, const T &value) const
+{
+    return constFind(key, value) != QMap<Key, T>::constEnd();
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE int QMultiMap<Key, T>::remove(const Key &key, const T &value)
+{
+    int n = 0;
+    typename QMap<Key, T>::iterator i(find(key));
+    typename QMap<Key, T>::const_iterator end(QMap<Key, T>::constEnd());
+    while (i != end && !qMapLessThanKey<Key>(key, i.key())) {
+        if (i.value() == value) {
+            i = erase(i);
+            ++n;
+        } else {
+            ++i;
+        }
+    }
+    return n;
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE int QMultiMap<Key, T>::count(const Key &key, const T &value) const
+{
+    int n = 0;
+    typename QMap<Key, T>::const_iterator i(constFind(key));
+    typename QMap<Key, T>::const_iterator end(QMap<Key, T>::constEnd());
+    while (i != end && !qMapLessThanKey<Key>(key, i.key())) {
+        if (i.value() == value)
+            ++n;
+        ++i;
+    }
+    return n;
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE Q_TYPENAME
+QMap<Key, T>::iterator QMultiMap<Key, T>::find(const Key &key, const T &value)
+{
+    typename QMap<Key, T>::iterator i(find(key));
+    typename QMap<Key, T>::iterator end(this->end());
+    while (i != end && !qMapLessThanKey<Key>(key, i.key())) {
+        if (i.value() == value)
+            return i;
+        ++i;
+    }
+    return end;
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE Q_TYPENAME
+QMap<Key, T>::const_iterator QMultiMap<Key, T>::find(const Key &key, const T &value) const
+{
+    typename QMap<Key, T>::const_iterator i(constFind(key));
+    typename QMap<Key, T>::const_iterator end(QMap<Key, T>::constEnd());
+    while (i != end && !qMapLessThanKey<Key>(key, i.key())) {
+        if (i.value() == value)
+            return i;
+        ++i;
+    }
+    return end;
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE Q_TYPENAME
+QMap<Key, T>::const_iterator QMultiMap<Key, T>::constFind(const Key &key, const T &value) const
+{
+    return find(key, value);
+}
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(Map)
 Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR(Map)

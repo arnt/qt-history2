@@ -43,6 +43,7 @@ private slots:
 
     void iterators();
     void keys_values_uniqueKeys();
+    void qmultimap_specific();
 };
 
 tst_QMap::tst_QMap()
@@ -727,6 +728,91 @@ void tst_QMap::keys_values_uniqueKeys()
 #endif
     QVERIFY(map.keys() == (QList<QString>() << "alpha" << "alpha" << "beta" << "beta"));
     QVERIFY(map.values() == (QList<int>() << 2 << 1 << 4 << -2));
+}
+
+void tst_QMap::qmultimap_specific()
+{
+    QMultiMap<int, int> map1;
+    for (int i = 1; i <= 9; ++i) {
+        for (int j = 1; j <= i; ++j) {
+            int k = i * 10 + j;
+            QVERIFY(!map1.contains(i, k));
+            map1.insert(i, k);
+            QVERIFY(map1.contains(i, k));
+        }
+    }
+
+    for (int i = 1; i <= 9; ++i) {
+        for (int j = 1; j <= i; ++j) {
+            int k = i * 10 + j;
+            QVERIFY(map1.contains(i, k));
+        }
+    }
+
+    QVERIFY(map1.contains(9, 99));
+    QCOMPARE(map1.count(), 45);
+    map1.remove(9, 99);
+    QVERIFY(!map1.contains(9, 99));
+    QCOMPARE(map1.count(), 44);
+
+    map1.remove(9, 99);
+    QVERIFY(!map1.contains(9, 99));
+    QCOMPARE(map1.count(), 44);
+
+    map1.remove(1, 99);
+    QCOMPARE(map1.count(), 44);
+
+    map1.insert(1, 99);
+    map1.insert(1, 99);
+
+    QCOMPARE(map1.count(), 46);
+    map1.remove(1, 99);
+    QCOMPARE(map1.count(), 44);
+    map1.remove(1, 99);
+    QCOMPARE(map1.count(), 44);
+
+    {
+    QMultiMap<int, int>::const_iterator i = map1.constFind(1, 11);
+    QVERIFY(i.key() == 1);
+    QVERIFY(i.value() == 11);
+
+    i = map1.constFind(2, 22);
+    QVERIFY(i.key() == 2);
+    QVERIFY(i.value() == 22);
+
+    i = map1.constFind(9, 98);
+    QVERIFY(i.key() == 9);
+    QVERIFY(i.value() == 98);
+    }
+
+    {
+    const QMultiMap<int, int> map2(map1);
+    QMultiMap<int, int>::const_iterator i = map2.find(1, 11);
+    QVERIFY(i.key() == 1);
+    QVERIFY(i.value() == 11);
+
+    i = map2.find(2, 22);
+    QVERIFY(i.key() == 2);
+    QVERIFY(i.value() == 22);
+
+    i = map2.find(9, 98);
+    QVERIFY(i.key() == 9);
+    QVERIFY(i.value() == 98);
+    }
+
+    {
+    QMultiMap<int, int>::iterator i = map1.find(1, 11);
+    QVERIFY(i.key() == 1);
+    QVERIFY(i.value() == 11);
+
+    i = map1.find(2, 22);
+    QVERIFY(i.key() == 2);
+    QVERIFY(i.value() == 22);
+
+    i = map1.find(9, 98);
+    QVERIFY(i.key() == 9);
+    QVERIFY(i.value() == 98);
+    }
 }
 
 QTEST_APPLESS_MAIN(tst_QMap)
