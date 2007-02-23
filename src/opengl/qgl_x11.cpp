@@ -24,6 +24,10 @@
 #include "qdebug.h"
 #include <private/qfontengine_ft_p.h>
 #include <private/qt_x11_p.h>
+#ifdef Q_OS_HPUX
+// for GLXPBuffer
+#include <private/qglpixelbuffer_p.h>
+#endif
 
 #define INT8  dummy_INT8
 #define INT32 dummy_INT32
