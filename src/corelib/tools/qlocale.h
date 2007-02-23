@@ -15,6 +15,7 @@
 #define QLOCALE_H
 
 #include <QtCore/qstring.h>
+#include <QtCore/qobjectdefs.h>
 
 QT_BEGIN_HEADER
 
@@ -28,6 +29,9 @@ struct QLocalePrivate;
 
 class Q_CORE_EXPORT QLocale
 {
+    Q_GADGET
+    Q_ENUMS(Language)
+    Q_ENUMS(Country)
     friend class QString;
     friend class QByteArray;
     friend class QIntValidator;
