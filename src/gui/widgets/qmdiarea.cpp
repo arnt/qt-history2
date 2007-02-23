@@ -101,6 +101,7 @@
 
 #include "qmdiarea_p.h"
 
+#include <private/qmdisubwindow_p.h>
 #include <QApplication>
 #include <QStyle>
 #include <QChildEvent>
@@ -533,13 +534,17 @@ void QMdiAreaPrivate::place(const Placer &placer, QMdiSubWindow *child)
     Q_Q(QMdiArea);
     QList<QRect> rects;
     QRect parentRect = q->rect();
-    foreach (QMdiSubWindow *existingChild, childWindows) {
-        if (!sanityCheck(existingChild, "QMdiArea::place"))
+    foreach (QMdiSubWindow *window, childWindows) {
+        if (!sanityCheck(window, "QMdiArea::place") || window == child || !window->isVisibleTo(q))
             continue;
-        if (existingChild != child && existingChild->isVisibleTo(q)) {
-            rects.append(QStyle::visualRect(child->layoutDirection(), parentRect,
-                                            existingChild->geometry()));
+        QRect occupiedGeometry;
+        if ((window->isMinimized() && !window->isShaded()) || window->isMaximized()) {
+            occupiedGeometry = QRect(window->d_func()->oldGeometry.topLeft(),
+                                     window->d_func()->restoreSize);
+        } else {
+            occupiedGeometry = window->geometry();
         }
+        rects.append(QStyle::visualRect(child->layoutDirection(), parentRect, occupiedGeometry));
     }
     QPoint newPos = placer.place(child->size(), rects, parentRect);
     QRect newGeometry = QRect(newPos.x(), newPos.y(), child->width(), child->height());

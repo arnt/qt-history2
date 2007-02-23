@@ -95,6 +95,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_updateStaysOnTopHint())
     Q_PRIVATE_SLOT(d_func(), void _q_enterInteractiveMode())
     Q_PRIVATE_SLOT(d_func(), void _q_processFocusChanged(QWidget *, QWidget *))
+    friend class QMdiAreaPrivate;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QMdiSubWindow::SubWindowOptions)
