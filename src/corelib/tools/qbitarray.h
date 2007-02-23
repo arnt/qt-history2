@@ -25,8 +25,8 @@ class Q_CORE_EXPORT QBitArray
 {
     friend Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QBitArray &);
     friend Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QBitArray &);
+    friend Q_CORE_EXPORT uint qHash(const QBitArray &key);
     QByteArray d;
-    friend uint qHash(const QBitArray &key);
 
 public:
     inline QBitArray() {}
