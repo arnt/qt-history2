@@ -34,7 +34,7 @@ class QDesignerFormWindowInterface;
 namespace qdesigner_internal {
 
 // Resources for drag and drop
-class ResourceMimeData : public QMimeData
+class QDESIGNER_SHARED_EXPORT ResourceMimeData : public QMimeData
 {
     Q_OBJECT
 
