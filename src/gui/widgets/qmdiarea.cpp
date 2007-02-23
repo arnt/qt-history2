@@ -37,9 +37,9 @@
     flag (e.g., by using QMdiSubWindow::showShaded()).
 
     Subwindows in QMdiArea are instances of QMdiSubWindow. They
-    are added to a MDI area with addSubWindow(). It is common to send
+    are added to an MDI area with addSubWindow(). It is common to pass
     a QWidget, which is set as the internal widget, to this function,
-    but it is also possible to send a QMdiSubWindow directly.The class
+    but it is also possible to pass a QMdiSubWindow directly.The class
     inherits QWidget, and you can use the same API as with a normal
     top-level window when programming. QMdiSubWindow also has behavior
     that is specific to MDI windows. See the QMdiSubWindow class
@@ -48,26 +48,23 @@
     A subwindow becomes active when it gets the keyboard focus, or
     when setFocus() is called. The user activates a window by
     moving focus in the usual ways, for example by clicking a window
-    or by pressing Tab. The workspace emits a signal
-    (subWindowActivated()) when the active window changes, and the
-    function activeWindow() returns the active subwindow.
+    or by pressing \key Tab. The MDI area emits the subWindowActivated()
+    signal when the active window changes, and the activeSubWindow()
+    function returns the active subwindow.
 
     The convenience function subWindowList() returns a list of all
     subwindows. This information could be used in a popup menu
     containing a list of windows, for example.
 
     \omit
-	// does this still hold?
-	This feature is also
-	available as part of the \l{Window Menu} Solution.
+        // does this still hold?
+        This feature is also
+        available as part of the \l{Window Menu} Solution.
     \endomit
 
     QMdiArea provides two built-in layout strategies for
     subwindows: cascadeSubWindows() and tileSubWindows(). Both are
-    slots and is easily connected to menu entries.
-
-    (keyboard move/resize. Here or in QMdiSubWindow, should
-    mention here about Qt::WA_DeleteOnClose)
+    slots and are easily connected to menu entries.
 
     \img qmdiarea-arrange.png
 
