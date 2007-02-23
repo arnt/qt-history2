@@ -103,9 +103,8 @@ void tst_QTextCodec::toUnicode()
             QVERIFY(c->toUnicode(&ch, 1).isEmpty());
             QVERIFY(c->toUnicode(&ch, 1).isNull());
         }
-        else {
-            QFAIL("File could not be opened");
-        }
+    } else {
+        QFAIL(qPrintable("File could not be opened: " + file.errorString()));
     }
 }
 
