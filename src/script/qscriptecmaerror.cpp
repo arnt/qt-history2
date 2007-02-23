@@ -177,6 +177,36 @@ void Error::newErrorPrototype(QScriptValueImpl *result, const QScriptValueImpl &
                      | QScriptValue::SkipInEnumeration);
 }
 
+bool Error::isEvalError(const QScriptValueImpl &value) const
+{
+    return value.instanceOf(evalErrorPrototype);
+}
+
+bool Error::isRangeError(const QScriptValueImpl &value) const
+{
+    return value.instanceOf(rangeErrorPrototype);
+}
+
+bool Error::isReferenceError(const QScriptValueImpl &value) const
+{
+    return value.instanceOf(referenceErrorPrototype);
+}
+
+bool Error::isSyntaxError(const QScriptValueImpl &value) const
+{
+    return value.instanceOf(syntaxErrorPrototype);
+}
+
+bool Error::isTypeError(const QScriptValueImpl &value) const
+{
+    return value.instanceOf(typeErrorPrototype);
+}
+
+bool Error::isURIError(const QScriptValueImpl &value) const
+{
+    return value.instanceOf(uriErrorPrototype);
+}
+
 QScriptValueImpl Error::method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
     QScriptValueImpl name = context->thisObject().property(QLatin1String("name"),

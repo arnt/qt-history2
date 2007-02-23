@@ -47,6 +47,13 @@ public:
     void newTypeError(QScriptValueImpl *result, const QString &message = QString());
     void newURIError(QScriptValueImpl *result, const QString &message = QString());
 
+    bool isEvalError(const QScriptValueImpl &value) const;
+    bool isRangeError(const QScriptValueImpl &value) const;
+    bool isReferenceError(const QScriptValueImpl &value) const;
+    bool isSyntaxError(const QScriptValueImpl &value) const;
+    bool isTypeError(const QScriptValueImpl &value) const;
+    bool isURIError(const QScriptValueImpl &value) const;
+
     QScriptValueImpl evalErrorCtor;
     QScriptValueImpl rangeErrorCtor;
     QScriptValueImpl referenceErrorCtor;
