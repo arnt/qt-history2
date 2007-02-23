@@ -132,6 +132,7 @@ class tst_QXmlSimpleReader : public QObject
 tst_QXmlSimpleReader::tst_QXmlSimpleReader()
 {
     server = new XmlServer();
+    server->setParent(this);
     server->start();
     QTest::qSleep(1000);
 }
