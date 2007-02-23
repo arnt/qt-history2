@@ -31,6 +31,7 @@
 #include <QtCore/QPair>
 #include <QtCore/QSize>
 #include <QtGui/QFont>
+#include <QtGui/QPalette>
 
 namespace QCss
 {
@@ -116,6 +117,8 @@ enum Property {
     QtOrigin,
     QtPosition,
     Position,
+    QtStyleFeatures,
+    QtBackgroundRole,
     NumProperties
 };
 
@@ -154,6 +157,29 @@ enum KnownValue {
     Value_Auto,
     Value_Always,
     Value_None,
+    Value_Transparent,
+
+    /* keep these in same order as QPalette::ColorRole */
+    Value_FirstColorRole,
+    Value_WindowText = Value_FirstColorRole,
+    Value_Button,
+    Value_Light,
+    Value_Midlight,
+    Value_Dark,
+    Value_Mid,
+    Value_Text,
+    Value_BrightText,
+    Value_ButtonText,
+    Value_Base,
+    Value_Window,
+    Value_Shadow,
+    Value_Highlight,
+    Value_HighlightedText,
+    Value_Link,
+    Value_LinkVisited,
+    Value_AlternateBase,
+    Value_LastColorRole = Value_AlternateBase,
+
     NumKnownValues
 };
 
@@ -170,6 +196,7 @@ enum BorderStyle {
     BorderStyle_Ridge,
     BorderStyle_Inset,
     BorderStyle_Outset,
+    BorderStyle_Native,
     NumKnownBorderStyles
 };
 
@@ -230,6 +257,13 @@ enum Attachment {
     NumKnownAttachments
 };
 
+enum StyleFeature {
+    StyleFeature_None = 0,
+    StyleFeature_BackgroundColor = 1,
+    StyleFeature_BackgroundGradient = 2,
+    NumKnownStyleFeatures = 4
+};
+
 struct Q_GUI_EXPORT Value
 {
     enum Type {
@@ -267,9 +301,9 @@ struct Q_GUI_EXPORT Declaration
     bool important;
 
     // helper functions
-    QColor colorValue() const;
-    void colorValues(QColor *c) const;
-    QBrush brushValue() const;
+    QColor colorValue(const QPalette & = QPalette()) const;
+    void colorValues(QColor *c, const QPalette & = QPalette()) const;
+    QBrush brushValue(const QPalette & = QPalette()) const;
 
     BorderStyle styleValue() const;
     void styleValues(BorderStyle *s) const;
@@ -279,6 +313,7 @@ struct Q_GUI_EXPORT Declaration
     Qt::Alignment alignmentValue() const;
     PositionMode positionValue() const;
     Attachment attachmentValue() const;
+    int  styleFeaturesValue() const;
 
     bool intValue(int *i, const char *unit = 0) const;
     bool realValue(qreal *r, const char *unit = 0) const;
@@ -365,7 +400,7 @@ struct ImportRule;
 
 struct Q_GUI_EXPORT ValueExtractor
 {
-    ValueExtractor(const QVector<Declaration> &declarations);
+    ValueExtractor(const QVector<Declaration> &declarations, const QPalette & = QPalette());
 
     void extractFont(QFont *font, int *fontSizeAdjustment);
     bool extractBackground(QBrush *, QString *, Repeat *, Qt::Alignment *, QCss::Origin *, QCss::Attachment *);
@@ -375,6 +410,7 @@ struct Q_GUI_EXPORT ValueExtractor
     bool extractBox(int *margins, int *paddings, int *spacing = 0);
     bool extractBorder(int *borders, QColor *colors, BorderStyle *Styles, QSize *radii);
     bool extractPalette(QColor *fg, QColor *sfg, QBrush *sbg, QBrush *abg);
+    int  extractStyleFeatures();
 
 private:
     void extractFont();
@@ -389,6 +425,7 @@ private:
     QFont f;
     int adjustment;
     bool fontExtracted;
+    QPalette pal;
 };
 
 struct Q_GUI_EXPORT StyleRule
@@ -421,11 +458,6 @@ enum StyleSheetOrigin {
     StyleSheetOrigin_User,
     StyleSheetOrigin_Author,
     StyleSheetOrigin_Inline
-};
-
-enum StyleSheetAttachment {
-    StyleSheetAttachment_Scroll,
-    StyleSheetAttachment_Fixed
 };
 
 struct Q_GUI_EXPORT StyleSheet

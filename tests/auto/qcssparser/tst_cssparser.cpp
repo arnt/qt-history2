@@ -736,6 +736,7 @@ void tst_CssParser::colorValue_data()
     QTest::newRow("rgba") << "color: rgba(10, 20, 30, 40)" << QColor(10, 20, 30, 40);
     QTest::newRow("invalid1") << "color: rgb(why, does, it, always, rain, on, me)" << QColor();
     QTest::newRow("invalid2") << "color: rgba(i, meant, norway)" << QColor();
+    QTest::newRow("role") << "color: palette(base)" << qApp->palette().color(QPalette::Base);
 }
 
 void tst_CssParser::colorValue()
@@ -1190,6 +1191,7 @@ void tst_CssParser::shorthandBackgroundProperty_data()
 
     QTest::newRow("simple color") << "background: red" << QBrush(QColor("red")) << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignTop);
     QTest::newRow("plain color") << "background-color: red" << QBrush(QColor("red")) << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignTop);
+    QTest::newRow("palette color") << "background-color: palette(mid)" << qApp->palette().mid() << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignTop);
     QTest::newRow("multiple") << "background: url(chess.png) blue repeat-y" << QBrush(QColor("blue")) << QString("chess.png") << int(QCss::Repeat_Y) << int(Qt::AlignLeft | Qt::AlignTop);
     QTest::newRow("plain alignment") << "background-position: center" << QBrush() << QString() << int(QCss::Repeat_XY) << int(Qt::AlignCenter);
     QTest::newRow("plain alignment2") << "background-position: left top" << QBrush() << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignTop);
@@ -1411,6 +1413,7 @@ void tst_CssParser::extractBorder_data()
     QTest::addColumn<QColor>("expectedTopColor");
 
     QTest::newRow("all values") << "border: 2px solid green" << 2 << (int)QCss::BorderStyle_Solid << QColor("green");
+    QTest::newRow("palette") << "border: 2px solid palette(highlight)" << 2 << (int)QCss::BorderStyle_Solid << qApp->palette().color(QPalette::Highlight);
     QTest::newRow("just width") << "border: 2px" << 2 << (int)QCss::BorderStyle_None << QColor();
     QTest::newRow("just style") << "border: solid" << 0 << (int)QCss::BorderStyle_Solid << QColor();
     QTest::newRow("just color") << "border: green" << 0 << (int)QCss::BorderStyle_None << QColor("green");
