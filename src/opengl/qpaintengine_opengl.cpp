@@ -2768,7 +2768,7 @@ void QGLTrapezoidMaskGenerator::drawMask(const QRect &rect)
 
     if (needs_scissor) {
         glEnable(GL_SCISSOR_TEST);
-        glScissor(rect.left(), offscreen->offscreenSize().height() - rect.bottom(), rect.width(), rect.height());
+        glScissor(rect.left(), offscreen->offscreenSize().height() - rect.bottom() - 1, rect.width(), rect.height());
     }
 
     QVector<QGLTrapezoid> trapezoids = generateTrapezoids();
@@ -4398,8 +4398,8 @@ void QOpenGLPaintEnginePrivate::drawItem(const QDrawQueueItem &item)
 
     setGradientOps(item.brush);
 
-    composite(item.location.screen_rect.adjusted(1, 1, -1, -1), item.location.rect.topLeft() - item.location.screen_rect.topLeft()
-                                                                - QPoint(0, offscreen.offscreenSize().height() - drawable.size().height()));
+    composite(item.location.screen_rect, item.location.rect.topLeft() - item.location.screen_rect.topLeft()
+                                         - QPoint(0, offscreen.offscreenSize().height() - drawable.size().height()));
 }
 
 void QOpenGLPaintEnginePrivate::flushDrawQueue()
