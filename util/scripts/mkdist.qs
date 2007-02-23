@@ -681,7 +681,7 @@ function getFileList(rootDir)
             result.push(dir.absFilePath(files[f]).right(dir.absFilePath(files[f]).length - rootLength));
 
         // adds subDirs to dirs
-        tempDirs = dir.entryList("*", Dir.Dirs | Dir.Hidden | Dir.System, Dir.Name);
+        tempDirs = dir.entryList("*", Dir.Dirs | Dir.Hidden | Dir.System | Dir.NoSymLinks, Dir.Name);
         for (var t in tempDirs) {
             if (tempDirs[t] != "." && tempDirs[t] != "..")
                 dirs.push(dir.absFilePath(tempDirs[t]));
