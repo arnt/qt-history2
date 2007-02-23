@@ -33,7 +33,6 @@
 class QDesignerPropertyEditorInterface;
 class QListWidget;
 class QListWidgetItem;
-class QSplitter;
 
 namespace qdesigner_internal {
 
@@ -85,7 +84,6 @@ private:
 
     QDesignerFormEditorInterface *m_core;
     QPointer<QDesignerFormWindowInterface> m_formWindow;
-    QSplitter *splitter;
     QListWidget *m_actionGroups;
     ActionRepository *m_actionRepository;
     QAction *m_actionNew;

@@ -51,13 +51,15 @@ Q_DECLARE_METATYPE(QAction*)
 Q_DECLARE_METATYPE(QListWidgetItem*)
 
 namespace qdesigner_internal {
-
+//-------- ActionFilterWidget
 class ActionFilterWidget: public QWidget
 {
     Q_OBJECT
 public:
     ActionFilterWidget(ActionEditor *actionEditor, QToolBar *parent)
         : QWidget(parent),
+          m_button(new QPushButton(this)),
+          m_editor(new QLineEdit(this)),
           m_actionEditor(actionEditor)
     {
         QHBoxLayout *l = new QHBoxLayout(this);
@@ -70,11 +72,10 @@ public:
         label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         l->addWidget(label);
 
-        m_editor = new QLineEdit(this);
         l->addWidget(m_editor);
 
         connect(m_editor, SIGNAL(textChanged(QString)), actionEditor, SLOT(setFilter(QString)));
-        m_button = new QPushButton(this);
+
         m_button->setIcon(createIconSet(QLatin1String("resetproperty.png")));
         m_button->setIconSize(QSize(16, 16));
         m_button->setFlat(true);
@@ -84,7 +85,7 @@ public:
     }
 
 private slots:
-    void checkButton(QString text)
+    void checkButton(const QString &text)
     {
         m_button->setEnabled(!text.isEmpty());
     }
@@ -95,6 +96,7 @@ private:
     ActionEditor *m_actionEditor;
 };
 
+//--------  ActionGroupDelegate
 class ActionGroupDelegate: public QItemDelegate
 {
 public:
@@ -112,6 +114,7 @@ public:
     virtual void drawFocus(QPainter * /*painter*/, const QStyleOptionViewItem &/*option*/, const QRect &/*rect*/) const {}
 };
 
+//--------  ActionEditor
 ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, Qt::WindowFlags flags)
     : QDesignerActionEditorInterface(parent, flags),
       m_core(core)
@@ -123,7 +126,6 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     l->setSpacing(0);
 
     QToolBar *toolbar = new QToolBar(this);
-//    toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon); // ### style
     toolbar->setIconSize(QSize(24, 24));
     toolbar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     l->addWidget(toolbar);
@@ -143,7 +145,7 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
 
     connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotDeleteAction()));
 
-    splitter = new QSplitter(Qt::Horizontal, this);
+    QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
     splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     l->addWidget(splitter);
@@ -171,7 +173,7 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     connect(m_actionRepository, SIGNAL(contextMenuRequested(QContextMenuEvent*, QListWidgetItem*)),
             this, SIGNAL(contextMenuRequested(QContextMenuEvent*, QListWidgetItem*)));
     connect(this, SIGNAL(itemActivated(QListWidgetItem*)),
-            this, SLOT(editAction(QListWidgetItem*)));    
+            this, SLOT(editAction(QListWidgetItem*)));
 }
 
 ActionEditor::~ActionEditor()
@@ -203,7 +205,7 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
         return;
 
     if (m_formWindow != 0) {
-        QList<QAction*> actionList = qFindChildren<QAction*>(m_formWindow->mainContainer());
+        const QList<QAction*> actionList = qFindChildren<QAction*>(m_formWindow->mainContainer());
         foreach (QAction *action, actionList)
             disconnect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
     }
@@ -222,7 +224,7 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
     m_actionNew->setEnabled(true);
     m_filterWidget->setEnabled(true);
 
-    QList<QAction*> actionList = qFindChildren<QAction*>(formWindow->mainContainer());
+    const QList<QAction*> actionList = qFindChildren<QAction*>(formWindow->mainContainer());
     foreach (QAction *action, actionList) {
         if (!core()->metaDataBase()->item(action)
             || action->isSeparator()
@@ -240,10 +242,10 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
 
 QString fixActionText(QString text)
 {
-    return text.replace(QLatin1String("&"), QString());
+    return text.replace(QString(QLatin1Char('&')), QString());
 }
 
-QIcon fixActionIcon(QIcon icon)
+static QIcon fixActionIcon(QIcon icon)
 {
     static const QIcon empty_icon(QLatin1String(":/trolltech/formeditor/images/emptyicon.png"));
     if (icon.isNull())
@@ -257,18 +259,16 @@ QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
         return 0;
 
     QListWidgetItem *item = new QListWidgetItem(m_actionRepository);
-    QSize s = m_actionRepository->iconSize();
-    item->setSizeHint(QSize(s.width()*3, s.height()*2));
+    const QSize s = m_actionRepository->iconSize();
+    item->setSizeHint(QSize(s.width() * 3, s.height() * 2));
+
+
     item->setText(fixActionText(action->objectName()));
     item->setIcon(fixActionIcon(action->icon()));
 
     QVariant itemData;
     qVariantSetValue(itemData, action);
     item->setData(ActionRepository::ActionRole, itemData);
-
-/*    QVariant actionData;
-    qVariantSetValue(actionData, item);
-    action->setData(actionData); */
 
     return item;
 }
@@ -304,7 +304,7 @@ void ActionEditor::slotItemChanged(QListWidgetItem *item)
 
 QListWidgetItem *ActionEditor::actionToItem(QAction *action) const
 {
-    int cnt = m_actionRepository->count();
+    const int cnt = m_actionRepository->count();
     for (int i = 0; i < cnt; ++i) {
         QListWidgetItem *item = m_actionRepository->item(i);
         if (itemToAction(item) == action)
@@ -352,23 +352,24 @@ void ActionEditor::setFilter(const QString &f)
     m_actionRepository->filter(m_filter);
 }
 
+// Set changed state of icon property,  reset when icon is cleared
+static void refreshIconPropertyChanged(const QAction *action, QDesignerPropertySheetExtension *sheet)
+{
+    sheet->setChanged(sheet->indexOf(QLatin1String("icon")), !action->icon().isNull());
+}
+
 void ActionEditor::manageAction(QAction *action)
 {
     action->setParent(formWindow()->mainContainer());
     core()->metaDataBase()->add(action);
 
-    if (action->isSeparator() || action->menu() != 0) {
-/*        QVariant actionData;
-        qVariantSetValue(actionData, (QListWidgetItem*)0);
-        action->setData(actionData); */
+    if (action->isSeparator() || action->menu() != 0)
         return;
-    }
 
-    QDesignerPropertySheetExtension *sheet = 0;
-    sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
     sheet->setChanged(sheet->indexOf(QLatin1String("objectName")), true);
     sheet->setChanged(sheet->indexOf(QLatin1String("text")), true);
-    sheet->setChanged(sheet->indexOf(QLatin1String("icon")), !action->icon().isNull());
+    refreshIconPropertyChanged(action, sheet);
 
     QListWidgetItem *item = createListWidgetItem(action);
     m_actionRepository->setCurrentItem(item);
@@ -386,10 +387,6 @@ void ActionEditor::unmanageAction(QAction *action)
     QListWidgetItem *item = actionToItem(action);
     if (item == 0)
         return;
-
-/*    QVariant actionData;
-    qVariantSetValue(actionData, (QListWidgetItem*)0);
-    action->setData(actionData); */
 
     delete item;
 }
@@ -411,6 +408,25 @@ void ActionEditor::slotNewAction()
     }
 }
 
+static inline bool isSameIcon(const QIcon &i1, const QIcon &i2)
+{
+    return i1.serialNumber() == i2.serialNumber();
+}
+
+// return a FormWindow command to apply an icon
+QDesignerFormWindowCommand *setIconPropertyCommand(const QIcon &newIcon, QAction *action, QDesignerFormWindowInterface *fw)
+{
+    const QString iconProperty = QLatin1String("icon");
+    if (newIcon.isNull()) {
+        ResetPropertyCommand *cmd = new ResetPropertyCommand(fw);
+        cmd->init(action, iconProperty);
+        return cmd;
+    }
+    SetPropertyCommand *cmd = new SetPropertyCommand(fw);
+    cmd->init(action, iconProperty, newIcon);
+    return cmd;
+}
+
 void ActionEditor::editAction(QListWidgetItem *item)
 {
     if (!item)
@@ -427,27 +443,44 @@ void ActionEditor::editAction(QListWidgetItem *item)
     if (!dlg.exec())
         return;
 
-    formWindow()->beginCommand(QLatin1String("Edit action"));
-    if (action->objectName() != dlg.actionName()) {
-        SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
-        cmd->init(action, QLatin1String("objectName"), dlg.actionName());
-        formWindow()->commandHistory()->push(cmd);
-    }
-    if (action->text() != dlg.actionText()) {
-        SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
-        cmd->init(action, QLatin1String("text"), dlg.actionText());
-        formWindow()->commandHistory()->push(cmd);
-    }
-    if (action->icon().serialNumber() != dlg.actionIcon().serialNumber()) {
-        SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
-        cmd->init(action, QLatin1String("icon"), dlg.actionIcon());
-        formWindow()->commandHistory()->push(cmd);
-    }
-    formWindow()->endCommand();
+    // figure out changes and whether to start a macro
+    enum ChangedMask { NameChanged = 1, TextChanged = 2 , IconChanged = 4 };
+    const QString newName = dlg.actionName();
+    const QString newText = dlg.actionText();
+    const QIcon newIcon = dlg.actionIcon();
 
-    QDesignerPropertySheetExtension *sheet = 0;
-    sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
-    sheet->setChanged(sheet->indexOf(QLatin1String("icon")), !action->icon().isNull());
+    int changedMask = 0;
+
+    if (newName != action->objectName())
+        changedMask |= NameChanged;
+    if (newText != action->text())
+        changedMask |= TextChanged;
+    if (!isSameIcon(newIcon, action->icon()))
+        changedMask |= IconChanged;
+
+    if (!changedMask)
+        return;
+
+    const bool severalChanges = (changedMask != NameChanged) && (changedMask != TextChanged) && (changedMask != IconChanged);
+    if (severalChanges)
+        formWindow()->beginCommand(QLatin1String("Edit action"));
+
+    if (changedMask & NameChanged) {
+        SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
+        cmd->init(action, QLatin1String("objectName"), newName);
+        formWindow()->commandHistory()->push(cmd);
+    }
+    if (changedMask & TextChanged) {
+        SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
+        cmd->init(action, QLatin1String("text"), newText);
+        formWindow()->commandHistory()->push(cmd);
+    }
+    if (changedMask & IconChanged)
+        formWindow()->commandHistory()->push(setIconPropertyCommand(newIcon, action, formWindow()));
+
+    if (severalChanges)
+        formWindow()->endCommand();
+
 }
 
 void ActionEditor::slotDeleteAction()
@@ -478,15 +511,13 @@ QString ActionEditor::actionTextToName(const QString &text)
 
     name[0] = name.at(0).toUpper();
     name.prepend(QLatin1String("action"));
-    name.replace(QRegExp(QString(QLatin1String("[^a-zA-Z_0-9]"))), QString(QLatin1String("_")));
-    name.replace(QRegExp(QLatin1String("__*")), QString(QLatin1String("_")));
-    if (name.endsWith(QLatin1String("_")))
+    name.replace(QRegExp(QString(QLatin1String("[^a-zA-Z_0-9]"))), QString(QLatin1Char('_')));
+    name.replace(QRegExp(QLatin1String("__*")), QString(QLatin1Char('_')));
+    if (name.endsWith(QLatin1Char('_')))
         name.truncate(name.size() - 1);
 
     return name;
 }
-
-
 } // namespace qdesigner_internal
 
 #include "actioneditor.moc"

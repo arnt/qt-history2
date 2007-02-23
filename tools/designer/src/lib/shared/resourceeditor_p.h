@@ -25,18 +25,16 @@
 // We mean it.
 //
 
-#include <QtGui/QWidget>
-
 #include "shared_global_p.h"
+
+#include <QtGui/QWidget>
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 class QPushButton;
 class QToolButton;
-class QLineEdit;
 class QComboBox;
 class QStackedWidget;
-class QString;
 class QTreeView;
 class QModelIndex;
 
@@ -81,8 +79,6 @@ private slots:
     void itemChanged(const QModelIndex &index);
 
 private:
-    QDesignerFormWindowInterface *m_form;
-
     void getCurrentItem(QString &prefix, QString &file);
     QTreeView *currentView() const;
     ResourceModel *currentModel() const;
@@ -95,6 +91,7 @@ private:
     void insertEmptyComboItem();
     void removeEmptyComboItem();
 
+    QDesignerFormWindowInterface *m_form;
     QComboBox *m_qrc_combo;
     QStackedWidget *m_qrc_stack;
     QToolButton *m_add_button;

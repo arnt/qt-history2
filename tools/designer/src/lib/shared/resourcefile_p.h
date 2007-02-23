@@ -155,6 +155,7 @@ public:
     void setDirty(bool b);
 
     static bool iconFileExtension(const QString &path);
+    static QString resourcePath(const QString &prefix, const QString &file);
 
 signals:
     void dirtyChanged(bool b);

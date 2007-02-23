@@ -771,4 +771,13 @@ QString ResourceModel::lastResourceOpenDirectory() const
     return m_lastResourceDir;
 }
 
+// Create a resource path 'prefix:/file'
+QString ResourceModel::resourcePath(const QString &prefix, const QString &file)
+{
+    QString rc = QString(QLatin1Char(':'));
+    rc += prefix;
+    rc += QLatin1Char('/');
+    rc += file;
+    return QDir::cleanPath(rc);
+}
 } // namespace qdesigner_internal
