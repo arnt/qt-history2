@@ -31,6 +31,7 @@ Q_DECLARE_METATYPE(QLine)
 Q_DECLARE_METATYPE(QRect)
 Q_DECLARE_METATYPE(QSize)
 Q_DECLARE_METATYPE(QPoint)
+Q_DECLARE_METATYPE(QPainterPath)
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/painting/qpainter.h gui/painting/qpainter.cpp
@@ -83,6 +84,8 @@ private slots:
     void renderHints();
 
     void setClipRect();
+    void setEqualClipRegionAndPath_data();
+    void setEqualClipRegionAndPath();
 
 private:
     void fillData();
@@ -1186,6 +1189,52 @@ void tst_QPainter::setClipRect()
         p.setClipRect(-10, -10, 100, 100);
         p.fillRect(-10, -10, 100, 100, QBrush(QColor(Qt::red)));
     }
+}
+
+void tst_QPainter::setEqualClipRegionAndPath_data()
+{
+    QTest::addColumn<QRegion>("region");
+
+    QTest::newRow("empty") << QRegion();
+    QTest::newRow("simple rect") << QRegion(QRect(5, 5, 10, 10));
+
+    QVector<QRect> rects;
+    rects << QRect(5, 5, 10, 10) << QRect(20, 20, 10, 10);
+    QRegion region;
+    region.setRects(rects.constData(), rects.size());
+    QTest::newRow("two rects") << region;
+}
+
+void tst_QPainter::setEqualClipRegionAndPath()
+{
+    QFETCH(QRegion, region);
+    
+    QPainterPath path;
+    path.addRegion(region);
+
+    QImage img1(100, 100, QImage::Format_ARGB32);
+    QImage img2(100, 100, QImage::Format_ARGB32);
+    img1.fill(0x12345678);
+    img2.fill(0x12345678);
+
+    { 
+        QPainter p(&img1);
+        p.setClipRegion(region);
+        p.fillRect(0, 0, img1.width(), img1.height(), QColor(Qt::red));
+    }
+    { 
+        QPainter p(&img2);
+        p.setClipPath(path);
+        p.fillRect(0, 0, img2.width(), img2.height(), QColor(Qt::red));
+    }
+
+#if 0
+    if (img1 != img2) {
+        img1.save("setEqualClipRegionAndPath_region.png", "PNG");
+        img2.save("setEqualClipRegionAndPath_path.png", "PNG");
+    }
+#endif
+    QCOMPARE(img1, img2);
 }
 
 QTEST_MAIN(tst_QPainter)
