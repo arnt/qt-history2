@@ -183,6 +183,20 @@ int main(int argc, char *argv[]) \
 
 #include <QtTest/qtest_gui.h>
 
+#ifdef Q_WS_QWS
+
+#define QTEST_MAIN(TestObject)           \
+int main(int argc, char *argv[]) \
+{ \
+    QApplication app(argc, argv); \
+    if (app.type() == QApplication::GuiServer) \
+        QWSServer::instance()->enablePainting(true); \
+    TestObject tc; \
+    return QTest::qExec(&tc, argc, argv); \
+}
+
+#else
+
 #define QTEST_MAIN(TestObject) \
 int main(int argc, char *argv[]) \
 { \
@@ -190,6 +204,7 @@ int main(int argc, char *argv[]) \
     TestObject tc; \
     return QTest::qExec(&tc, argc, argv); \
 }
+#endif
 
 #else
 
