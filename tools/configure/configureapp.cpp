@@ -191,7 +191,10 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "STL" ]		    = "yes";
     dictionary[ "EXCEPTIONS" ]	    = "yes";
     dictionary[ "RTTI" ]	    = "yes";
-
+    dictionary[ "MMX" ]             = "yes";
+    dictionary[ "SSE" ]             = "yes";
+    dictionary[ "SSE2" ]            = "yes";
+    
     QString version;
     QFile qglobal_h(sourcePath + "/src/corelib/global/qglobal.h");
     if (qglobal_h.open(QFile::ReadOnly)) {
@@ -601,6 +604,13 @@ void Configure::parseCmdLine()
             cout << "Setting accessibility to NO" << endl;
         }
 
+        else if (configCmdLine.at(i) == "-no-mmx")
+            dictionary[ "MMX" ] = "no";
+        else if (configCmdLine.at(i) == "-no-sse")
+            dictionary[ "SSE" ] = "no";
+        else if (configCmdLine.at(i) == "-no-sse2")
+            dictionary[ "SSE2" ] = "no";
+        
 	else if( configCmdLine.at(i) == "-internal" )
 	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
 
@@ -971,6 +981,7 @@ bool Configure::displayHelp()
                     "[-qt-libpng] [-system-libpng] [-no-libtiff] [-system-libtiff]\n"
                     "[-no-libjpeg] [-qt-libjpeg] [-system-libjpeg] [-no-libmng]\n"
                     "[-qt-libmng] [-system-libmng] [-no-qt3support]\n"
+                    "[-no-mmx] [-no-sse] [-no-sse2]\n"
                     "[-platform <spec>]\n\n", 0, 7);
 
         desc("Installation options:\n\n");
@@ -1101,6 +1112,9 @@ bool Configure::displayHelp()
 
         desc("RTTI", "no",      "-no-rtti",             "Do not compile runtime type information.");
         desc("RTTI", "yes",     "-rtti",                "Compile runtime type information.\n");
+        desc("MMX", "no",       "-no-mmx",              "Do not compile with use of MMX instructions");
+        desc("SSE", "no",       "-no-sse",              "Do not compile with use of SSE instructions");
+        desc("SSE2", "no",       "-no-sse2",              "Do not compile with use of SSE2 instructions");
 
         desc(                   "-arch <arch>",         "Specify an architecture.\n"
                                                         "Available values for <arch>:");
@@ -1751,6 +1765,13 @@ void Configure::generateCachefile()
 	    configStream << " exceptions";
 	if ( dictionary[ "RTTI" ] == "yes" )
 	    configStream << " rtti";
+        if ( dictionary[ "MMX" ] == "yes" )
+            configStream << " mmx";
+        if ( dictionary[ "SSE" ] == "yes" )
+            configStream << " sse";
+        if ( dictionary[ "SSE2" ] == "yes" )
+            configStream << " sse2";
+        
 	configStream << endl;
         configStream << "QT_ARCH = " << dictionary[ "ARCHITECTURE" ] << endl;
         if (dictionary["QT_EDITION"].contains("OPENSOURCE"))
@@ -2057,6 +2078,9 @@ void Configure::displayConfig()
     cout << "STL support................." << dictionary[ "STL" ] << endl;
     cout << "Exception support..........." << dictionary[ "EXCEPTIONS" ] << endl;
     cout << "RTTI support................" << dictionary[ "RTTI" ] << endl;
+    cout << "MMX support................." << dictionary[ "MMX" ] << endl;
+    cout << "SSE support................." << dictionary[ "SSE" ] << endl;
+    cout << "SSE2 support................" << dictionary[ "SSE2" ] << endl;
     cout << "OpenGL support.............." << dictionary[ "OPENGL" ] << endl;
     cout << "Qt3 compatibility..........." << dictionary[ "QT3SUPPORT" ] << endl << endl;
 
