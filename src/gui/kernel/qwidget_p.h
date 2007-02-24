@@ -51,7 +51,7 @@
 #endif
 
 #ifndef Q_WS_MAC
-//#define Q_WIDGET_CACHE_OPAQUEREGIONS
+#define Q_WIDGET_CACHE_OPAQUEREGIONS
 #endif
 
 // Extra QWidget data

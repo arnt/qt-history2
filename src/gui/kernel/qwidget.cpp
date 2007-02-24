@@ -1522,6 +1522,35 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn
         rgn -= (r.translated(offset) & clipRgn);
 }
 
+//subtract any relatives that are higher up than me --- this is too expensive !!!
+void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) const
+{
+    static int disableSubtractOpaqueSiblings = qgetenv("QT_NO_SUBTRACTOPAQUESIBLINGS").toInt();
+    if (disableSubtractOpaqueSiblings)
+        return;
+
+    Q_Q(const QWidget);
+
+    if (q->isWindow())
+        return;
+
+    QPoint myOffset = offset - q->data->crect.topLeft();
+    const QWidgetPrivate *pd = q->parentWidget()->d_func();
+    pd->subtractOpaqueSiblings(rgn, myOffset);
+
+    const int startIdx = pd->children.indexOf(const_cast<QWidget*>(q)) + 1;
+    for (int i = startIdx; i < pd->children.size(); ++i) {
+        const QWidget *sibling = qobject_cast<QWidget *>(pd->children.at(i));
+        if (!sibling || !sibling->isVisible() || sibling->isWindow())
+            continue;
+
+        QRegion childRgn = sibling->geometry().translated(myOffset) & q->rect();
+        const QWidgetPrivate *sd = sibling->d_func();
+        sd->subtractOpaqueChildren(rgn, childRgn,
+                                   myOffset + sibling->geometry().topLeft());
+    }
+}
+
 #else // Q_WIDGET_CACHE_OPAQUEREGIONS
 
 void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn, const QPoint &offset, int startIdx) const
@@ -1546,8 +1575,6 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn
     }
 }
 
-#endif // Q_WIDGET_CACHE_OPAQUEREGIONS
-
 //subtract any relatives that are higher up than me --- is this too expensive ???
 void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) const
 {
@@ -1566,6 +1593,8 @@ void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) 
     int idx = pd->children.indexOf(const_cast<QWidget*>(q)) + 1; // argh, list<QObject*> is not compatible with const QObject*
     pd->subtractOpaqueChildren(rgn, q->rect(), myOffset, idx);
 }
+
+#endif // Q_WIDGET_CACHE_OPAQUEREGIONS
 
 bool QWidgetPrivate::hasBackground() const
 {
