@@ -965,9 +965,10 @@ template <class SRC>
 void QRfbDualColorHextile<SRC>::write(QTcpSocket *socket) const
 {
     const int bpp = encoder->server->clientBytesPerPixel();
-    char buffer[2 * bpp + sizeof(char) + sizeof(numRects)];
-    char &subenc = buffer[0];
-    int n = sizeof(subenc);
+    const int padding = 3;
+    char buffer[padding + 2 * bpp + sizeof(char) + sizeof(numRects)];
+    char &subenc = buffer[padding];
+    int n = padding + sizeof(subenc);
 
     subenc = 0x8; // AnySubrects
 
@@ -987,7 +988,7 @@ void QRfbDualColorHextile<SRC>::write(QTcpSocket *socket) const
     buffer[n] = numRects;
     n += sizeof(numRects);
 
-    socket->write(buffer, n);
+    socket->write(buffer + padding, n - padding);
     socket->write((char*)rects, numRects * sizeof(Rect));
 }
 
@@ -1082,9 +1083,10 @@ bool QRfbMultiColorHextile<SRC>::read(const uchar *data,
 template <class SRC>
 void QRfbMultiColorHextile<SRC>::write(QTcpSocket *socket) const
 {
+    const int padding = 3;
     quint8 buffer[bpp + sizeof(char) + sizeof(numRects)];
-    quint8 &subenc = buffer[0];
-    int n = sizeof(subenc);
+    quint8 &subenc = buffer[padding];
+    int n = padding + sizeof(subenc);
 
     subenc = 8 | 16; // AnySubrects | SubrectsColoured
 
@@ -1100,7 +1102,8 @@ void QRfbMultiColorHextile<SRC>::write(QTcpSocket *socket) const
     buffer[n] = numRects;
     n += sizeof(numRects);
 
-    socket->write(reinterpret_cast<const char*>(buffer), n);
+    socket->write(reinterpret_cast<const char*>(buffer + padding),
+                  n - padding);
     socket->write(reinterpret_cast<const char*>(rects.constData()),
                   rects.size());
 }
