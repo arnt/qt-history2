@@ -23,7 +23,7 @@
 #include <QtGui/qicon.h>
 #include <QtGui/qpixmap.h>
 
-#ifndef Q_WS_QWS
+#ifdef Q_WS_QWS
 #include <QtGui/qwswindowsystem_qws.h>
 #endif
 
