@@ -24,7 +24,7 @@
 #include <QtGui/qpixmap.h>
 
 #ifdef Q_WS_QWS
-#include <QtGui/qwswindowsystem_qws.h>
+#include <QtGui/qwindowsystem_qws.h>
 #endif
 
 #if 0
