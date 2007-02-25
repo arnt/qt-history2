@@ -799,7 +799,7 @@ const QAccessibleInterface *other, int otherChild) const
     used to provide greater context for vision-impaired users, but is
     also used for context searching or other applications. Not all
     objects have a description. An "OK" button would not need a
-    description, but a toolbutton that shows a picture of a smiley
+    description, but a tool button that shows a picture of a smiley
     would.
 
     The \l Value of an accessible object represents visual information

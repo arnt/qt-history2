@@ -235,7 +235,7 @@ QAction::QAction(QObject* parent)
 
     The action uses a stripped version of \a text (e.g. "\&Menu
     Option..." becomes "Menu Option") as descriptive text for
-    toolbuttons. You can override this by setting a specific
+    tool buttons. You can override this by setting a specific
     description with setText(). The same text will be used for
     tooltips unless you specify a different text using
     setToolTip().
@@ -258,7 +258,7 @@ QAction::QAction(const QString &text, QObject* parent)
 
     The action uses a stripped version of \a text (e.g. "\&Menu
     Option..." becomes "Menu Option") as descriptive text for
-    toolbuttons. You can override this by setting a specific
+    tool buttons. You can override this by setting a specific
     description with setText(). The same text will be used for
     tooltips unless you specify a different text using
     setToolTip().

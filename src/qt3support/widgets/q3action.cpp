@@ -442,7 +442,7 @@ Q3Action::Q3Action(QObject* parent, const char* name, bool toggle)
 
     The action uses a stripped version of \a menuText (e.g. "\&Menu
     Option..." becomes "Menu Option") as descriptive text for
-    toolbuttons. You can override this by setting a specific
+    tool buttons. You can override this by setting a specific
     description with setText(). The same text and \a accel will be
     used for tool tips and status tips unless you provide text for
     these using setToolTip() and setStatusTip().
@@ -478,7 +478,7 @@ Q3Action::Q3Action(const QIcon& icon, const QString& menuText, QKeySequence acce
 
     The action uses a stripped version of \a menuText (e.g. "\&Menu
     Option..." becomes "Menu Option") as descriptive text for
-    toolbuttons. You can override this by setting a specific
+    tool buttons. You can override this by setting a specific
     description with setText(). The same text and \a accel will be
     used for tool tips and status tips unless you provide text for
     these using setToolTip() and setStatusTip().
