@@ -42,7 +42,7 @@ public:
 
     static QByteArray hash(const QByteArray &data, HashMethod method);
 private:
-    Q_DISABLE_COPY(QCryptographicHash);
+    Q_DISABLE_COPY(QCryptographicHash)
     QCryptographicHashPrivate *d;
 };
 
