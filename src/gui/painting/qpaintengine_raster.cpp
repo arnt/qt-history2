@@ -5157,42 +5157,6 @@ flush_and_return:
 
 /*!
     \internal
-    Modify \a spans to be within the \a clip rectangle.
-    Returns the new number of spans.
-*/
-static inline int ellipseSpansClipped(QT_FT_Span *spans, int numSpans,
-                                      const QRect &clip)
-{
-    const short minx = clip.topLeft().x();
-    const short miny = clip.topLeft().y();
-    const short maxx = clip.bottomRight().x();
-    const short maxy = clip.bottomRight().y();
-
-    int n = 0;
-    for (int i = 0; i < numSpans; ++i) {
-        if (spans[i].y > maxy
-            || spans[i].y < miny
-            || spans[i].x > maxx
-            || spans[i].x + spans[i].len <= minx) {
-            continue;
-        }
-        if (spans[i].x < minx) {
-            spans[n].len = qMin(spans[i].len - (minx - spans[i].x), maxx - minx + 1);
-            spans[n].x = minx;
-        } else {
-            spans[n].x = spans[i].x;
-            spans[n].len = qMin(spans[i].len, ushort(maxx - spans[n].x + 1));
-        }
-        spans[n].y = spans[i].y;
-        spans[n].coverage = spans[i].coverage;
-
-        ++n;
-    }
-    return n;
-}
-
-/*!
-    \internal
     \a x and \a y is relative to the midpoint of \a rect.
 */
 static inline void drawEllipsePoints(int x, int y, int length,
@@ -5251,13 +5215,13 @@ static inline void drawEllipsePoints(int x, int y, int length,
         fill[1].coverage = 255;
 
         int n = (fill[0].y >= fill[1].y ? 1 : 2);
-        n = ellipseSpansClipped(fill, n, clip);
+        n = qt_intersect_spans(fill, n, clip);
         if (n > 0)
             brush_func(n, fill, brush_data);
     }
     if (pen_func) {
         int n = (outline[1].y >= outline[2].y ? 2 : 4);
-        n = ellipseSpansClipped(outline, n, clip);
+        n = qt_intersect_spans(outline, n, clip);
         if (n > 0)
             pen_func(n, outline, pen_data);
     }
