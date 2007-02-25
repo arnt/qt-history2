@@ -3812,6 +3812,49 @@ static int qt_intersect_spans(QT_FT_Span *spans, int numSpans,
     }
     return n;
 }
+#if 0
+static int qt_intersect_spans(QT_FT_Span *spans, int numSpans,
+                              const QRegion &clip)
+{
+    const QVector<QRect> rects = clip.rects();
+    int n = 0;
+    int startI = 0;
+    
+    for (int r = 0; r < rects.size(); ++r) {
+        const QRect &rect = rects[r];
+        const short miny = rect.top();
+        const short minx = rect.left();
+        const short maxx = rect.right();
+        const short maxy = rect.bottom();
+
+        while (startI < numSpans && spans[startI].y < miny)
+            ++startI;
+
+        for (int i = startI; i < numSpans; ++i) {
+            if (spans[i].y > maxy)
+                break;
+            if (spans[i].x > maxx
+                || spans[i].x + spans[i].len <= minx) {
+                continue;
+            }
+            if (spans[i].x < minx) {
+                spans[n].len = qMin(spans[i].len - (minx - spans[i].x), 
+                                    maxx - minx + 1);
+                spans[n].x = minx;
+            } else {
+                spans[n].x = spans[i].x;
+                spans[n].len = qMin(spans[i].len, 
+                                    ushort(maxx - spans[n].x + 1));
+            }
+            spans[n].y = spans[i].y;
+            spans[n].coverage = spans[i].coverage;
+
+            ++n;
+        }
+    }
+    return n;
+}
+#endif
 
 static void qt_span_fill_simpleClip(int count, const QSpan *spans,
                                     void *userData)
