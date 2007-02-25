@@ -3691,11 +3691,11 @@ QByteArray QByteArray::fromBase64(const QByteArray &base64)
     For example:
 
     \code
-        QByteArray text = QByteArray::fromHexEncoded("UXQgaXMgZ3JlYXQh");
+        QByteArray text = QByteArray::fromHex("517420697320677265617421");
         text.data();            // returns "Qt is great!"
     \endcode
 
-    \sa toHexEncoded()
+    \sa toHex()
 */
 QByteArray QByteArray::fromHex(const QByteArray &hexEncoded)
 {
@@ -3703,10 +3703,9 @@ QByteArray QByteArray::fromHex(const QByteArray &hexEncoded)
     res.resize(hexEncoded.size() / 2);
     uchar *result = (uchar *)res.data();
 
-    int i = 0;
     bool first = true;
-    while (i < hexEncoded.size() - 1) {
-	int ch = hexEncoded.at(i);
+    for (int i = 0; i < hexEncoded.size(); ++i) {
+        int ch = hexEncoded.at(i);
         int tmp;
         if (ch >= '0' && ch <= '9')
             tmp = ch - '0';
@@ -3734,7 +3733,7 @@ QByteArray QByteArray::fromHex(const QByteArray &hexEncoded)
     Returns a hex encoded copy of the byte array. The hex encoding uses the numbers 0-9 and
     the letters a-f.
 
-    \sa toHexEncoded()
+    \sa fromHex()
 */
 QByteArray QByteArray::toHex() const
 {

@@ -81,6 +81,7 @@ private slots:
     void qAllocMore();
 
     void resizeAfterFromRawData();
+    void toFromHex();
 };
 
 tst_QByteArray::tst_QByteArray()
@@ -919,6 +920,13 @@ void tst_QByteArray::resizeAfterFromRawData()
     QVERIFY(array.constData() == buffer.constData());
     array.resize(5);
     QVERIFY(array.constData() == buffer.constData());
+}
+
+void tst_QByteArray::toFromHex()
+{
+    QByteArray arr("Qt is great!");
+    QCOMPARE(arr.toHex(), QByteArray("517420697320677265617421"));
+    QCOMPARE(QByteArray::fromHex("517420697320677265617421"), QByteArray("Qt is great!"));
 }
 
 QTEST_APPLESS_MAIN(tst_QByteArray)
