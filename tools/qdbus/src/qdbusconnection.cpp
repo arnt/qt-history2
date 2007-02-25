@@ -352,9 +352,14 @@ QDBusConnection QDBusConnection::connectToBus(const QString &address,
     d = new QDBusConnectionPrivate;
  
     // setConnection does the error handling for us
-    d->setConnection(dbus_connection_open_private(address.toUtf8().constData(), &d->error));
+    DBusConnection *dbc = dbus_connection_open_private(address.toUtf8().constData(), &d->error);
+    // Q_ASSERT(dbc);
+    if (!dbc)
+        return QDBusConnection(QString());
+    d->setConnection(dbc);
 
     QDBusConnection retval(name);
+    Q_ASSERT(d->connection);
     dbus_bus_register(d->connection, &d->error);
     if (d->handleError()) {
         d->closeConnection();
