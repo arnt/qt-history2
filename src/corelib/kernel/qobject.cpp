@@ -239,6 +239,7 @@ extern "C" Q_CORE_EXPORT void qt_addObject(QObject *object)
 
 extern "C" Q_CORE_EXPORT void qt_removeObject(QObject *object)
 {
+    QWriteLocker locker(QObjectPrivate::readWriteLock());
     QObjectSet *set = allObjects();
     if (set)
         set->remove(object);
@@ -741,7 +742,6 @@ QObject::~QObject()
         d->deleteChildren();
 
     {
-        QWriteLocker locker(QObjectPrivate::readWriteLock());
         ::qt_removeObject(this);
 
         /*
