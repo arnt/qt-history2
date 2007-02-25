@@ -1929,9 +1929,6 @@ bool QVNCScreen::initDevice()
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor = new QVNCCursor(this);
 #endif
-#ifndef QT_NO_QWS_CURSOR
-    qt_screencursor = new QVNCCursor(this);
-#endif
 
     // No need to do painting while there's no clients attached
     QWSServer::instance()->enablePainting(false);
