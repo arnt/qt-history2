@@ -365,8 +365,10 @@ void QDBusAbstractInterface::connectNotify(const char *signal)
     // someone connecting to one of our signals
     Q_D(QDBusAbstractInterface);
 
-    d->connectionPrivate()->connectRelay(d->service, d->currentOwner, d->path, d->interface,
-                                         this, signal);
+    QDBusConnectionPrivate *conn = d->connectionPrivate();
+    if (conn)
+        conn->connectRelay(d->service, d->currentOwner, d->path, d->interface,
+                           this, signal);
 }
 
 /*!
@@ -378,8 +380,10 @@ void QDBusAbstractInterface::disconnectNotify(const char *signal)
     // someone disconnecting from one of our signals
     Q_D(QDBusAbstractInterface);
 
-    d->connectionPrivate()->disconnectRelay(d->service, d->currentOwner, d->path, d->interface,
-                                            this, signal);
+    QDBusConnectionPrivate *conn = d->connectionPrivate();
+    if (conn)
+        conn->disconnectRelay(d->service, d->currentOwner, d->path, d->interface,
+                              this, signal);
 }
 
 /*!

@@ -1677,14 +1677,16 @@ QDBusConnectionPrivate::findMetaObject(const QString &service, const QString &pa
     QDBusMessage reply = sendWithReply(msg, QDBus::Block);
 
     // it doesn't exist yet, we have to create it
-    QWriteLocker locker(&lock);
     QDBusMetaObject *mo = 0;
-    if (!interface.isEmpty())
+    if (!interface.isEmpty()) {
+        QReadLocker locker(&lock);
         mo = cachedMetaObjects.value(interface, 0);
     if (mo)
         // maybe it got created when we switched from read to write lock
         return mo;
+    }
 
+    QWriteLocker locker(&lock);
     QString xml;
     if (reply.type() == QDBusMessage::ReplyMessage)
         // fetch the XML description
