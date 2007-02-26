@@ -17,7 +17,7 @@ var ECLIPSE_MINGW_LOCATION
   !define MODULE_ECLIPSE_VERSION ${PRODUCT_VERSION}
 !endif
 
-!define MODULE_ECLIPSE_QT_ID "com.trolltech.qt_4.2.0"
+!define MODULE_ECLIPSE_QT_ID "com.trolltech.qt_${MODULE_ECLIPSE_VERSION}"
 
 !define MODULE_ECLIPSE_QTSTARTUP_ID "com.trolltech.qtstartup_${MODULE_ECLIPSE_VERSION}"
 
@@ -28,8 +28,7 @@ var ECLIPSE_MINGW_LOCATION
 !define MODULE_ECLIPSE_QTDESIGNER_ID "com.trolltech.qtdesigner_${MODULE_ECLIPSE_VERSION}"
 !define MODULE_ECLIPSE_QTDESIGNER_LABEL "Qt Designer Integration"
 !define MODULE_ECLIPSE_QTDESIGNER_INSTALLEDKEY "EclipseQtDesignerInstalled"
-;; qdesignerplugins
-;; !define MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID "com.trolltech.qtdesignerplugins"
+!define MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID "com.trolltech.qtdesignerplugins"
 
 !define MODULE_ECLIPSE_QTINTEGRATIONHELP_ID "com.trolltech.qtintegrationhelp_${MODULE_ECLIPSE_VERSION}"
 !define MODULE_ECLIPSE_QTINTEGRATIONHELP_LABEL "Qt Integration Help"
@@ -92,10 +91,12 @@ Section "${MODULE_ECLIPSE_QTDESIGNER_LABEL}" ECLIPSE_SEC02
   SetOverwrite ifnewer
   File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNER_ID}.jar"
   
-;; qdesignerplugins
-;;  SetOutPath "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID}\"
-;;  SetOverwrite ifnewer
-;;  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID}\qt3supportwidgets.dll"
+  SetOutPath "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID}\"
+  SetOverwrite ifnewer
+  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID}\qt3supportwidgets.dll"
+  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID}\Qt3Support4.dll"
+  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID}\QtSql4.dll"
+  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID}\QtNetwork4.dll"
   
   Call InstallQtModules
   
@@ -184,10 +185,6 @@ Function InstallQtModules
   File "${MODULE_ECLIPSE_ROOT}\bin\QtCore4.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\QtGui4.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\QtXml4.dll"
-;; qdesignerplugins
-;;  File "${MODULE_ECLIPSE_ROOT}\bin\QtSql4.dll"
-;;  File "${MODULE_ECLIPSE_ROOT}\bin\QtNetwork4.dll"
-;;  File "${MODULE_ECLIPSE_ROOT}\bin\Qt3Support4.dll"
 FunctionEnd
 
 Function ModuleEclipsePageEnter
@@ -326,10 +323,6 @@ Section un."Eclipse Integration"
   Delete "$ECLIPSE_INSTDIR\QtCore4.dll"
   Delete "$ECLIPSE_INSTDIR\QtGui4.dll"
   Delete "$ECLIPSE_INSTDIR\QtXml4.dll"
-;; qdesignerplugins
-;;  Delete "$ECLIPSE_INSTDIR\QtSql4.dll"
-;;  Delete "$ECLIPSE_INSTDIR\QtNetwork4.dll"
-;;  Delete "$ECLIPSE_INSTDIR\Qt3Support4.dll"
   
   RMDir "$ECLIPSE_INSTDIR"
 
