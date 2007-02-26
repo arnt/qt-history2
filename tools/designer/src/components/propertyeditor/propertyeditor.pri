@@ -39,7 +39,8 @@ HEADERS += $$PWD/propertyeditor.h \
     $$PWD/qtbrushpatterndialog.h\
     $$PWD/qtspinbox.h\
     $$PWD/qtcolorbutton.h\
-    $$PWD/qtcolorline.h
+    $$PWD/qtcolorline.h \
+    $$PWD/graphicspropertyeditor.h
 
 SOURCES += $$PWD/propertyeditor.cpp \
     $$PWD/paletteeditor.cpp \
@@ -64,7 +65,8 @@ SOURCES += $$PWD/propertyeditor.cpp \
     $$PWD/qtbrushpatterndialog.cpp\
     $$PWD/qtspinbox.cpp\
     $$PWD/qtcolorbutton.cpp\
-    $$PWD/qtcolorline.cpp
+    $$PWD/qtcolorline.cpp \
+    $$PWD/graphicspropertyeditor.cpp
 
 HEADERS += $$PWD/qpropertyeditor.h \
     $$PWD/qpropertyeditor_items_p.h \

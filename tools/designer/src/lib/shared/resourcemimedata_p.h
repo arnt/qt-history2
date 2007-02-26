@@ -29,8 +29,6 @@
 
 #include <QtCore/QMimeData>
 
-class QDesignerFormWindowInterface;
-
 namespace qdesigner_internal {
 
 // Resources for drag and drop
@@ -52,8 +50,6 @@ public:
     void setQrcPath(const QString &qrcPath)   {  m_qrcPath  = qrcPath; }
     void setFilePath(const QString &filePath) {  m_filePath = filePath;}
     void setType(Type type)                   {  m_type     = type;}
-
-    QIcon icon(QDesignerFormWindowInterface *fw) const;
 
 private:
     Type m_type;

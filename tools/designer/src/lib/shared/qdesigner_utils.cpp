@@ -12,8 +12,17 @@
 ****************************************************************************/
 
 #include "qdesigner_utils_p.h"
+#include "resourcemimedata_p.h"
 
 #include <QtDesigner/QDesignerLanguageExtension>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerIconCacheInterface>
+
+#include <QtGui/QIcon>
+#include <QtGui/QPixmap>
+#include <QtCore/QDir>
+
 
 namespace qdesigner_internal
 {
@@ -127,4 +136,26 @@ namespace qdesigner_internal
         if (keyChanged)
             items = remappedItems;
     }
+
+    // Convenience to return an icon normalized to form directory
+    QDESIGNER_SHARED_EXPORT QIcon resourceMimeDataToIcon(const ResourceMimeData *rmd, QDesignerFormWindowInterface *fw)
+    {
+        if (rmd->type() != ResourceMimeData::Image)
+            return QIcon();
+
+        const QString normalizedQrcPath = fw->absoluteDir().absoluteFilePath(rmd->qrcPath());
+        const QIcon rc =  fw->core()->iconCache()->nameToIcon(rmd->filePath(), normalizedQrcPath);
+        return rc;
+    }
+    // Convenience to return an icon normalized to form directory
+    QDESIGNER_SHARED_EXPORT QPixmap resourceMimeDataToPixmap(const ResourceMimeData *rmd, QDesignerFormWindowInterface *fw)
+    {
+        if (rmd->type() != ResourceMimeData::Image)
+            return QPixmap();
+
+        const QString normalizedQrcPath = fw->absoluteDir().absoluteFilePath(rmd->qrcPath());
+        const QPixmap rc =  fw->core()->iconCache()->nameToPixmap(rmd->filePath(), normalizedQrcPath);
+        return rc;
+    }
+
 } // namespace qdesigner_internal

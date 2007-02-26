@@ -12,7 +12,12 @@
 ****************************************************************************/
 
 #include "qpropertyeditor_model_p.h"
-#include <QtCore/qdebug.h>
+#include "graphicspropertyeditor.h"
+
+#include <resourcemimedata_p.h>
+#include <qdesigner_utils_p.h>
+
+#include <QtDesigner/QDesignerFormEditorInterface>
 
 namespace qdesigner_internal {
 
@@ -148,7 +153,7 @@ QString QPropertyEditorModel::columnText(int col) const
         default: return QString();
     }
 }
-    
+
 void QPropertyEditorModel::refresh(IProperty *property)
 {
     // find parent if it is a fake
@@ -224,5 +229,59 @@ int QPropertyEditorModel::rowOf(IProperty *property) const
         return -1;
     
     return static_cast<const IPropertyGroup*>(parent)->indexOf(property);
+}
+    
+static bool setImage(const ResourceMimeData *image, PixmapProperty *property)
+{
+    QDesignerFormWindowInterface *form = property->core()->formWindowManager()->activeFormWindow();
+    if (!form)
+        return false;
+    
+    const QPixmap newPixmap = resourceMimeDataToPixmap(image, form);
+    const QPixmap oldPixmap = qvariant_cast<QPixmap>(property->value());
+    if (newPixmap.isNull() || newPixmap .serialNumber() == oldPixmap.serialNumber())
+        return  false;
+
+    property->setValue(QVariant(newPixmap));
+    return true;
+}
+    
+static bool setIcon(const ResourceMimeData *image, IconProperty *property)
+{
+    QDesignerFormWindowInterface *form = property->core()->formWindowManager()->activeFormWindow();
+    if (!form)
+        return false;
+    
+    const QIcon newIcon = resourceMimeDataToIcon(image, form);
+    const QIcon oldIcon = qvariant_cast<QIcon>(property->value());
+    if (newIcon.isNull() || newIcon .serialNumber() == oldIcon.serialNumber())
+        return  false;
+    
+    property->setValue(QVariant(newIcon));
+    return true;
+}
+    
+bool QPropertyEditorModel::resourceImageDropped(const QModelIndex &index, const ResourceMimeData *resourceMimeData)
+{
+    if (!index.isValid() || resourceMimeData->type() != ResourceMimeData::Image)
+        return false;    
+
+    IProperty *property = static_cast<IProperty*>(index.internalPointer());
+    if (!property || property->isFake())
+        return false;
+
+    bool changed = false;
+    switch (property->value().type()) {
+        case  QVariant::Icon:
+            changed = setIcon(resourceMimeData, static_cast<IconProperty *>(property));
+            break;
+        case  QVariant::Pixmap:
+            changed = setImage(resourceMimeData, static_cast<PixmapProperty *>(property));
+            break;
+        default:
+            break;
+        }
+    if (changed) emit propertyChanged(property);
+    return  changed;
 }
 }

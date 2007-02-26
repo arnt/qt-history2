@@ -35,7 +35,11 @@ class QDesignerLanguageExtension;
 #include <QtCore/QMap>
 #include <QtGui/QMainWindow>
 
+class QIcon;
+class QPixmap;
+
 namespace qdesigner_internal {
+class ResourceMimeData;
 
 QDESIGNER_SHARED_EXPORT void designerWarning(const QString &message);
 
@@ -69,6 +73,10 @@ public:
     ItemMap items;
 };
 
+// Convenience to return a dropped icon, normalized to form directory
+QDESIGNER_SHARED_EXPORT QIcon resourceMimeDataToIcon(const ResourceMimeData *rmd, QDesignerFormWindowInterface *fw);
+// Convenience to return an dropped pixmap, normalized to form directory
+QDESIGNER_SHARED_EXPORT QPixmap resourceMimeDataToPixmap(const ResourceMimeData *rmd, QDesignerFormWindowInterface *fw);
 } // namespace qdesigner_internal
 
 Q_DECLARE_METATYPE(qdesigner_internal::EnumType)

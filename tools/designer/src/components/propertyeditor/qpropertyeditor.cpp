@@ -15,10 +15,16 @@
 #include "qpropertyeditor_model_p.h"
 #include "qpropertyeditor_delegate_p.h"
 
+#include <resourcemimedata_p.h>
+
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+
 #include <QtGui/QHeaderView>
 #include <QtGui/QApplication>
 #include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
+#include <QtGui/qevent.h>
 #include <qdebug.h>
 
 namespace qdesigner_internal {
@@ -50,6 +56,7 @@ QPropertyEditor::QPropertyEditor(QWidget *parent)    :
             this, SIGNAL(propertyChanged(IProperty*)));
 
     setContextMenuPolicy(Qt::CustomContextMenu);
+    setAcceptDrops(true);
 }
 
 QPropertyEditor::~QPropertyEditor()
@@ -165,5 +172,57 @@ void QPropertyEditor::headerDoubleClicked(int column)
 {
     resizeColumnToContents(column);
 }
+
+// Check for image
+static inline const ResourceMimeData *imageResourceMimeData(const QMimeData *data)
+{
+    const ResourceMimeData *resourceMimeData = qobject_cast<const qdesigner_internal::ResourceMimeData *>(data);
+    if (!resourceMimeData || resourceMimeData->type() != ResourceMimeData::Image)
+        return 0;
+    return resourceMimeData;
+}
+
+
+void  QPropertyEditor::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (!isReadOnly() && imageResourceMimeData(event->mimeData()))
+        event->acceptProposedAction();
+    else
+        event->ignore();
+}
+
+void  QPropertyEditor::dragMoveEvent(QDragMoveEvent *event)
+{
+    if (!isReadOnly() && imageResourceMimeData(event->mimeData()))
+        event->acceptProposedAction();
+    else
+        event->ignore();
+}
+
+void QPropertyEditor::dropEvent ( QDropEvent * event )
+{
+    bool accept = false;
+    do {
+        if (isReadOnly())
+            break;
+
+        const ResourceMimeData *image = imageResourceMimeData(event->mimeData());
+        if (!image)
+            break;
+
+        const QModelIndex index = indexAt(event->pos());
+        if (!index.isValid())
+            break;
+
+        accept = m_model->resourceImageDropped(index, image);
+    } while (false);
+
+    if ( accept) {
+        event->acceptProposedAction();
+    } else {
+        event->ignore();
+    }
+}
+
 }
 

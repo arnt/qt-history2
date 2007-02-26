@@ -24,6 +24,7 @@ TRANSLATOR qdesigner_internal::ActionEditor
 #include "qdesigner_propertycommand_p.h"
 #include "resourcemimedata_p.h"
 #include "qdesigner_objectinspector_p.h"
+#include "qdesigner_utils_p.h"
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerPropertyEditorInterface>
@@ -537,7 +538,7 @@ void  ActionEditor::resourceImageDropped(const ResourceMimeData *data, QAction *
     if (!fw)
         return;
 
-    const QIcon icon = data->icon(fw);
+    const QIcon icon = resourceMimeDataToIcon(data, fw);
 
     if (icon.isNull() || isSameIcon(icon, action->icon()))
         return;

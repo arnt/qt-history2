@@ -100,15 +100,16 @@ void ActionRepository::dragEnterEvent(QDragEnterEvent *event)
     if (imageResourceMimeData(event->mimeData())) {
         event->acceptProposedAction();
     } else {
-        QListWidget::dragEnterEvent(event);
+        event->ignore();
     }
 }
 
 void  ActionRepository::dragMoveEvent(QDragMoveEvent *event)
 {
-    QListWidget::dragMoveEvent(event);
     if (imageResourceMimeData(event->mimeData()))
         event->acceptProposedAction();
+    else 
+        event->ignore();
 }
 
 bool ActionRepository::dropMimeData(int index, const QMimeData * data, Qt::DropAction action )

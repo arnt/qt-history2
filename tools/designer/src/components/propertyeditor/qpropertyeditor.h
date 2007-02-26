@@ -45,6 +45,10 @@ public slots:
     void setReadOnly(bool readOnly);
 
 protected:
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dragMoveEvent(QDragMoveEvent *event);
+    virtual void dropEvent ( QDropEvent * event );
+
     virtual void drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const;
     virtual void keyPressEvent(QKeyEvent *ev);
     virtual QStyleOptionViewItem viewOptions() const;

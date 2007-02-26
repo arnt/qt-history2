@@ -30,6 +30,8 @@
 
 namespace qdesigner_internal {
 
+class ResourceMimeData;
+
 class QPropertyEditorModel: public QAbstractItemModel
 {
     Q_OBJECT
@@ -50,6 +52,8 @@ public:
     { return static_cast<IProperty*>(index.internalPointer()); }
 
     Qt::ItemFlags flags(const QModelIndex &index) const;
+    
+    bool resourceImageDropped(const QModelIndex &index, const ResourceMimeData *m);
 
 signals:
     void propertyChanged(IProperty *property);
