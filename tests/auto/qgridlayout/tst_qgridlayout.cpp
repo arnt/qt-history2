@@ -1167,7 +1167,6 @@ void tst_QGridLayout::layoutSpacingImplementation_data()
         QApplication::setStyle(style);
         QWidget *w = new QWidget();
         QVBoxLayout *layout = new QVBoxLayout();
-        layout->setItemRectPolicy(QLayout::WidgetRect);
         QPushButton *pb1 = new QPushButton(QLatin1String("Push 1"), w);
 
         QGroupBox *g1 = new QGroupBox(QLatin1String("GroupBox 1"), w);
@@ -1179,6 +1178,9 @@ void tst_QGridLayout::layoutSpacingImplementation_data()
 
         QPushButton *pb3 = new QPushButton(QLatin1String("Push 3"), w);
 
+        pb1->setAttribute(Qt::WA_LayoutUsesWidgetRect, true); 
+        g1->setAttribute(Qt::WA_LayoutUsesWidgetRect, true); 
+        pb3->setAttribute(Qt::WA_LayoutUsesWidgetRect, true); 
         layout->addWidget(pb1);
         layout->addWidget(g1 );
         layout->addWidget(pb3);
@@ -1204,7 +1206,6 @@ void tst_QGridLayout::layoutSpacingImplementation_data()
         QApplication::setStyle(style);
         QWidget *w = new QWidget();
         QVBoxLayout *layout = new QVBoxLayout();
-        layout->setItemRectPolicy(QLayout::LayoutItemRect);
         QPushButton *pb1 = new QPushButton(QLatin1String("Push 1"), w);
 
         QGroupBox *g1 = new QGroupBox(QLatin1String("GroupBox 1"), w);
@@ -1216,6 +1217,9 @@ void tst_QGridLayout::layoutSpacingImplementation_data()
 
         QPushButton *pb3 = new QPushButton(QLatin1String("Push 3"), w);
 
+        pb1->setAttribute(Qt::WA_LayoutUsesWidgetRect, false); 
+        g1->setAttribute(Qt::WA_LayoutUsesWidgetRect, false); 
+        pb3->setAttribute(Qt::WA_LayoutUsesWidgetRect, false); 
         layout->addWidget(pb1);
         layout->addWidget(g1 );
         layout->addWidget(pb3);
@@ -1380,7 +1384,7 @@ void tst_QGridLayout::layoutSpacingImplementation()
         //qDebug()  << item->widget()->pos();
         QCOMPARE(item->widget()->pos(), expectedpositions.at(pi));
     }
-//    delete widget;
+    delete widget;
 
 }
 
