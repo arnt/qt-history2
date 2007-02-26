@@ -155,7 +155,9 @@ bool QSvgIconEngine::read(QDataStream &in)
 
     in >> data;
     if (!data.isEmpty()) {
+#ifndef QT_NO_COMPRESS
         data = qUncompress(data);
+#endif
         if (!data.isEmpty())
             d->render->load(data);
     }
@@ -178,7 +180,11 @@ bool QSvgIconEngine::write(QDataStream &out) const
     if (!d->svgFile.isEmpty()) {
         QFile file(d->svgFile);
         if (file.open(QIODevice::ReadOnly))
+#ifndef QT_NO_COMPRESS
             out << qCompress(file.readAll());
+#else
+            out << file.readAll();
+#endif
         else
             out << QByteArray();
     } else {
