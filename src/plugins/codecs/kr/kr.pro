@@ -5,8 +5,8 @@ CONFIG	+= warn_on
 QTDIR_build:DESTDIR	 = $$QT_BUILD_TREE/plugins/codecs
 QT = core
 
-HEADERS		= qeuckrcodec.h
-
+HEADERS		= qeuckrcodec.h \
+              cp949codetbl.h              
 SOURCES		= qeuckrcodec.cpp \
 		  main.cpp
 

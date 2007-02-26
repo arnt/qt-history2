@@ -58,6 +58,20 @@ public:
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
 
+class QCP949Codec : public QTextCodec {
+public:
+    static QByteArray _name();
+    static QList<QByteArray> _aliases() { return QList<QByteArray>(); }
+    static int _mibEnum();
+
+    QByteArray name() const { return _name(); }
+    QList<QByteArray> aliases() const { return _aliases(); }
+    int mibEnum() const { return _mibEnum(); }
+
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
+};
+
 #ifdef Q_WS_X11
 class QFontKsc5601Codec : public QTextCodec
 {
