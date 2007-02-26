@@ -1551,9 +1551,9 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         should extend to the full width of the document.
 
     \value SH_GroupBox_TextLabelVerticalAlignment  How to vertically align a
-        groupbox's text label.
+        group box's text label.
 
-    \value SH_GroupBox_TextLabelColor  How to paint a groupbox's text label.
+    \value SH_GroupBox_TextLabelColor  How to paint a group box's text label.
 
     \value SH_DialogButtons_DefaultButton  Which button gets the
         default status in a dialog's button widget.

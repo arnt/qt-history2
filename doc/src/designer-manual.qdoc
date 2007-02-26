@@ -854,7 +854,7 @@ and radio buttons with similar purposes.
 
 \endtable
 
-The most important properties of groupboxes are \c title, \c flat,
+The most important properties of group boxes are \c title, \c flat,
 \c checkable, and \c checked. These are demonstrated in the
 \l{widgets/groupbox}{Group Box} example, and described in the
 QGroupBox class documentation.
@@ -1513,7 +1513,7 @@ process.
     This is useful when different environments requires different layouts for the same form.
 
     To specify layout functions for the form's margin and spacing, check the \gui {Layout
-    Function} groupbox to enable the line edits.
+    Function} group box to enable the line edits.
 
     \endtable
 

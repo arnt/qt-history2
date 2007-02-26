@@ -1116,7 +1116,7 @@ void QWindowsXPStyle::polish(QWidget *widget)
 
     Q_D(QWindowsXPStyle);
     if (!d->hasInitColors) {
-        // Get text color for groupbox labels
+        // Get text color for group box labels
         COLORREF cref;
         XPThemeData theme(0, 0, QLatin1String("BUTTON"), 0, 0);
         pGetThemeColor(theme.handle(), BP_GROUPBOX, GBS_NORMAL, TMT_TEXTCOLOR, &cref);
