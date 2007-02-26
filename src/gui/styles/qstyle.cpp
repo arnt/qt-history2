@@ -556,7 +556,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PE_IndicatorToolBarSeparator  The separator in a toolbar.
     \value PE_PanelToolBar  The panel for a toolbar.
     \value PE_PanelTipLabel The panel for a tip label.
-    \value PE_FrameTabBarBase The frame that is drawn for a tabbar, ususally drawn for a tabbar that isn't part of a tab widget.
+    \value PE_FrameTabBarBase The frame that is drawn for a tab bar, ususally drawn for a tab bar that isn't part of a tab widget.
     \value PE_IndicatorTabTear An indicator that a tab is partially scrolled out of the visible tab bar when there are many tabs.
 
     \value PE_Widget  A plain QWidget.
@@ -1527,7 +1527,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SH_Q3ListViewExpand_SelectMouseType  Which type of mouse event should
         cause a list view expansion to be selected.
 
-    \value SH_TabBar_PreferNoArrows  Whether a tabbar should suggest a size
+    \value SH_TabBar_PreferNoArrows  Whether a tab bar should suggest a size
         to prevent scoll arrows.
 
     \value SH_ComboBox_Popup  Allows popups as a combobox drop-down
@@ -1646,7 +1646,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SH_Slider_PageSetButtons Which mouse buttons cause a slider
     to page step the value.
 
-    \value SH_TabBar_ElideMode The default eliding style for a tabbar.
+    \value SH_TabBar_ElideMode The default eliding style for a tab bar.
 
     \value SH_DialogButtonLayout  Controls how buttons are laid out in a QDialogButtonBox, returns a QDialogButtonBox::ButtonLayout enum.
 

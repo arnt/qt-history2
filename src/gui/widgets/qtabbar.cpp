@@ -308,8 +308,8 @@ void QTabBarPrivate::layoutTabs()
     // This will allow us to elide text if necessary. Since we don't set
     // a maximum size, tabs will EXPAND to fill up the empty space.
     // Since tab widget is rather *ahem* strict about keeping the geometry of the
-    // tabbar to its absolute minimum, this won't bleed through, but will show up
-    // if you use tabbar on its own (a.k.a. not a bug, but a feature).
+    // tab bar to its absolute minimum, this won't bleed through, but will show up
+    // if you use tab bar on its own (a.k.a. not a bug, but a feature).
     if (!vertTabs) {
         int minx = 0;
         int x = 0;
@@ -536,7 +536,7 @@ void QTabBar::setShape(Shape shape)
 
 /*!
     \property QTabBar::drawBase
-    \brief defines whether or not tabbar should draw its base.
+    \brief defines whether or not tab bar should draw its base.
 
     If true then QTabBar draws a base in relation to the styles overlab.
     Otherwise only the tabs are drawn.

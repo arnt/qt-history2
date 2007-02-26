@@ -4125,7 +4125,7 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 /*!
     \class QStyleOptionTabBarBase
     \brief The QStyleOptionTabBarBase class is used to describe
-    the base of a tabbar, i.e. the part that the tabbar usually
+    the base of a tab bar, i.e. the part that the tab bar usually
     overlaps with.
 
     QStyleOptionTabBarBase  contains all the information that QStyle
@@ -4198,7 +4198,7 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
 
 /*!
     \variable QStyleOptionTabBarBase::shape
-    \brief the shape of the tabbar
+    \brief the shape of the tab bar
 
     The default value is QTabBar::RoundedNorth.
 */
