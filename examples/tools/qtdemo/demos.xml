@@ -13,5 +13,6 @@
     <example filename="sqlbrowser" name="SQL Browser" />
     <example filename="textedit" name="Text Edit" />
     <example filename="chip" name="40000 Chips" />
+    <example filename="undo" name="Undo Framework" />
   </category>
 </categories>

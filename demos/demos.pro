@@ -11,7 +11,8 @@ SUBDIRS     = \
         demos_mainwindow \
         demos_spreadsheet \
         demos_textedit \
-        demos_chip
+        demos_chip \
+	demos_undo
 
 unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += demos_dbus_viewer
 !contains(QT_EDITION, Console):!cross_compile:!embedded:SUBDIRS += demos_arthurplugin
@@ -38,6 +39,7 @@ demos_spreadsheet.subdir = spreadsheet
 demos_textedit.subdir = textedit
 demos_arthurplugin.subdir = arthurplugin
 demos_sqlbrowser.subdir = sqlbrowser
+demos_undo.subdir = undo
 
 #CONFIG += ordered
 !ordered {

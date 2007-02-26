@@ -74,4 +74,12 @@
        highlighting features such as rotation, zooming, level of detail control,
        and item selection.
     \endlist
+
+    \section1 Tools
+
+    \list
+    \o \l{demos/undo}{Undo Framework} demonstrates how Qt's
+	\l{Overview of Qt's Undo Framework}{undo framework} is used to
+	provide advanced undo/redo functionality.
+    \endlist
 */
