@@ -15,6 +15,9 @@
 #ifdef Q_WS_WIN
 # include "qt_windows.h"
 # include <private/qpaintengine_raster_p.h>
+# ifndef QT_NO_DIRECT3D
+#  include <private/qwindowsurface_d3d_p.h>
+# endif
 #endif
 #include "qbackingstore_p.h"
 #include "private/qwidget_p.h"
@@ -223,7 +226,11 @@ void qt_syncBackingStore(QRegion rgn, QWidget *widget)
 QWindowSurface *qt_default_window_surface(QWidget *widget)
 {
 #ifdef Q_WS_WIN
+#ifndef QT_NO_DIRECT3D
+    return new QD3DWindowSurface(widget);
+#else
     return new QRasterWindowSurface(widget);
+#endif
 #elif defined(Q_WS_X11)
     return new QX11WindowSurface(widget);
 #elif defined(Q_WS_QWS)

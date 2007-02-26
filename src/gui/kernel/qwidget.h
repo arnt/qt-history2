@@ -648,7 +648,8 @@ private:
     friend class QGLContext;
     friend class QX11PaintEngine;
     friend class QWin32PaintEngine;
-    friend class QShortcutPrivate;
+    friend class QShortcutPrivate; 
+    friend class QD3DWindowSurface;
 
 #ifdef Q_WS_MAC
 #ifndef __LP64__

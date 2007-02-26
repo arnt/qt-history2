@@ -32,6 +32,9 @@
 
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
+#ifndef QT_NO_DIRECT3D
+#include <d3d9.h>
+#endif
 #endif
 
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS)
@@ -45,6 +48,9 @@ struct QPixmapData { // internal pixmap data
     int detach_no;
     QImage image;
     QPixmap::Type type;
+#ifndef QT_NO_DIRECT3D
+    IDirect3DTexture9 *texture;
+#endif
 
     QImage createBitmapImage(int w, int h);
 };

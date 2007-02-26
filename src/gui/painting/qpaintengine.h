@@ -175,6 +175,7 @@ public:
         Picture,
         SVG,
         Raster,
+	Direct3D,
 
         User = 50,    // first user type id
         MaxUser = 100 // last user type id

@@ -27,6 +27,10 @@
 #include "qwidget_p.h"
 #include "private/qbackingstore_p.h"
 
+#ifndef QT_NO_DIRECT3D
+#include "private/qpaintengine_d3d_p.h"
+#endif
+
 #include <qdebug.h>
 
 #include <private/qapplication_p.h>
@@ -1723,8 +1727,50 @@ public:
     Q_GLOBAL_STATIC(QGlobalRasterPaintEngine, instance)
 };
 
+#ifndef QT_NO_DIRECT3D
+class QGlobal3DEngine
+{
+public:
+    QDirect3DPaintEngine *pointer;
+    bool destroyed;
+
+    inline QGlobal3DEngine()
+        : pointer(0), destroyed(false)
+    { }
+
+    inline ~QGlobal3DEngine()
+    {
+        delete pointer;
+        pointer = 0;
+        destroyed = true;
+    }
+};
+
+static void cleanup_d3d_engine();
+
+QDirect3DPaintEngine *qt_d3dEngine()
+{
+    static QGlobal3DEngine this_d3dEngine;
+    if (!this_d3dEngine.pointer && !this_d3dEngine.destroyed) {
+        QDirect3DPaintEngine *x = new QDirect3DPaintEngine;
+        if (!q_atomic_test_and_set_ptr(&this_d3dEngine.pointer, 0, x))
+            delete x;
+        qAddPostRoutine(cleanup_d3d_engine);
+    }
+    return this_d3dEngine.pointer;
+}
+
+static void cleanup_d3d_engine() {
+    qt_d3dEngine()->cleanup();
+}
+
+#endif
+
 QPaintEngine *QWidget::paintEngine() const
 {
+#ifndef QT_NO_DIRECT3D
+    return qt_d3dEngine();
+#else
     Q_D(const QWidget);
     QPaintEngine *globalEngine = QGlobalRasterPaintEngine::instance();
     if (globalEngine->isActive()) {
@@ -1736,6 +1782,7 @@ QPaintEngine *QWidget::paintEngine() const
         return d->extraPaintEngine;
     }
     return globalEngine;
+#endif
 }
 
 void QWidgetPrivate::setModal_sys()
