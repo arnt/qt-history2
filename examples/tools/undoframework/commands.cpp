@@ -71,7 +71,7 @@ AddCommand::AddCommand(DiagramItem::DiagramType addType,
     scene->update();
     ++itemCount;
     setText(QObject::tr("Add %1")
-	    .arg(createCommandString(myDiagramItem, myDiagramItem->pos())));
+	    .arg(createCommandString(myDiagramItem, initialPosition)));
 }
 
 void AddCommand::undo()
