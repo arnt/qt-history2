@@ -301,7 +301,7 @@ void QTextBrowserPrivate::keypadMove(bool next)
     QRectF newViewRect = QRectF(0, scrollYOffset, control->size().width(), height);
     QRectF bothViewRects = viewRect.united(newViewRect);
 
-    // First, check to see if someone has moved the scrollbars independently
+    // First, check to see if someone has moved the scroll bars independently
     if (lastKeypadScrollValue != yOffset) {
         // Someone (user or programmatically) has moved us, so we might
         // need to start looking from the current position instead of prevFocus
@@ -335,7 +335,7 @@ void QTextBrowserPrivate::keypadMove(bool next)
             focusedPos = scrollYOffset;
             focusIt = true;
         } else {
-            // This is the "normal" case - no scrollbar adjustments, no large anchors,
+            // This is the "normal" case - no scroll bar adjustments, no large anchors,
             // and no wrapping.
             foundNextAnchor = control->findNextPrevAnchor(prevFocus, next, anchorToFocus);
         }
@@ -420,7 +420,7 @@ void QTextBrowserPrivate::keypadMove(bool next)
     }
 
     // setTextCursor ensures that the cursor is visible. save & restore
-    // the scrollbar values therefore
+    // the scroll bar values therefore
     const int savedXOffset = hbar->value();
 
     // Now actually process our decision

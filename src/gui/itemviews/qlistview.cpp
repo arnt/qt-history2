@@ -663,7 +663,7 @@ void QListView::scrollContentsBy(int dx, int dy)
     \internal
 
     Resize the internal contents to \a width and \a height and set the
-    scrollbar ranges accordingly.
+    scroll bar ranges accordingly.
 */
 void QListView::resizeContents(int width, int height)
 {
@@ -773,7 +773,7 @@ void QListView::timerEvent(QTimerEvent *e)
 {
     Q_D(QListView);
     if (e->timerId() == d->delayedLayout.timerId()) {
-        setState(ExpandingState); // showing the scrollbars will trigger a resize event,
+        setState(ExpandingState); // showing the scroll bars will trigger a resize event,
         doItemsLayout();          // so we set the state to expanding to avoid
         setState(NoState);        // triggering another layout
     } else if (e->timerId() == d->batchLayoutTimer.timerId()) {
@@ -1161,7 +1161,7 @@ int QListView::verticalOffset() const
             if (d->flow == LeftToRight && !d->staticListView->segmentPositions.isEmpty()) {
                 int value = verticalScrollBar()->value();
                 if (value >= d->staticListView->segmentPositions.count()) {
-                    qWarning("QListView: Vertical scrollbar is out of bounds");
+                    qWarning("QListView: Vertical scroll bar is out of bounds");
                     return 0;
                 }
                 return d->staticListView->segmentPositions.at(value);
@@ -1170,7 +1170,7 @@ int QListView::verticalOffset() const
             if (d->flow == TopToBottom && !d->staticListView->flowPositions.isEmpty()) {
                 int value = verticalScrollBar()->value();
                 if (value >= d->staticListView->flowPositions.count()) {
-                    qWarning("QListView: Vertical scrollbar is out of bounds");
+                    qWarning("QListView: Vertical scroll bar is out of bounds");
                     return 0;
                 }
                 return d->staticListView->flowPositions.at(value) - d->spacing();
@@ -1341,7 +1341,7 @@ void QListView::setPositionForIndex(const QPoint &position, const QModelIndex &i
     d->setDirtyRegion(visualRect(index)); // update new position
 
     if (d->contentsSize() != oldContents)
-        updateGeometries(); // update the scrollbars
+        updateGeometries(); // update the scroll bars
 }
 
 /*!
@@ -1596,7 +1596,7 @@ void QListView::updateGeometries()
 
     QAbstractItemView::updateGeometries();
 
-    // if the scrollbars are turned off, we resize the contents to the viewport
+    // if the scroll bars are turned off, we resize the contents to the viewport
     if (d->movement == Static && !d->isWrapping()) {
         d->layoutChildren(); // we need the viewport size to be updated
         if (d->flow == TopToBottom) {

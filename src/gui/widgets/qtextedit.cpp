@@ -249,7 +249,7 @@ void QTextEditPrivate::_q_adjustScrollbars()
 
     // if we are in left-to-right mode widening the document due to
     // lazy layouting does not require a repaint. If in right-to-left
-    // the scrollbar has the value zero and it visually has the maximum
+    // the scroll bar has the value zero and it visually has the maximum
     // value (it is visually at the right), then widening the document
     // keeps it at value zero but visually adjusts it to the new maximum
     // on the right, hence we need an update.
@@ -336,7 +336,7 @@ void QTextEditPrivate::ensureViewportLayouted()
     attributes, for example, font and color.
 
     QTextEdit can display images, lists and tables. If the text is
-    too large to view within the text edit's viewport, scrollbars will
+    too large to view within the text edit's viewport, scroll bars will
     appear. The text edit can load both plain text and HTML files (a
     subset of HTML 3.2 and 4).
 
@@ -1301,11 +1301,11 @@ void QTextEditPrivate::relayoutDocument()
     // horizontally (causing the character to wrap in the first place) but also
     // vertically, because the original line is now smaller and the one below kept
     // its size. So a layout with less width _can_ take up less vertical space, too.
-    // If the wider case causes a vertical scrollbar to appear and the narrower one
-    // (narrower because the vertical scrollbar takes up horizontal space)) to disappear
+    // If the wider case causes a vertical scroll bar to appear and the narrower one
+    // (narrower because the vertical scroll bar takes up horizontal space)) to disappear
     // again then we have an endless loop, as _q_adjustScrollBars sets new ranges on the
-    // scrollbars, the QAbstractScrollArea will find out about it and try to show/hide the scrollbars
-    // again. That's why we try to detect this case here and break out.
+    // scroll bars, the QAbstractScrollArea will find out about it and try to show/hide
+    // the scroll bars again. That's why we try to detect this case here and break out.
     //
     // (if you change this please also check the layoutingLoop() testcase in
     // QTextEdit's autotests)

@@ -43,7 +43,7 @@ static const int QGRAPHICSVIEW_REGION_RECT_THRESHOLD = 50;
     \endcode
 
     You can explicitly scroll to any position on the scene by using the
-    scrollbars, or by calling centerOn(). By passing a point to centerOn(),
+    scroll bars, or by calling centerOn(). By passing a point to centerOn(),
     QGraphicsView will scroll its viewport to ensure that the point is
     centered in the view. An overload is provided for scrolling to a
     QGraphicsItem, in which case QGraphicsView will see to that the center of
@@ -55,9 +55,9 @@ static const int QGRAPHICSVIEW_REGION_RECT_THRESHOLD = 50;
     The visualized area is by default detected automatically when the view is
     displayed for the first time (by calling
     QGraphicsScene::itemsBoundingRect()). To set the visualized area rectangle
-    yourself, you can call setSceneRect(). This will adjust the scrollbars'
+    yourself, you can call setSceneRect(). This will adjust the scroll bars'
     ranges appropriately. Note that although the scene supports a virtually
-    unlimited size, the range of the scrollbars will never exceed the range of
+    unlimited size, the range of the scroll bars will never exceed the range of
     an integer (INT_MIN, INT_MAX). When the scene is larger than the scroll
     bars' values, you can choose to use translate() to navigate the scene
     instead.
@@ -379,7 +379,7 @@ void QGraphicsViewPrivate::recalculateContentSize()
     QRectF viewRect = matrix.mapRect(q->sceneRect());
 
     // Adjust the maximum width and height of the viewport based on the width
-    // of visible scrollbars.
+    // of visible scroll bars.
     int scrollBarExtent = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q);
     if (viewRect.width() >= maxSize.width())
         height -= scrollBarExtent;
@@ -396,7 +396,7 @@ void QGraphicsViewPrivate::recalculateContentSize()
     qreal oldTopIndent = topIndent;
 
     // If the whole scene fits horizontally, we center the scene horizontally,
-    // and ignore the horizontal scrollbars.
+    // and ignore the horizontal scroll bars.
     if (viewRect.width() < width) {
         q->horizontalScrollBar()->setRange(0, 0);
 
@@ -422,7 +422,7 @@ void QGraphicsViewPrivate::recalculateContentSize()
     }
 
     // If the whole scene fits vertical, we center the scene vertically, and
-    // ignore the vertical scrollbars.
+    // ignore the vertical scroll bars.
     if (viewRect.height() < height) {
         q->verticalScrollBar()->setRange(0, 0);
 
@@ -781,7 +781,7 @@ void QGraphicsView::setRenderHint(QPainter::RenderHint hint, bool enabled)
     scene is visible.
 
     If the whole scene is visible in the view, (i.e., there are no visible
-    scrollbars,) the view's alignment will decide where the scene will be
+    scroll bars,) the view's alignment will decide where the scene will be
     rendered in the view. For example, if the alignment is Qt::AlignCenter,
     which is default, the scene will be centered in the view, and if the
     alignment is (Qt::AlignLeft | Qt::AlignTop), the scene will be rendered in
@@ -813,7 +813,7 @@ void QGraphicsView::setAlignment(Qt::Alignment alignment)
     rotate around the center of the view).
 
     Note that the effect of this property is noticeable when only a part of the
-    scene is visible (i.e., when there are scrollbars). Otherwise, if the
+    scene is visible (i.e., when there are scroll bars). Otherwise, if the
     whole scene fits in the view, QGraphicsScene uses the view \l alignment to
     position the scene in the view.
 
@@ -840,7 +840,7 @@ void QGraphicsView::setTransformationAnchor(ViewportAnchor anchor)
     the top-left corner of the view will appear to be anchored while resizing.
 
     Note that the effect of this property is noticeable when only a part of the
-    scene is visible (i.e., when there are scrollbars). Otherwise, if the
+    scene is visible (i.e., when there are scroll bars). Otherwise, if the
     whole scene fits in the view, QGraphicsScene uses the view \l alignment to
     position the scene in the view.
 
@@ -1128,7 +1128,7 @@ QGraphicsScene *QGraphicsView::scene() const
 
     When a scene is set on a view, the QGraphicsScene::changed() signal
     is automatically connected to this view's updateScene() slot, and the
-    view's scrollbars are adjusted to fit the size of the scene.
+    view's scroll bars are adjusted to fit the size of the scene.
 */
 void QGraphicsView::setScene(QGraphicsScene *scene)
 {
@@ -1170,7 +1170,7 @@ void QGraphicsView::setScene(QGraphicsScene *scene)
     by the scene.
 
     Note that although the scene supports a virtually unlimited size, the
-    range of the scrollbars will never exceed the range of an integer
+    range of the scroll bars will never exceed the range of an integer
     (INT_MIN, INT_MAX). When the scene is larger than the scroll bars' values,
     you can choose to use translate() to navigate the scene instead.
 

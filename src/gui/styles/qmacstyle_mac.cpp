@@ -1000,7 +1000,7 @@ static void qt_mac_draw_combobox(const HIRect &outerBounds, const HIThemeButtonD
 enum ScrollBarCutoffType { thumbIndicatorCutoff = 0, scrollButtonsCutoff = 1 };
 static int scrollButtonsCutoffSize(ScrollBarCutoffType cutoffType, QMacStyle::WidgetSizePolicy widgetSize)
 {
-    // Mini scrollbars doe not exist as of version 10.4.
+    // Mini scroll bars do not exist as of version 10.4.
     if (widgetSize ==  QMacStyle::SizeMini)
         return 0;
 
@@ -1055,7 +1055,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
         }
     }
 
-    // Tiger broke reverse scrollbars so put them back and "fake it"
+    // Tiger broke reverse scroll bars so put them back and "fake it"
     if (isScrollbar && (tdi->attributes & kThemeTrackRightToLeft)
         && QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
         tdi->attributes &= ~kThemeTrackRightToLeft;
@@ -4072,7 +4072,7 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                         // what people expect (an arrow is an arrow), so we
                         // kind of fake and say the opposite button is hit.
                         // This works great, up until 10.4 which broke the
-                        // scrollbars, so I also have actually do something
+                        // scroll bars, so I also have actually do something
                         // similar when I have an upside down scroll bar
                         // because on Tiger I only "fake" the reverse stuff.
                         bool reverseHorizontal = (slider->direction == Qt::RightToLeft
@@ -4694,7 +4694,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 HIShapeGetBounds(shape, &macRect);
             } else if (!scrollBar && sc == SC_SliderGroove) {
                 HIThemeGetTrackBounds(&tdi, &macRect);
-            } else if (sc == SC_ScrollBarGroove) { // Only scrollbar parts available...
+            } else if (sc == SC_ScrollBarGroove) { // Only scroll bar parts available...
                 HIThemeGetTrackDragRect(&tdi, &macRect);
             } else {
                 ControlPartCode cpc;

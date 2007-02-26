@@ -2080,7 +2080,7 @@ void Q3Table::init(int rows, int cols)
     // Prepare for contents
     contents.setAutoDelete(false);
 
-    // Connect header, table and scrollbars
+    // Connect header, table and scroll bars
     connect(horizontalScrollBar(), SIGNAL(valueChanged(int)),
              topHeader, SLOT(setOffset(int)));
     connect(verticalScrollBar(), SIGNAL(valueChanged(int)),

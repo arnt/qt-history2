@@ -140,10 +140,10 @@
 
     A scroll bar can be controlled by the keyboard, but it has a
     default focusPolicy() of Qt::NoFocus. Use setFocusPolicy() to
-    enable keyboard interaction with the scrollbar:
+    enable keyboard interaction with the scroll bar:
     \list
-         \i Left/Right move a horizontal scrollbar by one single step.
-         \i Up/Down move a vertical scrollbar by one single step.
+         \i Left/Right move a horizontal scroll bar by one single step.
+         \i Up/Down move a vertical scroll bar by one single step.
          \i PageUp moves up one page.
          \i PageDown moves down one page.
          \i Home moves to the start (mininum).
@@ -673,7 +673,7 @@ void QScrollBar::hideEvent(QHideEvent *)
 */
 
 /*! \internal
-    Returns the style option for scrollbar.
+    Returns the style option for scroll bar.
 */
 Q_GUI_EXPORT QStyleOptionSlider qt_qscrollbarStyleOption(QScrollBar *scrollbar)
 {

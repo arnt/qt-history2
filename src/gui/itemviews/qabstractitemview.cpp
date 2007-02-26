@@ -128,7 +128,7 @@ void QAbstractItemViewPrivate::init()
 
     Some of QAbstractItemView's functions are concerned with
     scrolling, for example setHorizontalScrollMode() and
-    setVerticalScrollMode(). To set the range of the scrollbars, you
+    setVerticalScrollMode(). To set the range of the scroll bars, you
     can, for example, reimplement the view's resizeEvent() function:
 
     \code
@@ -945,7 +945,7 @@ void QAbstractItemView::setVerticalScrollMode(ScrollMode mode)
 {
     Q_D(QAbstractItemView);
     d->verticalScrollMode = mode;
-    updateGeometries(); // update the scrollbars
+    updateGeometries(); // update the scroll bars
 }
 
 QAbstractItemView::ScrollMode QAbstractItemView::verticalScrollMode() const
@@ -967,7 +967,7 @@ void QAbstractItemView::setHorizontalScrollMode(ScrollMode mode)
 {
     Q_D(QAbstractItemView);
     d->horizontalScrollMode = mode;
-    updateGeometries(); // update the scrollbars
+    updateGeometries(); // update the scroll bars
 }
 
 QAbstractItemView::ScrollMode QAbstractItemView::horizontalScrollMode() const
@@ -2291,9 +2291,9 @@ void QAbstractItemView::editorDestroyed(QObject *editor)
 
 /*!
     \obsolete
-    Sets the horizontal scrollbar's steps per item to \a steps.
+    Sets the horizontal scroll bar's steps per item to \a steps.
 
-    This is the number of steps used by the horizontal scrollbar to
+    This is the number of steps used by the horizontal scroll bar to
     represent the width of an item.
 
     Note that if the view has a horizontal header, the item steps
@@ -2309,7 +2309,7 @@ void QAbstractItemView::setHorizontalStepsPerItem(int steps)
 
 /*!
     \obsolete
-    Returns the horizontal scrollbar's steps per item.
+    Returns the horizontal scroll bar's steps per item.
 
     \sa setHorizontalStepsPerItem() verticalStepsPerItem()
 */
@@ -2320,9 +2320,9 @@ int QAbstractItemView::horizontalStepsPerItem() const
 
 /*!
     \obsolete
-    Sets the vertical scrollbar's steps per item to \a steps.
+    Sets the vertical scroll bar's steps per item to \a steps.
 
-    This is the number of steps used by the vertical scrollbar to
+    This is the number of steps used by the vertical scroll bar to
     represent the height of an item.
 
     Note that if the view has a vertical header, the item steps
@@ -2338,7 +2338,7 @@ void QAbstractItemView::setVerticalStepsPerItem(int steps)
 
 /*!
     \obsolete
-    Returns the vertical scrollbar's steps per item.
+    Returns the vertical scroll bar's steps per item.
 
     \sa setVerticalStepsPerItem() horizontalStepsPerItem()
 */

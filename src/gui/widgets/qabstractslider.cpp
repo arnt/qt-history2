@@ -508,9 +508,9 @@ void QAbstractSlider::setValue(int value)
     value is true, the minimum and maximum appear at their opposite location.
 
     Note: This property makes most sense for sliders and dials. For
-    scrollbars, the visual effect of the scrollbar subcontrols depends on
+    scroll bars, the visual effect of the scroll bar subcontrols depends on
     whether or not the styles understand inverted appearance; most styles
-    ignore this property for scrollbars.
+    ignore this property for scroll bars.
 */
 
 bool QAbstractSlider::invertedAppearance() const

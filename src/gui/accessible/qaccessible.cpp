@@ -599,7 +599,7 @@ bool QAccessible::isActive()
 
     The central property of an accessible objects is what role() it
     has. Different objects can have the same role, e.g. both the "Add
-    line" element in a scrollbar and the \c OK button in a dialog have
+    line" element in a scroll bar and the \c OK button in a dialog have
     the same role, "button". The role implies what kind of
     interaction the user can perform with the user interface element.
 
@@ -637,7 +637,7 @@ bool QAccessible::isActive()
     implementation themselves. This is practical if the object has
     many similar children (e.g. items in a list view), or if the
     children are an integral part of the object itself, for example, the
-    different sections in a scrollbar.
+    different sections in a scroll bar.
 
     If an accessible object provides information about its children
     through one QAccessibleInterface, the children are referenced

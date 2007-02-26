@@ -313,7 +313,7 @@
     This property is ignored for both Motif 1.x style and non-editable
     comboboxes in Mac style. The default limit is ten
     lines. If the number of items in the combobox is or grows larger
-    than lines, a scrollbar is added.
+    than lines, a scroll bar is added.
 */
 
 class Q3ComboBoxPopup : public Q3PopupMenu

@@ -97,7 +97,7 @@
     \ingroup groups
 
     \title Basic Widgets
-    \brief Basic GUI widgets such as buttons, comboboxes and scrollbars.
+    \brief Basic GUI widgets such as buttons, comboboxes and scroll bars.
 
     These basic widgets (controls) are designed for direct use.
     There are also some \l{Abstract Widget Classes} that are designed for

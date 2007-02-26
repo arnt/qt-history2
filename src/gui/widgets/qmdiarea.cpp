@@ -1163,7 +1163,7 @@ bool QMdiArea::scrollBarsEnabled() const
 
 /*!
     \property QMdiArea::scrollBarsEnabled
-    \brief whether the workspace provides scrollbars
+    \brief whether the workspace provides scroll bars
 
     If this property is true, the MDI area will provide scroll
     bars if any of the subwindows extend beyond the edges of the MDI

@@ -1270,7 +1270,7 @@ void QTableView::updateGeometries()
     else
         d->cornerWidget->setGeometry(verticalLeft, horizontalTop, width, height);
 
-    // update scrollbars
+    // update scroll bars
 
     // ### move this block into the if
     QSize vsize = d->viewport->size();
@@ -1280,7 +1280,7 @@ void QTableView::updateGeometries()
     if ((uint)max.width() >= horizontalLength && (uint)max.height() >= verticalLength)
         vsize = max;
 
-    // horizontal scrollbar
+    // horizontal scroll bar
     if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {
         const int columnCount = d->horizontalHeader->count();
         const int viewportWidth = vsize.width();
@@ -1304,7 +1304,7 @@ void QTableView::updateGeometries()
         horizontalScrollBar()->setRange(0, horizontalLength - vsize.width());
     }
 
-    // vertical scrollbar
+    // vertical scroll bar
     if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
         const int rowCount = d->verticalHeader->count();
         const int viewportHeight = vsize.height();

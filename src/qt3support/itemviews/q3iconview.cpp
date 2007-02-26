@@ -2372,10 +2372,10 @@ void Q3IconViewItem::checkRect()
     the view runs out of space.
 
     \value LeftToRight  Items which don't fit into the view go further
-    down (you get a vertical scrollbar)
+    down (you get a vertical scroll bar)
 
     \value TopToBottom  Items which don't fit into the view go further
-    right (you get a horizontal scrollbar)
+    right (you get a horizontal scroll bar)
 */
 
 /*!
@@ -3401,7 +3401,7 @@ void Q3IconView::arrangeItemsInGrid(bool update)
         doAgain = visibleWidth() != vw;
     if (d->arrangement == TopToBottom)
         doAgain = visibleHeight() != vh;
-    if (doAgain) // in the case that the visibleExtend changed because of the resizeContents (scrollbar show/hide), redo layout again
+    if (doAgain) // in the case that the visibleExtend changed because of the resizeContents (scroll bar show/hide), redo layout again
         arrangeItemsInGrid(false);
     if (ue)
         viewport()->setUpdatesEnabled(true);

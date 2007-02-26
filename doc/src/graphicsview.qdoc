@@ -93,7 +93,7 @@
         QGraphicsView provides the view widget, which visualizes the contents
         of a scene. You can attach several views to the same scene, to provide
         several viewports into the same data set. The view widget is a scroll
-        area, and provides scrollbars for navigating through large scenes. To
+        area, and provides scroll bars for navigating through large scenes. To
         enable OpenGL support, you can set a QGLWidget as the viewport by
         calling QGraphicsView::setViewport().
 

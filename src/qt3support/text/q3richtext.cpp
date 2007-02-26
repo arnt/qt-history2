@@ -5436,7 +5436,7 @@ QTextLineStart *Q3TextFormatter::bidiReorderLine(Q3TextParagraph * /*parag*/, Q3
     int numSpaces = 0;
     align = QStyle::visualAlignment(text->isRightToLeft() ? Qt::RightToLeft : Qt::LeftToRight, QFlag(align));
 
-    // This is not really correct, but as we can't make the scrollbar move to the left of the origin,
+    // This is not really correct, but as we can't make the scroll bar move to the left of the origin,
     // this ensures all text can be scrolled to and read.
     if (space < 0)
         space = 0;

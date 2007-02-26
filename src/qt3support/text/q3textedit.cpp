@@ -255,7 +255,7 @@ static bool block_set_alignment = false;
 
     Q3TextEdit can display images (using Q3MimeSourceFactory), lists and
     tables. If the text is too large to view within the text edit's
-    viewport, scrollbars will appear. The text edit can load both
+    viewport, scroll bars will appear. The text edit can load both
     plain text and HTML files (a subset of HTML 3.2 and 4). The
     rendering style and the set of valid tags are defined by a
     styleSheet(). Custom tags can be created and placed in a custom

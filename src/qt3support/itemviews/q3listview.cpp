@@ -2501,7 +2501,7 @@ void Q3ListViewItem::ignoreDoubleClick()
             children, make its parent item current and visible. If the
             current item is open (\bold{-} icon) close it, i.e. hide its
             children. Exception: if the current item is the first item
-            and is closed and the horizontal scrollbar is offset to
+            and is closed and the horizontal scroll bar is offset to
             the right the list view will be scrolled left.
     \row \i Right Arrow
          \i If the current item is closed (\bold{+} icon) and has

@@ -291,7 +291,7 @@ void QLabelPrivate::init()
     documents, such as small documents that get their document
     specific settings (font, text color, link color) from the label's
     palette and font properties. For large documents, use QTextEdit
-    in read-only mode instead. QTextEdit can also provide a scrollbar
+    in read-only mode instead. QTextEdit can also provide a scroll bar
     when necessary.
 
     Note: This function enables mouse tracking if \atext contains rich

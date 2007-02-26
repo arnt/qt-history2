@@ -122,10 +122,10 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
     When displaying data, Q3DataTable only retrieves data for visible
     rows. If the driver supports the 'query size' property the
     Q3DataTable will have the correct number of rows and the vertical
-    scrollbar will accurately reflect the number of rows displayed in
+    scroll bar will accurately reflect the number of rows displayed in
     proportion to the number of rows in the dataset. If the driver
     does not support the 'query size' property, rows are dynamically
-    fetched from the database on an as-needed basis with the scrollbar
+    fetched from the database on an as-needed basis with the scroll bar
     becoming more accurate as the user scrolls down through the
     records. This allows extremely large queries to be displayed as
     quickly as possible, with minimum memory usage.

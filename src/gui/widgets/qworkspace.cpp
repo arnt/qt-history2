@@ -1267,9 +1267,9 @@ void QWorkspace::wheelEvent(QWheelEvent *e)
     Q_D(QWorkspace);
     if (!scrollBarsEnabled())
         return;
-    // the scrollbars are children of the workspace, so if we receive
-    // a wheel event we redirect to the scrollbars using a direct event
-    // call, /not/ using sendEvent() because if the scrollbar ignores the
+    // the scroll bars are children of the workspace, so if we receive
+    // a wheel event we redirect to the scroll bars using a direct event
+    // call, /not/ using sendEvent() because if the scroll bar ignores the
     // event QApplication::sendEvent() will propagate the event to the parent widget,
     // which is us, who /just/ sent it.
     if (d->vbar && d->vbar->isVisible() && !(e->modifiers() & Qt::AltModifier))
@@ -3138,9 +3138,9 @@ bool QWorkspace::scrollBarsEnabled() const
 
 /*!
     \property QWorkspace::scrollBarsEnabled
-    \brief whether the workspace provides scrollbars
+    \brief whether the workspace provides scroll bars
 
-    If this property is true, the workspace will provide scrollbars if any
+    If this property is true, the workspace will provide scroll bars if any
     of the child windows extend beyond the edges of the visible
     workspace. The workspace area will automatically increase to
     contain child windows if they are resized beyond the right or

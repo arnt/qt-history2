@@ -2439,7 +2439,7 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
     const bool smallChange = documentLength > 0
                              && (qMax(length, oldLength) * 100 / documentLength) < 5;
 
-    // don't show incremental layout progress (avoid scrollbar flicker)
+    // don't show incremental layout progress (avoid scroll bar flicker)
     // if we see only a small change in the document and we're either starting
     // a layout run or we're already in progress for that and we haven't seen
     // any bigger change previously (showLayoutProgress already false)
