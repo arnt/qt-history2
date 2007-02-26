@@ -1930,6 +1930,9 @@ bool QVNCScreen::initDevice()
     qt_screencursor = new QVNCCursor(this);
 #endif
 
+#ifdef QT_BUILD_INTERNAL
+    if (qgetenv("QT_VNC_NO_DISABLEPAINTING").toInt() <= 0)
+#endif
     // No need to do painting while there's no clients attached
     QWSServer::instance()->enablePainting(false);
 

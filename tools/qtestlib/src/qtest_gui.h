@@ -23,10 +23,6 @@
 #include <QtGui/qicon.h>
 #include <QtGui/qpixmap.h>
 
-#ifdef Q_WS_QWS
-#include <QtGui/qwindowsystem_qws.h>
-#endif
-
 #if 0
 // inform syncqt
 #pragma qt_no_master_include
