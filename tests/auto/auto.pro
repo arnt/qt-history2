@@ -81,6 +81,7 @@ SUBDIRS += bic \
            qcomplextext \
            qcopchannel \
            qcoreapplication \
+           qcryptographichash \
            qcssparser \
            qdatastream \
            qdatawidgetmapper \

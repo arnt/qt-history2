@@ -25,12 +25,13 @@ class QCryptographicHashPrivate;
 class Q_CORE_EXPORT QCryptographicHash
 {
 public:
-    enum HashMethod {
+    enum Algorithm {
         Md4,
-        Md5
+        Md5,
+        Sha1
     };
 
-    QCryptographicHash(HashMethod method);
+    QCryptographicHash(Algorithm method);
     ~QCryptographicHash();
 
     void reset();
@@ -40,7 +41,7 @@ public:
 
     QByteArray result() const;
 
-    static QByteArray hash(const QByteArray &data, HashMethod method);
+    static QByteArray hash(const QByteArray &data, Algorithm method);
 private:
     Q_DISABLE_COPY(QCryptographicHash)
     QCryptographicHashPrivate *d;

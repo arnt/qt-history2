@@ -17,14 +17,16 @@
 #include "../../3rdparty/md5/md5.cpp"
 #include "../../3rdparty/md4/md4.h"
 #include "../../3rdparty/md4/md4.cpp"
+#include "../../3rdparty/sha1/sha1.cpp"
 
 class QCryptographicHashPrivate
 {
 public:
-    QCryptographicHash::HashMethod method;
+    QCryptographicHash::Algorithm method;
     union {
         MD5Context md5Context;
         md4_context md4Context;
+        Sha1State sha1Context;
     };
 };
 
@@ -42,7 +44,7 @@ public:
 */
 
 /*!
-  \enum QCryptographicHash::HashMethod
+  \enum QCryptographicHash::Algorithm
 
   \value Md4 Generate an Md4 hash sum
   \value Md5 Generate an Md5 hash sum
@@ -51,7 +53,7 @@ public:
 /*!
   Constructs an object that can be used to create a cryptographic hash from data using \a method.
 */
-QCryptographicHash::QCryptographicHash(HashMethod method)
+QCryptographicHash::QCryptographicHash(Algorithm method)
     : d(new QCryptographicHashPrivate)
 {
     d->method = method;
@@ -78,6 +80,9 @@ void QCryptographicHash::reset()
     case Md5:
         MD5Init(&d->md5Context);
         break;
+    case Sha1:
+        sha1InitState(&d->sha1Context);
+        break;
     }
 }
 
@@ -92,6 +97,9 @@ void QCryptographicHash::addData(const char *data, int length)
         break;
     case Md5:
         MD5Update(&d->md5Context, (const unsigned char *)data, length);
+        break;
+    case Sha1:
+        sha1Update(&d->sha1Context, (const unsigned char *)data, length);
         break;
     }    
 }
@@ -119,6 +127,10 @@ QByteArray QCryptographicHash::result() const
         result.resize(16);
         MD5Final(&d->md5Context, (unsigned char *)result.data());
         break;
+    case Sha1:
+        result.resize(20);
+        sha1FinalizeState(&d->sha1Context);
+        sha1ToHash(&d->sha1Context, (unsigned char *)result.data());
     }
     return result;
 }
@@ -126,7 +138,7 @@ QByteArray QCryptographicHash::result() const
 /*!
   Returns the hash of \a data using \a method.
 */
-QByteArray QCryptographicHash::hash(const QByteArray &data, HashMethod method)
+QByteArray QCryptographicHash::hash(const QByteArray &data, Algorithm method)
 {
     QCryptographicHash hash(method);
     hash.addData(data);
