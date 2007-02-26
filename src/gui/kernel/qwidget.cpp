@@ -5400,6 +5400,12 @@ void QWidget::setVisible(bool visible)
             QApplicationPrivate::hidden_focus_widget = 0;
 
         Q_D(QWidget);
+
+#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
+        if (!isWindow() && parentWidget() && !d->getOpaqueRegion().isEmpty())
+            parentWidget()->d_func()->setDirtyOpaqueRegion();
+#endif
+
         setAttribute(Qt::WA_WState_Hidden);
         setAttribute(Qt::WA_WState_ExplicitShowHide);
         if (testAttribute(Qt::WA_WState_Created))
@@ -5411,10 +5417,6 @@ void QWidget::setVisible(bool visible)
                 parentWidget()->d_func()->layout->update();
             else if (parentWidget()->isVisible())
                 QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
-#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
-            if (!d->getOpaqueRegion().isEmpty())
-                parentWidget()->d_func()->setDirtyOpaqueRegion();
-#endif
         }
 
         QEvent hideToParentEvent(QEvent::HideToParent);
