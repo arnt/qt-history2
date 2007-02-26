@@ -85,7 +85,10 @@ QLayoutSupport::QLayoutSupport(QDesignerFormWindowInterface *formWindow, QWidget
     m_indicatorBottom->hide();
 
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(formWindow->core()->extensionManager(), m_widget)) {
-        sheet->setChanged(sheet->indexOf(QLatin1String("margin")), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String("leftMargin")), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String("topMargin")), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String("rightMargin")), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String("bottomMargin")), true);
         sheet->setChanged(sheet->indexOf(QLatin1String("spacing")), true);
     }
 }
@@ -801,8 +804,26 @@ void QLayoutSupport::computeGridLayout(QHash<QLayoutItem*, QRect> *l)
 void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
 {
     QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
-    int margin = gridLayout->margin();
+    int leftMargin, topMargin, rightMargin, bottomMargin;
+    leftMargin = topMargin = rightMargin = bottomMargin = 0;
     int spacing = gridLayout->spacing();
+    bool leftMarginChanged, topMarginChanged, rightMarginChanged, bottomMarginChanged, spacingChanged;
+    leftMarginChanged = topMarginChanged = rightMarginChanged = bottomMarginChanged = spacingChanged = false;
+
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), gridLayout);
+    if (sheet) {
+        leftMargin = sheet->property(sheet->indexOf("leftMargin")).toInt();
+        topMargin = sheet->property(sheet->indexOf("topMargin")).toInt();
+        rightMargin = sheet->property(sheet->indexOf("rightMargin")).toInt();
+        bottomMargin = sheet->property(sheet->indexOf("bottomMargin")).toInt();
+        spacing = sheet->property(sheet->indexOf("spacing")).toInt();
+        leftMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("leftMargin")));
+        topMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("topMargin")));
+        rightMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("rightMargin")));
+        bottomMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("bottomMargin")));
+        spacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("spacing")));
+    }
 
     { // take the items
         int index = 0;
@@ -812,7 +833,6 @@ void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
 
     Q_ASSERT(gridLayout == m_widget->layout());
 
-    QDesignerFormEditorInterface *core = formWindow()->core();
     LayoutInfo::deleteLayout(core, m_widget);
 
     gridLayout = (QGridLayout*) core->widgetFactory()->createLayout(m_widget, 0, LayoutInfo::Grid);
@@ -827,13 +847,24 @@ void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
                 info.height(), info.width());
     }
 
-    gridLayout->setMargin(margin);
-    gridLayout->setSpacing(spacing);
+    QDesignerPropertySheetExtension *newSheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), gridLayout);
+    if (sheet && newSheet) {
+        newSheet->setProperty(newSheet->indexOf("leftMargin"), leftMargin);
+        newSheet->setChanged(newSheet->indexOf("leftMargin"), leftMarginChanged);
+        newSheet->setProperty(newSheet->indexOf("topMargin"), topMargin);
+        newSheet->setChanged(newSheet->indexOf("topMargin"), topMarginChanged);
+        newSheet->setProperty(newSheet->indexOf("rightMargin"), rightMargin);
+        newSheet->setChanged(newSheet->indexOf("rightMargin"), rightMarginChanged);
+        newSheet->setProperty(newSheet->indexOf("bottomMargin"), bottomMargin);
+        newSheet->setChanged(newSheet->indexOf("bottomMargin"), bottomMarginChanged);
+        newSheet->setProperty(newSheet->indexOf("spacing"), spacing);
+        newSheet->setChanged(newSheet->indexOf("spacing"), spacingChanged);
+    }
 }
 
 QLayoutWidget::QLayoutWidget(QDesignerFormWindowInterface *formWindow, QWidget *parent)
     : QWidget(parent), m_formWindow(formWindow),
-      m_support(formWindow, this), m_margin(-1)
+      m_support(formWindow, this), m_leftMargin(0), m_topMargin(0), m_rightMargin(0), m_bottomMargin(0)
 {
 }
 
@@ -898,21 +929,95 @@ bool QLayoutWidget::event(QEvent *e)
     return QWidget::event(e);
 }
 
-int QLayoutWidget::layoutMargin() const
+int QLayoutWidget::layoutLeftMargin() const
 {
-    if (m_margin < 0 && layout())
-        return layout()->margin();
-    return m_margin;
+    if (m_leftMargin < 0 && layout()) {
+        int margin;
+        layout()->getContentsMargins(&margin, 0, 0, 0);
+        return margin;
+    }
+    return m_leftMargin;
 }
 
-void QLayoutWidget::setLayoutMargin(int layoutMargin)
+void QLayoutWidget::setLayoutLeftMargin(int layoutMargin)
 {
-    m_margin = layoutMargin;
+    m_leftMargin = layoutMargin;
     if (layout()) {
-        int newMargin = m_margin;
+        int newMargin = m_leftMargin;
         if (newMargin >= 0 && newMargin < ShiftValue)
             newMargin = ShiftValue;
-        layout()->setMargin(newMargin);
+        int left, top, right, bottom;
+        layout()->getContentsMargins(&left, &top, &right, &bottom);
+        layout()->setContentsMargins(newMargin, top, right, bottom);
+    }
+}
+
+int QLayoutWidget::layoutTopMargin() const
+{
+    if (m_topMargin < 0 && layout()) {
+        int margin;
+        layout()->getContentsMargins(0, &margin, 0, 0);
+        return margin;
+    }
+    return m_topMargin;
+}
+
+void QLayoutWidget::setLayoutTopMargin(int layoutMargin)
+{
+    m_topMargin = layoutMargin;
+    if (layout()) {
+        int newMargin = m_topMargin;
+        if (newMargin >= 0 && newMargin < ShiftValue)
+            newMargin = ShiftValue;
+        int left, top, right, bottom;
+        layout()->getContentsMargins(&left, &top, &right, &bottom);
+        layout()->setContentsMargins(left, newMargin, right, bottom);
+    }
+}
+
+int QLayoutWidget::layoutRightMargin() const
+{
+    if (m_rightMargin < 0 && layout()) {
+        int margin;
+        layout()->getContentsMargins(0, 0, &margin, 0);
+        return margin;
+    }
+    return m_rightMargin;
+}
+
+void QLayoutWidget::setLayoutRightMargin(int layoutMargin)
+{
+    m_rightMargin = layoutMargin;
+    if (layout()) {
+        int newMargin = m_rightMargin;
+        if (newMargin >= 0 && newMargin < ShiftValue)
+            newMargin = ShiftValue;
+        int left, top, right, bottom;
+        layout()->getContentsMargins(&left, &top, &right, &bottom);
+        layout()->setContentsMargins(left, top, newMargin, bottom);
+    }
+}
+
+int QLayoutWidget::layoutBottomMargin() const
+{
+    if (m_bottomMargin < 0 && layout()) {
+        int margin;
+        layout()->getContentsMargins(0, 0, 0, &margin);
+        return margin;
+    }
+    return m_bottomMargin;
+}
+
+void QLayoutWidget::setLayoutBottomMargin(int layoutMargin)
+{
+    m_bottomMargin = layoutMargin;
+    if (layout()) {
+        int newMargin = m_bottomMargin;
+        if (newMargin >= 0 && newMargin < ShiftValue)
+            newMargin = ShiftValue;
+        int left, top, right, bottom;
+        layout()->getContentsMargins(&left, &top, &right, &bottom);
+        layout()->setContentsMargins(left, top, right, newMargin);
     }
 }
 

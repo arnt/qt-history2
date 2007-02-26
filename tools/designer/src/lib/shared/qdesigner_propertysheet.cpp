@@ -98,12 +98,16 @@ QDesignerPropertySheet::ObjectType QDesignerPropertySheet::objectType(const QObj
 
 QDesignerPropertySheet::PropertyType QDesignerPropertySheet::propertyTypeFromName(const QString &name)
 {
-    if (name == QLatin1String("layoutMargin"))
-        return  PropertyLayoutMargin;
+    if (name == QLatin1String("layoutLeftMargin"))
+        return  PropertyLayoutLeftMargin;
+    if (name == QLatin1String("layoutTopMargin"))
+        return  PropertyLayoutTopMargin;
+    if (name == QLatin1String("layoutRightMargin"))
+        return  PropertyLayoutRightMargin;
+    if (name == QLatin1String("layoutBottomMargin"))
+        return  PropertyLayoutBottomMargin;
     if (name == QLatin1String("layoutSpacing"))
         return  PropertyLayoutSpacing;
-    if (name == QLatin1String("margin"))
-        return  PropertyMargin;
     if (name == QLatin1String("buddy"))
         return  PropertyBuddy;
     if (name == QLatin1String("sizeConstraint"))
@@ -162,7 +166,22 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
 
         if (m_canHaveLayoutAttributes) {
             int pindex = count();
-            createFakeProperty(QLatin1String("layoutMargin"), 0);
+            createFakeProperty(QLatin1String("layoutLeftMargin"), 0);
+            setAttribute(pindex, true);
+            setPropertyGroup(pindex, tr("Layout"));
+
+            pindex = count();
+            createFakeProperty(QLatin1String("layoutTopMargin"), 0);
+            setAttribute(pindex, true);
+            setPropertyGroup(pindex, tr("Layout"));
+
+            pindex = count();
+            createFakeProperty(QLatin1String("layoutRightMargin"), 0);
+            setAttribute(pindex, true);
+            setPropertyGroup(pindex, tr("Layout"));
+
+            pindex = count();
+            createFakeProperty(QLatin1String("layoutBottomMargin"), 0);
             setAttribute(pindex, true);
             setPropertyGroup(pindex, tr("Layout"));
 
@@ -270,7 +289,10 @@ bool QDesignerPropertySheet::isDynamic(int index) const
         if (m_objectType == ObjectLabel)
             return false;
         break;
-    case PropertyLayoutMargin:
+    case PropertyLayoutLeftMargin:
+    case PropertyLayoutTopMargin:
+    case PropertyLayoutRightMargin:
+    case PropertyLayoutBottomMargin:
     case PropertyLayoutSpacing:
         if (m_object->isWidgetType() && m_canHaveLayoutAttributes)
             return false;
@@ -392,12 +414,6 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
 {
     Q_ASSERT(!isFakeProperty(index));
 
-    if (m_objectType == ObjectLayout && propertyType(index) ==  PropertyMargin) {
-        if (const QLayoutWidget *lw = qobject_cast<const QLayoutWidget *>(m_object->parent())) {
-            return lw->layoutMargin();
-        }
-    }
-
     const QMetaProperty p = m_meta->property(index);
     QVariant v = p.read(m_object);
 
@@ -504,12 +520,6 @@ void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
     } else if (isFakeProperty(index)) {
         setFakeProperty(index, value);
     } else {
-        if (m_objectType == ObjectLayout && propertyType(index) ==  PropertyMargin) {
-            if (QLayoutWidget *lw = qobject_cast<QLayoutWidget *>(m_object->parent())) {
-                lw->setLayoutMargin(value.toInt());
-                return;
-            }
-        }
         const QMetaProperty p = m_meta->property(index);
         p.write(m_object, resolvePropertyValue(value));
     }
@@ -549,8 +559,17 @@ bool QDesignerPropertySheet::reset(int index)
             case ObjectQ3GroupBox: {
                 const QWidget *w = qobject_cast<const QWidget *>(m_object);
                 switch (pType) {
-                case  PropertyLayoutMargin:
-                    value = w->style()->pixelMetric(QStyle::PM_DefaultChildMargin);
+                case PropertyLayoutLeftMargin:
+                    value = w->style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
+                    break;
+                case PropertyLayoutTopMargin:
+                    value = w->style()->pixelMetric(QStyle::PM_LayoutTopMargin);
+                    break;
+                case PropertyLayoutRightMargin:
+                    value = w->style()->pixelMetric(QStyle::PM_LayoutRightMargin);
+                    break;
+                case PropertyLayoutBottomMargin:
+                    value = w->style()->pixelMetric(QStyle::PM_LayoutBottomMargin);
                     break;
                 case PropertyLayoutSpacing:
                     value = w->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing);
@@ -561,7 +580,10 @@ bool QDesignerPropertySheet::reset(int index)
             }
                 break;
             case ObjectLayoutWidget:
-                if (pType == PropertyLayoutMargin)
+                if (pType == PropertyLayoutLeftMargin ||
+                        pType == PropertyLayoutTopMargin ||
+                        pType == PropertyLayoutRightMargin ||
+                        pType == PropertyLayoutBottomMargin)
                     value = 0;
                 break;
             default:
@@ -623,7 +645,10 @@ bool QDesignerPropertySheet::isFakeLayoutProperty(int index) const
     switch (propertyType(index)) {
     case PropertySizeConstraint:
         return true;
-    case PropertyLayoutMargin:
+    case PropertyLayoutLeftMargin:
+    case PropertyLayoutTopMargin:
+    case PropertyLayoutRightMargin:
+    case PropertyLayoutBottomMargin:
     case PropertyLayoutSpacing:
         return m_canHaveLayoutAttributes;
     default:
@@ -731,8 +756,14 @@ QDesignerPropertySheet::Info &QDesignerPropertySheet::ensureInfo(int index)
 QString QDesignerPropertySheet::transformLayoutPropertyName(int index) const
 {
     switch (propertyType(index)) {
-    case PropertyLayoutMargin:
-        return QLatin1String("margin");
+    case PropertyLayoutLeftMargin:
+        return QLatin1String("leftMargin");
+    case PropertyLayoutTopMargin:
+        return QLatin1String("topMargin");
+    case PropertyLayoutRightMargin:
+        return QLatin1String("rightMargin");
+    case PropertyLayoutBottomMargin:
+        return QLatin1String("bottomMargin");
     case PropertyLayoutSpacing:
         return QLatin1String("spacing");
     default:

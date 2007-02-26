@@ -200,9 +200,12 @@ QLayout *QFormBuilder::createLayout(const QString &layoutName, QObject *parent, 
         if (parentLayout) {
             QWidget *w = qobject_cast<QWidget *>(parentLayout->parent());
             if (w && w->inherits("Q3GroupBox")) {
-                //w->setProperty("margin", 0);
-                l->setMargin(w->style()->pixelMetric(QStyle::PM_DefaultChildMargin));
+                l->setContentsMargins(w->style()->pixelMetric(QStyle::PM_LayoutLeftMargin),
+                                    w->style()->pixelMetric(QStyle::PM_LayoutTopMargin),
+                                    w->style()->pixelMetric(QStyle::PM_LayoutRightMargin),
+                                    w->style()->pixelMetric(QStyle::PM_LayoutBottomMargin));
                 l->setSpacing(w->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing));
+                l->setAlignment(Qt::AlignTop);
             }
         }
     } else {

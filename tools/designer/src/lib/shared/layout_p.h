@@ -52,9 +52,6 @@ public:
     Layout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter = false);
     virtual ~Layout();
 
-    int margin() const;
-    int spacing() const;
-
     virtual void sort() = 0;
     virtual void doLayout() = 0;
 

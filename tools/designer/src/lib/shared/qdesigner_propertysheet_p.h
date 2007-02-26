@@ -32,6 +32,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/QPair>
 
+#include <QPointer>
+
 class QLayout;
 
 class QDESIGNER_SHARED_EXPORT QDesignerPropertySheet: public QObject, public QDesignerPropertySheetExtension, public QDesignerDynamicPropertySheetExtension
@@ -84,8 +86,14 @@ protected:
     bool isDynamic(int index) const;
 
 public: // For MSVC 6
-    enum PropertyType { PropertyNone, PropertyMargin,
-                        PropertyLayoutMargin, PropertyLayoutSpacing, PropertySizeConstraint, PropertyBuddy,
+    enum PropertyType { PropertyNone,
+                        PropertyLayoutLeftMargin,
+                        PropertyLayoutTopMargin,
+                        PropertyLayoutRightMargin,
+                        PropertyLayoutBottomMargin,
+                        PropertyLayoutSpacing,
+                        PropertySizeConstraint,
+                        PropertyBuddy,
                         PropertyAccessibility };
 
 protected:
@@ -94,7 +102,7 @@ protected:
     static  PropertyType propertyTypeFromName(const QString &name);
     PropertyType propertyType(int index) const;
 
-    QObject *m_object;
+    QPointer<QObject> m_object;
     const QMetaObject *m_meta;
     const ObjectType m_objectType;
 
@@ -128,7 +136,7 @@ private:
     const bool m_canHaveLayoutAttributes;
 
     // Variables used for caching the layout, access via layout().
-    mutable QLayout *m_lastLayout;
+    mutable QPointer<QLayout> m_lastLayout;
     mutable QDesignerPropertySheetExtension *m_lastLayoutPropertySheet;
     mutable bool m_LastLayoutByDesigner;
 };

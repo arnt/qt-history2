@@ -116,24 +116,6 @@ Layout::~Layout()
 {
 }
 
-int Layout::margin() const
-{
-    if (m_layoutBase && m_layoutBase->layout())
-        return m_layoutBase->layout()->margin();
-
-    qDebug("unknown margin");
-    return 0;
-}
-
-int Layout::spacing() const
-{
-    if (m_layoutBase && m_layoutBase->layout())
-        return m_layoutBase->layout()->spacing();
-
-    qDebug("unknown spacing");
-    return 0;
-}
-
 /*!  The widget list we got in the constructor might contain too much
   widgets (like widgets with different parents, already laid out
   widgets, etc.). Here we set up the list and so the only the "best"
@@ -443,7 +425,10 @@ QLayout *Layout::createLayout(int type)
     if (qobject_cast<QLayoutWidget*>(m_layoutBase)) {
         QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_formWindow->core()->extensionManager(), layout);
         if (sheet) {
-            sheet->setProperty(sheet->indexOf(QLatin1String("margin")), 0);
+            sheet->setProperty(sheet->indexOf(QLatin1String("leftMargin")), 0);
+            sheet->setProperty(sheet->indexOf(QLatin1String("topMargin")), 0);
+            sheet->setProperty(sheet->indexOf(QLatin1String("rightMargin")), 0);
+            sheet->setProperty(sheet->indexOf(QLatin1String("bottomMargin")), 0);
         }
     }
     return layout;

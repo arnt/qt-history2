@@ -495,8 +495,29 @@ QLayout *QAbstractFormBuilder::create(DomLayout *ui_layout, QLayout *parentLayou
     int margin = INT_MIN, spacing = INT_MIN;
     layoutInfo(ui_layout, p, &margin, &spacing);
 
-    if (margin != INT_MIN)
-       layout->setMargin(margin);
+    if (margin != INT_MIN) {
+        layout->setMargin(margin);
+    } else {
+        int left, top, right, bottom;
+        left = top = right = bottom = -1;
+        layout->getContentsMargins(&left, &top, &right, &bottom);
+
+        const DomPropertyHash properties = propertyMap(ui_layout->elementProperty());
+
+        if (properties.contains(QLatin1String("leftMargin")))
+            left = properties.value(QLatin1String("leftMargin"))->elementNumber();
+
+        if (properties.contains(QLatin1String("topMargin")))
+            top = properties.value(QLatin1String("topMargin"))->elementNumber();
+
+        if (properties.contains(QLatin1String("rightMargin")))
+            right = properties.value(QLatin1String("rightMargin"))->elementNumber();
+
+        if (properties.contains(QLatin1String("bottomMargin")))
+            bottom = properties.value(QLatin1String("bottomMargin"))->elementNumber();
+
+        layout->setContentsMargins(left, top, right, bottom);
+    }
 
     if (spacing != INT_MIN)
         layout->setSpacing(spacing);

@@ -38,9 +38,9 @@ QLayoutWidgetPropertySheet::~QLayoutWidgetPropertySheet()
 
 bool QLayoutWidgetPropertySheet::isVisible(int index) const
 {
-    QString name = propertyName(index);
-
-    return name == QLatin1String("layoutMargin") || name == QLatin1String("layoutSpacing");
+    if (propertyGroup(index) == QLatin1String("Layout"))
+        return QDesignerPropertySheet::isVisible(index);
+    return false;
 }
 
 void QLayoutWidgetPropertySheet::setProperty(int index, const QVariant &value)

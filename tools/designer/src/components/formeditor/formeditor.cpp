@@ -26,6 +26,7 @@
 #include "qlayoutwidget_propertysheet.h"
 #include "spacer_propertysheet.h"
 #include "line_propertysheet.h"
+#include "layout_propertysheet.h"
 #include "qtbrushmanager.h"
 #include "brushmanagerproxy.h"
 #include "iconcache.h"
@@ -77,6 +78,7 @@ FormEditor::FormEditor(QObject *parent)
     mgr->registerExtensions(new QLayoutWidgetPropertySheetFactory(mgr),     Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new SpacerPropertySheetFactory(mgr),            Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new LinePropertySheetFactory(mgr),              Q_TYPEID(QDesignerPropertySheetExtension));
+    mgr->registerExtensions(new LayoutPropertySheetFactory(mgr),            Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new QDesignerTaskMenuFactory(mgr),              Q_TYPEID(QDesignerTaskMenuExtension));
 
     setExtensionManager(mgr);

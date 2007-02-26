@@ -543,9 +543,15 @@ void BreakLayoutCommand::init(const QList<QWidget*> &widgets, QWidget *layoutBas
 
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), LayoutInfo::internalLayout(m_layoutBase));
     if (sheet) {
-        m_margin = sheet->property(sheet->indexOf("margin")).toInt();
+        m_leftMargin = sheet->property(sheet->indexOf("leftMargin")).toInt();
+        m_topMargin = sheet->property(sheet->indexOf("topMargin")).toInt();
+        m_rightMargin = sheet->property(sheet->indexOf("rightMargin")).toInt();
+        m_bottomMargin = sheet->property(sheet->indexOf("bottomMargin")).toInt();
         m_spacing = sheet->property(sheet->indexOf("spacing")).toInt();
-        m_marginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("margin")));
+        m_leftMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("leftMargin")));
+        m_topMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("topMargin")));
+        m_rightMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("rightMargin")));
+        m_bottomMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("bottomMargin")));
         m_spacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("spacing")));
     }
 }
@@ -583,8 +589,14 @@ void BreakLayoutCommand::undo()
         QDesignerFormEditorInterface *core = formWindow()->core();
         QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), LayoutInfo::internalLayout(m_layoutBase));
         if (sheet) {
-            sheet->setProperty(sheet->indexOf("margin"), m_margin);
-            sheet->setChanged(sheet->indexOf("margin"), m_marginChanged);
+            sheet->setProperty(sheet->indexOf("leftMargin"), m_leftMargin);
+            sheet->setChanged(sheet->indexOf("leftMargin"), m_leftMarginChanged);
+            sheet->setProperty(sheet->indexOf("topMargin"), m_topMargin);
+            sheet->setChanged(sheet->indexOf("topMargin"), m_topMarginChanged);
+            sheet->setProperty(sheet->indexOf("rightMargin"), m_rightMargin);
+            sheet->setChanged(sheet->indexOf("rightMargin"), m_rightMarginChanged);
+            sheet->setProperty(sheet->indexOf("bottomMargin"), m_bottomMargin);
+            sheet->setChanged(sheet->indexOf("bottomMargin"), m_bottomMarginChanged);
             sheet->setProperty(sheet->indexOf("spacing"), m_spacing);
             sheet->setChanged(sheet->indexOf("spacing"), m_spacingChanged);
         }

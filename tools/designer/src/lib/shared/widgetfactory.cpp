@@ -278,10 +278,17 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
 
     if (widget->inherits("Q3GroupBox")) {
         //widget->setProperty("margin", 0);
-        layout->setMargin(widget->style()->pixelMetric(QStyle::PM_DefaultChildMargin));
+        layout->setContentsMargins(widget->style()->pixelMetric(QStyle::PM_LayoutLeftMargin),
+                                    widget->style()->pixelMetric(QStyle::PM_LayoutTopMargin),
+                                    widget->style()->pixelMetric(QStyle::PM_LayoutRightMargin),
+                                    widget->style()->pixelMetric(QStyle::PM_LayoutBottomMargin));
         layout->setSpacing(widget->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing));
+        layout->setAlignment(Qt::AlignTop);
     } else if (widget->inherits("QLayoutWidget")) {
-        sheet->setProperty(sheet->indexOf(QLatin1String("margin")), 0);
+        sheet->setProperty(sheet->indexOf(QLatin1String("leftMargin")), 0);
+        sheet->setProperty(sheet->indexOf(QLatin1String("topMargin")), 0);
+        sheet->setProperty(sheet->indexOf(QLatin1String("rightMargin")), 0);
+        sheet->setProperty(sheet->indexOf(QLatin1String("bottomMargin")), 0);
     }
 
     if (sheet)

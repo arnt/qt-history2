@@ -303,9 +303,15 @@ private:
     QList<QWidget*> m_widgets;
     QPointer<QWidget> m_layoutBase;
     QPointer<Layout> m_layout;
-    int m_margin;
+    int m_leftMargin;
+    int m_topMargin;
+    int m_rightMargin;
+    int m_bottomMargin;
     int m_spacing;
-    bool m_marginChanged;
+    bool m_leftMarginChanged;
+    bool m_topMarginChanged;
+    bool m_rightMarginChanged;
+    bool m_bottomMarginChanged;
     bool m_spacingChanged;
 };
 

@@ -13,6 +13,7 @@ HEADERS += $$PWD/qdesigner_resource.h \
            $$PWD/formeditor.h \
            $$PWD/formeditor_global.h \
            $$PWD/qlayoutwidget_propertysheet.h \
+           $$PWD/layout_propertysheet.h \
            $$PWD/spacer_propertysheet.h \
            $$PWD/line_propertysheet.h \
            $$PWD/default_container.h \
@@ -36,6 +37,7 @@ SOURCES += $$PWD/qdesigner_resource.cpp \
            $$PWD/formwindowmanager.cpp \
            $$PWD/formeditor.cpp \
            $$PWD/qlayoutwidget_propertysheet.cpp \
+           $$PWD/layout_propertysheet.cpp \
            $$PWD/spacer_propertysheet.cpp \
            $$PWD/line_propertysheet.cpp \
            $$PWD/qmainwindow_container.cpp \

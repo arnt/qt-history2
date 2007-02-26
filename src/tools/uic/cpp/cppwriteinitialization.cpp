@@ -805,6 +805,9 @@ void WriteInitialization::writeProperties(const QString &varName,
 
     m_output << m_option.indent << varName << "->setObjectName(QString::fromUtf8(" << fixString(varName, m_option.indent) << "));\n";
 
+    int leftMargin, topMargin, rightMargin, bottomMargin;
+    leftMargin = topMargin = rightMargin = bottomMargin = -1;
+
     for (int i=0; i<lst.size(); ++i) {
         const DomProperty *p = lst.at(i);
         const QString propertyName = p->attributeName();
@@ -863,6 +866,18 @@ void WriteInitialization::writeProperties(const QString &varName,
         } else if ((flags & WritePropertyIgnoreMargin)  && propertyName == QLatin1String("margin")) {
             continue;
         } else if ((flags & WritePropertyIgnoreSpacing) && propertyName == QLatin1String("spacing")) {
+            continue;
+        } else if (propertyName == QLatin1String("leftMargin") && p->kind() == DomProperty::Number) {
+            leftMargin = p->elementNumber();
+            continue;
+        } else if (propertyName == QLatin1String("topMargin") && p->kind() == DomProperty::Number) {
+            topMargin = p->elementNumber();
+            continue;
+        } else if (propertyName == QLatin1String("rightMargin") && p->kind() == DomProperty::Number) {
+            rightMargin = p->elementNumber();
+            continue;
+        } else if (propertyName == QLatin1String("bottomMargin") && p->kind() == DomProperty::Number) {
+            bottomMargin = p->elementNumber();
             continue;
         }
 
@@ -1117,6 +1132,13 @@ void WriteInitialization::writeProperties(const QString &varName,
                 (*o) << ')';
             (*o) << ");\n";
         }
+    }
+    if (leftMargin != -1 || topMargin != -1 || rightMargin != -1 || bottomMargin != -1) {
+        m_output << m_option.indent << varName << QLatin1String("->setContentsMargins(")
+                << QString::number(leftMargin) << QLatin1String(", ")
+                << QString::number(topMargin) << QLatin1String(", ")
+                << QString::number(rightMargin) << QLatin1String(", ")
+                << QString::number(bottomMargin) << QLatin1String(");\n");
     }
 }
 
