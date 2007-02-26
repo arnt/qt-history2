@@ -525,6 +525,9 @@ void tst_QPushButton::defaultAndAutoDefault()
     QObject::connect(&button1, SIGNAL(clicked()), &dialog, SLOT(hide()));
     QKeyEvent event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
     QApplication::sendEvent(&dialog, &event);
+#if defined(Q_WS_WIN)
+    QEXPECT_FAIL("", "see windows bug #132211", Continue);
+#endif
     QVERIFY(!dialog.isVisible());
     }
 
