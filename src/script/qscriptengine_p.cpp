@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qscriptengine_p.h"
-#include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
 #include "qscriptmember_p.h"
@@ -822,7 +821,9 @@ QScriptValueImpl QScriptEnginePrivate::call(const QScriptValueImpl &callee,
 
     QScriptContext *nested_frame = pushContext();
     QScriptContextPrivate *nested = QScriptContextPrivate::get(nested_frame);
-    Q_ASSERT(nested->stackPtr != 0);
+    // set up the temp stack
+    if (! nested->tempStack)
+        nested->stackPtr = nested->tempStack = tempStackBegin;
 
     newActivation(&nested->m_activation);
     if (callee.m_object_value->m_scope.isValid())
@@ -1252,6 +1253,7 @@ void QScriptEnginePrivate::init()
     enumerationConstructor = 0;
     variantConstructor = 0;
     qobjectConstructor = 0;
+    qmetaObjectConstructor = 0;
 
     m_stringRepository.reserve(DefaultHashSize);
     m_string_hash_size = DefaultHashSize;
@@ -1272,11 +1274,7 @@ void QScriptEnginePrivate::init()
     m_class_undefined = registerClass(QLatin1String("undefined"), QScript::UndefinedType);
     m_class_variant = registerClass(QLatin1String("variant"), QScript::VariantType);
     m_class_qobject = registerClass(QLatin1String("qobject"), QScript::QObjectType);
-    m_class_qclass = registerClass(QLatin1String("qclass"), QScript::FunctionType);
-#ifndef QT_NO_QOBJECT
-    QExplicitlySharedDataPointer<QScriptClassData> data(new QScript::ExtQMetaObjectData());
-    m_class_qclass->setData(data);
-#endif
+    m_class_qmetaobject = registerClass(QLatin1String("qmetaobject"), QScript::QMetaObjectType);
 
     m_class_arguments = registerClass(QLatin1String("arguments"), QScript::ObjectType);
     QExplicitlySharedDataPointer<QScriptClassData> data2(new QScript::ArgumentsClassData());
@@ -1385,6 +1383,9 @@ void QScriptEnginePrivate::init()
     qobjectConstructor = new QScript::ExtQObject(this, m_class_qobject);
     m_globalObject.setProperty(QLatin1String("QObject"),
                              qobjectConstructor->ctor, flags);
+    qmetaObjectConstructor = new QScript::ExtQMetaObject(this, m_class_qmetaobject);
+    m_globalObject.setProperty(QLatin1String("QMetaObject"),
+                             qmetaObjectConstructor->ctor, flags);
 #endif
 
     objectAllocator.blockGC(false);

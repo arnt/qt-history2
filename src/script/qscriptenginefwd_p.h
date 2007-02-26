@@ -69,6 +69,7 @@ namespace Ext {
 } // namespace Ext
 
 class ExtQObject;
+class ExtQMetaObject;
 
 class Array;
 class Lexer;
@@ -328,6 +329,7 @@ public: // attributes
     QScript::Ext::Enumeration *enumerationConstructor;
     QScript::Ext::Variant *variantConstructor;
     QScript::ExtQObject *qobjectConstructor;
+    QScript::ExtQMetaObject *qmetaObjectConstructor;
 
     QHash<int, QScriptCustomTypeInfo> m_customTypes;
 
@@ -349,7 +351,7 @@ public: // attributes
     QScriptClassInfo *m_class_undefined;
     QScriptClassInfo *m_class_variant;
     QScriptClassInfo *m_class_qobject;
-    QScriptClassInfo *m_class_qclass;
+    QScriptClassInfo *m_class_qmetaobject;
     QScriptClassInfo *m_class_with;
     QScriptClassInfo *m_class_arguments;
 

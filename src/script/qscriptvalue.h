@@ -26,6 +26,7 @@ class QScriptEngine;
 class QScriptNameId;
 class QVariant;
 class QObject;
+class QMetaObject;
 class QDateTime;
 #ifndef QT_NO_REGEXP
 class QRegExp;
@@ -106,6 +107,7 @@ public:
     bool isUndefined() const;
     bool isVariant() const;
     bool isQObject() const;
+    bool isQMetaObject() const;
     bool isObject() const;
     bool isDate() const;
     bool isRegExp() const;
@@ -121,6 +123,7 @@ public:
     quint16 toUInt16() const;
     QVariant toVariant() const;
     QObject *toQObject() const;
+    const QMetaObject *toQMetaObject() const;
     QScriptValue toObject() const;
     QDateTime toDateTime() const;
 #ifndef QT_NO_REGEXP

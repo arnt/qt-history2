@@ -394,9 +394,7 @@ QScriptValue QScriptEngine::newQMetaObject(
 {
     Q_D(QScriptEngine);
     QScriptValueImpl v;
-    d->newFunction(&v, new QScript::ExtQMetaObject(metaObject, QScriptValuePrivate::valueOf(ctor)));
-    v.setPrototype(QScriptValuePrivate::valueOf(ctor)); // ###
-    v.setClassInfo(d->m_class_qclass);
+    d->qmetaObjectConstructor->newQMetaObject(&v, metaObject, QScriptValuePrivate::valueOf(ctor));
     return v;
 }
 

@@ -132,43 +132,40 @@ private:
     bool m_maybeOverloaded;
 };
 
-class QtPropertyFunction: public QScriptFunction
+class ExtQMetaObject: public Ecma::Core
 {
 public:
-    QtPropertyFunction(QObject *object, int index)
-        : m_object(object), m_index(index)
-        { }
+    ExtQMetaObject(QScriptEnginePrivate *engine, QScriptClassInfo *classInfo);
+    virtual ~ExtQMetaObject();
 
-    ~QtPropertyFunction() { }
+    inline QScriptClassInfo *classInfo() const { return m_classInfo; }
 
     virtual void execute(QScriptContextPrivate *context);
 
-    virtual Type type() const { return QScriptFunction::QtProperty; }
+    class Instance: public QScriptFunction {
+    public:
+        Instance() { value = 0; ctor.invalidate(); }
+        virtual ~Instance() { }
 
-private:
-    QObject *m_object;
-    int m_index;
-};
+        static Instance *get(const QScriptValueImpl &object, QScriptClassInfo *klass);
 
-class ExtQMetaObjectData: public QScriptClassData
-{
-public:
-    virtual bool resolve(const QScriptValueImpl &object, QScriptNameIdImpl *nameId,
-                         QScript::Member *member, QScriptValueImpl *base);
-    virtual bool get(const QScriptValueImpl &obj, const QScript::Member &member,
-                     QScriptValueImpl *result);
-    virtual void mark(const QScriptValueImpl &object, int generation);
-};
+        virtual void execute(QScriptContextPrivate *context);
 
-class ExtQMetaObject: public QScriptFunction
-{
-public:
-    ExtQMetaObject(const QMetaObject *meta, const QScriptValueImpl &ctor);
+    public:
+        const QMetaObject *value;
+        QScriptValueImpl ctor;
+    };
 
-    virtual void execute(QScriptContextPrivate *context);
+    inline Instance *get(const QScriptValueImpl &object) const
+        { return Instance::get(object, classInfo()); }
 
-    const QMetaObject *m_meta;
-    QScriptValueImpl m_ctor;
+    void newQMetaObject(QScriptValueImpl *result, const QMetaObject *value,
+                        const QScriptValueImpl &ctor = QScriptValueImpl());
+
+protected:
+    static QScriptValueImpl method_className(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
+
+    QScriptClassInfo *m_classInfo;
 };
 
 } // namespace QScript

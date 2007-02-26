@@ -23,19 +23,15 @@ public:
     virtual ~tst_QScriptEngine();
 
 private slots:
-    void createNull();
-    void createUndefined();
-    void createBoolean();
-    void createNumber();
-    void createFunction();
-    void createObject();
-    void createString();
-    void createArray();
-    void createOpaque();
-    void createRegExp();
-    void createDate();
-    void createQObject();
-    void createQClass();
+    void currentContext();
+    void newFunction();
+    void newObject();
+    void newArray();
+    void newVariant();
+    void newRegExp();
+    void newDate();
+    void newQObject();
+    void newQMetaObject();
     void globalObject();
     void canEvaluate_data();
     void canEvaluate();
@@ -55,52 +51,19 @@ tst_QScriptEngine::~tst_QScriptEngine()
 {
 }
 
-void tst_QScriptEngine::createNull()
+void tst_QScriptEngine::currentContext()
 {
     QScriptEngine eng;
-    QScriptValue null = eng.nullValue();
-    QCOMPARE(null.isValid(), true);
-    QCOMPARE(null.isNull(), true);
-    QCOMPARE(null.isObject(), false);
-    QCOMPARE(null.prototype().isValid(), false);
-}
-
-void tst_QScriptEngine::createUndefined()
-{
-    QScriptEngine eng;
-    QScriptValue undefined = eng.undefinedValue();
-    QCOMPARE(undefined.isValid(), true);
-    QCOMPARE(undefined.isUndefined(), true);
-    QCOMPARE(undefined.isObject(), false);
-    QCOMPARE(undefined.prototype().isValid(), false);
-}
-
-void tst_QScriptEngine::createBoolean()
-{
-    QScriptEngine eng;
-    QScriptValue falskt = QScriptValue(&eng, false);
-    QCOMPARE(falskt.isValid(), true);
-    QCOMPARE(falskt.isBoolean(), true);
-    QCOMPARE(falskt.isObject(), false);
-    QCOMPARE(falskt.prototype().isValid(), false);
-}
-
-void tst_QScriptEngine::createNumber()
-{
-    QScriptEngine eng;
-    QScriptValue number = QScriptValue(&eng, 123);
-    QCOMPARE(number.isValid(), true);
-    QCOMPARE(number.isNumber(), true);
-    QCOMPARE(number.isObject(), false);
-    QCOMPARE(number.prototype().isValid(), false);
+    QVERIFY(eng.currentContext() != 0);
+    QVERIFY(eng.currentContext()->parentContext() == 0);
 }
 
 static QScriptValue myFunction(QScriptContext *, QScriptEngine *eng)
 {
-    return eng->undefinedValue();
+    return eng->nullValue();
 }
 
-void tst_QScriptEngine::createFunction()
+void tst_QScriptEngine::newFunction()
 {
     QScriptEngine eng;
     QScriptValue fun = eng.newFunction(myFunction);
@@ -111,9 +74,12 @@ void tst_QScriptEngine::createFunction()
     QCOMPARE(fun.prototype().isValid(), true);
     QCOMPARE(fun.prototype().isFunction(), true);
     QCOMPARE(fun.prototype().strictEqualTo(eng.evaluate("Function.prototype")), true);
+
+    QCOMPARE(fun.call().isNull(), true);
+    QCOMPARE(fun.construct().isObject(), true);
 }
 
-void tst_QScriptEngine::createObject()
+void tst_QScriptEngine::newObject()
 {
     QScriptEngine eng;
     QScriptValue object = eng.newObject();
@@ -126,17 +92,7 @@ void tst_QScriptEngine::createObject()
     QCOMPARE(object.prototype().strictEqualTo(eng.evaluate("Object.prototype")), true);
 }
 
-void tst_QScriptEngine::createString()
-{
-    QScriptEngine eng;
-    QScriptValue str = QScriptValue(&eng, "ciao");
-    QCOMPARE(str.isValid(), true);
-    QCOMPARE(str.isString(), true);
-    QCOMPARE(str.isObject(), false);
-    QCOMPARE(str.prototype().isValid(), false);
-}
-
-void tst_QScriptEngine::createArray()
+void tst_QScriptEngine::newArray()
 {
     QScriptEngine eng;
     QScriptValue array = eng.newArray();
@@ -149,7 +105,7 @@ void tst_QScriptEngine::createArray()
     QCOMPARE(array.prototype().strictEqualTo(eng.evaluate("Array.prototype")), true);
 }
 
-void tst_QScriptEngine::createOpaque()
+void tst_QScriptEngine::newVariant()
 {
     QScriptEngine eng;
     QScriptValue opaque = eng.newVariant(QVariant());
@@ -160,7 +116,7 @@ void tst_QScriptEngine::createOpaque()
     QCOMPARE(opaque.prototype().isVariant(), true);
 }
 
-void tst_QScriptEngine::createRegExp()
+void tst_QScriptEngine::newRegExp()
 {
     QScriptEngine eng;
     for (int x = 0; x < 2; ++x) {
@@ -181,7 +137,7 @@ void tst_QScriptEngine::createRegExp()
     }
 }
 
-void tst_QScriptEngine::createDate()
+void tst_QScriptEngine::newDate()
 {
     QScriptEngine eng;
 
@@ -211,7 +167,7 @@ void tst_QScriptEngine::createDate()
     }
 }
 
-void tst_QScriptEngine::createQObject()
+void tst_QScriptEngine::newQObject()
 {
     QScriptEngine eng;
 
@@ -235,23 +191,49 @@ void tst_QScriptEngine::createQObject()
 }
 
 Q_SCRIPT_DECLARE_QMETAOBJECT(QObject, QObject*)
+Q_SCRIPT_DECLARE_QMETAOBJECT(QWidget, QWidget*)
 
-void tst_QScriptEngine::createQClass()
+void tst_QScriptEngine::newQMetaObject()
 {
     QScriptEngine eng;
 #if 0
-    QScriptValue qclass = eng.createQClass<QObject>();
+    QScriptValue qclass = eng.newQMetaObject<QObject>();
+    QScriptValue qclass2 = eng.newQMetaObject<QWidget>();
 #else
     QScriptValue qclass = qScriptValueFromQMetaObject<QObject>(&eng);
-    QScriptValue qclass2 = qScriptValueFromQMetaObject<QObject>(&eng);
+    QScriptValue qclass2 = qScriptValueFromQMetaObject<QWidget>(&eng);
 #endif
     QCOMPARE(qclass.isValid(), true);
-    QCOMPARE(qclass.isObject(), true);
+    QCOMPARE(qclass.isQMetaObject(), true);
+    QCOMPARE(qclass.toQMetaObject(), &QObject::staticMetaObject);
+    QCOMPARE(qclass.isFunction(), true);
+
     QCOMPARE(qclass2.isValid(), true);
-    QCOMPARE(qclass2.isObject(), true);
-    // prototype should be QClass.prototype
+    QCOMPARE(qclass2.isQMetaObject(), true);
+    QCOMPARE(qclass2.toQMetaObject(), &QWidget::staticMetaObject);
+    QCOMPARE(qclass2.isFunction(), true);
+
+    // prototype should be QMetaObject.prototype
     QCOMPARE(qclass.prototype().isValid(), true);
     QCOMPARE(qclass2.prototype().isValid(), true);
+
+    QScriptValue instance = qclass.construct();
+    QCOMPARE(instance.isQObject(), true);
+    QCOMPARE(instance.toQObject()->metaObject(), qclass.toQMetaObject());
+
+    QScriptValue instance2 = qclass2.construct();
+    QCOMPARE(instance2.isQObject(), true);
+    QCOMPARE(instance2.toQObject()->metaObject(), qclass2.toQMetaObject());
+
+    QScriptValueList args;
+    args << instance;
+    QScriptValue instance3 = qclass.construct(args);
+    QCOMPARE(instance3.isQObject(), true);
+    QCOMPARE(instance3.toQObject()->parent(), instance.toQObject());
+
+    // ### must explicitly delete these, since the engine will not
+    delete instance.toQObject();
+    delete instance2.toQObject();
 }
 
 void tst_QScriptEngine::globalObject()

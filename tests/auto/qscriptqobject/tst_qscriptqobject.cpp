@@ -897,6 +897,14 @@ void tst_QScriptExtQObject::classEnums()
     QCOMPARE(static_cast<MyQObject::Ability>(m_engine->evaluate("MyQObject.AllAbility").toInt32()),
              MyQObject::AllAbility);
 
+    // enums from Qt are inherited through prototype
+    QCOMPARE(static_cast<Qt::FocusPolicy>(m_engine->evaluate("MyQObject.StrongFocus").toInt32()),
+             Qt::StrongFocus);
+    QCOMPARE(static_cast<Qt::Key>(m_engine->evaluate("MyQObject.Key_Left").toInt32()),
+             Qt::Key_Left);
+
+    QCOMPARE(m_engine->evaluate("MyQObject.className()").toString(), QLatin1String("MyQObject"));
+
     qRegisterMetaType<MyQObject::Policy>("Policy");
 
     m_myObject->resetQtFunctionInvoked();

@@ -574,6 +574,19 @@ QObject *QScriptValue::toQObject() const
 }
 
 /*!
+  Returns the QMetaObject value of this QScriptValue.
+
+  If this QScriptValue is a QMetaObject, returns the QMetaObject pointer
+  that the QScriptValue represents; otherwise, returns 0.
+
+  \sa isQMetaObject()
+*/
+const QMetaObject *QScriptValue::toQMetaObject() const
+{
+    return QScriptValuePrivate::valueOf(*this).toQMetaObject();
+}
+
+/*!
   \internal
 
   Returns the value of this QScriptValue's property identified by \a nameId,
@@ -902,6 +915,17 @@ bool QScriptValue::isVariant() const
 bool QScriptValue::isQObject() const
 {
     return QScriptValuePrivate::valueOf(*this).isQObject();
+}
+
+/*!
+  Returns true if this QScriptValue is a QMetaObject; otherwise returns
+  false.
+
+  \sa toQMetaObject(), QScriptEngine::newQMetaObject()
+*/
+bool QScriptValue::isQMetaObject() const
+{
+    return QScriptValuePrivate::valueOf(*this).isQMetaObject();
 }
 
 /*!

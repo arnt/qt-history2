@@ -64,6 +64,7 @@ enum Type {
     FunctionType        = 10 | ObjectBased | FunctionBased,
     VariantType         = 11 | ObjectBased,
     QObjectType         = 12 | ObjectBased | FunctionBased,
+    QMetaObjectType     = 13 | ObjectBased | FunctionBased,
 
     // Types used by the runtime
     ActivationType      = 100 | ObjectBased,

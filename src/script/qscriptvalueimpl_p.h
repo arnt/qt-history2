@@ -189,6 +189,11 @@ inline bool QScriptValueImpl::isQObject() const
     return m_class && m_class->type() == QScript::QObjectType;
 }
 
+inline bool QScriptValueImpl::isQMetaObject() const
+{
+    return m_class && m_class->type() == QScript::QMetaObjectType;
+}
+
 inline bool QScriptValueImpl::isReference() const
 {
     Q_ASSERT(isValid());
@@ -375,6 +380,23 @@ inline QObject *QScriptValueImpl::toQObject() const
         Q_ASSERT(ctor != 0);
 
         QScript::ExtQObject::Instance *data = ctor->get(*this);
+        Q_ASSERT(data != 0);
+
+        return data->value;
+    }
+#endif
+
+    return 0;
+}
+
+inline const QMetaObject *QScriptValueImpl::toQMetaObject() const
+{
+#ifndef QT_NO_QOBJECT
+    if (isQMetaObject()) {
+        QScript::ExtQMetaObject *ctor = QScriptEnginePrivate::get(engine())->qmetaObjectConstructor;
+        Q_ASSERT(ctor != 0);
+
+        QScript::ExtQMetaObject::Instance *data = ctor->get(*this);
         Q_ASSERT(data != 0);
 
         return data->value;

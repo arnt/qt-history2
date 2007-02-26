@@ -40,6 +40,24 @@ static const bool GeneratePropertyFunctions = true;
 
 namespace QScript {
 
+class QtPropertyFunction: public QScriptFunction
+{
+public:
+    QtPropertyFunction(QObject *object, int index)
+        : m_object(object), m_index(index)
+        { }
+
+    ~QtPropertyFunction() { }
+
+    virtual void execute(QScriptContextPrivate *context);
+
+    virtual Type type() const { return QScriptFunction::QtProperty; }
+
+private:
+    QObject *m_object;
+    int m_index;
+};
+
 static inline QByteArray methodName(const QMetaMethod &method)
 {
     QByteArray signature = method.signature();
@@ -377,63 +395,6 @@ public:
 private:
     QScriptClassInfo *m_classInfo;
 };
-
-
-struct StaticQtMetaObject : public QObject
-{
-    static const QMetaObject *get()
-        { return &static_cast<StaticQtMetaObject*> (0)->staticQtMetaObject; }
-};
-
-bool ExtQMetaObjectData::resolve(const QScriptValueImpl &object, QScriptNameIdImpl *nameId,
-                                 QScript::Member *member, QScriptValueImpl *base)
-{
-    QScript::ExtQMetaObject *self = static_cast<QScript::ExtQMetaObject*> (object.toFunction());
-    const QMetaObject *meta = self->m_meta;
-
-    QScriptEngine *eng = object.engine();
-
-    QByteArray name = QScriptEnginePrivate::get(eng)->toString(nameId).toLatin1();
-
- again:
-    for (int i = 0; i < meta->enumeratorCount(); ++i) {
-        QMetaEnum e = meta->enumerator(i);
-
-        for (int j = 0; j < e.keyCount(); ++j) {
-            const char *key = e.key(j);
-
-            if (! qstrcmp (key, name.constData())) {
-                member->native(nameId, e.value(j), QScriptValue::ReadOnly);
-                *base = object;
-                return true;
-            }
-        }
-    }
-
-    if (meta != StaticQtMetaObject::get()) {
-        meta = StaticQtMetaObject::get();
-        goto again;
-    }
-
-    return false;
-}
-
-bool ExtQMetaObjectData::get(const QScriptValueImpl &obj, const QScript::Member &member,
-                             QScriptValueImpl *result)
-{
-    if (! member.isNativeProperty())
-        return false;
-
-    *result = QScriptValueImpl(QScriptEnginePrivate::get(obj.engine()), member.id());
-    return true;
-}
-
-void ExtQMetaObjectData::mark(const QScriptValueImpl &object, int generation)
-{
-    QScript::ExtQMetaObject *self = static_cast<QScript::ExtQMetaObject*> (object.toFunction());
-    if (self->m_ctor.isObject())
-        self->m_ctor.mark(generation);
-}
 
 } // ::QScript
 
@@ -977,24 +938,156 @@ QScript::QtFunction::~QtFunction()
     qDeleteAll(m_connections);
 }
 
-QScript::ExtQMetaObject::ExtQMetaObject(const QMetaObject *meta, const QScriptValueImpl &ctor):
-    m_meta(meta), m_ctor(ctor)
+/////////////////////////////////////////////////////////
+
+namespace QScript
 {
+
+ExtQMetaObject::Instance *ExtQMetaObject::Instance::get(const QScriptValueImpl &object,
+                                                        QScriptClassInfo *klass)
+{
+    if (! klass || klass == object.classInfo())
+        return static_cast<Instance*> (object.objectData().data());
+
+    return 0;
 }
 
-void QScript::ExtQMetaObject::execute(QScriptContextPrivate *context)
+void QScript::ExtQMetaObject::Instance::execute(QScriptContextPrivate *context)
 {
-    if (m_ctor.isFunction()) {
+    if (ctor.isFunction()) {
         QScriptValueImplList args;
         for (int i = 0; i < context->argumentCount(); ++i)
             args << context->argument(i);
-        QScriptValueImpl result = m_ctor.call(context->thisObject(), args);
+        QScriptValueImpl result = ctor.call(context->thisObject(), args);
         context->m_thisObject = result;
         context->m_result = result;
     } else {
         context->m_result = context->throwError(
             QScriptContext::TypeError,
             QString::fromUtf8("no constructor for %s")
-            .arg(QLatin1String(m_meta->className())));
+            .arg(QLatin1String(value->className())));
     }
+}
+
+struct StaticQtMetaObject : public QObject
+{
+    static const QMetaObject *get()
+        { return &static_cast<StaticQtMetaObject*> (0)->staticQtMetaObject; }
+};
+
+class ExtQMetaObjectData: public QScriptClassData
+{
+public:
+    ExtQMetaObjectData(QScriptEnginePrivate *, QScriptClassInfo *classInfo);
+
+    virtual bool resolve(const QScriptValueImpl &object, QScriptNameIdImpl *nameId,
+                         QScript::Member *member, QScriptValueImpl *base);
+    virtual bool get(const QScriptValueImpl &obj, const QScript::Member &member,
+                     QScriptValueImpl *result);
+    virtual void mark(const QScriptValueImpl &object, int generation);
+
+private:
+    QScriptClassInfo *m_classInfo;
+};
+
+ExtQMetaObjectData::ExtQMetaObjectData(QScriptEnginePrivate *,
+                                       QScriptClassInfo *classInfo)
+    : m_classInfo(classInfo)
+{
+}
+
+bool ExtQMetaObjectData::resolve(const QScriptValueImpl &object,
+                                 QScriptNameIdImpl *nameId,
+                                 QScript::Member *member,
+                                 QScriptValueImpl *base)
+{
+    const QMetaObject *meta = object.toQMetaObject();
+    if (!meta)
+        return false;
+
+    QScriptEngine *eng = object.engine();
+
+    QByteArray name = QScriptEnginePrivate::get(eng)->toString(nameId).toLatin1();
+
+    for (int i = 0; i < meta->enumeratorCount(); ++i) {
+        QMetaEnum e = meta->enumerator(i);
+
+        for (int j = 0; j < e.keyCount(); ++j) {
+            const char *key = e.key(j);
+
+            if (! qstrcmp (key, name.constData())) {
+                member->native(nameId, e.value(j), QScriptValue::ReadOnly);
+                *base = object;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool ExtQMetaObjectData::get(const QScriptValueImpl &obj,
+                             const QScript::Member &member,
+                             QScriptValueImpl *result)
+{
+    if (! member.isNativeProperty())
+        return false;
+
+    *result = QScriptValueImpl(QScriptEnginePrivate::get(obj.engine()), member.id());
+    return true;
+}
+
+void ExtQMetaObjectData::mark(const QScriptValueImpl &object, int generation)
+{
+    ExtQMetaObject::Instance *inst = ExtQMetaObject::Instance::get(object, m_classInfo);
+    if (inst->ctor.isObject() || inst->ctor.isString())
+        inst->ctor.mark(generation);
+}
+
+} // namespace QScript
+
+QScript::ExtQMetaObject::ExtQMetaObject(QScriptEnginePrivate *eng,
+                                        QScriptClassInfo *classInfo):
+    Ecma::Core(eng), m_classInfo(classInfo)
+{
+    publicPrototype.invalidate();
+    newQMetaObject(&publicPrototype, QScript::StaticQtMetaObject::get());
+
+    eng->newConstructor(&ctor, this, publicPrototype);
+    const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
+    publicPrototype.setProperty(QLatin1String("className"),
+                                eng->createFunction(method_className, 0, m_classInfo), flags);
+
+    QExplicitlySharedDataPointer<QScriptClassData> data(new QScript::ExtQMetaObjectData(eng, classInfo));
+    m_classInfo->setData(data);
+}
+
+QScript::ExtQMetaObject::~ExtQMetaObject()
+{
+}
+
+void QScript::ExtQMetaObject::execute(QScriptContextPrivate *context)
+{
+    QScriptValueImpl tmp;
+    newQMetaObject(&tmp, 0);
+    context->setReturnValue(tmp);
+}
+
+void QScript::ExtQMetaObject::newQMetaObject(QScriptValueImpl *result, const QMetaObject *value,
+                                             const QScriptValueImpl &ctor)
+{
+    Instance *instance = new Instance();
+    instance->value = value;
+    instance->ctor = ctor;
+
+    engine()->newObject(result, publicPrototype, classInfo());
+    result->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+}
+
+QScriptValueImpl QScript::ExtQMetaObject::method_className(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo)
+{
+    if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
+        return QScriptValueImpl(eng, QString::fromLatin1(instance->value->className()));
+    }
+    return eng->undefinedValue();
 }

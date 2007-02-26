@@ -74,6 +74,7 @@ public:
     inline bool isNull() const;
     inline bool isVariant() const;
     inline bool isQObject() const;
+    inline bool isQMetaObject() const;
     inline bool isReference() const;
 
     inline bool isError() const;
@@ -90,6 +91,7 @@ public:
     inline quint16 toUInt16() const;
     inline QVariant toVariant() const;
     inline QObject *toQObject() const;
+    inline const QMetaObject *toQMetaObject() const;
     inline QScriptValueImpl toObject() const;
     inline QDateTime toDateTime() const;
 #ifndef QT_NO_REGEXP
