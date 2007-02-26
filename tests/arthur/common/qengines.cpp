@@ -235,6 +235,7 @@ void GLEngine::render(const QStringList &qpsScript,
     pcmd.setFilePath(absFilePath);
     pcmd.runCommands();
     p->end();
+    delete p;
 }
 
 bool GLEngine::drawOnPainter(QPainter *p)
