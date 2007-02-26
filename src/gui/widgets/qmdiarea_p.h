@@ -103,9 +103,12 @@ public:
     QPointer<QMdiSubWindow> active;
     QPointer<QMdiSubWindow> aboutToBecomeActive;
     QBrush background;
+    QMdiArea::AreaOptions options;
     bool ignoreGeometryChange;
+    bool ignoreWindowStateChange;
     bool isActivated;
     bool isSubWindowsTiled;
+    bool showActiveWindowMaximized;
     int indexToNextWindow;
     int indexToPreviousWindow;
 

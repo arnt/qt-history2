@@ -29,6 +29,11 @@ class Q_GUI_EXPORT QMdiArea : public QAbstractScrollArea
     Q_PROPERTY(bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled)
     Q_PROPERTY(QBrush background READ background WRITE setBackground)
 public:
+    enum AreaOption {
+        DontMaximizeSubWindowOnActivation = 0x1
+    };
+    Q_DECLARE_FLAGS(AreaOptions, AreaOption);
+
     enum WindowOrder {
         CreationOrder,
         StackingOrder
@@ -51,6 +56,9 @@ public:
 
     QBrush background() const;
     void setBackground(const QBrush &background);
+
+    void setOption(AreaOption option, bool on = true);
+    bool testOption(AreaOption opton) const;
 
 Q_SIGNALS:
     void subWindowActivated(QMdiSubWindow *);
@@ -83,6 +91,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_deactivateAllWindows())
     Q_PRIVATE_SLOT(d_func(), void _q_processWindowStateChanged(Qt::WindowStates, Qt::WindowStates))
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QMdiArea::AreaOptions);
 
 QT_END_HEADER
 

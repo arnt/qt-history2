@@ -2087,18 +2087,19 @@ void QMdiSubWindow::showShaded()
     }
 
     d->removeButtonsFromMenuBar();
-    if (d->baseWidget)
-        d->baseWidget->hide();
-#ifndef QT_NO_SIZEGRIP
-    d->setSizeGripVisible(false);
-#endif
 
     // showMinimized() will reset Qt::WindowActive, which makes sense
     // for top level widgets, but in MDI it makes sense to have an
     // active window which is minimized.
     if (hasFocus() || isAncestorOf(currentFocusWidget))
         d->ensureWindowState(Qt::WindowActive);
+
+    if (d->baseWidget)
+        d->baseWidget->hide();
     setFocus();
+#ifndef QT_NO_SIZEGRIP
+    d->setSizeGripVisible(false);
+#endif
 
     if (!d->restoreSize.isValid() || d->isShadeMode) {
         d->oldGeometry = geometry();
@@ -2315,6 +2316,7 @@ void QMdiSubWindow::showEvent(QShowEvent *showEvent)
 #endif
 
     d->updateDirtyRegions();
+    d->setActive(true);
 }
 
 /*!

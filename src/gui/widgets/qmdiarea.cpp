@@ -432,8 +432,10 @@ QPoint MinOverlapPlacer::place(const QSize &size, const QList<QRect> &rects,
 */
 QMdiAreaPrivate::QMdiAreaPrivate()
     : ignoreGeometryChange(false),
+      ignoreWindowStateChange(false),
       isActivated(false),
       isSubWindowsTiled(false),
+      showActiveWindowMaximized(false),
       indexToNextWindow(-1),
       indexToPreviousWindow(-1)
 {
@@ -444,28 +446,37 @@ QMdiAreaPrivate::QMdiAreaPrivate()
 */
 void QMdiAreaPrivate::_q_deactivateAllWindows()
 {
+    if (ignoreWindowStateChange)
+        return;
+
     aboutToBecomeActive = qobject_cast<QMdiSubWindow *>(q_func()->sender());
+    Q_ASSERT(aboutToBecomeActive);
     if (childWindows.isEmpty())
         return;
 
-    int numDeactivated = 0;
     foreach (QMdiSubWindow *child, childWindows) {
-        if (!sanityCheck(child, "QMdiArea::deactivateAllWindows"))
+        if (!sanityCheck(child, "QMdiArea::deactivateAllWindows") || aboutToBecomeActive == child)
             continue;
-        if (aboutToBecomeActive == child)
-            continue;
+        // We don't want to handle signals caused by child->showNormal().
+        ignoreWindowStateChange = true;
+        if(!(options & QMdiArea::DontMaximizeSubWindowOnActivation) && !showActiveWindowMaximized)
+            showActiveWindowMaximized = child->isMaximized() && child->isVisible();
+        if (showActiveWindowMaximized && child->isMaximized())
+            child->showNormal();
+        ignoreWindowStateChange = false;
         if (child->windowState() & Qt::WindowActive) {
             QEvent windowDeactivate(QEvent::WindowDeactivate);
             QApplication::sendEvent(child, &windowDeactivate);
-            ++numDeactivated;
         }
     }
-    Q_ASSERT(numDeactivated == 0 || numDeactivated == 1);
 }
 
 void QMdiAreaPrivate::_q_processWindowStateChanged(Qt::WindowStates oldState,
                                                    Qt::WindowStates newState)
 {
+    if (ignoreWindowStateChange)
+        return;
+
     Q_Q(QMdiArea);
     QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(q->sender());
     if (!child)
@@ -615,6 +626,14 @@ void QMdiAreaPrivate::emitWindowActivated(QMdiSubWindow *activeWindow)
     if (activeWindow == active)
         return;
     Q_ASSERT(activeWindow->windowState() & Qt::WindowActive);
+
+    // This is true only if 'DontMaximizeSubWindowOnActivation' is disabled
+    // and the previous active window was maximized.
+    if (showActiveWindowMaximized) {
+        if (!activeWindow->isMaximized())
+            activeWindow->showMaximized();
+        showActiveWindowMaximized = false;
+    }
 
     int indexToActiveWindow = childWindows.indexOf(activeWindow);
     Q_ASSERT(indexToActiveWindow != -1);
@@ -1165,9 +1184,29 @@ void QMdiArea::setScrollBarsEnabled(bool enable)
     itself. By default, it is a gray color, but can be any brush
     (e.g., colors, gradients or pixmaps).
 */
-QBrush QMdiArea::background() const { return d_func()->background;
-} void QMdiArea::setBackground(const QBrush &brush) {
-d_func()->background = brush; }
+QBrush QMdiArea::background() const
+{
+    return d_func()->background;
+}
+
+void QMdiArea::setBackground(const QBrush &brush)
+{
+    d_func()->background = brush;
+}
+
+void QMdiArea::setOption(AreaOption option, bool on)
+{
+    Q_D(QMdiArea);
+    if (on && !(d->options & option))
+        d->options |= option;
+    else if (!on && (d->options & option))
+        d->options &= ~option;
+}
+
+bool QMdiArea::testOption(AreaOption option) const
+{
+    return d_func()->options & option;
+}
 
 /*!
     \reimp
