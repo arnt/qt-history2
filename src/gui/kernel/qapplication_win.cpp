@@ -345,53 +345,8 @@ public:
 
 extern QFont qt_LOGFONTtoQFont(LOGFONT& lf,bool scale);
 
-static void qt_set_windows_resources()
+static void qt_set_windows_color_resources()
 {
-    if (QApplication::type() != QApplication::Tty)
-        (void) QApplication::style(); // trigger creation of application style
-#ifndef Q_OS_TEMP
-    QFont menuFont;
-    QFont messageFont;
-    QFont statusFont;
-    QFont titleFont;
-    QFont smallTitleFont;
-
-    QT_WA({
-        NONCLIENTMETRICS ncm;
-        ncm.cbSize = sizeof(ncm);
-        SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
-        menuFont = qt_LOGFONTtoQFont(ncm.lfMenuFont,true);
-        messageFont = qt_LOGFONTtoQFont(ncm.lfMessageFont,true);
-        statusFont = qt_LOGFONTtoQFont(ncm.lfStatusFont,true);
-        titleFont = qt_LOGFONTtoQFont(ncm.lfCaptionFont,true);
-        smallTitleFont = qt_LOGFONTtoQFont(ncm.lfSmCaptionFont,true);
-    } , {
-        // A version
-        NONCLIENTMETRICSA ncm;
-        ncm.cbSize = sizeof(ncm);
-        SystemParametersInfoA(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
-        menuFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMenuFont,true);
-        messageFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMessageFont,true);
-        statusFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfStatusFont,true);
-        titleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfCaptionFont,true);
-        smallTitleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfSmCaptionFont,true);
-    });
-
-    QApplication::setFont(menuFont, "QMenu");
-    QApplication::setFont(menuFont, "QMenuBar");
-    QApplication::setFont(messageFont, "QMessageBox");
-    QApplication::setFont(statusFont, "QTipLabel");
-    QApplication::setFont(statusFont, "QStatusBar");
-    QApplication::setFont(titleFont, "Q3TitleBar");
-    QApplication::setFont(titleFont, "QWorkspaceTitleBar");
-    QApplication::setFont(smallTitleFont, "QDockWidgetTitle");
-#else
-    LOGFONT lf;
-    HGDIOBJ stockFont = GetStockObject(SYSTEM_FONT);
-    GetObject(stockFont, sizeof(lf), &lf);
-    QApplicationPrivate::setSystemFont(qt_LOGFONTtoQFont(lf, true));
-#endif// Q_OS_TEMP
-
     // Do the color settings
     QPalette pal;
     pal.setColor(QPalette::WindowText,
@@ -482,6 +437,55 @@ static void qt_set_windows_resources()
         tiplabel.setColor(QPalette::Disabled, QPalette::BrightText, Qt::white);
         QToolTip::setPalette(tiplabel);
     }
+}
+
+static void qt_set_windows_resources()
+{
+    if (QApplication::type() != QApplication::Tty)
+        (void) QApplication::style(); // trigger creation of application style
+#ifndef Q_OS_TEMP
+    QFont menuFont;
+    QFont messageFont;
+    QFont statusFont;
+    QFont titleFont;
+    QFont smallTitleFont;
+
+    QT_WA({
+        NONCLIENTMETRICS ncm;
+        ncm.cbSize = sizeof(ncm);
+        SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
+        menuFont = qt_LOGFONTtoQFont(ncm.lfMenuFont,true);
+        messageFont = qt_LOGFONTtoQFont(ncm.lfMessageFont,true);
+        statusFont = qt_LOGFONTtoQFont(ncm.lfStatusFont,true);
+        titleFont = qt_LOGFONTtoQFont(ncm.lfCaptionFont,true);
+        smallTitleFont = qt_LOGFONTtoQFont(ncm.lfSmCaptionFont,true);
+    } , {
+        // A version
+        NONCLIENTMETRICSA ncm;
+        ncm.cbSize = sizeof(ncm);
+        SystemParametersInfoA(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
+        menuFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMenuFont,true);
+        messageFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMessageFont,true);
+        statusFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfStatusFont,true);
+        titleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfCaptionFont,true);
+        smallTitleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfSmCaptionFont,true);
+    });
+
+    QApplication::setFont(menuFont, "QMenu");
+    QApplication::setFont(menuFont, "QMenuBar");
+    QApplication::setFont(messageFont, "QMessageBox");
+    QApplication::setFont(statusFont, "QTipLabel");
+    QApplication::setFont(statusFont, "QStatusBar");
+    QApplication::setFont(titleFont, "Q3TitleBar");
+    QApplication::setFont(titleFont, "QWorkspaceTitleBar");
+    QApplication::setFont(smallTitleFont, "QDockWidgetTitle");
+#else
+    LOGFONT lf;
+    HGDIOBJ stockFont = GetStockObject(SYSTEM_FONT);
+    GetObject(stockFont, sizeof(lf), &lf);
+    QApplicationPrivate::setSystemFont(qt_LOGFONTtoQFont(lf, true));
+#endif// Q_OS_TEMP
+    qt_set_windows_color_resources();
 }
 
 void QApplicationPrivate::initializeWidgetPaletteHash()
@@ -1297,14 +1301,13 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         }
 
         break;
-    case WM_FONTCHANGE:
     case WM_SYSCOLORCHANGE:
         if (qApp->type() == QApplication::Tty)
             break;
         if (QApplication::desktopSettingsAware()) {
             widget = (QETWidget*)QWidget::find(hwnd);
             if (widget && !widget->parentWidget())
-                qt_set_windows_resources();
+                qt_set_windows_color_resources();
         }
         break;
 
