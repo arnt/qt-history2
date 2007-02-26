@@ -192,11 +192,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
             topextra->frameStrut.setCoords(0, 0, 0, 0);
         }
 #endif
-        // declare the widget's object name as window role
-
-        qt_fbdpy->addProperty(id,QT_QWS_PROPERTY_WINDOWNAME);
-        qt_fbdpy->setProperty(id,QT_QWS_PROPERTY_WINDOWNAME,0,q->objectName().toLatin1());
-
         if (!topextra->caption.isEmpty())
             setWindowTitle_helper(topextra->caption);
 
