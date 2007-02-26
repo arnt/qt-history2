@@ -16,8 +16,6 @@ mac:include(kernel/mac.pri)
 win32:include(kernel/win.pri)
 embedded:include(embedded/embedded.pri)
 
-!contains(QT_CONFIG, direct3d):DEFINES += QT_NO_DIRECT3D
-
 #modules
 include(kernel/kernel.pri)
 include(image/image.pri)
