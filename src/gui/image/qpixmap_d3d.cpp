@@ -22,7 +22,7 @@
 #include "qbuffer.h"
 #include "qapplication.h"
 #include <private/qwidget_p.h>
-#include "qpaintengine_d3d_p.h"
+#include <private/qpaintengine_d3d_p.h>
 #include "qevent.h"
 #include "qfile.h"
 #include "qfileinfo.h"
