@@ -847,7 +847,7 @@ static void removeEventhandler(EventHandlerUPP eventHandler)
 /*
     Returns the value for element by combining the QAccessibility::Checked and
     QAccessibility::Mixed flags into an int value that the Mac accessibilty
-    system understands. This works for checkboxes, radiobuttons, and the like.
+    system understands. This works for check boxes, radio buttons, and the like.
     The return values are:
     0: unchecked
     1: checked

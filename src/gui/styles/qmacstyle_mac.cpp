@@ -376,7 +376,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 #if 0 //Not sure we are applying the rules correctly for RadioButtons/CheckBoxes --Sam
     } else if (ct == QStyle::CT_RadioButton) {
         QRadioButton *rdo = static_cast<QRadioButton *>(widg);
-        // Exception for case where multiline radiobutton text requires no size constrainment
+        // Exception for case where multiline radio button text requires no size constrainment
         if (rdo->text().find('\n') != -1)
             return ret;
         if (sz == QAquaSizeLarge)

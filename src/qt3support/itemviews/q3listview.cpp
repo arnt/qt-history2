@@ -6561,7 +6561,7 @@ void Q3CheckListItem::paintCell(QPainter * p, const QColorGroup & cg,
     int marg = lv->itemMargin();
     int r = marg;
 
-    // Draw controller / checkbox / radiobutton ---------------------
+    // Draw controller / check box / radio button ---------------------
     QStyle::State styleflags = QStyle::State_None;
     if (internalState() == On) {
         styleflags |= QStyle::State_On;

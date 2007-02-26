@@ -76,7 +76,7 @@
     \brief whether the radio buttons in the group are exclusive
 
     If this property is true (the default), the \link QRadioButton
-    radiobuttons\endlink in the group are treated exclusively.
+    radio buttons\endlink in the group are treated exclusively.
 */
 
 
