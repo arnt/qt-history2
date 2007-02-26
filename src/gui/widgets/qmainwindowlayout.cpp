@@ -18,10 +18,10 @@
 #include "qdockwidget.h"
 #include "qdockwidget_p.h"
 #include "qtoolbar_p.h"
-#include "qtoolbarhandle_p.h"
 #include "qmainwindow.h"
 #include "qmainwindowlayout_p.h"
 #include "qtoolbar.h"
+#include "qtoolbarlayout_p.h"
 #include "qwidgetanimator_p.h"
 #include "qrubberband.h"
 #include "qdockwidget_p.h"
@@ -1038,9 +1038,13 @@ static void fixToolBarOrientation(QLayoutItem *item, int dockPos)
                         ? Qt::Horizontal : Qt::Vertical;
     if (o != toolBar->orientation())
         toolBar->setOrientation(o);
-    QSize hint = item->sizeHint();
+
+    QSize hint = toolBar->sizeHint().boundedTo(toolBar->maximumSize())
+                    .expandedTo(toolBar->minimumSize());
+
     if (toolBar->size() != hint)
         toolBar->resize(hint);
+
 #else
     Q_UNUSED(item);
     Q_UNUSED(dockPos);
@@ -1103,7 +1107,7 @@ bool QMainWindowLayout::plug(QLayoutItem *widgetItem)
 #endif
 #ifndef QT_NO_TOOLBAR
         if (QToolBar *tb = qobject_cast<QToolBar*>(widget))
-            tb->d_func()->handle->plug(currentGapRect);
+            tb->d_func()->plug(currentGapRect);
 #endif
         applyState(layoutState);
         savedState.clear();
@@ -1135,6 +1139,18 @@ void QMainWindowLayout::allAnimationsFinished()
 
 void QMainWindowLayout::animationFinished(QWidget *widget)
 {
+#ifndef QT_NO_TOOLBAR
+    if (QToolBar *tb = qobject_cast<QToolBar*>(widget)) {
+        QToolBarLayout *tbl = qobject_cast<QToolBarLayout*>(tb->layout());
+        if (tbl->expanded && tbl->collapsing) {
+            tbl->expanded = false;
+            tbl->collapsing = false;
+            tbl->invalidate();
+            tb->update();
+        }
+    }
+#endif
+
     if (widget != pluggingWidget)
         return;
 
@@ -1144,7 +1160,7 @@ void QMainWindowLayout::animationFinished(QWidget *widget)
 #endif
 #ifndef QT_NO_TOOLBAR
     if (QToolBar *tb = qobject_cast<QToolBar*>(widget))
-        tb->d_func()->handle->plug(currentGapRect);
+        tb->d_func()->plug(currentGapRect);
 #endif
 
     applyState(layoutState, false);
@@ -1272,7 +1288,7 @@ QLayoutItem *QMainWindowLayout::unplug(QWidget *widget)
 #endif
 #ifndef QT_NO_TOOLBAR
     if (QToolBar *tb = qobject_cast<QToolBar*>(widget)) {
-        tb->d_func()->handle->unplug(r);
+        tb->d_func()->unplug(r);
     }
 #endif
 

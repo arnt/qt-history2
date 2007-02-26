@@ -19,7 +19,7 @@
 #include "qtoolbararealayout_p.h"
 #include "qmainwindowlayout_p.h"
 #include "qwidgetanimator_p.h"
-#include "qtoolbarhandle_p.h"
+#include "qtoolbarlayout_p.h"
 
 /******************************************************************************
 ** QToolBarAreaLayoutItem
@@ -29,14 +29,23 @@ QSize QToolBarAreaLayoutItem::minimumSize() const
 {
     if (skip())
         return QSize(0, 0);
-    return widgetItem->minimumSize();
+    return qSmartMinSize(static_cast<QWidgetItem*>(widgetItem));
 }
 
 QSize QToolBarAreaLayoutItem::sizeHint() const
 {
     if (skip())
         return QSize(0, 0);
-    return widgetItem->sizeHint();
+
+    QWidget *wid = widgetItem->widget();
+    QSize s = wid->sizeHint().expandedTo(wid->minimumSizeHint());
+    if (wid->sizePolicy().horizontalPolicy() == QSizePolicy::Ignored)
+        s.setWidth(0);
+    if (wid->sizePolicy().verticalPolicy() == QSizePolicy::Ignored)
+        s.setHeight(0);
+    s = s.boundedTo(wid->maximumSize())
+        .expandedTo(wid->minimumSize());
+    return s;
 }
 
 bool QToolBarAreaLayoutItem::skip() const
@@ -97,62 +106,24 @@ QSize QToolBarAreaLayoutLine::minimumSize() const
 
 void QToolBarAreaLayoutLine::fitLayout()
 {
-    // find out how much space our items are using
-    int used = 0;
     int last = -1;
+    int min = pick(o, minimumSize());
+    int space = pick(o, rect.size());
+    int extra = qMax(0, space - min);
+
     for (int i = 0; i < toolBarItems.count(); ++i) {
         QToolBarAreaLayoutItem &item = toolBarItems[i];
         if (item.skip())
             continue;
 
-        if (item.size == -1) {
-            if (item.gap)
-                item.size = pick(o, item.sizeHint());
-            else
-                item.size = pick(o, item.minimumSize());
-        } else {
-            item.size = qMin(item.size, pick(o, item.sizeHint()));
-        }
+        int itemMin = pick(o, item.minimumSize());
+        int itemHint = pick(o, item.sizeHint());
+        int itemExtra = qMin(itemHint - itemMin, extra);
 
-        used += item.size;
+        item.size = itemMin + itemExtra;
+        extra -= itemExtra;
+
         last = i;
-    }
-
-    int delta = pick(o, rect.size()) - used;
-
-    if (delta > 0) { // we have space to grow - starting from the left
-        for (int i = 0; i < toolBarItems.count(); ++i) {
-            QToolBarAreaLayoutItem &item = toolBarItems[i];
-            if (item.skip())
-                continue;
-
-            int hint = pick(o, item.sizeHint());
-            if (hint > item.size) {
-                int grow = qMin(hint - item.size, delta);
-                item.size += grow;
-                delta -= grow;
-            }
-
-            if (delta == 0)
-                break;
-        }
-    } else if (delta < 0) { // we need to shrink - starting from the right
-        delta = -delta;
-        for (int i = toolBarItems.count() - 1; i >= 0; --i) {
-            QToolBarAreaLayoutItem &item = toolBarItems[i];
-            if (item.skip())
-                continue;
-
-            int m = pick(o, item.minimumSize());
-            if (m < item.size) {
-                int shrink = qMin(item.size - m, delta);
-                item.size -= shrink;
-                delta -= shrink;
-            }
-
-            if (delta == 0)
-                break;
-        }
     }
 
     // calculate the positions from the sizes
@@ -281,7 +252,7 @@ void QToolBarAreaLayoutInfo::insertToolBar(QToolBar *before, QToolBar *toolBar)
     if (before == 0) {
         if (lines.isEmpty())
             lines.append(QToolBarAreaLayoutLine(o));
-        lines.last().toolBarItems.append(new QToolBarWidgetItem(toolBar));
+        lines.last().toolBarItems.append(new QWidgetItem(toolBar));
         return;
     }
 
@@ -290,7 +261,7 @@ void QToolBarAreaLayoutInfo::insertToolBar(QToolBar *before, QToolBar *toolBar)
 
         for (int k = 0; k < line.toolBarItems.count(); ++k) {
             if (line.toolBarItems.at(k).widgetItem->widget() == before) {
-                line.toolBarItems.insert(k, new QToolBarWidgetItem(toolBar));
+                line.toolBarItems.insert(k, new QWidgetItem(toolBar));
                 return;
             }
         }
@@ -711,10 +682,28 @@ void QToolBarAreaLayout::apply(bool animate)
                     r.setBottom(line.rect.top() + item.pos + item.size - 1);
                 }
 
+                QWidget *widget = item.widgetItem->widget();
+                if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget)) {
+                    QToolBarLayout *tbl = qobject_cast<QToolBarLayout*>(toolBar->layout());
+                    if (tbl->expanded && !tbl->collapsing) {
+                        QPoint tr = r.topRight();
+                        QSize size = tbl->expandedSize(r.size());
+                        r.setSize(size);
+                        r.moveTopRight(tr);
+                        if (r.bottom() > rect.bottom())
+                            r.moveBottom(rect.bottom());
+                        if (r.right() > rect.right())
+                            r.moveRight(rect.right());
+                        if (r.left() < 0)
+                            r.moveLeft(0);
+                        if (r.top() < 0)
+                            r.moveTop(0);
+                    }
+                }
+
                 QRect geo = r;
                 if (dock.o == Qt::Horizontal)
                     geo = QStyle::visualRect(dir, line.rect, geo);
-                QWidget *widget = item.widgetItem->widget();
                 layout->widgetAnimator->animate(widget, geo, animate);
             }
         }
@@ -974,7 +963,7 @@ bool QToolBarAreaLayout::restoreState(QDataStream &stream, const QList<QToolBar*
                 continue;
             }
 
-            item.widgetItem = new QToolBarWidgetItem(toolBar);
+            item.widgetItem = new QWidgetItem(toolBar);
             toolBar->setOrientation(dock.o);
             toolBar->setVisible(shown);
 

@@ -59,8 +59,8 @@ HEADERS += \
         widgets/qtextbrowser.h \
         widgets/qtoolbar.h \
         widgets/qtoolbar_p.h \
+        widgets/qtoolbarlayout_p.h \
         widgets/qtoolbarextension_p.h \
-        widgets/qtoolbarhandle_p.h \
         widgets/qtoolbarseparator_p.h \
         widgets/qtoolbox.h \
         widgets/qtoolbutton.h \
@@ -117,8 +117,8 @@ SOURCES += \
         widgets/qtextedit.cpp \
         widgets/qtextbrowser.cpp \
         widgets/qtoolbar.cpp \
+        widgets/qtoolbarlayout.cpp \
         widgets/qtoolbarextension.cpp \
-        widgets/qtoolbarhandle.cpp \
         widgets/qtoolbarseparator.cpp \
         widgets/qtoolbox.cpp \
         widgets/qtoolbutton.cpp \

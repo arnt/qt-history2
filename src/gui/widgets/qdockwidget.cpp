@@ -306,12 +306,12 @@ void QDockWidgetLayout::setWidget(Role r, QWidget *w)
     invalidate();
 }
 
-static int pick(bool vertical, const QSize &size)
+static inline int pick(bool vertical, const QSize &size)
 {
     return vertical ? size.height() : size.width();
 }
 
-static int perp(bool vertical, const QSize &size)
+static inline int perp(bool vertical, const QSize &size)
 {
     return vertical ? size.width() : size.height();
 }

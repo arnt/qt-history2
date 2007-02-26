@@ -253,10 +253,4 @@ static inline int &rperp(Qt::Orientation o, QPoint &pos)
 static inline int &rperp(Qt::Orientation o, QSize &size)
 { return o == Qt::Vertical ? size.rwidth() : size.rheight(); }
 
-// the rest of QMainWindow uses this instead...
-static inline int pick_perp(Qt::Orientation o, const QPoint &p)
-{ return o == Qt::Vertical ? p.x() : p.y(); }
-static inline int pick_perp(Qt::Orientation o, const QSize &s)
-{ return o == Qt::Vertical ? s.width() : s.height(); }
-
 #endif // QDYNAMICMAINWINDOWLAYOUT_P_H
