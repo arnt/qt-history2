@@ -2977,10 +2977,10 @@ QList<QLocale::Country> QLocale::countriesForLanguage(Language language)
 {
     QList<Country> result;
 
-    unsigned language_id = lang;
+    unsigned language_id = language;
     uint idx = locale_index[language_id];
 
-    if (idx == 0) {
+    if (language == C) {
         result << AnyCountry;
         return result;
     }
