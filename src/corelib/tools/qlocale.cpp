@@ -72,12 +72,12 @@
 #define CONVERSION_BUFF_SIZE 255
 
 #ifndef QT_QLOCALE_USES_FCVT
-Q_CORE_EXPORT char *qdtoa(double d, int mode, int ndigits, int *decpt,
-                        int *sign, char **rve, char **digits_str);
 static char *_qdtoa( NEEDS_VOLATILE double d, int mode, int ndigits, int *decpt,
                         int *sign, char **rve, char **digits_str);
-Q_CORE_EXPORT double qstrtod(const char *s00, char const **se, bool *ok);
 #endif
+Q_CORE_EXPORT char *qdtoa(double d, int mode, int ndigits, int *decpt,
+                        int *sign, char **rve, char **digits_str);
+Q_CORE_EXPORT double qstrtod(const char *s00, char const **se, bool *ok);
 Q_CORE_EXPORT qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
 static qulonglong qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok);
 
@@ -3812,14 +3812,8 @@ double QLocalePrivate::bytearrayToDouble(const char *num, bool *ok, bool *overfl
         return -qt_inf();
 
     bool _ok;
-#ifdef QT_QLOCALE_USES_FCVT
-    char *endptr;
-    double d = strtod(num, &endptr);
-    _ok = true; // the result will be that we don't report underflow in this case
-#else
     const char *endptr;
     double d = qstrtod(num, &endptr, &_ok);
-#endif
 
     if (!_ok) {
         // the only way strtod can fail with *endptr != '\0' on a non-empty
@@ -6527,5 +6521,24 @@ static char *_qdtoa( NEEDS_VOLATILE double d, int mode, int ndigits, int *decpt,
         *rve = s;
     return s0;
 }
+#else
+// NOT thread safe!
+Q_CORE_EXPORT char *qdtoa( double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp)
+{
+    if(rve)
+      *rve = 0;
+    if(resultp)
+      *resultp = 0;
+    if (mode == 3)
+        return fcvt(d, ndigits, decpt, sign);
+    return ecvt(d, ndigits, decpt, sign);
+}
 
+Q_CORE_EXPORT double qstrtod(const char *s00, const char **se, bool *ok)
+{
+    double ret = strtod(s00, se);
+    if(ok)
+        *ok = true; // the result will be that we don't report underflow in this case
+    return ret;
+}
 #endif // QT_QLOCALE_USES_FCVT
