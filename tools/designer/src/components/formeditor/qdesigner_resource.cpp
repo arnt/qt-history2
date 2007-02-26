@@ -1421,71 +1421,39 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
 
     if (qVariantCanConvert<EnumType>(value)) {
         const EnumType e = qvariant_cast<EnumType>(value);
-        const int v = e.value.toInt();
-        QMapIterator<QString, QVariant> it(e.items);
-        while (it.hasNext()) {
-            if (it.next().value().toInt() != v)
-                continue;
-
-            DomProperty *p = new DomProperty;
-            // check if we have a standard cpp set function
-            const QMetaObject *meta = object->metaObject();
-            const int pindex = meta->indexOfProperty(propertyName.toLatin1());
-            if (pindex != -1) {
-                const QMetaProperty meta_property = meta->property(pindex);
-                if (!meta_property.hasStdCppSet())
-                    p->setAttributeStdset(0);
-            }
-            p->setAttributeName(propertyName);
-
-            QString id = it.key();
-            if (lang)
-                id = lang->neutralEnumerator(id);
-
-            p->setElementEnum(id);
-            return applyProperStdSetAttribute(object, propertyName, p);
-        }
-
-        return 0;
-    } else if (qVariantCanConvert<FlagType>(value)) {
-        const FlagType f = qvariant_cast<FlagType>(value);
-        const uint v = f.value.toUInt();
-        QMapIterator<QString, QVariant> it(f.items);
-        QStringList keys;
-
-        while (it.hasNext()) {
-            const uint x = it.next().value().toUInt();
-
-            QString id = it.key();
-            if (lang)
-                id = lang->neutralEnumerator(id);
-
-            if (v == x) {
-                DomProperty *p = new DomProperty;
-                // check if we have a standard cpp set function
-                const QMetaObject *meta = object->metaObject();
-                const int pindex = meta->indexOfProperty(propertyName.toLatin1());
-                if (pindex != -1) {
-                    const QMetaProperty meta_property = meta->property(pindex);
-                    if (!meta_property.hasStdCppSet())
-                        p->setAttributeStdset(0);
-                }
-                p->setAttributeName(propertyName);
-
-                p->setElementSet(id);
-                return applyProperStdSetAttribute(object, propertyName, p);
-            }
-
-            if ((v & x) == x)
-                keys.push_back(id);
-        }
-
-        if (keys.isEmpty())
+        const QString id = e.id(lang);
+        if (id.isEmpty())
             return 0;
 
         DomProperty *p = new DomProperty;
+        // check if we have a standard cpp set function
+        const QMetaObject *meta = object->metaObject();
+        const int pindex = meta->indexOfProperty(propertyName.toLatin1());
+        if (pindex != -1) {
+            const QMetaProperty meta_property = meta->property(pindex);
+            if (!meta_property.hasStdCppSet())
+                p->setAttributeStdset(0);
+        }
         p->setAttributeName(propertyName);
-        p->setElementSet(keys.join(QLatin1String("|")));
+        p->setElementEnum(id);
+        return applyProperStdSetAttribute(object, propertyName, p);
+    } else if (qVariantCanConvert<FlagType>(value)) {
+        const FlagType f = qvariant_cast<FlagType>(value);
+        const QString flagString = f.flagString(lang);
+        if (flagString.isEmpty())
+            return 0;
+
+        DomProperty *p = new DomProperty;
+        // check if we have a standard cpp set function
+        const QMetaObject *meta = object->metaObject();
+        const int pindex = meta->indexOfProperty(propertyName.toLatin1());
+        if (pindex != -1) {
+            const QMetaProperty meta_property = meta->property(pindex);
+            if (!meta_property.hasStdCppSet())
+                p->setAttributeStdset(0);
+        }
+        p->setAttributeName(propertyName);
+        p->setElementSet(flagString);
         return applyProperStdSetAttribute(object, propertyName, p);
     }
 

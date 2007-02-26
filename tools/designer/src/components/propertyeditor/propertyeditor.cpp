@@ -223,10 +223,12 @@ void GraphicsPropertyEditor::populateCombo()
     const QStringList qrc_list = form->resourceFiles();
 
     m_combo->clear();
+    static const QString noIcon = tr("<no icon>");
+    static const QString noPixmap = tr("<no pixmap>");
 
     QDesignerIconCacheInterface *cache = m_core->iconCache();
     if (m_mode == Icon) {
-        m_combo->addItem(tr("<no icon>"));
+        m_combo->addItem(noIcon);
         const QList<QIcon> icon_list = cache->iconList();
         foreach (QIcon icon, icon_list) {
             const QString qrc_path = cache->iconToQrcPath(icon);
@@ -236,7 +238,7 @@ void GraphicsPropertyEditor::populateCombo()
                                 QVariant(icon));
         }
     } else {
-        m_combo->addItem(tr("<no pixmap>"));
+        m_combo->addItem(noPixmap);
         const QList<QPixmap> pixmap_list = cache->pixmapList();
         foreach (QPixmap pixmap, pixmap_list) {
             const QString qrc_path = cache->iconToQrcPath(pixmap);
@@ -621,38 +623,17 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
         IProperty *p = 0;
         if (qVariantCanConvert<FlagType>(value)) {
             FlagType f = qvariant_cast<FlagType>(value);
-
-            if (pname == QLatin1String("alignment")) {                                                
-                    p = new AlignmentProperty(f.items, Qt::Alignment(f.value.toInt()), pname);                
+            if (pname == QLatin1String("alignment")) {
+                p = new AlignmentProperty(f.items, Qt::Alignment(f.value.toInt()), pname);
             } else {
-                if (lang) {
-                    QMap<QString, QVariant> items;
-                    QMapIterator<QString, QVariant> it (f.items);
-                    while (it.hasNext()) {
-                        it.next();
-                        const QString id = lang->enumerator(it.key());
-                        items.insert(id, it.value());
-                    }
-                    f.items = items;
-                }
-
+                if (lang)
+                    f.remapKeys(lang);
                 p = new FlagsProperty(f.items, f.value.toInt(), pname);
             }
         } else if (qVariantCanConvert<EnumType>(value)) {
             EnumType e = qvariant_cast<EnumType>(value);
-
-            if (lang) {
-                QMap<QString, QVariant> items;
-                QMapIterator<QString, QVariant> it (e.items);
-                e.names.clear();
-                while (it.hasNext()) {
-                    it.next();
-                    QString id = lang->enumerator(it.key());
-                    items.insert(id, it.value());
-                    e.names.append(id);
-                }
-                e.items = items;
-            }
+            if (lang)
+                e.remapKeys(lang);
 
             p = new MapProperty(e.items, e.value, pname, e.names);
         }

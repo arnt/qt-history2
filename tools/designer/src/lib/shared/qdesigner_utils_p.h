@@ -27,6 +27,8 @@
 
 #include "shared_global_p.h"
 
+class QDesignerLanguageExtension;
+
 #include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtCore/QVariant>
@@ -37,20 +39,34 @@ namespace qdesigner_internal {
 
 QDESIGNER_SHARED_EXPORT void designerWarning(const QString &message);
 
-class EnumType
+class QDESIGNER_SHARED_EXPORT EnumType
 {
 public:
+    typedef QMap<QString, QVariant> ItemMap;
+
+    QString id() const;
+    QString id(const QDesignerLanguageExtension *lang) const;
+
+    void remapKeys(const QDesignerLanguageExtension *lang);
+
     QVariant value;
-    QMap<QString, QVariant> items;
+    ItemMap items;
     QStringList names;
 };
 
 
-class FlagType
+class QDESIGNER_SHARED_EXPORT FlagType
 {
 public:
+    typedef QMap<QString, QVariant> ItemMap;
+
+    QStringList flags(const QDesignerLanguageExtension *lang) const;
+    QString flagString(const QDesignerLanguageExtension *lang) const;
+
+    void remapKeys(const QDesignerLanguageExtension *lang);
+
     QVariant value;
-    QMap<QString, QVariant> items;
+    ItemMap items;
 };
 
 } // namespace qdesigner_internal
