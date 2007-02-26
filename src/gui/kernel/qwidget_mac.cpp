@@ -40,7 +40,7 @@
 
 #include "qwidget_p.h"
 
-#define XCOORD_MAX 32767
+#define XCOORD_MAX 16383
 #define WRECT_MAX 8191
 
 
