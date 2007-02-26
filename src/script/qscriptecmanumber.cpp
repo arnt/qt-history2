@@ -51,7 +51,6 @@ Number::Number(QScriptEnginePrivate *eng):
     flags = QScriptValue::Undeletable
             | QScriptValue::ReadOnly
             | QScriptValue::SkipInEnumeration;
-
     ctor.setProperty(QLatin1String("NaN"),
                      QScriptValueImpl(eng, qSNan()), flags);
     ctor.setProperty(QLatin1String("NEGATIVE_INFINITY"),
@@ -60,8 +59,15 @@ Number::Number(QScriptEnginePrivate *eng):
                      QScriptValueImpl(eng, qInf()), flags);
     ctor.setProperty(QLatin1String("MAX_VALUE"),
                      QScriptValueImpl(eng, 1.7976931348623158e+308), flags);
+#ifdef __INTEL_COMPILER
+# pragma warning( push )
+# pragma warning(disable: 239)
+#endif
     ctor.setProperty(QLatin1String("MIN_VALUE"),
                      QScriptValueImpl(eng, 5e-324), flags);
+#ifdef __INTEL_COMPILER
+# pragma warning( pop )
+#endif
 }
 
 Number::~Number()
