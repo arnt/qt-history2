@@ -6536,7 +6536,7 @@ Q_CORE_EXPORT char *qdtoa( double d, int mode, int ndigits, int *decpt, int *sig
 
 Q_CORE_EXPORT double qstrtod(const char *s00, const char **se, bool *ok)
 {
-    double ret = strtod(s00, se);
+    double ret = strtod((char*)s00, (char**)se);
     if(ok)
         *ok = true; // the result will be that we don't report underflow in this case
     return ret;
