@@ -383,18 +383,61 @@ static int (*original_xio_errhandler)(Display *dpy);
 
 static int qt_x_errhandler(Display *dpy, XErrorEvent *err)
 {
-    if (err->error_code == BadWindow) {
-        X11->seen_badwindow = true;
-        if (err->request_code == 25 /* X_SendEvent */ && X11->xdndHandleBadwindow())
+    switch (err->error_code) {
+    case BadAtom:
+        if (err->request_code == 20 /* X_GetProperty */
+            && (err->resourceid == XA_RESOURCE_MANAGER
+                || err->resourceid == XA_RGB_DEFAULT_MAP
+                || err->resourceid == ATOM(_NET_SUPPORTED)
+                || err->resourceid == ATOM(_NET_SUPPORTING_WM_CHECK)
+                || err->resourceid == ATOM(KDE_FULL_SESSION)
+                || err->resourceid == ATOM(KWIN_RUNNING)
+                || err->resourceid == ATOM(XdndProxy)
+                || err->resourceid == ATOM(XdndAware))) {
+            // Perhaps we're running under SECURITY reduction? :/
             return 0;
+        }
+        break;
+
+    case BadWindow:
+        if (err->request_code == 2 /* X_ChangeWindowAttributes */
+            || err->request_code == 38 /* X_QueryPointer */) {
+            for (int i = 0; i < ScreenCount(dpy); ++i) {
+                if (err->resourceid == RootWindow(dpy, i)) {
+                    // Perhaps we're running under SECURITY reduction? :/
+                    return 0;
+                }
+            }
+        }
+        X11->seen_badwindow = true;
+        if (err->request_code == 25 /* X_SendEvent */) {
+            for (int i = 0; i < ScreenCount(dpy); ++i) {
+                if (err->resourceid == RootWindow(dpy, i)) {
+                    // Perhaps we're running under SECURITY reduction? :/
+                    return 0;
+                }
+            }
+            if (X11->xdndHandleBadwindow()) {
+                qDebug("xdndHandleBadwindow returned true");
+                return 0;
+            }
+        }
         if (X11->ignore_badwindow)
             return 0;
-    } else if (err->request_code == X11->xinput_major
-                && err->error_code == (X11->xinput_errorbase + XI_BadDevice)
-                && err->minor_code == 3 /* X_OpenDevice */) {
-        return 0;
-    } else if (err->error_code == BadMatch && err->request_code == 42 /* X_SetInputFocus */) {
-        return 0;
+        break;
+
+    case BadMatch:
+        if (err->request_code == 42 /* X_SetInputFocus */)
+            return 0;
+        break;
+
+    default:
+        if (err->request_code == X11->xinput_major
+            && err->error_code == (X11->xinput_errorbase + XI_BadDevice)
+            && err->minor_code == 3 /* X_OpenDevice */) {
+            return 0;
+        }
+        break;
     }
 
     char errstr[256];
@@ -766,11 +809,14 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
 
         while (after > 0) {
             uchar *data = 0;
-            XGetWindowProperty(X11->display, QX11Info::appRootWindow(0),
-                               ATOM(RESOURCE_MANAGER),
-                               offset, 8192, False, AnyPropertyType,
-                               &type, &format, &nitems, &after,
-                               &data);
+            if (XGetWindowProperty(X11->display, QX11Info::appRootWindow(0),
+                                   ATOM(RESOURCE_MANAGER),
+                                   offset, 8192, False, AnyPropertyType,
+                                   &type, &format, &nitems, &after,
+                                   &data) != Success) {
+                res = QString();
+                break;
+            }
             if (type == XA_STRING)
                 res += QString::fromLatin1((char*)data);
             else

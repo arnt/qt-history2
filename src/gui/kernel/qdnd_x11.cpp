@@ -287,7 +287,7 @@ static WId xdndProxy(WId w)
     Atom type = XNone;
     int f;
     unsigned long n, a;
-    WId *proxy_id_ptr;
+    WId *proxy_id_ptr = 0;
     XGetWindowProperty(X11->display, w, ATOM(XdndProxy), 0, 1, False,
                        XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id_ptr);
     WId proxy_id = 0;
