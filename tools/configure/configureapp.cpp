@@ -191,9 +191,9 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "STL" ]		    = "yes";
     dictionary[ "EXCEPTIONS" ]	    = "yes";
     dictionary[ "RTTI" ]	    = "yes";
-    dictionary[ "MMX" ]             = "yes";
-    dictionary[ "SSE" ]             = "yes";
-    dictionary[ "SSE2" ]            = "yes";
+    dictionary[ "MMX" ]         = "auto";
+    dictionary[ "SSE" ]         = "auto";
+    dictionary[ "SSE2" ]        = "auto";
     
     QString version;
     QFile qglobal_h(sourcePath + "/src/corelib/global/qglobal.h");
@@ -1285,6 +1285,8 @@ bool Configure::checkAvailability(const QString &part)
         available = findFile("sqlite.h") && findFile("sqlite.lib");
     else if (part == "SQL_IBASE")
         available = findFile("ibase.h") && (findFile("gds32_ms.lib") || findFile("gds32.lib"));
+    else if (part == "MMX" || part == "SSE" || part == "SSE2")
+        available = (dictionary.value("QMAKESPEC") != "win32-msvc");
 
     return available;
 }
@@ -1346,6 +1348,12 @@ void Configure::autoDetection()
         dictionary["SQL_SQLITE2"] = checkAvailability("SQL_SQLITE2") ? defaultTo("SQL_SQLITE2") : "no";
     if (dictionary["SQL_IBASE"] == "auto")
         dictionary["SQL_IBASE"] = checkAvailability("SQL_IBASE") ? defaultTo("SQL_IBASE") : "no";
+    if (dictionary["MMX"] == "auto")
+        dictionary["MMX"] = checkAvailability("MMX") ? "yes" : "no";
+    if (dictionary["SSE"] == "auto")
+        dictionary["SSE"] = checkAvailability("SSE") ? "yes" : "no";
+    if (dictionary["SSE2"] == "auto")
+        dictionary["SSE2"] = checkAvailability("SSE2") ? "yes" : "no";
 
     // Mark all unknown "auto" to the default value..
     for (QMap<QString,QString>::iterator i = dictionary.begin(); i != dictionary.end(); ++i)
