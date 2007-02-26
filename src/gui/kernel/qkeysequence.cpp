@@ -273,7 +273,7 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
 
     \value NativeText The key sequence as a platform specific string.
     This means that it will be shown translated and on the Mac it will
-    resemble a keysequence from the menu bar. This enum is best used when you
+    resemble a key sequence from the menu bar. This enum is best used when you
     want to display the string to the user.
 
     \value PortableText The key sequence is given in a "portable" format,
