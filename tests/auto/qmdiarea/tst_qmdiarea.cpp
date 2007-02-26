@@ -69,6 +69,7 @@ private slots:
     void resizeMaximizedChildWindows_data();
     void resizeMaximizedChildWindows();
     void focusWidgetAfterAddSubWindow();
+    void dontMaximizeSubWindowOnActivation();
 
 private:
     QMdiSubWindow *activeWindow;
@@ -1200,6 +1201,7 @@ void tst_QMdiArea::resizeMaximizedChildWindows()
     qt_x11_wait_for_window_manager(&workspace);
 #endif
     workspace.resize(startSize, startSize);
+    workspace.setOption(QMdiArea::DontMaximizeSubWindowOnActivation);
     QSize workspaceSize = workspace.size();
     QVERIFY(workspaceSize.isValid());
     QCOMPARE(workspaceSize, QSize(startSize, startSize));
@@ -1251,6 +1253,86 @@ void tst_QMdiArea::focusWidgetAfterAddSubWindow()
     view->show();
     qApp->setActiveWindow(&mdiArea);
     QCOMPARE(qApp->focusWidget(), lineEdit2);
+}
+
+void tst_QMdiArea::dontMaximizeSubWindowOnActivation()
+{
+    QMdiArea mdiArea;
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+    qApp->setActiveWindow(&mdiArea);
+
+    // Add one maximized window.
+    mdiArea.addSubWindow(new QWidget)->showMaximized();
+    QVERIFY(mdiArea.activeSubWindow());
+    QVERIFY(mdiArea.activeSubWindow()->isMaximized());
+
+    // Add few more windows and verify that they are maximized.
+    for (int i = 0; i < 5; ++i) {
+        QMdiSubWindow *window = mdiArea.addSubWindow(new QWidget);
+        window->show();
+        QVERIFY(window->isMaximized());
+        qApp->processEvents();
+    }
+
+    // Verify that activated windows still are maximized on activation.
+    QList<QMdiSubWindow *> subWindows = mdiArea.subWindowList();
+    for (int i = 0; i < subWindows.count(); ++i) {
+        mdiArea.activateNextSubWindow();
+        QMdiSubWindow *window = subWindows.at(i);
+        QCOMPARE(mdiArea.activeSubWindow(), window);
+        QVERIFY(window->isMaximized());
+        qApp->processEvents();
+    }
+
+    // Restore active window and verify that other windows aren't
+    // maximized on activation.
+    mdiArea.activeSubWindow()->showNormal();
+    for (int i = 0; i < subWindows.count(); ++i) {
+        mdiArea.activateNextSubWindow();
+        QMdiSubWindow *window = subWindows.at(i);
+        QCOMPARE(mdiArea.activeSubWindow(), window);
+        QVERIFY(!window->isMaximized());
+        qApp->processEvents();
+    }
+
+    // Enable 'DontMaximizedSubWindowOnActivation' and maximize the active window.
+    mdiArea.setOption(QMdiArea::DontMaximizeSubWindowOnActivation);
+    mdiArea.activeSubWindow()->showMaximized();
+    int indexOfMaximized = subWindows.indexOf(mdiArea.activeSubWindow());
+
+    // Verify that windows are not maximized on activation.
+    for (int i = 0; i < subWindows.count(); ++i) {
+        mdiArea.activateNextSubWindow();
+        QMdiSubWindow *window = subWindows.at(i);
+        QCOMPARE(mdiArea.activeSubWindow(), window);
+        if (indexOfMaximized != i)
+            QVERIFY(!window->isMaximized());
+        qApp->processEvents();
+    }
+    QVERIFY(mdiArea.activeSubWindow()->isMaximized());
+
+    // Minimize all windows.
+    foreach (QMdiSubWindow *window, subWindows) {
+        window->showMinimized();
+        QVERIFY(window->isMinimized());
+        qApp->processEvents();
+    }
+
+    // Disable 'DontMaximizedSubWindowOnActivation' and maximize the active window.
+    mdiArea.setOption(QMdiArea::DontMaximizeSubWindowOnActivation, false);
+    mdiArea.activeSubWindow()->showMaximized();
+
+    // Verify that minimized windows are maximized on activation.
+    for (int i = 0; i < subWindows.count(); ++i) {
+        mdiArea.activateNextSubWindow();
+        QMdiSubWindow *window = subWindows.at(i);
+        QCOMPARE(mdiArea.activeSubWindow(), window);
+        QVERIFY(window->isMaximized());
+        qApp->processEvents();
+    }
 }
 
 QTEST_MAIN(tst_QMdiArea)
