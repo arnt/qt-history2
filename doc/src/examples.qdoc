@@ -168,6 +168,7 @@
     \o \l{tools/regexp}{RegExp}
     \o \l{tools/settingseditor}{Settings Editor}
     \o \l{tools/treemodelcompleter}{Tree Model Completer}
+    \o \l{tools/undoframework}{Undo Framework}\raisedaster
     \endlist
 
     \section1 Thread Examples

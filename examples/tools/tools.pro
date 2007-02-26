@@ -8,7 +8,8 @@ SUBDIRS       = codecs \
                 plugandpaint \
                 regexp \
                 settingseditor \
-                treemodelcompleter
+                treemodelcompleter \
+		undoframework
 !cross_compile:SUBDIRS += qtdemo 
 
 # install
