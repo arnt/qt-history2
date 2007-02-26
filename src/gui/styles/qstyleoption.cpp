@@ -1864,7 +1864,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     \brief the text alignment for the text in the QProgressBar
 
     This can be used as a guide on where the text should be in the
-    progressbar. The default value is Qt::AlignLeft.
+    progress bar. The default value is Qt::AlignLeft.
 */
 
 /*!

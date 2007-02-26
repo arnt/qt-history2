@@ -1166,7 +1166,7 @@ static void delete_d( const Q3Ftp* foo )
     \endcode
 
     The dataTransferProgress() signal in the above example is useful
-    if you want to show a \link QProgressBar progressbar \endlink to
+    if you want to show a \link QProgressBar progress bar \endlink to
     inform the user about the progress of the download. The
     readyRead() signal tells you that there is data ready to be read.
     The amount of data can be queried then with the bytesAvailable()

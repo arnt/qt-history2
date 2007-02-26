@@ -1075,7 +1075,7 @@ QString Q3HttpRequestHeader::toString() const
 
     The dataSendProgress() and dataReadProgress() signals in the above
     example are useful if you want to show a \link QProgressBar
-    progressbar\endlink to inform the user about the progress of the
+    progress bar\endlink to inform the user about the progress of the
     download. The second argument is the total size of data. In
     certain cases it is not possible to know the total amount in
     advance, in which case the second argument is 0. (If you connect

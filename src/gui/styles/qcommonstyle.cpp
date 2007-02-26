@@ -963,7 +963,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 }
 
                 // Draw the last partial chunk to fill up the
-                // progressbar entirely
+                // progress bar entirely
                 if (nu < tnu) {
                     int pixels_left = w - (nu * unit_width);
                     int offset = reverse ? x0 + x + unit_width-pixels_left : x0 + x;

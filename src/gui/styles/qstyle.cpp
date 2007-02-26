@@ -814,8 +814,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \o{1,2} \l CE_ProgressBarContents, \l CE_ProgressBarLabel,
                  \l CE_ProgressBarGroove
          \o{1,2} \l QStyleOptionProgressBar
-         \o \l State_Enabled \o Set if the progressbar is enabled.
-    \row \o \l State_HasFocus \o Set if the progressbar has input focus.
+         \o \l State_Enabled \o Set if the progress bar is enabled.
+    \row \o \l State_HasFocus \o Set if the progress bar has input focus.
     \row \o \l CE_Header, \l CE_HeaderSection, \l CE_HeaderLabel \o \l QStyleOptionHeader \o \o
     \row \o{1,7} \l CE_ToolButtonLabel
          \o{1,7} \l QStyleOptionToolButton

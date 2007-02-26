@@ -212,7 +212,7 @@ private slots:
 public:
     QPointer<QPushButton> defaultButton; //default pushbuttons
     int timerID;
-    QList<QPointer<QWidget> > progressBars; //existing progressbars that need animation
+    QList<QPointer<QWidget> > progressBars; //existing progress bars that need animation
 
     struct ButtonState {
         int frame;

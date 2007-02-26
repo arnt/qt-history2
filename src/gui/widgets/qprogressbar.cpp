@@ -232,7 +232,7 @@ void QProgressBar::reset()
 
     When setting this property, the \l maximum is adjusted if
     necessary to ensure that the range remains valid. If the
-    current value falls outside the new range, the progressbar is reset
+    current value falls outside the new range, the progress bar is reset
     with reset().
 */
 void QProgressBar::setMinimum(int minimum)
@@ -252,7 +252,7 @@ int QProgressBar::minimum() const
 
     When setting this property, the \l minimum is adjusted if
     necessary to ensure that the range remains valid. If the
-    current value falls outside the new range, the progressbar is reset
+    current value falls outside the new range, the progress bar is reset
     with reset().
 */
 
@@ -295,13 +295,13 @@ int QProgressBar::value() const
 }
 
 /*!
-    Sets the progressbar's minimum and maximum values to \a minimum and
+    Sets the progress bar's minimum and maximum values to \a minimum and
     \a maximum respectively.
 
     If \a maximum is smaller than \a minimum, \a minimum becomes the only
     legal value.
 
-    If the current value falls outside the new range, the progressbar is reset
+    If the current value falls outside the new range, the progress bar is reset
     with reset().
 
     \sa minimum maximum
