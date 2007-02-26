@@ -244,11 +244,11 @@ bool QHttpSocketEngine::waitForRead(int msecs, bool *timedOut) const
 
     QTime stopWatch;
     stopWatch.start();
-    
+
     // Wait for more data if nothing is available.
     if (!d->socket->bytesAvailable()) {
         if (!d->socket->waitForReadyRead(qt_timeout_value(msecs, stopWatch.elapsed()))) {
-            if (d->socket->state() == QAbstractSocket::UnconnectedState) 
+            if (d->socket->state() == QAbstractSocket::UnconnectedState)
                 return true;
             setError(d->socket->error(), d->socket->errorString());
             if (timedOut && d->socket->error() == QAbstractSocket::SocketTimeoutError)
@@ -405,14 +405,14 @@ void QHttpSocketEngine::slotSocketConnected()
 void QHttpSocketEngine::slotSocketDisconnected()
 {
     Q_D(QHttpSocketEngine);
-    if (d->state != SendAuthentication) 
+    if (d->state != SendAuthentication)
         setState(QAbstractSocket::UnconnectedState);
 }
 
 void QHttpSocketEngine::slotSocketReadNotification()
 {
     Q_D(QHttpSocketEngine);
-    if (d->state != Connected && d->socket->bytesAvailable() == 0) 
+    if (d->state != Connected && d->socket->bytesAvailable() == 0)
         return;
 
     if (d->state == Connected) {
@@ -426,9 +426,9 @@ void QHttpSocketEngine::slotSocketReadNotification()
     if (d->state == ReadResponseContent) {
         char dummybuffer[4096];
         while (d->pendingResponseData) {
-            int read = d->socket->read(dummybuffer, qMin(sizeof(dummybuffer), d->pendingResponseData));
+            int read = d->socket->read(dummybuffer, qMin(sizeof(dummybuffer), (size_t)d->pendingResponseData));
             dummybuffer[read] = 0;
-            
+
             if (read == 0)
                 return;
             if (read == -1) {
@@ -464,7 +464,7 @@ void QHttpSocketEngine::slotSocketReadNotification()
         d->socket->close();
         setState(QAbstractSocket::UnconnectedState);
         setError(QAbstractSocket::ConnectionRefusedError, QAbstractSocket::tr("Connection refused"));
-    } else if (d->readBuffer.startsWith("HTTP/1.0 407")) {        
+    } else if (d->readBuffer.startsWith("HTTP/1.0 407")) {
         if (d->authenticator.isNull())
             d->authenticator.detach();
         QAuthenticatorPrivate *priv = QAuthenticatorPrivate::getPrivate(d->authenticator);
@@ -537,7 +537,7 @@ void QHttpSocketEngine::emitPendingReadNotification()
 {
     Q_D(QHttpSocketEngine);
     d->readNotificationPending = false;
-    if (d->readNotificationEnabled) 
+    if (d->readNotificationEnabled)
         emit readNotification();
 }
 
@@ -545,7 +545,7 @@ void QHttpSocketEngine::emitPendingWriteNotification()
 {
     Q_D(QHttpSocketEngine);
     d->writeNotificationPending = false;
-    if (d->writeNotificationEnabled) 
+    if (d->writeNotificationEnabled)
         emit writeNotification();
 }
 
@@ -593,7 +593,7 @@ QAbstractSocketEngine *QHttpSocketEngineHandler::createSocketEngine(const QHostA
     if (socketType != QAbstractSocket::TcpSocket)
         return 0;
 
-    if (address == QHostAddress::LocalHost || address == QHostAddress::LocalHostIPv6) 
+    if (address == QHostAddress::LocalHost || address == QHostAddress::LocalHostIPv6)
         return 0;
 
     // find proxy info
@@ -602,7 +602,7 @@ QAbstractSocketEngine *QHttpSocketEngineHandler::createSocketEngine(const QHostA
         return 0;
 
     QNetworkProxy proxy = abstractSocket->proxy();
-    if (proxy.type() == QNetworkProxy::DefaultProxy) 
+    if (proxy.type() == QNetworkProxy::DefaultProxy)
         proxy = QNetworkProxy::applicationProxy();
 
     if (proxy.type() != QNetworkProxy::HttpProxy)
