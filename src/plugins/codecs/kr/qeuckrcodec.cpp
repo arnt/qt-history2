@@ -31,6 +31,7 @@
 
 #include "qeuckrcodec.h"
 #include "cp949codetbl.h"
+#include <stdlib.h>
 
 #ifndef QT_NO_TEXTCODEC
 unsigned int qt_Ksc5601ToUnicode(unsigned int code);
