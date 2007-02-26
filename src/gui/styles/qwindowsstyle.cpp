@@ -139,7 +139,7 @@ bool QWindowsStyle::eventFilter(QObject *o, QEvent *e)
         if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Alt) {
             widget = widget->window();
 
-            // Update state and repaint the menubars.
+            // Update state and repaint the menu bars.
             d->alt_down = false;
 #ifndef QT_NO_MENUBAR
             QList<QMenuBar *> l = qFindChildren<QMenuBar *>(widget);
@@ -983,8 +983,8 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
                     if (w && w != widget)
                         menuBar = qFindChild<QMenuBar *>(w);
                 }
-                // If we paint a menubar draw underlines if it has focus, or if alt is down,
-                // or if a popup menu belonging to the menubar is active and paints underlines
+                // If we paint a menu bar draw underlines if it has focus, or if alt is down,
+                // or if a popup menu belonging to the menu bar is active and paints underlines
                 if (menuBar) {
                     if (menuBar->hasFocus() || d->altDown())
                         ret = 1;

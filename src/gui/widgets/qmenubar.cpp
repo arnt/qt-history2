@@ -528,23 +528,23 @@ void QMenuBar::initStyleOption(QStyleOptionMenuItem *option, const QAction *acti
     pressed.
 
     \table
-    \row \o \inlineimage plastique-menubar.png A menubar shown in the Plastique widget style.
+    \row \o \inlineimage plastique-menubar.png A menu bar shown in the Plastique widget style.
     \o The \l{QPlastiqueStyle}{Plastique widget style}, like most other styles,
     handles the \gui{Help} menu in the same way as it handles any other menu.
-    \row \o \inlineimage motif-menubar.png A menubar shown in the Motif widget style.
+    \row \o \inlineimage motif-menubar.png A menu bar shown in the Motif widget style.
     \o The \l{QMotifStyle}{Motif widget style} treats \gui{Help} menus in a
     special way, placing them at right-hand end of the menu bar.
     \endtable
 
     \section1 QMenuBar on Qt/Mac
 
-    QMenuBar on Qt/Mac is a wrapper for using the system-wide menubar.
-    If you have multiple menubars in one dialog the outermost menubar
+    QMenuBar on Qt/Mac is a wrapper for using the system-wide menu bar.
+    If you have multiple menu bars in one dialog the outermost menu bar
     (normally inside a widget with widget flag Qt::Window) will
-    be used for the system-wide menubar.
+    be used for the system-wide menu bar.
 
-    Qt/Mac also provides a menubar merging feature to make QMenuBar
-    conform more closely to accepted Mac OS X menubar layout. The
+    Qt/Mac also provides a menu bar merging feature to make QMenuBar
+    conform more closely to accepted Mac OS X menu bar layout. The
     merging functionality is based on string matching the title of a
     QMenu entry. These strings are translated (using QObject::tr()) in
     the "QMenuBar" context. If an entry is moved its slots will still
@@ -569,8 +569,8 @@ void QMenuBar::initStyleOption(QStyleOptionMenuItem *option, const QAction *acti
     You can override this behavior by using the QAction::menuRole() property.
 
     If you wish to make all windows in a Mac application share the
-    same menubar, you need to create a menu bar that does not have a
-    parent. The menubar is created like this:
+    same menu bar, you need to create a menu bar that does not have a
+    parent. The menu bar is created like this:
 
     \code
 	QMenuBar *menuBar = new QMenuBar(0);
@@ -684,7 +684,7 @@ QAction *QMenuBar::addAction(const QString &text, const QObject *receiver, const
 }
 
 /*!
-  Appends a new QMenu with \a title to the menubar. The menubar
+  Appends a new QMenu with \a title to the menu bar. The menu bar
   takes ownership of the menu. Returns the new menu.
 
   \sa QWidget::addAction() QMenu::menuAction()
@@ -697,7 +697,7 @@ QMenu *QMenuBar::addMenu(const QString &title)
 }
 
 /*!
-  Appends a new QMenu with \a icon and \a title to the menubar. The menubar
+  Appends a new QMenu with \a icon and \a title to the menu bar. The menu bar
   takes ownership of the menu. Returns the new menu.
 
   \sa QWidget::addAction() QMenu::menuAction()
@@ -711,7 +711,7 @@ QMenu *QMenuBar::addMenu(const QIcon &icon, const QString &title)
 }
 
 /*!
-  Appends \a menu to the menubar. Returns the menu's menuAction().
+  Appends \a menu to the menu bar. Returns the menu's menuAction().
 
   \sa QWidget::addAction() QMenu::menuAction()
 */
@@ -736,7 +736,7 @@ QAction *QMenuBar::addSeparator()
 /*!
     This convenience function creates a new separator action, i.e. an
     action with QAction::isSeparator() returning true. The function inserts
-    the newly created action into this menubar's list of actions before
+    the newly created action into this menu bar's list of actions before
     action \a before and returns it.
 
     \sa QWidget::insertAction(), addSeparator()

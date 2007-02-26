@@ -409,7 +409,7 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
     // Unhighlight the highlighted menu item before triggering the action to 
     // prevent items from staying highlighted while a modal dialog is shown.
     // This also fixed the problem that parentless modal dialogs leave
-    // the menu item highlighted (since the menubar is cleared for these types of dialogs).  
+    // the menu item highlighted (since the menu bar is cleared for these types of dialogs).  
     if (action_e == QAction::Trigger)
         HiliteMenu(0);
         
@@ -983,7 +983,7 @@ QMenuPrivate::macMenu(MenuRef merge)
 /*!
     \internal
 
-    This function will return the MenuRef used to create the native menubar
+    This function will return the MenuRef used to create the native menu bar
     bindings. This MenuRef may be referenced in the Menu Manager, or this
     can be used to create native dock menus.
 
@@ -1184,7 +1184,7 @@ MenuRef QMenuBarPrivate::macMenu()
 /*!
     \internal
 
-    This function will return the MenuRef used to create the native menubar
+    This function will return the MenuRef used to create the native menu bar
     bindings. This MenuRef is then set as the root menu for the Menu
     Manager.
 
@@ -1197,8 +1197,8 @@ MenuRef QMenuBar::macMenu() {  return d_func()->macMenu(); }
 /*!
   \internal
 
-  This function will update the current menubar and set it as the
-  active menubar in the Menu Manager.
+  This function will update the current menu bar and set it as the
+  active menu bar in the Menu Manager.
 
   \warning This function is not portable.
 
@@ -1210,7 +1210,7 @@ bool QMenuBar::macUpdateMenuBar()
         return true;
 
     QMenuBar *mb = 0;
-    //find a menubar
+    //find a menu bar
     QWidget *w = qApp->activeWindow();
     if (!w) {
         WindowClass c;

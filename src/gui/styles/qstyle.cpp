@@ -789,7 +789,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \o \l State_Enabled \o The item is enabled.
     \row \o \l State_DownArrow \o Indicates that a scroll down arrow should be drawn.
     \row \o \l State_UpArrow \o Indicates that a scroll up arrow should be drawn
-    \row \o \l State_HasFocus \o Set if the menubar has input focus.
+    \row \o \l State_HasFocus \o Set if the menu bar has input focus.
     \row \o{1,5} \l CE_PushButton, \l CE_PushButtonBevel, \l CE_PushButtonLabel
          \o{1,5} \l QStyleOptionButton
          \o \l State_Enabled \o Set if the button is enabled.
@@ -1217,10 +1217,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_DockWidgetFrameWidth  Frame width of a dock window.
     \value PM_DockWidgetTitleMargin Margin of the dock window title.
 
-    \value PM_MenuBarPanelWidth  Frame width of a menubar, defaults to PM_DefaultFrameWidth.
-    \value PM_MenuBarItemSpacing  Spacing between menubar items.
-    \value PM_MenuBarHMargin  Spacing between menubar items and left/right of bar.
-    \value PM_MenuBarVMargin  Spacing between menubar items and top/bottom of bar.
+    \value PM_MenuBarPanelWidth  Frame width of a menu bar, defaults to PM_DefaultFrameWidth.
+    \value PM_MenuBarItemSpacing  Spacing between menu bar items.
+    \value PM_MenuBarHMargin  Spacing between menu bar items and left/right of bar.
+    \value PM_MenuBarVMargin  Spacing between menu bar items and top/bottom of bar.
 
     \value PM_ToolBarFrameWidth  Width of the frame around toolbars.
     \value PM_ToolBarHandleExtent Width of a toolbar handle in a
@@ -1471,7 +1471,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         the print dialog, as done on Windows.
 
     \value SH_MainWindow_SpaceBelowMenuBar One or two pixel space between
-        the menubar and the dockarea, as done on Windows.
+        the menu bar and the dockarea, as done on Windows.
 
     \value SH_FontDialog_SelectAssociatedText Select the text in the
         line edit, or when selecting an item from the listbox, or when
@@ -1507,7 +1507,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_Menu_MouseTracking  Mouse tracking in popup menus.
 
-    \value SH_MenuBar_MouseTracking  Mouse tracking in menubars.
+    \value SH_MenuBar_MouseTracking  Mouse tracking in menu bars.
 
     \value SH_Menu_FillScreenWithScroll Whether scrolling popups
        should fill the screen as they are scrolled.
@@ -1581,7 +1581,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SH_ToolTipLabel_Opacity  An integer indicating the opacity for
     the tip label, 0 is completely transparent, 255 is completely
     opaque.
-    \value SH_DrawMenuBarSeparator  Indicates whether or not the menubar draws separators.
+    \value SH_DrawMenuBarSeparator  Indicates whether or not the menu bar draws separators.
     \value SH_TitleBar_ModifyNotification  Indicates if the titlebar should show
     a '*' for windows that are modified.
 
@@ -1591,8 +1591,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     Custom values must be greater than this value.
 
     \value SH_MenuBar_DismissOnSecondClick A boolean indicating if a menu in
-    the menubar should be dismissed when it is clicked on a second time. (Example:
-    Clicking and releasing on the File Menu in a menubar and then
+    the menu bar should be dismissed when it is clicked on a second time. (Example:
+    Clicking and releasing on the File Menu in a menu bar and then
     immediately clicking on the File Menu again.)
 
     \value SH_MessageBox_UseBorderForButtonSpacing A boolean indicating what the to

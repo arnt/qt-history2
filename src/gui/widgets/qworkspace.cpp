@@ -1887,7 +1887,7 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
 
 static QMenuBar *findMenuBar(QWidget *w)
 {
-    // don't search recursively to avoid finding a menubar of a
+    // don't search recursively to avoid finding a menu bar of a
     // mainwindow that happens to be a workspace window (like
     // a mainwindow in designer)
     QList<QObject *> children = w->children();

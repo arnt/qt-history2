@@ -417,7 +417,7 @@ void QMainWindow::setMenuBar(QMenuBar *menuBar)
     \since 4.2
 
     Returns the menu bar for the main window. This function returns
-    null if a menubar hasn't been constructed yet.
+    null if a menu bar hasn't been constructed yet.
 */
 QWidget *QMainWindow::menuWidget() const
 {
@@ -1194,7 +1194,7 @@ bool QMainWindow::isSeparator(const QPoint &pos) const
 void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
     // only show the context menu for direct QDockWidget and QToolBar
-    // children and for the menubar as well
+    // children and for the menu bar as well
     QWidget *child = childAt(event->pos());
     while (child && child != this) {
         if (QMenuBar *mb = qobject_cast<QMenuBar *>(child)) {

@@ -1245,7 +1245,7 @@ bool QKeySequence::isDetached() const
     If the key sequence has no keys, an empty string is returned.
 
     On Mac OS X, the string returned resembles the sequence that is
-    shown in the menubar.
+    shown in the menu bar.
 
     \sa fromString()
 */
