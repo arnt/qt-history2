@@ -18,6 +18,8 @@
 #include <qdesigner_utils_p.h>
 
 #include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
 
 namespace qdesigner_internal {
 

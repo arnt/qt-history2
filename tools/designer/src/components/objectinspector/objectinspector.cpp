@@ -391,16 +391,20 @@ ObjectInspector::ItemList ObjectInspector::findItemsOfObject(QObject *o) const
 bool ObjectInspector::selectObject(QObject *o)
 {
 
+    	qDebug() << "s " << o;
     if (!core()->metaDataBase()->item(o))
         return false;
 
     const ItemList items = findItemsOfObject(o);
-    if (items.empty())
+    if (items.empty()) {
+	qDebug() << "e";	
         return false;
+    }
 
     // Change in selection?
     const  ItemList currentSelectedItems = m_treeWidget->selectedItems();
     if (!currentSelectedItems.empty() && currentSelectedItems.toSet() == items.toSet()) {
+	qDebug() << "m";
         return true;
     }
     // do select and update
@@ -410,6 +414,7 @@ bool ObjectInspector::selectObject(QObject *o)
         (*it)->setSelected(true);
     }
     slotSelectionChanged();
+    	qDebug() << "s";
     return true;
 }
 
