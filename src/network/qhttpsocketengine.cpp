@@ -40,11 +40,13 @@ bool QHttpSocketEngine::initialize(QAbstractSocket::SocketType type, QAbstractSo
     setSocketType(type);
     d->socket = new QTcpSocket(this);
 
+#ifndef QT_NO_NETWORKPROXY
     // Explicitly disable proxying on the proxy socket itself to avoid
     // unwanted recursion.
     QNetworkProxy proxy;
     proxy.setType(QNetworkProxy::NoProxy);
     d->socket->setProxy(proxy);
+#endif
 
     // Intercept all the signals.
     connect(d->socket, SIGNAL(connected()),
@@ -70,6 +72,7 @@ bool QHttpSocketEngine::initialize(int, QAbstractSocket::SocketState)
     return false;
 }
 
+#ifndef QT_NO_NETWORKPROXY
 void QHttpSocketEngine::setProxy(const QNetworkProxy &proxy)
 {
     Q_D(QHttpSocketEngine);
@@ -81,6 +84,7 @@ void QHttpSocketEngine::setProxy(const QNetworkProxy &proxy)
     if (!password.isEmpty())
         d->authenticator.setPassword(password);
 }
+#endif
 
 int QHttpSocketEngine::socketDescriptor() const
 {
@@ -112,7 +116,9 @@ bool QHttpSocketEngine::connectToHost(const QHostAddress &address, quint16 port)
         setPeerAddress(address);
         setPeerPort(port);
         setState(QAbstractSocket::ConnectingState);
+#ifndef QT_NO_NETWORKPROXY
         d->socket->connectToHost(d->proxy.hostName(), d->proxy.port());
+#endif
     }
 
     // If connected (might happen right away, at least for localhost services
@@ -487,7 +493,9 @@ void QHttpSocketEngine::slotSocketReadNotification()
             if (willClose) {
                 d->socket->disconnectFromHost();
                 d->socket->readAll();
+#ifndef QT_NO_NETWORKPROXY
                 d->socket->connectToHost(d->proxy.hostName(), d->proxy.port());
+#endif
             } else {
                 bool ok;
                 int contentLength = responseHeader.value(QLatin1String("Content-Length")).toInt(&ok);
@@ -601,15 +609,19 @@ QAbstractSocketEngine *QHttpSocketEngineHandler::createSocketEngine(const QHostA
     if (!abstractSocket)
         return 0;
 
+#ifndef QT_NO_NETWORKPROXY
     QNetworkProxy proxy = abstractSocket->proxy();
     if (proxy.type() == QNetworkProxy::DefaultProxy)
         proxy = QNetworkProxy::applicationProxy();
 
     if (proxy.type() != QNetworkProxy::HttpProxy)
         return 0;
+#endif
 
     QHttpSocketEngine *engine = new QHttpSocketEngine(parent);
+#ifndef QT_NO_NETWORKPROXY
     engine->setProxy(proxy);
+#endif
     return engine;
 }
 

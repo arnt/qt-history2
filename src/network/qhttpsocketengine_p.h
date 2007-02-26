@@ -121,7 +121,9 @@ public:
     QHttpSocketEnginePrivate();
     ~QHttpSocketEnginePrivate();
 
+#ifndef QT_NO_NETWORKPROXY
     QNetworkProxy proxy;
+#endif
     QTcpSocket *socket;
     QByteArray readBuffer;
     QHttpSocketEngine::HttpState state;
