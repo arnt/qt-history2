@@ -218,6 +218,7 @@ void GLEngine::render(QSvgRenderer *r, const QString &)
     p->fillRect(0, 0, size.width(), size.height(), Qt::white);
     r->render(p);
     p->end();
+    delete p;
 }
 
 void GLEngine::render(const QStringList &qpsScript,
