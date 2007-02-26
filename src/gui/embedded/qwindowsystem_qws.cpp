@@ -2294,9 +2294,13 @@ void QWSServerPrivate::sendKeyEventUnfiltered(int unicode, int keycode, Qt::Keyb
     event.simpleData.modifiers = modifiers;
     event.simpleData.is_press = isPress;
     event.simpleData.is_auto_repeat = autoRepeat;
-
-    for (ClientIterator it = qwsServerPrivate->clientMap.begin(); it != qwsServerPrivate->clientMap.end(); ++it)
-        (*it)->sendEvent(&event);
+#ifdef QT_QWS_KEYEVENT_SINGLECLIENT
+    if (win)
+        win->client()->sendEvent(&event);
+    else
+#endif
+        for (ClientIterator it = qwsServerPrivate->clientMap.begin(); it != qwsServerPrivate->clientMap.end(); ++it)
+            (*it)->sendEvent(&event);
 }
 
 /*!
