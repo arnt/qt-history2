@@ -67,7 +67,6 @@ public Q_SLOTS:
     void setActiveSubWindow(QMdiSubWindow *window);
     void tileSubWindows();
     void cascadeSubWindows();
-    void arrangeMinimizedSubWindows();
     void closeActiveSubWindow();
     void closeAllSubWindows();
     void activateNextSubWindow();

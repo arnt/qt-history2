@@ -136,7 +136,6 @@ private slots:
     void emittingOfSignals_data();
     void emittingOfSignals();
     void showShaded();
-    void iconSize();
     void showNormal_data();
     void showNormal();
     void setOpaqueResizeAndMove_data();
@@ -515,30 +514,6 @@ void tst_QMdiSubWindow::showShaded()
     delete window;
 }
 
-void tst_QMdiSubWindow::iconSize()
-{
-    QMdiSubWindow *window = new QMdiSubWindow;
-    QCOMPARE(window->iconSize(), QSize(-1, -1));
-
-    QMdiArea workspace;
-    workspace.addSubWindow(window);
-    qApp->processEvents();
-    QStyleOptionTitleBar options;
-    options.initFrom(window);
-    int width = window->style()->pixelMetric(QStyle::PM_MDIMinimizedWidth);
-    int height = window->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options);
-    // ### Remove this after Mac style has been fixed
-    if (window->style()->inherits("QMacStyle"))
-        height -= 4;
-    // has border
-    if (!window->style()->styleHint(QStyle::SH_TitleBar_NoBorder, &options, window))
-        height += window->isMinimized() ? 8 : 4;
-    QCOMPARE(window->iconSize(), QSize(width, height));
-
-    window->setWindowFlags(window->windowFlags() | Qt::FramelessWindowHint);
-    QCOMPARE(window->iconSize(), QSize(-1, -1));
-}
-
 void tst_QMdiSubWindow::showNormal_data()
 {
     QTest::addColumn<QByteArray>("slot");
@@ -632,8 +607,8 @@ void tst_QMdiSubWindow::setOpaqueResizeAndMove()
     // ----------------------------- resize -----------------------------
     {
     // setOpaqueResize
-    window->setOption(QMdiSubWindow::TransparentResize, !opaqueMode);
-    QCOMPARE(window->testOption(QMdiSubWindow::TransparentResize), !opaqueMode);
+    window->setOption(QMdiSubWindow::RubberBandResize, !opaqueMode);
+    QCOMPARE(window->testOption(QMdiSubWindow::RubberBandResize), !opaqueMode);
 
     // Check that the event spy actually works
     EventSpy resizeSpy(window, QEvent::Resize);
@@ -676,8 +651,8 @@ void tst_QMdiSubWindow::setOpaqueResizeAndMove()
     // ------------------------------ move ------------------------------
     {
     // setOpaqueMove
-    window->setOption(QMdiSubWindow::TransparentMove, !opaqueMode);
-    QCOMPARE(window->testOption(QMdiSubWindow::TransparentMove), !opaqueMode);
+    window->setOption(QMdiSubWindow::RubberBandMove, !opaqueMode);
+    QCOMPARE(window->testOption(QMdiSubWindow::RubberBandMove), !opaqueMode);
 
     EventSpy moveSpy(window, QEvent::Move);
     QCOMPARE(moveSpy.count(), 0);

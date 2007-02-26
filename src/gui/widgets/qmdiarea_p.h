@@ -120,6 +120,7 @@ public:
     void appendChild(QMdiSubWindow *child);
     void place(const Placer &placer, QMdiSubWindow *child);
     void rearrange(const Rearranger &rearranger, bool icons = false);
+    void arrangeMinimizedSubWindows();
     void activateWindow(QMdiSubWindow *child);
     void emitWindowActivated(QMdiSubWindow *child);
     void resetActiveWindow(QMdiSubWindow *child = 0);

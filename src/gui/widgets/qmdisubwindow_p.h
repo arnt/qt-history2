@@ -205,6 +205,7 @@ public:
     void setEnabled(WindowStateAction, bool enable = true);
     void setVisible(WindowStateAction, bool visible = true);
     void addToSystemMenu(WindowStateAction, const QString &text, const char *slot);
+    QSize iconSize() const;
 #ifndef QT_NO_SIZEGRIP
     void setSizeGrip(QSizeGrip *sizeGrip);
     void setSizeGripVisible(bool visible = true) const;

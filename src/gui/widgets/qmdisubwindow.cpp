@@ -78,13 +78,13 @@
     still be placed outside the area programmatically or when the
     area is resized.
 
-    \value TransparentResize If you enable this option,
+    \value RubberBandResize If you enable this option,
     QMdiSubWindow will show a rubberband control while resizing.  As a
     result, the window will only recieve one QResizeEvent (when the
     resize operation is completed). By default, this option is
     disabled.
 
-    \value TransparentMove If you enable this option,
+    \value RubberBandMove If you enable this option,
     QMdiSubWindow will show a rubberband control while moving, leaving
     the window in its original position until the move operation has
     completed, at which time a QMoveEvent is sendt to the window. By
@@ -686,9 +686,9 @@ void QMdiSubWindowPrivate::_q_enterInteractiveMode()
     oldGeometry = q->geometry();
     isInInteractiveMode = true;
     q->setFocus();
-    if ((q->testOption(QMdiSubWindow::TransparentResize)
+    if ((q->testOption(QMdiSubWindow::RubberBandResize)
             && (currentOperation == BottomRightResize || currentOperation == BottomLeftResize))
-            || (q->testOption(QMdiSubWindow::TransparentMove) && currentOperation == Move)) {
+            || (q->testOption(QMdiSubWindow::RubberBandMove) && currentOperation == Move)) {
         enterRubberBandMode();
     } else {
         q->grabMouse();
@@ -1691,6 +1691,17 @@ void QMdiSubWindowPrivate::addToSystemMenu(WindowStateAction action, const QStri
     actions[action] = systemMenu->addAction(text, q_func(), slot);
 }
 
+/*!
+    \internal
+*/
+QSize QMdiSubWindowPrivate::iconSize() const
+{
+    Q_Q(const QMdiSubWindow);
+    if (!q->parent() || q->windowFlags() & Qt::FramelessWindowHint)
+        return QSize(-1, -1);
+    return QSize(q->style()->pixelMetric(QStyle::PM_MDIMinimizedWidth), titleBarHeight());
+}
+
 #ifndef QT_NO_SIZEGRIP
 
 /*!
@@ -1892,21 +1903,6 @@ bool QMdiSubWindow::isShaded() const
 }
 
 /*!
-    Returns the size of window in its minimized state. 
-    This size depends on the height of the title bar, and
-    is controlled by the current style. The size of windows in
-    minimized state is fixed.
-
-    \sa QIcon, QStyle::styleHint()
-*/
-QSize QMdiSubWindow::iconSize() const
-{
-    if (!parent() || windowFlags() & Qt::FramelessWindowHint)
-        return QSize(-1, -1);
-    return QSize(style()->pixelMetric(QStyle::PM_MDIMinimizedWidth), d_func()->titleBarHeight());
-}
-
-/*!
     If \a on is true, \a option is enabled on the subwindow. Otherwise, it is
     disabled. See SubWindowOption for the effect of each option.
 
@@ -1920,7 +1916,7 @@ void QMdiSubWindow::setOption(SubWindowOption option, bool on)
     else if (!on && (d->options & option))
         d->options &= ~option;
 
-    if ((option & (TransparentResize | TransparentMove)) && !on && d->isInRubberBandMode)
+    if ((option & (RubberBandResize | RubberBandMove)) && !on && d->isInRubberBandMode)
         d->leaveRubberBandMode();
 }
 
@@ -2130,7 +2126,7 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
 
 #ifndef QT_NO_SIZEGRIP
     if (object != d->baseWidget && parent() && qobject_cast<QSizeGrip *>(object)) {
-        if (event->type() != QEvent::MouseButtonPress || !testOption(QMdiSubWindow::TransparentResize))
+        if (event->type() != QEvent::MouseButtonPress || !testOption(QMdiSubWindow::RubberBandResize))
             return QWidget::eventFilter(object, event);
         const QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         d->mousePressPosition = parentWidget()->mapFromGlobal(mouseEvent->globalPos());
@@ -2252,8 +2248,8 @@ bool QMdiSubWindow::event(QEvent *event)
             if (style()->inherits("QMacStyle"))
                 delete d->sizeGrip;
 #endif
-            setOption(TransparentResize, false);
-            setOption(TransparentMove, false);
+            setOption(RubberBandResize, false);
+            setOption(RubberBandMove, false);
         } else {
             d->setWindowFlags(windowFlags());
         }
@@ -2494,8 +2490,8 @@ void QMdiSubWindow::mousePressEvent(QMouseEvent *mouseEvent)
         d->mousePressPosition = mapToParent(mouseEvent->pos());
         if (d->resizeEnabled || d->moveEnabled)
             d->oldGeometry = geometry();
-        if (testOption(QMdiSubWindow::TransparentResize) && d->isResizeOperation()
-                || testOption(QMdiSubWindow::TransparentMove) && d->isMoveOperation()) {
+        if (testOption(QMdiSubWindow::RubberBandResize) && d->isResizeOperation()
+                || testOption(QMdiSubWindow::RubberBandMove) && d->isMoveOperation()) {
             d->enterRubberBandMode();
         }
         return;
@@ -2746,7 +2742,7 @@ QSize QMdiSubWindow::minimumSizeHint() const
     if (isVisible())
         ensurePolished();
     if (parent() && isMinimized() && !isShaded())
-        return iconSize();
+        return d->iconSize();
 
     // Window decoration
     int margin, minWidth;

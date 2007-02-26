@@ -31,8 +31,8 @@ class Q_GUI_EXPORT QMdiSubWindow : public QWidget
 public:
     enum SubWindowOption {
         AllowOutsideArea = 0x1,
-        TransparentResize = 0x2,
-        TransparentMove = 0x4
+        RubberBandResize = 0x2,
+        RubberBandMove = 0x4
     };
     Q_DECLARE_FLAGS(SubWindowOptions, SubWindowOption)
 
@@ -49,7 +49,6 @@ public:
     QWidget *maximizedSystemMenuIconWidget() const; // internal
 
     bool isShaded() const;
-    QSize iconSize() const;
 
     void setOption(SubWindowOption option, bool on = true);
     bool testOption(SubWindowOption) const;

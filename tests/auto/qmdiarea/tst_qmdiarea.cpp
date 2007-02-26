@@ -1165,19 +1165,6 @@ void tst_QMdiArea::cascadeAndTileSubWindows()
             QVERIFY(window->isMaximized());
         }
     }
-
-    // arrangeSubWindows icons
-    qApp->processEvents();
-    workspace.arrangeMinimizedSubWindows();
-    qApp->processEvents();
-
-    for (int i = 0; i < windows.count(); ++i) {
-        QMdiSubWindow *window = windows.at(i);
-        if (i % 3 == 0)
-            QVERIFY(window->isMinimized());
-        else
-            QVERIFY(window->isMaximized());
-    }
 }
 
 void tst_QMdiArea::resizeMaximizedChildWindows_data()

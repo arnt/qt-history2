@@ -471,6 +471,9 @@ void QMdiAreaPrivate::_q_deactivateAllWindows()
     }
 }
 
+/*!
+    \internal
+*/
 void QMdiAreaPrivate::_q_processWindowStateChanged(Qt::WindowStates oldState,
                                                    Qt::WindowStates newState)
 {
@@ -490,14 +493,17 @@ void QMdiAreaPrivate::_q_processWindowStateChanged(Qt::WindowStates oldState,
         resetActiveWindow(child);
 
     // windowMinimized
-    if (!(oldState & Qt::WindowMinimized) && (newState & Qt::WindowMinimized))
-        q->arrangeMinimizedSubWindows();
+    if (!(oldState & Qt::WindowMinimized) && (newState & Qt::WindowMinimized)) {
+        arrangeMinimizedSubWindows();
     // windowMaximized
-    else if (!(oldState & Qt::WindowMaximized) && (newState & Qt::WindowMaximized))
+    } else if (!(oldState & Qt::WindowMaximized) && (newState & Qt::WindowMaximized)) {
         internalRaise(child);
     // windowRestored
-    else if (!(newState & (Qt::WindowMaximized | Qt::WindowMinimized)))
+    } else if (!(newState & (Qt::WindowMaximized | Qt::WindowMinimized))) {
         internalRaise(child);
+        if (oldState & Qt::WindowMinimized)
+            arrangeMinimizedSubWindows();
+    }
 }
 
 /*!
@@ -590,6 +596,16 @@ void QMdiAreaPrivate::rearrange(const Rearranger &rearranger, bool icons)
             widgets.move(indexToActive, widgets.size() - 1);
     }
     rearranger.rearrange(widgets, q_func()->viewport()->rect());
+}
+
+/*!
+    \internal
+
+    Arranges all minimized windows at the bottom of the workspace.
+*/
+void QMdiAreaPrivate::arrangeMinimizedSubWindows()
+{
+    rearrange(IconTiler(), true);
 }
 
 /*!
@@ -1242,7 +1258,7 @@ void QMdiArea::resizeEvent(QResizeEvent *resizeEvent)
     }
 
     d->updateScrollBars();
-    arrangeMinimizedSubWindows();
+    d->arrangeMinimizedSubWindows();
 
     // We don't have any maximized views.
     if (d->isSubWindowsTiled)
@@ -1281,6 +1297,7 @@ bool QMdiArea::viewportEvent(QEvent *event)
                 d->childWindows.removeAt(i);
                 d->indicesToStackedChildren.removeAll(i);
                 d->updateActiveWindow(i);
+                d->arrangeMinimizedSubWindows();
                 break;
             }
         }
@@ -1334,20 +1351,6 @@ void QMdiArea::cascadeSubWindows()
     Q_D(QMdiArea);
     d->isSubWindowsTiled = false;
     d->rearrange(SimpleCascader());
-}
-
-/*!
-    \internal
-
-    Arranges all minimized windows at the bottom of the workspace.
-
-    \sa cascadeSubWindows(), tileSubWindows()
-*/
-void QMdiArea::arrangeMinimizedSubWindows()
-{
-    if (QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(sender()))
-        child->lower();
-    d_func()->rearrange(IconTiler(), true);
 }
 
 /*!
