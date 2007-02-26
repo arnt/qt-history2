@@ -515,6 +515,8 @@ public:
     static QLocale c() { return QLocale(C); }
     static QLocale system();
 
+    static QList<Country> countriesForLanguage(Language lang);
+
     void setNumberOptions(NumberOptions options);
     NumberOptions numberOptions() const;
 

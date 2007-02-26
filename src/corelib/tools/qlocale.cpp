@@ -2967,6 +2967,37 @@ QLocale QLocale::system()
 }
 
 /*!
+    \since 4.3
+
+    Returns the list of countries that have entires for \a language in Qt's locale
+    database. If the result is an empty list, then \a language is not represented in
+    Qt's locale database.
+*/
+QList<QLocale::Country> QLocale::countriesForLanguage(Language language)
+{
+    QList<Country> result;
+
+    unsigned language_id = lang;
+    uint idx = locale_index[language_id];
+
+    if (idx == 0) {
+        result << AnyCountry;
+        return result;
+    }
+
+    const QLocalePrivate *d = locale_data + idx;
+
+    Q_ASSERT(d->languageId() == language_id);
+
+    while (d->languageId() == language_id) {
+        result << static_cast<Country>(d->countryId());
+        ++d;
+    }
+
+    return result;
+}
+
+/*!
     \since 4.2
 
     Returns the localized name of \a month, in the format specified
