@@ -114,6 +114,9 @@ QStringList AccessibleFactory::keys() const
     list << QLatin1String("QCalendarWidget");
 #endif
 
+#ifndef QT_NO_DOCKWIDGET
+    list << QLatin1String("QDockWidget");
+#endif
     return list;
 }
 
@@ -269,6 +272,10 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
 #ifndef QT_NO_CALENDARWIDGET
     } else if (classname == QLatin1String("QCalendarWidget")) {
         iface = new QAccessibleCalendarWidget(widget);
+#endif
+#ifndef QT_NO_DOCKWIDGET
+    } else if (classname == QLatin1String("QDockWidget")) {
+        iface = new QAccessibleDockWidget(widget);
 #endif
     }
 

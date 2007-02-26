@@ -156,6 +156,7 @@ private slots:
     void tableWidgetTest();
     void tableViewTest();
     void calendarWidgetTest();
+    void dockWidgetTest();
 
 private:
     QWidget *createGUI();
@@ -3330,6 +3331,82 @@ void tst_QAccessibility::calendarWidgetTest()
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
 #endif // QT_NO_CALENDARWIDGET
+}
+
+void tst_QAccessibility::dockWidgetTest()
+{
+#ifndef QT_NO_DOCKWIDGET
+
+#ifdef QTEST_ACCESSIBILITY
+    // Set up a proper main window with two dock widgets
+    QMainWindow *mw = new QMainWindow();
+    QFrame *central = new QFrame(mw);
+    mw->setCentralWidget(central);
+    QMenuBar *mb = new QMenuBar(mw);
+    mb->addAction(tr("&File"));
+    mw->setMenuBar(mb);
+
+    QDockWidget *dock1 = new QDockWidget(mw);
+    mw->addDockWidget(Qt::LeftDockWidgetArea, dock1);
+    QPushButton *pb1 = new QPushButton(tr("Push me"), dock1);
+    dock1->setWidget(pb1);
+
+    QDockWidget *dock2 = new QDockWidget(mw);
+    mw->addDockWidget(Qt::BottomDockWidgetArea, dock2);
+    QPushButton *pb2 = new QPushButton(tr("Push me"), dock2);
+    dock2->setWidget(pb2);
+
+    mw->resize(600,400);
+    mw->show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(mw);
+#endif
+
+    QAccessibleInterface *accMainWindow = QAccessible::queryAccessibleInterface(mw);
+    QCOMPARE(accMainWindow->childCount(), 4);
+    QAccessibleInterface *accDock1 = 0;
+    for (int i = 1; i < 5; ++i) {
+        if (accMainWindow->role(i) == QAccessible::Window) {
+            accMainWindow->navigate(QAccessible::Child, i, &accDock1);
+            if (qobject_cast<QDockWidget*>(accDock1->object()) == dock1) {
+                break;
+            } else {
+                delete accDock1;
+            }
+        }
+    }
+    QVERIFY(accDock1);
+    QCOMPARE(accDock1->role(0), QAccessible::Window);
+    QCOMPARE(accDock1->role(1), QAccessible::TitleBar);
+    QVERIFY(accDock1->rect(0).contains(accDock1->rect(1)));
+
+    QPoint globalPos = dock1->mapToGlobal(QPoint(0,0));
+    globalPos.rx()+=5;  //### query style
+    globalPos.ry()+=5;
+    int entry = accDock1->childAt(globalPos.x(), globalPos.y());    //###
+    QAccessibleInterface *accTitleBar;
+    entry = accDock1->navigate(QAccessible::Child, entry, &accTitleBar);
+    QCOMPARE(accTitleBar->role(0), QAccessible::TitleBar);
+    QCOMPARE(accDock1->indexOfChild(accTitleBar), 1);
+    QAccessibleInterface *acc;
+    entry = accTitleBar->navigate(QAccessible::Ancestor, 1, &acc);
+    QVERIFY(acc);
+    QCOMPARE(entry, 0);
+    QCOMPARE(acc->role(0), QAccessible::Window);
+
+
+    delete accTitleBar;
+    delete accDock1;
+    delete pb1;
+    delete pb2;
+    delete dock1;
+    delete dock2;
+    delete mw;
+    QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+#endif // QT_NO_DOCKWIDGET
 }
 
 QTEST_MAIN(tst_QAccessibility)
