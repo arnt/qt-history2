@@ -26,7 +26,7 @@ class QScriptEngine;
 class QScriptNameId;
 class QVariant;
 class QObject;
-class QMetaObject;
+struct QMetaObject;
 class QDateTime;
 #ifndef QT_NO_REGEXP
 class QRegExp;
