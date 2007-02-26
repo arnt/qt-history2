@@ -3710,9 +3710,9 @@ QByteArray QByteArray::fromHex(const QByteArray &hexEncoded)
         if (ch >= '0' && ch <= '9')
             tmp = ch - '0';
         else if (ch >= 'a' && ch <= 'f')
-            tmp = ch - 'a';
+            tmp = ch - 'a' + 10;
         else if (ch >= 'A' && ch <= 'F')
-            tmp = ch - 'A';
+            tmp = ch - 'A' + 10;
         else
             continue;
         if (first) {
