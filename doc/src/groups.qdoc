@@ -87,7 +87,7 @@
 
     These classes provide everything you need for a typical modern main
     application window, like the main window itself, menu and tool bars,
-    a statusbar, etc.
+    a status bar, etc.
 
 */
 

@@ -490,7 +490,7 @@ bool Q3AccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
 
  doclash: // found more than one match
 #ifndef QT_NO_STATUSBAR
-    if (!mainStatusBar) // if "goto doclash", we need to get statusbar again.
+    if (!mainStatusBar) // if "goto doclash", we need to get status bar again.
         mainStatusBar = (QStatusBar*) w->window()->child(0, "QStatusBar");
 #endif
 

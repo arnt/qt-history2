@@ -1183,7 +1183,7 @@ bool Q3Action::removeFrom(QWidget* w)
                 d->toolbuttons.removeAll(btn);
                 disconnect(btn, SIGNAL(destroyed()), this, SLOT(objectDestroyed()));
                 delete btn;
-                // no need to disconnect from statusbar
+                // no need to disconnect from status bar
             }
         }
     } else

@@ -3259,19 +3259,19 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             } else if (toolBar->toolBarArea == Qt::BottomToolBarArea) {
                 if (toolBar->positionOfLine == QStyleOptionToolBar::End
                     || toolBar->positionOfLine == QStyleOptionToolBar::Middle) {
-                    // The end and middle bottom toolbar lines draw a dark
+                    // The end and middle bottom tool bar lines draw a dark
                     // line at the bottom.
                     painter->setPen(alphaCornerColor);
                     painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
                 }
                 if (toolBar->positionOfLine == QStyleOptionToolBar::Beginning
                     || toolBar->positionOfLine == QStyleOptionToolBar::OnlyOne) {
-                    // The beginning and onlyone toolbar lines draw a
+                    // The beginning and only one tool bar lines draw a
                     // double line at the bottom to blend with the
-                    // statusbar.
+                    // status bar.
                     // ### The styleoption could contain whether the
-                    // mainwindow has a menubar and a statusbar, and
-                    // possibly dockwidgets.
+                    // main window has a menu bar and a status bar, and
+                    // possibly dock widgets.
                     painter->setPen(alphaCornerColor);
                     painter->drawLine(option->rect.left(), option->rect.bottom() - 1,
                                       option->rect.right(), option->rect.bottom() - 1);
