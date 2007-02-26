@@ -127,7 +127,7 @@
 	\o If the editor requires other constructors or other
 	   initialization than provided by QItemEditorCreatorBase, you
 	   must reimplement
-	   QItemEditorCreatorBase::createEditor().
+	   QItemEditorCreatorBase::createWidget().
 	\o You could also subclass QItemEditorFactory if you only want
 	   to provide editors for certain kinds of data or use another
 	   method of creating the editors than using creator bases.
