@@ -68,7 +68,7 @@ protected:
     virtual QString pixmapToFilePath(const QPixmap &pm) const;
     virtual QString pixmapToQrcPath(const QPixmap &pm) const;
 
-    typedef enum ScriptSource { ScriptDesigner, ScriptExtension, ScriptCustomWidgetPlugin };
+    enum ScriptSource { ScriptDesigner, ScriptExtension, ScriptCustomWidgetPlugin };
     static DomScript*createScript(const QString &script, ScriptSource source);
     typedef QList<DomScript*> DomScripts;
     static void addScript(const QString &script, ScriptSource source, DomScripts &domScripts);
