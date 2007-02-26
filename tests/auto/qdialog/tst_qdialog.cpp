@@ -178,6 +178,11 @@ void tst_QDialog::defaultButtons()
     QPushButton *pushThree = new QPushButton("Button 3", testWidget);
     pushThree->setAutoDefault(FALSE);
 
+    //we need to show the buttons. Otherwise they won't get the focus
+    push->show();
+    pushTwo->show();
+    pushThree->show();
+
     push->setDefault(TRUE);
     QVERIFY(push->isDefault());
 
