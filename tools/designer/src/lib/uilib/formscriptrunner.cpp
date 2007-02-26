@@ -30,7 +30,7 @@ namespace QFormInternal {
 
 class  QFormScriptRunner::QFormScriptRunnerPrivate {
 public:
-    QFormScriptRunnerPrivate() : m_options(NoOptions) {}
+    QFormScriptRunnerPrivate() : m_options(DisableScripts) {}
     void clearErrors() { m_errors.clear(); }
 
     bool run(const QString &script, QWidget *widget, const WidgetList &children, QString *errorMessage);
@@ -119,8 +119,7 @@ bool QFormScriptRunner::run(const DomWidget *domWidget,
     // get list
     const DomScripts domScripts = domWidget->elementScript();
     // Concatenate snippets, starting with custom widget script
-    QString  script = (scriptOptions & DisableCustomWidgetScripts) ? QString() : customWidgetScript;
-
+    QString  script = customWidgetScript;
     if (script.isEmpty() && domScripts.empty())
         return true;
 

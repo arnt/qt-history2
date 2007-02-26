@@ -71,6 +71,7 @@ QDesignerFormBuilder::QDesignerFormBuilder(QDesignerFormEditorInterface *core, M
         break;
     case RunScripts:
         options |= QFormScriptRunner::DisableWarnings;
+        options &= ~QFormScriptRunner::DisableScripts;
         break;
     }
     formScriptRunner()-> setOptions(options);

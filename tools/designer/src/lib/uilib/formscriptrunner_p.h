@@ -53,8 +53,7 @@ public:
     enum Option {
          NoOptions = 0x0,
          DisableWarnings = 0x1,
-         DisableCustomWidgetScripts = 0x2,
-         DisableScripts = 0x4
+         DisableScripts = 02
      };
      Q_DECLARE_FLAGS(Options, Option)
 
