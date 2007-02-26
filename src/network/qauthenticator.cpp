@@ -18,6 +18,13 @@
 #include <qbytearray.h>
 #include <qcryptographichash.h>
 #include <qhttp.h>
+#include <qdatastream.h>
+#include <qendian.h>
+#include <qstring.h>
+#include <../3rdparty/des/des.cpp>
+
+static QByteArray qNtlmPhase1(QAuthenticatorPrivate *ctx);
+static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phase2data);
 
 QAuthenticator::QAuthenticator()
     : d(0)
@@ -95,11 +102,69 @@ bool QAuthenticator::isNull() const
 QAuthenticatorPrivate::QAuthenticatorPrivate()
     : ref(0)
     , method(None)
+    , phase(Start)
     , nonceCount(0)
 {
     cnonce = QCryptographicHash::hash(QByteArray::number(rand(), 16) + QByteArray::number(rand(), 16),
                                       QCryptographicHash::Md5).toHex();
     nonceCount = 0;
+}
+
+
+void QAuthenticatorPrivate::parseHttpResponse(const QHttpResponseHeader &header, bool isProxy)
+{
+    QList<QPair<QString, QString> > values = header.values();
+    const char *search = isProxy ? "proxy-authenticate" : "www-authenticate";
+
+    method = None;
+    /*
+      Fun from the HTTP 1.1 specs, that we currently ignore:
+
+      User agents are advised to take special care in parsing the WWW-
+      Authenticate field value as it might contain more than one challenge,
+      or if more than one WWW-Authenticate header field is provided, the
+      contents of a challenge itself can contain a comma-separated list of
+      authentication parameters.
+    */
+
+    QString headerVal;
+    for (int i = 0; i < values.size(); ++i) {
+        const QPair<QString, QString> &current = values.at(i);
+        if (current.first.toLower() != QLatin1String(search))
+            continue;
+        QString str = current.second;
+        if (method < Basic && str.startsWith(QLatin1String("Basic"), Qt::CaseInsensitive)) {
+            method = Basic; headerVal = str.mid(6);
+        } else if (method < Ntlm && str.startsWith(QLatin1String("NTLM"), Qt::CaseInsensitive)) {
+            method = Ntlm;
+            headerVal = str.mid(5);
+        } else if (method < DigestMd5 && str.startsWith(QLatin1String("Digest"), Qt::CaseInsensitive)) {
+            method = DigestMd5;
+            headerVal = str.mid(7);
+        }
+    }
+
+    challenge = headerVal.toLatin1();
+    QHash<QByteArray, QByteArray> options = parseDigestAuthenticationChallenge(challenge);
+
+    switch(method) {
+    case Basic:
+        realm = QString::fromLatin1(options.value("realm"));
+        break;
+    case Ntlm:
+        // #### extract from header
+        realm = QString();
+        break;
+    case DigestMd5: {
+        realm = QString::fromLatin1(options.value("realm"));
+        if (options.value("stale").toLower() == "true")
+            phase = Start;
+        break;
+    }
+    default:
+        realm = QString();
+        challenge = QByteArray();
+    }
 }
 
 QByteArray QAuthenticatorPrivate::calculateResponse(const QByteArray &requestLine)
@@ -109,33 +174,51 @@ QByteArray QAuthenticatorPrivate::calculateResponse(const QByteArray &requestLin
     switch(method) {
     case QAuthenticatorPrivate::None:
         methodString = "";
+        phase = Done;
         break;
     case QAuthenticatorPrivate::Plain:
         response = '\0' + user.toUtf8() + '\0' + password.toUtf8();
+        phase = Done;
         break;
     case QAuthenticatorPrivate::Basic:
         methodString = "Basic ";
         response = user.toLatin1() + ':' + password.toLatin1();
         response = response.toBase64();
+        phase = Done;
         break;
     case QAuthenticatorPrivate::Login:
-        if (challenge.contains("VXNlciBOYW1lAA=="))
+        if (challenge.contains("VXNlciBOYW1lAA==")) {
             response = user.toUtf8().toBase64();
-        else if (challenge.contains("UGFzc3dvcmQA"))
+            phase = Phase2;
+        } else if (challenge.contains("UGFzc3dvcmQA")) {
             response = password.toUtf8().toBase64();
+            phase = Done;
+        }
         break;
     case QAuthenticatorPrivate::CramMd5:
         break;
     case QAuthenticatorPrivate::DigestMd5:
         methodString = "Digest ";
         response = digestMd5Response(challenge, requestLine);
+        phase = Done;
         break;
     case QAuthenticatorPrivate::Ntlm:
         methodString = "NTLM ";
+        if (phase == Start) {
+            response = qNtlmPhase1(this).toBase64();
+            phase = Phase2;
+        } else {
+            response = qNtlmPhase3(this, QByteArray::fromBase64(challenge)).toBase64();
+            phase = Done;
+        }
+            
         break;
     }
     return QByteArray(methodString) + response;
 }
+
+
+// ---------------------------- Digest Md5 code ----------------------------------------
 
 QHash<QByteArray, QByteArray> QAuthenticatorPrivate::parseDigestAuthenticationChallenge(const QByteArray &challenge)
 {
@@ -315,60 +398,522 @@ QByteArray QAuthenticatorPrivate::digestMd5Response(const QByteArray &challenge,
     return credentials;
 }
 
+// ---------------------------- Digest Md5 code ----------------------------------------
 
-void QAuthenticatorPrivate::parseHttpResponse(const QByteArray &httpResponse, bool isProxy, bool *passOk)
+
+
+/*
+ * NTLM message flags.
+ *
+ * Copyright (c) 2004 Andrey Panin <pazke@donpac.ru>
+ *
+ * This software is released under the MIT license.
+ */
+
+/*
+ * Indicates that Unicode strings are supported for use in security
+ * buffer data. 
+ */
+#define NTLMSSP_NEGOTIATE_UNICODE 0x00000001 
+
+/*
+ * Indicates that OEM strings are supported for use in security buffer data.
+ */
+#define NTLMSSP_NEGOTIATE_OEM 0x00000002 
+
+/*
+ * Requests that the server's authentication realm be included in the
+ * Type 2 message. 
+ */
+#define NTLMSSP_REQUEST_TARGET 0x00000004 
+
+/*
+ * Specifies that authenticated communication between the client and server
+ * should carry a digital signature (message integrity). 
+ */
+#define NTLMSSP_NEGOTIATE_SIGN 0x00000010 
+
+/*
+ * Specifies that authenticated communication between the client and server
+ * should be encrypted (message confidentiality).
+ */
+#define NTLMSSP_NEGOTIATE_SEAL 0x00000020 
+
+/*
+ * Indicates that datagram authentication is being used. 
+ */
+#define NTLMSSP_NEGOTIATE_DATAGRAM 0x00000040 
+
+/*
+ * Indicates that the LAN Manager session key should be
+ * used for signing and sealing authenticated communications.
+ */
+#define NTLMSSP_NEGOTIATE_LM_KEY 0x00000080 
+
+/*
+ * Indicates that NTLM authentication is being used. 
+ */
+#define NTLMSSP_NEGOTIATE_NTLM 0x00000200 
+
+/*
+ * Sent by the client in the Type 1 message to indicate that the name of the
+ * domain in which the client workstation has membership is included in the
+ * message. This is used by the server to determine whether the client is
+ * eligible for local authentication. 
+ */
+#define NTLMSSP_NEGOTIATE_DOMAIN_SUPPLIED 0x00001000 
+
+/*
+ * Sent by the client in the Type 1 message to indicate that the client
+ * workstation's name is included in the message. This is used by the server
+ * to determine whether the client is eligible for local authentication.
+ */
+#define NTLMSSP_NEGOTIATE_WORKSTATION_SUPPLIED 0x00002000 
+
+/*
+ * Sent by the server to indicate that the server and client are on the same
+ * machine. Implies that the client may use the established local credentials
+ * for authentication instead of calculating a response to the challenge.
+ */
+#define NTLMSSP_NEGOTIATE_LOCAL_CALL 0x00004000 
+
+/*
+ * Indicates that authenticated communication between the client and server
+ * should be signed with a "dummy" signature. 
+ */
+#define NTLMSSP_NEGOTIATE_ALWAYS_SIGN 0x00008000 
+
+/*
+ * Sent by the server in the Type 2 message to indicate that the target
+ * authentication realm is a domain.
+ */
+#define NTLMSSP_TARGET_TYPE_DOMAIN 0x00010000 
+
+/*
+ * Sent by the server in the Type 2 message to indicate that the target
+ * authentication realm is a server. 
+ */
+#define NTLMSSP_TARGET_TYPE_SERVER 0x00020000 
+
+/*
+ * Sent by the server in the Type 2 message to indicate that the target
+ * authentication realm is a share. Presumably, this is for share-level
+ * authentication. Usage is unclear. 
+ */
+#define NTLMSSP_TARGET_TYPE_SHARE 0x00040000 
+
+/*
+ * Indicates that the NTLM2 signing and sealing scheme should be used for
+ * protecting authenticated communications. Note that this refers to a
+ * particular session security scheme, and is not related to the use of
+ * NTLMv2 authentication.
+ */ 
+#define NTLMSSP_NEGOTIATE_NTLM2 0x00080000 
+
+/*
+ * Sent by the server in the Type 2 message to indicate that it is including
+ * a Target Information block in the message. The Target Information block
+ * is used in the calculation of the NTLMv2 response.
+ */
+#define NTLMSSP_NEGOTIATE_TARGET_INFO 0x00800000 
+
+/*
+ * Indicates that 128-bit encryption is supported. 
+ */
+#define NTLMSSP_NEGOTIATE_128 0x20000000 
+
+/*
+ * Indicates that the client will provide an encrypted master session key in
+ * the "Session Key" field of the Type 3 message. This is used in signing and
+ * sealing, and is RC4-encrypted using the previous session key as the
+ * encryption key.
+ */
+#define NTLMSSP_NEGOTIATE_KEY_EXCHANGE 0x40000000 
+
+/*
+ * Indicates that 56-bit encryption is supported.
+ */
+#define NTLMSSP_NEGOTIATE_56 0x80000000 
+
+
+/* usage:
+   // fill up ctx with what we know.
+   QByteArray response = qNtlmPhase1(ctx);
+   // send response (b64 encoded??)
+   // get response from server (b64 decode?)
+   Phase2Block pb;
+   qNtlmDecodePhase2(response, pb);
+   response = qNtlmPhase3(ctx, pb);
+   // send response (b64 encoded??)
+*/
+
+/*
+   TODO:
+    - Fix unicode handling
+    - add v2 handling
+*/
+
+class QNtlmBuffer {
+public:
+    QNtlmBuffer() : len(0), maxLen(0), offset(0) {}
+    quint16 len;
+    quint16 maxLen;
+    quint32 offset;
+    enum { Size = 8 };
+};
+
+class QNtlmPhase1BlockBase
 {
-    QHttpResponseHeader header(QString::fromLatin1(httpResponse));
-    QList<QPair<QString, QString> > values = header.values();
-    const char *search = isProxy ? "proxy-authenticate" : "www-authenticate";
+public:
+    char magic[8];
+    quint32 type;
+    quint32 flags;
+    QNtlmBuffer domain;
+    QNtlmBuffer workstation;
+    enum { Size = 32 };
+};
 
-    bool first = (method == None);
-    method = None;
-    /*
-      Fun from the HTTP 1.1 specs, that we currently ignore:
+// ################# check paddings
+class QNtlmPhase2BlockBase
+{
+public:
+    char magic[8];
+    quint32 type;
+    QNtlmBuffer targetName;
+    quint32 flags;
+    unsigned char challenge[8];
+    quint32 context[2];
+    QNtlmBuffer targetInfo;
+    enum { Size = 48 };
+};
 
-      User agents are advised to take special care in parsing the WWW-
-      Authenticate field value as it might contain more than one challenge,
-      or if more than one WWW-Authenticate header field is provided, the
-      contents of a challenge itself can contain a comma-separated list of
-      authentication parameters.
-    */
+class QNtlmPhase3BlockBase {
+public:
+    char magic[8];
+    quint32 type;
+    QNtlmBuffer lmResponse;
+    QNtlmBuffer ntlmResponse;
+    QNtlmBuffer domain;
+    QNtlmBuffer user;
+    QNtlmBuffer workstation;
+    QNtlmBuffer sessionKey;
+    quint32 flags;
+    enum { Size = 64 };
+};
 
-    QString headerVal;
-    for (int i = 0; i < values.size(); ++i) {
-        const QPair<QString, QString> &current = values.at(i);
-        if (current.first.toLower() != QLatin1String(search))
-            continue;
-        QString str = current.second;
-        if (method < Basic && str.startsWith(QLatin1String("Basic"), Qt::CaseInsensitive)) {
-            method = Basic; headerVal = str.mid(6);
-        } else if (method < Ntlm && str.startsWith(QLatin1String("NTLM"), Qt::CaseInsensitive)) {
-            method = Ntlm;
-            headerVal = str.mid(5);
-        } else if (method < DigestMd5 && str.startsWith(QLatin1String("Digest"), Qt::CaseInsensitive)) {
-            method = DigestMd5;
-            headerVal = str.mid(7);
-        }
-    }
-
-    challenge = headerVal.toLatin1();
-    QHash<QByteArray, QByteArray> options = parseDigestAuthenticationChallenge(challenge);
-
-    switch(method) {
-    case Basic:
-        realm = QString::fromLatin1(options.value("realm"));
-        *passOk = first;
-        break;
-    case Ntlm:
-        // #####
-        realm = QString();
-    case DigestMd5: {
-        realm = QString::fromLatin1(options.value("realm"));
-        *passOk = first || (options.value("stale").toLower() == "true");
-        break;
-    }
-    default:
-        realm = QString();
-        challenge = QByteArray();
-    }
+static void qStreamNtlmBuffer(QDataStream& ds, const QByteArray& s)
+{
+    ds.writeRawData(s.constData(), s.size());
 }
+
+
+static void qStreamNtlmString(QDataStream& ds, const QString& s, bool unicode)
+{
+    if (!unicode)
+        qStreamNtlmBuffer(ds, s.toLatin1());
+    const ushort *d = s.utf16();
+    for (int i = 0; i < s.length(); ++i) 
+        ds << d[i];
+}
+
+
+
+static int qEncodeNtlmBuffer(QNtlmBuffer& buf, int offset, const QByteArray& s)
+{
+    buf.len = s.size();
+    buf.maxLen = buf.len;
+    buf.offset = (offset + 1) & ~1;
+    return buf.offset + buf.len;
+}
+
+
+static int qEncodeNtlmString(QNtlmBuffer& buf, int offset, const QString& s, bool unicode)
+{
+    if (!unicode)
+        return qEncodeNtlmBuffer(buf, offset, s.toLatin1());
+    buf.len = 2 * s.length();
+    buf.maxLen = buf.len;
+    buf.offset = (offset + 1) & ~1;
+    return buf.offset + buf.len;
+}
+
+
+static QDataStream& operator<<(QDataStream& s, const QNtlmBuffer& b)
+{
+    s << b.len << b.maxLen << b.offset;
+    return s;
+}
+
+static QDataStream& operator>>(QDataStream& s, QNtlmBuffer& b)
+{
+    s >> b.len >> b.maxLen >> b.offset;
+    return s;
+}
+
+
+class QNtlmPhase1Block : public QNtlmPhase1BlockBase
+{  // request
+public:
+    QNtlmPhase1Block() {
+        strncpy(magic, "NTLMSSP", 8);
+        type = 1;
+        flags = NTLMSSP_NEGOTIATE_UNICODE | NTLMSSP_NEGOTIATE_NTLM | NTLMSSP_REQUEST_TARGET;
+    }
+
+    // extracted
+    QString domainStr, workstationStr;
+};
+
+
+class QNtlmPhase2Block : public QNtlmPhase2BlockBase
+{  // challenge
+public:
+    QNtlmPhase2Block() {
+        magic[0] = 0;
+        type = -1;
+    }
+
+    // extracted
+    QString targetNameStr, targetInfoStr;
+};
+
+
+
+class QNtlmPhase3Block : public QNtlmPhase3BlockBase {  // response
+public:
+    QNtlmPhase3Block() {
+        strcpy(magic, "NTLMSSP");
+        type = 3;
+        flags = NTLMSSP_NEGOTIATE_UNICODE | NTLMSSP_NEGOTIATE_NTLM | NTLMSSP_NEGOTIATE_TARGET_INFO;
+    }
+
+    // extracted
+    QByteArray lmResponseBuf, ntlmResponseBuf;
+    QString domainStr, userStr, workstationStr, sessionKeyStr;
+};
+
+
+static QDataStream& operator<<(QDataStream& s, const QNtlmPhase1Block& b) {
+    bool unicode = (b.flags & NTLMSSP_NEGOTIATE_UNICODE);
+    
+    s.writeRawData(b.magic, sizeof(b.magic));
+    s << b.type;
+    s << b.flags;
+    s << b.domain;
+    s << b.workstation;
+    if (!b.domainStr.isEmpty()) 
+        qStreamNtlmString(s, b.domainStr, unicode);
+    if (!b.workstationStr.isEmpty()) 
+        qStreamNtlmString(s, b.workstationStr, unicode);
+    return s;
+}
+
+
+static QDataStream& operator<<(QDataStream& s, const QNtlmPhase3Block& b) {
+    bool unicode = (b.flags & NTLMSSP_NEGOTIATE_UNICODE);
+    s.writeRawData(b.magic, sizeof(b.magic));
+    s << b.type;
+    s << b.lmResponse;
+    s << b.ntlmResponse;
+    s << b.domain;
+    s << b.user;
+    s << b.workstation;
+    s << b.sessionKey;
+    s << b.flags;
+
+    // Send auth info
+    qStreamNtlmBuffer(s, b.lmResponseBuf);
+    qStreamNtlmBuffer(s, b.ntlmResponseBuf);
+    
+    if (!b.domainStr.isEmpty()) 
+        qStreamNtlmString(s, b.domainStr, unicode);
+
+    qStreamNtlmString(s, b.userStr, unicode);
+
+    if (!b.workstationStr.isEmpty()) 
+        qStreamNtlmString(s, b.workstationStr, unicode);
+
+
+    return s;
+}
+
+
+static QByteArray qNtlmPhase1(QAuthenticatorPrivate *ctx)
+{
+    QByteArray rc;
+    QDataStream ds(&rc, QIODevice::WriteOnly);
+    ds.setByteOrder(QDataStream::LittleEndian);
+    QNtlmPhase1Block pb;
+//     int offset = QNtlmPhase1BlockBase::Size;
+//     Q_ASSERT(QNtlmPhase1BlockBase::Size == sizeof(QNtlmPhase1BlockBase));
+//     if (!ctx->realm.isEmpty()) {
+//         pb.flags |= NTLMSSP_NEGOTIATE_DOMAIN_SUPPLIED;
+//         offset = qEncodeNtlmString(pb.domain, offset, ctx->realm);
+//         pb.domainStr = ctx->realm;
+//     }
+//     if (!ctx->workstation.isEmpty()) {
+//         pb.flags |= NTLMSSP_NEGOTIATE_WORKSTATION_SUPPLIED;
+//         offset = qEncodeNtlmString(pb.workstation, offset, ctx->workstation);
+//         pb.workstationStr = ctx->workstation;
+//     }
+    ds << pb;
+    return rc;
+}
+
+
+static QByteArray qStringAsUcs2Le(const QString& src)
+{
+    QByteArray rc(2*src.length(), 0);
+    const unsigned short *s = src.utf16();
+    unsigned short *d = (unsigned short*)rc.data();
+    for (int i = 0; i < src.length(); ++i) {
+        d[i] = qToLittleEndian(s[i]);
+    }
+    return rc;
+}
+
+
+static QString qStringFromUcs2Le(const QByteArray& src)
+{
+    Q_ASSERT(src.size() % 2 == 0);
+    unsigned short *d = (unsigned short*)src.data();
+    for (int i = 0; i < src.length() / 2; ++i) {
+        d[i] = qFromLittleEndian(d[i]);
+    }
+    return QString((const QChar *)src.data(), src.size()/2);
+}
+
+
+static QByteArray qEncodeNtlmResponse(const QAuthenticatorPrivate *ctx, const QNtlmPhase2Block& ch)
+{
+    QCryptographicHash md4(QCryptographicHash::Md4);
+    QByteArray asUcs2Le = qStringAsUcs2Le(ctx->password);
+    md4.addData(asUcs2Le.data(), asUcs2Le.size());
+
+    unsigned char md4hash[22];
+    memset(md4hash, 0, sizeof(md4hash));
+    QByteArray hash = md4.result();
+    Q_ASSERT(hash.size() == 16);
+    memcpy(md4hash, hash.constData(), 16);
+
+    QByteArray rc(24, 0);
+    deshash((unsigned char *)rc.data(), md4hash, (unsigned char *)ch.challenge);
+    deshash((unsigned char *)rc.data() + 8, md4hash + 7, (unsigned char *)ch.challenge);
+    deshash((unsigned char *)rc.data() + 16, md4hash + 14, (unsigned char *)ch.challenge);
+
+    hash.fill(0);
+    return rc;
+}
+
+
+static QByteArray qEncodeLmResponse(const QAuthenticatorPrivate *ctx, const QNtlmPhase2Block& ch)
+{
+    QByteArray hash(21, 0);
+    QByteArray key(14, 0);
+    strncpy(key.data(), ctx->password.toUpper().toLatin1(), 14);
+    const char *block = "KGS!@#$%";
+
+    deshash((unsigned char *)hash.data(), (unsigned char *)key.data(), (unsigned char *)block);
+    deshash((unsigned char *)hash.data() + 8, (unsigned char *)key.data() + 7, (unsigned char *)block);
+    key.fill(0);
+
+    QByteArray rc(24, 0);
+    deshash((unsigned char *)rc.data(), (unsigned char *)hash.data(), ch.challenge);
+    deshash((unsigned char *)rc.data() + 8, (unsigned char *)hash.data() + 7, ch.challenge);
+    deshash((unsigned char *)rc.data() + 16, (unsigned char *)hash.data() + 14, ch.challenge);
+
+    hash.fill(0);
+    return rc;
+}
+
+
+static bool qNtlmDecodePhase2(const QByteArray& data, QNtlmPhase2Block& ch)
+{
+    Q_ASSERT(QNtlmPhase2BlockBase::Size == sizeof(QNtlmPhase2BlockBase));
+    if (data.size() < QNtlmPhase2BlockBase::Size) 
+        return false;
+
+    
+    QDataStream ds(data);
+    ds.setByteOrder(QDataStream::LittleEndian);
+    if (ds.readRawData(ch.magic, 8) < 8)
+        return false;
+    if (strncmp(ch.magic, "NTLMSSP", 8) != 0)
+        return false;
+    
+    ds >> ch.type;
+    if (ch.type != 2)
+        return false;
+    
+    ds >> ch.targetName;
+    ds >> ch.flags;
+    if (ds.readRawData((char *)ch.challenge, 8) < 8)
+        return false;
+    ds >> ch.context[0] >> ch.context[1];
+    ds >> ch.targetInfo;
+
+    if (ch.targetName.len > 0) {
+        if (ch.targetName.len + ch.targetName.offset >= (unsigned)data.size()) 
+            return false;
+
+        ch.targetNameStr = qStringFromUcs2Le(data.mid(ch.targetName.offset));
+    }
+
+    if (ch.targetInfo.len > 0) {
+        // UNUSED right now
+    }
+
+    return true;
+}
+
+
+static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phase2data)
+{
+    QNtlmPhase2Block ch;
+    if (!qNtlmDecodePhase2(phase2data, ch))
+        return QByteArray();
+    
+    QByteArray rc;
+    QDataStream ds(&rc, QIODevice::WriteOnly);
+    ds.setByteOrder(QDataStream::LittleEndian);
+    QNtlmPhase3Block pb;
+
+    bool unicode = ch.flags & NTLMSSP_NEGOTIATE_UNICODE;
+
+    ctx->realm = ch.targetNameStr;
+
+    pb.flags = ch.flags;
+
+    int offset = QNtlmPhase3BlockBase::Size;
+    Q_ASSERT(QNtlmPhase3BlockBase::Size == sizeof(QNtlmPhase3BlockBase));
+    
+    // Get LM response
+    pb.lmResponseBuf = qEncodeLmResponse(ctx, ch);
+    offset = qEncodeNtlmBuffer(pb.lmResponse, offset, pb.lmResponseBuf);
+    
+    // Get NTLM response
+    pb.ntlmResponseBuf = qEncodeNtlmResponse(ctx, ch);
+    offset = qEncodeNtlmBuffer(pb.ntlmResponse, offset, pb.ntlmResponseBuf);
+
+    if (!ctx->realm.isEmpty()) {
+        pb.flags |= NTLMSSP_NEGOTIATE_DOMAIN_SUPPLIED;
+        offset = qEncodeNtlmString(pb.domain, offset, ctx->realm, unicode);
+        pb.domainStr = ctx->realm;
+    }
+    
+    offset = qEncodeNtlmString(pb.user, offset, ctx->user, unicode);
+    pb.userStr = ctx->user;
+
+    if (!ctx->workstation.isEmpty()) {
+        pb.flags |= NTLMSSP_NEGOTIATE_WORKSTATION_SUPPLIED;
+        offset = qEncodeNtlmString(pb.workstation, offset, ctx->workstation, unicode);
+        pb.workstationStr = ctx->workstation;
+    }
+
+    // Encode and send
+    ds << pb;
+
+    return rc;
+}
+
+

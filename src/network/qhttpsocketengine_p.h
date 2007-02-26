@@ -41,7 +41,8 @@ public:
         None,
         ConnectSent,
         Connected,
-        SendAuthentication
+        SendAuthentication,
+        ReadResponseContent
     };
     QHttpSocketEngine(QObject *parent = 0);
     ~QHttpSocketEngine();
@@ -132,6 +133,7 @@ public:
     bool writeNotificationActivated;
     bool readNotificationPending;
     bool writeNotificationPending;
+    uint pendingResponseData;
 };
 
 class Q_AUTOTEST_EXPORT QHttpSocketEngineHandler : public QSocketEngineHandler

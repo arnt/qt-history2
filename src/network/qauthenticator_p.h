@@ -19,6 +19,8 @@
 #include <qstring.h>
 #include <qauthenticator.h>
 
+class QHttpResponseHeader;
+
 class QAuthenticatorPrivate
 {
 public:
@@ -33,8 +35,19 @@ public:
     QString realm;
     QByteArray challenge;
 
+    enum Phase {
+        Start,
+        Phase2, 
+        Done
+    };
+    Phase phase;
+
+    // digest specific
     QByteArray cnonce;
     int nonceCount;
+
+    // ntlm specific
+    QString workstation;
     
     QByteArray calculateResponse(const QByteArray &requestLine);
 
@@ -44,7 +57,7 @@ public:
     QByteArray digestMd5Response(const QByteArray &challenge, const QByteArray &requestLine);
     static QHash<QByteArray, QByteArray> parseDigestAuthenticationChallenge(const QByteArray &challenge);
 
-    void parseHttpResponse(const QByteArray &httpResponse, bool isProxy, bool *passOk);
+    void parseHttpResponse(const QHttpResponseHeader &, bool isProxy);
 
 };
 
