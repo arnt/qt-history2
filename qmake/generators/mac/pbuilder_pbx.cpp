@@ -169,14 +169,14 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                               << "\t\t\t" << writeSettings("name", escapeFilePath(tmp_proj.first("TARGET") + projectSuffix())) << ";" << "\n"
                               << "\t\t\t" << writeSettings("path", pbxproj) << ";" << "\n"
                               << "\t\t\t" << writeSettings("refType", "0", SettingsNoQuote) << ";" << "\n"
-                              << "\t\t\t" << writeSettings("sourceTree", "<absolute>", SettingsNoQuote) << ";" << "\n"
+                              << "\t\t\t" << writeSettings("sourceTree", "<absolute>") << ";" << "\n"
                               << "\t\t" << "};" << "\n";
                             //WRAPPER
                             t << "\t\t" << keyFor(pbxproj + "_WRAPPER") << " = {" << "\n"
                               << "\t\t\t" << writeSettings("isa", "PBXReferenceProxy", SettingsNoQuote) << ";" << "\n";
                             if(tmp_proj.first("TEMPLATE") == "app") {
                                 t << "\t\t\t" << writeSettings("fileType", "wrapper.application") << ";" << "\n"
-                                  << "\t\t\t" << writeSettings("path", tmp_proj.first("TARGET")) << ".app;" << "\n";
+                                  << "\t\t\t" << writeSettings("path", tmp_proj.first("TARGET") + ".app") << ";" << "\n";
                             } else {
                                 t << "\t\t\t" << writeSettings("fileType", "compiled.mach-o.dylib") << ";" << "\n"
                                   << "\t\t\t" << writeSettings("path", tmp_proj.first("TARGET") + ".dylib") << ";" << "\n";
@@ -199,7 +199,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                               << "\t\t\t" << writeSettings("isa", "PBXGroup", SettingsNoQuote) << ";" << "\n"
                               << "\t\t\t" << writeSettings("name", "Products") << ";" << "\n"
                               << "\t\t\t" << writeSettings("refType", "4", SettingsNoQuote) << ";" << "\n"
-                              << "\t\t\t" << writeSettings("sourceTree", "<group>", SettingsNoQuote) << ";" << "\n"
+                              << "\t\t\t" << writeSettings("sourceTree", "<group>") << ";" << "\n"
                               << "\t\t" << "};" << "\n";
                         }
 #ifdef GENERATE_AGGREGRATE_SUBDIR
@@ -329,7 +329,7 @@ nextfile:
       << "\t\t\t" << writeSettings("children", project->values("QMAKE_SUBDIR_PBX_GROUPS"), SettingsAsList, 4) << ";" << "\n"
       << "\t\t\t" << writeSettings("isa", "PBXGroup", SettingsNoQuote) << ";" << "\n"
       << "\t\t\t" << writeSettings("refType", "4", SettingsNoQuote) << ";" << "\n"
-      << "\t\t\t" << writeSettings("sourceTree", "<group>", SettingsNoQuote) << ";" << "\n"
+      << "\t\t\t" << writeSettings("sourceTree", "<group>") << ";" << "\n"
       << "\t\t" << "};" << "\n";
 
 
