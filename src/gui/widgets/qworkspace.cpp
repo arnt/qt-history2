@@ -1997,7 +1997,7 @@ void QWorkspacePrivate::hideMaximizeControls()
             maxtools->deleteLater();
     }
 
-    //unmerge the titlebar/modification state
+    //unmerge the title bar/modification state
     if (topTitle.size()) {
         inTitleChange = true;
         q->window()->setWindowTitle(topTitle);

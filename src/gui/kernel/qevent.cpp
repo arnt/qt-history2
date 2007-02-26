@@ -2884,7 +2884,7 @@ QFileOpenEvent::~QFileOpenEvent()
 
     The QToolBarChangeEvent is sent when the toolbar button is clicked. On Mac
     OS X, this is the long oblong button on the right side of the window
-    titlebar. The default implementation is to toggle the appearance (hidden or
+    title bar. The default implementation is to toggle the appearance (hidden or
     shown) of the associated toolbars for the window.
 */
 

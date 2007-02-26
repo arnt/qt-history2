@@ -499,7 +499,7 @@ static void qt_show_system_menu(QWidget* tlw)
 
     // We should _not_ check with the setFixedSize(x,y) case here, since Windows is not able to check
     // this and our menu here would be out-of-sync with the menu produced by mouse-click on the
-    // System Menu, or right-click on the titlebar.
+    // System Menu, or right-click on the title bar.
     EnableMenuItem(menu, SC_SIZE, (tlw->windowFlags() & Qt::MSWindowsFixedSizeDialogHint) || maximized?disabled:enabled);
     EnableMenuItem(menu, SC_MOVE, maximized?disabled:enabled);
     EnableMenuItem(menu, SC_CLOSE, enabled);

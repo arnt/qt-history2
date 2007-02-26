@@ -4561,7 +4561,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             QColor textColor(active ? 0x282e40 : 0x282e40);
             QColor textAlphaColor(active ? 0x3f4862 : 0x3f4862);
 
-            // Fill titlebar gradient
+            // Fill title bar gradient
             qt_plastique_draw_gradient(painter, option->rect.adjusted(1, 1, -1, 0),
                                        titleBarGradientStart,
                                        titleBarGradientStop);
@@ -5576,7 +5576,7 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     case PM_TitleBarHeight:
 #ifdef QT3_SUPPORT
         if (widget && widget->inherits("Q3DockWindowTitleBar")) {
-            // Q3DockWindow has smaller titlebars than QDockWidget
+            // Q3DockWindow has smaller title bars than QDockWidget
             ret = qMax(widget->fontMetrics().lineSpacing(), 16);
         } else
 #endif

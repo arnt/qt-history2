@@ -1166,7 +1166,7 @@ bool QWidgetPrivate::qt_widget_rgn(QWidget *widget, short wcode, RgnHandle rgn, 
                             qt_mac_dispose_rgn(rgn);
                         }
                         QRect br = title.boundingRect();
-                        mask.translate(0, br.height()); //put the mask 'under' the titlebar..
+                        mask.translate(0, br.height()); //put the mask 'under' the title bar..
                         title.translate(-br.x(), -br.y());
                         mask += title;
                     }

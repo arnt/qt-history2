@@ -87,7 +87,7 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
 
     QStyle *style = QApplication::style();
 
-    // In the case of a borderless titlebar, the titlebar must be expanded one
+    // In the case of a borderless title bar, the title bar must be expanded one
     // borderWidth to the left, right and up.
     bool noTitleBorder = style->styleHint(QStyle::SH_TitleBar_NoBorder, 0, widget);
     int borderWidth = style->pixelMetric(QStyle::PM_MDIFrameWidth, 0, 0);
@@ -195,7 +195,7 @@ QRegion QDecorationStyled::region(const QWidget *widget, const QRect &rect, int 
 {
     QStyle *style = QApplication::style();
 
-    // In the case of a borderless titlebar, the titlebar must be expanded one
+    // In the case of a borderless title bar, the title bar must be expanded one
     // borderWidth to the left, right and up.
     bool noTitleBorder = style->styleHint(QStyle::SH_TitleBar_NoBorder, 0, widget);
     int borderWidth = style->pixelMetric(QStyle::PM_MDIFrameWidth, 0, 0);

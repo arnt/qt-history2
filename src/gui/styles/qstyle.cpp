@@ -1582,7 +1582,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     the tip label, 0 is completely transparent, 255 is completely
     opaque.
     \value SH_DrawMenuBarSeparator  Indicates whether or not the menu bar draws separators.
-    \value SH_TitleBar_ModifyNotification  Indicates if the titlebar should show
+    \value SH_TitleBar_ModifyNotification  Indicates if the title bar should show
     a '*' for windows that are modified.
 
     \value SH_Button_FocusPolicy The default focus policy for buttons.

@@ -2623,7 +2623,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             QColor textColor(active ? 0xffffff : 0xff000000);
             QColor textAlphaColor(active ? 0xffffff : 0xff000000 );
 
-            // Fill titlebar gradient
+            // Fill title bar gradient
             qt_cleanlooks_draw_gradient(painter, option->rect.adjusted(1, 1, -1, 0),
                                        titleBarGradientStart,
                                        titleBarGradientStop, TopDown, active ? highlight : palette.background().color());
