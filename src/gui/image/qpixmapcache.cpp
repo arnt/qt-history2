@@ -54,13 +54,19 @@
 
 static int cache_limit = 1024;                        // 1024 KB cache limit
 
-class QPMCache : public QObject, public QCache<qint64, QPixmap>
+class QDetachedPixmap : public QPixmap
+{
+public:
+    QDetachedPixmap(const QPixmap &pix) : QPixmap(pix) {};
+};
+
+class QPMCache : public QObject, public QCache<int, QDetachedPixmap>
 {
     Q_OBJECT
 public:
     QPMCache()
         : QObject(0),
-          QCache<qint64, QPixmap>(cache_limit * 1024),
+          QCache<int, QDetachedPixmap>(cache_limit * 1024),
           id(0), ps(0), t(false) { }
     ~QPMCache() { }
 
@@ -71,7 +77,7 @@ public:
     QPixmap *object(const QString &key) const;
 
 private:
-    QHash<QString, qint64> cacheKeys;
+    QHash<QString, int> serialNumbers;
     int id;
     int ps;
     bool t;
@@ -97,15 +103,14 @@ void QPMCache::timerEvent(QTimerEvent *)
     setMaxCost(mc);
     ps = totalCost();
 
-    QHash<QString,qint64>::iterator it = cacheKeys.begin();
-    while (it != cacheKeys.end()) {
+    QHash<QString,int>::iterator it = serialNumbers.begin();
+    while (it != serialNumbers.end()) {
         if (!contains(it.value())) {
-            it = cacheKeys.erase(it);
+            it = serialNumbers.erase(it);
         }
         else
             ++it;
     }
-
 
     if (!size()) {
         killTimer(id);
@@ -119,20 +124,20 @@ void QPMCache::timerEvent(QTimerEvent *)
 
 QPixmap *QPMCache::object(const QString &key) const
 {
-    return QCache<qint64,QPixmap>::object(cacheKeys.value(key, -1));
+    return QCache<int,QDetachedPixmap>::object(serialNumbers.value(key, -1));
 }
 
 
 bool QPMCache::insert(const QString& key, const QPixmap &pixmap, int cost)
 {
-    qint64 cacheKey = pixmap.cacheKey();
-    if (contains(cacheKey)) {
-        cacheKeys.insert(key, cacheKey);
+    int serialNumber = pixmap.serialNumber();
+    if (contains(serialNumber)) {
+        serialNumbers.insert(key, serialNumber);
         return true;
     }
-    bool success = QCache<qint64, QPixmap>::insert(cacheKey, new QPixmap(pixmap), cost);
+    bool success = QCache<int, QDetachedPixmap>::insert(serialNumber, new QDetachedPixmap(pixmap), cost);
     if (success) {
-        cacheKeys.insert(key, cacheKey);
+        serialNumbers.insert(key, serialNumber);
         if (!id) {
             id = startTimer(30000);
             t = false;
@@ -143,9 +148,9 @@ bool QPMCache::insert(const QString& key, const QPixmap &pixmap, int cost)
 
 bool QPMCache::remove(const QString &key)
 {
-    qint64 cacheKey = cacheKeys.value(key, -1);
-    cacheKeys.remove(key);
-    return QCache<qint64, QPixmap>::remove(cacheKey);
+    int serialNumber = serialNumbers.value(key, -1);
+    serialNumbers.remove(key);
+    return QCache<int, QDetachedPixmap>::remove(serialNumber);
 }
 
 Q_GLOBAL_STATIC(QPMCache, pm_cache)
