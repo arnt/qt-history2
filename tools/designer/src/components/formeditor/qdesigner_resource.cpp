@@ -268,8 +268,12 @@ static bool convert3(const QString &fileName, QByteArray& ba, QString &errorMess
 QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
 
             {
-    if (ui->hasAttributeLanguage() && ui->attributeLanguage().toLower() != QLatin1String("c++"))
+    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), core())) {
+        if (!extra->loadUiExtraInfo(ui))
+            return 0;
+    } else if (ui->hasAttributeLanguage() && ui->attributeLanguage().toLower() != QLatin1String("c++")) {
         return 0;
+    }
 
     const QString version = ui->attributeVersion();
     if (version != QLatin1String("4.0")) {
@@ -368,9 +372,6 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
     }
 
     factory->currentFormWindow(previousFormWindow);
-
-    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), core()))
-        extra->loadUiExtraInfo(ui);
 
     return mainWidget;
 }
