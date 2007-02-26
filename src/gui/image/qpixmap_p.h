@@ -48,7 +48,7 @@ struct QPixmapData { // internal pixmap data
     int detach_no;
     QImage image;
     QPixmap::Type type;
-#ifndef QT_NO_DIRECT3D
+#if !defined(QT_NO_DIRECT3D) && defined(Q_WS_WIN)
     IDirect3DTexture9 *texture;
 #endif
 
