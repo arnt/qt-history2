@@ -246,17 +246,28 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
     setFilter(m_filter);
 }
 
-QString fixActionText(QString text)
-{
-    return text.replace(QString(QLatin1Char('&')), QString());
-}
-
 static QIcon fixActionIcon(QIcon icon)
 {
     static const QIcon empty_icon(QLatin1String(":/trolltech/formeditor/images/emptyicon.png"));
     if (icon.isNull())
         return empty_icon;
     return icon;
+}
+
+// Set up list widget item, icon, tooltip
+static void setListWidgetItem(const QAction *action,  QListWidgetItem *item)
+{
+    item->setText(action->objectName());
+    item->setIcon(fixActionIcon(action->icon()));
+
+    QString tooltip = action->objectName();
+    const QString text = action->text();
+    if (!text.isEmpty()) {
+        tooltip += QLatin1Char('\n');
+        tooltip += text;
+    }
+    item->setToolTip(tooltip);
+    item->setWhatsThis(tooltip);
 }
 
 QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
@@ -268,9 +279,7 @@ QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
     const QSize s = m_actionRepository->iconSize();
     item->setSizeHint(QSize(s.width() * 3, s.height() * 2));
 
-
-    item->setText(fixActionText(action->objectName()));
-    item->setIcon(fixActionIcon(action->icon()));
+    setListWidgetItem(action, item);
 
     QVariant itemData;
     qVariantSetValue(itemData, action);
@@ -279,25 +288,11 @@ QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
     return item;
 }
 
-void ActionEditor::updatePropertyEditor(QAction *action)
-{
-    if (!action || !core()->propertyEditor())
-        return;
-
-    QObject *sel = action;
-    if (action->menu())
-        sel = action->menu();
-
-    core()->propertyEditor()->setObject(sel);
-}
-
 void ActionEditor::slotItemChanged(QListWidgetItem *item)
 {
     QDesignerFormWindowInterface *fw = formWindow();
     if (!fw)
         return;
-
-    m_actionDelete->setEnabled(item != 0);
 
     QAction *action = 0;
     if (item)
@@ -344,8 +339,7 @@ void ActionEditor::slotActionChanged()
         delete item;
     } else {
         // action text or icon changed, update item
-        item->setText(fixActionText(action->objectName()));
-        item->setIcon(fixActionIcon(action->icon()));
+        setListWidgetItem(action, item);
     }
 }
 

@@ -82,7 +82,6 @@ signals:
 
 private:
     QListWidgetItem *createListWidgetItem(QAction *action);
-    void updatePropertyEditor(QAction *action);
 
     QDesignerFormEditorInterface *m_core;
     QPointer<QDesignerFormWindowInterface> m_formWindow;
