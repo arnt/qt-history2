@@ -24,7 +24,7 @@ bool QLibraryPrivate::load_sys()
 {
     QString attempt = fileName;
 
-    //avoid 'Bad Image' messagebox
+    //avoid 'Bad Image' message box
     UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
     QT_WA({
         pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
