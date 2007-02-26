@@ -610,7 +610,10 @@ void QScript::ConnectionQObject::execute(void **argv)
     }
 
     QScriptValueImpl senderObject;
-    eng->qobjectConstructor->newQObject(&senderObject, sender());
+    if (sender() == m_sender.toQObject())
+        senderObject = m_sender;
+    else
+        senderObject = eng->newQObject(sender());
 
     QScriptValueImpl thisObject;
     if (m_hasReceiver)
@@ -724,6 +727,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
 
     QByteArray funName = methodName(meta->method(m_initialIndex));
     if (!meta->cast(thisQObject)) {
+#if 0
         // ### find common superclass, see if initialIndex is
         //     in that class (or a superclass of that class),
         //     then it's still safe to execute it
@@ -733,6 +737,9 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
             .arg(QLatin1String(thisQObject->metaObject()->className()))
             .arg(QLatin1String(meta->className())));
         return;
+#endif
+        // invoking a function in the prototype
+        thisQObject = m_object;
     }
 
     QList<QVariant> vlist; // ### use QVector
