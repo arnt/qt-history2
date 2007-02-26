@@ -2543,7 +2543,7 @@ void QWidgetPrivate::scroll_sys(int dx, int dy, const QRect &r)
                 QWidget *w = (QWidget*)obj;
                 if(!w->isWindow()) {
                     w->data->crect = QRect(w->pos() + pd, w->size());
-                    if (!w->testAttribute(Qt::WA_WState_Created)) {
+                    if (w->testAttribute(Qt::WA_WState_Created)) {
                         HIRect bounds = CGRectMake(w->data->crect.x(), w->data->crect.y(),
                                                    w->data->crect.width(), w->data->crect.height());
                         HIViewSetFrame(qt_mac_hiview_for(w), &bounds);
