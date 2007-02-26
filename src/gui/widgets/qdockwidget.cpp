@@ -254,7 +254,12 @@ QSize QDockWidgetLayout::sizeFromContent(const QSize &content, bool floating) co
     if (content.height() < 0)
         result.setHeight(-1);
 
-    return result;
+    QSize min = w->minimumSize();
+    if (min.width() == 0)
+        min.setWidth(-1);
+    if (min.height() == 0)
+        min.setHeight(-1);
+    return result.boundedTo(w->maximumSize()).expandedTo(min);
 }
 
 QSize QDockWidgetLayout::sizeHint() const
@@ -860,7 +865,7 @@ void QDockWidgetPrivate::setWindowState(bool floating, bool unplug, const QRect 
     Q_Q(QDockWidget);
 
     bool wasFloating = q->isFloating();
-    bool visible = q->isVisible();
+    bool hidden = q->isHidden();
 
     q->hide();
 
@@ -885,7 +890,7 @@ void QDockWidgetPrivate::setWindowState(bool floating, bool unplug, const QRect 
 
     updateButtons();
 
-    if (visible)
+    if (!hidden)
         q->show();
 
     if (floating != wasFloating)
