@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = helloscript qscript context2d marshal calculator tetrix
+SUBDIRS = helloscript qscript context2d marshal calculator tetrix defaultprototypes
