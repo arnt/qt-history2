@@ -512,9 +512,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         connect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
         connect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
     }
-    QItemSelectionModel *selModel = selectionModel();
     setSelectionModel(new QItemSelectionModel(d->model, this));
-    delete selModel;
     reset(); // kill editors, set new root and do layout
 }
 
