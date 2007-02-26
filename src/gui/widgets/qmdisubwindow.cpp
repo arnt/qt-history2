@@ -120,6 +120,11 @@
 #include <QToolTip>
 #include <QMainWindow>
 #include <QDebug>
+#if defined(Q_WS_MAC)
+#include <QMacStyle>
+#elif defined(Q_WS_WIN)
+#include <QWindowsXPStyle>
+#endif
 
 static const QStyle::SubControl SubControls[] =
 {
@@ -807,8 +812,10 @@ void QMdiSubWindowPrivate::updateCursor()
 {
 #ifndef QT_NO_CURSOR
     Q_Q(QMdiSubWindow);
-    if (q->style()->inherits("QMacStyle"))
+#ifdef Q_WS_MAC
+    if (qobject_cast<QMacStyle *>(q->style()))
         return;
+#endif
 
     if (currentOperation == None) {
         q->unsetCursor();
@@ -1111,14 +1118,16 @@ void QMdiSubWindowPrivate::processClickedSubControl()
         q->showNormal();
         break;
     case QStyle::SC_TitleBarMinButton:
-        if (q->style()->inherits("QMacStyle")) {
+#ifdef Q_WS_MAC
+        if (qobject_cast<QMacStyle *>(q->style())) {
             if (q->isMinimized())
                 q->showNormal();
             else
                 q->showMinimized();
-        } else {
-            q->showMinimized();
+            break;
         }
+#endif
+        q->showMinimized();
         break;
     case QStyle::SC_TitleBarNormalButton:
         if (q->isShaded())
@@ -1126,14 +1135,16 @@ void QMdiSubWindowPrivate::processClickedSubControl()
         q->showNormal();
         break;
     case QStyle::SC_TitleBarMaxButton:
-        if (q->style()->inherits("QMacStyle")) {
+#ifdef Q_WS_MAC
+        if (qobject_cast<QMacStyle *>(q->style())) {
             if (q->isMaximized())
                 q->showNormal();
             else
                 q->showMaximized();
-        } else {
-            q->showMaximized();
+            break;
         }
+#endif
+        q->showMaximized();
         break;
     case QStyle::SC_TitleBarCloseButton:
         q->close();
@@ -1171,8 +1182,10 @@ QRegion QMdiSubWindowPrivate::getRegion(Operation operation) const
     }
 
     QRegion region;
-    if (q->style()->inherits("QMacStyle"))
+#ifdef Q_WS_MAC
+    if (qobject_cast<QMacStyle *>(q->style()))
         return region;
+#endif
 
     switch (operation) {
     case TopResize:
@@ -1323,9 +1336,11 @@ int QMdiSubWindowPrivate::titleBarHeight(const QStyleOptionTitleBar &options) co
     }
 
     int height = q->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options);
+#ifdef Q_WS_MAC
     // ### Fix mac style, the +4 pixels hack is not necessary anymore
-    if (q->style()->inherits("QMacStyle"))
+    if (qobject_cast<QMacStyle *>(q->style()))
         height -= 4;
+#endif
     if (hasBorder(options))
         height += q->isMinimized() ? 8 : 4;
     return height;
@@ -1716,7 +1731,12 @@ void QMdiSubWindowPrivate::setSizeGrip(QSizeGrip *newSizeGrip)
     if (q->layout() && q->layout()->indexOf(newSizeGrip) != -1)
         return;
     newSizeGrip->setFixedSize(newSizeGrip->sizeHint());
-    if (q->layout() && !q->style()->inherits("QMacStyle")) {
+    bool putSizeGripInLayout = q->layout() ? true : false;
+#ifdef Q_WS_MAC
+    if (qobject_cast<QMacStyle *>(q->style()))
+        putSizeGripInLayout = false;
+#endif
+    if (putSizeGripInLayout) {
         q->layout()->addWidget(newSizeGrip);
         q->layout()->setAlignment(newSizeGrip, Qt::AlignBottom | Qt::AlignRight);
     } else {
@@ -2244,8 +2264,8 @@ bool QMdiSubWindow::event(QEvent *event)
             d->leaveRubberBandMode();
         d->isShadeMode = false;
         if (!parent()) {
-#ifndef QT_NO_SIZEGRIP
-            if (style()->inherits("QMacStyle"))
+#if !defined(QT_NO_SIZEGRIP) && defined(Q_WS_MAC)
+            if (qobject_cast<QMacStyle *>(style()))
                 delete d->sizeGrip;
 #endif
             setOption(RubberBandResize, false);
@@ -2301,8 +2321,8 @@ void QMdiSubWindow::showEvent(QShowEvent *showEvent)
         return;
     }
 
-#ifndef QT_NO_SIZEGRIP
-    if (style()->inherits("QMacStyle") && !d->sizeGrip
+#if !defined(QT_NO_SIZEGRIP) && defined(Q_WS_MAC)
+    if (qobject_cast<QMacStyle *>(style()) && !d->sizeGrip
             && !(windowFlags() & Qt::FramelessWindowHint)) {
         d->setSizeGrip(new QSizeGrip(0));
         Q_ASSERT(d->sizeGrip);
@@ -2458,7 +2478,12 @@ void QMdiSubWindow::paintEvent(QPaintEvent *paintEvent)
         frameOptions.state &= ~QStyle::State_Active;
     }
 
-    if (!style()->inherits("WindowsXP") && !isMinimized() && !d->hasBorder(titleBarOptions))
+    bool setClipRect = !isMinimized() && !d->hasBorder(titleBarOptions);
+#ifdef Q_WS_WIN
+    if (qobject_cast<QWindowsXPStyle *>(style()))
+        setClipRect = false;
+#endif
+    if (setClipRect)
         painter.setClipRect(rect().adjusted(0, d->titleBarHeight(titleBarOptions), 0, 0));
     if (!isMinimized() || d->hasBorder(titleBarOptions))
         painter.drawPrimitive(QStyle::PE_FrameWindow, frameOptions);
@@ -2773,8 +2798,10 @@ QSize QMdiSubWindow::minimumSizeHint() const
     int sizeGripHeight = 0;
     if (d->sizeGrip && d->sizeGrip->isVisibleTo(const_cast<QMdiSubWindow *>(this)))
         sizeGripHeight = d->sizeGrip->height();
-    else if (parent() && style()->inherits("QMacStyle") && !d->sizeGrip)
+#ifdef Q_WS_MAC
+    else if (parent() && qobject_cast<QMacStyle *>(style()) && !d->sizeGrip)
         sizeGripHeight = style()->pixelMetric(QStyle::PM_SizeGripSize, 0, this);
+#endif
     minHeight = qMax(minHeight, decorationHeight + sizeGripHeight);
 #endif
 

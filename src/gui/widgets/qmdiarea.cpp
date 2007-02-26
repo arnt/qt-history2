@@ -104,6 +104,9 @@
 #include <private/qmdisubwindow_p.h>
 #include <QApplication>
 #include <QStyle>
+#if defined(Q_WS_MAC)
+#include <QMacStyle>
+#endif
 #include <QChildEvent>
 #include <QResizeEvent>
 #include <QScrollBar>
@@ -225,9 +228,11 @@ void SimpleCascader::rearrange(QList<QWidget *> &widgets, const QRect &domain) c
     QStyleOptionTitleBar options;
     options.initFrom(widgets.at(0));
     int titleBarHeight = widgets.at(0)->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options);
+#ifdef Q_WS_MAC
     // ### Remove this after the mac style has been fixed
-    if (widgets.at(0)->style()->inherits("QMacStyle"))
+    if (qobject_cast<QMacStyle *>(widgets.at(0)->style()))
         titleBarHeight -= 4;
+#endif
     const QFontMetrics fontMetrics = QFontMetrics(QApplication::font("QWorkspaceTitleBar"));
     const int dy = qMax(titleBarHeight - (titleBarHeight - fontMetrics.height()) / 2, 1);
 
