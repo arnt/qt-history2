@@ -263,7 +263,7 @@ void QDialogPrivate::setDefault(QPushButton *pushButton)
 
 /*!
   \internal
-  This function sets the default default pushbutton to \a pushButton.
+  This function sets the default default push button to \a pushButton.
   This function is called by QPushButton::setDefault().
 */
 void QDialogPrivate::setMainDefault(QPushButton *pushButton)

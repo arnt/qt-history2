@@ -1492,7 +1492,7 @@ QRect QWindowsVistaStyle::subElementRect(SubElement element, const QStyleOption 
    QRect rect = QWindowsXPStyle::subElementRect(element, option, widget);
     switch (element) {
 
-    //### backport this pushbutton content fix to XP
+    //### backport this push button content fix to XP
     //the original code required a widget to function.
     case SE_PushButtonContents:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {

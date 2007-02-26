@@ -4662,7 +4662,7 @@ Q3FileDialog::PreviewMode Q3FileDialog::previewMode() const
   Adds the specified widgets to the bottom of the file dialog. The
   label \a l is placed underneath the "file name" and the "file types"
   labels. The widget \a w is placed underneath the file types combobox.
-  The button \a b is placed underneath the Cancel pushbutton.
+  The button \a b is placed underneath the Cancel push button.
 
   \code
     MyFileDialog::MyFileDialog(QWidget* parent, const char* name) :

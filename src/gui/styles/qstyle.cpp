@@ -1444,7 +1444,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         If true, when clicking a scroll bar button (SC_ScrollBarAddLine or
         SC_ScrollBarSubLine) and dragging over to the opposite button (rolling)
         will press the new button and release the old one. When it is false, the
-        original button is released and nothing happens (like a pushbutton).
+        original button is released and nothing happens (like a push button).
 
     \value SH_TabBar_Alignment  The alignment for tabs in a
         QTabWidget. Possible values are Qt::AlignLeft,

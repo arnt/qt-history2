@@ -136,7 +136,7 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
         timeLine->setFrameRange(0, 100);
         connect(timeLine, SIGNAL(frameChanged(int)), progressBar, SLOT(setValue(int)));
 
-        // Clicking the pushbutton will start the progress bar animation
+        // Clicking the push button will start the progress bar animation
         pushButton = new QPushButton(tr("Start animation"), this);
         connect(pushButton, SIGNAL(clicked()), timeLine, SLOT(start()));
         ...

@@ -210,7 +210,7 @@ private slots:
     void startAnimationTimer();
 
 public:
-    QPointer<QPushButton> defaultButton; //default pushbuttons
+    QPointer<QPushButton> defaultButton; //default push buttons
     int timerID;
     QList<QPointer<QWidget> > progressBars; //existing progress bars that need animation
 
