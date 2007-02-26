@@ -2987,8 +2987,6 @@ QList<QLocale::Country> QLocale::countriesForLanguage(Language language)
 
     const QLocalePrivate *d = locale_data + idx;
 
-    Q_ASSERT(d->languageId() == language_id);
-
     while (d->languageId() == language_id) {
         result << static_cast<Country>(d->countryId());
         ++d;
