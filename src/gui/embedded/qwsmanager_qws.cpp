@@ -407,12 +407,17 @@ void QWSManagerPrivate::paint(QPaintDevice *paintDevice, const QRegion &region)
     QWSWindowSurface *surface;
     surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
     const QRegion clippedRegion = region & surface->clipRegion();
+    if (clippedRegion.isEmpty()) {
+        dirtyRegions.clear();
+        dirtyStates.clear();
+        return;
+    }
+
     const QRegion surfaceClip = clippedRegion.translated(bs->topLevelOffset());
+
     paintDevice->paintEngine()->setSystemClip(surfaceClip);
 
-    QPainter painter(paintDevice);
-    painter.setFont(qApp->font());
-    painter.translate(bs->topLevelOffset());
+    QPainter *painter = 0;
 
     const int numDirty = dirtyRegions.size();
     for (int i = 0; i < numDirty; ++i) {
@@ -420,14 +425,20 @@ void QWSManagerPrivate::paint(QPaintDevice *paintDevice, const QRegion &region)
         QDecoration::DecorationState state = dirtyStates.at(i);
 
         QRegion clipRegion = dec.region(managed, clipRect, r);
-        clipRegion.translate(-bs->topLevelOffset());
-        painter.setClipRegion(clipRegion);
-
-        dec.paint(&painter, managed, r, state);
+        if (!clipRegion.isEmpty()) {
+            if (!painter) {
+                painter = new QPainter(paintDevice);
+                painter->setFont(qApp->font());
+                painter->translate(bs->topLevelOffset());
+            }
+            clipRegion.translate(-bs->topLevelOffset());
+            painter->setClipRegion(clipRegion);
+            dec.paint(painter, managed, r, state);
+        }
     }
     dirtyRegions.clear();
     dirtyStates.clear();
-    painter.end();
+    delete painter;
 }
 
 bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationState state)
