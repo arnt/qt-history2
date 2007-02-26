@@ -1428,23 +1428,71 @@ void tst_QGridLayout::spacing()
     delete style;
 }
 
+void populate(QGridLayout *layout, int row, int kind)
+{
+    if (kind == 0) {
+        QWidget *widget = new QWidget;
+        widget->setFixedSize(100, 100);
+        layout->addWidget(widget, row, 0);
+    } else if (kind == 1) {
+        layout->addItem(new QSpacerItem(10, 10), row, 0);
+    }
+}
+
 void tst_QGridLayout::spacerWithSpacing()
 {
-    QWidget *w = new QWidget();
-    int margin = w->style()->pixelMetric(QStyle::PM_DefaultTopLevelMargin);
-    QSize size(10, 10);
-    QGridLayout *gridLayout = new QGridLayout(w);
-    QLineEdit *lineEdit = new QLineEdit(w);
-    gridLayout->addWidget(lineEdit, 0,0,1,1);
-    gridLayout->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding), 1, 0, 1, 1);
-    w->setLayout(gridLayout);
-    size = size.expandedTo(w->minimumSizeHint());
-    w->resize(size);
-    w->show();
-    QSKIP("This works in qt/main", SkipAll);
-    QCOMPARE(w->size().height(), margin + lineEdit->height() + margin);
-    delete w;
-
+    // Tests all combinations of widget (w), spacer (s) and no layoutitem (-)
+    // to see if they are laid out correctly.
+    // Note that a combination of "s-" or "-s" should only give the height of "s"
+    const int expectedHeight[] = {
+        302,// www
+        211,// wws
+        201,// ww-
+        211,// wsw
+        120,// wss
+        110,// ws-
+        201,// w-w
+        110,// w-s
+        100,// w--
+        211,// sww
+        120,// sws
+        110,// sw-
+        120,// ssw
+         30,// sss
+         20,// ss-
+        110,// s-w
+         20,// s-s
+         10,// s--
+        201,// -ww
+        110,// -ws
+        100,// -w-
+        110,// -sw
+         20,// -ss
+         10,// -s-
+        100,// --w
+         10,// --s
+        000 // ---  
+        };
+    int ii = 0;
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            for (int k = 0; k < 3; ++k) {
+                QWidget window;
+                QGridLayout layout(&window);
+                layout.setSpacing(1);
+                layout.setMargin(0);
+                populate(&layout, 0, i);
+                populate(&layout, 1, j);
+                populate(&layout, 2, k);
+                QCOMPARE(window.sizeHint().height(), expectedHeight[ii]);
+#if 0
+                const char T[] = "ws-";
+                qWarning("%c%c%c: %.3d", i[T], j[T], k[T], window.sizeHint().height());
+#endif
+                ++ii;
+            }
+        }
+    }
 }
 
 QTEST_MAIN(tst_QGridLayout)
