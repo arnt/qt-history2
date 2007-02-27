@@ -2376,6 +2376,21 @@ QD3DBatchItem *QDirect3DPaintEnginePrivate::nextBatchItem()
     return item;
 }
 
+qreal calculateAngle(qreal dx, qreal dy)
+{
+    qreal angle;
+
+    if (qFuzzyCompare(dx, 0.0)) {
+        angle = (dy < 0) ? -M_PI/2 : M_PI/2;
+    } else {
+        angle = atanf(dy/dx);
+        if (dx < 0)
+            angle += M_PI;
+    }
+
+    return angle;
+}
+
 QPolygonF QDirect3DPaintEnginePrivate::brushCoordinates(const QRectF &r, bool stroke, qreal *fd) const
 {
     QBrush brush;
@@ -2409,12 +2424,7 @@ QPolygonF QDirect3DPaintEnginePrivate::brushCoordinates(const QRectF &r, bool st
             qreal dx = stop.x() - start.x();
             qreal dy = stop.y() - start.y();
             qreal length = sqrt(dx * dx + dy * dy);
-            qreal angle;
-            if (qFuzzyCompare(dx, 0.0)) {
-                angle = (dy < 0) ? -M_PI/4 : M_PI/4;
-            } else {
-                angle = atanf(dy/dx);
-            }
+            qreal angle = calculateAngle(dx, dy);
             QTransform totxcoords;
             QRectF adj_brect = r.adjusted(-0.5f, -0.5f, -0.5f, -0.5f);
             totxcoords.scale(1.0f/length, 1.0f/length);
@@ -2441,16 +2451,7 @@ QPolygonF QDirect3DPaintEnginePrivate::brushCoordinates(const QRectF &r, bool st
             qreal dy = focalpoint.y() - center.y();
             qreal radius = g->radius();
             *fd = sqrt(dx * dx + dy * dy) / radius;
-            qreal angle;
-            if (qFuzzyCompare(dx, 0.0)) {
-                if (qFuzzyCompare(dy, 0.0)) {
-                    angle = 0;
-                } else {
-                    angle = (dy < 0) ? -M_PI/4 : M_PI/4;
-                }
-            } else {
-                angle = atanf(dy/dx);
-            }
+            qreal angle = calculateAngle(dx, dy);
             QTransform totxcoords;
             totxcoords.scale(1.0f/radius, 1.0f/radius);
             totxcoords.rotateRadians(-angle);
@@ -2681,6 +2682,7 @@ bool QDirect3DPaintEnginePrivate::init()
         return false;
 
     /* load shaders */
+    //QFile file("C:\\depot\\qt\\main\\src\\gui\\painting\\qpaintengine_d3d.fx");
     QFile file(":/qpaintengine_d3d.fx");
     QByteArray fxFile;
     if (file.open(QFile::ReadOnly))
