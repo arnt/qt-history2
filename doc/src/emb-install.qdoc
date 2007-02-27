@@ -17,6 +17,7 @@
     \title Installing Qtopia Core
     \ingroup qtopiacore
     \ingroup installation
+    \brief How to install Qtopia Core.
 
     This document describes how to install \l {Qtopia Core} in your
     development environment:
