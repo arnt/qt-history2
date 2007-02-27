@@ -34,7 +34,10 @@ HEADERS += \
 	itemviews/qstringlistmodel.h \
 	itemviews/qtreewidgetitemiterator.h \
     itemviews/qdatawidgetmapper.h \
-    itemviews/qfileiconprovider.h
+    itemviews/qfileiconprovider.h \
+    itemviews/qcolumnviewgrip_p.h \
+    itemviews/qcolumnview.h  \
+    itemviews/qcolumnview_p.h
 
 SOURCES += \
 	itemviews/qabstractitemview.cpp \
@@ -58,5 +61,7 @@ SOURCES += \
 	itemviews/qstringlistmodel.cpp \
 	itemviews/qtreewidgetitemiterator.cpp \
     itemviews/qdatawidgetmapper.cpp \
-    itemviews/qfileiconprovider.cpp
+    itemviews/qfileiconprovider.cpp \
+    itemviews/qcolumnview.cpp \
+    itemviews/qcolumnviewgrip.cpp
 

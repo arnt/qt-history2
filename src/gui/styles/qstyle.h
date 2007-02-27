@@ -165,6 +165,8 @@ public:
 
         PE_Widget,
 
+        PE_IndicatorColumnViewArrow,
+
         // do not add any values below/greater this
         PE_CustomBase = 0xf000000
     };
@@ -229,6 +231,8 @@ public:
         CE_ToolBoxTabShape,
         CE_ToolBoxTabLabel,
         CE_HeaderEmptyArea,
+
+        CE_ColumnViewGrip,
 
         // do not add any values below/greater than this
         CE_CustomBase = 0xf0000000

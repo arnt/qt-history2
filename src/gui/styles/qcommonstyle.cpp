@@ -621,6 +621,57 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
         break;
 #endif // QT_NO_LINEEDIT
+    case PE_IndicatorColumnViewArrow: {
+    if (const QStyleOptionViewItem *viewOpt = qstyleoption_cast<const QStyleOptionViewItem *>(opt)) {
+        bool reverse = (viewOpt->direction == Qt::RightToLeft);
+        p->save();
+        QPainterPath path;
+        int x = viewOpt->rect.x() + viewOpt->rect.width();
+        int offset = (viewOpt->rect.height() / 3);
+        int height = (viewOpt->rect.height()) - offset * 2;
+        if (height % 2 == 1)
+            --height;
+        int x2 = x + height - 1;
+        if (reverse) {
+            x = viewOpt->rect.x() + + height - 1;
+            x2 = x - height + 1;
+        }
+        path.moveTo(x, viewOpt->rect.y() + offset);
+        path.lineTo(x, viewOpt->rect.y() + offset + height);
+        path.lineTo(x2, viewOpt->rect.y() + offset+height/2);
+        path.closeSubpath();
+        if (viewOpt->state & QStyle::State_Selected ) {
+            if (viewOpt->showDecorationSelected) {
+                QColor color = viewOpt->palette.color(QPalette::Active, QPalette::HighlightedText);
+                p->setPen(color);
+                p->setBrush(color);
+            } else {
+                QColor color = viewOpt->palette.color(QPalette::Active, QPalette::WindowText);
+                p->setPen(color);
+                p->setBrush(color);
+            }
+
+        } else {
+            QColor color = viewOpt->palette.color(QPalette::Active, QPalette::Mid);
+            p->setPen(color);
+            p->setBrush(color);
+        }
+        p->drawPath(path);
+
+        // draw the vertical and top triangle line
+        if (!(viewOpt->state & QStyle::State_Selected)) {
+            QPainterPath lines;
+            lines.moveTo(x, viewOpt->rect.y() + offset);
+            lines.lineTo(x, viewOpt->rect.y() + offset + height);
+            lines.moveTo(x, viewOpt->rect.y() + offset);
+            lines.lineTo(x2, viewOpt->rect.y() + offset+height/2);
+            QColor color = viewOpt->palette.color(QPalette::Active, QPalette::Dark);
+            p->setPen(color);
+            p->drawPath(lines);
+        }
+        p->restore();
+    }
+    break; }
     default:
         break;
     }
@@ -1577,6 +1628,27 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         }
         break;
 #endif // QT_NO_TOOLBAR
+    case CE_ColumnViewGrip: {
+        // draw background gradients
+        QLinearGradient g(0, 0, opt->rect.width(), 0);
+        g.setColorAt(0, opt->palette.color(QPalette::Active, QPalette::Mid));
+        g.setColorAt(0.5, Qt::white);
+        p->fillRect(QRect(0, 0, opt->rect.width(), opt->rect.height()), g);
+
+        // draw the two lines
+        QPen pen(p->pen());
+        pen.setWidth(opt->rect.width()/20);
+        pen.setColor(opt->palette.color(QPalette::Active, QPalette::Dark));
+        p->setPen(pen);
+
+        int line1starting = opt->rect.width()*8 / 20;
+        int line2starting = opt->rect.width()*13 / 20;
+        int top = opt->rect.height()*20/75;
+        int bottom = opt->rect.height() - 1 - top;
+        p->drawLine(line1starting, top, line1starting, bottom);
+        p->drawLine(line2starting, top, line2starting, bottom);
+        }
+        break;
     default:
         break;
     }
@@ -1586,7 +1658,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
 /*!
   \reimp
 */
-QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, 
+QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt,
                                    const QWidget *widget) const
 {
     QRect r;
