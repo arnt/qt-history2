@@ -119,10 +119,10 @@ QDesignerPropertySheet::PropertyType QDesignerPropertySheet::propertyTypeFromNam
 
 QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     : QObject(parent),
-      m_object(object),
       m_meta(object->metaObject()),
       m_objectType(objectType(object)),
       m_canHaveLayoutAttributes( hasLayoutAttributes(object)),
+      m_object(object),
       m_lastLayout(0),
       m_lastLayoutPropertySheet(0),
       m_LastLayoutByDesigner(false)
@@ -218,6 +218,12 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
 
 QDesignerPropertySheet::~QDesignerPropertySheet()
 {
+}
+
+
+QObject *QDesignerPropertySheet::object() const
+{
+    return m_object;
 }
 
 bool QDesignerPropertySheet::dynamicPropertiesAllowed() const

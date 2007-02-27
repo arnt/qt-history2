@@ -102,7 +102,7 @@ protected:
     static  PropertyType propertyTypeFromName(const QString &name);
     PropertyType propertyType(int index) const;
 
-    QPointer<QObject> m_object;
+    QObject *object() const;
     const QMetaObject *m_meta;
     const ObjectType m_objectType;
 
@@ -136,6 +136,7 @@ private:
     const bool m_canHaveLayoutAttributes;
 
     // Variables used for caching the layout, access via layout().
+    QPointer<QObject> m_object;
     mutable QPointer<QLayout> m_lastLayout;
     mutable QDesignerPropertySheetExtension *m_lastLayoutPropertySheet;
     mutable bool m_LastLayoutByDesigner;

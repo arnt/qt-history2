@@ -214,11 +214,11 @@ public:
         {            
             QString clsid = value.toString();            
             if (!clsid.isEmpty()) {
-                QActiveXPluginObject *pluginObject = static_cast<QActiveXPluginObject*>(m_object);
+                QActiveXPluginObject *pluginObject = static_cast<QActiveXPluginObject*>(object());
                 if (!pluginObject->loaded()) {
                     if (pluginObject->setControl(clsid)) {
                         m_currentProperties.clsid = clsid;
-                        m_currentProperties.widget = static_cast<QWidget*>(m_object);
+                        m_currentProperties.widget = static_cast<QWidget*>(object());
 
                         QTimer::singleShot(100, this, SLOT(updatePropertySheet()));
                     }
