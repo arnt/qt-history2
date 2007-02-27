@@ -355,9 +355,12 @@ QList<int> QToolBarAreaLayoutInfo::gapIndex(const QPoint &pos) const
                 const QToolBarAreaLayoutItem &item = line.toolBarItems.at(k);
                 if (item.skip())
                     continue;
-                if (p > item.pos + item.size)
+
+                int size = qMin(item.size, pick(o, item.sizeHint()));
+
+                if (p > item.pos + size)
                     continue;
-                if (p > item.pos + item.size/2)
+                if (p > item.pos + size/2)
                     ++k;
                 break;
             }
