@@ -92,6 +92,8 @@ public: // For MSVC 6
                         PropertyLayoutRightMargin,
                         PropertyLayoutBottomMargin,
                         PropertyLayoutSpacing,
+                        PropertyLayoutHorizontalSpacing,
+                        PropertyLayoutVerticalSpacing,
                         PropertySizeConstraint,
                         PropertyBuddy,
                         PropertyAccessibility };

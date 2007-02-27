@@ -308,11 +308,15 @@ private:
     int m_rightMargin;
     int m_bottomMargin;
     int m_spacing;
+    int m_horizSpacing;
+    int m_vertSpacing;
     bool m_leftMarginChanged;
     bool m_topMarginChanged;
     bool m_rightMarginChanged;
     bool m_bottomMarginChanged;
     bool m_spacingChanged;
+    bool m_horizSpacingChanged;
+    bool m_vertSpacingChanged;
 };
 
 class QDESIGNER_SHARED_EXPORT ToolBoxCommand: public QDesignerFormWindowCommand

@@ -806,9 +806,10 @@ void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
     QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
     int leftMargin, topMargin, rightMargin, bottomMargin;
     leftMargin = topMargin = rightMargin = bottomMargin = 0;
-    int spacing = gridLayout->spacing();
-    bool leftMarginChanged, topMarginChanged, rightMarginChanged, bottomMarginChanged, spacingChanged;
-    leftMarginChanged = topMarginChanged = rightMarginChanged = bottomMarginChanged = spacingChanged = false;
+    int horizSpacing = gridLayout->horizontalSpacing();
+    int vertSpacing = gridLayout->verticalSpacing();
+    bool leftMarginChanged, topMarginChanged, rightMarginChanged, bottomMarginChanged, horizSpacingChanged, vertSpacingChanged;;
+    leftMarginChanged = topMarginChanged = rightMarginChanged = bottomMarginChanged = horizSpacingChanged = vertSpacingChanged = false;
 
     QDesignerFormEditorInterface *core = formWindow()->core();
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), gridLayout);
@@ -817,12 +818,14 @@ void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
         topMargin = sheet->property(sheet->indexOf("topMargin")).toInt();
         rightMargin = sheet->property(sheet->indexOf("rightMargin")).toInt();
         bottomMargin = sheet->property(sheet->indexOf("bottomMargin")).toInt();
-        spacing = sheet->property(sheet->indexOf("spacing")).toInt();
+        horizSpacing = sheet->property(sheet->indexOf("horizontalSpacing")).toInt();
+        vertSpacing = sheet->property(sheet->indexOf("verticalSpacing")).toInt();
         leftMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("leftMargin")));
         topMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("topMargin")));
         rightMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("rightMargin")));
         bottomMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("bottomMargin")));
-        spacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("spacing")));
+        horizSpacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("horizontalSpacing")));
+        vertSpacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("verticalSpacing")));
     }
 
     { // take the items
@@ -857,8 +860,10 @@ void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
         newSheet->setChanged(newSheet->indexOf("rightMargin"), rightMarginChanged);
         newSheet->setProperty(newSheet->indexOf("bottomMargin"), bottomMargin);
         newSheet->setChanged(newSheet->indexOf("bottomMargin"), bottomMarginChanged);
-        newSheet->setProperty(newSheet->indexOf("spacing"), spacing);
-        newSheet->setChanged(newSheet->indexOf("spacing"), spacingChanged);
+        newSheet->setProperty(newSheet->indexOf("horizontalSpacing"), horizSpacing);
+        newSheet->setChanged(newSheet->indexOf("horizontalSpacing"), horizSpacingChanged);
+        newSheet->setProperty(newSheet->indexOf("verticalSpacing"), vertSpacing);
+        newSheet->setChanged(newSheet->indexOf("verticalSpacing"), vertSpacingChanged);
     }
 }
 
@@ -1020,18 +1025,3 @@ void QLayoutWidget::setLayoutBottomMargin(int layoutMargin)
         layout()->setContentsMargins(left, top, right, newMargin);
     }
 }
-
-int QLayoutWidget::layoutSpacing() const
-{
-    if (layout())
-        return layout()->spacing();
-
-    return 0;
-}
-
-void QLayoutWidget::setLayoutSpacing(int layoutSpacing)
-{
-    if (layout())
-        layout()->setSpacing(layoutSpacing);
-}
-

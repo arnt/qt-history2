@@ -204,7 +204,13 @@ QLayout *QFormBuilder::createLayout(const QString &layoutName, QObject *parent, 
                                     w->style()->pixelMetric(QStyle::PM_LayoutTopMargin),
                                     w->style()->pixelMetric(QStyle::PM_LayoutRightMargin),
                                     w->style()->pixelMetric(QStyle::PM_LayoutBottomMargin));
-                l->setSpacing(w->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing));
+                QGridLayout *grid = qobject_cast<QGridLayout *>(l);
+                if (grid) {
+                    grid->setHorizontalSpacing(-1);
+                    grid->setVerticalSpacing(-1);
+                } else {
+                    l->setSpacing(-1);
+                }
                 l->setAlignment(Qt::AlignTop);
             }
         }

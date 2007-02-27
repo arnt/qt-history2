@@ -642,13 +642,14 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
     m_output << m_option.indent << varName << " = new " << className << '(';
 
-    if (isGroupBox) {
-        m_output << m_driver->findOrInsertWidget(m_widgetChain.top()) << "->layout()";
-    } else if (!m_layoutChain.top()) {
+    if (!m_layoutChain.top() && !isGroupBox)
         m_output << m_driver->findOrInsertWidget(m_widgetChain.top());
-    }
 
     m_output << ");\n";
+
+    if (isGroupBox) {
+        m_output << m_option.indent << m_driver->findOrInsertWidget(m_widgetChain.top()) << "->layout()->addItem(" << varName << ");\n";
+    }
 
     if (isGroupBox) {
         m_output << m_option.indent << varName << "->setAlignment(Qt::AlignTop);\n";
@@ -1134,7 +1135,16 @@ void WriteInitialization::writeProperties(const QString &varName,
         }
     }
     if (leftMargin != -1 || topMargin != -1 || rightMargin != -1 || bottomMargin != -1) {
-        m_output << m_option.indent << varName << QLatin1String("->setContentsMargins(")
+        QString objectName = varName;
+        if (m_widgetChain.top()) {
+            const QString parentWidget = m_widgetChain.top()->attributeClass();
+
+            if (!m_layoutChain.top() && (m_uic->customWidgetsInfo()->extends(parentWidget, QLatin1String("Q3GroupBox"))
+                        || m_uic->customWidgetsInfo()->extends(parentWidget, QLatin1String("Q3ButtonGroup")))) {
+                objectName = m_driver->findOrInsertWidget(m_widgetChain.top()) + QLatin1String("->layout()");
+            }
+        }
+        m_output << m_option.indent << objectName << QLatin1String("->setContentsMargins(")
                 << QString::number(leftMargin) << QLatin1String(", ")
                 << QString::number(topMargin) << QLatin1String(", ")
                 << QString::number(rightMargin) << QLatin1String(", ")

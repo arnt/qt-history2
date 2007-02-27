@@ -42,6 +42,20 @@ LayoutPropertySheet::LayoutPropertySheet(QLayout *object, QObject *parent)
     createFakeProperty(QLatin1String("bottomMargin"), 0);
     setPropertyGroup(pindex, tr("Layout"));
 
+    QGridLayout *grid = qobject_cast<QGridLayout *>(m_layout);
+    if (grid) {
+        pindex = count();
+        createFakeProperty(QLatin1String("horizontalSpacing"), 0);
+        setPropertyGroup(pindex, tr("Layout"));
+
+        pindex = count();
+        createFakeProperty(QLatin1String("verticalSpacing"), 0);
+        setPropertyGroup(pindex, tr("Layout"));
+
+        setAttribute(indexOf(QLatin1String("spacing")), true);
+    } else {
+    }
+
     setAttribute(indexOf(QLatin1String("margin")), true);
 }
 
@@ -71,6 +85,7 @@ void LayoutPropertySheet::setProperty(int index, const QVariant &value)
             return;
         }
     }
+    QGridLayout *grid = qobject_cast<QGridLayout *>(m_layout);
     int left, top, right, bottom;
     m_layout->getContentsMargins(&left, &top, &right, &bottom);
     if (pname == QLatin1String("leftMargin"))
@@ -81,6 +96,10 @@ void LayoutPropertySheet::setProperty(int index, const QVariant &value)
         m_layout->setContentsMargins(left, top, value.toInt(), bottom);
     else if (pname == QLatin1String("bottomMargin"))
         m_layout->setContentsMargins(left, top, right, value.toInt());
+    else if (grid && pname == QLatin1String("horizontalSpacing"))
+        grid->setHorizontalSpacing(value.toInt());
+    else if (grid && pname == QLatin1String("verticalSpacing"))
+        grid->setVerticalSpacing(value.toInt());
     else
         QDesignerPropertySheet::setProperty(index, value);
 }
@@ -99,6 +118,7 @@ QVariant LayoutPropertySheet::property(int index) const
         if (pname == QLatin1String("bottomMargin"))
             return lw->layoutBottomMargin();
     }
+    QGridLayout *grid = qobject_cast<QGridLayout *>(m_layout);
     int left, top, right, bottom;
     m_layout->getContentsMargins(&left, &top, &right, &bottom);
     if (pname == QLatin1String("leftMargin"))
@@ -109,6 +129,10 @@ QVariant LayoutPropertySheet::property(int index) const
         return right;
     if (pname == QLatin1String("bottomMargin"))
         return bottom;
+    if (grid && pname == QLatin1String("horizontalSpacing"))
+        return grid->horizontalSpacing();
+    if (grid && pname == QLatin1String("verticalSpacing"))
+        return grid->verticalSpacing();
     return QDesignerPropertySheet::property(index);
 }
 
@@ -132,12 +156,17 @@ bool LayoutPropertySheet::reset(int index)
 
 void LayoutPropertySheet::setChanged(int index, bool changed)
 {
+    QGridLayout *grid = qobject_cast<QGridLayout *>(m_layout);
     QString pname = propertyName(index);
     if (pname == QLatin1String("margin")) {
         setChanged(indexOf(QLatin1String("leftMargin")), changed);
         setChanged(indexOf(QLatin1String("topMargin")), changed);
         setChanged(indexOf(QLatin1String("rightMargin")), changed);
         setChanged(indexOf(QLatin1String("bottomMargin")), changed);
+    }
+    if (pname == QLatin1String("spacing") && grid) {
+        setChanged(indexOf(QLatin1String("horizontalSpacing")), changed);
+        setChanged(indexOf(QLatin1String("verticalSpacing")), changed);
     }
     QDesignerPropertySheet::setChanged(index, changed);
 }

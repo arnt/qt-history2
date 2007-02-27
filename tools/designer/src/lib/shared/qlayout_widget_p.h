@@ -137,9 +137,6 @@ public:
     int layoutBottomMargin() const;
     void setLayoutBottomMargin(int layoutMargin);
 
-    int layoutSpacing() const;
-    void setLayoutSpacing(int layoutSpacing);
-
     inline QDesignerFormWindowInterface *formWindow() const
     { return m_formWindow; }
 

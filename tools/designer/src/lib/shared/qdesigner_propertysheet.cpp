@@ -108,6 +108,10 @@ QDesignerPropertySheet::PropertyType QDesignerPropertySheet::propertyTypeFromNam
         return  PropertyLayoutBottomMargin;
     if (name == QLatin1String("layoutSpacing"))
         return  PropertyLayoutSpacing;
+    if (name == QLatin1String("layoutHorizontalSpacing"))
+        return  PropertyLayoutHorizontalSpacing;
+    if (name == QLatin1String("layoutVerticalSpacing"))
+        return  PropertyLayoutVerticalSpacing;
     if (name == QLatin1String("buddy"))
         return  PropertyBuddy;
     if (name == QLatin1String("sizeConstraint"))
@@ -187,6 +191,16 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
 
             pindex = count();
             createFakeProperty(QLatin1String("layoutSpacing"), 0);
+            setAttribute(pindex, true);
+            setPropertyGroup(pindex, tr("Layout"));
+
+            pindex = count();
+            createFakeProperty(QLatin1String("layoutHorizontalSpacing"), 0);
+            setAttribute(pindex, true);
+            setPropertyGroup(pindex, tr("Layout"));
+
+            pindex = count();
+            createFakeProperty(QLatin1String("layoutVerticalSpacing"), 0);
             setAttribute(pindex, true);
             setPropertyGroup(pindex, tr("Layout"));
         }
@@ -300,6 +314,8 @@ bool QDesignerPropertySheet::isDynamic(int index) const
     case PropertyLayoutRightMargin:
     case PropertyLayoutBottomMargin:
     case PropertyLayoutSpacing:
+    case PropertyLayoutHorizontalSpacing:
+    case PropertyLayoutVerticalSpacing:
         if (m_object->isWidgetType() && m_canHaveLayoutAttributes)
             return false;
     default:
@@ -578,7 +594,9 @@ bool QDesignerPropertySheet::reset(int index)
                     value = w->style()->pixelMetric(QStyle::PM_LayoutBottomMargin);
                     break;
                 case PropertyLayoutSpacing:
-                    value = w->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing);
+                case PropertyLayoutHorizontalSpacing:
+                case PropertyLayoutVerticalSpacing:
+                    value = -1;
                     break;
                 default:
                     break;
@@ -656,6 +674,8 @@ bool QDesignerPropertySheet::isFakeLayoutProperty(int index) const
     case PropertyLayoutRightMargin:
     case PropertyLayoutBottomMargin:
     case PropertyLayoutSpacing:
+    case PropertyLayoutHorizontalSpacing:
+    case PropertyLayoutVerticalSpacing:
         return m_canHaveLayoutAttributes;
     default:
         break;
@@ -667,6 +687,14 @@ bool QDesignerPropertySheet::isVisible(int index) const
 {
     if (isAdditionalProperty(index)) {
         if (isFakeLayoutProperty(index) && m_object->isWidgetType()) {
+            QString pname = propertyName(index);
+            QGridLayout *grid = qobject_cast<QGridLayout *>(layout());
+            if (pname == QLatin1String("layoutHorizontalSpacing") ||
+                    pname == QLatin1String("layoutVerticalSpacing")) {
+                return grid != 0;
+            }
+            if (pname == QLatin1String("layoutSpacing") && grid)
+                return false;
             return layout() != 0;
         }
 
@@ -772,6 +800,10 @@ QString QDesignerPropertySheet::transformLayoutPropertyName(int index) const
         return QLatin1String("bottomMargin");
     case PropertyLayoutSpacing:
         return QLatin1String("spacing");
+    case PropertyLayoutHorizontalSpacing:
+        return QLatin1String("horizontalSpacing");
+    case PropertyLayoutVerticalSpacing:
+        return QLatin1String("verticalSpacing");
     default:
         break;
     }

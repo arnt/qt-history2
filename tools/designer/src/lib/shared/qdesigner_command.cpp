@@ -548,11 +548,15 @@ void BreakLayoutCommand::init(const QList<QWidget*> &widgets, QWidget *layoutBas
         m_rightMargin = sheet->property(sheet->indexOf("rightMargin")).toInt();
         m_bottomMargin = sheet->property(sheet->indexOf("bottomMargin")).toInt();
         m_spacing = sheet->property(sheet->indexOf("spacing")).toInt();
+        m_horizSpacing = sheet->property(sheet->indexOf("horizontalSpacing")).toInt();
+        m_vertSpacing = sheet->property(sheet->indexOf("verticalSpacing")).toInt();
         m_leftMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("leftMargin")));
         m_topMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("topMargin")));
         m_rightMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("rightMargin")));
         m_bottomMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("bottomMargin")));
         m_spacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("spacing")));
+        m_horizSpacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("horizontalSpacing")));
+        m_vertSpacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("verticalSpacing")));
     }
 }
 
@@ -599,6 +603,11 @@ void BreakLayoutCommand::undo()
             sheet->setChanged(sheet->indexOf("bottomMargin"), m_bottomMarginChanged);
             sheet->setProperty(sheet->indexOf("spacing"), m_spacing);
             sheet->setChanged(sheet->indexOf("spacing"), m_spacingChanged);
+            sheet->setProperty(sheet->indexOf("horizontalSpacing"), m_horizSpacing);
+            sheet->setChanged(sheet->indexOf("horizontalSpacing"), m_horizSpacingChanged);
+            sheet->setProperty(sheet->indexOf("verticalSpacing"), m_vertSpacing);
+            sheet->setChanged(sheet->indexOf("verticalSpacing"), m_vertSpacingChanged);
+
         }
     }
 }

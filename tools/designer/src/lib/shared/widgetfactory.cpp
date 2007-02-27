@@ -282,7 +282,13 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
                                     widget->style()->pixelMetric(QStyle::PM_LayoutTopMargin),
                                     widget->style()->pixelMetric(QStyle::PM_LayoutRightMargin),
                                     widget->style()->pixelMetric(QStyle::PM_LayoutBottomMargin));
-        layout->setSpacing(widget->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing));
+        QGridLayout *grid = qobject_cast<QGridLayout *>(layout);
+        if (grid) {
+            grid->setHorizontalSpacing(-1);
+            grid->setVerticalSpacing(-1);
+        } else {
+            layout->setSpacing(-1);
+        }
         layout->setAlignment(Qt::AlignTop);
     } else if (widget->inherits("QLayoutWidget")) {
         sheet->setProperty(sheet->indexOf(QLatin1String("leftMargin")), 0);

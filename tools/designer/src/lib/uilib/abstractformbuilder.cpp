@@ -519,8 +519,19 @@ QLayout *QAbstractFormBuilder::create(DomLayout *ui_layout, QLayout *parentLayou
         layout->setContentsMargins(left, top, right, bottom);
     }
 
-    if (spacing != INT_MIN)
+    if (spacing != INT_MIN) {
         layout->setSpacing(spacing);
+    } else {
+        QGridLayout *grid = qobject_cast<QGridLayout *>(layout);
+        if (grid) {
+            const DomPropertyHash properties = propertyMap(ui_layout->elementProperty());
+
+            if (properties.contains(QLatin1String("horizontalSpacing")))
+                grid->setHorizontalSpacing(properties.value(QLatin1String("horizontalSpacing"))->elementNumber());
+            if (properties.contains(QLatin1String("verticalSpacing")))
+                grid->setVerticalSpacing(properties.value(QLatin1String("verticalSpacing"))->elementNumber());
+        }
+    }
 
     applyProperties(layout, ui_layout->elementProperty());
 
