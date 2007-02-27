@@ -1,0 +1,5 @@
+StartDocument( )
+Comment( text=" Reserved prefixes and namespaces: binding a reserved prefix " )
+StartElement( name="foo" qualifiedName="foo" )
+EndElement( name="foo" qualifiedName="foo" )
+EndDocument( )

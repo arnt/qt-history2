@@ -1,0 +1,5 @@
+StartDocument( )
+Comment( text=" Reserved prefixes and namespaces: declaring the xml prefix correctly " )
+StartElement( name="foo" qualifiedName="foo" )
+EndElement( name="foo" qualifiedName="foo" )
+EndDocument( )

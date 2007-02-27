@@ -1596,9 +1596,9 @@ bool QXmlStreamReaderPrivate::parse()
                     QStringRef namespaceUri = symString(attribute.value);
                     attributeStack.pop();
                     if ((namespacePrefix == QLatin1String("xml")
-                         && namespaceForPrefix(namespacePrefix) != namespaceUri)
+                         ^ namespaceUri == QLatin1String("http://www.w3.org/XML/1998/namespace"))
                         || namespacePrefix == QLatin1String("xmlns"))
-                        raiseWellFormedError(QObject::tr("Namespace \'%1\' redefined.").arg(namespacePrefix.toString()));
+                        raiseWellFormedError(QObject::tr("Illegal namespace declaration."));
 
                     namespaceDeclaration.prefix = addToStringStorage(namespacePrefix);
                     namespaceDeclaration.namespaceUri = addToStringStorage(namespaceUri);

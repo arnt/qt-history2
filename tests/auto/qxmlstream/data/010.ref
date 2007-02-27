@@ -1,0 +1,23 @@
+StartDocument( )
+Comment( text=" Namespace equality test: use of character reference " )
+DTD( text=">
+<!DOCTYPE foo [
+<!ELEMENT foo ANY>
+<!ATTLIST foo xmlns:a CDATA #IMPLIED
+              xmlns:b CDATA #IMPLIED
+              xmlns:c CDATA #IMPLIED>
+<!ELEMENT bar ANY>
+<!ATTLIST bar a:attr CDATA #IMPLIED
+              b:attr CDATA #IMPLIED
+              c:attr CDATA #IMPLIED>
+]>" )
+StartElement( name="foo" qualifiedName="foo" )
+Characters( whitespace text="
+
+" )
+Invalid( name="bar" qualifiedName="bar"
+    Attribute( name="attr" namespaceUri="http://example.org/~wilbur" qualifiedName="a:attr" value="1" )
+
+    Attribute( name="attr" namespaceUri="http://example.org/~wilbur" qualifiedName="b:attr" value="2" )
+ )
+ERROR: Attribute redefined.

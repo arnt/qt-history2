@@ -1,0 +1,12 @@
+StartDocument( )
+Comment( text=" Colon in ID attribute name " )
+DTD( text=">
+<!DOCTYPE foo [
+<!ELEMENT foo ANY>
+<!ATTLIST foo id ID #REQUIRED>
+]>" )
+StartElement( name="foo" qualifiedName="foo"
+    Attribute( name="id" qualifiedName="id" value="a:b" )
+ )
+EndElement( name="foo" qualifiedName="foo" )
+EndDocument( )

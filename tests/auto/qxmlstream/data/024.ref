@@ -1,0 +1,11 @@
+StartDocument( )
+Comment( text=" Simple legal case: prefix rebinding " )
+StartElement( name="foo" namespaceUri="http://example.org/namespace" qualifiedName="a:foo" )
+Characters( whitespace text="
+ " )
+StartElement( name="foo" namespaceUri="http://example.org/other-namespace" qualifiedName="a:foo" )
+EndElement( name="foo" namespaceUri="http://example.org/other-namespace" qualifiedName="a:foo" )
+Characters( whitespace text="
+" )
+EndElement( name="foo" namespaceUri="http://example.org/namespace" qualifiedName="a:foo" )
+EndDocument( )

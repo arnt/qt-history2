@@ -1,0 +1,10 @@
+StartDocument( )
+Comment( text=" Namespace name test: a relative URI (deprecated) " )
+DTD( text=">
+<!DOCTYPE foo [
+<!ELEMENT foo ANY>
+<!ATTLIST foo xmlns CDATA #IMPLIED>]
+>" )
+StartElement( name="foo" namespaceUri="namespaces/zaphod" qualifiedName="foo" )
+EndElement( name="foo" namespaceUri="namespaces/zaphod" qualifiedName="foo" )
+EndDocument( )

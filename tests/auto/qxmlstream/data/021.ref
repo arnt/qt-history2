@@ -1,0 +1,11 @@
+StartDocument( )
+Comment( text=" Simple legal case: default namespace and unbinding " )
+StartElement( name="foo" namespaceUri="http://example.org/namespace" qualifiedName="foo" )
+Characters( whitespace text="
+ " )
+StartElement( name="foo" qualifiedName="foo" )
+EndElement( name="foo" qualifiedName="foo" )
+Characters( whitespace text="
+" )
+EndElement( name="foo" namespaceUri="http://example.org/namespace" qualifiedName="foo" )
+EndDocument( )

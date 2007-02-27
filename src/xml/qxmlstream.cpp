@@ -940,6 +940,11 @@ inline int QXmlStreamReaderPrivate::fastScanName(int *prefix)
         case '+':
         case '*':
             putChar(c);
+            if (prefix && *prefix == n+1) {
+                putChar(':');
+                --n;
+            }
+
             return n;
         case ':':
             if (prefix) {
@@ -949,12 +954,19 @@ inline int QXmlStreamReaderPrivate::fastScanName(int *prefix)
                     putChar(c);
                     return n;
                 }
+            } else {
+                putChar(c);
+                return n;
             }
             // fall through
         default:
             textBuffer.inline_append(c);
             ++n;
         }
+    }
+    if (prefix && *prefix == n+1) {
+        putChar(':');
+        --n;
     }
     return n;
 }

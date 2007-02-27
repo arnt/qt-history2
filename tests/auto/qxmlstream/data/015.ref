@@ -1,0 +1,4 @@
+StartDocument( )
+Comment( text=" Bad QName syntax: colon at start " )
+Invalid( )
+ERROR: Expected '?', '!', or '[a-zA-Z]', but got ':'.

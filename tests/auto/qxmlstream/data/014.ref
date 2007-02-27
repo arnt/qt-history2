@@ -1,0 +1,4 @@
+StartDocument( )
+Comment( text=" Bad QName syntax: colon at end " )
+Invalid( name="foo" qualifiedName="foo" )
+ERROR: Expected '>' or '/', but got ':'.

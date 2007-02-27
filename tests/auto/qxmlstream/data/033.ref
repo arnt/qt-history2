@@ -1,0 +1,6 @@
+StartDocument( )
+Comment( text=" Reserved prefixes and namespaces: binding another prefix
+     to the xmlns namespace " )
+StartElement( name="foo" qualifiedName="foo" )
+EndElement( name="foo" qualifiedName="foo" )
+EndDocument( )

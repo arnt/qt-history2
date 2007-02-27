@@ -1,0 +1,12 @@
+StartDocument( )
+Comment( text=" Attribute uniqueness: repeated attribute with different prefixes " )
+StartElement( name="foo" qualifiedName="foo" )
+Characters( whitespace text="
+
+" )
+Invalid( name="bar" qualifiedName="bar"
+    Attribute( name="attr" namespaceUri="http://example.org/~wilbur" qualifiedName="a:attr" value="1" )
+
+    Attribute( name="attr" namespaceUri="http://example.org/~wilbur" qualifiedName="b:attr" value="2" )
+ )
+ERROR: Attribute redefined.

@@ -307,10 +307,17 @@ void tst_QXmlStream::testReader()
     QFETCH(QString, xml);
     QFETCH(QString, ref);
     QFile file(ref);
-    QVERIFY(file.open(QIODevice::ReadOnly));
-    QString reference = QString::fromUtf8(file.readAll());
-    QString qxmlstream = QString::fromUtf8(readFile(xml));
-    QCOMPARE(qxmlstream, reference);
+    if (!file.exists()) {
+        QByteArray reference = readFile(xml);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(reference);
+        file.close();
+    } else {
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        QString reference = QString::fromUtf8(file.readAll());
+        QString qxmlstream = QString::fromUtf8(readFile(xml));
+        QCOMPARE(qxmlstream, reference);
+    }
 }
 
 void tst_QXmlStream::testReader_data()

@@ -1,0 +1,11 @@
+StartDocument( )
+Comment( text=" Illegal use of 1.1-style prefix unbinding in 1.0 document " )
+StartElement( name="foo" namespaceUri="http://example.org/namespace" qualifiedName="a:foo" )
+Characters( whitespace text="
+ " )
+StartElement( name="foo" qualifiedName="a:foo" )
+EndElement( name="foo" qualifiedName="a:foo" )
+Characters( whitespace text="
+" )
+EndElement( name="foo" namespaceUri="http://example.org/namespace" qualifiedName="a:foo" )
+EndDocument( )
