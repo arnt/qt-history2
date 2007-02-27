@@ -4083,6 +4083,17 @@ QIcon QWidget::windowIcon() const
     return qApp->windowIcon();
 }
 
+void QWidgetPrivate::setWindowIcon_helper()
+{
+    QEvent e(QEvent::WindowIconChange);
+    QApplication::sendEvent(q_func(), &e);
+    for (int i = 0; i < children.size(); ++i) {
+        QWidget *w = qobject_cast<QWidget *>(children.at(i));
+        if (w && !w->isWindow())
+            QApplication::sendEvent(w, &e);
+    }
+}
+
 void QWidget::setWindowIcon(const QIcon &icon)
 {
     Q_D(QWidget);
@@ -4098,8 +4109,7 @@ void QWidget::setWindowIcon(const QIcon &icon)
     d->extra->topextra->iconPixmap = 0;
 
     d->setWindowIcon_sys();
-    QEvent e(QEvent::WindowIconChange);
-    QApplication::sendEvent(this, &e);
+    d->setWindowIcon_helper();
 }
 
 
@@ -5963,10 +5973,11 @@ bool QWidget::event(QEvent *event)
         break;
 
     case QEvent::ApplicationWindowIconChange:
-        if (isWindow() && !testAttribute(Qt::WA_SetWindowIcon))
+        if (isWindow() && !testAttribute(Qt::WA_SetWindowIcon)) {
             d->setWindowIcon_sys();
+            d->setWindowIcon_helper();
+        }
         break;
-
     case QEvent::FocusIn:
         focusInEvent((QFocusEvent*)event);
         break;
