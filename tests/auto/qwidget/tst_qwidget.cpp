@@ -3178,13 +3178,19 @@ public:
 
 void tst_QWidget::update()
 {
+    Q_CHECK_PAINTEVENTS
+
     UpdateWidget w;
     w.setGeometry(50, 50, 100, 100);
     w.show();
     QApplication::processEvents();
     QApplication::processEvents();
 
+#if defined(Q_WS_WIN)
+    QCOMPARE(w.numPaintEvents, 2); //the window gets update once more when it is activated
+#else
     QCOMPARE(w.numPaintEvents, 1);
+#endif
     QCOMPARE(w.visibleRegion(), QRegion(w.rect()));
     QCOMPARE(w.paintedRegion, w.visibleRegion());
     w.reset();
