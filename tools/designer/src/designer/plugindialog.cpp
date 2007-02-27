@@ -14,12 +14,15 @@
 
 #include "plugindialog.h"
 #include <pluginmanager_p.h>
+#include <qdesigner_integration_p.h>
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerCustomWidgetCollectionInterface>
+#include <QtDesigner/QDesignerWidgetDataBaseInterface>
 
 #include <QtGui/QStyle>
 #include <QtGui/QHeaderView>
+#include <QtGui/QPushButton>
 #include <QtCore/QFileInfo>
 #include <QtCore/QPluginLoader>
 
@@ -34,8 +37,7 @@ PluginDialog::PluginDialog(QDesignerFormEditorInterface *core, QWidget *parent)
 
     ui.message->hide();
 
-    QStringList headerLabels;
-    headerLabels << tr("Components");
+    const QStringList headerLabels(tr("Components"));
 
     ui.treeWidget->setAlternatingRowColors(false);
     ui.treeWidget->setSelectionMode(QAbstractItemView::NoSelection);
@@ -50,16 +52,22 @@ PluginDialog::PluginDialog(QDesignerFormEditorInterface *core, QWidget *parent)
 
     setWindowTitle(tr("Plugin Information"));
     populateTreeWidget();
-}
 
-QDesignerFormEditorInterface *PluginDialog::core() const
-{
-    return m_core;
+    if (qobject_cast<qdesigner_internal::QDesignerIntegration *>(m_core->integration())) {
+        QPushButton *updateButton = new QPushButton(tr("Refresh"));
+        const QString tooltip = tr("Scan for newly installed custom widget plugins.");
+        updateButton->setToolTip(tooltip);
+        updateButton->setWhatsThis(tooltip);
+        connect(updateButton, SIGNAL(clicked()), this, SLOT(updateCustomWidgetPlugins()));
+        ui.buttonBox->addButton(updateButton, QDialogButtonBox::ActionRole);
+    }
 }
 
 void PluginDialog::populateTreeWidget()
 {
-    const QStringList fileNames = core()->pluginManager()->registeredPlugins();
+    ui.treeWidget->clear();
+    QDesignerPluginManager *pluginManager = m_core->pluginManager();
+    const QStringList fileNames = pluginManager->registeredPlugins();
 
     if (!fileNames.isEmpty()) {
         QTreeWidgetItem *topLevelItem = setTopLevelItem(QLatin1String("Loaded Plugins"));
@@ -67,35 +75,29 @@ void PluginDialog::populateTreeWidget()
 
         foreach (QString fileName, fileNames) {
             QPluginLoader loader(fileName);
-            QFileInfo fileInfo(fileName);
+            const QFileInfo fileInfo(fileName);
 
             QTreeWidgetItem *pluginItem = setPluginItem(topLevelItem, fileInfo.fileName(), boldFont);
 
-            QObject *plugin = loader.instance();
-            if (plugin != 0) {
-                QDesignerCustomWidgetCollectionInterface *c = qobject_cast<QDesignerCustomWidgetCollectionInterface*>(plugin);
-                if (c != 0) {
-                    foreach (QDesignerCustomWidgetInterface *p, c->customWidgets())
-                        setItem(pluginItem, p->name(), p->toolTip(), p->whatsThis(), p->icon()); 
-                }
-
-                QDesignerCustomWidgetInterface *p = qobject_cast<QDesignerCustomWidgetInterface*>(plugin);
-                if (p != 0) {
-                    setItem(pluginItem, p->name(), p->toolTip(), p->whatsThis(), p->icon());
+            if (QObject *plugin = loader.instance()) {
+                if (const QDesignerCustomWidgetCollectionInterface *c = qobject_cast<QDesignerCustomWidgetCollectionInterface*>(plugin)) {
+                    foreach (const QDesignerCustomWidgetInterface *p, c->customWidgets())
+                        setItem(pluginItem, p->name(), p->toolTip(), p->whatsThis(), p->icon());
+                } else {
+                    if (const QDesignerCustomWidgetInterface *p = qobject_cast<QDesignerCustomWidgetInterface*>(plugin))
+                        setItem(pluginItem, p->name(), p->toolTip(), p->whatsThis(), p->icon());
                 }
             }
         }
     }
 
-    const QStringList notLoadedPlugins = core()->pluginManager()->failedPlugins();
+    const QStringList notLoadedPlugins = pluginManager->failedPlugins();
     if (!notLoadedPlugins.isEmpty()) {
-
         QTreeWidgetItem *topLevelItem = setTopLevelItem(QLatin1String("Failed Plugins"));
-        QFont boldFont = topLevelItem->font(0);
-        foreach (const QString plugin, notLoadedPlugins)
-        {
+        const QFont boldFont = topLevelItem->font(0);
+        foreach (const QString plugin, notLoadedPlugins) {
             QTreeWidgetItem *pluginItem = setPluginItem(topLevelItem, plugin, boldFont);
-            setItem(pluginItem, core()->pluginManager()->failureReason(plugin), QLatin1String(""), QLatin1String(""), QIcon());
+            setItem(pluginItem, pluginManager->failureReason(plugin), QString(), QString(), QIcon());
         }
     }
 
@@ -129,7 +131,7 @@ QTreeWidgetItem* PluginDialog::setTopLevelItem(const QString &itemName)
     return topLevelItem;
 }
 
-QTreeWidgetItem* PluginDialog::setPluginItem(QTreeWidgetItem *topLevelItem, 
+QTreeWidgetItem* PluginDialog::setPluginItem(QTreeWidgetItem *topLevelItem,
                                              const QString &itemName, const QFont &font)
 {
     QTreeWidgetItem *pluginItem = new QTreeWidgetItem(topLevelItem);
@@ -141,7 +143,7 @@ QTreeWidgetItem* PluginDialog::setPluginItem(QTreeWidgetItem *topLevelItem,
     return pluginItem;
 }
 
-void PluginDialog::setItem(QTreeWidgetItem *pluginItem, const QString &name, 
+void PluginDialog::setItem(QTreeWidgetItem *pluginItem, const QString &name,
                            const QString &toolTip, const QString &whatsThis, const QIcon &icon)
 {
     QTreeWidgetItem *item = new QTreeWidgetItem(pluginItem);
@@ -149,4 +151,20 @@ void PluginDialog::setItem(QTreeWidgetItem *pluginItem, const QString &name,
     item->setToolTip(0, toolTip);
     item->setWhatsThis(0, whatsThis);
     item->setIcon(0, pluginIcon(icon));
+}
+
+void  PluginDialog::updateCustomWidgetPlugins()
+{
+    if (qdesigner_internal::QDesignerIntegration *integration = qobject_cast<qdesigner_internal::QDesignerIntegration *>(m_core->integration())) {
+        const int before = m_core->widgetDataBase()->count();
+        integration->updateCustomWidgetPlugins();
+        const int after = m_core->widgetDataBase()->count();
+        if (after >  before) {
+            ui.message->setText(tr("New custom widget plugins have been found."));
+            ui.message->show();
+        } else {
+            ui.message->setText(QString());
+        }
+        populateTreeWidget();
+    }
 }

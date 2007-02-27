@@ -24,18 +24,18 @@ class PluginDialog : public QDialog
 public:
     PluginDialog(QDesignerFormEditorInterface *core, QWidget *parent = 0);
 
-    QDesignerFormEditorInterface *core() const;
+private slots:
+    void updateCustomWidgetPlugins();
 
 private:
     void populateTreeWidget();
     QIcon pluginIcon(const QIcon &icon);
     QTreeWidgetItem* setTopLevelItem(const QString &itemName);
-    QTreeWidgetItem* setPluginItem(QTreeWidgetItem *topLevelItem, 
+    QTreeWidgetItem* setPluginItem(QTreeWidgetItem *topLevelItem,
                                    const QString &itemName, const QFont &font);
-    void setItem(QTreeWidgetItem *pluginItem, const QString &name, 
+    void setItem(QTreeWidgetItem *pluginItem, const QString &name,
                  const QString &toolTip, const QString &whatsThis, const QIcon &icon);
 
-private:
     QDesignerFormEditorInterface *m_core;
     Ui::PluginDialog ui;
     QIcon interfaceIcon;

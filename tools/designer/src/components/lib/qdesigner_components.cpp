@@ -23,6 +23,7 @@
 #include <objectinspector/objectinspector.h>
 #include <taskmenu/taskmenu_component.h>
 #include <resourceeditor_p.h>
+#include <qdesigner_integration_p.h>
 #include <signalsloteditor/signalsloteditorwindow.h>
 
 #include <buddyeditor/buddyeditor_plugin.h>
@@ -83,17 +84,7 @@ void QDesignerComponents::initializeResources()
     Initializes the plugins used by the components.*/
 void QDesignerComponents::initializePlugins(QDesignerFormEditorInterface *core)
 {
-    using namespace qdesigner_internal;
-
-    // load the plugins
-    if (WidgetDataBase *widgetDatabase = qobject_cast<WidgetDataBase*>(core->widgetDataBase())) {
-        widgetDatabase->loadPlugins();
-        widgetDatabase->grabDefaultPropertyValues();
-    }
-
-    if (WidgetFactory *widgetFactory = qobject_cast<WidgetFactory*>(core->widgetFactory())) {
-        widgetFactory->loadPlugins();
-    }
+    qdesigner_internal::QDesignerIntegration::initializePlugins(core);
 }
 
 /*!

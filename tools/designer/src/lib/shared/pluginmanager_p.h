@@ -61,6 +61,8 @@ public:
     QList<QObject*> instances() const;
     QList<QDesignerCustomWidgetInterface*> registeredCustomWidgets() const;
 
+    bool registerNewPlugins();
+
 public slots:
     bool syncSettings();
     void ensureInitialized();
@@ -75,8 +77,12 @@ private:
     QStringList m_pluginPaths;
     QStringList m_registeredPlugins;
     QStringList m_disabledPlugins;
-    QMap<QString, QString> m_failedPlugins;
-    QList<QDesignerCustomWidgetInterface*> m_customWidgets;
+
+    typedef QMap<QString, QString> FailedPluginMap;
+    FailedPluginMap m_failedPlugins;
+
+    typedef QList<QDesignerCustomWidgetInterface*> CustomWidgetList;
+    CustomWidgetList m_customWidgets;
 
     QStringList defaultPluginPaths() const;
 };

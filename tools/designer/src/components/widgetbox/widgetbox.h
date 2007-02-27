@@ -14,10 +14,8 @@
 #ifndef WIDGETBOX_H
 #define WIDGETBOX_H
 
-
-#include <QtDesigner/QDesignerWidgetBoxInterface>
 #include "widgetbox_global.h"
-
+#include <qdesigner_widgetbox_p.h>
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
@@ -28,7 +26,7 @@ class WidgetBoxTreeView;
 class WidgetCollectionModel;
 class Scratchpad;
 
-class QT_WIDGETBOX_EXPORT WidgetBox : public QDesignerWidgetBoxInterface
+class QT_WIDGETBOX_EXPORT WidgetBox : public QDesignerWidgetBox
 {
     Q_OBJECT
 public:

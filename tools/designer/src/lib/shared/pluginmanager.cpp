@@ -151,6 +151,17 @@ void QDesignerPluginManager::updateRegisteredPlugins()
         registerPath(path);
 }
 
+bool QDesignerPluginManager::registerNewPlugins()
+{
+    const int before = m_registeredPlugins.size();
+    foreach (QString path,  m_pluginPaths)
+        registerPath(path);
+    const bool newPluginsFound = m_registeredPlugins.size() > before;
+    if (newPluginsFound)
+        ensureInitialized();
+    return newPluginsFound;
+}
+
 void QDesignerPluginManager::registerPath(const QString &path)
 {
     QStringList candidates = findPlugins(path);
@@ -167,17 +178,17 @@ void QDesignerPluginManager::registerPlugin(const QString &plugin)
         return;
 
     QPluginLoader loader(plugin);
-    if (loader.load())
+    if (loader.isLoaded() || loader.load()) {
         m_registeredPlugins += plugin;
-
-    if (!loader.isLoaded()) {
-        const QString errorMessage = loader.errorString();
-        m_failedPlugins.insert(plugin, errorMessage);
-        qdesigner_internal::designerWarning(QObject::tr("The plugin '%1' failed to load: %2").arg(plugin).arg(errorMessage));
-    } else {
-        if (m_failedPlugins.contains(plugin))
-            m_failedPlugins.remove(plugin);
+        FailedPluginMap::iterator fit = m_failedPlugins.find(plugin);
+        if (fit != m_failedPlugins.end())
+            m_failedPlugins.erase(fit);
+        return;
     }
+
+    const QString errorMessage = loader.errorString();
+    m_failedPlugins.insert(plugin, errorMessage);
+    qdesigner_internal::designerWarning(QObject::tr("The plugin '%1' failed to load: %2").arg(plugin).arg(errorMessage));
 }
 
 bool QDesignerPluginManager::syncSettings()

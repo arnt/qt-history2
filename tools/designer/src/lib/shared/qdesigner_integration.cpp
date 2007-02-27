@@ -16,6 +16,10 @@
 #include "qdesigner_propertycommentcommand_p.h"
 #include "qdesigner_propertyeditor_p.h"
 #include "qdesigner_objectinspector_p.h"
+#include "widgetdatabase_p.h"
+#include "pluginmanager_p.h"
+#include "widgetfactory_p.h"
+#include "qdesigner_widgetbox_p.h"
 
 // sdk
 #include <QtDesigner/QDesignerFormEditorInterface>
@@ -23,6 +27,7 @@
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
 #include <QtDesigner/QDesignerFormWindowCursorInterface>
 #include <QtDesigner/QDesignerActionEditorInterface>
+#include <QtDesigner/QDesignerWidgetBoxInterface>
 #include <QtDesigner/QExtensionManager>
 
 #include <QtCore/QVariant>
@@ -68,14 +73,14 @@ void QDesignerIntegration::initialize()
 }
 
 void QDesignerIntegration::updateProperty(const QString &name, const QVariant &value)
-{ 
+{
     QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
     if (!formWindow)
         return;
-    
+
     Selection selection;
     getSelection(selection);
-    if (selection.empty()) 
+    if (selection.empty())
         return;
     // Legacy: set properties on widgets via cursor
     if (!selection.m_cursorSelection.empty() && selection.m_selectedObjects.empty()) {
@@ -97,15 +102,13 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
 
 void QDesignerIntegration::updatePropertyComment(const QString &name, const QString &value)
 {
-    
-    
     QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
     if (!formWindow)
         return;
-    
+
     Selection selection;
     getSelection(selection);
-    if (selection.empty()) 
+    if (selection.empty())
         return;
 
     SetPropertyCommentCommand *cmd = new SetPropertyCommentCommand(formWindow);
@@ -123,10 +126,10 @@ void QDesignerIntegration::resetProperty(const QString &name)
     QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
     if (!formWindow)
         return;
-    
+
     Selection selection;
     getSelection(selection);
-    if (selection.empty()) 
+    if (selection.empty())
         return;
 
 
@@ -137,7 +140,7 @@ void QDesignerIntegration::resetProperty(const QString &name)
     } else {
         delete cmd;
         qDebug() << "** WARNING Unable to reset property " << name << '.';
-    } 
+    }
 }
 
 void QDesignerIntegration::addDynamicProperty(const QString &name, const QVariant &value)
@@ -247,15 +250,15 @@ void QDesignerIntegration::getSelection(Selection &s)
     } else {
         s.clear();
         // get single selection
-        
+
         QObject *object = core()->propertyEditor()->object();
         QWidget *widget = qobject_cast<QWidget*>(object);
-        
+
         QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
         if (!formWindow)
             return;
         QDesignerFormWindowCursorInterface *cursor = formWindow->cursor();
-    
+
         if (widget && cursor->isWidgetSelected(widget)) {
             s.m_cursorSelection.push_back(widget);
         } else {
@@ -263,13 +266,44 @@ void QDesignerIntegration::getSelection(Selection &s)
         }
     }
 }
-    
+
 QObject *QDesignerIntegration::propertyEditorObject()
-{        
+{
     QDesignerPropertyEditorInterface *propertyEditor = core()->propertyEditor();
-    if (!propertyEditor) 
+    if (!propertyEditor)
         return 0;
     return propertyEditor->object();
 }
-    
+
+// Load plugins into widget database and factory.
+void QDesignerIntegration::initializePlugins(QDesignerFormEditorInterface *formEditor)
+{
+    // load the plugins
+    if (WidgetDataBase *widgetDatabase = qobject_cast<WidgetDataBase*>(formEditor->widgetDataBase())) {
+        widgetDatabase->loadPlugins();
+        widgetDatabase->grabDefaultPropertyValues();
+    }
+
+    if (WidgetFactory *widgetFactory = qobject_cast<WidgetFactory*>(formEditor->widgetFactory())) {
+        widgetFactory->loadPlugins();
+    }
+}
+
+void QDesignerIntegration::updateCustomWidgetPlugins()
+{
+    QDesignerFormEditorInterface *formEditor = core();
+    if (QDesignerPluginManager *pm = formEditor->pluginManager())
+        pm->registerNewPlugins();
+
+    initializePlugins(formEditor);
+
+    // Do not just reload the last file as the WidgetBox merges the compiled-in resources
+    // and $HOME/.designer/widgetbox.xml. This would also double the scratchpad.
+    if (QDesignerWidgetBox *wb = qobject_cast<QDesignerWidgetBox*>(formEditor->widgetBox())) {
+        const QDesignerWidgetBox::LoadMode oldLoadMode = wb->loadMode();
+        wb->setLoadMode(QDesignerWidgetBox::LoadCustomWidgetsOnly);
+        wb->load();
+        wb->setLoadMode(oldLoadMode);
+    }
+}
 } // namespace qdesigner_internal

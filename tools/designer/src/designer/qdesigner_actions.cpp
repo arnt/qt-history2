@@ -52,6 +52,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
+#include <QtGui/QPushButton>
 #include <QtGui/QIcon>
 #include <QtGui/QMdiSubWindow>
 

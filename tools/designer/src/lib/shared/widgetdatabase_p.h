@@ -46,7 +46,6 @@ public:
     WidgetDataBaseItem(const QString &name = QString(),
                        const QString &group = QString());
 
-
     QString name() const;
     void setName(const QString &name);
 
@@ -88,6 +87,7 @@ public:
     QList<QVariant> defaultPropertyValues() const;
 
     static WidgetDataBaseItem *clone(const QDesignerWidgetDataBaseItemInterface *item);
+
 private:
     QString m_name;
     QString m_group;
@@ -104,11 +104,11 @@ private:
     uint m_promoted: 1;
     QList<QVariant> m_defaultPropertyValues;
 };
-    
+
 enum IncludeType { IncludeLocal, IncludeGlobal  };
 
 typedef  QPair<QString, IncludeType> IncludeSpecification;
-    
+
 QDESIGNER_SHARED_EXPORT IncludeSpecification  includeSpecification(QString includeFile);
 QDESIGNER_SHARED_EXPORT QString buildIncludeFile(QString includeFile, IncludeType includeType);
 
@@ -122,24 +122,23 @@ public:
     virtual QDesignerFormEditorInterface *core() const;
 
     virtual int indexOfObject(QObject *o, bool resolveName = true) const;
-    
+
     void remove(int index);
-    
+
 
     void grabDefaultPropertyValues();
-    
+
 public slots:
     void loadPlugins();
 
 private:
     QList<QVariant> defaultPropertyValues(const QString &name);
-    WidgetDataBaseItem *createCustomWidgetItem(const QDesignerCustomWidgetInterface *customWidget) const;
+    static WidgetDataBaseItem *createCustomWidgetItem(const QDesignerCustomWidgetInterface *customWidget, const QString &plugin);
 
     QDesignerFormEditorInterface *m_core;
 };
 
-    
-QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface 
+QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface
         *appendDerived(QDesignerWidgetDataBaseInterface *db,
                        const QString &className,
                        const QString &group,
@@ -147,11 +146,11 @@ QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface
                        const QString &includeFile,
                        bool promoted,
                        bool custom);
-    
+
 typedef  QList<QDesignerWidgetDataBaseItemInterface*> WidgetDataBaseItemList;
 
-QDESIGNER_SHARED_EXPORT WidgetDataBaseItemList 
-        promotionCandidates(const QDesignerWidgetDataBaseInterface *db, 
+QDESIGNER_SHARED_EXPORT WidgetDataBaseItemList
+        promotionCandidates(const QDesignerWidgetDataBaseInterface *db,
                             const QString &baseClassName);
 } // namespace qdesigner_internal
 

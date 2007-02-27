@@ -50,6 +50,9 @@ public:
 
     virtual QWidget *containerWindow(QWidget *widget) const;
 
+    // Load plugins into widget database and factory.
+    static void initializePlugins(QDesignerFormEditorInterface *formEditor);
+
 signals:
     void propertyChanged(QDesignerFormWindowInterface *formWindow, const QString &name, const QVariant &value);
 
@@ -67,6 +70,8 @@ public slots:
     virtual void updateSelection();
     virtual void updateGeometry();
     virtual void activateWidget(QWidget *widget);
+
+    void updateCustomWidgetPlugins();
 
 private:
     void initialize();

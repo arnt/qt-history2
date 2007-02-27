@@ -15,9 +15,9 @@
 #include "widgetfactory_p.h"
 #include "spacer_widget_p.h"
 #include "abstractlanguage.h"
+#include "pluginmanager_p.h"
+#include "qdesigner_utils_p.h"
 
-#include <pluginmanager_p.h>
-#include <qdesigner_utils_p.h>
 #include <QtDesigner/customwidget.h>
 #include <QtDesigner/propertysheet.h>
 #include <QtDesigner/QExtensionManager>
@@ -94,7 +94,7 @@ void WidgetDataBaseItem::setIncludeFile(const QString &includeFile)
 {
     m_includeFile = includeFile;
 }
-    
+
 QIcon WidgetDataBaseItem::icon() const
 {
     return m_icon;
@@ -175,10 +175,10 @@ QList<QVariant> WidgetDataBaseItem::defaultPropertyValues() const
     return m_defaultPropertyValues;
 }
 
-WidgetDataBaseItem *WidgetDataBaseItem::clone(const QDesignerWidgetDataBaseItemInterface *item) 
+WidgetDataBaseItem *WidgetDataBaseItem::clone(const QDesignerWidgetDataBaseItemInterface *item)
 {
     WidgetDataBaseItem *rc = new WidgetDataBaseItem(item->name(), item->group());
-    
+
     rc->setToolTip(item->toolTip());
     rc->setWhatsThis(item->whatsThis());
     rc->setIncludeFile(item->includeFile());
@@ -190,7 +190,7 @@ WidgetDataBaseItem *WidgetDataBaseItem::clone(const QDesignerWidgetDataBaseItemI
     rc->setPromoted(item->isPromoted());
     rc->setExtends(item->extends());
     rc->setDefaultPropertyValues(item->defaultPropertyValues());
-    
+
     return rc;
 }
 
@@ -279,40 +279,81 @@ int WidgetDataBase::indexOfObject(QObject *object, bool /*resolveName*/) const
 
 void WidgetDataBase::loadPlugins()
 {
-    QDesignerPluginManager *pluginManager = m_core->pluginManager();
-
-    QStringList plugins = pluginManager->registeredPlugins();
-
-    QMutableListIterator<QDesignerWidgetDataBaseItemInterface *> it(m_items);
-    while (it.hasNext()) {
-        QDesignerWidgetDataBaseItemInterface *item = it.next();
-
-        if (item->isCustom()) {
-            it.remove();
-            delete item;
-        }
+    typedef QMap<QString, int> NameIndexMap;
+    typedef QList<QDesignerWidgetDataBaseItemInterface*> ItemList;
+    typedef QMap<QString, QDesignerWidgetDataBaseItemInterface*> NameItemMap;
+    typedef QSet<QString> NameSet;
+    // 1) create a map of existing custom classes
+    NameIndexMap existingCustomClasses;
+    NameSet nonCustomClasses;
+    const int count = m_items.size();
+    for (int i = 0; i < count; i++)    {
+        const QDesignerWidgetDataBaseItemInterface* item =  m_items[i];
+        if (item->isCustom() && !item->isPromoted())
+            existingCustomClasses.insert(item->name(), i);
+        else
+            nonCustomClasses.insert(item->name());
     }
-
+    // 2) create a list map of plugins and the map for the factory
+    ItemList pluginList;
+    QDesignerPluginManager *pluginManager = m_core->pluginManager();
+    const QStringList plugins = pluginManager->registeredPlugins();
     pluginManager->ensureInitialized();
-
     foreach (QString plugin, plugins) {
         QObject *o = pluginManager->instance(plugin);
-
         if (QDesignerCustomWidgetInterface *c = qobject_cast<QDesignerCustomWidgetInterface*>(o)) {
-            WidgetDataBaseItem *item = createCustomWidgetItem(c);
-            item->setPluginPath(plugin);
-            append(item);
-        } else if (QDesignerCustomWidgetCollectionInterface *coll = qobject_cast<QDesignerCustomWidgetCollectionInterface*>(o)) {
-            foreach (QDesignerCustomWidgetInterface *c, coll->customWidgets()) {
-                WidgetDataBaseItem *item = createCustomWidgetItem(c);
-                item->setPluginPath(plugin);
-                append(item);
+            pluginList += createCustomWidgetItem(c, plugin);
+        } else {
+            if (QDesignerCustomWidgetCollectionInterface *coll = qobject_cast<QDesignerCustomWidgetCollectionInterface*>(o)) {
+                foreach (QDesignerCustomWidgetInterface *c, coll->customWidgets()) {
+                    pluginList += createCustomWidgetItem(c, plugin);
+                }
             }
         }
     }
+    // 3) replace custom classes or add new ones, remove them from existingCustomClasses,
+    // leaving behind deleted items
+    unsigned replacedPlugins = 0;
+    unsigned addedPlugins = 0;
+    unsigned removedPlugins = 0;
+    if (!pluginList.empty()) {
+        ItemList::const_iterator cend = pluginList.constEnd();
+        for (ItemList::const_iterator::const_iterator it = pluginList.constBegin();it != cend; ++it )  {
+            QDesignerWidgetDataBaseItemInterface* pluginItem = *it;
+            const QString pluginName = pluginItem->name();
+            NameIndexMap::iterator existingIt = existingCustomClasses.find(pluginName);
+            if (existingIt == existingCustomClasses.end()) {
+                // Add new class.
+                if (nonCustomClasses.contains(pluginName)) {
+                    designerWarning(QObject::tr("A custom widget plugin whose class name (%1) matches that of an existing class has been found.").arg(pluginName));
+                } else {
+                    append(pluginItem);
+                    addedPlugins++;
+                }
+            } else {
+                // replace existing info
+                const int existingIndex = existingIt.value();
+                delete m_items[existingIndex];
+                m_items[existingIndex] = pluginItem;
+                existingCustomClasses.erase(existingIt);
+                replacedPlugins++;
+
+            }
+        }
+    }
+    // 4) remove classes that have not been matched
+    if (!existingCustomClasses.empty()) {
+        NameIndexMap::const_iterator cend = existingCustomClasses.constEnd();
+        for (NameIndexMap::const_iterator::const_iterator it = existingCustomClasses.constBegin();it != cend; ++it )  {
+            remove(it.value());
+            removedPlugins++;
+        }
+    }
+    if (debugWidgetDataBase)
+        qDebug() << "WidgetDataBase::loadPlugins(): " << addedPlugins << " added, " << replacedPlugins << " replaced, " << removedPlugins << "deleted.";
 }
 
-WidgetDataBaseItem *WidgetDataBase::createCustomWidgetItem(const QDesignerCustomWidgetInterface *c) const
+WidgetDataBaseItem *WidgetDataBase::createCustomWidgetItem(const QDesignerCustomWidgetInterface *c, const QString &plugin)
 {
     WidgetDataBaseItem *item = new WidgetDataBaseItem(c->name(), c->group());
     item->setContainer(c->isContainer());
@@ -321,13 +362,14 @@ WidgetDataBaseItem *WidgetDataBase::createCustomWidgetItem(const QDesignerCustom
     item->setIncludeFile(c->includeFile());
     item->setToolTip(c->toolTip());
     item->setWhatsThis(c->whatsThis());
+    item->setPluginPath(plugin);
     return item;
 }
-    
+
 void WidgetDataBase::remove(int index)
 {
     Q_ASSERT(index < m_items.size());
-    delete m_items.takeAt(index);    
+    delete m_items.takeAt(index);
 }
 
 QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
@@ -364,7 +406,7 @@ void WidgetDataBase::grabDefaultPropertyValues()
 
 QDESIGNER_SHARED_EXPORT IncludeSpecification  includeSpecification(QString includeFile)
 {
-    const bool global = !includeFile.isEmpty() && 
+    const bool global = !includeFile.isEmpty() &&
                         includeFile[0] == QLatin1Char('<') &&
                         includeFile[includeFile.size() - 1] ==  QLatin1Char('>');
     if (global) {
@@ -392,11 +434,11 @@ QDESIGNER_SHARED_EXPORT QString buildIncludeFile(QString includeFile, IncludeTyp
 QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *
         appendDerived(QDesignerWidgetDataBaseInterface *db,
                       const QString &className, const QString &group,
-                      const QString &baseClassName, 
+                      const QString &baseClassName,
                       const QString &includeFile,
                       bool promoted, bool custom)
         {
-    if (debugWidgetDataBase) 
+    if (debugWidgetDataBase)
         qDebug() << "appendDerived " << className << " derived from " << baseClassName;
     // Check whether item already exists.
     QDesignerWidgetDataBaseItemInterface *derivedItem = 0;
@@ -407,7 +449,7 @@ QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *
         // Check the existing item for base class mismatch. This will likely
         // happen when loading a file written by an instance with missing plugins.
         // In that case, just warn and ignore the file properties.
-        // 
+        //
         // An empty base class indicates that it is not known (for example, for custom plugins).
         // In this case, the widget DB is later updated once the widget is created
         // by DOM (by querying the metaobject). Suppress the warning.
@@ -446,11 +488,11 @@ QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *
     db->append(derivedItem);
     return derivedItem;
 }
- 
+
 /* Return a list of database items to which a class can be promoted to. */
-    
-QDESIGNER_SHARED_EXPORT WidgetDataBaseItemList 
-        promotionCandidates(const QDesignerWidgetDataBaseInterface *db, 
+
+QDESIGNER_SHARED_EXPORT WidgetDataBaseItemList
+        promotionCandidates(const QDesignerWidgetDataBaseInterface *db,
                             const QString &baseClassName)
 {
     WidgetDataBaseItemList rc;
@@ -463,5 +505,4 @@ QDESIGNER_SHARED_EXPORT WidgetDataBaseItemList
     }
     return rc;
 }
-    
 } // namespace qdesigner_internal
