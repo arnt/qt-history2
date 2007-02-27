@@ -260,7 +260,7 @@ int QToolBarLayout::expandedHeight(int width) const
             if (prev != -1 && newSize > space) {
                 // do we have to move the previous item to the next line to make space for
                 // the extension button?
-                if (count > 2 && size + spacing + extensionExtent > space)
+                if (count > 1 && size + spacing + extensionExtent > space)
                     i = prev;
                 break;
             }
@@ -312,7 +312,7 @@ int QToolBarLayout::expandedWidth(int width) const
                 ranOutOfSpace = true;
                 // do we have to move the previous item to the next line to make space for
                 // the extension button?
-                if (count > 2 && size + spacing + extensionExtent > space) {
+                if (count > 1 && size + spacing + extensionExtent > space) {
                     size -= spacing + a[prev].minimumSize;
                     i = prev;
                 }
@@ -378,7 +378,7 @@ void QToolBarLayout::setGeometry(const QRect &rect)
                     ranOutOfSpace = true;
                 // do we have to move the previous item to the next line to make space for
                 // the extension button?
-                if (count > 2 && size + spacing + extensionExtent > space)
+                if (count > 1 && size + spacing + extensionExtent > space)
                     i = prev;
                 break;
             }
@@ -406,7 +406,7 @@ void QToolBarLayout::setGeometry(const QRect &rect)
 
             if (a[j].empty) {
                 if (item->widget()->isVisible())
-                    item->widget()->hide();
+                    hideWidgets << item->widget();
                 continue;
             }
 
