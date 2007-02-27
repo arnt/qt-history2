@@ -158,6 +158,10 @@ void QTextBrowserPrivate::_q_activateAnchor(const QString &href)
         return;
     Q_Q(QTextBrowser);
 
+#ifndef QT_NO_CURSOR
+    viewport->setCursor(oldCursor);
+#endif
+
     textOrSourceChanged = false;
 
     const QUrl url = resolveUrl(href);

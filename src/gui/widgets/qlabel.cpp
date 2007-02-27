@@ -1407,7 +1407,7 @@ void QLabelPrivate::ensureTextControl()
     QObject::connect(control, SIGNAL(linkHovered(QString)),
                      q, SLOT(_q_linkHovered(QString)));
     QObject::connect(control, SIGNAL(linkActivated(QString)),
-                     q, SIGNAL(linkActivated(QString)));
+                     q, SLOT(_q_activateLink(QString)));
 }
 
 void QLabelPrivate::sendControlEvent(QEvent *e)
@@ -1425,7 +1425,10 @@ void QLabelPrivate::_q_linkHovered(const QString &anchor)
     Q_Q(QLabel);
     if (anchor.isEmpty()) { // restore cursor
 #ifndef QT_NO_CURSOR
-        q->setCursor(hasCustomCursor ? cursor : Qt::ArrowCursor);
+        if (hasCustomCursor)
+            q->setCursor(cursor);
+        else
+            q->unsetCursor();
 #endif
     } else {
 #ifndef QT_NO_CURSOR
@@ -1436,6 +1439,18 @@ void QLabelPrivate::_q_linkHovered(const QString &anchor)
 #endif
     }
     emit q->linkHovered(anchor);
+}
+
+void QLabelPrivate::_q_activateLink(const QString &anchor)
+{
+    Q_Q(QLabel);
+#ifndef QT_NO_CURSOR
+    if (hasCustomCursor)
+        q->setCursor(cursor);
+    else
+        q->unsetCursor();
+#endif
+    emit q->linkActivated(anchor);
 }
 
 // Return the layout rect - this is the rect that is given to the layout painting code

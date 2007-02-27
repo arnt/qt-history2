@@ -94,6 +94,7 @@ public:
     void textInteractionFlagsChanged();
 
     void _q_linkHovered(const QString &link);
+    void _q_activateLink(const QString &link);
 
     QRect layoutRect() const;
     QRect documentRect() const;
