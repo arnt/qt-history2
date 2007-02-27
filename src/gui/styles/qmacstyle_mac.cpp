@@ -312,7 +312,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         qDebug("Not sure how to return this...");
         return ret;
     }
-    if (widg && widg->testAttribute(Qt::WA_SetFont)) {
+    if ((widg && widg->testAttribute(Qt::WA_SetFont)) || !QApplication::desktopSettingsAware()) {
         // If you're using a custom font and it's bigger than the default font,
         // then no constraints for you. If you are smaller, we can try to help you out
         QFont font = qt_app_fonts_hash()->value(widg->metaObject()->className(), QFont());
@@ -3146,7 +3146,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             if (btn->icon.isNull() && !hasMenu) {
                 bool useHIThemeDrawText = false;
                 QFont oldFont = p->font();
-                QFont newFont = qt_app_fonts_hash()->value("QPushButton", oldFont);
+                QFont newFont = qt_app_fonts_hash()->value("QPushButton", QFont());
                 ThemeFontID themeId = kThemePushButtonFont;
                 if (oldFont == newFont) {  // Yes, I can use HITheme to draw the text.
                     useHIThemeDrawText = true;
@@ -4419,7 +4419,8 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                 = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
 
             QStyleOptionGroupBox groupBoxCopy(*groupBox);
-            if (widget && !widget->testAttribute(Qt::WA_SetFont))
+            if ((widget && !widget->testAttribute(Qt::WA_SetFont))
+                    && QApplication::desktopSettingsAware())
                 groupBoxCopy.subControls = groupBoxCopy.subControls & ~SC_GroupBoxLabel;
             QWindowsStyle::drawComplexControl(cc, &groupBoxCopy, p, widget);
             if (groupBoxCopy.subControls != groupBox->subControls) {
@@ -4837,7 +4838,8 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
             case SC_GroupBoxCheckBox: {
                 // Cheat and use the smaller font if we need to
                 bool checkable = groupBox->subControls & SC_GroupBoxCheckBox;
-                bool fontIsSet = (widget && widget->testAttribute(Qt::WA_SetFont));
+                bool fontIsSet = (widget && widget->testAttribute(Qt::WA_SetFont)
+                                  || !QApplication::desktopSettingsAware());
                 int tw;
                 int h;
                 int margin =  flat || hasNoText ? 0 : 12;
@@ -4906,7 +4908,8 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 bool checkable = groupBox->subControls & SC_GroupBoxCheckBox;
                 int yOffset = 3;
                 if (!checkable) {
-                    if (widget && !widget->testAttribute(Qt::WA_SetFont))
+                    if (widget && !widget->testAttribute(Qt::WA_SetFont)
+                            && QApplication::desktopSettingsAware())
                         fm = QFontMetrics(qt_app_fonts_hash()->value("QHeaderView", QFont()));
                     yOffset = 5;
                     if (hasNoText)
@@ -5017,7 +5020,8 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 #endif
                 false;
             const QAquaWidgetSize AquaSize = qt_aqua_size_constrain(widget);
-            const bool differentFont = widget && widget->testAttribute(Qt::WA_SetFont);
+            const bool differentFont = (widget && widget->testAttribute(Qt::WA_SetFont))
+                                       || !QApplication::desktopSettingsAware();
             ThemeTabDirection ttd = getTabDirection(tab->shape);
             bool vertTabs = ttd == kThemeTabWest || ttd == kThemeTabEast;
             if (vertTabs)
