@@ -1553,6 +1553,14 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
 
             QRect rect = dwOpt->rect;
             QRect titleRect = subElementRect(SE_DockWidgetTitleBarText, option, widget);
+            QRect r = rect.adjusted(0, 0, -1, 0);
+            if (verticalTitleBar)
+                r.adjust(0, 0, 0, -1);
+            painter->setPen(option->palette.light().color());
+            painter->drawRect(r.adjusted(1, 1, 1, 1));
+            painter->setPen(shadow);
+            painter->drawRect(r);
+
             if (verticalTitleBar) {
                 QRect r = rect;
                 QSize s = r.size();
@@ -1570,12 +1578,6 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
 
                 rect = r;
             }
-
-            QRect r = rect.adjusted(0, 0, -1, 0);
-            painter->setPen(option->palette.light().color());
-            painter->drawRect(r.adjusted(1, 1, 1, 1));
-            painter->setPen(shadow);
-            painter->drawRect(r);
 
             if (!dwOpt->title.isEmpty()) {
                 QString titleText
