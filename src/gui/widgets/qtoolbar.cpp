@@ -50,7 +50,6 @@ void QToolBarPrivate::init()
     movable = true;
     q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
     q->setBackgroundRole(QPalette::Button);
-    q->setAutoFillBackground(true);
     q->setMouseTracking(true);
 
     QStyleOptionToolBar opt;
@@ -788,10 +787,12 @@ void QToolBar::paintEvent(QPaintEvent *)
     QStyleOptionToolBar opt;
     initStyleOption(&opt);
 
-    if (d->layout->expanded || isWindow())
+    if (d->layout->expanded || isWindow()) {
+        p.fillRect(opt.rect, palette().background());
         style->drawPrimitive(QStyle::PE_FrameMenu, &opt, &p);
-    else
+    } else {
         style->drawControl(QStyle::CE_ToolBar, &opt, &p);
+    }
 
     opt.rect = d->layout->handleRect();
 

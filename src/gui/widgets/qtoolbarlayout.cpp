@@ -66,7 +66,6 @@ QToolBarLayout::~QToolBarLayout()
                     widgetAction->releaseWidget(item->widget());
             }
         }
-
     }
 }
 
