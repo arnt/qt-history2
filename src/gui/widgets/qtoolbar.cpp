@@ -51,6 +51,7 @@ void QToolBarPrivate::init()
     q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
     q->setBackgroundRole(QPalette::Button);
     q->setAutoFillBackground(true);
+    q->setMouseTracking(true);
 
     QStyleOptionToolBar opt;
     q->initStyleOption(&opt);
@@ -833,10 +834,18 @@ bool QToolBar::event(QEvent *event)
             return true;
         }
         break;
-    case QEvent::MouseMove:
-        if (d->state != 0) {
-            d->mouseMoveEvent(static_cast<QMouseEvent*>(event));
-            return true;
+    case QEvent::MouseMove: {
+            QMouseEvent *e = static_cast<QMouseEvent*>(event);
+
+            if (d->layout->handleRect().contains(e->pos()))
+                setCursor(Qt::SizeAllCursor);
+            else
+                unsetCursor();
+
+            if (d->state != 0) {
+                d->mouseMoveEvent(e);
+                return true;
+            }
         }
         break;
     case QEvent::Leave:
