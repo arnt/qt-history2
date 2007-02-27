@@ -16,6 +16,7 @@
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
+#include <QtGui/QDialogButtonBox>
 #include <QtGui/QPainter>
 #include <QtGui/QPainterPath>
 #include <QtGui/QStyleOption>
@@ -144,7 +145,7 @@ VersionDialog::VersionDialog(QWidget *parent)
 #endif
     version = version.arg(tr("Qt Designer")).arg(QLatin1String(QT_VERSION_STR));
     version.append(tr("<br/>Qt Designer is a graphical user interface designer for Qt applications.<br/>"));
-    
+
     QString edition =
 #if QT_EDITION == QT_EDITION_OPENSOURCE
                     tr("This version of Qt Designer is part of the Qt Open Source Edition, for use "
@@ -159,28 +160,23 @@ VersionDialog::VersionDialog(QWidget *parent)
                     "Qt Commercial License Agreement. For details, see the file LICENSE "
                     "that came with this software distribution.<br/>");
 #endif
-                    
+
     lbl->setText(tr("%1"
                     "<br/>%2"
                     "<br/>Copyright 2000-$THISYEAR$ $TROLLTECH$. All rights reserved."
                     "<br/><br/>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
                     " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
                     " PARTICULAR PURPOSE.<br/> ").arg(version).arg(edition));
-    
+
     lbl->setWordWrap(true);
     lbl->setOpenExternalLinks(true);
-    QPushButton *cmd = new QPushButton(QLatin1String("OK"), this);
-    cmd->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    cmd->setDefault(true);
-    connect(cmd, SIGNAL(clicked()), this, SLOT(reject()));
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
+    connect(buttonBox , SIGNAL(rejected()), this, SLOT(reject()));
     connect(label, SIGNAL(triggered()), this, SLOT(accept()));
     layout->addWidget(label, 0, 0, 1, 1);
     layout->addWidget(lbl, 0, 1, 4, 4);
-    layout->addWidget(cmd, 4, 2, 1, 1);
-}
-
-VersionDialog::~VersionDialog()
-{
+    layout->addWidget(buttonBox, 4, 2, 1, 1);
 }
 
 #include "versiondialog.moc"
