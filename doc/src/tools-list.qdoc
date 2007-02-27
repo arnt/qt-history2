@@ -49,7 +49,9 @@
     \row \o \l{qt3to4 - The Qt 3 to 4 Porting Tool}
          \o A tool to assist in porting applications from Qt 3 to Qt 4.
     \row \o \l{QtDBus XML compiler (qdbusxml2cpp)}
-         \o A tool to convert D-BUS interface descriptions to C++ source code.
+         \o A tool to convert D-Bus interface descriptions to C++ source code.
+    \row \o \l{D-Bus Viewer}
+         \o A tool to introspect D-Bus objects and messages.
     \endtable
 
 */
