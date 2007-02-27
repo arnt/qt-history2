@@ -115,7 +115,6 @@ public:
 
     QList<QAbstractItemView*> columns;
     QVector<int> columnSizes; // used during init and corner moving
-    QAbstractItemDelegate *itemDelegate;
     bool showResizeGrips;
     int offset;
     QTimeLine currentAnimation;

@@ -52,11 +52,11 @@ QColumnView::QColumnView(QWidget * parent)
 :  QAbstractItemView(*new QColumnViewPrivate, parent)
 {
     Q_D(QColumnView);
-    delete itemDelegate();
-    d->itemDelegate->setParent(this);
-    setItemDelegate(d->itemDelegate);
+    setTextElideMode(Qt::ElideMiddle);
     connect(&(d->currentAnimation), SIGNAL(frameChanged(int)), horizontalScrollBar(), SLOT(setValue(int)));
     connect(&(d->currentAnimation), SIGNAL(finished()), this, SLOT(_q_changeCurrentColumn()));
+    delete d->itemDelegate;
+    setItemDelegate(new QColumnViewDelegate(this));
 }
 
 /*!
@@ -344,18 +344,6 @@ void QColumnView::resizeEvent( QResizeEvent *event )
         }
     }
     QAbstractItemView::resizeEvent(event);
-}
-
-/*!
-    \reimp
-*/
-void QColumnView::setItemDelegate(QAbstractItemDelegate *delegate)
-{
-    Q_D(QColumnView);
-    for (int i = 0; i < d->columns.count(); ++i)
-        d->columns[i]->setItemDelegate(delegate);
-    d->itemDelegate = delegate;
-    QAbstractItemView::setItemDelegate(delegate);
 }
 
 /*!
@@ -668,15 +656,34 @@ QAbstractItemView *QColumnView::createColumn(const QModelIndex &index)
     Q_D(QColumnView);
 
     QListView *view = new QListView(viewport());
-    view->setModel(model());
-    view->setTextElideMode(Qt::ElideMiddle);
-    view->setDragEnabled(true);
-    view->setAcceptDrops(true);
     view->setFrameShape(QFrame::NoFrame);
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    view->setSelectionMode(selectionMode());
     view->setMinimumWidth(100);
+
+    // Copy the 'view' behavior
+    view->setDragDropMode(dragDropMode());
+    view->setAlternatingRowColors(alternatingRowColors());
+    view->setAutoScroll(hasAutoScroll());
+    view->setDragDropOverwriteMode(dragDropOverwriteMode());
+    view->setEditTriggers(editTriggers());
+    view->setHorizontalScrollMode(horizontalScrollMode());
+    view->setIconSize(iconSize());
+    view->setSelectionBehavior(selectionBehavior());
+    view->setSelectionMode(selectionMode());
+    view->setDropIndicatorShown(showDropIndicator());
+    view->setTabKeyNavigation(tabKeyNavigation());
+    view->setTextElideMode(textElideMode());
+    view->setVerticalScrollMode(verticalScrollMode());
+
+    view->setModel(model());
+
+    // Copy the custom delegate per row
+    QMapIterator<int, QPointer<QAbstractItemDelegate> > i(d->rowDelegates);
+    while (i.hasNext()) {
+        i.next();
+        view->setItemDelegateForRow(i.key(), i.value());
+    }
 
     // set the delegate to be the columnview delegate
     QAbstractItemDelegate *delegate = view->itemDelegate();
@@ -886,13 +893,12 @@ void QColumnView::selectAll()
  */
 QColumnViewPrivate::QColumnViewPrivate()
 :  QAbstractItemViewPrivate()
-,itemDelegate(new QColumnViewDelegate)
 ,showResizeGrips(true)
 ,offset(0)
 ,currentAnimation(ANIMATION_DURATION_MSEC)
 ,previewColumn(0)
 {
-  setPreviewWidget(new QWidget());
+    setPreviewWidget(new QWidget());
 }
 
 QColumnViewPrivate::~QColumnViewPrivate()

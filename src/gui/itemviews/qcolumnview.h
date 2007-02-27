@@ -39,7 +39,6 @@ public:
     QSize sizeHint() const;
     QRect visualRect(const QModelIndex &index) const;
     void setModel(QAbstractItemModel *model);
-    void setItemDelegate(QAbstractItemDelegate *delegate);
     void setSelectionModel(QItemSelectionModel * selectionModel);
     void setRootIndex(const QModelIndex &index);
     void selectAll();
