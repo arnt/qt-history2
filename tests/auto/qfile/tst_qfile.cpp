@@ -71,6 +71,7 @@ private slots:
     void atEnd();
     void readLine();
     void readLine2();
+    void readLineNullInLine();
     void readAllStdin();
     void readLineStdin();
     void text();
@@ -456,6 +457,22 @@ void tst_QFile::readLine2()
     QCOMPARE(p[58], '\n');
     QCOMPARE(p[59], '\0');
     QCOMPARE(p[60], '@');
+}
+
+void tst_QFile::readLineNullInLine()
+{
+    QFile::remove("nullinline.txt");
+    QFile file("nullinline.txt");
+    QVERIFY(file.open(QIODevice::ReadWrite));
+    QVERIFY(file.write("linewith\0null\nanotherline\0withnull\n\0\nnull\0", 42) > 0);
+    QVERIFY(file.flush());
+    file.reset();
+
+    QCOMPARE(file.readLine(), QByteArray("linewith\0null\n", 14));
+    QCOMPARE(file.readLine(), QByteArray("anotherline\0withnull\n", 21));
+    QCOMPARE(file.readLine(), QByteArray("\0\n", 2));
+    QCOMPARE(file.readLine(), QByteArray("null\0", 5));
+    QCOMPARE(file.readLine(), QByteArray());
 }
 
 void tst_QFile::readAllStdin()
