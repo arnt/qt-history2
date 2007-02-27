@@ -30,8 +30,8 @@ static void printArg(const QVariant &v)
         foreach (QString s, v.toStringList())
             printf("%s\n", qPrintable(s));
     } else if (v.userType() == QVariant::List) {
-        foreach (const QVariant &v, v.toList())
-            printArg(v);
+        foreach (const QVariant &var, v.toList())
+            printArg(var);
     } else if (v.userType() == QVariant::Map) {
         const QVariantMap map = v.toMap();
         QVariantMap::ConstIterator it = map.constBegin();
