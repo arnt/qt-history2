@@ -55,7 +55,7 @@
     \skipto /class.*MainWindow/
     \printuntil /^\};/
 
-    The MainWindow class maintains the undo stack, i.e., it creates
+    The \c MainWindow class maintains the undo stack, i.e., it creates
     \l{QUndoCommand}s and pushes and pops them from the stack when it
     receives the \c triggered() signal from \c undoAction and \c
     redoAction.
@@ -99,7 +99,7 @@
     in the manner shown above. We can connect our \c undoAction and \c
     redoAction directly to the stack's \c undo() and \c redo() slots 
     as we disable the actions when the stack cannot do undo and redo. 
-    For the other actions we have implemented slots in the MainWindow 
+    For the other actions we have implemented slots in the \c MainWindow 
     class.
 
     Here is the \c createMenues() function:
@@ -216,7 +216,7 @@
     \skipto /class.*DeleteCommand/
     \printuntil /^\};/
 
-    The DeleteCommand class implements the functionallity to remove an
+    The DeleteCommand class implements the functionality to remove an
     item from the scene.
     
     \section1 DeleteCommand Class Implementation
@@ -277,13 +277,15 @@
     \skipto /::mergeWith/
     \printuntil /^\}/
 
-    Whenever a MoveCommand is created this function is called to check
-    if it should be merged with the previous command. It is the
-    previous command object that is kept on the stack.  We check if
-    the command is a MoveCommand, which must be true unless an error
-    has occurred, and that the command moves the same item. Since we
-    want to keep the start position of the initial MoveCommand we
-    simply return true if \c command moves the same item.  
+    Whenever a MoveCommand is created, this function is called to
+    check if it should be merged with the previous command. It is the
+    previous command object that is kept on the stack. The function
+    returns true if the command is merged; otherwise false.
+
+    We first check whether it is the same item that has been moved
+    twice, in which case we merge the commands. We update the position
+    of the item so that it will take the last position in the move
+    sequence when undone. 
 
     \section1 DiagramScene Class Definition
 
@@ -291,9 +293,9 @@
     \skipto /class.*DiagramScene/
     \printuntil /^\};/
 
-    The DiagramScene implements the functionallity to move a
+    The DiagramScene implements the functionality to move a
     DiagramItem with the mouse. It emits a signal when a move is
-    completed. This is catched by the MainWindow, which makes
+    completed. This is caught by the \c MainWindow, which makes
     MoveCommands. We do not examine the implementation of DiagramScene
     as it only deals with graphics framework issues.
 
@@ -306,6 +308,6 @@
     \printuntil /^\}/
 
     We draw a grid in the background of the DiagramScene, so we use a
-    resource file. The rest of the function creates the MainWindow and
+    resource file. The rest of the function creates the \c MainWindow and
     shows it as a top level window.
 */
