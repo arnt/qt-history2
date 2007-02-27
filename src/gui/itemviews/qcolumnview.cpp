@@ -661,16 +661,18 @@ QAbstractItemView *QColumnView::createColumn(const QModelIndex &index)
     view->setMinimumWidth(100);
 
     // Copy the 'view' behavior
+#ifndef QT_NO_DRAGANDDROP
     view->setDragDropMode(dragDropMode());
+    view->setDragDropOverwriteMode(dragDropOverwriteMode());
+    view->setDropIndicatorShown(showDropIndicator());
+#endif
     view->setAlternatingRowColors(alternatingRowColors());
     view->setAutoScroll(hasAutoScroll());
-    view->setDragDropOverwriteMode(dragDropOverwriteMode());
     view->setEditTriggers(editTriggers());
     view->setHorizontalScrollMode(horizontalScrollMode());
     view->setIconSize(iconSize());
     view->setSelectionBehavior(selectionBehavior());
     view->setSelectionMode(selectionMode());
-    view->setDropIndicatorShown(showDropIndicator());
     view->setTabKeyNavigation(tabKeyNavigation());
     view->setTextElideMode(textElideMode());
     view->setVerticalScrollMode(verticalScrollMode());

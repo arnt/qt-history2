@@ -38,7 +38,9 @@
 QColumnViewGrip::QColumnViewGrip(QWidget *parent)
 :  QWidget(*new QColumnViewGripPrivate, parent, 0)
 {
+#ifndef QT_NO_CURSOR
     setCursor(Qt::SplitHCursor);
+#endif
 }
 
 /*!
