@@ -452,6 +452,9 @@ void QColumnView::setSelection(const QRect &rect, QItemSelectionModel::Selection
     Q_UNUSED(command);
 }
 
+/*!
+    \reimp
+*/
 void QColumnView::setSelectionModel(QItemSelectionModel * newSelectionModel)
 {
     Q_D(const QColumnView);
@@ -593,7 +596,7 @@ void QColumnViewPrivate::_q_clicked(const QModelIndex &index)
 
     Return the new view
 
-    \sa createColumn() createPreviewWidget()
+    \sa createColumn() setPreviewWidget()
     \sa doLayout()
 */
 QAbstractItemView *QColumnViewPrivate::createColumn(const QModelIndex &index, bool show)
@@ -643,7 +646,7 @@ QAbstractItemView *QColumnViewPrivate::createColumn(const QModelIndex &index, bo
 }
 
 /*!
-    \fn void updatePreviewWidget(const QModelIndex &index)
+    \fn void QColumnView::updatePreviewWidget(const QModelIndex &index)
 
     This signal is emitted when the preview widget should be updated to
     provide rich information about \a index
@@ -658,7 +661,7 @@ QAbstractItemView *QColumnViewPrivate::createColumn(const QModelIndex &index, bo
 
     Return the new view.  QColumnView will automatically take ownership of the widget.
 
-    \sa createPreviewWidget()
+    \sa setPreviewWidget()
  */
 QAbstractItemView *QColumnView::createColumn(const QModelIndex &index)
 {
@@ -691,7 +694,7 @@ QAbstractItemView *QColumnView::createColumn(const QModelIndex &index)
 /*!
     Returns the preview widget, or 0 if there is none.
 
-    \sa setPreviewWidget()
+    \sa setPreviewWidget(), updatePreviewWidget()
 */
 QWidget *QColumnView::previewWidget() const
 {
@@ -706,7 +709,7 @@ QWidget *QColumnView::previewWidget() const
     destroyed when the column area is deleted or when a new widget is
     set.
 
-    \sa previewWidget()
+    \sa previewWidget(), updatePreviewWidget()
 */
 void QColumnView::setPreviewWidget(QWidget *widget) {
     Q_D(QColumnView);
@@ -929,7 +932,7 @@ void QColumnViewPrivate::doLayout()
 }
 
 /*!
-    \class QColumnViewDelegate
+    \internal
 
     Draws a delegate with a > if an object has children.
 

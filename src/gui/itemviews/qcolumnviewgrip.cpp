@@ -18,12 +18,16 @@
 #include <qdebug.h>
 
 /*!
+    \internal
+    class QColumnViewGrip
+
     QColumnViewGrip is created to go inside QAbstractScrollArea's corner.
     When the mouse it moved it will resize the scroll area and emit's a signal.
  */
 
 /*!
-    \func void gripMoved()
+    \internal
+    \fn void QColumnViewGrip::gripMoved()
     Signal that is emited when the grip moves the parent widget.
  */
 
