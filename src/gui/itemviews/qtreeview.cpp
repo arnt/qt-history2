@@ -2346,8 +2346,11 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     // ### Temporary hack to speed up the function
     option.rect.setWidth(-1);
     QModelIndex parent = d->model->parent(index);
+    bool emptyHeader = (d->header->count() == 0);
     for (int column = start; column <= end; ++column) {
-        const int logicalColumn = d->header->count()? d->header->logicalIndex(column) : column;
+        int logicalColumn = emptyHeader ? column : d->header->logicalIndex(column);
+        if (d->header->isSectionHidden(logicalColumn))
+            continue;
         QModelIndex idx = d->model->index(index.row(), logicalColumn, parent);
         if (idx.isValid()) {
             if (QWidget *editor = d->editorForIndex(idx))

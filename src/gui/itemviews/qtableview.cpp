@@ -1362,7 +1362,10 @@ int QTableView::sizeHintForRow(int row) const
     int hint = 0;
     QModelIndex index;
     for (int column = left; column <= right; ++column) {
-        index = d->model->index(row, column, d->root);
+        int logicalColumn = d->horizontalHeader->logicalIndex(column);
+        if (d->horizontalHeader->isSectionHidden(logicalColumn))
+            continue;
+        index = d->model->index(row, logicalColumn, d->root);
         if (d->wrapItemText) {// for wrapping boundries
             option.rect.setY(rowViewportPosition(index.row()));
             option.rect.setHeight(rowHeight(index.row()));
@@ -1406,7 +1409,10 @@ int QTableView::sizeHintForColumn(int column) const
     int hint = 0;
     QModelIndex index;
     for (int row = top; row <= bottom; ++row) {
-        index = d->model->index(row, column, d->root);
+        int logicalRow = d->verticalHeader->logicalIndex(row);
+        if (d->verticalHeader->isSectionHidden(logicalRow))
+            continue;
+        index = d->model->index(logicalRow, column, d->root);
         hint = qMax(hint, itemDelegate(index)->sizeHint(option, index).width());
     }
 
