@@ -229,6 +229,9 @@ private:
     int indexOfCategory(const QString &name) const;
     int indexOfScratchpad();
 
+    void saveExpandedState() const;
+    void restoreExpandedState();
+
     static QString widgetDomXml(const Widget &widget);
 
     static QString qtify(const QString &name);
@@ -269,20 +272,45 @@ WidgetBoxTreeView::WidgetBoxTreeView(QDesignerFormEditorInterface *core, QWidget
     setEditTriggers(QAbstractItemView::AnyKeyPressed);
 }
 
-WidgetBoxTreeView::~WidgetBoxTreeView()
+void WidgetBoxTreeView::saveExpandedState() const
 {
+    QStringList closedCategories;
+    if (const int numCategories = categoryCount()) {
+        for (int i = 0; i < numCategories; ++i) {
+            const QTreeWidgetItem *cat_item = topLevelItem(i);
+            if (!isItemExpanded(cat_item))
+                closedCategories.append(cat_item->text(0));
+        }
+    }
     QSettings settings;
     settings.beginGroup(QLatin1String("WidgetBox"));
-
-    QStringList open_cat;
-    for (int i = 0; i < categoryCount(); ++i) {
-        const QTreeWidgetItem *cat_item = topLevelItem(i);
-        if (isItemExpanded(cat_item))
-            open_cat.append(cat_item->text(0));
-    }
-    settings.setValue(QLatin1String("open categories"), open_cat);
-
+    settings.setValue(QLatin1String("Closed categories"), closedCategories);
     settings.endGroup();
+}
+
+void  WidgetBoxTreeView::restoreExpandedState()
+{
+    typedef QSet<QString> StringSet;
+    QSettings settings;
+    const StringSet closedCategories = settings.value(QLatin1String("WidgetBox/Closed categories"), QStringList()).toStringList().toSet();
+
+    if (closedCategories.empty()) {
+        expandAll();
+        return;
+    }
+
+    if (const int numCategories = categoryCount()) {
+        for (int i = 0; i < numCategories; ++i) {
+            QTreeWidgetItem *item = topLevelItem(i);
+            if (closedCategories.contains(item->text(0)))
+                item->setExpanded(false);
+            }
+    }
+}
+
+WidgetBoxTreeView::~WidgetBoxTreeView()
+{
+    saveExpandedState();
 }
 
 QString WidgetBoxTreeView::qtify(const QString &name)
@@ -441,30 +469,7 @@ bool WidgetBoxTreeView::load()
         addCategory(cat_list.at(scratch_idx));
 
     // Restore which items are expanded
-
-    QSettings settings;
-    settings.beginGroup(QLatin1String("WidgetBox"));
-
-    QStringList closed_cat;
-    for (int i = 0; i < topLevelItemCount(); ++i) {
-        const QTreeWidgetItem *item = topLevelItem(i);
-        if (!isItemExpanded(item))
-            closed_cat.append(item->text(0));
-    }
-
-    closed_cat = settings.value(QLatin1String("Closed categories"), closed_cat).toStringList();
-    for (int i = 0; i < closed_cat.size(); ++i) {
-        const int cat_idx = indexOfCategory(closed_cat[i]);
-        if (cat_idx == -1)
-            continue;
-        const QTreeWidgetItem *item = topLevelItem(cat_idx);
-        if (item == 0)
-            continue;
-        setItemExpanded(item, false);
-    }
-
-    settings.endGroup();
-
+    restoreExpandedState();
     return true;
 }
 
