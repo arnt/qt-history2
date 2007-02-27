@@ -324,7 +324,7 @@ void QAbstractSpinBox::setFrame(bool enable)
     \since 4.2
 
     If enabled the spin box will increase/decrease the value faster
-    the longer you hold the button down. This only applied
+    the longer you hold the button down.
 */
 
 void QAbstractSpinBox::setAccelerated(bool accelerate)
@@ -353,6 +353,8 @@ bool QAbstractSpinBox::isAccelerated() const
     other fields on the form). Start the spinbox without the best default,
     and when the default is known, if modified() returns false (the user
     hasn't entered any text), insert the default value.
+
+    \since 4.3
 */
 
 bool QAbstractSpinBox::isModified() const
