@@ -599,6 +599,7 @@ void QMdiAreaPrivate::rearrange(const Rearranger &rearranger, bool icons)
         int indexToActive = widgets.indexOf((QWidget *)active);
         if (indexToActive >= 0)
             widgets.move(indexToActive, widgets.size() - 1);
+        internalRaise(active);
     }
     rearranger.rearrange(widgets, q_func()->viewport()->rect());
 }
