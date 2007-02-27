@@ -301,9 +301,9 @@ int main(int argc, char **argv)
                     qWidget->setVerboseMode(verboseMode);
                     qWidget->setType(type);
                     qWidget->setCheckersBackground(checkers_background);
-                    qWidget->filename = files.at(j);
+                    qWidget->m_filename = files.at(j);
                     qWidget->setWindowTitle(fileinfo.filePath());
-                    qWidget->cmds = content;
+                    qWidget->m_commands = content;
                     qWidget->resize(width, height);
                     qWidget->show();
                     break;
@@ -330,9 +330,9 @@ int main(int argc, char **argv)
             case OpenGLType:
                 {
                     qGLWidget = new OnScreenWidget<QGLWidget>;
-                    qGLWidget->filename = files.at(j);
+                    qGLWidget->m_filename = files.at(j);
                     qGLWidget->setWindowTitle(fileinfo.filePath());
-                    qGLWidget->cmds = content;
+                    qGLWidget->m_commands = content;
                     qGLWidget->resize(width, height);
                     qGLWidget->show();
                     break;

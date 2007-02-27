@@ -1,7 +1,6 @@
 #ifndef INTERACTIVEWIDGET_H
 #define INTERACTIVEWIDGET_H
 
-
 #include "widgets.h"
 #include "paintcommands.h"
 
@@ -38,12 +37,11 @@ protected:
     bool eventFilter(QObject *o, QEvent *e);
 
 private:
-    QMap<QString, QString> cmdMap;
-    QListWidget *cmds;
-    OnScreenWidget<QWidget> *osw;
-    QTextEdit *te;
-    QString filename;
+    QMap<QString, QString> m_cmdMap;
+    QListWidget *m_cmds;
+    OnScreenWidget<QWidget> *m_onScreenWidget;
+    QTextEdit *ui_textEdit;
+    QString m_filename;
 };
-
 
 #endif

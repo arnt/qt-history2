@@ -100,19 +100,18 @@ void DataGenerator::run(int argc, char **argv)
     QStringList tests = settings.suites();
     qDebug()<<"tests = "<<tests;
     foreach(QString test, tests) {
-        if (!suiteName.isEmpty()) {
-            if (test != suiteName)
-                continue;
-        }
+        if (!suiteName.isEmpty() && test != suiteName)
+            continue;
+
         qDebug()<<"testing "<<test;
         settings.settings()->beginGroup(test);
+
         QString dirName = settings.settings()->value("dir").toString();
         QString refUrl  = settings.settings()->value("reference").toString();
+
         QDir dir(dirName);
-        if (!dir.isAbsolute() && !dir.exists()) {
-            dir = QDir(QString("%1/%2").arg(baseDataDir)
-                       .arg(dirName));
-        }
+        if (!dir.isAbsolute() && !dir.exists())
+            dir = QDir(QString("%1/%2").arg(baseDataDir).arg(dirName));
 
         testSuite(generator, test, dir.absolutePath(), refUrl);
         settings.settings()->endGroup();
@@ -132,8 +131,10 @@ void DataGenerator::testEngines(XMLGenerator &generator, const QString &file,
         generator.addImage("Reference", ref, XMLData(), Reference);
     }
 
-    bool qpsScript = file.endsWith("qps");
-    if (!qpsScript) {
+    //bool isQpsScript = file.endsWith(".qps");
+    bool isSvgFile = file.endsWith(".svg");
+
+    if (isSvgFile) {
         QDir oldDir = QDir::current();
         if (!baseDataDir.isEmpty()) {
             QDir::setCurrent(baseDataDir);
@@ -288,14 +289,11 @@ void DataGenerator::testSuite(XMLGenerator &generator, const QString &test,
 
     QDir dir(dirName);
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
-    QFileInfoList list = dir.entryInfoList();
+    //dir.setNameFilter()
 
-    for (int i = 0; i < list.size(); ++i) {
-        QFileInfo fileInfo = list.at(i);
-        if (!testcase.isEmpty()) {
-            if (fileInfo.fileName() != testcase)
-                continue;
-        }
+    foreach (QFileInfo fileInfo, dir.entryInfoList()) {
+        if (!testcase.isEmpty() && fileInfo.fileName() != testcase)
+            continue;
         qDebug()<<"Testing: "<<fileInfo.absoluteFilePath();
         testEngines(generator, fileInfo.absoluteFilePath(), refUrl);
     }
@@ -320,29 +318,26 @@ void DataGenerator::testGivenEngines(const QList<QEngine*> engines,
                                      XMLGenerator &generator,
                                      GeneratorFlags eflags)
 {
-    bool qpsScript = false;
     QString fileName = fileInfo.absoluteFilePath();
+    bool qpsScript = fileName.endsWith(".qps");
     QStringList qpsContents;
-    if (fileName.endsWith("qps")) {
+    if (qpsScript) {
         QString script = loadFile(fileName);
         qpsContents = script.split("\n", QString::SkipEmptyParts);
-        qpsScript = true;
     }
 
     //foreign one don't generate qpsScripts
     if ((eflags & Foreign) && qpsScript)
         return;
 
-    foreach(QEngine *engine, engines) {
+    foreach (QEngine *engine, engines) {
         if (!wantedEngine(engine->name()))
             continue;
-        if (settings.isTestBlacklisted(engine->name(),
-                                       fileInfo.fileName())) {
+        if (settings.isTestBlacklisted(engine->name(), fileInfo.fileName())) {
             XMLData data;
             data.details    = QString("Test blacklisted");
             data.iterations = 1;
-            generator.addImage(engine->name(), QString(""),
-                               data, eflags);
+            generator.addImage(engine->name(), QString(""), data, eflags);
             continue;
         }
 

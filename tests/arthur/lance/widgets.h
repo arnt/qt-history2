@@ -29,33 +29,25 @@ public:
         QSettings settings("Trolltech", "lance");
         for (int i=0; i<10; ++i) {
             QPointF suggestion(100 + i * 40, 100 + 100 * qSin(i * 3.1415 / 10.0));
-            controlPoints << settings.value("cp" + QString::number(i), suggestion).toPointF();
+            m_controlPoints << settings.value("cp" + QString::number(i), suggestion).toPointF();
         }
 
-        currentPoint = -1;
-        showControlPoints = false;
-        type = WidgetType;
-        checkersBackground = true;
-        verboseMode = false;
+        m_currentPoint = -1;
+        m_showControlPoints = false;
+        m_deviceType = WidgetType;
+        m_checkersBackground = true;
+        m_verboseMode = false;
     }
-    void setVerboseMode(bool v)
-    {
-        verboseMode = v;
-    }
-    void setCheckersBackground(bool b)
-    {
-        checkersBackground = b;
-    }
-    void setType(DeviceType t)
-    {
-        type = t;
-    }
+
+    void setVerboseMode(bool v) { m_verboseMode = v; }
+    void setCheckersBackground(bool b) { m_checkersBackground = b; }
+    void setType(DeviceType t) { m_deviceType = t; }
 
     ~OnScreenWidget()
     {
         QSettings settings("Trolltech", "lance");
         for (int i=0; i<10; ++i) {
-            settings.setValue("cp" + QString::number(i), controlPoints.at(i));
+            settings.setValue("cp" + QString::number(i), m_controlPoints.at(i));
         }
         settings.sync();
     }
@@ -63,32 +55,32 @@ public:
     void paintEvent(QPaintEvent *)
     {
         QPainter pt(this);
-        PaintCommands cmd(cmds, 800, 800);
-        cmd.setVerboseMode(verboseMode);
-        cmd.setCheckersBackground(checkersBackground);
-        cmd.setType(type);
-        cmd.setPainter(&pt);
-        cmd.setControlPoints(controlPoints);
-        cmd.setFilePath(QFileInfo(filename).absolutePath());
+        PaintCommands paintCommands(m_commands, 800, 800);
+        paintCommands.setVerboseMode(m_verboseMode);
+        paintCommands.setCheckersBackground(m_checkersBackground);
+        paintCommands.setType(m_deviceType);
+        paintCommands.setPainter(&pt);
+        paintCommands.setControlPoints(m_controlPoints);
+        paintCommands.setFilePath(QFileInfo(m_filename).absolutePath());
 #ifdef DO_QWS_DEBUGGING
         qt_show_painter_debug_output = true;
 #endif
         pt.save();
-        cmd.runCommands();
+        paintCommands.runCommands();
         pt.restore();
 #ifdef DO_QWS_DEBUGGING
         qt_show_painter_debug_output = false;
 #endif
 
-        if (currentPoint >= 0 || showControlPoints) {
+        if (m_currentPoint >= 0 || m_showControlPoints) {
             pt.setRenderHint(QPainter::Antialiasing);
             pt.setFont(this->font());
             pt.resetMatrix();
             pt.setPen(QColor(127, 127, 127, 191));
             pt.setBrush(QColor(191, 191, 255, 63));
-            for (int i=0; i<controlPoints.size(); ++i) {
-                if (showControlPoints || currentPoint == i) {
-                    QPointF cp = controlPoints.at(i);
+            for (int i=0; i<m_controlPoints.size(); ++i) {
+                if (m_showControlPoints || m_currentPoint == i) {
+                    QPointF cp = m_controlPoints.at(i);
                     QRectF rect(cp.x() - CP_RADIUS, cp.y() - CP_RADIUS,
                                 CP_RADIUS * 2, CP_RADIUS * 2);
                     pt.drawEllipse(rect);
@@ -101,12 +93,12 @@ public:
 
     void mouseMoveEvent(QMouseEvent *e)
     {
-        if (currentPoint == -1) {
+        if (m_currentPoint == -1) {
             return;
         }
 
         if (T::rect().contains(e->pos())) {
-            controlPoints[currentPoint] = e->pos();
+            m_controlPoints[m_currentPoint] = e->pos();
             T::update();
         }
 
@@ -115,13 +107,13 @@ public:
     void mousePressEvent(QMouseEvent *e)
     {
         if (e->button() == Qt::RightButton) {
-            showControlPoints = true;
+            m_showControlPoints = true;
         }
 
         if (e->button() == Qt::LeftButton) {
-            for (int i=0; i<controlPoints.size(); ++i) {
-                if (QLineF(controlPoints.at(i), e->pos()).length() < CP_RADIUS) {
-                    currentPoint = i;
+            for (int i=0; i<m_controlPoints.size(); ++i) {
+                if (QLineF(m_controlPoints.at(i), e->pos()).length() < CP_RADIUS) {
+                    m_currentPoint = i;
                     break;
                 }
             }
@@ -132,27 +124,27 @@ public:
     void mouseReleaseEvent(QMouseEvent *e)
     {
         if (e->button() == Qt::LeftButton) {
-            currentPoint = -1;
+            m_currentPoint = -1;
         }
 
         if (e->button() == Qt::RightButton) {
-            showControlPoints = false;
+            m_showControlPoints = false;
         }
         T::update();
     }
 
     QSize sizeHint() const { return QSize(800, 800); }
 
-    QVector<QPointF> controlPoints;
-    int currentPoint;
-    bool showControlPoints;
+    QVector<QPointF> m_controlPoints;
+    int m_currentPoint;
+    bool m_showControlPoints;
 
-    QStringList cmds;
-    QString filename;
+    QStringList m_commands;
+    QString m_filename;
 
-    bool verboseMode;
-    bool checkersBackground;
-    DeviceType type;
+    bool m_verboseMode;
+    bool m_checkersBackground;
+    DeviceType m_deviceType;
 };
 
 #endif
