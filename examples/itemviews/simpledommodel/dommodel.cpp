@@ -67,7 +67,7 @@ QVariant DomModel::data(const QModelIndex &index, int role) const
 Qt::ItemFlags DomModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return Qt::ItemIsEnabled;
+        return 0;
 
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
@@ -94,6 +94,9 @@ QVariant DomModel::headerData(int section, Qt::Orientation orientation,
 QModelIndex DomModel::index(int row, int column, const QModelIndex &parent)
             const
 {
+    if (!hasIndex(row, column, parent))
+        return QModelIndex();
+
     DomItem *parentItem;
 
     if (!parent.isValid())
@@ -124,6 +127,9 @@ QModelIndex DomModel::parent(const QModelIndex &child) const
 
 int DomModel::rowCount(const QModelIndex &parent) const
 {
+    if (parent.column() > 0)
+        return 0;
+
     DomItem *parentItem;
 
     if (!parent.isValid())
