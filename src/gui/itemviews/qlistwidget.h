@@ -272,8 +272,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight))
 };
 
-inline void QListWidget::removeItemWidget(QListWidgetItem *item)
-{ setItemWidget(item, 0); }
+inline void QListWidget::removeItemWidget(QListWidgetItem *aItem)
+{ setItemWidget(aItem, 0); }
 
 inline void QListWidget::addItem(QListWidgetItem *aitem)
 { insertItem(count(), aitem); }
