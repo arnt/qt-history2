@@ -135,7 +135,6 @@ void QColumnView::setRootIndex(const QModelIndex &index)
     view->setSelectionModel(selectionModel());
 
     QAbstractItemView::setRootIndex(index);
-    d->doLayout();
     d->updateScrollbars();
 }
 
@@ -748,6 +747,11 @@ void QColumnView::currentChanged(const QModelIndex &current, const QModelIndex &
     Q_D(QColumnView);
     if (!model())
         return;
+
+    if (!current.isValid()) {
+        QAbstractItemView::currentChanged(current, previous);
+        return;
+    }
 
     QModelIndex currentParent = current.parent();
     // optimize for just moving up/down in a list where the child view doesn't change
