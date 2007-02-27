@@ -973,7 +973,7 @@ void QScript::ExtQMetaObject::Instance::execute(QScriptContextPrivate *context)
     } else {
         context->m_result = context->throwError(
             QScriptContext::TypeError,
-            QString::fromUtf8("no constructor for %s")
+            QString::fromUtf8("no constructor for %0")
             .arg(QLatin1String(value->className())));
     }
 }
