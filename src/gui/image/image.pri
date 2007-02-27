@@ -41,10 +41,6 @@ win32 {
     SOURCES += \
             image/qpixmap_win.cpp \
             image/qpixmap_raster.cpp
-    contains(QT_CONFIG, direct3d) {
-        SOURCES -= image/qpixmap_raster.cpp
-        SOURCES += image/qpixmap_d3d.cpp
-    }
 }
 unix:x11:SOURCES += image/qpixmap_x11.cpp
 !embedded:!x11:mac:SOURCES += image/qpixmap_mac.cpp

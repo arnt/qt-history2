@@ -32,6 +32,12 @@
 #include "qdebug.h"
 #include "qpaintengine.h"
 
+#if !defined(QT_NO_DIRECT3D) && defined(Q_WS_WIN)
+#include <private/qpaintengine_d3d_p.h>
+#include <d3d9.h>
+extern QDirect3DPaintEngine *qt_d3dEngine();
+#endif
+
 extern int qt_defaultDpi();
 
 // ### Qt 5: remove
@@ -438,6 +444,30 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
     Q_UNUSED(flags);
     QPixmap pixmap;
 
+#if !defined(QT_NO_DIRECT3D) && defined(Q_WS_WIN)
+    QImage im = image.convertToFormat(QImage::Format_ARGB32);
+    if (FAILED(qt_d3dEngine()->d_func()->m_d3dDevice->CreateTexture(image.width(), image.height(), 1, 0,
+                    D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pixmap.data->texture, 0))) {
+        qWarning("QPixmap::init(): unable to create Direct3D texture.");
+        return QPixmap();
+    }
+    D3DLOCKED_RECT rect;
+    if (FAILED(pixmap.data->texture->LockRect(0, &rect, 0, 0))) {
+        qDebug() << "QDirect3DPaintEngine: unable to lock texture rect.";
+        return QPixmap();
+    }
+    DWORD *dst = (DWORD *) rect.pBits;
+    DWORD *src = (DWORD *) im.scanLine(0);
+    int dst_ppl = rect.Pitch/4;
+    int src_ppl = im.bytesPerLine()/4;
+
+    Q_ASSERT(dst_ppl == src_ppl);
+    memcpy(dst, src, rect.Pitch*im.height());
+    pixmap.data->texture->UnlockRect(0);
+
+    pixmap.data->image = image;
+    return pixmap;
+#else
     switch (image.format()) {
     case QImage::Format_Mono:
     case QImage::Format_MonoLSB:
@@ -457,6 +487,7 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
         break;
     }
     return pixmap;
+#endif
 }
 
 bool QPixmap::load(const QString& fileName, const char *format, Qt::ImageConversionFlags flags )
@@ -637,6 +668,9 @@ void QPixmap::init(int w, int h, Type type)
     data = new QPixmapData;
     data->type = type;
     data->detach_no = 0;
+#if !defined(QT_NO_DIRECT3D) && defined(Q_WS_WIN)
+    data->texture = 0;
+#endif
     if (w > 0 && h > 0) {
         if (type == PixmapType) {
             data->image = QImage(w, h, QImage::Format_RGB32);
@@ -649,6 +683,10 @@ void QPixmap::init(int w, int h, Type type)
 void QPixmap::deref()
 {
     if(data && data->deref()) { // Destroy image if last ref
+#if !defined(QT_NO_DIRECT3D) && defined(Q_WS_WIN)
+        if (data->texture)
+            data->texture->Release();
+#endif
         if (qt_pixmap_cleanup_hook_64)
             qt_pixmap_cleanup_hook_64(cacheKey());
         delete data;
