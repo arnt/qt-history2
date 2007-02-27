@@ -27,6 +27,7 @@
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qtoolbar.h"
+#include "qdebug.h"
 
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
@@ -563,7 +564,10 @@ void QPushButtonPrivate::_q_popupPressed()
     if (tb && tb->orientation() == Qt::Vertical)
         horizontal = false;
 #endif
-    QRect rect = q->rect();
+    QWidgetItem item(q);
+    QRect rect = item.geometry();
+    rect.setRect(rect.x() - q->x(), rect.y() - q->y(), rect.width(), rect.height());
+
     QSize menuSize = menu->sizeHint();
     QPoint globalPos = q->mapToGlobal(rect.topLeft());
     int x = globalPos.x();

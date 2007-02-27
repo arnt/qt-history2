@@ -3966,7 +3966,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
     case SE_PushButtonLayoutItem:
         if (const QStyleOptionButton *buttonOpt
                 = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
-            if ((buttonOpt->features & (QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
+            if ((buttonOpt->features & QStyleOptionButton::Flat))
                 break;  // leave rect alone
         }
         rect = opt->rect;
