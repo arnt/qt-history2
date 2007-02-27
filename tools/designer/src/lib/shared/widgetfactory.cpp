@@ -103,8 +103,8 @@ QWidget*  WidgetFactory::createCustomWidget(const QString &className, QWidget *p
         return 0;
     }
     // Check for mismatched class names which is hard to track
-    const QString createdClassName = QString::fromUtf8(rc->metaObject()->className());
-    if (className != createdClassName) {
+    if (!rc->inherits(className.toUtf8().constData())) {
+        const QString createdClassName = QString::fromUtf8(rc->metaObject()->className());
         designerWarning(QObject::tr("A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class %1."
                                   " It returned a widget of class %2.").arg(className).arg(createdClassName));
     }
@@ -177,7 +177,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
             // Emergency: Create, derived from QWidget
             QString includeFile = widgetName.toLower();
             includeFile +=  QLatin1String(".h");
-            item = appendDerived(db,widgetName,tr("%1 Widget").arg(widgetName),fallBackBaseClass, 
+            item = appendDerived(db,widgetName,tr("%1 Widget").arg(widgetName),fallBackBaseClass,
                                  includeFile, true, true);
             Q_ASSERT(item);
         }
