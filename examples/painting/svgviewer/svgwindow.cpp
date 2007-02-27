@@ -21,11 +21,7 @@ SvgWindow::SvgWindow()
       fastAntialiasing(false)
 {
     QWidget *view = new QWidget(this);
-#ifdef QT_NO_OPENGL
     renderer = SvgWindow::Native;
-#else
-    renderer = SvgWindow::OpenGL;
-#endif
     setWidget(view);
 }
 
