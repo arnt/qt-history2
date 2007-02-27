@@ -176,7 +176,7 @@ void QToolBarLayout::updateGeomArray() const
 
     QVector<QLayoutStruct> a(items.count() + 1); // + 1 for the stretch
 
-    bool count = 0;
+    int count = 0;
     for (int i = 0; i < items.count(); ++i) {
         QToolBarItem *item = items.at(i);
 
