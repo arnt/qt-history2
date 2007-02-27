@@ -23,7 +23,6 @@ QT_MODULE(Script)
 
 class QScriptValue;
 class QScriptEngine;
-class QScriptNameId;
 class QVariant;
 class QObject;
 struct QMetaObject;
@@ -141,11 +140,6 @@ public:
 
     QScriptValue prototype() const;
     void setPrototype(const QScriptValue &prototype);
-
-    QScriptValue property(const QScriptNameId &nameId,
-                          const ResolveFlags &mode = ResolvePrototype) const;
-    void setProperty(const QScriptNameId &nameId, const QScriptValue &value,
-                     const PropertyFlags &flags = 0);
 
     QScriptValue property(const QString &name,
                           const ResolveFlags &mode = ResolvePrototype) const;

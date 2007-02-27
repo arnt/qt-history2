@@ -254,8 +254,6 @@ public:
 
     inline QScriptNameIdImpl *nameId(const QString &str, bool persistent = false);
 
-    inline QScriptNameId publicNameId(const QString &str);
-
     inline QScriptNameIdImpl *intern(const QChar *u, int s);
 
     inline QScriptValueImpl valueFromVariant(const QVariant &v);

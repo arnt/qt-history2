@@ -186,21 +186,6 @@ QScriptEngine::~QScriptEngine()
 }
 
 /*!
-  \internal
-
-  Returns a unique name identifier for the given \a name.
-  The identifier can be used to access properties of a
-  QScriptValue.
-
-  \sa QScriptValue::property()
-*/
-QScriptNameId QScriptEngine::nameId(const QString &name)
-{
-    Q_D(QScriptEngine);
-    return d->publicNameId(name);
-}
-
-/*!
   Returns this engine's Global Object.
 
   The Global Object contains the built-in objects that are part of

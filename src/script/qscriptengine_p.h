@@ -715,12 +715,6 @@ inline QScriptNameIdImpl *QScriptEnginePrivate::nameId(const QString &str, bool 
     return entry;
 }
 
-inline QScriptNameId QScriptEnginePrivate::publicNameId(const QString &str)
-{
-    // ### make persistent??
-    return QScriptNameId(nameId(str, /*persistent=*/false));
-}
-
 inline QScriptNameIdImpl *QScriptEnginePrivate::intern(const QChar *u, int s)
 {
     QString tmp(u, s);

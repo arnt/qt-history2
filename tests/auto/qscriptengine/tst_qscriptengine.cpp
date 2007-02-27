@@ -38,7 +38,6 @@ private slots:
     void evaluate_data();
     void evaluate();
     void nestedEvaluate();
-    void nameId();
     void getSetDefaultPrototype();
     void valueConversion();
 };
@@ -348,22 +347,6 @@ void tst_QScriptEngine::nestedEvaluate()
     QCOMPARE(result.property("thisObjectIdBefore").toString(), QString("foo"));
     QCOMPARE(result.property("thisObjectIdAfter").toString(), QString("foo"));
     QCOMPARE(result.property("evaluatedThisObjectId").toString(), QString("foo"));
-}
-
-void tst_QScriptEngine::nameId()
-{
-    QScriptEngine eng;
-    QScriptNameId invalidId;
-    QCOMPARE(invalidId.isValid(), false);
-    QScriptNameId id = eng.nameId(QLatin1String("Object"));
-    QCOMPARE(id.isValid(), true);
-    QScriptNameId sameId = eng.nameId(QLatin1String("Object"));
-    QCOMPARE(id, sameId);
-    QScriptNameId otherId = eng.nameId(QLatin1String("object"));
-    QCOMPARE(otherId.isValid(), true);
-    QVERIFY(id != otherId);
-    otherId = eng.nameId(QLatin1String("Function"));
-    QVERIFY(id != otherId);
 }
 
 struct Foo {

@@ -587,49 +587,6 @@ const QMetaObject *QScriptValue::toQMetaObject() const
 }
 
 /*!
-  \internal
-
-  Returns the value of this QScriptValue's property identified by \a nameId,
-  using the given \a mode to resolve the property.
-
-  Accessing a property by ID is faster than accessing it by name, so
-  consider using this function if you are repeatedly accessing the same
-  property.
-
-  \sa setProperty(), QScriptEngine::nameId()
-*/
-QScriptValue QScriptValue::property(const QScriptNameId &nameId,
-                                    const ResolveFlags &mode) const
-{
-    return QScriptValuePrivate::valueOf(*this).property(nameId, mode);
-}
-
-/*!
-  \internal
-
-  Sets the value of this QScriptValue's property identified by \a
-  nameId to the given \a value.
-
-  Setting the property to an invalid value will remove the property.
-
-  If this QScriptValue is not an object, this function does nothing.
-
-  \sa property(), QScriptEngine::nameId()
-*/
-void QScriptValue::setProperty(const QScriptNameId &nameId,
-                               const QScriptValue &value,
-                               const PropertyFlags &flags)
-{
-
-    if (isValid() && value.isValid() && (value.engine() != engine())) {
-        qWarning("QScriptValue::setProperty() failed: "
-                 "cannot set value created in a different engine");
-        return;
-    }
-    QScriptValuePrivate::valueOf(*this).setProperty(nameId, QScriptValuePrivate::valueOf(value), flags);
-}
-
-/*!
   Sets the value of this QScriptValue's property with the given \a name to
   the given \a value.
 

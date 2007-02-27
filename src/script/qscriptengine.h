@@ -32,33 +32,6 @@ QT_MODULE(Script)
 
 class QDateTime;
 class QScriptEnginePrivate;
-class QScriptNameIdImpl;
-
-class Q_SCRIPT_EXPORT QScriptNameId
-{
-    friend class QScriptEnginePrivate;
-
-public:
-    inline QScriptNameId():
-        m_id(0) {}
-
-    inline QScriptNameId(const QScriptNameId &other):
-        m_id(other.m_id) {}
-
-    inline ~QScriptNameId()                                     { m_id = 0; }
-
-    inline bool isValid() const                                 { return (m_id != 0); }
-    inline bool operator==(const QScriptNameId &other) const    { return m_id == other.m_id; }
-    inline bool operator!=(const QScriptNameId &other) const    { return !(*this == other); }
-
-    // ### kill
-    inline operator QScriptNameIdImpl*() const                  { return m_id; }
-
-private:
-    inline QScriptNameId(QScriptNameIdImpl *id) : m_id(id) {}
-
-    QScriptNameIdImpl *m_id;
-};
 
 #ifndef QT_NO_QOBJECT
 
@@ -150,9 +123,6 @@ public:
 #  endif // QT_NO_MEMBER_TEMPLATES
 #endif // QT_NO_QOBJECT
 
-
-
-    QScriptNameId nameId(const QString &value);
 
 
     QScriptValue defaultPrototype(int metaTypeId) const;

@@ -330,7 +330,7 @@ public:
 
     virtual bool extraMember(const QScriptValueImpl &object, int index, QScript::Member *member)
     {
-        QScriptEngine *eng = object.engine();
+        QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
         QObject *qobject = object.toQObject();
         const QMetaObject *meta = qobject->metaObject();
 

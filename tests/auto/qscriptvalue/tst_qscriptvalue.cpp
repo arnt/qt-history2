@@ -802,19 +802,13 @@ void tst_QScriptValue::getSetProperty()
     object.setProperty("foo", str);
     QCOMPARE(object.property("foo").toString(), str.toString());
 
-    QScriptNameId fooId = eng.nameId("foo");
-    QCOMPARE(object.property(fooId).toString(), str.toString());
-
     QScriptValue num = QScriptValue(&eng, 123.0);
     object.setProperty("baz", num);
     QCOMPARE(object.property("baz").toNumber(), num.toNumber());
 
-    QScriptNameId bazId = eng.nameId("baz");
-    QCOMPARE(object.property(bazId).toNumber(), num.toNumber());
-
     QScriptValue inv;
-    inv.setProperty(fooId, num);
-    QCOMPARE(inv.property(fooId).isValid(), false);
+    inv.setProperty("foo", num);
+    QCOMPARE(inv.property("foo").isValid(), false);
 
     QScriptValue array = eng.newArray();
     array.setProperty(0, num);
