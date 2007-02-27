@@ -4140,6 +4140,10 @@ int QCleanlooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
             break;
         }
     case SH_ComboBox_Popup:
+#ifdef QT3_SUPPORT
+        if (widget && widget->inherits("Q3ComboBox"))
+            return 0;
+#endif
         if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(option))
             ret = !cmb->editable;
         else
