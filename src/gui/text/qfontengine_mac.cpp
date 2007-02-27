@@ -368,7 +368,7 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
             return false;
         }
         for (int i = 0; i < charCount; ++i)
-            tmpItem.log_clusters[i] += charIdx;
+            tmpItem.log_clusters[i] += glyphIdx;
         glyphIdx += glyphCount;
         charIdx += charCount;
     } while (charIdx < len);
