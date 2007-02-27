@@ -57,6 +57,7 @@ QDBusViewer::QDBusViewer(const QDBusConnection &connection, QWidget *parent)
 
     QVBoxLayout *topLayout = new QVBoxLayout(this);
     log = new QTextBrowser;
+    connect(log, SIGNAL(anchorClicked(QUrl)), this, SLOT(anchorClicked(QUrl)));
 
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addWidget(services, 1);
@@ -346,8 +347,10 @@ void QDBusViewer::dumpMessage(const QDBusMessage &message)
                 out += "[Argument: " + qvariant_cast<QDBusArgument>(arg).currentSignature();
                 out += "]";
             } else if (qVariantCanConvert<QDBusObjectPath>(arg)) {
-                out += "[ObjectPath: " + qvariant_cast<QDBusObjectPath>(arg).path();
-                out += "]";
+                const QString path = qvariant_cast<QDBusObjectPath>(arg).path();
+                out += "[ObjectPath: <a href=\"qdbus://bus" + path;
+                out += "\">" + path;
+                out += "</a>]";
             } else if (qVariantCanConvert<QDBusSignature>(arg)) {
                 out += "[Signature: " + qvariant_cast<QDBusSignature>(arg).signature();
                 out += "]";
@@ -465,6 +468,26 @@ void QDBusViewer::about()
     box.exec();
 }
 
+void QDBusViewer::anchorClicked(const QUrl &url)
+{
+    if (url.scheme() != "qdbus")
+        // not ours
+        return;
+
+    // swallow the click without setting a new document
+    log->setSource(QUrl());
+
+    QDBusModel *model = qobject_cast<QDBusModel *>(tree->model());
+    if (!model)
+        return;
+
+    QModelIndex idx = model->findObject(QDBusObjectPath(url.path()));
+    if (!idx.isValid())
+        return;
+
+    tree->scrollTo(idx);
+    tree->setCurrentIndex(idx);
+}
 
 /*!
   \page qdbusviewer.html

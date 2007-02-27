@@ -53,6 +53,7 @@ private slots:
     void activate(const QModelIndex &item);
 
     void logError(const QString &msg);
+    void anchorClicked(const QUrl &url);
 
 private:
     void logMessage(const QString &msg);

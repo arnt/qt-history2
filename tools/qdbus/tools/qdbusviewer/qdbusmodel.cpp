@@ -270,3 +270,39 @@ QString QDBusModel::dBusMethodName(const QModelIndex &index) const
     return item ? item->name : QString();
 }
 
+QModelIndex QDBusModel::findObject(const QDBusObjectPath &objectPath)
+{
+    QStringList path = objectPath.path().split(QLatin1Char('/'), QString::SkipEmptyParts);
+
+    QDBusItem *item = root;
+    int childIdx = -1;
+    while (item && !path.isEmpty()) {
+        const QString branch = path.takeFirst() + QLatin1Char('/');
+        childIdx = -1;
+
+        // do a linear search over all the children
+        for (int i = 0; i < item->children.count(); ++i) {
+            QDBusItem *child = item->children.at(i);
+            if (child->type == PathItem && child->name == branch) {
+                item = child;
+                childIdx = i;
+
+                // prefetch the found branch
+                if (!item->isPrefetched)
+                    addPath(item);
+                break;
+            }
+        }
+
+        // branch not found - bail out
+        if (childIdx == -1)
+            return QModelIndex();
+    }
+
+    // found the right item
+    if (childIdx != -1 && item && path.isEmpty())
+        return createIndex(childIdx, 0, item);
+
+    return QModelIndex();
+}
+

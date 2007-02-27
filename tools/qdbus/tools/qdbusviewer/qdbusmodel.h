@@ -45,6 +45,8 @@ public:
 
     void refresh(const QModelIndex &index = QModelIndex());
 
+    QModelIndex findObject(const QDBusObjectPath &objectPath);
+
 Q_SIGNALS:
     void busError(const QString &text);
 
