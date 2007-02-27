@@ -19,6 +19,7 @@
 
 #include <private/qmath_p.h>
 
+class QToolBox;
 
 class InteractiveWidget : public QWidget
 {
@@ -37,8 +38,7 @@ protected:
     bool eventFilter(QObject *o, QEvent *e);
 
 private:
-    QMap<QString, QString> m_cmdMap;
-    QListWidget *m_cmds;
+    QToolBox *m_commandsToolBox;
     OnScreenWidget<QWidget> *m_onScreenWidget;
     QTextEdit *ui_textEdit;
     QString m_filename;

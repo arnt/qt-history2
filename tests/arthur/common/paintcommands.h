@@ -58,7 +58,7 @@ public:
 
 private:
     // run
-    void runCommand(const QString &command);
+    void runCommand(const QString &scriptLine);
 
     // conversion methods
     int convertToInt(const QString &str);
@@ -221,16 +221,20 @@ private:
     static const char *imageFormatTable[];
     static int translateEnum(const char *table[], const QString &pattern, int limit);
 
+    // utility
+    template <typename T> T image_load(const QString &filepath);
+
     // commands dictionary management
     static void staticInit();
 
+public:
     struct PaintCommandInfos
     {
         PaintCommandInfos(QString id, void (PaintCommands::*p)(QRegExp), QRegExp r, QString sy, QString sa)
             : identifier(id), syntax(sy), sample(sa), regExp(r), paintMethod(p) {}
         PaintCommandInfos(QString title)
             : identifier(title), paintMethod(0) {}
-        bool isSectionHeader() const { return paintMethod != 0; }
+        bool isSectionHeader() const { return paintMethod == 0; }
         QString identifier;
         QRegExp regExp;
         QString syntax;
@@ -238,10 +242,14 @@ private:
         void (PaintCommands::*paintMethod)(QRegExp);
     };
 
+    static PaintCommandInfos *findCommandById(const QString &identifier) {
+        for (int i=0; i<s_commandInfoTable.size(); i++)
+            if (s_commandInfoTable[i].identifier == identifier)
+                return &s_commandInfoTable[i];
+        return 0;
+    }
+
     static QList<PaintCommandInfos> s_commandInfoTable;
-    
-    // utility
-    template <typename T> T image_load(const QString &filepath);
 };
 
 #endif // PAINTCOMMANDS_H

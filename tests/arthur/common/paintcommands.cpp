@@ -120,7 +120,7 @@ void PaintCommands::staticInit()
     DECL_PAINTCOMMAND("import", command_import,
                       "^import\\s+\"(.*)\"$",
                       "import <qrcFilename>",
-                      "import \"\"");
+                      "import \"myfile.qrc\"");
     DECL_PAINTCOMMAND("begin_block", command_begin_block,
                       "^begin_block\\s+(\\w*)$",
                       "begin_block <blockName>",
@@ -223,28 +223,28 @@ void PaintCommands::staticInit()
     DECL_PAINTCOMMANDSECTION("gradients");
     DECL_PAINTCOMMAND("gradient_appendStop", command_gradient_appendStop,
                       "^gradient_appendStop\\s+([\\w.]*)\\s+#?(\\w*)$",
-                      "",
-                      "");
+                      "gradient_appendStop <pos> <color>",
+                      "gradient_appendStop 1.0 red");
     DECL_PAINTCOMMAND("gradient_clearStop", command_gradient_clearStops,
                       "^gradient_clearStop$",
                       "gradient_clearStop",
                       "gradient_clearStop");
     DECL_PAINTCOMMAND("gradient_setConical", command_gradient_setConical,
                       "^gradient_setConical\\s+([\\w.]*)\\s+([\\w.]*)\\s+([\\w.]*)$",
-                      "",
-                      "");
+                      "gradient_setConical <cx> <cy> <angle>\n  - angle in degrees",
+                      "gradient_setConical 5.0 5.0 45.0");
     DECL_PAINTCOMMAND("gradient_setLinear", command_gradient_setLinear,
                       "^gradient_setLinear\\s+([\\w.]*)\\s+([\\w.]*)\\s+([\\w.]*)\\s+([\\w.]*)$",
-                      "",
-                      "");
+                      "gradient_setLinear <x1> <y1> <x2> <y2>",
+                      "gradient_setLinear 1.0 1.0 2.0 2.0");
     DECL_PAINTCOMMAND("gradient_setRadial", command_gradient_setRadial,
                       "^gradient_setRadial\\s+([\\w.]*)\\s+([\\w.]*)\\s+([\\w.]*)\\s?([\\w.]*)\\s?([\\w.]*)$",
-                      "",
-                      "");
+                      "gradient_setRadial <cx> <cy> <rad> <fx> <fy>\n  - C is the center\n  - rad in the angle in degrees\n  - F is the focal point",
+                      "gradient_setRadial 1.0 1.0 45.0 2.0 2.0");
     DECL_PAINTCOMMAND("gradient_setSpread", command_gradient_setSpread,
                       "^gradient_setSpread\\s+(\\w*)$",
-                      "",
-                      "");
+                      "gradient_setSpread <PadSpread|ReflectSpread|RepeatSpread>",
+                      "gradient_setSpread PadSpread");
 
     DECL_PAINTCOMMANDSECTION("qt3 drawing ops");
     DECL_PAINTCOMMAND("qt3_drawArc", command_qt3_drawArc,
@@ -504,7 +504,7 @@ void PaintCommands::staticInit()
 }
 
 #undef DECL_PAINTCOMMAND
-
+/*
                                                                 typedef void (PaintCommands::*qPaintCommand) (QRegExp re);
 
                                                                 struct PaintCommand {
@@ -517,7 +517,7 @@ void PaintCommands::staticInit()
                                                                     QRegExp regExp;
                                                                     qPaintCommand command;
                                                                 };
-
+*/
 /*********************************************************************************
 ** utility
 **********************************************************************************/
@@ -547,7 +547,7 @@ template <typename T> T PaintCommands::image_load(const QString &filepath)
     return t;
 }
 
-                                                                                       static QList<PaintCommand> commandTable;
+//                                                                                       static QList<PaintCommand> commandTable;
 /*********************************************************************************
 ** setters
 **********************************************************************************/
@@ -562,22 +562,20 @@ void PaintCommands::insertAt(int commandIndex, const QStringList &newCommands)
 /*********************************************************************************
 ** run
 **********************************************************************************/
-void PaintCommands::runCommand(const QString &command)
+void PaintCommands::runCommand(const QString &scriptLine)
 {
     staticInit();
-    for (int i=0; i<commandTable.size(); ++i) {
-        const PaintCommand &cmd = commandTable.at(i);
-        if (cmd.regExp.indexIn(command) >= 0) {
-            (this->*(cmd.command))(cmd.regExp);
-            return;
+    foreach (PaintCommandInfos command, s_commandInfoTable)
+        if (!command.isSectionHeader() && command.regExp.indexIn(scriptLine) >= 0) {
+            (this->*(command.paintMethod))(command.regExp);
+            break;
         }
-    }
 }
 
 void PaintCommands::runCommands()
 {
     staticInit();
-    if (commandTable.isEmpty()) {
+    /*if (commandTable.isEmpty()) {
         static QRegExp comment("^\\s*#");
         static QRegExp import("import\\s+\"(.*)\"");
 
@@ -796,7 +794,7 @@ void PaintCommands::runCommands()
 
         // noops
         commandTable.append(PaintCommand(empty,           &PaintCommands::command_noop));
-    }
+    }*/
 
     // paint background
     QPixmap pm(20, 20);
