@@ -677,7 +677,8 @@ void QDBusConnectionPrivate::deliverCall(const CallDeliveryEvent& data) const
         fail = true;
     } else {
         // FIXME: save the old sender!
-        QDBusContextPrivate context(QDBusConnection(name), msg);
+        QDBusConnection conn(name);
+        QDBusContextPrivate context(conn, msg);
 	QDBusContextPrivate *old = QDBusContextPrivate::set(data.object, &context);
         QDBusConnectionPrivate::setSender(this);
         fail = data.object->qt_metacall(QMetaObject::InvokeMetaMethod,
