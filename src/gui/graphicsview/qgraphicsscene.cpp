@@ -1106,6 +1106,10 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
     painter->scale(xratio, yratio);
     painter->translate(-sourceRect.left(), -sourceRect.top());
 
+    // Prepare the length of a unit vector.
+    QLineF unitVector(0, 0, 1, 1);
+    qreal unitVectorLength = unitVector.length();
+
     // Generate the style options
     QStyleOptionGraphicsItem *styleOptionArray = new QStyleOptionGraphicsItem[numItems];
     for (int i = 0; i < numItems; ++i) {
@@ -1127,8 +1131,7 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
 
         // Calculate a simple level-of-detail metric.
         QTransform neo = item->sceneTransform() * painter->transform();
-        QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
-        option.levelOfDetail = qMin(mappedRect.width(), mappedRect.height());
+        option.levelOfDetail = neo.map(unitVector).length() / unitVectorLength;
         option.matrix = neo.toAffine(); //### discards perspective
 
         option.exposedRect = item->boundingRect();

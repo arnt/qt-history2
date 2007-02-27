@@ -1589,6 +1589,10 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     moveMatrix.translate(-d->horizontalScroll(), -d->verticalScroll());
     QTransform painterMatrix = d->matrix * moveMatrix;
 
+    // Prepare the length of a unit vector.
+    QLineF unitVector(0, 0, 1, 1);
+    qreal unitVectorLength = unitVector.length();
+
     // Generate the style options
     QStyleOptionGraphicsItem *styleOptionArray = new QStyleOptionGraphicsItem[numItems];
     for (int i = 0; i < numItems; ++i) {
@@ -1610,8 +1614,7 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
 
         // Calculate a simple level-of-detail metric.
         QTransform neo = item->sceneTransform() * painterMatrix;
-        QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
-        option.levelOfDetail = qMin(mappedRect.width(), mappedRect.height());
+        option.levelOfDetail = neo.map(unitVector).length() / unitVectorLength;
         option.matrix = neo.toAffine();
 
         option.exposedRect = item->boundingRect();
@@ -2940,6 +2943,10 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     int backgroundTime = stopWatch.elapsed() - exposedTime;
 #endif
 
+    // Prepare the length of a unit vector.
+    QLineF unitVector(0, 0, 1, 1);
+    qreal unitVectorLength = unitVector.length();
+
     // Generate the style options
     QStyleOptionGraphicsItem *styleOptionArray = new QStyleOptionGraphicsItem[numItems];
     for (int i = 0; i < numItems; ++i) {
@@ -2962,8 +2969,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
         // Calculate a simple level-of-detail metric.
         QTransform itemSceneMatrix = item->sceneTransform();
         QTransform neo = itemSceneMatrix * painter.transform();
-        QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
-        option.levelOfDetail = qMin(mappedRect.width(), mappedRect.height());
+        option.levelOfDetail = neo.map(unitVector).length() / unitVectorLength;
         option.matrix = neo.toAffine(); //### discards perspective
 
         // Determine the item's exposed area
