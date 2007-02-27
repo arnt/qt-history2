@@ -747,6 +747,10 @@ public:
     {
         switch (sortColumn) {
         case 0:
+#ifndef Q_OS_MAC
+            if (l.first->isDir() && !r.first->isDir())
+                return true;
+#endif
             return QFileSystemModelPrivate::naturalCompare(l.first->fileName,
                                                 r.first->fileName, Qt::CaseInsensitive) < 0;
         case 1:
