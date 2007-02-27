@@ -1550,16 +1550,6 @@ bool QXmlStreamReaderPrivate::parse()
                 NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
                 namespaceDeclaration.prefix.clear();
                 namespaceDeclaration.namespaceUri = addToStringStorage(symString(5));
-            } else if (prefix == QLatin1String("xmlns")) {
-                NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
-                QStringRef namespacePrefix = symString(1);
-                QStringRef namespaceUri = symString(5);
-                if (namespacePrefix == QLatin1String("xml")
-                    && namespaceForPrefix(namespacePrefix) != namespaceUri)
-                    raiseWellFormedError(QObject::tr("Namespace \'xml\' redefined."));
-
-                namespaceDeclaration.prefix = addToStringStorage(namespacePrefix);
-                namespaceDeclaration.namespaceUri = addToStringStorage(namespaceUri);
             } else {
                 Attribute &attribute = attributeStack.push();
                 attribute.key = sym(1);
@@ -1599,6 +1589,18 @@ bool QXmlStreamReaderPrivate::parse()
                             --n;
                     attribute.value.pos = pos;
                     attribute.value.len = n;
+                }
+                if (prefix == QLatin1String("xmlns")) {
+                    NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
+                    QStringRef namespacePrefix = symString(attribute.key);
+                    QStringRef namespaceUri = symString(attribute.value);
+                    attributeStack.pop();
+                    if (namespacePrefix == QLatin1String("xml")
+                        && namespaceForPrefix(namespacePrefix) != namespaceUri)
+                        raiseWellFormedError(QObject::tr("Namespace \'xml\' redefined."));
+
+                    namespaceDeclaration.prefix = addToStringStorage(namespacePrefix);
+                    namespaceDeclaration.namespaceUri = addToStringStorage(namespaceUri);
                 }
             }
         } break;
