@@ -96,6 +96,11 @@ class Q_SCRIPT_EXPORT QScriptEngine
     Q_OBJECT
 #endif
 public:
+    enum ValueOwnership {
+        QtOwnership,
+        ScriptOwnership
+    };
+
     QScriptEngine();
 #ifndef QT_NO_QOBJECT
     explicit QScriptEngine(QObject *parent);
@@ -133,7 +138,7 @@ public:
     QScriptValue newDate(const QDateTime &value);
 
 #ifndef QT_NO_QOBJECT
-    QScriptValue newQObject(QObject *object);
+    QScriptValue newQObject(QObject *object, ValueOwnership ownership = QtOwnership);
 
     QScriptValue newQMetaObject(const QMetaObject *metaObject, const QScriptValue &ctor = QScriptValue());
 

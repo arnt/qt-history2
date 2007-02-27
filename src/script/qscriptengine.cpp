@@ -107,6 +107,15 @@
 
 */
 
+/*!
+    \enum QScriptEngine::ValueOwnership
+
+    This enum specifies the ownership when wrapping a C++ value, e.g. by using newQObject().
+
+    \value QtOwnership The standard Qt ownership rules apply, i.e. the associated data will never be explicitly deleted by the script engine. This is the default. (QObject ownership is explained in \l{Object Trees and Object Ownership}.)
+    \value ScriptOwnership The value is owned by the script environment. The associated data will be deleted when appropriate (i.e. after the garbage collector has discovered that there are no more live references to the value).
+*/
+
 #ifdef QT_NO_QOBJECT
 QScriptEngine::QScriptEngine()
     : d_ptr(new QScriptEnginePrivate)
@@ -274,18 +283,17 @@ QScriptValue QScriptEngine::newVariant(const QVariant &value)
 
 #ifndef QT_NO_QOBJECT
 /*!
-  Returns a QScriptValue that wraps the given QObject \a object.
+  Returns a QScriptValue that wraps the given QObject \a object,
+  using the given \a ownership.
 
   Signals and slots, properties and children of \a object are
   available as properties of the created QScriptValue. For more
   information, see the \l{QtScript} documentation.
-
-  The engine does not take ownership of \a object.
 */
-QScriptValue QScriptEngine::newQObject(QObject *object)
+QScriptValue QScriptEngine::newQObject(QObject *object, ValueOwnership ownership)
 {
     Q_D(QScriptEngine);
-    return d->newQObject(object);
+    return d->newQObject(object, ownership);
 }
 
 #endif // QT_NO_QOBJECT
@@ -646,7 +654,7 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
             QScriptEngine *engine,
             QScriptValue (*toScriptValue)(QScriptEngine *, const T &t),
             void (*fromScriptValue)(const QScriptValue &, T &t),
-            const QScriptValue &prototype = QScriptValue::invalid())
+            const QScriptValue &prototype = QScriptValue())
     \relates QScriptEngine
 
     Registers the type \c{T} in the given \a engine. \a toScriptValue must
@@ -759,7 +767,7 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
 
 /*! \fn int qScriptRegisterSequenceMetaType(
             QScriptEngine *engine,
-            const QScriptValue &prototype = QScriptValue::invalid())
+            const QScriptValue &prototype = QScriptValue())
     \relates QScriptEngine
 
     Registers the sequence type \c{T} in the given \a engine. This

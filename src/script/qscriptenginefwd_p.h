@@ -248,7 +248,8 @@ public:
     inline QScriptValueImpl newVariant(const QVariant &value);
 
 #ifndef QT_NO_QOBJECT
-    inline QScriptValueImpl newQObject(QObject *object);
+    inline QScriptValueImpl newQObject(QObject *object,
+                                       QScriptEngine::ValueOwnership ownership = QScriptEngine::QtOwnership);
 #endif
 
     inline QScriptNameIdImpl *nameId(const QString &str, bool persistent = false);

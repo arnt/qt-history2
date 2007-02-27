@@ -28,6 +28,7 @@
 #include "qscriptecmacore_p.h"
 #include "qscriptclassdata_p.h"
 #include "qscriptfunction_p.h"
+#include "qscriptengine.h"
 
 #ifndef QT_NO_QOBJECT
 
@@ -48,23 +49,29 @@ public:
 
     class Instance: public QScriptFunction {
     public:
-        Instance() { thisObject.invalidate(); }
-        virtual ~Instance() { }
+        Instance() { }
+        virtual ~Instance()
+        {
+            if (ownership == QScriptEngine::ScriptOwnership)
+                delete value;
+        }
 
         static Instance *get(const QScriptValueImpl &object, QScriptClassInfo *klass);
 
         virtual void execute(QScriptContextPrivate *context);
 
     public:
-        QScriptValueImpl thisObject;
         QPointer<QObject> value;
         bool isConnection;
+        QScriptEngine::ValueOwnership ownership;
     };
 
     inline Instance *get(const QScriptValueImpl &object) const
         { return Instance::get(object, classInfo()); }
 
-    void newQObject(QScriptValueImpl *result, QObject *value, bool isConnection = false);
+    void newQObject(QScriptValueImpl *result, QObject *value,
+                    QScriptEngine::ValueOwnership ownership = QScriptEngine::QtOwnership,
+                    bool isConnection = false);
 
 protected:
     static QScriptValueImpl method_findChild(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);

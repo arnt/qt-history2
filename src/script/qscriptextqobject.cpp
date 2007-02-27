@@ -384,7 +384,6 @@ public:
     virtual void mark(const QScriptValueImpl &object, int generation)
     {
         ExtQObject::Instance *inst = ExtQObject::Instance::get(object, m_classInfo);
-        inst->thisObject.mark(generation);
         if (inst->isConnection) {
             ConnectionQObject *connection = static_cast<ConnectionQObject*>((QObject*)inst->value);
             Q_ASSERT(connection != 0);
@@ -430,11 +429,13 @@ void QScript::ExtQObject::execute(QScriptContextPrivate *context)
     context->setReturnValue(tmp);
 }
 
-void QScript::ExtQObject::newQObject(QScriptValueImpl *result, QObject *value, bool isConnection)
+void QScript::ExtQObject::newQObject(QScriptValueImpl *result, QObject *value,
+                                     QScriptEngine::ValueOwnership ownership, bool isConnection)
 {
     Instance *instance = new Instance();
     instance->value = value;
     instance->isConnection = isConnection;
+    instance->ownership = ownership;
 
     engine()->newObject(result, publicPrototype, classInfo());
     result->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
@@ -507,7 +508,8 @@ QScript::ConnectionQObject::ConnectionQObject(const QMetaMethod &method,
     QScriptEngine *eng = m_slot.engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
     QScriptValueImpl me;
-    eng_p->qobjectConstructor->newQObject(&me, this, true);
+    eng_p->qobjectConstructor->newQObject(&me, this, QScriptEngine::QtOwnership,
+                                          /*isConnection=*/true);
     QScriptValuePrivate::init(m_self, eng_p->registerValue(me));
 
     QObject *qobject = static_cast<QtFunction*>(sender.toFunction())->object();

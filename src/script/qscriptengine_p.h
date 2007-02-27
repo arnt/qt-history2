@@ -680,11 +680,12 @@ inline QScriptValueImpl QScriptEnginePrivate::newVariant(const QVariant &value)
 }
 
 #ifndef QT_NO_QOBJECT
-inline QScriptValueImpl QScriptEnginePrivate::newQObject(QObject *object)
+inline QScriptValueImpl QScriptEnginePrivate::newQObject(QObject *object,
+                                                         QScriptEngine::ValueOwnership ownership)
 {
     Q_ASSERT(qobjectConstructor != 0);
     QScriptValueImpl v;
-    qobjectConstructor->newQObject(&v, object);
+    qobjectConstructor->newQObject(&v, object, ownership);
     if (object) {
         // see if we have a default prototype
         QByteArray typeString = object->metaObject()->className();

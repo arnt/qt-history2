@@ -188,6 +188,36 @@ void tst_QScriptEngine::newQObject()
         QCOMPARE(qobject.prototype().isValid(), true);
         QCOMPARE(qobject.prototype().isQObject(), true);
     }
+
+    // test ownership
+    {
+        QPointer<QObject> ptr = new QObject();
+        QVERIFY(ptr != 0);
+        {
+            QScriptValue v = eng.newQObject(ptr, QScriptEngine::ScriptOwnership);
+        }
+        eng.evaluate("gc()");
+        QVERIFY(ptr == 0);
+    }
+    {
+        QPointer<QObject> ptr = new QObject();
+        QVERIFY(ptr != 0);
+        {
+            QScriptValue v = eng.newQObject(ptr, QScriptEngine::QtOwnership);
+        }
+        QObject *before = ptr;
+        eng.evaluate("gc()");
+        QVERIFY(ptr == before);
+        delete ptr;
+    }
+    {
+        QObject *parent = new QObject();
+        QObject *child = new QObject(parent);
+        QScriptValue v = eng.newQObject(child, QScriptEngine::QtOwnership);
+        QCOMPARE(v.toQObject(), child);
+        delete parent;
+        QCOMPARE(v.toQObject(), (QObject *)0);
+    }
 }
 
 Q_SCRIPT_DECLARE_QMETAOBJECT(QObject, QObject*)
