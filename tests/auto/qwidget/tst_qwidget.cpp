@@ -170,6 +170,7 @@ private slots:
     void multipleToplevelFocusCheck();
     void setFocus();
     void setCursor();
+    void testWindowIconChangeEventPropagation();
 
 private:
     bool ensureScreenSize(int width, int height);
@@ -3885,7 +3886,7 @@ public:
     }
 
 public slots:
-    void mouseDoubleClickEvent ( QMouseEvent * event )
+    void mouseDoubleClickEvent ( QMouseEvent * /*event*/ )
     {
         edit->show();
         edit->setFocus(Qt::OtherFocusReason);
@@ -4198,6 +4199,103 @@ void tst_QWidget::setCursor()
         window2.setCursor(Qt::WaitCursor);
         QVERIFY(!child.testAttribute(Qt::WA_SetCursor));
         QCOMPARE(child.cursor().shape(), window2.cursor().shape());
+    }
+}
+
+class EventSpy : public QObject
+{
+public:
+    EventSpy(QWidget *widget, QEvent::Type event)
+        : m_widget(widget), eventToSpy(event), m_count(0)
+    {
+        if (m_widget)
+            m_widget->installEventFilter(this);
+    }
+
+    QWidget *widget() const { return m_widget; }
+    int count() const { return m_count; }
+    void clear() { m_count = 0; }
+
+protected:
+    bool eventFilter(QObject *object, QEvent *event)
+    {
+        if (event->type() == eventToSpy)
+            ++m_count;
+        return  QObject::eventFilter(object, event);
+    }
+
+private:
+    QWidget *m_widget;
+    QEvent::Type eventToSpy;
+    int m_count;
+};
+
+
+void tst_QWidget::testWindowIconChangeEventPropagation()
+{
+    // Create widget hierarchy.
+    QWidget topLevelWidget;
+    QWidget topLevelChild(&topLevelWidget);
+
+    QDialog dialog(&topLevelWidget);
+    QWidget dialogChild(&dialog);
+
+    QWidgetList widgets;
+    widgets << &topLevelWidget << &topLevelChild
+            << &dialog << &dialogChild;
+    QCOMPARE(widgets.count(), 4);
+
+    // Create spy lists.
+    QList <EventSpy *> applicationEventSpies;
+    QList <EventSpy *> widgetEventSpies;
+    foreach (QWidget *widget, widgets) {
+        applicationEventSpies.append(new EventSpy(widget, QEvent::ApplicationWindowIconChange));
+        widgetEventSpies.append(new EventSpy(widget, QEvent::WindowIconChange));
+    }
+
+    // QApplication::setWindowIcon
+    const QIcon windowIcon = qApp->style()->standardIcon(QStyle::SP_TitleBarMenuButton);
+    qApp->setWindowIcon(windowIcon);
+
+    for (int i = 0; i < widgets.count(); ++i) {
+        // Check QEvent::ApplicationWindowIconChange
+        EventSpy *spy = applicationEventSpies.at(i);
+        QWidget *widget = spy->widget();
+        if (widget->isWindow()) {
+            QCOMPARE(spy->count(), 1);
+            QCOMPARE(widget->windowIcon(), windowIcon);
+        } else {
+            QCOMPARE(spy->count(), 0);
+        }
+        spy->clear();
+
+        // Check QEvent::WindowIconChange
+        spy = widgetEventSpies.at(i);
+        QCOMPARE(spy->count(), 1);
+        spy->clear();
+    }
+
+    // Set icon on a top-level widget.
+    topLevelWidget.setWindowIcon(*new QIcon);
+
+    for (int i = 0; i < widgets.count(); ++i) {
+        // Check QEvent::ApplicationWindowIconChange
+        EventSpy *spy = applicationEventSpies.at(i);
+        QCOMPARE(spy->count(), 0);
+        spy->clear();
+
+        // Check QEvent::WindowIconChange
+        spy = widgetEventSpies.at(i);
+        QWidget *widget = spy->widget();
+        if (widget == &topLevelWidget) {
+            QCOMPARE(widget->windowIcon(), QIcon());
+            QCOMPARE(spy->count(), 1);
+        } else if (topLevelWidget.isAncestorOf(widget)) {
+            QCOMPARE(spy->count(), 1);
+        } else {
+            QCOMPARE(spy->count(), 0);
+        }
+        spy->clear();
     }
 }
 
