@@ -1,7 +1,7 @@
 #ifndef LICENSEWIZARD_H
 #define LICENSEWIZARD_H
 
-#include <qwizard.h>
+#include <QWizard>
 
 class QCheckBox;
 class QLabel;

@@ -1,5 +1,4 @@
 #include <QtGui>
-#include <qwizard.h>
 
 QWizardPage *createIntroPage()
 {

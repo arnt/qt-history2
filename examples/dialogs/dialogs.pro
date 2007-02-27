@@ -1,9 +1,12 @@
 TEMPLATE      = subdirs
-SUBDIRS       = configdialog \
+SUBDIRS       = classwizard \
+                configdialog \
                 extension \
                 findfiles \
+                licensewizard \
                 standarddialogs \
-                tabdialog
+                tabdialog \
+                trivialwizard
 
 # install
 sources.files = README *.pro

@@ -1,7 +1,7 @@
-TEMPLATE = app
+SOURCES       = trivialwizard.cpp
 
-SOURCES = trivialwizard.cpp
-include(../../src/qwizard.pri)
-
-OBJECTS_DIR=.obj
-MOC_DIR=.moc
+# install
+target.path = $$[QT_INSTALL_EXAMPLES]/dialogs/trivialwizard
+sources.files = $$SOURCES $$HEADERS *.pro
+sources.path = $$[QT_INSTALL_EXAMPLES]/dialogs/trivialwizard
+INSTALLS += target sources

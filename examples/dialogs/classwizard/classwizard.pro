@@ -1,9 +1,10 @@
-TEMPLATE = app
+HEADERS       = classwizard.h
+SOURCES       = classwizard.cpp \
+                main.cpp
+RESOURCES     = classwizard.qrc
 
-HEADERS = classwizard.h
-SOURCES = classwizard.cpp main.cpp
-RESOURCES = classwizard.qrc
-include(../../src/qwizard.pri)
-
-OBJECTS_DIR=.obj
-MOC_DIR=.moc
+# install
+target.path = $$[QT_INSTALL_EXAMPLES]/dialogs/classwizard
+sources.files = $$SOURCES $$HEADERS *.pro
+sources.path = $$[QT_INSTALL_EXAMPLES]/dialogs/classwizard
+INSTALLS += target sources

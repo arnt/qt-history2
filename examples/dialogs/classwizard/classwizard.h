@@ -1,7 +1,7 @@
 #ifndef CLASSWIZARD_H
 #define CLASSWIZARD_H
 
-#include <qwizard.h>
+#include <QWizard>
 
 class QCheckBox;
 class QGroupBox;
