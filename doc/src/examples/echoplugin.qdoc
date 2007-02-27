@@ -1,0 +1,231 @@
+/*!
+    \example tools/echoplugin
+    \title Echo Plugin Example
+
+    This example shows how to create a Qt plugin.
+
+    \image echopluginexample.png
+
+    There are two kinds of plugins in Qt: plugins that extend Qt 
+    itself and plugins that extend applications written in Qt. In this
+    example we show the procedure of implementing plugins that extend
+    applications. When you create a plugin you declare an interface, which 
+    is a class with only pure virtual functions. This interface is
+    inherited by the class that implements the plugin. It is 
+    stored in a shared library 
+    and can therefore be loaded by applications at run-time. The
+    plugin is then dynamically cast to the interface using 
+    \l{Meta-Object System}{Qt's meta-object system}. You can read 
+    \l{How to Create Qt Plugins}{the plugin overview document} to get 
+    a high-level introduction to plugins.
+
+    We have implemented a plugin, the \c EchoPlugin, which implements the \c
+    EchoInterface. The interface consists of one function, \c echo(),
+    that takes one argument, a QString. The \c EchoPlugin returns the string 
+    unaltered, i.e., it works as the familiar echo command found in 
+    both Unix and
+    Windows. When you push the QPushButton, as seen in the image above, 
+    the application sends the text in the QLineEdit to the plugin, 
+    which echoes it back to the application; the answer from the 
+    plugin is displayed in the QLabel. 
+
+    The example consists of the following:
+
+    \list
+        \o \c EchoInterface is the interface that is implemented by
+	      the plugin and used by the application to talk to the
+	      plugin.
+	\o \c EchoPlugin inherits \c EchoInterface and \c QObject and
+	      is the plugin.
+	\o \c EchoWindow inherits QWidget and lays the examples
+	      widgets out in a QGridLayout it sets on itself.
+	\o \c The \c main() function loads the \c EchoPlugin and
+	      creates a \c EchoWindow with it. It displays it as a top
+	      level window.
+    \endlist
+
+    \quotefromfile tools/echoplugin/echowindow/echowindow.h
+
+    \section1 EchoWindow Class Definition
+
+    The \c EchoWindow class lets us test the \c EchoPlugin through a
+    GUI.
+
+    \skipto /class.*EchoWindow/
+    \printuntil /^\};/
+
+    We load the plugin in \c loadPlugin() and cast it to \c
+    echoInterface. When the user clicks the \c button we take the 
+    text in \c lineEdit and call the interface's \c echo() with it. 
+
+    \quotefromfile tools/echoplugin/echowindow/echowindow.cpp
+
+    \section1 EchoWindow Class Implementation
+
+    We start with a look at the constructor \c EchoWindow():
+
+    \skipto /::EchoWindow/
+    \printuntil /^\}/
+
+    We create the widgets and set a title for the window. We then load
+    the plugin. \c loadPlugin() returns false if the plugin could not
+    be loaded(,?) in which case we disable the widgets. If you wish a
+    more detailed error message, you can use
+    \l{QPluginLoader::}{errorMessage()}; we will look more closely at
+    QPluginLoader later.
+
+    Here is the implementation of \c sendEcho():
+
+    \skipto /::sendEcho/
+    \printuntil /^\}/
+
+    This slot is called when the user pushes \c button or presses
+    enter in \c lineEdit. We call \c echo() of the echo interface. In
+    our example this is the \c EchoPlugin, but it could be any plugin
+    that inherit the \c EchoInterface. We take the QString returned
+    from \c echo() and display it in the \c label.
+
+    Here is the implementation of \c createGUI():
+
+    \skipto /::createGUI/
+    \printuntil /^\}/
+
+    We create the widgets and lay them out in a grid layout. We
+    connect the label and line edit to our \c sendEcho() slot.
+
+    Here is the \c loadPlugin() function:
+
+    \skipto /loadPlugin/
+    \printuntil /^\}/
+
+    Access to plugins at run-time is provided by QPluginLoader. You
+    supply it with the filename of the shared library the plugin is
+    stored in and call \l{QPluginLoader::}{instance()}, which loads
+    and returns
+    the root component of the plugin, i.e., it resolves the type of
+    the plugin and creates a QObject instance of it (not totally sure
+    about this). If the plugin was not successfully loaded, it will be
+    null, so we return false. If it was loaded correctly, we can cast 
+    the plugin to our \c EchoInterface and return true. In the case
+    that the plugin loaded does not implement the \c EchoInterface \c
+    instance() will return null, but this cannot happen in our
+    example.
+
+    \quotefromfile tools/echoplugin/echowindow/echointerface.h
+
+    \section1 EchoInterface Class Definition
+
+    The \c EchoInterface defines the functions that the plugin will
+    provide. An interface is a class which only consists of pure
+    virtual functions. If non virtual functions were present in the
+    class you would get misleading compile errors in the moc files.
+
+    \skipto /class.*EchoInterface/
+    \printuntil /^\};/
+
+    We declare \c echo(). In our \c EchoPlugin we use this method to
+    return, or echo, \a message.
+
+    We use the Q_DECLARE_INTERFACE macro to let 
+    \l{Meta-Object System}{Qt's meta object system} 
+    aware of the interface. We do this so that it will be
+    possible to identify plugins that implements the interface at
+    run-time. The second argument is a string that must identify the
+    interface in a unique way. 
+
+    \quotefromfile tools/echoplugin/plugin/echoplugin.h
+
+    \section1 EchoPlugin Class Definition
+
+    We inherit both QObject and \c EchoInterface to make this class a
+    plugin. The Q_INTERFACES macro tells Qt which interfaces the class
+    implements. In our case we only implement the \c EchoInterface. 
+    If a class implements more than one interface, they are given as 
+    a comma separated list.
+
+    \skipto /class.*EchoPlugin/
+    \printuntil /^\};/
+
+    \quotefromfile tools/echoplugin/plugin/echoplugin.cpp
+
+    \section1 EchoPlugin Class Implementation
+
+    Here is the implementation of \c echo():
+
+    \skipto /::echo/
+    \printuntil /^\}/
+
+    We simply return the functions parameter. 
+
+    \skipto /Q_EXPORT_PLUGIN2/
+    \printuntil /;/
+
+    We use the Q_EXPORT_PLUGIN2 macro to let Qt know that the \c
+    EchoPlugin class is a plugin. The first parameter is the name of
+    the plugin; it is usual to give the plugin and the library file it
+    is stored in the same name.
+
+    \section1 The \c main() function
+
+    \quotefromfile tools/echoplugin/echowindow/main.cpp
+    \skipto /int main/
+    \printuntil /^\}/
+
+    We create an \c EchoWindow and display it as a top-level window.
+
+    \section1 The Profiles
+
+    When creating plugins the profiles need to be adjusted.
+    We show here what changes need to be done. 
+
+    We start with the echoplugin.pro:
+
+    \quotefromfile tools/echoplugin/echoplugin.pro
+    \printuntil plugin
+
+    We have chosen to have two subdirectories. The plugin classes
+    lives in the \c plugin directory, and the classes of the echo window
+    application lives in \c echowindow. We have separate profiles for
+    each directory. By using this profile, it is possible to compile
+    and run qmake on the other profiles at the same time (revise).
+
+    This is the echowindow profile:
+
+    \quotefromfile tools/echoplugin/echowindow/echowindow.pro
+    \printuntil /main\.cpp/
+
+    The profile for the echo window does not need any plugin specific
+    settings.    
+
+    Here is the plugin profile:
+
+    \quotefromfile tools/echoplugin/plugin/plugin.pro
+    \printuntil /TARGET/
+
+    We need to set the TAMPLATE as we now want to make a library in
+    stead of an executable. We also need to tell qmake that we are
+    creating a plugin. The \c EchoInterface that the plugin implements
+    lives in the \c echowindow directory, so we need to add that
+    directory to the include path. We set the TARGET of the project,
+    i.e., this will be the name of the library file in which the
+    plugin will be stored; qmake appends the appropriate file 
+    extension depending on the platform. By convention the target should
+    have the same name as the plugin (set with Q_EXPORT_PLUGIN2)
+
+    \section1 Further reading and examples
+
+    You can find an overview of the macros needed to create plugins
+    \l{<QtPlugin> - Macros for Defining Plugins}{here}.
+    
+    In addition to the 
+    \l{How to Create Qt Plugins}{the plugin overview document}, you
+    can see other examples and learn more about plugins elsewhere
+    (revise). We give an example of a plugin that extend Qt in the 
+    \l{Style Plugin Example}{style plugin} example. The
+    \l{Plug & Paint Example}{plug and paint} example shows how to
+    create static plugins. In the \l{Writing a Qt Image Plugin}
+    article from Qt Quarterly, you can see a more involved example of
+    a plugin that extend Qt. The article explain in detail the
+    implementation of a plugin that gives support for an image
+    format. You can also download the source code.
+*/

@@ -3,6 +3,7 @@ CONFIG       += ordered
 SUBDIRS       = codecs \
                 completer \
                 customcompleter \
+		echoplugin \
                 i18n \
                 plugandpaintplugins \
                 plugandpaint \

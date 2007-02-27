@@ -160,6 +160,7 @@
     \o \l{tools/codecs}{Codecs}
     \o \l{tools/completer}{Completer}
     \o \l{tools/customcompleter}{Custom Completer}
+    \o \l{tools/echoplugin}{Echo Plugin}\raisedaster
     \o \l{tools/i18n}{I18N}
     \o \l{tools/plugandpaint}{Plug & Paint}\raisedaster
     \o Plug & Paint Plugins: \l{tools/plugandpaintplugins/basictools}{Basic Tools}\raisedaster
