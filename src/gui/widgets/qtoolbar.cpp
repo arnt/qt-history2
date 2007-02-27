@@ -844,10 +844,12 @@ bool QToolBar::event(QEvent *event)
     case QEvent::MouseMove: {
             QMouseEvent *e = static_cast<QMouseEvent*>(event);
 
+#ifndef QT_NO_CURSOR
             if (d->layout->handleRect().contains(e->pos()))
                 setCursor(Qt::SizeAllCursor);
             else
                 unsetCursor();
+#endif
 
             if (d->state != 0) {
                 d->mouseMoveEvent(e);
