@@ -17,8 +17,8 @@
 #include <qbuffer.h>
 #include "parser/parser.h"
 
-static const char *inputString = "<!DOCTYPE inferno [<!ELEMENT inferno (circle+)><!ELEMENT circle (#PCDATA)>]><inferno><circle /><circle /></inferno>";
-static const char *refString = "setDocumentLocator(locator={columnNumber=1, lineNumber=1})\nstartDocument()\nstartDTD(name=\"inferno\", publicId=\"\", systemId=\"\")\nendDTD()\nstartElement(namespaceURI=\"\", localName=\"inferno\", qName=\"inferno\", atts=[])\nstartElement(namespaceURI=\"\", localName=\"circle\", qName=\"circle\", atts=[])\nendElement(namespaceURI=\"\", localName=\"circle\", qName=\"circle\")\nstartElement(namespaceURI=\"\", localName=\"circle\", qName=\"circle\", atts=[])\nendElement(namespaceURI=\"\", localName=\"circle\", qName=\"circle\")\nendElement(namespaceURI=\"\", localName=\"inferno\", qName=\"inferno\")\nendDocument()\n";
+static const char *const inputString = "<!DOCTYPE inferno [<!ELEMENT inferno (circle+)><!ELEMENT circle (#PCDATA)>]><inferno><circle /><circle /></inferno>";
+static const char *const refString = "setDocumentLocator(locator={columnNumber=1, lineNumber=1})\nstartDocument()\nstartDTD(name=\"inferno\", publicId=\"\", systemId=\"\")\nendDTD()\nstartElement(namespaceURI=\"\", localName=\"inferno\", qName=\"inferno\", atts=[])\nstartElement(namespaceURI=\"\", localName=\"circle\", qName=\"circle\", atts=[])\nendElement(namespaceURI=\"\", localName=\"circle\", qName=\"circle\")\nstartElement(namespaceURI=\"\", localName=\"circle\", qName=\"circle\", atts=[])\nendElement(namespaceURI=\"\", localName=\"circle\", qName=\"circle\")\nendElement(namespaceURI=\"\", localName=\"inferno\", qName=\"inferno\")\nendDocument()\n";
 
 //TESTED_CLASS=QXmlSimpleReader
 //TESTED_FILES=qxml.cpp qxml.h
@@ -125,6 +125,8 @@ class tst_QXmlSimpleReader : public QObject
 
         void idsInParseException1();
         void idsInParseException2();
+        void preserveCharacterReferences() const;
+
     private:
         XmlServer *server;
 };
@@ -536,6 +538,49 @@ void tst_QXmlSimpleReader::inputFromSocket()
     QVERIFY(reader.parse(&input));
 
 //    qDebug() << "tst_QXmlSimpleReader::inputFromSocket(): success" << file_name;
+}
+
+void tst_QXmlSimpleReader::preserveCharacterReferences() const
+{
+    class Handler : public QXmlDefaultHandler
+    {
+    public:
+        virtual bool characters(const QString &chars)
+        {
+            received = chars;
+            return true;
+        }
+
+        QString received;
+    };
+
+    {
+        QByteArray input("<e>A&#160;&#160;&#160;&#160;A</e>");
+
+        QBuffer buff(&input);
+        QXmlInputSource source(&buff);
+
+        Handler h;
+        QXmlSimpleReader reader;
+        reader.setContentHandler(&h);
+        QVERIFY(reader.parse(&source, false));
+
+        QCOMPARE(h.received, QLatin1Char('A') + QString(4, QChar(160)) + QLatin1Char('A'));
+    }
+
+    {
+        QByteArray input("<e>&#160;&#160;&#160;&#160;</e>");
+
+        QBuffer buff(&input);
+        QXmlInputSource source(&buff);
+
+        Handler h;
+        QXmlSimpleReader reader;
+        reader.setContentHandler(&h);
+        QVERIFY(reader.parse(&source, false));
+
+        QCOMPARE(h.received, QString(4, QChar(160)));
+    }
 }
 
 QTEST_MAIN(tst_QXmlSimpleReader)
