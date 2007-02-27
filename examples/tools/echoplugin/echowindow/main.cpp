@@ -2,7 +2,6 @@
 
 #include "echowindow.h"
 #include "echointerface.h"
-#include <iostream.h>
 
 int main(int argv, char *args[])
 {
