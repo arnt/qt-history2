@@ -28,6 +28,7 @@
 #include "qstyleoption.h"
 #include "qtoolbar.h"
 #include "qdebug.h"
+#include "qlayoutitem.h"
 
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
@@ -222,7 +223,7 @@ public:
     \brief whether the button border is raised
 
     This property's default is false. If this property is set, most styles will not
-    paint the button background unless the button is being pressed. \l setAutoFillBackground can 
+    paint the button background unless the button is being pressed. \l setAutoFillBackground can
     be used to ensure that the background is filled using the QPalette::Button brush.
 */
 
