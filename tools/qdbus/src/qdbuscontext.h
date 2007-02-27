@@ -17,6 +17,8 @@
 #include <QtCore/qstring.h>
 #include <QtDBus/qdbuserror.h>
 
+QT_BEGIN_HEADER
+
 class QDBusConnection;
 class QDBusMessage;
 
@@ -42,5 +44,7 @@ private:
     QDBusContextPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QDBusContext)
 };
+
+QT_END_HEADER
 
 #endif
