@@ -624,6 +624,7 @@ void tst_QGraphicsView::rubberBandSelectionMode()
     QGraphicsView view(&scene);
     QCOMPARE(view.rubberBandSelectionMode(), Qt::IntersectsItemShape);
     view.setDragMode(QGraphicsView::RubberBandDrag);
+    view.resize(120, 120);
     view.show();
     
     QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>());
