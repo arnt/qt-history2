@@ -61,7 +61,7 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
 Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return Qt::ItemIsEnabled;
+        return 0;
 
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
@@ -78,6 +78,9 @@ QVariant TreeModel::headerData(int section, Qt::Orientation orientation,
 QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent)
             const
 {
+    if (!hasIndex(row, column, parent))
+        return QModelIndex();
+
     TreeItem *parentItem;
 
     if (!parent.isValid())
@@ -109,6 +112,8 @@ QModelIndex TreeModel::parent(const QModelIndex &index) const
 int TreeModel::rowCount(const QModelIndex &parent) const
 {
     TreeItem *parentItem;
+    if (parent.column() > 0)
+        return 0;
 
     if (!parent.isValid())
         parentItem = rootItem;
