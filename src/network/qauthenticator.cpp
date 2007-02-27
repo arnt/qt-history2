@@ -678,8 +678,10 @@ static void qStreamNtlmBuffer(QDataStream& ds, const QByteArray& s)
 
 static void qStreamNtlmString(QDataStream& ds, const QString& s, bool unicode)
 {
-    if (!unicode)
+    if (!unicode) {
         qStreamNtlmBuffer(ds, s.toLatin1());
+        return;
+    }
     const ushort *d = s.utf16();
     for (int i = 0; i < s.length(); ++i) 
         ds << d[i];
@@ -790,10 +792,6 @@ static QDataStream& operator<<(QDataStream& s, const QNtlmPhase3Block& b) {
     s << b.sessionKey;
     s << b.flags;
 
-    // Send auth info
-    qStreamNtlmBuffer(s, b.lmResponseBuf);
-    qStreamNtlmBuffer(s, b.ntlmResponseBuf);
-    
     if (!b.domainStr.isEmpty()) 
         qStreamNtlmString(s, b.domainStr, unicode);
 
@@ -802,6 +800,10 @@ static QDataStream& operator<<(QDataStream& s, const QNtlmPhase3Block& b) {
     if (!b.workstationStr.isEmpty()) 
         qStreamNtlmString(s, b.workstationStr, unicode);
 
+    // Send auth info
+    qStreamNtlmBuffer(s, b.lmResponseBuf);
+    qStreamNtlmBuffer(s, b.ntlmResponseBuf);
+    
 
     return s;
 }
@@ -939,11 +941,26 @@ static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phas
 
     ctx->realm = ch.targetNameStr;
 
-    pb.flags = ch.flags;
+    pb.flags = NTLMSSP_NEGOTIATE_NTLM;
+    if (unicode)
+        pb.flags |= NTLMSSP_NEGOTIATE_UNICODE;
+    else
+        pb.flags |= NTLMSSP_NEGOTIATE_OEM;
+    
 
     int offset = QNtlmPhase3BlockBase::Size;
     Q_ASSERT(QNtlmPhase3BlockBase::Size == sizeof(QNtlmPhase3BlockBase));
     
+    offset = qEncodeNtlmString(pb.user, offset, ctx->user, unicode);
+    pb.userStr = ctx->user;
+    
+    offset = qEncodeNtlmString(pb.domain, offset, ctx->realm, unicode);
+    pb.domainStr = ctx->realm;
+    
+    ctx->workstation = "dahab";
+    offset = qEncodeNtlmString(pb.workstation, offset, ctx->workstation, unicode);
+    pb.workstationStr = ctx->workstation;
+
     // Get LM response
     pb.lmResponseBuf = qEncodeLmResponse(ctx, ch);
     offset = qEncodeNtlmBuffer(pb.lmResponse, offset, pb.lmResponseBuf);
@@ -952,20 +969,6 @@ static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phas
     pb.ntlmResponseBuf = qEncodeNtlmResponse(ctx, ch);
     offset = qEncodeNtlmBuffer(pb.ntlmResponse, offset, pb.ntlmResponseBuf);
 
-    if (!ctx->realm.isEmpty()) {
-        pb.flags |= NTLMSSP_NEGOTIATE_DOMAIN_SUPPLIED;
-        offset = qEncodeNtlmString(pb.domain, offset, ctx->realm, unicode);
-        pb.domainStr = ctx->realm;
-    }
-    
-    offset = qEncodeNtlmString(pb.user, offset, ctx->user, unicode);
-    pb.userStr = ctx->user;
-
-    if (!ctx->workstation.isEmpty()) {
-        pb.flags |= NTLMSSP_NEGOTIATE_WORKSTATION_SUPPLIED;
-        offset = qEncodeNtlmString(pb.workstation, offset, ctx->workstation, unicode);
-        pb.workstationStr = ctx->workstation;
-    }
 
     // Encode and send
     ds << pb;
