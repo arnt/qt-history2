@@ -17,6 +17,7 @@
 #include <QtCore/qpointer.h>
 #include <QtGui/qaccessiblewidget.h>
 #include <QtGui/qabstractitemview.h>
+#include <QtGui/qaccessible2.h>
 
 #ifndef QT_NO_ACCESSIBILITY
 
@@ -73,8 +74,9 @@ public:
 #endif // QT_NO_SCROLLAREA
 
 #ifndef QT_NO_ITEMVIEWS
-class QAccessibleHeader : public QAccessibleWidget
+class QAccessibleHeader : public QAccessibleWidgetEx
 {
+    Q_ACCESSIBLE_OBJECT
 public:
     explicit QAccessibleHeader(QWidget *w);
 
@@ -121,8 +123,9 @@ private:
     QPointer<QAbstractItemView> view;
 };
 
-class QAccessibleItemView: public QAccessibleAbstractScrollArea
+class QAccessibleItemView: public QAccessibleAbstractScrollArea, public QAccessibleTableInterface
 {
+    Q_ACCESSIBLE_OBJECT
 public:
     explicit QAccessibleItemView(QWidget *w, bool atViewport = false);
 
@@ -138,8 +141,38 @@ public:
     QModelIndex childIndex(int child) const;
     int navigate(RelationFlag relation, int index, QAccessibleInterface **iface) const;
 
+    QAccessibleInterface *accessibleAt(int row, int column);
+    QAccessibleInterface *caption();
+    int childIndex(int rowIndex, int columnIndex);
+    QString columnDescription(int column);
+    int columnSpan(int row, int column);
+    QAccessibleInterface *columnHeader();
+    int columnIndex(int childIndex);
+    int columnCount();
+    int rowCount();
+    int selectedColumnCount();
+    int selectedRowCount();
+    QString rowDescription(int row);
+    int rowSpan(int row, int column);
+    QAccessibleInterface *rowHeader();
+    int rowIndex(int childIndex);
+    int selectedRows(int maxRows, QList<int> *rows);
+    int selectedColumns(int maxColumns, QList<int> *columns);
+    QAccessibleInterface *summary();
+    bool isColumnSelected(int column);
+    bool isRowSelected(int row);
+    bool isSelected(int row, int column);
+    void selectRow(int row);
+    void selectColumn(int column);
+    void unselectRow(int row);
+    void unselectColumn(int column);
+    void cellAtIndex(int index, int *row, int *column, int *rowSpan,
+                     int *columnSpan, bool *isSelected);
+
 protected:
     QAbstractItemView *itemView() const;
+    QModelIndex index(int row, int column) const;
+
 private:
     bool atViewport;
 };
@@ -147,8 +180,9 @@ private:
 #endif
 
 #ifndef QT_NO_TABBAR
-class QAccessibleTabBar : public QAccessibleWidget
+class QAccessibleTabBar : public QAccessibleWidgetEx
 {
+    Q_ACCESSIBLE_OBJECT
 public:
     explicit QAccessibleTabBar(QWidget *w);
 
@@ -172,8 +206,9 @@ private:
 #endif // QT_NO_TABBAR
 
 #ifndef QT_NO_COMBOBOX
-class QAccessibleComboBox : public QAccessibleWidget
+class QAccessibleComboBox : public QAccessibleWidgetEx
 {
+    Q_ACCESSIBLE_OBJECT
 public:
     explicit QAccessibleComboBox(QWidget *w);
 

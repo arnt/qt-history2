@@ -763,7 +763,7 @@ const QAccessibleInterface *other, int otherChild) const
 
     \code
         QAccessibleInterface *child = 0;
-        int targetChild = object->navigate(Child, 1, &child);
+        int targetChild = object->navigate(Accessible::Child, 1, &child);
         if (child) {
             // ...
             delete child;
@@ -989,4 +989,11 @@ QVariant QAccessibleInterfaceEx::virtual_hook(const QVariant &)
     return QVariant();
 }
 
+/*! \internal */
+QAccessible2Interface *QAccessibleInterface::cast_helper(QAccessible2::InterfaceType t)
+{
+    if (state(0) & HasInvokeExtension)
+        return static_cast<QAccessibleInterfaceEx *>(this)->interface_cast(t);
+    return 0;
+}
 #endif

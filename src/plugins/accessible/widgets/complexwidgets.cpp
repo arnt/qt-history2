@@ -26,6 +26,7 @@
 #include <qstyleoption.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
+#include <qtreeview.h>
 #include <private/qtabbar_p.h>
 #include <QAbstractScrollArea>
 #include <QScrollArea>
@@ -373,12 +374,12 @@ bool QAccessibleItemRow::doAction(int action, int child, const QVariantList & /*
 QAccessibleItemView::QAccessibleItemView(QWidget *w, bool atViewport)
     : QAccessibleAbstractScrollArea(w), atViewport(atViewport)
 {
-    Q_ASSERT(itemView());
+    Q_ASSERT(qobject_cast<QAbstractItemView *>(w));
 }
 
 QAbstractItemView *QAccessibleItemView::itemView() const
 {
-    return qobject_cast<QAbstractItemView *>(object());
+    return static_cast<QAbstractItemView *>(object());
 }
 
 int QAccessibleItemView::indexOfChild(const QAccessibleInterface *iface) const
@@ -537,7 +538,188 @@ int QAccessibleItemView::navigate(RelationFlag relation, int index,
     }
 }
 
+/* returns the model index for a given row and column */
+QModelIndex QAccessibleItemView::index(int row, int column) const
+{
+    return itemView()->model()->index(row, column);
+}
 
+QAccessibleInterface *QAccessibleItemView::accessibleAt(int row, int column)
+{
+    QWidget *indexWidget = itemView()->indexWidget(index(row, column));
+    return QAccessible::queryAccessibleInterface(indexWidget);
+}
+
+/* We don't have a concept of a "caption" in Qt's standard widgets */
+QAccessibleInterface *QAccessibleItemView::caption()
+{
+    return 0;
+}
+
+/* childIndex is row * columnCount + columnIndex */
+int QAccessibleItemView::childIndex(int rowIndex, int columnIndex)
+{
+    return rowIndex * itemView()->model()->columnCount() + columnIndex;
+}
+
+/* Return the header data as column description */
+QString QAccessibleItemView::columnDescription(int column)
+{
+    return itemView()->model()->headerData(column, Qt::Horizontal).toString();
+}
+
+/* We don't support column spanning atm */
+int QAccessibleItemView::columnSpan(int /* row */, int /* column */)
+{
+    return 1;
+}
+
+/* Return the horizontal header view */
+QAccessibleInterface *QAccessibleItemView::columnHeader()
+{
+    if (QTreeView *tree = qobject_cast<QTreeView *>(itemView()))
+        return QAccessible::queryAccessibleInterface(tree->header());
+    else if (QTableView *table = qobject_cast<QTableView *>(itemView()))
+        return QAccessible::queryAccessibleInterface(table->horizontalHeader());
+    return 0;
+}
+
+int QAccessibleItemView::columnIndex(int childIndex)
+{
+    int columnCount = itemView()->model()->columnCount();
+    if (!columnCount)
+        return 0;
+
+    return childIndex % columnCount;
+}
+
+int QAccessibleItemView::columnCount()
+{
+    return itemView()->model()->columnCount();
+}
+
+int QAccessibleItemView::rowCount()
+{
+    return itemView()->model()->rowCount();
+}
+
+int QAccessibleItemView::selectedColumnCount()
+{
+    return itemView()->selectionModel()->selectedColumns().count();
+}
+
+int QAccessibleItemView::selectedRowCount()
+{
+    return itemView()->selectionModel()->selectedRows().count();
+}
+
+QString QAccessibleItemView::rowDescription(int row)
+{
+    return itemView()->model()->headerData(row, Qt::Vertical).toString();
+}
+
+/* We don't support row spanning */
+int QAccessibleItemView::rowSpan(int /*row*/, int /*column*/)
+{
+    return 1;
+}
+
+QAccessibleInterface *QAccessibleItemView::rowHeader()
+{
+    if (QTableView *table = qobject_cast<QTableView *>(itemView()))
+        return QAccessible::queryAccessibleInterface(table->verticalHeader());
+    return 0;
+}
+
+int QAccessibleItemView::rowIndex(int childIndex)
+{
+    int columnCount = itemView()->model()->columnCount();
+    if (!columnCount)
+        return 0;
+
+    return int(childIndex / columnCount);
+}
+
+int QAccessibleItemView::selectedRows(int maxRows, QList<int> *rows)
+{
+    Q_ASSERT(rows);
+
+    const QModelIndexList selRows = itemView()->selectionModel()->selectedRows();
+    int maxCount = qMin(selRows.count(), maxRows);
+
+    for (int i = 0; i < maxCount; ++i)
+        rows->append(selRows.at(i).row());
+
+    return maxCount;
+}
+
+int QAccessibleItemView::selectedColumns(int maxColumns, QList<int> *columns)
+{
+    Q_ASSERT(columns);
+
+    const QModelIndexList selColumns = itemView()->selectionModel()->selectedColumns();
+    int maxCount = qMin(selColumns.count(), maxColumns);
+
+    for (int i = 0; i < maxCount; ++i)
+        columns->append(selColumns.at(i).row());
+
+    return maxCount;
+}
+
+/* Qt widgets don't have a concept of a summary */
+QAccessibleInterface *QAccessibleItemView::summary()
+{
+    return 0;
+}
+
+bool QAccessibleItemView::isColumnSelected(int column)
+{
+    return itemView()->selectionModel()->isColumnSelected(column, QModelIndex());
+}
+
+bool QAccessibleItemView::isRowSelected(int row)
+{
+    return itemView()->selectionModel()->isRowSelected(row, QModelIndex());
+}
+
+bool QAccessibleItemView::isSelected(int row, int column)
+{
+    return itemView()->selectionModel()->isSelected(index(row, column));
+}
+
+void QAccessibleItemView::selectRow(int row)
+{
+    QItemSelectionModel *s = itemView()->selectionModel();
+    s->select(index(row, 0), QItemSelectionModel::Select | QItemSelectionModel::Rows);
+}
+
+void QAccessibleItemView::selectColumn(int column)
+{
+    QItemSelectionModel *s = itemView()->selectionModel();
+    s->select(index(0, column), QItemSelectionModel::Select | QItemSelectionModel::Columns);
+}
+
+void QAccessibleItemView::unselectRow(int row)
+{
+    QItemSelectionModel *s = itemView()->selectionModel();
+    s->select(index(row, 0), QItemSelectionModel::Deselect | QItemSelectionModel::Rows);
+}
+
+void QAccessibleItemView::unselectColumn(int column)
+{
+    QItemSelectionModel *s = itemView()->selectionModel();
+    s->select(index(0, column), QItemSelectionModel::Deselect | QItemSelectionModel::Columns);
+}
+
+void QAccessibleItemView::cellAtIndex(int index, int *row, int *column, int *rSpan,
+                                      int *cSpan, bool *isSelect)
+{
+    *row = rowIndex(index);
+    *column = columnIndex(index);
+    *rSpan = rowSpan(*row, *column);
+    *cSpan = columnSpan(*row, *column);
+    *isSelect = isSelected(*row, *column);
+}
 
 /*!
   \class QAccessibleHeader qaccessiblewidget.h
@@ -551,7 +733,7 @@ int QAccessibleItemView::navigate(RelationFlag relation, int index,
   Constructs a QAccessibleHeader object for \a w.
 */
 QAccessibleHeader::QAccessibleHeader(QWidget *w)
-: QAccessibleWidget(w)
+: QAccessibleWidgetEx(w)
 {
     Q_ASSERT(header());
     addControllingSignal(QLatin1String("sectionClicked(int)"));
@@ -566,6 +748,9 @@ QHeaderView *QAccessibleHeader::header() const
 /*! \reimp */
 QRect QAccessibleHeader::rect(int child) const
 {
+    if (!child)
+        return QAccessibleWidgetEx::rect(0);
+
     QHeaderView *h = header();
     QPoint zero = h->mapToGlobal(QPoint(0, 0));
     int sectionSize = h->sectionSize(child - 1);
@@ -586,7 +771,7 @@ QString QAccessibleHeader::text(Text t, int child) const
 {
     QString str;
 
-    if (child <= childCount()) {
+    if (child > 0 && child <= childCount()) {
         switch (t) {
         case Name:
             str = header()->model()->headerData(child - 1, header()->orientation()).toString();
@@ -606,7 +791,7 @@ QString QAccessibleHeader::text(Text t, int child) const
         }
     }
     if (str.isEmpty())
-        str = QAccessibleWidget::text(t, child);;
+        str = QAccessibleWidgetEx::text(t, child);
     return str;
 }
 
@@ -619,17 +804,20 @@ QAccessible::Role QAccessibleHeader::role(int) const
 /*! \reimp */
 QAccessible::State QAccessibleHeader::state(int child) const
 {
-    State state = QAccessibleWidget::state(child);
+    State state = QAccessibleWidgetEx::state(child);
 
-    int section = child ? child - 1 : -1;
-    if (header()->isSectionHidden(section))
-        state |= Invisible;
+    if (child) {
+        int section = child - 1;
+        if (header()->isSectionHidden(section))
+            state |= Invisible;
+        if (header()->resizeMode(section) != QHeaderView::Custom)
+            state |= Sizeable;
+    } else {
+        if (header()->isMovable())
+            state |= Movable;
+    }
     if (!header()->isClickable())
         state |= Unavailable;
-    if (header()->resizeMode(section) != QHeaderView::Custom)
-        state |= Sizeable;
-    if (child && header()->isMovable())
-        state |= Movable;
     return state;
 }
 #endif // QT_NO_ITEMVIEWS
@@ -647,7 +835,7 @@ QAccessible::State QAccessibleHeader::state(int child) const
   Constructs a QAccessibleTabBar object for \a w.
 */
 QAccessibleTabBar::QAccessibleTabBar(QWidget *w)
-: QAccessibleWidget(w)
+: QAccessibleWidgetEx(w)
 {
     Q_ASSERT(tabBar());
 }
@@ -675,7 +863,7 @@ QAbstractButton *QAccessibleTabBar::button(int child) const
 QRect QAccessibleTabBar::rect(int child) const
 {
     if (!child || !tabBar()->isVisible())
-        return QAccessibleWidget::rect(0);
+        return QAccessibleWidgetEx::rect(0);
 
     QPoint tp = tabBar()->mapToGlobal(QPoint(0,0));
     QRect rec;
@@ -722,7 +910,7 @@ QString QAccessibleTabBar::text(Text t, int child) const
     }
 
     if (str.isEmpty())
-        str = QAccessibleWidget::text(t, child);;
+        str = QAccessibleWidgetEx::text(t, child);;
     return str;
 }
 
@@ -739,7 +927,7 @@ QAccessible::Role QAccessibleTabBar::role(int child) const
 /*! \reimp */
 QAccessible::State QAccessibleTabBar::state(int child) const
 {
-    State st = QAccessibleWidget::state(0);
+    State st = QAccessibleWidgetEx::state(0);
 
     if (!child)
         return st;
@@ -855,7 +1043,7 @@ QVector<int> QAccessibleTabBar::selection() const
   Constructs a QAccessibleComboBox object for \a w.
 */
 QAccessibleComboBox::QAccessibleComboBox(QWidget *w)
-: QAccessibleWidget(w, ComboBox)
+: QAccessibleWidgetEx(w, ComboBox)
 {
     Q_ASSERT(comboBox());
 }
@@ -890,7 +1078,7 @@ QRect QAccessibleComboBox::rect(int child) const
         sc = QStyle::SC_ComboBoxArrow;
         break;
     default:
-        return QAccessibleWidget::rect(child);
+        return QAccessibleWidgetEx::rect(child);
     }
 
     if (sc != QStyle::SC_None) {
@@ -923,7 +1111,7 @@ int QAccessibleComboBox::navigate(RelationFlag rel, int entry, QAccessibleInterf
     default:
         break;
     }
-    return QAccessibleWidget::navigate(rel, entry, target);
+    return QAccessibleWidgetEx::navigate(rel, entry, target);
 }
 
 /*! \reimp */
@@ -967,7 +1155,7 @@ QString QAccessibleComboBox::text(Text t, int child) const
         if (child == OpenList)
             str = QComboBox::tr("Open");
         else
-            str = QAccessibleWidget::text(t, 0);
+            str = QAccessibleWidgetEx::text(t, 0);
         break;
 #ifndef QT_NO_SHORTCUT
     case Accelerator:
@@ -985,7 +1173,7 @@ QString QAccessibleComboBox::text(Text t, int child) const
         break;
     }
     if (str.isEmpty())
-        str = QAccessibleWidget::text(t, 0);
+        str = QAccessibleWidgetEx::text(t, 0);
     return str;
 }
 
@@ -1009,7 +1197,7 @@ QAccessible::Role QAccessibleComboBox::role(int child) const
 /*! \reimp */
 QAccessible::State QAccessibleComboBox::state(int /*child*/) const
 {
-    return QAccessibleWidget::state(0);
+    return QAccessibleWidgetEx::state(0);
 }
 
 /*! \reimp */

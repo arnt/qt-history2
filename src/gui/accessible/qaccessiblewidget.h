@@ -41,6 +41,7 @@ public:
     Role role(int child) const;
     State state(int child) const;
 
+    int userActionCount(int child) const;
     QString actionText(int action, Text t, int child) const;
     bool doAction(int action, int child, const QVariantList &params);
 
@@ -80,6 +81,8 @@ public:
 
     QString actionText(int action, Text t, int child) const;
     bool doAction(int action, int child, const QVariantList &params);
+
+    QVariant invokeMethodEx(Method method, int child, const QVariantList &params);
 
 protected:
     ~QAccessibleWidgetEx();

@@ -15,6 +15,7 @@
 
 #ifndef QT_NO_ACCESSIBILITY
 
+#include "qaction.h"
 #include "qapplication.h"
 #include "qgroupbox.h"
 #include "qlabel.h"
@@ -819,12 +820,36 @@ QString QAccessibleWidget::text(Text t, int child) const
 }
 
 /*! \reimp */
+int QAccessibleWidget::userActionCount(int child) const
+{
+    if (child)
+        return 0;
+    return widget()->actions().count();
+}
+
+/*! \reimp */
 QString QAccessibleWidget::actionText(int action, Text t, int child) const
 {
     if (!widget()->isVisible())
         return QString();
     if (action == DefaultAction)
         action = SetFocus;
+
+    if (action > 0 && !child) {
+        QAction *act = widget()->actions().value(action - 1);
+        if (act) {
+            switch (t) {
+            case Name:
+                return act->text();
+            case Description:
+                return act->toolTip();
+            case Accelerator:
+                return act->shortcut().toString();
+            default:
+                break;
+            }
+        }
+    }
 
     return QAccessibleObject::actionText(action, t, child);
 }
@@ -844,6 +869,11 @@ bool QAccessibleWidget::doAction(int action, int child, const QVariantList &para
         else
             return false;
         return true;
+    } else if (action > 0) {
+        if (QAction *act = widget()->actions().value(action - 1)) {
+            act->trigger();
+            return true;
+        }
     }
     return QAccessibleObject::doAction(action, child, params);
 }
@@ -950,5 +980,25 @@ void QAccessibleWidgetEx::setHelp(const QString &help)
 { reinterpret_cast<QAccessibleWidget *>(this)->QAccessibleWidget::setHelp(help); }
 void QAccessibleWidgetEx::setAccelerator(const QString &accel)
 { reinterpret_cast<QAccessibleWidget *>(this)->QAccessibleWidget::setAccelerator(accel); }
+
+QVariant QAccessibleWidgetEx::invokeMethodEx(Method method, int child, const QVariantList & /*params*/)
+{
+    if (child)
+        return QVariant();
+
+    switch (method) {
+    case ListSupportedMethods: {
+        QSet<QAccessible::Method> set;
+        set << ListSupportedMethods << ForegroundColor << BackgroundColor;
+        return qVariantFromValue(set);
+    }
+    case ForegroundColor:
+        return widget()->palette().color(widget()->foregroundRole());
+    case BackgroundColor:
+        return widget()->palette().color(widget()->backgroundRole());
+    default:
+        return QVariant();
+    }
+}
 
 #endif //QT_NO_ACCESSIBILITY

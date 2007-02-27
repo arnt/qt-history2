@@ -14,6 +14,7 @@
 #ifndef QACCESSIBLEWIDGETS_H
 #define QACCESSIBLEWIDGETS_H
 
+#include <QtGui/qaccessible2.h>
 #include <QtGui/qaccessiblewidget.h>
 
 #if !defined(QT_NO_ACCESSIBILITY) && !defined(QT_NO_TEXTEDIT)
@@ -34,8 +35,10 @@ class QDockWidget;
 class QDockWidgetLayout;
 class QMainWindow;
 
-class QAccessibleTextEdit : public QAccessibleWidgetEx
+class QAccessibleTextEdit : public QAccessibleWidgetEx, public QAccessibleTextInterface,
+                            public QAccessibleEditableTextInterface
 {
+    Q_ACCESSIBLE_OBJECT
 public:
     explicit QAccessibleTextEdit(QWidget *o);
 
@@ -50,6 +53,36 @@ public:
 
     int childCount() const;
 
+    // QAccessibleTextInterface
+    void addSelection(int startOffset, int endOffset);
+    QString attributes(int offset, int *startOffset, int *endOffset);
+    int cursorPosition();
+    QRect characterRect(int offset, QAccessible2::CoordinateType coordType);
+    int selectionCount();
+    int offsetAtPoint(const QPoint &point, QAccessible2::CoordinateType coordType);
+    void selection(int selectionIndex, int *startOffset, int *endOffset);
+    QString text(int startOffset, int endOffset);
+    QString textBeforeOffset (int offset, QAccessible2::BoundaryType boundaryType,
+            int *startOffset, int *endOffset);
+    QString textAfterOffset(int offset, QAccessible2::BoundaryType boundaryType,
+            int *startOffset, int *endOffset);
+    QString textAtOffset(int offset, QAccessible2::BoundaryType boundaryType,
+            int *startOffset, int *endOffset);
+    void removeSelection(int selectionIndex);
+    void setCursorPosition(int position);
+    void setSelection(int selectionIndex, int startOffset, int endOffset);
+    int characterCount();
+    void scrollToSubstring(int startIndex, int endIndex);
+
+    // QAccessibleEditableTextInterface
+    void copyText(int startOffset, int endOffset);
+    void deleteText(int startOffset, int endOffset);
+    void insertText(int offset, const QString &text);
+    void cutText(int startOffset, int endOffset);
+    void pasteText(int offset);
+    void replaceText(int startOffset, int endOffset, const QString &text);
+    void setAttributes(int startOffset, int endOffset, const QString &attributes);
+
 protected:
     QTextEdit *textEdit() const;
 
@@ -59,6 +92,7 @@ private:
 
 class QAccessibleStackedWidget : public QAccessibleWidgetEx
 {
+    Q_ACCESSIBLE_OBJECT
 public:
     explicit QAccessibleStackedWidget(QWidget *widget);
 
@@ -74,6 +108,7 @@ protected:
 
 class QAccessibleToolBox : public QAccessibleWidgetEx
 {
+    Q_ACCESSIBLE_OBJECT
 public:
     explicit QAccessibleToolBox(QWidget *widget);
 

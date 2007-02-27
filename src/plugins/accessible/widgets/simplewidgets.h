@@ -14,6 +14,7 @@
 #ifndef SIMPLEWIDGETS_H
 #define SIMPLEWIDGETS_H
 
+#include <QtGui/qaccessible2.h>
 #include <QtGui/qaccessiblewidget.h>
 
 #ifndef QT_NO_ACCESSIBILITY
@@ -22,7 +23,7 @@ class QAbstractButton;
 class QLineEdit;
 class QToolButton;
 
-class QAccessibleButton : public QAccessibleWidget
+class QAccessibleButton : public QAccessibleWidgetEx
 {
 public:
     QAccessibleButton(QWidget *w, Role r);
@@ -68,7 +69,7 @@ protected:
 };
 #endif // QT_NO_TOOLBUTTON
 
-class QAccessibleDisplay : public QAccessibleWidget
+class QAccessibleDisplay : public QAccessibleWidgetEx
 {
 public:
     explicit QAccessibleDisplay(QWidget *w, Role role = StaticText);
@@ -81,7 +82,8 @@ public:
 };
 
 #ifndef QT_NO_LINEEDIT
-class QAccessibleLineEdit : public QAccessibleWidgetEx
+class QAccessibleLineEdit : public QAccessibleWidgetEx, public QAccessibleTextInterface,
+                            public QAccessibleSimpleEditableTextInterface
 {
 public:
     explicit QAccessibleLineEdit(QWidget *o, const QString &name = QString());
@@ -91,6 +93,27 @@ public:
     void setText(Text t, int control, const QString &text);
     State state(int child) const;
     QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
+
+    // QAccessibleTextInterface
+    void addSelection(int startOffset, int endOffset);
+    QString attributes(int offset, int *startOffset, int *endOffset);
+    int cursorPosition();
+    QRect characterRect(int offset, QAccessible2::CoordinateType coordType);
+    int selectionCount();
+    int offsetAtPoint(const QPoint &point, QAccessible2::CoordinateType coordType);
+    void selection(int selectionIndex, int *startOffset, int *endOffset);
+    QString text(int startOffset, int endOffset);
+    QString textBeforeOffset (int offset, QAccessible2::BoundaryType boundaryType,
+            int *startOffset, int *endOffset);
+    QString textAfterOffset(int offset, QAccessible2::BoundaryType boundaryType,
+            int *startOffset, int *endOffset);
+    QString textAtOffset(int offset, QAccessible2::BoundaryType boundaryType,
+            int *startOffset, int *endOffset);
+    void removeSelection(int selectionIndex);
+    void setCursorPosition(int position);
+    void setSelection(int selectionIndex, int startOffset, int endOffset);
+    int characterCount();
+    void scrollToSubstring(int startIndex, int endIndex);
 
 protected:
     QLineEdit *lineEdit() const;
