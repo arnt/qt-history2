@@ -19,7 +19,8 @@ HEADERS += \
 	dialogs/qprogressdialog.h \
         dialogs/qsidebar_p.h \
         dialogs/qfilesystemmodel_p.h \
-        dialogs/qfileinfogatherer_p.h
+        dialogs/qfileinfogatherer_p.h \
+	dialogs/qwizard.h
 
 !embedded:mac {
     SOURCES	+= dialogs/qfiledialog_mac.cpp \
@@ -68,4 +69,5 @@ SOURCES += \
 	dialogs/qprogressdialog.cpp \
         dialogs/qsidebar.cpp \
         dialogs/qfilesystemmodel.cpp \
-        dialogs/qfileinfogatherer.cpp
+        dialogs/qfileinfogatherer.cpp \
+	dialogs/qwizard.cpp

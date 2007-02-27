@@ -24,11 +24,7 @@ class QAbstractButton;
 class QWizardPage;
 class QWizardPrivate;
 
-#if defined(Q_WS_WIN) // ### For now! Should probably be solved in a different way.
-class QWizard : public QDialog
-#else
 class Q_GUI_EXPORT QWizard : public QDialog
-#endif
 {
     Q_OBJECT
     Q_ENUMS(WizardStyle WizardOption)
@@ -175,11 +171,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QWizard::WizardOptions)
 
 class QWizardPagePrivate;
 
-#if defined(Q_WS_WIN) // ### temporary hack for compiling outside main
-class QWizardPage : public QWidget
-#else
 class Q_GUI_EXPORT QWizardPage : public QWidget
-#endif
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title WRITE setTitle)
