@@ -17,7 +17,7 @@
 #include <qevent.h>
 #include <qdebug.h>
 
-/*!
+/*
     \internal
     class QColumnViewGrip
 
@@ -25,7 +25,7 @@
     When the mouse it moved it will resize the scroll area and emit's a signal.
  */
 
-/*!
+/*
     \internal
     \fn void QColumnViewGrip::gripMoved()
     Signal that is emited when the grip moves the parent widget.
