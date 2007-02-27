@@ -26,9 +26,6 @@ class Calculator : public QDialog
 public:
     Calculator(QWidget *parent = 0);
 
-protected:
-    bool eventFilter(QObject *target, QEvent *event);
-
 private slots:
     void digitClicked();
     void unaryOperatorClicked();
@@ -62,25 +59,6 @@ private:
 
     enum { NumDigitButtons = 10 };
     Button *digitButtons[NumDigitButtons];
-
-    Button *pointButton;
-    Button *changeSignButton;
-    Button *backspaceButton;
-    Button *clearButton;
-    Button *clearAllButton;
-    Button *clearMemoryButton;
-    Button *readMemoryButton;
-    Button *setMemoryButton;
-    Button *addToMemoryButton;
-   
-    Button *divisionButton;
-    Button *timesButton;
-    Button *minusButton;
-    Button *plusButton;
-    Button *squareRootButton;
-    Button *powerButton;
-    Button *reciprocalButton;
-    Button *equalButton;
 };
 
 #endif

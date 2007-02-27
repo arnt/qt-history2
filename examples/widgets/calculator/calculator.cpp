@@ -30,7 +30,6 @@ Calculator::Calculator(QWidget *parent)
     display->setReadOnly(true);
     display->setAlignment(Qt::AlignRight);
     display->setMaxLength(15);
-    display->installEventFilter(this);
 
     QFont font = display->font();
     font.setPointSize(font.pointSize() + 8);
@@ -46,38 +45,38 @@ Calculator::Calculator(QWidget *parent)
                                        SLOT(digitClicked()));
     }
 
-    pointButton = createButton(tr("."), digitColor, SLOT(pointClicked()));
-    changeSignButton = createButton(tr("\261"), digitColor, SLOT(changeSignClicked()));
+    Button *pointButton = createButton(tr("."), digitColor, SLOT(pointClicked()));
+    Button *changeSignButton = createButton(tr("\261"), digitColor, SLOT(changeSignClicked()));
 
-    backspaceButton = createButton(tr("Backspace"), backspaceColor,
+    Button *backspaceButton = createButton(tr("Backspace"), backspaceColor,
                                    SLOT(backspaceClicked()));
-    clearButton = createButton(tr("Clear"), backspaceColor, SLOT(clear()));
-    clearAllButton = createButton(tr("Clear All"), backspaceColor.light(120),
+    Button *clearButton = createButton(tr("Clear"), backspaceColor, SLOT(clear()));
+    Button *clearAllButton = createButton(tr("Clear All"), backspaceColor.light(120),
                                   SLOT(clearAll()));
 
-    clearMemoryButton = createButton(tr("MC"), memoryColor,
+    Button *clearMemoryButton = createButton(tr("MC"), memoryColor,
                                      SLOT(clearMemory()));
-    readMemoryButton = createButton(tr("MR"), memoryColor, SLOT(readMemory()));
-    setMemoryButton = createButton(tr("MS"), memoryColor, SLOT(setMemory()));
-    addToMemoryButton = createButton(tr("M+"), memoryColor,
+    Button *readMemoryButton = createButton(tr("MR"), memoryColor, SLOT(readMemory()));
+    Button *setMemoryButton = createButton(tr("MS"), memoryColor, SLOT(setMemory()));
+    Button *addToMemoryButton = createButton(tr("M+"), memoryColor,
                                      SLOT(addToMemory()));
 
-    divisionButton = createButton(tr("\367"), operatorColor,
+    Button *divisionButton = createButton(tr("\367"), operatorColor,
                                   SLOT(multiplicativeOperatorClicked()));
-    timesButton = createButton(tr("\327"), operatorColor,
+    Button *timesButton = createButton(tr("\327"), operatorColor,
                                SLOT(multiplicativeOperatorClicked()));
-    minusButton = createButton(tr("-"), operatorColor,
+    Button *minusButton = createButton(tr("-"), operatorColor,
                                SLOT(additiveOperatorClicked()));
-    plusButton = createButton(tr("+"), operatorColor,
+    Button *plusButton = createButton(tr("+"), operatorColor,
                               SLOT(additiveOperatorClicked()));
 
-    squareRootButton = createButton(tr("Sqrt"), operatorColor,
+    Button *squareRootButton = createButton(tr("Sqrt"), operatorColor,
                                     SLOT(unaryOperatorClicked()));
-    powerButton = createButton(tr("x\262"), operatorColor,
+    Button *powerButton = createButton(tr("x\262"), operatorColor,
                                SLOT(unaryOperatorClicked()));
-    reciprocalButton = createButton(tr("1/x"), operatorColor,
+    Button *reciprocalButton = createButton(tr("1/x"), operatorColor,
                                     SLOT(unaryOperatorClicked()));
-    equalButton = createButton(tr("="), operatorColor.light(120),
+    Button *equalButton = createButton(tr("="), operatorColor.light(120),
                                SLOT(equalClicked()));
 
     QGridLayout *mainLayout = new QGridLayout;
@@ -115,30 +114,6 @@ Calculator::Calculator(QWidget *parent)
     setLayout(mainLayout);
 
     setWindowTitle(tr("Calculator"));
-}
-
-bool Calculator::eventFilter(QObject *target, QEvent *event)
-{
-    if (target == display) {
-        if (event->type() == QEvent::MouseButtonPress
-                || event->type() == QEvent::MouseButtonDblClick
-                || event->type() == QEvent::MouseButtonRelease
-                || event->type() == QEvent::ContextMenu) {
-            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            if (mouseEvent->buttons() & Qt::LeftButton) {
-                QPalette newPalette = palette();
-                newPalette.setColor(QPalette::Base,
-                                    display->palette().color(QPalette::Text));
-                newPalette.setColor(QPalette::Text,
-                                    display->palette().color(QPalette::Base));
-                display->setPalette(newPalette);
-            } else {
-                display->setPalette(palette());
-            }
-            return true;
-        }
-    }
-    return QDialog::eventFilter(target, event);
 }
 
 void Calculator::digitClicked()
