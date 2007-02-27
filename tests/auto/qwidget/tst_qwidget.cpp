@@ -4297,6 +4297,12 @@ void tst_QWidget::testWindowIconChangeEventPropagation()
         }
         spy->clear();
     }
+
+    // Cleanup.
+    for (int i = 0; i < widgets.count(); ++i) {
+        delete applicationEventSpies.at(i);
+        delete widgetEventSpies.at(i);
+    }
 }
 
 QTEST_MAIN(tst_QWidget)
