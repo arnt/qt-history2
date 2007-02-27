@@ -1497,7 +1497,10 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *event)
 
     QModelIndex index = indexAt(event->pos());
     if (!index.isValid() || (d->pressedIndex != index)) {
-        mousePressEvent(event);
+        QMouseEvent me(QEvent::MouseButtonPress,
+                       event->pos(), event->button(),
+                       event->buttons(), event->modifiers());
+        mousePressEvent(&me);
         return;
     }
     // signal handlers may change the model
