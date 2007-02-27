@@ -920,6 +920,8 @@ QDataStream &operator<<(QDataStream &s, const QBrush &b)
             s << (double) static_cast<const QConicalGradient *>(gradient)->angle();
         }
     }
+    if (s.version() >= QDataStream::Qt_4_3)
+        s << b.transform();
     return s;
 }
 
@@ -996,6 +998,11 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
 
     } else {
         b = QBrush(color, (Qt::BrushStyle)style);
+    }
+    if (s.version() >= QDataStream::Qt_4_3) {
+        QTransform transform;
+        s >> transform;
+        b.setTransform(transform);
     }
     return s;
 }
