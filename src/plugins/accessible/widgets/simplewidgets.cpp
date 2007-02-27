@@ -26,23 +26,13 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 
+extern QList<QWidget*> childWidgets(const QWidget *widget, bool includeTopLevel = false);
+
 #ifndef QT_NO_ACCESSIBILITY
 
 #ifdef Q_OS_MAC
 #include <qfocusframe.h>
 #endif
-
-static QList<QWidget*> childWidgets(const QWidget *widget)
-{
-    QList<QObject*> list = widget->children();
-    QList<QWidget*> widgets;
-    for (int i = 0; i < list.size(); ++i) {
-        QWidget *w = qobject_cast<QWidget *>(list.at(i));
-        if (w && !w->isWindow() && w->isVisible())
-            widgets.append(w);
-    }
-    return widgets;
-}
 
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 QString Q_GUI_EXPORT qt_accHotKey(const QString &text);

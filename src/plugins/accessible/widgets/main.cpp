@@ -188,7 +188,7 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     } else if (classname == QLatin1String("QMessageBox")) {
         iface = new QAccessibleWidget(widget, AlertMessage);
     } else if (classname == QLatin1String("QMainWindow")) {
-        iface = new QAccessibleWidget(widget, Application);
+        iface = new QAccessibleMainWindow(widget);
     } else if (classname == QLatin1String("QLabel") || classname == QLatin1String("QLCDNumber")) {
         iface = new QAccessibleDisplay(widget);
     } else if (classname == QLatin1String("QGroupBox")) {

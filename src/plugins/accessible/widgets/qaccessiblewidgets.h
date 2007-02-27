@@ -18,6 +18,8 @@
 
 #if !defined(QT_NO_ACCESSIBILITY) && !defined(QT_NO_TEXTEDIT)
 
+#include <QtCore/QPointer>
+
 class QTextEdit;
 class QStackedWidget;
 class QToolBox;
@@ -30,7 +32,7 @@ class QCalendarWidget;
 class QAbstractItemView;
 class QDockWidget;
 class QDockWidgetLayout;
-#include <QtCore/QPointer>
+class QMainWindow;
 
 class QAccessibleTextEdit : public QAccessibleWidgetEx
 {
@@ -198,6 +200,7 @@ public:
     int childCount() const;
     QRect rect (int child ) const;
     Role role(int child) const;
+    State state(int child) const;
     int childAt(int x, int y) const;
 
     QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
@@ -232,6 +235,22 @@ public:
 };
 
 #endif // QT_NO_DOCKWIDGET
+
+
+#ifndef QT_NO_MAINWINDOW
+class QAccessibleMainWindow : public QAccessibleWidgetEx
+{
+public:
+    explicit QAccessibleMainWindow(QWidget *widget);
+
+    QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
+    int childCount() const;
+    int navigate(RelationFlag relation, int entry, QAccessibleInterface **iface) const;
+    int indexOfChild(const QAccessibleInterface *iface) const;
+    QMainWindow *mainWindow() const;
+
+};
+#endif //QT_NO_MAINWINDOW
 
 #endif // QT_NO_ACCESSIBILITY
 

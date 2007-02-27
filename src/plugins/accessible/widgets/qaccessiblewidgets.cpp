@@ -31,9 +31,23 @@
 #include <QCalendarWidget>
 #include <QAbstractItemView>
 #include <QDockWidget>
+#include <QMainWindow>
+#include <QAbstractButton>
 #include <private/qdockwidget_p.h>
 
 #ifndef QT_NO_ACCESSIBILITY
+
+QList<QWidget*> childWidgets(const QWidget *widget, bool includeTopLevel)
+{
+    QList<QObject*> list = widget->children();
+    QList<QWidget*> widgets;
+    for (int i = 0; i < list.size(); ++i) {
+        QWidget *w = qobject_cast<QWidget *>(list.at(i));
+        if (w && w->isVisible() && (includeTopLevel || !w->isWindow() ) )
+            widgets.append(w);
+    }
+    return widgets;
+}
 
 #ifndef QT_NO_TEXTEDIT
 
@@ -992,11 +1006,23 @@ QAccessible::Role QAccessibleDockWidget::role(int child) const
     return NoRole;
 }
 
+QAccessible::State QAccessibleDockWidget::state(int child) const
+{
+    //### mark tabified widgets as invisible
+    return QAccessibleWidgetEx::state(child);
+}
+
 QRect QAccessibleDockWidget::rect (int child ) const
 {
     QRect rect;
+    bool mapToGlobal = true;
     if (child == 0) {
-        rect = dockWidget()->rect();
+        if (dockWidget()->isFloating()) {
+            rect = dockWidget()->frameGeometry();
+            mapToGlobal = false;
+        } else {
+            rect = dockWidget()->rect();
+        }
     }else if (child == 1) {
         QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(dockWidget()->layout());
         rect = layout->titleArea();
@@ -1007,7 +1033,8 @@ QRect QAccessibleDockWidget::rect (int child ) const
     if (rect.isNull())
         return rect;
 
-    rect.moveTopLeft(dockWidget()->mapToGlobal(rect.topLeft()));
+    if (mapToGlobal)
+        rect.moveTopLeft(dockWidget()->mapToGlobal(rect.topLeft()));
 
     return rect;
 }
@@ -1052,7 +1079,6 @@ int QAccessibleTitleBar::navigate(RelationFlag relation, int entry, QAccessibleI
                     break;
                 ++index;
             }
-            
             *iface = 0;
             return role > QDockWidgetLayout::FloatButton ? -1 : index;
         }
@@ -1078,7 +1104,7 @@ int QAccessibleTitleBar::navigate(RelationFlag relation, int entry, QAccessibleI
     return -1;
 }
 
-QAccessible::Relation QAccessibleTitleBar::relationTo(int child,  const QAccessibleInterface * other, int otherChild) const
+QAccessible::Relation QAccessibleTitleBar::relationTo(int /*child*/,  const QAccessibleInterface * /*other*/, int /*otherChild*/) const
 {
     return Unrelated;   //###
 }
@@ -1107,20 +1133,49 @@ QString QAccessibleTitleBar::text(Text t, int child) const
             return dockWidget()->windowTitle();
         }
     }
-    return QString::fromAscii("QAccessibleTitleBar::implement me. Child :%1").arg(child);
+    return QString();
 }
 
 QAccessible::State QAccessibleTitleBar::state(int child) const
 {
-    return Normal;
+    QAccessible::State state = Normal;
+    if (child) {
+        QDockWidgetLayout *layout = dockWidgetLayout();
+        QAbstractButton *b = static_cast<QAbstractButton *>(layout->widget((QDockWidgetLayout::Role)child));
+        if (b) {
+            if (b->isDown())
+                state |= Pressed;
+        }
+    } else {
+        QDockWidget *w = dockWidget();
+        if (w->testAttribute(Qt::WA_WState_Visible) == false)
+            state |= Invisible;
+        if (w->focusPolicy() != Qt::NoFocus && w->isActiveWindow())
+            state |= Focusable;
+        if (w->hasFocus())
+            state |= Focused;
+        if (!w->isEnabled())
+            state |= Unavailable;
+    }
+
+    return state;
 }
 
 QRect QAccessibleTitleBar::rect (int child ) const
 {
+    bool mapToGlobal = true;
     QRect rect;
     if (child == 0) {
-        QDockWidgetLayout *layout = dockWidgetLayout();
-        rect = layout->titleArea();
+        if (dockWidget()->isFloating()) {
+            rect = dockWidget()->frameGeometry();
+            QPoint globalPos = dockWidget()->mapToGlobal( dockWidget()->widget()->rect().topLeft() );
+            globalPos.ry()--;
+            rect.setBottom(globalPos.y());
+            mapToGlobal = false;
+        } else {
+            QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(dockWidget()->layout());
+            rect = layout->titleArea();
+        }
     }else if (child >= 1 && child <= childCount()) {
         QDockWidgetLayout *layout = dockWidgetLayout();
         int index = 1;
@@ -1138,7 +1193,8 @@ QRect QAccessibleTitleBar::rect (int child ) const
     if (rect.isNull())
         return rect;
 
-    rect.moveTopLeft(dockWidget()->mapToGlobal(rect.topLeft()));
+    if (mapToGlobal)
+        rect.moveTopLeft(dockWidget()->mapToGlobal(rect.topLeft()));
     return rect;
 }
 
@@ -1168,15 +1224,49 @@ QDockWidget *QAccessibleTitleBar::dockWidget() const
 
 QString QAccessibleTitleBar::actionText(int action, Text t, int child) const
 {
-    return QString::fromAscii("QAccessibleTitleBar::implement me. Child: %1").arg(child);
+    QString str;
+    if (child >= 1 && child <= childCount()) {
+        if (t == Name) {
+            switch (action) {
+            case Press:
+            case DefaultAction:
+                if (child == QDockWidgetLayout::CloseButton) {
+                    str = QDockWidget::tr("Close");
+                } else if (child == QDockWidgetLayout::FloatButton) {
+                    str = dockWidget()->isFloating() ? QDockWidget::tr("Dock") 
+                                                     : QDockWidget::tr("Float");
+                }
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    return str;
 }
 
-bool QAccessibleTitleBar::doAction(int action, int child, const QVariantList& params)
+bool QAccessibleTitleBar::doAction(int action, int child, const QVariantList& /*params*/)
 {
+    if (!child || !dockWidget()->isEnabled() || !dockWidget()->isVisible())
+        return false;
+
+    switch (action) {
+    case DefaultAction:
+    case Press: {
+        QDockWidgetLayout *layout = dockWidgetLayout();
+        QAbstractButton *btn = static_cast<QAbstractButton *>(layout->widget((QDockWidgetLayout::Role)child));
+        if (btn)
+            btn->animateClick();
+        return true;
+        break;}
+    default:
+        break;
+    }
+
     return false;
 }
 
-int QAccessibleTitleBar::userActionCount ( int child) const
+int QAccessibleTitleBar::userActionCount (int /*child*/) const
 {
     return 0;
 }
@@ -1196,7 +1286,7 @@ QAccessible::Role QAccessibleTitleBar::role(int child) const
     return NoRole;
 }
 
-void QAccessibleTitleBar::setText(Text t, int child, const QString &text)
+void QAccessibleTitleBar::setText(Text /*t*/, int /*child*/, const QString &/*text*/)
 {
 
 }
@@ -1207,5 +1297,48 @@ bool QAccessibleTitleBar::isValid() const
 }
 
 #endif // QT_NO_DOCKWIDGET
+
+#ifndef QT_NO_MAINWINDOW
+QAccessibleMainWindow::QAccessibleMainWindow(QWidget *widget)
+    : QAccessibleWidgetEx(widget, Application) { }
+
+QVariant QAccessibleMainWindow::invokeMethodEx(QAccessible::Method /*method*/, int /*child*/, const QVariantList & /*params*/)
+{
+    return QVariant();
+}
+
+int QAccessibleMainWindow::childCount() const
+{
+    QList<QWidget*> kids = childWidgets(mainWindow(), true);
+    return kids.count();
+}
+
+int QAccessibleMainWindow::indexOfChild(const QAccessibleInterface *iface) const
+{
+    QList<QWidget*> kids = childWidgets(mainWindow(), true);
+    int childIndex = kids.indexOf(static_cast<QWidget*>(iface->object()));
+    return childIndex == -1 ? -1 : ++childIndex;
+}
+
+int QAccessibleMainWindow::navigate(RelationFlag relation, int entry, QAccessibleInterface **iface) const
+{
+    if (relation == Child && entry >= 1) {
+        QList<QWidget*> kids = childWidgets(mainWindow(), true);
+        if (entry <= kids.count()) {
+            *iface = QAccessible::queryAccessibleInterface(kids.at(entry - 1));
+            return *iface ? 0 : -1;
+        }
+    }
+    return QAccessibleWidgetEx::navigate(relation, entry, iface);
+}
+
+
+QMainWindow *QAccessibleMainWindow::mainWindow() const
+{
+    return qobject_cast<QMainWindow *>(object());
+}
+
+#endif //QT_NO_MAINWINDOW
+
 
 #endif // QT_NO_ACCESSIBILITY
