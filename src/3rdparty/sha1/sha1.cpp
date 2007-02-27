@@ -17,6 +17,10 @@
 */
 #include <QtCore/qendian.h>
 
+#ifdef Q_CC_MSVC
+#  include <stdlib.h>
+#endif
+
 // Test Vectors (from FIPS PUB 180-1)
 //
 //  SHA1("abc") =
