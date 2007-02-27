@@ -1,0 +1,4 @@
+include( qt.qdocconf )
+
+HTML.stylesheets        += rssbox.css
+HTML.postheader         += "<!--#include virtual=\"rssboxcontent.html\" -->"
