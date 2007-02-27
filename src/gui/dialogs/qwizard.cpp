@@ -29,10 +29,8 @@
 #include <Carbon/Carbon.h>
 #include <QuickTime/QuickTime.h>
 #elif defined(Q_WS_WIN)
-#if 0
 #include "qwizard_win.h"
 #include "qtimer.h"
-#endif
 #endif
 
 #include "qwizard.h"
@@ -402,10 +400,8 @@ public:
         , wizard(wizard)
         , wizardPrivate(wizardPrivate) {}
 #if defined(Q_WS_WIN)
-#if 0
 protected:
     void paintEvent(QPaintEvent *);
-#endif
 #endif
 };
 
@@ -450,9 +446,7 @@ public:
           subTitleLabel(0),
           bottomRuler(0)
 #if defined(Q_WS_WIN)
-#if 0
           , wasCompositionEnabled(false)
-#endif
 #endif
           , aeroStyleOverride(false)
     {
@@ -477,9 +471,7 @@ public:
     bool buttonLayoutContains(QWizard::WizardButton which);
     void updatePixmap(QWizard::WizardPixmap which);
 #if defined(Q_WS_WIN)
-#if 0
     void handleAeroStyleChange();
-#endif
 #endif
     void disableUpdates();
     void enableUpdates();
@@ -542,10 +534,8 @@ public:
     QGridLayout *mainLayout;
 
 #if defined(Q_WS_WIN)
-#if 0
     QVistaHelper *vistaHelper;
     bool wasCompositionEnabled;
-#endif
 #endif
     bool aeroStyleOverride;
 };
@@ -607,7 +597,6 @@ void QWizardPrivate::init()
                                                            fallbackProperties[i].changedSignal));
 
 #if defined(Q_WS_WIN)
-#if 0
     vistaHelper = new QVistaHelper(q);
     wasCompositionEnabled = vistaHelper->isCompositionEnabled();
     vistaHelper->backButton()->move(
@@ -615,7 +604,6 @@ void QWizardPrivate::init()
     if (vistaHelper->isCompositionEnabled())
         wizStyle = QWizard::AeroStyle;
     handleAeroStyleChange();
-#endif
 #endif
 }
 
@@ -1251,7 +1239,6 @@ void QWizardPrivate::updatePixmap(QWizard::WizardPixmap which)
 }
 
 #if defined(Q_WS_WIN)
-#if 0
 void QWizardPrivate::handleAeroStyleChange()
 {
     Q_Q(QWizard);
@@ -1278,7 +1265,6 @@ void QWizardPrivate::handleAeroStyleChange()
     if (q->isVisible())
         vistaHelper->setWindowPosHack();
 }
-#endif
 #endif
 
 void QWizardPrivate::disableUpdates()
@@ -1347,13 +1333,11 @@ void QWizardPrivate::_q_updateButtonStates()
         finishPush->setDefault(!canContinue && useDefault);
 
 #if defined(Q_WS_WIN)
-#if 0
     if (wizStyle == QWizard::AeroStyle) {
         vistaHelper->backButton()->setEnabled(btn.back->isEnabled());
         vistaHelper->backButton()->setVisible(backButtonVisible);
         btn.back->setVisible(false);
     }
-#endif
 #endif
 
     enableUpdates();
@@ -1414,7 +1398,6 @@ QPixmap QWizardPrivate::findDefaultBackgroundPixmap()
 #endif
 
 #if defined(Q_WS_WIN)
-#if 0
 void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
 {
     if (wizard->wizardStyle() == QWizard::AeroStyle) {
@@ -1429,7 +1412,6 @@ void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
         painter.drawLine(0, pageFrameBottom, width(), pageFrameBottom);
     }
 }
-#endif
 #endif
 
 /*!
@@ -2123,7 +2105,6 @@ void QWizard::setWizardStyle(WizardStyle style)
     bool styleChange = false;
 
 #if defined(Q_WS_WIN)
-#if 0
     bool aeroStyleChange = true;
 
     if (style == AeroStyle) {
@@ -2149,7 +2130,6 @@ void QWizard::setWizardStyle(WizardStyle style)
         aeroStyleChange = false;
         d->aeroStyleOverride = false;
     }
-#endif
 #else
     Q_ASSERT(d->wizStyle != AeroStyle);
     styleChange = style != d->wizStyle;
@@ -2165,10 +2145,8 @@ void QWizard::setWizardStyle(WizardStyle style)
         d->disableUpdates();
         d->wizStyle = style;
 #if defined(Q_WS_WIN)
-#if 0
         if (aeroStyleChange)
             d->handleAeroStyleChange();
-#endif
 #endif
         d->updateButtonTexts();
         d->updateLayout();
@@ -2707,11 +2685,9 @@ bool QWizard::event(QEvent *event)
         d->updateLayout();
     }
 #if defined(Q_WS_WIN)
-#if 0
     else if (d->wizStyle == AeroStyle) {
         d->vistaHelper->mouseEvent(event);
     }
-#endif
 #endif
     return QDialog::event(event);
 }
@@ -2724,17 +2700,13 @@ void QWizard::resizeEvent(QResizeEvent *event)
     Q_D(QWizard);
     int heightOffset = 0;
 #if defined(Q_WS_WIN)
-#if 0
     if (d->wizStyle == AeroStyle)
         heightOffset = d->vistaHelper->titleBarSize() + d->vistaHelper->topOffset();
 #endif
-#endif
     d->antiFlickerWidget->resize(event->size().width(), event->size().height() - heightOffset);
 #if defined(Q_WS_WIN)
-#if 0
     if (d->wizStyle == AeroStyle)
         d->vistaHelper->resizeEvent(event);
-#endif
 #endif
 }
 
@@ -2753,18 +2725,15 @@ void QWizard::paintEvent(QPaintEvent * event)
         painter.drawPixmap(0, (height() - backgroundPixmap.height()) / 2, backgroundPixmap);
     }
 #if defined(Q_WS_WIN)
-#if 0
     else if (d->wizStyle == AeroStyle) {
         d->vistaHelper->paintEvent(event);
     }
-#endif
 #else
     Q_UNUSED(event);
 #endif
 }
 
 #if defined(Q_WS_WIN)
-#if 0
 bool QWizard::winEvent(MSG *message, long *result)
 {
     Q_D(QWizard);
@@ -2786,7 +2755,6 @@ bool QWizard::winEvent(MSG *message, long *result)
     }
     return d->vistaHelper->handleWinEvent(message, result);
 }
-#endif
 #endif
 
 /*!

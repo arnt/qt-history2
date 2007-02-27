@@ -11,24 +11,60 @@
 **
 ****************************************************************************/
 
-#if 0
 
 #include "qwizard_win.h"
 #include "qlibrary.h"
-#include <gdiplus.h>
-#include <Gdiplusflat.h>
-#pragma comment( lib, "Gdi32" )
-#pragma comment( lib, "User32" )
-
-using namespace Gdiplus;
-
-#include <QtGui> // ### include only those actually needed
-#include <qwizard.h>
+#include "qwizard.h"
+#include "qpaintengine.h"
 
 //DWM related
+typedef struct  {       //MARGINS       
+    int cxLeftWidth;    // width of left border that retains its size
+    int cxRightWidth;   // width of right border that retains its size
+    int cyTopHeight;    // height of top border that retains its size
+    int cyBottomHeight; // height of bottom border that retains its size
+} WIZ_MARGINS;
+typedef struct {        //DTTOPTS
+    DWORD dwSize;
+    DWORD dwFlags;
+    COLORREF crText;
+    COLORREF crBorder;
+    COLORREF crShadow;
+    int eTextShadowType;
+    POINT ptShadowOffset;
+    int iBorderSize;
+    int iFontPropId;
+    int iColorPropId;
+    int iStateId;
+    BOOL fApplyOverlay;
+    int iGlowSize;
+} WIZ_DTTOPTS;
+
+#define WIZ_DT_CENTER                   0x00000001 //DT_CENTER
+#define WIZ_DT_VCENTER                  0x00000004
+#define WIZ_DT_SINGLELINE               0x00000020
+#define WIZ_DT_NOPREFIX                 0x00000800
+
+enum WIZ_NAVIGATIONPARTS {          //NAVIGATIONPARTS
+	WIZ_NAV_BACKBUTTON = 1,
+	WIZ_NAV_FORWARDBUTTON = 2,
+	WIZ_NAV_MENUBUTTON = 3,
+};
+
+enum WIZ_NAV_BACKBUTTONSTATES {     //NAV_BACKBUTTONSTATES
+	WIZ_NAV_BB_NORMAL = 1,
+	WIZ_NAV_BB_HOT = 2,
+	WIZ_NAV_BB_PRESSED = 3,
+	WIZ_NAV_BB_DISABLED = 4,
+};
+
+#define WIZ_TMT_CAPTIONFONT (801)           //TMT_CAPTIONFONT
+#define WIZ_DTT_COMPOSITED  (1UL << 13)     //DTT_COMPOSITED
+#define WIZ_DTT_GLOWSIZE    (1UL << 11)     //DTT_GLOWSIZE
+
 typedef BOOL (WINAPI *PtrDwmDefWindowProc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, LRESULT *plResult);
 typedef HRESULT (WINAPI *PtrDwmIsCompositionEnabled)(BOOL* pfEnabled);
-typedef HRESULT (WINAPI *PtrDwmExtendFrameIntoClientArea)(HWND hWnd, const MARGINS* pMarInset);
+typedef HRESULT (WINAPI *PtrDwmExtendFrameIntoClientArea)(HWND hWnd, const WIZ_MARGINS* pMarInset);
 
 static PtrDwmDefWindowProc pDwmDefWindowProc = 0;
 static PtrDwmIsCompositionEnabled pDwmIsCompositionEnabled= 0;
@@ -37,12 +73,12 @@ static PtrDwmExtendFrameIntoClientArea pDwmExtendFrameIntoClientArea= 0;
 //Theme related
 typedef bool (WINAPI *PtrIsAppThemed)();
 typedef bool (WINAPI *PtrIsThemeActive)();
-typedef HTHEME (WINAPI *PtrOpenThemeData)(HWND hwnd, LPCWSTR pszClassList);
-typedef HRESULT (WINAPI *PtrCloseThemeData)(HTHEME hTheme);
-typedef HRESULT (WINAPI *PtrGetThemeSysFont)(HTHEME hTheme, int iFontId, LOGFONTW *plf);
-typedef HRESULT (WINAPI *PtrDrawThemeTextEx)(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCWSTR pszText, int cchText, DWORD dwTextFlags, LPRECT pRect, const DTTOPTS *pOptions);
-typedef HRESULT (WINAPI *PtrDrawThemeBackground)(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, const RECT *pRect, OPTIONAL const RECT *pClipRect);
-typedef HRESULT (WINAPI *PtrGetThemePartSize)(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, OPTIONAL RECT *prc, enum THEMESIZE eSize, OUT SIZE *psz);
+typedef HANDLE (WINAPI *PtrOpenThemeData)(HWND hwnd, LPCWSTR pszClassList);
+typedef HRESULT (WINAPI *PtrCloseThemeData)(HANDLE hTheme);
+typedef HRESULT (WINAPI *PtrGetThemeSysFont)(HANDLE hTheme, int iFontId, LOGFONTW *plf);
+typedef HRESULT (WINAPI *PtrDrawThemeTextEx)(HANDLE hTheme, HDC hdc, int iPartId, int iStateId, LPCWSTR pszText, int cchText, DWORD dwTextFlags, LPRECT pRect, const WIZ_DTTOPTS *pOptions);
+typedef HRESULT (WINAPI *PtrDrawThemeBackground)(HANDLE hTheme, HDC hdc, int iPartId, int iStateId, const RECT *pRect, OPTIONAL const RECT *pClipRect);
+typedef HRESULT (WINAPI *PtrGetThemePartSize)(HANDLE hTheme, HDC hdc, int iPartId, int iStateId, OPTIONAL RECT *prc, enum THEMESIZE eSize, OUT SIZE *psz);
 
 static PtrIsAppThemed pIsAppThemed = 0;
 static PtrIsThemeActive pIsThemeActive = 0;
@@ -52,23 +88,6 @@ static PtrGetThemeSysFont pGetThemeSysFont = 0;
 static PtrDrawThemeTextEx pDrawThemeTextEx = 0;
 static PtrDrawThemeBackground pDrawThemeBackground = 0;
 static PtrGetThemePartSize pGetThemePartSize = 0;
-
-//GDI+ related
-typedef int (WINAPI * PtrGdiplusStartup)(ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStartupOutput *output);
-typedef VOID (WINAPI *PtrGdiplusShutdown)(ULONG_PTR token);
-typedef int (WINAPI *PtrGdipCreateFromHDC)(HDC hdc, GpGraphics **graphics);
-typedef int (WINAPI *PtrGdipDeleteGraphics)(GpGraphics *graphics);
-typedef int (WINAPI *PtrGdipDrawImageI)(GpGraphics *graphics, GpImage *image, INT x, INT y);
-typedef int (WINAPI *PtrGdipLoadImageFromFile)(const WCHAR* filename, GpImage **image);
-typedef int (WINAPI *PtrGdipDisposeImage)(GpImage *image);
-
-static PtrGdiplusStartup pGdiplusStartup = 0;
-static PtrGdiplusShutdown pGdiplusShutdown = 0;
-static PtrGdipCreateFromHDC pGdipCreateFromHDC = 0;
-static PtrGdipDeleteGraphics pGdipDeleteGraphics = 0;
-static PtrGdipDrawImageI pGdipDrawImageI = 0;
-static PtrGdipLoadImageFromFile pGdipLoadImageFromFile = 0;
-static PtrGdipDisposeImage pGdipDisposeImage = 0;
 
 bool QVistaHelper::is_vista = false;
 
@@ -103,9 +122,9 @@ QSize QVistaBackButton::sizeHint() const
     ensurePolished();
     int width = 32, height = 32;
 /*
-    HTHEME theme = pOpenThemeData(0, L"Navigation");
+    HANDLE theme = pOpenThemeData(0, L"Navigation");
     SIZE size;
-    if (pGetThemePartSize(theme, 0, NAV_BACKBUTTON, NAV_BB_NORMAL, 0, TS_TRUE, &size) == S_OK) {
+    if (pGetThemePartSize(theme, 0, WIZ_NAV_BACKBUTTON, WIZ_NAV_BB_NORMAL, 0, TS_TRUE, &size) == S_OK) {
         width = size.cx;
         height = size.cy;
     }
@@ -133,7 +152,7 @@ void QVistaBackButton::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QRect r = rect();
-    HTHEME theme = pOpenThemeData(0, L"Navigation");
+    HANDLE theme = pOpenThemeData(0, L"Navigation");
     //RECT rect;
     RECT clipRect;
     int xoffset = QWidget::mapToParent(r.topLeft()).x();
@@ -144,15 +163,15 @@ void QVistaBackButton::paintEvent(QPaintEvent *)
     clipRect.left = r.left() + xoffset;
     clipRect.right = r.right()  + xoffset;
 
-    int state = NAV_BB_NORMAL;
+    int state = WIZ_NAV_BB_NORMAL;
     if (!isEnabled())
-        state = NAV_BB_DISABLED;
+        state = WIZ_NAV_BB_DISABLED;
     else if (isDown())
-        state = NAV_BB_PRESSED;
+        state = WIZ_NAV_BB_PRESSED;
     else if (underMouse())
-        state = NAV_BB_HOT;
+        state = WIZ_NAV_BB_HOT;
 
-   pDrawThemeBackground(theme, p.paintEngine()->getDC(), NAV_BACKBUTTON, state, &clipRect, &clipRect); 
+   pDrawThemeBackground(theme, p.paintEngine()->getDC(), WIZ_NAV_BACKBUTTON, state, &clipRect, &clipRect); 
 }
 
 /******************************************************************************
@@ -193,7 +212,7 @@ bool QVistaHelper::setDWMTitleBar(TitleBarChangeType type)
 {
     bool value = false;
     if (isCompositionEnabled()) {
-        MARGINS mar = {0};
+        WIZ_MARGINS mar = {0};
         if (type == NormalTitleBar)
             mar.cyTopHeight = 0;
         else
@@ -480,12 +499,12 @@ bool QVistaHelper::eventFilter(QObject *obj, QEvent *event)
      return false;
 }
 
-HFONT QVistaHelper::getCaptionFont(HTHEME hTheme)
+HFONT QVistaHelper::getCaptionFont(HANDLE hTheme)
 {
     LOGFONT lf = {0};
 
     if (!hTheme)
-        pGetThemeSysFont(hTheme, TMT_CAPTIONFONT, &lf);
+        pGetThemeSysFont(hTheme, WIZ_TMT_CAPTIONFONT, &lf);
     else
     {
         NONCLIENTMETRICS ncm = {sizeof(NONCLIENTMETRICS)};
@@ -499,7 +518,7 @@ bool QVistaHelper::drawTitleText(const QString &text, const QRect &rect, HDC hdc
 {
     bool value = false;
     if(isCompositionEnabled()){
-        HTHEME hTheme= pOpenThemeData(qApp->desktop()->winId(), L"WINDOW");
+        HANDLE hTheme= pOpenThemeData(qApp->desktop()->winId(), L"WINDOW");
         if (!hTheme) return false;
         // Set up a memory DC and bitmap that we'll draw into
         HDC dcMem;
@@ -522,11 +541,11 @@ bool QVistaHelper::drawTitleText(const QString &text, const QRect &rect, HDC hdc
         HFONT hOldFont = (HFONT)SelectObject(dcMem, (HGDIOBJ) hCaptionFont);
  
         // Draw the text!
-        DTTOPTS dto = { sizeof(DTTOPTS) };
-        const UINT uFormat = DT_SINGLELINE|DT_CENTER|DT_VCENTER|DT_NOPREFIX;
+        WIZ_DTTOPTS dto = { sizeof(WIZ_DTTOPTS) };
+        const UINT uFormat = WIZ_DT_SINGLELINE|WIZ_DT_CENTER|WIZ_DT_VCENTER|WIZ_DT_NOPREFIX;
         RECT rctext ={0,0, rect.width(), rect.height()};
 
-        dto.dwFlags = DTT_COMPOSITED|DTT_GLOWSIZE;
+        dto.dwFlags = WIZ_DTT_COMPOSITED|WIZ_DTT_GLOWSIZE;
         dto.iGlowSize = 10;
  
         pDrawThemeTextEx(hTheme, dcMem, 0, 0, (LPCWSTR)text.utf16(), -1, uFormat, &rctext, &dto );
@@ -575,7 +594,7 @@ bool QVistaHelper::resolveSymbols()
     static bool tried = false;
     if (!tried) {
         tried = true;
-        QLibrary dwmLib("dwmapi");
+        QLibrary dwmLib(QString::fromAscii("dwmapi"));
         pDwmIsCompositionEnabled =
             (PtrDwmIsCompositionEnabled)dwmLib.resolve("DwmIsCompositionEnabled");
         if (pDwmIsCompositionEnabled) {
@@ -583,7 +602,7 @@ bool QVistaHelper::resolveSymbols()
             pDwmExtendFrameIntoClientArea =
                 (PtrDwmExtendFrameIntoClientArea)dwmLib.resolve("DwmExtendFrameIntoClientArea");
         }
-        QLibrary themeLib("uxtheme");
+        QLibrary themeLib(QString::fromAscii("uxtheme"));
         pIsAppThemed = (PtrIsAppThemed)themeLib.resolve("IsAppThemed");
         if (pIsAppThemed) {
             pDrawThemeBackground = (PtrDrawThemeBackground)themeLib.resolve("DrawThemeBackground");
@@ -594,19 +613,6 @@ bool QVistaHelper::resolveSymbols()
             pGetThemeSysFont = (PtrGetThemeSysFont)themeLib.resolve("GetThemeSysFont");
             pDrawThemeTextEx = (PtrDrawThemeTextEx)themeLib.resolve("DrawThemeTextEx");
         }
-        QLibrary gdiplus("gdiplus");
-        pGdiplusStartup = (PtrGdiplusStartup)gdiplus.resolve("GdiplusStartup");
-        if (pGdiplusStartup) {
-            pGdiplusShutdown = (PtrGdiplusShutdown)gdiplus.resolve("GdiplusShutdown");
-            pGdipCreateFromHDC = (PtrGdipCreateFromHDC)gdiplus.resolve("GdipCreateFromHDC");
-            pGdipDeleteGraphics = (PtrGdipDeleteGraphics)gdiplus.resolve("GdipDeleteGraphics");
-            pGdipDrawImageI = (PtrGdipDrawImageI)gdiplus.resolve("GdipDrawImageI");
-            pGdipLoadImageFromFile =
-                (PtrGdipLoadImageFromFile)gdiplus.resolve("GdipLoadImageFromFile");
-            pGdipDisposeImage = (PtrGdipDisposeImage)gdiplus.resolve("GdipDisposeImage");
-        }
     }
     return (pDwmIsCompositionEnabled != 0 && pIsAppThemed != 0);
 }
-
-#endif

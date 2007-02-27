@@ -11,16 +11,11 @@
 **
 ****************************************************************************/
 
-#if 0
-
 #pragma once
 #include <windows.h>
-#include <dwmapi.h>
-#include <uxtheme.h>
 #include <qobject.h>
 #include <qwidget.h>
 #include <qabstractbutton.h>
-#include <vssym32.h>
 #include <QtGui/private/qwidget_p.h>
 
 class QVistaBackButton : public QAbstractButton
@@ -66,7 +61,7 @@ public:
     //static int topOffset() { return titleBarSize() * 4; } // extreme
 
 private:
-    static HFONT getCaptionFont(HTHEME hTheme);
+    static HFONT getCaptionFont(HANDLE hTheme);
     static bool drawTitleText(const QString &text, const QRect &rect, HDC hdc);
     static bool drawBlackRect(const QRect &rect, HDC hdc);
 
@@ -99,4 +94,3 @@ private:
     QVistaBackButton *backButton_;
 };
 
-#endif

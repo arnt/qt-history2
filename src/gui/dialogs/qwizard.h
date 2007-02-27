@@ -152,9 +152,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void paintEvent(QPaintEvent *event);
 #if defined(Q_WS_WIN)
-#if 0
     bool winEvent(MSG * message, long * result);
-#endif
 #endif
     void done(int result);
     virtual void initializePage(int id);
