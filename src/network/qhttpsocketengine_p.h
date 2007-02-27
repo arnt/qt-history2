@@ -30,6 +30,7 @@
 #include "qnetworkproxy.h"
 #include "qauthenticator_p.h"
 
+#ifndef QT_NO_NETWORKPROXY
 class QTcpSocket;
 class QHttpSocketEnginePrivate;
 
@@ -121,9 +122,7 @@ public:
     QHttpSocketEnginePrivate();
     ~QHttpSocketEnginePrivate();
 
-#ifndef QT_NO_NETWORKPROXY
     QNetworkProxy proxy;
-#endif
     QTcpSocket *socket;
     QByteArray readBuffer;
     QHttpSocketEngine::HttpState state;
@@ -144,5 +143,6 @@ public:
     virtual QAbstractSocketEngine *createSocketEngine(const QHostAddress &address, QAbstractSocket::SocketType socketType, QObject *parent);
     virtual QAbstractSocketEngine *createSocketEngine(int socketDescripter, QObject *parent);
 };
+#endif
 
 #endif // QHTTPSOCKETENGINE_H

@@ -186,7 +186,7 @@
 */
 
 /*!
-    \fn void QAbstractSocket::proxyAuthenticationRequired(QAuthenticator *authenticator)
+    \fn void QAbstractSocket::proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator)
 
     This signal can be emitted when a proxy that requires
     authentication is used. The \a authenticator object can then be
@@ -424,8 +424,8 @@ void QAbstractSocketPrivate::setupSocketNotifiers()
                      q, SLOT(_q_canReadNotification()));
     QObject::connect(socketEngine, SIGNAL(writeNotification()),
                      q, SLOT(_q_canWriteNotification()));
-    QObject::connect(socketEngine, SIGNAL(proxyAuthenticationRequired(QAuthenticator *)),
-                     q, SIGNAL(proxyAuthenticationRequired(QAuthenticator *)));
+    QObject::connect(socketEngine, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)),
+                     q, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)));
 }
 
 /*! \internal

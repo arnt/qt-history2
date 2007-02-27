@@ -29,6 +29,7 @@ class QTcpSocket;
 class QTimerEvent;
 class QIODevice;
 class QAuthenticator;
+class QNetworkProxy;
 
 class QHttpPrivate;
 
@@ -162,7 +163,9 @@ public:
         UnexpectedClose,
         InvalidResponseHeader,
         WrongContentLength,
-        Aborted
+        Aborted, 
+        AuthenticationRequiredError,
+        ProxyAuthenticationRequiredError
     };
 
     int setHost(const QString &hostname, quint16 port = 80);
@@ -218,7 +221,7 @@ Q_SIGNALS:
     void requestFinished(int, bool);
     void done(bool);
 
-    void proxyAuthenticationRequired(QAuthenticator *);
+    void proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *);
 
 private:
     Q_DISABLE_COPY(QHttp)

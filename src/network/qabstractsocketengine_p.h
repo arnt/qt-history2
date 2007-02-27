@@ -111,7 +111,7 @@ Q_SIGNALS:
     void readNotification();
     void writeNotification();
     void exceptionNotification();
-    void proxyAuthenticationRequired(QAuthenticator *authenticator);
+    void proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator);
 
 protected:
     QAbstractSocketEngine(QAbstractSocketEnginePrivate &dd, QObject* parent = 0);

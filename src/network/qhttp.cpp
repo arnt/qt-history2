@@ -1679,7 +1679,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::proxyAuthenticationRequired(QAuthenticator *authenticator)
+    \fn void QHttp::proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator)
 
     This signal can be emitted when a proxy that requires
     authentication is used. The \a authenticator object can then be
@@ -2385,6 +2385,9 @@ void QHttpPrivate::_q_slotError(QAbstractSocket::SocketError err)
                 return;
             }
             break;
+        case QTcpSocket::ProxyAuthenticationRequiredError:
+            finishedWithError(socket->errorString(), QHttp::ProxyAuthenticationRequiredError);
+            break;
         default:
             finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "HTTP request failed")), QHttp::UnknownError);
             break;
@@ -2717,8 +2720,8 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
     QObject::connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), q, SLOT(_q_slotError(QAbstractSocket::SocketError)));
     QObject::connect(socket, SIGNAL(bytesWritten(qint64)),
                      q, SLOT(_q_slotBytesWritten(qint64)));
-    QObject::connect(socket, SIGNAL(proxyAuthenticationRequired(QAuthenticator *)),
-                     q, SIGNAL(proxyAuthenticationRequired(QAuthenticator *)));
+    QObject::connect(socket, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)),
+                     q, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)));
 }
 
 

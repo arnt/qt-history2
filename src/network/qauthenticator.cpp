@@ -23,21 +23,47 @@
 #include <qstring.h>
 #include <../3rdparty/des/des.cpp>
 
-static QByteArray qNtlmPhase1(QAuthenticatorPrivate *ctx);
+static QByteArray qNtlmPhase1();
 static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phase2data);
 
+/*!
+  class QAuthenticator
+
+  \since 4.3
+
+  \brief The QAuthenticator class provides an authentication object.
+
+  \reentrant
+  \ingroup io
+  \module network
+
+  The QAuthenticator class is usually used in the
+  authenticationRequired and proxyAuthenticationRequired signals of
+  QHttp and QAbstractSocket. The class provieds a means to pass back
+  the required authentication information to the socket.
+*/
+
+
+/*!
+  Constructs an empty authentication object
+*/
 QAuthenticator::QAuthenticator()
     : d(0)
 {
 }
 
+/*!
+  Destructs the object
+*/
 QAuthenticator::~QAuthenticator()
 {
     if (d && !d->ref.deref())
         delete d;
 }
 
-
+/*!
+  Copy constructor
+*/
 QAuthenticator::QAuthenticator(const QAuthenticator &other)
     : d(other.d)
 {
@@ -45,39 +71,69 @@ QAuthenticator::QAuthenticator(const QAuthenticator &other)
         d->ref.ref();
 }
 
+/*!
+  Assignment operator
+*/
 QAuthenticator &QAuthenticator::operator=(const QAuthenticator &other)
 {
     if (d == other.d)
         return *this;
-    QAuthenticatorPrivate *x = other.d;
-    x = qAtomicSetPtr(&d, x);
-    if (x && !x->ref.deref())
-        delete x;
+    detach();
+    d->user = other.d->user;
+    d->password = other.d->password;
     return *this;
 }
 
+/*!
+  returns true if the two authenitcator objects are identical
+*/
+bool QAuthenticator::operator==(const QAuthenticator &other) const
+{
+    if (d == other.d)
+        return true;
+    return d->user == other.d->user
+        && d->password == other.d->password
+        && d->realm == other.d->realm
+        && d->method == other.d->method;
+}
+
+/*!
+  returns the user used for authentication.
+*/
 QString QAuthenticator::user() const
 {
     return d ? d->user : QString();
 }
 
+/*!
+  Sets the \a user used for authentication.
+*/
 void QAuthenticator::setUser(const QString &user)
 {
     detach();
     d->user = user;
 }
 
+/*!
+  returns the password used for authentication.
+*/
 QString QAuthenticator::password() const
 {
     return d ? d->password : QString();
 }
 
+/*!
+  Sets the \a password used for authentication.
+*/
 void QAuthenticator::setPassword(const QString &password)
 {
     detach();
     d->password = password;
 }
 
+/*!
+  \internal
+*/
 void QAuthenticator::detach()
 {
     if (!d) {
@@ -95,6 +151,18 @@ void QAuthenticator::detach()
     d->phase = QAuthenticatorPrivate::Start;
 }
 
+/*!
+  returns the realm requiring authentication.
+*/
+QString QAuthenticator::realm() const
+{
+    return d->realm;
+}
+
+
+/*!
+  returns true if the authenticator is null.
+*/
 bool QAuthenticator::isNull() const
 {
     return !d;
@@ -206,7 +274,7 @@ QByteArray QAuthenticatorPrivate::calculateResponse(const QByteArray &requestLin
     case QAuthenticatorPrivate::Ntlm:
         methodString = "NTLM ";
         if (phase == Start) {
-            response = qNtlmPhase1(this).toBase64();
+            response = qNtlmPhase1().toBase64();
             phase = Phase2;
         } else {
             response = qNtlmPhase3(this, QByteArray::fromBase64(challenge)).toBase64();
@@ -739,24 +807,12 @@ static QDataStream& operator<<(QDataStream& s, const QNtlmPhase3Block& b) {
 }
 
 
-static QByteArray qNtlmPhase1(QAuthenticatorPrivate *ctx)
+static QByteArray qNtlmPhase1()
 {
     QByteArray rc;
     QDataStream ds(&rc, QIODevice::WriteOnly);
     ds.setByteOrder(QDataStream::LittleEndian);
     QNtlmPhase1Block pb;
-//     int offset = QNtlmPhase1BlockBase::Size;
-//     Q_ASSERT(QNtlmPhase1BlockBase::Size == sizeof(QNtlmPhase1BlockBase));
-//     if (!ctx->realm.isEmpty()) {
-//         pb.flags |= NTLMSSP_NEGOTIATE_DOMAIN_SUPPLIED;
-//         offset = qEncodeNtlmString(pb.domain, offset, ctx->realm);
-//         pb.domainStr = ctx->realm;
-//     }
-//     if (!ctx->workstation.isEmpty()) {
-//         pb.flags |= NTLMSSP_NEGOTIATE_WORKSTATION_SUPPLIED;
-//         offset = qEncodeNtlmString(pb.workstation, offset, ctx->workstation);
-//         pb.workstationStr = ctx->workstation;
-//     }
     ds << pb;
     return rc;
 }

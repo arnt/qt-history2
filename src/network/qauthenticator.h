@@ -32,11 +32,16 @@ public:
     QAuthenticator(const QAuthenticator &other);
     QAuthenticator &operator=(const QAuthenticator &other);
 
+    bool operator==(const QAuthenticator &other) const;
+    inline bool operator!=(const QAuthenticator &other) const { return !operator==(other); }
+    
     QString user() const;
     void setUser(const QString &user);
 
     QString password() const;
     void setPassword(const QString &password);
+
+    QString realm() const;
 
     bool isNull() const;
     void detach();
@@ -44,7 +49,6 @@ private:
     friend class QAuthenticatorPrivate;
     QAuthenticatorPrivate *d;
 };
-
 
 QT_END_HEADER
 
