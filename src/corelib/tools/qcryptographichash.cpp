@@ -35,12 +35,14 @@ public:
 
   \brief The QCryptographicHash class provides a way to generate cryptographic hashes.
 
-    \ingroup tools
-    \reentrant
+  \since 4.3
 
-    QCryptographicHash can be used to generate cryptographic hashes of binary or text data.
+  \ingroup tools
+  \reentrant
 
-    Currently Md4 and Md5 are supported.
+  QCryptographicHash can be used to generate cryptographic hashes of binary or text data.
+  
+  Currently Md4 and Md5 are supported.
 */
 
 /*!
@@ -48,6 +50,7 @@ public:
 
   \value Md4 Generate an Md4 hash sum
   \value Md5 Generate an Md5 hash sum
+  \value Sha1 Generate an Sha1 hash sum
 */
 
 /*!
