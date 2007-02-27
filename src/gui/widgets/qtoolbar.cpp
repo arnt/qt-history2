@@ -177,7 +177,12 @@ void QToolBarPrivate::endDrag()
 
 void QToolBarPrivate::mousePressEvent(QMouseEvent *event)
 {
+    Q_Q(QToolBar);
+
     if (event->button() != Qt::LeftButton)
+        return;
+
+    if (!q->isMovable())
         return;
 
     initDrag(event->pos());
@@ -410,7 +415,7 @@ void QToolBar::setMovable(bool movable)
     if (!movable == !d->movable)
         return;
     d->movable = movable;
-//    d->handle->setVisible(d->movable && (qobject_cast<QMainWindow *>(parentWidget()) != 0));
+    d->layout->invalidate();
     emit movableChanged(d->movable);
 }
 
@@ -795,8 +800,8 @@ void QToolBar::paintEvent(QPaintEvent *)
     }
 
     opt.rect = d->layout->handleRect();
-
-    style->drawPrimitive(QStyle::PE_IndicatorToolBarHandle, &opt, &p);
+    if (opt.rect.isValid())
+        style->drawPrimitive(QStyle::PE_IndicatorToolBarHandle, &opt, &p);
 }
 
 /*! \reimp */

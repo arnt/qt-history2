@@ -158,7 +158,8 @@ void QToolBarLayout::updateGeomArray() const
     QStyle *style = tb->style();
     QStyleOptionToolBar opt;
     tb->initStyleOption(&opt);
-    const int handleExtent = style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb);
+    const int handleExtent = tb->isMovable()
+            ? style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb) : 0;
     const int margin = style->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, tb)
                         + style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, tb);
     const int spacing = style->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, tb);
@@ -167,8 +168,8 @@ void QToolBarLayout::updateGeomArray() const
 
     that->minSize = QSize(0, 0);
     that->hint = QSize(0, 0);
-    rperp(o, that->minSize) = handleExtent;
-    rperp(o, that->hint) = handleExtent;
+    rperp(o, that->minSize) = style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb);
+    rperp(o, that->hint) = style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb);
 
     that->expanding = false;
     that->empty = false;
@@ -233,7 +234,8 @@ int QToolBarLayout::expandedHeight(int width) const
     QStyle *style = tb->style();
     QStyleOptionToolBar opt;
     tb->initStyleOption(&opt);
-    const int handleExtent = style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb);
+    const int handleExtent = tb->isMovable()
+            ? style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb) : 0;
     const int margin = style->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, tb)
                         + style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, tb);
     const int spacing = style->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, tb);
@@ -287,7 +289,8 @@ int QToolBarLayout::expandedWidth(int width) const
     QStyle *style = tb->style();
     QStyleOptionToolBar opt;
     tb->initStyleOption(&opt);
-    const int handleExtent = style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb);
+    const int handleExtent = tb->isMovable()
+            ? style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb) : 0;
     const int margin = style->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, tb)
                         + style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, tb);
     const int spacing = style->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, tb);
@@ -346,7 +349,8 @@ void QToolBarLayout::setGeometry(const QRect &rect)
     QStyle *style = tb->style();
     QStyleOptionToolBar opt;
     tb->initStyleOption(&opt);
-    const int handleExtent = style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb);
+    const int handleExtent = tb->isMovable()
+            ? style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb) : 0;
     const int margin = style->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, tb)
                         + style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, tb);
     const int spacing = style->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, tb);
@@ -442,11 +446,15 @@ void QToolBarLayout::setGeometry(const QRect &rect)
         ++rows;
     }
 
-    if (o == Qt::Horizontal) {
-        handRect = QRect(margin, margin, handleExtent, rect.height() - 2*margin);
-        handRect = QStyle::visualRect(parentWidget()->layoutDirection(), rect, handRect);
+    if (tb->isMovable()) {
+        if (o == Qt::Horizontal) {
+            handRect = QRect(margin, margin, handleExtent, rect.height() - 2*margin);
+            handRect = QStyle::visualRect(parentWidget()->layoutDirection(), rect, handRect);
+        } else {
+            handRect = QRect(margin, margin, rect.width() - 2*margin, handleExtent);
+        }
     } else {
-        handRect = QRect(margin, margin, rect.width() - 2*margin, handleExtent);
+        handRect = QRect();
     }
 
     if (ranOutOfSpace) {
