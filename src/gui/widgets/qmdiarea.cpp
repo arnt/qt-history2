@@ -1385,6 +1385,12 @@ bool QMdiArea::event(QEvent *event)
             d->isSubWindowsTiled = true;
         }
         break;
+    case QEvent::WindowIconChange:
+        foreach (QMdiSubWindow *window, d->childWindows) {
+            if (sanityCheck(window, "QMdiArea::WindowIconChange"))
+                QApplication::sendEvent(window, event);
+        }
+        break;
     default:
         break;
     }

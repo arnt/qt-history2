@@ -255,70 +255,127 @@ static inline QRgb colorref2qrgb(COLORREF col)
 }
 #endif
 
+/*!
+    \internal
+*/
 class ControlLabel : public QWidget
 {
     Q_OBJECT
 public:
-    ControlLabel(QWidget *parent = 0)
-        : QWidget(parent), isPressed(false)
-    {
-        setFocusPolicy(Qt::NoFocus);
-        label = style()->standardIcon(QStyle::SP_TitleBarMenuButton).pixmap(16, 16);
-        setFixedSize(label.size());
-    }
+    ControlLabel(QWidget *parent = 0);
 
-    QSize sizeHint() const
-    {
-        return label.size();
-    }
+    QSize sizeHint() const;
 
 signals:
     void _q_clicked();
     void _q_doubleClicked();
 
 protected:
-    void paintEvent(QPaintEvent * /*paintEvent*/)
-    {
-        QPainter painter(this);
-        painter.drawPixmap(0, 0, label);
-    }
-
-    void mousePressEvent(QMouseEvent *mouseEvent)
-    {
-        if (mouseEvent->button() != Qt::LeftButton) {
-            mouseEvent->ignore();
-            return;
-        }
-        isPressed = true;
-    }
-
-    void mouseDoubleClickEvent(QMouseEvent *mouseEvent)
-    {
-        if (mouseEvent->button() != Qt::LeftButton) {
-            mouseEvent->ignore();
-            return;
-        }
-        isPressed = false;
-        emit _q_doubleClicked();
-    }
-
-    void mouseReleaseEvent(QMouseEvent *mouseEvent)
-    {
-        if (mouseEvent->button() != Qt::LeftButton) {
-            mouseEvent->ignore();
-            return;
-        }
-        if (isPressed) {
-            isPressed = false;
-            emit _q_clicked();
-        }
-    }
+    bool event(QEvent *event);
+    void paintEvent(QPaintEvent *paintEvent);
+    void mousePressEvent(QMouseEvent *mouseEvent);
+    void mouseDoubleClickEvent(QMouseEvent *mouseEvent);
+    void mouseReleaseEvent(QMouseEvent *mouseEvent);
 
 private:
     QPixmap label;
     bool isPressed;
+    void updateWindowIcon();
 };
 
+/*!
+    \internal
+*/
+ControlLabel::ControlLabel(QWidget *parent)
+    : QWidget(parent), isPressed(false)
+{
+    setFocusPolicy(Qt::NoFocus);
+    updateWindowIcon();
+    setFixedSize(label.size());
+}
+
+/*!
+    \internal
+*/
+QSize ControlLabel::sizeHint() const
+{
+    return label.size();
+}
+
+/*!
+    \internal
+*/
+bool ControlLabel::event(QEvent *event)
+{
+    if (event->type() == QEvent::WindowIconChange)
+        updateWindowIcon();
+    return QWidget::event(event);
+}
+
+/*!
+    \internal
+*/
+void ControlLabel::paintEvent(QPaintEvent * /*paintEvent*/)
+{
+    QPainter painter(this);
+    painter.drawPixmap(0, 0, label);
+}
+
+/*!
+    \internal
+*/
+void ControlLabel::mousePressEvent(QMouseEvent *mouseEvent)
+{
+    if (mouseEvent->button() != Qt::LeftButton) {
+        mouseEvent->ignore();
+        return;
+    }
+    isPressed = true;
+}
+
+/*!
+    \internal
+*/
+void ControlLabel::mouseDoubleClickEvent(QMouseEvent *mouseEvent)
+{
+    if (mouseEvent->button() != Qt::LeftButton) {
+        mouseEvent->ignore();
+        return;
+    }
+    isPressed = false;
+    emit _q_doubleClicked();
+}
+
+/*!
+    \internal
+*/
+void ControlLabel::mouseReleaseEvent(QMouseEvent *mouseEvent)
+{
+    if (mouseEvent->button() != Qt::LeftButton) {
+        mouseEvent->ignore();
+        return;
+    }
+    if (isPressed) {
+        isPressed = false;
+        emit _q_clicked();
+    }
+}
+
+/*!
+    \internal
+*/
+void ControlLabel::updateWindowIcon()
+{
+    QIcon menuIcon = windowIcon();
+    if (menuIcon.isNull())
+        menuIcon = style()->standardIcon(QStyle::SP_TitleBarMenuButton);
+    label = menuIcon.pixmap(16, 16);
+    update();
+}
+
+/*!
+    \internal
+*/
 class ControllerWidget : public QWidget
 {
     Q_OBJECT
@@ -347,8 +404,7 @@ private:
     {
         QStyleOptionComplex opt;
         initStyleOption(&opt);
-        return style()->hitTestComplexControl(QStyle::CC_MDIControls,
-                                              &opt, pos, this);
+        return style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt, pos, this);
     }
 };
 
@@ -518,6 +574,7 @@ ControlContainer::ControlContainer(QMdiSubWindow *mdiChild)
     connect(m_controllerWidget, SIGNAL(_q_minimize()), mdiChild, SLOT(showMinimized()));
 
     m_menuLabel = new ControlElement<ControlLabel>(mdiChild);
+    m_menuLabel->setWindowIcon(mdiChild->windowIcon());
     connect(m_menuLabel, SIGNAL(_q_clicked()), mdiChild, SLOT(showSystemMenu()));
     connect(m_menuLabel, SIGNAL(_q_doubleClicked()), mdiChild, SLOT(close()));
 }
@@ -613,6 +670,12 @@ void ControlContainer::removeButtonsFromMenuBar()
         setNewWindowTitle(child);
     else if (mdiChild)
         mdiChild->window()->setWindowTitle(originalWindowTitle(mdiChild));
+}
+
+void ControlContainer::updateWindowIcon(const QIcon &windowIcon)
+{
+    if (m_menuLabel)
+        m_menuLabel->setWindowIcon(windowIcon);
 }
 
 /*!
@@ -1264,6 +1327,7 @@ QStyleOptionTitleBar QMdiSubWindowPrivate::titleBarOptions() const
     titleBarOptions.titleBarState = q->windowState();
     titleBarOptions.palette = desktopPalette();
     titleBarOptions.fontMetrics = QFontMetrics(QApplication::font("QWorkspaceTitleBar"));
+    titleBarOptions.icon = q->windowIcon();
 
     if (titleBarOptions.titleBarState & Qt::WindowActive
             && isChildOf(q, QApplication::activeWindow())) {
@@ -2303,6 +2367,12 @@ bool QMdiSubWindow::event(QEvent *event)
         break;
     case QEvent::LayoutDirectionChange:
         d->updateDirtyRegions();
+        break;
+    case QEvent::WindowIconChange:
+        if (d->controlContainer)
+            d->controlContainer->updateWindowIcon(windowIcon());
+        if (!maximizedSystemMenuIconWidget())
+            update(0, 0, width(), d->titleBarHeight());
         break;
     default:
         break;

@@ -66,6 +66,7 @@ public:
 
     void showButtonsInMenuBar(QMenuBar *menuBar);
     void removeButtonsFromMenuBar();
+    void updateWindowIcon(const QIcon &windowIcon);
     QMenuBar *menuBar() const { return m_menuBar; }
     QWidget *controllerWidget() const { return m_controllerWidget; }
     QWidget *systemMenuLabel() const { return m_menuLabel; }
