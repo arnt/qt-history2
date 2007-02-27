@@ -49,8 +49,17 @@ bool QLibraryPrivate::load_sys()
         errorString = QLibrary::tr("QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(::qt_error_string());
     }
     if (pHnd) {
-        qualifiedFileName = attempt;
         errorString.clear();
+        QT_WA({
+            TCHAR buffer[MAX_PATH + 1];
+            ::GetModuleFileNameW(pHnd, buffer, MAX_PATH);
+            attempt = QString::fromUtf16(buffer);
+        }, {
+            char buffer[MAX_PATH + 1];
+            ::GetModuleFileNameA(pHnd, buffer, MAX_PATH);
+            attempt = QString::fromLocal8Bit(buffer);
+        });
+        qualifiedFileName = attempt.mid(attempt.lastIndexOf(QLatin1Char('\\')) + 1);
     }
     return (pHnd != 0);
 }
