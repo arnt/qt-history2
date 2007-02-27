@@ -61,7 +61,7 @@ private:
     QTreeView *tree;
     QAction *refreshAction;
     QTreeWidget *services;
-    QTextEdit *log;
+    QTextBrowser *log;
 };
 
 #endif

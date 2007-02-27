@@ -3,9 +3,10 @@ TARGET          = dbus-viewer
 
 CONFIG          += qt warn_on
 
-HEADERS         = qdbusviewer.h qdbusmodel.h
+HEADERS         = qdbusviewer.h qdbusmodel.h propertydialog.h
 SOURCES         = qdbusviewer.cpp \
                   qdbusmodel.cpp \
+                  propertydialog.cpp \
                   main.cpp
 
 build_all:!build_pass {

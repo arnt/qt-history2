@@ -13,6 +13,7 @@
 
 #include "qdbusviewer.h"
 #include "qdbusmodel.h"
+#include "propertydialog.h"
 
 #include <QtXml/QtXml>
 
@@ -55,8 +56,7 @@ QDBusViewer::QDBusViewer(const QDBusConnection &connection, QWidget *parent)
     connect(refreshShortcut, SIGNAL(activated()), this, SLOT(refreshChildren()));
 
     QVBoxLayout *topLayout = new QVBoxLayout(this);
-    log = new QTextEdit;
-    log->setReadOnly(true);
+    log = new QTextBrowser;
 
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addWidget(services, 1);
@@ -189,55 +189,41 @@ void QDBusViewer::callMethod(const BusSignature &sig)
         return;
     }
 
-    QList<QByteArray> paramTypes = method.parameterTypes();
-    int paramTypeCount = 0;
-    foreach (QByteArray paramType, paramTypes) {
+    PropertyDialog dialog;
+    QList<QVariant> args;
+
+    const QList<QByteArray> paramTypes = method.parameterTypes();
+    const QList<QByteArray> paramNames = method.parameterNames();
+    QList<int> types; // remember the low-level D-Bus type
+    for (int i = 0; i < paramTypes.count(); ++i) {
+        const QByteArray paramType = paramTypes.at(i);
         if (paramType.endsWith('&'))
             continue; // ignore OUT parameters
 
-        if (!QVariant(QVariant::nameToType(paramType)).canConvert(QVariant::String)) {
-            QMessageBox::warning(this, "Unable to call method",
-                    QString("Cannot marshall parameter of type %1").arg(
-                        QVariant::nameToType(paramType)));
-            return;
-        }
-        ++paramTypeCount;
+        QVariant::Type type = QVariant::nameToType(paramType);
+        dialog.addProperty(QString::fromLatin1(paramNames.value(i)), type);
+        types.append(QMetaType::type(paramType));
     }
 
-    QList<QVariant> arguments;
-    if (!paramTypes.isEmpty()) {
-        QString input;
-        bool ok = true;
-        while (arguments.isEmpty()) {
-            input = QInputDialog::getText(this, "Arguments",
-                    "Please enter the arguments for the call, separated by comma."
-                    "<br>Example: <i>hello,world,2.3,-34</i><br><br><b>Signature:</b> "
-                    + Qt::escape(QString::fromUtf8(method.signature())),
-                    QLineEdit::Normal, input, &ok);
-            if (!ok)
-                return;
+    if (!types.isEmpty()) {
+        dialog.setInfo("Please enter parameters for the method \"" + sig.mName + "\"");
 
-            QStringList argStrings = input.split(',');
-            if (argStrings.count() != paramTypeCount)
-                continue;
+        if (dialog.exec() != QDialog::Accepted)
+            return;
 
-            for (int i = 0; i < argStrings.count(); ++i) {
-                if (paramTypes.at(i).endsWith('&'))
-                    continue; // ignore OUT paramters
+        args = dialog.values();
+    }
 
-                QVariant v = argStrings.at(i);
-                if (!v.convert(QVariant::nameToType(paramTypes.at(i)))) {
-                    arguments.clear();
-                    break;
-                }
-                arguments += v;
-            }
-        }
+    // Special case - convert a value to a QDBusVariant if the
+    // interface wants a variant
+    for (int i = 0; i < args.count(); ++i) {
+        if (types.at(i) == qMetaTypeId<QDBusVariant>())
+            args[i] = qVariantFromValue(QDBusVariant(args.at(i)));
     }
 
     QDBusMessage message = QDBusMessage::createMethodCall(sig.mService, sig.mPath, sig.mInterface,
             sig.mName);
-    message.setArguments(arguments);
+    message.setArguments(args);
     c.callWithCallback(message, this, SLOT(dumpMessage(QDBusMessage)));
 }
 
@@ -339,8 +325,10 @@ void QDBusViewer::dumpMessage(const QDBusMessage &message)
     if (!message.member().isEmpty())
         out += ", member " + message.member();
     out += "<br>";
-    if (!args.isEmpty()) {
-        out += "&nbsp;&nbsp;Parameters: ";
+    if (args.isEmpty()) {
+        out += "&nbsp;&nbsp;(no arguments)";
+    } else {
+        out += "&nbsp;&nbsp;Arguments: ";
         foreach (QVariant arg, args) {
             if (arg.canConvert(QVariant::StringList)) {
                 out += "<b>{</b>";
@@ -355,11 +343,17 @@ void QDBusViewer::dumpMessage(const QDBusMessage &message)
                 out += QString::fromLatin1("QRect(%1, %2, %3, %4)").arg(r.left()).arg(r.top()).arg(
                         r.right()).arg(r.bottom());
             } else if (qVariantCanConvert<QDBusArgument>(arg)) {
-                out += "[QDBusArgument: " + qvariant_cast<QDBusArgument>(arg).currentSignature();
+                out += "[Argument: " + qvariant_cast<QDBusArgument>(arg).currentSignature();
+                out += "]";
+            } else if (qVariantCanConvert<QDBusObjectPath>(arg)) {
+                out += "[ObjectPath: " + qvariant_cast<QDBusObjectPath>(arg).path();
+                out += "]";
+            } else if (qVariantCanConvert<QDBusSignature>(arg)) {
+                out += "[Signature: " + qvariant_cast<QDBusSignature>(arg).signature();
                 out += "]";
             } else if (qVariantCanConvert<QDBusVariant>(arg)) {
                 QVariant v = qvariant_cast<QDBusVariant>(arg).variant();
-                out += "[QDBusVariant(";
+                out += "[Variant(";
                 out += v.typeName();
                 out += "): ";
                 out += Qt::escape(v.toString());
