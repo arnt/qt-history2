@@ -86,12 +86,13 @@ void QAuthenticator::detach()
         return;
     }
     
-    if (d->ref.ref() == 1)
-        return;
-    QAuthenticatorPrivate *x = new QAuthenticatorPrivate(*d);
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        delete x;
+    if (d->ref.ref() != 1) {
+        QAuthenticatorPrivate *x = new QAuthenticatorPrivate(*d);
+        x = qAtomicSetPtr(&d, x);
+        if (!x->ref.deref())
+            delete x;
+    }
+    d->phase = QAuthenticatorPrivate::Start;
 }
 
 bool QAuthenticator::isNull() const
@@ -682,7 +683,7 @@ public:
 class QNtlmPhase3Block : public QNtlmPhase3BlockBase {  // response
 public:
     QNtlmPhase3Block() {
-        strcpy(magic, "NTLMSSP");
+        strncpy(magic, "NTLMSSP", 8);
         type = 3;
         flags = NTLMSSP_NEGOTIATE_UNICODE | NTLMSSP_NEGOTIATE_NTLM | NTLMSSP_NEGOTIATE_TARGET_INFO;
     }

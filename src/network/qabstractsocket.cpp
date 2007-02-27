@@ -186,6 +186,21 @@
 */
 
 /*!
+    \fn void QAbstractSocket::proxyAuthenticationRequired(QAuthenticator *authenticator)
+
+    This signal can be emitted when a proxy that requires
+    authentication is used. The \a authenticator object can then be
+    filled in with the required details to allow authentication and
+    continue the connection.
+
+    \note It is not possible to use a QueuedConnection to connect to
+    this signal, as the connection will fail if the authenticator has
+    not been filled in with new information when the signal returns.
+
+    \sa QAuthenticator, QNetworkProxy
+*/
+
+/*!
     \enum QAbstractSocket::NetworkLayerProtocol
 
     This enum describes the network layer protocol values used in Qt.
@@ -409,6 +424,8 @@ void QAbstractSocketPrivate::setupSocketNotifiers()
                      q, SLOT(_q_canReadNotification()));
     QObject::connect(socketEngine, SIGNAL(writeNotification()),
                      q, SLOT(_q_canWriteNotification()));
+    QObject::connect(socketEngine, SIGNAL(proxyAuthenticationRequired(QAuthenticator *)),
+                     q, SIGNAL(proxyAuthenticationRequired(QAuthenticator *)));
 }
 
 /*! \internal
@@ -839,6 +856,10 @@ void QAbstractSocketPrivate::_q_testConnection()
             fetchConnectionParameters();
             return;
         }
+
+        // don't retry the other addresses if we couldn't authenticate to the proxy.
+        if (socketEngine->error() == QAbstractSocket::ProxyAuthenticationRequiredError)
+            addresses.clear();
     }
 
 #if defined(QABSTRACTSOCKET_DEBUG)

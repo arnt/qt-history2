@@ -28,6 +28,7 @@ QT_MODULE(Network)
 class QTcpSocket;
 class QTimerEvent;
 class QIODevice;
+class QAuthenticator;
 
 class QHttpPrivate;
 
@@ -216,6 +217,8 @@ Q_SIGNALS:
     void requestStarted(int);
     void requestFinished(int, bool);
     void done(bool);
+
+    void proxyAuthenticationRequired(QAuthenticator *);
 
 private:
     Q_DISABLE_COPY(QHttp)

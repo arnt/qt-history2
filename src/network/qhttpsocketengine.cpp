@@ -483,6 +483,10 @@ void QHttpSocketEngine::slotSocketReadNotification()
 //         qDebug() << "d->state=" << d->state << "socketState=" << d->socketState << "phase=" << priv->phase;
 
         d->readBuffer.clear();
+        if (priv->phase == QAuthenticatorPrivate::Done) 
+            emit proxyAuthenticationRequired(&d->authenticator);
+
+        // priv->phase will get reset to QAuthenticatorPrivate::Start if the authenticator got modified in the signal above.
         if (priv->phase == QAuthenticatorPrivate::Done) {
             setError(QAbstractSocket::ProxyAuthenticationRequiredError, tr("Authentication required"));
             d->socket->disconnectFromHost();

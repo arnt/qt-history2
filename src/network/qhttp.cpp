@@ -1679,6 +1679,21 @@ QHttp::~QHttp()
 */
 
 /*!
+    \fn void QHttp::proxyAuthenticationRequired(QAuthenticator *authenticator)
+
+    This signal can be emitted when a proxy that requires
+    authentication is used. The \a authenticator object can then be
+    filled in with the required details to allow authentication and
+    continue the connection.
+
+    \note It is not possible to use a QueuedConnection to connect to
+    this signal, as the connection will fail if the authenticator has
+    not been filled in with new information when the signal returns.
+
+    \sa QAuthenticator, QNetworkProxy
+*/
+
+/*!
     Aborts the current request and deletes all scheduled requests.
 
     For the current request, the requestFinished() signal with the \c
@@ -2702,6 +2717,8 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
     QObject::connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), q, SLOT(_q_slotError(QAbstractSocket::SocketError)));
     QObject::connect(socket, SIGNAL(bytesWritten(qint64)),
                      q, SLOT(_q_slotBytesWritten(qint64)));
+    QObject::connect(socket, SIGNAL(proxyAuthenticationRequired(QAuthenticator *)),
+                     q, SIGNAL(proxyAuthenticationRequired(QAuthenticator *)));
 }
 
 

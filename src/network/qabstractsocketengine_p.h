@@ -28,6 +28,7 @@
 #include "QtNetwork/qhostaddress.h"
 #include "QtNetwork/qabstractsocket.h"
 #include "private/qobject_p.h"
+class QAuthenticator;
 
 class QAbstractSocketEnginePrivate;
 
@@ -110,6 +111,7 @@ Q_SIGNALS:
     void readNotification();
     void writeNotification();
     void exceptionNotification();
+    void proxyAuthenticationRequired(QAuthenticator *authenticator);
 
 protected:
     QAbstractSocketEngine(QAbstractSocketEnginePrivate &dd, QObject* parent = 0);

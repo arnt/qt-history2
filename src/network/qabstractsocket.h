@@ -24,6 +24,7 @@ QT_MODULE(Network)
 class QHostAddress;
 class QNetworkProxy;
 class QAbstractSocketPrivate;
+class QAuthenticator;
 
 class Q_NETWORK_EXPORT QAbstractSocket : public QIODevice
 {
@@ -130,6 +131,7 @@ Q_SIGNALS:
     void disconnected();
     void stateChanged(QAbstractSocket::SocketState);
     void error(QAbstractSocket::SocketError);
+    void proxyAuthenticationRequired(QAuthenticator *authenticator);
 
 protected Q_SLOTS:
     void connectToHostImplementation(const QString &hostName, quint16 port, OpenMode mode = ReadWrite);
