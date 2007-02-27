@@ -57,7 +57,7 @@ Qt::ItemFlags PiecesModel::flags(const QModelIndex &index) const
               | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable);
     }
 
-    return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
+    return Qt::ItemIsDropEnabled;
 }
 
 bool PiecesModel::removeRows(int row, int count, const QModelIndex &parent)
