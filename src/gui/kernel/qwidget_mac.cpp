@@ -298,6 +298,22 @@ SInt32 qt_mac_get_group_level(WindowClass wclass)
     return group_level;
 }
 
+/**
+    Checks if the user has told us explicitly that he wants buttons on the
+    title bar. Buttons are set by default on e.g. QDialog, but ignored by
+    QWidgetPrivate::determineWindowClass if the dialog is modal...unless
+    the user told us explicitly otherwise. 
+*/
+static inline bool qt_mac_menu_buttons_explicitly_sat(const Qt::WindowFlags &flags)
+{
+    // if CustomizeWindowHint is sat, together
+    // with any of the buttons, return true:
+    return (flags & Qt::CustomizeWindowHint
+        && (flags & Qt::WindowSystemMenuHint)
+        || (flags & Qt::WindowMinimizeButtonHint)
+        || (flags & Qt::WindowMaximizeButtonHint));
+}
+
 static void qt_mac_set_window_group_to_stays_on_top(WindowRef windowRef, Qt::WindowType type)
 {
     // We create one static stays on top window group so that
@@ -1206,6 +1222,8 @@ void QWidgetPrivate::determineWindowClass()
     WindowClass wclass = kSheetWindowClass;
     if(qt_mac_is_macdrawer(q))
         wclass = kDrawerWindowClass;
+    else if (q->testAttribute(Qt::WA_ShowModal) && qt_mac_menu_buttons_explicitly_sat(flags))
+        wclass = kDocumentWindowClass;
     else if(popup || type == Qt::SplashScreen)
         wclass = kModalWindowClass;
     else if(q->testAttribute(Qt::WA_ShowModal))
@@ -2780,8 +2798,12 @@ void QWidgetPrivate::setModal_sys()
     GetWindowClass(windowRef, &old_wclass);
 
     if (modal || primaryWindowModal) {
-        if(old_wclass == kDocumentWindowClass || old_wclass == kFloatingWindowClass || old_wclass == kUtilityWindowClass) {
-            HIWindowChangeClass(windowRef, kMovableModalWindowClass);
+        if (!qt_mac_menu_buttons_explicitly_sat(q->data->window_flags)){
+            if (old_wclass == kDocumentWindowClass || old_wclass == kFloatingWindowClass || old_wclass == kUtilityWindowClass)
+                // Only change the class to kMovableModalWindowClass if the no explicit jewels
+                // are set (kMovableModalWindowClass can't contain them), and the current window class 
+                // can be converted to modal (according to carbon doc). 
+                HIWindowChangeClass(windowRef, kMovableModalWindowClass);
         }
     } else if(windowRef) {
         WindowClass newClass = q->window()->d_func()->topData()->wclass;
