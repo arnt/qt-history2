@@ -168,11 +168,11 @@ void QToolBarLayout::updateGeomArray() const
 
     that->minSize = QSize(0, 0);
     that->hint = QSize(0, 0);
+    rperp(o, that->minSize) = handleExtent;
+    rperp(o, that->hint) = handleExtent;
+
     that->expanding = false;
     that->empty = false;
-
-    rpick(o, that->minSize) += handleExtent;
-    rpick(o, that->hint) += handleExtent;
 
     QVector<QLayoutStruct> a(items.count() + 1); // + 1 for the stretch
 
@@ -214,15 +214,13 @@ void QToolBarLayout::updateGeomArray() const
     that->geomArray = a;
     that->empty = count == 0;
 
-    if (count == 0) {
-        that->hint = QSize(0, 0);
-        that->minSize = QSize(0, 0);
-    } else {
-        that->hint += QSize(2*margin, 2*margin);
-        that->minSize += QSize(2*margin, 2*margin);
-        if (items.count() > 1)
-            rpick(o, that->minSize) += spacing + extensionExtent;
-    }
+    rpick(o, that->minSize) += handleExtent;
+    that->minSize += QSize(2*margin, 2*margin);
+    if (items.count() > 1)
+        rpick(o, that->minSize) += spacing + extensionExtent;
+
+    rpick(o, that->hint) += handleExtent;
+    that->hint += QSize(2*margin, 2*margin);
 
     that->dirty = false;
 }
@@ -345,6 +343,8 @@ void QToolBarLayout::setGeometry(const QRect &rect)
     if (dirty)
         updateGeomArray();
 
+    QList<QWidget*> showWidgets, hideWidgets;
+
     QToolBar *tb = qobject_cast<QToolBar*>(parentWidget());
     QStyle *style = tb->style();
     QStyleOptionToolBar opt;
@@ -428,14 +428,14 @@ void QToolBarLayout::setGeometry(const QRect &rect)
             item->setGeometry(r);
 
             if (!item->widget()->isVisible())
-                item->widget()->show();
+                showWidgets << item->widget();
         }
 
         if (!expanded) {
             for (int j = i; j < items.count(); ++j) {
                 QToolBarItem *item = items.at(j);
                 if (item->widget()->isVisible())
-                    item->widget()->hide();
+                    hideWidgets << item->widget();
             }
             break;
         }
@@ -474,11 +474,17 @@ void QToolBarLayout::setGeometry(const QRect &rect)
         extension->setGeometry(r);
 
         if (!extension->isVisible())
-            extension->show();
+            showWidgets << extension;
     } else {
         if (extension->isVisible())
-            extension->hide();
+            hideWidgets << extension;
     }
+
+    // we have to do the show/hide here, because it triggers more calls to setGeometry :(
+    for (int i = 0; i < showWidgets.count(); ++i)
+        showWidgets.at(i)->show();
+    for (int i = 0; i < hideWidgets.count(); ++i)
+        hideWidgets.at(i)->hide();
 }
 
 QSize QToolBarLayout::expandedSize(const QSize &size) const

@@ -794,6 +794,7 @@ void QToolBar::paintEvent(QPaintEvent *)
         style->drawControl(QStyle::CE_ToolBar, &opt, &p);
 
     opt.rect = d->layout->handleRect();
+
     style->drawPrimitive(QStyle::PE_IndicatorToolBarHandle, &opt, &p);
 }
 
