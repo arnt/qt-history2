@@ -10,6 +10,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
+#if 0
+
 #pragma once
 #include <windows.h>
 #include <dwmapi.h>
@@ -95,3 +98,5 @@ private:
     QWizard *wizard;
     QVistaBackButton *backButton_;
 };
+
+#endif

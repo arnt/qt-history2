@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#if 0
+
 #include "qwizard_win.h"
 #include "qlibrary.h"
 #include <gdiplus.h>
@@ -606,3 +608,5 @@ bool QVistaHelper::resolveSymbols()
     }
     return (pDwmIsCompositionEnabled != 0 && pIsAppThemed != 0);
 }
+
+#endif
