@@ -122,7 +122,6 @@ void MainWindow::updateMenus()
     closeAllAct->setEnabled(hasMdiChild);
     tileAct->setEnabled(hasMdiChild);
     cascadeAct->setEnabled(hasMdiChild);
-    arrangeAct->setEnabled(hasMdiChild);
     nextAct->setEnabled(hasMdiChild);
     previousAct->setEnabled(hasMdiChild);
     separatorAct->setVisible(hasMdiChild);
@@ -141,7 +140,6 @@ void MainWindow::updateWindowMenu()
     windowMenu->addSeparator();
     windowMenu->addAction(tileAct);
     windowMenu->addAction(cascadeAct);
-    windowMenu->addAction(arrangeAct);
     windowMenu->addSeparator();
     windowMenu->addAction(nextAct);
     windowMenu->addAction(previousAct);
@@ -244,10 +242,6 @@ void MainWindow::createActions()
     cascadeAct = new QAction(tr("&Cascade"), this);
     cascadeAct->setStatusTip(tr("Cascade the windows"));
     connect(cascadeAct, SIGNAL(triggered()), mdiArea, SLOT(cascadeSubWindows()));
-
-    arrangeAct = new QAction(tr("Arrange &icons"), this);
-    arrangeAct->setStatusTip(tr("Arrange the icons"));
-    connect(arrangeAct, SIGNAL(triggered()), mdiArea, SLOT(arrangeMinimizedSubWindows()));
 
     nextAct = new QAction(tr("Ne&xt"), this);
     nextAct->setStatusTip(tr("Move the focus to the next window"));
