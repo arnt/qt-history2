@@ -30,9 +30,11 @@ HEADERS += \
     LIBS += -framework QuickTime
 }
 win32 {
+    HEADERS += dialogs/qwizard_win.h
     SOURCES += dialogs/qfiledialog_win.cpp \
-	       dialogs/qpagesetupdialog_win.cpp \
-	       dialogs/qprintdialog_win.cpp 
+               dialogs/qpagesetupdialog_win.cpp \
+               dialogs/qprintdialog_win.cpp \
+               dialogs/qwizard_win.cpp
     
     !win32-borland:LIBS += -lshell32 	# the filedialog needs this library
 }
