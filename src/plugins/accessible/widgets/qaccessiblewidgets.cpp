@@ -1237,7 +1237,7 @@ QString QAccessibleTitleBar::actionText(int action, Text t, int child) const
                 if (child == QDockWidgetLayout::CloseButton) {
                     str = QDockWidget::tr("Close");
                 } else if (child == QDockWidgetLayout::FloatButton) {
-                    str = dockWidget()->isFloating() ? QDockWidget::tr("Dock") 
+                    str = dockWidget()->isFloating() ? QDockWidget::tr("Dock")
                                                      : QDockWidget::tr("Float");
                 }
                 break;
@@ -1526,7 +1526,7 @@ void QAccessibleTextEdit::copyText(int startOffset, int endOffset)
     if (!cursor.hasSelection())
         return;
 
-    QApplication::clipboard()->setMimeData(new QTextEditMimeData(cursor.selection()));
+//     QApplication::clipboard()->setMimeData(new QTextEditMimeData(cursor.selection()));
 }
 
 void QAccessibleTextEdit::deleteText(int startOffset, int endOffset)
@@ -1551,7 +1551,7 @@ void QAccessibleTextEdit::cutText(int startOffset, int endOffset)
     if (!cursor.hasSelection())
         return;
 
-    QApplication::clipboard()->setMimeData(new QTextEditMimeData(cursor.selection()));
+//     QApplication::clipboard()->setMimeData(new QTextEditMimeData(cursor.selection()));
     cursor.removeSelectedText();
 }
 
