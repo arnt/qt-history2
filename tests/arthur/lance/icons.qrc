@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons" >
+        <file>tools.png</file>
+    </qresource>
+</RCC>

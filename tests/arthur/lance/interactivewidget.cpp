@@ -70,9 +70,12 @@ void InteractiveWidget::run()
 
 void InteractiveWidget::cmdSelected(QListWidgetItem *item)
 {
-    ui_textEdit->moveCursor(QTextEdit::MoveLineStart);
-    ui_textEdit->insertPlainText(PaintCommands::findCommandById(item->text())->sample + "\n");
-    ui_textEdit->moveCursor(QTextEdit::MoveBackward);
+    if (ui_textEdit->textCursor().atBlockStart()) {
+        ui_textEdit->insertPlainText(PaintCommands::findCommandById(item->text())->sample + "\n");
+    } else {
+        ui_textEdit->moveCursor(QTextEdit::MoveLineEnd);
+        ui_textEdit->insertPlainText("\n" + PaintCommands::findCommandById(item->text())->sample);
+    }
     ui_textEdit->setFocus();
 }
 
