@@ -957,7 +957,6 @@ static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phas
     offset = qEncodeNtlmString(pb.domain, offset, ctx->realm, unicode);
     pb.domainStr = ctx->realm;
     
-    ctx->workstation = "dahab";
     offset = qEncodeNtlmString(pb.workstation, offset, ctx->workstation, unicode);
     pb.workstationStr = ctx->workstation;
 
