@@ -595,6 +595,8 @@ qint64 QFSFileEnginePrivate::readLineFdFh(char *data, qint64 maxlen)
     if (!fh)
         return q->QAbstractFileEngine::readLine(data, maxlen);
 
+    QT_OFF_T oldPos = QT_FTELL(fh);
+    
     // QIODevice::readLine() passes maxlen - 1 to QFile::readLineData()
     // because it has made space for the '\0' at the end of data.  But fgets
     // does the same, so we'd get two '\0' at the end - passing maxlen + 1
@@ -603,7 +605,9 @@ qint64 QFSFileEnginePrivate::readLineFdFh(char *data, qint64 maxlen)
         q->setError(QFile::ReadError, qt_error_string(int(errno)));
         return 0;
     }
-    return qstrlen(data);
+
+    qint64 lineLength = QT_FTELL(fh) - oldPos;
+    return lineLength ? lineLength : qstrlen(data);
 }
 
 /*!
