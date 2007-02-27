@@ -350,7 +350,7 @@ int main(int argc, char **argv)
             continue;
 
         QFile f(arg);
-        if (!f.open(QIODevice::ReadOnly)) {
+        if (!f.open(QIODevice::ReadOnly|QIODevice::Text)) {
             fprintf(stderr, PROGRAMNAME ": could not open '%s': %s\n",
                     qPrintable(arg), qPrintable(f.errorString()));
             return 1;
