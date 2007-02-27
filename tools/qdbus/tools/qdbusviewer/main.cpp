@@ -22,18 +22,30 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    app.setWindowIcon(QIcon(QLatin1String(":/trolltech/qdbusviewer/images/qdbusviewer.png")));
 
     QMainWindow mw;
+
+    QTabWidget *mainWidget = new QTabWidget;
+    mw.setCentralWidget(mainWidget);
+    QDBusViewer *sessionBusViewer = new QDBusViewer(QDBusConnection::sessionBus());
+    QDBusViewer *systemBusViewer = new QDBusViewer(QDBusConnection::systemBus());
+    mainWidget->addTab(sessionBusViewer, QObject::tr("Session Bus"));
+    mainWidget->addTab(systemBusViewer, QObject::tr("System Bus"));
 
     QMenu *fileMenu = mw.menuBar()->addMenu(QObject::tr("&File"));
     QAction *quitAction = fileMenu->addAction(QObject::tr("&Exit"));
     QObject::connect(quitAction, SIGNAL(triggered()), &mw, SLOT(close()));
     quitAction->setShortcuts(QKeySequence::keyBindings(QKeySequence::Close));
 
-    QTabWidget *mainWidget = new QTabWidget;
-    mw.setCentralWidget(mainWidget);
-    mainWidget->addTab(new QDBusViewer(QDBusConnection::sessionBus()), QObject::tr("Session Bus"));
-    mainWidget->addTab(new QDBusViewer(QDBusConnection::systemBus()), QObject::tr("System Bus"));
+    QMenu *helpMenu = mw.menuBar()->addMenu(QObject::tr("&Help"));
+    QAction *aboutAction = helpMenu->addAction(QObject::tr("&About"));
+    aboutAction->setMenuRole(QAction::AboutRole);
+    QObject::connect(aboutAction, SIGNAL(triggered()), sessionBusViewer, SLOT(about()));
+
+    QAction *aboutQtAction = helpMenu->addAction(QObject::tr("About &Qt"));
+    aboutQtAction->setMenuRole(QAction::AboutQtRole);
+    QObject::connect(aboutQtAction, SIGNAL(triggered()), &app, SLOT(aboutQt()));
 
     mw.show();
 

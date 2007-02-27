@@ -10,6 +10,8 @@ SOURCES         = qdbusviewer.cpp \
                   propertydialog.cpp \
                   main.cpp
 
+RESOURCES += qdbusviewer.qrc
+
 DESTDIR = ../../../../bin
 
 CONFIG += qdbus

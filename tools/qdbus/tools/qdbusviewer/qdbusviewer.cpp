@@ -431,3 +431,37 @@ void QDBusViewer::refreshChildren()
     model->refresh(tree->currentIndex());
 }
 
+void QDBusViewer::about()
+{
+    QMessageBox box(this);
+#if QT_EDITION == QT_EDITION_OPENSOURCE
+    QString edition = tr("Open Source Edition");
+    QString info = tr("This version of Qt's D-Bus Viewer is part of the Qt Open Source Edition. "
+            "Qt is a comprehensive C++ framework for cross-platform application "
+            "development.");
+    QString moreInfo = tr("You need a commercial Qt license for development of proprietary (closed "
+            "source) applications. Please see <a href=\"http://www.trolltech.com/company/model"
+            ".html\">www.trolltech.com/company/model.html</a> for an overview of Qt licensing.");
+#else
+    QString edition;
+    QString info;
+    QString moreInfo(tr("This program is licensed to you under the terms of the "
+                "Qt Commercial License Agreement. For details, see the file LICENSE "
+                "that came with this software distribution."));
+
+#endif
+
+    box.setText(QString::fromLatin1("<center><img src=\":/trolltech/qdbusviewer/images/qdbusviewer-128.png\">"
+                "<h3>%1</h3>"
+                "<p>Version %2 %3</p></center>"
+                "<p>%4</p>"
+                "<p>%5</p>"
+                "<p>Copyright (C) 2000-$THISYEAR$ $TROLLTECH$. All rights reserved.</p>"
+                "<p>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
+                " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
+                " PARTICULAR PURPOSE.<p/>")
+            .arg(tr("D-Bus Viewer")).arg(QLatin1String(QT_VERSION_STR)).arg(edition).arg(info).arg(moreInfo));
+    box.setWindowTitle(tr("D-Bus Viewer"));
+    box.exec();
+}
+

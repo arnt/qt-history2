@@ -34,6 +34,7 @@ public:
 
 public slots:
     void refresh();
+    void about();
 
 private slots:
     void serviceChanged(QTreeWidgetItem *item);
