@@ -27,6 +27,7 @@ HEADERS += \
                    dialogs/qprintdialog_mac.cpp \
                    dialogs/qpagesetupdialog_mac.cpp
     OBJECTIVE_SOURCES += dialogs/qcolordialog_mac.mm
+    LIBS += -framework QuickTime
 }
 win32 {
     SOURCES += dialogs/qfiledialog_win.cpp \
