@@ -10,17 +10,20 @@ MoveCommand::MoveCommand(DiagramItem *diagramItem, const QPointF &oldPos,
     myDiagramItem = diagramItem;
     newPos = diagramItem->pos();
     myOldPos = oldPos;
-    setText(QObject::tr("Move %1") 
-	    .arg(createCommandString(myDiagramItem, oldPos)));
 }
 
 bool MoveCommand::mergeWith(const QUndoCommand *command)
 {
-    if (command->id() != Id || 
-        static_cast<const MoveCommand *>(command)->myDiagramItem
-        != myDiagramItem)
-	return false;	
-    
+    const MoveCommand *moveCommand = static_cast<const MoveCommand *>(command);
+    DiagramItem *item = moveCommand->myDiagramItem;
+
+    if (myDiagramItem != item)
+	return false;
+
+    newPos = item->pos();
+    setText(QObject::tr("Move %1") 
+	.arg(createCommandString(myDiagramItem, newPos)));
+
     return true;
 }
 
@@ -28,11 +31,15 @@ void MoveCommand::undo()
 {
     myDiagramItem->setPos(myOldPos);
     myDiagramItem->scene()->update();
+    setText(QObject::tr("Move %1") 
+	    .arg(createCommandString(myDiagramItem, newPos)));
 }
 
 void MoveCommand::redo()
 {
     myDiagramItem->setPos(newPos);
+    setText(QObject::tr("Move %1") 
+	    .arg(createCommandString(myDiagramItem, newPos)));
 }
 
 DeleteCommand::DeleteCommand(QGraphicsScene *scene, QUndoCommand *parent)
@@ -40,7 +47,6 @@ DeleteCommand::DeleteCommand(QGraphicsScene *scene, QUndoCommand *parent)
 {
     myGraphicsScene = scene;
     QList<QGraphicsItem *> list = myGraphicsScene->selectedItems();
-    Q_ASSERT(list.size() == 1);
     list.first()->setSelected(false);
     myDiagramItem = static_cast<DiagramItem *>(list.first());
     setText(QObject::tr("Delete %1")
