@@ -14,7 +14,6 @@ SUBDIRS     = \
         demos_chip \
 	demos_undo
 
-unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += demos_dbus_viewer
 !contains(QT_EDITION, Console):!cross_compile:!embedded:SUBDIRS += demos_arthurplugin
 
 !cross_compile:SUBDIRS += demos_sqlbrowser
@@ -25,7 +24,6 @@ sources.path = $$[QT_INSTALL_DEMOS]
 INSTALLS += sources
 
 demos_chip.subdir = chip
-demos_dbus_viewer.subdir = dbus-viewer
 demos_shared.subdir = shared
 demos_deform.subdir = deform
 demos_gradients.subdir = gradients
