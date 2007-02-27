@@ -202,6 +202,16 @@ public:
 
     void drawPantherTab(const QStyleOptionTab *tab, QPainter *p, const QWidget *w = 0) const;
 
+    QSize pushButtonSizeForContents(const QStyleOptionButton *btn) const;
+
+    HIRect pushButtonContentBounds(const QStyleOptionButton *btn,
+                                   const HIThemeButtonDrawInfo *bdi) const;
+
+    bool contentFitsInPushButton(const QStyleOptionButton *btn, HIThemeButtonDrawInfo *bdi,
+                                 ThemeButtonKind buttonKindToCheck) const;
+    void initHIThemePushButton(const QStyleOptionButton *btn, const QWidget *widget,
+                               const ThemeDrawState tds,
+                               HIThemeButtonDrawInfo *bdi) const;
 protected:
     bool eventFilter(QObject *, QEvent *);
     void timerEvent(QTimerEvent *);
@@ -676,21 +686,21 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
     Returns the free space awailable for contents inside the
     button (and not the size of the contents itself)
 */
-static inline HIRect qt_mac_get_pushbutton_content_bounds(const QStyleOptionButton *btn, const HIThemeButtonDrawInfo &bdi)
+HIRect QMacStylePrivate::pushButtonContentBounds(const QStyleOptionButton *btn,
+                                                 const HIThemeButtonDrawInfo *bdi) const
 {
     HIRect outerBounds = qt_hirectForQRect(btn->rect);
     // Adjust the bounds to correct for
     // carbon not calculating the content bounds fully correct
-    if (bdi.kind == kThemePushButton || bdi.kind == kThemePushButtonSmall){
+    if (bdi->kind == kThemePushButton || bdi->kind == kThemePushButtonSmall){
         outerBounds.origin.y += PushButtonTopOffset;
         outerBounds.size.height -= PushButtonBottomOffset;
-    }
-    else if (bdi.kind == kThemePushButtonMini){
+    } else if (bdi->kind == kThemePushButtonMini) {
         outerBounds.origin.y += PushButtonTopOffset;
     }
-    
+
     HIRect contentBounds;
-    HIThemeGetButtonContentBounds(&outerBounds, &bdi, &contentBounds);
+    HIThemeGetButtonContentBounds(&outerBounds, bdi, &contentBounds);
     return contentBounds;
 }
 
@@ -698,65 +708,74 @@ static inline HIRect qt_mac_get_pushbutton_content_bounds(const QStyleOptionButt
     Calculates the size of the button contents.
     This includes both the text and the icon.
 */
-static inline QSize qt_mac_get_pushbutton_size_for_contents(const QStyleOptionButton *btn)
+QSize QMacStylePrivate::pushButtonSizeForContents(const QStyleOptionButton *btn) const
 {
     QSize csz;
-    QSize iconSize = btn->icon.isNull() ? QSize() : (btn->iconSize + QSize(PushButtonContentPadding, 0));
+    QSize iconSize = btn->icon.isNull() ? QSize()
+                                        : (btn->iconSize + QSize(PushButtonContentPadding, 0));
     QRect textRect = btn->fontMetrics.boundingRect(QRect(), Qt::AlignCenter, btn->text);
-    csz.setWidth(iconSize.width() + textRect.width());
+    csz.setWidth(iconSize.width() + textRect.width()
+             + ((btn->features & QStyleOptionButton::HasMenu)
+                            ? q->pixelMetric(QStyle::PM_MenuButtonIndicator, btn, 0) : 0));
     csz.setHeight(qMax(iconSize.height(), textRect.height()));
     return csz;
 }
 
 /**
     Checks if the actual contents of btn fits inside the free content bounds of
-    'buttonKindToCheck'. Meant as a helper function for 'qt_mac_get_pushbutton_bdi'
+    'buttonKindToCheck'. Meant as a helper function for 'initHIThemePushButton'
     for determining which button kind to use for drawing.
 */
-static inline bool qt_mac_content_fits_in_push_button(const QStyleOptionButton *btn, HIThemeButtonDrawInfo &bdi, uint buttonKindToCheck)
+bool QMacStylePrivate::contentFitsInPushButton(const QStyleOptionButton *btn,
+                                               HIThemeButtonDrawInfo *bdi,
+                                               ThemeButtonKind buttonKindToCheck) const
 {
-    uint tmp = bdi.kind;
-    bdi.kind = buttonKindToCheck;
-    QSize contentSize = qt_mac_get_pushbutton_size_for_contents(btn);
-    QRect freeContentRect = qt_qrectForHIRect(qt_mac_get_pushbutton_content_bounds(btn, bdi));
-    bdi.kind = tmp;
-    return freeContentRect.contains(QRect(freeContentRect.x(), freeContentRect.y(), contentSize.width(), contentSize.height()));
+    ThemeButtonKind tmp = bdi->kind;
+    bdi->kind = buttonKindToCheck;
+    QSize contentSize = pushButtonSizeForContents(btn);
+    QRect freeContentRect = qt_qrectForHIRect(pushButtonContentBounds(btn, bdi));
+    bdi->kind = tmp;
+    return freeContentRect.contains(QRect(freeContentRect.x(), freeContentRect.y(),
+                                    contentSize.width(), contentSize.height()));
 }
 
 /**
-    Creates a HIThemeButtonDrawInfo structure that specifies the correct button kind and other details to
-    use for drawing the given push button. Which button kind depends on the size of the button, the size
-    of the contents, explicit user style settings, etc.
+    Creates a HIThemeButtonDrawInfo structure that specifies the correct button
+    kind and other details to use for drawing the given push button. Which
+    button kind depends on the size of the button, the size of the contents,
+    explicit user style settings, etc.
 */
-static inline HIThemeButtonDrawInfo qt_mac_get_pushbutton_bdi(const QStyleOptionButton *btn, const QWidget *widget, const ThemeDrawState &tds)
+void QMacStylePrivate::initHIThemePushButton(const QStyleOptionButton *btn,
+                                             const QWidget *widget,
+                                             const ThemeDrawState tds,
+                                             HIThemeButtonDrawInfo *bdi) const
 {
-    HIThemeButtonDrawInfo bdi;
-    bool drawColorless = btn->palette.currentColorGroup() == QPalette::Active;   
+    bool drawColorless = btn->palette.currentColorGroup() == QPalette::Active;
     ThemeDrawState tdsModified = tds;
     if (btn->state & QStyle::State_On)
-        tdsModified = kThemeStatePressed;        
-    bdi.version = qt_mac_hitheme_version;
-    bdi.state = tdsModified;
-    bdi.value = kThemeButtonOff;
-    
+        tdsModified = kThemeStatePressed;
+    bdi->version = qt_mac_hitheme_version;
+    bdi->state = tdsModified;
+    bdi->value = kThemeButtonOff;
+
     if (drawColorless && tdsModified == kThemeStateInactive)
-        bdi.state = kThemeStateActive;
+        bdi->state = kThemeStateActive;
     if (btn->state & QStyle::State_HasFocus &&
             QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
-        bdi.adornment = kThemeAdornmentFocus;
+        bdi->adornment = kThemeAdornmentFocus;
     else
-        bdi.adornment = kThemeAdornmentNone;
+        bdi->adornment = kThemeAdornmentNone;
 
 
-    if (btn->features & (QStyleOptionButton::Flat | QStyleOptionButton::HasMenu))
-        bdi.kind = kThemeBevelButton;
-    else {
+    if (btn->features & (QStyleOptionButton::Flat)) {
+        bdi->kind = kThemeBevelButton;
+    } else {
         switch (qt_aqua_size_constrain(widget)) {
         case QAquaSizeSmall:
-            bdi.kind = kThemePushButtonSmall;
+            bdi->kind = kThemePushButtonSmall;
             break;
         case QAquaSizeMini:
-            bdi.kind = kThemePushButtonMini;
+            bdi->kind = kThemePushButtonMini;
             break;
         case QAquaSizeLarge:
             // ... We should honour if the user is explicit about using the
@@ -768,29 +787,28 @@ static inline HIThemeButtonDrawInfo qt_mac_get_pushbutton_bdi(const QStyleOption
             // Choose the button kind that closest match the button rect, but at the
             // same time displays the button contents without clipping.         
 
-            bdi.kind = kThemeBevelButton;
+            bdi->kind = kThemeBevelButton;
             if (btn->rect.width() > BevelButtonW && btn->rect.height() > BevelButtonH){
                 if (btn->rect.height() < MiniButtonH){
-                    if (qt_mac_content_fits_in_push_button(btn, bdi, kThemePushButtonMini))
-                        bdi.kind = kThemePushButtonMini;
+                    if (contentFitsInPushButton(btn, bdi, kThemePushButtonMini))
+                        bdi->kind = kThemePushButtonMini;
                 } else if (btn->rect.height() < SmallButtonH){
-                    if (qt_mac_content_fits_in_push_button(btn, bdi, kThemePushButtonSmall))
-                        bdi.kind = kThemePushButtonSmall;
-                } else if (qt_mac_content_fits_in_push_button(btn, bdi, kThemePushButton))
-                    bdi.kind = kThemePushButton;
+                    if (contentFitsInPushButton(btn, bdi, kThemePushButtonSmall))
+                        bdi->kind = kThemePushButtonSmall;
+                } else if (contentFitsInPushButton(btn, bdi, kThemePushButton))
+                    bdi->kind = kThemePushButton;
             }
         }
     }
-
-    return bdi;
 }
 
 /**
-    Creates a HIThemeButtonDrawInfo structure that specifies the correct button kind and other details to
-    use for drawing the given combobox. Which button kind depends on the size of the combo, wheter or not
-    it is editable, explicit user style settings, etc.
+    Creates a HIThemeButtonDrawInfo structure that specifies the correct button
+    kind and other details to use for drawing the given combobox. Which button
+    kind depends on the size of the combo, wheter or not it is editable,
+    explicit user style settings, etc.
 */
-static void qt_mac_get_combobox_bdi(const QStyleOptionComboBox *combo, HIThemeButtonDrawInfo *bdi, const QWidget *widget, const ThemeDrawState &tds)
+static void qt_mac_get_combobox_bdi(const QStyleOptionComboBox *combo, HIThemeButtonDrawInfo *bdi,                                     const QWidget *widget, const ThemeDrawState &tds)
 {
     bdi->version = qt_mac_hitheme_version;
     bdi->adornment = kThemeAdornmentArrowLeftArrow;
@@ -3071,7 +3089,8 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
         if (const QStyleOptionButton *btn = ::qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             if (!(btn->state & (State_Raised | State_Sunken | State_On)))
                 break;
-            HIThemeButtonDrawInfo bdi = qt_mac_get_pushbutton_bdi(btn, w, tds);
+            HIThemeButtonDrawInfo bdi;
+            d->initHIThemePushButton(btn, w, tds, &bdi);
             if (btn->features & QStyleOptionButton::DefaultButton
                     && d->animatable(QMacStylePrivate::AquaPushButton, w)) {
                 bdi.adornment |= kThemeAdornmentDefault;
@@ -3100,7 +3119,8 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(QStyle::PM_MenuButtonIndicator, btn, w);
                 QRect ir = btn->rect;
-                HIRect arrowRect = CGRectMake(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
+                HIRect arrowRect = CGRectMake(ir.right() - mbi - PushButtonRightOffset,
+                                              ir.height() / 2 - 4, mbi, ir.height() / 2);
                 bool drawColorless = btn->palette.currentColorGroup() == QPalette::Active;
                 if (drawColorless && tds == kThemeStateInactive)
                     tds = kThemeStateActive;
@@ -3122,7 +3142,8 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             // We really don't want the label to be drawn the same as on
             // windows style if it has an icon, then it should be more like a
             // tab. So, cheat a little here.
-            if (btn->icon.isNull()) {
+            bool hasMenu = btn->features & QStyleOptionButton::HasMenu;
+            if (btn->icon.isNull() && !hasMenu) {
                 bool useHIThemeDrawText = false;
                 QFont oldFont = p->font();
                 QFont newFont = qt_app_fonts_hash()->value("QPushButton", oldFont);
@@ -3169,33 +3190,41 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 }
             } else {
                 // Decide if icon should be normal, active or disabled:
-                QIcon::Mode mode = btn->state & State_Enabled ? QIcon::Normal : QIcon::Disabled;
-                if (mode == QIcon::Normal && btn->state & State_HasFocus)
-                    mode = QIcon::Active;
-                // Decide if the icon is should be on or off:    
-                QIcon::State state = QIcon::Off;
-                if (btn->state & State_On)
-                    state = QIcon::On;
                 // Calculate the combined with of the actual content:
-                QPixmap pixmap = btn->icon.pixmap(btn->iconSize, mode, state);
-                QRect textRect = btn->fontMetrics.boundingRect(QRect(), Qt::AlignCenter, btn->text);
-                int contentW = pixmap.width() + PushButtonContentPadding + textRect.width();                
+                QRect textRect = itemTextRect(btn->fontMetrics, btn->rect, Qt::AlignCenter, btn->state & State_Enabled,
+                                              btn->text);
+                if (hasMenu)
+                    textRect.adjust(-1, 0, -1, 0);
                 // Get the free content space inside the button that can be used:
-                HIThemeButtonDrawInfo bdi = qt_mac_get_pushbutton_bdi(btn, w, tds);
-                QRect freeContentRect = qt_qrectForHIRect(qt_mac_get_pushbutton_content_bounds(btn, bdi));
-                // Draw the icon: 
-                int iconLeftOffset = freeContentRect.x() + (freeContentRect.width() - contentW) / 2;
-                int iconTopOffset = freeContentRect.y() + (freeContentRect.height() - pixmap.height()) / 2;
-                QRect iconDestRect = QRect(iconLeftOffset, iconTopOffset, pixmap.width(), pixmap.height());
-                QRect visualIconDestRect = visualRect(btn->direction, freeContentRect, iconDestRect);
-                drawItemPixmap(p, visualIconDestRect, Qt::AlignLeft | Qt::AlignVCenter, pixmap);
+                HIThemeButtonDrawInfo bdi;
+                d->initHIThemePushButton(btn, w, tds, &bdi);
+                QRect freeContentRect = qt_qrectForHIRect(d->pushButtonContentBounds(btn, &bdi));
+                // Draw the icon:
+                if (!btn->icon.isNull()) {
+                    int contentW = textRect.width();
+                    if (hasMenu)
+                        contentW += pixelMetric(PM_MenuButtonIndicator) + 4;
+                    QIcon::Mode mode = btn->state & State_Enabled ? QIcon::Normal : QIcon::Disabled;
+                    if (mode == QIcon::Normal && btn->state & State_HasFocus)
+                        mode = QIcon::Active;
+                    // Decide if the icon is should be on or off:
+                    QIcon::State state = QIcon::Off;
+                    if (btn->state & State_On)
+                        state = QIcon::On;
+                    QPixmap pixmap = btn->icon.pixmap(btn->iconSize, mode, state);
+                    contentW += pixmap.width() + PushButtonContentPadding;
+                    int iconLeftOffset = freeContentRect.x() + (freeContentRect.width() - contentW) / 2;
+                    int iconTopOffset = freeContentRect.y() + (freeContentRect.height() - pixmap.height()) / 2;
+                    QRect iconDestRect(iconLeftOffset, iconTopOffset, pixmap.width(), pixmap.height());
+                    QRect visualIconDestRect = visualRect(btn->direction, freeContentRect, iconDestRect);
+                    drawItemPixmap(p, visualIconDestRect, Qt::AlignLeft | Qt::AlignVCenter, pixmap);
+                    int newOffset = iconDestRect.x() + iconDestRect.width() + PushButtonContentPadding - textRect.x();
+                    textRect.adjust(newOffset, 0, newOffset, 0);
+                }
                 // Draw the text:
-                int textLeftOffset = iconDestRect.x() + iconDestRect.width() + PushButtonContentPadding;
-                int textTopOffset = freeContentRect.y() + (freeContentRect.height() - textRect.height()) / 2;
-                QRect textDestRect = QRect(textLeftOffset, textTopOffset, textRect.width(), textRect.height());
-                QRect visualTextDestRect = visualRect(btn->direction, freeContentRect, textDestRect);
-                drawItemText(p, visualTextDestRect, Qt::AlignLeft | Qt::AlignVCenter, btn->palette,
-                    (btn->state & State_Enabled), btn->text, QPalette::ButtonText);
+                textRect = visualRect(btn->direction, freeContentRect, textRect);
+                drawItemText(p, textRect, Qt::AlignLeft | Qt::AlignVCenter, btn->palette,
+                             (btn->state & State_Enabled), btn->text, QPalette::ButtonText);
             }
         }
         break;
@@ -3772,8 +3801,9 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
             // Unlike Carbon, we want the button to always be drawn inside its bounds.
             // Therefore, the button is a bit smaller, so that even if it got focus,
             // the focus 'shadow' will be inside. Adjust the content rect likewise.
-            HIThemeButtonDrawInfo bdi = qt_mac_get_pushbutton_bdi(btn, widget, d->getDrawState(opt->state));
-            HIRect contentRect = qt_mac_get_pushbutton_content_bounds(btn, bdi);
+            HIThemeButtonDrawInfo bdi;
+            d->initHIThemePushButton(btn, widget, d->getDrawState(opt->state), &bdi);
+            HIRect contentRect = d->pushButtonContentBounds(btn, &bdi);
             rect = qt_qrectForHIRect(contentRect);
         }
         break;
@@ -5049,14 +5079,10 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         }
         break;
     case QStyle::CT_PushButton:
-        // The given content size does not include the icon, if any (!).
-        // So we need to do the calculation our selves:
-        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt))
-            sz = qt_mac_get_pushbutton_size_for_contents(btn);
         // By default, we fit the contents inside a normal rounded push button.
         // Do this by add enough space around the contents so that rounded
-        // borders (including highlighting when active) will show. 
-        sz.rwidth() += PushButtonLeftOffset + PushButtonRightOffset + 10;
+        // borders (including highlighting when active) will show.
+        sz.rwidth() += PushButtonLeftOffset + PushButtonRightOffset + 12;
         sz.rheight() += PushButtonTopOffset + PushButtonBottomOffset;
         break;
     case QStyle::CT_MenuItem:
