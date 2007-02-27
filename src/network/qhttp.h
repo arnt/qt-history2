@@ -175,6 +175,7 @@ public:
     int setProxy(const QString &host, int port,
                  const QString &username = QString(),
                  const QString &password = QString());
+    int setProxy(const QNetworkProxy &proxy);
 
     int get(const QString &path, QIODevice *to=0);
     int post(const QString &path, QIODevice *data, QIODevice *to=0 );

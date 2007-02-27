@@ -29,6 +29,10 @@
 #include "private/qringbuffer_p.h"
 #include "qcoreevent.h"
 #include "qurl.h"
+#include "qnetworkproxy.h"
+#include "qauthenticator.h"
+#include "qauthenticator_p.h"
+#include "qdebug.h"
 
 class QHttpRequest
 {
@@ -56,10 +60,12 @@ class QHttpPrivate : public QObjectPrivate
 public:
     Q_DECLARE_PUBLIC(QHttp)
 
-    inline QHttpPrivate() : socket(0), reconnectAttempts(2),
+    inline QHttpPrivate()
+        : socket(0), reconnectAttempts(2),
           deleteSocket(0), state(QHttp::Unconnected),
           error(QHttp::NoError), port(0), toDevice(0),
-          postDevice(0), bytesDone(0), chunkedSize(-1)
+          postDevice(0), bytesDone(0), chunkedSize(-1),
+          repost(false)
     {
     }
 
@@ -122,10 +128,9 @@ public:
     QString userName;
     QString password;
 
-    QString proxyHost;
-    int proxyPort;
-    QString proxyUser;
-    QString proxyPassword;
+    QNetworkProxy proxy;
+    QAuthenticator authenticator;
+    bool repost;
 };
 
 QBasicAtomic QHttpRequest::idCounter = Q_ATOMIC_INIT(1);
@@ -351,21 +356,20 @@ void QHttpSetUserRequest::start(QHttp *http)
 class QHttpSetProxyRequest : public QHttpRequest
 {
 public:
-    inline QHttpSetProxyRequest(const QString &proxyHost, int proxyPort,
-                                const QString &proxyUser, const QString &proxyPassword)
+    inline QHttpSetProxyRequest(const QNetworkProxy &proxy)
     {
-        this->proxyHost = proxyHost;
-        this->proxyPort = proxyPort;
-        this->proxyUser = proxyUser;
-        this->proxyPassword = proxyPassword;
+        this->proxy = proxy;
     }
 
     inline void start(QHttp *http)
     {
-        http->d_func()->proxyHost = proxyHost;
-        http->d_func()->proxyPort = proxyPort;
-        http->d_func()->proxyUser = proxyUser;
-        http->d_func()->proxyPassword = proxyPassword;
+        http->d_func()->proxy = proxy;
+        QString user = proxy.user();
+        if (!user.isEmpty())
+            http->d_func()->authenticator.setUser(user);
+        QString password = proxy.password();
+        if (!password.isEmpty())
+            http->d_func()->authenticator.setPassword(password);
         http->d_func()->finishedWithSuccess();
     }
 
@@ -374,10 +378,7 @@ public:
     inline QIODevice *destinationDevice()
     { return 0; }
 private:
-    QString proxyHost;
-    int proxyPort;
-    QString proxyUser;
-    QString proxyPassword;
+    QNetworkProxy proxy;
 };
 
 /****************************************************
@@ -1997,7 +1998,17 @@ int QHttp::setProxy(const QString &host, int port,
                     const QString &username, const QString &password)
 {
     Q_D(QHttp);
-    return d->addRequest(new QHttpSetProxyRequest(host, port, username, password));
+    QNetworkProxy proxy(QNetworkProxy::HttpProxy, host, port, username, password);
+    return d->addRequest(new QHttpSetProxyRequest(proxy));
+}
+
+/*!
+  \overload
+*/
+int QHttp::setProxy(const QNetworkProxy &proxy)
+{
+    Q_D(QHttp);
+    return d->addRequest(new QHttpSetProxyRequest(proxy));
 }
 
 /*!
@@ -2226,22 +2237,22 @@ void QHttpPrivate::_q_slotSendRequest()
 {
     // Proxy support. Insert the Proxy-Authorization item into the
     // header before it's sent off to the proxy.
-    if (!proxyHost.isEmpty()) {
+    if (proxy.type() == QNetworkProxy::HttpProxy && !proxy.hostName().isEmpty()) {
         QUrl proxyUrl;
         proxyUrl.setScheme(QLatin1String("http"));
         proxyUrl.setHost(hostName);
-        if (port && port != 80) proxyUrl.setPort(port);
+        if (port && port != 80)
+            proxyUrl.setPort(port);
         QString request = QString::fromAscii(proxyUrl.resolved(QUrl::fromEncoded(header.path().toLatin1())).toEncoded());
 
         header.setRequest(header.method(), request, header.majorVersion(), header.minorVersion());
+        header.setValue(QLatin1String("Proxy-Connection"), QLatin1String("keep-alive"));
 
-        if (!proxyUser.isEmpty()) {
-            QByteArray pass = proxyUser.toAscii();
-            if (!proxyPassword.isEmpty()) {
-                pass += ':';
-                pass += proxyPassword.toAscii();
-            }
-            header.setValue(QLatin1String("Proxy-Authorization"), QLatin1String("Basic " + pass.toBase64()));
+        QAuthenticatorPrivate *auth = QAuthenticatorPrivate::getPrivate(authenticator);
+        if (auth && auth->method != QAuthenticatorPrivate::None) {
+            request.prepend(header.method() + QLatin1String(" "));
+            header.setValue(QLatin1String("Proxy-Authorization"),
+                            QString::fromLatin1(auth->calculateResponse(request.toLatin1())));
         }
     }
 
@@ -2262,19 +2273,22 @@ void QHttpPrivate::_q_slotSendRequest()
         return;
     }
 
+    QString connectionHost = hostName;
+    int connectionPort = port;
+    if (proxy.type() == QNetworkProxy::HttpProxy && !proxy.hostName().isEmpty()) {
+        connectionHost = proxy.hostName();
+        connectionPort = proxy.port();
+    }
     // Do we need to setup a new connection or can we reuse an
     // existing one?
-    if (socket->peerName() != hostName || socket->peerPort() != port
+    if (socket->peerName() != connectionHost || socket->peerPort() != connectionPort
         || socket->state() != QTcpSocket::ConnectedState) {
         socket->blockSignals(true);
         socket->abort();
         socket->blockSignals(false);
 
         setState(QHttp::Connecting);
-        if (proxyHost.isEmpty())
-            socket->connectToHost(hostName, port);
-        else
-            socket->connectToHost(proxyHost, proxyPort);
+        socket->connectToHost(connectionHost, connectionPort);
     } else {
         _q_slotConnected();
     }
@@ -2435,6 +2449,7 @@ void QHttpPrivate::_q_slotReadyRead()
         headerStr = QLatin1String("");
         bytesDone = 0;
         chunkedSize = -1;
+        repost = false;
     }
 
     while (readHeader) {
@@ -2451,9 +2466,6 @@ void QHttpPrivate::_q_slotReadyRead()
         if (!end)
             return;
 
-#if defined(QHTTP_DEBUG)
-        qDebug("QHttp: read response header:\n---{\n%s}---", headerStr.toLatin1().constData());
-#endif
         response = QHttpResponseHeader(headerStr);
         headerStr = QLatin1String("");
 #if defined(QHTTP_DEBUG)
@@ -2467,6 +2479,40 @@ void QHttpPrivate::_q_slotReadyRead()
             return;
         }
 
+        if (response.statusCode() == 407) { // Proxy Authentication required
+            if (authenticator.isNull())
+                authenticator.detach();
+            QAuthenticatorPrivate *priv = QAuthenticatorPrivate::getPrivate(authenticator);
+            priv->parseHttpResponse(response, true);
+            if (priv->phase == QAuthenticatorPrivate::Done) {
+                socket->blockSignals(true);
+                emit q->proxyAuthenticationRequired(proxy, &authenticator);
+                socket->blockSignals(false);
+            }
+
+            // priv->phase will get reset to QAuthenticatorPrivate::Start if the authenticator got modified in the signal above.
+            if (priv->phase == QAuthenticatorPrivate::Done) {
+                finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "Proxy Authentication Required")),
+                                  QHttp::ProxyAuthenticationRequiredError);
+                closeConn();
+                return;
+            } else {
+                // close the connection if it isn't already and reconnect using the chose authentication method
+                bool willClose = (response.value(QLatin1String("proxy-connection")).toLower() == QLatin1String("close"));
+                if (willClose) {
+                    if (socket) {
+                        setState(QHttp::Closing);
+                        socket->close();
+                        socket->readAll();
+                    }
+                    _q_slotSendRequest();
+                    return;
+                } else {
+                    repost = true;
+                }
+            }
+        }
+
         // The 100-continue header is ignored, because when using the
         // POST method, we send both the request header and data in
         // one chunk.
@@ -2476,145 +2522,148 @@ void QHttpPrivate::_q_slotReadyRead()
                 response.value(QLatin1String("transfer-encoding")).toLower().contains(QLatin1String("chunked")))
                 chunkedSize = 0;
 
-            emit q->responseHeaderReceived(response);
+            if (!repost)
+                emit q->responseHeaderReceived(response);
         }
     }
 
-    if (!readHeader) {
-        bool everythingRead = false;
+    bool everythingRead = false;
 
-        if (q->currentRequest().method() == QLatin1String("HEAD")) {
-            everythingRead = true;
-        } else {
-            qint64 n = socket->bytesAvailable();
-            QByteArray *arr = 0;
-            if (chunkedSize != -1) {
-                // transfer-encoding is chunked
-                for (;;) {
-                    // get chunk size
-                    if (chunkedSize == 0) {
-                        if (!socket->canReadLine())
-                            break;
-                        QString sizeString = QString::fromAscii(socket->readLine());
-                        int tPos = sizeString.indexOf(QLatin1Char(';'));
-                        if (tPos != -1)
-                            sizeString.truncate(tPos);
-                        bool ok;
-                        chunkedSize = sizeString.toInt(&ok, 16);
-                        if (!ok) {
-                            finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "Invalid HTTP chunked body")),
-                                              QHttp::WrongContentLength);
-                            closeConn();
-                            delete arr;
-                            return;
-                        }
-                        if (chunkedSize == 0) // last-chunk
-                            chunkedSize = -2;
-                    }
-
-                    // read trailer
-                    while (chunkedSize == -2 && socket->canReadLine()) {
-                        QString read = QString::fromAscii(socket->readLine());
-                        if (read == QLatin1String("\r\n") || read == QLatin1String("\n"))
-                            chunkedSize = -1;
-                    }
-                    if (chunkedSize == -1) {
-                        everythingRead = true;
+    if (q->currentRequest().method() == QLatin1String("HEAD")) {
+        everythingRead = true;
+    } else {
+        qint64 n = socket->bytesAvailable();
+        QByteArray *arr = 0;
+        if (chunkedSize != -1) {
+            // transfer-encoding is chunked
+            for (;;) {
+                // get chunk size
+                if (chunkedSize == 0) {
+                    if (!socket->canReadLine())
                         break;
+                    QString sizeString = QString::fromAscii(socket->readLine());
+                    int tPos = sizeString.indexOf(QLatin1Char(';'));
+                    if (tPos != -1)
+                        sizeString.truncate(tPos);
+                    bool ok;
+                    chunkedSize = sizeString.toInt(&ok, 16);
+                    if (!ok) {
+                        finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "Invalid HTTP chunked body")),
+                                          QHttp::WrongContentLength);
+                        closeConn();
+                        delete arr;
+                        return;
                     }
+                    if (chunkedSize == 0) // last-chunk
+                        chunkedSize = -2;
+                }
 
-                    // make sure that you can read the terminating CRLF,
-                    // otherwise wait until next time...
-                    n = socket->bytesAvailable();
+                // read trailer
+                while (chunkedSize == -2 && socket->canReadLine()) {
+                    QString read = QString::fromAscii(socket->readLine());
+                    if (read == QLatin1String("\r\n") || read == QLatin1String("\n"))
+                        chunkedSize = -1;
+                }
+                if (chunkedSize == -1) {
+                    everythingRead = true;
+                    break;
+                }
+
+                // make sure that you can read the terminating CRLF,
+                // otherwise wait until next time...
+                n = socket->bytesAvailable();
+                if (n == 0)
+                    break;
+                if (n == chunkedSize || n == chunkedSize+1) {
+                    n = chunkedSize - 1;
                     if (n == 0)
                         break;
-                    if (n == chunkedSize || n == chunkedSize+1) {
-                        n = chunkedSize - 1;
-                        if (n == 0)
-                            break;
-                    }
-
-                    // read data
-                    qint64 toRead = chunkedSize < 0 ? n : qMin(n, chunkedSize);
-                    if (!arr)
-                        arr = new QByteArray;
-                    uint oldArrSize = arr->size();
-                    arr->resize(oldArrSize + toRead);
-                    qint64 read = socket->read(arr->data()+oldArrSize, toRead);
-                    arr->resize(oldArrSize + read);
-
-                    chunkedSize -= read;
-
-                    if (chunkedSize == 0 && n - read >= 2) {
-                        // read terminating CRLF
-                        char tmp[2];
-                        socket->read(tmp, 2);
-                        if (tmp[0] != '\r' || tmp[1] != '\n') {
-                            finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "Invalid HTTP chunked body")),
-                                              QHttp::WrongContentLength);
-                            closeConn();
-                            delete arr;
-                            return;
-                        }
-                    }
                 }
-            } else if (response.hasContentLength()) {
-                n = qMin(qint64(response.contentLength() - bytesDone), n);
-                if (n > 0) {
+
+                // read data
+                qint64 toRead = chunkedSize < 0 ? n : qMin(n, chunkedSize);
+                if (!arr)
                     arr = new QByteArray;
-                    arr->resize(n);
-                    qint64 read = socket->read(arr->data(), n);
-                    arr->resize(read);
-                }
-                if (bytesDone + q->bytesAvailable() + n == response.contentLength())
-                    everythingRead = true;
-            } else if (n > 0) {
-                // workaround for VC++ bug
-                QByteArray temp = socket->readAll();
-                arr = new QByteArray(temp);
-            }
+                uint oldArrSize = arr->size();
+                arr->resize(oldArrSize + toRead);
+                qint64 read = socket->read(arr->data()+oldArrSize, toRead);
+                arr->resize(oldArrSize + read);
 
-            if (arr) {
-                n = arr->size();
-                if (toDevice) {
-                    toDevice->write(*arr, n);
-                    delete arr;
-                    arr = 0;
-                    bytesDone += n;
-#if defined(QHTTP_DEBUG)
-                    qDebug("QHttp::_q_slotReadyRead(): read %lld bytes (%lld bytes done)", n, bytesDone);
-#endif
-                    if (response.hasContentLength())
-                        emit q->dataReadProgress(bytesDone, response.contentLength());
-                    else
-                        emit q->dataReadProgress(bytesDone, 0);
-                } else {
-                    char *ptr = rba.reserve(arr->size());
-                    memcpy(ptr, arr->data(), arr->size());
-                    delete arr;
-                    arr = 0;
-#if defined(QHTTP_DEBUG)
-                    qDebug("QHttp::_q_slotReadyRead(): read %lld bytes (%lld bytes done)", n, bytesDone + q->bytesAvailable());
-#endif
-                    if (response.hasContentLength())
-                        emit q->dataReadProgress(bytesDone + q->bytesAvailable(), response.contentLength());
-                    else
-                        emit q->dataReadProgress(bytesDone + q->bytesAvailable(), 0);
-                    emit q->readyRead(response);
+                chunkedSize -= read;
+
+                if (chunkedSize == 0 && n - read >= 2) {
+                    // read terminating CRLF
+                    char tmp[2];
+                    socket->read(tmp, 2);
+                    if (tmp[0] != '\r' || tmp[1] != '\n') {
+                        finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "Invalid HTTP chunked body")),
+                                          QHttp::WrongContentLength);
+                        closeConn();
+                        delete arr;
+                        return;
+                    }
                 }
             }
+        } else if (response.hasContentLength()) {
+            n = qMin(qint64(response.contentLength() - bytesDone), n);
+            if (n > 0) {
+                arr = new QByteArray;
+                arr->resize(n);
+                qint64 read = socket->read(arr->data(), n);
+                arr->resize(read);
+            }
+            if (bytesDone + q->bytesAvailable() + n == response.contentLength())
+                everythingRead = true;
+        } else if (n > 0) {
+            // workaround for VC++ bug
+            QByteArray temp = socket->readAll();
+            arr = new QByteArray(temp);
         }
 
-        if (everythingRead) {
-            // Handle "Connection: close"
-            if (response.value(QLatin1String("connection")).toLower() == QLatin1String("close")) {
-                closeConn();
+        if (arr && !repost) {
+            n = arr->size();
+            if (toDevice) {
+                toDevice->write(*arr, n);
+                delete arr;
+                arr = 0;
+                bytesDone += n;
+#if defined(QHTTP_DEBUG)
+                qDebug("QHttp::_q_slotReadyRead(): read %lld bytes (%lld bytes done)", n, bytesDone);
+#endif
+                if (response.hasContentLength())
+                    emit q->dataReadProgress(bytesDone, response.contentLength());
+                else
+                    emit q->dataReadProgress(bytesDone, 0);
             } else {
-                setState(QHttp::Connected);
-                // Start a timer, so that we emit the keep alive signal
-                // "after" this method returned.
-                QMetaObject::invokeMethod(q, "_q_slotDoFinished", Qt::QueuedConnection);
+                char *ptr = rba.reserve(arr->size());
+                memcpy(ptr, arr->data(), arr->size());
+                delete arr;
+                arr = 0;
+#if defined(QHTTP_DEBUG)
+                qDebug("QHttp::_q_slotReadyRead(): read %lld bytes (%lld bytes done)", n, bytesDone + q->bytesAvailable());
+#endif
+                if (response.hasContentLength())
+                    emit q->dataReadProgress(bytesDone + q->bytesAvailable(), response.contentLength());
+                else
+                    emit q->dataReadProgress(bytesDone + q->bytesAvailable(), 0);
+                emit q->readyRead(response);
             }
+        }
+    }
+
+    if (everythingRead) {
+        if (repost) {
+            _q_slotSendRequest();
+            return;
+        }
+        // Handle "Connection: close"
+        if (response.value(QLatin1String("connection")).toLower() == QLatin1String("close")) {
+            closeConn();
+        } else {
+            setState(QHttp::Connected);
+            // Start a timer, so that we emit the keep alive signal
+            // "after" this method returned.
+            QMetaObject::invokeMethod(q, "_q_slotDoFinished", Qt::QueuedConnection);
         }
     }
 }
