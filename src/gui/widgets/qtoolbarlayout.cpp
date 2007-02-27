@@ -256,8 +256,7 @@ int QToolBarLayout::expandedHeight(int width) const
                 continue;
 
             rowHeight = qMax(rowHeight, perp(o, items.at(i)->sizeHint()));
-            int newSize = size;
-            newSize += spacing + a[i].minimumSize;
+            int newSize = size + spacing + a[i].minimumSize;
             if (prev != -1 && newSize > space) {
                 // do we have to move the previous item to the next line to make space for
                 // the extension button?
@@ -308,8 +307,7 @@ int QToolBarLayout::expandedWidth(int width) const
             if (a[i].empty)
                 continue;
 
-            int newSize = size;
-            newSize += spacing + a[i].minimumSize;
+            int newSize = size + spacing + a[i].minimumSize;
             if (prev != -1 && newSize > space) {
                 ranOutOfSpace = true;
                 // do we have to move the previous item to the next line to make space for
@@ -369,14 +367,12 @@ void QToolBarLayout::setGeometry(const QRect &rect)
         int prev = -1;
         int rowHeight = 0;
         int count = 0;
+        bool expansiveRow = false;
         for (; i < items.count(); ++i) {
             if (a[i].empty)
                 continue;
 
-            if (expanded)
-                rowHeight = qMax(rowHeight, perp(o, items.at(i)->sizeHint()));
-            int newSize = size;
-            newSize += spacing + a[i].minimumSize;
+            int newSize = size + spacing + a[i].minimumSize;
             if (prev != -1 && newSize > space) {
                 if (rows == 0)
                     ranOutOfSpace = true;
@@ -387,6 +383,9 @@ void QToolBarLayout::setGeometry(const QRect &rect)
                 break;
             }
 
+            if (expanded)
+                rowHeight = qMax(rowHeight, perp(o, items.at(i)->sizeHint()));
+            expansiveRow |= a[i].expansive;
             size = newSize;
             prev = i;
             ++count;
@@ -400,7 +399,7 @@ void QToolBarLayout::setGeometry(const QRect &rect)
         a[i].stretch = 0;
         a[i].empty = true;
 
-        qGeomCalc(a, start, i - start + 1, 0, space, spacing);
+        qGeomCalc(a, start, i - start + (expansiveRow ? 0 : 1), 0, space, spacing);
 
         for (int j = start; j < i; ++j) {
             QToolBarItem *item = items.at(j);
