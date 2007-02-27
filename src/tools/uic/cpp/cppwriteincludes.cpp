@@ -145,6 +145,11 @@ void WriteIncludes::add(const QString &className)
         return;
     }
 
+    // in uic3-converted forms, there is no custom widget info for Q3 widgets as opposed to forms created with Designer 4
+    if (m_uic->customWidgetsInfo()->extends(className, QLatin1String("Q3ListView"))  ||
+        m_uic->customWidgetsInfo()->extends(className, QLatin1String("Q3Table"))) {
+        add(QLatin1String("Q3Header"));
+    }
     insertIncludeForClass(className);
 }
 
@@ -153,11 +158,6 @@ void WriteIncludes::acceptCustomWidget(DomCustomWidget *node)
     const QString className = node->elementClass();
     if (className.isEmpty())
         return;
-
-    if (m_uic->customWidgetsInfo()->extends(className, QLatin1String("Q3ListView"))  ||
-        m_uic->customWidgetsInfo()->extends(className, QLatin1String("Q3Table"))) {
-        add(QLatin1String("Q3Header"));
-    }
 
     if (const DomScript *domScript = node->elementScript())
         if (!domScript->text().isEmpty())
