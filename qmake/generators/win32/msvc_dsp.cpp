@@ -870,6 +870,8 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
 
             step.buildStep += " \\\n\t";
             QString command(compilerCommands.join(" "));
+            // Replace any newlines with proper line-continuance
+            command.replace("\n", " \\\n\t");
             // Might be a macro, and not a valid filename, so the replaceExtraCompilerVariables() would eat it
             command.replace("${QMAKE_FILE_IN}", config->escapeFilePath(fileIn));
             command.replace("${QMAKE_FILE_BASE}", config->escapeFilePath(fileBase));
