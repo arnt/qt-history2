@@ -1418,20 +1418,25 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     if (!layoutState.restoreState(stream, savedState)) {
         layoutState.deleteAllLayoutItems();
         layoutState = savedState;
-        applyState(layoutState, false); // hides tabBars allocated by newState
+        if (parentWidget()->isVisible())
+            applyState(layoutState, false); // hides tabBars allocated by newState
         return false;
     }
 
-    layoutState.fitLayout();
-    applyState(layoutState, false);
+    if (parentWidget()->isVisible()) {
+        layoutState.fitLayout();
+        applyState(layoutState, false);
+    }
 
     savedState.deleteAllLayoutItems();
     savedState.clear();
 
 #ifndef QT_NO_DOCKWIDGET
 #ifndef QT_NO_TABBAR
-    foreach (QTabBar *tab_bar, usedTabBars)
-        tab_bar->show();
+    if (parentWidget()->isVisible()) {
+        foreach (QTabBar *tab_bar, usedTabBars)
+            tab_bar->show();
+    }
 #endif
 #endif
 
