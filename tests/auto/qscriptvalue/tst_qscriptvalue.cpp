@@ -40,6 +40,7 @@ private slots:
     void toPrimitive();
     void instanceOf();
     void getSetPrototype();
+    void getSetScope();
     void getSetProperty();
     void call();
     void construct();
@@ -883,6 +884,29 @@ void tst_QScriptValue::getSetPrototype()
     QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setPrototype() failed: cannot set a prototype created in a different engine");
     object2.setPrototype(object3);
     QCOMPARE(object2.prototype().strictEqualTo(object), true);
+}
+
+void tst_QScriptValue::getSetScope()
+{
+    QScriptEngine eng;
+
+    QScriptValue object = eng.newObject();
+    QCOMPARE(object.scope().isValid(), false);
+
+    QScriptValue object2 = eng.newObject();
+    object2.setScope(object);
+
+    QCOMPARE(object2.scope().strictEqualTo(object), true);
+
+    QScriptValue inv;
+    inv.setScope(object);
+    QCOMPARE(inv.scope().isValid(), false);
+
+    QScriptEngine otherEngine;
+    QScriptValue object3 = otherEngine.newObject();
+    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setScope() failed: cannot set a scope object created in a different engine");
+    object2.setScope(object3);
+    QCOMPARE(object2.scope().strictEqualTo(object), true);
 }
 
 void tst_QScriptValue::call()

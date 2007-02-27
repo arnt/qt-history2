@@ -32,6 +32,7 @@ private slots:
     void newDate();
     void newQObject();
     void newQMetaObject();
+    void newActivationObject();
     void globalObject();
     void canEvaluate_data();
     void canEvaluate();
@@ -263,6 +264,18 @@ void tst_QScriptEngine::newQMetaObject()
     // ### must explicitly delete these, since the engine will not
     delete instance.toQObject();
     delete instance2.toQObject();
+}
+
+void tst_QScriptEngine::newActivationObject()
+{
+    QScriptEngine eng;
+    QScriptValue act = eng.newActivationObject();
+    QCOMPARE(act.isValid(), true);
+    QCOMPARE(act.isObject(), true);
+    QScriptValue v(&eng, 123);
+    act.setProperty("prop", v);
+    QCOMPARE(act.property("prop").strictEqualTo(v), true);
+    QCOMPARE(act.scope().isValid(), false);
 }
 
 void tst_QScriptEngine::globalObject()

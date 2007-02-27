@@ -31,6 +31,7 @@ private slots:
     void throwError();
     void throwValue();
     void evaluateInFunction();
+    void pushAndPopContext();
 };
 
 tst_QScriptContext::tst_QScriptContext()
@@ -305,6 +306,39 @@ void tst_QScriptContext::evaluateInFunction()
     QCOMPARE(eng.hasUncaughtException(), false);
 
     QCOMPARE(eng.evaluate("a").toNumber(), 123.0);
+}
+
+void tst_QScriptContext::pushAndPopContext()
+{
+    QScriptEngine eng;
+    QScriptContext *topLevel = eng.currentContext();
+    QCOMPARE(topLevel->engine(), &eng);
+
+    QScriptContext *ctx = eng.pushContext();
+    QCOMPARE(ctx->parentContext(), topLevel);
+    QCOMPARE(eng.currentContext(), ctx);
+    QCOMPARE(ctx->engine(), &eng);
+    QCOMPARE(ctx->state(), QScriptContext::NormalState);
+    QCOMPARE(ctx->calledAsConstructor(), false);
+    QCOMPARE(ctx->argumentCount(), 0);
+    QCOMPARE(ctx->argument(0).isUndefined(), true);
+    QCOMPARE(ctx->argumentsObject().isObject(), true);
+    QCOMPARE(ctx->activationObject().isObject(), true);
+    QCOMPARE(ctx->callee().isValid(), false);
+    QCOMPARE(ctx->thisObject().strictEqualTo(eng.globalObject()), true);
+
+    QScriptContext *ctx2 = eng.pushContext();
+    QCOMPARE(ctx2->parentContext(), ctx);
+    QCOMPARE(eng.currentContext(), ctx2);
+
+    eng.popContext();
+    QCOMPARE(eng.currentContext(), ctx);
+    eng.popContext();
+    QCOMPARE(eng.currentContext(), topLevel);
+
+    // popping the top-level context is not allowed
+    eng.popContext();
+    QCOMPARE(eng.currentContext(), topLevel);
 }
 
 QTEST_MAIN(tst_QScriptContext)

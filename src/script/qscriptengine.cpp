@@ -298,6 +298,17 @@ QScriptValue QScriptEngine::newObject()
 }
 
 /*!
+  \internal
+*/
+QScriptValue QScriptEngine::newActivationObject()
+{
+    Q_D(QScriptEngine);
+    QScriptValueImpl v;
+    d->newActivation(&v);
+    return v;
+}
+
+/*!
   Creates a QScriptValue that wraps a native (C++) function. \a fun
   must be a C++ function with signature QScriptEngine::FunctionSignature.  \a
   length is the number of arguments that \a fun expects; this becomes
@@ -479,6 +490,30 @@ QScriptContext *QScriptEngine::currentContext() const
 {
     Q_D(const QScriptEngine);
     return d->currentContext();
+}
+
+/*!
+  \internal
+*/
+QScriptContext *QScriptEngine::pushContext()
+{
+    Q_D(QScriptEngine);
+    QScriptContext *context = d->pushContext();
+    context->setThisObject(globalObject());
+    QScriptValue activation = newActivationObject();
+    activation.setScope(globalObject());
+    context->setActivationObject(activation);
+    return context;
+}
+
+/*!
+  \internal
+*/
+void QScriptEngine::popContext()
+{
+    Q_D(QScriptEngine);
+    if (d->currentContext() && d->currentContext()->parentContext())
+        d->popContext();
 }
 
 /*!

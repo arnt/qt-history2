@@ -569,7 +569,6 @@ inline void QScriptEnginePrivate::newArguments(QScriptValueImpl *object,
     QScript::ArgumentsObjectData *data = new QScript::ArgumentsObjectData();
     data->activation = activation;
     data->length = length;
-    Q_ASSERT(callee.isFunction());
     data->callee = callee;
 
     newObject(object, m_class_arguments);

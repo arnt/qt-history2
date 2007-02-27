@@ -358,6 +358,32 @@ void QScriptValue::setPrototype(const QScriptValue &prototype)
 }
 
 /*!
+  \internal
+*/
+QScriptValue QScriptValue::scope() const
+{
+    if (!isObject())
+        return QScriptValue();
+    return QScriptValuePrivate::valueOf(*this).scope();
+}
+
+/*!
+  \internal
+*/
+void QScriptValue::setScope(const QScriptValue &scope)
+{
+    if (!isObject())
+        return;
+    if (scope.isValid() && (scope.engine() != engine())) {
+        qWarning("QScriptValue::setScope() failed: "
+                 "cannot set a scope object created in "
+                 "a different engine");
+        return;
+    }
+    QScriptValuePrivate::valueOf(*this).setScope(QScriptValuePrivate::valueOf(scope));
+}
+
+/*!
   Returns true if this QScriptValue is an instance of
   \a ctorValue; otherwise returns false.
 

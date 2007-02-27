@@ -141,6 +141,9 @@ public:
     QScriptValue prototype() const;
     void setPrototype(const QScriptValue &prototype);
 
+    QScriptValue scope() const;
+    void setScope(const QScriptValue &scope);
+
     QScriptValue property(const QString &name,
                           const ResolveFlags &mode = ResolvePrototype) const;
     void setProperty(const QString &name, const QScriptValue &value,

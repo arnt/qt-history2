@@ -82,6 +82,8 @@ public:
 
     QScriptValue globalObject() const;
     QScriptContext *currentContext() const;
+    QScriptContext *pushContext();
+    void popContext();
 
     bool canEvaluate(const QString &program) const;
 
@@ -109,6 +111,7 @@ public:
     QScriptValue newRegExp(const QString &pattern, const QString &flags);
     QScriptValue newDate(qsreal value);
     QScriptValue newDate(const QDateTime &value);
+    QScriptValue newActivationObject();
 
 #ifndef QT_NO_QOBJECT
     QScriptValue newQObject(QObject *object, ValueOwnership ownership = QtOwnership);

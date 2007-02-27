@@ -202,7 +202,7 @@ QScriptValue QScriptContext::callee() const
 QScriptValue QScriptContext::argumentsObject() const
 {
     Q_D(const QScriptContext);
-    if (!d->m_arguments.isValid()) {
+    if (!d->m_arguments.isValid() && d->m_activation.isValid()) {
         QScriptContextPrivate *dd = const_cast<QScriptContextPrivate*>(d);
         QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
         eng_p->newArguments(&dd->m_arguments, d->m_activation,
