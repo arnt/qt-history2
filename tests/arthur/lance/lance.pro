@@ -7,6 +7,7 @@ INCLUDEPATH += .
 # Input
 HEADERS += widgets.h interactivewidget.h
 SOURCES += interactivewidget.cpp main.cpp 
+RESOURCES += icons.qrc
 
 contains(QT_CONFIG, opengl):QT += opengl
 
