@@ -15,6 +15,7 @@
 #include "qlibrary_p.h"
 #include "qfile.h"
 #include "qfileinfo.h"
+#include "qdir.h"
 
 #include "qt_windows.h"
 
@@ -59,7 +60,9 @@ bool QLibraryPrivate::load_sys()
             ::GetModuleFileNameA(pHnd, buffer, MAX_PATH);
             attempt = QString::fromLocal8Bit(buffer);
         });
-        qualifiedFileName = attempt.mid(attempt.lastIndexOf(QLatin1Char('\\')) + 1);
+        const QFileInfo fileinfo(fileName);
+        const QString realfilename = attempt.mid(attempt.lastIndexOf(QLatin1Char('\\')) + 1);
+        qualifiedFileName = fileinfo.dir().filePath(realfilename);
     }
     return (pHnd != 0);
 }
