@@ -307,11 +307,9 @@ void  WidgetBoxTreeView::restoreExpandedState()
     typedef QSet<QString> StringSet;
     QSettings settings;
     const StringSet closedCategories = settings.value(QLatin1String("WidgetBox/Closed categories"), QStringList()).toStringList().toSet();
-
-    if (closedCategories.empty()) {
-        expandAll();
+    expandAll();
+    if (closedCategories.empty())
         return;
-    }
 
     if (const int numCategories = categoryCount()) {
         for (int i = 0; i < numCategories; ++i) {
