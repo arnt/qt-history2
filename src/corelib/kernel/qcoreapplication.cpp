@@ -660,11 +660,15 @@ bool QCoreApplication::closingDown()
 
 
 /*!
-    Processes all pending events according to the specified \a flags until
-    there are no more events to process.
+    Processes all pending events for the calling thread according to
+    the specified \a flags until there are no more events to process.
 
     You can call this function occasionally when your program is busy
     performing a long operation (e.g. copying a file).
+
+    Calling this function processes events only for the calling thread.
+
+    \threadsafe
 
     \sa exec(), QTimer, QEventLoop::processEvents(), flush(), sendPostedEvents()
 */
@@ -679,11 +683,16 @@ void QCoreApplication::processEvents(QEventLoop::ProcessEventsFlags flags)
 /*!
     \overload
 
-    Processes pending events for \a maxtime milliseconds or until
-    there are no more events to process, whichever is shorter.
+    Processes pending events for the calling thread for \a maxtime
+    milliseconds or until there are no more events to process,
+    whichever is shorter.
 
     You can call this function occasionally when you program is busy
     doing a long operation (e.g. copying a file).
+
+    Calling this function processes events only for the calling thread.
+
+    \threadsafe
 
     \sa exec(), QTimer, QEventLoop::processEvents()
 */
