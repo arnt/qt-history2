@@ -86,6 +86,18 @@
 */
 
 /*!
+    \enum QMdiArea::AreaOption
+
+    This enum describes options that customize the behavior of the
+    QMdiArea.
+
+    \value DontMaximizeSubWindowOnActivation When the active subwindow
+    is maximized, the default behavior is to maximize the next
+    subwindow that is activated. Set this option if you do not want
+    this behavior.
+*/
+
+/*!
     \enum QMdiArea::WindowOrder
 
     Specifies the order in which child windows are returned from
@@ -1258,6 +1270,12 @@ void QMdiArea::setBackground(const QBrush &brush)
     d_func()->background = brush;
 }
 
+/*!
+    If \a on is true, \a option is enabled on the MDI area; otherwise
+    it is disabled. See AreaOption for the effect of each option.
+
+    \sa AreaOption, testOption()
+*/
 void QMdiArea::setOption(AreaOption option, bool on)
 {
     Q_D(QMdiArea);
@@ -1267,6 +1285,11 @@ void QMdiArea::setOption(AreaOption option, bool on)
         d->options &= ~option;
 }
 
+/*!
+    Returns true if \a option is enabled; otherwise returns false.
+
+    \sa AreaOption, setOption()
+*/
 bool QMdiArea::testOption(AreaOption option) const
 {
     return d_func()->options & option;
