@@ -2513,9 +2513,9 @@ void QHttpPrivate::_q_slotReadyRead()
             QAuthenticator *auth =
 #ifndef QT_NO_NETWORKPROXY
                 statusCode == 407
-                ? &proxyAuthenticator
+                ? &proxyAuthenticator :
 #endif
-                : &authenticator;
+                &authenticator;
             if (auth->isNull())
                 auth->detach();
             QAuthenticatorPrivate *priv = QAuthenticatorPrivate::getPrivate(*auth);
