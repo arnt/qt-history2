@@ -805,7 +805,10 @@ bool QSqlDatabase::open(const QString& user, const QString& password)
 }
 
 /*!
-    Closes the database connection, freeing any resources acquired.
+    Closes the database connection, freeing any resources acquired, and
+    invalidating any existing QSqlQuery objects that are used with the
+    database.
+
     This will also affect copies of this QSqlDatabase object.
 
     \sa removeDatabase()
