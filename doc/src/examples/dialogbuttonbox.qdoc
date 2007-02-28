@@ -27,7 +27,7 @@
     which the example is run. 
     
     The dialog button box example consists of two classes:
-    MainWindow and AddButtonDialog. MainWindow inherits QMainWindow
+    \c MainWindow and AddButtonDialog. \c MainWindow inherits QMainWindow
     and provides an mdi area to which the user can add dialog boxes.
     It also displays a table that shows the text and role of the
     buttons in the active dialog button box in the mdi area.
