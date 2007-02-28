@@ -48,12 +48,12 @@
     \list 1
     \i Create a QTabWidget.
     \i Create a QWidget for each of the pages in the tab dialog, but
-       do not specify a parent widget - the tab widget will reparent
-       the page widget later.
-    \i Insert children into the page widget, set up geometry management
-    for it and use addTab() (or insertTab()) to set up a tab with an
-    optional keyboard shortcut.
-    \i Connect to the signals and slots.
+       do not specify parent widgets for them.
+    \i Insert child widgets into the page widget, using layouts to
+       position them as normal.
+    \i Call addTab() or insertTab() to put the page widgets into the
+       tab widget, giving each tab a suitable label with an optional
+       keyboard shortcut.
     \endlist
 
     The position of the tabs is defined by \l tabPosition, their shape
@@ -69,7 +69,8 @@
     or setCurrentIndex() to show a particular page.
 
     You can change a tab's text and icon using setTabText() or
-    setTabIcon(). A tab can be removed with removeTab().
+    setTabIcon(). A tab and its associated page can be removed with
+    removeTab().
 
     Each tab is either enabled or disabled at any given time (see
     setTabEnabled()). If a tab is enabled, the tab text is drawn
@@ -116,8 +117,9 @@
     \enum QTabWidget::TabShape
 
     This enum type defines the shape of the tabs:
-    \value Rounded  rounded look (normal)
-    \value Triangular  triangular look
+    \value Rounded  The tabs are drawn with a rounded look. This is the default
+                    shape.
+    \value Triangular  The tabs are drawn with a triangular look.
 */
 
 /*!
