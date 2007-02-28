@@ -29,7 +29,7 @@
 #include <Carbon/Carbon.h>
 #include <QuickTime/QuickTime.h>
 #elif defined(Q_WS_WIN)
-#include "qwizard_win.h"
+#include "qwizard_win_p.h"
 #include "qtimer.h"
 #endif
 

@@ -30,7 +30,7 @@ HEADERS += \
     LIBS += -framework QuickTime
 }
 win32 {
-    HEADERS += dialogs/qwizard_win.h
+    HEADERS += dialogs/qwizard_win_p.h
     SOURCES += dialogs/qfiledialog_win.cpp \
                dialogs/qpagesetupdialog_win.cpp \
                dialogs/qprintdialog_win.cpp \

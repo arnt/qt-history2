@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 
-#include "qwizard_win.h"
+#include "qwizard_win_p.h"
 #include "qlibrary.h"
 #include "qwizard.h"
 #include "qpaintengine.h"
