@@ -3,16 +3,34 @@ function init()
 	$(window).resize(function() {recalculateRssBoxPosition();});
 	$("#rssbox").css({ display: "block", position: "absolute" });
 	recalculateRssBoxPosition();
-	$("#rssbox>ul>li>a").removeAttr("href").css("cursor", "pointer").click(function() {toggleRssLinksVisibility();});
-	setRssLinksVisible(getCookie("rsslinksvisible") == "true");
+	$(TITLELINKSSELECTOR).removeAttr("href").css("cursor", "pointer").click(function() {toggleRssLinksVisibility();});
+	setRssLinksVisible(getCookie(RSSLINKSVISIBLE) == "true");
+	
+	fadeToTransparent();
+}
+
+function rssLinksHaveBeenSeenOnce()
+{
+	return (getCookie(RSSLINKSHAVEBEENVISIBLEONCE) == "true");
+}
+
+function fadeToTransparent()
+{
+	if (!rssLinksHaveBeenSeenOnce())
+		$(TITLELINKSSELECTOR).fadeTo(800, 0.3, function() {fadeToOpaque();});
+}
+
+function fadeToOpaque()
+{
+	$(TITLELINKSSELECTOR).fadeTo(800, 1, function() {fadeToTransparent();});
 }
 
 function recalculateRssBoxPosition()
 {
-	var logoWidth = $("img[@src*=trolltech-logo]").width();
+	var logoWidth = $(LOGOIMAGESELECTOR).width();
 	var bodyMarginTop = cleanNumber($("body").css("margin-top"));
 	var bodyMarginLeft = cleanNumber($("body").css("margin-left"));
-	var logoHeight = $("img[@src*=trolltech-logo]").height();
+	var logoHeight = $(LOGOIMAGESELECTOR).height();
 	var headerTableWidth = $("table:first").width();
 	$("#rssbox").css({ left: headerTableWidth - logoWidth + bodyMarginLeft, top: logoHeight + bodyMarginTop}).width(logoWidth);
 }
@@ -27,24 +45,25 @@ function cleanNumber(dirtyNumber)
 function toggleRssLinksVisibility()
 {
 	setRssLinksVisible(!getIsRssLinksVisible());
+	setCookie(RSSLINKSHAVEBEENVISIBLEONCE, "true");
 }
 
 function getIsRssLinksVisible()
 {
-	return $("#rssbox ul ul").css("display") != "none";
+	return $(RSSLINKSSELECTOR).css("display") != "none";
 }
 
 function setRssLinksVisible(visible)
 {
-	var linksElement = $("#rssbox ul ul");
+	var linksElement = $(RSSLINKSSELECTOR);
 
 	if (visible)
 		$(linksElement).show();
 	else
 		$(linksElement).hide();
 
-	setCookie("rsslinksvisible", visible?"true":"false");
-	$("#rssbox>ul>li>a").css("background-image", "url(images/triangle" + (visible?"Horizontal":"Vertical") + ".png)");
+	setCookie(RSSLINKSVISIBLE, visible?"true":"false");
+	$(TITLELINKSSELECTOR).css("background-image", "url(images/triangle" + (visible?"Horizontal":"Vertical") + ".png)");
 }
 
 function getCookie(c_name)
@@ -68,3 +87,9 @@ function setCookie(c_name, value)
 {
 	document.cookie = c_name + "=" + escape(value);
 }
+
+var RSSLINKSVISIBLE = "rsslinksvisible";
+var RSSLINKSHAVEBEENVISIBLEONCE = "rsslinkshavebeenvisibleonce";
+var RSSLINKSSELECTOR = "#rssbox ul ul";
+var TITLELINKSSELECTOR = "#rssbox>ul>li>a";
+var LOGOIMAGESELECTOR = "img[@src*=trolltech-logo]";
