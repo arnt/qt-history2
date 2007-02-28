@@ -134,7 +134,7 @@ bool QRasterWindowSurface::scroll(const QRegion &area, int dx, int dy)
     QRasterPaintEngine *engine = static_cast<QRasterPaintEngine *>(d_ptr->device.paintEngine());
     HDC engine_dc = engine->getDC();
     if (!engine_dc)
-        return;
+        return false;
 
     BitBlt(engine_dc, rect.x()+dx, rect.y()+dy, rect.width(), rect.height(),
            engine_dc, rect.x(), rect.y(), SRCCOPY);
