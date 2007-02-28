@@ -265,20 +265,6 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
     }
 #endif // Q_WS_X11
 
-#ifdef Q_WS_WIN
-    // Use a native Windows sizegrip for "real" top-level windows.
-    if (tlw->isWindow()) {
-        if (d->atBottom()) {
-            PostMessage(tlw->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZEBOTTOMLEFT
-                                                                 : SZ_SIZEBOTTOMRIGHT, 0);
-        } else {
-            PostMessage(tlw->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZETOPLEFT
-                                                                 : SZ_SIZETOPRIGHT, 0);
-        }
-        return;
-    }
-#endif // Q_WS_WIN
-
     // Find available desktop/workspace geometry.
     QRect availableGeometry;
     if (tlw->isWindow())
@@ -464,5 +450,29 @@ bool QSizeGrip::event(QEvent *event)
 {
     return QWidget::event(event);
 }
+
+#ifdef Q_WS_WIN
+/*! \reimp */
+bool QSizeGrip::winEvent( MSG *m, long *result )
+{
+    if (m->message != WM_LBUTTONDOWN)
+        return QWidget::winEvent(m, result);
+
+    // toplevel windows use the native size grip on Windows
+    QWidget *w = qt_sizegrip_topLevelWidget(this);
+    if (!w->isWindow())
+        return QWidget::winEvent(m, result);
+
+    Q_D(QSizeGrip);
+    if (d->atBottom()) {
+        PostMessage(w->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZEBOTTOMLEFT
+                                                           : SZ_SIZEBOTTOMRIGHT, 0);
+    } else {
+        PostMessage(w->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZETOPLEFT
+                                                           : SZ_SIZETOPRIGHT, 0);
+    }
+    return true;
+}
+#endif
 
 #endif //QT_NO_SIZEGRIP

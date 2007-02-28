@@ -42,6 +42,9 @@ protected:
     void hideEvent(QHideEvent *hideEvent);
     bool eventFilter(QObject *, QEvent *);
     bool event(QEvent *);
+#ifdef Q_WS_WIN
+    bool winEvent(MSG *m, long *result);
+#endif
 
 public:
 #ifdef QT3_SUPPORT
