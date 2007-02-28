@@ -40,7 +40,7 @@ class QUnixSocketPrivate;
 class QUnixSocketMessagePrivate;
 class iovec;
 
-class QUnixSocketRights {
+class Q_GUI_EXPORT QUnixSocketRights {
 public:
     QUnixSocketRights(int);
     ~QUnixSocketRights();
@@ -59,7 +59,7 @@ private:
     QSharedDataPointer<QUnixSocketRightsPrivate> d;
 };
 
-class QUnixSocketMessage {
+class Q_GUI_EXPORT QUnixSocketMessage {
 public:
     QUnixSocketMessage();
     QUnixSocketMessage(const QByteArray &);
