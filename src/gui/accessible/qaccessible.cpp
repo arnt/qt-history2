@@ -742,8 +742,8 @@ const QAccessibleInterface *other, int otherChild) const
     \a target. It is the caller's responsibility to delete *\a target
     after use.
 
-    If an object is found \a target is set to point to the object, and
-    the index of the child in \a target is returned. The return value
+    If an object is found, \a target is set to point to the object, and
+    the index of the child of \a target is returned. The return value
     is 0 if \a target itself is the requested object. \a target is set
     to null if this object is the target object (i.e. the requested
     object is a handled by this object).
