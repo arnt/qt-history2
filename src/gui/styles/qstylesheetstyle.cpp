@@ -380,7 +380,7 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
             image = QPixmap(decl.uriValue());
             if (!imageRect.isValid())
                 imageRect = QRect(0, 0, image.width(), image.height());
-        } else if (decl.propertyId == Qt::BackgroundRole) {
+        } else if (decl.propertyId == QtBackgroundRole) {
             if (bg && bg->brush.style() != Qt::NoBrush)
                 continue;
             int role = decl.values.first().variant.toInt();
@@ -1085,16 +1085,12 @@ void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
 
 void QRenderRule::drawBackground(QPainter *p, const QRect& rect, const QPoint& off)
 {
-    if (!hasBackground())
-        return;
-
-    QBrush brush = background()->brush;
+    QBrush brush = hasBackground() ? background()->brush : QBrush();
     if (brush.style() == Qt::NoBrush)
         brush = defaultBackground;
 
     if (brush.style() != Qt::NoBrush) {
         QRect fillRect = borderRect(rect);
-        QBrush brush = background()->brush;
         if (brush.style() >= Qt::LinearGradientPattern
             && brush.style() <= Qt::ConicalGradientPattern) {
             QTransform m;
@@ -2529,35 +2525,41 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         return;
 
     case PE_Frame:
-        if (const QAbstractScrollArea *sa = qobject_cast<const QAbstractScrollArea *>(w)) {
-            const QAbstractScrollAreaPrivate *sap = sa->d_func();
-            rule.drawBackground(p, opt->rect, sap->contentsOffset());
-        } else {
-            rule.drawBackground(p, opt->rect);
-        }
+        if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+            if (const QAbstractScrollArea *sa = qobject_cast<const QAbstractScrollArea *>(w)) {
+                const QAbstractScrollAreaPrivate *sap = sa->d_func();
+                rule.drawBackground(p, opt->rect, sap->contentsOffset());
+            } else {
+                rule.drawBackground(p, opt->rect);
+            }
 
-        if (!rule.hasBorder()) {
-            if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+            if (rule.hasNativeBorder()) {
                 QStyleOptionFrame frmOpt(*frm);
                 rule.configurePalette(&frmOpt.palette, QPalette::Text, QPalette::Base);
-                frmOpt.rect = rule.borderRect(frmOpt.rect); // apply margin
+                frmOpt.rect = rule.borderRect(frmOpt.rect);
                 baseStyle()->drawPrimitive(pe, &frmOpt, p, w);
+            } else {
+                rule.drawBorder(p, rule.borderRect(opt->rect));
             }
-        } else {
-            rule.drawBorder(p, rule.borderRect(opt->rect));
         }
         return;
 
     case PE_PanelLineEdit:
         if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
-            // Only solid background brush is supported on a LineEdit
-            if (!rule.hasBorder() && !rule.hasGradientBackground()) {
+            if (rule.hasNativeBorder()) {
                 QStyleOptionFrame frmOpt(*frm);
                 rule.configurePalette(&frmOpt.palette, QPalette::Text, QPalette::Base);
-                frmOpt.rect = rule.borderRect(frmOpt.rect); // apply margin
-                baseStyle()->drawPrimitive(pe, &frmOpt, p, w);
+                frmOpt.rect = rule.borderRect(frmOpt.rect);
+
+                if (rule.baseStyleCanDraw()) {
+                    rule.drawBackgroundImage(p, opt->rect);
+                    baseStyle()->drawPrimitive(pe, &frmOpt, p, w);
+                } else {
+                    rule.drawBackground(p, opt->rect);
+                    baseStyle()->drawPrimitive(PE_FrameLineEdit, &frmOpt, p, w);
+                }
             } else {
-                rule.drawBorder(p, opt->rect);
+                rule.drawRule(p, opt->rect);
             }
         }
         return;
@@ -2813,18 +2815,9 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
             return rule.boxSize(sz);
         break;
 
-    case CT_LineEdit: // does not contains fw
-        if (rule.hasBorder() || rule.hasGradientBackground()) {
+    case CT_LineEdit:
+        if (rule.hasBox() || !rule.hasNativeBorder()) {
             return rule.boxSize(sz);
-        } else {
-            // What follows is a really ugly hack to support padding with native frames
-            QSize baseSize = baseStyle()->sizeFromContents(ct, opt, sz, w);
-            if (!rule.hasBox())
-                return baseSize;
-            QSize parentSize = ParentStyle::sizeFromContents(ct, opt, sz, w);
-            if (parentSize != baseSize)
-                return baseSize;
-            return rule.boxSize(baseSize);
         }
         break;
 
@@ -3189,17 +3182,8 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
 
     case SE_LineEditContents:
     case SE_FrameContents:
-        if (rule.hasBorder() || (se != SE_FrameContents && rule.hasGradientBackground())) {
+        if (rule.hasBox() || !rule.nativeBorder()) {
             return visualRect(opt->direction, opt->rect, rule.contentsRect(opt->rect));
-        } else {
-            // ugly hack to support native frames with padding
-            QRect baseRect = baseStyle()->subElementRect(se, opt, w);
-            if (!rule.hasBox())
-                return baseRect;
-            QRect parentRect = ParentStyle::subElementRect(se, opt, w);
-            if (baseRect != parentRect)
-                return baseRect;
-            return visualRect(opt->direction, opt->rect, rule.contentsRect(baseRect));
         }
         break;
 

@@ -8,6 +8,7 @@
 QLineEdit {
     -qt-background-role: base;
     border: native;
+    -qt-style-features: background-color;
 }
 
 QFrame {
