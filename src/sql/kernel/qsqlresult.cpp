@@ -900,6 +900,14 @@ void QSqlResult::detachFromResultSet()
         virtual_hook(DetachFromResultSet, 0);
 }
 
+/*! \internal
+ */
+void QSqlResult::setNumericalPrecisionPolicy(QSql::NumericalPrecisionPolicy policy)
+{
+    if (driver()->hasFeature(QSqlDriver::LowPrecisionNumbers))
+        virtual_hook(SetNumericalPrecision, &policy);
+}
+
 /*!
     Returns the low-level database handle for this result set
     wrapped in a QVariant or an invalid QVariant if there is no handle.

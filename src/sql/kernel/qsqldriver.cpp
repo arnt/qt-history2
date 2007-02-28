@@ -150,6 +150,7 @@ bool QSqlDriver::isOpenError() const
     \value LastInsertId  Whether the driver supports returning the Id of the last touched row.
     \value BatchOperations  Whether the driver supports batched operations, see QSqlResult::execBatch()
     \value SimpleLocking  Whether the driver disallows a write lock on a table while other queries have a read lock on it.
+    \value LowPrecisionNumbers  Whether the driver allows fetching numerical values with low precision.
 
     More information about supported features can be found in the
     \l{sql-driver.html}{Qt SQL driver} documentation.

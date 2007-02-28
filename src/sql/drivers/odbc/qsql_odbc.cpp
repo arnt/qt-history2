@@ -1450,6 +1450,7 @@ bool QODBCDriver::hasFeature(DriverFeature f) const
     case LastInsertId:
     case BatchOperations:
     case SimpleLocking:
+    case LowPrecisionNumbers:
         return false;
     }
     return false;

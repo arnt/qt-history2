@@ -115,6 +115,7 @@ public:
     int serverVersion;
     QString user;
     int prefetchRows, prefetchMem;
+    QSql::NumericalPrecisionPolicy precisionPolicy;
 
     void setCharset(OCIBind* hbnd);
     void setStatementAttributes();
@@ -133,7 +134,7 @@ public:
 QOCIPrivate::QOCIPrivate(): q(0), env(0), err(0), svc(0),
         srvhp(0), authp(0),
         sql(0), transaction(false), serverVersion(-1), prefetchRows(-1),
-        prefetchMem(QOCI_PREFETCH_MEM)
+        prefetchMem(QOCI_PREFETCH_MEM), precisionPolicy(QSql::HighPrecision)
 {
 }
 
@@ -618,6 +619,22 @@ static OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
         if (colScale > 0)
             type = QVariant::String;
     }
+
+    // bind as double if the precision policy asks for it
+    if (((colType == SQLT_FLT) || (colType == SQLT_NUM))
+            && (p->precisionPolicy == QSql::LowPrecisionDouble)) {
+        type = QVariant::Double;
+    }
+
+    // bind as int32 or int64 if the precision policy asks for it
+    if ((colType == SQLT_NUM) || (colType == SQLT_VNU) || (colType == SQLT_UIN)
+            || (colType == SQLT_INT)) {
+        if (p->precisionPolicy == QSql::LowPrecisionInt64)
+            type = QVariant::LongLong;
+        else if (p->precisionPolicy == QSql::LowPrecisionInt32)
+            type = QVariant::Int;
+    }
+
     if (colType == SQLT_BLOB)
         colLength = 0;
 
@@ -771,6 +788,39 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                create(idx, dataSize+1),
                                dataSize+1,
                                SQLT_DAT,
+                               (dvoid *) &(fieldInf[idx].ind),
+                               0, 0, OCI_DEFAULT);
+            break;
+        case QVariant::Double:
+            r = OCIDefineByPos(d->sql,
+                               &dfn,
+                               d->err,
+                               count,
+                               create(idx, sizeof(double) - 1),
+                               sizeof(double),
+                               SQLT_FLT,
+                               (dvoid *) &(fieldInf[idx].ind),
+                               0, 0, OCI_DEFAULT);
+            break;
+        case QVariant::Int:
+            r = OCIDefineByPos(d->sql,
+                               &dfn,
+                               d->err,
+                               count,
+                               create(idx, sizeof(qint32) - 1),
+                               sizeof(qint32),
+                               SQLT_INT,
+                               (dvoid *) &(fieldInf[idx].ind),
+                               0, 0, OCI_DEFAULT);
+            break;
+        case QVariant::LongLong:
+            r = OCIDefineByPos(d->sql,
+                               &dfn,
+                               d->err,
+                               count,
+                               create(idx, sizeof(OCINumber)),
+                               sizeof(OCINumber),
+                               SQLT_VNU,
                                (dvoid *) &(fieldInf[idx].ind),
                                0, 0, OCI_DEFAULT);
             break;
@@ -1413,9 +1463,29 @@ void QOCIResultPrivate::getValues(QVector<QVariant> &v, int index)
         case QVariant::DateTime:
             v[index + i] = QVariant(qMakeDate(fld.data));
             break;
+        case QVariant::Double:
+        case QVariant::Int:
+        case QVariant::LongLong:
+            if (d->precisionPolicy != QSql::HighPrecision) {
+                if ((d->precisionPolicy == QSql::LowPrecisionDouble)
+                        && (fld.typ == QVariant::Double)) {
+                    v[index + i] = *((double *)fld.data);
+                    break;
+                } else if ((d->precisionPolicy == QSql::LowPrecisionInt64)
+                        && (fld.typ == QVariant::LongLong)) {
+                    qint64 qll = 0;
+                    OCINumberToInt(d->err, (OCINumber *)fld.data, sizeof(qint64),
+                                   OCI_NUMBER_SIGNED, &qll);
+                    v[index + i] = qll;
+                    break;
+                } else if ((d->precisionPolicy == QSql::LowPrecisionInt32)
+                        && (fld.typ == QVariant::Int)) {
+                    v[index + i] = *((int *)fld.data);
+                    break;
+                }
+            }
+            // else fall through
         case QVariant::String:
-        case QVariant::Double: // when converted to strings
-        case QVariant::Int:    // keep these as strings so that we do not lose precision
             v[index + i] = QVariant(QString::fromUtf16((const short unsigned int*)fld.data));
             break;
         case QVariant::ByteArray:
@@ -1670,12 +1740,18 @@ QVariant QOCIResult::lastInsertId() const
 
 void QOCIResult::virtual_hook(int id, void *data)
 {
-    Q_ASSERT(id == QSqlResult::BatchOperation);
     Q_ASSERT(data);
-    Q_UNUSED(id);
 
-    bool *op = reinterpret_cast<bool *>(data);
-    QOCIResultPrivate::execBatch(d, boundValues(), *op);
+    switch (id) {
+    case QSqlResult::BatchOperation:
+        QOCIResultPrivate::execBatch(d, boundValues(), *reinterpret_cast<bool *>(data));
+        break;
+    case QSqlResult::SetNumericalPrecision:
+        d->precisionPolicy = *reinterpret_cast<QSql::NumericalPrecisionPolicy *>(data);
+        break;
+    default:
+        Q_ASSERT(false);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1752,6 +1828,7 @@ bool QOCIDriver::hasFeature(DriverFeature f) const
     case PreparedQueries:
     case NamedPlaceholders:
     case BatchOperations:
+    case LowPrecisionNumbers:
         return true;
     case QuerySize:
     case PositionalPlaceholders:

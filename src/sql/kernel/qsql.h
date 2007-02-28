@@ -22,7 +22,8 @@ QT_MODULE(Sql)
 
 namespace QSql
 {
-    enum Location {
+    enum Location
+    {
         BeforeFirstRow = -1,
         AfterLastRow = -2
 #ifdef QT3_SUPPORT
@@ -31,7 +32,8 @@ namespace QSql
 #endif
     };
 
-    enum ParamTypeFlag {
+    enum ParamTypeFlag
+    {
         In = 0x00000001,
         Out = 0x00000002,
         InOut = In | Out,
@@ -39,11 +41,21 @@ namespace QSql
     };
     Q_DECLARE_FLAGS(ParamType, ParamTypeFlag)
 
-    enum TableType {
+    enum TableType
+    {
         Tables = 0x01,
         SystemTables = 0x02,
         Views = 0x04,
         AllTables = 0xff
+    };
+
+    enum NumericalPrecisionPolicy
+    {
+        LowPrecisionInt32    = 0x01,
+        LowPrecisionInt64    = 0x02,
+        LowPrecisionDouble   = 0x04,
+
+        HighPrecision        = 0
     };
 
 #ifdef QT3_SUPPORT

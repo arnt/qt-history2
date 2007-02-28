@@ -58,6 +58,9 @@ public:
     bool exec(const QString& query);
     QVariant value(int i) const;
 
+    void setNumericalPrecisionPolicy(QSql::NumericalPrecisionPolicy precisionPolicy);
+    QSql::NumericalPrecisionPolicy numericalPrecisionPolicy() const;
+
     bool seek(int i, bool relative = false);
     bool next();
     bool previous();

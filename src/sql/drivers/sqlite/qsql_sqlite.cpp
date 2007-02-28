@@ -420,6 +420,7 @@ bool QSQLiteDriver::hasFeature(DriverFeature f) const
     case QuerySize:
     case NamedPlaceholders:
     case BatchOperations:
+    case LowPrecisionNumbers:
         return false;
     }
     return false;

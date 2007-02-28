@@ -489,6 +489,7 @@ bool QPSQLDriver::hasFeature(DriverFeature f) const
     case NamedPlaceholders:
     case PositionalPlaceholders:
     case SimpleLocking:
+    case LowPrecisionNumbers:
         return false;
     case BLOB:
         return d->pro >= QPSQLDriver::Version71;

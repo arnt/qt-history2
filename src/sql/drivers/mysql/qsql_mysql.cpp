@@ -982,6 +982,7 @@ bool QMYSQLDriver::hasFeature(DriverFeature f) const
     case NamedPlaceholders:
     case BatchOperations:
     case SimpleLocking:
+    case LowPrecisionNumbers:
         return false;
     case QuerySize:
     case BLOB:
