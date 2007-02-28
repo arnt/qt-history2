@@ -225,10 +225,10 @@ void PaintCommands::staticInit()
                       "^gradient_appendStop\\s+([\\w.]*)\\s+#?(\\w*)$",
                       "gradient_appendStop <pos> <color>",
                       "gradient_appendStop 1.0 red");
-    DECL_PAINTCOMMAND("gradient_clearStop", command_gradient_clearStops,
-                      "^gradient_clearStop$",
-                      "gradient_clearStop",
-                      "gradient_clearStop");
+    DECL_PAINTCOMMAND("gradient_clearStops", command_gradient_clearStops,
+                      "^gradient_clearStops$",
+                      "gradient_clearStops",
+                      "gradient_clearStops");
     DECL_PAINTCOMMAND("gradient_setConical", command_gradient_setConical,
                       "^gradient_setConical\\s+([\\w.]*)\\s+([\\w.]*)\\s+([\\w.]*)$",
                       "gradient_setConical <cx> <cy> <angle>\n  - angle in degrees",
