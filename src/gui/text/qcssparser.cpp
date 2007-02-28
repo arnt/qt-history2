@@ -213,13 +213,15 @@ static const QCssKnownValue pseudos[NumPseudos - 1] = {
     { "disabled", PseudoState_Disabled },
     { "enabled", PseudoState_Enabled },
     { "focus", PseudoState_Focus },
+    { "horizontal", PseudoState_Horizontal },
     { "hover", PseudoState_Hover },
     { "indeterminate" , PseudoState_Indeterminate },
     { "off", PseudoState_Unchecked },
     { "on", PseudoState_Checked },
     { "pressed", PseudoState_Pressed },
     { "selected", PseudoState_Selected },
-    { "unchecked" , PseudoState_Unchecked }
+    { "unchecked" , PseudoState_Unchecked },
+    { "vertical", PseudoState_Vertical }
 };
 
 static const QCssKnownValue borderStyles[NumKnownBorderStyles - 1] = {
