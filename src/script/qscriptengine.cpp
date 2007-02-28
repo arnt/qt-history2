@@ -524,7 +524,8 @@ void QScriptEngine::popContext()
 */
 bool QScriptEngine::hasUncaughtException() const
 {
-    return (currentContext()->state() == QScriptContext::ExceptionState);
+    Q_D(const QScriptEngine);
+    return d->hasUncaughtException();
 }
 
 /*!
@@ -611,6 +612,21 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     info.demarshal = df;
     info.prototype = QScriptValuePrivate::valueOf(prototype);
     d->m_customTypes.insert(type, info);
+}
+
+/*!
+    Imports the given \a extension into this QScriptEngine.  Returns
+    undefinedValue() if the extension was successfully imported. You
+    can call hasUncaughtException() to check if an error occured; in
+    that case, the return value is the value that was thrown by the
+    exception (usually an \c{Error} object).
+
+    \sa QScriptExtensionPlugin
+*/
+QScriptValue QScriptEngine::importExtension(const QString &extension)
+{
+    Q_D(QScriptEngine);
+    return d->importExtension(extension);
 }
 
 /*! \fn QScriptValue QScriptEngine::toScriptValue(const T &value)

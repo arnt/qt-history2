@@ -21,6 +21,8 @@
 
 #include <QtCore/QHash>
 #include <QtCore/QLinkedList>
+#include <QtCore/QSet>
+#include <QtCore/QStringList>
 
 #include "qscriptengine.h"
 #include "qscriptrepository_p.h"
@@ -39,8 +41,6 @@
 //
 // We mean it.
 //
-
-class QStringList;
 
 class QScriptContext;
 
@@ -136,6 +136,7 @@ public:
 
     inline QScript::AST::Node *abstractSyntaxTree() const;
     inline QString errorMessage() const;
+    inline bool hasUncaughtException() const;
 
     inline QScriptContext *currentContext() const;
     inline QScriptContext *pushContext();
@@ -297,6 +298,8 @@ public:
 
     inline QScriptValueImpl globalObject() const;
 
+    QScriptValueImpl importExtension(const QString &extension);
+
 public: // attributes
     int m_gc_depth;
     QScriptValueImpl m_globalObject;
@@ -363,6 +366,9 @@ public: // attributes
     QVector<QScriptValuePrivate*> m_otherHandles;
 
     QScript::IdTable m_id_table;
+
+    QSet<QString> m_importedExtensions;
+    QHash<QString, QStringList> m_cachedPluginKeys;
 
 #ifdef QT_NO_QOBJECT
     QScriptEngine *q_ptr;

@@ -821,4 +821,9 @@ inline QScriptValueImpl QScriptEnginePrivate::globalObject() const
     return m_globalObject;
 }
 
+inline bool QScriptEnginePrivate::hasUncaughtException() const
+{
+    return (currentContext()->state() == QScriptContext::ExceptionState);
+}
+
 #endif

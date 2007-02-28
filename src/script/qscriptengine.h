@@ -150,6 +150,8 @@ public:
     }
 #endif // QT_NO_MEMBER_TEMPLATES
 
+    QScriptValue importExtension(const QString &extension);
+
 private:
     QScriptValue create(int type, const void *ptr);
 

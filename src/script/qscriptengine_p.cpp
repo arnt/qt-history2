@@ -31,6 +31,16 @@
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
 
+#ifndef QT_NO_QOBJECT
+#include "qscriptextensioninterface.h"
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QTextStream>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QPluginLoader>
+#endif
+
 Q_DECLARE_METATYPE(QScriptValue)
 Q_DECLARE_METATYPE(QVariant)
 #ifndef QT_NO_QOBJECT
@@ -1394,4 +1404,204 @@ void QScriptEnginePrivate::init()
     QScriptContextPrivate *context_p = QScriptContextPrivate::get(context);
     context_p->setActivationObject(m_globalObject);
     context_p->setThisObject(m_globalObject);
+}
+
+static QScriptValueImpl __setupPackage__(QScriptContextPrivate *ctx,
+                                         QScriptEnginePrivate *eng,
+                                         QScriptClassInfo *)
+{
+    QString path = ctx->argument(0).toString();
+    QStringList components = path.split(QLatin1Char('.'));
+    QScriptValueImpl o = eng->globalObject();
+    for (int i = 0; i < components.count(); ++i) {
+        QString name = components.at(i);
+        QScriptValueImpl oo = o.property(name);
+        if (!oo.isValid()) {
+            oo = eng->newObject();
+            o.setProperty(name, oo);
+        }
+        o = oo;
+    }
+    return o;
+}
+
+QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
+{
+#ifndef QT_NO_QOBJECT
+    Q_Q(QScriptEngine);
+    if (m_importedExtensions.contains(extension))
+        return undefinedValue(); // already imported
+
+    QScriptContextPrivate *context = QScriptContextPrivate::get(currentContext());
+    QCoreApplication *app = QCoreApplication::instance();
+    if (!app)
+        return context->throwError(QLatin1String("No application object"));
+
+    QStringList libraryPaths = app->libraryPaths();
+    QString dot = QLatin1String(".");
+    QStringList pathComponents = extension.split(dot);
+    QString dotJs = QLatin1String(".js");
+    QString initDotJs = QLatin1String("__init__.js");
+    QDir::Filters filter = QDir::NoDotAndDotDot
+                           | QDir::Dirs | QDir::Files;
+
+    QString ext;
+    for (int i = 0; i < pathComponents.count(); ++i) {
+        if (!ext.isEmpty())
+            ext.append(dot);
+        ext.append(pathComponents.at(i));
+        if (m_importedExtensions.contains(ext))
+            continue; // already imported
+
+        // look for the extension in library paths
+        bool loaded = false;
+        QString cppPluginPath;
+        for (int j = 0; j < libraryPaths.count(); ++j) {
+            QString libPath = libraryPaths.at(j) + QDir::separator() + QLatin1String("script");
+            QDir dir(libPath);
+            if (!dir.exists(dot))
+                continue;
+
+            bool resolved = false;
+            for (int k = 0; k <= i; ++k) {
+                QString component = pathComponents.at(k);
+                QFileInfoList entryList = dir.entryInfoList(filter);
+                bool partiallyResolved = false;
+                for (int n = 0; n < entryList.count(); ++n) {
+                    QFileInfo entry = entryList.at(n);
+                    if (!partiallyResolved && entry.isDir()) {
+                        QString dirName = entry.fileName();
+                        partiallyResolved = (dirName == component) && dir.cd(dirName);
+                    }
+                    else if (entry.isFile() && !entry.fileName().endsWith(dotJs)) {
+                        QString filePath = entry.canonicalFilePath();
+                        QStringList keys = m_cachedPluginKeys.value(filePath);
+                        if (keys.isEmpty()) {
+                            // if it's a plugin, get its list of keys
+                            QPluginLoader loader(filePath);
+                            if (loader.load()) {
+                                QScriptExtensionInterface *iface;
+                                iface = qobject_cast<QScriptExtensionInterface*>(loader.instance());
+                                if (iface) {
+                                    keys = iface->keys();
+                                    m_cachedPluginKeys.insert(filePath, keys);
+                                }
+                            }
+                        }
+                        if (!keys.isEmpty()) {
+                            QStringList remainingComponents = pathComponents.mid(k);
+                            QString suffix = remainingComponents.join(dot);
+                            if (keys.contains(suffix)) {
+                                cppPluginPath = filePath;
+                                break;
+                            }
+                        }
+                    }
+                } // for (n)
+
+                resolved = !cppPluginPath.isEmpty() || partiallyResolved;
+                if (!resolved)
+                    break;
+            } // for (k)
+
+            if (resolved) {
+                // look for __init__.js in the corresponding dir
+                QDir dirdir(libPath);
+                bool dirExists = dirdir.exists();
+                for (int k = 0; dirExists && (k <= i); ++k)
+                    dirExists = dirdir.cd(pathComponents.at(k));
+                QString initjsContents;
+                if (dirExists && dirdir.exists(initDotJs)) {
+                    QFile file(dirdir.canonicalPath()
+                               + QDir::separator() + initDotJs);
+                    if (file.open(QIODevice::ReadOnly)) {
+                        QTextStream ts(&file);
+                        initjsContents = ts.readAll();
+                        file.close();
+                    }
+                }
+
+                // prepare the C++ plugin, if we have one
+                QPluginLoader loader;
+                QScriptExtensionInterface *iface = 0;
+                if (!cppPluginPath.isEmpty()) {
+                    loader.setFileName(cppPluginPath);
+                    if (loader.load())
+                        iface = qobject_cast<QScriptExtensionInterface*>(loader.instance());
+                }
+
+                if (!initjsContents.isEmpty() || iface) {
+                    // initialize the extension in a new context
+                    QScriptContext *ctx = pushContext();
+                    QScriptContextPrivate *ctx_p = QScriptContextPrivate::get(ctx);
+                    ctx_p->setThisObject(globalObject());
+                    newActivation(&ctx_p->m_activation);
+                    QScriptObject *activation_data = ctx_p->m_activation.m_object_value;
+                    activation_data->m_scope = globalObject();
+
+                    activation_data->m_members.resize(4);
+                    activation_data->m_objects.resize(4);
+                    activation_data->m_members[0].object(
+                        nameId(QLatin1String("__extension__")), 0, 0);
+                    activation_data->m_objects[0] = QScriptValueImpl(this, ext);
+                    activation_data->m_members[1].object(
+                        nameId(QLatin1String("__setupPackage__")), 1, 0);
+                    activation_data->m_objects[1] = createFunction(__setupPackage__, 0, 0);
+                    activation_data->m_members[2].object(
+                        nameId(QLatin1String("__all__")), 2, 0);
+                    activation_data->m_objects[2] = undefinedValue();
+                    activation_data->m_members[3].object(
+                        nameId(QLatin1String("__postInit__")), 3, 0);
+                    activation_data->m_objects[3] = undefinedValue();
+
+                    // the script is evaluated first
+                    if (!initjsContents.isEmpty()) {
+                        evaluate(ctx_p, initjsContents, 0);
+                        if (hasUncaughtException()) {
+                            QScriptValueImpl r = ctx_p->returnValue();
+                            popContext();
+                            return r;
+                        }
+                    }
+
+                    // next, the C++ plugin is called
+                    if (iface) {
+                        iface->initialize(ext, q);
+                        if (hasUncaughtException()) {
+                            QScriptValueImpl r = ctx_p->returnValue();
+                            popContext();
+                            return r;
+                        }
+                    }
+
+                    // if the __postInit__ function has been set, we call it
+                    QScriptValueImpl postInit = ctx_p->m_activation.property(QLatin1String("__postInit__"));
+                    if (postInit.isFunction()) {
+                        postInit.call(globalObject());
+                        if (hasUncaughtException()) {
+                            QScriptValueImpl r = ctx_p->returnValue();
+                            popContext();
+                            return r;
+                        }
+                    }
+
+                    popContext();
+                }
+
+                m_importedExtensions.insert(ext);
+                loaded = true;
+                break;
+            } // if (resolved)
+
+        } // for (j)
+
+        if (!loaded) {
+            return context->throwError(
+                QString::fromLatin1("Unable to import %0: no such extension")
+                .arg(extension));
+        }
+
+    } // for (i)
+#endif // QT_NO_QOBJECT
+    return undefinedValue();
 }

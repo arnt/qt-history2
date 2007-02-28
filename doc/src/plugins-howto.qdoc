@@ -61,6 +61,7 @@
     \row    \o QMouseDriverPlugin      \o \c plugins/mousedrivers     \o Case Sensitive
     \row    \o QPictureFormatPlugin    \o \c plugins/pictureformats   \o Case Sensitive
     \row    \o QScreenDriverPlugin     \o \c plugins/gfxdrivers       \o Case Sensitive
+    \row    \o QScriptExtensionPlugin  \o \c plugins/script           \o Case Sensitive
     \row    \o QSqlDriverPlugin        \o \c plugins/sqldrivers       \o Case Sensitive
     \row    \o QStylePlugin            \o \c plugins/styles           \o Case Insensitive
     \row    \o QTextCodecPlugin        \o \c plugins/codecs           \o Case Sensitive
