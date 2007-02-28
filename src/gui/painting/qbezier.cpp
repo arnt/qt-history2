@@ -102,7 +102,7 @@ static inline void flattenBezierWithoutInflections(QBezier &bez,
         qreal d = qAbs(dx * (bez.y3 - bez.y2) - dy * (bez.x3 - bez.x2));
 
         qreal t = sqrt(4. / 3. * normalized * flatness / d);
-        if (t > 1 || qFuzzyCompare(t, 1.))
+        if (t > 1 || qFuzzyCompare(t, (qreal)1.))
             break;
         bez.parameterSplitLeft(t, &left);
         p->append(bez.pt1());
