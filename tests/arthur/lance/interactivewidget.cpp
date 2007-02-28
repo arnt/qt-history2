@@ -31,15 +31,28 @@ InteractiveWidget::InteractiveWidget()
     foreach (PaintCommands::PaintCommandInfos paintCommandInfo, PaintCommands::s_commandInfoTable) {
         if (paintCommandInfo.isSectionHeader()) {
             currentListWidget = new QListWidget();
-            m_commandsToolBox->addItem(currentListWidget, QIcon(":/icons/tools.png"), paintCommandInfo.identifier);
+            m_commandsToolBox->addItem(currentListWidget, QIcon(":/icons/tools.png"), "commands - "+paintCommandInfo.identifier);
             connect(currentListWidget, SIGNAL(itemActivated(QListWidgetItem*)), SLOT(cmdSelected(QListWidgetItem*)));
         } else {
             (new QListWidgetItem(paintCommandInfo.identifier, currentListWidget))->setToolTip(paintCommandInfo.syntax);
         }
     }
 
+    // create and populate the enumerations toolbox
+    m_enumsToolBox = new QToolBox(panel);
+    typedef QPair<QString,QStringList> EnumListType;
+    foreach (EnumListType enumInfos, PaintCommands::s_enumsTable) {
+        currentListWidget = new QListWidget();
+        m_commandsToolBox->addItem(currentListWidget, QIcon(":/icons/enum.png"), "enums - "+enumInfos.first);
+        connect(currentListWidget, SIGNAL(itemActivated(QListWidgetItem*)), SLOT(enumSelected(QListWidgetItem*)));
+        foreach (QString enumItem, enumInfos.second)
+            new QListWidgetItem(enumItem, currentListWidget);
+    }
+
     // add other widgets and layout
     vlayout->addWidget(m_commandsToolBox);
+    vlayout->addSpacing(20);
+    vlayout->addWidget(m_enumsToolBox);
 
     hlayout->setStretchFactor(panel, 0);
     hlayout->setStretchFactor(vsplit, 1);
@@ -58,6 +71,7 @@ InteractiveWidget::InteractiveWidget()
     connect(save, SIGNAL(clicked()), SLOT(save()));
 }
 
+/***************************************************************************************************/
 void InteractiveWidget::run()
 {
     m_onScreenWidget->m_commands.clear();
@@ -68,6 +82,7 @@ void InteractiveWidget::run()
     m_onScreenWidget->repaint();
 }
 
+/***************************************************************************************************/
 void InteractiveWidget::cmdSelected(QListWidgetItem *item)
 {
     if (ui_textEdit->textCursor().atBlockStart()) {
@@ -79,6 +94,14 @@ void InteractiveWidget::cmdSelected(QListWidgetItem *item)
     ui_textEdit->setFocus();
 }
 
+/***************************************************************************************************/
+void InteractiveWidget::enumSelected(QListWidgetItem *item)
+{
+    ui_textEdit->insertPlainText(item->text());
+    ui_textEdit->setFocus();
+}
+
+/***************************************************************************************************/
 void InteractiveWidget::load()
 {
     QString fname = QFileDialog::getOpenFileName(
@@ -90,6 +113,7 @@ void InteractiveWidget::load()
     load(fname);
 }
 
+/***************************************************************************************************/
 void InteractiveWidget::load(const QString &fname)
 {
     if (!fname.isEmpty()) {
@@ -104,12 +128,16 @@ void InteractiveWidget::load(const QString &fname)
     }
 }
 
+/***************************************************************************************************/
 void InteractiveWidget::save()
 {
     QString script = ui_textEdit->toPlainText();
     if (!script.endsWith("\n"))
         script += QString("\n");
-    QString fname = QFileDialog::getSaveFileName(this, QString("Save QPaintEngine Script"), QFileInfo(m_filename).absoluteFilePath(), QString("QPaintEngine Script (*.qps);;All files (*.*)"));
+    QString fname = QFileDialog::getSaveFileName(this,
+                            QString("Save QPaintEngine Script"),
+                            QFileInfo(m_filename).absoluteFilePath(),
+                            QString("QPaintEngine Script (*.qps);;All files (*.*)"));
     if (!fname.isEmpty()) {
         m_filename = fname;
         QFile file(fname);
@@ -120,6 +148,7 @@ void InteractiveWidget::save()
     }    
 }
 
+/***************************************************************************************************/
 bool InteractiveWidget::eventFilter(QObject *o, QEvent *e)
 {
     if (qobject_cast<QTextEdit *>(o) && e->type() == QEvent::KeyPress) {

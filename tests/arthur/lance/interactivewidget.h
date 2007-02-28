@@ -29,7 +29,6 @@ public:
 
 public slots:
     void run();
-    void cmdSelected(QListWidgetItem *item);
     void load();
     void load(const QString &fname);
     void save();
@@ -37,8 +36,13 @@ public slots:
 protected:
     bool eventFilter(QObject *o, QEvent *e);
 
+protected slots:
+    void cmdSelected(QListWidgetItem *item);
+    void enumSelected(QListWidgetItem *item);
+
 private:
     QToolBox *m_commandsToolBox;
+    QToolBox *m_enumsToolBox;
     OnScreenWidget<QWidget> *m_onScreenWidget;
     QTextEdit *ui_textEdit;
     QString m_filename;

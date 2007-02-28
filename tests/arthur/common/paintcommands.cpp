@@ -100,6 +100,7 @@ int PaintCommands::translateEnum(const char *table[], const QString &pattern, in
 }
 
 QList<PaintCommands::PaintCommandInfos> PaintCommands::s_commandInfoTable = QList<PaintCommands::PaintCommandInfos>();
+QList<QPair<QString,QStringList> > PaintCommands::s_enumsTable = QList<QPair<QString,QStringList> >();
 
 #define DECL_PAINTCOMMAND(identifier, method, regexp, syntax, sample) \
     s_commandInfoTable << PaintCommandInfos(QLatin1String(identifier), &PaintCommands::method, QRegExp(regexp), \
@@ -108,10 +109,19 @@ QList<PaintCommands::PaintCommandInfos> PaintCommands::s_commandInfoTable = QLis
 #define DECL_PAINTCOMMANDSECTION(title) \
     s_commandInfoTable << PaintCommandInfos(QLatin1String(title));
 
+#define ADD_ENUMLIST(listCaption, cStrArray) { \
+        QStringList list; \
+        for (int i=0; i<sizeof(cStrArray)/sizeof(char*); i++) \
+        list << cStrArray[i]; \
+        s_enumsTable << qMakePair(QString(listCaption), list); \
+    }
+
 void PaintCommands::staticInit()
 {
+    // check if already done
     if (!s_commandInfoTable.isEmpty()) return;
 
+    // populate the command list
     DECL_PAINTCOMMANDSECTION("misc");
     DECL_PAINTCOMMAND("comment", command_comment,
                       "^\\s*#",
@@ -153,7 +163,7 @@ void PaintCommands::staticInit()
                       "setBackgroundMode TransparentMode");
     DECL_PAINTCOMMAND("setBackground", command_setBackground,
                       "^setBackground\\s+#?(\\w*)\\s*(\\w*)?$",
-                      "setBackground <color> [pattern]",
+                      "setBackground <color> [brush style enum]",
                       "setBackground black SolidPattern");
     DECL_PAINTCOMMAND("setOpacity", command_setOpacity,
                       "^setOpacity\\s+(-?\\d*\\.?\\d*)$",
@@ -165,7 +175,7 @@ void PaintCommands::staticInit()
                       "path_setFillRule pathName Winding");
     DECL_PAINTCOMMAND("setBrush", command_setBrush,
                       "^setBrush\\s+(#?[\\w.:\\/]*)\\s*(\\w*)?$",
-                      "setBrush <pixmapFileName>\nsetBrush noBrush\nsetBrush <color> <pattern>",
+                      "setBrush <pixmapFileName>\nsetBrush noBrush\nsetBrush <color> <brush style enum>",
                       "setBrush white SolidPattern");
     DECL_PAINTCOMMAND("setBrushOrigin", command_setBrushOrigin,
                       "^setBrushOrigin\\s*(-?\\w*)\\s+(-?\\w*)$",
@@ -189,7 +199,7 @@ void PaintCommands::staticInit()
                       "brushShear 0.0 0.0");
     DECL_PAINTCOMMAND("setCompositionMode", command_setCompositionMode,
                       "^setCompositionMode\\s+([\\w_0-9]*)$",
-                      "setCompositionMode <compositionMode>",
+                      "setCompositionMode <composition mode enum>",
                       "setCompositionMode SourceOver");
     DECL_PAINTCOMMAND("setFont", command_setFont,
                       "^setFont\\s+\"([\\w\\s]*)\"\\s*(\\w*)\\s*(\\w*)\\s*(\\w*)$",
@@ -197,19 +207,19 @@ void PaintCommands::staticInit()
                       "setFont \"times\" normal");
     DECL_PAINTCOMMAND("setPen", command_setPen,
                       "^setPen\\s+#?(\\w*)$",
-                      "setPen <color>\nsetPen <penStyle>\nsetPen brush\nsetPen NoPen",
+                      "setPen <color>\nsetPen <pen style enum>\nsetPen brush",
                       "setPen black");
     DECL_PAINTCOMMAND("setPen", command_setPen2,
                       "^setPen\\s+(#?\\w*)\\s+([\\w.]+)\\s*(\\w*)\\s*(\\w*)\\s*(\\w*)$",
-                      "setPen brush|<color> [width] [penStyle] [capStyle] [joinStyle]",
+                      "setPen brush|<color> [width] [pen style enum] [FlatCap|SquareCap|RoundCap] [MiterJoin|BevelJoin|RoundJoin]",
                       "setPen black 1 FlatCap MiterJoin");
     DECL_PAINTCOMMAND("pen_setDashPattern", command_pen_setDashPattern,
                       "^pen_setDashPattern\\s+\\[([\\w\\s.]*)\\]$",
-                      "pen_setDashPattern <[ dash_1 space_1 ... dash_n space_n]>",
+                      "pen_setDashPattern <[ <dash_1> <space_1> ... <dash_n> <space_n> ]>",
                       "pen_setDashPattern [ 2 1 4 1 3 3 ]");
     DECL_PAINTCOMMAND("pen_setCosmetic", command_pen_setCosmetic,
                       "^pen_setCosmetic\\s+(\\w*)$",
-                      "pen_setCosmetic <true | false>",
+                      "pen_setCosmetic <true|false>",
                       "pen_setCosmetic true");
     DECL_PAINTCOMMAND("setRenderHint", command_setRenderHint,
                       "^setRenderHint\\s+([\\w_0-9]*)\\s*(\\w*)$",
@@ -239,110 +249,116 @@ void PaintCommands::staticInit()
                       "gradient_setLinear 1.0 1.0 2.0 2.0");
     DECL_PAINTCOMMAND("gradient_setRadial", command_gradient_setRadial,
                       "^gradient_setRadial\\s+([\\w.]*)\\s+([\\w.]*)\\s+([\\w.]*)\\s?([\\w.]*)\\s?([\\w.]*)$",
-                      "gradient_setRadial <cx> <cy> <rad> <fx> <fy>\n  - C is the center\n  - rad in the angle in degrees\n  - F is the focal point",
+                      "gradient_setRadial <cx> <cy> <rad> <fx> <fy>\n  - C is the center\n  - rad is the angle in degrees\n  - F is the focal point",
                       "gradient_setRadial 1.0 1.0 45.0 2.0 2.0");
     DECL_PAINTCOMMAND("gradient_setSpread", command_gradient_setSpread,
                       "^gradient_setSpread\\s+(\\w*)$",
-                      "gradient_setSpread <PadSpread|ReflectSpread|RepeatSpread>",
+                      "gradient_setSpread <spread method enum>",
                       "gradient_setSpread PadSpread");
 
     DECL_PAINTCOMMANDSECTION("qt3 drawing ops");
     DECL_PAINTCOMMAND("qt3_drawArc", command_qt3_drawArc,
                       "^qt3_drawArc\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)$",
-                      "",
-                      "");
+                      "qt3_drawArc <x> <y> <w> <h> <angleStart> <angleArc>\n  - angles are expressed in 1/16th of degree",
+                      "qt3_drawArc 10 10 20 20 0 5760");
     DECL_PAINTCOMMAND("qt3_drawChord", command_qt3_drawChord,
                       "^qt3_drawChord\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)$",
-                      "",
-                      "");
+                      "qt3_drawChord <x> <y> <w> <h> <angleStart> <angleArc>\n  - angles are expressed in 1/16th of degree",
+                      "qt3_drawChord 10 10 20 20 0 5760");
     DECL_PAINTCOMMAND("qt3_drawEllipse", command_qt3_drawEllipse,
                       "^qt3_drawEllipse\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)$",
-                      "",
-                      "");
+                      "qt3_drawEllipse <x> <y> <w> <h>",
+                      "qt3_drawEllipse 10 10 20 20");
     DECL_PAINTCOMMAND("qt3_drawPie", command_qt3_drawPie,
                       "^qt3_drawPie\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)$",
-                      "",
-                      "");
+                      "qt3_drawPie <x> <y> <w> <h> <angleStart> <angleArc>\n  - angles are expressed in 1/16th of degree",
+                      "qt3_drawPie 10 10 20 20 0 5760");
     DECL_PAINTCOMMAND("qt3_drawRect", command_qt3_drawRect,
                       "^qt3_drawRect\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)$",
-                      "",
-                      "");
+                      "qt3_drawRect <x> <y> <w> <h>",
+                      "qt3_drawRect 10 10 20 20");
     DECL_PAINTCOMMAND("qt3_drawRoundRect", command_qt3_drawRoundRect,
                       "^qt3_drawRoundRect\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s*(-?\\w)?\\s*(-?\\w)?$",
-                      "",
-                      "");
+                      "qt3_drawRoundRect <x> <y> <w> <h> [rx] [ry]",
+                      "qt3_drawRoundRect 10 10 20 20 3 3");
 
     DECL_PAINTCOMMANDSECTION("drawing ops");
     DECL_PAINTCOMMAND("drawPoint", command_drawPoint,
                       "^drawPoint\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)$",
-                      "",
-                      "");
+                      "drawPoint <x> <y>",
+                      "drawPoint 10.0 10.0");
     DECL_PAINTCOMMAND("drawLine", command_drawLine,
                       "^drawLine\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)$",
-                      "",
-                      "");
+                      "drawLine <x1> <y1> <x2> <y2>",
+                      "drawLine 10.0 10.0 20.0 20.0");
     DECL_PAINTCOMMAND("drawRect", command_drawRect,
                       "^drawRect\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)$",
-                      "",
-                      "");
+                      "drawRect <x> <y> <w> <h>",
+                      "drawRect 10.0 10.0 20.0 20.0");
     DECL_PAINTCOMMAND("drawRoundRect", command_drawRoundRect,
                       "^drawRoundRect\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s*(-?\\w*)?\\s*(-?\\w*)?$",
-                      "",
-                      "");
+                      "drawRoundRect <x> <y> <w> <h> [rx] [ry]",
+                      "drawRoundRect 10 10 20 20 3 3");
     DECL_PAINTCOMMAND("drawArc", command_drawArc,
                       "^drawArc\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)$",
-                      "",
-                      "");
+                      "drawArc <x> <y> <w> <h> <angleStart> <angleArc>\n  - angles are expressed in 1/16th of degree",
+                      "drawArc 10 10 20 20 0 5760");
     DECL_PAINTCOMMAND("drawChord", command_drawChord,
                       "^drawChord\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)$",
-                      "",
-                      "");
+                      "drawChord <x> <y> <w> <h> <angleStart> <angleArc>\n  - angles are expressed in 1/16th of degree",
+                      "drawChord 10 10 20 20 0 5760");
     DECL_PAINTCOMMAND("drawEllipse", command_drawEllipse,
                       "^drawEllipse\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)$",
-                      "",
-                      "");
+                      "drawEllipse <x> <y> <w> <h>",
+                      "drawEllipse 10.0 10.0 20.0 20.0");
     DECL_PAINTCOMMAND("drawPath", command_drawPath,
                       "^drawPath\\s+(\\w*)$",
-                      "",
-                      "");
+                      "drawPath <pathName>",
+                      "drawPath mypath");
     DECL_PAINTCOMMAND("drawPie", command_drawPie,
                       "^drawPie\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)$",
-                      "",
-                      "");
+                      "drawPie <x> <y> <w> <h> <angleStart> <angleArc>\n  - angles are expressed in 1/16th of degree",
+                      "drawPie 10 10 20 20 0 5760");
     DECL_PAINTCOMMAND("drawPixmap", command_drawPixmap,
                       "^drawPixmap\\s+([\\w.:\\-/]*)"                                             
                       "\\s+(-?\\w*)\\s+(-?\\w*)\\s*(-?\\w*)?\\s*(-?\\w*)?"    // target rect                                             
                       "\\s*(-?\\w*)?\\s*(-?\\w*)?\\s*(-?\\w*)?\\s*(-?\\w*)?$", // source rect
-                      "",
-                      "");
+                      "drawPixmap <filename> <tx> <ty> <tw> <th> <sx> <sy> <sw> <sh>"
+                      "\n- where t means target and s means source"
+                      "\n- a width or height of -1 means maximum space",
+                      "drawPixmap :/images/face.png 0 0 -1 -1 0 0 -1 -1");
     DECL_PAINTCOMMAND("drawImage", command_drawImage,
                       "^drawImage\\s+([\\w.:\\/]*)"
                       "\\s+(-?\\w*)\\s+(-?\\w*)\\s*(-?\\w*)?\\s*(-?\\w*)?"    // target rect
                       "\\s*(-?\\w*)?\\s*(-?\\w*)?\\s*(-?\\w*)?\\s*(-?\\w*)?$", // source rect
-                      "",
-                      "");
+                      "drawImage <filename> <tx> <ty> <tw> <th> <sx> <sy> <sw> <sh>"
+                      "\n- where t means target and s means source"
+                      "\n- a width or height of -1 means maximum space",
+                      "drawImage :/images/face.png 0 0 -1 -1 0 0 -1 -1");
     DECL_PAINTCOMMAND("drawPolygon", command_drawPolygon,
                       "^drawPolygon\\s+\\[([\\w\\s-.]*)\\]\\s*(\\w*)$",
-                      "",
-                      "");
+                      "drawPolygon <[ <x1> <y1> ... <xn> <yn> ]> <Winding|OddEven>",
+                      "drawPolygon [ 1 4  6 8  5 3 ] Winding");
     DECL_PAINTCOMMAND("drawConvexPolygon", command_drawConvexPolygon,
                       "^drawConvexPolygon\\s+\\[([\\w\\s-.]*)\\]$",
-                      "",
-                      "");
+                      "drawConvexPolygon <[ <x1> <y1> ... <xn> <yn> ]>",
+                      "drawConvexPolygon [ 1 4  6 8  5 3 ]");
     DECL_PAINTCOMMAND("drawPolyline", command_drawPolyline,
                       "^drawPolyline\\s+\\[([\\w\\s]*)\\]$",
-                      "",
-                      "");
+                      "drawPolyline <[ <x1> <y1> ... <xn> <yn> ]>",
+                      "drawPolyline [ 1 4  6 8  5 3 ]");
     DECL_PAINTCOMMAND("drawText", command_drawText,
                       "^drawText\\s+(-?\\w*)\\s+(-?\\w*)\\s+\"(.*)\"$",
-                      "",
-                      "");
-    DECL_PAINTCOMMAND("", command_drawTiledPixmap,
+                      "drawText <x> <y> <text>",
+                      "drawText 10 10 \"my text\"");
+    DECL_PAINTCOMMAND("drawTiledPixmap", command_drawTiledPixmap,
                       "^drawTiledPixmap\\s+([\\w.:\\/]*)"
                       "\\s+(-?\\w*)\\s+(-?\\w*)\\s*(-?\\w*)\\s*(-?\\w*)"
                       "\\s*(-?\\w*)\\s*(-?\\w*)$",
-                      "",
-                      "");
+                      "drawTiledPixmap <tile image filename> <tx> <ty> <tx> <ty> <sx> <sy>"
+                      "\n  - where t means tile"
+                      "\n  - and s is an offset in the tile",
+                      "drawTiledPixmap :/images/alpha.png ");
 
     DECL_PAINTCOMMANDSECTION("painterPaths");
     DECL_PAINTCOMMAND("path_moveTo", command_path_moveTo,
@@ -483,41 +499,38 @@ void PaintCommands::staticInit()
                       "resetMatrix");
     DECL_PAINTCOMMAND("setMatrix", command_setMatrix,
                       "^setMatrix\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)$",
-                      "",
-                      "");
+                      "setMatrix <m11> <m12> <m13> <m21> <m22> <m23> <m31> <m32> <m33>",
+                      "setMatrix 1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0");
     DECL_PAINTCOMMAND("translate", command_translate,
                       "^translate\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)$",
-                      "",
-                      "");
+                      "translate <tx> <ty>",
+                      "translate 10.0 10.0");
     DECL_PAINTCOMMAND("rotate", command_rotate,
                       "^rotate\\s+(-?[\\w.]*)$",
-                      "",
-                      "");
+                      "rotate <angle>\n  - with angle in degrees",
+                      "rotate 30.0");
     DECL_PAINTCOMMAND("scale", command_scale,
                       "^scale\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)$",
-                      "",
-                      "");
+                      "scale <sx> <sy>",
+                      "scale 2.0 1.0");
     DECL_PAINTCOMMAND("mapQuadToQuad", command_mapQuadToQuad,
                       "^mapQuadToQuad\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)$",
-                      "",
-                      "");
+                      "mapQuadToQuad <x1> <y1> <x2> <y2> <x3> <y3> <x4> <y4> <x5> <y5> <x6> <y6> <x7> <y7> <x8> <y8>"
+                      "\n  - where vertices 1 to 4 defines the source quad and 5 to 8 the destination quad",
+                      "mapQuadToQuad 0.0 0.0 1.0 1.0 0.0 0.0 -1.0 -1.0");
+
+    // populate the enums list
+    ADD_ENUMLIST("brush styles", brushStyleTable);
+    ADD_ENUMLIST("pen styles", penStyleTable);
+    ADD_ENUMLIST("font weights", fontWeightTable);
+    ADD_ENUMLIST("clip operations", clipOperationTable);
+    ADD_ENUMLIST("spread methods", spreadMethodTable);
+    ADD_ENUMLIST("composition modes", compositionModeTable);
+    ADD_ENUMLIST("image formats", imageFormatTable);
 }
 
 #undef DECL_PAINTCOMMAND
-/*
-                                                                typedef void (PaintCommands::*qPaintCommand) (QRegExp re);
-
-                                                                struct PaintCommand {
-                                                                    PaintCommand(QRegExp re, qPaintCommand cmd)
-                                                                        : regExp(re), command(cmd)
-                                                                    {
-                                                                        Q_ASSERT(re.isValid());
-                                                                    }
-                                                                
-                                                                    QRegExp regExp;
-                                                                    qPaintCommand command;
-                                                                };
-*/
+#undef ADD_ENUMLIST
 /*********************************************************************************
 ** utility
 **********************************************************************************/
@@ -547,7 +560,6 @@ template <typename T> T PaintCommands::image_load(const QString &filepath)
     return t;
 }
 
-//                                                                                       static QList<PaintCommand> commandTable;
 /*********************************************************************************
 ** setters
 **********************************************************************************/
@@ -575,226 +587,6 @@ void PaintCommands::runCommand(const QString &scriptLine)
 void PaintCommands::runCommands()
 {
     staticInit();
-    /*if (commandTable.isEmpty()) {
-        static QRegExp comment("^\\s*#");
-        static QRegExp import("import\\s+\"(.*)\"");
-
-        static QRegExp begin_block("begin_block\\s+(\\w*)");
-        static QRegExp end_block("end_block");
-        static QRegExp repeat_block("repeat_block\\s+(\\w*)");
-
-        static QRegExp drawEllipse("drawEllipse\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)");
-        static QRegExp drawRect("drawRect\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)");
-        static QRegExp drawRoundRect("drawRoundRect\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s*(-?\\w*)?\\s*(-?\\w*)?");
-        static QRegExp drawPie("drawPie\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)");
-        static QRegExp drawChord("drawChord\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)");
-        static QRegExp drawArc("drawArc\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)");
-        static QRegExp qt3_drawEllipse("qt3_drawEllipse\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)");
-        static QRegExp qt3_drawRect("qt3_drawRect\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)");
-        static QRegExp qt3_drawRoundRect("qt3_drawRoundRect\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s*(-?\\w)?\\s*(-?\\w)?");
-        static QRegExp qt3_drawPie("qt3_drawPie\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)");
-        static QRegExp qt3_drawChord("qt3_drawChord\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)");
-        static QRegExp qt3_drawArc("qt3_drawArc\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)");
-        static QRegExp drawLine("drawLine\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)");
-        static QRegExp drawPath("drawPath\\s+(\\w*)");
-        static QRegExp drawPixmap("drawPixmap\\s+([\\w.:\\-/]*)"
-                                  "\\s+(-?\\w*)\\s+(-?\\w*)\\s*(-?\\w*)?\\s*(-?\\w*)?"    // target rect
-                                  "\\s*(-?\\w*)?\\s*(-?\\w*)?\\s*(-?\\w*)?\\s*(-?\\w*)?");  // source rect
-        static QRegExp drawImage("drawImage\\s+([\\w.:\\/]*)"
-                                 "\\s+(-?\\w*)\\s+(-?\\w*)\\s*(-?\\w*)?\\s*(-?\\w*)?"    // target rect
-                                 "\\s*(-?\\w*)?\\s*(-?\\w*)?\\s*(-?\\w*)?\\s*(-?\\w*)?");  // source rect
-        static QRegExp drawPoint("drawPoint\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)");
-        static QRegExp drawPolygon("drawPolygon\\s+\\[([\\w\\s-.]*)\\]\\s*(\\w*)");
-        static QRegExp drawConvexPolygon("drawConvexPolygon\\s+\\[([\\w\\s-.]*)\\]");
-        static QRegExp drawPolyline("drawPolyline\\s+\\[([\\w\\s]*)\\]");
-        static QRegExp drawText("drawText\\s+(-?\\w*)\\s+(-?\\w*)\\s+\"(.*)\"");
-        static QRegExp drawTiledPixmap("drawTiledPixmap\\s+([\\w.:\\/]*)"
-                                       "\\s+(-?\\w*)\\s+(-?\\w*)\\s*(-?\\w*)\\s*(-?\\w*)"
-                                       "\\s*(-?\\w*)\\s*(-?\\w*)");
-        static QRegExp empty(".*");
-        static QRegExp path_addEllipse("path_addEllipse\\s+(\\w*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)");
-        static QRegExp path_addRect("path_addRect\\s+(\\w*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)");
-        static QRegExp path_addPolygon("path_addPolygon\\s+(\\w*)\\s+\\[([\\w\\s]*)\\]\\s*(\\w*)");
-        static QRegExp path_addText("path_addText\\s+(\\w*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+\"(.*)\"");
-        static QRegExp path_arcTo("path_arcTo\\s+(\\w*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)");
-        static QRegExp path_cubicTo("path_cubicTo\\s+(\\w*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)");
-        static QRegExp path_lineTo("path_lineTo\\s+([.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)");
-        static QRegExp path_moveTo("path_moveTo\\s+([.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)");
-        static QRegExp path_createOutline("path_createOutline\\s+(\\w*)\\s+(\\w*)");
-        static QRegExp path_getClipPath("path_getClipPath\\s+([\\w0-9]*)");
-        static QRegExp path_closeSubpath("path_closeSubpath\\s+(\\w*)");
-        static QRegExp path_setFillRule("path_setFillRule\\s+(\\w*)\\s+(\\w*)");
-        static QRegExp path_debugPrint("path_debugPrint\\s+(\\w*)");
-
-        static QRegExp region_addRect("region_addRect\\s+(\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)");
-        static QRegExp region_addEllipse("region_addEllipse\\s+(\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)");
-        static QRegExp region_getClipRegion("region_getClipRegion\\s+(\\w*)");
-        static QRegExp resetMatrix("resetMatrix");
-        static QRegExp restore("restore");
-        static QRegExp rotate("rotate\\s+(-?[\\w.]*)");
-        static QRegExp save("save");
-        static QRegExp scale("scale\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)");
-        static QRegExp mapQuadToQuad("mapQuadToQuad\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)");
-        static QRegExp setMatrix("setMatrix\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)");
-        static QRegExp setBackground("setBackground\\s+#?(\\w*)\\s*(\\w*)?");
-        static QRegExp setOpacity("setOpacity\\s+(-?[\\w.]*)");
-        static QRegExp setBgMode("setBackgroundMode\\s+(\\w*)");
-        static QRegExp setBrush("setBrush\\s+(#?[\\w.:\\/]*)\\s*(\\w*)?");
-        static QRegExp setBrushOrigin("setBrushOrigin\\s*(-?\\w*)\\s+(-?\\w*)");
-
-        static QRegExp brushTranslate("brushTranslate\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)");
-        static QRegExp brushScale("brushScale\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)");
-        static QRegExp brushShear("brushShear\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)");
-        static QRegExp brushRotate("brushRotate\\s+(-?[\\w.]*)");
-
-        static QRegExp setClipPath("setClipPath\\s+(\\w*)\\s*(\\w*)");
-        static QRegExp setClipRect("setClipRect\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s*(\\w*)");
-//        static QRegExp setClipRectangle("setClipRectangle\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s+(-?\\w*)\\s*(\\w*)");
-        static QRegExp setClipRegion("setClipRegion\\s+(\\w*)\\s*(\\w*)");
-        static QRegExp setClipping("setClipping\\s+(\\w*)");
-        static QRegExp setFont("setFont\\s+\"([\\w\\s]*)\"\\s*(\\w*)\\s*(\\w*)\\s*(\\w*)");
-        static QRegExp setPen("setPen\\s+#?(\\w*)");
-        static QRegExp setPen2("setPen\\s+(#?\\w*)\\s+([\\w.]+)\\s*(\\w*)\\s*(\\w*)\\s*(\\w*)");
-        static QRegExp pen_setCosmetic("pen_setCosmetic\\s+(\\w*)");
-        static QRegExp pen_setDashPattern("pen_setDashPattern\\s+\\[([\\w\\s.]*)\\]");
-
-        static QRegExp setRenderHint("setRenderHint\\s+([\\w_0-9]*)\\s*(\\w*)");
-        static QRegExp setCompositionMode("setCompositionMode\\s+([\\w_0-9]*)");
-
-        static QRegExp surface_begin("surface_begin\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)");
-        static QRegExp surface_end("surface_end");
-
-        static QRegExp gradient_clearStops("gradient_clearStop");
-        static QRegExp gradient_appendStop("gradient_appendStop\\s+([\\w.]*)\\s+#?(\\w*)");
-        static QRegExp gradient_setLinear("gradient_setLinear\\s+([\\w.]*)\\s+([\\w.]*)\\s+([\\w.]*)\\s+([\\w.]*)");
-        static QRegExp gradient_setRadial("gradient_setRadial\\s+([\\w.]*)\\s+([\\w.]*)\\s+([\\w.]*)\\s?([\\w.]*)\\s?([\\w.]*)");
-        static QRegExp gradient_setConical("gradient_setConical\\s+([\\w.]*)\\s+([\\w.]*)\\s+([\\w.]*)");
-        static QRegExp gradient_setSpread("gradient_setSpread\\s+(\\w*)");
-
-        static QRegExp translate("translate\\s+(-?[\\w.]*)\\s+(-?[\\w.]*)");
-        static QRegExp pixmap_load("pixmap_load\\s+([\\w.:\\/]*)\\s*([\\w.:\\/]*)");
-        static QRegExp bitmap_load("bitmap_load\\s+([\\w.:\\/]*)\\s*([\\w.:\\/]*)");
-        static QRegExp pixmap_setMask("pixmap_setMask\\s+([\\w.:\\/]*)\\s+([\\w.:\\/]*)");
-        static QRegExp image_load("image_load\\s+([\\w.:\\/]*)\\s*([\\w.:\\/]*)");
-        static QRegExp image_setNumColors("image_setNumColors\\s+([\\w.:\\/]*)\\s+([0-9]*)");
-        static QRegExp image_setColor("image_setColor\\s+([\\w.:\\/]*)\\s+([0-9]*)\\s+#([0-9]*)");
-        static QRegExp image_convertToFormat("image_convertToFormat\\s+([\\w.:\\/]*)\\s+([\\w.:\\/]+)\\s+([\\w0-9_]*)");
-
-        static QRegExp textlayout_draw("textlayout_draw\\s+\"(.*)\"\\s+([0-9.]*)");
-
-        static QRegExp abort("^abort");
-
-        // Skip comments first of all
-        commandTable.append(PaintCommand(comment,             &PaintCommands::command_comment));
-
-        // Importer
-        commandTable.append(PaintCommand(import,              &PaintCommands::command_import));
-
-        // Block commands
-        commandTable.append(PaintCommand(begin_block,         &PaintCommands::command_begin_block));
-        commandTable.append(PaintCommand(end_block,           &PaintCommands::command_end_block));
-        commandTable.append(PaintCommand(repeat_block,        &PaintCommands::command_repeat_block));
-
-        // Setters
-        commandTable.append(PaintCommand(setBgMode,           &PaintCommands::command_setBgMode));
-        commandTable.append(PaintCommand(setBackground,       &PaintCommands::command_setBackground));
-        commandTable.append(PaintCommand(setOpacity,          &PaintCommands::command_setOpacity));
-        commandTable.append(PaintCommand(setBrush,            &PaintCommands::command_setBrush));
-        commandTable.append(PaintCommand(setBrushOrigin,      &PaintCommands::command_setBrushOrigin));
-        commandTable.append(PaintCommand(brushTranslate,      &PaintCommands::command_brushTranslate));
-        commandTable.append(PaintCommand(brushScale,          &PaintCommands::command_brushScale));
-        commandTable.append(PaintCommand(brushRotate,         &PaintCommands::command_brushRotate));
-        commandTable.append(PaintCommand(brushShear,          &PaintCommands::command_brushShear));
-
-        commandTable.append(PaintCommand(setClipPath,         &PaintCommands::command_setClipPath));
-        commandTable.append(PaintCommand(setClipRect,         &PaintCommands::command_setClipRect));
-        commandTable.append(PaintCommand(setClipRegion,       &PaintCommands::command_setClipRegion));
-        commandTable.append(PaintCommand(setClipping,         &PaintCommands::command_setClipping));
-        commandTable.append(PaintCommand(setFont,             &PaintCommands::command_setFont));
-        commandTable.append(PaintCommand(setPen2,             &PaintCommands::command_setPen2));
-        commandTable.append(PaintCommand(setPen,              &PaintCommands::command_setPen));
-        commandTable.append(PaintCommand(pen_setDashPattern,  &PaintCommands::command_pen_setDashPattern));
-        commandTable.append(PaintCommand(pen_setCosmetic,     &PaintCommands::command_pen_setCosmetic));
-        commandTable.append(PaintCommand(setRenderHint,       &PaintCommands::command_setRenderHint));
-        commandTable.append(PaintCommand(setCompositionMode,  &PaintCommands::command_setCompositionMode));
-        commandTable.append(PaintCommand(gradient_clearStops, &PaintCommands::command_gradient_clearStops));
-        commandTable.append(PaintCommand(gradient_appendStop, &PaintCommands::command_gradient_appendStop));
-        commandTable.append(PaintCommand(gradient_setLinear,  &PaintCommands::command_gradient_setLinear));
-        commandTable.append(PaintCommand(gradient_setRadial,  &PaintCommands::command_gradient_setRadial));
-        commandTable.append(PaintCommand(gradient_setConical, &PaintCommands::command_gradient_setConical));
-        commandTable.append(PaintCommand(gradient_setSpread,  &PaintCommands::command_gradient_setSpread));
-
-        // Drawing ops
-        commandTable.append(PaintCommand(qt3_drawEllipse,     &PaintCommands::command_qt3_drawEllipse));
-        commandTable.append(PaintCommand(qt3_drawArc,         &PaintCommands::command_qt3_drawArc));
-        commandTable.append(PaintCommand(qt3_drawChord,       &PaintCommands::command_qt3_drawChord));
-        commandTable.append(PaintCommand(qt3_drawPie,         &PaintCommands::command_qt3_drawPie));
-        commandTable.append(PaintCommand(qt3_drawRect,        &PaintCommands::command_qt3_drawRect));
-        commandTable.append(PaintCommand(qt3_drawRoundRect,   &PaintCommands::command_qt3_drawRoundRect));
-        commandTable.append(PaintCommand(drawEllipse,         &PaintCommands::command_drawEllipse));
-        commandTable.append(PaintCommand(drawArc,             &PaintCommands::command_drawArc));
-        commandTable.append(PaintCommand(drawChord,           &PaintCommands::command_drawChord));
-        commandTable.append(PaintCommand(drawPie,             &PaintCommands::command_drawPie));
-        commandTable.append(PaintCommand(drawRect,            &PaintCommands::command_drawRect));
-        commandTable.append(PaintCommand(drawRoundRect,       &PaintCommands::command_drawRoundRect));
-        commandTable.append(PaintCommand(drawLine,            &PaintCommands::command_drawLine));
-        commandTable.append(PaintCommand(drawPath,            &PaintCommands::command_drawPath));
-        commandTable.append(PaintCommand(drawPixmap,          &PaintCommands::command_drawPixmap));
-        commandTable.append(PaintCommand(drawImage,           &PaintCommands::command_drawImage));
-        commandTable.append(PaintCommand(drawPoint,           &PaintCommands::command_drawPoint));
-        commandTable.append(PaintCommand(drawPolygon,         &PaintCommands::command_drawPolygon));
-        commandTable.append(PaintCommand(drawConvexPolygon,   &PaintCommands::command_drawConvexPolygon));
-        commandTable.append(PaintCommand(drawPolyline,        &PaintCommands::command_drawPolyline));
-
-        commandTable.append(PaintCommand(drawText,            &PaintCommands::command_drawText));
-        commandTable.append(PaintCommand(drawTiledPixmap,     &PaintCommands::command_drawTiledPixmap));
-        commandTable.append(PaintCommand(path_addText,        &PaintCommands::command_path_addText));
-        commandTable.append(PaintCommand(path_addEllipse,     &PaintCommands::command_path_addEllipse));
-        commandTable.append(PaintCommand(path_addRect,        &PaintCommands::command_path_addRect));
-        commandTable.append(PaintCommand(path_addPolygon,     &PaintCommands::command_path_addPolygon));
-        commandTable.append(PaintCommand(path_arcTo,          &PaintCommands::command_path_arcTo));
-        commandTable.append(PaintCommand(path_cubicTo,        &PaintCommands::command_path_cubicTo));
-        commandTable.append(PaintCommand(path_createOutline,  &PaintCommands::command_path_createOutline));
-        commandTable.append(PaintCommand(path_lineTo,         &PaintCommands::command_path_lineTo));
-        commandTable.append(PaintCommand(path_moveTo,         &PaintCommands::command_path_moveTo));
-        commandTable.append(PaintCommand(path_closeSubpath,   &PaintCommands::command_path_closeSubpath));
-        commandTable.append(PaintCommand(path_setFillRule,    &PaintCommands::command_path_setFillRule));
-        commandTable.append(PaintCommand(path_debugPrint,     &PaintCommands::command_path_debugPrint));
-
-        commandTable.append(PaintCommand(region_addRect,      &PaintCommands::command_region_addRect));
-        commandTable.append(PaintCommand(region_addEllipse,   &PaintCommands::command_region_addEllipse));
-        commandTable.append(PaintCommand(region_getClipRegion,&PaintCommands::command_region_getClipRegion));
-        commandTable.append(PaintCommand(path_getClipPath,    &PaintCommands::command_path_getClipPath));
-
-        commandTable.append(PaintCommand(surface_begin,       &PaintCommands::command_surface_begin));
-        commandTable.append(PaintCommand(surface_end,         &PaintCommands::command_surface_end));
-
-        // XForms
-        commandTable.append(PaintCommand(resetMatrix,    &PaintCommands::command_resetMatrix));
-        commandTable.append(PaintCommand(translate,      &PaintCommands::command_translate));
-        commandTable.append(PaintCommand(rotate,         &PaintCommands::command_rotate));
-        commandTable.append(PaintCommand(scale,          &PaintCommands::command_scale));
-        commandTable.append(PaintCommand(mapQuadToQuad,  &PaintCommands::command_mapQuadToQuad));
-        commandTable.append(PaintCommand(setMatrix,      &PaintCommands::command_setMatrix));
-
-        // Other commands
-        commandTable.append(PaintCommand(save,                 &PaintCommands::command_save));
-        commandTable.append(PaintCommand(restore,              &PaintCommands::command_restore));
-        commandTable.append(PaintCommand(pixmap_load,          &PaintCommands::command_pixmap_load));
-        commandTable.append(PaintCommand(bitmap_load,          &PaintCommands::command_bitmap_load));
-        commandTable.append(PaintCommand(pixmap_setMask,       &PaintCommands::command_pixmap_setMask));
-        commandTable.append(PaintCommand(image_load,           &PaintCommands::command_image_load));
-        commandTable.append(PaintCommand(image_setNumColors,   &PaintCommands::command_image_setNumColors));
-        commandTable.append(PaintCommand(image_setColor,       &PaintCommands::command_image_setColor));
-        commandTable.append(PaintCommand(image_convertToFormat,&PaintCommands::command_image_convertToFormat));
-
-        commandTable.append(PaintCommand(textlayout_draw, &PaintCommands::command_textlayout_draw));
-
-        commandTable.append(PaintCommand(abort,           &PaintCommands::command_abort));
-
-        // noops
-        commandTable.append(PaintCommand(empty,           &PaintCommands::command_noop));
-    }*/
 
     // paint background
     QPixmap pm(20, 20);
@@ -805,9 +597,7 @@ void PaintCommands::runCommands()
         pt.fillRect(10, 10, 10, 10, QColor::fromRgba(0xffdfdfdf));
     }
 
-    m_painter->drawTiledPixmap(0, 0,
-                             m_painter->window().width(),
-                             m_painter->window().height(), pm);
+    m_painter->drawTiledPixmap(0, 0, m_painter->window().width(), m_painter->window().height(), pm);
 
     // run each command
     m_abort = false;
@@ -853,33 +643,6 @@ double PaintCommands::convertToDouble(const QString &str)
 
 QColor PaintCommands::convertToColor(const QString &str)
 {
-    /*static QHash<QString, QColor> predefinedColors;
-    if (predefinedColors.size() == 0) {
-        predefinedColors["white"] = QColor(Qt::white);
-        predefinedColors["black"] = QColor(Qt::black);
-        predefinedColors["red"] = QColor(Qt::red);
-        predefinedColors["darkred"] = QColor(Qt::darkRed);
-        predefinedColors["green"] = QColor(Qt::green);
-        predefinedColors["darkgreen"] = QColor(Qt::darkGreen);
-        predefinedColors["blue"] = QColor(Qt::blue);
-        predefinedColors["darkblue"] = QColor(Qt::darkBlue);
-        predefinedColors["cyan"] = QColor(Qt::cyan);
-        predefinedColors["darkcyan"] = QColor(Qt::darkCyan);
-        predefinedColors["magenta"] = QColor(Qt::magenta);
-        predefinedColors["darkmagenta"] = QColor(Qt::darkMagenta);
-        predefinedColors["yellow"] = QColor(Qt::yellow);
-        predefinedColors["darkyellow"] = QColor(Qt::darkYellow);
-        predefinedColors["gray"] = QColor(Qt::gray);
-        predefinedColors["darkgray"] = QColor(Qt::darkGray);
-        predefinedColors["lightgray"] = QColor(Qt::lightGray);
-        predefinedColors["color0"] = QColor(Qt::color0);
-        predefinedColors["color1"] = QColor(Qt::color1);
-        predefinedColors["transparent"] = QColor(Qt::transparent);
-    }
-
-    if (predefinedColors.contains(str))
-        return predefinedColors[str];
-*/
     static QRegExp alphaColor("#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})");
     static QRegExp opaqueColor("#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})");
 
@@ -1755,7 +1518,6 @@ void PaintCommands::command_restore(QRegExp)
     if (m_verboseMode)
         printf(" - restore()\n");
 
-
     m_painter->restore();
 }
 
@@ -1763,11 +1525,10 @@ void PaintCommands::command_restore(QRegExp)
 void PaintCommands::command_rotate(QRegExp re)
 {
     QStringList caps = re.capturedTexts();
-    int angle = convertToInt(caps.at(1));
+    double angle = convertToDouble(caps.at(1));
 
     if (m_verboseMode)
         printf(" - rotate(%d)\n", angle);
-
 
     m_painter->rotate(angle);
 }
@@ -1777,7 +1538,6 @@ void PaintCommands::command_save(QRegExp)
 {
     if (m_verboseMode)
         printf(" - save()\n");
-
 
     m_painter->save();
 }

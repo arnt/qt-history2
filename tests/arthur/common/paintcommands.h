@@ -16,19 +16,19 @@ class QGLPixelBuffer;
 #endif
 
 enum DeviceType {
-    WidgetType,
-    BitmapType,
-    PixmapType,
-    ImageType,
-    ImageMonoType,
-    OpenGLType,
-    OpenGLPBufferType,
-    PictureType,
-    PrinterType,
-    PdfType,
-    PsType,
-    GrabType,
-    CustomType
+        WidgetType,
+        BitmapType,
+        PixmapType,
+        ImageType,
+        ImageMonoType,
+        OpenGLType,
+        OpenGLPBufferType,
+        PictureType,
+        PrinterType,
+        PdfType,
+        PsType,
+        GrabType,
+        CustomType
 };
 
 /************************************************************************/
@@ -250,6 +250,7 @@ public:
     }
 
     static QList<PaintCommandInfos> s_commandInfoTable;
+    static QList<QPair<QString,QStringList> > s_enumsTable;
 };
 
 #endif // PAINTCOMMANDS_H
