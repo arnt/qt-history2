@@ -27,7 +27,7 @@ class Q_SCRIPT_EXPORT QScriptExtensionPlugin : public QObject,
                                                public QScriptExtensionInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QScriptExtensionInterface)
+    Q_INTERFACES(QScriptExtensionInterface:QFactoryInterface)
 public:
     explicit QScriptExtensionPlugin(QObject *parent = 0);
     ~QScriptExtensionPlugin();
