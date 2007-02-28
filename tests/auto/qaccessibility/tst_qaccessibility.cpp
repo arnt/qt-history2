@@ -2525,7 +2525,6 @@ void tst_QAccessibility::mdiSubWindowTest()
     QCOMPARE(interface->rect(0), QRect());
     QCOMPARE(interface->rect(1), QRect());
     testWindow->showMinimized();
-    QCOMPARE(interface->rect(0).size(), testWindow->iconSize());
     QCOMPARE(interface->rect(1), QRect());
     testWindow->showNormal();
     testWindow->widget()->hide();
