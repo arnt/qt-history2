@@ -1390,7 +1390,6 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
     // variable length cells. Also assign the minimum width for variable columns.
     QFixed totalPercentage;
     int variableCols = 0;
-    int colsWithPercentage = 0;
     for (int i = 0; i < columns; ++i) {
         const QTextLength &length = columnWidthConstraints.at(i);
         if (length.type() == QTextLength::FixedLength) {
@@ -1398,7 +1397,6 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
             totalWidth -= td->widths.at(i);
         } else if (length.type() == QTextLength::PercentageLength) {
             totalPercentage += QFixed::fromReal(length.rawValue());
-            ++colsWithPercentage;
         } else if (length.type() == QTextLength::VariableLength) {
             variableCols++;
 
@@ -1409,24 +1407,51 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
 
     // set percentage values
     {
+        QFixed minimumSlack = QFIXED_MAX;
+        int colsWithSlack = 0;
+
         QFixed overhangingPercent;
         const QFixed totalPercentagedWidth = initialTotalWidth * totalPercentage / 100;
         for (int i = 0; i < columns; ++i)
             if (columnWidthConstraints.at(i).type() == QTextLength::PercentageLength) {
-                --colsWithPercentage;
-
-                const QFixed allottedPercentage = QFixed::fromReal(columnWidthConstraints.at(i).rawValue()) - overhangingPercent;
+                const QFixed allottedPercentage = QFixed::fromReal(columnWidthConstraints.at(i).rawValue());
 
                 const QFixed percentWidth = totalPercentagedWidth * allottedPercentage / totalPercentage;
                 if (percentWidth >= td->minWidths.at(i)) {
                     td->widths[i] = percentWidth;
+
+                    if (td->widths.at(i) > td->minWidths.at(i)) {
+                        ++colsWithSlack;
+                        minimumSlack = qMin(minimumSlack, td->widths.at(i) - td->minWidths.at(i));
+                    }
                 } else {
                     td->widths[i] = td->minWidths.at(i);
                     QFixed effectivePercentage = td->widths.at(i) * 100 / totalPercentagedWidth;
-                    overhangingPercent += (effectivePercentage - allottedPercentage) / colsWithPercentage;
+                    overhangingPercent += effectivePercentage - allottedPercentage;
                 }
                 totalWidth -= td->widths.at(i);
             }
+
+        // subtract the overhanging percent from columns with slack
+        while (colsWithSlack > 0 && overhangingPercent > 0) {
+            const QFixed slackToSubtract = qMin(minimumSlack, totalPercentagedWidth * overhangingPercent / (colsWithSlack * totalPercentage));
+            overhangingPercent -= (slackToSubtract * colsWithSlack * 100) / totalPercentagedWidth;
+
+            minimumSlack = QFIXED_MAX;
+            colsWithSlack = 0;
+
+            for (int i = 0; i < columns; ++i)
+                if (columnWidthConstraints.at(i).type() == QTextLength::PercentageLength) {
+                    if (td->widths.at(i) > td->minWidths.at(i)) {
+                        td->widths[i] -= slackToSubtract;
+
+                        if (td->widths.at(i) > td->minWidths.at(i)) {
+                            ++colsWithSlack;
+                            minimumSlack = qMin(minimumSlack, td->widths.at(i) - td->minWidths.at(i));
+                        }
+                    }
+                }
+        }
     }
 
     // for variable columns distribute the remaining space
