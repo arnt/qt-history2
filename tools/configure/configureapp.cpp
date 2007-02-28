@@ -236,11 +236,11 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "ZLIB" ]            = "auto";
 
     dictionary[ "GIF" ]             = "auto";
-    dictionary[ "TIFF" ]            = "no";
+    dictionary[ "TIFF" ]            = "auto";
     dictionary[ "JPEG" ]            = "auto";
     dictionary[ "PNG" ]             = "auto";
     dictionary[ "MNG" ]             = "auto";
-    dictionary[ "LIBTIFF" ]         = "no";
+    dictionary[ "LIBTIFF" ]         = "auto";
     dictionary[ "LIBJPEG" ]         = "auto";
     dictionary[ "LIBPNG" ]          = "auto";
     dictionary[ "LIBMNG" ]          = "auto";
