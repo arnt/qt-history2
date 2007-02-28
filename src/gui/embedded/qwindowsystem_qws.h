@@ -251,6 +251,7 @@ public:
     static void setScreenSaver(QWSScreenSaver*);
     static void setScreenSaverIntervals(int* ms);
     static void setScreenSaverInterval(int);
+    static void setScreenSaverBlockLevel(int);
     static bool screenSaverActive();
     static void screenSaverActivate(bool);
 

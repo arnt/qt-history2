@@ -88,6 +88,10 @@
 QWSServer Q_GUI_EXPORT *qwsServer=0;
 static QWSServerPrivate *qwsServerPrivate=0;
 
+#define MOUSE 0
+#define KEY 1
+//#define EVENT_BLOCK_DEBUG
+
 QWSScreenSaver::~QWSScreenSaver()
 {
 }
@@ -1167,6 +1171,41 @@ QWSServer::QWSServer(int flags, QObject *parent, const char *name) :
 static void ignoreSignal(int) {} // Used to eat SIGPIPE signals below
 #endif
 
+bool QWSServerPrivate::screensaverblockevent( int index, int *screensaverinterval, bool isDown )
+{
+    static bool ignoreEvents[2] = { false, false };
+    if ( isDown ) {
+        if ( !ignoreEvents[index] ) {
+            bool wake = false;
+            if ( screensaverintervals ) {
+                if ( screensaverinterval != screensaverintervals ) {
+                    wake = true;
+                }
+            }
+            if ( screensaverblockevents && wake ) {
+#ifdef EVENT_BLOCK_DEBUG
+                qDebug( "waking the screen" );
+#endif
+                ignoreEvents[index] = true;
+            } else if ( !screensaverblockevents ) {
+#ifdef EVENT_BLOCK_DEBUG
+                qDebug( "the screen was already awake" );
+#endif
+                ignoreEvents[index] = false;
+            }
+        }
+    } else {
+        if ( ignoreEvents[index] ) {
+#ifdef EVENT_BLOCK_DEBUG
+            qDebug( "mouseup?" );
+#endif
+            ignoreEvents[index] = false;
+            return true;
+        }
+    }
+    return ignoreEvents[index];
+}
+
 void QWSServerPrivate::initServer(int flags)
 {
     Q_Q(QWSServer);
@@ -1970,11 +2009,16 @@ extern int *qt_last_x,*qt_last_y;
 */
 void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
 {
-    //const int btnMask = Qt::LeftButton | Qt::RightButton | Qt::MidButton;
+    bool block = qwsServerPrivate->screensaverblockevent(MOUSE, qwsServerPrivate->screensaverinterval, state);
+#ifdef EVENT_BLOCK_DEBUG
+    qDebug() << "sendMouseEvent" << pos.x() << pos.y() << state << (block?"block":"pass");
+#endif
 
     if (state)
         qwsServerPrivate->_q_screenSaverWake();
 
+    if ( block )
+        return;
 
     QPoint tpos;
     // transformations
@@ -3728,6 +3772,24 @@ static QList<QWSServer::KeyboardFilter*> *keyFilters = 0;
 void QWSServer::processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                                 bool isPress, bool autoRepeat)
 {
+    bool block;
+    // Don't block the POWER or LIGHT keys
+    if ( keycode == Qt::Key_F34 || keycode == Qt::Key_F35 )
+        block = false;
+    else
+        block = qwsServerPrivate->screensaverblockevent(KEY, qwsServerPrivate->screensaverinterval, isPress);
+
+#ifdef EVENT_BLOCK_DEBUG
+    qDebug() << "processKeyEvent" << unicode << keycode << modifiers << isPress << autoRepeat << (block?"block":"pass");
+#endif
+
+    // If we press a key and it's going to be blocked, wake up the screen
+    if ( block && isPress )
+        qwsServerPrivate->_q_screenSaverWake();
+
+    if ( block )
+        return;
+
     if (keyFilters) {
         for (int i = 0; i < keyFilters->size(); ++i) {
             QWSServer::KeyboardFilter *keyFilter = keyFilters->at(i);
@@ -3808,6 +3870,7 @@ void QWSServer::setScreenSaverIntervals(int* ms)
 {
     if (!qwsServerPrivate)
         return;
+
     delete [] qwsServerPrivate->screensaverintervals;
     if (ms) {
         int* t=ms;
@@ -3847,6 +3910,13 @@ void QWSServer::setScreenSaverInterval(int ms)
     setScreenSaverIntervals(v);
 }
 
+void QWSServer::setScreenSaverBlockLevel(int eventBlockLevel)
+{
+    if (!qwsServerPrivate)
+        return;
+    qwsServerPrivate->screensavereventblocklevel = eventBlockLevel;
+}
+
 extern bool qt_disable_lowpriority_timers; //in qeventloop_unix.cpp
 
 void QWSServerPrivate::_q_screenSaverWake()
@@ -3855,6 +3925,7 @@ void QWSServerPrivate::_q_screenSaverWake()
         if (screensaverinterval != screensaverintervals) {
             if (saver) saver->restore();
             screensaverinterval = screensaverintervals;
+            screensaverblockevents = false;
         } else {
             if (!screensavertimer->isActive()) {
                 qt_screen->blank(false);
@@ -3902,6 +3973,13 @@ void QWSServerPrivate::screenSave(int level)
 {
     if (saver) {
         if (saver->save(level)) {
+            if ( *screensaverinterval >= 1000 ) {
+                screensaverblockevents = (screensavereventblocklevel >= 0 && screensavereventblocklevel <= level);
+#ifdef EVENT_BLOCK_DEBUG
+                if ( screensaverblockevents )
+                    qDebug( "ready to block events" );
+#endif
+            }
             if (screensaverinterval && screensaverinterval[1]) {
                 screensavertimer->start(*++screensaverinterval);
                 screensavertime.start();
@@ -3918,6 +3996,7 @@ void QWSServerPrivate::screenSave(int level)
         }
     } else {
         screensaverinterval = 0;//screensaverintervals;
+        screensaverblockevents = false;
         _q_screenSaverSleep();
     }
 }

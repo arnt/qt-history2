@@ -43,7 +43,9 @@ class QWSServerPrivate : public QObjectPrivate {
 
 public:
     QWSServerPrivate()
-        : screensaverintervals(0), saver(0), cursorClient(0), mouseState(0), nReserved(0)
+        : screensaverintervals(0)
+        , screensavereventblocklevel(-1), screensaverblockevents(false)
+        , saver(0), cursorClient(0), mouseState(0), nReserved(0)
     {
     }
     ~QWSServerPrivate()
@@ -63,6 +65,9 @@ public:
     QTime screensavertime;
     QTimer* screensavertimer;
     int* screensaverintervals;
+    int screensavereventblocklevel;
+    bool screensaverblockevents;
+    bool screensaverblockevent( int index, int *screensaverinterval, bool isDown ); 
     QWSScreenSaver* saver;
     QWSClient *cursorClient;
     int mouseState;
