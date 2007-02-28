@@ -318,7 +318,7 @@ void WidgetDataBase::loadPlugins()
     unsigned removedPlugins = 0;
     if (!pluginList.empty()) {
         ItemList::const_iterator cend = pluginList.constEnd();
-        for (ItemList::const_iterator::const_iterator it = pluginList.constBegin();it != cend; ++it )  {
+        for (ItemList::const_iterator it = pluginList.constBegin();it != cend; ++it )  {
             QDesignerWidgetDataBaseItemInterface* pluginItem = *it;
             const QString pluginName = pluginItem->name();
             NameIndexMap::iterator existingIt = existingCustomClasses.find(pluginName);
@@ -344,7 +344,7 @@ void WidgetDataBase::loadPlugins()
     // 4) remove classes that have not been matched
     if (!existingCustomClasses.empty()) {
         NameIndexMap::const_iterator cend = existingCustomClasses.constEnd();
-        for (NameIndexMap::const_iterator::const_iterator it = existingCustomClasses.constBegin();it != cend; ++it )  {
+        for (NameIndexMap::const_iterator it = existingCustomClasses.constBegin();it != cend; ++it )  {
             remove(it.value());
             removedPlugins++;
         }
