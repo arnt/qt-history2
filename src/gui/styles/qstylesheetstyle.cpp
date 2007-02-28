@@ -36,6 +36,7 @@
 #include <qtoolbutton.h>
 #include <qscrollbar.h>
 #include <qstring.h>
+#include <qfile.h>
 
 #include <limits.h>
 
@@ -46,7 +47,7 @@ typedef QHash<QString, QHash<int, QRenderRule> > QRenderRules;
 static QHash<const QWidget *, QRenderRules> *renderRulesCache = 0;
 static QHash<const QWidget *, int> *customPaletteWidgets = 0; // widgets whose palette we tampered
 static QHash<const QWidget *, int> *customFontWidgets = 0; // widgets whose font we tampered
-static QHash<const QWidget *, StyleSheet> *styleSheetCache = 0; // parsed style sheets
+static QHash<void *, StyleSheet> *styleSheetCache = 0; // parsed style sheets
 static QSet<const QWidget *> *autoFillDisabledWidgets = 0;
 
 #define ceil(x) ((int)(x) + ((x) > 0 && (x) != (int)(x)))
@@ -171,22 +172,24 @@ struct QStyleSheetPositionData : public QSharedData
 class QRenderRule
 {
 public:
-    QRenderRule() : pal(0), b(0), bg(0), bd(0), geo(0), p(0) { }
-   QRenderRule(const QVector<QCss::Declaration> &);
+    QRenderRule() : features(0), pal(0), b(0), bg(0), bd(0), geo(0), p(0) { }
+    QRenderRule(const QVector<QCss::Declaration> &, const QWidget *);
     ~QRenderRule() { }
 
     QRect borderRect(const QRect &r) const;
     QRect paddingRect(const QRect &r) const;
     QRect contentsRect(const QRect &r) const;
-    QRect boxRect(const QRect &r) const;
-    QSize boxSize(const QSize &s) const;
+
+    enum { Margin = 1, Border = 2, Padding = 4, All=Margin|Border|Padding };
+    QRect boxRect(const QRect &r, int flags = All) const;
+    QSize boxSize(const QSize &s, int flags = All) const;
     QRect originRect(const QRect &rect, Origin origin) const;
 
     bool paintsOver(Edge e1, Edge e2);
     void drawBorder(QPainter *, const QRect&);
     void drawBorderImage(QPainter *, const QRect&);
     void drawBackground(QPainter *, const QRect&, const QPoint& = QPoint(0, 0));
-    void drawBackgroundImage(QPainter *, const QRect&, const QPoint);
+    void drawBackgroundImage(QPainter *, const QRect&, QPoint = QPoint(0, 0));
     void drawFrame(QPainter *, const QRect&);
     void drawImage(QPainter *p, const QRect &rect);
     void drawRule(QPainter *, const QRect&);
@@ -206,6 +209,23 @@ public:
     bool hasBackground() const { return bg != 0; }
     bool hasGradientBackground() const { return bg && bg->brush.style() >= Qt::LinearGradientPattern
                                                    && bg->brush.style() <= Qt::ConicalGradientPattern; }
+
+    bool hasNativeBorder() const { 
+        return bd == 0
+               || (!bd->hasBorderImage() && bd->styles[0] == BorderStyle_Native); 
+    }
+
+    bool nativeBorder() const {
+        return (bd == 0
+                || (!bd->hasBorderImage() && bd->styles[0] == BorderStyle_Native));
+    }
+
+    bool baseStyleCanDraw() const {
+        if (hasGradientBackground())
+            return features & StyleFeature_BackgroundGradient;
+        return features & StyleFeature_BackgroundColor;
+    }
+
     bool hasBox() const { return b != 0; }
     bool hasBorder() const { return bd != 0; }
     bool hasPosition() const { return p != 0; }
@@ -225,6 +245,9 @@ public:
     QSize size() const { return boxSize(contentsSize()); }
 
     bool hasImage() const { return !image.isNull(); }
+
+    int features;
+    QBrush defaultBackground;
     QPixmap image;
     QRect imageRect;
     QFont font;
@@ -233,7 +256,7 @@ public:
     bool hasStyleHint(const QString& sh) const { return styleHints.contains(sh); }
     int styleHint(const QString& sh) const { return styleHints.value(sh); }
 
-    void fixupBorder();
+    void fixupBorder(int);
 
     QSharedDataPointer<QStyleSheetPaletteData> pal;
     QSharedDataPointer<QStyleSheetBoxData> b;
@@ -273,10 +296,14 @@ static const char *knownStyleHints[] = {
 
 static const int numKnownStyleHints = sizeof(knownStyleHints)/sizeof(knownStyleHints[0]);
 
-QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
-: pal(0), b(0), bg(0), bd(0), geo(0), p(0)
+QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget *widget)
+: features(0), pal(0), b(0), bg(0), bd(0), geo(0), p(0)
 {
-    ValueExtractor v(declarations);
+    Q_ASSERT(widget);
+    QPalette palette = qApp->palette(); // ###: ideally widget's palette
+    ValueExtractor v(declarations, palette);
+    features = v.extractStyleFeatures();
+
     int w = -1, h = -1, minw = -1, minh = -1;
     if (v.extractGeometry(&w, &h, &minw, &minh))
         geo = new QStyleSheetGeometryData(w, h, minw, minh);
@@ -319,9 +346,11 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
     if (v.extractPalette(&fg, &sfg, &sbg, &abg))
         pal = new QStyleSheetPaletteData(fg, sfg, sbg, abg);
 
-    // FIXME: Need to take into account the widget fonts
     int adj = -255;
     v.extractFont(&font, &adj);
+
+    if (QString::fromLatin1(widget->metaObject()->className()) == QLatin1String("QTipLabel"))
+        palette = QToolTip::palette();
 
     for (int i = 0; i < declarations.count(); i++) {
         const Declaration& decl = declarations.at(i);
@@ -351,6 +380,12 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
             image = QPixmap(decl.uriValue());
             if (!imageRect.isValid())
                 imageRect = QRect(0, 0, image.width(), image.height());
+        } else if (decl.propertyId == Qt::BackgroundRole) {
+            if (bg && bg->brush.style() != Qt::NoBrush)
+                continue;
+            int role = decl.values.first().variant.toInt();
+            if (role >= Value_FirstColorRole && role <= Value_LastColorRole)
+                defaultBackground = palette.color((QPalette::ColorRole)(role-Value_FirstColorRole));
         } else if (decl.property.compare(QLatin1String("image-region"), Qt::CaseInsensitive) == 0) {
             imageRect = decl.rectValue();
         } else if (decl.property.startsWith(QLatin1String("qproperty-"), Qt::CaseInsensitive)) {
@@ -371,7 +406,9 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
         }
     }
 
-    fixupBorder();
+    QStyleSheetStyle *style = qobject_cast<QStyleSheetStyle *>(widget->style());
+    Q_ASSERT(style);
+    fixupBorder(style->nativeFrameWidth(widget));
 }
 
 QRect QRenderRule::borderRect(const QRect& r) const
@@ -400,31 +437,35 @@ QRect QRenderRule::contentsRect(const QRect& r) const
     return pr.adjusted(p[LeftEdge], p[TopEdge], -p[RightEdge], -p[BottomEdge]);
 }
 
-QRect QRenderRule::boxRect(const QRect& cr) const
+QRect QRenderRule::boxRect(const QRect& cr, int flags) const
 {
     QRect r = cr;
     if (hasBox()) {
-        const int *m = box()->margins;
-        const int *p = box()->paddings;
-        r.adjust(-p[LeftEdge] - m[LeftEdge], -p[TopEdge] - m[TopEdge],
-                 p[RightEdge] + m[RightEdge], p[BottomEdge] + m[BottomEdge]);
+        if (flags & Margin) {
+            const int *m = box()->margins;
+            r.adjust(-m[LeftEdge], -m[TopEdge], m[RightEdge], m[BottomEdge]);
+        }
+        if (flags & Padding) {
+            const int *p = box()->paddings;
+            r.adjust(-p[LeftEdge], -p[TopEdge], p[RightEdge], p[BottomEdge]);
+        }
     }
-    if (hasBorder()) {
+    if (hasBorder() && (flags & Border)) {
         const int *b = border()->borders;
         r.adjust(-b[LeftEdge], -b[TopEdge], b[RightEdge], b[BottomEdge]);
     }
     return r;
 }
 
-QSize QRenderRule::boxSize(const QSize &cs) const
+QSize QRenderRule::boxSize(const QSize &cs, int flags) const
 {
-    QSize bs = boxRect(QRect(QPoint(0, 0), cs)).size();
+    QSize bs = boxRect(QRect(QPoint(0, 0), cs), flags).size();
     if (cs.width() < 0) bs.setWidth(-1);
     if (cs.height() < 0) bs.setHeight(-1);
     return bs;
 }
 
-void QRenderRule::fixupBorder()
+void QRenderRule::fixupBorder(int nativeWidth)
 {
     if (bd == 0)
         return;
@@ -435,13 +476,20 @@ void QRenderRule::fixupBorder()
         // ignore the color, border of edges that have none border-style
         QColor color = pal ? pal->foreground : QColor();
         for (int i = 0; i < 4; i++) {
-            if (bd->styles[i] != BorderStyle_None) {
-                if (!bd->colors[i].isValid()) // auto-acquire 'color'
-                    bd->colors[i] = color;
-            } else {
+            switch (bd->styles[i]) {
+            case BorderStyle_None:
                 // border-style: none forces width to be 0
                 bd->colors[i] = QColor();
                 bd->borders[i] = 0;
+                break;
+            case BorderStyle_Native:
+                if (bd->borders[i] == 0)
+                    bd->borders[i] = nativeWidth;
+                // intentional fall through
+            default:
+                if (!bd->colors[i].isValid()) // auto-acquire 'color'
+                    bd->colors[i] = color;
+                break;
             }
         }
 
@@ -914,7 +962,9 @@ QRect QRenderRule::originRect(const QRect &rect, Origin origin) const
 
 void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, QPoint off)
 {
-    Q_ASSERT(hasBackground());
+    if (!hasBackground())
+        return;
+
     const QPixmap& bgp = background()->pixmap;
     if (bgp.isNull())
         return;
@@ -1038,7 +1088,11 @@ void QRenderRule::drawBackground(QPainter *p, const QRect& rect, const QPoint& o
     if (!hasBackground())
         return;
 
-    if (background()->brush.style() != Qt::NoBrush) {
+    QBrush brush = background()->brush;
+    if (brush.style() == Qt::NoBrush)
+        brush = defaultBackground;
+
+    if (brush.style() != Qt::NoBrush) {
         QRect fillRect = borderRect(rect);
         QBrush brush = background()->brush;
         if (brush.style() >= Qt::LinearGradientPattern
@@ -1124,7 +1178,7 @@ void QRenderRule::configurePalette(QPalette *p, QPalette::ColorGroup cg, const Q
          * to be transparent when we have a transparent background or border image */
         if ((hasBackground() && background()->isTransparent())
             || (hasBorder() && border()->hasBorderImage() && border()->borderImage()->middleRect.isValid()))
-            p->setBrush(cg, w->backgroundRole(), Qt::transparent);
+            p->setBrush(cg, w->backgroundRole(), Qt::NoBrush);
     }
 
     if (!hasPalette())
@@ -1203,16 +1257,34 @@ public:
 static QVector<QCss::StyleRule> styleRules(QWidget *w)
 {
     QStyleSheetStyleSelector styleSelector;
+
+    StyleSheet defaultSs;
+    if (!styleSheetCache->contains(0)) {
+        QFile defaultQss(QLatin1String(":/trolltech/stylesheet/default.qss"));
+        if (!defaultQss.open(QFile::ReadOnly))
+            qWarning("could not open defaut stylesheet");
+        QString data = QString::fromLatin1(defaultQss.readAll());
+        Parser parser(data);
+        if (!parser.parse(&defaultSs))
+            qWarning("Could not parse default stylesheet");
+        defaultSs.origin = StyleSheetOrigin_UserAgent;
+        styleSheetCache->insert(0, defaultSs);
+    } else {
+        defaultSs = styleSheetCache->value(0);
+    }
+    styleSelector.styleSheets += defaultSs;
+
     if (!qApp->styleSheet().isEmpty()) {
         StyleSheet appSs;
-        if (!styleSheetCache->contains(0)) {
+        if (!styleSheetCache->contains(qApp)) {
             Parser parser1(qApp->styleSheet());
             if (!parser1.parse(&appSs))
                 qWarning("Could not parse application stylesheet");
-           appSs.origin = StyleSheetOrigin_Author;
-            styleSheetCache->insert(0, appSs);
+            appSs.origin = StyleSheetOrigin_Inline;
+            appSs.depth = 1;
+            styleSheetCache->insert(qApp, appSs);
         } else {
-            appSs = styleSheetCache->value(0);
+            appSs = styleSheetCache->value(qApp);
         }
         styleSelector.styleSheets += appSs;
     }
@@ -1238,7 +1310,7 @@ static QVector<QCss::StyleRule> styleRules(QWidget *w)
     }
 
     for (int i = 0; i < widgetSs.count(); i++)
-        widgetSs[i].depth = i + 1;
+        widgetSs[i].depth = i + 2;
 
     styleSelector.styleSheets += widgetSs;
 
@@ -1313,9 +1385,8 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_ScrollBarLast, "last" }
 };
 
-QVector<Declaration> declarations(const QWidget *w, const QString &part, int pseudoState = PseudoState_Unspecified)
+QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QString &part, int pseudoState = PseudoState_Unspecified)
 {
-    const QVector<StyleRule> styleRules = styleRulesCache->value(w);
     QVector<Declaration> decls;
     for (int i = 0; i < styleRules.count(); i++) {
         const Selector& selector = styleRules.at(i).selectors.at(0);
@@ -1323,14 +1394,46 @@ QVector<Declaration> declarations(const QWidget *w, const QString &part, int pse
         // diversion for CSS
         if (part.compare(selector.pseudoElement(), Qt::CaseInsensitive) != 0)
             continue;
-        const int cssState = selector.pseudoState();
+        int cssState = selector.pseudoState();
+        if (!(pseudoState & PseudoState_Horizontal))
+            cssState &= ~PseudoState_Vertical;
         if ((cssState == PseudoState_Unspecified) || ((cssState & pseudoState) == cssState))
             decls += styleRules.at(i).declarations;
     }
     return decls;
 }
 
-static QRenderRule renderRule(const QWidget *w, const QString &part, QStyle::State state = QStyle::State_None)
+int QStyleSheetStyle::nativeFrameWidth(const QWidget *w)
+{
+    QStyle *base = baseStyle();
+
+#ifndef QT_NO_SPINBOX
+    if (qobject_cast<const QAbstractSpinBox *>(w))
+        return base->pixelMetric(QStyle::PM_SpinBoxFrameWidth);
+#endif
+
+#ifndef QT_NO_COMBOBOX
+    if (qobject_cast<const QComboBox *>(w))
+        return base->pixelMetric(QStyle::PM_ComboBoxFrameWidth);
+#endif
+
+#ifndef QT_NO_MENU
+    if (qobject_cast<const QMenu *>(w))
+        return base->pixelMetric(QStyle::PM_MenuPanelWidth);
+#endif
+
+#ifndef QT_NO_MENUBAR
+    if (qobject_cast<const QMenuBar *>(w))
+        return base->pixelMetric(QStyle::PM_MenuBarPanelWidth);
+#endif
+
+    if (QString::fromLatin1(w->metaObject()->className()) == QLatin1String("QTipLabel"))
+        return base->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth);
+
+    return base->pixelMetric(QStyle::PM_DefaultFrameWidth);
+}
+
+QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part, QStyle::State state) const
 {
     Q_ASSERT(w);
     Q_ASSERT(styleRulesCache->contains(w)); // style sheet rules must have been computed!
@@ -1340,7 +1443,7 @@ static QRenderRule renderRule(const QWidget *w, const QString &part, QStyle::Sta
                                  ? PseudoState_Enabled : PseudoState_Disabled;
     if (state & QStyle::State_Sunken)
         pseudoState |= PseudoState_Pressed;
-    if (state & (QStyle::State_MouseOver | QStyle::State_Selected))
+    if (state & (QStyle::State_MouseOver /*| QStyle::State_Selected*/))
         pseudoState |= PseudoState_Hover;
     if (state & QStyle::State_HasFocus)
         pseudoState |= PseudoState_Focus;
@@ -1352,23 +1455,24 @@ static QRenderRule renderRule(const QWidget *w, const QString &part, QStyle::Sta
         pseudoState |= PseudoState_Indeterminate;
     if (state & QStyle::State_Selected)
         pseudoState |= PseudoState_Selected;
+    if (state & QStyle::State_Horizontal)
+        pseudoState |= PseudoState_Horizontal;
 
     if (renderRules.contains(pseudoState))
         return renderRules[pseudoState]; // already computed before
 
-    QVector<Declaration> decls = declarations(w, part, pseudoState);
-    QRenderRule newRule(decls);
+    QVector<Declaration> decls = declarations((*styleRulesCache)[w], part, pseudoState);
+    QRenderRule newRule(decls, w);
     renderRules[pseudoState] = newRule;
     return newRule;
 }
 
-
-static QRenderRule renderRule(const QWidget *w, int pseudoElement, QStyle::State state = QStyle::State_None)
+QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int pseudoElement, QStyle::State state) const
 {
     return renderRule(w, QLatin1String(knownPseudoElements[pseudoElement].name), state);
 }
 
-static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt, int pseudoElement = PseudoElement_None)
+QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *opt, int pseudoElement) const
 {
     Q_ASSERT(w && !styleRulesCache->value(w).isEmpty());
     QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_None);
@@ -1583,7 +1687,7 @@ static QWidget *embeddedWidget(QWidget *w)
 static void setProperties(QWidget *w)
 {
     QHash<QString, QVariant> propertyHash;
-    QVector<Declaration> decls = declarations(w, QString());
+    QVector<Declaration> decls = declarations((*styleRulesCache)[w], QString());
     // run through the declarations in order
     for (int i = 0; i < decls.count(); i++) {
         Declaration decl = decls.at(i);
@@ -1618,8 +1722,7 @@ static void setProperties(QWidget *w)
     }
 }
 
-// remember to revert changes in unsetPalette
-static void setPalette(QWidget *w)
+void QStyleSheetStyle::setPalette(QWidget *w)
 {
     const QRenderRule &hoverRule = renderRule(w, PseudoElement_None, QStyle::State_MouseOver);
     if (hoverRule.hasDrawable())
@@ -1672,7 +1775,7 @@ static void setPalette(QWidget *w)
     }
 }
 
-static void unsetPalette(QWidget *w)
+void QStyleSheetStyle::unsetPalette(QWidget *w)
 {
     if (customPaletteWidgets->contains(w)) {
         QPalette p = QApplication::palette(w);
@@ -1727,7 +1830,7 @@ QStyleSheetStyle::QStyleSheetStyle(QStyle *base)
         renderRulesCache = new QHash<const QWidget *, QRenderRules>;
         customPaletteWidgets = new QHash<const QWidget *, int>;
         customFontWidgets = new QHash<const QWidget *, int>;
-        styleSheetCache = new QHash<const QWidget *, StyleSheet>;
+        styleSheetCache = new QHash<void *, StyleSheet>;
         autoFillDisabledWidgets = new QSet<const QWidget *>;
     }
 }
@@ -1847,7 +1950,7 @@ void QStyleSheetStyle::repolish(QWidget *w)
 
 void QStyleSheetStyle::repolish(QApplication *)
 {
-    styleSheetCache->remove(0);
+    styleSheetCache->remove(qApp);
     updateWidgets(styleRulesCache->keys());
 }
 
@@ -1872,7 +1975,7 @@ void QStyleSheetStyle::unpolish(QApplication *app)
 {
     styleRulesCache->clear();
     renderRulesCache->clear();
-    styleSheetCache->remove(0);
+    styleSheetCache->remove(qApp);
     baseStyle()->unpolish(app);
 }
 
@@ -3064,24 +3167,6 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
 
     return baseStyle()->subElementRect(se, opt, w);
 }
-
-#if 0
-void QStyleSheetStyle::updateBackground()
-{
-    QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(sender()->parent());
-    Q_ASSERT(sa);
-
-    if (!hasStyleRule(sa))
-        return;
-
-    QRenderRule rule = renderRule(sa, 0);
-
-    if ((rule.hasBorder() && rule.border()->hasBorderImage())
-        || (rule.hasBackground() && !rule.background()->pixmap.isNull())) {
-        sa->update();
-    }
-}
-#endif
 
 #include "moc_qstylesheetstyle_p.cpp"
 

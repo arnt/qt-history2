@@ -111,6 +111,15 @@ private Q_SLOTS:
 
 private:
     int refcount;
+    
+    friend class QRenderRule;
+    int nativeFrameWidth(const QWidget *);
+    QRenderRule renderRule(const QWidget *, const QString &, QStyle::State = QStyle::State_None) const;
+    QRenderRule renderRule(const QWidget *, int, QStyle::State = QStyle::State_None) const;
+    QRenderRule renderRule(const QWidget *, const QStyleOption *, int = 0) const;
+    
+    void setPalette(QWidget *);
+    void unsetPalette(QWidget *);
 
 public:
     static int numinstances;
