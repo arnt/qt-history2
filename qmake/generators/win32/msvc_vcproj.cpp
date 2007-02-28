@@ -264,20 +264,16 @@ const char _slnProjectEnd[]     = "\nEndProject";
 const char _slnGlobalBeg[]      = "\nGlobal";
 const char _slnGlobalEnd[]      = "\nEndGlobal";
 const char _slnSolutionConf[]   = "\n\tGlobalSection(SolutionConfiguration) = preSolution"
-                                  "\n\t\tConfigName.0 = Debug"
-                                  "\n\t\tConfigName.1 = Release"
-                                  "\n\tEndGlobalSection";
-const char _slnSolutionConf80[] = "\n\tGlobalSection(SolutionConfigurationPlatforms) = preSolution"
-                                  "\n\t\tDebug|Win32 = Debug|Win32"
-                                  "\n\t\tRelease|Win32 = Release|Win32"
+                                  "\n\t\tConfigName.0 = Debug|Win32"
+                                  "\n\t\tConfigName.1 = Release|Win32"
                                   "\n\tEndGlobalSection";
 const char _slnProjDepBeg[]     = "\n\tGlobalSection(ProjectDependencies) = postSolution";
 const char _slnProjDepEnd[]     = "\n\tEndGlobalSection";
 const char _slnProjConfBeg[]    = "\n\tGlobalSection(ProjectConfiguration) = postSolution";
-const char _slnProjRelConfTag1[]= ".Release.ActiveCfg = Release|Win32";
-const char _slnProjRelConfTag2[]= ".Release.Build.0 = Release|Win32";
-const char _slnProjDbgConfTag1[]= ".Debug.ActiveCfg = Debug|Win32";
-const char _slnProjDbgConfTag2[]= ".Debug.Build.0 = Debug|Win32";
+const char _slnProjRelConfTag1[]= ".Release|Win32.ActiveCfg = Release|Win32";
+const char _slnProjRelConfTag2[]= ".Release|Win32.Build.0 = Release|Win32";
+const char _slnProjDbgConfTag1[]= ".Debug|Win32.ActiveCfg = Debug|Win32";
+const char _slnProjDbgConfTag2[]= ".Debug|Win32.Build.0 = Debug|Win32";
 const char _slnProjConfEnd[]    = "\n\tEndGlobalSection";
 const char _slnExtSections[]    = "\n\tGlobalSection(ExtensibilityGlobals) = postSolution"
                                   "\n\tEndGlobalSection"
@@ -619,10 +615,7 @@ nextfile:
         }
     }
     t << _slnGlobalBeg;
-    if (which_dotnet_version() == NET2005)
-        t << _slnSolutionConf80;
-    else
-        t << _slnSolutionConf;
+    t << _slnSolutionConf;
     t << _slnProjDepBeg;
 
     // Restore previous after_user_var options
