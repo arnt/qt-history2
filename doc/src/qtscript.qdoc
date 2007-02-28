@@ -107,7 +107,7 @@
   \section1 Making a QObject Available to the Script Engine
 
   By passing a QObject to the scripting engine (using
-  QScriptEngine::scriptValueFromQObject()), this object and all its
+  QScriptEngine::newQObject()), this object and all its
   signals, slots, properties, and child objects are made available to
   scripts. Because Qt Script uses Qt's meta object system, there is no
   need to implement any additional wrappers or bindings.
@@ -118,7 +118,7 @@
   \code
   QScriptEngine engine;
   QObject *someQObject = ...;
-  QScriptValue qobjectValue = engine.scriptValueFromQObject(someQObject);
+  QScriptValue qobjectValue = engine.newQObject(someQObject);
   engine.globalObject().setProperty("myQObject", qobjectValue);
   \endcode
 

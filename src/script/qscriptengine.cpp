@@ -621,6 +621,10 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     that case, the return value is the value that was thrown by the
     exception (usually an \c{Error} object).
 
+    QScriptEngine ensures that a particular extension is only imported
+    once; subsequent calls to importExtension() with the same extension
+    name will do nothing and return undefinedValue().
+
     \sa QScriptExtensionPlugin
 */
 QScriptValue QScriptEngine::importExtension(const QString &extension)

@@ -30,7 +30,7 @@
     functions, and exporting the class using the Q_EXPORT_PLUGIN2()
     macro. See \l {How to Create Qt Plugins} for details.
 
-    \sa QScriptEngine::importExtension()
+    \sa QScriptEngine::importExtension(), {Creating QtScript Extensions}
 */
 
 /*!

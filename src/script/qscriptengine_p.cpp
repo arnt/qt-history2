@@ -1542,7 +1542,8 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
                     activation_data->m_members.resize(4);
                     activation_data->m_objects.resize(4);
                     activation_data->m_members[0].object(
-                        nameId(QLatin1String("__extension__")), 0, 0);
+                        nameId(QLatin1String("__extension__")), 0,
+                        QScriptValue::ReadOnly | QScriptValue::Undeletable);
                     activation_data->m_objects[0] = QScriptValueImpl(this, ext);
                     activation_data->m_members[1].object(
                         nameId(QLatin1String("__setupPackage__")), 1, 0);
