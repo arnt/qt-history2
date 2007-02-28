@@ -1659,6 +1659,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_FocusFrame_AboveWidget The FocusFrame is stacked above the widget that it is "focusing on".
 
+    \value SH_TextControl_FocusIndicatorTextCharFormat Specifies the text format used to highlight focused anchors in rich text
+    documents displayed for example in QTextBrowser. The format has to be a QTextCharFormat returned in the variant of the
+    QStyleHintReturnVariant return value. The QTextFormat::OutlinePen property is used for the outline and QTextFormat::BackgroundBrush
+    for the background of the highlighted area.
+
     Used to fill any area not covered by the items.
     \omitvalue SH_UnderlineAccelerator
 

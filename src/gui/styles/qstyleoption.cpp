@@ -4438,6 +4438,7 @@ QStyleOptionGraphicsItem::QStyleOptionGraphicsItem(int version)
 
     \value SH_Default QStyleHintReturn
     \value SH_Mask \l QStyle::SH_RubberBand_Mask QStyle::SH_FocusFrame_Mask
+    \value SH_Variant \l QStyle::SH_TextControl_FocusIndicatorTextCharFormat
 */
 
 /*!
@@ -4556,6 +4557,58 @@ QStyleHintReturnMask::QStyleHintReturnMask() : QStyleHintReturn(Version, Type)
 
 /*!
     \enum QStyleHintReturnMask::StyleOptionVersion
+
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleHintReturn subclass.
+
+    \value Version 1
+
+    The version is used by QStyleHintReturn subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
+*/
+
+/*!
+    \class QStyleHintReturnVariant
+    \brief The QStyleHintReturnVariant class provides style hints that return a QVariant.
+
+    \ingroup appearance
+*/
+
+/*!
+    \variable QStyleHintReturnVariant::variant
+    \brief the variant for style hints that return a QVariant
+*/
+
+/*!
+    Constructs a QStyleHintReturnVariant. The member variables are
+    initialized to default values.
+*/
+QStyleHintReturnVariant::QStyleHintReturnVariant() : QStyleHintReturn(Version, Type)
+{
+}
+
+/*!
+    \enum QStyleHintReturnVariant::StyleOptionType
+
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleHintReturn subclass.
+
+    \value Type The type of style option provided (\l{SH_Variant} for
+           this class).
+
+    The type is used internally by QStyleHintReturn, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleHintReturn subclass and your own styles.
+
+    \sa StyleOptionVersion
+*/
+
+/*!
+    \enum QStyleHintReturnVariant::StyleOptionVersion
 
     This enum is used to hold information about the version of the style option, and
     is defined for each QStyleHintReturn subclass.

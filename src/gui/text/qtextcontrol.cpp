@@ -46,6 +46,7 @@
 #include <qdesktopservices.h>
 #include <qinputcontext.h>
 #include <qtooltip.h>
+#include <qstyleoption.h>
 
 #ifndef QT_NO_SHORTCUT
 #include <qkeysequence.h>
@@ -2553,7 +2554,7 @@ void QTextControl::setPalette(const QPalette &pal)
     d->palette = pal;
 }
 
-void QTextControl::drawContents(QPainter *p, const QRectF &rect)
+void QTextControl::drawContents(QPainter *p, const QRectF &rect, QWidget *widget)
 {
     Q_D(QTextControl);
     p->save();
@@ -2589,8 +2590,14 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect)
         QAbstractTextDocumentLayout::Selection selection;
         selection.cursor = d->cursor;
         if (d->cursorIsFocusIndicator) {
-            QPen outline(ctx.palette.color(QPalette::Text), 1, Qt::DotLine);
-            selection.format.setProperty(QTextFormat::OutlinePen, outline);
+            QStyleOption opt;
+            opt.palette = ctx.palette;
+            QStyleHintReturnVariant ret;
+            QStyle *style = QApplication::style();
+            if (widget)
+                style = widget->style();
+            style->styleHint(QStyle::SH_TextControl_FocusIndicatorTextCharFormat, &opt, widget, &ret);
+            selection.format = qVariantValue<QTextFormat>(ret.variant).toCharFormat();
         } else {
             QPalette::ColorGroup cg = d->hasFocus ? QPalette::Active : QPalette::Inactive;
             selection.format.setBackground(ctx.palette.brush(cg, QPalette::Highlight));

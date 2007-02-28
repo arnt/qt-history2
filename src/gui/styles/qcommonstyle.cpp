@@ -4227,6 +4227,16 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         break;
     case SH_FocusFrame_AboveWidget:
         ret = false;
+        break;
+    case SH_TextControl_FocusIndicatorTextCharFormat:
+        ret = true;
+        if (QStyleHintReturnVariant *vret = qstyleoption_cast<QStyleHintReturnVariant*>(hret)) {
+            QPen outline(opt->palette.color(QPalette::Text), 1, Qt::DotLine);
+            QTextCharFormat fmt;
+            fmt.setProperty(QTextFormat::OutlinePen, outline);
+            vret->variant = fmt;
+        }
+        break;
     default:
         ret = 0;
         break;

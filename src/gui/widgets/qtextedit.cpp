@@ -1331,7 +1331,7 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     p->translate(-xOffset, -yOffset);
     r.translate(xOffset, yOffset);
 
-    control->drawContents(p, r);
+    control->drawContents(p, r, q_func());
 }
 
 /*! \reimp

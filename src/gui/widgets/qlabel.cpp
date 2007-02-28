@@ -965,7 +965,7 @@ void QLabel::paintEvent(QPaintEvent *)
         painter.setClipRect(lr.translated(-lr.x(), -lr.y()));
         if (d->control) {
             d->control->setPalette(context.palette);
-            d->control->drawContents(&painter);
+            d->control->drawContents(&painter, QRectF(), this);
         } else {
             layout->draw(&painter, context);
         }

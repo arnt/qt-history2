@@ -184,7 +184,7 @@ public:
     void processEvent(QEvent *e, const QPointF &coordinateOffset = QPointF(), QWidget *contextWidget = 0);
 
     // control methods
-    void drawContents(QPainter *painter, const QRectF &rect = QRectF());
+    void drawContents(QPainter *painter, const QRectF &rect = QRectF(), QWidget *widget = 0);
 
     void setFocus(bool focus, Qt::FocusReason = Qt::OtherFocusReason);
 

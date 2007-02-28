@@ -14,6 +14,7 @@
 #ifndef QSTYLEOPTION_H
 #define QSTYLEOPTION_H
 
+#include <QtCore/qvariant.h>
 #include <QtGui/qabstractspinbox.h>
 #include <QtGui/qicon.h>
 #include <QtGui/qmatrix.h>
@@ -773,7 +774,7 @@ T qstyleoption_cast(QStyleOption *opt)
 class Q_GUI_EXPORT QStyleHintReturn {
 public:
     enum HintReturnType {
-        SH_Default=0xf000, SH_Mask
+        SH_Default=0xf000, SH_Mask, SH_Variant
     };
 
     enum StyleOptionType { Type = SH_Default };
@@ -794,6 +795,16 @@ public:
     QStyleHintReturnMask();
 
     QRegion region;
+};
+
+class Q_GUI_EXPORT QStyleHintReturnVariant : public QStyleHintReturn {
+public:
+    enum StyleOptionType { Type = SH_Variant };
+    enum StyleOptionVersion { Version = 1 };
+
+    QStyleHintReturnVariant();
+
+    QVariant variant;
 };
 
 template <typename T>
