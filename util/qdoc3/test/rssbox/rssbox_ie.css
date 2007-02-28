@@ -1,4 +1,7 @@
 /* Well established IE block hack */
+#rssbox,
+#rssbox ul,
+#rssbox ul ul,
 #rssbox a
 {
 	width:100%;
