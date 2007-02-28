@@ -482,6 +482,7 @@ class Q_CORE_EXPORT QRectF
 public:
     QRectF() { xp = yp = 0.; w = h = 0.; }
     QRectF(const QPointF &topleft, const QSizeF &size);
+    QRectF(const QPointF &topleft, const QPointF &bottomRight);
     QRectF(qreal left, qreal top, qreal width, qreal height);
     QRectF(const QRect &rect);
 
@@ -605,6 +606,14 @@ inline QRectF::QRectF(const QPointF &atopLeft, const QSizeF &asize)
     yp = atopLeft.y();
     w = asize.width();
     h = asize.height();
+}
+
+inline QRectF::QRectF(const QPointF &atopLeft, const QPointF &abottomRight)
+{
+    xp = atopLeft.x();
+    yp = atopLeft.y();
+    w = abottomRight.x() - xp;
+    h = abottomRight.y() - yp;
 }
 
 inline QRectF::QRectF(const QRect &r)
