@@ -40,6 +40,7 @@ private slots:
     void actionEvent();
     void setStandardKeys();
     void alternateShortcuts();
+    void enabledVisibleInteraction();
 
 private:
     int m_lastEventType;
@@ -72,6 +73,7 @@ void tst_QAction::getSetCheck()
 
 class MyWidget : public QWidget
 {
+    Q_OBJECT
 public:
     MyWidget(tst_QAction *tst, QWidget *parent=0) : QWidget(parent) { this->tst = tst; }
 
@@ -99,8 +101,7 @@ void tst_QAction::initTestCase()
     MyWidget *mw = new MyWidget(this);
     m_tstWidget = mw;
     mw->show();
-
-    qApp->processEvents();
+    qApp->setActiveWindow(mw);
 }
 
 void tst_QAction::cleanupTestCase()
@@ -239,6 +240,39 @@ void tst_QAction::alternateShortcuts()
 
     //this tests a crash (if the action did not unregister its alternate shortcuts)
     QTest::keyClick(wid, Qt::Key_A, Qt::ControlModifier);
+}
+
+void tst_QAction::enabledVisibleInteraction()
+{
+    QAction act(0);
+    // check defaults
+    QVERIFY(act.isEnabled());
+    QVERIFY(act.isVisible());
+    
+    // !visible => !enabled
+    act.setVisible(false);
+    QVERIFY(!act.isEnabled());
+    act.setVisible(true);
+    QVERIFY(act.isEnabled());
+    act.setEnabled(false);
+    QVERIFY(act.isVisible());
+
+    // check if shortcut is disabled if not visible
+    m_tstWidget->addAction(&act);
+    act.setShortcut(QKeySequence("Ctrl+T"));
+    QSignalSpy spy(&act, SIGNAL(triggered()));
+    act.setEnabled(true);
+    act.setVisible(false);
+    QTest::keyClick(m_tstWidget, Qt::Key_T, Qt::ControlModifier);
+    QCOMPARE(spy.count(), 0); //act is not visible, so don't trigger
+    act.setVisible(false);
+    act.setEnabled(true);
+    QTest::keyClick(m_tstWidget, Qt::Key_T, Qt::ControlModifier);
+    QCOMPARE(spy.count(), 0); //act is not visible, so don't trigger
+    act.setVisible(true);
+    act.setEnabled(true);
+    QTest::keyClick(m_tstWidget, Qt::Key_T, Qt::ControlModifier);
+    QCOMPARE(spy.count(), 1); //act is visible and enabled, so trigger
 }
 
 QTEST_MAIN(tst_QAction)

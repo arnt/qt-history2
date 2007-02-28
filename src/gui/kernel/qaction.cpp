@@ -931,7 +931,7 @@ void QAction::setEnabled(bool b)
     if (b == d->enabled && b != d->forceDisabled)
         return;
     d->forceDisabled = !b;
-    if (b && d->group && !d->group->isEnabled())
+    if (b && (!d->visible || (d->group && !d->group->isEnabled())))
         return;
     d->enabled = b;
 #ifndef QT_NO_SHORTCUT
@@ -964,6 +964,10 @@ void QAction::setVisible(bool b)
         return;
     d->forceInvisible = !b;
     d->visible = b;
+    d->enabled = b && !d->forceDisabled && (!d->group || d->group->isEnabled()) ;
+#ifndef QT_NO_SHORTCUT
+    d->setShortcutEnabled(d->enabled, qApp->d_func()->shortcutMap);
+#endif
     d->sendDataChanged();
 }
 
