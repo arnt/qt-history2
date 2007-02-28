@@ -1101,6 +1101,14 @@ void QLineEdit::setSelection(int start, int length)
             d->cursor = d->selstart;
         }
     }
+
+    if (d->hasSelectedText()){
+        QStyleOptionFrameV2 opt;
+        initStyleOption(&opt);
+        if (!style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
+            d->setCursorVisible(false);
+    }
+    
     update();
     d->emitCursorPositionChanged();
 }
