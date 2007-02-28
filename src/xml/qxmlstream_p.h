@@ -799,7 +799,7 @@ public:
     int resumeReduction;
     void resume(int rule);
 
-    inline bool entitiesAndNamespacePrefixesMustBeDeclared() const {
+    inline bool entitiesMustBeDeclared() const {
         return (!inParseEntity && (standalone || !referenceToUnparsedEntityDetected));
     }
 
@@ -1658,7 +1658,7 @@ bool QXmlStreamReaderPrivate::parse()
                     clearSym();
                 }
                 break;
-            } else if (entitiesAndNamespacePrefixesMustBeDeclared()) {
+            } else if (entitiesMustBeDeclared()) {
                 raiseWellFormedError(QObject::tr("entity '%1' not declared.").arg(reference));
                 break;
             }
@@ -1680,7 +1680,7 @@ bool QXmlStreamReaderPrivate::parse()
                     textBuffer.chop(2 + sym(2).len);
                     clearSym();
                 }
-            } else if (entitiesAndNamespacePrefixesMustBeDeclared()) {
+            } else if (entitiesMustBeDeclared()) {
                 raiseWellFormedError(QObject::tr("entity '%1' not declared.").arg(symString(2).toString()));
             }
         } break;
@@ -1708,7 +1708,7 @@ bool QXmlStreamReaderPrivate::parse()
                     putStringWithLiteralQuotes(entity.value);
                 textBuffer.chop(2 + sym(2).len);
                 clearSym();
-            } else if (entitiesAndNamespacePrefixesMustBeDeclared()) {
+            } else if (entitiesMustBeDeclared()) {
                 raiseWellFormedError(QObject::tr("entity '%1' not declared.").arg(reference));
             }
         } break;

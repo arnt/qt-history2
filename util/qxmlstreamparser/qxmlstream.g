@@ -295,7 +295,7 @@ public:
     int resumeReduction;
     void resume(int rule);
 
-    inline bool entitiesAndNamespacePrefixesMustBeDeclared() const {
+    inline bool entitiesMustBeDeclared() const {
         return (!inParseEntity && (standalone || !referenceToUnparsedEntityDetected));
     }
 
@@ -1453,7 +1453,7 @@ entity_ref ::= AMPERSAND name SEMICOLON;
                     clearSym();
                 }
                 break;
-            } else if (entitiesAndNamespacePrefixesMustBeDeclared()) {
+            } else if (entitiesMustBeDeclared()) {
                 raiseWellFormedError(QObject::tr("entity '%1' not declared.").arg(reference));
                 break;
             }
@@ -1478,7 +1478,7 @@ pereference ::= PERCENT name SEMICOLON;
                     textBuffer.chop(2 + sym(2).len);
                     clearSym();
                 }
-            } else if (entitiesAndNamespacePrefixesMustBeDeclared()) {
+            } else if (entitiesMustBeDeclared()) {
                 raiseWellFormedError(QObject::tr("entity '%1' not declared.").arg(symString(2).toString()));
             }
         } break;
@@ -1514,7 +1514,7 @@ entity_ref_in_attribute_value ::= AMPERSAND name SEMICOLON;
                     putStringWithLiteralQuotes(entity.value);
                 textBuffer.chop(2 + sym(2).len);
                 clearSym();
-            } else if (entitiesAndNamespacePrefixesMustBeDeclared()) {
+            } else if (entitiesMustBeDeclared()) {
                 raiseWellFormedError(QObject::tr("entity '%1' not declared.").arg(reference));
             }
         } break;

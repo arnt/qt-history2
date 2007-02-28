@@ -1124,7 +1124,7 @@ QStringRef QXmlStreamReaderPrivate::namespaceForPrefix(const QStringRef &prefix)
      }
 
 #if 1
-     if (!prefix.isEmpty() && entitiesAndNamespacePrefixesMustBeDeclared())
+     if (!prefix.isEmpty())
          raiseWellFormedError(QObject::tr("Namespace prefix '%1' not declared").arg(prefix.toString()));
 #endif
 
