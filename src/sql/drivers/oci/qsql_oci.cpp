@@ -272,6 +272,8 @@ int QOCIPrivate::bindValue(OCIStmt *sql, OCIBind **hbnd, OCIError *err, int pos,
                              (s.length() + 1) * sizeof(QChar),
                              SQLT_STR, indPtr, (ub2 *) 0, (ub2*) 0,
                              (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+            if (r == OCI_SUCCESS)
+                setCharset(*hbnd);
             break;
         }
     } // fall through for OUT values
