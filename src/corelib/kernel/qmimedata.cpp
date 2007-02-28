@@ -241,6 +241,29 @@ QVariant QMimeDataPrivate::retrieveTypedData(const QString &format, QVariant::Ty
         \endcode
     \endlist
 
+    \section1 Platform-Specific MIME Types
+
+    On Windows, formats() will also return custom formats available
+    in the MIME data, using the \c{x-qt-windows-mime} subtype to
+    indicate that they represent data in non-standard formats.
+    The formats will take the following form:
+
+    \code
+    application/x-qt-windows-mime;value="<custom type>"
+    \endcode
+
+    The following are examples of custom MIME types:
+
+    \code
+    application/x-qt-windows-mime;value="FileGroupDescriptor"
+    application/x-qt-windows-mime;value="FileContents"
+    application/x-qt-windows-mime;value="text/_moz_htmlcontext" 
+    application/x-qt-windows-mime;value="text/_moz_htmlinfo"
+    \endcode
+
+    The \c value declaration of each format describes the way in which the
+    data is encoded.
+
     \sa QClipboard, QDragEnterEvent, QDragMoveEvent, QDropEvent, QDrag,
         {Drag and Drop}
 */
