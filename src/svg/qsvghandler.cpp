@@ -3064,11 +3064,15 @@ void QSvgHandler::parse()
     while (!xml.atEnd()) {
         switch (xml.readNext()) {
         case QXmlStreamReader::StartElement:
-            if (xml.namespaceUri() == QLatin1String("http://www.w3.org/2000/svg")
-                || xml.namespaceUri().isEmpty())
-                startElement(xml.name().toString(), xml.attributes());
-            else
-                m_skipNodes.push(Unknown);
+            // he we could/should verify the namespaces, and simply
+            // call m_skipNodes(Unknown) if we don't know the
+            // namespace.  We do support http://www.w3.org/2000/svg
+            // but also http://www.w3.org/2000/svg-20000303-stylable
+            // And if the document uses an external dtd, the reported
+            // namespaceUri is empty. The only possible strategy at
+            // this point is to do what everyone else seems to do and
+            // ignore the reported namespaceUri completely.
+            startElement(xml.name().toString(), xml.attributes());
             break;
         case QXmlStreamReader::EndElement:
             endElement(xml.name());
