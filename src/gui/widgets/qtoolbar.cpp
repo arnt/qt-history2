@@ -56,7 +56,7 @@ void QToolBarPrivate::init()
     q->initStyleOption(&opt);
 
     QStyle *style = q->style();
-    int e = style->pixelMetric(QStyle::PM_ToolBarIconSize);
+    int e = style->pixelMetric(QStyle::PM_ToolBarIconSize, 0, q);
     iconSize = QSize(e, e);
 
     layout = new QToolBarLayout(q);
@@ -518,7 +518,7 @@ void QToolBar::setIconSize(const QSize &iconSize)
         }
     }
     if (!sz.isValid()) {
-        const int metric = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+        const int metric = style()->pixelMetric(QStyle::PM_ToolBarIconSize, 0, this);
         sz = QSize(metric, metric);
     }
     if (d->iconSize != sz) {
@@ -804,14 +804,14 @@ void QToolBar::paintEvent(QPaintEvent *)
 
     if (d->layout->expanded || isWindow()) {
         p.fillRect(opt.rect, palette().background());
-        style->drawPrimitive(QStyle::PE_FrameMenu, &opt, &p);
+        style->drawPrimitive(QStyle::PE_FrameMenu, &opt, &p, this);
     } else {
-        style->drawControl(QStyle::CE_ToolBar, &opt, &p);
+        style->drawControl(QStyle::CE_ToolBar, &opt, &p, this);
     }
 
     opt.rect = d->layout->handleRect();
     if (opt.rect.isValid())
-        style->drawPrimitive(QStyle::PE_IndicatorToolBarHandle, &opt, &p);
+        style->drawPrimitive(QStyle::PE_IndicatorToolBarHandle, &opt, &p, this);
 }
 
 /*! \reimp */
@@ -926,7 +926,7 @@ void QToolBar::initStyleOption(QStyleOptionToolBar *option) const
     option->initFrom(this);
     if (orientation() == Qt::Horizontal)
         option->state |= QStyle::State_Horizontal;
-    option->lineWidth = style()->pixelMetric(QStyle::PM_ToolBarFrameWidth);
+    option->lineWidth = style()->pixelMetric(QStyle::PM_ToolBarFrameWidth, 0, this);
     option->features = isMovable() ? QStyleOptionToolBar::Movable : QStyleOptionToolBar::None;
 
     // Add more styleoptions if the toolbar has been added to a mainwindow.

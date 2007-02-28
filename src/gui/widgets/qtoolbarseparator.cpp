@@ -44,7 +44,7 @@ QSize QToolBarSeparator::sizeHint() const
 {
     QStyleOption opt;
     initStyleOption(&opt);
-    const int extent = style()->pixelMetric(QStyle::PM_ToolBarSeparatorExtent, &opt, this);
+    const int extent = style()->pixelMetric(QStyle::PM_ToolBarSeparatorExtent, &opt, parentWidget());
     return QSize(extent, extent);
 }
 
@@ -53,7 +53,7 @@ void QToolBarSeparator::paintEvent(QPaintEvent *)
     QPainter p(this);
     QStyleOption opt;
     initStyleOption(&opt);
-    style()->drawPrimitive(QStyle::PE_IndicatorToolBarSeparator, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_IndicatorToolBarSeparator, &opt, &p, parentWidget());
 }
 
 #endif // QT_NO_TOOLBAR
