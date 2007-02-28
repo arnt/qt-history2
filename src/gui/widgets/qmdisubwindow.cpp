@@ -19,7 +19,7 @@
     \ingroup application
     \mainclass
 
-    QMdiArea represents a top-level window in a QMdiArea, and consists
+    QMdiSubWindow represents a top-level window in a QMdiArea, and consists
     of a title bar with window decorations, an internal widget, and
     (depending on the current style) a window frame and a size
     grip. QMdiSubWindow has its own layout, which consists of the
@@ -44,18 +44,19 @@
     an MDI area.
 
     By default, each QMdiSubWindow is visible inside the MDI area
-    viewport when moved around, but it is also possible to have
-    a rubberband when moving or resizing the window. You enable this
-    behavior with setOption().
+    viewport when moved around, but it is also possible to specify
+    transparent window movement and resizing behavior, where only
+    the outline of a subwindow is updated during these operations.
+    The setOption() function is used to enable this behavior.
 
     The isShaded() function detects whether the subwindow is
     currently shaded (i.e., the window is collapsed so that only the
     title bar is visible). To enter shaded mode, call showShaded().
     QMdiSubWindow emits the windowStateChanged() signal whenever the
-    window state has changed (i.e., when the window becomes minimized,
+    window state has changed (e.g., when the window becomes minimized,
     or is restored). It also emits aboutToActivate() before it is
     activated.
-    
+
     In keyboard-interactive mode, the windows are moved and
     resized with the keyboard. You can enter this mode through the
     system menu of the window. The keyboardSingleStep and
@@ -71,30 +72,34 @@
     This enum describes options that customize the behavior
     of QMdiSubWindow.
 
-    \value AllowOutsideArea If you enable this option, QWorkspace
-    will allow this window to be moved outside the workspace area
-    with the mouse so that you cannot handle it with the mouse
-    again. This option is disabled by default. The window may
-    still be placed outside the area programmatically or when the
+    \value AllowOutsideArea If you enable this option, QMdiArea
+    will allow the subwindow to be moved partially or fully outside the
+    workspace area with the mouse, making it possible to place it in an
+    inaccessible location. Even when this option is disabled, the window
+    may still be placed outside the area programmatically or when the
     area is resized.
+    By default, this option is disabled.
 
-    \value RubberBandResize If you enable this option,
-    QMdiSubWindow will show a rubberband control while resizing.  As a
-    result, the window will only recieve one QResizeEvent (when the
-    resize operation is completed). By default, this option is
-    disabled.
+    \value RubberBandResize If you enable this option, a rubber band
+    control is used to represent the subwindow's outline, and the user
+    resizes this instead of the subwindow itself.
+    As a result, the subwindow maintains its original position and size
+    until the resize operation has been completed, at which time it will
+    receive a single QResizeEvent.
+    By default, this option is disabled.
 
-    \value RubberBandMove If you enable this option,
-    QMdiSubWindow will show a rubberband control while moving, leaving
-    the window in its original position until the move operation has
-    completed, at which time a QMoveEvent is sendt to the window. By
-    default, this option is disabled.
+    \value RubberBandMove If you enable this option, a rubber band
+    control is used to represent the subwindow's outline, and the user
+    moves this instead of the subwindow itself.
+    As a result, the subwindow remains in its original position until
+    the move operation has completed, at which time a QMoveEvent is
+    sent to the window. By default, this option is disabled.
 */
 
 /*!
     \fn QMdiSubWindow::windowStateChanged(Qt::WindowStates oldState, Qt::WindowStates newState)
 
-    QMdiSubWindow emits this signal after the window state changed. \a
+    QMdiSubWindow emits this signal after the window state changes. \a
     oldState is the window state before it changed, and \a newState is the
     new, current state.
 */
@@ -103,9 +108,9 @@
     \fn QMdiSubWindow::aboutToActivate()
 
     QMdiSubWindow emits this signal immediately before it is
-    activated. After the window has been activated, the QMdiArea in
-    which the window lives will also emit the
-    \{QMdiArea::}{subWindowActivated()} signal.
+    activated. After the subwindow has been activated, the QMdiArea that
+    manages the subwindow will also emit the
+    \l{QMdiArea::}{subWindowActivated()} signal.
 
     \sa QMdiArea::subWindowActivated()
 */
@@ -1836,14 +1841,14 @@ void QMdiSubWindowPrivate::setSizeGripVisible(bool visible) const
     the window should be a QMdiArea. If it is created without a
     parent, it must be added to a QMdiArea before being shown.
     Instead of using addSubWindow(), it is also simply possible to
-    use \{QObject::}{setParent()}.
+    use setParent().
 
-    Note that only pointers to \l{QMdiSubWindow}s can be set as
-    children of a QMdiArea; you cannot, for instance, write:
+    Note that only \l{QMdiSubWindow}s can be set as children of
+    QMdiArea; you cannot, for instance, write:
 
     \badcode
-	QMdiArea mdiArea;
-	QTextArea area(&mdiArea);
+        QMdiArea mdiArea;
+        QTextEdit editor(&mdiArea); // invalid child widget
     \endcode
 
     \sa QMdiArea::addSubWindow()
@@ -1868,7 +1873,7 @@ QMdiSubWindow::QMdiSubWindow(QWidget *parent, Qt::WindowFlags flags)
 }
 
 /*!
-    Destructs the subwindow.
+    Destroys the subwindow.
 
     \sa QMdiArea::removeSubWindow()
 */
@@ -1880,9 +1885,9 @@ QMdiSubWindow::~QMdiSubWindow()
 }
 
 /*!
-    Sets \a widget as the internal widget of this subwindow. (The
+    Sets \a widget as the internal widget of this subwindow. The
     internal widget is displayed in the centre of the subwindow
-    beneath the title bar.)
+    beneath the title bar.
 
     QMdiSubWindow takes temporary ownership of \a widget; you do
     not have to delete it. Any existing internal widget will be
@@ -1943,7 +1948,7 @@ void QMdiSubWindow::setWidget(QWidget *widget)
 }
 
 /*!
-    Returns a pointer to the current internal widget.
+    Returns the current internal widget.
 
     \sa setWidget()
 */
@@ -1987,7 +1992,7 @@ bool QMdiSubWindow::isShaded() const
 }
 
 /*!
-    If \a on is true, \a option is enabled on the subwindow. Otherwise, it is
+    If \a on is true, \a option is enabled on the subwindow; otherwise it is
     disabled. See SubWindowOption for the effect of each option.
 
     \sa SubWindowOption, testOption()
@@ -2071,10 +2076,10 @@ void QMdiSubWindow::setKeyboardPageStep(int step)
 /*!
     Sets \a systemMenu as the current system menu for this subwindow.
 
-    QMdiSubWindow creates a system menu by default.
+    By default, each QMdiSubWindow has a standard system menu.
 
     QActions for the system menu created by QMdiSubWindow will
-    automatically be updated depending on the current window state,
+    automatically be updated depending on the current window state;
     e.g., the minimize action will be disabled after the window is
     minimized.
 
@@ -2107,8 +2112,8 @@ void QMdiSubWindow::setSystemMenu(QMenu *systemMenu)
 }
 
 /*!
-    Returns a pointer to the current system menu or zero if not
-    set. QMdiSubWindow provides a default system menu, but you can
+    Returns a pointer to the current system menu, or zero if no system
+    menu is set. QMdiSubWindow provides a default system menu, but you can
     also set the menu with setSystemMenu().
 
     \sa setSystemMenu(), showSystemMenu()
@@ -2137,13 +2142,15 @@ void QMdiSubWindow::showSystemMenu()
 }
 
 /*!
-    Calling this function makes the window enter the shaded mode.
-    When the window is shaded, only the title bar is visible.
+    Calling this function makes the subwindow enter the shaded mode.
+    When the subwindow is shaded, only the title bar is visible.
 
-    Note that not all styles support shading; this function will
-    still show the window as shaded. The user will then not be able to
-    return from shaded mode through the user interface (e.g., through
-    a shade button in the title bar).
+    Although shading is not supported by all styles, this function will
+    still show the subwindow as shaded, regardless of whether support
+    for shading is available. However, when used with styles without
+    shading support, the user will be unable to return from shaded mode
+    through the user interface (e.g., through a shade button in the title
+    bar).
 
     \sa isShaded()
 */
