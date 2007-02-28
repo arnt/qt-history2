@@ -264,12 +264,8 @@ QString IconProperty::toString() const
 
 QVariant IconProperty::decoration() const
 {
-    static QIcon empty_icon;
-    if (empty_icon.isNull())
-        empty_icon = QIcon(QLatin1String(":/trolltech/formeditor/images/emptyicon.png"));
-
     if (m_value.isNull())
-        return qVariantFromValue(empty_icon);
+        return qVariantFromValue(emptyIcon());
     return qVariantFromValue(m_value);
 }
 
@@ -321,12 +317,8 @@ QString PixmapProperty::toString() const
 
 QVariant PixmapProperty::decoration() const
 {
-    static QIcon empty_icon;
-    if (empty_icon.isNull())
-        empty_icon = QIcon(QLatin1String(":/trolltech/formeditor/images/emptyicon.png"));
-
     if (m_value.isNull())
-        return qVariantFromValue(empty_icon);
+        return qVariantFromValue(emptyIcon());
     return qVariantFromValue(QIcon(m_value));
 }
 

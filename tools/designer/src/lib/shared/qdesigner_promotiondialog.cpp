@@ -131,7 +131,7 @@ namespace qdesigner_internal {
     void NewPromotedClassPanel::slotNameChanged(const QString &className) {
         // Suggest a name
         if (!className.isEmpty()) {
-            QString suggestedHeader = className.toLower().replace(QLatin1String("::"), QLatin1String("_"));
+            QString suggestedHeader = className.toLower().replace(QLatin1String("::"), QString(QLatin1Char('_')));
             suggestedHeader += QLatin1String(".h");
 
             const bool blocked = m_includeFileEdit->blockSignals(true);

@@ -38,6 +38,7 @@ TRANSLATOR qdesigner_internal::WidgetBoxTreeView
 #include <QtGui/QLineEdit>
 
 #include <QtXml/QDomDocument>
+#include <QtCore/QFile>
 #include <QtCore/qdebug.h>
 
 #include "widgetbox_dnditem.h"

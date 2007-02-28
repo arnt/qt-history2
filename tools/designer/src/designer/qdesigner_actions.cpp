@@ -479,20 +479,24 @@ void QDesignerActions::saveAllForms()
 {
     QString fileNames;
     QDesignerFormWindowManagerInterface *formWindowManager = core()->formWindowManager();
-    const int totalWindows = formWindowManager->formWindowCount();
-    for (int i = 0; i < totalWindows; ++i) {
-        QDesignerFormWindowInterface *fw = formWindowManager->formWindow(i);
-        if (fw && fw->isDirty()) {
-            formWindowManager->setActiveFormWindow(fw);
-            if (saveForm(fw))
-                fileNames.append(QFileInfo(fw->fileName()).fileName() + QString(QLatin1String(", ")));
-            else
-                break;
+    if (const int totalWindows = formWindowManager->formWindowCount()) {
+        const QString separator = QLatin1String(", ");
+        for (int i = 0; i < totalWindows; ++i) {
+            QDesignerFormWindowInterface *fw = formWindowManager->formWindow(i);
+            if (fw && fw->isDirty()) {
+                formWindowManager->setActiveFormWindow(fw);
+                if (saveForm(fw)) {
+                    if (!fileNames.isEmpty())
+                        fileNames += separator;
+                    fileNames += QFileInfo(fw->fileName()).fileName();
+                } else {
+                    break;
+                }
+            }
         }
     }
 
     if (!fileNames.isEmpty()) {
-        fileNames.resize(fileNames.length() -2);
         showStatusBarMessage(tr("Form %1 successful saved...").arg(fileNames));
     }
 }
@@ -586,7 +590,7 @@ void QDesignerActions::previewForm(QAction *action)
 
     // Only Dialogs have close buttons on mac
 #ifdef Q_WS_MAC
-    Qt::WindowFlags windwowFlags = Qt::Dialog;  
+    Qt::WindowFlags windwowFlags = Qt::Dialog;
 #else
     Qt::WindowFlags windwowFlags = (widget->windowType() == Qt::Window) ? Qt::Window | Qt::WindowMaximizeButtonHint : Qt::Dialog;
 #endif

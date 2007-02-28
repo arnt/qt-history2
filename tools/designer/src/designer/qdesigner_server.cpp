@@ -70,8 +70,8 @@ void QDesignerServer::readFromClient()
     while (m_socket->canReadLine()) {
         file = QString::fromUtf8(m_socket->readLine());
         if (!file.isNull()) {
-            file = file.replace(QLatin1String("\n"), QLatin1String(""));
-            file = file.replace(QLatin1String("\r"), QLatin1String(""));
+            file.remove(QLatin1Char('\n'));
+            file.remove(QLatin1Char('\r'));
             qDesigner->postEvent(qDesigner, new QFileOpenEvent(file));
         }
     }
@@ -117,8 +117,8 @@ void QDesignerClient::readFromSocket()
     while (m_socket->canReadLine()) {
         QString file = QString::fromUtf8(m_socket->readLine());
         if (!file.isNull()) {
-            file = file.replace(QLatin1String("\n"), QLatin1String(""));
-            file = file.replace(QLatin1String("\r"), QLatin1String(""));
+            file.remove(QLatin1Char('\n'));
+            file.remove(QLatin1Char('\r'));
             if (QFile::exists(file))
                 qDesigner->postEvent(qDesigner, new QFileOpenEvent(file));
         }

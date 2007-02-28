@@ -169,40 +169,41 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         createFakeProperty(QLatin1String("autoFillBackground"));
 
         if (m_canHaveLayoutAttributes) {
+            static const QString layoutGroup = tr("Layout");
             int pindex = count();
             createFakeProperty(QLatin1String("layoutLeftMargin"), 0);
             setAttribute(pindex, true);
-            setPropertyGroup(pindex, tr("Layout"));
+            setPropertyGroup(pindex, layoutGroup);
 
             pindex = count();
             createFakeProperty(QLatin1String("layoutTopMargin"), 0);
             setAttribute(pindex, true);
-            setPropertyGroup(pindex, tr("Layout"));
+            setPropertyGroup(pindex, layoutGroup);
 
             pindex = count();
             createFakeProperty(QLatin1String("layoutRightMargin"), 0);
             setAttribute(pindex, true);
-            setPropertyGroup(pindex, tr("Layout"));
+            setPropertyGroup(pindex, layoutGroup);
 
             pindex = count();
             createFakeProperty(QLatin1String("layoutBottomMargin"), 0);
             setAttribute(pindex, true);
-            setPropertyGroup(pindex, tr("Layout"));
+            setPropertyGroup(pindex, layoutGroup);
 
             pindex = count();
             createFakeProperty(QLatin1String("layoutSpacing"), 0);
             setAttribute(pindex, true);
-            setPropertyGroup(pindex, tr("Layout"));
+            setPropertyGroup(pindex, layoutGroup);
 
             pindex = count();
             createFakeProperty(QLatin1String("layoutHorizontalSpacing"), 0);
             setAttribute(pindex, true);
-            setPropertyGroup(pindex, tr("Layout"));
+            setPropertyGroup(pindex, layoutGroup);
 
             pindex = count();
             createFakeProperty(QLatin1String("layoutVerticalSpacing"), 0);
             setAttribute(pindex, true);
-            setPropertyGroup(pindex, tr("Layout"));
+            setPropertyGroup(pindex, layoutGroup);
         }
 
         if (m_objectType == ObjectLabel)
@@ -510,7 +511,7 @@ static QVariant toByteArray(const QVariant &value) {
     if (value.type() == QVariant::ByteArray)
         return value;
     const QByteArray ba = value.toString().toUtf8();
-    return QVariant(ba);    
+    return QVariant(ba);
 }
 
 void QDesignerPropertySheet::setProperty(int index, const QVariant &value)

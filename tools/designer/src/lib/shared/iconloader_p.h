@@ -25,32 +25,15 @@
 #ifndef ICONLOADER_H
 #define ICONLOADER_H
 
-#include <QtCore/QString>
-#include <QtCore/QFile>
+#include "shared_global_p.h"
 
-#include <QtGui/QIcon>
-#include <QtGui/QPixmap>
+class QString;
+class QIcon;
 
 namespace qdesigner_internal {
 
-inline QIcon createIconSet(const QString &name)
-{
-    QStringList candidates = QStringList()
-        << (QString::fromUtf8(":/trolltech/formeditor/images/") + name)
-#ifdef Q_WS_MAC
-        << (QString::fromUtf8(":/trolltech/formeditor/images/mac/") + name)
-#else
-        << (QString::fromUtf8(":/trolltech/formeditor/images/win/") + name)
-#endif
-        << (QString::fromUtf8(":/trolltech/formeditor/images/designer_") + name);
-
-    foreach (QString f, candidates) {
-        if (QFile::exists(f))
-            return QIcon(f);
-    }
-
-    return QIcon();
-}
+QDESIGNER_SHARED_EXPORT QIcon createIconSet(const QString &name);
+QDESIGNER_SHARED_EXPORT QIcon emptyIcon();
 
 } // namespace qdesigner_internal
 

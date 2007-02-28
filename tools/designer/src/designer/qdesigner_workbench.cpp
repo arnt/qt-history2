@@ -950,7 +950,7 @@ bool QDesignerWorkbench::readInBackup()
                 it.next();
 
                 QString fileName = it.key();
-                fileName.replace(QLatin1String("[*]"), QString());
+                fileName.remove(QLatin1String("[*]"));
 
                 if(m_actionManager->readInForm(it.value())) {
                     formWindowManager()->activeFormWindow()->setFileName(fileName);

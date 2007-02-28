@@ -739,7 +739,7 @@ template <class PropertyListIterator, class Function>
 unsigned PropertyListCommand::setValue(QVariant value, bool changed, unsigned subPropertyMask)
 {
     if(debugPropertyCommands)
-        qDebug() << "PropertyListCommand::setValue(" << value <<  changed << subPropertyMask << ")";
+        qDebug() << "PropertyListCommand::setValue(" << value <<  changed << subPropertyMask << ')';
     return changePropertyList(formWindow()->core(),
                               m_propertyDescription.m_propertyName, m_propertyHelperList.begin(), m_propertyHelperList.end(),
                               SetValueFunction(formWindow(), PropertyHelper::Value(value, changed), subPropertyMask));

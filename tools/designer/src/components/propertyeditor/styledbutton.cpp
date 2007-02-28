@@ -20,6 +20,7 @@ TRANSLATOR qdesigner_internal::StyledButton
 #include <QtGui/QStyleOption>
 #include <QtGui/QColorDialog>
 #include <QtGui/QFileDialog>
+#include <QtGui/QImageReader>
 
 #include "styledbutton.h"
 
@@ -77,19 +78,23 @@ QString StyledButton::buildImageFormatList() const
 
 #if 0 // ### port me
     QString all = tr("All Pixmaps (");
-    for (int i=0; i<QImageIO::outputFormats().count(); ++i) {
-        QString outputFormat = QImageIO::outputFormats().at(i);
-        QString outputExtension;
-
-        if (outputFormat != "JPEG")
+    const QList<QByteArray> supportedImageFormats = QImageReader::supportedImageFormats();
+    const QString jpeg = QLatin1String("JPEG");
+    for (int i=0; i< supportedImageFormats.count(); ++i) {
+        const QString outputFormat = QString::fromUtf8(supportedImageFormats.at(i));
+        QString outputExtension = QLatin1String("*.");
+        if (outputFormat != jpeg)
             outputExtension = outputFormat.toLower();
         else
-            outputExtension = "jpg;*.jpeg";
+            outputExtension = QLatin1String("jpg;*.jpeg");
 
-        filter += tr("%1-Pixmaps (%2)\n").arg(outputFormat).arg("*." + outputExtension);
-        all += "*." + outputExtension + ";";
+        filter += tr("%1-Pixmaps (%2)\n").arg(outputFormat).arg(outputExtension);
+        all += QLatin1String("*.");
+        all += outputExtension;
+        all += QLatin1Char(';');
     }
-    filter.prepend(all + tr(")\n"));
+    all += QLatin1String(")\n");
+    filter.prepend(all);
 #endif
 
     filter += tr("All Files (*.*)");

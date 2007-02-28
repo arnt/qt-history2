@@ -135,4 +135,5 @@ SOURCES += \
     $$PWD/formwindowbase.cpp \
     $$PWD/qdesigner_utils.cpp \
     $$PWD/resourcemimedata.cpp \
-    $$PWD/qdesigner_widgetbox.cpp
+    $$PWD/qdesigner_widgetbox.cpp \
+    $$PWD/iconloader.cpp

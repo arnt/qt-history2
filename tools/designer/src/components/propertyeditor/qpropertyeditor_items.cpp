@@ -102,13 +102,13 @@ void AbstractPropertyGroup::updateEditorContents(QWidget *editor)
 
 QString AbstractPropertyGroup::toString() const
 {
-    QString text = QLatin1String("[");
+    QString text = QString(QLatin1Char('['));
     for (int i=0; i<propertyCount(); ++i) {
         if (i)
             text += QLatin1String(", ");
         text += propertyAt(i)->toString();
     }
-    text += QLatin1String("]");
+    text += QLatin1Char(']');
     return text;
 }
 
@@ -162,11 +162,11 @@ void BoolProperty::updateValue(QWidget *editor)
 PointProperty::PointProperty(const QPoint &value, const QString &name)
     : AbstractPropertyGroup(name)
 {
-    IProperty *px = new IntProperty(value.x(), QLatin1String("x"));
+    IProperty *px = new IntProperty(value.x(), QString(QLatin1Char('x')));
     px->setFake(true);
     px->setParent(this);
 
-    IProperty *py = new IntProperty(value.y(), QLatin1String("y"));
+    IProperty *py = new IntProperty(value.y(), QString(QLatin1Char('y')));
     py->setFake(true);
     py->setParent(this);
 
@@ -190,11 +190,11 @@ void PointProperty::setValue(const QVariant &value)
 PointFProperty::PointFProperty(const QPointF &value, const QString &name)
     : AbstractPropertyGroup(name)
 {
-    DoubleProperty *px = new DoubleProperty(value.x(), QLatin1String("x"));
+    DoubleProperty *px = new DoubleProperty(value.x(), QString(QLatin1Char('x')));
     px->setFake(true);
     px->setParent(this);
 
-    DoubleProperty *py = new DoubleProperty(value.y(), QLatin1String("y"));
+    DoubleProperty *py = new DoubleProperty(value.y(), QString(QLatin1Char('y')));
     py->setFake(true);
     py->setParent(this);
 
@@ -570,11 +570,11 @@ void IntProperty::updateValue(QWidget *editor)
 RectProperty::RectProperty(const QRect &value, const QString &name)
     : AbstractPropertyGroup(name)
 {
-    IntProperty *px = new IntProperty(value.x(), QLatin1String("x"));
+    IntProperty *px = new IntProperty(value.x(), QString(QLatin1Char('x')));
     px->setFake(true);
     px->setParent(this);
 
-    IntProperty *py = new IntProperty(value.y(), QLatin1String("y"));
+    IntProperty *py = new IntProperty(value.y(), QString(QLatin1Char('y')));
     py->setFake(true);
     py->setParent(this);
 
@@ -617,11 +617,11 @@ void RectProperty::setValue(const QVariant &value)
 RectFProperty::RectFProperty(const QRectF &value, const QString &name)
     : AbstractPropertyGroup(name)
 {
-    DoubleProperty *px = new DoubleProperty(value.x(), QLatin1String("x"));
+    DoubleProperty *px = new DoubleProperty(value.x(), QString(QLatin1Char('x')));
     px->setFake(true);
     px->setParent(this);
 
-    DoubleProperty *py = new DoubleProperty(value.y(), QLatin1String("y"));
+    DoubleProperty *py = new DoubleProperty(value.y(), QString(QLatin1Char('y')));
     py->setFake(true);
     py->setParent(this);
 
@@ -862,11 +862,11 @@ QString FontProperty::toString() const
     const QString family = propertyAt(0)->toString();
     const QString pointSize = propertyAt(1)->value().toString();
     QString rc(QLatin1String("  "));  // ### temp hack
-    rc += QLatin1String("[");
+    rc += QLatin1Char('[');
     rc += family;
     rc += QLatin1String(", ");
     rc += pointSize;
-    rc += QLatin1String("]");
+    rc += QLatin1Char(']');
     return rc;
 }
 

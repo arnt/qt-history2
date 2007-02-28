@@ -88,7 +88,10 @@ bool StyleSheetEditorDialog::isStyleSheetValid(const QString &styleSheet)
     QCss::StyleSheet sheet;
     if (parser.parse(&sheet))
         return true;
-    QCss::Parser parser2(QLatin1String("* { ") + styleSheet + QLatin1String("}"));
+    QString fullSheet = QLatin1String("* { ");
+    fullSheet += styleSheet;
+    fullSheet += QLatin1Char('}');
+    QCss::Parser parser2(fullSheet);
     return parser2.parse(&sheet);
 }
 

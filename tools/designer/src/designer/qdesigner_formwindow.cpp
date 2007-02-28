@@ -86,7 +86,7 @@ void QDesignerFormWindow::changeEvent(QEvent *e)
             }
         } break;
         case QEvent::WindowTitleChange:
-            m_action->setText(windowTitle().replace(QLatin1String("[*]"), QLatin1String("")));
+            m_action->setText(windowTitle().remove(QLatin1String("[*]")));
             break;
         case QEvent::WindowIconChange:
             m_action->setIcon(windowIcon());

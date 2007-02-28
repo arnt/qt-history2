@@ -248,9 +248,8 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
 
 static QIcon fixActionIcon(QIcon icon)
 {
-    static const QIcon empty_icon(QLatin1String(":/trolltech/formeditor/images/emptyicon.png"));
     if (icon.isNull())
-        return empty_icon;
+        return emptyIcon();
     return icon;
 }
 

@@ -277,7 +277,9 @@ void NewForm::loadFrom(const QString &path, bool resourceFile)
         visiblePath = QDir::toNativeSeparators(visiblePath);
     }
 
-    root->setText(0, visiblePath.replace(QLatin1String("_"), QLatin1String(" ")));
+    const QChar underscore = QLatin1Char('_');
+    const QChar blank = QLatin1Char(' ');
+    root->setText(0, visiblePath.replace(underscore, blank));
     root->setToolTip(0, path);
 
     foreach(QFileInfo fi, list) {
@@ -285,7 +287,7 @@ void NewForm::loadFrom(const QString &path, bool resourceFile)
             continue;
 
         QTreeWidgetItem *item = new QTreeWidgetItem(root);
-        item->setText(0, fi.baseName().replace(QLatin1String("_"), QLatin1String(" ")));
+        item->setText(0, fi.baseName().replace(underscore, blank));
         item->setData(0, TemplateNameRole, fi.absoluteFilePath());
 
         QTreeWidgetItem *i = ui.treeWidget->currentItem();
@@ -312,7 +314,7 @@ QString NewForm::newUntitledTitle() const
     QRegExp rx(QLatin1String("untitled( (\\d+))?"));
     for (int i = 0; i < totalWindows; ++i) {
         QString title = m_workbench->formWindow(i)->windowTitle();
-        title.replace(QLatin1String("[*]"), QLatin1String(""));
+        title.remove(QLatin1String("[*]"));
         if (rx.indexIn(title) != 1) {
             if (maxUntitled == 0)
                 ++maxUntitled;
