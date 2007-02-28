@@ -42,6 +42,11 @@ table tr.even {
   color: black;
 }
 
+table
+{
+  clear: both;
+}
+
 table.annotated th {
   padding: 3px;
   text-align: left
