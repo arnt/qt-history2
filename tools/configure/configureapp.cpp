@@ -2371,12 +2371,12 @@ void Configure::generateMakefiles()
             for ( i=0; i<3; i++ ) {
                 for ( int j=0; j<makeList[i].size(); ++j) {
                     MakeItem *it=makeList[i][j];
-                    QString dirPath = QDir::fromNativeSeparators( it->directory + "/" );
+                    QString dirPath = QDir::toNativeSeparators( it->directory + "/" );
                     QString projectName = it->proFile;
                     QString makefileName = buildPath + "/" + dirPath + it->target;
                     QStringList args;
 
-                    args << QDir::fromNativeSeparators( buildPath + "/bin/qmake" );
+                    args << QDir::toNativeSeparators( buildPath + "/bin/qmake" );
                     args << projectName;
                     args << dictionary[ "QMAKE_ALL_ARGS" ];
 
