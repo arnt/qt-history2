@@ -117,7 +117,10 @@ private:
     QRenderRule renderRule(const QWidget *, const QString &, QStyle::State = QStyle::State_None) const;
     QRenderRule renderRule(const QWidget *, int, QStyle::State = QStyle::State_None) const;
     QRenderRule renderRule(const QWidget *, const QStyleOption *, int = 0) const;
-    
+    QSize defaultSize(const QWidget *, QSize, const QRect&, int) const;
+    QRect positionRect(const QWidget *, const QRenderRule&, const QRenderRule&, int,
+                       const QRect&, Qt::LayoutDirection) const;
+
     void setPalette(QWidget *);
     void unsetPalette(QWidget *);
 
