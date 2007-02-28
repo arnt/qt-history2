@@ -230,6 +230,11 @@ SUBDIRS += bic \
            qsqlselectcursor \
            qsqltablemodel \
            qsqlthread \
+           qsslcertificate \
+           qsslcipher \
+           qsslerror \
+           qsslkey \
+           qsslsocket \
            qstackedlayout \
            qstackedwidget \
            qstandarditem \
