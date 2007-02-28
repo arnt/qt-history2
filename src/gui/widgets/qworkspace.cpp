@@ -813,12 +813,14 @@ QSize QWorkspaceTitleBar::sizeHint() const
     Workspaces can be placed in any layout, but are typically given
     as the central widget in a QMainWindow:
 
-    \quotefromfile mainwindows/mdi/mainwindow.cpp
-    \skipto MainWindow::MainWindow()
-    \printuntil setCentralWidget(mdiArea);
-    \dots
-    \skipto /^\}/
-    \printuntil /^\}/
+    \code
+    MainWindow::MainWindow()
+    {
+        mdiArea = new QMdiArea;
+        setCentralWidget(mdiArea);
+        ...
+    }
+    \endcode
 
     Child windows (MDI windows) are standard Qt widgets that are
     inserted into the workspace with addWindow(). As with top-level
