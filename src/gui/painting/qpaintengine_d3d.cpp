@@ -295,11 +295,21 @@ static void dump_font_texture(QD3DFontTexture *tex)
         qDebug() << "debug: unable to lock texture rect.";
         return;
     }
-    uint *tex_data = (uint *) rect.pBits;
-    QImage im(tex->width, tex->height, QImage::Format_ARGB32);
+
+// cleartype version
+//     uint *tex_data = (uint *) rect.pBits;
+//     QImage im(tex->width, tex->height, QImage::Format_ARGB32);
+//     for (int y=0; y<tex->height; ++y) {
+//         for (int x=0; x<tex->width; ++x) {
+//             im.setPixel(x, y, ((*(tex_data+x+y*tex->width))));
+//         }
+//     }
+    uchar *tex_data = (uchar *) rect.pBits;
+    QImage im(rect.Pitch, tex->height, QImage::Format_ARGB32);
     for (int y=0; y<tex->height; ++y) {
-        for (int x=0; x<tex->width; ++x) {
-            im.setPixel(x, y, ((*(tex_data+x+y*tex->width))));
+        for (int x=0; x<rect.Pitch; ++x) {
+            uchar val = ((*(tex_data+x+y*rect.Pitch)));
+            im.setPixel(x, y, 0xff000000 | (val << 16) | (val << 8) | val);
         }
     }
     tex->texture->UnlockRect(0);
@@ -329,8 +339,8 @@ void QD3DGlyphCache::cacheGlyphs(QDirect3DPaintEngine *engine, const QTextItemIn
     QD3DFontTexHash::const_iterator it = font_textures.constFind(font_key);
     QD3DFontTexture *font_tex = 0;
     if (it == font_textures.constEnd()) {
-        // ## alloc a new texture, put it into the cache
-        int tex_height = qRound(ti.ascent.toReal() + ti.descent.toReal()) + 2;
+        // alloc a new texture, put it into the cache
+        int tex_height = qCeil(ti.ascent.toReal() + ti.descent.toReal()) + 5;
         int tex_width = tex_height * 30; // ###
         IDirect3DTexture9 *tex;
         if (FAILED(device->CreateTexture(tex_width, tex_height, 1, 0,
@@ -359,11 +369,11 @@ void QD3DGlyphCache::cacheGlyphs(QDirect3DPaintEngine *engine, const QTextItemIn
         QD3DGlyphHash::const_iterator it = cache->constFind(glyphs[i]);
         if (it == cache->constEnd()) {
             glyph_metrics_t metrics = ti.fontEngine->boundingBox(glyphs[i]);
-            int glyph_width = qCeil(metrics.width.toReal());
-            int glyph_height = qCeil(ti.ascent.toReal() + ti.descent.toReal());
+            int glyph_width = qCeil(metrics.width.toReal()) + 5;
+            int glyph_height = qCeil(ti.ascent.toReal() + ti.descent.toReal()) + 5;
             if (font_tex->x_offset + glyph_width > font_tex->width) {
                 // no room on the current line, start new glyph strip
-                int strip_height = qCeil(ti.ascent.toReal() + ti.descent.toReal());
+                int strip_height = glyph_height;
                 font_tex->x_offset = 0;
                 font_tex->y_offset += strip_height;
                 if (font_tex->y_offset >= font_tex->height) {
@@ -1489,7 +1499,7 @@ void QD3DVertexBuffer::lock()
         if (m_startindex >= QT_VERTEX_RESET_LIMIT) {
             m_startindex = 0;
             m_index = 0;
-    
+
 #ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
             for (int i=0; i<QT_VERTEX_BUF_SIZE; ++i) {
                 if (accesscontrol[i] != (WRITE|READ) && accesscontrol[i] != CLEAR)
@@ -3328,11 +3338,11 @@ void QDirect3DPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textI
 #ifdef QT_DEBUG_D3D_CALLS
     qDebug() << "QDirect3DPaintEngine::drawTextItem";
 #endif
-    if (d->m_matrix.isScaling() || (d->m_pen_brush_style >= Qt::LinearGradientPattern
-                                    && d->m_pen_brush_style <= Qt::ConicalGradientPattern)) {
-        QPaintEngine::drawTextItem(p, textItem);
-        return;
-    }
+//     if (d->m_matrix.isScaling() || (d->m_pen_brush_style >= Qt::LinearGradientPattern
+//                                     && d->m_pen_brush_style <= Qt::ConicalGradientPattern)) {
+//         QPaintEngine::drawTextItem(p, textItem);
+//         return;
+//     }
 
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
     QVarLengthArray<QFixedPoint> positions;

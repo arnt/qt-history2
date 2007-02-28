@@ -927,12 +927,12 @@ QImage QFontEngineWin::alphaMapForGlyph(glyph_t glyph)
     glyph_metrics_t gm = boundingBox(glyph);
     int glyph_x = qFloor(gm.x.toReal());
     int glyph_y = qFloor(gm.y.toReal());
-    int glyph_width = qCeil((gm.x + gm.width).toReal()) -  glyph_x + 2;
-    int glyph_height = qCeil((gm.y + gm.height).toReal()) - glyph_y + 2;
+    int glyph_width = qCeil((gm.x + gm.width).toReal()) -  glyph_x + 5;
+    int glyph_height = qCeil((gm.y + gm.height).toReal()) - glyph_y + 5;
 
     if (glyph_width + glyph_x <= 0 || glyph_height <= 0)
         return QImage();
-    QImage im(glyph_width + glyph_x, glyph_height, QImage::Format_ARGB32_Premultiplied);
+    QImage im(glyph_width, glyph_height, QImage::Format_ARGB32_Premultiplied);
     im.fill(0);
     QPainter p(&im);
 
