@@ -97,7 +97,7 @@ QDesignerFormEditorInterface *ObjectInspector::core() const
 
 void ObjectInspector::slotPopupContextMenu(const QPoint &pos)
 {
-    if (m_formWindow->currentTool() != 0)
+    if (m_formWindow == 0 || m_formWindow->currentTool() != 0)
         return;
 
     QTreeWidgetItem *item = m_treeWidget->itemAt(pos);
