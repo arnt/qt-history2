@@ -39,7 +39,10 @@ class QMainWindowPrivate : public QWidgetPrivate
     Q_DECLARE_PUBLIC(QMainWindow)
 public:
     inline QMainWindowPrivate()
-        : layout(0), toolButtonStyle(Qt::ToolButtonIconOnly), useHIToolBar(false)
+        : layout(0), toolButtonStyle(Qt::ToolButtonIconOnly)
+#ifdef Q_WS_MAC
+            , useHIToolBar(false)
+#endif
     { }
     QMainWindowLayout *layout;
     QSize iconSize;

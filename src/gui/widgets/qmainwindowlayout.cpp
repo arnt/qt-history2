@@ -895,11 +895,8 @@ OSStatus QMainWindowLayout::qtmacToolbarDelegate(EventHandlerCallRef, EventRef e
     return result;
 }
 
-#endif
-
 void QMainWindowLayout::insertIntoMacHIToolbar(QToolBar *before, QToolBar *toolbar)
 {
-#ifdef Q_WS_MAC
     if (toolbar == 0)
         return;
 
@@ -945,11 +942,10 @@ void QMainWindowLayout::insertIntoMacHIToolbar(QToolBar *before, QToolBar *toolb
     HIToolbarCreateItemWithIdentifier(macToolbar, CFSTR("com.trolltech.qt.hitoolbar-qtoolbar"),
                                       array, &outItem);
     HIToolbarInsertItemAtIndex(macToolbar, outItem, beforeIndex);
-#else
-    Q_UNUSED(before);
-    Q_UNUSED(after);
-#endif
 }
+
+#endif // Q_WS_MAC
+
 
 /* Removes the toolbar from the mainwindow so that it can be added again. Does not
    explicitly hide the toolbar. */
@@ -961,9 +957,8 @@ void QMainWindowLayout::removeToolBar(QToolBar *toolbar)
         QObject::disconnect(parentWidget(), SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
                    toolbar, SLOT(_q_updateToolButtonStyle(Qt::ToolButtonStyle)));
 
-        if (!usesHIToolBar(toolbar)) {
-            removeWidget(toolbar);
-        } else {
+#ifdef Q_WS_MAC
+        if (usesHIToolBar(toolbar)) {
             QHash<HIToolbarItemRef, QToolBar *>::iterator it = hitoolbarHash.begin();
             while (it != hitoolbarHash.end()) {
                 if (it.value() == toolbar) {
@@ -985,6 +980,10 @@ void QMainWindowLayout::removeToolBar(QToolBar *toolbar)
                 }
                 ++it;
             }
+        } else
+#endif // Q_WS_MAC
+        {
+            removeWidget(toolbar);
         }
     }
 }
@@ -1015,9 +1014,12 @@ void QMainWindowLayout::addToolBar(Qt::ToolBarArea area,
 */
 void QMainWindowLayout::insertToolBar(QToolBar *before, QToolBar *toolbar)
 {
+#ifdef Q_WS_MAC
     if (usesHIToolBar(before)) {
         insertIntoMacHIToolbar(before, toolbar);
-    } else {
+    } else
+#endif // Q_WS_MAC
+    {
         addChildWidget(toolbar);
         layoutState.toolBarAreaLayout.insertToolBar(before, toolbar);
         invalidate();
@@ -1454,6 +1456,7 @@ bool QMainWindowLayout::plug(QLayoutItem *widgetItem)
 
     QList<int> previousPath = layoutState.indexOf(widget);
 
+    QLayoutItem *it = layoutState.plug(currentGapPos);
     Q_ASSERT(it == widgetItem);
     if (!previousPath.isEmpty())
         layoutState.remove(previousPath);
