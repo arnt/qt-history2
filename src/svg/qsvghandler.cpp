@@ -64,6 +64,16 @@ static QString xmlSimplify(const QString &str)
     return temp;
 }
 
+static inline QString someId(const QXmlStreamAttributes &attributes)
+{
+    QString id = attributes.value(QLatin1String("id")).toString();
+    if (id.isEmpty())
+        id = attributes.value(QLatin1String("xml:id")).toString();
+    return id;
+}
+
+
+
 static const char * QSvgStyleSelector_nodeString[] = {
     "svg",
     "g",
@@ -564,7 +574,7 @@ static void parseBrush(QSvgNode *node,
                        QSvgHandler *handler)
 {
     QString value = attributes.value(QLatin1String("fill")).toString();
-    QString myId = attributes.value(QLatin1String("id")).toString();
+    QString myId = someId(attributes);
 
     value = value.trimmed();
     if (!value.isEmpty()) {
@@ -585,11 +595,9 @@ static void parseBrush(QSvgNode *node,
                 QSvgStyleProperty *style =
                     group->scopeStyle(id);
                 if (style)
-                    node->appendStyleProperty(style,
-                                              attributes.value(QLatin1String("id")).toString());
-                else {
+                    node->appendStyleProperty(style, someId(attributes));
+                else
                     qWarning("Couldn't resolve property: %s", qPrintable(id));
-                }
             }
         } else if (value != QLatin1String("none")) {
             QString opacity = attributes.value(QLatin1String("fill-opacity")).toString();
@@ -620,7 +628,7 @@ static void parseQPen(QPen &pen, QSvgNode *node,
     QString miterlimit = attributes.value(QLatin1String("stroke-miterlimit")).toString();
     QString opacity    = attributes.value(QLatin1String("stroke-opacity")).toString();
     QString width      = attributes.value(QLatin1String("stroke-width")).toString();
-    QString myId       = attributes.value(QLatin1String("id")).toString();
+    QString myId       = someId(attributes);
 
     if (!value.isEmpty() || !width.isEmpty()) {
         if (value != QLatin1String("none")) {
@@ -852,7 +860,7 @@ static void parsePen(QSvgNode *node,
     QString miterlimit = attributes.value(QLatin1String("stroke-miterlimit")).toString();
     QString opacity    = attributes.value(QLatin1String("stroke-opacity")).toString();
     QString width      = attributes.value(QLatin1String("stroke-width")).toString();
-    QString myId       = attributes.value(QLatin1String("id")).toString();
+    QString myId       = someId(attributes);
 
     //qDebug()<<"Node "<<node->type()<<", attrs are "<<value<<width;
 
@@ -1121,7 +1129,7 @@ static void parseFont(QSvgNode *node,
     if (inherited)
         font = inherited->qfont();
     if (parseQFont(attributes, font, handler)) {
-        QString myId = attributes.value(QLatin1String("id")).toString();
+        QString myId = someId(attributes);
         QString anchor = attributes.value(QLatin1String("text-anchor")).toString();
         QSvgTinyDocument *doc = node->document();
         QSvgFontStyle *fontStyle = 0;
@@ -1150,7 +1158,7 @@ static void parseTransform(QSvgNode *node,
                            QSvgHandler *)
 {
     QString value = attributes.value(QLatin1String("transform")).toString();
-    QString myId = attributes.value(QLatin1String("id")).toString();
+    QString myId = someId(attributes);
     value = value.trimmed();
     if (value.isEmpty())
         return;
@@ -1844,12 +1852,9 @@ static bool parseCoreNode(QSvgNode *node,
     QString languagesStr  = attributes.value(QLatin1String("systemLanguage")).toString();
     QString formatsStr    = attributes.value(QLatin1String("requiredFormats")).toString();
     QString fontsStr      = attributes.value(QLatin1String("requiredFonts")).toString();
-    QString nodeIdStr     = attributes.value(QLatin1String("id")).toString();
+    QString nodeIdStr     = someId(attributes);
     QString xmlClassStr   = attributes.value(QLatin1String("class")).toString();
 
-    if (nodeIdStr.isEmpty()) {
-        nodeIdStr = attributes.value(QLatin1String("xml:id")).toString();
-    }
 
     QStringList features = stringToList(featuresStr);
     QStringList extensions = stringToList(extensionsStr);
@@ -1880,8 +1885,7 @@ static void parseOpacity(QSvgNode *node,
 
     if (ok) {
         QSvgOpacityStyle *opacity = new QSvgOpacityStyle(op);
-        node->appendStyleProperty(opacity,
-                                  attributes.value(QLatin1String("id")).toString());
+        node->appendStyleProperty(opacity, someId(attributes));
     }
 }
 
@@ -1952,8 +1956,7 @@ static void parseCompOp(QSvgNode *node,
 
     if (!value.isEmpty()) {
         QSvgCompOpStyle *compop = new QSvgCompOpStyle(svgToQtCompositionMode(value));
-        node->appendStyleProperty(compop,
-                                  attributes.value(QLatin1String("id")).toString());
+        node->appendStyleProperty(compop, someId(attributes));
     }
 }
 
@@ -2078,7 +2081,7 @@ static bool parseAnimateColorNode(QSvgNode *parent,
     anim->setRepeatCount(
         (repeatStr == QLatin1String("indefinite")) ? -1 : ::toDouble(repeatStr));
 
-    parent->appendStyleProperty(anim, attributes.value(QLatin1String("id")).toString());
+    parent->appendStyleProperty(anim, someId(attributes));
     parent->document()->setAnimated(true);
     handler->setAnimPeriod(begin, end);
     return true;
@@ -2172,7 +2175,7 @@ static bool parseAnimateTransformNode(QSvgNode *parent,
     anim->setFreeze(fillStr == QLatin1String("freeze"));
     anim->setRepeatCount((repeatStr == QLatin1String("indefinite"))? -1 : ::toDouble(repeatStr));
 
-    parent->appendStyleProperty(anim, attributes.value(QLatin1String("id")).toString());
+    parent->appendStyleProperty(anim, someId(attributes));
     parent->document()->setAnimated(true);
     handler->setAnimPeriod(begin, end);
     return true;
@@ -2258,7 +2261,7 @@ static QSvgStyleProperty *createFontNode(QSvgNode *parent,
                                          QSvgHandler *)
 {
     QString hax      = attributes.value(QLatin1String("horiz-adv-x")).toString();
-    QString myId     = attributes.value(QLatin1String("id")).toString();
+    QString myId     = someId(attributes);
 
     qreal horizAdvX = ::toDouble(hax);
 
@@ -2771,12 +2774,9 @@ static bool parseStopNode(QSvgStyleProperty *parent,
 {
     if (parent->type() != QSvgStyleProperty::GRADIENT)
         return false;
-    QString nodeIdStr     = attributes.value(QLatin1String("id")).toString();
+    QString nodeIdStr     = someId(attributes);
     QString xmlClassStr   = attributes.value(QLatin1String("class")).toString();
 
-    if (nodeIdStr.isEmpty()) {
-        nodeIdStr = attributes.value(QLatin1String("xml:id")).toString();
-    }
     //### nasty hack because stop gradients are not in the rendering tree
     //    we force a dummy node with the same id and class into a rendering
     //    tree to figure out whether the selector has a style for it
@@ -3113,7 +3113,7 @@ bool QSvgHandler::startElement(const QString &namespaceURI,
             {
                 QSvgStructureNode *group =
                     static_cast<QSvgStructureNode*>(m_nodes.top());
-                group->addChild(node, attributes.value(QLatin1String("id")).toString());
+                group->addChild(node, someId(attributes));
             }
                 break;
             default:
@@ -3137,7 +3137,7 @@ bool QSvgHandler::startElement(const QString &namespaceURI,
             {
                 QSvgStructureNode *group =
                     static_cast<QSvgStructureNode*>(m_nodes.top());
-                group->addChild(node, attributes.value(QLatin1String("id")).toString());
+                group->addChild(node, someId(attributes));
             }
                 break;
             default:
@@ -3161,11 +3161,8 @@ bool QSvgHandler::startElement(const QString &namespaceURI,
         QSvgStyleProperty *prop = s_styleFactory[localName](
             m_nodes.top(), attributes, this);
         if (prop) {
-            QString id = attributes.value(QLatin1String("id")).toString();
-            if (id.isEmpty())
-                id = attributes.value(QLatin1String("xml:id")).toString();
             m_style = prop;
-            m_nodes.top()->appendStyleProperty(prop, id, true);
+            m_nodes.top()->appendStyleProperty(prop, someId(attributes), true);
         } else {
             qWarning("Couldn't parse node: %s", qPrintable(localName));
         }
