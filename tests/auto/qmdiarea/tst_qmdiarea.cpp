@@ -710,9 +710,11 @@ void tst_QMdiArea::addAndRemoveWindows()
     workspace.removeSubWindow(fakeWindow);
     delete fakeWindow;
 
-    // Check that newly added windows don't occupy minimized/maximized windows'
+    // Check that newly added windows don't occupy maximized windows'
     // restore space.
     workspace.closeAllSubWindows();
+    workspace.setOption(QMdiArea::DontMaximizeSubWindowOnActivation);
+    workspace.show();
     QMdiSubWindow *window1 = workspace.addSubWindow(new QWidget);
     window1->show();
     const QRect window1RestoreGeometry = window1->geometry();
@@ -720,13 +722,15 @@ void tst_QMdiArea::addAndRemoveWindows()
 
     window1->showMinimized();
 
+    // Occupy space.
     QMdiSubWindow *window2 = workspace.addSubWindow(new QWidget);
     window2->show();
     const QRect window2RestoreGeometry = window2->geometry();
-    QCOMPARE(window2RestoreGeometry.topLeft(), QPoint(window1RestoreGeometry.right() + 1, 0));
+    QCOMPARE(window2RestoreGeometry.topLeft(), QPoint(0, 0));
 
     window2->showMaximized();
 
+    // Don't occupy space.
     QMdiSubWindow *window3 = workspace.addSubWindow(new QWidget);
     window3->show();
     QCOMPARE(window3->geometry().topLeft(), QPoint(window2RestoreGeometry.right() + 1, 0));
