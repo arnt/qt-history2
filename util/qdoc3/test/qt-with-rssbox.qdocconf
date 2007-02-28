@@ -1,4 +1,7 @@
 include( qt.qdocconf )
 
-HTML.stylesheets        += rssbox.css
-HTML.postheader         += "<!--#include virtual=\"rssboxcontent.html\" -->"
+HTML.customheadelements += "<!--#include virtual=\"rssboxheadelements.inc\" -->"
+HTML.postheader         += "<!--#include virtual=\"rssboxcontent.inc\" -->"
+imagedirs               += rssbox/images
+extraimages.HTML        += triangleVertical.png \
+                           triangleHorizontal.png
