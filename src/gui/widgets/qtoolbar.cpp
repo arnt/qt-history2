@@ -764,8 +764,9 @@ void QToolBar::actionEvent(QActionEvent *event)
 
         case QEvent::ActionRemoved: {
             int index = d->layout->indexOf(action);
-            Q_ASSERT_X(index != -1, "QToolBar::removeAction", "internal error");
-            delete d->layout->takeAt(index);
+            if (index != -1) {
+                delete d->layout->takeAt(index);
+            }
             break;
         }
 

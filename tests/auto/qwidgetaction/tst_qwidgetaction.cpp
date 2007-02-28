@@ -89,6 +89,7 @@ void tst_QWidgetAction::defaultWidget()
         
         tb1.addAction(action);
         QVERIFY(combo->parent() == &tb1);
+        qApp->processEvents();
         QVERIFY(combo->isVisible());
 
         // not supported, not supposed to work, hence the parent() check
@@ -98,9 +99,11 @@ void tst_QWidgetAction::defaultWidget()
         tb2.removeAction(action);
         tb1.removeAction(action);
         
+        qApp->processEvents(); //the call to hide is delayd by the toolbar layout
         QVERIFY(!combo->isVisible());
         
         tb2.addAction(action);
+        qApp->processEvents(); //the call to hide is delayd by the toolbar layout
         QVERIFY(combo->parent() == &tb2);
         QVERIFY(combo->isVisible());
         
@@ -145,10 +148,12 @@ void tst_QWidgetAction::visibilityUpdate()
     action->setDefaultWidget(combo);
     
     tb.addAction(action);
+    qApp->processEvents(); //the call to show is delayed by the toolbar layout
     QVERIFY(combo->isVisible());
     QVERIFY(action->isVisible());
     
     action->setVisible(false);
+    qApp->processEvents(); //the call to hide is delayed by the toolbar layout
     QVERIFY(!combo->isVisible());
     
     delete action;

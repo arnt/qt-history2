@@ -131,8 +131,10 @@ void QToolBarLayout::insertAction(int index, QAction *action)
     index = qMin(items.count(), index);
 
     QToolBarItem *item = createItem(action);
-    items.insert(index, item);
-    invalidate();
+    if (item) {
+        items.insert(index, item);
+        invalidate();
+    }
 }
 
 int QToolBarLayout::indexOf(QAction *action) const
