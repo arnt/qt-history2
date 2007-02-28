@@ -1242,30 +1242,23 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
     QFixed pageTop = currentPage * layoutStruct.pageHeight + layoutStruct.pageTopMargin;
     layoutStruct.y = qMax(layoutStruct.y, pageTop);
 
-    QList<QTextFrame *> floats;
-
-    const QList<QTextFrame *> childFrames = childFrameMap.values(cell.row() + cell.column() * t->rows());
-    for (int i = 0; i < childFrames.size(); ++i) {
-        QTextFrame *frame = childFrames.at(i);
-        QTextFrameData *cd = data(frame);
-
-        cd->flow_position = frame->frameFormat().position();
-
-        if (cd->flow_position != QTextFrameFormat::InFlow)
-            floats.append(frame);
-    }
-
-    QFixed floatMinWidth = layoutStruct.minimumWidth;
-
     layoutFlow(cell.begin(), &layoutStruct, layoutFrom, layoutTo, cellY, width);
+
+    QFixed floatMinWidth;
 
     // floats that are located inside the text (like inline images) aren't taken into account by
     // layoutFlow with regards to the cell height (layoutStruct->y), so for a safety measure we
     // do that here. For example with <td><img align="right" src="..." />blah</td>
     // when the image happens to be higher than the text
-    for (int i = 0; i < floats.size(); ++i) {
-        QTextFrameData *cd = data(floats.at(i));
-        layoutStruct.y = qMax(layoutStruct.y, cd->position.y + cd->size.height);
+    const QList<QTextFrame *> childFrames = childFrameMap.values(cell.row() + cell.column() * t->rows());
+    for (int i = 0; i < childFrames.size(); ++i) {
+        QTextFrame *frame = childFrames.at(i);
+        QTextFrameData *cd = data(frame);
+
+        if (cd->flow_position != QTextFrameFormat::InFlow)
+            layoutStruct.y = qMax(layoutStruct.y, cd->position.y + cd->size.height);
+
+        floatMinWidth = qMax(floatMinWidth, cd->minimumWidth);
     }
 
     // constraint the maximumWidth by the minimum width of the fixed size floats, to
@@ -1895,6 +1888,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
         }
     }
 
+    QFixed maximumBlockWidth = 0;
     while (!it.atEnd()) {
         QTextFrame *c = it.currentFrame();
 
@@ -2032,6 +2026,8 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
 
             const QFixed origY = layoutStruct->y;
             const QFixed origPageBottom = layoutStruct->pageBottom;
+            const QFixed origMaximumWidth = layoutStruct->maximumWidth;
+            layoutStruct->maximumWidth = 0;
 
             // layout and position child block
             layoutBlock(block, layoutStruct, layoutFrom, layoutTo, lastIt.currentBlock());
@@ -2086,8 +2082,15 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             QTextLayout *layout = block.layout();
             QPointF pos = layout->position();
             layout->setPosition(QPointF(pos.x(), pos.y() - parentY.toReal()));
+
+            maximumBlockWidth = qMax(maximumBlockWidth, layoutStruct->maximumWidth);
+            layoutStruct->maximumWidth = origMaximumWidth;
         }
     }
+    if (layoutStruct->maximumWidth == QFIXED_MAX && maximumBlockWidth > 0)
+        layoutStruct->maximumWidth = maximumBlockWidth;
+    else
+        layoutStruct->maximumWidth = qMax(layoutStruct->maximumWidth, maximumBlockWidth);
 
     // a float at the bottom of a frame may make it taller, hence the qMax() for layoutStruct->y.
     // we don't need to do it for tables though because floats in tables are per table
