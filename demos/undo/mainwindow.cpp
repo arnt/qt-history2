@@ -408,7 +408,7 @@ void MainWindow::addRobot()
 
 void MainWindow::about()
 {
-    QMessageBox::about(this, tr("About undo"), tr("The Undo example demostrates how to use the Qt undo framework."));
+    QMessageBox::about(this, tr("About Undo"), tr("The Undo demonstration shows how to use the Qt Undo framework."));
 }
 
 void MainWindow::aboutQt()

@@ -196,7 +196,7 @@
     <iconset resource="undo.qrc" >:/icons/fileopen.png</iconset>
    </property>
    <property name="text" >
-    <string>Open</string>
+    <string>&amp;Open</string>
    </property>
   </action>
   <action name="actionClose" >
@@ -204,7 +204,7 @@
     <iconset resource="undo.qrc" >:/icons/fileclose.png</iconset>
    </property>
    <property name="text" >
-    <string>Close</string>
+    <string>&amp;Close</string>
    </property>
   </action>
   <action name="actionNew" >
@@ -212,7 +212,7 @@
     <iconset resource="undo.qrc" >:/icons/filenew.png</iconset>
    </property>
    <property name="text" >
-    <string>New</string>
+    <string>&amp;New</string>
    </property>
   </action>
   <action name="actionSave" >
@@ -220,7 +220,7 @@
     <iconset resource="undo.qrc" >:/icons/filesave.png</iconset>
    </property>
    <property name="text" >
-    <string>Save</string>
+    <string>&amp;Save</string>
    </property>
   </action>
   <action name="actionExit" >
@@ -228,7 +228,7 @@
     <iconset resource="undo.qrc" >:/icons/exit.png</iconset>
    </property>
    <property name="text" >
-    <string>exit</string>
+    <string>E&amp;xit</string>
    </property>
   </action>
   <action name="actionRed" >
