@@ -68,6 +68,13 @@ void LayoutPropertySheet::setProperty(int index, const QVariant &value)
     QString pname = propertyName(index);
     QLayoutWidget *lw = qobject_cast<QLayoutWidget *>(m_layout->parent());
     if (lw) {
+        if (pname == QLatin1String("margin")) {
+            lw->setLayoutLeftMargin(value.toInt());
+            lw->setLayoutTopMargin(value.toInt());
+            lw->setLayoutRightMargin(value.toInt());
+            lw->setLayoutBottomMargin(value.toInt());
+            return;
+        }
         if (pname == QLatin1String("leftMargin")) {
             lw->setLayoutLeftMargin(value.toInt());
             return;

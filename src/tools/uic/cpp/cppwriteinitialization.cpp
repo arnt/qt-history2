@@ -648,7 +648,11 @@ void WriteInitialization::acceptLayout(DomLayout *node)
     m_output << ");\n";
 
     if (isGroupBox) {
-        m_output << m_option.indent << m_driver->findOrInsertWidget(m_widgetChain.top()) << "->layout()->addItem(" << varName << ");\n";
+        const QString tempName = m_driver->unique(QLatin1String("boxlayout"));
+        m_output << m_option.indent << "QBoxLayout *" << tempName << " = qobject_cast<QBoxLayout *>(" <<
+                    m_driver->findOrInsertWidget(m_widgetChain.top()) << "->layout());\n";
+        m_output << m_option.indent << "if (" << tempName << ")\n";
+        m_output << m_option.indent << "    " << tempName << "->addLayout(" << varName << ");\n";
     }
 
     if (isGroupBox) {

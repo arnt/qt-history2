@@ -455,11 +455,41 @@ void QAbstractFormBuilder::layoutInfo(DomLayout *ui_layout, QObject *parent, int
     Q_UNUSED(parent)
     const DomPropertyHash properties = propertyMap(ui_layout->elementProperty());
 
-    if (margin && properties.contains(QLatin1String("margin")))
-        *margin = properties.value(QLatin1String("margin"))->elementNumber();
+    int mar = INT_MIN;
+    int spac = INT_MIN;
+    if (properties.contains(QLatin1String("margin")))
+        mar = properties.value(QLatin1String("margin"))->elementNumber();
 
-    if (spacing && properties.contains(QLatin1String("spacing")))
-        *spacing = properties.value(QLatin1String("spacing"))->elementNumber();
+    if (properties.contains(QLatin1String("spacing")))
+        spac = properties.value(QLatin1String("spacing"))->elementNumber();
+
+#ifdef Q_OS_MAC
+    int defaultMargin = 9;
+    if (parent->inherits("QLayoutWidget"))
+        defaultMargin = 0;
+    if (mar == defaultMargin)
+        mar = INT_MIN;
+    if (spac == 6)
+        spac = INT_MIN;
+
+    if (mar == INT_MIN || spac == INT_MIN) {
+        QList<DomProperty *> properties = ui_layout->elementProperty();
+        QMutableListIterator<DomProperty *> it(properties);
+        while (it.hasNext()) {
+            DomProperty *prop = it.next();
+            if ((mar == INT_MIN && prop->attributeName() == QLatin1String("margin")) ||
+                        (spac == INT_MIN && prop->attributeName() == QLatin1String("spacing"))) {
+                it.remove();
+                delete prop;
+            }
+        }
+        ui_layout->setElementProperty(properties);
+    }
+#endif
+    if (margin)
+        *margin = mar;
+    if (spacing)
+        *spacing = spac;
 }
 
 /*!

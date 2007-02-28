@@ -277,7 +277,6 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), layout);
 
     if (widget->inherits("Q3GroupBox")) {
-        //widget->setProperty("margin", 0);
         layout->setContentsMargins(widget->style()->pixelMetric(QStyle::PM_LayoutLeftMargin),
                                     widget->style()->pixelMetric(QStyle::PM_LayoutTopMargin),
                                     widget->style()->pixelMetric(QStyle::PM_LayoutRightMargin),
@@ -290,6 +289,9 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
             layout->setSpacing(-1);
         }
         layout->setAlignment(Qt::AlignTop);
+        // Just to ensure; before 4.3 orientation property was always set (now only for QSplitter class).
+        // Calling Q3GroupBox::setOrientation() invoked in turn setSpacing(0). Below fixes that
+        widget->layout()->setSpacing(-1);
     } else if (widget->inherits("QLayoutWidget")) {
         sheet->setProperty(sheet->indexOf(QLatin1String("leftMargin")), 0);
         sheet->setProperty(sheet->indexOf(QLatin1String("topMargin")), 0);
@@ -378,7 +380,7 @@ void WidgetFactory::initialize(QObject *object) const
         sheet->setChanged(sheet->indexOf(QLatin1String("sizeHint")), true);
 
     int o = sheet->indexOf(QLatin1String("orientation"));
-    if (o != -1)
+    if (o != -1 && object->inherits("QSplitter"))
         sheet->setChanged(o, true);
 
     if (QWidget *widget = qobject_cast<QWidget*>(object)) {
