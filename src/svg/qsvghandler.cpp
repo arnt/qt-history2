@@ -3064,7 +3064,8 @@ void QSvgHandler::parse()
     while (!xml.atEnd()) {
         switch (xml.readNext()) {
         case QXmlStreamReader::StartElement:
-            if (xml.namespaceUri() == QLatin1String("http://www.w3.org/2000/svg"))
+            if (xml.namespaceUri() == QLatin1String("http://www.w3.org/2000/svg")
+                || xml.namespaceUri().isEmpty())
                 startElement(xml.name().toString(), xml.attributes());
             else
                 m_skipNodes.push(Unknown);
