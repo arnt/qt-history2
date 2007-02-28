@@ -130,6 +130,7 @@
     <example filename="qtdemo" name="Qt Demo" executable="false" />
     <example filename="regexp" name="Regular Expressions" />
     <example filename="settingseditor" name="Settings Editor" />
+    <example filename="styleplugin" name="Style Plugin" />
     <example filename="treemodelcompleter" name="Tree Model Completer" />
     <example filename="undoframework" name="Undo Framework" />
   </category>

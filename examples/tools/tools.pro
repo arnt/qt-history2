@@ -9,6 +9,7 @@ SUBDIRS       = codecs \
                 plugandpaint \
                 regexp \
                 settingseditor \
+		styleplugin \
                 treemodelcompleter \
 		undoframework
 !cross_compile:SUBDIRS += qtdemo 
