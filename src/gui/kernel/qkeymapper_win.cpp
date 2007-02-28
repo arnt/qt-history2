@@ -1078,7 +1078,10 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
             // win32 natively, or our window gets focus while a key is already press, but now gets
             // the key release event.
             KeyRecord* rec = key_recorder.findKey(msg.wParam, true);
-            if (!rec) {
+            if (!rec && !(code == Qt::Key_Shift
+                          || code == Qt::Key_Control
+                          || code == Qt::Key_Meta
+                          || code == Qt::Key_Alt)) {
                 // Someone ate the key down event
             } else {
                 if (!code)
@@ -1089,7 +1092,7 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
                     code = Qt::Key_Backtab;
 
                 k0 = q->sendKeyEvent(widget, grab, QEvent::KeyRelease, code, Qt::KeyboardModifier(state),
-                                     rec->text, false, 0, scancode, msg.wParam, nModifiers);
+                                     (rec ? rec->text : QString()), false, 0, scancode, msg.wParam, nModifiers);
 
                 // don't pass Alt to Windows unless we are embedded in a non-Qt window
                 if (code == Qt::Key_Alt) {
