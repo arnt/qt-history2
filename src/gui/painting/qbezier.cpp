@@ -81,24 +81,114 @@ QPolygonF QBezier::toPolygon() const
     return polygon;
 }
 
+//0.5 is really low
+static const qreal flatness = 0.5;
+
+//based on "Fast, precise flattening of cubic Bezier path and offset curves"
+//      by T. F. Hain, A. L. Ahmad, S. V. R. Racherla and D. D. Langan
+static inline void flattenBezierWithoutInflections(QBezier &bez,
+                                                   QPolygonF *&p)
+{
+    QBezier left;
+
+    while (1) {
+        qreal dx = bez.x2 - bez.x1;
+        qreal dy = bez.y2 - bez.y1;
+
+        qreal normalized = sqrt(dx * dx + dy * dy);
+        if (qFuzzyCompare(normalized, 0))
+           break;
+
+        qreal d = qAbs(dx * (bez.y3 - bez.y2) - dy * (bez.x3 - bez.x2));
+
+        qreal t = sqrt(4. / 3. * normalized * flatness / d);
+        if (t > 1 || qFuzzyCompare(t, 1.))
+            break;
+        bez.parameterSplitLeft(t, &left);
+        p->append(bez.pt1());
+    }
+}
+
+
+static inline int quadraticRoots(qreal a, qreal b, qreal c,
+                                 qreal *x1, qreal *x2)
+{
+    if (qFuzzyCompare(a, 0)) {
+        if (qFuzzyCompare(b, 0))
+            return 0;
+        *x1 = *x2 = (-c / b);
+        return 1;
+    } else {
+        const qreal det = b * b - 4 * a * c;
+        if (qFuzzyCompare(det, 0)) {
+            *x1 = *x2 = -b / (2 * a);
+            return 1;
+        }
+        if (det > 0) {
+            if (qFuzzyCompare(b, 0)) {
+                *x2 = sqrt(-c / a);
+                *x1 = -(*x2);
+                return 2;
+            }
+            const qreal stableA = b / (2 * a);
+            const qreal stableB = c / (a * stableA * stableA);
+            const qreal stableC = -1 - sqrt(1 - stableB);
+            *x2 = stableA * stableC;
+            *x1 = (stableA * stableB) / stableC;
+            return 2;
+        } else
+            return 0;
+    }
+}
+
+static inline bool findInflections(qreal a, qreal b, qreal c,
+                                   qreal *t1 , qreal *t2, qreal *tCups)
+{
+    qreal r1, r2;
+
+    short rootsCount = quadraticRoots(a, b, c, &r1, &r2);
+
+    if (rootsCount >= 1) {
+        if (r1 < r2) {
+            *t1 = r1;
+            *t2 = r2;
+        } else {
+            *t1 = r2;
+            *t2 = r1;
+        }
+        if (!qFuzzyCompare(a, 0))
+            *tCups = 0.5 * (-b / a);
+        else
+            *tCups = 2;
+
+        return true;
+    }
+
+    return false;
+}
+
+
 void QBezier::addToPolygon(QPolygonF *polygon) const
 {
     QBezier beziers[32];
     beziers[0] = *this;
     QBezier *b = beziers;
+
     while (b >= beziers) {
         // check if we can pop the top bezier curve from the stack
-        qreal l = qAbs(b->x4 - b->x1) + qAbs(b->y4 - b->y1);
+        qreal y4y1 = b->y4 - b->y1;
+        qreal x4x1 = b->x4 - b->x1;
+        qreal l = qAbs(x4x1) + qAbs(y4y1);
         qreal d;
         if (l > 1.) {
-            d = qAbs( (b->x4 - b->x1)*(b->y1 - b->y2) - (b->y4 - b->y1)*(b->x1 - b->x2) )
-                + qAbs( (b->x4 - b->x1)*(b->y1 - b->y3) - (b->y4 - b->y1)*(b->x1 - b->x3) );
+            d = qAbs( (x4x1)*(b->y1 - b->y2) - (y4y1)*(b->x1 - b->x2) )
+                + qAbs( (x4x1)*(b->y1 - b->y3) - (y4y1)*(b->x1 - b->x3) );
         } else {
             d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
                 qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
             l = 1.;
         }
-        if (d < .5*l || b == beziers + 31) {
+        if (d < flatness*l || b == beziers + 31) {
             // good enough, we pop it off and add the endpoint
             polygon->append(QPointF(b->x4, b->y4));
             --b;
@@ -110,30 +200,54 @@ void QBezier::addToPolygon(QPolygonF *polygon) const
     }
 }
 
-void QBezier::split(QBezier *firstHalf, QBezier *secondHalf) const
+void QBezier::addToPolygonMixed(QPolygonF *polygon) const
 {
-    Q_ASSERT(firstHalf);
-    Q_ASSERT(secondHalf);
+    qreal ax = -x1 + 3*x2 - 3*x3 + x4;
+    qreal ay = -y1 + 3*y2 - 3*y3 + y4;
+    qreal bx = 3*x1 - 6*x2 + 3*x3;
+    qreal by = 3*y1 - 6*y2 + 3*y3;
+    qreal cx = -3*x1 + 3*x2;
+    qreal cy = -3*y1 + 2*y2;
+    qreal a = 6 * (ay * bx - ax * by);
+    qreal b = 6 * (ay * cx - ax * cy);
+    qreal c = 2 * (by * cx - bx * cy);
 
-    qreal c = (x2 + x3)/2;
-    firstHalf->x2 = (x1 + x2)/2;
-    secondHalf->x3 = (x3 + x4)/2;
-    firstHalf->x1 = x1;
-    secondHalf->x4 = x4;
-    firstHalf->x3 = (firstHalf->x2 + c)/2;
-    secondHalf->x2 = (secondHalf->x3 + c)/2;
-    firstHalf->x4 = secondHalf->x1 = (firstHalf->x3 + secondHalf->x2)/2;
+    if ((qFuzzyCompare(a, 0) && qFuzzyCompare(b, 0)) ||
+        (b * b - 4 * a *c) < 0) {
+        QBezier bez(*this);
+        flattenBezierWithoutInflections(bez, polygon);
+        polygon->append(QPointF(x4, y4));
+    } else {
+        QBezier beziers[32];
+        beziers[0] = *this;
+        QBezier *b = beziers;
 
-    c = (y2 + y3)/2;
-    firstHalf->y2 = (y1 + y2)/2;
-    secondHalf->y3 = (y3 + y4)/2;
-    firstHalf->y1 = y1;
-    secondHalf->y4 = y4;
-    firstHalf->y3 = (firstHalf->y2 + c)/2;
-    secondHalf->y2 = (secondHalf->y3 + c)/2;
-    firstHalf->y4 = secondHalf->y1 = (firstHalf->y3 + secondHalf->y2)/2;
+        while (b >= beziers) {
+            // check if we can pop the top bezier curve from the stack
+            qreal y4y1 = b->y4 - b->y1;
+            qreal x4x1 = b->x4 - b->x1;
+            qreal l = qAbs(x4x1) + qAbs(y4y1);
+            qreal d;
+            if (l > 1.) {
+                d = qAbs( (x4x1)*(b->y1 - b->y2) - (y4y1)*(b->x1 - b->x2) )
+                    + qAbs( (x4x1)*(b->y1 - b->y3) - (y4y1)*(b->x1 - b->x3) );
+            } else {
+                d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
+                    qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
+                l = 1.;
+            }
+            if (d < .5*l || b == beziers + 31) {
+                // good enough, we pop it off and add the endpoint
+                polygon->append(QPointF(b->x4, b->y4));
+                --b;
+            } else {
+                // split, second half of the polygon goes lower into the stack
+                b->split(b+1, b);
+                ++b;
+            }
+        }
+    }
 }
-
 
 QRectF QBezier::bounds() const
 {
@@ -698,28 +812,32 @@ QVector< QList<qreal> > QBezier::findIntersections(const QBezier &a, const QBezi
     return parameters;
 }
 
-void QBezier::parameterSplitLeft(double t, QBezier *left)
+static inline void splitBezierAt(const QBezier &bez, double t,
+                                 QBezier *left, QBezier *right)
 {
-    left->x1 = x1;
-    left->y1 = y1;
+    left->x1 = bez.x1;
+    left->y1 = bez.y1;
 
-    left->x2 = x1 + t * ( x2 - x1 );
-    left->y2 = y1 + t * ( y2 - y1 );
+    left->x2 = bez.x1 + t * ( bez.x2 - bez.x1 );
+    left->y2 = bez.y1 + t * ( bez.y2 - bez.y1 );
 
-    left->x3 = x2 + t * ( x3 - x2 ); // temporary holding spot
-    left->y3 = y2 + t * ( y3 - y2 ); // temporary holding spot
+    left->x3 = bez.x2 + t * ( bez.x3 - bez.x2 ); // temporary holding spot
+    left->y3 = bez.y2 + t * ( bez.y3 - bez.y2 ); // temporary holding spot
 
-    x3 = x3 + t * ( x4 - x3 );
-    y3 = y3 + t * ( y4 - y3 );
+    right->x3 = bez.x3 + t * ( bez.x4 - bez.x3 );
+    right->y3 = bez.y3 + t * ( bez.y4 - bez.y3 );
 
-    x2 = left->x3 + t * ( x3 - left->x3);
-    y2 = left->y3 + t * ( y3 - left->y3);
+    right->x2 = left->x3 + t * ( right->x3 - left->x3);
+    right->y2 = left->y3 + t * ( right->y3 - left->y3);
 
     left->x3 = left->x2 + t * ( left->x3 - left->x2 );
     left->y3 = left->y2 + t * ( left->y3 - left->y2 );
 
-    left->x4 = x1 = left->x3 + t * (x2 - left->x3);
-    left->y4 = y1 = left->y3 + t * (y2 - left->y3);
+    left->x4 = right->x1 = left->x3 + t * (right->x2 - left->x3);
+    left->y4 = right->y1 = left->y3 + t * (right->y2 - left->y3);
+
+    right->x4 = bez.x4;
+    right->y4 = bez.y4;
 }
 
 QVector< QList<QBezier> > QBezier::splitAtIntersections(QBezier &b)
@@ -830,4 +948,147 @@ QBezier QBezier::bezierOnInterval(qreal t0, qreal t1) const
     bezier.parameterSplitLeft(trueT, &result);
 
     return result;
+}
+
+
+static inline void bindInflectionPoint(const QBezier &bez, const qreal t,
+                                       qreal *tMinus , qreal *tPlus)
+{
+    if (t <= 0) {
+        *tMinus = *tPlus = -1;
+        return;
+    } else if (t >= 1) {
+        *tMinus = *tPlus = 2;
+        return;
+    }
+
+    QBezier left, right;
+    splitBezierAt(bez, t, &left, &right);
+
+    qreal ax = -right.x1 + 3*right.x2 - 3*right.x3 + right.x4;
+    qreal ay = -right.y1 + 3*right.y2 - 3*right.y3 + right.y4;
+    qreal ex = 3 * (right.x2 - right.x3);
+    qreal ey = 3 * (right.y2 - right.y3);
+
+    qreal s4 = qAbs(6 * (ey * ax - ex * ay) / sqrt(ex * ex + ey * ey)) + 0.00001f;
+    qreal tf = pow(9 * flatness / s4, 1./3.);
+    *tMinus = t - (1 - t) * tf;
+    *tPlus  = t + (1 - t) * tf;
+}
+
+void QBezier::addToPolygonIterative(QPolygonF *p) const
+{
+    qreal t1, t2, tcusp;
+    qreal t1min, t1plus, t2min, t2plus;
+
+    qreal ax = -x1 + 3*x2 - 3*x3 + x4;
+    qreal ay = -y1 + 3*y2 - 3*y3 + y4;
+    qreal bx = 3*x1 - 6*x2 + 3*x3;
+    qreal by = 3*y1 - 6*y2 + 3*y3;
+    qreal cx = -3*x1 + 3*x2;
+    qreal cy = -3*y1 + 2*y2;
+
+    if (findInflections(6 * (ay * bx - ax * by),
+                        6 * (ay * cx - ax * cy),
+                        2 * (by * cx - bx * cy),
+                        &t1, &t2, &tcusp)) {
+        bindInflectionPoint(*this, t1, &t1min, &t1plus);
+        bindInflectionPoint(*this, t2, &t2min, &t2plus);
+
+        QBezier tmpBez = *this;
+        QBezier left, right, bez1, bez2, bez3;
+	if (t1min > 0) {
+            if (t1min >= 1) {
+                flattenBezierWithoutInflections(tmpBez, p);
+            } else {
+                splitBezierAt(tmpBez, t1min, &left, &right);
+                flattenBezierWithoutInflections(left, p);
+                p->append(tmpBez.pointAt(t1min));
+
+                if (t2min < t1plus) {
+                    if (tcusp < 1) {
+                        p->append(tmpBez.pointAt(tcusp));
+                    }
+                    if (t2plus < 1) {
+                        splitBezierAt(tmpBez, t2plus, &left, &right);
+                        flattenBezierWithoutInflections(right, p);
+                    }
+                } else if (t1plus < 1) {
+                    if (t2min < 1) {
+                        splitBezierAt(tmpBez, t2min, &bez3, &right);
+                        splitBezierAt(bez3, t1plus, &left, &bez2);
+
+                        flattenBezierWithoutInflections(bez2, p);
+                        p->append(tmpBez.pointAt(t2min));
+
+                        if (t2plus < 1) {
+                            splitBezierAt(tmpBez, t2plus, &left, &bez2);
+                            flattenBezierWithoutInflections(bez2, p);
+                        }
+                    } else {
+                        splitBezierAt(tmpBez, t1plus, &left, &bez2);
+                        flattenBezierWithoutInflections(bez2, p);
+                    }
+                }
+            }
+	} else if (t1plus > 0) {
+            p->append(QPointF(x1, y1));
+            if (t2min < t1plus)	{
+                if (tcusp < 1) {
+                    p->append(tmpBez.pointAt(tcusp));
+                }
+                if (t2plus < 1) {
+                    splitBezierAt(tmpBez, t2plus, &left, &bez2);
+                    flattenBezierWithoutInflections(bez2, p);
+                }
+            } else if (t1plus < 1) {
+                if (t2min < 1) {
+                    splitBezierAt(tmpBez, t2min, &bez3, &right);
+                    splitBezierAt(bez3, t1plus, &left, &bez2);
+
+                    flattenBezierWithoutInflections(bez2, p);
+
+                    p->append(tmpBez.pointAt(t2min));
+                    if (t2plus < 1) {
+                        splitBezierAt(tmpBez, t2plus, &left, &bez2);
+                        flattenBezierWithoutInflections(bez2, p);
+                    }
+                } else {
+                    splitBezierAt(tmpBez, t1plus, &left, &bez2);
+                    flattenBezierWithoutInflections(bez2, p);
+                }
+            }
+        } else if (t2min > 0) {
+            if (t2min < 1) {
+                splitBezierAt(tmpBez, t2min, &bez1, &right);
+                flattenBezierWithoutInflections(bez1, p);
+                p->append(tmpBez.pointAt(t2min));
+
+                if (t2plus < 1) {
+                    splitBezierAt(tmpBez, t2plus, &left, &bez2);
+                    flattenBezierWithoutInflections(bez2, p);
+                }
+            } else {
+                //### in here we should check whether the area of the
+                //    triangle formed between pt1/pt2/pt3 is smaller
+                //    or equal to 0 and then do iterative flattening
+                //    if not we should fallback and do the recursive
+                //    flattening.
+                flattenBezierWithoutInflections(tmpBez, p);
+            }
+        } else if (t2plus > 0) {
+            p->append(QPointF(x1, y1));
+            if (t2plus < 1) {
+                splitBezierAt(tmpBez, t2plus, &left, &bez2);
+                flattenBezierWithoutInflections(bez2, p);
+            }
+        } else {
+            flattenBezierWithoutInflections(tmpBez, p);
+        }
+    } else {
+        QBezier bez = *this;
+        flattenBezierWithoutInflections(bez, p);
+    }
+
+    p->append(QPointF(x4, y4));
 }
