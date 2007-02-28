@@ -172,10 +172,12 @@ public:
     int setSocket(QTcpSocket *socket);
     int setUser(const QString &username, const QString &password = QString());
 
+#ifndef QT_NO_NETWORKPROXY
     int setProxy(const QString &host, int port,
                  const QString &username = QString(),
                  const QString &password = QString());
     int setProxy(const QNetworkProxy &proxy);
+#endif
 
     int get(const QString &path, QIODevice *to=0);
     int post(const QString &path, QIODevice *data, QIODevice *to=0 );
@@ -222,7 +224,9 @@ Q_SIGNALS:
     void requestFinished(int, bool);
     void done(bool);
 
+#ifndef QT_NO_NETWORKPROXY
     void proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *);
+#endif
 
 private:
     Q_DISABLE_COPY(QHttp)

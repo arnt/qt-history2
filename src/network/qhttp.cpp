@@ -128,7 +128,9 @@ public:
     QString userName;
     QString password;
 
+#ifndef QT_NO_NETWORKPROXY
     QNetworkProxy proxy;
+#endif
     QAuthenticator authenticator;
     bool repost;
 };
@@ -347,6 +349,8 @@ void QHttpSetUserRequest::start(QHttp *http)
     http->d_func()->finishedWithSuccess();
 }
 
+#ifndef QT_NO_NETWORKPROXY
+
 /****************************************************
  *
  * QHttpSetProxyRequest
@@ -380,6 +384,8 @@ public:
 private:
     QNetworkProxy proxy;
 };
+
+#endif
 
 /****************************************************
  *
@@ -1679,6 +1685,8 @@ QHttp::~QHttp()
     \sa requestFinished() error() errorString()
 */
 
+#ifndef QT_NO_NETWORKPROXY
+
 /*!
     \fn void QHttp::proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator)
 
@@ -1693,6 +1701,8 @@ QHttp::~QHttp()
 
     \sa QAuthenticator, QNetworkProxy
 */
+
+#endif
 
 /*!
     Aborts the current request and deletes all scheduled requests.
@@ -1965,6 +1975,8 @@ int QHttp::setUser(const QString &userName, const QString &password)
     return d->addRequest(new QHttpSetUserRequest(userName, password));
 }
 
+#ifndef QT_NO_NETWORKPROXY
+
 /*!
     Enables HTTP proxy support, using the proxy server \a host on port \a
     port. \a username and \a password can be provided if the proxy server
@@ -2010,6 +2022,8 @@ int QHttp::setProxy(const QNetworkProxy &proxy)
     Q_D(QHttp);
     return d->addRequest(new QHttpSetProxyRequest(proxy));
 }
+
+#endif
 
 /*!
     Sends a get request for \a path to the server set by setHost() or
@@ -2235,6 +2249,7 @@ void QHttpPrivate::_q_startNextRequest()
 
 void QHttpPrivate::_q_slotSendRequest()
 {
+#ifndef QT_NO_NETWORKPROXY
     // Proxy support. Insert the Proxy-Authorization item into the
     // header before it's sent off to the proxy.
     if (proxy.type() == QNetworkProxy::HttpProxy && !proxy.hostName().isEmpty()) {
@@ -2255,6 +2270,7 @@ void QHttpPrivate::_q_slotSendRequest()
                             QString::fromLatin1(auth->calculateResponse(request.toLatin1())));
         }
     }
+#endif
 
     // Username support. Insert the user and password into the query
     // string.
@@ -2275,10 +2291,12 @@ void QHttpPrivate::_q_slotSendRequest()
 
     QString connectionHost = hostName;
     int connectionPort = port;
+#ifndef QT_NO_NETWORKPROXY
     if (proxy.type() == QNetworkProxy::HttpProxy && !proxy.hostName().isEmpty()) {
         connectionHost = proxy.hostName();
         connectionPort = proxy.port();
     }
+#endif
     // Do we need to setup a new connection or can we reuse an
     // existing one?
     if (socket->peerName() != connectionHost || socket->peerPort() != connectionPort
@@ -2399,9 +2417,11 @@ void QHttpPrivate::_q_slotError(QAbstractSocket::SocketError err)
                 return;
             }
             break;
+#ifndef QT_NO_NETWORKPROXY
         case QTcpSocket::ProxyAuthenticationRequiredError:
             finishedWithError(socket->errorString(), QHttp::ProxyAuthenticationRequiredError);
             break;
+#endif
         default:
             finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "HTTP request failed")), QHttp::UnknownError);
             break;
@@ -2479,6 +2499,7 @@ void QHttpPrivate::_q_slotReadyRead()
             return;
         }
 
+#ifndef QT_NO_NETWORKPROXY
         if (response.statusCode() == 407) { // Proxy Authentication required
             if (authenticator.isNull())
                 authenticator.detach();
@@ -2512,6 +2533,7 @@ void QHttpPrivate::_q_slotReadyRead()
                 }
             }
         }
+#endif
 
         // The 100-continue header is ignored, because when using the
         // POST method, we send both the request header and data in
@@ -2769,8 +2791,10 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
     QObject::connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), q, SLOT(_q_slotError(QAbstractSocket::SocketError)));
     QObject::connect(socket, SIGNAL(bytesWritten(qint64)),
                      q, SLOT(_q_slotBytesWritten(qint64)));
+#ifndef QT_NO_NETWORKPROXY
     QObject::connect(socket, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)),
                      q, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)));
+#endif
 }
 
 
