@@ -247,14 +247,16 @@ Q_GUI_EXPORT WindowPtr qt_mac_window_for(HIViewRef hiview)
 Q_GUI_EXPORT WindowPtr qt_mac_window_for(const QWidget *w)
 {
     HIViewRef hiview = qt_mac_hiview_for(w);
-    Q_ASSERT(hiview);
-    WindowPtr window = qt_mac_window_for(hiview);
-    if(!window && HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget)) {
-        w->window()->d_func()->createWindow_sys();
-        hiview = qt_mac_hiview_for(w);
-        window = qt_mac_window_for(hiview);
+    if (hiview){
+        WindowPtr window = qt_mac_window_for(hiview);
+        if(!window && HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget)) {
+            w->window()->d_func()->createWindow_sys();
+            hiview = qt_mac_hiview_for(w);
+            window = qt_mac_window_for(hiview);
+        }
+        return window;
     }
-    return window;
+    return (WindowPtr) 0;
 }
 
 /*  Checks if the current group is a 'stay on top' group. If so, the
