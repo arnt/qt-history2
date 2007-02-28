@@ -31,8 +31,11 @@
 #include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtCore/QVariantMap>
+#include <QtCore/QList>
 
+class QDesignerDnDItemInterface;
 class QMenu;
+class QPoint;
 
 namespace qdesigner_internal {
 
@@ -66,6 +69,14 @@ public:
 
     // Overwrite to initialize and return a popup menu for a managed widget
     virtual QMenu *initializePopupMenu(QWidget *managedWidget);
+
+    enum DropMode {
+        DropNormal,
+        // This indicates that the QDesignerDnDItemInterface geometry
+        // is to be ignored, for example, when dropping on the object inspector.
+        DropFake };
+    virtual bool dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
+                             const QPoint &global_mouse_pos, DropMode dm) = 0;
 
 private:
     void syncGridFeature();

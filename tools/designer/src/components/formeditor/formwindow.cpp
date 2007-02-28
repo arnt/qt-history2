@@ -82,7 +82,7 @@ private:
     const bool m_blocked;
 };
 
-const bool debugFormWindow = false;
+enum { debugFormWindow = 0 };
 }
 
 namespace qdesigner_internal {
@@ -2130,9 +2130,10 @@ void FormWindow::editContents()
     }
 }
 
-void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
-                                const QPoint &global_mouse_pos)
+bool FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
+                                const QPoint &global_mouse_pos, DropMode dm)
 {
+    const QPoint correctedGlobalPos = dm == DropFake ? target->mapToGlobal(QPoint(5, 5)) : global_mouse_pos;
     beginCommand(tr("Drop widget"));
 
     QWidget *parent = target;
@@ -2141,32 +2142,40 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
     // You can only drop stuff onto the central widget of a QMainWindow
     // ### generalize to use container extension
     if (QMainWindow *main_win = qobject_cast<QMainWindow*>(target)) {
-        const QPoint main_win_pos = main_win->mapFromGlobal(global_mouse_pos);
+        const QPoint main_win_pos = main_win->mapFromGlobal(correctedGlobalPos);
         const QRect central_wgt_geo = main_win->centralWidget()->geometry();
         if (!central_wgt_geo.contains(main_win_pos)) {
             foreach (QDesignerDnDItemInterface *item, item_list) {
                 if (item->widget() != 0)
                     item->widget()->show();
             }
-            return;
+            return false;
         }
     }
 
     core()->formWindowManager()->setActiveFormWindow(this);
     mainContainer()->activateWindow();
     clearSelection(false);
-
-    highlightWidget(target, target->mapFromGlobal(global_mouse_pos), FormWindow::Restore);
+    highlightWidget(target, target->mapFromGlobal(correctedGlobalPos), FormWindow::Restore);
 
     foreach (QDesignerDnDItemInterface *item, item_list) {
         DomUI *dom_ui = item->domUi();
-        QRect geometry = item->decoration()->geometry();
+        QRect geometry;
+        switch (dm) {
+        case DropNormal:
+            geometry = item->decoration()->geometry();
+            break;
+        case DropFake:
+            // Fake drop (object inspector): Assume it was dropped on parent with little offset
+            geometry = QRect(correctedGlobalPos, item->decoration()->size());
+            break;
+        }
         Q_ASSERT(dom_ui != 0);
 
         if (item->type() == QDesignerDnDItemInterface::CopyDrop) {
             QWidget *widget = createWidget(dom_ui, geometry, parent);
             if (!widget)
-                return;
+                return false;
             selectWidget(widget, true);
             mainContainer()->setFocus(Qt::MouseFocusReason); // in case focus was in e.g. object inspector
         } else {
@@ -2176,7 +2185,6 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
 
             QWidget *container = findContainer(parent, false);
             QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), container);
-
             if (dest == this) {
                 if (deco == 0) {
                     parent = container;
@@ -2206,6 +2214,7 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
     }
 
     endCommand();
+    return true;
 }
 
 QDir FormWindow::absoluteDir() const

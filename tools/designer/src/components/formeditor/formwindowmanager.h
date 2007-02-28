@@ -30,8 +30,7 @@ class QDesignerFormEditorInterface;
 class QDesignerWidgetBoxInterface;
 
 namespace qdesigner_internal {
-
-class  FormWindow;
+class FormWindow;
 
 class QT_FORMEDITOR_EXPORT FormWindowManager: public QDesignerFormWindowManagerInterface
 {
@@ -141,12 +140,13 @@ private:
     // DnD stuff
     void beginDrag(const QList<QDesignerDnDItemInterface*> &item_list, const QPoint &globalPos);
     void endDrag(const QPoint &pos);
-    void setItemsPos(const QPoint &pos);
+    void setItemsPos(QPoint pos);
     bool isDecoration(QWidget *widget) const;
     QList<QDesignerDnDItemInterface*> m_drag_item_list;
     QWidget *m_last_widget_under_mouse;
     FormWindow *m_last_form_under_mouse;
     QDesignerWidgetBoxInterface *m_widget_box_under_mouse;
+    bool m_fakeDrop;
     Qt::ContextMenuPolicy m_savedContextMenuPolicy;
     QUndoGroup *m_undoGroup;
 };

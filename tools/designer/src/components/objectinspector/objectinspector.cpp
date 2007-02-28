@@ -29,6 +29,7 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 #include <QtDesigner/QDesignerMetaDataBaseInterface>
 #include <QtDesigner/QDesignerPropertyEditorInterface>
 // shared
+#include <formwindowbase_p.h>
 #include <tree_widget_p.h>
 
 // Qt
@@ -415,5 +416,22 @@ bool ObjectInspector::selectObject(QObject *o)
 void ObjectInspector::slotHeaderDoubleClicked(int column)
 {
     m_treeWidget->resizeColumnToContents(column);
+}
+
+QWidget *ObjectInspector::widgetAt(const QPoint &global_mouse_pos)
+{
+    if (!m_formWindow)
+        return 0;
+
+    const  QPoint pos = m_treeWidget->viewport()->mapFromGlobal(global_mouse_pos);
+    QTreeWidgetItem *item = m_treeWidget->itemAt(pos);
+    if (!item)
+        return 0;
+
+    QObject *o = objectOfItem(item);
+    if (!o->isWidgetType())
+        return 0;
+    QWidget *rc = qobject_cast<QWidget *>(o);
+    return rc;
 }
 }

@@ -43,6 +43,8 @@ public:
 
     void setFormWindow(QDesignerFormWindowInterface *formWindow);
 
+    QWidget *widgetAt(const QPoint &global_mouse_pos);
+
 private slots:
     void slotSelectionChanged();
     void slotPopupContextMenu(const QPoint &pos);
