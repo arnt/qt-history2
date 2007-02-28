@@ -90,6 +90,7 @@ private slots:
     void initTestCase();
 
     void notConnected();
+    void notValid();
     void introspect();
 
     void signal();
@@ -112,6 +113,17 @@ void tst_QDBusInterface::notConnected()
     QVERIFY(!connection.isConnected());
 
     QDBusInterface interface("org.freedesktop.DBus", "/", "org.freedesktop.DBus",
+                             connection);
+
+    QVERIFY(!interface.isValid());
+}
+
+void tst_QDBusInterface::notValid()
+{
+    QDBusConnection connection("");
+    QVERIFY(!connection.isConnected());
+
+    QDBusInterface interface("com.example.Test", QString(), "org.example.Test",
                              connection);
 
     QVERIFY(!interface.isValid());
