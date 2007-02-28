@@ -84,6 +84,26 @@ static QByteArray getData(int cf, IDataObject *pDataObj)
         data.detach();
         GlobalUnlock(s.hGlobal);
         ReleaseStgMedium(&s);
+    } else  {
+        //Try reading IStream data
+        formatetc.tymed = TYMED_ISTREAM;
+        if (pDataObj->GetData(&formatetc, &s) == S_OK) {
+            char szBuffer[4096];
+            ULONG actualRead = 0;
+            LARGE_INTEGER pos = {0, 0};
+            //Move to front (can fail depending on the data model implemented)
+            HRESULT hr = s.pstm->Seek(pos, STREAM_SEEK_SET, NULL);
+            while(SUCCEEDED(hr)){
+                hr = s.pstm->Read(szBuffer, sizeof(szBuffer), &actualRead);
+                if (SUCCEEDED(hr) && actualRead > 0) {
+                    data += QByteArray::fromRawData(szBuffer, actualRead);
+                }
+                if (actualRead != sizeof(szBuffer))
+                    break;
+            }
+            data.detach();
+            ReleaseStgMedium(&s);
+        }
     }
     return data;
 }
@@ -91,7 +111,11 @@ static QByteArray getData(int cf, IDataObject *pDataObj)
 static bool canGetData(int cf, IDataObject * pDataObj)
 {
     FORMATETC formatetc = setCf(cf);
-    return pDataObj->QueryGetData(&formatetc) == S_OK;
+ 	if (pDataObj->QueryGetData(&formatetc) != S_OK){
+        formatetc.tymed = TYMED_ISTREAM;
+		return pDataObj->QueryGetData(&formatetc) == S_OK;
+	}
+    return true;
 }
 
 class QWindowsMimeList
@@ -1029,10 +1053,27 @@ QVector<FORMATETC> QLastResortMimes::formatsForMime(const QString &mimeType, con
     }
     return formatetcs;
 }
+static const char *x_qt_windows_mime = "application/x-qt-windows-mime;value=\"";
+
+bool isCustomMimeType(const QString &mimeType) 
+{
+    return mimeType.startsWith(QLatin1String(x_qt_windows_mime), Qt::CaseInsensitive);
+}
+
+QString customMimeType(const QString &mimeType) 
+{
+    int len = QString(QLatin1String(x_qt_windows_mime)).length();
+    int n = mimeType.lastIndexOf(QLatin1Char('\"'))-len;
+    return mimeType.mid(len, n);
+}
 
 bool QLastResortMimes::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 {
-    if (formats.keys(mimeType).isEmpty()) {
+    if (isCustomMimeType(mimeType)) {
+        QString clipFormat = customMimeType(mimeType);
+        int cf = RegisterClipboardFormatA(clipFormat.toLocal8Bit());
+        return canGetData(cf, pDataObj);
+    } else if (formats.keys(mimeType).isEmpty()) {
         // if it is not in there then register it an see if we can get it
         int cf = QWindowsMime::registerMimeType(mimeType);
         return canGetData(cf, pDataObj);
@@ -1048,7 +1089,11 @@ QVariant QLastResortMimes::convertToMime(const QString &mimeType, IDataObject *p
     QVariant val;
     if (canConvertToMime(mimeType, pDataObj)) {
         QByteArray data;
-        if (formats.keys(mimeType).isEmpty()) {
+        if (isCustomMimeType(mimeType)) {
+            QString clipFormat = customMimeType(mimeType);
+            int cf = RegisterClipboardFormatA(clipFormat.toLocal8Bit());
+            data = getData(cf, pDataObj);
+        } else if (formats.keys(mimeType).isEmpty()) {
             int cf = QWindowsMime::registerMimeType(mimeType);
             data = getData(cf, pDataObj);
         } else {
@@ -1071,6 +1116,14 @@ QString QLastResortMimes::mimeForFormat(const FORMATETC &formatetc) const
             QString clipFormat = QString::fromLocal8Bit(ba.data(), len);
             if (QInternalMimeData::canReadData(clipFormat))
                 format = clipFormat;
+            else if((formatetc.cfFormat >= 0xC000) && (formatetc.cfFormat <= 0xFFFF)){
+                //create the mime as custom. not registered.
+                if (!clipFormat.startsWith(QLatin1String("HTML Format"), Qt::CaseInsensitive) && 
+                    !clipFormat.startsWith(QLatin1String("UniformResourceLocator"), Qt::CaseInsensitive) &&
+                    !clipFormat.startsWith(QLatin1String("application/x-color"), Qt::CaseInsensitive)) {
+                    format = QLatin1String(x_qt_windows_mime) + clipFormat + QLatin1Char('\"');
+                }
+            }
         }
     }
     return format;

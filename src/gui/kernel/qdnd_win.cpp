@@ -28,6 +28,7 @@
 #include "qaccessible.h"
 #endif
 #include "qdnd_p.h"
+#include "qdebug.h"
 
 //#define QDND_DEBUG
 
