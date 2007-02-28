@@ -11,7 +11,7 @@
 #include <QtTest/QtTest>
 #include <QStandardItemModel>
 #include <qcolumnview.h>
-#include <qcolumnviewgrip_p.h>
+#include "../../../src/gui/itemviews/qcolumnviewgrip_p.h"
 #include <qdirmodel.h>
 #include <qdebug.h>
 
