@@ -4,7 +4,7 @@
 
 StyleWindow::StyleWindow()
 {    
-    QPushButton *styledButton = new QPushButton(tr("Launch Missiles"));
+    QPushButton *styledButton = new QPushButton(tr("Big Red Button"));
 
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(styledButton);
