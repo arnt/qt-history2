@@ -45,6 +45,8 @@ public:
 
     void startPainting(bool lockDisplay = false);
     void endPainting();
+    void endPainting(const QRegion &region);
+    void flush(const QRegion &region);
 
     void raise();
     void lower();

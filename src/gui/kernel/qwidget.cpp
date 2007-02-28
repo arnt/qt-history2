@@ -8722,11 +8722,14 @@ QRect QWidgetPrivate::frameStrut() const
 /*!
     \preliminary
     \since 4.2
+    \obsolete
 
     Sets the window surface to be the \a surface specified.
 */
 void QWidget::setWindowSurface(QWindowSurface *surface)
 {
+    // ### createWinId() ??
+
     if (!isTopLevel())
         return;
 

@@ -617,8 +617,8 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #endif
 
 #ifdef Q_WS_QWS
-    if (!static_cast<QWSWindowSurface*>(windowSurface)->isValidFor(tlw)) {
-        windowSurface->release();
+    if (!static_cast<QWSWindowSurface*>(windowSurface)->isValid()) {
+        windowSurface->setGeometry(QRect());
         delete windowSurface;
         windowSurface = qt_default_window_surface(tlw);
     }
@@ -719,12 +719,12 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 void QWidgetBackingStore::releaseBuffer()
 {
     if (windowSurface)
-        windowSurface->release();
+        windowSurface->setGeometry(QRect());
 }
 #elif defined(Q_WS_WIN)
 void QWidgetBackingStore::releaseBuffer()
 {
-    windowSurface->release();
+    windowSurface->setGeometry(QRect());
 }
 #endif
 

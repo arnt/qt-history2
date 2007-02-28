@@ -25,30 +25,45 @@
 // We mean it.
 //
 
-#include <qglobal.h>
+#include <QtGui/qwidget.h>
 
 class QPaintDevice;
 class QRegion;
 class QRect;
-class QWidget;
 class QPoint;
+class QImage;
+class QWindowSurfacePrivate;
 
-class QWindowSurface
+class Q_GUI_EXPORT QWindowSurface
 {
 public:
-    virtual ~QWindowSurface() { }
+    QWindowSurface(QWidget *window);
+    virtual ~QWindowSurface();
+
+    QWidget *window() const;
 
     virtual QPaintDevice *paintDevice() = 0;
-    virtual void flush(QWidget *widget, const QRegion &region, const QPoint &offset) = 0;
-    virtual void setGeometry(const QRect &rect) = 0;
-    virtual void release() = 0;
-    virtual void scroll(const QRegion &area, int dx, int dy) = 0;
+    virtual void flush(QWidget *widget, const QRegion &region,
+                       const QPoint &offset) = 0;
+    virtual void setGeometry(const QRect &rect);
+    QRect geometry() const;
 
-    virtual QRect geometry() const = 0;
+    virtual bool scroll(const QRegion &area, int dx, int dy);
 
-    virtual void beginPaint(const QRegion &) { };
-    virtual void endPaint(const QRegion &) { };
+    virtual void beginPaint(const QRegion &);
+    virtual void endPaint(const QRegion &);
 
+    virtual QImage* buffer(const QWidget *widget);
+    virtual QPoint offset(const QWidget *widget) const;
+    inline QRect rect(const QWidget *widget) const;
+
+private:
+    QWindowSurfacePrivate *d_ptr;
 };
+
+QRect QWindowSurface::rect(const QWidget *widget) const
+{
+    return widget->rect().translated(offset(widget));
+}
 
 #endif // QWINDOWSURFACE_P_H

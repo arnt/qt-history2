@@ -342,7 +342,7 @@ void QWSWindow::createSurface(const QString &key, const QByteArray &data)
 {
     delete surface;
     surface = qt_screen->createSurface(key);
-    surface->attach(data);
+    surface->setPermanentState(data);
 }
 
 /*!
@@ -3203,7 +3203,7 @@ void QWSServerPrivate::update_regions()
 #endif // QT_NO_QWSEMBEDWIDGET
 
         QWSWindowSurface *surface = w->windowSurface();
-        if (surface && (surface->isReserved() || !surface->isBuffered())) {
+        if (surface && (surface->isRegionReserved() || !surface->isBuffered())) {
             available -= r;
             reserved += r;
         } else if (!w->isOpaque()) {
@@ -3574,7 +3574,7 @@ void QWSServerPrivate::request_region(int wid, const QString &surfaceKey,
     changingw->opaque = surface->isOpaque();
 
     QRegion r;
-    if (surface->isReserved())
+    if (surface->isRegionReserved())
         r = reserve_region(changingw, region);
     else
         r = region;

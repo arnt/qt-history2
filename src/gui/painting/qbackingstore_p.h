@@ -79,6 +79,7 @@ private:
     friend class QWidget;
     friend class QWSManagerPrivate;
     friend class QETWidget;
+    friend class QWindowSurface;
     friend class QWSWindowSurface;
 };
 

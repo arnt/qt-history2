@@ -161,7 +161,7 @@ public:
     ~QDirectPainterPrivate() {
         if (QPaintDevice::qwsDisplay()) { // make sure not in QApplication destructor
             qApp->d_func()->directPainters->remove(surface->windowId());
-            surface->release();
+            surface->setGeometry(QRect());
         }
         delete surface;
     }
@@ -369,6 +369,23 @@ void QDirectPainter::endPainting()
 {
 }
 
+/*!
+    \preliminary
+    \since 4.3
+*/
+void QDirectPainter::endPainting(const QRegion &region)
+{
+    Q_UNUSED(region);
+}
+
+/*!
+    \preliminary
+    \since 4.3
+*/
+void QDirectPainter::flush(const QRegion &region)
+{
+    Q_UNUSED(region);
+}
 
 /*!
     \since 4.2

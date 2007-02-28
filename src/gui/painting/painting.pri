@@ -179,7 +179,8 @@ mac {
 win32|x11|embedded {
         HEADERS += painting/qwindowsurface_p.h \
                    painting/qwindowsurface_raster_p.h
-        SOURCES += painting/qwindowsurface_raster.cpp
+        SOURCES += painting/qwindowsurface.cpp \
+                   painting/qwindowsurface_raster.cpp
 
         x11 {
                 HEADERS += painting/qwindowsurface_x11_p.h

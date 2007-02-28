@@ -250,7 +250,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
                 d->hide_sys();
             }
             if (destroyWindow && isWindow()) {
-                d->extra->topextra->backingStore->windowSurface->release();
+                d->extra->topextra->backingStore->windowSurface->setGeometry(QRect());
                 qwsDisplay()->destroyRegion(internalWinId());
             }
         }
@@ -331,7 +331,7 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WindowFlags f)
     }
     if ((int)old_winid > 0) {
         QWidget::qwsDisplay()->destroyRegion(old_winid);
-        extra->topextra->backingStore->windowSurface->release();
+        extra->topextra->backingStore->windowSurface->setGeometry(QRect());
     }
 #ifndef QT_NO_CURSOR
     if (setcurs) {

@@ -33,6 +33,8 @@
 class QScreen;
 class QWSWindowSurfacePrivate;
 
+// TODO: add windowId(), protected createWindowId()
+
 class Q_GUI_EXPORT QWSWindowSurface : public QWindowSurface
 {
 public:
@@ -40,33 +42,31 @@ public:
     QWSWindowSurface(QWidget *widget);
     ~QWSWindowSurface();
 
-    virtual void release();
-
-    virtual bool isValidFor(const QWidget *widget) const = 0;
+    virtual bool isValid() const = 0;
 
     virtual void setGeometry(const QRect &rect);
-    virtual QRect geometry() const = 0;
-
-    virtual void scroll(const QRegion &region, int dx, int dy) = 0;
-
     virtual void flush(QWidget *widget, const QRegion &region,
                        const QPoint &offset);
 
-    virtual QPoint painterOffset() const;
+    virtual QPoint painterOffset() const; // remove!!!
 
-    virtual void beginPaint(const QRegion &) {}
-    virtual void endPaint(const QRegion &) {}
+    virtual void beginPaint(const QRegion &);
+    virtual void endPaint(const QRegion &);
 
-    virtual const QString key() const = 0;
-    virtual const QByteArray data() const = 0;
+    virtual bool lock(int timeout = -1);
+    virtual void unlock();
 
-    virtual bool attach(const QByteArray &data) = 0;
-    virtual void detach() = 0;
+    virtual QString key() const = 0;
 
-    virtual const QImage image() const = 0;
+    // XXX: not good enough
+    virtual QByteArray transientState() const;
+    virtual QByteArray permanentState() const;
+    virtual void setTransientState(const QByteArray &state);
+    virtual void setPermanentState(const QByteArray &state);
+
+    virtual QImage image() const = 0;
     virtual QPaintDevice *paintDevice() = 0;
 
-    QWidget *window() const;
 
     const QRegion dirtyRegion() const;
     void setDirty(const QRegion &) const;
@@ -75,7 +75,7 @@ public:
     void setClipRegion(const QRegion &);
 
     enum SurfaceFlag {
-        Reserved = 0x1,
+        RegionReserved = 0x1,
         Buffered = 0x2,
         Opaque = 0x4
     };
@@ -83,7 +83,9 @@ public:
 
     SurfaceFlags surfaceFlags() const;
 
-    inline bool isReserved() const { return surfaceFlags() & Reserved; }
+    inline bool isRegionReserved() const {
+        return surfaceFlags() & RegionReserved;
+    }
     inline bool isBuffered() const { return surfaceFlags() & Buffered; }
     inline bool isOpaque() const { return surfaceFlags() & Opaque; }
 
@@ -105,20 +107,16 @@ public:
     QWSMemorySurface(QWidget *widget);
     ~QWSMemorySurface();
 
-    void release();
-    void detach();
-
-    void beginPaint(const QRegion &);
-    void endPaint(const QRegion &);
-
-    bool isValidFor(const QWidget *widget) const;
+    bool isValid() const;
 
     QPaintDevice *paintDevice() { return &img; }
-    QRect geometry() const;
-    void scroll(const QRegion &area, int dx, int dy);
+    bool scroll(const QRegion &area, int dx, int dy);
 
-    const QImage image() const { return img; };
+    QImage image() const { return img; };
     QPoint painterOffset() const;
+
+    bool lock(int timeout = -1);
+    void unlock();
 
 protected:
     QImage::Format preferredImageFormat(const QWidget *widget) const;
@@ -137,12 +135,10 @@ public:
 
     void setGeometry(const QRect &rect);
 
-    const QString key() const { return QLatin1String("mem"); }
-    const QByteArray data() const;
+    QString key() const { return QLatin1String("mem"); }
+    QByteArray permanentState() const;
 
-    bool attach(const QByteArray &data);
-    void detach();
-    void release();
+    void setPermanentState(const QByteArray &data);
 
 protected:
     uchar *mem;
@@ -159,12 +155,10 @@ public:
 
     void setGeometry(const QRect &rect);
 
-    const QString key() const { return QLatin1String("shm"); }
-    const QByteArray data() const;
+    QString key() const { return QLatin1String("shm"); }
+    QByteArray permanentState() const;
 
-    bool attach(const QByteArray &data);
-    void detach();
-    void release();
+    void setPermanentState(const QByteArray &data);
 
 private:
     bool setMemory(int memId);
@@ -181,17 +175,15 @@ public:
     QWSOnScreenSurface(QWidget *widget);
     ~QWSOnScreenSurface();
 
-    bool isValidFor(const QWidget *widget) const;
+    bool isValid() const;
     QPoint painterOffset() const;
 
     void setGeometry(const QRect &rect);
-    QRect geometry() const { return brect; }
 
-    const QString key() const { return QLatin1String("OnScreen"); }
-    const QByteArray data() const;
+    QString key() const { return QLatin1String("OnScreen"); }
+    QByteArray permanentState() const;
 
-    bool attach(const QByteArray &data);
-    void detach() {}
+    void setPermanentState(const QByteArray &data);
 
 private:
     void attachToScreen(const QScreen *screen);
@@ -210,22 +202,17 @@ public:
 
     void setDelay(int msec) { delay = msec; }
 
-    void setGeometry(const QRect &rect);
-    QRect geometry() const;
-
-    void scroll(const QRegion &, int, int) {}
-    bool isValidFor(const QWidget *) const { return true; }
+    bool isValid() const { return true; }
 
     void flush(QWidget *widget, const QRegion &region, const QPoint &offset);
 
-    const QString key() const { return QLatin1String("Yellow"); }
-    const QByteArray data() const;
+    QString key() const { return QLatin1String("Yellow"); }
+    QByteArray permanentState() const;
 
-    bool attach(const QByteArray &data);
-    void detach();
+    void setPermanentState(const QByteArray &data);
 
     QPaintDevice *paintDevice() { return &img; }
-    const QImage image() const { return img; }
+    QImage image() const { return img; }
 
 private:
     int winId;
@@ -245,27 +232,23 @@ public:
     QWSDirectPainterSurface(bool isClient = false);
     ~QWSDirectPainterSurface();
 
-    void setReserved() { setSurfaceFlags(Reserved); }
-    void release();
+    void setReserved() { setSurfaceFlags(RegionReserved); }
 
     void setGeometry(const QRect &rect) { setRegion(rect); }
-    QRect geometry() const { return clipRegion().boundingRect(); }
 
     void setRegion(const QRegion &region);
     QRegion region() const { return clipRegion(); }
 
     void flush(QWidget*, const QRegion &, const QPoint &) {};
-    void scroll(const QRegion &, int, int) {};
 
-    bool isValidFor(const QWidget*) const { return false; }
+    bool isValid() const { return false; }
 
-    const QString key() const { return QLatin1String("DirectPainter"); }
-    const QByteArray data() const;
+    QString key() const { return QLatin1String("DirectPainter"); }
+    QByteArray permanentState() const;
 
-    bool attach(const QByteArray &);
-    void detach() {}
+    void setPermanentState(const QByteArray &);
 
-    const QImage image() const { return QImage(); }
+    QImage image() const { return QImage(); }
     QPaintDevice *paintDevice() { return 0; }
 
     WId windowId() const { return static_cast<WId>(winId); }

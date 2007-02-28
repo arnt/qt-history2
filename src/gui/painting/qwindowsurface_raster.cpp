@@ -74,7 +74,7 @@ struct QRasterWindowSurfacePrivate
 };
 
 QRasterWindowSurface::QRasterWindowSurface(QWidget *window)
-    : d_ptr(new QRasterWindowSurfacePrivate)
+    : QWindowSurface(window), d_ptr(new QRasterWindowSurfacePrivate)
 {
     Q_ASSERT(window->isTopLevel());
     d_ptr->device.setWindow(window);
@@ -118,19 +118,15 @@ void QRasterWindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoi
 
 void QRasterWindowSurface::setGeometry(const QRect &rect)
 {
+    QWindowSurface::setGeometry(rect);
+
     const QSize size = static_cast<QRasterPaintEngine*>(d_ptr->device.paintEngine())->size();
     if (size == rect.size())
         return;
-    QRasterWindowSurface::release();
-}
-
-void QRasterWindowSurface::release()
-{
     static_cast<QRasterPaintEngine *>(d_ptr->device.paintEngine())->releaseBuffer();
 }
 
-
-void QRasterWindowSurface::scroll(const QRegion &area, int dx, int dy)
+bool QRasterWindowSurface::scroll(const QRegion &area, int dx, int dy)
 {
 #ifdef Q_WS_WIN
     QRect rect = area.boundingRect();
@@ -144,16 +140,13 @@ void QRasterWindowSurface::scroll(const QRegion &area, int dx, int dy)
            engine_dc, rect.x(), rect.y(), SRCCOPY);
 
     engine->releaseDC(engine_dc);
+
+    return true;
 #else
     Q_UNUSED(area);
     Q_UNUSED(dx);
     Q_UNUSED(dy);
+    return false;
 #endif
 }
 
-QRect QRasterWindowSurface::geometry() const
-{
-    const QPoint offset = d_ptr->device.window()->geometry().topLeft();
-    const QSize size = static_cast<QRasterPaintEngine *>(d_ptr->device.paintEngine())->size();
-    return QRect(offset, size);
-}

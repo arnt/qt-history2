@@ -27,7 +27,7 @@ struct QX11WindowSurfacePrivate
 };
 
 QX11WindowSurface::QX11WindowSurface(QWidget *widget)
-    : d_ptr(new QX11WindowSurfacePrivate)
+    : QWindowSurface(widget), d_ptr(new QX11WindowSurfacePrivate)
 {
     d_ptr->widget = widget;
 }
@@ -80,6 +80,8 @@ void QX11WindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoint 
 
 void QX11WindowSurface::setGeometry(const QRect &rect)
 {
+    QWindowSurface::setGeometry(rect);
+
     const QSize size = rect.size();
     if (d_ptr->device.size() == size)
         return;
@@ -87,28 +89,19 @@ void QX11WindowSurface::setGeometry(const QRect &rect)
     d_ptr->device = QPixmap(size);
 }
 
-void QX11WindowSurface::release()
-{
-    d_ptr->device = QPixmap();
-}
-
-
-void QX11WindowSurface::scroll(const QRegion &area, int dx, int dy)
+bool QX11WindowSurface::scroll(const QRegion &area, int dx, int dy)
 {
     QRect rect = area.boundingRect();
 
     if (d_ptr->device.isNull())
-        return;
+        return false;
+
     GC gc = XCreateGC(X11->display, d_ptr->device.handle(), 0, 0);
     XCopyArea(X11->display, d_ptr->device.handle(), d_ptr->device.handle(), gc,
               rect.x(), rect.y(), rect.width(), rect.height(),
               rect.x()+dx, rect.y()+dy);
     XFreeGC(X11->display, gc);
+
+    return true;
 }
 
-QRect QX11WindowSurface::geometry() const
-{
-    const QPoint offset = d_ptr->widget->geometry().topLeft();
-    const QSize size = d_ptr->device.size();
-    return QRect(offset, size);
-}
