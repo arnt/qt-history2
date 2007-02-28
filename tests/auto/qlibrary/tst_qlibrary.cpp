@@ -107,6 +107,7 @@ private slots:
     void loadHints_data();
     void fileName_data();
     void fileName();
+    void multipleInstancesForOneLibrary();
 
 };
 
@@ -436,11 +437,36 @@ void tst_QLibrary::fileName()
     if (!ok) {
         qDebug() << lib.errorString();
     }
-    
+
     QVERIFY(ok);
     QString e = lib.fileName();
     QCOMPARE(lib.fileName(), expectedFilename);
 
+}
+
+void tst_QLibrary::multipleInstancesForOneLibrary()
+{
+    QString lib = QDir::currentPath() + "/mylib";
+    QLibrary lib1(lib);
+    QLibrary lib2(lib);
+    QCOMPARE(lib1.isLoaded(), false);
+    QCOMPARE(lib2.isLoaded(), false);
+    lib1.load();
+    QCOMPARE(lib1.isLoaded(), true);
+    QCOMPARE(lib2.isLoaded(), true);
+    lib1.unload();
+    QCOMPARE(lib1.isLoaded(), false);
+    QCOMPARE(lib2.isLoaded(), false);
+    lib1.load();
+    lib2.load();
+    QCOMPARE(lib1.isLoaded(), true);
+    QCOMPARE(lib2.isLoaded(), true);
+    lib1.unload();
+    QCOMPARE(lib1.isLoaded(), true);
+    QCOMPARE(lib2.isLoaded(), true);
+    lib2.unload();
+    QCOMPARE(lib1.isLoaded(), false);
+    QCOMPARE(lib2.isLoaded(), false);
 }
 
 QTEST_APPLESS_MAIN(tst_QLibrary)
