@@ -238,38 +238,41 @@ void QTextEditPrivate::_q_adjustScrollbars()
         return;
     ignoreAutomaticScrollbarAdjustment = true; // avoid recursion, #106108
 
-    const QSize viewportSize = viewport->size();
+    QSize viewportSize = viewport->size();
     QSize docSize = documentSize(control);
 
-    hbar->setRange(0, docSize.width() - viewportSize.width());
-    hbar->setPageStep(viewportSize.width());
+    // due to the recursion guard we have to repeat this step a few times,
+    // as adding/removing a scroll bar will cause the document or viewport
+    // size to change
+    // ideally we should loop until the viewport size and doc size stabilize,
+    // but in corner cases they might fluctuate, so we need to limit the
+    // number of iterations
+    for (int i = 0; i < 4; ++i) {
+        hbar->setRange(0, docSize.width() - viewportSize.width());
+        hbar->setPageStep(viewportSize.width());
 
-    vbar->setRange(0, docSize.height() - viewportSize.height());
-    vbar->setPageStep(viewportSize.height());
+        vbar->setRange(0, docSize.height() - viewportSize.height());
+        vbar->setPageStep(viewportSize.height());
 
-    // if we are in left-to-right mode widening the document due to
-    // lazy layouting does not require a repaint. If in right-to-left
-    // the scroll bar has the value zero and it visually has the maximum
-    // value (it is visually at the right), then widening the document
-    // keeps it at value zero but visually adjusts it to the new maximum
-    // on the right, hence we need an update.
-    if (q_func()->isRightToLeft())
-        viewport->update();
-
-    _q_showOrHideScrollBars();
-
-    // has the document/viewport size been changed due to adding/removing scroll bars?
-    // due to the recursion guard we have to adjust the scroll bars here
-    const QSize newSize = documentSize(control);
-    const QSize newViewportSize = viewport->size();
-    if (newSize != docSize || viewportSize != newViewportSize) {
-        hbar->setRange(0, newSize.width() - newViewportSize.width());
-        hbar->setPageStep(newViewportSize.width());
-
-        vbar->setRange(0, newSize.height() - newViewportSize.height());
-        vbar->setPageStep(newViewportSize.height());
+        // if we are in left-to-right mode widening the document due to
+        // lazy layouting does not require a repaint. If in right-to-left
+        // the scroll bar has the value zero and it visually has the maximum
+        // value (it is visually at the right), then widening the document
+        // keeps it at value zero but visually adjusts it to the new maximum
+        // on the right, hence we need an update.
+        if (q_func()->isRightToLeft())
+            viewport->update();
 
         _q_showOrHideScrollBars();
+
+        const QSize oldViewportSize = viewportSize;
+        const QSize oldDocSize = docSize;
+
+        viewportSize = viewport->size();
+        docSize = documentSize(control);
+
+        if (viewportSize == oldViewportSize && docSize == oldDocSize)
+            break;
     }
     ignoreAutomaticScrollbarAdjustment = false;
 }
