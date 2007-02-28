@@ -265,7 +265,7 @@ void tst_QDom::toString_01()
     QFETCH(QString, fileName);
 
     QFile f(fileName);
-    QVERIFY2(f.open(QIODevice::ReadOnly), qPrintable(QString::fromLatin1("Failed to open file %1").arg(fileName)));
+    QVERIFY2(f.open(QIODevice::ReadOnly), qPrintable(QString::fromLatin1("Failed to open file %1, file error: %2").arg(fileName).arg(f.error())));
 
     QDomDocument doc;
     QString errorMsg;
