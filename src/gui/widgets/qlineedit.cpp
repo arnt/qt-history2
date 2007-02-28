@@ -1518,7 +1518,7 @@ bool QLineEdit::event(QEvent * e)
                     ke->accept();
                     return true;
                 }
-                if ((e->type() == QEvent::KeyRelease) &&
+                if ((e->type() == QEvent::KeyRelease)
                     && !isReadOnly()
                     && d->deleteAllTimer.isActive()) {
                     d->deleteAllTimer.stop();
