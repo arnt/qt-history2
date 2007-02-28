@@ -50,6 +50,32 @@ SOURCES	= qauthenticator.cpp \
 unix:SOURCES += qhostinfo_unix.cpp qnativesocketengine_unix.cpp qnetworkinterface_unix.cpp
 win32:SOURCES += qhostinfo_win.cpp qnativesocketengine_win.cpp qnetworkinterface_win.cpp
 
+# OpenSSL support; compile in QSslSocket.
+contains(QT_CONFIG, openssl) {
+    HEADERS += qsslcertificate.h \
+               qsslcertificate_p.h \
+               qsslcipher.h \
+               qsslcipher_p.h \
+               qsslerror.h \
+               qsslkey.h \
+               qsslsocket.h \
+               qsslsocket_openssl_p.h \
+               qsslsocket_openssl_symbols_p.h \
+               qsslsocket_p.h
+    SOURCES += qsslcertificate.cpp \
+               qsslcipher.cpp \
+               qsslerror.cpp \
+               qsslkey.cpp \
+               qsslsocket.cpp \
+               qsslsocket_openssl.cpp \
+               qsslsocket_openssl_symbols.cpp
+
+    # Only for static builds, we link against OpenSSL.
+    contains(CONFIG, static) {
+        win32:LIBS += ssleay32 libeay32
+        unix:LIBS += ssl crypto
+    }
+}
 
 mac:INCLUDEPATH += ../3rdparty/dlcompat #qdns.cpp uses it (on Jaguar)
 

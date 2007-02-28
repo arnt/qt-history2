@@ -250,6 +250,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "OPENGL" ]          = "yes";
     dictionary[ "DIRECT3D" ]        = "no";
     dictionary[ "IPV6" ]            = "yes"; // Always, dynamicly loaded
+    dictionary[ "OPENSSL" ]         = "auto";
 
     dictionary[ "STYLE_WINDOWS" ]   = "yes";
     dictionary[ "STYLE_WINDOWSXP" ] = "auto";
@@ -339,6 +340,7 @@ void Configure::parseCmdLine()
 #endif
 
     for( ; i<configCmdLine.size(); ++i ) {
+        bool continueElse = false;
         if( configCmdLine.at(i) == "-help"
             || configCmdLine.at(i) == "-h"
             || configCmdLine.at(i) == "-?" )
@@ -495,6 +497,12 @@ void Configure::parseCmdLine()
         else if( configCmdLine.at(i) == "-no-qt3support" )
             dictionary[ "QT3SUPPORT" ] = "no";
 
+        // Work around compiler nesting limitation
+        else
+            continueElse = true;
+        if (!continueElse) {
+        }
+
         // Databases ------------------------------------------------
         else if( configCmdLine.at(i) == "-qt-sql-mysql" )
             dictionary[ "SQL_MYSQL" ] = "yes";
@@ -615,6 +623,11 @@ void Configure::parseCmdLine()
             dictionary[ "DIRECT3D" ] = "yes";
         else if (configCmdLine.at(i) == "-no-direct3d")
             dictionary[ "DIRECT3D" ] = "no";
+        else if( configCmdLine.at(i) == "-no-openssl" ) {
+              dictionary[ "OPENSSL"] = "no";
+        } else if( configCmdLine.at(i) == "-openssl" ) {
+              dictionary[ "OPENSSL" ] = "yes";
+        }
 
         else if( configCmdLine.at(i) == "-internal" )
             dictionary[ "QMAKE_INTERNAL" ] = "yes";
@@ -987,7 +1000,7 @@ bool Configure::displayHelp()
                     "[-no-libjpeg] [-qt-libjpeg] [-system-libjpeg] [-no-libmng]\n"
                     "[-qt-libmng] [-system-libmng] [-no-qt3support]\n"
                     "[-no-mmx] [-no-sse] [-no-sse2] [-direct3d] [-no-direct3d]\n"
-                    "[-platform <spec>]\n\n", 0, 7);
+                    "[-openssl][-no-openssl][-platform <spec>]\n\n", 0, 7);
 
         desc("Installation options:\n\n");
 #if !defined(EVAL)
@@ -1122,6 +1135,8 @@ bool Configure::displayHelp()
         desc("SSE2", "no",      "-no-sse2",             "Do not compile with use of SSE2 instructions");
         desc("DIRECT3D", "no",  "-no-direct3d",         "Do not compile in Direct3D support");
         desc("DIRECT3D", "yes",  "-direct3d",           "Compile in Direct3D support");
+        desc("OPENSSL", "no",    "-no-openssl",         "Do not compile in OpenSSL support");
+        desc("OPENSSL", "yes",   "-openssl",            "Compile in OpenSSL support");
 
         desc(                   "-arch <arch>",         "Specify an architecture.\n"
                                                         "Available values for <arch>:");
@@ -1295,6 +1310,8 @@ bool Configure::checkAvailability(const QString &part)
         available = findFile("ibase.h") && (findFile("gds32_ms.lib") || findFile("gds32.lib"));
     else if (part == "MMX" || part == "SSE" || part == "SSE2")
         available = (dictionary.value("QMAKESPEC") != "win32-msvc");
+    else if (part == "OPENSSL")
+        available = findFile("ssl.h");
 
     return available;
 }
@@ -1363,6 +1380,8 @@ void Configure::autoDetection()
         dictionary["SSE"] = checkAvailability("SSE") ? "yes" : "no";
     if (dictionary["SSE2"] == "auto")
         dictionary["SSE2"] = checkAvailability("SSE2") ? "yes" : "no";
+    if (dictionary["OPENSSL"] == "auto")
+        dictionary["OPENSSL"] = checkAvailability("OPENSSL") ? "yes" : "no";
 
     // Mark all unknown "auto" to the default value..
     for (QMap<QString,QString>::iterator i = dictionary.begin(); i != dictionary.end(); ++i)
@@ -1652,6 +1671,9 @@ void Configure::generateOutputVars()
     if (dictionary[ "DIRECT3D" ] == "yes")
         qtConfig += "direct3d";
 
+    if (dictionary[ "OPENSSL" ] == "yes")
+        qtConfig += "openssl";
+
     if (dictionary["IPV6"] == "yes")
         qtConfig += "ipv6";
     else if (dictionary["IPV6"] == "no")
@@ -1930,6 +1952,7 @@ void Configure::generateConfigfiles()
         if(dictionary["EXCEPTIONS"] == "no")        qconfigList += "QT_NO_EXCEPTIONS";
         if(dictionary["OPENGL"] == "no")            qconfigList += "QT_NO_OPENGL";
         if(dictionary["DIRECT3D"] == "no")          qconfigList += "QT_NO_DIRECT3D";
+        if(dictionary["OPENSSL"] == "no")          qconfigList += "QT_NO_OPENSSL";
         if(dictionary["IPV6"] == "no")              qconfigList += "QT_NO_IPV6";
 
         if(dictionary["SQL_MYSQL"] == "yes")        qconfigList += "QT_SQL_MYSQL";
@@ -2104,6 +2127,7 @@ void Configure::displayConfig()
     cout << "SSE2 support................" << dictionary[ "SSE2" ] << endl;
     cout << "OpenGL support.............." << dictionary[ "OPENGL" ] << endl;
     cout << "Direct3D support............" << dictionary[ "DIRECT3D" ] << endl;
+    cout << "OpenSSL support............." << dictionary[ "OPENSSL" ] << endl;
     cout << "Qt3 compatibility..........." << dictionary[ "QT3SUPPORT" ] << endl << endl;
 
     cout << "Third Party Libraries:" << endl;
