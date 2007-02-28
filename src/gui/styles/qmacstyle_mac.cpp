@@ -3779,6 +3779,9 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             }
         }
         break;
+    case CE_ToolBar:
+        // Draw nothing.
+        break;
     default:
         QWindowsStyle::drawControl(ce, opt, p, w);
         break;

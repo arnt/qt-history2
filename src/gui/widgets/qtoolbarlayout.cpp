@@ -16,6 +16,7 @@
 #include <qtoolbar.h>
 #include <qstyleoption.h>
 #include <qtoolbutton.h>
+#include <qmenu.h>
 #include <qdebug.h>
 
 #include "qmainwindowlayout_p.h"
@@ -43,17 +44,18 @@ bool QToolBarItem::isEmpty() const
 
 QToolBarLayout::QToolBarLayout(QWidget *parent)
     : QLayout(parent), expanded(false), collapsing(false), dirty(true),
-        expanding(false), empty(true)
+        expanding(false), empty(true), popupMenu(0)
 {
     QToolBar *tb = qobject_cast<QToolBar*>(parent);
+
 
     extension = new QToolBarExtension(tb);
     extension->setFocusPolicy(Qt::NoFocus);
     extension->hide();
     QObject::connect(tb, SIGNAL(orientationChanged(Qt::Orientation)),
                      extension, SLOT(setOrientation(Qt::Orientation)));
-    QObject::connect(extension, SIGNAL(clicked(bool)),
-                     this, SLOT(setExpanded(bool)));
+
+    setUseQMenu(false);
 }
 
 QToolBarLayout::~QToolBarLayout()
@@ -66,6 +68,28 @@ QToolBarLayout::~QToolBarLayout()
                     widgetAction->releaseWidget(item->widget());
             }
         }
+    }
+}
+
+
+void QToolBarLayout::setUseQMenu(bool set)
+{
+    if (!set) {
+        QObject::connect(extension, SIGNAL(clicked(bool)),
+                         this, SLOT(setExpanded(bool)));
+        extension->setPopupMode(QToolButton::DelayedPopup);
+        extension->setMenu(0);
+        delete popupMenu;
+        popupMenu = 0;
+
+    } else {
+        QObject::disconnect(extension, SIGNAL(clicked(bool)),
+                            this, SLOT(setExpanded(bool)));
+        extension->setPopupMode(QToolButton::InstantPopup);
+        if (!popupMenu) {
+            popupMenu = new QMenu(extension);
+        }
+        extension->setMenu(popupMenu);
     }
 }
 
@@ -429,15 +453,21 @@ void QToolBarLayout::setGeometry(const QRect &rect)
 
             item->setGeometry(r);
 
-            if (!item->widget()->isVisible())
+            if (!item->widget()->isVisible()) {
                 showWidgets << item->widget();
+            }
+            if (popupMenu)
+                popupMenu->removeAction(item->action);
         }
 
         if (!expanded) {
             for (int j = i; j < items.count(); ++j) {
                 QToolBarItem *item = items.at(j);
-                if (item->widget()->isVisible())
+                if (item->widget()->isVisible()) {
                     hideWidgets << item->widget();
+                }
+                if (popupMenu)
+                    popupMenu->addAction(item->action);
             }
             break;
         }
@@ -515,6 +545,7 @@ void QToolBarLayout::setExpanded(bool exp)
     extension->setChecked(exp);
 
     QToolBar *tb = qobject_cast<QToolBar*>(parentWidget());
+
     if (QMainWindow *win = qobject_cast<QMainWindow*>(tb->parentWidget())) {
         if (exp) {
             expanded = true;
@@ -526,6 +557,7 @@ void QToolBarLayout::setExpanded(bool exp)
         QMainWindowLayout *layout = qobject_cast<QMainWindowLayout*>(win->layout());
         layout->layoutState.toolBarAreaLayout.apply(true);
     } else {
+
         expanded = exp;
 
         QSize size = expandedSize(tb->size());

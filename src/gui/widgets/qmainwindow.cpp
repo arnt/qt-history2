@@ -30,18 +30,24 @@
 #include <private/qwidget_p.h>
 #include "qtoolbar_p.h"
 #include "qwidgetanimator_p.h"
+#ifdef Q_WS_MAC
+#include <private/qt_mac_p.h>
+#endif
 
 class QMainWindowPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QMainWindow)
 public:
     inline QMainWindowPrivate()
-        : layout(0), toolButtonStyle(Qt::ToolButtonIconOnly)
+        : layout(0), toolButtonStyle(Qt::ToolButtonIconOnly), useHIToolBar(false)
     { }
     QMainWindowLayout *layout;
     QSize iconSize;
     bool explicitIconSize;
     Qt::ToolButtonStyle toolButtonStyle;
+#ifdef Q_WS_MAC
+    bool useHIToolBar;
+#endif
     void init();
     QList<int> hoverSeparator;
     QPoint hoverPos;
@@ -603,15 +609,16 @@ void QMainWindow::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
 
     Q_D(QMainWindow);
 
-    if (!toolbar->isAreaAllowed(area))
-        qWarning("QMainWIndow::addToolBar(): specified 'area' is not an allowed for this toolbar");
-
     disconnect(this, SIGNAL(iconSizeChanged(QSize)),
                toolbar, SLOT(_q_updateIconSize(QSize)));
     disconnect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
                toolbar, SLOT(_q_updateToolButtonStyle(Qt::ToolButtonStyle)));
 
-    d->layout->removeWidget(toolbar);
+    if (!d->layout->usesHIToolBar(toolbar)) {
+        d->layout->removeWidget(toolbar);
+    } else {
+        d->layout->removeToolBar(toolbar);
+    }
 
     toolbar->d_func()->_q_updateIconSize(d->iconSize);
     toolbar->d_func()->_q_updateToolButtonStyle(d->toolButtonStyle);
@@ -645,20 +652,6 @@ QToolBar *QMainWindow::addToolBar(const QString &title)
     return toolBar;
 }
 
-/* Removes the toolbar from the mainwindow so that it can be added again. Does not
-   explicitly hide the toolbar. */
-static void qt_remove_toolbar_from_layout(QToolBar *toolbar, QMainWindowPrivate *d)
-{
-    if (toolbar) {
-        QObject::disconnect(d->q_ptr, SIGNAL(iconSizeChanged(QSize)),
-                   toolbar, SLOT(_q_updateIconSize(QSize)));
-        QObject::disconnect(d->q_ptr, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
-                   toolbar, SLOT(_q_updateToolButtonStyle(Qt::ToolButtonStyle)));
-
-        d->layout->removeWidget(toolbar);
-    }
-}
-
 /*!
     Inserts the \a toolbar into the area occupied by the \a before toolbar
     so that it appears before it. For example, in normal left-to-right
@@ -670,10 +663,8 @@ static void qt_remove_toolbar_from_layout(QToolBar *toolbar, QMainWindowPrivate 
 void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
 {
     Q_D(QMainWindow);
-    Q_ASSERT_X(toolbar->isAreaAllowed(toolBarArea(before)),
-               "QMainWIndow::insertToolBar", "specified 'area' is not an allowed area");
 
-    qt_remove_toolbar_from_layout(toolbar, d);
+    d->layout->removeToolBar(toolbar);
 
     toolbar->d_func()->_q_updateIconSize(d->iconSize);
     toolbar->d_func()->_q_updateToolButtonStyle(d->toolButtonStyle);
@@ -692,7 +683,7 @@ void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
 void QMainWindow::removeToolBar(QToolBar *toolbar)
 {
     if (toolbar) {
-        qt_remove_toolbar_from_layout(toolbar, d_func());
+        d_func()->layout->removeToolBar(toolbar);
         toolbar->hide();
     }
 }
@@ -849,9 +840,6 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
     if (!checkDockWidgetArea(area, "QMainWindow::addDockWidget"))
         return;
 
-    if (!dockwidget->isAreaAllowed(area))
-        qWarning("QMainWindow::addDockWidget(): specified 'area' is not an allowed for this widget");
-
     Qt::Orientation orientation = Qt::Vertical;
     switch (area) {
     case Qt::TopDockWidgetArea:
@@ -889,9 +877,6 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
     if (!checkDockWidgetArea(area, "QMainWindow::addDockWidget"))
         return;
 
-    if (!dockwidget->isAreaAllowed(area))
-        qWarning("QMainWindow::addDockWidget(): specified 'area' is not an allowed for this widget");
-
     // add a window to an area, placing done relative to the previous
     d_func()->layout->addDockWidget(area, dockwidget, orientation);
 }
@@ -920,8 +905,6 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
 void QMainWindow::splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
                                   Qt::Orientation orientation)
 {
-    if (!dockwidget->isAreaAllowed(dockWidgetArea(after)))
-        qWarning("QMainWindow::splitDockWidget(): specified 'area' is not an allowed for this widget");
     d_func()->layout->splitDockWidget(after, dockwidget, orientation);
 }
 
@@ -933,8 +916,6 @@ void QMainWindow::splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
 */
 void QMainWindow::tabifyDockWidget(QDockWidget *first, QDockWidget *second)
 {
-    if (!second->isAreaAllowed(dockWidgetArea(first)))
-        qWarning("QMainWindow::splitDockWidget(): specified 'area' is not an allowed for this widget");
     d_func()->layout->tabifyDockWidget(first, second);
 }
 
@@ -1173,6 +1154,62 @@ bool QMainWindow::event(QEvent *event)
     }
 
     return QWidget::event(event);
+}
+
+
+/*!
+    \property QMainWindow::unifiedTitleAndToolBarOnMac
+    \brief Whether or not the window uses the unified title and toolbar look on Mac OS X.
+
+    This property is false by default and only has any effect on Mac OS X 10.4 or higher.
+
+    If set to true, then the top toolbar area is replaced with a Carbon
+    HIToolbar and all toolbars in the top toolbar area are moved to that. Any
+    toolbars added afterwards will also be added to the Carbon HIToolbar. This
+    means a couple of things.
+
+    \list
+    \i QToolBars in this toolbar area are not movable and you cannot drag other toolbars to it
+    \i Toolbar breaks are not respected or preserved
+    \i Any custom widgets in the toolbar will not be shown if the toolbar becomes too small
+      (only actions will be shown)
+    \endlist
+
+    Setting this back to false will remove these restrictions.
+*/
+void QMainWindow::setUnifiedTitleAndToolBarOnMac(bool set)
+{
+#ifdef Q_WS_MAC
+#ifndef kWindowUnifiedTitleAndToolbarAttribute
+#define kWindowUnifiedTitleAndToolbarAttribute (1 << 7)
+#endif
+    extern WindowRef qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
+    Q_D(QMainWindow);
+    if (!isWindow() || d->useHIToolBar == set || QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)
+        return;
+
+    d->useHIToolBar = set;
+    createWinId(); // We need the hiview for down below.
+
+    if (d->useHIToolBar)
+        ChangeWindowAttributes(qt_mac_window_for(this),
+                               kWindowUnifiedTitleAndToolbarAttribute, 0);
+    else
+        ChangeWindowAttributes(qt_mac_window_for(this),
+                               0, kWindowUnifiedTitleAndToolbarAttribute);
+
+    d->layout->updateHIToolBarStatus();
+#else
+    Q_UNUSED(set)
+#endif
+}
+
+bool QMainWindow::unifiedTitleAndToolBarOnMac() const
+{
+#ifdef Q_WS_MAC
+    return d_func()->useHIToolBar;
+#endif
+    return false;
 }
 
 /*!

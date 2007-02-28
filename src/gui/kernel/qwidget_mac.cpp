@@ -27,11 +27,10 @@
 #endif
 #include <private/qpaintengine_mac_p.h>
 #include "qpainter.h"
-#include "qstack.h"
 #include "qstyle.h"
-#include "qtextcodec.h"
 #include "qtimer.h"
 #include "qdebug.h"
+#include <private/qmainwindowlayout_p.h>
 
 #include <private/qabstractscrollarea_p.h>
 #include <qabstractscrollarea.h>
@@ -408,7 +407,7 @@ void qt_mac_update_ignore_mouseevents(QWidget *w)
 
 void qt_mac_update_metal_style(QWidget *w)
 {
-    if (!w->testAttribute(Qt::WA_WState_Created))
+    if (!w->testAttribute(Qt::WA_WState_Created) || !w->isWindow())
         return;
 
     if (w->isWindow()) {
@@ -736,6 +735,8 @@ static EventTypeSpec widget_events[] = {
     { kEventClassControl, kEventControlDragLeave },
     { kEventClassControl, kEventControlDragReceive },
     { kEventClassControl, kEventControlOwningWindowChanged },
+    { kEventClassControl, kEventControlBoundsChanged },
+    { kEventClassControl, kEventControlGetSizeConstraints },
 
     { kEventClassMouse, kEventMouseDown },
     { kEventClassMouse, kEventMouseUp },
@@ -1025,6 +1026,34 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                 const Boolean wouldAccept = drag_allowed ? true : false;
                 SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean,
                         sizeof(wouldAccept), &wouldAccept);
+            }
+        } else if (ekind == kEventControlBoundsChanged) {
+            if (!widget || (widget && widget->isWindow())) {
+                handled_event = false;
+            } else {
+                // Sync our view in case some other (non-Qt) view is controling us.
+                handled_event = true;
+                Rect newBounds;
+                GetEventParameter(event, kEventParamCurrentBounds,
+                                  typeQDRectangle, 0, sizeof(Rect), 0, &newBounds);
+                QRect rect(newBounds.left, newBounds.top,
+                            newBounds.right - newBounds.left, newBounds.bottom - newBounds.top);
+
+                widget->setGeometry(rect);
+            }
+        } else if (ekind == kEventControlGetSizeConstraints) {
+            if (!widget) {
+                handled_event = false;
+            } else {
+                handled_event = true;
+                QWidgetItem item(widget);
+                QSize size = item.minimumSize();
+                HISize hisize = { size.width(), size.height() };
+                SetEventParameter(event, kEventParamMinimumSize, typeHISize, sizeof(HISize), &hisize);
+                size = item.maximumSize();
+                hisize.width = size.width();
+                hisize.height = size.height();
+                SetEventParameter(event, kEventParamMaximumSize, typeHISize, sizeof(HISize), &hisize);
             }
         }
         break; }

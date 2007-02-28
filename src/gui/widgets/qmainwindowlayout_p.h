@@ -37,6 +37,16 @@
 #include "qdockarealayout_p.h"
 #include "qtoolbararealayout_p.h"
 
+#ifdef Q_WS_MAC
+// Forward defs to make avoid including Carbon.h (faster compile you know ;).
+struct OpaqueHIObjectRef;
+typedef struct OpaqueHIObjectRef*       HIObjectRef;
+typedef HIObjectRef                     HIToolbarItemRef;
+typedef const void * CFTypeRef;
+typedef const struct __CFString * CFStringRef;
+
+#endif
+
 class QToolBar;
 class QWidgetAnimator;
 class QTabBar;
@@ -110,6 +120,7 @@ public:
 
     QMainWindow::DockOptions dockOptions;
     void setDockOptions(QMainWindow::DockOptions opts);
+    bool usesHIToolBar(QToolBar *toolbar) const;
 
     // status bar
 
@@ -137,6 +148,7 @@ public:
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
     bool toolBarBreak(QToolBar *toolBar) const;
     void getStyleOptionInfo(QStyleOptionToolBar *option, QToolBar *toolBar) const;
+    void removeToolBar(QToolBar *toolbar);
 #endif
 
     // dock widgets
@@ -212,6 +224,7 @@ public:
     void paintDropIndicator(QPainter *p, QWidget *widget, const QRegion &clip);
     void applyState(QMainWindowLayoutState &newState, bool animate = true);
     void restore();
+    void updateHIToolBarStatus();
 
 private slots:
     void animationFinished(QWidget *widget);
@@ -221,6 +234,29 @@ private slots:
 #ifndef QT_NO_TABBAR
     void tabChanged();
 #endif
+#endif
+private:
+#ifdef Q_WS_MAC
+    struct ToolBarSaveState {
+        ToolBarSaveState() : movable(false) { }
+        ToolBarSaveState(bool newMovable, const QSize &newMax)
+            : movable(newMovable), maximumSize(newMax) { }
+        bool movable;
+        QSize maximumSize;
+    };
+    static OSStatus qtmacToolbarDelegate(EventHandlerCallRef, EventRef , void *);
+    static OSStatus qtoolbarInHIToolbarHandler(EventHandlerCallRef inCallRef, EventRef event,
+                                               void *data);
+    static void qtMacHIToolbarRegisterQToolBarInHIToolborItemClass();
+    static HIToolbarItemRef CreateToolbarItemForIdentifier(CFStringRef identifier, CFTypeRef data);
+    static HIToolbarItemRef createQToolBarInHIToolbarItem(QToolBar *toolbar,
+                                                          QMainWindowLayout *layout);
+    QList<QToolBar *> qtoolbarsInHIToolbarList;
+    QList<HIToolbarItemRef> toolbarItemsCopy;
+    QHash<HIToolbarItemRef, QToolBar *> hitoolbarHash;
+    QHash<QToolBar *, ToolBarSaveState> toolbarSaveState;
+    void insertIntoMacHIToolbar(QToolBar *before, QToolBar *after);
+    bool useHIToolBar;
 #endif
 };
 

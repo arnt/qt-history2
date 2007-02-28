@@ -27,7 +27,6 @@
 #include "qdockwidget_p.h"
 
 #include <qapplication.h>
-#include <qdebug.h>
 #include <qstatusbar.h>
 #include <qstring.h>
 #include <qstyle.h>
@@ -36,9 +35,12 @@
 #include <qmap.h>
 #include <qtimer.h>
 
-
+#include <qdebug.h>
 
 #include <private/qlayoutengine_p.h>
+#ifdef Q_WS_MAC
+#include <private/qcore_mac_p.h>
+#endif
 
 #if 0
 
@@ -613,6 +615,7 @@ static inline Qt::ToolBarArea toToolBarArea(int pos)
 void QMainWindowLayout::addToolBarBreak(Qt::ToolBarArea area)
 {
     validateToolBarArea(area);
+
     layoutState.toolBarAreaLayout.addToolBarBreak(toDockPos(area));
     invalidate();
 }
@@ -629,6 +632,363 @@ void QMainWindowLayout::removeToolBarBreak(QToolBar *before)
     invalidate();
 }
 
+#ifdef Q_WS_MAC
+
+void QMainWindowLayout::updateHIToolBarStatus()
+{
+    // Something
+    bool useHIToolbar = layoutState.mainWindow->unifiedTitleAndToolBarOnMac();
+    layoutState.mainWindow->setUpdatesEnabled(false);  // reduces a little bit of flicker, not all though
+    if (!useHIToolbar) {
+        ShowHideWindowToolbar(qt_mac_window_for(parentWidget()), false, false);
+        // Move everything out of the HIToolbar into the main toolbar.
+        while (!qtoolbarsInHIToolbarList.isEmpty()) {
+            // Should shrink the list by one every time.
+            layoutState.mainWindow->addToolBar(Qt::TopToolBarArea, qtoolbarsInHIToolbarList.first());
+        }
+        SetWindowToolbar(qt_mac_window_for(parentWidget()), 0);
+    } else {
+        QList<QToolBar *> toolbars = layoutState.mainWindow->findChildren<QToolBar *>();
+        for (int i = 0; i < toolbars.size(); ++i) {
+            QToolBar *toolbar = toolbars.at(i);
+            if (toolBarArea(toolbar) == Qt::TopToolBarArea) {
+                removeWidget(toolbar);  // Do this here, because we are in an in-between state.
+                layoutState.mainWindow->addToolBar(Qt::TopToolBarArea, toolbar);
+            }
+        }
+    }
+    layoutState.mainWindow->setUpdatesEnabled(true);
+}
+
+static const int kEventParamQToolBar = 'QTBR';
+static const int kEventParamQMainWindowLayout = 'QMWL';
+
+#define kQToolBarHIToolbarItemClassID CFSTR("com.trolltech.qt.qmainwindow.qtoolbarInHIToolbar")
+
+const EventTypeSpec qtoolbarEvents[] =
+{
+    { kEventClassHIObject, kEventHIObjectConstruct },
+    { kEventClassHIObject, kEventHIObjectDestruct },
+    { kEventClassHIObject, kEventHIObjectInitialize },
+    { kEventClassToolbarItem, kEventToolbarItemCreateCustomView }
+};
+
+struct QToolBarInHIToolbarInfo
+{
+    QToolBarInHIToolbarInfo(HIToolbarItemRef item)
+        : toolbarItem(item), mainWindowLayout(0)
+    {}
+    HIToolbarItemRef toolbarItem;
+    QMainWindowLayout *mainWindowLayout;
+};
+
+OSStatus QMainWindowLayout::qtoolbarInHIToolbarHandler(EventHandlerCallRef inCallRef,
+                                                       EventRef event, void *data)
+{
+    OSStatus result = eventNotHandledErr;
+    QToolBarInHIToolbarInfo *object = static_cast<QToolBarInHIToolbarInfo *>(data);
+
+    switch (GetEventClass(event)) {
+        case kEventClassHIObject:
+            switch (GetEventKind(event)) {
+                case kEventHIObjectConstruct:
+                    {
+                        HIObjectRef toolbarItem;
+                        GetEventParameter(event, kEventParamHIObjectInstance, typeHIObjectRef,
+                                          0, sizeof( HIObjectRef ), 0, &toolbarItem);
+
+                        QToolBarInHIToolbarInfo *item = new QToolBarInHIToolbarInfo(toolbarItem);
+                        SetEventParameter(event, kEventParamHIObjectInstance, typeVoidPtr,
+                                          sizeof(void *), &item);
+                        result = noErr;
+                    }
+                    break;
+                case kEventHIObjectInitialize:
+                    result = CallNextEventHandler(inCallRef, event);
+                    if (result == noErr) {
+                        QToolBar *toolbar = 0;
+                        QMainWindowLayout *layout = 0;
+                        GetEventParameter(event, kEventParamQToolBar, typeVoidPtr,
+                                          0, sizeof(void *), 0, &toolbar);
+                        GetEventParameter(event, kEventParamQMainWindowLayout, typeVoidPtr,
+                                          0, sizeof(void *), 0, &layout);
+                        object->mainWindowLayout = layout;
+                        object->mainWindowLayout->hitoolbarHash.insert(object->toolbarItem, toolbar);
+                        HIToolbarItemChangeAttributes(object->toolbarItem,
+                                                      kHIToolbarItemLabelDisabled, 0);
+                    }
+                    break;
+
+                case kEventHIObjectDestruct:
+                    delete object;
+                    result = noErr;
+                    break;
+            }
+            break;
+
+        case kEventClassToolbarItem:
+            switch (GetEventKind(event))
+            {
+                case kEventToolbarItemCreateCustomView:
+                    {
+                        QToolBar *toolbar
+                                = object->mainWindowLayout->hitoolbarHash.value(object->toolbarItem);
+                        toolbar->setAutoFillBackground(false);
+                        if (toolbar) {
+                            HIViewRef hiview = HIViewRef(toolbar->winId());
+                            SetEventParameter(event, kEventParamControlRef, typeControlRef,
+                                              sizeof(HIViewRef), &hiview);
+                            result = noErr;
+                        }
+                    }
+                    break;
+            }
+            break;
+    }
+
+    return result;
+}
+
+void QMainWindowLayout::qtMacHIToolbarRegisterQToolBarInHIToolborItemClass()
+{
+    static bool registered = false;
+
+    if (!registered) {
+        HIObjectRegisterSubclass( kQToolBarHIToolbarItemClassID,
+                kHIToolbarItemClassID, 0, QMainWindowLayout::qtoolbarInHIToolbarHandler,
+                GetEventTypeCount(qtoolbarEvents), qtoolbarEvents, 0, 0 );
+        registered = true;
+    }
+}
+
+static void GetToolbarAllowedItems(CFMutableArrayRef array)
+{
+    CFArrayAppendValue(array, CFSTR("com.trolltech.qt.hitoolbar-qtoolbar"));
+}
+
+HIToolbarItemRef QMainWindowLayout::createQToolBarInHIToolbarItem(QToolBar *toolbar,
+                                                                  QMainWindowLayout *layout)
+{
+    QMainWindowLayout::qtMacHIToolbarRegisterQToolBarInHIToolborItemClass();
+
+    EventRef event;
+    HIToolbarItemRef result = 0;
+
+    CFStringRef identifier = CFSTR("com.trolltech.qt.hitoolbar-qtoolbar");
+    UInt32 options = kHIToolbarItemAllowDuplicates;
+
+    CreateEvent(0, kEventClassHIObject, kEventHIObjectInitialize,
+                GetCurrentEventTime(), 0, &event);
+    SetEventParameter(event, kEventParamToolbarItemIdentifier, typeCFStringRef,
+                      sizeof(CFStringRef), &identifier);
+    SetEventParameter(event, kEventParamAttributes, typeUInt32, sizeof(UInt32), &options);
+    SetEventParameter(event, kEventParamQToolBar, typeVoidPtr, sizeof(void *), &toolbar);
+    SetEventParameter(event, kEventParamQMainWindowLayout, typeVoidPtr, sizeof(void *), &layout);
+
+    HIObjectCreate(kQToolBarHIToolbarItemClassID, event,
+                                  static_cast<HIObjectRef *>(&result));
+
+    ReleaseEvent(event);
+    return result;
+
+}
+
+HIToolbarItemRef QMainWindowLayout::CreateToolbarItemForIdentifier(CFStringRef identifier,
+                                                                   CFTypeRef data)
+{
+    HIToolbarItemRef item = 0;
+    if (CFStringCompare(CFSTR("com.trolltech.qt.hitoolbar-qtoolbar"), identifier,
+                              kCFCompareBackwards) == kCFCompareEqualTo) {
+        if (data && CFGetTypeID(data) == CFArrayGetTypeID()) {
+            CFArrayRef array = static_cast<CFArrayRef>(data);
+            QToolBar *toolbar = static_cast<QToolBar *>(const_cast<void *>(CFArrayGetValueAtIndex(array, 0)));
+            QMainWindowLayout *layout = static_cast<QMainWindowLayout *>(const_cast<void *>(CFArrayGetValueAtIndex(array, 1)));
+            item = createQToolBarInHIToolbarItem(toolbar, layout);
+        }
+    }
+    return item;
+}
+
+static const EventTypeSpec kToolbarEvents[] = {
+    { kEventClassToolbar, kEventToolbarGetDefaultIdentifiers },
+    { kEventClassToolbar, kEventToolbarGetAllowedIdentifiers },
+    { kEventClassToolbar, kEventToolbarCreateItemWithIdentifier },
+    { kEventClassToolbar, kEventToolbarItemAdded },
+    { kEventClassToolbar, kEventToolbarItemRemoved }
+};
+
+OSStatus QMainWindowLayout::qtmacToolbarDelegate(EventHandlerCallRef, EventRef event, void *data)
+{
+    QMainWindowLayout *mainWindowLayout = static_cast<QMainWindowLayout *>(data);
+    OSStatus            result = eventNotHandledErr;
+    CFMutableArrayRef   array;
+    CFStringRef         identifier;
+    switch (GetEventKind(event)) {
+    case kEventToolbarGetDefaultIdentifiers:
+    case kEventToolbarGetAllowedIdentifiers:
+        GetEventParameter(event, kEventParamMutableArray, typeCFMutableArrayRef, 0,
+                          sizeof(CFMutableArrayRef), 0, &array);
+        GetToolbarAllowedItems(array);
+        result = noErr;
+        break;
+    case kEventToolbarCreateItemWithIdentifier: {
+        HIToolbarItemRef item;
+        CFTypeRef data = 0;
+        OSStatus err = GetEventParameter(event, kEventParamToolbarItemIdentifier, typeCFStringRef,
+                          0, sizeof(CFStringRef), 0, &identifier);
+        err = GetEventParameter(event, kEventParamToolbarItemConfigData, typeCFTypeRef,
+                          0, sizeof(CFTypeRef), 0, &data);
+        item = CreateToolbarItemForIdentifier(identifier, data);
+        if (item) {
+            result = SetEventParameter(event, kEventParamToolbarItem, typeHIToolbarItemRef,
+                              sizeof(HIToolbarItemRef), &item );
+        }
+        break;
+    }
+    case kEventToolbarItemAdded: {
+        // Double check that our "view" of the toolbar is similar.
+        HIToolbarItemRef item;
+        CFIndex index;
+        if (GetEventParameter(event, kEventParamToolbarItem, typeHIToolbarItemRef,
+                              0, sizeof(HIToolbarItemRef), 0, &item) == noErr
+            && GetEventParameter(event, kEventParamIndex, typeCFIndex, 0,
+                                 sizeof(CFIndex), 0, &index) == noErr) {
+            CFRetain(item); // We will watch this until it's removed from the list (or bust).
+            mainWindowLayout->toolbarItemsCopy.insert(index, item);
+            QToolBar *toolbar = mainWindowLayout->hitoolbarHash.value(item);
+            if (toolbar) {
+                int toolbarIndex = mainWindowLayout->qtoolbarsInHIToolbarList.indexOf(toolbar);
+                if (index != toolbarIndex) {
+                    // Dang, we must be out of sync, rebuild it from the "toolbarItemsCopy"
+                    mainWindowLayout->qtoolbarsInHIToolbarList.clear();
+                    for (int i = 0; i < mainWindowLayout->toolbarItemsCopy.size(); ++i) {
+                        // This will either append the correct toolbar or an
+                        // null toolbar. This is fine because this list
+                        // is really only kept to make sure that things are but in the right order.
+                        mainWindowLayout->qtoolbarsInHIToolbarList.append(
+                                mainWindowLayout->hitoolbarHash.value(mainWindowLayout->
+                                                                        toolbarItemsCopy.at(i)));
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case kEventToolbarItemRemoved: {
+        HIToolbarItemRef item;
+        if (GetEventParameter(event, kEventParamToolbarItem, typeHIToolbarItemRef,
+                              0, sizeof(HIToolbarItemRef), 0, &item) == noErr) {
+            mainWindowLayout->hitoolbarHash.remove(item);
+            for (int i = 0; i < mainWindowLayout->toolbarItemsCopy.size(); ++i) {
+                if (mainWindowLayout->toolbarItemsCopy.at(i) == item) {
+                    // I know about it, so release it.
+                    mainWindowLayout->toolbarItemsCopy.removeAt(i);
+                    mainWindowLayout->qtoolbarsInHIToolbarList.removeAt(i);
+                    CFRelease(item);
+                    break;
+                }
+            }
+        }
+        break;
+    }
+    }
+    return result;
+}
+
+#endif
+
+void QMainWindowLayout::insertIntoMacHIToolbar(QToolBar *before, QToolBar *toolbar)
+{
+#ifdef Q_WS_MAC
+    if (toolbar == 0)
+        return;
+
+    toolbarSaveState.insert(toolbar, ToolBarSaveState(toolbar->isMovable(),
+                                                      toolbar->maximumSize()));
+    toolbar->setMovable(false);
+    toolbar->setMaximumSize(toolbar->sizeHint());
+    static_cast<QToolBarLayout *>(toolbar->layout())->setUseQMenu(true);
+    layoutState.mainWindow->createWinId();
+    HIToolbarRef macToolbar;
+    WindowRef window = qt_mac_window_for(layoutState.mainWindow);
+    if ((GetWindowToolbar(window, &macToolbar) == noErr) && !macToolbar) {
+        HIToolbarCreate(CFSTR("com.trolltech.qt.qmainwindow.hitoolbar"),
+                        kHIToolbarItemAllowDuplicates, &macToolbar);
+
+        InstallEventHandler(HIObjectGetEventTarget(static_cast<HIToolbarRef>(macToolbar)),
+                            QMainWindowLayout::qtmacToolbarDelegate, GetEventTypeCount(kToolbarEvents),
+                            kToolbarEvents, this, 0);
+
+        HIToolbarSetDisplaySize(macToolbar, kHIToolbarDisplaySizeNormal);
+        HIToolbarSetDisplayMode(macToolbar, kHIToolbarDisplayModeIconOnly);
+        SetWindowToolbar(window, macToolbar);
+        ShowHideWindowToolbar(window, true, false);
+        CFRelease(macToolbar);
+    }
+
+
+    int beforeIndex = qtoolbarsInHIToolbarList.indexOf(before);
+    if (beforeIndex == -1)
+        beforeIndex = qtoolbarsInHIToolbarList.size();
+
+    int toolbarIndex = qtoolbarsInHIToolbarList.indexOf(toolbar);
+    if (toolbarIndex != -1) {
+        qtoolbarsInHIToolbarList.removeAt(toolbarIndex);
+        HIToolbarRemoveItemAtIndex(macToolbar, toolbarIndex);
+    }
+    toolbar->createWinId();
+    qtoolbarsInHIToolbarList.insert(beforeIndex, toolbar);
+    QCFType<HIToolbarItemRef> outItem;
+    const QObject *stupidArray[] = { toolbar, this };
+    QCFType<CFArrayRef> array = CFArrayCreate(0, reinterpret_cast<const void **>(&stupidArray),
+                                              2, 0);
+    HIToolbarCreateItemWithIdentifier(macToolbar, CFSTR("com.trolltech.qt.hitoolbar-qtoolbar"),
+                                      array, &outItem);
+    HIToolbarInsertItemAtIndex(macToolbar, outItem, beforeIndex);
+#else
+    Q_UNUSED(before);
+    Q_UNUSED(after);
+#endif
+}
+
+/* Removes the toolbar from the mainwindow so that it can be added again. Does not
+   explicitly hide the toolbar. */
+void QMainWindowLayout::removeToolBar(QToolBar *toolbar)
+{
+    if (toolbar) {
+        QObject::disconnect(parentWidget(), SIGNAL(iconSizeChanged(QSize)),
+                   toolbar, SLOT(_q_updateIconSize(QSize)));
+        QObject::disconnect(parentWidget(), SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
+                   toolbar, SLOT(_q_updateToolButtonStyle(Qt::ToolButtonStyle)));
+
+        if (!usesHIToolBar(toolbar)) {
+            removeWidget(toolbar);
+        } else {
+            QHash<HIToolbarItemRef, QToolBar *>::iterator it = hitoolbarHash.begin();
+            while (it != hitoolbarHash.end()) {
+                if (it.value() == toolbar) {
+                    // Rescue our HIView and set it on the mainWindow again.
+                    bool saveVisible = toolbar->isVisible();
+                    toolbar->setParent(0);
+                    toolbar->setAutoFillBackground(true);
+                    toolbar->setParent(parentWidget());
+                    toolbar->setVisible(saveVisible);
+                    ToolBarSaveState saveState = toolbarSaveState.value(toolbar);
+                    static_cast<QToolBarLayout *>(toolbar->layout())->setUseQMenu(false);
+                    toolbar->setMovable(saveState.movable);
+                    toolbar->setMaximumSize(saveState.maximumSize);
+                    toolbarSaveState.remove(toolbar);
+                    HIToolbarItemRef item = it.key();
+                    HIToolbarRemoveItemAtIndex(HIToolbarItemGetToolbar(item),
+                                               toolbarItemsCopy.indexOf(item));
+                    break;
+                }
+                ++it;
+            }
+        }
+    }
+}
+
 /*!
     Adds \a toolbar to \a area, continuing the current line.
 */
@@ -637,9 +997,17 @@ void QMainWindowLayout::addToolBar(Qt::ToolBarArea area,
                                    bool)
 {
     validateToolBarArea(area);
-    addChildWidget(toolbar);
-    layoutState.toolBarAreaLayout.addToolBar(toDockPos(area), toolbar);
-    invalidate();
+#ifdef Q_WS_MAC
+    if ((area == Qt::TopToolBarArea)
+            && layoutState.mainWindow->unifiedTitleAndToolBarOnMac()) {
+        insertIntoMacHIToolbar(0, toolbar);
+    } else
+#endif
+    {
+        addChildWidget(toolbar);
+        layoutState.toolBarAreaLayout.addToolBar(toDockPos(area), toolbar);
+        invalidate();
+    }
 }
 
 /*!
@@ -647,16 +1015,18 @@ void QMainWindowLayout::addToolBar(Qt::ToolBarArea area,
 */
 void QMainWindowLayout::insertToolBar(QToolBar *before, QToolBar *toolbar)
 {
-    addChildWidget(toolbar);
-    layoutState.toolBarAreaLayout.insertToolBar(before, toolbar);
-    invalidate();
+    if (usesHIToolBar(before)) {
+        insertIntoMacHIToolbar(before, toolbar);
+    } else {
+        addChildWidget(toolbar);
+        layoutState.toolBarAreaLayout.insertToolBar(before, toolbar);
+        invalidate();
+    }
 }
 
 Qt::ToolBarArea QMainWindowLayout::toolBarArea(QToolBar *toolbar) const
 {
-    QInternal::DockPosition pos
-        = layoutState.toolBarAreaLayout.findToolBar(toolbar);
-    return toToolBarArea(pos);
+    QInternal::DockPosition pos = layoutState.toolBarAreaLayout.findToolBar(toolbar);
     switch (pos) {
         case QInternal::LeftDock:   return Qt::LeftToolBarArea;
         case QInternal::RightDock:  return Qt::RightToolBarArea;
@@ -664,6 +1034,12 @@ Qt::ToolBarArea QMainWindowLayout::toolBarArea(QToolBar *toolbar) const
         case QInternal::BottomDock: return Qt::BottomToolBarArea;
         default: break;
     }
+#ifdef Q_WS_MAC
+    if (pos == QInternal::DockCount) {
+        if (qtoolbarsInHIToolbarList.contains(toolbar))
+            return Qt::TopToolBarArea;
+    }
+#endif
     return Qt::NoToolBarArea;
 }
 
@@ -1078,7 +1454,6 @@ bool QMainWindowLayout::plug(QLayoutItem *widgetItem)
 
     QList<int> previousPath = layoutState.indexOf(widget);
 
-    QLayoutItem *it = layoutState.plug(currentGapPos);
     Q_ASSERT(it == widgetItem);
     if (!previousPath.isEmpty())
         layoutState.remove(previousPath);
@@ -1223,6 +1598,13 @@ QMainWindowLayout::~QMainWindowLayout()
     layoutState.deleteAllLayoutItems();
     layoutState.deleteCentralWidgetItem();
 
+#ifdef Q_WS_MAC
+    for (int i = 0; i < toolbarItemsCopy.size(); ++i)
+        CFRelease(toolbarItemsCopy.at(i));
+    toolbarItemsCopy.clear();
+    hitoolbarHash.clear();
+#endif
+
     delete statusbar;
 }
 
@@ -1318,7 +1700,7 @@ void QMainWindowLayout::updateGapIndicator()
 
 QList<int> QMainWindowLayout::hover(QLayoutItem *widgetItem, const QPoint &mousePos)
 {
-    if (pluggingWidget != 0)
+    if (pluggingWidget != 0 || widgetItem == 0)
         return QList<int>();
 
     QWidget *widget = widgetItem->widget();
@@ -1441,6 +1823,21 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
 #endif
 
     return true;
+}
+
+
+// Returns if this toolbar *should* be using HIToolbar. Won't work for all in between cases
+// for example, you have a toolbar in the top area and then you suddenly turn on
+// HIToolbar.
+bool QMainWindowLayout::usesHIToolBar(QToolBar *toolbar) const
+{
+#ifndef Q_WS_MAC
+    return false;
+#else
+    return qtoolbarsInHIToolbarList.contains(toolbar)
+           || ((toolBarArea(toolbar) == Qt::TopToolBarArea)
+                && layoutState.mainWindow->unifiedTitleAndToolBarOnMac());
+#endif
 }
 
 #endif // QT_NO_MAINWINDOW

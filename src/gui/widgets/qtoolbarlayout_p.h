@@ -31,6 +31,7 @@
 
 class QAction;
 class QToolBarExtension;
+class QMenu;
 
 class QToolBarItem : public QWidgetItem
 {
@@ -72,6 +73,8 @@ public:
     QSize expandedSize(const QSize &size) const;
     bool expanded, collapsing;
 
+    void setUseQMenu(bool set); // Yeah, there's no getter, but it's internal.
+
 public slots:
     void setExpanded(bool b);
 
@@ -87,6 +90,7 @@ private:
     QToolBarItem *createItem(QAction *action);
     int expandedHeight(int width) const;
     int expandedWidth(int width) const;
+    QMenu *popupMenu;
 };
 
 

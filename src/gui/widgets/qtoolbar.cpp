@@ -445,7 +445,16 @@ void QToolBar::setAllowedAreas(Qt::ToolBarAreas areas)
 }
 
 Qt::ToolBarAreas QToolBar::allowedAreas() const
-{ Q_D(const QToolBar); return d->allowedAreas; }
+{
+    Q_D(const QToolBar);
+#ifdef Q_WS_MAC
+    if (QMainWindow *window = qobject_cast<QMainWindow *>(parentWidget())) {
+        if (window->unifiedTitleAndToolBarOnMac()) // Don't allow drags to the top (for now).
+            return (d->allowedAreas & ~Qt::TopToolBarArea);
+    }
+#endif
+    return d->allowedAreas;
+}
 
 /*! \property QToolBar::orientation
     \brief orientation of the toolbar
