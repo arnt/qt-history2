@@ -20,7 +20,7 @@
 HttpWindow::HttpWindow(QWidget *parent)
     : QDialog(parent)
 {
-    urlLineEdit = new QLineEdit("http://www.ietf.org/iesg/1rfc_index.txt");
+    urlLineEdit = new QLineEdit("https://www.nordea.no");
 
     urlLabel = new QLabel(tr("&URL:"));
     urlLabel->setBuddy(urlLineEdit);
@@ -96,7 +96,9 @@ void HttpWindow::downloadFile()
         return;
     }
 
-    http->setHost(url.host(), url.port() != -1 ? url.port() : 80);
+    QHttp::ConnectionMode mode = url.scheme().toLower() == "https" ? QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp;
+    http->setHost(url.host(), mode, url.port() == -1 ? 0 : url.port());
+    
     if (!url.userName().isEmpty())
         http->setUser(url.userName(), url.password());
 

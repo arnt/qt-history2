@@ -20,6 +20,7 @@
 
 #include "private/qobject_p.h"
 #include "qtcpsocket.h"
+#include "qsslsocket.h"
 #include "qtextstream.h"
 #include "qmap.h"
 #include "qlist.h"
@@ -108,6 +109,7 @@ public:
 
     QString hostName;
     quint16 port;
+    QHttp::ConnectionMode mode;
 
     QByteArray buffer;
     QIODevice *toDevice;
@@ -195,7 +197,8 @@ private:
 
 void QHttpNormalRequest::start(QHttp *http)
 {
-    if (!http->d_func()->socket) http->d_func()->setSock(0);
+    if (!http->d_func()->socket)
+        http->d_func()->setSock(0);
     http->d_func()->header = header;
 
     if (is_ba) {
@@ -292,8 +295,8 @@ void QHttpPGHRequest::start(QHttp *http)
 class QHttpSetHostRequest : public QHttpRequest
 {
 public:
-    QHttpSetHostRequest(const QString &h, quint16 p) :
-        hostName(h), port(p)
+    QHttpSetHostRequest(const QString &h, quint16 p, QHttp::ConnectionMode m)
+        : hostName(h), port(p), mode(m)
     { }
 
     void start(QHttp *);
@@ -306,12 +309,14 @@ public:
 private:
     QString hostName;
     quint16 port;
+    QHttp::ConnectionMode mode;
 };
 
 void QHttpSetHostRequest::start(QHttp *http)
 {
     http->d_func()->hostName = hostName;
     http->d_func()->port = port;
+    http->d_func()->mode = mode;
     http->d_func()->finishedWithSuccess();
 }
 
@@ -1517,6 +1522,31 @@ QHttp::QHttp(const QString &hostName, quint16 port, QObject *parent)
     d->port = port;
 }
 
+/*!
+    Constructs a QHttp object. Subsequent requests are done by
+    connecting to the server \a hostName on port \a port using the
+    connection mode \a mode.
+
+    If port is 0, it will use the default port for the \a mode used
+    (80 for Http and 443 fopr Https).
+
+    The \a parent parameter is passed on to the QObject constructor.
+
+    \sa setHost()
+*/
+QHttp::QHttp(const QString &hostName, ConnectionMode mode, quint16 port, QObject *parent)
+    : QObject(*new QHttpPrivate, parent)
+{
+    Q_D(QHttp);
+    d->init();
+
+    d->hostName = hostName;
+    if (port == 0) 
+        port = (mode == ConnectionModeHttp) ? 80 : 443;        
+    d->port = port;
+    d->mode = mode;
+}
+
 void QHttpPrivate::init()
 {
     Q_Q(QHttp);
@@ -1532,6 +1562,20 @@ QHttp::~QHttp()
 {
     abort();
 }
+
+/*!
+    \enum QHttp::ConnectionMode
+
+    This enum is used to specify the mode of connection to use:
+
+    \value Http The connection is a regular Http connection to the server
+    \value Https The Https protocol is used and the connection is encrypted using SSL.
+
+    When using the Https mode, care should be taken to connect to the sslErrors signal, and
+    handle possible Ssl errors.
+
+    \sa QSslSocket()
+*/
 
 /*!
     \enum QHttp::State
@@ -1715,6 +1759,14 @@ QHttp::~QHttp()
     not been filled in with new information when the signal returns.
 
     \sa QAuthenticator, QNetworkProxy
+*/
+
+/*!
+  \fn void QHttp::sslErrors(const QList<QSslError> &errors)
+
+  Forwards the sslErrors signal from the QSslSocket used in QHttp.
+
+  \sa QSslSocket ignoreSslErrors
 */
 
 /*!
@@ -1939,7 +1991,33 @@ void QHttp::clearPendingRequests()
 int QHttp::setHost(const QString &hostName, quint16 port)
 {
     Q_D(QHttp);
-    return d->addRequest(new QHttpSetHostRequest(hostName, port));
+    return d->addRequest(new QHttpSetHostRequest(hostName, port, ConnectionModeHttp));
+}
+
+/*!
+    Sets the HTTP server that is used for requests to \a hostName on
+    port \a port using the connection mode \a mode.
+
+    If port is 0, it will use the default port for the \a mode used
+    (80 for Http and 443 fopr Https).
+
+    The function does not block and returns immediately. The request
+    is scheduled, and its execution is performed asynchronously. The
+    function returns a unique identifier which is passed by
+    requestStarted() and requestFinished().
+
+    When the request is started the requestStarted() signal is
+    emitted. When it is finished the requestFinished() signal is
+    emitted.
+
+    \sa get() post() head() request() requestStarted() requestFinished() done()
+*/
+int QHttp::setHost(const QString &hostName, ConnectionMode mode, quint16 port)
+{
+    Q_D(QHttp);
+    if (port == 0) 
+        port = (mode == ConnectionModeHttp) ? 80 : 443;        
+    return d->addRequest(new QHttpSetHostRequest(hostName, port, mode));
 }
 
 /*!
@@ -2267,11 +2345,13 @@ void QHttpPrivate::_q_slotSendRequest()
                           QHttp::UnknownError);
         return;
     }
+    QSslSocket *sslSocket = qobject_cast<QSslSocket *>(socket);
 
 #ifndef QT_NO_NETWORKPROXY
     // Proxy support. Insert the Proxy-Authorization item into the
     // header before it's sent off to the proxy.
-    if (proxy.type() == QNetworkProxy::HttpProxy && !proxy.hostName().isEmpty()) {
+    if (proxy.type() == QNetworkProxy::HttpProxy && !proxy.hostName().isEmpty()
+        && (!sslSocket || mode != QHttp::ConnectionModeHttps)) {
         QUrl proxyUrl;
         proxyUrl.setScheme(QLatin1String("http"));
         proxyUrl.setHost(hostName);
@@ -2309,13 +2389,21 @@ void QHttpPrivate::_q_slotSendRequest()
     // Do we need to setup a new connection or can we reuse an
     // existing one?
     if (socket->peerName() != connectionHost || socket->peerPort() != connectionPort
-        || socket->state() != QTcpSocket::ConnectedState) {
+        || socket->state() != QTcpSocket::ConnectedState
+        || (sslSocket && sslSocket->isEncrypted() != (mode == QHttp::ConnectionModeHttps))) {
         socket->blockSignals(true);
         socket->abort();
         socket->blockSignals(false);
 
         setState(QHttp::Connecting);
-        socket->connectToHost(connectionHost, connectionPort);
+        if (sslSocket && mode == QHttp::ConnectionModeHttps) {
+            if (proxy.type() == QNetworkProxy::HttpProxy && !proxy.hostName().isEmpty())
+                socket->setProxy(proxy);
+            sslSocket->connectToHostEncrypted(connectionHost, connectionPort);
+        } else {
+            socket->setProxy(QNetworkProxy::DefaultProxy);
+            socket->connectToHost(connectionHost, connectionPort);
+        }
     } else {
         _q_slotConnected();
     }
@@ -2804,12 +2892,21 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
     Q_Q(const QHttp);
 
     // disconnect all existing signals
-    if (socket) socket->disconnect();
+    if (socket)
+        socket->disconnect();
+    if (deleteSocket)
+        delete socket;
 
     // use the new QTcpSocket socket, or create one if socket is 0.
     deleteSocket = (sock == 0);
-    socket = sock ? sock : new QTcpSocket();
-
+    socket = sock;
+    if (!socket) {
+        if (QSslSocket::supportsSsl())
+            socket = new QSslSocket();
+        else
+            socket = new QTcpSocket();
+    }
+    
     // connect all signals
     QObject::connect(socket, SIGNAL(connected()), q, SLOT(_q_slotConnected()));
     QObject::connect(socket, SIGNAL(disconnected()), q, SLOT(_q_slotClosed()));
@@ -2821,8 +2918,26 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
     QObject::connect(socket, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)),
                      q, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)));
 #endif
+
+    if (qobject_cast<QSslSocket *>(socket)) {
+        QObject::connect(socket, SIGNAL(sslErrors(const QList<QSslError> &)),
+                         q, SIGNAL(sslErrors(const QList<QSslError> &)));
+    }
 }
 
+/*!
+  Tells the QSslSocket used for the Http connection to ignore
+  the errors reported in the sslErrors signal
+
+  \sa QSslSocket sslErrors
+*/
+void QHttp::ignoreSslErrors()
+{
+    Q_D(QHttp);
+    QSslSocket *sslSocket = qobject_cast<QSslSocket *>(d->socket);
+    if (sslSocket)
+        sslSocket->ignoreSslErrors();
+}
 
 #include "moc_qhttp.cpp"
 
