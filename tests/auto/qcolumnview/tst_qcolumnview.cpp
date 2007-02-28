@@ -267,7 +267,13 @@ void tst_QColumnView::moveCursor()
     QCOMPARE(view.MoveCursor(ColumnView::MoveUp, Qt::NoModifier), QModelIndex());
     QCOMPARE(view.MoveCursor(ColumnView::MoveDown, Qt::NoModifier), QModelIndex());
 
+    int i = 0;
     ci = model.index(0, 0);
+    while (i < model.rowCount() - 1 && !model.hasChildren(ci))
+        ci = model.index(++i, 0);
+
+    QVERIFY(model.hasChildren(ci));
+
     view.setCurrentIndex(ci);
     QCOMPARE(view.MoveCursor(ColumnView::MoveLeft, Qt::NoModifier), ci);
 
