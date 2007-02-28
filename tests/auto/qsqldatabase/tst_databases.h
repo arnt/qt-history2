@@ -227,13 +227,16 @@ public:
     // drop a table only if it exists to prevent warnings
     static void safeDropTable(QSqlDatabase db, const QString& tableName)
     {
-        if (db.tables().contains(tableName, Qt::CaseInsensitive)) {
-            QSqlQuery q("drop table " + db.driver()->escapeIdentifier(tableName, QSqlDriver::TableName), db);
-
-            if (!q.isActive())
-                qWarning("unable to drop table %s: %s", tableName.toLocal8Bit().constData(),
-                         q.lastError().text().toLocal8Bit().constData());
-        }
+        int wasDropped = true;
+        QSqlQuery q(db);
+        if (db.tables().contains(tableName, Qt::CaseSensitive)) 
+            wasDropped = q.exec("drop table " + db.driver()->escapeIdentifier(tableName, QSqlDriver::TableName));
+        else if (db.tables().contains(tableName, Qt::CaseInsensitive))
+            wasDropped = q.exec("drop table " + tableName);
+        
+        if (!wasDropped)
+            qWarning("unable to drop table %s: %s", tableName.toLocal8Bit().constData(),
+                     q.lastError().text().toLocal8Bit().constData());
     }
 
     static void safeDropView(QSqlDatabase db, const QString &viewName)
