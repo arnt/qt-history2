@@ -853,7 +853,7 @@ double PaintCommands::convertToDouble(const QString &str)
 
 QColor PaintCommands::convertToColor(const QString &str)
 {
-    static QHash<QString, QColor> predefinedColors;
+    /*static QHash<QString, QColor> predefinedColors;
     if (predefinedColors.size() == 0) {
         predefinedColors["white"] = QColor(Qt::white);
         predefinedColors["black"] = QColor(Qt::black);
@@ -879,7 +879,7 @@ QColor PaintCommands::convertToColor(const QString &str)
 
     if (predefinedColors.contains(str))
         return predefinedColors[str];
-
+*/
     static QRegExp alphaColor("#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})");
     static QRegExp opaqueColor("#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})");
 
