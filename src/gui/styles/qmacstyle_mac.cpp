@@ -4268,11 +4268,8 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                         && tds == kThemeStateInactive)
                     bdi.state = kThemeStateActive;
                 bdi.value = kThemeButtonOff;
-                if (sb->state & State_HasFocus
-                        && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
-                    bdi.adornment = kThemeAdornmentFocus;
-                else
-                    bdi.adornment = kThemeAdornmentNone;
+                bdi.adornment = kThemeAdornmentNone;
+
                 QRect updown = subControlRect(CC_SpinBox, sb, SC_SpinBoxUp,
                                                  widget);
                 updown |= subControlRect(CC_SpinBox, sb, SC_SpinBoxDown, widget);
