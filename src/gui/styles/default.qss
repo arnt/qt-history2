@@ -1,0 +1,57 @@
+/* This is the default Qt style sheet.
+
+   IMPORTANT: This style sheet is primarily meant for defining feature
+   capablities of styles. Do NOT add default styling rules here. When in 
+   doubt ask me - Girish
+*/
+
+QLineEdit {
+    -qt-background-role: base;
+    border: native;
+}
+
+QFrame {
+    border: native;
+}
+
+QLabel {
+    border: none;
+}
+
+QGroupBox {
+    border: native;
+}
+
+QToolTip {
+    -qt-background-role: window;
+    border: native;
+}
+
+QPushButton, QToolButton {
+    border-style: native;
+    -qt-style-features: background-color;
+}
+
+QPushButton[style="QPlastiqueStyle"],
+QToolButton[style="QPlastiqueStyle"]
+{
+    -qt-style-features: background-color background-gradient;
+}
+
+QComboBox {
+    border: native;
+    -qt-style-features: background-color background-gradient;
+    -qt-background-role: base;
+}
+
+QComboBox[style="QPlastiqueStyle"][readOnly="true"],
+QComboBox[style="QCleanlooksStyle"][readOnly="true"]
+{
+    -qt-background-role: button;
+}
+
+QSpinBox {
+    border: native;
+    -qt-style-features: background-color background-gradient;
+    -qt-background-role: base;
+}

@@ -92,4 +92,7 @@
 <file>images/dockdock-16.png</file>
 <file>images/dockdock-down-16.png</file>
 </qresource>
+<qresource prefix="/trolltech/stylesheet">
+<file>default.qss</file>
+</qresource>
 </RCC>
