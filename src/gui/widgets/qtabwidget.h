@@ -103,6 +103,8 @@ public:
     bool usesScrollButtons() const;
     void setUsesScrollButtons(bool useButtons);
 
+    void clear();
+
 public Q_SLOTS:
     void setCurrentIndex(int index);
     void setCurrentWidget(QWidget *widget);

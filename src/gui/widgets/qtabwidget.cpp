@@ -1092,6 +1092,17 @@ void QTabWidget::setUsesScrollButtons(bool useButtons)
 }
 
 /*!
+    Removes all the pages, but does not delete them. Calling this function
+    is equivalent to calling removeTab() until the tab widget is empty.
+*/
+void QTabWidget::clear()
+{
+    // ### optimize by introduce QStackedLayout::clear()
+    while (count())
+        removeTab(0);
+}
+
+/*!
     \fn void QTabWidget::insertTab(QWidget *widget, const QString &label, int index)
 
     Use insertTab(index, widget, label) instead.
