@@ -13,8 +13,7 @@ class DiagramScene : public QGraphicsScene
     Q_OBJECT
 
 public:
-    DiagramScene(QObject *parent = 0) 
-	: QGraphicsScene(parent) {};
+    DiagramScene(QObject *parent = 0);
 
 signals:
     void itemMoved(DiagramItem *movedItem, const QPointF &movedFromPosition);

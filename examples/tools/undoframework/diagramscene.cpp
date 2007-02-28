@@ -3,6 +3,12 @@
 #include "diagramscene.h"
 #include "diagramitem.h"
 
+DiagramScene::DiagramScene(QObject *parent)
+    : QGraphicsScene(parent)
+{
+    movingItem = 0;
+}
+
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     QPointF mousePos(event->buttonDownScenePos(Qt::LeftButton).x(), 
