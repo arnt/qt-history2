@@ -580,8 +580,9 @@ void PaintCommands::runCommand(const QString &scriptLine)
     foreach (PaintCommandInfos command, s_commandInfoTable)
         if (!command.isSectionHeader() && command.regExp.indexIn(scriptLine) >= 0) {
             (this->*(command.paintMethod))(command.regExp);
-            break;
+            return;
         }
+    qWarning("ERROR: unknown command or argument syntax error in \"%s\"", qPrintable(scriptLine));
 }
 
 void PaintCommands::runCommands()
