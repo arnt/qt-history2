@@ -201,6 +201,8 @@ QPixmap::QPixmap(const char * const xpm[])
     : QPaintDevice()
 {
     init(0, 0);
+    if (!xpm)
+        return;
 
     QImage image(xpm);
     if (!image.isNull()) {

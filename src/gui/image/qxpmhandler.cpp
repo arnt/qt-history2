@@ -998,6 +998,9 @@ static bool read_xpm_body(
 
 bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, QImage &image)
 {
+    if (!source)
+        return true;
+    
     QByteArray buf(200, 0);
     QByteArray state;
 

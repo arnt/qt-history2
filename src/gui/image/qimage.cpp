@@ -994,6 +994,8 @@ QImage::QImage(const char * const xpm[])
     : QPaintDevice()
 {
     d = 0;
+    if (!xpm)
+        return;
     if (!qt_read_xpm_image_or_array(0, xpm, *this))
         // Issue: Warning because the constructor may be ambigious
         qWarning("QImage::QImage(), XPM is not supported");
