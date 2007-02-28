@@ -2403,7 +2403,10 @@ void QMdiSubWindow::showEvent(QShowEvent *showEvent)
             && !(windowFlags() & Qt::FramelessWindowHint)) {
         d->setSizeGrip(new QSizeGrip(0));
         Q_ASSERT(d->sizeGrip);
-        d->sizeGrip->show();
+        if (isMinimized())
+            d->setSizeGripVisible(false);
+        else
+            d->setSizeGripVisible(true);
         resize(size().expandedTo(d->internalMinimumSize));
     }
 #endif

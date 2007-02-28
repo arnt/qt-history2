@@ -436,7 +436,11 @@ QPoint MinOverlapPlacer::place(const QSize &size, const QList<QRect> &rects,
     \internal
 */
 QMdiAreaPrivate::QMdiAreaPrivate()
-    : ignoreGeometryChange(false),
+    : cascader(0),
+      regularTiler(0),
+      iconTiler(0),
+      placer(0),
+      ignoreGeometryChange(false),
       ignoreWindowStateChange(false),
       isActivated(false),
       isSubWindowsTiled(false),
@@ -499,6 +503,7 @@ void QMdiAreaPrivate::_q_processWindowStateChanged(Qt::WindowStates oldState,
 
     // windowMinimized
     if (!(oldState & Qt::WindowMinimized) && (newState & Qt::WindowMinimized)) {
+        isSubWindowsTiled = false;
         arrangeMinimizedSubWindows();
     // windowMaximized
     } else if (!(oldState & Qt::WindowMaximized) && (newState & Qt::WindowMaximized)) {
@@ -528,7 +533,10 @@ void QMdiAreaPrivate::appendChild(QMdiSubWindow *child)
         QSize newSize(child->sizeHint().boundedTo(q->viewport()->size()));
         child->resize(newSize.expandedTo(child->minimumSize()));
     }
-    place(MinOverlapPlacer(), child);
+
+    if (!placer)
+        placer = new MinOverlapPlacer;
+    place(placer, child);
 
     if (q->scrollBarsEnabled())
         child->setOption(QMdiSubWindow::AllowOutsideArea, true);
@@ -551,16 +559,27 @@ void QMdiAreaPrivate::appendChild(QMdiSubWindow *child)
 /*!
     \internal
 */
-void QMdiAreaPrivate::place(const Placer &placer, QMdiSubWindow *child)
+void QMdiAreaPrivate::place(Placer *placer, QMdiSubWindow *child)
 {
+    if (!placer || !child)
+        return;
+
     Q_Q(QMdiArea);
+    if (!q->isVisible()) {
+        // The window is only laid out when it's added to QMdiArea,
+        // so there's no need to check that we don't have it in the
+        // list already. appendChild() ensures that.
+        pendingPlacements.append(child);
+        return;
+    }
+
     QList<QRect> rects;
     QRect parentRect = q->rect();
     foreach (QMdiSubWindow *window, childWindows) {
         if (!sanityCheck(window, "QMdiArea::place") || window == child || !window->isVisibleTo(q))
             continue;
         QRect occupiedGeometry;
-        if ((window->isMinimized() && !window->isShaded()) || window->isMaximized()) {
+        if (window->isMaximized()) {
             occupiedGeometry = QRect(window->d_func()->oldGeometry.topLeft(),
                                      window->d_func()->restoreSize);
         } else {
@@ -568,7 +587,7 @@ void QMdiAreaPrivate::place(const Placer &placer, QMdiSubWindow *child)
         }
         rects.append(QStyle::visualRect(child->layoutDirection(), parentRect, occupiedGeometry));
     }
-    QPoint newPos = placer.place(child->size(), rects, parentRect);
+    QPoint newPos = placer->place(child->size(), rects, parentRect);
     QRect newGeometry = QRect(newPos.x(), newPos.y(), child->width(), child->height());
     child->setGeometry(QStyle::visualRect(child->layoutDirection(), parentRect, newGeometry));
 }
@@ -576,13 +595,27 @@ void QMdiAreaPrivate::place(const Placer &placer, QMdiSubWindow *child)
 /*!
     \internal
 */
-void QMdiAreaPrivate::rearrange(const Rearranger &rearranger, bool icons)
+void QMdiAreaPrivate::rearrange(Rearranger *rearranger)
 {
+    if (!rearranger)
+        return;
+
+    Q_Q(QMdiArea);
+    if (!q->isVisible()) {
+        // Compress if we already have the rearranger in the list.
+        int index = pendingRearrangements.indexOf(rearranger);
+        if (index != -1)
+            pendingRearrangements.move(index, pendingRearrangements.size() - 1);
+        else
+            pendingRearrangements.append(rearranger);
+        return;
+    }
+
     QList<QWidget *> widgets;
     foreach (QMdiSubWindow *child, childWindows) {
         if (!sanityCheck(child, "QMdiArea::rearrange") || !child->isVisible())
             continue;
-        if (icons) {
+        if (dynamic_cast<IconTiler *>(rearranger)) {
             if (child->isMinimized() && !child->isShaded())
                 widgets.append(child);
         } else {
@@ -599,9 +632,16 @@ void QMdiAreaPrivate::rearrange(const Rearranger &rearranger, bool icons)
         int indexToActive = widgets.indexOf((QWidget *)active);
         if (indexToActive >= 0)
             widgets.move(indexToActive, widgets.size() - 1);
-        internalRaise(active);
+        if (!active->isMinimized())
+            internalRaise(active);
     }
-    rearranger.rearrange(widgets, q_func()->viewport()->rect());
+
+    rearranger->rearrange(widgets, q->viewport()->rect());
+
+    if (dynamic_cast<RegularTiler *>(rearranger))
+        isSubWindowsTiled = true;
+    else if (dynamic_cast<SimpleCascader *>(rearranger))
+        isSubWindowsTiled = false;
 }
 
 /*!
@@ -611,7 +651,9 @@ void QMdiAreaPrivate::rearrange(const Rearranger &rearranger, bool icons)
 */
 void QMdiAreaPrivate::arrangeMinimizedSubWindows()
 {
-    rearrange(IconTiler(), true);
+    if (!iconTiler)
+        iconTiler = new IconTiler;
+    rearrange(iconTiler);
 }
 
 /*!
@@ -1289,6 +1331,36 @@ void QMdiArea::resizeEvent(QResizeEvent *resizeEvent)
 /*!
     \reimp
 */
+void QMdiArea::showEvent(QShowEvent *showEvent)
+{
+    Q_D(QMdiArea);
+    if (!d->pendingRearrangements.isEmpty()) {
+        bool skipPlacement = false;
+        foreach (Rearranger *rearranger, d->pendingRearrangements) {
+            // If this is the case, we don't have to lay out pending child windows
+            // since the rearranger will find a placement for them.
+            if (!dynamic_cast<IconTiler *>(rearranger) && !skipPlacement)
+                skipPlacement = true;
+            d->rearrange(rearranger);
+        }
+        d->pendingRearrangements.clear();
+        if (skipPlacement && !d->pendingPlacements.isEmpty())
+            d->pendingPlacements.clear();
+    }
+
+    if (!d->pendingPlacements.isEmpty()) {
+        foreach (QMdiSubWindow *window, d->childWindows)
+            if (window && !window->isMinimized() && !window->isMaximized())
+                d->place(d->placer, window);
+        d->pendingPlacements.clear();
+    }
+
+    QAbstractScrollArea::showEvent(showEvent);
+}
+
+/*!
+    \reimp
+*/
 bool QMdiArea::viewportEvent(QEvent *event)
 {
     Q_D(QMdiArea);
@@ -1343,8 +1415,9 @@ void QMdiArea::scrollContentsBy(int dx, int dy)
 void QMdiArea::tileSubWindows()
 {
     Q_D(QMdiArea);
-    d->rearrange(RegularTiler(), false);
-    d->isSubWindowsTiled = true;
+    if (!d->regularTiler)
+        d->regularTiler = new RegularTiler;
+    d->rearrange(d->regularTiler);
 }
 
 /*!
@@ -1355,8 +1428,9 @@ void QMdiArea::tileSubWindows()
 void QMdiArea::cascadeSubWindows()
 {
     Q_D(QMdiArea);
-    d->isSubWindowsTiled = false;
-    d->rearrange(SimpleCascader());
+    if (!d->cascader)
+        d->cascader = new SimpleCascader;
+    d->rearrange(d->cascader);
 }
 
 /*!
@@ -1407,7 +1481,8 @@ bool QMdiArea::eventFilter(QObject *object, QEvent *event)
     case QEvent::Move:
     case QEvent::Resize:
         d->updateScrollBars();
-        d->isSubWindowsTiled = false;
+        if (!static_cast<QMdiSubWindow *>(object)->isMinimized())
+            d->isSubWindowsTiled = false;
         break;
     case QEvent::Show:
     case QEvent::Hide:

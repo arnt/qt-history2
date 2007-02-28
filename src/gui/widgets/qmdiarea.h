@@ -81,6 +81,7 @@ protected:
     void paintEvent(QPaintEvent *paintEvent);
     void childEvent(QChildEvent *childEvent);
     void resizeEvent(QResizeEvent *resizeEvent);
+    void showEvent(QShowEvent *showEvent);
     bool viewportEvent(QEvent *event);
     void scrollContentsBy(int dx, int dy);
 

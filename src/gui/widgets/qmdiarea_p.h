@@ -98,6 +98,12 @@ public:
     QMdiAreaPrivate();
 
     // Variables.
+    Rearranger *cascader;
+    Rearranger *regularTiler;
+    Rearranger *iconTiler;
+    Placer *placer;
+    QList<Rearranger *> pendingRearrangements;
+    QList< QPointer<QMdiSubWindow> > pendingPlacements;
     QList< QPointer<QMdiSubWindow> > childWindows;
     QList<int> indicesToStackedChildren;
     QPointer<QMdiSubWindow> active;
@@ -118,8 +124,8 @@ public:
 
     // Functions.
     void appendChild(QMdiSubWindow *child);
-    void place(const Placer &placer, QMdiSubWindow *child);
-    void rearrange(const Rearranger &rearranger, bool icons = false);
+    void place(Placer *placer, QMdiSubWindow *child);
+    void rearrange(Rearranger *rearranger);
     void arrangeMinimizedSubWindows();
     void activateWindow(QMdiSubWindow *child);
     void emitWindowActivated(QMdiSubWindow *child);
