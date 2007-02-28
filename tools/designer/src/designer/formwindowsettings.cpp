@@ -87,7 +87,7 @@ void FormWindowSettings::accept()
     else
         m_formWindow->setLayoutFunction(QString(), QString());
 
-    m_formWindow->setIncludeHints(ui.includeHintsTextEdit->toPlainText().split(QLatin1String("\n")));
+    m_formWindow->setIncludeHints(ui.includeHintsTextEdit->toPlainText().split(QString(QLatin1Char('\n'))));
 
     m_formWindow->setDesignerGrid(ui.gridPanel->grid());
     

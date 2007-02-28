@@ -1894,7 +1894,7 @@ QString WriteInitialization::trCall(const QString &str, const QString &commentHi
         return QLatin1String("QString()");
 
     QString result;
-    const QString comment = commentHint.isEmpty() ? QString::fromUtf8("0") : fixString(commentHint, m_option.indent);
+    const QString comment = commentHint.isEmpty() ? QString(QLatin1Char('0')) : fixString(commentHint, m_option.indent);
 
     if (m_option.translateFunction.isEmpty()) {
         result = QLatin1String("QApplication::translate(\"");

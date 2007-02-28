@@ -114,13 +114,13 @@ void WriteIconData::acceptImage(DomImage *image)
         output << option.indent;
         int a ;
         for (a = 0; a < (int) (data.length()/2)-1; a++) {
-            output << "0x" << QString(data[2*a]) << QString(data[2*a+1]) << ",";
+            output << "0x" << QString(data[2*a]) << QString(data[2*a+1]) << ',';
             if (a % 12 == 11)
                 output << "\n" << option.indent;
             else
                 output << " ";
         }
-        output << "0x" << QString(data[2*a]) << QString(data[2*a+1]) << "\n";
+        output << "0x" << QString(data[2*a]) << QString(data[2*a+1]) << '\n';
         output << "};\n\n";
     }
 }
