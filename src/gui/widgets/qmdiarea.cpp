@@ -673,7 +673,12 @@ void QMdiAreaPrivate::arrangeMinimizedSubWindows()
 */
 void QMdiAreaPrivate::activateWindow(QMdiSubWindow *child)
 {
-    Q_ASSERT(!childWindows.isEmpty());
+    if (childWindows.isEmpty()) {
+        Q_ASSERT(!child);
+        Q_ASSERT(!active);
+        return;
+    }
+
     if (!child) {
         if (active) {
             Q_ASSERT(active->windowState() & Qt::WindowActive);
