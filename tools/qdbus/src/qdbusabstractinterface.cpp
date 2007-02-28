@@ -28,21 +28,56 @@ QDBusAbstractInterfacePrivate::QDBusAbstractInterfacePrivate(const QString &serv
 {
     if (isDynamic) {
         // QDBusInterface: service and object path can't be empty, but interface can
+#if 0
         Q_ASSERT_X(QDBusUtil::isValidBusName(service),
                    "QDBusInterface::QDBusInterface", "Invalid service name");
         Q_ASSERT_X(QDBusUtil::isValidObjectPath(path),
                    "QDBusInterface::QDBusInterface", "Invalid object path given");
         Q_ASSERT_X(interface.isEmpty() || QDBusUtil::isValidInterfaceName(interface),
                    "QDBusInterface::QDBusInterface", "Invalid interface name");
+#else
+        if (!QDBusUtil::isValidBusName(service)) {
+            lastError = QDBusError(QDBusError::Disconnected,
+                                   QLatin1String("Invalid service name"));
+            isValid = false;
+        } else if (!QDBusUtil::isValidObjectPath(path)) {
+            lastError = QDBusError(QDBusError::Disconnected,
+                                   QLatin1String("Invalid object name given"));
+            isValid = false;
+        } else if (!interface.isEmpty() && !QDBusUtil::isValidInterfaceName(interface)) {
+            lastError = QDBusError(QDBusError::Disconnected,
+                                   QLatin1String("Invalid interface name"));
+            isValid = false;
+        }
+#endif
     } else {
         // all others: service and path can be empty here, but interface can't
+#if 0
         Q_ASSERT_X(service.isEmpty() || QDBusUtil::isValidBusName(service),
                    "QDBusAbstractInterface::QDBusAbstractInterface", "Invalid service name");
         Q_ASSERT_X(path.isEmpty() || QDBusUtil::isValidObjectPath(path),
                    "QDBusAbstractInterface::QDBusAbstractInterface", "Invalid object path given");
         Q_ASSERT_X(QDBusUtil::isValidInterfaceName(interface),
                    "QDBusAbstractInterface::QDBusAbstractInterface", "Invalid interface class!");
+#else
+        if (!service.isEmpty() && !QDBusUtil::isValidBusName(service)) {
+            lastError = QDBusError(QDBusError::Disconnected,
+                                   QLatin1String("Invalid service name"));
+            isValid = false;
+        } else if (!path.isEmpty() && !QDBusUtil::isValidObjectPath(path)) {
+            lastError = QDBusError(QDBusError::Disconnected,
+                                   QLatin1String("Invalid object path given"));
+            isValid = false;
+        } else if (!QDBusUtil::isValidInterfaceName(interface)) {
+            lastError = QDBusError(QDBusError::Disconnected,
+                                   QLatin1String("Invalid interface class"));
+            isValid = false;
+        }
+#endif
     }
+
+    if (!isValid)
+        return;
 
     if (!connection.isConnected()) {
         lastError = QDBusError(QDBusError::Disconnected,
