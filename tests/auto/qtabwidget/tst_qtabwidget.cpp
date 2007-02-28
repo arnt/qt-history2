@@ -63,6 +63,7 @@ class tst_QTabWidget:public QObject {
     void currentIndex();
     void cornerWidget();
     void removeTab();
+    void clear();
     void keyboardNavigation();
 
   private:
@@ -363,9 +364,6 @@ void tst_QTabWidget::cornerWidget()
 
 void tst_QTabWidget::removeTab()
 {
-#if QT_VERSION < 0x040100
-    QSKIP("Fixed in 4.1.", SkipSingle);
-#endif
     tw->addTab(new QWidget, "1");
     tw->addTab(new QWidget, "2");
     tw->addTab(new QWidget, "3");
@@ -378,6 +376,19 @@ void tst_QTabWidget::removeTab()
     tw->setCurrentIndex(1);
     tw->removeTab(1);
     QCOMPARE(tw->currentIndex(), 1);
+}
+
+void tst_QTabWidget::clear()
+{
+    tw->addTab(new QWidget, "1");
+    tw->addTab(new QWidget, "2");
+    tw->addTab(new QWidget, "3");
+    tw->addTab(new QWidget, "4");
+    tw->addTab(new QWidget, "5");
+    tw->setCurrentIndex(4);
+    tw->clear();
+    QCOMPARE(tw->count(), 0);
+    QCOMPARE(tw->currentIndex(), -1);
 }
 
 void tst_QTabWidget::keyboardNavigation()
