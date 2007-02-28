@@ -7,7 +7,7 @@
 **
 ****************************************************************************/
 
-#if 1
+#if 1 // ###
 #include <QFont>
 #include <QtTest/QtTest>
 #include <QCheckBox>
@@ -17,7 +17,7 @@
 #include <QPushButton>
 #include <QToolButton>
 #include <QVBoxLayout>
-#include "/home/jasplin/dev/research/qwizard/src/qwizard.h"
+//#include "/home/jasplin/dev/research/qwizard/src/qwizard.h" // ###
 
 //TESTED_CLASS=QWizard
 //TESTED_FILES=gui/dialogs/qwizard.h corelib/tools/qwizard.cpp
@@ -38,7 +38,7 @@ public slots:
     void init();
     void cleanup();
 
-/*
+/* ###
 private slots:
     void buttonText();
     void setButtonLayout();
@@ -69,7 +69,7 @@ private slots:
     void setButtonText();
     void setCommitPage();
     void setWizardStyle();
-*/
+*/ // ###
 
     /*
         Things that could be added:
@@ -111,7 +111,7 @@ void tst_QWizard::cleanup()
 {
 }
 
-/*
+/* ###
 void tst_QWizard::buttonText()
 {
     QWizard wizard;
@@ -2124,7 +2124,7 @@ void tst_QWizard::setWizardStyle()
         QCOMPARE((int)wizard.wizardStyle(), wstyle);
     }
 }
-*/
+*/ // ###
 
 QTEST_MAIN(tst_QWizard)
 
@@ -2134,4 +2134,4 @@ int main()
 {
     return 0;
 }
-#endif
+#endif // ###
