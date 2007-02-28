@@ -437,12 +437,12 @@ void tst_QDom::saveWithSerialization() const
     QVERIFY(doc.setContent(&f));
 
     const QList<QByteArray> codecs(QTextCodec::availableCodecs());
-    QByteArray codec;
+    QByteArray codecName;
 
-    foreach(codec, codecs) {
+    foreach(codecName, codecs) {
 
         /* Avoid codecs that can't handle the files we have. */
-        if(m_excludedCodecs.contains(codec))
+        if(m_excludedCodecs.contains(codecName))
             continue;
 
         /* Write out doc in the specified codec. */
@@ -451,7 +451,10 @@ void tst_QDom::saveWithSerialization() const
         QVERIFY(writeDevice.open(QIODevice::WriteOnly));
 
         QTextStream s(&writeDevice);
-        s.setCodec(QTextCodec::codecForName(codec));
+        QTextCodec *codec = QTextCodec::codecForName(codecName);
+        QVERIFY2(codec, qPrintable(QString::fromLatin1("Failed to load codec %1, even though it was in QTextCodec::availableCodecs()")
+                                   .arg(QString::fromLatin1(codecName.constData()))));
+        s.setCodec(codec);
 
         doc.save(s, 0, QDomNode::EncodingFromTextStream);
         s.flush();
@@ -468,12 +471,12 @@ void tst_QDom::saveWithSerialization() const
 
         QVERIFY2(result.setContent(&readDevice, &msg, &line, &column),
                  qPrintable(QString::fromLatin1("Failed for codec %1: line %2, column %3: %4")
-                                                .arg(codec.constData())
+                                                .arg(codecName.constData())
                                                 .arg(line)
                                                 .arg(column)
                                                 .arg(msg)));
         QVERIFY2(compareDocuments(doc, result),
-                 qPrintable(QString::fromLatin1("Failed for codec %1").arg(codec.constData())));
+                 qPrintable(QString::fromLatin1("Failed for codec %1").arg(codecName.constData())));
     }
 }
 
