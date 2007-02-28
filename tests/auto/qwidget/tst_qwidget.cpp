@@ -3912,6 +3912,12 @@ void tst_QWidget::multipleToplevelFocusCheck()
     w2.resize(200,200);
     w2.show();
 
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&w1);
+    qt_x11_wait_for_window_manager(&w2);
+#endif
+    QTest::qWait(100);
+
     w1.activateWindow();
     QApplication::setActiveWindow(&w1);
     QTest::mouseDClick(&w1, Qt::LeftButton);

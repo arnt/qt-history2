@@ -1702,10 +1702,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     top->activateWindow();
             }
             if (LOWORD(wParam) == WA_INACTIVE){
-                //If the focus widget is in the inactivated window, clear the focus
-                QWidget *fw = QApplication::focusWidget();
-                if (fw && widget->isAncestorOf(fw))
-                    QApplicationPrivate::setFocusWidget(0, Qt::ActiveWindowFocusReason);
                 // Ensure nothing gets consider an auto-repeat press later
                 qt_keymapper_private()->clearRecordedKeys();
             }
