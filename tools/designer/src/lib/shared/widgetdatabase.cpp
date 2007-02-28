@@ -28,7 +28,7 @@
 #include <QtCore/QMetaProperty>
 
 namespace {
-    const bool debugWidgetDataBase=false;
+    enum { debugWidgetDataBase = 0 };
 }
 
 namespace qdesigner_internal {
@@ -341,12 +341,15 @@ void WidgetDataBase::loadPlugins()
             }
         }
     }
-    // 4) remove classes that have not been matched
+    // 4) remove classes that have not been matched. The stored indexes become invalid while deleting.
     if (!existingCustomClasses.empty()) {
         NameIndexMap::const_iterator cend = existingCustomClasses.constEnd();
         for (NameIndexMap::const_iterator it = existingCustomClasses.constBegin();it != cend; ++it )  {
-            remove(it.value());
-            removedPlugins++;
+            const int index = indexOfClassName(it.key());
+            if (index != -1) {
+                remove(index);
+                removedPlugins++;
+            }
         }
     }
     if (debugWidgetDataBase)
