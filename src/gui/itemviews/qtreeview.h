@@ -169,6 +169,7 @@ protected:
 
     int sizeHintForColumn(int column) const;
     int indexRowSizeHint(const QModelIndex &index) const;
+    int indexRowHeight(const QModelIndex &index) const;
 
     void horizontalScrollbarAction(int action);
 

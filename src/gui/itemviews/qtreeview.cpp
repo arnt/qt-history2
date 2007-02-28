@@ -2364,6 +2364,20 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
 }
 
 /*!
+    \since 4.3
+    Returns the height of the row indicated by the given \a indec.
+    \sa indexRowSizeHint
+*/
+int QTreeView::indexRowHeight(const QModelIndex &index) const
+{
+    Q_D(const QTreeView);
+    int i = d->viewIndex(index);
+    if (i == -1)
+        return 0;
+    return d->itemHeight(i);
+}
+
+/*!
   \reimp
 */
 void QTreeView::horizontalScrollbarAction(int action)
