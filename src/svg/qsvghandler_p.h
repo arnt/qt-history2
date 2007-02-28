@@ -89,8 +89,8 @@ public:
     void setAnimPeriod(int start, int end);
     int animationDuration() const;
 public:
-    bool startElement(const QString &namespaceURI, const QString &localName, const QXmlStreamAttributes &attributes);
-    bool endElement(const QString &namespaceURI, const QString &localName);
+    bool startElement(const QString &localName, const QXmlStreamAttributes &attributes);
+    bool endElement(const QStringRef &localName);
     bool characters(const QStringRef &str);
     bool processingInstruction(const QString &target, const QString &data);
 

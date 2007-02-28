@@ -3039,7 +3039,6 @@ QHash<QString, ParseMethod>   QSvgHandler::s_utilFactory;
 QHash<QString, StyleFactoryMethod> QSvgHandler::s_styleFactory;
 QHash<QString, StyleParseMethod>   QSvgHandler::s_styleUtilFactory;
 
-//static const char *SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
 QSvgHandler::QSvgHandler(QIODevice *device)
     : m_doc(0), m_style(0), m_defaultCoords(PX), m_animEnd(0),  xml(device)
@@ -3065,10 +3064,13 @@ void QSvgHandler::parse()
     while (!xml.atEnd()) {
         switch (xml.readNext()) {
         case QXmlStreamReader::StartElement:
-            startElement(xml.namespaceUri().toString(), xml.name().toString(), xml.attributes());
+            if (xml.namespaceUri() == QLatin1String("http://www.w3.org/2000/svg"))
+                startElement(xml.name().toString(), xml.attributes());
+            else
+                m_skipNodes.push(Unknown);
             break;
         case QXmlStreamReader::EndElement:
-            endElement(xml.namespaceUri().toString(), xml.name().toString());
+            endElement(xml.name());
             break;
         case QXmlStreamReader::Characters:
             characters(xml.text());
@@ -3082,11 +3084,9 @@ void QSvgHandler::parse()
     }
 }
 
-bool QSvgHandler::startElement(const QString &namespaceURI,
-                               const QString &localName,
+bool QSvgHandler::startElement(const QString &localName,
                                const QXmlStreamAttributes &attributes)
 {
-    Q_UNUSED(namespaceURI);
     QSvgNode *node = 0;
 
     if (m_colorTagCount.count()) {
@@ -3188,9 +3188,8 @@ bool QSvgHandler::startElement(const QString &namespaceURI,
     return true;
 }
 
-bool QSvgHandler::endElement(const QString &namespaceURI, const QString &localName)
+bool QSvgHandler::endElement(const QStringRef &localName)
 {
-    Q_UNUSED(namespaceURI);
     CurrentNode node = m_skipNodes.top();
     m_skipNodes.pop();
 
