@@ -51,7 +51,6 @@ InteractiveWidget::InteractiveWidget()
 
     // add other widgets and layout
     vlayout->addWidget(m_commandsToolBox);
-    vlayout->addSpacing(20);
     vlayout->addWidget(m_enumsToolBox);
 
     hlayout->setStretchFactor(panel, 0);
