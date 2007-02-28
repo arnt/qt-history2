@@ -396,14 +396,13 @@ Q_GLOBAL_STATIC(LibraryMap, libraryMap)
 
 QLibraryPrivate::QLibraryPrivate(const QString &canonicalFileName, int verNum)
     :pHnd(0), fileName(canonicalFileName), majorVerNum(verNum), instance(0), qt_version(0),
-     libraryRefCount(1), libraryUnloadCount(1), pluginState(MightBeAPlugin)
+     libraryRefCount(1), libraryUnloadCount(0), pluginState(MightBeAPlugin)
 { libraryMap()->insert(canonicalFileName, this); }
 
 QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &fileName, int verNum)
 {
     QMutexLocker locker(qt_library_mutex());
     if (QLibraryPrivate *lib = libraryMap()->value(fileName)) {
-        lib->libraryUnloadCount.ref();
         lib->libraryRefCount.ref();
         return lib;
     }
@@ -431,6 +430,7 @@ void *QLibraryPrivate::resolve(const char *symbol)
 
 bool QLibraryPrivate::load()
 {
+    libraryUnloadCount.ref();
     if (pHnd)
         return true;
     if (fileName.isEmpty())
@@ -445,6 +445,7 @@ bool QLibraryPrivate::unload()
     if (!libraryUnloadCount.deref()) // only unload if ALL QLibrary instance wanted to
         if  (unload_sys())
             pHnd = 0;
+
     return (pHnd == 0);
 }
 
@@ -457,8 +458,10 @@ void QLibraryPrivate::release()
 
 bool QLibraryPrivate::loadPlugin()
 {
-    if (instance)
+    if (instance) {
+        libraryUnloadCount.ref();
         return true;
+    }
     if (load()) {
         instance = (QtPluginInstanceFunction)resolve("qt_plugin_instance");
         return instance;
@@ -784,9 +787,6 @@ void QLibrary::setFileName(const QString &fileName)
         did_load = false;
     }
     d = QLibraryPrivate::findOrCreate(fileName);
-    if (d && d->pHnd)
-        did_load = true;
-
 }
 
 QString QLibrary::fileName() const
@@ -812,8 +812,6 @@ void QLibrary::setFileNameAndVersion(const QString &fileName, int verNum)
         did_load = false;
     }
     d = QLibraryPrivate::findOrCreate(fileName, verNum);
-    if (d && d->pHnd)
-        did_load = true;
 }
 
 /*!
@@ -858,7 +856,7 @@ void QLibrary::setFileNameAndVersion(const QString &fileName, int verNum)
 */
 void *QLibrary::resolve(const char *symbol)
 {
-    if (!load()) 
+    if (!load())
         return 0;
     return d->resolve(symbol);
 }
