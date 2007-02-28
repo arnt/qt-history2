@@ -33,7 +33,7 @@ struct QD3DWindowSurfacePrivate
 };
 
 QD3DWindowSurface::QD3DWindowSurface(QWidget *window)
-    : d_ptr(new QD3DWindowSurfacePrivate)
+    : QWindowSurface(window), d_ptr(new QD3DWindowSurfacePrivate)
 {
     Q_ASSERT(window->isTopLevel());
     d_ptr->m_widget = window;
@@ -108,17 +108,23 @@ void QD3DWindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoint 
 void QD3DWindowSurface::setGeometry(const QRect &rect)
 {
     qDebug() << "QD3DWindowSurface::setGeometry" << rect;
-    Q_UNUSED(rect);
+
+    if (rect.isEmpty())
+        qt_d3dEngine()->releaseSwapChain(d_ptr->m_widget);
+
+    const QSize currentSize = rect.size();
+    if (d_ptr->m_lastSize != currentSize) {
+        d_ptr->m_lastSize = currentSize;
+
+        QWidget *w = d_ptr->m_widget;
+        QTLWExtra *topData = w->d_func()->topData();
+        QWidgetBackingStore *bs = topData->backingStore;
+        bs->dirtyRegion(QRegion(0,0,w->width(), w->height()),w);
+    }
 }
 
-void QD3DWindowSurface::release()
-{
-    QDirect3DPaintEngine *engine = qt_d3dEngine();
-    engine->releaseSwapChain(d_ptr->m_widget);
-}
 
-
-void QD3DWindowSurface::scroll(const QRegion &area, int dx, int dy)
+bool QD3DWindowSurface::scroll(const QRegion &area, int dx, int dy)
 {
     QDirect3DPaintEngine *engine = qt_d3dEngine();
     QRect rect = area.boundingRect();
@@ -136,18 +142,6 @@ void QD3DWindowSurface::scroll(const QRegion &area, int dx, int dy)
     srcrect.bottom  = rect.height() + srcrect.top;
 
     engine->scroll(d_ptr->m_widget, srcrect, destrect);
-}
 
-QRect QD3DWindowSurface::geometry() const
-{
-    QSize currentSize = d_ptr->m_widget->size();
-    if (d_ptr->m_lastSize != currentSize) {
-        d_ptr->m_lastSize = currentSize;
-
-        QWidget *w = d_ptr->m_widget;
-        QTLWExtra *topData = w->d_func()->topData();
-        QWidgetBackingStore *bs = topData->backingStore;
-        bs->dirtyRegion(QRegion(0,0,w->width(), w->height()),w);
-    }
-    return d_ptr->m_widget->geometry();
+    return true;
 }
