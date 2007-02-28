@@ -56,7 +56,7 @@
 #include <QtGui/QMdiArea>
 #include <QtGui/QMdiSubWindow>
 
-static QMdiSubWindow *mdiSubWindowOf(const QWidget *w) 
+static QMdiSubWindow *mdiSubWindowOf(const QWidget *w)
 {
     QMdiSubWindow *rc = qobject_cast<QMdiSubWindow *>(w->parentWidget());
     Q_ASSERT(rc);
@@ -74,6 +74,24 @@ static QDockWidget *dockWidgetOf(const QWidget *w)
     return 0;
 }
 
+QMdiSubWindow *createFormMdiSubWindow(QMdiArea *a, QDesignerFormWindow *fw, Qt::WindowFlags f)
+{
+    typedef QList<QAction *> ActionList;
+
+    QMdiSubWindow *rc = a->addSubWindow(fw, f);
+    // Make action shortcuts respond only if focussed to avoid conflicts with designer menu actions
+    const ActionList systemMenuActions = rc->systemMenu()->actions();
+    if (!systemMenuActions.empty()) {
+        const ActionList::const_iterator cend = systemMenuActions.constEnd();
+        for (ActionList::const_iterator it = systemMenuActions.constBegin(); it != cend; ++it) {
+            (*it)->setShortcutContext(Qt::WidgetShortcut);
+        }
+    }
+    rc->setMinimumSize(QSize(0, 0));
+    return rc;
+}
+
+// ------------ QDesignerWorkbench::Position
 QDesignerWorkbench::Position::Position(const QMdiSubWindow *mdiSubWindow, const QPoint &mdiAreaOffset) :
     m_minimized(mdiSubWindow->isShaded()),
     m_position(mdiSubWindow->pos() + mdiAreaOffset)
@@ -104,7 +122,7 @@ void QDesignerWorkbench::Position::applyTo(QMdiSubWindow *mdiSubWindow,
                                       qMax(0, m_position.y() - mdiAreaOffset.y()));
     mdiSubWindow->move(mdiAreaPos);
     const QSize decorationSize = mdiSubWindow->size() - mdiSubWindow->contentsRect().size();
-    mdiSubWindow->resize(mdiSubWindow->widget()->size() + decorationSize);    
+    mdiSubWindow->resize(mdiSubWindow->widget()->size() + decorationSize);
     mdiSubWindow->show();
     if (m_minimized) {
         mdiSubWindow->showShaded();
@@ -165,7 +183,7 @@ void QDesignerWorkbench::saveGeometries()
         break;
     case TopLevelMode: {
         const QPoint desktopOffset = QApplication::desktop()->availableGeometry().topLeft();
-        foreach (QDesignerToolWindow *tw, m_toolWindows) 
+        foreach (QDesignerToolWindow *tw, m_toolWindows)
             m_Positions.insert(tw, Position(tw, desktopOffset));
         foreach (QDesignerFormWindow *fw, m_formWindows) {
             m_Positions.insert(fw,  Position(fw, desktopOffset));
@@ -511,11 +529,9 @@ void QDesignerWorkbench::switchToDockedMode()
 
     mw->restoreState(settings.mainWindowState(), 2);
 
-    foreach (QDesignerFormWindow *fw, m_formWindows) {
-        QMdiSubWindow *w = m_mdiArea->addSubWindow(fw, magicalWindowFlags(fw));
-        w->setMinimumSize(QSize(0, 0));
-        w->hide();
-    }
+    foreach (QDesignerFormWindow *fw, m_formWindows)
+        createFormMdiSubWindow(m_mdiArea, fw, magicalWindowFlags(fw))->hide();
+
     m_actionManager->setBringAllToFrontVisible(false);
     mw->show();
     // Trigger adjustMDIFormPositions() delayed as viewport size is not yet known.
@@ -620,9 +636,7 @@ QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
     QDesignerFormWindow *formWindow = new QDesignerFormWindow(/*formWindow=*/ 0, this);
 
     if (m_mdiArea) {
-        QMdiSubWindow *newMdiSubWindow = m_mdiArea->addSubWindow(formWindow, magicalWindowFlags(formWindow));
-        newMdiSubWindow->setMinimumSize(QSize(0, 0));
-        m_mdiArea->setActiveSubWindow(newMdiSubWindow);
+        m_mdiArea->setActiveSubWindow(createFormMdiSubWindow(m_mdiArea, formWindow, magicalWindowFlags(formWindow)));
     } else {
         const QRect formWindowGeometryHint = formWindow->geometryHint();
         formWindow->setAttribute(Qt::WA_DeleteOnClose, true);
