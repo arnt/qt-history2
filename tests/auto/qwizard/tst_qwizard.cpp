@@ -7,7 +7,6 @@
 **
 ****************************************************************************/
 
-#if 1 // ###
 #include <QFont>
 #include <QtTest/QtTest>
 #include <QCheckBox>
@@ -17,10 +16,10 @@
 #include <QPushButton>
 #include <QToolButton>
 #include <QVBoxLayout>
-//#include "/home/jasplin/dev/research/qwizard/src/qwizard.h" // ###
+#include <QWizard>
 
 //TESTED_CLASS=QWizard
-//TESTED_FILES=gui/dialogs/qwizard.h corelib/tools/qwizard.cpp
+//TESTED_FILES=gui/dialogs/qwizard.h gui/dialogs/qwizard.cpp
 
 static QImage grabWidget(QWidget *window)
 {
@@ -38,7 +37,6 @@ public slots:
     void init();
     void cleanup();
 
-/* ###
 private slots:
     void buttonText();
     void setButtonLayout();
@@ -69,7 +67,6 @@ private slots:
     void setButtonText();
     void setCommitPage();
     void setWizardStyle();
-*/ // ###
 
     /*
         Things that could be added:
@@ -111,7 +108,6 @@ void tst_QWizard::cleanup()
 {
 }
 
-/* ###
 void tst_QWizard::buttonText()
 {
     QWizard wizard;
@@ -2124,14 +2120,6 @@ void tst_QWizard::setWizardStyle()
         QCOMPARE((int)wizard.wizardStyle(), wstyle);
     }
 }
-*/ // ###
 
 QTEST_MAIN(tst_QWizard)
-
 #include "tst_qwizard.moc"
-#else
-int main()
-{
-    return 0;
-}
-#endif // ###
