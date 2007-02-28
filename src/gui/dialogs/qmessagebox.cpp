@@ -1438,8 +1438,8 @@ void QMessageBox::about(QWidget *parent, const QString &title,
     and centered over \a parent (if \a parent is not 0). The message
     includes the version number of Qt being used by the application.
 
-    This is useful for inclusion in the Help menu of an application.
-    See the examples/menu/menu.cpp example.
+    This is useful for inclusion in the \gui Help menu of an application,
+    as shown in the \l{mainwindows/menus}{Menus} example.
 
     QApplication provides this functionality as a slot.
 
