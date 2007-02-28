@@ -145,6 +145,7 @@ private:
     QString projectUrl;
     QString navigationLinks;
     QStringList stylesheets;
+    QStringList customHeadElements;
     const Tree *tre;
     bool slow;
     QMap<QString, QMap<QString, const Node *> > moduleClassMap;
@@ -164,5 +165,6 @@ private:
 #define HTMLGENERATOR_POSTHEADER        "postheader"
 #define HTMLGENERATOR_STYLE             "style"
 #define HTMLGENERATOR_STYLESHEETS       "stylesheets"
+#define HTMLGENERATOR_CUSTOMHEADELEMENTS "customheadelements"
 
 #endif

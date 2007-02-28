@@ -83,6 +83,7 @@ void HtmlGenerator::initializeGenerator(const Config &config)
     slow = config.getBool(CONFIG_SLOW);
 
     stylesheets = config.getStringList(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_STYLESHEETS);
+    customHeadElements = config.getStringList(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_CUSTOMHEADELEMENTS);
     codeIndent = config.getInt(CONFIG_CODEINDENT);
 }
 
@@ -1087,6 +1088,10 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
     foreach (QString stylesheet, stylesheets) {
         out() << "  <link href=\"" << stylesheet << "\" rel=\"stylesheet\" "
               << "type=\"text/css\" />\n";
+    }
+
+    foreach (QString customHeadElement, customHeadElements) {
+        out() << "  " << customHeadElement << "\n";
     }
 
     out() << "</head>\n"
@@ -2581,6 +2586,9 @@ void HtmlGenerator::generateMacRef(const Node *node, CodeMarker *marker)
 
 void HtmlGenerator::beginLink(const QString &link, const Node *relative, CodeMarker *marker)
 {
+    Q_UNUSED(marker)
+    Q_UNUSED(relative)
+
     this->link = link;
     if (link.isEmpty()) {
         if (showBrokenLinks)
