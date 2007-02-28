@@ -1,5 +1,5 @@
 /*!
-    \example dialogbuttonbox 
+    \example widgets/dialogbuttonbox 
     \title Dialog Button Box Example
     
     This example shows use of QDialogButtonBox.
@@ -36,7 +36,7 @@
     
     \section1 MainWindow Class Definition
     
-    \quotefromfile dialogbuttonbox/mainwindow.h 
+    \quotefromfile widgets/dialogbuttonbox/mainwindow.h 
     \skipto /class MainWindow/ 
     \printuntil /^\};/
     
@@ -49,7 +49,7 @@
     We will now look at the implementation of the class, and we
     start with the constructor:
     
-    \quotefromfile dialogbuttonbox/mainwindow.cpp 
+    \quotefromfile widgets/dialogbuttonbox/mainwindow.cpp 
     \skipto /::MainWindow/ 
     \printuntil /RejectRole/
 
@@ -113,7 +113,7 @@
     mdi area (revise this sentence). We take a closer look at the \c
     deleteButton() slot:
 
-    \quotefromfile dialogbuttonbox/mainwindow.cpp
+    \quotefromfile widgets/dialogbuttonbox/mainwindow.cpp
     \skipto /::deleteButton/ 
     \printuntil /^\}/
     
@@ -187,13 +187,13 @@
     add to a dialog button box. It uses widgets laid out with designer
     in the Ui::AddDialogButton class.
     
-    \quotefromfile dialogbuttonbox/addbuttondialog.h 
+    \quotefromfile widgets/dialogbuttonbox/addbuttondialog.h 
     \skipto /class AddButtonDialog/ 
     \printuntil /^\};/
     
     \section1 AddButtonDialogBox Class Implementation
     
-    \quotefromfile dialogbuttonbox/addbuttondialog.cpp
+    \quotefromfile widgets/dialogbuttonbox/addbuttondialog.cpp
     
     We start with a look at the constructor:
     
@@ -230,7 +230,7 @@
     \skipto /^\}/ 
     \printuntil /\}/
 
-    \quotefromfile dialogbuttonbox/addbuttondialog.cpp
+    \quotefromfile widgets/dialogbuttonbox/addbuttondialog.cpp
 
     The \c addButton() slot is called when the user adds a button
     to the mdi area. It first checks whether it is a standard or

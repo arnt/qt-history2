@@ -530,10 +530,9 @@
     If not, we would leak memory and confuse the user as the items
     will be edited when pressed on by the mouse.
     
-    The \c mousePressEvent() function handles
-    \l{QGraphicsSceneMousePressEvent}'s different depending on which 
-    mode the \c DiagramScene is in. We examine its implementation for
-    each mode:
+    The \c mousePressEvent() function handles mouse press event's
+    different depending on which mode the \c DiagramScene is in. We
+    examine its implementation for each mode:
     
     \skipto /::mousePressEvent/
     \printto /case InsertLine/

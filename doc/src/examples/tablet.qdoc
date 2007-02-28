@@ -6,35 +6,35 @@
 
     \image tabletexample.png
 
-    When you use a tablet with Qt applications, QTabletEvents are
+    When you use a tablet with Qt applications, \l{QTabletEvent}s are
     genarated. You need to reimplement the
     \l{QWidget::}{tabletEvent()} event handler if you want to handle
-    tablet events.  Events are generated when the device used for
+    tablet events. Events are generated when the device used for
     drawing enters and leaves the proximity of the tablet (i.e., when
     it is close but not pressed down on it), when a device is pushed
     down and released from it, and when a device is moved on the
     tablet.
   
-    The type of information available in QTabletEvent depends on
-    the device used.  The tablet in this example has two different
-    devices for drawing: a stylus and an airbrush. For both devices
-    the event contains the position of the device, pressure on the
-    tablet, vertical tilt, and horizontal tilt (i.e, the angle
-    between the device and the perpendicular of the tablet). The
-    airbrush has a finger wheel; the position of this is also
-    available in the tablet event.
+    The information available in QTabletEvent depends on the device
+    used. The tablet in this example has two different devices for
+    drawing: a stylus and an airbrush. For both devices the event
+    contains the position of the device, pressure on the tablet,
+    vertical tilt, and horizontal tilt (i.e, the angle between the
+    device and the perpendicular of the tablet). The airbrush has a
+    finger wheel; the position of this is also available in the tablet
+    event.
 
-    In this example we implement a drawing program. You can use
-    the stylus to draw on the tablet as you use a pencil on paper.
-    When you draw with the airbrush you get a spray of paint; the
-    finger wheel is used to change the density of the spray. The
-    pressure and tilt can be used to change the alpha and saturation
-    values of the QColor and the width of the QPen used for drawing.
+    In this example we implement a drawing program. You can use the
+    stylus to draw on the tablet as you use a pencil on paper. When
+    you draw with the airbrush you get a spray of paint; the finger
+    wheel is used to change the density of the spray. The pressure and
+    tilt can change the alpha and saturation values of the QColor and the
+    width of the QPen used for drawing.
 
     The example consists of the following:
 
     \list
-        \o The \c  MainWindow class inherits QMainWindow and creates
+        \o The \c MainWindow class inherits QMainWindow and creates
            the examples menus and connect their slots and signals.
 	\o The \c TabletCanvas class inherits QWidget and 
 	   receives tablet events. It uses the events to paint on a
@@ -58,8 +58,8 @@
 
     The QActions let the user select if the tablets pressure and
     tilt should change the pen width, color alpha component and color
-    saturation.  \c createActions() creates all actions, and \c
-    createMenus() sets up the menus with the actions.  We have one
+    saturation. \c createActions() creates all actions, and \c
+    createMenus() sets up the menus with the actions. We have one
     QActionGroup for the actions that alter the alpha channel, color
     saturation and line width respectively. The action groups are
     connected to the \c alphaActionTriggered(), \c
@@ -191,8 +191,8 @@
     which we provide access functions for. 
 
     We draw on a QImage with \c myPen and \c myBrush using \c
-    myColor.  The \c saveImage() and \c loadImage() saves and loads
-    the QImage to disk.  The image is drawn on the widget in \c
+    myColor. The \c saveImage() and \c loadImage() saves and loads
+    the QImage to disk. The image is drawn on the widget in \c
     paintEvent(). The \c pointerType and \c deviceType keeps the type
     of pointer, which is either a pen or an eraser, and device
     currently used on the tablet, which is either a stylus or an
@@ -212,7 +212,7 @@
     \printuntil /^\}/
 
     In the constructor we initialize our class variables. We need
-    to draw the background of our image, as the default is gray.  
+    to draw the background of our image, as the default is gray.
 
     Here is the implementation of \c saveImage():
 
@@ -281,7 +281,7 @@
     \printuntil /hValue/
 
     We fetch the current drawingcolor's hue, saturation, value,
-    and alpha values.  \c hValue and \c vValue are set to the
+    and alpha values. \c hValue and \c vValue are set to the
     horizontal and vertical tilt as a number from 0 to 255. The
     original values are in degrees from -60 to 60, i.e., 0 equals
     -60, 127 equals 0, and 255 equals 60 degrees. The angle measured
@@ -312,7 +312,7 @@
     width is controlled with the tilt we let the width increse with
     the angle between the device and the perpendicular of the tablet.
 
-    \printuntil /^\}/    
+    \printuntil /^\}/ 
    
     We finally check wether the pointer is the stylus or the eraser.
     If it is the eraser, we set the color to the background color of
@@ -368,10 +368,4 @@
     need to set the canvas after the application is created. We cannot
     use classes that implement event handling before an QApplication
     object is instantiated.
-
-    \section1 About Wacom Tablet
-
-    There are several Wacom tablet devices available besides the pen
-    and airbrush. The devices supported by Qt can be seen in the 
-    \l{QTabletEvent::}{TabletDevice} enum. 
 */
