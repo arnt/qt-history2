@@ -383,16 +383,19 @@ void QHttpSocketEngine::slotSocketConnected()
     Q_D(QHttpSocketEngine);
 
     // Send the greeting.
-    QByteArray data = "CONNECT ";
-    data += d->peerAddress.toString().toLatin1() + ':' + QByteArray::number(d->peerPort);
+    const char method[] = "CONNECT";
+    QByteArray peerAddress = d->peerAddress.toString().toLatin1();
+    QByteArray path = peerAddress + ':' + QByteArray::number(d->peerPort);
+    QByteArray data = method;
+    data += " ";
+    data += path;
     data += " HTTP/1.1\r\n";
-    QByteArray request = data;
     data += "Proxy-Connection: keep-alive\r\n"
-            "Host: " + d->peerAddress.toString().toLatin1() + "\r\n";
+            "Host: " + peerAddress + "\r\n";
     QAuthenticatorPrivate *priv = QAuthenticatorPrivate::getPrivate(d->authenticator);
     //qDebug() << "slotSocketConnected: priv=" << priv << (priv ? (int)priv->method : -1);
     if (priv && priv->method != QAuthenticatorPrivate::None) {
-        data += "Proxy-Authorization: " + priv->calculateResponse(data);
+        data += "Proxy-Authorization: " + priv->calculateResponse(method, path);
         data += "\r\n";
     }
     data += "\r\n";
@@ -457,27 +460,24 @@ void QHttpSocketEngine::slotSocketReadNotification()
         return;
     }
 
-    if (d->readBuffer.startsWith("HTTP/1.0 200")) {
+    QHttpResponseHeader responseHeader(QString::fromLatin1(d->readBuffer));
+    d->readBuffer.clear();
+    
+    int statusCode = responseHeader.statusCode();
+    if (statusCode == 200) {
         d->state = Connected;
-        d->readBuffer.clear();
-    } else if (d->readBuffer.startsWith("HTTP/1.0 503")) {
+    } else if (statusCode == 503) {
         // 503 Service Unavailable: Connection Refused
         d->socket->close();
         setState(QAbstractSocket::UnconnectedState);
         setError(QAbstractSocket::ConnectionRefusedError, QAbstractSocket::tr("Connection refused"));
-    } else if (d->readBuffer.startsWith("HTTP/1.0 407")) {
+    } else if (statusCode == 407) {
         if (d->authenticator.isNull())
             d->authenticator.detach();
         QAuthenticatorPrivate *priv = QAuthenticatorPrivate::getPrivate(d->authenticator);
 
-        QHttpResponseHeader responseHeader(QString::fromLatin1(d->readBuffer));
         priv->parseHttpResponse(responseHeader, true);
 
-//         qDebug(">>>>>>>>>>>>>%x: GOT 407: [%s] method=%d, realm=%s challenge=%s", this, d->readBuffer.trimmed().data(),
-//                  priv->method, priv->realm.toLatin1().data(), priv->challenge.data());
-//         qDebug() << "d->state=" << d->state << "socketState=" << d->socketState << "phase=" << priv->phase;
-
-        d->readBuffer.clear();
         if (priv->phase == QAuthenticatorPrivate::Done) 
             emit proxyAuthenticationRequired(d->proxy, &d->authenticator);
 
@@ -505,7 +505,7 @@ void QHttpSocketEngine::slotSocketReadNotification()
             return;
         }
     } else {
-        qWarning("UNEXPECTED RESPONSE: [%s]", d->readBuffer.trimmed().data());
+        qWarning("UNEXPECTED RESPONSE: [%s]", responseHeader.toString().toLatin1().data());
         d->socket->disconnectFromHost();
     }
 

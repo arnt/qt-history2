@@ -227,6 +227,7 @@ Q_SIGNALS:
 #ifndef QT_NO_NETWORKPROXY
     void proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *);
 #endif
+    void authenticationRequired(const QString &hostname, quint16 port, QAuthenticator *);
 
 private:
     Q_DISABLE_COPY(QHttp)

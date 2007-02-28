@@ -125,11 +125,9 @@ public:
 
     QRingBuffer rba;
 
-    QString userName;
-    QString password;
-
 #ifndef QT_NO_NETWORKPROXY
     QNetworkProxy proxy;
+    QAuthenticator proxyAuthenticator;
 #endif
     QAuthenticator authenticator;
     bool repost;
@@ -344,8 +342,8 @@ private:
 
 void QHttpSetUserRequest::start(QHttp *http)
 {
-    http->d_func()->userName = user;
-    http->d_func()->password = pass;
+    http->d_func()->authenticator.setUser(user);
+    http->d_func()->authenticator.setPassword(pass);
     http->d_func()->finishedWithSuccess();
 }
 
@@ -370,10 +368,10 @@ public:
         http->d_func()->proxy = proxy;
         QString user = proxy.user();
         if (!user.isEmpty())
-            http->d_func()->authenticator.setUser(user);
+            http->d_func()->proxyAuthenticator.setUser(user);
         QString password = proxy.password();
         if (!password.isEmpty())
-            http->d_func()->authenticator.setPassword(password);
+            http->d_func()->proxyAuthenticator.setPassword(password);
         http->d_func()->finishedWithSuccess();
     }
 
@@ -1705,6 +1703,21 @@ QHttp::~QHttp()
 #endif
 
 /*!
+    \fn void QHttp::authenticationRequired(const QString &hostname, quint16 port, QAuthenticator *authenticator)
+
+    This signal can be emitted when a web server that requires
+    authentication is used. The \a authenticator object can then be
+    filled in with the required details to allow authentication and
+    continue the connection.
+
+    \note It is not possible to use a QueuedConnection to connect to
+    this signal, as the connection will fail if the authenticator has
+    not been filled in with new information when the signal returns.
+
+    \sa QAuthenticator, QNetworkProxy
+*/
+
+/*!
     Aborts the current request and deletes all scheduled requests.
 
     For the current request, the requestFinished() signal with the \c
@@ -2249,6 +2262,12 @@ void QHttpPrivate::_q_startNextRequest()
 
 void QHttpPrivate::_q_slotSendRequest()
 {
+    if (hostName.isNull()) {
+        finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "No server set to connect to")),
+                          QHttp::UnknownError);
+        return;
+    }
+
 #ifndef QT_NO_NETWORKPROXY
     // Proxy support. Insert the Proxy-Authorization item into the
     // header before it's sent off to the proxy.
@@ -2263,30 +2282,20 @@ void QHttpPrivate::_q_slotSendRequest()
         header.setRequest(header.method(), request, header.majorVersion(), header.minorVersion());
         header.setValue(QLatin1String("Proxy-Connection"), QLatin1String("keep-alive"));
 
-        QAuthenticatorPrivate *auth = QAuthenticatorPrivate::getPrivate(authenticator);
+        QAuthenticatorPrivate *auth = QAuthenticatorPrivate::getPrivate(proxyAuthenticator);
         if (auth && auth->method != QAuthenticatorPrivate::None) {
-            request.prepend(header.method() + QLatin1String(" "));
-            header.setValue(QLatin1String("Proxy-Authorization"),
-                            QString::fromLatin1(auth->calculateResponse(request.toLatin1())));
+            QByteArray response = auth->calculateResponse(header.method().toLatin1(), header.path().toLatin1());
+            header.setValue(QLatin1String("Proxy-Authorization"), QString::fromLatin1(response));
         }
     }
 #endif
 
     // Username support. Insert the user and password into the query
     // string.
-    if (!userName.isEmpty()) {
-        QByteArray pass = userName.toAscii();
-        if (!password.isEmpty()) {
-            pass += ':';
-            pass += password.toAscii();
-        }
-        header.setValue(QLatin1String("Authorization"), QLatin1String("Basic " + pass.toBase64()));
-    }
-
-    if (hostName.isNull()) {
-        finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "No server set to connect to")),
-                          QHttp::UnknownError);
-        return;
+    QAuthenticatorPrivate *auth = QAuthenticatorPrivate::getPrivate(authenticator);
+    if (auth && auth->method != QAuthenticatorPrivate::None) {
+        QByteArray response = auth->calculateResponse(header.method().toLatin1(), header.path().toLatin1());
+        header.setValue(QLatin1String("Authorization"), QString::fromLatin1(response));
     }
 
     QString connectionHost = hostName;
@@ -2499,27 +2508,45 @@ void QHttpPrivate::_q_slotReadyRead()
             return;
         }
 
+        int statusCode = response.statusCode();
+        if (statusCode == 401 || statusCode == 407) { // (Proxy) Authentication required
+            QAuthenticator *auth =
 #ifndef QT_NO_NETWORKPROXY
-        if (response.statusCode() == 407) { // Proxy Authentication required
-            if (authenticator.isNull())
-                authenticator.detach();
-            QAuthenticatorPrivate *priv = QAuthenticatorPrivate::getPrivate(authenticator);
-            priv->parseHttpResponse(response, true);
+                statusCode == 407
+                ? &proxyAuthenticator
+#endif
+                : &authenticator;
+            if (auth->isNull())
+                auth->detach();
+            QAuthenticatorPrivate *priv = QAuthenticatorPrivate::getPrivate(*auth);
+            priv->parseHttpResponse(response, (statusCode == 407));
             if (priv->phase == QAuthenticatorPrivate::Done) {
                 socket->blockSignals(true);
-                emit q->proxyAuthenticationRequired(proxy, &authenticator);
+#ifndef QT_NO_NETWORKPROXY
+                if (statusCode == 407)
+                    emit q->proxyAuthenticationRequired(proxy, auth);
+                else
+#endif
+                    emit q->authenticationRequired(hostName, port, auth);
                 socket->blockSignals(false);
             }
 
             // priv->phase will get reset to QAuthenticatorPrivate::Start if the authenticator got modified in the signal above.
             if (priv->phase == QAuthenticatorPrivate::Done) {
-                finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "Proxy Authentication Required")),
-                                  QHttp::ProxyAuthenticationRequiredError);
+#ifndef QT_NO_NETWORKPROXY
+                if (statusCode == 407)
+                    finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "Proxy Authentication Required")),
+                                      QHttp::ProxyAuthenticationRequiredError);
+                else
+#endif
+                    finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "Authentication Required")),
+                                      QHttp::AuthenticationRequiredError);
                 closeConn();
                 return;
             } else {
                 // close the connection if it isn't already and reconnect using the chose authentication method
-                bool willClose = (response.value(QLatin1String("proxy-connection")).toLower() == QLatin1String("close"));
+                bool willClose = (response.value(QLatin1String("proxy-connection")).toLower() == QLatin1String("close"))
+                                 || (response.value(QLatin1String("connection")).toLower() == QLatin1String("close"));
                 if (willClose) {
                     if (socket) {
                         setState(QHttp::Closing);
@@ -2533,7 +2560,6 @@ void QHttpPrivate::_q_slotReadyRead()
                 }
             }
         }
-#endif
 
         // The 100-continue header is ignored, because when using the
         // POST method, we send both the request header and data in

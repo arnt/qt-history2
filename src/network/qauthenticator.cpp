@@ -236,7 +236,7 @@ void QAuthenticatorPrivate::parseHttpResponse(const QHttpResponseHeader &header,
     }
 }
 
-QByteArray QAuthenticatorPrivate::calculateResponse(const QByteArray &requestLine)
+QByteArray QAuthenticatorPrivate::calculateResponse(const QByteArray &requestMethod, const QByteArray &path)
 {
     QByteArray response;
     const char *methodString;
@@ -268,7 +268,7 @@ QByteArray QAuthenticatorPrivate::calculateResponse(const QByteArray &requestLin
         break;
     case QAuthenticatorPrivate::DigestMd5:
         methodString = "Digest ";
-        response = digestMd5Response(challenge, requestLine);
+        response = digestMd5Response(challenge, requestMethod, path);
         phase = Done;
         break;
     case QAuthenticatorPrivate::Ntlm:
@@ -425,7 +425,7 @@ static QByteArray digestMd5Response(
     return hash.result().toHex();
 }
 
-QByteArray QAuthenticatorPrivate::digestMd5Response(const QByteArray &challenge, const QByteArray &requestLine)
+QByteArray QAuthenticatorPrivate::digestMd5Response(const QByteArray &challenge, const QByteArray &method, const QByteArray &path)
 {
     QHash<QByteArray,QByteArray> options = parseDigestAuthenticationChallenge(challenge);
 
@@ -434,10 +434,6 @@ QByteArray QAuthenticatorPrivate::digestMd5Response(const QByteArray &challenge,
     while (nonceCountString.length() < 8)
         nonceCountString.prepend('0');
     
-    QList<QByteArray> tokens = requestLine.split(' ');
-    QByteArray method = tokens.at(0);
-    QByteArray path = tokens.at(1);
-
     QByteArray nonce = options.value("nonce");
     QByteArray opaque = options.value("opaque");
     QByteArray qop = options.value("qop");

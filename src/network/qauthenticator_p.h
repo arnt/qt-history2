@@ -49,12 +49,12 @@ public:
     // ntlm specific
     QString workstation;
     
-    QByteArray calculateResponse(const QByteArray &requestLine);
+    QByteArray calculateResponse(const QByteArray &method, const QByteArray &path);
 
     inline static QAuthenticatorPrivate *getPrivate(QAuthenticator &auth) { return auth.d; }
     inline static const QAuthenticatorPrivate *getPrivate(const QAuthenticator &auth) { return auth.d; }
 
-    QByteArray digestMd5Response(const QByteArray &challenge, const QByteArray &requestLine);
+    QByteArray digestMd5Response(const QByteArray &challenge, const QByteArray &method, const QByteArray &path);
     static QHash<QByteArray, QByteArray> parseDigestAuthenticationChallenge(const QByteArray &challenge);
 
     void parseHttpResponse(const QHttpResponseHeader &, bool isProxy);
