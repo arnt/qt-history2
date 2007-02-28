@@ -572,24 +572,35 @@ QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, ATSUFontID fontID, const QFo
 
     synthesisFlags = 0;
 
-    //nasty synthesis for now, will fix later --Sam ###
+    quint16 macStyle = 0;
+    {
+        uchar data[4];
+        ByteCount len = 4;
+        if (ATSFontGetTable(atsFont, MAKE_TAG('h', 'e', 'a', 'd'), 44, 4, &data, &len) == noErr)
+            macStyle = qFromBigEndian<quint16>(data);
+    }
+
     Boolean atsuBold = false;
     Boolean atsuItalic = false;
     if (fontDef.weight >= QFont::Bold) {
-        synthesisFlags |= SynthesizedBold;
-        atsuBold = true;
-        tags[attributeCount] = kATSUQDBoldfaceTag;
-        sizes[attributeCount] = sizeof(atsuBold);
-        values[attributeCount] = &atsuBold;
-        ++attributeCount;
+        if (!(macStyle & 1)) {
+            synthesisFlags |= SynthesizedBold;
+            atsuBold = true;
+            tags[attributeCount] = kATSUQDBoldfaceTag;
+            sizes[attributeCount] = sizeof(atsuBold);
+            values[attributeCount] = &atsuBold;
+            ++attributeCount;
+        }
     }
     if (fontDef.style != QFont::StyleNormal) {
-        synthesisFlags |= SynthesizedItalic;
-        atsuItalic = true;
-        tags[attributeCount] = kATSUQDItalicTag;
-        sizes[attributeCount] = sizeof(atsuItalic);
-        values[attributeCount] = &atsuItalic;
-        ++attributeCount;
+        if (!(macStyle & 2)) {
+            synthesisFlags |= SynthesizedItalic;
+            atsuItalic = true;
+            tags[attributeCount] = kATSUQDItalicTag;
+            sizes[attributeCount] = sizeof(atsuItalic);
+            values[attributeCount] = &atsuItalic;
+            ++attributeCount;
+        }
     }
 
     tags[attributeCount] = kATSUFontTag;
