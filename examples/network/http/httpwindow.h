@@ -24,6 +24,7 @@ class QLabel;
 class QLineEdit;
 class QProgressDialog;
 class QPushButton;
+class QAuthenticator;
 
 class HttpWindow : public QDialog
 {
@@ -39,6 +40,7 @@ private slots:
     void readResponseHeader(const QHttpResponseHeader &responseHeader);
     void updateDataReadProgress(int bytesRead, int totalBytes);
     void enableDownloadButton();
+    void slotAuthenticationRequired(const QString &, quint16, QAuthenticator *);
 
 private:
     QLabel *statusLabel;
