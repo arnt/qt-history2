@@ -611,7 +611,7 @@ QMatchData QSortedModelEngine::filter(const QString& part, const QModelIndex& pa
         }
     }
 
-    if ((order == Qt::AscendingOrder && low == indices.to()) 
+    if ((order == Qt::AscendingOrder && low == indices.to())
         || (order == Qt::DescendingOrder && high == indices.from())) { // not found
         saveInCache(part, parent, QMatchData());
         return QMatchData();
@@ -1178,12 +1178,50 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
         return true;
     }
 
+#ifdef QT_KEYPAD_NAVIGATION
+    case QEvent::KeyRelease: {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+        if (ke->key() == Qt::Key_Back) {
+            // Send the event to the 'widget'. This is what we did for KeyPress, so we need
+            // to do the same for KeyRelease, in case the widget's KeyPress event set
+            // up something (such as a timer) that is relying on also receiving the
+            // key release. I see this as a bug in Qt, and should really set it up for all
+            // the affected keys. However, it is difficult to tell how this will affect
+            // existing code, and I can't test for every combination!
+            d->eatFocusOut = false;
+            static_cast<QObject *>(d->widget)->event(ke);
+            d->eatFocusOut = true;
+        }
+        break;
+    }
+#endif
+
     case QEvent::MouseButtonPress:
+        // The clicked signal on the popup is connected to popup's hide() slot, and to
+        // _qcomplete. But we may need to exit the popup on other mouse press events.
+        // This will be the case if we click outside the popup (BUT clicking inside the
+        // line edit tells us we are outside the popup but also outside the widget, so
+        // there's no way to tell the difference!)
+        // Please leave this comment here so I can see it when I debug this stuff....
+#ifdef QT_KEYPAD_NAVIGATION
+        if (!d->popup->underMouse() && completionMode() != UnfilteredPopupCompletion) {
+            d->popup->hide();
+            return true;
+        } else {
+            // A mouse press for keypad navigation in any other circumstances can be handled
+            // by the associated widget.
+            d->eatFocusOut = false;
+            static_cast<QObject *>(d->widget)->event(e);
+            d->eatFocusOut = true;
+            return true;
+        }
+#else
         if (!d->popup->underMouse()) {
             d->popup->hide();
             return true;
         }
         return false;
+#endif
 
     case QEvent::InputMethod:
         QApplication::sendEvent(d->widget, e);

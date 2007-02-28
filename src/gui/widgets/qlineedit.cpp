@@ -1502,15 +1502,22 @@ bool QLineEdit::event(QEvent * e)
     }
 #ifdef QT_KEYPAD_NAVIGATION
     if (QApplication::keypadNavigationEnabled()) {
-        if (e->type() == QEvent::KeyRelease) {
+        if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) {
             QKeyEvent *ke = (QKeyEvent *)e;
-            if ( !ke->isAutoRepeat() && !isReadOnly()
-                    && ke->key() == Qt::Key_Back
+            if (ke->key() == Qt::Key_Back) {
+                if (ke->isAutoRepeat()) {
+                    // Swallow it. We don't want back keys running amok.
+                    ke->accept();
+                    return true;
+                }
+                if ((e->type() == QEvent::KeyRelease) &&
+                    && !isReadOnly()
                     && d->deleteAllTimer.isActive()) {
-                d->deleteAllTimer.stop();
-                backspace();
-                ke->accept();
-                return true;
+                    d->deleteAllTimer.stop();
+                    backspace();
+                    ke->accept();
+                    return true;
+                }
             }
         } else if (e->type() == QEvent::EnterEditFocus) {
             end(false);
@@ -1539,8 +1546,11 @@ void QLineEdit::mousePressEvent(QMouseEvent* e)
     if (e->button() == Qt::RightButton)
         return;
 #ifdef QT_KEYPAD_NAVIGATION
-    if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
+    if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
         setEditFocus(true);
+        // Get the completion list to pop up.
+        d->completer->complete();
+    }
 #endif
     if (d->tripleClickTimer.isActive() && (e->pos() - d->tripleClick).manhattanLength() <
          QApplication::startDragDistance()) {
@@ -1695,6 +1705,8 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             if (QApplication::keypadNavigationEnabled()) {
                 if (hasEditFocus()) {
                     setEditFocus(false);
+                    if (d->completer && d->completer->popup()->isVisible())
+                        d->completer->popup()->hide();
                     select = true;
                 }
             }

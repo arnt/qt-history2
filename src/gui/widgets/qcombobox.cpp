@@ -103,6 +103,21 @@ QStyleOptionMenuItem QComboMenuDelegate::getStyleOption(const QStyleOptionViewIt
     return menuOption;
 }
 
+#ifdef QT_KEYPAD_NAVIGATION
+// This is in response to a left mouse click event in the completer. The completer itself
+// will cause the completer to exit. We also have to (for unfiltered completion) go into
+// focus mode.
+void QComboBoxPrivate::_q_completerClicked()
+{
+    Q_Q(QComboBox);
+    if ( q->isEditable()
+         && (q->completer())
+         && (q->completer()->completionMode() == QCompleter::UnfilteredPopupCompletion) ) {
+        q->setEditFocus(false);
+    }
+}
+#endif
+
 void QComboBoxPrivate::updateArrow(QStyle::StateFlag state)
 {
     Q_Q(QComboBox);
@@ -605,8 +620,6 @@ QStyleOptionComboBox QComboBoxPrivateContainer::comboStyleOption() const
     opt.editable = combo->isEditable();
     return opt;
 }
-
-
 
 /*!
     \enum QComboBox::InsertPolicy
@@ -1212,6 +1225,13 @@ bool QComboBox::autoCompletion() const
 void QComboBox::setAutoCompletion(bool enable)
 {
     Q_D(QComboBox);
+
+#ifdef QT_KEYPAD_NAVIGATION
+    // Suggest that widget conforms to style guidelines.
+    if (!enable && isEditable())
+        qWarning("QComboBox::setAutoCompletion: auto completion is mandatory when combo box editable");
+#endif
+
     d->autoCompletion = enable;
     if (!d->lineEdit)
         return;
@@ -1499,6 +1519,23 @@ void QComboBox::setLineEdit(QLineEdit *edit)
 #ifndef QT_NO_COMPLETER
     setAutoCompletion(d->autoCompletion);
 #endif
+
+#ifdef QT_KEYPAD_NAVIGATION
+#ifndef QT_NO_COMPLETER
+    // Editable combo boxes will have a completer that is set to UnfilteredPopupCompletion.
+    // This means that when the user starts typing they are immediately presented with a
+    // list of possible completions.
+    setAutoCompletion(true);
+    if (d->completer) {
+        d->completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+        // When the mouse is clicked inside the completion list, must edit focus mode.
+        connect(d->completer->popup(), SIGNAL(clicked(QModelIndex)), this, SLOT(_q_completerClicked()));
+    } else {
+        qWarning("QComboBox::setLineEdit: Setting auto completion is supposed to create completer");
+    }
+#endif
+#endif
+
     setAttribute(Qt::WA_InputMethodEnabled);
     d->updateLayoutDirection();
     d->updateLineEditGeometry();
@@ -2007,6 +2044,19 @@ void QComboBox::showPopup()
     if (count() <= 0)
         return;
 
+#ifdef QT_KEYPAD_NAVIGATION
+#ifndef QT_NO_COMPLETER
+    if (d->completer) {
+        // Will use the completer only for editable combo box.
+        setEditFocus(true);
+        d->completer->complete(); // force the popup
+        return;
+    } else {
+        qWarning("QComboBox::showPopup: no completer for the combo box");
+    }
+#endif
+#endif
+
     // set current item and select it
     view()->selectionModel()->setCurrentIndex(d->currentIndex,
                                               QItemSelectionModel::ClearAndSelect);
@@ -2299,8 +2349,18 @@ bool QComboBox::event(QEvent *event)
         break;
 #ifdef QT_KEYPAD_NAVIGATION
     case QEvent::EnterEditFocus:
-        if (!d->lineEdit)
+        if (!d->lineEdit) {
             setEditFocus(false); // We never want edit focus if we are not editable
+        } else {
+            // Get the cursor rolling.
+            d->lineEdit->event(event);
+        }
+        break;
+    case QEvent::LeaveEditFocus:
+        if (d->lineEdit) {
+            // Stop the cursor.
+            d->lineEdit->event(event);
+        }
         break;
 #endif
     default:
@@ -2323,11 +2383,27 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
         && !d->viewContainer()->isVisible()) {
         if (sc == QStyle::SC_ComboBoxArrow)
             d->updateArrow(QStyle::State_Sunken);
-        d->viewContainer()->blockMouseReleaseTimer.start(QApplication::doubleClickInterval());
-        d->viewContainer()->initialClickPosition = e->pos();
+#ifdef QT_KEYPAD_NAVIGATION
+        if (!d->lineEdit) {
+#endif
+            // We've restricted the next couple of lines, because by not calling
+            // viewContainer(), we avoid creating the QComboBoxPrivateContainer.
+            d->viewContainer()->blockMouseReleaseTimer.start(QApplication::doubleClickInterval());
+            d->viewContainer()->initialClickPosition = e->pos();
+#ifdef QT_KEYPAD_NAVIGATION
+        }
+#endif
         showPopup();
     } else {
+#ifdef QT_KEYPAD_NAVIGATION
+        if (d->lineEdit) {
+            // Get the line edit to handle the mouse button press, so that it shifts the cursor,
+            // etc
+            d->lineEdit->event(e);
+        }
+#else
         QWidget::mousePressEvent(e);
+#endif
     }
 }
 
