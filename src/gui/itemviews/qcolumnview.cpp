@@ -803,6 +803,8 @@ void QColumnViewPrivate::_q_changeCurrentColumn()
         return;
 
     QModelIndex current = q->currentIndex();
+    if (!current.isValid())
+        return;
 
     // We might have scrolled far to the left so we need to close all of the children
     closeColumns(current, true);
