@@ -1437,10 +1437,10 @@ void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
 
     The following example illustrates how to create wizard pages and
     add them to a wizard. For more advanced examples, see
-    \l{classwizard}{Class Wizard} and \l{licensewizard}{License
+    \l{dialogs/classwizard}{Class Wizard} and \l{dialogs/licensewizard}{License
     Wizard}.
 
-    \quotefromfile trivialwizard/trivialwizard.cpp
+    \quotefromfile dialogs/trivialwizard/trivialwizard.cpp
     \skipto createIntroPage()
     \printuntil createRegistrationPage()
     \printline {
@@ -1502,7 +1502,7 @@ void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
     or HaveCustomButton3 options. Whenever the user clicks a custom
     button, customButtonClicked() is emitted. For example:
 
-    \quotefromfile licensewizard/licensewizard.cpp
+    \quotefromfile dialogs/licensewizard/licensewizard.cpp
     \skipto setButtonText
     \printuntil printButtonClicked
 
@@ -1572,7 +1572,7 @@ void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
     To register a field, call QWizardPage::registerField() field.
     For example:
 
-    \quotefromfile classwizard/classwizard.cpp
+    \quotefromfile dialogs/classwizard/classwizard.cpp
     \skipto ::ClassInfoPage
     \printuntil {
     \dots
@@ -1641,13 +1641,13 @@ void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
     \section1 Creating Linear Wizards
 
     Most wizards have a linear structure, with page 1 followed by
-    page 2 and so on until the last page. The \l{classwizard}{Class
+    page 2 and so on until the last page. The \l{dialogs/classwizard}{Class
     Wizard} example is such a wizard. With QWizard, linear wizards
     are created by instantiating the \l{QWizardPage}s and inserting
     them using addPage(). By default, the pages are shown in the
     order in which they were added. For example:
 
-    \quotefromfile classwizard/classwizard.cpp
+    \quotefromfile dialogs/classwizard/classwizard.cpp
     \skipto ::ClassWizard
     \printuntil addPage(new Conclu
     \dots
@@ -1673,7 +1673,7 @@ void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
 
     Some wizards are more complex in that they allow different
     traversal paths based on the information provided by the user.
-    The \l{licensewizard}{License Wizard} example illustrates this.
+    The \l{dialogs/licensewizard}{License Wizard} example illustrates this.
     It provides five wizard pages; depending on which options are
     selected, the user can reach different pages.
 
@@ -1682,7 +1682,7 @@ void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
     In complex wizards, pages are identified by IDs. These IDs are
     typically defined using an enum. For example:
 
-    \quotefromfile licensewizard/licensewizard.h
+    \quotefromfile dialogs/licensewizard/licensewizard.h
     \skipto : public QWizard
     \printuntil {
     \dots
@@ -1695,7 +1695,7 @@ void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
     The pages are inserted using setPage(), which takes an ID and an
     instance of QWizardPage (or of a subclass):
 
-    \quotefromfile licensewizard/licensewizard.cpp
+    \quotefromfile dialogs/licensewizard/licensewizard.cpp
     \skipto ::LicenseWizard
     \printuntil setPage(Page_Conclusion
     \dots
@@ -1813,6 +1813,8 @@ void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
     \value ModernStyle  Modern Windows look (default on Windows)
     \value MacStyle  Mac OS X look (default on Mac OS X)
     \value AeroStyle  Windows Aero look (default on Windows Vista)
+
+    \omitvalue NStyles
 
     \sa setWizardStyle(), WizardOption, {Wizard Look and Feel}
 */
@@ -2578,7 +2580,7 @@ QSize QWizard::sizeHint() const
 
     Example:
 
-    \quotefromfile licensewizard/licensewizard.cpp
+    \quotefromfile dialogs/licensewizard/licensewizard.cpp
     \skipto ::LicenseWizard
     \printuntil {
     \dots
@@ -2734,6 +2736,9 @@ void QWizard::paintEvent(QPaintEvent * event)
 }
 
 #if defined(Q_WS_WIN)
+/*!
+    \reimp
+*/
 bool QWizard::winEvent(MSG *message, long *result)
 {
     Q_D(QWizard);
@@ -3047,7 +3052,7 @@ QPixmap QWizardPage::pixmap(QWizard::WizardPixmap which) const
     fields are properly initialized based on fields from previous
     pages. For example:
 
-    \quotefromfile classwizard/classwizard.cpp
+    \quotefromfile dialogs/classwizard/classwizard.cpp
     \skipto OutputFilesPage::initializePage
     \printuntil }
 
@@ -3142,7 +3147,7 @@ bool QWizardPage::isComplete() const
 }
 
 /*!
-    Explicitly sets this page to be final if \a final is true.
+    Explicitly sets this page to be final if \a finalPage is true.
 
     After calling setFinalPage(true), isFinalPage() returns true and the \gui
     Finish button is visible (and enabled if isComplete() returns
@@ -3178,7 +3183,8 @@ bool QWizardPage::isFinalPage() const
 }
 
 /*!
-    Sets whether this page is a commit page.
+    Sets this page to be a commit page if \a commitPage is true; otherwise,
+    sets it to be a normal page.
 
     A commit page is a page that represents an action which cannot be undone
     by clicking \gui Back or \gui Cancel.
@@ -3197,7 +3203,7 @@ void QWizardPage::setCommitPage(bool commitPage)
 }
 
 /*!
-    Returns whether this page is a commit page.
+    Returns true if this page is a commit page; otherwise returns false.
 
     \sa setCommitPage()
 */
@@ -3259,7 +3265,7 @@ QString QWizardPage::buttonText(QWizard::WizardButton which) const
     By reimplementing this function, you can specify a dynamic page
     order. For example:
 
-    \quotefromfile licensewizard/licensewizard.cpp
+    \quotefromfile dialogs/licensewizard/licensewizard.cpp
     \skipto IntroPage::nextId
     \printuntil /^\}/
 
@@ -3328,7 +3334,7 @@ void QWizardPage::setField(const QString &name, const QVariant &value)
 
     Example:
 
-    \quotefromfile classwizard/classwizard.cpp
+    \quotefromfile dialogs/classwizard/classwizard.cpp
     \skipto OutputFilesPage::initializePage
     \printuntil }
 

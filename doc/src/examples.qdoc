@@ -73,11 +73,14 @@
     \section1 Dialog Examples
 
     \list
+    \o \l{dialogs/classwizard}{Class Wizard}\raisedaster
     \o \l{dialogs/configdialog}{Config Dialog}
     \o \l{dialogs/extension}{Extension}\raisedaster
     \o \l{dialogs/findfiles}{Find Files}\raisedaster
+    \o \l{dialogs/licensewizard}{License Wizard}\raisedaster
     \o \l{dialogs/standarddialogs}{Standard Dialogs}
     \o \l{dialogs/tabdialog}{Tab Dialog}\raisedaster
+    \o \l{dialogs/trivialwizard}{Trivial Wizard}
     \endlist
 
     \section1 Main Window Examples

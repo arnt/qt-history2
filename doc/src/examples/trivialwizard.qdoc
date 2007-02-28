@@ -1,9 +1,9 @@
 /*!
-    \example trivialwizard
+    \example dialogs/trivialwizard
     \title Trivial Wizard Example
 
     The Trivial Wizard example illustrates how to create
     wizard pages and add them to a wizard.
 
-    \sa QtWizard, {Class Wizard Example}, {License Wizard Example}
+    \sa QWizard, {Class Wizard Example}, {License Wizard Example}
 */

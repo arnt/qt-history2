@@ -14,11 +14,14 @@
     <example filename="screenshot" name="Screenshot" />
   </category>
   <category dirname="dialogs" name="Dialogs">
+    <example filename="classwizard" name="Class Wizard" />
     <example filename="configdialog" name="Configuration Dialog" />
     <example filename="extension" name="Extension Dialog" />
     <example filename="findfiles" name="Find Files Dialog" />
+    <example filename="licensewizard" name="License Wizard" />
     <example filename="standarddialogs" name="Standard Dialogs" />
     <example filename="tabdialog" name="Tab Dialog" />
+    <example filename="trivialwizard" name="Trivial Wizard" />
   </category>
   <category dirname="draganddrop" name="Drag and Drop">
     <example filename="draggableicons" name="Draggable Icons" />
