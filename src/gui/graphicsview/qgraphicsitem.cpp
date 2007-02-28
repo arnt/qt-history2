@@ -5029,10 +5029,12 @@ QVariant QGraphicsLineItem::extension(const QVariant &variant) const
     offset(). You can change the drawing offset by calling setOffset().
 
     You can set the pixmap's transformation mode by calling
-    setTransformationMode(). By default, Qt::FastTransformation is
-    used, which provides fast, non-smooth scaling. Call
-    transformationMode() to get the current transformation mode for
-    the item.
+    setTransformationMode(). By default, Qt::FastTransformation is used, which
+    provides fast, non-smooth scaling. Qt::SmoothTransformation enables
+    QPainter::SmoothPixmapTransform on the painter, and the quality depends on
+    the platform and viewport. The result is usually not as good as calling
+    QPixmap::scale() directly. Call transformationMode() to get the current
+    transformation mode for the item.
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
     QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsLineItem, {The
@@ -5185,6 +5187,10 @@ Qt::TransformationMode QGraphicsPixmapItem::transformationMode() const
     Sets the pixmap item's transformation mode to \a mode, and toggles an
     update of the item. The default mode is Qt::FastTransformation, which
     provides quick transformation with no smoothing.
+
+    Qt::SmoothTransformation enables QPainter::SmoothPixmapTransform on the
+    painter, and the quality depends on the platform and viewport. The result
+    is usually not as good as calling QPixmap::scale() directly.
 
     \sa transformationMode()
 */
