@@ -174,7 +174,7 @@ public:
         Comment,
         DTD,
         EntityReference,
-        ProcessingInstruction,
+        ProcessingInstruction
     };
 
 
@@ -311,7 +311,7 @@ public:
 
 private:
     Q_DISABLE_COPY(QXmlStreamWriter)
-    Q_DECLARE_PRIVATE(QXmlStreamWriter);
+    Q_DECLARE_PRIVATE(QXmlStreamWriter)
     QXmlStreamWriterPrivate *d_ptr;
 };
 
