@@ -2720,7 +2720,11 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                             lines.append(QLine(tickOffset + thickness + bothOffset, pos,
                                                tickOffset + thickness + bothOffset + tickLength, pos));
                     }
-                    v += interval;
+                    // in the case where maximum is max int
+                    int nextInterval = v + interval;
+                    if (nextInterval < v)
+                        break;
+                    v = nextInterval;
                 }
                 if (lines.size() > 0)
                     p->drawLines(lines.constData(), lines.size());
