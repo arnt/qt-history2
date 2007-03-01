@@ -262,7 +262,7 @@ void qt_bitmapblit16_sse(QRasterBuffer *rasterBuffer, int x, int y,
 
 #endif // SSE
 
-#if (defined(QT_HAVE_SSE) && (!defined(__APPLE__) || defined(__i386__))) || defined(QT_HAVE_IWMMXT)
+#if (defined(QT_HAVE_SSE) && (!defined(__APPLE__) || defined(__i386__) || defined(__x86_64__))) || defined(QT_HAVE_IWMMXT)
 
 #define C_FF const m64 mmx_0x00ff = _mm_set1_pi16(0xff)
 #define C_80 const m64 mmx_0x0080 = _mm_set1_pi16(0x80)
