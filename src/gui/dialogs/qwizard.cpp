@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+#include "qwizard.h"
+
+#ifndef QT_NO_WIZARD
+
 #include "qalgorithms.h"
 #include "qapplication.h"
 #include "qboxlayout.h"
@@ -32,8 +36,6 @@
 #include "qwizard_win_p.h"
 #include "qtimer.h"
 #endif
-
-#include "qwizard.h"
 
 #include "private/qdialog_p.h"
 
@@ -3419,3 +3421,5 @@ QWizard *QWizardPage::wizard() const
 }
 
 #include "moc_qwizard.cpp"
+
+#endif // QT_NO_WIZARD

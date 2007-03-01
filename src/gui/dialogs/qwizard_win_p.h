@@ -25,6 +25,8 @@
 // We mean it.
 //
 
+#ifndef QT_NO_WIZARD
+
 #include <windows.h>
 #include <qobject.h>
 #include <qwidget.h>
@@ -106,5 +108,7 @@ private:
     QWizard *wizard;
     QVistaBackButton *backButton_;
 };
+
+#endif // QT_NO_WIZARD
 
 #endif // QWIZARD_WIN_P_H
