@@ -28,8 +28,7 @@ function writeLatestRssItemURLIntoCookie()
 
 function titleShouldPulsate()
 {
-//	return true;
-	return (getCookie(LATESTRSSITEMURL) != gLatestRssItemUrl);
+	return (getCookie(LATESTRSSITEMURL) < gLatestRssItemUrl); // Ugly: We assume that the url has a reverse date in it and compare it for _less than_. The next version of this script will compare a timestamp of the newest article in cookie and document
 }
 
 function startPulsating()
@@ -150,6 +149,6 @@ var TITLELINKSSELECTOR = "#rssbox>ul>li>a";
 var LOGOIMAGESELECTOR = "img[@src*=trolltech-logo]";
 
 var gRssBoxTitleLink = null;
-var gLatestRssItemUrl = ""
+var gLatestRssItemUrl = "zzzz"
 
 //window.onload = recalculateRssBoxPosition;
