@@ -382,7 +382,7 @@ void QWSWindowSurface::setDirty(const QRegion &region) const
         return;
 
     if (window() && !unclipped.isEmpty())
-        QApplication::postEvent(window(), new QEvent(QEvent::UpdateRequest));
+        QApplication::postEvent(window(), new QEvent(QEvent::UpdateRequest), Qt::LowEventPriority );
 }
 
 /*!

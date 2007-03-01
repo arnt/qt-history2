@@ -1020,7 +1020,7 @@ void QWidget::update(const QRegion& rgn)
     if (d->isOpaque()) {
         // TODO: overlapping non-opaque siblings
         if (bs->dirtyWidgets.isEmpty())
-            QApplication::postEvent(window(), new QEvent(QEvent::UpdateRequest));
+            QApplication::postEvent(window(), new QEvent(QEvent::UpdateRequest), Qt::LowEventPriority);
         if (d->dirty.isEmpty())
             bs->dirtyWidgets.append(this);
         d->dirty += wrgn;

@@ -1369,7 +1369,7 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
     Q_Q(QWidget);
     if (!rgn.isEmpty()) {
         dirtyOnScreen += rgn;
-        QApplication::postEvent(q, new QEvent(QEvent::UpdateRequest));
+        QApplication::postEvent(q, new QEvent(QEvent::UpdateRequest), Qt::LowEventPriority);
     }
 }
 
