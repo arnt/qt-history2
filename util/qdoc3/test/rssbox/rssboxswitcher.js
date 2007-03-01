@@ -2,6 +2,7 @@ function init()
 {
 	gRssBoxTitleLink = $(TITLELINKSSELECTOR);
 	$(window).resize(function() {recalculateRssBoxPosition();});
+	$("#rssbox>ul>li>ul>li>a").click(function() {writeLatestRssItemURLIntoCookie();});
 	$("#rssbox").css({ display: "block", position: "absolute" });
 	gRssBoxTitleLink.removeAttr("href").css("cursor", "pointer").click(function() {toggleRssLinksVisibility();});
 	
