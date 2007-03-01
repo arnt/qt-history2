@@ -1333,7 +1333,7 @@ enum PseudoElement {
     PseudoElement_Indicator,
     PseudoElement_ExclusiveIndicator,
     PseudoElement_MenuIndicator,
-    PseudoElement_DropDown,
+    PseudoElement_ComboBoxDropDown,
     PseudoElement_ComboBoxArrow,
     PseudoElement_Item,
     PseudoElement_SpinBoxUpButton,
@@ -1498,7 +1498,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         }
 
         switch (pseudoElement) {
-        case PseudoElement_DropDown:
+        case PseudoElement_ComboBoxDropDown:
         case PseudoElement_ComboBoxArrow:
             state |= (state & QStyle::State_On); // propagate popup state as on/off
             break;
@@ -1593,7 +1593,7 @@ static Origin defaultOrigin(int pe)
     case PseudoElement_SpinBoxUpButton:
 	case PseudoElement_SpinBoxDownButton:
     case PseudoElement_MenuIndicator:
-    case PseudoElement_DropDown:
+    case PseudoElement_ComboBoxDropDown:
 	case PseudoElement_ToolButtonDownArrow:
         return Origin_Padding;
 
@@ -1621,7 +1621,7 @@ static Qt::Alignment defaultPosition(int pe)
         return Qt::AlignRight | Qt::AlignBottom;
 
 	case PseudoElement_SpinBoxUpButton:
-    case PseudoElement_DropDown:
+    case PseudoElement_ComboBoxDropDown:
 	case PseudoElement_ToolButtonMenu:
         return Qt::AlignRight | Qt::AlignTop;
 
@@ -1670,7 +1670,7 @@ QSize QStyleSheetStyle::defaultSize(const QWidget *w, QSize sz, const QRect& rec
                                       }
         break;
 
-    case PseudoElement_DropDown:
+    case PseudoElement_ComboBoxDropDown:
         if (sz.width() == -1)
             sz.setWidth(16);
         break;
@@ -2073,47 +2073,99 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
 
     switch (cc) {
     case CC_ComboBox:
-        if (rule.hasBorder() || rule.hasBox() || hasStyleRule(w, PseudoElement_DropDown)) {
-            rule.drawFrame(p, opt->rect);
-            QRenderRule subRule = renderRule(w, opt, PseudoElement_DropDown);
-            QRect r = positionRect(w, rule, subRule, PseudoElement_DropDown, opt->rect, opt->direction);
-            subRule.drawRule(p, r);
+        if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+            QStyleOptionComboBox cmbOpt(*cmb);
+            cmbOpt.rect = rule.borderRect(opt->rect);
+            if (rule.nativeBorder()) {
+                rule.drawBackgroundImage(p, cmbOpt.rect);
+                bool customDropDown = (opt->subControls & QStyle::SC_ComboBoxArrow)
+                                      && hasStyleRule(w, PseudoElement_ComboBoxDropDown);
+                if (customDropDown)
+                    cmbOpt.subControls &= ~QStyle::SC_ComboBoxArrow;
+                if (rule.baseStyleCanDraw()) {
+                    baseStyle()->drawComplexControl(cc, &cmbOpt, p, w);
+                } else {
+                    QWindowsStyle::drawComplexControl(cc, &cmbOpt, p, w);
+                }
+                if (!customDropDown)
+                    return;
+            } else {
+                rule.drawFrame(p, opt->rect);
+            }
 
-            QRenderRule subRule2 = renderRule(w, opt, PseudoElement_ComboBoxArrow);
-            r = positionRect(w, subRule, subRule2, PseudoElement_ComboBoxArrow, r, opt->direction);
-            subRule2.drawRule(p, r);
+            if (opt->subControls & QStyle::SC_ComboBoxArrow) {
+				QRenderRule subRule = renderRule(w, opt, PseudoElement_ComboBoxDropDown);
+				if (subRule.hasDrawable()) {
+					QRect r = subControlRect(CC_ComboBox, opt, SC_ComboBoxArrow, w);
+					subRule.drawRule(p, r);
+					QRenderRule subRule2 = renderRule(w, opt, PseudoElement_ComboBoxArrow);
+					r = positionRect(w, subRule, subRule2, PseudoElement_ComboBoxArrow, r, opt->direction);
+					subRule2.drawRule(p, r);
+				} else {
+					cmbOpt.subControls = QStyle::SC_ComboBoxArrow;
+					QWindowsStyle::drawComplexControl(cc, &cmbOpt, p, w);
+				}
+            }
 
             return;
         }
         break;
 
     case CC_SpinBox:
-        if (rule.hasBorder() || rule.hasBox() || hasStyleRule(w, PseudoElement_SpinBoxDownButton)
-            || hasStyleRule(w, PseudoElement_SpinBoxUpButton)) {
-            rule.drawFrame(p, opt->rect);
+		if (const QStyleOptionSpinBox *spin = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
+			QStyleOptionSpinBox spinOpt(*spin);
+			spinOpt.rect = rule.borderRect(opt->rect);
+			bool customUp = true, customDown = true;
+			if (rule.hasNativeBorder()) {
+				rule.drawBackgroundImage(p, spinOpt.rect);
+				customUp = (opt->subControls & QStyle::SC_SpinBoxUp)
+				           && hasStyleRule(w, PseudoElement_SpinBoxUpButton);
+				if (customUp)
+					spinOpt.subControls &= ~QStyle::SC_SpinBoxUp;
+				customDown = (opt->subControls & QStyle::SC_SpinBoxDown)
+							 && hasStyleRule(w, PseudoElement_SpinBoxDownButton);
+				if (customDown)
+					spinOpt.subControls &= ~QStyle::SC_SpinBoxDown;
+				if (rule.baseStyleCanDraw()) {
+					baseStyle()->drawComplexControl(cc, &spinOpt, p, w);
+				} else {
+					QWindowsStyle::drawComplexControl(cc, &spinOpt, p, w);
+				}
+				if (!customUp && !customDown)
+					return;
+			} else {
+				rule.drawFrame(p, opt->rect);
+			}
 
-            // down button
-            QRenderRule subRule1 = renderRule(w, opt, PseudoElement_SpinBoxDownButton);
-            QRect r = positionRect(w, rule, subRule1, PseudoElement_SpinBoxDownButton, opt->rect, opt->direction);
-            subRule1.drawRule(p, r);
+			if ((opt->subControls & QStyle::SC_SpinBoxUp) && customUp) {
+				QRenderRule subRule = renderRule(w, opt, PseudoElement_SpinBoxUpButton);
+				if (subRule.hasDrawable()) {
+					QRect r = subControlRect(CC_SpinBox, opt, SC_SpinBoxUp, w);
+					subRule.drawRule(p, r);
+					QRenderRule subRule2 = renderRule(w, opt, PseudoElement_SpinBoxUpArrow);
+					r = positionRect(w, subRule, subRule2, PseudoElement_SpinBoxUpArrow, r, opt->direction);
+					subRule2.drawRule(p, r);
+				} else {
+					spinOpt.subControls = QStyle::SC_SpinBoxUp;
+					QWindowsStyle::drawComplexControl(cc, &spinOpt, p, w);
+				}
+			}
 
-            // down arrow
-            QRenderRule subRule2 = renderRule(w, opt, PseudoElement_SpinBoxDownArrow);
-            r = positionRect(w, subRule1, subRule2, PseudoElement_SpinBoxDownArrow, r, opt->direction);
-            subRule2.drawRule(p, r);
-
-            // up button border
-            QRenderRule subRule3 = renderRule(w, opt, PseudoElement_SpinBoxUpButton);
-            r = positionRect(w, rule, subRule3, PseudoElement_SpinBoxUpButton, opt->rect, opt->direction);
-            subRule3.drawRule(p, r);
-
-            // up arrow
-            QRenderRule subRule4 = renderRule(w, opt, PseudoElement_SpinBoxUpArrow);
-            r = positionRect(w, subRule3, subRule4, PseudoElement_SpinBoxUpArrow, r, opt->direction);
-            subRule4.drawRule(p, r);
-
-            return;
-        }
+			if ((opt->subControls & QStyle::SC_SpinBoxDown) && customDown) {
+				QRenderRule subRule = renderRule(w, opt, PseudoElement_SpinBoxDownButton);
+				if (subRule.hasDrawable()) {
+					QRect r = subControlRect(CC_SpinBox, opt, SC_SpinBoxDown, w);
+					subRule.drawRule(p, r);
+					QRenderRule subRule2 = renderRule(w, opt, PseudoElement_SpinBoxDownArrow);
+					r = positionRect(w, subRule, subRule2, PseudoElement_SpinBoxDownArrow, r, opt->direction);
+					subRule2.drawRule(p, r);
+				} else {
+					spinOpt.subControls = QStyle::SC_SpinBoxDown;
+					QWindowsStyle::drawComplexControl(cc, &spinOpt, p, w);
+				}
+			}
+			return;
+		}
         break;
 
     case CC_GroupBox:
@@ -2272,7 +2324,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         if (const QStyleOptionToolButton *btn = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
             QStyleOptionToolButton butOpt(*btn);
             rule.configurePalette(&butOpt.palette, QPalette::ButtonText, QPalette::Button);
-            ParentStyle::drawControl(ce, &butOpt, p, w);
+            baseStyle()->drawControl(ce, &butOpt, p, w);
             return;
         }
         break;
@@ -2401,37 +2453,38 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
 #ifndef QT_NO_COMBOBOX
     case CE_ComboBoxLabel:
+        if (!rule.hasBox())
+			break;
         if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
-            if (!rule.hasBox() && !rule.hasBorder())
-                break;
-            QRect editRect = subControlRect(CC_ComboBox, cb, SC_ComboBoxEditField, w);
-            p->save();
-            p->setClipRect(editRect);
-            if (!cb->currentIcon.isNull()) {
-                QIcon::Mode mode = cb->state & State_Enabled ? QIcon::Normal
-                                                             : QIcon::Disabled;
-                QPixmap pixmap = cb->currentIcon.pixmap(cb->iconSize, mode);
-                QRect iconRect(editRect);
-                iconRect.setWidth(cb->iconSize.width() + 4);
-                iconRect = alignedRect(QApplication::layoutDirection(),
-                                       Qt::AlignLeft | Qt::AlignVCenter,
-                                       iconRect.size(), editRect);
-                if (cb->editable)
-                    p->fillRect(iconRect, opt->palette.brush(QPalette::Base));
-                drawItemPixmap(p, iconRect, Qt::AlignCenter, pixmap);
+			QRect editRect = subControlRect(CC_ComboBox, cb, SC_ComboBoxEditField, w);
+			p->save();
+			p->setClipRect(editRect);
+			if (!cb->currentIcon.isNull()) {
+				int spacing = rule.hasBox() ? rule.box()->spacing : -1;
+				if (spacing == -1)
+					spacing = 6;
+				QIcon::Mode mode = cb->state & State_Enabled ? QIcon::Normal
+															 : QIcon::Disabled;
+				QPixmap pixmap = cb->currentIcon.pixmap(cb->iconSize, mode);
+				QRect iconRect(editRect);
+				iconRect.setWidth(cb->iconSize.width());
+				iconRect = alignedRect(QApplication::layoutDirection(),
+									   Qt::AlignLeft | Qt::AlignVCenter,
+									   iconRect.size(), editRect);
+				drawItemPixmap(p, iconRect, Qt::AlignCenter, pixmap);
 
-                if (cb->direction == Qt::RightToLeft)
-                    editRect.translate(-4 - cb->iconSize.width(), 0);
-                else
-                    editRect.translate(cb->iconSize.width() + 4, 0);
-            }
-            if (!cb->currentText.isEmpty() && !cb->editable) {
-                drawItemText(p, editRect.adjusted(0, 0, 0, 0), Qt::AlignLeft | Qt::AlignVCenter, cb->palette,
-                             cb->state & State_Enabled, cb->currentText);
-            }
-            p->restore();
-            return;
-        }
+				if (cb->direction == Qt::RightToLeft)
+					editRect.translate(-spacing - cb->iconSize.width(), 0);
+				else
+					editRect.translate(cb->iconSize.width() + spacing, 0);
+			}
+			if (!cb->currentText.isEmpty() && !cb->editable) {
+				drawItemText(p, editRect.adjusted(0, 0, 0, 0), Qt::AlignLeft | Qt::AlignVCenter, cb->palette,
+							 cb->state & State_Enabled, cb->currentText);
+			}
+			p->restore();
+			return;
+		}
         break;
 #endif // QT_NO_COMBOBOX
 
@@ -2759,7 +2812,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 #endif
         subRule = renderRule(w, opt, PseudoElement_MenuIndicator);
         if (subRule.hasContentsSize())
-            return subRule.contentsSize().width(); // #######
+            return subRule.size().width();
         break;
 
     case PM_ButtonShiftHorizontal:
@@ -2908,6 +2961,8 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
 
     switch (ct) {
     case CT_ToolButton:
+    case CT_SpinBox:
+    case CT_ComboBox:
     case CT_PushButton:
         if (rule.hasBox() || !rule.nativeBorder())
             return rule.boxSize(sz);
@@ -2956,15 +3011,6 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
                 return subRule.boxSize(sz);
         }
         break;
-
-    case CT_ComboBox:
-        if (rule.hasBox() || rule.hasBorder())
-            return rule.boxSize(sz);
-        break;
-
-    case CT_SpinBox:
-        if (rule.hasBox() || rule.hasBorder())
-            return sz;
 
     case CT_SizeGrip:
         return (rule.hasContentsSize())
@@ -3085,43 +3131,52 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
 
     QRenderRule rule = renderRule(w, opt);
     switch (cc) {
-    case CC_ComboBox:
-        if (rule.hasBorder() || rule.hasBox() || hasStyleRule(w, PseudoElement_DropDown)) {
-            switch (sc) {
-            case SC_ComboBoxArrow: {
-                QRenderRule subRule = renderRule(w, PseudoElement_DropDown);
-                return positionRect(w, rule, subRule, PseudoElement_DropDown, opt->rect, opt->direction);
-                break;
-                                   }
-            case SC_ComboBoxEditField:
-                return rule.contentsRect(opt->rect);
-            case SC_ComboBoxFrame:
-                return rule.contentsRect(opt->rect);
-            case SC_ComboBoxListBoxPopup:
-            default:
-               return opt->rect;
-            }
-        }
-        break;
+   case CC_ComboBox:
+        if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+            if (rule.hasBox() || !rule.hasNativeBorder()) {
+                switch (sc) {
+                case SC_ComboBoxFrame: return rule.borderRect(opt->rect);
+                case SC_ComboBoxEditField: return rule.contentsRect(opt->rect);
+				case SC_ComboBoxArrow: {
+                    QRenderRule subRule = renderRule(w, opt, PseudoElement_ComboBoxDropDown);
+                    return positionRect(w, rule, subRule, PseudoElement_ComboBoxDropDown, opt->rect, opt->direction);
+									   }
+				case SC_ComboBoxListBoxPopup:
+				default:
+					return baseStyle()->subControlRect(cc, opt, sc, w);
+				}
+			}
+
+            QStyleOptionComboBox comboBox(*cb);
+			comboBox.rect = rule.borderRect(opt->rect);
+			return rule.baseStyleCanDraw() ? baseStyle()->subControlRect(cc, &comboBox, sc, w)
+										   : QWindowsStyle::subControlRect(cc, &comboBox, sc, w);
+		}
+		break;
 
     case CC_SpinBox:
-        if (rule.hasBorder() || rule.hasBox() || hasStyleRule(w, PseudoElement_SpinBoxUpButton)
-            || hasStyleRule(w, PseudoElement_SpinBoxDownButton)) {
-            switch (sc) {
-            case SC_SpinBoxUp:
-            case SC_SpinBoxDown: {
-                int pe = (sc == SC_SpinBoxUp ? PseudoElement_SpinBoxUpButton : PseudoElement_SpinBoxDownButton);
-                QRenderRule subRule = renderRule(w, opt, pe);
-                return positionRect(w, rule, subRule, pe, opt->rect, opt->direction);
-            }
-            case SC_SpinBoxEditField:
-            case SC_SpinBoxFrame:
-                return rule.contentsRect(opt->rect);
-            default:
-                return opt->rect;
-            }
-        }
-        break;
+		if (const QStyleOptionSpinBox *spin = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
+			if (rule.hasBox() || !rule.hasNativeBorder()) {
+				switch (sc) {
+				case SC_SpinBoxFrame: return rule.borderRect(opt->rect);
+				case SC_SpinBoxEditField: return rule.contentsRect(opt->rect);
+				case SC_SpinBoxDown:
+				case SC_SpinBoxUp: {
+					int pe = (sc == SC_SpinBoxUp ? PseudoElement_SpinBoxUpButton : PseudoElement_SpinBoxDownButton);
+					QRenderRule subRule = renderRule(w, opt, pe);
+					return positionRect(w, rule, subRule, pe, opt->rect, opt->direction);
+								   }
+				default:
+					return baseStyle()->subControlRect(cc, opt, sc, w);
+				}
+			}
+
+			QStyleOptionSpinBox spinBox(*spin);
+			spinBox.rect = rule.borderRect(opt->rect);
+			return rule.baseStyleCanDraw() ? baseStyle()->subControlRect(cc, &spinBox, sc, w)
+										   : QWindowsStyle::subControlRect(cc, &spinBox, sc, w);
+		}
+		break;
 
     case CC_GroupBox:
         if (const QStyleOptionGroupBox *gb = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
