@@ -206,7 +206,8 @@ void tst_Q3UrlOperator::copy_data()
     QTest::newRow( "http09" ) << QString("%1").arg(httpQtest) << QString("")		<< QString("rfc3252.txt")    << (bool)FALSE << (bool)FALSE;
     QTest::newRow( "http10" ) << QString("%1").arg(httpQtest) << QString()	<< QString("rfc3252.txt")    << (bool)FALSE << (bool)FALSE;
 
-    QTest::newRow( "http11" ) << QString() << QString("http://www.ietf.org/rfc/rfc3252.txt") << QString(".") << (bool)FALSE << (bool)TRUE;
+    // Unstable host:
+    // QTest::newRow( "http11" ) << QString() << QString("http://www.ietf.org/rfc/rfc3252.txt") << QString(".") << (bool)FALSE << (bool)TRUE;
 }
 
 void tst_Q3UrlOperator::copy()
