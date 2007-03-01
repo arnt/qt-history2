@@ -22,10 +22,8 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QMatrix>
 #include <QtGui/QApplication>
-#include <QtGui/qevent.h>
 
 #include <QtCore/QMultiMap>
-
 
 static const int BG_ALPHA =              32;
 static const int LINE_PROXIMITY_RADIUS =  3;
@@ -155,7 +153,7 @@ AdjustConnectionCommand::AdjustConnectionCommand(ConnectionEdit *edit, Connectio
                                                     const QPoint &old_source_pos,
                                                     const QPoint &old_target_pos,
                                                     const QPoint &new_source_pos,
-                                                    const QPoint &new_target_pos) : 
+                                                    const QPoint &new_target_pos) :
     CECommand(edit),
     m_con(con),
     m_old_source_pos(old_source_pos),
@@ -227,7 +225,7 @@ private:
 };
 
 SetEndPointCommand::SetEndPointCommand(ConnectionEdit *edit, Connection *con,
-                                        EndPoint::Type type, QObject *object) : 
+                                        EndPoint::Type type, QObject *object) :
     CECommand(edit),
     m_con(con),
     m_type(type),
@@ -844,16 +842,19 @@ void Connection::setLabel(EndPoint::Type type, const QString &text)
 void Connection::updatePixmap(EndPoint::Type type)
 {
     QPixmap *pm = type == EndPoint::Source ? &m_source_label_pm : &m_target_label_pm;
-    *pm = QPixmap();
 
-    QString text = label(type);
-    if (text.isEmpty())
+    const QString text = label(type);
+    if (text.isEmpty()) {
+        *pm = QPixmap();
         return;
+    }
 
     const QFontMetrics fm = m_edit->fontMetrics();
     const QSize size = fm.size(Qt::TextSingleLine, text) + QSize(HLABEL_MARGIN*2, VLABEL_MARGIN*2);
     *pm = QPixmap(size);
-    pm->fill(m_edit->palette().color(QPalette::Normal, QPalette::Base));
+    QColor color = m_edit->palette().color(QPalette::Normal, QPalette::Base);
+    color.setAlpha(190);
+    pm->fill(color);
 
     QPainter p(pm);
     p.setPen(m_edit->palette().color(QPalette::Normal, QPalette::Text));
@@ -909,9 +910,6 @@ void Connection::checkWidgets()
 ** ConnectionEdit
 */
 
-
-   
-    
 ConnectionEdit::ConnectionEdit(QWidget *parent, QDesignerFormWindowInterface *form) :
     QWidget(parent),
     m_bg_widget(0),
@@ -1112,9 +1110,13 @@ void ConnectionEdit::mousePressEvent(QMouseEvent *e)
 {
     e->accept();
 
-    Connection *con_under_mouse = connectionAt(e->pos());
-    m_start_connection_on_drag = false;
+    // Prefer a non-background widget over the connection,
+    // otherwise, widgets covered by the connection labels cannot be accessed
+    Connection *con_under_mouse = 0;
+    if (!m_widget_under_mouse || m_widget_under_mouse == m_bg_widget)
+        con_under_mouse = connectionAt(e->pos());
 
+    m_start_connection_on_drag = false;
     switch (state()) {
         case Connecting:
             if (e->button() == Qt::RightButton)
@@ -1190,7 +1192,14 @@ void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
 void ConnectionEdit::findObjectsUnderMouse(const QPoint &pos)
 {
     Connection *con_under_mouse = connectionAt(pos);
-    QWidget *w = con_under_mouse != 0 ? 0 : widgetAt(pos);
+
+    QWidget *w = widgetAt(pos);
+    // Prefer a non-background widget over the connection,
+    // otherwise, widgets covered by the connection labels cannot be accessed
+    if (w == m_bg_widget && con_under_mouse)
+        w = 0;
+    else
+        con_under_mouse = 0;
 
     if (w != m_widget_under_mouse) {
         if (!m_widget_under_mouse.isNull())
@@ -1213,7 +1222,6 @@ void ConnectionEdit::findObjectsUnderMouse(const QPoint &pos)
 void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
 {
     findObjectsUnderMouse(e->pos());
-
     switch (state()) {
         case Connecting:
             continueConnection(m_widget_under_mouse, e->pos());
