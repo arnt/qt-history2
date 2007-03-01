@@ -44,16 +44,18 @@ public slots:
     void cleanup();
 
 protected slots:
-    void threadFinish() { ++threadFinished; }
+    void threadFinished() { ++threadFinishedCount; }
 
 private slots:
     void simpleThreading_data() { generic_data(); }
     void simpleThreading();
     void readWriteThreading_data() { generic_data(); }
     void readWriteThreading();
+    void readFromSingleConnection_data() { generic_data(); }
+    void readFromSingleConnection();
 
 private:
-    int threadFinished;
+    int threadFinishedCount;
 };
 
 class QtTestSqlThread : public QThread
@@ -166,10 +168,40 @@ private:
     QSqlDatabase sourceDb;
 };
 
+class SqlReader: public QThread
+{
+    Q_OBJECT
+
+public:
+    enum Mode { Simple };
+
+    SqlReader(Mode m, const QSqlDatabase &db, QObject *parent = 0)
+        : QThread(parent), sourceDb(db), mode(m) {}
+
+    void run()
+    {
+        switch (mode) {
+        case Simple: {
+            QSqlQuery q(sourceDb);
+            for (int j = 0; j < ProdConIterations; ++j) {
+                QVERIFY_SQL(q, q.exec("select id,name from test order by id"));
+                for (int i = 1; i < 4; ++i) {
+                    QVERIFY_SQL(q, q.next());
+                    QCOMPARE(q.value(0).toInt(), i);
+                }
+            }
+            break; }
+        }
+    }
+
+private:
+    QSqlDatabase sourceDb;
+    Mode mode;
+};
 
 
 tst_QSqlThread::tst_QSqlThread()
-    : threadFinished(0)
+    : threadFinishedCount(0)
 {
 }
 
@@ -258,7 +290,7 @@ void tst_QSqlThread::cleanupTestCase()
 
 void tst_QSqlThread::init()
 {
-    threadFinished = 0;
+    threadFinishedCount = 0;
 }
 
 void tst_QSqlThread::cleanup()
@@ -266,6 +298,8 @@ void tst_QSqlThread::cleanup()
     repopulateTestTables();
 }
 
+// This test creates two threads that clone their db connection and read
+// from it
 void tst_QSqlThread::simpleThreading()
 {
     QFETCH(QString, dbName);
@@ -278,16 +312,18 @@ void tst_QSqlThread::simpleThreading()
     QtTestSqlThread t1(db);
     QtTestSqlThread t2(db);
 
-    connect(&t1, SIGNAL(finished()), this, SLOT(threadFinish()), Qt::QueuedConnection);
-    connect(&t2, SIGNAL(finished()), this, SLOT(threadFinish()), Qt::QueuedConnection);
+    connect(&t1, SIGNAL(finished()), this, SLOT(threadFinished()), Qt::QueuedConnection);
+    connect(&t2, SIGNAL(finished()), this, SLOT(threadFinished()), Qt::QueuedConnection);
 
     t1.start();
     t2.start();
 
-    while (threadFinished < 2)
+    while (threadFinishedCount < 2)
         QTest::qWait(100);
 }
 
+// This test creates two threads that clone their db connection and read
+// or write
 void tst_QSqlThread::readWriteThreading()
 {
     QFETCH(QString, dbName);
@@ -300,14 +336,36 @@ void tst_QSqlThread::readWriteThreading()
     SqlProducer producer(db);
     SqlConsumer consumer(db);
 
-    connect(&producer, SIGNAL(finished()), this, SLOT(threadFinish()), Qt::QueuedConnection);
-    connect(&consumer, SIGNAL(finished()), this, SLOT(threadFinish()), Qt::QueuedConnection);
+    connect(&producer, SIGNAL(finished()), this, SLOT(threadFinished()), Qt::QueuedConnection);
+    connect(&consumer, SIGNAL(finished()), this, SLOT(threadFinished()), Qt::QueuedConnection);
 
     producer.start();
     consumer.start();
 
-    while (threadFinished < 2)
+    while (threadFinishedCount < 2)
         QTest::qWait(100);
+}
+
+void tst_QSqlThread::readFromSingleConnection()
+{
+#if 0
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (db.databaseName() == ":memory:")
+        QSKIP("does not work with in-memory databases", SkipSingle);
+
+    static const int threadCount = 4;
+    for (int i = 0; i < threadCount; ++i) {
+        SqlReader *reader = new SqlReader(SqlReader::Simple, db, this);
+        connect(reader, SIGNAL(finished()), this, SLOT(threadFinished()), Qt::QueuedConnection);
+        reader->start();
+    }
+
+    while (threadFinishedCount < threadCount)
+        QTest::qWait(100);
+#endif
 }
 
 QTEST_MAIN(tst_QSqlThread)
