@@ -515,6 +515,7 @@ void QXmlStreamReaderPrivate::init()
     atEnd = false;
     inParseEntity = false;
     referenceToUnparsedEntityDetected = false;
+    hasExternalDtdSubset = false;
     lockEncoding = false;
     rawReadBuffer.clear();
     readBuffer.clear();

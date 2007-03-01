@@ -290,13 +290,17 @@ public:
     uint hasSeenTag : 1;
     uint inParseEntity : 1;
     uint referenceToUnparsedEntityDetected : 1;
+    uint hasExternalDtdSubset : 1;
     uint lockEncoding : 1;
 
     int resumeReduction;
     void resume(int rule);
 
     inline bool entitiesMustBeDeclared() const {
-        return (!inParseEntity && (standalone || !referenceToUnparsedEntityDetected));
+        return (!inParseEntity
+                && (standalone
+                    || (!referenceToUnparsedEntityDetected
+                        && !hasExternalDtdSubset)));
     }
 
     // qlalr parser
@@ -739,14 +743,14 @@ xml_decl ::= xml_decl_start VERSION space_opt EQ space_opt literal attribute_lis
 external_id ::= SYSTEM literal;
 /.
         case $rule_number:
-            referenceToUnparsedEntityDetected = true;
+            hasExternalDtdSubset = true;
         break;
 ./
 external_id ::= PUBLIC literal space literal;
 /.
         case $rule_number:
             checkPublicLiteral(symString(2));
-            referenceToUnparsedEntityDetected = true;
+            hasExternalDtdSubset = true;
         break;
 ./
 external_id ::=;

@@ -794,13 +794,17 @@ public:
     uint hasSeenTag : 1;
     uint inParseEntity : 1;
     uint referenceToUnparsedEntityDetected : 1;
+    uint hasExternalDtdSubset : 1;
     uint lockEncoding : 1;
 
     int resumeReduction;
     void resume(int rule);
 
     inline bool entitiesMustBeDeclared() const {
-        return (!inParseEntity && (standalone || !referenceToUnparsedEntityDetected));
+        return (!inParseEntity
+                && (standalone
+                    || (!referenceToUnparsedEntityDetected
+                        && !hasExternalDtdSubset)));
     }
 
     // qlalr parser
@@ -1211,12 +1215,12 @@ bool QXmlStreamReaderPrivate::parse()
         break;
 
         case 14:
-            referenceToUnparsedEntityDetected = true;
+            hasExternalDtdSubset = true;
         break;
 
         case 15:
             checkPublicLiteral(symString(2));
-            referenceToUnparsedEntityDetected = true;
+            hasExternalDtdSubset = true;
         break;
 
         case 17:
