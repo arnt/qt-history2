@@ -116,7 +116,7 @@
 #include <private/qmdisubwindow_p.h>
 #include <QApplication>
 #include <QStyle>
-#if defined(Q_WS_MAC)
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 #include <QMacStyle>
 #endif
 #include <QChildEvent>
@@ -240,7 +240,7 @@ void SimpleCascader::rearrange(QList<QWidget *> &widgets, const QRect &domain) c
     QStyleOptionTitleBar options;
     options.initFrom(widgets.at(0));
     int titleBarHeight = widgets.at(0)->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options);
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
     // ### Remove this after the mac style has been fixed
     if (qobject_cast<QMacStyle *>(widgets.at(0)->style()))
         titleBarHeight -= 4;
