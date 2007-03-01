@@ -1463,7 +1463,6 @@ void tst_QMainWindow::saveRestore()
             adw.apply(&mainWindow);
         mainWindow.resize(size);
         mainWindow.restoreState(stateData);
-        COMPARE_DOCK_WIDGET_GEOS(dockWidgetGeos, dockWidgetGeometries(&mainWindow));
 
         mainWindow.show();
         COMPARE_DOCK_WIDGET_GEOS(dockWidgetGeos, dockWidgetGeometries(&mainWindow));

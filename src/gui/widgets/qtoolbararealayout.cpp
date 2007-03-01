@@ -723,7 +723,7 @@ bool QToolBarAreaLayout::toolBarBreak(QToolBar *toolBar) const
 
             for (int k = 0; k < line.toolBarItems.count(); ++k) {
                 if (line.toolBarItems.at(k).widgetItem->widget() == toolBar)
-                    return k == 0;
+                    return j > 0 && k == 0;
             }
         }
     }
