@@ -30,14 +30,15 @@
 #include "qvarlengtharray.h"
 #if defined(Q_WS_MAC)
 #include "qmacstyle_mac.h"
-#include <Carbon/Carbon.h>
-#include <QuickTime/QuickTime.h>
+#include "private/qt_mac_p.h"
+#include "qlibrary.h"
 #elif defined(Q_WS_WIN)
 #include "qwizard_win_p.h"
 #include "qtimer.h"
 #endif
 
 #include "private/qdialog_p.h"
+#include <qdebug.h>
 
 #include <string.h>     // for memset()
 
@@ -1346,50 +1347,92 @@ void QWizardPrivate::_q_updateButtonStates()
 }
 
 #ifdef Q_WS_MAC
+
+#ifndef __LP64__
+#include <QuickTime/QuickTime.h>
+typedef OSErr (*PtrQTNewDataReferenceFromCFURL)(CFURLRef, UInt32, Handle*, OSType*);
+typedef OSErr (*PtrGetGraphicsImporterForDataRefWithFlags)(Handle, OSType, ComponentInstance*, long);
+typedef ComponentResult (*PtrGraphicsImportSetFlags)(GraphicsImportComponent, long);
+typedef ComponentResult (*PtrGraphicsImportCreateCGImage)(GraphicsImportComponent, CGImageRef*, UInt32);
+
+static PtrQTNewDataReferenceFromCFURL ptrQTNewDataReferenceFromCFURL = 0;
+static PtrGetGraphicsImporterForDataRefWithFlags ptrGetGraphicsImporterForDataRefWithFlags = 0;
+static PtrGraphicsImportSetFlags ptrGraphicsImportSetFlags = 0;
+static PtrGraphicsImportCreateCGImage ptrGraphicsImportCreateCGImage = 0;
+
+bool resolveQuickTimeSymbols()
+{
+    if (ptrQTNewDataReferenceFromCFURL == 0) {
+        QLibrary library(QLatin1String("/System/Library/Frameworks/QuickTime.framework/QuickTime"));
+        ptrQTNewDataReferenceFromCFURL = reinterpret_cast<PtrQTNewDataReferenceFromCFURL>(library.resolve("QTNewDataReferenceFromCFURL"));
+        ptrGetGraphicsImporterForDataRefWithFlags = reinterpret_cast<PtrGetGraphicsImporterForDataRefWithFlags>(library.resolve("GetGraphicsImporterForDataRefWithFlags"));
+        ptrGraphicsImportSetFlags = reinterpret_cast<PtrGraphicsImportSetFlags>(library.resolve("GraphicsImportSetFlags"));
+        ptrGraphicsImportCreateCGImage = reinterpret_cast<PtrGraphicsImportCreateCGImage>(library.resolve("GraphicsImportCreateCGImage"));
+    }
+
+    return ptrQTNewDataReferenceFromCFURL != 0 && ptrGetGraphicsImporterForDataRefWithFlags != 0
+           && ptrGraphicsImportSetFlags != 0 && ptrGraphicsImportCreateCGImage != 0;
+}
+
+
+static QPixmap quicktimeTiff(const CFURLRef url)
+{
+    if (!resolveQuickTimeSymbols())
+        return QPixmap();
+
+    QCFType <CGImageRef> imageRef = 0;
+    Handle dataRef;
+    OSType dataRefType;
+    GraphicsImportComponent gi;
+    ComponentResult result;
+    result = ptrQTNewDataReferenceFromCFURL(url, 0, &dataRef, &dataRefType);
+    if (dataRef != 0) {
+        OSStatus err = ptrGetGraphicsImporterForDataRefWithFlags(dataRef, dataRefType, &gi, 0);
+        if (err == noErr && gi) {
+            result = ptrGraphicsImportSetFlags(gi, (kGraphicsImporterDontDoGammaCorrection
+                                                    + kGraphicsImporterDontUseColorMatching));
+            if (!result)
+                result = ptrGraphicsImportCreateCGImage(gi, &imageRef, 0);
+            if (result)
+                qWarning("Qt: Problem reading TIFF image %ld(%s:%d)", result, __FILE__, __LINE__);
+            DisposeHandle(dataRef);
+            CloseComponent(gi);
+        }
+    }
+
+    if (imageRef)
+        return QPixmap::fromMacCGImageRef(imageRef);
+    return QPixmap();
+}
+#endif // !__LP64__
+
 QPixmap QWizardPrivate::findDefaultBackgroundPixmap()
 {
-    // ### Simplify this code if this ever goes into Qt
-    CFURLRef url;
-    const uint ExpectedFileSize = 62932;
+    QCFType<CFURLRef> url;
     const int ExpectedImageWidth = 242;
     const int ExpectedImageHeight = 414;
     if (LSFindApplicationForInfo(kLSUnknownCreator, CFSTR("com.apple.KeyboardSetupAssistant"),
                                  0, 0, &url) == noErr) {
-        CFBundleRef bundle = CFBundleCreate(kCFAllocatorDefault, url);
-        CFRelease(url);
+        QCFType<CFBundleRef> bundle = CFBundleCreate(kCFAllocatorDefault, url);
         if (bundle) {
             url = CFBundleCopyResourceURL(bundle, CFSTR("Background"), CFSTR("tif"), 0);
             if (url) {
-                CFRelease(bundle);
-                FSRef fsref;
-                CFURLGetFSRef(url, &fsref);
-                CFRelease(url);
-                FSSpec fsspec;
-                FSCatalogInfo catalog;
-                memset(&catalog, 0, sizeof(FSCatalogInfo));
-                FSGetCatalogInfo(&fsref, kFSCatInfoGettableInfo, &catalog, 0, &fsspec, 0);
-                if (catalog.dataLogicalSize == ExpectedFileSize) {
-                    GraphicsImportComponent importer;
-                    GetGraphicsImporterForFile(&fsspec, &importer);
-                    CGImageRef image = 0;
-                    GraphicsImportCreateCGImage(importer, &image,
-                                                kGraphicsImportCreateCGImageUsingCurrentSettings);
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+                    QCFType<CGImageSourceRef> imageSource = CGImageSourceCreateWithURL(url, 0);
+                    QCFType<CGImageRef> image = CGImageSourceCreateImageAtIndex(imageSource, 0, 0);
                     if (image) {
                         int width = CGImageGetWidth(image);
                         int height = CGImageGetHeight(image);
-                        if (width == ExpectedImageWidth && height == ExpectedImageHeight) {
-                            QPixmap pixmap(ExpectedImageWidth, ExpectedImageHeight);
-                            pixmap.fill(Qt::transparent);
-                            CGContextRef context = qt_mac_cg_context(&pixmap);
-                            HIRect rect = CGRectMake(0., 0., width, height);
-                            HIViewDrawCGImage(context, &rect, image);
-                            CFRelease(context);
-                            CFRelease(image);
-                            return pixmap;
-                        } else {
-                            CFRelease(image);
-                        }
+                        if (width == ExpectedImageWidth && height == ExpectedImageHeight)
+                            return QPixmap::fromMacCGImageRef(image);
                     }
+                } else
+#endif
+                {
+#ifndef __LP64__
+                    return quicktimeTiff(url);
+#endif
                 }
             }
         }
@@ -1397,6 +1440,7 @@ QPixmap QWizardPrivate::findDefaultBackgroundPixmap()
     return QPixmap();
 
 }
+
 #endif
 
 #if defined(Q_WS_WIN)
