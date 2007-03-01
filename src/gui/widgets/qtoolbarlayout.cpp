@@ -212,7 +212,7 @@ void QToolBarLayout::updateGeomArray() const
         Qt::Orientations exp = item->expandingDirections();
         bool empty = item->isEmpty();
 
-        that->expanding |= exp & o;
+        that->expanding = expanding || exp & o;
 
         if (!empty) {
             if (count == 0) // the minimum size only displays one widget
@@ -414,7 +414,7 @@ void QToolBarLayout::setGeometry(const QRect &rect)
 
             if (expanded)
                 rowHeight = qMax(rowHeight, perp(o, items.at(i)->sizeHint()));
-            expansiveRow |= a[i].expansive;
+            expansiveRow = expansiveRow || a[i].expansive;
             size = newSize;
             prev = i;
             ++count;
