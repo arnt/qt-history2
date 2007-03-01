@@ -284,7 +284,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_modelDestroyed())
     Q_PRIVATE_SLOT(d_func(), void _q_modelReset())
 #ifdef QT_KEYPAD_NAVIGATION
-    Q_PRIVATE_SLOT(d_func(), void _q_completerClicked())
+    Q_PRIVATE_SLOT(d_func(), void _q_completerActivated())
 #endif
 };
 

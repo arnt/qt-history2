@@ -1700,6 +1700,11 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
        case Qt::Key_Enter:
        case Qt::Key_Return:
        case Qt::Key_F4:
+#ifdef QT_KEYPAD_NAVIGATION
+       case Qt::Key_Select:
+           if (!QApplication::keypadNavigationEnabled())
+               break;
+#endif
            d->completer->popup()->hide(); // just hide. will end up propagating to parent
        default:
            break; // normal key processing
