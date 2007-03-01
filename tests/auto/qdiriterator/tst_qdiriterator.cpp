@@ -36,6 +36,7 @@ private slots:
     void iterateResource();
     void stopLinkLoop();
     void engineWithNoIterator();
+    void absoluteFilePathsFromRelativeIteratorPath();
 };
 
 tst_QDirIterator::tst_QDirIterator()
@@ -270,6 +271,15 @@ void tst_QDirIterator::engineWithNoIterator()
 
     QDir("entrylist").entryList();
     QVERIFY(true); // test that the above line doesn't crash
+}
+
+void tst_QDirIterator::absoluteFilePathsFromRelativeIteratorPath()
+{
+    QDirIterator it("entrylist/", QDir::NoDotAndDotDot);
+    while (it.hasNext()) {
+        it.next();
+        QVERIFY(QFileInfo(it.filePath()).absoluteFilePath().contains("entrylist"));
+    }
 }
 
 QTEST_MAIN(tst_QDirIterator)
