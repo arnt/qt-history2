@@ -361,7 +361,7 @@ bool QX11Data::clipboardWaitForEvent(Window win, int type, XEvent *event, int ti
     QTime started = QTime::currentTime();
     QTime now = started;
 
-    if (QAbstractEventDispatcher::instance()->inherits("QMotif")) {
+    if (QAbstractEventDispatcher::instance()->inherits("QtMotif")) {
         if (waiting_for_data)
             qFatal("QClipboard: internal error, qt_xclb_wait_for_event recursed");
         waiting_for_data = true;
