@@ -402,7 +402,7 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
         for(register int i = 0; i < len; i++) {
             bool surrogate = (str[i].unicode() >= 0xd800 && str[i].unicode() < 0xdc00 && i < len-1
                               && str[i+1].unicode() >= 0xdc00 && str[i+1].unicode() < 0xe000);
-            unsigned int glyph = glyphs[i].glyph;
+            unsigned int glyph = glyphs[glyph_pos].glyph;
             glyphs[glyph_pos].advance.x = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
             glyphs[glyph_pos].advance.y = 0;
             // font-width cache failed
