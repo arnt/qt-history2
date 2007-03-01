@@ -156,12 +156,6 @@ void QPrinterPrivate::createDefaultEngines()
   If you want to abort the print job, abort() will try its best to
   stop printing. It may cancel the entire job or just part of it.
 
-  \omit
-  If your current locale converts "," to ".", you will need to set
-  a locale that doesn't do this (e.g. the "C" locale) before using
-  QPrinter.
-  \endomit
-
   Since QPrinter can print to any QPrintEngine subclass, it is possible to
   extend printing support to cover new types of printing subsystem by
   subclassing QPrintEngine and reimplementing its interface.
