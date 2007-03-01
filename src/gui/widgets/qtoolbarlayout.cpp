@@ -170,7 +170,7 @@ Qt::Orientations QToolBarLayout::expandingDirections() const
         updateGeomArray();
     QToolBar *tb = qobject_cast<QToolBar*>(parentWidget());
     Qt::Orientation o = tb->orientation();
-    return expanding ? o : Qt::Orientations(0);
+    return expanding ? Qt::Orientations(o) : Qt::Orientations(0);
 }
 
 void QToolBarLayout::updateGeomArray() const
