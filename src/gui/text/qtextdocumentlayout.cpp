@@ -68,8 +68,6 @@ public:
     QFixed minimumWidth;
     QFixed maximumWidth;
 
-    QTextFrameFormat::Position flow_position;
-
     QLayoutStruct *currentLayoutStruct;
 
     bool sizeDirty;
@@ -1255,7 +1253,7 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
         QTextFrame *frame = childFrames.at(i);
         QTextFrameData *cd = data(frame);
 
-        if (cd->flow_position != QTextFrameFormat::InFlow)
+        if (frame->frameFormat().position() != QTextFrameFormat::InFlow)
             layoutStruct.y = qMax(layoutStruct.y, cd->position.y + cd->size.height);
 
         floatMinWidth = qMax(floatMinWidth, cd->minimumWidth);
@@ -1683,7 +1681,7 @@ void QTextDocumentLayoutPrivate::positionFloat(QTextFrame *frame, QTextLine *cur
     QFixed left, right;
     floatMargins(y, pd->currentLayoutStruct, &left, &right);
 
-    if (fd->flow_position == QTextFrameFormat::FloatLeft) {
+    if (frame->frameFormat().position() == QTextFrameFormat::FloatLeft) {
         fd->position.x = left;
         fd->position.y = y;
     } else {
@@ -1746,8 +1744,6 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
         } else {
             fd->contentsHeight = frameHeight;
         }
-
-        fd->flow_position = fformat.position();
     }
 
     int startPos = f->firstPosition();
@@ -1927,10 +1923,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             QTextFrameData *cd = data(c);
 
             QTextFrameFormat fformat = c->frameFormat();
-            cd->flow_position = fformat.position();
 
-            if (cd->flow_position == QTextFrameFormat::InFlow) {
-                if (c->frameFormat().pageBreakPolicy() & QTextFormat::PageBreak_AlwaysBefore)
+            if (fformat.position() == QTextFrameFormat::InFlow) {
+                if (fformat.pageBreakPolicy() & QTextFormat::PageBreak_AlwaysBefore)
                     layoutStruct->newPage();
 
                 QFixed left, right;
@@ -2099,7 +2094,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
         QList<QTextFrame *> children = layoutStruct->frame->childFrames();
         for (int i = 0; i < children.count(); ++i) {
             QTextFrameData *fd = data(children.at(i));
-            if (!fd->layoutDirty && fd->flow_position != QTextFrameFormat::InFlow)
+            if (!fd->layoutDirty && children.at(i)->frameFormat().position() != QTextFrameFormat::InFlow)
                 layoutStruct->y = qMax(layoutStruct->y, fd->position.y + fd->size.height);
         }
     }
@@ -2331,7 +2326,7 @@ void QTextDocumentLayoutPrivate::floatMargins(QFixed y, const QLayoutStruct *lay
         if (!fd->layoutDirty) {
             if (fd->position.y <= y && fd->position.y + fd->size.height > y) {
 //                 qDebug() << "adjusting with float" << f << fd->position.x()<< fd->size.width();
-                if (fd->flow_position == QTextFrameFormat::FloatLeft)
+                if (lfd->floats.at(i)->frameFormat().position() == QTextFrameFormat::FloatLeft)
                     *left = qMax(*left, fd->position.x + fd->size.width);
                 else
                     *right = qMin(*right, fd->position.x);
@@ -2594,7 +2589,7 @@ void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTex
     QRectF r = rect;
     if (frame) {
         QTextFrameData *fd = data(frame);
-        if (fd->flow_position != QTextFrameFormat::InFlow)
+        if (frame->frameFormat().position() != QTextFrameFormat::InFlow)
             r = d->frameBoundingRectInternal(frame);
     }
 //    qDebug() << "drawObject at" << r;
