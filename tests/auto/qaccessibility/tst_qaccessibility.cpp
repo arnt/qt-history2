@@ -567,6 +567,7 @@ void tst_QAccessibility::relationTo()
 {
 #ifdef QTEST_ACCESSIBILITY
     QWidget *toplevel = createGUI();
+    toplevel->resize(400,300);
     QObject *topLeft = toplevel->child("topLeft");
     QObject *topRight = toplevel->child("topRight");
     QObject *bottomLeft = toplevel->child("bottomLeft");
@@ -2395,6 +2396,7 @@ void tst_QAccessibility::mdiAreaTest()
 #ifdef QTEST_ACCESSIBILITY
     {
     QMdiArea mdiArea;
+    mdiArea.resize(400,300);
     mdiArea.show();
     const int subWindowCount =  5;
     for (int i = 0; i < subWindowCount; ++i)
@@ -2450,6 +2452,7 @@ void tst_QAccessibility::mdiSubWindowTest()
 #ifdef QTEST_ACCESSIBILITY
     {
     QMdiArea mdiArea;
+    mdiArea.resize(400,300);
     mdiArea.show();
 #if defined(Q_WS_X11)
     qt_x11_wait_for_window_manager(&mdiArea);
@@ -2591,6 +2594,7 @@ void tst_QAccessibility::workspaceTest()
 #ifdef QTEST_ACCESSIBILITY
     {
     QWorkspace workspace;
+    workspace.resize(400,300);
     workspace.show();
     const int subWindowCount =  5;
     for (int i = 0; i < subWindowCount; ++i) {
