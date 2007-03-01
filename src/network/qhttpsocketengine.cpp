@@ -92,7 +92,7 @@ int QHttpSocketEngine::socketDescriptor() const
 bool QHttpSocketEngine::isValid() const
 {
     Q_D(const QHttpSocketEngine);
-    return d->socket;
+    return d->socketState != QAbstractSocket::UnconnectedState;
 }
 
 bool QHttpSocketEngine::connectToHost(const QHostAddress &address, quint16 port)
