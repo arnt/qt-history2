@@ -800,7 +800,7 @@ static const char months_data[] =
 "led;\xc3\xbano;b\xc5\x99\x65;dub;kv\xc4\x9b;\xc4\x8drn;\xc4\x8drc;srp;z\xc3\xa1\xc5"
 "\x99;\xc5\x99\xc3\xadj;lis;pro;\0"
 "ledna;\xc3\xbanora;b\xc5\x99\x65zna;dubna;kv\xc4\x9btna;\xc4\x8d\x65rvna;\xc4\x8d"
-"\x65rvence;srpna;z\xc3\xa1\xc5\x99\xc3\xad;\xc5\x99\xc3\xadjna;listopadu;prosince"
+"\x65rvenec;srpna;z\xc3\xa1\xc5\x99\xc3\xad;\xc5\x99\xc3\xadjna;listopadu;prosince"
 ";\0"
 "jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec;\0"
 "januar;februar;marts;april;maj;juni;juli;august;september;oktober;november;decemb"

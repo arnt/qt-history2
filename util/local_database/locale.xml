@@ -2983,7 +2983,7 @@
             <shortDateFormat>d.M.yy</shortDateFormat>
             <longTimeFormat>H:mm:ss z</longTimeFormat>
             <shortTimeFormat>H:mm</shortTimeFormat>
-            <longMonths>ledna;února;března;dubna;května;června;července;srpna;září;října;listopadu;prosince;</longMonths>
+            <longMonths>ledna;února;března;dubna;května;června;červenec;srpna;září;října;listopadu;prosince;</longMonths>
             <shortMonths>led;úno;bře;dub;kvě;črn;črc;srp;zář;říj;lis;pro;</shortMonths>
             <longDays>neděle;pondělí;úterý;středa;čtvrtek;pátek;sobota;</longDays>
             <shortDays>ne;po;út;st;čt;pá;so;</shortDays>
