@@ -290,6 +290,17 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
         dh = h = 240;
     }
 
+    switch (d) {
+    case 1:
+        setPixelFormat(QImage::Format_Mono); //### LSB???
+    case 8:
+        setPixelFormat(QImage::Format_Indexed8);
+    case 16:
+        setPixelFormat(QImage::Format_RGB16);
+    case 32:
+        setPixelFormat(QImage::Format_ARGB32_Premultiplied);
+    }
+
     // Handle display physical size spec.
     QStringList displayArgs = displaySpec.split(QLatin1Char(':'));
     QRegExp mmWidthRx(QLatin1String("mmWidth=?(\\d+)"));

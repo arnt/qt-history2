@@ -248,6 +248,7 @@ public:
     int physicalHeight() const { return physHeight; } // physical display size in mm
 
 protected:
+    void setPixelFormat(QImage::Format format);
 
     QRgb screenclut[256];
     int screencols;

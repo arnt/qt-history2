@@ -299,21 +299,23 @@ void QScreenCursor::initSoftwareCursor()
 class QScreenPrivate
 {
 public:
-    QScreenPrivate(QScreen *parent) : q_ptr(parent) {}
-    QImage::Format preferredImageFormat() const;
+    QScreenPrivate(QScreen *parent)
+        :  pixelFormat(QImage::Format_Invalid), q_ptr(parent) {}
+
+    inline QImage::Format preferredImageFormat() const;
 
     QPoint offset;
     QList<QScreen*> subScreens;
+    QImage::Format pixelFormat;
     QScreen *q_ptr;
 };
 
-QImage::Format
-QScreenPrivate::preferredImageFormat() const
+QImage::Format QScreenPrivate::preferredImageFormat() const
 {
-    if (q_ptr->depth() <= 16)
-        return QImage::Format_RGB16;
-    else
+    if (pixelFormat == QImage::Format_Invalid)
         return QImage::Format_ARGB32_Premultiplied;
+
+    return pixelFormat;
 }
 
 /*!
@@ -894,20 +896,13 @@ extern bool qws_accel; //in qapplication_qws.cpp
 //#### Must be able to distinguish between 565 and 1555 and between Indexed8 and 8-bit grayscale
 QImage::Format QScreen::pixelFormat() const
 {
-    switch (d) {
-    case 1:
-        return QImage::Format_Mono; //### LSB???
-    case 8:
-        return QImage::Format_Indexed8;
-    case 16:
-        return QImage::Format_RGB16;
-    case 32:
-        return QImage::Format_ARGB32_Premultiplied;
-    default:
-        return QImage::Format_Invalid; // Unsupported screen depth
-    }
+    return d_ptr->pixelFormat;
 }
 
+void QScreen::setPixelFormat(QImage::Format format)
+{
+    d_ptr->pixelFormat = format;
+}
 
 
 /*!
@@ -1584,9 +1579,9 @@ void QScreen::blit(QWSWindow *win, const QRegion &clip)
         return;
 
     QRegion rgn = clip & win->allocatedRegion();
-    surface->beginPaint(rgn);
+    surface->lock();
     blit(img, win->requestedRegion().boundingRect().topLeft(), rgn);
-    surface->endPaint(rgn);
+    surface->unlock();
 }
 
 struct fill_data {
@@ -1943,7 +1938,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
             return;
 
         if (surface)
-            surface->beginPaint(blendRegion);
+            surface->lock();
         const QVector<QRect> rects = blendRegion.rects();
         const int nspans = 256;
         QT_FT_Span spans[nspans];
@@ -1967,7 +1962,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
             }
         }
         if (surface)
-            surface->endPaint(blendRegion);
+            surface->unlock();
     }
 }
 

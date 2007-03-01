@@ -1805,6 +1805,7 @@ bool QVNCScreen::connect(const QString &displaySpec)
         QScreen::physWidth = screen->physicalWidth();
         QScreen::physHeight = screen->physicalHeight();
         setOffset(screen->offset());
+        setPixelFormat(screen->pixelFormat());
 
         d_ptr->subscreen = screen;
 
@@ -1812,6 +1813,17 @@ bool QVNCScreen::connect(const QString &displaySpec)
         d = qgetenv("QWS_DEPTH").toInt();
         if (!d)
             d = 16;
+
+        switch (d) {
+        case 1:
+            setPixelFormat(QImage::Format_Mono); //### LSB???
+        case 8:
+            setPixelFormat(QImage::Format_Indexed8);
+        case 16:
+            setPixelFormat(QImage::Format_RGB16);
+        case 32:
+            setPixelFormat(QImage::Format_ARGB32_Premultiplied);
+        }
 
         QByteArray str = qgetenv("QWS_SIZE");
         if(!str.isEmpty()) {
