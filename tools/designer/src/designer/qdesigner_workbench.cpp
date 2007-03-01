@@ -723,7 +723,9 @@ void QDesignerWorkbench::removeToolWindow(QDesignerToolWindow *toolWindow)
 
 void QDesignerWorkbench::removeFormWindow(QDesignerFormWindow *formWindow)
 {
-    updateBackup(formWindow->editor());
+    QDesignerFormWindowInterface *editor = formWindow->editor();
+    const bool loadOk = editor->mainContainer();
+    updateBackup(editor);
     const int index = m_formWindows.indexOf(formWindow);
     if (index != -1) {
         m_formWindows.removeAt(index);
@@ -738,7 +740,7 @@ void QDesignerWorkbench::removeFormWindow(QDesignerFormWindow *formWindow)
     if (m_formWindows.empty()) {
         m_actionManager->setWindowListSeparatorVisible(false);
         // Show up new form dialog unless closing
-        if (m_state == StateUp &&  QDesignerSettings().showNewFormOnStartup()) {
+        if (loadOk && m_state == StateUp &&  QDesignerSettings().showNewFormOnStartup()) {
             QTimer::singleShot(200, m_actionManager, SLOT(createForm()));
         }
     }

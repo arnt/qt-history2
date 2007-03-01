@@ -88,8 +88,11 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
     m_selected = 0;
 
     // ### generalise
-    m_internal_to_qt.insert(QLatin1String("QLayoutWidget"), QLatin1String("QWidget"));
-    m_internal_to_qt.insert(QLatin1String("QDesignerWidget"), QLatin1String("QWidget"));
+    const QString designerWidget = QLatin1String("QDesignerWidget");
+    const QString layoutWidget   = QLatin1String("QLayoutWidget");
+    const QString widget = QLatin1String("QWidget");
+    m_internal_to_qt.insert(layoutWidget, widget);
+    m_internal_to_qt.insert(designerWidget, widget);
     m_internal_to_qt.insert(QLatin1String("QDesignerStackedWidget"), QLatin1String("QStackedWidget"));
     m_internal_to_qt.insert(QLatin1String("QDesignerTabWidget"), QLatin1String("QTabWidget"));
     m_internal_to_qt.insert(QLatin1String("QDesignerDialog"), QLatin1String("QDialog"));
@@ -101,15 +104,11 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
     m_internal_to_qt.insert(QLatin1String("QDesignerQ3WidgetStack"), QLatin1String("Q3WidgetStack"));
 
     // invert
-    QHashIterator<QString, QString> it(m_internal_to_qt);
-    while (it.hasNext()) {
-        it.next();
+    QHash<QString, QString>::const_iterator cend = m_internal_to_qt.constEnd();
+    for (QHash<QString, QString>::const_iterator it = m_internal_to_qt.constBegin();it != cend; ++it )  {
+        if (it.value() != designerWidget  && it.value() != layoutWidget)
+            m_qt_to_internal.insert(it.value(), it.key());
 
-        if (it.value() == QLatin1String("QDesignerWidget")
-                || it.value() == QLatin1String("QLayoutWidget"))
-            continue;
-
-        m_qt_to_internal.insert(it.value(), it.key());
     }
 }
 
@@ -178,22 +177,17 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
     }
 
     if (!m_formWindow->includeHints().isEmpty()) {
-        const QString emptyString;
+        const QString local = QLatin1String("local");
+        const QString global = QLatin1String("global");
         QList<DomInclude*> ui_includes;
         foreach (QString includeHint, m_formWindow->includeHints()) {
             if (includeHint.isEmpty())
                 continue;
-
             DomInclude *incl = new DomInclude;
-            QString location = QLatin1String("local");
-            if (includeHint.at(0) == QLatin1Char('<'))
-                location = QLatin1String("global");
-
-            includeHint = includeHint
-                .replace(QLatin1Char('"'), emptyString)
-                .replace(QLatin1Char('<'), emptyString)
-                .replace(QLatin1Char('>'), emptyString);
-
+            const QString location = includeHint.at(0) == QLatin1Char('<') ? global : local;
+            includeHint.remove(QLatin1Char('"'));
+            includeHint.remove(QLatin1Char('<'));
+            includeHint.remove(QLatin1Char('>'));
             incl->setAttributeLocation(location);
             incl->setText(includeHint);
             ui_includes.append(incl);
@@ -265,20 +259,47 @@ static bool convert3(const QString &fileName, QByteArray& ba, QString &errorMess
     return true;
 }
 
-QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
+namespace {
+    enum LoadPreCheck {  LoadPreCheckFailed, LoadPreCheckVersionMismatch,  LoadPreCheckOk  };
+}
 
-            {
-    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), core())) {
-        if (!extra->loadUiExtraInfo(ui))
-            return 0;
-    } else if (ui->hasAttributeLanguage() && ui->attributeLanguage().toLower() != QLatin1String("c++")) {
-        return 0;
+// While loading a file, check language, version and extra extension
+static LoadPreCheck loadPrecheck(QDesignerFormEditorInterface *core, DomUI *ui, QString &errorMessage)
+{
+    // Check language unless extension present (Jambi)
+    if (ui->hasAttributeLanguage() && !qt_extension<QDesignerLanguageExtension*>(core->extensionManager(), core)) {
+        const QString language = ui->attributeLanguage();
+        if (language.toLower() != QLatin1String("c++")) {
+            // Jambi?!
+            errorMessage = QApplication::translate("Designer", "This file cannot be read because it was created using %1.").arg(language);
+            return LoadPreCheckFailed;
+        }
     }
 
-    const QString version = ui->attributeVersion();
-    if (version != QLatin1String("4.0")) {
+    // Version
+    if (ui->hasAttributeVersion() && ui->attributeVersion() != QLatin1String("4.0"))
+        return LoadPreCheckVersionMismatch;
+
+    // Load extra
+    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core->extensionManager(), core)) {
+        if (!extra->loadUiExtraInfo(ui)) {
+            errorMessage = QApplication::translate("Designer", "This file cannot be read because the extra info extension failed to load.");
+            return LoadPreCheckFailed;
+        }
+    }
+    return LoadPreCheckOk;
+}
+
+QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
+{
+    QString errorMessage;
+    switch (loadPrecheck(core(), ui,  errorMessage)) {
+    case LoadPreCheckFailed:
+        QMessageBox::warning(parentWidget->window(),  QApplication::translate("Designer", "Qt Designer"), errorMessage, QMessageBox::Ok, 0);
+        return 0;
+    case LoadPreCheckVersionMismatch: {
+        const QString version = ui->attributeVersion();
         QWidget *w = 0;
-        QString errorMessage;
         QByteArray ba;
         if (convert3( m_formWindow->fileName(), ba, errorMessage)) {
             QBuffer buffer(&ba);
@@ -308,6 +329,9 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
         return 0;
     }
 
+    case LoadPreCheckOk:
+        break;
+    }
     qdesigner_internal::WidgetFactory *factory = qobject_cast<qdesigner_internal::WidgetFactory*>(core()->widgetFactory());
     Q_ASSERT(factory != 0);
 
@@ -345,6 +369,7 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
         }
 
         if (DomIncludes *includes = ui->elementIncludes()) {
+            const QString global = QLatin1String("global");
             QStringList includeHints;
             foreach (DomInclude *incl, includes->elementInclude()) {
                 QString text = incl->text();
@@ -352,7 +377,7 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
                 if (text.isEmpty())
                     continue;
 
-                if (incl->hasAttributeLocation() && incl->attributeLocation() == QLatin1String("global")) {
+                if (incl->hasAttributeLocation() && incl->attributeLocation() == global ) {
                     text = text.prepend(QLatin1Char('<')).append(QLatin1Char('>'));
                 } else {
                     text = text.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
@@ -451,10 +476,11 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 
     // store user-defined scripts
     if (MetaDataBase *metaDataBase = qobject_cast<MetaDataBase *>(core()->metaDataBase())) {
+        const QString designerSource = QLatin1String("designer");
         const DomScripts domScripts = ui_widget->elementScript();
         if (!domScripts.empty()) {
             foreach (const DomScript *script, domScripts) {
-                if (script->hasAttributeSource() && script->attributeSource() == QLatin1String("designer")) {
+                if (script->hasAttributeSource() && script->attributeSource() == designerSource) {
                     metaDataBase->metaDataBaseItem(w)->setScript(script->text());
                 }
             }
@@ -845,7 +871,7 @@ void QDesignerResource::addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& cu
                 // Apply "contains" from DOM only if true (else, eg classes from QFrame might not accept
                 // dropping child widgets on them as container=false). This also allows for
                 // QWidget-derived stacked pages.
-                if (domIsContainer) 
+                if (domIsContainer)
                     item->setContainer(domIsContainer);
                 custom_widget_list.removeAt(i);
                 classInserted = true;
@@ -855,7 +881,7 @@ void QDesignerResource::addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& cu
         if (!classInserted)
             i++;
     }
-    
+
 }
 void QDesignerResource::createCustomWidgets(DomCustomWidgets *dom_custom_widgets)
 {
@@ -1341,10 +1367,11 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
     typedef QMap<int,DomCustomWidget*>  OrderedDBIndexDomCustomWidgetMap;
     OrderedDBIndexDomCustomWidgetMap orderedMap;
 
+    const QString global = QLatin1String("global");
     foreach (QDesignerWidgetDataBaseItemInterface *item, m_usedCustomWidgets.keys()) {
         const QString name = item->name();
         DomCustomWidget *custom_widget = new DomCustomWidget;
-        
+
         custom_widget->setElementClass(name);
         if (item->isContainer())
             custom_widget->setElementContainer(item->isContainer());
@@ -1354,7 +1381,7 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
             const  IncludeSpecification spec = includeSpecification(item->includeFile());
             header->setText(spec.first);
             if (spec.second == IncludeGlobal) {
-                header->setAttributeLocation(QLatin1String("global"));
+                header->setAttributeLocation(global);
             }
             custom_widget->setElementHeader(header);
             custom_widget->setElementExtends(item->extends());
