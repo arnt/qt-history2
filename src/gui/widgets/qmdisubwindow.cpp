@@ -125,9 +125,9 @@
 #include <QToolTip>
 #include <QMainWindow>
 #include <QDebug>
-#if defined(Q_WS_MAC)
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 #include <QMacStyle>
-#elif defined(Q_WS_WIN)
+#elif defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSXP)
 #include <QWindowsXPStyle>
 #endif
 
@@ -880,7 +880,7 @@ void QMdiSubWindowPrivate::updateCursor()
 {
 #ifndef QT_NO_CURSOR
     Q_Q(QMdiSubWindow);
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
     if (qobject_cast<QMacStyle *>(q->style()))
         return;
 #endif
@@ -1186,7 +1186,7 @@ void QMdiSubWindowPrivate::processClickedSubControl()
         q->showNormal();
         break;
     case QStyle::SC_TitleBarMinButton:
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
         if (qobject_cast<QMacStyle *>(q->style())) {
             if (q->isMinimized())
                 q->showNormal();
@@ -1203,7 +1203,7 @@ void QMdiSubWindowPrivate::processClickedSubControl()
         q->showNormal();
         break;
     case QStyle::SC_TitleBarMaxButton:
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
         if (qobject_cast<QMacStyle *>(q->style())) {
             if (q->isMaximized())
                 q->showNormal();
@@ -1250,7 +1250,7 @@ QRegion QMdiSubWindowPrivate::getRegion(Operation operation) const
     }
 
     QRegion region;
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
     if (qobject_cast<QMacStyle *>(q->style()))
         return region;
 #endif
@@ -1405,7 +1405,7 @@ int QMdiSubWindowPrivate::titleBarHeight(const QStyleOptionTitleBar &options) co
     }
 
     int height = q->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options);
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
     // ### Fix mac style, the +4 pixels hack is not necessary anymore
     if (qobject_cast<QMacStyle *>(q->style()))
         height -= 4;
@@ -1450,7 +1450,7 @@ void QMdiSubWindowPrivate::sizeParameters(int *margin, int *minWidth) const
 */
 bool QMdiSubWindowPrivate::drawTitleBarWhenMaximized() const
 {
-#if defined(Q_WS_MAC)
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
     return true;
 #else
     Q_Q(const QMdiSubWindow);
@@ -1801,7 +1801,7 @@ void QMdiSubWindowPrivate::setSizeGrip(QSizeGrip *newSizeGrip)
         return;
     newSizeGrip->setFixedSize(newSizeGrip->sizeHint());
     bool putSizeGripInLayout = q->layout() ? true : false;
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
     if (qobject_cast<QMacStyle *>(q->style()))
         putSizeGripInLayout = false;
 #endif
@@ -2335,7 +2335,7 @@ bool QMdiSubWindow::event(QEvent *event)
             d->leaveRubberBandMode();
         d->isShadeMode = false;
         if (!parent()) {
-#if !defined(QT_NO_SIZEGRIP) && defined(Q_WS_MAC)
+#if !defined(QT_NO_SIZEGRIP) && defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
             if (qobject_cast<QMacStyle *>(style()))
                 delete d->sizeGrip;
 #endif
@@ -2398,7 +2398,7 @@ void QMdiSubWindow::showEvent(QShowEvent *showEvent)
         return;
     }
 
-#if !defined(QT_NO_SIZEGRIP) && defined(Q_WS_MAC)
+#if !defined(QT_NO_SIZEGRIP) && defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
     if (qobject_cast<QMacStyle *>(style()) && !d->sizeGrip
             && !(windowFlags() & Qt::FramelessWindowHint)) {
         d->setSizeGrip(new QSizeGrip(0));
@@ -2559,7 +2559,7 @@ void QMdiSubWindow::paintEvent(QPaintEvent *paintEvent)
     }
 
     bool setClipRect = !isMinimized() && !d->hasBorder(titleBarOptions);
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSXP)
     if (qobject_cast<QWindowsXPStyle *>(style()))
         setClipRect = false;
 #endif
@@ -2878,7 +2878,7 @@ QSize QMdiSubWindow::minimumSizeHint() const
     int sizeGripHeight = 0;
     if (d->sizeGrip && d->sizeGrip->isVisibleTo(const_cast<QMdiSubWindow *>(this)))
         sizeGripHeight = d->sizeGrip->height();
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
     else if (parent() && qobject_cast<QMacStyle *>(style()) && !d->sizeGrip)
         sizeGripHeight = style()->pixelMetric(QStyle::PM_SizeGripSize, 0, this);
 #endif
