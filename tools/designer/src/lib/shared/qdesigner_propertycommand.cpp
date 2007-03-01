@@ -31,10 +31,12 @@
 #include <QtGui/QWidget>
 #include <QtGui/QApplication>
 #include <QtGui/QAction>
+#include <QtGui/QDialog>
+#include <QtGui/QPushButton>
 #include <qdebug.h>
 
 namespace  {
-const bool debugPropertyCommands = false;
+enum { debugPropertyCommands = 0 };
 
 
 QSize checkSize(const QSize &size)
@@ -343,6 +345,8 @@ enum SpecialProperty getSpecialProperty(const QString& propertyName)
         return SP_MaximumSize;
     if (propertyName == QLatin1String("alignment"))
         return SP_Alignment;
+    if (propertyName == QLatin1String("autoDefault"))
+        return SP_AutoDefault;
     return SP_None;
 }
 
@@ -514,14 +518,19 @@ PropertyHelper::Value PropertyHelper::restoreOldValue(QDesignerFormWindowInterfa
     return applyValue(fw, m_propertySheet->property(m_index), m_oldValue);
 }
 
-
 // find the default value in widget DB in case PropertySheet::reset fails
 QVariant PropertyHelper::findDefaultValue(QDesignerFormWindowInterface *fw) const
 {
+    if (m_specialProperty == SP_AutoDefault && qobject_cast<const QPushButton*>(m_object)) {
+        // AutoDefault defaults to true on dialogs
+        const bool isDialog = qobject_cast<const QDialog *>(fw->mainContainer());
+        return QVariant(isDialog);
+    }
 
     const int item_idx = fw->core()->widgetDataBase()->indexOfObject(m_object);
     if (item_idx == -1)
         return  m_oldValue.first; // We simply don't know the value in this case
+
     const QDesignerWidgetDataBaseItemInterface *item = fw->core()->widgetDataBase()->item(item_idx);
     const QList<QVariant> default_prop_values = item->defaultPropertyValues();
     if (m_index < default_prop_values.size())

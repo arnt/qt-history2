@@ -39,7 +39,7 @@ namespace qdesigner_internal {
 enum SpecialProperty {
         SP_None, SP_ObjectName, SP_WindowTitle,
         SP_MinimumSize, SP_MaximumSize, SP_Geometry, SP_Icon,SP_CurrentTabName,
-        SP_Alignment
+        SP_AutoDefault, SP_Alignment
 };
 
 //Determine special property
