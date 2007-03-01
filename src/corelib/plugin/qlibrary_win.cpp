@@ -54,7 +54,7 @@ bool QLibraryPrivate::load_sys()
         QT_WA({
             TCHAR buffer[MAX_PATH + 1];
             ::GetModuleFileNameW(pHnd, buffer, MAX_PATH);
-            attempt = QString::fromUtf16(buffer);
+            attempt = QString::fromUtf16(reinterpret_cast<const ushort *>(&buffer));
         }, {
             char buffer[MAX_PATH + 1];
             ::GetModuleFileNameA(pHnd, buffer, MAX_PATH);

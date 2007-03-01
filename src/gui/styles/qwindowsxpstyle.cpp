@@ -1545,8 +1545,8 @@ case PE_Frame:
                     WCHAR* offset;
                     if ((offset = wcsrchr(themeFileName, QChar(QLatin1Char('\\')).unicode())) != NULL) {
                         offset++;
-                        if (QString::fromUtf16(offset) == QString(QLatin1String("Luna.msstyles")) &&
-                            QString::fromUtf16(themeColor) == QString(QLatin1String("Metallic")))
+                        if (QString::fromUtf16(reinterpret_cast<const ushort *>(offset)) == QString(QLatin1String("Luna.msstyles")) &&
+                            QString::fromUtf16(reinterpret_cast<const ushort *>(themeColor)) == QString(QLatin1String("Metallic")))
                             useGradient = false;
                     }
                 }
