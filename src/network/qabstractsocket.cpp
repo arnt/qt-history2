@@ -843,7 +843,8 @@ void QAbstractSocketPrivate::_q_testConnection()
         if (socketEngine->state() != QAbstractSocket::ConnectedState) {
             // Try connecting if we're not already connected.
             if (!socketEngine->connectToHost(host, port)) {
-                if (socketEngine->error() == QAbstractSocket::SocketError(11)) {
+                if (socketEngine->state() == QAbstractSocket::ConnectingState
+                    || socketEngine->error() == QAbstractSocket::SocketError(11)) {
                     // Connection in progress; wait for the next notification.
                     return;
                 }
