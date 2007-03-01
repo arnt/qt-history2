@@ -830,7 +830,7 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
                 paintEngine->setSystemClip(wrgn);
 
                 //paint the background
-                if ((asRoot || q->autoFillBackground() || onScreen)
+                if ((asRoot || q->autoFillBackground() || onScreen || q->testAttribute(Qt::WA_StyledBackground))
                     && !q->testAttribute(Qt::WA_OpaquePaintEvent)
                     && !q->testAttribute(Qt::WA_NoSystemBackground)) {
 

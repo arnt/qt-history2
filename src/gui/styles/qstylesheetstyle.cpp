@@ -1996,6 +1996,7 @@ void QStyleSheetStyle::polish(QWidget *w)
         setPalette(w);
     }
 
+#ifndef QT_NO_SCROLLAREA
     if (QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(w)) {
         QRenderRule rule = renderRule(sa, 0);
         if ((rule.hasBorder() && rule.border()->hasBorderImage())
@@ -2006,7 +2007,15 @@ void QStyleSheetStyle::polish(QWidget *w)
                              sa, SLOT(update()));
         }
     }
+#endif
 
+    const QMetaObject *me = w->metaObject();
+    const QMetaObject *super = w->metaObject()->superClass();
+    bool on = QString::fromLocal8Bit(me->className()) == QLatin1String("QWidget")
+              || QString::fromLocal8Bit(me->className()) == QLatin1String("QDialog")
+              || QString::fromLocal8Bit(super->className()) == QLatin1String("QDialog");
+    
+    w->setAttribute(Qt::WA_StyledBackground, on);
     updateWidget(w);
 }
 

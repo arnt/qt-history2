@@ -381,6 +381,7 @@ public:
         WA_MacMiniSize = 91,    // Mac only
 
         WA_LayoutUsesWidgetRect = 92,
+        WA_StyledBackground = 93, // internal
 
         // Add new attributes before this line
         WA_AttributeCount

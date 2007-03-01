@@ -1744,6 +1744,12 @@ void QWidgetPrivate::paintBackground(QPainter *painter, const QRect &rect, bool 
     if (q->autoFillBackground()) {
         FILL_RECT_WORKAROUND(painter, rect, autoFillBrush);
     }
+
+    if (q->testAttribute(Qt::WA_StyledBackground)) {
+        QStyleOption opt;
+        opt.initFrom(q);
+        q->style()->drawPrimitive(QStyle::PE_Widget, &opt, painter, q);
+    }
 }
 
 
@@ -6626,10 +6632,6 @@ void QWidget::leaveEvent(QEvent *)
 
 void QWidget::paintEvent(QPaintEvent *)
 {
-    QPainter p(this);
-    QStyleOption opt;
-    opt.initFrom(this);
-    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
 
