@@ -60,9 +60,12 @@ bool QLibraryPrivate::load_sys()
             ::GetModuleFileNameA(pHnd, buffer, MAX_PATH);
             attempt = QString::fromLocal8Bit(buffer);
         });
-        const QFileInfo fileinfo(fileName);
+        const QDir dir =  QFileInfo(fileName).dir();
         const QString realfilename = attempt.mid(attempt.lastIndexOf(QLatin1Char('\\')) + 1);
-        qualifiedFileName = fileinfo.dir().filePath(realfilename);
+        if (dir.path() == QLatin1String("."))
+            qualifiedFileName = realfilename;
+        else
+            qualifiedFileName = dir.filePath(realfilename);
     }
     return (pHnd != 0);
 }

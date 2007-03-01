@@ -425,6 +425,11 @@ void tst_QLibrary::fileName_data()
     QString currDir = QDir::currentPath();
     QTest::newRow( "ok02" ) << sys_qualifiedLibraryName(QLatin1String("mylib"))
                             << sys_qualifiedLibraryName(QLatin1String("mylib"));
+#ifdef Q_WS_WIN
+    QTest::newRow( "ok02" ) << "user32"
+                            << "USER32.dll";
+
+#endif
 }
 
 void tst_QLibrary::fileName()
@@ -439,7 +444,6 @@ void tst_QLibrary::fileName()
     }
 
     QVERIFY(ok);
-    QString e = lib.fileName();
     QCOMPARE(lib.fileName(), expectedFilename);
 
 }
