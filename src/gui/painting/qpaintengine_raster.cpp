@@ -1261,10 +1261,7 @@ void QRasterPaintEngine::updateClipRegion(const QRegion &r, Qt::ClipOperation op
             d->clipRegion &= d->matrix.map(r);
             break;
         case Qt::ReplaceClip:
-            if (r.isEmpty())
-                d->clipRegion = d->deviceRect;
-            else
-                d->clipRegion = d->matrix.map(r);
+            d->clipRegion = d->matrix.map(r);
             break;
         case Qt::UniteClip:
             d->clipRegion |= d->matrix.map(r);
