@@ -243,8 +243,8 @@ time_t q_getTimeFromASN1(const ASN1_TIME *aTime);
 
 #define q_BIO_pending(b) (int)q_BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
 #define q_SSL_CTX_set_options(ctx,op) q_SSL_CTX_ctrl((ctx),SSL_CTRL_OPTIONS,(op),NULL)
-#define q_SKM_sk_num(type, st) ((int (*)(const STACK_OF(type) *))openssl_fcast(q_sk_num))(st)
-#define q_SKM_sk_value(type, st,i) ((type * (*)(const STACK_OF(type) *, int))openssl_fcast(q_sk_value))(st, i)
+#define q_SKM_sk_num(type, st) ((int (*)(const STACK_OF(type) *))q_sk_num)(st)
+#define q_SKM_sk_value(type, st,i) ((type * (*)(const STACK_OF(type) *, int))q_sk_value)(st, i)
 #define q_sk_X509_num(st) q_SKM_sk_num(X509, (st))
 #define q_sk_X509_value(st, i) q_SKM_sk_value(X509, (st), (i))
 #define q_sk_SSL_CIPHER_num(st) q_SKM_sk_num(SSL_CIPHER, (st))
