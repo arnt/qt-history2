@@ -216,7 +216,7 @@ int QAccessibleWidget::childAt(int x, int y) const
             return i + 1;
         }
     }
-    return -1;
+    return 0;
 }
 
 /*! \reimp */

@@ -157,6 +157,7 @@ private slots:
     void tableViewTest();
     void calendarWidgetTest();
     void dockWidgetTest();
+    void pushButtonTest();
 
 private:
     QWidget *createGUI();
@@ -3406,6 +3407,47 @@ void tst_QAccessibility::dockWidgetTest()
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
 #endif // QT_NO_DOCKWIDGET
+}
+
+void tst_QAccessibility::pushButtonTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    // Set up a proper main window with two dock widgets
+    QWidget *toplevel = createGUI();
+    QObject *topRight = toplevel->child("topRight");
+
+    QPushButton *pb = qobject_cast<QPushButton*>(topRight->child("pbOk"));
+    QPoint pt = pb->mapToGlobal(pb->geometry().topLeft());
+    QRect rect(pt, pb->geometry().size());
+    pt = rect.center();
+
+    toplevel->show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(mw);
+#endif
+
+    QAccessibleInterface *accToplevel = QAccessible::queryAccessibleInterface(toplevel);
+    QAccessibleInterface *acc;
+    QAccessibleInterface *acc2;
+    int entry = accToplevel->childAt(pt.x(), pt.y());
+    int child = accToplevel->navigate(QAccessible::Child, entry, &acc);
+    if (acc) {
+        entry = acc->childAt(pt.x(), pt.y());
+        child = acc->navigate(QAccessible::Child, entry, &acc2);
+        delete acc;
+        acc = acc2;
+    }
+    QCOMPARE(acc->role(0), QAccessible::PushButton);
+    QCOMPARE(acc->rect(0), rect);
+    QCOMPARE(acc->childAt(pt.x(), pt.y()), 0);
+
+    delete acc;
+    delete accToplevel;
+    delete toplevel;
+    QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
 }
 
 QTEST_MAIN(tst_QAccessibility)
