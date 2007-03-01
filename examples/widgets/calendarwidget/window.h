@@ -20,6 +20,7 @@ public:
     Window();
 
 private slots:
+    void localeChanged(int index);
     void firstDayChanged(int index);
     void selectionModeChanged(int index);
     void horizontalHeaderChanged(int index);
@@ -44,10 +45,12 @@ private:
     QCalendarWidget *calendar;
 
     QGroupBox *generalOptionsGroupBox;
+    QLabel *localeLabel;
     QLabel *firstDayLabel;
     QLabel *selectionModeLabel;
     QLabel *horizontalHeaderLabel;
     QLabel *verticalHeaderLabel;
+    QComboBox *localeCombo;
     QComboBox *firstDayCombo;
     QComboBox *selectionModeCombo;
     QCheckBox *gridCheckBox;

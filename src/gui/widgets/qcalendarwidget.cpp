@@ -57,6 +57,9 @@ public:
     virtual void setDate(const QDate &date) = 0;
     virtual QString text() const = 0;
     virtual QString text(const QDate &date, int repeat) const = 0;
+
+    QLocale m_locale;
+
 protected:
     QString highlightString(const QString &str, int pos) const;
 private:
@@ -178,9 +181,9 @@ QString QCalendarDayValidator::text(const QDate &date, int repeat) const
             str += QLatin1String("0");
         return str + QString::number(date.day());
     } else if (repeat == 3) {
-        return date.shortDayName(date.dayOfWeek());
+        return m_locale.dayName(date.dayOfWeek(), QLocale::ShortFormat);
     } else if (repeat >= 4) {
-        return date.longDayName(date.dayOfWeek());
+        return m_locale.dayName(date.dayOfWeek(), QLocale::LongFormat);
     }
     return QString();
 }
@@ -296,9 +299,9 @@ QString QCalendarMonthValidator::text(const QDate &date, int repeat) const
             str += QLatin1String("0");
         return str + QString::number(date.month());
     } else if (repeat == 3) {
-        return QLocale::system().monthName(date.month(), QLocale::ShortFormat);
+        return m_locale.monthName(date.month(), QLocale::ShortFormat);
     } else if (repeat >= 4) {
-        return QLocale::system().monthName(date.month(), QLocale::LongFormat);
+        return m_locale.monthName(date.month(), QLocale::LongFormat);
     }
     return QString();
 }
@@ -429,6 +432,9 @@ public:
     QDate currentDate() const { return m_currentDate; }
     void setFormat(const QString &format);
     void setInitialDate(const QDate &date);
+
+    void setLocale(const QLocale &locale);
+
 private:
 
     struct SectionToken {
@@ -465,6 +471,13 @@ QCalendarDateValidator::QCalendarDateValidator()
     m_yearValidator = new QCalendarYearValidator();
     m_monthValidator = new QCalendarMonthValidator();
     m_dayValidator = new QCalendarDayValidator();
+}
+
+void QCalendarDateValidator::setLocale(const QLocale &locale)
+{
+    m_yearValidator->m_locale = locale;
+    m_monthValidator->m_locale = locale;
+    m_dayValidator->m_locale = locale;
 }
 
 QCalendarDateValidator::~QCalendarDateValidator()
@@ -643,6 +656,8 @@ public:
     bool eventFilter(QObject *o, QEvent *e);
     void timerEvent(QTimerEvent *e);
 
+    void setLocale(const QLocale &locale);
+
 signals:
     void changeDate(const QDate &date, bool changeMonth);
     void editingFinished();
@@ -653,6 +668,8 @@ private:
     QBasicTimer m_acceptTimer;
     QCalendarDateValidator *m_dateValidator;
     QCalendarWidget *m_calendar;
+
+    QLocale m_locale;
 };
 
 void QCalendarTextNavigator::setCalendar(QCalendarWidget *calendar)
@@ -689,6 +706,15 @@ void QCalendarTextNavigator::applyDate()
     emit changeDate(date, true);
 }
 
+void QCalendarTextNavigator::setLocale(const QLocale &locale)
+{
+    m_locale = locale;
+    if (m_dateValidator != 0) {
+        m_dateValidator->setLocale(locale);
+        updateDateLabel();
+    }
+}
+
 void QCalendarTextNavigator::createDateLabel()
 {
     if (m_dateFrame)
@@ -701,7 +727,8 @@ void QCalendarTextNavigator::createDateLabel()
     m_dateFrame->setFrameShadow(QFrame::Plain);
     m_dateFrame->setFrameShape(QFrame::Box);
     m_dateValidator = new QCalendarDateValidator();
-    m_dateValidator->setFormat(QLocale::system().dateFormat(QLocale::ShortFormat));
+    m_dateValidator->setLocale(m_locale);
+    m_dateValidator->setFormat(m_locale.dateFormat(QLocale::ShortFormat));
     m_dateValidator->setInitialDate(m_calendar->selectedDate());
 
     m_dateFrame->setAutoFillBackground(true);
@@ -983,11 +1010,11 @@ QString QCalendarModel::dayName(int day) const
 {
     switch (horizontalHeaderFormat) {
         case QCalendarWidget::SingleLetterDayNames:
-            return QDate::shortDayName(day).left(1);
+            return m_view->locale().dayName(day, QLocale::ShortFormat).left(1);
         case QCalendarWidget::ShortDayNames:
-            return QDate::shortDayName(day);
+            return m_view->locale().dayName(day, QLocale::ShortFormat);
         case QCalendarWidget::LongDayNames:
-            return QDate::longDayName(day);
+            return m_view->locale().dayName(day, QLocale::LongFormat);
         default:
             break;
     }
@@ -1433,7 +1460,7 @@ public:
     void paintCell(QPainter *painter, const QRect &rect, const QDate &date) const;
 private:
     QCalendarWidgetPrivate *calendarWidgetPrivate;
-    mutable QStyleOptionViewItem storedOption;
+    mutable QStyleOptionViewItemV3 storedOption;
 };
 
 //Private tool button class
@@ -1515,6 +1542,7 @@ public:
 
     void createNavigationBar(QWidget *widget);
     void updateMonthMenu();
+    void updateMonthMenuNames();
     void updateNavigationBar();
     void updateCurrentPage(QDate &newDate);
     inline QDate getCurrentDate();
@@ -1599,12 +1627,12 @@ void QCalendarWidgetPrivate::createNavigationBar(QWidget *widget)
     monthButton->setAutoRaise(true);
     monthButton->setPopupMode(QToolButton::InstantPopup);
 #ifdef QT_KEYPAD_NAVIGATION
-    if (QApplication::keypadNavigationEnabled()) 
+    if (QApplication::keypadNavigationEnabled())
         monthButton->setFocusPolicy(Qt::NoFocus);
 #endif
     monthMenu = new QMenu(monthButton);
     for (int i = 1; i <= 12; i++) {
-        QString monthName(QDate::longMonthName(i));
+        QString monthName(q->locale().monthName(i, QLocale::LongFormat));
         QAction *act = monthMenu->addAction(monthName);
         act->setData(i);
         monthToAction[i] = act;
@@ -1680,6 +1708,16 @@ void QCalendarWidgetPrivate::updateMonthMenu()
         if (i < beg || i > end)
             monthEnabled = false;
         monthToAction[i]->setEnabled(monthEnabled);
+    }
+}
+
+void QCalendarWidgetPrivate::updateMonthMenuNames()
+{
+    Q_Q(QCalendarWidget);
+
+    for (int i = 1; i <= 12; i++) {
+        QString monthName(q->locale().monthName(i, QLocale::LongFormat));
+        monthToAction[i]->setText(monthName);
     }
 }
 
@@ -1767,12 +1805,16 @@ void QCalendarWidgetPrivate::showMonth(int year, int month)
 
 void QCalendarWidgetPrivate::updateNavigationBar()
 {
-    monthButton->setText(QDate::longMonthName(m_model->shownMonth));
+    Q_Q(QCalendarWidget);
+
+    QString monthName = q->locale().monthName(m_model->shownMonth, QLocale::LongFormat);
+
+    monthButton->setText(monthName);
     yearButton->setText(QString::number(m_model->shownYear));
     yearEdit->setValue(m_model->shownYear);
 
     QFontMetrics fm = monthButton->fontMetrics();
-    monthButton->setMaximumWidth(fm.boundingRect(QDate::longMonthName(m_model->shownMonth)).width() +
+    monthButton->setMaximumWidth(fm.boundingRect(monthName).width() +
         fm.boundingRect(QLatin1Char('y')).width());
 
     fm = yearButton->fontMetrics();
@@ -1968,6 +2010,7 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
     layoutV->addWidget(d->m_view);
 
     d->m_navigator = new QCalendarTextNavigator(this);
+    d->m_navigator->setLocale(locale());
     d->m_navigator->setCalendar(this);
     connect(d->m_navigator, SIGNAL(changeDate(QDate,bool)),
             this, SLOT(_q_slotChangeDate(QDate,bool)));
@@ -2055,8 +2098,10 @@ QSize QCalendarWidget::minimumSizeHint() const
 
         QFontMetrics fm = d->monthButton->fontMetrics();
         int monthW = 0;
-        for (int i = 1; i < 12; i++)
-            monthW = qMax(monthW, fm.boundingRect(QDate::longMonthName(i)).width());
+        for (int i = 1; i < 12; i++) {
+            QString monthName = locale().monthName(i, QLocale::LongFormat);
+            monthW = qMax(monthW, fm.boundingRect(monthName).width());
+        }
         monthW += fm.boundingRect(QLatin1Char('y')).width();
         headerW += monthW;
 
@@ -2114,7 +2159,7 @@ void QCalendarWidget::setSelectedDate(const QDate &date)
 }
 
 /*!
-    Returns the year of the currently displayed month. Months are 
+    Returns the year of the currently displayed month. Months are
     numbered from 1 to 12.
 
     \sa monthShown(), setCurrentPage()
@@ -2127,7 +2172,7 @@ int QCalendarWidget::yearShown() const
 }
 
 /*!
-    Returns the currently displayed month. Months are numbered from 1 to 
+    Returns the currently displayed month. Months are numbered from 1 to
     12.
 
     \sa yearShown(), setCurrentPage()
@@ -2533,8 +2578,8 @@ void QCalendarWidget::setGridVisible(bool show)
     the keyboard.
 
     When the property is set to NoSelection, the user will be unable to select
-    dates, but they can still be selected programmatically. Note that the date 
-    that is selected when the property is set to NoSelection will still be 
+    dates, but they can still be selected programmatically. Note that the date
+    that is selected when the property is set to NoSelection will still be
     the selected date of the calendar.
 
     The default value is SingleSelection.
@@ -2587,9 +2632,9 @@ QTextCharFormat QCalendarWidget::headerTextFormat() const
 /*!
     Sets the text char format for rendering the header to \a format.
     If you also set a weekday text format, this format's foreground and
-    background color will take precedence over the header's format. 
-    The other formatting information will still be decided by 
-    the header's format. 
+    background color will take precedence over the header's format.
+    The other formatting information will still be decided by
+    the header's format.
 */
 void QCalendarWidget::setHeaderTextFormat(const QTextCharFormat &format)
 {
@@ -2612,8 +2657,8 @@ QTextCharFormat QCalendarWidget::weekdayTextFormat(Qt::DayOfWeek dayOfWeek) cons
 
 /*!
     Sets the text char format for rendering of day in the week \a dayOfWeek to \a format.
-    The format will take precedence over the header format in case of foreground 
-    and background color. Other text formatting information is taken from the headers format. 
+    The format will take precedence over the header format in case of foreground
+    and background color. Other text formatting information is taken from the headers format.
 
     \sa setHeaderTextFormat()
 */
@@ -2740,9 +2785,18 @@ void QCalendarWidget::setNavigationBarVisible(bool visible)
 bool QCalendarWidget::event(QEvent *event)
 {
     Q_D(QCalendarWidget);
-    if (event->type() == QEvent::FontChange || event->type() == QEvent::ApplicationFontChange) {
-        d->updateNavigationBar();
-        d->m_view->updateGeometry();
+    switch (event->type()) {
+        case QEvent::LocaleChange:
+            d->m_navigator->setLocale(locale());
+            d->updateMonthMenuNames();
+            // fallthrough intended
+        case QEvent::FontChange:
+        case QEvent::ApplicationFontChange:
+            d->updateNavigationBar();
+            d->m_view->updateGeometry();
+            break;
+        default:
+            break;
     }
     return QWidget::event(event);
 }

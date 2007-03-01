@@ -23,6 +23,11 @@ Window::Window()
     setWindowTitle(tr("Calendar Widget"));
 }
 
+void Window::localeChanged(int index)
+{
+    calendar->setLocale(localeCombo->itemData(index).toLocale());
+}
+
 void Window::firstDayChanged(int index)
 {
     calendar->setFirstDayOfWeek(Qt::DayOfWeek(
@@ -143,6 +148,29 @@ void Window::createGeneralOptionsGroupBox()
 {
     generalOptionsGroupBox = new QGroupBox(tr("General Options"));
 
+    localeCombo = new QComboBox;
+    int curLocaleIndex = -1;
+    int index = 0;
+    for (int _lang = QLocale::C; _lang <= QLocale::LastLanguage; ++_lang) {
+        QLocale::Language lang = static_cast<QLocale::Language>(_lang);
+        QList<QLocale::Country> countries = QLocale::countriesForLanguage(lang);
+        for (int i = 0; i < countries.count(); ++i) {
+            QLocale::Country country = countries.at(i);
+            QString label = QLocale::languageToString(lang);
+            label += QLatin1Char('/');
+            label += QLocale::countryToString(country);
+            QLocale locale(lang, country);
+            if (this->locale().language() == lang && this->locale().country() == country)
+                curLocaleIndex = index;
+            localeCombo->addItem(label, locale);
+            ++index;
+        }
+    }
+    if (curLocaleIndex != -1)
+        localeCombo->setCurrentIndex(curLocaleIndex);
+    localeLabel = new QLabel(tr("&Locale"));
+    localeLabel->setBuddy(localeCombo);
+
     firstDayCombo = new QComboBox;
     firstDayCombo->addItem(tr("Sunday"), Qt::Sunday);
     firstDayCombo->addItem(tr("Monday"), Qt::Monday);
@@ -188,7 +216,9 @@ void Window::createGeneralOptionsGroupBox()
 
     verticalHeaderLabel = new QLabel(tr("&Vertical header:"));
     verticalHeaderLabel->setBuddy(verticalHeaderCombo);
- 
+
+    connect(localeCombo, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(localeChanged(int)));
     connect(firstDayCombo, SIGNAL(currentIndexChanged(int)),
             this, SLOT(firstDayChanged(int)));
     connect(selectionModeCombo, SIGNAL(currentIndexChanged(int)),
@@ -208,15 +238,17 @@ void Window::createGeneralOptionsGroupBox()
     checkBoxLayout->addWidget(navigationCheckBox);
 
     QGridLayout *outerLayout = new QGridLayout;
-    outerLayout->addWidget(firstDayLabel, 0, 0);
-    outerLayout->addWidget(firstDayCombo, 0, 1);
-    outerLayout->addWidget(selectionModeLabel, 1, 0);
-    outerLayout->addWidget(selectionModeCombo, 1, 1);
-    outerLayout->addLayout(checkBoxLayout, 2, 0, 1, 2);
-    outerLayout->addWidget(horizontalHeaderLabel, 3, 0);
-    outerLayout->addWidget(horizontalHeaderCombo, 3, 1);
-    outerLayout->addWidget(verticalHeaderLabel, 4, 0);
-    outerLayout->addWidget(verticalHeaderCombo, 4, 1);
+    outerLayout->addWidget(localeLabel, 0, 0);
+    outerLayout->addWidget(localeCombo, 0, 1);
+    outerLayout->addWidget(firstDayLabel, 1, 0);
+    outerLayout->addWidget(firstDayCombo, 1, 1);
+    outerLayout->addWidget(selectionModeLabel, 2, 0);
+    outerLayout->addWidget(selectionModeCombo, 2, 1);
+    outerLayout->addLayout(checkBoxLayout, 3, 0, 1, 2);
+    outerLayout->addWidget(horizontalHeaderLabel, 4, 0);
+    outerLayout->addWidget(horizontalHeaderCombo, 4, 1);
+    outerLayout->addWidget(verticalHeaderLabel, 5, 0);
+    outerLayout->addWidget(verticalHeaderCombo, 5, 1);
     generalOptionsGroupBox->setLayout(outerLayout);
 
     firstDayChanged(firstDayCombo->currentIndex());
