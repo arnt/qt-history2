@@ -14,6 +14,7 @@
 #include "qcolormap.h"
 
 #include "qapplication.h"
+#include "qdebug.h"
 #include "qdesktopwidget.h"
 #include "qvarlengtharray.h"
 
@@ -148,20 +149,18 @@ static void query_colormap(QColormapPrivate *d, int screen)
 
     d->colors.resize(q_colors);
     for (int x = 0; x < q_colors; ++x) {
-        d->colors[x] = QColor::fromRgbF(queried[x].red / float(USHRT_MAX),
-                                        queried[x].green / float(USHRT_MAX),
-                                        queried[x].blue / float(USHRT_MAX));
-
         if (queried[x].red == 0
             && queried[x].green == 0
             && queried[x].blue == 0
             && queried[x].pixel != BlackPixel(display, screen)) {
-            // end of colormap
-            q_colors = x;
-            break;
+            // unallocated color cell, skip it
+            continue;
         }
+
+        d->colors[x] = QColor::fromRgbF(queried[x].red / float(USHRT_MAX),
+                                        queried[x].green / float(USHRT_MAX),
+                                        queried[x].blue / float(USHRT_MAX));
     }
-    d->colors.resize(q_colors);
 
     // for missing colors, find the closest color in the existing colormap
     Q_ASSERT(d->pixels.size());
