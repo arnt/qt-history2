@@ -223,7 +223,7 @@ void QMenuBarPrivate::setKeyboardMode(bool b)
 void QMenuBarPrivate::popupAction(QAction *action, bool activateFirst)
 {
     Q_Q(QMenuBar);
-    if(!action || !action->menu())
+    if(!action || !action->menu() || closePopupMode)
         return;
     popupState = true;
     if (action->isEnabled() && action->menu()->isEnabled()) {
@@ -257,6 +257,17 @@ void QMenuBarPrivate::popupAction(QAction *action, bool activateFirst)
     q->update(actionRect(action));
 }
 
+bool QMenuBarPrivate::closeActiveMenu()
+{
+    if(activeMenu) {
+        QMenu *menu = activeMenu;
+        activeMenu = 0;
+        menu->hide();
+        return true;
+    }
+    return false;
+}
+
 void QMenuBarPrivate::setCurrentAction(QAction *action, bool popup, bool activateFirst)
 {
     if(currentAction == action && popup == popupState)
@@ -265,14 +276,9 @@ void QMenuBarPrivate::setCurrentAction(QAction *action, bool popup, bool activat
     doChildEffects = (popup && !activeMenu);
     Q_Q(QMenuBar);
     QWidget *fw = 0;
-    if(activeMenu) {
-        QMenu *menu = activeMenu;
-        activeMenu = NULL;
-        if (popup) {
-            fw = q->window()->focusWidget();
-            q->setFocus(Qt::NoFocusReason);
-        }
-        menu->hide();
+    if(closeActiveMenu() && popup) {
+        fw = q->window()->focusWidget();
+        q->setFocus(Qt::NoFocusReason);
     }
     if(currentAction)
         q->update(actionRect(currentAction));
@@ -918,6 +924,7 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
     d->mouseDown = true;
 
     if(d->currentAction == action && d->popupState) {
+        d->closeActiveMenu();
         if((d->closePopupMode = style()->styleHint(QStyle::SH_MenuBar_DismissOnSecondClick)))
             update(d->actionRect(action));
     } else {

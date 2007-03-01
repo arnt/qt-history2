@@ -65,6 +65,7 @@ public:
     QPointer<QAction>currentAction;
     uint mouseDown : 1, closePopupMode : 1, defaultPopDown;
     QAction *actionAt(QPoint p) const;
+    bool closeActiveMenu();
     void setCurrentAction(QAction *, bool =false, bool =false);
     void popupAction(QAction *, bool);
 
