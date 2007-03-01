@@ -1557,7 +1557,8 @@ void QLineEdit::mousePressEvent(QMouseEvent* e)
     if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
         setEditFocus(true);
         // Get the completion list to pop up.
-        d->completer->complete();
+        if (d->completer)
+            d->completer->complete();
     }
 #endif
     if (d->tripleClickTimer.isActive() && (e->pos() - d->tripleClick).manhattanLength() <
