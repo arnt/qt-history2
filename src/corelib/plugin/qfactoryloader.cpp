@@ -61,10 +61,11 @@ QFactoryLoader::QFactoryLoader(const char *iid,
             }
             library = QLibraryPrivate::findOrCreate(QFileInfo(fileName).canonicalFilePath());
             if (!library->isPlugin()) {
-                library->release();
                 if (qt_debug_component()) {
+                    qDebug() << library->errorString;
                     qDebug() << "         not a plugin";
                 }
+                library->release();
                 continue;
             }
             QString regkey = QString::fromLatin1("Qt Factory Cache %1.%2/%3:/%4")
@@ -80,6 +81,7 @@ QFactoryLoader::QFactoryLoader(const char *iid,
             } else {
                 if (!library->loadPlugin()) {
                     if (qt_debug_component()) {
+                        qDebug() << library->errorString;
                         qDebug() << "           could not load";
                     }
                     library->release();
@@ -142,7 +144,7 @@ QStringList QFactoryLoader::keys() const
     for (int i = 0; i < instances.count(); ++i)
         if (QFactoryInterface *factory = qobject_cast<QFactoryInterface*>(instances.at(i)))
             if (instances.at(i)->qt_metacast(d->iid))
-                    keys += factory->keys();
+                keys += factory->keys();
     return keys;
 }
 
