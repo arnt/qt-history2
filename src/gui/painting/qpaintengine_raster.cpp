@@ -2307,7 +2307,7 @@ inline bool QRasterPaintEnginePrivate::isUnclipped(const QRect &rect) const
         return true;
 
     if (rasterBuffer->clip)
-        return baseClip.contains(rect);
+        false;
 
     if (!rasterBuffer->simpleClip.isEmpty())
         return rasterBuffer->simpleClip.contains(rect);
