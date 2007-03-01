@@ -112,6 +112,7 @@ QTipLabel::QTipLabel(const QPoint &pos, const QString &text, QWidget *w)
 {
     delete instance;
     instance = this;
+    setPalette(QToolTip::palette());
     ensurePolished();
     setMargin(1 + style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth, 0, this));
     setFrameStyle(QFrame::NoFrame);
@@ -120,7 +121,6 @@ QTipLabel::QTipLabel(const QPoint &pos, const QString &text, QWidget *w)
     setWordWrap(Qt::mightBeRichText(text));
     qApp->installEventFilter(this);
     setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / 255.0);
-    setPalette(QToolTip::palette());
     setMouseTracking(true);
     fadingOut = false;
     reuseTip(text);
