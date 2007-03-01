@@ -2345,13 +2345,19 @@ void QHttpPrivate::_q_slotSendRequest()
                           QHttp::UnknownError);
         return;
     }
+#ifndef QT_NO_OPENSSL
     QSslSocket *sslSocket = qobject_cast<QSslSocket *>(socket);
+#endif
 
 #ifndef QT_NO_NETWORKPROXY
     // Proxy support. Insert the Proxy-Authorization item into the
     // header before it's sent off to the proxy.
     if (proxy.type() == QNetworkProxy::HttpProxy && !proxy.hostName().isEmpty()
-        && (!sslSocket || mode != QHttp::ConnectionModeHttps)) {
+        && (
+#ifndef QT_NO_OPENSSL
+            !sslSocket ||
+#endif
+            mode != QHttp::ConnectionModeHttps)) {
         QUrl proxyUrl;
         proxyUrl.setScheme(QLatin1String("http"));
         proxyUrl.setHost(hostName);
@@ -2390,18 +2396,26 @@ void QHttpPrivate::_q_slotSendRequest()
     // existing one?
     if (socket->peerName() != connectionHost || socket->peerPort() != connectionPort
         || socket->state() != QTcpSocket::ConnectedState
-        || (sslSocket && sslSocket->isEncrypted() != (mode == QHttp::ConnectionModeHttps))) {
+#ifndef QT_NO_OPENSSL
+        || (sslSocket && sslSocket->isEncrypted() != (mode == QHttp::ConnectionModeHttps))
+#endif
+        ) {
         socket->blockSignals(true);
         socket->abort();
         socket->blockSignals(false);
 
         setState(QHttp::Connecting);
+#ifndef QT_NO_OPENSSL
         if (sslSocket && mode == QHttp::ConnectionModeHttps) {
             if (proxy.type() == QNetworkProxy::HttpProxy && !proxy.hostName().isEmpty())
                 socket->setProxy(proxy);
             sslSocket->connectToHostEncrypted(connectionHost, connectionPort);
-        } else {
+        } else
+#endif
+        {
+#ifndef QT_NO_NETWORKPROXY
             socket->setProxy(QNetworkProxy::DefaultProxy);
+#endif
             socket->connectToHost(connectionHost, connectionPort);
         }
     } else {
@@ -2901,9 +2915,11 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
     deleteSocket = (sock == 0);
     socket = sock;
     if (!socket) {
+#ifndef QT_NO_OPENSSL
         if (QSslSocket::supportsSsl())
             socket = new QSslSocket();
         else
+#endif
             socket = new QTcpSocket();
     }
     
@@ -2919,10 +2935,12 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
                      q, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)));
 #endif
 
+#ifndef QT_NO_OPENSSL
     if (qobject_cast<QSslSocket *>(socket)) {
         QObject::connect(socket, SIGNAL(sslErrors(const QList<QSslError> &)),
                          q, SIGNAL(sslErrors(const QList<QSslError> &)));
     }
+#endif
 }
 
 /*!
@@ -2933,10 +2951,12 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
 */
 void QHttp::ignoreSslErrors()
 {
+#ifndef QT_NO_OPENSSL
     Q_D(QHttp);
     QSslSocket *sslSocket = qobject_cast<QSslSocket *>(d->socket);
     if (sslSocket)
         sslSocket->ignoreSslErrors();
+#endif
 }
 
 #include "moc_qhttp.cpp"
