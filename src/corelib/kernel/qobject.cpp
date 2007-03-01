@@ -470,6 +470,13 @@ QMetaCallEvent::~QMetaCallEvent()
         semaphore_->release();
 }
 
+/*! \internal
+ */
+int QMetaCallEvent::placeMetaCall(QObject *object)
+{
+    return object->qt_metacall(QMetaObject::InvokeMetaMethod, id_, args_);
+}
+
 /*!
     \class QObject
     \brief The QObject class is the base class of all Qt objects.
@@ -1028,10 +1035,10 @@ bool QObject::event(QEvent *e)
             d->currentSenderSignalIdStart = mce->signalIdStart();
             d->currentSenderSignalIdEnd = mce->signalIdEnd();
 #if defined(QT_NO_EXCEPTIONS)
-            qt_metacall(QMetaObject::InvokeMetaMethod, mce->id(), mce->args());
+            mce->placeMetaCall(this);
 #else
             try {
-                qt_metacall(QMetaObject::InvokeMetaMethod, mce->id(), mce->args());
+                mce->placeMetaCall(this);
             } catch (...) {
                 QReadLocker locker(QObjectPrivate::readWriteLock());
                 if (QObjectPrivate::isValidObject(this)) {

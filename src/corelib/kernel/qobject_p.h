@@ -122,6 +122,8 @@ public:
     inline int signalIdEnd() const { return idTo_; }
     inline void **args() const { return args_; }
 
+    virtual int placeMetaCall(QObject *object);
+
 private:
     int id_;
     const QObject *sender_;
