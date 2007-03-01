@@ -349,8 +349,10 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
     int adj = -255;
     v.extractFont(&font, &adj);
 
+#ifndef QT_NO_TOOLTIP
     if (QString::fromLatin1(widget->metaObject()->className()) == QLatin1String("QTipLabel"))
         palette = QToolTip::palette();
+#endif
 
     for (int i = 0; i < declarations.count(); i++) {
         const Declaration& decl = declarations.at(i);
@@ -1210,9 +1212,11 @@ public:
     {
         if (WIDGET(node)->inherits(name.toLatin1()))
             return true;
+#ifndef QT_NO_TOOLTIP
         if (name == QLatin1String("QToolTip")
             && QString::fromLatin1("QTipLabel")== QString::fromLatin1(WIDGET(node)->metaObject()->className()))
             return true;
+#endif
         return false;
     }
     QString attribute(NodePtr node, const QString& name) const
