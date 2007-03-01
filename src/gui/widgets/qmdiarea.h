@@ -32,7 +32,7 @@ public:
     enum AreaOption {
         DontMaximizeSubWindowOnActivation = 0x1
     };
-    Q_DECLARE_FLAGS(AreaOptions, AreaOption);
+    Q_DECLARE_FLAGS(AreaOptions, AreaOption)
 
     enum WindowOrder {
         CreationOrder,
@@ -92,7 +92,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_processWindowStateChanged(Qt::WindowStates, Qt::WindowStates))
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QMdiArea::AreaOptions);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QMdiArea::AreaOptions)
 
 QT_END_HEADER
 

@@ -317,8 +317,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight))
 };
 
-inline void QTableWidget::removeCellWidget(int row, int column)
-{ setCellWidget(row, column, 0); }
+inline void QTableWidget::removeCellWidget(int arow, int acolumn)
+{ setCellWidget(arow, acolumn, 0); }
 
 inline QTableWidgetItem *QTableWidget::itemAt(int ax, int ay) const
 { return itemAt(QPoint(ax, ay)); }

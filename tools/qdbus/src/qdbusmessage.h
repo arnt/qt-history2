@@ -55,8 +55,7 @@ public:
     QDBusMessage createErrorReply(const QString name, const QString &msg) const;
     inline QDBusMessage createErrorReply(const QDBusError &err) const
     { return createErrorReply(err.name(), err.message()); }
-    inline QDBusMessage createErrorReply(QDBusError::ErrorType type, const QString &msg) const
-    { return createErrorReply(QDBusError::errorString(type), msg); }
+    inline QDBusMessage createErrorReply(QDBusError::ErrorType type, const QString &msg) const;
 
     QString service() const;
     QString path() const;
@@ -81,6 +80,9 @@ private:
     friend class QDBusMessagePrivate;
     QDBusMessagePrivate *d_ptr;
 };
+
+inline QDBusMessage QDBusMessage::createErrorReply(QDBusError::ErrorType atype, const QString &amsg) const
+{ return createErrorReply(QDBusError::errorString(atype), amsg); }
 
 #ifndef QT_NO_DEBUG_STREAM
 QDBUS_EXPORT QDebug operator<<(QDebug, const QDBusMessage &);

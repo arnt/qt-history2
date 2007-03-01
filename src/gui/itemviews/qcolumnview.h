@@ -75,7 +75,7 @@ private:
     Q_DISABLE_COPY(QColumnView)
     Q_PRIVATE_SLOT(d_func(), void _q_gripMoved(int))
     Q_PRIVATE_SLOT(d_func(), void _q_changeCurrentColumn())
-    Q_PRIVATE_SLOT(d_func(), void _q_clicked(const QModelIndex &));
+    Q_PRIVATE_SLOT(d_func(), void _q_clicked(const QModelIndex &))
 };
 
 #endif // QT_NO_ITEMVIEWS
