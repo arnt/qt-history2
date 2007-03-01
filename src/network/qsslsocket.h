@@ -123,17 +123,17 @@ public:
 
     static bool supportsSsl();
 
-public slots:
+public Q_SLOTS:
     void startClientHandShake();
     void startServerHandShake();
     void ignoreSslErrors();
 
-signals:
+Q_SIGNALS:
     void encrypted();
     void sslErrors(const QList<QSslError> &errors);
     void modeChanged(QSslSocket::Mode newMode);
 
-protected slots:
+protected Q_SLOTS:
     void connectToHostImplementation(const QString &hostName, quint16 port,
                                      OpenMode openMode);
     void disconnectFromHostImplementation();
