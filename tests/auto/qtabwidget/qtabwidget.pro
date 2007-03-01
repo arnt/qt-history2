@@ -5,4 +5,4 @@ INCLUDEPATH += ../
 HEADERS +=  
 SOURCES += tst_qtabwidget.cpp 
 
-QT += qt3support
+###QT += qt3support

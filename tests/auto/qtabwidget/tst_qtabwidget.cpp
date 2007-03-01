@@ -65,6 +65,7 @@ class tst_QTabWidget:public QObject {
     void removeTab();
     void clear();
     void keyboardNavigation();
+    void paintEventCount();
 
   private:
     int addPage();
@@ -81,7 +82,7 @@ void tst_QTabWidget::getSetCheck()
     QWidget *w3 = new QWidget;
     QWidget *w4 = new QWidget;
     QWidget *w5 = new QWidget;
-    
+
     obj1.addTab(w1, "Page 1");
     obj1.addTab(w2, "Page 2");
     obj1.addTab(w3, "Page 3");
@@ -422,7 +423,7 @@ void tst_QTabWidget::keyboardNavigation()
     QCOMPARE(tw->currentIndex(), 2);
     QTest::keyClick(tw, Qt::Key_Tab, Qt::ControlModifier);
     QCOMPARE(tw->currentIndex(), 0);
-    
+
     // Disable all and try to go to the next. It should not move anywhere, and more importantly
     // it should not loop forever. (a naive "search for the first enabled tabbar") implementation
     // might do that)
@@ -434,6 +435,53 @@ void tst_QTabWidget::keyboardNavigation()
     // but what if next tab is also disabled.. Seems that we haven't thought about that...
     QVERIFY(tw->currentIndex() < 3 && tw->currentIndex() >= 0);
 }
+
+class PaintCounter : public QWidget
+{
+public:
+    PaintCounter() :count(0) {}
+    int count;
+protected:
+    void paintEvent(QPaintEvent*) {
+        ++count;
+    }
+};
+
+
+void tst_QTabWidget::paintEventCount()
+{
+    PaintCounter *tab1 = new PaintCounter;
+    PaintCounter *tab2 = new PaintCounter;
+
+    tw->addTab(tab1, "one");
+    tw->addTab(tab2, "two");
+
+    QCOMPARE(tab1->count, 0);
+    QCOMPARE(tab2->count, 0);
+    QCOMPARE(tw->currentIndex(), 0);
+
+    tw->show();
+
+    QTest::qWait(10);
+
+    QCOMPARE(tab1->count, 1);
+    QCOMPARE(tab2->count, 0);
+
+    tw->setCurrentIndex(1);
+
+    QTest::qWait(10);
+
+    QCOMPARE(tab1->count, 1);
+    QCOMPARE(tab2->count, 1);
+
+    tw->setCurrentIndex(0);
+
+    QTest::qWait(10);
+
+    QCOMPARE(tab1->count, 2);
+    QCOMPARE(tab2->count, 1);
+}
+
 
 QTEST_MAIN(tst_QTabWidget)
 #include "tst_qtabwidget.moc"
