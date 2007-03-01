@@ -144,7 +144,9 @@ const QFontEngineQPF::Glyph *QFontEngineQPF::findGlyph(glyph_t g) const
 #if defined(DEBUG_FONTENGINE)
         qDebug() << "glyph" << g << "outside of glyphData, remapping font file";
 #endif
+#ifndef QT_NO_FREETYPE
         const_cast<QFontEngineQPF *>(this)->remapFontData();
+#endif
         if (glyphPos > glyphDataSize)
             return 0;
     }
@@ -371,6 +373,7 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef &def, int fileDescriptor, QFontEng
 
     face_id.filename = QFile::encodeName(extractHeaderField(fontData, Tag_FileName).toString());
     face_id.index = extractHeaderField(fontData, Tag_FileIndex).toInt();
+#if !defined(QT_NO_FREETYPE)
     freetype = QFreetypeFace::getFace(face_id);
     if (!freetype) {
         QString newPath = QLibraryInfo::location(QLibraryInfo::LibrariesPath)
@@ -379,7 +382,6 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef &def, int fileDescriptor, QFontEng
         face_id.filename = QFile::encodeName(newPath);
         freetype = QFreetypeFace::getFace(face_id);
     }
-#if !defined(QT_NO_FREETYPE)
     if (freetype) {
         const quint32 qpfTtfRevision = extractHeaderField(fontData, Tag_FontRevision).toUInt();
         const QByteArray head = freetype->getSfntTable(MAKE_TAG('h', 'e', 'a', 'd'));
@@ -512,7 +514,9 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
 void QFontEngineQPF::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags) const
 {
+#ifndef QT_NO_FREETYPE
     const_cast<QFontEngineQPF *>(this)->ensureGlyphsLoaded(glyphs, len);
+#endif
     for (int i = 0; i < len; ++i) {
         const Glyph *g = findGlyph(glyphs[i].glyph);
         if (!g) {
@@ -564,7 +568,9 @@ void QFontEngineQPF::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
 
 glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
 {
+#ifndef QT_NO_FREETYPE
     const_cast<QFontEngineQPF *>(this)->ensureGlyphsLoaded(glyphs, numGlyphs);
+#endif
 
     glyph_metrics_t overall;
     // initialize with line height, we get the same behaviour on all platforms
@@ -594,11 +600,13 @@ glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numG
 
 glyph_metrics_t QFontEngineQPF::boundingBox(glyph_t glyph)
 {
+#ifndef QT_NO_FREETYPE
     {
         QGlyphLayout tmp;
         tmp.glyph = glyph;
         const_cast<QFontEngineQPF *>(this)->ensureGlyphsLoaded(&tmp, 1);
     }
+#endif
     glyph_metrics_t overall;
     const Glyph *g = findGlyph(glyph);
     if (!g)
