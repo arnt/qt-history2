@@ -320,6 +320,7 @@ static QVector<qreal> parseNumbersList(const QChar *&str)
     QVector<qreal> points;
     if (!str)
         return points;
+    points.reserve(32);
 
     while (*str == QLatin1Char(' '))
         ++str;
