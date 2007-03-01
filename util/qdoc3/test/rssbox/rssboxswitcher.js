@@ -2,7 +2,7 @@ function init()
 {
 	gRssBoxTitleLink = $(TITLELINKSSELECTOR);
 	$(window).resize(function() {recalculateRssBoxPosition();});
-	$("#rssbox>ul>li>ul>li>a").click(function() {writeLatestRssItemURLIntoCookie();});
+	$("#rssbox>ul>li>ul>li>a").click(function() {writeLatestRssItemTimestampIntoCookie();});
 	$("#rssbox").css({ display: "block", position: "absolute" });
 	gRssBoxTitleLink.removeAttr("href").css("cursor", "pointer").click(function() {toggleRssLinksVisibility();});
 	
@@ -11,24 +11,27 @@ function init()
 	recalculateRssBoxPosition();
 	window.setInterval("recalculateRssBoxPosition()", 3000);
 	
-	gLatestRssItemUrl = readLatestRssItemURLFromHTML();
+	gLatestRssItemTimestamp = readLatestRssItemTimestampFromHTML();
 	
 	startPulsating();
 }
 
-function readLatestRssItemURLFromHTML()
+function readLatestRssItemTimestampFromHTML()
 {
-	return $("#rssbox>ul>li>ul>li>a").attr("href");
+	var timeStampString = $("#rssbox>ul>li").attr("id");
+	var timeStampInteger = parseInt(timeStampString.substr(1)); // We assume that the id begins with a 'u'
+	return timeStampInteger;
 }
 
-function writeLatestRssItemURLIntoCookie()
+function writeLatestRssItemTimestampIntoCookie()
 {
-	setCookie(LATESTRSSITEMURL, gLatestRssItemUrl);
+	if (gLatestRssItemTimestamp > getCookie(LATESTRSSITEMTIMESTAMP))
+		setCookie(LATESTRSSITEMTIMESTAMP, gLatestRssItemTimestamp);
 }
 
 function titleShouldPulsate()
 {
-	return (getCookie(LATESTRSSITEMURL) < gLatestRssItemUrl); // Ugly: We assume that the url has a reverse date in it and compare it for _less than_. The next version of this script will compare a timestamp of the newest article in cookie and document
+	return (getCookie(LATESTRSSITEMTIMESTAMP) < gLatestRssItemTimestamp);
 }
 
 function startPulsating()
@@ -99,7 +102,7 @@ function recalculateRssBoxPosition()
 function toggleRssLinksVisibility()
 {
 	setRssLinksVisible(!getIsRssLinksVisible());
-	writeLatestRssItemURLIntoCookie();
+	writeLatestRssItemTimestampIntoCookie();
 }
 
 function getIsRssLinksVisible()
@@ -143,12 +146,12 @@ function setCookie(c_name, value)
 }
 
 var RSSLINKSVISIBLE = "rsslinksvisible";
-var LATESTRSSITEMURL = "latestrssitemurl";
+var LATESTRSSITEMTIMESTAMP = "latestrssitemtimestamp";
 var RSSLINKSSELECTOR = "#rssbox ul ul";
 var TITLELINKSSELECTOR = "#rssbox>ul>li>a";
 var LOGOIMAGESELECTOR = "img[@src*=trolltech-logo]";
 
 var gRssBoxTitleLink = null;
-var gLatestRssItemUrl = "zzzz"
+var gLatestRssItemTimestamp = 0;
 
 //window.onload = recalculateRssBoxPosition;
