@@ -39,6 +39,12 @@ QToolButton[style="QPlastiqueStyle"]
     -qt-style-features: background-color background-gradient;
 }
 
+QPushButton[style="QWindowsXPStyle"],
+QPushButton[style="QWindowsVistaStyle"]
+{
+    -qt-style-features: none;
+}
+    
 QComboBox {
     border: native;
     -qt-style-features: background-color background-gradient;
