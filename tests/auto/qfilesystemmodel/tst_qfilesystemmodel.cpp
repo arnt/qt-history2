@@ -56,6 +56,8 @@ private slots:
 
     void sort();
 
+    void mkdir();
+
 protected:
     bool createFiles(const QString &test_path, const QStringList &initial_files, const QStringList &intial_dirs = QStringList(), const QString &baseDir = QDir::temp().absolutePath());
 
@@ -557,6 +559,32 @@ void tst_QFileSystemModel::sort()
     QVERIFY(idx.column() != 0);
 }
 
+
+void tst_QFileSystemModel::mkdir()
+{
+    QString tmp = QDir::tempPath();
+    QString newFolderPath = tmp + "/NewFoldermkdirtest4";
+    QModelIndex tmpDir = model->index(tmp);
+    QVERIFY(tmpDir.isValid());
+    QDir bestatic(newFolderPath);
+    if (bestatic.exists()) {
+        if (!bestatic.rmdir(newFolderPath))
+            qWarning() << "unable to remove" << newFolderPath;
+        QTest::qWait(WAITTIME);
+    }
+    model->mkdir(tmpDir, "NewFoldermkdirtest3");
+    model->mkdir(tmpDir, "NewFoldermkdirtest5");
+    QModelIndex idx = model->mkdir(tmpDir, "NewFoldermkdirtest4");
+    QVERIFY(idx.isValid());
+    int oldRow = idx.row();
+    QTest::qWait(WAITTIME);
+    idx = model->index(newFolderPath);
+    QVERIFY(0 != idx.row());
+    QCOMPARE(oldRow, idx.row());
+    bestatic.rmdir(tmp + QLatin1String("NewFoldermkdirtest3"));
+    bestatic.rmdir(tmp + QLatin1String("NewFoldermkdirtest5"));
+    bestatic.rmdir(newFolderPath);
+}
 
 QTEST_MAIN(tst_QFileSystemModel)
 #include "tst_qfilesystemmodel.moc"
