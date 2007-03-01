@@ -27,13 +27,6 @@
 // workaround for VC++ 6.0 linker bug (?)
 typedef bool(*LessThan)(const QPair<QTreeWidgetItem*,int>&,const QPair<QTreeWidgetItem*,int>&);
 
-class QTreeWidgetMimeData : public QMimeData
-{
-    Q_OBJECT
-public:
-    QList<QTreeWidgetItem*> items;
-};
-
 class QTreeModelLessThan
 {
 public:
@@ -3116,16 +3109,13 @@ Qt::DropActions QTreeWidget::supportedDropActions() const
 }
 
 /*!
-  Returns a list of pointers to the items contained in the \a data object.
-  If the object was not created by a QTreeWidget in the same process, the list
-  is empty.
+  \obsolete
+  Returns an empty list
 
+  \sa mimeData()
 */
 QList<QTreeWidgetItem*> QTreeWidget::items(const QMimeData *data) const
 {
-    const QTreeWidgetMimeData *twd = qobject_cast<const QTreeWidgetMimeData*>(data);
-    if (twd)
-        return twd->items;
     return QList<QTreeWidgetItem*>();
 }
 
