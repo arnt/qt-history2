@@ -178,6 +178,7 @@ void TreeWalker::acceptProperty(DomProperty *property)
         case DomProperty::Rect:
         case DomProperty::RectF:
         case DomProperty::Set:
+        case DomProperty::Locale:
         case DomProperty::SizePolicy:
         case DomProperty::Size:
         case DomProperty::SizeF:

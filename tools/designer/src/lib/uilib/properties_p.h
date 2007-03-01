@@ -29,6 +29,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QMetaProperty>
+#include <QtCore/QLocale>
 #include <QtGui/QWidget>
 
 #ifdef QFORMINTERNAL_NAMESPACE
@@ -62,6 +63,8 @@ class QAbstractFormBuilderGadget: public QWidget
     Q_PROPERTY(QGradient::Type gradientType READ fakeGradientType)
     Q_PROPERTY(QGradient::Spread gradientSpread READ fakeGradientSpread)
     Q_PROPERTY(QGradient::CoordinateMode gradientCoordinate READ fakeGradientCoordinate)
+    Q_PROPERTY(QLocale::Language language READ fakeLanguage)
+    Q_PROPERTY(QLocale::Country country READ fakeCountry)
 public:
     QAbstractFormBuilderGadget() { Q_ASSERT(0); }
 
@@ -76,6 +79,8 @@ public:
     QGradient::Type fakeGradientType() const    { Q_ASSERT(0); return QGradient::NoGradient; }
     QGradient::Spread fakeGradientSpread() const  { Q_ASSERT(0); return QGradient::PadSpread; }
     QGradient::CoordinateMode fakeGradientCoordinate() const  { Q_ASSERT(0); return QGradient::LogicalMode; }
+    QLocale::Language fakeLanguage() const  { Q_ASSERT(0); return QLocale::C; }
+    QLocale::Country fakeCountry() const  { Q_ASSERT(0); return QLocale::AnyCountry; }
 };
 
 // Convert key to value for a given QMetaEnum

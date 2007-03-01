@@ -110,6 +110,16 @@ void WriteIncludes::acceptSpacer(DomSpacer *node)
     TreeWalker::acceptSpacer(node);
 }
 
+void WriteIncludes::acceptProperty(DomProperty *node)
+{
+    if (node->kind() == DomProperty::Date)
+        add(QLatin1String("QDate"));
+    if (node->kind() == DomProperty::Locale)
+        add(QLatin1String("QLocale"));
+    TreeWalker::acceptProperty(node);
+}
+
+
 void WriteIncludes::insertIncludeForClass(const QString &className)
 {
     // Known class

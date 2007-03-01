@@ -34,6 +34,7 @@ struct WriteIncludes : public TreeWalker
     void acceptWidget(DomWidget *node);
     void acceptLayout(DomLayout *node);
     void acceptSpacer(DomSpacer *node);
+    void acceptProperty(DomProperty *node);
     void acceptWidgetScripts(const DomScripts &, DomWidget *, const DomWidgets &);
 
 //

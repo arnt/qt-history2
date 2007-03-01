@@ -4326,6 +4326,59 @@ void DomRect::clearElementHeight()
     m_children &= ~Height;
 }
 
+void DomLocale::clear(bool clear_all)
+{
+
+    if (clear_all) {
+    m_text = QString();
+    m_has_attr_language = false;
+    m_has_attr_country = false;
+    }
+
+}
+
+DomLocale::DomLocale()
+{
+    m_has_attr_language = false;
+    m_has_attr_country = false;
+}
+
+DomLocale::~DomLocale()
+{
+}
+
+void DomLocale::read(const QDomElement &node)
+{
+    if (node.hasAttribute(QLatin1String("language")))
+        setAttributeLanguage(node.attribute(QLatin1String("language")));
+    if (node.hasAttribute(QLatin1String("country")))
+        setAttributeCountry(node.attribute(QLatin1String("country")));
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomLocale::write(QDomDocument &doc, const QString &tagName) const
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("locale") : tagName.toLower());
+
+    QDomElement child;
+
+    if (hasAttributeLanguage())
+        e.setAttribute(QLatin1String("language"), attributeLanguage());
+
+    if (hasAttributeCountry())
+        e.setAttribute(QLatin1String("country"), attributeCountry());
+
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
 void DomSizePolicy::clear(bool clear_all)
 {
 
@@ -5661,6 +5714,7 @@ void DomProperty::clear(bool clear_all)
     delete m_palette;
     delete m_point;
     delete m_rect;
+    delete m_locale;
     delete m_sizePolicy;
     delete m_size;
     delete m_string;
@@ -5691,6 +5745,7 @@ void DomProperty::clear(bool clear_all)
     m_palette = 0;
     m_point = 0;
     m_rect = 0;
+    m_locale = 0;
     m_sizePolicy = 0;
     m_size = 0;
     m_string = 0;
@@ -5726,6 +5781,7 @@ DomProperty::DomProperty()
     m_palette = 0;
     m_point = 0;
     m_rect = 0;
+    m_locale = 0;
     m_sizePolicy = 0;
     m_size = 0;
     m_string = 0;
@@ -5755,6 +5811,7 @@ DomProperty::~DomProperty()
     delete m_palette;
     delete m_point;
     delete m_rect;
+    delete m_locale;
     delete m_sizePolicy;
     delete m_size;
     delete m_string;
@@ -5845,6 +5902,12 @@ void DomProperty::read(const QDomElement &node)
         }
         if (tag == QLatin1String("set")) {
             setElementSet(e.text());
+            continue;
+        }
+        if (tag == QLatin1String("locale")) {
+            DomLocale *v = new DomLocale();
+            v->read(e);
+            setElementLocale(v);
             continue;
         }
         if (tag == QLatin1String("sizepolicy")) {
@@ -6061,6 +6124,14 @@ QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName) const
             QDomText text = doc.createTextNode(elementSet());
             child.appendChild(text);
             e.appendChild(child);
+            break;
+        }
+        case Locale: {
+            DomLocale* v = elementLocale();
+            if (v != 0) {
+                QDomElement child = v->write(doc, QLatin1String("locale"));
+                e.appendChild(child);
+            }
             break;
         }
         case SizePolicy: {
@@ -6299,6 +6370,13 @@ void DomProperty::setElementSet(const QString& a)
     clear(false);
     m_kind = Set;
     m_set = a;
+}
+
+void DomProperty::setElementLocale(DomLocale* a)
+{
+    clear(false);
+    m_kind = Locale;
+    m_locale = a;
 }
 
 void DomProperty::setElementSizePolicy(DomSizePolicy* a)

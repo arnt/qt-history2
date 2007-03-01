@@ -243,6 +243,11 @@ QVariant domPropertyToVariant(const DomProperty *p)
     case DomProperty::CursorShape:
         return qVariantFromValue(QCursor(enumKeyOfObjectToValue<QAbstractFormBuilderGadget, Qt::CursorShape>("cursorShape", p->elementCursorShape().toLatin1())));
 
+    case DomProperty::Locale: {
+        const DomLocale *locale = p->elementLocale();
+        return qVariantFromValue(QLocale(enumKeyOfObjectToValue<QAbstractFormBuilderGadget, QLocale::Language>("language", locale->attributeLanguage().toLatin1()),
+                    enumKeyOfObjectToValue<QAbstractFormBuilderGadget, QLocale::Country>("country", locale->attributeCountry().toLatin1())));
+    }
     case DomProperty::SizePolicy: {
         const DomSizePolicy *sizep = p->elementSizePolicy();
 
@@ -435,6 +440,20 @@ static bool applySimpleProperty(const QVariant &v, bool translateString, DomProp
         DomString *s = new DomString();
         s->setText(qvariant_cast<QKeySequence>(v).toString(QKeySequence::PortableText));
         dom_prop->setElementString(s);
+        }
+        return true;
+
+    case QVariant::Locale: {
+        DomLocale *dom = new DomLocale();
+        const QLocale locale = qvariant_cast<QLocale>(v);
+
+        const QMetaEnum language_enum = metaEnum<QAbstractFormBuilderGadget>("language");
+        const QMetaEnum country_enum = metaEnum<QAbstractFormBuilderGadget>("country");
+
+        dom->setAttributeLanguage(QLatin1String(language_enum.valueToKey(locale.language())));
+        dom->setAttributeCountry(QLatin1String(country_enum.valueToKey(locale.country())));
+
+        dom_prop->setElementLocale(dom);
         }
         return true;
 

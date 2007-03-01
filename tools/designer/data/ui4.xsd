@@ -335,6 +335,11 @@
                 </xs:sequence>
         </xs:complexType>
 
+        <xs:complexType name="Locale">
+                <xs:attribute name="language" type="xs:string" />
+                <xs:attribute name="country" type="xs:string" />
+        </xs:complexType>
+
         <xs:complexType name="SizePolicy">
                 <xs:sequence>
                         <xs:element name="hSizeType" type="xs:integer" />
@@ -448,6 +453,7 @@
                         <xs:element name="point" type="Point" />
                         <xs:element name="rect" type="Rect" />
                         <xs:element name="set" type="xs:string" />
+                        <xs:element name="locale" type="Locale" />
                         <xs:element name="sizePolicy" type="SizePolicy" />
                         <xs:element name="size" type="Size" />
                         <xs:element name="string" type="String" />

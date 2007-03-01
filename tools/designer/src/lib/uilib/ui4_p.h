@@ -95,6 +95,7 @@ class DomPalette;
 class DomFont;
 class DomPoint;
 class DomRect;
+class DomLocale;
 class DomSizePolicy;
 class DomSize;
 class DomDate;
@@ -1922,6 +1923,45 @@ private:
     void operator = (const DomRect&other);
 };
 
+class QDESIGNER_UILIB_EXPORT DomLocale {
+public:
+    DomLocale();
+    ~DomLocale();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString()) const;
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    inline bool hasAttributeLanguage() const { return m_has_attr_language; }
+    inline QString attributeLanguage() const { return m_attr_language; }
+    inline void setAttributeLanguage(const QString& a) { m_attr_language = a; m_has_attr_language = true; }
+    inline void clearAttributeLanguage() { m_has_attr_language = false; }
+
+    inline bool hasAttributeCountry() const { return m_has_attr_country; }
+    inline QString attributeCountry() const { return m_attr_country; }
+    inline void setAttributeCountry(const QString& a) { m_attr_country = a; m_has_attr_country = true; }
+    inline void clearAttributeCountry() { m_has_attr_country = false; }
+
+    // child element accessors
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    QString m_attr_language;
+    bool m_has_attr_language;
+
+    QString m_attr_country;
+    bool m_has_attr_country;
+
+    // child element data
+
+    DomLocale(const DomLocale &other);
+    void operator = (const DomLocale&other);
+};
+
 class QDESIGNER_UILIB_EXPORT DomSizePolicy {
 public:
     DomSizePolicy();
@@ -2521,7 +2561,7 @@ public:
     inline void clearAttributeStdset() { m_has_attr_stdset = false; }
 
     // child element accessors
-    enum Kind { Unknown = 0, Bool, Color, Cstring, Cursor, CursorShape, Enum, Font, IconSet, Pixmap, Palette, Point, Rect, Set, SizePolicy, Size, String, StringList, Number, Float, Double, Date, Time, DateTime, PointF, RectF, SizeF, LongLong, Char, Url, UInt, ULongLong };
+    enum Kind { Unknown = 0, Bool, Color, Cstring, Cursor, CursorShape, Enum, Font, IconSet, Pixmap, Palette, Point, Rect, Set, Locale, SizePolicy, Size, String, StringList, Number, Float, Double, Date, Time, DateTime, PointF, RectF, SizeF, LongLong, Char, Url, UInt, ULongLong };
     inline Kind kind() const { return m_kind; }
 
     inline QString elementBool() const { return m_bool; }
@@ -2562,6 +2602,9 @@ public:
 
     inline QString elementSet() const { return m_set; }
     void setElementSet(const QString& a);
+
+    inline DomLocale* elementLocale() const { return m_locale; }
+    void setElementLocale(DomLocale* a);
 
     inline DomSizePolicy* elementSizePolicy() const { return m_sizePolicy; }
     void setElementSizePolicy(DomSizePolicy* a);
@@ -2643,6 +2686,7 @@ private:
     DomPoint* m_point;
     DomRect* m_rect;
     QString m_set;
+    DomLocale* m_locale;
     DomSizePolicy* m_sizePolicy;
     DomSize* m_size;
     DomString* m_string;

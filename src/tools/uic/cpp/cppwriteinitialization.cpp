@@ -996,6 +996,12 @@ void WriteInitialization::writeProperties(const QString &varName,
                             .arg(rf->elementWidth()).arg(rf->elementHeight());
             break;
         }
+        case DomProperty::Locale: {
+             const DomLocale *locale = p->elementLocale();
+             propertyValue = QString::fromLatin1("QLocale(QLocale::%1, QLocale::%2)")
+                             .arg(locale->attributeLanguage()).arg(locale->attributeCountry());
+            break;
+        }
         case DomProperty::SizePolicy: {
             const QString spName = writeSizePolicy( p->elementSizePolicy());
             m_output << m_option.indent << spName << QString::fromLatin1(
