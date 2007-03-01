@@ -74,6 +74,7 @@
   parser with a simple streaming API.
 
   \module XML
+  \mainclass
   \ingroup xml-tools
 
   QXmlStreamReader is a faster and more convenient replacement for
@@ -2193,6 +2194,7 @@ bool QXmlStreamReader::isStandaloneDocument() const
   simple streaming API.
 
   \module XML
+  \mainclass
   \ingroup xml-tools
 
   QXmlStreamWriter is the pendent to QXmlStreamReader for writing
