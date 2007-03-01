@@ -873,7 +873,7 @@ void QWizardPrivate::recreateLayout(const QWizardLayoutInfo &info)
 
         if (aero) {
             // ### hardcoded for now:
-            titleFont = QFont("Segoe UI", 12);
+            titleFont = QFont(QLatin1String("Segoe UI"), 12);
             QPalette pal(titleLabel->palette());
             pal.setColor(QPalette::Text, "#003399");
             titleLabel->setPalette(pal);
