@@ -290,6 +290,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     }
 
     //initialization
+    d->pdev = pdev;
     d->complexXForm = false;
     d->cosmeticPen = true;
     d->cosmeticPenSize = 1;
