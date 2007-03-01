@@ -742,30 +742,41 @@ class QFileSystemModelSorter
 public:
     inline QFileSystemModelSorter(int column) : sortColumn(column) {}
 
-    bool operator()(const QPair<const QFileSystemModelPrivate::QFileSystemNode*, int> &l,
-                           const QPair<const QFileSystemModelPrivate::QFileSystemNode*, int> &r) const
+    bool compareNodes(const QFileSystemModelPrivate::QFileSystemNode *l,
+                    const QFileSystemModelPrivate::QFileSystemNode *r) const
     {
         switch (sortColumn) {
-        case 0:
+        case 0: {
 #ifndef Q_OS_MAC
-            if (l.first->isDir() && !r.first->isDir())
-                return true;
+            // place directories before files
+            bool left = l->isDir();
+            bool right = r->isDir();
+            if (left ^ right)
+                return left;
 #endif
-            return QFileSystemModelPrivate::naturalCompare(l.first->fileName,
-                                                r.first->fileName, Qt::CaseInsensitive) < 0;
+            return QFileSystemModelPrivate::naturalCompare(l->fileName,
+                                                r->fileName, Qt::CaseInsensitive) < 0;
+                }
         case 1:
             // Directories go first
-            if (l.first->isDir() && !r.first->isDir())
+            if (l->isDir() && !r->isDir())
                 return true;
-            return l.first->size() < r.first->size();
+            return l->size() < r->size();
         case 2:
-            return l.first->type() < r.first->type();
+            return l->type() < r->type();
         case 3:
-            return l.first->lastModified() < r.first->lastModified();
+            return l->lastModified() < r->lastModified();
         }
         Q_ASSERT(false);
         return false;
     }
+
+    bool operator()(const QPair<const QFileSystemModelPrivate::QFileSystemNode*, int> &l,
+                           const QPair<const QFileSystemModelPrivate::QFileSystemNode*, int> &r) const
+    {
+        return compareNodes(l.first, r.first);
+    }
+
 
 private:
     int sortColumn;
@@ -955,7 +966,6 @@ QModelIndex QFileSystemModel::mkdir(const QModelIndex &parent, const QString &na
     QFileSystemModelPrivate::QFileSystemNode *node = &parentNode->children[r];
     node->populate(d->fileInfoGatherer.getInfo(QFileInfo(dir.absolutePath() + QDir::separator() + name)));
     d->addVisibleFiles(parentNode, QStringList(name));
-    d->delayedSort();
     return d->index(node);
 }
 
@@ -1251,6 +1261,26 @@ void QFileSystemModelPrivate::removeNode(QFileSystemModelPrivate::QFileSystemNod
         q->endRemoveRows();
 }
 
+/*
+    \internal
+    Helper functor used by addVisibleFiles()
+*/
+class QFileSystemModelVisibleFinder
+{
+public:
+    inline QFileSystemModelVisibleFinder(QFileSystemModelPrivate::QFileSystemNode *node, QFileSystemModelSorter *sorter) : parentNode(node), sorter(sorter) {}
+
+    bool operator()(const QString &, int r) const
+    {
+        return sorter->compareNodes(&(parentNode->children.at(location)), &(parentNode->children.at(r)));
+    }
+
+    int location;
+private:
+    QFileSystemModelPrivate::QFileSystemNode *parentNode;
+    QFileSystemModelSorter *sorter;
+};
+
 /*!
     \internal
 
@@ -1264,20 +1294,23 @@ void QFileSystemModelPrivate::addVisibleFiles(QFileSystemNode *parentNode, const
     Q_Q(QFileSystemModel);
     QModelIndex parent = index(parentNode);
     bool indexHidden = isHiddenByFilter(parentNode, parent);
-    // put this on the signal stack before insert rows
-    forceSort = true;
-    delayedSort();
-    if (!indexHidden)
-        q->beginInsertRows(parent, q->rowCount(parent), q->rowCount(parent) + newFiles.count() - 1);
+
+    QFileSystemModelSorter sorter(sortColumn);
+    QFileSystemModelVisibleFinder vf(parentNode, &sorter);
     for (int i = 0; i < newFiles.count(); ++i) {
-        int location = findChild(parentNode, QFileSystemNode(newFiles.at(i)));
+        QString newFile = newFiles.at(i);
+        int location = findChild(parentNode, QFileSystemNode(newFile));
         Q_ASSERT(location >= 0);
-        // put new items at the end of the list until sorted to minimize
-        // flicker as it is re-shuffled to the right spot
-        parentNode->visibleChildren.insert(sortOrder == Qt::AscendingOrder ? parentNode->visibleChildren.count() : 0, location);
-    }
+
+        vf.location = location;
+        QList<int>::const_iterator iterator = qUpperBound(parentNode->visibleChildren.begin(), parentNode->visibleChildren.end(), newFile, vf);
+        int realHome = (iterator - parentNode->visibleChildren.begin());
+        if (!indexHidden)
+            q->beginInsertRows(parent, realHome, realHome);
+        parentNode->visibleChildren.insert(realHome, location);
     if (!indexHidden)
         q->endInsertRows();
+    }
 }
 
 /*!
@@ -1398,8 +1431,7 @@ void QFileSystemModelPrivate::_q_fileSystemChanged(const QString &path, const QL
         addVisibleFiles(parentNode, newFiles);
     }
 
-    if ((sortColumn != 0 && rowsToUpdate.count() > 0)
-        || (sortColumn == 0 && newFiles.count() > 0)) {
+    if (sortColumn != 0 && rowsToUpdate.count() > 0) {
         forceSort = true;
         delayedSort();
     }
