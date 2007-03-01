@@ -4123,11 +4123,11 @@ void DomPoint::read(const QDomElement &node)
             continue;
         QDomElement e = n.toElement();
         QString tag = e.tagName().toLower();
-        if (tag == QLatin1String("x")) {
+        if (tag == QString(QLatin1Char('x'))) {
             setElementX(e.text().toInt());
             continue;
         }
-        if (tag == QLatin1String("y")) {
+        if (tag == QString(QLatin1Char('y'))) {
             setElementY(e.text().toInt());
             continue;
         }
@@ -4147,13 +4147,13 @@ QDomElement DomPoint::write(QDomDocument &doc, const QString &tagName) const
     QDomElement child;
 
     if (m_children & X) {
-        child = doc.createElement(QLatin1String("x"));
+        child = doc.createElement(QString(QLatin1Char('x')));
         child.appendChild(doc.createTextNode(QString::number(m_x)));
         e.appendChild(child);
     }
 
     if (m_children & Y) {
-        child = doc.createElement(QLatin1String("y"));
+        child = doc.createElement(QString(QLatin1Char('y')));
         child.appendChild(doc.createTextNode(QString::number(m_y)));
         e.appendChild(child);
     }
@@ -4221,11 +4221,11 @@ void DomRect::read(const QDomElement &node)
             continue;
         QDomElement e = n.toElement();
         QString tag = e.tagName().toLower();
-        if (tag == QLatin1String("x")) {
+        if (tag == QString(QLatin1Char('x'))) {
             setElementX(e.text().toInt());
             continue;
         }
-        if (tag == QLatin1String("y")) {
+        if (tag == QString(QLatin1Char('y'))) {
             setElementY(e.text().toInt());
             continue;
         }
@@ -4253,13 +4253,13 @@ QDomElement DomRect::write(QDomDocument &doc, const QString &tagName) const
     QDomElement child;
 
     if (m_children & X) {
-        child = doc.createElement(QLatin1String("x"));
+        child = doc.createElement(QString(QLatin1Char('x')));
         child.appendChild(doc.createTextNode(QString::number(m_x)));
         e.appendChild(child);
     }
 
     if (m_children & Y) {
-        child = doc.createElement(QLatin1String("y"));
+        child = doc.createElement(QString(QLatin1Char('y')));
         child.appendChild(doc.createTextNode(QString::number(m_y)));
         e.appendChild(child);
     }
@@ -5208,11 +5208,11 @@ void DomPointF::read(const QDomElement &node)
             continue;
         QDomElement e = n.toElement();
         QString tag = e.tagName().toLower();
-        if (tag == QLatin1String("x")) {
+        if (tag == QString(QLatin1Char('x'))) {
             setElementX(e.text().toDouble());
             continue;
         }
-        if (tag == QLatin1String("y")) {
+        if (tag == QString(QLatin1Char('y'))) {
             setElementY(e.text().toDouble());
             continue;
         }
@@ -5232,13 +5232,13 @@ QDomElement DomPointF::write(QDomDocument &doc, const QString &tagName) const
     QDomElement child;
 
     if (m_children & X) {
-        child = doc.createElement(QLatin1String("x"));
+        child = doc.createElement(QString(QLatin1Char('x')));
         child.appendChild(doc.createTextNode(QString::number(m_x, 'f', 15)));
         e.appendChild(child);
     }
 
     if (m_children & Y) {
-        child = doc.createElement(QLatin1String("y"));
+        child = doc.createElement(QString(QLatin1Char('y')));
         child.appendChild(doc.createTextNode(QString::number(m_y, 'f', 15)));
         e.appendChild(child);
     }
@@ -5306,11 +5306,11 @@ void DomRectF::read(const QDomElement &node)
             continue;
         QDomElement e = n.toElement();
         QString tag = e.tagName().toLower();
-        if (tag == QLatin1String("x")) {
+        if (tag == QString(QLatin1Char('x'))) {
             setElementX(e.text().toDouble());
             continue;
         }
-        if (tag == QLatin1String("y")) {
+        if (tag == QString(QLatin1Char('y'))) {
             setElementY(e.text().toDouble());
             continue;
         }
@@ -5338,13 +5338,13 @@ QDomElement DomRectF::write(QDomDocument &doc, const QString &tagName) const
     QDomElement child;
 
     if (m_children & X) {
-        child = doc.createElement(QLatin1String("x"));
+        child = doc.createElement(QString(QLatin1Char('x')));
         child.appendChild(doc.createTextNode(QString::number(m_x, 'f', 15)));
         e.appendChild(child);
     }
 
     if (m_children & Y) {
-        child = doc.createElement(QLatin1String("y"));
+        child = doc.createElement(QString(QLatin1Char('y')));
         child.appendChild(doc.createTextNode(QString::number(m_y, 'f', 15)));
         e.appendChild(child);
     }
@@ -6758,11 +6758,11 @@ void DomConnectionHint::read(const QDomElement &node)
             continue;
         QDomElement e = n.toElement();
         QString tag = e.tagName().toLower();
-        if (tag == QLatin1String("x")) {
+        if (tag == QString(QLatin1Char('x'))) {
             setElementX(e.text().toInt());
             continue;
         }
-        if (tag == QLatin1String("y")) {
+        if (tag == QString(QLatin1Char('y'))) {
             setElementY(e.text().toInt());
             continue;
         }
@@ -6785,13 +6785,13 @@ QDomElement DomConnectionHint::write(QDomDocument &doc, const QString &tagName) 
         e.setAttribute(QLatin1String("type"), attributeType());
 
     if (m_children & X) {
-        child = doc.createElement(QLatin1String("x"));
+        child = doc.createElement(QString(QLatin1Char('x')));
         child.appendChild(doc.createTextNode(QString::number(m_x)));
         e.appendChild(child);
     }
 
     if (m_children & Y) {
-        child = doc.createElement(QLatin1String("y"));
+        child = doc.createElement(QString(QLatin1Char('y')));
         child.appendChild(doc.createTextNode(QString::number(m_y)));
         e.appendChild(child);
     }

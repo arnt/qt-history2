@@ -239,6 +239,23 @@
 
     </xsl:template>
 
+    <!-- Format a string constant as QString(QLatin1Char('X')) or QLatin1String("foo"), respectively -->
+    <xsl:template name="string-constant">
+    <xsl:param name="literal"/>
+        <xsl:choose>
+            <xsl:when test="string-length($literal) &lt; 2">
+                  <xsl:text>QString(QLatin1Char('</xsl:text>
+                <xsl:value-of select="$literal"/>
+                <xsl:text>'))</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:text>QLatin1String("</xsl:text>
+                    <xsl:value-of select="$literal"/>
+                <xsl:text>")</xsl:text>
+           </xsl:otherwise>
+       </xsl:choose>
+    </xsl:template>
+
 <!-- Implementation: read() -->
 
     <xsl:template name="read-impl-load-attributes">
@@ -259,16 +276,20 @@
                 <xsl:call-template name="xs-type-from-qstring-func">
                     <xsl:with-param name="xs-type" select="@type"/>
                     <xsl:with-param name="val">
-                        <xsl:text>node.attribute(QLatin1String("</xsl:text>
-                        <xsl:value-of select="$lower-name"/>
-                        <xsl:text>"))</xsl:text>
+                       <xsl:text>node.attribute(</xsl:text>
+                       <xsl:call-template name="string-constant">
+                           <xsl:with-param name="literal" select="$lower-name"/>
+                       </xsl:call-template>
+                       <xsl:text>)</xsl:text>
                     </xsl:with-param>
                 </xsl:call-template>
             </xsl:variable>
 
-            <xsl:text>    if (node.hasAttribute(QLatin1String("</xsl:text>
-            <xsl:value-of select="$lower-name"/>
-            <xsl:text>")))&endl;</xsl:text>
+            <xsl:text>    if (node.hasAttribute(</xsl:text>
+            <xsl:call-template name="string-constant">
+                <xsl:with-param name="literal" select="$lower-name"/>
+            </xsl:call-template>
+            <xsl:text>))&endl;</xsl:text>
             <xsl:text>        setAttribute</xsl:text>
             <xsl:value-of select="$cap-name"/>
             <xsl:text>(</xsl:text>
@@ -298,9 +319,11 @@
             </xsl:variable>
             <xsl:variable name="array" select="$node/@maxOccurs = 'unbounded'"/>
 
-            <xsl:text>        if (tag == QLatin1String("</xsl:text>
-            <xsl:value-of select="$lower-name"/>
-            <xsl:text>")) {&endl;</xsl:text>
+            <xsl:text>        if (tag == </xsl:text>
+            <xsl:call-template name="string-constant">
+                <xsl:with-param name="literal" select="$lower-name"/>
+            </xsl:call-template>
+            <xsl:text>) {&endl;</xsl:text>
 
             <xsl:choose>
                 <xsl:when test="not($array) and $xs-type-cat = 'value'">
@@ -425,9 +448,11 @@
             <xsl:text>    if (hasAttribute</xsl:text>
             <xsl:value-of select="$cap-name"/>
             <xsl:text>())&endl;</xsl:text>
-            <xsl:text>        e.setAttribute(QLatin1String("</xsl:text>
-            <xsl:value-of select="$lower-name"/>
-            <xsl:text>"), attribute</xsl:text>
+            <xsl:text>        e.setAttribute(</xsl:text>
+            <xsl:call-template name="string-constant">
+                <xsl:with-param name="literal" select="$lower-name"/>
+            </xsl:call-template>
+            <xsl:text>, attribute</xsl:text>
             <xsl:value-of select="$cap-name"/>
             <xsl:text>());&endl;&endl;</xsl:text>
         </xsl:for-each>
@@ -469,9 +494,11 @@
                             </xsl:call-template>
                         </xsl:variable>
 
-                        <xsl:text>            QDomElement child = doc.createElement(QLatin1String("</xsl:text>
-                        <xsl:value-of select="@name"/>
-                        <xsl:text>"));&endl;</xsl:text>
+                        <xsl:text>            QDomElement child = doc.createElement(</xsl:text>
+                        <xsl:call-template name="string-constant">
+                            <xsl:with-param name="literal" select="@name"/>
+                        </xsl:call-template>
+                        <xsl:text>);&endl;</xsl:text>
                         <xsl:text>            QDomText text = doc.createTextNode(</xsl:text>
                         <xsl:value-of select="$qstring-func"/>
                         <xsl:text>);&endl;</xsl:text>
@@ -491,9 +518,11 @@
                         <xsl:value-of select="$cap-name"/>
                         <xsl:text>();&endl;</xsl:text>
                         <xsl:text>            if (v != 0) {&endl;</xsl:text>
-                        <xsl:text>                QDomElement child = v->write(doc, QLatin1String("</xsl:text>
-                        <xsl:value-of select="$lower-name"/>
-                        <xsl:text>"));&endl;</xsl:text>
+                        <xsl:text>                QDomElement child = v->write(doc, </xsl:text>
+                        <xsl:call-template name="string-constant">
+                            <xsl:with-param name="literal" select="$lower-name"/>
+                        </xsl:call-template>
+                        <xsl:text>);&endl;</xsl:text>
                         <xsl:text>                e.appendChild(child);&endl;</xsl:text>
                         <xsl:text>            }&endl;</xsl:text>
                     </xsl:when>
@@ -546,9 +575,11 @@
                     <xsl:text>[i];&endl;</xsl:text>
                     <xsl:choose>
                         <xsl:when test="$xs-type-cat = 'pointer'">
-                            <xsl:text>        QDomNode child = v->write(doc, QLatin1String("</xsl:text>
-                            <xsl:value-of select="$lower-name"/>
-                            <xsl:text>"));&endl;</xsl:text>
+                            <xsl:text>        QDomNode child = v->write(doc, </xsl:text>
+                            <xsl:call-template name="string-constant">
+                                <xsl:with-param name="literal" select="$lower-name"/>
+                            </xsl:call-template>
+                            <xsl:text>);&endl;</xsl:text>
                         </xsl:when>
                         <xsl:otherwise>
                             <xsl:variable name="qstring-func">
@@ -558,9 +589,11 @@
                                 </xsl:call-template>
                             </xsl:variable>
 
-                            <xsl:text>        QDomNode child = doc.createElement(QLatin1String("</xsl:text>
-                            <xsl:value-of select="$lower-name"/>
-                            <xsl:text>"));&endl;</xsl:text>
+                            <xsl:text>        QDomNode child = doc.createElement(</xsl:text>
+                            <xsl:call-template name="string-constant">
+                                <xsl:with-param name="literal" select="$lower-name"/>
+                            </xsl:call-template>
+                            <xsl:text>);&endl;</xsl:text>
                             <xsl:text>        child.appendChild(doc.createTextNode(</xsl:text>
                             <xsl:value-of select="$qstring-func"/>
                             <xsl:text>));&endl;</xsl:text>
@@ -577,9 +610,11 @@
                         <xsl:when test="$xs-type-cat = 'pointer'">
                             <xsl:text>        e.appendChild(m_</xsl:text>
                             <xsl:value-of select="@name"/>
-                            <xsl:text>->write(doc, QLatin1String("</xsl:text>
-                            <xsl:value-of select="$lower-name"/>
-                            <xsl:text>")));&endl;</xsl:text>
+                            <xsl:text>->write(doc, </xsl:text>
+                            <xsl:call-template name="string-constant">
+                                <xsl:with-param name="literal" select="$lower-name"/>
+                            </xsl:call-template>
+                            <xsl:text>));&endl;</xsl:text>
                         </xsl:when>
                         <xsl:otherwise>
                             <xsl:variable name="qstring-func">
@@ -588,9 +623,11 @@
                                     <xsl:with-param name="val" select="concat('m_', @name)"/>
                                 </xsl:call-template>
                             </xsl:variable>
-                            <xsl:text>        child = doc.createElement(QLatin1String("</xsl:text>
-                            <xsl:value-of select="$lower-name"/>
-                            <xsl:text>"));&endl;</xsl:text>
+                            <xsl:text>        child = doc.createElement(</xsl:text>
+                            <xsl:call-template name="string-constant">
+                                <xsl:with-param name="literal" select="$lower-name"/>
+                            </xsl:call-template>
+                            <xsl:text>);&endl;</xsl:text>
                             <xsl:text>        child.appendChild(doc.createTextNode(</xsl:text>
                             <xsl:value-of select="$qstring-func"/>
                             <xsl:text>));&endl;</xsl:text>
