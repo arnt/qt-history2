@@ -1,12 +1,15 @@
 function init()
 {
+	gRssBoxTitleLink = $(TITLELINKSSELECTOR);
 	$(window).resize(function() {recalculateRssBoxPosition();});
 	$("#rssbox").css({ display: "block", position: "absolute" });
-	recalculateRssBoxPosition();
-	$(TITLELINKSSELECTOR).removeAttr("href").css("cursor", "pointer").click(function() {toggleRssLinksVisibility();});
+	gRssBoxTitleLink.removeAttr("href").css("cursor", "pointer").click(function() {toggleRssLinksVisibility();});
 	setRssLinksVisible(getCookie(RSSLINKSVISIBLE) == "true");
 	
-	fadeToTransparent();
+	recalculateRssBoxPosition();
+	window.setInterval("recalculateRssBoxPosition()", 3000);
+	
+	startPulsating();
 }
 
 function rssLinksHaveBeenSeenOnce()
@@ -14,15 +17,60 @@ function rssLinksHaveBeenSeenOnce()
 	return (getCookie(RSSLINKSHAVEBEENVISIBLEONCE) == "true");
 }
 
-function fadeToTransparent()
+function startPulsating()
 {
 	if (!rssLinksHaveBeenSeenOnce())
-		$(TITLELINKSSELECTOR).fadeTo(800, 0.3, function() {fadeToOpaque();});
+	{
+		var element = gRssBoxTitleLink;
+		element.originalBackgroundColor = $(element).css("background-color");
+		element.color1 = [175, 211, 77]; // Hack: This is actually originalBackgroundColor but reading rgb values from CSS can be an adventure
+		element.color2 = [element.color1[0] + 30, element.color1[1] + 30, element.color1[2] + 30];
+		
+		setupFadingStepColors(element);
+		
+		element.interval = window.setInterval("handleFaderTimerTick()", 100);
+	}
 }
 
-function fadeToOpaque()
+function setupFadingStepColors()
 {
-	$(TITLELINKSSELECTOR).fadeTo(800, 1, function() {fadeToTransparent();});
+	var element = gRssBoxTitleLink;
+	element.fadingStepsCount = 10;
+	element.fadingCurrentIndex = 0;
+	element.fadingStepColors = new Array(element.fadingStepsCount * 2);
+	for (var i = 0; i < element.fadingStepsCount; i++)
+	{
+		element.fadingStepColors[i] = [0, 0, 0];
+		var factor = 1 / element.fadingStepsCount * i;
+		for (var channel = 0; channel < 3; channel ++)
+		{
+			var difference = element.color1[channel] - element.color2[channel];
+			element.fadingStepColors[i][channel] = element.color1[channel] - difference * factor;
+		}
+		var descendingColorIndex = element.fadingStepsCount + (element.fadingStepsCount - i) - 1;
+		element.fadingStepColors[descendingColorIndex] = element.fadingStepColors[i];
+	}
+}
+
+function handleFaderTimerTick()
+{
+	if (rssLinksHaveBeenSeenOnce())
+	{
+		stopPulsating();
+		return;
+	}
+	var element = gRssBoxTitleLink;
+	var color = element.fadingStepColors[element.fadingCurrentIndex];
+	$(element).css("background-color", "rgb(" + color[0] + ", " + color[1] + ", " + color[2] + ")");
+	element.fadingCurrentIndex = (element.fadingCurrentIndex + 1) % (element.fadingStepColors.length);
+	var huihui = 1;
+}
+
+function stopPulsating()
+{
+	var element = gRssBoxTitleLink;
+	$(element).css("background-color", element.originalBackgroundColor);
+	clearInterval(element.interval);
 }
 
 function recalculateRssBoxPosition()
@@ -63,7 +111,7 @@ function setRssLinksVisible(visible)
 		$(linksElement).hide();
 
 	setCookie(RSSLINKSVISIBLE, visible?"true":"false");
-	$(TITLELINKSSELECTOR).css("background-image", "url(images/triangle" + (visible?"Horizontal":"Vertical") + ".png)");
+	gRssBoxTitleLink.css("background-image", "url(images/triangle" + (visible?"Horizontal":"Vertical") + ".png)");
 }
 
 function getCookie(c_name)
@@ -93,3 +141,7 @@ var RSSLINKSHAVEBEENVISIBLEONCE = "rsslinkshavebeenvisibleonce";
 var RSSLINKSSELECTOR = "#rssbox ul ul";
 var TITLELINKSSELECTOR = "#rssbox>ul>li>a";
 var LOGOIMAGESELECTOR = "img[@src*=trolltech-logo]";
+
+var gRssBoxTitleLink = null;
+
+//recalculateRssBoxPosition();
