@@ -553,8 +553,8 @@ bool QImageWriter::write(const QImage &image)
 
     if (!d->handler->write(image))
         return false;
-    if (d->deleteDevice)
-        qobject_cast<QFile *>(d->device)->flush();
+    if (QFile *file = qobject_cast<QFile *>(d->device))
+        file->flush();
     return true;
 }
 
