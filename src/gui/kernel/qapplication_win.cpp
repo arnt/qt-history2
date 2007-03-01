@@ -2746,15 +2746,7 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
     if (sm_blockUserInput) // block user interaction during session management
         return true;
 
-    if (GetKeyState(VK_SHIFT) < 0)
-        state |= Qt::ShiftModifier;
-    if (GetKeyState(VK_CONTROL) < 0)
-        state |= Qt::ControlModifier;
-    if (GetKeyState(VK_MENU) < 0)
-        state |= Qt::AltModifier;
-    if ((GetKeyState(VK_LWIN) < 0) ||
-         (GetKeyState(VK_RWIN) < 0))
-        state |= Qt::MetaModifier;
+    state = translateButtonState(GET_KEYSTATE_WPARAM(msg.wParam), 0, 0);
 
     int delta;
     if (msg.message == WM_MOUSEWHEEL)
