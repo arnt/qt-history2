@@ -841,6 +841,7 @@ static const unsigned short * QT_FASTCALL decomposition(uint ucs4, int *length, 
         buffer[1] = Hangul_VBase + (SIndex % Hangul_NCount) / Hangul_TCount; // V
         buffer[2] = Hangul_TBase + SIndex % Hangul_TCount; // T
         *length = buffer[2] == Hangul_TBase ? 2 : 3;
+        *tag = QChar::Canonical;
         return buffer;
     }
 
