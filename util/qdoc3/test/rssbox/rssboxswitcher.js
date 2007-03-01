@@ -4,27 +4,41 @@ function init()
 	$(window).resize(function() {recalculateRssBoxPosition();});
 	$("#rssbox").css({ display: "block", position: "absolute" });
 	gRssBoxTitleLink.removeAttr("href").css("cursor", "pointer").click(function() {toggleRssLinksVisibility();});
-	setRssLinksVisible(getCookie(RSSLINKSVISIBLE) == "true");
+	
+	setRssLinksVisible(getCookie(RSSLINKSVISIBLE) == 'yes');
 	
 	recalculateRssBoxPosition();
 	window.setInterval("recalculateRssBoxPosition()", 3000);
 	
+	gLatestRssItemUrl = readLatestRssItemURLFromHTML();
+	
 	startPulsating();
 }
 
-function rssLinksHaveBeenSeenOnce()
+function readLatestRssItemURLFromHTML()
 {
-	return (getCookie(RSSLINKSHAVEBEENVISIBLEONCE) == "true");
+	return $("#rssbox>ul>li>ul>li>a").attr("href");
+}
+
+function writeLatestRssItemURLIntoCookie()
+{
+	setCookie(LATESTRSSITEMURL, gLatestRssItemUrl);
+}
+
+function titleShouldPulsate()
+{
+//	return true;
+	return (getCookie(LATESTRSSITEMURL) != gLatestRssItemUrl);
 }
 
 function startPulsating()
 {
-	if (!rssLinksHaveBeenSeenOnce())
+	if (titleShouldPulsate())
 	{
 		var element = gRssBoxTitleLink;
 		element.originalBackgroundColor = $(element).css("background-color");
 		element.color1 = [175, 211, 77]; // Hack: This is actually originalBackgroundColor but reading rgb values from CSS can be an adventure
-		element.color2 = [element.color1[0] + 30, element.color1[1] + 30, element.color1[2] + 30];
+		element.color2 = [element.color1[0] + 35, element.color1[1] + 35, element.color1[2] + 35];
 		
 		setupFadingStepColors(element);
 		
@@ -54,16 +68,15 @@ function setupFadingStepColors()
 
 function handleFaderTimerTick()
 {
-	if (rssLinksHaveBeenSeenOnce())
+	if (!titleShouldPulsate())
 	{
 		stopPulsating();
 		return;
 	}
 	var element = gRssBoxTitleLink;
 	var color = element.fadingStepColors[element.fadingCurrentIndex];
-	$(element).css("background-color", "rgb(" + color[0] + ", " + color[1] + ", " + color[2] + ")");
+	$(element).css("background-color", "rgb(" + parseInt(color[0]) + ", " + parseInt(color[1]) + ", " + parseInt(color[2]) + ")");
 	element.fadingCurrentIndex = (element.fadingCurrentIndex + 1) % (element.fadingStepColors.length);
-	var huihui = 1;
 }
 
 function stopPulsating()
@@ -76,29 +89,22 @@ function stopPulsating()
 function recalculateRssBoxPosition()
 {
 	var logoWidth = $(LOGOIMAGESELECTOR).width();
-	var bodyMarginTop = cleanNumber($("body").css("margin-top"));
-	var bodyMarginLeft = cleanNumber($("body").css("margin-left"));
+	var bodyMarginTop = parseInt($("body").css("margin-top"));
+	var bodyMarginLeft = parseInt($("body").css("margin-left"));
 	var logoHeight = $(LOGOIMAGESELECTOR).height();
 	var headerTableWidth = $("table:first").width();
 	$("#rssbox").css({ left: headerTableWidth - logoWidth + bodyMarginLeft, top: logoHeight + bodyMarginTop}).width(logoWidth);
 }
 
-function cleanNumber(dirtyNumber)
-{
-	while (dirtyNumber.search(/[^0-9]/) >= 0)
-		dirtyNumber = dirtyNumber.replace(/[^0-9]/, "");
-	return dirtyNumber * 1;
-}
-
 function toggleRssLinksVisibility()
 {
 	setRssLinksVisible(!getIsRssLinksVisible());
-	setCookie(RSSLINKSHAVEBEENVISIBLEONCE, "true");
+	writeLatestRssItemURLIntoCookie();
 }
 
 function getIsRssLinksVisible()
 {
-	return $(RSSLINKSSELECTOR).css("display") != "none";
+	return $(RSSLINKSSELECTOR).css("display") != 'none';
 }
 
 function setRssLinksVisible(visible)
@@ -106,11 +112,11 @@ function setRssLinksVisible(visible)
 	var linksElement = $(RSSLINKSSELECTOR);
 
 	if (visible)
-		$(linksElement).show();
+		$(linksElement).css("display", "block");
 	else
-		$(linksElement).hide();
+		$(linksElement).css("display", "none");
 
-	setCookie(RSSLINKSVISIBLE, visible?"true":"false");
+	setCookie(RSSLINKSVISIBLE, visible?"yes":"no");
 	gRssBoxTitleLink.css("background-image", "url(images/triangle" + (visible?"Horizontal":"Vertical") + ".png)");
 }
 
@@ -137,11 +143,12 @@ function setCookie(c_name, value)
 }
 
 var RSSLINKSVISIBLE = "rsslinksvisible";
-var RSSLINKSHAVEBEENVISIBLEONCE = "rsslinkshavebeenvisibleonce";
+var LATESTRSSITEMURL = "latestrssitemurl";
 var RSSLINKSSELECTOR = "#rssbox ul ul";
 var TITLELINKSSELECTOR = "#rssbox>ul>li>a";
 var LOGOIMAGESELECTOR = "img[@src*=trolltech-logo]";
 
 var gRssBoxTitleLink = null;
+var gLatestRssItemUrl = ""
 
-//recalculateRssBoxPosition();
+//window.onload = recalculateRssBoxPosition;

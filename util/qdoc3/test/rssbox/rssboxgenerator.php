@@ -11,9 +11,8 @@
 
 	function renderRssFeed($feedURL)
 	{
-		$feed = new SimplePie();
-		$feed->feed_url($feedURL);
-		$feed->cache_location('cache');
+		$feed = new SimplePie($feedURL);
+		$feed->enable_caching(false);
 		$feed->init();
 		$feed->handle_content_type();
 	
