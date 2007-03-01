@@ -8,6 +8,9 @@
 #include <QTimer>
 #include <QApplication>
 #include <QPushButton>
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
+#include <QMacStyle>
+#endif
 
 #define CONVENIENCE_FUNC_SYMS(func) \
     { \
@@ -316,7 +319,12 @@ void tst_QMessageBox::staticSourceCompat()
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
     ret = QMessageBox::information(0, "title", "text", QMessageBox::Yes, QMessageBox::No);
-    QCOMPARE(ret, int(QMessageBox::Yes));
+    int expectedButton = int(QMessageBox::Yes);
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
+    if (qobject_cast<QMacStyle *>(qApp->style()))
+        expectedButton = int(QMessageBox::No);
+#endif
+    QCOMPARE(ret, expectedButton);
 
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
@@ -388,7 +396,12 @@ void tst_QMessageBox::staticBinaryCompat()
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
     ret = QMessageBox::information(0, "title", "text", Old_Yes, Old_No, 0);
-    QCOMPARE(ret, int(Old_Yes));
+    int expectedButton = int(Old_Yes);
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
+    if (qobject_cast<QMacStyle *>(qApp->style()))
+        expectedButton = int(Old_No);
+#endif
+    QCOMPARE(ret, expectedButton);
 
     keyToSend = Qt::Key_Escape;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
