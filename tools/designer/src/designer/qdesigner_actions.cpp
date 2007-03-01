@@ -101,7 +101,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
       m_editActions(createActionGroup(this)),
       m_formActions(createActionGroup(this)),
       m_windowActions(createActionGroup(this)),
-      m_toolActions(createActionGroup(this)),
+      m_toolActions(createActionGroup(this, true)),
       m_helpActions(createHelpActions()),
       m_styleActions(createActionGroup(this, true)),
       m_editWidgetsAction(new QAction(tr("Edit Widgets"), this)),
