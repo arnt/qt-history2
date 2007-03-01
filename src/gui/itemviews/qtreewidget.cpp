@@ -41,8 +41,6 @@ public:
         { return *i2 < *i1; }
 };
 
-#include "qtreewidget.moc"
-
 /*
     \class QTreeModel
     \brief The QTreeModel class manages the items stored in a tree view.
