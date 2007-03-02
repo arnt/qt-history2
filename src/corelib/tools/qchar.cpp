@@ -1383,7 +1383,7 @@ static QString compose(const QString &str)
             }
         }
         int combining = QChar::combiningClass(uc);
-        if (starter == pos - 1 || combining != lastCombining) {
+        if (starter == pos - 1 || combining > lastCombining) {
             // allowed to form ligature with S
             QChar ligature = ::ligature(s.utf16()[starter], uc);
             if (ligature.unicode()) {
