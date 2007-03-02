@@ -121,7 +121,7 @@ void QWindowsFileSystemWatcherEngine::run()
                     }
                 }
             } else {
-                qErrnoWarning("QFileSystemWatcher: error while waiting for change notification");
+                // qErrnoWarning("QFileSystemWatcher: error while waiting for change notification");
                 break;  // avoid endless loop
             }
             handlesCopy = handles;
