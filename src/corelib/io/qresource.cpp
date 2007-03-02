@@ -885,7 +885,7 @@ public:
             if (!file.exists())
                 return false;
             data_len = file.size();
-            data = new uchar[unmapLength];
+            data = new uchar[data_len];
 
             bool ok = false;
             if (file.open(QIODevice::ReadOnly))
