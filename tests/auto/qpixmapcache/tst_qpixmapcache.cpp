@@ -74,12 +74,6 @@ void tst_QPixmapCache::setCacheLimit()
     QPixmap *p1 = new QPixmap(2, 3);
     QPixmapCache::insert("P1", *p1);
     QVERIFY(QPixmapCache::find("P1") != 0);
-
-// shared pixmaps are not removed from the cache
-
-    QPixmapCache::setCacheLimit(0);
-    QVERIFY(QPixmapCache::find("P1") != 0);
-
     delete p1;
 
     QPixmapCache::setCacheLimit(0);
