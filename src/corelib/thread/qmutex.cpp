@@ -165,19 +165,21 @@ QMutex::~QMutex()
 void QMutex::lock()
 {
     ulong self = d->self();
+    if (d->recursive && d->owner == self) {
+        ++d->count;
+        Q_ASSERT_X(d->count != 0, "QMutex::lock", "Overflow in recursion counter");
+        return;
+    }
 
     bool isLocked = d->contenders.fetchAndAddAcquire(1) == 0;
     if (!isLocked) {
-        isLocked = d->recursive && d->owner == self;
-        if (!isLocked) {
-            if (d->owner == self) {
-                qWarning("QMutex::lock: Deadlock detected in thread %ld", d->owner);
-            }
-
-            // didn't get the lock, wait for it
-            isLocked = d->wait();
-            Q_ASSERT_X(isLocked, "QMutex::lock", "Internal error, infinite wait has timed out.");
+        if (d->owner == self) {
+            qWarning("QMutex::lock: Deadlock detected in thread %ld", d->owner);
         }
+
+        // didn't get the lock, wait for it
+        isLocked = d->wait();
+        Q_ASSERT_X(isLocked, "QMutex::lock", "Internal error, infinite wait has timed out.");
 
         // don't need to wait for the lock anymore
         d->contenders.deref();
@@ -200,15 +202,17 @@ void QMutex::lock()
 bool QMutex::tryLock()
 {
     ulong self = d->self();
+    if (d->recursive && d->owner == self) {
+        ++d->count;
+        Q_ASSERT_X(d->count != 0, "QMutex::tryLock", "Overflow in recursion counter");
+        return true;
+    }
 
     bool isLocked = d->contenders.testAndSetAcquire(0, 1);
     if (!isLocked) {
-        isLocked = d->recursive && d->owner == self;
-        if (!isLocked) {
-            // some other thread has the mutex locked, or we tried to
-            // recursively lock an non-recursive mutex
-            return isLocked;
-        }
+        // some other thread has the mutex locked, or we tried to
+        // recursively lock an non-recursive mutex
+        return isLocked;
     }
     d->owner = self;
     ++d->count;
@@ -235,14 +239,16 @@ bool QMutex::tryLock()
 bool QMutex::tryLock(int timeout)
 {
     ulong self = d->self();
+    if (d->recursive && d->owner == self) {
+        ++d->count;
+        Q_ASSERT_X(d->count != 0, "QMutex::tryLock", "Overflow in recursion counter");
+        return true;
+    }
 
     bool isLocked = d->contenders.fetchAndAddAcquire(1) == 0;
     if (!isLocked) {
-         isLocked = d->recursive && d->owner == self;
-         if (!isLocked) {
-            // didn't get the lock, wait for it
-            isLocked = d->wait(timeout);
-        }
+        // didn't get the lock, wait for it
+        isLocked = d->wait(timeout);
 
         // don't need to wait for the lock anymore
         d->contenders.deref();
