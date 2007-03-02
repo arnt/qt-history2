@@ -680,9 +680,9 @@ bool QPSPrintEngine::end()
         wrapDSC("%%DocumentFonts: " + d->fontsUsed);
     s << "%%EOF\n";
     d->outDevice->write(trailer);
-    ignoreSigPipe(false);
 
     QPdfBaseEngine::end();
+    ignoreSigPipe(false);
 
     d->firstPage = true;
     d->headerDone = false;
