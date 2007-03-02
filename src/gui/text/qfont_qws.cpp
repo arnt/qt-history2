@@ -49,11 +49,21 @@ void QFont::cleanup()
 Qt::HANDLE QFont::handle() const
 {
 #ifndef QT_NO_FREETYPE
-    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
-    Q_ASSERT(engine != 0);
+    return freetypeFace();
+#endif
+    return 0;
+}
 
-    if (engine->type() == QFontEngine::Freetype)
-        return static_cast<QFontEngineFT *>(engine)->non_locked_face();
+FT_Face QFont::freetypeFace() const
+{
+#ifndef QT_NO_FREETYPE
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
+    if (engine->type() == QFontEngine::Multi)
+        engine = static_cast<QFontEngineMulti *>(engine)->engine(0);
+    if (engine->type() == QFontEngine::Freetype) {
+        const QFontEngineFT *ft = static_cast<const QFontEngineFT *>(engine);
+        return ft->non_locked_face();
+    }
 #endif
     return 0;
 }

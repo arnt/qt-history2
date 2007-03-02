@@ -206,6 +206,33 @@ Qt::HANDLE QFont::handle() const
     return 0;
 }
 
+
+/*!
+  Returns the handle to the primary freetype face of the font. I font merging is not disabled a
+  QFont can contain several physical fonts.
+
+  Returns 0 if the font does not contains a freetype face.
+*/
+FT_Face QFont::freetypeFace() const
+{
+#ifndef QT_NO_FREETYPE
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
+    if (engine->type() == QFontEngine::Multi)
+        engine = static_cast<QFontEngineMulti *>(engine)->engine(0);
+#ifndef QT_NO_FONTCONFIG
+    if (engine->type() == QFontEngine::Freetype) {
+        const QFontEngineFT *ft = static_cast<const QFontEngineFT *>(engine);
+        return ft->non_locked_face();
+    } else
+#endif
+    if (engine->type() == QFontEngine::XLFD) {
+        const QFontEngineXLFD *xlfd = static_cast<const QFontEngineXLFD *>(engine);
+        return xlfd->non_locked_face();
+    }
+#endif
+    return 0;
+}
+
 /*!
     Returns the name of the font within the underlying window system.
 

@@ -26,6 +26,10 @@ class QStringList;
 class QVariant;
 class Q3TextFormatCollection;
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+typedef struct FT_FaceRec_* FT_Face;
+#endif
+
 class Q_GUI_EXPORT QFont
 {
     Q_GADGET
@@ -155,7 +159,10 @@ public:
 #ifdef Q_WS_MAC
     quint32 macFontID() const;
 #endif
-
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+    FT_Face freetypeFace() const;
+#endif
+    
     // needed for X11
     void setRawName(const QString &);
     QString rawName() const;
