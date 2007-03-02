@@ -201,6 +201,27 @@
   // from now on, myDialog.cancelButton references the button
   \endcode
 
+  You can also use the functions \c{findChild()} and \c{findChildren()}
+  to find children. These two functions behave identically to
+  QObject::findChild() and QObject::findChildren(), respectively.
+  Example:
+
+  \code
+  var okButton = myDialog.findChild("okButton");
+  if (okButton != null) {
+     // do something with the OK button
+  }
+
+  var buttons = myDialog.findChildren(RegExp("button[0-9]+"));
+  for (var i = 0; i < buttons.length; ++i) {
+     // do something with buttons[i]
+  }
+  \endcode
+
+  You typically want to use \c{findChild()} when manipulating a form
+  that uses nested layouts; that way the script is isolated from the
+  details about which particular layout a widget is located in.
+
   \section1 How to Design and Implement Application Objects
 
   This section explains how to implement application objects and
