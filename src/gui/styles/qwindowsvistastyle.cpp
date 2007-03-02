@@ -392,6 +392,16 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
     QRect rect = option->rect;
 
     switch (element) {
+    case PE_IndicatorHeaderArrow:
+        if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(option)) {
+            int stateId = HSAS_SORTEDDOWN;
+            if (header->sortIndicator & QStyleOptionHeader::SortDown)
+                stateId = HSAS_SORTEDUP; //note that the uxtheme sort down indicator is the inverse of ours
+            XPThemeData theme(widget, painter, QLatin1String("HEADER"), HP_HEADERSORTARROW, stateId, option->rect);
+            d->drawBackground(theme);
+        }
+        break;
+
     case PE_IndicatorBranch: 
         {
             //enable vista explorer style tree branches for tree views 
@@ -961,6 +971,24 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
         }
         break;
 #endif // QT_NO_MENU
+    case CE_HeaderSection:
+        if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(option)) {
+            name = QLatin1String("HEADER");
+            partId = HP_HEADERITEM;
+            if (flags & State_Sunken)
+                stateId = HIS_PRESSED;
+            else if (flags & State_MouseOver)
+                stateId = HIS_HOT;
+            else
+                stateId = HIS_NORMAL;
+
+            if (header->sortIndicator != QStyleOptionHeader::None)
+                stateId += 3;
+
+            XPThemeData theme(widget, painter, name, partId, stateId, option->rect);
+            d->drawBackground(theme);
+        }
+        break;
     case CE_MenuBarEmptyArea:
         {
             int stateId = MBI_NORMAL;
@@ -1492,8 +1520,6 @@ QRect QWindowsVistaStyle::subElementRect(SubElement element, const QStyleOption 
    QRect rect = QWindowsXPStyle::subElementRect(element, option, widget);
     switch (element) {
 
-    //### backport this push button content fix to XP
-    //the original code required a widget to function.
     case SE_PushButtonContents:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
             MARGINS borderSize;
@@ -1531,6 +1557,53 @@ QRect QWindowsVistaStyle::subElementRect(SubElement element, const QStyleOption 
         }
         break;
 
+    case SE_HeaderArrow: 
+        {
+            QRect r = rect;
+            int h = option->rect.height();
+            int w = option->rect.width();
+            int x = option->rect.x();
+            int y = option->rect.y();
+            int margin = pixelMetric(QStyle::PM_HeaderMargin, option, widget);
+
+            XPThemeData theme(widget, 0, QLatin1String("HEADER"), HP_HEADERSORTARROW, HSAS_SORTEDDOWN, option->rect);
+
+            int arrowWidth = 13;
+            int arrowHeight = 5;
+            if (theme.isValid()) {
+                SIZE size;
+                if (pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size) == S_OK) {
+                    arrowWidth = size.cx;
+                    arrowHeight = size.cy;
+                }
+            }
+            if (option->state & State_Horizontal) {
+                r.setRect(x + w/2 - arrowWidth/2, y , arrowWidth, arrowHeight);
+            } else {
+                int vert_size = w / 2;
+                r.setRect(x + 5, y + h - margin * 2 - vert_size,
+                          w - margin * 2 - 5, vert_size);
+            }
+            rect = visualRect(option->direction, option->rect, r);
+        }
+        break; 
+
+    case SE_HeaderLabel: 
+        {
+            int margin = pixelMetric(QStyle::PM_HeaderMargin, option, widget);
+            QRect r = option->rect;
+            r.setRect(option->rect.x() + margin, option->rect.y() + margin,
+                      option->rect.width() - margin * 2, option->rect.height() - margin * 2);
+            if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(option)) {
+                // Subtract width needed for arrow, if there is one
+                if (header->sortIndicator != QStyleOptionHeader::None) {
+                    if (!(option->state & State_Horizontal)) //horizontal arrows are positioned on top
+                        r.setHeight(r.height() - (option->rect.width() / 2) - (margin * 2));
+                }
+            }
+            rect = visualRect(option->direction, option->rect, r);
+        }
+        break;
     default:
         break;
     }
