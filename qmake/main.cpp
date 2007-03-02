@@ -17,6 +17,7 @@
 #include "cachekeys.h"
 #include "metamakefile.h"
 #include <qnamespace.h>
+#include <qdebug.h>
 #include <qregexp.h>
 #include <qdir.h>
 #include <stdio.h>

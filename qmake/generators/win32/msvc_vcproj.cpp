@@ -1417,8 +1417,6 @@ bool VcprojGenerator::openOutput(QFile &file, const QString &build) const
             outputName = project->first("MAKEFILE");
         file.setFileName(outdir + outputName + ext);
     }
-    if(QDir::isRelativePath(file.fileName()))
-        file.setFileName(Option::fixPathToLocalOS(qmake_getpwd() + Option::dir_sep + fixFilename(file.fileName())));
     return Win32MakefileGenerator::openOutput(file, build);
 }
 

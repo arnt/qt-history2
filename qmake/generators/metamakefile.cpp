@@ -138,7 +138,8 @@ BuildsMetaMakefileGenerator::write(const QString &oldpwd)
                     Option::output.open(stdout, QIODevice::WriteOnly | QIODevice::Text);
                     using_stdout = true;
                 } else {
-                    if(Option::output.fileName().isEmpty() && Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
+                    if(Option::output.fileName().isEmpty() &&
+		       Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
                         Option::output.setFileName(project->first("QMAKE_MAKEFILE"));
                     Option::output_dir = oldpwd;
                     if(!build->makefile->openOutput(Option::output, build->name)) {
@@ -251,6 +252,7 @@ SubdirsMetaMakefileGenerator::init()
         QString old_output_dir = QDir::cleanPath(Option::output_dir);
         if(!old_output_dir.endsWith('/'))
            old_output_dir += '/';
+	QString old_output = Option::output.fileName();
         QString oldpwd = QDir::cleanPath(qmake_getpwd());
         if(!oldpwd.endsWith('/'))
            oldpwd += '/';
@@ -303,7 +305,7 @@ SubdirsMetaMakefileGenerator::init()
             if(0 && sub->makefile->type() == SUBDIRSMETATYPE) {
                 subs.append(sub);
             } else {
-                const QString &output_name = Option::output.fileName();
+                const QString output_name = Option::output.fileName();
                 Option::output.setFileName(sub->output_file);
                 sub->makefile->write(sub->output_dir);
                 delete sub;
@@ -316,6 +318,7 @@ SubdirsMetaMakefileGenerator::init()
 
         }
         --recurseDepth;
+	Option::output.setFileName(old_output);
         Option::output_dir = old_output_dir;
         qmake_setpwd(oldpwd);
     }
@@ -323,7 +326,8 @@ SubdirsMetaMakefileGenerator::init()
     Subdir *self = new Subdir;
     self->input_dir = qmake_getpwd();
     self->output_dir = Option::output_dir;
-    self->output_file = Option::output.fileName();
+    if(!Option::output.fileName().endsWith(Option::dir_sep) && !QFileInfo(Option::output).isDir())
+	self->output_file = Option::output.fileName();
     self->makefile = new BuildsMetaMakefileGenerator(project, false);
     self->makefile->init();
     subs.append(self);
@@ -355,11 +359,11 @@ SubdirsMetaMakefileGenerator::write(const QString &passpwd)
             writepwd = passpwd;
         if(!(ret = subs.at(i)->makefile->write(writepwd)))
             break;
+	//restore because I'm paranoid
         qmake_setpwd(oldpwd);
+	Option::output.setFileName(output_name);
+	Option::output_dir = output_dir;
     }
-    //restore because I'm paranoid
-    Option::output.setFileName(output_name);
-    Option::output_dir = output_dir;
     return ret;
 }
 
