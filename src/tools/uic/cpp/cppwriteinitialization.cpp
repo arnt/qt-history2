@@ -585,7 +585,7 @@ void WriteInitialization::acceptWidget(DomWidget *node)
             icon += pixCall(picon);
         }
 
-        m_output << m_option.indent << parentWidget << "->addTab(" << varName << icon << ", " << trCall(title) << ");\n";
+        m_output << m_option.indent << parentWidget << "->addTab(" << varName << icon << ", " << "QString());\n";
 
         m_refreshOut << m_option.indent << parentWidget << "->setTabText("
                    << parentWidget << "->indexOf(" << varName << "), " << trCall(title) << ");\n";
