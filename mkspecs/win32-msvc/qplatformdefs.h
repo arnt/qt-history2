@@ -73,7 +73,7 @@
 #define QT_CHDIR		::_chdir
 #define QT_MKDIR		::_mkdir
 #define QT_RMDIR		::_rmdir
-#define QT_OPEN_LARGEFILE       O_LARGEFILE
+#define QT_OPEN_LARGEFILE       0
 #define QT_OPEN_RDONLY		_O_RDONLY
 #define QT_OPEN_WRONLY		_O_WRONLY
 #define QT_OPEN_RDWR		_O_RDWR
