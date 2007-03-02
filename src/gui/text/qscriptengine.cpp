@@ -1641,7 +1641,7 @@ enum Form {
 static const unsigned char indicForms[0xe00-0x900] = {
     // Devangari
     Invalid, VowelMark, VowelMark, VowelMark,
-    Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
     IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
     IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
 
@@ -1677,8 +1677,8 @@ static const unsigned char indicForms[0xe00-0x900] = {
 
     Other, Other, Other, Other,
     Other, Other, Other, Other,
-    Other, Other, Other, Other,
-    Other, Other, Other, Other,
+    Other, Other, Other, Consonant,
+    Consonant, Consonant /* ??? */, Consonant, Consonant,
 
     // Bengali
     Invalid, VowelMark, VowelMark, VowelMark,
@@ -1722,7 +1722,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Other, Other, Other, Other,
 
     // Gurmukhi
-    Invalid, Invalid, VowelMark, Invalid,
+    Invalid, VowelMark, VowelMark, VowelMark,
     Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
     IndependentVowel, IndependentVowel, IndependentVowel, Invalid,
     Invalid, Invalid, Invalid, IndependentVowel,
@@ -1757,7 +1757,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Other, Other, Other, Other,
     Other, Other, Other, Other,
 
-    StressMark, StressMark, Other, Other,
+    StressMark, StressMark, Consonant, Consonant,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
@@ -1766,7 +1766,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Invalid, VowelMark, VowelMark, VowelMark,
     Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
     IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
-    Invalid, IndependentVowel, Invalid, IndependentVowel,
+    IndependentVowel, IndependentVowel, Invalid, IndependentVowel,
 
     IndependentVowel, IndependentVowel, Invalid, IndependentVowel,
     IndependentVowel, Consonant, Consonant, Consonant,
@@ -1793,7 +1793,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     UnknownForm, UnknownForm, UnknownForm, UnknownForm,
     UnknownForm, UnknownForm, UnknownForm, UnknownForm,
 
-    Other, Other, Other, Other,
+    IndependentVowel, IndependentVowel, VowelMark, VowelMark,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
@@ -1820,7 +1820,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Consonant, Consonant, Consonant, Consonant,
 
     Consonant, Invalid, Consonant, Consonant,
-    Invalid, Invalid, Consonant, Consonant,
+    Invalid, Consonant, Consonant, Consonant,
     Consonant, Consonant, UnknownForm, UnknownForm,
     Nukta, Other, Matra, Matra,
 
@@ -1839,7 +1839,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Other, Other, Other, Other,
     Other, Other, Other, Other,
 
-    Other, Other, Other, Other,
+    Other, Consonant, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
@@ -1861,7 +1861,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Invalid, Invalid, Consonant, Consonant,
 
     Consonant, Consonant, Consonant, Consonant,
-    Consonant, Consonant, Invalid, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
     Consonant, Consonant, UnknownForm, UnknownForm,
     Invalid, Invalid, Matra, Matra,
 
@@ -1945,7 +1945,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Consonant, Consonant, Consonant, Consonant,
     Invalid, Consonant, Consonant, Consonant,
     Consonant, Consonant, UnknownForm, UnknownForm,
-    Invalid, Invalid, Matra, Matra,
+    Nukta, Other, Matra, Matra,
 
     Matra, Matra, Matra, Matra,
     Matra, Invalid, Matra, Matra,
@@ -1957,7 +1957,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Consonant, Invalid,
 
-    IndependentVowel, IndependentVowel, Invalid, Invalid,
+    IndependentVowel, IndependentVowel, VowelMark, VowelMark,
     Invalid, Invalid, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
@@ -2147,7 +2147,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
 
     // Gurmukhi
-    None, None, Above, None,
+    None, Above, Above, Post,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
@@ -2218,7 +2218,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
 
-    None, None, None, None,
+    None, None, Below, Below,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
@@ -2257,14 +2257,14 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, Above, Post,
     None, None, None, None,
-    None, None, None, None,
+    None, None, None, Post,
 
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
 
-    None, None, None, None,
+    None, Below, None, None,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
@@ -2382,7 +2382,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, Below, None,
 
-    None, None, None, None,
+    None, None, Below, Below,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
