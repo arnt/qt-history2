@@ -11,11 +11,17 @@
 **
 ****************************************************************************/
 
+//#define QHOSTINFO_DEBUG
+
+static const int RESOLVER_TIMEOUT = 2000;
+
 #include "qplatformdefs.h"
 
 #include "qhostinfo_p.h"
 #include "qiodevice.h"
 #include <qbytearray.h>
+#include <qlibrary.h>
+#include <private/qmutexpool_p.h>
 
 extern "C" {
 #include <netdb.h>
@@ -32,8 +38,19 @@ Q_GLOBAL_STATIC(QMutex, getHostByNameMutex)
 # define QT_SOCKOPTLEN_T QT_SOCKLEN_T
 #endif
 
-//#define QHOSTINFO_DEBUG
-    
+typedef int (*res_init_proto)(void);
+static res_init_proto local_res_init = 0;
+
+void resolveLibrary()
+{
+    QLibrary lib(QLatin1String("resolv"));
+    if (!lib.load())
+        return;
+    local_res_init = res_init_proto(lib.resolve("__res_init"));
+    if (!local_res_init)
+        local_res_init = res_init_proto(lib.resolve("res_init"));
+}
+
 QHostInfo QHostInfoAgent::fromName(const QString &hostName)
 {
     QHostInfo results;
@@ -43,6 +60,20 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
     qDebug("QHostInfoAgent::fromName(%s) looking up...",
            hostName.toLatin1().constData());
 #endif
+
+    // Load res_init on demand.
+    static volatile bool triedResolve = false;
+    if (!triedResolve) {
+        QMutexLocker locker(qt_global_mutexpool ? qt_global_mutexpool->get(&local_res_init) : 0);
+        if (!triedResolve) {
+            resolveLibrary();
+            triedResolve = true;
+        }
+    }
+
+    // If res_init is available, poll it.
+    if (local_res_init)
+        local_res_init();
 
     QHostAddress address;
     if (address.setAddress(hostName)) {

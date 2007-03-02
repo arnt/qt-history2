@@ -19,6 +19,7 @@
 #include <qlibrary.h>
 #include <qtimer.h>
 #include <qmutex.h>
+#include <private/qmutexpool_p.h>
 
 //#define QHOSTINFO_DEBUG
 
@@ -83,10 +84,14 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
 {
     QWindowsSockInit winSock;
 
-
-    static QBasicAtomic tried_to_resolve = Q_ATOMIC_INIT(0);
-    if (!local_getaddrinfo && tried_to_resolve.testAndSet(0, 1)) {
-        resolveLibrary();
+    // Load res_init on demand.
+    static volatile bool triedResolve = false;
+    if (!triedResolve) {
+        QMutexLocker locker(qt_global_mutexpool ? qt_global_mutexpool->get(&local_getaddrinfo) : 0);
+        if (!triedResolve) {
+            resolveLibrary();
+            triedResolve = true;
+        }
     }
 
     QHostInfo results;
