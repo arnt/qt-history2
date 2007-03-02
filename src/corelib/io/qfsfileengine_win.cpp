@@ -1618,8 +1618,10 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
             if (d->fileAttrib & FILE_ATTRIBUTE_HIDDEN)
                 ret |= HiddenFlag;
             if (d->filePath == QLatin1String("/") || (d->filePath.at(0).isLetter() && d->filePath.mid(1,d->filePath.length()) == QLatin1String(":/"))
-                || isUncRoot(d->filePath))
+                || isUncRoot(d->filePath)) {
                 ret |= RootFlag;
+                ret &= ~HiddenFlag;
+            }
         }
     }
     return ret;
