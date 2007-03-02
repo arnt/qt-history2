@@ -2435,14 +2435,14 @@ void QTextControl::mergeCurrentCharFormat(const QTextCharFormat &modifier)
 {
     Q_D(QTextControl);
     d->cursor.mergeCharFormat(modifier);
-    d->lastCharFormat = d->cursor.charFormat();
+    d->updateCurrentCharFormat();
 }
 
 void QTextControl::setCurrentCharFormat(const QTextCharFormat &format)
 {
     Q_D(QTextControl);
     d->cursor.setCharFormat(format);
-    d->lastCharFormat = format;
+    d->updateCurrentCharFormat();
 }
 
 QTextCharFormat QTextControl::currentCharFormat() const

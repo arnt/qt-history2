@@ -110,6 +110,7 @@ private slots:
     void preserveCharFormatAfterSetPlainText();
     void extraSelections();
     void adjustScrollbars();
+    void currentCharFormatChanged();
 
 private:
     void createSelection();
@@ -1440,6 +1441,39 @@ void tst_QTextEdit::adjustScrollbars()
     cursor.insertText(QLatin1String("\n"));
     cursor.deletePreviousChar();
     QCOMPARE(ed->verticalScrollBar()->maximum(), oldMaximum);
+}
+
+class SignalReceiver : public QObject
+{
+    Q_OBJECT
+public:
+    SignalReceiver() : received(0) {}
+
+    int receivedSignals() const { return received; }
+    QTextCharFormat charFormat() const { return format; }
+
+public slots:
+    void charFormatChanged(const QTextCharFormat &tcf) { ++received; format = tcf; }
+
+private:
+    QTextCharFormat format;
+    int received;
+};
+
+void tst_QTextEdit::currentCharFormatChanged()
+{
+    QFont ff(ed->font());
+    ff.setFamily("Tahoma");
+    ff.setPointSize(11);
+
+    SignalReceiver receiver;
+    QObject::connect(ed, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)) , &receiver, SLOT(charFormatChanged(const QTextCharFormat &)));
+
+    ed->show();
+    ed->setCurrentFont(ff);
+
+    QVERIFY(receiver.receivedSignals() > 0);
+    QCOMPARE(receiver.charFormat().font(), ff);
 }
 
 QTEST_MAIN(tst_QTextEdit)
