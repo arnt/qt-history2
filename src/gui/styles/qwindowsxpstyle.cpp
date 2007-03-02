@@ -1545,9 +1545,9 @@ case PE_Frame:
                     WCHAR* offset;
                     if ((offset = wcsrchr(themeFileName, QChar(QLatin1Char('\\')).unicode())) != NULL) {
                         offset++;
-                        if (QString::fromUtf16(reinterpret_cast<const ushort *>(offset)) == QString(QLatin1String("Luna.msstyles")) &&
-                            QString::fromUtf16(reinterpret_cast<const ushort *>(themeColor)) == QString(QLatin1String("Metallic")))
+                        if (!lstrcmp(offset, L"Luna.msstyles") && !lstrcmp(offset, L"Metallic")) {
                             useGradient = false;
+                        }
                     }
                 }
                 // This should work, but currently there's an error in the ::drawBackgroundDirectly()
