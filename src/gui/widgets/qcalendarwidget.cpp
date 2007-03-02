@@ -1626,10 +1626,6 @@ void QCalendarWidgetPrivate::createNavigationBar(QWidget *widget)
     monthButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     monthButton->setAutoRaise(true);
     monthButton->setPopupMode(QToolButton::InstantPopup);
-#ifdef QT_KEYPAD_NAVIGATION
-    if (QApplication::keypadNavigationEnabled())
-        monthButton->setFocusPolicy(Qt::NoFocus);
-#endif
     monthMenu = new QMenu(monthButton);
     for (int i = 1; i <= 12; i++) {
         QString monthName(q->locale().monthName(i, QLocale::LongFormat));
@@ -1641,10 +1637,6 @@ void QCalendarWidgetPrivate::createNavigationBar(QWidget *widget)
     yearButton = new QCalToolButton(navBarBackground);
     yearButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     yearButton->setAutoRaise(true);
-#ifdef QT_KEYPAD_NAVIGATION
-    if (QApplication::keypadNavigationEnabled())
-        yearButton->setFocusPolicy(Qt::NoFocus);
-#endif
     yearEdit = new QSpinBox(navBarBackground);
 
     QFont font = q->font();
