@@ -739,9 +739,6 @@ void tst_QFileInfo::isSymLink()
 void tst_QFileInfo::isHidden()
 {
     // Drives
-#if defined(Q_OS_WIN)
-    QSKIP("Windows reports every drive as being hidden (bug #152228)", SkipAll);
-#endif
     foreach (QFileInfo info, QDir::drives()) {
         QVERIFY(info.exists());
         QVERIFY(info.isDir());
