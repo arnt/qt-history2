@@ -141,10 +141,17 @@ static int _gettemp(char *path, int *doopen, int domkdir, int slen)
 	for (;;) {
 		if (doopen) {
 #if defined(Q_OS_WIN) && defined(_MSC_VER) && _MSC_VER >= 1400
-                        if (_sopen_s(doopen, path, O_CREAT|O_EXCL|O_RDWR|O_BINARY, _SH_DENYNO, _S_IREAD | _S_IWRITE)== 0)
+                        if (_sopen_s(doopen, path, O_CREAT|O_EXCL|O_RDWR|O_BINARY
+#ifdef QT_LARGEFILE_SUPPORT
+                                     |O_LARGEFILE
+#endif
+                                     , _SH_DENYNO, _S_IREAD | _S_IWRITE)== 0)
 #else
                         if ((*doopen =
                             open(path, O_CREAT|O_EXCL|O_RDWR
+#ifdef QT_LARGEFILE_SUPPORT
+                                 |O_LARGEFILE
+#endif
 #  if defined(Q_OS_WIN)
                                  |O_BINARY
 #  endif
