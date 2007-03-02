@@ -349,7 +349,7 @@ bool VcprojGenerator::writeProjectMakefile()
 	    mergedProjects.at(0)->writePrlFile();
         mergedProject.Name = unescapeFilePath(project->first("QMAKE_ORIG_TARGET"));
         mergedProject.Version = mergedProjects.at(0)->vcProject.Version;
-        mergedProject.ProjectGUID = getProjectUUID().toString().toUpper();
+        mergedProject.ProjectGUID = project->isEmpty("QMAKE_UUID") ? getProjectUUID().toString().toUpper() : project->first("QMAKE_UUID");
         mergedProject.Keyword = project->first("VCPROJ_KEYWORD");
         mergedProject.SccProjectName = mergedProjects.at(0)->vcProject.SccProjectName;
         mergedProject.SccLocalPath = mergedProjects.at(0)->vcProject.SccLocalPath;
@@ -541,7 +541,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                         newDep->orig_target = unescapeFilePath(tmp_proj.first("QMAKE_ORIG_TARGET"));
                         newDep->target = tmp_proj.first("MSVCPROJ_TARGET").section(Option::dir_sep, -1);
                         newDep->targetType = tmp_vcproj.projectTarget;
-                        newDep->uuid = getProjectUUID(Option::fixPathToLocalOS(qmake_getpwd() + QDir::separator() + vcproj)).toString().toUpper();
+                        newDep->uuid = tmp_proj.isEmpty("QMAKE_UUID") ? getProjectUUID(Option::fixPathToLocalOS(qmake_getpwd() + QDir::separator() + vcproj)).toString().toUpper(): tmp_proj.first("QMAKE_UUID");
 
                         // We want to store it as the .lib name.
                         if(newDep->target.endsWith(".dll"))
