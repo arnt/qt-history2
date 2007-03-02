@@ -101,10 +101,10 @@ struct QBasicAtomic {
     { return q_atomic_fetch_and_add(&atomic, value); }
 
     inline int fetchAndAddAcquire(int value)
-    { return q_atomic_fetch_and_add(&atomic, value); }
+    { return q_atomic_fetch_and_add_acquire(&atomic, value); }
 
     inline int fetchAndAddRelease(int value)
-    { return q_atomic_fetch_and_add(&atomic, value); }
+    { return q_atomic_fetch_and_add_release(&atomic, value); }
 };
 
 template <typename T>
