@@ -368,6 +368,7 @@ public: // attributes
     QScript::IdTable m_id_table;
 
     QSet<QString> m_importedExtensions;
+    QSet<QString> m_extensionsBeingImported;
     QHash<QString, QStringList> m_cachedPluginKeys;
 
 #ifdef QT_NO_QOBJECT

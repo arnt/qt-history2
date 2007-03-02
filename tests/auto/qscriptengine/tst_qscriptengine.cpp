@@ -41,6 +41,7 @@ private slots:
     void nestedEvaluate();
     void getSetDefaultPrototype();
     void valueConversion();
+    void importExtension();
 };
 
 tst_QScriptEngine::tst_QScriptEngine()
@@ -546,6 +547,63 @@ void tst_QScriptEngine::valueConversion()
         QCOMPARE(qscriptvalue_cast<QStack<int> >(lstVal.property("1")), second);
         QCOMPARE(qscriptvalue_cast<QLinkedList<QStack<int> > >(lstVal), lst);
     }
+}
+
+static QScriptValue __import__(QScriptContext *ctx, QScriptEngine *eng)
+{
+    return eng->importExtension(ctx->argument(0).toString());
+}
+
+void tst_QScriptEngine::importExtension()
+{
+    QStringList libPaths = QCoreApplication::instance()->libraryPaths();
+    QCoreApplication::instance()->setLibraryPaths(QStringList() << ".");
+
+    // try to import something that doesn't exist
+    {
+        QScriptEngine eng;
+        QScriptValue ret = eng.importExtension("this.extension.does.not.exist");
+        QCOMPARE(eng.hasUncaughtException(), true);
+        QCOMPARE(ret.isError(), true);
+    }
+
+    {
+        QScriptEngine eng;
+        for (int x = 0; x < 2; ++x) {
+            QCOMPARE(eng.globalObject().property("com").isValid(), x == 1);
+            QScriptValue ret = eng.importExtension("com.trolltech");
+            QCOMPARE(eng.hasUncaughtException(), false);
+            QCOMPARE(ret.isUndefined(), true);
+            
+            QScriptValue com = eng.globalObject().property("com");
+            QCOMPARE(com.isObject(), true);
+            QCOMPARE(com.property("wasDefinedAlready")
+                     .strictEqualTo(QScriptValue(&eng, false)), true);
+            QCOMPARE(com.property("name")
+                     .strictEqualTo(QScriptValue(&eng, "com")), true);
+            QCOMPARE(com.property("level")
+                     .strictEqualTo(QScriptValue(&eng, 1)), true);
+            
+            QScriptValue trolltech = com.property("trolltech");
+            QCOMPARE(trolltech.isObject(), true);
+            QCOMPARE(trolltech.property("wasDefinedAlready")
+                     .strictEqualTo(QScriptValue(&eng, false)), true);
+            QCOMPARE(trolltech.property("name")
+                     .strictEqualTo(QScriptValue(&eng, "com.trolltech")), true);
+            QCOMPARE(trolltech.property("level")
+                     .strictEqualTo(QScriptValue(&eng, 2)), true);
+        }
+    }
+
+    // recursive import should throw an error
+    {
+        QScriptEngine eng;
+        eng.globalObject().setProperty("__import__", eng.newFunction(__import__));
+        QScriptValue ret = eng.importExtension("com.trolltech.recursive");
+        QCOMPARE(eng.hasUncaughtException(), true);
+    }
+
+    QCoreApplication::instance()->setLibraryPaths(libPaths);
 }
 
 QTEST_MAIN(tst_QScriptEngine)

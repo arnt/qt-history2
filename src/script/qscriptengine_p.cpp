@@ -1453,6 +1453,12 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
         if (m_importedExtensions.contains(ext))
             continue; // already imported
 
+        if (m_extensionsBeingImported.contains(ext)) {
+            return context->throwError(QString::fromLatin1("recursive import of %0")
+                                       .arg(extension));
+        }
+        m_extensionsBeingImported.insert(ext);
+
         // look for the extension in library paths
         bool loaded = false;
         QString cppPluginPath;
@@ -1590,6 +1596,7 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
                 }
 
                 m_importedExtensions.insert(ext);
+                m_extensionsBeingImported.remove(ext);
                 loaded = true;
                 break;
             } // if (resolved)
