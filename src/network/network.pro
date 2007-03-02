@@ -52,6 +52,8 @@ win32:SOURCES += qhostinfo_win.cpp qnativesocketengine_win.cpp qnetworkinterface
 
 # OpenSSL support; compile in QSslSocket.
 contains(QT_CONFIG, openssl) {
+    include($$QT_SOURCE_TREE/config.tests/unix/openssl/openssl.pri)
+
     HEADERS += qsslcertificate.h \
                qsslcertificate_p.h \
                qsslcipher.h \
