@@ -35,7 +35,6 @@
 #include <widgetfactory_p.h>
 #include <abstractlanguage.h>
 
-#include <qdesigner_widget_p.h>
 #include <qlayout_widget_p.h>
 #include <qdesigner_utils_p.h>
 #include <ui4_p.h>

@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qlayout_widget_p.h"
-#include "qdesigner_widget_p.h"
 #include "qdesigner_command_p.h"
 #include "layout_p.h"
 #include "invisible_widget_p.h"

@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qdesigner_formbuilder_p.h"
-#include "qdesigner_widget_p.h"
 #include "dynamicpropertysheet.h"
 #include "qsimpleresource_p.h"
 
