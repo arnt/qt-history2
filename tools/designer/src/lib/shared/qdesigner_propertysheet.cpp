@@ -43,17 +43,20 @@ static const QMetaObject *propertyIntroducedBy(const QMetaObject *meta, int inde
     return 0;
 }
 
+static QDesignerFormEditorInterface *formEditorForWidget(QWidget *w) {
+    const QDesignerFormWindowInterface *formWindow =  QDesignerFormWindowInterface::findFormWindow(w);
+    if (!formWindow)
+        return 0;
+    return formWindow->core();
+}
+
 static bool hasLayoutAttributes(QObject *object)
 {
     if (!object->isWidgetType())
         return false;
 
     QWidget *w =  qobject_cast<QWidget *>(object);
-    const QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(w);
-    if (!fw)
-        return false;
-
-    if (const QDesignerFormEditorInterface *core = fw->core()) {
+    if (const QDesignerFormEditorInterface *core = formEditorForWidget(w)) {
         if (const QDesignerWidgetDataBaseInterface *db = core->widgetDataBase()) {
             if (db->isContainer(w))
                 return true;
@@ -731,13 +734,6 @@ void QDesignerPropertySheet::setAttribute(int index, bool attribute)
         m_info.insert(index, Info());
 
     m_info[index].attribute = attribute;
-}
-
-static QDesignerFormEditorInterface *formEditorForWidget(QWidget *w) {
-    const QDesignerFormWindowInterface *formWindow =  QDesignerFormWindowInterface::findFormWindow(w);
-    if (!formWindow)
-        return 0;
-    return formWindow->core();
 }
 
 QLayout* QDesignerPropertySheet::layout(QDesignerPropertySheetExtension **layoutPropertySheet) const
