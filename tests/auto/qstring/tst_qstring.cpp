@@ -975,21 +975,29 @@ void tst_QString::indexOf()
 
     Qt::CaseSensitivity cs = bcs ? Qt::CaseSensitive : Qt::CaseInsensitive;
 
-    QCOMPARE( haystack.indexOf(needle, startpos, cs), resultpos );
-    QCOMPARE( haystack.indexOf(needle.toLatin1(), startpos, cs), resultpos );
-    QCOMPARE( haystack.indexOf(needle.toLatin1().data(), startpos, cs), resultpos );
+    bool needleIsLatin = (QString::fromLatin1(needle.toLatin1()) == needle);
 
+    QCOMPARE( haystack.indexOf(needle, startpos, cs), resultpos );
+    if (needleIsLatin) {
+        QCOMPARE( haystack.indexOf(needle.toLatin1(), startpos, cs), resultpos );
+        QCOMPARE( haystack.indexOf(needle.toLatin1().data(), startpos, cs), resultpos );
+    }
+    
     QCOMPARE( haystack.indexOf(QRegExp(QRegExp::escape(needle), cs), startpos), resultpos );
     QCOMPARE( haystack.indexOf(QRegExp(needle, cs, QRegExp::FixedString), startpos), resultpos );
 
     if (cs == Qt::CaseSensitive) {
         QCOMPARE( haystack.indexOf(needle, startpos), resultpos );
-        QCOMPARE( haystack.indexOf(needle.toLatin1(), startpos), resultpos );
-        QCOMPARE( haystack.indexOf(needle.toLatin1().data(), startpos), resultpos );
+        if (needleIsLatin) {
+            QCOMPARE( haystack.indexOf(needle.toLatin1(), startpos), resultpos );
+            QCOMPARE( haystack.indexOf(needle.toLatin1().data(), startpos), resultpos );
+        }
         if (startpos == 0) {
             QCOMPARE( haystack.indexOf(needle), resultpos );
-            QCOMPARE( haystack.indexOf(needle.toLatin1()), resultpos );
-            QCOMPARE( haystack.indexOf(needle.toLatin1().data()), resultpos );
+            if (needleIsLatin) {
+                QCOMPARE( haystack.indexOf(needle.toLatin1()), resultpos );
+                QCOMPARE( haystack.indexOf(needle.toLatin1().data()), resultpos );
+            }
         }
     }
     if (needle.size() == 1) {
