@@ -147,6 +147,13 @@ public:
         struct statvfs vfs;
         if (statvfs(path.toLocal8Bit().constData(), &vfs) >= 0)
             return vfs.f_namemax;
+#elif defined (Q_OS_WIN)
+        DWORD maxLength;
+        QString drive = path.left(3);
+        if (QT_WA_INLINE(::GetVolumeInformationW(path.utf16(), NULL, 0, NULL, &maxLength, NULL, NULL, 0),
+                         ::GetVolumeInformationA(path.toAscii().constData(), NULL, 0, NULL, &maxLength, NULL, NULL, 0)) == FALSE)
+            return -1;
+        return maxLength;
 #endif
         return -1;
     }
