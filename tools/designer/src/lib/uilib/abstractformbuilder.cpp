@@ -464,26 +464,29 @@ void QAbstractFormBuilder::layoutInfo(DomLayout *ui_layout, QObject *parent, int
         spac = properties.value(QLatin1String("spacing"))->elementNumber();
 
 #ifdef Q_OS_MAC
-    int defaultMargin = 9;
-    if (parent->inherits("QLayoutWidget"))
-        defaultMargin = 0;
-    if (mar == defaultMargin)
-        mar = INT_MIN;
-    if (spac == 6)
-        spac = INT_MIN;
+    // here we recognize ui file < 4.3 (no we don't store margin property)
+    if (mar != INT_MIN) {
+        int defaultMargin = 9;
+        if (parent->inherits("QLayoutWidget"))
+            defaultMargin = 0;
+        if (mar == defaultMargin)
+            mar = INT_MIN;
+        if (spac == 6)
+            spac = INT_MIN;
 
-    if (mar == INT_MIN || spac == INT_MIN) {
-        QList<DomProperty *> properties = ui_layout->elementProperty();
-        QMutableListIterator<DomProperty *> it(properties);
-        while (it.hasNext()) {
-            DomProperty *prop = it.next();
-            if ((mar == INT_MIN && prop->attributeName() == QLatin1String("margin")) ||
+        if (mar == INT_MIN || spac == INT_MIN) {
+            QList<DomProperty *> properties = ui_layout->elementProperty();
+            QMutableListIterator<DomProperty *> it(properties);
+            while (it.hasNext()) {
+                DomProperty *prop = it.next();
+                if ((mar == INT_MIN && prop->attributeName() == QLatin1String("margin")) ||
                         (spac == INT_MIN && prop->attributeName() == QLatin1String("spacing"))) {
-                it.remove();
-                delete prop;
+                    it.remove();
+                    delete prop;
+                }
             }
+            ui_layout->setElementProperty(properties);
         }
-        ui_layout->setElementProperty(properties);
     }
 #endif
     if (margin)
