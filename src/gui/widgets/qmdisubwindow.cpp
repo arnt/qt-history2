@@ -127,8 +127,6 @@
 #include <QDebug>
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 #include <QMacStyle>
-#elif defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSXP)
-#include <QWindowsXPStyle>
 #endif
 
 static const QStyle::SubControl SubControls[] =
@@ -2559,10 +2557,6 @@ void QMdiSubWindow::paintEvent(QPaintEvent *paintEvent)
     }
 
     bool setClipRect = !isMinimized() && !d->hasBorder(titleBarOptions);
-#if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSXP)
-    if (qobject_cast<QWindowsXPStyle *>(style()))
-        setClipRect = false;
-#endif
     if (setClipRect)
         painter.setClipRect(rect().adjusted(0, d->titleBarHeight(titleBarOptions), 0, 0));
     if (!isMinimized() || d->hasBorder(titleBarOptions))
