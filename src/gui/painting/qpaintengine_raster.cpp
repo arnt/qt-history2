@@ -3606,6 +3606,7 @@ QClipData::QClipData(int height)
 
     allocated = height;
     spans = (QSpan *)malloc(height*sizeof(QSpan));
+    xmin = xmax = ymin = ymax = 0;
     count = 0;
 }
 
@@ -3816,7 +3817,7 @@ static int qt_intersect_spans(QT_FT_Span *spans, int numSpans,
     const QVector<QRect> rects = clip.rects();
     int n = 0;
     int startI = 0;
-    
+
     for (int r = 0; r < rects.size(); ++r) {
         const QRect &rect = rects[r];
         const short miny = rect.top();
@@ -3835,12 +3836,12 @@ static int qt_intersect_spans(QT_FT_Span *spans, int numSpans,
                 continue;
             }
             if (spans[i].x < minx) {
-                spans[n].len = qMin(spans[i].len - (minx - spans[i].x), 
+                spans[n].len = qMin(spans[i].len - (minx - spans[i].x),
                                     maxx - minx + 1);
                 spans[n].x = minx;
             } else {
                 spans[n].x = spans[i].x;
-                spans[n].len = qMin(spans[i].len, 
+                spans[n].len = qMin(spans[i].len,
                                     ushort(maxx - spans[n].x + 1));
             }
             spans[n].y = spans[i].y;
