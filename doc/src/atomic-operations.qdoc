@@ -33,9 +33,9 @@
     \o \l {6}{int q_atomic_decrement()}
     \o \l {7}{int q_atomic_set_int()}
     \o \l {8}{int q_atomic_set_ptr()}
-    \o \l {9}{int q_atomic_fetch_and_add()}
-    \o \l {10}{int q_atomic_fetch_and_add_acquire()}
-    \o \l {11}{int q_atomic_fetch_and_add_release()}
+    \o \l {9}{int q_atomic_fetch_and_add_int()}
+    \o \l {10}{int q_atomic_fetch_and_add_acquire_int()}
+    \o \l {11}{int q_atomic_fetch_and_add_release_int()}
     \endlist
 
     Note that these functions must be atomic with respect to both
@@ -236,7 +236,7 @@
     See also \l{7}{q_atomic_set_int()}.
 
     \target 9
-    \section2 int q_atomic_fetch_and_add (volatile int *ptr, int value)
+    \section2 int q_atomic_fetch_and_add_int (volatile int *ptr, int value)
 
     Atomic fetch-and-add for integers.
 
@@ -261,7 +261,7 @@
 
     \target 10
     \section2
-    int q_atomic_fetch_and_add_acquire (volatile int *ptr, int value)
+    int q_atomic_fetch_and_add_acquire_int (volatile int *ptr, int value)
 
     This function behaves essentially like the above function.
 
@@ -271,7 +271,7 @@
 
     \target 3
     \section2
-    int q_atomic_fetch_and_add_release (volatile int *ptr, int value)
+    int q_atomic_fetch_and_add_release_int (volatile int *ptr, int value)
 
     This function behaves essentially like the above function.
 

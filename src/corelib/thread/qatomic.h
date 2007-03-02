@@ -41,9 +41,9 @@ QT_MODULE(Core)
     int q_atomic_set_int(volatile int *ptr, int newval);
     void *q_atomic_set_ptr(volatile void *ptr, void *newval);
 
-    int q_atomic_fetch_and_add(volatile int *ptr, value);
-    int q_atomic_fetch_and_add_acquire(volatile int *ptr, value);
-    int q_atomic_fetch_and_add_release(volatile int *ptr, value);
+    int q_atomic_fetch_and_add_int(volatile int *ptr, value);
+    int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, value);
+    int q_atomic_fetch_and_add_release_int(volatile int *ptr, value);
 
     If you cannot implement these functions efficiently on your
     platform without great difficulty, consider defining
@@ -98,13 +98,13 @@ struct QBasicAtomic {
     { return q_atomic_set_int(&atomic, newval); }
 
     inline int fetchAndAdd(int value)
-    { return q_atomic_fetch_and_add(&atomic, value); }
+    { return q_atomic_fetch_and_add_int(&atomic, value); }
 
     inline int fetchAndAddAcquire(int value)
-    { return q_atomic_fetch_and_add_acquire(&atomic, value); }
+    { return q_atomic_fetch_and_add_acquire_int(&atomic, value); }
 
     inline int fetchAndAddRelease(int value)
-    { return q_atomic_fetch_and_add_release(&atomic, value); }
+    { return q_atomic_fetch_and_add_release_int(&atomic, value); }
 };
 
 template <typename T>

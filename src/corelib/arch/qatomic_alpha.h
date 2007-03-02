@@ -166,7 +166,7 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     return old;
 }
 
-inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
 {
     register int old, tmp;
     asm volatile("1:\n"
@@ -183,7 +183,7 @@ inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
     return old != -1;
 }
 
-inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value)
 {
     register int old, tmp;
     asm volatile("1:\n"
@@ -201,7 +201,7 @@ inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
     return old != -1;
 }
 
-inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value)
 {
     register int old, tmp;
     asm volatile("mb\n"
@@ -230,9 +230,9 @@ extern "C" {
     Q_CORE_EXPORT int q_atomic_decrement(volatile int *ptr);
     Q_CORE_EXPORT int q_atomic_set_int(volatile int *ptr, int newval);
     Q_CORE_EXPORT void *q_atomic_set_ptr(volatile void *ptr, void *newval);
-    Q_CORE_EXPORT int q_atomic_fetch_and_add(volatile int *ptr, int value);
-    Q_CORE_EXPORT int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value);
-    Q_CORE_EXPORT int q_atomic_fetch_and_add_release(volatile int *ptr, int value);
+    Q_CORE_EXPORT int q_atomic_fetch_and_add_int(volatile int *ptr, int value);
+    Q_CORE_EXPORT int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value);
+    Q_CORE_EXPORT int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value);
 } // extern "C"
 
 #endif // Q_CC_GNU

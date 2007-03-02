@@ -96,7 +96,7 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     return newval;
 }
 
-inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
 {
     asm volatile("lock\n"
                  "xaddl %0,%1"
@@ -106,14 +106,14 @@ inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
     return value;
 }
 
-inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value)
 {
-    return q_atomic_fetch_and_add(ptr, value);
+    return q_atomic_fetch_and_add_int(ptr, value);
 }
 
-inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value)
 {
-    return q_atomic_fetch_and_add(ptr, value);
+    return q_atomic_fetch_and_add_int(ptr, value);
 }
 
 #else

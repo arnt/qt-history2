@@ -187,7 +187,7 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     return expected;
 }
 
-inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
 {
     register int originalValue;
     for (;;) {
@@ -198,7 +198,7 @@ inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
     return originalValue;
 }
 
-inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value)
 {
     register int originalValue;
     for (;;) {
@@ -209,7 +209,7 @@ inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
     return originalValue;
 }
 
-inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value)
 {
     register int originalValue;
     for (;;) {

@@ -33,9 +33,9 @@ extern "C" {
     Q_CORE_EXPORT int q_atomic_decrement(volatile int *ptr);
     Q_CORE_EXPORT int q_atomic_set_int(volatile int *ptr, int newval);
     Q_CORE_EXPORT void *q_atomic_set_ptr(volatile void *ptr, void *newval);
-    Q_CORE_EXPORT int q_atomic_fetch_and_add(volatile int *ptr, int value);
-    Q_CORE_EXPORT int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value);
-    Q_CORE_EXPORT int q_atomic_fetch_and_add_release(volatile int *ptr, int value);
+    Q_CORE_EXPORT int q_atomic_fetch_and_add_int(volatile int *ptr, int value);
+    Q_CORE_EXPORT int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value);
+    Q_CORE_EXPORT int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value);
 }
 
 #else
@@ -94,21 +94,21 @@ inline int q_atomic_decrement(volatile int *ptr)
     return val != 1;
 }
 
-inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
 {
     const int originalValue = q_atomic_lock_int(ptr);
     q_atomic_unlock(ptr, originalValue + value);
     return originalValue;
 }
 
-inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value)
 {
-    return q_atomic_fetch_and_add(ptr, value);
+    return q_atomic_fetch_and_add_int(ptr, value);
 }
 
-inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value)
 {
-    return q_atomic_fetch_and_add(ptr, value);
+    return q_atomic_fetch_and_add_int(ptr, value);
 }
 
 #endif // !_LP64

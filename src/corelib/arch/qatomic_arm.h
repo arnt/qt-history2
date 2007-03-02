@@ -100,7 +100,7 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     return originalValue;
 }
 
-inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
 {
     while (q_atomic_swp(&q_atomic_lock, ~0) != 0) ;
     int originalValue = *ptr;
@@ -109,14 +109,14 @@ inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
     return originalValue;
 }
 
-inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value)
 {
-    return q_atomic_fetch_and_add(ptr, value);
+    return q_atomic_fetch_and_add_int(ptr, value);
 }
 
-inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value)
 {
-    return q_atomic_fetch_and_add(ptr, value);
+    return q_atomic_fetch_and_add_int(ptr, value);
 }
 
 QT_END_HEADER

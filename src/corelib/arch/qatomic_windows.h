@@ -91,7 +91,7 @@ inline void *q_atomic_set_ptr(volatile void *pointer, void *newval)
     return newval;
 }
 
-inline int q_atomic_fetch_and_add(volatile int *pointer, int value)
+inline int q_atomic_fetch_and_add_int(volatile int *pointer, int value)
 {
     __asm {
         mov EDX,pointer
@@ -149,7 +149,7 @@ inline int q_atomic_set_int(volatile int *ptr, int newval)
 inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 { return _InterlockedExchangePointer(reinterpret_cast<void * volatile *>(ptr), newval); }
 
-inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
 {
     return _InterlockedExchangeAdd(reinterpret_cast<volatile long *>(ptr), value);
 }
@@ -201,7 +201,7 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 { return reinterpret_cast<void *>(InterlockedExchange(reinterpret_cast<long *>(const_cast<void *>(ptr)),
                                   reinterpret_cast<long>(newval))); }
 
-inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
 {
     return InterlockedExchangeAdd(reinterpret_cast<long *>(const_cast<int *>(ptr)), value);
 }
@@ -218,14 +218,14 @@ inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, in
     return q_atomic_test_and_set_int(ptr, expected, newval);
 }
 
-inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value)
 {
-    return q_atomic_fetch_and_add(ptr, value);
+    return q_atomic_fetch_and_add_int(ptr, value);
 }
 
-inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value)
 {
-    return q_atomic_fetch_and_add(ptr, value);
+    return q_atomic_fetch_and_add_int(ptr, value);
 }
 
 QT_END_HEADER

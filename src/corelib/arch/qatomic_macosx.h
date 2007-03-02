@@ -78,7 +78,7 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     return reinterpret_cast<void *>(ret);
 }
 
-inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
 {
     register int ret;
     do {
@@ -87,7 +87,7 @@ inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
     return ret;
 }
 
-inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value)
 {
     register int ret;
     do {
@@ -96,7 +96,7 @@ inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
     return ret;
 }
 
-inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value)
 {
     register int ret;
     do {
@@ -250,7 +250,7 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 #undef CMPP
 #undef STPCX
 
-inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
 {
     register int tmp;
     register int ret;
@@ -264,7 +264,7 @@ inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
     return ret;
 }
 
-inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value)
 {
     register int tmp;
     register int ret;
@@ -279,7 +279,7 @@ inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
     return ret;
 }
 
-inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+inline int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value)
 {
     register int tmp;
     register int ret;
@@ -308,9 +308,9 @@ extern "C" {
     int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval);
 
 #error "fetch-and-add not implemented"
-    // int q_atomic_fetch_and_add(volatile int *ptr, int value);
-    // int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value);
-    // int q_atomic_fetch_and_add_release(volatile int *ptr, int value);
+    // int q_atomic_fetch_and_add_int(volatile int *ptr, int value);
+    // int q_atomic_fetch_and_add_acquire_int(volatile int *ptr, int value);
+    // int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value);
 
 } // extern "C"
 
