@@ -70,49 +70,6 @@
 
 #include "../shared/qaxtypes.h"
 
-static QAbstractEventDispatcher::EventFilter previous_filter = 0;
-static int filter_ref = 0;
-
-static ushort mouseTbl[] = {
-    WM_MOUSEMOVE,       QEvent::MouseMove,              0,
-    WM_LBUTTONDOWN,     QEvent::MouseButtonPress,       Qt::LeftButton,
-    WM_LBUTTONUP,       QEvent::MouseButtonRelease,     Qt::LeftButton,
-    WM_LBUTTONDBLCLK,   QEvent::MouseButtonDblClick,    Qt::LeftButton,
-    WM_RBUTTONDOWN,     QEvent::MouseButtonPress,       Qt::RightButton,
-    WM_RBUTTONUP,       QEvent::MouseButtonRelease,     Qt::RightButton,
-    WM_RBUTTONDBLCLK,   QEvent::MouseButtonDblClick,    Qt::RightButton,
-    WM_MBUTTONDOWN,     QEvent::MouseButtonPress,       Qt::MidButton,
-    WM_MBUTTONUP,       QEvent::MouseButtonRelease,     Qt::MidButton,
-    WM_MBUTTONDBLCLK,   QEvent::MouseButtonDblClick,    Qt::MidButton,
-    0,                  0,                              0
-};
-
-static Qt::MouseButtons translateMouseButtonState(int s)
-{
-    Qt::MouseButtons bst = 0;
-    if (s & MK_LBUTTON)
-        bst |= Qt::LeftButton;
-    if (s & MK_MBUTTON)
-        bst |= Qt::MidButton;
-    if (s & MK_RBUTTON)
-        bst |= Qt::RightButton;
-
-    return bst;
-}
-
-static Qt::KeyboardModifiers translateModifierState(int s)
-{
-    Qt::KeyboardModifiers bst = 0;
-    if (s & MK_SHIFT)
-        bst |= Qt::ShiftModifier;
-    if (s & MK_CONTROL)
-        bst |= Qt::ControlModifier;
-    if (GetKeyState(VK_MENU) < 0)
-        bst |= Qt::AltModifier;
-
-    return bst;
-}
-
 /*  \class QAxHostWidget
     \brief The QAxHostWidget class is the actual container widget.
 
@@ -417,6 +374,52 @@ private:
     QPointer<QMenuBar> menuBar;
     QMap<QAction*,OleMenuItem> menuItemMap;
 };
+
+static ushort mouseTbl[] = {
+    WM_MOUSEMOVE,       QEvent::MouseMove,              0,
+    WM_LBUTTONDOWN,     QEvent::MouseButtonPress,       Qt::LeftButton,
+    WM_LBUTTONUP,       QEvent::MouseButtonRelease,     Qt::LeftButton,
+    WM_LBUTTONDBLCLK,   QEvent::MouseButtonDblClick,    Qt::LeftButton,
+    WM_RBUTTONDOWN,     QEvent::MouseButtonPress,       Qt::RightButton,
+    WM_RBUTTONUP,       QEvent::MouseButtonRelease,     Qt::RightButton,
+    WM_RBUTTONDBLCLK,   QEvent::MouseButtonDblClick,    Qt::RightButton,
+    WM_MBUTTONDOWN,     QEvent::MouseButtonPress,       Qt::MidButton,
+    WM_MBUTTONUP,       QEvent::MouseButtonRelease,     Qt::MidButton,
+    WM_MBUTTONDBLCLK,   QEvent::MouseButtonDblClick,    Qt::MidButton,
+    0,                  0,                              0
+};
+
+static Qt::MouseButtons translateMouseButtonState(int s)
+{
+    Qt::MouseButtons bst = 0;
+    if (s & MK_LBUTTON)
+        bst |= Qt::LeftButton;
+    if (s & MK_MBUTTON)
+        bst |= Qt::MidButton;
+    if (s & MK_RBUTTON)
+        bst |= Qt::RightButton;
+
+    return bst;
+}
+
+static Qt::KeyboardModifiers translateModifierState(int s)
+{
+    Qt::KeyboardModifiers bst = 0;
+    if (s & MK_SHIFT)
+        bst |= Qt::ShiftModifier;
+    if (s & MK_CONTROL)
+        bst |= Qt::ControlModifier;
+    if (GetKeyState(VK_MENU) < 0)
+        bst |= Qt::AltModifier;
+
+    return bst;
+}
+
+static QAbstractEventDispatcher::EventFilter previous_filter = 0;
+#if QT_VERSION >= 0x050000
+#error "Fix QAbstractEventDispatcher::setEventFilter"
+#endif
+static const char *qaxatom = "QAxContainer4_Atom";
 
 // The filter procedure listening to user interaction on the control
 bool axc_FilterProc(void *m)
@@ -1783,9 +1786,10 @@ bool QAxWidget::createHostWindow(bool initialized)
     container = new QAxClientSite(this);
     container->activateObject(initialized);
 
+    ATOM filter_ref = FindAtomA(qaxatom);
     if (!filter_ref)
         previous_filter = QAbstractEventDispatcher::instance()->setEventFilter(axc_FilterProc);
-    ++filter_ref;
+    AddAtomA(qaxatom);
 
     if (parentWidget())
         QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
@@ -1816,11 +1820,13 @@ void QAxWidget::clear()
     if (isNull())
         return;
     if (!control().isEmpty()) {
-        if (filter_ref) {
-            if (!--filter_ref) {
-                QAbstractEventDispatcher::instance()->setEventFilter(previous_filter);
-                previous_filter = 0;
-            }
+        ATOM filter_ref = FindAtomA(qaxatom);
+        if (filter_ref)
+            DeleteAtom(filter_ref);
+        filter_ref = FindAtomA(qaxatom);
+        if (!filter_ref) {
+            QAbstractEventDispatcher::instance()->setEventFilter(previous_filter);
+            previous_filter = 0;
         }
     }
 
