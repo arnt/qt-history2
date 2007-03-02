@@ -638,10 +638,12 @@ void QLineEditPrivate::complete(int key)
         if (!advanceToEnabledItem(n))
             return;
     } else {
+#ifndef QT_KEYPAD_NAVIGATION
         if (text.isEmpty()) {
             completer->popup()->hide();
             return;
         }
+#endif
         completer->setCompletionPrefix(text);
     }
 
@@ -1108,7 +1110,7 @@ void QLineEdit::setSelection(int start, int length)
         if (!style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
             d->setCursorVisible(false);
     }
-    
+
     update();
     d->emitCursorPositionChanged();
 }
