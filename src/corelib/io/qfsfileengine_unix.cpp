@@ -68,7 +68,7 @@ static int openModeToOpenFlags(QIODevice::OpenMode mode)
 {
     int oflags = QT_OPEN_RDONLY;
 #ifdef QT_LARGEFILE_SUPPORT
-    oflags |= O_LARGEFILE;
+    oflags |= QT_OPEN_LARGEFILE;
 #endif
 
     if ((mode & QFile::ReadWrite) == QFile::ReadWrite) {
