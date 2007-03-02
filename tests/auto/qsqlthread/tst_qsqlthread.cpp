@@ -53,10 +53,16 @@ private slots:
     void readWriteThreading();
     void readFromSingleConnection_data() { generic_data(); }
     void readFromSingleConnection();
+    void readWriteFromSingleConnection_data() { generic_data(); }
+    void readWriteFromSingleConnection();
+    void preparedReadWriteFromSingleConnection_data() { generic_data(); }
+    void preparedReadWriteFromSingleConnection();
 
 private:
     int threadFinishedCount;
 };
+
+static QBasicAtomic counter;
 
 class QtTestSqlThread : public QThread
 {
@@ -92,7 +98,7 @@ private:
     QSqlDatabase sourceDb;
 };
 
-enum { ProdConIterations = 50 };
+enum { ProdConIterations = 10 };
 
 class SqlProducer: public QThread
 {
@@ -168,27 +174,58 @@ private:
     QSqlDatabase sourceDb;
 };
 
-class SqlReader: public QThread
+class SqlThread: public QThread
 {
     Q_OBJECT
 
 public:
-    enum Mode { Simple };
+    enum Mode { SimpleReading, PreparedReading, SimpleWriting, PreparedWriting };
 
-    SqlReader(Mode m, const QSqlDatabase &db, QObject *parent = 0)
+    SqlThread(Mode m, const QSqlDatabase &db, QObject *parent = 0)
         : QThread(parent), sourceDb(db), mode(m) {}
 
     void run()
     {
         switch (mode) {
-        case Simple: {
+        case SimpleReading: {
+            // Executes a Query for reading, iterates over the first 4 results
             QSqlQuery q(sourceDb);
             for (int j = 0; j < ProdConIterations; ++j) {
-                QVERIFY_SQL(q, q.exec("select id,name from test order by id"));
+                QVERIFY_SQL(q, q.exec("select id,name from " + qTableName("test") + " order by id"));
                 for (int i = 1; i < 4; ++i) {
                     QVERIFY_SQL(q, q.next());
                     QCOMPARE(q.value(0).toInt(), i);
                 }
+            }
+            break; }
+        case SimpleWriting: {
+            // Executes a query for writing (appends a new row)
+            QSqlQuery q(sourceDb);
+            for (int j = 0; j < ProdConIterations; ++j) {
+                QVERIFY_SQL(q, q.exec(QString("insert into " + qTableName("test")
+                                + " (id, name) values(%1, '%2')")
+                                      .arg(counter.fetchAndAdd(1)).arg("Robert")));
+            }
+            break; }
+        case PreparedReading: {
+            // Prepares a query for reading and iterates over the results
+            QSqlQuery q(sourceDb);
+            QVERIFY_SQL(q, q.prepare("select id, name from " + qTableName("test") + " where id = ?"));
+            for (int j = 0; j < ProdConIterations; ++j) {
+                q.addBindValue(j % 3 + 1);
+                QVERIFY_SQL(q, q.exec());
+                QVERIFY_SQL(q, q.next());
+                QCOMPARE(q.value(0).toInt(), j % 3 + 1);
+            }
+            break; }
+        case PreparedWriting: {
+            QSqlQuery q(sourceDb);
+            QVERIFY_SQL(q, q.prepare("insert into " + qTableName("test") + " (id, name) "
+                                     "values(?, ?)"));
+            for (int i = 0; i < ProdConIterations; ++i) {
+                q.addBindValue(counter.fetchAndAdd(1));
+                q.addBindValue("Robert");
+                QVERIFY_SQL(q, q.exec());
             }
             break; }
         }
@@ -291,6 +328,7 @@ void tst_QSqlThread::cleanupTestCase()
 void tst_QSqlThread::init()
 {
     threadFinishedCount = 0;
+    counter.init(4);
 }
 
 void tst_QSqlThread::cleanup()
@@ -346,9 +384,12 @@ void tst_QSqlThread::readWriteThreading()
         QTest::qWait(100);
 }
 
+// run with n threads in parallel. Change this constant to hammer the poor DB server even more
+static const int maxThreadCount = 4;
+
 void tst_QSqlThread::readFromSingleConnection()
 {
-#if 0
+#ifdef QOCI_THREADED
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
@@ -356,14 +397,66 @@ void tst_QSqlThread::readFromSingleConnection()
     if (db.databaseName() == ":memory:")
         QSKIP("does not work with in-memory databases", SkipSingle);
 
-    static const int threadCount = 4;
-    for (int i = 0; i < threadCount; ++i) {
-        SqlReader *reader = new SqlReader(SqlReader::Simple, db, this);
+    QObject cleanupHelper; // make sure the threads die when we exit the scope
+    for (int i = 0; i < maxThreadCount; ++i) {
+        SqlThread *reader = new SqlThread(SqlThread::SimpleReading, db, &cleanupHelper);
         connect(reader, SIGNAL(finished()), this, SLOT(threadFinished()), Qt::QueuedConnection);
         reader->start();
     }
 
-    while (threadFinishedCount < threadCount)
+    while (threadFinishedCount < maxThreadCount)
+        QTest::qWait(100);
+#endif
+}
+
+void tst_QSqlThread::readWriteFromSingleConnection()
+{
+#ifdef QOCI_THREADED
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (db.databaseName() == ":memory:")
+        QSKIP("does not work with in-memory databases", SkipSingle);
+
+    QObject cleanupHelper;
+    for (int i = 0; i < maxThreadCount; ++i) {
+        SqlThread *reader = new SqlThread(SqlThread::SimpleReading, db, &cleanupHelper);
+        connect(reader, SIGNAL(finished()), this, SLOT(threadFinished()), Qt::QueuedConnection);
+        reader->start();
+
+        SqlThread *writer = new SqlThread(SqlThread::SimpleWriting, db, &cleanupHelper);
+        connect(writer, SIGNAL(finished()), this, SLOT(threadFinished()), Qt::QueuedConnection);
+        writer->start();
+    }
+
+    while (threadFinishedCount < maxThreadCount * 2)
+        QTest::qWait(100);
+#endif
+}
+
+void tst_QSqlThread::preparedReadWriteFromSingleConnection()
+{
+#ifdef QOCI_THREADED
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (db.databaseName() == ":memory:")
+        QSKIP("does not work with in-memory databases", SkipSingle);
+
+    QObject cleanupHelper;
+    for (int i = 0; i < maxThreadCount; ++i) {
+        SqlThread *reader = new SqlThread(SqlThread::PreparedReading, db, &cleanupHelper);
+        connect(reader, SIGNAL(finished()), this, SLOT(threadFinished()), Qt::QueuedConnection);
+        reader->start();
+
+        SqlThread *writer = new SqlThread(SqlThread::PreparedWriting, db, &cleanupHelper);
+        connect(writer, SIGNAL(finished()), this, SLOT(threadFinished()), Qt::QueuedConnection);
+        writer->start();
+    }
+
+    while (threadFinishedCount < maxThreadCount * 2)
         QTest::qWait(100);
 #endif
 }
