@@ -2949,15 +2949,15 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
 
   \sa QSslSocket sslErrors
 */
+#ifndef QT_NO_OPENSSL
 void QHttp::ignoreSslErrors()
 {
-#ifndef QT_NO_OPENSSL
     Q_D(QHttp);
     QSslSocket *sslSocket = qobject_cast<QSslSocket *>(d->socket);
     if (sslSocket)
         sslSocket->ignoreSslErrors();
-#endif
 }
+#endif
 
 #include "moc_qhttp.cpp"
 

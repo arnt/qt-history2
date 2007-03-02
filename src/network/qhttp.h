@@ -221,7 +221,10 @@ public:
 
 public Q_SLOTS:
     void abort();
+
+#ifndef QT_NO_OPENSSL
     void ignoreSslErrors();
+#endif
 
 Q_SIGNALS:
     void stateChanged(int);
@@ -238,7 +241,10 @@ Q_SIGNALS:
     void proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *);
 #endif
     void authenticationRequired(const QString &hostname, quint16 port, QAuthenticator *);
+
+#ifndef QT_NO_OPENSSL
     void sslErrors(const QList<QSslError> &errors);
+#endif
 
 private:
     Q_DISABLE_COPY(QHttp)
