@@ -751,13 +751,13 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
             }
             else {
                 bool reverse = bar->direction == Qt::LeftToRight && inverted || bar->direction == Qt::RightToLeft && !inverted;
-                int progress = qMax(bar->progress, bar->minimum); // workaround for bug in QProgressBar
+                qint64 progress = qMax<qint64>(bar->progress, bar->minimum); // workaround for bug in QProgressBar
 
                 if (vertical) {
                     int maxHeight = option->rect.height();
                     int minHeight = 0;
-                    int height = isIndeterminate ? maxHeight: qMax(int((((progress - bar->minimum))
-                                                             / double(bar->maximum - bar->minimum)) * maxHeight), minHeight);
+                    int height = isIndeterminate ? maxHeight: qMax(int((((progress - qint64(bar->minimum)))
+                                                             / double(qint64(bar->maximum) - qint64(bar->minimum))) * maxHeight), minHeight);
                     theme.rect.setHeight(height);
                     if (!inverted)
                         theme.rect.moveTop(rect.height() - theme.rect.height());
@@ -765,8 +765,8 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                 else{
                     int maxWidth = option->rect.width();
                     int minWidth = 0;
-                    int width = isIndeterminate ? maxWidth : qMax(int((((progress - bar->minimum))
-                                                             / double(bar->maximum - bar->minimum)) * maxWidth), minWidth);
+                    int width = isIndeterminate ? maxWidth : qMax(int((((progress - qint64(bar->minimum)))
+                                                             / double(qint64(bar->maximum) - qint64(bar->minimum))) * maxWidth), minWidth);
                     theme.rect.setWidth(width);
                     if (reverse) {
                         theme.rect = QStyle::visualRect(bar->direction, option->rect, theme.rect);

@@ -2506,7 +2506,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                 painter->setTransform(m);
             }
 
-            int progressIndicatorPos = int(((bar->progress - bar->minimum) / double(bar->maximum - bar->minimum)) * rect.width());
+            int progressIndicatorPos = int(((qint64(bar->progress) - qint64(bar->minimum)) / double(qint64(bar->maximum) - qint64(bar->minimum))) * rect.width());
 
             bool flip = (!vertical && (((bar->direction == Qt::RightToLeft) && !inverted)
                                        || ((bar->direction == Qt::LeftToRight) && inverted))) || (vertical && ((!inverted && !bottomToTop) || (inverted && bottomToTop)));
@@ -2570,9 +2570,9 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
             int maxWidth = rect.width() - 4;
             int minWidth = 4;
-            int progress = qMax(bar->progress, bar->minimum); // workaround for bug in QProgressBar
-            int width = indeterminate ? maxWidth : qMax(int((((progress - bar->minimum))
-                                                             / double(bar->maximum - bar->minimum)) * maxWidth), minWidth);
+            qint64 progress = qMax<qint64>(bar->progress, bar->minimum); // workaround for bug in QProgressBar
+            int width = indeterminate ? maxWidth : qMax(int((((progress - qint64(bar->minimum)))
+                                                             / double(qint64(bar->maximum) - qint64(bar->minimum))) * maxWidth), minWidth);
             bool reverse = (!vertical && (bar->direction == Qt::RightToLeft)) || vertical;
             if (inverted)
                 reverse = !reverse;
@@ -3464,7 +3464,6 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             bool sunken = scrollBar->state & State_Sunken;
 
             // The SubLine (up/left) buttons
-            int scrollBarExtent = pixelMetric(PM_ScrollBarExtent, option, widget);
             QRect button1;
             QRect button2;
             if (horizontal) {

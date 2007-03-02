@@ -922,7 +922,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             if (!vertical) {
                 QPalette::ColorRole textRole = QPalette::NoRole;
                 if ((pb->textAlignment & Qt::AlignCenter) && pb->textVisible
-                    && ((pb->progress - pb->minimum) * 2 >= (pb->maximum - pb->minimum))) {
+                    && ((qint64(pb->progress) - qint64(pb->minimum)) * 2 >= (qint64(pb->maximum) - qint64(pb->minimum)))) {
                     textRole = QPalette::HighlightedText;
                 }
                 drawItemText(p, pb->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->palette,
@@ -936,6 +936,9 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             QRect rect = pb->rect;
             bool vertical = false;
             bool inverted = false;
+            qint64 minimum = qint64(pb->minimum);
+            qint64 maximum = qint64(pb->maximum);
+            qint64 progress = qint64(pb->progress);
 
             // Get extra style options if version 2
             const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt);
@@ -963,7 +966,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             int w = rect.width() - 2 * fw;
             if (pb->minimum == 0 && pb->maximum == 0) {
                 // draw busy indicator
-                int x = (pb->progress - pb->minimum) % (w * 2);
+                int x = (progress - minimum) % (w * 2);
                 if (x > w)
                     x = 2 * w - x;
                 x = reverse ? rect.right() - x : x + rect.x();
@@ -976,8 +979,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                     u = (rect.width() + unit_width / 3) / unit_width;
                 else
                     u = w / unit_width;
-                int p_v = pb->progress - pb->minimum;
-                int t_s = pb->maximum - pb->minimum ? pb->maximum - pb->minimum : 1;
+                qint64 p_v = progress - minimum;
+                qint64 t_s = (maximum - minimum) ? (maximum - minimum) : qint64(1);
 
                 if (u > 0 && p_v >= INT_MAX / u && t_s >= u) {
                     // scale down to something usable.
