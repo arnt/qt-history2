@@ -16,9 +16,9 @@ rm -f sse2.c sse2.o
 
 # done
 if [ "$SSE2_SUPPORT" != "yes" ]; then
-    [ "$VERBOSE" = "yes" ] && echo "sse2 support disabled."
+    [ "$VERBOSE" = "yes" ] && echo "SSE2 support disabled."
     exit 0
 else
-    [ "$VERBOSE" = "yes" ] && echo "sse2 support enabled."
+    [ "$VERBOSE" = "yes" ] && echo "SSE2 support enabled."
     exit 1
 fi
