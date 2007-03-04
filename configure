@@ -5358,12 +5358,12 @@ fi
 
 if [ "$OPT_VERBOSE" = "yes" ]; then
     if echo '\c' | grep '\c' >/dev/null; then
-        echo -n "qmake vars ...... "
+        echo -n "qmake vars .......... "
     else
-        echo "qmake vars ...... \c"
+        echo "qmake vars .......... \c"
     fi
     cat "$QMAKE_VARS_FILE" | tr '\n' ' '
-    echo "qmake switches .. $QMAKE_SWITCHES"
+    echo "qmake switches ...... $QMAKE_SWITCHES"
 fi
 
 [ "$CFG_INCREMENTAL" = "yes" ] && [ '!' -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
