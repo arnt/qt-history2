@@ -153,9 +153,9 @@ mac {
 
     win32-g++|!win32 {
         x86_compiler.commands = $$QMAKE_CXX -c
-        sse2: x86_compiler.commands += -msse2
-        sse: x86_compiler.commands += -msse
         mmx: x86_compiler.commands += -mmmx
+        sse:!sse2: x86_compiler.commands += -msse
+        sse2: x86_compiler.commands += -msse2
         iwmmxt: x86_compiler.commands += -mcpu=iwmmxt
         x86_compiler.commands += $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
         x86_compiler.dependency_type = TYPE_C
