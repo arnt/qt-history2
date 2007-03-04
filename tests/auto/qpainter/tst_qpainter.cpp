@@ -1191,38 +1191,76 @@ void tst_QPainter::setClipRect()
     }
 }
 
+/*
+    This tests the two different clipping approaches in QRasterPaintEngine,
+    one when using a QRegion and one when using a QPainterPath. They should
+    give equal results.
+*/
 void tst_QPainter::setEqualClipRegionAndPath_data()
 {
+    QTest::addColumn<QSize>("deviceSize");
     QTest::addColumn<QRegion>("region");
 
-    QTest::newRow("empty") << QRegion();
-    QTest::newRow("simple rect") << QRegion(QRect(5, 5, 10, 10));
+    QTest::newRow("empty") << QSize(100, 100) << QRegion();
+    QTest::newRow("simple rect") << QSize(100, 100)
+                                 << QRegion(QRect(5, 5, 10, 10));
 
     QVector<QRect> rects;
-    rects << QRect(5, 5, 10, 10) << QRect(20, 20, 10, 10);
     QRegion region;
+
+    rects << QRect(5, 5, 10, 10) << QRect(20, 20, 10, 10);
     region.setRects(rects.constData(), rects.size());
-    QTest::newRow("two rects") << region;
+    QTest::newRow("two rects") << QSize(100, 100) << region;
+
+    rects.clear();
+    rects << QRect(5, 5, 10, 10) << QRect(20, 5, 10, 10);
+    region.setRects(rects.constData(), rects.size());
+    QTest::newRow("two x-adjacent rects") << QSize(100, 100) << region;
+
+    rects.clear();
+    rects << QRect(0, 0, 10, 100) << QRect(12, 0, 10, 100);
+    region.setRects(rects.constData(), rects.size());
+    QTest::newRow("two x-adjacent rects 2") << QSize(100, 100) << region;
+
+    rects.clear();
+    rects << QRect(0, 0, 10, 100) << QRect(12, 0, 10, 100);
+    region.setRects(rects.constData(), rects.size());
+    QTest::newRow("two x-adjacent rects 3") << QSize(50, 50) << region;
+
+    rects.clear();
+    rects << QRect(0, 0, 10, 100) << QRect(12, 0, 10, 100);
+    region.setRects(rects.constData(), rects.size());
+    QTest::newRow("two x-adjacent rects 4") << QSize(101, 101) << region;
+
+    region = QRegion(QRect(0, 0, 200, 200), QRegion::Ellipse);
+
+    QTest::newRow("ellipse") << QSize(190, 200) << region;
+
+    region ^= QRect(50, 50, 50, 50);
+    QTest::newRow("ellipse 2") << QSize(200, 200) << region;
 }
 
 void tst_QPainter::setEqualClipRegionAndPath()
 {
+    QFETCH(QSize, deviceSize);
     QFETCH(QRegion, region);
-    
+
     QPainterPath path;
     path.addRegion(region);
 
-    QImage img1(100, 100, QImage::Format_ARGB32);
-    QImage img2(100, 100, QImage::Format_ARGB32);
+    QImage img1(deviceSize.width(), deviceSize.height(),
+                QImage::Format_ARGB32);
+    QImage img2(deviceSize.width(), deviceSize.height(),
+                QImage::Format_ARGB32);
     img1.fill(0x12345678);
     img2.fill(0x12345678);
 
-    { 
+    {
         QPainter p(&img1);
         p.setClipRegion(region);
         p.fillRect(0, 0, img1.width(), img1.height(), QColor(Qt::red));
     }
-    { 
+    {
         QPainter p(&img2);
         p.setClipPath(path);
         p.fillRect(0, 0, img2.width(), img2.height(), QColor(Qt::red));
@@ -1230,11 +1268,95 @@ void tst_QPainter::setEqualClipRegionAndPath()
 
 #if 0
     if (img1 != img2) {
-        img1.save("setEqualClipRegionAndPath_region.png", "PNG");
-        img2.save("setEqualClipRegionAndPath_path.png", "PNG");
+        img1.save("setEqualClipRegionAndPath_1.xpm", "XPM");
+        img2.save("setEqualClipRegionAndPath_2.xpm", "XPM");
     }
 #endif
     QCOMPARE(img1, img2);
+
+    // simple uniteclip
+    img1.fill(0x12345678);
+    img2.fill(0x12345678);
+    {
+        QPainter p(&img1);
+        p.setClipRegion(region);
+        p.setClipRegion(region, Qt::UniteClip);
+        p.fillRect(0, 0, img1.width(), img1.height(), QColor(Qt::red));
+    }
+    {
+        QPainter p(&img2);
+        p.setClipPath(path);
+        p.setClipPath(path, Qt::UniteClip);
+        p.fillRect(0, 0, img2.width(), img2.height(), QColor(Qt::red));
+    }
+    QCOMPARE(img1, img2);
+    img1.fill(0x12345678);
+    img2.fill(0x12345678);
+    {
+        QPainter p(&img1);
+        p.setClipPath(path);
+        p.setClipRegion(region, Qt::UniteClip);
+        p.fillRect(0, 0, img1.width(), img1.height(), QColor(Qt::red));
+    }
+    {
+        QPainter p(&img2);
+        p.setClipRegion(region);
+        p.setClipPath(path, Qt::UniteClip);
+        p.fillRect(0, 0, img2.width(), img2.height(), QColor(Qt::red));
+    }
+#if 0
+    if (img1 != img2) {
+        img1.save("setEqualClipRegionAndPath_1.xpm", "XPM");
+        img2.save("setEqualClipRegionAndPath_2.xpm", "XPM");
+    }
+#endif
+    QCOMPARE(img1, img2);
+
+    // simple intersectclip
+    img1.fill(0x12345678);
+    img2.fill(0x12345678);
+    {
+        QPainter p(&img1);
+        p.setClipRegion(region);
+        p.setClipRegion(region, Qt::IntersectClip);
+        p.fillRect(0, 0, img1.width(), img1.height(), QColor(Qt::red));
+    }
+    {
+        QPainter p(&img2);
+        p.setClipPath(path);
+        p.setClipPath(path, Qt::IntersectClip);
+        p.fillRect(0, 0, img2.width(), img2.height(), QColor(Qt::red));
+    }
+#if 0
+    if (img1 != img2) {
+        img1.save("setEqualClipRegionAndPath_1.png", "PNG");
+        img2.save("setEqualClipRegionAndPath_2.png", "PNG");
+    }
+#endif
+    QCOMPARE(img1, img2);
+
+    img1.fill(0x12345678);
+    img2.fill(0x12345678);
+    {
+        QPainter p(&img1);
+        p.setClipPath(path);
+        p.setClipRegion(region, Qt::IntersectClip);
+        p.fillRect(0, 0, img1.width(), img1.height(), QColor(Qt::red));
+    }
+    {
+        QPainter p(&img2);
+        p.setClipRegion(region);
+        p.setClipPath(path, Qt::IntersectClip);
+        p.fillRect(0, 0, img2.width(), img2.height(), QColor(Qt::red));
+    }
+#if 0
+    if (img1 != img2) {
+        img1.save("setEqualClipRegionAndPath_1.xpm", "XPM");
+        img2.save("setEqualClipRegionAndPath_2.xpm", "XPM");
+    }
+#endif
+    QCOMPARE(img1, img2);
+
 }
 
 QTEST_MAIN(tst_QPainter)

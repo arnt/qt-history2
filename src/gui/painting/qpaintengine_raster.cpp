@@ -91,7 +91,8 @@ void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
 /********************************************************************************
  * Span functions
  */
-static void qt_span_fill_simpleClip(int count, const QSpan *spans, void *userData);
+static void qt_span_fill_clipRect(int count, const QSpan *spans, void *userData);
+static void qt_span_fill_clipRegion(int count, const QSpan *spans, void *userData);
 static void qt_span_fill_clipped(int count, const QSpan *spans, void *userData);
 static void qt_span_clip(int count, const QSpan *spans, void *userData);
 
@@ -1261,7 +1262,7 @@ void QRasterPaintEngine::updateClipRegion(const QRegion &r, Qt::ClipOperation op
             d->clipRegion &= d->matrix.map(r);
             break;
         case Qt::ReplaceClip:
-            d->clipRegion = d->matrix.map(r);
+            d->clipRegion = d->matrix.map(r) & d->deviceRect;
             break;
         case Qt::UniteClip:
             d->clipRegion |= d->matrix.map(r);
@@ -1275,10 +1276,11 @@ void QRasterPaintEngine::updateClipRegion(const QRegion &r, Qt::ClipOperation op
             d->clipRegion &= sysClip;
 
         if (!d->clipRegion.isEmpty()) {
-            if (d->clipRegion.rects().count() == 1) {
-                d->setSimpleClip(d->clipRegion.boundingRect());
-                return;
-            }
+            if (d->clipRegion.rects().count() == 1)
+                d->setClipRect(d->clipRegion.boundingRect());
+            else
+                d->setClipRegion(d->clipRegion);
+            return;
         }
     }
 
@@ -1287,10 +1289,22 @@ void QRasterPaintEngine::updateClipRegion(const QRegion &r, Qt::ClipOperation op
     updateClipPath(p, op);
 }
 
-void QRasterPaintEnginePrivate::setSimpleClip(const QRect &rect)
+void QRasterPaintEnginePrivate::setClipRect(const QRect &rect)
 {
     rasterBuffer->resetClip();
-    rasterBuffer->simpleClip = rect;
+    rasterBuffer->clipRect = rect;
+    rasterBuffer->clipRegion = QRegion();
+    rasterBuffer->clipEnabled = true;
+
+    penData.adjustSpanMethods();
+    brushData.adjustSpanMethods();
+}
+
+void QRasterPaintEnginePrivate::setClipRegion(const QRegion &region)
+{
+    rasterBuffer->resetClip();
+    rasterBuffer->clipRect = QRect();
+    rasterBuffer->clipRegion = region;
     rasterBuffer->clipEnabled = true;
 
     penData.adjustSpanMethods();
@@ -1312,14 +1326,21 @@ void QRasterPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperat
     if (d->paint_unclipped)
         return;
 
-    // Convert old simpleClip if necessary
-    if (!d->rasterBuffer->simpleClip.isEmpty()) {
+    // Convert old clip if necessary
+    if (d->rasterBuffer->clip) {
+        // nothing
+    } else if (!d->rasterBuffer->clipRect.isEmpty()) {
         if (op == Qt::UniteClip || op == Qt::IntersectClip) {
-            if (!d->rasterBuffer->clip)
-                d->rasterBuffer->clip = new QClipData(d->rasterBuffer->height());
-            d->rasterBuffer->clip->setSimpleClip(d->rasterBuffer->simpleClip);
+            d->rasterBuffer->clip = new QClipData(d->rasterBuffer->height());
+            d->rasterBuffer->clip->setClipRect(d->rasterBuffer->clipRect);
         }
-        d->rasterBuffer->simpleClip = QRect();
+        d->rasterBuffer->clipRect = QRect();
+    } else if (!d->rasterBuffer->clipRegion.isEmpty()) {
+        if (op == Qt::UniteClip || op == Qt::IntersectClip) {
+            d->rasterBuffer->clip = new QClipData(d->rasterBuffer->height());
+            d->rasterBuffer->clip->setClipRegion(d->rasterBuffer->clipRegion);
+        }
+        d->rasterBuffer->clipRegion = QRegion();
     }
 
     d->updateClip_helper(path, op);
@@ -2309,8 +2330,8 @@ inline bool QRasterPaintEnginePrivate::isUnclipped(const QRect &rect) const
     if (rasterBuffer->clip)
         return false;
 
-    if (!rasterBuffer->simpleClip.isEmpty())
-        return rasterBuffer->simpleClip.contains(rect);
+    if (!rasterBuffer->clipRect.isEmpty())
+        return rasterBuffer->clipRect.contains(rect);
     else
         return qt_region_strictContains(clipRegion, rect);
 }
@@ -3309,7 +3330,7 @@ void QRasterBuffer::init()
     disabled_clip = 0;
 
     compositionMode = QPainter::CompositionMode_SourceOver;
-    simpleClip = QRect();
+    clipRect = QRect();
     delete clip;
     clip = 0;
     format = QImage::Format_ARGB32_Premultiplied;
@@ -3645,9 +3666,12 @@ void QClipData::fixup()
 //     qDebug("xmin=%d,xmax=%d,ymin=%d,ymax=%d", xmin, xmax, ymin, ymax);
 }
 
-void QClipData::setSimpleClip(const QRect &rect)
+/*
+    Convert \a rect to clip spans.
+ */
+void QClipData::setClipRect(const QRect &rect)
 {
-//    qDebug() << "setSimpleClip" << clipSpanHeight << count << allocated << rect;
+//    qDebug() << "setClipRect" << clipSpanHeight << count << allocated << rect;
 
     xmin = rect.x();
     xmax = rect.x() + rect.width() + 1;
@@ -3664,7 +3688,7 @@ void QClipData::setSimpleClip(const QRect &rect)
         ++y;
     }
 
-    const int len = rect.width() + 1;
+    const int len = rect.width();
     count = 0;
     while (y < ymax) {
         QSpan *span = spans + count;
@@ -3678,6 +3702,75 @@ void QClipData::setSimpleClip(const QRect &rect)
         clipLines[y].count = 1;
         ++y;
     }
+
+    while (y < clipSpanHeight) {
+        clipLines[y].spans = 0;
+        clipLines[y].count = 0;
+        ++y;
+    }
+}
+
+/*
+    Convert \a region to clip spans.
+ */
+void QClipData::setClipRegion(const QRegion &region)
+{
+    { // set bounding rect
+        const QRect rect = region.boundingRect();
+        xmin = rect.x();
+        xmax = rect.x() + rect.width() + 1;
+        ymin = rect.y();
+        ymax = rect.y() + rect.height();
+    }
+
+    const QVector<QRect> rects = region.rects();
+    const int numRects = rects.size();
+
+    { // resize
+        const int maxSpans = (ymax - ymin) * numRects;
+        if (maxSpans > allocated) {
+            spans = (QSpan *)realloc(spans, maxSpans * sizeof(QSpan));
+            allocated = maxSpans;
+        }
+    }
+
+    int y = 0;
+    int firstInBand = 0;
+    while (firstInBand < numRects) {
+        const int currMinY = rects.at(firstInBand).y();
+        const int currMaxY = currMinY + rects.at(firstInBand).height();
+
+        while (y < currMinY) {
+            clipLines[y].spans = 0;
+            clipLines[y].count = 0;
+            ++y;
+        }
+
+        int lastInBand = firstInBand;
+        while (lastInBand + 1 < numRects && rects.at(lastInBand+1).top() == y)
+            ++lastInBand;
+
+        while (y < currMaxY) {
+
+            clipLines[y].spans = spans + count;
+            clipLines[y].count = lastInBand - firstInBand + 1;
+
+            for (int r = firstInBand; r <= lastInBand; ++r) {
+                const QRect &currRect = rects.at(r);
+                QSpan *span = spans + count;
+                span->x = currRect.x();
+                span->len = currRect.width();
+                span->y = y;
+                span->coverage = 255;
+                ++count;
+            }
+            ++y;
+        }
+
+        firstInBand = lastInBand + 1;
+    }
+
+    Q_ASSERT(count <= allocated);
 
     while (y < clipSpanHeight) {
         clipLines[y].spans = 0;
@@ -3778,7 +3871,8 @@ static void qt_span_fill_clipped(int spanCount, const QSpan *spans, void *userDa
 
 /*
     \internal
-    Clip spans to \a{clip}-rectangle. Returns number of unclipped spans
+    Clip spans to \a{clip}-rectangle.
+    Returns number of unclipped spans
 */
 static int qt_intersect_spans(QT_FT_Span *spans, int numSpans,
                               const QRect &clip)
@@ -3790,8 +3884,9 @@ static int qt_intersect_spans(QT_FT_Span *spans, int numSpans,
 
     int n = 0;
     for (int i = 0; i < numSpans; ++i) {
-        if (spans[i].y > maxy
-            || spans[i].y < miny
+        if (spans[i].y > maxy)
+            break;
+        if (spans[i].y < miny
             || spans[i].x > maxx
             || spans[i].x + spans[i].len <= minx) {
             continue;
@@ -3810,64 +3905,143 @@ static int qt_intersect_spans(QT_FT_Span *spans, int numSpans,
     }
     return n;
 }
-#if 0
+
+/*
+    \internal
+    Clip spans to \a{clip}-region.
+    Returns number of unclipped spans
+*/
 static int qt_intersect_spans(QT_FT_Span *spans, int numSpans,
+                              int *currSpan,
+                              QT_FT_Span *outSpans, int maxOut,
                               const QRegion &clip)
 {
     const QVector<QRect> rects = clip.rects();
+    const int numRects = rects.size();
+
+    int r = 0;
+    short miny, minx, maxx, maxy;
+    {
+        const QRect &rect = rects[0];
+        miny = rect.top();
+        minx = rect.left();
+        maxx = rect.right();
+        maxy = rect.bottom();
+    }
+
+    // TODO: better mapping of currY and startRect
+
     int n = 0;
-    int startI = 0;
+    int i = *currSpan;
+    int currY = spans[i].y;
+    while (i < numSpans) {
 
-    for (int r = 0; r < rects.size(); ++r) {
-        const QRect &rect = rects[r];
-        const short miny = rect.top();
-        const short minx = rect.left();
-        const short maxx = rect.right();
-        const short maxy = rect.bottom();
+        if (spans[i].y != currY && r != 0) {
+            currY = spans[i].y;
+            r = 0;
+            const QRect &rect = rects[r];
+            miny = rect.top();
+            minx = rect.left();
+            maxx = rect.right();
+            maxy = rect.bottom();
+        }
 
-        while (startI < numSpans && spans[startI].y < miny)
-            ++startI;
+        if (spans[i].y < miny) {
+            ++i;
+            continue;
+        }
 
-        for (int i = startI; i < numSpans; ++i) {
-            if (spans[i].y > maxy)
-                break;
-            if (spans[i].x > maxx
-                || spans[i].x + spans[i].len <= minx) {
+        if (spans[i].y > maxy || spans[i].x > maxx) {
+            if (++r >= numRects) {
+                ++i;
                 continue;
             }
-            if (spans[i].x < minx) {
-                spans[n].len = qMin(spans[i].len - (minx - spans[i].x),
-                                    maxx - minx + 1);
-                spans[n].x = minx;
-            } else {
-                spans[n].x = spans[i].x;
-                spans[n].len = qMin(spans[i].len,
-                                    ushort(maxx - spans[n].x + 1));
-            }
-            spans[n].y = spans[i].y;
-            spans[n].coverage = spans[i].coverage;
 
-            ++n;
+            const QRect &rect = rects[r];
+            miny = rect.top();
+            minx = rect.left();
+            maxx = rect.right();
+            maxy = rect.bottom();
+            continue;
         }
+
+        if (spans[i].x + spans[i].len <= minx) {
+            ++i;
+            continue;
+        }
+
+        outSpans[n].y = spans[i].y;
+        outSpans[n].coverage = spans[i].coverage;
+
+        if (spans[i].x < minx) {
+            const ushort cutaway = minx - spans[i].x;
+            outSpans[n].len = qMin(spans[i].len - cutaway, maxx - minx + 1);
+            outSpans[n].x = minx;
+            if (outSpans[n].len == spans[i].len - cutaway) {
+                ++i;
+            } else {
+                // span wider than current rect
+                spans[i].len -= outSpans[n].len + cutaway;
+                spans[i].x = maxx + 1;
+            }
+        } else { // span starts inside current rect
+            outSpans[n].x = spans[i].x;
+            outSpans[n].len = qMin(spans[i].len,
+                                   ushort(maxx - spans[i].x + 1));
+            if (outSpans[n].len == spans[i].len) {
+                ++i;
+            } else {
+                // span wider than current rect
+                spans[i].len -= outSpans[n].len;
+                spans[i].x = maxx + 1;
+            }
+        }
+
+        if (++n >= maxOut)
+            break;
     }
+
+    *currSpan = i;
     return n;
 }
-#endif
 
-static void qt_span_fill_simpleClip(int count, const QSpan *spans,
+static void qt_span_fill_clipRect(int count, const QSpan *spans,
+                                  void *userData)
+{
+    QSpanData *fillData = reinterpret_cast<QSpanData *>(userData);
+    Q_ASSERT(fillData->blend && fillData->unclipped_blend);
+
+    QRasterBuffer *rb = fillData->rasterBuffer;
+    Q_ASSERT(!rb->clipRect.isEmpty());
+
+    // hw: check if this const_cast<> is safe!!!
+    count = qt_intersect_spans(const_cast<QSpan*>(spans), count,
+                               rb->clipRect);
+    if (count > 0)
+        fillData->unclipped_blend(count, spans, fillData);
+}
+
+static void qt_span_fill_clipRegion(int count, const QSpan *spans,
                                     void *userData)
 {
     QSpanData *fillData = reinterpret_cast<QSpanData *>(userData);
     Q_ASSERT(fillData->blend && fillData->unclipped_blend);
 
     QRasterBuffer *rb = fillData->rasterBuffer;
-    Q_ASSERT(!rb->simpleClip.isEmpty());
+    Q_ASSERT(!rb->clipRegion.isEmpty());
 
-    // hw: check if this const_cast<> is safe!!!
-    count = qt_intersect_spans(const_cast<QSpan*>(spans), count,
-                               rb->simpleClip);
-    if (count > 0)
-        fillData->unclipped_blend(count, spans, fillData);
+    const int NSPANS = 256;
+    QSpan cspans[NSPANS];
+    int currentClip = 0;
+    while (currentClip < count) {
+        const int unclipped = qt_intersect_spans(const_cast<QSpan*>(spans),
+                                                 count, &currentClip,
+                                                 &cspans[0], NSPANS,
+                                                 rb->clipRegion);
+        if (unclipped > 0)
+            fillData->unclipped_blend(unclipped, cspans, fillData);
+    }
+
 }
 
 static void qt_span_clip(int count, const QSpan *spans, void *userData)
@@ -4234,16 +4408,18 @@ void QSpanData::adjustSpanMethods()
         break;
     }
     // setup clipping
-    if (!unclipped_blend) {
+    if (!unclipped_blend)
         blend = 0;
-    } else if (rasterBuffer->clipEnabled) {
-        if (rasterBuffer->simpleClip.isEmpty())
-            blend = rasterBuffer->clip ? qt_span_fill_clipped : unclipped_blend;
-        else
-            blend = qt_span_fill_simpleClip;
-    } else {
+    else if (!rasterBuffer->clipEnabled)
         blend = unclipped_blend;
-    }
+    else if (!rasterBuffer->clipRect.isEmpty())
+        blend = qt_span_fill_clipRect;
+    else if (!rasterBuffer->clipRegion.isEmpty())
+        blend = qt_span_fill_clipRegion;
+    else if (rasterBuffer->clip)
+        blend = qt_span_fill_clipped;
+    else
+        blend = unclipped_blend;
 }
 
 void QSpanData::setupMatrix(const QTransform &matrix, int tx, int bilin)
