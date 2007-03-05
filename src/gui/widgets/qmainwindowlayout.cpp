@@ -733,7 +733,7 @@ OSStatus QMainWindowLayout::qtoolbarInHIToolbarHandler(EventHandlerCallRef inCal
                     {
                         QToolBar *toolbar
                                 = object->mainWindowLayout->hitoolbarHash.value(object->toolbarItem);
-                        toolbar->setAutoFillBackground(false);
+                        toolbar->setMaximumSize(toolbar->sizeHint());
                         if (toolbar) {
                             HIViewRef hiview = HIViewRef(toolbar->winId());
                             SetEventParameter(event, kEventParamControlRef, typeControlRef,
