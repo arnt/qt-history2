@@ -125,13 +125,13 @@ inline QScript::Array::~Array()
 
 inline QScript::Array &QScript::Array::operator = (const Array &other)
 {
+    m_instances = other.m_instances;
     if (m_mode != other.m_mode) {
         if (m_mode == VectorMode)
             delete to_vector;
         else
             delete to_map;
         m_mode = other.m_mode;
-        m_instances = other.m_instances;
 
         if (m_mode == VectorMode)
             to_vector = new QVector<QScriptValueImpl> (*other.to_vector);
