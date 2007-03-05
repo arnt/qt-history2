@@ -1281,6 +1281,7 @@ QXmlInputSource::QXmlInputSource(QFile& file)
 */
 QXmlInputSource::~QXmlInputSource()
 {
+    // Qt 5 ###: close the input device. See task 153111
 #ifndef QT_NO_TEXTCODEC
     delete d->encMapper;
 #endif
