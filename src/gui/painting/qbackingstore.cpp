@@ -624,14 +624,16 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
     }
 #endif
     if (windowSurface->geometry() != tlwRect) {
-        windowSurface->setGeometry(tlwRect);
-        toClean = QRect(QPoint(0, 0), tlwRect.size());
-        recursiveCopyToScreen = true;
+        if (windowSurface->geometry().size() != tlwRect.size()) {
+            toClean = QRect(QPoint(0, 0), tlwRect.size());
+            recursiveCopyToScreen = true;
 #ifdef Q_WIDGET_USE_DIRTYLIST
-        for (int i = 0; i < dirtyWidgets.size(); ++i)
-            dirtyWidgets.at(i)->d_func()->dirty = QRegion();
-        dirtyWidgets.clear();
+            for (int i = 0; i < dirtyWidgets.size(); ++i)
+                dirtyWidgets.at(i)->d_func()->dirty = QRegion();
+            dirtyWidgets.clear();
 #endif
+        }
+        windowSurface->setGeometry(tlwRect);
     } else {
 #ifdef Q_WS_QWS
         toClean = static_cast<QWSWindowSurface*>(windowSurface)->dirtyRegion();
