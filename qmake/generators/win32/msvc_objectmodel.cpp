@@ -81,6 +81,8 @@ const char _ExcludedFromBuild[]                 = "ExcludedFromBuild";
 const char _ExpandAttributedSource[]            = "ExpandAttributedSource";
 const char _ExportNamedFunctions[]              = "ExportNamedFunctions";
 const char _FavorSizeOrSpeed[]                  = "FavorSizeOrSpeed";
+const char _FloatingPointModel[]                = "FloatingPointModel";
+const char _FloatingPointExceptions[]           = "FloatingPointExceptions";
 const char _ForceConformanceInForLoopScope[]    = "ForceConformanceInForLoopScope";
 const char _ForceSymbolReferences[]             = "ForceSymbolReferences";
 const char _ForcedIncludeFiles[]                = "ForcedIncludeFiles";
@@ -263,6 +265,8 @@ VCCLCompilerTool::VCCLCompilerTool()
         ExceptionHandling(_False),
         ExpandAttributedSource(unset),
         FavorSizeOrSpeed(favorNone),
+        FloatingPointModel(floatingPointNotSet),
+        FloatingPointExceptions(unset),
         ForceConformanceInForLoopScope(unset),
         GeneratePreprocessedFile(preprocessNo),
         GlobalOptimizations(unset),
@@ -345,6 +349,10 @@ XmlOutput &operator<<(XmlOutput &xml, const VCCLCompilerTool &tool)
             << attrT(_ExceptionHandling, tool.ExceptionHandling)
             << attrT(_ExpandAttributedSource, tool.ExpandAttributedSource)
             << attrE(_FavorSizeOrSpeed, tool.FavorSizeOrSpeed, /*ifNot*/ favorNone)
+
+            << attrE(_FloatingPointModel, tool.FloatingPointModel, /*ifNot*/ floatingPointNotSet)
+            << attrT(_FloatingPointExceptions, tool.FloatingPointExceptions)
+
             << attrT(_ForceConformanceInForLoopScope, tool.ForceConformanceInForLoopScope)
             << attrX(_ForcedIncludeFiles, tool.ForcedIncludeFiles)
             << attrX(_ForcedUsingFiles, tool.ForcedUsingFiles)
@@ -580,6 +588,9 @@ bool VCCLCompilerTool::parseOption(const char* option)
         break;
     case 'I':
         AdditionalIncludeDirectories += option+2;
+        break;
+    case 'J':
+        DefaultCharIsUnsigned = _True;
         break;
     case 'L':
         if(second == 'D') {
@@ -905,6 +916,31 @@ bool VCCLCompilerTool::parseOption(const char* option)
         }
         CompileAsManaged = managedAssembly;
         break;
+    case 'f':
+        if(second == 'p' && third == ':') {
+            // Go to the end of the option
+            const char *c = option + 4;
+            while (*c != '\0' && *c != ' ' && *c != '-')
+                ++c;
+            switch (fourth) {
+            case 'e':
+                FloatingPointExceptions = ((*c) == '-' ? _False : _True);
+                break;
+            case 'f':
+                FloatingPointModel = floatingPointFast;
+                break;
+            case 'p':
+                FloatingPointModel = floatingPointPrecise;
+                break;
+            case 's':
+                FloatingPointModel = floatingPointStrict;
+                break;
+            default:
+                found = false;
+                break;
+            }
+        }
+        break;
     case 'n':
         if(second == 'o' && third == 'B' && fourth == 'o') {
             AdditionalOptions += "/noBool";
@@ -943,10 +979,13 @@ bool VCCLCompilerTool::parseOption(const char* option)
         }
         break;
     default:
-        found = false; break;
+        AdditionalOptions += option;
+        break;
     }
-    if(!found)
-        warn_msg(WarnLogic, "Could not parse Compiler option: %s", option);
+    if(!found) {
+        warn_msg(WarnLogic, "Could not parse Compiler option: %s, added as AdditionalOption", option);
+        AdditionalOptions += option;
+    }
     return true;
 }
 
@@ -1212,8 +1251,11 @@ bool VCLinkerTool::parseOption(const char* option)
         break;
     case 0x157cf65: // /MACHINE:{AM33|ARM|CEE|IA64|X86|M32R|MIPS|MIPS16|MIPSFPU|MIPSFPU16|MIPSR41XX|PPC|SH3|SH4|SH5|THUMB|TRICORE}
         switch (elfHash(option+9)) {
-            // Very limited documentation on all options but X86,
-            // so we put the others in AdditionalOptions...
+        // Very limited documentation on all options but X86,
+        case 0x0005bb6: // X86
+            TargetMachine = machineX86;
+            break;
+        // so we put the others in AdditionalOptions...
         case 0x0005b94: // X64
         case 0x0046063: // AM33
         case 0x000466d: // ARM
@@ -1233,13 +1275,9 @@ bool VCLinkerTool::parseOption(const char* option)
         case 0x00057b5: // SH5
         case 0x058da12: // THUMB
         case 0x96d8435: // TRICORE
+        default:
             AdditionalOptions += option;
             break;
-        case 0x0005bb6: // X86
-            TargetMachine = machineX86;
-            break;
-        default:
-            found = false;
         }
         break;
     case 0x0034160: // /MAP[:filename]
@@ -1383,10 +1421,13 @@ bool VCLinkerTool::parseOption(const char* option)
         Version = option+9;
         break;
     default:
-        found = false;
+        AdditionalOptions += option;
+        break;
     }
-    if(!found)
-        warn_msg(WarnLogic, "Could not parse Linker options: %s", option);
+    if(!found) {
+        warn_msg(WarnLogic, "Could not parse Linker options: %s, added as AdditionalOption", option);
+        AdditionalOptions += option;
+    }
     return found;
 }
 

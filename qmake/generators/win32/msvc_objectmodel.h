@@ -233,6 +233,12 @@ enum favorSizeOrSpeedOption {
     favorSpeed,
     favorSize
 };
+enum floatingPointModel {
+    floatingPointNotSet = -1,
+    floatingPointPrecise,
+    floatingPointStrict,
+    floatingPointFast
+};
 enum genProxyLanguage {
     genProxyNative,
     genProxyManaged
@@ -442,6 +448,8 @@ public:
     triState                ExceptionHandling;
     triState                ExpandAttributedSource;
     favorSizeOrSpeedOption  FavorSizeOrSpeed;
+    floatingPointModel      FloatingPointModel;
+    triState                FloatingPointExceptions;  
     triState                ForceConformanceInForLoopScope;
     QStringList             ForcedIncludeFiles;
     QStringList             ForcedUsingFiles;
