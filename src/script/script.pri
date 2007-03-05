@@ -21,7 +21,6 @@ SOURCES += \
     $$PWD/qscriptcontext_p.cpp \
     $$PWD/qscriptengine.cpp \
     $$PWD/qscriptengine_p.cpp \
-    $$PWD/qscriptable.cpp \
     $$PWD/qscriptextenumeration.cpp \
     $$PWD/qscriptextvariant.cpp \
     $$PWD/qscriptcontext.cpp \
@@ -32,7 +31,6 @@ SOURCES += \
     $$PWD/qscriptparser.cpp \
     $$PWD/qscriptprettypretty.cpp \
     $$PWD/qscriptsyntaxchecker.cpp \
-    $$PWD/qscriptextensionplugin.cpp \
     $$PWD/qscriptvalueiterator.cpp \
     $$PWD/qscriptvalueimpl.cpp \
     $$PWD/qscriptvalue.cpp
@@ -98,7 +96,9 @@ HEADERS += \
 
 !contains(DEFINES, QT_NO_QOBJECT) {
     HEADERS += $$PWD/qscriptextqobject_p.h
-    SOURCES += $$PWD/qscriptextqobject.cpp
+    SOURCES += $$PWD/qscriptextqobject.cpp \
+               $$PWD/qscriptable.cpp \
+               $$PWD/qscriptextensionplugin.cpp
 } else {
     INCLUDEPATH += $$PWD
 }
