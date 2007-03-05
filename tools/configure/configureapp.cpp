@@ -621,8 +621,6 @@ void Configure::parseCmdLine()
             dictionary[ "SSE2" ] = "no";
         else if (configCmdLine.at(i) == "-direct3d")
             dictionary[ "DIRECT3D" ] = "yes";
-        else if (configCmdLine.at(i) == "-no-direct3d")
-            dictionary[ "DIRECT3D" ] = "no";
         else if( configCmdLine.at(i) == "-no-openssl" ) {
               dictionary[ "OPENSSL"] = "no";
         } else if( configCmdLine.at(i) == "-openssl" ) {
@@ -999,7 +997,7 @@ bool Configure::displayHelp()
                     "[-qt-libpng] [-system-libpng] [-no-libtiff] [-system-libtiff]\n"
                     "[-no-libjpeg] [-qt-libjpeg] [-system-libjpeg] [-no-libmng]\n"
                     "[-qt-libmng] [-system-libmng] [-no-qt3support]\n"
-                    "[-no-mmx] [-no-sse] [-no-sse2] [-direct3d] [-no-direct3d]\n"
+                    "[-no-mmx] [-no-sse] [-no-sse2] [-direct3d]\n"
                     "[-openssl][-no-openssl][-platform <spec>]\n\n", 0, 7);
 
         desc("Installation options:\n\n");
@@ -1133,7 +1131,6 @@ bool Configure::displayHelp()
         desc("MMX", "no",       "-no-mmx",              "Do not compile with use of MMX instructions");
         desc("SSE", "no",       "-no-sse",              "Do not compile with use of SSE instructions");
         desc("SSE2", "no",      "-no-sse2",             "Do not compile with use of SSE2 instructions");
-        desc("DIRECT3D", "no",  "-no-direct3d",         "Do not compile in Direct3D support");
         desc("DIRECT3D", "yes",  "-direct3d",           "Compile in Direct3D support");
         desc("OPENSSL", "no",    "-no-openssl",         "Do not compile in OpenSSL support");
         desc("OPENSSL", "yes",   "-openssl",            "Compile in OpenSSL support");
