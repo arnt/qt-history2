@@ -73,7 +73,7 @@
 #define QT_CHDIR		::_chdir
 #define QT_MKDIR		::_mkdir
 #define QT_RMDIR		::_rmdir
-#define QT_OPEN_LARGEFILE       O_LARGEFILE
+#define QT_OPEN_LARGEFILE       0
 #define QT_OPEN_RDONLY		_O_RDONLY
 #define QT_OPEN_WRONLY		_O_WRONLY
 #define QT_OPEN_RDWR		_O_RDWR
@@ -87,8 +87,8 @@
 
 #define QT_FOPEN                ::fopen
 #ifdef QT_LARGEFILE_SUPPORT
-#define QT_FSEEK                ::_fseeki64
-#define QT_FTELL                ::_ftelli64
+#define QT_FSEEK                ::fseek
+#define QT_FTELL                ::ftell
 #else
 #define QT_FSEEK                ::fseek
 #define QT_FTELL                ::ftell
@@ -97,9 +97,9 @@
 #define QT_FSETPOS              ::fsetpos
 #define QT_FPOS_T               fpos_t
 #ifdef QT_LARGEFILE_SUPPORT
-#define QT_OFF_T                long
-#else
 #define QT_OFF_T                __int64
+#else
+#define QT_OFF_T                long
 #endif
 
 #define QT_SIGNAL_ARGS		int
