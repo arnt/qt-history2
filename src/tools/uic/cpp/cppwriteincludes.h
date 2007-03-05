@@ -52,11 +52,11 @@ struct WriteIncludes : public TreeWalker
     bool scriptsActivated() const { return m_scriptsActivated; }
 
 private:
-    void add(const QString &className);
+    void add(const QString &className, const QString &header = QString(), bool global = false);
 
 private:
     typedef QMap<QString, bool> OrderedSet;
-    void insertIncludeForClass(const QString &className);
+    void insertIncludeForClass(const QString &className, QString header = QString(), bool global = false);
     void insertInclude(const QString &header, bool global);
     void writeHeaders(const OrderedSet &headers, bool global);
     QString headerForClassName(const QString &className) const;

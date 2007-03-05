@@ -21,7 +21,7 @@
 #include <QTextStream>
 
 namespace {
-    const bool debugWriteIncludes=false;
+    enum { debugWriteIncludes = 0 };
 }
 
 namespace CPP {
@@ -119,48 +119,60 @@ void WriteIncludes::acceptProperty(DomProperty *node)
     TreeWalker::acceptProperty(node);
 }
 
-
-void WriteIncludes::insertIncludeForClass(const QString &className)
+void WriteIncludes::insertIncludeForClass(const QString &className, QString header, bool global)
 {
-    // Known class
-    const StringMap::const_iterator it = m_classToHeader.constFind(className);
-    if ( it !=  m_classToHeader.constEnd()) {
-        insertInclude(it.value(), true);
-        return;
-    }
-
-    // Quick check by class name to detect includehints provided for custom widgets
-    const QString lowerClassName = className.toLower();
-    if (m_includeBaseNames.contains(lowerClassName)) {
-        if (debugWriteIncludes)
-            qDebug() << "WriteIncludes::insertIncludeForClass: class name match " << lowerClassName << '.';
-        return;
-    }
-    // Create default header
-    QString  header = lowerClassName;
-    header += QLatin1String(".h");
     if (debugWriteIncludes)
-        qDebug() << "WriteIncludes::insertIncludeForClass: creating default header " << header << " for " << className << '.';
-    insertInclude(header, true);
+        qDebug() << "WriteIncludes::insertIncludeForClass" << className << header  << global;
+
+    do {
+        if (!header.isEmpty())
+            break;
+
+        // Known class
+        const StringMap::const_iterator it = m_classToHeader.constFind(className);
+        if (it != m_classToHeader.constEnd()) {
+            header = it.value();
+            global =  true;
+            break;
+        }
+
+        // Quick check by class name to detect includehints provided for custom widgets
+        const QString lowerClassName = className.toLower();
+        if (m_includeBaseNames.contains(lowerClassName)) {
+            header.clear();
+            break;
+        }
+
+        // Last resort: Create default header
+        header = lowerClassName;
+        header += QLatin1String(".h");
+        global = true;
+    } while (false);
+
+    if (!header.isEmpty())
+        insertInclude(header, global);
 }
 
-void WriteIncludes::add(const QString &className)
+void WriteIncludes::add(const QString &className, const QString &header, bool global)
 {
+    if (debugWriteIncludes)
+        qDebug() << "WriteIncludes::add" << className << header  << global;
+
     if (className.isEmpty() || m_knownClasses.contains(className))
         return;
 
     m_knownClasses.insert(className);
+
     if (className == QLatin1String("Line")) { // ### hmm, deprecate me!
         add(QLatin1String("QFrame"));
         return;
     }
 
-    // in uic3-converted forms, there is no custom widget info for Q3 widgets as opposed to forms created with Designer 4
     if (m_uic->customWidgetsInfo()->extends(className, QLatin1String("Q3ListView"))  ||
         m_uic->customWidgetsInfo()->extends(className, QLatin1String("Q3Table"))) {
         add(QLatin1String("Q3Header"));
     }
-    insertIncludeForClass(className);
+    insertIncludeForClass(className, header, global);
 }
 
 void WriteIncludes::acceptCustomWidget(DomCustomWidget *node)
@@ -173,19 +185,14 @@ void WriteIncludes::acceptCustomWidget(DomCustomWidget *node)
         if (!domScript->text().isEmpty())
             activateScripts();
 
-    if (node->elementHeader() && node->elementHeader()->text().size()) {
-        bool global = node->elementHeader()->attributeLocation().toLower() == QLatin1String("global");
-        QString header = node->elementHeader()->text();
-        const QString qtHeader = m_classToHeader.value(className); // check if the class is a built-in qt class
-        if (!qtHeader.isEmpty()) {
-            global = true;
-            header = qtHeader;
-        }
-        insertInclude(header, global);
-    } else {
-        insertIncludeForClass(className);
+    // custom header unless it is a built-in qt class
+    QString header;
+    bool global = false;
+    if (node->elementHeader() && !m_classToHeader.contains(className) && node->elementHeader()->text().size()) {
+        global = node->elementHeader()->attributeLocation().toLower() == QLatin1String("global");
+        header = node->elementHeader()->text();
     }
-    m_knownClasses.insert(className);
+    add(className, header, global);
 }
 
 void WriteIncludes::acceptCustomWidgets(DomCustomWidgets *node)
@@ -207,6 +214,9 @@ void WriteIncludes::acceptInclude(DomInclude *node)
 }
 void WriteIncludes::insertInclude(const QString &header, bool global)
 {
+    if (debugWriteIncludes)
+        qDebug() << "WriteIncludes::insertInclude" <<  header  << global;
+
     OrderedSet &includes = global ?  m_globalIncludes : m_localIncludes;
     if (includes.contains(header))
         return;
@@ -242,8 +252,8 @@ void WriteIncludes::acceptWidgetScripts(const DomScripts &scripts, DomWidget *, 
 void WriteIncludes::activateScripts()
 {
     if (!m_scriptsActivated) {
-        insertIncludeForClass(QLatin1String("QScriptEngine"));
-        insertIncludeForClass(QLatin1String("QDebug"));
+        add(QLatin1String("QScriptEngine"));
+        add(QLatin1String("QDebug"));
         m_scriptsActivated = true;
     }
 }
