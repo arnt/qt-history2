@@ -827,8 +827,6 @@ void QDockWidgetPrivate::moveEvent(QMoveEvent *event)
 {
     Q_Q(QDockWidget);
 
-    event->ignore();
-
     if (state == 0 || !state->dragging || !state->nca)
         return;
 
@@ -1233,7 +1231,7 @@ bool QDockWidget::event(QEvent *event)
         return true;
     case QEvent::Move:
         d->moveEvent(static_cast<QMoveEvent*>(event));
-        return true;
+        break;
     default:
         break;
     }
