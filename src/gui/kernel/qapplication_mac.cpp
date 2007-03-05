@@ -1563,9 +1563,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
             }
         }
+        WindowPartCode wpc = qt_mac_window_at(where.h, where.v, 0);
         if (inPopupMode == false
                 && (qt_button_down == 0 || qt_button_down_in_content == false)
-                && qt_mac_window_at(where.h, where.v, 0) != inContent) {
+                && (wpc != inContent && wpc != inStructure)) {
             inNonClientArea = true;
             switch (etype) {
             case QEvent::MouseButtonPress:
@@ -1742,7 +1743,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                                       widget, &mac_context_timer);
             }
             qt_button_down = widget;
-            qt_button_down_in_content = (qt_mac_window_at(where.h, where.v, 0) == inContent);
+            WindowPartCode wpc = qt_mac_window_at(where.h, where.v, 0);
+            qt_button_down_in_content = (wpc == inContent || wpc == inStructure);
             break;
         case kEventMouseUp:
             qt_button_down = 0;
