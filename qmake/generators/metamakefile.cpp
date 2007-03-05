@@ -326,7 +326,7 @@ SubdirsMetaMakefileGenerator::init()
     Subdir *self = new Subdir;
     self->input_dir = qmake_getpwd();
     self->output_dir = Option::output_dir;
-    if(!Option::output.fileName().endsWith(Option::dir_sep) && !QFileInfo(Option::output).isDir())
+    if(!Option::recursive || (!Option::output.fileName().endsWith(Option::dir_sep) && !QFileInfo(Option::output).isDir()))
 	self->output_file = Option::output.fileName();
     self->makefile = new BuildsMetaMakefileGenerator(project, false);
     self->makefile->init();

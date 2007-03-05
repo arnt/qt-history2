@@ -1416,8 +1416,8 @@ QMakeProject::read(uchar cmd)
                         }
                     }
                     if(!found_mkspec) {
-                        fprintf(stderr, "Could not find mkspecs for your QMAKESPEC after trying:\n\t%s\n",
-                                mkspec_roots.join("\n\t").toLatin1().constData());
+                        fprintf(stderr, "Could not find mkspecs for your QMAKESPEC(%s) after trying:\n\t%s\n",
+                                qmakespec.toLatin1().constData(), mkspec_roots.join("\n\t").toLatin1().constData());
                         return false;
                     }
                 } else {
