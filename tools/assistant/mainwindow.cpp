@@ -44,6 +44,7 @@ extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
 
 MainWindow::MainWindow()
 {
+    setUnifiedTitleAndToolBarOnMac(true);
     ui.setupUi(this);
 
 #if defined(Q_WS_WIN)
@@ -108,7 +109,6 @@ MainWindow::MainWindow()
     ui.actionSyncToc->setIcon(QIcon(MacIconPath + QLatin1String("/synctoc.png")));
     ui.actionHelpWhatsThis->setIcon(QIcon(MacIconPath + QLatin1String("/whatsthis.png")));
 #endif
-    setUnifiedTitleAndToolBarOnMac(true);
 }
 
 MainWindow::~MainWindow()
