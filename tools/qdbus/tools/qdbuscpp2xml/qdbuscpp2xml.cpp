@@ -20,6 +20,7 @@
 #include <QList>
 #include <QRegExp>
 #include <QCoreApplication>
+#include <QLibraryInfo>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -365,7 +366,7 @@ int main(int argc, char **argv)
         else {
             // run moc on this file
             QProcess proc;
-            proc.start(QLatin1String("moc"), QStringList() << QFile::decodeName(argv[i]));
+            proc.start(QLibraryInfo::location(QLibraryInfo::BinariesPath) + QLatin1String("/moc"), QStringList() << QFile::decodeName(argv[i]));
 
             if (!proc.waitForStarted()) {
                 fprintf(stderr, PROGRAMNAME ": could not execute moc! Aborting.\n");
