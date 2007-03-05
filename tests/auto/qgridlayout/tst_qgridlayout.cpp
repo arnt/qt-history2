@@ -800,7 +800,10 @@ void tst_QGridLayout::minMaxSize()
 
         m_toplevel->show();
         qt_x11_wait_for_window_manager(m_toplevel);     // wait for the show
-        QTest::qWait(100);                              // wait for the implicit adjustSize
+        QTest::qWait(200);                              // wait for the implicit adjustSize
+        // If the following fails we might have to wait longer.
+        // If that does not help there is likely a problem with the implicit adjustSize in show()
+        QCOMPARE(m_toplevel->size(), m_toplevel->sizeHint());
         // We are relying on the order here...
         for (int pi = 0; pi < sizehinters.count(); ++pi) {
             QPoint pt = sizehinters.at(pi)->mapTo(m_toplevel, QPoint(0, 0));
