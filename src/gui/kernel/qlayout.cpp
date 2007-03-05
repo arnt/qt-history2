@@ -25,8 +25,14 @@
 
 static int menuBarHeightForWidth(QWidget *menubar, int w)
 {
-    if (menubar && !menubar->isHidden() && !menubar->isWindow())
-        return menubar->heightForWidth(qMax(w, menubar->minimumWidth()));
+    if (menubar && !menubar->isHidden() && !menubar->isWindow()) {
+        int result = menubar->heightForWidth(qMax(w, menubar->minimumWidth()));
+        if (result != -1)
+            return result;
+        result = menubar->sizeHint().height();
+        if (result != -1)
+            return result;
+    }
     return 0;
 }
 
