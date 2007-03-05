@@ -2083,6 +2083,12 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
         CustomBuildTool.AdditionalDependencies = uniqDeps.keys();
     }
 
+    // Ensure that none of the output files are also dependencies. Or else, the custom buildstep
+    // will be rebuild every time, even if nothing has changed.
+    foreach(QString output, CustomBuildTool.Outputs) {
+        CustomBuildTool.AdditionalDependencies.removeAll(output);
+    }
+
     useCustomBuildTool = !CustomBuildTool.CommandLine.isEmpty();
     return useCustomBuildTool;
 }
