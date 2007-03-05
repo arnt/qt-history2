@@ -2797,6 +2797,46 @@ qreal QPainterPath::slopeAtPercent(qreal t) const
     return slope;
 }
 
+/*!
+    \fn bool QPainterPath::addRoundRect(const QRectF &rect, int roundness);
+    \since 4.3
+
+    Adds a rounded rectangle to the path.
+
+    The \a roundness argument specifies uniform roundness for the rectangle.
+    Vertical and horizontal roundness factors will be adjusted accordingly
+    to act uniformly around both axes. Use this method if you want a rectangle
+    equally rounded across both the X and Y axis.
+
+    \sa addRoundRect()
+*/
+
+
+/*!
+    \fn bool QPainterPath::addRoundRect(qreal x, qreal y, qreal w, qreal h, int roundness);
+    \since 4.3
+
+    Adds a rounded rectangle to the path.
+
+    The \a roundness argument specifies uniform roundness for the rectangle.
+    Vertical and horizontal roundness factors will be adjusted accordingly
+    to act uniformly around both axes. Use this method if you want a rectangle
+    equally rounded across both the X and Y axis.
+
+    \sa addRoundRect()
+*/
+
+/*!
+    Adds a rectangle \a r with rounded corners to the path.
+
+    The \a xRnd and \a yRnd arguments specify how rounded the corners
+    should be. 0 is angled corners, 99 is maximum roundedness.
+
+    A filled rectangle has a size of r.size(). A stroked rectangle
+    has a size of r.size() plus the pen width.
+
+    \sa addRect(), QPen
+*/
 void QPainterPath::addRoundRect(const QRectF &r, int xRnd, int yRnd)
 {
     if(xRnd >= 100)                          // fix ranges

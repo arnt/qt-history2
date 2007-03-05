@@ -98,6 +98,9 @@ public:
     void addRoundRect(const QRectF &rect, int xRnd, int yRnd);
     inline void addRoundRect(qreal x, qreal y, qreal w, qreal h,
                              int xRnd, int yRnd);
+    inline void addRoundRect(const QRectF &rect, int roundness);
+    inline void addRoundRect(qreal x, qreal y, qreal w, qreal h,
+                             int roundness);
 
     void connectPath(const QPainterPath &path);
 
@@ -271,6 +274,24 @@ inline void QPainterPath::addRoundRect(qreal x, qreal y, qreal w, qreal h,
                                        int xRnd, int yRnd)
 {
     addRoundRect(QRectF(x, y, w, h), xRnd, yRnd);
+}
+
+inline void QPainterPath::addRoundRect(const QRectF &rect,
+                                       int roundness)
+{
+    int xRnd = roundness;
+    int yRnd = roundness;
+    if (rect.width() > rect.height())
+        xRnd = int(roundness * rect.height()/rect.width());
+    else
+        yRnd = int(roundness * rect.width()/rect.height());
+    addRoundRect(rect, xRnd, yRnd);
+}
+
+inline void QPainterPath::addRoundRect(qreal x, qreal y, qreal w, qreal h,
+                                       int roundness)
+{
+    addRoundRect(QRectF(x, y, w, h), roundness);
 }
 
 inline void QPainterPath::addText(qreal x, qreal y, const QFont &f, const QString &text)
