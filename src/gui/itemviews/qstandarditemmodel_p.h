@@ -46,7 +46,8 @@ public:
           flags(Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable
                 |Qt::ItemIsDragEnabled|Qt::ItemIsDropEnabled),
           rows(0),
-          columns(0)
+          columns(0),
+          lastIndexOf(2)
         { }
     virtual ~QStandardItemPrivate();
 
@@ -57,8 +58,12 @@ public:
         }
         return (row * columnCount()) + column;
     }
-    inline int childIndex(const QStandardItem *child) const {
-        return children.indexOf(const_cast<QStandardItem*>(child));
+    inline int childIndex(const QStandardItem *child) {
+        int start = qMax(0, lastIndexOf -2);
+        lastIndexOf = children.indexOf(const_cast<QStandardItem*>(child), start);
+        if (lastIndexOf == -1 && start != 0)
+            lastIndexOf = children.lastIndexOf(const_cast<QStandardItem*>(child), start);
+        return lastIndexOf;
     }
     QPair<int, int> position() const;
     void setChild(int row, int column, QStandardItem *item,
@@ -115,6 +120,8 @@ public:
     int columns;
 
     QStandardItem *q_ptr;
+
+    int lastIndexOf;
 };
 
 class QStandardItemModelPrivate : public QAbstractItemModelPrivate

@@ -718,17 +718,16 @@ void QStandardItem::setData(const QVariant &value, int role)
 {
     Q_D(QStandardItem);
     role = (role == Qt::EditRole) ? Qt::DisplayRole : role;
-    QVariant oldValue = data(role);
-    if (value == oldValue)
-        return;
-
     QVector<QWidgetItemData>::iterator it;
     for (it = d->values.begin(); it != d->values.end(); ++it) {
         if ((*it).role == role) {
-            if (value.isValid())
+            if (value.isValid()) {
+                if ((*it).value == value)
+                    return;
                 (*it).value = value;
-            else
+            } else {
                 d->values.erase(it);
+            }
             if (d->model)
                 d->model->d_func()->itemChanged(this);
             return;
