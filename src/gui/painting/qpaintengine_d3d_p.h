@@ -179,7 +179,8 @@ struct QD3DBatchItem {
 
         BI_CLEARCLIP        = 0x0800, // clip nothing (filling the clip mask with 0)
         BI_TRANSFORM        = 0x1000,
-        BI_MASKSCISSOR      = 0x2000
+        BI_MASKSCISSOR      = 0x2000,
+        BI_FASTLINE         = 0x4000
     };
 
     int m_info;
@@ -254,6 +255,7 @@ public:
     int flushAntialiased(int offset);
     void flushAliased(QD3DBatchItem *item, int offset);
     void flushText(QD3DBatchItem *item, int offset);
+    void flushLines(QD3DBatchItem *item, int offset);
 
     void updateTransform(const QTransform &matrix);
     void updatePen(const QPen &pen);
@@ -311,6 +313,7 @@ public:
     uint has_pen : 1;
     uint has_cosmetic_pen : 1;
     uint has_brush : 1;
+    uint has_fast_pen : 1;
     QTransform::TransformationCodes m_txop;
 
     QPainter::CompositionMode m_cmode;
