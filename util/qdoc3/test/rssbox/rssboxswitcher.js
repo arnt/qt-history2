@@ -1,3 +1,12 @@
+var RSSLINKSVISIBLE = "rsslinksvisible";
+var LATESTRSSITEMTIMESTAMP = "latestrssitemtimestamp";
+var RSSLINKSSELECTOR = "#rssbox ul ul";
+var TITLELINKSSELECTOR = "#rssbox>ul>li>a";
+var LOGOIMAGESELECTOR = "img[@src*=trolltech-logo]";
+
+var gRssBoxTitleLink = null;
+var gLatestRssItemTimestamp = 0;
+
 function init()
 {
 	gRssBoxTitleLink = $(TITLELINKSSELECTOR);
@@ -6,7 +15,7 @@ function init()
 	$("#rssbox").css({ display: "block", position: "absolute" });
 	gRssBoxTitleLink.removeAttr("href").css("cursor", "pointer").click(function() {toggleRssLinksVisibility();});
 	
-	setRssLinksVisible(getCookie(RSSLINKSVISIBLE) == 'yes');
+	setRssLinksVisible(readCookie(RSSLINKSVISIBLE) == 'yes');
 	
 	recalculateRssBoxPosition();
 	window.setInterval("recalculateRssBoxPosition()", 3000);
@@ -25,13 +34,13 @@ function readLatestRssItemTimestampFromHTML()
 
 function writeLatestRssItemTimestampIntoCookie()
 {
-	if (gLatestRssItemTimestamp > getCookie(LATESTRSSITEMTIMESTAMP))
-		setCookie(LATESTRSSITEMTIMESTAMP, gLatestRssItemTimestamp);
+	if (gLatestRssItemTimestamp > readCookie(LATESTRSSITEMTIMESTAMP))
+		createCookie(LATESTRSSITEMTIMESTAMP, gLatestRssItemTimestamp, 1000);
 }
 
 function titleShouldPulsate()
 {
-	return (getCookie(LATESTRSSITEMTIMESTAMP) < gLatestRssItemTimestamp);
+	return (readCookie(LATESTRSSITEMTIMESTAMP) < gLatestRssItemTimestamp);
 }
 
 function startPulsating()
@@ -119,39 +128,33 @@ function setRssLinksVisible(visible)
 	else
 		$(linksElement).css("display", "none");
 
-	setCookie(RSSLINKSVISIBLE, visible?"yes":"no");
+	createCookie(RSSLINKSVISIBLE, visible?"yes":"no", 1000);
 	gRssBoxTitleLink.css("background-image", "url(images/triangle" + (visible?"Horizontal":"Vertical") + ".png)");
 }
 
-function getCookie(c_name)
-{
-	if (document.cookie.length > 0)
-	{
-		c_start = document.cookie.indexOf(c_name + "=");
-		if (c_start != -1)
-		{ 
-			c_start = c_start + c_name.length + 1;
-			c_end = document.cookie.indexOf(";", c_start);
-			if (c_end == -1)
-				c_end = document.cookie.length;
-			return unescape(document.cookie.substring(c_start, c_end));
-		} 
+// The following cookie handling functions are from:
+// http://www.quirksmode.org/js/cookies.html#script
+function createCookie(name,value,days){
+	if (days) {
+		var date = new Date();
+		date.setTime(date.getTime()+(days*24*60*60*1000));
+		var expires = "; expires="+date.toGMTString();
 	}
-	return "";
+	else var expires = "";
+	document.cookie = name+"="+value+expires+"; path=/";
 }
 
-function setCookie(c_name, value)
-{
-	document.cookie = c_name + "=" + escape(value);
+function readCookie(name) {
+	var nameEQ = name + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0;i < ca.length;i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1,c.length);
+		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+	}
+	return null;
 }
 
-var RSSLINKSVISIBLE = "rsslinksvisible";
-var LATESTRSSITEMTIMESTAMP = "latestrssitemtimestamp";
-var RSSLINKSSELECTOR = "#rssbox ul ul";
-var TITLELINKSSELECTOR = "#rssbox>ul>li>a";
-var LOGOIMAGESELECTOR = "img[@src*=trolltech-logo]";
-
-var gRssBoxTitleLink = null;
-var gLatestRssItemTimestamp = 0;
-
-//window.onload = recalculateRssBoxPosition;
+function eraseCookie(name) {
+	createCookie(name,"",-1);
+}
