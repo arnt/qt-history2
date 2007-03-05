@@ -64,6 +64,8 @@ private slots:
     void drawRect_data() { fillData(); }
     void drawRect();
 
+    void fillRect();
+
     void drawEllipse_data();
     void drawEllipse();
     void drawClippedEllipse_data();
@@ -928,6 +930,33 @@ void tst_QPainter::drawRect()
         QCOMPARE(painted.width(), rect.width());
         QCOMPARE(painted.height(), rect.height());
     }
+}
+
+void tst_QPainter::fillRect()
+{
+    QPixmap pixmap;
+    QImage image(100, 100, QImage::Format_ARGB32_Premultiplied);
+    image.fill(QColor(0, 0, 0, 0).rgba());
+
+    QPainter p(&image);
+
+    p.fillRect(0, 0, 100, 100, QColor(255, 0, 0, 127));
+
+    pixmap = QPixmap::fromImage(image);
+    pixmap.save("bla1.png", "PNG");
+    QCOMPARE(getPaintedSize(pixmap, QColor(0, 0, 0, 0)),
+             QRect(0, 0, 100, 100));
+    QCOMPARE(getPaintedSize(pixmap, QColor(127, 0, 0, 127)).isValid(),
+             QRect().isValid());
+
+    p.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    p.fillRect(50, 0, 50, 100, QColor(0, 0, 255, 255));
+
+    pixmap = QPixmap::fromImage(image);
+    QCOMPARE(getPaintedSize(pixmap, QColor(127, 0, 0, 127)),
+             QRect(50, 0, 50, 100));
+    QCOMPARE(getPaintedSize(pixmap, QColor(0, 0, 127, 127)),
+             QRect(0, 0, 50, 100));
 }
 
 void tst_QPainter::drawEllipse_data()
