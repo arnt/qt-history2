@@ -320,15 +320,18 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &addr, quint16
             break;
         case ECONNREFUSED:
             setError(QAbstractSocket::ConnectionRefusedError, ConnectionRefusedErrorString);
+            socketState = QAbstractSocket::UnconnectedState;
             break;
         case ETIMEDOUT:
             setError(QAbstractSocket::NetworkError, ConnectionTimeOutErrorString);
             break;
         case EHOSTUNREACH:
             setError(QAbstractSocket::NetworkError, HostUnreachableErrorString);
+            socketState = QAbstractSocket::UnconnectedState;
             break;
         case ENETUNREACH:
             setError(QAbstractSocket::NetworkError, NetworkUnreachableErrorString);
+            socketState = QAbstractSocket::UnconnectedState;
             break;
         case EADDRINUSE:
             setError(QAbstractSocket::NetworkError, AddressInuseErrorString);
@@ -343,11 +346,13 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &addr, quint16
         case EACCES:
         case EPERM:
             setError(QAbstractSocket::SocketAccessError, AccessErrorString);
+            socketState = QAbstractSocket::UnconnectedState;
             break;
         case EAFNOSUPPORT:
         case EBADF:
         case EFAULT:
         case ENOTSOCK:
+            socketState = QAbstractSocket::UnconnectedState;
         default:
             break;
         }
