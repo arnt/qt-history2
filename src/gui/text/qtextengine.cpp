@@ -1140,8 +1140,12 @@ QFont QTextEngine::font(const QScriptItem &si) const
     }
 
     QTextCharFormat::VerticalAlignment valign = f.verticalAlignment();
-    if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript)
-        font.setPointSize((font.pointSize() * 2) / 3);
+    if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript) {
+        if (font.pointSize() != -1)
+            font.setPointSize((font.pointSize() * 2) / 3);
+        else
+            font.setPixelSize((font.pixelSize() * 2) / 3);
+    }
 
     return font;
 }
@@ -1183,7 +1187,10 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
 #endif
         QTextCharFormat::VerticalAlignment valign = f.verticalAlignment();
         if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript) {
-            font.setPointSize((font.pointSize() * 2) / 3);
+            if (font.pointSize() != -1)
+                font.setPointSize((font.pointSize() * 2) / 3);
+            else
+                font.setPixelSize((font.pixelSize() * 2) / 3);
             scaledEngine = font.d->engineForScript(script);
 #if defined(Q_WS_WIN)
             if (scaledEngine->type() == QFontEngine::Box)
