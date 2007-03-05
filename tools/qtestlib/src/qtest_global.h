@@ -41,8 +41,8 @@ QT_BEGIN_HEADER
 # define Q_TESTLIB_EXPORT
 #endif
 
-#define QTEST_VERSION     0x040300
-#define QTEST_VERSION_STR "4.3.0"
+#define QTEST_VERSION     0x040400
+#define QTEST_VERSION_STR "4.4.0"
 
 namespace QTest
 {

@@ -16,13 +16,13 @@
 
 #include <stddef.h>
 
-#define QT_VERSION_STR   "4.3.0"
+#define QT_VERSION_STR   "4.4.0"
 /*
    QT_VERSION is (major << 16) + (minor << 8) + patch.
 */
-#define QT_VERSION 0x040300
+#define QT_VERSION 0x040400
 /*
-   can be used like #if (QT_VERSION >= QT_VERSION_CHECK(4, 3, 0))
+   can be used like #if (QT_VERSION >= QT_VERSION_CHECK(4, 4, 0))
 */
 #define QT_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
 
