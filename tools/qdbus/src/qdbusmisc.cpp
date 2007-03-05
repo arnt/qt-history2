@@ -29,7 +29,7 @@ bool qDBusCheckAsyncTag(const char *tag)
     const char *p = strstr(tag, noReplyTag);
     if (p != NULL &&
         (p == tag || *(p-1) == ' ') &&
-        (p[sizeof noReplyTag] == '\0' || p[sizeof noReplyTag] == ' '))
+        (p[sizeof noReplyTag - 1] == '\0' || p[sizeof noReplyTag - 1] == ' '))
         return true;
 
     return false;
