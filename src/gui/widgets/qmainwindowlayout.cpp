@@ -733,7 +733,6 @@ OSStatus QMainWindowLayout::qtoolbarInHIToolbarHandler(EventHandlerCallRef inCal
                     {
                         QToolBar *toolbar
                                 = object->mainWindowLayout->hitoolbarHash.value(object->toolbarItem);
-                        toolbar->setMaximumSize(toolbar->sizeHint());
                         if (toolbar) {
                             HIViewRef hiview = HIViewRef(toolbar->winId());
                             SetEventParameter(event, kEventParamControlRef, typeControlRef,
@@ -965,7 +964,6 @@ void QMainWindowLayout::removeToolBar(QToolBar *toolbar)
                     // Rescue our HIView and set it on the mainWindow again.
                     bool saveVisible = toolbar->isVisible();
                     toolbar->setParent(0);
-                    toolbar->setAutoFillBackground(true);
                     toolbar->setParent(parentWidget());
                     toolbar->setVisible(saveVisible);
                     ToolBarSaveState saveState = toolbarSaveState.value(toolbar);
