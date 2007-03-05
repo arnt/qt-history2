@@ -342,7 +342,10 @@ enum PseudoState
     PseudoState_Selected        = 0x00000200,
     PseudoState_Horizontal      = 0x00000400,
     PseudoState_Vertical        = 0x00000800,
-    NumPseudos = 14
+    PseudoState_Open            = 0x00001000,
+    PseudoState_Children        = 0x00002000,
+    PseudoState_Sibling         = 0x00004000,
+    NumPseudos = 17
 };
 
 struct Q_GUI_EXPORT Pseudo

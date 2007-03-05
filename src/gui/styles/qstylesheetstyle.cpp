@@ -1366,6 +1366,7 @@ enum PseudoElement {
     PseudoElement_MenuCheckMark,
     PseudoElement_MenuDefaultItem,
     PseudoElement_MenuSeparator,
+    PseudoElement_TreeViewBranch,
     NumPseudoElements
 };
 
@@ -1409,7 +1410,8 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_None, "tearoff" },
     { QStyle::SC_None, "indicator" },
     { QStyle::SC_None, "default-item" },
-    { QStyle::SC_None, "separator" }
+    { QStyle::SC_None, "separator" },
+    { QStyle::SC_None, "branch" }
 };
 
 QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QString &part, int pseudoState = PseudoState_Unspecified)
@@ -1484,6 +1486,12 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part, 
         pseudoState |= PseudoState_Selected;
     if (state & QStyle::State_Horizontal)
         pseudoState |= PseudoState_Horizontal;
+    if (state & QStyle::State_Open)
+        pseudoState |= PseudoState_Open;
+    if (state & QStyle::State_Children)
+        pseudoState |= PseudoState_Children;
+    if (state & QStyle::State_Sibling)
+        pseudoState |= PseudoState_Sibling;
 
     if (renderRules.contains(pseudoState))
         return renderRules[pseudoState]; // already computed before
@@ -2787,6 +2795,10 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
 
     case PE_IndicatorArrowRight:
         pseudoElement = PseudoElement_RightArrow;
+        break;
+
+    case PE_IndicatorBranch:
+        pseudoElement = PseudoElement_TreeViewBranch;
         break;
 
     case PE_PanelTipLabel:
