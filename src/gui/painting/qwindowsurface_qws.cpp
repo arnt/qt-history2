@@ -1057,7 +1057,10 @@ QWSDirectPainterSurface::QWSDirectPainterSurface(bool isClient)
         QWidget::qwsDisplay()->nameRegion(winId,
                                           QLatin1String("QDirectPainter reserved space"),
                                           QLatin1String("reserved"));
+    } else {
+        winId = 0;
     }
+
     _screen = QScreen::instance();
     if (!_screen->base()) {
         QList<QScreen*> subScreens = _screen->subScreens();
@@ -1070,7 +1073,7 @@ QWSDirectPainterSurface::QWSDirectPainterSurface(bool isClient)
 
 QWSDirectPainterSurface::~QWSDirectPainterSurface()
 {
-    if (QWSDisplay::instance()) // make sure not in QApplication destructor
+    if (winId && QWSDisplay::instance()) // make sure not in QApplication destructor
         QWidget::qwsDisplay()->destroyRegion(winId);
 }
 
