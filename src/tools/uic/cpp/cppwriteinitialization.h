@@ -215,7 +215,6 @@ private:
     // layout defaults
     LayoutDefaultHandler m_LayoutDefaultHandler;
     int m_layoutMarginType;
-    int ui_version;
 
     QString m_generatedClass;
 

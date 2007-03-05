@@ -324,15 +324,6 @@ void WriteInitialization::acceptUI(DomUI *node)
     m_widgetChain.push(0);
     m_layoutChain.push(0);
 
-    QStringList majorminor = node->attributeVersion().split(QLatin1Char('.'));
-    // Convert the version to an int using the QT_VERSION convention (e.g. "4.1" -> 0x040100)
-    int vers = 0;
-    for (int i = 0; i < 2; ++i) {
-        vers |= majorminor.value(i).toInt();
-        vers <<= 8;
-    }
-    ui_version = vers;
-
     acceptLayoutDefault(node->elementLayoutDefault());
     acceptLayoutFunction(node->elementLayoutFunction());
 
