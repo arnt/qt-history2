@@ -526,7 +526,7 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << "CXXFLAGS      = " << var("QMAKE_CXXFLAGS") << " $(DEFINES)" << endl;
     t << "LEXFLAGS      = " << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS     = " << var("QMAKE_YACCFLAGS") << endl;
-    
+
     writeIncPart(t);
     writeLibsPart(t);
 
@@ -639,7 +639,7 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 
 void Win32MakefileGenerator::writeLibsPart(QTextStream &t)
 {
-    if(project->isActiveConfig("staticlib")) {
+    if(project->isActiveConfig("staticlib") && project->first("TEMPLATE") == "lib") {
         t << "LIB           = " << var("QMAKE_LIB") << endl;
     } else {
         t << "LINK          = " << var("QMAKE_LINK") << endl;

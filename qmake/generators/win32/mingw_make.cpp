@@ -260,7 +260,7 @@ void MingwMakefileGenerator::init()
 
 void MingwMakefileGenerator::fixTargetExt()
 {
-    if (project->isActiveConfig("staticlib")) {
+    if (project->isActiveConfig("staticlib") && project->first("TEMPLATE") == "lib") {
         project->values("TARGET_EXT").append(".a");
         project->values("QMAKE_LFLAGS").append("-static");
         project->values("TARGET").first() =  "lib" + project->first("TARGET");
@@ -286,7 +286,7 @@ void MingwMakefileGenerator::writeIncPart(QTextStream &t)
 
 void MingwMakefileGenerator::writeLibsPart(QTextStream &t)
 {
-    if(project->isActiveConfig("staticlib")) {
+    if(project->isActiveConfig("staticlib") && project->first("TEMPLATE") == "lib") {
         t << "LIB        =        " << var("QMAKE_LIB") << endl;
     } else {
         t << "LINK        =        " << var("QMAKE_LINK") << endl;
@@ -310,7 +310,7 @@ void MingwMakefileGenerator::writeObjectsPart(QTextStream &t)
 {
     if (project->values("OBJECTS").count() < var("QMAKE_LINK_OBJECT_MAX").toInt()) {
         objectsLinkLine = "$(OBJECTS)";
-    } else if (project->isActiveConfig("staticlib")) {
+    } else if (project->isActiveConfig("staticlib") && project->first("TEMPLATE") == "lib") {
 	QString ar_script_file = var("QMAKE_LINK_OBJECT_SCRIPT") + "." + var("TARGET");
 	if (!var("BUILD_NAME").isEmpty()) {
 	    ar_script_file += "." + var("BUILD_NAME");
@@ -335,7 +335,7 @@ void MingwMakefileGenerator::writeBuildRulesPart(QTextStream &t)
     t << "$(DESTDIR_TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
     if(!project->isEmpty("QMAKE_PRE_LINK"))
         t << "\n\t" <<var("QMAKE_PRE_LINK");
-    if(project->isActiveConfig("staticlib")) {
+    if(project->isActiveConfig("staticlib") && project->first("TEMPLATE") == "lib") {
 	if (project->values("OBJECTS").count() < var("QMAKE_LINK_OBJECT_MAX").toInt()) {
             t << "\n\t" << "$(LIB) \"$(DESTDIR_TARGET)\" " << objectsLinkLine << " " ;
         } else {
