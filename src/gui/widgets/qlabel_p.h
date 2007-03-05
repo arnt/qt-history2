@@ -69,10 +69,6 @@ public:
 #ifndef QT_NO_SHORTCUT
     void updateShortcut();
 #endif
-    bool isRichText() const {
-        return textformat == Qt::RichText
-               || (textformat == Qt::AutoText && Qt::mightBeRichText(text));
-    }
 #ifndef QT_NO_SHORTCUT
     QPointer<QWidget> buddy;
     int shortcutId;
@@ -82,6 +78,7 @@ public:
     uint scaledcontents :1;
     mutable uint textLayoutDirty : 1;
     mutable uint textDirty : 1;
+    mutable uint isRichText : 1;
     Qt::TextFormat textformat;
     QTextDocument* doc;
     QTextControl *control;

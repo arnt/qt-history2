@@ -314,6 +314,8 @@ void QLabel::setText(const QString &text)
     d->clearContents();
     d->text = text;
     d->textDirty = true;
+    d->isRichText = d->textformat == Qt::RichText
+                    || (d->textformat == Qt::AutoText && Qt::mightBeRichText(d->text));
 
     d->doc = currentDoc;
 
@@ -323,7 +325,7 @@ void QLabel::setText(const QString &text)
         d->doc->setDefaultFont(font());
     }
 
-    if (d->isRichText()) {
+    if (d->isRichText) {
         setMouseTracking(true);
     } else {
         // Note: mouse tracking not disabled intentionally
@@ -682,9 +684,8 @@ void QLabelPrivate::textInteractionFlagsChanged()
     if (!doc)
         return;
 
-    bool richText = isRichText();
-    if ((richText && textInteractionFlags != Qt::NoTextInteraction)
-        || (!richText && (textInteractionFlags & (Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard)))) {
+    if ((isRichText && textInteractionFlags != Qt::NoTextInteraction)
+        || (!isRichText && (textInteractionFlags & (Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard)))) {
         ensureTextControl();
         control->setTextInteractionFlags(textInteractionFlags);
     } else {
@@ -1361,7 +1362,7 @@ void QLabelPrivate::ensureTextLayouted() const
     Q_Q(const QLabel);
     if (doc) {
         if (textDirty) {
-            if (isRichText())
+            if (isRichText)
                 doc->setHtml(text);
             else
                 doc->setPlainText(text);
@@ -1482,7 +1483,7 @@ QMenu *QLabelPrivate::createStandardContextMenu(const QPoint &pos)
 {
     QString linkToCopy;
     QPoint p;
-    if (isRichText()) {
+    if (isRichText) {
         p = layoutPoint(pos);
         linkToCopy = doc->documentLayout()->anchorAt(p);
     }
