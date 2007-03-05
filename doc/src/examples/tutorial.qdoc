@@ -565,9 +565,10 @@
     QBoxLayout::addWidget().
 
     The QWidget::setLayout() function installs the layout on \c
-    MyWidget. This makes the layout a child widget of \c MyWidget so
-    we don't have to worry about deleting it; it will be deleted
-    together with \c MyWidget. Also, the call to QWidget::setLayout()
+    MyWidget. This makes the layout a child of \c MyWidget so
+    we don't have to worry about deleting it; the parent-child
+    relationship ensures that it will be deleted together with
+    \c MyWidget. Also, the call to QWidget::setLayout()
     automatically reparents the widgets in the layout so that they are
     children of \c MyWidget. Because of this, we didn't need to specify
     \c this as the parent for the \c quit, \c lcd and \c slider widgets.
