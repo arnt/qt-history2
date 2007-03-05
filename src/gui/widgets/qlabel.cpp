@@ -261,6 +261,7 @@ void QLabelPrivate::init()
     doc = 0;
     control = 0;
     textInteractionFlags = Qt::LinksAccessibleByMouse;
+    isRichText = false;
 
     q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,
                                  QSizePolicy::Label));
