@@ -2281,7 +2281,6 @@ public:
     NamespaceDeclaration &findNamespace(const QString &namespaceUri, bool writeDeclaration = false, bool noDefault = false);
     void writeNamespaceDeclaration(const NamespaceDeclaration &namespaceDeclaration);
 
-    QString nextNamespacePrefix();
     int namespacePrefixCount;
 };
 
@@ -2404,21 +2403,6 @@ bool QXmlStreamWriterPrivate::finishStartElement(bool contents)
     return hadSomethingWritten;
 }
 
-QString QXmlStreamWriterPrivate::nextNamespacePrefix()
-{
-    QString s;
-    int n = ++namespacePrefixCount;
-    forever {
-        s = QLatin1String("n") + QString::number(n++);
-        int j = namespaceDeclarations.size() - 1;
-        while (j >= 0 && namespaceDeclarations.at(j).prefix != s)
-            --j;
-        if (j < 0)
-            break;
-    }
-    return s;
-}
-
 QXmlStreamPrivateTagStack::NamespaceDeclaration &QXmlStreamWriterPrivate::findNamespace(const QString &namespaceUri, bool writeDeclaration, bool noDefault)
 {
     for (int j = namespaceDeclarations.size() - 1; j >= 0; --j) {
@@ -2431,10 +2415,21 @@ QXmlStreamPrivateTagStack::NamespaceDeclaration &QXmlStreamWriterPrivate::findNa
     if (namespaceUri.isEmpty())
         return emptyNamespace;
     NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
-    if (namespaceUri.isEmpty())
+    if (namespaceUri.isEmpty()) {
         namespaceDeclaration.prefix.clear();
-    else
-        namespaceDeclaration.prefix = addToStringStorage(nextNamespacePrefix());
+    } else {
+        QString s;
+        int n = ++namespacePrefixCount;
+        forever {
+            s = QLatin1String("n") + QString::number(n++);
+            int j = namespaceDeclarations.size() - 2;
+            while (j >= 0 && namespaceDeclarations.at(j).prefix != s)
+                --j;
+            if (j < 0)
+                break;
+	}
+        namespaceDeclaration.prefix = addToStringStorage(s);
+    }
     namespaceDeclaration.namespaceUri = addToStringStorage(namespaceUri);
     if (writeDeclaration)
         writeNamespaceDeclaration(namespaceDeclaration);
