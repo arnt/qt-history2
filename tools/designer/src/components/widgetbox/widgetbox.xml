@@ -163,6 +163,12 @@
                 <string notr="true">tableView</string>
             </property>
         </widget>
+
+        <widget class="QColumnView" name="Column View" icon="widgets/columnview.png">
+            <property name="objectName">
+                <string notr="true">columnView</string>
+            </property>
+        </widget>
     </category>
 
     <category name="Item Widgets (Item-Based)">
