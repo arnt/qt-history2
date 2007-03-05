@@ -615,6 +615,7 @@ void WriteInitialization::acceptLayout(DomLayout *node)
     const QString varName = m_driver->findOrInsertLayout(node);
 
     const DomPropertyMap properties = propertyMap(node->elementProperty());
+    const bool oldLayoutProperties = properties.constFind(QLatin1String("margin")) != properties.constEnd();
 
     bool isGroupBox = false;
 
@@ -632,7 +633,7 @@ void WriteInitialization::acceptLayout(DomLayout *node)
             QString objectName = parent;
             objectName += "->layout()";
             int marginType = Use43UiFile;
-            if (ui_version <= 0x040000)
+            if (oldLayoutProperties)
                 marginType = m_layoutMarginType;
 
             m_LayoutDefaultHandler.writeProperties(m_option.indent, 
@@ -661,7 +662,7 @@ void WriteInitialization::acceptLayout(DomLayout *node)
         // Suppress margin on a read child layout
         const bool suppressMarginDefault = m_layoutChain.top();
         int marginType = Use43UiFile;
-        if (ui_version <= 0x040000)
+        if (oldLayoutProperties)
             marginType = m_layoutMarginType;
         m_LayoutDefaultHandler.writeProperties(m_option.indent, varName, properties, marginType, suppressMarginDefault, m_output);
     }
