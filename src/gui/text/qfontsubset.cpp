@@ -298,6 +298,8 @@ QByteArray QFontSubset::glyphName(unsigned int glyph, const QVector<int> reverse
             glyphIndex = static_cast<QFontEngineXLFD *>(fontEngine)->glyphIndexToFreetypeGlyphIndex(glyphIndex);
 #endif
         FT_Get_Glyph_Name(face, glyphIndex, &name, 32);
+        if (name[0] == '.') // fix broken PS fonts returning .notdef for many glyphs
+            name[0] = 0;
     }
     if (name[0]) {
         s << "/" << name;
@@ -309,9 +311,8 @@ QByteArray QFontSubset::glyphName(unsigned int glyph, const QVector<int> reverse
         s << "/" << glyphName(uc, false /* ### */);
     } else
 #endif
-    if (reverseMap[glyphIndex]) {
-        char tmp[8];
-        s << "/uni" << QPdf::toHex((ushort)reverseMap[glyphIndex], tmp);
+    if (reverseMap[glyphIndex] && reverseMap[glyphIndex] < 0x10000) {
+        s << "/" << glyphName(reverseMap[glyphIndex], false);
     } else {
         s << "/gl" << (int)glyphIndex;
     }
