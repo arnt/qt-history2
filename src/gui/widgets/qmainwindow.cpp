@@ -32,6 +32,7 @@
 #include "qwidgetanimator_p.h"
 #ifdef Q_WS_MAC
 #include <private/qt_mac_p.h>
+extern WindowRef qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
 #endif
 
 class QMainWindowPrivate : public QWidgetPrivate
@@ -1151,6 +1152,13 @@ bool QMainWindow::event(QEvent *event)
             if (!d->explicitIconSize)
                 setIconSize(QSize());
             break;
+#ifdef Q_WS_MAC
+        case QEvent::Show: {
+            if (unifiedTitleAndToolBarOnMac())
+                ShowHideWindowToolbar(qt_mac_window_for(this), true, false);
+            break;
+       }
+#endif
 
         default:
             break;
@@ -1186,7 +1194,6 @@ void QMainWindow::setUnifiedTitleAndToolBarOnMac(bool set)
 #ifndef kWindowUnifiedTitleAndToolbarAttribute
 #define kWindowUnifiedTitleAndToolbarAttribute (1 << 7)
 #endif
-    extern WindowRef qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
     Q_D(QMainWindow);
     if (!isWindow() || d->useHIToolBar == set || QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)
         return;

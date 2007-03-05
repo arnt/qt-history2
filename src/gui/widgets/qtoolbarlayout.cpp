@@ -247,6 +247,14 @@ void QToolBarLayout::updateGeomArray() const
 
     rpick(o, that->hint) += handleExtent;
     that->hint += QSize(2*margin, 2*margin);
+#ifdef Q_WS_MAC
+    if (QMainWindow *mw = qobject_cast<QMainWindow *>(parentWidget()->parentWidget())) {
+        if (mw->unifiedTitleAndToolBarOnMac()
+                && mw->toolBarArea(static_cast<QToolBar *>(parentWidget())) == Qt::TopToolBarArea) {
+            tb->setMaximumSize(hint);
+        }
+    }
+#endif
 
     that->dirty = false;
 }

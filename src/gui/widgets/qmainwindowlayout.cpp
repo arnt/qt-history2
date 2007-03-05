@@ -918,7 +918,8 @@ void QMainWindowLayout::insertIntoMacHIToolbar(QToolBar *before, QToolBar *toolb
         HIToolbarSetDisplaySize(macToolbar, kHIToolbarDisplaySizeNormal);
         HIToolbarSetDisplayMode(macToolbar, kHIToolbarDisplayModeIconOnly);
         SetWindowToolbar(window, macToolbar);
-        ShowHideWindowToolbar(window, true, false);
+        if (layoutState.mainWindow->isVisible())
+            ShowHideWindowToolbar(window, true, false);
         CFRelease(macToolbar);
     }
 
