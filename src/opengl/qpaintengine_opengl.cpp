@@ -652,10 +652,10 @@ public:
         brush_color[3] = alpha;
     }
 
-    inline void setGradientOps(const QBrush &brush);
+    inline void setGradientOps(const QBrush &brush, const QRectF &bounds);
     void createGradientPaletteTexture(const QGradient& g);
 
-    void updateGradient(const QBrush &brush);
+    void updateGradient(const QBrush &brush, const QRectF &bounds);
 
     inline void lineToStencil(qreal x, qreal y);
     inline void curveToStencil(const QPointF &cp1, const QPointF &cp2, const QPointF &ep);
@@ -668,7 +668,7 @@ public:
 
     void drawFastRect(const QRectF &rect);
     void strokePath(const QPainterPath &path, bool use_cache);
-    void strokePathFastPen(const QPainterPath &path);
+    void strokePathFastPen(const QPainterPath &path, bool needsResolving);
     void strokeLines(const QPainterPath &path);
 
     void cleanupGLContextRefs(const QGLContext *context) {
@@ -1028,7 +1028,7 @@ void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
 }
 
 
-inline void QOpenGLPaintEnginePrivate::setGradientOps(const QBrush &brush)
+inline void QOpenGLPaintEnginePrivate::setGradientOps(const QBrush &brush, const QRectF &bounds)
 {
 #ifndef Q_WS_QWS //###
     current_style = brush.style();
@@ -1038,7 +1038,7 @@ inline void QOpenGLPaintEnginePrivate::setGradientOps(const QBrush &brush)
         qt_glColor4ubv(brush_color);
     }
 
-    updateGradient(brush);
+    updateGradient(brush, bounds);
 
     glDisable(GL_TEXTURE_GEN_S);
     glDisable(GL_TEXTURE_1D);
@@ -1358,7 +1358,7 @@ void QOpenGLPaintEnginePrivate::setInvMatrixData(const QTransform &inv_matrix)
 }
 
 
-void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
+void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush, const QRectF &bounds)
 {
 #ifndef Q_WS_QWS
     bool has_mirrored_repeat = QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat;
@@ -1367,18 +1367,28 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
     if (has_mirrored_repeat && style == Qt::LinearGradientPattern) {
         const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
         QTransform m = brush.transform();
-        QPointF start = m.map(g->start());
+        QPointF realStart = g->start();
+        QPointF realFinal = g->finalStop();
+        if (g->coordinateMode() == QGradient::ObjectBoundingMode) {
+            qreal sx = bounds.x() + realStart.x() * bounds.width();
+            qreal sy = bounds.y() + realStart.y() * bounds.height();
+            qreal fx = bounds.x() + realFinal.x() * bounds.width();
+            qreal fy = bounds.y() + realFinal.y() * bounds.height();
+            realStart = QPointF(sx, sy);
+            realFinal = QPointF(fx, fy);
+        }
+        QPointF start = m.map(realStart);
         QPointF stop;
 
         if (qFuzzyCompare(m.m11(), m.m22()) && m.m12() == 0.0 && m.m21() == 0.0) {
             // It is a simple uniform scale and/or translation
-            stop = m.map(g->finalStop());
+            stop = m.map(realFinal);
         } else {
             // It is not enough to just transform the endpoints.
             // We have to make sure the _pattern_ is transformed correctly.
 
-            qreal odx = g->finalStop().x() - g->start().x();
-            qreal ody = g->finalStop().y() - g->start().y();
+            qreal odx = realFinal.x() - realStart.x();
+            qreal ody = realFinal.y() - realStart.y();
 
             // nx, ny and dx, dy are normal and gradient direction after transform:
             qreal nx = m.m11()*ody - m.m21()*odx;
@@ -1411,19 +1421,40 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
     if (use_fragment_programs) {
         if (style == Qt::RadialGradientPattern) {
             const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
-            QTransform translate(1, 0, 0, 1, -g->focalPoint().x(), -g->focalPoint().y());
+            QPointF realCenter = g->center();
+            QPointF realFocal  = g->focalPoint();
+            qreal   realRadius = g->radius();
+            if (g->coordinateMode() == QGradient::ObjectBoundingMode) {
+                qreal x = bounds.x() + realCenter.x() * bounds.width();
+                qreal y = bounds.y() + realCenter.y() * bounds.height();
+                realCenter = QPointF(x, y);
+
+                x = bounds.x() + realFocal.x() * bounds.width();
+                y = bounds.y() + realFocal.y() * bounds.height();
+                realFocal = QPointF(x, y);
+
+                realRadius = qMin(bounds.x() + bounds.width() * realRadius,
+                                  bounds.y() + bounds.height() * realRadius);
+            }
+            QTransform translate(1, 0, 0, 1, -realFocal.x(), -realFocal.y());
             QTransform gl_to_qt(1, 0, 0, -1, 0, pdev->height());
             QTransform inv_matrix = gl_to_qt * matrix.inverted() * brush.transform().inverted() * translate;
 
             setInvMatrixData(inv_matrix);
 
-            fmp_data[0] = g->center().x() - g->focalPoint().x();
-            fmp_data[1] = g->center().y() - g->focalPoint().y();
+            fmp_data[0] = realCenter.x() - realFocal.x();
+            fmp_data[1] = realCenter.y() - realFocal.y();
 
-            fmp2_m_radius2_data[0] = -fmp_data[0] * fmp_data[0] - fmp_data[1] * fmp_data[1] + g->radius() * g->radius();
+            fmp2_m_radius2_data[0] = -fmp_data[0] * fmp_data[0] - fmp_data[1] * fmp_data[1] + realRadius * realRadius;
         } else if (style == Qt::ConicalGradientPattern) {
             const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
-            QTransform translate(1, 0, 0, 1, -g->center().x(), -g->center().y());
+            QPointF realCenter = g->center();
+            if (g->coordinateMode() == QGradient::ObjectBoundingMode) {
+                qreal x = bounds.x() + bounds.width() * realCenter.x();
+                qreal y = bounds.y() + bounds.height() * realCenter.y();
+                realCenter = QPointF(x, y);
+            }
+            QTransform translate(1, 0, 0, 1, -realCenter.x(), -realCenter.y());
             QTransform gl_to_qt(1, 0, 0, -1, 0, pdev->height());
             QTransform inv_matrix = gl_to_qt * matrix.inverted() * brush.transform().inverted() * translate;
 
@@ -1433,14 +1464,25 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
         } else if (style == Qt::LinearGradientPattern) {
             const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
 
-            QTransform translate(1, 0, 0, 1, -g->start().x(), -g->start().y());
+            QPointF realStart = g->start();
+            QPointF realFinal = g->finalStop();
+            if (g->coordinateMode() == QGradient::ObjectBoundingMode) {
+                qreal sx = bounds.x() + realStart.x() * bounds.width();
+                qreal sy = bounds.y() + realStart.y() * bounds.height();
+                qreal fx = bounds.x() + realFinal.x() * bounds.width();
+                qreal fy = bounds.y() + realFinal.y() * bounds.height();
+                realStart = QPointF(sx, sy);
+                realFinal = QPointF(fx, fy);
+            }
+
+            QTransform translate(1, 0, 0, 1, -realStart.x(), -realStart.y());
             QTransform gl_to_qt(1, 0, 0, -1, 0, pdev->height());
 
             QTransform inv_matrix = gl_to_qt * matrix.inverted() * brush.transform().inverted() * translate;
 
             setInvMatrixData(inv_matrix);
 
-            QPointF l = g->finalStop() - g->start();
+            QPointF l = realFinal - realStart;
 
             linear_data[0] = l.x();
             linear_data[1] = l.y();
@@ -1584,11 +1626,12 @@ public:
     float *vertices;
     int allocated;
     int size;
+    QRectF bounds;
     void addTrap(const Trapezoid &trap);
     void tessellate(const QPointF *points, int nPoints, bool winding) {
         size = 0;
         setWinding(winding);
-        QTessellator::tessellate(points, nPoints);
+        bounds = QTessellator::tessellate(points, nPoints);
     }
 };
 
@@ -1640,7 +1683,7 @@ void QOpenGLPaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, in
 
     DEBUG_ONCE qDebug() << "QOpenGLPaintEnginePrivate: Drawing polygon with" << pointCount << "points using fillPolygon_dev";
 
-    setGradientOps(cbrush);
+    setGradientOps(cbrush, tessellator.bounds);
 
     bool fast_style = current_style == Qt::LinearGradientPattern
                       || current_style == Qt::SolidPattern;
@@ -1816,7 +1859,7 @@ void QOpenGLPaintEnginePrivate::fillVertexArray(Qt::FillRule fillRule)
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glStencilMask(0);
 
-    setGradientOps(cbrush);
+    setGradientOps(cbrush, QRectF(QPointF(min_x, min_y), QSizeF(max_x - min_x, max_y - min_y)));
 
     bool fast_fill = has_fast_composition_mode && (current_style == Qt::LinearGradientPattern || current_style == Qt::SolidPattern);
 
@@ -3041,7 +3084,7 @@ void QOpenGLPaintEnginePrivate::drawFastRect(const QRectF &r)
 
         q->updateCompositionMode(composition_mode);
 
-        setGradientOps(cbrush);
+        setGradientOps(cbrush, r);
 
         bool fast_style = current_style == Qt::LinearGradientPattern
                           || current_style == Qt::SolidPattern;
@@ -3062,7 +3105,7 @@ void QOpenGLPaintEnginePrivate::drawFastRect(const QRectF &r)
 
     if (has_pen) {
         if (has_fast_pen && !high_quality_antialiasing) {
-            setGradientOps(cpen.brush());
+            setGradientOps(cpen.brush(), r);
 
             vertexArray[8] = vertexArray[0];
             vertexArray[9] = vertexArray[1];
@@ -3141,7 +3184,7 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 void QOpenGLPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
     Q_D(QOpenGLPaintEngine);
-    d->setGradientOps(d->cpen.brush());
+    d->setGradientOps(d->cpen.brush(), QRectF());
 
     GLfloat pen_width = d->cpen.widthF();
     if (pen_width > 1 || (pen_width > 0 && d->txop > QTransform::TxTranslate)) {
@@ -3172,7 +3215,8 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
     Q_D(QOpenGLPaintEngine);
     if (d->has_pen) {
         if (d->has_fast_pen && !d->high_quality_antialiasing) {
-            d->setGradientOps(d->cpen.brush());
+            //### gradient resolving on lines isn't correct
+            d->setGradientOps(d->cpen.brush(), QRectF());
             const qreal *vertexArray = reinterpret_cast<const qreal*>(&lines[0]);
 
             if (sizeof(qreal) == sizeof(double)) {
@@ -3211,9 +3255,29 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
     if(pointCount < 2)
         return;
 
+    QRectF bounds;
+    if ((mode == ConvexMode && !d->high_quality_antialiasing && state->brushNeedsResolving()) ||
+        (d->has_fast_pen && !d->high_quality_antialiasing) && state->penNeedsResolving()) {
+        qreal minx = points[0].x(), miny = points[0].y(),
+              maxx = points[0].x(), maxy = points[0].y();
+        for (int i = 1; i < pointCount; ++i) {
+            const QPointF &pt = points[i];
+            if (minx > pt.x())
+                minx = pt.x();
+            if (miny > pt.y())
+                miny = pt.y();
+            if (maxx < pt.x())
+                maxx = pt.x();
+            if (maxy < pt.y())
+                maxy = pt.y();
+        }
+        bounds = QRectF(minx, maxx, maxx-minx, maxy-miny);
+    }
+
     if (d->has_brush && mode != PolylineMode) {
         if (mode == ConvexMode && !d->high_quality_antialiasing) {
-            d->setGradientOps(d->cbrush);
+            //### resolving on polygon from points isn't correct
+            d->setGradientOps(d->cbrush, bounds);
 
             const qreal *vertexArray = reinterpret_cast<const qreal*>(&points[0]);
 
@@ -3241,7 +3305,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
     if (d->has_pen) {
         if (d->has_fast_pen && !d->high_quality_antialiasing) {
-            d->setGradientOps(d->cpen.brush());
+            d->setGradientOps(d->cpen.brush(), bounds);
             QVarLengthArray<float> vertexArray(pointCount*2 + 2);
             glVertexPointer(2, GL_FLOAT, 0, vertexArray.data());
             int i;
@@ -3328,10 +3392,13 @@ void QOpenGLPaintEnginePrivate::strokePath(const QPainterPath &path, bool use_ca
     cbrush = old_brush;
 }
 
-void QOpenGLPaintEnginePrivate::strokePathFastPen(const QPainterPath &path)
+void QOpenGLPaintEnginePrivate::strokePathFastPen(const QPainterPath &path, bool needsResolving)
 {
 #ifndef Q_WS_QWS
-    setGradientOps(cpen.brush());
+    QRectF bounds;
+    if (needsResolving)
+        bounds = path.controlPointRect();
+    setGradientOps(cpen.brush(), bounds);
 
     QBezier beziers[32];
     for (int i=0; i<path.elementCount(); ++i) {
@@ -3462,7 +3529,7 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
 
     if (d->has_pen) {
         if (d->has_fast_pen && !d->high_quality_antialiasing)
-            d->strokePathFastPen(path);
+            d->strokePathFastPen(path, state->penNeedsResolving());
         else
             d->strokePath(path, true);
     }
@@ -4048,7 +4115,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     // make sure the glyphs we want to draw are in the cache
     qt_glyph_cache()->cacheGlyphs(d->drawable.context(), ti, glyphs);
 
-    d->setGradientOps(Qt::SolidPattern); // turns off gradient ops
+    d->setGradientOps(Qt::SolidPattern, QRectF()); // turns off gradient ops
     qt_glColor4ubv(d->pen_color);
     glEnable(GL_TEXTURE_2D);
 
@@ -4396,7 +4463,7 @@ void QOpenGLPaintEnginePrivate::drawItem(const QDrawQueueItem &item)
     mask_channel_data[2] = item.location.channel == 2;
     mask_channel_data[3] = item.location.channel == 3;
 
-    setGradientOps(item.brush);
+    setGradientOps(item.brush, item.location.rect);
 
     composite(item.location.screen_rect, item.location.rect.topLeft() - item.location.screen_rect.topLeft()
                                          - QPoint(0, offscreen.offscreenSize().height() - drawable.size().height()));

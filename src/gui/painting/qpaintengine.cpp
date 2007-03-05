@@ -726,7 +726,9 @@ void QPaintEngine::drawRects(const QRect *rects, int rectCount)
 */
 void QPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
-    if (hasFeature(PainterPaths)) {
+    if (hasFeature(PainterPaths) &&
+        !state->penNeedsResolving() &&
+        !state->brushNeedsResolving()) {
         for (int i=0; i<rectCount; ++i) {
             QPainterPath path;
             path.addRect(rects[i]);

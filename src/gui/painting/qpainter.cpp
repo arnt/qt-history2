@@ -2516,10 +2516,18 @@ void QPainter::drawRects(const QRectF *rects, int rectCount)
             d->engine->drawRects(&r, 1);
         }
     } else {
-        QPainterPath rectPath;
-        for (int i=0; i<rectCount; ++i)
-            rectPath.addRect(rects[i]);
-        d->draw_helper(rectPath, QPainterPrivate::StrokeAndFillDraw);
+        if (d->state->brushNeedsResolving() || d->state->penNeedsResolving()) {
+            for (int i=0; i<rectCount; ++i) {
+                QPainterPath rectPath;
+                rectPath.addRect(rects[i]);
+                d->draw_helper(rectPath, QPainterPrivate::StrokeAndFillDraw);
+            }
+        } else {
+            QPainterPath rectPath;
+            for (int i=0; i<rectCount; ++i)
+                rectPath.addRect(rects[i]);
+            d->draw_helper(rectPath, QPainterPrivate::StrokeAndFillDraw);
+        }
     }
 }
 
@@ -2558,11 +2566,19 @@ void QPainter::drawRects(const QRect *rects, int rectCount)
             d->engine->drawRects(&r, 1);
         }
     } else {
-        QPainterPath rectPath;
-        for (int i=0; i<rectCount; ++i)
-            rectPath.addRect(rects[i]);
+        if (d->state->brushNeedsResolving() || d->state->penNeedsResolving()) {
+            for (int i=0; i<rectCount; ++i) {
+                QPainterPath rectPath;
+                rectPath.addRect(rects[i]);
+                d->draw_helper(rectPath, QPainterPrivate::StrokeAndFillDraw);
+            }
+        } else {
+            QPainterPath rectPath;
+            for (int i=0; i<rectCount; ++i)
+                rectPath.addRect(rects[i]);
 
-        d->draw_helper(rectPath, QPainterPrivate::StrokeAndFillDraw);
+            d->draw_helper(rectPath, QPainterPrivate::StrokeAndFillDraw);
+        }
     }
 }
 
@@ -6634,6 +6650,40 @@ QTransform QPaintEngineState::transform() const
 Qt::ClipOperation QPaintEngineState::clipOperation() const
 {
     return static_cast<const QPainterState *>(this)->clipOperation;
+}
+
+
+/*!
+    \since 4.3
+
+    Returns whether the coordinate of the fill have been specified
+    as bounded by the current rendering operation and have to be
+    resolved (about the currently rendered primitive).
+*/
+bool QPaintEngineState::brushNeedsResolving() const
+{
+    const QBrush &brush = static_cast<const QPainterState *>(this)->brush;
+    Qt::BrushStyle s = brush.style();
+    return ((s == Qt::LinearGradientPattern || s == Qt::RadialGradientPattern ||
+             s == Qt::ConicalGradientPattern) &&
+            brush.gradient()->coordinateMode() == QGradient::ObjectBoundingMode);
+}
+
+
+/*!
+    \since 4.3
+
+    Returns whether the coordinate of the stroke have been specified
+    as bounded by the current rendering operation and have to be
+    resolved (about the currently rendered primitive).
+*/
+bool QPaintEngineState::penNeedsResolving() const
+{
+    const QPen &pen = static_cast<const QPainterState *>(this)->pen;
+    Qt::BrushStyle s = pen.brush().style();
+    return ((s == Qt::LinearGradientPattern || s == Qt::RadialGradientPattern ||
+             s == Qt::ConicalGradientPattern) &&
+            pen.brush().gradient()->coordinateMode() == QGradient::ObjectBoundingMode);
 }
 
 /*!

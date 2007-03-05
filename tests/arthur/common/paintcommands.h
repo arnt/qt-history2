@@ -40,7 +40,7 @@ public:
         : m_painter(0), m_surface_painter(0),
           m_commands(cmds), m_gradientSpread(QGradient::PadSpread),
           m_width(w), m_height(h), m_verboseMode(false), m_type(WidgetType),
-          m_checkers_background(true)
+          m_checkers_background(true), m_gradientCoordinate(QGradient::LogicalMode)
     { staticInit(); }
 
 public:
@@ -114,6 +114,7 @@ private:
     void command_gradient_setLinear(QRegExp re);
     void command_gradient_setRadial(QRegExp re);
     void command_gradient_setSpread(QRegExp re);
+    void command_gradient_setCoordinateMode(QRegExp re);
 
     // commands: drawing ops
     void command_qt3_drawArc(QRegExp re);
@@ -201,6 +202,7 @@ private:
     QMap<QString, QRegion> m_regionMap;
     QGradientStops m_gradientStops;
     QGradient::Spread m_gradientSpread;
+    QGradient::CoordinateMode m_gradientCoordinate;
     bool m_abort;
     int m_width;
     int m_height;
@@ -217,6 +219,7 @@ private:
     static const char *fontWeightTable[];
     static const char *clipOperationTable[];
     static const char *spreadMethodTable[];
+    static const char *coordinateMethodTable[];
     static const char *compositionModeTable[];
     static const char *imageFormatTable[];
     static int translateEnum(const char *table[], const QString &pattern, int limit);

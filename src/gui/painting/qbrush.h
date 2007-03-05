@@ -164,7 +164,8 @@ public:
 
     enum CoordinateMode {
         LogicalMode,
-        StretchToDeviceMode
+        StretchToDeviceMode,
+        ObjectBoundingMode
     };
 
     QGradient();

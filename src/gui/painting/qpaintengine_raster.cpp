@@ -566,6 +566,35 @@ static void qt_debug_path(const QPainterPath &path)
 #endif
 
 
+static inline void resolveGradientBounds(const QRectF &rect, QSpanData *data)
+{
+    GradientData &gradient = data->gradient;
+    switch(data->type) {
+    case QSpanData::LinearGradient: {
+        gradient.linear.origin.x = rect.x() + rect.width()  * gradient.linear.origin.x;
+        gradient.linear.origin.y = rect.y() + rect.height() * gradient.linear.origin.y;
+        gradient.linear.end.x =    rect.x() + rect.width()  * gradient.linear.end.x;
+        gradient.linear.end.y =    rect.y() + rect.height() * gradient.linear.end.y;
+        break;
+    }
+    case QSpanData::RadialGradient: {
+        gradient.radial.center.x = rect.x() + rect.width() * gradient.radial.center.x;
+        gradient.radial.center.y = rect.y() + rect.height() * gradient.radial.center.y;
+        gradient.radial.focal.x = rect.x() + rect.width() * gradient.radial.focal.x;
+        gradient.radial.focal.y = rect.y() + rect.height() * gradient.radial.focal.y;
+        gradient.radial.radius = qMin(rect.x() + rect.width() * gradient.radial.radius,
+                                      rect.y() + rect.height() * gradient.radial.radius);
+        break;
+    }
+    case QSpanData::ConicalGradient:
+        gradient.conical.center.x = rect.x() + rect.width() * gradient.conical.center.x;
+        gradient.conical.center.y = rect.y() + rect.height() * gradient.conical.center.y;
+        break;
+    default:
+        break;
+    }
+}
+
 /*!
     \class QRasterPaintEngine
     \preliminary
@@ -1375,6 +1404,14 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, QSpanData *fillData)
 
     Q_D(QRasterPaintEngine);
 
+    if ((fillData->type == QSpanData::LinearGradient ||
+         fillData->type == QSpanData::RadialGradient ||
+         fillData->type == QSpanData::ConicalGradient) &&
+        fillData->gradient.needsResolving) {
+        resolveGradientBounds(path.controlPointRect(),
+                              fillData);
+    }
+
 #ifdef QT_EXPERIMENTAL_REGIONS
     // hw: XXX is this safe? what about the size of the pen/brush?
     ProcessSpans blend = d->getSpanFunc(d->matrix.mapRect(path.controlPointRect()),
@@ -1563,6 +1600,13 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
         }
         d->outlineMapper->endOutline();
 
+        if ((d->penData.type == QSpanData::LinearGradient ||
+             d->penData.type == QSpanData::RadialGradient ||
+             d->penData.type == QSpanData::ConicalGradient) &&
+            d->penData.gradient.needsResolving) {
+            resolveGradientBounds(path.controlPointRect(),
+                                  &d->penData);
+        }
 #ifdef QT_EXPERIMENTAL_REGIONS
         // hw: XXX is this safe? what about the size of the pen/brush?
         const QRectF brect = d->matrix.mapRect(path.controlPointRect());
@@ -2343,6 +2387,7 @@ inline bool QRasterPaintEnginePrivate::isUnclipped(const QRectF &rect) const
     return isUnclipped(r);
 }
 
+//### combine with resolveGradientBounds when ready
 inline ProcessSpans
 QRasterPaintEnginePrivate::getSpanFunc(const QRect &rect,
                                        const QSpanData *data) const
@@ -2350,6 +2395,7 @@ QRasterPaintEnginePrivate::getSpanFunc(const QRect &rect,
     return isUnclipped(rect) ? data->unclipped_blend : data->blend;
 }
 
+//### combine with resolveGradientBounds when ready
 inline ProcessSpans
 QRasterPaintEnginePrivate::getSpanFunc(const QRectF &rect,
                                        const QSpanData *data) const
@@ -2739,6 +2785,14 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
                                                &d->penData, mode, bounds,
                                                &dashOffset);
 #else
+                if ((d->penData.type == QSpanData::LinearGradient ||
+                     d->penData.type == QSpanData::RadialGradient ||
+                     d->penData.type == QSpanData::ConicalGradient) &&
+                    d->penData.gradient.needsResolving) {
+                    const QRectF brect(QPointF(line.x1(), line.y1()),
+                                       QPointF(line.x2(), line.y2()));
+                    resolveGradientBounds(brect, &d->penData);
+                }
                 if (d->pen.style() == Qt::SolidLine)
                     drawLine_midpoint_i(int(line.x1()), int(line.y1()),
                                         int(line.x2()), int(line.y2()),
@@ -2792,6 +2846,14 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
                                            penBlend, &d->penData, mode,
                                            bounds, &dashOffset);
 #else
+            if ((d->penData.type == QSpanData::LinearGradient ||
+                 d->penData.type == QSpanData::RadialGradient ||
+                 d->penData.type == QSpanData::ConicalGradient) &&
+                d->penData.gradient.needsResolving) {
+                const QRectF brect(QPointF(line.x1(), line.y1()),
+                                   QPointF(line.x2(), line.y2()));
+                resolveGradientBounds(brect, &d->penData);
+            }
             if (d->pen.style() == Qt::SolidLine)
                 drawLine_midpoint_i(int(line.x1()), int(line.y1()),
                                     int(line.x2()), int(line.y2()),
@@ -4298,6 +4360,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
             gradient.alphaColor = !brush.isOpaque() || alpha != 256;
             gradient.colorTable = const_cast<uint*>(qt_gradient_cache()->getBuffer(g->stops(), alpha));
             gradient.spread = g->spread();
+            gradient.needsResolving = g->coordinateMode() == QGradient::ObjectBoundingMode;
 
             gradient.linear.origin.x = g->start().x();
             gradient.linear.origin.y = g->start().y();
@@ -4313,6 +4376,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
             gradient.alphaColor = !brush.isOpaque() || alpha != 256;
             gradient.colorTable = const_cast<uint*>(qt_gradient_cache()->getBuffer(g->stops(), alpha));
             gradient.spread = g->spread();
+            gradient.needsResolving = g->coordinateMode() == QGradient::ObjectBoundingMode;
 
             QPointF center = g->center();
             gradient.radial.center.x = center.x();
@@ -4331,6 +4395,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
             gradient.alphaColor = !brush.isOpaque() || alpha != 256;
             gradient.colorTable = const_cast<uint*>(qt_gradient_cache()->getBuffer(g->stops(), alpha));
             gradient.spread = QGradient::RepeatSpread;
+            gradient.needsResolving = g->coordinateMode() == QGradient::ObjectBoundingMode;
 
             QPointF center = g->center();
             gradient.conical.center.x = center.x();

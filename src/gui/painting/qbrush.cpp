@@ -1249,8 +1249,10 @@ QGradient::CoordinateMode QGradient::coordinateMode() const
 {
     if (dummy == 0)
         return LogicalMode;
-    else
+    else if (dummy == (void*)1)
         return StretchToDeviceMode;
+    else
+        return ObjectBoundingMode;
 }
 
 /*!
@@ -1263,8 +1265,10 @@ void QGradient::setCoordinateMode(CoordinateMode mode)
 {
     if (mode == LogicalMode)
         dummy = 0;
-    else
+    else if (mode == StretchToDeviceMode)
         dummy = (void *) 1;
+    else
+        dummy = (void *) 2;
 }
 
 

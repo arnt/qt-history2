@@ -144,6 +144,7 @@ struct GradientData
     uint* colorTable; //[GRADIENT_STOPTABLE_SIZE];
 
     uint alphaColor : 1;
+    uint needsResolving : 1;
 };
 
 struct TextureData

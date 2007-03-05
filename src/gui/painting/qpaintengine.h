@@ -261,6 +261,9 @@ public:
 
     QPainter *painter() const;
 
+    bool brushNeedsResolving() const;
+    bool penNeedsResolving() const;
+
 protected:
     friend class QPaintEngine;
     friend class QPainter;

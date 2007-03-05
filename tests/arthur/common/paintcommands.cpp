@@ -66,6 +66,12 @@ const char *PaintCommands::spreadMethodTable[] = {
     "RepeatSpread"
 };
 
+const char *PaintCommands::coordinateMethodTable[] = {
+    "LogicalMode",
+    "StretchToDeviceMode",
+    "ObjectBoundingMode"
+};
+
 const char *PaintCommands::compositionModeTable[] = {
     "SourceOver",
     "DestinationOver",
@@ -255,6 +261,10 @@ void PaintCommands::staticInit()
                       "^gradient_setSpread\\s+(\\w*)$",
                       "gradient_setSpread <spread method enum>",
                       "gradient_setSpread PadSpread");
+    DECL_PAINTCOMMAND("gradient_setCoordinateMode", command_gradient_setCoordinateMode,
+                      "^gradient_setCoordinateMode\\s+(\\w*)$",
+                      "gradient_setCoordinateMode <coordinate method enum>",
+                      "gradient_setCoordinateMode ObjectBoundingMode");
 
     DECL_PAINTCOMMANDSECTION("qt3 drawing ops");
     DECL_PAINTCOMMAND("qt3_drawArc", command_qt3_drawArc,
@@ -527,6 +537,7 @@ void PaintCommands::staticInit()
     ADD_ENUMLIST("spread methods", spreadMethodTable);
     ADD_ENUMLIST("composition modes", compositionModeTable);
     ADD_ENUMLIST("image formats", imageFormatTable);
+    ADD_ENUMLIST("coordinate modes", coordinateMethodTable);
 }
 
 #undef DECL_PAINTCOMMAND
@@ -2130,6 +2141,7 @@ void PaintCommands::command_gradient_setLinear(QRegExp re)
     QLinearGradient lg(QPointF(x1, y1), QPointF(x2, y2));
     lg.setStops(m_gradientStops);
     lg.setSpread(m_gradientSpread);
+    lg.setCoordinateMode(m_gradientCoordinate);
     QBrush brush(lg);
 #if QT_VERSION > 0x040200
     QTransform brush_matrix = m_painter->brush().transform();
@@ -2156,6 +2168,7 @@ void PaintCommands::command_gradient_setRadial(QRegExp re)
     QRadialGradient rg(QPointF(cx, cy), rad, QPointF(fx, fy));
     rg.setStops(m_gradientStops);
     rg.setSpread(m_gradientSpread);
+    rg.setCoordinateMode(m_gradientCoordinate);
     QBrush brush(rg);
 #if QT_VERSION > 0x040200
     QTransform brush_matrix = m_painter->brush().transform();
@@ -2180,6 +2193,7 @@ void PaintCommands::command_gradient_setConical(QRegExp re)
     QConicalGradient cg(QPointF(cx, cy), angle);
     cg.setStops(m_gradientStops);
     cg.setSpread(m_gradientSpread);
+    cg.setCoordinateMode(m_gradientCoordinate);
     QBrush brush(cg);
 #if QT_VERSION > 0x040200
     QTransform brush_matrix = m_painter->brush().transform();
@@ -2197,6 +2211,17 @@ void PaintCommands::command_gradient_setSpread(QRegExp re)
         printf(" - gradient_setSpread %d=[%s]\n", spreadMethod, spreadMethodTable[spreadMethod]);
 
     m_gradientSpread = QGradient::Spread(spreadMethod);
+}
+
+void PaintCommands::command_gradient_setCoordinateMode(QRegExp re)
+{
+    int coord = translateEnum(coordinateMethodTable, re.cap(1), 3);
+
+    if (m_verboseMode)
+        printf(" - gradient_setCoordinateMode %d=[%s]\n", coord,
+               coordinateMethodTable[coord]);
+
+    m_gradientCoordinate = QGradient::CoordinateMode(coord);
 }
 
 /***************************************************************************************************/
