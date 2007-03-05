@@ -51,9 +51,10 @@ public:
         Qt_4_0 = 7,
         Qt_4_1 = Qt_4_0,
         Qt_4_2 = 8,
-        Qt_4_3 = 9
-#if QT_VERSION >= 0x040400
-#error Add Qt_4_4 = Qt_4_3
+        Qt_4_3 = 9,
+        Qt_4_4 = Qt_4_3
+#if QT_VERSION >= 0x040500
+#error Add Qt_4_5 = Qt_4_4
 #endif
     };
 
