@@ -352,6 +352,18 @@ public:
     bool translateXinputEvent(const XEvent*, const QTabletDeviceData *tablet);
 #endif
     bool translatePropertyEvent(const XEvent *);
+
+    void doDeferredMap()
+    {
+        Q_ASSERT(testAttribute(Qt::WA_WState_Created));
+        if (!testAttribute(Qt::WA_Resized)) {
+            adjustSize();
+            setAttribute(Qt::WA_Resized, false);
+        }
+        setAttribute(Qt::WA_Mapped);
+        d_func()->topData()->waitingForMapNotify = 1;
+        XMapWindow(X11->display, internalWinId());
+    }
 };
 
 
@@ -3020,16 +3032,8 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 }
             }
 
-            if (!widget->d_func()->topData()->validWMState) {
-                int idx = X11->deferred_map.indexOf(widget);
-                if (idx != -1) {
-                    X11->deferred_map.removeAt(idx);
-                    Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
-                    widget->setAttribute(Qt::WA_Mapped);
-                    widget->d_func()->topData()->waitingForMapNotify = 1;
-                    XMapWindow(X11->display, widget->internalWinId());
-                }
-            }
+            if (!widget->d_func()->topData()->validWMState && X11->deferred_map.removeAll(widget))
+                widget->doDeferredMap();
         }
         break;
 
@@ -4149,9 +4153,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
             // map the window if we were waiting for a transition to
             // withdrawn
             if (X11->deferred_map.removeAll(this)) {
-                setAttribute(Qt::WA_Mapped);
-                d->topData()->waitingForMapNotify = 1;
-                XMapWindow(X11->display, internalWinId());
+                doDeferredMap();
             } else if (isVisible()
                        && !testAttribute(Qt::WA_Mapped)
                        && !testAttribute(Qt::WA_OutsideWSRange)) {
@@ -4186,9 +4188,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                     // map the window if we were waiting for a
                     // transition to withdrawn
                     if (X11->deferred_map.removeAll(this)) {
-                        setAttribute(Qt::WA_Mapped);
-                        d->topData()->waitingForMapNotify = 1;
-                        XMapWindow(X11->display, internalWinId());
+                        doDeferredMap();
                     } else if (isVisible()
                                && !testAttribute(Qt::WA_Mapped)
                                && !testAttribute(Qt::WA_OutsideWSRange)) {
