@@ -3945,6 +3945,14 @@ void tst_QWidget::multipleToplevelFocusCheck()
 void tst_QWidget::setFocus()
 {
     {
+        // move focus to another window
+        testWidget->activateWindow();
+        QApplication::setActiveWindow(testWidget);
+        if (testWidget->focusWidget())
+            testWidget->focusWidget()->clearFocus();
+        else
+            testWidget->clearFocus();
+
         // window and children never shown, nobody gets focus
         QWidget window;
 
@@ -3976,7 +3984,14 @@ void tst_QWidget::setFocus()
         child2.setFocusPolicy(Qt::StrongFocus);
 
         window.show();
-        // note: window is not active
+
+        // note: window may be active, but we don't want it to be
+        testWidget->activateWindow();
+        QApplication::setActiveWindow(testWidget);
+        if (testWidget->focusWidget())
+            testWidget->focusWidget()->clearFocus();
+        else
+            testWidget->clearFocus();
 
         child1.setFocus();
         QVERIFY(!child1.hasFocus());
@@ -3988,7 +4003,6 @@ void tst_QWidget::setFocus()
         QCOMPARE(window.focusWidget(), &child2);
         QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
     }
-
 
     {
         // window and children show, but window *is* active, children get focus
@@ -4018,7 +4032,6 @@ void tst_QWidget::setFocus()
         QCOMPARE(window.focusWidget(), &child2);
         QCOMPARE(QApplication::focusWidget(), &child2);
     }
-
 
     {
         // window shown and active, children created, don't get focus, but get focus when shown
