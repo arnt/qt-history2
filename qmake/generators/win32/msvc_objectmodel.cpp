@@ -2199,18 +2199,23 @@ XmlOutput &operator<<(XmlOutput &xml, const VCProjectSingleConfig &tool)
             << tag(_Configurations)
             << tool.Configuration;
     xml     << closetag(_Configurations)
-            << tag(_Files)
-                << (VCFilter&)tool.SourceFiles
-                << (VCFilter&)tool.HeaderFiles
-                << (VCFilter&)tool.GeneratedFiles
-                << (VCFilter&)tool.LexYaccFiles
-                << (VCFilter&)tool.TranslationFiles
-                << (VCFilter&)tool.FormFiles
-                << (VCFilter&)tool.ResourceFiles;
-    for (int j = 0; j < tool.ExtraCompilersFiles.size(); ++j)
-        xml     << (VCFilter&)tool.ExtraCompilersFiles.at(j);
-    xml     << (VCFilter&)tool.RootFiles
-            << closetag(_Files)
+            << tag(_Files);
+    // Add this configuration into a multi-config project, since that's where we have the flat/tree
+    // XML output functionality
+    VCProject tempProj;
+    tempProj.SingleProjects += tool;
+    tempProj.outputFilter(xml, "Sources");
+    tempProj.outputFilter(xml, "Headers");
+    tempProj.outputFilter(xml, "GeneratedFiles");
+    tempProj.outputFilter(xml, "LexYaccFiles");
+    tempProj.outputFilter(xml, "TranslationFiles");
+    tempProj.outputFilter(xml, "FormFiles");
+    tempProj.outputFilter(xml, "ResourceFiles");
+    for (int x = 0; x < tempProj.ExtraCompilers.count(); ++x) {
+        tempProj.outputFilter(xml, tempProj.ExtraCompilers.at(x));
+    }
+    tempProj.outputFilter(xml, "RootFiles");
+    xml     << closetag(_Files)
             << tag(_Globals)
                 << data(); // No "/>" end tag
     return xml;
