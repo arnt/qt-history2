@@ -979,6 +979,7 @@ static bool findInBlock(const QTextBlock &block, const QRegExp &expression, int 
                 || (end != text.length() && text.at(end).isLetterOrNumber())) {
                 //if this is not a whole word, continue the search in the string
                 offset = (options & QTextDocument::FindBackward) ? idx-1 : end+1;
+                idx = -1;
                 continue;
             }
         }
