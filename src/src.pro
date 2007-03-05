@@ -81,7 +81,7 @@ for(subname, SRC_SUBDIRS) {
    subpro = $$subdir/$${basename(subdir)}.pro
    !exists($$subpro):next()
    subtarget = $$replace(subdir, [^A-Za-z0-9], _)
-   isEqual($$list($$fromfile($$subpro, TEMPLATE)), lib) {
+   isEqual($$list($$fromfile($$subpro, TEMPLATE)), lib):!separate_debug_info {
        #debug
        eval(debug-$${subtarget}.depends = $${subdir}/$(MAKEFILE) $$EXTRA_DEBUG_TARGETS)
        eval(debug-$${subtarget}.commands = (cd $$subdir && $(MAKE) -f $(MAKEFILE) debug))
