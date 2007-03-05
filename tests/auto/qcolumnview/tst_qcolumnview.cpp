@@ -87,7 +87,7 @@ void tst_QColumnView::cleanup()
 
 void tst_QColumnView::rootIndex()
 {
-    QColumnView view;
+    ColumnView view;
     // no model
     view.setRootIndex(QModelIndex());
 
@@ -97,12 +97,17 @@ void tst_QColumnView::rootIndex()
     QModelIndex drive = model.index(0, 0);
     QVERIFY(view.visualRect(drive).isValid());
     view.setRootIndex(QModelIndex());
+    QCOMPARE(view.HorizontalOffset(), 0);
     QCOMPARE(view.rootIndex(), QModelIndex());
     QVERIFY(view.visualRect(drive).isValid());
 
     QModelIndex home = model.index(QDir::homePath());
     QModelIndex homeFile = model.index(0, 0, home);
+    int i = 0;
+    while (i < model.rowCount(home) - 1 && !model.hasChildren(homeFile))
+        homeFile = model.index(++i, 0, home);
     view.setRootIndex(home);
+    QCOMPARE(view.HorizontalOffset(), 0);
     QCOMPARE(view.rootIndex(), home);
     QVERIFY(!view.visualRect(drive).isValid());
     QVERIFY(!view.visualRect(home).isValid());
@@ -111,11 +116,33 @@ void tst_QColumnView::rootIndex()
 
     // set root when there already is one
     view.setRootIndex(home);
+    view.setCurrentIndex(homeFile);
+    view.scrollTo(model.index(0,0, homeFile));
+    QCOMPARE(view.HorizontalOffset(), 0);
     QCOMPARE(view.rootIndex(), home);
     QVERIFY(!view.visualRect(drive).isValid());
     QVERIFY(!view.visualRect(home).isValid());
      if (homeFile.isValid())
         QVERIFY(view.visualRect(homeFile).isValid());
+
+    //
+    view.setRootIndex(home);
+    view.show();
+    i = 0;
+    QModelIndex two = model.index(0, 0, homeFile);
+    while (i < model.rowCount(homeFile) - 1 && !model.hasChildren(two))
+        two = model.index(++i, 0, homeFile);
+    view.setCurrentIndex(two);
+    qApp->processEvents();
+    view.scrollTo(two);
+    QTest::qWait(200);
+    qApp->processEvents();
+    QTest::qWait(200);
+    QVERIFY(two.isValid());
+    QVERIFY(view.HorizontalOffset() != 0);
+
+    view.setRootIndex(homeFile);
+    QCOMPARE(view.HorizontalOffset(), 0);
 }
 
 void tst_QColumnView::grips()
