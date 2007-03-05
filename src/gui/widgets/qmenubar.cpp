@@ -609,7 +609,6 @@ void QMenuBarPrivate::init()
         q->hide();
 #endif
     q->setBackgroundRole(QPalette::Button);
-    q->setAutoFillBackground(true);
     oldWindow = oldParent = 0;
 #ifdef QT3_SUPPORT
     doAutoResize = false;
