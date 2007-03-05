@@ -62,3 +62,8 @@ QSpinBox {
     -qt-style-features: background-color background-gradient;
     -qt-background-role: base;
 }
+
+QMenu {
+    -qt-background-role: button;
+}
+

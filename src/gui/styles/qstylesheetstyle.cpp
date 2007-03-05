@@ -282,6 +282,7 @@ static const char *knownStyleHints[] = {
     "lineedit-password-character",
     "menubar-altkey-navigation",
     "menubar-separator",
+    "menu-scrollable",
     "messagebox-text-interaction-flags",
     "mouse-tracking",
     "opacity",
@@ -1024,7 +1025,9 @@ void QRenderRule::getRadii(const QRect &br, QSize *tlr, QSize *trr, QSize *blr, 
 
 void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
 {
-    Q_ASSERT(hasBorder());
+    if (!hasBorder())
+        return;
+
     const QRectF br(rect);
     if (border()->hasBorderImage()) {
         drawBorderImage(p, rect);
@@ -1358,6 +1361,11 @@ enum PseudoElement {
     PseudoElement_ScrollBarLast,
     PseudoElement_ToolBarHandle,
     PseudoElement_ToolBarSeparator,
+    PseudoElement_MenuScroller,
+    PseudoElement_MenuTearoff,
+    PseudoElement_MenuCheckMark,
+    PseudoElement_MenuDefaultItem,
+    PseudoElement_MenuSeparator,
     NumPseudoElements
 };
 
@@ -1396,6 +1404,11 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_ScrollBarFirst, "first" },
     { QStyle::SC_ScrollBarLast, "last" },
     { QStyle::SC_None, "handle" },
+    { QStyle::SC_None, "separator" },
+    { QStyle::SC_None, "scroller" },
+    { QStyle::SC_None, "tearoff" },
+    { QStyle::SC_None, "indicator" },
+    { QStyle::SC_None, "default-item" },
     { QStyle::SC_None, "separator" }
 };
 
@@ -2433,17 +2446,64 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
     case CE_MenuEmptyArea:
     case CE_MenuBarEmptyArea:
-        if (rule.hasBackground()) {
+        if (rule.hasDrawable()) {
             return;
         }
         break;
 
     case CE_MenuTearoff:
     case CE_MenuScroller:
-        break;
+        if (const QStyleOptionMenuItem *m = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
+            QStyleOptionMenuItem mi(*m);
+            int pe = ce == CE_MenuTearoff ? PseudoElement_MenuTearoff : PseudoElement_MenuScroller;
+            QRenderRule subRule = renderRule(w, opt, pe);
+            mi.rect = subRule.contentsRect(opt->rect);
+            rule.configurePalette(&mi.palette, QPalette::ButtonText, QPalette::Button);
+            subRule.configurePalette(&mi.palette, QPalette::ButtonText, QPalette::Button);
+
+            if (subRule.hasDrawable()) {
+                subRule.drawRule(p, opt->rect);
+            } else {
+                baseStyle()->drawControl(ce, &mi, p, w);
+            }
+        }
+        return;
+
+    case CE_MenuItem:
+        if (const QStyleOptionMenuItem *m = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
+            QStyleOptionMenuItem mi(*m);
+            rule.configurePalette(&mi.palette, QPalette::ButtonText, QPalette::Button);
+
+            int pseudo;
+            if (mi.menuItemType == QStyleOptionMenuItem::Separator) {
+                pseudo = PseudoElement_MenuSeparator;
+            } else if (mi.menuItemType == QStyleOptionMenuItem::DefaultItem) {
+                pseudo = PseudoElement_MenuDefaultItem;
+            } else {
+                pseudo = PseudoElement_Item;
+            }
+            QRenderRule subRule = renderRule(w, opt, pseudo);
+            mi.rect = subRule.contentsRect(opt->rect);
+            subRule.configurePalette(&mi.palette, QPalette::ButtonText, QPalette::Button);
+            p->save();
+            p->setFont(subRule.font);
+
+            if (subRule.hasDrawable()
+                || (mi.menuItemType == QStyleOptionMenuItem::SubMenu && hasStyleRule(w, PseudoElement_LeftArrow))
+                || (mi.checkType != QStyleOptionMenuItem::NotCheckable && hasStyleRule(w, PseudoElement_MenuCheckMark))) {
+                subRule.drawRule(p, opt->rect);
+                if (pseudo != PseudoElement_MenuSeparator)
+                    QWindowsStyle::drawControl(ce, &mi, p, w);
+            } else {
+                baseStyle()->drawControl(ce, &mi, p, w);
+            }
+
+            p->restore();
+            return;
+        }
+        return;
 
     case CE_MenuBarItem:
-    case CE_MenuItem:
         if (const QStyleOptionMenuItem *m = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             QStyleOptionMenuItem mi(*m);
             QRenderRule subRule = renderRule(w, opt, PseudoElement_Item);
@@ -2595,7 +2655,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
                                      const QWidget *w) const
 {
     if (pe == PE_FrameStatusBar) {
-        if (hasStyleRule(w->parentWidget())) {
+        if (hasStyleRule(w->parentWidget(), PseudoElement_Item)) {
             QRenderRule subRule = renderRule(w->parentWidget(), opt, PseudoElement_Item);
             if (subRule.hasDrawable()) {
                 subRule.drawRule(p, opt->rect);
@@ -2700,29 +2760,34 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
 
     case PE_FrameMenu:
     case PE_PanelMenuBar:
-        if (rule.hasBorder()) {
+        if (rule.hasDrawable()) {
             rule.drawBorder(p, rule.borderRect(opt->rect));
             return;
         }
         break;
 
-        case PE_IndicatorToolBarSeparator:
+    case PE_IndicatorToolBarSeparator:
     case PE_IndicatorToolBarHandle: {
         PseudoElement ps = pe == PE_IndicatorToolBarHandle ? PseudoElement_ToolBarHandle : PseudoElement_ToolBarSeparator;
         QRenderRule subRule = renderRule(w, opt, ps);
-                if (subRule.hasDrawable()) {
-                        subRule.drawRule(p, opt->rect);
-                        return;
-                }
+        if (subRule.hasDrawable()) {
+            subRule.drawRule(p, opt->rect);
+            return;
+        }
                                     }
         break;
 
-    // Menu stuff that would be nice to customize
     case PE_IndicatorMenuCheckMark:
+        pseudoElement = PseudoElement_MenuCheckMark;
+        break;
+
     case PE_IndicatorArrowLeft:
+        pseudoElement = PseudoElement_LeftArrow;
+        break;
+
     case PE_IndicatorArrowRight:
-        baseStyle()->drawPrimitive(pe, opt, p, w);
-        return;
+        pseudoElement = PseudoElement_RightArrow;
+        break;
 
     case PE_PanelTipLabel:
         if (!rule.hasDrawable())
@@ -2868,15 +2933,15 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
             return rule.box()->paddings[LeftEdge];
         break;
 
-    case PM_ToolBarItemMargin:
-        if (rule.hasBox())
-            return rule.box()->margins[TopEdge];
-        break;
-
     case PM_MenuVMargin:
     case PM_MenuBarVMargin:
         if (rule.hasBox())
             return rule.box()->paddings[TopEdge];
+        break;
+
+    case PM_ToolBarItemMargin:
+        if (rule.hasBox())
+            return rule.box()->margins[TopEdge];
         break;
 
     case PM_ToolBarItemSpacing:
@@ -2886,8 +2951,14 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         break;
 
     case PM_MenuTearoffHeight:
-    case PM_MenuScrollerHeight:
+    case PM_MenuScrollerHeight: {
+        PseudoElement ps = m == PM_MenuTearoffHeight ? PseudoElement_MenuTearoff : PseudoElement_MenuScroller;
+        subRule = renderRule(w, opt, ps);
+        if (subRule.hasContentsSize())
+            return subRule.size().height();
         break;
+                                }
+
     case PM_ToolBarExtensionExtent:
         break;
 
@@ -2895,12 +2966,12 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_ToolBarHandleExtent: {
         PseudoElement ps = m == PM_ToolBarHandleExtent ? PseudoElement_ToolBarHandle : PseudoElement_ToolBarSeparator;
         subRule = renderRule(w, opt, ps);
-                if (subRule.hasContentsSize()) {
-                        QSize sz = subRule.size();
-                        return (opt && opt->state & QStyle::State_Horizontal) ? sz.width() : sz.height();
-                }
+        if (subRule.hasContentsSize()) {
+            QSize sz = subRule.size();
+            return (opt && opt->state & QStyle::State_Horizontal) ? sz.width() : sz.height();
+        }
+        break;
                                  }
-                break;
 
     case PM_SplitterWidth:
         if (rule.hasContentsSize())
@@ -3102,6 +3173,7 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
         case SH_ComboBox_Popup: s = QLatin1String("combobox-popup"); break;
         case SH_ComboBox_ListMouseTracking: s = QLatin1String("combobox-list-mousetracking"); break;
         case SH_MenuBar_AltKeyNavigation: s = QLatin1String("menubar-altkey-navigation"); break;
+        case SH_Menu_Scrollable: s = QLatin1String("menu-scrollable"); break;
         case SH_DrawMenuBarSeparator: s = QLatin1String("menubar-separator"); break;
         case SH_MenuBar_MouseTracking: s = QLatin1String("mouse-tracking"); break;
         case SH_SpinBox_ClickAutoRepeatRate: s = QLatin1String("spinbox-click-autorepeat-rate"); break;
