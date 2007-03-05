@@ -2201,7 +2201,7 @@ XmlOutput &operator<<(XmlOutput &xml, VCFilter &tool)
     for (int i = 0; i < tool.Files.count(); ++i) {
         const VCFilterFile &info = tool.Files.at(i);
         xml << tag(_File)
-                << attrS(_RelativePath, info.file)
+                << attrS(_RelativePath, Option::fixPathToLocalOS(info.file))
             << data(); // In case no custom builds, to avoid "/>" endings
         tool.outputFileConfig(xml, tool.Files.at(i).file);
         xml << closetag(_File);
@@ -2312,7 +2312,7 @@ void VCProject::outputFileConfigs(XmlOutput &xml,
                                   const QString &filtername)
 {
     xml << tag(_File)
-            << attrS(_RelativePath, info.file);
+            << attrS(_RelativePath, Option::fixPathToLocalOS(info.file));
     for (int i = 0; i < SingleProjects.count(); ++i) {
         VCFilter filter;
         if (filtername == "RootFiles") {
