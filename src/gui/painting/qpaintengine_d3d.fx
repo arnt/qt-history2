@@ -176,6 +176,7 @@ PS_OUTPUT MaskPS(VS_FULL In, float2 pixelPos : VPOS)
     
     if (g_mBrushMode == 1) {
         Out.Color = tex2D(PixmapSampler, In.TexCoords0.xy);
+        Out.Color.a = Out.Color.a * In.Diffuse.a;
     } else if (g_mBrushMode == 2) {
         Out.Color = tex1D(PixmapSampler, In.TexCoords0.x);
     } else if (g_mBrushMode == 3) {
@@ -233,7 +234,9 @@ float4 DirectSimplePS(float4 Color : COLOR0) : COLOR0
 float4 SimplePS(float4 Color : COLOR0, float4 TexCoords : TEXCOORD0) : COLOR0
 {
     if (g_mBrushMode == 1) {
+        float opacity = Color.a;
         Color = tex2D(PixmapSampler, TexCoords.xy);
+        Color.a = Color.a * opacity;
     } else if (g_mBrushMode == 2) {
         Color = tex1D(PixmapSampler, TexCoords.x);
     } else if (g_mBrushMode == 3) {

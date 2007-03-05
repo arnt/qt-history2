@@ -61,7 +61,7 @@
 #define QD3D_SET_MARK(output) \
     D3DPERF_SetMarker(0, QString(output).utf16());
 
-#define QT_VERTEX_RESET_LIMIT   25000
+#define QT_VERTEX_RESET_LIMIT   24576
 #define QT_VERTEX_BUF_SIZE      32768
 #define QD3DFVF_CSVERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE4(0) |  D3DFVF_TEXCOORDSIZE4(1))
 
@@ -645,16 +645,16 @@ private:
 class QD3DVertexBuffer : public QTessellator
 {
 public:
-    QD3DVertexBuffer(LPDIRECT3DDEVICE9 device, QD3DStateManager *statemanager, QD3DBatch *batch);
+    QD3DVertexBuffer(QDirect3DPaintEnginePrivate *pe);
     ~QD3DVertexBuffer();
 
     bool needsFlushing() const;
     QD3DMaskPosition allocateMaskPosition(const QRectF &brect, bool *breakbatch);
 
-    void setClipPath(const QPainterPath &path, QD3DBatchItem *item);
+    void setClipPath(const QPainterPath &path, QD3DBatchItem **item);
 
-    void queueAntialiasedMask(const QPolygonF &poly, QD3DBatchItem *item, const QRectF &brect);
-    QRectF queueAliasedMask(const QPainterPath &path, QD3DBatchItem *item);
+    void queueAntialiasedMask(const QPolygonF &poly, QD3DBatchItem **item, const QRectF &brect);
+    QRectF queueAliasedMask(const QPainterPath &path, QD3DBatchItem **item);
 
     void queueRect(const QRectF &rect, QD3DBatchItem *item, D3DCOLOR color, const QPolygonF &trect);
     void queueRect(const QRectF &rect, QD3DBatchItem *item, D3DCOLOR color);
@@ -669,12 +669,13 @@ public:
     void drawTextItem(QD3DBatchItem *item);
 
     void setMaskSize(QSize size);
-    void setEffect(ID3DXEffect* effect);
 
     void beforeReset();
     void afterReset();
 
     IDirect3DSurface9 *freeMaskSurface();
+
+    void lock();
     void unlock();
 
     inline int index() { return m_index; }
@@ -689,18 +690,13 @@ public:
 #endif
 
 private:
-    void lock();
-
     void addTrap(const Trapezoid &trap);
     void tessellate(const QPolygonF &poly);
     inline void lineToStencil(qreal x, qreal y);
     inline void curveToStencil(const QPointF &cp1, const QPointF &cp2, const QPointF &ep);
     QRectF pathToVertexArrays(const QPainterPath &path);
 
-    LPDIRECT3DDEVICE9 m_device;
-    QD3DBatch *m_batch;
-    ID3DXEffect *m_effect;
-    QD3DStateManager *m_statemanager;
+    QDirect3DPaintEnginePrivate *m_pe;
 
     qreal m_xoffset, m_yoffset;
     int m_startindex;
@@ -715,6 +711,9 @@ private:
     qreal max_y;
     qreal min_x;
     qreal min_y;
+    qreal firstx;
+    qreal firsty;
+
     QPointF tess_lastpoint;
     int tess_index;
     QD3DMaskAllocator m_maskallocator;
@@ -1464,10 +1463,9 @@ void QD3DMaskAllocator::setSize(int w, int h) {
 int QD3DStateManager::m_maskChannels[4][4] =
     {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 
-QD3DVertexBuffer::QD3DVertexBuffer(LPDIRECT3DDEVICE9 device, QD3DStateManager *statemanager, QD3DBatch *batch)
-    : m_device(device), m_batch(batch), m_statemanager(statemanager), m_d3dvbuff(0),
-      m_maskSurface(0), m_depthStencilSurface(0), m_locked(false), m_mask(0),
-      m_startindex(0), m_index(0), m_vbuff(0), m_clearmask(true)
+QD3DVertexBuffer::QD3DVertexBuffer(QDirect3DPaintEnginePrivate *pe)
+    : m_pe(pe), m_d3dvbuff(0), m_maskSurface(0), m_depthStencilSurface(0), 
+      m_locked(false), m_mask(0), m_startindex(0), m_index(0), m_vbuff(0), m_clearmask(true)
 {
     if (FAILED(D3DXMatrixIdentity(&m_d3dIdentityMatrix))) {
         qWarning("QDirect3DPaintEngine: D3DXMatrixIdentity failed");
@@ -1528,13 +1526,13 @@ void QD3DVertexBuffer::unlock()
     }
 }
 
-void QD3DVertexBuffer::setClipPath(const QPainterPath &path, QD3DBatchItem *item)
+void QD3DVertexBuffer::setClipPath(const QPainterPath &path, QD3DBatchItem **item)
 {
     lock();
 
-    m_item = item;
-    m_item->maskpos.x = item->maskpos.y = 0;
-    m_item->maskpos.channel = 3;
+    m_item = *item;
+    m_item->m_maskpos.x = m_item->m_maskpos.y = 0;
+    m_item->m_maskpos.channel = 3;
     m_item->m_info |= QD3DBatchItem::BI_CLIP;
 
     bool winding = (path.fillRule() == Qt::WindingFill);
@@ -1545,45 +1543,51 @@ void QD3DVertexBuffer::setClipPath(const QPainterPath &path, QD3DBatchItem *item
         m_item->m_info |= QD3DBatchItem::BI_MASK;
         m_item->m_info &= ~QD3DBatchItem::BI_AA;
         QRectF brect = pathToVertexArrays(path);
-        queueRect(brect, item, 0);
+        queueRect(brect, m_item, 0);
     }
+
+    *item = m_item;
 }
 
 
 
-void QD3DVertexBuffer::queueAntialiasedMask(const QPolygonF &poly, QD3DBatchItem *item, const QRectF &brect)
+void QD3DVertexBuffer::queueAntialiasedMask(const QPolygonF &poly, QD3DBatchItem **item, const QRectF &brect)
 {
     lock();
 
-    m_item = item;
+    m_item = *item;
     m_item->m_info |= QD3DBatchItem::BI_MASK;
     setWinding(m_item->m_info & QD3DBatchItem::BI_WINDING);
 
-    int xoffset = m_item->maskpos.x;
-    int yoffset = m_item->maskpos.y;
+    int xoffset = m_item->m_maskpos.x;
+    int yoffset = m_item->m_maskpos.y;
 
     int x = brect.left();
     int y = brect.top();
 
-    m_item->xoffset = (xoffset - x) + 1;
-    m_item->yoffset = (yoffset - y) + 1;
+    m_item->m_xoffset = (xoffset - x) + 1;
+    m_item->m_yoffset = (yoffset - y) + 1;
 
     m_boundingRect = brect;
     tessellate(poly);
+
+    *item = m_item;
 }
 
-QRectF QD3DVertexBuffer::queueAliasedMask(const QPainterPath &path, QD3DBatchItem *item)
+QRectF QD3DVertexBuffer::queueAliasedMask(const QPainterPath &path, QD3DBatchItem **item)
 {
     lock();
 
-    m_item = item;
+    m_item = *item;
     m_item->m_info |= QD3DBatchItem::BI_MASK;
 
     bool winding = (path.fillRule() == Qt::WindingFill);
     if (winding)
         m_item->m_info |= QD3DBatchItem::BI_WINDING;
 
-    return pathToVertexArrays(path);
+    QRectF result = pathToVertexArrays(path);
+    *item = m_item;
+    return result;
 }
 
 // used for drawing aliased transformed rects directly
@@ -1597,8 +1601,8 @@ void QD3DVertexBuffer::queueRect(const QRectF &rect, QD3DBatchItem *item, D3DCOL
 
     // if the item does not have a mask, the offset is different
     if (!(item->m_info & QD3DBatchItem::BI_MASK)) {
-        item->voffset = m_index;
-        item->trapcount = (item->m_info & QD3DBatchItem::BI_AA) ? 0 : -2;
+        item->m_offset = m_index;
+        item->m_count = (item->m_info & QD3DBatchItem::BI_AA) ? 0 : -2;
     }
 
     qreal x1 = rect.left();
@@ -1660,28 +1664,28 @@ void QD3DVertexBuffer::queueRect(const QRectF &rect, QD3DBatchItem *item, D3DCOL
     qreal zval = (item->m_info & QD3DBatchItem::BI_CLIP) ? 0.0f : 0.5f;
 
     if (item->m_info & QD3DBatchItem::BI_AA) {
-        int xoffset = item->maskpos.x;
-        int yoffset = item->maskpos.y;
+        int xoffset = item->m_maskpos.x;
+        int yoffset = item->m_maskpos.y;
 
         int x = rect.left();
         int y = rect.top();
 
         brect = QRectF(x, y, rect.width() + 1, rect.height() + 1);
 
-        item->xoffset = (xoffset - x) + 1;
-        item->yoffset = (yoffset - y) + 1;
+        item->m_xoffset = (xoffset - x) + 1;
+        item->m_yoffset = (yoffset - y) + 1;
 
         // if the item does not have a mask, the offset is different
         if (!(item->m_info & QD3DBatchItem::BI_MASK)) {
-            item->voffset = m_index;
-            item->trapcount = 0;
+            item->m_offset = m_index;
+            item->m_count = 0;
         }
     } else {
         brect = rect;
 
         if (!(item->m_info & QD3DBatchItem::BI_MASK)) {
-            item->voffset = m_index;
-            item->trapcount = -2;
+            item->m_offset = m_index;
+            item->m_count = -2;
         }
     }
 
@@ -1764,12 +1768,12 @@ void QD3DVertexBuffer::queueTextGlyph(const QRectF &rect, const qreal *tex_coord
     m_vbuff[m_index++] = v6;
 
     m_startindex = m_index;
-    ++item->trapcount;
+    ++item->m_count;
 }
 
 bool QD3DVertexBuffer::needsFlushing() const
 {
-    return (m_batch->m_itemIndex >= QD3D_BATCH_SIZE || m_startindex >= QT_VERTEX_RESET_LIMIT);
+    return (m_pe->m_batch.m_itemIndex >= QD3D_BATCH_SIZE || m_startindex >= QT_VERTEX_RESET_LIMIT);
 }
 
 void QD3DVertexBuffer::setMaskSize(QSize size)
@@ -1784,7 +1788,7 @@ void QD3DVertexBuffer::setMaskSize(QSize size)
     if (m_mask)
         m_mask->Release();
 
-    if (FAILED(m_device->CreateTexture(m_width, m_height, 1, D3DUSAGE_RENDERTARGET,
+    if (FAILED(m_pe->m_d3dDevice->CreateTexture(m_width, m_height, 1, D3DUSAGE_RENDERTARGET,
         D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_mask, NULL))) {
             qWarning() << "QDirect3DPaintEngine: CreateTexture() failed.";
     }
@@ -1792,28 +1796,22 @@ void QD3DVertexBuffer::setMaskSize(QSize size)
     if (m_depthStencilSurface)
         m_depthStencilSurface->Release();
 
-    if (FAILED(m_device->CreateDepthStencilSurface(m_width, m_height, D3DFMT_D24S8, D3DMULTISAMPLE_NONE, 0,
+    if (FAILED(m_pe->m_d3dDevice->CreateDepthStencilSurface(m_width, m_height, D3DFMT_D24S8, D3DMULTISAMPLE_NONE, 0,
                                                    TRUE, &m_depthStencilSurface, NULL))) {
             qWarning() << "QDirect3DPaintEngine: CreateDepthStencilSurface() failed.";
     }
 
-    m_device->SetDepthStencilSurface(m_depthStencilSurface);
+    m_pe->m_d3dDevice->SetDepthStencilSurface(m_depthStencilSurface);
 
     if (FAILED(m_mask->GetSurfaceLevel(0, &m_maskSurface))) {
         qWarning() << "QDirect3DPaintEngine: GetSurfaceLevel() failed.";
     }
 
-    m_device->ColorFill(m_maskSurface, 0, D3DCOLOR_ARGB(255,0,0,0));
+    m_pe->m_d3dDevice->ColorFill(m_maskSurface, 0, D3DCOLOR_ARGB(255,0,0,0));
     D3DXMATRIX projMatrix;
     D3DXMatrixOrthoOffCenterLH(&projMatrix, 0, m_width, m_height, 0, 0, 1);
-    m_effect->SetMatrix("g_mMaskProjection", &projMatrix);
-
-    m_effect->SetTexture("g_mAAMask", m_mask);
-}
-
-void QD3DVertexBuffer::setEffect(ID3DXEffect* effect)
-{
-    m_effect = effect;
+    m_pe->m_effect->SetMatrix("g_mMaskProjection", &projMatrix);
+    m_pe->m_effect->SetTexture("g_mAAMask", m_mask);
 }
 
 void QD3DVertexBuffer::beforeReset()
@@ -1842,14 +1840,14 @@ void QD3DVertexBuffer::beforeReset()
 
 void QD3DVertexBuffer::afterReset()
 {
-    if (FAILED(m_device->CreateVertexBuffer(QT_VERTEX_BUF_SIZE*sizeof(vertex), D3DUSAGE_DYNAMIC|D3DUSAGE_WRITEONLY,
+    if (FAILED(m_pe->m_d3dDevice->CreateVertexBuffer(QT_VERTEX_BUF_SIZE*sizeof(vertex), D3DUSAGE_DYNAMIC|D3DUSAGE_WRITEONLY,
         QD3DFVF_CSVERTEX,
         D3DPOOL_DEFAULT, &m_d3dvbuff, NULL))) {
             qWarning() << "QDirect3DPaintEngine: failed to create vertex buffer.";
     }
 
-    m_device->SetStreamSource(0, m_d3dvbuff, 0, sizeof(vertex));
-    m_device->SetFVF(QD3DFVF_CSVERTEX);
+    m_pe->m_d3dDevice->SetStreamSource(0, m_d3dvbuff, 0, sizeof(vertex));
+    m_pe->m_d3dDevice->SetFVF(QD3DFVF_CSVERTEX);
 
     m_startindex = 0;
     m_index = 0;
@@ -1867,21 +1865,21 @@ IDirect3DSurface9 *QD3DVertexBuffer::freeMaskSurface()
 int QD3DVertexBuffer::drawAntialiasedMask(int offset, int maxoffset)
 {
     int newoffset = offset;
-    QD3DBatchItem *item = &(m_batch->items[offset]);
+    QD3DBatchItem *item = &(m_pe->m_batch.items[offset]);
 
     // set mask as render target
-    if (FAILED(m_device->SetRenderTarget(0, m_maskSurface)))
+    if (FAILED(m_pe->m_d3dDevice->SetRenderTarget(0, m_maskSurface)))
         qWarning() << "QDirect3DPaintEngine: SetRenderTarget failed!";
 
     if (m_clearmask) {
-        m_device->Clear(0, 0, D3DCLEAR_TARGET,D3DCOLOR_ARGB(0,0,0,0), 0, 0);
+        m_pe->m_d3dDevice->Clear(0, 0, D3DCLEAR_TARGET,D3DCOLOR_ARGB(0,0,0,0), 0, 0);
         m_clearmask = false;
     }
 
     // fill the mask
-    m_effect->BeginPass(PASS_AA_CREATEMASK);
+    m_pe->m_effect->BeginPass(PASS_AA_CREATEMASK);
     for (; newoffset<maxoffset; ++newoffset) {
-        item = &(m_batch->items[newoffset]);
+        item = &(m_pe->m_batch.items[newoffset]);
         if (!(item->m_info & QD3DBatchItem::BI_AA) || !(item->m_info & QD3DBatchItem::BI_MASK)) {
             break;
         } else if (item->m_info & QD3DBatchItem::BI_MASKFULL) {
@@ -1890,77 +1888,76 @@ int QD3DVertexBuffer::drawAntialiasedMask(int offset, int maxoffset)
             break;
         }
 
-        m_statemanager->startStateBlock();
+        m_pe->m_statemanager->startStateBlock();
         if (item->m_info & QD3DBatchItem::BI_MASKSCISSOR) {
             RECT rect;
-            QRectF srect = item->m_brect.adjusted(item->xoffset, item->yoffset,
-                item->xoffset, item->yoffset);
+            QRectF srect = item->m_brect.adjusted(item->m_xoffset, item->m_yoffset,
+                item->m_xoffset, item->m_yoffset);
             rect.left = qMax(qRound(srect.left()), 0);
             rect.top = qMax(qRound(srect.top()), 0);
             rect.bottom = qMin(m_height, qRound(srect.bottom()));
             rect.right = qMin(m_width, qRound(srect.right()));
-            m_device->SetScissorRect(&rect);
-            m_statemanager->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
+            m_pe->m_d3dDevice->SetScissorRect(&rect);
+            m_pe->m_statemanager->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
         }
-        m_statemanager->setMaskChannel(item->maskpos.channel);
-        m_statemanager->endStateBlock();
+        m_pe->m_statemanager->setMaskChannel(item->m_maskpos.channel);
+        m_pe->m_statemanager->endStateBlock();
 
 #ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
-        int vbstart = item->voffset;
-        for (int i=vbstart; i<(vbstart + (item->trapcount * 3)); ++i) {
+        int vbstart = item->m_offset;
+        for (int i=vbstart; i<(vbstart + (item->m_count * 3)); ++i) {
             if (accesscontrol[i] != WRITE)
                 qDebug() << "Vertex Buffer: Access Error";
             accesscontrol[i] |= READ;
         }
 #endif
 
-        m_device->DrawPrimitive(D3DPT_TRIANGLELIST, item->voffset, item->trapcount);
+        m_pe->m_d3dDevice->DrawPrimitive(D3DPT_TRIANGLELIST, item->m_offset, item->m_count);
 
         if (item->m_info & QD3DBatchItem::BI_MASKSCISSOR) {
-            m_statemanager->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+            m_pe->m_statemanager->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
         }
     }
-    m_effect->EndPass();
+    m_pe->m_effect->EndPass();
 
     return newoffset;
 }
 
 void QD3DVertexBuffer::drawAliasedMask(int offset)
 {
-    QD3DBatchItem *item = &(m_batch->items[offset]);
+    QD3DBatchItem *item = &(m_pe->m_batch.items[offset]);
     if (item->m_info & QD3DBatchItem::BI_MASK) {
-        m_effect->BeginPass( (item->m_info & QD3DBatchItem::BI_WINDING) ? PASS_STENCIL_WINDING : PASS_STENCIL_ODDEVEN );
+        m_pe->m_effect->BeginPass( (item->m_info & QD3DBatchItem::BI_WINDING) ? PASS_STENCIL_WINDING : PASS_STENCIL_ODDEVEN );
         int prev_stop = 0;
-        for (int i=0; i<item->tess_points_stops.count(); ++i) {
-            int stop = item->tess_points_stops.at(i);
+        for (int i=0; i<item->m_pointstops.count(); ++i) {
+            int stop = item->m_pointstops.at(i);
 
 #ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
-            int vbstart = (item->voffset + prev_stop);
+            int vbstart = (item->m_offset + prev_stop);
             for (int j=vbstart; j<(vbstart+(stop - prev_stop)); ++j) {
                 if (accesscontrol[j] != WRITE)
                     qDebug() << "Vertex Buffer: Access Error";
                 accesscontrol[j] |= READ;
             }
 #endif
-
-            m_device->DrawPrimitive(D3DPT_TRIANGLEFAN, item->voffset + prev_stop, (stop - prev_stop) - 2);
+            m_pe->m_d3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, item->m_offset + prev_stop, (stop - prev_stop) - 2);
             prev_stop = stop;
         }
-        m_effect->EndPass();
+        m_pe->m_effect->EndPass();
     }
 }
 
 void QD3DVertexBuffer::drawTextItem(QD3DBatchItem *item)
 {
 #ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
-    int vbstart = item->voffset;
-    for (int j=vbstart; j<(vbstart + ((item->trapcount * 2) * 3)); ++j) {
+    int vbstart = item->m_offset;
+    for (int j=vbstart; j<(vbstart + ((item->m_count * 2) * 3)); ++j) {
         if (accesscontrol[j] != WRITE)
             qDebug() << "Vertex Buffer: Access Error";
         accesscontrol[j] |= READ;
     }
 #endif
-    m_device->DrawPrimitive(D3DPT_TRIANGLELIST, item->voffset, item->trapcount*2);
+    m_pe->m_d3dDevice->DrawPrimitive(D3DPT_TRIANGLELIST, item->m_offset, item->m_count*2);
 }
 
 void QD3DVertexBuffer::drawAntialiasedBoundingRect(QD3DBatchItem *item)
@@ -1971,12 +1968,12 @@ void QD3DVertexBuffer::drawAntialiasedBoundingRect(QD3DBatchItem *item)
         rect.top = qMax(qRound(item->m_brect.top()), 0);
         rect.bottom = qMin(m_height, qRound(item->m_brect.bottom()));
         rect.right = qMin(m_width, qRound(item->m_brect.right()));
-        m_device->SetScissorRect(&rect);
-        m_statemanager->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
+        m_pe->m_d3dDevice->SetScissorRect(&rect);
+        m_pe->m_statemanager->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
     }
 
 #ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
-    int vbstart = item->voffset + (item->trapcount * 3);
+    int vbstart = item->m_offset + (item->m_count * 3);
     for (int j=vbstart; j<(vbstart + 4); ++j) {
         if (accesscontrol[j] != WRITE)
             qDebug() << "Vertex Buffer: Access Error";
@@ -1984,17 +1981,17 @@ void QD3DVertexBuffer::drawAntialiasedBoundingRect(QD3DBatchItem *item)
     }
 #endif
 
-    m_device->DrawPrimitive(D3DPT_TRIANGLEFAN, item->voffset + (item->trapcount * 3), 2);
+    m_pe->m_d3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, item->m_offset + (item->m_count * 3), 2);
 
     if (item->m_info & QD3DBatchItem::BI_SCISSOR) {
-        m_statemanager->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+        m_pe->m_statemanager->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
     }
 }
 
 void QD3DVertexBuffer::drawAliasedBoundingRect(QD3DBatchItem *item)
 {
 #ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
-    int vbstart = (item->voffset + item->trapcount + 2);
+    int vbstart = (item->m_offset + item->m_count + 2);
     for (int j=vbstart; j<(vbstart + 4); ++j) {
         if (accesscontrol[j] != WRITE)
             qDebug() << "Vertex Buffer: Access Error";
@@ -2002,7 +1999,7 @@ void QD3DVertexBuffer::drawAliasedBoundingRect(QD3DBatchItem *item)
     }
 #endif
 
-    m_device->DrawPrimitive(D3DPT_TRIANGLEFAN, item->voffset + item->trapcount + 2, 2);
+    m_pe->m_d3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, item->m_offset + item->m_count + 2, 2);
 }
 
 void QD3DVertexBuffer::addTrap(const Trapezoid &trap)
@@ -2063,11 +2060,25 @@ void QD3DVertexBuffer::addTrap(const Trapezoid &trap)
     m_vbuff[m_index++] = v4;
     m_vbuff[m_index++] = v5;
     m_vbuff[m_index++] = v6;
+
+    // check if buffer is full
+    if (m_index >= (QT_VERTEX_BUF_SIZE - 16)) {
+        m_item->m_offset = m_startindex;
+        m_item->m_count = ( m_index - m_startindex ) / 3;
+        m_startindex = m_index;
+
+        QD3DBatchItem itemcopy = *m_item;
+        m_item = m_pe->nextBatchItem();
+        *m_item = itemcopy;
+        m_item->m_info &= ~QD3DBatchItem::BI_MASKFULL;
+
+        lock();
+    }
 }
 
 void QD3DVertexBuffer::tessellate(const QPolygonF &poly) {
-    int xoffset = m_item->maskpos.x;
-    int yoffset = m_item->maskpos.y;
+    int xoffset = m_item->m_maskpos.x;
+    int yoffset = m_item->m_maskpos.y;
 
     int x = m_boundingRect.left();
     int y = m_boundingRect.top();
@@ -2076,8 +2087,8 @@ void QD3DVertexBuffer::tessellate(const QPolygonF &poly) {
 
     QTessellator::tessellate(poly.data(), poly.count());
 
-    m_item->voffset = m_startindex;
-    m_item->trapcount = ( m_index - m_startindex ) / 3;
+    m_item->m_offset = m_startindex;
+    m_item->m_count = ( m_index - m_startindex ) / 3;
     m_startindex = m_index;
 }
 
@@ -2085,29 +2096,62 @@ inline void QD3DVertexBuffer::lineToStencil(qreal x, qreal y)
 {
     tess_lastpoint = QPointF(x, y);
 
-    /*qreal rx = (int)(x + 0.999f);
-    qreal ry = (int)(y + 0.999f);*/
-    qreal rx = x;
-    qreal ry = y;
+#ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
+    if (m_index > QT_VERTEX_BUF_SIZE)
+        qDebug() << "Vertex Buffer: Buffer overflow";
+    if (accesscontrol[m_index] != CLEAR)
+        qDebug() << "Vertex Buffer: Access Error";
+    accesscontrol[m_index] |= WRITE;
+#endif
 
-    vertex v = {D3DXVECTOR3(rx , ry, 0.5f), 0.f,
+    vertex v = {D3DXVECTOR3(x , y, 0.5f), 0.f,
         0.f, 0.f, 0.f, 0.f,
         0.f, 0.f, 0.f, 0.f};
 
-    if (m_index < (QT_VERTEX_BUF_SIZE - 10)) {
+    m_vbuff[m_index++] = v;
+    ++tess_index;
+
+    // check if buffer is full
+    if (m_index >= (QT_VERTEX_BUF_SIZE - 16)) {
+        int firstindex = m_startindex;
+        if (!m_item->m_pointstops.isEmpty())
+            firstindex = m_item->m_pointstops.last();
+
+        vertex first = m_vbuff[firstindex];
+
+        // finish current polygon
+        m_item->m_pointstops.append(tess_index);
+        m_item->m_offset = m_startindex;
+        m_startindex = m_index;
+
+        // copy item
+        QD3DBatchItem itemcopy = *m_item;
+        m_item = m_pe->nextBatchItem();
+        *m_item = itemcopy;
+
+        // start new polygon
+        lock();
+        tess_index = 2;
+        m_item->m_pointstops.clear();
 
 #ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
-        if (m_index > QT_VERTEX_BUF_SIZE)
-            qDebug() << "Vertex Buffer: Buffer overflow";
+        if (accesscontrol[m_index] != CLEAR)
+            qDebug() << "Vertex Buffer: Access Error";
+        accesscontrol[m_index] |= WRITE;
+#endif
+
+        m_vbuff[m_index++] = first;
+
+#ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
         if (accesscontrol[m_index] != CLEAR)
             qDebug() << "Vertex Buffer: Access Error";
         accesscontrol[m_index] |= WRITE;
 #endif
 
         m_vbuff[m_index++] = v;
-    }
 
-    ++tess_index;
+        qDebug() << "Splitt";
+    }
 
     if (x > max_x)
         max_x = x;
@@ -2154,18 +2198,20 @@ inline void QD3DVertexBuffer::curveToStencil(const QPointF &cp1, const QPointF &
 QRectF QD3DVertexBuffer::pathToVertexArrays(const QPainterPath &path)
 {
     const QPainterPath::Element &first = path.elementAt(0);
-    min_x = max_x = first.x;
-    min_y = max_y = first.y;
+    firstx = first.x;
+    firsty = first.y;
+    min_x = max_x = firstx;
+    min_y = max_y = firsty;
 
     tess_index = 0;
-    m_item->tess_points_stops.clear();
-    lineToStencil(first.x, first.y);
+    m_item->m_pointstops.clear();
+    lineToStencil(firstx, firsty);
 
     for (int i=1; i<path.elementCount(); ++i) {
         const QPainterPath::Element &e = path.elementAt(i);
         switch (e.type) {
         case QPainterPath::MoveToElement:
-            m_item->tess_points_stops.append(tess_index);
+            m_item->m_pointstops.append(tess_index);
             lineToStencil(e.x, e.y);
             break;
         case QPainterPath::LineToElement:
@@ -2180,12 +2226,11 @@ QRectF QD3DVertexBuffer::pathToVertexArrays(const QPainterPath &path)
         }
     }
 
-    lineToStencil(first.x, first.y);
-    m_item->tess_points_stops.append(tess_index);
+    lineToStencil(firstx, firsty);
+    m_item->m_pointstops.append(tess_index);
 
-    m_item->voffset = m_startindex;
-    m_item->trapcount = ( m_index - m_startindex ) - 2;
-
+    m_item->m_offset = m_startindex;
+    m_item->m_count = ( m_index - m_startindex ) - 2;
     m_startindex = m_index;
 
     QRectF result;
@@ -2332,7 +2377,7 @@ void QDirect3DPaintEnginePrivate::updateClipRegion(const QRegion &clipregion, Qt
 
     QPainterPath path;
     path.addRegion(crgn);
-    m_vBuffer->setClipPath(path, item);
+    m_vBuffer->setClipPath(path, &item);
 }
 
 void QDirect3DPaintEnginePrivate::updateFont(const QFont &)
@@ -2486,7 +2531,7 @@ void QDirect3DPaintEnginePrivate::fillAliasedPath(QPainterPath path, const QRect
     if (!txform.isIdentity())
         path = txform.map(path);
 
-    QRectF txrect = m_vBuffer->queueAliasedMask(path, item);
+    QRectF txrect = m_vBuffer->queueAliasedMask(path, &item);
 
     QRectF trect;
     QPolygonF txcoord;
@@ -2498,21 +2543,25 @@ void QDirect3DPaintEnginePrivate::fillAliasedPath(QPainterPath path, const QRect
             item->m_brush = m_pen.brush();
             item->m_info |= QD3DBatchItem::BI_COMPLEXBRUSH;
             item->m_opacity = m_opacity;
+            solid_color = m_opacityColor;
+        } else {
+            solid_color = m_penColor;
         }
-        solid_color = m_penColor;
     } else {
         if (m_brush_style != Qt::SolidPattern) {
             has_complex_brush = true;
             item->m_brush = m_brush;
             item->m_info |= QD3DBatchItem::BI_COMPLEXBRUSH;
             item->m_opacity = m_opacity;
+            solid_color = m_opacityColor;
+        } else {
+            solid_color = m_brushColor;
         }
-        solid_color = m_brushColor;
     }
 
     if (has_complex_brush) {
         trect = brect;
-        txcoord = brushCoordinates(brect, stroke, &item->m_textWidth);
+        txcoord = brushCoordinates(brect, stroke, &item->m_width);
         item->m_info |= QD3DBatchItem::BI_TRANSFORM;
         item->m_matrix = m_d3dxmatrix;
     } else {
@@ -2564,14 +2613,18 @@ void QDirect3DPaintEnginePrivate::fillAntialiasedPath(const QPainterPath &path, 
         if (m_pen_brush_style != Qt::SolidPattern) {
             has_complex_brush = true;
             brush = m_pen.brush();
+            solid_color = m_opacityColor;
+        } else {
+            solid_color = m_penColor;
         }
-        solid_color = m_penColor;
     } else {
         if (m_brush_style != Qt::SolidPattern) {
             has_complex_brush = true;
             brush = m_brush;
+            solid_color = m_opacityColor;
+        } else {
+            solid_color = m_brushColor;
         }
-        solid_color = m_brushColor;
     }
 
     qreal focaldist = 0;
@@ -2597,8 +2650,8 @@ void QDirect3DPaintEnginePrivate::fillAntialiasedPath(const QPainterPath &path, 
         }
 
         item = nextBatchItem();
-        item->maskpos = maskpos;
-        item->m_textWidth = focaldist;
+        item->m_maskpos = maskpos;
+        item->m_width = focaldist;
 
         if (has_complex_brush) {
             item->m_info |= QD3DBatchItem::BI_SCISSOR|QD3DBatchItem::BI_COMPLEXBRUSH|
@@ -2622,7 +2675,7 @@ void QDirect3DPaintEnginePrivate::fillAntialiasedPath(const QPainterPath &path, 
         }
 
         QPolygonF poly = polys.at(i);
-        m_vBuffer->queueAntialiasedMask(poly, item, txrect);
+        m_vBuffer->queueAntialiasedMask(poly, &item, txrect);
     }
 
     m_vBuffer->queueRect(trect, item, solid_color, txcoord);
@@ -2639,6 +2692,9 @@ void QDirect3DPaintEnginePrivate::fillPath(const QPainterPath &path, QRectF brec
 
     if (stroke) {
         tpath = strokeForPath(path, m_pen);
+        if (tpath.isEmpty())
+            return;
+
         if (!brect.isNull()) {
             // brect is set when the path is transformed already,
             // this is the case when we have a cosmetic pen.
@@ -2663,7 +2719,6 @@ void QDirect3DPaintEnginePrivate::fillPath(const QPainterPath &path, QRectF brec
 bool QDirect3DPaintEnginePrivate::init()
 {
     m_currentState = 0;
-    m_font = 0;
     m_inScene = false;
 #ifdef QT_DEBUG_D3D_CALLS
     qDebug() << "QDirect3DPaintEnginePrivate::init()";
@@ -2712,10 +2767,8 @@ bool QDirect3DPaintEnginePrivate::init()
         if (m_effect) {
             m_statemanager = new QD3DStateManager(m_d3dDevice, m_effect);
             m_effect->SetStateManager(m_statemanager);
-            m_vBuffer = new QD3DVertexBuffer(m_d3dDevice, m_statemanager, &m_batch);
+            m_vBuffer = new QD3DVertexBuffer(this);
             initDevice();
-
-            m_vBuffer->setEffect(m_effect);
             m_gradCache = new QD3DGradientCache(m_d3dDevice);
         }
     }
@@ -2745,7 +2798,7 @@ void QDirect3DPaintEnginePrivate::updatePen(const QPen &pen)
         m_pen_brush_style = m_pen.brush().style();
         int a, r, g, b;
         m_pen.color().getRgb(&r, &g, &b, &a);
-        m_penColor = D3DCOLOR_ARGB(a,r,g,b);
+        m_penColor = D3DCOLOR_ARGB((int)(a * m_opacity),r,g,b);
         has_cosmetic_pen = m_pen.isCosmetic();
 
         if (m_pen_brush_style != Qt::NoBrush &&
@@ -2769,7 +2822,7 @@ void QDirect3DPaintEnginePrivate::updateBrush(const QBrush &brush)
     if (has_brush) {
         int a, r, g, b;
         m_brush.color().getRgb(&r, &g, &b, &a);
-        m_brushColor = D3DCOLOR_ARGB(a,r,g,b);
+        m_brushColor = D3DCOLOR_ARGB((int)(a * m_opacity),r,g,b);
 
         if (m_brush_style != Qt::SolidPattern) {
             bool ok;
@@ -2866,8 +2919,8 @@ void QDirect3DPaintEnginePrivate::prepareItem(QD3DBatchItem *item) {
     }
 
     if (item->m_info & QD3DBatchItem::BI_AA) {
-        m_statemanager->setMaskChannel(item->maskpos.channel);
-        m_statemanager->setMaskOffset(item->xoffset, item->yoffset);
+        m_statemanager->setMaskChannel(item->m_maskpos.channel);
+        m_statemanager->setMaskOffset(item->m_xoffset, item->m_yoffset);
     }
 
     if (item->m_info & QD3DBatchItem::BI_COMPLEXBRUSH) {
@@ -2893,7 +2946,7 @@ void QDirect3DPaintEnginePrivate::prepareItem(QD3DBatchItem *item) {
                 m_statemanager->setTexture(m_gradCache->
                     getBuffer(brush.gradient()->stops(), item->m_opacity),
                     brush.gradient()->spread());
-                m_statemanager->setFocalDistance(item->m_textWidth);
+                m_statemanager->setFocalDistance(item->m_width);
                 brushmode = 4;
                 break;
         };
@@ -3249,7 +3302,7 @@ void QDirect3DPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const 
     item->m_info = QD3DBatchItem::BI_PIXMAP|QD3DBatchItem::BI_TRANSFORM;
     item->m_pixmap = pxm;
     item->m_matrix = d->m_d3dxmatrix;
-    d->m_vBuffer->queueRect(r, item, 0, txrect);
+    d->m_vBuffer->queueRect(r, item, d->m_opacityColor, txrect);
 }
 
 void QDirect3DPaintEngine::drawPoints(const QPointF *points, int pointCount)
@@ -3354,14 +3407,16 @@ void QDirect3DPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textI
     qd3d_glyph_cache()->cacheGlyphs(this, ti, glyphs, d->cleartype_text);
     QD3DFontTexture *font_tex = qd3d_glyph_cache()->fontTexture(ti.fontEngine);
 
-    // ### check buffer size limit crap
+    // ### check buffer size limit
     QD3DBatchItem *item = d->nextBatchItem();
+    d->m_vBuffer->lock();
+
     item->m_info = QD3DBatchItem::BI_TEXT
         | (d->m_currentState & ~QD3DBatchItem::BI_AA) | QD3DBatchItem::BI_TRANSFORM;
     item->m_texture = font_tex->texture;
-    item->voffset = d->m_vBuffer->index();
+    item->m_offset = d->m_vBuffer->index();
     item->m_matrix = d->m_d3dxmatrix;
-    item->trapcount = 0;
+    item->m_count = 0;
     item->m_brush = d->m_pen.brush();
 
     for (int i=0; i< glyphs.size(); ++i) {
@@ -3412,6 +3467,9 @@ void QDirect3DPaintEngine::updateState(const QPaintEngineState &state)
             d->m_opacity = 1.0f;
         if (d->m_opacity < 0.f)
             d->m_opacity = 0.f;
+        uint c = (d->m_opacity * 255);
+        d->m_opacityColor = D3DCOLOR_ARGB(c,c,c,c);
+        flags |= (DirtyPen | DirtyBrush);
     }
 
     if (flags & DirtyCompositionMode) {

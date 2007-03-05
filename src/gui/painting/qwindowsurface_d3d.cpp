@@ -107,8 +107,6 @@ void QD3DWindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoint 
 
 void QD3DWindowSurface::setGeometry(const QRect &rect)
 {
-    qDebug() << "QD3DWindowSurface::setGeometry" << rect;
-
     if (rect.isEmpty())
         qt_d3dEngine()->releaseSwapChain(d_ptr->m_widget);
 

@@ -184,29 +184,26 @@ struct QD3DBatchItem {
 
     int m_info;
 
-    int trapcount;
-    int voffset;
-    QD3DMaskPosition maskpos;
-    qreal xoffset, yoffset;
+    int m_count;
+    int m_offset;
+    
+    QD3DMaskPosition m_maskpos;
+    qreal m_xoffset;
+    qreal m_yoffset;
     qreal m_opacity;
 
     QPixmap m_pixmap;
     QRectF m_brect;
-
     QBrush m_brush;
 
     IDirect3DTexture9 *m_texture;
 
-    LPD3DXFONT m_font;
-    QString m_text;
-    qreal m_textWidth;
-    qreal m_textHeight;
-    QPointF m_textPoint;
+    qreal m_width;
 
     D3DXMATRIX m_matrix;
     QPainter::CompositionMode m_cmode;
     
-    QVector<int> tess_points_stops;
+    QVector<int> m_pointstops;
 };
 
 class QD3DBatch {
@@ -283,6 +280,7 @@ public:
     QRegion m_clipRegion;
 
     qreal m_opacity;
+    D3DCOLOR m_opacityColor;
 
     int m_currentState;
 
@@ -316,9 +314,6 @@ public:
     QTransform::TransformationCodes m_txop;
 
     QPainter::CompositionMode m_cmode;
-
-    LPD3DXFONT m_font;
-    QD3DFontCache *m_fontcache;
 
     QD3DWindowManager m_winManager;
     QSize m_winSize;
