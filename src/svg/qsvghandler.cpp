@@ -1961,6 +1961,60 @@ static void parseCompOp(QSvgNode *node,
     }
 }
 
+static inline QSvgNode::DisplayMode displayStringToEnum(const QString &str)
+{
+    if (str == QLatin1String("inline")) {
+        return QSvgNode::InlineMode;
+    } else if (str == QLatin1String("block")) {
+        return QSvgNode::BlockMode;
+    } else if (str == QLatin1String("list-item")) {
+        return QSvgNode::ListItemMode;
+    } else if (str == QLatin1String("run-in")) {
+        return QSvgNode::RunInMode;
+    } else if (str == QLatin1String("compact")) {
+        return QSvgNode::CompactMode;
+    } else if (str == QLatin1String("marker")) {
+        return QSvgNode::MarkerMode;
+    } else if (str == QLatin1String("table")) {
+        return QSvgNode::TableMode;
+    } else if (str == QLatin1String("inline-table")) {
+        return QSvgNode::InlineTableMode;
+    } else if (str == QLatin1String("table-row")) {
+        return QSvgNode::TableRowGroupMode;
+    } else if (str == QLatin1String("table-header-group")) {
+        return QSvgNode::TableHeaderGroupMode;
+    } else if (str == QLatin1String("table-footer-group")) {
+        return QSvgNode::TableFooterGroupMode;
+    } else if (str == QLatin1String("table-row")) {
+        return QSvgNode::TableRowMode;
+    } else if (str == QLatin1String("table-column-group")) {
+        return QSvgNode::TableColumnGroupMode;
+    } else if (str == QLatin1String("table-column")) {
+        return QSvgNode::TableColumnMode;
+    } else if (str == QLatin1String("table-cell")) {
+        return QSvgNode::TableCellMode;
+    } else if (str == QLatin1String("table-caption")) {
+        return QSvgNode::TableCaptionMode;
+    } else if (str == QLatin1String("none")) {
+        return QSvgNode::NoneMode;
+    } else if (str == QLatin1String("inherit")) {
+        return QSvgNode::InheritMode;
+    }
+    return QSvgNode::BlockMode;
+}
+
+static void parseOthers(QSvgNode *node,
+                        const QXmlStreamAttributes &attributes,
+                        QSvgHandler *)
+{
+    QString displayStr = attributes.value(QLatin1String("display")).toString();
+    displayStr = displayStr.trimmed();
+
+    if (!displayStr.isEmpty()) {
+        node->setDisplayMode(displayStringToEnum(displayStr));
+    }
+}
+
 static bool parseStyle(QSvgNode *node,
                        const QXmlStreamAttributes &attrs,
                        QSvgHandler *handler)
@@ -1979,12 +2033,11 @@ static bool parseStyle(QSvgNode *node,
     parseVisibility(node, attributes, handler);
     parseOpacity(node, attributes, handler);
     parseCompOp(node, attributes, handler);
+    parseOthers(node, attributes, handler);
 #if 0
     value = attributes.value("audio-level");
 
     value = attributes.value("color-rendering");
-
-    value = attributes.value("display");
 
     value = attributes.value("display-align");
 

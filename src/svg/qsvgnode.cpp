@@ -18,7 +18,8 @@
 
 QSvgNode::QSvgNode(QSvgNode *parent)
     : m_parent(parent),
-      m_visible(true)
+      m_visible(true),
+      m_displayMode(BlockMode)
 {
 }
 
@@ -271,4 +272,14 @@ void QSvgNode::setNodeId(const QString &i)
 void QSvgNode::setXmlClass(const QString &str)
 {
     m_class = str;
+}
+
+void QSvgNode::setDisplayMode(DisplayMode mode)
+{
+    m_displayMode = mode;
+}
+
+QSvgNode::DisplayMode QSvgNode::displayMode() const
+{
+    return m_displayMode;
 }
