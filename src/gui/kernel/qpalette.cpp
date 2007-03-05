@@ -369,8 +369,10 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     "base" rather than literal colors like "red" or "turquoise". The color
     roles are enumerated and defined in the \l ColorRole documentation.
 
-    We strongly recommend that you use a system-supplied color group
-    and modify that as necessary.
+				We strongly recommend that you use the default palette of the
+				current style (returned by QApplication::standardPalette()) and
+				modify that as necessary. This is done by Qt's widgets when they
+				are drawn.
 
     To modify a color group you call the functions
     setColor() and setBrush(), depending on whether you want a pure
