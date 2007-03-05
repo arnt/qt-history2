@@ -799,7 +799,9 @@ void tst_QGridLayout::minMaxSize()
         }
 
         m_toplevel->show();
+#if defined(Q_WS_X11)
         qt_x11_wait_for_window_manager(m_toplevel);     // wait for the show
+#endif
         QTest::qWait(200);                              // wait for the implicit adjustSize
         // If the following fails we might have to wait longer.
         // If that does not help there is likely a problem with the implicit adjustSize in show()
@@ -1382,7 +1384,9 @@ void tst_QGridLayout::layoutSpacingImplementation()
     QApplication::setStyle(style);
 
     widget->show();
-    QApplication::processEvents();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(widget);     // wait for the show
+#endif
 
     QLayout *layout = widget->layout();
     QVERIFY(layout);
