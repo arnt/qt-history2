@@ -562,6 +562,11 @@ void QColumnViewPrivate::closeColumns(const QModelIndex &parent, bool build)
             notShownAnymore->deleteLater();
     }
 
+    if (columns.isEmpty()) {
+        offset = 0;
+        updateScrollbars();
+    }
+
     // Now fill in missing columns
     while (!dirsToAppend.isEmpty())
         createColumn(dirsToAppend.takeLast(), true);
