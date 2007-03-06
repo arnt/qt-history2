@@ -438,11 +438,11 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
 #ifndef __LP64__
     else {
         // The road less travelled; use KeyTranslate
-        void *keyboard_layout;
+        const void *keyboard_layout;
         KeyboardLayoutRef keyLayoutRef = 0;
         KLGetCurrentKeyboardLayout(&keyLayoutRef);
         err = KLGetKeyboardLayoutProperty(keyLayoutRef, kKLKCHRData,
-                                  const_cast<const void **>(reinterpret_cast<void **>(&keyboard_layout)));
+                                  reinterpret_cast<const void **>(&keyboard_layout));
 
         int translatedChar = KeyTranslate(keyboard_layout, (GetCurrentEventKeyModifiers() &
                                                              (kEventKeyModifierNumLockMask|shiftKey|cmdKey|
@@ -530,7 +530,7 @@ QKeyMapperPrivate::updateKeyboard()
     OSStatus err;
     if(keyLayoutRef != 0) {
         err = KLGetKeyboardLayoutProperty(keyLayoutRef, kKLuchrData,
-                                  const_cast<const void **>(reinterpret_cast<void **>(&uchrData)));
+                                  const_cast<const void **>(reinterpret_cast<const void **>(&uchrData)));
         if(err != noErr) {
             qWarning("Qt::internal::unable to get unicode keyboardlayout %ld %s:%d",
                      long(err), __FILE__, __LINE__);
