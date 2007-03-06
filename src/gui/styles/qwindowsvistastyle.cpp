@@ -766,17 +766,16 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                 if (vertical) {
                     int maxHeight = option->rect.height();
                     int minHeight = 0;
-                    int height = isIndeterminate ? maxHeight: qMax(int((((progress - qint64(bar->minimum)))
-                                                             / double(qint64(bar->maximum) - qint64(bar->minimum))) * maxHeight), minHeight);
+                    double vc6_workaround = ((progress - qint64(bar->minimum)) / double(qint64(bar->maximum) - qint64(bar->minimum))) * maxHeight;
+                    int height = isIndeterminate ? maxHeight: qMax(int(vc6_workaround), minHeight);
                     theme.rect.setHeight(height);
                     if (!inverted)
                         theme.rect.moveTop(rect.height() - theme.rect.height());
-                }
-                else{
+                } else {
                     int maxWidth = option->rect.width();
                     int minWidth = 0;
-                    int width = isIndeterminate ? maxWidth : qMax(int((((progress - qint64(bar->minimum)))
-                                                             / double(qint64(bar->maximum) - qint64(bar->minimum))) * maxWidth), minWidth);
+                    double vc6_workaround = ((progress - qint64(bar->minimum)) / double(qint64(bar->maximum) - qint64(bar->minimum))) * maxWidth;
+                    int width = isIndeterminate ? maxWidth : qMax(int(vc6_workaround), minWidth);
                     theme.rect.setWidth(width);
                     if (reverse) {
                         theme.rect = QStyle::visualRect(bar->direction, option->rect, theme.rect);
