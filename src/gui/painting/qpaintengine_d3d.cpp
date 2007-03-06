@@ -2755,8 +2755,6 @@ void QDirect3DPaintEnginePrivate::fillAntialiasedPath(const QPainterPath &path, 
     // txcoord = the texture coordinates
     // adj_txrect = adjusted rect to include aliased outline
 
-    QD3DBatchItem *item = nextBatchItem();
-
     bool use_scissor = false;
     if (txrect.left() < 0) {
         txrect.adjust(-txrect.left(),0,0,0);
@@ -2769,6 +2767,8 @@ void QDirect3DPaintEnginePrivate::fillAntialiasedPath(const QPainterPath &path, 
 
     if (!txrect.isValid())
         return;
+
+    QD3DBatchItem *item = nextBatchItem();
 
     QRectF adj_txrect = txrect.adjusted(-1,-1,1,1);
     QRectF trect;
