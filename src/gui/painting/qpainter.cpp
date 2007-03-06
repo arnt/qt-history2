@@ -5182,6 +5182,8 @@ void QPainter::fillRect(const QRect &r, const QBrush &brush)
         return;
 
     Q_D(QPainter);
+    // ### This optimization currently results in broken gradients
+#if 0
     if (d->fillrect_func && !(d->state->renderHints & QPainter::Antialiasing)
         && d->state->txop <= QTransform::TxTranslate)
     {
@@ -5193,6 +5195,7 @@ void QPainter::fillRect(const QRect &r, const QBrush &brush)
         ((d->engine)->*(d->fillrect_func))(rt, brush);
         return;
     }
+#endif
 
     QPen oldPen   = pen();
     bool swap = oldPen.style() != Qt::NoPen;
