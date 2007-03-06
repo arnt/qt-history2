@@ -1194,7 +1194,8 @@ void QXmlStreamReaderPrivate::resolveTag()
 
         for (int j = 0; j < i; ++j) {
             if (attributes[j].name() == attribute.name()
-                && attributes[j].namespaceUri() == attribute.namespaceUri())
+                && attributes[j].namespaceUri() == attribute.namespaceUri()
+                && (namespaceProcessing || attributes[j].qualifiedName() == attribute.qualifiedName()))
                 raiseWellFormedError(QObject::tr("Attribute redefined."));
         }
     }
