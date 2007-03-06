@@ -607,38 +607,43 @@ void tst_QTreeWidget::selectedItems_data()
     ListIntList expectedItems;
 
     selectedItems.clear(); hiddenItems.clear(); expectedItems.clear();
-    selectedItems << (IntList() << 0);
-    expectedItems << (IntList() << 0);
+    selectedItems
+        << (IntList()
+            << 0);
+    expectedItems
+        << (IntList() << 0);
     QTest::newRow("2 top with 2 children, closed, top0 selected, no hidden")
         << 2 << 2 << true << selectedItems << hiddenItems << expectedItems;
 
     selectedItems.clear(); hiddenItems.clear(); expectedItems.clear();
-    selectedItems << (IntList() << 0 << 0);
-    expectedItems << (IntList() << 0 << 0);
+    selectedItems
+        << (IntList()
+            << 0 << 0);
+    expectedItems
+        << (IntList() << 0 << 0);
     QTest::newRow("2 top with 2 children, closed, top0child0 selected, no hidden")
         << 2 << 2 << true << selectedItems << hiddenItems << expectedItems;
 
     selectedItems.clear(); hiddenItems.clear(); expectedItems.clear();
-    selectedItems << (IntList() << 0 << 0);
-    expectedItems << (IntList() << 0 << 0);
+    selectedItems
+        << (IntList()
+            << 0 << 0);
+    expectedItems
+        << (IntList()
+            << 0 << 0);
     QTest::newRow("2 top with 2 children, open, top0child0 selected, no hidden")
         << 2 << 2 << false << selectedItems << hiddenItems << expectedItems;
 
     selectedItems.clear(); hiddenItems.clear(); expectedItems.clear();
     selectedItems << (IntList() << 0);
     hiddenItems << (IntList() << 0);
-#if QT_VERSION >= 0x040100
-    expectedItems << (IntList() << 0);
-#endif
     QTest::newRow("2 top with 2 children, closed, top0 selected, top0 hidden")
         << 2 << 2 << true << selectedItems << hiddenItems << expectedItems;
 
     selectedItems.clear(); hiddenItems.clear(); expectedItems.clear();
     selectedItems << (IntList() << 0 << 0);
     hiddenItems << (IntList() << 0);
-#if QT_VERSION >= 0x040100
     expectedItems << (IntList() << 0 << 0);
-#endif
     QTest::newRow("2 top with 2 children, closed, top0child0 selected, top0 hidden")
         << 2 << 2 << true << selectedItems << hiddenItems << expectedItems;
 
@@ -672,11 +677,9 @@ void tst_QTreeWidget::selectedItems_data()
     hiddenItems
         << (IntList() << 0);
     expectedItems
-#if QT_VERSION >= 0x040100
-        << (IntList() << 0)
+        //<< (IntList() << 0)
         << (IntList() << 0 << 0)
         << (IntList() << 0 << 1)
-#endif
         << (IntList() << 1)
         << (IntList() << 1 << 0)
         << (IntList() << 1 << 1);
@@ -697,13 +700,11 @@ void tst_QTreeWidget::selectedItems_data()
     expectedItems
         << (IntList() << 0)
         << (IntList() << 0 << 0)
-#if QT_VERSION >= 0x040100
-        << (IntList() << 0 << 1)
-        << (IntList() << 1)
+        //<< (IntList() << 0 << 1)
+        //<< (IntList() << 1)
         << (IntList() << 1 << 0)
-        << (IntList() << 1 << 1)
-#endif
-        ;
+        << (IntList() << 1 << 1);
+
     QTest::newRow("2 top with 2 children, closed, all selected, top0child1 and top1")
         << 2 << 2 << true << selectedItems << hiddenItems << expectedItems;
 
@@ -771,17 +772,18 @@ void tst_QTreeWidget::selectedItems()
             else
                 item = item->child(index);
         }
+        if (item)
         QVERIFY(sel.contains(item));
     }
 
     // compare isSelected
     for (int t=0; t<testWidget->topLevelItemCount(); ++t) {
         QTreeWidgetItem *top = testWidget->topLevelItem(t);
-        if (testWidget->isItemSelected(top))
+        if (testWidget->isItemSelected(top) && !testWidget->isItemHidden(top))
             QVERIFY(sel.contains(top));
         for (int c=0; c<top->childCount(); ++c) {
             QTreeWidgetItem *child = top->child(c);
-            if (testWidget->isItemSelected(child))
+            if (testWidget->isItemSelected(child) && !testWidget->isItemHidden(child))
                 QVERIFY(sel.contains(child));
         }
     }
