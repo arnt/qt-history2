@@ -380,7 +380,13 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         dialog = popup = false;                        // force these flags off
         data.crect.setRect(0, 0, sw, sh);
     } else if (topLevel && !q->testAttribute(Qt::WA_Resized)) {
-        data.crect.setSize(QSize(sw/2, 4*sh/10));
+        int width = sw / 2;
+        int height = 4 * sh / 10;
+        if (extra) {
+            width = qMax(qMin(width, extra->maxw), extra->minw);
+            height = qMax(qMin(height, extra->maxh), extra->minh);
+        }
+        data.crect.setSize(QSize(width, height));
     }
 
     parentw = topLevel ? root_win : parentWidget->internalWinId();
