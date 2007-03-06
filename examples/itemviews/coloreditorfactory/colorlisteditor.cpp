@@ -22,7 +22,7 @@ ColorListEditor::ColorListEditor(QWidget *widget) : QComboBox(widget)
 
 QColor ColorListEditor::color() const
 {
-    return itemData(currentIndex(), Qt::DecorationRole).value<QColor>();
+    return qVariantValue<QColor>(itemData(currentIndex(), Qt::DecorationRole));
 }
 
 void ColorListEditor::setColor(QColor color)
