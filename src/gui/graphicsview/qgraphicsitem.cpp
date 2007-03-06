@@ -5391,7 +5391,7 @@ class QGraphicsTextItemPrivate
 {
 public:
     QGraphicsTextItemPrivate()
-        : control(0), pageNumber(0)
+        : control(0), pageNumber(0), moving(false)
     { }
 
     mutable QTextControl *control;
@@ -5405,9 +5405,11 @@ public:
     void _q_updateBoundingRect(const QSizeF &);
     void _q_update(QRectF);
     void _q_ensureVisible(QRectF);
+    bool _q_mouseOnEdge(QGraphicsSceneMouseEvent *);
 
     QRectF boundingRect;
     int pageNumber;
+    bool moving;
 
     QGraphicsTextItem *qq;
 };
@@ -5688,7 +5690,9 @@ bool QGraphicsTextItem::sceneEvent(QEvent *event)
 void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsItem::mousePressEvent(event);
-    if (!hasFocus())
+    dd->moving = (event->buttons() & Qt::LeftButton) && (dd->moving || dd->_q_mouseOnEdge(event));
+
+    if (!hasFocus() || dd->moving)
         return;
 
     dd->sendControlEvent(event);
@@ -5699,7 +5703,7 @@ void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 */
 void QGraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!hasFocus()) {
+    if (!hasFocus() || dd->moving) {
         QGraphicsItem::mouseMoveEvent(event);
         return;
     }
@@ -5712,6 +5716,9 @@ void QGraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 */
 void QGraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+    if ((event->buttons() & Qt::LeftButton) == 0)
+        dd->moving = false;
+
     if (!hasFocus()) {
         QGraphicsItem::mouseReleaseEvent(event);
         return;
@@ -5953,6 +5960,21 @@ QTextControl *QGraphicsTextItemPrivate::textControl() const
         }
     }
     return control;
+}
+
+/*!
+    \internal
+*/
+bool QGraphicsTextItemPrivate::_q_mouseOnEdge(QGraphicsSceneMouseEvent *event)
+{
+    QPainterPath path;
+    path.addRect(qq->boundingRect());
+
+    QPainterPath docPath;
+    const qreal margin = control->document()->rootFrame()->frameFormat().margin();
+    docPath.addRect(qq->boundingRect().adjusted(margin, margin, -margin, -margin));
+
+    return path.subtracted(docPath).contains(event->pos());
 }
 
 /*!
