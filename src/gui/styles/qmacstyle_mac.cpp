@@ -3345,7 +3345,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             // outside world, unless they read the source, in which case, it's
             // their own fault).
             bool nonDefaultFont = p->font() != qt_app_fonts_hash()->value("QComboMenuItem");
-            if (verticalTabs || nonDefaultFont) {
+            if (verticalTabs || nonDefaultFont || !tab->icon.isNull()) {
                 int heightOffset = 0;
                 if (verticalTabs) {
                     heightOffset = -1;
