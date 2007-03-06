@@ -2115,7 +2115,9 @@ void QTreeWidgetPrivate::_q_emitItemEntered(const QModelIndex &index)
 void QTreeWidgetPrivate::_q_emitItemChanged(const QModelIndex &index)
 {
     Q_Q(QTreeWidget);
-    emit q->itemChanged(item(index), index.column());
+    QTreeWidgetItem *indexItem = item(index);
+    if (indexItem)
+        emit q->itemChanged(indexItem, index.column());
 }
 
 void QTreeWidgetPrivate::_q_emitItemExpanded(const QModelIndex &index)
