@@ -104,6 +104,13 @@
     <example filename="svgviewer" name="SVG Viewer" />
     <example filename="transformations" name="Transformations" />
   </category>
+  <category dirname="script" name="QtScript">
+    <example filename="calculator" name="Calculator" />
+    <example filename="context2d" name="Context2D" />
+    <example filename="defaultprototypes" name="Default Prototypes" />
+    <example filename="helloscript" name="Hello Script" />
+    <example filename="tetrix" name="Tetrix" />
+  </category>
   <category dirname="richtext" name="Rich Text">
     <example filename="calendar" name="Calendar" />
     <example filename="orderform" name="Order Form" />
