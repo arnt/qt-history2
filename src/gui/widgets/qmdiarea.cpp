@@ -765,6 +765,7 @@ void QMdiAreaPrivate::updateActiveWindow(int removedIndex)
     if (childWindows.isEmpty()) {
         indexToNextWindow = -1;
         indexToPreviousWindow = -1;
+        showActiveWindowMaximized = false;
         resetActiveWindow();
         return;
     }
@@ -1400,6 +1401,13 @@ bool QMdiArea::viewportEvent(QEvent *event)
             QObject *child = d->childWindows.at(i);
             if (!child || child == removedChild || !child->parent()
                     || child->parent() != viewport()) {
+                if (!testOption(DontMaximizeSubWindowOnActivation)) {
+                    // In this case we can only rely on the child being a QObject
+                    // (or 0), but let's try and see if we can get more information.
+                    QWidget *mdiChild = qobject_cast<QWidget *>(removedChild);
+                    if (mdiChild && mdiChild->isMaximized())
+                        d->showActiveWindowMaximized = true;
+                }
                 d->childWindows.removeAt(i);
                 d->indicesToStackedChildren.removeAll(i);
                 d->updateActiveWindow(i);
