@@ -31,6 +31,9 @@
 #include <qlocale.h>
 #include <qevent.h>
 
+#if defined (Q_WS_MAC) && defined(__LP64__)
+#include <private/qt_mac_p.h>
+#endif
 
 class QKeyMapperPrivate;
 class QKeyMapper : public QObject
@@ -99,6 +102,7 @@ struct QXCoreDesc {
 #endif
 
 struct KeyboardLayoutItem;
+typedef struct __TISInputSource * TISInputSourceRef;
 class QKeyEvent;
 class QKeyMapperPrivate : public QObjectPrivate
 {
@@ -150,10 +154,14 @@ public:
 
     enum { NullMode, UnicodeMode, OtherMode } keyboard_mode;
     union {
-        UCKeyboardLayout *unicode;
+        const UCKeyboardLayout *unicode;
         void *other;
     } keyboard_layout_format;
+#ifndef __LP64__
     KeyboardLayoutRef currentKeyboardLayout;
+#else
+    QCFType<TISInputSourceRef> currentInputSource;
+#endif
     KeyboardLayoutKind keyboard_kind;
     UInt32 keyboard_dead;
     KeyboardLayoutItem *keyLayout[256];

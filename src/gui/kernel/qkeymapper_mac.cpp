@@ -366,19 +366,34 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
 
     //get mac mapping
     static UInt32 tmp_unused_state = 0L;
+    const UCKeyboardLayout *uchrData = 0;
+#ifndef __LP64__
+    Q_UNUSED(er);
+    Q_UNUSED(outHandled);
     KeyboardLayoutRef keyLayoutRef = 0;
-    UCKeyboardLayout *uchrData = 0;
     KLGetCurrentKeyboardLayout(&keyLayoutRef);
     OSStatus err;
     if(keyLayoutRef != 0) {
         err = KLGetKeyboardLayoutProperty(keyLayoutRef, kKLuchrData,
-                                  const_cast<const void **>(reinterpret_cast<void **>(&uchrData)));
+                                  (reinterpret_cast<const void **>(&uchrData)));
         if(err != noErr) {
             qWarning("Qt::internal::unable to get keyboardlayout %ld %s:%d",
                      long(err), __FILE__, __LINE__);
         }
     }
-
+#else
+    QCFType<TISInputSourceRef> inputSource = TISCopyCurrentKeyboardInputSource();
+    if (!inputSource) {
+        qWarning("Qt: QKeyMapper::translateKeyEvent: could not get current keyboard input source (%s:%d)", __FILE__, __LINE__);
+        return false;
+    }
+    CFDataRef data = static_cast<CFDataRef>(TISGetInputSourceProperty(inputSource, kTISPropertyUnicodeKeyLayoutData));
+    if (!data) {
+        qWarning("Qt: QKeyMapper::translateKeyEvent: could not get current keyboard unicode layout data (%s:%d)", __FILE__, __LINE__);
+        return false;
+    }
+    uchrData = reinterpret_cast<const UCKeyboardLayout *>(CFDataGetBytePtr(data));
+#endif
     *qtKey = Qt::Key_unknown;
     if(uchrData) {
         // The easy stuff; use the unicode stuff!
@@ -419,7 +434,9 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
             qWarning("Qt::internal::UCKeyTranslate is returnining %ld %s:%d",
                      long(err), __FILE__, __LINE__);
         }
-    } else {
+    }
+#ifndef __LP64__
+    else {
         // The road less travelled; use KeyTranslate
         void *keyboard_layout;
         KeyboardLayoutRef keyLayoutRef = 0;
@@ -478,6 +495,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
             }
         }
     }
+#endif
     if(*qtKey == Qt::Key_unknown)
         *qtKey = qt_mac_get_key(*outModifiers, *outChar, keyCode);
     return true;
@@ -486,7 +504,11 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
 QKeyMapperPrivate::QKeyMapperPrivate()
 {
     memset(keyLayout, 0, sizeof(keyLayout));
+#ifndef __LP64__
     keyboard_mode = NullMode;
+#else
+    currentInputSource = 0;
+#endif
 }
 
 QKeyMapperPrivate::~QKeyMapperPrivate()
@@ -497,6 +519,8 @@ QKeyMapperPrivate::~QKeyMapperPrivate()
 bool
 QKeyMapperPrivate::updateKeyboard()
 {
+    const UCKeyboardLayout *uchrData = 0;
+#ifndef __LP64__
     KeyboardLayoutRef keyLayoutRef = 0;
     KLGetCurrentKeyboardLayout(&keyLayoutRef);
 
@@ -504,7 +528,6 @@ QKeyMapperPrivate::updateKeyboard()
         return false;
 
     OSStatus err;
-    UCKeyboardLayout *uchrData = 0;
     if(keyLayoutRef != 0) {
         err = KLGetKeyboardLayoutProperty(keyLayoutRef, kKLuchrData,
                                   const_cast<const void **>(reinterpret_cast<void **>(&uchrData)));
@@ -513,11 +536,25 @@ QKeyMapperPrivate::updateKeyboard()
                      long(err), __FILE__, __LINE__);
         }
     }
+#else
+    QCFType<TISInputSourceRef> source = TISCopyCurrentKeyboardInputSource();
+    if (keyboard_mode != NullMode && source == currentInputSource) {
+        return false;
+    }
 
+    if (source) {
+        CFDataRef data = static_cast<CFDataRef>(TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData));
+        uchrData = reinterpret_cast<const UCKeyboardLayout *>(CFDataGetBytePtr(data));
+    }
+#endif
+
+    keyboard_kind = LMGetKbdType();
     if(uchrData) {
         keyboard_layout_format.unicode = uchrData;
         keyboard_mode = UnicodeMode;
-    } else {
+    }
+#ifndef __LP64__
+    else {
         void *happy;
         err = KLGetKeyboardLayoutProperty(keyLayoutRef, kKLKCHRData,
                                   const_cast<const void **>(reinterpret_cast<void **>(&happy)));
@@ -529,18 +566,22 @@ QKeyMapperPrivate::updateKeyboard()
         keyboard_mode = OtherMode;
     }
 
-    keyboard_kind = LMGetKbdType();
     currentKeyboardLayout = keyLayoutRef;
+#else
+    currentInputSource = source;
+#endif
     keyboard_dead = 0;
-#ifndef kKLLanguageCode
-#define kKLLanguageCode 9
-#endif
     CFStringRef iso639Code;
-#ifndef kKLLanguageCode
-#define kKLLanguageCode 9
-#endif
+#ifndef __LP64__
+# ifndef kKLLanguageCode
+# define kKLLanguageCode 9
+# endif
     KLGetKeyboardLayoutProperty(currentKeyboardLayout, kKLLanguageCode,
                                 reinterpret_cast<const void **>(&iso639Code));
+#else
+    CFArrayRef array = static_cast<CFArrayRef>(TISGetInputSourceProperty(currentInputSource, kTISPropertyInputSourceLanguages));
+    iso639Code = static_cast<CFStringRef>(CFArrayGetValueAtIndex(array, 0)); // Actually a RFC3066bis, but it's close enough
+#endif
     if (iso639Code) {
         keyboardInputLocale = QLocale(QCFString::toQString(iso639Code));
         QString monday = keyboardInputLocale.dayName(1);
