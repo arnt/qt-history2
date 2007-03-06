@@ -2232,9 +2232,8 @@ void QDateTimeEditPrivate::positionCalendarPopup()
             pos.setX(qMax(pos.x()-size.width(), screen.right()-size.width()));
     } else {
         if (pos.x()+size.width() > screen.right())
-            pos.setX(qMin(pos.x()-size.width(), screen.right()-size.width()));
-        else if (pos.x() < screen.left())
-            pos.setX(qMax(pos.x(), screen.left()));
+            pos.setX(screen.right()-size.width());
+        pos.setX(qMax(pos.x(), screen.left()));
     }
     if (pos.y() + size.height() > screen.bottom())
         pos.setY(pos2.y() - size.height());
