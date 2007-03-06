@@ -649,11 +649,17 @@ void QDockWidgetPrivate::endDrag(bool abort)
                 if (state->ownWidgetItem)
                     delete state->widgetItem;
                 layout->restore();
-
+#ifdef Q_WS_X11
                 setWindowState(true); // gets rid of the X11BypassWindowManager window flag
                                       // and activates the resizer
-
+#else
+                QDockWidgetLayout *myLayout
+                    = qobject_cast<QDockWidgetLayout*>(q->layout());
+                resizer->setActive(QWidgetResizeHandler::Resize,
+                                    myLayout->widget(QDockWidgetLayout::TitleBar) == 0);
+#endif
                 undockedGeometry = q->geometry();
+                q->setActiveWindow();
             } else {
                 layout->revert(state->widgetItem);
             }
