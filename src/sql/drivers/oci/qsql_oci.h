@@ -26,9 +26,11 @@
 
 QT_BEGIN_HEADER
 
-class QOCIPrivate;
 class QOCIResultPrivate;
 class QOCIDriver;
+class QOCICols;
+struct QOCIDriverPrivate;
+struct QOCIResultPrivate;
 
 typedef struct OCIEnv OCIEnv;
 typedef struct OCISvcCtx OCISvcCtx;
@@ -36,10 +38,10 @@ typedef struct OCISvcCtx OCISvcCtx;
 class Q_EXPORT_SQLDRIVER_OCI QOCIResult : public QSqlCachedResult
 {
     friend class QOCIDriver;
-    friend class QOCIPrivate;
     friend class QOCIResultPrivate;
+    friend class QOCICols;
 public:
-    QOCIResult(const QOCIDriver * db, QOCIPrivate* p);
+    QOCIResult(const QOCIDriver * db, const QOCIDriverPrivate* p);
     ~QOCIResult();
     bool prepare(const QString& query);
     bool exec();
@@ -55,8 +57,7 @@ protected:
     void virtual_hook(int id, void *data);
 
 private:
-    QOCIPrivate*        d;
-    QOCIResultPrivate*  cols;
+    QOCIResultPrivate *d;
 };
 
 class Q_EXPORT_SQLDRIVER_OCI QOCIDriver : public QSqlDriver
@@ -90,7 +91,7 @@ protected:
     bool                commitTransaction();
     bool                rollbackTransaction();
 private:
-    QOCIPrivate*        d;
+    QOCIDriverPrivate *d;
 };
 
 QT_END_HEADER
