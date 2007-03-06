@@ -594,17 +594,35 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     lastPoint = widget->mapFromGlobal(QPoint(pt.x,pt.y));
     lastKeyState = grfKeyState;
 
+    choosenEffect = DROPEFFECT_NONE;
+    
     QMimeData * md = manager->source() ? manager->dragPrivate()->data : manager->dropData;
-    QDragEnterEvent e(lastPoint, translateToQDragDropActions(*pdwEffect), md,
+    QDragEnterEvent enterEvent(lastPoint, translateToQDragDropActions(*pdwEffect), md,
                       toQtMouseButtons(grfKeyState), toQtKeyboardModifiers(grfKeyState));
-    QApplication::sendEvent(widget, &e);
+    QApplication::sendEvent(widget, &enterEvent);
+    answerRect = enterEvent.answerRect();
+    
+    if (enterEvent.isAccepted()) {
+        choosenEffect = translateToWinDragEffects(enterEvent.dropAction());
+    }
 
+    // Documentation states that a drag move event is sendt immidiatly after
+    // a drag enter event. This will honour widgets overriding dragMoveEvent only:
+    if (enterEvent.isAccepted()) {
+        QDragMoveEvent moveEvent(lastPoint, translateToQDragDropActions(*pdwEffect), md,
+                                 toQtMouseButtons(grfKeyState), toQtKeyboardModifiers(grfKeyState));
+        answerRect = enterEvent.answerRect();
+        moveEvent.setDropAction(enterEvent.dropAction());
+        moveEvent.accept(); // accept by default, since enter event was accepted.
 
-    answerRect = e.answerRect();
-    if (e.isAccepted() && e.dropAction() != Qt::IgnoreAction)
-        choosenEffect = translateToWinDragEffects(e.dropAction());
-    else
-        choosenEffect = DROPEFFECT_NONE;
+        QApplication::sendEvent(widget, &moveEvent);
+        if (moveEvent.isAccepted()) {
+            answerRect = moveEvent.answerRect();
+            choosenEffect = translateToWinDragEffects(moveEvent.dropAction());
+        } else {
+            choosenEffect = DROPEFFECT_NONE;
+        }
+    }
     *pdwEffect = choosenEffect;
 
     return NOERROR;
