@@ -34,6 +34,8 @@
 
 extern QString qws_qtePipeFilename();
 
+#ifndef QT_NO_QWS_CURSOR
+
 inline void QVNCCursor::setDirty(const QRect &r) const
 {
     screen->d_ptr->setDirty(r, true);
@@ -76,6 +78,8 @@ void QVNCCursor::move(int x, int y)
             setDirty(rects.at(i));
     }
 }
+
+#endif // QT_NO_QWS_CURSOR
 
 QVNCScreenPrivate::QVNCScreenPrivate(QVNCScreen *parent)
     : doOnScreenSurface(false), refreshRate(25), vncServer(0),
@@ -1307,6 +1311,7 @@ static inline QImage::Format formatForDepth(int depth)
     }
 }
 
+#ifndef QT_NO_QWS_CURSOR
 static void blendCursor(QImage &image, const QRect &imageRect)
 {
     const QRect cursorRect = qt_screencursor->boundingRect();
@@ -1318,6 +1323,7 @@ static void blendCursor(QImage &image, const QRect &imageRect)
     painter.drawImage(destRect, qt_screencursor->image(), srcRect);
     painter.end();
 }
+#endif // QT_NO_QWS_CURSOR
 
 QVNCDirtyMap::QVNCDirtyMap(QScreen *s)
     : bytesPerPixel(0), numDirty(0), screen(s)
@@ -1490,7 +1496,8 @@ void QRfbHextileEncoder<SRC>::write()
                                       + rect.x * screenImage.depth() / 8;
             int linestep = screenImage.bytesPerLine();
 
-            // hardware cursors must be blended with the screen memory
+#ifndef QT_NO_QWS_CURSOR
+    // hardware cursors must be blended with the screen memory
             QImage tileImage;
             if (qt_screencursor->isAccelerated()) {
                 const QRect tileRect(rect.x, rect.y, rect.w, rect.h);
@@ -1504,6 +1511,7 @@ void QRfbHextileEncoder<SRC>::write()
                     linestep = tileImage.bytesPerLine();
                 }
             }
+#endif // QT_NO_QWS_CURSOR
 
             if (singleColorHextile.read(screendata, rect.w, rect.h, linestep)) {
                 singleColorHextile.write(socket);
@@ -1606,6 +1614,7 @@ void QRfbRawEncoder::write()
         const uchar *screendata = screenImage.scanLine(rect.y)
                                   + rect.x * screenImage.depth() / 8;
 
+#ifndef QT_NO_QWS_CURSOR
         // hardware cursors must be blended with the screen memory
         QImage tileImage;
         if (qt_screencursor->isAccelerated()) {
@@ -1619,6 +1628,7 @@ void QRfbRawEncoder::write()
                 linestep = tileImage.bytesPerLine();
             }
         }
+#endif // QT_NO_QWS_CURSOR
 
         if (server->doPixelConversion()) {
             const int bufferSize = rect.w * rect.h * bytesPerPixel;
