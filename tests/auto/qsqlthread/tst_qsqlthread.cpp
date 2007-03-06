@@ -20,6 +20,9 @@
 #include <pthread.h>
 #endif
 
+// set this define if Oracle is built with threading support
+//#define QOCI_THREADED
+
 class tst_QSqlThread : public QObject
 {
     Q_OBJECT
@@ -57,6 +60,8 @@ private slots:
     void readWriteFromSingleConnection();
     void preparedReadWriteFromSingleConnection_data() { generic_data(); }
     void preparedReadWriteFromSingleConnection();
+    void transactionsFromSingleConnection_data() { generic_data(); }
+    void transactionsFromSingleConnection();
 
 private:
     int threadFinishedCount;
@@ -458,6 +463,32 @@ void tst_QSqlThread::preparedReadWriteFromSingleConnection()
 
     while (threadFinishedCount < maxThreadCount * 2)
         QTest::qWait(100);
+#endif
+}
+
+void tst_QSqlThread::transactionsFromSingleConnection()
+{
+#ifdef QOCI_THREADED
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (db.databaseName() == ":memory:")
+        QSKIP("does not work with in-memory databases", SkipSingle);
+
+    // start and commit a transaction
+    QVERIFY_SQL(db, db.transaction());
+    preparedReadWriteFromSingleConnection(); // read and write from multiple threads
+    if (QTest::currentTestFailed())
+        return;
+    QVERIFY_SQL(db, db.commit());
+
+    // start and roll back a transaction
+    QVERIFY_SQL(db, db.transaction());
+    preparedReadWriteFromSingleConnection(); // read and write from multiple threads
+    if (QTest::currentTestFailed())
+        return;
+    QVERIFY_SQL(db, db.rollback());
 #endif
 }
 
