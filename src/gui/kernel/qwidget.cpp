@@ -1640,21 +1640,16 @@ bool QWidgetPrivate::isOpaque() const
     const QPalette &pal = q->palette();
 
     if (q->autoFillBackground()) {
-        const QBrush autoFillBrush = pal.brush(q->backgroundRole());
-        if (autoFillBrush != Qt::NoBrush && autoFillBrush.isOpaque())
+        const QBrush &autoFillBrush = pal.brush(q->backgroundRole());
+        if (autoFillBrush.style() != Qt::NoBrush && autoFillBrush.isOpaque())
             return true;
     }
 
-#ifdef Q_WS_QWS
     if (q->isWindow() && !q->testAttribute(Qt::WA_NoSystemBackground)) {
-        const QBrush windowBrush = q->palette().brush(QPalette::Window);
-        if (windowBrush != Qt::NoBrush && windowBrush.isOpaque())
+        const QBrush &windowBrush = q->palette().brush(QPalette::Window);
+        if (windowBrush.style() != Qt::NoBrush && windowBrush.isOpaque())
             return true;
     }
-#else
-    if (q->isWindow())
-        return true;
-#endif
 
     return false;
 }
