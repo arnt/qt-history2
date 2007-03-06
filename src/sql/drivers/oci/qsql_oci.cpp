@@ -46,6 +46,11 @@
 #define QOCI_DYNAMIC_CHUNK_SIZE 65535
 #define QOCI_PREFETCH_MEM  10240
 
+// setting this define will allow using a query from a different
+// thread than its database connection.
+// warning - this is not fully tested and can lead to race conditions
+//#define QOCI_THREADED
+
 Q_DECLARE_METATYPE(OCIEnv*)
 Q_DECLARE_METATYPE(OCIStmt*)
 
@@ -85,14 +90,14 @@ private:
 QOCIRowId::QOCIRowId(OCIEnv *env)
     : id(0)
 {
-    OCIDescriptorAlloc ((dvoid *) env, (dvoid **) &id, (ub4) OCI_DTYPE_ROWID,
-                        (size_t) 0, (dvoid **) 0);
+    OCIDescriptorAlloc (env, reinterpret_cast<dvoid **>(&id),
+                        OCI_DTYPE_ROWID, 0, 0);
 }
 
 QOCIRowId::~QOCIRowId()
 {
     if (id)
-        OCIDescriptorFree((dvoid *)id, (ub4) OCI_DTYPE_ROWID);
+        OCIDescriptorFree(id, OCI_DTYPE_ROWID);
 }
 
 typedef QSharedDataPointer<QOCIRowId> QOCIRowIdPointer;
@@ -149,22 +154,22 @@ void QOCIPrivate::setStatementAttributes()
     int r = 0;
 
     if (prefetchRows >= 0) {
-        r = OCIAttrSet((void*)sql,
+        r = OCIAttrSet(sql,
                        OCI_HTYPE_STMT,
-                       (void*) &prefetchRows,
-                       (ub4) 0,
-                       (ub4) OCI_ATTR_PREFETCH_ROWS,
+                       &prefetchRows,
+                       0,
+                       OCI_ATTR_PREFETCH_ROWS,
                        err);
         if (r != 0)
             qOraWarning("QOCIPrivate::setStatementAttributes:"
                         " Couldn't set OCI_ATTR_PREFETCH_ROWS: ", this);
     }
     if (prefetchMem >= 0) {
-        r = OCIAttrSet((void*)sql,
+        r = OCIAttrSet(sql,
                        OCI_HTYPE_STMT,
-                       (void*) &prefetchMem,
-                       (ub4) 0,
-                       (ub4) OCI_ATTR_PREFETCH_MEMORY,
+                       &prefetchMem,
+                       0,
+                       OCI_ATTR_PREFETCH_MEMORY,
                        err);
         if (r != 0)
             qOraWarning("QOCIPrivate::setStatementAttributes:"
@@ -178,12 +183,14 @@ void QOCIPrivate::setCharset(OCIBind* hbnd)
 
     Q_ASSERT(hbnd);
 
-    r = OCIAttrSet((void*)hbnd,
-                    OCI_HTYPE_BIND,
-                    (void*) &qOraCharset,
-                    (ub4) 0,
-                    (ub4) OCI_ATTR_CHARSET_ID,
-                    err);
+    r = OCIAttrSet(hbnd,
+                   OCI_HTYPE_BIND,
+                   // this const cast is safe since OCI doesn't touch
+                   // the charset.
+                   const_cast<void *>(static_cast<const void *>(&qOraCharset)),
+                   0,
+                   OCI_ATTR_CHARSET_ID,
+                   err);
     if (r != 0)
         qOraWarning("QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: ", this);
 }
@@ -198,10 +205,11 @@ int QOCIPrivate::bindValue(OCIStmt *sql, OCIBind **hbnd, OCIError *err, int pos,
     case QVariant::ByteArray:
         r = OCIBindByPos(sql, hbnd, err,
                          pos + 1,
-                         (dvoid *) ((QByteArray*)data)->constData(),
-                         ((QByteArray*)data)->size(),
-                         SQLT_BIN, indPtr, (ub2 *) 0, (ub2 *) 0,
-                         (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                         isOutValue(pos)
+                            ?  const_cast<char *>(reinterpret_cast<QByteArray *>(data)->constData())
+                            : reinterpret_cast<QByteArray *>(data)->data(),
+                         reinterpret_cast<QByteArray *>(data)->size(),
+                         SQLT_BIN, indPtr, 0, 0, 0, 0, OCI_DEFAULT);
         break;
     case QVariant::Time:
     case QVariant::Date:
@@ -209,35 +217,37 @@ int QOCIPrivate::bindValue(OCIStmt *sql, OCIBind **hbnd, OCIError *err, int pos,
         QByteArray ba = qMakeOraDate(val.toDateTime());
         r = OCIBindByPos(sql, hbnd, err,
                          pos + 1,
-                         (dvoid *) ba.constData(),
+                         ba.data(),
                          ba.size(),
-                         SQLT_DAT, indPtr, (ub2 *) 0, (ub2*) 0,
-                         (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                         SQLT_DAT, indPtr, 0, 0, 0, 0, OCI_DEFAULT);
         tmpStorage.append(ba);
         break; }
     case QVariant::Int:
         r = OCIBindByPos(sql, hbnd, err,
                          pos + 1,
-                         (dvoid *) data,
+                         // if it's an out value, the data is already detached
+                         // so the const cast is safe.
+                         const_cast<void *>(data),
                          sizeof(int),
-                         SQLT_INT, indPtr, (ub2 *) 0, (ub2*) 0,
-                         (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                         SQLT_INT, indPtr, 0, 0, 0, 0, OCI_DEFAULT);
         break;
     case QVariant::UInt:
         r = OCIBindByPos(sql, hbnd, err,
                          pos + 1,
-                         (dvoid *) data,
+                         // if it's an out value, the data is already detached
+                         // so the const cast is safe.
+                         const_cast<void *>(data),
                          sizeof(uint),
-                         SQLT_UIN, indPtr, (ub2 *) 0, (ub2*) 0,
-                         (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                         SQLT_UIN, indPtr, 0, 0, 0, 0, OCI_DEFAULT);
         break;
     case QVariant::Double:
         r = OCIBindByPos(sql, hbnd, err,
                          pos + 1,
-                         (dvoid *) data,
+                         // if it's an out value, the data is already detached
+                         // so the const cast is safe.
+                         const_cast<void *>(data),
                          sizeof(double),
-                         SQLT_FLT, indPtr, (ub2 *) 0, (ub2*) 0,
-                         (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                         SQLT_FLT, indPtr, 0, 0, 0, 0, OCI_DEFAULT);
         break;
     case QVariant::UserType:
         if (qVariantCanConvert<QOCIRowIdPointer>(val) && !isOutValue(pos)) {
@@ -248,8 +258,7 @@ int QOCIPrivate::bindValue(OCIStmt *sql, OCIBind **hbnd, OCIError *err, int pos,
                              // it's an IN value, so const_cast is ok
                              const_cast<OCIRowid **>(&rptr->id),
                              -1,
-                             SQLT_RDD, indPtr, (ub2 *) 0, (ub2 *) 0,
-                             (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                             SQLT_RDD, indPtr, 0, 0, 0, 0, OCI_DEFAULT);
         } else {
             qWarning("Unknown bind variable");
             r = OCI_ERROR;
@@ -260,19 +269,18 @@ int QOCIPrivate::bindValue(OCIStmt *sql, OCIBind **hbnd, OCIError *err, int pos,
         if (isBinaryValue(pos)) {
             r = OCIBindByPos(sql, hbnd, err,
                              pos + 1,
-                             (dvoid *) s.utf16(),
+                             const_cast<ushort *>(s.utf16()),
                              s.length() * sizeof(QChar),
-                             SQLT_LNG, indPtr, (ub2 *) 0, (ub2*) 0,
-                             (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                             SQLT_LNG, indPtr, 0, 0, 0, 0, OCI_DEFAULT);
             break;
         } else if (!isOutValue(pos)) {
             // don't detach the string
             r = OCIBindByPos(sql, hbnd, err,
                              pos + 1,
-                             (dvoid *)s.utf16(),
+                             // safe since oracle doesn't touch OUT values
+                             const_cast<ushort *>(s.utf16()),
                              (s.length() + 1) * sizeof(QChar),
-                             SQLT_STR, indPtr, (ub2 *) 0, (ub2*) 0,
-                             (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                             SQLT_STR, indPtr, 0, 0, 0, 0, OCI_DEFAULT);
             if (r == OCI_SUCCESS)
                 setCharset(*hbnd);
             break;
@@ -281,23 +289,21 @@ int QOCIPrivate::bindValue(OCIStmt *sql, OCIBind **hbnd, OCIError *err, int pos,
     default: {
         const QString s = val.toString();
         // create a deep-copy
-        QByteArray ba((char*)s.utf16(), (s.length() + 1) * sizeof(QChar));
+        QByteArray ba(reinterpret_cast<const char *>(s.utf16()), (s.length() + 1) * sizeof(QChar));
         if (isOutValue(pos)) {
             ba.reserve((s.capacity() + 1) * sizeof(QChar));
             *tmpSize = ba.size();
             r = OCIBindByPos(sql, hbnd, err,
                              pos + 1,
-                             (dvoid *)ba.constData(),
+                             ba.data(),
                              ba.capacity(),
-                             SQLT_STR, indPtr, tmpSize, (ub2*) 0,
-                             (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                             SQLT_STR, indPtr, tmpSize, 0, 0, 0, OCI_DEFAULT);
         } else {
             r = OCIBindByPos(sql, hbnd, err,
                              pos + 1,
-                             (dvoid *)ba.constData(),
+                             ba.data(),
                              ba.size(),
-                             SQLT_STR, indPtr, (ub2 *) 0, (ub2*) 0,
-                             (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                             SQLT_STR, indPtr, 0, 0, 0, 0, OCI_DEFAULT);
         }
         if (r == OCI_SUCCESS)
             setCharset(*hbnd);
@@ -386,14 +392,14 @@ QString qOraWarn(const QOCIPrivate* d)
     errbuf[0] = 0;
     errbuf[1] = 0;
 
-    OCIErrorGet((dvoid *)d->err,
-                (ub4) 1,
-                (text *)NULL,
+    OCIErrorGet(d->err,
+                1,
+                0,
                 &errcode,
                 errbuf,
-                (ub4)(sizeof(errbuf)),
+                sizeof(errbuf),
                 OCI_HTYPE_ERROR);
-    return QString::fromUtf16((const unsigned short *)errbuf);
+    return QString::fromUtf16(reinterpret_cast<const ushort *>(errbuf));
 }
 
 void qOraWarning(const char* msg, const QOCIPrivate* d)
@@ -404,11 +410,11 @@ void qOraWarning(const char* msg, const QOCIPrivate* d)
 static int qOraErrorNumber(const QOCIPrivate* d)
 {
     sb4 errcode;
-    OCIErrorGet((dvoid *)d->err,
-                (ub4) 1,
-                (text *) NULL,
+    OCIErrorGet(d->err,
+                1,
+                0,
                 &errcode,
-                NULL,
+                0,
                 0,
                 OCI_HTYPE_ERROR);
     return errcode;
@@ -536,40 +542,40 @@ static OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
     int r(0);
     QVariant::Type type(QVariant::Invalid);
 
-    r = OCIAttrGet((dvoid*)param,
-                    OCI_DTYPE_PARAM,
-                    &colType,
-                    0,
-                    OCI_ATTR_DATA_TYPE,
-                    p->err);
+    r = OCIAttrGet(param,
+                   OCI_DTYPE_PARAM,
+                   &colType,
+                   0,
+                   OCI_ATTR_DATA_TYPE,
+                   p->err);
     if (r != 0)
         qOraWarning("qMakeOraField:", p);
 
-    r = OCIAttrGet((dvoid*) param,
-                    OCI_DTYPE_PARAM,
-                    (dvoid**) &colName,
-                    (ub4 *) &colNameLen,
-                    (ub4) OCI_ATTR_NAME,
-                    p->err);
+    r = OCIAttrGet(param,
+                   OCI_DTYPE_PARAM,
+                   &colName,
+                   &colNameLen,
+                   OCI_ATTR_NAME,
+                   p->err);
     if (r != 0)
         qOraWarning("qMakeOraField:", p);
 
-    r = OCIAttrGet((dvoid*) param,
-    OCI_DTYPE_PARAM,
-                    &colLength,
-                    0,
-                    OCI_ATTR_DATA_SIZE, /* in bytes */
-                    p->err);
+    r = OCIAttrGet(param,
+                   OCI_DTYPE_PARAM,
+                   &colLength,
+                   0,
+                   OCI_ATTR_DATA_SIZE, /* in bytes */
+                   p->err);
     if (r != 0)
         qOraWarning("qMakeOraField:", p);
 
 #ifdef OCI_ATTR_CHAR_SIZE
-    r = OCIAttrGet((dvoid*) param,
-                    OCI_DTYPE_PARAM,
-                    &colFieldLength,
-                    0,
-                    OCI_ATTR_CHAR_SIZE,
-                    p->err);
+    r = OCIAttrGet(param,
+                   OCI_DTYPE_PARAM,
+                   &colFieldLength,
+                   0,
+                   OCI_ATTR_CHAR_SIZE,
+                   p->err);
     if (r != 0)
         qOraWarning("qMakeOraField:", p);
 #else
@@ -577,37 +583,37 @@ static OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
     colFieldLength = colLength;
 #endif
 
-    r = OCIAttrGet((dvoid*) param,
-                    OCI_DTYPE_PARAM,
-                    &colPrecision,
-                    0,
-                    OCI_ATTR_PRECISION,
-                    p->err);
+    r = OCIAttrGet(param,
+                   OCI_DTYPE_PARAM,
+                   &colPrecision,
+                   0,
+                   OCI_ATTR_PRECISION,
+                   p->err);
     if (r != 0)
         qOraWarning("qMakeOraField:", p);
 
-    r = OCIAttrGet((dvoid*) param,
-                    OCI_DTYPE_PARAM,
-                    &colScale,
-                    0,
-                    OCI_ATTR_SCALE,
-                    p->err);
+    r = OCIAttrGet(param,
+                   OCI_DTYPE_PARAM,
+                   &colScale,
+                   0,
+                   OCI_ATTR_SCALE,
+                   p->err);
     if (r != 0)
         qOraWarning("qMakeOraField:", p);
-    r = OCIAttrGet((dvoid*)param,
-                    OCI_DTYPE_PARAM,
-                    (dvoid*)&colType,
-                    0,
-                    OCI_ATTR_DATA_TYPE,
-                    p->err);
+    r = OCIAttrGet(param,
+                   OCI_DTYPE_PARAM,
+                   &colType,
+                   0,
+                   OCI_ATTR_DATA_TYPE,
+                   p->err);
     if (r != 0)
         qOraWarning("qMakeOraField:", p);
-    r = OCIAttrGet((dvoid*)param,
-                    OCI_DTYPE_PARAM,
-                    (dvoid*)&colIsNull,
-                    0,
-                    OCI_ATTR_IS_NULL,
-                    p->err);
+    r = OCIAttrGet(param,
+                   OCI_DTYPE_PARAM,
+                   &colIsNull,
+                   0,
+                   OCI_ATTR_IS_NULL,
+                   p->err);
     if (r != 0)
         qOraWarning("qMakeOraField:", p);
 
@@ -639,7 +645,7 @@ static OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
         colLength = 0;
 
     // colNameLen is length in bytes
-    ofi.name = QString((const QChar*)colName, colNameLen / 2);
+    ofi.name = QString(reinterpret_cast<const QChar*>(colName), colNameLen / 2);
     ofi.type = type;
     ofi.oraType = colType;
     ofi.oraFieldLength = colFieldLength;
@@ -677,7 +683,7 @@ QDateTime qMakeDate(const char* oraDate)
 {
     int century = oraDate[0];
     if(century >= 100){
-        int year    = (unsigned char)oraDate[1];
+        int year    = uchar(oraDate[1]);
         year = ((century-100)*100) + (year-100);
         int month = oraDate[2];
         int day   = oraDate[3];
@@ -724,14 +730,14 @@ private:
     };
 
     QVector<OraFieldInf> fieldInf;
-    QOCIPrivate* d;
+    const QOCIPrivate *const d;
 };
 
 QOCIResultPrivate::OraFieldInf::~OraFieldInf()
 {
     delete [] data;
     if (lob) {
-        int r = OCIDescriptorFree(lob, (ub4) OCI_DTYPE_LOB);
+        int r = OCIDescriptorFree(lob, OCI_DTYPE_LOB);
         if (r != 0)
             qWarning("QOCIResultPrivate: Cannot free LOB descriptor");
     }
@@ -749,10 +755,10 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
     ub4 count = 1;
     int idx = 0;
     parmStatus = OCIParamGet(d->sql,
-                              OCI_HTYPE_STMT,
-                              d->err,
-                              (void**)&param,
-                              count);
+                             OCI_HTYPE_STMT,
+                             d->err,
+                             reinterpret_cast<void **>(&param),
+                             count);
 
     while (parmStatus == OCI_SUCCESS) {
         OraFieldInfo ofi = qMakeOraField(d, param);
@@ -788,7 +794,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                create(idx, dataSize+1),
                                dataSize+1,
                                SQLT_DAT,
-                               (dvoid *) &(fieldInf[idx].ind),
+                               &(fieldInf[idx].ind),
                                0, 0, OCI_DEFAULT);
             break;
         case QVariant::Double:
@@ -799,7 +805,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                create(idx, sizeof(double) - 1),
                                sizeof(double),
                                SQLT_FLT,
-                               (dvoid *) &(fieldInf[idx].ind),
+                               &(fieldInf[idx].ind),
                                0, 0, OCI_DEFAULT);
             break;
         case QVariant::Int:
@@ -810,7 +816,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                create(idx, sizeof(qint32) - 1),
                                sizeof(qint32),
                                SQLT_INT,
-                               (dvoid *) &(fieldInf[idx].ind),
+                               &(fieldInf[idx].ind),
                                0, 0, OCI_DEFAULT);
             break;
         case QVariant::LongLong:
@@ -821,7 +827,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                create(idx, sizeof(OCINumber)),
                                sizeof(OCINumber),
                                SQLT_VNU,
-                               (dvoid *) &(fieldInf[idx].ind),
+                               &(fieldInf[idx].ind),
                                0, 0, OCI_DEFAULT);
             break;
         case QVariant::ByteArray:
@@ -835,34 +841,33 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                    create(idx, dataSize),
                                    dataSize,
                                    SQLT_BIN,
-                                   (dvoid *) &(fieldInf[idx].ind),
+                                   &(fieldInf[idx].ind),
                                    0, 0, OCI_DYNAMIC_FETCH);
             } else if (ofi.oraType == SQLT_LBI) {
 //                                    qDebug("binding SQLT_LBI");
                 r = OCIDefineByPos(d->sql,
-                                    &dfn,
-                                    d->err,
-                                    count,
-                                    0,
-                                    SB4MAXVAL,
-                                    SQLT_LBI,
-                                    (dvoid *) &(fieldInf[idx].ind),
-                                    0, 0, OCI_DYNAMIC_FETCH);
+                                   &dfn,
+                                   d->err,
+                                   count,
+                                   0,
+                                   SB4MAXVAL,
+                                   SQLT_LBI,
+                                   &(fieldInf[idx].ind),
+                                   0, 0, OCI_DYNAMIC_FETCH);
             } else if (ofi.oraType == SQLT_CLOB) {
                 r = OCIDefineByPos(d->sql, &dfn, d->err, count, createLobLocator(idx, d->env),
-                                   (sb4)-1, SQLT_CLOB, (dvoid *) &(fieldInf[idx].ind), 0,
-                                   0, OCI_DEFAULT);
+                                   -1, SQLT_CLOB, &(fieldInf[idx].ind), 0, 0, OCI_DEFAULT);
             } else {
 //                 qDebug("binding SQLT_BLOB");
                 r = OCIDefineByPos(d->sql,
-                                    &dfn,
-                                    d->err,
-                                    count,
-                                    createLobLocator(idx, d->env),
-                                    (sb4)-1,
-                                    SQLT_BLOB,
-                                    (dvoid *) &(fieldInf[idx].ind),
-                                    0, 0, OCI_DEFAULT);
+                                   &dfn,
+                                   d->err,
+                                   count,
+                                   createLobLocator(idx, d->env),
+                                   -1,
+                                   SQLT_BLOB,
+                                   &(fieldInf[idx].ind),
+                                   0, 0, OCI_DEFAULT);
             }
             break;
         case QVariant::String:
@@ -874,7 +879,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                         0,
                         SB4MAXVAL,
                         SQLT_LNG,
-                        (dvoid *) &(fieldInf[idx].ind),
+                        &(fieldInf[idx].ind),
                         0, 0, OCI_DYNAMIC_FETCH);
             } else {
                 dataSize += dataSize + sizeof(QChar);
@@ -886,7 +891,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                         create(idx, dataSize),
                         dataSize,
                         SQLT_STR,
-                        (dvoid *) &(fieldInf[idx].ind),
+                        &(fieldInf[idx].ind),
                         0, 0, OCI_DEFAULT);
                 if (r == 0)
                     setCharset(dfn);
@@ -903,7 +908,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                 create(idx, dataSize),
                                 dataSize+1,
                                 SQLT_STR,
-                                (dvoid *) &(fieldInf[idx].ind),
+                                &(fieldInf[idx].ind),
                                 0, 0, OCI_DEFAULT);
             break;
         }
@@ -915,7 +920,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
         parmStatus = OCIParamGet(d->sql,
                                   OCI_HTYPE_STMT,
                                   d->err,
-                                  (void**)&param,
+                                  reinterpret_cast<void **>(&param),
                                   count);
     }
 }
@@ -937,11 +942,11 @@ char* QOCIResultPrivate::create(int position, int size)
 OCILobLocator **QOCIResultPrivate::createLobLocator(int position, OCIEnv* env)
 {
     OCILobLocator *& lob = fieldInf[position].lob;
-    int r = OCIDescriptorAlloc((dvoid *)env,
-                                (dvoid **)&lob,
-                                (ub4)OCI_DTYPE_LOB,
-                                (size_t) 0,
-                                (dvoid **) 0);
+    int r = OCIDescriptorAlloc(env,
+                               reinterpret_cast<void **>(&lob),
+                               OCI_DTYPE_LOB,
+                               0,
+                               0);
     if (r != 0) {
         qWarning("QOCIResultPrivate: Cannot create LOB locator");
         lob = 0;
@@ -955,11 +960,13 @@ void QOCIResultPrivate::setCharset(OCIDefine* dfn)
 
     Q_ASSERT(dfn);
 
-    r = OCIAttrSet((void*)dfn,
+    r = OCIAttrSet(dfn,
                    OCI_HTYPE_DEFINE,
-                   (void*) &qOraCharset,
-                   (ub4) 0,
-                   (ub4) OCI_ATTR_CHARSET_ID,
+                   // this const cast is safe since OCI doesn't touch
+                   // the charset.
+                   const_cast<void *>(static_cast<const void *>(&qOraCharset)),
+                   0,
+                   OCI_ATTR_CHARSET_ID,
                    d->err);
         if (r != 0)
             qOraWarning("QOCIResultPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: ", d);
@@ -980,24 +987,23 @@ int QOCIResultPrivate::readPiecewise(QVector<QVariant> &values, int index)
     bool           nullField;
 
     do {
-        r = OCIStmtGetPieceInfo(d->sql, d->err, (dvoid**) &dfn, &typep,
+        r = OCIStmtGetPieceInfo(d->sql, d->err, reinterpret_cast<void **>(&dfn), &typep,
                                  &in_outp, &iterp, &idxp, &piecep);
         if (r != OCI_SUCCESS)
             qOraWarning("OCIResultPrivate::readPiecewise: unable to get piece info:", d);
         fieldNum = fieldFromDefine(dfn);
         bool isStringField = fieldInf.at(fieldNum).oraType == SQLT_LNG;
-        int chunkSize = QOCI_DYNAMIC_CHUNK_SIZE;
+        ub4 chunkSize = QOCI_DYNAMIC_CHUNK_SIZE;
         nullField = false;
         r  = OCIStmtSetPieceInfo(dfn, OCI_HTYPE_DEFINE,
-                                  d->err, (void *)col,
-                                  (ub4 *)&chunkSize, piecep, NULL, NULL);
+                                 d->err, col,
+                                 &chunkSize, piecep, NULL, NULL);
         if (r != OCI_SUCCESS)
             qOraWarning("OCIResultPrivate::readPiecewise: unable to set piece info:", d);
         status = OCIStmtFetch (d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT);
         if (status == -1) {
             sb4 errcode;
-            OCIErrorGet((dvoid *)d->err, (ub4) 1, (text *) NULL,
-                        &errcode, NULL, 0,OCI_HTYPE_ERROR);
+            OCIErrorGet(d->err, 1, 0, &errcode, 0, 0,OCI_HTYPE_ERROR);
             switch (errcode) {
             case 1405: /* NULL */
                 nullField = true;
@@ -1014,14 +1020,15 @@ int QOCIResultPrivate::readPiecewise(QVector<QVariant> &values, int index)
         } else {
             if (isStringField) {
                 QString str = values.at(fieldNum + index).toString();
-                str += QString::fromUtf16((const unsigned short *)col, chunkSize / 2);
+                str += QString::fromUtf16(reinterpret_cast<const ushort *>(col),
+                                          chunkSize / 2);
                 values[fieldNum + index] = str;
                 fieldInf[fieldNum].ind = 0;
             } else {
                 QByteArray ba = values.at(fieldNum + index).toByteArray();
                 int sz = ba.size();
                 ba.resize(sz + chunkSize);
-                memcpy(ba.data() + sz, (char*)col, chunkSize);
+                memcpy(ba.data() + sz, reinterpret_cast<char *>(col), chunkSize);
                 values[fieldNum + index] = ba;
                 fieldInf[fieldNum].ind = 0;
             }
@@ -1249,12 +1256,12 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues
         // binding the column
         r = OCIBindByPos(
                 d->sql, &bindColumn.bindh, d->err, i + 1,
-                (dvoid *) bindColumn.data,
+                bindColumn.data,
                 bindColumn.maxLen,
                 bindColumn.bindAs,
-                (dvoid *)bindColumn.indicators,
-                (ub2 *) bindColumn.lengths,
-                (ub2*) 0,
+                bindColumn.indicators,
+                bindColumn.lengths,
+                0,
                 arrayBind ? bindColumn.maxarr_len : 0,
                 arrayBind ? &bindColumn.curelep : 0,
                 OCI_DEFAULT);
@@ -1341,7 +1348,8 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues
                     break;
 
                 case SQLT_STR:
-                    (*list)[r] =  QString::fromUtf16((ushort*)(data + r * columns[i].maxLen));
+                    (*list)[r] =  QString::fromUtf16(reinterpret_cast<ushort *>(data
+                                                                + r * columns[i].maxLen));
                     break;
 
                 default:
@@ -1361,7 +1369,7 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues
 #ifndef Q_CC_SUN
 static // for some reason, Sun CC can't use qInitialLobSize when it's declared static
 #endif
-int qInitialLobSize(QOCIPrivate *d, OCILobLocator *lob)
+int qInitialLobSize(const QOCIPrivate *d, OCILobLocator *lob)
 {
     ub4 i;
     int r = OCILobGetChunkSize(d->svc, d->err, lob, &i);
@@ -1373,7 +1381,7 @@ int qInitialLobSize(QOCIPrivate *d, OCILobLocator *lob)
 }
 
 template<class T, int sz>
-int qReadLob(T &buf, QOCIPrivate *d, OCILobLocator *lob)
+int qReadLob(T &buf, const QOCIPrivate *d, OCILobLocator *lob)
 {
     ub4 read = 0;
     int r;
@@ -1382,7 +1390,7 @@ int qReadLob(T &buf, QOCIPrivate *d, OCILobLocator *lob)
 
     while (true) {
         ub4 amount = ub4(-1); // read maximum amount of data
-        r = OCILobRead(d->svc, d->err, lob, &amount, read + 1, (char*)(buf.constData()) + read * sz,
+        r = OCILobRead(d->svc, d->err, lob, &amount, read + 1, buf.data() + read * sz,
                 (buf.size() - read) * sz, 0, 0, sz == 1 ? ub2(0) : ub2(QOCIEncoding), 0);
 
 #ifdef QOCI_ORACLE10_WORKAROUND
@@ -1469,24 +1477,24 @@ void QOCIResultPrivate::getValues(QVector<QVariant> &v, int index)
             if (d->precisionPolicy != QSql::HighPrecision) {
                 if ((d->precisionPolicy == QSql::LowPrecisionDouble)
                         && (fld.typ == QVariant::Double)) {
-                    v[index + i] = *((double *)fld.data);
+                    v[index + i] = *reinterpret_cast<double *>(fld.data);
                     break;
                 } else if ((d->precisionPolicy == QSql::LowPrecisionInt64)
                         && (fld.typ == QVariant::LongLong)) {
                     qint64 qll = 0;
-                    OCINumberToInt(d->err, (OCINumber *)fld.data, sizeof(qint64),
+                    OCINumberToInt(d->err, reinterpret_cast<OCINumber *>(fld.data), sizeof(qint64),
                                    OCI_NUMBER_SIGNED, &qll);
                     v[index + i] = qll;
                     break;
                 } else if ((d->precisionPolicy == QSql::LowPrecisionInt32)
                         && (fld.typ == QVariant::Int)) {
-                    v[index + i] = *((int *)fld.data);
+                    v[index + i] = *reinterpret_cast<int *>(fld.data);
                     break;
                 }
             }
             // else fall through
         case QVariant::String:
-            v[index + i] = QVariant(QString::fromUtf16((const short unsigned int*)fld.data));
+            v[index + i] = QString::fromUtf16(reinterpret_cast<const ushort *>(fld.data));
             break;
         case QVariant::ByteArray:
             if (fld.len > 0)
@@ -1620,11 +1628,11 @@ bool QOCIResult::prepare(const QString& query)
     }
     if (query.isEmpty())
         return false;
-    r = OCIHandleAlloc((dvoid *) d->env,
-                        (dvoid **) &d->sql,
-                        OCI_HTYPE_STMT,
-                        0,
-                        0);
+    r = OCIHandleAlloc(d->env,
+                       reinterpret_cast<void **>(&d->sql),
+                       OCI_HTYPE_STMT,
+                       0,
+                       0);
     if (r != OCI_SUCCESS) {
         qOraWarning("QOCIResult::prepare: unable to alloc statement:", d);
         setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
@@ -1632,7 +1640,7 @@ bool QOCIResult::prepare(const QString& query)
         return false;
     }
     d->setStatementAttributes();
-    const OraText *txt = (const OraText *)query.utf16();
+    const OraText *txt = reinterpret_cast<const OraText *>(query.utf16());
     const int len = query.length() * sizeof(QChar);
     r = OCIStmtPrepare(d->sql,
                        d->err,
@@ -1668,7 +1676,7 @@ bool QOCIResult::exec()
 
     r = OCIAttrGet(d->sql,
                     OCI_HTYPE_STMT,
-                    (dvoid*)&stmtType,
+                    &stmtType,
                     NULL,
                     OCI_ATTR_STMT_TYPE,
                     d->err);
@@ -1680,8 +1688,8 @@ bool QOCIResult::exec()
                             d->err,
                             0,
                             0,
-                            (CONST OCISnapshot *) NULL,
-                            (OCISnapshot *) NULL,
+                            0,
+                            0,
                             OCI_DEFAULT);
         if (r != OCI_SUCCESS && r != OCI_SUCCESS_WITH_INFO) {
             qOraWarning("QOCIResult::exec: unable to execute select statement:", d);
@@ -1690,16 +1698,16 @@ bool QOCIResult::exec()
             return false;
         }
         ub4 parmCount = 0;
-        int r = OCIAttrGet(d->sql, OCI_HTYPE_STMT, (dvoid*)&parmCount, NULL, OCI_ATTR_PARAM_COUNT, d->err);
+        int r = OCIAttrGet(d->sql, OCI_HTYPE_STMT, reinterpret_cast<void **>(&parmCount),
+                           0, OCI_ATTR_PARAM_COUNT, d->err);
         if (r == 0 && !cols)
             cols = new QOCIResultPrivate(parmCount, d);
         setSelect(true);
         QSqlCachedResult::init(parmCount);
     } else { /* non-SELECT */
         r = OCIStmtExecute(d->svc, d->sql, d->err, 1,0,
-                                (CONST OCISnapshot *) NULL,
-                                (OCISnapshot *) NULL,
-                                d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS );
+                           0, 0,
+                           d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS );
         if (r != OCI_SUCCESS && r != OCI_SUCCESS_WITH_INFO) {
             qOraWarning("QOCIResult::exec: unable to execute statement:", d);
             setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
@@ -1730,8 +1738,8 @@ QVariant QOCIResult::lastInsertId() const
     if (isActive()) {
         QOCIRowIdPointer ptr(new QOCIRowId(d->env));
 
-        int r = OCIAttrGet((dvoid*) d->sql, OCI_HTYPE_STMT, ptr.constData()->id,
-                           (ub4 *) 0, OCI_ATTR_ROWID, (OCIError *) d->err);
+        int r = OCIAttrGet(d->sql, OCI_HTYPE_STMT, ptr.constData()->id,
+                           0, OCI_ATTR_ROWID, d->err);
         if (r == OCI_SUCCESS)
             return qVariantFromValue(ptr);
     }
@@ -1762,7 +1770,11 @@ QOCIDriver::QOCIDriver(QObject* parent)
 {
     d = new QOCIPrivate();
 
+#ifdef QOCI_THREADED
+    const ub4 mode = OCI_UTF16 | OCI_OBJECT | OCI_THREADED;
+#else
     const ub4 mode = OCI_UTF16 | OCI_OBJECT;
+#endif
     int r = OCIEnvCreate(&d->env,
                          mode,
                          NULL,
@@ -1773,11 +1785,11 @@ QOCIDriver::QOCIDriver(QObject* parent)
                          NULL);
     if (r != 0)
         qOraWarning("QOCIDriver: unable to create environment:", d);
-    r = OCIHandleAlloc((dvoid *) d->env,
-                        (dvoid **) &d->err,
-                        OCI_HTYPE_ERROR,
-                        (size_t) 0,
-                        (dvoid **) 0);
+    r = OCIHandleAlloc(d->env,
+                       reinterpret_cast<void **>(&d->err),
+                       OCI_HTYPE_ERROR,
+                       0,
+                       0);
     if (r != 0) {
         qOraWarning("QOCIDriver: unable to alloc error handle:", d);
         setLastError(qMakeError(tr("Unable to initialize", "QOCIDriver"),
@@ -1792,11 +1804,11 @@ QOCIDriver::QOCIDriver(OCIEnv* env, OCISvcCtx* ctx, QObject* parent)
     d->env = env;
     d->svc = ctx;
 
-    int r = OCIHandleAlloc((dvoid *) d->env,
-                           (dvoid **) &d->err,
+    int r = OCIHandleAlloc(d->env,
+                           reinterpret_cast<void **>(&d->err),
                            OCI_HTYPE_ERROR,
-                           (size_t) 0,
-                           (dvoid **) 0);
+                           0,
+                           0);
     if (r != 0)
         qOraWarning("QOCIDriver: unable to alloc error handle:", d);
     if (env && ctx) {
@@ -1809,10 +1821,10 @@ QOCIDriver::~QOCIDriver()
 {
     if (isOpen())
         close();
-    int r = OCIHandleFree((dvoid *) d->err, OCI_HTYPE_ERROR);
+    int r = OCIHandleFree(d->err, OCI_HTYPE_ERROR);
     if (r != OCI_SUCCESS)
         qWarning("Unable to free Error handle: %d", r);
-    r = OCIHandleFree((dvoid *) d->env, OCI_HTYPE_ENV);
+    r = OCIHandleFree(d->env, OCI_HTYPE_ENV);
     if (r != OCI_SUCCESS)
         qWarning("Unable to free Environment handle: %d", r);
 
@@ -1883,28 +1895,28 @@ bool QOCIDriver::open(const QString & db,
 
     qParseOpts(opts, d);
 
-    r = OCIHandleAlloc(d->env, (dvoid **)&d->srvhp, OCI_HTYPE_SERVER, 0, 0);
+    r = OCIHandleAlloc(d->env, reinterpret_cast<void **>(&d->srvhp), OCI_HTYPE_SERVER, 0, 0);
     if (r == OCI_SUCCESS)
         r = OCIServerAttach(d->srvhp, d->err, reinterpret_cast<const OraText *>(db.utf16()),
                             db.length() * sizeof(QChar), OCI_DEFAULT);
     if (r == OCI_SUCCESS || r == OCI_SUCCESS_WITH_INFO)
-        r = OCIHandleAlloc(d->env, (dvoid **)&d->svc, OCI_HTYPE_SVCCTX, 0, 0);
+        r = OCIHandleAlloc(d->env, reinterpret_cast<void **>(&d->svc), OCI_HTYPE_SVCCTX, 0, 0);
     if (r == OCI_SUCCESS)
         r = OCIAttrSet(d->svc, OCI_HTYPE_SVCCTX, d->srvhp, 0, OCI_ATTR_SERVER, d->err);
     if (r == OCI_SUCCESS)
-        r = OCIHandleAlloc(d->env, (dvoid **)&d->authp, OCI_HTYPE_SESSION, 0, 0);
+        r = OCIHandleAlloc(d->env, reinterpret_cast<void **>(&d->authp), OCI_HTYPE_SESSION, 0, 0);
     if (r == OCI_SUCCESS)
-        r = OCIAttrSet(d->authp, OCI_HTYPE_SESSION, (dvoid *)user.utf16(),
+        r = OCIAttrSet(d->authp, OCI_HTYPE_SESSION, const_cast<ushort *>(user.utf16()),
                        user.length() * sizeof(QChar), OCI_ATTR_USERNAME, d->err);
     if (r == OCI_SUCCESS)
-        r = OCIAttrSet(d->authp, OCI_HTYPE_SESSION, (dvoid *)password.utf16(),
+        r = OCIAttrSet(d->authp, OCI_HTYPE_SESSION, const_cast<ushort *>(password.utf16()),
                        password.length() * sizeof(QChar), OCI_ATTR_PASSWORD, d->err);
 
     OCITrans* trans;
     if (r == OCI_SUCCESS)
-        r = OCIHandleAlloc(d->env, (dvoid**)&trans, OCI_HTYPE_TRANS, 0, 0);
+        r = OCIHandleAlloc(d->env, reinterpret_cast<void **>(&trans), OCI_HTYPE_TRANS, 0, 0);
     if (r == OCI_SUCCESS)
-        r = OCIAttrSet(d->svc, OCI_HTYPE_SVCCTX, (dvoid*)trans, 0, OCI_ATTR_TRANS, d->err);
+        r = OCIAttrSet(d->svc, OCI_HTYPE_SVCCTX, trans, 0, OCI_ATTR_TRANS, d->err);
 
     if (r == OCI_SUCCESS) {
         if (user.isEmpty() && password.isEmpty())
@@ -1938,7 +1950,7 @@ bool QOCIDriver::open(const QString & db,
         qWarning("QOCIDriver::open: could not get Oracle server version.");
     } else {
         QString versionStr;
-        versionStr = QString::fromUtf16(reinterpret_cast<unsigned short *>(vertxt));
+        versionStr = QString::fromUtf16(reinterpret_cast<ushort *>(vertxt));
         QRegExp vers(QLatin1String("([0-9]+)\\.[0-9\\.]+[0-9]"));
         if (vers.indexIn(versionStr) >= 0)
             d->serverVersion = vers.cap(1).toInt();
