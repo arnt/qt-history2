@@ -459,6 +459,7 @@ void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
     // setup the item view
     view = itemView;
     view->setParent(this);
+    view->setAttribute(Qt::WA_MacShowFocusRect, false);
     qobject_cast<QBoxLayout*>(layout())->insertWidget(top ? 1 : 0, view);
     view->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     view->installEventFilter(this);
