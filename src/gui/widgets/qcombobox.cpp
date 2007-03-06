@@ -467,13 +467,10 @@ void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     QStyleOptionComboBox opt = comboStyleOption();
     const bool usePopup = style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo);
-    if (usePopup) {
-        view->viewport()->setBackgroundRole(QPalette::ColorRole(
-            style()->styleHint(QStyle::SH_ComboBox_PopupBackgroundRole, &opt, combo)));
 #ifndef QT_NO_SCROLLBAR
+    if (usePopup)
         view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 #endif
-    }
     if (style()->styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, combo) ||
         usePopup) {
         view->setMouseTracking(true);

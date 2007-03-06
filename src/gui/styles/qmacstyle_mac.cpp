@@ -2383,9 +2383,6 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_ItemView_MovementWithoutUpdatingSelection:
         ret = false;
         break;
-    case SH_ComboBox_PopupBackgroundRole:
-        ret = QPalette::Window;
-        break;
     case SH_FocusFrame_AboveWidget:
         ret = true;
         break;

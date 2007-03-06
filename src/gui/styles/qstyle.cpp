@@ -1654,7 +1654,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_DialogButtonBox_ButtonsHaveIcons Indicates whether or not StandardButtons in QDialogButtonBox should have icons or not.
     \value SH_ItemView_MovementWithoutUpdatingSelection The item view is able to indicate a current item without changing the selection.
-    \value SH_ComboBox_PopupBackgroundRole The background role for the QComboBox popup. 
     \value SH_ToolTip_Mask The mask of a tool tip.
 
     \value SH_FocusFrame_AboveWidget The FocusFrame is stacked above the widget that it is "focusing on".
