@@ -162,6 +162,7 @@ typedef QVector<QXmlStreamEntityDeclaration> QXmlStreamEntityDeclarations;
 
 
 class Q_XML_EXPORT QXmlStreamReader {
+    QDOC_PROPERTY(bool namespaceProcessing READ namespaceProcessing WRITE setNamespaceProcessing)
 public:
     enum TokenType {
         NoToken = 0,
@@ -198,6 +199,9 @@ public:
 
     TokenType tokenType() const;
     QString tokenString() const;
+
+    void setNamespaceProcessing(bool);
+    bool namespaceProcessing() const;
 
     inline bool isStartDocument() const { return tokenType() == StartDocument; }
     inline bool isEndDocument() const { return tokenType() == EndDocument; }

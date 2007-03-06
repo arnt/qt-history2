@@ -72,8 +72,11 @@ public:
     QSvgTinyDocument *document() const;
 
     inline bool ok() const {
-        return document() != 0; // ### TODO xml error checking
+        return document() != 0 && !xml.error();
     }
+
+    inline QString errorString() const { return xml.errorString(); }
+    inline int lineNumber() const { return xml.lineNumber(); }
 
     void setDefaultCoordinateSystem(LengthType type);
     LengthType defaultCoordinateSystem() const;

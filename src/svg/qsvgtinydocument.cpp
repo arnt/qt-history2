@@ -49,6 +49,9 @@ QSvgTinyDocument * QSvgTinyDocument::load(const QString &fileName)
     if (handler.ok()) {
         doc = handler.document();
         doc->m_animationDuration = handler.animationDuration();
+    } else {
+        qWarning("Cannot read file '%s', because: %s (line %d)",
+                 qPrintable(fileName), qPrintable(handler.errorString()), handler.lineNumber());
     }
     return doc;
 }

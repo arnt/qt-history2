@@ -97,7 +97,7 @@
   functions like isStartElement() or text() then allows to examine
   this token, and to obtain information about what has been read. The
   big advantage of the pulling approach is the possibility to build
-  recursive decent parsers, meaning you can split your XML parsing
+  recursive descent parsers, meaning you can split your XML parsing
   code easily into different methods or classes. This makes it easy to
   keep track of the application's own state when parsing XML.
 
@@ -145,7 +145,8 @@
   a StartElement, namespaceUri() returns the namespace the element is
   in, and name() returns the element's \e local name. The combination
   of namespaceUri and name uniquely identifies an element. If a
-  namespace prefix was not declared, the namespaceUri is empty.
+  namespace prefix was not declared in the XML entities parsed by the
+  reader, the namespaceUri is empty.
 
   If you parse XML data that does not utilize namespaces according to
   the XML specification or doesn't use namespaces at all, you can use
@@ -155,6 +156,10 @@
   data. Since the mapping namespaceUri to prefix is neither unique nor
   universal, qualifiedName() should be avoided for namespace-compliant
   XML data.
+
+  In order to parse standalone documents that do use undeclared
+  namespace prefixes, you can turn off namespace processing completely
+  with the \l namespaceProcessing property.
 
   \section1 Incremental parsing
 
@@ -445,6 +450,31 @@ static const char * QXmlStreamReader_tokenTypeString[] = {
     "ProcessingInstruction"
 };
 
+
+/*!
+    \property  QXmlStreamReader::namespaceProcessing
+    the namespace-processing flag of the stream reader
+
+    This property controls whether or not the stream reader processes
+    namespaces. If enabled, the reader processes namespaces, otherwise
+    it does not.
+
+    By default, namespace-processing is disabled.
+*/
+
+
+void QXmlStreamReader::setNamespaceProcessing(bool enable)
+{
+    Q_D(QXmlStreamReader);
+    d->namespaceProcessing = enable;
+}
+
+bool QXmlStreamReader::namespaceProcessing() const
+{
+    Q_D(const QXmlStreamReader);
+    return d->namespaceProcessing;
+}
+
 /*! Returns the reader's current token as string.
 
 \sa tokenType()
@@ -518,6 +548,7 @@ void QXmlStreamReaderPrivate::init()
     referenceToUnparsedEntityDetected = false;
     hasExternalDtdSubset = false;
     lockEncoding = false;
+    namespaceProcessing = true;
     rawReadBuffer.clear();
     readBuffer.clear();
 
@@ -1126,7 +1157,7 @@ QStringRef QXmlStreamReaderPrivate::namespaceForPrefix(const QStringRef &prefix)
      }
 
 #if 1
-     if (!prefix.isEmpty())
+     if (namespaceProcessing && !prefix.isEmpty())
          raiseWellFormedError(QObject::tr("Namespace prefix '%1' not declared").arg(prefix.toString()));
 #endif
 

@@ -3108,7 +3108,8 @@ QSvgHandler::QSvgHandler(const QByteArray &data)
 
 void QSvgHandler::parse()
 {
-   if (s_groupFactory.isEmpty()) {
+    xml.setNamespaceProcessing(false);
+    if (s_groupFactory.isEmpty()) {
         defaultPen.setMiterLimit(4);
         init();
     }
