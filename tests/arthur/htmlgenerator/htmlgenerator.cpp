@@ -417,7 +417,7 @@ void HTMLGenerator::convertToHtml()
                     image.flags |= Reference;
                 }
 
-                if (image.file.startsWith(outputDirName))
+                if (!outputDirName.isEmpty() && image.file.startsWith(outputDirName))
                     image.file.remove(0, outputDirName.length() + 1); // + '/'
                 HTMLSuite *htmlSuite = suites[suite->name];
                 if (!htmlSuite) {
