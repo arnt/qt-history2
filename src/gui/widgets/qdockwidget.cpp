@@ -656,7 +656,7 @@ void QDockWidgetPrivate::endDrag(bool abort)
                 QDockWidgetLayout *myLayout
                     = qobject_cast<QDockWidgetLayout*>(q->layout());
                 resizer->setActive(QWidgetResizeHandler::Resize,
-                                    myLayout->widget(QDockWidgetLayout::TitleBar) == 0);
+                                    myLayout->widget(QDockWidgetLayout::TitleBar) != 0);
 #endif
                 undockedGeometry = q->geometry();
                 q->setActiveWindow();
