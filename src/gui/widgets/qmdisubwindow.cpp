@@ -251,6 +251,11 @@ static inline void setNewWindowTitle(QMdiSubWindow *mdiChild)
     }
 }
 
+static inline bool isHoverControl(QStyle::SubControl control)
+{
+    return control != QStyle::SC_None && control != QStyle::SC_TitleBarLabel;
+}
+
 #if defined(Q_WS_WIN)
 static inline QRgb colorref2qrgb(COLORREF col)
 {
@@ -1070,6 +1075,7 @@ void QMdiSubWindowPrivate::setNormalMode()
 
     setActive(true);
     restoreFocus();
+    updateMask();
 }
 
 /*!
@@ -1124,6 +1130,7 @@ void QMdiSubWindowPrivate::setMaximizeMode()
 
     isShadeMode = false;
     restoreFocus();
+    updateMask();
 }
 
 /*!
@@ -1158,7 +1165,13 @@ void QMdiSubWindowPrivate::setActive(bool activate)
         Q_ASSERT(!(q->windowState() & Qt::WindowActive));
         emit q->windowStateChanged(oldWindowState, q->windowState());
     }
-    q->update();
+
+    int frameWidth = q->style()->pixelMetric(QStyle::PM_MDIFrameWidth);
+    int titleBarHeight = this->titleBarHeight();
+    QRegion windowDecoration = QRegion(0, 0, q->width(), q->height());
+    windowDecoration -= QRegion(frameWidth, titleBarHeight, q->width() - 2 * frameWidth,
+                                q->height() - titleBarHeight - frameWidth);
+    q->update(windowDecoration);
 }
 
 /*!
@@ -2196,6 +2209,7 @@ void QMdiSubWindow::showShaded()
     resize(d->internalMinimumSize);
     d->resizeEnabled = false;
     d->updateDirtyRegions();
+    d->updateMask();
 
     d->setEnabled(QMdiSubWindowPrivate::MinimizeAction, false);
     d->setEnabled(QMdiSubWindowPrivate::ResizeAction, false);
@@ -2423,9 +2437,6 @@ void QMdiSubWindow::changeEvent(QEvent *changeEvent)
         return;
     }
 
-    Q_D(QMdiSubWindow);
-    d->updateMask();
-
     if (changeEvent->type() != QEvent::WindowStateChange) {
         QWidget::changeEvent(changeEvent);
         return;
@@ -2450,6 +2461,7 @@ void QMdiSubWindow::changeEvent(QEvent *changeEvent)
     if (!isVisible())
         setVisible(true);
 
+    Q_D(QMdiSubWindow);
     if (!d->oldGeometry.isValid())
         d->oldGeometry = geometry();
 
@@ -2687,8 +2699,20 @@ void QMdiSubWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
     }
 
     Q_D(QMdiSubWindow);
+    // Find previous and current hover region.
+    QRegion hoverRegion;
+    const QStyleOptionTitleBar options = d->titleBarOptions();
+    QStyle::SubControl oldHover = d->hoveredSubControl;
     d->hoveredSubControl = d->getSubControl(mouseEvent->pos());
-    update(QRegion(0, 0, width(), d->titleBarHeight()));
+    if (isHoverControl(oldHover) && oldHover != d->hoveredSubControl)
+        hoverRegion += style()->subControlRect(QStyle::CC_TitleBar, &options, oldHover, this);
+    if (isHoverControl(d->hoveredSubControl) && d->hoveredSubControl != oldHover) {
+        hoverRegion += style()->subControlRect(QStyle::CC_TitleBar, &options,
+                                               d->hoveredSubControl, this);
+    }
+    if (!hoverRegion.isEmpty())
+        update(hoverRegion);
+
     if ((mouseEvent->buttons() & Qt::LeftButton) || d->isInInteractiveMode) {
         if (d->isResizeOperation() && d->resizeEnabled || d->isMoveOperation() && d->moveEnabled)
             d->setNewGeometry(mapToParent(mouseEvent->pos()));
@@ -2803,6 +2827,14 @@ void QMdiSubWindow::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 void QMdiSubWindow::focusInEvent(QFocusEvent *focusInEvent)
 {
     d_func()->focusInReason = focusInEvent->reason();
+}
+
+/*!
+    \reimp
+*/
+void QMdiSubWindow::focusOutEvent(QFocusEvent * /*focusOutEvent*/)
+{
+    // To avoid update() in QWidget::focusOutEvent.
 }
 
 /*!

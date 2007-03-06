@@ -86,6 +86,7 @@ protected:
     void keyPressEvent(QKeyEvent *keyEvent);
     void contextMenuEvent(QContextMenuEvent *contextMenuEvent);
     void focusInEvent(QFocusEvent *focusInEvent);
+    void focusOutEvent(QFocusEvent *focusOutEvent);
     void childEvent(QChildEvent *childEvent);
 
 private:

@@ -835,7 +835,7 @@ void QMdiAreaPrivate::updateScrollBars()
 */
 void QMdiAreaPrivate::internalRaise(QMdiSubWindow *mdiChild) const
 {
-    if (!sanityCheck(mdiChild, "QMdiArea::internalRaise"))
+    if (!sanityCheck(mdiChild, "QMdiArea::internalRaise") || childWindows.size() < 2)
         return;
 
     QMdiSubWindow *stackUnderChild = 0;
