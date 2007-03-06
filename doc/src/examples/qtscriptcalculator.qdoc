@@ -1,0 +1,8 @@
+/*!
+    \example script/calculator
+    \title QtScript Calculator Example
+
+    This QtScript example shows how to implement the functionality of a calculator widget.
+
+    \image calculator-example.png
+*/

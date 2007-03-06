@@ -1,0 +1,8 @@
+/*!
+    \example script/defaultprototypes
+    \title Default Prototypes Example
+
+    This QtScript example shows how to use default prototypes.
+
+    \image defaultprototypes-example.png
+*/

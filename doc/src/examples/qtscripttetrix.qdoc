@@ -1,0 +1,9 @@
+/*!
+    \example script/tetrix
+    \title QtScript Tetrix Example
+
+    The Tetrix example is a QtScript version of the classic Tetrix game.
+
+    \image tetrix-example.png
+
+*/

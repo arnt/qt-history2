@@ -1,0 +1,8 @@
+/*!
+    \example script/context2d
+    \title Context2D Example
+
+    This QtScript example is an implementation of the Context2D API.
+
+    \image context2d-example.png
+*/
