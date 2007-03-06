@@ -483,6 +483,9 @@ void tst_QSqlThread::transactionsFromSingleConnection()
         return;
     QVERIFY_SQL(db, db.commit());
 
+    // reset test environment
+    threadFinishedCount = 0;
+
     // start and roll back a transaction
     QVERIFY_SQL(db, db.transaction());
     preparedReadWriteFromSingleConnection(); // read and write from multiple threads
