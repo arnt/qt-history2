@@ -4741,6 +4741,18 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 HIThemeGetTrackPartBounds(&tdi, cpc, &macRect);
             }
             ret = qt_qrectForHIRect(macRect);
+
+            // Tweak: the dark line between the sub/add line buttons belong to only one of the buttons
+            // when doing hit-testing, but both of them have to repaint it. Extend the rect to cover 
+            // the line in the cases where HIThemeGetTrackPartBounds returns a rect that doesn't.
+            if (slider->orientation == Qt::Horizontal) {
+                if (slider->direction == Qt::LeftToRight && sc == SC_ScrollBarSubLine)
+                    ret.adjust(0, 0, 1, 0);
+                else if (slider->direction == Qt::RightToLeft && sc == SC_ScrollBarAddLine)
+                    ret.adjust(-1, 0, 1, 0);
+            } else if (sc == SC_ScrollBarAddLine) {
+                ret.adjust(0, -1, 0, 1);
+            }
         }
         break;
     case CC_TitleBar:
