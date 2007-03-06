@@ -27,6 +27,7 @@
 #  include "qfilesystemwatcher_win_p.h"
 #elif defined(Q_OS_LINUX)
 #  include "qfilesystemwatcher_inotify_p.h"
+#  include "qfilesystemwatcher_dnotify_p.h"
 #elif defined(Q_OS_FREEBSD) || defined(Q_OS_MAC)
 #  include "qfilesystemwatcher_kqueue_p.h"
 #endif
@@ -192,7 +193,10 @@ QFileSystemWatcherEngine *QFileSystemWatcherPrivate::createNativeEngine()
 #if defined(Q_OS_WIN)
     return new QWindowsFileSystemWatcherEngine;
 #elif defined(Q_OS_LINUX)
-    return QInotifyFileSystemWatcherEngine::create();
+    QFileSystemWatcherEngine *eng = QInotifyFileSystemWatcherEngine::create();
+    if(!eng)
+        eng = QDnotifyFileSystemWatcherEngine::create(); 
+    return eng;
 #elif defined(Q_OS_FREEBSD) || defined(Q_OS_MAC)
     return QKqueueFileSystemWatcherEngine::create();
 #else
