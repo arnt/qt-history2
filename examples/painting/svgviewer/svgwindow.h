@@ -32,7 +32,7 @@ public:
     void mouseReleaseEvent(QMouseEvent *event);
     void openFile(const QString &file);
     void setRenderer(RendererType type = Native);
-    void setFastAntialiasing(bool fastAntialiasing);
+    void setHighQualityAntialiasing(bool highQualityAntialiasing);
 
 private:
     QPoint mousePressPos;
@@ -40,7 +40,7 @@ private:
     QString currentPath;
     RendererType renderer;
 
-    bool fastAntialiasing;
+    bool highQualityAntialiasing;
 };
 
 #endif

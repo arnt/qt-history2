@@ -2135,7 +2135,7 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
         return;
 
     if (hints & QPainter::Antialiasing) {
-        if (d->use_fragment_programs && QGLOffscreen::isSupported() && !(hints & QPainter::FastAntialiasing))
+        if (d->use_fragment_programs && QGLOffscreen::isSupported() && hints & QPainter::HighQualityAntialiasing)
             d->high_quality_antialiasing = true;
         else {
             d->high_quality_antialiasing = false;

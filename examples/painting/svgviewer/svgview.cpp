@@ -145,22 +145,22 @@ void SvgNativeView::wheelEvent(QWheelEvent *e)
 #ifndef QT_NO_OPENGL
 SvgGLView::SvgGLView(const QString &file, QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent),
-      fastAntialiasing(false)
+      highQualityAntialiasing(false)
 {
     doc = new QSvgRenderer(file, this);
     connect(doc, SIGNAL(repaintNeeded()),
             this, SLOT(update()));
 }
 
-void SvgGLView::setFastAntialiasing(bool fa)
+void SvgGLView::setHighQualityAntialiasing(bool hq)
 {
-    fastAntialiasing = fa;
+    highQualityAntialiasing = hq;
 }
 
 void SvgGLView::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    p.setRenderHint(QPainter::FastAntialiasing, fastAntialiasing);
+    p.setRenderHint(QPainter::HighQualityAntialiasing, highQualityAntialiasing);
     doc->render(&p);
 
     frameRendered();

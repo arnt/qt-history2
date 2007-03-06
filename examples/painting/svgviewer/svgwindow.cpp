@@ -18,7 +18,7 @@
 
 SvgWindow::SvgWindow()
     : QScrollArea(),
-      fastAntialiasing(false)
+      highQualityAntialiasing(false)
 {
     QWidget *view = new QWidget(this);
     renderer = SvgWindow::Native;
@@ -39,7 +39,7 @@ void SvgWindow::setRenderer(RendererType type)
     if (renderer == OpenGL) {
         #ifndef QT_NO_OPENGL
         view = new SvgGLView(currentPath, this);
-        dynamic_cast<SvgGLView *>(view)->setFastAntialiasing(fastAntialiasing);
+        qobject_cast<SvgGLView *>(view)->setHighQualityAntialiasing(highQualityAntialiasing);
         #endif
     } else if (renderer == Image) {
         view = new SvgRasterView(currentPath, this);
@@ -51,14 +51,14 @@ void SvgWindow::setRenderer(RendererType type)
     view->show();
 }
 
-void SvgWindow::setFastAntialiasing(bool fa)
+void SvgWindow::setHighQualityAntialiasing(bool hq)
 {
-    fastAntialiasing = fa;
+    highQualityAntialiasing = hq;
 
     #ifndef QT_NO_OPENGL
     QWidget *view = widget();
     if (renderer == OpenGL)
-        dynamic_cast<SvgGLView *>(view)->setFastAntialiasing(fastAntialiasing);
+        qobject_cast<SvgGLView *>(view)->setHighQualityAntialiasing(highQualityAntialiasing);
     #endif
 }
 

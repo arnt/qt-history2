@@ -39,12 +39,14 @@ MainWindow::MainWindow()
     imageAction = rendererMenu->addAction(tr("&Image"));
     imageAction->setCheckable(true);
 
+    #ifndef QT_NO_OPENGL
     rendererMenu->addSeparator();
-
-    QAction *fastAntialiasingAction = rendererMenu->addAction(tr("&Fast Antialiasing"));
-
-    fastAntialiasingAction->setCheckable(true);
-    fastAntialiasingAction->setChecked(false);
+    highQualityAntialiasingAction = rendererMenu->addAction(tr("&High Quality Antialiasing"));
+    highQualityAntialiasingAction->setEnabled(false);
+    highQualityAntialiasingAction->setCheckable(true);
+    highQualityAntialiasingAction->setChecked(false);
+    connect(highQualityAntialiasingAction, SIGNAL(toggled(bool)), this, SLOT(setHighQualityAntialiasing(bool)));
+    #endif
 
     QActionGroup *rendererGroup = new QActionGroup(this);
     rendererGroup->addAction(nativeAction);
@@ -59,15 +61,14 @@ MainWindow::MainWindow()
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(rendererGroup, SIGNAL(triggered(QAction *)),
             this, SLOT(setRenderer(QAction *)));
-    connect(fastAntialiasingAction, SIGNAL(toggled(bool)), this, SLOT(setFastAntialiasing(bool)));
 
     setCentralWidget(area);
     setWindowTitle(tr("SVG Viewer"));
 }
 
-void MainWindow::setFastAntialiasing(bool fastAntialiasing)
+void MainWindow::setHighQualityAntialiasing(bool highQualityAntialiasing)
 {
-    area->setFastAntialiasing(fastAntialiasing);
+    area->setHighQualityAntialiasing(highQualityAntialiasing);
 }
 
 void MainWindow::openFile(const QString &path)
@@ -90,11 +91,15 @@ void MainWindow::openFile(const QString &path)
 
 void MainWindow::setRenderer(QAction *action)
 {
+    highQualityAntialiasingAction->setEnabled(false);
+
     if (action == nativeAction)
         area->setRenderer(SvgWindow::Native);
     #ifndef QT_NO_OPENGL
-    else if (action == glAction)
+    else if (action == glAction) {
         area->setRenderer(SvgWindow::OpenGL);
+        highQualityAntialiasingAction->setEnabled(true);
+    }
     #endif
     else if (action == imageAction)
         area->setRenderer(SvgWindow::Image);

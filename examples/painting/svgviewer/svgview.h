@@ -69,7 +69,7 @@ class SvgGLView : public QGLWidget
 public:
     SvgGLView(const QString &file, QWidget *parent=0);
 
-    void setFastAntialiasing(bool fastAntialiasing);
+    void setHighQualityAntialiasing(bool highQualityAntialiasing);
 
     virtual QSize sizeHint() const;
 protected:
@@ -79,7 +79,7 @@ protected:
 private:
     QSvgRenderer *doc;
 
-    bool fastAntialiasing;
+    bool highQualityAntialiasing;
 };
 #endif
 
