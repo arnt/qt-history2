@@ -3354,13 +3354,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                         heightOffset = 2;
                 }
                 myTab.rect.setHeight(myTab.rect.height() + heightOffset);
-                if (verticalTabs) {
-                    p->save();
-                    p->translate((ttd == kThemeTabWest) ? -2 : 0, 0);
-                }
                 QCommonStyle::drawControl(ce, &myTab, p, w);
-                if (verticalTabs)
-                    p->restore();
             } else {
                 p->save();
                 CGContextSetShouldAntialias(cg, true);
