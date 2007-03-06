@@ -1537,6 +1537,7 @@ void QRasterPaintEngine::fastFillRect(const QRect &rect, const QBrush &brush)
     QSpanData brushData;
     brushData.init(d->rasterBuffer, this);
     brushData.setup(brush, d->opacity);
+    d->updateMatrixData(&brushData, brush, d->matrix);
 
     if (!brushData.blend)
         return;
