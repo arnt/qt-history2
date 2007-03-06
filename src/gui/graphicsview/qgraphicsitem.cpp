@@ -5972,7 +5972,13 @@ bool QGraphicsTextItemPrivate::_q_mouseOnEdge(QGraphicsSceneMouseEvent *event)
 
     QPainterPath docPath;
     const qreal margin = control->document()->rootFrame()->frameFormat().margin();
-    docPath.addRect(qq->boundingRect().adjusted(margin, margin, -margin, -margin));
+    const QTextFrameFormat format = control->document()->rootFrame()->frameFormat();
+    docPath.addRect(
+        qq->boundingRect().adjusted(
+            format.leftMargin(),
+            format.topMargin(),
+            -format.rightMargin(),
+            -format.bottomMargin()));
 
     return path.subtracted(docPath).contains(event->pos());
 }
