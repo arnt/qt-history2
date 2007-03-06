@@ -171,6 +171,9 @@ private slots:
     void setFocus();
     void setCursor();
     void testWindowIconChangeEventPropagation();
+#ifdef Q_WS_X11
+    void minAndMaxSizeWithX11BypassWindowManagerHint();
+#endif
 
 private:
     bool ensureScreenSize(int width, int height);
@@ -4323,6 +4326,32 @@ void tst_QWidget::testWindowIconChangeEventPropagation()
         delete widgetEventSpies.at(i);
     }
 }
+
+#ifdef Q_WS_X11
+void tst_QWidget::minAndMaxSizeWithX11BypassWindowManagerHint()
+{
+    { // Maximum size.
+    QWidget widget(0, Qt::X11BypassWindowManagerHint);
+    widget.setMaximumSize(50, 50);
+    QCOMPARE(widget.size(), QSize(50, 50));
+    widget.show();
+    qt_x11_wait_for_window_manager(&widget);
+    QCOMPARE(widget.size(), QSize(50, 50));
+    }
+
+    { // Minimum size.
+    QWidget widget(0, Qt::X11BypassWindowManagerHint);
+    const QSize desktopSize = QApplication::desktop()->size();
+    // Same size as in QWidget::create_sys().
+    const QSize originalSize(desktopSize.width() / 2, desktopSize.height() * 4 / 10);
+    widget.setMinimumSize(originalSize + QSize(10, 10));
+    QCOMPARE(widget.size(), originalSize + QSize(10, 10));
+    widget.show();
+    qt_x11_wait_for_window_manager(&widget);
+    QCOMPARE(widget.size(), originalSize + QSize(10, 10));
+    }
+}
+#endif
 
 QTEST_MAIN(tst_QWidget)
 #include "tst_qwidget.moc"
