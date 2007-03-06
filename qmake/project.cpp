@@ -122,17 +122,18 @@ QMap<QString, TestFunc> qmake_testFunctions()
 
 #ifdef QTSCRIPT_SUPPORT
 #include "qscriptvalue.h"
-#include <private/qscriptvalue_p.h>
 #include "qscriptengine.h"
+#include "qscriptvalueiterator.h"
 
 static QScriptValue qscript_projectWrapper(QScriptEngine *eng, QMakeProject *project,
                                     const QMap<QString, QStringList> &place);
 
 static bool qscript_createQMakeProjectMap(QMap<QString, QStringList> &vars, QScriptValue js)
 {
-    foreach (QScriptNameIdImpl *nameId, js.impl()->propertyIds()) {
-        QScriptValue v = js.property(nameId->s);
-        vars[nameId->s] = qscriptvalue_cast<QStringList>(v);
+    QScriptValueIterator it(js); 
+    while(it.hasNext()) {
+	it.next();
+        vars[it.name()] = qscriptvalue_cast<QStringList>(it.value());
     }
 }
 
@@ -182,7 +183,7 @@ static QScriptValue qscript_projectWrapper(QScriptEngine *eng, QMakeProject *pro
         QStringList testFuncs = qmake_expandFunctions().keys() + project->userExpandFunctions();
         for(int i = 0; i < testFuncs.size(); ++i) {
             QString funcName = testFuncs.at(i);
-            QScriptValue fun = eng->newFunction(eng, qscript_call_expandfunction);
+            QScriptValue fun = eng->newFunction(qscript_call_expandfunction);
             fun.setProperty("qmakeProject", eng->newVariant(project));
             fun.setProperty("functionName", QScriptValue(eng, funcName));
             eng->globalObject().setProperty(funcName, fun);
@@ -1772,7 +1773,7 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
         if (f.open(QFile::ReadOnly)) {
             QString code = f.readAll();
             QScriptValue r = eng.evaluate(code);
-            if(eng.uncaughtException()) {
+            if(eng.hasUncaughtException()) {
                 const int lineNo = eng.uncaughtExceptionLineNumber();
                 fprintf(stderr, "%s:%d: %s\n", file.toLatin1().constData(), lineNo,
                         r.toString().toLatin1().constData());
@@ -2279,7 +2280,7 @@ QMakeProject::doProjectExpand(QString func, QList<QStringList> args_list,
             if(jsFunc.isFunction()) {
                 QScriptValueList jsArgs;
                 for(int i = 0; i < args.size(); ++i)
-                    jsArgs += eng.scriptValue(args.at(i));
+                    jsArgs += QScriptValue(&eng, args.at(i));
                 QScriptValue jsRet = jsFunc.call(eng.globalObject(), jsArgs);
                 ret = qscriptvalue_cast<QStringList>(jsRet);
                 break;
@@ -2712,9 +2713,9 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
             if(jsFunc.isFunction()) {
                 QScriptValueList jsArgs;
                 for(int i = 0; i < args.size(); ++i)
-                    jsArgs += eng.scriptValue(args.at(i));
+                    jsArgs += QScriptValue(&eng, args.at(i));
                 QScriptValue jsRet = jsFunc.call(eng.globalObject(), jsArgs);
-                if(eng.uncaughtException())
+                if(eng.hasUncaughtException())
                     return false;
                 return qscriptvalue_cast<bool>(jsRet);
             }
