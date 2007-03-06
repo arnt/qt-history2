@@ -18,6 +18,8 @@
 //TESTED_CLASS=QColumnView
 //TESTED_FILES=qcolumnview.h qcolumnview.cpp
 
+#define ANIMATION_DELAY 300
+
 class tst_QColumnView : public QObject {
   Q_OBJECT
 
@@ -253,14 +255,15 @@ void tst_QColumnView::scrollTo()
     view.scrollTo(index, QAbstractItemView::EnsureVisible);
     QCOMPARE(view.HorizontalOffset(), 0);
 
+    QCOMPARE(view.hasFocus(), false);
     // scroll to the right
     int level = 0;
     int last = view.HorizontalOffset();
     while(model.hasChildren(index) && level < 8) {
         view.setCurrentIndex(index);
-        QTest::qWait(300);
+        QTest::qWait(ANIMATION_DELAY);
         view.scrollTo(index, QAbstractItemView::EnsureVisible);
-        QTest::qWait(300);
+        QTest::qWait(ANIMATION_DELAY);
         index = model.index(0, 0, index);
         level++;
         if (level >= 2) {
@@ -269,12 +272,14 @@ void tst_QColumnView::scrollTo()
         }
         last = view.HorizontalOffset();
     }
+    // It shouldn't automatically steal focus
+    QCOMPARE(view.hasFocus(), false);
 
     // scroll to the left
     int start = level;
     while(index.parent().isValid()) {
         view.setCurrentIndex(index);
-        QTest::qWait(300);
+        QTest::qWait(ANIMATION_DELAY);
         view.scrollTo(index, QAbstractItemView::EnsureVisible);
         index = index.parent();
         if (start != level)
@@ -283,6 +288,13 @@ void tst_QColumnView::scrollTo()
         last = view.HorizontalOffset();
     }
 
+    // Try scrolling to something that is above the root index
+    QModelIndex home = model.index(QDir::homePath());
+    QModelIndex temp = model.index(QDir::tempPath());
+    view.setRootIndex(home);
+    view.scrollTo(model.index(0, 0, home));
+    QTest::qWait(ANIMATION_DELAY);
+    view.scrollTo(temp);
 }
 
 void tst_QColumnView::moveCursor()
