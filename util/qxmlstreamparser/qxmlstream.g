@@ -292,6 +292,7 @@ public:
     uint referenceToUnparsedEntityDetected : 1;
     uint hasExternalDtdSubset : 1;
     uint lockEncoding : 1;
+    uint namespaceProcessing : 1;
 
     int resumeReduction;
     void resume(int rule);
@@ -1322,7 +1323,7 @@ attribute ::= qname space_opt EQ space_opt attribute_value;
 /.
         case $rule_number: {
             QStringRef prefix = symPrefix(1);
-            if (prefix.isEmpty() && symString(1) == QLatin1String("xmlns")) {
+            if (prefix.isEmpty() && symString(1) == QLatin1String("xmlns") && namespaceProcessing) {
                 NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
                 namespaceDeclaration.prefix.clear();
                 namespaceDeclaration.namespaceUri = addToStringStorage(symString(5));
@@ -1366,7 +1367,7 @@ attribute ::= qname space_opt EQ space_opt attribute_value;
                     attribute.value.pos = pos;
                     attribute.value.len = n;
                 }
-                if (prefix == QLatin1String("xmlns")) {
+                if (prefix == QLatin1String("xmlns") && namespaceProcessing) {
                     NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
                     QStringRef namespacePrefix = symString(attribute.key);
                     QStringRef namespaceUri = symString(attribute.value);
