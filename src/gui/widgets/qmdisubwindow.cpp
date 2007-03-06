@@ -2710,6 +2710,10 @@ void QMdiSubWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
         hoverRegion += style()->subControlRect(QStyle::CC_TitleBar, &options,
                                                d->hoveredSubControl, this);
     }
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
+    if (qobject_cast<QMacStyle *>(style()) && !hoverRegion.isEmpty())
+        hoverRegion += QRegion(0, 0, width(), d->titleBarHeight(options));
+#endif
     if (!hoverRegion.isEmpty())
         update(hoverRegion);
 
