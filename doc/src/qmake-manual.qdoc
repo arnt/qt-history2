@@ -472,7 +472,7 @@
     For example, \c qmake can configure the build process to take advantage
     of external libraries that are supported by
     \l{http://www.freedesktop.org/wiki/Software_2fpkgconfig}{pkg-config},
-    such as the D-BUS and ogg libraries, with the following lines:
+    such as the D-Bus and ogg libraries, with the following lines:
 
     \code
         CONFIG += link_pkgconfig

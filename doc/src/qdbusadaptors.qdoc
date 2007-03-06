@@ -15,7 +15,7 @@
     \title Using QtDBus Adaptors
 
     Adaptors are special classes that are attached to any QObject-derived class
-    and provide the interface to the external world using D-BUS. Adaptors are
+    and provide the interface to the external world using D-Bus. Adaptors are
     intended to be lightweight classes whose main purpose is to relay calls to
     and from the real object, possibly validating or converting the input from
     the external world and, thus, protecting the real object.
@@ -35,22 +35,22 @@
     interfaces it is exporting.
 
     Any public slot in the class will be accessible through the bus over messages
-    of the MethodCall type. (See \l {Declaring Slots in D-BUS Adaptors} for more
-    information). Signals in the class will be automatically relayed over D-BUS.
+    of the MethodCall type. (See \l {Declaring Slots in D-Bus Adaptors} for more
+    information). Signals in the class will be automatically relayed over D-Bus.
     However, not all types are allowed signals or slots' parameter lists: see
     \l {The QtDBus Type System} for more information.
 
     Also, any property declared with Q_PROPERTY will be automatically exposed
-    over the Properties interface on D-BUS. Since the QObject property system
+    over the Properties interface on D-Bus. Since the QObject property system
     does not allow for non-readable properties, it is not possible to declare
     write-only properties using adaptors.
 
     More information:
     \list
-      \o \l{Declaring Slots in D-BUS Adaptors}
-      \o \l{Declaring Signals in D-BUS Adaptors}
+      \o \l{Declaring Slots in D-Bus Adaptors}
+      \o \l{Declaring Signals in D-Bus Adaptors}
       \o \l{The QtDBus Type System}
-      \o \l{D-BUS Adaptor Example}
+      \o \l{D-Bus Adaptor Example}
     \endlist
 
     \sa QDBusAbstractAdaptor
@@ -58,9 +58,9 @@
 
 /*!
     \page qdbusadaptorexample.html
-    \title D-BUS Adaptor Example
+    \title D-Bus Adaptor Example
 
-    The following example code shows how a D-BUS interface can be implemented
+    The following example code shows how a D-Bus interface can be implemented
     using an adaptor.
 
     A sample usage of QDBusAbstractAdaptor is as follows:
@@ -178,7 +178,7 @@
             // create the MainApplication adaptor:
             new MainApplicationAdaptor(app);
 
-            // connect to D-BUS and register as an object:
+            // connect to D-Bus and register as an object:
             QDBus::sessionBus().registerObject("/MainApplication", app);
 
             // add main window, etc.
@@ -206,7 +206,7 @@
     \list
       \o it declares the adaptor MainApplicationAdaptor, which descends from QDBusAbstractAdaptor
       \o it declares the Qt Meta Object data using the Q_OBJECT macro
-      \o it declares the names of two D-BUS interfaces it implements. Those interfaces are equal in
+      \o it declares the names of two D-Bus interfaces it implements. Those interfaces are equal in
          all aspects.
     \endlist
 
@@ -276,7 +276,7 @@
        QObject.
     \o it connects the application's signal \a aboutToQuit to its own signal \a aboutToQuit.
     \o it connects the application's signal \a focusChanged to a private slot to do some further
-       processing before emitting a D-BUS signal.
+       processing before emitting a D-Bus signal.
     \endlist
 
     Note that there is no destructor in the example. An eventual destructor could be used to emit
@@ -284,7 +284,7 @@
 
     \section1 Slots/methods
 
-    The public slots in the example (which will be exported as D-BUS methods) are the following:
+    The public slots in the example (which will be exported as D-Bus methods) are the following:
     \code
         public slots:
             Q_NOREPLY void quit()
@@ -313,7 +313,7 @@
     \list 1
     \o \c quit: this method takes no parameters and is defined to be asynchronous. That is, callers
       are expected to use "fire-and-forget" mechanism when calling this method, since it provides no
-      useful reply. This is represented in D-BUS by the use of the
+      useful reply. This is represented in D-Bus by the use of the
       org.freedesktop.DBus.Method.NoReply annotation. See \l Q_NOREPLY for more information on
       asynchronous methods
 
@@ -358,19 +358,19 @@
             }
     \endcode
 
-    This private slot (which will not be exported as a method via D-BUS) was connected to the
+    This private slot (which will not be exported as a method via D-Bus) was connected to the
     \c focusChanged signal in the adaptor's constructor. It is therefore able to shape the
     application's signal into what the interface expects it to be.
 */
 
 /*!
     \page qdbusdeclaringslots.html
-    \title Declaring Slots in D-BUS Adaptors
+    \title Declaring Slots in D-Bus Adaptors
 
-    Slots in D-BUS adaptors are declared just like normal, public slots, but their
+    Slots in D-Bus adaptors are declared just like normal, public slots, but their
     parameters must follow certain rules (see \l{The QtDBus Type System} for more
     information). Slots whose parameters do not follow those rules or that are not
-    public will not be accessible via D-BUS.
+    public will not be accessible via D-Bus.
 
     Slots can have one parameter of type \c{const QDBusMessage &}, which must
     appear at the end of the input parameter list, before any output parameters.
@@ -397,7 +397,7 @@
 
     Asynchronous slots are marked by the keyword \l Q_NOREPLY in the method
     signature, before the \c void return type and the slot name. (See the
-    \c quit() slot in the \l{D-BUS Adaptor Example}).
+    \c quit() slot in the \l{D-Bus Adaptor Example}).
 
     \section1 Input-Only Slots
 
@@ -494,7 +494,7 @@
         // data->processedData has been initialized with the request's reply
         QDBusMessage &reply = &data->reply;
 
-        // send the reply over D-BUS:
+        // send the reply over D-Bus:
         reply << data->processedData;
         QDBusConnection::sessionBus().send(reply);
 
@@ -519,16 +519,16 @@
     to complete should make that fact clear in documentation so that callers
     properly set higher timeouts.
 
-    \sa {Using QtDBus Adaptors}, {Declaring Signals in D-BUS Adaptors},
+    \sa {Using QtDBus Adaptors}, {Declaring Signals in D-Bus Adaptors},
         {The QtDBus Type System}, QDBusConnection, QDBusMessage
 */
 
 /*!
     \page qdbusdeclaringsignals.html
-    \title Declaring Signals in D-BUS Adaptors
+    \title Declaring Signals in D-Bus Adaptors
 
     Any signal in a class derived from QDBusAbstractAdaptor will be automatically
-    relayed into D-BUS, provided that the signal's parameters conform to certain
+    relayed into D-Bus, provided that the signal's parameters conform to certain
     rules (see \l{The QtDBus Type System} for more information). No special code
     is necessary to make this relay.
 
@@ -536,7 +536,7 @@
     signal is to connect another signal to it, so that Qt's signals and slots
     mechanism automatically emits the adaptor signal, too. This can be done in
     the adaptor's constructor, as has been done in the
-    \l{D-BUS Adaptor Example}{D-BUS Adaptor example}.
+    \l{D-Bus Adaptor Example}{D-Bus Adaptor example}.
 
     The QDBusAbstractAdaptor::setAutoRelaySignals() convenience function can also
     be used to make and break connections between signals in the real object and
@@ -544,7 +544,7 @@
     in both classes and connect those whose parameters match exactly.
 
     \sa {Using QtDBus Adaptors},
-        {Declaring Slots in D-BUS Adaptors},
+        {Declaring Slots in D-Bus Adaptors},
         {The QtDBus Type System}, QDBusAbstractAdaptor
 */
 
@@ -552,7 +552,7 @@
     \page qdbustypesystem.html
     \title The QtDBus Type System
 
-    D-BUS has an extensible type system based on a few primitives and
+    D-Bus has an extensible type system based on a few primitives and
     composition of the primitives in arrays and structures. QtDBus
     implements the interface to that type system through the
     QDBusArgument class, allowing user programs to send and receive
@@ -567,7 +567,7 @@
     \table
       \header
         \o Qt type
-        \o D-BUS equivalent type
+        \o D-Bus equivalent type
       \row
         \o uchar
         \o BYTE
@@ -615,7 +615,7 @@
 
     \section1 Compound Types
 
-    D-BUS specifies three types of aggregations of primitive types
+    D-Bus specifies three types of aggregations of primitive types
     that allow one to create compound types. They are \c ARRAY, \c
     STRUCT and maps/dictionaries.
 

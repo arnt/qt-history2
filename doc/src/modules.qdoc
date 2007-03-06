@@ -35,7 +35,7 @@
     on Unix platforms:
 
     \table 80%
-    \row \o \l{QtDBus} \o Classes for Inter-Process Communication using the D-BUS
+    \row \o \l{QtDBus} \o Classes for Inter-Process Communication using the D-Bus
     \endtable
 
     If you use \l qmake to build your projects, the QtCore and QtGui

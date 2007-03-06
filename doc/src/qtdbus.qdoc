@@ -19,7 +19,7 @@
     \keyword QtDBus
 
     \brief The QtDBus module is a Unix-only library that you can use
-    to make Inter-Process Communication using the D-BUS protocol.
+    to make Inter-Process Communication using the D-Bus protocol.
 
     Applications using the QtDBus module can provide services to
     other, remote applications by exporting objects, as well as use
@@ -45,7 +45,7 @@
         CONFIG += qdbus
     \endcode
 
-    See the \l {Introduction to D-BUS} page for detailed information on
+    See the \l {Introduction to D-Bus} page for detailed information on
     how to use this module.
 
     This module is part of all \l{Qt editions}.

@@ -12,14 +12,14 @@
 
 /*!
     \page intro-to-dbus.html
-    \title Introduction to D-BUS
+    \title Introduction to D-Bus
 
     \keyword QtDBus
     \ingroup architecture
 
     \section1 Introduction
 
-    D-BUS is an Inter-Process Communication (IPC) and Remote Procedure
+    D-Bus is an Inter-Process Communication (IPC) and Remote Procedure
     Calling (RPC) mechanism originally developed for Linux to replace
     existing and competing IPC solutions with one unified protocol. It
     has also been designed to allow communication between system-level
@@ -40,14 +40,14 @@
 
     \section1 The Buses
 
-    D-BUS buses are used to when many-to-many communication is
+    D-Bus buses are used to when many-to-many communication is
     desired. In order to achieve that, a central server is launched
     before any applications can connect to the bus: this server is
     responsible for keeping track of the applications that are
     connected and for properly routing messages from their source to
     their destination.
 
-    In addition, D-BUS defines two well-known buses, called the
+    In addition, D-Bus defines two well-known buses, called the
     system bus and the session bus. These buses are special in the
     sense that they have well-defined semantics: some services are
     defined to be found in one or both of these buses.
@@ -67,7 +67,7 @@
 
     \section2 Messages
 
-    On the low level, applications communicate over D-BUS by sending
+    On the low level, applications communicate over D-Bus by sending
     messages to one another. Messages are used to relay the remote
     procedure calls as well as the replies and errors associated
     with them. When used over a bus, messages have a destination,
@@ -90,7 +90,7 @@
     When communicating over a bus, applications obtain what is
     called a "service name": it is how that application choses to be
     known by other applications on the same bus. The service names
-    are brokered by the D-BUS bus daemon and are used to
+    are brokered by the D-Bus bus daemon and are used to
     route messages from one application to another. An analogous
     concept to service names are IP addresses and hostnames: a
     computer normally has one IP address and may have one or more
@@ -103,13 +103,13 @@
     known, there is no need to use hostnames to find it or its IP
     address.
 
-    The format of a D-BUS service name is in fact very similar to a
+    The format of a D-Bus service name is in fact very similar to a
     host name: it is a dot-separated sequence of letters and
     digits. The common practice is even to name one's service name
     according to the domain name of the organization that defined
     that service.
 
-    For example, the D-BUS service is defined by
+    For example, the D-Bus service is defined by
     \tt{freedesktop.org} and can be found on the bus under the
     service name:
 
@@ -131,7 +131,7 @@
 
     \img qurl-ftppath.png
 
-    Like them, object paths in D-BUS are formed resembling path
+    Like them, object paths in D-Bus are formed resembling path
     names on the filesystem: they are slash-separated labels, each
     consisting of letters, digits and the underscore character
     ("_"). They must always start with a slash and must not end with
@@ -151,7 +151,7 @@
     with a unique identifier by way of the Q_DECLARE_INTERFACE()
     macro.
 
-    D-BUS interface names are, in fact, named in a manner similar to
+    D-Bus interface names are, in fact, named in a manner similar to
     what is suggested by the Qt Plugin System: an identifier usually
     constructed from the domain name of the entity that defined that
     interface.
@@ -162,7 +162,7 @@
     purposes, the following table can be used:
 
     \table 90%
-    \header \o D-BUS Concept  \o Analogy            \o Name format
+    \header \o D-Bus Concept  \o Analogy            \o Name format
     \row    \o Service name   \o Network hostnames  \o Dot-separated
                                                        ("looks like a hostname")
     \row    \o Object path    \o URL path component \o Slash-separated
@@ -172,7 +172,7 @@
 
     \section2 Further Reading
 
-    The following documents contain information about Qt's D-BUS integration
+    The following documents contain information about Qt's D-Bus integration
     features, and provide details about the mechanisms used to send and receive
     type information over the bus:
 
