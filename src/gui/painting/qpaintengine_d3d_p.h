@@ -180,7 +180,8 @@ struct QD3DBatchItem {
         BI_CLEARCLIP        = 0x0800, // clip nothing (filling the clip mask with 0)
         BI_TRANSFORM        = 0x1000,
         BI_MASKSCISSOR      = 0x2000,
-        BI_FASTLINE         = 0x4000
+        BI_FASTLINE         = 0x4000,
+        BI_LINESTRIP        = 0x8000
     };
 
     int m_info;
@@ -200,6 +201,7 @@ struct QD3DBatchItem {
     IDirect3DTexture9 *m_texture;
 
     qreal m_width;
+    qreal m_distance;
 
     D3DXMATRIX m_matrix;
     QPainter::CompositionMode m_cmode;
@@ -245,11 +247,14 @@ public:
     inline QD3DBatchItem *nextBatchItem();
 
     QPolygonF brushCoordinates(const QRectF &r, bool stroke, qreal *fp) const;
-    void fillAliasedPath(QPainterPath path, const QRectF &brect,
-        const QTransform &txform, bool stroke);
+    void fillAliasedPath(QPainterPath path, const QRectF &brect, const QTransform &txform);
     void fillAntialiasedPath(const QPainterPath &path, const QRectF &brect,
         const QTransform &txform, bool stroke);
-    void fillPath(const QPainterPath &path, QRectF brect, bool stroke);
+    void fillPath(const QPainterPath &path, QRectF brect);
+
+    void strokePath(const QPainterPath &path, QRectF brect, bool simple = false);
+    QPainterPath strokePathFastPen(const QPainterPath &path);
+    void strokeAliasedPath(QPainterPath path, const QRectF &brect, const QTransform &txform);
 
     void flushBatch();
     int flushAntialiased(int offset);
@@ -272,6 +277,8 @@ public:
     void prepareItem(QD3DBatchItem *item);
     void cleanupItem(QD3DBatchItem *item);
     void setCompositionMode(QPainter::CompositionMode mode);
+
+    bool isFastRect(const QRectF &rect);
 
     void cleanup();
 
@@ -299,6 +306,7 @@ public:
     Qt::BrushStyle m_pen_brush_style;
     QTransform m_inv_pen_matrix;
     D3DCOLOR m_penColor;
+    qreal m_pen_width;
 
     QBrush m_brush;
     Qt::BrushStyle m_brush_style;

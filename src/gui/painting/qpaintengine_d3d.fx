@@ -456,6 +456,23 @@ technique Aliased
         PixelShader = compile ps_2_0 SimplePS();
     }
 
+    pass PASS_STENCIL_NOSTENCILCHECK_DIRECT
+    {
+        StencilEnable = False;
+
+        ZEnable = True;
+        ZWriteEnable = False;
+        ZFunc = Greater;
+
+        ColorWriteEnable = 0x0f;
+
+        SrcBlend = SrcAlpha;
+        DestBlend = InvSrcAlpha;
+
+        VertexShader = compile vs_1_1 AliasedVS();
+        PixelShader = compile ps_2_0 DirectSimplePS();
+    }
+
     pass PASS_TEXT
     {
         StencilEnable = False;
