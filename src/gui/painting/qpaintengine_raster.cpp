@@ -1245,6 +1245,8 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
 
 void QRasterPaintEnginePrivate::updateMatrixData(QSpanData *spanData, const QBrush &b, const QTransform &m)
 {
+    if (b.d->style == Qt::NoBrush || b.d->style == Qt::SolidPattern)
+        return;
     if (b.d->hasTransform) {
         spanData->setupMatrix(b.transform() * m, txop, bilinear);
     } else {
