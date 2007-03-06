@@ -1324,6 +1324,23 @@ void tst_QMdiArea::dontMaximizeSubWindowOnActivation()
         QVERIFY(window->isMaximized());
         qApp->processEvents();
     }
+
+    // Verify that activated windows are maximized after closing
+    // the active window
+    for (int i = 0; i < subWindows.count(); ++i) {
+        QVERIFY(mdiArea.activeSubWindow());
+        QVERIFY(mdiArea.activeSubWindow()->isMaximized());
+        mdiArea.activeSubWindow()->close();
+        qApp->processEvents();
+    }
+
+    QVERIFY(!mdiArea.activeSubWindow());
+    QCOMPARE(mdiArea.subWindowList().size(), 0);
+
+    // Verify that new windows are not maximized.
+    mdiArea.addSubWindow(new QWidget)->show();
+    QVERIFY(mdiArea.activeSubWindow());
+    QVERIFY(!mdiArea.activeSubWindow()->isMaximized());
 }
 
 QTEST_MAIN(tst_QMdiArea)
