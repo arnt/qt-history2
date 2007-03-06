@@ -1054,7 +1054,9 @@ void QPdfBaseEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperation op)
 void QPdfBaseEngine::setPen()
 {
     Q_D(QPdfBaseEngine);
-    QBrush b = d->pen.brush();
+    if (d->pen.style() == Qt::NoPen)
+        return;
+    QBrush b = d->pen.brush();    
     Q_ASSERT(b.style() == Qt::SolidPattern && b.isOpaque());
 
     QColor rgba = b.color();

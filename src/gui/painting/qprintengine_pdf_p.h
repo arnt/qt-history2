@@ -112,6 +112,7 @@ public:
     void writeTail();
 
     int addImage(const QImage &image, bool *bitmap, qint64 serial_no);
+    int addConstantAlphaObject(int alpha);
     int addBrushPattern(const QTransform &matrix, bool *specifyColor, int *gStateObject);
 
     QTransform pageMatrix() const;
@@ -150,6 +151,7 @@ private:
     int pageRoot, catalog, info, graphicsState, patternColorSpace;
     QVector<uint> pages;
     QHash<qint64, uint> imageCache;
+    QHash<uint, uint> alphaCache;
 };
 
 

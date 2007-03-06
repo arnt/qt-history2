@@ -211,6 +211,10 @@ void QPdfEngine::drawTiledPixmap (const QRectF &rectangle, const QPixmap &pixmap
 void QPdfEngine::setBrush()
 {
     Q_D(QPdfEngine);
+    Qt::BrushStyle style = d->brush.style();
+    if (style == Qt::NoBrush)
+        return;
+    
     bool specifyColor;
     int gStateObject = 0;
     int patternObject = d->addBrushPattern(d->stroker.matrix, &specifyColor, &gStateObject);
@@ -323,10 +327,7 @@ int QPdfEnginePrivate::gradientBrush(const QBrush &b, const QMatrix &matrix, int
             }
         }
         if (ca) {
-            *gStateObject = addXrefEntry(-1);
-            xprintf("<< /ca %f >>\n"
-                    "endobj\n", stops.at(0).second.alphaF());
-
+            *gStateObject = addConstantAlphaObject(stops.at(0).second.alpha());
         } else {
             int alphaShaderObject = addXrefEntry(-1);
             write(alphaShader);
@@ -358,13 +359,30 @@ int QPdfEnginePrivate::gradientBrush(const QBrush &b, const QMatrix &matrix, int
             *gStateObject = addXrefEntry(-1);
             xprintf("<< /SMask << /S /Alpha /G %d 0 R >> >>\n"
                     "endobj\n", softMaskFormObject);
+            currentPage->graphicStates.append(*gStateObject);
         }
-        currentPage->graphicStates.append(*gStateObject);
     }
 
     return patternObj;
 }
 #endif
+
+int QPdfEnginePrivate::addConstantAlphaObject(int alpha)
+{
+    if (alpha == 255)
+        return 0;
+    int object = alphaCache.value(alpha, 0);
+    if (!object) {
+        object = addXrefEntry(-1);
+        QByteArray alphaDef;
+        QPdf::ByteStream s(&alphaDef);
+        s << "<< /ca " << (alpha/255.) << ">>\n";
+        xprintf(alphaDef.constData());
+        xprintf("endobj\n");
+    }
+    currentPage->graphicStates.append(object);
+    return object;
+}
 
 int QPdfEnginePrivate::addBrushPattern(const QTransform &m, bool *specifyColor, int *gStateObject)
 {
@@ -390,20 +408,8 @@ int QPdfEnginePrivate::addBrushPattern(const QTransform &m, bool *specifyColor, 
 #endif
     }
 
-    if (!brush.isOpaque() && brush.style() < Qt::LinearGradientPattern) {
-        QByteArray brushDef;
-        QPdf::ByteStream s(&brushDef);
-        s << "<<";
-        QColor rgba = brush.color();
-        s << "/ca " << rgba.alphaF();
-        s << ">>\n";
-
-        *gStateObject = addXrefEntry(-1);
-        xprintf(brushDef.constData());
-        xprintf("endobj\n");
-
-        currentPage->graphicStates.append(*gStateObject);
-    }
+    if (!brush.isOpaque() && brush.style() < Qt::LinearGradientPattern) 
+        *gStateObject = addConstantAlphaObject(brush.color().alpha());
 
     int imageObject = 0;
     QByteArray pattern = QPdf::patternForBrush(brush);
