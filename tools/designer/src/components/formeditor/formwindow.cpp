@@ -1106,7 +1106,7 @@ bool FormWindow::handleKeyPressEvent(QWidget *widget, QWidget *, QKeyEvent *e)
         case Qt::Key_Up:
         case Qt::Key_Down:
             if (e->modifiers() & Qt::ControlModifier)
-                handleArrowKeyEvent(e->key(), e->modifiers() == Qt::ControlModifier);
+                handleArrowKeyEvent(e->key(), !(e->modifiers() & Qt::ShiftModifier));
             break;
     }
 
