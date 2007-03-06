@@ -2853,8 +2853,9 @@ QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
     QList<QTreeWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i) {
         QTreeWidgetItem *item = d->item(indexes.at(i));
-        if (!items.contains(item)) // ### slow, optimize later
-            items.append(item);
+        if (isItemHidden(item) || items.contains(item)) // ### slow, optimize later
+            continue;
+        items.append(item);
     }
     return items;
 }
@@ -2885,8 +2886,12 @@ bool QTreeWidget::isItemHidden(const QTreeWidgetItem *item) const
     Q_D(const QTreeWidget);
     if (item == d->model()->headerItem)
         return header()->isHidden();
-    const QModelIndex index = d->index(item);
-    return isRowHidden(index.row(), index.parent());
+    if (d->hiddenIndexes.isEmpty())
+        return false;
+    for (int i = 0; i < d->hiddenIndexes.count(); ++i)
+        if (d->hiddenIndexes.at(i).internalPointer() == item)
+            return true;
+    return false;
 }
 
 /*!
