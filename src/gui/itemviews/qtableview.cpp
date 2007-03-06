@@ -21,6 +21,7 @@
 #include <qstyle.h>
 #include <qsize.h>
 #include <qevent.h>
+#include <qbitarray.h>
 #include <qscrollbar.h>
 #include <qabstractbutton.h>
 #include <private/qtableview_p.h>
@@ -280,14 +281,21 @@ QRect QTableViewPrivate::visualSpanRect(const Span &span) const
   Draws the spanning cells within rect \a area, and clips them off as
   preparation for the main drawing loop.
 */
-void QTableViewPrivate::drawAndClipSpans(const QRect &area, QPainter *painter,
-                                         const QStyleOptionViewItemV3 &option)
+QBitArray QTableViewPrivate::drawAndClipSpans(const QRect &area, QPainter *painter,
+                                              const QStyleOptionViewItemV3 &option)
 {
+    int rowCount = model->rowCount(root);
+    int columnCount = model->columnCount(root);
+    QBitArray cells(rowCount * columnCount);
+
     bool alternateBase = false;
     QRegion region = viewport->rect();
     QList<Span>::const_iterator it;
     for (it = spans.constBegin(); it != spans.constEnd(); ++it) {
         Span span = *it;
+        for (int r = span.top(); r <= span.bottom(); ++r)
+            for (int c = span.left(); c <= span.right(); ++c)
+                cells.setBit(r * columnCount + c);
         int row = span.top();
         int col = span.left();
         if (isHidden(row, col))
@@ -313,6 +321,7 @@ void QTableViewPrivate::drawAndClipSpans(const QRect &area, QPainter *painter,
         painter->setClipRegion(region);
     else
         painter->setClipRegion(QRegion(), Qt::NoClip);
+    return cells;
 }
 
 /*!
@@ -642,6 +651,7 @@ void QTableView::paintEvent(QPaintEvent *event)
     const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
     const bool rightToLeft = isRightToLeft();
+    const int columnCount = d->model->columnCount(d->root);    
 
     QPainter painter(d->viewport);
 
@@ -663,8 +673,9 @@ void QTableView::paintEvent(QPaintEvent *event)
             dirtyArea.setRight(qMin(dirtyArea.right(), x));
         }
 
+        QBitArray paintedCells;
         if (d->hasSpans())
-            d->drawAndClipSpans(dirtyArea, &painter, option);
+            paintedCells = d->drawAndClipSpans(dirtyArea, &painter, option);
 
         // get the horizontal start and end visual sections
         int left = horizontalHeader->visualIndexAt(dirtyArea.left());
@@ -709,6 +720,8 @@ void QTableView::paintEvent(QPaintEvent *event)
             for (int h = left; h <= right; ++h) {
                 int col = horizontalHeader->logicalIndex(h);
                 if (horizontalHeader->isSectionHidden(col))
+                    continue;
+                if (d->hasSpans() && paintedCells.testBit(row * columnCount + col))
                     continue;
                 int colp = columnViewportPosition(col);
                 colp += offset.x();
