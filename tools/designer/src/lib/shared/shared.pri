@@ -1,5 +1,6 @@
 
 INCLUDEPATH += $$PWD
+QT += script
 
 UI_DIR = $$PWD
 
