@@ -144,6 +144,7 @@ private slots:
 
     // task specific tests below me
     void task141694_textItemEnsureVisible();
+    void task128696_textItemEnsureMovable();
 };
 
 void tst_QGraphicsItem::construction()
@@ -4156,6 +4157,36 @@ void tst_QGraphicsItem::task141694_textItemEnsureVisible()
     // This should not cause the view to scroll
     QCOMPARE(view.horizontalScrollBar()->value(), hscroll);
     QCOMPARE(view.verticalScrollBar()->value(), vscroll);
+}
+
+void tst_QGraphicsItem::task128696_textItemEnsureMovable()
+{
+    QGraphicsTextItem *item = new QGraphicsTextItem;
+    item->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
+    item->setTextInteractionFlags(Qt::TextEditorInteraction);
+    item->setPlainText("abc de\nf ghi\n   j k l");
+
+    QGraphicsScene scene;
+    scene.setSceneRect(-100, -100, 200, 200);
+    scene.addItem(item);
+
+    QGraphicsView view(&scene);
+    view.setFixedSize(200, 200);
+    view.show();
+
+    QGraphicsSceneMouseEvent event1(QEvent::GraphicsSceneMousePress);
+    event1.setScenePos(QPointF(0, 0));
+    event1.setButton(Qt::LeftButton);
+    event1.setButtons(Qt::LeftButton);
+    QApplication::sendEvent(&scene, &event1);
+    QCOMPARE(scene.mouseGrabberItem(), (QGraphicsItem *)item);
+
+    QGraphicsSceneMouseEvent event2(QEvent::GraphicsSceneMouseMove);
+    event2.setScenePos(QPointF(10, 10));
+    event2.setButton(Qt::LeftButton);
+    event2.setButtons(Qt::LeftButton);
+    QApplication::sendEvent(&scene, &event2);
+    QCOMPARE(item->pos(), QPointF(10, 10));
 }
 
 QTEST_MAIN(tst_QGraphicsItem)
