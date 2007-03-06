@@ -1412,7 +1412,7 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_None, "branch" }
 };
 
-QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QString &part, int pseudoState = PseudoState_Unspecified)
+QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QString &part, int pseudoClass = PseudoClass_Unspecified)
 {
     QVector<Declaration> decls;
     for (int i = 0; i < styleRules.count(); i++) {
@@ -1421,10 +1421,10 @@ QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QS
         // diversion for CSS
         if (part.compare(selector.pseudoElement(), Qt::CaseInsensitive) != 0)
             continue;
-        int cssState = selector.pseudoState();
-        if (!(pseudoState & PseudoState_Horizontal))
-            cssState &= ~PseudoState_Vertical;
-        if ((cssState == PseudoState_Unspecified) || ((cssState & pseudoState) == cssState))
+        int cssClass = selector.pseudoClass();
+        if (!(pseudoClass & PseudoClass_Horizontal))
+            cssClass &= ~PseudoClass_Vertical;
+        if ((cssClass == PseudoClass_Unspecified) || ((cssClass & pseudoClass) == cssClass))
             decls += styleRules.at(i).declarations;
     }
     return decls;
@@ -1460,34 +1460,34 @@ int QStyleSheetStyle::nativeFrameWidth(const QWidget *w)
     return base->pixelMetric(QStyle::PM_DefaultFrameWidth);
 }
 
-static int pseudoState(QStyle::State state)
+static int pseudoClass(QStyle::State state)
 {
-    int pseudoState = (state & QStyle::State_Enabled)
-                      ? PseudoState_Enabled : PseudoState_Disabled;
+    int pc = (state & QStyle::State_Enabled)
+             ? PseudoClass_Enabled : PseudoClass_Disabled;
     if (state & QStyle::State_Sunken)
-        pseudoState |= PseudoState_Pressed;
+        pc |= PseudoClass_Pressed;
     if (state & (QStyle::State_MouseOver /*| QStyle::State_Selected*/))
-        pseudoState |= PseudoState_Hover;
+        pc |= PseudoClass_Hover;
     if (state & QStyle::State_HasFocus)
-        pseudoState |= PseudoState_Focus;
+        pc |= PseudoClass_Focus;
     if (state & QStyle::State_On)
-        pseudoState |= PseudoState_On;
+        pc |= PseudoClass_On;
     if (state & QStyle::State_Off)
-        pseudoState |= PseudoState_Off;
+        pc |= PseudoClass_Off;
     if (state & QStyle::State_NoChange)
-        pseudoState |= PseudoState_Indeterminate;
+        pc |= PseudoClass_Indeterminate;
     if (state & QStyle::State_Selected)
-        pseudoState |= PseudoState_Selected;
+        pc |= PseudoClass_Selected;
     if (state & QStyle::State_Horizontal)
-        pseudoState |= PseudoState_Horizontal;
+        pc |= PseudoClass_Horizontal;
     if (state & QStyle::State_Open)
-        pseudoState |= PseudoState_Open;
+        pc |= PseudoClass_Open;
     if (state & QStyle::State_Children)
-        pseudoState |= PseudoState_Children;
+        pc |= PseudoClass_Children;
     if (state & QStyle::State_Sibling)
-        pseudoState |= PseudoState_Sibling;
+        pc |= PseudoClass_Sibling;
 
-    return pseudoState;
+    return pc;
 }
 
 QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int element, int state) const
@@ -1509,7 +1509,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int element, int stat
 QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *opt, int pseudoElement) const
 {
     Q_ASSERT(w && !styleRulesCache->value(w).isEmpty());
-    int extraState = 0;
+    int extraClass = 0;
     QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_None);
 
     if (const QStyleOptionComplex *complex = qstyleoption_cast<const QStyleOptionComplex *>(opt)) {
@@ -1568,7 +1568,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         }
     } else if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
         if (mi->menuItemType == QStyleOptionMenuItem::DefaultItem)
-            extraState |= PseudoState_Default;
+            extraClass |= PseudoClass_Default;
     } else {
         // Add hacks for simple controls here
 #ifndef QT_NO_LINEEDIT
@@ -1592,7 +1592,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         { } // required for the above ifdef'ery
     }
 
-    return renderRule(w, pseudoElement, pseudoState(state) | extraState);
+    return renderRule(w, pseudoElement, pseudoClass(state) | extraClass);
 }
 
 static bool hasStyleRule(const QWidget *w, int part = PseudoElement_None)
@@ -1837,7 +1837,7 @@ static void setProperties(QWidget *w)
 
 void QStyleSheetStyle::setPalette(QWidget *w)
 {
-    const QRenderRule &hoverRule = renderRule(w, PseudoElement_None, PseudoState_Hover);
+    const QRenderRule &hoverRule = renderRule(w, PseudoElement_None, PseudoClass_Hover);
     if (hoverRule.hasDrawable())
         w->setAttribute(Qt::WA_Hover);
 
@@ -1845,9 +1845,9 @@ void QStyleSheetStyle::setPalette(QWidget *w)
         int state;
         QPalette::ColorGroup group;
     } map[3] = {
-        { PseudoState_Enabled, QPalette::Active },
-        { PseudoState_Disabled, QPalette::Disabled },
-        { PseudoState_Enabled, QPalette::Inactive }
+        { PseudoClass_Enabled, QPalette::Active },
+        { PseudoClass_Disabled, QPalette::Disabled },
+        { PseudoClass_Enabled, QPalette::Inactive }
     };
 
     QPalette p = w->palette();

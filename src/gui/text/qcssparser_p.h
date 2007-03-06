@@ -325,33 +325,33 @@ struct Q_GUI_EXPORT Declaration
     void borderImageValue(QString *image, int *cuts, TileMode *h, TileMode *v) const;
 };
 
-enum PseudoState
+enum PseudoClass
 {
-    PseudoState_Unknown         = 0x00000000,
-    PseudoState_Enabled         = 0x00000001,
-    PseudoState_Disabled        = 0x00000002,
-    PseudoState_Pressed         = 0x00000004,
-    PseudoState_Focus           = 0x00000008,
-    PseudoState_Hover           = 0x00000010,
-    PseudoState_Checked         = 0x00000020,
-    PseudoState_On              = PseudoState_Checked,
-    PseudoState_Unchecked       = 0x00000040,
-    PseudoState_Off             = PseudoState_Unchecked,
-    PseudoState_Indeterminate   = 0x00000080,
-    PseudoState_Unspecified     = 0x00000100,
-    PseudoState_Selected        = 0x00000200,
-    PseudoState_Horizontal      = 0x00000400,
-    PseudoState_Vertical        = 0x00000800,
-    PseudoState_Open            = 0x00001000,
-    PseudoState_Children        = 0x00002000,
-    PseudoState_Sibling         = 0x00004000,
-    PseudoState_Default         = 0x00008000,
+    PseudoClass_Unknown         = 0x00000000,
+    PseudoClass_Enabled         = 0x00000001,
+    PseudoClass_Disabled        = 0x00000002,
+    PseudoClass_Pressed         = 0x00000004,
+    PseudoClass_Focus           = 0x00000008,
+    PseudoClass_Hover           = 0x00000010,
+    PseudoClass_Checked         = 0x00000020,
+    PseudoClass_On              = PseudoClass_Checked,
+    PseudoClass_Unchecked       = 0x00000040,
+    PseudoClass_Off             = PseudoClass_Unchecked,
+    PseudoClass_Indeterminate   = 0x00000080,
+    PseudoClass_Unspecified     = 0x00000100,
+    PseudoClass_Selected        = 0x00000200,
+    PseudoClass_Horizontal      = 0x00000400,
+    PseudoClass_Vertical        = 0x00000800,
+    PseudoClass_Open            = 0x00001000,
+    PseudoClass_Children        = 0x00002000,
+    PseudoClass_Sibling         = 0x00004000,
+    PseudoClass_Default         = 0x00008000,
     NumPseudos = 18
 };
 
 struct Q_GUI_EXPORT Pseudo
 {
-    PseudoState type;
+    PseudoClass type;
     QString name;
     QString function;
 };
@@ -395,7 +395,7 @@ struct Q_GUI_EXPORT Selector
 {
     QVector<BasicSelector> basicSelectors;
     int specificity() const;
-    int pseudoState() const;
+    int pseudoClass() const;
     QString pseudoElement() const;
 };
 

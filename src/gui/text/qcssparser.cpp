@@ -209,23 +209,23 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
 };
 
 static const QCssKnownValue pseudos[NumPseudos - 1] = {
-    { "checked", PseudoState_Checked },
-    { "children", PseudoState_Children },
-    { "default", PseudoState_Default },
-    { "disabled", PseudoState_Disabled },
-    { "enabled", PseudoState_Enabled },
-    { "focus", PseudoState_Focus },
-    { "horizontal", PseudoState_Horizontal },
-    { "hover", PseudoState_Hover },
-    { "indeterminate" , PseudoState_Indeterminate },
-    { "off", PseudoState_Unchecked },
-    { "on", PseudoState_Checked },
-    { "open", PseudoState_Open },
-    { "pressed", PseudoState_Pressed },
-    { "selected", PseudoState_Selected },
-    { "sibling", PseudoState_Sibling },
-    { "unchecked" , PseudoState_Unchecked },
-    { "vertical", PseudoState_Vertical }
+    { "checked", PseudoClass_Checked },
+    { "children", PseudoClass_Children },
+    { "default", PseudoClass_Default },
+    { "disabled", PseudoClass_Disabled },
+    { "enabled", PseudoClass_Enabled },
+    { "focus", PseudoClass_Focus },
+    { "horizontal", PseudoClass_Horizontal },
+    { "hover", PseudoClass_Hover },
+    { "indeterminate" , PseudoClass_Indeterminate },
+    { "off", PseudoClass_Unchecked },
+    { "on", PseudoClass_Checked },
+    { "open", PseudoClass_Open },
+    { "pressed", PseudoClass_Pressed },
+    { "selected", PseudoClass_Selected },
+    { "sibling", PseudoClass_Sibling },
+    { "unchecked" , PseudoClass_Unchecked },
+    { "vertical", PseudoClass_Vertical }
 };
 
 static const QCssKnownValue borderStyles[NumKnownBorderStyles - 1] = {
@@ -1210,23 +1210,23 @@ int Selector::specificity() const
 QString Selector::pseudoElement() const
 {
     const BasicSelector& bs = basicSelectors.last();
-    if (!bs.pseudos.isEmpty() && bs.pseudos.first().type == PseudoState_Unknown)
+    if (!bs.pseudos.isEmpty() && bs.pseudos.first().type == PseudoClass_Unknown)
         return bs.pseudos.first().name;
     return QString();
 }
 
-int Selector::pseudoState() const
+int Selector::pseudoClass() const
 {
     const BasicSelector& bs = basicSelectors.last();
     if (bs.pseudos.isEmpty())
-        return PseudoState_Unspecified;
-    int state = PseudoState_Unknown;
+        return PseudoClass_Unspecified;
+    int pc = PseudoClass_Unknown;
     for (int i = !pseudoElement().isEmpty(); i < bs.pseudos.count(); i++) {
-        if (bs.pseudos.at(i).type == PseudoState_Unknown)
-            return PseudoState_Unknown;
-        state |= bs.pseudos.at(i).type;
+        if (bs.pseudos.at(i).type == PseudoClass_Unknown)
+            return PseudoClass_Unknown;
+        pc |= bs.pseudos.at(i).type;
     }
-    return state;
+    return pc;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1400,8 +1400,8 @@ QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
         const Selector& selector = rules.at(i).selectors.at(0);
         if (!selector.pseudoElement().isEmpty()) // skip rules with pseudo elements
             continue;
-        int pseudoState = selector.pseudoState();
-        if (pseudoState == PseudoState_Enabled || pseudoState == PseudoState_Unspecified)
+        int pseudoClass = selector.pseudoClass();
+        if (pseudoClass == PseudoClass_Enabled || pseudoClass == PseudoClass_Unspecified)
             decls += rules.at(i).declarations;
     }
     return decls;
@@ -1832,7 +1832,7 @@ bool Parser::parsePseudo(Pseudo *pseudo)
     test(COLON);
     if (test(IDENT)) {
         pseudo->name = lexem();
-        pseudo->type = static_cast<PseudoState>(findKnownValue(pseudo->name, pseudos, NumPseudos));
+        pseudo->type = static_cast<PseudoClass>(findKnownValue(pseudo->name, pseudos, NumPseudos));
         return true;
     }
     if (!next(FUNCTION)) return false;
