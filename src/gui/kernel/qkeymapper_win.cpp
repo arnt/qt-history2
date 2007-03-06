@@ -1049,6 +1049,7 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
                 if (!uch.isNull())
                     text += uch;
                 char a = uch.row() ? 0 : uch.cell();
+                key_recorder.storeKey(msg.wParam, a, state, text);
                 k0 = q->sendKeyEvent(widget, grab, QEvent::KeyPress, code, Qt::KeyboardModifier(state),
                                      text, false, 0, scancode, msg.wParam, nModifiers);
 
@@ -1066,8 +1067,8 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
                         parent = GetParent(parent);
                     }
                 }
-                if (store)
-                    key_recorder.storeKey(msg.wParam, a, state, text);
+                if (!store)
+                    key_recorder.findKey(msg.wParam, true);
             }
         }
 
