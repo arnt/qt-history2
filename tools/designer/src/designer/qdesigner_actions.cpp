@@ -592,7 +592,7 @@ void QDesignerActions::previewForm(QAction *action)
 #ifdef Q_WS_MAC
     Qt::WindowFlags windwowFlags = Qt::Dialog;
 #else
-    Qt::WindowFlags windwowFlags = (widget->windowType() == Qt::Window) ? Qt::Window | Qt::WindowMaximizeButtonHint : Qt::Dialog;
+    Qt::WindowFlags windwowFlags = (widget->windowType() == Qt::Window) ? Qt::Window | Qt::WindowMaximizeButtonHint : Qt::WindowFlags(Qt::Dialog);
 #endif
     // Install filter for Escape key
     widget->setParent(fw->window(), windwowFlags);

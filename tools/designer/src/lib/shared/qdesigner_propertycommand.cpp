@@ -177,7 +177,7 @@ unsigned compareSubProperties(Qt::Alignment a1, Qt::Alignment a2)
 
 Qt::Alignment variantToAlignment(const QVariant & q)
 {
-    return static_cast<Qt::Alignment>(qdesigner_internal::Utils::valueOf(q));
+    return Qt::Alignment(qdesigner_internal::Utils::valueOf(q));
 }
 // find changed subproperties of a variant
 unsigned compareSubProperties(const QVariant & q1, const QVariant & q2, qdesigner_internal::SpecialProperty specialProperty)

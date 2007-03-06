@@ -364,7 +364,7 @@ void QDesignerTaskMenu::changeScript()
     
     // compile list of selected objects
     ScriptCommand::ObjectList objects;
-    objects += m_widget;
+    objects += (QWidget *)m_widget;
 
     const QDesignerFormWindowCursorInterface *cursor = fw->cursor();
     const int selectionCount =  cursor->selectedWidgetCount();
