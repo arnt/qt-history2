@@ -20,8 +20,8 @@
 void StarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                          const QModelIndex &index) const
 {
-    if (index.data().canConvert<StarRating>()) { 
-        StarRating starRating = index.data().value<StarRating>();
+    if (qVariantCanConvert<StarRating>(index.data())) {
+        StarRating starRating = qVariantValue<StarRating>(index.data());
 
         if (option.state & QStyle::State_Selected)
             painter->fillRect(option.rect, option.palette.highlight());
@@ -36,8 +36,8 @@ void StarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 QSize StarDelegate::sizeHint(const QStyleOptionViewItem &option, 
                              const QModelIndex &index) const
 {
-    if (index.data().canConvert<StarRating>()) {
-        StarRating starRating = index.data().value<StarRating>();
+    if (qVariantCanConvert<StarRating>(index.data())) {
+        StarRating starRating = qVariantValue<StarRating>(index.data());
         return starRating.sizeHint();
     } else {
         return QItemDelegate::sizeHint(option, index);
@@ -49,7 +49,7 @@ QWidget *StarDelegate::createEditor(QWidget *parent,
                                     const QModelIndex &index) const
 
 {
-    if (index.data().canConvert<StarRating>()) {
+    if (qVariantCanConvert<StarRating>(index.data())) {
         StarEditor *editor = new StarEditor(parent);
         connect(editor, SIGNAL(editingFinished()),
                 this, SLOT(commitAndCloseEditor()));
@@ -62,8 +62,8 @@ QWidget *StarDelegate::createEditor(QWidget *parent,
 void StarDelegate::setEditorData(QWidget *editor,
                                  const QModelIndex &index) const
 {
-    if (index.data().canConvert<StarRating>()) {
-        StarRating starRating = index.data().value<StarRating>();
+    if (qVariantCanConvert<StarRating>(index.data())) {
+        StarRating starRating = qVariantValue<StarRating>(index.data());
         StarEditor *starEditor = qobject_cast<StarEditor *>(editor);
         starEditor->setStarRating(starRating);
     } else {
@@ -74,7 +74,7 @@ void StarDelegate::setEditorData(QWidget *editor,
 void StarDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, 
                                 const QModelIndex &index) const
 {
-    if (index.data().canConvert<StarRating>()) {
+    if (qVariantCanConvert<StarRating>(index.data())) {
         StarEditor *starEditor = qobject_cast<StarEditor *>(editor);
         model->setData(index, QVariant::fromValue(starEditor->starRating()));
     } else {
