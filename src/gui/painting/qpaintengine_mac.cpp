@@ -1134,7 +1134,7 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
         // fills the right pixel. This is needed since the y xais
         // in the Quartz coordinate system is inverted compared to Qt.
         if (!(q->state->renderHints() & QPainter::Antialiasing))
-            CGContextTranslateCTM(hd, 0, double(pixelSize.y()) / 10.0);
+            CGContextTranslateCTM(hd, double(pixelSize.x()) * 0.25, double(pixelSize.y()) * 0.25);
 
         CGContextAddPath(hd, path);
         CGContextStrokePath(hd);
