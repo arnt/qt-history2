@@ -604,7 +604,9 @@ QToolBarItem *QToolBarLayout::createItem(QAction *action)
         connect(tb, SIGNAL(orientationChanged(Qt::Orientation)),
                 sep, SLOT(setOrientation(Qt::Orientation)));
         widget = sep;
-    } else {
+    }
+
+    if (!widget) {
         QToolButton *button = new QToolButton(tb);
         button->setAutoRaise(true);
         button->setFocusPolicy(Qt::NoFocus);
@@ -619,14 +621,10 @@ QToolBarItem *QToolBarLayout::createItem(QAction *action)
         widget = button;
     }
 
-    QToolBarItem *result = 0;
-    if (widget != 0) {
-        widget->hide();
-        result = new QToolBarItem(widget);
-        result->customWidget = customWidget;
-        result->action = action;
-    }
-
+    widget->hide();
+    QToolBarItem *result = new QToolBarItem(widget);
+    result->customWidget = customWidget;
+    result->action = action;
     return result;
 }
 

@@ -17,6 +17,8 @@
 #include <qpixmap.h>
 #include <qstyle.h>
 #include <qtoolbar.h>
+#include <qwidgetaction.h>
+#include <qtoolbutton.h>
 
 
 
@@ -64,6 +66,7 @@ private slots:
     void iconSizeChanged();
     void toolButtonStyleChanged();
     void actionOwnership();
+    void widgetAction();
 };
 
 
@@ -893,6 +896,23 @@ void tst_QToolBar::actionOwnership()
         QVERIFY(!action);
         delete tb2;
     }
+}
+
+void tst_QToolBar::widgetAction()
+{
+    // ensure that a QWidgetAction without widget behaves like a normal action
+    QToolBar tb;
+    QWidgetAction *a = new QWidgetAction(0);
+    a->setIconText("Blah");
+
+    tb.addAction(a);
+    QWidget *w = tb.widgetForAction(a);
+    QVERIFY(w);
+    QToolButton *button = qobject_cast<QToolButton *>(w);
+    QVERIFY(button);
+    QCOMPARE(a->iconText(), button->text());
+
+    delete a;
 }
 
 QTEST_MAIN(tst_QToolBar)
