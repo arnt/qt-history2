@@ -1664,7 +1664,8 @@ void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWi
 
     const QList<DomColumn*> columns = ui_widget->elementColumn();
 
-    treeWidget->setColumnCount(columns.count());
+    if (columns.count() > 0)
+        treeWidget->setColumnCount(columns.count());
 
     for (int i = 0; i<columns.count(); ++i) {
         const DomColumn *c = columns.at(i);
@@ -1725,7 +1726,8 @@ void QAbstractFormBuilder::loadTableWidgetExtraInfo(DomWidget *ui_widget, QTable
     Q_UNUSED(parentWidget);
 
     const QList<DomColumn*> columns = ui_widget->elementColumn();
-    tableWidget->setColumnCount(columns.count());
+    if (columns.count() > 0)
+        tableWidget->setColumnCount(columns.count());
     for (int i = 0; i< columns.count(); i++) {
         DomColumn *c = columns.at(i);
         const DomPropertyHash properties = propertyMap(c->elementProperty());
@@ -1747,7 +1749,8 @@ void QAbstractFormBuilder::loadTableWidgetExtraInfo(DomWidget *ui_widget, QTable
     }
 
     const QList<DomRow*> rows = ui_widget->elementRow();
-    tableWidget->setRowCount(rows.count());
+    if (rows.count() > 0)
+        tableWidget->setRowCount(rows.count());
     for (int i = 0; i< rows.count(); i++) {
         const DomRow *r = rows.at(i);
         const DomPropertyHash properties = propertyMap(r->elementProperty());
