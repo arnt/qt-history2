@@ -1579,7 +1579,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 etype = QEvent::NonClientAreaMouseButtonDblClick;
                 break;
             case QEvent::MouseMove:
-                etype = QEvent::NonClientAreaMouseMove;
+                if (widget == 0 || widget->hasMouseTracking())
+                    etype = QEvent::NonClientAreaMouseMove;
                 break;
             default:
                 break;
