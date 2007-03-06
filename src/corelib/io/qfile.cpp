@@ -152,6 +152,8 @@ QFilePrivate::setError(QFile::FileError err, int errNum)
     using seek(). If you've reached the end of the file, atEnd()
     returns true.
 
+    \section1 Reading Files Directly
+
     The following example reads a text file line by line:
 
     \quotefromfile snippets/file/file.cpp
@@ -163,6 +165,8 @@ QFilePrivate::setError(QFile::FileError err, int errNum)
     Windows-style line terminators ("\\r\\n") into C++-style
     terminators ("\\n"). By default, QFile assumes binary, i.e. it
     doesn't perform any conversion on the bytes stored in the file.
+
+    \section1 Using Streams to Read Files
 
     The next example uses QTextStream to read a text file
     line by line:
@@ -209,6 +213,13 @@ QFilePrivate::setError(QFile::FileError err, int errNum)
     \skipto readRegularEmptyFile_snippet
     \skipto QFile
     \printto /^\}/
+
+    \section1 Signals
+
+    Unlike other QIODevice implementations, such as QTcpSocket, QFile does not
+    emit the aboutToClose(), bytesWritten(), or readyRead() signals. This
+    implementation detail means that QFile is not suitable for reading and
+    writing certain types of files, such as device files on Unix platforms.
 
     \sa QTextStream, QDataStream, QFileInfo, QDir, {The Qt Resource System}
 */
