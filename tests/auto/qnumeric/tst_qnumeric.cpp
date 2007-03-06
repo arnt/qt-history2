@@ -18,6 +18,7 @@ class tst_QNumeric: public QObject
 private slots:
     void qIsEqual_data();
     void qIsEqual();
+    void qNan();
 };
 
 static bool qIsEqual(double d1, double d2, double delta = 0.0000000000001)
@@ -57,6 +58,26 @@ void tst_QNumeric::qIsEqual()
     QCOMPARE(::qIsEqual(val2, val1), isEqual);
     QCOMPARE(::qIsEqual(-val1, -val2), isEqual);
     QCOMPARE(::qIsEqual(-val2, -val1), isEqual);
+}
+
+void tst_QNumeric::qNan()
+{
+    double nan = qQNan();
+    QVERIFY(!(0 > nan));
+    QVERIFY(!(0 < nan));
+    QVERIFY(qIsNan(nan));
+    QVERIFY(qIsNan(nan + 1));
+    QVERIFY(qIsNan(-nan));
+    double inf = qInf();
+    QVERIFY(inf > 0);
+    QVERIFY(-inf < 0);
+    QVERIFY(qIsInf(inf));
+    QVERIFY(qIsInf(-inf));
+    QVERIFY(qIsInf(2*inf));
+    QCOMPARE(1/inf, 0.0);
+    QVERIFY(qIsNan(0*nan));
+    QVERIFY(qIsNan(0*inf));
+    QVERIFY(::qIsEqual(1/inf, 0.0));
 }
 
 QTEST_MAIN(tst_QNumeric)
