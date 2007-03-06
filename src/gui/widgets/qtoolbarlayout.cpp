@@ -442,7 +442,7 @@ void QToolBarLayout::setGeometry(const QRect &rect)
             QToolBarItem *item = items.at(j);
 
             if (a[j].empty) {
-                if (item->widget()->isVisible())
+                if (!item->widget()->isHidden())
                     hideWidgets << item->widget();
                 continue;
             }
@@ -463,9 +463,8 @@ void QToolBarLayout::setGeometry(const QRect &rect)
 
             item->setGeometry(r);
 
-            if (!item->widget()->isVisible()) {
+            if (item->widget()->isHidden())
                 showWidgets << item->widget();
-            }
             if (popupMenu)
                 popupMenu->removeAction(item->action);
         }
@@ -473,9 +472,8 @@ void QToolBarLayout::setGeometry(const QRect &rect)
         if (!expanded) {
             for (int j = i; j < items.count(); ++j) {
                 QToolBarItem *item = items.at(j);
-                if (item->widget()->isVisible()) {
+                if (!item->widget()->isHidden())
                     hideWidgets << item->widget();
-                }
                 if (popupMenu)
                     popupMenu->addAction(item->action);
             }
@@ -519,10 +517,10 @@ void QToolBarLayout::setGeometry(const QRect &rect)
 
         extension->setGeometry(r);
 
-        if (!extension->isVisible())
+        if (extension->isHidden())
             showWidgets << extension;
     } else {
-        if (extension->isVisible())
+        if (!extension->isHidden())
             hideWidgets << extension;
     }
 
