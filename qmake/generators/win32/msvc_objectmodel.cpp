@@ -2051,8 +2051,14 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
                         indeps += QByteArray(buff, read_in);
                     }
                     fclose(proc);
-                    if(!indeps.isEmpty())
-                        deps += " " + Project->fileFixify(indeps.replace('\n', ' ').simplified().split(' ')).join(";");
+                    if(!indeps.isEmpty()) {
+                        QStringList extradeps = indeps.split(QLatin1Char('\n'));
+                        for (int i = 0; i < extradeps.count(); ++i) {
+                            QString dd = extradeps.at(i).simplified();
+                            if (!dd.isEmpty())
+                                deps += Project->fileFixify(dd);
+                        }
+                    }
                 }
             }
         }
