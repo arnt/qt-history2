@@ -345,7 +345,8 @@ enum PseudoState
     PseudoState_Open            = 0x00001000,
     PseudoState_Children        = 0x00002000,
     PseudoState_Sibling         = 0x00004000,
-    NumPseudos = 17
+    PseudoState_Default         = 0x00008000,
+    NumPseudos = 18
 };
 
 struct Q_GUI_EXPORT Pseudo

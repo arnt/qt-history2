@@ -102,20 +102,19 @@ protected Q_SLOTS:
     QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt = 0,
                                      const QWidget *widget = 0) const;
     int layoutSpacingImplementation(QSizePolicy::ControlType control1,
-                                    QSizePolicy::ControlType control2, 
+                                    QSizePolicy::ControlType control2,
                                     Qt::Orientation orientation,
-                                    const QStyleOption *option = 0, 
+                                    const QStyleOption *option = 0,
                                     const QWidget *widget = 0) const;
 private Q_SLOTS:
     void widgetDestroyed(QObject *);
 
 private:
     int refcount;
-    
+
     friend class QRenderRule;
     int nativeFrameWidth(const QWidget *);
-    QRenderRule renderRule(const QWidget *, const QString &, QStyle::State = QStyle::State_None) const;
-    QRenderRule renderRule(const QWidget *, int, QStyle::State = QStyle::State_None) const;
+    QRenderRule renderRule(const QWidget *, int, int = 0) const;
     QRenderRule renderRule(const QWidget *, const QStyleOption *, int = 0) const;
     QSize defaultSize(const QWidget *, QSize, const QRect&, int) const;
     QRect positionRect(const QWidget *, const QRenderRule&, const QRenderRule&, int,

@@ -211,6 +211,7 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
 static const QCssKnownValue pseudos[NumPseudos - 1] = {
     { "checked", PseudoState_Checked },
     { "children", PseudoState_Children },
+    { "default", PseudoState_Default },
     { "disabled", PseudoState_Disabled },
     { "enabled", PseudoState_Enabled },
     { "focus", PseudoState_Focus },

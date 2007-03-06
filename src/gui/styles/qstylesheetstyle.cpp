@@ -1364,7 +1364,6 @@ enum PseudoElement {
     PseudoElement_MenuScroller,
     PseudoElement_MenuTearoff,
     PseudoElement_MenuCheckMark,
-    PseudoElement_MenuDefaultItem,
     PseudoElement_MenuSeparator,
     PseudoElement_TreeViewBranch,
     NumPseudoElements
@@ -1409,7 +1408,6 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_None, "scroller" },
     { QStyle::SC_None, "tearoff" },
     { QStyle::SC_None, "indicator" },
-    { QStyle::SC_None, "default-item" },
     { QStyle::SC_None, "separator" },
     { QStyle::SC_None, "branch" }
 };
@@ -1462,14 +1460,10 @@ int QStyleSheetStyle::nativeFrameWidth(const QWidget *w)
     return base->pixelMetric(QStyle::PM_DefaultFrameWidth);
 }
 
-QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part, QStyle::State state) const
+static int pseudoState(QStyle::State state)
 {
-    Q_ASSERT(w);
-    Q_ASSERT(styleRulesCache->contains(w)); // style sheet rules must have been computed!
-    QHash<int, QRenderRule> &renderRules = (*renderRulesCache)[w][part];
-
     int pseudoState = (state & QStyle::State_Enabled)
-                                 ? PseudoState_Enabled : PseudoState_Disabled;
+                      ? PseudoState_Enabled : PseudoState_Disabled;
     if (state & QStyle::State_Sunken)
         pseudoState |= PseudoState_Pressed;
     if (state & (QStyle::State_MouseOver /*| QStyle::State_Selected*/))
@@ -1493,23 +1487,29 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part, 
     if (state & QStyle::State_Sibling)
         pseudoState |= PseudoState_Sibling;
 
-    if (renderRules.contains(pseudoState))
-        return renderRules[pseudoState]; // already computed before
-
-    QVector<Declaration> decls = declarations((*styleRulesCache)[w], part, pseudoState);
-    QRenderRule newRule(decls, w);
-    renderRules[pseudoState] = newRule;
-    return newRule;
+    return pseudoState;
 }
 
-QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int pseudoElement, QStyle::State state) const
+QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int element, int state) const
 {
-    return renderRule(w, QLatin1String(knownPseudoElements[pseudoElement].name), state);
+    Q_ASSERT(w);
+    Q_ASSERT(styleRulesCache->contains(w)); // style sheet rules must have been computed!
+    const QString part = QLatin1String(knownPseudoElements[element].name);
+    QHash<int, QRenderRule> &renderRules = (*renderRulesCache)[w][part];
+
+    if (renderRules.contains(state))
+        return renderRules[state]; // already computed before
+
+    QVector<Declaration> decls = declarations((*styleRulesCache)[w], part, state);
+    QRenderRule newRule(decls, w);
+    renderRules[state] = newRule;
+    return newRule;
 }
 
 QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *opt, int pseudoElement) const
 {
     Q_ASSERT(w && !styleRulesCache->value(w).isEmpty());
+    int extraState = 0;
     QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_None);
 
     if (const QStyleOptionComplex *complex = qstyleoption_cast<const QStyleOptionComplex *>(opt)) {
@@ -1566,6 +1566,9 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         default:
             break;
         }
+    } else if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
+        if (mi->menuItemType == QStyleOptionMenuItem::DefaultItem)
+            extraState |= PseudoState_Default;
     } else {
         // Add hacks for simple controls here
 #ifndef QT_NO_LINEEDIT
@@ -1589,7 +1592,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         { } // required for the above ifdef'ery
     }
 
-    return renderRule(w, QLatin1String(knownPseudoElements[pseudoElement].name), state);
+    return renderRule(w, pseudoElement, pseudoState(state) | extraState);
 }
 
 static bool hasStyleRule(const QWidget *w, int part = PseudoElement_None)
@@ -1834,17 +1837,17 @@ static void setProperties(QWidget *w)
 
 void QStyleSheetStyle::setPalette(QWidget *w)
 {
-    const QRenderRule &hoverRule = renderRule(w, PseudoElement_None, QStyle::State_MouseOver);
+    const QRenderRule &hoverRule = renderRule(w, PseudoElement_None, PseudoState_Hover);
     if (hoverRule.hasDrawable())
         w->setAttribute(Qt::WA_Hover);
 
     struct RuleRoleMap {
-        QStyle::StateFlag state;
+        int state;
         QPalette::ColorGroup group;
     } map[3] = {
-        { QStyle::State_Enabled, QPalette::Active },
-        { QStyle::State_None, QPalette::Disabled },
-        { QStyle::State_Enabled, QPalette::Inactive }
+        { PseudoState_Enabled, QPalette::Active },
+        { PseudoState_Disabled, QPalette::Disabled },
+        { PseudoState_Enabled, QPalette::Inactive }
     };
 
     QPalette p = w->palette();
@@ -2482,14 +2485,10 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             QStyleOptionMenuItem mi(*m);
             rule.configurePalette(&mi.palette, QPalette::ButtonText, QPalette::Button);
 
-            int pseudo;
-            if (mi.menuItemType == QStyleOptionMenuItem::Separator) {
+            int pseudo = PseudoElement_Item;
+            if (mi.menuItemType == QStyleOptionMenuItem::Separator)
                 pseudo = PseudoElement_MenuSeparator;
-            } else if (mi.menuItemType == QStyleOptionMenuItem::DefaultItem) {
-                pseudo = PseudoElement_MenuDefaultItem;
-            } else {
-                pseudo = PseudoElement_Item;
-            }
+
             QRenderRule subRule = renderRule(w, opt, pseudo);
             mi.rect = subRule.contentsRect(opt->rect);
             subRule.configurePalette(&mi.palette, QPalette::ButtonText, QPalette::Button);
