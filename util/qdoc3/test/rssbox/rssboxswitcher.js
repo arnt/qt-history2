@@ -10,17 +10,17 @@ var gLatestRssItemTimestamp = 0;
 function init()
 {
 	gRssBoxTitleLink = $(TITLELINKSSELECTOR);
+	gLatestRssItemTimestamp = readLatestRssItemTimestampFromHTML();
+
+	recalculateRssBoxPosition();
+	window.setInterval("recalculateRssBoxPosition()", 3000);
+
 	$(window).resize(function() {recalculateRssBoxPosition();});
 	$("#rssbox>ul>li>ul>li>a").click(function() {writeLatestRssItemTimestampIntoCookie();});
-	$("#rssbox").css({ display: "block", position: "absolute" });
+	$("#rssbox").css("position", "absolute");
 	gRssBoxTitleLink.removeAttr("href").css("cursor", "pointer").click(function() {toggleRssLinksVisibility();});
 	
 	setRssLinksVisible(readCookie(RSSLINKSVISIBLE) == 'yes');
-	
-	recalculateRssBoxPosition();
-	window.setInterval("recalculateRssBoxPosition()", 3000);
-	
-	gLatestRssItemTimestamp = readLatestRssItemTimestampFromHTML();
 	
 	startPulsating();
 }

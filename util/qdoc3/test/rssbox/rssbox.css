@@ -1,6 +1,7 @@
 h1
 {
 	padding-top: 10px;
+	clear: both;
 }
 
 #rssbox
@@ -9,8 +10,8 @@ h1
 	font-family: 'Lucida Grande', Verdana, Arial, Sans-Serif;
 	font-size: 11px;
 	margin: 5px 0 0 0;
-	width: 20%;
-	display: none;
+	float: right;
+	width: 203px;
 }
 
 #rssbox ul
@@ -29,6 +30,7 @@ h1
 	border-top-width: 0;
 	border-style: solid;
 	border-color: rgb(180, 180, 180);
+	display: none;
 }
 
 /* Link block title */
@@ -37,7 +39,9 @@ h1
 	text-align: center;
 	padding: 3px 12px 3px 12px;
 	color: rgb(0, 0, 0);
-	background: rgb(175, 211, 77) url(images/triangleVertical.png) no-repeat scroll center left;
+	background-color: rgb(175, 211, 77);
+	background-repeat: no-repeat;
+	background-position: center left;
 	display: block;
 	font-weight: bold;
 	margin: 0;
