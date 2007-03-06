@@ -31,6 +31,8 @@ QFileInfoGatherer::QFileInfoGatherer(QObject *parent) : QThread(parent)
 #ifndef Q_OS_WIN
     userId = getuid();
     groupId = getuid();
+#else
+    m_resolveSymlinks = true;
 #endif
     watcher = new QFileSystemWatcher(this);
     connect(watcher, SIGNAL(directoryChanged(const QString &)), this, SLOT(list(const QString &)));
@@ -219,7 +221,8 @@ QExtendedInformation QFileInfoGatherer::getInfo(const QFileInfo &fileInfo) const
     }
 
     if (fileInfo.isSymLink() && m_resolveSymlinks) {
-        QFileInfo resolvedInfo(fileInfo.canonicalFilePath());
+        QFileInfo resolvedInfo(fileInfo.symLinkTarget());
+        resolvedInfo = resolvedInfo.canonicalFilePath();
         if (resolvedInfo.exists()) {
             emit nameResolved(fileInfo.fileName(), resolvedInfo.fileName());
         } else {
