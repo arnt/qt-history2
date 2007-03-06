@@ -580,10 +580,11 @@ void QDesignerWorkbench::switchToTopLevelMode()
         return;
 
     // make sure that the widgetbox is visible if it is different from neutral.
+    QDesignerToolWindow *widgetBoxWrapper = findToolWindow(core()->widgetBox());
     if (m_mode != NeutralMode) {
-        if (QDesignerToolWindow *widgetbox_tool = findToolWindow(core()->widgetBox())) {
-            if (!widgetbox_tool->action()->isChecked())
-                widgetbox_tool->action()->trigger();
+        if (widgetBoxWrapper) {
+            if (!widgetBoxWrapper->action()->isChecked())
+                widgetBoxWrapper->action()->trigger();
         }
     }
 
@@ -593,8 +594,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
 
     // The widget box is special, it gets the menubar and gets to be the main widget.
 
-    QDesignerToolWindow *widgetBoxWrapper = 0;
-    if (0 != (widgetBoxWrapper = findToolWindow(core()->widgetBox()))) {
+    if (widgetBoxWrapper) {
         m_core->setTopLevel(widgetBoxWrapper);
 #ifndef Q_WS_MAC
         widgetBoxWrapper->setMenuBar(m_globalMenuBar);
@@ -617,6 +617,11 @@ void QDesignerWorkbench::switchToTopLevelMode()
         settings.setGeometryFor(tw, tw->geometryHint());
         tw->action()->setChecked(tw->isVisible());
         found_visible_window |= tw->isVisible();
+    }
+
+    if (widgetBoxWrapper) {
+        if (!widgetBoxWrapper->action()->isChecked())
+            widgetBoxWrapper->action()->trigger();
     }
 
     if (!m_toolWindows.isEmpty() && !found_visible_window)
