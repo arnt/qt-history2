@@ -215,6 +215,10 @@ void QColumnView::scrollTo(const QModelIndex &index, ScrollHint hint)
         return;
 
     d->currentAnimation.stop();
+
+    // Fill up what is needed to get to index
+    d->closeColumns(index, true);
+
     QModelIndex indexParent = index.parent();
     // Find the left edge of the column that contains index
     int currentColumn = 0;
@@ -225,6 +229,10 @@ void QColumnView::scrollTo(const QModelIndex &index, ScrollHint hint)
         leftEdge += d->columns.at(currentColumn)->width();
         ++currentColumn;
     }
+
+    // Don't let us scroll above the root index
+    if (currentColumn == d->columns.size())
+        return;
 
     int indexColumn = currentColumn;
     // Find the width of what we want to show (i.e. the right edge)
@@ -518,6 +526,9 @@ void QColumnViewPrivate::closeColumns(const QModelIndex &parent, bool build)
     if (columns.isEmpty())
         return;
 
+    bool clearAll = !parent.isValid();
+    bool passThroughRoot = false;
+
     QList<QModelIndex> dirsToAppend;
 
     // Find the last column that matches the parent's tree
@@ -527,6 +538,8 @@ void QColumnViewPrivate::closeColumns(const QModelIndex &parent, bool build)
         if (columns.isEmpty())
             break;
         parentIndex = parentIndex.parent();
+        if (root == parentIndex)
+            passThroughRoot = true;
         if (!parentIndex.isValid())
             break;
         for (int i = columns.size() - 1; i >= 0; --i) {
@@ -538,6 +551,12 @@ void QColumnViewPrivate::closeColumns(const QModelIndex &parent, bool build)
         if (currentColumn == -1)
             dirsToAppend.append(parentIndex);
     }
+
+    // Someone wants to go to an index that can be reached without changing
+    // the root index, don't allow them
+    if (!clearAll && !passThroughRoot && currentColumn == -1)
+        return;
+
     if (currentColumn == -1 && parent.isValid())
         currentColumn = 0;
 
@@ -667,6 +686,7 @@ QAbstractItemView *QColumnView::createColumn(const QModelIndex &index)
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     view->setMinimumWidth(100);
+    view->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     // Copy the 'view' behavior
 #ifndef QT_NO_DRAGANDDROP
@@ -777,7 +797,7 @@ void QColumnView::currentChanged(const QModelIndex &current, const QModelIndex &
             }
         }
     }
-
+    
     // Scrolling to the right we need to have an empty spot
     bool found = false;
     if (currentParent == previous) {
@@ -793,7 +813,7 @@ void QColumnView::currentChanged(const QModelIndex &current, const QModelIndex &
     }
     if (!found)
         d->closeColumns(current, true);
-
+    
     if (!model()->hasChildren(current))
         emit updatePreviewWidget(current);
 
@@ -816,12 +836,13 @@ void QColumnViewPrivate::_q_changeCurrentColumn()
 
     // We might have scrolled far to the left so we need to close all of the children
     closeColumns(current, true);
-
+    
     // Set up the "current" column with focus
     int currentColumn = qMax(0, columns.size() - 2);
     QAbstractItemView *parentColumn = columns.at(currentColumn);
     parentColumn->setCurrentIndex(current);
-    parentColumn->setFocus(Qt::OtherFocusReason);
+    if (q->hasFocus())
+        parentColumn->setFocus(Qt::OtherFocusReason);
     q->setFocusProxy(parentColumn);
 
     // find the column that is our current selection model and give it a new one.
