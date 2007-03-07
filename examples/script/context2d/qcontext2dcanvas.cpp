@@ -292,15 +292,14 @@ QScriptValue FakeDomEvent::m_proto;
 static QScriptValue getElementById(QScriptContext *context, QScriptEngine *env)
 {
     QString el  = context->argument(0).toString();
-    QList<QObject*> lst =
-        QCoreApplication::instance()->findChildren<QObject*>(el);
+    QList<QObject*> lst = qFindChildren<QObject*>(QCoreApplication::instance(), el);
     if (lst.isEmpty()) {
         foreach (QWidget *widget, QApplication::topLevelWidgets()) {
             if (el == widget->objectName() ) {
                 lst << widget;
                 break;
             } else {
-                lst = widget->findChildren<QObject*>(el);
+                lst = qFindChildren<QObject*>(widget, el);
             }
 
             if (lst.count())
