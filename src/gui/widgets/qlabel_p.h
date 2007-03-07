@@ -79,21 +79,27 @@ public:
     mutable uint textLayoutDirty : 1;
     mutable uint textDirty : 1;
     mutable uint isRichText : 1;
+    mutable uint isTextLabel : 1;
     Qt::TextFormat textformat;
-    QTextDocument* doc;
-    QTextControl *control;
+    mutable QTextControl *control;
     QTextCursor shortcutCursor;
     Qt::TextInteractionFlags textInteractionFlags;
 
+    inline bool needTextControl() const {
+        return isTextLabel
+               && (isRichText
+                   || (!isRichText && (textInteractionFlags & (Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard))));
+    }
+
+    void ensureTextPopulated() const;
     void ensureTextLayouted() const;
-    void ensureTextControl();
+    void ensureTextControl() const;
     void sendControlEvent(QEvent *e);
-    void textInteractionFlagsChanged();
 
     void _q_linkHovered(const QString &link);
     void _q_activateLink(const QString &link);
 
-    QRect layoutRect() const;
+    QRectF layoutRect() const;
     QRect documentRect() const;
     QPoint layoutPoint(const QPoint& p) const;
 #ifndef QT_NO_CONTEXTMENU
