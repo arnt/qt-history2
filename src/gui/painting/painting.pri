@@ -150,9 +150,10 @@ mac {
 } else:mmx|sse|sse2|iwmmxt {
 
     X86_HEADERS += painting/qdrawhelper_x86_p.h
-    X86_SOURCES += painting/qdrawhelper_x86.cpp painting/qimagescale_x86.S
+    X86_SOURCES += painting/qdrawhelper_x86.cpp
 
     win32-g++|!win32 {
+        X86_SOURCES += painting/qimagescale_x86.S
         x86_compiler.commands = $$QMAKE_CXX -c
         mmx: x86_compiler.commands += -mmmx
         sse:!sse2: x86_compiler.commands += -msse
