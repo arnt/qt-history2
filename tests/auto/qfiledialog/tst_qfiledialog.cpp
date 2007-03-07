@@ -338,6 +338,11 @@ void tst_QFiledialog::isDetailsExpanded()
     QWidget* sidebar = fd.findChild<QWidget*>("qt_sidebar");
     QVERIFY(sidebar);
 
+#if defined(Q_WS_QWS)
+    QCOMPARE(fd.isDetailsExpanded(), false);
+    return;
+#endif
+
     QCOMPARE(fd.isDetailsExpanded(), true);
 
     fd.setDetailsExpanded(false);
