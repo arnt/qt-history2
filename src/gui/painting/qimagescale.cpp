@@ -987,7 +987,7 @@ QImage qSmoothScaleImageAutoConvert(QImage &src, int dw, int dh)
 QImage qSmoothScaleImage(const QImage &src, int dw, int dh)
 {
     QImage buffer;
-    if (src.isNull())
+    if (src.isNull() || dw <= 0 || dh <= 0)
         return buffer;
 
     int w = src.width();
