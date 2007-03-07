@@ -51,7 +51,7 @@ void MainWindow::addButton()
     if (!currentWindow)
         return;
 
-    QDialogButtonBox *box = currentWindow->findChild<QDialogButtonBox *>();
+    QDialogButtonBox *box = qFindChild<QDialogButtonBox *>(currentWindow);
 
     if (box) {
         AddButtonDialog *dialog = new AddButtonDialog(box ,this);
@@ -74,8 +74,7 @@ void MainWindow::deleteButton()
         int row = list.first()->row();
         QString buttonText = tableWidget->item(row, 0)->text();
         tableWidget->removeRow(row);
-        QDialogButtonBox *box =
-            currentWindow->findChild<QDialogButtonBox *>();
+        QDialogButtonBox *box = qFindChild<QDialogButtonBox *>(currentWindow);
 
         if (box) {
             foreach (QAbstractButton *button, box->buttons()) {
@@ -103,7 +102,7 @@ void MainWindow::loadPresetBox()
 void MainWindow::newStyle(QAction *action)
 {
     if (currentWindow)  {
-        QDialogButtonBox *box = currentWindow->findChild<QDialogButtonBox *>();
+        QDialogButtonBox *box = qFindChild<QDialogButtonBox *>(currentWindow);
         QStyle *newStyle = QStyleFactory::create(action->text());
         setStyle(box, newStyle);
         currentWindow->adjustSize();
@@ -113,7 +112,7 @@ void MainWindow::newStyle(QAction *action)
 void MainWindow::newOrientation(QAction *action)
 {
     if (currentWindow) {
-        QDialogButtonBox *box = currentWindow->findChild<QDialogButtonBox *>();
+        QDialogButtonBox *box = qFindChild<QDialogButtonBox *>(currentWindow);
         box->setOrientation(Qt::Orientation(qVariantValue<int>(action->data())));
         box->adjustSize();
         resizeActiveWindow();
@@ -124,7 +123,7 @@ void MainWindow::subWindowActivated(QMdiSubWindow *window)
 {
     currentWindow = window;
 
-    QDialogButtonBox *box = currentWindow->findChild<QDialogButtonBox *>();
+    QDialogButtonBox *box = qFindChild<QDialogButtonBox *>(currentWindow);
 
     if (box) {
         if (box->orientation() == Qt::Vertical)
@@ -249,8 +248,7 @@ void MainWindow::setStyle(QDialogButtonBox *box, QStyle *style)
 
 void MainWindow::resolveButtons()
 {
-    QDialogButtonBox *box =
-        currentWindow->findChild<QDialogButtonBox *>();
+    QDialogButtonBox *box = qFindChild<QDialogButtonBox *>(currentWindow);
 
     if (box) {
         int i = 0;
@@ -275,7 +273,7 @@ void MainWindow::resolveButtons()
 
 void MainWindow::resizeActiveWindow()
 {
-    QDialogButtonBox *box = currentWindow->findChild<QDialogButtonBox *>();
+    QDialogButtonBox *box = qFindChild<QDialogButtonBox *>(currentWindow);
     delete currentWindow->layout();
     QGridLayout *layout = new QGridLayout;
 
