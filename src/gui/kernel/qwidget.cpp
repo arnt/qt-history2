@@ -6152,7 +6152,7 @@ bool QWidget::event(QEvent *event)
         changeEvent(event);
         break;
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_WIN)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
     case QEvent::UpdateRequest: {
 #ifndef Q_WS_WIN
         extern void qt_syncBackingStore(QWidget *widget);

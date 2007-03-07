@@ -325,7 +325,7 @@ void qt_syncBackingStore(QWidget *widget)
 #else
     if (!toClean.isEmpty())
 #endif
-        topData->backingStore->cleanRegion(toClean, tlw);
+        topData->backingStore->cleanRegion(toClean, tlw, false);
 }
 #endif // Q_WS_WIN
 
