@@ -125,6 +125,9 @@ static void qt_win_read_back_PRINTDLGA(PRINTDLGA *pd, QPrintDialog *pdlg, QPrint
 
     d->ep->readDevnames(pd->hDevNames);
     d->ep->readDevmode(pd->hDevMode);
+
+    if (d->ep->printToFile && d->ep->fileName.isEmpty())
+        d->ep->fileName = d->ep->port;
 }
 #endif // Q_OS_TEMP
 
@@ -211,6 +214,8 @@ static void qt_win_read_back_PRINTDLGW(PRINTDLGW *pd, QPrintDialog *pdlg, QPrint
     d->ep->readDevnames(pd->hDevNames);
     d->ep->readDevmode(pd->hDevMode);
 
+    if (d->ep->printToFile && d->ep->fileName.isEmpty())
+        d->ep->fileName = d->ep->port;
 }
 #endif // UNICODE
 
