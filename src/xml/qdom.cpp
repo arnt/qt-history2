@@ -2920,7 +2920,8 @@ QDomNode QDomNode::namedItem(const QString& name) const
     behavior exists for historical reasons. If this node is not a document node,
     the text stream's encoding is used.
 
-    If the document contains invalid XML characters, the result and behavior is undefined.
+    If the document contains invalid XML characters or characters that cannot be
+    encoded in the given encoding, the result and behavior is undefined.
 
 */
 void QDomNode::save(QTextStream& str, int indent) const
@@ -2935,7 +2936,8 @@ void QDomNode::save(QTextStream& str, int indent) const
     function behaves as save(QTextStream &str, int indent) with the exception that the encoding
     specified in the text stream \a str is used.
 
-    If the document contains invalid XML characters, the result and behavior is undefined.
+    If the document contains invalid XML characters or characters that cannot be
+    encoded in the given encoding, the result and behavior is undefined.
 
  \since 4.2
  */
