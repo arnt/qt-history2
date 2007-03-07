@@ -829,6 +829,11 @@ QScriptValueImpl QScriptEnginePrivate::call(const QScriptValueImpl &callee,
     QScriptFunction *function = callee.toFunction();
     Q_ASSERT(function);
 
+    if (++m_callDepth == m_maxCallDepth) {
+        QScriptContextPrivate *ctx_p = QScriptContextPrivate::get(currentContext());
+        return ctx_p->throwError(QLatin1String("call stack overflow"));
+    }
+
     QScriptContext *nested_frame = pushContext();
     QScriptContextPrivate *nested = QScriptContextPrivate::get(nested_frame);
     // set up the temp stack
@@ -882,6 +887,7 @@ QScriptValueImpl QScriptEnginePrivate::call(const QScriptValueImpl &callee,
 
     newUndefined(&nested->m_result);
     function->execute(nested);
+    --m_callDepth;
     QScriptValueImpl result = nested->m_result;
     nested->args = 0;
     popContext();
@@ -1244,6 +1250,8 @@ void QScriptEnginePrivate::init()
 {
     qMetaTypeId<QScriptValue>();
 
+    m_callDepth = 0;
+    m_maxCallDepth = 768;
     m_oldStringRepositorySize = 0;
     m_oldTempStringRepositorySize = 0;
     m_context = 0;

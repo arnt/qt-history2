@@ -42,6 +42,7 @@ private slots:
     void getSetDefaultPrototype();
     void valueConversion();
     void importExtension();
+    void infiniteRecursion();
 };
 
 tst_QScriptEngine::tst_QScriptEngine()
@@ -604,6 +605,40 @@ void tst_QScriptEngine::importExtension()
     }
 
     QCoreApplication::instance()->setLibraryPaths(libPaths);
+}
+
+static QScriptValue recurse(QScriptContext *ctx, QScriptEngine *eng)
+{
+    Q_UNUSED(eng);
+    return ctx->callee().call();
+}
+
+static QScriptValue recurse2(QScriptContext *ctx, QScriptEngine *eng)
+{
+    Q_UNUSED(eng);
+    return ctx->callee().construct();
+}
+
+void tst_QScriptEngine::infiniteRecursion()
+{
+    QScriptEngine eng;
+    {
+        QScriptValue ret = eng.evaluate("function foo() { foo(); }; foo();");
+        QCOMPARE(ret.isError(), true);
+        QCOMPARE(ret.toString(), QLatin1String("Error: call stack overflow"));
+    }
+    {
+        QScriptValue fun = eng.newFunction(recurse);
+        QScriptValue ret = fun.call();
+        QCOMPARE(ret.isError(), true);
+        QCOMPARE(ret.toString(), QLatin1String("Error: call stack overflow"));
+    }
+    {
+        QScriptValue fun = eng.newFunction(recurse2);
+        QScriptValue ret = fun.construct();
+        QCOMPARE(ret.isError(), true);
+        QCOMPARE(ret.toString(), QLatin1String("Error: call stack overflow"));
+    }
 }
 
 QTEST_MAIN(tst_QScriptEngine)

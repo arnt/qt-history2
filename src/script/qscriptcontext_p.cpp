@@ -605,6 +605,11 @@ Ltop:
             HandleException();
         }
 
+        if (++eng->m_callDepth == eng->m_maxCallDepth) {
+            throwError(QLatin1String("call stack overflow"));
+            HandleException();
+        }
+
         QScriptContext *nested = eng->pushContext();
         QScriptContextPrivate *nested_data = nested->d_func();
         nested_data->m_thisObject = base;
@@ -639,6 +644,8 @@ Ltop:
         nested_data->args = &argp[1];
 
         function->execute(nested_data);
+
+        --eng->m_callDepth;
 
         stackPtr = argp - 1;
         if (isReference)
@@ -718,6 +725,11 @@ Ltop:
             HandleException();
         }
 
+        if (++eng->m_callDepth == eng->m_maxCallDepth) {
+            throwError(QLatin1String("call stack overflow"));
+            HandleException();
+        }
+
         QScriptContext *nested = eng->pushContext();
         QScriptContextPrivate *nested_data = nested->d_func();
         nested_data->m_callee = callee;
@@ -763,6 +775,8 @@ Ltop:
             instance->m_prototype = eng->objectConstructor->publicPrototype;
 
         function->execute(nested_data);
+
+        --eng->m_callDepth;
 
         stackPtr = argp - 1;
         if (isReference)

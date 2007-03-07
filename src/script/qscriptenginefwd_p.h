@@ -301,6 +301,8 @@ public:
     QScriptValueImpl importExtension(const QString &extension);
 
 public: // attributes
+    int m_callDepth;
+    int m_maxCallDepth;
     int m_gc_depth;
     QScriptValueImpl m_globalObject;
     int m_oldStringRepositorySize;
