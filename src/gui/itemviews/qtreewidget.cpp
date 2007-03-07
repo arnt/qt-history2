@@ -2889,7 +2889,7 @@ bool QTreeWidget::isItemHidden(const QTreeWidgetItem *item) const
     if (d->hiddenIndexes.isEmpty())
         return false;
     for (int i = 0; i < d->hiddenIndexes.count(); ++i)
-        if (d->hiddenIndexes.at(i).internalPointer() == item)
+        if (d->hiddenIndexes.at(i).internalPointer() == const_cast<QTreeWidgetItem*>(item))
             return true;
     return false;
 }
