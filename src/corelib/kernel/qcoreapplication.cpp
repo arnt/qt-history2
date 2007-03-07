@@ -1123,8 +1123,10 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
 
 void QCoreApplication::removePostedEvents(QObject *receiver, int eventType)
 {
+#ifdef QT3_SUPPORT
     if (eventType == QEvent::ChildInserted)
         eventType = QEvent::ChildInsertedRequest;
+#endif
 
     QThreadData *data = receiver ? receiver->d_func()->threadData : QThreadData::current();
     QMutexLocker locker(&data->postEventList.mutex);

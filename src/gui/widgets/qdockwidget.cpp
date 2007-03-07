@@ -659,7 +659,7 @@ void QDockWidgetPrivate::endDrag(bool abort)
                                     myLayout->widget(QDockWidgetLayout::TitleBar) != 0);
 #endif
                 undockedGeometry = q->geometry();
-                q->setActiveWindow();
+                q->activateWindow();
             } else {
                 layout->revert(state->widgetItem);
             }
