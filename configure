@@ -464,11 +464,10 @@ QMakeVar add styles "cde mac motif plastique cleanlooks windows"
 QMakeVar add decorations "default windows styled"
 QMakeVar add gfx-drivers "linuxfb"
 QMakeVar add kbd-drivers "tty"
-QMakeVar add mouse-drivers "pc"
+QMakeVar add mouse-drivers "pc linuxtp"
 
 if [ "$Edition" = "Trolltech" ]; then
     QMakeVar add kbd-drivers "um"
-    QMakeVar add mouse-drivers "linuxtp" # adjust below as well
 fi
 
 # QTDIR may be set and point to an old or system-wide Qt installation
@@ -5011,6 +5010,10 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     done
 
     CFG_KBD_OFF="$CFG_KBD_AVAILABLE"
+    # the um driver is currently not in the available list for external builds
+    if [ "$Edition" != "Trolltech" ]; then
+	CFG_KBD_OFF="$CFG_KBD_OFF um"
+    fi
     for ADRIVER in $CFG_KBD_ON; do
         CFG_KBD_OFF=`echo "${CFG_KBD_OFF} " | sed "s,${ADRIVER} ,,g"`
     done
