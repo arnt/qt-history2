@@ -61,9 +61,9 @@ bootstrap { #Qt code
         qtextstream.cpp \
         qurl.cpp \
         quuid.cpp \
-	qsettings.cpp \
-	qlibraryinfo.cpp \
-	qvariant.cpp \
+	    qsettings.cpp \
+	    qlibraryinfo.cpp \
+	    qvariant.cpp \
         qvector.cpp \
         qvsnprintf.cpp 
 
@@ -118,9 +118,10 @@ bootstrap { #Qt code
         LFLAGS += -lcpp
     }
     DEFINES *= QT_NO_QOBJECT
+    include($$QT_SOURCE_TREE/src/script/script.pri)
 } else {
-    CONFIG += qt
-    QT = core
+    CONFIG += qt 
+    QT = core script
 }
 *-g++:profiling {
   QMAKE_CFLAGS = -pg
