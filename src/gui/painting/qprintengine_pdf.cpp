@@ -129,7 +129,7 @@ bool QPdfEngine::end()
 }
 
 
-void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, const QRectF & sr)
+void QPdfEngine::drawPixmap (const QRectF &rectangle, const QPixmap &pixmap, const QRectF &sr)
 {
     if (sr.isEmpty() || rectangle.isEmpty() || pixmap.isNull())
         return;
@@ -146,7 +146,7 @@ void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, c
         << QPdf::generateMatrix(QTransform(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
                                            rectangle.x(), rectangle.y()) * (d->simplePen ? QTransform() : d->stroker.matrix));
     bool bitmap = true;
-    int object = d->addImage(image, &bitmap, qt_pixmap_id(pm));
+    int object = d->addImage(image, &bitmap, pm.cacheKey());
     if (bitmap) {
         // set current pen as d->brush
         d->brush = d->pen.brush();
@@ -158,22 +158,22 @@ void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, c
     d->brush = b;
 }
 
-void QPdfEngine::drawImage(const QRectF & rectangle, const QImage & image, const QRectF & sr, Qt::ImageConversionFlags)
+void QPdfEngine::drawImage(const QRectF &rectangle, const QImage &image, const QRectF &sr, Qt::ImageConversionFlags)
 {
     if (sr.isEmpty() || rectangle.isEmpty() || image.isNull())
         return;
     Q_D(QPdfEngine);
 
     QRect sourceRect = sr.toRect();
-    QImage im = sourceRect != image.rect() ? image.copy(sr.toRect()) : image;
+    QImage im = sourceRect != image.rect() ? image.copy(sourceRect) : image;
 
     *d->currentPage << "q\n";
     *d->currentPage
         << QPdf::generateMatrix(QTransform(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
                                            rectangle.x(), rectangle.y()) * (d->simplePen ? QTransform() : d->stroker.matrix));
     bool bitmap = false;
-    int object = d->addImage(im, &bitmap, qt_image_id(im));
-    d->currentPage->streamImage(image.width(), image.height(), object);
+    int object = d->addImage(im, &bitmap, im.cacheKey());
+    d->currentPage->streamImage(im.width(), im.height(), object);
     *d->currentPage << "Q\n";
 }
 
@@ -481,17 +481,20 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap, qint64 serial_n
     if (image.depth() == 1 && *bitmap) {
         if (format == QImage::Format_MonoLSB)
             image = image.convertToFormat(QImage::Format_Mono);
+        format = QImage::Format_Mono;
     } else {
         *bitmap = false;
-        if (format != QImage::Format_RGB32 && format != QImage::Format_ARGB32)
+        if (format != QImage::Format_RGB32 && format != QImage::Format_ARGB32) {
             image = image.convertToFormat(QImage::Format_ARGB32);
+            format = QImage::Format_ARGB32;
+        }
     }
 
     int w = image.width();
     int h = image.height();
     int d = image.depth();
 
-    if (d == 1) {
+    if (format == QImage::Format_Mono) {
         int bytesPerLine = (w + 7) >> 3;
         QByteArray data;
         data.resize(bytesPerLine * h);
@@ -503,7 +506,8 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap, qint64 serial_n
         object = writeImage(data, w, h, d, 0, 0);
     } else {
         QByteArray softMaskData;
-        softMaskData.resize(w * h);
+        if (format != QImage::Format_RGB32)
+            softMaskData.resize(w * h);
         bool dct = false;
         QByteArray imageData;
         bool hasAlpha = false;
@@ -513,20 +517,22 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap, qint64 serial_n
             QBuffer buffer(&imageData);
             QImageWriter writer(&buffer, "jpeg");
             writer.setQuality(94);
-            writer.write(img);
+            writer.write(image);
+            dct = true;
 
-            uchar *sdata = (uchar *)softMaskData.data();
-            for (int y = 0; y < h; ++y) {
-                const QRgb *rgb = (const QRgb *)image.scanLine(y);
-                for (int x = 0; x < w; ++x) {
-                    uchar alpha = qAlpha(*rgb);
-                    *sdata++ = alpha;
-                    hasMask |= (alpha < 255);
-                    hasAlpha |= (alpha != 0 && alpha != 255);
-                    ++rgb;
+            if (format != QImage::Format_RGB32) {
+                uchar *sdata = (uchar *)softMaskData.data();
+                for (int y = 0; y < h; ++y) {
+                    const QRgb *rgb = (const QRgb *)image.scanLine(y);
+                    for (int x = 0; x < w; ++x) {
+                        uchar alpha = qAlpha(*rgb);
+                        *sdata++ = alpha;
+                        hasMask |= (alpha < 255);
+                        hasAlpha |= (alpha != 0 && alpha != 255);
+                        ++rgb;
+                    }
                 }
             }
-            dct = true;
         } else {
             imageData.resize(3 * w * h);
             uchar *data = (uchar *)imageData.data();
@@ -544,6 +550,8 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap, qint64 serial_n
                     ++rgb;
                 }
             }
+            if (format == QImage::Format_RGB32) 
+                hasAlpha = hasMask = false;
         }
         int maskObject = 0;
         int softMaskObject = 0;
