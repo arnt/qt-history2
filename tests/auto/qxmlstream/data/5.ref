@@ -6,7 +6,9 @@ DTD( text="
 %e;
 <!ENTITY not "not">
 <!ENTITY me "me">
-]>" )
+]>"
+    EntityDeclaration( name="e" systemId="something" )
+ )
 StartElement( name="doc" qualifiedName="doc"
     Attribute( name="a" qualifiedName="a" value="do &not; replace me" )
  )

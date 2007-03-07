@@ -11,7 +11,11 @@ DTD( text=">
               b:attr CDATA #IMPLIED
               c:attr CDATA #IMPLIED>
 ]>" )
-StartElement( name="foo" qualifiedName="foo" )
+StartElement( name="foo" qualifiedName="foo"
+    NamespaceDeclaration( prefix="a" namespaceUri="urn:xyzzy" )
+
+    NamespaceDeclaration( prefix="b" namespaceUri="urn:xyzzy" )
+ )
 Characters( whitespace text="
 
 " )
@@ -20,4 +24,4 @@ Invalid( name="bar" qualifiedName="bar"
 
     Attribute( name="attr" namespaceUri="urn:xyzzy" qualifiedName="b:attr" value="2" )
  )
-ERROR: Attribute redefined.
+ERROR: Attribute 'attr'redefined.

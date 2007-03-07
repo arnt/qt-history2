@@ -6,7 +6,13 @@ DTD( text="
 <!ENTITY replace "replace">
 <!ENTITY me "me">
 %e;
-]>" )
+]>"
+    EntityDeclaration( name="e" systemId="something" )
+
+    EntityDeclaration( name="replace" value="replace" )
+
+    EntityDeclaration( name="me" value="me" )
+ )
 StartElement( name="doc" qualifiedName="doc"
     Attribute( name="a" qualifiedName="a" value="do replace me" )
  )

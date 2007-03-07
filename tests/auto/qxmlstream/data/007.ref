@@ -11,7 +11,13 @@ DTD( text=">
               b:attr CDATA #IMPLIED
               c:attr CDATA #IMPLIED>
 ]>" )
-StartElement( name="foo" qualifiedName="foo" )
+StartElement( name="foo" qualifiedName="foo"
+    NamespaceDeclaration( prefix="a" namespaceUri="http://example.org/wine" )
+
+    NamespaceDeclaration( prefix="b" namespaceUri="http://Example.org/wine" )
+
+    NamespaceDeclaration( prefix="c" namespaceUri="http://example.org/Wine" )
+ )
 Characters( whitespace text="
 
 " )

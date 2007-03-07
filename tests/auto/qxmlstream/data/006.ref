@@ -5,6 +5,8 @@ DTD( text=">
 <!ELEMENT foo ANY>
 <!ATTLIST foo xmlns CDATA #IMPLIED>
 ]>" )
-StartElement( name="foo" namespaceUri="http://example.org/rosé" qualifiedName="foo" )
+StartElement( name="foo" namespaceUri="http://example.org/rosé" qualifiedName="foo"
+    NamespaceDeclaration( namespaceUri="http://example.org/rosé" )
+ )
 EndElement( name="foo" namespaceUri="http://example.org/rosé" qualifiedName="foo" )
 EndDocument( )
