@@ -402,7 +402,7 @@ public:
 };
 
 ProjectBuilderSources::ProjectBuilderSources(const QString &k, bool b,
-                                             const QString &g, const QString &c, bool o) : buildable(b), key(k), group(g), compiler(c), object_output(o)
+                                             const QString &g, const QString &c, bool o) : buildable(b), object_output(o), key(k), group(g), compiler(c)
 {
     if(group.isNull()) {
         if(k == "SOURCES")

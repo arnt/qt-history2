@@ -449,7 +449,7 @@ public:
     triState                ExpandAttributedSource;
     favorSizeOrSpeedOption  FavorSizeOrSpeed;
     floatingPointModel      FloatingPointModel;
-    triState                FloatingPointExceptions;  
+    triState                FloatingPointExceptions;
     triState                ForceConformanceInForLoopScope;
     QStringList             ForcedIncludeFiles;
     QStringList             ForcedUsingFiles;
@@ -848,6 +848,7 @@ class VCFilter;
 class Node
 {
 public:
+    virtual ~Node() { }
     void addElement(const VCFilterFile &file) {
         addElement(file.file, file);
     }
