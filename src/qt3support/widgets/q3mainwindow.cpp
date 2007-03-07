@@ -2012,6 +2012,7 @@ void Q3MainWindow::menuAboutToShow()
                 QString label = dw->windowTitle();
                 if (!label.isEmpty()) {
                     QAction *act = menu->addAction(label);
+                    act->setCheckable(true);
                     act->setChecked(dw->isVisible());
                     QObject::connect(act, SIGNAL(triggered()), dw, SLOT(toggleVisible()));
                     empty = false;
