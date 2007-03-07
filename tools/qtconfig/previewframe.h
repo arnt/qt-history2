@@ -16,9 +16,9 @@
 
 #include "previewwidget.h"
 
-#include <QWorkspace>
+#include <QMdiArea>
 
-class Workspace : public QWorkspace
+class Workspace : public QMdiArea
 {
     Q_OBJECT
 
