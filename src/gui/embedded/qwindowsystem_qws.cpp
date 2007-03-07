@@ -706,12 +706,7 @@ void QWSClient::sendEvent(QWSEvent* event)
 void QWSClient::sendRegionEvent(int winid, QRegion rgn, int type)
 {
     QWSRegionEvent event;
-    event.simpleData.window = winid;
-    event.simpleData.nrectangles = rgn.rects().count();
-    event.simpleData.type = type;
-    QVector<QRect> rects = rgn.rects();
-    event.setData((char *)rects.constData(),
-                    rects.count() * sizeof(QRect), false);
+    event.setData(winid, rgn, type);
 
 //    qDebug() << "Sending Region event to" << winid << "rgn" << rgn << "type" << type;
 
