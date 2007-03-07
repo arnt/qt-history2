@@ -61,6 +61,7 @@ SOURCES += \
         SOURCES +=                                      \
                 painting/qpaintengine_raster.cpp        \
                 painting/qdrawhelper.cpp                \
+                painting/qimagescale.cpp                \
                 painting/qblackraster.c                 \
                 painting/qgrayraster.c
 
@@ -149,7 +150,7 @@ mac {
 } else:mmx|sse|sse2|iwmmxt {
 
     X86_HEADERS += painting/qdrawhelper_x86_p.h
-    X86_SOURCES += painting/qdrawhelper_x86.cpp
+    X86_SOURCES += painting/qdrawhelper_x86.cpp painting/qimagescale_x86.S
 
     win32-g++|!win32 {
         x86_compiler.commands = $$QMAKE_CXX -c

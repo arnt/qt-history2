@@ -16,6 +16,7 @@
 #include <private/qpainter_p.h>
 #include <private/qmath_p.h>
 #include <private/qdrawhelper_x86_p.h>
+#include <private/qimagescale_p.h>
 
 #include <math.h>
 #define MASK(src, a) src = BYTE_MUL(src, a)
@@ -4855,7 +4856,8 @@ static uint detectCPUFeatures() {
 }
 
 extern void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData);
-
+extern qt_qimageScaleFunc qt_qimageScaleArgb;
+extern qt_qimageScaleFunc qt_qimageScaleRgb;
 void qInitDrawhelperAsm()
 {
     static uint features = 0xffffffff;
@@ -4865,6 +4867,9 @@ void qInitDrawhelperAsm()
 
     qt_memfill32 = qt_memfill_template<quint32, quint32>;
     qt_memfill16 = qt_memfill_quint16; //qt_memfill_template<quint16, quint16>;
+
+    qt_qimageScaleArgb = qt_qimageScaleAARGBA;
+    qt_qimageScaleRgb = qt_qimageScaleAARGB;
 
 #ifdef QT_NO_DEBUG
     if (false) {
@@ -4889,6 +4894,10 @@ void qInitDrawhelperAsm()
         functionForMode = qt_functionForMode_SSE;
         functionForModeSolid = qt_functionForModeSolid_SSE;
         qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_sse;
+    }
+    if (features & MMX) {
+        qt_qimageScaleArgb = __qt_qimageScaleMmxArgb;
+        qt_qimageScaleRgb = __qt_qimageScaleMmxArgb;
     }
 #endif
 #endif // QT_NO_DEBUG

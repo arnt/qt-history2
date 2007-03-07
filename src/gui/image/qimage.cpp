@@ -27,6 +27,7 @@
 #include <math.h>
 #include <private/qdrawhelper_p.h>
 #include <private/qpixmap_p.h>
+#include <private/qimagescale_p.h>
 
 #include <qhash.h>
 
@@ -69,8 +70,6 @@ Q_GUI_EXPORT _qt_image_cleanup_hook qt_image_cleanup_hook = 0;
 typedef void (*_qt_image_cleanup_hook_64)(qint64);
 Q_GUI_EXPORT _qt_image_cleanup_hook_64 qt_image_cleanup_hook_64 = 0;
 
-static void pnmscale(const QImage& src, QImage& dst);
-static QImage smoothScaled(const QImage &src, int w, int h);
 static QImage rotated90(const QImage &src);
 static QImage rotated180(const QImage &src);
 static QImage rotated270(const QImage &src);
@@ -3616,21 +3615,35 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
     image. Use the trueMatrix() function to retrieve the actual matrix
     used for transforming an image
 
-    For smooth scaling down, this function uses code based on
-    pnmscale.c by Jef Poskanzer.
+    For smooth scaling, this function uses code based on
+    smooth scaling algorithm by Daniel M. Duley.
 
-    pnmscale.c - read a portable anymap and scale it
 
     \legalese
 
-    Copyright (C) 1989, 1991 by Jef Poskanzer.
+     Copyright (C) 2004, 2005 Daniel M. Duley
 
-    Permission to use, copy, modify, and distribute this software and
-    its documentation for any purpose and without fee is hereby
-    granted, provided that the above copyright notice appear in all
-    copies and that both that copyright notice and this permission
-    notice appear in supporting documentation. This software is
-    provided "as is" without express or implied warranty.
+     Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions
+        are met:
+
+     1. Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+
+     THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+     IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+     OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+     IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+     NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+     DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+     THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+     THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 
     \sa trueMatrix(), {QImage#Image Transformations}{Image
     Transformations}
@@ -5186,285 +5199,18 @@ QImage::Endian QImage::systemBitOrder()
     Use scaledToHeight() instead.
 */
 
-static
-void pnmscale(const QImage& src, QImage& dst)
-{
-    QRgb* xelrow = 0;
-    QRgb* tempxelrow = 0;
-    register QRgb* xP;
-    register QRgb* nxP;
-    int rows, cols, rowsread, newrows, newcols;
-    register int row, col, needtoreadrow;
-    const uchar maxval = 255;
-    double xscale, yscale;
-    long sxscale, syscale;
-    register long fracrowtofill, fracrowleft;
-    long* as;
-    long* rs;
-    long* gs;
-    long* bs;
-    int rowswritten = 0;
-
-    cols = src.width();
-    rows = src.height();
-    newcols = dst.width();
-    newrows = dst.height();
-
-    long SCALE;
-    long HALFSCALE;
-
-    if (cols > 4096)
-    {
-        SCALE = 4096;
-        HALFSCALE = 2048;
-    }
-    else
-    {
-        int fac = 4096;
-
-        while (cols * fac > 4096)
-        {
-            fac /= 2;
-        }
-
-        SCALE = fac * cols;
-        HALFSCALE = fac * cols / 2;
-    }
-
-    xscale = (double) newcols / (double) cols;
-    yscale = (double) newrows / (double) rows;
-
-    sxscale = (long)(xscale * SCALE);
-    syscale = (long)(yscale * SCALE);
-
-    if ( newrows != rows )	/* shortcut Y scaling if possible */
-	tempxelrow = new QRgb[cols];
-
-    if ( src.hasAlphaChannel() ) {
-        dst = dst.convertToFormat(src.format());
-	as = new long[cols];
-	for ( col = 0; col < cols; ++col )
-	    as[col] = HALFSCALE;
-    } else {
-	as = 0;
-    }
-    rs = new long[cols];
-    gs = new long[cols];
-    bs = new long[cols];
-    rowsread = 0;
-    fracrowleft = syscale;
-    needtoreadrow = 1;
-    for ( col = 0; col < cols; ++col )
-	rs[col] = gs[col] = bs[col] = HALFSCALE;
-    fracrowtofill = SCALE;
-
-    for ( row = 0; row < newrows; ++row ) {
-	/* First scale Y from xelrow into tempxelrow. */
-	if ( newrows == rows ) {
-	    /* shortcut Y scaling if possible */
-	    tempxelrow = xelrow = (QRgb*)src.scanLine(rowsread++);
-	} else {
-	    while ( fracrowleft < fracrowtofill ) {
-		if ( needtoreadrow && rowsread < rows )
-		    xelrow = (QRgb*)src.scanLine(rowsread++);
-		for ( col = 0, xP = xelrow; col < cols; ++col, ++xP ) {
-		    if (as) {
-			as[col] += fracrowleft * qAlpha( *xP );
-			rs[col] += fracrowleft * qRed( *xP ) * qAlpha( *xP ) / 255;
-			gs[col] += fracrowleft * qGreen( *xP ) * qAlpha( *xP ) / 255;
-			bs[col] += fracrowleft * qBlue( *xP ) * qAlpha( *xP ) / 255;
-		    } else {
-			rs[col] += fracrowleft * qRed( *xP );
-			gs[col] += fracrowleft * qGreen( *xP );
-			bs[col] += fracrowleft * qBlue( *xP );
-		    }
-		}
-		fracrowtofill -= fracrowleft;
-		fracrowleft = syscale;
-		needtoreadrow = 1;
-	    }
-	    /* Now fracrowleft is >= fracrowtofill, so we can produce a row. */
-	    if ( needtoreadrow && rowsread < rows ) {
-		xelrow = (QRgb*)src.scanLine(rowsread++);
-		needtoreadrow = 0;
-	    }
-	    register long a=0;
-	    for ( col = 0, xP = xelrow, nxP = tempxelrow;
-		  col < cols; ++col, ++xP, ++nxP )
-	    {
-		register long r, g, b;
-
-		if ( as ) {
-		    r = rs[col] + fracrowtofill * qRed( *xP ) * qAlpha( *xP ) / 255;
-		    g = gs[col] + fracrowtofill * qGreen( *xP ) * qAlpha( *xP ) / 255;
-		    b = bs[col] + fracrowtofill * qBlue( *xP ) * qAlpha( *xP ) / 255;
-		    a = as[col] + fracrowtofill * qAlpha( *xP );
-		    if ( a ) {
-			r = r * 255 / a * SCALE;
-			g = g * 255 / a * SCALE;
-			b = b * 255 / a * SCALE;
-		    }
-		} else {
-		    r = rs[col] + fracrowtofill * qRed( *xP );
-		    g = gs[col] + fracrowtofill * qGreen( *xP );
-		    b = bs[col] + fracrowtofill * qBlue( *xP );
-		}
-		r /= SCALE;
-		if ( r > maxval ) r = maxval;
-		g /= SCALE;
-		if ( g > maxval ) g = maxval;
-		b /= SCALE;
-		if ( b > maxval ) b = maxval;
-		if ( as ) {
-		    a /= SCALE;
-		    if ( a > maxval ) a = maxval;
-		    *nxP = qRgba( (int)r, (int)g, (int)b, (int)a );
-		    as[col] = HALFSCALE;
-		} else {
-		    *nxP = qRgb( (int)r, (int)g, (int)b );
-		}
-		rs[col] = gs[col] = bs[col] = HALFSCALE;
-	    }
-	    fracrowleft -= fracrowtofill;
-	    if ( fracrowleft == 0 ) {
-		fracrowleft = syscale;
-		needtoreadrow = 1;
-	    }
-	    fracrowtofill = SCALE;
-	}
-
-	/* Now scale X from tempxelrow into dst and write it out. */
-	if ( newcols == cols ) {
-	    /* shortcut X scaling if possible */
-	    memcpy(dst.scanLine(rowswritten++), tempxelrow, newcols*4);
-	} else {
-	    register long a, r, g, b;
-	    register long fraccoltofill, fraccolleft = 0;
-	    register int needcol;
-
-	    nxP = (QRgb*)dst.scanLine(rowswritten++);
-	    fraccoltofill = SCALE;
-	    a = r = g = b = HALFSCALE;
-	    needcol = 0;
-	    for ( col = 0, xP = tempxelrow; col < cols; ++col, ++xP ) {
-		fraccolleft = sxscale;
-		while ( fraccolleft >= fraccoltofill ) {
-		    if ( needcol ) {
-			++nxP;
-			a = r = g = b = HALFSCALE;
-		    }
-		    if ( as ) {
-			r += fraccoltofill * qRed( *xP ) * qAlpha( *xP ) / 255;
-			g += fraccoltofill * qGreen( *xP ) * qAlpha( *xP ) / 255;
-			b += fraccoltofill * qBlue( *xP ) * qAlpha( *xP ) / 255;
-			a += fraccoltofill * qAlpha( *xP );
-			if ( a ) {
-			    r = r * 255 / a * SCALE;
-			    g = g * 255 / a * SCALE;
-			    b = b * 255 / a * SCALE;
-			}
-		    } else {
-			r += fraccoltofill * qRed( *xP );
-			g += fraccoltofill * qGreen( *xP );
-			b += fraccoltofill * qBlue( *xP );
-		    }
-		    r /= SCALE;
-		    if ( r > maxval ) r = maxval;
-		    g /= SCALE;
-		    if ( g > maxval ) g = maxval;
-		    b /= SCALE;
-		    if ( b > maxval ) b = maxval;
-		    if (as) {
-			a /= SCALE;
-			if ( a > maxval ) a = maxval;
-			*nxP = qRgba( (int)r, (int)g, (int)b, (int)a );
-		    } else {
-			*nxP = qRgb( (int)r, (int)g, (int)b );
-		    }
-		    fraccolleft -= fraccoltofill;
-		    fraccoltofill = SCALE;
-		    needcol = 1;
-		}
-		if ( fraccolleft > 0 ) {
-		    if ( needcol ) {
-			++nxP;
-			a = r = g = b = HALFSCALE;
-			needcol = 0;
-		    }
-		    if (as) {
-			a += fraccolleft * qAlpha( *xP );
-			r += fraccolleft * qRed( *xP ) * qAlpha( *xP ) / 255;
-			g += fraccolleft * qGreen( *xP ) * qAlpha( *xP ) / 255;
-			b += fraccolleft * qBlue( *xP ) * qAlpha( *xP ) / 255;
-		    } else {
-			r += fraccolleft * qRed( *xP );
-			g += fraccolleft * qGreen( *xP );
-			b += fraccolleft * qBlue( *xP );
-		    }
-		    fraccoltofill -= fraccolleft;
-		}
-	    }
-	    if ( fraccoltofill > 0 ) {
-		--xP;
-		if (as) {
-		    a += fraccolleft * qAlpha( *xP );
-		    r += fraccoltofill * qRed( *xP ) * qAlpha( *xP ) / 255;
-		    g += fraccoltofill * qGreen( *xP ) * qAlpha( *xP ) / 255;
-		    b += fraccoltofill * qBlue( *xP ) * qAlpha( *xP ) / 255;
-		    if ( a ) {
-			r = r * 255 / a * SCALE;
-			g = g * 255 / a * SCALE;
-			b = b * 255 / a * SCALE;
-		    }
-		} else {
-		    r += fraccoltofill * qRed( *xP );
-		    g += fraccoltofill * qGreen( *xP );
-		    b += fraccoltofill * qBlue( *xP );
-		}
-	    }
-	    if ( ! needcol ) {
-		r /= SCALE;
-		if ( r > maxval ) r = maxval;
-		g /= SCALE;
-		if ( g > maxval ) g = maxval;
-		b /= SCALE;
-		if ( b > maxval ) b = maxval;
-		if (as) {
-		    a /= SCALE;
-		    if ( a > maxval ) a = maxval;
-		    *nxP = qRgba( (int)r, (int)g, (int)b, (int)a );
-		} else {
-		    *nxP = qRgb( (int)r, (int)g, (int)b );
-		}
-	    }
-	}
-    }
-
-    if ( newrows != rows && tempxelrow )// Robust, tempxelrow might be 0 1 day
-	delete [] tempxelrow;
-    if ( as )				// Avoid purify complaint
-	delete [] as;
-    if ( rs )				// Robust, rs might be 0 one day
-	delete [] rs;
-    if ( gs )				// Robust, gs might be 0 one day
-	delete [] gs;
-    if ( bs )				// Robust, bs might be 0 one day
-	delete [] bs;
-}
-
-
-static QImage smoothScaled(const QImage &src, int w, int h) {
-    QImage::Format sf = src.format();
-    QImage source = src;
-    if (sf != QImage::Format_RGB32 && sf != QImage::Format_ARGB32) {
+static QImage smoothScaled(const QImage &source, int w, int h) {
+    QImage src = source;
+    if (src.format() == QImage::Format_ARGB32_Premultiplied)
+        src = src.convertToFormat(QImage::Format_ARGB32);
+    else if (src.depth() < 32) {
         if (src.hasAlphaChannel())
-            source = src.convertToFormat(QImage::Format_ARGB32);
+            src = src.convertToFormat(QImage::Format_ARGB32);
         else
-            source = src.convertToFormat(QImage::Format_RGB32);
+            src = src.convertToFormat(QImage::Format_RGB32);
     }
-    QImage dest(w, h, source.format());
-    pnmscale(source, dest);
-    return dest;
+
+    return qSmoothScaleImage(src, w, h);
 }
 
 
@@ -5609,8 +5355,8 @@ QImage QImage::transformed(const QTransform &matrix, Qt::TransformationMode mode
     if (wd == 0 || hd == 0)
         return QImage();
 
-    // Make use of the pnmscale algorithm when we're scaling down
-    if (scale_xform && mode == Qt::SmoothTransformation && (wd < ws || hd < hs)) {
+    // Make use of the optimized algorithm when we're scaling
+    if (scale_xform && mode == Qt::SmoothTransformation) {
         if (mat.m11() < 0.0F && mat.m22() < 0.0F) { // horizontal/vertical flip
             return ::smoothScaled(mirrored(true, true), wd, hd);
         } else if (mat.m11() < 0.0F) { // horizontal flip
