@@ -36,6 +36,11 @@
 
 #include "util/fragmentprograms_p.h"
 
+#ifdef Q_WS_QWS
+#include "private/qpaintdevice_egl_p.h"
+#include "private/qwindowsurface_egl_p.h"
+#endif
+
 extern QImage qt_imageForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
 #define QGL_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(drawable.context());
@@ -142,7 +147,11 @@ const QGLTrapezoid QGLTrapezoid::translated(const QPointF &delta) const
 
 class QGLDrawable {
 public:
-    QGLDrawable() : widget(0), buffer(0), fbo(0) {}
+    QGLDrawable() : widget(0), buffer(0), fbo(0)
+#ifdef Q_WS_QWS
+                  , wsurf(0)
+#endif
+        {}
     inline void setDevice(QPaintDevice *pdev);
     inline void swapBuffers();
     inline void makeCurrent();
@@ -159,6 +168,9 @@ private:
     QGLWidget *widget;
     QGLPixelBuffer *buffer;
     QGLFramebufferObject *fbo;
+#ifdef Q_WS_QWS
+    QEGLWindowSurface *wsurf;
+#endif
 };
 
 void QGLDrawable::setDevice(QPaintDevice *pdev)
@@ -166,12 +178,19 @@ void QGLDrawable::setDevice(QPaintDevice *pdev)
     widget = 0;
     buffer = 0;
     fbo = 0;
+#ifdef Q_WS_QWS
+    wsurf = 0;
+#endif
     if (pdev->devType() == QInternal::Widget)
         widget = static_cast<QGLWidget *>(pdev);
     else if (pdev->devType() == QInternal::Pbuffer)
         buffer = static_cast<QGLPixelBuffer *>(pdev);
     else if (pdev->devType() == QInternal::FramebufferObject)
         fbo = static_cast<QGLFramebufferObject *>(pdev);
+#ifdef Q_WS_QWS
+    else if (pdev->devType() == QInternal::UnknownDevice)
+        wsurf = static_cast<QEGLPaintDevice*>(pdev)->windowSurface();
+#endif
 }
 
 inline void QGLDrawable::swapBuffers()
@@ -192,22 +211,40 @@ inline void QGLDrawable::makeCurrent()
         buffer->makeCurrent();
     else if (fbo)
         fbo->bind();
+#ifdef Q_WS_QWS
+    else if (wsurf)
+        wsurf->beginPaint(QRegion());
+#endif
 }
 
 inline void QGLDrawable::doneCurrent()
 {
     if (fbo)
         fbo->release();
+#ifdef Q_WS_QWS
+    else if (wsurf)
+        wsurf->endPaint(QRegion());
+#endif
 }
 
 inline QSize QGLDrawable::size() const
 {
     if (widget)
-        return widget->size();
+#ifdef Q_WS_QWS
+        if (widget->windowFlags() & Qt::WhilePaintingWindowDecorations)
+            return widget->frameSize();
+        else
+#else
+            return widget->size();
+#endif
     else if (buffer)
         return buffer->size();
     else if (fbo)
         return fbo->size();
+#ifdef Q_WS_QWS
+    else if (wsurf)
+        return wsurf->window()->frameSize();
+#endif
     return QSize();
 }
 
@@ -219,6 +256,10 @@ inline QGLFormat QGLDrawable::format() const
         return buffer->format();
     else if (fbo && QGLContext::currentContext())
         return QGLContext::currentContext()->format();
+#ifdef Q_WS_QWS
+    else if (wsurf)
+        return wsurf->context()->format();
+#endif
     return QGLFormat();
 }
 
@@ -230,6 +271,10 @@ inline GLuint QGLDrawable::bindTexture(const QImage &image, GLenum target, GLint
         return buffer->d_func()->qctx->d_func()->bindTexture(image, target, format, true);
     else if (fbo && QGLContext::currentContext())
         return const_cast<QGLContext *>(QGLContext::currentContext())->d_func()->bindTexture(image, target, format, true);
+#ifdef Q_WS_QWS
+    else if (wsurf)
+        return wsurf->context()->d_func()->bindTexture(image, target, format, true);
+#endif
     return 0;
 }
 
@@ -241,6 +286,10 @@ inline GLuint QGLDrawable::bindTexture(const QPixmap &pixmap, GLenum target, GLi
         return buffer->d_func()->qctx->d_func()->bindTexture(pixmap, target, format, true);
     else if (fbo && QGLContext::currentContext())
         return const_cast<QGLContext *>(QGLContext::currentContext())->d_func()->bindTexture(pixmap, target, format, true);
+#ifdef Q_WS_QWS
+    else if (wsurf)
+        return wsurf->context()->d_func()->bindTexture(pixmap, target, format, true);
+#endif
     return 0;
 }
 
@@ -259,13 +308,21 @@ inline QGLContext *QGLDrawable::context() const
         return buffer->d_func()->qctx;
     else if (fbo)
         return const_cast<QGLContext *>(QGLContext::currentContext());
+#ifdef Q_WS_QWS
+    else if (wsurf)
+        return wsurf->context();
+#endif
     return 0;
 }
 
 inline bool QGLDrawable::autoFillBackground() const
 {
     if (widget)
+#ifndef Q_WS_QWS
         return widget->autoFillBackground();
+#else
+    return widget->autoFillBackground() && !(widget->windowFlags() & Qt::WhilePaintingWindowDecorations);
+#endif
     return false;
 }
 
@@ -418,14 +475,17 @@ inline void QGLOffscreen::setDevice(QPaintDevice *pdev)
 
 void QGLOffscreen::begin()
 {
+#ifndef Q_WS_QWS
     initialized = false;
 
     if (activated)
         initialize();
+#endif
 }
 
 void QGLOffscreen::initialize()
 {
+#ifndef Q_WS_QWS
     if (initialized)
         return;
 
@@ -453,6 +513,7 @@ void QGLOffscreen::initialize()
     qt_mask_texture_cache()->setOffscreenSize(offscreenSize());
     qt_mask_texture_cache()->setDrawableSize(drawable.size());
     ctx = drawable.context();
+#endif
 }
 
 inline bool QGLOffscreen::isValid() const
@@ -936,9 +997,13 @@ protected:
         uint buffer[1024];
         generateGradientColorTable(stops, buffer, paletteSize(), opacity);
         glGenTextures(1, &cache_entry.texId);
+#ifndef Q_WS_QWS
         glBindTexture(GL_TEXTURE_1D, cache_entry.texId);
         glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, paletteSize(),
                      0, GL_BGRA, GL_UNSIGNED_BYTE, buffer);
+#else
+        // create 2D one-line texture instead. This requires an impl of manual GL_TEXGEN for all primitives
+#endif
         return cache.insert(hash_val, cache_entry).value().texId;
     }
 
@@ -1030,7 +1095,6 @@ void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
 
 inline void QOpenGLPaintEnginePrivate::setGradientOps(const QBrush &brush, const QRectF &bounds)
 {
-#ifndef Q_WS_QWS //###
     current_style = brush.style();
 
     if (current_style < Qt::LinearGradientPattern || current_style > Qt::ConicalGradientPattern) {
@@ -1040,6 +1104,7 @@ inline void QOpenGLPaintEnginePrivate::setGradientOps(const QBrush &brush, const
 
     updateGradient(brush, bounds);
 
+#ifndef Q_WS_QWS //### GLES does not have GL_TEXTURE_GEN_ so we are falling back for gradients
     glDisable(GL_TEXTURE_GEN_S);
     glDisable(GL_TEXTURE_1D);
 
@@ -1167,8 +1232,9 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     } else if (d->use_stencil_method) {
         glClear(GL_STENCIL_BUFFER_BIT);
     }
+
     QSize sz(d->drawable.size());
-    glViewport(0, 0, sz.width(), sz.height());
+    glViewport(0, 0, sz.width(), sz.height()); // XXX (Embedded): We need a solution for GLWidgets that draw in a part or a bigger surface...
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 #ifdef Q_WS_QWS
@@ -1242,6 +1308,12 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     setDirty(QPaintEngine::DirtyPen);
     setDirty(QPaintEngine::DirtyBrush);
     setDirty(QPaintEngine::DirtyCompositionMode);
+
+#ifdef Q_WS_QWS
+    // XXX: needed only if painting on a widget?
+    updateClipRegion(QRegion(), Qt::NoClip);
+#endif
+
     return true;
 }
 
@@ -1875,12 +1947,14 @@ void QOpenGLPaintEnginePrivate::fillVertexArray(Qt::FillRule fillRule)
 
         // Enable stencil func.
         glStencilFunc(GL_NOTEQUAL, 0, stencilMask);
+#ifndef Q_WS_QWS
         glBegin(GL_QUADS);
         glVertex2f(min_x, min_y);
         glVertex2f(max_x, min_y);
         glVertex2f(max_x, max_y);
         glVertex2f(min_x, max_y);
         glEnd();
+#endif
     }
 
     glStencilMask(~0);
@@ -1890,12 +1964,14 @@ void QOpenGLPaintEnginePrivate::fillVertexArray(Qt::FillRule fillRule)
     // clear all stencil values to 0
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
+#ifndef Q_WS_QWS
     glBegin(GL_QUADS);
     glVertex2f(min_x, min_y);
     glVertex2f(max_x, min_y);
     glVertex2f(max_x, max_y);
     glVertex2f(min_x, max_y);
     glEnd();
+#endif
 
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
@@ -2056,7 +2132,12 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
 
     d->flushDrawQueue();
 
+#ifdef Q_WS_QWS
+    QRegion sysClip = systemClip();
+    if (sysClip.isEmpty() && op == Qt::NoClip) {
+#else
     if (op == Qt::NoClip) {
+#endif
         d->has_clipping = false;
         d->crgn = QRegion();
         glDisable(GL_DEPTH_TEST);
@@ -2077,6 +2158,12 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
 
     QRegion region = isScreenClip ? QRegion() : clipRegion * d->matrix;
     switch (op) {
+#ifdef Q_WS_QWS
+    case Qt::NoClip:
+        d->has_clipping = false;
+        d->crgn = sysClip;
+        break;
+#endif
     case Qt::IntersectClip:
         if (isScreenClip)
             return;
@@ -2086,10 +2173,19 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
         }
         // fall through
     case Qt::ReplaceClip:
+#ifdef Q_WS_QWS
+        if (!sysClip.isEmpty())
+            d->crgn = region.intersected(sysClip);
+        else
+#endif
         d->crgn = region;
         break;
     case Qt::UniteClip:
         d->crgn |= region;
+#ifdef Q_WS_QWS
+        if (!sysClip.isEmpty())
+            d->crgn = d->crgn.intersected(sysClip);
+#endif
         break;
     default:
         break;
@@ -2104,11 +2200,15 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
 
 #ifndef Q_WS_QWS
     glClearDepth(0x0);
+#else
+    glClearDepthf(0x0);
 #endif
     glClear(GL_DEPTH_BUFFER_BIT);
     glDepthMask(true);
 #ifndef Q_WS_QWS
     glClearDepth(0x1);
+#else
+    glClearDepthf(0x1);
 #endif
 
     const QVector<QRect> rects = d->crgn.rects();
@@ -2794,6 +2894,7 @@ QGLTrapezoidMaskGenerator::QGLTrapezoidMaskGenerator(const QPainterPath &path, c
 
 void QGLTrapezoidMaskGenerator::drawMask(const QRect &rect)
 {
+#ifndef Q_WS_QWS
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
@@ -2840,6 +2941,7 @@ void QGLTrapezoidMaskGenerator::drawMask(const QRect &rect)
 
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+#endif
 }
 
 QRect QGLTrapezoidMaskGenerator::screenRect()
@@ -3008,6 +3110,7 @@ QRect QGLEllipseMaskGenerator::screenRect()
 
 void QGLEllipseMaskGenerator::drawMask(const QRect &rect)
 {
+#ifndef Q_WS_QWS
     QGLContext *ctx = offscreen->context();
     offscreen->bind();
 
@@ -3049,6 +3152,7 @@ void QGLEllipseMaskGenerator::drawMask(const QRect &rect)
     glVertexPointer(2, GL_FLOAT, 0, vertexArray);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glDisableClientState(GL_VERTEX_ARRAY);
+#endif
 }
 
 void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
@@ -3455,6 +3559,74 @@ void QOpenGLPaintEnginePrivate::strokePathFastPen(const QPainterPath &path, bool
         } // end of switch
     }
     glEnd(); // GL_LINE_STRIP
+#else
+    // have to use vertex arrays on embedded
+    QRectF bounds;
+    if (needsResolving)
+        bounds = path.controlPointRect();
+    setGradientOps(cpen.brush(), bounds);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    tess_points.reset();
+    QBezier beziers[32];
+    for (int i=0; i<path.elementCount(); ++i) {
+        const QPainterPath::Element &e = path.elementAt(i);
+        switch (e.type) {
+        case QPainterPath::MoveToElement:
+            if (i != 0) {
+                glVertexPointer(2, GL_FLOAT, 0, tess_points.data());
+                glDrawArrays(GL_LINE_STRIP, 0, tess_points.size());
+                tess_points.reset();
+            }
+            tess_points.add(QPointF(e.x, e.y));
+
+            break;
+        case QPainterPath::LineToElement:
+            tess_points.add(QPointF(e.x, e.y));
+            break;
+
+        case QPainterPath::CurveToElement:
+        {
+            QPointF sp = path.elementAt(i-1);
+            QPointF cp2 = path.elementAt(i+1);
+            QPointF ep = path.elementAt(i+2);
+            i+=2;
+
+            qreal inverseScaleHalf = inverseScale / 2;
+            beziers[0] = QBezier::fromPoints(sp, e, cp2, ep);
+            QBezier *b = beziers;
+            while (b >= beziers) {
+                // check if we can pop the top bezier curve from the stack
+                qreal l = qAbs(b->x4 - b->x1) + qAbs(b->y4 - b->y1);
+                qreal d;
+                if (l > inverseScale) {
+                    d = qAbs( (b->x4 - b->x1)*(b->y1 - b->y2)
+                              - (b->y4 - b->y1)*(b->x1 - b->x2) )
+                        + qAbs( (b->x4 - b->x1)*(b->y1 - b->y3)
+                                - (b->y4 - b->y1)*(b->x1 - b->x3) );
+                    d /= l;
+                } else {
+                    d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
+                        qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
+                }
+                if (d < inverseScaleHalf || b == beziers + 31) {
+                    // good enough, we pop it off and add the endpoint
+                    tess_points.add(QPointF(b->x4, b->y4));
+                    --b;
+                } else {
+                    // split, second half of the polygon goes lower into the stack
+                    b->split(b+1, b);
+                    ++b;
+                }
+            }
+        } // case CurveToElement
+        default:
+            break;
+        } // end of switch
+    }
+    glVertexPointer(2, GL_FLOAT, 0, tess_points.data());
+    glDrawArrays(GL_LINE_STRIP, 0, tess_points.size());
+    glDisableClientState(GL_VERTEX_ARRAY);
 #endif
 }
 
@@ -3907,7 +4079,6 @@ static QImage getCurrentTexture(const QColor &color, QGLFontTexture *font_tex)
 void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
                                 const QVarLengthArray<glyph_t> &glyphs)
 {
-#ifndef Q_WS_QWS //###
     QGLContextHash::const_iterator dev_it = qt_context_cache.constFind(context);
     QGLFontGlyphHash *font_cache = 0;
     QGLContext *context_key = 0;
@@ -4065,7 +4236,6 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
             cache->insert(glyphs[i], qgl_glyph);
         }
     }
-#endif
 }
 
 QGLGlyphCoord *QGLGlyphCache::lookup(QFontEngine *, glyph_t g)
@@ -4295,6 +4465,7 @@ void QOpenGLPaintEnginePrivate::updateFragmentProgramData(int locations[])
 
 void QOpenGLPaintEnginePrivate::copyDrawable(const QRectF &rect)
 {
+#ifndef Q_WS_QWS
     DEBUG_ONCE qDebug() << "Refreshing drawable_texture for rectangle" << rect;
     QRectF screen_rect = rect.adjusted(-1, -1, 1, 1);
 
@@ -4306,6 +4477,7 @@ void QOpenGLPaintEnginePrivate::copyDrawable(const QRectF &rect)
 
     glBindTexture(GL_TEXTURE_2D, drawable_texture);
     glCopyTexSubImage2D(GL_TEXTURE_2D, 0, left, bottom, left, bottom, width, height);
+#endif
 }
 
 
@@ -4471,6 +4643,7 @@ void QOpenGLPaintEnginePrivate::drawItem(const QDrawQueueItem &item)
 
 void QOpenGLPaintEnginePrivate::flushDrawQueue()
 {
+#ifndef Q_WS_QWS
     Q_Q(QOpenGLPaintEngine);
 
     glPushMatrix();
@@ -4512,6 +4685,7 @@ void QOpenGLPaintEnginePrivate::flushDrawQueue()
     glPopMatrix();
 
     glDisable(GL_FRAGMENT_PROGRAM_ARB);
+#endif
 }
 
 bool QOpenGLPaintEnginePrivate::createFragmentPrograms()
