@@ -926,7 +926,7 @@ void QMdiSubWindowPrivate::updateGeometryConstraints()
     int margin, minWidth;
     sizeParameters(&margin, &minWidth);
     q->setContentsMargins(margin, titleBarHeight(), margin, margin);
-    resizeEnabled = true;
+    resizeEnabled = q->windowFlags() & Qt::MSWindowsFixedSizeDialogHint ? false : true;
     moveEnabled = true;
     updateDirtyRegions();
 }
@@ -1068,7 +1068,7 @@ void QMdiSubWindowPrivate::setNormalMode()
     setEnabled(MaximizeAction, true);
     setEnabled(MinimizeAction, true);
     setEnabled(RestoreAction, false);
-    setEnabled(ResizeAction, true);
+    setEnabled(ResizeAction, resizeEnabled);
 
     Q_ASSERT(!(q_func()->windowState() & (Qt::WindowMinimized | Qt::WindowMaximized)));
     Q_ASSERT(!isShadeMode);
@@ -1123,7 +1123,7 @@ void QMdiSubWindowPrivate::setMaximizeMode()
     setEnabled(MaximizeAction, false);
     setEnabled(MinimizeAction, true);
     setEnabled(RestoreAction, true);
-    setEnabled(ResizeAction, false);
+    setEnabled(ResizeAction, resizeEnabled);
 
     Q_ASSERT(q->windowState() & Qt::WindowMaximized);
     Q_ASSERT(!(q->windowState() & Qt::WindowMinimized));
@@ -1639,14 +1639,16 @@ void QMdiSubWindowPrivate::updateActions()
     for (int i = 0; i < NumWindowStateActions; ++i)
         setVisible(WindowStateAction(i), false);
 
-    setVisible(StayOnTopAction, true);
-    setVisible(CloseAction, true);
-
     if (windowFlags & Qt::FramelessWindowHint)
         return;
 
+    setVisible(StayOnTopAction, true);
     setVisible(MoveAction, true);
-    setVisible(ResizeAction, true);
+    setVisible(ResizeAction, resizeEnabled);
+
+    // CloseAction
+    if (windowFlags & Qt::WindowSystemMenuHint)
+        setVisible(CloseAction, true);
 
     // RestoreAction
     if (windowFlags & (Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint))
@@ -1730,7 +1732,7 @@ void QMdiSubWindowPrivate::setWindowFlags(Qt::WindowFlags windowFlags)
     }
 
     Qt::WindowFlags windowType = windowFlags & Qt::WindowType_Mask;
-    if (windowType == Qt::Dialog)
+    if (windowType == Qt::Dialog || windowFlags & Qt::MSWindowsFixedSizeDialogHint)
         windowFlags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint;
 
     // Set standard flags if none of the customize flags are set
@@ -2212,7 +2214,7 @@ void QMdiSubWindow::showShaded()
     d->updateMask();
 
     d->setEnabled(QMdiSubWindowPrivate::MinimizeAction, false);
-    d->setEnabled(QMdiSubWindowPrivate::ResizeAction, false);
+    d->setEnabled(QMdiSubWindowPrivate::ResizeAction, d->resizeEnabled);
     d->setEnabled(QMdiSubWindowPrivate::MaximizeAction, true);
     d->setEnabled(QMdiSubWindowPrivate::RestoreAction, true);
     d->setEnabled(QMdiSubWindowPrivate::MoveAction, true);
