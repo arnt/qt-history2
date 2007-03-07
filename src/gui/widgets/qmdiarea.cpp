@@ -541,7 +541,7 @@ void QMdiAreaPrivate::appendChild(QMdiSubWindow *child)
         child->setParent(q->viewport(), child->windowFlags());
     childWindows.append(QPointer<QMdiSubWindow>(child));
 
-    if (!child->testAttribute(Qt::WA_Resized)) {
+    if (!child->testAttribute(Qt::WA_Resized) && q->isVisible()) {
         QSize newSize(child->sizeHint().boundedTo(q->viewport()->size()));
         child->resize(newSize.expandedTo(child->minimumSize()));
     }
@@ -1378,9 +1378,18 @@ void QMdiArea::showEvent(QShowEvent *showEvent)
     }
 
     if (!d->pendingPlacements.isEmpty()) {
-        foreach (QMdiSubWindow *window, d->childWindows)
-            if (window && !window->isMinimized() && !window->isMaximized())
+        foreach (QMdiSubWindow *window, d->childWindows) {
+            if (!window)
+                continue;
+            if (!window->testAttribute(Qt::WA_Resized)) {
+                QSize newSize(window->sizeHint().boundedTo(viewport()->size()));
+                window->resize(newSize.expandedTo(window->minimumSize()));
+            }
+            if (!window->testAttribute(Qt::WA_Moved) && !window->isMinimized()
+                    && !window->isMaximized()) {
                 d->place(d->placer, window);
+            }
+        }
         d->pendingPlacements.clear();
     }
 
