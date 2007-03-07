@@ -32,6 +32,7 @@ class DspMakefileGenerator : public Win32MakefileGenerator
 
     bool writeMakefile(QTextStream &);
     bool writeProjectMakefile();
+    void writeSubDirs(QTextStream &t);
     void init();
 
 public:

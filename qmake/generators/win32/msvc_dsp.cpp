@@ -32,12 +32,18 @@ bool DspMakefileGenerator::writeMakefile(QTextStream &t)
         return true;
     }
 
-    if (project->first("TEMPLATE") == "vcapp" || project->first("TEMPLATE") == "vclib") {
+    // Generate workspace file
+    if(project->first("TEMPLATE") == "vcsubdirs") {
+        if (!project->isActiveConfig("build_pass")) {
+            debug_msg(1, "Generator: MSVC: Writing workspave file");
+            writeSubDirs(t);
+        } else {
+            debug_msg(1, "Generator: MSVC: Not writing workspace file for build_pass configs");
+        }
+        return true;
+    } else if (project->first("TEMPLATE") == "vcapp" || project->first("TEMPLATE") == "vclib") {
         if(!project->isActiveConfig("build_pass"))
            return writeDspParts(t);
-        return true;
-    } else if(project->first("TEMPLATE") == "subdirs") {
-        writeSubDirs(t);
         return true;
     }
     return project->isActiveConfig("build_pass");
@@ -400,15 +406,23 @@ bool DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
         if(fi.isDir())
             outdir = file.fileName() + QDir::separator();
     }
+
     if(!outdir.isEmpty() || file.fileName().isEmpty()) {
-        if (!project->isEmpty("QMAKE_DSP_PROJECT_NAME"))
-            file.setFileName(outdir + project->first("QMAKE_DSP_PROJECT_NAME") + project->first("DSP_EXTENSION"));
-        else if (!project->isEmpty("MAKEFILE"))
-            file.setFileName(outdir + project->first("MAKEFILE") + project->first("DSP_EXTENSION"));
-        else
-            file.setFileName(outdir + unescapeFilePath(project->first("QMAKE_ORIG_TARGET")) +
-                             project->first("DSP_EXTENSION"));
+        QString ext = project->first("DSP_EXTENSION");
+        if(project->first("TEMPLATE") == "vcsubdirs") {
+            if (!project->first("DSW_EXTENSION").isEmpty())
+                ext = project->first("DSW_EXTENSION");
+            else
+                ext = ".dsw";
+        }
+        QString outputName = unescapeFilePath(project->first("QMAKE_DSP_PROJECT_NAME"));
+        if (!project->first("MAKEFILE").isEmpty())
+            outputName = unescapeFilePath(project->first("MAKEFILE"));
+        if (outputName.isEmpty())
+            outputName = unescapeFilePath(project->first("QMAKE_ORIG_TARGET"));
+        file.setFileName(outdir + outputName + ext);
     }
+
     if(QDir::isRelativePath(file.fileName())) {
         QString ofile = Option::fixPathToLocalOS(file.fileName());
         int slashfind = ofile.lastIndexOf(Option::dir_sep);
@@ -563,12 +577,229 @@ bool DspMakefileGenerator::writeProjectMakefile()
         project->values("GENERATED_FILES") = QList<QString>::fromSet(files["GENERATED_FILES"]);
 
         writeFileGroup(t, QString("GENERATED_SOURCES|GENERATED_FILES|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
+        t << endl;
+        t << "# End Target" << endl;
+        t << "# End Project" << endl;
+    }else if(project->first("TEMPLATE") == "vcsubdirs") {
+        ret = writeMakefile(t);
     }
-    t << endl;
-    t << "# End Target" << endl;
-    t << "# End Project" << endl;
 
     return ret;
+}
+
+const char _dswHeader60[]      = "Microsoft Developer Studio Workspace File, Format Version 6.00\n";
+const char _dswWarning[]       = "# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!\n";
+const char _dswDevider[]       = "###############################################################################\n";
+const char _dswProjectName[]   = "Project: \"%1\"=%2 - Package Owner=<4>\n"; // %1 = project name, %2 = project path
+const char _dswPackage5Start[] = "Package=<5>\n{{{\n";
+const char _dswPackage5Stop[]  = "}}}\n";
+const char _dswPackage4Start[] = "Package=<4>\n{{{\n";
+const char _dswPackage4Stop[]  = "}}}\n";
+const char _dswProjectDep[]    = "    Begin Project Dependency\n    Project_Dep_Name %1\n    End Project Dependency\n"; // %1 = project name
+const char _dswGlobal[]        = "Global:\n\nPackage=<5>\n{{{\n}}}\n\nPackage=<3>\n{{{\n}}}\n\n";
+
+
+struct WorkspaceDepend {
+    QString dspProjectFile, orig_target, target;
+    QStringList dependencies;
+};
+
+void DspMakefileGenerator::writeSubDirs(QTextStream &t)
+{
+    // Output headers
+    t << _dswHeader60;
+    t << _dswWarning;
+    t << endl;
+
+    QHash<QString, WorkspaceDepend*> workspace_depends;
+    QList<WorkspaceDepend*> workspace_cleanup;
+    QStringList subdirs = project->values("SUBDIRS");
+    QString oldpwd = qmake_getpwd();
+
+    // Make sure that all temp projects are configured
+    // for release so that the depends are created
+    // without the debug <lib>dxxx.lib name mangling
+    QStringList old_after_vars = Option::after_user_vars;
+    Option::after_user_vars.append("CONFIG+=release");
+
+    for(int i = 0; i < subdirs.size(); ++i) {
+        QString tmp = subdirs.at(i);
+        if(!project->isEmpty(tmp + ".file")) {
+            if(!project->isEmpty(tmp + ".subdir"))
+                warn_msg(WarnLogic, "Cannot assign both file and subdir for subdir %s",
+                tmp.toLatin1().constData());
+            tmp = project->first(tmp + ".file");
+        } else if(!project->isEmpty(tmp + ".subdir")) {
+            tmp = project->first(tmp + ".subdir");
+        }
+
+        QFileInfo fi(fileInfo(Option::fixPathToLocalOS(tmp, true)));
+        if(fi.exists()) {
+            if(fi.isDir()) {
+                QString profile = tmp;
+                if(!profile.endsWith(Option::dir_sep))
+                    profile += Option::dir_sep;
+                profile += fi.baseName() + ".pro";
+                subdirs.append(profile);
+            } else {
+                QMakeProject tmp_proj;
+                QString dir = fi.path(), fn = fi.fileName();
+                if(!dir.isEmpty()) {
+                    if(!qmake_setpwd(dir))
+                        fprintf(stderr, "Cannot find directory: %s\n", dir.toLatin1().constData());
+                }
+                if(tmp_proj.read(fn)) {
+                    // Check if all requirements are fulfilled
+                    if(!tmp_proj.variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
+                        fprintf(stderr, "Project file(%s) not added to Workspace because all requirements not met:\n\t%s\n",
+                            fn.toLatin1().constData(), tmp_proj.values("QMAKE_FAILED_REQUIREMENTS").join(" ").toLatin1().constData());
+                        continue;
+                    }
+                    if(tmp_proj.first("TEMPLATE") == "vcsubdirs") {
+                        QStringList tmp_proj_subdirs = tmp_proj.variables()["SUBDIRS"];
+                        for(int x = 0; x < tmp_proj_subdirs.size(); ++x) {
+                            QString tmpdir = tmp_proj_subdirs.at(x);
+                            if(!tmp_proj.isEmpty(tmpdir + ".file")) {
+                                if(!tmp_proj.isEmpty(tmpdir + ".subdir"))
+                                    warn_msg(WarnLogic, "Cannot assign both file and subdir for subdir %s",
+                                    tmpdir.toLatin1().constData());
+                                tmpdir = tmp_proj.first(tmpdir + ".file");
+                            } else if(!tmp_proj.isEmpty(tmpdir + ".subdir")) {
+                                tmpdir = tmp_proj.first(tmpdir + ".subdir");
+                            }
+                            subdirs += fileFixify(tmpdir);
+                        }
+                    } else if(tmp_proj.first("TEMPLATE") == "vcapp" || tmp_proj.first("TEMPLATE") == "vclib") {
+                        // Initialize a 'fake' project to get the correct variables
+                        // and to be able to extract all the dependencies
+                        DspMakefileGenerator tmp_dsp;
+                        tmp_dsp.setNoIO(true);
+                        tmp_dsp.setProjectFile(&tmp_proj);
+                        if(Option::debug_level) {
+                            QMap<QString, QStringList> &vars = tmp_proj.variables();
+                            for(QMap<QString, QStringList>::Iterator it = vars.begin();
+                                it != vars.end(); ++it) {
+                                    if(it.key().left(1) != "." && !it.value().isEmpty())
+                                        debug_msg(1, "%s: %s === %s", fn.toLatin1().constData(), it.key().toLatin1().constData(),
+                                        it.value().join(" :: ").toLatin1().constData());
+                            }
+                        }
+
+                        // We assume project filename is [QMAKE_ORIG_TARGET].vcproj
+                        QString dsp = unescapeFilePath(tmp_dsp.project->first("MSVCDSP_PROJECT") + project->first("DSP_EXTENSION"));
+
+                        // If file doesn't exsist, then maybe the users configuration
+                        // doesn't allow it to be created. Skip to next...
+                        if(!exists(qmake_getpwd() + Option::dir_sep + dsp)) {
+                            warn_msg(WarnLogic, "Ignored (not found) '%s'", QString(qmake_getpwd() + Option::dir_sep + dsp).toLatin1().constData());
+                            goto nextfile; // # Dirty!
+                        }
+
+                        WorkspaceDepend *newDep = new WorkspaceDepend;
+                        newDep->dspProjectFile = fileFixify(dsp);
+                        newDep->orig_target = unescapeFilePath(tmp_proj.first("QMAKE_ORIG_TARGET"));
+                        newDep->target = tmp_proj.first("MSVCDSP_PROJECT").section(Option::dir_sep, -1) + tmp_proj.first("TARGET_EXT");
+
+                        // We want to store it as the .lib name.
+                        if(newDep->target.endsWith(".dll"))
+                            newDep->target = newDep->target.left(newDep->target.length()-3) + "lib";
+
+                        // All projects having mocable sourcefiles are dependent on moc.exe
+                        if(tmp_proj.variables()["CONFIG"].contains("moc"))
+                            newDep->dependencies << "moc.exe";
+
+                        // All extra compilers which has valid input are considered dependencies
+                        const QStringList &quc = tmp_proj.variables()["QMAKE_EXTRA_COMPILERS"];
+                        for(QStringList::ConstIterator it = quc.constBegin(); it != quc.constEnd(); ++it) {
+                            const QStringList &invar = tmp_proj.variables().value((*it) + ".input");
+                            for(QStringList::ConstIterator iit = invar.constBegin(); iit != invar.constEnd(); ++iit) {
+                                const QStringList fileList = tmp_proj.variables().value(*iit);
+                                if (!fileList.isEmpty()) {
+                                    QString dep = tmp_proj.first((*it) + ".commands").section('/', -1).section('\\', -1);
+                                    if (!newDep->dependencies.contains(dep))
+                                        newDep->dependencies << dep;
+                                }
+                            }
+                        }
+
+                        // Add all unknown libs to the deps
+                        QStringList where("QMAKE_LIBS");
+                        if(!tmp_proj.isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
+                            where = tmp_proj.variables()["QMAKE_INTERNAL_PRL_LIBS"];
+
+                        for(QStringList::iterator wit = where.begin();
+                            wit != where.end(); ++wit) {
+                                QStringList &l = tmp_proj.variables()[(*wit)];
+                                for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+                                    QString opt = (*it).trimmed();
+                                    if(!opt.startsWith("/") &&   // Not a switch
+                                        opt != newDep->target && // Not self
+                                        opt != "opengl32.lib" && // We don't care about these libs
+                                        opt != "glu32.lib" &&    // to make depgen alittle faster
+                                        opt != "kernel32.lib" &&
+                                        opt != "user32.lib" &&
+                                        opt != "gdi32.lib" &&
+                                        opt != "comdlg32.lib" &&
+                                        opt != "advapi32.lib" &&
+                                        opt != "shell32.lib" &&
+                                        opt != "ole32.lib" &&
+                                        opt != "oleaut32.lib" &&
+                                        opt != "uuid.lib" &&
+                                        opt != "imm32.lib" &&
+                                        opt != "winmm.lib" &&
+                                        opt != "wsock32.lib" &&
+                                        opt != "ws2_32.lib" &&
+                                        opt != "winspool.lib" &&
+                                        opt != "delayimp.lib")
+                                    {
+                                        newDep->dependencies << opt.section(Option::dir_sep, -1);
+                                    }
+                                }
+                        }
+                        workspace_cleanup.append(newDep);
+                        workspace_depends.insert(newDep->target, newDep);
+
+                        debug_msg(1, "Generator: MSVC: Added project (name:'%s'  path:'%s'  deps:'%s')",
+                                  qPrintable(newDep->target) , qPrintable(newDep->dspProjectFile),
+                                  qPrintable(newDep->dependencies.join(";")));
+                    }
+                }
+nextfile:
+                qmake_setpwd(oldpwd);
+            }
+        }
+    }
+
+    // Restore previous after_user_var options
+    Option::after_user_vars = old_after_vars;
+
+    // Output all projects
+    QString dswProjectName = QLatin1String(_dswProjectName);
+    QString dswProjectDep  = QLatin1String(_dswProjectDep);
+    for(QList<WorkspaceDepend*>::Iterator it = workspace_cleanup.begin(); it != workspace_cleanup.end(); ++it) {
+        t << _dswDevider;
+        t << endl;
+        t << dswProjectName.arg((*it)->orig_target).arg((*it)->dspProjectFile);
+        t << endl;
+        t << _dswPackage5Start;
+        t << _dswPackage5Stop;
+        t << endl;
+        t << _dswPackage4Start;
+
+        // Output project dependencies
+        for(QStringList::iterator dit = (*it)->dependencies.begin();  dit != (*it)->dependencies.end(); ++dit) {
+            if(WorkspaceDepend *vc = workspace_depends[*dit])
+                t << dswProjectDep.arg(vc->orig_target);
+        }
+
+        t << _dswPackage4Stop;
+    }
+
+    // Output global part
+    t << _dswDevider << endl;
+    t << _dswGlobal;
+    t << _dswDevider;
+    t << endl << endl;
 }
 
 class FolderGroup
