@@ -459,7 +459,6 @@ void tst_QDom::saveWithSerialization() const
         doc.save(s, 0, QDomNode::EncodingFromTextStream);
         s.flush();
         writeDevice.close();
-        qDebug() << "WROTE:" << storage;
 
         QBuffer readDevice(&storage);
         QVERIFY(readDevice.open(QIODevice::ReadOnly));
