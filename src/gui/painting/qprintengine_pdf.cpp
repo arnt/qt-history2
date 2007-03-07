@@ -214,7 +214,7 @@ void QPdfEngine::setBrush()
     Qt::BrushStyle style = d->brush.style();
     if (style == Qt::NoBrush)
         return;
-    
+
     bool specifyColor;
     int gStateObject = 0;
     int patternObject = d->addBrushPattern(d->stroker.matrix, &specifyColor, &gStateObject);
@@ -376,7 +376,7 @@ int QPdfEnginePrivate::addConstantAlphaObject(int alpha)
         object = addXrefEntry(-1);
         QByteArray alphaDef;
         QPdf::ByteStream s(&alphaDef);
-        s << "<< /ca " << (alpha/255.) << ">>\n";
+        s << "<< /ca " << (alpha/qreal(255.)) << ">>\n";
         xprintf(alphaDef.constData());
         xprintf("endobj\n");
     }
@@ -408,7 +408,7 @@ int QPdfEnginePrivate::addBrushPattern(const QTransform &m, bool *specifyColor, 
 #endif
     }
 
-    if (!brush.isOpaque() && brush.style() < Qt::LinearGradientPattern) 
+    if (!brush.isOpaque() && brush.style() < Qt::LinearGradientPattern)
         *gStateObject = addConstantAlphaObject(brush.color().alpha());
 
     int imageObject = 0;
@@ -550,7 +550,7 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap, qint64 serial_n
                     ++rgb;
                 }
             }
-            if (format == QImage::Format_RGB32) 
+            if (format == QImage::Format_RGB32)
                 hasAlpha = hasMask = false;
         }
         int maskObject = 0;
