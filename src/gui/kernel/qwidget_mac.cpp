@@ -56,6 +56,7 @@
  *****************************************************************************/
 typedef QHash<Qt::WindowType, WindowGroupRef> StaysOnTopHash;
 Q_GLOBAL_STATIC(StaysOnTopHash, qt_mac_stays_on_top)
+static bool qt_mac_raise_process = true;
 static WindowGroupRef qt_mac_tooltip_group = 0;
 static WindowGroupRef qt_mac_popup_group = 0;
 QWidget *mac_mouse_grabber = 0;
@@ -88,6 +89,7 @@ extern QRegion qt_mac_convert_mac_region(RgnHandle rgn); //qregion_mac.cpp
 /*****************************************************************************
   QWidget utility functions
  *****************************************************************************/
+void Q_GUI_EXPORT qt_mac_set_raise_process(bool b) { qt_mac_raise_process = b; }
 static QSize qt_mac_desktopSize()
 {
     int w = 0, h = 0;
@@ -213,7 +215,7 @@ inline static void qt_mac_set_fullscreen_mode(bool b)
     else
         SetSystemUIMode(kUIModeNormal, 0);
 #else
-    extern bool qt_mac_app_fullscreen;
+    extern bool qt_mac_app_fullscreen; //qapplication_mac.cpp
     qt_mac_app_fullscreen = b;
     if(b)
         HideMenuBar();
@@ -303,7 +305,7 @@ SInt32 qt_mac_get_group_level(WindowClass wclass)
     Checks if the user has told us explicitly that he wants buttons on the
     title bar. Buttons are set by default on e.g. QDialog, but ignored by
     QWidgetPrivate::determineWindowClass if the dialog is modal...unless
-    the user told us explicitly otherwise. 
+    the user told us explicitly otherwise.
 */
 static inline bool qt_mac_menu_buttons_explicitly_sat(const Qt::WindowFlags &flags)
 {
@@ -2300,10 +2302,11 @@ void QWidgetPrivate::raise_sys()
     if(q->isWindow()) {
         //raise this window
         BringToFront(qt_mac_window_for(q));
-        //we get to be the active process now
-        ProcessSerialNumber psn;
-        GetCurrentProcess(&psn);
-        SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
+        if(qt_mac_raise_process) { //we get to be the active process now
+            ProcessSerialNumber psn;
+            GetCurrentProcess(&psn);
+            SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
+        }
     } else if(q->parentWidget()) {
         HIViewSetZOrder(qt_mac_hiview_for(q), kHIViewZOrderAbove, 0);
         qt_event_request_window_change();
@@ -2847,8 +2850,8 @@ void QWidgetPrivate::setModal_sys()
         if (!qt_mac_menu_buttons_explicitly_sat(q->data->window_flags)){
             if (old_wclass == kDocumentWindowClass || old_wclass == kFloatingWindowClass || old_wclass == kUtilityWindowClass)
                 // Only change the class to kMovableModalWindowClass if the no explicit jewels
-                // are set (kMovableModalWindowClass can't contain them), and the current window class 
-                // can be converted to modal (according to carbon doc). 
+                // are set (kMovableModalWindowClass can't contain them), and the current window class
+                // can be converted to modal (according to carbon doc).
                 HIWindowChangeClass(windowRef, kMovableModalWindowClass);
         }
     } else if(windowRef) {
