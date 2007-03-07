@@ -205,7 +205,7 @@ QFileSystemWatcherEngine *QFileSystemWatcherPrivate::createNativeEngine()
 }
 
 QFileSystemWatcherPrivate::QFileSystemWatcherPrivate()
-    : native(0), poller(0)
+    : native(0), poller(0), forced(0)
 {
 }
 
@@ -223,6 +223,50 @@ void QFileSystemWatcherPrivate::init()
                          q,
                          SLOT(_q_directoryChanged(QString,bool)));
     }
+}
+
+void QFileSystemWatcherPrivate::initForcedEngine(const QString &forceName)
+{
+    if(forced)
+        return;
+
+    Q_Q(QFileSystemWatcher);
+
+#if defined(Q_OS_LINUX)
+    if(forceName == QLatin1String("inotify")) {
+        forced = QInotifyFileSystemWatcherEngine::create();
+    } else if(forceName == QLatin1String("dnotify")) {
+        forced = QDnotifyFileSystemWatcherEngine::create(); 
+    }
+#endif
+
+    if(forced) {
+        QObject::connect(forced,
+                         SIGNAL(fileChanged(QString,bool)),
+                         q,
+                         SLOT(_q_fileChanged(QString,bool)));
+        QObject::connect(forced,
+                         SIGNAL(directoryChanged(QString,bool)),
+                         q,
+                         SLOT(_q_directoryChanged(QString,bool)));
+    }
+}
+
+void QFileSystemWatcherPrivate::initPollerEngine()
+{
+    if(poller)
+        return;
+
+    Q_Q(QFileSystemWatcher);
+    poller = new QPollingFileSystemWatcherEngine; // that was a mouthful
+    QObject::connect(poller,
+                     SIGNAL(fileChanged(QString,bool)),
+                     q,
+                     SLOT(_q_fileChanged(QString,bool)));
+    QObject::connect(poller,
+                     SIGNAL(directoryChanged(QString,bool)),
+                     q,
+                     SLOT(_q_directoryChanged(QString,bool)));
 }
 
 void QFileSystemWatcherPrivate::_q_fileChanged(const QString &path, bool removed)
@@ -275,6 +319,9 @@ void QFileSystemWatcherPrivate::_q_directoryChanged(const QString &path, bool re
     QFileSystemWatcher stops monitoring files and directories once they
     have been removed from disk.
 
+    \bold{Note:} On systems running a Linux kernel without inotify support,
+    file systems that contain watched paths cannot be unmounted.
+
     \sa QFile, QDir
 */
 
@@ -316,6 +363,12 @@ QFileSystemWatcher::~QFileSystemWatcher()
         d->poller->wait();
         delete d->poller;
         d->poller = 0;
+    }
+    if (d->forced) {
+        d->forced->stop();
+        d->forced->wait();
+        delete d->forced;
+        d->forced = 0;
     }
 }
 
@@ -359,32 +412,39 @@ void QFileSystemWatcher::addPaths(const QStringList &paths)
         qWarning("QFileSystemWatcher::addPaths: list is empty");
         return;
     }
+
     QStringList p = paths;
-    if (objectName() != QLatin1String("_qt_autotest_force_engine_poller")) {
-        if (d->native)
-            p = d->native->addPaths(p, &d->files, &d->directories);
-        if (p.isEmpty())
-            return;
-    } else {
-        qDebug() << "QFileSystemWatcher: skipping native engine, using only polling engine";
-    }
-    if (objectName() != QLatin1String("_qt_autotest_force_engine_native")) {
-        // try polling instead
-        if (!d->poller) {
-            d->poller = new QPollingFileSystemWatcherEngine; // that was a mouthful
-            QObject::connect(d->poller,
-                             SIGNAL(fileChanged(QString,bool)),
-                             this,
-                             SLOT(_q_fileChanged(QString,bool)));
-            QObject::connect(d->poller,
-                             SIGNAL(directoryChanged(QString,bool)),
-                             this,
-                             SLOT(_q_directoryChanged(QString,bool)));
+    QFileSystemWatcherEngine *engine = 0;
+
+    if(!objectName().startsWith("_qt_autotest_force_engine_")) {
+        // Normal runtime case - search intelligently for best engine
+        if(d->native) {
+            engine = d->native;
+        } else {
+            d_func()->initPollerEngine();
+            engine = d->poller;
         }
-        p = d->poller->addPaths(p, &d->files, &d->directories);
-    } else{
-        qDebug("QFileSystemWatcher: skipping polling engine, using only native engine");
+
+    } else {
+        // Autotest override case - use the explicitly selected engine only
+        QString forceName = objectName().mid(26);
+        if(forceName == QLatin1String("poller")) {
+            qDebug() << "QFileSystemWatcher: skipping native engine, using only polling engine";
+            d_func()->initPollerEngine();
+            engine = d->poller;
+        } else if(forceName == QLatin1String("native")) {
+            qDebug() << "QFileSystemWatcher: skipping polling engine, using only native engine";
+            engine = d->native;
+        } else {
+            qDebug() << "QFileSystemWatcher: skipping polling and native engine, using only explicit" << forceName << "engine";
+            d_func()->initForcedEngine(forceName);
+            engine = d->forced;
+        }
     }
+
+    if(engine) 
+        p = engine->addPaths(p, &d->files, &d->directories);
+
     if (!p.isEmpty())
         qWarning("QFileSystemWatcher: failed to add paths: %s",
                  qPrintable(p.join(QLatin1String(", "))));
@@ -420,7 +480,9 @@ void QFileSystemWatcher::removePaths(const QStringList &paths)
     if (d->native)
         p = d->native->removePaths(p, &d->files, &d->directories);
     if (d->poller)
-        (void) d->poller->removePaths(p, &d->files, &d->directories);
+        p = d->poller->removePaths(p, &d->files, &d->directories);
+    if (d->forced)
+        p = d->forced->removePaths(p, &d->files, &d->directories);
 }
 
 /*!

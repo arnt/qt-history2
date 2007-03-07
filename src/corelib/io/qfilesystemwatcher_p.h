@@ -73,8 +73,10 @@ class QFileSystemWatcherPrivate : public QObjectPrivate
 public:
     QFileSystemWatcherPrivate();
     void init();
+    void initPollerEngine();
+    void initForcedEngine(const QString &);
 
-    QFileSystemWatcherEngine *native, *poller;
+    QFileSystemWatcherEngine *native, *poller, *forced;
     QStringList files, directories;
 
     // private slots

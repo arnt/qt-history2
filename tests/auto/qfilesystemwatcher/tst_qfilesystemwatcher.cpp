@@ -36,6 +36,7 @@ private slots:
     void removePaths();
 
 private:
+    QStringList do_force_engines;
     bool do_force_native;
 };
 
@@ -44,25 +45,27 @@ tst_QFileSystemWatcher::tst_QFileSystemWatcher()
 {
 #ifdef Q_OS_LINUX
     // the inotify implementation in the kernel is known to be buggy in certain versions of the linux kernel
-    do_force_native = true;
+    do_force_engines << "native";
+    do_force_engines << "dnotify";
+
 #ifdef QT_NO_INOTIFY
-    if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13))
-        do_force_native = false;
+    if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,13))
+        do_force_engines << "inotify";
 #else
-    if (inotify_init() == -1)
-        do_force_native = false;
+    if (inotify_init() != -1)
+        do_force_engines << "inotify";
 #endif
 #elif defined(Q_OS_WIN) || defined(Q_OS_DARWIN) || defined(Q_OS_FREEBSD)
     // we have native engines for win32, macosx and freebsd
-    do_force_native = true;
+    do_force_engines << "native";
 #endif
 }
 
 void tst_QFileSystemWatcher::basicTest_data()
 {
     QTest::addColumn<QString>("backend");
-    if (do_force_native)
-        QTest::newRow("native") << "native";
+    foreach(QString engine, do_force_engines)
+        QTest::newRow(engine.toLatin1().constData()) << engine;
     QTest::newRow("poller") << "poller";
 }
 

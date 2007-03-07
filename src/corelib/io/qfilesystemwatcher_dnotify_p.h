@@ -32,6 +32,7 @@
 #include <qmutex.h>
 #include <qhash.h>
 #include <qdatetime.h>
+#include <qfile.h>
 
 class QDnotifyFileSystemWatcherEngine : public QFileSystemWatcherEngine
 {
@@ -54,20 +55,31 @@ private Q_SLOTS:
 
 private:
     struct Directory {
-        Directory() : isMonitored(false) {}
+        Directory() : fd(0), parentFd(0), isMonitored(false) {}
         Directory(const Directory &o) : path(o.path), 
                                         fd(o.fd),
+                                        parentFd(o.parentFd),
                                         isMonitored(o.isMonitored), 
                                         files(o.files) {}
         QString path;
         int fd;
+        int parentFd;
         bool isMonitored;
 
         struct File {
             File() {}
             File(const File &o) : name(o.name), 
+                                  ownerId(o.ownerId),
+                                  groupId(o.groupId),
+                                  permissions(o.permissions),
                                   lastWrite(o.lastWrite) {}
             QString name;
+
+            bool updateInfo();
+
+            uint ownerId;
+            uint groupId;
+            QFile::Permissions permissions;
             QDateTime lastWrite;
         };
 
@@ -79,6 +91,7 @@ private:
     QMutex mutex;
     QHash<QString, int> pathToFD;
     QHash<int, Directory> fdToDirectory;
+    QHash<int, int> parentToFD;
 };
 
 
