@@ -132,9 +132,10 @@ static bool qscript_createQMakeProjectMap(QMap<QString, QStringList> &vars, QScr
 {
     QScriptValueIterator it(js); 
     while(it.hasNext()) {
-	it.next();
+        it.next();
         vars[it.name()] = qscriptvalue_cast<QStringList>(it.value());
     }
+    return true;
 }
 
 static QScriptValue qscript_call_testfunction(QScriptContext *context, QScriptEngine *engine)
