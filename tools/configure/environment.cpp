@@ -46,8 +46,7 @@ struct CompilerInfo{
     {CC_MSVC6,   "Microsoft (R) 32-bit C/C++ Optimizing Compiler (6.x)",           "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++\\ProductDir", "cl.exe"}, // link.exe, lib.exe
     {CC_NET2002, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2002 (7.0)",  "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir", "cl.exe"}, // link.exe, lib.exe
     {CC_NET2003, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2003 (7.1)",  "Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir", "cl.exe"}, // link.exe, lib.exe
-    {CC_NET2005, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2005 (8.0)",  "Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir", "cl.exe"}, // link.exe, lib.exe
-    {CC_NET2005, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2005 (8.0) Express Edition",  "Software\\Microsoft\\VisualStudio\\SxS\\VC7\\8.0", "cl.exe"}, // link.exe, lib.exe
+    {CC_NET2005, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2005 (8.0)",  "Software\\Microsoft\\VisualStudio\\SxS\\VC7\\8.0", "cl.exe"}, // link.exe, lib.exe
     {CC_UNKNOWN, "Unknown", 0, 0},
 };
 
