@@ -148,7 +148,7 @@ static const int QGRAPHICSVIEW_REGION_RECT_THRESHOLD = 50;
 
     \value SmartViewportUpdate QGraphicsView will attempt to find an optimal
     update mode by analyzing the areas that require a redraw.
-    
+
     \value NoViewportUpdate QGraphicsView will never update its viewport when
     the scene changes; the user is expected to control all updates. This mode
     disables all (potentially slow) item visibility testing in QGraphicsView,
@@ -276,7 +276,7 @@ public:
 
     QList<QGraphicsItem *> itemsInArea(const QPainterPath &path,
                                        Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
-    
+
     QPointF mousePressItemPoint;
     QPointF mousePressScenePoint;
     QPoint mousePressViewPoint;
@@ -1703,7 +1703,7 @@ QList<QGraphicsItem *> QGraphicsViewPrivate::itemsInArea(const QPainterPath &pat
     QSet<QGraphicsItem *> candSet = QSet<QGraphicsItem *>::fromList(regularCandidates);
 
     QTransform viewMatrix = q->viewportTransform();
-    
+
     QList<QGraphicsItem *> result;
 
     // Run through all candidates and keep all items that are in candSet, or
@@ -1724,7 +1724,7 @@ QList<QGraphicsItem *> QGraphicsViewPrivate::itemsInArea(const QPainterPath &pat
         }
         ++it;
     }
-    
+
     // ### Insertion sort would be faster.
     QGraphicsScenePrivate::sortItems(&result);
     return result;
@@ -2189,7 +2189,9 @@ void QGraphicsView::setupViewport(QWidget *widget)
         return;
     }
 
-    d->accelerateScrolling = !widget->inherits("QGLWidget");
+    d->accelerateScrolling = !(widget->inherits("QGLWidget")
+                               || widget->testAttribute(Qt::WA_MSWindowsUseDirect3D)
+                               || qApp->testAttribute(Qt::AA_MSWindowsUseDirect3DByDefault));
 
     widget->setFocusPolicy(Qt::StrongFocus);
 
@@ -2520,7 +2522,7 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
     // allowed, so we store the event at the very top of this function.
     d->storeMouseEvent(event);
     d->lastMouseEvent.setAccepted(false);
-    
+
     if (d->sceneInteractionAllowed) {
         // Store some of the event's button-down data.
         d->mousePressViewPoint = event->pos();
@@ -2582,7 +2584,7 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
 void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
     Q_D(QGraphicsView);
-    
+
 #ifndef QT_NO_RUBBERBAND
     if (d->dragMode == QGraphicsView::RubberBandDrag && d->sceneInteractionAllowed) {
         d->storeMouseEvent(event);
@@ -2669,7 +2671,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
         // have set a cursor, and we must not change it.
         return;
     }
-    
+
     // Store the last item under the mouse for use when replaying. When
     // possible, reuse QGraphicsScene's existing calculations of what items
     // are under the mouse to avoid multiple index lookups.
@@ -3037,7 +3039,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
         viewport()->style()->drawControl(QStyle::CE_RubberBand, &option, &painter, viewport());
     }
 #endif
-    
+
     painter.end();
 
 #ifdef QGRAPHICSVIEW_DEBUG
@@ -3285,7 +3287,7 @@ QTransform QGraphicsView::viewportTransform() const
 */
 void QGraphicsView::setTransform(const QTransform &matrix, bool combine )
 {
-    
+
     Q_D(QGraphicsView);
     QTransform oldMatrix = d->matrix;
     if (!combine)

@@ -527,6 +527,13 @@ void QApplicationPrivate::process_cmdline()
 
   \endlist
 
+  The Windows version of Qt also support one additional command line
+  option, if Direct3D support has been compiled into Qt:
+  \list
+  \o -direct3d will make the Direct3D paint engine the default widget
+               paint engine in Qt.
+  \endlist
+
   The X11 version of Qt also supports some traditional X11
   command line options:
   \list
@@ -1019,7 +1026,7 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
           || event->type() == QEvent::Resize
           || event->type() == QEvent::Move
           || event->type() == QEvent::LanguageChange
-	  || event->type() == QEvent::InputMethod)) {
+          || event->type() == QEvent::InputMethod)) {
         for (int i = 0; i < postedEvents->size(); ++i) {
             const QPostEvent &cur = postedEvents->at(i);
             if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type())
@@ -1037,7 +1044,7 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
                 ((QMoveEvent *)(cur.event))->p = ((QMoveEvent *)event)->p;
             } else if (cur.event->type() == QEvent::LanguageChange) {
                 ;
-	    } else if ( cur.event->type() == QEvent::InputMethod ) {
+            } else if ( cur.event->type() == QEvent::InputMethod ) {
                 *(QInputMethodEvent *)(cur.event) = *(QInputMethodEvent *)event;
             } else {
                 continue;
@@ -1114,7 +1121,7 @@ QStyle *QApplication::style()
             if ((QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA
                 && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based))
                 style = QLatin1String("WindowsVista");
-	        else if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
+                else if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
                 && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based))
                 style = QLatin1String("WindowsXP");
             else
@@ -1832,7 +1839,7 @@ void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
             if(focus && QApplicationPrivate::focus_widget == focus) {
                 QInputContext *qic = focus->inputContext();
                 if (qic && focus_widget->testAttribute(Qt::WA_WState_Created))
-	            qic->setFocusWidget( focus_widget );
+                    qic->setFocusWidget( focus_widget );
                 QFocusEvent in(QEvent::FocusIn, reason);
                 QApplication::sendEvent(focus, &in);
                 QApplication::sendEvent(focus->style(), &in);

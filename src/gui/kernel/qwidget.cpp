@@ -143,8 +143,8 @@ void QWidgetPrivate::focusInputContext()
     Q_Q(QWidget);
     QInputContext *qic = q->inputContext();
     if (qic) {
-	if(qic->focusWidget() != q)
-	    qic->setFocusWidget(q);
+        if(qic->focusWidget() != q)
+            qic->setFocusWidget(q);
     }
 #endif // QT_NO_IM
 }
@@ -212,7 +212,7 @@ void QWidget::setInputContext(QInputContext *context)
         return;
 #ifndef QT_NO_IM
     if (d->ic)
-	delete d->ic;
+        delete d->ic;
     d->ic = context;
 #endif
 }
@@ -231,7 +231,7 @@ void QWidget::resetInputContext()
 #ifndef QT_NO_IM
     QInputContext *qic = this->inputContext();
     if( qic )
-	qic->reset();
+        qic->reset();
 #endif // QT_NO_IM
 }
 
@@ -1041,15 +1041,15 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     if (flags & Qt::WStaticContents)
         setAttribute(Qt::WA_StaticContents);
     if (flags & Qt::WDestructiveClose)
-	setAttribute(Qt::WA_DeleteOnClose);
+        setAttribute(Qt::WA_DeleteOnClose);
     if (flags & Qt::WShowModal)
         setWindowModality(Qt::ApplicationModal);
     if (flags & Qt::WMouseNoMask)
-	setAttribute(Qt::WA_MouseNoMask);
+        setAttribute(Qt::WA_MouseNoMask);
     if (flags & Qt::WGroupLeader)
-	setAttribute(Qt::WA_GroupLeader);
+        setAttribute(Qt::WA_GroupLeader);
     if (flags & Qt::WNoMousePropagation)
-	setAttribute(Qt::WA_NoMousePropagation);
+        setAttribute(Qt::WA_NoMousePropagation);
 #endif
 
     if ( type != Qt::Widget && type != Qt::Window && type != Qt::Dialog)
@@ -1631,7 +1631,7 @@ bool QWidgetPrivate::isOpaque() const
     Q_Q(const QWidget);
 #ifdef Q_WS_X11
     if (q->testAttribute(Qt::WA_X11OpenGLOverlay))
-	return false;
+        return false;
 #endif
     if (q->testAttribute(Qt::WA_OpaquePaintEvent)
         || q->testAttribute(Qt::WA_PaintOnScreen))
@@ -5873,10 +5873,10 @@ bool QWidget::event(QEvent *event)
         break;
 
     case QEvent::MouseButtonPress:
-	// Don't reset input context here. Whether reset or not is
-	// a responsibility of input method. reset() will be
-	// called by mouseHandler() of input method if necessary
-	// via mousePressEvent() of text widgets.
+        // Don't reset input context here. Whether reset or not is
+        // a responsibility of input method. reset() will be
+        // called by mouseHandler() of input method if necessary
+        // via mousePressEvent() of text widgets.
 #if 0
         resetInputContext();
 #endif
@@ -7784,6 +7784,27 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         QEvent e(QEvent::MouseTrackingChange);
         QApplication::sendEvent(this, &e);
         break; }
+#if !defined(QT_NO_DIRECT3D) && defined(Q_WS_WIN)
+    case Qt::WA_MSWindowsUseDirect3D:
+        if (!qApp->testAttribute(Qt::AA_MSWindowsUseDirect3DByDefault)) {
+            if (on) {
+                if (!d->extra)
+                    d->createExtra();
+                d->extra->had_auto_fill_bg = d->extra->autoFillBackground;
+                d->extra->had_no_system_bg = testAttribute(Qt::WA_NoSystemBackground);
+                d->extra->had_paint_on_screen = testAttribute(Qt::WA_PaintOnScreen);
+                // enforce the opaque widget state D3D needs
+                d->extra->autoFillBackground = true;
+                setAttribute(Qt::WA_PaintOnScreen);
+                setAttribute(Qt::WA_NoSystemBackground);
+            } else if (d->extra) {
+                d->extra->autoFillBackground = d->extra->had_auto_fill_bg;
+                setAttribute(Qt::WA_PaintOnScreen, d->extra->had_paint_on_screen);
+                setAttribute(Qt::WA_NoSystemBackground, d->extra->had_no_system_bg);
+            }
+        }
+        break;
+#endif
     case Qt::WA_PaintOnScreen:
     case Qt::WA_OpaquePaintEvent:
         d->updateIsOpaque();
@@ -8772,17 +8793,17 @@ void QWidgetPrivate::getLayoutItemMargins(int *left, int *top, int *right, int *
 void QWidgetPrivate::setLayoutItemMargins(int left, int top, int right, int bottom)
 {
     if (leftLayoutItemMargin == left
-		    && topLayoutItemMargin == top
-			&& rightLayoutItemMargin == right
-			&& bottomLayoutItemMargin == bottom)
-		return;
+                    && topLayoutItemMargin == top
+                        && rightLayoutItemMargin == right
+                        && bottomLayoutItemMargin == bottom)
+                return;
 
-	Q_Q(QWidget);
+        Q_Q(QWidget);
     leftLayoutItemMargin = (signed char)left;
     topLayoutItemMargin = (signed char)top;
     rightLayoutItemMargin = (signed char)right;
     bottomLayoutItemMargin = (signed char)bottom;
-	q->updateGeometry();
+        q->updateGeometry();
 }
 
 void QWidgetPrivate::setLayoutItemMargins(QStyle::SubElement element, const QStyleOption *opt)

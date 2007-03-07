@@ -216,7 +216,7 @@ public:
 
         WindowType_Mask = 0x000000ff,
         MSWindowsFixedSizeDialogHint = 0x00000100,
-	MSWindowsOwnDC = 0x00000200,
+        MSWindowsOwnDC = 0x00000200,
         X11BypassWindowManagerHint = 0x00000400,
         FramelessWindowHint = 0x00000800,
         WindowTitleHint = 0x00001000,
@@ -382,6 +382,7 @@ public:
 
         WA_LayoutUsesWidgetRect = 92,
         WA_StyledBackground = 93, // internal
+        WA_MSWindowsUseDirect3D = 94, // Win only
 
         // Add new attributes before this line
         WA_AttributeCount
@@ -390,6 +391,7 @@ public:
     enum ApplicationAttribute
     {
         AA_ImmediateWidgetCreation = 0,
+        AA_MSWindowsUseDirect3DByDefault = 1, // Win only
 
         // Add new attributes before this line
         AA_AttributeCount
@@ -704,65 +706,65 @@ public:
 #endif
         Key_ydiaeresis = 0x0ff,
 
-	// International input method support (X keycode - 0xEE00, the
-	// definition follows Qt/Embedded 2.3.7) Only interesting if
-	// you are writing your own input method
+        // International input method support (X keycode - 0xEE00, the
+        // definition follows Qt/Embedded 2.3.7) Only interesting if
+        // you are writing your own input method
 
-	// International & multi-key character composition
+        // International & multi-key character composition
         Key_AltGr               = 0x01001103,
-	Key_Multi_key           = 0x01001120,  // Multi-key character compose
-	Key_Codeinput           = 0x01001137,
-	Key_SingleCandidate     = 0x0100113c,
-	Key_MultipleCandidate   = 0x0100113d,
-	Key_PreviousCandidate   = 0x0100113e,
+        Key_Multi_key           = 0x01001120,  // Multi-key character compose
+        Key_Codeinput           = 0x01001137,
+        Key_SingleCandidate     = 0x0100113c,
+        Key_MultipleCandidate   = 0x0100113d,
+        Key_PreviousCandidate   = 0x0100113e,
 
-	// Misc Functions
-	Key_Mode_switch         = 0x0100117e,  // Character set switch
-	//Key_script_switch       = 0x0100117e,  // Alias for mode_switch
+        // Misc Functions
+        Key_Mode_switch         = 0x0100117e,  // Character set switch
+        //Key_script_switch       = 0x0100117e,  // Alias for mode_switch
 
-	// Japanese keyboard support
-	Key_Kanji               = 0x01001121,  // Kanji, Kanji convert
-	Key_Muhenkan            = 0x01001122,  // Cancel Conversion
-	//Key_Henkan_Mode         = 0x01001123,  // Start/Stop Conversion
-	Key_Henkan              = 0x01001123,  // Alias for Henkan_Mode
-	Key_Romaji              = 0x01001124,  // to Romaji
-	Key_Hiragana            = 0x01001125,  // to Hiragana
-	Key_Katakana            = 0x01001126,  // to Katakana
-	Key_Hiragana_Katakana   = 0x01001127,  // Hiragana/Katakana toggle
-	Key_Zenkaku             = 0x01001128,  // to Zenkaku
-	Key_Hankaku             = 0x01001129,  // to Hankaku
-	Key_Zenkaku_Hankaku     = 0x0100112a,  // Zenkaku/Hankaku toggle
-	Key_Touroku             = 0x0100112b,  // Add to Dictionary
-	Key_Massyo              = 0x0100112c,  // Delete from Dictionary
-	Key_Kana_Lock           = 0x0100112d,  // Kana Lock
-	Key_Kana_Shift          = 0x0100112e,  // Kana Shift
-	Key_Eisu_Shift          = 0x0100112f,  // Alphanumeric Shift
-	Key_Eisu_toggle         = 0x01001130,  // Alphanumeric toggle
-	//Key_Kanji_Bangou        = 0x01001137,  // Codeinput
-	//Key_Zen_Koho            = 0x0100113d,  // Multiple/All Candidate(s)
-	//Key_Mae_Koho            = 0x0100113e,  // Previous Candidate
+        // Japanese keyboard support
+        Key_Kanji               = 0x01001121,  // Kanji, Kanji convert
+        Key_Muhenkan            = 0x01001122,  // Cancel Conversion
+        //Key_Henkan_Mode         = 0x01001123,  // Start/Stop Conversion
+        Key_Henkan              = 0x01001123,  // Alias for Henkan_Mode
+        Key_Romaji              = 0x01001124,  // to Romaji
+        Key_Hiragana            = 0x01001125,  // to Hiragana
+        Key_Katakana            = 0x01001126,  // to Katakana
+        Key_Hiragana_Katakana   = 0x01001127,  // Hiragana/Katakana toggle
+        Key_Zenkaku             = 0x01001128,  // to Zenkaku
+        Key_Hankaku             = 0x01001129,  // to Hankaku
+        Key_Zenkaku_Hankaku     = 0x0100112a,  // Zenkaku/Hankaku toggle
+        Key_Touroku             = 0x0100112b,  // Add to Dictionary
+        Key_Massyo              = 0x0100112c,  // Delete from Dictionary
+        Key_Kana_Lock           = 0x0100112d,  // Kana Lock
+        Key_Kana_Shift          = 0x0100112e,  // Kana Shift
+        Key_Eisu_Shift          = 0x0100112f,  // Alphanumeric Shift
+        Key_Eisu_toggle         = 0x01001130,  // Alphanumeric toggle
+        //Key_Kanji_Bangou        = 0x01001137,  // Codeinput
+        //Key_Zen_Koho            = 0x0100113d,  // Multiple/All Candidate(s)
+        //Key_Mae_Koho            = 0x0100113e,  // Previous Candidate
 
-	// Korean keyboard support
-	//
-	// In fact, many Korean users need only 2 keys, Key_Hangul and
-	// Key_Hangul_Hanja. But rest of the keys are good for future.
+        // Korean keyboard support
+        //
+        // In fact, many Korean users need only 2 keys, Key_Hangul and
+        // Key_Hangul_Hanja. But rest of the keys are good for future.
 
-	Key_Hangul              = 0x01001131,  // Hangul start/stop(toggle)
-	Key_Hangul_Start        = 0x01001132,  // Hangul start
-	Key_Hangul_End          = 0x01001133,  // Hangul end, English start
-	Key_Hangul_Hanja        = 0x01001134,  // Start Hangul->Hanja Conversion
-	Key_Hangul_Jamo         = 0x01001135,  // Hangul Jamo mode
-	Key_Hangul_Romaja       = 0x01001136,  // Hangul Romaja mode
-	//Key_Hangul_Codeinput    = 0x01001137,  // Hangul code input mode
-	Key_Hangul_Jeonja       = 0x01001138,  // Jeonja mode
-	Key_Hangul_Banja        = 0x01001139,  // Banja mode
-	Key_Hangul_PreHanja     = 0x0100113a,  // Pre Hanja conversion
-	Key_Hangul_PostHanja    = 0x0100113b,  // Post Hanja conversion
-	//Key_Hangul_SingleCandidate   = 0x0100113c,  // Single candidate
-	//Key_Hangul_MultipleCandidate = 0x0100113d,  // Multiple candidate
-	//Key_Hangul_PreviousCandidate = 0x0100113e,  // Previous candidate
-	Key_Hangul_Special      = 0x0100113f,  // Special symbols
-	//Key_Hangul_switch       = 0x0100117e,  // Alias for mode_switch
+        Key_Hangul              = 0x01001131,  // Hangul start/stop(toggle)
+        Key_Hangul_Start        = 0x01001132,  // Hangul start
+        Key_Hangul_End          = 0x01001133,  // Hangul end, English start
+        Key_Hangul_Hanja        = 0x01001134,  // Start Hangul->Hanja Conversion
+        Key_Hangul_Jamo         = 0x01001135,  // Hangul Jamo mode
+        Key_Hangul_Romaja       = 0x01001136,  // Hangul Romaja mode
+        //Key_Hangul_Codeinput    = 0x01001137,  // Hangul code input mode
+        Key_Hangul_Jeonja       = 0x01001138,  // Jeonja mode
+        Key_Hangul_Banja        = 0x01001139,  // Banja mode
+        Key_Hangul_PreHanja     = 0x0100113a,  // Pre Hanja conversion
+        Key_Hangul_PostHanja    = 0x0100113b,  // Post Hanja conversion
+        //Key_Hangul_SingleCandidate   = 0x0100113c,  // Single candidate
+        //Key_Hangul_MultipleCandidate = 0x0100113d,  // Multiple candidate
+        //Key_Hangul_PreviousCandidate = 0x0100113e,  // Previous candidate
+        Key_Hangul_Special      = 0x0100113f,  // Special symbols
+        //Key_Hangul_switch       = 0x0100117e,  // Alias for mode_switch
 
         // dead keys (X keycode - 0xED00 to avoid the conflict)
         Key_Dead_Grave          = 0x01001250,

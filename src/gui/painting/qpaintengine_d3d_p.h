@@ -38,7 +38,9 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 
-class QD3DWindowManager {
+class QD3DWindowManager : public QObject {
+    Q_OBJECT
+
 public:
     enum QD3DWindowManagerStatus {
         NoStatus = 0,
@@ -74,12 +76,10 @@ private:
         LPDIRECT3DSURFACE9 surface;
     };
 
-private:
     void updateMaxSize();
     void initPresentParameters(D3DPRESENT_PARAMETERS *params);
     D3DSwapChain *createSwapChain(QWidget *w);
 
-private:
     QSize m_maxSize;
     int m_status;
     QMap<QPaintDevice *, D3DSwapChain *> m_swapchains;
@@ -88,6 +88,9 @@ private:
     LPDIRECT3DDEVICE9 m_device;
     QPaintDevice *m_pd;
     D3DSwapChain *m_current;
+
+private Q_SLOTS:
+    void cleanupPaintDevice(QObject *);
 };
 
 class QDirect3DPaintEnginePrivate;
@@ -144,6 +147,8 @@ public:
 
     void cleanup();
 
+    void setFlushOnEnd(bool flushOnEnd);
+
 public:
     void scroll(QPaintDevice *pd, const RECT &srcrect, const RECT &destrect);
     LPDIRECT3DSWAPCHAIN9 swapChain(QPaintDevice *pd);
@@ -188,7 +193,7 @@ struct QD3DBatchItem {
 
     int m_count;
     int m_offset;
-    
+
     QD3DMaskPosition m_maskpos;
     qreal m_xoffset;
     qreal m_yoffset;
@@ -205,7 +210,7 @@ struct QD3DBatchItem {
 
     D3DXMATRIX m_matrix;
     QPainter::CompositionMode m_cmode;
-    
+
     QVector<int> m_pointstops;
 };
 
@@ -237,6 +242,7 @@ public:
         , m_d3dDevice(0)
         , m_txop(QTransform::TxNone)
         , m_effect(0)
+        , m_flushOnEnd(0)
     { init(); }
 
     ~QDirect3DPaintEnginePrivate();
@@ -322,6 +328,8 @@ public:
     uint has_cosmetic_pen : 1;
     uint has_brush : 1;
     uint has_fast_pen : 1;
+    uint m_flushOnEnd : 1;
+
     QTransform::TransformationCodes m_txop;
 
     QPainter::CompositionMode m_cmode;

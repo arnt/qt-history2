@@ -551,7 +551,6 @@ void QApplicationPrivate::initializeWidgetPaletteHash()
 void qt_init(QApplicationPrivate *priv, int)
 {
 
-#if defined(QT_DEBUG)
     int argc = priv->argc;
     char **argv = priv->argv;
     int i, j;
@@ -564,8 +563,13 @@ void qt_init(QApplicationPrivate *priv, int)
             argv[j++] = argv[i];
             continue;
         }
+#if defined(QT_DEBUG)
         if (qstrcmp(argv[i], "-nograb") == 0)
             appNoGrab = !appNoGrab;
+        else
+#endif // QT_DEBUG
+        if (qstrcmp(argv[i], "-direct3d") == 0)
+            QApplication::setAttribute(Qt::AA_MSWindowsUseDirect3DByDefault);
         else
             argv[j++] = argv[i];
     }
@@ -573,9 +577,6 @@ void qt_init(QApplicationPrivate *priv, int)
         priv->argv[j] = 0;
         priv->argc = j;
     }
-#else
-    Q_UNUSED(priv);
-#endif // QT_DEBUG
 
     // Get the application name/instance if qWinMain() was not invoked
 #ifndef Q_OS_TEMP
@@ -824,7 +825,7 @@ const QString qt_reg_winclass(QWidget *w)        // register window class
         wc.hCursor        = 0;
         wc.hbrBackground= 0;
         wc.lpszMenuName        = 0;
-	  QByteArray tempArray = cname.toLatin1();
+          QByteArray tempArray = cname.toLatin1();
         wc.lpszClassName= tempArray;
         atom = RegisterClassA(&wc);
     });
@@ -915,16 +916,16 @@ Q_GUI_EXPORT void qWinProcessConfigRequests()                // perform requests
         int req = r->req;
         delete r;
 
-	if ( w ) {				// widget exists
-	    if (w->testAttribute(Qt::WA_WState_ConfigPending))
-		return;				// biting our tail
-	    if (req == 0)
-		w->move(rect.topLeft());
-	    else if (req == 1)
-		w->resize(rect.size());
-	    else
-		w->setGeometry(rect);
-	}
+        if ( w ) {                              // widget exists
+            if (w->testAttribute(Qt::WA_WState_ConfigPending))
+                return;                         // biting our tail
+            if (req == 0)
+                w->move(rect.topLeft());
+            else if (req == 1)
+                w->resize(rect.size());
+            else
+                w->setGeometry(rect);
+        }
     }
     delete configRequests;
     configRequests = 0;
@@ -976,7 +977,7 @@ void QApplication::setMainWidget(QWidget *mainWidget)
 {
     QApplicationPrivate::main_widget = mainWidget;
     if (QApplicationPrivate::main_widget && windowIcon().isNull()
-	&& QApplicationPrivate::main_widget->testAttribute(Qt::WA_SetWindowIcon))
+        && QApplicationPrivate::main_widget->testAttribute(Qt::WA_SetWindowIcon))
         setWindowIcon(QApplicationPrivate::main_widget->windowIcon());
 }
 #endif
@@ -1129,7 +1130,7 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
     if (gotFocus) {
         setActiveWindow(widget);
         if (QApplicationPrivate::active_window
-	    && (QApplicationPrivate::active_window->windowType() == Qt::Dialog)) {
+            && (QApplicationPrivate::active_window->windowType() == Qt::Dialog)) {
             // raise the entire application, not just the dialog
             QWidget* mw = QApplicationPrivate::active_window;
             while(mw->parentWidget() && (mw->windowType() == Qt::Dialog))
@@ -1323,12 +1324,12 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
     case WM_MBUTTONUP:
     case WM_RBUTTONUP:
     case WM_XBUTTONUP:
-	if (qt_win_ignoreNextMouseReleaseEvent) {
-	    qt_win_ignoreNextMouseReleaseEvent = false;
-	    if (qt_button_down && qt_button_down->internalWinId() == autoCaptureWnd) {
-		releaseAutoCapture();
-		qt_button_down = 0;
-	    }
+        if (qt_win_ignoreNextMouseReleaseEvent) {
+            qt_win_ignoreNextMouseReleaseEvent = false;
+            if (qt_button_down && qt_button_down->internalWinId() == autoCaptureWnd) {
+                releaseAutoCapture();
+                qt_button_down = 0;
+            }
 
             RETURN(0);
         }
@@ -1640,7 +1641,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 
         case WM_SETTINGCHANGE:
             if ( qApp->type() == QApplication::Tty )
-	        break;
+                break;
 
             if (!msg.wParam) {
                 QString area = QT_WA_INLINE(QString::fromUtf16((unsigned short *)msg.lParam),
@@ -1666,8 +1667,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             break;
 
         case WM_ACTIVATE:
-	    if ( qApp->type() == QApplication::Tty )
-	        break;
+            if ( qApp->type() == QApplication::Tty )
+                break;
 
             if (ptrWTOverlap && ptrWTEnable) {
                 // cooperate with other tablet applications, but when
@@ -1705,7 +1706,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 // Ensure nothing gets consider an auto-repeat press later
                 qt_keymapper_private()->clearRecordedKeys();
             }
-	    break;
+            break;
 
 #ifndef Q_OS_TEMP
             case WM_MOUSEACTIVATE:
@@ -1844,18 +1845,18 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 MINMAXINFO *mmi = (MINMAXINFO *)lParam;
                 QWExtra *x = widget->xtra();
                 QRect fs = widget->frameStrut();
-		if ( x->minw > 0 )
-		    mmi->ptMinTrackSize.x = x->minw + fs.right() + fs.left();
-		if ( x->minh > 0 )
-		    mmi->ptMinTrackSize.y = x->minh + fs.top() + fs.bottom();
+                if ( x->minw > 0 )
+                    mmi->ptMinTrackSize.x = x->minw + fs.right() + fs.left();
+                if ( x->minh > 0 )
+                    mmi->ptMinTrackSize.y = x->minh + fs.top() + fs.bottom();
                 if ( x->maxw < QWIDGETSIZE_MAX ) {
-		    mmi->ptMaxTrackSize.x = x->maxw + fs.right() + fs.left();
+                    mmi->ptMaxTrackSize.x = x->maxw + fs.right() + fs.left();
                     // windows with title bar have an implicit size limit of 112 pixels
                     if (widget->windowFlags() & Qt::WindowTitleHint)
                         mmi->ptMaxTrackSize.x = qMax<long>(mmi->ptMaxTrackSize.x, 112);
                 }
-		if ( x->maxh < QWIDGETSIZE_MAX )
-		    mmi->ptMaxTrackSize.y = x->maxh + fs.top() + fs.bottom();
+                if ( x->maxh < QWIDGETSIZE_MAX )
+                    mmi->ptMaxTrackSize.y = x->maxh + fs.top() + fs.bottom();
                 RETURN(0);
             }
             break;
@@ -2647,11 +2648,11 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
             }
 
             pos = target->mapFromGlobal(globalPos);
-	        QMouseEvent e(type, pos, globalPos,
+                QMouseEvent e(type, pos, globalPos,
                             Qt::MouseButton(button),
                             Qt::MouseButtons(state & Qt::MouseButtonMask),
                             Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
-	        res = QApplication::sendSpontaneousEvent(target, &e);
+                res = QApplication::sendSpontaneousEvent(target, &e);
             res = res && e.isAccepted();
         } else {
             // close disabled popups when a mouse button is pressed or released
@@ -2688,8 +2689,8 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         } else if (type == QEvent::MouseButtonRelease && button == Qt::RightButton
                 && qApp->activePopupWidget() == activePopupWidget) {
             // popup still alive and received right-button-release
-	    QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, globalPos);
-	    bool res2 = QApplication::sendSpontaneousEvent( target, &e2 );
+            QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, globalPos);
+            bool res2 = QApplication::sendSpontaneousEvent( target, &e2 );
             if (!res) // RMB not accepted
                 res = res2 && e2.isAccepted();
         }

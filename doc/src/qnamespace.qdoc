@@ -96,6 +96,12 @@
            they are constructed. By default, resources for widgets are allocated on
            demand to improve efficiency and minimize resource usage. Setting or clearing
            this attribute will influence widgets constructed after the change.
+
+    \value AA_MSWindowsUseDirect3DByDefault Is a Windows specific attribute, that
+           will make the Direct3D paint engine the default Qt widget paint engine.
+           Note that you can toggle usage of the Direct3D engine on individual
+           QWidgets by setting/clearing the WA_MSWindowsUseDirect3D attribute
+           on a specific widget.
 */
 
 /*!
@@ -125,8 +131,8 @@
 
     \bold{Note:} On Mac OS X, the \c ControlModifier value corresponds to
     the Command keys on the Macintosh keyboard, and the \c MetaModifier value
-    corresponds to the Control keys. The \c KeypadModifier value will also be set 
-    when an arrow key is pressed as the arrow keys are considered part of the 
+    corresponds to the Control keys. The \c KeypadModifier value will also be set
+    when an arrow key is pressed as the arrow keys are considered part of the
     keypad.
 
     \value NoModifier       No modifier key is pressed.
@@ -308,9 +314,9 @@
     \endtable
 
     \value FlatCap  a square line end that does not cover the end
-	point of the line.
+        point of the line.
     \value SquareCap  a square line end that covers the end point and
-	extends beyond it by half the line width.
+        extends beyond it by half the line width.
     \value RoundCap  a rounded line end.
     \omitvalue MPenCapStyle
 
@@ -336,7 +342,7 @@
     \endtable
 
     \value MiterJoin  The outer edges of the lines are extended to
-	   meet at an angle, and this area is filled.
+           meet at an angle, and this area is filled.
     \value BevelJoin  The triangular notch between the two lines is filled.
     \value RoundJoin  A circular arc between the two lines is filled.
     \value SvgMiterJoin A miter join corresponding to the definition of
@@ -439,7 +445,7 @@
     \value DirectConnection  When emitted, the signal is immediately delivered to the slot.
     \value QueuedConnection  When emitted, the signal is queued until the event loop is
                              able to deliver it to the slot.
-    \value 
+    \value
     BlockingQueuedConnection Same as QueuedConnection, except that the current thread blocks
                              until the slot has been delivered. This connection type should
                              only be used for receivers in a different thread. Note that misuse
@@ -844,6 +850,10 @@
     Windows, Mac OS X or Qtopia Core. We recommend that you use this
     attribute only when porting Qt 3 code to Qt 4.
 
+    \value WA_MSWindowsUseDirect3D Makes drawing to a widget
+    with this attribute set use the Direct3D paint engine, if the
+    Direct3D paint engine is available.
+
     \value WA_Hover Forces Qt to generate paint events when the mouse
     enters or leaves the widget. This feature is typically used when
     implementing custom styles; see the \l{widgets/styles}{Styles}
@@ -925,7 +935,7 @@
     not this gets the focus frame. This attribute only does something on Mac OS X.
     \value WA_LayoutUsesWidgetRect Ignore the layout item rect from the style when laying out
                                    this widget with QLayout. This makes a difference in QMacStyle
-                                   and QPlastiqueStyle for some widgets. 
+                                   and QPlastiqueStyle for some widgets.
 
     \omitvalue WA_SetLayoutDirection
     \omitvalue WA_InputMethodTransparent
@@ -1537,7 +1547,7 @@
 
     \value WidgetShortcut The shortcut is active when its
     parent widget has focus.
-    \value WindowShortcut The shortcut is active when its 
+    \value WindowShortcut The shortcut is active when its
     parent widget is a logical subwidget of the
     active top-level window.
     \value ApplicationShortcut The shortcut is active when one of
@@ -1654,7 +1664,7 @@
            button. On some platforms this implies Qt::WindowSystemMenuHint for it to work.
 
     \value WindowContextHelpButtonHint  Adds a context help button to dialogs.
-	On some platforms this implies Qt::WindowSystemMenuHint for it to work.
+        On some platforms this implies Qt::WindowSystemMenuHint for it to work.
 
     \value WindowShadeButtonHint
 

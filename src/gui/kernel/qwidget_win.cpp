@@ -1545,6 +1545,11 @@ int QWidget::metric(PaintDeviceMetric m) const
 void QWidgetPrivate::createSysExtra()
 {
     extra->dropTarget = 0;
+#ifndef Q_NO_DIRECT3D
+    extra->had_auto_fill_bg = 0;
+    extra->had_paint_on_screen = 0;
+    extra->had_no_system_bg = 0;
+#endif
 }
 
 void QWidgetPrivate::deleteSysExtra()
@@ -1769,8 +1774,17 @@ static void cleanup_d3d_engine() {
 QPaintEngine *QWidget::paintEngine() const
 {
 #ifndef QT_NO_DIRECT3D
-    return qt_d3dEngine();
-#else
+    if (qApp->testAttribute(Qt::AA_MSWindowsUseDirect3DByDefault)
+        || testAttribute(Qt::WA_MSWindowsUseDirect3D))
+    {
+        QDirect3DPaintEngine *engine = qt_d3dEngine();
+        if (qApp->testAttribute(Qt::AA_MSWindowsUseDirect3DByDefault))
+            engine->setFlushOnEnd(false);
+        else
+            engine->setFlushOnEnd(true);
+        return engine;
+    }
+#endif
     Q_D(const QWidget);
     QPaintEngine *globalEngine = QGlobalRasterPaintEngine::instance();
     if (globalEngine->isActive()) {
@@ -1782,7 +1796,6 @@ QPaintEngine *QWidget::paintEngine() const
         return d->extraPaintEngine;
     }
     return globalEngine;
-#endif
 }
 
 void QWidgetPrivate::setModal_sys()

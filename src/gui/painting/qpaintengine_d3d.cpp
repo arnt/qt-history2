@@ -1171,10 +1171,14 @@ void QD3DGradientCache::cleanCache()
     cache.clear();
 }
 
-QD3DWindowManager::QD3DWindowManager() :
-    m_status(NoStatus), m_mainpd(0), m_device(0), m_pd(0), m_current(0)
+QD3DWindowManager::QD3DWindowManager()
+    : QObject(0)
+    , m_status(NoStatus)
+    , m_mainpd(0)
+    , m_device(0)
+    , m_pd(0)
+    , m_current(0)
 {
-
 }
 
 QD3DWindowManager::~QD3DWindowManager()
@@ -1214,6 +1218,12 @@ void QD3DWindowManager::setPaintDevice(QPaintDevice *pd)
         m_current = createSwapChain(w);
         updateMaxSize();
     }
+}
+
+void QD3DWindowManager::cleanupPaintDevice(QObject *object)
+{
+    QWidget *w = static_cast<QWidget *>(object);
+    releasePaintDevice(w);
 }
 
 int QD3DWindowManager::status() const
@@ -1268,10 +1278,11 @@ void QD3DWindowManager::reset()
     if (FAILED(swapchain->swapchain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &swapchain->surface)))
         qWarning("QDirect3DPaintEngine: GetBackBuffer failed");
 
-    QColor bg = w->palette().color(QPalette::Background);
+    QColor bg = w->palette().brush(w->backgroundRole()).color();
     m_device->ColorFill(swapchain->surface, 0, D3DCOLOR_ARGB(bg.alpha(), bg.red(),bg.green(),bg.blue()));
 
     m_swapchains.insert(m_mainpd, swapchain);
+    connect(w, SIGNAL(destroyed(QObject *)), SLOT(cleanupPaintDevice(QObject *)));
     for (int i=0; i<pds.count(); ++i) {
         w = static_cast<QWidget*>(pds.at(i));
         createSwapChain(w);
@@ -1411,7 +1422,7 @@ QD3DWindowManager::D3DSwapChain *QD3DWindowManager::createSwapChain(QWidget *w)
     m_swapchains.insert(w, swapchain);
 
     // init with background color
-    QColor bg = w->palette().color(QPalette::Background);
+    QColor bg = w->palette().brush(w->backgroundRole()).color();
     m_device->ColorFill(swapchain->surface, 0, D3DCOLOR_ARGB(bg.alpha(), bg.red(),bg.green(),bg.blue()));
 
     return swapchain;
@@ -1471,7 +1482,7 @@ int QD3DStateManager::m_maskChannels[4][4] =
     {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 
 QD3DVertexBuffer::QD3DVertexBuffer(QDirect3DPaintEnginePrivate *pe)
-    : m_pe(pe), m_d3dvbuff(0), m_maskSurface(0), m_depthStencilSurface(0), 
+    : m_pe(pe), m_d3dvbuff(0), m_maskSurface(0), m_depthStencilSurface(0),
       m_locked(false), m_mask(0), m_startindex(0), m_index(0), m_vbuff(0), m_clearmask(true)
 {
     if (FAILED(D3DXMatrixIdentity(&m_d3dIdentityMatrix))) {
@@ -2058,7 +2069,7 @@ void QD3DVertexBuffer::drawAliasedLines(QD3DBatchItem *item)
     } else {
         m_pe->m_statemanager->setTransformation(&m_pe->m_d3dxidentmatrix);
     }
-    int pass = (item->m_info & QD3DBatchItem::BI_MASK) ? 
+    int pass = (item->m_info & QD3DBatchItem::BI_MASK) ?
         PASS_STENCIL_ODDEVEN : PASS_STENCIL_NOSTENCILCHECK_DIRECT;
     m_pe->m_effect->BeginPass(pass);
 
@@ -2363,10 +2374,10 @@ QRectF QD3DVertexBuffer::pathToVertexArrays(const QPainterPath &path)
     result.setRight(max_x);
     result.setTop(min_y);
     result.setBottom(max_y);
-    
+
     if (line)
         result.adjust(0,0,1,1);
-    
+
     return result;
 }
 
@@ -2747,7 +2758,7 @@ void QDirect3DPaintEnginePrivate::fillAntialiasedPath(const QPainterPath &path, 
     } else {
         poly = path.toFillPolygon(txform);
         txrect = poly.boundingRect();
-    }    
+    }
 
     // brect = approx. bounding rect before transformation
     // txrect = exact bounding rect after transformation
@@ -3310,7 +3321,7 @@ void QDirect3DPaintEnginePrivate::flushBatch()
         }
 
         if (item->m_info & QD3DBatchItem::BI_FASTLINE) {
-            flushLines(item, offset++);            
+            flushLines(item, offset++);
         } else if (item->m_info & QD3DBatchItem::BI_AA) {
             offset = flushAntialiased(offset);
         } else if (item->m_info & QD3DBatchItem::BI_TEXT) {
@@ -3419,6 +3430,13 @@ bool QDirect3DPaintEngine::begin(QPaintDevice *device)
             qWarning() << "QDirect3DPaintEngine: BeginScene() failed.";
             return false;
         }
+        QWidget *widget = static_cast<QWidget *>(device);
+        if (widget->autoFillBackground() == true) {
+            QColor color = widget->palette().brush(widget->backgroundRole()).color();
+            RECT rect = {0, 0, widget->width(), widget->height()};
+            d->m_d3dDevice->ColorFill(d->m_defaultSurface, &rect,
+                D3DCOLOR_ARGB(color.alpha(), color.red(), color.green(), color.blue()));
+        }
         d->m_inScene = true;
     }
 
@@ -3497,7 +3515,7 @@ void QDirect3DPaintEngine::drawLines(const QLineF *lines, int lineCount)
     } else {
         QRectF brect;
         QPainterPath path;
-        
+
         // creates a path with the lines
         path.moveTo(lines[0].x1(), lines[0].y1());
         qreal lastx = lines[0].x2();
@@ -3676,7 +3694,7 @@ void QDirect3DPaintEngine::drawRects(const QRectF *rects, int rectCount)
         if ((d->m_brush_style == Qt::SolidPattern) &&
             (!(d->m_currentState & QD3DBatchItem::BI_AA) || d->isFastRect(rects[i]))) {
             QD3DBatchItem *item = d->nextBatchItem();
-            item->m_info = QD3DBatchItem::BI_TRANSFORM;
+            item->m_info |= QD3DBatchItem::BI_TRANSFORM;
             item->m_info &= ~QD3DBatchItem::BI_AA;
             item->m_matrix = d->m_d3dxmatrix;
             d->m_vBuffer->queueRect(rects[i], item, d->m_brushColor, QPolygonF(4));
@@ -3785,6 +3803,56 @@ bool QDirect3DPaintEngine::end()
     Q_D(QDirect3DPaintEngine);
 
     d->flushBatch();
+
+    if (d->m_flushOnEnd) {
+        QPaintDevice *pdev = paintDevice();
+        LPDIRECT3DSWAPCHAIN9 swapchain = swapChain(pdev);
+
+
+        QWidget *w = 0;
+        if (pdev->devType() == QInternal::Widget) {
+            w = static_cast<QWidget *>(pdev);
+        }
+
+        if (w && swapchain) {
+            QRect br = w->rect();
+            QRect wbr = br;//.translated(-w->pos());
+
+            RECT destrect;
+            destrect.left   = wbr.x();
+            destrect.top    = wbr.y();
+            destrect.right  = destrect.left + wbr.width();
+            destrect.bottom = destrect.top  + wbr.height();
+
+            RECT srcrect;
+            srcrect.left    = br.x();// + w->x();
+            srcrect.top     = br.y();// + w->y();
+            srcrect.right   = wbr.width() + srcrect.left;
+            srcrect.bottom  = wbr.height() + srcrect.top;
+            int devwidth = w->width();
+            int devheight = w->height();
+
+            if (devwidth <= srcrect.right) {
+                int diff = srcrect.right - devwidth;
+                srcrect.right -= diff;
+                destrect.right -= diff;
+                if (srcrect.right <= srcrect.left)
+                    return false;
+            }
+            if (devheight <= srcrect.bottom) {
+                int diff = srcrect.bottom - devheight;
+                srcrect.bottom -= diff;
+                destrect.bottom -= diff;
+                if (srcrect.bottom <= srcrect.top)
+                    return false;
+            }
+
+            if (FAILED(swapchain->Present(&srcrect, &destrect, w->winId(), 0, 0)))
+                qWarning("QDirect3DPaintEngine: failed to present back buffer.");
+        }
+    }
+
+
     return true;
 }
 
@@ -3921,5 +3989,11 @@ void QDirect3DPaintEngine::releaseSwapChain(QPaintDevice *pd)
     d->m_winManager.releasePaintDevice(pd);
 }
 
+void QDirect3DPaintEngine::setFlushOnEnd(bool flushOnEnd)
+{
+    Q_D(QDirect3DPaintEngine);
+
+    d->m_flushOnEnd = flushOnEnd;
+}
 
 #include "qpaintengine_d3d.moc"
