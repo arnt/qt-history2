@@ -11,21 +11,63 @@
 **
 ****************************************************************************/
 
-#include <qglobal.h> // for Q_WS_WIN define (non-PCH)
-
 #include <QtGui/QPaintDevice>
 #include <QtGui/QWidget>
 #include <QtOpenGL/QGLWidget>
 #include "private/qwindowsurface_egl_p.h"
+#include "private/qeglpaintdevice_p.h"
 
 #include "private/qpaintengine_opengl_p.h"
 
-class MetricAccessor : public QWidget {
+class QMetricAccessor : public QWidget {
 public:
     int metric(PaintDeviceMetric m) {
         return QWidget::metric(m);
     }
 };
+
+// from the qpaintengine_opengl.cpp:
+QOpenGLPaintEngine* qgl_paint_engine();
+
+class QEGLPaintDevicePrivate
+{
+public:
+    QEGLWindowSurface *wsurf;
+    QWidget *widget;
+};
+
+QEGLPaintDevice::QEGLPaintDevice(QWidget *w, QEGLWindowSurface *surf) :
+    d_ptr(new QEGLPaintDevicePrivate)
+{
+    Q_D(QEGLPaintDevice);
+    d->widget = w;
+    d->wsurf = surf;
+}
+
+QEGLPaintDevice::~QEGLPaintDevice()
+{
+    Q_D(QEGLPaintDevice);
+    delete d;
+}
+
+QPaintEngine *QEGLPaintDevice::paintEngine() const
+{
+    return qgl_paint_engine();
+}
+
+int QEGLPaintDevice::metric(PaintDeviceMetric m) const
+{
+    Q_D(const QEGLPaintDevice);
+    Q_ASSERT(d->widget);
+
+    return ((QMetricAccessor *) d->widget)->metric(m);
+}
+
+QEGLWindowSurface *QEGLPaintDevice::windowSurface() const
+{
+     Q_D(const QEGLPaintDevice);
+     return d->wsurf;
+}
 
 class QEGLWindowSurfacePrivate
 {
@@ -33,7 +75,7 @@ public:
     QEGLWindowSurfacePrivate() :
       qglContext(0) {}
 
-    QPaintDevice *device;
+    QEGLPaintDevice *device;
     QGLContext *qglContext;
 };
 
@@ -43,7 +85,7 @@ QEGLWindowSurface::QEGLWindowSurface(QWidget *window)
 {
     Q_D(QEGLWindowSurface);
     if (window)
-        d->device = window;
+        d->device = new QEGLPaintDevice(window, this);
 
     setSurfaceFlags(QWSWindowSurface::Buffered);
 }
@@ -51,32 +93,17 @@ QEGLWindowSurface::QEGLWindowSurface(QWidget *window)
 QEGLWindowSurface::~QEGLWindowSurface()
 {
     Q_D(QEGLWindowSurface);
+    delete d->device;
     delete d;
 }
 
 QPaintDevice *QEGLWindowSurface::paintDevice()
 {
     Q_D(QEGLWindowSurface);
-    if (qobject_cast<QGLWidget*>(static_cast<QWidget*>(d->device)) != 0)
-        return d->device;
+    if (qobject_cast<QGLWidget*>(d->device->d_func()->widget) != 0)
+        return d->device->d_func()->widget;
     else
-        return this;
-}
-
-// from the qpaintengine_opengl.cpp:
-QOpenGLPaintEngine* qgl_paint_engine();
-
-QPaintEngine *QEGLWindowSurface::paintEngine() const
-{
-    return qgl_paint_engine();
-}
-
-int QEGLWindowSurface::metric(PaintDeviceMetric m) const
-{
-    Q_D(const QEGLWindowSurface);
-    Q_ASSERT(d->device);
-
-    return ((MetricAccessor *) d->device)->metric(m);
+        return d->device;
 }
 
 void QEGLWindowSurface::scroll(const QRegion &area, int dx, int dy)

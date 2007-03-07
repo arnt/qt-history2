@@ -19,15 +19,16 @@
 //  -------------
 //
 // This file is not part of the Qt API.  It exists for the convenience
-// of the QLibrary class.  This header file may change from
+// of the QEGLWindowSurface class.  This header file may change from
 // version to version without notice, or even be removed.
 //
 // We mean it.
 //
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
+#include <QPaintDevice>
 #include "private/qwindowsurface_qws_p.h"
-#include "GLES/egl.h"
+#include <GLES/egl.h>
 
 class QPaintDevice;
 class QPoint;
@@ -38,7 +39,7 @@ class QGLContext;
 
 class QEGLWindowSurfacePrivate;
 
-class QEGLWindowSurface : public QWSWindowSurface, public QPaintDevice
+class QEGLWindowSurface : public QWSWindowSurface
 {
     Q_DECLARE_PRIVATE(QEGLWindowSurface)
 public:
@@ -46,17 +47,11 @@ public:
     ~QEGLWindowSurface();
 
     QPaintDevice *paintDevice();
-    QPaintEngine *paintEngine() const;
 
     void scroll(const QRegion &area, int dx, int dy);
 
-    int metric(PaintDeviceMetric m) const;
-
     bool isValidFor(const QWidget*) const { return true; }
     const QImage image() const { return QImage(); }
-
-    // want to replace swapBuffers with a reimp of flush
-    virtual void swapBuffers() = 0;
 
     virtual bool chooseContext(QGLContext *context, const QGLContext *shareContext) = 0;
     QGLContext *context() const;
