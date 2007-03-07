@@ -169,7 +169,7 @@ void MainWindow::textColorChanged()
     textAction = qobject_cast<QAction *>(sender());
     fontColorToolButton->setIcon(createColorToolButtonIcon(
 				 ":/images/textpointer.png",
-			         textAction->data().value<QColor>())); 
+			         qVariantValue<QColor>(textAction->data()))); 
     textButtonTriggered();
 }
 
@@ -178,7 +178,7 @@ void MainWindow::itemColorChanged()
     fillAction = qobject_cast<QAction *>(sender());
     fillColorToolButton->setIcon(createColorToolButtonIcon(
 				 ":/images/floodfill.png",
-				 fillAction->data().value<QColor>()));
+				 qVariantValue<QColor>(fillAction->data())));
     fillButtonTriggered();
 }
 
@@ -187,23 +187,23 @@ void MainWindow::lineColorChanged()
     lineAction = qobject_cast<QAction *>(sender());
     lineColorToolButton->setIcon(createColorToolButtonIcon(
 				 ":/images/linecolor.png",
-				 lineAction->data().value<QColor>()));
+				 qVariantValue<QColor>(lineAction->data())));
     lineButtonTriggered();
 }
 
 void MainWindow::textButtonTriggered()
 {
-    scene->setTextColor(textAction->data().value<QColor>());
+    scene->setTextColor(qVariantValue<QColor>(textAction->data()));
 }
 
 void MainWindow::fillButtonTriggered()
 {
-    scene->setItemColor(fillAction->data().value<QColor>());
+    scene->setItemColor(qVariantValue<QColor>(fillAction->data()));
 }
 
 void MainWindow::lineButtonTriggered()
 {
-    scene->setLineColor(lineAction->data().value<QColor>());
+    scene->setLineColor(qVariantValue<QColor>(lineAction->data()));
 }
 
 void MainWindow::handleFontChange()
