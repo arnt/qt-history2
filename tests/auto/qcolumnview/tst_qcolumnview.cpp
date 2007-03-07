@@ -128,18 +128,22 @@ void tst_QColumnView::rootIndex()
         QVERIFY(view.visualRect(homeFile).isValid());
 
     //
+    homeFile = model.index(QDir::currentPath());
+    home = homeFile.parent();
     view.setRootIndex(home);
+    view.setCurrentIndex(homeFile);
     view.show();
     i = 0;
     QModelIndex two = model.index(0, 0, homeFile);
     while (i < model.rowCount(homeFile) - 1 && !model.hasChildren(two))
         two = model.index(++i, 0, homeFile);
+    qApp->processEvents();
+    QTest::qWait(200);
     view.setCurrentIndex(two);
-    qApp->processEvents();
     view.scrollTo(two);
-    QTest::qWait(200);
     qApp->processEvents();
     QTest::qWait(200);
+    qApp->processEvents();
     QVERIFY(two.isValid());
     QVERIFY(view.HorizontalOffset() != 0);
 
