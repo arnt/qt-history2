@@ -77,8 +77,6 @@ public:
     QList<QPainterClipInfo> clipInfo;
     QTransform worldMatrix;       // World transformation matrix, not window and viewport
     QTransform matrix;            // Complete transformation matrix,
-    QMatrix    oldWorldMatrix;    //### needed to preserve BIC, the methods in
-    QMatrix    oldMatrix;         //    QPainter return "const QMatrix &" so we need them
     int txop;
     int wx, wy, ww, wh;         // window rectangle
     int vx, vy, vw, vh;         // viewport rectangle

@@ -2007,8 +2007,7 @@ void QPainter::setWorldMatrix(const QMatrix &matrix, bool combine)
 const QMatrix &QPainter::worldMatrix() const
 {
     Q_D(const QPainter);
-    d->state->oldWorldMatrix = d->state->worldMatrix.toAffine();
-    return d->state->oldWorldMatrix;
+    return d->state->worldMatrix.toAffine();
 }
 
 /*!
@@ -2069,8 +2068,7 @@ QMatrix QPainter::combinedMatrix() const
 const QMatrix &QPainter::deviceMatrix() const
 {
     Q_D(const QPainter);
-    d->state->oldMatrix = d->state->matrix.toAffine();
-    return d->state->oldMatrix;
+    return d->state->matrix.toAffine();
 }
 
 /*!

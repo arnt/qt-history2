@@ -121,14 +121,13 @@ struct QBrushData
     QAtomic ref;
     Qt::BrushStyle style;
     QColor color;
-    QMatrix    oldMatrix;
     QTransform transform;
     bool hasTransform;
 };
 
 inline Qt::BrushStyle QBrush::style() const { return d->style; }
 inline const QColor &QBrush::color() const { return d->color; }
-inline const QMatrix &QBrush::matrix() const { d->oldMatrix = d->transform.toAffine(); return d->oldMatrix; }
+inline const QMatrix &QBrush::matrix() const { return d->transform.toAffine(); }
 inline QTransform QBrush::transform() const { return d->transform; }
 
 #ifdef QT3_SUPPORT

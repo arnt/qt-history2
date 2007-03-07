@@ -26,8 +26,8 @@
 { \
     fx = x; \
     fy = y; \
-    nx = m_11*fx + m_21*fy + m_31; \
-    ny = m_12*fx + m_22*fy + m_32; \
+    nx = affine._m11*fx + affine._m21*fy + affine._dx; \
+    ny = affine._m12*fx + affine._m22*fy + affine._dy; \
     if (!isAffine()) { \
         qreal w = m_13*fx + m_23*fy + m_33; \
         w = 1/w; \
@@ -40,8 +40,8 @@
 { \
     fx = x; \
     fy = y; \
-    nx = int(m_11*fx + m_21*fy + m_31); \
-    ny = int(m_12*fx + m_22*fy + m_32); \
+    nx = int(affine._m11*fx + affine._m21*fy + affine._dx); \
+    ny = int(affine._m12*fx + affine._m22*fy + affine._dy); \
     if (!isAffine()) { \
         qreal w = m_13*fx + m_23*fy + m_33; \
         w = 1/w; \
@@ -202,9 +202,7 @@
     \sa reset()
 */
 QTransform::QTransform()
-    : m_11(1), m_12(0), m_13(0),
-      m_21(0), m_22(1), m_23(0),
-      m_31(0), m_32(0), m_33(1)
+    : m_13(0), m_23(0), m_33(1)
 {
 
 }
@@ -218,9 +216,8 @@ QTransform::QTransform()
 QTransform::QTransform(qreal h11, qreal h12, qreal h13,
                        qreal h21, qreal h22, qreal h23,
                        qreal h31, qreal h32, qreal h33)
-    : m_11(h11), m_12(h12), m_13(h13),
-      m_21(h21), m_22(h22), m_23(h23),
-      m_31(h31), m_32(h32), m_33(h33)
+    : affine(h11, h12, h21, h22, h31, h32),
+      m_13(h13), m_23(h23), m_33(h33)
 {
 
 }
@@ -233,9 +230,8 @@ QTransform::QTransform(qreal h11, qreal h12, qreal h13,
 */
 QTransform::QTransform(qreal h11, qreal h12, qreal h21,
                        qreal h22, qreal dx, qreal dy)
-    : m_11(h11), m_12(h12), m_13(  0),
-      m_21(h21), m_22(h22), m_23(  0),
-      m_31( dx), m_32( dy), m_33(  1)
+    : affine(h11, h12, h21, h22, dx, dy),
+      m_13(0), m_23(0), m_33(1)
 {
 
 }
@@ -245,9 +241,8 @@ QTransform::QTransform(qreal h11, qreal h12, qreal h21,
      \a m13 and \a m23 are set to 0.
  */
 QTransform::QTransform(const QMatrix &mtx)
-    : m_11(mtx.m11()), m_12(mtx.m12()), m_13(0),
-      m_21(mtx.m21()), m_22(mtx.m22()), m_23(0),
-      m_31(mtx.dx()) , m_32(mtx.dy()) , m_33(1)
+    : affine(mtx),
+      m_13(0), m_23(0), m_33(1)
 {
 
 }
@@ -260,15 +255,15 @@ QTransform QTransform::adjoint() const
     qreal h11, h12, h13,
         h21, h22, h23,
         h31, h32, h33;
-    h11 = m_22*m_33 - m_23*m_32;
-    h21 = m_23*m_31 - m_21*m_33;
-    h31 = m_21*m_32 - m_22*m_31;
-    h12 = m_13*m_32 - m_12*m_33;
-    h22 = m_11*m_33 - m_13*m_31;
-    h32 = m_12*m_31 - m_11*m_32;
-    h13 = m_12*m_23 - m_13*m_22;
-    h23 = m_13*m_21 - m_11*m_23;
-    h33 = m_11*m_22 - m_12*m_21;
+    h11 = affine._m22*m_33 - m_23*affine._dy;
+    h21 = m_23*affine._dx - affine._m21*m_33;
+    h31 = affine._m21*affine._dy - affine._m22*affine._dx;
+    h12 = m_13*affine._dy - affine._m12*m_33;
+    h22 = affine._m11*m_33 - m_13*affine._dx;
+    h32 = affine._m12*affine._dx - affine._m11*affine._dy;
+    h13 = affine._m12*m_23 - m_13*affine._m22;
+    h23 = m_13*affine._m21 - affine._m11*m_23;
+    h33 = affine._m11*affine._m22 - affine._m12*affine._m21;
     //### not a huge fan of this simplification but
     //    i'd like to keep m33 as 1.0
     //return QTransform(h11, h12, h13,
@@ -285,8 +280,8 @@ QTransform QTransform::adjoint() const
 */
 QTransform QTransform::transposed() const
 {
-    return QTransform(m_11, m_21, m_31,
-                      m_12, m_22, m_32,
+    return QTransform(affine._m11, affine._m21, affine._dx,
+                      affine._m12, affine._m22, affine._dy,
                       m_13, m_23, m_33);
 }
 
@@ -326,8 +321,8 @@ QTransform QTransform::inverted(bool *invertible) const
 */
 QTransform & QTransform::translate(qreal dx, qreal dy)
 {
-    m_31 += dx*m_11 + dy*m_21;
-    m_32 += dy*m_22 + dx*m_12;
+    affine._dx += dx*affine._m11 + dy*affine._m21;
+    affine._dy += dy*affine._m22 + dx*affine._m12;
     return *this;
 }
 
@@ -339,10 +334,10 @@ QTransform & QTransform::translate(qreal dx, qreal dy)
 */
 QTransform & QTransform::scale(qreal sx, qreal sy)
 {
-    m_11 *= sx;
-    m_12 *= sx;
-    m_21 *= sy;
-    m_22 *= sy;
+    affine._m11 *= sx;
+    affine._m12 *= sx;
+    affine._m21 *= sy;
+    affine._m22 *= sy;
     return *this;
 }
 
@@ -354,14 +349,14 @@ QTransform & QTransform::scale(qreal sx, qreal sy)
 */
 QTransform & QTransform::shear(qreal sh, qreal sv)
 {
-    qreal tm11 = sv*m_21;
-    qreal tm12 = sv*m_22;
-    qreal tm21 = sh*m_11;
-    qreal tm22 = sh*m_12;
-    m_11 += tm11;
-    m_12 += tm12;
-    m_21 += tm21;
-    m_22 += tm22;
+    qreal tm11 = sv*affine._m21;
+    qreal tm12 = sv*affine._m22;
+    qreal tm21 = sh*affine._m11;
+    qreal tm22 = sh*affine._m12;
+    affine._m11 += tm11;
+    affine._m12 += tm12;
+    affine._m21 += tm21;
+    affine._m22 += tm22;
     return *this;
 }
 
@@ -399,19 +394,19 @@ QTransform & QTransform::rotate(qreal a, Qt::Axis axis)
     }
 
     if (axis == Qt::ZAxis) {
-        qreal tm11 = cosa*m_11 + sina*m_21;
-        qreal tm12 = cosa*m_12 + sina*m_22;
-        qreal tm21 = -sina*m_11 + cosa*m_21;
-        qreal tm22 = -sina*m_12 + cosa*m_22;
-        m_11 = tm11; m_12 = tm12;
-        m_21 = tm21; m_22 = tm22;
+        qreal tm11 = cosa*affine._m11 + sina*affine._m21;
+        qreal tm12 = cosa*affine._m12 + sina*affine._m22;
+        qreal tm21 = -sina*affine._m11 + cosa*affine._m21;
+        qreal tm22 = -sina*affine._m12 + cosa*affine._m22;
+        affine._m11 = tm11; affine._m12 = tm12;
+        affine._m21 = tm21; affine._m22 = tm22;
     } else {
         QTransform result;
         if (axis == Qt::YAxis) {
-            result.m_11 = cosa;
+            result.affine._m11 = cosa;
             result.m_13 = -sina * inv_dist_to_plane;
         } else {
-            result.m_22 = cosa;
+            result.affine._m22 = cosa;
             result.m_23 = -sina * inv_dist_to_plane;
         }
         operator*=(result);
@@ -440,19 +435,19 @@ QTransform & QTransform::rotateRadians(qreal a, Qt::Axis axis)
     qreal cosa = cos(a);
 
     if (axis == Qt::ZAxis) {
-        qreal tm11 = cosa*m_11 + sina*m_21;
-        qreal tm12 = cosa*m_12 + sina*m_22;
-        qreal tm21 = -sina*m_11 + cosa*m_21;
-        qreal tm22 = -sina*m_12 + cosa*m_22;
-        m_11 = tm11; m_12 = tm12;
-        m_21 = tm21; m_22 = tm22;
+        qreal tm11 = cosa*affine._m11 + sina*affine._m21;
+        qreal tm12 = cosa*affine._m12 + sina*affine._m22;
+        qreal tm21 = -sina*affine._m11 + cosa*affine._m21;
+        qreal tm22 = -sina*affine._m12 + cosa*affine._m22;
+        affine._m11 = tm11; affine._m12 = tm12;
+        affine._m21 = tm21; affine._m22 = tm22;
     } else {
         QTransform result;
         if (axis == Qt::YAxis) {
-            result.m_11 = cosa;
+            result.affine._m11 = cosa;
             result.m_13 = -sina * inv_dist_to_plane;
         } else {
-            result.m_22 = cosa;
+            result.affine._m22 = cosa;
             result.m_23 = -sina * inv_dist_to_plane;
         }
         operator*=(result);
@@ -467,9 +462,9 @@ QTransform & QTransform::rotateRadians(qreal a, Qt::Axis axis)
 bool QTransform::operator==(const QTransform &o) const
 {
 #define qFZ qFuzzyCompare
-    return qFZ(m_11, o.m_11) &&  qFZ(m_12, o.m_12) &&  qFZ(m_13, o.m_13)
-        && qFZ(m_21, o.m_21) &&  qFZ(m_22, o.m_22) &&  qFZ(m_23, o.m_23)
-        && qFZ(m_31, o.m_31) &&  qFZ(m_32, o.m_32) &&  qFZ(m_33, o.m_33);
+    return qFZ(affine._m11, o.affine._m11) &&  qFZ(affine._m12, o.affine._m12) &&  qFZ(m_13, o.m_13)
+        && qFZ(affine._m21, o.affine._m21) &&  qFZ(affine._m22, o.affine._m22) &&  qFZ(m_23, o.m_23)
+        && qFZ(affine._dx, o.affine._dx) &&  qFZ(affine._dy, o.affine._dy) &&  qFZ(m_33, o.m_33);
 #undef qFZ
 }
 
@@ -490,21 +485,21 @@ bool QTransform::operator!=(const QTransform &o) const
 */
 QTransform & QTransform::operator*=(const QTransform &o)
 {
-    qreal m11 = m_11*o.m_11 + m_12*o.m_21 + m_13*o.m_31;
-    qreal m12 = m_11*o.m_12 + m_12*o.m_22 + m_13*o.m_32;
-    qreal m13 = m_11*o.m_13 + m_12*o.m_23 + m_13*o.m_33;
+    qreal m11 = affine._m11*o.affine._m11 + affine._m12*o.affine._m21 + m_13*o.affine._dx;
+    qreal m12 = affine._m11*o.affine._m12 + affine._m12*o.affine._m22 + m_13*o.affine._dy;
+    qreal m13 = affine._m11*o.m_13 + affine._m12*o.m_23 + m_13*o.m_33;
 
-    qreal m21 = m_21*o.m_11 + m_22*o.m_21 + m_23*o.m_31;
-    qreal m22 = m_21*o.m_12 + m_22*o.m_22 + m_23*o.m_32;
-    qreal m23 = m_21*o.m_13 + m_22*o.m_23 + m_23*o.m_33;
+    qreal m21 = affine._m21*o.affine._m11 + affine._m22*o.affine._m21 + m_23*o.affine._dx;
+    qreal m22 = affine._m21*o.affine._m12 + affine._m22*o.affine._m22 + m_23*o.affine._dy;
+    qreal m23 = affine._m21*o.m_13 + affine._m22*o.m_23 + m_23*o.m_33;
 
-    qreal m31 = m_31*o.m_11 + m_32*o.m_21 + m_33*o.m_31;
-    qreal m32 = m_31*o.m_12 + m_32*o.m_22 + m_33*o.m_32;
-    qreal m33 = m_31*o.m_13 + m_32*o.m_23 + m_33*o.m_33;
+    qreal m31 = affine._dx*o.affine._m11 + affine._dy*o.affine._m21 + m_33*o.affine._dx;
+    qreal m32 = affine._dx*o.affine._m12 + affine._dy*o.affine._m22 + m_33*o.affine._dy;
+    qreal m33 = affine._dx*o.m_13 + affine._dy*o.m_23 + m_33*o.m_33;
 
-    m_11 = m11/m33; m_12 = m12/m33; m_13 = m13/m33;
-    m_21 = m21/m33; m_22 = m22/m33; m_23 = m23/m33;
-    m_31 = m31/m33; m_32 = m32/m33; m_33 = 1.0;
+    affine._m11 = m11/m33; affine._m12 = m12/m33; m_13 = m13/m33;
+    affine._m21 = m21/m33; affine._m22 = m22/m33; m_23 = m23/m33;
+    affine._dx = m31/m33; affine._dy = m32/m33; m_33 = 1.0;
 
     return *this;
 }
@@ -528,14 +523,14 @@ QTransform QTransform::operator*(const QTransform &m) const
 */
 QTransform & QTransform::operator=(const QTransform &matrix)
 {
-    m_11 = matrix.m_11;
-    m_12 = matrix.m_12;
+    affine._m11 = matrix.affine._m11;
+    affine._m12 = matrix.affine._m12;
     m_13 = matrix.m_13;
-    m_21 = matrix.m_21;
-    m_22 = matrix.m_22;
+    affine._m21 = matrix.affine._m21;
+    affine._m22 = matrix.affine._m22;
     m_23 = matrix.m_23;
-    m_31 = matrix.m_31;
-    m_32 = matrix.m_32;
+    affine._dx = matrix.affine._dx;
+    affine._dy = matrix.affine._dy;
     m_33 = matrix.m_33;
 
     return *this;
@@ -551,8 +546,8 @@ QTransform & QTransform::operator=(const QTransform &matrix)
 */
 void QTransform::reset()
 {
-    m_11 = m_22 = m_33 = 1.0;
-    m_12 = m_13 = m_21 = m_23 = m_31 = m_32 = 0;
+    affine._m11 = affine._m22 = m_33 = 1.0;
+    affine._m12 = m_13 = affine._m21 = m_23 = affine._dx = affine._dy = 0;
 }
 
 #ifndef QT_NO_DATASTREAM
@@ -642,8 +637,8 @@ QPoint QTransform::map(const QPoint &p) const
     qreal fx = p.x();
     qreal fy = p.y();
 
-    qreal x = m_11 * fx + m_21 * fy + m_31;
-    qreal y = m_12 * fx + m_22 * fy + m_32;
+    qreal x = affine._m11 * fx + affine._m21 * fy + affine._dx;
+    qreal y = affine._m12 * fx + affine._m22 * fy + affine._dy;
 
     if (isAffine()) {
         return QPoint(qRound(x), qRound(y));
@@ -675,8 +670,8 @@ QPointF QTransform::map(const QPointF &p) const
     qreal fx = p.x();
     qreal fy = p.y();
 
-    qreal x = m_11 * fx + m_21 * fy + m_31;
-    qreal y = m_12 * fx + m_22 * fy + m_32;
+    qreal x = affine._m11 * fx + affine._m21 * fy + affine._dx;
+    qreal y = affine._m12 * fx + affine._m22 * fy + affine._dy;
 
     if (isAffine()) {
         return QPointF(x, y);
@@ -828,7 +823,7 @@ QRegion QTransform::map(const QRegion &r) const
         if (!isTranslating()) // Identity
             return r;
         QRegion copy(r);
-        copy.translate(qRound(m_31), qRound(m_32));
+        copy.translate(qRound(affine._dx), qRound(affine._dy));
         return copy;
     }
 
@@ -870,8 +865,8 @@ QPainterPath QTransform::map(const QPainterPath &path) const
             copy.detach();
             for (int i=0; i<path.elementCount(); ++i) {
                 QPainterPath::Element &e = copy.d_ptr->elements[i];
-                e.x += m_31;
-                e.y += m_32;
+                e.x += affine._dx;
+                e.y += affine._dy;
             }
         }
 
@@ -922,10 +917,10 @@ QPolygon QTransform::mapToPolygon(const QRect &rect) const
     QPolygon a(4);
     qreal x[4], y[4];
     if (isAffine() && !isRotating()) {
-        x[0] = m_11*rect.x() + m_31;
-        y[0] = m_22*rect.y() + m_32;
-        qreal w = m_11*rect.width();
-        qreal h = m_22*rect.height();
+        x[0] = affine._m11*rect.x() + affine._dx;
+        y[0] = affine._m22*rect.y() + affine._dy;
+        qreal w = affine._m11*rect.width();
+        qreal h = affine._m22*rect.height();
         if (w < 0) {
             w = -w;
             x[0] -= w;
@@ -962,14 +957,14 @@ QPolygon QTransform::mapToPolygon(const QRect &rect) const
 QTransform QTransform::operator/(qreal div)
 {
     div = 1/div;
-    m_11 *= div;
-    m_12 *= div;
+    affine._m11 *= div;
+    affine._m12 *= div;
     m_13 *= div;
-    m_21 *= div;
-    m_22 *= div;
+    affine._m21 *= div;
+    affine._m22 *= div;
     m_23 *= div;
-    m_31 *= div;
-    m_32 *= div;
+    affine._dx *= div;
+    affine._dy *= div;
     m_33 *= div;
     return *this;
 }
@@ -1083,19 +1078,19 @@ void QTransform::setMatrix(qreal m11, qreal m12, qreal m13,
                            qreal m21, qreal m22, qreal m23,
                            qreal m31, qreal m32, qreal m33)
 {
-    m_11 = m11; m_12 = m12; m_13 = m13;
-    m_21 = m21; m_22 = m22; m_23 = m23;
-    m_31 = m31; m_32 = m32; m_33 = m33;
+    affine._m11 = m11; affine._m12 = m12; m_13 = m13;
+    affine._m21 = m21; affine._m22 = m22; m_23 = m23;
+    affine._dx = m31; affine._dy = m32; m_33 = m33;
 }
 
 QRect QTransform::mapRect(const QRect &rect) const
 {
     QRect result;
     if (isAffine() && !isRotating()) {
-        int x = qRound(m_11*rect.x() + m_31);
-        int y = qRound(m_22*rect.y() + m_32);
-        int w = qRound(m_11*rect.width());
-        int h = qRound(m_22*rect.height());
+        int x = qRound(affine._m11*rect.x() + affine._dx);
+        int y = qRound(affine._m22*rect.y() + affine._dy);
+        int w = qRound(affine._m11*rect.width());
+        int h = qRound(affine._m22*rect.height());
         if (w < 0) {
             w = -w;
             x -= w;
@@ -1172,10 +1167,10 @@ QRectF QTransform::mapRect(const QRectF &rect) const
 {
       QRectF result;
     if (isAffine() && !isRotating()) {
-        qreal x = m_11*rect.x() + m_31;
-        qreal y = m_22*rect.y() + m_32;
-        qreal w = m_11*rect.width();
-        qreal h = m_22*rect.height();
+        qreal x = affine._m11*rect.x() + affine._dx;
+        qreal y = affine._m22*rect.y() + affine._dy;
+        qreal w = affine._m11*rect.width();
+        qreal h = affine._m22*rect.height();
         if (w < 0) {
             w = -w;
             x -= w;
@@ -1260,20 +1255,18 @@ void QTransform::map(int x, int y, int *tx, int *ty) const
     MAPINT(x, y, *tx, *ty);
 }
 
-QMatrix QTransform::toAffine() const
+const QMatrix &QTransform::toAffine() const
 {
-    return QMatrix(m_11, m_12,
-                   m_21, m_22,
-                   m_31, m_32);
+    return affine;
 }
 
 int QTransform::type() const
 {
-    if (m_12 != 0 || m_21 != 0)
+    if (affine._m12 != 0 || affine._m21 != 0)
         return TxRotShear;
-    else if (m_11 != 1 || m_22 != 1)
+    else if (affine._m11 != 1 || affine._m22 != 1)
         return TxScale;
-    else if (m_31 != 0 || m_32 != 0)
+    else if (affine._dx != 0 || affine._dy != 0)
         return TxTranslate;
     else
         return TxNone;

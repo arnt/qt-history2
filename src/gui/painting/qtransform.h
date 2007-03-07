@@ -13,6 +13,7 @@
 #ifndef QTRANSFORM_H
 #define QTRANSFORM_H
 
+#include <QtGui/qmatrix.h>
 #include <QtGui/qpainterpath.h>
 #include <QtGui/qpolygon.h>
 #include <QtGui/qregion.h>
@@ -115,14 +116,15 @@ public:
     void map(int x, int y, int *tx, int *ty) const;
     void map(qreal x, qreal y, qreal *tx, qreal *ty) const;
 
-    QMatrix toAffine() const;
-
+    const QMatrix &toAffine() const;
 private:
+    QMatrix affine;
+    qreal   m_13;
+    qreal   m_23;
+    qreal   m_33;
+
     class Private;
     Private *d;
-    qreal m_11, m_12, m_13;
-    qreal m_21, m_22, m_23;
-    qreal m_31, m_32, m_33;
 
 };
 Q_DECLARE_TYPEINFO(QTransform, Q_MOVABLE_TYPE);
@@ -135,9 +137,9 @@ inline bool QTransform::isAffine() const
 inline bool QTransform::isIdentity() const
 {
 #define qFZ qFuzzyCompare
-    return qFZ(m_11, 1) && qFZ(m_12, 0) && qFZ(m_13, 0)
-        && qFZ(m_21, 0) && qFZ(m_22, 1) && qFZ(m_23, 0)
-        && qFZ(m_31, 0) && qFZ(m_32, 0) && qFZ(m_33, 1);
+    return qFZ(affine._m11, 1) && qFZ(affine._m12, 0) && qFZ(m_13, 0)
+        && qFZ(affine._m21, 0) && qFZ(affine._m22, 1) && qFZ(m_23, 0)
+        && qFZ(affine._dx, 0) && qFZ(affine._dy, 0) && qFZ(m_33, 1);
 #undef qFZ
 }
 
@@ -148,25 +150,25 @@ inline bool QTransform::isInvertible() const
 #if 1
 inline bool QTransform::isScaling() const
 {
-    return !qFuzzyCompare(m_11, qreal(1.0)) ||
-        !qFuzzyCompare(m_22, qreal(1.0));
+    return !qFuzzyCompare(affine._m11, qreal(1.0)) ||
+        !qFuzzyCompare(affine._m22, qreal(1.0));
 }
 inline bool QTransform::isRotating() const
 {
-    return !qFuzzyCompare(m_12, qreal(0.0)) ||
-        !qFuzzyCompare(m_21, qreal(0.0));
+    return !qFuzzyCompare(affine._m12, qreal(0.0)) ||
+        !qFuzzyCompare(affine._m21, qreal(0.0));
 }
 #endif
 inline bool QTransform::isTranslating() const
 {
-    return !qFuzzyCompare(m_31, qreal(0.0)) ||
-        !qFuzzyCompare(m_32, qreal(0.0));
+    return !qFuzzyCompare(affine._dx, qreal(0.0)) ||
+        !qFuzzyCompare(affine._dy, qreal(0.0));
 }
 
 inline qreal QTransform::determinant() const
 {
-    return m_11*(m_33*m_22-m_32*m_23) -
-        m_21*(m_33*m_12-m_32*m_13)+m_31*(m_23*m_12-m_22*m_13);
+    return affine._m11*(m_33*affine._m22-affine._dy*m_23) -
+        affine._m21*(m_33*affine._m12-affine._dy*m_13)+affine._dx*(m_23*affine._m12-affine._m22*m_13);
 }
 inline qreal QTransform::det() const
 {
@@ -174,11 +176,11 @@ inline qreal QTransform::det() const
 }
 inline qreal QTransform::m11() const
 {
-    return m_11;
+    return affine._m11;
 }
 inline qreal QTransform::m12() const
 {
-    return m_12;
+    return affine._m12;
 }
 inline qreal QTransform::m13() const
 {
@@ -186,11 +188,11 @@ inline qreal QTransform::m13() const
 }
 inline qreal QTransform::m21() const
 {
-    return m_21;
+    return affine._m21;
 }
 inline qreal QTransform::m22() const
 {
-    return m_22;
+    return affine._m22;
 }
 inline qreal QTransform::m23() const
 {
@@ -198,11 +200,11 @@ inline qreal QTransform::m23() const
 }
 inline qreal QTransform::m31() const
 {
-    return m_31;
+    return affine._dx;
 }
 inline qreal QTransform::m32() const
 {
-    return m_32;
+    return affine._dy;
 }
 inline qreal QTransform::m33() const
 {
@@ -210,11 +212,11 @@ inline qreal QTransform::m33() const
 }
 inline qreal QTransform::dx() const
 {
-    return m_31;
+    return affine._dx;
 }
 inline qreal QTransform::dy() const
 {
-    return m_32;
+    return affine._dy;
 }
 
 /****** stream functions *******************/

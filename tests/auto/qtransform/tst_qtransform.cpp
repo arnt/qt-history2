@@ -39,6 +39,7 @@ private slots:
     void translate();
     void scale();
     void matrix();
+    void testOffset();
 
 private:
     void mapping_data();
@@ -404,6 +405,13 @@ void tst_QTransform::matrix()
     path.quadTo(220, 50, 10, 20);
     path.closeSubpath();
     QVERIFY(tranInv.map(path) == matInv.map(path));
+}
+
+void tst_QTransform::testOffset()
+{
+    QTransform trans;
+    const QMatrix &aff = trans.toAffine();
+    QCOMPARE((void*)(&aff), (void*)(&trans));
 }
 
 QTEST_APPLESS_MAIN(tst_QTransform)
