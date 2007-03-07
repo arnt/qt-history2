@@ -79,11 +79,11 @@ bool QMDIControl::event(QEvent *event)
         QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt, 
                                                                  helpEvent->pos(), this);
         if (ctrl == QStyle::SC_MDICloseButton)
-            QToolTip::showText(helpEvent->globalPos(), tr("Close"));
+            QToolTip::showText(helpEvent->globalPos(), QWorkspace::tr("Close"));
         else if (ctrl == QStyle::SC_MDIMinButton)
-            QToolTip::showText(helpEvent->globalPos(), tr("Minimize"));
+            QToolTip::showText(helpEvent->globalPos(), QWorkspace::tr("Minimize"));
         else if (ctrl == QStyle::SC_MDINormalButton)
-            QToolTip::showText(helpEvent->globalPos(), tr("Restore Down"));
+            QToolTip::showText(helpEvent->globalPos(), QWorkspace::tr("Restore Down"));
         else
             QToolTip::hideText();
     }

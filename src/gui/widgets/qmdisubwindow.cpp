@@ -244,7 +244,7 @@ static inline void setNewWindowTitle(QMdiSubWindow *mdiChild)
         return;
     QString original = originalWindowTitle(mdiChild);
     if (!original.isEmpty()) {
-        mdiChild->window()->setWindowTitle(QObject::tr("%1 - [%2]")
+        mdiChild->window()->setWindowTitle(QMdiSubWindow::tr("%1 - [%2]")
                                            .arg(original, childTitle));
     } else {
         mdiChild->window()->setWindowTitle(childTitle);
@@ -538,13 +538,13 @@ bool ControllerWidget::event(QEvent *event)
     QStyle::SubControl subControl = getSubControl(helpEvent->pos());
     switch (subControl) {
     case QStyle::SC_MDICloseButton:
-        QToolTip::showText(helpEvent->globalPos(), tr("Close"));
+        QToolTip::showText(helpEvent->globalPos(), QMdiSubWindow::tr("Close"));
         break;
     case QStyle::SC_MDIMinButton:
-        QToolTip::showText(helpEvent->globalPos(), tr("Minimize"));
+        QToolTip::showText(helpEvent->globalPos(), QMdiSubWindow::tr("Minimize"));
         break;
     case QStyle::SC_MDINormalButton:
-        QToolTip::showText(helpEvent->globalPos(), tr("Restore Down"));
+        QToolTip::showText(helpEvent->globalPos(), QMdiSubWindow::tr("Restore Down"));
         break;
     default:
         QToolTip::hideText();
@@ -856,19 +856,19 @@ void QMdiSubWindowPrivate::createSystemMenu()
                "You can NOT call this function before QMdiSubWindow's ctor");
     systemMenu = new QMenu(q);
     const QStyle *style = q->style();
-    addToSystemMenu(RestoreAction, QObject::tr("&Restore"), SLOT(showNormal()));
+    addToSystemMenu(RestoreAction, QMdiSubWindow::tr("&Restore"), SLOT(showNormal()));
     actions[RestoreAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarNormalButton));
     actions[RestoreAction]->setEnabled(false);
-    addToSystemMenu(MoveAction, QObject::tr("&Move"), SLOT(_q_enterInteractiveMode()));
-    addToSystemMenu(ResizeAction, QObject::tr("&Size"), SLOT(_q_enterInteractiveMode()));
-    addToSystemMenu(MinimizeAction, QObject::tr("Mi&nimize"), SLOT(showMinimized()));
+    addToSystemMenu(MoveAction, QMdiSubWindow::tr("&Move"), SLOT(_q_enterInteractiveMode()));
+    addToSystemMenu(ResizeAction, QMdiSubWindow::tr("&Size"), SLOT(_q_enterInteractiveMode()));
+    addToSystemMenu(MinimizeAction, QMdiSubWindow::tr("Mi&nimize"), SLOT(showMinimized()));
     actions[MinimizeAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarMinButton));
-    addToSystemMenu(MaximizeAction, QObject::tr("Ma&ximize"), SLOT(showMaximized()));
+    addToSystemMenu(MaximizeAction, QMdiSubWindow::tr("Ma&ximize"), SLOT(showMaximized()));
     actions[MaximizeAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarMaxButton));
-    addToSystemMenu(StayOnTopAction, QObject::tr("Stay on &Top"), SLOT(_q_updateStaysOnTopHint()));
+    addToSystemMenu(StayOnTopAction, QMdiSubWindow::tr("Stay on &Top"), SLOT(_q_updateStaysOnTopHint()));
     actions[StayOnTopAction]->setCheckable(true);
     systemMenu->addSeparator();
-    addToSystemMenu(CloseAction, QObject::tr("&Close"), SLOT(close()));
+    addToSystemMenu(CloseAction, QMdiSubWindow::tr("&Close"), SLOT(close()));
     actions[CloseAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarCloseButton));
 #if !defined(QT_NO_SHORTCUT)
     actions[CloseAction]->setShortcut(QKeySequence::Close);
