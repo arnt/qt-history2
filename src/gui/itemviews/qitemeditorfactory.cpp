@@ -477,8 +477,8 @@ void QExpandingLineEdit::resizeToContents()
 QBooleanComboBox::QBooleanComboBox(QWidget *parent)
     : QComboBox(parent)
 {
-    addItem(tr("False"));
-    addItem(tr("True"));
+    addItem(QComboBox::tr("False"));
+    addItem(QComboBox::tr("True"));
 }
 
 void QBooleanComboBox::setValue(bool value)
