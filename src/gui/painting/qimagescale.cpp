@@ -107,10 +107,10 @@ using namespace QImageScale;
 
 // FIXME: replace with qRed, etc... These work on pointers to pixels, not
 // pixel values
-#define A_VAL(p) ((unsigned char *)(p))[3]
-#define R_VAL(p) ((unsigned char *)(p))[2]
-#define G_VAL(p) ((unsigned char *)(p))[1]
-#define B_VAL(p) ((unsigned char *)(p))[0]
+#define A_VAL(p) (qAlpha(*p))
+#define R_VAL(p) (qRed(*p))
+#define G_VAL(p) (qGreen(*p))
+#define B_VAL(p) (qBlue(*p))
 
 #define INV_XAP                   (256 - xapoints[x])
 #define XAP                       (xapoints[x])
@@ -621,10 +621,7 @@ static void qt_qimageScaleAARGBA(QImageScaleInfo *isi, unsigned int *dest,
                     a += (ax * j) >> 14;
                 }
 
-                R_VAL(dptr) = r >> 5;
-                G_VAL(dptr) = g >> 5;
-                B_VAL(dptr) = b >> 5;
-                A_VAL(dptr) = a >> 5;
+                *dptr = qRgba(r >> 5, g >> 5, b >> 5, a >> 5);
                 dptr++;
             }
         }
@@ -938,9 +935,7 @@ static void qt_qimageScaleAARGB(QImageScaleInfo *isi, unsigned int *dest,
                     b += (bx * j) >> 14;
                 }
 
-                R_VAL(dptr) = r >> 5;
-                G_VAL(dptr) = g >> 5;
-                B_VAL(dptr) = b >> 5;
+                *dptr = qRgb(r >> 5, g >> 5, b >> 5);
                 dptr++;
             }
         }
