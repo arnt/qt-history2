@@ -59,7 +59,7 @@ signals:
     void fdChanged(int);
 
 protected:
-    virtual void customEvent(QEvent *);
+    virtual bool event(QEvent *);
 
 private slots:
     void readFromDnotify();
@@ -101,11 +101,16 @@ DnotifySignal::~DnotifySignal()
     }
 }
 
-void DnotifySignal::customEvent(QEvent *)
+bool DnotifySignal::event(QEvent *e)
 {
-    QMutexLocker locker(&mutex);
-    isExecing = true;
-    wait.wakeAll();
+    if(e->type() == QEvent::User) {
+        QMutexLocker locker(&mutex);
+        isExecing = true;
+        wait.wakeAll();
+        return true;
+    } else {
+        return QThread::event(e);
+    }
 }
 
 void DnotifySignal::startNotify()
@@ -125,8 +130,7 @@ void DnotifySignal::run()
     QSocketNotifier sn(qfswd_fileChanged_pipe[0], QSocketNotifier::Read, this);
     connect(&sn, SIGNAL(activated(int)), SLOT(readFromDnotify()));
 
-    QCoreApplication::instance()->postEvent(this, 
-                                            new QCustomEvent(QEvent::User, 0));
+    QCoreApplication::instance()->postEvent(this, new QEvent(QEvent::User));
     (void) exec();
 }
 
