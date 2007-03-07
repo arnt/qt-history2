@@ -131,8 +131,8 @@ public:
     {
         void *memory = right_most->allocate(size, &right_most);
         allocated.append(reinterpret_cast<BaseType *>(memory));
-        return memory;
         Q_ASSERT(memory);
+        return memory;
     }
 private:
     Q_DISABLE_COPY(TypedPool)
