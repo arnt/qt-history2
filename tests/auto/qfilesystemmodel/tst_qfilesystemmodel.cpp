@@ -261,8 +261,10 @@ void tst_QFileSystemModel::rowCount()
     QString l = "b,d,f,h,j,.a,.c,.e,.g";
     QStringList files = l.split(",");
     QVERIFY(createFiles(tmp, files));
-    QTest::qWait(WAITTIME);
-    if (model->rowCount(root) != 5) {
+    for (int i = 0; i < 5; ++i) {
+        QTest::qWait(WAITTIME);
+        if (model->rowCount(root) == 5)
+            break;
         qDebug() << "dumping next" << model->rowCount(root);
         for (int i = 0; i < model->rowCount(root); ++i)
             qDebug() << model->index(i, 0, root).data().toString();
