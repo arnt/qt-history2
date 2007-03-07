@@ -1292,6 +1292,18 @@ bool QDomImplementation::isNull()
 */
 
 /*!
+   \enum QDomNode::EncodingPolicy
+
+   This enum specifies how QDomNode::save() determines what encoding to use
+   when serializing.
+
+   \value EncodingFromDocument The encoding is fetched from the document.
+   \value EncodingFromTextStream The encoding is fetched from the QTextStream.
+
+   \sa save(QTextStream& str, int indent, EncodingPolicy encodingPolicy)
+ */
+
+/*!
     \since 4.1
     \nonreentrant
 
