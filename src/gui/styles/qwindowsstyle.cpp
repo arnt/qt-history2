@@ -1193,54 +1193,74 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_IndicatorArrowDown:
     case PE_IndicatorArrowRight:
     case PE_IndicatorArrowLeft:
-        p->save();
         {
             QRect r = opt->rect;
             int size = qMin(r.height(), r.width());
-            int border = size/5;
-            size = 2*(size/2);
-            QPolygon a;
-            switch (pe) {
-                case PE_IndicatorArrowUp:
-                    a.setPoints(3, border, size/2,  size/2, border,  size - border, size/2);
-                    break;
-                case PE_IndicatorArrowDown:
-                    a.setPoints(3, border, size/2,  size/2, size - border,  size - border, size/2);
-                    break;
-                case PE_IndicatorArrowRight:
-                    a.setPoints(3, size - border, size/2,  size/2, border,  size/2, size - border);
-                    break;
-                case PE_IndicatorArrowLeft:
-                    a.setPoints(3, border, size/2,  size/2, border,  size/2, size - border);
-                    break;
-                default:
-                    break;
-            }
-            int bsx = 0;
-            int bsy = 0;
-            if (opt->state & State_Sunken) {
-                bsx = pixelMetric(PM_ButtonShiftHorizontal);
-                bsy = pixelMetric(PM_ButtonShiftVertical);
-            }
+            QPixmap pixmap;
+            QString pixmapName = QLatin1String("$qt_ia_") + QLatin1String(className()) + QString::number(pe)
+                + QLatin1Char('_') + QString::number(size) 
+                + QLatin1Char('_') + QString::number(opt->state & State_Enabled)
+                + QLatin1Char('_') + QString::number(opt->state & State_Sunken);
 
-            QRect bounds = a.boundingRect();
-            int sx = r.x() + r.width() / 2 - bounds.center().x() - 1;
-            int sy = r.y() + r.height() / 2 - bounds.center().y() - 1;
-            p->translate(sx + bsx, sy + bsy);
-            p->setPen(opt->palette.buttonText().color());
-            p->setBrush(opt->palette.buttonText());
-            if (!(opt->state & State_Enabled)) {
-                p->translate(1, 1);
-                p->setBrush(opt->palette.light().color());
-                p->setPen(opt->palette.light().color());
-                p->drawPolygon(a);
-                p->translate(-1, -1);
-                p->setBrush(opt->palette.mid().color());
-                p->setPen(opt->palette.mid().color());
+            if (!QPixmapCache::find(pixmapName, pixmap)) {
+                int border = size/5;
+                size = 2*(size/2);
+                QImage image(size, size, QImage::Format_ARGB32);
+                image.fill(Qt::transparent);
+                QPainter imagePainter(&image);
+
+                QPolygon a;
+                switch (pe) {
+                    case PE_IndicatorArrowUp:
+                        a.setPoints(3, border, size/2,  size/2, border,  size - border, size/2);
+                        break;
+                    case PE_IndicatorArrowDown:
+                        a.setPoints(3, border, size/2,  size/2, size - border,  size - border, size/2);
+                        break;
+                    case PE_IndicatorArrowRight:
+                        a.setPoints(3, size - border, size/2,  size/2, border,  size/2, size - border);
+                        break;
+                    case PE_IndicatorArrowLeft:
+                        a.setPoints(3, border, size/2,  size/2, border,  size/2, size - border);
+                        break;
+                    default:
+                        break;
+                }
+
+                int bsx = 0;
+                int bsy = 0;
+
+                if (opt->state & State_Sunken) {
+                    bsx = pixelMetric(PM_ButtonShiftHorizontal);
+                    bsy = pixelMetric(PM_ButtonShiftVertical);
+                }
+
+                QRect bounds = a.boundingRect();
+                int sx = size / 2 - bounds.center().x() - 1;
+                int sy = size / 2 - bounds.center().y() - 1;
+                imagePainter.translate(sx + bsx, sy + bsy);
+                imagePainter.setPen(opt->palette.buttonText().color());
+                imagePainter.setBrush(opt->palette.buttonText());
+
+                if (!(opt->state & State_Enabled)) {
+                    imagePainter.translate(1, 1);
+                    imagePainter.setBrush(opt->palette.light().color());
+                    imagePainter.setPen(opt->palette.light().color());
+                    imagePainter.drawPolygon(a);
+                    imagePainter.translate(-1, -1);
+                    imagePainter.setBrush(opt->palette.mid().color());
+                    imagePainter.setPen(opt->palette.mid().color());
+                }
+
+                imagePainter.drawPolygon(a);
+                imagePainter.end();
+                pixmap = QPixmap::fromImage(image);
+                QPixmapCache::insert(pixmapName, pixmap);
             }
-            p->drawPolygon(a);
+            int xOffset = r.x() + (r.width() - size)/2;
+            int yOffset = r.y() + (r.height() - size)/2;
+            p->drawPixmap(xOffset, yOffset, pixmap);
         }
-        p->restore();
         break;
     case PE_IndicatorCheckBox: {
         QBrush fill;
