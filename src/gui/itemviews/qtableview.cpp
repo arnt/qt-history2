@@ -28,6 +28,7 @@
 
 class QTableCornerButton : public QAbstractButton
 {
+    Q_OBJECT
 public:
     QTableCornerButton(QWidget *parent) : QAbstractButton(parent) {}
     void paintEvent(QPaintEvent*) {
@@ -2274,5 +2275,6 @@ void QTableViewPrivate::selectColumn(int column, bool anchor)
     }
 }
 
+#include "qtableview.moc"
 #include "moc_qtableview.cpp"
 #endif // QT_NO_TABLEVIEW
