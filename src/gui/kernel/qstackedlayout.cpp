@@ -267,16 +267,16 @@ void QStackedLayout::setCurrentIndex(int index)
         parent->setUpdatesEnabled(false);
     }
 
-    d->index = index;
-    next->raise();
-    next->show();
-
     QWidget *fw = parent ? parent->window()->focusWidget() : 0;
     if (prev) {
         prev->clearFocus();
         prev->hide();
     }
-        
+
+    d->index = index;
+    next->raise();
+    next->show();
+
     // try to move focus onto the incoming widget if focus
     // was somewhere on the outgoing widget.
 
