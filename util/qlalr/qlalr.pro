@@ -2,6 +2,7 @@
 TEMPLATE = app
 QT = core
 TARGET = qlalr
+mac:CONFIG -= app_bundle
 
 SOURCES += compress.cpp \
     cppgenerator.cpp \

@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** Copyright (C) 2007-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the QLALR project on Trolltech Labs.
+**
+** $TROLLTECH_GPL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 
 #define _CRT_SECURE_NO_DEPRECATE
 
@@ -19,8 +32,8 @@ static void help_me ()
 {
   qerr << "Usage: qlalr [options] [input file name]" << endl
        << endl
-       << "  -h, --help\t\tdisplay this help and exit" << endl
-       << "  -v, --verbose\t\tverbose output" << endl
+       << "  --help, -h\t\tdisplay this help and exit" << endl
+       << "  --verbose, -v\t\tverbose output" << endl
        << "  --no-debug\t\tno debug information" << endl
        << "  --no-lines\t\tno #line directives" << endl
        << "  --dot\t\t\tno generate the graph" << endl

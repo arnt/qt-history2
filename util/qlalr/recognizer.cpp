@@ -1,5 +1,16 @@
 
-#line 92 "lalr.g"
+/****************************************************************************
+**
+** Copyright (C) 2007-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the QLALR project on Trolltech Labs.
+**
+** $TROLLTECH_GPL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 #include "recognizer.h"
 #include <cstdlib>
@@ -269,87 +280,59 @@ bool Recognizer::parse (const QString &input_file)
 
           switch (r) {
 
-#line 369 "lalr.g"
-
 case 3: {
   Name name = _M_grammar->intern (sym(2));
   _M_grammar->start = name;
   _M_grammar->non_terminals.insert (name);
 } break;
 
-#line 381 "lalr.g"
-
 case 5: {
   _M_grammar->table_name = sym(2);
 } break;
-
-#line 388 "lalr.g"
 
 case 6: {
   _M_grammar->merged_output = sym(2);
 } break;
 
-#line 395 "lalr.g"
-
 case 7: {
    _M_grammar->decl_file_name = sym(2);
 } break;
-
-#line 403 "lalr.g"
 
 case 8: {
    _M_grammar->impl_file_name = sym(2);
 } break;
 
-#line 410 "lalr.g"
-
 case 9: {
    _M_grammar->expected_shift_reduce = sym(2).toInt();
 } break;
-
-#line 417 "lalr.g"
 
 case 10: {
    _M_grammar->expected_reduce_reduce = sym(2).toInt();
 } break;
 
-#line 425 "lalr.g"
-
 case 11: {
   _M_grammar->token_prefix = sym(2);
 } break;
-
-#line 443 "lalr.g"
-case 17:
-#line 446 "lalr.g"
-case 18: {
+case 17:case 18: {
   Name name = _M_grammar->intern (sym(1));
   _M_grammar->terminals.insert (name);
   _M_grammar->spells.insert (name, sym(2));
 } break;
-
-#line 454 "lalr.g"
 
 case 19: {
   _M_grammar->current_assoc = Grammar::Left;
   ++_M_grammar->current_prec;
 } break;
 
-#line 462 "lalr.g"
-
 case 20: {
   _M_grammar->current_assoc = Grammar::Right;
   ++_M_grammar->current_prec;
 } break;
 
-#line 470 "lalr.g"
-
 case 21: {
   _M_grammar->current_assoc = Grammar::NonAssoc;
   ++_M_grammar->current_prec;
 } break;
-
-#line 483 "lalr.g"
 
 case 25: {
   Name name = _M_grammar->intern (sym(1));
@@ -361,19 +344,13 @@ case 25: {
   _M_grammar->token_info.insert (name, info);
 } break;
 
-#line 497 "lalr.g"
-
 case 26: {
   _M_decls += expand (sym(1));
 } break;
 
-#line 505 "lalr.g"
-
 case 27: {
   _M_impls += expand (sym(1));
 } break;
-
-#line 522 "lalr.g"
 
 case 34: {
   _M_current_rule = _M_grammar->rules.insert (_M_grammar->rules.end (), Rule ());
@@ -388,8 +365,6 @@ case 34: {
 
   _M_grammar->non_terminals.insert (_M_current_rule->lhs);
 } break;
-
-#line 545 "lalr.g"
 
 case 38: {
   Name lhs = _M_current_rule->lhs;
@@ -406,8 +381,6 @@ case 38: {
   _M_grammar->non_terminals.insert (_M_current_rule->lhs);
 } break;
 
-#line 563 "lalr.g"
-
 case 39: {
   _M_current_rule->prec = _M_grammar->names.end ();
 
@@ -420,8 +393,6 @@ case 39: {
     }
 } break;
 
-#line 578 "lalr.g"
-
 case 40: {
   Name tok = _M_grammar->intern (sym(2));
   if (! _M_grammar->isTerminal (tok))
@@ -433,8 +404,6 @@ case 40: {
     _M_current_rule->prec = tok;
 } break;
 
-#line 594 "lalr.g"
-
 case 42: {
   Name name = _M_grammar->intern (sym(2));
 
@@ -444,13 +413,9 @@ case 42: {
   _M_current_rule->rhs.push_back (name);
 } break;
 
-#line 607 "lalr.g"
-
 case 43: {
   sym(1) = QString();
 } break;
-
-#line 617 "lalr.g"
 
           } // switch
 
