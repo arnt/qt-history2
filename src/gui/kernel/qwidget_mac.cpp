@@ -2009,8 +2009,7 @@ void QWidget::activateWindow()
     if(!tlw->isVisible() || !tlw->isWindow() || (tlw->windowType() == Qt::Desktop))
         return;
     qt_event_remove_activate();
-    qt_mac_set_fullscreen_mode((tlw->windowState() & Qt::WindowFullScreen) &&
-                               !qApp->desktop()->screenNumber(this));
+
     WindowPtr window = qt_mac_window_for(tlw);
     if((tlw->windowType() == Qt::Popup) || (tlw->windowType() == Qt::Tool) ||
        qt_mac_is_macdrawer(tlw) || IsWindowActive(window)) {
