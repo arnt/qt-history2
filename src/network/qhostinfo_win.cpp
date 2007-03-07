@@ -180,7 +180,7 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
             results.setErrorString(tr("Host not found"));
         } else {
             results.setError(QHostInfo::UnknownError);
-            results.setErrorString(tr("Unknown error"));
+            results.setErrorString(QHostInfo::tr("Unknown error"));
         }
     } else {
         // Fall back to gethostbyname, which only supports IPv4.

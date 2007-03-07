@@ -462,14 +462,14 @@ QString QFileSystemModelPrivate::size(qint64 bytes)
     const qint64 gb = 1024 * mb;
     const qint64 tb = 1024 * gb;
     if (bytes >= tb)
-        return QLocale().toString(qreal(bytes) / tb, 'f', 3) + QFileSystemModel::tr(" TB");
+        return QFileSystemModel::tr("%1 TB").arg(QLocale().toString(qreal(bytes) / tb, 'f', 3));
     if (bytes >= gb)
-        return QLocale().toString(qreal(bytes) / gb, 'f', 2) + QFileSystemModel::tr(" GB");
+        return QFileSystemModel::tr("%1 GB").arg(QLocale().toString(qreal(bytes) / gb, 'f', 2));
     if (bytes >= mb)
-        return QLocale().toString(qreal(bytes) / mb, 'f', 1) + QFileSystemModel::tr(" MB");
+        return QFileSystemModel::tr("%1 MB").arg(QLocale().toString(qreal(bytes) / mb, 'f', 1));
     if (bytes >= kb)
-        return QLocale().toString(bytes / kb) + QFileSystemModel::tr(" KB");
-    return QLocale().toString(bytes) + QFileSystemModel::tr(" bytes");
+        return QFileSystemModel::tr("%1 KB").arg(QLocale().toString(bytes / kb));
+    return QFileSystemModel::tr("%1 bytes").arg(QLocale().toString(bytes));
 }
 
 /*!
