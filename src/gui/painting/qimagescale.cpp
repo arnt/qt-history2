@@ -1,21 +1,39 @@
-#include "qimagescale_p.h"
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+#include <private/qimagescale_p.h>
+#include <private/qdrawhelper_p.h>
 
-#include "qdrawhelper_p.h"
-
-#include <qimage.h>
-#include <qcolor.h>
+#include "qimage.h"
+#include "qcolor.h"
 
 namespace QImageScale {
     struct QImageScaleInfo;
 }
-static void qt_qimageScaleAARGBASetup(QImageScale::QImageScaleInfo *isi, unsigned int *dest, int dxx,
-                                      int dyy, int dx, int dy, int dw, int dh, int dow,
-                                      int sow);
-static void qt_qimageScaleAARGBSetup(QImageScale::QImageScaleInfo *isi, unsigned int *dest, int dxx,
-                                     int dyy, int dx, int dy, int dw, int dh, int dow, int
-                                     sow);
-qt_qimageScaleFunc qt_qimageScaleArgb = qt_qimageScaleAARGBASetup;
-qt_qimageScaleFunc qt_qimageScaleRgb  = qt_qimageScaleAARGBSetup;
+
+typedef void (*qt_qimageScaleFunc)(QImageScale::QImageScaleInfo *isi, unsigned int *dest,
+                                   int dxx, int dyy, int dx, int dy, int dw,
+                                   int dh, int dow, int sow);
+
+static void qt_qimageScaleAARGB(QImageScale::QImageScaleInfo *isi, unsigned int *dest,
+                         int dxx, int dyy, int dx, int dy, int dw,
+                         int dh, int dow, int sow);
+
+static void qt_qimageScaleAARGBA(QImageScale::QImageScaleInfo *isi, unsigned int *dest,
+                          int dxx, int dyy, int dx, int dy, int dw,
+                          int dh, int dow, int sow);
+
+qt_qimageScaleFunc qt_qimageScaleArgb = qt_qimageScaleAARGBA;
+qt_qimageScaleFunc qt_qimageScaleRgb  = qt_qimageScaleAARGB;
 
 
 /*
@@ -253,9 +271,9 @@ QImageScaleInfo* QImageScale::qimageCalcScaleInfo(const QImage &img,
 /* FIXME: NEED to optimise ScaleAARGBA - currently its "ok" but needs work*/
 
 /* scale by area sampling */
-Q_GUI_EXPORT void qt_qimageScaleAARGBA(QImageScaleInfo *isi, unsigned int *dest,
-                                       int dxx, int dyy, int dx, int dy, int dw,
-                                       int dh, int dow, int sow)
+static void qt_qimageScaleAARGBA(QImageScaleInfo *isi, unsigned int *dest,
+                                 int dxx, int dyy, int dx, int dy, int dw,
+                                 int dh, int dow, int sow)
 {
     unsigned int *sptr, *dptr;
     int x, y, end;
@@ -614,9 +632,9 @@ Q_GUI_EXPORT void qt_qimageScaleAARGBA(QImageScaleInfo *isi, unsigned int *dest,
 }
 
 /* scale by area sampling - IGNORE the ALPHA byte*/
-Q_GUI_EXPORT void qt_qimageScaleAARGB(QImageScaleInfo *isi, unsigned int *dest,
-                                      int dxx, int dyy, int dx, int dy, int dw,
-                                      int dh, int dow, int sow)
+static void qt_qimageScaleAARGB(QImageScaleInfo *isi, unsigned int *dest,
+                                int dxx, int dyy, int dx, int dy, int dw,
+                                int dh, int dow, int sow)
 {
     unsigned int *sptr, *dptr;
     int x, y, end;
@@ -929,6 +947,7 @@ Q_GUI_EXPORT void qt_qimageScaleAARGB(QImageScaleInfo *isi, unsigned int *dest,
     }
 }
 
+#if 0
 static void qt_qimageScaleAARGBASetup(QImageScaleInfo *isi, unsigned int *dest,
                                       int dxx, int dyy, int dx, int dy, int dw,
                                       int dh, int dow, int sow)
@@ -944,7 +963,7 @@ static void qt_qimageScaleAARGBSetup(QImageScaleInfo *isi, unsigned int *dest,
     qInitDrawhelperAsm();
     qt_qimageScaleAARGB(isi, dest, dxx, dyy, dx, dy, dw, dh, dow, sow);
 }
-
+#endif
 
 QImage qSmoothScaleImageAutoConvert(QImage &src, int dw, int dh)
 {
