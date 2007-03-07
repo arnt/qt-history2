@@ -749,22 +749,24 @@ void QCalendarTextNavigator::removeDateLabel()
 
 bool QCalendarTextNavigator::eventFilter(QObject *o, QEvent *e)
 {
-    if (e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
-        QKeyEvent* ke = (QKeyEvent*)e;
-        if (ke->text().length() > 0 && ke->text()[0].isPrint() || m_dateFrame) {
-            if (ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Select) {
-                applyDate();
-                emit editingFinished();
-                removeDateLabel();
-            } else if (ke->key() == Qt::Key_Escape) {
-                removeDateLabel();
-            } else if (e->type() == QEvent::KeyPress) {
-                createDateLabel();
-                m_dateValidator->handleKeyEvent(ke);
-                updateDateLabel();
+    if (m_calendar && m_calendar->selectionMode() != QCalendarWidget::NoSelection) {
+        if (e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
+            QKeyEvent* ke = (QKeyEvent*)e;
+            if (ke->text().length() > 0 && ke->text()[0].isPrint() || m_dateFrame) {
+                if (ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Select) {
+                    applyDate();
+                    emit editingFinished();
+                    removeDateLabel();
+                } else if (ke->key() == Qt::Key_Escape) {
+                    removeDateLabel();
+                } else if (e->type() == QEvent::KeyPress) {
+                    createDateLabel();
+                    m_dateValidator->handleKeyEvent(ke);
+                    updateDateLabel();
+                }
+                ke->accept();
+                return true;
             }
-            ke->accept();
-            return true;
         }
     }
     return QObject::eventFilter(o,e);
