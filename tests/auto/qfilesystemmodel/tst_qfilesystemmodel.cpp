@@ -194,7 +194,7 @@ void tst_QFileSystemModel::readOnly()
 void tst_QFileSystemModel::iconProvider()
 {
     QVERIFY(model->iconProvider());
-    QFileIconProvider *p = new QFileIconProvider();
+    QFileIconProvider *p = new QFileIconProvider(model);
     model->setIconProvider(p);
     QCOMPARE(model->iconProvider(), p);
 }
