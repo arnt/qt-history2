@@ -6,7 +6,7 @@
 #include <qcolor.h>
 
 namespace QImageScale {
-    class QImageScaleInfo;
+    struct QImageScaleInfo;
 }
 static void qt_qimageScaleAARGBASetup(QImageScale::QImageScaleInfo *isi, unsigned int *dest, int dxx,
                                       int dyy, int dx, int dy, int dw, int dh, int dow,
@@ -253,9 +253,9 @@ QImageScaleInfo* QImageScale::qimageCalcScaleInfo(const QImage &img,
 /* FIXME: NEED to optimise ScaleAARGBA - currently its "ok" but needs work*/
 
 /* scale by area sampling */
-void qt_qimageScaleAARGBA(QImageScaleInfo *isi, unsigned int *dest,
-                          int dxx, int dyy, int dx, int dy, int dw,
-                          int dh, int dow, int sow)
+Q_GUI_EXPORT void qt_qimageScaleAARGBA(QImageScaleInfo *isi, unsigned int *dest,
+                                       int dxx, int dyy, int dx, int dy, int dw,
+                                       int dh, int dow, int sow)
 {
     unsigned int *sptr, *dptr;
     int x, y, end;
@@ -614,9 +614,9 @@ void qt_qimageScaleAARGBA(QImageScaleInfo *isi, unsigned int *dest,
 }
 
 /* scale by area sampling - IGNORE the ALPHA byte*/
-void qt_qimageScaleAARGB(QImageScaleInfo *isi, unsigned int *dest,
-                         int dxx, int dyy, int dx, int dy, int dw,
-                         int dh, int dow, int sow)
+Q_GUI_EXPORT void qt_qimageScaleAARGB(QImageScaleInfo *isi, unsigned int *dest,
+                                      int dxx, int dyy, int dx, int dy, int dw,
+                                      int dh, int dow, int sow)
 {
     unsigned int *sptr, *dptr;
     int x, y, end;

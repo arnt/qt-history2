@@ -28,7 +28,7 @@
 #include <qimage.h>
 
 namespace QImageScale {
-    class QImageScaleInfo;
+    struct QImageScaleInfo;
 }
 
 typedef void (*qt_qimageScaleFunc)(QImageScale::QImageScaleInfo *isi, unsigned int *dest,
@@ -45,13 +45,13 @@ extern "C" {
 };
 #endif
 
-void qt_qimageScaleAARGB(QImageScale::QImageScaleInfo *isi, unsigned int *dest,
-                         int dxx, int dyy, int dx, int dy, int dw,
-                         int dh, int dow, int sow);
+Q_GUI_EXPORT void qt_qimageScaleAARGB(QImageScale::QImageScaleInfo *isi, unsigned int *dest,
+                                      int dxx, int dyy, int dx, int dy, int dw,
+                                      int dh, int dow, int sow);
 
-void qt_qimageScaleAARGBA(QImageScale::QImageScaleInfo *isi, unsigned int *dest,
-                          int dxx, int dyy, int dx, int dy, int dw,
-                          int dh, int dow, int sow);
+Q_GUI_EXPORT void qt_qimageScaleAARGBA(QImageScale::QImageScaleInfo *isi, unsigned int *dest,
+                                       int dxx, int dyy, int dx, int dy, int dw,
+                                       int dh, int dow, int sow);
 
 /*
   This version will convert the img to a supported format
