@@ -470,13 +470,20 @@ void tst_QDom::saveWithSerialization() const
         int column = 0;
 
         QVERIFY2(result.setContent(&readDevice, &msg, &line, &column),
-                 qPrintable(QString::fromLatin1("Failed for codec %1: line %2, column %3: %4")
-                                                .arg(codecName.constData())
-                                                .arg(line)
-                                                .arg(column)
-                                                .arg(msg)));
-        QVERIFY2(compareDocuments(doc, result),
-                 qPrintable(QString::fromLatin1("Failed for codec %1").arg(codecName.constData())));
+                 qPrintable(QString::fromLatin1("Failed for codec %1: line %2, column %3: %4, content: %5")
+                                                .arg(QString::fromLatin1(codecName.constData()),
+                                                     QString::number(line),
+                                                     QString::number(column),
+                                                     msg,
+                                                     codec->toUnicode(storage))));
+        if(!compareDocuments(doc, result))
+        {
+            QCOMPARE(doc.toString(), result.toString());
+
+            /* We put this one here as well, in case the QCOMPARE above for some strange reason
+             * nevertheless succeeds. */
+            QVERIFY2(false, qPrintable(QString::fromLatin1("Failed for codec %1").arg(QString::fromLatin1(codecName.constData()))));
+        }
     }
 }
 
