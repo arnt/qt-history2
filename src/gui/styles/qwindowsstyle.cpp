@@ -1197,8 +1197,8 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             QRect r = opt->rect;
             int size = qMin(r.height(), r.width());
             QPixmap pixmap;
-            QString pixmapName = QLatin1String("$qt_ia_") + QLatin1String(className()) + QString::number(pe)
-                + QLatin1Char('_') + QString::number(size) 
+            QString pixmapName = QLatin1String("$qt_ia_") + QLatin1String(metaObject()->className()) + QString::number(pe)
+                + QLatin1Char('_') + QString::number(size)
                 + QLatin1Char('_') + QString::number(opt->state & State_Enabled)
                 + QLatin1Char('_') + QString::number(opt->state & State_Sunken);
 
@@ -1384,7 +1384,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             bool enabled = opt->state & State_Enabled;
             bool on = opt->state & State_On;
             QPolygon a;
-            
+
             //center when rect is larger than indicator size
             int xOffset = 0;
             int yOffset = 0;
