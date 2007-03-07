@@ -156,14 +156,14 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
                 switch (p->ai_family) {
                 case AF_INET: {
                     QHostAddress addr;
-		    addr.setAddress(ntohl(((sockaddr_in *) p->ai_addr)->sin_addr.s_addr));
+                    addr.setAddress(ntohl(((sockaddr_in *) p->ai_addr)->sin_addr.s_addr));
                     if (!addresses.contains(addr))
                         addresses.prepend(addr);
                 }
                     break;
                 case AF_INET6: {
                     QHostAddress addr;
-		    addr.setAddress(((qt_sockaddr_in6 *) p->ai_addr)->sin6_addr.qt_s6_addr);
+                    addr.setAddress(((qt_sockaddr_in6 *) p->ai_addr)->sin6_addr.qt_s6_addr);
                     if (!addresses.contains(addr))
                         addresses.append(addr);
                 }
@@ -180,7 +180,7 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
             results.setErrorString(tr("Host not found"));
         } else {
             results.setError(QHostInfo::UnknownError);
-            results.setErrorString(QHostInfo::tr("Unknown error"));
+            results.setErrorString(tr("Unknown error"));
         }
     } else {
         // Fall back to gethostbyname, which only supports IPv4.
@@ -192,8 +192,8 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
             case AF_INET:
                 for (p = ent->h_addr_list; *p != 0; p++) {
                     long *ip4Addr = (long *) *p;
-		    QHostAddress temp;
-		    temp.setAddress(ntohl(*ip4Addr));
+                    QHostAddress temp;
+                    temp.setAddress(ntohl(*ip4Addr));
                     addresses << temp;
                 }
                 break;
