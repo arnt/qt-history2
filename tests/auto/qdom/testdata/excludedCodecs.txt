@@ -41,6 +41,7 @@ ecma-114
 ecma-118
 euc-jp
 euc-kr
+gb18030-0
 gb2312
 gb2312.1980-0
 gbk
