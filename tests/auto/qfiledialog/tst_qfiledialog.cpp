@@ -196,7 +196,8 @@ void tst_QFiledialog::history()
             << QDir::toNativeSeparators(QDir::home().absolutePath())
             << QDir::toNativeSeparators(QDir::temp().absolutePath());
     fd.setHistory(history);
-    qDebug() << fd.history() << history;
+    if (fd.history() != history)
+        qDebug() << fd.history() << history;
     QCOMPARE(fd.history(), history);
 
     QStringList badHistory;
