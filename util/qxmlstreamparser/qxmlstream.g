@@ -1241,7 +1241,10 @@ literal_content ::= literal_content_start;
 ./
 
 
-entity_value ::= QUOTE QUOTE | DBLQUOTE DBLQUOTE;
+entity_value ::= QUOTE QUOTE;
+/.
+        case $rule_number:./
+entity_value ::= DBLQUOTE DBLQUOTE;
 /.
         case $rule_number:
             clearSym();
@@ -1282,7 +1285,10 @@ entity_value_content ::= LETTER | DIGIT | LANGLE | RANGLE | HASH | LBRACK | RBRA
 entity_value_content ::= char_ref_in_entity_value | entity_ref_in_entity_value | entity_done;
 
 
-attribute_value ::= QUOTE QUOTE | DBLQUOTE DBLQUOTE;
+attribute_value ::= QUOTE QUOTE;
+/.
+        case $rule_number:./
+attribute_value ::= DBLQUOTE DBLQUOTE;
 /.
         case $rule_number:
             clearSym();

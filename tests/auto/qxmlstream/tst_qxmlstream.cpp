@@ -480,8 +480,8 @@ void tst_QXmlStream::reportFailures_data()
     /* We compare the test case counts to ensure that we've actually run test cases, that
      * the driver hasn't been broken or changed without updating the expected count, and
      * similar reasons. */
-    QCOMPARE(expectedRunCount, m_handler.runCount);
-    QCOMPARE(expectedSkipCount, m_handler.skipCount);
+    QCOMPARE(m_handler.runCount, expectedRunCount);
+    QCOMPARE(m_handler.skipCount, expectedSkipCount);
 }
 
 void tst_QXmlStream::checkBaseline() const
@@ -491,7 +491,7 @@ void tst_QXmlStream::checkBaseline() const
     QFETCH(QString, output);
 
     if(isError)
-        QCOMPARE(expected, output);
+        QCOMPARE(output, expected);
 }
 
 void tst_QXmlStream::checkBaseline_data() const

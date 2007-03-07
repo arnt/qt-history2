@@ -1516,6 +1516,7 @@ bool QXmlStreamReaderPrivate::parse()
             }
         break;
 
+        case 167:
         case 168:
             clearSym();
         break;
@@ -1532,6 +1533,7 @@ bool QXmlStreamReaderPrivate::parse()
             sym(1).len += sym(2).len;
         break;
 
+        case 204:
         case 205:
             clearSym();
         break;
