@@ -39,6 +39,7 @@
 #include <qfile.h>
 #include <qcheckbox.h>
 #include <qstatusbar.h>
+#include <qheaderview.h>
 
 #include <limits.h>
 
@@ -174,7 +175,7 @@ struct QStyleSheetPositionData : public QSharedData
 class QRenderRule
 {
 public:
-    QRenderRule() : features(0), pal(0), b(0), bg(0), bd(0), geo(0), p(0) { }
+    QRenderRule() : features(0), hasFont(false), pal(0), b(0), bg(0), bd(0), geo(0), p(0) { }
     QRenderRule(const QVector<QCss::Declaration> &, const QWidget *);
     ~QRenderRule() { }
 
@@ -255,6 +256,7 @@ public:
     QPixmap image;
     QRect imageRect;
     QFont font;
+    bool hasFont;
 
     QHash<QString, int> styleHints;
     bool hasStyleHint(const QString& sh) const { return styleHints.contains(sh); }
@@ -302,7 +304,7 @@ static const char *knownStyleHints[] = {
 static const int numKnownStyleHints = sizeof(knownStyleHints)/sizeof(knownStyleHints[0]);
 
 QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget *widget)
-: features(0), pal(0), b(0), bg(0), bd(0), geo(0), p(0)
+: features(0), hasFont(false), pal(0), b(0), bg(0), bd(0), geo(0), p(0)
 {
     Q_ASSERT(widget);
     QPalette palette = qApp->palette(); // ###: ideally widget's palette
@@ -352,7 +354,7 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
         pal = new QStyleSheetPaletteData(fg, sfg, sbg, abg);
 
     int adj = -255;
-    v.extractFont(&font, &adj);
+    hasFont = v.extractFont(&font, &adj);
 
 #ifndef QT_NO_TOOLTIP
     if (QString::fromLatin1(widget->metaObject()->className()) == QLatin1String("QTipLabel"))
@@ -1366,6 +1368,9 @@ enum PseudoElement {
     PseudoElement_MenuCheckMark,
     PseudoElement_MenuSeparator,
     PseudoElement_TreeViewBranch,
+    PseudoElement_HeaderViewSection,
+    PseudoElement_HeaderViewUpArrow,
+    PseudoElement_HeaderViewDownArrow,
     NumPseudoElements
 };
 
@@ -1409,7 +1414,10 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_None, "tearoff" },
     { QStyle::SC_None, "indicator" },
     { QStyle::SC_None, "separator" },
-    { QStyle::SC_None, "branch" }
+    { QStyle::SC_None, "branch" },
+    { QStyle::SC_None, "section" },
+    { QStyle::SC_None, "up-arrow" },
+    { QStyle::SC_None, "down-arrow" }
 };
 
 QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QString &part, int pseudoClass = PseudoClass_Unspecified)
@@ -1569,6 +1577,22 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
     } else if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
         if (mi->menuItemType == QStyleOptionMenuItem::DefaultItem)
             extraClass |= PseudoClass_Default;
+    } else if (const QStyleOptionHeader *hdr = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
+        if (hdr->position == QStyleOptionHeader::OnlyOneSection)
+            extraClass |= PseudoClass_OnlyOne;
+        else if (hdr->position == QStyleOptionHeader::Beginning)
+            extraClass |= PseudoClass_First;
+        else if (hdr->position == QStyleOptionHeader::End)
+            extraClass |= PseudoClass_Last;
+        else if (hdr->position == QStyleOptionHeader::Middle)
+            extraClass |= PseudoClass_Middle;
+
+        if (hdr->selectedPosition == QStyleOptionHeader::NextAndPreviousAreSelected)
+            extraClass |= (PseudoClass_NextSelected | PseudoClass_PreviousSelected);
+        else if (hdr->selectedPosition == QStyleOptionHeader::NextIsSelected)
+            extraClass |= PseudoClass_NextSelected;
+        else if (hdr->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
+            extraClass |= PseudoClass_PreviousSelected;
     } else {
         // Add hacks for simple controls here
 #ifndef QT_NO_LINEEDIT
@@ -1634,6 +1658,8 @@ static Origin defaultOrigin(int pe)
     case PseudoElement_SpinBoxUpArrow:
     case PseudoElement_SpinBoxDownArrow:
     case PseudoElement_ToolButtonMenuArrow:
+    case PseudoElement_HeaderViewUpArrow:
+    case PseudoElement_HeaderViewDownArrow:
     default:
         return Origin_Content;
     }
@@ -1666,6 +1692,10 @@ static Qt::Alignment defaultPosition(int pe)
     case PseudoElement_GroupBoxTitle:
     case PseudoElement_GroupBoxIndicator: // never used
         return Qt::AlignLeft | Qt::AlignTop;
+
+    case PseudoElement_HeaderViewUpArrow:
+    case PseudoElement_HeaderViewDownArrow:
+        return Qt::AlignRight | Qt::AlignVCenter;
 
     default:
         return 0;
@@ -1728,6 +1758,16 @@ QSize QStyleSheetStyle::defaultSize(const QWidget *w, QSize sz, const QRect& rec
         if (sz.width() == -1)
             sz.setWidth(base->pixelMetric(PM_MenuButtonIndicator, 0, w));
         break;
+
+    case PseudoElement_HeaderViewUpArrow:
+    case PseudoElement_HeaderViewDownArrow: {
+        int pm = base->pixelMetric(PM_HeaderMargin, 0, w);
+        if (sz.width() == -1)
+            sz.setWidth(pm);
+        if (sz.height() == 1)
+            sz.setHeight(pm);
+        break;
+                                            }
 
     default:
         break;
@@ -1856,8 +1896,10 @@ void QStyleSheetStyle::setPalette(QWidget *w)
     for (int i = 0; i < 3; i++) {
         QRenderRule rule = renderRule(w, PseudoElement_None, map[i].state);
         if (i == 0) {
-            customFontWidgets->insert(w, rule.font.resolve() & ~w->font().resolve());
-            w->setFont(rule.font);
+            if (rule.hasFont) {
+                customFontWidgets->insert(w, rule.font.resolve() & ~w->font().resolve());
+                w->setFont(rule.font);
+            }
 
             if (ew->autoFillBackground() &&
                 (rule.hasBackground()
@@ -2040,6 +2082,9 @@ void QStyleSheetStyle::polish(QWidget *w)
 #endif
 #ifndef QT_NO_MENU
               || qobject_cast<QMenu *>(w)
+#endif
+#ifndef QT_NO_ITEMVIEWS
+              || qobject_cast<QHeaderView *>(w)
 #endif
               || QString::fromLocal8Bit(me->className()) == QLatin1String("QDialog")
               || QString::fromLocal8Bit(super->className()) == QLatin1String("QDialog");
@@ -2492,8 +2537,9 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             QRenderRule subRule = renderRule(w, opt, pseudo);
             mi.rect = subRule.contentsRect(opt->rect);
             subRule.configurePalette(&mi.palette, QPalette::ButtonText, QPalette::Button);
-            p->save();
-            p->setFont(subRule.font);
+            QFont oldFont = p->font();
+            if (subRule.hasFont)
+                p->setFont(subRule.font.resolve(p->font()));
 
             if (subRule.hasDrawable()
                 || (mi.menuItemType == QStyleOptionMenuItem::SubMenu && hasStyleRule(w, PseudoElement_LeftArrow))
@@ -2505,7 +2551,9 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                 baseStyle()->drawControl(ce, &mi, p, w);
             }
 
-            p->restore();
+            if (subRule.hasFont)
+                p->setFont(oldFont);
+
             return;
         }
         return;
@@ -2530,7 +2578,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 #ifndef QT_NO_COMBOBOX
     case CE_ComboBoxLabel:
         if (!rule.hasBox())
-                        break;
+            break;
         if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             QRect editRect = subControlRect(CC_ComboBox, cb, SC_ComboBoxEditField, w);
             p->save();
@@ -2560,12 +2608,54 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             p->restore();
             return;
         }
-    break;
+        break;
 #endif // QT_NO_COMBOBOX
 
+    case CE_Header:
+        ParentStyle::drawControl(ce, opt, p, w);
+        return;
+
+    case CE_HeaderSection:
+        if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
+            QRenderRule subRule = renderRule(w, opt, PseudoElement_HeaderViewSection);
+            if (subRule.hasNativeBorder()) {
+                QStyleOptionHeader hdr(*header);
+                subRule.configurePalette(&hdr.palette, QPalette::ButtonText, QPalette::Button);
+
+                if (subRule.baseStyleCanDraw()) {
+                    baseStyle()->drawControl(CE_HeaderSection, &hdr, p, w);
+                } else {
+                    QWindowsStyle::drawControl(CE_HeaderSection, &hdr, p, w);
+                }
+            } else {
+                subRule.drawRule(p, opt->rect);
+            }
+            return;
+        }
+        break;
+
+    case CE_HeaderLabel:
+        if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
+            QStyleOptionHeader hdr(*header);
+            QRenderRule subRule = renderRule(w, opt, PseudoElement_HeaderViewSection);
+            subRule.configurePalette(&hdr.palette, QPalette::ButtonText, QPalette::Button);
+            QFont oldFont = p->font();
+            if (subRule.hasFont)
+                p->setFont(subRule.font.resolve(p->font()));
+            baseStyle()->drawControl(ce, &hdr, p, w);
+            if (subRule.hasFont)
+                p->setFont(oldFont);
+            return;
+        }
+        break;
+
+    case CE_HeaderEmptyArea:
+        if (rule.hasDrawable()) {
+            return;
+        }
+        break;
+
     case CE_SizeGrip:
-        if (!rule.hasDrawable())
-            break;
         if (const QStyleOptionSizeGrip *sgOpt = qstyleoption_cast<const QStyleOptionSizeGrip *>(opt)) {
             if (rule.hasDrawable()) {
                 rule.drawFrame(p, opt->rect);
@@ -2694,6 +2784,14 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
     case PE_IndicatorCheckBox:
     case PE_IndicatorViewItemCheck:
         pseudoElement = PseudoElement_Indicator;
+        break;
+
+    case PE_IndicatorHeaderArrow:
+        if (const QStyleOptionHeader *hdr = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
+            pseudoElement = hdr->sortIndicator == QStyleOptionHeader::SortUp
+                ? PseudoElement_HeaderViewUpArrow
+                : PseudoElement_HeaderViewDownArrow;
+        }
         break;
 
     case PE_PanelButtonTool:
@@ -3052,6 +3150,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
     case CT_SpinBox:
     case CT_ComboBox:
     case CT_PushButton:
+    case CT_HeaderSection:
         if (rule.hasBox() || !rule.nativeBorder())
             return rule.boxSize(sz);
         sz = rule.baseStyleCanDraw() ? baseStyle()->sizeFromContents(ct, opt, sz, w)
@@ -3478,13 +3577,26 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
     case SE_CheckBoxClickRect: // relies on indicator and contents
         return ParentStyle::subElementRect(se, opt, w);
 
-    case SE_ViewItemCheckIndicator:
-        if (hasStyleRule(w, PseudoElement_Indicator)) {
-            QRenderRule subRule = renderRule(w, opt, PseudoElement_Indicator);
-            if (subRule.hasContentsSize()) {
-                return alignedRect(opt->direction, Qt::AlignLeft|Qt::AlignCenter, subRule.contentsSize(), opt->rect);
-            }
+    case SE_ViewItemCheckIndicator: {
+        QRenderRule subRule = renderRule(w, opt, PseudoElement_Indicator);
+        if (subRule.hasContentsSize()) {
+            return alignedRect(opt->direction, Qt::AlignLeft|Qt::AlignCenter, subRule.contentsSize(), opt->rect);
         }
+                                    }
+        break;
+
+    case SE_HeaderArrow: {
+        QRenderRule subRule = renderRule(w, opt, PseudoElement_HeaderViewUpArrow);
+        if (subRule.hasPosition() || subRule.hasGeometry())
+            return positionRect(w, rule, subRule, PseudoElement_HeaderViewUpArrow, opt->rect, opt->direction);
+                         }
+        break;
+
+    case SE_HeaderLabel: {
+        QRenderRule subRule = renderRule(w, opt, PseudoElement_HeaderViewSection);
+        if (subRule.hasBox() || subRule.hasBorder())
+            return subRule.contentsRect(opt->rect);
+                         }
         break;
 
     default:

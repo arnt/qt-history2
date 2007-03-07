@@ -346,7 +346,13 @@ enum PseudoClass
     PseudoClass_Children        = 0x00002000,
     PseudoClass_Sibling         = 0x00004000,
     PseudoClass_Default         = 0x00008000,
-    NumPseudos = 18
+    PseudoClass_First           = 0x00010000,
+    PseudoClass_Last            = 0x00020000,
+    PseudoClass_Middle          = 0x00040000,
+    PseudoClass_OnlyOne         = 0x00080000,
+    PseudoClass_PreviousSelected = 0x00100000,
+    PseudoClass_NextSelected     = 0x00200000,
+    NumPseudos = 24
 };
 
 struct Q_GUI_EXPORT Pseudo
@@ -408,7 +414,7 @@ struct Q_GUI_EXPORT ValueExtractor
 {
     ValueExtractor(const QVector<Declaration> &declarations, const QPalette & = QPalette());
 
-    void extractFont(QFont *font, int *fontSizeAdjustment);
+    bool extractFont(QFont *font, int *fontSizeAdjustment);
     bool extractBackground(QBrush *, QString *, Repeat *, Qt::Alignment *, QCss::Origin *, QCss::Attachment *);
     bool extractGeometry(int *w, int *h, int *mw, int *mh);
     bool extractPosition(int *l, int *t, int *r, int *b, QCss::Origin *, Qt::Alignment *,
@@ -430,7 +436,7 @@ private:
     QVector<Declaration> declarations;
     QFont f;
     int adjustment;
-    bool fontExtracted;
+    int fontExtracted;
     QPalette pal;
 };
 

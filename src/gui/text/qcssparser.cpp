@@ -214,14 +214,20 @@ static const QCssKnownValue pseudos[NumPseudos - 1] = {
     { "default", PseudoClass_Default },
     { "disabled", PseudoClass_Disabled },
     { "enabled", PseudoClass_Enabled },
+    { "first", PseudoClass_First },
     { "focus", PseudoClass_Focus },
     { "horizontal", PseudoClass_Horizontal },
     { "hover", PseudoClass_Hover },
     { "indeterminate" , PseudoClass_Indeterminate },
+    { "last", PseudoClass_Last },
+    { "middle", PseudoClass_Middle },
+    { "next-selected", PseudoClass_NextSelected },
     { "off", PseudoClass_Unchecked },
     { "on", PseudoClass_Checked },
+    { "only-one", PseudoClass_OnlyOne },
     { "open", PseudoClass_Open },
     { "pressed", PseudoClass_Pressed },
+    { "previous-selected", PseudoClass_PreviousSelected },
     { "selected", PseudoClass_Selected },
     { "sibling", PseudoClass_Sibling },
     { "unchecked" , PseudoClass_Unchecked },
@@ -923,14 +929,15 @@ static void parseShorthandFontProperty(const QVector<Value> &values, QFont *font
     }
 }
 
-void ValueExtractor::extractFont(QFont *font, int *fontSizeAdjustment)
+bool ValueExtractor::extractFont(QFont *font, int *fontSizeAdjustment)
 {
     if (fontExtracted) {
         *font = f;
         *fontSizeAdjustment = adjustment;
-        return;
+        return fontExtracted == 1;
     }
 
+    bool hit = false;
     for (int i = 0; i < declarations.count(); ++i) {
         const Declaration &decl = declarations.at(i);
         if (decl.values.isEmpty())
@@ -943,13 +950,15 @@ void ValueExtractor::extractFont(QFont *font, int *fontSizeAdjustment)
             case FontFamily: setFontFamilyFromValues(decl.values, font); break;
             case TextDecoration: setTextDecorationFromValues(decl.values, font); break;
             case Font: parseShorthandFontProperty(decl.values, font, fontSizeAdjustment); break;
-            default: break;
+            default: continue;
         }
+        hit = true;
     }
 
     f = *font;
     adjustment = *fontSizeAdjustment;
-    fontExtracted = true;
+    fontExtracted = hit ? 1 : 2;
+    return hit;
 }
 
 bool ValueExtractor::extractPalette(QColor *fg, QColor *sfg, QBrush *sbg, QBrush *abg)
@@ -975,7 +984,6 @@ void ValueExtractor::extractFont()
         return;
     int dummy = -255;
     extractFont(&f, &dummy);
-    fontExtracted = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

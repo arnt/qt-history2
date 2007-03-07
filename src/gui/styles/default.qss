@@ -64,6 +64,16 @@ QSpinBox {
 }
 
 QMenu {
+    -qt-background-role: window;
+}
+
+QHeaderView {
+    -qt-background-role: window;
+}
+
+QTableCornerButton::section, QHeaderView::section {
     -qt-background-role: button;
+    -qt-style-features: background-color;
+    border: native;
 }
 
