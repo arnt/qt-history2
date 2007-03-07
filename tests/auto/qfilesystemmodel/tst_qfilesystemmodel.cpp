@@ -563,7 +563,7 @@ void tst_QFileSystemModel::sort()
 void tst_QFileSystemModel::mkdir()
 {
     QString tmp = QDir::tempPath();
-    QString newFolderPath = tmp + "/NewFoldermkdirtest4";
+    QString newFolderPath = tmp + QDir::separator() + "NewFoldermkdirtest4";
     QModelIndex tmpDir = model->index(tmp);
     QVERIFY(tmpDir.isValid());
     QDir bestatic(newFolderPath);
