@@ -50,7 +50,7 @@ public:
     void stop();
 
 private Q_SLOTS:
-    void readFromDnotify();
+    void refresh(int);
 
 private:
     struct Directory {
@@ -74,7 +74,6 @@ private:
         QList<File> files;
     };
 
-    void refresh(int);
     QDnotifyFileSystemWatcherEngine();
   
     QMutex mutex;

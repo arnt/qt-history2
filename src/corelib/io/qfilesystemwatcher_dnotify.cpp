@@ -39,7 +39,25 @@ static void qfswd_sigio_monitor(int signum, siginfo_t *i, void *v)
         qfswd_old_sigio_action(signum, i, v);
 }
 
-QDnotifyFileSystemWatcherEngine::QDnotifyFileSystemWatcherEngine()
+class DnotifySignal : public QThread
+{
+Q_OBJECT
+public:
+    DnotifySignal();
+    virtual ~DnotifySignal();
+
+    virtual void run();
+
+signals:
+    void fdChanged(int);
+
+private slots:
+    void readFromDnotify();
+};
+
+Q_GLOBAL_STATIC(DnotifySignal, dnotifySignal);
+    
+DnotifySignal::DnotifySignal()
 {
     ::pipe(qfswd_fileChanged_pipe);
     ::fcntl(qfswd_fileChanged_pipe[0], F_SETFL,
@@ -57,6 +75,33 @@ QDnotifyFileSystemWatcherEngine::QDnotifyFileSystemWatcherEngine()
         qfswd_old_sigio_action = oldAction.sa_sigaction;
 }
 
+DnotifySignal::~DnotifySignal()
+{
+}
+
+void DnotifySignal::run()
+{
+    QSocketNotifier sn(qfswd_fileChanged_pipe[0], QSocketNotifier::Read, this);
+    connect(&sn, SIGNAL(activated(int)), SLOT(readFromDnotify()));
+    (void) exec();
+}
+
+void DnotifySignal::readFromDnotify()
+{
+    int fd;
+    int readrv = ::read(qfswd_fileChanged_pipe[0], &fd,sizeof(int));
+    Q_ASSERT(readrv == sizeof(int));
+    Q_UNUSED(readrv);
+
+    emit fdChanged(fd);
+}
+
+QDnotifyFileSystemWatcherEngine::QDnotifyFileSystemWatcherEngine()
+{
+    QObject::connect(dnotifySignal(), SIGNAL(fdChanged(int)),
+                     this, SLOT(refresh(int)));
+}
+
 QDnotifyFileSystemWatcherEngine::~QDnotifyFileSystemWatcherEngine()
 {
     for(QHash<int, Directory>::ConstIterator iter = fdToDirectory.begin();
@@ -72,9 +117,6 @@ QDnotifyFileSystemWatcherEngine *QDnotifyFileSystemWatcherEngine::create()
 
 void QDnotifyFileSystemWatcherEngine::run()
 {
-    QSocketNotifier sn(qfswd_fileChanged_pipe[0], QSocketNotifier::Read, this);
-    connect(&sn, SIGNAL(activated(int)), SLOT(readFromDnotify()));
-    (void) exec();
 }
 
 QStringList QDnotifyFileSystemWatcherEngine::addPaths(const QStringList &paths, QStringList *files, QStringList *directories)
@@ -151,7 +193,7 @@ QStringList QDnotifyFileSystemWatcherEngine::addPaths(const QStringList &paths, 
         }
     }
 
-    start();
+    dnotifySignal()->start();
 
     return p;
 }
@@ -198,16 +240,6 @@ QStringList QDnotifyFileSystemWatcherEngine::removePaths(const QStringList &path
     }
 
     return p;
-}
-
-void QDnotifyFileSystemWatcherEngine::readFromDnotify()
-{
-    int fd;
-    int readrv = ::read(qfswd_fileChanged_pipe[0], &fd,sizeof(int));
-    Q_ASSERT(readrv == sizeof(int));
-    Q_UNUSED(readrv);
-
-    refresh(fd);
 }
 
 void QDnotifyFileSystemWatcherEngine::refresh(int fd)
@@ -259,8 +291,9 @@ void QDnotifyFileSystemWatcherEngine::refresh(int fd)
 
 void QDnotifyFileSystemWatcherEngine::stop()
 {
-    QMetaObject::invokeMethod(this, "quit");
 }
+
+#include "qfilesystemwatcher_dnotify.moc"
 
 #endif // QT_NO_FILESYSTEMWATCHER
 
