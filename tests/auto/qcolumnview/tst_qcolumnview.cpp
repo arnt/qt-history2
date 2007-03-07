@@ -16,7 +16,7 @@
 #include <qdebug.h>
 
 //TESTED_CLASS=QColumnView
-//TESTED_FILES=qcolumnview.h qcolumnview.cpp
+//TESTED_FILES=gui/itemviews/qcolumnview.h gui/itemviews/qcolumnview.cpp
 
 #define ANIMATION_DELAY 300
 
