@@ -28,15 +28,6 @@
     accesssible. Because of this, you need \c qt.conf to make the Qt
     libraries look elsewhere.
 
-    You can provide a \c qt.conf file when distributing your
-    application together with the shared Qt run-time libraries. If you
-    are using a static Qt library or a pre-installed Qt library (as
-    found on many Linux distributions), there is no reason to ship \c
-    qt.conf with your application.
-
-    Anyone who distributes software using shared Qt run-time libraries
-    can use \c qt.conf.
-
     QLibraryInfo will load \c qt.conf from one of the following locations:
 
     \list 1
