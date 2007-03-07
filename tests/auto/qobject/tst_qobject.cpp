@@ -7,6 +7,7 @@
 **
 ****************************************************************************/
 
+#define QT3_SUPPORT
 #include <QtTest/QtTest>
 
 
@@ -73,6 +74,7 @@ private slots:
     void property();
     void recursiveSignalEmission();
     void blockingQueuedConnection();
+    void compatibilityChildInsertedEvents();
 
 protected:
 };
@@ -2164,6 +2166,120 @@ void tst_QObject::blockingQueuedConnection()
 
     thread.quit();
     QVERIFY(thread.wait());
+}
+
+class EventSpy : public QObject
+{
+    Q_OBJECT
+
+public:
+    typedef QList<QPair<QObject *, QEvent::Type> > EventList;
+
+    EventSpy(QObject *parent = 0)
+        : QObject(parent)
+    { }
+
+    EventList eventList()
+    {
+        return events;
+    }
+
+    void clear()
+    {
+        events.clear();
+    }
+
+    bool eventFilter(QObject *object, QEvent *event)
+    {
+        events.append(qMakePair(object, event->type()));
+        return false;
+    }
+
+private:
+    EventList events;
+};
+
+void tst_QObject::compatibilityChildInsertedEvents()
+{
+    {
+        // no children created, so we expect no events
+        QObject object;
+        EventSpy spy;
+        object.installEventFilter(&spy);
+
+        QCoreApplication::postEvent(&object, new QEvent(QEvent::Type(QEvent::User + 1)));
+
+        QCoreApplication::processEvents();
+        QCOMPARE(spy.eventList(),
+                 EventSpy::EventList()
+                 << qMakePair(&object, QEvent::Type(QEvent::User + 1)));
+    }
+
+    {
+        // 2 children, so we expect 2 ChildAdded and 2 ChildInserted events
+        QObject object;
+        EventSpy spy;
+        object.installEventFilter(&spy);
+
+        QCoreApplication::postEvent(&object, new QEvent(QEvent::Type(QEvent::User + 1)));
+
+        QObject child1(&object);
+        QObject child2;
+        child2.setParent(&object);
+
+        QCoreApplication::postEvent(&object, new QEvent(QEvent::Type(QEvent::User + 2)));
+
+        QCOMPARE(spy.eventList(),
+                 EventSpy::EventList()
+                 << qMakePair(&object, QEvent::ChildAdded)
+                 << qMakePair(&object, QEvent::ChildAdded));
+        spy.clear();
+
+        QCoreApplication::processEvents();
+
+        QCOMPARE(spy.eventList(),
+                 EventSpy::EventList()
+#ifdef QT_HAS_QT3SUPPORT
+                 << qMakePair(&object, QEvent::ChildInserted)
+                 << qMakePair(&object, QEvent::ChildInserted)
+#endif
+                 << qMakePair(&object, QEvent::Type(QEvent::User + 1))
+                 << qMakePair(&object, QEvent::Type(QEvent::User + 2)));
+    }
+
+    {
+        // 2 children, but one is reparented away, so we expect:
+        // 2 ChildAdded, 1 ChildRemoved, and 1 ChildInserted
+        QObject object;
+        EventSpy spy;
+        object.installEventFilter(&spy);
+
+        QCoreApplication::postEvent(&object, new QEvent(QEvent::Type(QEvent::User + 1)));
+
+        QObject child1(&object);
+        QObject child2;
+        child2.setParent(&object);
+        child2.setParent(0);
+
+        QCoreApplication::postEvent(&object, new QEvent(QEvent::Type(QEvent::User + 2)));
+
+        QCOMPARE(spy.eventList(),
+                 EventSpy::EventList()
+                 << qMakePair(&object, QEvent::ChildAdded)
+                 << qMakePair(&object, QEvent::ChildAdded)
+                 << qMakePair(&object, QEvent::ChildRemoved));
+        spy.clear();
+
+        QCoreApplication::processEvents();
+
+        QCOMPARE(spy.eventList(),
+                 EventSpy::EventList()
+#ifdef QT_HAS_QT3SUPPORT
+                 << qMakePair(&object, QEvent::ChildInserted)
+#endif
+                 << qMakePair(&object, QEvent::Type(QEvent::User + 1))
+                 << qMakePair(&object, QEvent::Type(QEvent::User + 2)));
+    }
 }
 
 QTEST_MAIN(tst_QObject)
