@@ -247,8 +247,6 @@ private:
     void restoreExpandedState();
 
     static QString widgetDomXml(const Widget &widget);
-
-    static QString qtify(const QString &name);
 };
 
 
@@ -323,28 +321,6 @@ void  WidgetBoxTreeView::restoreExpandedState()
 WidgetBoxTreeView::~WidgetBoxTreeView()
 {
     saveExpandedState();
-}
-
-QString WidgetBoxTreeView::qtify(const QString &name)
-{
-    QString qname = name;
-
-    Q_ASSERT(name.isEmpty() == false);
-
-    if (qname.count() > 1 && qname.at(1).toUpper() == qname.at(1) && (qname.at(0) == QLatin1Char('Q') || qname.at(0) == QLatin1Char('K')))
-        qname = qname.mid(1);
-
-    int i=0;
-    while (i < qname.length()) {
-        if (qname.at(i).toLower() != qname.at(i))
-            qname[i] = qname.at(i).toLower();
-        else
-            break;
-
-        ++i;
-    }
-
-    return qname;
 }
 
 QString WidgetBoxTreeView::widgetDomXml(const Widget &widget)

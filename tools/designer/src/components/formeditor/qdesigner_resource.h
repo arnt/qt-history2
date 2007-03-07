@@ -110,8 +110,6 @@ protected:
     DomProperty *createIconProperty(const QVariant &v) const;
 
     void changeObjectName(QObject *o, QString name);
-    static QString qtify(const QString &name);
-
     DomProperty *applyProperStdSetAttribute(QObject *object, const QString &propertyName, DomProperty *property);
 
 private:

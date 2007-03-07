@@ -864,65 +864,73 @@ void FormWindow::ensureUniqueObjectName(QObject *object)
     }
 }
 
-template <class T, class P>
-void merge(QList<T> *target, const QList<P> &source)
+template <class Iterator>
+static inline void insertNames(const QDesignerMetaDataBaseInterface *metaDataBase,
+                               Iterator it, const Iterator &end,
+                               QObject *excludedObject, QSet<QString> &nameSet)
 {
-    foreach (P item, source) {
-        target->append(item);
-    }
+    for ( ; it != end; ++it)
+        if (excludedObject != *it && metaDataBase->item(*it))
+            nameSet.insert((*it)->objectName());
 }
 
 bool FormWindow::unify(QObject *w, QString &s, bool changeIt)
 {
-    bool found = !isMainContainer(static_cast<QWidget*>(w)) && objectName() == s;
+    typedef QSet<QString> StringSet;
 
-    if (!found) {
-        QList<QObject*> objects;
+    QWidget *main = mainContainer();
+    if (!main)
+        return true;
 
-        if (mainContainer()) {
-            objects.append(mainContainer());
-            merge(&objects, qFindChildren<QWidget*>(mainContainer()));
-            merge(&objects, qFindChildren<QAction*>(mainContainer()));
-        }
+    if (w->isWidgetType() && isMainContainer(qobject_cast<QWidget*>(w)) && objectName() == s)
+        return true;
 
-        QMutableListIterator<QObject*> mit(objects);
-        while (mit.hasNext()) {
-            if (!core()->metaDataBase()->item(mit.next())) {
-                mit.remove();
-            }
-        }
+    StringSet existingNames;
+    existingNames.insert(main->objectName());
 
-        QListIterator<QObject*> it(objects);
-        while (it.hasNext()) {
-            QObject *child = it.next();
+    const QDesignerMetaDataBaseInterface *metaDataBase = core()->metaDataBase();
+    const QWidgetList widgetChildren = qFindChildren<QWidget*>(main);
+    if (!widgetChildren.empty())
+        insertNames(metaDataBase, widgetChildren.constBegin(), widgetChildren.constEnd(), w, existingNames);
 
-            if (child != w && child->objectName() == s) {
-                found = true;
+    const QList<QAction *> actionChildren = qFindChildren<QAction*>(main);
+    if (!actionChildren.empty())
+        insertNames(metaDataBase, actionChildren.constBegin(), actionChildren.constEnd(), w, existingNames);
 
-                if (!changeIt)
-                    break;
+    const StringSet::const_iterator enEnd = existingNames.constEnd();
+    if (existingNames.constFind(s) == enEnd)
+        return true;
+    else
+        if (!changeIt)
+            return false;
 
-                qlonglong num = 0;
-                qlonglong factor = 1;
-                int idx = s.length()-1;
-                for ( ; (idx > 0) && s.at(idx).isDigit(); --idx) {
-                    num += (s.at(idx).unicode() - QLatin1Char('0').unicode()) * factor;
-                    factor *= 10;
-                }
-
-                if ((idx >= 0) && (QLatin1Char('_') == s.at(idx)))
-                    s = s.left(idx+1) + QString::number(num+1);
-                else
-                    s = s + QLatin1String("_2");
-
-                it.toFront();
-            }
-        }
+    // split 'name_number'
+    qlonglong num = 0;
+    qlonglong factor = 1;
+    int idx = s.length()-1;
+    const ushort zeroUnicode = QLatin1Char('0').unicode();
+    for ( ; idx > 0 && s.at(idx).isDigit(); --idx) {
+        num += (s.at(idx).unicode() - zeroUnicode) * factor;
+        factor *= 10;
     }
-
-    return !found;
+    // Position index past '_'.
+    const QChar underscore = QLatin1Char('_');
+    if (idx >= 0 && s.at(idx) == underscore) {
+        idx++;
+    }  else {
+        num = 1;
+        s += underscore;
+        idx = s.length();
+    }
+    // try 'name_n', 'name_n+1'
+    for (num++ ; ;num++) {
+        s.truncate(idx);
+        s += QString::number(num);
+        if (existingNames.constFind(s) == enEnd)
+            break;
+    }
+    return false;
 }
-
 /* already_in_form is true when we are moving a widget from one parent to another inside the same
  * form. All this means is that InsertWidgetCommand::undo() must not unmanage it. */
 
