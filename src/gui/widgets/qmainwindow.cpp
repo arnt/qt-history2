@@ -1187,26 +1187,18 @@ bool QMainWindow::event(QEvent *event)
     \endlist
 
     Setting this back to false will remove these restrictions.
+
+    The Qt::WA_MacBrushedMetal attribute takes precedence over this property.
 */
 void QMainWindow::setUnifiedTitleAndToolBarOnMac(bool set)
 {
 #ifdef Q_WS_MAC
-#ifndef kWindowUnifiedTitleAndToolbarAttribute
-#define kWindowUnifiedTitleAndToolbarAttribute (1 << 7)
-#endif
     Q_D(QMainWindow);
     if (!isWindow() || d->useHIToolBar == set || QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)
         return;
 
     d->useHIToolBar = set;
     createWinId(); // We need the hiview for down below.
-
-    if (d->useHIToolBar)
-        ChangeWindowAttributes(qt_mac_window_for(this),
-                               kWindowUnifiedTitleAndToolbarAttribute, 0);
-    else
-        ChangeWindowAttributes(qt_mac_window_for(this),
-                               0, kWindowUnifiedTitleAndToolbarAttribute);
 
     d->layout->updateHIToolBarStatus();
 #else
@@ -1217,7 +1209,7 @@ void QMainWindow::setUnifiedTitleAndToolBarOnMac(bool set)
 bool QMainWindow::unifiedTitleAndToolBarOnMac() const
 {
 #ifdef Q_WS_MAC
-    return d_func()->useHIToolBar;
+    return d_func()->useHIToolBar && !testAttribute(Qt::WA_MacBrushedMetal);
 #endif
     return false;
 }

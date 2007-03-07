@@ -413,10 +413,17 @@ void qt_mac_update_metal_style(QWidget *w)
         return;
 
     if (w->isWindow()) {
-        if (w->testAttribute(Qt::WA_MacBrushedMetal))
+        QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(w->layout());
+
+        if (w->testAttribute(Qt::WA_MacBrushedMetal)) {
+            if (layout)
+                layout->updateHIToolBarStatus();
             ChangeWindowAttributes(qt_mac_window_for(w), kWindowMetalAttribute, 0);
-        else
+        } else {
             ChangeWindowAttributes(qt_mac_window_for(w), 0, kWindowMetalAttribute);
+            if (layout)
+                layout->updateHIToolBarStatus();
+        }
     }
 }
 

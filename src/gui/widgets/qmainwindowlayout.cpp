@@ -636,8 +636,20 @@ void QMainWindowLayout::removeToolBarBreak(QToolBar *before)
 
 void QMainWindowLayout::updateHIToolBarStatus()
 {
-    // Something
+#ifndef kWindowUnifiedTitleAndToolbarAttribute
+#define kWindowUnifiedTitleAndToolbarAttribute (1 << 7)
+#endif
     bool useHIToolbar = layoutState.mainWindow->unifiedTitleAndToolBarOnMac();
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+        if (useHIToolbar) {
+            ChangeWindowAttributes(qt_mac_window_for(layoutState.mainWindow),
+                                   kWindowUnifiedTitleAndToolbarAttribute, 0);
+        } else {
+            ChangeWindowAttributes(qt_mac_window_for(layoutState.mainWindow),
+                                   0, kWindowUnifiedTitleAndToolbarAttribute);
+        }
+    }
+
     layoutState.mainWindow->setUpdatesEnabled(false);  // reduces a little bit of flicker, not all though
     if (!useHIToolbar) {
         ShowHideWindowToolbar(qt_mac_window_for(parentWidget()), false, false);
