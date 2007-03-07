@@ -33,7 +33,7 @@ void StarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     }
 }
 
-QSize StarDelegate::sizeHint(const QStyleOptionViewItem &option, 
+QSize StarDelegate::sizeHint(const QStyleOptionViewItem &option,
                              const QModelIndex &index) const
 {
     if (qVariantCanConvert<StarRating>(index.data())) {
@@ -44,7 +44,7 @@ QSize StarDelegate::sizeHint(const QStyleOptionViewItem &option,
     }
 }
 
-QWidget *StarDelegate::createEditor(QWidget *parent, 
+QWidget *StarDelegate::createEditor(QWidget *parent,
                                     const QStyleOptionViewItem &option,
                                     const QModelIndex &index) const
 
@@ -71,12 +71,12 @@ void StarDelegate::setEditorData(QWidget *editor,
     }
 }
 
-void StarDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, 
+void StarDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
                                 const QModelIndex &index) const
 {
     if (qVariantCanConvert<StarRating>(index.data())) {
         StarEditor *starEditor = qobject_cast<StarEditor *>(editor);
-        model->setData(index, QVariant::fromValue(starEditor->starRating()));
+        model->setData(index, qVariantFromValue(starEditor->starRating()));
     } else {
         QItemDelegate::setModelData(editor, model, index);
     }

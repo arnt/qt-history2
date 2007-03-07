@@ -56,13 +56,13 @@ void Window::selectionModeChanged(int index)
 void Window::horizontalHeaderChanged(int index)
 {
     calendar->setHorizontalHeaderFormat(QCalendarWidget::HorizontalHeaderFormat(
-            horizontalHeaderCombo->itemData(index).toInt()));
+        horizontalHeaderCombo->itemData(index).toInt()));
 }
 
 void Window::verticalHeaderChanged(int index)
 {
     calendar->setVerticalHeaderFormat(QCalendarWidget::VerticalHeaderFormat(
-            verticalHeaderCombo->itemData(index).toInt()));
+        verticalHeaderCombo->itemData(index).toInt()));
 }
 
 void Window::selectedDateChanged()
@@ -87,7 +87,7 @@ void Window::weekdayFormatChanged()
     QTextCharFormat format;
 
     format.setForeground(qvariant_cast<QColor>(
-            weekdayColorCombo->itemData(weekdayColorCombo->currentIndex())));
+        weekdayColorCombo->itemData(weekdayColorCombo->currentIndex())));
     calendar->setWeekdayTextFormat(Qt::Monday, format);
     calendar->setWeekdayTextFormat(Qt::Tuesday, format);
     calendar->setWeekdayTextFormat(Qt::Wednesday, format);
@@ -100,7 +100,7 @@ void Window::weekendFormatChanged()
     QTextCharFormat format;
 
     format.setForeground(qvariant_cast<QColor>(
-            weekendColorCombo->itemData(weekendColorCombo->currentIndex())));
+        weekendColorCombo->itemData(weekendColorCombo->currentIndex())));
     calendar->setWeekdayTextFormat(Qt::Saturday, format);
     calendar->setWeekdayTextFormat(Qt::Sunday, format);
 }

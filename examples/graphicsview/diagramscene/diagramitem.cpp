@@ -16,16 +16,16 @@
 #include "diagramitem.h"
 #include "arrow.h"
 
-DiagramItem::DiagramItem(DiagramType diagramType, QMenu *contextMenu, 
-			 QGraphicsItem *parent, QGraphicsScene *scene)
+DiagramItem::DiagramItem(DiagramType diagramType, QMenu *contextMenu,
+             QGraphicsItem *parent, QGraphicsScene *scene)
     : QGraphicsPolygonItem(parent, scene)
 {
     myDiagramType = diagramType;
     myContextMenu = contextMenu;
 
     QPainterPath path;
-    switch (myDiagramType) { 
-        case StartEnd: 
+    switch (myDiagramType) {
+        case StartEnd:
             path.moveTo(200, 50);
             path.arcTo(150, 0, 50, 50, 0, 90);
             path.arcTo(50, 0, 50, 50, 90, 90);
@@ -34,7 +34,7 @@ DiagramItem::DiagramItem(DiagramType diagramType, QMenu *contextMenu,
             path.lineTo(200, 25);
             myPolygon = path.toFillPolygon();
             break;
-        case Conditional: 
+        case Conditional:
             myPolygon << QPointF(-100, 0) << QPointF(0, 100)
                       << QPointF(100, 0) << QPointF(0, -100)
                       << QPointF(-100, 0);
@@ -58,28 +58,29 @@ DiagramItem::DiagramItem(DiagramType diagramType, QMenu *contextMenu,
 void DiagramItem::removeArrow(Arrow *arrow)
 {
     int index = arrows.indexOf(arrow);
-    if (index != -1)	
-	arrows.removeAt(index);
+
+    if (index != -1)
+        arrows.removeAt(index);
 }
 
-void DiagramItem::removeArrows() 
+void DiagramItem::removeArrows()
 {
     foreach (Arrow *arrow, arrows) {
-	arrow->startItem()->removeArrow(arrow);
-	arrow->endItem()->removeArrow(arrow);
-	scene()->removeItem(arrow); 
-	delete arrow;
+        arrow->startItem()->removeArrow(arrow);
+        arrow->endItem()->removeArrow(arrow);
+        scene()->removeItem(arrow);
+        delete arrow;
     }
 }
 
-void DiagramItem::addArrow(Arrow *arrow) 
+void DiagramItem::addArrow(Arrow *arrow)
 {
-   arrows.append(arrow); 
+    arrows.append(arrow);
 }
 
 QPixmap DiagramItem::image() const
 {
-    QPixmap pixmap(250, 250); 
+    QPixmap pixmap(250, 250);
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
     painter.setPen(QPen(Qt::black, 8));
@@ -91,19 +92,18 @@ QPixmap DiagramItem::image() const
 
 void DiagramItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
-    scene()->clearSelection(); 
+    scene()->clearSelection();
     setSelected(true);
     myContextMenu->exec(event->screenPos());
 }
 
-QVariant DiagramItem::itemChange(GraphicsItemChange change, 
-			         const QVariant &value)
+QVariant DiagramItem::itemChange(GraphicsItemChange change,
+                     const QVariant &value)
 {
     if (change == QGraphicsItem::ItemPositionChange) {
-	foreach (Arrow *arrow, arrows) {
-	    Q_ASSERT(arrow);
-	    arrow->updatePosition();
-	}
+        foreach (Arrow *arrow, arrows) {
+            arrow->updatePosition();
+        }
     }
 
     return value;

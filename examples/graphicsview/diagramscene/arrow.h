@@ -30,27 +30,27 @@ class Arrow : public QGraphicsLineItem
 public:
     enum { Type = UserType + 4 };
 
-    Arrow(DiagramItem *startItem, DiagramItem *endItem, 
-	  QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
+    Arrow(DiagramItem *startItem, DiagramItem *endItem,
+      QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
 
     int type() const
-	{ return Type; }
+        { return Type; }
     QRectF boundingRect() const;
     QPainterPath shape() const;
     void setColor(const QColor &color)
-	{ myColor = color; }
+        { myColor = color; }
     DiagramItem *startItem() const
-	{ return myStartItem; }
+        { return myStartItem; }
     DiagramItem *endItem() const
-	{ return myEndItem; }
+        { return myEndItem; }
 
 
 public slots:
     void updatePosition();
 
 protected:
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
-	       QWidget *widget = 0);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+               QWidget *widget = 0);
 
 private:
     DiagramItem *myStartItem;

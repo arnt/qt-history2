@@ -25,7 +25,7 @@ MainWindow::MainWindow()
     createActions();
     createMenus();
 
-    connect(undoStack, SIGNAL(canRedoChanged(bool)), 
+    connect(undoStack, SIGNAL(canRedoChanged(bool)),
             redoAction, SLOT(setEnabled(bool)));
     connect(undoStack, SIGNAL(canUndoChanged(bool)),
             undoAction, SLOT(setEnabled(bool)));
@@ -37,7 +37,7 @@ MainWindow::MainWindow()
     diagramScene->setSceneRect(QRect(0, 0, 500, 500));
 
     connect(diagramScene, SIGNAL(itemMoved(DiagramItem *, const QPointF &)),
-	    this, SLOT(itemMoved(DiagramItem *, const QPointF &)));
+            this, SLOT(itemMoved(DiagramItem *, const QPointF &)));
 
     setWindowTitle("Undo Framework");
     QGraphicsView *view = new QGraphicsView(diagramScene);
@@ -66,7 +66,7 @@ void MainWindow::createActions()
     addTriangleAction = new QAction(tr("Add &Triangle"), this);
     addTriangleAction->setShortcut(tr("Ctrl+T"));
     connect(addTriangleAction, SIGNAL(triggered()), this, SLOT(addTriangle()));
-    
+
     undoAction = new QAction(tr("&Undo"), this);
     undoAction->setShortcut(tr("Ctrl+Z"));
     undoAction->setEnabled(false);
@@ -74,7 +74,7 @@ void MainWindow::createActions()
 
     redoAction = new QAction(tr("&Redo"), this);
     QList<QKeySequence> redoShortcuts;
-    redoShortcuts << tr("Ctrl+Y") << tr("Shift+Ctrl+Z"); 
+    redoShortcuts << tr("Ctrl+Y") << tr("Shift+Ctrl+Z");
     redoAction->setShortcuts(redoShortcuts);
     redoAction->setEnabled(false);
     connect(redoAction, SIGNAL(triggered()), undoStack, SLOT(redo()));
@@ -86,7 +86,7 @@ void MainWindow::createActions()
     aboutAction = new QAction(tr("&About"), this);
     QList<QKeySequence> aboutShortcuts;
     aboutShortcuts << tr("Ctrl+A") << tr("Ctrl+B");
-    aboutAction->setShortcuts(aboutShortcuts); 
+    aboutAction->setShortcuts(aboutShortcuts);
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 }
 
@@ -100,15 +100,15 @@ void MainWindow::createMenus()
     editMenu->addAction(redoAction);
     editMenu->addSeparator();
     editMenu->addAction(deleteAction);
-    connect(editMenu, SIGNAL(aboutToShow()), 
+    connect(editMenu, SIGNAL(aboutToShow()),
             this, SLOT(itemMenuAboutToShow()));
-    connect(editMenu, SIGNAL(aboutToHide()), 
+    connect(editMenu, SIGNAL(aboutToHide()),
             this, SLOT(itemMenuAboutToHide()));
-    
+
     itemMenu = menuBar()->addMenu(tr("&Item"));
     itemMenu->addAction(addBoxAction);
     itemMenu->addAction(addTriangleAction);
-    
+
     helpMenu = menuBar()->addMenu(tr("&About"));
     helpMenu->addAction(aboutAction);
 }
@@ -122,10 +122,10 @@ void MainWindow::itemMoved(DiagramItem *movedItem,
 void MainWindow::deleteItem()
 {
     if (diagramScene->selectedItems().isEmpty())
-	return;
+        return;
 
     QUndoCommand *deleteCommand = new DeleteCommand(diagramScene);
-    undoStack->push(deleteCommand); 
+    undoStack->push(deleteCommand);
 }
 
 void MainWindow::itemMenuAboutToHide()
@@ -143,14 +143,14 @@ void MainWindow::itemMenuAboutToShow()
 void MainWindow::addBox()
 {
     QUndoCommand *addCommand = new AddCommand(DiagramItem::Box, diagramScene);
-    undoStack->push(addCommand); 
+    undoStack->push(addCommand);
 }
 
 void MainWindow::addTriangle()
 {
-    QUndoCommand *addCommand = new AddCommand(DiagramItem::Triangle, 
+    QUndoCommand *addCommand = new AddCommand(DiagramItem::Triangle,
                                               diagramScene);
-    undoStack->push(addCommand); 
+    undoStack->push(addCommand);
 }
 
 void MainWindow::about()

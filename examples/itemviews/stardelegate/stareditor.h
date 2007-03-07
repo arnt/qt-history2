@@ -27,7 +27,7 @@ public:
 
     QSize sizeHint();
     void setStarRating(const StarRating &starRating) {
-	myStarRating = starRating;
+        myStarRating = starRating;
     }
     StarRating starRating() { return myStarRating; }
 
@@ -38,7 +38,7 @@ protected:
     void paintEvent(QPaintEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
- 
+
 private:
     int starAtPosition(int x);
 

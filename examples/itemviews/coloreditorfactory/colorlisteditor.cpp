@@ -35,9 +35,9 @@ void ColorListEditor::populateList()
     QStringList colorNames = QColor::colorNames();
 
     for (int i = 0; i < colorNames.size(); ++i) {
-	QColor color(colorNames[i]);
+        QColor color(colorNames[i]);
 
-	insertItem(i, colorNames[i]);
-	setItemData(i, color, Qt::DecorationRole);
+        insertItem(i, colorNames[i]);
+        setItemData(i, color, Qt::DecorationRole);
     }
 }

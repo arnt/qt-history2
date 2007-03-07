@@ -69,7 +69,7 @@ private:
 
     QAction *aboutAction;
     QAction *aboutQtAction;
-    
+
     QMenu *fileMenu;
     QMenu *brushMenu;
     QMenu *tabletMenu;
@@ -77,7 +77,6 @@ private:
     QMenu *colorSaturationMenu;
     QMenu *lineWidthMenu;
     QMenu *alphaChannelMenu;
-
 };
 
 #endif

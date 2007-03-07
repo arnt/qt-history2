@@ -26,11 +26,11 @@
     it still makes a new style. We test the plugin with \c
     StyleWindow, in which we display a QPushButton.
 
-    The \c SimpleStyle and \c StyleWindow classes does not contain any
+    The \c SimpleStyle and \c StyleWindow classes do not contain any
     plugin specific functionality and their implementations are
     trivial; we will therefore leap past them and head on to the \c
-    SimpleStylePlugin and the \c main() function. After we have
-    looked at that, we examine the plugin's profile.
+    SimpleStylePlugin and the \c main() function. After we have looked
+    at that, we examine the plugin's profile.
 
     \quotefromfile tools/styleplugin/plugin/simplestyleplugin.h
 

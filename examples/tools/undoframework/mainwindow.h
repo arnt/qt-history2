@@ -53,13 +53,13 @@ private:
     QAction *undoAction;
     QAction *redoAction;
     QAction *exitAction;
-    QAction *aboutAction; 
+    QAction *aboutAction;
 
     QMenu *fileMenu;
     QMenu *editMenu;
     QMenu *itemMenu;
     QMenu *helpMenu;
- 
+
     DiagramScene *diagramScene;
     QUndoStack *undoStack;
     QUndoView *undoView;

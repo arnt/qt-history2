@@ -23,6 +23,6 @@ public:
 };
 
 Q_DECLARE_INTERFACE(EchoInterface,
-		    "com.trolltech.Plugin.EchoInterface/1.0");
+                    "com.trolltech.Plugin.EchoInterface/1.0");
 
 #endif

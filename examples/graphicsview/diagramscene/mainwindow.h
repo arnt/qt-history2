@@ -61,15 +61,15 @@ private slots:
     void itemSelected(QGraphicsItem *item);
     void about();
 
-private: 
+private:
     void createToolBox();
     void createActions();
     void createMenus();
     void createToolbars();
-    QWidget *createBackgroundCellWidget(const QString &text, 
-					const QString &image);
-    QWidget *createCellWidget(const QString &text, 
-			      DiagramItem::DiagramType type);
+    QWidget *createBackgroundCellWidget(const QString &text,
+                                        const QString &image);
+    QWidget *createCellWidget(const QString &text,
+                              DiagramItem::DiagramType type);
     QMenu *createColorMenu(const char *slot, QColor defaultColor);
     QIcon createColorToolButtonIcon(const QString &image, QColor color);
     QIcon createColorIcon(QColor color);
@@ -93,7 +93,7 @@ private:
     QToolBar *editToolBar;
     QToolBar *colorToolBar;
     QToolBar *pointerToolbar;
-     
+
     QComboBox *sceneScaleCombo;
     QComboBox *itemColorCombo;
     QComboBox *textColorCombo;

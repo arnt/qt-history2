@@ -22,9 +22,9 @@ EchoWindow::EchoWindow()
     setWindowTitle("Echo Plugin Example");
 
     if (!loadPlugin()) {
-	QMessageBox::information(this, "Error", "Could not load the plugin");
-	lineEdit->setEnabled(false);
-	button->setEnabled(false);
+        QMessageBox::information(this, "Error", "Could not load the plugin");
+        lineEdit->setEnabled(false);
+        button->setEnabled(false);
     }
 }
 
@@ -36,15 +36,15 @@ void EchoWindow::sendEcho()
 
 void EchoWindow::createGUI()
 {
-    lineEdit = new QLineEdit; 
+    lineEdit = new QLineEdit;
     label = new QLabel;
     label->setFrameStyle(QFrame::Box | QFrame::Plain);
     button = new QPushButton(tr("Send Message"));
 
     connect(lineEdit, SIGNAL(editingFinished()),
-	    this, SLOT(sendEcho()));
+            this, SLOT(sendEcho()));
     connect(button, SIGNAL(clicked()),
-	    this, SLOT(sendEcho()));  
+            this, SLOT(sendEcho()));
 
     layout = new QGridLayout;
     layout->addWidget(new QLabel(tr("Message:")), 0, 0);
@@ -59,14 +59,14 @@ bool EchoWindow::loadPlugin()
 {
     QDir pluginDirectory(qApp->applicationDirPath() + "/../plugin/");
     QString fileName = pluginDirectory.entryList(
-			QStringList() << "libechoplugin*").first();
+        QStringList() << "libechoplugin*").first();
 
     QPluginLoader pluginLoader(pluginDirectory.absoluteFilePath(fileName));
     QObject *plugin = pluginLoader.instance();
     if (plugin) {
-	echoInterface = qobject_cast<EchoInterface *>(plugin);
-	if(echoInterface)
-	    return true;   
+        echoInterface = qobject_cast<EchoInterface *>(plugin);
+    if(echoInterface)
+        return true;
     }
     return false;
 }

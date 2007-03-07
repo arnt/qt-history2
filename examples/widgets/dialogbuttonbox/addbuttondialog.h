@@ -25,7 +25,7 @@ class AddButtonDialog : public QDialog, Ui::AddButtonDialog
 
 public:
     AddButtonDialog(QDialogButtonBox *box, QWidget *parent = 0);
-    
+
     static QString roleToString(QDialogButtonBox::ButtonRole role);
 
 public slots:

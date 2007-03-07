@@ -24,7 +24,7 @@ class EchoPlugin : public QObject, EchoInterface
     Q_INTERFACES(EchoInterface)
 
 public:
-    QString echo(const QString &message); 
+    QString echo(const QString &message);
 };
 
 #endif

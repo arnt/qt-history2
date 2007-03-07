@@ -24,7 +24,7 @@ QStringList SimpleStylePlugin::keys() const
 QStyle *SimpleStylePlugin::create(const QString &key)
 {
     if (key.toLower() == "simplestyle")
-	return new SimpleStyle;
+        return new SimpleStyle;
     return 0;
 }
 

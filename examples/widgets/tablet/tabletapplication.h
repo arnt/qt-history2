@@ -24,11 +24,11 @@ class TabletApplication : public QApplication
 
 public:
     TabletApplication(int &argv, char **args)
-	: QApplication(argv, args) {}
+    : QApplication(argv, args) {}
 
     bool event(QEvent *event);
     void setCanvas(TabletCanvas *canvas)
-	{ myCanvas = canvas; }
+        { myCanvas = canvas; }
 
 private:
     TabletCanvas *myCanvas;

@@ -51,7 +51,7 @@ private:
     void setStyle(QDialogButtonBox *widget, QStyle *style);
     void resolveButtons();
     void resizeActiveWindow();
-    
+
     int windowCount;
 
     QMdiArea *mdiArea;

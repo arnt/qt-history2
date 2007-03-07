@@ -24,7 +24,7 @@ public:
     enum { Id = 1234 };
 
     MoveCommand(DiagramItem *diagramItem, const QPointF &oldPos,
-		QUndoCommand *parent = 0);
+                QUndoCommand *parent = 0);
 
     void undo();
     void redo();
@@ -54,7 +54,7 @@ class AddCommand : public QUndoCommand
 {
 public:
     AddCommand(DiagramItem::DiagramType addType, QGraphicsScene *graphicsScene,
-	       QUndoCommand *parent = 0);
+               QUndoCommand *parent = 0);
 
     void undo();
     void redo();

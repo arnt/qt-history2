@@ -23,11 +23,11 @@ DiagramTextItem::DiagramTextItem(QGraphicsItem *parent, QGraphicsScene *scene)
     setFlag(QGraphicsItem::ItemIsSelectable);
 }
 
-QVariant DiagramTextItem::itemChange(GraphicsItemChange change, 
-				     const QVariant &value)
+QVariant DiagramTextItem::itemChange(GraphicsItemChange change,
+                     const QVariant &value)
 {
     if (change == QGraphicsItem::ItemSelectedChange)
-	emit selectedChange(this);
+        emit selectedChange(this);
     return value;
 }
 
@@ -48,23 +48,26 @@ void DiagramTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 void DiagramTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     if (textInteractionFlags() & Qt::TextEditable) {
-	QGraphicsTextItem::mouseMoveEvent(event);
+        QGraphicsTextItem::mouseMoveEvent(event);
     } else
-	QGraphicsItem::mouseMoveEvent(event);
+        QGraphicsItem::mouseMoveEvent(event);
 }
 
 void DiagramTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
     setTextInteractionFlags(Qt::TextEditorInteraction);
     QGraphicsSceneMouseEvent *mouseEvent =
-	new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMousePress);
+        new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMousePress);
     mouseEvent->setAccepted(true);
     mouseEvent->setPos(event->pos());
     mouseEvent->setScenePos(event->scenePos());
     mouseEvent->setScreenPos(event->screenPos());
-    mouseEvent->setButtonDownPos(Qt::LeftButton, event->buttonDownPos(Qt::LeftButton));
-    mouseEvent->setButtonDownScreenPos(Qt::LeftButton, event->buttonDownScreenPos(Qt::LeftButton));
-    mouseEvent->setButtonDownScenePos(Qt::LeftButton, event->buttonDownScenePos(Qt::LeftButton));
+    mouseEvent->setButtonDownPos(Qt::LeftButton,
+        event->buttonDownPos(Qt::LeftButton));
+    mouseEvent->setButtonDownScreenPos(Qt::LeftButton,
+        event->buttonDownScreenPos(Qt::LeftButton));
+    mouseEvent->setButtonDownScenePos(Qt::LeftButton,
+        event->buttonDownScenePos(Qt::LeftButton));
     mouseEvent->setWidget(event->widget());
 
     QGraphicsTextItem::mousePressEvent(mouseEvent);

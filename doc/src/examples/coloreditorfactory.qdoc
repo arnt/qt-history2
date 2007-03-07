@@ -21,14 +21,14 @@
     models in Qt store their data in \l{QVariant}s). An editor can be any
     Qt or custom widget.
 
-    In this example, we will create an editor (implemented in the
-    \c ColorListEditor class) that can edit the QColor data type and
-    be used by \l{QItemDelegate}s. We do this by creating a new
+    In this example, we will create an editor (implemented in the \c
+    ColorListEditor class) that can edit the QColor data type and be
+    used by \l{QItemDelegate}s. We do this by creating a new
     QItemEditorCreatorBase that produces \c ColorListEditors and
-    register it with the default editor item factory (the unique
-    factory instance). To test our editor, we have implemented the \c
-    Window class, which displays a QTableWidget in which \l{QColor}s
-    can be edited.
+    register it with a new factory, which we set as the default editor
+    item factory (the unique factory instance). To test our editor, we
+    have implemented the \c Window class, which displays a
+    QTableWidget in which \l{QColor}s can be edited.
 
     \section1 Window Class Implementation
 
@@ -42,10 +42,6 @@
     \quotefromfile itemviews/coloreditorfactory/window.cpp
     \skipto /::Window/
     \printuntil /^\}/
-
-    The QItemEditorFactory only provides a const pointer to the
-    default factory. We therefore make a copy to which we can add our
-    color editor; the default factory can then be set to the copy.
 
     The QStandardItemEditorCreator is a convenience class that
     inherits QItemEditorCreatorBase. Its constructor takes a template

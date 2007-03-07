@@ -33,8 +33,8 @@ public:
 
 private slots:
     void sendEcho();
-    
-private: 
+
+private:
     void createGUI();
     bool loadPlugin();
 
