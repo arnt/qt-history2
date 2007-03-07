@@ -63,10 +63,6 @@ QThreadData::~QThreadData()
         const QPostEvent &pe = postEventList.at(i);
         if (pe.event) {
             --pe.receiver->d_func()->postedEvents;
-#ifdef QT3_SUPPORT
-            if (pe.event->type() == QEvent::ChildInserted)
-                --pe.receiver->d_func()->postedChildInsertedEvents;
-#endif
             pe.event->posted = false;
             delete pe.event;
         }

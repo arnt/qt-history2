@@ -2240,6 +2240,7 @@ void tst_QObject::compatibilityChildInsertedEvents()
         QCOMPARE(spy.eventList(),
                  EventSpy::EventList()
 #ifdef QT_HAS_QT3SUPPORT
+                 << qMakePair(&object, QEvent::ChildInsertedRequest)
                  << qMakePair(&object, QEvent::ChildInserted)
                  << qMakePair(&object, QEvent::ChildInserted)
 #endif
@@ -2275,6 +2276,7 @@ void tst_QObject::compatibilityChildInsertedEvents()
         QCOMPARE(spy.eventList(),
                  EventSpy::EventList()
 #ifdef QT_HAS_QT3SUPPORT
+                 << qMakePair(&object, QEvent::ChildInsertedRequest)
                  << qMakePair(&object, QEvent::ChildInserted)
 #endif
                  << qMakePair(&object, QEvent::Type(QEvent::User + 1))

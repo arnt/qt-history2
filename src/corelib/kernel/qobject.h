@@ -76,11 +76,6 @@ public:
     uint receiveChildEvents : 1;
     uint unused : 25;
     int postedEvents;
-#ifdef QT3_SUPPORT
-    int postedChildInsertedEvents;
-#else
-    int reserved;
-#endif
 };
 
 

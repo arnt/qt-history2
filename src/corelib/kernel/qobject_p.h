@@ -67,6 +67,12 @@ public:
     QObjectPrivate(int version = QObjectPrivateVersion);
     virtual ~QObjectPrivate();
 
+#ifdef QT3_SUPPORT
+    QList<QObject *> pendingChildInsertedEvents;
+    void sendPendingChildInsertedEvents();
+    void removePendingChildInsertedEvents(QObject *child);
+#endif
+
     // id of the thread that owns the object
     QThreadData *threadData;
     void moveToThread_helper();

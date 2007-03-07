@@ -292,9 +292,6 @@ QObjectPrivate::QObjectPrivate(int version)
     sendChildEvents = true;                     // if we should send ChildInsert and ChildRemove events to parent
     receiveChildEvents = true;
     postedEvents = 0;
-#ifdef QT3_SUPPORT
-    postedChildInsertedEvents = 0;
-#endif
     extraData = 0;
 }
 
@@ -306,6 +303,42 @@ QObjectPrivate::~QObjectPrivate()
     delete extraData;
 #endif
 }
+
+#ifdef QT3_SUPPORT
+void QObjectPrivate::sendPendingChildInsertedEvents()
+{
+    Q_Q(QObject);
+    for (int i = 0; i < pendingChildInsertedEvents.size(); ++i) {
+        QObject *c = pendingChildInsertedEvents.at(i);
+        if (!c)
+            continue;
+        QChildEvent childEvent(QEvent::ChildInserted, c);
+        QCoreApplication::sendEvent(q, &childEvent);
+    }
+    pendingChildInsertedEvents.clear();
+}
+
+void QObjectPrivate::removePendingChildInsertedEvents(QObject *child)
+{
+    if (!child) {
+        pendingChildInsertedEvents.clear();
+        return;
+    }
+
+    // the QObject destructor calls QObject::removeChild, which calls
+    // QCoreApplication::sendEvent() directly.  this can happen while the event
+    // loop is in the middle of posting events, and when we get here, we may
+    // not have any more posted events for this object.
+
+    // if this is a child remove event and the child insert hasn't
+    // been dispatched yet, kill that insert
+    for (int i = 0; i < pendingChildInsertedEvents.size(); ++i) {
+        QObject *&c = pendingChildInsertedEvents[i];
+        if (c == child)
+            c = 0;
+    }
+}
+#endif
 
 bool QObjectPrivate::isSender(const QObject *receiver, const char *signal) const
 {
@@ -742,6 +775,10 @@ QObject::~QObject()
             d->threadData->eventDispatcher->unregisterTimers(this);
     }
 
+#ifdef QT3_SUPPORT
+    d->pendingChildInsertedEvents.clear();
+#endif
+
     d->eventFilters.clear();
 
     if (!d->children.isEmpty())
@@ -1010,6 +1047,12 @@ bool QObject::event(QEvent *e)
     case QEvent::Timer:
         timerEvent((QTimerEvent*)e);
         break;
+
+#ifdef QT3_SUPPORT
+    case QEvent::ChildInsertedRequest:
+        d_func()->sendPendingChildInsertedEvents();
+        break;
+#endif
 
     case QEvent::ChildAdded:
     case QEvent::ChildPolished:
@@ -1886,7 +1929,12 @@ void QObjectPrivate::setParent_helper(QObject *o)
                 QChildEvent e(QEvent::ChildAdded, q);
                 QCoreApplication::sendEvent(parent, &e);
 #ifdef QT3_SUPPORT
-                QCoreApplication::postEvent(parent, new QChildEvent(QEvent::ChildInserted, q));
+                if (parent->d_func()->pendingChildInsertedEvents.isEmpty()) {
+                    QCoreApplication::postEvent(parent,
+                                                new QEvent(QEvent::ChildInsertedRequest),
+                                                Qt::HighEventPriority);
+                }
+                parent->d_func()->pendingChildInsertedEvents.append(q);
 #endif
             }
         }

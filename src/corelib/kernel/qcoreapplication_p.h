@@ -54,9 +54,6 @@ public:
     static QThread *mainThread();
     static bool checkInstance(const char *method);
 
-#ifdef QT3_SUPPORT
-    void removePostedChildInsertedEvents(QObject *receiver, QObject *child);
-#endif
     void checkReceiverThread(QObject *receiver);
 
     int &argc;

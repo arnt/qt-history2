@@ -2983,8 +2983,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     d->checkReceiverThread(receiver);
 
 #ifdef QT3_SUPPORT
-    if (e->type() == QEvent::ChildRemoved && receiver->d_func()->postedChildInsertedEvents)
-        d->removePostedChildInsertedEvents(receiver, static_cast<QChildEvent *>(e)->child());
+    if (e->type() == QEvent::ChildRemoved && !receiver->d_func()->pendingChildInsertedEvents.isEmpty())
+        receiver->d_func()->removePendingChildInsertedEvents(static_cast<QChildEvent *>(e)->child());
 #endif // QT3_SUPPORT
 
     // capture the current mouse/keyboard state

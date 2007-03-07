@@ -86,7 +86,8 @@ public:
         ChildAdded = 68,                        // new child widget
         ChildPolished = 69,                     // polished child widget
 #ifdef QT3_SUPPORT
-        ChildInserted = 70,                     // compatibility posted insert
+        ChildInsertedRequest = 67,              // send ChildInserted compatibility events to receiver
+        ChildInserted = 70,                     // compatibility child inserted
         LayoutHint = 72,                        // compatibility relayout request
 #endif
         ChildRemoved = 71,                      // deleted child widget

@@ -193,10 +193,6 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
         const QPostEvent &pe = threadData->postEventList.at(i);
         if (pe.event) {
             --pe.receiver->d_func()->postedEvents;
-#ifdef QT3_SUPPORT
-            if (pe.event->type() == QEvent::ChildInserted)
-                --pe.receiver->d_func()->postedChildInsertedEvents;
-#endif
             pe.event->posted = false;
             delete pe.event;
         }
@@ -229,38 +225,6 @@ QThread *QCoreApplicationPrivate::mainThread()
     Q_ASSERT(theMainThread != 0);
     return theMainThread;
 }
-
-#ifdef QT3_SUPPORT
-void QCoreApplicationPrivate::removePostedChildInsertedEvents(QObject *receiver, QObject *child)
-{
-    QThreadData *data = receiver->d_func()->threadData;
-    QMutexLocker locker(&data->postEventList.mutex);
-
-    // the QObject destructor calls QObject::removeChild, which calls
-    // QCoreApplication::sendEvent() directly.  this can happen while the event
-    // loop is in the middle of posting events, and when we get here, we may
-    // not have any more posted events for this object.
-
-    // if this is a child remove event and the child insert
-    // hasn't been dispatched yet, kill that insert
-    for (int i = 0; i < data->postEventList.size(); ++i) {
-        const QPostEvent &pe = data->postEventList.at(i);
-        if (pe.event && pe.receiver == receiver) {
-            if (pe.event->type() == QEvent::ChildInserted
-                && ((QChildEvent*)pe.event)->child() == child) {
-                --receiver->d_func()->postedEvents;
-                --receiver->d_func()->postedChildInsertedEvents;
-                Q_ASSERT(receiver->d_func()->postedEvents >= 0);
-                Q_ASSERT(receiver->d_func()->postedChildInsertedEvents >= 0);
-                pe.event->posted = false;
-                delete pe.event;
-                const_cast<QPostEvent &>(pe).event = 0;
-                const_cast<QPostEvent &>(pe).receiver = 0;
-            }
-        }
-    }
-}
-#endif
 
 void QCoreApplicationPrivate::checkReceiverThread(QObject *receiver)
 {
@@ -585,8 +549,8 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *event)
     d->checkReceiverThread(receiver);
 
 #ifdef QT3_SUPPORT
-    if (event->type() == QEvent::ChildRemoved && receiver->d_func()->postedChildInsertedEvents)
-        d->removePostedChildInsertedEvents(receiver, static_cast<QChildEvent *>(event)->child());
+    if (event->type() == QEvent::ChildRemoved && !receiver->d_func()->pendingChildInsertedEvents.isEmpty())
+        receiver->d_func()->removePendingChildInsertedEvents(static_cast<QChildEvent *>(event)->child());
 #endif // QT3_SUPPORT
 
     return receiver->isWidgetType() ? false : d->notify_helper(receiver, event);
@@ -891,10 +855,6 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event, int priority)
 
         event->posted = true;
         ++receiver->d_func()->postedEvents;
-#ifdef QT3_SUPPORT
-        if (event->type() == QEvent::ChildInserted)
-            ++receiver->d_func()->postedChildInsertedEvents;
-#endif
         if (event->type() == QEvent::DeferredDelete) {
             if (!data->eventLoops.isEmpty()) {
                 // remember the current running eventloop
@@ -1001,16 +961,17 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
     ++data->postEventList.recursion;
 
 #ifdef QT3_SUPPORT
-    // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
-    if (receiver && event_type == QEvent::ChildInserted
-        && !receiver->d_func()->postedChildInsertedEvents) {
-        --data->postEventList.recursion;
-        return;
+    if (event_type == QEvent::ChildInserted) {
+        if (receiver) {
+            // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
+            receiver->d_func()->sendPendingChildInsertedEvents();
+            --data->postEventList.recursion;
+            return;
+        }
+
+        // ChildInserted events are sent in response to *Request
+        event_type = QEvent::ChildInsertedRequest;
     }
-    // Make sure the object hierarchy is stable before processing events
-    // to avoid endless loops
-    if (receiver == 0 && event_type == 0)
-        sendPostedEvents(0, QEvent::ChildInserted);
 #endif
 
     QMutexLocker locker(&data->postEventList.mutex);
@@ -1076,11 +1037,6 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 
         --r->d_func()->postedEvents;
         Q_ASSERT(r->d_func()->postedEvents >= 0);
-#ifdef QT3_SUPPORT
-        if (e->type() == QEvent::ChildInserted)
-            --r->d_func()->postedChildInsertedEvents;
-        Q_ASSERT(r->d_func()->postedChildInsertedEvents >= 0);
-#endif
 
         // next, update the data structure so that we're ready
         // for the next event.
@@ -1167,6 +1123,9 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
 
 void QCoreApplication::removePostedEvents(QObject *receiver, int eventType)
 {
+    if (eventType == QEvent::ChildInserted)
+        eventType = QEvent::ChildInsertedRequest;
+
     QThreadData *data = receiver ? receiver->d_func()->threadData : QThreadData::current();
     QMutexLocker locker(&data->postEventList.mutex);
 
@@ -1186,8 +1145,8 @@ void QCoreApplication::removePostedEvents(QObject *receiver, int eventType)
             && (pe.event && (eventType == 0 || pe.event->type() == eventType))) {
             --pe.receiver->d_func()->postedEvents;
 #ifdef QT3_SUPPORT
-            if (pe.event->type() == QEvent::ChildInserted)
-                --pe.receiver->d_func()->postedChildInsertedEvents;
+            if (pe.event->type() == QEvent::ChildInsertedRequest)
+                pe.receiver->d_func()->removePendingChildInsertedEvents(0);
 #endif
             pe.event->posted = false;
             delete pe.event;
@@ -1202,9 +1161,6 @@ void QCoreApplication::removePostedEvents(QObject *receiver, int eventType)
 #ifdef QT_DEBUG
     if (receiver && eventType == 0) {
         Q_ASSERT(!receiver->d_func()->postedEvents);
-#ifdef QT3_SUPPORT
-        Q_ASSERT(!receiver->d_func()->postedChildInsertedEvents);
-#endif
     }
 #endif
 
@@ -1252,10 +1208,6 @@ void QCoreApplicationPrivate::removePostedEvent(QEvent * event)
                      pe.receiver->objectName().toLocal8Bit().data());
 #endif
             --pe.receiver->d_func()->postedEvents;
-#ifdef QT3_SUPPORT
-            if (pe.event->type() == QEvent::ChildInserted)
-                --pe.receiver->d_func()->postedChildInsertedEvents;
-#endif
             pe.event->posted = false;
             delete pe.event;
             const_cast<QPostEvent &>(pe).event = 0;

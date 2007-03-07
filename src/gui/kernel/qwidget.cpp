@@ -7402,7 +7402,12 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
             QChildEvent e(QEvent::ChildAdded, this);
             QApplication::sendEvent(parent, &e);
 #ifdef QT3_SUPPORT
-            QApplication::postEvent(parent, new QChildEvent(QEvent::ChildInserted, this));
+            if (parent->d_func()->pendingChildInsertedEvents.isEmpty()) {
+                QApplication::postEvent(parent,
+                                        new QEvent(QEvent::ChildInsertedRequest),
+                                        Qt::HighEventPriority);
+            }
+            parent->d_func()->pendingChildInsertedEvents.append(this);
 #endif
         }
 

@@ -184,6 +184,7 @@
     \omitvalue AcceptDropsChange
     \omitvalue ActivateControl
     \omitvalue CaptionChange
+    \omitvalue ChildInsertedRequest
     \omitvalue ChildInserted
     \omitvalue Create
     \omitvalue DeactivateControl

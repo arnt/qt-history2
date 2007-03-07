@@ -4457,6 +4457,7 @@ void tst_QWidget::compatibilityChildInsertedEvents()
         QCOMPARE(spy.eventList(),
                  EventRecorder::EventList()
 #ifdef QT_HAS_QT3SUPPORT
+                 << qMakePair(&widget, QEvent::ChildInsertedRequest)
                  << qMakePair(&widget, QEvent::ChildInserted)
                  << qMakePair(&widget, QEvent::ChildInserted)
 #endif
@@ -4507,6 +4508,9 @@ void tst_QWidget::compatibilityChildInsertedEvents()
         QCoreApplication::sendPostedEvents();
         QCOMPARE(spy.eventList(),
                  EventRecorder::EventList()
+#ifdef QT_HAS_QT3SUPPORT
+                 << qMakePair(&widget, QEvent::ChildInsertedRequest)
+#endif
                  << qMakePair(&widget, QEvent::PolishRequest)
                  << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
                  << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
@@ -4540,6 +4544,7 @@ void tst_QWidget::compatibilityChildInsertedEvents()
         QCOMPARE(spy.eventList(),
                  EventRecorder::EventList()
 #ifdef QT_HAS_QT3SUPPORT
+                 << qMakePair(&widget, QEvent::ChildInsertedRequest)
                  << qMakePair(&widget, QEvent::ChildInserted)
 #endif
                  << qMakePair(&widget, QEvent::PolishRequest)
@@ -4588,6 +4593,9 @@ void tst_QWidget::compatibilityChildInsertedEvents()
         QCoreApplication::sendPostedEvents();
         QCOMPARE(spy.eventList(),
                  EventRecorder::EventList()
+#ifdef QT_HAS_QT3SUPPORT
+                 << qMakePair(&widget, QEvent::ChildInsertedRequest)
+#endif
                  << qMakePair(&widget, QEvent::PolishRequest)
                  << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
                  << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
