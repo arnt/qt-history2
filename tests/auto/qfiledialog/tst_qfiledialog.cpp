@@ -274,8 +274,11 @@ void tst_QFiledialog::resolveSymlinks()
     QFileDialog fd;
 
     // default
+#ifndef Q_OS_WIN
+    QCOMPARE(fd.resolveSymlinks(), true);
+#else
     QCOMPARE(fd.resolveSymlinks(), false);
-
+#endif
     fd.setResolveSymlinks(true);
     QCOMPARE(fd.resolveSymlinks(), true);
 
