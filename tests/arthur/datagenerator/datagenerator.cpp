@@ -294,6 +294,9 @@ void DataGenerator::testSuite(XMLGenerator &generator, const QString &test,
     foreach (QFileInfo fileInfo, dir.entryInfoList()) {
         if (!testcase.isEmpty() && fileInfo.fileName() != testcase)
             continue;
+        QString suffix = fileInfo.suffix().toLower();
+        if (suffix != "qps" && suffix != "svg")
+            continue;
         qDebug()<<"Testing: "<<fileInfo.absoluteFilePath();
         testEngines(generator, fileInfo.absoluteFilePath(), refUrl);
     }
