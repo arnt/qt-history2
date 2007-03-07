@@ -902,6 +902,10 @@ function defaultTags(platform, license, platName)
     replace["\\*\\* \\$TROLLTECH_3RDPARTY_LICENSE\\$\\n"] = licenseHeaders["3rdparty"];
     replace["\\*\\* \\$TROLLTECH_GPL_LICENSE\\$\\n"] = licenseHeaders[license];
     replace["\\*\\* \\$TROLLTECH_COMMERCIAL_LICENSE\\$\\n"] = licenseHeaders[license];
+    replace["-- \\$TROLLTECH_DUAL_LICENSE\\$\\n"] = licenseHeaders[license].replace(/\*\*/g, "--");
+    replace["-- \\$TROLLTECH_3RDPARTY_LICENSE\\$\\n"] = licenseHeaders["3rdparty"].replace(/\*\*/g, "--");
+    replace["-- \\$TROLLTECH_GPL_LICENSE\\$\\n"] = licenseHeaders[license].replace(/\*\*/g, "--");
+    replace["-- \\$TROLLTECH_COMMERCIAL_LICENSE\\$\\n"] = licenseHeaders[license].replace(/\*\*/g, "--");
 
     return replace;
 }
