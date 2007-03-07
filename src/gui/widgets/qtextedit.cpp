@@ -354,6 +354,9 @@ void QTextEditPrivate::ensureViewportLayouted()
     efficient way to add reasonable online help facilities to
     applications, and to provide a basis for rich text editors.
 
+    The shape of the mouse cursor on a QTextEdit is Qt::IBeamCursor by default.
+    It can be changed through the viewport()'s cursor property.
+
     \section1 Using QTextEdit as a Display Widget
 
     QTextEdit can display a large HTML subset, including tables and
