@@ -27,6 +27,7 @@
 #include <qdebug.h>
 #include <private/qwindowsurface_qws_p.h>
 #include <private/qwssignalhandler_p.h>
+#include <private/qwidget_p.h>
 
 #include <stdlib.h>
 
@@ -2143,13 +2144,6 @@ void QVNCScreen::solidFill(const QColor &color, const QRegion &region)
         QScreen::solidFill(color, region);
 }
 
-// XXX: duplicated from qscreen_qws.cpp
-static inline bool isWidgetOpaque(const QWidget *w)
-{
-    const QBrush brush = w->palette().brush(w->backgroundRole());
-    return (brush.style() == Qt::NoBrush || brush.isOpaque());
-}
-
 /*!
     \reimp
 */
@@ -2161,7 +2155,7 @@ QWSWindowSurface* QVNCScreen::createSurface(QWidget *widget) const
     // XXX: will not work together with transparent windows until full
     // compositioning is implemented
     if (d_ptr->doOnScreenSurface) {
-        if (isWidgetOpaque(widget) && (depth() == 16 || depth() == 32))
+        if (widget->d_func()->isOpaque() && (depth() == 16 || depth() == 32))
             return new QWSOnScreenSurface(widget);
     }
 

@@ -24,7 +24,7 @@
 #include <private/qpaintengine_raster_p.h>
 #include <private/qpainter_p.h>
 #include <private/qwindowsurface_qws_p.h>
-#include <qdebug.h>
+#include <private/qwidget_p.h>
 
 // #define QT_USE_MEMCPY_DUFF
 
@@ -1820,12 +1820,6 @@ QWSWindowSurface* QScreen::createSurface(const QString &key) const
     return 0;
 }
 
-static inline bool isWidgetOpaque(const QWidget *w)
-{
-    const QBrush brush = w->palette().brush(w->backgroundRole());
-    return (brush.style() == Qt::NoBrush || brush.isOpaque());
-}
-
 #ifndef QT_NO_PAINTONSCREEN
 static inline bool isWidgetPaintOnScreen(const QWidget *w)
 {
@@ -1849,7 +1843,7 @@ static inline bool isWidgetPaintOnScreen(const QWidget *w)
 QWSWindowSurface* QScreen::createSurface(QWidget *widget) const
 {
 #ifndef QT_NO_PAINTONSCREEN
-    if (isWidgetPaintOnScreen(widget) && isWidgetOpaque(widget) && base())
+    if (isWidgetPaintOnScreen(widget) && widget->d_func()->isOpaque() && base())
         return new QWSOnScreenSurface(widget);
     else
 #endif

@@ -27,10 +27,9 @@
 #include <private/qwslock_p.h>
 #include <stdio.h>
 
-static inline bool isWidgetOpaque(const QWidget *w)
+inline bool isWidgetOpaque(const QWidget *w)
 {
-    const QBrush brush = w->palette().brush(w->backgroundRole());
-    return (brush.style() == Qt::NoBrush || brush.isOpaque());
+    return w->d_func()->isOpaque();
 }
 
 static inline QScreen *getScreen(const QWidget *w)
