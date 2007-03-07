@@ -255,10 +255,15 @@ void tst_QColumnView::scrollTo()
     QDirModel model;
     view.setModel(&model);
 
-    QModelIndex index = model.index(0, 0);
+    QModelIndex home = model.index(QDir::currentPath()).parent();
+    QModelIndex homeFile = model.index(0, 0, home);
+    view.setRootIndex(home);
+
+    QModelIndex index = model.index(0, 0, home);
     view.scrollTo(index, QAbstractItemView::EnsureVisible);
     QCOMPARE(view.HorizontalOffset(), 0);
 
+    view.clearFocus();
     QCOMPARE(view.hasFocus(), false);
     // scroll to the right
     int level = 0;
@@ -281,7 +286,7 @@ void tst_QColumnView::scrollTo()
 
     // scroll to the left
     int start = level;
-    while(index.parent().isValid()) {
+    while(index.parent().isValid() && index != view.rootIndex()) {
         view.setCurrentIndex(index);
         QTest::qWait(ANIMATION_DELAY);
         view.scrollTo(index, QAbstractItemView::EnsureVisible);
@@ -293,7 +298,7 @@ void tst_QColumnView::scrollTo()
     }
 
     // Try scrolling to something that is above the root index
-    QModelIndex home = model.index(QDir::homePath());
+    home = model.index(QDir::homePath());
     QModelIndex temp = model.index(QDir::tempPath());
     view.setRootIndex(home);
     view.scrollTo(model.index(0, 0, home));
