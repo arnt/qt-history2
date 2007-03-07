@@ -623,6 +623,8 @@ QAbstractItemView *QColumnViewPrivate::createColumn(const QModelIndex &index, bo
                    q, SLOT(_q_clicked(const QModelIndex &)));
     }
     else {
+        if (!previewColumn)
+            setPreviewWidget(new QWidget(q));
         view = previewColumn;
         view->setMinimumWidth(qMax(view->minimumWidth(), previewWidget->minimumWidth()));
     }
@@ -757,9 +759,10 @@ void QColumnView::setPreviewWidget(QWidget *widget) {
 */
 void QColumnViewPrivate::setPreviewWidget(QWidget *widget)
 {
+    Q_Q(QColumnView);
     if (previewColumn)
         previewColumn->deleteLater();
-    previewColumn = new QColumnViewPreviewColumn(widget);
+    previewColumn = new QColumnViewPreviewColumn(q);
     previewColumn->setFrameShape(QFrame::NoFrame);
     previewColumn->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     previewColumn->setSelectionMode(QAbstractItemView::NoSelection);
@@ -935,7 +938,6 @@ QColumnViewPrivate::QColumnViewPrivate()
 ,currentAnimation(ANIMATION_DURATION_MSEC)
 ,previewColumn(0)
 {
-    setPreviewWidget(new QWidget());
 }
 
 QColumnViewPrivate::~QColumnViewPrivate()
