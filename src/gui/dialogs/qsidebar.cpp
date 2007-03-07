@@ -27,6 +27,7 @@
 #else
 #include <qdirmodel.h>
 #endif
+#include <qfiledialog.h>
 
 /*!
     QUrlModel lets you have indexes from a QFileSystemModel to a list.  When QFileSystemModel
