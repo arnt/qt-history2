@@ -2365,8 +2365,8 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
 
 /*!
     \since 4.3
-    Returns the height of the row indicated by the given \a indec.
-    \sa indexRowSizeHint
+    Returns the height of the row indicated by the given \a index.
+    \sa indexRowSizeHint()
 */
 int QTreeView::indexRowHeight(const QModelIndex &index) const
 {
