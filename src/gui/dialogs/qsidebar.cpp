@@ -357,7 +357,7 @@ void QSidebar::showContextMenu(const QPoint &position)
 {
     QList<QAction *> actions;
     if (indexAt(position).isValid()) {
-        QAction *action = new QAction(QCoreApplication::translate("QFileDialog", "Remove"), this);
+        QAction *action = new QAction(QFileDialog::tr("Remove"), this);
         connect(action, SIGNAL(triggered()), this, SLOT(removeEntry()));
         actions.append(action);
     }
