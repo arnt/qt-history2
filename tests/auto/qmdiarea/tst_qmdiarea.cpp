@@ -633,6 +633,10 @@ void tst_QMdiArea::addAndRemoveWindows()
 {
     QMdiArea workspace;
     workspace.resize(800, 600);
+    workspace.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&workspace);
+#endif
 
     { // addSubWindow with large widget
     QCOMPARE(workspace.subWindowList().count(), 0);
