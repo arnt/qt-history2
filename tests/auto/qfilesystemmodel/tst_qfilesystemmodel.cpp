@@ -194,9 +194,11 @@ void tst_QFileSystemModel::readOnly()
 void tst_QFileSystemModel::iconProvider()
 {
     QVERIFY(model->iconProvider());
-    QFileIconProvider *p = new QFileIconProvider(model);
+    QFileIconProvider *p = new QFileIconProvider();
     model->setIconProvider(p);
     QCOMPARE(model->iconProvider(), p);
+    model->setIconProvider(0);
+    delete p;
 }
 
 bool tst_QFileSystemModel::createFiles(const QString &test_path, const QStringList &initial_files, const QStringList &initial_dirs, const QString &dir)
