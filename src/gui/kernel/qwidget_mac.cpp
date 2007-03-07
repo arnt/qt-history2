@@ -1550,8 +1550,17 @@ void QWidgetPrivate::createWindow_sys()
         topExtra->posFromMove = false;
     }
 
-    if (qt_mac_is_macsheet(q))
-        q->setWindowOpacity(0.95);
+    if (qt_mac_is_macsheet(q)){
+        SetThemeWindowBackground(qt_mac_window_for(q), kThemeBrushSheetBackgroundTransparent, true);
+        float alpha = 0;
+        GetWindowAlpha(qt_mac_window_for(q), &alpha);
+        if (alpha == 1){
+            // For some reason the 'SetThemeWindowBackground' does not seem
+            // to work. So we do this little hack until it hopefully starts to
+            // work in newer versions of mac OS.
+            q->setWindowOpacity(0.95f);
+        }
+    }
     else if (topExtra->opacity != 255)
         q->setWindowOpacity(topExtra->opacity / 255.0f);
 
