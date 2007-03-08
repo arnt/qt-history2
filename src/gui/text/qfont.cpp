@@ -2116,7 +2116,7 @@ QFontCache::~QFontCache()
                 delete it.value();
             else
                 FC_DEBUG("QFontCache::~QFontCache: engineData %p still has refcount %d",
-                         it.value(), it.value()->ref.atomic);
+                         it.value(), int(it.value()->ref));
             ++it;
         }
     }
@@ -2133,7 +2133,7 @@ QFontCache::~QFontCache()
                 delete it.value().data;
             } else {
                 FC_DEBUG("QFontCache::~QFontCache: engine = %p still has refcount %d",
-                         it.value().data, it.value().data->ref.atomic);
+                         it.value().data, int(it.value().data->ref));
             }
         }
         ++it;
@@ -2265,10 +2265,10 @@ QFontEngine *QFontCache::findEngine(const Key &key)
     it.value().timestamp = ++current_timestamp;
 
     FC_DEBUG("QFontCache: found font engine\n"
-            "  %p: timestamp %4u hits %3u ref %2d/%2d, type '%s'",
-            it.value().data, it.value().timestamp, it.value().hits,
-            it.value().data->ref.atomic, it.value().data->cache_count,
-            it.value().data->name());
+             "  %p: timestamp %4u hits %3u ref %2d/%2d, type '%s'",
+             it.value().data, it.value().timestamp, it.value().hits,
+             int(it.value().data->ref), it.value().data->cache_count,
+             it.value().data->name());
 
     return it.value().data;
 }
@@ -2377,9 +2377,9 @@ void QFontCache::cleanupPrinterFonts()
         }
 
         FC_DEBUG("    %p: timestamp %4u hits %2u ref %2d/%2d, type '%s'",
-                  it.value().data, it.value().timestamp, it.value().hits,
-                  it.value().data->ref.atomic, it.value().data->cache_count,
-                  it.value().data->name());
+                 it.value().data, it.value().timestamp, it.value().hits,
+                 int(it.value().data->ref), it.value().data->cache_count,
+                 it.value().data->name());
 
         if (--it.value().data->cache_count == 0) {
             FC_DEBUG("    DELETE: last occurrence in cache");
@@ -2446,9 +2446,9 @@ void QFontCache::timerEvent(QTimerEvent *)
                                   end = engineCache.constEnd();
         for (; it != end; ++it) {
             FC_DEBUG("    %p: timestamp %4u hits %2u ref %2d/%2d, cost %u bytes",
-                      it.value().data, it.value().timestamp, it.value().hits,
-                      it.value().data->ref.atomic, it.value().data->cache_count,
-                      it.value().data->cache_cost);
+                     it.value().data, it.value().timestamp, it.value().hits,
+                     int(it.value().data->ref), it.value().data->cache_count,
+                     it.value().data->cache_cost);
 
             if (it.value().data->ref != 0)
                 in_use_cost += it.value().data->cache_cost / it.value().data->cache_count;
@@ -2549,9 +2549,9 @@ void QFontCache::timerEvent(QTimerEvent *)
 
         if (it != end) {
             FC_DEBUG("    %p: timestamp %4u hits %2u ref %2d/%2d, type '%s'",
-                      it.value().data, it.value().timestamp, it.value().hits,
-                      it.value().data->ref.atomic, it.value().data->cache_count,
-                      it.value().data->name());
+                     it.value().data, it.value().timestamp, it.value().hits,
+                     int(it.value().data->ref), it.value().data->cache_count,
+                     it.value().data->name());
 
             if (--it.value().data->cache_count == 0) {
                 FC_DEBUG("    DELETE: last occurrence in cache");
