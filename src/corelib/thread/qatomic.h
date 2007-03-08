@@ -56,67 +56,67 @@ QT_MODULE(Core)
 */
 
 struct QBasicAtomic {
-    volatile int atomic;
+    volatile int value;
 
     void init(int x = 0)
-    { atomic = x; }
+    { value = x; }
 
     inline bool ref()
-    { return q_atomic_increment(&atomic) != 0; }
+    { return q_atomic_increment(&value) != 0; }
 
     inline bool deref()
-    { return q_atomic_decrement(&atomic) != 0; }
+    { return q_atomic_decrement(&value) != 0; }
 
     inline bool operator==(int x) const
-    { return atomic == x; }
+    { return value == x; }
 
     inline bool operator!=(int x) const
-    { return atomic != x; }
+    { return value != x; }
 
     inline bool operator!() const
-    { return atomic == 0; }
+    { return value == 0; }
 
     inline operator int() const
-    { return atomic; }
+    { return value; }
 
     inline QBasicAtomic &operator=(int x)
     {
-        atomic = x;
+        value = x;
         return *this;
     }
 
     inline bool testAndSet(int expected, int newval)
-    { return q_atomic_test_and_set_int(&atomic, expected, newval) != 0; }
+    { return q_atomic_test_and_set_int(&value, expected, newval) != 0; }
 
     inline bool testAndSetAcquire(int expected, int newval)
-    { return q_atomic_test_and_set_acquire_int(&atomic, expected, newval) != 0; }
+    { return q_atomic_test_and_set_acquire_int(&value, expected, newval) != 0; }
 
     inline bool testAndSetRelease(int expected, int newval)
-    { return q_atomic_test_and_set_release_int(&atomic, expected, newval) != 0; }
+    { return q_atomic_test_and_set_release_int(&value, expected, newval) != 0; }
 
     inline int exchange(int newval)
-    { return q_atomic_set_int(&atomic, newval); }
+    { return q_atomic_set_int(&value, newval); }
 
     inline int fetchAndAdd(int value)
-    { return q_atomic_fetch_and_add_int(&atomic, value); }
+    { return q_atomic_fetch_and_add_int(&this->value, value); }
 
     inline int fetchAndAddAcquire(int value)
-    { return q_atomic_fetch_and_add_acquire_int(&atomic, value); }
+    { return q_atomic_fetch_and_add_acquire_int(&this->value, value); }
 
     inline int fetchAndAddRelease(int value)
-    { return q_atomic_fetch_and_add_release_int(&atomic, value); }
+    { return q_atomic_fetch_and_add_release_int(&this->value, value); }
 };
 
 template <typename T>
 struct QBasicAtomicPointer
 {
-    volatile T *pointer;
+    volatile T *value;
 
     void init(T *t = 0)
-    { pointer = t; }
+    { value = t; }
 
     inline bool operator==(T *t) const
-    { return pointer == t; }
+    { return value == t; }
 
     inline bool operator!=(T *t) const
     { return !operator==(t); }
@@ -125,22 +125,22 @@ struct QBasicAtomicPointer
     { return operator==(0); }
 
     inline operator T *() const
-    { return const_cast<T *>(pointer); }
+    { return const_cast<T *>(value); }
 
     inline T *operator->() const
-    { return const_cast<T *>(pointer); }
+    { return const_cast<T *>(value); }
 
     inline QBasicAtomicPointer<T> &operator=(T *t)
     {
-        pointer = t;
+        value = t;
         return *this;
     }
 
     inline bool testAndSet(T *expected, T *newval)
-    { return q_atomic_test_and_set_ptr(&pointer, expected, newval); }
+    { return q_atomic_test_and_set_ptr(&value, expected, newval); }
 
     inline T *exchange(T * newval)
-    { return static_cast<T *>(q_atomic_set_ptr(&pointer, newval)); }
+    { return static_cast<T *>(q_atomic_set_ptr(&value, newval)); }
 };
 
 #define Q_ATOMIC_INIT(a) { (a) }
@@ -216,7 +216,7 @@ inline void qAtomicAssign(T *&d, T *x)
     d = x;
 }
 
-/*! 
+/*!
     This is a helper for the detach method of implicitly shared
     classes. Your private class needs a copy constructor which copies
     the members and sets the refcount to 1. After that, your detach
