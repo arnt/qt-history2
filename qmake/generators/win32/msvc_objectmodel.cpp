@@ -2063,9 +2063,8 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
             // Execute dependency command, and add every line as a dep
 	    char buff[256];
 	    QString dep_cmd = Project->replaceExtraCompilerVariables(tmp_dep_cmd,
-							             inFile,
+							             Option::fixPathToLocalOS(inFile, true, false),
                                                                      out);
-            dep_cmd = Option::fixPathToLocalOS(dep_cmd, true, false);
             if(Project->canExecute(dep_cmd)) {
                 if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
                     QString indeps;
@@ -2130,7 +2129,6 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
 	}
 
         // Fixify paths
-        cmd = Option::fixPathToTargetOS(cmd, false, false);
         for (int i = 0; i < deps.count(); ++i)
             deps[i] = Option::fixPathToTargetOS(deps[i], false);
 
