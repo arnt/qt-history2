@@ -21,6 +21,9 @@ class QFSFileEngineIteratorPlatformSpecificData
 public:
     inline QFSFileEngineIteratorPlatformSpecificData()
         : dir(0), dirEntry(0), done(false)
+#if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
+          , mt_file(0)
+#endif
     { }
 
     DIR *dir;
@@ -29,10 +32,7 @@ public:
 
 #if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
     // for readdir_r
-    union {
-        struct dirent mt_file;
-        char b[sizeof(struct dirent) + MAXNAMLEN + 1];
-    } u;
+    dirent *mt_file;
 #endif
 };
 
@@ -42,9 +42,9 @@ void QFSFileEngineIterator::advance()
 
     if (!platform->dir)
         return;
-    
+
 #if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
-    if (::readdir_r(platform->dir, &platform->u.mt_file, &platform->dirEntry) != 0)
+    if (::readdir_r(platform->dir, platform->mt_file, &platform->dirEntry) != 0)
         platform->done = true;
 #else
     // ### add local lock to prevent breaking reentrancy
@@ -54,6 +54,8 @@ void QFSFileEngineIterator::advance()
         ::closedir(platform->dir);
         platform->dir = 0;
         platform->done = true;
+        delete [] platform->mt_file;
+        platform->mt_file = 0;
     }
 }
 
@@ -64,8 +66,11 @@ void QFSFileEngineIterator::newPlatformSpecifics()
 
 void QFSFileEngineIterator::deletePlatformSpecifics()
 {
-    if (platform->dir)
+    if (platform->dir) {
         ::closedir(platform->dir);
+        delete [] platform->mt_file;
+        platform->mt_file = 0;
+    }
     delete platform;
     platform = 0;
 }
@@ -74,10 +79,19 @@ bool QFSFileEngineIterator::hasNext() const
 {
     if (!platform->done && !platform->dir) {
         QFSFileEngineIterator *that = const_cast<QFSFileEngineIterator *>(this);
-        if ((that->platform->dir = ::opendir(QFile::encodeName(path()).data())) == 0)
+        if ((that->platform->dir = ::opendir(QFile::encodeName(path()).data())) == 0) {
             that->platform->done = true;
-        else
+        } else {
+            // ### Race condition; we should use fpathconf and dirfd().
+            long maxPathName = ::pathconf(QFile::encodeName(path()).data(), _PC_NAME_MAX);
+            if (maxPathName == -1)
+                maxPathName = (sizeof(dirent) + MAXNAMLEN + 1);
+            if (that->platform->mt_file)
+                delete [] that->platform->mt_file;
+            that->platform->mt_file = (dirent *)new char[maxPathName];
+
             that->advance();
+        }
     }
     return !platform->done;
 }
