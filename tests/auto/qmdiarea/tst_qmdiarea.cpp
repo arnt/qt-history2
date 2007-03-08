@@ -70,6 +70,7 @@ private slots:
     void resizeMaximizedChildWindows();
     void focusWidgetAfterAddSubWindow();
     void dontMaximizeSubWindowOnActivation();
+    void delayedPlacement();
 
 private:
     QMdiSubWindow *activeWindow;
@@ -1345,6 +1346,26 @@ void tst_QMdiArea::dontMaximizeSubWindowOnActivation()
     mdiArea.addSubWindow(new QWidget)->show();
     QVERIFY(mdiArea.activeSubWindow());
     QVERIFY(!mdiArea.activeSubWindow()->isMaximized());
+}
+
+void tst_QMdiArea::delayedPlacement()
+{
+    QMdiArea mdiArea;
+
+    QMdiSubWindow *window1 = mdiArea.addSubWindow(new QWidget);
+    QCOMPARE(window1->geometry().topLeft(), QPoint(0, 0));
+
+    QMdiSubWindow *window2 = mdiArea.addSubWindow(new QWidget);
+    QCOMPARE(window2->geometry().topLeft(), QPoint(0, 0));
+
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+
+    QCOMPARE(window1->geometry().topLeft(), QPoint(0, 0));
+    QCOMPARE(window2->geometry().topLeft(), window1->geometry().topRight() + QPoint(1, 0));
+
 }
 
 QTEST_MAIN(tst_QMdiArea)
