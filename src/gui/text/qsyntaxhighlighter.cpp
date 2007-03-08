@@ -378,11 +378,15 @@ void QSyntaxHighlighter::rehighlight()
     if (!d->doc)
         return;
 
+    disconnect(d->doc, SIGNAL(contentsChange(int,int,int)),
+               this, SLOT(_q_reformatBlocks(int,int,int)));
     QTextCursor cursor(d->doc);
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::End);
     d->_q_reformatBlocks(0, 0, cursor.position());
     cursor.endEditBlock();
+    connect(d->doc, SIGNAL(contentsChange(int,int,int)),
+            this, SLOT(_q_reformatBlocks(int,int,int)));
 }
 
 /*!
