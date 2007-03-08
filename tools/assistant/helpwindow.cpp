@@ -81,6 +81,7 @@ void HelpWindow::setSource(const QUrl &name)
                 nmw->showLink(name.toString());
             } else {
                 QTextBrowser::setSource(name);
+                QTextBrowser::scrollToAnchor(name.fragment());
             }
             return;
         }
