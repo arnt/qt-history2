@@ -1050,7 +1050,7 @@ void QMdiSubWindowPrivate::setNormalMode()
     // Don't show the widget before we have updated the geometry,
     // otherwise the widget will get a resize event, which it shouldn't.
     QRect newGeometry = oldGeometry;
-    newGeometry.setSize(restoreSize);
+    newGeometry.setSize(restoreSize.expandedTo(q->minimumSizeHint()));
     q->setGeometry(newGeometry);
     if (baseWidget)
         baseWidget->show();
@@ -1094,7 +1094,7 @@ void QMdiSubWindowPrivate::setMaximizeMode()
         baseWidget->show();
     updateGeometryConstraints();
 
-    if (!drawTitleBarWhenMaximized()) {
+    if (!drawTitleBarWhenMaximized() && q->isVisible()) {
         if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(q->window()))
             showButtonsInMenuBar(mainWindow->menuBar());
     }
@@ -1977,7 +1977,7 @@ QWidget *QMdiSubWindow::widget() const
 QWidget *QMdiSubWindow::maximizedButtonsWidget() const
 {
     Q_D(const QMdiSubWindow);
-    if (d->controlContainer && isMaximized() && !d->drawTitleBarWhenMaximized())
+    if (isVisible() && d->controlContainer && isMaximized() && !d->drawTitleBarWhenMaximized())
         return d->controlContainer->controllerWidget();
     return 0;
 }
@@ -1988,7 +1988,7 @@ QWidget *QMdiSubWindow::maximizedButtonsWidget() const
 QWidget *QMdiSubWindow::maximizedSystemMenuIconWidget() const
 {
     Q_D(const QMdiSubWindow);
-    if (d->controlContainer && isMaximized() && !d->drawTitleBarWhenMaximized())
+    if (isVisible() && d->controlContainer && isMaximized() && !d->drawTitleBarWhenMaximized())
         return d->controlContainer->systemMenuLabel();
     return 0;
 }
@@ -2426,7 +2426,27 @@ void QMdiSubWindow::showEvent(QShowEvent *showEvent)
 #endif
 
     d->updateDirtyRegions();
+    // Show buttons in the menu bar if they're already not there.
+    // We want to do this when QMdiSubWindow becomes visible after being hidden.
+    if (isMaximized() && d->controlContainer && !d->drawTitleBarWhenMaximized()) {
+        if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(window())) {
+            QMenuBar *menuBar = mainWindow->menuBar();
+            if (menuBar->cornerWidget(Qt::TopRightCorner) != maximizedButtonsWidget())
+                d->showButtonsInMenuBar(menuBar);
+        }
+    }
     d->setActive(true);
+}
+
+/*!
+    \reimp
+*/
+void QMdiSubWindow::hideEvent(QHideEvent * /*hideEvent*/)
+{
+    Q_D(QMdiSubWindow);
+    // Remove buttons from the menu bar when QMdiSubWindow is hidden.
+    if (isMaximized() && d->controlContainer && !d->drawTitleBarWhenMaximized())
+        d->removeButtonsFromMenuBar();
 }
 
 /*!

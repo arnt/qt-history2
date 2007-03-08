@@ -74,6 +74,7 @@ protected:
     bool eventFilter(QObject *object, QEvent *event);
     bool event(QEvent *event);
     void showEvent(QShowEvent *showEvent);
+    void hideEvent(QHideEvent *hideEvent);
     void changeEvent(QEvent *changeEvent);
     void closeEvent(QCloseEvent *closeEvent);
     void leaveEvent(QEvent *leaveEvent);
