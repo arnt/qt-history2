@@ -30,6 +30,7 @@ SOURCES += main.cpp
 
 # Qt tools needed to link moc
 SOURCES	+= ../../corelib/global/qglobal.cpp \
+           ../../corelib/global/qnumeric.cpp \
 	   ../../corelib/io/qbuffer.cpp \
 	   ../../corelib/io/qdir.cpp		\
 	   ../../corelib/io/qdiriterator.cpp		\

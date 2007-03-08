@@ -22,6 +22,7 @@ SOURCES += main.cpp rcc.cpp
 
 # Qt tools needed to link rcc
 SOURCES	+= ../../corelib/global/qglobal.cpp \
+           ../../corelib/global/qnumeric.cpp \
 	   ../../corelib/io/qbuffer.cpp \
 	   ../../corelib/io/qdir.cpp		\
 	   ../../corelib/io/qdiriterator.cpp		\
