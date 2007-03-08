@@ -60,16 +60,19 @@ protected slots:
     }
 
 private:
-    static int loopLevel;
     QSslSocket *socket;
 #endif // QT_NO_OPENSSL
+private:
+    static int loopLevel;
 };
 
 int tst_QSslSocket::loopLevel = 0;
 
 tst_QSslSocket::tst_QSslSocket()
 {
+#ifndef QT_NO_OPENSSL
     qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
+#endif
 }
 
 tst_QSslSocket::~tst_QSslSocket()
