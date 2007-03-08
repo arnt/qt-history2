@@ -446,7 +446,7 @@ void QStyle::drawItemText(QPainter *painter, const QRect &rect, int alignment, c
     QPen savedPen;
     if (textRole != QPalette::NoRole) {
         savedPen = painter->pen();
-        painter->setPen(pal.color(textRole));
+        painter->setPen(QPen(pal.brush(textRole), savedPen.widthF()));
     }
     if (!enabled) {
         if (styleHint(SH_DitherDisabledText)) {

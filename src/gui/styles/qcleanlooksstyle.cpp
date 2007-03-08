@@ -642,17 +642,16 @@ void QCleanlooksStyle::drawItemText(QPainter *painter, const QRect &rect, int al
     if (text.isEmpty())
         return;
 
-    painter->save();
-    QPen savedPen;
+    QPen savedPen = painter->pen();
     if (textRole != QPalette::NoRole) {
-        painter->setPen(pal.color(textRole));
+        painter->setPen(QPen(pal.brush(textRole), savedPen.widthF()));
     }
     if (!enabled) {
         QPen pen = painter->pen();
         painter->setPen(pen);
     }
     painter->drawText(rect, alignment, text);
-    painter->restore();
+    painter->setPen(savedPen);
 }
 
 static QColor mergedColors(const QColor &colorA, const QColor &colorB, int factor = 50)
