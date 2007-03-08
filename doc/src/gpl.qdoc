@@ -8,6 +8,10 @@
  reasons, the X11 version of the Qt Open Source Edition is also available
  under the \l{qpl.html}{Q Public License}.
 
+\tableofcontents
+
+\section1 The GNU General Public License
+
 \code
  You may use, distribute and copy the Qt GUI Toolkit under the terms of
  GNU General Public License version 2, which is displayed below.
@@ -352,4 +356,23 @@ consider it more useful to permit linking proprietary applications with the
 library. If this is what you want to do, use the GNU Library General
 Public License instead of this License.
 \endcode
+
+\section1 Additional Exception for OpenSSL
+
+The following exception is included with files that make use of the OpenSSL
+library:
+
+\code
+In addition, as a special exception, Trolltech gives permission to link
+the code of its release of Qt with the OpenSSL project's "OpenSSL" library
+(or modified versions of the "OpenSSL" library that use the same license
+as the original version), and distribute the linked executables.
+\endcode
+
+You must comply with the GNU General Public License version 2 in all
+respects for all of the code used other than the "OpenSSL" code.  If you
+modify any of the files containing the above exception, you may extend
+the exception to your version of those files, but you are not obligated to do
+so. If you do not wish to do so, delete this exception statement from your
+version of those files.
 */
