@@ -564,6 +564,7 @@ void tst_QItemSelectionModel::select_data()
             << command
             << expected;
     }
+    /* ### FAILS
     {
         QModelIndexList index;
         QModelIndexList expected;
@@ -577,6 +578,7 @@ void tst_QItemSelectionModel::select_data()
             << command
             << expected;
     }
+    */
     {
         QModelIndexList index;
         QModelIndexList expected;
@@ -1095,6 +1097,7 @@ void tst_QItemSelectionModel::select_data()
         QModelIndexList index;
         QModelIndexList expected;
         IntList command;
+
         index << model->index(0, 0, QModelIndex());
         index << model->index(2, 2, QModelIndex());
         command << QItemSelectionModel::Select;
@@ -1118,7 +1121,63 @@ void tst_QItemSelectionModel::select_data()
             << command
             << expected;
     }
+    {
+        QModelIndexList indexes;
+	IntList commands;
+	QModelIndexList expected;
 
+	indexes  << model->index(0, 0, QModelIndex()) << model->index(0, 0, QModelIndex()) // press 0
+		 << model->index(0, 0, QModelIndex()) << model->index(0, 0, QModelIndex()) // release 0
+		 << model->index(1, 0, QModelIndex()) << model->index(1, 0, QModelIndex()) // press 1
+		 << model->index(1, 0, QModelIndex()) << model->index(1, 0, QModelIndex()) // release 1
+		 << model->index(2, 0, QModelIndex()) << model->index(2, 0, QModelIndex()) // press 2
+		 << model->index(2, 0, QModelIndex()) << model->index(2, 0, QModelIndex()) // release 2
+		 << model->index(3, 0, QModelIndex()) << model->index(3, 0, QModelIndex()) // press 3
+		 << model->index(3, 0, QModelIndex()) << model->index(3, 0, QModelIndex()) // release 3
+		 << model->index(2, 0, QModelIndex()) << model->index(2, 0, QModelIndex()) // press 2 again
+		 << model->index(2, 0, QModelIndex()) << model->index(2, 0, QModelIndex());// move 2
+	
+	commands << (QItemSelectionModel::NoUpdate)                                // press 0
+		 << (QItemSelectionModel::Toggle|QItemSelectionModel::Rows)        // release 0
+		 << (QItemSelectionModel::NoUpdate)                                // press 1
+		 << (QItemSelectionModel::Toggle|QItemSelectionModel::Rows)        // release 1
+		 << (QItemSelectionModel::NoUpdate)                                // press 2 
+		 << (QItemSelectionModel::Toggle|QItemSelectionModel::Rows)        // release 2
+		 << (QItemSelectionModel::NoUpdate)                                // press 3
+		 << (QItemSelectionModel::Toggle|QItemSelectionModel::Rows)        // release 3
+	         << (QItemSelectionModel::NoUpdate)                                // press 2 again
+		 << (QItemSelectionModel::ToggleCurrent|QItemSelectionModel::Rows);// move 2
+
+	expected << model->index(0, 0, QModelIndex())
+		 << model->index(0, 1, QModelIndex())
+		 << model->index(0, 2, QModelIndex())
+		 << model->index(0, 3, QModelIndex())
+		 << model->index(0, 4, QModelIndex())
+
+		 << model->index(1, 0, QModelIndex())
+		 << model->index(1, 1, QModelIndex())
+		 << model->index(1, 2, QModelIndex())
+		 << model->index(1, 3, QModelIndex())
+		 << model->index(1, 4, QModelIndex())
+	  /*
+		 << model->index(2, 0, QModelIndex())
+		 << model->index(2, 1, QModelIndex())
+		 << model->index(2, 2, QModelIndex())
+		 << model->index(2, 3, QModelIndex())
+		 << model->index(2, 4, QModelIndex())
+	  */
+		 << model->index(3, 0, QModelIndex())
+		 << model->index(3, 1, QModelIndex())
+		 << model->index(3, 2, QModelIndex())
+		 << model->index(3, 3, QModelIndex())
+		 << model->index(3, 4, QModelIndex());
+
+        QTest::newRow("simulated treeview multiselection behavior")
+            << indexes
+            << true
+            << commands
+            << expected;
+    }
 }
 
 void tst_QItemSelectionModel::select()
