@@ -4317,7 +4317,7 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
             scale(w / sw, h / sh);
             setBackgroundMode(Qt::TransparentMode);
             setRenderHint(Antialiasing, renderHints() & SmoothPixmapTransform);
-            setBrush(QBrush(d->state->pen.color(), image));
+            setBrush(QBrush(image));
             setPen(Qt::NoPen);
             setBrushOrigin(QPointF(-sx, -sy));
 
