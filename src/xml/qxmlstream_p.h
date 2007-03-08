@@ -25,6 +25,8 @@
 #ifndef QXMLSTREAM_P_H
 #define QXMLSTREAM_P_H
 
+#include <QtCore/qcoreapplication.h>
+
 class QXmlStreamReader_Table
 {
 public:
