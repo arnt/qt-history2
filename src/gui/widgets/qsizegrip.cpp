@@ -114,10 +114,11 @@ Qt::Corner QSizeGripPrivate::corner() const
     support necessary modern post-ICCCM specifications.
 
     Put this widget anywhere in a widget tree and the user can use it
-    to resize the top-level window. Generally, this should be in the
-    lower right-hand corner. Note that QStatusBar already uses this
-    widget, so if you have a status bar (e.g. you are using
-    QMainWindow), then you don't need to use this widget explicitly.
+    to resize the top-level window or any widget with the Qt::SubWindow
+    flag set. Generally, this should be in the lower right-hand corner.
+    Note that QStatusBar already uses this widget, so if you have a
+    status bar (e.g., you are using QMainWindow), then you don't need
+    to use this widget explicitly.
 
     On some platforms the sizegrip automatically hides itself when the
     window is shown full screen or maximised.
