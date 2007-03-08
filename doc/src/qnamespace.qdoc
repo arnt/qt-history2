@@ -100,8 +100,8 @@
     \value AA_MSWindowsUseDirect3DByDefault Is a Windows specific attribute, that
            will make the Direct3D paint engine the default Qt widget paint engine.
            Note that you can toggle usage of the Direct3D engine on individual
-           QWidgets by setting/clearing the WA_MSWindowsUseDirect3D attribute
-           on a specific widget.
+           QWidgets by setting/clearing the \c WA_MSWindowsUseDirect3D attribute
+           on a specific widget. \i {Note that this functionality is experimental.}
 */
 
 /*!
@@ -852,7 +852,8 @@
 
     \value WA_MSWindowsUseDirect3D Makes drawing to a widget
     with this attribute set use the Direct3D paint engine, if the
-    Direct3D paint engine is available.
+    Direct3D paint engine is available. \i {Note that this functionality
+    is experimental.}
 
     \value WA_Hover Forces Qt to generate paint events when the mouse
     enters or leaves the widget. This feature is typically used when
