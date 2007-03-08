@@ -110,6 +110,9 @@ private slots:
     void searchPaths_data();
 
     void entryListWithSearchPaths();
+
+    void longFileName_data();
+    void longFileName();
 };
 
 // Testing get/set functions
@@ -1113,6 +1116,40 @@ void tst_QDir::entryListWithSearchPaths()
     QVERIFY(dir.exists());
     QStringList entryList = dir.entryList();
     QVERIFY(entryList.contains("file3.data"));
+}
+
+void tst_QDir::longFileName_data()
+{
+    QTest::addColumn<int>("length");
+
+    QTest::newRow("128") << 128;
+    QTest::newRow("256") << 256;
+    QTest::newRow("512") << 512;
+    QTest::newRow("1024") << 1024;
+    QTest::newRow("2048") << 2048;
+    QTest::newRow("4096") << 4096;
+}
+
+void tst_QDir::longFileName()
+{
+    QFETCH(int, length);
+
+    QString fileName(length, QLatin1Char('a'));
+    fileName += QLatin1String(".txt");
+
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly))
+        QSKIP("Cannot create long file names", SkipAll);
+
+    QFile file2(fileName);
+    QVERIFY(file2.open(QFile::ReadOnly));
+
+    QVERIFY(QDir().entryList().contains(fileName));
+
+    file.close();
+    file2.close();
+
+    QFile::remove(fileName);
 }
 
 QTEST_MAIN(tst_QDir)
