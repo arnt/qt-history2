@@ -2364,7 +2364,7 @@ void tst_QAccessibility::listViewTest()
     QCOMPARE(iface->text(QAccessible::Value, 1), QString("A"));
     QCOMPARE(iface->text(QAccessible::Value, 2), QString("B"));
     QCOMPARE(iface->text(QAccessible::Value, 3), QString("C"));
-    
+
     QAccessibleInterface *childA = 0;
     QCOMPARE(iface->navigate(QAccessible::Child, 1, &childA), 0);
     QVERIFY(childA);
@@ -2439,7 +2439,7 @@ void tst_QAccessibility::mdiAreaTest()
         }
     }
     // ### Add test for Up and Down.
-    
+
     }
     QTestAccessibility::clearEvents();
 #else
@@ -2569,7 +2569,7 @@ void tst_QAccessibility::lineEditTest()
     QVERIFY(iface->state(0) & QAccessible::Selectable);
     QVERIFY(iface->state(0) & QAccessible::HasPopup);
     QCOMPARE(bool(iface->state(0) & QAccessible::Focused), le->hasFocus());
-    
+
     QWidget *toplevel = new QWidget;
     le->setParent(toplevel);
     toplevel->show();
@@ -2641,7 +2641,7 @@ void tst_QAccessibility::workspaceTest()
         }
     }
     // ### Add test for Up and Down.
-    
+
     }
     QTestAccessibility::clearEvents();
 #else
@@ -2653,10 +2653,10 @@ void tst_QAccessibility::dialogButtonBoxTest()
 {
 #ifdef QTEST_ACCESSIBILITY
     {
-    QDialogButtonBox box(QDialogButtonBox::Reset | 
-                         QDialogButtonBox::Help | 
+    QDialogButtonBox box(QDialogButtonBox::Reset |
+                         QDialogButtonBox::Help |
                          QDialogButtonBox::Ok, Qt::Horizontal);
-    
+
 
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&box);
     QVERIFY(iface);
@@ -2692,19 +2692,19 @@ void tst_QAccessibility::dialogButtonBoxTest()
     }
 
     QStringList expectedOrder;
-    QDialogButtonBox::ButtonLayout btnlout = 
+    QDialogButtonBox::ButtonLayout btnlout =
         QDialogButtonBox::ButtonLayout(QApplication::style()->styleHint(QStyle::SH_DialogButtonLayout));
     switch (btnlout) {
     case QDialogButtonBox::WinLayout:
-        expectedOrder << QDialogButtonBox::tr("Reset") 
+        expectedOrder << QDialogButtonBox::tr("Reset")
                       << QDialogButtonBox::tr("OK")
                       << QDialogButtonBox::tr("Help");
         break;
     case QDialogButtonBox::GnomeLayout:
     case QDialogButtonBox::KdeLayout:
     case QDialogButtonBox::MacLayout:
-        expectedOrder << QDialogButtonBox::tr("Help") 
-                      << QDialogButtonBox::tr("Reset") 
+        expectedOrder << QDialogButtonBox::tr("Help")
+                      << QDialogButtonBox::tr("Reset")
                       << QDialogButtonBox::tr("OK");
         break;
     }
@@ -2715,10 +2715,10 @@ void tst_QAccessibility::dialogButtonBoxTest()
     }
 
     {
-    QDialogButtonBox box(QDialogButtonBox::Reset | 
-                         QDialogButtonBox::Help | 
+    QDialogButtonBox box(QDialogButtonBox::Reset |
+                         QDialogButtonBox::Help |
                          QDialogButtonBox::Ok, Qt::Horizontal);
-    
+
 
     // Test up and down navigation
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&box);
@@ -3427,7 +3427,7 @@ void tst_QAccessibility::pushButtonTest()
 
     toplevel->show();
 #if defined(Q_WS_X11)
-    qt_x11_wait_for_window_manager(mw);
+    qt_x11_wait_for_window_manager(toplevel);
 #endif
 
     QAccessibleInterface *accToplevel = QAccessible::queryAccessibleInterface(toplevel);
