@@ -183,6 +183,7 @@ public:
     QVariant inputMethodQuery(Qt::InputMethodQuery) const;
     bool event(QEvent *);
 protected:
+    QRect cursorRect() const;
 
 public:
 #ifdef QT3_SUPPORT

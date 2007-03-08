@@ -2026,6 +2026,17 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
 }
 
 /*!
+  \since 4.4
+
+  Returns a rectangle that includes the lineedit cursor.
+*/
+QRect QLineEdit::cursorRect() const
+{
+    Q_D(const QLineEdit);
+    return d->cursorRect();
+}
+
+/*!
   This function is not intended as polymorphic usage. Just a shared code
   fragment that calls QInputContext::mouseHandler for this
   class.
