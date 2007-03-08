@@ -20,16 +20,6 @@
 #include "qstring.h"
 #include <ctype.h>
 
-// under QNX RTOS we have to use vfork() when multithreading
-inline pid_t qt_fork()
-{
-#if defined(Q_OS_QNX)
-    return vfork();
-#else
-    return fork();
-#endif
-}
-
 /*
     Returns a human readable representation of the first \a len
     characters in \a data.
@@ -489,6 +479,16 @@ bool QProcessPrivate::createChannel(Channel &channel)
             return true;
         }
     }
+}
+
+// under QNX RTOS we have to use vfork() when multithreading
+inline pid_t qt_fork()
+{
+#if defined(Q_OS_QNX)
+    return vfork();
+#else
+    return fork();
+#endif
 }
 
 void QProcessPrivate::startProcess()
