@@ -159,6 +159,11 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         Info &info = ensureInfo(index);
         info.group = pgroup;
         info.propertyType = propertyTypeFromName(name);
+
+        QVariant v = p.read(m_object);
+        if (v.type() == QVariant::Cursor) {
+            info.defaultValue = v;
+        }
     }
 
     if (object->isWidgetType()) {
@@ -570,6 +575,9 @@ bool QDesignerPropertySheet::reset(int index)
         m_object->setProperty(propName.toUtf8(), newValue);
         m_addProperties[index] = newValue;
         return true;
+    } else if (!m_info.value(index).defaultValue.isNull()) {
+        setProperty(index, m_info.value(index).defaultValue);
+        return true;
     }
     if (isAdditionalProperty(index)) {
         const PropertyType pType = propertyType(index);
@@ -621,8 +629,7 @@ bool QDesignerPropertySheet::reset(int index)
             return true;
         }
         return false;
-    }
-    else if (isFakeProperty(index)) {
+    } else if (isFakeProperty(index)) {
         const QMetaProperty p = m_meta->property(index);
         const bool result = p.reset(m_object);
         m_fakeProperties[index] = p.read(m_object);
