@@ -581,7 +581,7 @@ void QMdiAreaPrivate::place(Placer *placer, QMdiSubWindow *child)
         // The window is only laid out when it's added to QMdiArea,
         // so there's no need to check that we don't have it in the
         // list already. appendChild() ensures that.
-        pendingPlacements.append(child);
+        pendingPlacements.prepend(child);
         return;
     }
 
@@ -1373,12 +1373,13 @@ void QMdiArea::showEvent(QShowEvent *showEvent)
             d->rearrange(rearranger);
         }
         d->pendingRearrangements.clear();
+
         if (skipPlacement && !d->pendingPlacements.isEmpty())
             d->pendingPlacements.clear();
     }
 
     if (!d->pendingPlacements.isEmpty()) {
-        foreach (QMdiSubWindow *window, d->childWindows) {
+        foreach (QMdiSubWindow *window, d->pendingPlacements) {
             if (!window)
                 continue;
             if (!window->testAttribute(Qt::WA_Resized)) {
