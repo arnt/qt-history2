@@ -276,9 +276,9 @@ void tst_QFiledialog::resolveSymlinks()
 
     // default
 #ifndef Q_OS_WIN
-    QCOMPARE(fd.resolveSymlinks(), true);
-#else
     QCOMPARE(fd.resolveSymlinks(), false);
+#else
+    QCOMPARE(fd.resolveSymlinks(), true);
 #endif
     fd.setResolveSymlinks(true);
     QCOMPARE(fd.resolveSymlinks(), true);
@@ -342,12 +342,11 @@ void tst_QFiledialog::isDetailsExpanded()
     QWidget* sidebar = fd.findChild<QWidget*>("qt_sidebar");
     QVERIFY(sidebar);
 
+    QCOMPARE(fd.isDetailsExpanded(), true);
+
 #if defined(Q_WS_QWS)
-    QCOMPARE(fd.isDetailsExpanded(), false);
     return;
 #endif
-
-    QCOMPARE(fd.isDetailsExpanded(), true);
 
     fd.setDetailsExpanded(false);
     QCOMPARE(fd.isDetailsExpanded(), false);
