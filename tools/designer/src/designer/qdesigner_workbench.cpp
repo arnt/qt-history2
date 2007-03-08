@@ -79,7 +79,7 @@ QMdiSubWindow *createFormMdiSubWindow(QMdiArea *a, QDesignerFormWindow *fw, Qt::
     typedef QList<QAction *> ActionList;
 
     QMdiSubWindow *rc = a->addSubWindow(fw, f);
-    // Make action shortcuts respond only if focussed to avoid conflicts with designer menu actions
+    // Make action shortcuts respond only if focused to avoid conflicts with designer menu actions
     const ActionList systemMenuActions = rc->systemMenu()->actions();
     if (!systemMenuActions.empty()) {
         const ActionList::const_iterator cend = systemMenuActions.constEnd();

@@ -143,7 +143,7 @@ bool QFormScriptRunner::run(const DomWidget *domWidget,
 
     if (!rc) {
         if (!(scriptOptions & DisableWarnings)) {
-            const QString message = QCoreApplication::tr("An error occured while running the script for %1: %2\nScript: %3").
+            const QString message = QCoreApplication::tr("An error occurred while running the script for %1: %2\nScript: %3").
                 arg(widget->objectName()).arg(*errorMessage).arg(script);
             qWarning() <<  message;
         }

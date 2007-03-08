@@ -181,7 +181,7 @@ namespace qdesigner_internal {
     QDesignerPromotion::PromotedClasses QDesignerPromotion::promotedClasses()  const
     {
         typedef QMap<QString, QDesignerWidgetDataBaseItemInterface *> ClassNameItemMap;
-        // A map containg base classes and their promoted classes.
+        // A map containing base classes and their promoted classes.
         typedef QMap<QString, ClassNameItemMap> BaseClassPromotedMap;
 
         BaseClassPromotedMap baseClassPromotedMap;
