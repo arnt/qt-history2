@@ -389,8 +389,8 @@ QTransform & QTransform::rotate(qreal a, Qt::Axis axis)
         cosa = -1.;
     else{
         qreal b = deg2rad*a;          // convert to radians
-        sina = sin(b);                // fast and convenient
-        cosa = cos(b);
+        sina = qSin(b);               // fast and convenient
+        cosa = qCos(b);
     }
 
     if (axis == Qt::ZAxis) {
@@ -431,8 +431,8 @@ QTransform & QTransform::rotate(qreal a, Qt::Axis axis)
 */
 QTransform & QTransform::rotateRadians(qreal a, Qt::Axis axis)
 {
-    qreal sina = sin(a);
-    qreal cosa = cos(a);
+    qreal sina = qSin(a);
+    qreal cosa = qCos(a);
 
     if (axis == Qt::ZAxis) {
         qreal tm11 = cosa*affine._m11 + sina*affine._m21;

@@ -58,17 +58,17 @@ QPainterPath qt_stroke_dash(const QPainterPath &path, qreal *dashes, int dashCou
 void qt_find_ellipse_coords(const QRectF &r, qreal angle, qreal length,
                             QPointF* startPoint, QPointF *endPoint)
 {
-#define ANGLE(t) ((t) * 2 * Q_PI / 360.0)
-    qreal a = r.width() / 2.0;
-    qreal b = r.height() / 2.0;
+#define ANGLE(t) ((t) * 2 * Q_PI / qreal(360.0))
+    qreal a = r.width() / qreal(2.0);
+    qreal b = r.height() / qreal(2.0);
 
     if (startPoint) {
         *startPoint = r.center()
-                      + QPointF(a * cos(ANGLE(angle)), -b * sin(ANGLE(angle)));
+                      + QPointF(a * qCos(ANGLE(angle)), -b * qSin(ANGLE(angle)));
     }
     if (endPoint) {
         *endPoint = r.center()
-                    + QPointF(a * cos(ANGLE(angle + length)), -b * sin(ANGLE(angle + length)));
+                    + QPointF(a * qCos(ANGLE(angle + length)), -b * qSin(ANGLE(angle + length)));
     }
 }
 

@@ -956,8 +956,8 @@ QMatrix &QMatrix::rotate(qreal a)
         cosa = -1.;
     else{
         qreal b = deg2rad*a;                        // convert to radians
-        sina = sin(b);                // fast and convenient
-        cosa = cos(b);
+        sina = qSin(b);               // fast and convenient
+        cosa = qCos(b);
     }
     qreal tm11 = cosa*_m11 + sina*_m21;
     qreal tm12 = cosa*_m12 + sina*_m22;
