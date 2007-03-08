@@ -5564,7 +5564,7 @@ QPoint QPainter::xForm(const QPoint &p) const
     \fn QRect QPainter::xForm(const QRect &rectangle) const
     \overload
 
-    Use \a rectangle * combinedMatrix() instead.
+    Use \a combinedMatrix().mapRect(rectangle) instead.
 */
 
 QRect QPainter::xForm(const QRect &r) const
