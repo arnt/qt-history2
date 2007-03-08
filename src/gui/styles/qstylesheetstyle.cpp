@@ -2678,10 +2678,25 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         }
         break;
 
-    case CE_ToolBoxTabShape:
-        if (hasStyleRule(w, PseudoElement_ToolBoxTab)) {
+    case CE_ToolBoxTab:
+        QWindowsStyle::drawControl(ce, opt, p, w);
+        return;
+
+    case CE_ToolBoxTabShape: {
             QRenderRule subRule = renderRule(w, opt, PseudoElement_ToolBoxTab);
-            subRule.drawRule(p, opt->rect);
+            if (subRule.hasDrawable()) {
+                subRule.drawRule(p, opt->rect);
+                return;
+            }
+                            }
+        break;
+
+    case CE_ToolBoxTabLabel:
+        if (const QStyleOptionToolBox *box = qstyleoption_cast<const QStyleOptionToolBox *>(opt)) {
+            QStyleOptionToolBox boxCopy(*box);
+            QRenderRule subRule = renderRule(w, opt, PseudoElement_ToolBoxTab);
+            subRule.configurePalette(&boxCopy.palette, QPalette::ButtonText, QPalette::Button);
+            baseStyle()->drawControl(ce, &boxCopy, p , w);
             return;
         }
         break;
@@ -3259,15 +3274,11 @@ int QStyleSheetStyle::layoutSpacingImplementation(QSizePolicy::ControlType  cont
     return baseStyle()->layoutSpacing(control1, control2, orientation, option, widget);
 }
 
-int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *widget,
+int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w,
                            QStyleHintReturn *shret) const
 {
-    const QWidget *w = widget;
-    if (sh == SH_ToolBox_SelectedPageTitleBold)
-       w = widget->parentWidget();
-
     if (!hasStyleRule(w))
-        return baseStyle()->styleHint(sh, opt, widget, shret);
+        return baseStyle()->styleHint(sh, opt, w, shret);
 
     QRenderRule rule = renderRule(w, opt);
     QString s;
