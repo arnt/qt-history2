@@ -73,7 +73,7 @@ class QEGLWindowSurfacePrivate
 {
 public:
     QEGLWindowSurfacePrivate() :
-      qglContext(0) {}
+        qglContext(0), device(0) {}
 
     QEGLPaintDevice *device;
     QGLContext *qglContext;
