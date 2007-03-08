@@ -555,10 +555,11 @@ void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qStableSort(sorting.begin(), sorting.end(), compare);
 
-    QModelIndexList oldPersistentIndexes = persistentIndexList();
-    QModelIndexList newPersistentIndexes = oldPersistentIndexes;
+    QModelIndexList oldPersistentIndexes;
+    QModelIndexList newPersistentIndexes;
     QList<QTreeWidgetItem*>::iterator lit = lst.begin();
     bool changed = false;
+    
     for (int i = 0; i < count; ++i) {
         int oldRow = sorting.at(i).second;
         QTreeWidgetItem *item = lst.takeAt(oldRow);
@@ -566,7 +567,13 @@ void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
         int newRow = qMax(lit - lst.begin(), 0);
         lit = lst.insert(lit, item);
         if (newRow != oldRow) {
-            changed = true;
+            // we are going to change the persistent indexes, so we need to prepare
+            if (!changed) { // this will only happen once
+                changed = true;
+                emit layoutAboutToBeChanged(); // the selection model needs to know
+                oldPersistentIndexes = persistentIndexList();
+                newPersistentIndexes = oldPersistentIndexes;
+            }
             for (int j = i + 1; j < count; ++j) {
                 int otherRow = sorting.at(j).second;
                 if (oldRow < otherRow && newRow >= otherRow)
@@ -594,7 +601,6 @@ void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
     }
 
     if (changed) {
-        emit layoutAboutToBeChanged();
         itm->children = lst;
         changePersistentIndexList(oldPersistentIndexes, newPersistentIndexes);
         emit layoutChanged();
