@@ -1236,6 +1236,20 @@ void QPrintDialogPrivate::updateWidgets()
     ui.chbPrintToFile->setEnabled(q->isOptionEnabled(QPrintDialog::PrintToFile));
     ui.chbCollate->setEnabled(q->isOptionEnabled(QPrintDialog::PrintCollateCopies));
 
+    switch (q->printRange()) {
+    case QPrintDialog::AllPages:
+        ui.gbPrintRange->setChecked(true);
+        break;
+    case QPrintDialog::Selection:
+        ui.rbPrintSelection->setChecked(true);
+        break;
+    case QPrintDialog::PageRange:
+        ui.rbPrintRange->setChecked(true);
+        break;
+    default:
+        break;
+    }
+
     ui.sbFrom->setMinimum(q->minPage());
     ui.sbTo->setMinimum(q->minPage());
     ui.sbFrom->setMaximum(q->maxPage());
