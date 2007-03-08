@@ -49,6 +49,9 @@ private:
   QString trollPrivateCopyrightHeader() const;
 
 private:
+  static QString startIncludeGuard(const QString &fileName);
+  static QString endIncludeGuard(const QString &fileName);
+
   const Recognizer &p;
   Grammar &grammar;
   Automaton &aut;

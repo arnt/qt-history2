@@ -51,6 +51,21 @@ QString CppGenerator::trollPrivateCopyrightHeader() const
     "//\n");
 }
 
+QString CppGenerator::startIncludeGuard(const QString &fileName)
+{
+    const QString normalized(QString(fileName).replace(QLatin1Char('.'), QLatin1Char('_')).toUpper());
+
+    return QString::fromLatin1("#ifndef %1\n"
+                               "#define %2\n").arg(normalized, normalized);
+}
+
+QString CppGenerator::endIncludeGuard(const QString &fileName)
+{
+    const QString normalized(QString(fileName).replace(QLatin1Char('.'), QLatin1Char('_')).toUpper());
+
+    return QString::fromLatin1("#endif // %1\n").arg(normalized);
+}
+
 void CppGenerator::operator () ()
 {
   // action table...
@@ -272,12 +287,22 @@ void CppGenerator::operator () ()
       QTextStream out (&f);
 
       if (troll_copyright)
-        out << trollCopyrightHeader();
+        {
+          out << trollCopyrightHeader()
+              << trollPrivateCopyrightHeader()
+              << endl;
+        }
+
+      out << startIncludeGuard(grammar.merged_output) << endl;
 
       generateDecl (out);
       generateImpl (out);
       out << p.decls();
       out << p.impls();
+      out << endl;
+
+      out << endIncludeGuard(grammar.merged_output) << endl;
+
       return;
     }
 
