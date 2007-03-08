@@ -1226,6 +1226,18 @@ bool QDockWidget::event(QEvent *event)
     case QEvent::MouseMove:
         d->mouseMoveEvent(static_cast<QMouseEvent *>(event));
         return true;
+#ifdef Q_OS_WIN
+    case QEvent::Leave:
+        if (d->state != 0 && d->state->dragging && !d->state->nca) {
+            // The cursor has left the widget while it is being dragged,
+            // we have to catch up! This only happens on Vista...
+            QPoint pos = QCursor::pos();
+            QMouseEvent fake(QEvent::MouseMove, mapFromGlobal(pos), pos, Qt::NoButton,
+                QApplication::mouseButtons(), QApplication::keyboardModifiers());
+            d->mouseMoveEvent(&fake);
+        }
+        break;
+#endif
     case QEvent::MouseButtonRelease:
         d->mouseReleaseEvent(static_cast<QMouseEvent *>(event));
         return true;

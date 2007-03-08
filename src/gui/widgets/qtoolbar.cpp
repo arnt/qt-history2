@@ -868,8 +868,19 @@ bool QToolBar::event(QEvent *event)
         }
         break;
     case QEvent::Leave:
-        if (d->layout->expanded && !d->layout->collapsing)
+#ifdef Q_OS_WIN
+        if (d->state != 0 && d->state->dragging) {
+            // The cursor has left the toolbar while it is being dragged,
+            // we have to catch up! This only happens on Vista...
+            QPoint pos = QCursor::pos();
+            QMouseEvent fake(QEvent::MouseMove, mapFromGlobal(pos), pos, Qt::NoButton,
+                QApplication::mouseButtons(), QApplication::keyboardModifiers());
+            d->mouseMoveEvent(&fake);
+        } else 
+#endif
+        if (d->layout->expanded && !d->layout->collapsing) {
             d->layout->setExpanded(false);
+        }
         break;
     default:
         break;
