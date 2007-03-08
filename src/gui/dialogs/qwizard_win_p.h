@@ -26,6 +26,7 @@
 //
 
 #ifndef QT_NO_WIZARD
+#ifndef QT_NO_STYLE_WINDOWSVISTA
 
 #include <windows.h>
 #include <qobject.h>
@@ -109,6 +110,7 @@ private:
     QVistaBackButton *backButton_;
 };
 
+#endif // QT_NO_STYLE_WINDOWSXP
 #endif // QT_NO_WIZARD
 
 #endif // QWIZARD_WIN_P_H

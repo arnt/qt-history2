@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #ifndef QT_NO_WIZARD
+#ifndef QT_NO_STYLE_WINDOWSVISTA
 
 #include "qwizard_win_p.h"
 #include "qlibrary.h"
@@ -632,4 +633,5 @@ bool QVistaHelper::resolveSymbols()
     return (pDwmIsCompositionEnabled != 0 && pIsAppThemed != 0);
 }
 
+#endif // QT_NO_STYLE_WINDOWSVISTA
 #endif // QT_NO_WIZARD
