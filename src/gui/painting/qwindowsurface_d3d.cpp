@@ -82,14 +82,14 @@ void QD3DWindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoint 
             destrect.right -= diff;
             if (srcrect.right <= srcrect.left)
                 return;
-        }       
+        }
         if (devheight <= srcrect.bottom) {
             int diff = srcrect.bottom - devheight;
             srcrect.bottom -= diff;
             destrect.bottom -= diff;
             if (srcrect.bottom <= srcrect.top)
                 return;
-        }       
+        }
 
         if (FAILED(swapchain->Present(&srcrect, &destrect, widget->winId(), 0, 0)))
             qWarning("QDirect3DPaintEngine: failed to present back buffer.");
@@ -110,15 +110,8 @@ void QD3DWindowSurface::setGeometry(const QRect &rect)
     if (rect.isEmpty())
         qt_d3dEngine()->releaseSwapChain(d_ptr->m_widget);
 
-    const QSize currentSize = rect.size();
-    if (d_ptr->m_lastSize != currentSize) {
-        d_ptr->m_lastSize = currentSize;
-
-        QWidget *w = d_ptr->m_widget;
-        QTLWExtra *topData = w->d_func()->topData();
-        QWidgetBackingStore *bs = topData->backingStore;
-        bs->dirtyRegion(QRegion(0,0,w->width(), w->height()),w);
-    }
+    d_ptr->m_lastSize = rect.size();
+    QWindowSurface::setGeometry(rect);
 }
 
 
