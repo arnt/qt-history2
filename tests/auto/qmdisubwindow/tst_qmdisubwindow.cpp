@@ -1261,8 +1261,10 @@ void tst_QMdiSubWindow::hideAndShow()
     QVERIFY(!menuBar->cornerWidget(Qt::TopRightCorner));
     QMdiSubWindow *subWindow = mdiArea->addSubWindow(new QTextEdit);
     subWindow->showMaximized();
+#ifndef Q_WS_MAC
     QVERIFY(menuBar->cornerWidget(Qt::TopRightCorner));
     QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
+#endif
 
     // Hide QMdiArea.
     tabWidget->setCurrentIndex(1);
@@ -1274,10 +1276,12 @@ void tst_QMdiSubWindow::hideAndShow()
     // Show QMdiArea.
     tabWidget->setCurrentIndex(0);
 
+#ifndef Q_WS_MAC
     QVERIFY(menuBar->cornerWidget(Qt::TopRightCorner));
     QVERIFY(subWindow->maximizedButtonsWidget());
     QVERIFY(subWindow->maximizedSystemMenuIconWidget());
     QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
+#endif
 
     // Hide QMdiArea.
     tabWidget->setCurrentIndex(1);
@@ -1294,10 +1298,12 @@ void tst_QMdiSubWindow::hideAndShow()
     QVERIFY(subWindow);
     QCOMPARE(mdiArea->activeSubWindow(), subWindow);
 
+#ifndef Q_WS_MAC
     QVERIFY(menuBar->cornerWidget(Qt::TopRightCorner));
     QVERIFY(subWindow->maximizedButtonsWidget());
     QVERIFY(subWindow->maximizedSystemMenuIconWidget());
     QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
+#endif
 
     subWindow->showNormal();
     QVERIFY(!menuBar->cornerWidget(Qt::TopRightCorner));
@@ -1307,7 +1313,9 @@ void tst_QMdiSubWindow::hideAndShow()
         QCOMPARE(window->size(), window->sizeHint());
 
     subWindow->showMaximized();
+#ifndef Q_WS_MAC
     QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
+#endif
 
     subWindow->hide();
     QVERIFY(!subWindow->maximizedButtonsWidget());
@@ -1315,9 +1323,11 @@ void tst_QMdiSubWindow::hideAndShow()
     QVERIFY(!menuBar->cornerWidget(Qt::TopRightCorner));
 
     subWindow->show();
+#ifndef Q_WS_MAC
     QVERIFY(subWindow->maximizedButtonsWidget());
     QVERIFY(subWindow->maximizedSystemMenuIconWidget());
     QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
+#endif
 }
 
 QTEST_MAIN(tst_QMdiSubWindow)
