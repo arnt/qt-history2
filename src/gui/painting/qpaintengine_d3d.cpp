@@ -1372,6 +1372,7 @@ void QD3DWindowManager::initPresentParameters(D3DPRESENT_PARAMETERS *params)
     params->SwapEffect = D3DSWAPEFFECT_COPY;
     params->BackBufferFormat = D3DFMT_UNKNOWN;
     params->PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+    params->Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 }
 
 QD3DWindowManager::D3DSwapChain *QD3DWindowManager::createSwapChain(QWidget *w)
@@ -2935,6 +2936,9 @@ void QDirect3DPaintEnginePrivate::fillPath(const QPainterPath &path, QRectF brec
 
 bool QDirect3DPaintEnginePrivate::init()
 {
+    m_dc = 0;
+    m_dcsurface = 0;
+
     m_currentState = 0;
     m_inScene = false;
 #ifdef QT_DEBUG_D3D_CALLS
@@ -3185,6 +3189,17 @@ void QDirect3DPaintEnginePrivate::prepareItem(QD3DBatchItem *item) {
     m_statemanager->endStateBlock();
 }
 
+
+void QDirect3DPaintEnginePrivate::releaseDC()
+{
+    if (m_dc) {
+        m_dcsurface->ReleaseDC(m_dc);
+        m_dcsurface = 0;
+        m_dc = 0;
+    }
+}
+
+
 void QDirect3DPaintEnginePrivate::cleanupItem(QD3DBatchItem *item)
 {
     if (item->m_info & QD3DBatchItem::BI_PIXMAP)
@@ -3285,6 +3300,7 @@ void QDirect3DPaintEnginePrivate::flushBatch()
 
     int offset = 0;
     m_vBuffer->unlock();
+    releaseDC();
 
     // iterate over all items in the batch
     while (offset != m_batch.m_itemIndex) {
@@ -3331,7 +3347,6 @@ bool QDirect3DPaintEngine::begin(QPaintDevice *device)
     qDebug() << "QDirect3DPaintEngine::begin";
 #endif
     Q_D(QDirect3DPaintEngine);
-
     setActive(true);
 
     d->m_winSize = QRect(0, 0, device->width(), device->height()).size();
@@ -3939,10 +3954,6 @@ LPDIRECT3DSWAPCHAIN9 QDirect3DPaintEngine::swapChain(QPaintDevice *pd)
     Q_D(QDirect3DPaintEngine);
 
     if (d->m_inScene) {
-/*        static int dbgcounter = 0;
-        ++dbgcounter;
-        qDebug() << "end" << dbgcounter; */
-
         if (d->m_d3dDevice == 0) {
             qWarning("QDirect3DPaintEngine: No device!");
             return false;
@@ -3962,6 +3973,19 @@ void QDirect3DPaintEngine::releaseSwapChain(QPaintDevice *pd)
 {
     Q_D(QDirect3DPaintEngine);
     d->m_winManager.releasePaintDevice(pd);
+}
+
+HDC QDirect3DPaintEngine::getDC() const
+{
+    QDirect3DPaintEnginePrivate *d = const_cast<QDirect3DPaintEnginePrivate *>(d_func());
+
+    if (!d->m_dc && d->m_defaultSurface) {
+        d->m_dcsurface = d->m_defaultSurface;
+        if (FAILED(d->m_defaultSurface->GetDC(&d->m_dc)))
+            qWarning() << "QDirect3DPaintEngine::getDC() failed!";
+    }
+
+    return d->m_dc;
 }
 
 void QDirect3DPaintEngine::setFlushOnEnd(bool flushOnEnd)

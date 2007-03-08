@@ -147,6 +147,7 @@ public:
 
     void cleanup();
 
+    HDC getDC() const;
     void setFlushOnEnd(bool flushOnEnd);
 
 public:
@@ -285,6 +286,8 @@ public:
     void setCompositionMode(QPainter::CompositionMode mode);
 
     bool isFastRect(const QRectF &rect);
+    
+    void releaseDC();
 
     void cleanup();
 
@@ -346,6 +349,9 @@ public:
     QD3DVertexBuffer *m_vBuffer;
     QD3DBatch m_batch;
     QD3DStateManager *m_statemanager;
+
+    HDC m_dc;
+    IDirect3DSurface9 *m_dcsurface;
 };
 
 #endif //Q_WS_WIN
