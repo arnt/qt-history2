@@ -1757,11 +1757,36 @@ VCCustomBuildTool::VCCustomBuildTool()
 
 XmlOutput &operator<<(XmlOutput &xml, const VCCustomBuildTool &tool)
 {
+    // The code below offers two ways to split custom build step commands.
+    // Normally the $$escape_expand(\n\t) is used in a project file, which is correctly translated
+    // in all generators. However, if you use $$escape_expand(\n\r) (or \n\h) instead, the VCPROJ
+    // generator will instead of binding the commands with " && " will insert a proper newline into
+    // the VCPROJ file. We sometimes use this method of splitting commands if the custom buildstep
+    // contains a command-line which is too big to run on certain OS.
+    QString cmds;
+    int end = tool.CommandLine.count();
+    for(int i = 0; i < end; ++i) {
+        QString cmdl = tool.CommandLine.at(i);
+        if (cmdl.contains("\r\t")) {
+            if (i == end - 1)
+                cmdl = cmdl.trimmed();
+            cmdl.replace("\r\t", " && ");
+        } else if (cmdl.contains("\r\n")) {
+            ;
+        } else if (cmdl.contains("\r\\h")) {
+            // The above \r\n should work, but doesn't, so we have this hack
+            cmdl.replace("\r\\h", "\r\n");
+        } else {
+            if (i < end - 1)
+                cmdl += " && ";
+        }
+        cmds += cmdl;
+    }
     return xml
         << tag(_Tool)
             << attrS(_Name, tool.ToolName)
             << attrX(_AdditionalDependencies, tool.AdditionalDependencies, ";")
-            << attrX(_CommandLine, tool.CommandLine, " && ")
+            << attrS(_CommandLine, cmds)
             << attrS(_Description, tool.Description)
             << attrX(_Outputs, tool.Outputs, ";")
             << attrS(_Path, tool.ToolPath)

@@ -100,7 +100,12 @@ QString XmlOutput::doConversion(const QString &text)
                     output += QLatin1String("&amp;");
                 }
             } else {
-                output += text.at(i);           
+                QChar c = text.at(i);
+                if (c.unicode() < 0x20) {
+                    output += QString("&#x%1;").arg(c.unicode(), 2, 16, QLatin1Char('0'));
+                } else {
+                    output += text.at(i);
+                }
             }
         }
     } else {
