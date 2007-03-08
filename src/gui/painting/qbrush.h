@@ -41,6 +41,7 @@ public:
     QBrush(Qt::GlobalColor color, Qt::BrushStyle bs=Qt::SolidPattern);
 
     QBrush(const QColor &color, const QPixmap &pixmap);
+    QBrush(const QColor &color, const QImage &image);
     QBrush(Qt::GlobalColor color, const QPixmap &pixmap);
     QBrush(const QPixmap &pixmap);
     QBrush(const QImage &image);

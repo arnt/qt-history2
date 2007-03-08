@@ -4426,7 +4426,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
             type = Texture;
             extern QImage qt_imageForBrush(int brushStyle, bool invert);
             QImage texture = (brushStyle == Qt::TexturePattern)
-                             ? brush.texture().toImage()
+                             ? brush.textureImage()
                              : qt_imageForBrush(brushStyle, true);
 
             tempImage = (texture.depth() == 1)

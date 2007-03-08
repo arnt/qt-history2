@@ -4304,8 +4304,22 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
         || (!d->state->matrix.isAffine() && !d->engine->hasFeature(QPaintEngine::PerspectiveTransform))
         || (sw != w || sh != h))
     {
-        QPixmap pm = QPixmap::fromImage(image, flags);
-        drawPixmap(targetRect, pm, sourceRect);
+        if (!d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
+            save();
+            translate(x, y);
+            scale(w / sw, h / sh);
+            setBackgroundMode(Qt::TransparentMode);
+            setRenderHint(Antialiasing, renderHints() & SmoothPixmapTransform);
+            setBrush(QBrush(d->state->pen.color(), image));
+            setPen(Qt::NoPen);
+            setBrushOrigin(QPointF(-sx, -sy));
+
+            drawRect(QRectF(0, 0, sw, sh));
+            restore();
+        } else {
+            QPixmap pm = QPixmap::fromImage(image, flags);
+            drawPixmap(targetRect, pm, sourceRect);
+        }
         return;
     }
 

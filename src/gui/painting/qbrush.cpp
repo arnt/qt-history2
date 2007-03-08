@@ -405,6 +405,13 @@ QBrush::QBrush(const QColor &color, const QPixmap &pixmap)
     setTexture(pixmap);
 }
 
+
+QBrush::QBrush(const QColor &color, const QImage &image)
+{
+    init(color, Qt::TexturePattern);
+    setTextureImage(image);
+}
+
 /*!
 
     Constructs a brush with the given \a color and the custom pattern
@@ -1913,7 +1920,6 @@ void QConicalGradient::setAngle(qreal angle)
     Q_ASSERT(m_type == ConicalGradient);
     m_data.conical.angle = angle;
 }
-
 
 /*!
     \typedef QGradientStop
