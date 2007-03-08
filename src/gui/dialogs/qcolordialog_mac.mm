@@ -104,7 +104,6 @@ QRgb macGetRgba(QRgb initial, bool needAlpha, bool *ok, QWidget *parent)
 
     QNSColorPickerResponder *responder = [[QNSColorPickerResponder alloc] initWithColor:nsColor
                                                                           needAlpha:needAlpha];
-    [nsColor release];
     [cocoaColorPanel setDelegate:responder];
     static const int sw = 420, sh = 300;
     Point p = { -1, -1 };
