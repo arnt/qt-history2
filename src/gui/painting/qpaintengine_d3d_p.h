@@ -83,10 +83,10 @@ private:
     QSize m_maxSize;
     int m_status;
     QMap<QPaintDevice *, D3DSwapChain *> m_swapchains;
-    QPaintDevice *m_mainpd;
 
     LPDIRECT3DDEVICE9 m_device;
     QPaintDevice *m_pd;
+    QWidget *m_dummy;
     D3DSwapChain *m_current;
 
 private Q_SLOTS:

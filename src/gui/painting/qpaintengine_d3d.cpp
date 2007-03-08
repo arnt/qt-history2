@@ -1171,14 +1171,10 @@ void QD3DGradientCache::cleanCache()
     cache.clear();
 }
 
-QD3DWindowManager::QD3DWindowManager()
-    : QObject(0)
-    , m_status(NoStatus)
-    , m_mainpd(0)
-    , m_device(0)
-    , m_pd(0)
-    , m_current(0)
+QD3DWindowManager::QD3DWindowManager() :
+    m_status(NoStatus), m_dummy(0), m_device(0), m_pd(0), m_current(0)
 {
+
 }
 
 QD3DWindowManager::~QD3DWindowManager()
@@ -1191,7 +1187,7 @@ void QD3DWindowManager::setPaintDevice(QPaintDevice *pd)
     m_pd = pd;
     m_current = 0;
 
-    if (!m_mainpd) {
+    if (m_device->TestCooperativeLevel() != D3D_OK) {
         m_status = NeedsReseting;
         return;
     }
@@ -1206,11 +1202,6 @@ void QD3DWindowManager::setPaintDevice(QPaintDevice *pd)
             m_current->swapchain->Release();
             delete m_current;
             m_current = 0;
-
-            if (m_mainpd == pd) {
-                m_status = NeedsReseting;
-                return;
-            }
         }
     }
 
@@ -1218,12 +1209,6 @@ void QD3DWindowManager::setPaintDevice(QPaintDevice *pd)
         m_current = createSwapChain(w);
         updateMaxSize();
     }
-}
-
-void QD3DWindowManager::cleanupPaintDevice(QObject *object)
-{
-    QWidget *w = static_cast<QWidget *>(object);
-    releasePaintDevice(w);
 }
 
 int QD3DWindowManager::status() const
@@ -1244,15 +1229,9 @@ void QD3DWindowManager::reset()
     qDeleteAll(m_swapchains.values());
     m_swapchains.clear();
 
-    if (!m_mainpd)
-        m_mainpd = m_pd;
-
-    pds.removeAll(m_mainpd);
-    QWidget *w = static_cast<QWidget*>(m_mainpd);
-
     D3DPRESENT_PARAMETERS params;
     initPresentParameters(&params);
-    params.hDeviceWindow = w->winId();
+    params.hDeviceWindow = m_dummy->winId();
 
     HRESULT res = m_device->Reset(&params);
     if (FAILED(res)) {
@@ -1271,20 +1250,8 @@ void QD3DWindowManager::reset()
         };
     }
 
-    D3DSwapChain *swapchain = new D3DSwapChain();
-    swapchain->size = w->size();
-    if (FAILED(m_device->GetSwapChain(0, &swapchain->swapchain)))
-        qWarning("QDirect3DPaintEngine: GetSwapChain failed");
-    if (FAILED(swapchain->swapchain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &swapchain->surface)))
-        qWarning("QDirect3DPaintEngine: GetBackBuffer failed");
-
-    QColor bg = w->palette().brush(w->backgroundRole()).color();
-    m_device->ColorFill(swapchain->surface, 0, D3DCOLOR_ARGB(bg.alpha(), bg.red(),bg.green(),bg.blue()));
-
-    m_swapchains.insert(m_mainpd, swapchain);
-    connect(w, SIGNAL(destroyed(QObject *)), SLOT(cleanupPaintDevice(QObject *)));
     for (int i=0; i<pds.count(); ++i) {
-        w = static_cast<QWidget*>(pds.at(i));
+        QWidget *w = static_cast<QWidget*>(pds.at(i));
         createSwapChain(w);
     }
 
@@ -1315,9 +1282,6 @@ LPDIRECT3DSWAPCHAIN9 QD3DWindowManager::swapChain(QPaintDevice *pd)
 void QD3DWindowManager::releasePaintDevice(QPaintDevice *pd)
 {
     D3DSwapChain *swapchain = m_swapchains.take(pd);
-
-    if (pd == m_mainpd)
-        m_mainpd = 0;
 
     if (swapchain) {
         swapchain->surface->Release();
@@ -1353,6 +1317,8 @@ void QD3DWindowManager::cleanup()
 
     if (m_device)
         m_device->Release();
+
+    delete m_dummy;
 }
 
 QSize QD3DWindowManager::maxSize() const
@@ -1362,10 +1328,10 @@ QSize QD3DWindowManager::maxSize() const
 
 void QD3DWindowManager::init(LPDIRECT3D9 object)
 {
-    QWidget dmy(0); // we need a HWND to create the device..
+    m_dummy = new QWidget(0); // we need a HWND to create the device..
     D3DPRESENT_PARAMETERS params;
     initPresentParameters(&params);
-    params.hDeviceWindow = dmy.winId();
+    params.hDeviceWindow = m_dummy->winId();
 
     HRESULT res = object->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, 0,
         D3DCREATE_PUREDEVICE|D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_NOWINDOWCHANGES|D3DCREATE_FPU_PRESERVE,
@@ -1422,10 +1388,16 @@ QD3DWindowManager::D3DSwapChain *QD3DWindowManager::createSwapChain(QWidget *w)
     m_swapchains.insert(w, swapchain);
 
     // init with background color
-    QColor bg = w->palette().brush(w->backgroundRole()).color();
+    QColor bg = w->palette().color(QPalette::Background);
     m_device->ColorFill(swapchain->surface, 0, D3DCOLOR_ARGB(bg.alpha(), bg.red(),bg.green(),bg.blue()));
 
     return swapchain;
+}
+
+void QD3DWindowManager::cleanupPaintDevice(QObject *object)
+{
+    QWidget *w = static_cast<QWidget *>(object);
+    releasePaintDevice(w);
 }
 
 QD3DMaskAllocator::QD3DMaskAllocator() {
@@ -1491,6 +1463,9 @@ QD3DVertexBuffer::QD3DVertexBuffer(QDirect3DPaintEnginePrivate *pe)
 #ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
     memset(accesscontrol, 0, QT_VERTEX_BUF_SIZE * sizeof(VertexBufferAccess));
 #endif
+
+    // create vertex buffer
+    afterReset();
 }
 
 QD3DVertexBuffer::~QD3DVertexBuffer()
