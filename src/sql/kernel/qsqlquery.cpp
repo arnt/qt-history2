@@ -198,6 +198,10 @@ QSqlQueryPrivate::~QSqlQueryPrivate()
     or return multiple result sets, are not fully supported. For specific 
     details see \l{SQL Database Drivers}.
 
+    \warning  You cannot allocate a QSqlQuery before the SQL driver
+    is loaded; the query will return "driver not loaded" SQL errors if
+    you do so.
+
     \sa QSqlDatabase, QSqlQueryModel, QSqlTableModel, QVariant
 */
 
