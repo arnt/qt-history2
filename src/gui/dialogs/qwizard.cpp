@@ -1364,7 +1364,7 @@ static PtrGetGraphicsImporterForDataRefWithFlags ptrGetGraphicsImporterForDataRe
 static PtrGraphicsImportSetFlags ptrGraphicsImportSetFlags = 0;
 static PtrGraphicsImportCreateCGImage ptrGraphicsImportCreateCGImage = 0;
 
-bool resolveQuickTimeSymbols()
+static bool resolveQuickTimeSymbols()
 {
     if (ptrQTNewDataReferenceFromCFURL == 0) {
         QLibrary library(QLatin1String("/System/Library/Frameworks/QuickTime.framework/QuickTime"));
