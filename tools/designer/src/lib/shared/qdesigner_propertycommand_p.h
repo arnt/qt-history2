@@ -111,7 +111,7 @@ class QDESIGNER_SHARED_EXPORT PropertyListCommand : public QDesignerFormWindowCo
 public:
     typedef QList<QObject *> ObjectList;
 
-    PropertyListCommand(QDesignerFormWindowInterface *formWindow);
+    explicit PropertyListCommand(QDesignerFormWindowInterface *formWindow);
 
     QObject* object(int index = 0) const;
 
@@ -179,7 +179,7 @@ class QDESIGNER_SHARED_EXPORT SetPropertyCommand: public PropertyListCommand
 public:
     typedef QList<QObject *> ObjectList;
 
-    SetPropertyCommand(QDesignerFormWindowInterface *formWindow);
+    explicit SetPropertyCommand(QDesignerFormWindowInterface *formWindow);
 
     bool init(QObject *object, const QString &propertyName, const QVariant &newValue);
     bool init(const ObjectList &list, const QString &propertyName, const QVariant &newValue,
@@ -209,7 +209,7 @@ class QDESIGNER_SHARED_EXPORT ResetPropertyCommand: public PropertyListCommand
 public:
     typedef QList<QObject *> ObjectList;
 
-    ResetPropertyCommand(QDesignerFormWindowInterface *formWindow);
+    explicit ResetPropertyCommand(QDesignerFormWindowInterface *formWindow);
 
     bool init(QObject *object, const QString &propertyName);
     bool init(const ObjectList &list, const QString &propertyName, QObject *referenceObject = 0);
@@ -229,7 +229,7 @@ class QDESIGNER_SHARED_EXPORT AddDynamicPropertyCommand: public QDesignerFormWin
 {
 
 public:
-    AddDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow);
+    explicit AddDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow);
 
     bool init(const QList<QObject *> &selection, QObject *current, const QString &propertyName, const QVariant &value);
 
@@ -246,7 +246,7 @@ class QDESIGNER_SHARED_EXPORT RemoveDynamicPropertyCommand: public QDesignerForm
 {
 
 public:
-    RemoveDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow);
+    explicit RemoveDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow);
 
     bool init(const QList<QObject *> &selection, QObject *current, const QString &propertyName);
 

@@ -29,7 +29,7 @@ class TreeWidgetTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
 public:
-    TreeWidgetTaskMenu(QTreeWidget *button, QObject *parent = 0);
+    explicit TreeWidgetTaskMenu(QTreeWidget *button, QObject *parent = 0);
     virtual ~TreeWidgetTaskMenu();
 
     virtual QAction *preferredEditAction() const;
@@ -51,7 +51,7 @@ class TreeWidgetTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    TreeWidgetTaskMenuFactory(QExtensionManager *extensionManager = 0);
+    explicit TreeWidgetTaskMenuFactory(QExtensionManager *extensionManager = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

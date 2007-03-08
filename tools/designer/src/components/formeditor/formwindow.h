@@ -53,7 +53,7 @@ class QT_FORMEDITOR_EXPORT FormWindow: public FormWindowBase
 public:
     enum HighlightMode  { Restore, Highlight };
 
-    FormWindow(FormEditor *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    explicit FormWindow(FormEditor *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~FormWindow();
 
     virtual QDesignerFormEditorInterface *core() const;

@@ -49,7 +49,7 @@ class QDESIGNER_SHARED_EXPORT PromotionTaskMenu: public QObject
 public:
     enum Mode { ModeSingleWidget, ModeMultiSelection };
 
-    PromotionTaskMenu(QWidget *widget,Mode mode = ModeMultiSelection, QObject *parent = 0);
+    explicit PromotionTaskMenu(QWidget *widget,Mode mode = ModeMultiSelection, QObject *parent = 0);
 
     void setWidget(QWidget *widget);
 

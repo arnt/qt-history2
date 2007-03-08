@@ -114,7 +114,7 @@ class QT_FORMEDITOR_EXPORT IconCache : public QDesignerIconCacheInterface
 {
     Q_OBJECT
 public:
-    IconCache(QObject *parent);
+    explicit IconCache(QObject *parent);
 
     virtual QIcon nameToIcon(const QString &path, const QString &resourcePath = QString());
     virtual QString iconToFilePath(const QIcon &pm) const;

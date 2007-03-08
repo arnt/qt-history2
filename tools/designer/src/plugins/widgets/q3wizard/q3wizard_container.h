@@ -24,7 +24,7 @@ class Q3WizardContainer: public QObject, public QDesignerContainerExtension
     Q_OBJECT
     Q_INTERFACES(QDesignerContainerExtension)
 public:
-    Q3WizardContainer(Q3Wizard *wizard, QObject *parent = 0);
+    explicit Q3WizardContainer(Q3Wizard *wizard, QObject *parent = 0);
 
     virtual int count() const;
     virtual QWidget *widget(int index) const;
@@ -42,7 +42,7 @@ class Q3WizardContainerFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    Q3WizardContainerFactory(QExtensionManager *parent = 0);
+    explicit Q3WizardContainerFactory(QExtensionManager *parent = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

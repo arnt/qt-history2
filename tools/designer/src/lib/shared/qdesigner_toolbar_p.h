@@ -41,7 +41,7 @@ class QDESIGNER_SHARED_EXPORT SentinelAction: public QAction
 {
     Q_OBJECT
 public:
-    SentinelAction(QWidget *widget);
+    explicit SentinelAction(QWidget *widget);
     virtual ~SentinelAction();
 };
 
@@ -49,7 +49,7 @@ class QDESIGNER_SHARED_EXPORT Sentinel: public QToolButton
 {
     Q_OBJECT
 public:
-    Sentinel(QWidget *widget);
+    explicit Sentinel(QWidget *widget);
     virtual ~Sentinel();
 };
 
@@ -59,7 +59,7 @@ class QDESIGNER_SHARED_EXPORT QDesignerToolBar: public QToolBar
 {
     Q_OBJECT
 public:
-    QDesignerToolBar(QWidget *parent = 0);
+    explicit QDesignerToolBar(QWidget *parent = 0);
     virtual ~QDesignerToolBar();
 
     bool eventFilter(QObject *object, QEvent *event);

@@ -29,7 +29,7 @@ class LineEditTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
 public:
-    LineEditTaskMenu(QLineEdit *button, QObject *parent = 0);
+    explicit LineEditTaskMenu(QLineEdit *button, QObject *parent = 0);
     virtual ~LineEditTaskMenu();
 
     virtual QAction *preferredEditAction() const;
@@ -53,7 +53,7 @@ class LineEditTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    LineEditTaskMenuFactory(QExtensionManager *extensionManager = 0);
+    explicit LineEditTaskMenuFactory(QExtensionManager *extensionManager = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

@@ -48,7 +48,7 @@ class QDESIGNER_SHARED_EXPORT WidgetFactory: public QDesignerWidgetFactoryInterf
 {
     Q_OBJECT
 public:
-    WidgetFactory(QDesignerFormEditorInterface *core, QObject *parent = 0);
+    explicit WidgetFactory(QDesignerFormEditorInterface *core, QObject *parent = 0);
     ~WidgetFactory();
 
     virtual QWidget* containerOfWidget(QWidget *widget) const;

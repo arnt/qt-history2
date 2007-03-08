@@ -34,7 +34,7 @@ class QT_FORMEDITOR_EXPORT QDesignerActionProvider: public QObject, public QDesi
     Q_OBJECT
     Q_INTERFACES(QDesignerActionProviderExtension)
 public:
-    QDesignerActionProvider(QWidget *widget, QObject *parent = 0);
+    explicit QDesignerActionProvider(QWidget *widget, QObject *parent = 0);
     virtual ~QDesignerActionProvider();
 
     virtual QRect actionGeometry(QAction *action) const;

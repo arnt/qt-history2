@@ -34,7 +34,7 @@ class QDESIGNER_SHARED_EXPORT CssHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 public:
-    CssHighlighter(QTextDocument *document);
+    explicit CssHighlighter(QTextDocument *document);
 
 protected:
     void highlightBlock(const QString&);

@@ -148,7 +148,7 @@ protected:
 class QT_PROPERTYEDITOR_EXPORT AbstractPropertyGroup: public IPropertyGroup
 {
 public:
-    AbstractPropertyGroup(const QString &name)
+    explicit AbstractPropertyGroup(const QString &name)
         : m_name(name) {}
 
     ~AbstractPropertyGroup()
@@ -195,7 +195,7 @@ protected:
 class QT_PROPERTYEDITOR_EXPORT PropertyCollection: public IPropertyGroup
 {
 public:
-    PropertyCollection(const QString &name);
+    explicit PropertyCollection(const QString &name);
     ~PropertyCollection();
 
     inline IProperty::Kind kind() const
@@ -236,7 +236,7 @@ private:
 class QT_PROPERTYEDITOR_EXPORT IntProperty: public AbstractProperty<int>
 {
 public:
-    IntProperty(int value, const QString &name);
+    explicit IntProperty(int value, const QString &name);
 
     QString specialValue() const;
     void setSpecialValue(const QString &specialValue);

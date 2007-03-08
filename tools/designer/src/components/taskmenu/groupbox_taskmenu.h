@@ -29,7 +29,7 @@ class GroupBoxTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
 public:
-    GroupBoxTaskMenu(QGroupBox *groupbox, QObject *parent = 0);
+    explicit GroupBoxTaskMenu(QGroupBox *groupbox, QObject *parent = 0);
     virtual ~GroupBoxTaskMenu();
 
     virtual QAction *preferredEditAction() const;
@@ -53,7 +53,7 @@ class GroupBoxTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    GroupBoxTaskMenuFactory(QExtensionManager *extensionManager = 0);
+    explicit GroupBoxTaskMenuFactory(QExtensionManager *extensionManager = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

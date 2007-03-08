@@ -35,7 +35,7 @@ namespace qdesigner_internal {
 class QDESIGNER_SHARED_EXPORT QDesignerDnDItem: public QDesignerDnDItemInterface
 {
 public:
-    QDesignerDnDItem(DropType type, QWidget *source = 0);
+    explicit QDesignerDnDItem(DropType type, QWidget *source = 0);
     virtual ~QDesignerDnDItem();
 
     virtual DomUI *domUi() const;

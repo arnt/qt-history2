@@ -40,7 +40,7 @@ class QDESIGNER_SHARED_EXPORT SetPropertyCommentCommand: public QDesignerFormWin
     SetPropertyCommentCommand& operator=(const SetPropertyCommentCommand &);
 
 public:
-    SetPropertyCommentCommand(QDesignerFormWindowInterface *formWindow);
+    explicit SetPropertyCommentCommand(QDesignerFormWindowInterface *formWindow);
 
     bool init(QObject *object, const QString &propertyName, const QString &newCommentValue);
 

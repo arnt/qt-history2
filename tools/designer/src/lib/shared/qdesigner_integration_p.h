@@ -45,7 +45,7 @@ class QDESIGNER_SHARED_EXPORT QDesignerIntegration: public QDesignerIntegrationI
 {
     Q_OBJECT
 public:
-    QDesignerIntegration(QDesignerFormEditorInterface *core, QObject *parent = 0);
+    explicit QDesignerIntegration(QDesignerFormEditorInterface *core, QObject *parent = 0);
     virtual ~QDesignerIntegration();
 
     virtual QWidget *containerWindow(QWidget *widget) const;

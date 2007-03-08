@@ -25,7 +25,7 @@ class LinePropertySheet: public QDesignerPropertySheet
     Q_OBJECT
     Q_INTERFACES(QDesignerPropertySheetExtension)
 public:
-    LinePropertySheet(Line *object, QObject *parent = 0);
+    explicit LinePropertySheet(Line *object, QObject *parent = 0);
     virtual ~LinePropertySheet();
 
     virtual void setProperty(int index, const QVariant &value);
@@ -38,7 +38,7 @@ class LinePropertySheetFactory: public QExtensionFactory
     Q_OBJECT
     Q_INTERFACES(QAbstractExtensionFactory)
 public:
-    LinePropertySheetFactory(QExtensionManager *parent = 0);
+    explicit LinePropertySheetFactory(QExtensionManager *parent = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

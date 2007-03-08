@@ -123,7 +123,7 @@ class QDESIGNER_SHARED_EXPORT QLayoutWidget: public QWidget
 {
     Q_OBJECT
 public:
-    QLayoutWidget(QDesignerFormWindowInterface *formWindow, QWidget *parent = 0);
+    explicit QLayoutWidget(QDesignerFormWindowInterface *formWindow, QWidget *parent = 0);
 
     int layoutLeftMargin() const;
     void setLayoutLeftMargin(int layoutMargin);
@@ -191,7 +191,7 @@ private:
 class QLayoutWidgetItem: public QWidgetItem
 {
 public:
-    QLayoutWidgetItem(QWidget *widget);
+    explicit QLayoutWidgetItem(QWidget *widget);
 
     virtual void setGeometry(const QRect &r);
     virtual QSize sizeHint() const;

@@ -70,8 +70,8 @@ public:
 class QDESIGNER_SHARED_EXPORT Connection : public CETypes
 {
 public:
-    Connection(ConnectionEdit *edit);
-    Connection(ConnectionEdit *edit, QObject *source, QObject *target);
+    explicit Connection(ConnectionEdit *edit);
+    explicit Connection(ConnectionEdit *edit, QObject *source, QObject *target);
     virtual ~Connection() {}
 
     QObject *object(EndPoint::Type type) const
@@ -244,7 +244,7 @@ private:
 class QDESIGNER_SHARED_EXPORT CECommand : public QUndoCommand, public CETypes
 {
 public:
-    CECommand(ConnectionEdit *edit)
+   explicit  CECommand(ConnectionEdit *edit)
         : m_edit(edit) {}
 
     virtual bool mergeWith(const QUndoCommand *) { return false; }

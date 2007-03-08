@@ -42,7 +42,7 @@ class QDESIGNER_SHARED_EXPORT QDesignerStackedWidget : public QStackedWidget
     Q_OBJECT
     Q_PROPERTY(QString currentPageName READ currentPageName WRITE setCurrentPageName STORED false DESIGNABLE true)
 public:
-    QDesignerStackedWidget(QWidget *parent);
+    explicit QDesignerStackedWidget(QWidget *parent);
     
     // Add context menu and return page submenu or 0.
     QMenu *addContextMenuActions(QMenu *popup);

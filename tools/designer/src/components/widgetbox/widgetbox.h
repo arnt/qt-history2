@@ -30,7 +30,7 @@ class QT_WIDGETBOX_EXPORT WidgetBox : public QDesignerWidgetBox
 {
     Q_OBJECT
 public:
-    WidgetBox(QDesignerFormEditorInterface *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    explicit WidgetBox(QDesignerFormEditorInterface *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~WidgetBox();
 
     QDesignerFormEditorInterface *core() const;

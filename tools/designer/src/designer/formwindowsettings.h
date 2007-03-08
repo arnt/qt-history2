@@ -26,7 +26,7 @@ class FormWindowSettings: public QDialog
 {
     Q_OBJECT
 public:
-    FormWindowSettings(QDesignerFormWindowInterface *formWindow);
+    explicit FormWindowSettings(QDesignerFormWindowInterface *formWindow);
 
     virtual void accept();
 

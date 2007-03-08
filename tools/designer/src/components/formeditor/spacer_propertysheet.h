@@ -25,7 +25,7 @@ class SpacerPropertySheet: public QDesignerPropertySheet
     Q_OBJECT
     Q_INTERFACES(QDesignerPropertySheetExtension)
 public:
-    SpacerPropertySheet(Spacer *object, QObject *parent = 0);
+    explicit SpacerPropertySheet(Spacer *object, QObject *parent = 0);
     virtual ~SpacerPropertySheet();
 
     virtual void setProperty(int index, const QVariant &value);
@@ -39,7 +39,7 @@ class SpacerPropertySheetFactory: public QExtensionFactory
     Q_OBJECT
     Q_INTERFACES(QAbstractExtensionFactory)
 public:
-    SpacerPropertySheetFactory(QExtensionManager *parent = 0);
+    explicit SpacerPropertySheetFactory(QExtensionManager *parent = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

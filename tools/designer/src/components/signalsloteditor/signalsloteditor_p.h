@@ -42,7 +42,7 @@ class SignalSlotEditor;
 struct ClassInfo
 {
     ClassInfo(const QString &_class_name = QString(),
-                const QStringList &_member_list = QStringList())
+              const QStringList &_member_list = QStringList())
         : class_name(_class_name), member_list(_member_list) {}
     QString class_name;
     QStringList member_list;
@@ -58,7 +58,7 @@ ClassList classList(const QString &obj_name, MemberType member_type,
 class SignalSlotConnection : public Connection
 {
 public:
-    SignalSlotConnection(ConnectionEdit *edit, QWidget *source = 0, QWidget *target = 0);
+    explicit SignalSlotConnection(ConnectionEdit *edit, QWidget *source = 0, QWidget *target = 0);
 
     void setSignal(const QString &signal);
     void setSlot(const QString &slot);
@@ -80,7 +80,7 @@ class ConnectionModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    ConnectionModel(SignalSlotEditor *editor, QObject *parent = 0);
+    explicit ConnectionModel(SignalSlotEditor *editor, QObject *parent = 0);
 
     virtual QModelIndex index(int row, int column,
                               const QModelIndex &parent = QModelIndex()) const;

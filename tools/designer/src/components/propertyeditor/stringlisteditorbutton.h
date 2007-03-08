@@ -25,7 +25,7 @@ class QT_PROPERTYEDITOR_EXPORT StringListEditorButton: public QToolButton
 {
     Q_OBJECT
 public:
-    StringListEditorButton(const QStringList &stringList, QWidget *parent = 0);
+    explicit StringListEditorButton(const QStringList &stringList, QWidget *parent = 0);
     virtual ~StringListEditorButton();
 
     inline QStringList stringList() const

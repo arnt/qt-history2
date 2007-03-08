@@ -41,7 +41,7 @@ class QDESIGNER_SHARED_EXPORT ScriptCommand: public QDesignerFormWindowCommand
     ScriptCommand& operator=(const ScriptCommand &);
 
 public:
-    ScriptCommand(QDesignerFormWindowInterface *formWindow);
+    explicit ScriptCommand(QDesignerFormWindowInterface *formWindow);
 
     typedef QList<QObject *> ObjectList;
     bool init(const ObjectList &list, const QString &script);

@@ -22,7 +22,7 @@ class QDesignerObjectInspector: public QDesignerToolWindow
 {
     Q_OBJECT
 public:
-    QDesignerObjectInspector(QDesignerWorkbench *workbench);
+    explicit QDesignerObjectInspector(QDesignerWorkbench *workbench);
     virtual ~QDesignerObjectInspector();
 
     virtual QRect geometryHint() const;

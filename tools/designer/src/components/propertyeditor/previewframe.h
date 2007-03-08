@@ -26,7 +26,7 @@ class PreviewFrame: public QFrame
 {
     Q_OBJECT
 public:
-    PreviewFrame(QWidget *parent);
+    explicit PreviewFrame(QWidget *parent);
 
     void setPreviewPalette(const QPalette &palette);
     void setSubWindowActive(bool active);

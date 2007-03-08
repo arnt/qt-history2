@@ -32,7 +32,7 @@ namespace qdesigner_internal {
 class QScriptHighlighter : public QSyntaxHighlighter
 {
 public:
-    QScriptHighlighter(QTextDocument *parent);
+    explicit QScriptHighlighter(QTextDocument *parent);
     virtual void highlightBlock(const QString &text);
 
 private:

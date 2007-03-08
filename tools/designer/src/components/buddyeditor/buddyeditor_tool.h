@@ -32,7 +32,7 @@ class QT_BUDDYEDITOR_EXPORT BuddyEditorTool: public QDesignerFormWindowToolInter
 {
     Q_OBJECT
 public:
-    BuddyEditorTool(QDesignerFormWindowInterface *formWindow, QObject *parent = 0);
+    explicit BuddyEditorTool(QDesignerFormWindowInterface *formWindow, QObject *parent = 0);
     virtual ~BuddyEditorTool();
 
     virtual QDesignerFormEditorInterface *core() const;

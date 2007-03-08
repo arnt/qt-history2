@@ -28,7 +28,7 @@ class ToolBarTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
 public:
-    ToolBarTaskMenu(QToolBar *button, QObject *parent = 0);
+    explicit ToolBarTaskMenu(QToolBar *button, QObject *parent = 0);
     virtual ~ToolBarTaskMenu();
 
     virtual QAction *preferredEditAction() const;
@@ -48,7 +48,7 @@ class ToolBarTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    ToolBarTaskMenuFactory(QExtensionManager *extensionManager = 0);
+    explicit ToolBarTaskMenuFactory(QExtensionManager *extensionManager = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

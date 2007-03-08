@@ -38,7 +38,7 @@ class QDESIGNER_SHARED_EXPORT QDesignerPluginManager: public QObject
 {
     Q_OBJECT
 public:
-    QDesignerPluginManager(QDesignerFormEditorInterface *core);
+    explicit QDesignerPluginManager(QDesignerFormEditorInterface *core);
     virtual ~QDesignerPluginManager();
 
     QDesignerFormEditorInterface *core() const;

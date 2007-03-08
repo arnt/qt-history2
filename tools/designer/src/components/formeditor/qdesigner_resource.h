@@ -43,7 +43,7 @@ class FormWindow;
 class QT_FORMEDITOR_EXPORT QDesignerResource : public QSimpleResource
 {
 public:
-    QDesignerResource(FormWindow *fw);
+    explicit QDesignerResource(FormWindow *fw);
     virtual ~QDesignerResource();
 
     virtual void save(QIODevice *dev, QWidget *widget);

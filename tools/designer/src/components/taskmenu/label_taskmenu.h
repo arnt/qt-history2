@@ -30,7 +30,7 @@ class LabelTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
 public:
-    LabelTaskMenu(QLabel *button, QObject *parent = 0);
+    explicit LabelTaskMenu(QLabel *button, QObject *parent = 0);
     virtual ~LabelTaskMenu();
 
     virtual QAction *preferredEditAction() const;
@@ -55,7 +55,7 @@ class LabelTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    LabelTaskMenuFactory(QExtensionManager *extensionManager = 0);
+    explicit LabelTaskMenuFactory(QExtensionManager *extensionManager = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

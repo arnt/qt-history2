@@ -28,7 +28,7 @@ class TextEditTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
 public:
-    TextEditTaskMenu(QTextEdit *button, QObject *parent = 0);
+    explicit TextEditTaskMenu(QTextEdit *button, QObject *parent = 0);
     virtual ~TextEditTaskMenu();
 
     virtual QAction *preferredEditAction() const;
@@ -50,7 +50,7 @@ class TextEditTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    TextEditTaskMenuFactory(QExtensionManager *extensionManager = 0);
+    explicit TextEditTaskMenuFactory(QExtensionManager *extensionManager = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

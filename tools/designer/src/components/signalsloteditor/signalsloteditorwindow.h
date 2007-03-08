@@ -33,7 +33,7 @@ class SignalSlotEditorWindow : public QWidget
 {
     Q_OBJECT
 public:
-    SignalSlotEditorWindow(QDesignerFormEditorInterface *core, QWidget *parent = 0);
+    explicit SignalSlotEditorWindow(QDesignerFormEditorInterface *core, QWidget *parent = 0);
 
 public slots:
     void setActiveFormWindow(QDesignerFormWindowInterface *form);

@@ -29,7 +29,7 @@ class ComboBoxTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
 public:
-    ComboBoxTaskMenu(QComboBox *button, QObject *parent = 0);
+    explicit ComboBoxTaskMenu(QComboBox *button, QObject *parent = 0);
     virtual ~ComboBoxTaskMenu();
 
     virtual QAction *preferredEditAction() const;
@@ -51,7 +51,7 @@ class ComboBoxTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    ComboBoxTaskMenuFactory(QExtensionManager *extensionManager = 0);
+    explicit ComboBoxTaskMenuFactory(QExtensionManager *extensionManager = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

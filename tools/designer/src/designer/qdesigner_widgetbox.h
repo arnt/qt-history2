@@ -22,7 +22,7 @@ class QDesignerWidgetBox: public QDesignerToolWindow
 {
     Q_OBJECT
 public:
-    QDesignerWidgetBox(QDesignerWorkbench *workbench);
+    explicit QDesignerWidgetBox(QDesignerWorkbench *workbench);
     virtual ~QDesignerWidgetBox();
 
     virtual Qt::DockWidgetArea dockWidgetAreaHint() const;

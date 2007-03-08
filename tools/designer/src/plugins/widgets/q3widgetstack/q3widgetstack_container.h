@@ -24,7 +24,7 @@ class Q3WidgetStackContainer: public QObject, public QDesignerContainerExtension
     Q_OBJECT
     Q_INTERFACES(QDesignerContainerExtension)
 public:
-    Q3WidgetStackContainer(QDesignerQ3WidgetStack *widget, QObject *parent = 0);
+    explicit Q3WidgetStackContainer(QDesignerQ3WidgetStack *widget, QObject *parent = 0);
 
     virtual int count() const;
     virtual QWidget *widget(int index) const;
@@ -43,7 +43,7 @@ class Q3WidgetStackContainerFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    Q3WidgetStackContainerFactory(QExtensionManager *parent = 0);
+    explicit Q3WidgetStackContainerFactory(QExtensionManager *parent = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

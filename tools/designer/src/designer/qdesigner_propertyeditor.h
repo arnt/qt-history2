@@ -22,7 +22,7 @@ class QDesignerPropertyEditor: public QDesignerToolWindow
 {
     Q_OBJECT
 public:
-    QDesignerPropertyEditor(QDesignerWorkbench *workbench);
+    explicit QDesignerPropertyEditor(QDesignerWorkbench *workbench);
     virtual ~QDesignerPropertyEditor();
 
     virtual QRect geometryHint() const;

@@ -37,7 +37,7 @@ namespace qdesigner_internal {
 class QDESIGNER_SHARED_EXPORT QSimpleResource : public QAbstractFormBuilder
 {
 public:
-    QSimpleResource(QDesignerFormEditorInterface *core);
+    explicit QSimpleResource(QDesignerFormEditorInterface *core);
     virtual ~QSimpleResource();
 
     QBrush setupBrush(DomBrush *brush);

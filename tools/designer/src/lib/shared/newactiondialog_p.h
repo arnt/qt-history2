@@ -35,7 +35,7 @@ class NewActionDialog: public QDialog
 {
     Q_OBJECT
 public:
-    NewActionDialog(ActionEditor *parent);
+    explicit NewActionDialog(ActionEditor *parent);
     virtual ~NewActionDialog();
 
     QString actionText() const;

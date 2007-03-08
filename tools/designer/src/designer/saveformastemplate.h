@@ -22,7 +22,7 @@ class SaveFormAsTemplate: public QDialog
 {
     Q_OBJECT
 public:
-    SaveFormAsTemplate(QDesignerFormWindowInterface *formWindow, QWidget *parent = 0);
+    explicit SaveFormAsTemplate(QDesignerFormWindowInterface *formWindow, QWidget *parent = 0);
     virtual ~SaveFormAsTemplate();
 
 private slots:

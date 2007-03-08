@@ -32,7 +32,7 @@ class PreferencesDialog: public QDialog
 {
     Q_OBJECT
 public:
-    PreferencesDialog(QWidget *parentWidget);
+    explicit PreferencesDialog(QWidget *parentWidget);
 
     bool showDialog(Preferences &p);
 

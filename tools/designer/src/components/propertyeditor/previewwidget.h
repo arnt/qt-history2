@@ -22,7 +22,7 @@ class PreviewWidget: public QWidget
 {
     Q_OBJECT
 public:
-    PreviewWidget(QWidget *parent);
+    explicit PreviewWidget(QWidget *parent);
     virtual ~PreviewWidget();
 
 private:

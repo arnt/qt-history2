@@ -30,7 +30,7 @@ class ContainerWidgetTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
 public:
-    ContainerWidgetTaskMenu(QWidget *widget, QObject *parent = 0);
+    explicit ContainerWidgetTaskMenu(QWidget *widget, QObject *parent = 0);
     virtual ~ContainerWidgetTaskMenu();
 
     virtual QAction *preferredEditAction() const;
@@ -62,7 +62,7 @@ class ContainerWidgetTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    ContainerWidgetTaskMenuFactory(QExtensionManager *extensionManager = 0);
+    explicit ContainerWidgetTaskMenuFactory(QExtensionManager *extensionManager = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

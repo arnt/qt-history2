@@ -30,7 +30,7 @@ class WidgetEditorTool: public QDesignerFormWindowToolInterface
 {
     Q_OBJECT
 public:
-    WidgetEditorTool(FormWindow *formWindow);
+    explicit WidgetEditorTool(FormWindow *formWindow);
     virtual ~WidgetEditorTool();
 
     virtual QDesignerFormEditorInterface *core() const;

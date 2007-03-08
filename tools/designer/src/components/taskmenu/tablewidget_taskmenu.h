@@ -29,7 +29,7 @@ class TableWidgetTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
 public:
-    TableWidgetTaskMenu(QTableWidget *button, QObject *parent = 0);
+    explicit TableWidgetTaskMenu(QTableWidget *button, QObject *parent = 0);
     virtual ~TableWidgetTaskMenu();
 
     virtual QAction *preferredEditAction() const;
@@ -51,7 +51,7 @@ class TableWidgetTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    TableWidgetTaskMenuFactory(QExtensionManager *extensionManager = 0);
+    explicit TableWidgetTaskMenuFactory(QExtensionManager *extensionManager = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

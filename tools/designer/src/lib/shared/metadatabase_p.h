@@ -37,7 +37,7 @@ namespace qdesigner_internal {
 class QDESIGNER_SHARED_EXPORT MetaDataBaseItem: public QDesignerMetaDataBaseItemInterface
 {
 public:
-    MetaDataBaseItem(QObject *object);
+    explicit MetaDataBaseItem(QObject *object);
     virtual ~MetaDataBaseItem();
 
     virtual QString name() const;
@@ -76,7 +76,7 @@ class QDESIGNER_SHARED_EXPORT MetaDataBase: public QDesignerMetaDataBaseInterfac
 {
     Q_OBJECT
 public:
-    MetaDataBase(QDesignerFormEditorInterface *core, QObject *parent = 0);
+    explicit MetaDataBase(QDesignerFormEditorInterface *core, QObject *parent = 0);
     virtual ~MetaDataBase();
 
     virtual QDesignerFormEditorInterface *core() const;

@@ -165,7 +165,7 @@ public:
 class HorizontalLayoutList : public QList<QWidget*>
 {
 public:
-    HorizontalLayoutList(const QList<QWidget*> &l)
+    explicit HorizontalLayoutList(const QList<QWidget*> &l)
         : QList<QWidget*>(l) {}
 
     static bool hLessThan(const QWidget *a, const QWidget *b)

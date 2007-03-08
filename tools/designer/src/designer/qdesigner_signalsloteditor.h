@@ -22,7 +22,7 @@ class QDesignerSignalSlotEditor: public QDesignerToolWindow
 {
     Q_OBJECT
 public:
-    QDesignerSignalSlotEditor(QDesignerWorkbench *workbench);
+    explicit QDesignerSignalSlotEditor(QDesignerWorkbench *workbench);
     virtual ~QDesignerSignalSlotEditor();
 
     virtual QRect geometryHint() const;

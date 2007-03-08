@@ -23,7 +23,7 @@ class QDesignerResourceEditor: public QDesignerToolWindow
 {
     Q_OBJECT
 public:
-    QDesignerResourceEditor(QDesignerWorkbench *workbench);
+    explicit QDesignerResourceEditor(QDesignerWorkbench *workbench);
     virtual ~QDesignerResourceEditor();
 
     virtual QRect geometryHint() const;

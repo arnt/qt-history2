@@ -29,7 +29,7 @@ class ButtonTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
 public:
-    ButtonTaskMenu(QAbstractButton *button, QObject *parent = 0);
+    explicit ButtonTaskMenu(QAbstractButton *button, QObject *parent = 0);
     virtual ~ButtonTaskMenu();
 
     virtual QAction *preferredEditAction() const;
@@ -53,7 +53,7 @@ class ButtonTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    ButtonTaskMenuFactory(QExtensionManager *extensionManager = 0);
+    explicit ButtonTaskMenuFactory(QExtensionManager *extensionManager = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

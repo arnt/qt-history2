@@ -25,7 +25,7 @@ class LayoutPropertySheet: public QDesignerPropertySheet
     Q_OBJECT
     Q_INTERFACES(QDesignerPropertySheetExtension)
 public:
-    LayoutPropertySheet(QLayout *object, QObject *parent = 0);
+    explicit LayoutPropertySheet(QLayout *object, QObject *parent = 0);
     virtual ~LayoutPropertySheet();
 
     virtual void setProperty(int index, const QVariant &value);
@@ -41,7 +41,7 @@ class LayoutPropertySheetFactory: public QExtensionFactory
     Q_OBJECT
     Q_INTERFACES(QAbstractExtensionFactory)
 public:
-    LayoutPropertySheetFactory(QExtensionManager *parent = 0);
+    explicit LayoutPropertySheetFactory(QExtensionManager *parent = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

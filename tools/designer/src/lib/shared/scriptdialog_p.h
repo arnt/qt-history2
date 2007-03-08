@@ -38,7 +38,7 @@ namespace qdesigner_internal {
         Q_OBJECT
 
     public:
-        ScriptDialog(QWidget *parent);
+        explicit ScriptDialog(QWidget *parent);
         bool editScript(QString &script);
 
     private slots:

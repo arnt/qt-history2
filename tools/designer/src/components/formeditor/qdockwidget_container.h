@@ -26,7 +26,7 @@ class QDockWidgetContainer: public QObject, public QDesignerContainerExtension
     Q_OBJECT
     Q_INTERFACES(QDesignerContainerExtension)
 public:
-    QDockWidgetContainer(QDockWidget *widget, QObject *parent = 0);
+    explicit QDockWidgetContainer(QDockWidget *widget, QObject *parent = 0);
 
     virtual int count() const;
     virtual QWidget *widget(int index) const;
@@ -44,7 +44,7 @@ class QDockWidgetContainerFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    QDockWidgetContainerFactory(QExtensionManager *parent = 0);
+    explicit QDockWidgetContainerFactory(QExtensionManager *parent = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

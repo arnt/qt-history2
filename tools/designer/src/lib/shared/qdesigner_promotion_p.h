@@ -36,7 +36,7 @@ namespace qdesigner_internal {
     class  QDESIGNER_SHARED_EXPORT  QDesignerPromotion : public QDesignerPromotionInterface
     {
     public:
-        QDesignerPromotion(QDesignerFormEditorInterface *core);
+        explicit QDesignerPromotion(QDesignerFormEditorInterface *core);
 
         virtual PromotedClasses promotedClasses() const;
 

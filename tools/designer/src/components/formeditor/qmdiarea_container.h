@@ -26,7 +26,7 @@ class QMdiAreaContainer: public QObject, public QDesignerContainerExtension
     Q_OBJECT
     Q_INTERFACES(QDesignerContainerExtension)
 public:
-    QMdiAreaContainer(QMdiArea *widget, QObject *parent = 0);
+    explicit QMdiAreaContainer(QMdiArea *widget, QObject *parent = 0);
 
     virtual int count() const;
     virtual QWidget *widget(int index) const;
@@ -44,7 +44,7 @@ class QMdiAreaContainerFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    QMdiAreaContainerFactory(QExtensionManager *parent = 0);
+    explicit QMdiAreaContainerFactory(QExtensionManager *parent = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

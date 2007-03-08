@@ -33,7 +33,7 @@ class QDesignerActions: public QObject
 {
     Q_OBJECT
 public:
-    QDesignerActions(QDesignerWorkbench *mainWindow);
+    explicit QDesignerActions(QDesignerWorkbench *mainWindow);
     virtual ~QDesignerActions();
 
     QDesignerWorkbench *workbench() const;

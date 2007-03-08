@@ -38,7 +38,7 @@ namespace qdesigner_internal {
         Q_OBJECT
 
     public:
-        PromotionModel(QDesignerFormEditorInterface *core);
+        explicit PromotionModel(QDesignerFormEditorInterface *core);
 
         void updateFromWidgetDatabase();
 

@@ -35,7 +35,7 @@ class QT_FORMEDITOR_EXPORT QDesignerLayoutDecoration: public QObject, public QDe
     Q_OBJECT
     Q_INTERFACES(QDesignerLayoutDecorationExtension)
 public:
-    QDesignerLayoutDecoration(QLayoutWidget *widget, QObject *parent = 0);
+    explicit QDesignerLayoutDecoration(QLayoutWidget *widget, QObject *parent = 0);
     QDesignerLayoutDecoration(QDesignerFormWindowInterface *formWindow, QWidget *widget, QObject *parent = 0);
     virtual ~QDesignerLayoutDecoration();
 
@@ -68,7 +68,7 @@ class QT_FORMEDITOR_EXPORT QDesignerLayoutDecorationFactory: public QExtensionFa
     Q_OBJECT
     Q_INTERFACES(QAbstractExtensionFactory)
 public:
-    QDesignerLayoutDecorationFactory(QExtensionManager *parent = 0);
+    explicit QDesignerLayoutDecorationFactory(QExtensionManager *parent = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
