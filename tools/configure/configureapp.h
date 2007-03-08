@@ -113,6 +113,9 @@ private:
     int descIndent;
     int outputWidth;
 
+    bool useUnixSeparators;
+    QString fixSeparators(QString somePath);
+
     static bool findFile(const QString &fileName);
     static bool findFileInPaths(const QString &fileName, const QStringList &paths);
 #if !defined(EVAL)
