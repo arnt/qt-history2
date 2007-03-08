@@ -392,7 +392,7 @@ static inline void blit90_packing(QScreen *screen, const QImage &image,
     const int w = rect.width();
 
     const int pack = sizeof(quint32) / sizeof(DST);
-    const int unaligned = (quint32(dest) & (sizeof(quint32)-1)) / sizeof(DST);
+    const int unaligned = int((long(dest) & (sizeof(quint32)-1))) / sizeof(DST);
 
     for (int x = w - 1; x >= 0; --x) {
         int y = 0;
@@ -438,7 +438,7 @@ static inline void blit270_packing(QScreen *screen, const QImage &image,
     const int w = rect.width();
 
     const int pack = sizeof(quint32) / sizeof(DST);
-    const int unaligned = (quint32(dest) & (sizeof(quint32)-1)) / sizeof(DST);
+    const int unaligned = int((long(dest) & (sizeof(quint32)-1))) / sizeof(DST);
 
     for (int x = 0; x < w; ++x) {
         int y = h - 1;
@@ -487,7 +487,7 @@ static inline void blit90_tiled(QScreen *screen, const QImage &image,
 
     const int pack = sizeof(quint32) / sizeof(DST);
     const int unaligned =
-        qMin((quint32(dest) & (sizeof(quint32)-1)) / sizeof(DST), uint(h));
+        qMin(uint((long(dest) & (sizeof(quint32)-1)) / sizeof(DST)), uint(h));
     const int restX = w % tileSize;
     const int restY = (h - unaligned) % tileSize;
     const int unoptimizedY = restY % pack;
@@ -586,7 +586,7 @@ static inline void blit270_tiled(QScreen *screen, const QImage &image,
 
     const int pack = sizeof(quint32) / sizeof(DST);
     const int unaligned =
-        qMin((quint32(dest) & (sizeof(quint32)-1)) / sizeof(DST), uint(h));
+        qMin(uint((long(dest) & (sizeof(quint32)-1)) / sizeof(DST)), uint(h));
     const int restX = w % tileSize;
     const int restY = (h - unaligned) % tileSize;
     const int unoptimizedY = restY % pack;
