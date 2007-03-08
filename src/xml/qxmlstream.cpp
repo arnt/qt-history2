@@ -409,7 +409,7 @@ QXmlStreamReader::TokenType QXmlStreamReader::readNext()
         if (d->atEnd && d->type != EndDocument && d->type != Invalid)
             d->raiseError(PrematureEndOfDocumentError);
         else if (!d->atEnd && d->type == EndDocument)
-            d->raiseWellFormedError(QObject::tr("Extra content at end of document."));
+            d->raiseWellFormedError(QXmlStream::tr("Extra content at end of document."));
     } else if (d->error == PrematureEndOfDocumentError) {
         // resume error
         d->type = NoToken;
@@ -577,7 +577,7 @@ void QXmlStreamReaderPrivate::parseEntity(const QString &value)
     while (!entityParser->atEnd && entityParser->type != QXmlStreamReader::Invalid)
         entityParser->parse();
     if (entityParser->type == QXmlStreamReader::Invalid || entityParser->tagStack.size())
-        raiseWellFormedError(QObject::tr("Invalid entity value."));
+        raiseWellFormedError(QXmlStream::tr("Invalid entity value."));
 }
 
 inline void QXmlStreamReaderPrivate::reallocateStack()
@@ -653,7 +653,7 @@ bool QXmlStreamReaderPrivate::scanUntil(const char *str, short tokenToInject)
         switch (c) {
         case 0xfffe:
         case 0xffff:
-            raiseWellFormedError(QObject::tr("Invalid XML character."));
+            raiseWellFormedError(QXmlStream::tr("Invalid XML character."));
             lineNumber = oldLineNumber;
             return false;
         case '\r':
@@ -668,7 +668,7 @@ bool QXmlStreamReaderPrivate::scanUntil(const char *str, short tokenToInject)
             continue;
         default:
             if (c < 0x20) {
-                raiseWellFormedError(QObject::tr("Invalid XML character."));
+                raiseWellFormedError(QXmlStream::tr("Invalid XML character."));
                 lineNumber = oldLineNumber;
                 return false;
             }
@@ -903,7 +903,7 @@ inline int QXmlStreamReaderPrivate::fastScanContentCharList()
                 putString(textBuffer, pos);
                 textBuffer.resize(pos);
             } else if (c == '>') {
-                raiseWellFormedError(QObject::tr("Sequence ']]>' not allowed in content."));
+                raiseWellFormedError(QXmlStream::tr("Sequence ']]>' not allowed in content."));
             } else {
                 putChar(c);
                 break;
@@ -1159,7 +1159,7 @@ QStringRef QXmlStreamReaderPrivate::namespaceForPrefix(const QStringRef &prefix)
 
 #if 1
      if (namespaceProcessing && !prefix.isEmpty())
-         raiseWellFormedError(QObject::tr("Namespace prefix '%1' not declared").arg(prefix.toString()));
+         raiseWellFormedError(QXmlStream::tr("Namespace prefix '%1' not declared").arg(prefix.toString()));
 #endif
 
      return QStringRef();
@@ -1197,7 +1197,7 @@ void QXmlStreamReaderPrivate::resolveTag()
             if (attributes[j].name() == attribute.name()
                 && attributes[j].namespaceUri() == attribute.namespaceUri()
                 && (namespaceProcessing || attributes[j].qualifiedName() == attribute.qualifiedName()))
-                raiseWellFormedError(QObject::tr("Attribute redefined."));
+                raiseWellFormedError(QXmlStream::tr("Attribute redefined."));
         }
     }
 
@@ -1309,7 +1309,7 @@ void QXmlStreamReaderPrivate::checkPublicLiteral(const QStringRef &publicId)
         break;
     }
     if (i >= 0)
-        raiseWellFormedError(QObject::tr("Unexpected character '%1' in public id literal.").arg(QChar(QLatin1Char(c))));
+        raiseWellFormedError(QXmlStream::tr("Unexpected character '%1' in public id literal.").arg(QChar(QLatin1Char(c))));
 }
 
 void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
@@ -1317,9 +1317,9 @@ void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
     QString err;
     if (version != QLatin1String("1.0")) {
         if (version.toString().contains(QLatin1Char(' ')))
-            err = QObject::tr("Invalid XML version string.");
+            err = QXmlStream::tr("Invalid XML version string.");
         else
-            err = QObject::tr("Unsupported XML version.");
+            err = QXmlStream::tr("Unsupported XML version.");
     }
     initTagStack();
     int n = attributeStack.size();
@@ -1334,14 +1334,14 @@ void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
             const QString name(value.toString());
 
             if(!QXmlUtils::isEncName(name))
-                err = QObject::tr("%1 is an invalid encoding name.").arg(name);
+                err = QXmlStream::tr("%1 is an invalid encoding name.").arg(name);
             else
             {
                 QTextCodec *const newCodec = QTextCodec::codecForName(name.toLatin1());
                 if (!newCodec)
-                    err = QObject::tr("Encoding %1 is unsupported").arg(name);
+                    err = QXmlStream::tr("Encoding %1 is unsupported").arg(name);
                 else if (newCodec->name().toLower() != name.toLatin1().toLower())
-                    err = QObject::tr("Invalid XML encoding name.");
+                    err = QXmlStream::tr("Invalid XML encoding name.");
                 else if (newCodec != codec && !lockEncoding) {
                     codec = newCodec;
                     delete decoder;
@@ -1355,9 +1355,9 @@ void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
             else if (value == QLatin1String("no"))
                 standalone = false;
             else
-                err = QObject::tr("Standalone accepts only yes or no.");
+                err = QXmlStream::tr("Standalone accepts only yes or no.");
         } else {
-            err = QObject::tr("Invalid attribute in XML declaration.");
+            err = QXmlStream::tr("Invalid attribute in XML declaration.");
         }
     }
 
@@ -1373,9 +1373,9 @@ void QXmlStreamReaderPrivate::raiseError(QXmlStreamReader::Error error, const QS
     errorString = message;
     if (errorString.isNull()) {
         if (error == QXmlStreamReader::PrematureEndOfDocumentError)
-            errorString = QObject::tr("Premature end of document.");
+            errorString = QXmlStream::tr("Premature end of document.");
         else if (error == QXmlStreamReader::CustomError)
-            errorString = QObject::tr("Invalid document.");
+            errorString = QXmlStream::tr("Invalid document.");
     }
 
     type = QXmlStreamReader::Invalid;
@@ -1415,7 +1415,7 @@ void QXmlStreamReaderPrivate::parseError()
 
         for (int s = 0; s < nexpected; ++s) {
             if (first)
-                error_message += QObject::tr ("Expected ");
+                error_message += QXmlStream::tr ("Expected ");
             else if (s == nexpected - 1)
                 error_message += QLatin1String (nexpected > 2 ? ", or " : " or ");
             else
@@ -1426,11 +1426,11 @@ void QXmlStreamReaderPrivate::parseError()
             error_message += QLatin1String (spell [expected[s]]);
             error_message += QLatin1String("\'");
         }
-        error_message += QObject::tr(", but got \'");
+        error_message += QXmlStream::tr(", but got \'");
         error_message += QLatin1String(spell [token]);
         error_message += QLatin1String("\'");
     } else {
-        error_message += QObject::tr("Unexpected \'");
+        error_message += QXmlStream::tr("Unexpected \'");
         error_message += QLatin1String(spell [token]);
         error_message += QLatin1String("\'");
     }
@@ -1559,7 +1559,7 @@ QString QXmlStreamReader::readElementText()
             case Comment:
                 break;
             default:
-                d->raiseError(UnexpectedElementError, QObject::tr("Expected character data."));
+                d->raiseError(UnexpectedElementError, QXmlStream::tr("Expected character data."));
                 return result;
             }
         }

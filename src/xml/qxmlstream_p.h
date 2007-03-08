@@ -627,6 +627,11 @@ public:
 };
 
 
+class QXmlStream
+{
+    Q_DECLARE_TR_FUNCTIONS(QXmlStream)
+};
+
 class QXmlStreamPrivateTagStack {
 public:
     struct NamespaceDeclaration
@@ -719,7 +724,7 @@ public:
     QXmlStreamSimpleStack<Entity *>entityReferenceStack;
     inline bool referenceEntity(Entity &entity) {
         if (entity.isCurrentlyReferenced) {
-            raiseWellFormedError(QObject::tr("recursive entity detected."));
+            raiseWellFormedError(QXmlStream::tr("Recursive entity detected."));
             return false;
         }
         entity.isCurrentlyReferenced = true;
@@ -1191,7 +1196,7 @@ bool QXmlStreamReaderPrivate::parse()
                 if (hasSeenTag || inParseEntity) {
                     type = QXmlStreamReader::EndDocument;
                 } else {
-                    raiseError(QXmlStreamReader::PrematureEndOfDocumentError, QObject::tr("Start tag expected."));
+                    raiseError(QXmlStreamReader::PrematureEndOfDocumentError, QXmlStream::tr("Start tag expected."));
                     // reset the parser
                     tos = 0;
                     state_stack[tos++] = 0;
@@ -1226,7 +1231,7 @@ bool QXmlStreamReaderPrivate::parse()
             if (xmlDeclOK)
                 startDocument(symString(6));
             else
-                raiseWellFormedError(QObject::tr("XML declaration not at start of document."));
+                raiseWellFormedError(QXmlStream::tr("XML declaration not at start of document."));
         break;
 
         case 14:
@@ -1382,7 +1387,7 @@ bool QXmlStreamReaderPrivate::parse()
             EntityDeclaration &entityDeclaration = entityDeclarations.top();
             entityDeclaration.notationName = symString(3);
             if (entityDeclaration.parameter)
-                raiseWellFormedError(QObject::tr("NDATA in parameter entity declaration."));
+                raiseWellFormedError(QXmlStream::tr("NDATA in parameter entity declaration."));
         }
         //fall through
 
@@ -1412,7 +1417,7 @@ bool QXmlStreamReaderPrivate::parse()
             if (scanUntil("?>")) {
                 processingInstructionData = QStringRef(&textBuffer, pos, textBuffer.size() - pos - 2);
                 if (!processingInstructionTarget.toString().compare(QLatin1String("xml"), Qt::CaseInsensitive)) {
-                    raiseWellFormedError(QObject::tr("Invalid processing instruction name."));
+                    raiseWellFormedError(QXmlStream::tr("Invalid processing instruction name."));
                 }
             } else {
                 resume(97);
@@ -1424,7 +1429,7 @@ bool QXmlStreamReaderPrivate::parse()
             type = QXmlStreamReader::ProcessingInstruction;
             processingInstructionTarget = symString(2);
             if (!processingInstructionTarget.toString().compare(QLatin1String("xml"), Qt::CaseInsensitive))
-                raiseWellFormedError(QObject::tr("Invalid processing instruction name."));
+                raiseWellFormedError(QXmlStream::tr("Invalid processing instruction name."));
         break;
 
         case 99:
@@ -1619,7 +1624,7 @@ bool QXmlStreamReaderPrivate::parse()
                     if ((namespacePrefix == QLatin1String("xml")
                          ^ namespaceUri == QLatin1String("http://www.w3.org/XML/1998/namespace"))
                         || namespacePrefix == QLatin1String("xmlns"))
-                        raiseWellFormedError(QObject::tr("Illegal namespace declaration."));
+                        raiseWellFormedError(QXmlStream::tr("Illegal namespace declaration."));
 
                     namespaceDeclaration.prefix = addToStringStorage(namespacePrefix);
                     namespaceDeclaration.namespaceUri = addToStringStorage(namespaceUri);
@@ -1633,7 +1638,7 @@ bool QXmlStreamReaderPrivate::parse()
             name = tag.name = addToStringStorage(symString(2));
             qualifiedName = tag.qualifiedName = addToStringStorage(symName(2));
             if (!validateName(qualifiedName))
-                raiseWellFormedError(QObject::tr("Invalid XML name."));
+                raiseWellFormedError(QXmlStream::tr("Invalid XML name."));
         } break;
 
         case 227:
@@ -1644,7 +1649,7 @@ bool QXmlStreamReaderPrivate::parse()
             type = QXmlStreamReader::StartElement;
             resolveTag();
             if (tagStack.size() == 1 && hasSeenTag && !inParseEntity)
-                raiseWellFormedError(QObject::tr("Extra content at end of document."));
+                raiseWellFormedError(QXmlStream::tr("Extra content at end of document."));
             hasSeenTag = true;
         break;
 
@@ -1656,7 +1661,7 @@ bool QXmlStreamReaderPrivate::parse()
             name = tag.name;
             qualifiedName = tag.qualifiedName;
             if (qualifiedName != symName(3))
-                raiseWellFormedError(QObject::tr("Opening and ending tag mismatch."));
+                raiseWellFormedError(QXmlStream::tr("Opening and ending tag mismatch."));
         } break;
 
         case 230: {
@@ -1665,7 +1670,7 @@ bool QXmlStreamReaderPrivate::parse()
             if (entityHash.contains(reference)) {
                 Entity &entity = entityHash[reference];
                 if (entity.unparsed) {
-                    raiseWellFormedError(QObject::tr("reference to unparsed entity '%1'.").arg(reference));
+                    raiseWellFormedError(QXmlStream::tr("Reference to unparsed entity '%1'.").arg(reference));
                 } else {
                     if (!entity.hasBeenParsed) {
                         parseEntity(entity.value);
@@ -1680,7 +1685,7 @@ bool QXmlStreamReaderPrivate::parse()
                 }
                 break;
             } else if (entitiesMustBeDeclared()) {
-                raiseWellFormedError(QObject::tr("entity '%1' not declared.").arg(reference));
+                raiseWellFormedError(QXmlStream::tr("Entity '%1' not declared.").arg(reference));
                 break;
             }
             type = QXmlStreamReader::EntityReference;
@@ -1702,7 +1707,7 @@ bool QXmlStreamReaderPrivate::parse()
                     clearSym();
                 }
             } else if (entitiesMustBeDeclared()) {
-                raiseWellFormedError(QObject::tr("entity '%1' not declared.").arg(symString(2).toString()));
+                raiseWellFormedError(QXmlStream::tr("Entity '%1' not declared.").arg(symString(2).toString()));
             }
         } break;
 
@@ -1716,7 +1721,7 @@ bool QXmlStreamReaderPrivate::parse()
             if (entityHash.contains(reference)) {
                 Entity &entity = entityHash[reference];
                 if (entity.unparsed || entity.value.isNull()) {
-                    raiseWellFormedError(QObject::tr("reference to external entity '%1' in attribute value.").arg(reference));
+                    raiseWellFormedError(QXmlStream::tr("Reference to external entity '%1' in attribute value.").arg(reference));
                     break;
                 }
                 if (!entity.hasBeenParsed) {
@@ -1730,7 +1735,7 @@ bool QXmlStreamReaderPrivate::parse()
                 textBuffer.chop(2 + sym(2).len);
                 clearSym();
             } else if (entitiesMustBeDeclared()) {
-                raiseWellFormedError(QObject::tr("entity '%1' not declared.").arg(reference));
+                raiseWellFormedError(QXmlStream::tr("Entity '%1' not declared.").arg(reference));
             }
         } break;
 
@@ -1744,7 +1749,7 @@ bool QXmlStreamReaderPrivate::parse()
                 textBuffer.chop(3 + sym(3).len);
                 clearSym();
             } else {
-                raiseWellFormedError(QObject::tr("Invalid character reference."));
+                raiseWellFormedError(QXmlStream::tr("Invalid character reference."));
             }
         } break;
 
@@ -1762,7 +1767,7 @@ bool QXmlStreamReaderPrivate::parse()
                     clearSym();
                 }
             } else {
-                raiseWellFormedError(QObject::tr("Invalid character reference."));
+                raiseWellFormedError(QXmlStream::tr("Invalid character reference."));
             }
         } break;
 
