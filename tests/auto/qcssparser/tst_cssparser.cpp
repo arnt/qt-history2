@@ -1358,7 +1358,7 @@ void tst_CssParser::gradient()
     QVector<QCss::StyleRule> rules = testSelector.styleRulesForNode(n);
     QVector<QCss::Declaration> decls = rules.at(0).declarations;
     QCss::ValueExtractor ve(decls);
-    QColor fg, sfg;
+    QBrush fg, sfg;
     QBrush sbg, abg;
     QVERIFY(ve.extractPalette(&fg, &sfg, &sbg, &abg));
     QVERIFY(sbg.style() == Qt::LinearGradientPattern);
@@ -1444,7 +1444,7 @@ void tst_CssParser::extractBorder()
     QCss::ValueExtractor extractor(decls);
 
     int widths[4];
-    QColor colors[4];
+    QBrush colors[4];
     QCss::BorderStyle styles[4];
     QSize radii[4];
 

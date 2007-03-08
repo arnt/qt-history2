@@ -304,6 +304,7 @@ struct Q_GUI_EXPORT Declaration
     QColor colorValue(const QPalette & = QPalette()) const;
     void colorValues(QColor *c, const QPalette & = QPalette()) const;
     QBrush brushValue(const QPalette & = QPalette()) const;
+    void brushValues(QBrush *c, const QPalette & = QPalette()) const;
 
     BorderStyle styleValue() const;
     void styleValues(BorderStyle *s) const;
@@ -420,13 +421,13 @@ struct Q_GUI_EXPORT ValueExtractor
     bool extractPosition(int *l, int *t, int *r, int *b, QCss::Origin *, Qt::Alignment *,
                          QCss::PositionMode *);
     bool extractBox(int *margins, int *paddings, int *spacing = 0);
-    bool extractBorder(int *borders, QColor *colors, BorderStyle *Styles, QSize *radii);
-    bool extractPalette(QColor *fg, QColor *sfg, QBrush *sbg, QBrush *abg);
+    bool extractBorder(int *borders, QBrush *colors, BorderStyle *Styles, QSize *radii);
+    bool extractPalette(QBrush *fg, QBrush *sfg, QBrush *sbg, QBrush *abg);
     int  extractStyleFeatures();
 
 private:
     void extractFont();
-    void borderValue(const Declaration &decl, int *width, QCss::BorderStyle *style, QColor *color);
+    void borderValue(const Declaration &decl, int *width, QCss::BorderStyle *style, QBrush *color);
     int lengthValue(const Declaration &decl);
     int lengthValue(const Value& v);
     void lengthValues(const Declaration &decl, int *m);

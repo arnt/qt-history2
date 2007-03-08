@@ -102,7 +102,7 @@ struct QStyleSheetBorderData : public QSharedData
         }
     }
 
-    QStyleSheetBorderData(int *b, QColor *c, QCss::BorderStyle *s, QSize *r) : bi(0)
+    QStyleSheetBorderData(int *b, QBrush *c, QCss::BorderStyle *s, QSize *r) : bi(0)
     {
         for (int i = 0; i < 4; i++) {
             borders[i] = b[i];
@@ -113,7 +113,7 @@ struct QStyleSheetBorderData : public QSharedData
     }
 
     int borders[4];
-    QColor colors[4];
+    QBrush colors[4];
     QCss::BorderStyle styles[4];
     QSize radii[4]; // topleft, topright, bottomleft, bottomright
 
@@ -142,13 +142,13 @@ struct QStyleSheetBoxData : public QSharedData
 
 struct QStyleSheetPaletteData : public QSharedData
 {
-    QStyleSheetPaletteData(const QColor &fg, const QColor &sfg, const QBrush &sbg,
+    QStyleSheetPaletteData(const QBrush &fg, const QBrush &sfg, const QBrush &sbg,
                            const QBrush &abg)
         : foreground(fg), selectionForeground(sfg), selectionBackground(sbg),
           alternateBackground(abg) { }
 
-    QColor foreground;
-    QColor selectionForeground;
+    QBrush foreground;
+    QBrush selectionForeground;
     QBrush selectionBackground;
     QBrush alternateBackground;
 };
@@ -329,7 +329,7 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
         b = new QStyleSheetBoxData(margins, paddings, spacing);
 
     int borders[4];
-    QColor colors[4];
+    QBrush colors[4];
     QCss::BorderStyle styles[4];
     QSize radii[4];
     for (int i = 0; i < 4; i++) {
@@ -348,7 +348,7 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
     if (v.extractBackground(&brush, &uri, &repeat, &alignment, &origin, &attachment))
         bg = new QStyleSheetBackgroundData(brush, QPixmap(uri), repeat, alignment, origin, attachment);
 
-    QColor sfg, fg;
+    QBrush sfg, fg;
     QBrush sbg, abg;
     if (v.extractPalette(&fg, &sfg, &sbg, &abg))
         pal = new QStyleSheetPaletteData(fg, sfg, sbg, abg);
@@ -483,12 +483,12 @@ void QRenderRule::fixupBorder(int nativeWidth)
         delete bd->bi;
         bd->bi = 0;
         // ignore the color, border of edges that have none border-style
-        QColor color = pal ? pal->foreground : QColor();
+        QBrush color = pal ? pal->foreground : QBrush();
         for (int i = 0; i < 4; i++) {
             switch (bd->styles[i]) {
             case BorderStyle_None:
                 // border-style: none forces width to be 0
-                bd->colors[i] = QColor();
+                bd->colors[i] = QBrush();
                 bd->borders[i] = 0;
                 break;
             case BorderStyle_Native:
@@ -496,7 +496,7 @@ void QRenderRule::fixupBorder(int nativeWidth)
                     bd->borders[i] = nativeWidth;
                 // intentional fall through
             default:
-                if (!bd->colors[i].isValid()) // auto-acquire 'color'
+                if (!bd->colors[i].style() != Qt::NoBrush) // auto-acquire 'color'
                     bd->colors[i] = color;
                 break;
             }
@@ -578,7 +578,7 @@ static QPen qPenFromStyle(const QBrush& b, qreal width, BorderStyle s)
 
 static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2,
                                 const QSizeF& r1, const QSizeF& r2,
-                                Edge edge, BorderStyle s, QColor c)
+                                Edge edge, BorderStyle s, QBrush c)
 {
     const qreal pw = (edge == TopEdge || edge == BottomEdge) ? y2-y1 : x2-x1;
     if (s == BorderStyle_Double) {
@@ -633,7 +633,7 @@ static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal
         }
     } else if ((s == BorderStyle_Outset && (edge == TopEdge || edge == LeftEdge))
             || (s == BorderStyle_Inset && (edge == BottomEdge || edge == RightEdge)))
-            c = c.lighter();
+            c = c.color().lighter();
 
     p->save();
     p->setRenderHint(QPainter::Antialiasing);
@@ -683,7 +683,7 @@ static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal
 
 
 void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, qreal dw1, qreal dw2,
-               Edge edge, BorderStyle style, QColor c)
+               Edge edge, BorderStyle style, QBrush c)
 {
     p->save();
     p->setRenderHint(QPainter::Antialiasing);
@@ -697,7 +697,7 @@ void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, qreal dw1, q
     case BorderStyle_Outset:
         if (style == BorderStyle_Outset && (edge == TopEdge || edge == LeftEdge)
             || (style == BorderStyle_Inset && (edge == BottomEdge || edge == RightEdge)))
-            c = c.lighter();
+            c = c.color().lighter();
         // fall through!
     case BorderStyle_Solid: {
         p->setPen(Qt::NoPen);
@@ -1038,7 +1038,7 @@ void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
 
     const BorderStyle *styles = border()->styles;
     const int *borders = border()->borders;
-    const QColor *colors = border()->colors;
+    const QBrush *colors = border()->colors;
 
     QSize tlr, trr, blr, brr;
     getRadii(rect, &tlr, &trr, &blr, &brr);
@@ -1102,6 +1102,7 @@ void QRenderRule::drawBackground(QPainter *p, const QRect& rect, const QPoint& o
 
     if (brush.style() != Qt::NoBrush) {
         QRect fillRect = borderRect(rect);
+#if 0
         if (brush.style() >= Qt::LinearGradientPattern
             && brush.style() <= Qt::ConicalGradientPattern) {
             QTransform m;
@@ -1109,6 +1110,7 @@ void QRenderRule::drawBackground(QPainter *p, const QRect& rect, const QPoint& o
             m.scale(fillRect.width(), fillRect.height());
             brush.setTransform(m);
         }
+#endif
         p->fillRect(fillRect, brush);
     }
     drawBackgroundImage(p, rect, off);
@@ -1150,7 +1152,7 @@ void QRenderRule::configurePalette(QPalette *p, QPalette::ColorRole fr, QPalette
     if (!hasPalette())
         return;
 
-    if (pal->foreground.isValid()) {
+    if (pal->foreground.style() != Qt::NoBrush) {
         if (fr != QPalette::NoRole)
             p->setBrush(fr, pal->foreground);
         p->setBrush(QPalette::WindowText, pal->foreground);
@@ -1158,7 +1160,7 @@ void QRenderRule::configurePalette(QPalette *p, QPalette::ColorRole fr, QPalette
     }
     if (pal->selectionBackground.style() != Qt::NoBrush)
         p->setBrush(QPalette::Highlight, pal->selectionBackground);
-    if (pal->selectionForeground.isValid())
+    if (pal->selectionForeground.style() != Qt::NoBrush)
         p->setBrush(QPalette::HighlightedText, pal->selectionForeground);
     if (pal->alternateBackground.style() != Qt::NoBrush)
         p->setBrush(QPalette::AlternateBase, pal->alternateBackground);
@@ -1193,7 +1195,7 @@ void QRenderRule::configurePalette(QPalette *p, QPalette::ColorGroup cg, const Q
     if (!hasPalette())
         return;
 
-    if (pal->foreground.isValid()) {
+    if (pal->foreground.style() != Qt::NoBrush) {
         if (isReadOnlyCombo) {
             p->setBrush(cg, QPalette::ButtonText, pal->foreground);
         } else {
@@ -1204,7 +1206,7 @@ void QRenderRule::configurePalette(QPalette *p, QPalette::ColorGroup cg, const Q
     }
     if (pal->selectionBackground.style() != Qt::NoBrush)
         p->setBrush(cg, QPalette::Highlight, pal->selectionBackground);
-    if (pal->selectionForeground.isValid())
+    if (pal->selectionForeground.style() != Qt::NoBrush)
         p->setBrush(cg, QPalette::HighlightedText, pal->selectionForeground);
     if (pal->alternateBackground.style() != Qt::NoBrush)
         p->setBrush(cg, QPalette::AlternateBase, pal->alternateBackground);
@@ -3303,8 +3305,8 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
         case SH_ToolButton_PopupDelay: s = QLatin1String("toolbutton-popup-delay"); break;
         case SH_ToolBox_SelectedPageTitleBold: s= QLatin1String("toolbox-selected-page-title-bold"); break;
         case SH_GroupBox_TextLabelColor:
-            if (rule.hasPalette() && rule.palette()->foreground.isValid())
-                return rule.palette()->foreground.rgba();
+            if (rule.hasPalette() && rule.palette()->foreground.style() != Qt::NoBrush)
+                return rule.palette()->foreground.color().rgba();
             break;
         case SH_ScrollView_FrameOnlyAroundContents: s = QLatin1String("scrollview-frame-around-contents"); break;
         case SH_ScrollBar_ContextMenu: s = QLatin1String("scrollbar-contextmenu"); break;
