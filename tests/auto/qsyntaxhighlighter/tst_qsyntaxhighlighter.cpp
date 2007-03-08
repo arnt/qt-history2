@@ -65,6 +65,7 @@ private slots:
     void task108530();
     void avoidUnnecessaryRehighlight();
     void noContentsChangedDuringHighlight();
+    void rehighlight();
 
 private:
     QTextDocument *doc;
@@ -470,6 +471,17 @@ void tst_QSyntaxHighlighter::noContentsChangedDuringHighlight()
     QVERIFY(hl->highlighted);
     QVERIFY(lout->documentChangedCalled);
 }
+
+void tst_QSyntaxHighlighter::rehighlight()
+{
+    TestHighlighter *hl = new TestHighlighter(doc);
+    hl->callCount = 0;
+    doc->setPlainText("Hello");
+    hl->callCount = 0;
+    hl->rehighlight();
+    QCOMPARE(hl->callCount, 1);
+}
+
 
 QTEST_MAIN(tst_QSyntaxHighlighter)
 #include "tst_qsyntaxhighlighter.moc"
