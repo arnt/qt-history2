@@ -32,7 +32,8 @@ void fromScriptValue(const QScriptValue &value, Container &cont)
     quint32 len = value.property("length").toUInt32();
     for (quint32 i = 0; i < len; ++i) {
         QScriptValue item = value.property(i);
-        cont.push_back(qscriptvalue_cast<Q_TYPENAME Container::value_type>(item));
+        typedef typename Container::value_type ContainerValue;
+        cont.push_back(qscriptvalue_cast<ContainerValue>(item));
     }
 }
 
