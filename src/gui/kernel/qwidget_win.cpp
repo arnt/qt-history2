@@ -1545,7 +1545,7 @@ int QWidget::metric(PaintDeviceMetric m) const
 void QWidgetPrivate::createSysExtra()
 {
     extra->dropTarget = 0;
-#ifndef Q_NO_DIRECT3D
+#ifndef QT_NO_DIRECT3D
     extra->had_auto_fill_bg = 0;
     extra->had_paint_on_screen = 0;
     extra->had_no_system_bg = 0;
