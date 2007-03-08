@@ -37,7 +37,9 @@
 #include <QTime>
 #include <QTimer>
 #include <QDebug>
+#ifndef TEST_QNETWORK_PROXY
 #define TEST_QNETWORK_PROXY
+#endif
 #ifdef TEST_QNETWORK_PROXY
 # include <QNetworkProxy>
 #endif
@@ -95,13 +97,11 @@ private slots:
     void hostNotFound();
     void timeoutConnect();
     void delayedClose();
-    void ipv6Connect();
     void partialRead();
     void unget();
     void readAllAfterClose();
     void openCloseOpenClose();
     void downloadBigFile();
-    void connectToMultiIP();
     void readLine();
     void readLineString();
     void readChunks();
@@ -117,17 +117,24 @@ private slots:
     void waitForReadyReadInASlot();
     void remoteCloseError();
     void openMessageBoxInErrorSlot();
+#ifndef Q_OS_WIN
     void connectToLocalHostNoService();
+#endif
     void waitForConnectedInHostLookupSlot();
+#ifndef Q_OS_WIN
     void waitForConnectedInHostLookupSlot2();
+#endif
     void readyReadSignalsAfterWaitForReadyRead();
+#ifdef Q_OS_LINUX
     void linuxKernelBugLocalSocket();
+#endif
     void abortiveClose();
     void localAddressEmptyOnBSD();
     void readWriteFailsOnUnconnectedSocket();
     void connectionRefused();
     void suddenRemoteDisconnect_data();
     void suddenRemoteDisconnect();
+    void connectToMultiIP();
 
 protected slots:
     void nonBlockingIMAP_hostFound();
@@ -152,6 +159,8 @@ private:
 
     QTcpSocket *tmpSocket;
     qint64 bytesAvailable;
+    qint64 expectedLength;
+    bool readingBody;
     QTime timer;
 
 
@@ -215,8 +224,6 @@ void tst_QTcpSocket::cleanup()
 
 void tst_QTcpSocket::constructing()
 {
-
-
     QTcpSocket socket;
 
     // Check the initial state of the QTcpSocket.
@@ -228,6 +235,7 @@ void tst_QTcpSocket::constructing()
 
     QCOMPARE((int) socket.bytesAvailable(), 0);
     QCOMPARE(socket.canReadLine(), false);
+    QTest::ignoreMessage(QtWarningMsg, "QIODevice::getChar: Closed device");
     QCOMPARE(socket.readLine(), QByteArray());
     QCOMPARE(socket.socketDescriptor(), -1);
     QCOMPARE((int) socket.localPort(), 0);
@@ -540,28 +548,6 @@ void tst_QTcpSocket::delayedClose()
 
 //----------------------------------------------------------------------------------
 
-void tst_QTcpSocket::ipv6Connect()
-{
-    QSKIP("This test will work when we have an IPv6 net up", SkipSingle);
-
-    QTcpServer server;
-    if (!server.listen(QHostAddress("fe80::2e0:4cff:fefb:662a"), 0)) {
-        //### change this to determin the current address.
-        if (server.serverError() == QTcpSocket::SocketAddressNotAvailableError)
-            QSKIP("This test only works on shusaku", SkipSingle);
-        QVERIFY(server.serverError() == QTcpSocket::UnsupportedSocketOperationError
-               || server.serverError() == QTcpSocket::SocketAddressNotAvailableError);
-        return;
-    }
-
-    QTcpSocket socket;
-
-    socket.connectToHost(server.serverAddress(), server.serverPort());
-    QVERIFY(socket.waitForConnected(5000));
-}
-
-//----------------------------------------------------------------------------------
-
 void tst_QTcpSocket::partialRead()
 {
     QTcpSocket socket;
@@ -644,6 +630,7 @@ void tst_QTcpSocket::openCloseOpenClose()
 
         QCOMPARE((int) socket.bytesAvailable(), 0);
         QCOMPARE(socket.canReadLine(), false);
+        QTest::ignoreMessage(QtWarningMsg, "QIODevice::getChar: Closed device");
         QCOMPARE(socket.readLine(), QByteArray());
         QCOMPARE(socket.socketDescriptor(), -1);
         QCOMPARE((int) socket.localPort(), 0);
@@ -686,18 +673,20 @@ void tst_QTcpSocket::downloadBigFile()
     QVERIFY(tmpSocket->write("\r\n") > 0);
 
     bytesAvailable = 0;
+    expectedLength = 0;
+    readingBody = false;
 
     QTime stopWatch;
     stopWatch.start();
 
-    enterLoop(60);
+    enterLoop(600);
     if (timeout()) {
         delete tmpSocket;
         tmpSocket = 0;
         QFAIL("Network operation timed out");
     }
 
-    QCOMPARE(bytesAvailable, qint64(10000281));
+    QCOMPARE(bytesAvailable, expectedLength);
 
     QVERIFY(tmpSocket->state() == QAbstractSocket::ConnectedState);
 
@@ -719,30 +708,22 @@ void tst_QTcpSocket::exitLoopSlot()
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::downloadBigFileSlot()
 {
-    bytesAvailable += tmpSocket->readAll().size();
-    if (bytesAvailable == 10000281)
-        exitLoop();
-}
-
-//----------------------------------------------------------------------------------
-void tst_QTcpSocket::connectToMultiIP()
-{
-    QTcpSocket socket;
-    // rationale: this domain resolves to 3 A-records, 2 of them are
-    // invalid. QTcpSocket should never spend more than 30 seconds per IP, and
-    // 30s*2 = 60s.
-    QTime stopWatch;
-    stopWatch.start();
-    socket.connectToHost("multi.andreas.hanssen.name", 80);
-    QVERIFY(socket.waitForConnected(60000));
-    QVERIFY(stopWatch.elapsed() < 70000);
-    socket.abort();
-
-    stopWatch.restart();
-    socket.connectToHost("multi.andreas.hanssen.name", 81);
-    QVERIFY(!socket.waitForConnected(1000));
-    QVERIFY(stopWatch.elapsed() < 2000);
-    QCOMPARE(socket.error(), QAbstractSocket::SocketTimeoutError);
+    if (!readingBody) {
+        while (tmpSocket->canReadLine()) {
+            QByteArray array = tmpSocket->readLine();
+            if (array.startsWith("Content-Length"))
+                expectedLength = array.simplified().split(' ').at(1).toInt();
+            if (array == "\r\n") {
+                readingBody = true;
+                break;
+            }
+        }
+    }
+    if (readingBody) {
+        bytesAvailable += tmpSocket->readAll().size();
+        if (bytesAvailable == expectedLength)
+            exitLoop();
+    }
 }
 
 //----------------------------------------------------------------------------------
@@ -934,14 +915,14 @@ void tst_QTcpSocket::recursiveReadyReadSlot()
 void tst_QTcpSocket::atEnd()
 {
     QTcpSocket socket;
-    socket.connectToHost("trueblue.troll.no", 21);
+    socket.connectToHost("fluke.troll.no", 21);
 
     QVERIFY(socket.waitForReadyRead(15000));
     QTextStream stream(&socket);
     QVERIFY(!stream.atEnd());
     QString greeting = stream.readLine();
     QVERIFY(stream.atEnd());
-    QCOMPARE(greeting, QString("220 trueblue.troll.no FTP server (Version 6.5/OpenBSD, linux port 0.3.2) ready."));
+    QCOMPARE(greeting, QString("220 (vsFTPd 2.0.4)"));
 }
 
 class TestThread : public QThread
@@ -959,9 +940,9 @@ protected:
     {
         socket = new QTcpSocket;
         connect(socket, SIGNAL(readyRead()), this, SLOT(getData()), Qt::DirectConnection);
-        connect(socket, SIGNAL(disconnected()), this, SLOT(quit()), Qt::DirectConnection);
+        connect(socket, SIGNAL(disconnected()), this, SLOT(closed()), Qt::DirectConnection);
 
-        socket->connectToHost("trueblue.troll.no", 21);
+        socket->connectToHost("fluke.troll.no", 21);
         socket->write("QUIT\r\n");
         exec();
 
@@ -974,6 +955,10 @@ private slots:
         socketData += socket->readAll();
     }
 
+    inline void closed()
+    {
+        quit();
+    }
 private:
     int exitCode;
     QTcpSocket *socket;
@@ -987,9 +972,8 @@ void tst_QTcpSocket::socketInAThread()
         TestThread thread;
         thread.start();
         QVERIFY(thread.wait(15000));
-        QCOMPARE(thread.data().constData(),
-                QByteArray("220 trueblue.troll.no FTP server (Version 6.5/"
-                           "OpenBSD, linux port 0.3.2) ready.\r\n221 Goodbye.\r\n").constData());
+        QCOMPARE(thread.data(),
+                 QByteArray("220 (vsFTPd 2.0.4)\r\n221 Goodbye.\r\n"));
     }
 }
 
@@ -1009,15 +993,12 @@ void tst_QTcpSocket::socketsInThreads()
         QVERIFY(thread3.wait(15000));
         QVERIFY(thread1.wait(15000));
 
-        QCOMPARE(thread1.data().constData(),
-                QByteArray("220 trueblue.troll.no FTP server (Version 6.5/"
-                           "OpenBSD, linux port 0.3.2) ready.\r\n221 Goodbye.\r\n").constData());
-        QCOMPARE(thread2.data().constData(),
-                QByteArray("220 trueblue.troll.no FTP server (Version 6.5/"
-                           "OpenBSD, linux port 0.3.2) ready.\r\n221 Goodbye.\r\n").constData());
-        QCOMPARE(thread3.data().constData(),
-                QByteArray("220 trueblue.troll.no FTP server (Version 6.5/"
-                           "OpenBSD, linux port 0.3.2) ready.\r\n221 Goodbye.\r\n").constData());
+        QCOMPARE(thread1.data(),
+                 QByteArray("220 (vsFTPd 2.0.4)\r\n221 Goodbye.\r\n"));
+        QCOMPARE(thread2.data(),
+                 QByteArray("220 (vsFTPd 2.0.4)\r\n221 Goodbye.\r\n"));
+        QCOMPARE(thread3.data(),
+                 QByteArray("220 (vsFTPd 2.0.4)\r\n221 Goodbye.\r\n"));
     }
 }
 
@@ -1129,10 +1110,13 @@ void tst_QTcpSocket::messageBoxSlot()
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
     socket->deleteLater();
     QMessageBox box;
-    QTimer::singleShot(0, &box, SLOT(close()));
+    QTimer::singleShot(100, &box, SLOT(close()));
+
+    // This should not delete the socket
     box.exec();
 
-    QTimer::singleShot(0, this, SLOT(exitLoopSlot()));
+    // Fire a non-0 singleshot to leave time for the delete
+    QTimer::singleShot(250, this, SLOT(exitLoopSlot()));
 }
 
 //----------------------------------------------------------------------------------
@@ -1141,12 +1125,14 @@ void tst_QTcpSocket::openMessageBoxInErrorSlot()
     QTcpSocket *socket = new QTcpSocket;
     QPointer<QTcpSocket> p(socket);
     connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(messageBoxSlot()));
-    socket->connectToHost("fluke.troll.no", 9999); // ConnectionRefusedError
+
+    socket->connectToHost("hostnotfoundhostnotfound.troll.no", 9999); // Host not found, fyi
     enterLoop(30);
     QVERIFY(!p);
 }
 
 //----------------------------------------------------------------------------------
+#ifndef Q_OS_WIN
 void tst_QTcpSocket::connectToLocalHostNoService()
 {
     // This test was created after we received a report that claimed
@@ -1154,11 +1140,14 @@ void tst_QTcpSocket::connectToLocalHostNoService()
     // port with no service listening.
     QTcpSocket *socket = new QTcpSocket;
     socket->connectToHost("localhost", 31415); // no service running here, one suspects
-    while(socket->state() == QTcpSocket::HostLookupState || socket->state() == QTcpSocket::ConnectingState)
-        QCoreApplication::instance()->processEvents();
+
+    while(socket->state() == QTcpSocket::HostLookupState || socket->state() == QTcpSocket::ConnectingState) {
+        QTest::qWait(100);
+    }
     QCOMPARE(socket->state(), QTcpSocket::UnconnectedState);
     delete socket;
 }
+#endif
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::waitForConnectedInHostLookupSlot()
@@ -1231,14 +1220,9 @@ public slots:
 };
 
 //----------------------------------------------------------------------------------
+#ifndef Q_OS_WIN
 void tst_QTcpSocket::waitForConnectedInHostLookupSlot2()
 {
-#if QT_VERSION < 0x040100
-    QSKIP("Fixed in 4.1.", SkipSingle);
-#endif
-#ifndef Q_OS_UNIX
-    QSKIP("Unix-only test", SkipSingle);
-#endif
 
     Foo foo;
     QPushButton top("Go", 0);
@@ -1254,15 +1238,11 @@ void tst_QTcpSocket::waitForConnectedInHostLookupSlot2()
 
     QCOMPARE(foo.count, 1);
 }
-
+#endif
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::readyReadSignalsAfterWaitForReadyRead()
 {
-#if QT_VERSION < 0x040101
-    QSKIP("Fixed in 4.1.1", SkipSingle);
-#endif
-
     QTcpSocket socket;
 
     QSignalSpy readyReadSpy(&socket, SIGNAL(readyRead()));
@@ -1300,9 +1280,9 @@ public:
 };
 
 //----------------------------------------------------------------------------------
+#ifdef Q_OS_LINUX
 void tst_QTcpSocket::linuxKernelBugLocalSocket()
 {
-#ifdef Q_OS_LINUX
     QFile::remove("fifo");
     mkfifo("fifo", 0666);
 
@@ -1320,10 +1300,8 @@ void tst_QTcpSocket::linuxKernelBugLocalSocket()
     QCOMPARE(socket.bytesAvailable(), qint64(128));
 
     QFile::remove("fifo");
-#else
-    QSKIP("Linux-only test", SkipSingle);
-#endif
 }
+#endif
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::abortiveClose()
@@ -1399,6 +1377,7 @@ void tst_QTcpSocket::readWriteFailsOnUnconnectedSocket()
     QCOMPARE(socket.read(c, 16), qint64(0));
     QEXPECT_FAIL("", "socket.readLine() /should/ return 0 when there's nothing to read", Continue);
     QCOMPARE(socket.readLine(c, 16), qint64(0));
+    QTest::ignoreMessage(QtWarningMsg, "QIODevice::getChar: Closed device");
     QVERIFY(!socket.getChar(c));
     QVERIFY(!socket.putChar('a'));
 
@@ -1406,12 +1385,15 @@ void tst_QTcpSocket::readWriteFailsOnUnconnectedSocket()
 
     QCOMPARE(socket.read(c, 16), qint64(-1));
     QCOMPARE(socket.readLine(c, 16), qint64(-1));
+    QTest::ignoreMessage(QtWarningMsg, "QIODevice::getChar: Closed device");
     QVERIFY(!socket.getChar(c));
     QVERIFY(!socket.putChar('a'));
 }
 
 void tst_QTcpSocket::connectionRefused()
 {
+    QSKIP("On Windows, we cannot determine if you got ConnectionRefused", SkipSingle);
+
     qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
     qRegisterMetaType<QAbstractSocket::SocketState>("QAbstractSocket::SocketState");
     
@@ -1423,7 +1405,7 @@ void tst_QTcpSocket::connectionRefused()
     QTimer::singleShot(10000, &loop, SLOT(quit()));
 
     socket.connectToHost("fluke.troll.no", 144);
-    
+
     loop.exec();
 
     QCOMPARE(socket.state(), QAbstractSocket::UnconnectedState);
@@ -1492,6 +1474,29 @@ void tst_QTcpSocket::suddenRemoteDisconnect()
     // Check that both exited normally.
     QCOMPARE(clientProcess.readAll().constData(), "SUCCESS\n");
     QCOMPARE(serverProcess.readAll().constData(), "SUCCESS\n");
+}
+
+//----------------------------------------------------------------------------------
+void tst_QTcpSocket::connectToMultiIP()
+{
+    qDebug("Please wait, this test can take a while...");
+
+    QTcpSocket socket;
+    // rationale: this domain resolves to 3 A-records, 2 of them are
+    // invalid. QTcpSocket should never spend more than 30 seconds per IP, and
+    // 30s*2 = 60s.
+    QTime stopWatch;
+    stopWatch.start();
+    socket.connectToHost("multi.andreas.hanssen.name", 80);
+    QVERIFY(socket.waitForConnected(60000));
+    QVERIFY(stopWatch.elapsed() < 70000);
+    socket.abort();
+
+    stopWatch.restart();
+    socket.connectToHost("multi.andreas.hanssen.name", 81);
+    QVERIFY(!socket.waitForConnected(1000));
+    QVERIFY(stopWatch.elapsed() < 2000);
+    QCOMPARE(socket.error(), QAbstractSocket::SocketTimeoutError);
 }
 
 QTEST_MAIN(tst_QTcpSocket)

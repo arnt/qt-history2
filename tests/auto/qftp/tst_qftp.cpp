@@ -164,6 +164,8 @@ void tst_QFtp::initTestCase_data()
     QTest::newRow("WithoutProxy") << false << 0;
 #ifdef TEST_QNETWORK_PROXY
     QTest::newRow("WithSocks5Proxy") << true << int(QNetworkProxy::Socks5Proxy);
+    //### doesn't work well yet.
+    //QTest::newRow("WithHttpProxy") << true << int(QNetworkProxy::HttpProxy);
 #endif
 }
 
@@ -183,6 +185,8 @@ void tst_QFtp::init()
         QFETCH_GLOBAL(int, proxyType);
         if (proxyType == QNetworkProxy::Socks5Proxy) {
             QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::Socks5Proxy, "fluke.troll.no", 1080));
+        } else if (proxyType == QNetworkProxy::HttpProxy) {
+            QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::HttpProxy, "fluke.troll.no", 3128));
         }
 #endif
     }
@@ -233,7 +237,6 @@ void tst_QFtp::connectToHost_data()
     QTest::addColumn<int>("state");
 
     QTest::newRow( "ok01" ) << QString("fluke.troll.no") << (uint)21 << (int)QFtp::Connected;
-
     QTest::newRow( "error01" ) << QString("fluke.troll.no") << (uint)2222 << (int)QFtp::Unconnected;
     QTest::newRow( "error02" ) << QString("foo.bar") << (uint)21 << (int)QFtp::Unconnected;
 }
@@ -377,8 +380,8 @@ void tst_QFtp::list_data()
     QTest::newRow( "absPath01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("/qtest") << 1 << flukeQtest;
     QTest::newRow( "absPath02" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("/srv/ftp/qtest") << 1 << flukeQtest;
 
-    QTest::newRow( "nonExist01" ) << QString("trueblue.troll.no") << (uint)21 << QString() << QString() << QString("foo")  << 0 << QStringList();
-    QTest::newRow( "nonExist02" ) << QString("trueblue.troll.no") << (uint)21 << QString() << QString() << QString("/foo") << 0 << QStringList();
+    QTest::newRow( "nonExist01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("foo")  << 0 << QStringList();
+    QTest::newRow( "nonExist02" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("/foo") << 0 << QStringList();
     // ### The microsoft server does not seem to work properly at the moment --
     // I am also not able to open a data connection with other, non-Qt FTP
     // clients to it.

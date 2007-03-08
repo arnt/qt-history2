@@ -92,7 +92,7 @@ int QHttpSocketEngine::socketDescriptor() const
 bool QHttpSocketEngine::isValid() const
 {
     Q_D(const QHttpSocketEngine);
-    return d->socketState != QAbstractSocket::UnconnectedState;
+    return d->socket;
 }
 
 bool QHttpSocketEngine::connectToHost(const QHostAddress &address, quint16 port)
@@ -142,8 +142,11 @@ int QHttpSocketEngine::accept()
 void QHttpSocketEngine::close()
 {
     Q_D(QHttpSocketEngine);
-    if (d->socket)
+    if (d->socket) {
         d->socket->close();
+        delete d->socket;
+        d->socket = 0;
+    }
 }
 
 qint64 QHttpSocketEngine::bytesAvailable() const
@@ -167,6 +170,12 @@ qint64 QHttpSocketEngine::read(char *data, qint64 maxlen)
     }
 
     qint64 bytesReadFromSocket = d->socket->read(data, maxlen);
+
+    if (d->socket->state() == QAbstractSocket::UnconnectedState
+        && d->socket->bytesAvailable() == 0) {
+        emitReadNotification();
+    }
+    
     if (bytesReadFromSocket > 0) {
         // Add to what we read so far.
         bytesRead += bytesReadFromSocket;
@@ -408,9 +417,6 @@ void QHttpSocketEngine::slotSocketConnected()
 
 void QHttpSocketEngine::slotSocketDisconnected()
 {
-    Q_D(QHttpSocketEngine);
-    if (d->state != SendAuthentication)
-        setState(QAbstractSocket::UnconnectedState);
 }
 
 void QHttpSocketEngine::slotSocketReadNotification()

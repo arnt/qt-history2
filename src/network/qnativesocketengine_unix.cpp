@@ -313,7 +313,7 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &addr, quint16
     if (connectResult == -1) {
         switch (errno) {
         case EINVAL:
-            setError(QAbstractSocket::UnsupportedSocketOperationError, OperationUnsupportedErrorString);
+            setError(QAbstractSocket::UnfinishedSocketOperationError, InvalidSocketErrorString);
             break;
         case EISCONN:
             socketState = QAbstractSocket::ConnectedState;
@@ -338,9 +338,11 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &addr, quint16
             break;
         case EINPROGRESS:
         case EALREADY:
+            setError(QAbstractSocket::UnfinishedSocketOperationError, InvalidSocketErrorString);
             socketState = QAbstractSocket::ConnectingState;
             break;
         case EAGAIN:
+            setError(QAbstractSocket::UnfinishedSocketOperationError, InvalidSocketErrorString);
             setError(QAbstractSocket::SocketResourceError, ResourceErrorString);
             break;
         case EACCES:

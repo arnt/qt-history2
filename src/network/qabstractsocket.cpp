@@ -641,8 +641,8 @@ bool QAbstractSocketPrivate::flush()
     }
 
 #if defined (QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::flush() %lld bytes written to the network",
-               written);
+    qDebug("QAbstractSocketPrivate::flush() %lld bytes written to the network",
+           written);
 #endif
 
     // Remove what we wrote so far.
@@ -834,21 +834,21 @@ void QAbstractSocketPrivate::_q_connectToNextAddress()
 */
 void QAbstractSocketPrivate::_q_testConnection()
 {
-    if (threadData->eventDispatcher) {
-        if (connectTimer)
-            connectTimer->stop();
-    }
-
     if (socketEngine) {
         if (socketEngine->state() != QAbstractSocket::ConnectedState) {
             // Try connecting if we're not already connected.
             if (!socketEngine->connectToHost(host, port)) {
-                if (socketEngine->state() == QAbstractSocket::ConnectingState
-                    || socketEngine->error() == QAbstractSocket::SocketError(11)) {
+                if (socketEngine->error() == QAbstractSocket::UnfinishedSocketOperationError) {
                     // Connection in progress; wait for the next notification.
+                    socketEngine->setWriteNotificationEnabled(true);
                     return;
                 }
             }
+        }
+
+        if (threadData->eventDispatcher) {
+            if (connectTimer)
+                connectTimer->stop();
         }
 
         if (socketEngine->state() == QAbstractSocket::ConnectedState) {
@@ -863,6 +863,11 @@ void QAbstractSocketPrivate::_q_testConnection()
             addresses.clear();
     }
 
+    if (threadData->eventDispatcher) {
+        if (connectTimer)
+            connectTimer->stop();
+    }
+            
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::_q_testConnection() connection failed,"
            " checking for alternative addresses");
@@ -921,7 +926,7 @@ bool QAbstractSocketPrivate::readFromSocket()
     qDebug("QAbstractSocketPrivate::readFromSocket() about to read %d bytes",
            int(bytesToRead));
 #endif
-
+    
     // Read from the socket, store data in the read buffer.
     char *ptr = readBuffer.reserve(bytesToRead);
     qint64 readBytes = socketEngine->read(ptr, bytesToRead);
@@ -1410,14 +1415,18 @@ bool QAbstractSocket::waitForConnected(int msecs)
     while (state() == ConnectingState && (msecs == -1 || stopWatch.elapsed() < msecs)) {
         int timeout = qt_timeout_value(msecs, stopWatch.elapsed());
         if (msecs != -1 && timeout > QT_CONNECT_TIMEOUT)
-            timeout = QT_CONNECT_TIMEOUT;
+            timeout = qt_timeout_value(QT_CONNECT_TIMEOUT, stopWatch.elapsed());
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::waitForConnected(%i) waiting %.2f secs for connection attempt #%i",
                msecs, timeout / 1000.0, attempt++);
 #endif
         timedOut = false;
-        d->socketEngine->waitForWrite(timeout, &timedOut);
-        d->_q_testConnection();
+        
+        if (d->socketEngine->waitForWrite(timeout, &timedOut) && !timedOut) {
+            d->_q_testConnection();
+        } else {
+            d->_q_connectToNextAddress();
+        }
     }
 
     if ((timedOut && state() != ConnectedState) || state() == ConnectingState) {

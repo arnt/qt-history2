@@ -546,6 +546,7 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &address, quin
         if (connectResult == SOCKET_ERROR) {
             int err = WSAGetLastError();
             WS_ERROR_DEBUG(err);
+
             switch (err) {
             case WSANOTINITIALISED:
                 //###
@@ -555,6 +556,7 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &address, quin
                 break;
             case WSAEINPROGRESS:
             case WSAEWOULDBLOCK:
+                setError(QAbstractSocket::UnfinishedSocketOperationError, InvalidSocketErrorString);
                 socketState = QAbstractSocket::ConnectingState;
                 break;
             case WSAEADDRINUSE:
@@ -562,22 +564,26 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &address, quin
                 break;
             case WSAECONNREFUSED:
                 setError(QAbstractSocket::ConnectionRefusedError, ConnectionRefusedErrorString);
+                socketState = QAbstractSocket::UnconnectedState;
                 break;
             case WSAETIMEDOUT:
                 setError(QAbstractSocket::NetworkError, ConnectionTimeOutErrorString);
                 break;
             case WSAEACCES:
                 setError(QAbstractSocket::SocketAccessError, AccessErrorString);
+                socketState = QAbstractSocket::UnconnectedState;
                 break;
             case WSAEHOSTUNREACH:
                 setError(QAbstractSocket::NetworkError, HostUnreachableErrorString);
+                socketState = QAbstractSocket::UnconnectedState;
                 break;
             case WSAENETUNREACH:
                 setError(QAbstractSocket::NetworkError, NetworkUnreachableErrorString);
+                socketState = QAbstractSocket::UnconnectedState;
                 break;
             case WSAEINVAL:
             case WSAEALREADY:
-                setError(QAbstractSocket::SocketError(11), InvalidSocketErrorString);
+                setError(QAbstractSocket::UnfinishedSocketOperationError, InvalidSocketErrorString);
                 break;
             default:
                 break;
@@ -1100,5 +1106,7 @@ void QNativeSocketEnginePrivate::nativeClose()
 #if defined (QTCPSOCKETENGINE_DEBUG)
     qDebug("QNativeSocketEnginePrivate::nativeClose()");
 #endif
+    linger l = {1, 0};
+    ::setsockopt(socketDescriptor, SOL_SOCKET, SO_DONTLINGER, (char*)&l, sizeof(l));
     ::closesocket(socketDescriptor);
 }
