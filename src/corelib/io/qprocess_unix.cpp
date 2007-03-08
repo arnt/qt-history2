@@ -20,6 +20,16 @@
 #include "qstring.h"
 #include <ctype.h>
 
+// under QNX RTOS we have to use vfork() when multithreading
+inline pid_t qt_fork()
+{
+#if defined(Q_OS_QNX)
+    return vfork();
+#else
+    return fork();
+#endif
+}
+
 /*
     Returns a human readable representation of the first \a len
     characters in \a data.
@@ -521,7 +531,9 @@ void QProcessPrivate::startProcess()
 
     QByteArray encodedProg = QFile::encodeName(program);
     processManager()->lock();
-    pid_t childPid = fork();
+
+    pid_t childPid = qt_fork();
+
     if (childPid < 0) {
         // Cleanup, report error and return
         processManager()->unlock();
@@ -1129,14 +1141,14 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
     int startedPipe[2];
     ::pipe(startedPipe);
 
-    pid_t childPid = fork();
+    pid_t childPid = qt_fork();
     if (childPid == 0) {
         ::setsid();
         ::signal(SIGHUP, SIG_IGN);
         qt_native_close(startedPipe[0]);
         ::signal(SIGPIPE, SIG_DFL);
 
-        pid_t doubleForkPid = fork();
+        pid_t doubleForkPid = qt_fork();
         if (doubleForkPid == 0) {
             ::fcntl(startedPipe[1], F_SETFD, FD_CLOEXEC);
 
