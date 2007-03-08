@@ -1624,7 +1624,8 @@ QStringList QCoreApplication::arguments()
             if (l1arg == "-qdevel" ||
                 l1arg == "-qdebug" ||
                 l1arg == "-reverse" ||
-                l1arg == "-widgetcount")
+                l1arg == "-widgetcount" ||
+                l1arg == "-direct3d")
                 ;
             else if (l1arg.startsWith("-style="))
                 ;
