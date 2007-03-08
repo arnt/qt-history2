@@ -4207,6 +4207,9 @@ QRect QCleanlooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, c
 
         break;
     }
+    case SE_ProgressBarContents:
+        r = subElementRect(SE_ProgressBarGroove, opt, w);
+        break;
     default:
         break;
     }

@@ -777,10 +777,10 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt))
                 vertical = (pb2->orientation == Qt::Vertical);
             if (!vertical) {
-                p->fillRect(opt->rect.x(), opt->rect.y() + 2, opt->rect.width(),
-                            opt->rect.height() - 4, opt->palette.brush(QPalette::Highlight));
+                p->fillRect(opt->rect.x(), opt->rect.y(), opt->rect.width(),
+                            opt->rect.height(), opt->palette.brush(QPalette::Highlight));
             } else {
-                p->fillRect(opt->rect.x() + 1, opt->rect.y(), opt->rect.width() - 4, opt->rect.height(),
+                p->fillRect(opt->rect.x(), opt->rect.y(), opt->rect.width(), opt->rect.height(),
                             opt->palette.brush(QPalette::Highlight));
             }
         }
@@ -1313,8 +1313,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             bool reverse = ((!vertical && (pb->direction == Qt::RightToLeft)) || vertical);
             if (inverted)
                 reverse = !reverse;
-            int fw = 2;
-            int w = rect.width() - 2 * fw;
+            int w = rect.width();
             if (pb->minimum == 0 && pb->maximum == 0) {
                 QRect progressBar;
                 Q_D(const QMotifStyle);
@@ -1325,7 +1324,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                  x = reverse ? rect.right() - x : x + rect.x();
                  p->setTransform(m);
                  p->setPen(QPen(pal2.highlight().color(), 4));
-                 p->drawLine(x, rect.y() + 1, x, rect.height() - fw);
+                 p->drawLine(x, rect.y(), x, rect.height());
 
             } else
                 QCommonStyle::drawControl(element, opt, p, widget);
@@ -2112,6 +2111,8 @@ QMotifStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidge
                     rect.setCoords(opt->rect.left(), opt->rect.top(),
                                    opt->rect.right() - textw, opt->rect.bottom());
             }
+            if (sr == SE_ProgressBarContents)
+                rect.adjust(2, 2, -2, -2);
             rect = visualRect(pb->direction, pb->rect, rect);
         }
         break;

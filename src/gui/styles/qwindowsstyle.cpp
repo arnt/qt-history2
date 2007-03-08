@@ -1550,6 +1550,23 @@ case PE_FrameDockWidget:
         qDrawShadePanel(p, opt->rect, opt->palette, true, 1, 0);
         break;
 
+#ifndef QT_NO_PROGRESSBAR
+    case PE_IndicatorProgressChunk:
+        {
+            bool vertical = false;
+            if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt))
+                vertical = (pb2->orientation == Qt::Vertical);
+            if (!vertical) {
+                p->fillRect(opt->rect.x(), opt->rect.y(), opt->rect.width() - 2, opt->rect.height(),
+                            opt->palette.brush(QPalette::Highlight));
+            } else {
+                p->fillRect(opt->rect.x(), opt->rect.y(), opt->rect.width(), opt->rect.height() - 2,
+                            opt->palette.brush(QPalette::Highlight));
+            }
+        }
+        break;
+#endif // QT_NO_PROGRESSBAR
+
     case PE_FrameTabWidget:
         if (use2000style) {
             QRect rect = opt->rect;
@@ -2214,8 +2231,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             bool reverse = ((!vertical && (pb->direction == Qt::RightToLeft)) || vertical);
             if (inverted)
                 reverse = !reverse;
-            int fw = 2;
-            int w = rect.width() - 2 * fw;
+            int w = rect.width();
             if (pb->minimum == 0 && pb->maximum == 0) {
                 Q_D(const QWindowsStyle);
                 const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, pb, widget);
@@ -2392,6 +2408,10 @@ QRect QWindowsStyle::subElementRect(SubElement sr, const QStyleOption *opt, cons
         }
         break;
     }
+    case SE_ProgressBarContents:
+        r = QCommonStyle::subElementRect(SE_ProgressBarGroove, opt, w);
+        r.adjust(2, 3, -2, -3);
+        break;
     default:
         r = QCommonStyle::subElementRect(sr, opt, w);
     }

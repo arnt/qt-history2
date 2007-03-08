@@ -971,8 +971,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             bool reverse = ((!vertical && (pb->direction == Qt::RightToLeft)) || vertical);
             if (inverted)
                 reverse = !reverse;
-            int fw = 2;
-            int w = rect.width() - 2 * fw;
+            int w = rect.width();
             if (pb->minimum == 0 && pb->maximum == 0) {
                 // draw busy indicator
                 int x = (progress - minimum) % (w * 2);
@@ -980,7 +979,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                     x = 2 * w - x;
                 x = reverse ? rect.right() - x : x + rect.x();
                 p->setPen(QPen(pal2.highlight().color(), 4));
-                p->drawLine(x, rect.y() + 1, x, rect.height() - fw);
+                p->drawLine(x, rect.y(), x, rect.height());
             } else {
                 const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, pb, widget);
                 int u;
@@ -1009,8 +1008,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 // color, all in a sunken panel with a percentage text
                 // display at the end.
                 int x = 0;
-                int x0 = reverse ? rect.right() - ((unit_width > 1) ? unit_width : fw)
-                                 : rect.x() + fw;
+                int x0 = reverse ? rect.right() - ((unit_width > 1) ? unit_width : 0)
+                                 : rect.x();
 
                 QStyleOptionProgressBarV2 pbBits = *pb;
                 pbBits.rect = rect;
