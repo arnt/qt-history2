@@ -948,6 +948,10 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
 
     //actually set it
     SetMenuItemData(action->menu, action->command, true, &data);
+    
+    // Free up memory
+    if (data.iconHandle)
+        ReleaseIconRef(IconRef(data.iconHandle));
 }
 
 void
