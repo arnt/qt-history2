@@ -159,6 +159,7 @@ private slots:
     void read0d0d0a();
     void numeralCase_data();
     void numeralCase();
+    void nanInf();
 
 #if QT_VERSION >= 0x040100
     // status
@@ -1578,6 +1579,68 @@ void tst_QTextStream::numeralCase()
     QTextStream stream(&str);
     stream << func1 << func2 << func3 << func4 << value;
     QCOMPARE(str, expected);
+}
+
+// ------------------------------------------------------------------------------
+void tst_QTextStream::nanInf()
+{
+    // Cannot use test data in this function, as comparing nans and infs isn't
+    // well defined.
+    QString str("nan NAN nAn +nan +NAN +nAn -nan -NAN -nAn"
+                " inf INF iNf +inf +INF +iNf -inf -INF -iNf");
+
+    QTextStream stream(&str);
+
+    double tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsInf(tmpD)); QVERIFY(tmpD > 0); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsInf(tmpD)); QVERIFY(tmpD > 0); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsInf(tmpD)); QVERIFY(tmpD > 0); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsInf(tmpD)); QVERIFY(tmpD > 0); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsInf(tmpD)); QVERIFY(tmpD > 0); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsInf(tmpD)); QVERIFY(tmpD > 0); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsInf(tmpD)); QVERIFY(tmpD < 0); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsInf(tmpD)); QVERIFY(tmpD < 0); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsInf(tmpD)); QVERIFY(tmpD < 0); tmpD = 0;
+
+    stream.seek(0);
+
+    float tmpF = 0;
+    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsInf(tmpF)); QVERIFY(tmpF > 0); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsInf(tmpF)); QVERIFY(tmpF > 0); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsInf(tmpF)); QVERIFY(tmpF > 0); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsInf(tmpF)); QVERIFY(tmpF > 0); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsInf(tmpF)); QVERIFY(tmpF > 0); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsInf(tmpF)); QVERIFY(tmpF > 0); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsInf(tmpF)); QVERIFY(tmpF < 0); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsInf(tmpF)); QVERIFY(tmpF < 0); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsInf(tmpF)); QVERIFY(tmpF < 0);
+
+    QString s;
+    QTextStream out(&s);
+    out << qInf() << " " << -qInf() << " " << qQNan()
+        << uppercasedigits << " "
+        << qInf() << " " << -qInf() << " " << qQNan()
+        << flush;
+
+    QCOMPARE(s, QString("inf -inf nan INF -INF NAN"));
 }
 
 // ------------------------------------------------------------------------------
