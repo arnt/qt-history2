@@ -4070,6 +4070,13 @@ void QPainter::drawConvexPolygon(const QPointF *points, int pointCount)
     \endcode
     \endtable
 
+    If \a pixmap is a QBitmap it is drawn with the bits that are "set"
+    using the pens color. If backgroundMode is Qt::OpaqueMode, the
+    "unset" bits are drawn using the color of the background brush; if
+    backgroundMode is Qt::TransparentMode, the "unset" bits are
+    transparent. Drawing bitmaps with gradient or texture colors is
+    not supported.
+
     \sa drawImage()
 */
 void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
