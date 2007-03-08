@@ -895,6 +895,8 @@ void WriteInitialization::writeProperties(const QString &varName,
             setFunction += QLatin1String("\", QVariant(");
         }
 
+        QString varNewName = varName;
+
         switch (p->kind()) {
         case DomProperty::Bool: {
             propertyValue = p->elementBool();
@@ -925,6 +927,8 @@ void WriteInitialization::writeProperties(const QString &varName,
                             .arg(p->elementCursor());
             break;
         case DomProperty::CursorShape:
+            if (p->hasAttributeStdset() && !p->attributeStdset())
+                varNewName += QLatin1String("->viewport()");
             propertyValue = QString::fromLatin1("QCursor(Qt::%1)")
                             .arg(p->elementCursorShape());
             break;
@@ -1130,7 +1134,7 @@ void WriteInitialization::writeProperties(const QString &varName,
             if (propertyName == QLatin1String("statusTip"))
                 continue;
 #endif // QT_NO_WHATSTHIS
-            (*o) << m_option.indent << varName << setFunction << propertyValue;
+            (*o) << m_option.indent << varNewName << setFunction << propertyValue;
             if (!stdset)
                 (*o) << ')';
             (*o) << ");\n";

@@ -24,6 +24,7 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QFont>
 #include <QtGui/QFrame>
+#include <QtGui/QAbstractScrollArea>
 
 #include <private/qfont_p.h>
 
@@ -568,7 +569,7 @@ DomProperty *variantToDomProperty(QAbstractFormBuilder *afb, QObject *obj,
     const int pindex = meta->indexOfProperty(pname.toLatin1());
     if (pindex != -1) {
         QMetaProperty meta_property = meta->property(pindex);
-        if (!meta_property.hasStdCppSet())
+        if (!meta_property.hasStdCppSet() || (qobject_cast<QAbstractScrollArea *>(obj) && pname == QLatin1String("cursor")))
             dom_prop->setAttributeStdset(0);
     }
 

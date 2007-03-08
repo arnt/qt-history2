@@ -40,6 +40,7 @@
 #include <QtGui/QStyleFactory>
 #include <QtGui/QStyle>
 #include <QtGui/QApplication>
+#include <QtGui/QAbstractScrollArea>
 #include <QtGui/QMessageBox>
 
 #include <QtCore/QBuffer>
@@ -200,9 +201,14 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
         const QByteArray pname = attributeName.toUtf8();
         const int index = meta->indexOfProperty(pname);
 
+        QObject *obj = o;
+        QAbstractScrollArea *scroll = qobject_cast<QAbstractScrollArea *>(o);
+        if (scroll && QLatin1String(pname) == QLatin1String("cursor") && scroll->viewport())
+            obj = scroll->viewport();
+
         if (index != -1 || dynamicPropertiesAllowed) {
             // a real property
-            o->setProperty(pname, v);
+            obj->setProperty(pname, v);
         }
     }
 }
