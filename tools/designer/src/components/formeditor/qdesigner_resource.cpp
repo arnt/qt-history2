@@ -561,7 +561,23 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
         const QString propertyName = p->attributeName();
 
         const int index = sheet->indexOf(propertyName);
-        const QVariant v = toVariant(o->metaObject(), *it);
+        QVariant v;
+        if (p->kind() == DomProperty::Enum && qVariantCanConvert<EnumType>(sheet->property(index))) {
+            const EnumType e = qvariant_cast<EnumType>(sheet->property(index));
+            if (e.items.contains(p->elementEnum()))
+                v = e.items[p->elementEnum()];
+        } else if (p->kind() == DomProperty::Set && qVariantCanConvert<FlagType>(sheet->property(index))) {
+            const FlagType e = qvariant_cast<FlagType>(sheet->property(index));
+            uint flags = 0;
+            QStringList items = p->elementSet().split(QLatin1String("|"));
+            foreach (QString item, items) {
+                if (e.items.contains(item))
+                    flags |= e.items[item].toUInt();
+            }
+            v = flags;
+        } else {
+            v = toVariant(o->metaObject(), *it);
+        }
 
         QDesignerMetaDataBaseItemInterface *item = 0;
         if (core()->metaDataBase())

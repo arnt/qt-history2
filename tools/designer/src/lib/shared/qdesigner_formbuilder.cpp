@@ -45,6 +45,8 @@
 #include <QtCore/QBuffer>
 #include <QtCore/qdebug.h>
 
+#include <qdesigner_utils_p.h>
+
 static QString summarizeScriptErrors(const QFormScriptRunner::Errors &errors) 
 {
     QString rc =  QObject::tr("Script errors occurred:");
@@ -162,18 +164,36 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
         return;
 
     QFormBuilderExtra *formBuilderExtra = QFormBuilderExtra::instance(this);
+    const QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), o);
     const QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core()->extensionManager(), o);
     const QMetaObject *meta = o->metaObject();
     const bool dynamicPropertiesAllowed = dynamicSheet && dynamicSheet->dynamicPropertiesAllowed() && strcmp(meta->className(), "QAxWidget") != 0;
 
     const DomPropertyList::const_iterator cend = properties.constEnd();
     for (DomPropertyList::const_iterator it = properties.constBegin(); it != cend; ++it) {
-        const QVariant v = toVariant(meta, *it);
+        DomProperty *p = *it;
+        const QString attributeName = p->attributeName();
+        QVariant v;
+        if (sheet && p->kind() == DomProperty::Enum && qVariantCanConvert<EnumType>(sheet->property(sheet->indexOf(attributeName)))) {
+            const EnumType e = qvariant_cast<EnumType>(sheet->property(sheet->indexOf(attributeName)));
+            if (e.items.contains(p->elementEnum()))
+                v = e.items[p->elementEnum()];
+        } else if (sheet && p->kind() == DomProperty::Set && qVariantCanConvert<FlagType>(sheet->property(sheet->indexOf(attributeName)))) {
+            const FlagType e = qvariant_cast<FlagType>(sheet->property(sheet->indexOf(attributeName)));
+            uint flags = 0;
+            QStringList items = p->elementSet().split(QLatin1String("|"));
+            foreach (QString item, items) {
+                if (e.items.contains(item))
+                    flags |= e.items[item].toUInt();
+            }
+            v = flags;
+        } else {
+            v = toVariant(meta, p);
+        }
 
         if (v.isNull())
             continue;
 
-        const QString attributeName = (*it)->attributeName();
         if (formBuilderExtra->applyPropertyInternally(o, attributeName, v))
             continue;
 
