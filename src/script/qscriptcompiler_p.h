@@ -203,6 +203,7 @@ protected:
                           AST::Statement *statement, AST::ExpressionNode *expression);
 
     bool isAssignmentOperator(int op) const;
+    int inplaceAssignmentOperator(int op) const;
 
     inline int nextInstructionOffset() const
     { return m_instructions.count(); }

@@ -23,6 +23,162 @@
 
 namespace QScript {
 
+class Compare : protected AST::Visitor
+{
+public:
+    bool operator()(AST::ExpressionNode *e1, AST::ExpressionNode *e2)
+    {
+        if (!e1 || !e2)
+            return (e1 == e2);
+
+        if (e1->kind != e2->kind)
+            return false;
+
+        m_e2 = e2;
+        m_equal = false;
+        e1->accept(this);
+        return m_equal;
+    }
+
+protected:
+    virtual bool visit(AST::ThisExpression *)
+    {
+        m_equal = true;
+        return false;
+    }
+    virtual bool visit(AST::NullExpression *)
+    {
+        m_equal = true;
+        return false;
+    }
+    virtual bool visit(AST::VoidExpression *)
+    {
+        m_equal = true;
+        return false;
+    }
+    virtual bool visit(AST::FalseLiteral *)
+    {
+        m_equal = true;
+        return false;
+    }
+    virtual bool visit(AST::TrueLiteral *)
+    {
+        m_equal = true;
+        return false;
+    }
+    virtual bool visit(AST::NumericLiteral *e1)
+    {
+        AST::NumericLiteral *e2 = static_cast<AST::NumericLiteral*>(m_e2);
+        m_equal = (e1->value == e2->value);
+        return false;
+    }
+    virtual bool visit(AST::RegExpLiteral *e1)
+    {
+        AST::RegExpLiteral *e2 = static_cast<AST::RegExpLiteral*>(m_e2);
+        m_equal = (e1->pattern == e2->pattern)
+                  && (e1->flags == e2->flags);
+        return false;
+    }
+    virtual bool visit(AST::StringLiteral *e1)
+    {
+        AST::StringLiteral *e2 = static_cast<AST::StringLiteral*>(m_e2);
+        m_equal = (e1->value == e2->value);
+        return false;
+    }
+    virtual bool visit(AST::IdentifierExpression *e1)
+    {
+        AST::IdentifierExpression *e2 = static_cast<AST::IdentifierExpression*>(m_e2);
+        m_equal = (e1->name == e2->name);
+        return false;
+    }
+    virtual bool visit(AST::ArrayMemberExpression *e1)
+    {
+        AST::ArrayMemberExpression *e2 = static_cast<AST::ArrayMemberExpression*>(m_e2);
+        m_equal = operator()(e1->base, e2->base)
+                  && operator()(e1->expression, e2->expression);
+        return false;
+    }
+    virtual bool visit(AST::FieldMemberExpression *e1)
+    {
+        AST::FieldMemberExpression *e2 = static_cast<AST::FieldMemberExpression*>(m_e2);
+        m_equal = (e1->name == e2->name) && operator()(e1->base, e2->base);
+        return false;
+    }
+    virtual bool visit(AST::BinaryExpression *e1)
+    {
+        AST::BinaryExpression *e2 = static_cast<AST::BinaryExpression*>(m_e2);
+        m_equal = (e1->op == e2->op) && operator()(e1->left, e2->left)
+                  && operator()(e1->right, e2->right);
+        return false;
+    }
+    virtual bool visit(AST::ConditionalExpression *e1)
+    {
+        AST::ConditionalExpression *e2 = static_cast<AST::ConditionalExpression*>(m_e2);
+        m_equal = operator()(e1->expression, e2->expression)
+                  && operator()(e1->ok, e2->ok)
+                  && operator()(e1->ko, e2->ko);
+        return false;
+    }
+    virtual bool visit(AST::TypeOfExpression *e1)
+    {
+        AST::TypeOfExpression *e2 = static_cast<AST::TypeOfExpression*>(m_e2);
+        m_equal = operator()(e1->expression, e2->expression);
+        return false;
+    }
+    virtual bool visit(AST::UnaryPlusExpression *e1)
+    {
+        AST::UnaryPlusExpression *e2 = static_cast<AST::UnaryPlusExpression*>(m_e2);
+        m_equal = operator()(e1->expression, e2->expression);
+        return false;
+    }
+    virtual bool visit(AST::UnaryMinusExpression *e1)
+    {
+        AST::UnaryMinusExpression *e2 = static_cast<AST::UnaryMinusExpression*>(m_e2);
+        m_equal = operator()(e1->expression, e2->expression);
+        return false;
+    }
+    virtual bool visit(AST::TildeExpression *e1)
+    {
+        AST::TildeExpression *e2 = static_cast<AST::TildeExpression*>(m_e2);
+        m_equal = operator()(e1->expression, e2->expression);
+        return false;
+    }
+    virtual bool visit(AST::NotExpression *e1)
+    {
+        AST::NotExpression *e2 = static_cast<AST::NotExpression*>(m_e2);
+        m_equal = operator()(e1->expression, e2->expression);
+        return false;
+    }
+    virtual bool visit(AST::Expression *)
+    { return false; }
+    virtual bool visit(AST::ArrayLiteral *)
+    { return false; }
+    virtual bool visit(AST::ObjectLiteral *)
+    { return false; }
+    virtual bool visit(AST::CallExpression *)
+    { return false; }
+    virtual bool visit(AST::DeleteExpression *)
+    { return false; }
+    virtual bool visit(AST::FunctionExpression *)
+    { return false; }
+    virtual bool visit(AST::NewExpression *)
+    { return false; }
+    virtual bool visit(AST::NewMemberExpression *)
+    { return false; }
+    virtual bool visit(AST::PostDecrementExpression *)
+    { return false; }
+    virtual bool visit(AST::PostIncrementExpression *)
+    { return false; }
+    virtual bool visit(AST::PreDecrementExpression *)
+    { return false; }
+    virtual bool visit(AST::PreIncrementExpression *)
+    { return false; }
+
+private:
+    AST::ExpressionNode *m_e2;
+    bool m_equal;
+};
+
 class FetchName: protected AST::Visitor
 {
 public:
@@ -848,6 +1004,40 @@ bool Compiler::isAssignmentOperator(int op) const
     return false;
 }
 
+int Compiler::inplaceAssignmentOperator(int op) const
+{
+    switch (op) {
+    case QSOperator::BitAnd:
+        return QSOperator::InplaceAnd;
+    case QSOperator::Sub:
+        return QSOperator::InplaceSub;
+    case QSOperator::Div:
+        return QSOperator::InplaceDiv;
+    case QSOperator::Add:
+        return QSOperator::InplaceAdd;
+    case QSOperator::LShift:
+        return QSOperator::InplaceLeftShift;
+    case QSOperator::Mod:
+        return QSOperator::InplaceMod;
+    case QSOperator::Mul:
+        return QSOperator::InplaceMul;
+    case QSOperator::BitOr:
+        return QSOperator::InplaceOr;
+    case QSOperator::RShift:
+        return QSOperator::InplaceRightShift;
+    case QSOperator::URShift:
+        return QSOperator::InplaceURightShift;
+    case QSOperator::BitXor:
+        return QSOperator::InplaceXor;
+
+    default:
+        break;
+
+    }
+
+    return(-1);
+}
+
 bool Compiler::visit(AST::Expression *node)
 {
     node->left->accept(this);
@@ -877,9 +1067,20 @@ bool Compiler::visit(AST::BinaryExpression *node)
         iPop();
     }
 
-    node->right->accept(this);
+    int op = node->op;
+    Compare compare;
+    if ((op == QSOperator::Assign) && node->right->binaryExpressionCast()
+        && (inplaceAssignmentOperator(node->right->binaryExpressionCast()->op) != -1)
+        && compare(node->left, node->right->binaryExpressionCast()->left)) {
+        // node->left is equivalent to node->right->left, so we generate
+        // x op= y rather than x = x op y
+        op = inplaceAssignmentOperator(node->right->binaryExpressionCast()->op);
+        node->right->binaryExpressionCast()->right->accept(this);
+    } else {
+        node->right->accept(this);
+    }
 
-    switch (node->op) {
+    switch (op) {
 
     case QSOperator::Assign:
         iAssign();

@@ -21,12 +21,22 @@ ExpressionNode *Node::expressionCast()
     return 0;
 }
 
+BinaryExpression *Node::binaryExpressionCast()
+{
+    return 0;
+}
+
 Statement *Node::statementCast()
 {
     return 0;
 }
 
 ExpressionNode *ExpressionNode::expressionCast()
+{
+    return this;
+}
+
+BinaryExpression *BinaryExpression::binaryExpressionCast()
 {
     return this;
 }

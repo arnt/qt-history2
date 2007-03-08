@@ -80,12 +80,93 @@ namespace QScript { namespace AST {
 class Node
 {
 public:
+    enum Kind {
+        Kind_Node,
+        Kind_ExpressionNode,
+        Kind_Statement,
+        Kind_ThisExpression,
+        Kind_IdentifierExpression,
+        Kind_NullExpression,
+        Kind_TrueLiteral,
+        Kind_FalseLiteral,
+        Kind_NumericLiteral,
+        Kind_StringLiteral,
+        Kind_RegExpLiteral,
+        Kind_ArrayLiteral,
+        Kind_ObjectLiteral,
+        Kind_ElementList,
+        Kind_Elision,
+        Kind_PropertyNameAndValueList,
+        Kind_PropertyName,
+        Kind_IdentifierPropertyName,
+        Kind_StringLiteralPropertyName,
+        Kind_NumericLiteralPropertyName,
+        Kind_ArrayMemberExpression,
+        Kind_FieldMemberExpression,
+        Kind_NewMemberExpression,
+        Kind_NewExpression,
+        Kind_CallExpression,
+        Kind_ArgumentList,
+        Kind_PostIncrementExpression,
+        Kind_PostDecrementExpression,
+        Kind_DeleteExpression,
+        Kind_VoidExpression,
+        Kind_TypeOfExpression,
+        Kind_PreIncrementExpression,
+        Kind_PreDecrementExpression,
+        Kind_UnaryPlusExpression,
+        Kind_UnaryMinusExpression,
+        Kind_TildeExpression,
+        Kind_NotExpression,
+        Kind_BinaryExpression,
+        Kind_ConditionalExpression,
+        Kind_Expression,
+        Kind_Block,
+        Kind_StatementList,
+        Kind_VariableStatement,
+        Kind_VariableDeclarationList,
+        Kind_VariableDeclaration,
+        Kind_EmptyStatement,
+        Kind_ExpressionStatement,
+        Kind_IfStatement,
+        Kind_DoWhileStatement,
+        Kind_WhileStatement,
+        Kind_ForStatement,
+        Kind_LocalForStatement,
+        Kind_ForEachStatement,
+        Kind_LocalForEachStatement,
+        Kind_ContinueStatement,
+        Kind_BreakStatement,
+        Kind_ReturnStatement,
+        Kind_WithStatement,
+        Kind_SwitchStatement,
+        Kind_CaseBlock,
+        Kind_CaseClauses,
+        Kind_CaseClause,
+        Kind_DefaultClause,
+        Kind_LabelledStatement,
+        Kind_ThrowStatement,
+        Kind_TryStatement,
+        Kind_Catch,
+        Kind_Finally,
+        Kind_FunctionDeclaration,
+        Kind_FunctionExpression,
+        Kind_FormalParameterList,
+        Kind_FunctionBody,
+        Kind_Program,
+        Kind_SourceElements,
+        Kind_SourceElement,
+        Kind_FunctionSourceElement,
+        Kind_StatementSourceElement
+    };
+
     inline Node():
-        startLine(0), startColumn(0) {}
+        startLine(0), startColumn(0), kind(Kind_Node) {}
 
     virtual ~Node() {}
 
     virtual ExpressionNode *expressionCast();
+    virtual BinaryExpression *binaryExpressionCast();
     virtual Statement *statementCast();
 
     inline void accept(Visitor *visitor)
@@ -106,11 +187,13 @@ public:
 
     int startLine;
     int startColumn;
+    Kind kind;
 };
 
 class ExpressionNode: public Node
 {
 public:
+    ExpressionNode() { kind = Kind_ExpressionNode; }
     virtual ~ExpressionNode() {}
 
     virtual ExpressionNode *expressionCast();
@@ -119,6 +202,7 @@ public:
 class Statement: public Node
 {
 public:
+    Statement() { kind = Kind_Statement; }
     virtual ~Statement() {}
 
     virtual Statement *statementCast();
@@ -127,7 +211,7 @@ public:
 class ThisExpression: public ExpressionNode
 {
 public:
-    ThisExpression() {}
+    ThisExpression() { kind = Kind_ThisExpression; }
     virtual ~ThisExpression() {}
 
     virtual void accept0(Visitor *visitor);
@@ -137,7 +221,7 @@ class IdentifierExpression: public ExpressionNode
 {
 public:
     IdentifierExpression(QScriptNameIdImpl *n):
-        name (n) {}
+        name (n) { kind = Kind_IdentifierExpression; }
 
     virtual ~IdentifierExpression() {}
 
@@ -150,7 +234,7 @@ public:
 class NullExpression: public ExpressionNode
 {
 public:
-    NullExpression() {}
+    NullExpression() { kind = Kind_NullExpression; }
     virtual ~NullExpression() {}
 
     virtual void accept0(Visitor *visitor);
@@ -159,7 +243,7 @@ public:
 class TrueLiteral: public ExpressionNode
 {
 public:
-    TrueLiteral() {}
+    TrueLiteral() { kind = Kind_TrueLiteral; }
     virtual ~TrueLiteral() {}
 
     virtual void accept0(Visitor *visitor);
@@ -168,7 +252,7 @@ public:
 class FalseLiteral: public ExpressionNode
 {
 public:
-    FalseLiteral() {}
+    FalseLiteral() { kind = Kind_FalseLiteral; }
     virtual ~FalseLiteral() {}
 
     virtual void accept0(Visitor *visitor);
@@ -178,7 +262,7 @@ class NumericLiteral: public ExpressionNode
 {
 public:
     NumericLiteral(double v):
-        value (v) {}
+        value (v) { kind = Kind_NumericLiteral; }
     virtual ~NumericLiteral() {}
 
     virtual void accept0(Visitor *visitor);
@@ -191,7 +275,7 @@ class StringLiteral: public ExpressionNode
 {
 public:
     StringLiteral(QScriptNameIdImpl *v):
-        value (v) {}
+        value (v) { kind = Kind_StringLiteral; }
 
     virtual ~StringLiteral() {}
 
@@ -205,7 +289,7 @@ class RegExpLiteral: public ExpressionNode
 {
 public:
     RegExpLiteral(QScriptNameIdImpl *p, QScriptNameIdImpl *f):
-        pattern (p), flags (f) {}
+        pattern (p), flags (f) { kind = Kind_RegExpLiteral; }
 
     virtual ~RegExpLiteral() {}
 
@@ -220,13 +304,16 @@ class ArrayLiteral: public ExpressionNode
 {
 public:
     ArrayLiteral(Elision *e):
-        elements (0), elision (e) {}
+        elements (0), elision (e)
+        { kind = Kind_ArrayLiteral; }
 
     ArrayLiteral(ElementList *elts):
-        elements (elts), elision (0) {}
+        elements (elts), elision (0)
+        { kind = Kind_ArrayLiteral; }
 
     ArrayLiteral(ElementList *elts, Elision *e):
-        elements (elts), elision (e) {}
+        elements (elts), elision (e)
+        { kind = Kind_ArrayLiteral; }
 
     virtual ~ArrayLiteral() {}
 
@@ -241,10 +328,10 @@ class ObjectLiteral: public ExpressionNode
 {
 public:
     ObjectLiteral():
-        properties (0) {}
+        properties (0) { kind = Kind_ObjectLiteral; }
 
     ObjectLiteral(PropertyNameAndValueList *plist):
-        properties (plist) {}
+        properties (plist) { kind = Kind_ObjectLiteral; }
 
     virtual ~ObjectLiteral() {}
 
@@ -258,11 +345,13 @@ class ElementList: public Node
 {
 public:
     ElementList(Elision *e, ExpressionNode *expr):
-        elision (e), expression (expr), next (this) {}
+        elision (e), expression (expr), next (this)
+        { kind = Kind_ElementList; }
 
     ElementList(ElementList *previous, Elision *e, ExpressionNode *expr):
         elision (e), expression (expr)
     {
+        kind = Kind_ElementList;
         next = previous->next;
         previous->next = this;
     }
@@ -288,10 +377,11 @@ class Elision: public Node
 {
 public:
     Elision():
-        next (this) {}
+        next (this) { kind = Kind_Elision; }
 
     Elision(Elision *previous)
     {
+        kind = Kind_Elision;
         next = previous->next;
         previous->next = this;
     }
@@ -315,11 +405,13 @@ class PropertyNameAndValueList: public Node
 {
 public:
     PropertyNameAndValueList(PropertyName *n, ExpressionNode *v):
-        name (n), value (v), next (this) {}
+        name (n), value (v), next (this)
+        { kind = Kind_PropertyNameAndValueList; }
 
     PropertyNameAndValueList(PropertyNameAndValueList *previous, PropertyName *n, ExpressionNode *v):
         name (n), value (v)
     {
+        kind = Kind_PropertyNameAndValueList;
         next = previous->next;
         previous->next = this;
     }
@@ -344,6 +436,7 @@ public:
 class PropertyName: public Node
 {
 public:
+    PropertyName() { kind = Kind_PropertyName; }
     virtual ~PropertyName() {}
 };
 
@@ -351,7 +444,7 @@ class IdentifierPropertyName: public PropertyName
 {
 public:
     IdentifierPropertyName(QScriptNameIdImpl *n):
-        id (n) {}
+        id (n) { kind = Kind_IdentifierPropertyName; }
 
     virtual ~IdentifierPropertyName() {}
 
@@ -365,7 +458,7 @@ class StringLiteralPropertyName: public PropertyName
 {
 public:
     StringLiteralPropertyName(QScriptNameIdImpl *n):
-        id (n) {}
+        id (n) { kind = Kind_StringLiteralPropertyName; }
     virtual ~StringLiteralPropertyName() {}
 
     virtual void accept0(Visitor *visitor);
@@ -378,7 +471,7 @@ class NumericLiteralPropertyName: public PropertyName
 {
 public:
     NumericLiteralPropertyName(double n):
-        id (n) {}
+        id (n) { kind = Kind_NumericLiteralPropertyName; }
     virtual ~NumericLiteralPropertyName() {}
 
     virtual void accept0(Visitor *visitor);
@@ -391,7 +484,8 @@ class ArrayMemberExpression: public ExpressionNode
 {
 public:
     ArrayMemberExpression(ExpressionNode *b, ExpressionNode *e):
-        base (b), expression (e) {}
+        base (b), expression (e)
+        { kind = Kind_ArrayMemberExpression; }
 
     virtual ~ArrayMemberExpression() {}
 
@@ -406,7 +500,8 @@ class FieldMemberExpression: public ExpressionNode
 {
 public:
     FieldMemberExpression(ExpressionNode *b, QScriptNameIdImpl *n):
-        base (b), name (n) {}
+        base (b), name (n)
+        { kind = Kind_FieldMemberExpression; }
 
     virtual ~FieldMemberExpression() {}
 
@@ -421,7 +516,8 @@ class NewMemberExpression: public ExpressionNode
 {
 public:
     NewMemberExpression(ExpressionNode *b, ArgumentList *a):
-        base (b), arguments (a) {}
+        base (b), arguments (a)
+        { kind = Kind_NewMemberExpression; }
 
     virtual ~NewMemberExpression() {}
 
@@ -436,7 +532,7 @@ class NewExpression: public ExpressionNode
 {
 public:
     NewExpression(ExpressionNode *e):
-        expression (e) {}
+        expression (e) { kind = Kind_NewExpression; }
 
     virtual ~NewExpression() {}
 
@@ -450,7 +546,8 @@ class CallExpression: public ExpressionNode
 {
 public:
     CallExpression(ExpressionNode *b, ArgumentList *a):
-        base (b), arguments (a) {}
+        base (b), arguments (a)
+        { kind = Kind_CallExpression; }
 
     virtual ~CallExpression() {}
 
@@ -465,11 +562,13 @@ class ArgumentList: public Node
 {
 public:
     ArgumentList(ExpressionNode *e):
-        expression (e), next (this) {}
+        expression (e), next (this)
+        { kind = Kind_ArgumentList; }
 
     ArgumentList(ArgumentList *previous, ExpressionNode *e):
         expression (e)
     {
+        kind = Kind_ArgumentList;
         next = previous->next;
         previous->next = this;
     }
@@ -494,7 +593,7 @@ class PostIncrementExpression: public ExpressionNode
 {
 public:
     PostIncrementExpression(ExpressionNode *b):
-        base (b) {}
+        base (b) { kind = Kind_PostIncrementExpression; }
 
     virtual ~PostIncrementExpression() {}
 
@@ -508,7 +607,7 @@ class PostDecrementExpression: public ExpressionNode
 {
 public:
     PostDecrementExpression(ExpressionNode *b):
-        base (b) {}
+        base (b) { kind = Kind_PostDecrementExpression; }
 
     virtual ~PostDecrementExpression() {}
 
@@ -522,7 +621,7 @@ class DeleteExpression: public ExpressionNode
 {
 public:
     DeleteExpression(ExpressionNode *e):
-        expression (e) {}
+        expression (e) { kind = Kind_DeleteExpression; }
     virtual ~DeleteExpression() {}
 
     virtual void accept0(Visitor *visitor);
@@ -535,7 +634,7 @@ class VoidExpression: public ExpressionNode
 {
 public:
     VoidExpression(ExpressionNode *e):
-        expression (e) {}
+        expression (e) { kind = Kind_VoidExpression; }
 
     virtual ~VoidExpression() {}
 
@@ -549,7 +648,7 @@ class TypeOfExpression: public ExpressionNode
 {
 public:
     TypeOfExpression(ExpressionNode *e):
-        expression (e) {}
+        expression (e) { kind = Kind_TypeOfExpression; }
 
     virtual ~TypeOfExpression() {}
 
@@ -563,7 +662,7 @@ class PreIncrementExpression: public ExpressionNode
 {
 public:
     PreIncrementExpression(ExpressionNode *e):
-        expression (e) {}
+        expression (e) { kind = Kind_PreIncrementExpression; }
 
     virtual ~PreIncrementExpression() {}
 
@@ -577,7 +676,7 @@ class PreDecrementExpression: public ExpressionNode
 {
 public:
     PreDecrementExpression(ExpressionNode *e):
-        expression (e) {}
+        expression (e) { kind = Kind_PreDecrementExpression; }
 
     virtual ~PreDecrementExpression() {}
 
@@ -591,7 +690,7 @@ class UnaryPlusExpression: public ExpressionNode
 {
 public:
     UnaryPlusExpression(ExpressionNode *e):
-        expression (e) {}
+        expression (e) { kind = Kind_UnaryPlusExpression; }
 
     virtual ~UnaryPlusExpression() {}
 
@@ -605,7 +704,7 @@ class UnaryMinusExpression: public ExpressionNode
 {
 public:
     UnaryMinusExpression(ExpressionNode *e):
-        expression (e) {}
+        expression (e) { kind = Kind_UnaryMinusExpression; }
 
     virtual ~UnaryMinusExpression() {}
 
@@ -619,7 +718,7 @@ class TildeExpression: public ExpressionNode
 {
 public:
     TildeExpression(ExpressionNode *e):
-        expression (e) {}
+        expression (e) { kind = Kind_TildeExpression; }
 
     virtual ~TildeExpression() {}
 
@@ -633,7 +732,7 @@ class NotExpression: public ExpressionNode
 {
 public:
     NotExpression(ExpressionNode *e):
-        expression (e) {}
+        expression (e) { kind = Kind_NotExpression; }
 
     virtual ~NotExpression() {}
 
@@ -647,9 +746,12 @@ class BinaryExpression: public ExpressionNode
 {
 public:
     BinaryExpression(ExpressionNode *l, int o, ExpressionNode *r):
-        left (l), op (o), right (r) {}
+        left (l), op (o), right (r)
+        { kind = Kind_BinaryExpression; }
 
     virtual ~BinaryExpression() {}
+
+    virtual BinaryExpression *binaryExpressionCast();
 
     virtual void accept0(Visitor *visitor);
 
@@ -663,7 +765,8 @@ class ConditionalExpression: public ExpressionNode
 {
 public:
     ConditionalExpression(ExpressionNode *e, ExpressionNode *t, ExpressionNode *f):
-        expression (e), ok (t), ko (f) {}
+        expression (e), ok (t), ko (f)
+        { kind = Kind_ConditionalExpression; }
 
     virtual ~ConditionalExpression() {}
 
@@ -679,7 +782,7 @@ class Expression: public ExpressionNode // ### rename
 {
 public:
     Expression(ExpressionNode *l, ExpressionNode *r):
-        left (l), right (r) {}
+        left (l), right (r) { kind = Kind_Expression; }
 
     virtual ~Expression() {}
 
@@ -694,7 +797,7 @@ class Block: public Statement
 {
 public:
     Block(StatementList *slist):
-        statements (slist) {}
+        statements (slist) { kind = Kind_Block; }
 
     virtual ~Block() {}
 
@@ -708,11 +811,13 @@ class StatementList: public Node
 {
 public:
     StatementList(Statement *stmt):
-        statement (stmt), next (this) {}
+        statement (stmt), next (this)
+        { kind = Kind_StatementList; }
 
     StatementList(StatementList *previous, Statement *stmt):
         statement (stmt)
     {
+        kind = Kind_StatementList;
         next = previous->next;
         previous->next = this;
     }
@@ -737,7 +842,8 @@ class VariableStatement: public Statement
 {
 public:
     VariableStatement(VariableDeclarationList *vlist):
-        declarations (vlist) {}
+        declarations (vlist)
+        { kind = Kind_VariableStatement; }
 
     virtual ~VariableStatement() {}
 
@@ -751,7 +857,8 @@ class VariableDeclaration: public Node
 {
 public:
     VariableDeclaration(QScriptNameIdImpl *n, ExpressionNode *e):
-        name (n), expression (e), readOnly(false) {}
+        name (n), expression (e), readOnly(false)
+        { kind = Kind_VariableDeclaration; }
 
     virtual ~VariableDeclaration() {}
 
@@ -767,11 +874,13 @@ class VariableDeclarationList: public Node
 {
 public:
     VariableDeclarationList(VariableDeclaration *decl):
-        declaration (decl), next (this) {}
+        declaration (decl), next (this)
+        { kind = Kind_VariableDeclarationList; }
 
     VariableDeclarationList(VariableDeclarationList *previous, VariableDeclaration *decl):
         declaration (decl)
     {
+        kind = Kind_VariableDeclarationList;
         next = previous->next;
         previous->next = this;
     }
@@ -800,7 +909,7 @@ public:
 class EmptyStatement: public Statement
 {
 public:
-    EmptyStatement() {}
+    EmptyStatement() { kind = Kind_EmptyStatement; }
     virtual ~EmptyStatement() {}
 
     virtual void accept0(Visitor *visitor);
@@ -810,7 +919,7 @@ class ExpressionStatement: public Statement
 {
 public:
     ExpressionStatement(ExpressionNode *e):
-        expression (e) {}
+        expression (e) { kind = Kind_ExpressionStatement; }
 
     virtual ~ExpressionStatement() {}
 
@@ -824,7 +933,8 @@ class IfStatement: public Statement
 {
 public:
     IfStatement(ExpressionNode *e, Statement *t, Statement *f = 0):
-        expression (e), ok (t), ko (f) {}
+        expression (e), ok (t), ko (f)
+        { kind = Kind_IfStatement; }
 
     virtual ~IfStatement() {}
 
@@ -840,7 +950,8 @@ class DoWhileStatement: public Statement
 {
 public:
     DoWhileStatement(Statement *stmt, ExpressionNode *e):
-        statement (stmt), expression (e) {}
+        statement (stmt), expression (e)
+        { kind = Kind_DoWhileStatement; }
 
     virtual ~DoWhileStatement() {}
 
@@ -855,7 +966,8 @@ class WhileStatement: public Statement
 {
 public:
     WhileStatement(ExpressionNode *e, Statement *stmt):
-        expression (e), statement (stmt) {}
+        expression (e), statement (stmt)
+        { kind = Kind_WhileStatement; }
 
     virtual ~WhileStatement() {}
 
@@ -870,7 +982,8 @@ class ForStatement: public Statement
 {
 public:
     ForStatement(ExpressionNode *i, ExpressionNode *c, ExpressionNode *e, Statement *stmt):
-        initialiser (i), condition (c), expression (e), statement (stmt) {}
+        initialiser (i), condition (c), expression (e), statement (stmt)
+        { kind = Kind_ForStatement; }
 
     virtual ~ForStatement() {}
 
@@ -887,7 +1000,8 @@ class LocalForStatement: public Statement
 {
 public:
     LocalForStatement(VariableDeclarationList *vlist, ExpressionNode *c, ExpressionNode *e, Statement *stmt):
-        declarations (vlist), condition (c), expression (e), statement (stmt) {}
+        declarations (vlist), condition (c), expression (e), statement (stmt)
+        { kind = Kind_LocalForStatement; }
 
     virtual ~LocalForStatement() {}
 
@@ -904,7 +1018,8 @@ class ForEachStatement: public Statement
 {
 public:
     ForEachStatement(ExpressionNode *i, ExpressionNode *e, Statement *stmt):
-        initialiser (i), expression (e), statement (stmt) {}
+        initialiser (i), expression (e), statement (stmt)
+        { kind = Kind_ForEachStatement; }
 
     virtual ~ForEachStatement() {}
 
@@ -920,7 +1035,8 @@ class LocalForEachStatement: public Statement
 {
 public:
     LocalForEachStatement(VariableDeclaration *v, ExpressionNode *e, Statement *stmt):
-        declaration (v), expression (e), statement (stmt) {}
+        declaration (v), expression (e), statement (stmt)
+        { kind = Kind_LocalForEachStatement; }
 
     virtual ~LocalForEachStatement() {}
 
@@ -936,7 +1052,7 @@ class ContinueStatement: public Statement
 {
 public:
     ContinueStatement(QScriptNameIdImpl *l = 0):
-        label (l) {}
+        label (l) { kind = Kind_ContinueStatement; }
 
     virtual ~ContinueStatement() {}
 
@@ -950,7 +1066,7 @@ class BreakStatement: public Statement
 {
 public:
     BreakStatement(QScriptNameIdImpl *l = 0):
-        label (l) {}
+        label (l) { kind = Kind_BreakStatement; }
 
     virtual ~BreakStatement() {}
 
@@ -964,7 +1080,7 @@ class ReturnStatement: public Statement
 {
 public:
     ReturnStatement(ExpressionNode *e):
-        expression (e) {}
+        expression (e) { kind = Kind_ReturnStatement; }
 
     virtual ~ReturnStatement() {}
 
@@ -978,7 +1094,8 @@ class WithStatement: public Statement
 {
 public:
     WithStatement(ExpressionNode *e, Statement *stmt):
-        expression (e), statement (stmt) {}
+        expression (e), statement (stmt)
+        { kind = Kind_WithStatement; }
 
     virtual ~WithStatement() {}
 
@@ -993,7 +1110,8 @@ class SwitchStatement: public Statement
 {
 public:
     SwitchStatement(ExpressionNode *e, CaseBlock *b):
-        expression (e), block (b) {}
+        expression (e), block (b)
+        { kind = Kind_SwitchStatement; }
 
     virtual ~SwitchStatement() {}
 
@@ -1008,7 +1126,8 @@ class CaseBlock: public Node
 {
 public:
     CaseBlock(CaseClauses *c, DefaultClause *d = 0, CaseClauses *r = 0):
-        clauses (c), defaultClause (d), moreClauses (r) {}
+        clauses (c), defaultClause (d), moreClauses (r)
+        { kind = Kind_CaseBlock; }
 
     virtual ~CaseBlock() {}
 
@@ -1024,11 +1143,13 @@ class CaseClauses: public Node
 {
 public:
     CaseClauses(CaseClause *c):
-        clause (c), next (this) {}
+        clause (c), next (this)
+        { kind = Kind_CaseClauses; }
 
     CaseClauses(CaseClauses *previous, CaseClause *c):
         clause (c)
     {
+        kind = Kind_CaseClauses;
         next = previous->next;
         previous->next = this;
     }
@@ -1053,7 +1174,8 @@ class CaseClause: public Node
 {
 public:
     CaseClause(ExpressionNode *e, StatementList *slist):
-        expression (e), statements (slist) {}
+        expression (e), statements (slist)
+        { kind = Kind_CaseClause; }
 
     virtual ~CaseClause() {}
 
@@ -1068,7 +1190,8 @@ class DefaultClause: public Node
 {
 public:
     DefaultClause(StatementList *slist):
-        statements (slist) {}
+        statements (slist)
+        { kind = Kind_DefaultClause; }
 
     virtual ~DefaultClause() {}
 
@@ -1082,7 +1205,8 @@ class LabelledStatement: public Statement
 {
 public:
     LabelledStatement(QScriptNameIdImpl *l, Statement *stmt):
-        label (l), statement (stmt) {}
+        label (l), statement (stmt)
+        { kind = Kind_LabelledStatement; }
 
     virtual ~LabelledStatement() {}
 
@@ -1097,7 +1221,7 @@ class ThrowStatement: public Statement
 {
 public:
     ThrowStatement(ExpressionNode *e):
-        expression (e) {}
+        expression (e) { kind = Kind_ThrowStatement; }
 
     virtual ~ThrowStatement() {}
 
@@ -1111,13 +1235,16 @@ class TryStatement: public Statement
 {
 public:
     TryStatement(Statement *stmt, Catch *c, Finally *f):
-        statement (stmt), catchExpression (c), finallyExpression (f) {}
+        statement (stmt), catchExpression (c), finallyExpression (f)
+        { kind = Kind_TryStatement; }
 
     TryStatement(Statement *stmt, Finally *f):
-        statement (stmt), catchExpression (0), finallyExpression (f) {}
+        statement (stmt), catchExpression (0), finallyExpression (f)
+        { kind = Kind_TryStatement; }
 
     TryStatement(Statement *stmt, Catch *c):
-        statement (stmt), catchExpression (c), finallyExpression (0) {}
+        statement (stmt), catchExpression (c), finallyExpression (0)
+        { kind = Kind_TryStatement; }
 
     virtual ~TryStatement() {}
 
@@ -1133,7 +1260,8 @@ class Catch: public Node
 {
 public:
     Catch(QScriptNameIdImpl *n, Statement *stmt):
-        name (n), statement (stmt) {}
+        name (n), statement (stmt)
+        { kind = Kind_Catch; }
 
     virtual ~Catch() {}
 
@@ -1148,7 +1276,8 @@ class Finally: public Node
 {
 public:
     Finally(Statement *stmt):
-        statement (stmt) {}
+        statement (stmt)
+        { kind = Kind_Finally; }
 
     virtual ~Finally() {}
 
@@ -1162,7 +1291,8 @@ class FunctionDeclaration: public Node
 {
 public:
     FunctionDeclaration(QScriptNameIdImpl *n, FormalParameterList *f, FunctionBody *b):
-        name (n), formals (f), body (b) {}
+        name (n), formals (f), body (b)
+        { kind = Kind_FunctionDeclaration; }
 
     virtual ~FunctionDeclaration() {}
 
@@ -1178,7 +1308,8 @@ class FunctionExpression: public ExpressionNode
 {
 public:
     FunctionExpression(QScriptNameIdImpl *n, FormalParameterList *f, FunctionBody *b):
-        name (n), formals (f), body (b) {}
+        name (n), formals (f), body (b)
+        { kind = Kind_FunctionExpression; }
 
     virtual ~FunctionExpression() {}
 
@@ -1194,11 +1325,13 @@ class FormalParameterList: public Node
 {
 public:
     FormalParameterList(QScriptNameIdImpl *n):
-        name (n), next (this) {}
+        name (n), next (this)
+        { kind = Kind_FormalParameterList; }
 
     FormalParameterList(FormalParameterList *previous, QScriptNameIdImpl *n):
         name (n)
     {
+        kind = Kind_FormalParameterList;
         next = previous->next;
         previous->next = this;
     }
@@ -1223,7 +1356,8 @@ class FunctionBody: public Node
 {
 public:
     FunctionBody(SourceElements *elts):
-        elements (elts) {}
+        elements (elts)
+        { kind = Kind_FunctionBody; }
 
     virtual ~FunctionBody() {}
 
@@ -1237,7 +1371,8 @@ class Program: public Node
 {
 public:
     Program(SourceElements *elts):
-        elements (elts) {}
+        elements (elts)
+        { kind = Kind_Program; }
 
     virtual ~Program() {}
 
@@ -1251,11 +1386,13 @@ class SourceElements: public Node
 {
 public:
     SourceElements(SourceElement *elt):
-        element (elt), next (this) {}
+        element (elt), next (this)
+        { kind = Kind_SourceElements; }
 
     SourceElements(SourceElements *previous, SourceElement *elt):
         element (elt)
     {
+        kind = Kind_SourceElements;
         next = previous->next;
         previous->next = this;
     }
@@ -1280,7 +1417,8 @@ class SourceElement: public Node
 {
 public:
     inline SourceElement():
-        startLine(0), startColumn(0) {}
+        startLine(0), startColumn(0)
+        { kind = Kind_SourceElement; }
 
     virtual ~SourceElement() {}
 
@@ -1292,7 +1430,8 @@ class FunctionSourceElement: public SourceElement
 {
 public:
     FunctionSourceElement(FunctionDeclaration *f):
-        declaration (f) {}
+        declaration (f)
+        { kind = Kind_FunctionSourceElement; }
 
     virtual ~FunctionSourceElement() {}
 
@@ -1306,7 +1445,8 @@ class StatementSourceElement: public SourceElement
 {
 public:
     StatementSourceElement(Statement *stmt):
-        statement (stmt) {}
+        statement (stmt)
+        { kind = Kind_StatementSourceElement; }
 
     virtual ~StatementSourceElement() {}
 
