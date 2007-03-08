@@ -153,6 +153,7 @@ private slots:
 #if defined(Q_WS_MAC)
     void defaultSizeGrip();
 #endif
+    void hideAndShow();
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -1239,6 +1240,85 @@ void tst_QMdiSubWindow::defaultSizeGrip()
     QVERIFY(!qFindChild<QSizeGrip *>(windowWithoutDecoration));
 }
 #endif
+
+void tst_QMdiSubWindow::hideAndShow()
+{
+    // Create a QTabWidget with two tabs; QMdiArea and QTextEdit.
+    QTabWidget *tabWidget = new QTabWidget;
+    QMdiArea *mdiArea = new QMdiArea;
+    tabWidget->addTab(mdiArea, QLatin1String("QMdiArea"));
+    tabWidget->addTab(new QTextEdit, QLatin1String("Dummy"));
+
+    // Set the tab widget as the central widget in QMainWindow.
+    QMainWindow mainWindow;
+    QMenuBar *menuBar = mainWindow.menuBar();
+    mainWindow.setCentralWidget(tabWidget);
+    mainWindow.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mainWindow);
+#endif
+
+    QVERIFY(!menuBar->cornerWidget(Qt::TopRightCorner));
+    QMdiSubWindow *subWindow = mdiArea->addSubWindow(new QTextEdit);
+    subWindow->showMaximized();
+    QVERIFY(menuBar->cornerWidget(Qt::TopRightCorner));
+    QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
+
+    // Hide QMdiArea.
+    tabWidget->setCurrentIndex(1);
+
+    QVERIFY(!menuBar->cornerWidget(Qt::TopRightCorner));
+    QVERIFY(!subWindow->maximizedButtonsWidget());
+    QVERIFY(!subWindow->maximizedSystemMenuIconWidget());
+
+    // Show QMdiArea.
+    tabWidget->setCurrentIndex(0);
+
+    QVERIFY(menuBar->cornerWidget(Qt::TopRightCorner));
+    QVERIFY(subWindow->maximizedButtonsWidget());
+    QVERIFY(subWindow->maximizedSystemMenuIconWidget());
+    QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
+
+    // Hide QMdiArea.
+    tabWidget->setCurrentIndex(1);
+
+    // Add few more windows.
+    for (int i = 0; i < 5; ++i)
+        mdiArea->addSubWindow(new QTextEdit);
+
+    // Show QMdiArea.
+    tabWidget->setCurrentIndex(0);
+    qApp->processEvents();
+
+    subWindow = mdiArea->subWindowList().back();
+    QVERIFY(subWindow);
+    QCOMPARE(mdiArea->activeSubWindow(), subWindow);
+
+    QVERIFY(menuBar->cornerWidget(Qt::TopRightCorner));
+    QVERIFY(subWindow->maximizedButtonsWidget());
+    QVERIFY(subWindow->maximizedSystemMenuIconWidget());
+    QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
+
+    subWindow->showNormal();
+    QVERIFY(!menuBar->cornerWidget(Qt::TopRightCorner));
+
+    // Check that newly added windows got right sizes.
+    foreach (QMdiSubWindow *window, mdiArea->subWindowList())
+        QCOMPARE(window->size(), window->sizeHint());
+
+    subWindow->showMaximized();
+    QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
+
+    subWindow->hide();
+    QVERIFY(!subWindow->maximizedButtonsWidget());
+    QVERIFY(!subWindow->maximizedSystemMenuIconWidget());
+    QVERIFY(!menuBar->cornerWidget(Qt::TopRightCorner));
+
+    subWindow->show();
+    QVERIFY(subWindow->maximizedButtonsWidget());
+    QVERIFY(subWindow->maximizedSystemMenuIconWidget());
+    QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
+}
 
 QTEST_MAIN(tst_QMdiSubWindow)
 #include "tst_qmdisubwindow.moc"
