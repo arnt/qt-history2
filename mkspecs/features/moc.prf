@@ -12,7 +12,7 @@ isEmpty(QMAKE_EXT_CPP_MOC):QMAKE_EXT_CPP_MOC = .moc
 # has more than 30 includes. We do this to overcome a command-line limit on Win < XP
 # Otherwise the function simply returns the normal command-line for moc
 defineReplace(mocCmd) {
-    win32:count($$list($$INCPATH), 30, >) {
+    win32:count($$list($$INCPATH), 40, >) {
         EOC = $$escape_expand(\n\t)
 
         # the VCPROJ generator will replace the \r\h with the coded \r\n: &#x0d;&#x0a;
@@ -23,14 +23,11 @@ defineReplace(mocCmd) {
         unset(INCFILELIST)
         RET =
         for(incfile, $$list($$INCPATH)) {
-            INCFILELIST += -I$$incfile
-            count(INCFILELIST, 5) {
-                isEmpty(RET): RET += echo $$INCFILELIST > $$INCLUDETEMP $$EOC
-                else:         RET += echo $$INCFILELIST >> $$INCLUDETEMP $$EOC
-                unset(INCFILELIST)
-            }
+            INCFILELIST = -I$$incfile
+            isEmpty(RET): RET += @echo $$INCFILELIST> $$INCLUDETEMP $$EOC
+            else:         RET += @echo $$INCFILELIST>> $$INCLUDETEMP $$EOC
         }
-        !isEmpty(INCFILELIST):RET += echo $$INCFILELIST >> $$INCLUDETEMP $$EOC
+        !isEmpty(INCFILELIST):RET += @echo $$INCFILELIST>> $$INCLUDETEMP $$EOC
         RET += $$QMAKE_MOC $(DEFINES) @$$INCLUDETEMP $$join(QMAKE_COMPILER_DEFINES, " -D", -D) $$1 -o $$2
         return($$RET)
     }
