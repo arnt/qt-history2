@@ -78,7 +78,7 @@ QMdiSubWindow *PreviewFrame::ensureMdiSubWindow()
         PreviewWidget *previewWidget = new PreviewWidget(m_mdiArea);
         m_mdiSubWindow = m_mdiArea->addSubWindow(previewWidget, Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
         m_mdiSubWindow->move(10,10);
-        m_mdiSubWindow->show();
+        m_mdiSubWindow->showMaximized();
     }
 
     const Qt::WindowStates state = m_mdiSubWindow->windowState();
