@@ -1100,19 +1100,9 @@ void QRenderRule::drawBackground(QPainter *p, const QRect& rect, const QPoint& o
     if (brush.style() == Qt::NoBrush)
         brush = defaultBackground;
 
-    if (brush.style() != Qt::NoBrush) {
-        QRect fillRect = borderRect(rect);
-#if 0
-        if (brush.style() >= Qt::LinearGradientPattern
-            && brush.style() <= Qt::ConicalGradientPattern) {
-            QTransform m;
-            m.translate(fillRect.left(), fillRect.top());
-            m.scale(fillRect.width(), fillRect.height());
-            brush.setTransform(m);
-        }
-#endif
-        p->fillRect(fillRect, brush);
-    }
+    if (brush.style() != Qt::NoBrush)
+        p->fillRect(borderRect(rect), brush);
+
     drawBackgroundImage(p, rect, off);
 }
 

@@ -646,6 +646,7 @@ static QBrush parseBrushValue(Value v, const QPalette &pal)
     if (gradType == 0) {
         QLinearGradient lg(vars.value(QLatin1String("x1")), vars.value(QLatin1String("y1")),
                            vars.value(QLatin1String("x2")), vars.value(QLatin1String("y2")));
+        lg.setCoordinateMode(QGradient::ObjectBoundingMode);
         lg.setStops(stops);
         if (spread != -1)
             lg.setSpread(QGradient::Spread(spread));
@@ -656,6 +657,7 @@ static QBrush parseBrushValue(Value v, const QPalette &pal)
         QRadialGradient rg(vars.value(QLatin1String("cx")), vars.value(QLatin1String("cy")),
                            vars.value(QLatin1String("radius")), vars.value(QLatin1String("fx")),
                            vars.value(QLatin1String("fy")));
+        rg.setCoordinateMode(QGradient::ObjectBoundingMode);
         rg.setStops(stops);
         if (spread != -1)
             rg.setSpread(QGradient::Spread(spread));
@@ -665,6 +667,7 @@ static QBrush parseBrushValue(Value v, const QPalette &pal)
     if (gradType == 2) {
         QConicalGradient cg(vars.value(QLatin1String("cx")), vars.value(QLatin1String("cy")),
                             vars.value(QLatin1String("angle")));
+        cg.setCoordinateMode(QGradient::ObjectBoundingMode);
         cg.setStops(stops);
         if (spread != -1)
             cg.setSpread(QGradient::Spread(spread));
