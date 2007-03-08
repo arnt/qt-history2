@@ -81,7 +81,7 @@ struct QBasicAtomic {
 
     inline QBasicAtomic &operator=(int x)
     {
-        (void) q_atomic_set_int(&atomic, x);
+        atomic = x;
         return *this;
     }
 
@@ -132,7 +132,7 @@ struct QBasicAtomicPointer
 
     inline QBasicAtomicPointer<T> &operator=(T *t)
     {
-        (void) q_atomic_set_ptr(&pointer, t);
+        pointer = t;
         return *this;
     }
 
@@ -208,35 +208,19 @@ public:
 template <typename T>
 inline void qAtomicAssign(T *&d, T *x)
 {
+    if (d == x)
+        return;
     x->ref.ref();
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        delete x;
+    if (!d->ref.deref())
+        delete d;
+    d = x;
 }
 
-/*! \internal
-    \overload
-*/
-template <typename T>
-inline void qAtomicAssign(QBasicAtomicPointer<T> &d, T *x)
-{
-    x->ref.ref();
-    x = d.exchange(x);
-    if (!x->ref.deref())
-        delete x;
-}
-
-/*! \internal
-    \overload
-*/
-template <typename T>
-inline void qAtomicAssign(QBasicAtomicPointer<T> &d, const QBasicAtomicPointer<T> &x)
-{ qAtomicAssign<T>(d, x); }
-
-/*! \internal
-    This is a helper for the detach function. Your private class needs
-    a copy constructor which copies the members and sets the refcount
-    to 1. After that, your detach function should look like this:
+/*! 
+    This is a helper for the detach method of implicitly shared
+    classes. Your private class needs a copy constructor which copies
+    the members and sets the refcount to 1. After that, your detach
+    function should look like this:
 
     \code
         void MyClass::detach()
@@ -248,22 +232,8 @@ inline void qAtomicDetach(T *&d)
 {
     if (d->ref == 1)
         return;
-    T *x = new T(*d);
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        delete x;
-}
-
-/*! \internal
-    \overload
-*/
-template <typename T>
-inline void qAtomicDetach(QBasicAtomicPointer<T> &d)
-{
-    if (d->ref == 1)
-        return;
-    T *x = new T(*d);
-    x = d.exchange(x);
+    T *x = d;
+    d = new T(*d);
     if (!x->ref.deref())
         delete x;
 }
