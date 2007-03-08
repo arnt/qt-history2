@@ -973,10 +973,12 @@ void VcprojGenerator::initLinkerTool()
     conf.linker.parseOptions(project->values("MSVCPROJ_LFLAGS"));
 
     foreach(QString libs, project->values("MSVCPROJ_LIBS")) {
-        if (libs.left(9).toUpper() == "/LIBPATH:")
-            conf.linker.parseOptions(QStringList(libs));
-        else
+        if (libs.left(9).toUpper() == "/LIBPATH:") {
+            QStringList l = QStringList(libs);
+            conf.linker.parseOptions(l);
+        } else {
             conf.linker.AdditionalDependencies += libs;
+        }
     }
 
     switch (projectTarget) {
