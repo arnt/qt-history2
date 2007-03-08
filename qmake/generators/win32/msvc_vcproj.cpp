@@ -971,7 +971,13 @@ void VcprojGenerator::initLinkerTool()
     findLibraries(); // Need to add the highest version of the libs
     VCConfiguration &conf = vcProject.Configuration;
     conf.linker.parseOptions(project->values("MSVCPROJ_LFLAGS"));
-    conf.linker.AdditionalDependencies += project->values("MSVCPROJ_LIBS");
+
+    foreach(QString libs, project->values("MSVCPROJ_LIBS")) {
+        if (libs.left(9).toUpper() == "/LIBPATH:")
+            conf.linker.parseOptions(QStringList(libs));
+        else
+            conf.linker.AdditionalDependencies += libs;
+    }
 
     switch (projectTarget) {
     case Application:
