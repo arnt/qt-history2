@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qxmlstream.h"
+#include "qxmlutils_p.h"
 #include <qdebug.h>
 #include <QFile>
 #include <stdio.h>
@@ -1330,17 +1331,23 @@ void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
         QStringRef value(symString(attrib.value));
 
         if (prefix.isEmpty() && key == QLatin1String("encoding")) {
-            QString name = value.toString();
-            QTextCodec *newCodec = QTextCodec::codecForName(name.toLatin1());
-            if (!newCodec)
-                err = QObject::tr("Invalid encoding name.");
-            else if (newCodec->name().toLower() != name.toLatin1().toLower())
-                err = QObject::tr("Invalid XML encoding name.");
-            else if (newCodec != codec && !lockEncoding) {
-                codec = newCodec;
-                delete decoder;
-                decoder = codec->makeDecoder();
-                decoder->toUnicode(&readBuffer, rawReadBuffer.data(), nbytesread);
+            const QString name(value.toString());
+
+            if(!QXmlUtils::isEncName(name))
+                err = QObject::tr("%1 is an invalid encoding name.").arg(name);
+            else
+            {
+                QTextCodec *const newCodec = QTextCodec::codecForName(name.toLatin1());
+                if (!newCodec)
+                    err = QObject::tr("Encoding %1 is unsupported").arg(name);
+                else if (newCodec->name().toLower() != name.toLatin1().toLower())
+                    err = QObject::tr("Invalid XML encoding name.");
+                else if (newCodec != codec && !lockEncoding) {
+                    codec = newCodec;
+                    delete decoder;
+                    decoder = codec->makeDecoder();
+                    decoder->toUnicode(&readBuffer, rawReadBuffer.data(), nbytesread);
+                }
             }
         } else if (prefix.isEmpty() && key == QLatin1String("standalone")) {
             if (value == QLatin1String("yes"))
