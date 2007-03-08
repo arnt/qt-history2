@@ -102,7 +102,7 @@ Qt::Corner QSizeGripPrivate::corner() const
 /*!
     \class QSizeGrip
 
-    \brief The QSizeGrip class provides a corner-grip for resizing a top-level window.
+    \brief The QSizeGrip class provides a resize handle for resizing top-level windows.
 
     \ingroup application
     \ingroup basic
@@ -120,7 +120,7 @@ Qt::Corner QSizeGripPrivate::corner() const
     status bar (e.g., you are using QMainWindow), then you don't need
     to use this widget explicitly.
 
-    On some platforms the sizegrip automatically hides itself when the
+    On some platforms the size grip automatically hides itself when the
     window is shown full screen or maximised.
 
     \table 50%
@@ -134,7 +134,7 @@ Qt::Corner QSizeGripPrivate::corner() const
     {QWidget::mouseMoveEvent()}{mouseMoveEvent()} functions to feature
     the resize functionality, and the \l
     {QWidget::paintEvent()}{paintEvent()} function to render the
-    sizegrip widget.
+    size grip widget.
 
     \sa QStatusBar QWidget::windowState()
 */
