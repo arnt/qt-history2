@@ -19,6 +19,8 @@
 #include "qbitmap.h"
 #include "qmatrix.h"
 #include "qtransform.h"
+#include "qlibrary.h"
+#include "qvarlengtharray.h"
 #include "qdebug.h"
 #include <private/qdrawhelper_p.h>
 #ifdef QT_RASTER_PAINTENGINE
@@ -669,42 +671,177 @@ int QPixmap::defaultDepth()
     return 32;
 }
 
+// Load and resolve the symbols we need from OpenGL manually so QtGui doesn't have to link against the OpenGL framework.
+typedef CGLError (*PtrCGLChoosePixelFormat)(const CGLPixelFormatAttribute *, CGLPixelFormatObj *,  long *);
+typedef CGLError (*PtrCGLClearDrawable)(CGLContextObj);
+typedef CGLError (*PtrCGLCreateContext)(CGLPixelFormatObj, CGLContextObj, CGLContextObj *);
+typedef CGLError (*PtrCGLDestroyContext)(CGLContextObj);
+typedef CGLError (*PtrCGLDestroyPixelFormat)(CGLPixelFormatObj);
+typedef CGLError (*PtrCGLSetCurrentContext)(CGLContextObj);
+typedef CGLError (*PtrCGLSetFullScreen)(CGLContextObj);
+typedef void (*PtrglFinish)();
+typedef void (*PtrglPixelStorei)(GLenum, GLint);
+typedef void (*PtrglReadBuffer)(GLenum);
+typedef void (*PtrglReadPixels)(GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, GLvoid *);
+
+static PtrCGLChoosePixelFormat ptrCGLChoosePixelFormat = 0;
+static PtrCGLClearDrawable ptrCGLClearDrawable = 0;
+static PtrCGLCreateContext ptrCGLCreateContext = 0;
+static PtrCGLDestroyContext ptrCGLDestroyContext = 0;
+static PtrCGLDestroyPixelFormat ptrCGLDestroyPixelFormat = 0;
+static PtrCGLSetCurrentContext ptrCGLSetCurrentContext = 0;
+static PtrCGLSetFullScreen ptrCGLSetFullScreen = 0;
+static PtrglFinish ptrglFinish = 0;
+static PtrglPixelStorei ptrglPixelStorei = 0;
+static PtrglReadBuffer ptrglReadBuffer = 0;
+static PtrglReadPixels ptrglReadPixels = 0;
+
+static bool resolveOpenGLSymbols()
+{
+    if (ptrCGLChoosePixelFormat == 0) {
+        QLibrary library(QLatin1String("/System/Library/Frameworks/OpenGL.framework/OpenGl"));
+        ptrCGLChoosePixelFormat = reinterpret_cast<PtrCGLChoosePixelFormat>(library.resolve("CGLChoosePixelFormat"));
+        ptrCGLClearDrawable = reinterpret_cast<PtrCGLClearDrawable>(library.resolve("CGLClearDrawable"));
+        ptrCGLCreateContext = reinterpret_cast<PtrCGLCreateContext>(library.resolve("CGLCreateContext"));
+        ptrCGLDestroyContext = reinterpret_cast<PtrCGLDestroyContext>(library.resolve("CGLDestroyContext"));        
+        ptrCGLDestroyPixelFormat = reinterpret_cast<PtrCGLDestroyPixelFormat>(library.resolve("CGLDestroyPixelFormat"));
+        ptrCGLSetCurrentContext = reinterpret_cast<PtrCGLSetCurrentContext>(library.resolve("CGLSetCurrentContext"));
+        ptrCGLSetFullScreen = reinterpret_cast<PtrCGLSetFullScreen>(library.resolve("CGLSetFullScreen"));
+        ptrglFinish = reinterpret_cast<PtrglFinish>(library.resolve("glFinish"));
+        ptrglPixelStorei = reinterpret_cast<PtrglPixelStorei>(library.resolve("glPixelStorei"));
+        ptrglReadBuffer = reinterpret_cast<PtrglReadBuffer>(library.resolve("glReadBuffer"));
+        ptrglReadPixels = reinterpret_cast<PtrglReadPixels>(library.resolve("glReadPixels"));
+     }
+
+    return ptrCGLChoosePixelFormat && ptrCGLClearDrawable && ptrCGLCreateContext 
+        && ptrCGLDestroyContext && ptrCGLDestroyPixelFormat && ptrCGLSetCurrentContext
+        && ptrCGLSetFullScreen && ptrglFinish && ptrglPixelStorei
+        && ptrglReadBuffer && ptrglReadPixels;
+}
+
+// Inverts the given pixmap in the y direction.
+static void qt_mac_swizzlePixmap(void * data, int rowBytes, int height)
+{
+    int bottom = height - 1;
+    void *base = data;
+    void *buffer = malloc(rowBytes);
+
+    int top = 0;
+    while ( top < bottom )
+    {
+        void *topP = (void *)((top * rowBytes) + (intptr_t)base);
+        void *bottomP = (void *)((bottom * rowBytes) + (intptr_t)base);
+
+        bcopy( topP, buffer, rowBytes );
+        bcopy( bottomP, topP, rowBytes );
+        bcopy( buffer, bottomP, rowBytes );
+
+        ++top;
+        --bottom;
+    }
+    free(buffer);
+}
+
+// Grabs displayRect from display and places it into buffer.
+static void qt_mac_grabDisplayRect(CGDirectDisplayID display, const QRect &displayRect, void *buffer)
+{
+    if (display == kCGNullDirectDisplay)
+        return;
+    
+    CGLPixelFormatAttribute attribs[] =
+    {
+        kCGLPFAFullScreen,
+        kCGLPFADisplayMask,
+        (CGLPixelFormatAttribute)0,    /* Display mask bit goes here */
+        (CGLPixelFormatAttribute)0
+    } ;
+
+    attribs[2] = (CGLPixelFormatAttribute)CGDisplayIDToOpenGLDisplayMask(display);
+
+    // Build a full-screen GL context
+    CGLPixelFormatObj pixelFormatObj;
+    long numPixelFormats;
+
+    ptrCGLChoosePixelFormat( attribs, &pixelFormatObj, &numPixelFormats );
+    if (pixelFormatObj == NULL)    // No full screen context support
+        return;
+
+    CGLContextObj glContextObj;
+    ptrCGLCreateContext(pixelFormatObj, NULL, &glContextObj);
+    ptrCGLDestroyPixelFormat(pixelFormatObj) ;
+    if (glContextObj == NULL)
+        return;
+
+    ptrCGLSetCurrentContext(glContextObj);
+    ptrCGLSetFullScreen(glContextObj) ;
+
+    ptrglReadBuffer(GL_FRONT);
+
+    ptrglFinish(); // Finish all OpenGL commands
+    ptrglPixelStorei(GL_PACK_ALIGNMENT, 4);  // Force 4-byte alignment
+    ptrglPixelStorei(GL_PACK_ROW_LENGTH, 0);
+    ptrglPixelStorei(GL_PACK_SKIP_ROWS, 0);
+    ptrglPixelStorei(GL_PACK_SKIP_PIXELS, 0);
+    
+    // Fetch the data in XRGB format, matching the bitmap context.
+    ptrglReadPixels(GLint(displayRect.x()), GLint(displayRect.y()),
+                 GLint(displayRect.width()), GLint(displayRect.height()),
+                 GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, buffer);
+
+    ptrCGLSetCurrentContext(NULL);
+    ptrCGLClearDrawable(glContextObj); // disassociate from full screen
+    ptrCGLDestroyContext(glContextObj); // and destroy the context
+}
+
+// Returns a pixmap containing the screen contents at rect.
+static QPixmap qt_mac_grabScreenRect(const QRect &rect)
+{
+    if (resolveOpenGLSymbols() == false)
+        return QPixmap();
+
+    const int maxDisplays = 128; // 128 displays should be enough for everyone.
+    CGDirectDisplayID displays[maxDisplays];
+    CGDisplayCount displayCount;
+    const CGRect cgRect = CGRectMake(rect.x(), rect.y(), rect.width(), rect.height());
+    const CGDisplayErr err = CGGetDisplaysWithRect(cgRect, maxDisplays, displays, &displayCount);
+
+    if (err && displayCount == 0)
+        return QPixmap();
+
+    long bytewidth = rect.width() * 4; // Assume 4 bytes/pixel for now
+    bytewidth = (bytewidth + 3) & ~3; // Align to 4 bytes
+    QVarLengthArray<char> buffer(rect.height() * bytewidth);
+
+    for (uint i = 0; i < displayCount; ++i) {
+        const CGRect bounds = CGDisplayBounds(displays[i]);
+        // Translate to display-local coordinates
+        QRect displayRect = rect.translated(-bounds.origin.x, -bounds.origin.y);
+        // Adjust for inverted y axis.
+        displayRect.moveTop(bounds.size.height - displayRect.y() - rect.height());
+        qt_mac_grabDisplayRect(displays[i], displayRect, buffer.data());
+    }
+    
+    qt_mac_swizzlePixmap(buffer.data(), bytewidth, rect.height());
+   
+    QCFType<CGColorSpaceRef> cSpace = CGColorSpaceCreateWithName (kCGColorSpaceGenericRGB);
+    QCFType<CGContextRef> bitmap = CGBitmapContextCreate(buffer.data(), rect.width(), rect.height(), 8, bytewidth,
+                                                         cSpace, kCGImageAlphaNoneSkipFirst);
+    QCFType<CGImageRef> image = CGBitmapContextCreateImage(bitmap);
+    return QPixmap::fromMacCGImageRef(image);
+}
+
 QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
 {
-    QPixmap pm;
     QWidget *widget = QWidget::find(window);
-    if(widget) {
-        if(w == -1)
-            w = widget->width() - x;
-        if(h == -1)
-            h = widget->height() - y;
-        pm = QPixmap(w, h);
-#ifdef QT_MAC_NO_QUICKDRAW
-# warning "Must implement grabwindow"
-#else
-        extern WindowPtr qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
-        const BitMap *windowPort = 0;
-        if((widget->windowType() == Qt::Desktop)) {
-	    GDHandle gdh;
-#if 0
-	    if(GetWindowGreatestAreaDevice((WindowPtr)w->handle(), kWindowStructureRgn, &gdh, NULL) || !gdh)
-		qDebug("Qt: internal: Unexpected condition reached: %s:%d", __FILE__, __LINE__);
-#else
-	    if(!(gdh=GetMainDevice()))
-		qDebug("Qt: internal: Unexpected condition reached: %s:%d", __FILE__, __LINE__);
-#endif
-	    windowPort = (BitMap*)(*(*gdh)->gdPMap);
-        } else {
-            windowPort = GetPortBitMapForCopyBits(GetWindowPort(qt_mac_window_for(widget)));
-        }
-        const BitMap *pixmapPort = GetPortBitMapForCopyBits(static_cast<GWorldPtr>(pm.macQDHandle()));
-        Rect macSrcRect, macDstRect;
-        SetRect(&macSrcRect, x, y, x + w, y + h);
-        SetRect(&macDstRect, 0, 0, w, h);
-        CopyBits(windowPort, pixmapPort, &macSrcRect, &macDstRect, srcCopy, 0);
-#endif
-    }
-    return pm;
+    if (widget == 0)
+        return QPixmap();
+
+    if(w == -1)
+        w = widget->width() - x;
+    if(h == -1)
+        h = widget->height() - y;
+        
+    return qt_mac_grabScreenRect(QRect(widget->x() + x, widget->y() + y, w, h));
 }
 
 /*! \internal
