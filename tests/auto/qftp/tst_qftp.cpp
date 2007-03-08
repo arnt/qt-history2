@@ -380,8 +380,8 @@ void tst_QFtp::list_data()
     QTest::newRow( "absPath01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("/qtest") << 1 << flukeQtest;
     QTest::newRow( "absPath02" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("/srv/ftp/qtest") << 1 << flukeQtest;
 
-    QTest::newRow( "nonExist01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("foo")  << 0 << QStringList();
-    QTest::newRow( "nonExist02" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("/foo") << 0 << QStringList();
+    QTest::newRow( "nonExist01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("foo")  << 1 << QStringList();
+    QTest::newRow( "nonExist02" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("/foo") << 1 << QStringList();
     // ### The microsoft server does not seem to work properly at the moment --
     // I am also not able to open a data connection with other, non-Qt FTP
     // clients to it.
