@@ -159,7 +159,7 @@ void QMDIControl::mouseReleaseEvent(QMouseEvent *event)
     update();
 }
 
-void QMDIControl::leaveEvent(QEvent *event)
+void QMDIControl::leaveEvent(QEvent * /*event*/)
 {
     hoverControl = QStyle::SC_None;
     update();
@@ -1993,10 +1993,14 @@ void QWorkspacePrivate::hideMaximizeControls()
             maxmenubar->setCornerWidget(0, Qt::TopLeftCorner);
             maxmenubar->setCornerWidget(0, Qt::TopRightCorner);
         }
-        if (maxcontrols)
+        if (maxcontrols) {
             maxcontrols->deleteLater();
-        if (maxtools)
+            maxcontrols = 0;
+        }
+        if (maxtools) {
             maxtools->deleteLater();
+            maxtools = 0;
+        }
     }
 
     //unmerge the title bar/modification state
