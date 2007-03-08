@@ -36,8 +36,15 @@
 class Rearranger
 {
 public:
+    enum Type {
+        RegularTiler,
+        SimpleCascader,
+        IconTiler
+    };
+
     // Rearranges widgets relative to domain.
     virtual void rearrange(QList<QWidget *> &widgets, const QRect &domain) const = 0;
+    virtual Type type() const = 0;
     virtual ~Rearranger() {}
 };
 
@@ -47,6 +54,7 @@ class RegularTiler : public Rearranger
     // covering the entire domain.
     // Both positions and sizes may change.
     void rearrange(QList<QWidget *> &widgets, const QRect &domain) const;
+    inline Type type() const { return Rearranger::RegularTiler; }
 };
 
 class SimpleCascader : public Rearranger
@@ -55,6 +63,7 @@ class SimpleCascader : public Rearranger
     // Widgets are resized to minimumSize.
     // Both positions and sizes may change.
     void rearrange(QList<QWidget *> &widgets, const QRect &domain) const;
+    inline Type type() const { return Rearranger::SimpleCascader; }
 };
 
 class IconTiler : public Rearranger
@@ -63,6 +72,7 @@ class IconTiler : public Rearranger
     // tiling pattern filling up the domain from the bottom.
     // Only positions may change.
     void rearrange(QList<QWidget *> &widgets, const QRect &domain) const;
+    inline Type type() const { return Rearranger::IconTiler; }
 };
 
 class Placer

@@ -627,7 +627,7 @@ void QMdiAreaPrivate::rearrange(Rearranger *rearranger)
     foreach (QMdiSubWindow *child, childWindows) {
         if (!sanityCheck(child, "QMdiArea::rearrange") || !child->isVisible())
             continue;
-        if (dynamic_cast<IconTiler *>(rearranger)) {
+        if (rearranger->type() == Rearranger::IconTiler) {
             if (child->isMinimized() && !child->isShaded())
                 widgets.append(child);
         } else {
@@ -650,9 +650,9 @@ void QMdiAreaPrivate::rearrange(Rearranger *rearranger)
 
     rearranger->rearrange(widgets, q->viewport()->rect());
 
-    if (dynamic_cast<RegularTiler *>(rearranger))
+    if (rearranger->type() == Rearranger::RegularTiler)
         isSubWindowsTiled = true;
-    else if (dynamic_cast<SimpleCascader *>(rearranger))
+    else if (rearranger->type() == Rearranger::SimpleCascader)
         isSubWindowsTiled = false;
 }
 
@@ -1368,7 +1368,7 @@ void QMdiArea::showEvent(QShowEvent *showEvent)
         foreach (Rearranger *rearranger, d->pendingRearrangements) {
             // If this is the case, we don't have to lay out pending child windows
             // since the rearranger will find a placement for them.
-            if (!dynamic_cast<IconTiler *>(rearranger) && !skipPlacement)
+            if (rearranger->type() != Rearranger::IconTiler && !skipPlacement)
                 skipPlacement = true;
             d->rearrange(rearranger);
         }
