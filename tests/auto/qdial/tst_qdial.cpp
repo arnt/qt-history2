@@ -20,6 +20,7 @@ public:
 private slots:
     void getSetCheck();
     void valueChanged();
+    void sliderMoved();
 };
 
 // Testing get/set functions
@@ -60,6 +61,53 @@ void tst_QDial::valueChanged()
     // repeat!
     dial.setValue(25);
     QCOMPARE(spy.count(), 0);
+}
+
+void tst_QDial::sliderMoved()
+{
+    //this tests that when dragging the arrow that the sliderMoved signal is emitted
+    //even if tracking is set to false
+    QDial dial;
+    dial.setTracking(false);
+    dial.setMinimum(0);
+    dial.setMaximum(100);
+
+    dial.show();
+
+    QPoint init(dial.width()/4, dial.height()/2);
+
+    QMouseEvent pressevent(QEvent::MouseButtonPress, init,
+        Qt::LeftButton, Qt::LeftButton, 0);
+    qApp->sendEvent(&dial, &pressevent);
+
+    QSignalSpy sliderspy(&dial, SIGNAL(sliderMoved(int)));
+    QSignalSpy valuespy(&dial, SIGNAL(valueChanged(int)));
+
+
+    { //move on top of the slider
+        init = QPoint(dial.width()/2, dial.height()/4);
+        QMouseEvent moveevent(QEvent::MouseMove, init,
+            Qt::LeftButton, Qt::LeftButton, 0);
+        qApp->sendEvent(&dial, &moveevent);
+        QCOMPARE( sliderspy.count(), 1);
+        QCOMPARE( valuespy.count(), 0);
+    }
+
+
+    { //move on the right of the slider
+        init = QPoint(dial.width()*3/4, dial.height()/2);
+        QMouseEvent moveevent(QEvent::MouseMove, init,
+            Qt::LeftButton, Qt::LeftButton, 0);
+        qApp->sendEvent(&dial, &moveevent);
+        QCOMPARE( sliderspy.count(), 2);
+        QCOMPARE( valuespy.count(), 0);
+    }
+
+    QMouseEvent releaseevent(QEvent::MouseButtonRelease, init,
+        Qt::LeftButton, Qt::LeftButton, 0);
+    qApp->sendEvent(&dial, &releaseevent);
+    QCOMPARE( valuespy.count(), 1); // valuechanged signal should be called at this point
+
 }
 
 QTEST_MAIN(tst_QDial)
