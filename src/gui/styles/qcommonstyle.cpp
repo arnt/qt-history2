@@ -2289,14 +2289,14 @@ static QPolygonF calcArrow(const QStyleOptionSlider *dial, qreal &a)
     int width = dial->rect.width();
     int height = dial->rect.height();
     int r = qMin(width, height) / 2;
-    int currentSliderValue = dial->upsideDown ? dial->sliderValue : (dial->maximum - dial->sliderValue);
+    int currentSliderPosition = dial->upsideDown ? dial->sliderPosition : (dial->maximum - dial->sliderPosition);
     if (dial->maximum == dial->minimum)
         a = Q_PI / 2;
     else if (dial->dialWrapping)
-        a = Q_PI * 3 / 2 - (currentSliderValue - dial->minimum) * 2 * Q_PI
+        a = Q_PI * 3 / 2 - (currentSliderPosition - dial->minimum) * 2 * Q_PI
             / (dial->maximum - dial->minimum);
     else
-        a = (Q_PI * 8 - (currentSliderValue - dial->minimum) * 10 * Q_PI
+        a = (Q_PI * 8 - (currentSliderPosition - dial->minimum) * 10 * Q_PI
             / (dial->maximum - dial->minimum)) / 6;
 
     int xc = width / 2;

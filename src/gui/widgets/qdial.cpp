@@ -305,14 +305,13 @@ void QDial::mouseReleaseEvent(QMouseEvent * e)
 void QDial::mouseMoveEvent(QMouseEvent * e)
 {
     Q_D(QDial);
-    if (!d->tracking || !(e->buttons() & Qt::LeftButton)) {
+    if (!(e->buttons() & Qt::LeftButton)) {
         e->ignore();
         return;
     }
     e->accept();
     d->doNotEmit = true;
     setSliderPosition(d->valueFromPoint(e->pos()));
-    emit sliderMoved(d->value);
     d->doNotEmit = false;
 }
 
