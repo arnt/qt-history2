@@ -1252,6 +1252,9 @@ QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option,
             }
         }
         break;
+    case SE_ProgressBarContents:
+        rect = subElementRect(SE_ProgressBarGroove, option, widget);
+        break;
     default:
         rect = QWindowsStyle::subElementRect(sr, option, widget);
     }
@@ -3227,9 +3230,9 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
                 orient = pb2->orientation;
             XPThemeData theme(widget, 0, QLatin1String("PROGRESS"), (orient == Qt::Horizontal) ? PP_CHUNK : PP_CHUNKVERT);
             if (theme.isValid()) {
-                SIZE size;
-                pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
-                res = (orient == Qt::Horizontal) ? size.cx : size.cy;
+                int size;
+                pGetThemeInt(theme.handle(), theme.partId, theme.stateId, TMT_PROGRESSCHUNKSIZE, &size);
+                res = size;
             }
         }
         break;
