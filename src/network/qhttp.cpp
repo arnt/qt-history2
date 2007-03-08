@@ -2639,11 +2639,11 @@ void QHttpPrivate::_q_slotReadyRead()
             if (priv->phase == QAuthenticatorPrivate::Done) {
 #ifndef QT_NO_NETWORKPROXY
                 if (statusCode == 407)
-                    finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "Proxy Authentication Required")),
+                    finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "Proxy Authentication required")),
                                       QHttp::ProxyAuthenticationRequiredError);
                 else
 #endif
-                    finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "Authentication Required")),
+                    finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "Authentication required")),
                                       QHttp::AuthenticationRequiredError);
                 closeConn();
                 return;
