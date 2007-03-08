@@ -800,7 +800,12 @@ void WriteInitialization::writeProperties(const QString &varName,
 
     DomWidget *buttonGroupWidget = findWidget(QLatin1String("Q3ButtonGroup"));
 
-    m_output << m_option.indent << varName << "->setObjectName(QString::fromUtf8(" << fixString(varName, m_option.indent) << "));\n";
+    QString indent;
+    if (!m_widgetChain.top()) {
+        indent = "    ";
+        m_output << m_option.indent << "if (" << varName << "->objectName().isEmpty())\n";
+    }
+    m_output << m_option.indent << indent << varName << "->setObjectName(QString::fromUtf8(" << fixString(varName, m_option.indent) << "));\n";
 
     int leftMargin, topMargin, rightMargin, bottomMargin;
     leftMargin = topMargin = rightMargin = bottomMargin = -1;
