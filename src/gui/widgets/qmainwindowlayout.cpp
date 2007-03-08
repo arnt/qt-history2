@@ -1846,6 +1846,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
 bool QMainWindowLayout::usesHIToolBar(QToolBar *toolbar) const
 {
 #ifndef Q_WS_MAC
+    Q_UNUSED(toolbar);
     return false;
 #else
     return qtoolbarsInHIToolbarList.contains(toolbar)

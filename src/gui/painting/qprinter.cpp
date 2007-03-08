@@ -1278,7 +1278,7 @@ void QPrinter::releaseDC(HDC hdc) const
     Q_D(const QPrinter);
     d->printEngine->releasePrinterDC(hdc);
 }
-  
+
 /*!
     Returns the supported paper sizes for this printer.
 
@@ -1461,6 +1461,7 @@ void QPrinter::setOutputToFile(bool f)
 
 bool qt_compat_QPrinter_printSetup(QPrinter *printer, QPrinterPrivate *pd, QWidget *parent)
 {
+    Q_UNUSED(pd);
     QPrintDialog dlg(printer, parent);
     return dlg.exec() != 0;
 }

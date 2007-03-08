@@ -1272,7 +1272,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
         QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
         model->rootItem->addChild(this);
         values.reserve(model->headerItem->columnCount());
-        
+
     }
 }
 
@@ -1538,7 +1538,7 @@ void QTreeWidgetItemPrivate::propagateDisabled(QTreeWidgetItem *item)
 {
     Q_ASSERT(item);
     const bool enable = item->par ? (item->par->itemFlags & Qt::ItemIsEnabled) : true;
-    
+
     QStack<QTreeWidgetItem*> parents;
     parents.push(item);
     while (!parents.isEmpty()) {
@@ -3121,6 +3121,7 @@ Qt::DropActions QTreeWidget::supportedDropActions() const
 */
 QList<QTreeWidgetItem*> QTreeWidget::items(const QMimeData *data) const
 {
+    Q_UNUSED(data);
     return QList<QTreeWidgetItem*>();
 }
 

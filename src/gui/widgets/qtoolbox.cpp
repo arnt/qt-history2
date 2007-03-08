@@ -214,7 +214,6 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     QPainter paint(this);
     QString text = QAbstractButton::text();
     QPainter *p = &paint;
-    const QPalette &pal = palette();
     QStyleOptionToolBoxV2 opt;
     initStyleOption(&opt);
     style()->drawControl(QStyle::CE_ToolBoxTab, &opt, p, parentWidget());

@@ -3005,7 +3005,6 @@ bool QWidgetPrivate::setMinimumSize_helper(int &minw, int &minh)
 
 #ifdef Q_WS_QWS
     if (q->isWindow()) {
-        QApplicationPrivate *ap = QApplicationPrivate::instance();
         const QRect maxWindowRect = QApplication::desktop()->availableGeometry(QApplication::desktop()->screenNumber(q));
         if (!maxWindowRect.isEmpty()) {
             // ### This is really just a work-around. Layout shouldn't be
