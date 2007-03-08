@@ -131,13 +131,12 @@ void QStandardItemPrivate::setChild(int row, int column, QStandardItem *item,
 void QStandardItemPrivate::changeFlags(bool enable, Qt::ItemFlags f)
 {
     Q_Q(QStandardItem);
-    Qt::ItemFlags oldFlags = flags;
+    Qt::ItemFlags flags = q->flags();
     if (enable)
         flags |= f;
     else
         flags &= ~f;
-    if ((flags != oldFlags) && model)
-        model->d_func()->itemChanged(q);
+    q->setFlags(flags);
 }
 
 /*!
@@ -682,7 +681,6 @@ QStandardItem &QStandardItem::operator=(const QStandardItem &other)
 {
     Q_D(QStandardItem);
     d->values = other.d_func()->values;
-    d->flags = other.d_func()->flags;
     return *this;
 }
 
@@ -762,14 +760,9 @@ QVariant QStandardItem::data(int role) const
 
   \sa flags(), setData()
 */
-void QStandardItem::setFlags(Qt::ItemFlags flags)
+void QStandardItem::setFlags(Qt::ItemFlags newFlags)
 {
-    Q_D(QStandardItem);
-    if (flags != d->flags) {
-        d->flags = flags;
-        if (d->model)
-            d->model->d_func()->itemChanged(this);
-    }
+    setData((int)newFlags, Qt::UserRole - 1);
 }
 
 /*!
@@ -784,8 +777,11 @@ void QStandardItem::setFlags(Qt::ItemFlags flags)
 */
 Qt::ItemFlags QStandardItem::flags() const
 {
-    Q_D(const QStandardItem);
-    return d->flags;
+    QVariant v = data(Qt::UserRole - 1);
+    if (!v.isValid())
+        return (Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable
+                |Qt::ItemIsDragEnabled|Qt::ItemIsDropEnabled);
+    return ((Qt::ItemFlags)(v.toInt()));
 }
 
 /*!
@@ -1738,7 +1734,7 @@ void QStandardItem::read(QDataStream &in)
     in >> d->values;
     qint32 flags;
     in >> flags;
-    d->flags = Qt::ItemFlags(flags);
+    setFlags((Qt::ItemFlags)flags);
 }
 
 /*!
@@ -1751,7 +1747,7 @@ void QStandardItem::write(QDataStream &out) const
 {
     Q_D(const QStandardItem);
     out << d->values;
-    out << qint32(d->flags);
+    out << flags();
 }
 
 /*!

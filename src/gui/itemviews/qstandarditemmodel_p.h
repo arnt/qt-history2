@@ -43,8 +43,6 @@ public:
     inline QStandardItemPrivate()
         : model(0),
           parent(0),
-          flags(Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable
-                |Qt::ItemIsDragEnabled|Qt::ItemIsDropEnabled),
           rows(0),
           columns(0),
           lastIndexOf(2)
@@ -114,7 +112,6 @@ public:
     QStandardItemModel *model;
     QStandardItem *parent;
     QVector<QWidgetItemData> values;
-    Qt::ItemFlags flags;
     QVector<QStandardItem*> children;
     int rows;
     int columns;
