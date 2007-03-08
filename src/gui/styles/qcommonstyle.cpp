@@ -924,6 +924,15 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 if ((pb->textAlignment & Qt::AlignCenter) && pb->textVisible
                     && ((qint64(pb->progress) - qint64(pb->minimum)) * 2 >= (qint64(pb->maximum) - qint64(pb->minimum)))) {
                     textRole = QPalette::HighlightedText;
+                    //Draw text shadow, This will increase readability when the background of same color
+                    QRect shadowRect(pb->rect);
+                    shadowRect.translate(1,1);
+                    QColor shadowColor = (pb->palette.color(textRole).value() <= 128)
+                       ? QColor(255,255,255,160) : QColor(0,0,0,160);
+                    QPalette shadowPalette = pb->palette;
+                    shadowPalette.setColor(textRole, shadowColor);
+                    drawItemText(p, shadowRect, Qt::AlignCenter | Qt::TextSingleLine, shadowPalette,
+                                 pb->state & State_Enabled, pb->text, textRole);
                 }
                 drawItemText(p, pb->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->palette,
                              pb->state & State_Enabled, pb->text, textRole);
