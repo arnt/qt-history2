@@ -531,8 +531,7 @@ void QApplicationPrivate::process_cmdline()
   option, if Direct3D support has been compiled into Qt:
   \list
   \o -direct3d will make the Direct3D paint engine the default widget
-               paint engine in Qt.\i {Note that this functionality
-               is experimental.}
+               paint engine in Qt. \bold {This functionality is experimental.}
   \endlist
 
   The X11 version of Qt also supports some traditional X11

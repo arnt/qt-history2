@@ -288,6 +288,7 @@ void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDraw
     \value Picture QPicture format
     \value SVG Scalable Vector Graphics XML format
     \value Raster
+    \value Direct3D Windows only, Direct3D based engine
     \value User First user type ID
     \value MaxUser Last user type ID
 */
