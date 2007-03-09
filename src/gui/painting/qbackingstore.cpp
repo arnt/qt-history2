@@ -228,7 +228,7 @@ void qt_syncBackingStore(QRegion rgn, QWidget *widget)
     qt_syncBackingStore(rgn, widget, false);
 }
 
-#ifndef QT_NO_DIRECT3D
+#if !defined(QT_NO_DIRECT3D) && defined(Q_WS_WIN)
 extern QDirect3DPaintEngine *qt_d3dEngine();
 #endif
 
