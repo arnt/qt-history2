@@ -26,7 +26,7 @@
 #include "qhash.h"
 #include "qdebug.h"
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 #include <private/qcore_mac_p.h>
 #endif
 
