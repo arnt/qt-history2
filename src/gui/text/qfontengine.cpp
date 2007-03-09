@@ -570,24 +570,60 @@ const uchar *QFontEngine::getCMap(const uchar *table, uint tableSize, bool *isSy
     if (maps + 8 * numTables > endPtr)
         return 0;
 
-    quint32 version = 0;
-    unsigned int unicode_table = 0;
+    int tableToUse = -1;
+    int score = 0;
     for (int n = 0; n < numTables; ++n) {
         const quint16 platformId = qFromBigEndian<quint16>(maps + 8 * n);
-        if (platformId != 0x0003)
-                continue;
         const quint16 platformSpecificId = qFromBigEndian<quint16>(maps + 8 * n + 2);
-        // accept both symbol and Unicode encodings. prefer unicode.
-        if (platformSpecificId == 0x0001
-            || platformSpecificId == 0x0000
-            || platformSpecificId == 0x000a) {
-            if (platformSpecificId > version || !unicode_table) {
-                version = platformSpecificId;
-                unicode_table = qFromBigEndian<quint32>(maps + 8*n + 4);
+        qDebug("platformId=%d,platformSpecificId=%d",platformId,platformSpecificId);
+        switch (platformId) {
+        case 0: // Unicode
+            if (score < 3 &&
+                (platformSpecificId == 0 ||
+                 platformSpecificId == 2 ||
+                 platformSpecificId == 3)) {
+                tableToUse = n;
+                score = 3;
             }
+            break;
+        case 1: // Apple
+            if (score < 2 && platformSpecificId == 1) { // Apple Roman
+                tableToUse = n;
+                score = 2;
+            }
+            break;
+        case 3: // Microsoft
+            switch (platformSpecificId) {
+            case 0:
+                if (score < 1) {
+                    tableToUse = n;
+                    score = 1;
+                }
+                break;
+            case 1:
+                if (score < 4) {
+                    tableToUse = n;
+                    score = 4;
+                }
+                break;
+            case 0xa:
+                if (score < 5) {
+                    tableToUse = n;
+                    score = 5;
+                }
+                break;
+            default:
+                break;
+            }
+        default:
+            break;
         }
     }
-    *isSymbolFont = (version == 0x0000);
+    if(tableToUse < 0)
+        return 0;
+    *isSymbolFont = (score == 1);
+    
+    unsigned int unicode_table = qFromBigEndian<quint32>(maps + 8*tableToUse + 4);
 
     if (!unicode_table || unicode_table + 8 > tableSize)
         return 0;
