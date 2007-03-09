@@ -24,8 +24,8 @@
 
 struct QXmlCharRange
 {
-    const ushort min;
-    const ushort max;
+    ushort min;
+    ushort max;
 };
 typedef const QXmlCharRange *RangeIter;
 
