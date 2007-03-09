@@ -788,9 +788,30 @@ QByteArray QPdf::stripSpecialCharacters(const QByteArray &string)
 
 // -------------------------- base engine, shared code between PS and PDF -----------------------
 
-QPdfBaseEngine::QPdfBaseEngine(QPdfBaseEnginePrivate &d, PaintEngineFeatures f)
-    : QPaintEngine(d, f)
+QPdfBaseEngine::QPdfBaseEngine(QPdfBaseEnginePrivate &dd, PaintEngineFeatures f)
+    : QPaintEngine(dd, f)
 {
+    Q_D(QPdfBaseEngine);
+#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+    if (QCUPSSupport::isAvailable()) {
+        QCUPSSupport cups;
+        const cups_dest_t* printers = cups.availablePrinters();
+        int prnCount = cups.availablePrintersCount();
+
+        for (int i = 0; i <  prnCount; ++i) {
+            if (printers[i].is_default) {
+                d->printerName = QString::fromLocal8Bit(printers[i].name);
+                break;
+            }
+        }
+        
+    } else
+#endif
+    {
+        d->printerName = QString::fromLocal8Bit(qgetenv("PRINTER"));
+        if (d->printerName.isEmpty())
+            d->printerName = QString::fromLocal8Bit(qgetenv("LPDEST"));
+    }
 }
 
 void QPdfBaseEngine::drawPoints (const QPointF *points, int pointCount)
