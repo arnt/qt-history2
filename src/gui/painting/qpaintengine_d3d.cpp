@@ -2995,15 +2995,18 @@ void QDirect3DPaintEnginePrivate::fillPath(const QPainterPath &path, QRectF brec
 
 bool QDirect3DPaintEnginePrivate::init()
 {
+#ifdef QT_DEBUG_D3D_CALLS
+    qDebug() << "QDirect3DPaintEnginePrivate::init()";
+#endif
+
+    m_vBuffer = 0;
+    m_gradCache = 0;
     m_dc = 0;
     m_dcsurface = 0;
 
     m_supports_d3d = false;
     m_currentState = 0;
     m_inScene = false;
-#ifdef QT_DEBUG_D3D_CALLS
-    qDebug() << "QDirect3DPaintEnginePrivate::init()";
-#endif
     has_fast_pen = false;
     has_pen = false;
     has_brush = false;
@@ -3328,9 +3331,11 @@ void QDirect3DPaintEnginePrivate::cleanup()
     delete m_gradCache;
     delete m_vBuffer;
 
-    m_effect->Release();
-    m_d3dObject->Release();
+    if (m_effect)
+        m_effect->Release();
 
+    if (m_d3dObject)
+        m_d3dObject->Release();
 
     m_effect = 0;
     m_d3dObject = 0;
