@@ -110,7 +110,7 @@ void QMenuBarPrivate::updateGeometries()
             QSize sz = leftWidget->sizeHint();
             q_width -= sz.width();
             q_start = sz.width();
-            QPoint pos(hmargin, vmargin);
+            QPoint pos(hmargin, (q->height() - leftWidget->height()) / 2);
             QRect vRect = QStyle::visualRect(q->layoutDirection(), q->rect(), QRect(pos, sz));
             leftWidget->setGeometry(vRect);
         }
