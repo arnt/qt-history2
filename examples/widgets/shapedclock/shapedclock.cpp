@@ -22,6 +22,14 @@ ShapedClock::ShapedClock(QWidget *parent)
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->start(1000);
 
+    QAction *quitAction = new QAction(tr("E&xit"), this);
+    quitAction->setShortcut(tr("Ctrl+Q"));
+    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    addAction(quitAction);
+
+    setContextMenuPolicy(Qt::ActionsContextMenu);
+    setToolTip(tr("Drag the clock with the left mouse button.\n"
+                  "Use the right mouse button to open a context menu."));
     setWindowTitle(tr("Shaped Analog Clock"));
 }
 
