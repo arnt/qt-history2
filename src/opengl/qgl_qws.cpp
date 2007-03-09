@@ -39,8 +39,15 @@
 
 #define Q_USE_QEGL
 //#define Q_USE_DIRECTPAINTER
+
+// this one for full QScreen implemented using EGL/GLES:
+#define Q_USE_EGLWINDOWSURFACE
 #ifdef Q_USE_QEGL
 #include "qegl_qws_p.h"
+
+#ifdef Q_USE_EGLWINDOWSURFACE
+#include "private/qwindowsurface_egl_p.h"
+#endif
 #endif
 
 /*****************************************************************************
@@ -56,7 +63,11 @@ bool QGLFormat::hasOpenGL()
 
 bool QGLFormat::hasOpenGLOverlays()
 {
+#ifdef Q_USE_EGLWINDOWSURFACE
+    return false;
+#else
     return true;
+#endif
 }
 
 #define QT_EGL_CHECK(x) \
@@ -90,6 +101,16 @@ static bool checkConfig(EGLDisplay dpy, EGLConfig config, int r, int g, int b, i
 
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
+#ifdef Q_USE_EGLWINDOWSURFACE
+    if (device() && device()->devType() == QInternal::Widget) {
+        // EGL Only works if drawable is a QGLWidget. QGLFramebufferObject, QGLPixelBuffer not supported
+        QEGLWindowSurface *surface = static_cast<QGLWidget*>(device())->d_func()->wsurf;
+        if (surface)
+            return surface->chooseContext(this, shareContext);
+        else return false;
+    }
+    return false;
+#else
     Q_D(QGLContext);
     d->cx = 0;
 
@@ -279,6 +300,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     if (!d->surface)
         return false;
     return true;
+#endif
 }
 
 
@@ -287,10 +309,12 @@ void QGLContext::reset()
     Q_D(QGLContext);
     if (!d->valid)
         return;
+#ifndef Q_USE_EGLWINDOWSURFACE
     if (d->cx)
         eglDestroyContext(d->dpy, d->cx);
-    d->cx = 0;
     d->crWin = false;
+#endif
+    d->cx = 0;
     d->sharing = false;
     d->valid = false;
     d->transpColor = QColor();
@@ -306,29 +330,47 @@ void QGLContext::makeCurrent()
         return;
     }
 
+#ifndef Q_USE_EGLWINDOWSURFACE
     bool ok = eglMakeCurrent(d->dpy, d->surface, d->surface, d->cx);
     if (!ok) {
         EGLint err = eglGetError();
         qWarning("QGLContext::makeCurrent(): Failed %x.", err);
     }
     if (ok) {
+#endif
         if (!qgl_context_storage.hasLocalData() && QThread::currentThread())
             qgl_context_storage.setLocalData(new QGLThreadContext);
         if (qgl_context_storage.hasLocalData())
             qgl_context_storage.localData()->context = this;
         currentCtx = this;
+#ifndef Q_USE_EGLWINDOWSURFACE
     }
+#else
+    if (device()->devType() == QInternal::Widget) {
+        // EGL Only works if drawable is a QGLWidget, QGLFramebufferObject, QGLPixelBuffer not supported
+        static_cast<QGLWidget*>(device())->d_func()->wsurf->beginPaint(QRegion());
+    }
+#endif
 }
 
 void QGLContext::doneCurrent()
 {
+#ifndef Q_USE_EGLWINDOWSURFACE
     Q_D(QGLContext);
     eglMakeCurrent(d->dpy, d->surface, d->surface, 0);
+#endif
 
     QT_EGL_ERR("QGLContext::doneCurrent");
     if (qgl_context_storage.hasLocalData())
         qgl_context_storage.localData()->context = 0;
     currentCtx = 0;
+
+#ifdef Q_USE_EGLWINDOWSURFACE
+    if (device()->devType() == QInternal::Widget) {
+        // EGL Only works if drawable is a QGLWidget, QGLFramebufferObject, QGLPixelBuffer not supported
+        static_cast<QGLWidget*>(device())->d_func()->wsurf->endPaint(QRegion());
+    }
+#endif
 }
 
 
@@ -337,7 +379,15 @@ void QGLContext::swapBuffers() const
     Q_D(const QGLContext);
     if(!d->valid)
         return;
+#ifndef Q_USE_EGLWINDOWSURFACE
     eglSwapBuffers(d->dpy, d->surface);
+#else
+    if (device()->devType() == QInternal::Widget) {
+        // EGL Only works if drawable is a QGLWidget, QGLPixelBuffer not supported
+        QGLWidget *widget = static_cast<QGLWidget*>(device());
+        widget->d_func()->wsurf->flush(widget, widget->frameGeometry(), QPoint());
+    }
+#endif
     QT_EGL_ERR("QGLContext::swapBuffers");
 }
 
@@ -465,7 +515,11 @@ void QGLWidgetPrivate::resizeHandler(const QSize &s)
     q->makeCurrent();
     if (!glcx->initialized())
         q->glInit();
+
+#ifndef Q_USE_EGLWINDOWSURFACE
     eglWaitNative(EGL_CORE_NATIVE_ENGINE);
+#endif
+
     QT_EGL_ERR("QGLWidgetPrivate::resizeHandler");
 
     q->resizeGL(s.width(), s.height());
@@ -477,6 +531,10 @@ bool QGLWidget::event(QEvent *e)
     if (e->type() == QEvent::Paint)
         return true; // We don't paint when the GL widget needs to be painted, but when the directpainter does
 #endif
+#ifdef Q_USE_EGLWINDOWSURFACE
+    return QWidget::event(e); // for EGL/GLES windowsurface do nothing in ::event()
+#else
+
 #ifndef Q_USE_DIRECTPAINTER
     if (e->type() == QEvent::Paint) {
         Q_D(QGLWidget);
@@ -508,6 +566,7 @@ bool QGLWidget::event(QEvent *e)
         }
 
     }
+#endif
 #endif
     return QWidget::event(e);
 }
@@ -570,7 +629,14 @@ void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, 
 void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
 {
     Q_Q(QGLWidget);
+
     directPainter = 0;
+
+#ifdef Q_USE_EGLWINDOWSURFACE
+    wsurf = static_cast<QEGLWindowSurface*>(QScreen::instance()->createSurface(q));
+    q->setWindowSurface(wsurf);
+#endif
+
     initContext(context, shareWidget);
 
     if(q->isValid() && glcx->format().hasOverlay()) {
