@@ -57,6 +57,7 @@ SOURCES	+= ../../corelib/global/qglobal.cpp \
            ../../corelib/codecs/qlatincodec.cpp \
            ../../corelib/codecs/qsimplecodec.cpp \
            ../../xml/qdom.cpp \
+           ../../xml/qxmlutils_p.cpp \
 	   ../../xml/qxml.cpp 
 
 unix:SOURCES += ../../corelib/io/qfsfileengine_unix.cpp ../../corelib/io/qfsfileengine_iterator_unix.cpp

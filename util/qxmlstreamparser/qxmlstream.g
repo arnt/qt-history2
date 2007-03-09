@@ -81,6 +81,7 @@
 %start document
 
 /.
+#include <QCoreApplication>
 template <typename T> class QXmlStreamSimpleStack {
     T *data;
     int tos, cap;
@@ -1052,9 +1053,12 @@ processing_instruction ::= langle_questionmark name space;
             processingInstructionTarget = symString(2);
             if (scanUntil("?>")) {
                 processingInstructionData = QStringRef(&textBuffer, pos, textBuffer.size() - pos - 2);
-                if (!processingInstructionTarget.toString().compare(QLatin1String("xml"), Qt::CaseInsensitive)) {
-                    raiseWellFormedError(QXmlStream::tr("Invalid processing instruction name."));
+                const QString piTarget(processingInstructionTarget.toString());
+                if (!piTarget.compare(QLatin1String("xml"), Qt::CaseInsensitive)) {
+                    raiseWellFormedError(QXmlStream::tr("xml is an invalid processing instruction name."));
                 }
+                else if(!QXmlUtils::isNCName(piTarget)) 
+                    raiseWellFormedError(QXmlStream::tr("%1 is an invalid processing instruction name.").arg(piTarget));
             } else {
                 resume($rule_number);
                 return false;

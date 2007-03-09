@@ -26,6 +26,8 @@
 //
 
 class QString;
+class QChar;
+class QXmlCharRange;
 
 /*!
   \internal
@@ -37,14 +39,21 @@ class QString;
 class QXmlUtils
 {
 public:
-    /*!
-       Determines whether \a encName is a valid instance of production [81]EncName in the XML 1.0
-       specification. If it is, true is returned, otherwise false.
-
-        \sa \l {http://www.w3.org/TR/REC-xml/#NT-EncName}
-               {Extensible Markup Language (XML) 1.0 (Fourth Edition), [81] EncName}
-     */
     static bool isEncName(const QString &encName);
+    static bool isChar(const QChar c);
+    static bool isNameChar(const QChar c);
+    static bool isLetter(const QChar c);
+    static bool isPubidChar(const QChar c);
+    static bool isNCName(const QString &ncName);
+
+private:
+    typedef const QXmlCharRange *RangeIter;
+    static bool rangeContains(RangeIter begin, RangeIter end, const QChar c);
+    static bool isBaseChar(const QChar c);
+    static bool isDigit(const QChar c);
+    static bool isExtender(const QChar c);
+    static bool isIdeographic(const QChar c);
+    static bool isCombiningChar(const QChar c);
 };
 
 #endif
