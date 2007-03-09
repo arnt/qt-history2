@@ -1774,8 +1774,9 @@ static void cleanup_d3d_engine() {
 QPaintEngine *QWidget::paintEngine() const
 {
 #ifndef QT_NO_DIRECT3D
-    if (qApp->testAttribute(Qt::AA_MSWindowsUseDirect3DByDefault)
-        || testAttribute(Qt::WA_MSWindowsUseDirect3D))
+    if ((qApp->testAttribute(Qt::AA_MSWindowsUseDirect3DByDefault)
+         || testAttribute(Qt::WA_MSWindowsUseDirect3D))
+        && qt_d3dEngine()->hasDirect3DSupport())
     {
         QDirect3DPaintEngine *engine = qt_d3dEngine();
         if (qApp->testAttribute(Qt::AA_MSWindowsUseDirect3DByDefault))

@@ -86,7 +86,7 @@ private:
 
     LPDIRECT3DDEVICE9 m_device;
     QPaintDevice *m_pd;
-    QWidget *m_dummy;
+    HWND m_dummy;
     D3DSwapChain *m_current;
 
 private Q_SLOTS:
@@ -149,6 +149,7 @@ public:
 
     HDC getDC() const;
     void setFlushOnEnd(bool flushOnEnd);
+    bool hasDirect3DSupport();
 
 public:
     void scroll(QPaintDevice *pd, const RECT &srcrect, const RECT &destrect);
@@ -286,10 +287,11 @@ public:
     void setCompositionMode(QPainter::CompositionMode mode);
 
     bool isFastRect(const QRectF &rect);
-    
+
     void releaseDC();
 
     void cleanup();
+    bool testCaps();
 
     // clipping
     QPainterPath m_sysClipPath;
@@ -332,6 +334,7 @@ public:
     uint has_brush : 1;
     uint has_fast_pen : 1;
     uint m_flushOnEnd : 1;
+    uint m_supports_d3d : 1;
 
     QTransform::TransformationCodes m_txop;
 

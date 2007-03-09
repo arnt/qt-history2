@@ -1231,7 +1231,7 @@ void QD3DWindowManager::reset()
 
     D3DPRESENT_PARAMETERS params;
     initPresentParameters(&params);
-    params.hDeviceWindow = m_dummy->winId();
+    params.hDeviceWindow = m_dummy;
 
     HRESULT res = m_device->Reset(&params);
     if (FAILED(res)) {
@@ -1318,7 +1318,13 @@ void QD3DWindowManager::cleanup()
     if (m_device)
         m_device->Release();
 
-    delete m_dummy;
+    DestroyWindow(m_dummy);
+    QString cname(QLatin1String("qt_d3d_dummy"));
+    QT_WA({
+        UnregisterClass((TCHAR*)cname.utf16(), (HINSTANCE)qWinAppInst());
+    } , {
+        UnregisterClassA(cname.toLatin1(), (HINSTANCE)qWinAppInst());
+    });
 }
 
 QSize QD3DWindowManager::maxSize() const
@@ -1326,12 +1332,58 @@ QSize QD3DWindowManager::maxSize() const
     return m_maxSize;
 }
 
+extern "C" {
+    LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+};
+
 void QD3DWindowManager::init(LPDIRECT3D9 object)
 {
-    m_dummy = new QWidget(0); // we need a HWND to create the device..
+    QString cname(QLatin1String("qt_d3d_dummy"));
+    uint style = CS_DBLCLKS | CS_SAVEBITS;
+    ATOM atom;
+    QT_WA({
+        WNDCLASS wc;
+        wc.style         = style;
+        wc.lpfnWndProc   = (WNDPROC)QtWndProc;
+        wc.cbClsExtra    = 0;
+        wc.cbWndExtra    = 0;
+        wc.hInstance     = (HINSTANCE)qWinAppInst();
+        wc.hIcon         = 0;
+        wc.hCursor       = 0;
+        wc.hbrBackground = 0;
+        wc.lpszMenuName  = 0;
+        wc.lpszClassName = (TCHAR*)cname.utf16();
+        atom = RegisterClass(&wc);
+    } , {
+        WNDCLASSA wc;
+        wc.style         = style;
+        wc.lpfnWndProc   = (WNDPROC)QtWndProc;
+        wc.cbClsExtra    = 0;
+        wc.cbWndExtra    = 0;
+        wc.hInstance     = (HINSTANCE)qWinAppInst();
+        wc.hIcon         = 0;
+        wc.hCursor       = 0;
+        wc.hbrBackground = 0;
+        wc.lpszMenuName  = 0;
+        QByteArray tempArray = cname.toLatin1();
+        wc.lpszClassName = tempArray;
+        atom = RegisterClassA(&wc);
+    });
+
+    QT_WA({
+        const TCHAR *className = (TCHAR*)cname.utf16();
+        m_dummy = CreateWindow(className, className, 0,
+                               0, 0, 1, 1,
+                               0, 0, qWinAppInst(), 0);
+    } , {
+        m_dummy = CreateWindowA(cname.latin1(), cname.latin1(), 0,
+                                0, 0, 1, 1,
+                                0, 0, qWinAppInst(), 0);
+    });
+
     D3DPRESENT_PARAMETERS params;
     initPresentParameters(&params);
-    params.hDeviceWindow = m_dummy->winId();
+    params.hDeviceWindow = m_dummy;
 
     HRESULT res = object->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, 0,
         D3DCREATE_PUREDEVICE|D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_NOWINDOWCHANGES|D3DCREATE_FPU_PRESERVE,
@@ -2939,6 +2991,7 @@ bool QDirect3DPaintEnginePrivate::init()
     m_dc = 0;
     m_dcsurface = 0;
 
+    m_supports_d3d = false;
     m_currentState = 0;
     m_inScene = false;
 #ifdef QT_DEBUG_D3D_CALLS
@@ -2956,10 +3009,15 @@ bool QDirect3DPaintEnginePrivate::init()
     if (!m_d3dObject) {
         m_d3dObject = Direct3DCreate9(D3D_SDK_VERSION);
         if (!m_d3dObject) {
-            qWarning("QDirect3DPaintEngine: failed to create Direct3D object.");
+            qWarning("QDirect3DPaintEngine: failed to create Direct3D object.\n"
+                     "Direct3D support in Qt will be disabled.");
             return false;
         }
     }
+
+    m_supports_d3d = testCaps();
+    if (!m_supports_d3d)
+        return false;
 
     D3DXMatrixIdentity(&m_d3dxidentmatrix);
     m_winManager.init(m_d3dObject);
@@ -2984,6 +3042,8 @@ bool QDirect3DPaintEnginePrivate::init()
             qWarning("QDirect3DPaintEngine: failed to compile effect file");
             if (compout)
                 qWarning((char *)compout->GetBufferPointer());
+            // ### add a fallback for cards that do not support ps 3.0 and vs 3.0 - disable for now
+            m_supports_d3d = false;
             return false;
         }
         if (m_effect) {
@@ -2995,6 +3055,29 @@ bool QDirect3DPaintEnginePrivate::init()
         }
     }
     return true;
+}
+
+bool QDirect3DPaintEnginePrivate::testCaps()
+{
+    D3DCAPS9 caps;
+    if (FAILED(m_d3dObject->GetDeviceCaps(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, &caps)))
+        return false;
+
+    if ((caps.PresentationIntervals & D3DPRESENT_INTERVAL_IMMEDIATE)
+        && (caps.DevCaps & D3DDEVCAPS_PUREDEVICE)
+        && (caps.RasterCaps & D3DPRASTERCAPS_SCISSORTEST)
+        && (caps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL)
+        && (caps.StencilCaps & D3DSTENCILCAPS_TWOSIDED))
+        return true;
+#if 0
+    qDebug() << "Direct3D caps:";
+    qDebug() << "D3DPRESENT_INTERVAL_IMMEDIATE:" << ((caps.PresentationIntervals & D3DPRESENT_INTERVAL_IMMEDIATE) != 0);
+    qDebug() << "D3DDEVCAPS_PUREDEVICE:" << ((caps.DevCaps & D3DDEVCAPS_PUREDEVICE) != 0);
+    qDebug() << "D3DPRASTERCAPS_SCISSORTEST:" << ((caps.RasterCaps & D3DPRASTERCAPS_SCISSORTEST) != 0);
+    qDebug() << "D3DPTEXTURECAPS_NONPOW2CONDITIONAL:" << ((caps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL) != 0);
+    qDebug() << "D3DSTENCILCAPS_TWOSIDED:" << ((caps.StencilCaps & D3DSTENCILCAPS_TWOSIDED) != 0);
+#endif
+    return false;
 }
 
 void QDirect3DPaintEnginePrivate::initDevice()
@@ -3338,7 +3421,6 @@ QDirect3DPaintEngine::QDirect3DPaintEngine()
 
 QDirect3DPaintEngine::~QDirect3DPaintEngine()
 {
-
 }
 
 bool QDirect3DPaintEngine::begin(QPaintDevice *device)
@@ -3993,6 +4075,12 @@ void QDirect3DPaintEngine::setFlushOnEnd(bool flushOnEnd)
     Q_D(QDirect3DPaintEngine);
 
     d->m_flushOnEnd = flushOnEnd;
+}
+
+bool QDirect3DPaintEngine::hasDirect3DSupport()
+{
+    Q_D(QDirect3DPaintEngine);
+    return d->m_supports_d3d;
 }
 
 #include "qpaintengine_d3d.moc"

@@ -16,6 +16,7 @@
 # include "qt_windows.h"
 # include <private/qpaintengine_raster_p.h>
 # ifndef QT_NO_DIRECT3D
+#  include <private/qpaintengine_d3d_p.h>
 #  include <private/qwindowsurface_d3d_p.h>
 # endif
 #endif
@@ -227,11 +228,16 @@ void qt_syncBackingStore(QRegion rgn, QWidget *widget)
     qt_syncBackingStore(rgn, widget, false);
 }
 
+#ifndef QT_NO_DIRECT3D
+extern QDirect3DPaintEngine *qt_d3dEngine();
+#endif
+
 QWindowSurface *qt_default_window_surface(QWidget *widget)
 {
 #ifdef Q_WS_WIN
 #ifndef QT_NO_DIRECT3D
-    if (qApp->testAttribute(Qt::AA_MSWindowsUseDirect3DByDefault))
+    if (qApp->testAttribute(Qt::AA_MSWindowsUseDirect3DByDefault)
+        && qt_d3dEngine()->hasDirect3DSupport())
         return new QD3DWindowSurface(widget);
     else
         return new QRasterWindowSurface(widget);
