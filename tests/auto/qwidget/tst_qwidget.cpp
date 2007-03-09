@@ -4390,6 +4390,8 @@ private:
 
 void tst_QWidget::compatibilityChildInsertedEvents()
 {
+    EventRecorder::EventList expected;
+
     {
         // no children created, not shown
         QWidget widget;
@@ -4399,11 +4401,13 @@ void tst_QWidget::compatibilityChildInsertedEvents()
         QCoreApplication::postEvent(&widget, new QEvent(QEvent::Type(QEvent::User + 1)));
 
         QCoreApplication::sendPostedEvents();
-        QCOMPARE(spy.eventList(),
-                 EventRecorder::EventList()
-                 << qMakePair(&widget, QEvent::PolishRequest)
-                 << qMakePair(&widget, QEvent::Polish)
-                 << qMakePair(&widget, QEvent::Type(QEvent::User + 1)));
+
+        expected =
+            EventRecorder::EventList()
+            << qMakePair(&widget, QEvent::PolishRequest)
+            << qMakePair(&widget, QEvent::Polish)
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 1));
+        QCOMPARE(spy.eventList(), expected);
     }
 
     {
@@ -4415,22 +4419,24 @@ void tst_QWidget::compatibilityChildInsertedEvents()
         QCoreApplication::postEvent(&widget, new QEvent(QEvent::Type(QEvent::User + 1)));
 
         widget.show();
-        QCOMPARE(spy.eventList(),
-                 EventRecorder::EventList()
-                 << qMakePair(&widget, QEvent::Polish)
-                 << qMakePair(&widget, QEvent::Move)
-                 << qMakePair(&widget, QEvent::Resize)
-                 << qMakePair(&widget, QEvent::Show)
-                 << qMakePair(&widget, QEvent::ShowToParent));
+        expected =
+            EventRecorder::EventList()
+            << qMakePair(&widget, QEvent::Polish)
+            << qMakePair(&widget, QEvent::Move)
+            << qMakePair(&widget, QEvent::Resize)
+            << qMakePair(&widget, QEvent::Show)
+            << qMakePair(&widget, QEvent::ShowToParent);
+        QCOMPARE(spy.eventList(), expected);
         spy.clear();
 
         QCoreApplication::sendPostedEvents();
-        QCOMPARE(spy.eventList(),
-                 EventRecorder::EventList()
-                 << qMakePair(&widget, QEvent::PolishRequest)
-                 << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
-                 << qMakePair(&widget, QEvent::UpdateRequest)
-                 << qMakePair(&widget, QEvent::Paint));
+        expected =
+            EventRecorder::EventList()
+            << qMakePair(&widget, QEvent::PolishRequest)
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
+            << qMakePair(&widget, QEvent::UpdateRequest)
+            << qMakePair(&widget, QEvent::Paint);
+        QCOMPARE(spy.eventList(), expected);
     }
 
     {
@@ -4447,26 +4453,28 @@ void tst_QWidget::compatibilityChildInsertedEvents()
 
         QCoreApplication::postEvent(&widget, new QEvent(QEvent::Type(QEvent::User + 2)));
 
-        QCOMPARE(spy.eventList(),
-                 EventRecorder::EventList()
-                 << qMakePair(&widget, QEvent::ChildAdded)
-                 << qMakePair(&widget, QEvent::ChildAdded));
+        expected =
+            EventRecorder::EventList()
+            << qMakePair(&widget, QEvent::ChildAdded)
+            << qMakePair(&widget, QEvent::ChildAdded);
+        QCOMPARE(spy.eventList(), expected);
         spy.clear();
 
         QCoreApplication::sendPostedEvents();
-        QCOMPARE(spy.eventList(),
-                 EventRecorder::EventList()
+        expected =
+            EventRecorder::EventList()
 #ifdef QT_HAS_QT3SUPPORT
-                 << qMakePair(&widget, QEvent::ChildInsertedRequest)
-                 << qMakePair(&widget, QEvent::ChildInserted)
-                 << qMakePair(&widget, QEvent::ChildInserted)
+            << qMakePair(&widget, QEvent::ChildInsertedRequest)
+            << qMakePair(&widget, QEvent::ChildInserted)
+            << qMakePair(&widget, QEvent::ChildInserted)
 #endif
-                 << qMakePair(&widget, QEvent::PolishRequest)
-                 << qMakePair(&widget, QEvent::Polish)
-                 << qMakePair(&widget, QEvent::ChildPolished)
-                 << qMakePair(&widget, QEvent::ChildPolished)
-                 << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
-                 << qMakePair(&widget, QEvent::Type(QEvent::User + 2)));
+            << qMakePair(&widget, QEvent::PolishRequest)
+            << qMakePair(&widget, QEvent::Polish)
+            << qMakePair(&widget, QEvent::ChildPolished)
+            << qMakePair(&widget, QEvent::ChildPolished)
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 2));
+        QCOMPARE(spy.eventList(), expected);
     }
 
     {
@@ -4483,39 +4491,42 @@ void tst_QWidget::compatibilityChildInsertedEvents()
 
         QCoreApplication::postEvent(&widget, new QEvent(QEvent::Type(QEvent::User + 2)));
 
-        QCOMPARE(spy.eventList(),
-                 EventRecorder::EventList()
-                 << qMakePair(&widget, QEvent::ChildAdded)
-                 << qMakePair(&widget, QEvent::ChildAdded));
+        expected =
+            EventRecorder::EventList()
+            << qMakePair(&widget, QEvent::ChildAdded)
+            << qMakePair(&widget, QEvent::ChildAdded);
+        QCOMPARE(spy.eventList(), expected);
         spy.clear();
 
         widget.show();
-        QCOMPARE(spy.eventList(),
-                 EventRecorder::EventList()
-                 << qMakePair(&widget, QEvent::Polish)
+        expected =
+            EventRecorder::EventList()
+            << qMakePair(&widget, QEvent::Polish)
 #ifdef QT_HAS_QT3SUPPORT
-                 << qMakePair(&widget, QEvent::ChildInserted)
-                 << qMakePair(&widget, QEvent::ChildInserted)
+            << qMakePair(&widget, QEvent::ChildInserted)
+            << qMakePair(&widget, QEvent::ChildInserted)
 #endif
-                 << qMakePair(&widget, QEvent::ChildPolished)
-                 << qMakePair(&widget, QEvent::ChildPolished)
-                 << qMakePair(&widget, QEvent::Move)
-                 << qMakePair(&widget, QEvent::Resize)
-                 << qMakePair(&widget, QEvent::Show)
-                 << qMakePair(&widget, QEvent::ShowToParent));
+            << qMakePair(&widget, QEvent::ChildPolished)
+            << qMakePair(&widget, QEvent::ChildPolished)
+            << qMakePair(&widget, QEvent::Move)
+            << qMakePair(&widget, QEvent::Resize)
+            << qMakePair(&widget, QEvent::Show)
+            << qMakePair(&widget, QEvent::ShowToParent);
+        QCOMPARE(spy.eventList(), expected);
         spy.clear();
 
         QCoreApplication::sendPostedEvents();
-        QCOMPARE(spy.eventList(),
-                 EventRecorder::EventList()
+        expected =
+            EventRecorder::EventList()
 #ifdef QT_HAS_QT3SUPPORT
-                 << qMakePair(&widget, QEvent::ChildInsertedRequest)
+            << qMakePair(&widget, QEvent::ChildInsertedRequest)
 #endif
-                 << qMakePair(&widget, QEvent::PolishRequest)
-                 << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
-                 << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
-                 << qMakePair(&widget, QEvent::Paint)
-                 << qMakePair(&widget, QEvent::UpdateRequest));
+            << qMakePair(&widget, QEvent::PolishRequest)
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
+            << qMakePair(&widget, QEvent::Paint)
+            << qMakePair(&widget, QEvent::UpdateRequest);
+        QCOMPARE(spy.eventList(), expected);
     }
 
     {
@@ -4533,25 +4544,27 @@ void tst_QWidget::compatibilityChildInsertedEvents()
 
         QCoreApplication::postEvent(&widget, new QEvent(QEvent::Type(QEvent::User + 2)));
 
-        QCOMPARE(spy.eventList(),
-                 EventRecorder::EventList()
-                 << qMakePair(&widget, QEvent::ChildAdded)
-                 << qMakePair(&widget, QEvent::ChildAdded)
-                 << qMakePair(&widget, QEvent::ChildRemoved));
+        expected =
+            EventRecorder::EventList()
+            << qMakePair(&widget, QEvent::ChildAdded)
+            << qMakePair(&widget, QEvent::ChildAdded)
+            << qMakePair(&widget, QEvent::ChildRemoved);
+        QCOMPARE(spy.eventList(), expected);
         spy.clear();
 
         QCoreApplication::sendPostedEvents();
-        QCOMPARE(spy.eventList(),
-                 EventRecorder::EventList()
+        expected =
+            EventRecorder::EventList()
 #ifdef QT_HAS_QT3SUPPORT
-                 << qMakePair(&widget, QEvent::ChildInsertedRequest)
-                 << qMakePair(&widget, QEvent::ChildInserted)
+            << qMakePair(&widget, QEvent::ChildInsertedRequest)
+            << qMakePair(&widget, QEvent::ChildInserted)
 #endif
-                 << qMakePair(&widget, QEvent::PolishRequest)
-                 << qMakePair(&widget, QEvent::Polish)
-                 << qMakePair(&widget, QEvent::ChildPolished)
-                 << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
-                 << qMakePair(&widget, QEvent::Type(QEvent::User + 2)));
+            << qMakePair(&widget, QEvent::PolishRequest)
+            << qMakePair(&widget, QEvent::Polish)
+            << qMakePair(&widget, QEvent::ChildPolished)
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 2));
+        QCOMPARE(spy.eventList(), expected);
     }
 
     {
@@ -4569,38 +4582,41 @@ void tst_QWidget::compatibilityChildInsertedEvents()
 
         QCoreApplication::postEvent(&widget, new QEvent(QEvent::Type(QEvent::User + 2)));
 
-        QCOMPARE(spy.eventList(),
-                 EventRecorder::EventList()
-                 << qMakePair(&widget, QEvent::ChildAdded)
-                 << qMakePair(&widget, QEvent::ChildAdded)
-                 << qMakePair(&widget, QEvent::ChildRemoved));
+        expected =
+            EventRecorder::EventList()
+            << qMakePair(&widget, QEvent::ChildAdded)
+            << qMakePair(&widget, QEvent::ChildAdded)
+            << qMakePair(&widget, QEvent::ChildRemoved);
+        QCOMPARE(spy.eventList(), expected);
         spy.clear();
 
         widget.show();
-        QCOMPARE(spy.eventList(),
-                 EventRecorder::EventList()
-                 << qMakePair(&widget, QEvent::Polish)
+        expected =
+            EventRecorder::EventList()
+            << qMakePair(&widget, QEvent::Polish)
 #ifdef QT_HAS_QT3SUPPORT
-                 << qMakePair(&widget, QEvent::ChildInserted)
+            << qMakePair(&widget, QEvent::ChildInserted)
 #endif
-                 << qMakePair(&widget, QEvent::ChildPolished)
-                 << qMakePair(&widget, QEvent::Move)
-                 << qMakePair(&widget, QEvent::Resize)
-                 << qMakePair(&widget, QEvent::Show)
-                 << qMakePair(&widget, QEvent::ShowToParent));
+            << qMakePair(&widget, QEvent::ChildPolished)
+            << qMakePair(&widget, QEvent::Move)
+            << qMakePair(&widget, QEvent::Resize)
+            << qMakePair(&widget, QEvent::Show)
+            << qMakePair(&widget, QEvent::ShowToParent);
+        QCOMPARE(spy.eventList(), expected);
         spy.clear();
 
         QCoreApplication::sendPostedEvents();
-        QCOMPARE(spy.eventList(),
-                 EventRecorder::EventList()
+        expected =
+            EventRecorder::EventList()
 #ifdef QT_HAS_QT3SUPPORT
-                 << qMakePair(&widget, QEvent::ChildInsertedRequest)
+            << qMakePair(&widget, QEvent::ChildInsertedRequest)
 #endif
-                 << qMakePair(&widget, QEvent::PolishRequest)
-                 << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
-                 << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
-                 << qMakePair(&widget, QEvent::Paint)
-                 << qMakePair(&widget, QEvent::UpdateRequest));
+            << qMakePair(&widget, QEvent::PolishRequest)
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
+            << qMakePair(&widget, QEvent::Paint)
+            << qMakePair(&widget, QEvent::UpdateRequest);
+        QCOMPARE(spy.eventList(), expected);
     }
 }
 

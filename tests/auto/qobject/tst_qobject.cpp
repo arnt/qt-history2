@@ -2201,6 +2201,8 @@ private:
 
 void tst_QObject::compatibilityChildInsertedEvents()
 {
+    EventSpy::EventList expected;
+
     {
         // no children created, so we expect no events
         QObject object;
@@ -2210,9 +2212,11 @@ void tst_QObject::compatibilityChildInsertedEvents()
         QCoreApplication::postEvent(&object, new QEvent(QEvent::Type(QEvent::User + 1)));
 
         QCoreApplication::processEvents();
-        QCOMPARE(spy.eventList(),
-                 EventSpy::EventList()
-                 << qMakePair(&object, QEvent::Type(QEvent::User + 1)));
+
+        expected =
+            EventSpy::EventList()
+            << qMakePair(&object, QEvent::Type(QEvent::User + 1));
+        QCOMPARE(spy.eventList(), expected);
     }
 
     {
@@ -2229,23 +2233,25 @@ void tst_QObject::compatibilityChildInsertedEvents()
 
         QCoreApplication::postEvent(&object, new QEvent(QEvent::Type(QEvent::User + 2)));
 
-        QCOMPARE(spy.eventList(),
-                 EventSpy::EventList()
-                 << qMakePair(&object, QEvent::ChildAdded)
-                 << qMakePair(&object, QEvent::ChildAdded));
+        expected =
+            EventSpy::EventList()
+            << qMakePair(&object, QEvent::ChildAdded)
+            << qMakePair(&object, QEvent::ChildAdded);
+        QCOMPARE(spy.eventList(), expected);
         spy.clear();
 
         QCoreApplication::processEvents();
 
-        QCOMPARE(spy.eventList(),
-                 EventSpy::EventList()
+        expected =
+            EventSpy::EventList()
 #ifdef QT_HAS_QT3SUPPORT
-                 << qMakePair(&object, QEvent::ChildInsertedRequest)
-                 << qMakePair(&object, QEvent::ChildInserted)
-                 << qMakePair(&object, QEvent::ChildInserted)
+            << qMakePair(&object, QEvent::ChildInsertedRequest)
+            << qMakePair(&object, QEvent::ChildInserted)
+            << qMakePair(&object, QEvent::ChildInserted)
 #endif
-                 << qMakePair(&object, QEvent::Type(QEvent::User + 1))
-                 << qMakePair(&object, QEvent::Type(QEvent::User + 2)));
+            << qMakePair(&object, QEvent::Type(QEvent::User + 1))
+            << qMakePair(&object, QEvent::Type(QEvent::User + 2));
+        QCOMPARE(spy.eventList(), expected);
     }
 
     {
@@ -2264,23 +2270,25 @@ void tst_QObject::compatibilityChildInsertedEvents()
 
         QCoreApplication::postEvent(&object, new QEvent(QEvent::Type(QEvent::User + 2)));
 
-        QCOMPARE(spy.eventList(),
-                 EventSpy::EventList()
-                 << qMakePair(&object, QEvent::ChildAdded)
-                 << qMakePair(&object, QEvent::ChildAdded)
-                 << qMakePair(&object, QEvent::ChildRemoved));
+        expected =
+            EventSpy::EventList()
+            << qMakePair(&object, QEvent::ChildAdded)
+            << qMakePair(&object, QEvent::ChildAdded)
+            << qMakePair(&object, QEvent::ChildRemoved);
+        QCOMPARE(spy.eventList(), expected);
         spy.clear();
 
         QCoreApplication::processEvents();
 
-        QCOMPARE(spy.eventList(),
-                 EventSpy::EventList()
+        expected =
+            EventSpy::EventList()
 #ifdef QT_HAS_QT3SUPPORT
-                 << qMakePair(&object, QEvent::ChildInsertedRequest)
-                 << qMakePair(&object, QEvent::ChildInserted)
+            << qMakePair(&object, QEvent::ChildInsertedRequest)
+            << qMakePair(&object, QEvent::ChildInserted)
 #endif
-                 << qMakePair(&object, QEvent::Type(QEvent::User + 1))
-                 << qMakePair(&object, QEvent::Type(QEvent::User + 2)));
+            << qMakePair(&object, QEvent::Type(QEvent::User + 1))
+            << qMakePair(&object, QEvent::Type(QEvent::User + 2));
+        QCOMPARE(spy.eventList(), expected);
     }
 }
 
