@@ -3220,6 +3220,9 @@ protected:
         case QGraphicsItem::ItemChildRemovedChange:
             oldValues << children().size();
             break;
+        case QGraphicsItem::ItemSceneChange:
+            oldValues << qVariantFromValue<QGraphicsScene *>(scene());
+            break;
         }
         return itemChangeReturnValue.isValid() ? itemChangeReturnValue : value;
     }
@@ -3349,6 +3352,29 @@ void tst_QGraphicsItem::itemChange()
         delete child;
         QCOMPARE(parent.changes.last(), QGraphicsItem::ItemChildRemovedChange);
         QCOMPARE(qVariantValue<QGraphicsItem *>(parent.values.last()), (QGraphicsItem *)child); 
+    }
+    {
+        // ItemSceneChange
+        QGraphicsScene scene;
+        QGraphicsScene scene2;
+        scene.addItem(&tester);
+        QCOMPARE(tester.scene(), &scene);
+        QCOMPARE(tester.changes.last(), QGraphicsItem::ItemSceneChange);
+        QCOMPARE(qVariantValue<QGraphicsScene *>(tester.oldValues.last()), (QGraphicsScene *)0);
+        QCOMPARE(qVariantValue<QGraphicsScene *>(tester.values.last()), (QGraphicsScene *)&scene);
+        scene2.addItem(&tester);
+        QCOMPARE(tester.scene(), &scene2);
+        QCOMPARE(tester.changes.at(tester.changes.size() - 2), QGraphicsItem::ItemSceneChange);
+        QCOMPARE(qVariantValue<QGraphicsScene *>(tester.oldValues.at(tester.oldValues.size() - 2)), (QGraphicsScene *)&scene);
+        QCOMPARE(qVariantValue<QGraphicsScene *>(tester.values.at(tester.values.size() - 2)), (QGraphicsScene *)0);
+        QCOMPARE(tester.changes.last(), QGraphicsItem::ItemSceneChange);
+        QCOMPARE(qVariantValue<QGraphicsScene *>(tester.oldValues.last()), (QGraphicsScene *)0);
+        QCOMPARE(qVariantValue<QGraphicsScene *>(tester.values.last()), (QGraphicsScene *)&scene2);
+        scene2.removeItem(&tester);
+        QCOMPARE(tester.scene(), (QGraphicsScene *)0);
+        QCOMPARE(tester.changes.last(), QGraphicsItem::ItemSceneChange);
+        QCOMPARE(qVariantValue<QGraphicsScene *>(tester.oldValues.last()), (QGraphicsScene *)&scene2);
+        QCOMPARE(qVariantValue<QGraphicsScene *>(tester.values.last()), (QGraphicsScene *)0);
     }
 }
 
