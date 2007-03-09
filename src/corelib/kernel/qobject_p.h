@@ -71,6 +71,9 @@ public:
     QList<QObject *> pendingChildInsertedEvents;
     void sendPendingChildInsertedEvents();
     void removePendingChildInsertedEvents(QObject *child);
+#else
+    // preserve binary compatibility with code compiled without Qt 3 support
+    QList<QObject *> unused;
 #endif
 
     // id of the thread that owns the object
