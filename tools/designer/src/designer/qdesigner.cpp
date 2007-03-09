@@ -160,10 +160,17 @@ void QDesigner::initialize()
         }
     }
 
-    QTranslator *translator = new QTranslator;
-    QTranslator *qtTranslator = new QTranslator;
-    translator->load(QLatin1String("designer_") + QLocale::system().name(), resourceDir);
-    qtTranslator->load(QLatin1String("qt_") + QLocale::system().name(), resourceDir);
+    QTranslator *translator = new QTranslator(this);
+    QTranslator *qtTranslator = new QTranslator(this);
+
+    const QString localSysName = QLocale::system().name();
+    QString  translatorFileName = QLatin1String("designer_");
+    translatorFileName += localSysName;
+    translator->load(translatorFileName, resourceDir);
+
+    translatorFileName = QLatin1String("qt_");
+    translatorFileName += localSysName;
+    qtTranslator->load(translatorFileName, resourceDir);
     installTranslator(translator);
     installTranslator(qtTranslator);
 

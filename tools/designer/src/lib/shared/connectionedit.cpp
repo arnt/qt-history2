@@ -927,6 +927,11 @@ ConnectionEdit::ConnectionEdit(QWidget *parent, QDesignerFormWindowInterface *fo
     connect(form, SIGNAL(widgetRemoved(QWidget*)), this, SLOT(widgetRemoved(QWidget*)));
 }
 
+ConnectionEdit::~ConnectionEdit()
+{
+    qDeleteAll(m_con_list);
+}
+
 void ConnectionEdit::clear()
 {
     m_con_list.clear();

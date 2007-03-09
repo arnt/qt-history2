@@ -138,6 +138,7 @@ class QDESIGNER_SHARED_EXPORT ConnectionEdit : public QWidget, public CETypes
     Q_OBJECT
 public:
     ConnectionEdit(QWidget *parent, QDesignerFormWindowInterface *form);
+    virtual ~ConnectionEdit();
 
     inline const QPointer<QWidget> &background() const { return m_bg_widget; }
 

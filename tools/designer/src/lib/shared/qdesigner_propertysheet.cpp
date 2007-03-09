@@ -448,16 +448,17 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
     const QMetaProperty p = m_meta->property(index);
     QVariant v = p.read(m_object);
 
+    static const QString doubleColon = QLatin1String("::");
     if (p.isFlagType()) {
         qdesigner_internal::FlagType e;
         e.value = v;
         const QMetaEnum me = p.enumerator();
         QString scope = QString::fromUtf8(me.scope());
         if (!scope.isEmpty())
-            scope += QString::fromUtf8("::");
+            scope += doubleColon;
         for (int i=0; i<me.keyCount(); ++i) {
             const QString key = scope + QLatin1String(me.key(i));
-            e.items.insert(key, me.keyToValue(key.toUtf8()));
+            e.items.insert(key, me.keyToValue(key.toUtf8().constData()));
         }
 
         qVariantSetValue(v, e);
@@ -467,10 +468,10 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
         const QMetaEnum me = p.enumerator();
         QString scope = QString::fromUtf8(me.scope());
         if (!scope.isEmpty())
-            scope += QString::fromUtf8("::");
+            scope += doubleColon;
         for (int i=0; i<me.keyCount(); ++i) {
             const QString key = scope + QLatin1String(me.key(i));
-            e.items.insert(key, me.keyToValue(key.toUtf8()));
+            e.items.insert(key, me.keyToValue(key.toUtf8().constData()));
             e.names.append(key);
         }
 

@@ -140,8 +140,10 @@ void QFormBuilderExtra::removeInstance(const QAbstractFormBuilder *afb)
     FormBuilderPrivateHash &fbHash = *g_FormBuilderPrivateHash();
 
     FormBuilderPrivateHash::iterator it = fbHash.find(afb);
-    if (it != fbHash.end())
+    if (it != fbHash.end()) {
+        delete it.value();
         fbHash.erase(it);
+    }
 }
 
 

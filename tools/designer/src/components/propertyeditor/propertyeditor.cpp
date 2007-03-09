@@ -383,6 +383,7 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core,
 
 PropertyEditor::~PropertyEditor()
 {
+     delete m_properties;
 }
 
 bool PropertyEditor::isReadOnly() const

@@ -523,6 +523,7 @@ QDomDocument WidgetBoxTreeView::categoryListToDom(const CategoryList &cat_list) 
               wgt_elt.setAttribute(icon, wgt.iconName());
             wgt_elt.setAttribute(type, defaultType);
             cat_elt.appendChild(wgt_elt);
+            delete dom_wgt;
         }
     }
 
