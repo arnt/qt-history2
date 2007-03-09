@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include <private/qprintengine_mac_p.h>
+extern int qt_defaultDpi();
 
 #ifndef QT_NO_PRINTER
 
@@ -366,7 +367,7 @@ void QMacPrintEnginePrivate::initialize()
     PMPrinter printer;
     if (session && PMSessionGetCurrentPrinter(session, &printer) == noErr) {
         QList<QVariant> resolutions = supportedResolutions();
-        if (!resolutions.isEmpty()) {
+        if (!resolutions.isEmpty() && mode != QPrinter::ScreenResolution) {
             if (resolutions.count() > 1 && mode == QPrinter::HighResolution) {
                 int max = 0;
                 for (int i = 0; i < resolutions.count(); ++i) {
@@ -378,8 +379,10 @@ void QMacPrintEnginePrivate::initialize()
             } else {
                 resolution.hRes = resolution.vRes = resolutions.at(0).toInt();
             }
+            if(resolution.hRes == 0)
+                resolution.hRes = resolution.vRes = 600;
         } else {
-            resolution.hRes = resolution.vRes = 72;
+            resolution.hRes = resolution.vRes = qt_defaultDpi();
         }
     }
 
