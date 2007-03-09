@@ -71,6 +71,7 @@ private slots:
     void focusWidgetAfterAddSubWindow();
     void dontMaximizeSubWindowOnActivation();
     void delayedPlacement();
+    void iconGeometryInMenuBar();
 
 private:
     QMdiSubWindow *activeWindow;
@@ -1366,6 +1367,34 @@ void tst_QMdiArea::delayedPlacement()
     QCOMPARE(window1->geometry().topLeft(), QPoint(0, 0));
     QCOMPARE(window2->geometry().topLeft(), window1->geometry().topRight() + QPoint(1, 0));
 
+}
+
+void tst_QMdiArea::iconGeometryInMenuBar()
+{
+#ifndef Q_WS_MAC
+    QMainWindow mainWindow;
+    QMenuBar *menuBar = mainWindow.menuBar();
+    QMdiArea *mdiArea = new QMdiArea;
+    QMdiSubWindow *subWindow = mdiArea->addSubWindow(new QWidget);
+    mainWindow.setCentralWidget(mdiArea);
+    mainWindow.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mainWindow);
+#endif
+
+    subWindow->showMaximized();
+    QVERIFY(subWindow->isMaximized());
+
+    QWidget *leftCornerWidget = menuBar->cornerWidget(Qt::TopLeftCorner);
+    QVERIFY(leftCornerWidget);
+    int topMargin = (menuBar->height() - leftCornerWidget->height()) / 2;
+    int leftMargin = qApp->style()->pixelMetric(QStyle::PM_MenuBarHMargin)
+                   + qApp->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth);
+    QPoint pos(leftMargin, topMargin);
+    QRect geometry = QStyle::visualRect(qApp->layoutDirection(), menuBar->rect(),
+                                        QRect(pos, leftCornerWidget->size()));
+    QCOMPARE(leftCornerWidget->geometry(), geometry);
+#endif
 }
 
 QTEST_MAIN(tst_QMdiArea)
