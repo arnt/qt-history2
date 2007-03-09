@@ -626,9 +626,18 @@ void Configure::parseCmdLine()
             dictionary[ "SSE" ] = "no";
         else if (configCmdLine.at(i) == "-no-sse2")
             dictionary[ "SSE2" ] = "no";
-        else if (configCmdLine.at(i) == "-direct3d")
-            dictionary[ "DIRECT3D" ] = "yes";
-        else if( configCmdLine.at(i) == "-no-openssl" ) {
+        else if (configCmdLine.at(i) == "-direct3d") {
+            QString sdk_dir(QString::fromLocal8Bit(getenv("DXSDK_DIR")));
+            QDir dir;
+            if (!sdk_dir.isEmpty() && dir.exists(sdk_dir)) {
+                dictionary[ "DIRECT3D" ] = "yes";
+            } else {
+                cout << "Setting Direct3D to NO, since the Direct3D SDK was not detected." << endl
+                     << "Make sure you have the Direct3D SDK installed, and that you have run" << endl
+                     << "the <path to SDK>\\Utilities\\Bin\\dx_setenv.cmd command." << endl;
+            }
+
+        } else if( configCmdLine.at(i) == "-no-openssl" ) {
               dictionary[ "OPENSSL"] = "no";
         } else if( configCmdLine.at(i) == "-openssl" ) {
               dictionary[ "OPENSSL" ] = "yes";
@@ -1142,7 +1151,7 @@ bool Configure::displayHelp()
         desc("MMX", "no",       "-no-mmx",              "Do not compile with use of MMX instructions");
         desc("SSE", "no",       "-no-sse",              "Do not compile with use of SSE instructions");
         desc("SSE2", "no",      "-no-sse2",             "Do not compile with use of SSE2 instructions");
-        desc("DIRECT3D", "yes",  "-direct3d",           "Compile in Direct3D support");
+        desc("DIRECT3D", "yes",  "-direct3d",           "Compile in Direct3D support (experimental)");
         desc("OPENSSL", "no",    "-no-openssl",         "Do not compile in OpenSSL support");
         desc("OPENSSL", "yes",   "-openssl",            "Compile in OpenSSL support");
 

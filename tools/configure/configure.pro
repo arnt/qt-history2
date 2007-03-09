@@ -28,16 +28,17 @@ INCPATH += $$QT_SOURCE_TREE/src/corelib/arch/generic \
            $$QT_SOURCE_TREE/include \
            $$QT_SOURCE_TREE/include/QtCore \
 
-HEADERS	 = configureapp.h environment.h \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qbytearray.h \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qbytearraymatcher.h \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qchar.h \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qhash.h \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qlist.h \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qlocale.h \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qvector.h \
+HEADERS  = configureapp.h environment.h \
+           $$QT_SOURCE_TREE/src/corelib/tools/qbytearray.h \
+           $$QT_SOURCE_TREE/src/corelib/tools/qbytearraymatcher.h \
+           $$QT_SOURCE_TREE/src/corelib/tools/qchar.h \
+           $$QT_SOURCE_TREE/src/corelib/tools/qhash.h \
+           $$QT_SOURCE_TREE/src/corelib/tools/qlist.h \
+           $$QT_SOURCE_TREE/src/corelib/tools/qlocale.h \
+           $$QT_SOURCE_TREE/src/corelib/tools/qvector.h \
            $$QT_SOURCE_TREE/src/corelib/codecs/qtextcodec.h \
            $$QT_SOURCE_TREE/src/corelib/global/qglobal.h \
+           $$QT_SOURCE_TREE/src/corelib/global/qnumeric.h \
            $$QT_SOURCE_TREE/src/corelib/io/qbuffer.h \
            $$QT_SOURCE_TREE/src/corelib/io/qdatastream.h \
            $$QT_SOURCE_TREE/src/corelib/io/qdir.h \
@@ -59,23 +60,24 @@ HEADERS	 = configureapp.h environment.h \
            $$QT_SOURCE_TREE/src/corelib/tools/qunicodetables_p.h
 
 
-SOURCES	 = main.cpp configureapp.cpp environment.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qbytearray.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qbytearraymatcher.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qchar.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qhash.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qlistdata.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qlocale.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qvector.cpp \
+SOURCES  = main.cpp configureapp.cpp environment.cpp \
+           $$QT_SOURCE_TREE/src/corelib/tools/qbytearray.cpp \
+           $$QT_SOURCE_TREE/src/corelib/tools/qbytearraymatcher.cpp \
+           $$QT_SOURCE_TREE/src/corelib/tools/qchar.cpp \
+           $$QT_SOURCE_TREE/src/corelib/tools/qhash.cpp \
+           $$QT_SOURCE_TREE/src/corelib/tools/qlistdata.cpp \
+           $$QT_SOURCE_TREE/src/corelib/tools/qlocale.cpp \
+           $$QT_SOURCE_TREE/src/corelib/tools/qvector.cpp \
            $$QT_SOURCE_TREE/src/corelib/codecs/qtextcodec.cpp \
            $$QT_SOURCE_TREE/src/corelib/global/qglobal.cpp \
+           $$QT_SOURCE_TREE/src/corelib/global/qnumeric.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qbuffer.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/io/qdatastream.cpp \
+           $$QT_SOURCE_TREE/src/corelib/io/qdatastream.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qdir.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qdiriterator.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfile.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfileinfo.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/io/qabstractfileengine.cpp \
+           $$QT_SOURCE_TREE/src/corelib/io/qabstractfileengine.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine_iterator.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine_iterator_win.cpp \
@@ -91,13 +93,13 @@ SOURCES	 = main.cpp configureapp.cpp environment.cpp \
            $$QT_SOURCE_TREE/src/corelib/tools/qstringmatcher.cpp \
            $$QT_SOURCE_TREE/src/corelib/tools/qunicodetables.cpp \
            $$QT_SOURCE_TREE/src/corelib/tools/qvsnprintf.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/kernel/qvariant.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/io/qurl.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qline.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qsize.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qpoint.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/tools/qrect.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/kernel/qmetatype.cpp
+           $$QT_SOURCE_TREE/src/corelib/kernel/qvariant.cpp \
+           $$QT_SOURCE_TREE/src/corelib/io/qurl.cpp \
+           $$QT_SOURCE_TREE/src/corelib/tools/qline.cpp \
+           $$QT_SOURCE_TREE/src/corelib/tools/qsize.cpp \
+           $$QT_SOURCE_TREE/src/corelib/tools/qpoint.cpp \
+           $$QT_SOURCE_TREE/src/corelib/tools/qrect.cpp \
+           $$QT_SOURCE_TREE/src/corelib/kernel/qmetatype.cpp
 
 win32:SOURCES += $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine_win.cpp
 
@@ -111,4 +113,4 @@ exists(../../util/configure/commercial/tools.h):exists(../../util/configure/comm
 }
 
 INCLUDEPATH += $$QT_SOURCE_TREE/src/corelib/arch/generic \
-	       $$QT_SOURCE_TREE/include/QtCore \
+               $$QT_SOURCE_TREE/include/QtCore \
