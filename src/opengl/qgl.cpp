@@ -1550,7 +1550,11 @@ GLuint QGLContext::bindTexture(const QString &fileName)
     GLuint tx_id;
     glGenTextures(1, &tx_id);
     glBindTexture(GL_TEXTURE_2D, tx_id);
+#ifndef Q_WS_QWS
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+#else
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+#endif
 
     int size;
     int offset = 0;
@@ -1681,7 +1685,11 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
         && target == GL_TEXTURE_2D)
     {
         glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
+#ifndef Q_WS_QWS
         glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+#else
+        glTexParameterf(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+#endif
         glTexParameterf(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     } else {
         glTexParameterf(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -3055,8 +3063,11 @@ void QGLWidget::glDraw()
     }
     paintGL();
     if (doubleBuffer()) {
+#ifndef Q_WS_QWS
+        // on QWS we don't do an extra flush() here because this will anyway happen after the paintEvent.
         if (d->autoSwap)
             swapBuffers();
+#endif
     } else {
         glFlush();
     }
@@ -3240,7 +3251,9 @@ int QGLWidget::fontDisplayListBase(const QFont & font, int listBase)
     QString color_key;
     if (font.styleStrategy() != QFont::NoAntialias) {
         GLfloat color[4];
+#ifndef Q_WS_QWS
         glGetFloatv(GL_CURRENT_COLOR, color);
+#endif
         color_key.sprintf("%f_%f_%f",color[0], color[1], color[2]);
     }
     QString key = font.key() + color_key + QString::number((int) regenerate);
@@ -3267,7 +3280,9 @@ int QGLWidget::fontDisplayListBase(const QFont & font, int listBase)
 
 static void qt_save_gl_state()
 {
+#ifndef Q_WS_QWS
     glPushAttrib(GL_ALL_ATTRIB_BITS);
+#endif
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glMatrixMode(GL_MODELVIEW);
@@ -3287,14 +3302,18 @@ static void qt_restore_gl_state()
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+#ifndef Q_WS_QWS
     glPopAttrib();
+#endif
 }
 
 static void qt_gl_draw_text(QPainter *p, int x, int y, const QString &str,
                             const QFont &font)
 {
     GLfloat color[4];
+#ifndef Q_WS_QWS
     glGetFloatv(GL_CURRENT_COLOR, &color[0]);
+#endif
 
     QColor col;
     col.setRgbF(color[0], color[1], color[2],color[3]);
@@ -3340,8 +3359,13 @@ void QGLWidget::renderText(int x, int y, const QString &str, const QFont &font, 
         glViewport(0, 0, width(), height());
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
+#ifndef Q_WS_QWS
         glOrtho(0, width(), height(), 0, 0, 1);
+#else
+        glOrthof(0, width(), height(), 0, 0, 1);
+#endif
         glMatrixMode(GL_MODELVIEW);
+
         glLoadIdentity();
     } else {
         setAutoBufferSwap(false);
@@ -3376,9 +3400,11 @@ void QGLWidget::renderText(double x, double y, double z, const QString &str, con
 
     GLdouble model[4][4], proj[4][4];
     GLint view[4];
+#ifndef Q_WS_QWS
     glGetDoublev(GL_MODELVIEW_MATRIX, &model[0][0]);
     glGetDoublev(GL_PROJECTION_MATRIX, &proj[0][0]);
     glGetIntegerv(GL_VIEWPORT, &view[0]);
+#endif
     GLdouble win_x = 0, win_y = 0, win_z = 0;
     qgluProject(x, y, z, &model[0][0], &proj[0][0], &view[0],
                 &win_x, &win_y, &win_z);
@@ -3401,13 +3427,21 @@ void QGLWidget::renderText(double x, double y, double z, const QString &str, con
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glViewport(0, 0, width(), height());
+#ifndef Q_WS_QWS
     glOrtho(0, width(), height(), 0, 0, 1);
+#else
+    glOrthof(0, width(), height(), 0, 0, 1);
+#endif
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glAlphaFunc(GL_GREATER, 0.0);
     glEnable(GL_ALPHA_TEST);
     glEnable(GL_DEPTH_TEST);
+#ifndef Q_WS_QWS
+    glTranslatef(0, 0, -win_z);
+#else
     glTranslated(0, 0, -win_z);
+#endif
 
     qt_gl_draw_text(p, qRound(win_x), qRound(win_y), str, font);
 
@@ -3500,6 +3534,13 @@ void QGLWidget::deleteTexture(GLuint id)
 }
 
 Q_GLOBAL_STATIC(QOpenGLPaintEngine, qt_gl_engine)
+
+#ifdef Q_WS_QWS
+Q_OPENGL_EXPORT QOpenGLPaintEngine* qt_qgl_paint_engine()
+{
+    return qt_gl_engine();
+}
+#endif
 
 /*!
     \internal
