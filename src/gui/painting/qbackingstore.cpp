@@ -237,6 +237,7 @@ QWindowSurface *qt_default_window_surface(QWidget *widget)
 #ifdef Q_WS_WIN
 #ifndef QT_NO_DIRECT3D
     if (qApp->testAttribute(Qt::AA_MSWindowsUseDirect3DByDefault)
+        && (widget->windowOpacity() == 1.0f)
         && qt_d3dEngine()->hasDirect3DSupport())
         return new QD3DWindowSurface(widget);
     else
