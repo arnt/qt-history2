@@ -312,13 +312,11 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &addr, quint16
     int connectResult = QT_SOCKET_CONNECT(socketDescriptor, sockAddrPtr, sockAddrSize);
     if (connectResult == -1) {
         switch (errno) {
-        case EINVAL:
-            setError(QAbstractSocket::UnfinishedSocketOperationError, InvalidSocketErrorString);
-            break;
         case EISCONN:
             socketState = QAbstractSocket::ConnectedState;
             break;
         case ECONNREFUSED:
+        case EINVAL:
             setError(QAbstractSocket::ConnectionRefusedError, ConnectionRefusedErrorString);
             socketState = QAbstractSocket::UnconnectedState;
             break;
