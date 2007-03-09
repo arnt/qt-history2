@@ -2385,6 +2385,7 @@ bool QMdiSubWindow::event(QEvent *event)
                 ->cornerWidget(Qt::TopRightCorner) == maximizedButtonsWidget()) {
             window()->setWindowModified(isWindowModified());
         }
+        update(0, 0, width(), d->titleBarHeight());
         break;
     case QEvent::LayoutDirectionChange:
         d->updateDirtyRegions();
