@@ -3139,22 +3139,9 @@ void QGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
 
     Example:
 
-    \code
-        void CustomScene::drawItems(QPainter *painter,
-                                    int numItems,
-                                    QGraphicsItem *items[],
-                                    const QStyleOptionGraphicsItem options[]
-                                    QWidget *widget)
-        {
-            for (int i = 0; i < numItems; ++i) {
-                // Draw the item
-                painter->save();
-                painter->setMatrix(items[i]->sceneMatrix(), true);
-                items.at(i)->paint(painter, options[i], widget);
-                painter->restore();
-            }
-        }
-    \endcode
+    \quotefromfile snippets/graphicssceneadditemsnippet.cpp
+    \skipto /::drawItems/
+    \printuntil /^\}/
 
     \sa drawBackground(), drawForeground()
 */
