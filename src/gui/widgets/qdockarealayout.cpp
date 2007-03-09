@@ -1991,8 +1991,7 @@ QList<int> QDockAreaLayout::gapIndex(const QPoint &pos) const
     if (opts & QMainWindow::AllowTabbedDocks
         || opts & QMainWindow::VerticalTabs)
         tabMode = QDockAreaLayoutInfo::AllowTabs;
-    if (opts & QMainWindow::ForceTabbedDocks
-        || opts & QMainWindow::CollapsibleTabs)
+    if (opts & QMainWindow::ForceTabbedDocks)
         tabMode = QDockAreaLayoutInfo::ForceTabs;
 
     if (tabMode == QDockAreaLayoutInfo::ForceTabs)

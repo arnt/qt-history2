@@ -51,7 +51,6 @@ public:
         AllowTabbedDocks = 0x04,
         ForceTabbedDocks = 0x08,  // implies AllowTabbedDocks, !AllowNestedDocks
         VerticalTabs = 0x10,      // implies AllowTabbedDocks
-        CollapsibleTabs = 0x20   // implies VerticalTabs, ForceTabbedDocks, AllowTabbedDocks
     };
     Q_DECLARE_FLAGS(DockOptions, DockOption)
 

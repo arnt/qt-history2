@@ -1630,8 +1630,7 @@ void QMainWindowLayout::setDockOptions(QMainWindow::DockOptions opts)
     dockOptions = opts;
 
 #ifndef QT_NO_DOCKWIDGET
-    setVerticalTabsEnabled(opts & QMainWindow::VerticalTabs
-                            || opts & QMainWindow::CollapsibleTabs);
+    setVerticalTabsEnabled(opts & QMainWindow::VerticalTabs);
 #endif
 
     invalidate();
