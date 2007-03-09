@@ -216,6 +216,7 @@
     \o \l{xml/saxbookmarks}{SAX Bookmarks}
     \o \l{xml/streambookmarks}{QXmlStream Bookmarks}
     \o \l{xml/rsslisting}{RSS-Listing}
+    \o \l{xml/xmlstreamlint}{XML Stream Lint Example}
     \endlist
 
     \section1 Network Examples
