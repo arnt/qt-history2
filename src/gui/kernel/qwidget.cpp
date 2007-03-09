@@ -8201,12 +8201,19 @@ Qt::HANDLE QWidget::handle() const
 void QWidget::raise()
 {
     Q_D(QWidget);
-    QWidget *p = parentWidget();
-    int from;
-    if (p && (from = p->d_func()->children.indexOf(this)) >= 0)
-        p->d_func()->children.move(from, p->d_func()->children.size() - 1);
-    if (!isWindow() && !testAttribute(Qt::WA_WState_Created) && parentWidget()->testAttribute(Qt::WA_WState_Created))
-        create();
+    if (!isWindow()) {
+        QWidget *p = parentWidget();
+        const int parentChildCount = p->d_func()->children.size();
+        if (parentChildCount < 2)
+            return;
+        const int from = p->d_func()->children.indexOf(this);
+        Q_ASSERT(from >= 0);
+        if (from == parentChildCount - 1)
+            return;
+        p->d_func()->children.move(from, parentChildCount - 1);
+        if (!testAttribute(Qt::WA_WState_Created) && p->testAttribute(Qt::WA_WState_Created))
+            create();
+    }
     if (testAttribute(Qt::WA_WState_Created))
         d->raise_sys();
 
@@ -8226,12 +8233,19 @@ void QWidget::raise()
 void QWidget::lower()
 {
     Q_D(QWidget);
-    QWidget *p = parentWidget();
-    int from;
-    if (p && (from = p->d_func()->children.indexOf(this)) >= 0)
+    if (!isWindow()) {
+        QWidget *p = parentWidget();
+        const int parentChildCount = p->d_func()->children.size();
+        if (parentChildCount < 2)
+            return;
+        const int from = p->d_func()->children.indexOf(this);
+        Q_ASSERT(from >= 0);
+        if (from == 0)
+            return;
         p->d_func()->children.move(from, 0);
-    if (!isWindow() && !testAttribute(Qt::WA_WState_Created) && parentWidget()->testAttribute(Qt::WA_WState_Created))
-        create();
+        if (!testAttribute(Qt::WA_WState_Created) && p->testAttribute(Qt::WA_WState_Created))
+            create();
+    }
     if (testAttribute(Qt::WA_WState_Created))
         d->lower_sys();
 
@@ -8251,17 +8265,21 @@ void QWidget::stackUnder(QWidget* w)
 {
     Q_D(QWidget);
     QWidget *p = parentWidget();
-    int from = 0;
-    int to = 0;
     if (!w || isWindow() || p != w->parentWidget() || this == w)
         return;
-    if (p && (to = p->d_func()->children.indexOf(w)) >= 0 && (from = p->d_func()->children.indexOf(this)) >= 0) {
+    if (p) {
+        int from = p->d_func()->children.indexOf(this);
+        int to = p->d_func()->children.indexOf(w);
+        Q_ASSERT(from >= 0);
+        Q_ASSERT(to >= 0);
         if (from < to)
             --to;
+        if (from == to)
+            return;
         p->d_func()->children.move(from, to);
+        if (!testAttribute(Qt::WA_WState_Created) && p->testAttribute(Qt::WA_WState_Created))
+            create();
     }
-    if (!isWindow() && !testAttribute(Qt::WA_WState_Created) && parentWidget()->testAttribute(Qt::WA_WState_Created))
-        create();
     if (testAttribute(Qt::WA_WState_Created))
         d->stackUnder_sys(w);
 
