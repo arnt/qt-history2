@@ -575,7 +575,6 @@ const uchar *QFontEngine::getCMap(const uchar *table, uint tableSize, bool *isSy
     for (int n = 0; n < numTables; ++n) {
         const quint16 platformId = qFromBigEndian<quint16>(maps + 8 * n);
         const quint16 platformSpecificId = qFromBigEndian<quint16>(maps + 8 * n + 2);
-        qDebug("platformId=%d,platformSpecificId=%d",platformId,platformSpecificId);
         switch (platformId) {
         case 0: // Unicode
             if (score < 3 &&
