@@ -1721,7 +1721,8 @@ void QGraphicsScene::addItem(QGraphicsItem *item)
     }
 
     // Add the item to this scene
-    item->d_func()->scene = this;
+    item->d_func()->scene = qVariantValue<QGraphicsScene *>(item->itemChange(QGraphicsItem::ItemSceneChange,
+                                                                             qVariantFromValue<QGraphicsScene *>(this)));
     if (d->indexMethod != QGraphicsScene::NoIndex) {
         // Indexing requires sceneBoundingRect(), but because \a item might
         // not be completely constructed at this point, we need to store it in
@@ -1999,7 +2000,8 @@ void QGraphicsScene::removeItem(QGraphicsItem *item)
     d->removeFromIndex(item);
 
     // Set the item's scene ptr to 0.
-    item->d_func()->scene = 0;
+    item->d_func()->scene = qVariantValue<QGraphicsScene *>(item->itemChange(QGraphicsItem::ItemSceneChange,
+                                                                             qVariantFromValue<QGraphicsScene *>(0)));
 
     // Detach the item from its parent.
     if (QGraphicsItem *parentItem = item->parentItem()) {
@@ -3175,7 +3177,7 @@ void QGraphicsScene::drawItems(QPainter *painter,
         QGraphicsItem *item = items[i];
 
         if (item->d_ptr->itemIsUntransformable()) {
-            painter->setTransform(item->d_ptr->sceneTransform(painter->worldTransform()), false);
+            painter->setTransform(item->deviceTransform(painter->worldTransform()), false);
         } else {
             painter->setTransform(item->sceneTransform(), true);
         }
@@ -3277,7 +3279,7 @@ void QGraphicsScene::itemUpdated(QGraphicsItem *item, const QRectF &rect)
         // antialiasing. Note: QRect isn't inclusive, so right/bottom need 3
         // "pixels" of compensation.
         foreach (QGraphicsView *view, d->views) {
-            QRectF viewportRect = item->d_ptr->sceneTransform(view->viewportTransform()).mapRect(boundingRect);
+            QRectF viewportRect = item->deviceTransform(view->viewportTransform()).mapRect(boundingRect);
             if (!(view->optimizationFlags() & QGraphicsView::DontAdjustForAntialiasing))
                 viewportRect.adjust(-2, -2, 3, 3);
             view->viewport()->update(viewportRect.toRect());

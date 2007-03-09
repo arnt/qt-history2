@@ -340,6 +340,14 @@
     argument is the child item that is about to be removed (i.e., a
     QGraphicsItem pointer). The return value is unused; you cannot adjust
     anything in this notification.
+
+    \value ItemSceneChange The item is moved to a new scene. This notification
+    is also sent when the item is added to its initial scene, and when it is
+    removed. The value argument is the new scene (i.e., a QGraphicsScene
+    pointer), or a null pointer if the item is removed from a scene. Do not
+    override this change by passing this item to QGraphicsScene::addItem() as
+    this notification is delivered; instead, you can return the new scene from
+    itemChange().
 */
 
 /*!
@@ -548,51 +556,6 @@ void QGraphicsItemPrivate::remapItemPos(QEvent *event, QGraphicsItem *item)
 /*!
     \internal
 
-    Returns this item's scene transform given \a worldTransform as the world
-    transformation matrix. This functionality only applies to items that
-    ignore transformations.
-*/
-QTransform QGraphicsItemPrivate::sceneTransform(const QTransform &worldTransform) const
-{
-    Q_Q(const QGraphicsItem);
-
-    // Find the topmost item that ignores view transformations.
-    const QGraphicsItem *untransformedAncestor = q;
-    QList<const QGraphicsItem *> parents;
-    while (untransformedAncestor && ((untransformedAncestor->d_ptr->ancestorFlags
-                                     & QGraphicsItemPrivate::AncestorIgnoresTransformations))) {
-        parents.prepend(untransformedAncestor);
-        untransformedAncestor = untransformedAncestor->parentItem();
-    }
-
-    if (!untransformedAncestor) {
-        // Assert in debug mode, continue in release.
-        Q_ASSERT_X(untransformedAncestor, "QGraphicsItemPrivate::sceneTransform",
-                   "Invalid object structure!");
-        return QTransform();
-    }
-
-    // First translate the base untransformable item.
-    QPointF mappedPoint = (untransformedAncestor->sceneTransform() * worldTransform).map(QPointF(0, 0));
-    QTransform matrix;
-    matrix.translate(mappedPoint.x(), mappedPoint.y());
-    matrix = untransformedAncestor->transform() * matrix;
-
-    // Then transform and translate all children.
-    for (int i = 0; i < parents.size(); ++i) {
-        const QGraphicsItem *parent = parents.at(i);
-        QPointF pos = parent->pos();
-        QTransform moveMatrix;
-        moveMatrix.translate(pos.x(), pos.y());
-        matrix = (parent->transform() * moveMatrix) * matrix;
-    }
-
-    return matrix;
-}
-
-/*!
-    \internal
-
     Maps the point \a pos from scene to item coordinates. If \a view is passed and the item
     is untransformable, this function will correctly map \a pos from the scene using the
     view's transformation.
@@ -607,7 +570,7 @@ QPointF QGraphicsItemPrivate::genericMapFromScene(const QPointF &pos,
     if (!view)
         return q->mapFromScene(pos);
     // ### More ping pong than needed.
-    return sceneTransform(view->viewportTransform()).inverted().map(view->mapFromScene(pos));
+    return q->deviceTransform(view->viewportTransform()).inverted().map(view->mapFromScene(pos));
 }
 
 /*!
@@ -1734,6 +1697,71 @@ QTransform QGraphicsItem::sceneTransform() const
 {
     QTransform m = transform() * QTransform().translate(d_ptr->pos.x(), d_ptr->pos.y());
     return d_ptr->parent ? m * d_ptr->parent->sceneTransform() : m;
+}
+
+/*!
+    \since 4.3
+
+    Returns this item's device transformation matrix, using \a
+    viewportTransform to map from scene to device coordinates. This matrix can
+    be used to map coordinates and geometrical shapes from this item's local
+    coordinate system to the viewport's (or any device's) coordinate
+    system. To map coordinates from the viewport, you must first invert the
+    returned matrix.
+
+    Example:
+
+    \code
+        QGraphicsRectItem rect;
+        rect.setPos(100, 100);
+
+        rect.deviceTransform(view->viewportTransform()).map(QPointF(0, 0));
+        // returns the item's (0, 0) point in view's viewport coordinates
+
+        rect.deviceTransform(view->viewportTransform()).inverted().map(QPointF(100, 100));
+        // returns view's viewport's (100, 100) coordinate in item coordinates
+    \endcode
+
+    This function is the same as combining this item's scene transform with
+    the view's viewport transform, but is also understands
+    ItemIgnoresTransformations.
+
+    \sa transform(), setTransform(), scenePos(), {The Graphics View Coordinate System}
+*/
+QTransform QGraphicsItem::deviceTransform(const QTransform &viewportTransform) const
+{
+    // Find the topmost item that ignores view transformations.
+    const QGraphicsItem *untransformedAncestor = this;
+    QList<const QGraphicsItem *> parents;
+    while (untransformedAncestor && ((untransformedAncestor->d_ptr->ancestorFlags
+                                     & QGraphicsItemPrivate::AncestorIgnoresTransformations))) {
+        parents.prepend(untransformedAncestor);
+        untransformedAncestor = untransformedAncestor->parentItem();
+    }
+
+    if (!untransformedAncestor) {
+        // Assert in debug mode, continue in release.
+        Q_ASSERT_X(untransformedAncestor, "QGraphicsItem::deviceTransform",
+                   "Invalid object structure!");
+        return QTransform();
+    }
+
+    // First translate the base untransformable item.
+    QPointF mappedPoint = (untransformedAncestor->sceneTransform() * viewportTransform).map(QPointF(0, 0));
+    QTransform matrix;
+    matrix.translate(mappedPoint.x(), mappedPoint.y());
+    matrix = untransformedAncestor->transform() * matrix;
+
+    // Then transform and translate all children.
+    for (int i = 0; i < parents.size(); ++i) {
+        const QGraphicsItem *parent = parents.at(i);
+        QPointF pos = parent->pos();
+        QTransform moveMatrix;
+        moveMatrix.translate(pos.x(), pos.y());
+        matrix = (parent->transform() * moveMatrix) * matrix;
+    }
+
+    return matrix;
 }
 
 /*!
@@ -5971,7 +5999,6 @@ bool QGraphicsTextItemPrivate::_q_mouseOnEdge(QGraphicsSceneMouseEvent *event)
     path.addRect(qq->boundingRect());
 
     QPainterPath docPath;
-    const qreal margin = control->document()->rootFrame()->frameFormat().margin();
     const QTextFrameFormat format = control->document()->rootFrame()->frameFormat();
     docPath.addRect(
         qq->boundingRect().adjusted(

@@ -1715,7 +1715,7 @@ QList<QGraphicsItem *> QGraphicsViewPrivate::itemsInArea(const QPainterPath &pat
         if (item->d_ptr->itemIsUntransformable()) {
             // Check if this untransformable item collides with the
             // original selection rect.
-            QTransform itemTransform = item->d_ptr->sceneTransform(viewMatrix);
+            QTransform itemTransform = item->deviceTransform(viewMatrix);
             if (item->collidesWithPath(itemTransform.inverted().map(path), mode))
                 result << item;
         } else {
@@ -2878,7 +2878,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
                     if (!tmp.contains(item)) {
                         QPainterPath rectPath;
                         rectPath.addRect(rect);
-                        QPainterPath path = item->d_ptr->sceneTransform(viewportTransform()).inverted().map(rectPath);
+                        QPainterPath path = item->deviceTransform(viewportTransform()).inverted().map(rectPath);
                         if (item->collidesWithPath(path, Qt::IntersectsItemBoundingRect)) {
                             itemList << item;
                             tmp << item;

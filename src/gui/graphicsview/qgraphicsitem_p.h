@@ -74,7 +74,6 @@ public:
                             AncestorFlag flag = NoFlag, bool enabled = false, bool root = true);
     void setIsMemberOfGroup(bool enabled);
     void remapItemPos(QEvent *event, QGraphicsItem *item);
-    QTransform sceneTransform(const QTransform &worldTransform) const;
     QPointF genericMapFromScene(const QPointF &pos, const QWidget *viewport) const;
     bool itemIsUntransformable() const;
 

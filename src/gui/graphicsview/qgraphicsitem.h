@@ -73,7 +73,8 @@ public:
         ItemChildRemovedChange,
         ItemTransformChange,
         ItemPositionHasChanged,
-        ItemTransformHasChanged
+        ItemTransformHasChanged,
+        ItemSceneChange
     };
 
     QGraphicsItem(QGraphicsItem *parent = 0
@@ -156,6 +157,7 @@ public:
     void resetMatrix();
     QTransform transform() const;
     QTransform sceneTransform() const;
+    QTransform deviceTransform(const QTransform &viewportTransform) const;
     void setTransform(const QTransform &matrix, bool combine = false);
     void resetTransform();
     
@@ -300,6 +302,7 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QGraphicsItem::GraphicsItemFlags)
 Q_DECLARE_METATYPE(QGraphicsItem *)
+Q_DECLARE_METATYPE(QGraphicsScene *)
 
 inline void QGraphicsItem::setPos(qreal ax, qreal ay)
 { setPos(QPointF(ax, ay)); }
