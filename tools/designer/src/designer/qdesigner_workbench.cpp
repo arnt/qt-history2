@@ -1093,6 +1093,8 @@ QDesignerFormWindow * QDesignerWorkbench::openTemplate(const QString &templateFi
     rc->setWindowTitle(title);
     if (!uic3Converted)
         rc->editor()->setFileName(editorFileName);
+    if (qdesigner_internal::FormWindowBase *fw = qobject_cast<qdesigner_internal::FormWindowBase *>(rc->editor()))
+        fw->setDesignerGrid(qdesigner_internal::FormWindowBase::defaultDesignerGrid());
     rc->show();
     return rc;
 }
