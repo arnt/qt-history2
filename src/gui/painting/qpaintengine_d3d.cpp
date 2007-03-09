@@ -3672,15 +3672,31 @@ void QDirect3DPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const 
     if (d->m_vBuffer->needsFlushing())
         d->flushBatch();
 
-    QPixmap pxm = pm;
-    if (!pxm.data->texture) {
-        pxm = QPixmap::fromImage(pxm.toImage());
-        if (!pxm.data->texture)
+    if (!pm.data->texture) {
+        QImage im = pm.data->image.convertToFormat(QImage::Format_ARGB32);
+        if (FAILED(d->m_d3dDevice->CreateTexture(im.width(), im.height(), 1, 0,
+                                                 D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pm.data->texture, 0)))
+        {
+            qWarning("QDirect3DPaintEngine: unable to create Direct3D texture from pixmap.");
             return;
+        }
+        D3DLOCKED_RECT rect;
+        if (FAILED(pm.data->texture->LockRect(0, &rect, 0, 0))) {
+            qDebug() << "QDirect3DPaintEngine: unable to lock texture rect.";
+            return;
+        }
+        DWORD *dst = (DWORD *) rect.pBits;
+        DWORD *src = (DWORD *) im.scanLine(0);
+        int dst_ppl = rect.Pitch/4;
+        int src_ppl = im.bytesPerLine()/4;
+
+        Q_ASSERT(dst_ppl == src_ppl);
+        memcpy(dst, src, rect.Pitch*im.height());
+        pm.data->texture->UnlockRect(0);
     }
 
-    int width = pxm.width();
-    int height = pxm.height();
+    int width = pm.width();
+    int height = pm.height();
 
     // transform rectangle
     QPolygonF txrect(QRectF((sr.left() + 0.5f) / width, (sr.top() + 0.5f) / height,
@@ -3688,7 +3704,7 @@ void QDirect3DPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const 
 
     QD3DBatchItem *item = d->nextBatchItem();
     item->m_info = QD3DBatchItem::BI_PIXMAP|QD3DBatchItem::BI_TRANSFORM;
-    item->m_pixmap = pxm;
+    item->m_pixmap = pm;
     item->m_matrix = d->m_d3dxmatrix;
     d->m_vBuffer->queueRect(r, item, d->m_opacityColor, txrect);
 }

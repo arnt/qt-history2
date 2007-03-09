@@ -444,30 +444,6 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
     Q_UNUSED(flags);
     QPixmap pixmap;
 
-#if !defined(QT_NO_DIRECT3D) && defined(Q_WS_WIN)
-    QImage im = image.convertToFormat(QImage::Format_ARGB32);
-    if (FAILED(qt_d3dEngine()->d_func()->m_d3dDevice->CreateTexture(image.width(), image.height(), 1, 0,
-                    D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pixmap.data->texture, 0))) {
-        qWarning("QPixmap::init(): unable to create Direct3D texture.");
-        return QPixmap();
-    }
-    D3DLOCKED_RECT rect;
-    if (FAILED(pixmap.data->texture->LockRect(0, &rect, 0, 0))) {
-        qDebug() << "QDirect3DPaintEngine: unable to lock texture rect.";
-        return QPixmap();
-    }
-    DWORD *dst = (DWORD *) rect.pBits;
-    DWORD *src = (DWORD *) im.scanLine(0);
-    int dst_ppl = rect.Pitch/4;
-    int src_ppl = im.bytesPerLine()/4;
-
-    Q_ASSERT(dst_ppl == src_ppl);
-    memcpy(dst, src, rect.Pitch*im.height());
-    pixmap.data->texture->UnlockRect(0);
-
-    pixmap.data->image = image;
-    return pixmap;
-#else
     switch (image.format()) {
     case QImage::Format_Mono:
     case QImage::Format_MonoLSB:
@@ -487,7 +463,6 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
         break;
     }
     return pixmap;
-#endif
 }
 
 bool QPixmap::load(const QString& fileName, const char *format, Qt::ImageConversionFlags flags )
