@@ -1121,7 +1121,7 @@ bool QTabBar::event(QEvent *e)
         return true;
 #ifndef QT_NO_TOOLTIP
     } else if (e->type() == QEvent::ToolTip) {
-        if (const QTabBarPrivate::Tab *tab = d->at(d->indexAtPos(static_cast<QHelpEvent*>(e)->pos()))) {
+        if (const QTabBarPrivate::Tab *tab = d->at(tabAt(static_cast<QHelpEvent*>(e)->pos()))) {
             if (!tab->toolTip.isEmpty()) {
                 QToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), tab->toolTip, this);
                 return true;
