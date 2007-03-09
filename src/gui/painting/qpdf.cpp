@@ -971,7 +971,7 @@ void QPdfBaseEngine::updateState(const QPaintEngineState &state)
         d->stroker.setPen(d->pen);
         QBrush penBrush = d->pen.brush();
         bool oldSimple = d->simplePen;
-        d->simplePen = (d->hasPen && penBrush == Qt::SolidPattern && !penBrush.isOpaque());
+        d->simplePen = (d->hasPen && (penBrush.style() == Qt::SolidPattern) && penBrush.isOpaque());
         if (oldSimple != d->simplePen)
             flags |= DirtyTransform;
     }
@@ -1045,7 +1045,7 @@ void QPdfBaseEngine::setupGraphicsState(QPaintEngine::DirtyFlags flags)
     }
     if (flags & DirtyBrush)
         setBrush();
-    if (d->simplePen && flags & DirtyPen)
+    if (d->simplePen && (flags & DirtyPen))
         setPen();
 }
 
