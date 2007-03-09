@@ -182,6 +182,7 @@ QWSTtyKbPrivate::~QWSTtyKbPrivate()
 
 void QWSTtyKbPrivate::handleTtySwitch(int sig)
 {
+#if defined(Q_OS_LINUX)
     if (sig == VTACQSIG) {
        if (ioctl(kbdFD, VT_RELDISP, VT_ACKACQ) == 0) {
            qwsServer->enablePainting(true);
@@ -198,6 +199,7 @@ void QWSTtyKbPrivate::handleTtySwitch(int sig)
            qwsServer->enablePainting(true);
        }
     }
+#endif
 }
 
 void QWSTtyKbPrivate::readKeyboardData()
