@@ -44,6 +44,7 @@ class QEGLWindowSurface : public QWSWindowSurface
     Q_DECLARE_PRIVATE(QEGLWindowSurface)
 public:
     QEGLWindowSurface(QWidget *widget);
+    QEGLWindowSurface();
     ~QEGLWindowSurface();
 
     QPaintDevice *paintDevice();

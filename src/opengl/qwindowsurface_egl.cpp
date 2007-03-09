@@ -15,7 +15,7 @@
 #include <QtGui/QWidget>
 #include <QtOpenGL/QGLWidget>
 #include "private/qwindowsurface_egl_p.h"
-#include "private/qeglpaintdevice_p.h"
+#include "private/qpaintdevice_egl_p.h"
 
 #include "private/qpaintengine_opengl_p.h"
 
@@ -87,6 +87,12 @@ QEGLWindowSurface::QEGLWindowSurface(QWidget *window)
     if (window)
         d->device = new QEGLPaintDevice(window, this);
 
+    setSurfaceFlags(QWSWindowSurface::Buffered);
+}
+
+QEGLWindowSurface::QEGLWindowSurface()
+    : d_ptr(new QEGLWindowSurfacePrivate)
+{
     setSurfaceFlags(QWSWindowSurface::Buffered);
 }
 
