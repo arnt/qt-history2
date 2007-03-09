@@ -1970,19 +1970,85 @@ void tst_QWidget::windowOpacity()
 #endif
 }
 
+class UpdateWidget : public QWidget
+{
+public:
+    UpdateWidget(QWidget *parent = 0) : QWidget(parent) {
+        reset();
+    }
+
+    void paintEvent(QPaintEvent *e) {
+        paintedRegion += e->region();
+        ++numPaintEvents;
+    }
+
+    bool event(QEvent *event)
+    {
+        if (event->type() == QEvent::ZOrderChange)
+            ++numZOrderChangeEvents;
+        return QWidget::event(event);
+    }
+
+    void reset() {
+        numPaintEvents = 0;
+        numZOrderChangeEvents = 0;
+        paintedRegion = QRegion();
+    }
+
+    int numPaintEvents;
+    int numZOrderChangeEvents;
+    QRegion paintedRegion;
+};
+
 void tst_QWidget::raise()
 {
     QWidget *parent = new QWidget(0);
-    QWidget *child1 = new QWidget(parent);
-    QWidget *child2 = new QWidget(parent);
-    QWidget *child3 = new QWidget(parent);
-    QWidget *child4 = new QWidget(parent);
+    QList<UpdateWidget *> allChildren;
+
+    UpdateWidget *child1 = new UpdateWidget(parent);
+    child1->setAutoFillBackground(true);
+    allChildren.append(child1);
+
+    UpdateWidget *child2 = new UpdateWidget(parent);
+    child2->setAutoFillBackground(true);
+    allChildren.append(child2);
+
+    UpdateWidget *child3 = new UpdateWidget(parent);
+    child3->setAutoFillBackground(true);
+    allChildren.append(child3);
+
+    UpdateWidget *child4 = new UpdateWidget(parent);
+    child4->setAutoFillBackground(true);
+    allChildren.append(child4);
+
+    parent->show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(parent);
+#endif
 
     QList<QObject *> list1;
     list1 << child1 << child2 << child3 << child4;
     QVERIFY(parent->children() == list1);
+    QCOMPARE(allChildren.count(), list1.count());
 
-    child2->raise();
+    foreach (UpdateWidget *child, allChildren) {
+        int expectedPaintEvents = child == child4 ? 1 : 0;
+        QCOMPARE(child->numPaintEvents, expectedPaintEvents);
+        QCOMPARE(child->numZOrderChangeEvents, 0);
+        child->reset();
+    }
+
+    for (int i = 0; i < 5; ++i)
+        child2->raise();
+    qApp->processEvents();
+
+    foreach (UpdateWidget *child, allChildren) {
+        int expectedPaintEvents = child == child2 ? 1 : 0;
+        int expectedZOrderChangeEvents = child == child2 ? 1 : 0;
+        QCOMPARE(child->numPaintEvents, expectedPaintEvents);
+        QCOMPARE(child->numZOrderChangeEvents, expectedZOrderChangeEvents);
+        child->reset();
+    }
 
     QList<QObject *> list2;
     list2 << child1 << child3 << child4 << child2;
@@ -1994,16 +2060,52 @@ void tst_QWidget::raise()
 void tst_QWidget::lower()
 {
     QWidget *parent = new QWidget(0);
-    QWidget *child1 = new QWidget(parent);
-    QWidget *child2 = new QWidget(parent);
-    QWidget *child3 = new QWidget(parent);
-    QWidget *child4 = new QWidget(parent);
+    QList<UpdateWidget *> allChildren;
+
+    UpdateWidget *child1 = new UpdateWidget(parent);
+    child1->setAutoFillBackground(true);
+    allChildren.append(child1);
+
+    UpdateWidget *child2 = new UpdateWidget(parent);
+    child2->setAutoFillBackground(true);
+    allChildren.append(child2);
+
+    UpdateWidget *child3 = new UpdateWidget(parent);
+    child3->setAutoFillBackground(true);
+    allChildren.append(child3);
+
+    UpdateWidget *child4 = new UpdateWidget(parent);
+    child4->setAutoFillBackground(true);
+    allChildren.append(child4);
+
+    parent->show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(parent);
+#endif
 
     QList<QObject *> list1;
     list1 << child1 << child2 << child3 << child4;
     QVERIFY(parent->children() == list1);
+    QCOMPARE(allChildren.count(), list1.count());
 
-    child3->lower();
+    foreach (UpdateWidget *child, allChildren) {
+        int expectedPaintEvents = child == child4 ? 1 : 0;
+        QCOMPARE(child->numPaintEvents, expectedPaintEvents);
+        QCOMPARE(child->numZOrderChangeEvents, 0);
+        child->reset();
+    }
+
+    for (int i = 0; i < 5; ++i)
+        child3->lower();
+    qApp->processEvents();
+
+    foreach (UpdateWidget *child, allChildren) {
+        int expectedPaintEvents = child == child4 ? 1 : 0;
+        int expectedZOrderChangeEvents = child == child3 ? 1 : 0;
+        QCOMPARE(child->numPaintEvents, expectedPaintEvents);
+        QCOMPARE(child->numZOrderChangeEvents, expectedZOrderChangeEvents);
+        child->reset();
+    }
 
     QList<QObject *> list2;
     list2 << child3 << child1 << child2 << child4;
@@ -2015,24 +2117,75 @@ void tst_QWidget::lower()
 void tst_QWidget::stackUnder()
 {
     QWidget *parent = new QWidget(0);
-    QWidget *child1 = new QWidget(parent);
-    QWidget *child2 = new QWidget(parent);
-    QWidget *child3 = new QWidget(parent);
-    QWidget *child4 = new QWidget(parent);
+    QList<UpdateWidget *> allChildren;
+
+    UpdateWidget *child1 = new UpdateWidget(parent);
+    child1->setAutoFillBackground(true);
+    allChildren.append(child1);
+
+    UpdateWidget *child2 = new UpdateWidget(parent);
+    child2->setAutoFillBackground(true);
+    allChildren.append(child2);
+
+    UpdateWidget *child3 = new UpdateWidget(parent);
+    child3->setAutoFillBackground(true);
+    allChildren.append(child3);
+
+    UpdateWidget *child4 = new UpdateWidget(parent);
+    child4->setAutoFillBackground(true);
+    allChildren.append(child4);
+
+    parent->show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(parent);
+#endif
 
     QList<QObject *> list1;
     list1 << child1 << child2 << child3 << child4;
     QVERIFY(parent->children() == list1);
 
-    child4->stackUnder(child2);
+    foreach (UpdateWidget *child, allChildren) {
+        int expectedPaintEvents = child == child4 ? 1 : 0;
+        QCOMPARE(child->numPaintEvents, expectedPaintEvents);
+        QCOMPARE(child->numZOrderChangeEvents, 0);
+        child->reset();
+    }
+
+    for (int i = 0; i < 5; ++i)
+        child4->stackUnder(child2);
+    qApp->processEvents();
+
     QList<QObject *> list2;
     list2 << child1 << child4 << child2 << child3;
     QVERIFY(parent->children() == list2);
 
-    child1->stackUnder(child3);
+    foreach (UpdateWidget *child, allChildren) {
+        int expectedPaintEvents = child == child3 ? 1 : 0;
+        int expectedZOrderChangeEvents = child == child4 ? 1 : 0;
+        QCOMPARE(child->numPaintEvents, expectedPaintEvents);
+        QCOMPARE(child->numZOrderChangeEvents, expectedZOrderChangeEvents);
+        child->reset();
+    }
+
+    for (int i = 0; i < 5; ++i)
+        child1->stackUnder(child3);
+    qApp->processEvents();
+
     QList<QObject *> list3;
     list3 << child4 << child2 << child1 << child3;
     QVERIFY(parent->children() == list3);
+
+    foreach (UpdateWidget *child, allChildren) {
+        int expectedZOrderChangeEvents = child == child1 ? 1 : 0;
+        if (child == child3) {
+            QEXPECT_FAIL(0, "Task 153869", Continue);
+            QCOMPARE(child->numPaintEvents, 0);
+        } else {
+            QCOMPARE(child->numPaintEvents, 0);
+        }
+        QCOMPARE(child->numZOrderChangeEvents, expectedZOrderChangeEvents);
+        child->reset();
+    }
 
     delete parent;
 }
@@ -3160,27 +3313,6 @@ void tst_QWidget::showHideEvent()
     QCOMPARE(widget.numberOfShowEvents, expectedShowEvents);
     QCOMPARE(widget.numberOfHideEvents, expectedHideEvents);
 }
-
-class UpdateWidget : public QWidget
-{
-public:
-    UpdateWidget(QWidget *parent = 0) : QWidget(parent) {
-        reset();
-    }
-
-    void paintEvent(QPaintEvent *e) {
-        paintedRegion += e->region();
-        ++numPaintEvents;
-    }
-
-    void reset() {
-        numPaintEvents = 0;
-        paintedRegion = QRegion();
-    }
-
-    int numPaintEvents;
-    QRegion paintedRegion;
-};
 
 void tst_QWidget::update()
 {
