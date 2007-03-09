@@ -3066,7 +3066,6 @@ bool QDirect3DPaintEnginePrivate::testCaps()
     if ((caps.PresentationIntervals & D3DPRESENT_INTERVAL_IMMEDIATE)
         && (caps.DevCaps & D3DDEVCAPS_PUREDEVICE)
         && (caps.RasterCaps & D3DPRASTERCAPS_SCISSORTEST)
-        && (caps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL)
         && (caps.StencilCaps & D3DSTENCILCAPS_TWOSIDED))
         return true;
 #if 0
@@ -3074,7 +3073,6 @@ bool QDirect3DPaintEnginePrivate::testCaps()
     qDebug() << "D3DPRESENT_INTERVAL_IMMEDIATE:" << ((caps.PresentationIntervals & D3DPRESENT_INTERVAL_IMMEDIATE) != 0);
     qDebug() << "D3DDEVCAPS_PUREDEVICE:" << ((caps.DevCaps & D3DDEVCAPS_PUREDEVICE) != 0);
     qDebug() << "D3DPRASTERCAPS_SCISSORTEST:" << ((caps.RasterCaps & D3DPRASTERCAPS_SCISSORTEST) != 0);
-    qDebug() << "D3DPTEXTURECAPS_NONPOW2CONDITIONAL:" << ((caps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL) != 0);
     qDebug() << "D3DSTENCILCAPS_TWOSIDED:" << ((caps.StencilCaps & D3DSTENCILCAPS_TWOSIDED) != 0);
 #endif
     return false;
