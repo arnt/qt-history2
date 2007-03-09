@@ -1591,6 +1591,10 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
                 break;
             case OnViewport:
                 d->dropIndicatorRect = QRect();
+                if (d->model->flags(rootIndex()) & Qt::ItemIsDropEnabled) {
+                    event->setDropAction(dropAction);
+                    event->accept(); // allow dropping in empty areas
+                }
                 break;
             }
         } else {
@@ -1661,6 +1665,7 @@ void QAbstractItemView::dropEvent(QDropEvent *event)
     else
         // place at row, col in drop index
 
+    If it returns true a drop can be done, and dropRow, dropCol and dropIndex reflects the position of the drop.
     \internal
   */
 bool QAbstractItemViewPrivate::dropOn(QDropEvent *event, int *dropRow, int *dropCol, QModelIndex *dropIndex)
@@ -1673,7 +1678,7 @@ bool QAbstractItemViewPrivate::dropOn(QDropEvent *event, int *dropRow, int *drop
     // rootIndex() (i.e. the viewport) might be a valid index
     if (viewport->rect().contains(event->pos())) {
         index = q->indexAt(event->pos());
-        if (!index.isValid())
+        if (!index.isValid() || !q->visualRect(index).contains(event->pos()))
             index = root;
     }
 
