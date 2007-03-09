@@ -27,7 +27,7 @@ public:
 };
 
 // from the qpaintengine_opengl.cpp:
-QOpenGLPaintEngine* qgl_paint_engine();
+QOpenGLPaintEngine* qt_qgl_paint_engine();
 
 class QEGLPaintDevicePrivate
 {
@@ -52,7 +52,7 @@ QEGLPaintDevice::~QEGLPaintDevice()
 
 QPaintEngine *QEGLPaintDevice::paintEngine() const
 {
-    return qgl_paint_engine();
+    return qt_qgl_paint_engine();
 }
 
 int QEGLPaintDevice::metric(PaintDeviceMetric m) const
