@@ -2783,6 +2783,8 @@ int QTreeViewPrivate::itemAtCoordinate(int coordinate) const
     } else { // ScrollPerItem
         int topViewItemIndex = q->verticalScrollBar()->value();
         if (uniformRowHeights) {
+            if (coordinate < 0)
+                coordinate -= defaultItemHeight - 1;
             const int viewItemIndex = topViewItemIndex + (coordinate / defaultItemHeight);
             return (viewItemIndex >= itemCount ? -1 : viewItemIndex);
         }

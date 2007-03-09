@@ -1525,6 +1525,7 @@ void tst_QTreeView::setSelection_data()
     QTest::addColumn<int>("selectionMode");
     QTest::addColumn<int>("selectionCommand");
     QTest::addColumn<PointList>("expectedItems");
+    QTest::addColumn<int>("verticalOffset");
 
 
     QTest::newRow("(0,0,50,20),rows") << QRect(0,0,50,20) 
@@ -1532,7 +1533,8 @@ void tst_QTreeView::setSelection_data()
                                  << int(QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows)
                                  << (PointList() 
                                     << QPoint(0,0) << QPoint(1,0) << QPoint(2,0) << QPoint(3,0) << QPoint(4,0)
-                                    );
+                                    )
+                                 << 0;
 
     QTest::newRow("(0,0,50,90),rows") << QRect(0,0,50,90) 
                                  << int(QAbstractItemView::ExtendedSelection)
@@ -1540,7 +1542,8 @@ void tst_QTreeView::setSelection_data()
                                  << (PointList() 
                                     << QPoint(0,0) << QPoint(1,0) << QPoint(2,0) << QPoint(3,0) << QPoint(4,0)
                                     << QPoint(0,1) << QPoint(1,1) << QPoint(2,1) << QPoint(3,1) << QPoint(4,1)
-                                    );
+                                    )
+                                 << 0;
 
     QTest::newRow("(50,0,0,90),rows,invalid rect") << QRect(QPoint(50, 0), QPoint(0, 90)) 
                                  << int(QAbstractItemView::ExtendedSelection)
@@ -1548,8 +1551,26 @@ void tst_QTreeView::setSelection_data()
                                  << (PointList() 
                                     << QPoint(0,0) << QPoint(1,0) << QPoint(2,0) << QPoint(3,0) << QPoint(4,0)
                                     << QPoint(0,1) << QPoint(1,1) << QPoint(2,1) << QPoint(3,1) << QPoint(4,1)
-                                    );
+                                    )
+                                 << 0;
     
+    QTest::newRow("(0,-20,20,50),rows") << QRect(0,-20,20,50)
+                                 << int(QAbstractItemView::ExtendedSelection)
+                                 << int(QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows)
+                                 << (PointList() 
+                                    << QPoint(0,0) << QPoint(1,0) << QPoint(2,0) << QPoint(3,0) << QPoint(4,0)
+                                    << QPoint(0,1) << QPoint(1,1) << QPoint(2,1) << QPoint(3,1) << QPoint(4,1)
+                                    )
+                                 << 1;
+    QTest::newRow("(0,-50,20,90),rows") << QRect(0,-50,20,90)
+                                 << int(QAbstractItemView::ExtendedSelection)
+                                 << int(QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows)
+                                 << (PointList() 
+                                    << QPoint(0,0) << QPoint(1,0) << QPoint(2,0) << QPoint(3,0) << QPoint(4,0)
+                                    << QPoint(0,1) << QPoint(1,1) << QPoint(2,1) << QPoint(3,1) << QPoint(4,1)
+                                    )
+                                 << 1;
+
 }
 
 void tst_QTreeView::setSelection()
@@ -1558,16 +1579,20 @@ void tst_QTreeView::setSelection()
     QFETCH(int, selectionMode);
     QFETCH(int, selectionCommand);
     QFETCH(PointList, expectedItems);
+    QFETCH(int, verticalOffset);
 
     QtTestModel model(10,5);
     model.levels = 1;
     model.setDecorationsEnabled(true);
     PublicView view;
-    view.resize(400,600);
+    view.resize(400,300);
     view.setRootIsDecorated(false);
     view.setItemDelegate(new TestDelegate(&view));
     view.setSelectionMode(QAbstractItemView::SelectionMode(selectionMode));
     view.setModel(&model);
+    view.setUniformRowHeights(true);
+    view.setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
+    view.scrollTo(model.index(verticalOffset, 0), QAbstractItemView::PositionAtTop);
     QApplication::processEvents();
     view.setSelection(selectionRect, QItemSelectionModel::SelectionFlags(selectionCommand));
     view.show();
