@@ -41,7 +41,7 @@
 //#define Q_USE_DIRECTPAINTER
 
 // this one for full QScreen implemented using EGL/GLES:
-#define Q_USE_EGLWINDOWSURFACE
+//#define Q_USE_EGLWINDOWSURFACE
 #ifdef Q_USE_QEGL
 #include "qegl_qws_p.h"
 

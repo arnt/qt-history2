@@ -84,7 +84,11 @@ class QGLWidgetPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QGLWidget)
 public:
-    QGLWidgetPrivate() : QWidgetPrivate() {}
+    QGLWidgetPrivate() : QWidgetPrivate()
+#ifdef Q_USE_EGLWINDOWSURFACE
+                       , wsurf(0)
+#endif
+        {}
     ~QGLWidgetPrivate() {}
 
     void init(QGLContext *context, const QGLWidget* shareWidget);
@@ -113,6 +117,9 @@ public:
     QGLDirectPainter *directPainter;
     void resizeHandler(const QSize &);
     void render(const QRegion&);
+#ifdef Q_USE_EGLWINDOWSURFACE
+    QEGLWindowSurface *wsurf;
+#endif
 #endif
 };
 
@@ -298,4 +305,7 @@ private:
 
 extern QGLShareRegister* qgl_share_reg();
 
+#ifdef Q_WS_QWS
+extern QOpenGLPaintEngine* qt_qgl_paint_engine();
+#endif
 #endif // QGL_P_H
