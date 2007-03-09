@@ -664,7 +664,7 @@ public:
                         D3DCOLOR color);
 
     void queueAntialiasedLines(const QPainterPath &path, QD3DBatchItem **item, const QRectF &brect);
-    void queueAliasedLines(const QLineF *lines, int lineCount, QD3DBatchItem **item, D3DCOLOR color);
+    void queueAliasedLines(const QLineF *lines, int lineCount, QD3DBatchItem **item, D3DCOLOR color, bool transform);
     void queueAliasedLines(const QPainterPath &path, QD3DBatchItem **item, D3DCOLOR color);
 
     int drawAntialiasedMask(int offset, int maxoffset);
@@ -1808,7 +1808,7 @@ void QD3DVertexBuffer::queueAntialiasedLines(const QPainterPath &path, QD3DBatch
     *item = m_item;
 }
 
-void QD3DVertexBuffer::queueAliasedLines(const QLineF *lines, int lineCount, QD3DBatchItem **item, D3DCOLOR color)
+void QD3DVertexBuffer::queueAliasedLines(const QLineF *lines, int lineCount, QD3DBatchItem **item, D3DCOLOR color, bool transform)
 {
     lock();
 
@@ -1816,10 +1816,17 @@ void QD3DVertexBuffer::queueAliasedLines(const QLineF *lines, int lineCount, QD3
     m_item->m_info |= QD3DBatchItem::BI_FASTLINE;
 
     for (int i=0; i<lineCount; ++i) {
-        qreal x1 = lines[i].x1();
-        qreal y1 = lines[i].y1();
-        qreal x2 = lines[i].x2();
-        qreal y2 = lines[i].y2();
+        QLineF line = transform ? m_pe->m_matrix.map(lines[i]) : lines[i];
+
+        int x1 = line.x1();
+        int y1 = line.y1();
+
+        // extend the line one unit in the direction of the line vector
+        qreal rx2 = line.x2();
+        qreal ry2 = line.y2();
+        line.setLength(1.0f);
+        int x2 = (rx2 + line.dx());
+        int y2 = (ry2 + line.dy());
 
         vertex v1 = {D3DXVECTOR3(x1, y1, 0.5f), color,
                      0.f, 0.f, 0.f, 0.f,
@@ -3579,9 +3586,13 @@ void QDirect3DPaintEngine::drawLines(const QLineF *lines, int lineCount)
     if (d->has_fast_pen && !(d->m_currentState & QD3DBatchItem::BI_AA)
         && (d->m_pen_brush_style == Qt::SolidPattern)) {
         QD3DBatchItem *item = d->nextBatchItem();
-        item->m_info |= QD3DBatchItem::BI_TRANSFORM;
-        item->m_matrix = d->m_d3dxmatrix;
-        d->m_vBuffer->queueAliasedLines(lines, lineCount, &item, d->m_penColor);
+        if (d->m_txop <= QTransform::TxTranslate) {
+            item->m_info |= QD3DBatchItem::BI_TRANSFORM;
+            item->m_matrix = d->m_d3dxmatrix;
+            d->m_vBuffer->queueAliasedLines(lines, lineCount, &item, d->m_penColor, false);
+        } else {
+            d->m_vBuffer->queueAliasedLines(lines, lineCount, &item, d->m_penColor, true);
+        }
     } else {
         QRectF brect;
         QPainterPath path;
