@@ -575,10 +575,20 @@ static void parseBrush(QSvgNode *node,
                        QSvgHandler *handler)
 {
     QString value = attributes.value(QLatin1String("fill")).toString();
+    QString fillRule = attributes.value(QLatin1String("fill-rule")).toString();
     QString myId = someId(attributes);
 
     value = value.trimmed();
-    if (!value.isEmpty()) {
+    fillRule = fillRule.trimmed();
+    if (!value.isEmpty() || !fillRule.isEmpty()) {
+        Qt::FillRule f = Qt::OddEvenFill;
+        if (!fillRule.isEmpty()) {
+            if (fillRule == QLatin1String("nonzero")) {
+                f = Qt::WindingFill;
+            } else {
+                f = Qt::OddEvenFill;
+            }
+        }
         if (value.startsWith(QLatin1String("url"))) {
             value = value.remove(0, 3);
             QString id = idFromUrl(value);
@@ -602,15 +612,17 @@ static void parseBrush(QSvgNode *node,
             }
         } else if (value != QLatin1String("none")) {
             QString opacity = attributes.value(QLatin1String("fill-opacity")).toString();
-            QString fillRule = attributes.value(QLatin1String("fill-rule")).toString();
-
             QColor color;
             if (constructColor(value, opacity, color, handler)) {
-                QSvgStyleProperty *prop = new QSvgFillStyle(QBrush(color));
+                QSvgFillStyle *prop = new QSvgFillStyle(QBrush(color));
+                if (!fillRule.isEmpty())
+                    prop->setFillRule(f);
                 node->appendStyleProperty(prop, myId);
             }
         } else {
-            QSvgStyleProperty *prop = new QSvgFillStyle(QBrush(Qt::NoBrush));
+            QSvgFillStyle *prop = new QSvgFillStyle(QBrush(Qt::NoBrush));
+            if (!fillRule.isEmpty())
+                prop->setFillRule(f);
             node->appendStyleProperty(prop, myId);
         }
     }
@@ -2630,15 +2642,8 @@ static QSvgNode *createPathNode(QSvgNode *parent,
                                 QSvgHandler *)
 {
     QStringRef data      = attributes.value(QLatin1String("d"));
-    QStringRef fillRule  = attributes.value(QLatin1String("fill-rule"));
 
     QPainterPath qpath;
-    if (!fillRule.isEmpty()) {
-        if (fillRule == QLatin1String("nonzero")) {
-            qpath.setFillRule(Qt::WindingFill);
-        }
-    }
-
     //XXX do error handling
     parsePathDataFast(data, qpath);
 

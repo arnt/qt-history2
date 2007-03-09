@@ -13,6 +13,7 @@
 
 #include "qsvgstyle_p.h"
 #include "qsvgfont_p.h"
+#include "qsvggraphics_p.h"
 #include "qsvgnode_p.h"
 #include "qsvgtinydocument_p.h"
 
@@ -42,13 +43,36 @@ void QSvgQualityStyle::revert(QPainter *)
 }
 
 QSvgFillStyle::QSvgFillStyle(const QBrush &brush, bool fromColor)
-    : m_fill(brush), m_fromColor(fromColor)
+    : m_fill(brush), m_fromColor(fromColor), m_fillRuleSet(false)
 {
 }
 
-void QSvgFillStyle::apply(QPainter *p, const QRectF &, QSvgNode *)
+void QSvgFillStyle::setFillRule(Qt::FillRule f)
+{
+    m_fillRuleSet = true;
+    m_fillRule = f;
+}
+
+static void recursivelySetFill(QSvgNode *node, Qt::FillRule f)
+{
+    if (node->type() == QSvgNode::PATH) {
+        QSvgPath *path = static_cast<QSvgPath*>(node);
+        path->qpath()->setFillRule(f);
+    } else if (node->type() == QSvgNode::G) {
+        QList<QSvgNode*> renderers = static_cast<QSvgG*>(node)->renderers();
+        foreach(QSvgNode *n, renderers) {
+            recursivelySetFill(n, f);
+        }
+    }
+}
+void QSvgFillStyle::apply(QPainter *p, const QRectF &, QSvgNode *node)
 {
     m_oldFill = p->brush();
+
+    if (m_fillRuleSet) {
+        recursivelySetFill(node, m_fillRule);
+        m_fillRuleSet = false;//set it only on the first run
+    }
     p->setBrush(m_fill);
 }
 

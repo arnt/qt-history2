@@ -107,6 +107,10 @@ public:
     virtual void draw(QPainter *p);
     virtual Type type() const;
     virtual QRectF bounds() const;
+
+    QPainterPath *qpath() {
+        return &m_path;
+    }
 private:
     QPainterPath m_path;
     QRectF m_cachedBounds;

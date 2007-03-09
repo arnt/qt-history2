@@ -46,6 +46,7 @@ public:
     virtual QRectF bounds() const;
     virtual QRectF transformedBounds(const QMatrix &mat) const;
     QSvgNode *previousSiblingNode(QSvgNode *n) const;
+    QList<QSvgNode*> renderers() const { return m_renderers; }
 protected:
     QList<QSvgNode*>          m_renderers;
     QHash<QString, QSvgNode*> m_scope;

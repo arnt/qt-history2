@@ -182,6 +182,8 @@ public:
     virtual void revert(QPainter *p);
     virtual Type type() const;
 
+    void setFillRule(Qt::FillRule f);
+
     //### hack that would be a lot better handled by
     //having a default QSvgColorStyle element and handling it
     //correctly in qsvghandler
@@ -198,12 +200,13 @@ private:
     // fill            v 	v 	'inherit' | <Paint.datatype>
     // fill-opacity    v 	v 	'inherit' | <OpacityValue.datatype>
     QBrush m_fill;
-    // fill-rule       v 	v 	'inherit' | <ClipFillRule.datatype>
-    //int m_fillRule;
 
     QBrush m_oldFill;
 
     bool m_fromColor;
+
+    bool         m_fillRuleSet;
+    Qt::FillRule m_fillRule;
 };
 
 class QSvgViewportFillStyle : public QSvgStyleProperty
