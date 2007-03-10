@@ -48,6 +48,8 @@ private slots:
     void operator_minus();
     void operator_intersect_data();
     void operator_intersect();
+    void operator_xor_data();
+    void operator_xor();
 };
 
 Q_DECLARE_METATYPE(QPolygon)
@@ -123,6 +125,15 @@ void tst_QRegion::setRects()
 	QRegion region;
 	region.setRects( 0, 0 );
 	QVERIFY( region.rects().isEmpty() );
+    }
+    {
+	QRegion region;
+	QRect rect;
+	region.setRects( &rect, 0 );
+        QVERIFY(region.isEmpty());
+        QVERIFY(region == QRegion());
+	QVERIFY(!region.boundingRect().isValid());
+	QVERIFY(region.rects().isEmpty());
     }
     {
 	QRegion region;
@@ -551,6 +562,50 @@ void tst_QRegion::operator_intersect()
     QCOMPARE(dest & intersect, expected);
 
     dest &= intersect;
+    QCOMPARE(dest, expected);
+}
+
+void tst_QRegion::operator_xor_data()
+{
+    QTest::addColumn<QRegion>("dest");
+    QTest::addColumn<QRegion>("arg");
+    QTest::addColumn<QRegion>("expected");
+
+    QTest::newRow("empty 0") << QRegion() << QRegion() << QRegion();
+    QTest::newRow("empty 1") << QRegion() << QRegion(QRect(10, 10, 10, 10))
+                             << QRegion(QRect(10, 10, 10, 10));
+    QTest::newRow("empty 2") << QRegion(QRect(10, 10, 10, 10)) << QRegion()
+                             << QRegion(QRect(10, 10, 10, 10));
+
+    QRegion dest;
+    QVector<QRect> rects;
+    rects << QRect(10, 10, 10, 10) << QRect(22, 10, 10, 10);
+    dest.setRects(rects.constData(), rects.size());
+    QTest::newRow("simple 1") << dest
+                              << QRegion(22, 10, 10, 10)
+                              << QRegion(10, 10, 10, 10);
+    QTest::newRow("simple 2") << dest
+                              << QRegion(10, 10, 10, 10)
+                              << QRegion(22, 10, 10, 10);
+    QTest::newRow("simple 3") << dest << dest << QRegion();
+    QTest::newRow("simple 4") << QRegion(10, 10, 10, 10)
+                              << QRegion(10, 10, 5, 10)
+                              << QRegion(15, 10, 5, 10);
+    QTest::newRow("simple 5") << QRegion(10, 10, 10, 10)
+                              << QRegion(10, 10, 10, 5)
+                              << QRegion(10, 15, 10, 5);
+}
+
+void tst_QRegion::operator_xor()
+{
+    QFETCH(QRegion, dest);
+    QFETCH(QRegion, arg);
+    QFETCH(QRegion, expected);
+
+    QCOMPARE(dest ^ arg, expected);
+    QCOMPARE(dest.xored(arg), expected);
+
+    dest ^= arg;
     QCOMPARE(dest, expected);
 }
 
