@@ -1365,13 +1365,13 @@ static int hmac_md5(
         MD5Init(&context);                   /* init context for 1st pass */
         MD5Update(&context, k_ipad, 64);     /* start with inner pad */
         MD5Update(&context, text, text_length); /* then text of datagram */
-        MD5Final(digest, &context);          /* finish up 1st pass */
+        MD5Final(&context, digest);          /* finish up 1st pass */
 
         /* perform outer MD5 */
         MD5Init(&context);                   /* init context for 2nd pass */
         MD5Update(&context, k_opad, 64);     /* start with outer pad */
         MD5Update(&context, digest, 16);     /* then results of 1st * hash */
-        MD5Final(digest, &context);          /* finish up 2nd pass */
+        MD5Final(&context, digest);          /* finish up 2nd pass */
         return 1;
 }
 
