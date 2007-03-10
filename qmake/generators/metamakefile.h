@@ -23,22 +23,23 @@ class MakefileGenerator;
 class MetaMakefileGenerator
 {
 protected:
-    MetaMakefileGenerator(QMakeProject *p, bool op=true) : project(p), own_project(op) { }
+    MetaMakefileGenerator(QMakeProject *p, const QString &n, bool op=true) : project(p), own_project(op), name(n) { }
     QMakeProject *project;
     bool own_project;
+    QString name;
 
 public:
 
     virtual ~MetaMakefileGenerator();
 
-    static MetaMakefileGenerator *createMetaGenerator(QMakeProject *proj, bool op=true);
+    static MetaMakefileGenerator *createMetaGenerator(QMakeProject *proj, const QString &name, bool op=true);
     static MakefileGenerator *createMakefileGenerator(QMakeProject *proj, bool noIO = false);
 
     inline QMakeProject *projectFile() const { return project; }
 
     virtual bool init() = 0;
     virtual int type() const { return -1; }
-    virtual bool write(const QString &) = 0;
+    virtual bool write(const QString &oldpwd) = 0;
 };
 
 #endif // METAMAKEFILE_H
