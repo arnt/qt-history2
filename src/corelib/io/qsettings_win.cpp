@@ -501,7 +501,7 @@ bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QVa
             QT_WA( {
                 s = QString::fromUtf16(((const ushort*)data.constData()));
             }, {
-                s = QString::fromLatin1(data.constData());
+                s = QString::fromLocal8Bit(data.constData());
             } );
 
             if (value != 0)
@@ -517,7 +517,7 @@ bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QVa
                 QT_WA( {
                     s = QString::fromUtf16((const ushort*)data.constData() + i);
                 }, {
-                    s = QString::fromLatin1(data.constData() + i);
+                    s = QString::fromLocal8Bit(data.constData() + i);
                 } );
                 i += s.length() + 1;
 
@@ -536,7 +536,7 @@ bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QVa
             QT_WA( {
                 s = QString::fromUtf16((const ushort*)data.constData(), data.size()/2);
             }, {
-                s = QString::fromLatin1(data.constData(), data.size());
+                s = QString::fromLocal8Bit(data.constData(), data.size());
             } );
             if (value != 0)
                 *value = stringToVariant(s);
