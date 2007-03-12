@@ -2370,62 +2370,88 @@ void tst_QTableView::span_data()
     QTest::addColumn<int>("columnSpan");
     QTest::addColumn<int>("expectedRowSpan");
     QTest::addColumn<int>("expectedColumnSpan");
+    QTest::addColumn<bool>("clear");
 
     QTest::newRow("top left 2x2")
       << 10 << 10
       << -1 << -1
       << 0 << 0
       << 2 << 2
-      << 2 << 2;
+      << 2 << 2
+      << false;
 
     QTest::newRow("top left 1x2")
       << 10 << 10
       << 3 << 3
       << 0 << 0
       << 1 << 2
-      << 1 << 2;
+      << 1 << 2
+      << false;
 
     QTest::newRow("top left 2x1")
       << 10 << 10
       << -1 << -1
       << 0 << 0
       << 2 << 1
-      << 2 << 1;
+      << 2 << 1
+      << false;
 
     QTest::newRow("top left 2x0")
       << 10 << 10
       << -1 << -1
       << 0 << 0
       << 2 << 0
-      << 2 << 0;
+      << 2 << 0
+      << false;
 
     QTest::newRow("top left 0x2")
       << 10 << 10
       << -1 << -1
       << 0 << 0
       << 0 << 2
-      << 0 << 2;
+      << 0 << 2
+      << false;
 
     QTest::newRow("invalid 2x2")
       << 10 << 10
       << -1 << -1
       << -1 << -1
       << 2 << 2
-      << 1 << 1;
+      << 1 << 1
+      << false;
 
     QTest::newRow("top left 2x2")
       << 10 << 10
       << -1 << -1
       << 0 << 0
       << 2 << 2
-      << 2 << 2;
+      << 2 << 2
+      << false;
 
     QTest::newRow("bottom right 2x2")
       << 10 << 10
       << -1 << -1
       << 8 << 8
       << 2 << 2
-      << 2 << 2;
+      << 2 << 2
+      << false;
+
+    QTest::newRow("invalid span 2x2")
+      << 10 << 10
+      << -1 << -1
+      << 8 << 8
+      << 2 << 2
+      << 2 << 2
+      << false;
+
+    QTest::newRow("invalid span 3x3")
+      << 10 << 10
+      << -1 << -1
+      << 6 << 6
+      << 3 << 3
+      << 3 << 3
+      << true;
+
 }
 
 void tst_QTableView::span()
@@ -2440,12 +2466,23 @@ void tst_QTableView::span()
     QFETCH(int, columnSpan);
     QFETCH(int, expectedRowSpan);
     QFETCH(int, expectedColumnSpan);
+    QFETCH(bool, clear);
 
     QtTestTableModel model(rowCount, columnCount);
     QtTestTableView view;
 
     view.setModel(&model);
+    view.show();
+    QTest::qWait(0); // ### needed to pass the test
+
     view.setSpan(row, column, rowSpan, columnSpan);
+    if (clear) {
+        model.removeLastRow();
+        model.removeLastRow();
+        view.update();
+        QTest::qWait(0); // ### needed to pass the test
+    }
+
     view.hideRow(hiddenRow);
     view.hideColumn(hiddenColumn);
     view.show();
