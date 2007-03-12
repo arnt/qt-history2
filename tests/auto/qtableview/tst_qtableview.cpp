@@ -2185,7 +2185,9 @@ void tst_QTableView::scrollTo()
     QtTestTableView view;
 
     view.show();
-    view.resize(columnWidth * 2, rowHeight * 2);
+    view.resize(columnWidth * 3, rowHeight * 3);
+    QTest::qWait(0);
+
     view.setModel(&model);
     view.setSpan(row, column, rowSpan, columnSpan);
     view.hideRow(hiddenRow);
@@ -2205,18 +2207,21 @@ void tst_QTableView::scrollTo()
     QModelIndex index = model.index(row, column);
     QVERIFY(index.isValid());
     view.scrollTo(index, (QAbstractItemView::ScrollHint)scrollHint);
-    QCOMPARE(view.horizontalScrollBar()->value(), expectedHorizontalScroll);
     QCOMPARE(view.verticalScrollBar()->value(), expectedVerticalScroll);
+    QCOMPARE(view.horizontalScrollBar()->value(), expectedHorizontalScroll);
 }
 
 void tst_QTableView::indexAt_data()
 {
     QTest::addColumn<int>("rowCount");
     QTest::addColumn<int>("columnCount");
+
     QTest::addColumn<int>("rowHeight");
     QTest::addColumn<int>("columnWidth");
+
     QTest::addColumn<int>("hiddenRow");
     QTest::addColumn<int>("hiddenColumn");
+
     QTest::addColumn<int>("row");
     QTest::addColumn<int>("column");
     QTest::addColumn<int>("rowSpan");
@@ -2334,6 +2339,7 @@ void tst_QTableView::indexAt()
 
     view.show();
     view.setModel(&model);
+    qDebug() << row << column << rowSpan << columnSpan;
     view.setSpan(row, column, rowSpan, columnSpan);
     view.hideRow(hiddenRow);
     view.hideColumn(hiddenColumn);
@@ -2405,7 +2411,7 @@ void tst_QTableView::span_data()
       << -1 << -1
       << -1 << -1
       << 2 << 2
-      << 2 << 2;
+      << 1 << 1;
 
     QTest::newRow("top left 2x2")
       << 10 << 10
