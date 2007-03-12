@@ -970,7 +970,7 @@ void QDockAreaLayoutInfo::setCurrentTabId(quintptr id)
         }
     }
 
-    qDebug("QDockAreaLayoutInfo::setCurrentTabId(): not found!");
+    qWarning("QDockAreaLayoutInfo::setCurrentTabId(): not found!");
 }
 
 #endif // QT_NO_TABBAR
@@ -1700,7 +1700,6 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
 #ifndef QT_NO_TABBAR
     if (tabbed && index >= 0 && index < item_list.count()) {
         updateTabBar();
-        qDebug() << "QDockAreaLayoutInfo::restoreState():" << this << tabBar;
         setCurrentTabId(tabId(item_list.at(index)));
     }
 #endif
