@@ -39,6 +39,7 @@
 
 class QRenderRule;
 class QAbstractScrollArea;
+class QStyleSheetStylePrivate;
 
 class Q_AUTOTEST_EXPORT QStyleSheetStyle : public QWindowsStyle
 {
@@ -97,7 +98,6 @@ public:
     void ref() { ++refcount; }
     void deref() { Q_ASSERT(refcount > 0); if (!--refcount) delete this; }
 
-
 protected Q_SLOTS:
     QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt = 0,
                                      const QWidget *widget = 0) const;
@@ -125,6 +125,10 @@ private:
 
 public:
     static int numinstances;
+
+private:
+    Q_DISABLE_COPY(QStyleSheetStyle)
+    Q_DECLARE_PRIVATE(QStyleSheetStyle)
 };
 
 #endif // QT_NO_STYLE_STYLESHEET

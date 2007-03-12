@@ -77,3 +77,7 @@ QTableCornerButton::section, QHeaderView::section {
     border: native;
 }
 
+QProgressBar {
+    -qt-background-role: base;
+}
+

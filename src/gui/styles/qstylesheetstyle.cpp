@@ -40,10 +40,20 @@
 #include <qcheckbox.h>
 #include <qstatusbar.h>
 #include <qheaderview.h>
+#include <qprogressbar.h>
+#include <private/qwindowsstyle_p.h>
 
 #include <limits.h>
 
 using namespace QCss;
+
+class QStyleSheetStylePrivate : public QWindowsStylePrivate
+{
+    Q_DECLARE_PUBLIC(QStyleSheetStyle)
+public:
+    QStyleSheetStylePrivate() { }
+};
+
 
 static QHash<const QWidget *, QVector<StyleRule> > *styleRulesCache = 0;
 typedef QHash<QString, QHash<int, QRenderRule> > QRenderRules;
@@ -1363,6 +1373,8 @@ enum PseudoElement {
     PseudoElement_HeaderViewSection,
     PseudoElement_HeaderViewUpArrow,
     PseudoElement_HeaderViewDownArrow,
+    PseudoElement_ProgressBarChunk,
+    PseudoElement_Label,
     NumPseudoElements
 };
 
@@ -1409,7 +1421,9 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_None, "branch" },
     { QStyle::SC_None, "section" },
     { QStyle::SC_None, "up-arrow" },
-    { QStyle::SC_None, "down-arrow" }
+    { QStyle::SC_None, "down-arrow" },
+    { QStyle::SC_None, "chunk" },
+    { QStyle::SC_None, "label" }
 };
 
 QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QString &part, int pseudoClass = PseudoClass_Unspecified)
@@ -1652,6 +1666,7 @@ static Origin defaultOrigin(int pe)
     case PseudoElement_ToolButtonMenuArrow:
     case PseudoElement_HeaderViewUpArrow:
     case PseudoElement_HeaderViewDownArrow:
+    case PseudoElement_Label:
     default:
         return Origin_Content;
     }
@@ -1678,7 +1693,8 @@ static Qt::Alignment defaultPosition(int pe)
     case PseudoElement_SpinBoxDownArrow:
     case PseudoElement_ComboBoxArrow:
     case PseudoElement_DownArrow:
-        case PseudoElement_ToolButtonMenuArrow:
+    case PseudoElement_ToolButtonMenuArrow:
+    case PseudoElement_Label:
         return Qt::AlignCenter;
 
     case PseudoElement_GroupBoxTitle:
@@ -1958,7 +1974,7 @@ static void updateWidgets(const QList<const QWidget *>& widgets)
 int QStyleSheetStyle::numinstances = 0;
 
 QStyleSheetStyle::QStyleSheetStyle(QStyle *base)
-: base(base), refcount(1)
+: QWindowsStyle(*new QStyleSheetStylePrivate), base(base), refcount(1)
 {
     ++numinstances;
     if (numinstances == 1) {
@@ -2063,6 +2079,13 @@ void QStyleSheetStyle::polish(QWidget *w)
     }
 #endif
 
+#ifndef QT_NO_PROGRESSBAR
+    if (QProgressBar *pb = qobject_cast<QProgressBar *>(w)) {
+        QRenderRule rule = renderRule(w, PseudoElement_ProgressBarChunk);
+        QWindowsStyle::polish(pb);
+    }
+#endif
+
     const QMetaObject *me = w->metaObject();
     const QMetaObject *super = w->metaObject()->superClass();
     bool on = QString::fromLocal8Bit(me->className()) == QLatin1String("QWidget")
@@ -2126,6 +2149,8 @@ void QStyleSheetStyle::unpolish(QWidget *w)
         QObject::disconnect(sa->verticalScrollBar(), SIGNAL(valueChanged(int)),
                             sa, SLOT(update()));
     }
+    if (QProgressBar *pb = qobject_cast<QProgressBar *>(w))
+        QWindowsStyle::unpolish(pb);
 }
 
 void QStyleSheetStyle::unpolish(QApplication *app)
@@ -2171,14 +2196,14 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
             if (opt->subControls & QStyle::SC_ComboBoxArrow) {
                 QRenderRule subRule = renderRule(w, opt, PseudoElement_ComboBoxDropDown);
                 if (subRule.hasDrawable()) {
-                        QRect r = subControlRect(CC_ComboBox, opt, SC_ComboBoxArrow, w);
-                        subRule.drawRule(p, r);
-                        QRenderRule subRule2 = renderRule(w, opt, PseudoElement_ComboBoxArrow);
-                        r = positionRect(w, subRule, subRule2, PseudoElement_ComboBoxArrow, r, opt->direction);
-                        subRule2.drawRule(p, r);
+                    QRect r = subControlRect(CC_ComboBox, opt, SC_ComboBoxArrow, w);
+                    subRule.drawRule(p, r);
+                    QRenderRule subRule2 = renderRule(w, opt, PseudoElement_ComboBoxArrow);
+                    r = positionRect(w, subRule, subRule2, PseudoElement_ComboBoxArrow, r, opt->direction);
+                    subRule2.drawRule(p, r);
                 } else {
-                        cmbOpt.subControls = QStyle::SC_ComboBoxArrow;
-                        QWindowsStyle::drawComplexControl(cc, &cmbOpt, p, w);
+                    cmbOpt.subControls = QStyle::SC_ComboBoxArrow;
+                    QWindowsStyle::drawComplexControl(cc, &cmbOpt, p, w);
                 }
             }
 
@@ -2405,7 +2430,6 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         }
         break;
 
-    // Push button
     case CE_PushButton:
         ParentStyle::drawControl(ce, opt, p, w);
         return;
@@ -2643,6 +2667,108 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
     case CE_HeaderEmptyArea:
         if (rule.hasDrawable()) {
+            return;
+        }
+        break;
+
+    case CE_ProgressBar:
+        QWindowsStyle::drawControl(ce, opt, p, w);
+        return;
+
+    case CE_ProgressBarGroove:
+        if (rule.hasBorder()) {
+            rule.drawRule(p, rule.boxRect(opt->rect, Margin));
+            return;
+        }
+        break;
+
+    case CE_ProgressBarContents: {
+        QRenderRule subRule = renderRule(w, opt, PseudoElement_ProgressBarChunk);
+        if (subRule.hasDrawable()) {
+            if (const QStyleOptionProgressBarV2 *pb = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt)) {
+                p->save();
+                p->setClipRect(pb->rect);
+
+                qint64 minimum = qint64(pb->minimum);
+                qint64 maximum = qint64(pb->maximum);
+                qint64 progress = qint64(pb->progress);
+                bool vertical = (pb->orientation == Qt::Vertical);
+                bool inverted = pb->invertedAppearance;
+
+                QTransform m;
+                QRect rect = pb->rect;
+                if (vertical) {
+                    rect = QRect(rect.left(), rect.top(), rect.height(), rect.width());
+                    m.translate(rect.height(), 0);
+                    m.rotate(90);
+                }
+
+                bool reverse = ((!vertical && (pb->direction == Qt::RightToLeft)) || vertical);
+                if (inverted)
+                    reverse = !reverse;
+                const bool indeterminate = (pb->minimum == 0 && pb->maximum == 0);
+                qreal fillRatio = indeterminate ? 0.50 : qreal(progress - minimum)/maximum - minimum;
+                int fillWidth = int(rect.width() * fillRatio);
+                int chunkWidth = fillWidth;
+                if (subRule.hasContentsSize()) {
+                    QSize sz = subRule.size();
+                    chunkWidth = (opt->state & QStyle::State_Horizontal) ? sz.width() : sz.height();
+                }
+
+                QRect r = rect;
+                if (pb->minimum == 0 && pb->maximum == 0) {
+                    Q_D(const QWindowsStyle);
+                    int chunkCount = fillWidth/chunkWidth;
+                    int offset = (d->animateStep*8%rect.width());
+                    int x = reverse ? r.left() + r.width() - offset - chunkWidth : r.x() + offset;
+                    while (chunkCount > 0) {
+                        r.setRect(x, rect.y(), chunkWidth, rect.height());
+                        r = m.mapRect(r);
+                        subRule.drawRule(p, r);
+                        x += reverse ? -chunkWidth : chunkWidth;
+                        if (reverse ? x < rect.left() : x > rect.right())
+                            break;
+                        --chunkCount;
+                    }
+
+                    r = rect;
+                    x = reverse ? r.right() - (r.left() - x - chunkWidth)
+                                : r.left() + (x - r.right() - chunkWidth);
+                    while (chunkCount > 0) {
+                        r.setRect(x, rect.y(), chunkWidth, rect.height());
+                        r = m.mapRect(r);
+                        subRule.drawRule(p, r);
+                        x += reverse ? -chunkWidth : chunkWidth;
+                        --chunkCount;
+                    };
+                } else {
+                    int x = reverse ? r.left() + r.width() - chunkWidth : r.x();
+
+                    for (int i = 0; i < ceil(qreal(fillWidth)/chunkWidth); ++i) {
+                        r.setRect(x, rect.y(), chunkWidth, rect.height());
+                        r = m.mapRect(r);
+                        subRule.drawRule(p, r);
+                        x += reverse ? -chunkWidth : chunkWidth;
+                    }
+                }
+
+                p->restore();
+                return;
+            }
+        }
+                               }
+        break;
+
+    case CE_ProgressBarLabel:
+        if (const QStyleOptionProgressBarV2 *pb = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt)) {
+            if (rule.hasBox() || rule.hasBorder() || hasStyleRule(w, PseudoElement_ProgressBarChunk)) {
+                drawItemText(p, pb->rect, pb->textAlignment | Qt::TextSingleLine, pb->palette,
+                             pb->state & State_Enabled, pb->text, QPalette::Text);
+            } else {
+                QStyleOptionProgressBarV2 pbCopy(*pb);
+                rule.configurePalette(&pbCopy.palette, QPalette::HighlightedText, QPalette::Highlight);
+                baseStyle()->drawControl(ce, &pbCopy, p, w);
+            }
             return;
         }
         break;
@@ -2928,6 +3054,10 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         rule.drawBorder(p, rule.borderRect(opt->rect));
         return;
 
+    case PE_IndicatorProgressChunk:
+        pseudoElement = PseudoElement_ProgressBarChunk;
+        break;
+
     default:
         break;
     }
@@ -3123,6 +3253,15 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
             QSize msz = subRule.minimumSize();
             if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(opt))
                 return sb->orientation == Qt::Horizontal ? msz.width() : msz.height();
+        }
+        break;
+
+    case PM_ProgressBarChunkWidth:
+        subRule = renderRule(w, PseudoElement_ProgressBarChunk);
+        if (subRule.hasContentsSize()) {
+            QSize sz = subRule.size();
+            return (opt->state & QStyle::State_Horizontal)
+                   ? sz.width() : sz.height();
         }
         break;
 
@@ -3602,6 +3741,34 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
                          }
         break;
 
+    case SE_ProgressBarGroove:
+    case SE_ProgressBarContents:
+    case SE_ProgressBarLabel:
+        if (const QStyleOptionProgressBarV2 *pb = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt)) {
+            if (rule.hasBox() || rule.hasBorder() || hasStyleRule(w, PseudoElement_ProgressBarChunk)
+                || hasStyleRule(w, PseudoElement_Label)) {
+                if (se == SE_ProgressBarGroove)
+                    return rule.borderRect(pb->rect);
+                else if (se == SE_ProgressBarContents)
+                    return rule.contentsRect(pb->rect);
+
+                QRenderRule labelRule = renderRule(w, PseudoElement_Label);
+                QSize sz = pb->fontMetrics.size(0, pb->text);
+                if (!labelRule.hasGeometry()) {
+                    labelRule.geo = new QStyleSheetGeometryData(sz.width(), sz.height(), sz.width(), sz.height());
+                } else {
+                    labelRule.geo->width = sz.width();
+                    labelRule.geo->height = sz.height();
+                }
+                if (!labelRule.hasPosition()) {
+                    labelRule.p = new QStyleSheetPositionData(0, 0, 0, 0, defaultOrigin(PseudoElement_GroupBoxTitle),
+                                                              pb->textAlignment, PositionMode_Static);
+                }
+
+                return positionRect(w, rule, labelRule, PseudoElement_Label, opt->rect, opt->direction);
+            }
+        }
+        break;
     default:
         break;
     }
