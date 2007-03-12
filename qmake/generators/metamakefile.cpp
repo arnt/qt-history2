@@ -147,7 +147,7 @@ BuildsMetaMakefileGenerator::write(const QString &oldpwd)
                     Option::output_dir = oldpwd;
                     QString build_name = build->name;
                     if(!build->build.isEmpty()) {
-                        if(build_name.isEmpty())
+                        if(!build_name.isEmpty())
                             build_name += ".";
                         build_name += build->build;
                     }
