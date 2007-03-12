@@ -414,8 +414,16 @@ static void UnionRectWithRegion(register const QRect *rect, const QRegionPrivate
         return;
 
     QRegionPrivate region(*rect);
-    UnionRegion(&region, source, dest);
-    return;
+
+    Q_ASSERT(EqualRegion(source, &dest));
+    Q_ASSERT(!isEmpty(&region));
+
+    if (dest.numRects == 0)
+        dest = region;
+    else if (dest.canAppend(&region))
+        dest.append(&region);
+    else
+        UnionRegion(&region, source, dest);
 }
 
 /*-
@@ -995,56 +1003,12 @@ static void miUnionO(register QRegionPrivate &dest, register const QRect *r1, co
 
 static void UnionRegion(const QRegionPrivate *reg1, const QRegionPrivate *reg2, QRegionPrivate &dest)
 {
-    /*
-      Empty region
-    */
-    if (isEmpty(reg1)) {
-        if (!isEmpty(reg2))
-            dest = *reg2;
-        return;
-    }
-    if (isEmpty(reg2)) {
-        dest = *reg1;
-        return;
-    }
-
-    /*
-      A region completely subsumes the other
-    */
-    if (reg1->contains(*reg2)) {
-        dest = *reg1;
-        return;
-    }
-    if (reg2->contains(*reg1)) {
-        dest = *reg2;
-        return;
-    }
-
-    /*
-      Regions are equal.
-    */
-    if (EqualRegion(reg1, reg2)) {
-        dest = *reg1;
-        return;
-    }
-
-    /*
-      Can append reg2 to reg1
-    */
-    if (reg1->canAppend(reg2)) {
-        dest = *reg1;
-        dest.append(reg2);
-        return;
-    }
-
-    /*
-      Can append reg1 to reg2
-    */
-    if (reg2->canAppend(reg1)) {
-        dest = *reg2;
-        dest.append(reg1);
-        return;
-    }
+    Q_ASSERT(!isEmpty(reg1) && !isEmpty(reg2));
+    Q_ASSERT(!reg1->contains(*reg2));
+    Q_ASSERT(!reg2->contains(*reg1));
+    Q_ASSERT(!EqualRegion(reg1, reg2));
+    Q_ASSERT(!reg1->canAppend(reg2));
+    Q_ASSERT(!reg2->canAppend(reg1));
 
     if (reg1->innerArea > reg2->innerArea) {
         dest.innerArea = reg1->innerArea;
@@ -1218,24 +1182,11 @@ static void miSubtractO(register QRegionPrivate &dest, register const QRect *r1,
 static void SubtractRegion(QRegionPrivate *regM, QRegionPrivate *regS,
                            register QRegionPrivate &dest)
 {
-   /* check for trivial reject */
-    if (isEmpty(regM))
-        return;
-
-    if (isEmpty(regS) || !EXTENTCHECK(&regM->extents, &regS->extents)) {
-        dest = *regM;
-        return;
-    }
-
-    if (regS->contains(*regM)) {
-        dest = QRegionPrivate();
-        return;
-    }
-
-    if (EqualRegion(regM, regS)) {
-        dest = QRegionPrivate();
-        return;
-    }
+    Q_ASSERT(!isEmpty(regM));
+    Q_ASSERT(!isEmpty(regS));
+    Q_ASSERT(EXTENTCHECK(&regM->extents, &regS->extents));
+    Q_ASSERT(!regS->contains(*regM));
+    Q_ASSERT(!EqualRegion(regM, regS));
 
     miRegionOp(dest, regM, regS, miSubtractO, miSubtractNonO1, 0);
 
@@ -1251,11 +1202,33 @@ static void SubtractRegion(QRegionPrivate *regM, QRegionPrivate *regS,
 
 static void XorRegion(QRegionPrivate *sra, QRegionPrivate *srb, QRegionPrivate &dest)
 {
+    Q_ASSERT(!isEmpty(sra) && !isEmpty(srb));
+    Q_ASSERT(EXTENTCHECK(&sra->extents, &srb->extents));
+    Q_ASSERT(!EqualRegion(sra, srb));
+
     QRegionPrivate tra, trb;
 
-    SubtractRegion(sra, srb, tra);
-    SubtractRegion(srb, sra, trb);
-    UnionRegion(&tra, &trb, dest);
+    if (!srb->contains(*sra))
+        SubtractRegion(sra, srb, tra);
+    if (!sra->contains(*srb))
+        SubtractRegion(srb, sra, trb);
+
+    Q_ASSERT(!tra.contains(trb));
+    Q_ASSERT(!trb.contains(tra));
+
+    if (isEmpty(&tra)) {
+        dest = trb;
+    } else if (isEmpty(&trb)) {
+        dest = tra;
+    } else if (tra.canAppend(&trb)) {
+        dest = tra;
+        dest.append(&trb);
+    } else if (trb.canAppend(&tra)) {
+        dest = trb;
+        dest.append(&tra);
+    } else {
+        UnionRegion(&tra, &trb, dest);
+    }
 }
 
 /*
@@ -2571,6 +2544,9 @@ bool QRegion::contains(const QRect &r) const
 
 void QRegion::translate(int dx, int dy)
 {
+    if (::isEmpty(d->qt_rgn))
+        return;
+
     detach();
     OffsetRegion(*d->qt_rgn, dx, dy);
 #if defined(Q_WS_X11)
@@ -2608,31 +2584,46 @@ void QRegion::translate(int dx, int dy)
 
 QRegion QRegion::unite(const QRegion &r) const
 {
-    if (isEmpty())
+    if (::isEmpty(d->qt_rgn))
         return r;
-    if (r.isEmpty())
+    if (::isEmpty(r.d->qt_rgn))
         return *this;
 
-    if (qt_region_strictContains(*this, r.d->qt_rgn->extents))
+    if (d->qt_rgn->contains(*r.d->qt_rgn)) {
         return *this;
-    if (qt_region_strictContains(r, d->qt_rgn->extents))
+    } else if (r.d->qt_rgn->contains(*d->qt_rgn)) {
         return r;
-
-    QRegion result;
-    result.detach();
-    UnionRegion(d->qt_rgn, r.d->qt_rgn, *result.d->qt_rgn);
-    return result;
+    } else if (d->qt_rgn->canAppend(r.d->qt_rgn)) {
+        QRegion result(*this);
+        result.detach();
+        result.d->qt_rgn->append(r.d->qt_rgn);
+        return result;
+    } else if (r.d->qt_rgn->canAppend(d->qt_rgn)) {
+        QRegion result(r);
+        result.detach();
+        result.d->qt_rgn->append(d->qt_rgn);
+        return result;
+    } else if (EqualRegion(d->qt_rgn, r.d->qt_rgn)) {
+        return *this;
+    } else {
+        QRegion result;
+        result.detach();
+        UnionRegion(d->qt_rgn, r.d->qt_rgn, *result.d->qt_rgn);
+        return result;
+    }
 }
 
 QRegion& QRegion::operator+=(const QRegion &r)
 {
-    if (isEmpty())
+    if (::isEmpty(d->qt_rgn))
         return *this = r;
-    if (r.isEmpty())
+    if (::isEmpty(r.d->qt_rgn))
         return *this;
 
-    if (qt_region_strictContains(*this, r.d->qt_rgn->extents)) {
+    if (d->qt_rgn->contains(*r.d->qt_rgn)) {
         return *this;
+    } else if (r.d->qt_rgn->contains(*d->qt_rgn)) {
+        return *this = r;
     } else if (d->qt_rgn->canAppend(r.d->qt_rgn)) {
         detach();
         d->qt_rgn->append(r.d->qt_rgn);
@@ -2640,6 +2631,8 @@ QRegion& QRegion::operator+=(const QRegion &r)
     } else if (d->qt_rgn->canPrepend(r.d->qt_rgn)) {
         detach();
         d->qt_rgn->prepend(r.d->qt_rgn);
+        return *this;
+    } else if (EqualRegion(d->qt_rgn, r.d->qt_rgn)) {
         return *this;
     }
 
@@ -2718,6 +2711,12 @@ QRegion QRegion::subtract(const QRegion &r) const
 {
     if (::isEmpty(d->qt_rgn) || ::isEmpty(r.d->qt_rgn))
         return *this;
+    if (r.d->qt_rgn->contains(*d->qt_rgn))
+        return QRegion();
+    if (!EXTENTCHECK(&d->qt_rgn->extents, &r.d->qt_rgn->extents))
+        return *this;
+    if (EqualRegion(d->qt_rgn, r.d->qt_rgn))
+        return QRegion();
 
     QRegion result;
     result.detach();
@@ -2748,10 +2747,20 @@ QRegion QRegion::subtract(const QRegion &r) const
 
 QRegion QRegion::eor(const QRegion &r) const
 {
-    QRegion result;
-    result.detach();
-    XorRegion(d->qt_rgn, r.d->qt_rgn, *result.d->qt_rgn);
-    return result;
+    if (::isEmpty(d->qt_rgn)) {
+        return r;
+    } else if (::isEmpty(r.d->qt_rgn)) {
+        return *this;
+    } else if (!EXTENTCHECK(&d->qt_rgn->extents, &r.d->qt_rgn->extents)) {
+        return (*this + r);
+    } else if (EqualRegion(d->qt_rgn, r.d->qt_rgn)) {
+        return QRegion();
+    } else {
+        QRegion result;
+        result.detach();
+        XorRegion(d->qt_rgn, r.d->qt_rgn, *result.d->qt_rgn);
+        return result;
+    }
 }
 
 /*!
@@ -2835,15 +2844,16 @@ QVector<QRect> QRegion::rects() const
      sort key and X as the minor sort key.
   \endlist
   \omit
-  Only some platforms have that restriction (QWS and X11 and Mac OS X).
+  Only some platforms have these restrictions (Qtopia Core and X11 and Mac OS X).
   \endomit
 */
 void QRegion::setRects(const QRect *rects, int num)
 {
     *this = QRegion();
+    if (!rects || num == 0 || (num == 1 && rects->isEmpty()))
+        return;
+
     detach();
-    if (!rects || (num == 1 && rects->isEmpty()))
-        num = 0;
 
     d->qt_rgn->rects.resize(num);
     d->qt_rgn->numRects = num;
