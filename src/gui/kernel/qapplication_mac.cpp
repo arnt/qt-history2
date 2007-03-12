@@ -1735,7 +1735,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             }
             break;
         }
-        case kEventMouseDown:
+        case kEventMouseDown: {
             if(button == Qt::LeftButton && !mac_context_timer && qt_mac_press_and_hold_context) {
                 remove_context_timer = false;
                 if(!mac_context_timerUPP)
@@ -1747,6 +1747,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             WindowPartCode wpc = qt_mac_window_at(where.h, where.v, 0);
             qt_button_down_in_content = (wpc == inContent || wpc == inStructure);
             break;
+        }
         case kEventMouseUp:
             qt_button_down = 0;
             break;
