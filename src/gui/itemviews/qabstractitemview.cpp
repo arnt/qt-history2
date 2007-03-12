@@ -3105,18 +3105,16 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionComm
                 return QItemSelectionModel::Toggle|selectionBehaviorFlags();
             break;
         case QEvent::MouseButtonPress:
-            if (static_cast<const QMouseEvent*>(event)->button() == Qt::LeftButton &&
-                !selectionModel->isSelected(index))
-                return QItemSelectionModel::Toggle|selectionBehaviorFlags();
+            if (static_cast<const QMouseEvent*>(event)->button() == Qt::LeftButton)
+                return QItemSelectionModel::Toggle|selectionBehaviorFlags(); // toggle
             break;
         case QEvent::MouseButtonRelease:
-            if (static_cast<const QMouseEvent*>(event)->button() == Qt::LeftButton &&
-                index == pressedIndex && pressedAlreadySelected)
-                return QItemSelectionModel::Toggle|selectionBehaviorFlags();
+            if (static_cast<const QMouseEvent*>(event)->button() == Qt::LeftButton)
+                return QItemSelectionModel::NoUpdate|selectionBehaviorFlags(); // finalize
             break;
         case QEvent::MouseMove:
             if (static_cast<const QMouseEvent*>(event)->buttons() & Qt::LeftButton)
-                return QItemSelectionModel::ToggleCurrent|selectionBehaviorFlags();
+                return QItemSelectionModel::ToggleCurrent|selectionBehaviorFlags(); // toggle drag select
         default:
             break;
         }
