@@ -4533,18 +4533,6 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 #endif // QT_NO_COMBOBOX
     case CC_TitleBar:
         if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
-#ifdef QT3_SUPPORT
-            if (widget && widget->inherits("Q3DockWindowTitleBar")) {
-                // Redirect Q3DockWindow to CE_DockWidgetTitle
-                QStyleOptionDockWidget dockOption;
-                dockOption.QStyleOption::operator=(*titleBar);
-                // Fixup palette distortion
-                dockOption.palette = QPalette();
-                dockOption.title = titleBar->text;
-                drawControl(CE_DockWidgetTitle, &dockOption, painter, widget);
-                break;
-            }
-#endif
             painter->save();
             bool active = (titleBar->titleBarState & State_Active);
             QRect fullRect = titleBar->rect;
@@ -6142,9 +6130,9 @@ QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
     \internal
 */
 int QPlastiqueStyle::layoutSpacingImplementation(QSizePolicy::ControlType control1,
-                                                 QSizePolicy::ControlType control2, 
+                                                 QSizePolicy::ControlType control2,
                                                  Qt::Orientation orientation,
-                                                 const QStyleOption * /* option */, 
+                                                 const QStyleOption * /* option */,
                                                  const QWidget * /* widget */) const
 {
     const int ButtonMask = QSizePolicy::ButtonBox | QSizePolicy::PushButton;

@@ -60,6 +60,10 @@ public:
     QSize sizeHint() const;
     QStyleOptionTitleBar getStyleOption() const;
 
+    // These flags are fake, stored in QTitleBarPrivate. They are not set as the widget's window flags.
+    void setFakeWindowFlags(Qt::WindowFlags f);
+    Qt::WindowFlags fakeWindowFlags() const;
+
 public Q_SLOTS:
     void setActive(bool);
 

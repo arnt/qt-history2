@@ -32,6 +32,7 @@
 #include <private/q3titlebar_p.h>
 #include <private/qwidgetresizehandler_p.h>
 #include <qrubberband.h>
+#include <qdebug.h>
 
 #ifdef Q_WS_MAC
 static bool default_opaque = true;
@@ -604,10 +605,11 @@ void Q3DockWindowTitleBar::mousePressEvent(QMouseEvent *e)
     QSize s = icon.actualSize(QSize(64, 64));
     opt.icon = icon.pixmap(s);
     opt.titleBarState = window() ? window()->windowState() : static_cast<Qt::WindowStates>(Qt::WindowNoState);
-    opt.titleBarFlags = windowFlags();
+    opt.titleBarFlags = fakeWindowFlags();
     QStyle::SubControl tbctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                                e->pos(), this);
-    if (tbctrl > QStyle::SC_TitleBarLabel) {
+
+    if (tbctrl < QStyle::SC_TitleBarLabel) {
         Q3TitleBar::mousePressEvent(e);
         return;
     }
@@ -694,9 +696,9 @@ void Q3DockWindowTitleBar::resizeEvent(QResizeEvent *e)
 void Q3DockWindowTitleBar::updateGui()
 {
     if (dockWindow->isCloseEnabled()) {
-        setWindowFlags(windowFlags() | Qt::WStyle_SysMenu);
+        setFakeWindowFlags(fakeWindowFlags() | Qt::WStyle_SysMenu);
     } else {
-        setWindowFlags(windowFlags() & ~Qt::WStyle_SysMenu);
+        setFakeWindowFlags(fakeWindowFlags() & ~Qt::WStyle_SysMenu);
     }
 }
 

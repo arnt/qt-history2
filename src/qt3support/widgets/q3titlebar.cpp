@@ -107,6 +107,18 @@ Q3TitleBar::Q3TitleBar(QWidget *w, QWidget *parent, Qt::WindowFlags f)
     setAutoRaise(style()->styleHint(QStyle::SH_TitleBar_AutoRaise, 0, this));
 }
 
+void Q3TitleBar::setFakeWindowFlags(Qt::WindowFlags f)
+{
+    Q_D(Q3TitleBar);
+    d->flags = f;
+}
+
+Qt::WindowFlags Q3TitleBar::fakeWindowFlags() const
+{
+    Q_D(const Q3TitleBar);
+    return d->flags;
+}
+
 Q3TitleBar::~Q3TitleBar()
 {
 }
@@ -442,7 +454,7 @@ void Q3TitleBar::paintEvent(QPaintEvent *)
 
     QPainter p(this);
     if (!windowTitle().isEmpty())
-        opt.titleBarFlags |= Qt::WindowTitleHint;    
+        opt.titleBarFlags |= Qt::WindowTitleHint;
     style()->drawComplexControl(QStyle::CC_TitleBar, &opt, &p, this);
 }
 
