@@ -160,7 +160,7 @@ public:
 
     int itemIndex(const QListViewItem &item) const;
 
-    int perItemScrollingPageSteps(int length, int bounds, bool wrap) const;
+    int perItemScrollingPageSteps(int length, int bounds, bool wrap, int itemExtent) const;
 
     int perItemScrollToValue(int index, int value, int height,
                              QAbstractItemView::ScrollHint hint,

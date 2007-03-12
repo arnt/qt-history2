@@ -1536,9 +1536,10 @@ void QListView::updateGeometries()
         if (d->flow == TopToBottom) {
             if (horizontal && d->isWrapping() && d->viewMode == ListMode) {
                 int steps = d->staticListView->segmentPositions.count();
+                const int itemExtent = visualRect(d->staticListView->modelIndex(steps - 1)).size().width();
                 int pageSteps = d->staticListView->perItemScrollingPageSteps(vsize.width(),
                                                                             csize.width(),
-                                                                            isWrapping());
+                                                                            isWrapping(), itemExtent);
                 horizontalScrollBar()->setSingleStep(1);
                 horizontalScrollBar()->setPageStep(pageSteps);
                 horizontalScrollBar()->setRange(0, steps - pageSteps);
@@ -1549,9 +1550,10 @@ void QListView::updateGeometries()
             }
             if (vertical && !d->isWrapping() && d->viewMode == ListMode) {
                 int steps = d->staticListView->flowPositions.count();
+                const int itemExtent = visualRect(d->staticListView->modelIndex(steps - 1)).size().height();
                 int pageSteps = d->staticListView->perItemScrollingPageSteps(vsize.height(),
                                                                             csize.height(),
-                                                                            isWrapping());
+                                                                            isWrapping(), itemExtent);
                 verticalScrollBar()->setSingleStep(1);
                 verticalScrollBar()->setPageStep(pageSteps);
                 verticalScrollBar()->setRange(0, steps - pageSteps);
@@ -1565,9 +1567,10 @@ void QListView::updateGeometries()
         } else { // LeftToRight
             if (horizontal && !d->isWrapping() && d->viewMode == ListMode) {
                 int steps = d->staticListView->flowPositions.count();
+                const int itemExtent = visualRect(d->staticListView->modelIndex(steps - 1)).size().width();
                 int pageSteps = d->staticListView->perItemScrollingPageSteps(vsize.width(),
                                                                             csize.width(),
-                                                                            isWrapping());
+                                                                            isWrapping(), itemExtent);
                 horizontalScrollBar()->setSingleStep(1);
                 horizontalScrollBar()->setPageStep(pageSteps);
                 horizontalScrollBar()->setRange(0, steps - pageSteps);
@@ -1580,9 +1583,10 @@ void QListView::updateGeometries()
             }
             if (vertical && d->isWrapping() && d->viewMode == ListMode) {
                 int steps = d->staticListView->segmentPositions.count();
+                const int itemExtent = visualRect(d->staticListView->modelIndex(steps - 1)).size().height();
                 int pageSteps = d->staticListView->perItemScrollingPageSteps(vsize.height(),
                                                                             csize.height(),
-                                                                            isWrapping());
+                                                                            isWrapping(), itemExtent);
                 verticalScrollBar()->setSingleStep(1);
                 verticalScrollBar()->setPageStep(pageSteps);
                 verticalScrollBar()->setRange(0, steps - pageSteps);
@@ -2232,7 +2236,7 @@ QRect QStaticListViewBase::mapToViewport(const QRect &rect) const
     return result;
 }
 
-int QStaticListViewBase::perItemScrollingPageSteps(int length, int bounds, bool wrap) const
+int QStaticListViewBase::perItemScrollingPageSteps(int length, int bounds, bool wrap, int itemExtent) const
 {
     const QVector<int> positions = (wrap ? segmentPositions : flowPositions);
     if (positions.isEmpty() || bounds <= length)
@@ -2248,8 +2252,15 @@ int QStaticListViewBase::perItemScrollingPageSteps(int length, int bounds, bool 
     int max = qMax(length, bounds);
     int min = qMin(length, bounds);
     int pos = min - (max - positions.last());
+    bool first = true;
+
     while (pos >= 0 && steps > 0) {
-        pos -= (positions.at(steps) - positions.at(steps - 1));
+        if (first) {
+            pos -= itemExtent;
+            first = false;
+        } else {
+            pos -= (positions.at(steps) - positions.at(steps - 1));
+        }
         ++pageSteps;
         --steps;
     }

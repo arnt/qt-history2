@@ -58,6 +58,7 @@ private slots:
     void selection_data();
     void selection();
     void scrollTo();
+    void scrollBarRanges();
     void moveItems();
 };
 
@@ -776,8 +777,10 @@ class PublicListView : public QListView
 class TestDelegate : public QItemDelegate
 {
 public:
-    TestDelegate(QObject *parent) : QItemDelegate(parent) {}
-    QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const { return QSize(50, 50); }
+    TestDelegate(QObject *parent) : QItemDelegate(parent), m_sizeHint(50,50) {}
+    QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const { return m_sizeHint; }
+
+    QSize m_sizeHint;
 };
 
 typedef QList<int> IntList;
@@ -1008,6 +1011,35 @@ void tst_QListView::scrollTo()
     QTest::keyClick(lv.viewport(), Qt::Key_Up, Qt::NoModifier);
     QCOMPARE(lv.visualRect(index).y(), 0);
 
+}
+
+
+void tst_QListView::scrollBarRanges()
+{
+    // test if the scrollbar range cooperates well with a gridSize different to itemSize
+    QListView lv;
+    QStringListModel model(&lv);
+    QStringList list;
+    for (int i = 0; i < 10; ++i) {
+        list << QString::fromAscii("Item %1").arg(i);   
+    }
+    model.setStringList(list);
+    lv.setModel(&model);
+    lv.resize(250, 151);
+    lv.setGridSize(QSize(200, 50));
+    TestDelegate *delegat = new TestDelegate(&lv);
+    delegat->m_sizeHint = QSize(200, 20);
+    lv.setItemDelegate(delegat);
+
+    lv.show();
+
+    for (int h = 130; h <= 180; ++h) {
+        lv.resize(250, h);
+        // wait for the layout to be done
+        QTest::qWait(100);
+        QCOMPARE(lv.verticalScrollBar()->maximum(), lv.viewport()->size().height() < 170 ? 7 : 6);
+        if (h < 165 || h > 176) h+=2;  // jump over some pixels in the uninteresting area as a speedup
+    }
 }
 
 void tst_QListView::moveItems()
