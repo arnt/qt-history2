@@ -22,8 +22,9 @@
  * - A lot of functions can be inlined.
  */
 
-struct QXmlCharRange
+class QXmlCharRange
 {
+public:
     ushort min;
     ushort max;
 };
@@ -314,7 +315,7 @@ bool QXmlUtils::isNCName(const QString &ncName)
 {
     const QChar first(ncName.at(0));
 
-    if(!QXmlUtils::isLetter(first) && !first.unicode() == '_' && !first.unicode() == ':')
+    if(!QXmlUtils::isLetter(first) && first.unicode() != '_' && first.unicode() != ':')
         return false;
 
     const int len = ncName.size();
