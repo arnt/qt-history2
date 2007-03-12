@@ -54,7 +54,45 @@ bool Q3TableExtraInfo::saveWidgetExtraInfo(DomWidget *ui_widget)
 
     Q3Table *table = qobject_cast<Q3Table*>(widget());
     Q_ASSERT(table != 0);
-    Q_UNUSED(table);
+
+    Q3Header *hHeader = table->horizontalHeader();
+
+    QList<DomColumn*> columns;
+    for (int i=0; i<hHeader->count(); ++i) {
+        DomColumn *column = new DomColumn();
+        QList<DomProperty *> properties;
+
+        DomProperty *property = new DomProperty();
+        DomString *string = new DomString();
+        string->setText(hHeader->label(i));
+        property->setElementString(string);
+        property->setAttributeName("text");
+        properties.append(property);
+
+        column->setElementProperty(properties);
+        columns.append(column);
+    }
+    ui_widget->setElementColumn(columns);
+
+    Q3Header *vHeader = table->verticalHeader();
+
+    QList<DomRow*> rows;
+    for (int i=0; i<vHeader->count(); ++i) {
+        DomRow *row = new DomRow();
+        QList<DomProperty *> properties;
+
+        DomProperty *property = new DomProperty();
+        DomString *string = new DomString();
+        string->setText(vHeader->label(i));
+        property->setElementString(string);
+        property->setAttributeName("text");
+        properties.append(property);
+
+        row->setElementProperty(properties);
+        rows.append(row);
+    }
+    ui_widget->setElementRow(rows);
+
     return true;
 }
 
@@ -64,7 +102,49 @@ bool Q3TableExtraInfo::loadWidgetExtraInfo(DomWidget *ui_widget)
 
     Q3Table *table = qobject_cast<Q3Table*>(widget());
     Q_ASSERT(table != 0);
-    Q_UNUSED(table);
+
+    Q3Header *hHeader = table->horizontalHeader();
+
+    QList<DomColumn*> columns = ui_widget->elementColumn();
+    for (int i=0; i<columns.size(); ++i) {
+        DomColumn *column = columns.at(i);
+
+        QHash<QString, DomProperty*> properties = propertyMap(column->elementProperty());
+        DomProperty *text = properties.value(QLatin1String("text"));
+        DomProperty *pixmap = properties.value(QLatin1String("pixmap"));
+
+        QString txt = text->elementString()->text();
+
+        if (pixmap != 0) {
+            DomResourcePixmap *pix = pixmap->elementPixmap();
+            QIcon icon(core()->iconCache()->resolveQrcPath(pix->text(), pix->attributeResource(), workingDirectory()));
+            hHeader->setLabel(i, icon, txt);
+        } else {
+            hHeader->setLabel(i, txt);
+        }
+    }
+
+    Q3Header *vHeader = table->verticalHeader();
+
+    QList<DomRow*> rows = ui_widget->elementRow();
+    for (int i=0; i<rows.size(); ++i) {
+        DomRow *row = rows.at(i);
+
+        QHash<QString, DomProperty*> properties = propertyMap(row->elementProperty());
+        DomProperty *text = properties.value(QLatin1String("text"));
+        DomProperty *pixmap = properties.value(QLatin1String("pixmap"));
+
+        QString txt = text->elementString()->text();
+
+        if (pixmap != 0) {
+            DomResourcePixmap *pix = pixmap->elementPixmap();
+            QIcon icon(core()->iconCache()->resolveQrcPath(pix->text(), pix->attributeResource(), workingDirectory()));
+            vHeader->setLabel(i, icon, txt);
+        } else {
+            vHeader->setLabel(i, txt);
+        }
+    }
+
     return true;
 }
 
