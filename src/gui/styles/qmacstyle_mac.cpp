@@ -2552,8 +2552,9 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
     case PE_IndicatorArrowLeft: {
         p->save();
         p->setRenderHint(QPainter::Antialiasing);
+        int xOffset = opt->direction == Qt::LeftToRight ? 2 : -1;
         QMatrix matrix;
-        matrix.translate(opt->rect.center().x() + 1, opt->rect.center().y() + 1);
+        matrix.translate(opt->rect.center().x() + xOffset, opt->rect.center().y() + 2);
         QPainterPath path;
         switch(pe) {
         default:
@@ -3810,26 +3811,35 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
             bdi.version = qt_mac_hitheme_version;
             bdi.state = kThemeStateActive;
             bdi.value = kThemeButtonOff;
-            int xpos = opt->rect.x() + 6;
+            int margin = pixelMetric(QStyle::PM_HeaderMargin, opt, widget);
+            int xpos = opt->rect.x() + margin;
             int width = opt->rect.width() - 10;
             if (!isTreeView(widget)) {
                 bdi.kind = kThemeBevelButton;
             } else {
                 bdi.kind = kThemeListHeaderButton;
+                // We have to adjust when we're not drawing the arrow ourself (in reverse mode).
+                // E.g. with the dirview example:
+                // tree.setSortingEnabled(true):
+                // tree.header()->setClickable(true);
                 if (opt->direction == Qt::RightToLeft) {
                     xpos = opt->rect.x() + 15;
                     width = opt->rect.width() - 20;
-                } else {
-                    if (header->sortIndicator != QStyleOptionHeader::None)
-                        width = opt->rect.width() - 22;
                 }
             }
 
             bdi.adornment = kThemeAdornmentNone;
             HIThemeGetButtonContentBounds(&inRect, &bdi, &outRect);
-            rect.setRect(xpos, int(outRect.origin.y - 1), width,
-                      int(qMin(qAbs(opt->rect.height() - 2 * outRect.origin.y),
-                               outRect.size.height)));
+
+            int height = int(qMin(qAbs(opt->rect.height() - 2 * outRect.origin.y), outRect.size.height));
+            if (header->sortIndicator != QStyleOptionHeader::None) {
+                if (header->state & State_Horizontal)
+                    width = opt->rect.width() - 22 - 2 * margin;
+                else
+                    height -= 3 * margin;
+            }
+
+            rect.setRect(xpos, int(outRect.origin.y - 1), width, height);
             rect = visualRect(opt->direction, opt->rect, rect);
         }
         break;
