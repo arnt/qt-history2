@@ -64,8 +64,8 @@ public:
     inline QHttpPrivate()
         : socket(0), reconnectAttempts(2),
           deleteSocket(0), state(QHttp::Unconnected),
-          error(QHttp::NoError), port(0), toDevice(0),
-          postDevice(0), bytesDone(0), chunkedSize(-1),
+          error(QHttp::NoError), port(0), mode(QHttp::ConnectionModeHttp),
+          toDevice(0), postDevice(0), bytesDone(0), chunkedSize(-1),
           repost(false)
     {
     }
