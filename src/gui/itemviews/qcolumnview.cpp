@@ -937,6 +937,7 @@ QColumnViewPrivate::QColumnViewPrivate()
 ,offset(0)
 ,currentAnimation(ANIMATION_DURATION_MSEC)
 ,previewColumn(0)
+,previewWidget(0)
 {
 }
 
