@@ -68,6 +68,8 @@ extern uchar qt_mode_switch_mask;
 uchar qt_num_lock_mask = 0;
 extern bool qt_sendSpontaneousEvent(QObject*, QEvent*);
 
+// ### we should really resolve conflicts with other masks by
+// ### decomposing the Qt::KeyboardModifers in possibleKeys()
 #define SETMASK(sym, mask)                                              \
     do {                                                                \
         if (qt_alt_mask == 0                                            \
@@ -99,6 +101,10 @@ extern bool qt_sendSpontaneousEvent(QObject*, QEvent*);
             qt_hyper_mask = mask;                                       \
         }                                                               \
         if (qt_mode_switch_mask == 0                                    \
+            && qt_alt_mask != mask                                      \
+            && qt_meta_mask != mask                                     \
+            && qt_super_mask != mask                                    \
+            && qt_hyper_mask != mask                                    \
             && sym == XK_Mode_switch) {                                 \
             qt_mode_switch_mask = mask;                                 \
         }                                                               \
