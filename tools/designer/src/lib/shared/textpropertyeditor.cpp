@@ -75,7 +75,7 @@ namespace {
         // now check style sheet, create string with newlines
         const QString styleSheet = qdesigner_internal::TextPropertyEditor::editorStringToString(input, qdesigner_internal::ValidationStyleSheet);
         const bool valid = qdesigner_internal::StyleSheetEditorDialog::isStyleSheetValid(styleSheet);
-        return valid ? Acceptable : Invalid;
+        return valid ? Acceptable : Intermediate;
     }
 
 }
