@@ -347,6 +347,7 @@ static void initializeDb()
 
 static inline void load(const QString & = QString(), int = -1)
 {
+    initializeDb();
 }
 
 #ifndef QT_NO_FREETYPE
