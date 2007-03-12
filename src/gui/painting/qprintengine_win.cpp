@@ -611,22 +611,28 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     QRectF r = targetRect;
     QRectF sr = sourceRect;
 
-
+    QTransform scaleMatrix;
     QPixmap pixmap = originalPixmap;
-    bool stretched = r.width() != pixmap.width() || r.height() != pixmap.height();
 
-    if (stretched) {
+    if (sr.size() != pixmap.size()) {
         pixmap = pixmap.copy(sr.toRect());
-        pixmap = pixmap.scaled(r.size().toSize(), Qt::IgnoreAspectRatio);
     }
 
+    bool stretched = r.width() != pixmap.width() || r.height() != pixmap.height();
+    if (stretched) {
+        scaleMatrix.scale(r.width() / pixmap.width(), r.height() / pixmap.height());
+    }
+    
     qreal xform_offset_x = 0;
     qreal xform_offset_y = 0;
     if (d->complex_xform) {
-        QTransform adapted = QPixmap::trueMatrix(d->painterMatrix, pixmap.width(), pixmap.height());
+        QTransform adapted = QPixmap::trueMatrix(d->painterMatrix * scaleMatrix, 
+            pixmap.width(), pixmap.height());
         pixmap = pixmap.transformed(adapted);
         xform_offset_x = adapted.dx();
         xform_offset_y = adapted.dy();
+    } else if (stretched) {
+        pixmap = pixmap.transformed(scaleMatrix);
     }
 
     HBITMAP hbitmap = pixmap.toWinHBITMAP(QPixmap::NoAlpha);
