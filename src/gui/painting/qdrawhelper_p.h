@@ -39,6 +39,19 @@
 #include "QtGui/qscreen_qws.h"
 #endif
 
+#define QT_ROTATION_CACHEDREAD 1
+#define QT_ROTATION_CACHEDWRITE 2
+#define QT_ROTATION_PACKING 3
+#define QT_ROTATION_TILED 4
+
+#ifndef QT_ROTATION_ALGORITHM
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+#define QT_ROTATION_ALGORITHM QT_ROTATION_TILED
+#else
+#define QT_ROTATION_ALGORITHM QT_ROTATION_CACHEDREAD
+#endif
+#endif
+
 /*******************************************************************************
  * QSpan
  *
@@ -403,6 +416,17 @@ do {                                          \
     }                                         \
 } while (0)
 
+#ifdef Q_WS_QWS
+template <class DST, class SRC>
+void qt_memrotate90(const SRC *src, int srcWidth, int srcHeight, int srcStride,
+                    DST *dst, int dstStride);
+template <class DST, class SRC>
+void qt_memrotate180(const SRC *src, int srcWidth, int srcHeight, int srcStride,
+                     DST *dst, int dstStride);
+template <class DST, class SRC>
+void qt_memrotate270(const SRC *src, int srcWidth, int srcHeight, int srcStride,
+                     DST *dst, int dstStride);
+#endif // Q_WS_QWS
 
 static inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
 
