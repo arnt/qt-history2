@@ -1194,12 +1194,17 @@ QSqlRecord QSqlDatabase::record(const QString& tablename) const
     \i
     \e none
 
-    \header \i SQLite
+    \header \i SQLite \i Interbase
     \row
 
     \i
     \list
     \i QSQLITE_BUSY_TIMEOUT
+    \endlist
+
+    \i
+    \list
+    \i ISC_DPB_LC_CTYPE
     \endlist
 
     \endtable

@@ -625,6 +625,24 @@
     Edition are not allowed to link this plugin to the commercial editions of
     InterBase. Please use Firebird or the free edition of InterBase.
 
+    \section3 Unicode Support and Text Encoding
+
+    By default the driver connects to the database using UNICODE_FSS. This can 
+    be overridden by setting the ISC_DPB_LC_CTYPE parameter with
+    QSqlDatabase::setConnectOptions() before opening the connection.
+
+    \code
+       // connect to database using the Latin-1 character set 
+       db.setConnectOptions("ISC_DPB_LC_CTYPE=Latin1");
+       db.open();
+    \endcode
+
+    If Qt doesn't support the given text encoding the driver will issue a
+    warning message and connect to the database using UNICODE_FSS. 
+
+    Note that if the text encoding set when connecting to the database is
+    not the same as in the database, problems with transliteration might arise.
+
     \section3 Stored procedures
 
     InterBase/Firebird return OUT values as result set, so when calling stored

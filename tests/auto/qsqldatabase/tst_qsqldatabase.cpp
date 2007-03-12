@@ -112,6 +112,8 @@ private slots:
     void ibase_numericFields(); // For task 125053
     void ibase_fetchBlobs_data() { generic_data(); }
     void ibase_fetchBlobs(); // For task 143471
+    void ibase_useCustomCharset_data() { generic_data(); }
+    void ibase_useCustomCharset(); // For task 134608
 
     void formatValueTrimStrings_data() { generic_data(); }
     void formatValueTrimStrings();
@@ -1755,6 +1757,33 @@ void tst_QSqlDatabase::mysql_multiselect()
     QVERIFY2(q.exec("SELECT * FROM " + qTableName("qtest") + "; SELECT * FROM " + qTableName("qtest")), q.lastError().text());
     QVERIFY2(q.next(), q.lastError().text());
     QVERIFY2(q.exec("SELECT * FROM " + qTableName("qtest")), q.lastError().text());
+}
+
+void tst_QSqlDatabase::ibase_useCustomCharset()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QIBASE")) {
+        QSKIP("InterBase/Firebird server specific test", SkipSingle);
+        return;
+    }
+
+    db.close();
+    db.setConnectOptions("ISC_DPB_LC_CTYPE=Latin1");
+    db.open();
+
+    QString tableName = qTableName("latin1table");
+
+    QSqlQuery q(db);
+    tst_Databases::safeDropTable(db, tableName);
+    QVERIFY2(q.exec(QString("CREATE TABLE %1(text VARCHAR(5) CHARACTER SET Latin1)").arg(tableName)), q.lastError().text());
+    QVERIFY2(q.exec(QString("INSERT INTO %1 VALUES('‰Î¸ˆÔ')").arg(tableName)), q.lastError().text());
+    QVERIFY2(q.exec(QString("SELECT text FROM %1").arg(tableName)), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).toString(), QString("‰Î¸ˆÔ"));
+    q.exec(QString("DROP TABLE %1").arg(tableName));
 }
 
 QTEST_MAIN(tst_QSqlDatabase)
