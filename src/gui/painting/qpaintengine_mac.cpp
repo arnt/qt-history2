@@ -745,7 +745,7 @@ void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, con
                                                                                    sw * sh * sizeof(uint), 0);
             cgimage = CGImageCreate(sw, sh, 8, 32, image->bytesPerLine(),
                     QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
-                    CGImageGetBitmapInfo(cgimage), dataProvider, 0, false, kCGRenderingIntentDefault);
+                    CGImageGetAlphaInfo(cgimage), dataProvider, 0, false, kCGRenderingIntentDefault);
         }
     }
     HIViewDrawCGImage(d->hd, &rect, cgimage);

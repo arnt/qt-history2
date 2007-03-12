@@ -985,13 +985,13 @@ static void qt_mac_draw_combobox(const HIRect &outerBounds, const HIThemeButtonD
         const int bwidth = 20;
         const int fwidth = 10;
         const int fheight = 10;
-        int w = outerBounds.size.width;
-        int h = outerBounds.size.height;
+        int w = qRound(outerBounds.size.width);
+        int h = qRound(outerBounds.size.height);
         int bstart = w - bwidth;
         int blower = fheight + 1;
         int flower = h - fheight;
         int sheight = flower - fheight;
-        int center = (outerBounds.size.height + outerBounds.origin.y) / 2;
+        int center = qRound(outerBounds.size.height + outerBounds.origin.y) / 2;
 
         // Draw upper and lower gap
         p->drawPixmap(fwidth, 0, bstart - fwidth, fheight, buffer, fwidth, 0, 1, fheight);
@@ -3958,7 +3958,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
         rect = opt->rect;
         rect.adjust(+1, -1, 0, -1);
         break;
-    case SE_ProgressBarLayoutItem:
+    case SE_ProgressBarLayoutItem: {
         rect = opt->rect;
         int bottom = SIZE(3, 8, 8);
         if (opt->state & State_Horizontal) {
@@ -3967,6 +3967,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
             rect.adjust(+1, 0, -bottom, 0);
         }
         break;
+    }
     case SE_PushButtonLayoutItem:
         if (const QStyleOptionButton *buttonOpt
                 = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
