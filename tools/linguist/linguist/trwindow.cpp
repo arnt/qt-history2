@@ -1091,7 +1091,6 @@ void TrWindow::doneAndNext()
     if (!m->danger()) {
         updateFinished(true);
         nextUnfinished();
-        me->setEditorFocus();
     }
     else {
         qApp->beep();
@@ -1269,13 +1268,17 @@ void TrWindow::prev()
 bool TrWindow::prev(bool checkUnfinished)
 {
     QModelIndex current = tv->currentIndex();
-    return setPrevMessage(&current, checkUnfinished);    
+    bool ok = setPrevMessage(&current, checkUnfinished);    
+    me->setEditorFocus();
+    return ok;
 }
 
 bool TrWindow::next(bool checkUnfinished)
 {
     QModelIndex current = tv->currentIndex();
-    return setNextMessage(&current, checkUnfinished);
+    bool ok = setNextMessage(&current, checkUnfinished);
+    me->setEditorFocus();
+    return ok;
 }
 
 void TrWindow::next()

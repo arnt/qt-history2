@@ -1093,7 +1093,6 @@ void MessageEditor::showMessage(const QString &text,
     editorPage->handleCommentChanges();
     editorPage->adjustTranslationFieldHeights();
     editorPage->updateCommentField();
-    setEditorFocus();
 }
 
 void MessageEditor::setNumerusForms(const QString &invariantForm, const QStringList &numerusForms)
