@@ -553,6 +553,7 @@ CFG_PRECOMPILE=auto
 CFG_SEPARATE_DEBUG_INFO=auto
 CFG_REDUCE_EXPORTS=auto
 CFG_MMX=auto
+CFG_3DNOW=auto
 CFG_SSE=auto
 CFG_SSE2=auto
 CFG_REDUCE_RELOCATIONS=no
@@ -1258,6 +1259,13 @@ while [ "$#" -gt 0 ]; do
     mmx)
         if [ "$VAL" = "no" ]; then
             CFG_MMX="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    3dnow)
+        if [ "$VAL" = "no" ]; then
+            CFG_3DNOW="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2319,6 +2327,15 @@ if [ "${CFG_MMX}" = "auto" ]; then
     fi
 fi
 
+# detect 3dnow support
+if [ "${CFG_3DNOW}" = "auto" ]; then
+    if "$unixtests/3dnow.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
+	CFG_3DNOW=no
+    else
+	CFG_3DNOW=yes
+    fi
+fi
+
 # detect sse support
 if [ "${CFG_SSE}" = "auto" ]; then
     if "$unixtests/sse.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
@@ -2605,7 +2622,7 @@ Usage:  $relconf [-prefix <dir>] [-prefix-install] [-bindir <dir>] [-libdir <dir
         [-no-make <part>] [-R <string>]  [-l <string>] [-no-rpath]  [-rpath] [-continue] 
         [-verbose] [-v] [-silent] [-no-nis] [-nis] [-no-cups] [-cups] [-no-iconv] 
         [-iconv] [-no-pch] [-pch] [-no-qdbus] [-qdbus] [-no-separate-debug-info] 
-        [-no-mmx] [-no-sse] [-no-sse2]
+        [-no-mmx] [-no-3dnow] [-no-sse] [-no-sse2]
         [-separate-debug-info] [-armfpa] [-no-optimized-qmake] [-optimized-qmake]
 
         [additional platform specific options (see below)]
@@ -2724,6 +2741,7 @@ fi
                          operating systems and compilers.
 
     -no-mmx ............ Do not compile with use of MMX instructions.
+    -no-3dnow .......... Do not compile with use of 3DNOW instructions.
     -no-sse ............ Do not compile with use of SSE instructions.
     -no-sse2 ........... Do not compile with use of SSE2 instructions.
 
@@ -4560,6 +4578,7 @@ if [ "$CFG_SEPARATE_DEBUG_INFO" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG separate_debug_info"
 fi
 [ "$CFG_MMX" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG mmx"
+[ "$CFG_3DNOW" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG 3dnow"
 [ "$CFG_SSE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sse"
 [ "$CFG_SSE2" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sse2"
 [ "$CFG_IWMMXT" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG iwmmxt"
@@ -5386,7 +5405,7 @@ echo "Qt 3 compatibility .. $CFG_QT3SUPPORT"
 echo "QtDBus module ....... $CFG_QDBUS"
 echo "STL support ......... $CFG_STL"
 echo "PCH support ......... $CFG_PRECOMPILE"
-echo "MMX/SSE/SSE2 support  ${CFG_MMX}/${CFG_SSE}/${CFG_SSE2}"
+echo "MMX/3DNOW/SSE/SSE2..  ${CFG_MMX}/${CFG_3DNOW}/${CFG_SSE}/${CFG_SSE2}"
 echo "IPv6 support ........ $CFG_IPV6"
 echo "IPv6 ifname support . $CFG_IPV6IFNAME"
 echo "getaddrinfo support . $CFG_GETADDRINFO"

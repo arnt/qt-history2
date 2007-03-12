@@ -1,0 +1,21 @@
+#!/bin/sh
+
+FVISIBILITY_SUPPORT=no
+COMPILER=$1
+VERBOSE=$2
+
+cat >>3dnow.c << EOF
+#include <mm3dnow.h>
+EOF
+
+$COMPILER -c -m3dnow 3dnow.c >/dev/null 2>&1 && MMX3DNOW_SUPPORT=yes
+rm -f mmx.c mmx.o
+
+# done
+if [ "$MMX3DNOW_SUPPORT" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "3dnow support disabled."
+    exit 0
+else
+    [ "$VERBOSE" = "yes" ] && echo "3dnow support enabled."
+    exit 1
+fi

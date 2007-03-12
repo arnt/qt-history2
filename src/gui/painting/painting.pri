@@ -147,7 +147,7 @@ x11|embedded {
 
 mac {
 
-} else:mmx|sse|sse2|iwmmxt {
+} else:mmx|3dnow|sse|sse2|iwmmxt {
 
     X86_HEADERS += painting/qdrawhelper_x86_p.h
     X86_SOURCES += painting/qdrawhelper_x86.cpp
@@ -155,6 +155,7 @@ mac {
     win32-g++|!win32 {
         x86_compiler.commands = $$QMAKE_CXX -c
         mmx: x86_compiler.commands += -mmmx
+        3dnow: x86_compiler.commands += -m3dnow
         sse:!sse2: x86_compiler.commands += -msse
         sse2: x86_compiler.commands += -msse2
         iwmmxt: x86_compiler.commands += -mcpu=iwmmxt
@@ -174,6 +175,7 @@ mac {
     sse2: DEFINES += QT_HAVE_SSE2
     sse: DEFINES += QT_HAVE_SSE
     mmx: DEFINES += QT_HAVE_MMX
+    3dnow: DEFINES += QT_HAVE_3DNOW
     iwmmxt: DEFINES += QT_HAVE_IWMMXT
 }
 

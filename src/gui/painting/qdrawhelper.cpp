@@ -4765,11 +4765,12 @@ qt_memfill32_func qt_memfill32 = qt_memfill32_setup;
 qt_memfill16_func qt_memfill16 = qt_memfill16_setup;
 
 enum CPUFeatures {
-    None = 0,
-    MMX = 0x1,
-    SSE = 0x2,
-    SSE2 = 0x4,
-    CMOV = 0x8
+    None     = 0,
+    MMX      = 0x1,
+    MMX3DNOW = 0x2,
+    SSE      = 0x4,
+    SSE2     = 0x8,
+    CMOV     = 0x10
 };
 
 static uint detectCPUFeatures() {
@@ -4780,6 +4781,7 @@ static uint detectCPUFeatures() {
 #elif defined(__IWMMXT__)
     return MMX|SSE;
 #elif defined(__i386__) || defined(_M_IX86)
+    unsigned int extended_result = 0;
     uint result = 0;
     /* see p. 118 of amd64 instruction set manual Vol3 */
 #if defined(Q_CC_GNU)
@@ -4802,6 +4804,33 @@ static uint detectCPUFeatures() {
          "pop %%ebx\n"
          "mov %%edx, %0\n"
         : "=r" (result)
+        :
+        : "%eax", "%ecx", "%edx"
+        );
+
+    asm ("push %%ebx\n"
+         "pushf\n"
+         "pop %%eax\n"
+         "mov %%eax, %%ebx\n"
+         "xor $0x00200000, %%eax\n"
+         "push %%eax\n"
+         "popf\n"
+         "pushf\n"
+         "pop %%eax\n"
+         "xor %%edx, %%edx\n"
+         "xor %%ebx, %%eax\n"
+         "jz 2f\n"
+
+         "mov $0x80000000, %%eax\n"
+         "cpuid\n"
+	 "cmp $0x80000000, %%eax\n"
+	 "jbe 2f\n"
+	 "mov $0x80000001, %%eax\n"
+	 "cpuid\n"
+         "2:\n"
+         "pop %%ebx\n"
+         "mov %%edx, %0\n"
+        : "=r" (extended_result)
         :
         : "%eax", "%ecx", "%edx"
         );
@@ -4835,6 +4864,7 @@ static uint detectCPUFeatures() {
 #endif
 
     static const bool doMMX = !qgetenv("QT_NO_MMX").toInt();
+    static const bool do3DNOW = !qgetenv("QT_NO_3DNOW").toInt();
     static const bool doSSE = !qgetenv("QT_NO_SSE").toInt();
     static const bool doSSE2 = !qgetenv("QT_NO_SSE2").toInt();
 
@@ -4844,6 +4874,8 @@ static uint detectCPUFeatures() {
         features |= CMOV;
     if (doMMX && (result & (1 << 23)))
         features |= MMX;
+    if (do3DNOW && (extended_result & (1 << 31)))
+        features |= MMX3DNOW;
     if (doSSE && (result & (1 << 25)))
         features |= SSE;
     if (doSSE2 && (result & (1 << 26)))
@@ -4853,8 +4885,6 @@ static uint detectCPUFeatures() {
     return 0;
 #endif
 }
-
-extern void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData);
 
 void qInitDrawhelperAsm()
 {
@@ -4881,16 +4911,44 @@ void qInitDrawhelperAsm()
     } else if (features & SSE) {
 //        qt_memfill32 = qt_memfill32_sse;
         qDrawHelper[QImage::Format_RGB16].bitmapBlit = qt_bitmapblit16_sse;
+#ifdef QT_HAVE_3DNOW
+        if (features & MMX3DNOW) {
+            qt_memfill32 = qt_memfill32_sse3dnow;
+            qDrawHelper[QImage::Format_RGB16].bitmapBlit = qt_bitmapblit16_sse3dnow;
+        }
 #endif
+#endif // SSE
     }
+
+#ifdef QT_HAVE_MMX
+    if (features & MMX) {
+        functionForMode = qt_functionForMode_MMX;
+        functionForModeSolid = qt_functionForModeSolid_MMX;
+        qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_mmx;
+#ifdef QT_HAVE_3DNOW
+        if (features & MMX3DNOW) {
+            functionForMode = qt_functionForMode_MMX3DNOW;
+            functionForModeSolid = qt_functionForModeSolid_MMX3DNOW;
+            qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_mmx3dnow;
+        }
+#endif // 3DNOW
+    }
+#endif // MMX
 
 #ifdef QT_HAVE_SSE
     if (features & SSE) {
         functionForMode = qt_functionForMode_SSE;
         functionForModeSolid = qt_functionForModeSolid_SSE;
         qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_sse;
+#ifdef QT_HAVE_3DNOW
+        if (features & MMX3DNOW) {
+            functionForMode = qt_functionForMode_SSE3DNOW;
+            functionForModeSolid = qt_functionForModeSolid_SSE3DNOW;
+            qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_sse3dnow;
+        }
+#endif // 3DNOW
     }
-#endif
+#endif // SSE
 #endif // QT_NO_DEBUG
 }
 
