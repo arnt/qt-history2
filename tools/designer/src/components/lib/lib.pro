@@ -1,5 +1,4 @@
 TEMPLATE = lib
-QT += script
 TARGET = QtDesignerComponents
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 CONFIG += qt depend_prl no_objective_c
