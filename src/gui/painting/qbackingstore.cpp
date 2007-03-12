@@ -636,7 +636,11 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         delete windowSurface;
         windowSurface = qt_default_window_surface(tlw);
     }
+    toClean = static_cast<QWSWindowSurface*>(windowSurface)->dirtyRegion();
+#else
+    toClean = dirty;
 #endif
+
     if (windowSurface->geometry() != tlwRect) {
         if (windowSurface->geometry().size() != tlwRect.size()) {
             toClean = QRect(QPoint(0, 0), tlwRect.size());
@@ -648,12 +652,6 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #endif
         }
         windowSurface->setGeometry(tlwRect);
-    } else {
-#ifdef Q_WS_QWS
-        toClean = static_cast<QWSWindowSurface*>(windowSurface)->dirtyRegion();
-#else
-        toClean = dirty;
-#endif
     }
 #ifdef Q_WS_QWS
     tlwOffset = static_cast<QWSWindowSurface*>(windowSurface)->painterOffset();
