@@ -700,17 +700,17 @@ static bool resolveOpenGLSymbols()
 {
     if (ptrCGLChoosePixelFormat == 0) {
         QLibrary library(QLatin1String("/System/Library/Frameworks/OpenGL.framework/OpenGl"));
-        ptrCGLChoosePixelFormat = reinterpret_cast<PtrCGLChoosePixelFormat>(library.resolve("CGLChoosePixelFormat"));
-        ptrCGLClearDrawable = reinterpret_cast<PtrCGLClearDrawable>(library.resolve("CGLClearDrawable"));
-        ptrCGLCreateContext = reinterpret_cast<PtrCGLCreateContext>(library.resolve("CGLCreateContext"));
-        ptrCGLDestroyContext = reinterpret_cast<PtrCGLDestroyContext>(library.resolve("CGLDestroyContext"));        
-        ptrCGLDestroyPixelFormat = reinterpret_cast<PtrCGLDestroyPixelFormat>(library.resolve("CGLDestroyPixelFormat"));
-        ptrCGLSetCurrentContext = reinterpret_cast<PtrCGLSetCurrentContext>(library.resolve("CGLSetCurrentContext"));
-        ptrCGLSetFullScreen = reinterpret_cast<PtrCGLSetFullScreen>(library.resolve("CGLSetFullScreen"));
-        ptrglFinish = reinterpret_cast<PtrglFinish>(library.resolve("glFinish"));
-        ptrglPixelStorei = reinterpret_cast<PtrglPixelStorei>(library.resolve("glPixelStorei"));
-        ptrglReadBuffer = reinterpret_cast<PtrglReadBuffer>(library.resolve("glReadBuffer"));
-        ptrglReadPixels = reinterpret_cast<PtrglReadPixels>(library.resolve("glReadPixels"));
+        ptrCGLChoosePixelFormat = (PtrCGLChoosePixelFormat)(library.resolve("CGLChoosePixelFormat"));
+        ptrCGLClearDrawable = (PtrCGLClearDrawable)(library.resolve("CGLClearDrawable"));
+        ptrCGLCreateContext = (PtrCGLCreateContext)(library.resolve("CGLCreateContext"));
+        ptrCGLDestroyContext = (PtrCGLDestroyContext)(library.resolve("CGLDestroyContext"));        
+        ptrCGLDestroyPixelFormat = (PtrCGLDestroyPixelFormat)(library.resolve("CGLDestroyPixelFormat"));
+        ptrCGLSetCurrentContext = (PtrCGLSetCurrentContext)(library.resolve("CGLSetCurrentContext"));
+        ptrCGLSetFullScreen = (PtrCGLSetFullScreen)(library.resolve("CGLSetFullScreen"));
+        ptrglFinish = (PtrglFinish)(library.resolve("glFinish"));
+        ptrglPixelStorei = (PtrglPixelStorei)(library.resolve("glPixelStorei"));
+        ptrglReadBuffer = (PtrglReadBuffer)(library.resolve("glReadBuffer"));
+        ptrglReadPixels = (PtrglReadPixels)(library.resolve("glReadPixels"));
      }
 
     return ptrCGLChoosePixelFormat && ptrCGLClearDrawable && ptrCGLCreateContext 
@@ -796,9 +796,10 @@ static void qt_mac_grabDisplayRect(CGDirectDisplayID display, const QRect &displ
 // Returns a pixmap containing the screen contents at rect.
 static QPixmap qt_mac_grabScreenRect(const QRect &rect)
 {
-    if (resolveOpenGLSymbols() == false)
+    if (QSysInfo::MacintoshVersion < QSysInfo::MV_10_4 && resolveOpenGLSymbols() == false)
         return QPixmap();
 
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
     const int maxDisplays = 128; // 128 displays should be enough for everyone.
     CGDirectDisplayID displays[maxDisplays];
     CGDisplayCount displayCount;
@@ -815,19 +816,20 @@ static QPixmap qt_mac_grabScreenRect(const QRect &rect)
     for (uint i = 0; i < displayCount; ++i) {
         const CGRect bounds = CGDisplayBounds(displays[i]);
         // Translate to display-local coordinates
-        QRect displayRect = rect.translated(-bounds.origin.x, -bounds.origin.y);
+        QRect displayRect = rect.translated(qRound(-bounds.origin.x), qRound(-bounds.origin.y));
         // Adjust for inverted y axis.
-        displayRect.moveTop(bounds.size.height - displayRect.y() - rect.height());
+        displayRect.moveTop(qRound(bounds.size.height) - displayRect.y() - rect.height());
         qt_mac_grabDisplayRect(displays[i], displayRect, buffer.data());
     }
     
     qt_mac_swizzlePixmap(buffer.data(), bytewidth, rect.height());
    
-    QCFType<CGColorSpaceRef> cSpace = CGColorSpaceCreateWithName (kCGColorSpaceGenericRGB);
+    QCFType<CGColorSpaceRef> cSpace = CGColorSpaceCreateWithName(kCGColorSpaceUserRGB);
     QCFType<CGContextRef> bitmap = CGBitmapContextCreate(buffer.data(), rect.width(), rect.height(), 8, bytewidth,
                                                          cSpace, kCGImageAlphaNoneSkipFirst);
     QCFType<CGImageRef> image = CGBitmapContextCreateImage(bitmap);
-    return QPixmap::fromMacCGImageRef(image);
+    return QPixmap::fromMacCGImageRef(image)
+#endif
 }
 
 QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
