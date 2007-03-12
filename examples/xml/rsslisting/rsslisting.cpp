@@ -48,7 +48,7 @@ RSSListing::RSSListing(QWidget *parent)
     : QWidget(parent)
 {
     lineEdit = new QLineEdit(this);
-    lineEdit->setText("http://planetkde.org/rss20");
+    lineEdit->setText("http://labs.trolltech.com/blogs/feed");
 
     fetchButton = new QPushButton(tr("Fetch"), this);
     abortButton = new QPushButton(tr("Abort"), this);
