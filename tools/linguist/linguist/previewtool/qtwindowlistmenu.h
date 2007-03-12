@@ -24,26 +24,9 @@ class QString;
 class QWorkspace;
 class QAction;
 
-#if defined(Q_WS_WIN)
-#  if !defined(QT_QTWINDOWLISTMENU_EXPORT) && !defined(QT_QTWINDOWLISTMENU_IMPORT)
-#    define QT_QTWINDOWLISTMENU_EXPORT
-#  elif defined(QT_QTWINDOWLISTMENU_IMPORT)
-#    if defined(QT_QTWINDOWLISTMENU_EXPORT)
-#      undef QT_QTWINDOWLISTMENU_EXPORT
-#    endif
-#    define QT_QTWINDOWLISTMENU_EXPORT __declspec(dllimport)
-#  elif defined(QT_QTWINDOWLISTMENU_EXPORT)
-#    undef QT_QTWINDOWLISTMENU_EXPORT
-#    define QT_QTWINDOWLISTMENU_EXPORT __declspec(dllexport)
-#  endif
-#else
-#  define QT_QTWINDOWLISTMENU_EXPORT
-#endif
-
-class QT_QTWINDOWLISTMENU_EXPORT QtWindowListMenu : public QMenu
+class QtWindowListMenu : public QMenu
 {
     Q_OBJECT
-
 public:
 	QtWindowListMenu(QWorkspace *workspace, QWidget *parent = 0, const char *name = 0);
 	QAction *addTo(const QString &text, QMenuBar *menubar, int idx = -1);
