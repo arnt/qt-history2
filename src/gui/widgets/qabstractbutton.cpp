@@ -1308,7 +1308,8 @@ updates to the button states monitored with the
     \property QAbstractButton::iconSize
     \brief the icon size used for this button.
 
-    The default size is defined by the GUI style.
+    The default size is defined by the GUI style. This is a maximum
+    size for the icons. Smaller icons will not be scaled up.
 */
 
 QSize QAbstractButton::iconSize() const

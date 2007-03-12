@@ -1417,7 +1417,9 @@ void QComboBox::setMinimumContentsLength(int characters)
     \property QComboBox::iconSize
     \brief the size of the icons shown in the combobox.
 
-    Unless explicitly set this returns the default value of the current style.
+    Unless explicitly set this returns the default value of the
+    current style.  This size is the maximum size that icons can have;
+    icons of smaller size are not scaled up.
 */
 
 QSize QComboBox::iconSize() const

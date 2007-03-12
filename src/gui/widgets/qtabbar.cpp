@@ -921,7 +921,9 @@ void QTabBar::setCurrentIndex(int index)
     \brief The size for icons in the tab bar
     \since 4.1
 
-    The default value is style-dependent.
+    The default value is style-dependent. \c iconSize is a maximum
+    size; icons that are smaller are not scaled up.
+
     \sa QTabWidget::iconSize
 */
 QSize QTabBar::iconSize() const

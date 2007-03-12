@@ -1034,7 +1034,9 @@ void QTabWidget::paintEvent(QPaintEvent *)
     \brief The size for icons in the tab bar
     \since 4.2
 
-    The default value is style-dependent.
+    The default value is style-dependent. This is the maximum size
+    that the icons will have. Icons are not scaled up if they are of
+    smaller size.
 
     \sa QTabBar::iconSize
 */

@@ -295,6 +295,8 @@ QMainWindow::~QMainWindow()
     \brief size of toolbar icons in this mainwindow.
 
     The default is the default tool bar icon size of the GUI style.
+    Note that the icons used must be at least of this size as the
+    icons are only scaled down.
 */
 
 /*!

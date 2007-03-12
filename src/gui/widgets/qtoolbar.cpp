@@ -494,7 +494,9 @@ Qt::Orientation QToolBar::orientation() const
     \brief size of icons in the toolbar.
 
     The default size is determined by the application's style and is
-    derived from the QStyle::PM_ToolBarIconSize pixel metric.
+    derived from the QStyle::PM_ToolBarIconSize pixel metric. It is
+    the maximum size an icon can have. Icons of smaller size will not
+    be scaled up.
 */
 
 QSize QToolBar::iconSize() const
