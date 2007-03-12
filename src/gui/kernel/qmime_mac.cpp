@@ -39,6 +39,8 @@
 #include "qmap.h"
 #include <private/qt_mac_p.h>
 
+extern CGImageRef qt_mac_createCGImageFromQImage(const QImage &img, const QImage **imagePtr = 0); // qpaintengine_mac.cpp
+
 typedef QList<QMacPasteboardMime*> MimeList;
 Q_GLOBAL_STATIC(MimeList, globalMimeList)
 
@@ -344,11 +346,11 @@ QVariant QMacPasteboardMimePict::convertToMime(const QString &mime, QList<QByteA
 
     if(!canConvert(mime, flav))
         return ret;
-    QByteArray &a = data.first();
+    const QByteArray &a = data.first();
 
     // This function expects the 512 header (just to skip it, so create the extra space for it).
     Handle pic = NewHandle(a.size() + 512);
-    memcpy(*pic + 512, a.data(), a.size());
+    memcpy(*pic + 512, a.constData(), a.size());
 
     GraphicsImportComponent graphicsImporter;
     ComponentResult result = OpenADefaultComponent(GraphicsImporterComponentType,
@@ -375,15 +377,14 @@ QList<QByteArray> QMacPasteboardMimePict::convertFromMime(const QString &mime, Q
 
     if (!canConvert(mime, flav))
         return ret;
-    QImage img = qvariant_cast<QImage>(variant);
+    QCFType<CGImageRef> cgimage = qt_mac_createCGImageFromQImage(qvariant_cast<QImage>(variant));
     Handle pic = NewHandle(0);
-    QPixmap px = QPixmap::fromImage(img);
     GraphicsExportComponent graphicsExporter;
     ComponentResult result = OpenADefaultComponent(GraphicsExporterComponentType,
                                                    kQTFileTypePicture, &graphicsExporter);
     if (!result) {
         unsigned long sizeWritten;
-        result = ptrGraphicsExportSetInputCGImage(graphicsExporter, CGImageRef(px.macCGHandle()));
+        result = ptrGraphicsExportSetInputCGImage(graphicsExporter, cgimage);
         if (!result)
             result = ptrGraphicsExportSetOutputHandle(graphicsExporter, pic);
         if (!result)
@@ -394,8 +395,9 @@ QList<QByteArray> QMacPasteboardMimePict::convertFromMime(const QString &mime, Q
 
     int size = GetHandleSize((Handle)pic);
     // Skip the Picture File header (512 bytes) and feed the raw data
-    QByteArray ar = QByteArray::fromRawData(reinterpret_cast<char *>(*pic + 512), size - 512);
+    QByteArray ar(reinterpret_cast<char *>(*pic + 512), size - 512);
     ret.append(ar);
+    DisposeHandle(pic);
     return ret;
 }
 #endif
@@ -433,15 +435,7 @@ QString QMacPasteboardMimeTiff::mimeFor(QString flav)
 
 bool QMacPasteboardMimeTiff::canConvert(const QString &mime, QString flav)
 {
-    if(flav == QLatin1String("public.tiff") && mime == QLatin1String("application/x-qt-image")) {
-        QByteArray ba;
-        QBuffer buffer(&ba);
-        buffer.open(QIODevice::ReadWrite);
-        QImageWriter writer(&buffer, "tiff");
-        QImageReader reader(&buffer, "tiff");
-        return reader.canRead() && writer.canWrite();
-    }
-    return false;
+    return flav == QLatin1String("public.tiff") && mime == QLatin1String("application/x-qt-image");
 }
 
 QVariant QMacPasteboardMimeTiff::convertToMime(const QString &mime, QList<QByteArray> data, QString flav)
@@ -451,10 +445,38 @@ QVariant QMacPasteboardMimeTiff::convertToMime(const QString &mime, QList<QByteA
     QVariant ret;
     if (!canConvert(mime, flav))
         return ret;
-    QByteArray a = data.first();
-    QBuffer buffer(&a);
-    QImageReader img_reader(&buffer, "tiff");
-    ret = QVariant(img_reader.read());
+    const QByteArray &a = data.first();
+    QCFType<CGImageRef> image;
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+        QCFType<CFDataRef> data = CFDataCreateWithBytesNoCopy(0,
+                                                    reinterpret_cast<const UInt8 *>(a.constData()),
+                                                    a.size(), kCFAllocatorNull);
+        QCFType<CGImageSourceRef> imageSource = CGImageSourceCreateWithData(data, 0);
+        image = CGImageSourceCreateImageAtIndex(imageSource, 0, 0);
+    } else
+#endif
+    {
+#ifndef __LP64__
+        if (resolveMimeQuickTimeSymbols()) {
+            Handle tiff = NewHandle(a.size());
+            memcpy(*tiff, a.constData(), a.size());
+            GraphicsImportComponent graphicsImporter;
+            ComponentResult result = OpenADefaultComponent(GraphicsImporterComponentType,
+                                                           kQTFileTypeTIFF, &graphicsImporter);
+            if (!result)
+                result = ptrGraphicsImportSetDataHandle(graphicsImporter, tiff);
+            if (!result)
+                result = ptrGraphicsImportCreateCGImage(graphicsImporter, &image,
+                                                     kGraphicsImportCreateCGImageUsingCurrentSettings);
+            CloseComponent(graphicsImporter);
+            DisposeHandle(tiff);
+        }
+#endif
+    }
+
+    if (image != 0)
+        ret = QVariant(QImage(QPixmap::fromMacCGImageRef(image)));
     return ret;
 }
 
@@ -465,12 +487,59 @@ QList<QByteArray> QMacPasteboardMimeTiff::convertFromMime(const QString &mime, Q
         return ret;
 
     QImage img = qvariant_cast<QImage>(variant);
-
-    QByteArray ar;
-    QBuffer buffer(&ar);
-    QImageWriter img_writer(&buffer, "tiff");
-    if (img_writer.write(img))
+    QCFType<CGImageRef> cgimage = qt_mac_createCGImageFromQImage(img);
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+        QCFType<CFMutableDataRef> data = CFDataCreateMutable(0, 0);
+        QCFType<CGImageDestinationRef> imageDestination = CGImageDestinationCreateWithData(data, kUTTypeTIFF, 1, 0);
+        if (imageDestination != 0) {
+            CFTypeRef keys[2];
+            QCFType<CFTypeRef> values[2];
+            QCFType<CFDictionaryRef> options;
+            keys[0] = kCGImagePropertyPixelWidth;
+            keys[1] = kCGImagePropertyPixelHeight;
+            int width = img.width();
+            int height = img.height();
+            values[0] = CFNumberCreate(0, kCFNumberIntType, &width);
+            values[1] = CFNumberCreate(0, kCFNumberIntType, &height);
+            options = CFDictionaryCreate(0, reinterpret_cast<const void **>(keys),
+                                         reinterpret_cast<const void **>(values), 2,
+                                         &kCFTypeDictionaryKeyCallBacks,
+                                         &kCFTypeDictionaryValueCallBacks);
+            CGImageDestinationAddImage(imageDestination, cgimage, options);
+            CGImageDestinationFinalize(imageDestination);
+        }
+        QByteArray ar(CFDataGetLength(data), 0);
+        CFDataGetBytes(data,
+                CFRangeMake(0, ar.size()),
+                reinterpret_cast<UInt8 *>(ar.data()));
         ret.append(ar);
+    } else
+#endif
+    {
+#ifndef __LP64__
+        Handle tiff = NewHandle(0);
+        if (resolveMimeQuickTimeSymbols()) {
+            GraphicsExportComponent graphicsExporter;
+            ComponentResult result = OpenADefaultComponent(GraphicsExporterComponentType,
+                                                           kQTFileTypeTIFF, &graphicsExporter);
+            if (!result) {
+                unsigned long sizeWritten;
+                result = ptrGraphicsExportSetInputCGImage(graphicsExporter, cgimage);
+                if (!result)
+                    result = ptrGraphicsExportSetOutputHandle(graphicsExporter, tiff);
+                if (!result)
+                    result = ptrGraphicsExportDoExport(graphicsExporter, &sizeWritten);
+
+                CloseComponent(graphicsExporter);
+            }
+        }
+        int size = GetHandleSize((Handle)tiff);
+        QByteArray ar(reinterpret_cast<char *>(*tiff), size);
+        ret.append(ar);
+        DisposeHandle(tiff);
+#endif
+    }
     return ret;
 }
 

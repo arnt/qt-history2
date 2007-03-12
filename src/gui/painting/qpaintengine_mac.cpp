@@ -671,15 +671,8 @@ static void drawImageReleaseData (void *info, const void *, size_t)
     delete static_cast<QImage *>(info);
 }
 
-void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
-                                         Qt::ImageConversionFlags flags)
+CGImageRef qt_mac_createCGImageFromQImage(const QImage &img, const QImage **imagePtr = 0)
 {
-    Q_D(QCoreGraphicsPaintEngine);
-    Q_UNUSED(flags);
-    Q_ASSERT(isActive());
-    if (img.isNull())
-        return;
-
     const QImage *image = &img;
     QImage *newImage = 0;
     if (img.depth() != 32) {
@@ -712,17 +705,33 @@ void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, con
                                                           image->bits(),
                                                           image->numBytes(),
                                                           drawImageReleaseData);
-    QCFType<CGImageRef> cgimage = CGImageCreate(image->width(), image->height(), 8, 32,
+    if (imagePtr)
+        *imagePtr = image;
+    return CGImageCreate(image->width(), image->height(), 8, 32,
                                         image->bytesPerLine(),
                                         QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
                                         cgflags, dataProvider, 0, false, kCGRenderingIntentDefault);
 
-   CGRect rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
-   if ((QRectF(0, 0, img.width(), img.height()) != sr)) {
+}
+
+
+void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
+                                         Qt::ImageConversionFlags flags)
+{
+    Q_D(QCoreGraphicsPaintEngine);
+    Q_UNUSED(flags);
+    Q_ASSERT(isActive());
+    if (img.isNull())
+        return;
+
+    const QImage *image;
+    QCFType<CGImageRef> cgimage = qt_mac_createCGImageFromQImage(img, &image);
+    CGRect rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
+    if ((QRectF(0, 0, img.width(), img.height()) != sr)) {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
         if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
             cgimage = CGImageCreateWithImageInRect(cgimage, CGRectMake(sr.x(), sr.y(),
-                                                                       sr.width(), sr.height()));
+                        sr.width(), sr.height()));
         } else
 #endif
         {
@@ -732,12 +741,13 @@ void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, con
             int sh = qRound(sr.height());
             // Make another CGImage based on the part that we need.
             const uchar *pantherData = image->scanLine(sy) + sx * sizeof(uint);
-            dataProvider = CGDataProviderCreateWithData(0, pantherData, sw * sh * sizeof(uint), 0);
+            QCFType<CGDataProviderRef> dataProvider = CGDataProviderCreateWithData(0, pantherData,
+                                                                                   sw * sh * sizeof(uint), 0);
             cgimage = CGImageCreate(sw, sh, 8, 32, image->bytesPerLine(),
-                                    QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
-                                    cgflags, dataProvider, 0, false, kCGRenderingIntentDefault);
+                    QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
+                    CGImageGetBitmapInfo(cgimage), dataProvider, 0, false, kCGRenderingIntentDefault);
         }
-   }
+    }
     HIViewDrawCGImage(d->hd, &rect, cgimage);
 }
 
