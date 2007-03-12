@@ -108,8 +108,6 @@ void RSSListing::fetch()
     abortButton->setEnabled(true);
     treeWidget->clear();
 
-    lastItemCreated = 0;
-
     xml.clear();
 
     QUrl url(lineEdit->text());
@@ -180,13 +178,10 @@ void RSSListing::parseXml()
         } else if (xml.isEndElement()) {
             if (xml.name() == "item") {
 
-                QTreeWidgetItem *item;
-
-                item = new QTreeWidgetItem(treeWidget, lastItemCreated);
+                QTreeWidgetItem *item = new QTreeWidgetItem;
                 item->setText(0, titleString);
                 item->setText(1, linkString);
-
-                lastItemCreated = item;
+                treeWidget->addTopLevelItem(item);
 
                 titleString.clear();
                 linkString.clear();

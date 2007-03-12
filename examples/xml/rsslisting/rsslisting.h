@@ -47,7 +47,6 @@ private:
 
     QLineEdit *lineEdit;
     QTreeWidget *treeWidget;
-    QTreeWidgetItem *lastItemCreated;
     QPushButton *abortButton;
     QPushButton *fetchButton;
 };
