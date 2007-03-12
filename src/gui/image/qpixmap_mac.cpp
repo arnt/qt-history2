@@ -828,7 +828,7 @@ static QPixmap qt_mac_grabScreenRect(const QRect &rect)
     QCFType<CGContextRef> bitmap = CGBitmapContextCreate(buffer.data(), rect.width(), rect.height(), 8, bytewidth,
                                                          cSpace, kCGImageAlphaNoneSkipFirst);
     QCFType<CGImageRef> image = CGBitmapContextCreateImage(bitmap);
-    return QPixmap::fromMacCGImageRef(image)
+    return QPixmap::fromMacCGImageRef(image);
 #endif
 }
 
