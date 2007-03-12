@@ -7465,6 +7465,9 @@ void QWidget::scroll(int dx, int dy)
         return;
 
     Q_D(QWidget);
+#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
+    d->setDirtyOpaqueRegion();
+#endif
     d->scroll_sys(dx, dy);
 }
 
