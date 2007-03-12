@@ -31,6 +31,8 @@ struct CustomType
 };
 Q_DECLARE_METATYPE(CustomType)
 
+Q_DECLARE_METATYPE(QBrush*)
+
 class MyQObject : public QObject
 {
     Q_OBJECT
@@ -119,7 +121,7 @@ public:
 
     QBrush brushProperty() const
         { return m_brushValue; }
-    void setBrushProperty(const QBrush &value)
+    Q_INVOKABLE void setBrushProperty(const QBrush &value)
         { m_brushValue = value; }
 
     double hiddenProperty() const
@@ -480,6 +482,26 @@ void tst_QScriptExtQObject::getSetStaticProperty()
     QCOMPARE(m_engine->evaluate("myObject.readOnlyProperty = 654;"
                                 "myObject.readOnlyProperty").toInt32(), 987);
     QCOMPARE(m_myObject->readOnlyProperty(), 987);
+
+    // auto-dereferencing of pointers
+    {
+        QBrush b = QColor(0xCA, 0xFE, 0xBA, 0xBE);
+        QBrush *bp = &b;
+        QScriptValue bpValue = m_engine->newVariant(qVariantFromValue(bp));
+        m_engine->globalObject().setProperty("brushPointer", bpValue);
+        {
+            QScriptValue ret = m_engine->evaluate("myObject.setBrushProperty(brushPointer)");
+            QCOMPARE(ret.isUndefined(), true);
+            QCOMPARE(qscriptvalue_cast<QBrush>(m_engine->evaluate("myObject.brushProperty")), b);
+        }
+        {
+            b = QColor(0xDE, 0xAD, 0xBE, 0xEF);
+            QScriptValue ret = m_engine->evaluate("myObject.brushProperty = brushPointer");
+            QCOMPARE(ret.strictEqualTo(bpValue), true);
+            QCOMPARE(qscriptvalue_cast<QBrush>(m_engine->evaluate("myObject.brushProperty")), b);
+        }
+        m_engine->globalObject().setProperty("brushPointer", QScriptValue());
+    }
 }
 
 void tst_QScriptExtQObject::getSetDynamicProperty()

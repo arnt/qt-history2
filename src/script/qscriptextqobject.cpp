@@ -79,6 +79,11 @@ static inline QVariant variantFromValue(int targetType, const QScriptValueImpl &
             v.convert(QVariant::Type(targetType));
             return v;
         }
+        QByteArray typeName = v.typeName();
+        if (typeName.endsWith('*')
+            && (QMetaType::type(typeName.left(typeName.size()-1)) == targetType)) {
+            return QVariant(targetType, *reinterpret_cast<void* *>(v.data()));
+        }
     }
 
     return QVariant();
@@ -814,10 +819,17 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                 argIsVariant.setBit(1 + i, false);
                 converted = eng_p->convert(arg, atype, v.data());
                 if (!converted && arg.isVariant()) {
-                    QVariant vv = arg.toVariant();
+                    QVariant &vv = arg.variantValue();
                     if (vv.canConvert(QVariant::Type(atype))) {
                         v = vv;
                         converted = v.convert(QVariant::Type(atype));
+                    } else {
+                        QByteArray vvTypeName = vv.typeName();
+                        if (vvTypeName.endsWith('*')
+                            && (vvTypeName.left(vvTypeName.size()-1) == argTypeName)) {
+                            v = QVariant(atype, *reinterpret_cast<void* *>(vv.data()));
+                            converted = true;
+                        }
                     }
                 }
             }
