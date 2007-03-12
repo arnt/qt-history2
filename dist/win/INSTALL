@@ -13,7 +13,7 @@ installation instructions provided instead of the ones in this document.
     For the open source version you do not need a license file.
 
 2.  Uncompress the files into the directory you want Qt installed,
-    e.g. C:\Qt\%VERSION%. 
+    e.g. C:\Qt\%VERSION%.
 
     NOTE: The install path must not contain any spaces.
 
@@ -39,6 +39,11 @@ installation instructions provided instead of the ones in this document.
         configure
 
     Type "configure -help" to get a list of all available options.
+
+    If you are using the "-direct3d" option, make sure that you have
+    the Direct3D SDK installed, and that you have run the
+    %DXSDK_DIR%\Utilities\Bin\dx_setenv.cmd command, before attempting
+    to run configure.
 
     The actual commands needed to build Qt depends on your development
     system. For Microsoft Visual Studio to create the library and

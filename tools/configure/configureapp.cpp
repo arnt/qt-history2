@@ -1151,7 +1151,7 @@ bool Configure::displayHelp()
         desc("MMX", "no",       "-no-mmx",              "Do not compile with use of MMX instructions");
         desc("SSE", "no",       "-no-sse",              "Do not compile with use of SSE instructions");
         desc("SSE2", "no",      "-no-sse2",             "Do not compile with use of SSE2 instructions");
-        desc("DIRECT3D", "yes",  "-direct3d",           "Compile in Direct3D support (experimental)");
+        desc("DIRECT3D", "yes",  "-direct3d",           "Compile in Direct3D support (experimental - see INSTALL for more info)");
         desc("OPENSSL", "no",    "-no-openssl",         "Do not compile in OpenSSL support");
         desc("OPENSSL", "yes",   "-openssl",            "Compile in OpenSSL support");
 
