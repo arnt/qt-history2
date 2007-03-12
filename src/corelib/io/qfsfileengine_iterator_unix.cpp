@@ -54,8 +54,10 @@ void QFSFileEngineIterator::advance()
         ::closedir(platform->dir);
         platform->dir = 0;
         platform->done = true;
+#if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
         delete [] platform->mt_file;
         platform->mt_file = 0;
+#endif
     }
 }
 
@@ -68,8 +70,10 @@ void QFSFileEngineIterator::deletePlatformSpecifics()
 {
     if (platform->dir) {
         ::closedir(platform->dir);
+#if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
         delete [] platform->mt_file;
         platform->mt_file = 0;
+#endif
     }
     delete platform;
     platform = 0;
@@ -86,9 +90,11 @@ bool QFSFileEngineIterator::hasNext() const
             long maxPathName = ::pathconf(QFile::encodeName(path()).data(), _PC_NAME_MAX);
             if (maxPathName == -1)
                 maxPathName = (sizeof(dirent) + MAXNAMLEN + 1);
+#if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
             if (that->platform->mt_file)
                 delete [] that->platform->mt_file;
             that->platform->mt_file = (dirent *)new char[maxPathName];
+#endif
 
             that->advance();
         }
