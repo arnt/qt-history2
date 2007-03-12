@@ -308,6 +308,7 @@ public:
         : clip(0),
           m_hdc(0),
           m_bitmap(0),
+          m_null_bitmap(0),
           m_width(0),
           m_height(0),
           m_buffer(0)
@@ -377,6 +378,7 @@ private:
 #if defined(Q_WS_WIN)
     HDC m_hdc;
     HBITMAP m_bitmap;
+    HBITMAP m_null_bitmap;
 #endif
 
     int m_width;

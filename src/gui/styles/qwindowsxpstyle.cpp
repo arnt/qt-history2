@@ -292,9 +292,12 @@ void QWindowsXPStylePrivate::init(bool force)
 */
 void QWindowsXPStylePrivate::cleanup(bool force)
 {
-    if(bufferBitmap)
+    if(bufferBitmap) {
+        if (bufferDC && nullBitmap)
+            SelectObject(bufferDC, nullBitmap);
         DeleteObject(bufferBitmap);
-    bufferBitmap = 0;
+        bufferBitmap = 0;
+    }
 
     if(bufferDC)
         DeleteDC(bufferDC);

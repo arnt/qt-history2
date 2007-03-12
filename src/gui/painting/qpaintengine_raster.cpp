@@ -3383,6 +3383,8 @@ QRasterBuffer::~QRasterBuffer()
     if (m_bitmap || m_hdc) {
         Q_ASSERT(m_hdc);
         Q_ASSERT(m_bitmap);
+        if (m_null_bitmap)
+            SelectObject(m_hdc, m_null_bitmap);
         DeleteObject(m_hdc);
         DeleteObject(m_bitmap);
     }
@@ -3494,6 +3496,8 @@ void QRasterBuffer::prepareBuffer(int width, int height)
     if (m_bitmap || m_hdc) {
         Q_ASSERT(m_hdc);
         Q_ASSERT(m_bitmap);
+        if (m_null_bitmap)
+            SelectObject(m_hdc, m_null_bitmap);
         DeleteObject(m_hdc);
         DeleteObject(m_bitmap);
     }
@@ -3507,7 +3511,7 @@ void QRasterBuffer::prepareBuffer(int width, int height)
     Q_ASSERT(m_buffer);
     GdiFlush();
 
-    SelectObject(m_hdc, m_bitmap);
+    m_null_bitmap = (HBITMAP)SelectObject(m_hdc, m_bitmap);
     ReleaseDC(0, displayDC);
 }
 #elif defined(Q_WS_X11)
