@@ -29,12 +29,12 @@
     \skipto /QMainWindow/
     \printuntil /setCentralWidget/
 
-    Unlike the window managers for top-level windows,
-    all window flags (Qt::WindowFlags) are supported by QMdiArea as
-    long as the flags are supported by the current widget style. If a
-    specific flag is not supported by the style (e.g., the
-    \l{Qt::}{WindowShadeButtonHint}), you can programmatically set the
-    flag (e.g., by using QMdiSubWindow::showShaded()).
+    Unlike the window managers for top-level windows, all window flags
+    (Qt::WindowFlags) are supported by QMdiArea as long as the flags
+    are supported by the current widget style. If a specific flag is
+    not supported by the style (e.g., the
+    \l{Qt::}{WindowShadeButtonHint}), you can still shade the window
+    with showShaded().
 
     Subwindows in QMdiArea are instances of QMdiSubWindow. They
     are added to an MDI area with addSubWindow(). It is common to pass
@@ -47,8 +47,7 @@
 
     A subwindow becomes active when it gets the keyboard focus, or
     when setFocus() is called. The user activates a window by
-    moving focus in the usual ways, for example by clicking a window
-    or by pressing \key Tab. The MDI area emits the subWindowActivated()
+    moving focus in the usual ways. The MDI area emits the subWindowActivated()
     signal when the active window changes, and the activeSubWindow()
     function returns the active subwindow.
 
@@ -932,7 +931,7 @@ QSize QMdiArea::minimumSizeHint() const
     window state, i.e., if a widget outside the MDI area is the active
     window, no subwindow will be active. Note that if a widget in the
     window in which the MDI area lives gains focus, the window will be
-    activated. (may skip last sentence)
+    activated.
 
     \sa setActiveSubWindow(), Qt::WindowState
 */
@@ -1054,7 +1053,7 @@ void QMdiArea::closeAllSubWindows()
 /*!
     Gives the keyboard focus to the next window in the list of child
     windows.  The windows are activated in the order in which they are
-    stacked (StackingOrder).
+    created (CreationOrder).
 
     \sa activatePreviousSubWindow()
 */
@@ -1084,7 +1083,7 @@ void QMdiArea::activateNextSubWindow()
 /*!
     Gives the keyboard focus to the previous window in the list of
     child windows. The windows are activated in the order in which
-    they are stacked (StackingOrder).
+    they are created (CreationOrder).
 
     \sa activateNextSubWindow()
 */
@@ -1126,10 +1125,9 @@ void QMdiArea::activatePreviousSubWindow()
     \printto /subWindow1->show/
 
     When you create your own subwindow, you must set the
-    Qt::WA_DeleteOnClose widget attribute for the window to be
-    deleted when closed in the MDI area. If not, the window will
-    be hidden and the MDI area will not activate the next
-    subwindow.
+    Qt::WA_DeleteOnClose widget attribute if you want the window to be
+    deleted when closed in the MDI area. If not, the window will be
+    hidden and the MDI area will not activate the next subwindow.
 
     Returns the QMdiSubWindow that is added to the MDI area.
 

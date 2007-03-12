@@ -34,9 +34,7 @@
 
     You use the same API when programming with subwindows as with
     regular top-level windows (e.g., you can call functions such as
-    show(), hide(), showMaximized(), and setWindowTitle()). The
-    difference is that setWidget() instead of QWidget::setLayout()
-    sets the window contents.
+    show(), hide(), showMaximized(), and setWindowTitle()). 
 
     \section1 Subwindow Handling
 
@@ -57,11 +55,12 @@
     or is restored). It also emits aboutToActivate() before it is
     activated.
 
-    In keyboard-interactive mode, the windows are moved and
-    resized with the keyboard. You can enter this mode through the
-    system menu of the window. The keyboardSingleStep and
-    keyboardPageStep properties control the distance the widget is
-    moved or resized for each keypress event.
+    In keyboard-interactive mode, the windows are moved and resized
+    with the keyboard. You can enter this mode through the system menu
+    of the window. The keyboardSingleStep and keyboardPageStep
+    properties control the distance the widget is moved or resized for
+    each keypress event. When shift is pressed down page step is used;
+    otherwise single step is used.
 
     \sa QMdiArea
 */
@@ -1850,11 +1849,10 @@ void QMdiSubWindowPrivate::setSizeGripVisible(bool visible) const
 
 /*!
     Constructs a new QMdiSubWindow widget. The \a parent and \a
-    flags arguments are passed to QWidget's constructor. The parent of
-    the window should be a QMdiArea. If it is created without a
-    parent, it must be added to a QMdiArea before being shown.
+    flags arguments are passed to QWidget's constructor.
+    
     Instead of using addSubWindow(), it is also simply possible to
-    use setParent().
+    use setParent() when you add the subwindow to a QMdiArea.
 
     Note that only \l{QMdiSubWindow}s can be set as children of
     QMdiArea; you cannot, for instance, write:
