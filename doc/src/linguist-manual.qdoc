@@ -89,6 +89,7 @@
     \o \l{Qt Linguist Manual: Release Manager}{Release Manager}
     \o \l{Qt Linguist Manual: Translators}{Translators}
     \o \l{Qt Linguist Manual: Programmers}{Programmers}
+    \o \l{Qt Linguist Manual: TS File Format}{TS File Format}
     \endlist
 */
 
@@ -827,6 +828,7 @@
 
     \contentspage {Qt Linguist Manual}{Contents}
     \previouspage Qt Linguist Manual: Translators
+    \nextpage Qt Linguist Manual: TS File Format
 
     Support for multiple languages is extremely simple in Qt
     applications, and adds little overhead to the programmer's workload.
@@ -998,8 +1000,8 @@
         /*
             TRANSLATOR FindDialog
 
-	    Choose Edit|Find from the menu bar or press Ctrl+F to pop up the
-	    Find dialog.
+            Choose Edit|Find from the menu bar or press Ctrl+F to pop up the
+            Find dialog.
 
             ...
     \endcode
@@ -1126,4 +1128,12 @@
     where the same text translates into two different forms in the same
     context. The programmer should also include \c TRANSLATION comments to
     help the translator navigate the application.
+*/
+
+/*!
+    \page linguist-ts-file-format.html
+    \title Qt Linguist Manual: TS File Format
+
+    \contentspage {Qt Linguist Manual}{Contents}
+    \previouspage Qt Linguist Manual: Programmers
 */
