@@ -3447,9 +3447,9 @@ void QGLWidget::renderText(double x, double y, double z, const QString &str, con
     glEnable(GL_ALPHA_TEST);
     glEnable(GL_DEPTH_TEST);
 #ifndef Q_WS_QWS
-    glTranslatef(0, 0, -win_z);
-#else
     glTranslated(0, 0, -win_z);
+#else
+    glTranslatef(0, 0, -win_z);
 #endif
 
     qt_gl_draw_text(p, qRound(win_x), qRound(win_y), str, font);
