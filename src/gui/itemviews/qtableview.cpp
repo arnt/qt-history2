@@ -116,6 +116,8 @@ void QTableViewPrivate::trimHiddenSelections(QItemSelectionRange *range) const
 */
 void QTableViewPrivate::setSpan(int row, int column, int rowSpan, int columnSpan)
 {
+    if (row < 0 || column < 0 || rowSpan < 0 || columnSpan < 0)
+        return;
     Span sp(row, column, rowSpan, columnSpan);
     QList<Span>::iterator it;
     for (it = spans.begin(); it != spans.end(); ++it) {
@@ -294,9 +296,15 @@ QBitArray QTableViewPrivate::drawAndClipSpans(const QRect &area, QPainter *paint
     QList<Span>::const_iterator it;
     for (it = spans.constBegin(); it != spans.constEnd(); ++it) {
         Span span = *it;
-        for (int r = span.top(); r <= span.bottom(); ++r)
-            for (int c = span.left(); c <= span.right(); ++c)
+        for (int r = span.top(); r <= span.bottom(); ++r) {
+            if (r < 0  || r >= rowCount)
+                continue;
+            for (int c = span.left(); c <= span.right(); ++c) {
+                if (c < 0  || c >= columnCount)
+                    continue;
                 cells.setBit(r * columnCount + c);
+            }
+        }
         int row = span.top();
         int col = span.left();
         if (isHidden(row, col))
@@ -652,7 +660,7 @@ void QTableView::paintEvent(QPaintEvent *event)
     const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
     const bool rightToLeft = isRightToLeft();
-    const int columnCount = d->model->columnCount(d->root);    
+    const int columnCount = d->model->columnCount(d->root);
 
     QPainter painter(d->viewport);
 
@@ -2182,6 +2190,8 @@ bool QTableView::isIndexHidden(const QModelIndex &index) const
 void QTableView::setSpan(int row, int column, int rowSpan, int columnSpan)
 {
     Q_D(QTableView);
+    if (row < 0 || column < 0 || rowSpan < 0 || columnSpan < 0)
+        return;
     d->setSpan(row, column, rowSpan, columnSpan);
     d->viewport->update();
 }
