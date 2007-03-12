@@ -1419,7 +1419,7 @@ void HtmlGenerator::generateAnnotatedList(const Node *relative, CodeMarker *mark
         generateFullName(node, relative, marker);
         out() << "</th>";
 
-        if (!node->type() == Node::Fake) {
+        if (!(node->type() == Node::Fake)) {
             Text brief = node->doc().trimmedBriefText(name);
             if (!brief.isEmpty()) {
                 out() << "<td>";
