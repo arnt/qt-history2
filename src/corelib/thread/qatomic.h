@@ -97,14 +97,14 @@ struct QBasicAtomic {
     inline int exchange(int newval)
     { return q_atomic_set_int(&value, newval); }
 
-    inline int fetchAndAdd(int value)
-    { return q_atomic_fetch_and_add_int(&this->value, value); }
+    inline int fetchAndAdd(int aValue)
+    { return q_atomic_fetch_and_add_int(&value, aValue); }
 
-    inline int fetchAndAddAcquire(int value)
-    { return q_atomic_fetch_and_add_acquire_int(&this->value, value); }
+    inline int fetchAndAddAcquire(int aValue)
+    { return q_atomic_fetch_and_add_acquire_int(&value, aValue); }
 
-    inline int fetchAndAddRelease(int value)
-    { return q_atomic_fetch_and_add_release_int(&this->value, value); }
+    inline int fetchAndAddRelease(int aValue)
+    { return q_atomic_fetch_and_add_release_int(&value, aValue); }
 };
 
 template <typename T>
