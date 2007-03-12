@@ -364,24 +364,16 @@ void QWSWindowSurface::setDirty(const QRegion &region) const
     if (region.isEmpty())
         return;
 
-    QRegion unclipped = region;
-#ifdef QT_EXPERIMENTAL_REGIONS
-    if (!qt_region_strictContains(d_ptr->clip, region.boundingRect()))
-#endif
-    {
-        d_ptr->clippedDirty += (region - d_ptr->clip);
-        unclipped &= d_ptr->clip;
-    }
-
     const bool updatePosted = !d_ptr->dirty.isEmpty();
-
-    d_ptr->dirty += unclipped;
+    d_ptr->dirty += region & d_ptr->clip;
+    d_ptr->clippedDirty += (region - d_ptr->clip);
 
     if (updatePosted)
         return;
 
-    if (window() && !unclipped.isEmpty())
-        QApplication::postEvent(window(), new QEvent(QEvent::UpdateRequest), Qt::LowEventPriority );
+    if (window() && !d_ptr->dirty.isEmpty())
+        QApplication::postEvent(window(), new QEvent(QEvent::UpdateRequest),
+                                Qt::LowEventPriority);
 }
 
 /*!
@@ -406,7 +398,6 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
         return;
 
     QRegion expose = (clip - d_ptr->clip);
-    QRegion dirtyExpose;
     d_ptr->clip = clip;
 
 #ifndef QT_NO_QWS_MANAGER
@@ -423,6 +414,7 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
     }
 #endif
 
+    QRegion dirtyExpose;
     if (isBuffered()) {
         dirtyExpose = expose & d_ptr->clippedDirty;
         d_ptr->clippedDirty -= expose;
@@ -467,11 +459,14 @@ void QWSWindowSurface::setGeometry(const QRect &rect)
     if (rect == geometry())
         return;
 
-    QWindowSurface::setGeometry(rect);
+    const bool isResize = rect.size() != geometry().size();
+    if (!isBuffered() || isResize) {
+        d_ptr->dirty = QRegion();
+        d_ptr->clip = QRegion();
+        d_ptr->clippedDirty = QRegion();
+    }
 
-    d_ptr->dirty = QRegion();
-//    d_ptr->clip = QRegion(); // XXX
-    d_ptr->clippedDirty = QRegion();
+    QWindowSurface::setGeometry(rect);
 
     if (!window()) // XXX: if !winId()
         return;
@@ -483,7 +478,9 @@ void QWSWindowSurface::setGeometry(const QRect &rect)
     QWSManager *manager = topextra->qwsManager;
 
     if (manager) {
-        manager->d_func()->dirtyRegion(QDecoration::All, QDecoration::Normal);
+        if (!isBuffered() || isResize)
+            manager->d_func()->dirtyRegion(QDecoration::All,
+                                           QDecoration::Normal);
 
         // The frame geometry is the bounding rect of manager->region, which
         // could be too much, so we need to clip.
@@ -498,7 +495,8 @@ void QWSWindowSurface::setGeometry(const QRect &rect)
     QWidget::qwsDisplay()->requestRegion(window()->data->winid,
                                          key(), permanentState(), region);
 
-    setDirty(region.translated(-window()->geometry().topLeft()));
+    if (!isBuffered() || isResize)
+        setDirty(region.translated(-window()->geometry().topLeft()));
 }
 
 static inline void flushUpdate(QWidget *widget, const QRegion &region,
