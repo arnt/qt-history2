@@ -315,7 +315,7 @@ bool QtWindowListMenu::eventFilter(QObject *obj, QEvent *e)
 
     	QChildEvent *child_event = (QChildEvent *) e;
 	    QObject *child = child_event->child();
-    	if (child->metaObject()->className() != "QWorkspaceChild")
+    	if (qstrcmp(child->metaObject()->className(), "QWorkspaceChild"))
 	        return false;
 
         QWidget *child_widget = qobject_cast<QWidget *>(child);
