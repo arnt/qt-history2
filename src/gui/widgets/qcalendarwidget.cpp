@@ -645,13 +645,16 @@ class QCalendarTextNavigator: public QObject
     Q_OBJECT
 public:
     QCalendarTextNavigator(QObject *parent = 0)
-        : QObject(parent), m_dateText(0), m_dateFrame(0), m_dateValidator(0), m_calendar(0) { }
+        : QObject(parent), m_dateText(0), m_dateFrame(0), m_dateValidator(0), m_calendar(0), m_editDelay(1500) { }
 
+    QCalendarWidget *calendar() const;
     void setCalendar(QCalendarWidget *calendar);
     void applyDate();
     void updateDateLabel();
     void createDateLabel();
     void removeDateLabel();
+    int dateEditAcceptDelay() const;
+    void setDateEditAcceptDelay(int delay);
 
     bool eventFilter(QObject *o, QEvent *e);
     void timerEvent(QTimerEvent *e);
@@ -668,9 +671,15 @@ private:
     QBasicTimer m_acceptTimer;
     QCalendarDateValidator *m_dateValidator;
     QCalendarWidget *m_calendar;
+    int m_editDelay;
 
     QLocale m_locale;
 };
+
+QCalendarWidget *QCalendarTextNavigator::calendar() const
+{
+    return m_calendar;
+}
 
 void QCalendarTextNavigator::setCalendar(QCalendarWidget *calendar)
 {
@@ -682,7 +691,7 @@ void QCalendarTextNavigator::updateDateLabel()
     if (!m_calendar)
         return;
 
-    m_acceptTimer.start(1500, this);
+    m_acceptTimer.start(m_editDelay, this);
 
     m_dateText->setText(m_dateValidator->currentText());
 
@@ -778,6 +787,16 @@ void QCalendarTextNavigator::timerEvent(QTimerEvent *e)
         applyDate();
         removeDateLabel();
     }
+}
+
+int QCalendarTextNavigator::dateEditAcceptDelay() const
+{
+    return m_editDelay;
+}
+
+void QCalendarTextNavigator::setDateEditAcceptDelay(int delay)
+{
+    m_editDelay = delay;
 }
 
 class QCalendarView;
@@ -2005,12 +2024,7 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
 
     d->m_navigator = new QCalendarTextNavigator(this);
     d->m_navigator->setLocale(locale());
-    d->m_navigator->setCalendar(this);
-    connect(d->m_navigator, SIGNAL(changeDate(QDate,bool)),
-            this, SLOT(_q_slotChangeDate(QDate,bool)));
-    connect(d->m_navigator, SIGNAL(editingFinished()),
-            this, SLOT(_q_editingFinished()));
-    d->m_view->installEventFilter(d->m_navigator);
+    setDateEditEnabled(true);
 }
 
 /*!
@@ -2693,6 +2707,47 @@ void QCalendarWidget::setDateTextFormat(const QDate &date, const QTextCharFormat
     d->m_model->m_dateFormats[date] = format;
     d->m_view->viewport()->update();
     d->m_view->updateGeometry();
+}
+
+bool QCalendarWidget::isDateEditEnabled() const
+{
+    Q_D(const QCalendarWidget);
+    return (d->m_navigator->calendar() != 0);
+}
+
+void QCalendarWidget::setDateEditEnabled(bool enable)
+{
+    Q_D(QCalendarWidget);
+    if (isDateEditEnabled() == enable)
+        return;
+
+    if (enable) {
+        d->m_navigator->setCalendar(this);
+        connect(d->m_navigator, SIGNAL(changeDate(QDate,bool)),
+                this, SLOT(_q_slotChangeDate(QDate,bool)));
+        connect(d->m_navigator, SIGNAL(editingFinished()),
+                this, SLOT(_q_editingFinished()));
+        d->m_view->installEventFilter(d->m_navigator);
+    } else {
+        d->m_navigator->setCalendar(0);
+        disconnect(d->m_navigator, SIGNAL(changeDate(QDate,bool)),
+                this, SLOT(_q_slotChangeDate(QDate,bool)));
+        disconnect(d->m_navigator, SIGNAL(editingFinished()),
+                this, SLOT(_q_editingFinished()));
+        d->m_view->removeEventFilter(d->m_navigator);
+    }
+}
+
+int QCalendarWidget::dateEditAcceptDelay() const
+{
+    Q_D(const QCalendarWidget);
+    return d->m_navigator->dateEditAcceptDelay();
+}
+
+void QCalendarWidget::setDateEditAcceptDelay(int delay)
+{
+    Q_D(QCalendarWidget);
+    d->m_navigator->setDateEditAcceptDelay(delay);
 }
 
 /*!

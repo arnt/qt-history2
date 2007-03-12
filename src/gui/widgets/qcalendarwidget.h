@@ -44,6 +44,8 @@ class Q_GUI_EXPORT QCalendarWidget : public QWidget
     Q_PROPERTY(VerticalHeaderFormat verticalHeaderFormat READ verticalHeaderFormat WRITE setVerticalHeaderFormat)
     Q_PROPERTY(bool headerVisible READ isHeaderVisible WRITE setHeaderVisible STORED false DESIGNABLE false) // obsolete
     Q_PROPERTY(bool navigationBarVisible READ isNavigationBarVisible WRITE setNavigationBarVisible)
+    Q_PROPERTY(bool dateEditEnabled READ isDateEditEnabled WRITE setDateEditEnabled)
+    Q_PROPERTY(int dateEditAcceptDelay READ dateEditAcceptDelay WRITE setDateEditAcceptDelay)
 
 public:
     enum HorizontalHeaderFormat {
@@ -109,6 +111,12 @@ public:
     QMap<QDate, QTextCharFormat> dateTextFormat() const;
     QTextCharFormat dateTextFormat(const QDate &date) const;
     void setDateTextFormat(const QDate &date, const QTextCharFormat &color);
+
+    bool isDateEditEnabled() const;
+    void setDateEditEnabled(bool enable);
+
+    int dateEditAcceptDelay() const;
+    void setDateEditAcceptDelay(int delay);
 
 protected:
     bool event(QEvent *event);
