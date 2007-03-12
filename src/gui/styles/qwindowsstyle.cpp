@@ -1197,11 +1197,11 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             QRect r = opt->rect;
             int size = qMin(r.height(), r.width());
             QPixmap pixmap;
-            QString pixmapName = QLatin1String("$qt_ia_") + QLatin1String(metaObject()->className()) + QString::number(pe)
-                + QLatin1Char('_') + QString::number(size)
-                + QLatin1Char('_') + QString::number(opt->state & State_Enabled)
-                + QLatin1Char('_') + QString::number(opt->state & State_Sunken);
-
+            QString pixmapName;
+            pixmapName.sprintf("%s-%s-%d-%d-%d-%lld",
+                               "$qt_ia", metaObject()->className(), 
+                               uint(opt->state), pe,
+                               size, opt->palette.cacheKey());
             if (!QPixmapCache::find(pixmapName, pixmap)) {
                 int border = size/5;
                 size = 2*(size/2);
