@@ -99,7 +99,7 @@ public:
 #endif
     inline QScriptValueImpl toPrimitive(QScriptValue::TypeHint hint = QScriptValue::NoTypeHint) const;
 
-    inline QVariant variantValue() const;
+    inline QVariant &variantValue() const;
     inline void setVariantValue(const QVariant &v);
 
     bool instanceOf(const QScriptValueImpl &ctor) const;

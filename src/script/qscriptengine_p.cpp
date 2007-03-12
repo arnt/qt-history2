@@ -1183,7 +1183,14 @@ bool QScriptEnginePrivate::convert(const QScriptValueImpl &value,
         }
     }
 #endif
-    if (type == qMetaTypeId<QScriptValue>()) {
+    if (value.isVariant() && name.endsWith('*')) {
+        QByteArray typeName = name.left(name.size()-1);
+        QVariant &var = value.variantValue();
+        if (QMetaType::type(typeName) == var.userType()) {
+            *reinterpret_cast<void* *>(ptr) = var.data();
+            return true;
+        }
+    } else if (type == qMetaTypeId<QScriptValue>()) {
         *reinterpret_cast<QScriptValue*>(ptr) = value;
         return true;
     } else if (type == qMetaTypeId<QVariant>()) {

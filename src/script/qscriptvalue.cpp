@@ -679,18 +679,6 @@ void QScriptValue::setProperty(quint32 arrayIndex, const QScriptValue &value,
 }
 
 /*!
-  Sets the variant value of this QScriptValue to be the given \a
-  value. If this QScriptValue is not a variant, this function does
-  nothing.
-
-  \sa isVariant(), toVariant()
-*/
-void QScriptValue::setVariantValue(const QVariant &value)
-{
-    QScriptValuePrivate::valueOf(*this).setVariantValue(value);
-}
-
-/*!
   Calls this QScriptValue as a function, using \a thisObject as
   the `this' object in the function call, and passing \a args
   as arguments to the function. Returns the value returned from

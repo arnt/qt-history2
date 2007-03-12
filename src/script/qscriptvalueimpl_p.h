@@ -563,7 +563,7 @@ inline void QScriptValueImpl::setQObjectValue(QObject *object)
 #endif
 }
 
-inline QVariant QScriptValueImpl::variantValue() const
+inline QVariant &QScriptValueImpl::variantValue() const
 {
     Q_ASSERT(isVariant());
 

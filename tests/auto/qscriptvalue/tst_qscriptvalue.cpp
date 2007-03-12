@@ -47,6 +47,7 @@ private slots:
     void lessThan();
     void equalTo();
     void strictEqualTo();
+    void castToPointer();
 };
 
 tst_QScriptValue::tst_QScriptValue()
@@ -1282,6 +1283,43 @@ void tst_QScriptValue::strictEqualTo()
                          "cannot compare to a value created in "
                          "a different engine");
     QCOMPARE(date1.strictEqualTo(QScriptValue(&otherEngine, 123)), false);
+}
+
+Q_DECLARE_METATYPE(int*)
+Q_DECLARE_METATYPE(double*)
+Q_DECLARE_METATYPE(QColor*)
+Q_DECLARE_METATYPE(QBrush*)
+
+void tst_QScriptValue::castToPointer()
+{
+    QScriptEngine eng;
+    {
+        QScriptValue v = eng.newVariant(int(123));
+        int *ip = qscriptvalue_cast<int*>(v);
+        QVERIFY(ip != 0);
+        QCOMPARE(*ip, 123);
+        *ip = 456;
+        QCOMPARE(qscriptvalue_cast<int>(v), 456);
+
+        double *dp = qscriptvalue_cast<double*>(v);
+        QVERIFY(dp == 0);
+
+        QScriptValue v2 = eng.newVariant(qVariantFromValue(ip));
+        QCOMPARE(qscriptvalue_cast<int*>(v2), ip);
+    }
+    {
+        QColor c(123, 210, 231);
+        QScriptValue v = eng.newVariant(c);
+        QColor *cp = qscriptvalue_cast<QColor*>(v);
+        QVERIFY(cp != 0);
+        QCOMPARE(*cp, c);
+
+        QBrush *bp = qscriptvalue_cast<QBrush*>(v);
+        QVERIFY(bp == 0);
+
+        QScriptValue v2 = eng.newVariant(qVariantFromValue(cp));
+        QCOMPARE(qscriptvalue_cast<QColor*>(v2), cp);
+    }
 }
 
 QTEST_MAIN(tst_QScriptValue)

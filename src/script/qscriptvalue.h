@@ -130,8 +130,6 @@ public:
 #endif
     QScriptValue toPrimitive(TypeHint hint = NoTypeHint) const;
 
-    void setVariantValue(const QVariant &v);
-
     bool instanceOf(const QScriptValue &ctor) const;
 
     bool lessThan(const QScriptValue &other) const;
