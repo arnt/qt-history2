@@ -285,6 +285,33 @@ void tst_QTimeLine::loopCount()
     QVERIFY(timeLine.currentFrame() <= 20);
     QCOMPARE(timeLine.state(), QTimeLine::Running);
     timeLine.stop();
+
+    timeLine.setDuration(250);
+    timeLine.setFrameRange(0, 2);
+    timeLine.setLoopCount(4);
+
+    QSignalSpy finishedSpy(&timeLine, SIGNAL(finished()));
+    QSignalSpy frameChangedSpy(&timeLine, SIGNAL(frameChanged(int)));
+    QEventLoop loop;
+    connect(&timeLine, SIGNAL(finished()), &loop, SLOT(quit()));
+
+    timeLine.setCurrentTime(0);
+    timeLine.start();
+    loop.exec();
+
+    QCOMPARE(finishedSpy.count(), 1);
+    QCOMPARE(frameChangedSpy.count(), 12);
+    for (int i = 0; i < 12; ++i)
+        QCOMPARE(frameChangedSpy.at(i).at(0).toInt(), i % 3);
+
+    timeLine.setDirection(QTimeLine::Backward);
+    timeLine.start();
+    loop.exec();
+
+    QCOMPARE(finishedSpy.count(), 2);
+    QCOMPARE(frameChangedSpy.count(), 23);
+    for (int i = 12; i < 23; ++i)
+        QCOMPARE(frameChangedSpy.at(i).at(0).toInt(), 2 - (i + 1) % 3);
 }
 
 void tst_QTimeLine::interpolation()

@@ -52,6 +52,7 @@ public:
     int currentLoopCount;
 
     int currentTime;
+    int elapsedTime;
     int timerId;
     QTime timer;
 
@@ -75,30 +76,37 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
 {
     Q_Q(QTimeLine);
 
-    if (msecs == currentTime)
-        return;
-
     qreal lastValue = q->currentValue();
     int lastFrame = q->currentFrame();
 
-    currentTime = msecs;
-    while (currentTime < 0)
-        currentTime += duration;
-    bool looped = (msecs < 0 || msecs > duration);
-    currentTime %= (duration + 1);
-    if (looped)
-        ++currentLoopCount;
+    // Determine if we are looping.
+    int elapsed = (direction == QTimeLine::Backward) ? (-msecs + duration) : msecs;
+    int loopCount = ((elapsed + 1) / duration);
+    bool looping = (loopCount != currentLoopCount);
+    if (looping)
+        currentLoopCount = loopCount;
 
+    // Normalize msecs to be between 0 and duration, inclusive.
+    while (msecs < 0)
+        msecs += duration;
+    currentTime = msecs % (duration + 1);
+
+    // Check if we have reached the end of loopcount.
     bool finished = false;
-    if (totalLoopCount && looped && currentLoopCount >= totalLoopCount) {
+    if (totalLoopCount && currentLoopCount >= totalLoopCount) {
         finished = true;
         currentTime = (direction == QTimeLine::Backward) ? 0 : duration;
     }
 
+    int currentFrame = q->frameForTime(currentTime);
+
     if (lastValue != q->currentValue())
         emit q->valueChanged(q->currentValue());
-    if (lastFrame != q->currentFrame())
-        emit q->frameChanged(q->currentFrame());
+    if (lastFrame != currentFrame) {
+        if (looping && !finished)
+            emit q->frameChanged(direction == QTimeLine::Forward ? endFrame : startFrame);
+        emit q->frameChanged(currentFrame);
+    }
     if (finished) {
         q->stop();
         emit q->finished();
@@ -334,7 +342,7 @@ void QTimeLine::setDirection(Direction direction)
 
     By default, this value is 1000 (i.e., 1 second), but you can change this
     by either passing a duration to QTimeLine's constructor, or by calling
-    setDuration().
+    setDuration(). The duration must be larger than 0.
 */
 int QTimeLine::duration() const
 {
@@ -344,6 +352,10 @@ int QTimeLine::duration() const
 void QTimeLine::setDuration(int duration)
 {
     Q_D(QTimeLine);
+    if (duration <= 0) {
+        qWarning("QTimeLine::setDuration: cannot set duration <= 0");
+        return;
+    }
     d->duration = duration;
 }
 
@@ -475,6 +487,7 @@ void QTimeLine::setCurrentTime(int msec)
 {
     Q_D(QTimeLine);
     d->startTime = 0;
+    d->currentLoopCount = 0;
     d->timer.restart();
     d->setCurrentTime(msec);
 }
@@ -511,7 +524,9 @@ qreal QTimeLine::currentValue() const
 int QTimeLine::frameForTime(int msec) const
 {
     Q_D(const QTimeLine);
-    return d->startFrame + int((d->endFrame - d->startFrame) * valueForTime(msec));
+    if (d->direction == Forward)
+        return d->startFrame + int((d->endFrame - d->startFrame) * valueForTime(msec));
+    return d->startFrame + int(::ceil(double((d->endFrame - d->startFrame) * valueForTime(msec))));
 }
 
 /*!
@@ -583,14 +598,17 @@ void QTimeLine::start()
         qWarning("QTimeLine::start: already running");
         return;
     }
-    if (d->currentTime == d->duration && d->direction == Forward)
-        d->currentTime = 0;
-    else if (d->currentTime == 0 && d->direction == Backward)
-        d->currentTime = d->duration;
+    int curTime = d->currentTime;
+    if (curTime == d->duration && d->direction == Forward)
+        curTime = 0;
+    else if (curTime == 0 && d->direction == Backward)
+        curTime = d->duration;
     d->timerId = startTimer(d->updateInterval);
     d->startTime = d->currentTime;
+    d->currentLoopCount = 0;
     d->timer.start();
     d->setState(Running);
+    d->setCurrentTime(curTime);
 }
 
 /*!
