@@ -153,7 +153,7 @@ protected:
     bool event(QEvent *event);
     void resizeEvent(QResizeEvent *event);
     void paintEvent(QPaintEvent *event);
-#if defined(Q_WS_WIN)
+#if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSVISTA)
     bool winEvent(MSG * message, long * result);
 #endif
     void done(int result);

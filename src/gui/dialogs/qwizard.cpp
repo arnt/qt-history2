@@ -2168,7 +2168,7 @@ void QWizard::setWizardStyle(WizardStyle style)
         } else {
             style = ModernStyle;
             styleChange = d->wizStyle != ModernStyle;
-            aeroStyleChange = d->wizStyle == AeroStyle; 
+            aeroStyleChange = d->wizStyle == AeroStyle;
             d->aeroStyleOverride = true;
         }
     } else if (d->wizStyle == AeroStyle) {
@@ -2785,7 +2785,7 @@ void QWizard::paintEvent(QPaintEvent * event)
 #endif
 }
 
-#if !defined(QT_NO_STYLE_WINDOWSVISTA)
+#if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSVISTA)
 /*!
     \reimp
 */
