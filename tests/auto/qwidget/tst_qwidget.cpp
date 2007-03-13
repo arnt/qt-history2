@@ -3473,6 +3473,7 @@ void tst_QWidget::update()
 
 void tst_QWidget::isOpaque()
 {
+#ifndef Q_WS_MAC
     QWidget w;
     QVERIFY(QWidgetBackingStore::isOpaque(&w));
 
@@ -3536,6 +3537,7 @@ void tst_QWidget::isOpaque()
 
     w.setAttribute(Qt::WA_NoSystemBackground, false);
     QVERIFY(QWidgetBackingStore::isOpaque(&w));
+#endif
 }
 
 class DestroyedSlotChecker : public QObject
