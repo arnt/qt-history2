@@ -2144,12 +2144,15 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
             CustomBuildTool.ToolPath += Option::fixPathToTargetOS(finf.path());
         CustomBuildTool.Outputs += out;
 
-        // Make sure that all deps are only once
         deps += CustomBuildTool.AdditionalDependencies;
+        deps += cmd.left(cmd.indexOf(' '));
+        // Make sure that all deps are only once
         QMap<QString, bool> uniqDeps;
-        for (int c = 0; c < deps.count(); ++c)
-            uniqDeps[deps.at(c)] = false;
-        uniqDeps[cmd.left(cmd.indexOf(' '))] = false;
+        for (int c = 0; c < deps.count(); ++c) {
+            QString aDep = deps.at(c).trimmed();
+            if (!aDep.isEmpty())
+                uniqDeps[aDep] = false;
+        }
         CustomBuildTool.AdditionalDependencies = uniqDeps.keys();
     }
 
