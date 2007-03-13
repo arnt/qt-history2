@@ -367,15 +367,7 @@ void QThread::start(Priority priority)
 
             int prio_min = sched_get_priority_min(sched_policy);
             int prio_max = sched_get_priority_max(sched_policy);
-
-            if (prio_min == prio_max && sched_policy != SCHED_RR) {
-                // weird priority limits, try again with SCHED_RR
-                sched_policy = SCHED_RR;
-                prio_min = sched_get_priority_min(sched_policy);
-                prio_max = sched_get_priority_max(sched_policy);
-            }
-
-            if (prio_min == -1 || prio_max == -1 || prio_min == prio_max) {
+            if (prio_min == -1 || prio_max == -1) {
                 // failed to get the scheduling parameters, don't
                 // bother setting the priority
                 qWarning("QThread::start: Cannot determine scheduler priority range");
@@ -586,15 +578,7 @@ void QThread::setPriority(Priority priority)
 
     int prio_min = sched_get_priority_min(sched_policy);
     int prio_max = sched_get_priority_max(sched_policy);
-
-    if (prio_min == prio_max && sched_policy != SCHED_RR) {
-        // weird priority limits, try again with SCHED_RR
-        sched_policy = SCHED_RR;
-        prio_min = sched_get_priority_min(sched_policy);
-        prio_max = sched_get_priority_max(sched_policy);
-    }
-
-    if (prio_min == -1 || prio_max == -1 || prio_min == prio_max) {
+    if (prio_min == -1 || prio_max == -1) {
         // failed to get the scheduling parameters, don't
         // bother setting the priority
         qWarning("QThread::setPriority: Cannot determine scheduler priority range");
