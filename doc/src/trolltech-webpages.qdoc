@@ -4,6 +4,11 @@
 */
 
 /*!
+    \externalpage http://www.trolltech.com/developer/notes/platforms/bugreport-form
+    \title Bug Report Form
+*/
+
+/*!
     \externalpage http://www.trolltech.com/products/qt/3rdparty/tools
     \title Third-Party Tools
 */
@@ -16,6 +21,11 @@
 /*!
     \externalpage http://www.trolltech.com/developer/documentation/books
     \title Books about Qt Programming
+*/
+
+/*!
+    \externalpage http://www.trolltech.com/products/qt/qt3/book
+    \title GUI Programming with Qt 3
 */
 
 /*!
@@ -79,16 +89,6 @@
 */
 
 /*!
-    \externalpage http://www.trolltech.com/products/qt/whatsnew/porting
-    \title Moving from Qt 3 to Qt 4
-*/
-
-/*!
-    \externalpage http://www.trolltech.com/developer/notes/platforms
-    \title Platform Notes
-*/
-
-/*!
     \externalpage http://www.trolltech.com/products/qt/licenses/licensing/
     \title Qt Licensing Overview
 */
@@ -101,6 +101,11 @@
 /*!
     \externalpage http://www.trolltech.com/products/qt/orderform
     \title How to Order
+*/
+
+/*!
+    \externalpage http://www.trolltech.com/developer/notes/supportpolicy
+    \title Platform Support Policy
 */
 
 /*!

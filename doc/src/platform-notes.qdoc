@@ -1,0 +1,458 @@
+/*!
+    \page platform-notes.html
+    \ingroup platform-notes
+    \title Platform Notes
+    \brief Information about the platforms on which Qt can be used.
+
+    This page contains information about the platforms Qt is currently known
+    to run on, with links to platform-specific notes, including any known bugs
+    or incompatibilities.
+
+    \list
+    \o \l{Platform Notes - X11}
+    \tableofcontents{1 Platform Notes - X11}
+    \o \l{Platform Notes - Windows}
+    \tableofcontents{1 Platform Notes - Windows}
+    \o \l{Platform Notes - Mac OS X}
+    \tableofcontents{1 Platform Notes - Mac OS X}
+    \endlist
+
+    See also the \l{Compiler Notes} for information about compiler-specific
+    build issues.
+
+    If you have anything to add to this list or any of the platform or
+    compiler-specific pages, please submit it via the \l{Bug Report Form}.
+*/
+
+/*!
+    \page platform-notes-x11.html
+    \title Platform Notes - X11
+
+    This page contains information about the X11 platforms Qt is currently
+    known to run on, with links to platform-specific notes.
+
+    \tableofcontents
+
+    \target AIX
+    \section1 AIX - 5.1 or later
+
+    Qt has been built on a range of versions from 5.1 upwards, using both
+    \l{/developer/compilers/xlc.html}{xlC} and
+    \l{/developer/compilers/gcc.html}{GCC}.
+
+    \table
+    \header \o Compiler \o Notes
+    \row    \o xlC
+    \o If Qt is built correctly but all symbols are reported to be missing
+    when you link an application, your makeC++SharedLib script might be out
+    of date. Make sure you have the latest version from the
+    \l{http://www-306.ibm.com/software/awdtools/vacpp/support/}{IBM website}.
+    \row    \o GCC
+    \o We have tested Qt 4 successfully with GCC version 3.3 and above.
+    Some versions of GCC may fail to link Qt with a "TOC overflow" message.
+    Fix this by upgrading to the latest maintenance release of the dynamic
+    linker. On AIX this is bos.rte.bind_cmds.4.1.5.3.
+    Some versions of GCC may fail to build Qt with STL and large-file support
+    enabled, due to
+    \l{http://gcc.gnu.org/bugzilla/show_bug.cgi?id=9551}{a bug in GCC}.
+    Fix this by upgrading to the latest maintenance release of the compiler.
+    It is also possible to work around this problem by running configure with
+    either \c{-no-stl} or \c{-no-largefile}.
+    \endtable
+
+    \target FreeBSD
+    \section1 FreeBSD - 6.0-RELEASE
+
+    The system compiler on FreeBSD 4.x is gcc 2.95.4, which is not
+    officially supported by Qt 4. We develop using and recommend
+    ports/lang/gcc34. You will need to run configure with the
+    \c{-platform freebsd-g++34} arguments. Optionally, you may use
+    ports/lang/icc.
+
+    The system compiler on FreeBSD 5.x and 6.x is gcc 3.4.4, which is
+    officially supported by Qt. You do not need to add any special
+    arguments when running configure. Optionally, you may use ports/lang/icc.
+
+    Note that we do not actively test FreeBSD 4.x and 5.x. Our developers
+    migrated to 6.x after the Qt 4 launch. FreeBSD-CURRENT is not supported.
+
+    \target HP-UX
+    \section1 HP-UX PA-RISC - B.11.xx or later
+
+    \section2 64 bit
+
+    We do not support GCC to make 64 bit binaries on PA-RISC. Please consider
+    using aCC or producing 32 bit binaries. This is due to a bug in the
+    compiler toolchain - there seems to be a mismatch between GCC and the
+    HP-UX native 64 bit linker. 
+
+    \section2 HP-UX 11.*
+
+    You may need linker patch
+    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_33032}{PHSS_33032}
+    (HP-UX 11.00) or
+    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_33033}{PHSS_33033}
+    (HP-UX 11.11).
+
+    \section2 HP-UX 11.*
+
+    This ships with a faulty /usr/include/resolv.h, which results in a
+    linker error involving getres(). HP has released patches for it,
+    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHCO_26111}{PHCO_26111}
+    (HP-UX 11.00) and
+    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHCO_31923}{PHCO_31923}
+    (HP-UX 11.11).
+
+    \section2 HP-UX 11.* designer crash when using exceptions
+
+    If you encounter problems with designer on this platform either:
+
+    \list
+    \o disable exceptions using the -no-exceptions option to configure, or
+    \o disable optimizations by editing $QTDIR/mkspecs/hpux-g++/qmake.conf
+    and changing the line\br
+    \code
+                QMAKE_CFLAGS_RELEASE    = -O2
+    \endcode
+    to
+    \code
+                QMAKE_CFLAGS_RELEASE    =
+    \endcode
+
+    \section2 HP-UX 11.11
+
+    This ships with a faulty /usr/include/sys/socket.h, which makes many
+    C++ programs fail to compile. HP has released a patch for it,
+    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHNE_33159}{PHNE_33159}.
+
+    \section2 libXmu
+
+    This library is needed for OpenGL support. If you get the error message
+    \code
+    /usr/ccs/bin/ld: DP relative code in file ....
+    \endcode
+
+    when linking a shared Qt library you have to install the shared versions
+    of libXmu and libXaw. HP have released patches for it,
+    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_29369}{PHSS_29369}/
+    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_29370}{PHSS_29370}
+    on HP-UX 11.00 (64-bit),
+    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_33130}{PHSS_33130}/
+    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_31001}{PHSS_31001}
+    on HP-UX 11.11, and
+    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_33550}{PHSS_33550}
+    on HP-UX 11.23.
+
+    \section2 GCC 3.* on HP-UX
+
+    This compiler gives compilation error
+    \code
+    ANSI C++ forbids declaration ... with no type
+    \encode
+    on systems with old X11 header files. This is fixed by patches
+    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_31001}{PHSS_31001}
+    on HP-UX 11.11 and
+    \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_30261}{PHSS_30261}
+    on HP-UX 11.00.
+
+    \target IRIX
+    \section1 IRIX - 6.5.x
+
+    Unpackaging and IRIX tar:
+    Because of long filenames some files will be cut off incorrectly with IRIX
+    tar. Please use GNU tar to unpack Qt packages.
+
+    \section1 Linux
+
+    There are no known problems with using Qt on production versions of
+    Linux/x86, Linux/ppc, Linux/amd64 and Linux/ia64 (including Altix(R)).
+    We do our Unix development mainly on Linux/x86.
+
+    For the gcc/g++ compiler, please also see the relevant
+    \l{Compiler Notes#GCC}{compiler page}.
+
+    \section2 Installation problems
+
+    See also the
+    \l{http://www.trolltech.com/developer/faqs/Qt/installation}{Installation FAQ}.
+
+    If you experience problems when installing new Qt Open Source Edition
+    versions, try to use the Qt Open Source Edition archives (e.g. RPM)
+    provided by your Linux provider. If you need to install the source (.tgz)
+    archive, be aware that you will probably end up with two different
+    versions of the Qt library installed on your system, which will probably
+    lead to link errors, like this:
+    \code
+    undefined reference to `_vt.11QPushButton'
+    \endcode
+    Fix this by removing the old version of the library.
+
+    If you have problems installing a Qt Open Source Edition Linux archive
+    (e.g. RPM), please consult your Linux provider (who made it), not us.
+
+    Some RPM versions have problems installing some of the Qt RPM archives
+    where installation stops with an error message warning about a
+    "Failed Dependency". Use the \c{--nodeps} option to \c rpm to workaround
+    this problem.
+
+    \target Solaris
+    \section1 Solaris - 9 or later
+
+    \section2 CC on Solaris
+
+    Be sure to check our \l{Compiler Notes#Sun Studio Compiler}{Forte Developer / Sun Studio}
+    notes.
+    
+    \section2 GCC on Solaris
+
+    Be sure to check the installation notes for
+    \l{http://gcc.gnu.org/install/specific.html#x-x-solaris2}{GCC on Solaris}.
+    Do not use GCC with Sun's assembler/linker, this will result in link-time
+    errors in shared libraries. Use GNU binutils instead. 
+
+    GCC 3.2.* is known to miscompile Qt due to an optimizer bug that will
+    cause the resulting binaries to hang.
+
+    GCC gives compilation error
+    \code
+    ANSI C++ forbids declaration ... with no type
+    \endcode
+    on systems with old X11 header files. This is fixed by patches
+    \l{http://sunsolve.sun.com/search/document.do?assetkey=urn:cds:docid:1-21-108652}{108652-24}
+    on Solaris 8,
+    \l{http://sunsolve.sun.com/search/document.do?assetkey=urn:cds:docid:1-21-108376}{108376-21}
+    on Solaris 7, and
+    \l{http://sunsolve.sun.com/search/document.do?assetkey=urn:cds:docid:1-21-105633}{105633-56}
+    on Solaris 2.6.
+
+    \section2 Solaris 2.6
+
+    A crash on resize of widgets example has been reported, but not reproduced.
+    Patch \l{http://sunsolve.sun.com/search/document.do?assetkey=urn:cds:docid:1-21-105633}{105633-21}
+    is reported to solve the problem. We are interested in hearing more details
+    from anyone who can reproduce and track this problem closer.
+*/
+
+/*!
+    \page platform-notes-windows.html
+    \title Platform Notes - Windows
+
+    This page contains information about the Windows platforms Qt is currently
+    known to run on, with links to platform-specific notes.
+
+    \tableofcontents
+    
+    \section1 Windows Vista
+
+    Known issues for Qt on Vista will be listed here.
+
+    As of Qt 4.2.0 no Vista-specific issues are known.
+
+    \target Windows NT
+    \section1 Windows XP, Windows 2000 and Windows NT
+
+    \section2 Installation location
+
+    Installing Qt into a directory with spaces, e.g. C:\\Program Files, may
+    cause linker errors like the following:
+    \code
+    c:\program.obj not found
+    \endcode
+
+    Install Qt into a subdirectory without spaces to avoid this problem.
+
+    \section2 AccelGALAXY graphic card
+
+    When you use a NT 4.0 machine with the driver number
+    4,00,1381,1000,021,4.0.0 there is a problem with drag an drop and icons.
+    The computer freezes, and you have to reset. The problem disappears with
+    the newest version of the driver, available at
+    \l{http://www.es.com/}{www.es.com}.
+
+    \section2 Possible GL conflict
+
+    There is a known issue with running Microsoft NetMeeting, Lotus SameTime
+    and other applications that require screen grabbing while direct
+    rendering is enabled. Other GL-applications may not work as expected,
+    unless direct rendering is disabled.
+
+    \section1 Windows 98 and Me
+
+    As for \l{#Windows NT}{Windows NT}, with the following exceptions:
+
+    \section2 Unicode support
+
+    Since Windows 98 does not implement much Unicode, Qt's Unicode support
+    on Windows 98 is lacking. Note that Qt attempts to hide these
+    differences - application programs can see that the fonts available are
+    rather incomplete, but there is generally no need for programs to care.
+    With other toolkits such as MFC, you often need to recompile. With Qt,
+    your programs simply detect and use the capabilities of the Windows
+    version they run on.
+
+    \section2 COMCTL32 problems
+
+    If you are experiencing a crash in comctl32.dll after debugging your Qt
+    application then this is not a problem with Qt, see MSDN Knowledge Base
+    article
+    \l{http://support.microsoft.com/support/kb/articles/Q255/6/07.ASP}{Q255607}
+    for more information.
+*/
+
+/*!
+    \page platform-notes-mac.html
+    \title Platform Notes - Mac OS X
+
+    This page contains information about the Mac OS X versions Qt is currently
+    known to run on, with links to platform-specific notes.
+
+    \tableofcontents
+
+    \section1 General Information
+
+    Qt 4.3 has been tested to run on Mac OS X 10.3.9 and up. See notes on
+    the binary package for more information.
+
+    Qt 4.1 has been tested to run on Mac OS X 10.2.8 and up. Qt 4.1.4 is the
+    last release to work with Mac OS X 10.2.
+
+    \section2 Required GCC version
+
+    Qt can be compiled with GCC 3.3 and above. However, the version of
+    GCC 3.3 that is included with Xcode Tools 1.5 generates incorrect code
+    for Qt 4.1.3. You need the November 2004 GCC 3.3 updater,
+    \l{http://connect.apple.com}{available from Apple}.
+
+    \section2 Binary Package
+
+    The binary package requires that you have your .qt-license file in your
+    home directory. Installer.app cannot complete without a valid .qt-license
+    file. Evaluation users of Qt will have information about how to create
+    this file in the email they receive.
+
+    The binary package was built on Mac OS X 10.4 with Xcode Tools 2.1
+    (gcc 4.0.0) for Qt 4.1.0, Xcode Tools 2.2 (gcc 4.0.1) for Qt 4.1.1-4.1.4
+    and Xcode Tools 2.3 for 4.2.0. It will only link executables built
+    against 10.4 (or a 10.4 SDK). You should be able to run applications
+    linked against these frameworks on Mac OS X 10.3.9 and Mac OS X 10.4+.
+    If you require a different configuration, you will have to use the
+    source package and build with GCC 3.3.
+
+    \section2 Mac OS X on Intel hardware
+
+    Qt 4 fully supports both the Intel and PowerPC architectures on the Mac.
+    As of Qt 4.1 it is possible to support the Intel architecture by
+    creating Universal Binaries with qmake. As of Qt 4.1 it is possible to
+    build Qt as a set of universal binaries and frameworks from configure by
+    adding these extra flags:
+
+    \code
+    -universal -sdk /Developer/SDKs/MacOSX10.4u.sdk
+    \endcode
+
+    If you are building on Intel hardware you can omit the sdk parameter, but
+    PowerPC hardware requires it.
+
+    You can also generate universal binaries using qmake. Simply add these
+    lines to your .pro file:
+
+    \code
+    QMAKE_MAC_SDK=/Developer/SDKs/MacOSX10.4u.sdk 
+    CONFIG+=x86 ppc
+    \endcode
+
+    \section2 Build Issues
+
+    If Qt does not build upon executing make, and fails with an error message
+    such as
+
+    \code
+    /usr/bin/ld: /System/Library/Frameworks/Carbon.framework/Carbon
+    load command 20 unknown cmd field
+    /usr/bin/ld: /usr/lib/libSystem.dylib
+    load command 6 unknown cmd field
+    \endcode
+
+    this could be an indication you have upgraded your version of Mac OS X
+    (e.g. 10.3 to 10.4), without upgrading your Developer Tools (Xcode Tools).
+    These must match in order to successfully compile files.
+
+    Please be sure to upgrade both simultaneously. If problems still occur,
+    contact support.
+
+    \section2 Fink
+
+    If you have installed the Qt/X11 package from Fink (http://fink.sf.net),
+    it will set the QMAKESPEC environment variable to darwin-g++. This will
+    cause problems when you build the Qt/Mac package. To fix this, simply
+    unset your QMAKESPEC or set it to macx-g++ before you run configure.
+    You need to have a fresh Qt distribution (make confclean).
+
+    \section2 MySQL and Mac OS X
+
+    There seems to be a issue when both -prebind and -multi_module are
+    defined when linking static C libraries into dynamic library. If you
+    get the following error message when linking Qt:
+
+    \code
+    ld: common symbols not allowed with MH_DYLIB output format with the -multi_module option
+    /usr/local/mysql/lib/libmysqlclient.a(my_error.o) definition of common _errbuff (size 512)
+    /usr/bin/libtool: internal link edit command failed
+    \endcode
+
+    re-link Qt using -single_module. This is only a problem when building the
+    MySQL driver into Qt. It does not affect plugins or static builds.
+
+    \section2 Qt and Precompiled Headers (PCH)
+
+    Starting with Qt 3.3.0 it is possible to use precompiled headers. They
+    are not enabled by default as it appears that some versions of Apple's
+    GCC and make have problems with this feature. If you want to use
+    precompiled headers when building the Qt source package, specify the
+    -pch option to configure. If, while using precompiled headers, you
+    encounter an internal compile error, try removing the -include header
+    statement from the compile line and trying again. If this solves the
+    problem, it probably is a good idea to turn off precompiled headers.
+    Also, consider filing a bug report with Apple so that they can
+    improve support for this feature.
+*/
+
+/*!
+    \page supported-platforms.html
+    \title Supported Platforms
+    \brief The platforms supported by Trolltech for Qt.
+
+    Qt is supported on a variety of 32-bit and 64-bit platforms, and can
+    usually be built on each platform with GCC, a vendor-supplied compiler, or
+    a third party compiler. The following sections describe platform-compiler
+    combinations that are supported by Trolltech for Qt.
+
+    \section1 32-Bit Platforms 
+
+    \table
+    \header \o Platform  \o GCC  \o Compiler provided by OS vendor  \o 3rd party compiler
+    \row    \o Microsoft Windows \o gcc (MinGW) \o MS Visual Studio/Visual C++ \o Intel icc
+    \row    \o Linux     \o gcc  \o -  \o -
+    \row    \o Apple Mac OS X    \o gcc  \o -  \o -
+    \row    \o IBM AIX   \o gcc  \o IBM xlC  \o -
+    \row    \o HP HP-UX  \o gcc  \o HP aCC  \o -
+    \row    \o SGI IRIX  \o gcc  \o SGI MipsPRO  \o -
+    \row    \o Sun Solaris  \o gcc  \o Sun CC  \o -
+    \row    \o FreeBSD   \o gcc  \o -  \o Intel icc
+    \endtable
+
+    \section1 64-Bit Platforms
+
+    \table
+    \header \o Platform  \o GCC  \o Compiler provided by OS vendor  \o 3rd party compiler
+    \row    \o Microsoft Windows \o - \o MS Visual Studio/Visual C++ \o Intel icc
+    \row    \o IBM AIX   \o gcc  \o IBM xlC  \o -
+    \row    \o HP-UX     \o -    \o HP acc   \o -
+    \row    \o SGI IRIX  \o gcc  \o SGI MipsPRO  \o -
+    \row    \o Sun Solaris  \o gcc  \o Sun cc  \o -
+    \row    \o Linux     \o gcc  \o -  \o Intel icc
+    \endtable
+
+    Trolltech's online \l{Platform Support Policy} describes the level of
+    support you should expect for these and other platforms.
+*/
