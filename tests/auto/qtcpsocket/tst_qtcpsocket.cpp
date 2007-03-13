@@ -189,9 +189,7 @@ void tst_QTcpSocket::initTestCase_data()
 {
     QTest::addColumn<bool>("setProxy");
     QTest::addColumn<int>("proxyType");
-#ifndef QT_NO_OPENSSL
     QTest::addColumn<bool>("ssl");
-#endif
 
     QTest::newRow("WithoutProxy") << false << 0 << false;
 #ifdef TEST_QNETWORK_PROXY
@@ -226,8 +224,8 @@ void tst_QTcpSocket::init()
 
 QTcpSocket *tst_QTcpSocket::newSocket() const
 {
-    QFETCH_GLOBAL(bool, ssl);
 #ifndef QT_NO_OPENSSL
+    QFETCH_GLOBAL(bool, ssl);
     return ssl ? new QSslSocket : new QTcpSocket;
 #else
     return new QTcpSocket;
@@ -1003,8 +1001,8 @@ public:
 protected:
     inline void run()
     {
-        QFETCH_GLOBAL(bool, ssl);
 #ifndef QT_NO_OPENSSL
+        QFETCH_GLOBAL(bool, ssl);
         if (ssl)
             socket = new QSslSocket;
         else
@@ -1268,8 +1266,8 @@ public:
     inline Foo(QObject *parent = 0) : QObject(parent)
     {
         count = 0;
-        QFETCH_GLOBAL(bool, ssl);
 #ifndef QT_NO_OPENSSL
+        QFETCH_GLOBAL(bool, ssl);
         if (ssl)
             sock = new QSslSocket;
         else
