@@ -106,7 +106,13 @@ class Q_GUI_EXPORT QCustomFontEngine : public QObject
 {
     Q_OBJECT
 public:
-    QCustomFontEngine(QObject *parent = 0);
+    enum FontEngineFeature {
+        GlyphRendering = 1,
+        GlyphOutlines  = 2
+    };
+    Q_DECLARE_FLAGS(FontEngineFeatures, FontEngineFeature)
+
+    explicit QCustomFontEngine(FontEngineFeatures supportedFeatures, QObject *parent = 0);
     ~QCustomFontEngine();
 
     typedef int Fixed; // 26.6
@@ -115,7 +121,7 @@ public:
     {
         Fixed x, y;
         Fixed width, height;
-        Fixed xOffset, yOffset;
+        Fixed advance;
     };
 
     enum FontProperty {
@@ -136,6 +142,8 @@ public:
         TrueTypeFontTable,
     };
 
+    FontEngineFeatures supportedFeatures() const;
+
     virtual bool stringToGlyphIndices(const QChar *string, int length, uint *glyphs, int *numGlyphs, uint flags) const = 0;
     virtual void getGlyphAdvances(const uint *glyphs, int numGlyphs, Fixed *advances, uint flags) const = 0;
     virtual GlyphMetrics getGlyphMetrics(uint glyph) const = 0;
@@ -149,8 +157,9 @@ public:
 private:
     Q_DECLARE_PRIVATE(QCustomFontEngine)
     Q_DISABLE_COPY(QCustomFontEngine)
-    friend class QProxyFontEngine;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QCustomFontEngine::FontEngineFeatures)
 
 QT_END_HEADER
 

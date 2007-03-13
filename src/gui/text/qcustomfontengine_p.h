@@ -20,6 +20,7 @@ class QCustomFontEngine;
 
 class QProxyFontEngine : public QFontEngine
 {
+    Q_OBJECT
 public:
     QProxyFontEngine(QCustomFontEngine *engine, const QFontDef &def);
     virtual ~QProxyFontEngine();

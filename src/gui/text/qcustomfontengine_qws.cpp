@@ -74,43 +74,35 @@ class QCustomFontEnginePrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QCustomFontEngine)
 public:
-    inline QCustomFontEnginePrivate() : proxy(0) {}
-
-    QFontEngine *proxy;
+    QCustomFontEngine::FontEngineFeatures features;
 };
 
-QCustomFontEngine::QCustomFontEngine(QObject *parent)
+QCustomFontEngine::QCustomFontEngine(FontEngineFeatures features, QObject *parent)
     : QObject(*new QCustomFontEnginePrivate, parent)
 {
+    Q_D(QCustomFontEngine);
+    d->features = features;
 }
 
 QCustomFontEngine::~QCustomFontEngine()
 {
 }
 
+QCustomFontEngine::FontEngineFeatures QCustomFontEngine::supportedFeatures() const
+{
+    Q_D(const QCustomFontEngine);
+    return d->features;
+}
+
 QImage QCustomFontEngine::renderGlyph(uint glyph)
 {
-    Q_D(QCustomFontEngine);
-    if (d->proxy) {
-        return d->proxy->QFontEngine::alphaMapForGlyph(glyph);
-    }
-    qWarning("QCustomFontEngine::renderGlyph not implemented!");
+    qWarning("QCustomFontEngine: renderGlyph is not implemented in font plugin!");
     return QImage();
 }
 
 void QCustomFontEngine::addGlyphsToPath(uint *glyphs, int numGlyphs, Fixed *positions, QPainterPath *path, QTextItem::RenderFlags flags)
 {
-    Q_D(QCustomFontEngine);
-    if (d->proxy) {
-        QVarLengthArray<QFixedPoint> newPositions(numGlyphs);
-        for (int i = 0; i < numGlyphs; ++i) {
-            newPositions[i].x = QFixed::fromFixed(positions[i * 2]);
-            newPositions[i].y = QFixed::fromFixed(positions[i * 2 + 1]);
-        }
-
-        return d->proxy->QFontEngine::addGlyphsToPath(glyphs, newPositions.data(), numGlyphs, path, flags);
-    }
-    qWarning("QCustomFontEngine::addGlyphsToPath not implemented!");
+    qWarning("QCustomFontEngine: addGlyphsToPath is not implemented in font plugin!");
 }
 
 QVariant QCustomFontEngine::extension(Extension extension, const QVariant &argument)
@@ -124,7 +116,6 @@ QProxyFontEngine::QProxyFontEngine(QCustomFontEngine *customEngine, const QFontD
     : engine(customEngine)
 {
     fontDef = def;
-    engine->d_func()->proxy = this;
 }
 
 QProxyFontEngine::~QProxyFontEngine()
@@ -156,18 +147,24 @@ bool QProxyFontEngine::stringToCMap(const QChar *str, int len, QGlyphLayout *gly
 
 QImage QProxyFontEngine::alphaMapForGlyph(glyph_t glyph)
 {
-    return engine->renderGlyph(glyph);
+    if (engine->supportedFeatures() & QCustomFontEngine::GlyphRendering)
+        return engine->renderGlyph(glyph);
+    return QFontEngine::alphaMapForGlyph(glyph);
 }
 
 void QProxyFontEngine::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs, QPainterPath *path, QTextItem::RenderFlags flags)
 {
-    QVarLengthArray<int> newPositions(nglyphs * 2);
-    for (int i = 0; i < nglyphs; ++i) {
-        newPositions[i * 2] = positions[i].x.value();
-        newPositions[i * 2 + 1] = positions[i].y.value();
-    }
+    if (engine->supportedFeatures() & QCustomFontEngine::GlyphOutlines) {
+        QVarLengthArray<int> newPositions(nglyphs * 2);
+        for (int i = 0; i < nglyphs; ++i) {
+            newPositions[i * 2] = positions[i].x.value();
+            newPositions[i * 2 + 1] = positions[i].y.value();
+        }
 
-    engine->addGlyphsToPath(glyphs, nglyphs, newPositions.data(), path, flags);
+        engine->addGlyphsToPath(glyphs, nglyphs, newPositions.data(), path, flags);
+    } else {
+        QFontEngine::addGlyphsToPath(glyphs, positions, nglyphs, path, flags);
+    }
 }
 
 glyph_metrics_t QProxyFontEngine::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
@@ -194,8 +191,7 @@ glyph_metrics_t QProxyFontEngine::boundingBox(glyph_t glyph)
     m.y = QFixed::fromFixed(metrics.y);
     m.width = QFixed::fromFixed(metrics.width);
     m.height = QFixed::fromFixed(metrics.height);
-    m.xoff = QFixed::fromFixed(metrics.xOffset);
-    m.yoff = QFixed::fromFixed(metrics.yOffset);
+    m.xoff = QFixed::fromFixed(metrics.advance);
 
     return m;
 }
