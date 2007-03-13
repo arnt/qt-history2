@@ -1885,10 +1885,6 @@ static void setProperties(QWidget *w)
 
 void QStyleSheetStyle::setPalette(QWidget *w)
 {
-    const QRenderRule &hoverRule = renderRule(w, PseudoElement_None, PseudoClass_Hover);
-    if (hoverRule.hasDrawable())
-        w->setAttribute(Qt::WA_Hover);
-
     struct RuleRoleMap {
         int state;
         QPalette::ColorGroup group;
@@ -2064,6 +2060,7 @@ void QStyleSheetStyle::polish(QWidget *w)
     unsetPalette(w);
     if (!rules.isEmpty()) {
         setPalette(w);
+        w->setAttribute(Qt::WA_Hover);
     }
 
 #ifndef QT_NO_SCROLLAREA
@@ -3494,9 +3491,9 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
                     int pe = (sc == SC_SpinBoxUp ? PseudoElement_SpinBoxUpButton : PseudoElement_SpinBoxDownButton);
                     QRenderRule subRule = renderRule(w, opt, pe);
                     return positionRect(w, rule, subRule, pe, opt->rect, opt->direction);
-                                                           }
-                    default:
-                        return baseStyle()->subControlRect(cc, opt, sc, w);
+                                   }
+                default:
+                    return baseStyle()->subControlRect(cc, opt, sc, w);
                 }
             }
 
