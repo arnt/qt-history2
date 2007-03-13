@@ -221,6 +221,9 @@
 /* x64 does not support mmx intrinsics on windows */
 #  if (defined(Q_OS_WIN64) && defined(_M_X64))
 #    undef QT_HAVE_SSE
+#    undef QT_HAVE_SSE2
+#    undef QT_HAVE_MMX
+#    undef QT_HAVE_3DNOW
 #  endif
 
 
