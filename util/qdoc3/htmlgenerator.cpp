@@ -1683,10 +1683,7 @@ void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* m
             // treated as normal pages.
             QString group;
             bool isGroupPage = false;
-            if (fakeNode->doc().metaCommandsUsed().contains("ingroup")) {
-                group = fakeNode->doc().metaCommandArgs("ingroup")[0];
-                isGroupPage = false;
-            } else if (fakeNode->doc().metaCommandsUsed().contains("group")) {
+            if (fakeNode->doc().metaCommandsUsed().contains("group")) {
                 group = fakeNode->doc().metaCommandArgs("group")[0];
                 isGroupPage = true;
             }
@@ -1713,8 +1710,10 @@ void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* m
                     // If we encounter a group definition page, we add all
                     // the pages in that group to the list for that group.
                     foreach (Node *member, fakeNode->groupMembers()) {
+                        if (member->type() != Node::Fake)
+                            continue;
                         FakeNode *page = static_cast<FakeNode *>(member);
-                        if (page && member->type() == Node::Fake) {
+                        if (page) {
                             QString sortKey = page->fullTitle().toLower();
                             if (sortKey.startsWith("the "))
                                 sortKey.remove(0, 4);
@@ -1750,6 +1749,9 @@ void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* m
             out() << QString("<h3><a href=\"%1\">%2</a></h3>\n").arg(
                         linkForNode(groupNode, relative)).arg(
                         protect(groupNode->fullTitle()));
+
+            if (fakeNodeMap[groupNode].count() == 0)
+                continue;
 
             out() << "<ul>\n";
             
