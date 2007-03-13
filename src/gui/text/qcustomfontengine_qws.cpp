@@ -70,8 +70,17 @@ QStringList QCustomFontEnginePlugin::keys() const
     return QStringList(d->foundry);
 }
 
+class QCustomFontEnginePrivate : public QObjectPrivate
+{
+    Q_DECLARE_PUBLIC(QCustomFontEngine)
+public:
+    inline QCustomFontEnginePrivate() : proxy(0) {}
+
+    QFontEngine *proxy;
+};
+
 QCustomFontEngine::QCustomFontEngine(QObject *parent)
-    : QObject(parent)
+    : QObject(*new QCustomFontEnginePrivate, parent)
 {
 }
 
@@ -81,12 +90,26 @@ QCustomFontEngine::~QCustomFontEngine()
 
 QImage QCustomFontEngine::renderGlyph(uint glyph)
 {
+    Q_D(QCustomFontEngine);
+    if (d->proxy) {
+        return d->proxy->QFontEngine::alphaMapForGlyph(glyph);
+    }
     qWarning("QCustomFontEngine::renderGlyph not implemented!");
     return QImage();
 }
 
 void QCustomFontEngine::addGlyphsToPath(uint *glyphs, int numGlyphs, Fixed *positions, QPainterPath *path, QTextItem::RenderFlags flags)
 {
+    Q_D(QCustomFontEngine);
+    if (d->proxy) {
+        QVarLengthArray<QFixedPoint> newPositions(numGlyphs);
+        for (int i = 0; i < numGlyphs; ++i) {
+            newPositions[i].x = QFixed::fromFixed(positions[i * 2]);
+            newPositions[i].y = QFixed::fromFixed(positions[i * 2 + 1]);
+        }
+
+        return d->proxy->QFontEngine::addGlyphsToPath(glyphs, newPositions.data(), numGlyphs, path, flags);
+    }
     qWarning("QCustomFontEngine::addGlyphsToPath not implemented!");
 }
 
@@ -101,6 +124,7 @@ QProxyFontEngine::QProxyFontEngine(QCustomFontEngine *customEngine, const QFontD
     : engine(customEngine)
 {
     fontDef = def;
+    engine->d_func()->proxy = this;
 }
 
 QProxyFontEngine::~QProxyFontEngine()

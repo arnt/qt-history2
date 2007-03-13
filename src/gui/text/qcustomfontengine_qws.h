@@ -100,6 +100,8 @@ private:
     Q_DISABLE_COPY(QCustomFontEnginePlugin)
 };
 
+class QCustomFontEnginePrivate;
+
 class Q_GUI_EXPORT QCustomFontEngine : public QObject
 {
     Q_OBJECT
@@ -143,6 +145,11 @@ public:
     virtual void addGlyphsToPath(uint *glyphs, int numGlyphs, Fixed *positions, QPainterPath *path, QTextItem::RenderFlags flags);
 
     virtual QVariant extension(Extension extension, const QVariant &argument = QVariant());
+
+private:
+    Q_DECLARE_PRIVATE(QCustomFontEngine)
+    Q_DISABLE_COPY(QCustomFontEngine)
+    friend class QProxyFontEngine;
 };
 
 QT_END_HEADER
