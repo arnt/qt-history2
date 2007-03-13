@@ -1064,16 +1064,17 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
             }
             if (!verticalTitleBar)
                 titleRect = visualRect(dwOpt->direction, r, titleRect);
-                 if (!dwOpt->title.isEmpty()) {
-                    QString titleText = painter->fontMetrics().elidedText(dwOpt->title, Qt::ElideRight, titleRect.width());
-                    const int indent = painter->fontMetrics().descent();
-                    drawItemText(painter, rect.adjusted(indent + 1, 1, -indent - 1, -1),
+
+            if (!dwOpt->title.isEmpty()) {
+                QString titleText = painter->fontMetrics().elidedText(dwOpt->title, Qt::ElideRight, 
+                                                                      verticalTitleBar ? titleRect.height() : titleRect.width());
+                const int indent = painter->fontMetrics().descent();
+                drawItemText(painter, rect.adjusted(indent + 1, 1, -indent - 1, -1),
                                 Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
                                 dwOpt->state & State_Enabled, titleText,
                                 QPalette::WindowText);
                 }
             }
-
             break;
         }
     default:
