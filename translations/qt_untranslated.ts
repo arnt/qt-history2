@@ -3,12 +3,12 @@
 <context>
     <name>PPDOptionsModel</name>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1557"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1571"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1559"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1573"/>
         <source>Value</source>
         <translation type="unfinished"></translation>
     </message>
@@ -660,22 +660,22 @@ to
 <context>
     <name>QAbstractSocket</name>
     <message>
-        <location filename="../src/network/qabstractsocket.cpp" line="703"/>
+        <location filename="../src/network/qabstractsocket.cpp" line="711"/>
         <source>Host not found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/network/qhttpsocketengine.cpp" line="473"/>
+        <location filename="../src/network/qhttpsocketengine.cpp" line="479"/>
         <source>Connection refused</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/network/qabstractsocket.cpp" line="1427"/>
+        <location filename="../src/network/qabstractsocket.cpp" line="1457"/>
         <source>Socket operation timed out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/network/qabstractsocket.cpp" line="1779"/>
+        <location filename="../src/network/qabstractsocket.cpp" line="1823"/>
         <source>Socket is not connected</source>
         <translation type="unfinished"></translation>
     </message>
@@ -716,7 +716,7 @@ to
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qapplication.cpp" line="1974"/>
+        <location filename="../src/gui/kernel/qapplication.cpp" line="1981"/>
         <source>QT_LAYOUT_DIRECTION</source>
         <comment>Translate this string to the string &apos;LTR&apos; in left-to-right languages or to &apos;RTL&apos; in right-to-left languages (such as Hebrew and Arabic) to get proper widget layout.</comment>
         <translation type="unfinished"></translation>
@@ -1342,7 +1342,7 @@ Do you want to delete it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qsidebar.cpp" line="359"/>
+        <location filename="../src/gui/dialogs/qsidebar.cpp" line="360"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1585,7 +1585,7 @@ Do you want to delete it anyway?</source>
 <context>
     <name>QHostInfo</name>
     <message>
-        <location filename="../src/network/qhostinfo_win.cpp" line="183"/>
+        <location filename="../src/network/qhostinfo_p.h" line="136"/>
         <source>Unknown error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1696,33 +1696,38 @@ Do you want to delete it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/network/qhttpsocketengine.cpp" line="486"/>
+        <location filename="../src/network/qhttp.cpp" line="2644"/>
         <source>Authentication required</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QHttpSocketEngine</name>
+    <message>
+        <location filename="../src/network/qhttpsocketengine.cpp" line="492"/>
+        <source>Authentication required</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QIBaseDriver</name>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1277"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1328"/>
         <source>Error opening database</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1310"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1361"/>
         <source>Could not start transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1323"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1374"/>
         <source>Unable to commit transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1336"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1387"/>
         <source>Unable to rollback transaction</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1730,87 +1735,87 @@ Do you want to delete it anyway?</source>
 <context>
     <name>QIBaseResult</name>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="340"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="349"/>
         <source>Unable to create BLOB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="346"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="355"/>
         <source>Unable to write BLOB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="360"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="369"/>
         <source>Unable to open BLOB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="378"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="387"/>
         <source>Unable to read BLOB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="680"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="699"/>
         <source>Could not find array</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="526"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="542"/>
         <source>Could not get array data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="735"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="754"/>
         <source>Could not get query info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="755"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="774"/>
         <source>Could not start transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="774"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="793"/>
         <source>Unable to commit transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="807"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="826"/>
         <source>Could not allocate statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="812"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="831"/>
         <source>Could not prepare statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="825"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="844"/>
         <source>Could not describe input statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="834"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="853"/>
         <source>Could not describe statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="949"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="968"/>
         <source>Unable to close statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="957"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="976"/>
         <source>Unable to execute query</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="999"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1018"/>
         <source>Could not fetch next item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1153"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1178"/>
         <source>Could not get statement info</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2046,57 +2051,57 @@ Do you want to delete it anyway?</source>
 <context>
     <name>QMdiSubWindow</name>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="248"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="247"/>
         <source>%1 - [%2]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="541"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="540"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="544"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="543"/>
         <source>Minimize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="547"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="546"/>
         <source>Restore Down</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="859"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="858"/>
         <source>&amp;Restore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="862"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="861"/>
         <source>&amp;Move</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="863"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="862"/>
         <source>&amp;Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="864"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="863"/>
         <source>Mi&amp;nimize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="866"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="865"/>
         <source>Ma&amp;ximize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="868"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="867"/>
         <source>Stay on &amp;Top</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="871"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="870"/>
         <source>&amp;Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2497,161 +2502,6 @@ Do you want to delete it anyway?</source>
     <message>
         <location filename="../src/gui/util/qdesktopservices_mac.cpp" line="147"/>
         <source>Home</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1631"/>
-        <source>Extra content at end of document.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="579"/>
-        <source>Invalid entity value.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="670"/>
-        <source>Invalid XML character.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="905"/>
-        <source>Sequence &apos;]]&gt;&apos; not allowed in content.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1161"/>
-        <source>Namespace prefix &apos;%1&apos; not declared</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1199"/>
-        <source>Attribute redefined.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1311"/>
-        <source>Unexpected character &apos;%1&apos; in public id literal.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1319"/>
-        <source>Invalid XML version string.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1321"/>
-        <source>Unsupported XML version.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1336"/>
-        <source>Invalid encoding name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1338"/>
-        <source>Invalid XML encoding name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1351"/>
-        <source>Standalone accepts only yes or no.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1353"/>
-        <source>Invalid attribute in XML declaration.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1369"/>
-        <source>Premature end of document.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1371"/>
-        <source>Invalid document.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1411"/>
-        <source>Expected </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1422"/>
-        <source>, but got &apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1426"/>
-        <source>Unexpected &apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1555"/>
-        <source>Expected character data.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="708"/>
-        <source>recursive entity detected.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1180"/>
-        <source>Start tag expected.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1215"/>
-        <source>XML declaration not at start of document.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1371"/>
-        <source>NDATA in parameter entity declaration.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1413"/>
-        <source>Invalid processing instruction name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1606"/>
-        <source>Illegal namespace declaration.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1620"/>
-        <source>Invalid XML name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1643"/>
-        <source>Opening and ending tag mismatch.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1652"/>
-        <source>reference to unparsed entity &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1717"/>
-        <source>entity &apos;%1&apos; not declared.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1703"/>
-        <source>reference to external entity &apos;%1&apos; in attribute value.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1749"/>
-        <source>Invalid character reference.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3779,9 +3629,6 @@ Please choose a different file name.</source>
     </message>
 </context>
 <context>
-    <name>QSidebar</name>
-</context>
-<context>
     <name>QSlider</name>
     <message>
         <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="689"/>
@@ -4056,57 +3903,57 @@ Please choose a different file name.</source>
 <context>
     <name>QUnicodeControlCharacterMenu</name>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2566"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2572"/>
         <source>LRM Left-to-right mark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2567"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2573"/>
         <source>RLM Right-to-left mark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2568"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2574"/>
         <source>ZWJ Zero width joiner</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2569"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2575"/>
         <source>ZWNJ Zero width non-joiner</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2570"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2576"/>
         <source>ZWSP Zero width space</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2571"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2577"/>
         <source>LRE Start of left-to-right embedding</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2572"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2578"/>
         <source>RLE Start of right-to-left embedding</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2573"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2579"/>
         <source>LRO Start of left-to-right override</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2574"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2580"/>
         <source>RLO Start of right-to-left override</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2575"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2581"/>
         <source>PDF Pop directional formatting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2581"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2587"/>
         <source>Insert Unicode control character</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4122,7 +3969,7 @@ Please choose a different file name.</source>
 <context>
     <name>QWidget</name>
     <message>
-        <location filename="../src/gui/kernel/qwidget.cpp" line="4010"/>
+        <location filename="../src/gui/kernel/qwidget.cpp" line="4009"/>
         <source>*</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4218,7 +4065,7 @@ Please choose a different file name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="2131"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="2135"/>
         <source>Sh&amp;ade</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4243,7 +4090,7 @@ Please choose a different file name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="2127"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="2131"/>
         <source>&amp;Unshade</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4363,6 +4210,179 @@ Please choose a different file name.</source>
     <message>
         <location filename="../src/xml/qxml.cpp" line="55"/>
         <source>error in the text declaration of an external entity</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QXmlStream</name>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1664"/>
+        <source>Extra content at end of document.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="580"/>
+        <source>Invalid entity value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="671"/>
+        <source>Invalid XML character.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="906"/>
+        <source>Sequence &apos;]]&gt;&apos; not allowed in content.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1162"/>
+        <source>Namespace prefix &apos;%1&apos; not declared</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1200"/>
+        <source>Attribute redefined.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1312"/>
+        <source>Unexpected character &apos;%1&apos; in public id literal.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1320"/>
+        <source>Invalid XML version string.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1322"/>
+        <source>Unsupported XML version.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1337"/>
+        <source>%1 is an invalid encoding name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1342"/>
+        <source>Encoding %1 is unsupported</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1344"/>
+        <source>Invalid XML encoding name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1358"/>
+        <source>Standalone accepts only yes or no.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1360"/>
+        <source>Invalid attribute in XML declaration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1376"/>
+        <source>Premature end of document.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1378"/>
+        <source>Invalid document.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1418"/>
+        <source>Expected </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1429"/>
+        <source>, but got &apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1433"/>
+        <source>Unexpected &apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1562"/>
+        <source>Expected character data.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="728"/>
+        <source>Recursive entity detected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1200"/>
+        <source>Start tag expected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1235"/>
+        <source>XML declaration not at start of document.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1391"/>
+        <source>NDATA in parameter entity declaration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1422"/>
+        <source>xml is an invalid processing instruction name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1425"/>
+        <source>%1 is an invalid processing instruction name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1436"/>
+        <source>Invalid processing instruction name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1639"/>
+        <source>Illegal namespace declaration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1653"/>
+        <source>Invalid XML name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1676"/>
+        <source>Opening and ending tag mismatch.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1685"/>
+        <source>Reference to unparsed entity &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1750"/>
+        <source>Entity &apos;%1&apos; not declared.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1736"/>
+        <source>Reference to external entity &apos;%1&apos; in attribute value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1782"/>
+        <source>Invalid character reference.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

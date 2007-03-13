@@ -3,12 +3,12 @@
 <context>
     <name>PPDOptionsModel</name>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1542"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1571"/>
         <source>Name</source>
         <translation type="unfinished">Meno</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1544"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1573"/>
         <source>Value</source>
         <translation type="unfinished"></translation>
     </message>
@@ -57,22 +57,22 @@
 <context>
     <name>Q3FileDialog</name>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="831"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="835"/>
         <source>Copy or Move a File</source>
         <translation>Kopírovať alebo presunúť súbor</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="839"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="843"/>
         <source>Read: %1</source>
         <translation>Čítanie: %1</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="875"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="879"/>
         <source>Write: %1</source>
         <translation>Zápis: %1</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2467"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2471"/>
         <source>Cancel</source>
         <translation>Storno</translation>
     </message>
@@ -82,132 +82,132 @@
         <translation>Všetky súbory (*)</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2423"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2427"/>
         <source>Name</source>
         <translation>Meno</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2424"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2428"/>
         <source>Size</source>
         <translation>Veľkosť</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2426"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2430"/>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2427"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2431"/>
         <source>Date</source>
         <translation>Dátum</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2428"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2432"/>
         <source>Attributes</source>
         <translation>Atribúty</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4532"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4531"/>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2503"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2507"/>
         <source>Look &amp;in:</source>
         <translation>Hľadať &amp;v:</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4539"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4538"/>
         <source>File &amp;name:</source>
         <translation>Me&amp;no súboru:</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2505"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2509"/>
         <source>File &amp;type:</source>
         <translation>&amp;Typ súboru:</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2512"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2516"/>
         <source>Back</source>
         <translation>Späť</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2519"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2523"/>
         <source>One directory up</source>
         <translation>O úroveň vyššie</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2528"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2532"/>
         <source>Create New Folder</source>
         <translation>Vytvoriť nový priečinok</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2546"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2550"/>
         <source>List View</source>
         <translation>Zoznam</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2554"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2558"/>
         <source>Detail View</source>
         <translation>Detaily</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2563"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2567"/>
         <source>Preview File Info</source>
         <translation>Náhľad informácií o súbore</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2586"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2590"/>
         <source>Preview File Contents</source>
         <translation>Náhľad obsahu súboru</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2674"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2678"/>
         <source>Read-write</source>
         <translation>Čítanie a zápis</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2675"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2679"/>
         <source>Read-only</source>
         <translation>Len na čítanie</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2676"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2680"/>
         <source>Write-only</source>
         <translation>Len pre zápis</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2677"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2681"/>
         <source>Inaccessible</source>
         <translation>Neprístupné</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2679"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2683"/>
         <source>Symlink to File</source>
         <translation>Symbolický odkaz na súbor</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2680"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2684"/>
         <source>Symlink to Directory</source>
         <translation>Symbolický odkaz na priečinok</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2681"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2685"/>
         <source>Symlink to Special</source>
         <translation>Symbolický odkaz na špeciálny súbor</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2682"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2686"/>
         <source>File</source>
         <translation>Súbor</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2683"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2687"/>
         <source>Dir</source>
         <translation>Priečinok</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2684"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2688"/>
         <source>Special</source>
         <translation>Špeciálny súbor</translation>
     </message>
@@ -222,12 +222,12 @@
         <translation>Uložiť ako</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4538"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4537"/>
         <source>&amp;Open</source>
         <translation>&amp;Otvoriť</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4522"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4521"/>
         <source>&amp;Save</source>
         <translation>&amp;Uložiť</translation>
     </message>
@@ -327,27 +327,27 @@
         <translation>Nový priečinok %1</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4422"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4421"/>
         <source>Find Directory</source>
         <translation>Nájsť priečinok</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4535"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4534"/>
         <source>Directories</source>
         <translation>Priečinky</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4533"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4532"/>
         <source>Directory:</source>
         <translation>Priečinok:</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="5723"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="5722"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4574"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4573"/>
         <source>%1
 File not found.
 Check path and filename.</source>
@@ -423,12 +423,12 @@ na
 <context>
     <name>Q3MainWindow</name>
     <message>
-        <location filename="../src/qt3support/widgets/q3mainwindow.cpp" line="2049"/>
+        <location filename="../src/qt3support/widgets/q3mainwindow.cpp" line="2050"/>
         <source>Line up</source>
         <translation>Vyrovnať</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/widgets/q3mainwindow.cpp" line="2051"/>
+        <location filename="../src/qt3support/widgets/q3mainwindow.cpp" line="2052"/>
         <source>Customize...</source>
         <translation>Prispôsobiť...</translation>
     </message>
@@ -594,47 +594,47 @@ na
 <context>
     <name>Q3UrlOperator</name>
     <message>
-        <location filename="../src/qt3support/network/q3urloperator.cpp" line="622"/>
+        <location filename="../src/qt3support/network/q3urloperator.cpp" line="624"/>
         <source>The protocol `%1&apos; is not supported</source>
         <translation>Protokol &apos;%1&apos; nie je podporovaný</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/network/q3urloperator.cpp" line="362"/>
+        <location filename="../src/qt3support/network/q3urloperator.cpp" line="364"/>
         <source>The protocol `%1&apos; does not support listing directories</source>
         <translation>Protokol &apos;%1&apos; nepodporuje výpis priečinkov</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/network/q3urloperator.cpp" line="365"/>
+        <location filename="../src/qt3support/network/q3urloperator.cpp" line="367"/>
         <source>The protocol `%1&apos; does not support creating new directories</source>
         <translation>Protokol &apos;%1&apos; nepodporuje vytváranie nových priečinkov</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/network/q3urloperator.cpp" line="368"/>
+        <location filename="../src/qt3support/network/q3urloperator.cpp" line="370"/>
         <source>The protocol `%1&apos; does not support removing files or directories</source>
         <translation>Protokol &apos;%1&apos; nepodporuje odstránenie súborov alebo priečinkov</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/network/q3urloperator.cpp" line="371"/>
+        <location filename="../src/qt3support/network/q3urloperator.cpp" line="373"/>
         <source>The protocol `%1&apos; does not support renaming files or directories</source>
         <translation>Protokol &apos;%1&apos; nepodporuje premenovanie súborov alebo priečinkov</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/network/q3urloperator.cpp" line="374"/>
+        <location filename="../src/qt3support/network/q3urloperator.cpp" line="376"/>
         <source>The protocol `%1&apos; does not support getting files</source>
         <translation>Protokol &apos;%1&apos; nepodporuje získavanie súborov</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/network/q3urloperator.cpp" line="377"/>
+        <location filename="../src/qt3support/network/q3urloperator.cpp" line="379"/>
         <source>The protocol `%1&apos; does not support putting files</source>
         <translation>Protokol &apos;%1&apos; nepodporuje ukladanie súborov</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/network/q3urloperator.cpp" line="624"/>
+        <location filename="../src/qt3support/network/q3urloperator.cpp" line="626"/>
         <source>The protocol `%1&apos; does not support copying or moving files or directories</source>
         <translation>Protokol &apos;%1&apos; nepodporuje kopírovanie alebo presun súborov alebo priečinkov</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/network/q3urloperator.cpp" line="879"/>
+        <location filename="../src/qt3support/network/q3urloperator.cpp" line="881"/>
         <source>(unknown)</source>
         <translation>(neznáme)</translation>
     </message>
@@ -670,22 +670,22 @@ na
 <context>
     <name>QAbstractSocket</name>
     <message>
-        <location filename="../src/network/qabstractsocket.cpp" line="674"/>
+        <location filename="../src/network/qabstractsocket.cpp" line="711"/>
         <source>Host not found</source>
         <translation>Počítač nenájdený</translation>
     </message>
     <message>
-        <location filename="../src/network/qabstractsocket.cpp" line="733"/>
+        <location filename="../src/network/qhttpsocketengine.cpp" line="479"/>
         <source>Connection refused</source>
         <translation>Spojenie odmietnuté</translation>
     </message>
     <message>
-        <location filename="../src/network/qabstractsocket.cpp" line="1370"/>
+        <location filename="../src/network/qabstractsocket.cpp" line="1457"/>
         <source>Socket operation timed out</source>
         <translation>Vypršal čas pre operáciu so soketom</translation>
     </message>
     <message>
-        <location filename="../src/network/qabstractsocket.cpp" line="1719"/>
+        <location filename="../src/network/qabstractsocket.cpp" line="1823"/>
         <source>Socket is not connected</source>
         <translation type="unfinished"></translation>
     </message>
@@ -693,31 +693,36 @@ na
 <context>
     <name>QAbstractSpinBox</name>
     <message>
-        <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1113"/>
+        <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1197"/>
         <source>&amp;Step up</source>
         <translation>Krok na&amp;hor</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1115"/>
+        <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1199"/>
         <source>Step &amp;down</source>
         <translation>Krok na&amp;dol</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1191"/>
+        <source>&amp;Select All</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QApplication</name>
     <message>
-        <location filename="../src/gui/kernel/qapplication.cpp" line="1932"/>
+        <location filename="../src/gui/kernel/qapplication.cpp" line="1981"/>
         <source>QT_LAYOUT_DIRECTION</source>
         <comment>Translate this string to the string &apos;LTR&apos; in left-to-right languages or to &apos;RTL&apos; in right-to-left languages (such as Hebrew and Arabic) to get proper widget layout.</comment>
         <translation>LTR</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qmessagebox.h" line="305"/>
+        <location filename="../src/gui/dialogs/qmessagebox.h" line="308"/>
         <source>Executable &apos;%1&apos; requires Qt %2, found Qt %3.</source>
         <translation>Program &apos;%1&apos; vyžaduje Qt %2, nájdené Qt %3.</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qmessagebox.h" line="307"/>
+        <location filename="../src/gui/dialogs/qmessagebox.h" line="310"/>
         <source>Incompatible Qt Library Error</source>
         <translation>Chyba kompatibility knižnice Qt</translation>
     </message>
@@ -735,22 +740,22 @@ na
 <context>
     <name>QAxSelect</name>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="28"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="123"/>
         <source>Select ActiveX Control</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="60"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="124"/>
         <source>OK</source>
         <translation type="unfinished">OK</translation>
     </message>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="76"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="125"/>
         <source>&amp;Cancel</source>
         <translation type="unfinished">S&amp;torno</translation>
     </message>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="125"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="126"/>
         <source>COM &amp;Object:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -758,17 +763,17 @@ na
 <context>
     <name>QCheckBox</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="77"/>
+        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="84"/>
         <source>Uncheck</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="80"/>
+        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="87"/>
         <source>Check</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="81"/>
+        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="88"/>
         <source>Toggle</source>
         <translation type="unfinished"></translation>
     </message>
@@ -776,72 +781,72 @@ na
 <context>
     <name>QColorDialog</name>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1036"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1204"/>
         <source>Hu&amp;e:</source>
         <translation>Od&amp;tieň:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1045"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1205"/>
         <source>&amp;Sat:</source>
         <translation>Na&amp;s:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1054"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1206"/>
         <source>&amp;Val:</source>
         <translation>&amp;Hod:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1063"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1207"/>
         <source>&amp;Red:</source>
         <translation>Če&amp;rvená:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1072"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1208"/>
         <source>&amp;Green:</source>
         <translation>&amp;Zelená:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1081"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1209"/>
         <source>Bl&amp;ue:</source>
         <translation>&amp;Modrá:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1090"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1210"/>
         <source>A&amp;lpha channel:</source>
         <translation>Kanál a&amp;lfa:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1285"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1410"/>
         <source>&amp;Basic colors</source>
         <translation>&amp;Základné farby</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1300"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1411"/>
         <source>&amp;Custom colors</source>
         <translation>&amp;Vlastné farby</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1307"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1412"/>
         <source>&amp;Define Custom Colors &gt;&gt;</source>
         <translation>&amp;Definovať vlastné farby &gt;&gt;</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1356"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1415"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1359"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1416"/>
         <source>Cancel</source>
         <translation>Storno</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1366"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1413"/>
         <source>&amp;Add to Custom Colors</source>
         <translation>Prid&amp;ať k vlastným farbám</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1499"/>
+        <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1539"/>
         <source>Select color</source>
         <translation>Vybrať farbu</translation>
     </message>
@@ -849,30 +854,40 @@ na
 <context>
     <name>QComboBox</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="864"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1156"/>
         <source>Open</source>
         <translation type="unfinished">Otvoriť</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemviews/qitemeditorfactory.cpp" line="480"/>
+        <source>False</source>
+        <translation type="unfinished">Nepravda</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/itemviews/qitemeditorfactory.cpp" line="481"/>
+        <source>True</source>
+        <translation type="unfinished">Pravda</translation>
     </message>
 </context>
 <context>
     <name>QDB2Driver</name>
     <message>
-        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="1151"/>
+        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="1153"/>
         <source>Unable to connect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="1410"/>
+        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="1414"/>
         <source>Unable to commit transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="1427"/>
+        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="1431"/>
         <source>Unable to rollback transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="1442"/>
+        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="1446"/>
         <source>Unable to set autocommit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -880,32 +895,32 @@ na
 <context>
     <name>QDB2Result</name>
     <message>
-        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="766"/>
+        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="768"/>
         <source>Unable to execute statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="560"/>
+        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="562"/>
         <source>Unable to prepare statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="756"/>
+        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="758"/>
         <source>Unable to bind variable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="847"/>
+        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="849"/>
         <source>Unable to fetch record %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="864"/>
+        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="866"/>
         <source>Unable to fetch next</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="883"/>
+        <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="885"/>
         <source>Unable to fetch first</source>
         <translation type="unfinished"></translation>
     </message>
@@ -913,30 +928,48 @@ na
 <context>
     <name>QDateTimeEdit</name>
     <message>
-        <location filename="../src/gui/widgets/qdatetimeedit.cpp" line="1954"/>
+        <location filename="../src/gui/widgets/qdatetimeedit.cpp" line="2062"/>
         <source>AM</source>
         <translation>AM</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdatetimeedit.cpp" line="1954"/>
+        <location filename="../src/gui/widgets/qdatetimeedit.cpp" line="2062"/>
         <source>am</source>
         <translation>am</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdatetimeedit.cpp" line="1956"/>
+        <location filename="../src/gui/widgets/qdatetimeedit.cpp" line="2064"/>
         <source>PM</source>
         <translation>PM</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdatetimeedit.cpp" line="1956"/>
+        <location filename="../src/gui/widgets/qdatetimeedit.cpp" line="2064"/>
         <source>pm</source>
         <translation>pm</translation>
     </message>
 </context>
 <context>
+    <name>QDial</name>
+    <message>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="918"/>
+        <source>QDial</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="920"/>
+        <source>SpeedoMeter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="922"/>
+        <source>SliderHandle</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QDialog</name>
     <message>
-        <location filename="../src/gui/dialogs/qdialog.cpp" line="469"/>
+        <location filename="../src/gui/dialogs/qdialog.cpp" line="476"/>
         <source>What&apos;s This?</source>
         <translation>Čo je to?</translation>
     </message>
@@ -944,243 +977,191 @@ na
 <context>
     <name>QDialogButtonBox</name>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="437"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="526"/>
         <source>OK</source>
         <translation type="unfinished">OK</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="441"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="529"/>
         <source>Save</source>
         <translation type="unfinished">Uložiť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="445"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="532"/>
         <source>Open</source>
         <translation type="unfinished">Otvoriť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="449"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="535"/>
         <source>Cancel</source>
         <translation type="unfinished">Storno</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="453"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="538"/>
         <source>Close</source>
         <translation type="unfinished">Zavrieť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="457"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="541"/>
         <source>Apply</source>
         <translation type="unfinished">Použiť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="461"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="544"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="465"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="547"/>
         <source>Help</source>
         <translation type="unfinished">Pomocník</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="470"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="551"/>
         <source>Don&apos;t Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="474"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="555"/>
         <source>Discard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="478"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="558"/>
         <source>&amp;Yes</source>
         <translation type="unfinished">Án&amp;o</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="481"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="561"/>
         <source>Yes to &amp;All</source>
         <translation type="unfinished">Áno pre &amp;všetko</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="485"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="564"/>
         <source>&amp;No</source>
         <translation type="unfinished">&amp;Nie</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="488"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="567"/>
         <source>N&amp;o to All</source>
         <translation type="unfinished">Nie pre všetk&amp;o</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="491"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="570"/>
         <source>Save All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="494"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="573"/>
         <source>Abort</source>
         <translation type="unfinished">Prerušiť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="497"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="576"/>
         <source>Retry</source>
         <translation type="unfinished">Skúsiť znova</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="500"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="579"/>
         <source>Ignore</source>
         <translation type="unfinished">Ignorovať</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="503"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="582"/>
         <source>Restore Defaults</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="472"/>
+        <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="553"/>
         <source>Close without Saving</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>QDialogButtons</name>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Yes to All</source>
-        <translation type="obsolete">Áno pre všetko</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>OK to All</source>
-        <translation type="obsolete">OK pre všetko</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>No to All</source>
-        <translation type="obsolete">Nie pre všetko</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Cancel All</source>
-        <translation type="obsolete">Stornovať všetko</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Yes</source>
-        <translation type="obsolete">Áno</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>OK</source>
-        <translation type="obsolete">OK</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>No</source>
-        <translation type="obsolete">Nie</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Cancel</source>
-        <translation type="obsolete">Storno</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Apply</source>
-        <translation type="obsolete">Použiť</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Ignore</source>
-        <translation type="obsolete">Ignorovať</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Retry</source>
-        <translation type="obsolete">Skúsiť znova</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Abort</source>
-        <translation type="obsolete">Prerušiť</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Help</source>
-        <translation type="obsolete">Pomocník</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>%1 to All</source>
-        <translation type="obsolete">%1 pre všetko</translation>
-    </message>
-</context>
-<context>
     <name>QDirModel</name>
     <message>
-        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="647"/>
+        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="419"/>
         <source>Name</source>
         <translation>Meno</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="648"/>
+        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="420"/>
         <source>Size</source>
         <translation>Veľkosť</translation>
     </message>
     <message>
-        <location filename="" line="135603348"/>
-        <source>Type</source>
-        <translation type="obsolete">Typ</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Modified</source>
-        <translation type="obsolete">Zmenený</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="651"/>
+        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="423"/>
         <source>Kind</source>
         <comment>Match OS X Finder</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="653"/>
+        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="425"/>
         <source>Type</source>
         <comment>All other platforms</comment>
         <translation type="unfinished">Typ</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="659"/>
+        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="431"/>
         <source>Date Modified</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QDockWidget</name>
+    <message>
+        <location filename="../src/plugins/accessible/widgets/qaccessiblewidgets.cpp" line="1238"/>
+        <source>Close</source>
+        <translation type="unfinished">Zavrieť</translation>
+    </message>
+    <message>
+        <location filename="../src/plugins/accessible/widgets/qaccessiblewidgets.cpp" line="1241"/>
+        <source>Dock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/plugins/accessible/widgets/qaccessiblewidgets.cpp" line="1241"/>
+        <source>Float</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QDoubleSpinBox</name>
+    <message>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="387"/>
+        <source>More</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="389"/>
+        <source>Less</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QErrorMessage</name>
     <message>
-        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="177"/>
+        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="284"/>
         <source>&amp;Show this message again</source>
         <translation>&amp;Zobraziť túto správu aj nabudúce</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="180"/>
+        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="285"/>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="130"/>
+        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="131"/>
         <source>Debug Message:</source>
         <translation>Ladiaca správa:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="133"/>
+        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="134"/>
         <source>Warning:</source>
         <translation>Varovanie:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="136"/>
+        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="137"/>
         <source>Fatal Error:</source>
         <translation>Kritická chyba:</translation>
     </message>
@@ -1188,109 +1169,69 @@ na
 <context>
     <name>QFileDialog</name>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1815"/>
-        <source>Cancel</source>
-        <translation type="obsolete">Storno</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qfiledialog_mac.cpp" line="83"/>
+        <location filename="../src/gui/dialogs/qfiledialog_mac.cpp" line="84"/>
         <source>All Files (*)</source>
         <translation>Všetky súbory (*)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1792"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="444"/>
         <source>Back</source>
         <translation>Späť</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1814"/>
-        <source>Create New Folder</source>
-        <translation>Vytvoriť nový priečinok</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1824"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="448"/>
         <source>List View</source>
         <translation>Zoznam</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1835"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="449"/>
         <source>Detail View</source>
         <translation>Detaily</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog_win.cpp" line="314"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="416"/>
         <source>Open</source>
         <translation>Otvoriť</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1679"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="799"/>
         <source>&amp;Open</source>
         <translation>&amp;Otvoriť</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="670"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="799"/>
         <source>&amp;Save</source>
         <translation>&amp;Uložiť</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1682"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="453"/>
         <source>&amp;Rename</source>
         <translation>P&amp;remenovať</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1685"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="454"/>
         <source>&amp;Delete</source>
         <translation>O&amp;dstrániť</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1691"/>
-        <source>Sort by &amp;Name</source>
-        <translation>Triediť podľa me&amp;na</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1696"/>
-        <source>Sort by &amp;Size</source>
-        <translation>Triediť podľa &amp;veľkosti</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1700"/>
-        <source>Sort by &amp;Date</source>
-        <translation>Triediť podľa &amp;dátumu</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1704"/>
-        <source>&amp;Unsorted</source>
-        <translation>&amp;Netriediť</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1409"/>
-        <source>Sort</source>
-        <translation>Triediť</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1708"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="455"/>
         <source>Show &amp;hidden files</source>
         <translation>Zobraziť &amp;skryté súbory</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1652"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="763"/>
         <source>Directories</source>
         <translation>Priečinky</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="657"/>
-        <source>Save</source>
-        <translation type="obsolete">Uložiť</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="945"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1598"/>
         <source>%1 already exists.
 Do you want to replace it?</source>
         <translation>%1 už existuje. 
 Chcete ho nahradiť?</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="962"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1616"/>
         <source>%1
 File not found.
 Please verify the correct file name was given.</source>
@@ -1299,49 +1240,34 @@ Súbor nenájdený.
 Prosím overte správnosť zadaného mena súboru.</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="1048"/>
+        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="823"/>
         <source>My Computer</source>
         <translation>Môj počítač</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1688"/>
-        <source>&amp;Reload</source>
-        <translation>O&amp;bnoviť</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1803"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="446"/>
         <source>Parent Directory</source>
         <translation>Rodičovský priečinok</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1850"/>
-        <source>Look in:</source>
-        <translation>Hľadať v:</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1852"/>
-        <source>File name:</source>
-        <translation>Meno súboru:</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1854"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="428"/>
         <source>Files of type:</source>
         <translation>Súbory typu:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="644"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="765"/>
         <source>Directory:</source>
         <translation type="unfinished">Priečinok:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="914"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1559"/>
         <source>
 File not found.
 Please verify the correct file name was given</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1109"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2611"/>
         <source>%1
 Directory not found.
 Please verify the correct directory name was given.</source>
@@ -1350,18 +1276,18 @@ Priečinok nenájdený.
 Prosím overte správnosť zadaného mena priečinku.</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1489"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2456"/>
         <source>&apos;%1&apos; is write protected.
 Do you want to delete it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1494"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2461"/>
         <source>Are sure you want to delete &apos;%1&apos;?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1503"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2472"/>
         <source>Could not delete directory.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1371,112 +1297,190 @@ Do you want to delete it anyway?</source>
         <translation type="unfinished">Všetky súbory (*.*)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog_win.cpp" line="393"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="418"/>
         <source>Save As</source>
         <translation type="unfinished">Uložiť ako</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog_win.cpp" line="497"/>
-        <source>Open </source>
-        <translation type="unfinished">Otvoriť </translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qfiledialog_win.cpp" line="651"/>
-        <source>Select a Directory</source>
-        <translation type="unfinished">Vyberte priečinok</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="231"/>
+        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="328"/>
         <source>Drive</source>
         <translation type="unfinished">Oddiel</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="235"/>
+        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="332"/>
         <source>File</source>
         <translation type="unfinished">Súbor</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qdirmodel.cpp" line="264"/>
+        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="361"/>
         <source>Unknown</source>
         <translation type="unfinished">Neznáme</translation>
     </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="420"/>
+        <source>Find Directory</source>
+        <translation type="unfinished">Nájsť priečinok</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="427"/>
+        <source>Where:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="439"/>
+        <source>Show </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="445"/>
+        <source>Forward</source>
+        <translation type="unfinished">Dopredu</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2351"/>
+        <source>New Folder</source>
+        <translation type="unfinished">Nový priečinok</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="456"/>
+        <source>&amp;New Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="797"/>
+        <source>&amp;Choose</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="768"/>
+        <source>Save &amp;as:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qsidebar.cpp" line="360"/>
+        <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
-    <name>QFileDialogPrivate</name>
+    <name>QFileSystemModel</name>
     <message>
-        <location filename="" line="135603348"/>
-        <source>%1
-Directory not found.
-Please verify the correct directory name was given.</source>
-        <translation type="obsolete">%1 
-Priečinok nenájdený. 
-Prosím overte správnosť zadaného mena priečinku.</translation>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="465"/>
+        <source>%1 TB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="467"/>
+        <source>%1 GB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="469"/>
+        <source>%1 MB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="471"/>
+        <source>%1 KB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="472"/>
+        <source>%1 bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="546"/>
+        <source>Invalid filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="548"/>
+        <source>&lt;b&gt;The name &quot;%1&quot; can not be used.&lt;/b&gt;&lt;p&gt;Try using another name, with fewer characters or no punctuations marks.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="598"/>
+        <source>Name</source>
+        <translation type="unfinished">Meno</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="600"/>
+        <source>Size</source>
+        <translation type="unfinished">Veľkosť</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="604"/>
+        <source>Kind</source>
+        <comment>Match OS X Finder</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="606"/>
+        <source>Type</source>
+        <comment>All other platforms</comment>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="613"/>
+        <source>Date Modified</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfilesystemmodel_p.h" line="264"/>
+        <source>My Computer</source>
+        <translation type="unfinished">Môj počítač</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qfilesystemmodel_p.h" line="266"/>
+        <source>Computer</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QFontDialog</name>
     <message>
-        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="196"/>
+        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="786"/>
         <source>&amp;Font</source>
         <translation>&amp;Písmo</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="207"/>
+        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="787"/>
         <source>Font st&amp;yle</source>
         <translation>Š&amp;týl písma</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="219"/>
+        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="788"/>
         <source>&amp;Size</source>
         <translation>&amp;Veľkosť</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="226"/>
+        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="789"/>
         <source>Effects</source>
         <translation>Efekty</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="229"/>
+        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="790"/>
         <source>Stri&amp;keout</source>
         <translation>Prečiar&amp;knuť</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="232"/>
+        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="791"/>
         <source>&amp;Underline</source>
         <translation>&amp;Podčiarknuť</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="235"/>
+        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="792"/>
         <source>Sample</source>
         <translation>Náhľad</translation>
     </message>
     <message>
-        <location filename="" line="135603348"/>
-        <source>OK</source>
-        <translation type="obsolete">OK</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Apply</source>
-        <translation type="obsolete">Použiť</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Cancel</source>
-        <translation type="obsolete">Storno</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Close</source>
-        <translation type="obsolete">Zavrieť</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="445"/>
+        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="449"/>
         <source>Select Font</source>
         <translation>Vybrať písmo</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="247"/>
+        <location filename="../src/gui/dialogs/qfontdialog.cpp" line="793"/>
         <source>Wr&amp;iting System</source>
         <translation>Systém písan&amp;ia</translation>
     </message>
@@ -1613,17 +1617,17 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
 <context>
     <name>QHostInfoAgent</name>
     <message>
-        <location filename="../src/network/qhostinfo_win.cpp" line="202"/>
+        <location filename="../src/network/qhostinfo_win.cpp" line="207"/>
         <source>Host not found</source>
         <translation>Počítač nenájdený</translation>
     </message>
     <message>
-        <location filename="../src/network/qhostinfo_win.cpp" line="197"/>
+        <location filename="../src/network/qhostinfo_win.cpp" line="202"/>
         <source>Unknown address type</source>
         <translation>Neznámy typ adresy</translation>
     </message>
     <message>
-        <location filename="../src/network/qhostinfo_win.cpp" line="205"/>
+        <location filename="../src/network/qhostinfo_win.cpp" line="210"/>
         <source>Unknown error</source>
         <translation>Neznáma chyba</translation>
     </message>
@@ -1710,26 +1714,44 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
         <source>Connection to %1 closed</source>
         <translation>Spojenie s %1 uzavreté</translation>
     </message>
+    <message>
+        <location filename="../src/network/qhttp.cpp" line="2640"/>
+        <source>Proxy authentication required</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/network/qhttp.cpp" line="2644"/>
+        <source>Authentication required</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QHttpSocketEngine</name>
+    <message>
+        <location filename="../src/network/qhttpsocketengine.cpp" line="492"/>
+        <source>Authentication required</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QIBaseDriver</name>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1243"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1328"/>
         <source>Error opening database</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1276"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1361"/>
         <source>Could not start transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1289"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1374"/>
         <source>Unable to commit transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1302"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1387"/>
         <source>Unable to rollback transaction</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1737,87 +1759,87 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
 <context>
     <name>QIBaseResult</name>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="340"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="349"/>
         <source>Unable to create BLOB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="346"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="355"/>
         <source>Unable to write BLOB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="360"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="369"/>
         <source>Unable to open BLOB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="376"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="387"/>
         <source>Unable to read BLOB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="678"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="699"/>
         <source>Could not find array</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="523"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="542"/>
         <source>Could not get array data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="732"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="754"/>
         <source>Could not get query info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="752"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="774"/>
         <source>Could not start transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="771"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="793"/>
         <source>Unable to commit transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="804"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="826"/>
         <source>Could not allocate statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="809"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="831"/>
         <source>Could not prepare statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="822"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="844"/>
         <source>Could not describe input statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="831"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="853"/>
         <source>Could not describe statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="938"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="968"/>
         <source>Unable to close statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="943"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="976"/>
         <source>Unable to execute query</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="974"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1018"/>
         <source>Could not fetch next item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1122"/>
+        <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1178"/>
         <source>Could not get statement info</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1825,27 +1847,27 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
 <context>
     <name>QIODevice</name>
     <message>
-        <location filename="../src/corelib/global/qglobal.cpp" line="1849"/>
+        <location filename="../src/corelib/global/qglobal.cpp" line="1973"/>
         <source>Permission denied</source>
         <translation>Prístup zamietnutý</translation>
     </message>
     <message>
-        <location filename="../src/corelib/global/qglobal.cpp" line="1852"/>
+        <location filename="../src/corelib/global/qglobal.cpp" line="1976"/>
         <source>Too many open files</source>
         <translation>Príliš veľa otvorených súborov</translation>
     </message>
     <message>
-        <location filename="../src/corelib/global/qglobal.cpp" line="1855"/>
+        <location filename="../src/corelib/global/qglobal.cpp" line="1979"/>
         <source>No such file or directory</source>
         <translation>Žiadny taký súbor alebo priečinok</translation>
     </message>
     <message>
-        <location filename="../src/corelib/global/qglobal.cpp" line="1858"/>
+        <location filename="../src/corelib/global/qglobal.cpp" line="1982"/>
         <source>No space left on device</source>
         <translation>Na zariadení nie je voľné miesto</translation>
     </message>
     <message>
-        <location filename="../src/corelib/io/qiodevice.cpp" line="1430"/>
+        <location filename="../src/corelib/io/qiodevice.cpp" line="1484"/>
         <source>Unknown error</source>
         <translation>Neznáma chyba</translation>
     </message>
@@ -1874,100 +1896,102 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
     </message>
 </context>
 <context>
-    <name>QInputDialog</name>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>OK</source>
-        <translation type="obsolete">OK</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Cancel</source>
-        <translation type="obsolete">Storno</translation>
-    </message>
-</context>
-<context>
     <name>QLibrary</name>
     <message>
-        <location filename="../src/corelib/plugin/qlibrary_win.cpp" line="48"/>
+        <location filename="../src/corelib/plugin/qlibrary_win.cpp" line="50"/>
         <source>QLibrary::load_sys: Cannot load %1 (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/corelib/plugin/qlibrary_win.cpp" line="60"/>
+        <location filename="../src/corelib/plugin/qlibrary_win.cpp" line="76"/>
         <source>QLibrary::unload_sys: Cannot unload %1 (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/corelib/plugin/qlibrary_win.cpp" line="75"/>
+        <location filename="../src/corelib/plugin/qlibrary_win.cpp" line="91"/>
         <source>QLibrary::resolve_sys: Symbol &quot;%1&quot; undefined in %2 (%3)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/corelib/plugin/qlibrary.cpp" line="352"/>
+        <location filename="../src/corelib/plugin/qlibrary.cpp" line="355"/>
         <source>Could not mmap &apos;%1&apos;: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/corelib/plugin/qlibrary.cpp" line="373"/>
+        <location filename="../src/corelib/plugin/qlibrary.cpp" line="376"/>
         <source>Plugin verification data mismatch in &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/corelib/plugin/qlibrary.cpp" line="380"/>
+        <location filename="../src/corelib/plugin/qlibrary.cpp" line="383"/>
         <source>Could not unmap &apos;%1&apos;: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/corelib/plugin/qlibrary.cpp" line="608"/>
+        <location filename="../src/corelib/plugin/qlibrary.cpp" line="620"/>
         <source>The plugin &apos;%1&apos; uses incompatible Qt library. (%2.%3.%4) [%5]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/corelib/plugin/qlibrary.cpp" line="624"/>
+        <location filename="../src/corelib/plugin/qlibrary.cpp" line="636"/>
         <source>The plugin &apos;%1&apos; uses incompatible Qt library. Expected build key &quot;%2&quot;, got &quot;%3&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/corelib/plugin/qlibrary.cpp" line="916"/>
+        <location filename="../src/corelib/plugin/qlibrary.cpp" line="928"/>
         <source>Unknown error</source>
         <translation type="unfinished">Neznáma chyba</translation>
+    </message>
+    <message>
+        <location filename="../src/corelib/plugin/qlibrary.cpp" line="602"/>
+        <source>The shared library was not found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/corelib/plugin/qlibrary.cpp" line="604"/>
+        <source>The file &apos;%1&apos; is not a valid Qt plugin.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/corelib/plugin/qlibrary.cpp" line="643"/>
+        <source>The plugin &apos;%1&apos; uses incompatible Qt library. (Cannot mix debug and release libraries.)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QLineEdit</name>
     <message>
-        <location filename="../src/gui/widgets/qlineedit.cpp" line="2484"/>
+        <location filename="../src/gui/widgets/qlineedit.cpp" line="2582"/>
         <source>&amp;Undo</source>
         <translation>V&amp;rátiť späť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qlineedit.cpp" line="2486"/>
+        <location filename="../src/gui/widgets/qlineedit.cpp" line="2584"/>
         <source>&amp;Redo</source>
         <translation>&amp;Opakovať vrátené</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qlineedit.cpp" line="2490"/>
+        <location filename="../src/gui/widgets/qlineedit.cpp" line="2588"/>
         <source>Cu&amp;t</source>
         <translation>Vys&amp;trihnúť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qlineedit.cpp" line="2492"/>
+        <location filename="../src/gui/widgets/qlineedit.cpp" line="2590"/>
         <source>&amp;Copy</source>
         <translation>&amp;Kopírovať</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qlineedit.cpp" line="2494"/>
+        <location filename="../src/gui/widgets/qlineedit.cpp" line="2592"/>
         <source>&amp;Paste</source>
         <translation>V&amp;ložiť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qlineedit.cpp" line="2501"/>
+        <location filename="../src/gui/widgets/qlineedit.cpp" line="2599"/>
         <source>Select All</source>
         <translation>Vybrať všetko</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qlineedit.cpp" line="2497"/>
+        <location filename="../src/gui/widgets/qlineedit.cpp" line="2595"/>
         <source>Delete</source>
         <translation>Odstrániť</translation>
     </message>
@@ -1975,27 +1999,27 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
 <context>
     <name>QMYSQLDriver</name>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="1066"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="1077"/>
         <source>Unable to open database &apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="1073"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="1084"/>
         <source>Unable to connect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="1193"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="1204"/>
         <source>Unable to begin transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="1210"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="1221"/>
         <source>Unable to commit transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="1227"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="1238"/>
         <source>Unable to rollback transaction</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2003,49 +2027,107 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
 <context>
     <name>QMYSQLResult</name>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="434"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="444"/>
         <source>Unable to fetch data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="584"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="594"/>
         <source>Unable to execute query</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="590"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="600"/>
         <source>Unable to store result</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="721"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="731"/>
         <source>Unable to prepare statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="752"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="762"/>
         <source>Unable to reset statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="839"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="849"/>
         <source>Unable to bind value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="850"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="860"/>
         <source>Unable to execute statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="885"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="895"/>
         <source>Unable to bind outvalues</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="873"/>
+        <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="883"/>
         <source>Unable to store statement results</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QMdiSubWindow</name>
+    <message>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="247"/>
+        <source>%1 - [%2]</source>
+        <translation type="unfinished">%1 - [%2]</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="540"/>
+        <source>Close</source>
+        <translation type="unfinished">Zavrieť</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="543"/>
+        <source>Minimize</source>
+        <translation type="unfinished">Minimalizovať</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="546"/>
+        <source>Restore Down</source>
+        <translation type="unfinished">Obnoviť dolu</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="858"/>
+        <source>&amp;Restore</source>
+        <translation type="unfinished">&amp;Obnoviť</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="861"/>
+        <source>&amp;Move</source>
+        <translation type="unfinished">&amp;Presunúť</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="862"/>
+        <source>&amp;Size</source>
+        <translation type="unfinished">&amp;Veľkosť</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="863"/>
+        <source>Mi&amp;nimize</source>
+        <translation type="unfinished">Mi&amp;nimalizovať</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="865"/>
+        <source>Ma&amp;ximize</source>
+        <translation type="unfinished">Ma&amp;ximalizovať</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="867"/>
+        <source>Stay on &amp;Top</source>
+        <translation type="unfinished">Nechať navr&amp;chu</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="870"/>
+        <source>&amp;Close</source>
+        <translation type="unfinished">&amp;Zavrieť</translation>
     </message>
 </context>
 <context>
@@ -2132,92 +2214,42 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
 <context>
     <name>QMessageBox</name>
     <message>
-        <location filename="../src/gui/dialogs/qmessagebox.h" line="272"/>
+        <location filename="../src/gui/dialogs/qmessagebox.h" line="274"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="" line="135603348"/>
-        <source>Cancel</source>
-        <translation type="obsolete">Storno</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>&amp;Yes</source>
-        <translation type="obsolete">Án&amp;o</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>&amp;No</source>
-        <translation type="obsolete">&amp;Nie</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>&amp;Abort</source>
-        <translation type="obsolete">&amp;Prerušiť</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>&amp;Retry</source>
-        <translation type="obsolete">Skúsiť &amp;znovu</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>&amp;Ignore</source>
-        <translation type="obsolete">&amp;Ignorovať</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Yes to &amp;All</source>
-        <translation type="obsolete">Áno pre &amp;všetko</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>N&amp;o to All</source>
-        <translation type="obsolete">Nie pre všetk&amp;o</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1382"/>
+        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1454"/>
         <source>About Qt</source>
         <translation>O knižnici Qt</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qdialog.cpp" line="564"/>
+        <location filename="../src/gui/dialogs/qdialog.cpp" line="571"/>
         <source>Help</source>
         <translation>Pomocník</translation>
     </message>
     <message>
-        <location filename="" line="135603348"/>
-        <source>&lt;h3&gt;About Qt&lt;/h3&gt;%1&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants. Qt is also available for embedded devices as Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;O knižnici Qt&lt;/h3&gt;%1&lt;p&gt;Qt je C++ nástroj pre vývoj viac-platformových aplikácií.&lt;/p&gt;&lt;p&gt;Qt poskytuje jedno zdrojový prenos medzi MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux a všetkými významnými komerčnými variantmi Unix. Qt je tiež dostupná pre vložené zariadenia ako Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt je produkt spoločnosti Trolltech. Pozrite &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pre viac informácií.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="245"/>
+        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1632"/>
         <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Tento program používa Qt verziu %1.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="" line="135603348"/>
-        <source>&lt;p&gt;This program uses Qt Open Source Edition version %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition is intended for the development of Open Source applications. You need a commercial Qt license for development of proprietary (closed source) applications.&lt;/p&gt;&lt;p&gt;Please see &lt;tt&gt;http://www.trolltech.com/company/model.html&lt;/tt&gt; for an overview of Qt licensing.&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;Tento program používa Qt Open Source Edition verziu %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition je určená pre vývoj Open Source aplikácií. Pre vývoj vlastnených (closed source) aplikácií potrebujete komerčnú Qt licenciu.&lt;/p&gt;&lt;p&gt;Prosím pozrite &lt;tt&gt;http://www.trolltech.com/company/model.html&lt;/tt&gt; pre prehľad Qt licencovania.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="244"/>
+        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1631"/>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;%1&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants. Qt is also available for embedded devices as Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;a href=&quot;http://www.trolltech.com/qt/&quot;&gt;www.trolltech.com/qt/&lt;/a&gt; for more information.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="80"/>
+        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="81"/>
         <source>Show Details...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="80"/>
+        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="81"/>
         <source>Hide Details...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="253"/>
+        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1640"/>
         <source>&lt;p&gt;This program uses Qt Open Source Edition version %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition is intended for the development of Open Source applications. You need a commercial Qt license for development of proprietary (closed source) applications.&lt;/p&gt;&lt;p&gt;Please see &lt;a href=&quot;http://www.trolltech.com/company/model/&quot;&gt;www.trolltech.com/company/model/&lt;/a&gt; for an overview of Qt licensing.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2246,132 +2278,127 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
 <context>
     <name>QNativeSocketEngine</name>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="160"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="167"/>
         <source>The remote host closed the connection</source>
         <translation>Vzdialený počítač uzavrel spojenie</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="163"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="170"/>
         <source>Network operation timed out</source>
         <translation>Vypršal čas pre sieťovú operáciu</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="166"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="173"/>
         <source>Out of resources</source>
         <translation>Nedostatok zdrojov</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="169"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="176"/>
         <source>Unsupported socket operation</source>
         <translation>Nepodporovaná operácia so soketom</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="172"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="179"/>
         <source>Protocol type not supported</source>
         <translation>Nepodporovaný typ protokolu</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="175"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="182"/>
         <source>Invalid socket descriptor</source>
         <translation>Neplatný popis soketu</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="181"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="188"/>
         <source>Network unreachable</source>
         <translation>Sieť nedostupná</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="184"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="191"/>
         <source>Permission denied</source>
         <translation>Prístup zamietnutý</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="187"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="194"/>
         <source>Connection timed out</source>
         <translation>Vypršal čas pre spojenie</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="190"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="197"/>
         <source>Connection refused</source>
         <translation>Spojenie odmietnuté</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="193"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="200"/>
         <source>The bound address is already in use</source>
         <translation>Hraničná adresa je už použitá</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="196"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="203"/>
         <source>The address is not available</source>
         <translation>Adresa nie je dostupná</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="199"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="206"/>
         <source>The address is protected</source>
         <translation>Adresa je chránená</translation>
     </message>
     <message>
-        <location filename="" line="135603348"/>
-        <source>Datagram was to large to send</source>
-        <translation type="obsolete">Datagram bol pre poslanie príliš veľký</translation>
-    </message>
-    <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="205"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="212"/>
         <source>Unable to send a message</source>
         <translation>Správa sa nedá poslať</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="208"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="215"/>
         <source>Unable to receive a message</source>
         <translation>Správa sa nedá prijať</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="211"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="218"/>
         <source>Unable to write</source>
         <translation>Nedá sa zapísať</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="214"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="221"/>
         <source>Network error</source>
         <translation>Sieťová chyba</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="217"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="224"/>
         <source>Another socket is already listening on the same port</source>
         <translation>Iný soket už počúva na rovnakom porte</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="151"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="158"/>
         <source>Unable to initialize non-blocking socket</source>
         <translation>Nedá sa inicializovať neblokujúci soket</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="154"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="161"/>
         <source>Unable to initialize broadcast socket</source>
         <translation>Nedá sa inicializovať vysielací soket</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="157"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="164"/>
         <source>Attempt to use IPv6 socket on a platform with no IPv6 support</source>
         <translation>Pokus o použitie IPv6 soketu na platforme bez IPv6 podpory</translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="178"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="185"/>
         <source>Host unreachable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="202"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="209"/>
         <source>Datagram was too large to send</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="220"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="227"/>
         <source>Operation on non-socket</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/network/qnativesocketengine.cpp" line="223"/>
+        <location filename="../src/network/qnativesocketengine.cpp" line="230"/>
         <source>Unknown error</source>
         <translation type="unfinished">Neznáma chyba</translation>
     </message>
@@ -2379,12 +2406,12 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
 <context>
     <name>QOCIDriver</name>
     <message>
-        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1887"/>
+        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1919"/>
         <source>Unable to logon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1734"/>
+        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1783"/>
         <source>Unable to initialize</source>
         <comment>QOCIDriver</comment>
         <translation type="unfinished"></translation>
@@ -2393,42 +2420,42 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
 <context>
     <name>QOCIResult</name>
     <message>
-        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1250"/>
+        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1283"/>
         <source>Unable to bind column for batch execute</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1264"/>
+        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1297"/>
         <source>Unable to execute batch statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1521"/>
+        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1574"/>
         <source>Unable to goto next</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1578"/>
+        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1631"/>
         <source>Unable to alloc statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1599"/>
+        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1646"/>
         <source>Unable to prepare statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1617"/>
+        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1664"/>
         <source>Unable to bind value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1642"/>
+        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1689"/>
         <source>Unable to execute select statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1659"/>
+        <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1706"/>
         <source>Unable to execute statement</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2436,32 +2463,32 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
 <context>
     <name>QODBCDriver</name>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1418"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1518"/>
         <source>Unable to connect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1425"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1525"/>
         <source>Unable to connect - Driver doesn&apos;t support all needed functionality</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1606"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1708"/>
         <source>Unable to disable autocommit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1623"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1725"/>
         <source>Unable to commit transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1640"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1742"/>
         <source>Unable to rollback transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1655"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1757"/>
         <source>Unable to enable autocommit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2469,27 +2496,27 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
 <context>
     <name>QODBCResult</name>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="999"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1056"/>
         <source>QODBCResult::reset: Unable to set &apos;SQL_CURSOR_STATIC&apos; as statement attribute. Please check your ODBC driver configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1222"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1317"/>
         <source>Unable to execute statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="771"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="820"/>
         <source>Unable to fetch next</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1016"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1073"/>
         <source>Unable to prepare statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1213"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1308"/>
         <source>Unable to bind variable</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2497,72 +2524,7 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="" line="135603348"/>
-        <source>All Files (*)</source>
-        <translation type="obsolete">Všetky súbory (*)</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>All Files (*.*)</source>
-        <translation type="obsolete">Všetky súbory (*.*)</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Open</source>
-        <translation type="obsolete">Otvoriť</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Save As</source>
-        <translation type="obsolete">Uložiť ako</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Open </source>
-        <translation type="obsolete">Otvoriť </translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Select a Directory</source>
-        <translation type="obsolete">Vyberte priečinok</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Drive</source>
-        <translation type="obsolete">Oddiel</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>File</source>
-        <translation type="obsolete">Súbor</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Directory</source>
-        <translation type="obsolete">Priečinok</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Symbolic Link</source>
-        <translation type="obsolete">Symbolický odkaz</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Unknown</source>
-        <translation type="obsolete">Neznáme</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemviews/qitemeditorfactory.cpp" line="160"/>
-        <source>False</source>
-        <translation>Nepravda</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/itemviews/qitemeditorfactory.cpp" line="161"/>
-        <source>True</source>
-        <translation>Pravda</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/util/qdesktopservices_mac.cpp" line="154"/>
+        <location filename="../src/gui/util/qdesktopservices_mac.cpp" line="147"/>
         <source>Home</source>
         <translation type="unfinished">Home</translation>
     </message>
@@ -2570,22 +2532,22 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
 <context>
     <name>QPSQLDriver</name>
     <message>
-        <location filename="../src/sql/drivers/psql/qsql_psql.cpp" line="544"/>
+        <location filename="../src/sql/drivers/psql/qsql_psql.cpp" line="548"/>
         <source>Unable to connect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/psql/qsql_psql.cpp" line="583"/>
+        <location filename="../src/sql/drivers/psql/qsql_psql.cpp" line="587"/>
         <source>Could not begin transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/psql/qsql_psql.cpp" line="600"/>
+        <location filename="../src/sql/drivers/psql/qsql_psql.cpp" line="604"/>
         <source>Could not commit transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/psql/qsql_psql.cpp" line="616"/>
+        <location filename="../src/sql/drivers/psql/qsql_psql.cpp" line="620"/>
         <source>Could not rollback transaction</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2605,28 +2567,28 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
         <source>Unknown error</source>
         <translation type="unfinished">Neznáma chyba</translation>
     </message>
+    <message>
+        <location filename="../src/corelib/plugin/qpluginloader.cpp" line="194"/>
+        <source>The plugin was not loaded.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QPrintDialog</name>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="183"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="185"/>
         <source>locally connected</source>
         <translation>lokálne pripojená</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="408"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="410"/>
         <source>Aliases: %1</source>
         <translation>Aliasy: %1</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="850"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="853"/>
         <source>unknown</source>
         <translation>neznáme</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Unknown Location</source>
-        <translation type="obsolete">Neznáme umiestnenie</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qpagesetupdialog_unix.cpp" line="155"/>
@@ -2639,44 +2601,9 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
         <translation>Storno</translation>
     </message>
     <message>
-        <location filename="" line="135603348"/>
-        <source>Printer settings</source>
-        <translation type="obsolete">Nastavenia tlačiarne</translation>
-    </message>
-    <message>
         <location filename="../src/gui/dialogs/qprintdialog.ui" line="460"/>
         <source>Print in color if available</source>
         <translation type="unfinished">Tlačiť farebne ak je dostupné</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Print in grayscale</source>
-        <translation type="obsolete">Tlačiť v odtieňoch šedej</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Print destination</source>
-        <translation type="obsolete">Cieľ tlače</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Print to printer:</source>
-        <translation type="obsolete">Tlačiť na tlačiareň:</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Print to file:</source>
-        <translation type="obsolete">Tlačiť do súboru:</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Browse...</source>
-        <translation type="obsolete">Prechádzať...</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Options</source>
-        <translation type="obsolete">Možnosti</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_qws.cpp" line="345"/>
@@ -2687,21 +2614,6 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
         <location filename="../src/gui/dialogs/qprintdialog_qws.cpp" line="347"/>
         <source>Print range</source>
         <translation type="unfinished">Rozsah tlače</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>From page:</source>
-        <translation type="obsolete">Od strany:</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>To page:</source>
-        <translation type="obsolete">Po stranu:</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Print first page first</source>
-        <translation type="obsolete">Tlačiť najprv prvú stranu</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog.ui" line="430"/>
@@ -2719,167 +2631,162 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
         <translation type="unfinished">Formát papiera</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="941"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="944"/>
         <source>Portrait</source>
         <translation>Na výšku</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="942"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="945"/>
         <source>Landscape</source>
         <translation>Na šírku</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="773"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="775"/>
         <source>A0 (841 x 1189 mm)</source>
         <translation>A0 (841 x 1189 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="774"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="776"/>
         <source>A1 (594 x 841 mm)</source>
         <translation>A1 (594 x 841 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="775"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="777"/>
         <source>A2 (420 x 594 mm)</source>
         <translation>A2 (420 x 594 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="776"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="778"/>
         <source>A3 (297 x 420 mm)</source>
         <translation>A3 (297 x 420 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="778"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="780"/>
         <source>A5 (148 x 210 mm)</source>
         <translation>A5 (148 x 210 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="779"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="781"/>
         <source>A6 (105 x 148 mm)</source>
         <translation>A6 (105 x 148 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="780"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="782"/>
         <source>A7 (74 x 105 mm)</source>
         <translation>A7 (74 x 105 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="781"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="783"/>
         <source>A8 (52 x 74 mm)</source>
         <translation>A8 (52 x 74 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="782"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="784"/>
         <source>A9 (37 x 52 mm)</source>
         <translation>A9 (37 x 52 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="783"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="785"/>
         <source>B0 (1000 x 1414 mm)</source>
         <translation>B0 (1000 x 1414 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="784"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="786"/>
         <source>B1 (707 x 1000 mm)</source>
         <translation>B1 (707 x 1000 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="785"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="787"/>
         <source>B2 (500 x 707 mm)</source>
         <translation>B2 (500 x 707 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="786"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="788"/>
         <source>B3 (353 x 500 mm)</source>
         <translation>B3 (353 x 500 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="787"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="789"/>
         <source>B4 (250 x 353 mm)</source>
         <translation>B4 (250 x 353 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="789"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="791"/>
         <source>B6 (125 x 176 mm)</source>
         <translation>B6 (125 x 176 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="790"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="792"/>
         <source>B7 (88 x 125 mm)</source>
         <translation>B7 (88 x 125 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="791"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="793"/>
         <source>B8 (62 x 88 mm)</source>
         <translation>B8 (62 x 88 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="792"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="794"/>
         <source>B9 (44 x 62 mm)</source>
         <translation>B9 (44 x 62 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="793"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="795"/>
         <source>B10 (31 x 44 mm)</source>
         <translation>B10 (31 x 44 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="794"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="796"/>
         <source>C5E (163 x 229 mm)</source>
         <translation>C5E (163 x 229 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="795"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="797"/>
         <source>DLE (110 x 220 mm)</source>
         <translation>DLE (110 x 220 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="797"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="799"/>
         <source>Folio (210 x 330 mm)</source>
         <translation>Folio (210 x 330 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="798"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="800"/>
         <source>Ledger (432 x 279 mm)</source>
         <translation>Ledger (432 x 279 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="801"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="803"/>
         <source>Tabloid (279 x 432 mm)</source>
         <translation>Tabloid (279 x 432 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="802"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="804"/>
         <source>US Common #10 Envelope (105 x 241 mm)</source>
         <translation>Obálka US Common #10 (105 x 241 mm)</translation>
     </message>
     <message>
-        <location filename="" line="135603348"/>
-        <source>PostScript Files (*.ps);;All Files (*)</source>
-        <translation type="obsolete">Súbory PostScript (*.ps);;Všetky súbory (*)</translation>
-    </message>
-    <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="777"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="779"/>
         <source>A4 (210 x 297 mm, 8.26 x 11.7 inches)</source>
         <translation>A4 (210 x 297 mm, 8.26 x 11.7 palcov)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="788"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="790"/>
         <source>B5 (176 x 250 mm, 6.93 x 9.84 inches)</source>
         <translation>B5 (176 x 250 mm, 6.93 x 9.84 palcov)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="796"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="798"/>
         <source>Executive (7.5 x 10 inches, 191 x 254 mm)</source>
         <translation>Executive (7.5 x 10 palcov, 191 x 254 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="799"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="801"/>
         <source>Legal (8.5 x 14 inches, 216 x 356 mm)</source>
         <translation>Legal (8.5 x 14 palcov, 216 x 356 mm)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="800"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="802"/>
         <source>Letter (8.5 x 11 inches, 216 x 279 mm)</source>
         <translation>Letter (8.5 x 11 palcov, 216 x 279 mm)</translation>
     </message>
@@ -2904,22 +2811,22 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
         <translation>Zdroj papiera:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="944"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="948"/>
         <source>Print</source>
         <translation type="unfinished">Print</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1013"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1020"/>
         <source>File</source>
         <translation type="unfinished">Súbor</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1036"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1043"/>
         <source>Printer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1111"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1118"/>
         <source>Print To File ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2989,13 +2896,13 @@ Prosím overte správnosť zadaného mena priečinku.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1145"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1159"/>
         <source>File %1 is not writable.
 Please choose a different file name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1149"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1163"/>
         <source>%1 already exists.
 Do you want to overwrite it?</source>
         <translation type="unfinished"></translation>
@@ -3008,6 +2915,12 @@ Do you want to overwrite it?</source>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_qws.cpp" line="119"/>
         <source>&lt;qt&gt;Do you want to overwrite it?&lt;/qt&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1155"/>
+        <source>%1 is a directory.
+Please choose a different file name.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3030,25 +2943,9 @@ Do you want to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>QProcess</name>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Unknown error</source>
-        <translation type="obsolete">Neznáma chyba</translation>
-    </message>
-</context>
-<context>
-    <name>QProgressBar</name>
-    <message>
-        <location filename="../src/gui/widgets/qprogressbar.cpp" line="390"/>
-        <source>%1%</source>
-        <translation type="obsolete">%1%</translation>
-    </message>
-</context>
-<context>
     <name>QProgressDialog</name>
     <message>
-        <location filename="../src/gui/dialogs/qprogressdialog.cpp" line="229"/>
+        <location filename="../src/gui/dialogs/qprogressdialog.cpp" line="143"/>
         <source>Cancel</source>
         <translation>Storno</translation>
     </message>
@@ -3056,7 +2953,7 @@ Do you want to overwrite it?</source>
 <context>
     <name>QPushButton</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="73"/>
+        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="80"/>
         <source>Open</source>
         <translation type="unfinished">Otvoriť</translation>
     </message>
@@ -3064,7 +2961,7 @@ Do you want to overwrite it?</source>
 <context>
     <name>QRadioButton</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="85"/>
+        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="92"/>
         <source>Check</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3120,22 +3017,22 @@ Do you want to overwrite it?</source>
 <context>
     <name>QSQLite2Driver</name>
     <message>
-        <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="336"/>
+        <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="346"/>
         <source>Error to open database</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="377"/>
+        <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="387"/>
         <source>Unable to begin transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="394"/>
+        <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="404"/>
         <source>Unable to commit transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="411"/>
+        <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="421"/>
         <source>Unable to rollback Transaction</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3148,7 +3045,7 @@ Do you want to overwrite it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="242"/>
+        <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="251"/>
         <source>Unable to execute statement</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3156,27 +3053,27 @@ Do you want to overwrite it?</source>
 <context>
     <name>QSQLiteDriver</name>
     <message>
-        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="442"/>
+        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="461"/>
         <source>Error opening database</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="453"/>
+        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="472"/>
         <source>Error closing database</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="473"/>
+        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="492"/>
         <source>Unable to begin transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="488"/>
+        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="507"/>
         <source>Unable to commit transaction</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="503"/>
+        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="522"/>
         <source>Unable to roll back transaction</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3184,27 +3081,27 @@ Do you want to overwrite it?</source>
 <context>
     <name>QSQLiteResult</name>
     <message>
-        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="206"/>
+        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="213"/>
         <source>Unable to fetch row</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="248"/>
+        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="265"/>
         <source>Unable to execute statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="267"/>
+        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="284"/>
         <source>Unable to reset statement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="311"/>
+        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="328"/>
         <source>Unable to bind parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="318"/>
+        <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="335"/>
         <source>Parameter count mismatch</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3212,82 +3109,82 @@ Do you want to overwrite it?</source>
 <context>
     <name>QScrollBar</name>
     <message>
-        <location filename="../src/gui/widgets/qscrollbar.cpp" line="389"/>
+        <location filename="../src/gui/widgets/qscrollbar.cpp" line="396"/>
         <source>Scroll here</source>
         <translation>Posunúť sem</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qscrollbar.cpp" line="392"/>
+        <location filename="../src/gui/widgets/qscrollbar.cpp" line="399"/>
         <source>Left edge</source>
         <translation>Ľavá hrana</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qscrollbar.cpp" line="392"/>
+        <location filename="../src/gui/widgets/qscrollbar.cpp" line="399"/>
         <source>Top</source>
         <translation>Vrch</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qscrollbar.cpp" line="394"/>
+        <location filename="../src/gui/widgets/qscrollbar.cpp" line="401"/>
         <source>Right edge</source>
         <translation>Pravá hrana</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qscrollbar.cpp" line="394"/>
+        <location filename="../src/gui/widgets/qscrollbar.cpp" line="401"/>
         <source>Bottom</source>
         <translation>Spodok</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qscrollbar.cpp" line="397"/>
+        <location filename="../src/gui/widgets/qscrollbar.cpp" line="404"/>
         <source>Page left</source>
         <translation>Strana naľavo</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="300"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="532"/>
         <source>Page up</source>
         <translation>Strana nahor</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qscrollbar.cpp" line="399"/>
+        <location filename="../src/gui/widgets/qscrollbar.cpp" line="406"/>
         <source>Page right</source>
         <translation>Strana napravo</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="304"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="536"/>
         <source>Page down</source>
         <translation>Strana nadol</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qscrollbar.cpp" line="402"/>
+        <location filename="../src/gui/widgets/qscrollbar.cpp" line="409"/>
         <source>Scroll left</source>
         <translation>Posunúť naľavo</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qscrollbar.cpp" line="402"/>
+        <location filename="../src/gui/widgets/qscrollbar.cpp" line="409"/>
         <source>Scroll up</source>
         <translation>Posunúť nahor</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qscrollbar.cpp" line="404"/>
+        <location filename="../src/gui/widgets/qscrollbar.cpp" line="411"/>
         <source>Scroll right</source>
         <translation>Posunúť napravo</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qscrollbar.cpp" line="404"/>
+        <location filename="../src/gui/widgets/qscrollbar.cpp" line="411"/>
         <source>Scroll down</source>
         <translation>Posunúť nadol</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="298"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="530"/>
         <source>Line up</source>
         <translation type="unfinished">Vyrovnať</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="302"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="534"/>
         <source>Position</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="306"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="538"/>
         <source>Line down</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3295,462 +3192,462 @@ Do you want to overwrite it?</source>
 <context>
     <name>QShortcut</name>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="190"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="288"/>
         <source>Space</source>
         <translation>Medzera</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="191"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="289"/>
         <source>Esc</source>
         <translation>Esc</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="192"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="290"/>
         <source>Tab</source>
         <translation>Tabulátor</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="193"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="291"/>
         <source>Backtab</source>
         <translation>Backtab</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="194"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="292"/>
         <source>Backspace</source>
         <translation>Backspace</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="195"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="293"/>
         <source>Return</source>
         <translation>Return</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="196"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="294"/>
         <source>Enter</source>
         <translation>Enter</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="197"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="295"/>
         <source>Ins</source>
         <translation>Ins</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="198"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="296"/>
         <source>Del</source>
         <translation>Del</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="199"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="297"/>
         <source>Pause</source>
         <translation>Pause</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="200"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="298"/>
         <source>Print</source>
         <translation>Print</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="201"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="299"/>
         <source>SysReq</source>
         <translation>SysReq</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="202"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="300"/>
         <source>Home</source>
         <translation>Home</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="203"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="301"/>
         <source>End</source>
         <translation>End</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="204"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="302"/>
         <source>Left</source>
         <translation>Vľavo</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="205"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="303"/>
         <source>Up</source>
         <translation>Hore</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="206"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="304"/>
         <source>Right</source>
         <translation>Vpravo</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="207"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="305"/>
         <source>Down</source>
         <translation>Dolu</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="208"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="306"/>
         <source>PgUp</source>
         <translation>PgUp</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="209"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="307"/>
         <source>PgDown</source>
         <translation>PgDown</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="210"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="308"/>
         <source>CapsLock</source>
         <translation>CapsLock</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="211"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="309"/>
         <source>NumLock</source>
         <translation>NumLock</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="212"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="310"/>
         <source>ScrollLock</source>
         <translation>ScrollLock</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="213"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="311"/>
         <source>Menu</source>
         <translation>Menu</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="214"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="312"/>
         <source>Help</source>
         <translation>Pomocník</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="217"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="315"/>
         <source>Back</source>
         <translation>Dozadu</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="218"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="316"/>
         <source>Forward</source>
         <translation>Dopredu</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="219"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="317"/>
         <source>Stop</source>
         <translation>Stop</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="220"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="318"/>
         <source>Refresh</source>
         <translation>Obnoviť</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="221"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="319"/>
         <source>Volume Down</source>
         <translation>Stíšiť hlasitosť</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="222"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="320"/>
         <source>Volume Mute</source>
         <translation>Bez zvuku</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="223"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="321"/>
         <source>Volume Up</source>
         <translation>Zvýšiť hlasitosť</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="224"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="322"/>
         <source>Bass Boost</source>
         <translation>Zosilňovač basových tónov</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="225"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="323"/>
         <source>Bass Up</source>
         <translation>Zvýrazniť basové tóny</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="226"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="324"/>
         <source>Bass Down</source>
         <translation>Potlačiť basové tóny</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="227"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="325"/>
         <source>Treble Up</source>
         <translation>Zvýrazniť výsoké tóny</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="228"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="326"/>
         <source>Treble Down</source>
         <translation>Potlačiť vysoké tóny</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="229"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="327"/>
         <source>Media Play</source>
         <translation>Prehrať médiá</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="230"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="328"/>
         <source>Media Stop</source>
         <translation>Zastaviť médiá</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="231"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="329"/>
         <source>Media Previous</source>
         <translation>Predchádzajúce médiá</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="232"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="330"/>
         <source>Media Next</source>
         <translation>Nasledujúce médiá</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="233"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="331"/>
         <source>Media Record</source>
         <translation>Nahráť médiá</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="235"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="333"/>
         <source>Favorites</source>
         <translation>Obľúbené</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="236"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="334"/>
         <source>Search</source>
         <translation>Hľadať</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="237"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="335"/>
         <source>Standby</source>
         <translation>Pohotovosť</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="238"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="336"/>
         <source>Open URL</source>
         <translation>Otvoriť URL</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="239"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="337"/>
         <source>Launch Mail</source>
         <translation>Spustiť poštového klienta</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="240"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="338"/>
         <source>Launch Media</source>
         <translation>Spustiť médiá</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="241"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="339"/>
         <source>Launch (0)</source>
         <translation>Spustiť (0)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="242"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="340"/>
         <source>Launch (1)</source>
         <translation>Spustiť (1)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="243"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="341"/>
         <source>Launch (2)</source>
         <translation>Spustiť (2)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="244"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="342"/>
         <source>Launch (3)</source>
         <translation>Spustiť (3)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="245"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="343"/>
         <source>Launch (4)</source>
         <translation>Spustiť (4)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="246"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="344"/>
         <source>Launch (5)</source>
         <translation>Spustiť (5)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="247"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="345"/>
         <source>Launch (6)</source>
         <translation>Spustiť (6)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="248"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="346"/>
         <source>Launch (7)</source>
         <translation>Spustiť (7)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="249"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="347"/>
         <source>Launch (8)</source>
         <translation>Spustiť (8)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="250"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="348"/>
         <source>Launch (9)</source>
         <translation>Spustiť (9)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="251"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="349"/>
         <source>Launch (A)</source>
         <translation>Spustiť (A)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="252"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="350"/>
         <source>Launch (B)</source>
         <translation>Spustiť (B)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="253"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="351"/>
         <source>Launch (C)</source>
         <translation>Spustiť (C)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="254"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="352"/>
         <source>Launch (D)</source>
         <translation>Spustiť (D)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="255"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="353"/>
         <source>Launch (E)</source>
         <translation>Spustiť (E)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="256"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="354"/>
         <source>Launch (F)</source>
         <translation>Spustiť (F)</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="260"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="358"/>
         <source>Print Screen</source>
         <translation>Vytlačiť obrazovku</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="261"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="359"/>
         <source>Page Up</source>
         <translation>Page Up</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="262"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="360"/>
         <source>Page Down</source>
         <translation>Page Down</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="263"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="361"/>
         <source>Caps Lock</source>
         <translation>Caps Lock</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="264"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="362"/>
         <source>Num Lock</source>
         <translation>Num Lock</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="265"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="363"/>
         <source>Number Lock</source>
         <translation>Number Lock</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="266"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="364"/>
         <source>Scroll Lock</source>
         <translation>Scroll Lock</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="267"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="365"/>
         <source>Insert</source>
         <translation>Insert</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="268"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="366"/>
         <source>Delete</source>
         <translation>Delete</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="269"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="367"/>
         <source>Escape</source>
         <translation>Escape</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="270"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="368"/>
         <source>System Request</source>
         <translation>System Request</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="274"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="372"/>
         <source>Select</source>
         <translation>Select</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="275"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="373"/>
         <source>Yes</source>
         <translation>Áno</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="276"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="374"/>
         <source>No</source>
         <translation>Nie</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="280"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="378"/>
         <source>Context1</source>
         <translation>Context1</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="281"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="379"/>
         <source>Context2</source>
         <translation>Context2</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="282"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="380"/>
         <source>Context3</source>
         <translation>Context3</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="283"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="381"/>
         <source>Context4</source>
         <translation>Context4</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="284"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="382"/>
         <source>Call</source>
         <translation>Zavolať</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="285"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="383"/>
         <source>Hangup</source>
         <translation>Zložiť</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="286"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="384"/>
         <source>Flip</source>
         <translation>Otočiť</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="922"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="1020"/>
         <source>Ctrl</source>
         <translation>Ctrl</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="926"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="1024"/>
         <source>Shift</source>
         <translation>Shift</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="924"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="1022"/>
         <source>Alt</source>
         <translation>Alt</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="920"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="1018"/>
         <source>Meta</source>
         <translation>Meta</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="896"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="994"/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="941"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="1039"/>
         <source>F%1</source>
         <translation>F%1</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qkeysequence.cpp" line="234"/>
+        <location filename="../src/gui/kernel/qkeysequence.cpp" line="332"/>
         <source>Home Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3758,27 +3655,27 @@ Do you want to overwrite it?</source>
 <context>
     <name>QSlider</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="473"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="689"/>
         <source>Page left</source>
         <translation type="unfinished">Strana naľavo</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="473"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="689"/>
         <source>Page up</source>
         <translation type="unfinished">Strana nahor</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="475"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="691"/>
         <source>Position</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="478"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="694"/>
         <source>Page right</source>
         <translation type="unfinished">Strana napravo</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="478"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="694"/>
         <source>Page down</source>
         <translation type="unfinished">Strana nadol</translation>
     </message>
@@ -3786,7 +3683,7 @@ Do you want to overwrite it?</source>
 <context>
     <name>QSocks5SocketEngine</name>
     <message>
-        <location filename="../src/network/qsocks5socketengine.cpp" line="1196"/>
+        <location filename="../src/network/qsocks5socketengine.cpp" line="1187"/>
         <source>Socks5 timeout error connecting to socks server</source>
         <translation>Chyba vypršania času pre socks5 pripojenia na socks server</translation>
     </message>
@@ -3794,12 +3691,12 @@ Do you want to overwrite it?</source>
 <context>
     <name>QSpinBox</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="135"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="120"/>
         <source>More</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="137"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="122"/>
         <source>Less</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3858,14 +3755,52 @@ Do you want to overwrite it?</source>
     </message>
 </context>
 <context>
+    <name>QSslSocket</name>
+    <message>
+        <location filename="../src/network/qsslsocket_openssl.cpp" line="308"/>
+        <source>Unable to write data: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/network/qsslsocket_openssl.cpp" line="377"/>
+        <source>Error while reading: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/network/qsslsocket_openssl.cpp" line="398"/>
+        <source>Error during SSL handshake: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/network/qsslsocket_openssl.cpp" line="552"/>
+        <source>Error creating SSL context (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/network/qsslsocket_openssl.cpp" line="574"/>
+        <source>Invalid or empty cipher list (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/network/qsslsocket_openssl.cpp" line="608"/>
+        <source>Error creating SSL session, %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/network/qsslsocket_openssl.cpp" line="622"/>
+        <source>Error creating SSL session: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QTDSDriver</name>
     <message>
-        <location filename="../src/sql/drivers/tds/qsql_tds.cpp" line="551"/>
+        <location filename="../src/sql/drivers/tds/qsql_tds.cpp" line="550"/>
         <source>Unable to open connection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/tds/qsql_tds.cpp" line="556"/>
+        <location filename="../src/sql/drivers/tds/qsql_tds.cpp" line="555"/>
         <source>Unable to use database</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3873,12 +3808,12 @@ Do you want to overwrite it?</source>
 <context>
     <name>QTabBar</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="609"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="899"/>
         <source>Scroll Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="609"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="899"/>
         <source>Scroll Right</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3894,93 +3829,55 @@ Do you want to overwrite it?</source>
 <context>
     <name>QTextControl</name>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1731"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1840"/>
         <source>&amp;Undo</source>
         <translation type="unfinished">V&amp;rátiť späť</translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1733"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1842"/>
         <source>&amp;Redo</source>
         <translation type="unfinished">&amp;Opakovať vrátené</translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1737"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1846"/>
         <source>Cu&amp;t</source>
         <translation type="unfinished">Vys&amp;trihnúť</translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1742"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1851"/>
         <source>&amp;Copy</source>
         <translation type="unfinished">&amp;Kopírovať</translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1749"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1858"/>
         <source>Copy &amp;Link Location</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1755"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1864"/>
         <source>&amp;Paste</source>
         <translation type="unfinished">V&amp;ložiť</translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1758"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1867"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1765"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1874"/>
         <source>Select All</source>
         <translation type="unfinished">Vybrať všetko</translation>
     </message>
 </context>
 <context>
-    <name>QTextEdit</name>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>&amp;Undo</source>
-        <translation type="obsolete">V&amp;rátiť späť</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>&amp;Redo</source>
-        <translation type="obsolete">&amp;Opakovať vrátené</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Cu&amp;t</source>
-        <translation type="obsolete">Vys&amp;trihnúť</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>&amp;Copy</source>
-        <translation type="obsolete">&amp;Kopírovať</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>&amp;Paste</source>
-        <translation type="obsolete">V&amp;ložiť</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Select All</source>
-        <translation type="obsolete">Vybrať všetko</translation>
-    </message>
-    <message>
-        <location filename="" line="135603348"/>
-        <source>Delete</source>
-        <translation type="obsolete">Odstrániť</translation>
-    </message>
-</context>
-<context>
     <name>QToolButton</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="335"/>
+        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="350"/>
         <source>Press</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="339"/>
+        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="354"/>
         <source>Open</source>
         <translation type="unfinished">Otvoriť</translation>
     </message>
@@ -3996,12 +3893,12 @@ Do you want to overwrite it?</source>
 <context>
     <name>QUndoGroup</name>
     <message>
-        <location filename="../src/gui/undo/qundogroup.cpp" line="341"/>
+        <location filename="../src/gui/util/qundogroup.cpp" line="341"/>
         <source>Undo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/undo/qundogroup.cpp" line="369"/>
+        <location filename="../src/gui/util/qundogroup.cpp" line="369"/>
         <source>Redo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4009,7 +3906,7 @@ Do you want to overwrite it?</source>
 <context>
     <name>QUndoModel</name>
     <message>
-        <location filename="../src/gui/undo/qundoview.cpp" line="71"/>
+        <location filename="../src/gui/util/qundoview.cpp" line="71"/>
         <source>&lt;empty&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4017,12 +3914,12 @@ Do you want to overwrite it?</source>
 <context>
     <name>QUndoStack</name>
     <message>
-        <location filename="../src/gui/undo/qundostack.cpp" line="748"/>
+        <location filename="../src/gui/util/qundostack.cpp" line="816"/>
         <source>Undo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/undo/qundostack.cpp" line="775"/>
+        <location filename="../src/gui/util/qundostack.cpp" line="843"/>
         <source>Redo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4030,57 +3927,57 @@ Do you want to overwrite it?</source>
 <context>
     <name>QUnicodeControlCharacterMenu</name>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2495"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2572"/>
         <source>LRM Left-to-right mark</source>
         <translation>LRM značka zľava-doprava</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2496"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2573"/>
         <source>RLM Right-to-left mark</source>
         <translation>RLM značka zprava-doľava</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2497"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2574"/>
         <source>ZWJ Zero width joiner</source>
         <translation>ZWJ spájadlo nulovej šírky</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2498"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2575"/>
         <source>ZWNJ Zero width non-joiner</source>
         <translation>ZWNJ ne-spájadlo nulovej šírky</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2499"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2576"/>
         <source>ZWSP Zero width space</source>
         <translation>ZWSP medzera nulovej šírky</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2500"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2577"/>
         <source>LRE Start of left-to-right embedding</source>
         <translation>LRE začiatok zľava-doprava vložky</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2501"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2578"/>
         <source>RLE Start of right-to-left embedding</source>
         <translation>RLE začiatok zprava-doľava vložky</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2502"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2579"/>
         <source>LRO Start of left-to-right override</source>
         <translation>LRO začiatok zľava-doprava prepisu</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2503"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2580"/>
         <source>RLO Start of right-to-left override</source>
         <translation>RLO začiatok zprava-doľava prepisu</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2504"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2581"/>
         <source>PDF Pop directional formatting</source>
         <translation>PDF formátovanie pop smerom</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2510"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2587"/>
         <source>Insert Unicode control character</source>
         <translation>Vložiť Unicode riadiaci znak</translation>
     </message>
@@ -4088,7 +3985,7 @@ Do you want to overwrite it?</source>
 <context>
     <name>QWhatsThisAction</name>
     <message>
-        <location filename="../src/gui/kernel/qwhatsthis.cpp" line="485"/>
+        <location filename="../src/gui/kernel/qwhatsthis.cpp" line="486"/>
         <source>What&apos;s This?</source>
         <translation>Čo je to?</translation>
     </message>
@@ -4096,75 +3993,128 @@ Do you want to overwrite it?</source>
 <context>
     <name>QWidget</name>
     <message>
-        <location filename="../src/gui/kernel/qwidget.cpp" line="3851"/>
+        <location filename="../src/gui/kernel/qwidget.cpp" line="4009"/>
         <source>*</source>
         <translation>*</translation>
     </message>
 </context>
 <context>
+    <name>QWizard</name>
+    <message>
+        <location filename="../src/gui/dialogs/qwizard.cpp" line="555"/>
+        <source>Go Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qwizard.cpp" line="556"/>
+        <source>Continue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qwizard.cpp" line="566"/>
+        <source>Commit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qwizard.cpp" line="558"/>
+        <source>Done</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qwizard.cpp" line="559"/>
+        <source>Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qwizard.cpp" line="560"/>
+        <source>Help</source>
+        <translation type="unfinished">Pomocník</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qwizard.cpp" line="562"/>
+        <source>&lt; &amp;Back</source>
+        <translation type="unfinished">&lt; &amp;Späť</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qwizard.cpp" line="567"/>
+        <source>&amp;Finish</source>
+        <translation type="unfinished">&amp;Dokončiť</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qwizard.cpp" line="568"/>
+        <source>Cancel</source>
+        <translation type="unfinished">Storno</translation>
+    </message>
+    <message>
+        <location filename="../src/gui/dialogs/qwizard.cpp" line="569"/>
+        <source>&amp;Help</source>
+        <translation type="unfinished">&amp;Pomocník</translation>
+    </message>
+</context>
+<context>
     <name>QWorkspace</name>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="904"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="1059"/>
         <source>&amp;Restore</source>
         <translation>&amp;Obnoviť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="905"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="1060"/>
         <source>&amp;Move</source>
         <translation>&amp;Presunúť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="906"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="1061"/>
         <source>&amp;Size</source>
         <translation>&amp;Veľkosť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="908"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="1063"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimalizovať</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="910"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="1065"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ximalizovať</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="913"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="1068"/>
         <source>&amp;Close</source>
         <translation>&amp;Zavrieť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="918"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="1073"/>
         <source>Stay on &amp;Top</source>
         <translation>Nechať navr&amp;chu</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="2018"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="2135"/>
         <source>Sh&amp;ade</source>
         <translation>Za&amp;baliť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="1762"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="1917"/>
         <source>%1 - [%2]</source>
         <translation>%1 - [%2]</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="1799"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="84"/>
         <source>Minimize</source>
         <translation>Minimalizovať</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="1813"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="86"/>
         <source>Restore Down</source>
         <translation>Obnoviť dolu</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="1827"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="82"/>
         <source>Close</source>
         <translation>Zavrieť</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qworkspace.cpp" line="2014"/>
+        <location filename="../src/gui/widgets/qworkspace.cpp" line="2131"/>
         <source>&amp;Unshade</source>
         <translation>&amp;Rozbaliť</translation>
     </message>
@@ -4285,6 +4235,179 @@ Do you want to overwrite it?</source>
         <location filename="../src/xml/qxml.cpp" line="55"/>
         <source>error in the text declaration of an external entity</source>
         <translation>chyba v deklarácii textu externej entity</translation>
+    </message>
+</context>
+<context>
+    <name>QXmlStream</name>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1664"/>
+        <source>Extra content at end of document.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="580"/>
+        <source>Invalid entity value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="671"/>
+        <source>Invalid XML character.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="906"/>
+        <source>Sequence &apos;]]&gt;&apos; not allowed in content.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1162"/>
+        <source>Namespace prefix &apos;%1&apos; not declared</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1200"/>
+        <source>Attribute redefined.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1312"/>
+        <source>Unexpected character &apos;%1&apos; in public id literal.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1320"/>
+        <source>Invalid XML version string.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1322"/>
+        <source>Unsupported XML version.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1337"/>
+        <source>%1 is an invalid encoding name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1342"/>
+        <source>Encoding %1 is unsupported</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1344"/>
+        <source>Invalid XML encoding name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1358"/>
+        <source>Standalone accepts only yes or no.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1360"/>
+        <source>Invalid attribute in XML declaration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1376"/>
+        <source>Premature end of document.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1378"/>
+        <source>Invalid document.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1418"/>
+        <source>Expected </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1429"/>
+        <source>, but got &apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1433"/>
+        <source>Unexpected &apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream.cpp" line="1562"/>
+        <source>Expected character data.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="728"/>
+        <source>Recursive entity detected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1200"/>
+        <source>Start tag expected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1235"/>
+        <source>XML declaration not at start of document.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1391"/>
+        <source>NDATA in parameter entity declaration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1422"/>
+        <source>xml is an invalid processing instruction name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1425"/>
+        <source>%1 is an invalid processing instruction name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1436"/>
+        <source>Invalid processing instruction name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1639"/>
+        <source>Illegal namespace declaration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1653"/>
+        <source>Invalid XML name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1676"/>
+        <source>Opening and ending tag mismatch.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1685"/>
+        <source>Reference to unparsed entity &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1750"/>
+        <source>Entity &apos;%1&apos; not declared.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1736"/>
+        <source>Reference to external entity &apos;%1&apos; in attribute value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/xml/qxmlstream_p.h" line="1782"/>
+        <source>Invalid character reference.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
