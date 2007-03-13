@@ -59,6 +59,10 @@ QCustomFontEnginePlugin::QCustomFontEnginePlugin(const QString &foundry, QObject
     d->foundry = foundry;
 }
 
+QCustomFontEnginePlugin::~QCustomFontEnginePlugin()
+{
+}
+
 QStringList QCustomFontEnginePlugin::keys() const
 {
     Q_D(const QCustomFontEnginePlugin);
