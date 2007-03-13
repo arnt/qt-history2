@@ -30,7 +30,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-const quint8 DatabaseVersion = 2;
+const quint8 DatabaseVersion = 3;
 
 void QFontDatabasePrivate::addFont(const QString &familyname, const char *foundryname, int weight, bool italic, int pixelSize,
                                    const QByteArray &file, int fileIndex, bool antialiased,
@@ -195,9 +195,11 @@ static void initializeDb()
             && (!QFile::exists(fontDirFile) || dbTimeStamp > fontDirTimeStamp)) {
             binaryDb.open(QIODevice::ReadOnly);
             QDataStream stream(&binaryDb);
-            quint8 version;
+            quint8 version, dataStreamVersion = 0;
             stream >> version;
-            if (version == DatabaseVersion) {
+            if (version == DatabaseVersion)
+                stream >> dataStreamVersion;
+            if (version == DatabaseVersion && dataStreamVersion == stream.version()) {
                 //qDebug() << "populating database from" << binaryDb.fileName();
                 while (!stream.atEnd()) {
                     QString familyname, foundryname;
@@ -223,7 +225,7 @@ static void initializeDb()
     binaryDb.setFileName(dbFileName + QLatin1String(".tmp"));
     binaryDb.open(QIODevice::WriteOnly | QIODevice::Truncate);
     db->stream = new QDataStream(&binaryDb);
-    *db->stream << DatabaseVersion;
+    *db->stream << DatabaseVersion << quint8(db->stream->version());
 //    qDebug() << "creating binary database at" << binaryDb.fileName();
 
     // Load in font definition file
