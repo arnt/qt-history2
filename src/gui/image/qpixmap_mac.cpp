@@ -793,13 +793,66 @@ static void qt_mac_grabDisplayRect(CGDirectDisplayID display, const QRect &displ
     ptrCGLDestroyContext(glContextObj); // and destroy the context
 }
 
+// (callback function)
+static void releaseBitmapContextImageData(void *, 
+				    const void *data, size_t)
+{
+    free((char *)data);
+}
+
+// (callback function)
+static CGBitmapInfo myCGContextGetBitmapInfo(CGContextRef c)
+{
+    if(&CGBitmapContextGetBitmapInfo != NULL)
+		return CGBitmapContextGetBitmapInfo(c);
+    else
+		return CGBitmapContextGetAlphaInfo(c);
+}
+
+static CGImageRef createImageFromBitmapContext(CGContextRef c)
+{
+    CGImageRef image;
+	void *rasterData = CGBitmapContextGetData(c);
+    size_t imageDataSize = 
+		CGBitmapContextGetBytesPerRow(c)*CGBitmapContextGetHeight(c);
+	
+	if(rasterData == NULL)
+		return NULL;
+	
+    // Create the data provider from the image data, using
+	// the image releaser function releaseBitmapContextImageData.
+    CGDataProviderRef dataProvider = CGDataProviderCreateWithData(NULL,
+					    rasterData,
+					    imageDataSize,
+					    releaseBitmapContextImageData);
+
+    if(dataProvider == NULL)
+		return NULL;
+
+	// Now create the image. The parameters for the image closely match
+	// the parameters of the bitmap context. This code uses a NULL
+	// decode array and shouldInterpolate is true.
+    image = CGImageCreate(CGBitmapContextGetWidth(c), 
+			  CGBitmapContextGetHeight(c), 
+			  CGBitmapContextGetBitsPerComponent(c), 
+			  CGBitmapContextGetBitsPerPixel(c), 
+			  CGBitmapContextGetBytesPerRow(c), 
+			  CGBitmapContextGetColorSpace(c),
+			  myCGContextGetBitmapInfo(c),
+			  dataProvider,
+			  NULL,
+			  true,
+			  kCGRenderingIntentDefault);
+
+    return image;
+}
+
 // Returns a pixmap containing the screen contents at rect.
 static QPixmap qt_mac_grabScreenRect(const QRect &rect)
 {
-    if (QSysInfo::MacintoshVersion < QSysInfo::MV_10_4 && resolveOpenGLSymbols() == false)
+    if (resolveOpenGLSymbols() == false)
         return QPixmap();
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
     const int maxDisplays = 128; // 128 displays should be enough for everyone.
     CGDirectDisplayID displays[maxDisplays];
     CGDisplayCount displayCount;
@@ -827,9 +880,19 @@ static QPixmap qt_mac_grabScreenRect(const QRect &rect)
     QCFType<CGColorSpaceRef> cSpace = CGColorSpaceCreateWithName(kCGColorSpaceUserRGB);
     QCFType<CGContextRef> bitmap = CGBitmapContextCreate(buffer.data(), rect.width(), rect.height(), 8, bytewidth,
                                                          cSpace, kCGImageAlphaNoneSkipFirst);
-    QCFType<CGImageRef> image = CGBitmapContextCreateImage(bitmap);
-    return QPixmap::fromMacCGImageRef(image);
+
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+        QCFType<CGImageRef> image = CGBitmapContextCreateImage(bitmap);
+        return QPixmap::fromMacCGImageRef(image);
+    } else
 #endif
+    {
+        QCFType<CGImageRef> image = createImageFromBitmapContext(bitmap);
+        if (image == NULL)
+            return QPixmap();
+        return QPixmap::fromMacCGImageRef(image);
+    }
 }
 
 QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
