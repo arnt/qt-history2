@@ -142,8 +142,8 @@ public:
 
     // keep in sync with QTextEngine::ShaperFlag!!
     enum TextShapingFlag {
-        RightToLeft      = 0x0001,
-        UseDesignMetrics = 0x0002
+        RightToLeft         = 0x0001,
+        ReturnDesignMetrics = 0x0002
     };
     Q_DECLARE_FLAGS(TextShapingFlags, TextShapingFlag)
 

@@ -245,8 +245,10 @@ public:
 
    This enum describes the capabilities of a font engine.
 
-   \value RenderGlyphs The font engine can render individual glyphs into images.
-   \value OutlineGlyphs The font engine can convert glyphs to painter paths.
+   \value CanRenderGlyphs_Gray The font engine can render individual glyphs into 8 bpp images.
+   \value CanRenderGlyphs_Mono The font engine can render individual glyphs into 1 bpp images.
+   \value CanRenderGlyphs The font engine can render individual glyphs into images.
+   \value CanOutlineGlyphs The font engine can convert glyphs to painter paths.
 */
 
 /*!
@@ -269,15 +271,72 @@ public:
    \value OutlineGlyphsHint A boolean value specifying whether the font engine prefers outline drawing over image rendering for uncached glyphs.
 */
 
+/*!
+   \enum QAbstractFontEngine::TextShapingFlag
+
+   This enum describes flags controlling conversion of characters to glyphs and their metrics.
+
+   \value RightToLeft The text is used in a right-to-left context.
+   \value ReturnDesignMetrics Return font design metrics instead of pixel metrics.
+*/
+
+/*!
+   Constructs a new QAbstractFontEngine with the given \a parent.
+*/
 QAbstractFontEngine::QAbstractFontEngine(QObject *parent)
     : QObject(*new QAbstractFontEnginePrivate, parent)
 {
 }
 
+/*!
+   Destroys this QAbstractFontEngine object.
+*/
 QAbstractFontEngine::~QAbstractFontEngine()
 {
 }
 
+/*!
+    \fn QAbstractFontEngine::Capabilities QAbstractFontEngine::capabilities() const
+
+    Implemented in subclasses to specify the font engine's capabilities. The return value
+    may be cached by the caller and is expected not to change during the lifetime of the
+    font engine.
+*/
+
+/*!
+    \fn QVariant QAbstractFontEngine::fontProperty(FontProperty property) const
+
+    Implemented in subclasses to specify attributes of the font provided by the font engine. The
+    return value may be cached by the caller and is expected not to change during the lifetime of the
+    font engine.
+*/
+
+/*!
+    \fn bool QAbstractFontEngine::convertStringToGlyphIndices(const QChar *string, int length, uint *glyphs, int *numGlyphs, TextShapingFlags flags) const
+
+    Implemented in subclasses to convert the characters specified by \a string and \a length to
+    glyph indicies. The glyph indicies should be returned in the \a glyphs array provided by the
+    caller. The maximum size of \a glyphs is specified by the value pointed to by \a numGlyphs. If
+    successful, the subclass implementation sets the value pointed to by \a numGlyphs to the actual
+    number of glyph indices generated, and returns true. Otherwise, e.g. if there is not enough space
+    in the provided \a glyphs array, it should set \a numGlyphs to the number of glyphs needed for the
+    conversion and return false.
+*/
+
+/*!
+    \fn void QAbstractFontEngine::getGlyphAdvances(const uint *glyphs, int numGlyphs, Fixed *advances, TextShapingFlags flags) const
+*/
+
+/*!
+    \fn QAbstractFontEngine::GlyphMetrics QAbstractFontEngine::glyphMetrics(uint glyph) const
+*/
+
+/*!
+   Implemented in subclasses to render the specified \a glyph into a \a buffer with the given \a depth ,
+   \a bytesPerLine and \a height.
+
+   Returns true if rendering succeeded, false otherwise.
+*/
 bool QAbstractFontEngine::renderGlyph(uint glyph, int depth, int bytesPerLine, int height, uchar *buffer)
 {
     Q_UNUSED(glyph)
@@ -289,6 +348,10 @@ bool QAbstractFontEngine::renderGlyph(uint glyph, int depth, int bytesPerLine, i
     return false;
 }
 
+/*!
+   Implemented in subclasses to add the outline of the glyphs specified by \a glyphs and \a
+   numGlyphs at the specified \a positions to the painter path \a path.
+*/
 void QAbstractFontEngine::addGlyphOutlinesToPath(uint *glyphs, int numGlyphs, FixedPoint *positions, QPainterPath *path)
 {
     Q_UNUSED(glyphs)
