@@ -23,7 +23,7 @@ class QProxyFontEngine : public QFontEngine
 {
     Q_OBJECT
 public:
-    QProxyFontEngine(QCustomFontEngine *engine, const QFontDef &def);
+    QProxyFontEngine(QAbstractFontEngine *engine, const QFontDef &def);
     virtual ~QProxyFontEngine();
 
     virtual bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
@@ -53,13 +53,13 @@ public:
     virtual void draw(QPaintEngine *, qreal, qreal, const QTextItemInt &);
 #endif
 
-    inline QCustomFontEngine::FontEngineFeatures supportedFeatures() const
+    inline QAbstractFontEngine::FontEngineFeatures supportedFeatures() const
     { return engine->supportedFeatures(); }
 
     bool drawAsOutline() const;
 
 private:
-    QCustomFontEngine *engine;
+    QAbstractFontEngine *engine;
 };
 
 #endif

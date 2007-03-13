@@ -62,40 +62,40 @@ public:
     // ### missing foundry
 };
 
-class QCustomFontEngine;
+class QAbstractFontEngine;
 
-struct Q_GUI_EXPORT QCustomFontEngineFactoryInterface : public QFactoryInterface
+struct Q_GUI_EXPORT QFontEngineFactoryInterface : public QFactoryInterface
 {
-     virtual QCustomFontEngine *create(const QCustomFontInfo &info) = 0;
+     virtual QAbstractFontEngine *create(const QCustomFontInfo &info) = 0;
      virtual QList<QCustomFontInfo> availableFonts() const = 0;
 };
 
-#define QCustomFontEngineFactoryInterface_iid "com.trolltech.Qt.QCustomFontEngineFactoryInterface"
-Q_DECLARE_INTERFACE(QCustomFontEngineFactoryInterface, QCustomFontEngineFactoryInterface_iid)
+#define QFontEngineFactoryInterface_iid "com.trolltech.Qt.QFontEngineFactoryInterface"
+Q_DECLARE_INTERFACE(QFontEngineFactoryInterface, QFontEngineFactoryInterface_iid)
 
-class QCustomFontEnginePluginPrivate;
+class QFontEnginePluginPrivate;
 
-class Q_GUI_EXPORT QCustomFontEnginePlugin : public QObject, public QCustomFontEngineFactoryInterface
+class Q_GUI_EXPORT QFontEnginePlugin : public QObject, public QFontEngineFactoryInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QCustomFontEngineFactoryInterface:QFactoryInterface)
+    Q_INTERFACES(QFontEngineFactoryInterface:QFactoryInterface)
 public:
-    QCustomFontEnginePlugin(const QString &foundry, QObject *parent = 0);
-    ~QCustomFontEnginePlugin();
+    QFontEnginePlugin(const QString &foundry, QObject *parent = 0);
+    ~QFontEnginePlugin();
 
     virtual QStringList keys() const;
 
-    virtual QCustomFontEngine *create(const QCustomFontInfo &info) = 0;
+    virtual QAbstractFontEngine *create(const QCustomFontInfo &info) = 0;
     virtual QList<QCustomFontInfo> availableFonts() const = 0;
 
 private:
-    Q_DECLARE_PRIVATE(QCustomFontEnginePlugin)
-    Q_DISABLE_COPY(QCustomFontEnginePlugin)
+    Q_DECLARE_PRIVATE(QFontEnginePlugin)
+    Q_DISABLE_COPY(QFontEnginePlugin)
 };
 
-class QCustomFontEnginePrivate;
+class QAbstractFontEnginePrivate;
 
-class Q_GUI_EXPORT QCustomFontEngine : public QObject
+class Q_GUI_EXPORT QAbstractFontEngine : public QObject
 {
     Q_OBJECT
 public:
@@ -105,8 +105,8 @@ public:
     };
     Q_DECLARE_FLAGS(FontEngineFeatures, FontEngineFeature)
 
-    explicit QCustomFontEngine(FontEngineFeatures supportedFeatures, QObject *parent = 0);
-    ~QCustomFontEngine();
+    explicit QAbstractFontEngine(FontEngineFeatures supportedFeatures, QObject *parent = 0);
+    ~QAbstractFontEngine();
 
     typedef int Fixed; // 26.6
 
@@ -166,11 +166,11 @@ public:
     virtual QVariant extension(Extension extension, const QVariant &argument = QVariant());
 
 private:
-    Q_DECLARE_PRIVATE(QCustomFontEngine)
-    Q_DISABLE_COPY(QCustomFontEngine)
+    Q_DECLARE_PRIVATE(QAbstractFontEngine)
+    Q_DISABLE_COPY(QAbstractFontEngine)
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QCustomFontEngine::FontEngineFeatures)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractFontEngine::FontEngineFeatures)
 
 QT_END_HEADER
 

@@ -36,7 +36,7 @@
 
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QCustomFontEngineFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/fontengines"), Qt::CaseInsensitive))
+    (QFontEngineFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/fontengines"), Qt::CaseInsensitive))
 #endif
 
 const quint8 DatabaseVersion = 3;
@@ -361,7 +361,7 @@ static void initializeDb()
     for (int i = 0; i < pluginFoundries.count(); ++i) {
         const QString foundry(pluginFoundries.at(i));
 
-        QCustomFontEngineFactoryInterface *factory = qobject_cast<QCustomFontEngineFactoryInterface *>(loader()->instance(foundry));
+        QFontEngineFactoryInterface *factory = qobject_cast<QFontEngineFactoryInterface *>(loader()->instance(foundry));
         if (!factory) {
             qDebug() << "Could not load plugin for foundry" << foundry;
             continue;
@@ -451,7 +451,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
         QFontEngine *engine = 0;
 
         if (file.isEmpty()) {
-            QCustomFontEngineFactoryInterface *factory = qobject_cast<QCustomFontEngineFactoryInterface *>(loader()->instance(foundry->name));
+            QFontEngineFactoryInterface *factory = qobject_cast<QFontEngineFactoryInterface *>(loader()->instance(foundry->name));
             if (factory) {
                 QCustomFontInfo info;
                 info.setFamily(request.family);
@@ -460,12 +460,12 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
                 info.setWeight(request.weight);
                 // #### antialiased
 
-                QCustomFontEngine *customEngine = factory->create(info);
+                QAbstractFontEngine *customEngine = factory->create(info);
                 if (customEngine) {
                     engine = new QProxyFontEngine(customEngine, def);
 
                     if (shareFonts) {
-                        QVariant hint = customEngine->fontProperty(QCustomFontEngine::GlyphShareHint);
+                        QVariant hint = customEngine->fontProperty(QAbstractFontEngine::GlyphShareHint);
                         if (hint.isValid())
                             shareFonts = hint.toBool();
                         else

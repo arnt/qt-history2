@@ -47,85 +47,85 @@ qreal QCustomFontInfo::pixelSize() const
     return QFixed::fromFixed(value(PixelSize).toInt()).toReal();
 }
 
-class QCustomFontEnginePluginPrivate : public QObjectPrivate
+class QFontEnginePluginPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QCustomFontEnginePlugin)
+    Q_DECLARE_PUBLIC(QFontEnginePlugin)
 
     QString foundry;
 };
 
-QCustomFontEnginePlugin::QCustomFontEnginePlugin(const QString &foundry, QObject *parent)
-    : QObject(*new QCustomFontEnginePluginPrivate, parent)
+QFontEnginePlugin::QFontEnginePlugin(const QString &foundry, QObject *parent)
+    : QObject(*new QFontEnginePluginPrivate, parent)
 {
-    Q_D(QCustomFontEnginePlugin);
+    Q_D(QFontEnginePlugin);
     d->foundry = foundry;
 }
 
-QCustomFontEnginePlugin::~QCustomFontEnginePlugin()
+QFontEnginePlugin::~QFontEnginePlugin()
 {
 }
 
-QStringList QCustomFontEnginePlugin::keys() const
+QStringList QFontEnginePlugin::keys() const
 {
-    Q_D(const QCustomFontEnginePlugin);
+    Q_D(const QFontEnginePlugin);
     return QStringList(d->foundry);
 }
 
-class QCustomFontEnginePrivate : public QObjectPrivate
+class QAbstractFontEnginePrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QCustomFontEngine)
+    Q_DECLARE_PUBLIC(QAbstractFontEngine)
 public:
-    QCustomFontEngine::FontEngineFeatures features;
+    QAbstractFontEngine::FontEngineFeatures features;
 };
 
-QCustomFontEngine::QCustomFontEngine(FontEngineFeatures features, QObject *parent)
-    : QObject(*new QCustomFontEnginePrivate, parent)
+QAbstractFontEngine::QAbstractFontEngine(FontEngineFeatures features, QObject *parent)
+    : QObject(*new QAbstractFontEnginePrivate, parent)
 {
-    Q_D(QCustomFontEngine);
+    Q_D(QAbstractFontEngine);
     d->features = features;
 }
 
-QCustomFontEngine::~QCustomFontEngine()
+QAbstractFontEngine::~QAbstractFontEngine()
 {
 }
 
-QCustomFontEngine::FontEngineFeatures QCustomFontEngine::supportedFeatures() const
+QAbstractFontEngine::FontEngineFeatures QAbstractFontEngine::supportedFeatures() const
 {
-    Q_D(const QCustomFontEngine);
+    Q_D(const QAbstractFontEngine);
     return d->features;
 }
 
-QImage QCustomFontEngine::renderGlyph(uint glyph)
+QImage QAbstractFontEngine::renderGlyph(uint glyph)
 {
     Q_UNUSED(glyph)
-    qWarning("QCustomFontEngine: renderGlyph is not implemented in font plugin!");
+    qWarning("QAbstractFontEngine: renderGlyph is not implemented in font plugin!");
     return QImage();
 }
 
-void QCustomFontEngine::addGlyphOutlinesToPath(uint *glyphs, int numGlyphs, FixedPoint *positions, QPainterPath *path, QTextItem::RenderFlags flags)
+void QAbstractFontEngine::addGlyphOutlinesToPath(uint *glyphs, int numGlyphs, FixedPoint *positions, QPainterPath *path, QTextItem::RenderFlags flags)
 {
     Q_UNUSED(glyphs)
     Q_UNUSED(numGlyphs)
     Q_UNUSED(positions)
     Q_UNUSED(path)
     Q_UNUSED(flags)
-    qWarning("QCustomFontEngine: addGlyphOutlinesToPath is not implemented in font plugin!");
+    qWarning("QAbstractFontEngine: addGlyphOutlinesToPath is not implemented in font plugin!");
 }
 
-bool QCustomFontEngine::supportsExtension(Extension extension) const
+bool QAbstractFontEngine::supportsExtension(Extension extension) const
 {
     Q_UNUSED(extension)
     return false;
 }
 
-QVariant QCustomFontEngine::extension(Extension extension, const QVariant &argument)
+QVariant QAbstractFontEngine::extension(Extension extension, const QVariant &argument)
 {
     Q_UNUSED(argument)
     Q_UNUSED(extension)
     return QVariant();
 }
 
-QProxyFontEngine::QProxyFontEngine(QCustomFontEngine *customEngine, const QFontDef &def)
+QProxyFontEngine::QProxyFontEngine(QAbstractFontEngine *customEngine, const QFontDef &def)
     : engine(customEngine)
 {
     fontDef = def;
@@ -147,7 +147,7 @@ bool QProxyFontEngine::stringToCMap(const QChar *str, int len, QGlyphLayout *gly
     if (!engine->convertStringToGlyphIndices(str, len, glyphIndicies.data(), nglyphs, /*flags ######### */0))
         return false;
 
-    QVarLengthArray<QCustomFontEngine::Fixed> advances(*nglyphs);
+    QVarLengthArray<QAbstractFontEngine::Fixed> advances(*nglyphs);
     engine->getGlyphAdvances(glyphIndicies.data(), *nglyphs, advances.data(), /*flags ###### */0);
 
     for (int i = 0; i < *nglyphs; ++i) {
@@ -160,15 +160,15 @@ bool QProxyFontEngine::stringToCMap(const QChar *str, int len, QGlyphLayout *gly
 
 QImage QProxyFontEngine::alphaMapForGlyph(glyph_t glyph)
 {
-    if (engine->supportedFeatures() & QCustomFontEngine::GlyphRendering)
+    if (engine->supportedFeatures() & QAbstractFontEngine::GlyphRendering)
         return engine->renderGlyph(glyph);
     return QFontEngine::alphaMapForGlyph(glyph);
 }
 
 void QProxyFontEngine::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs, QPainterPath *path, QTextItem::RenderFlags flags)
 {
-    if (engine->supportedFeatures() & QCustomFontEngine::GlyphOutlines)
-        engine->addGlyphOutlinesToPath(glyphs, nglyphs, reinterpret_cast<QCustomFontEngine::FixedPoint *>(positions), path, flags);
+    if (engine->supportedFeatures() & QAbstractFontEngine::GlyphOutlines)
+        engine->addGlyphOutlinesToPath(glyphs, nglyphs, reinterpret_cast<QAbstractFontEngine::FixedPoint *>(positions), path, flags);
     else
         QFontEngine::addGlyphsToPath(glyphs, positions, nglyphs, path, flags);
 }
@@ -192,7 +192,7 @@ glyph_metrics_t QProxyFontEngine::boundingBox(glyph_t glyph)
 {
     glyph_metrics_t m;
 
-    QCustomFontEngine::GlyphMetrics metrics = engine->glyphMetrics(glyph);
+    QAbstractFontEngine::GlyphMetrics metrics = engine->glyphMetrics(glyph);
     m.x = QFixed::fromFixed(metrics.x);
     m.y = QFixed::fromFixed(metrics.y);
     m.width = QFixed::fromFixed(metrics.width);
@@ -204,57 +204,57 @@ glyph_metrics_t QProxyFontEngine::boundingBox(glyph_t glyph)
 
 QFixed QProxyFontEngine::ascent() const
 {
-    return QFixed::fromFixed(engine->fontProperty(QCustomFontEngine::Ascent).toInt());
+    return QFixed::fromFixed(engine->fontProperty(QAbstractFontEngine::Ascent).toInt());
 }
 
 QFixed QProxyFontEngine::descent() const
 {
-    return QFixed::fromFixed(engine->fontProperty(QCustomFontEngine::Descent).toInt());
+    return QFixed::fromFixed(engine->fontProperty(QAbstractFontEngine::Descent).toInt());
 }
 
 QFixed QProxyFontEngine::leading() const
 {
-    return QFixed::fromFixed(engine->fontProperty(QCustomFontEngine::Leading).toInt());
+    return QFixed::fromFixed(engine->fontProperty(QAbstractFontEngine::Leading).toInt());
 }
 
 QFixed QProxyFontEngine::xHeight() const
 {
-    return QFixed::fromFixed(engine->fontProperty(QCustomFontEngine::XHeight).toInt());
+    return QFixed::fromFixed(engine->fontProperty(QAbstractFontEngine::XHeight).toInt());
 }
 
 QFixed QProxyFontEngine::averageCharWidth() const
 {
-    return QFixed::fromFixed(engine->fontProperty(QCustomFontEngine::AverageCharWidth).toInt());
+    return QFixed::fromFixed(engine->fontProperty(QAbstractFontEngine::AverageCharWidth).toInt());
 }
 
 QFixed QProxyFontEngine::lineThickness() const
 {
-    return QFixed::fromFixed(engine->fontProperty(QCustomFontEngine::LineThickness).toInt());
+    return QFixed::fromFixed(engine->fontProperty(QAbstractFontEngine::LineThickness).toInt());
 }
 
 QFixed QProxyFontEngine::underlinePosition() const
 {
-    return QFixed::fromFixed(engine->fontProperty(QCustomFontEngine::UnderlinePosition).toInt());
+    return QFixed::fromFixed(engine->fontProperty(QAbstractFontEngine::UnderlinePosition).toInt());
 }
 
 qreal QProxyFontEngine::maxCharWidth() const
 {
-    return QFixed::fromFixed(engine->fontProperty(QCustomFontEngine::MaxCharWidth).toInt()).toReal();
+    return QFixed::fromFixed(engine->fontProperty(QAbstractFontEngine::MaxCharWidth).toInt()).toReal();
 }
 
 qreal QProxyFontEngine::minLeftBearing() const
 {
-    return QFixed::fromFixed(engine->fontProperty(QCustomFontEngine::MinLeftBearing).toInt()).toReal();
+    return QFixed::fromFixed(engine->fontProperty(QAbstractFontEngine::MinLeftBearing).toInt()).toReal();
 }
 
 qreal QProxyFontEngine::minRightBearing() const
 {
-    return QFixed::fromFixed(engine->fontProperty(QCustomFontEngine::MinRightBearing).toInt()).toReal();
+    return QFixed::fromFixed(engine->fontProperty(QAbstractFontEngine::MinRightBearing).toInt()).toReal();
 }
 
 int QProxyFontEngine::glyphCount() const
 {
-    return engine->fontProperty(QCustomFontEngine::GlyphCount).toInt();
+    return engine->fontProperty(QAbstractFontEngine::GlyphCount).toInt();
 }
 
 bool QProxyFontEngine::canRender(const QChar *string, int len)
@@ -297,7 +297,7 @@ void QProxyFontEngine::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItem
             && glyph.format() != QImage::Format_Mono)
             continue;
 
-        QCustomFontEngine::GlyphMetrics metrics = engine->glyphMetrics(glyphs[i]);
+        QAbstractFontEngine::GlyphMetrics metrics = engine->glyphMetrics(glyphs[i]);
 
 
         paintEngine->alphaPenBlt(glyph.bits(), glyph.bytesPerLine(), glyph.format() == QImage::Format_Mono,
@@ -309,10 +309,10 @@ void QProxyFontEngine::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItem
 
 bool QProxyFontEngine::drawAsOutline() const
 {
-    if (!(engine->supportedFeatures() & QCustomFontEngine::GlyphOutlines))
+    if (!(engine->supportedFeatures() & QAbstractFontEngine::GlyphOutlines))
         return false;
 
-    QVariant outlineHint = engine->fontProperty(QCustomFontEngine::OutlineRenderHint);
+    QVariant outlineHint = engine->fontProperty(QAbstractFontEngine::OutlineRenderHint);
     return !outlineHint.isValid() || outlineHint.toBool();
 }
 
