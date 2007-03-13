@@ -848,7 +848,7 @@ void QWSSharedMemSurface::setGeometry(const QRect &rect)
         } else {
             mem.detach();
             if (!mem.create(imagesize)) {
-                perror("QWSBackingStore::create allocating shared memory");
+                perror("QWSSharedMemSurface::setGeometry allocating shared memory");
                 qFatal("Error creating shared memory of size %d", imagesize);
             }
             uchar *base = static_cast<uchar*>(mem.address());
