@@ -1023,6 +1023,12 @@ void VcprojGenerator::initResourceTool()
 {
     VCConfiguration &conf = vcProject.Configuration;
     conf.resource.PreprocessorDefinitions = conf.compiler.PreprocessorDefinitions;
+
+    // We need to add _DEBUG for the debug version of the project, since the normal compiler defines
+    // do not contain it. (The compiler defines this symbol automatically, which is wy we don't need
+    // to add it for the compiler) However, the resource tool does not do this.
+    if(project->isActiveConfig("debug"))
+        conf.resource.PreprocessorDefinitions += "_DEBUG";
 }
 
 

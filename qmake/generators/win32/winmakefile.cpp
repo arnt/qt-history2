@@ -687,8 +687,12 @@ void Win32MakefileGenerator::writeRcFilePart(QTextStream &t)
     if(!project->values("RC_FILE").isEmpty()) {
         const QString res_file = project->first("RES_FILE"),
                        rc_file = fileFixify(project->first("RC_FILE"));
+        // The resource tool needs to have the same defines passed in as the compiler, since you may
+        // use these defines in the .rc file itself. Also, we need to add the _DEBUG define manually
+        // since the compiler defines this symbol by itself, and we use it in the automatically
+        // created rc file when VERSION is define the .pro file.
         t << res_file << ": " << rc_file << "\n\t"
-          << var("QMAKE_RC") << " -fo " << res_file << " " << rc_file;
+          << var("QMAKE_RC") << (project->isActiveConfig("debug") ? " -D_DEBUG" : "") << " $(DEFINES) -fo " << res_file << " " << rc_file;
         t << endl << endl;
     }
 }
