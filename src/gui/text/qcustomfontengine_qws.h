@@ -131,7 +131,7 @@ public:
         MaxCharWidth,
         MinLeftBearing,
         MinRightBearing,
-        TotalGlyphCount,
+        TotalGlyphCount, // GlyphCount?
 
         // hints
         GlyphShareHint,
