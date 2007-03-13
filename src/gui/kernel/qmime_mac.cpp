@@ -362,7 +362,7 @@ QVariant QMacPasteboardMimePict::convertToMime(const QString &mime, QList<QByteA
         result = ptrGraphicsImportCreateCGImage(graphicsImporter, &cgImage,
                                              kGraphicsImportCreateCGImageUsingCurrentSettings);
     if (!result)
-        ret = QVariant(QImage(QPixmap::fromMacCGImageRef(cgImage)));
+        ret = QVariant(QPixmap::fromMacCGImageRef(cgImage).toImage());
     CloseComponent(graphicsImporter);
     DisposeHandle(pic);
     return ret;
@@ -476,7 +476,7 @@ QVariant QMacPasteboardMimeTiff::convertToMime(const QString &mime, QList<QByteA
     }
 
     if (image != 0)
-        ret = QVariant(QImage(QPixmap::fromMacCGImageRef(image)));
+        ret = QVariant(QPixmap::fromMacCGImageRef(image).toImage());
     return ret;
 }
 
