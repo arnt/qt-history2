@@ -573,7 +573,7 @@ void QFontEngineQPF::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
 {
     if (renderingFontEngine &&
         (renderingFontEngine->type() != QFontEngine::Proxy
-         || static_cast<QProxyFontEngine *>(renderingFontEngine)->capabilities() & QAbstractFontEngine::GlyphOutlines)) {
+         || static_cast<QProxyFontEngine *>(renderingFontEngine)->capabilities() & QAbstractFontEngine::OutlineGlyphs)) {
         renderingFontEngine->addOutlineToPath(x, y, glyphs, numGlyphs, path, flags);
         return;
     }
