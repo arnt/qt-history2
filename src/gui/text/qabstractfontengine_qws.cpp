@@ -17,34 +17,84 @@
 #include <private/qtextengine_p.h>
 #include <private/qpaintengine_raster_p.h>
 
+class QFontEngineInfoPrivate
+{
+public:
+    inline QFontEngineInfoPrivate()
+        : pixelSize(0), weight(QFont::Normal), style(QFont::StyleNormal)
+    {}
+
+    QString family;
+    qreal pixelSize;
+    int weight;
+    QFont::Style style;
+};
+
 QFontEngineInfo::QFontEngineInfo()
 {
+    d = new QFontEngineInfoPrivate;
 }
 
 QFontEngineInfo::QFontEngineInfo(const QString &family)
 {
-    setFamily(family);
+    d = new QFontEngineInfoPrivate;
+    d->family = family;
 }
 
 QFontEngineInfo::QFontEngineInfo(const QFontEngineInfo &other)
-    : QHash<int, QVariant>(other)
+    : d(new QFontEngineInfoPrivate(*other.d))
 {
 }
 
 QFontEngineInfo &QFontEngineInfo::operator=(const QFontEngineInfo &other)
 {
-    QHash<int, QVariant>::operator=(other);
+    *d = *other.d;
     return *this;
+}
+
+QFontEngineInfo::~QFontEngineInfo()
+{
+    delete d;
+}
+
+void QFontEngineInfo::setFamily(const QString &family)
+{
+    d->family = family;
+}
+
+QString QFontEngineInfo::family() const
+{
+    return d->family;
 }
 
 void QFontEngineInfo::setPixelSize(qreal size)
 {
-    insert(PixelSize, QFixed::fromReal(size).value());
+    d->pixelSize = size;
 }
 
 qreal QFontEngineInfo::pixelSize() const
 {
-    return QFixed::fromFixed(value(PixelSize).toInt()).toReal();
+    return d->pixelSize;
+}
+
+void QFontEngineInfo::setWeight(int weight)
+{
+    d->weight = weight;
+}
+
+int QFontEngineInfo::weight() const
+{
+    return d->weight;
+}
+
+void QFontEngineInfo::setStyle(QFont::Style style)
+{
+    d->style = style;
+}
+
+QFont::Style QFontEngineInfo::style() const
+{
+    return d->style;
 }
 
 class QFontEnginePluginPrivate : public QObjectPrivate

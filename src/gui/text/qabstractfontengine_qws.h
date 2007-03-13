@@ -24,42 +24,31 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
-class Q_GUI_EXPORT QFontEngineInfo : public QHash<int, QVariant>
+class QFontEngineInfoPrivate;
+
+class Q_GUI_EXPORT QFontEngineInfo
 {
 public:
-    enum Property {
-        Family,
-        PixelSize,
-        Weight,
-        Style,
-        NoAntialiasing,
-        SupportedWritingSystems
-    };
-
     QFontEngineInfo();
     explicit QFontEngineInfo(const QString &family);
     QFontEngineInfo(const QFontEngineInfo &other);
     QFontEngineInfo &operator=(const QFontEngineInfo &other);
+    ~QFontEngineInfo();
 
-    inline void setFamily(const QString &name)
-    { insert(Family, name); }
-    inline QString family() const
-    { return value(Family).toString(); }
+    void setFamily(const QString &name);
+    QString family() const;
 
     void setPixelSize(qreal size);
     qreal pixelSize() const;
 
-    inline void setWeight(int weight)
-    { insert(Weight, weight); }
-    inline int weight() const
-    { return value(Weight).toInt(); }
+    void setWeight(int weight);
+    int weight() const;
 
-    inline void setStyle(int style)
-    { insert(Style, style); }
-    inline int style() const
-    { return value(Style).toInt(); }
+    void setStyle(QFont::Style style);
+    QFont::Style style() const;
 
-    // ### missing foundry
+private:
+    QFontEngineInfoPrivate *d;
 };
 
 class QAbstractFontEngine;
