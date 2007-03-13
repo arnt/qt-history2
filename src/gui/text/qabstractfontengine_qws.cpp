@@ -17,32 +17,32 @@
 #include <private/qtextengine_p.h>
 #include <private/qpaintengine_raster_p.h>
 
-QCustomFontInfo::QCustomFontInfo()
+QFontEngineInfo::QFontEngineInfo()
 {
 }
 
-QCustomFontInfo::QCustomFontInfo(const QString &family)
+QFontEngineInfo::QFontEngineInfo(const QString &family)
 {
     setFamily(family);
 }
 
-QCustomFontInfo::QCustomFontInfo(const QCustomFontInfo &other)
+QFontEngineInfo::QFontEngineInfo(const QFontEngineInfo &other)
     : QHash<int, QVariant>(other)
 {
 }
 
-QCustomFontInfo &QCustomFontInfo::operator=(const QCustomFontInfo &other)
+QFontEngineInfo &QFontEngineInfo::operator=(const QFontEngineInfo &other)
 {
     QHash<int, QVariant>::operator=(other);
     return *this;
 }
 
-void QCustomFontInfo::setPixelSize(qreal size)
+void QFontEngineInfo::setPixelSize(qreal size)
 {
     insert(PixelSize, QFixed::fromReal(size).value());
 }
 
-qreal QCustomFontInfo::pixelSize() const
+qreal QFontEngineInfo::pixelSize() const
 {
     return QFixed::fromFixed(value(PixelSize).toInt()).toReal();
 }

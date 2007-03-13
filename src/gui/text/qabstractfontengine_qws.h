@@ -24,7 +24,7 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
-class Q_GUI_EXPORT QCustomFontInfo : public QHash<int, QVariant>
+class Q_GUI_EXPORT QFontEngineInfo : public QHash<int, QVariant>
 {
 public:
     enum Property {
@@ -36,10 +36,10 @@ public:
         SupportedWritingSystems
     };
 
-    QCustomFontInfo();
-    explicit QCustomFontInfo(const QString &family);
-    QCustomFontInfo(const QCustomFontInfo &other);
-    QCustomFontInfo &operator=(const QCustomFontInfo &other);
+    QFontEngineInfo();
+    explicit QFontEngineInfo(const QString &family);
+    QFontEngineInfo(const QFontEngineInfo &other);
+    QFontEngineInfo &operator=(const QFontEngineInfo &other);
 
     inline void setFamily(const QString &name)
     { insert(Family, name); }
@@ -66,8 +66,8 @@ class QAbstractFontEngine;
 
 struct Q_GUI_EXPORT QFontEngineFactoryInterface : public QFactoryInterface
 {
-     virtual QAbstractFontEngine *create(const QCustomFontInfo &info) = 0;
-     virtual QList<QCustomFontInfo> availableFonts() const = 0;
+     virtual QAbstractFontEngine *create(const QFontEngineInfo &info) = 0;
+     virtual QList<QFontEngineInfo> availableFontEngines() const = 0;
 };
 
 #define QFontEngineFactoryInterface_iid "com.trolltech.Qt.QFontEngineFactoryInterface"
@@ -85,8 +85,8 @@ public:
 
     virtual QStringList keys() const;
 
-    virtual QAbstractFontEngine *create(const QCustomFontInfo &info) = 0;
-    virtual QList<QCustomFontInfo> availableFonts() const = 0;
+    virtual QAbstractFontEngine *create(const QFontEngineInfo &info) = 0;
+    virtual QList<QFontEngineInfo> availableFontEngines() const = 0;
 
 private:
     Q_DECLARE_PRIVATE(QFontEnginePlugin)

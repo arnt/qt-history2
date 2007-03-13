@@ -367,9 +367,9 @@ static void initializeDb()
             continue;
         }
 
-        QList<QCustomFontInfo> fonts = factory->availableFonts();
+        QList<QFontEngineInfo> fonts = factory->availableFontEngines();
         for (int i = 0; i < fonts.count(); ++i) {
-            QCustomFontInfo info = fonts.at(i);
+            QFontEngineInfo info = fonts.at(i);
 
             int weight = info.weight();
             if (weight <= 0)
@@ -453,7 +453,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
         if (file.isEmpty()) {
             QFontEngineFactoryInterface *factory = qobject_cast<QFontEngineFactoryInterface *>(loader()->instance(foundry->name));
             if (factory) {
-                QCustomFontInfo info;
+                QFontEngineInfo info;
                 info.setFamily(request.family);
                 info.setPixelSize(request.pixelSize);
                 info.setStyle(request.style);
