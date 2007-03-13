@@ -153,13 +153,15 @@ QStringList QFontDatabasePrivate::addTTFile(const QByteArray &file, const QByteA
 
 static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt);
 
+extern QString qws_fontCacheDir();
+
 bool QFontDatabasePrivate::loadFromCache(const QString &fontPath)
 {
     QFile binaryDb(qws_fontCacheDir() + QLatin1String("/fontdb"));
     if (!binaryDb.exists())
         return false;
 
-    QDateTime fontPathTimeStamp = QFileInfo(fontpath).lastModified();
+    QDateTime fontPathTimeStamp = QFileInfo(fontPath).lastModified();
     QDateTime dbTimeStamp = QFileInfo(binaryDb.fileName()).lastModified();
     if (dbTimeStamp < fontPathTimeStamp)
         return false;
@@ -211,8 +213,6 @@ bool QFontDatabasePrivate::loadFromCache(const QString &fontPath)
 */
 static void initializeDb()
 {
-    extern QString qws_fontCacheDir();
-
     QFontDatabasePrivate *db = privateDb();
     if (!db || db->count)
         return;
