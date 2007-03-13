@@ -372,6 +372,7 @@ public:
 };
 
 Q_DECLARE_METATYPE(Foo)
+Q_DECLARE_METATYPE(Foo*)
 
 void tst_QScriptEngine::getSetDefaultPrototype()
 {
@@ -548,6 +549,22 @@ void tst_QScriptEngine::valueConversion()
         QCOMPARE(qscriptvalue_cast<QStack<int> >(lstVal.property("0")), first);
         QCOMPARE(qscriptvalue_cast<QStack<int> >(lstVal.property("1")), second);
         QCOMPARE(qscriptvalue_cast<QLinkedList<QStack<int> > >(lstVal), lst);
+    }
+
+    // pointers
+    {
+        Foo foo;
+        {
+            QScriptValue v = qScriptValueFromValue(&eng, &foo);
+            Foo *pfoo = qscriptvalue_cast<Foo*>(v);
+            QCOMPARE(pfoo, &foo);
+        }
+        {
+            Foo *pfoo = 0;
+            QScriptValue v = qScriptValueFromValue(&eng, pfoo);
+            QCOMPARE(v.isNull(), true);
+            QVERIFY(qscriptvalue_cast<Foo*>(v) == 0);
+        }
     }
 }
 

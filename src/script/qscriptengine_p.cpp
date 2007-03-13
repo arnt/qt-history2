@@ -1069,8 +1069,13 @@ QScriptValueImpl QScriptEnginePrivate::create(int type, const void *ptr)
                 return create(type, ptr);
             }
 
-            else
-                result = newVariant(QVariant(type, ptr));
+            else {
+                QByteArray typeName = QMetaType::typeName(type);
+                if (typeName.endsWith('*') && !*reinterpret_cast<void* const *>(ptr))
+                    result = nullValue();
+                else
+                    result = newVariant(QVariant(type, ptr));
+            }
         }
     }
     if (result.isObject() && info.prototype.isValid())
