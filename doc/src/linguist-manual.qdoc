@@ -1136,4 +1136,12 @@
 
     \contentspage {Qt Linguist Manual}{Contents}
     \previouspage Qt Linguist Manual: Programmers
+
+    The \c .ts file format used by Qt Linguist is described by the
+    \l{http://www.w3.org/TR/1998/REC-xml-19980210}{DTD} presented below,
+    which we include for your convenience. Be aware that the format
+    may change in future Qt releases.
+
+    \include tools/linguist/shared/ts.dtd
+    
 */
