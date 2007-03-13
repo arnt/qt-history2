@@ -46,6 +46,8 @@ Window::Window(QWidget *parent)
     view->setModel(scripts);
     connect(view, SIGNAL(activated(const QModelIndex &)),
             this, SLOT(selectScript(const QModelIndex &)));
+
+    setWindowTitle(tr("Context 2D"));
 }
 
 void Window::selectScript(const QModelIndex &index)
