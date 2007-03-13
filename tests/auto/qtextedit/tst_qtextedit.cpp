@@ -111,6 +111,7 @@ private slots:
     void extraSelections();
     void adjustScrollbars();
     void currentCharFormatChanged();
+    void textObscuredByScrollbars();
 
 private:
     void createSelection();
@@ -1474,6 +1475,31 @@ void tst_QTextEdit::currentCharFormatChanged()
 
     QVERIFY(receiver.receivedSignals() > 0);
     QCOMPARE(receiver.charFormat().font(), ff);
+}
+
+void tst_QTextEdit::textObscuredByScrollbars()
+{
+    ed->textCursor().insertText(
+            "ab cab cab c abca kjsdf lka sjd lfk jsal df j kasdf abc ab abc "
+            "a b c d e f g h i j k l m n o p q r s t u v w x y z "
+            "abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc "
+            "ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab"
+            "abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc "
+            "ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab"
+            "abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc "
+            "ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab"
+            "abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc "
+            "ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab"
+            "abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc "
+            "ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab"
+    );
+    ed->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ed->show();
+
+    QSize documentSize = ed->document()->documentLayout()->documentSize().toSize();
+    QSize viewportSize = ed->viewport()->size();
+
+    QVERIFY(documentSize.width() <= viewportSize.width());
 }
 
 QTEST_MAIN(tst_QTextEdit)

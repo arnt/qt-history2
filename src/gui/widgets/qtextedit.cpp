@@ -268,9 +268,12 @@ void QTextEditPrivate::_q_adjustScrollbars()
         const QSize oldViewportSize = viewportSize;
         const QSize oldDocSize = docSize;
 
+        // make sure the document is layouted if the viewport width changes
         viewportSize = viewport->size();
-        docSize = documentSize(control);
+        if (viewportSize.width() != oldViewportSize.width())
+            relayoutDocument();
 
+        docSize = documentSize(control);
         if (viewportSize == oldViewportSize && docSize == oldDocSize)
             break;
     }
