@@ -96,10 +96,12 @@ embedded {
 		text/qfont_qws.cpp \
 		text/qfontengine_qws.cpp \
 		text/qfontengine_ft.cpp \
-		text/qfontengine_qpf.cpp
+		text/qfontengine_qpf.cpp \
+		text/qcustomfontengine_qws.cpp
 	HEADERS += \
 		text/qfontengine_ft_p.h \
-		text/qfontengine_qpf_p.h
+		text/qfontengine_qpf_p.h \
+		text/qcustomfontengine_qws.h
 	DEFINES += QT_NO_FONTCONFIG
 }
 
