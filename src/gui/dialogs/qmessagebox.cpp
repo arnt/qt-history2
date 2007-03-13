@@ -312,7 +312,7 @@ void QMessageBoxPrivate::updateSize()
 #ifdef Q_WS_MAC
     int softLimit = qMin(screenSize.width()/2, 420);
 #elif defined(Q_WS_QWS)
-    int softLimit = hardLimit;
+    int softLimit = qMin(hardLimit, 500);
 #else
     // note: ideally on windows, hard and soft limits but it breaks compat
     int softLimit = qMin(screenSize.width()/2, 500);
@@ -412,7 +412,7 @@ void QMessageBoxPrivate::_q_buttonClicked(QAbstractButton *button)
 #ifndef QT_NO_TEXTEDIT
     if (detailsButton && detailsText && button == detailsButton) {
         detailsButton->setText(detailsText->isHidden() ? detailsText->label(HideLabel) : detailsText->label(ShowLabel));
-#if defined(Q_OS_UNIX) && !defined(Q_WS_MAC) 
+#if defined(Q_OS_UNIX) && !defined(Q_WS_MAC)
         q->layout()->setEnabled(false);
 #endif
         detailsText->setHidden(!detailsText->isHidden());
@@ -1205,7 +1205,7 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
 
             if (d->informativeLabel)
                 textToCopy += d->informativeLabel->text() + separator;
-            
+
             QString buttonTexts;
             QList<QAbstractButton *> buttons = d->buttonBox->buttons();
             for (int i = 0; i < buttons.count(); i++) {
