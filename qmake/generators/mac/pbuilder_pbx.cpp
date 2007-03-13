@@ -686,8 +686,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             mkt << "parser_clean:" << "\n";
             if(!project->isEmpty("YACCSOURCES") || !project->isEmpty("LEXSOURCES"))
                 mkt << "\t-rm -f $(PARSERS)" << "\n";
-            writeYaccSrc(mkt, "YACCSOURCES");
-            writeLexSrc(mkt, "LEXSOURCES");
             writeExtraTargets(mkt);
             if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
                 mkt << "compilers:";

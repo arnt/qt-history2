@@ -525,7 +525,7 @@ MakefileGenerator::init()
     //build up a list of compilers
     QList<Compiler> compilers;
     {
-        const char *builtins[] = { "OBJECTS", "LEXSOURCES", "YACCSOURCES", "SOURCES", "PRECOMPILED_HEADER", 0 };
+        const char *builtins[] = { "OBJECTS", "SOURCES", "PRECOMPILED_HEADER", 0 };
         for(x = 0; builtins[x]; ++x) {
             Compiler compiler;
             compiler.variable_in = builtins[x];
@@ -717,79 +717,6 @@ MakefileGenerator::init()
 
     //all sources and generated sources must be turned into objects at some point (the one builtin compiler)
     v["OBJECTS"] += createObjectList(v["SOURCES"]) + createObjectList(v["GENERATED_SOURCES"]);
-
-    {    //lex files (should just be an extra compiler)
-        QStringList &impls = v["LEXIMPLS"];
-        QStringList &l = v["LEXSOURCES"];
-        for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-            QString dir;
-            QFileInfo fi = fileInfo((*it));
-            if(fi.path() != ".")
-                dir = fi.path() + Option::dir_sep;
-            dir = fileFixify(dir, qmake_getpwd(), Option::output_dir);
-            if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
-                dir += Option::dir_sep;
-            QString impl = dir + fi.completeBaseName() + Option::lex_mod + Option::cpp_ext.first();
-            checkMultipleDefinition(impl, "SOURCES");
-            impls.append(impl);
-            if(!project->isActiveConfig("lex_included")) {
-                v["SOURCES"].append(impl);
-                // attribute deps of lex file to impl file
-                QStringList &lexdeps = findDependencies((*it));
-                QStringList &impldeps = findDependencies(impl);
-                for(QStringList::ConstIterator d = lexdeps.begin(); d != lexdeps.end(); ++d) {
-                    if(!impldeps.contains(*d))
-                        impldeps.append(*d);
-                }
-                lexdeps.clear();
-            }
-        }
-        if(!project->isActiveConfig("lex_included"))
-            v["OBJECTS"] += (v["LEXOBJECTS"] = createObjectList(impls));
-    }
-    {    //yacc files (should just be an extra compiler)
-        QStringList &decls = v["YACCCDECLS"], &impls = v["YACCIMPLS"];
-        QStringList &l = v["YACCSOURCES"];
-        for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-            QString dir;
-            QFileInfo fi = fileInfo((*it));
-            if(fi.path() != ".")
-                dir = fi.path() + Option::dir_sep;
-            dir = fileFixify(dir, qmake_getpwd(), Option::output_dir);
-            if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
-                dir += Option::dir_sep;
-            QString impl = dir + fi.completeBaseName() + Option::yacc_mod + Option::cpp_ext.first();
-            checkMultipleDefinition(impl, "GENERATED_SOURCES");
-            QString decl = dir + fi.completeBaseName() + Option::yacc_mod + Option::h_ext.first();
-            checkMultipleDefinition(decl, "HEADERS");
-
-            decls.append(decl);
-            impls.append(impl);
-            v["GENERATED_SOURCES"].append(impl);
-            QStringList &impldeps = findDependencies(impl);
-            impldeps.append(decl);
-            // attribute deps of yacc file to impl file
-            QStringList &yaccdeps = findDependencies((*it));
-            for(QStringList::ConstIterator d = yaccdeps.begin(); d != yaccdeps.end(); ++d) {
-                if(!impldeps.contains(*d))
-                    impldeps.append(*d);
-            }
-            if(project->isActiveConfig("lex_included")) {
-                // is there a matching lex file ? Transfer its dependencies.
-                QString lexsrc = fi.completeBaseName() + Option::lex_ext;
-                if(fi.path() != ".")
-                    lexsrc.prepend(fi.path() + Option::dir_sep);
-                if(v["LEXSOURCES"].indexOf(lexsrc) != -1) {
-                    QString trg = dir + fi.completeBaseName() + Option::lex_mod + Option::cpp_ext.first();
-                    impldeps.append(trg);
-                    impldeps += findDependencies(lexsrc);
-                    dependsCache[lexsrc].clear();
-                }
-            }
-            yaccdeps.clear();
-        }
-        v["OBJECTS"] += (v["YACCOBJECTS"] = createObjectList(impls));
-    }
 
     //Translation files
     if(!project->isEmpty("TRANSLATIONS")) {
@@ -1214,91 +1141,6 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &src)
             t << "\n\t" << p;
         }
         t << endl << endl;
-    }
-}
-
-void
-MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
-{
-    QStringList &l = project->values(src);
-    if(project->isActiveConfig("yacc_no_name_mangle") && l.count() > 1)
-        warn_msg(WarnLogic, "yacc_no_name_mangle specified, but multiple parsers expected."
-                 "This can lead to link problems.\n");
-    QString default_out_h = "y.tab.h", default_out_c = "y.tab.c";
-    if(!project->isEmpty("QMAKE_YACC_HEADER"))
-        default_out_h = project->first("QMAKE_YACC_HEADER");
-    if(!project->isEmpty("QMAKE_YACC_SOURCE"))
-        default_out_c = project->first("QMAKE_YACC_SOURCE");
-    QString stringBase("$base");
-    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-        QFileInfo fi = fileInfo((*it));
-        QString dir;
-        if(fi.path() != ".")
-            dir = fi.path() + Option::dir_sep;
-        dir = fileFixify(dir, qmake_getpwd(), Option::output_dir);
-        if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
-            dir += Option::dir_sep;
-
-        QString impl = dir + fi.completeBaseName() + Option::yacc_mod + Option::cpp_ext.first();
-        QString decl = dir + fi.completeBaseName() + Option::yacc_mod + Option::h_ext.first();
-
-        QString yaccflags = "$(YACCFLAGS)", mangle = "y";
-        if(!project->isActiveConfig("yacc_no_name_mangle")) {
-            mangle = fi.completeBaseName();
-            if(!project->isEmpty("QMAKE_YACCFLAGS_MANGLE"))
-                yaccflags += " " + var("QMAKE_YACCFLAGS_MANGLE").replace(stringBase, mangle);
-            else
-                yaccflags += " -p " + mangle;
-        }
-        QString out_h = default_out_h, out_c = default_out_c;
-        if(!mangle.isEmpty()) {
-            out_h.replace(stringBase, mangle);
-            out_c.replace(stringBase, mangle);
-        }
-
-        t << impl << ": " << decl << "\n"
-          << decl << ": " << (*it) << "\n\t"
-          << "$(YACC) " << yaccflags << " " << (*it) << "\n\t"
-          << "-$(DEL_FILE) " << impl << " " << decl << "\n\t"
-          << "-$(MOVE) " << out_h << " " << decl << "\n\t"
-          << "-$(MOVE) " << out_c << " " << impl << endl << endl;
-    }
-}
-
-void
-MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
-{
-    QStringList &l = project->values(src);
-    if(project->isActiveConfig("yacc_no_name_mangle") && l.count() > 1)
-        warn_msg(WarnLogic, "yacc_no_name_mangle specified, but multiple parsers expected.\n"
-                 "This can lead to link problems.\n");
-    QString default_out_c = "lex.$base.c";
-    if(!project->isEmpty("QMAKE_LEX_SOURCE"))
-        default_out_c = project->first("QMAKE_LEX_SOURCE");
-    QString stringBase("$base");
-    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-        QFileInfo fi = fileInfo((*it));
-        QString dir;
-        if(fi.path() != ".")
-            dir = fi.path() + Option::dir_sep;
-        dir = fileFixify(dir, qmake_getpwd(), Option::output_dir);
-        if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
-            dir += Option::dir_sep;
-        QString impl = dir + fi.completeBaseName() + Option::lex_mod + Option::cpp_ext.first();
-
-        QString lexflags = "$(LEXFLAGS)", stub="yy";
-        if(!project->isActiveConfig("yacc_no_name_mangle")) {
-            stub = fi.completeBaseName();
-            lexflags += " -P" + stub;
-        }
-        QString out_c = default_out_c;
-        if(!stub.isEmpty())
-            out_c.replace(stringBase, stub);
-
-        t << impl << ": " << (*it) << " " << findDependencies((*it)).join(" \\\n\t\t") << "\n\t"
-          << ("$(LEX) " + lexflags + " ") << (*it) << "\n\t"
-          << "-$(DEL_FILE) " << impl << " " << "\n\t"
-          << "-$(MOVE) " << out_c << " " << impl << endl << endl;
     }
 }
 
@@ -2188,9 +2030,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     t << "####### Compile" << endl << endl;
     writeObj(t, "SOURCES");
     writeObj(t, "GENERATED_SOURCES");
-    writeYaccSrc(t, "YACCSOURCES");
-    writeLexSrc(t, "LEXSOURCES");
-
+    
     t << "####### Install" << endl << endl;
     writeInstalls(t, "INSTALLS");
 
