@@ -9,7 +9,7 @@
 
 
     isEmpty(QMAKE_YACCFLAGS_MANGLE): QMAKE_YACCFLAGS_MANGLE = -p ${QMAKE_FILE_BASE}
-    else: QMAKE_YACCFLAGS_MANGLE =~ s/$base/${QMAKE_FILE_BASE}/g #backwards compat
+    else: QMAKE_YACCFLAGS_MANGLE ~= s/$base/${QMAKE_FILE_BASE}/g #backwards compat
     QMAKE_YACCDECLFLAGS = $$QMAKE_YACCFLAGS
     !yacc_no_name_mangle:QMAKE_YACCDECLFLAGS += $$QMAKE_YACCFLAGS_MANGLE
 
