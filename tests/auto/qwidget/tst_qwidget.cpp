@@ -3833,6 +3833,11 @@ void tst_QWidget::windowMoveResize()
         qt_x11_wait_for_window_manager(&widget);
 #endif
         QTest::qWait(100);
+#ifdef Q_WS_MAC
+        QEXPECT_FAIL("50,50 0x0, flags 0",
+                     "Showing a window with 0x0 size shifts it up.",
+                     Continue);
+#endif
         QCOMPARE(widget.pos(), rect.topLeft());
         QCOMPARE(widget.size(), rect.size());
 

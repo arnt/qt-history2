@@ -2487,7 +2487,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     // repaints the window immediately and the only way we can send our resize
     // events at the proper time (after the window has been resized but before
     // the paint) is to handle the BoundsChange event.
-    if (q->isWindow()) {
+    if (q->isWindow() && !(w == 0 && h == 0)) {
         topData()->isSetGeometry = 1;
         topData()->isMove = isMove;
         Rect r; SetRect(&r, x, y, x + w, y + h);
@@ -2534,8 +2534,8 @@ void QWidgetPrivate::setGeometry_sys_helper(int x, int y, int w, int h, bool isM
     }
 
     if (q->isWindow()) {
-        w = qMax(1, w);
-        h = qMax(1, h);
+        w = qMax(0, w);
+        h = qMax(0, h);
     }
 
     QPoint oldp = q->pos();
