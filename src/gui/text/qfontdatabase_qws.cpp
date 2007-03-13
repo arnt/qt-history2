@@ -456,7 +456,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
                 QFontEngineInfo info;
                 info.setFamily(request.family);
                 info.setPixelSize(request.pixelSize);
-                info.setStyle(request.style);
+                info.setStyle(QFont::Style(request.style));
                 info.setWeight(request.weight);
                 // #### antialiased
 
