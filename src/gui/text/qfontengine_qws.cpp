@@ -45,6 +45,7 @@
 #endif // QT_NO_QWS_QPF
 
 #ifndef QT_NO_QWS_QPF
+#include "qplatformdefs.h"
 
 static inline unsigned int getChar(const QChar *str, int &i, const int len)
 {

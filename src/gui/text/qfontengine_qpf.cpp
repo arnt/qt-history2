@@ -39,6 +39,7 @@
 #include "private/qwscommand_qws_p.h"
 #include "qwsdisplay_qws.h"
 #endif
+#include "qplatformdefs.h"
 
 #ifdef QT_LSB
 
