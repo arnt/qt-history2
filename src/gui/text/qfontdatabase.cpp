@@ -436,7 +436,7 @@ public:
     void invalidate();
 
 #if defined(Q_WS_QWS)
-    bool loadFromCache(const QString &fontPath);
+    void loadFromCache(const QString &fontPath);
     void addFont(const QString &familyname, const char *foundryname, int weight,
                  bool italic, int pixelSize, const QByteArray &file, int fileIndex,
                  bool antialiased, QFontDatabase::WritingSystem primaryWritingSystem = QFontDatabase::Any);
