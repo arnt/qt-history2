@@ -3401,6 +3401,9 @@ void QGLWidget::renderText(int x, int y, const QString &str, const QFont &font, 
     relative to the currently set projection and model matrices. This
     can be useful if you want to annotate models with text labels and
     have the labels move with the model as it is rotated etc.
+
+    Note that this function only works properly if \c GL_DEPTH_TEST is
+    enabled, and you have a properly initialized depth buffer.
 */
 void QGLWidget::renderText(double x, double y, double z, const QString &str, const QFont &font, int)
 {
