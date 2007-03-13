@@ -105,6 +105,9 @@ void tst_QFontDatabase::fixedPitch_data()
 
 void tst_QFontDatabase::fixedPitch()
 {
+#ifdef Q_WS_QWS
+    QSKIP("fixedPitch not implemented for Qtopia Core", SkipAll);
+#endif
     QFETCH(QString, font);
     QFETCH(bool, fixedPitch);
 
