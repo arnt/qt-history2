@@ -381,6 +381,15 @@ public:
     uint owns_iodevice : 1;
 };
 
+/*!
+    \class QSvgGenerator
+    \ingroup multimedia
+    \since 4.3
+    \brief The QSvgGenerator class provides a paint device that is used to create SVG drawings.
+
+    \sa QSvgRenderer, QSvgWidget
+*/
+
 QSvgGenerator::QSvgGenerator()
     : d_ptr(new QSvgGeneratorPrivate)
 {
@@ -399,7 +408,7 @@ QSvgGenerator::~QSvgGenerator()
 }
 
 /*!
-  Returns the size of the generated svg.
+  Returns the size of the generated SVG.
 */
 QSize QSvgGenerator::size() const
 {
@@ -407,9 +416,9 @@ QSize QSvgGenerator::size() const
 }
 
 /*!
-  Sets the size of the generated svg to \a size.
+  Sets the size of the generated SVG to \a size.
 
-  It is not possible to set the size while the svg is being generated
+  It is not possible to set the size while the SVG is being generated.
 */
 void QSvgGenerator::setSize(const QSize &size)
 {
@@ -422,7 +431,7 @@ void QSvgGenerator::setSize(const QSize &size)
 }
 
 /*!
-  Sets the target filename for generated svgs to \a fileName.
+  Sets the target filename for generated SVGs to \a fileName.
 
   \sa setOutputDevice()
 */
@@ -444,7 +453,7 @@ void QSvgGenerator::setFileName(const QString &fileName)
 }
 
 /*!
-  Returns the target output device for generated svgs.
+  Returns the target output device for generated SVGs.
 */
 QIODevice *QSvgGenerator::outputDevice() const
 {
@@ -453,7 +462,7 @@ QIODevice *QSvgGenerator::outputDevice() const
 }
 
 /*!
-  Sets the output device for generated svgs to \a outputDevice.
+  Sets the output device for generated SVGs to \a outputDevice.
 
   If both output device and file name are specified, the output device
   will have precedence.

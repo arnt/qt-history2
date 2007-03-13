@@ -82,6 +82,17 @@ bool QWindowsVistaStylePrivate::useVista()
              QSysInfo::WindowsVersion < QSysInfo::WV_NT_based));
 }
 
+/*!
+  \class QWindowsVistaStyle
+  \brief The QWindowsVistaStyle class provides a look and feel suitable for applications on Microsoft Windows Vista.
+
+  \ingroup appearance
+
+  \warning This style is only available on the Windows Vista platform
+  because it makes use of Windows Vista's style engine.
+
+  \sa QMacStyle, QWindowsXPStyle, QPlastiqueStyle, QCleanlooksStyle, QMotifStyle
+*/
 
 QWindowsVistaStyle::QWindowsVistaStyle()
     : QWindowsXPStyle(*new QWindowsVistaStylePrivate)

@@ -404,7 +404,7 @@
     function calls to generate compiler warnings or not.
 */
 
-/*
+/*!
   \page qt4.3-intro.html
   \title What's New in Qt 4.3
 
@@ -424,312 +424,173 @@
 
   \tableofcontents
 
-  \section1 Graphics View
+  \section1 Main Window Styles
 
-  Support for interactive graphics is provided by the \l{Graphics View} framework.
-  This framework is an enhanced replacement for the Canvas module, previously
-  provided with Qt 3, with a refined set of features.
+  The \l{Main Window and Related Classes}{main window classes} now
+  provide \bold{support for different main window paradigms}, such as
+  those found in Visual Studio or KDevelop.
 
-  \image graphicsview-shapes.png
+  Dock widgets occupying the same area can now be arranged in horizontal,
+  vertical or collapsible tabs. Collapsible tabs are oriented according to
+  the location of dock widgets around the main window's central area.
+  suitable 
 
-  The framework enables \bold{responsive handling of large numbers of canvas items}
-  through the use of a space-partitioning scheme. Support for collision detection,
-  coordinate transformations, and item groups make it easier than before to manage
-  items for interactive displays.
+  \raw HTML
+  <table align="center" width="80%">
+  <tr><td>
+  \endraw
+  \inlineimage mainwindow-vertical-tabs.png
+  \raw HTML
+  </td><td>
+  \endraw
+  \inlineimage mainwindow-custom-dock.png
+  \raw HTML
+  </td></tr>
+  </table>
+  \endraw
 
-  \image elasticnodes-example.png
+  API improvements to QDockWidget enable dock widgets to be given custom
+  title bars and window styles, and also include support for vertical title
+  bars.
 
-  An \bold{improved API} aims to make common uses easier while making advanced
-  uses more accessible to developers.
+  \image mainwindow-vertical-dock.png
 
-  \image graphicsview-map.png
+  Additionally, support for animations has been extended to tool bars,
+  resulting in more sophisticated effects when tool bars and dock widgets
+  are rearranged. See the \l{Main Window} demonstration for an extensive
+  tour of these new features.
 
-  Graphics View's \bold{enhanced presentation system}, takes advantage of Qt 4's
-  paint system to render items using anti-aliasing, and taking advantage of OpenGL
-  to improve rendering performance. Support for printing is built into the
-  framework, making it possible to produce high quality documents from interactive
+  \section1 QtScript - Application Scripting with ECMAScript
+
+  This release introduces the \l{QtScript}{QtScript module}, providing an
+  script engine for the ECMAScript language, based on the \l{ECMA-262}
+  standard, that is designed to enable easier integration of scripting
+  facilities into end-user applications.
+
+  \image qtscript-context2d.png
+
+  Scripts access application functionality via QObjects that are
+  specifically created and exposed by each application. Information
+  about the available child objects, properties, signals and slots is
+  provided by Qt's \l{Qt Object Model}{object model}. This means that,
+  in many cases, script-enabling an application requires little effort
+  on the part of the developer.
+
+  \image qtscript-calculator.png
+
+  A set of examples are included to show how classes and functions written
+  in C++ can be exposed to the script engine, including
+  \l{QtScript Calculator Example}{a port} of the
+  \l{Calculator Example}{Calculator example} which shows how a
+  QtScript can be used with a user interface created with Qt Designer.
+
+  \section1 Improved Graphics Support
+
+  To improve graphics performance on Windows, this release includes an
+  \bold{experimental Direct3D paint engine} to provide native hardware
+  acceleration on Windows systems with suitable graphics hardware.
+  Although we have conducted internal testing with a selection of
+  graphics cards, we cannot guarantee that this feature will work
+  correctly with all hardware or drivers. Please report feedback on
+  this feature via the \l{Task Tracker}.
+
+  Qt's interoperability with the Scalable Vector Graphics (SVG) file
+  format has been improved by the introduction of the QSvgGenerator class,
+  a paint device that can be used to save Qt rendering operations in
+  the form of an SVG drawing.
+  This class can be used alongside the existing QSvgWidget and QSvgRenderer
+  classes to provide \bold{full input/output support for vector graphics}.
+
+  The OpenGL paint engine has been heavily improved to take advantage of
+  new features in modern graphics hardware. Through the extensive usage of
+  fragment programs, users with suitable graphics hardware can expect to
+  experience much \bold{faster and higher quality rendering when OpenGL
+  is used}.
+  Support for an additional anti-aliasing mode for OpenGL allows developers
+  to choose between high quality rendering or speed when older or
+  less-capable hardware is used.
+
+  \section1 New Widgets and Desktop Integration Enhancements
+
+  Applications running on Windows Vista automatically support animations
+  and other Vista-related enhancements through the use of the new
+  QWindowsVistaStyle class, providing a widget style that makes Qt
+  applications \bold{look and feel native on Windows Vista}.
+
+  Qt 4.3 also provides a number of new and redesigned widgets, including
+  the QWizard class which supports application wizard functionality
+  in a variety of native styles, including one for Windows Vista
   applications.
 
-  \image graphicsview-text.png
+  \table
+  \row \o \inlineimage qtwizard-modern1.png
+       \o \inlineimage qtwizard-mac2.png
+       \o \inlineimage qtwizard-aero2.png
+  \endtable
 
-  A selection of \bold{predefined item types} is provided that contains, amongst
-  others, a text item that supports inline editing.
+  The QMdiArea class provides an Multiple Document Interface (MDI)
+  widget that is intended to provide a more consistent API for developers
+  to use and more predictable behavior for users.
+  The API has been designed to be very similar to that provided by
+  QWorkspace in order to make porting between the two widgets a
+  straightforward task.
 
-  In addition, various \l{Qt Examples#Graphics View Examples}{graphics view examples}
-  have been written to demonstrate key features of the framework, including ports
-  of Canvas module examples from Qt 3.
+  \image qfiledialog-small.png
 
+  On X11, QFileDialog has a brand new look and feel, and has been
+  optimized to perform better with directories containing large numbers
+  of files.
 
-  \section1 Desktop Integration
+  \image qfiledialog-expanded.png
+ \omit
+  \section1 Qt Designer Improvements
 
-  This release introduces a set of features that are designed to make it easier
-  to write applications that are integrated into users' desktop environments.
+ Support the new margin/spacing properties 
+ Added support for dynamic properties 
+ Added QColumnView? widget 
+ Made it possible to change properties on a multiselection 
+ Added Qt script support for widget construction 
+ Improved handling for promoted widgets 
+ Enabled multiline editing for labels 
+ Drag and drop widget to the object inspector 
+ Improved custom widget plugin handling 
+ Drag and drop of images from resource editor to action editor and image/iconproperties 
+ Some uic optimizations
+ \endomit
+  \section1 Extended and Improved Infrastructure
 
-  \raw HTML
-  <table align="center">
-  <tr><td>
-  \endraw
-  \inlineimage cleanlooks-tabwidget.png
-  \raw HTML
-  </td><td>
-  \endraw
-  \inlineimage cleanlooks-treeview.png
-  \raw HTML
-  </td><td>
-  \endraw
-  \inlineimage cleanlooks-combobox.png
-  \BR
-  \inlineimage cleanlooks-timeedit.png
-  \BR
-  \inlineimage cleanlooks-dateedit.png
-  \raw HTML
-  </td></tr>
-  </table>
-  \endraw
+  The QtNetwork module has been extended to include \bold{support for
+  Secure Socket Layer (SSL) communications} via the QSslSocket class.
+  As a result, QHttp is now able to provide support for the HTTPS
+  protocol.
 
-  \bold{The \l{QCleanlooksStyle}{Cleanlooks} widget style}, designed to closely
-  resemble the Clearlooks style for GTK+ applications, enables Qt applications
-  to fit in with non-Qt applications on suitably-configured GNOME desktops.
-  See the \l{Cleanlooks Style Widget Gallery} to see how Qt's widgets look
-  in this style.
+  Qt's network proxying facilties have been \bold{extended to cover HTTP
+  CONNECT} proxying, and also include \bold{support for Cram-MD5 and NTLM
+  authentication}.
 
-  QDesktopServices provides \bold{cross-platform support for opening and launching
-  URLs}, making it possible for applications to launch a web browser, mail
-  composer, and other external resources by using the facilities of the user's
-  desktop environment.
+  The QtXml module has been expanded with classes to provide
+  \bold{a streaming API for handling XML}: QXmlStreamReader and
+  QXmlStreamWriter complement Qt's existing range of SAX and DOM-based
+  classes. 
 
-  To enable \bold{closer integration with the GNOME deskop environment} and tools,
-  Qt 4.2 now contains support for the Glib eventloop. This makes it possible
-  for Qt applications to use plugins made using other Glib-based frameworks,
-  and even enables Qt plugins to be created for use with non-Qt applications.
+  An \bold{enhanced layout system} accommodates many special cases for
+  Mac OS X, enabling Mac OS X style to provide a faithful Mac look and
+  feel.
 
-  \raw HTML
-  <div align="center">
-  \endraw
-  \inlineimage plastique-dialogbuttonbox.png
-  \inlineimage cleanlooks-dialogbuttonbox.png
-  \raw HTML
-  </div>
-  \endraw
+  Qt's threading has been enhanced to include \bold{support for timed
+  try-locks} in QMutex, QReadWriteLock and QSemaphore. Additionally, a
+  \l{Qt::}{BlockingQueuedConnection} connection type has been introduced
+  to complement \l{Qt::}{DirectConnection} and \l{Qt::}{QueuedConnection}.
 
-  The QDialogButtonBox class enables dialogs to be created that use the
-  \bold{appropriate button order for the user's chosen desktop environment}.
-  This enables dialogs created for KDE and Windows to be reused for Mac OS X
-  and GNOME.
-
-  \raw HTML
-  <table align="center">
-  <tr><td>
-  \endraw
-  \inlineimage plastique-printdialog.png
-  \raw HTML
-  </td><td>
-  \endraw
-  \inlineimage plastique-printdialog-properties.png
-  \raw HTML
-  </td></tr>
-  </table>
-  \endraw
-
-  On X11 platforms, \bold{support for the \l{Common Unix Printing System (CUPS)}}
-  has been greatly enhanced. Printer settings made available by CUPS can now be
-  accessed via QPrintDialog for improved control over the printing process.
-
-  \bold{System tray support} on all desktop platforms is provided by the new
-  QSystemTrayIcon class, which exposes a comprehensive set of features via an
-  intuitive Qt-style API.
-
-
-  \section1 Text Completion Framework
-
-  \image completer-example.png
-
-  The new QCompleter class provides a \bold{framework for handling text completion
-  in input widgets}. Completion facilities can be set up for use in QLineEdit,
-  QComboBox and custom widgets. An \l{tools/completer}{example is included} which
-  shows how text completion can be used with a selection of different models and
-  data sets.
-
-  \section1 Widget Style Sheets
-
-  \omit
-  \image stylesheets-example-detail.png
-  \endomit
-
-  \bold{Widgets can be styled using style sheets} that follow a syntax similar to
-  that used by Cascading Style Sheets (CSS) for HTML. Many of the more common
-  customizations to widget styles can be made using style sheets, making it largely
-  unnecessary for developers to create entire custom widget styles with QStyle
-  subclasses.
-
-  The style sheet for any given widget can be accessed via its
-  \l{QWidget::}{styleSheet} property. Style sheets are fully described in
-  the \l{Qt Style Sheets} document.
-
-  \section1 Undo Framework
-
-  \bold{An \l{Undo framework} based on the
-  \l{Books about GUI Design#Design Patterns}{Command pattern}} has been introduced
-  to help developers provide undo/redo features in applications. The provision of
-  an undo framework in Qt means that developers can take advantage of a common,
-  well-tested set of classes to improve usability and concentrate on higher-level
-  functionality.
-
-  The framework provides support for command compression to improve usability
-  when many low-level or similar repetitive commands are used. Command macros
-  can also be employed by developers to enable sequences of commands to be
-  programatically applied via the framework in single steps.
-  Additionally, the concept of a \e{clean state} is supported, enabling
-  applications to clear the undo buffer when certain operations are performed,
-  such as saving a file.
-
-  \target D-BUS
-  \section1 Inter-Process Communication (D-BUS)
-
-  Qt 4.2 provides support for Inter-Process Communication (IPC) using
-  the D-BUS protocol. This service-oriented protocol provides fast,
-  low latency communication that can be used for same-machine
-  communication between applications, yet also allows Remote Procedure
-  Calling (RPC) mechanisms to be implemented.
-
-  Using the QtDBus module, an application can provide services to
-  other applications by exporting objects, as well as use such
-  exported services itself. The QtDBus module also extends Qt's \l
-  {Signals and Slots} mechanism, making it possible to connect to
-  other applications.
-
-  See the \l{Introduction to D-BUS} document for more information
-  about using D-BUS with Qt.
-
-  \section1 New Widgets and GUI Features
-
-  Qt 4.2 also provides a number of new features for graphical user interface
-  applications, expanding the range of available widgets while extending overall
-  functionality.
-
-  \raw HTML
-  <table align="center">
-  <tr><td valign="top">
-  \endraw
-  \inlineimage plastique-fontcombobox.png
-  \raw HTML
-  </td><td>
-  \endraw
-  \inlineimage plastique-fontcombobox-open.png
-  \raw HTML
-  </td></tr>
-  </table>
-  \endraw
-
-  A \l{QFontComboBox}{specialized font combobox} is now available for use in text
-  editing and related applications.
-
-  \image qcalendarwidget-maximum.png
-
-  Facilities for \bold{displaying monthly calendars and date selection} are
-  provided by QCalendarWidget, a class adapted from the \l{Calendar Widget}
-  Qt Solution.
-
-  The \bold{\l{Main Window and Related Classes}{main window classes} have been
-  updated to be more responsive to user activity}. In particular, when a user
-  moves a floating dock window over a dock area by the user, any other dock
-  windows in that area will automatically make room to allow it to be dropped
-  there. These enhancements can be seen in the
-  \l{Dock Widgets Example}{Dock Widgets} example.
-
-  \bold{Access to OpenGL framebuffer objects} is provided by the
-  QGLFramebufferObject class; this enables textures to be painted with a series
-  of calls to QPainter functions in the usual way for QPaintDevice subclasses.
-
-  \bold{Improved support for platform-native message boxes} is provided by
-  QMessageBoxEx. This class uses QDialogButtonBox to positioned buttons using
-  the appropriate conventions for the user's platform and desktop environment.
-
-  \section1 Extended Infrastructure
-
-  Many improvements have been made to the classes and tools that provide
-  underlying functionality in Qt. Many of these changes involve introducing
-  higher level functionality that aims to make application development easier
-  while providing a more robust working environment for users.
-
-  The QFileSystemWatcher class enables applications to \bold{monitor files and
-  directories for changes}. This feature is often used by applications and
-  libraries that share access to files with other applications.
-
-  The \l{Model/View Classes}{item view classes} have been optimized for
-  performance and reliability, and new classes have been introduced:
-  \list
-  \o QStandardItem and QStandardItemEditorCreator aim to make the
-     QStandardItemModel class easier to use.
-  \o \bold{QDataWidgetMapper enables mappings to be made between items in a model
-     and selections of widgets} in a user interface, making it possible to design
-     data-aware widgets and forms.
-  \endlist
-
-  The \bold{HTML import and export facilities have been enhanced} in the
-  \l{Rich Text Processing}{rich text classes}, and now include support for
-  CSS-like style sheets.
-
-  \bold{A \l{QTimeLine}{time line class} has been introduced for use in widgets
-  that provide animations.} By using a mechanism that uses signals and slots to
-  notify other application components about changes to a time line, this class
-  can also be used for other timing purposes with non-GUI classes.
-
-  The addition of a \bold{Scalable Vector Graphics (SVG) icon engine} enables
-  icons to be created from pictures in this vector graphics format. This reduces
-  the number of fixed-size images that developers need to include with
-  applications, and avoids the need to provide sufficiently high resolution
-  images to cover all possible icon sizes.
-
-  Support for \bold{detection and reporting of network interfaces} is provided by
-  the QNetworkInterface class.
-
-  Qt's keyboard handling has been improved to support
-  \bold{physical key recognition}.
-  This allows keyboard shortcuts to be created that specify the keys that users
-  see on their keyboard instead of generic logical key assignments.
-
-  QKeySequence now provides \bold{a range of standard shortcuts} that developers
-  can use when creating actions. These describe commonly-used high-level actions,
-  such as \gui{Undo}, \gui{Copy}, and \gui{Paste}, and enable shortcuts to be
-  specified in a true cross-platform way.
-
-  Support for \l{Qt's Property System#Dynamic Properties}{dynamic properties}
-  extends the standard Qt property system, enabling
-  \bold{new properties to be added to instances of QObject subclasses at run-time}.
+  QThread has been updated to provide an \l{QThread::}{idealThreadCount()}
+  function. This takes various system-specific factors into account to
+  determine the optimal number of threads that can be run on a given
+  system.
 
   \section1 Qtopia Core
 
-  Many improvements in Qt are specific to Qtopia Core and are concerned with
-  graphics support and rendering performance.
-
-  \bold{Direct painting to the screen} can be enabled on by \l{Qtopia
-  Core Performance Tuning#Bypassing the Backing Store}{bypassing the
-  backing store} on a per-application basis.
-
-  \bold{Support for 18 and 24 bits-per-pixel color depths} has been added to the paint
-  system. Color depths that assign 6 bits to each color (or alpha) channel are
-  commonly used on mobile devices.
-
-  Alongside many general improvements and optimizations, the \bold{transformed
-  screen driver has been optimized} to improve performance when rendering rotated
-  content.
-
-  \omit
-
-  \section1 Other Improvements
-
-  Many other enhancements have been made Internally, Other improvements
-  Menu handling has been updated to allow widgets to be inserted as menu items.
-
-  Support for widgets in menus.
-
-  * Backing store interface
-
-  * delayed widget creation
-
-  * Linguist improvements
-
-  * Text control (not 100% certain we'll have a public API)
-  \endomit
+  As in Qt 4.2, many improvements to Qt's graphics support and rendering
+  performance are specific to Qtopia Core. These include general speed
+  optimizations, accelerated graphics API improvements, and additional
+  support for OpenGL ES.
 */
