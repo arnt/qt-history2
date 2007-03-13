@@ -100,8 +100,8 @@ class Q_GUI_EXPORT QAbstractFontEngine : public QObject
     Q_OBJECT
 public:
     enum Capability {
-        GlyphRendering = 1,
-        GlyphOutlines  = 2
+        RenderGlyphs  = 1,
+        OutlineGlyphs = 2
     };
     Q_DECLARE_FLAGS(Capabilities, Capability)
 
@@ -139,8 +139,8 @@ public:
         GlyphCount,
 
         // hints
-        GlyphShareHint,
-        OutlineRenderHint
+        ShareGlyphsHint,
+        OutlineGlyphsHint
     };
 
     enum Extension {

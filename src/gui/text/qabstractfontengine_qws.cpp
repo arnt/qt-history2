@@ -160,14 +160,14 @@ bool QProxyFontEngine::stringToCMap(const QChar *str, int len, QGlyphLayout *gly
 
 QImage QProxyFontEngine::alphaMapForGlyph(glyph_t glyph)
 {
-    if (engine->capabilities() & QAbstractFontEngine::GlyphRendering)
+    if (engine->capabilities() & QAbstractFontEngine::RenderGlyphs)
         return engine->renderGlyph(glyph);
     return QFontEngine::alphaMapForGlyph(glyph);
 }
 
 void QProxyFontEngine::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs, QPainterPath *path, QTextItem::RenderFlags flags)
 {
-    if (engine->capabilities() & QAbstractFontEngine::GlyphOutlines)
+    if (engine->capabilities() & QAbstractFontEngine::OutlineGlyphs)
         engine->addGlyphOutlinesToPath(glyphs, nglyphs, reinterpret_cast<QAbstractFontEngine::FixedPoint *>(positions), path, flags);
     else
         QFontEngine::addGlyphsToPath(glyphs, positions, nglyphs, path, flags);
@@ -307,12 +307,17 @@ void QProxyFontEngine::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItem
     }
 }
 
+/*
+ * This is only called when we use the proxy fontengine directly (without sharing the rendered
+ * glyphs). So we prefer outline rendering over rendering of unshared glyphs. That decision is
+ * done in qfontdatabase_qws.cpp by looking at the ShareGlyphsHint and the pixel size of the font.
+ */
 bool QProxyFontEngine::drawAsOutline() const
 {
-    if (!(engine->capabilities() & QAbstractFontEngine::GlyphOutlines))
+    if (!(engine->capabilities() & QAbstractFontEngine::OutlineGlyphs))
         return false;
 
-    QVariant outlineHint = engine->fontProperty(QAbstractFontEngine::OutlineRenderHint);
+    QVariant outlineHint = engine->fontProperty(QAbstractFontEngine::OutlineGlyphsHint);
     return !outlineHint.isValid() || outlineHint.toBool();
 }
 
