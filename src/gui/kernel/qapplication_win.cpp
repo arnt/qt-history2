@@ -2681,6 +2681,8 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                 Q_ASSERT(w->testAttribute(Qt::WA_WState_Created));
                 if (QWidget::mouseGrabber() == 0)
                     setAutoCapture(w->internalWinId());
+                if (!w->isActiveWindow())
+                    w->activateWindow();
                 POINT widgetpt = gpos;
                 ScreenToClient(w->internalWinId(), &widgetpt);
                 LPARAM lParam = MAKELPARAM(widgetpt.x, widgetpt.y);

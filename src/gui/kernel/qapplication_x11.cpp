@@ -3713,6 +3713,9 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             && replayPopupMouseEvent) {
             // the active popup was closed, replay the mouse event
             if (!(windowType() == Qt::Popup)) {
+#if 1
+                qt_button_down = 0;
+#else
                 if (buttons == button)
                     qt_button_down = this;
                 QMouseEvent e(type, mapFromGlobal(globalPos), globalPos, button,
@@ -3725,6 +3728,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                     QContextMenuEvent e(QContextMenuEvent::Mouse, mapFromGlobal(globalPos), globalPos);
                     QApplication::sendSpontaneousEvent(this, &e);
                 }
+#endif
             }
             replayPopupMouseEvent = false;
         } else if (type == QEvent::MouseButtonPress
