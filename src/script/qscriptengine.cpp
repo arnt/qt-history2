@@ -274,6 +274,8 @@ QScriptValue QScriptEngine::newVariant(const QVariant &value)
   Signals and slots, properties and children of \a object are
   available as properties of the created QScriptValue. For more
   information, see the \l{QtScript} documentation.
+
+  If \a object is a null pointer, this function returns nullValue().
 */
 QScriptValue QScriptEngine::newQObject(QObject *object, ValueOwnership ownership)
 {

@@ -682,19 +682,19 @@ inline QScriptValueImpl QScriptEnginePrivate::newVariant(const QVariant &value)
 inline QScriptValueImpl QScriptEnginePrivate::newQObject(QObject *object,
                                                          QScriptEngine::ValueOwnership ownership)
 {
+    if (!object)
+        return nullValue();
     Q_ASSERT(qobjectConstructor != 0);
     QScriptValueImpl v;
     qobjectConstructor->newQObject(&v, object, ownership);
-    if (object) {
-        // see if we have a default prototype
-        QByteArray typeString = object->metaObject()->className();
-        typeString.append('*');
-        int typeId = QMetaType::type(typeString);
-        if (typeId != 0) {
-            QScriptValueImpl proto = defaultPrototype(typeId);
-            if (proto.isValid())
-                v.setPrototype(proto);
-        }
+    // see if we have a default prototype
+    QByteArray typeString = object->metaObject()->className();
+    typeString.append('*');
+    int typeId = QMetaType::type(typeString);
+    if (typeId != 0) {
+        QScriptValueImpl proto = defaultPrototype(typeId);
+        if (proto.isValid())
+            v.setPrototype(proto);
     }
     return v;
 }

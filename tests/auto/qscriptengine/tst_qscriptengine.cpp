@@ -177,8 +177,8 @@ void tst_QScriptEngine::newQObject()
     {
         QScriptValue qobject = eng.newQObject(0);
         QCOMPARE(qobject.isValid(), true);
-        QCOMPARE(qobject.isQObject(), true);
-        QCOMPARE(qobject.isObject(), true);
+        QCOMPARE(qobject.isNull(), true);
+        QCOMPARE(qobject.isObject(), false);
         QCOMPARE(qobject.toQObject(), (QObject *)0);
     }
     {

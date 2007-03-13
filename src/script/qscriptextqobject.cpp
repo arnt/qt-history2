@@ -451,10 +451,7 @@ QScriptValueImpl QScript::ExtQObject::method_findChild(QScriptContextPrivate *co
     if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
         QObject *obj = instance->value;
         QString name = context->argument(0).toString();
-        QObject *child = qFindChild<QObject*>(obj, name);
-        if (! child)
-            return eng->nullValue();
-        return eng->newQObject(child);
+        return eng->newQObject(qFindChild<QObject*>(obj, name));
     }
     return eng->undefinedValue();
 }
