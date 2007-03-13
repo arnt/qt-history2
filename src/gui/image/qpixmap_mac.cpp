@@ -801,12 +801,14 @@ static void releaseBitmapContextImageData(void *,
 }
 
 // (callback function)
-static CGBitmapInfo myCGContextGetBitmapInfo(CGContextRef c)
+static uint myCGContextGetBitmapInfo(CGContextRef c)
 {
-    if(&CGBitmapContextGetBitmapInfo != NULL)
-		return CGBitmapContextGetBitmapInfo(c);
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
+    if(CGBitmapContextGetBitmapInfo != NULL)
+        return CGBitmapContextGetBitmapInfo(c);
     else
-		return CGBitmapContextGetAlphaInfo(c);
+#endif
+        return CGBitmapContextGetAlphaInfo(c);
 }
 
 static CGImageRef createImageFromBitmapContext(CGContextRef c)
