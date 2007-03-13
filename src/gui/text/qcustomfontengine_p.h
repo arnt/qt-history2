@@ -15,6 +15,7 @@
 #define QCUSTOMFONTENGINE_P_H
 
 #include "qfontengine_p.h"
+#include "qcustomfontengine_qws.h"
 
 class QCustomFontEngine;
 
@@ -51,6 +52,9 @@ public:
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
     virtual void draw(QPaintEngine *, qreal, qreal, const QTextItemInt &)  {}
 #endif
+
+    inline QCustomFontEngine::FontEngineFeatures supportedFeatures() const
+    { return engine->supportedFeatures(); }
 
 private:
     QCustomFontEngine *engine;

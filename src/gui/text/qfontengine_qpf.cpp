@@ -38,6 +38,7 @@
 #if defined(Q_WS_QWS)
 #include "private/qwscommand_qws_p.h"
 #include "qwsdisplay_qws.h"
+#include "qcustomfontengine_p.h"
 #endif
 #include "qplatformdefs.h"
 
@@ -570,11 +571,13 @@ void QFontEngineQPF::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemIn
 
 void QFontEngineQPF::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags)
 {
-    if (renderingFontEngine && renderingFontEngine->type() != QFontEngine::Proxy) {
+    if (renderingFontEngine &&
+        (renderingFontEngine->type() != QFontEngine::Proxy
+         || static_cast<QProxyFontEngine *>(renderingFontEngine)->supportedFeatures() & QCustomFontEngine::GlyphOutlines)) {
         renderingFontEngine->addOutlineToPath(x, y, glyphs, numGlyphs, path, flags);
-    } else {
-        addBitmapFontToPath(x, y, glyphs, numGlyphs, path, flags);
+        return;
     }
+    addBitmapFontToPath(x, y, glyphs, numGlyphs, path, flags);
 }
 
 glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
