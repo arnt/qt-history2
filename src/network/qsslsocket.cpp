@@ -183,7 +183,7 @@ Q_GLOBAL_STATIC(QSslSocketGlobalData, globalData)
     constructor.
 */
 QSslSocket::QSslSocket(QObject *parent)
-    : QTcpSocket(parent), d_ptr(new QSslSocketBackendPrivate())
+    : QTcpSocket(*new QSslSocketBackendPrivate, parent)
 {
     Q_D(QSslSocket);
     d->q_ptr = this;

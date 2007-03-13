@@ -29,6 +29,9 @@ public:
     explicit QTcpSocket(QObject *parent = 0);
     virtual ~QTcpSocket();
 
+protected:
+    QTcpSocket(QTcpSocketPrivate &dd, QObject *parent = 0);
+
 private:
     Q_DISABLE_COPY(QTcpSocket)
     Q_DECLARE_PRIVATE(QTcpSocket)

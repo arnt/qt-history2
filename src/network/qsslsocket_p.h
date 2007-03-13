@@ -42,20 +42,16 @@
 // We mean it.
 //
 
-// ### #include <private/qabstractsocket_p.h>
+#include <private/qtcpsocket_p.h>
 #include "qsslkey.h"
 
 #include <QtCore/qstringlist.h>
 
 #include <private/qringbuffer_p.h>
 
-#undef Q_D
-#define Q_D(type) type##Private *d = d_ptr
-#undef Q_Q
-#define Q_Q(type) type *q = q_ptr
-
-class QSslSocketPrivate
+class QSslSocketPrivate : public QTcpSocketPrivate
 {
+    Q_DECLARE_PUBLIC(QSslSocket)
 public:
     QSslSocketPrivate();
     virtual ~QSslSocketPrivate();
@@ -111,8 +107,6 @@ public:
     virtual void disconnectFromHost() = 0;
     virtual void disconnected() = 0;
     virtual QSslCipher currentCipher() const = 0;
-
-    QSslSocket *q_ptr;
 };
 
 #endif

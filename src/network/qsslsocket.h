@@ -143,17 +143,15 @@ protected:
     qint64 writeData(const char *data, qint64 len);
 
 private:
+    Q_DECLARE_PRIVATE(QSslSocket)
     Q_DISABLE_COPY(QSslSocket)
-    Q_PRIVATE_SLOT(d_ptr, void _q_connectedSlot())
-    Q_PRIVATE_SLOT(d_ptr, void _q_hostFoundSlot())
-    Q_PRIVATE_SLOT(d_ptr, void _q_disconnectedSlot())
-    Q_PRIVATE_SLOT(d_ptr, void _q_stateChangedSlot(QAbstractSocket::SocketState))
-    Q_PRIVATE_SLOT(d_ptr, void _q_errorSlot(QAbstractSocket::SocketError))
-    Q_PRIVATE_SLOT(d_ptr, void _q_readyReadSlot())
-    Q_PRIVATE_SLOT(d_ptr, void _q_bytesWrittenSlot(qint64))
-
-    QSslSocketPrivate *d_ptr;
-    friend class QSslSocketPrivate;
+    Q_PRIVATE_SLOT(d_func(), void _q_connectedSlot())
+    Q_PRIVATE_SLOT(d_func(), void _q_hostFoundSlot())
+    Q_PRIVATE_SLOT(d_func(), void _q_disconnectedSlot())
+    Q_PRIVATE_SLOT(d_func(), void _q_stateChangedSlot(QAbstractSocket::SocketState))
+    Q_PRIVATE_SLOT(d_func(), void _q_errorSlot(QAbstractSocket::SocketError))
+    Q_PRIVATE_SLOT(d_func(), void _q_readyReadSlot())
+    Q_PRIVATE_SLOT(d_func(), void _q_bytesWrittenSlot(qint64))
     friend class QSslSocketBackendPrivate;
 };
 

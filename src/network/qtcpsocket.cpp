@@ -39,14 +39,9 @@
 */
 
 #include "qlist.h"
-#include "qabstractsocket_p.h"
+#include "qtcpsocket_p.h"
 #include "qtcpsocket.h"
 #include "qhostaddress.h"
-
-class QTcpSocketPrivate : public QAbstractSocketPrivate
-{
-    Q_DECLARE_PUBLIC(QTcpSocket)
-};
 
 /*!
     Creates a QTcpSocket object in state \c UnconnectedState.
@@ -75,4 +70,13 @@ QTcpSocket::~QTcpSocket()
 #if defined(QTCPSOCKET_DEBUG)
     qDebug("QTcpSocket::~QTcpSocket()");
 #endif
+}
+
+/*!
+    \internal
+*/
+QTcpSocket::QTcpSocket(QTcpSocketPrivate &dd, QObject *parent)
+    : QAbstractSocket(TcpSocket, dd, parent)
+{
+    d_func()->isBuffered = true;
 }
