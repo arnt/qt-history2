@@ -612,7 +612,7 @@ QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, ATSUFontID fontID, const QFo
     OSStatus err = ATSUSetAttributes(style, attributeCount, tags, sizes, values);
     Q_ASSERT(err == noErr);
 
-    int tmpFsType;
+    quint16 tmpFsType;
     if (ATSFontGetTable(atsFont, MAKE_TAG('O', 'S', '/', '2'), 8, 2, &tmpFsType, 0) == noErr)
        fsType = qFromBigEndian<quint16>(tmpFsType);
     else
@@ -760,8 +760,7 @@ QFixed QFontEngineMac::averageCharWidth() const
     return QFixed::fromReal(metrics.avgAdvanceWidth * fontDef.pointSize);
 }
 
-void QFontEngineMac::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int numGlyphs, QPainterPath *path,
-                                           QTextItem::RenderFlags)
+static void addGlyphsToPath(ATSUStyle style, glyph_t *glyphs, QFixedPoint *positions, int numGlyphs, QPainterPath *path)
 {
     if (!numGlyphs)
         return;
@@ -786,6 +785,12 @@ void QFontEngineMac::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, in
     DisposeATSCubicLineToUPP(lineTo);
     DisposeATSCubicCurveToUPP(cubicTo);
     DisposeATSCubicClosePathUPP(closePath);
+}
+
+void QFontEngineMac::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int numGlyphs, QPainterPath *path,
+                                           QTextItem::RenderFlags)
+{
+    ::addGlyphsToPath(style, glyphs, positions, numGlyphs, path);
 }
 
 QImage QFontEngineMac::alphaMapForGlyph(glyph_t glyph)
@@ -957,7 +962,48 @@ QByteArray QFontEngineMac::getSfntTable(uint tag) const
 
 QFontEngine::Properties QFontEngineMac::properties() const
 {
-    QFontEngine::Properties props = QFontEngine::properties();
+    QFontEngine::Properties props;
+    
+    ATSFontRef atsFont = FMGetATSFontRefFromFont(fontID);
+    quint16 tmp;
+    if (ATSFontGetTable(atsFont, MAKE_TAG('h', 'e', 'a', 'd'), 18, 2, &tmp, 0) == noErr)
+       props.emSquare = qFromBigEndian<quint16>(tmp);
+    struct {
+        qint16 xMin;
+        qint16 yMin;
+        qint16 xMax;
+        qint16 yMax;
+    } bbox;
+    if (ATSFontGetTable(atsFont, MAKE_TAG('h', 'e', 'a', 'd'), 36, 2, &bbox, 0) == noErr) {
+        bbox.xMin = qFromBigEndian<quint16>(bbox.xMin);
+        bbox.yMin = qFromBigEndian<quint16>(bbox.yMin);
+        bbox.xMax = qFromBigEndian<quint16>(bbox.xMax);
+        bbox.yMax = qFromBigEndian<quint16>(bbox.yMax);
+    }
+    struct {
+        qint32 ascender;
+        qint32 descender;
+        qint32 linegap;
+    } metrics;
+    if (ATSFontGetTable(atsFont, MAKE_TAG('h', 'h', 'e', 'a'), 4, 12, &metrics, 0) == noErr) {
+        metrics.ascender = qFromBigEndian<quint16>(metrics.ascender);
+        metrics.descender = qFromBigEndian<quint16>(metrics.descender);
+        metrics.linegap = qFromBigEndian<quint16>(metrics.linegap);
+    }
+    props.ascent = metrics.ascender;
+    props.descent = -metrics.descender;
+    props.leading = metrics.linegap;
+    props.boundingBox = QRectF(bbox.xMin, -bbox.yMax,
+                           bbox.xMax - bbox.xMin,
+                           bbox.yMax - bbox.yMin);
+    props.italicAngle = 0;
+    props.capHeight = props.ascent;
+
+    int lw = 0;
+    if (ATSFontGetTable(atsFont, MAKE_TAG('p', 'o', 's', 't'), 12, 4, &lw, 0) == noErr)
+       lw = qFromBigEndian<quint16>(lw);
+    props.lineWidth = lw;
+    
     QCFString psName;
     if (ATSFontGetPostScriptName(FMGetATSFontRefFromFont(fontID), kATSOptionFlagsDefault, &psName) == noErr)
         props.postscriptName = QString(psName).toUtf8();
@@ -967,6 +1013,44 @@ QFontEngine::Properties QFontEngineMac::properties() const
 
 void QFontEngineMac::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics)
 {
-    return QFontEngine::getUnscaledGlyph(glyph, path, metrics);
+    ATSUStyle unscaledStyle;
+    ATSUCreateAndCopyStyle(style, &unscaledStyle);
+
+    int emSquare = properties().emSquare.toInt();
+    
+    const int maxAttributeCount = 4;
+    ATSUAttributeTag tags[maxAttributeCount + 1];
+    ByteCount sizes[maxAttributeCount + 1];
+    ATSUAttributeValuePtr values[maxAttributeCount + 1];
+    int attributeCount = 0;
+
+    Fixed size = FixRatio(emSquare, 1);
+    tags[attributeCount] = kATSUSizeTag;
+    sizes[attributeCount] = sizeof(size);
+    values[attributeCount] = &size;
+    ++attributeCount;
+    
+    Q_ASSERT(attributeCount < maxAttributeCount + 1);
+    OSStatus err = ATSUSetAttributes(unscaledStyle, attributeCount, tags, sizes, values);
+    Q_ASSERT(err == noErr);
+
+    GlyphID atsuGlyph = glyph;
+    ATSGlyphScreenMetrics atsuMetrics;
+    ATSUGlyphGetScreenMetrics(unscaledStyle, 1, &atsuGlyph, 0,
+                              /* iForcingAntiAlias =*/ false,
+                              /* iAntiAliasSwitch =*/true,
+                              &atsuMetrics);
+
+    metrics->width = int(atsuMetrics.width);
+    metrics->height = int(atsuMetrics.height);
+    metrics->x = QFixed::fromReal(atsuMetrics.topLeft.x);
+    metrics->y = -QFixed::fromReal(atsuMetrics.topLeft.y);
+    metrics->xoff = QFixed::fromReal(atsuMetrics.deviceAdvance.x);
+    metrics->yoff = QFixed::fromReal(atsuMetrics.deviceAdvance.y);
+
+    QFixedPoint p;
+    ::addGlyphsToPath(unscaledStyle, &glyph, &p, 1, path);
+
+    ATSUDisposeStyle(unscaledStyle);
 }
 
