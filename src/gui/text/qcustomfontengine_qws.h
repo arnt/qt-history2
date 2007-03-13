@@ -26,6 +26,7 @@ QT_MODULE(Gui)
 
 class Q_GUI_EXPORT QCustomFontInfo : public QHash<int, QVariant>
 {
+public:
     enum Property {
         Family,
         PixelSize,
