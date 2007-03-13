@@ -147,8 +147,7 @@ x11|embedded {
 
 mac {
 
-} else:mmx|3dnow|sse|sse2|iwmmxt {
-
+} else:if(mmx|3dnow|sse|sse2|iwmmxt) {
     X86_HEADERS += painting/qdrawhelper_x86_p.h
     X86_SOURCES += painting/qdrawhelper_x86.cpp
 

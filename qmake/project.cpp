@@ -83,7 +83,7 @@ enum TestFunc { T_REQUIRES=1, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
                 T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
                 T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
                 T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_ERROR,
-                T_MESSAGE, T_WARNING };
+                T_MESSAGE, T_WARNING, T_IF };
 QMap<QString, TestFunc> qmake_testFunctions()
 {
     static QMap<QString, TestFunc> *qmake_test_functions = 0;
@@ -100,6 +100,7 @@ QMap<QString, TestFunc> qmake_testFunctions()
         qmake_test_functions->insert("unset", T_UNSET);
         qmake_test_functions->insert("eval", T_EVAL);
         qmake_test_functions->insert("CONFIG", T_CONFIG);
+        qmake_test_functions->insert("if", T_IF);
         qmake_test_functions->insert("isActiveConfig", T_CONFIG);
         qmake_test_functions->insert("system", T_SYSTEM);
         qmake_test_functions->insert("return", T_RETURN);
@@ -130,7 +131,7 @@ static QScriptValue qscript_projectWrapper(QScriptEngine *eng, QMakeProject *pro
 
 static bool qscript_createQMakeProjectMap(QMap<QString, QStringList> &vars, QScriptValue js)
 {
-    QScriptValueIterator it(js); 
+    QScriptValueIterator it(js);
     while(it.hasNext()) {
         it.next();
         vars[it.name()] = qscriptvalue_cast<QStringList>(it.value());
@@ -1652,7 +1653,7 @@ QMakeProject::doProjectTest(QString str, QMap<QString, QStringList> &place)
     if(lparen != -1) { // if there is an lparen in the chk, it IS a function
         int rparen = chk.indexOf(')', lparen);
         if(rparen == -1) {
-            qmake_error_msg("Function (in REQUIRES) missing right paren: " + chk);
+            qmake_error_msg("Function missing right paren: " + chk);
         } else {
             QString func = chk.left(lparen);
             test = doProjectTest(func, chk.mid(lparen+1, rparen - lparen - 1), place);
@@ -2375,6 +2376,49 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
         if(func_t == T_GREATERTHAN)
             return lhs > rhs;
         return lhs < rhs; }
+    case T_IF: {
+        if(args.count() != 1) {
+            fprintf(stderr, "%s:%d: if(condition) requires one argument.\n", parser.file.toLatin1().constData(),
+                    parser.line_no);
+            return false;
+        }
+        const QString cond = args.first();
+        const QChar *d = cond.unicode();
+        QChar quote = 0;
+        bool ret = true, or_op = false;
+        QString test;
+        for(int d_off = 0, parens = 0, d_len = cond.size(); d_off < d_len; ++d_off) {
+            if(!quote.isNull()) {
+                if(*(d+d_off) == quote)
+                    quote = QChar();
+            } else if(*(d+d_off) == '(') {
+                ++parens;
+            } else if(*(d+d_off) == ')') {
+                --parens;
+            } else if(*(d+d_off) == '"' /*|| *(d+d_off) == '\''*/) {
+                quote = *(d+d_off);
+            }
+            if(!parens && quote.isNull() && (*(d+d_off) == QLatin1Char(':') || *(d+d_off) == QLatin1Char('|') || d_off == d_len-1)) {
+                if(d_off == d_len-1)
+                    test += *(d+d_off);
+                if(!test.isEmpty()) {
+                    const bool success = doProjectTest(test, place);
+                    test = "";
+                    if(or_op)
+                        ret = ret || success;
+                    else
+                        ret = ret && success;
+                }
+                if(*(d+d_off) == QLatin1Char(':')) {
+                    or_op = false;
+                } else if(*(d+d_off) == QLatin1Char('|')) {
+                    or_op = true;
+                }
+            } else {
+                test += *(d+d_off);
+            }
+        }
+        return ret; }
     case T_EQUALS:
         if(args.count() != 2) {
             fprintf(stderr, "%s:%d: %s(variable, value) requires two arguments.\n", parser.file.toLatin1().constData(),
