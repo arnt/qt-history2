@@ -306,29 +306,35 @@ QAbstractFontEngine::~QAbstractFontEngine()
 /*!
     \fn QVariant QAbstractFontEngine::fontProperty(FontProperty property) const
 
-    Implemented in subclasses to specify attributes of the font provided by the font engine. The
-    return value may be cached by the caller and is expected not to change during the lifetime of the
-    font engine.
+    Implemented in subclasses to return the value of the font attribute \a property. The return
+    value may be cached by the caller and is expected not to change during the lifetime of the font
+    engine.
 */
 
 /*!
     \fn bool QAbstractFontEngine::convertStringToGlyphIndices(const QChar *string, int length, uint *glyphs, int *numGlyphs, TextShapingFlags flags) const
 
     Implemented in subclasses to convert the characters specified by \a string and \a length to
-    glyph indicies. The glyph indicies should be returned in the \a glyphs array provided by the
-    caller. The maximum size of \a glyphs is specified by the value pointed to by \a numGlyphs. If
-    successful, the subclass implementation sets the value pointed to by \a numGlyphs to the actual
-    number of glyph indices generated, and returns true. Otherwise, e.g. if there is not enough space
-    in the provided \a glyphs array, it should set \a numGlyphs to the number of glyphs needed for the
-    conversion and return false.
+    glyph indicies, using \a flags. The glyph indicies should be returned in the \a glyphs array
+    provided by the caller. The maximum size of \a glyphs is specified by the value pointed to by \a
+    numGlyphs. If successful, the subclass implementation sets the value pointed to by \a numGlyphs
+    to the actual number of glyph indices generated, and returns true. Otherwise, e.g. if there is
+    not enough space in the provided \a glyphs array, it should set \a numGlyphs to the number of
+    glyphs needed for the conversion and return false.
 */
 
 /*!
     \fn void QAbstractFontEngine::getGlyphAdvances(const uint *glyphs, int numGlyphs, Fixed *advances, TextShapingFlags flags) const
+
+    Implemented in subclasses to retrieve the advances of the array specified by \a glyphs and \a
+    numGlyphs, using \a flags. The result is returned in \a advances, which is allocated by the
+    caller and contains \a numGlyphs elements.
 */
 
 /*!
     \fn QAbstractFontEngine::GlyphMetrics QAbstractFontEngine::glyphMetrics(uint glyph) const
+
+    Implemented in subclass to return the metrics for \a glyph.
 */
 
 /*!
