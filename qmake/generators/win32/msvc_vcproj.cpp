@@ -658,7 +658,8 @@ bool VcprojGenerator::hasBuiltinCompiler(const QString &file)
     for (int i = 0; i < Option::c_ext.count(); ++i)
         if (file.endsWith(Option::c_ext.at(i)))
             return true;
-    if (file.endsWith(".rc"))
+    if (file.endsWith(".rc")
+        || file.endsWith(".idl"))
         return true;
     return false;
 }
@@ -1227,11 +1228,31 @@ void VcprojGenerator::initResourceFiles()
 
 void VcprojGenerator::initExtraCompilerOutputs()
 {
+    QStringList otherFilters;
+    otherFilters << "FORMS"
+                 << "FORMS3"
+                 << "GENERATED_FILES"
+                 << "GENERATED_SOURCES"
+                 << "HEADERS"
+                 << "IDLSOURCES"
+                 << "IMAGES"
+                 << "LEXSOURCES"
+                 << "QMAKE_IMAGE_COLLECTION"
+                 << "RC_FILE"
+                 << "RESOURCES"
+                 << "RES_FILE"
+                 << "SOURCES"
+                 << "TRANSLATIONS"
+                 << "YACCSOURCES";
     const QStringList &quc = project->values("QMAKE_EXTRA_COMPILERS");
     for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+        QString extracompilerName = project->first((*it) + ".name");
+        if (extracompilerName.isEmpty())
+            extracompilerName = (*it);
+
         // Create an extra compiler filter and add the files
         VCFilter extraCompile;
-        extraCompile.Name = (*it);
+        extraCompile.Name = extracompilerName;
         extraCompile.ParseFiles = _False;
         extraCompile.Filter = "";
         extraCompile.Guid = QString(_GUIDExtraCompilerFiles) + "-" + (*it);
@@ -1239,23 +1260,43 @@ void VcprojGenerator::initExtraCompilerOutputs()
 
         // If the extra compiler has a variable_out set the output file
         // is added to an other file list, and does not need its own..
+        bool addOnInput = hasBuiltinCompiler(project->first((*it) + ".output"));
         QString tmp_other_out = project->first((*it) + ".variable_out");
-        if (!tmp_other_out.isEmpty())
+        if (!tmp_other_out.isEmpty() && !addOnInput)
             continue;
 
-        QString tmp_out = project->first((*it) + ".output");
-        if (project->values((*it) + ".CONFIG").indexOf("combine") != -1) {
-            // Combined output, only one file result
-            extraCompile.addFile(
-                Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, QString(), QString()), false));
+        if (!addOnInput) {
+            QString tmp_out = project->first((*it) + ".output");
+            if (project->values((*it) + ".CONFIG").indexOf("combine") != -1) {
+                // Combined output, only one file result
+                extraCompile.addFile(
+                    Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, QString(), QString()), false));
+            } else {
+                // One output file per input
+                QStringList tmp_in = project->values(project->first((*it) + ".input"));
+                for (int i = 0; i < tmp_in.count(); ++i) {
+                    const QString &filename = tmp_in.at(i);
+                    if (extraCompilerSources.contains(filename))
+                        extraCompile.addFile(
+                            Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, filename, QString()), false));
+                }
+            }
         } else {
-            // One output file per input
-            QStringList tmp_in = project->values(project->first((*it) + ".input"));
-            for (int i = 0; i < tmp_in.count(); ++i) {
-                const QString &filename = tmp_in.at(i);
-                if (extraCompilerSources.contains(filename))
-                    extraCompile.addFile(
-                        Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, filename, QString()), false));
+            // In this case we the outputs have a built-in compiler, so we cannot add the custom
+            // build steps there. So, we turn it around and add it to the input files instead,
+            // provided that the input file variable is not handled already (those in otherFilters
+            // are handled, so we avoid them).
+            QStringList inputVars = project->values((*it) + ".input");
+            foreach(QString inputVar, inputVars) {
+                if (!otherFilters.contains(inputVar)) {
+                    QStringList tmp_in = project->values(inputVar);
+                    for (int i = 0; i < tmp_in.count(); ++i) {
+                        const QString &filename = tmp_in.at(i);
+                        if (extraCompilerSources.contains(filename))
+                            extraCompile.addFile(
+                                Option::fixPathToTargetOS(replaceExtraCompilerVariables(filename, QString(), QString()), false));
+                    }
+                }
             }
         }
         extraCompile.Project = this;
