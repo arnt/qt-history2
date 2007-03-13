@@ -1163,6 +1163,15 @@ void QWindowsVistaStyle::drawComplexControl(ComplexControl control, const QStyle
                         startCombo.activeSubControls = (QStyle::SubControl)oldActiveControls;
                         drawComplexControl(control, &startCombo, &startPainter, 0 /* Intentional */);
                         t->setStartImage(startImage);
+                    } else if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider*>(option)) {
+                        //This is a workaround for the direct3d engine as it currently has some issues with grabWindow
+                        startImage.fill(0);
+                        QPainter startPainter(&startImage);
+                        QStyleOptionSlider startSlider = *slider;
+                        startSlider.state = (QStyle::State)oldState;
+                        startSlider.activeSubControls = (QStyle::SubControl)oldActiveControls;
+                        drawComplexControl(control, &startSlider, &startPainter, 0 /* Intentional */);
+                        t->setStartImage(startImage);
                     } else {
                         t->setStartImage(QPixmap::grabWindow(widget->winId(), 0, 0 , option->rect.width(), option->rect.height()).toImage());
                     }
