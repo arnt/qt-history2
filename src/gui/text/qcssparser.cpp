@@ -170,8 +170,11 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
     { "dot-dash", Value_DotDash },
     { "dot-dot-dash", Value_DotDotDash },
     { "dotted", Value_Dotted },
+    { "double", Value_Double },
+    { "groove", Value_Groove },
     { "highlight", Value_Highlight },
     { "highlighted-text", Value_HighlightedText },
+    { "inset", Value_Inset },
     { "italic", Value_Italic },
     { "large", Value_Large },
     { "left", Value_Left },
@@ -188,9 +191,11 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
     { "normal", Value_Normal },
     { "nowrap", Value_NoWrap },
     { "oblique", Value_Oblique },
+    { "outset", Value_Outset },
     { "overline", Value_Overline },
     { "pre", Value_Pre },
     { "pre-wrap", Value_PreWrap },
+    { "ridge", Value_Ridge },
     { "right", Value_Right },
     { "shadow", Value_Shadow },
     { "small" , Value_Small },
@@ -232,21 +237,6 @@ static const QCssKnownValue pseudos[NumPseudos - 1] = {
     { "sibling", PseudoClass_Sibling },
     { "unchecked" , PseudoClass_Unchecked },
     { "vertical", PseudoClass_Vertical }
-};
-
-static const QCssKnownValue borderStyles[NumKnownBorderStyles - 1] = {
-    { "dashed", BorderStyle_Dashed },
-    { "dot-dash", BorderStyle_DotDash },
-    { "dot-dot-dash", BorderStyle_DotDotDash },
-    { "dotted", BorderStyle_Dotted },
-    { "double", BorderStyle_Double },
-    { "groove", BorderStyle_Groove },
-    { "inset", BorderStyle_Inset },
-    { "native", BorderStyle_Native },
-    { "none", BorderStyle_None }, // note: parsed as Value_None
-    { "outset", BorderStyle_Outset },
-    { "ridge", BorderStyle_Ridge },
-    { "solid", BorderStyle_Solid }
 };
 
 static const QCssKnownValue origins[NumKnownOrigins - 1] = {
@@ -680,18 +670,37 @@ static QBrush parseBrushValue(Value v, const QPalette &pal)
 static BorderStyle parseStyleValue(Value v)
 {
     if (v.type == Value::KnownIdentifier) {
-        int s = v.variant.toInt();
-        if (s == Value_None)
+        switch (v.variant.toInt()) {
+        case Value_None:
             return BorderStyle_None;
-        else if (s == Value_Solid)
+        case Value_Dotted:
+            return BorderStyle_Dotted;
+        case Value_Dashed:
+            return BorderStyle_Dashed;
+        case Value_Solid:
             return BorderStyle_Solid;
-        else if (s == Value_Native)
+        case Value_Double:
+            return BorderStyle_Double;
+        case Value_DotDash:
+            return BorderStyle_DotDash;
+        case Value_DotDotDash:
+            return BorderStyle_DotDotDash;
+        case Value_Groove:
+            return BorderStyle_Groove;
+        case Value_Ridge:
+            return BorderStyle_Ridge;
+        case Value_Inset:
+            return BorderStyle_Inset;
+        case Value_Outset:
+            return BorderStyle_Outset;
+        case Value_Native:
             return BorderStyle_Native;
-        return BorderStyle_Unknown;
+        default:
+            break;
+        }
     }
 
-    return static_cast<BorderStyle>(findKnownValue(v.variant.toString(),
-                                        borderStyles, NumKnownBorderStyles));
+    return BorderStyle_Unknown;
 }
 
 void ValueExtractor::borderValue(const Declaration &decl, int *width, QCss::BorderStyle *style, QBrush *color)
