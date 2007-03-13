@@ -97,13 +97,25 @@ QCustomFontEngine::FontEngineFeatures QCustomFontEngine::supportedFeatures() con
 
 QImage QCustomFontEngine::renderGlyph(uint glyph)
 {
+    Q_UNUSED(glyph)
     qWarning("QCustomFontEngine: renderGlyph is not implemented in font plugin!");
     return QImage();
 }
 
-void QCustomFontEngine::addGlyphsToPath(uint *glyphs, int numGlyphs, Fixed *positions, QPainterPath *path, QTextItem::RenderFlags flags)
+void QCustomFontEngine::addGlyphOutlinesToPath(uint *glyphs, int numGlyphs, FixedPoint *positions, QPainterPath *path, QTextItem::RenderFlags flags)
 {
-    qWarning("QCustomFontEngine: addGlyphsToPath is not implemented in font plugin!");
+    Q_UNUSED(glyphs)
+    Q_UNUSED(numGlyphs)
+    Q_UNUSED(positions)
+    Q_UNUSED(path)
+    Q_UNUSED(flags)
+    qWarning("QCustomFontEngine: addGlyphOutlinesToPath is not implemented in font plugin!");
+}
+
+bool QCustomFontEngine::supportsExtension(Extension extension) const
+{
+    Q_UNUSED(extension)
+    return false;
 }
 
 QVariant QCustomFontEngine::extension(Extension extension, const QVariant &argument)
@@ -132,7 +144,7 @@ bool QProxyFontEngine::stringToCMap(const QChar *str, int len, QGlyphLayout *gly
     }
 
     QVarLengthArray<uint> glyphIndicies(*nglyphs);
-    if (!engine->stringToGlyphIndices(str, len, glyphIndicies.data(), nglyphs, /*flags ######### */0))
+    if (!engine->convertStringToGlyphIndices(str, len, glyphIndicies.data(), nglyphs, /*flags ######### */0))
         return false;
 
     QVarLengthArray<QCustomFontEngine::Fixed> advances(*nglyphs);
@@ -155,17 +167,10 @@ QImage QProxyFontEngine::alphaMapForGlyph(glyph_t glyph)
 
 void QProxyFontEngine::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs, QPainterPath *path, QTextItem::RenderFlags flags)
 {
-    if (engine->supportedFeatures() & QCustomFontEngine::GlyphOutlines) {
-        QVarLengthArray<int> newPositions(nglyphs * 2);
-        for (int i = 0; i < nglyphs; ++i) {
-            newPositions[i * 2] = positions[i].x.value();
-            newPositions[i * 2 + 1] = positions[i].y.value();
-        }
-
-        engine->addGlyphsToPath(glyphs, nglyphs, newPositions.data(), path, flags);
-    } else {
+    if (engine->supportedFeatures() & QCustomFontEngine::GlyphOutlines)
+        engine->addGlyphOutlinesToPath(glyphs, nglyphs, reinterpret_cast<QCustomFontEngine::FixedPoint *>(positions), path, flags);
+    else
         QFontEngine::addGlyphsToPath(glyphs, positions, nglyphs, path, flags);
-    }
 }
 
 glyph_metrics_t QProxyFontEngine::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
@@ -187,7 +192,7 @@ glyph_metrics_t QProxyFontEngine::boundingBox(glyph_t glyph)
 {
     glyph_metrics_t m;
 
-    QCustomFontEngine::GlyphMetrics metrics = engine->getGlyphMetrics(glyph);
+    QCustomFontEngine::GlyphMetrics metrics = engine->glyphMetrics(glyph);
     m.x = QFixed::fromFixed(metrics.x);
     m.y = QFixed::fromFixed(metrics.y);
     m.width = QFixed::fromFixed(metrics.width);
@@ -249,7 +254,7 @@ qreal QProxyFontEngine::minRightBearing() const
 
 int QProxyFontEngine::glyphCount() const
 {
-    return engine->fontProperty(QCustomFontEngine::TotalGlyphCount).toInt();
+    return engine->fontProperty(QCustomFontEngine::GlyphCount).toInt();
 }
 
 bool QProxyFontEngine::canRender(const QChar *string, int len)
@@ -257,7 +262,7 @@ bool QProxyFontEngine::canRender(const QChar *string, int len)
     QVarLengthArray<uint> glyphs(len);
     int numGlyphs = len;
 
-    if (!engine->stringToGlyphIndices(string, len, glyphs.data(), &numGlyphs, /*flags*/0))
+    if (!engine->convertStringToGlyphIndices(string, len, glyphs.data(), &numGlyphs, /*flags*/0))
         return false;
 
     for (int i = 0; i < numGlyphs; ++i)
@@ -292,7 +297,7 @@ void QProxyFontEngine::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItem
             && glyph.format() != QImage::Format_Mono)
             continue;
 
-        QCustomFontEngine::GlyphMetrics metrics = engine->getGlyphMetrics(glyphs[i]);
+        QCustomFontEngine::GlyphMetrics metrics = engine->glyphMetrics(glyphs[i]);
 
 
         paintEngine->alphaPenBlt(glyph.bits(), glyph.bytesPerLine(), glyph.format() == QImage::Format_Mono,

@@ -110,6 +110,11 @@ public:
 
     typedef int Fixed; // 26.6
 
+    struct FixedPoint
+    {
+        Fixed x, y;
+    };
+
     struct GlyphMetrics
     {
         inline GlyphMetrics()
@@ -131,7 +136,7 @@ public:
         MaxCharWidth,
         MinLeftBearing,
         MinRightBearing,
-        TotalGlyphCount, // GlyphCount?
+        GlyphCount,
 
         // hints
         GlyphShareHint,
@@ -144,23 +149,20 @@ public:
 
     FontEngineFeatures supportedFeatures() const;
 
-    // convertStringToGlyphIndices
-    virtual bool stringToGlyphIndices(const QChar *string, int length, uint *glyphs, int *numGlyphs, uint flags) const = 0;
+    virtual bool convertStringToGlyphIndices(const QChar *string, int length, uint *glyphs, int *numGlyphs, uint flags) const = 0;
 
-    // calculateGlyphAdvances
+    // Fixed or FixedPoint?
     virtual void getGlyphAdvances(const uint *glyphs, int numGlyphs, Fixed *advances, uint flags) const = 0;
 
-    // metrics | glyphMetrics
-    virtual GlyphMetrics getGlyphMetrics(uint glyph) const = 0;
+    virtual GlyphMetrics glyphMetrics(uint glyph) const = 0;
 
     virtual QVariant fontProperty(FontProperty property) const = 0;
 
-    // render | renderGlyph (see above)
     virtual QImage renderGlyph(uint glyph);
 
-    // addGlyphOutlinesToPath
-    virtual void addGlyphsToPath(uint *glyphs, int numGlyphs, Fixed *positions, QPainterPath *path, QTextItem::RenderFlags flags);
+    virtual void addGlyphOutlinesToPath(uint *glyphs, int numGlyphs, FixedPoint *positions, QPainterPath *path, QTextItem::RenderFlags flags);
 
+    virtual bool supportsExtension(Extension extension) const; // ?
     virtual QVariant extension(Extension extension, const QVariant &argument = QVariant());
 
 private:
