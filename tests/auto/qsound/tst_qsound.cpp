@@ -11,7 +11,7 @@
 #include <QtGui>
 
 class tst_QSound : public QObject
-{ 
+{
     Q_OBJECT
 
 public:
@@ -27,6 +27,10 @@ void tst_QSound::checkFinished()
             sound.setLoops(3);
             sound.play();
             QTest::qWait(5000);
+
+#if defined(Q_WS_QWS) && (QT_VERSION <  0x040400)
+            QEXPECT_FAIL("", "QSound buggy on embedded (task 122221)", Abort);
+#endif
             QVERIFY(sound.isFinished() );
 }
 
