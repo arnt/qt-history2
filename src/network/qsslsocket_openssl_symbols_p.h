@@ -131,51 +131,35 @@
 
 // ret func(arg)
 #  define DEFINEFUNC(ret, func, arg, a, err)				\
-    typedef ret (*_q_PTR_##func)(arg);					\
-    static _q_PTR_##func _q_##func = 0;					\
-    ret q_##func(arg) {	return ##func(a); }
+    ret q_##func(arg) {	return func(a); }
 
 // ret func(arg1, arg2)
 #  define DEFINEFUNC2(ret, func, arg1, a, arg2, b, err) \
-    typedef ret (*_q_PTR_##func)(arg1, arg2);         \
-    static _q_PTR_##func _q_##func = 0;               \
-    ret q_##func(arg1, arg2) { return ##func(a, b); }
+    ret q_##func(arg1, arg2) { return func(a, b); }
 
 // ret func(arg1, arg2, arg3)
 #  define DEFINEFUNC3(ret, func, arg1, a, arg2, b, arg3, c, err) \
-    typedef ret (*_q_PTR_##func)(arg1, arg2, arg3);            \
-    static _q_PTR_##func _q_##func = 0;                        \
-    ret q_##func(arg1, arg2, arg3) { return ##func(a, b, c); }
+    ret q_##func(arg1, arg2, arg3) { return func(a, b, c); }
 
 // ret func(arg1, arg2, arg3, arg4)
 #  define DEFINEFUNC4(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, err) \
-    typedef ret (*_q_PTR_##func)(arg1, arg2, arg3, arg4);               \
-    static _q_PTR_##func _q_##func = 0;                                 \
-    ret q_##func(arg1, arg2, arg3, arg4) { return ##func(a, b, c, d); }
+    ret q_##func(arg1, arg2, arg3, arg4) { return func(a, b, c, d); }
 
 // ret func(arg1, arg2, arg3, arg4, arg5)
 #  define DEFINEFUNC5(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, err) \
-    typedef ret (*_q_PTR_##func)(arg1, arg2, arg3, arg4, arg5);         \
-    static _q_PTR_##func _q_##func = 0;                                 \
-    ret q_##func(arg1, arg2, arg3, arg4, arg5) { return ##func(a, b, c, d, e); }
+    ret q_##func(arg1, arg2, arg3, arg4, arg5) { return func(a, b, c, d, e); }
 
 // ret func(arg1, arg2, arg3, arg4, arg6)
 #  define DEFINEFUNC6(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, err) \
-    typedef ret (*_q_PTR_##func)(arg1, arg2, arg3, arg4, arg5, arg6);   \
-    static _q_PTR_##func _q_##func = 0;                                 \
-    ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6) { return ##func(a, b, c, d, e, f); }
+    ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6) { return func(a, b, c, d, e, f); }
 
 // ret func(arg1, arg2, arg3, arg4, arg6, arg7)
 #  define DEFINEFUNC7(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, arg7, g, err) \
-    typedef ret (*_q_PTR_##func)(arg1, arg2, arg3, arg4, arg5, arg6, arg7);   \
-    static _q_PTR_##func _q_##func = 0;                                       \
-    ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6, arg7) { return ##func(a, b, c, d, e, f, g); }
+    ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6, arg7) { return func(a, b, c, d, e, f, g); }
 
 // ret func(arg1, arg2, arg3, arg4, arg6, arg7, arg8, arg9)
 #  define DEFINEFUNC9(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, arg7, g, arg8, h, arg9, i, err) \
-    typedef ret (*_q_PTR_##func)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);   \
-    static _q_PTR_##func _q_##func = 0;                                                   \
-    ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) { return ##func(a, b, c, d, e, f, g, h, i); }
+    ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) { return func(a, b, c, d, e, f, g, h, i); }
 
 // **************** Static declarations ******************
 
@@ -191,7 +175,7 @@ int q_CRYPTO_num_locks();
 void q_CRYPTO_set_locking_callback(void (*a)(int, int, const char *, int));
 void q_CRYPTO_set_id_callback(unsigned long (*a)());
 void q_CRYPTO_free(void *a);
-X509 *q_d2i_X509(X509 **a, unsigned char **b, long c);
+X509 *q_d2i_X509(X509 **a, const unsigned char **b, long c);
 char *q_ERR_error_string(unsigned long a, char *b);
 unsigned long q_ERR_get_error();
 int q_i2d_X509(X509 *a, unsigned char **b);

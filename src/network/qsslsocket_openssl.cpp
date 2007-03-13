@@ -652,7 +652,9 @@ QByteArray QSslSocketBackendPrivate::X509_to_QByteArray(X509 *x509, bool pemEnco
     QByteArray array;
     array.resize(length);
     char *data = array.data();
-    q_i2d_X509(x509, (unsigned char **)&data);
+    char **dataP = &data;
+    unsigned char **dataPu = (unsigned char **)dataP;
+    q_i2d_X509(x509, dataPu);
 
     if (!pemEncoded)
         return array;
@@ -736,7 +738,7 @@ QSslCertificate QSslSocketBackendPrivate::QByteArray_to_QSslCertificate(const QB
         return QSslCertificate();
 
     QByteArray decoded = QByteArray::fromBase64(QByteArray::fromRawData(array.data() + startPos, endPos - startPos));
-    unsigned char *data = (unsigned char *)decoded.data();
+    const unsigned char *data = (unsigned char *)decoded.data();
 
     X509 *x509 = q_d2i_X509(0, &data, decoded.size());
     QSslCertificate certificate = X509_to_QSslCertificate(x509);
@@ -762,7 +764,7 @@ QList<QSslCertificate> QSslSocketBackendPrivate::QByteArray_to_QSslCertificates(
         offset = endPos + sizeof(EndCertString) - 1;
 
         QByteArray decoded = QByteArray::fromBase64(QByteArray::fromRawData(array.data() + startPos, endPos - startPos));
-        unsigned char *data = (unsigned char *)decoded.data();
+        const unsigned char *data = (unsigned char *)decoded.data();
 
         if (X509 *x509 = q_d2i_X509(0, &data, decoded.size())) {
             certificates << X509_to_QSslCertificate(x509);
