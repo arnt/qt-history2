@@ -90,8 +90,8 @@ void tst_Q3Socket::peerAddress_data()
     QTest::addColumn<bool>("peerClosesConnection");
     QTest::addColumn<QString>("peerAddr");
 
-    QTest::newRow( "echo" )    << QString("trueblue.troll.no") << (uint)7  << false << QString("10.3.3.5");
-    QTest::newRow( "daytime" ) << QString("trueblue.troll.no") << (uint)13 << true << QString("10.3.3.5");
+    QTest::newRow( "echo" )    << QString("fluke.troll.no") << (uint)7  << false << QString("10.3.3.31");
+    QTest::newRow( "daytime" ) << QString("fluke.troll.no") << (uint)13 << true << QString("10.3.3.31");
 }
 
 void tst_Q3Socket::peerAddress()
@@ -191,8 +191,8 @@ void tst_Q3Socket::connectionAttempts_data()
     QTest::addColumn<int>("port");
     QTest::addColumn<bool>("expectedResult");
 
-    QTest::newRow("trueblue port 80") << QString("trueblue.troll.no") << 80 << true;
-    QTest::newRow("trueblue port 79") << QString("trueblue.troll.no") << 79 << false;
+    QTest::newRow("fluke port 80") << QString("fluke.troll.no") << 80 << true;
+    QTest::newRow("fluke port 79") << QString("fluke.troll.no") << 79 << false;
 }
 
 void tst_Q3Socket::connectionAttempts()
