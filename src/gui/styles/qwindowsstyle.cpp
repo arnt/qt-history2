@@ -2805,20 +2805,24 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
     case CC_ComboBox:
         if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             QBrush editBrush = cmb->palette.brush(QPalette::Base);
-            if ((cmb->subControls & SC_ComboBoxFrame) && cmb->frame) {
-                QPalette shadePal = opt->palette;
-                if (use2000style)
-                    shadePal.setColor(QPalette::Midlight, Qt::transparent);
-                qDrawWinPanel(p, opt->rect, shadePal, true, &editBrush);
-            }
-            else {
-                p->fillRect(opt->rect, editBrush);
+            if ((cmb->subControls & SC_ComboBoxFrame)) {
+                if (cmb->frame) {
+                    QPalette shadePal = opt->palette;
+                    if (use2000style)
+                        shadePal.setColor(QPalette::Midlight, Qt::transparent);
+                    qDrawWinPanel(p, opt->rect, shadePal, true, &editBrush);
+                }
+                else {
+                    p->fillRect(opt->rect, editBrush);
+                }
             }
             if (cmb->subControls & SC_ComboBoxArrow) {
                 State flags = State_None;
 
                 QRect ar = subControlRect(CC_ComboBox, cmb, SC_ComboBoxArrow, widget);
-                if (cmb->activeSubControls == SC_ComboBoxArrow) {
+                bool sunkenArrow = cmb->activeSubControls == SC_ComboBoxArrow
+                                   && cmb->state & State_Sunken;
+                if (sunkenArrow) {
                     p->setPen(cmb->palette.dark().color());
                     p->setBrush(cmb->palette.brush(QPalette::Button));
                     p->drawRect(ar.adjusted(0,0,-1,-1));
@@ -2835,7 +2839,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 if (opt->state & State_Enabled)
                     flags |= State_Enabled;
 
-                if (cmb->activeSubControls == SC_ComboBoxArrow)
+                if (sunkenArrow)
                     flags |= State_Sunken;
                 QStyleOption arrowOpt(0);
                 arrowOpt.rect = ar.adjusted(1, 1, -1, -1);
