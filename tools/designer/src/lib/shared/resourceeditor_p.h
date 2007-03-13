@@ -54,6 +54,7 @@ public:
     QDesignerFormWindowInterface *form() const { return m_form; }
     int qrcCount() const;
     void setCurrentFile(const QString &qrc_path, const QString &file_path);
+    bool isIcon(const QString &qrc_path, const QString &file_path) const;
 
 signals:
     void fileActivated(const QString &qrc_path, const QString &file_path);

@@ -279,7 +279,8 @@ Qt::ItemFlags EditableResourceModel::flags(const QModelIndex &index) const
     if (file.isEmpty())
         return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
 
-    if (iconFileExtension(file))
+    const QIcon icon = qVariantValue<QIcon>(data(index, Qt::DecorationRole));
+    if (!icon.isNull())
         return Qt::ItemIsDragEnabled | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
     return Qt::ItemFlags();
@@ -441,6 +442,22 @@ ResourceEditor::ResourceEditor(QDesignerFormEditorInterface *core,
     connect(m_add_files_button, SIGNAL(clicked()), this, SLOT(addFiles()));
 
     updateQrcStack();
+}
+
+bool ResourceEditor::isIcon(const QString &_qrc_path, const QString &file_path) const
+{
+    const QDir form_dir = m_form->absoluteDir();
+    const QString qrc_path = form_dir.relativeFilePath(_qrc_path);
+
+    for (int i = 0; i < m_qrc_stack->count(); ++i) {
+        ResourceModel *resourceModel = model(i);
+        if (qrc_path == form_dir.relativeFilePath(resourceModel->fileName())) {
+            const QModelIndex index = resourceModel->getIndex(file_path);
+            const QIcon icon = qVariantValue<QIcon>(resourceModel->data(index, Qt::DecorationRole));
+            return !icon.isNull();
+        }
+    }
+    return false;
 }
 
 void ResourceEditor::insertEmptyComboItem()

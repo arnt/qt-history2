@@ -82,6 +82,7 @@ private:
     enum InputBox { ResourceBox, FileBox, LanguageBox };
 
     InputBox activeBox() const;
+    bool isIconValid(const QString &file) const;
 
     qdesigner_internal::Ui::FindIconDialog *ui;
     QDesignerFormWindowInterface *m_form;

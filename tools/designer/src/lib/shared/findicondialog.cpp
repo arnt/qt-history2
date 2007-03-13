@@ -59,8 +59,11 @@ QStringList extensionList()
     return extension_list;
 }
 
-bool isIconValid(const QString &file)
+bool FindIconDialog::isIconValid(const QString &file) const
 {
+    if (!qrcPath().isEmpty())
+        return m_resource_editor->isIcon(qrcPath(), file);
+
     const bool enabled = !file.isEmpty();
     if (enabled) {
         const QStringList ext_list = extensionList();

@@ -570,6 +570,9 @@ void ResourceModel::getItem(const QModelIndex &index, QString &prefix, QString &
     } else {
         prefix = m_resource_file.prefix(d);
         file = m_resource_file.file(d, index.row());
+        const QString alias = m_resource_file.alias(d, index.row());
+        if (!alias.isEmpty())
+            file = alias;
     }
 }
 
