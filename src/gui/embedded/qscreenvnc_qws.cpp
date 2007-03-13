@@ -133,8 +133,11 @@ void QVNCScreenPrivate::configure()
         q_ptr->mapsize = q_ptr->size;
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-        if (shm)
+        if (shm) {
+            if (QApplication::type() == QApplication::GuiServer)
+                shm->destroy();
             delete shm;
+        }
         shm = new QSharedMemory(q_ptr->size, qws_qtePipeFilename(),
                                 q_ptr->displayId);
         if (!shm->create())
