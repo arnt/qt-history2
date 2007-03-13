@@ -321,8 +321,8 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef &def, int fileDescriptor, QFontEng
         }
     }
 
-    struct stat st;
-    if (::fstat(fd, &st)) {
+    QT_STATBUF st;
+    if (QT_FSTAT(fd, &st)) {
 #if defined(DEBUG_FONTENGINE)
         qDebug() << "stat failed!";
 #endif

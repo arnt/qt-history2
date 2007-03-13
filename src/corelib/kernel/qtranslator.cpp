@@ -419,8 +419,8 @@ bool QTranslator::load(const QString & filename, const QString & directory,
 #endif
             );
     if (fd >= 0) {
-        struct stat st;
-        if (!fstat(fd, &st)) {
+        QT_STATBUF st;
+        if (!QT_FSTAT(fd, &st)) {
             char *ptr;
             ptr = reinterpret_cast<char *>(
                 mmap(0, st.st_size,             // any address, whole file

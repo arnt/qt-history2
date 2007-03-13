@@ -103,8 +103,8 @@ QStringList QKqueueFileSystemWatcherEngine::addPaths(const QStringList &paths,
             continue;
         }
 
-        struct stat st;
-        if (fstat(fd, &st) == -1) {
+        QT_STATBUF st;
+        if (QT_FSTAT(fd, &st) == -1) {
             perror("QKqueueFileSystemWatcherEngine::addPaths: fstat");
             ::close(fd);
             continue;

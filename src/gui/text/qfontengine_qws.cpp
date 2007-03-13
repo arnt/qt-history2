@@ -351,8 +351,8 @@ QFontEngineQPF1::QFontEngineQPF1(const QFontDef&, const QString &fn)
 
     int f = ::open( QFile::encodeName(fn), O_RDONLY );
     Q_ASSERT(f>=0);
-    struct stat st;
-    if ( fstat( f, &st ) )
+    QT_STATBUF st;
+    if ( QT_FSTAT( f, &st ) )
         qFatal("Failed to stat %s",QFile::encodeName(fn).data());
     uchar* data = (uchar*)mmap( 0, // any address
                                 st.st_size, // whole file
