@@ -1184,11 +1184,21 @@ bool QScriptEnginePrivate::convert(const QScriptValueImpl &value,
     }
 #endif
     if (value.isVariant() && name.endsWith('*')) {
-        QByteArray typeName = name.left(name.size()-1);
+        int valueType = QMetaType::type(name.left(name.size()-1));
         QVariant &var = value.variantValue();
-        if (QMetaType::type(typeName) == var.userType()) {
+        if (valueType == var.userType()) {
             *reinterpret_cast<void* *>(ptr) = var.data();
             return true;
+        } else {
+            // look in the prototype chain
+            QScriptValueImpl proto = value.prototype();
+            while (proto.isObject() && proto.isVariant()) {
+                if (type == proto.variantValue().userType()) {
+                    *reinterpret_cast<void* *>(ptr) = *reinterpret_cast<void* *>(var.data());
+                    return true;
+                }
+                proto = proto.prototype();
+            }
         }
     } else if (type == qMetaTypeId<QScriptValue>()) {
         *reinterpret_cast<QScriptValue*>(ptr) = value;

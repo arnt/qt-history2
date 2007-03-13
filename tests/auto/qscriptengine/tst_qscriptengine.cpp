@@ -43,6 +43,7 @@ private slots:
     void valueConversion();
     void importExtension();
     void infiniteRecursion();
+    void castWithPrototypeChain();
 };
 
 tst_QScriptEngine::tst_QScriptEngine()
@@ -639,6 +640,62 @@ void tst_QScriptEngine::infiniteRecursion()
         QCOMPARE(ret.isError(), true);
         QCOMPARE(ret.toString(), QLatin1String("Error: call stack overflow"));
     }
+}
+
+struct Bar {
+    int a;
+};
+
+struct Baz : public Bar {
+    int b;
+};
+
+Q_DECLARE_METATYPE(Bar*)
+Q_DECLARE_METATYPE(Baz*)
+
+void tst_QScriptEngine::castWithPrototypeChain()
+{
+    QScriptEngine eng;
+    Bar bar;
+    Baz baz;
+    QScriptValue barProto = qScriptValueFromValue(&eng, &bar);
+    QScriptValue bazProto = qScriptValueFromValue(&eng, &baz);
+    bazProto.setPrototype(barProto); // establish chain
+    eng.setDefaultPrototype(qMetaTypeId<Bar*>(), barProto);
+    eng.setDefaultPrototype(qMetaTypeId<Baz*>(), bazProto);
+
+    Baz baz2;
+    baz2.a = 123;
+    baz2.b = 456;
+    QScriptValue baz2Value = qScriptValueFromValue(&eng, &baz2);
+    {
+        Baz *pbaz = qscriptvalue_cast<Baz*>(baz2Value);
+        QVERIFY(pbaz != 0);
+        QCOMPARE(pbaz->b, baz2.b);
+        // this is the essential part
+        Bar *pbar = qscriptvalue_cast<Bar*>(baz2Value);
+        QVERIFY(pbar != 0);
+        QCOMPARE(pbar->a, baz2.a);
+    }
+
+    bazProto.setPrototype(barProto.prototype()); // kill chain
+    {
+        Baz *pbaz = qscriptvalue_cast<Baz*>(baz2Value);
+        QVERIFY(pbaz != 0);
+        // should not work anymore
+        Bar *pbar = qscriptvalue_cast<Bar*>(baz2Value);
+        QVERIFY(pbar == 0);
+    }
+
+    bazProto.setPrototype(eng.newQObject(this));
+    {
+        Baz *pbaz = qscriptvalue_cast<Baz*>(baz2Value);
+        QVERIFY(pbaz != 0);
+        // should not work now either
+        Bar *pbar = qscriptvalue_cast<Bar*>(baz2Value);
+        QVERIFY(pbar == 0);
+    }
+
 }
 
 QTEST_MAIN(tst_QScriptEngine)
