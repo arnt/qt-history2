@@ -426,6 +426,11 @@
 
     \target QTDS
     \section2 QTDS for Sybase Adaptive Server
+    \section3 General Information
+
+    It is not possible to set the port with QSqlDatabase::setPort() due to limitations in the 
+    Sybase client library. Refer to the Sybase documentation for information on how to set up
+    a Sybase client configuration file to enable connections to databases on non-default ports. 
 
     \section3 How to Build the Plugin on Unix and Mac OS X
 
