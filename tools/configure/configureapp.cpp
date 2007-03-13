@@ -141,6 +141,7 @@ Configure::Configure( int& argc, char** argv )
             }
         }
 
+        if (dictionary["SYNCQT"] == "yes")
         { //make a syncqt script(s) that can be used in the shadow
             QFile syncqt(buildPath + "/bin/syncqt");
             if(syncqt.open(QFile::WriteOnly)) {
@@ -191,9 +192,10 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "STL" ]             = "yes";
     dictionary[ "EXCEPTIONS" ]      = "yes";
     dictionary[ "RTTI" ]            = "yes";
-    dictionary[ "MMX" ]         = "auto";
-    dictionary[ "SSE" ]         = "auto";
-    dictionary[ "SSE2" ]        = "auto";
+    dictionary[ "MMX" ]             = "auto";
+    dictionary[ "SSE" ]             = "auto";
+    dictionary[ "SSE2" ]            = "auto";
+    dictionary[ "SYNCQT" ]          = "auto";
 
     QString version;
     QFile qglobal_h(sourcePath + "/src/corelib/global/qglobal.h");
@@ -1276,6 +1278,11 @@ QString Configure::defaultTo(const QString &option)
         || option == "SQL_IBASE")
         return "plugin";
 
+    if (option == "SYNCQT"
+        && !(QFile(buildPath + "/bin/syncqt").exists()
+        && QFile(buildPath + "/bin/syncqt.bat").exists()))
+        return "no";
+
     return "yes";
 }
 
@@ -2221,13 +2228,15 @@ void Configure::displayConfig()
 #if !defined(EVAL)
 void Configure::generateHeaders()
 {
-    cout << "Running syncqt..." << endl;
-    QStringList args;
-    args += buildPath + "/bin/syncqt.bat";
-    QStringList env;
-    env += QString("QTDIR=" + sourcePath);
-    //env += QString("PATH=" + buildPath + "/bin/;%PATH%");
-    Environment::execute(args, env, QStringList());
+    if (dictionary["SYNCQT"] == "yes") {
+        cout << "Running syncqt..." << endl;
+        QStringList args;
+        args += buildPath + "/bin/syncqt.bat";
+        QStringList env;
+        env += QString("QTDIR=" + sourcePath);
+        //env += QString("PATH=" + buildPath + "/bin/;%PATH%");
+        Environment::execute(args, env, QStringList());
+    }
 }
 
 void Configure::buildQmake()
