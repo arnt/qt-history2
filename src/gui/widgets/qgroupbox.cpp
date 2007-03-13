@@ -287,7 +287,6 @@ void QGroupBox::setAlignment(int alignment)
 void QGroupBox::resizeEvent(QResizeEvent *e)
 {
     QWidget::resizeEvent(e);
-    updateGeometry();
 }
 
 /*! \reimp
