@@ -43,7 +43,7 @@ const quint8 DatabaseVersion = 3;
 
 void QFontDatabasePrivate::addFont(const QString &familyname, const char *foundryname, int weight, bool italic, int pixelSize,
                                    const QByteArray &file, int fileIndex, bool antialiased,
-                                   QFontDatabase::WritingSystem primaryWritingSystem)
+                                   const QList<QFontDatabase::WritingSystem> &writingSystems)
 {
 //    qDebug() << "Adding font" << familyname << weight << italic << pixelSize << file << fileIndex << antialiased;
     QtFontStyle::Key styleKey;
@@ -51,11 +51,14 @@ void QFontDatabasePrivate::addFont(const QString &familyname, const char *foundr
     styleKey.weight = weight;
     styleKey.stretch = 100;
     QtFontFamily *f = family(familyname, true);
-    for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws) {
-        if (primaryWritingSystem == QFontDatabase::Any || primaryWritingSystem == ws)
-            f->writingSystems[ws] = QtFontFamily::Supported;
-        else
-            f->writingSystems[ws] = QtFontFamily::Unsupported;
+
+    uchar defaultStatus = writingSystems.isEmpty() ? QtFontFamily::Supported : QtFontFamily::Unsupported;
+    for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws)
+        f->writingSystems[ws] = defaultStatus;
+
+    if (defaultStatus == QtFontFamily::Unsupported) {
+        for (int i = 0; i < writingSystems.count(); ++i)
+            f->writingSystems[writingSystems.at(i)] = QtFontFamily::Supported;
     }
 
     QtFontFoundry *foundry = f->foundry(QString::fromLatin1(foundryname), true);
@@ -66,9 +69,13 @@ void QFontDatabasePrivate::addFont(const QString &familyname, const char *foundr
     size->fileName = file;
     size->fileIndex = fileIndex;
 
-    if (stream)
+    if (stream) {
         *stream << familyname << foundry->name << weight << quint8(italic) << pixelSize
-                << file << fileIndex << quint8(antialiased) << quint8(primaryWritingSystem);
+                << file << fileIndex << quint8(antialiased);
+        *stream << quint8(writingSystems.count());
+        for (int i = 0; i < writingSystems.count(); ++i)
+            *stream << quint8(writingSystems.at(i));
+    }
 }
 
 #ifndef QT_NO_QWS_QPF2
@@ -137,13 +144,14 @@ QStringList QFontDatabasePrivate::addTTFile(const QByteArray &file, const QByteA
         if (face->style_flags & FT_STYLE_FLAG_BOLD)
             weight = QFont::Bold;
 
-        QFontDatabase::WritingSystem primaryWritingSystem = QFontDatabase::Any; // ### get info from freetype
+        // ### get info from freetype
+        QList<QFontDatabase::WritingSystem> writingSystems;
         // detect symbol fonts
         for (int i = 0; i < face->num_charmaps; ++i) {
             FT_CharMap cm = face->charmaps[i];
             if (cm->encoding == ft_encoding_adobe_custom
                     || cm->encoding == ft_encoding_symbol) {
-                primaryWritingSystem = QFontDatabase::Symbol;
+                writingSystems.append(QFontDatabase::Symbol);
                 break;
             }
         }
@@ -151,7 +159,7 @@ QStringList QFontDatabasePrivate::addTTFile(const QByteArray &file, const QByteA
         QString family = QString::fromAscii(face->family_name);
         families.append(family);
         addFont(family, /*foundry*/ "", weight, italic,
-                /*pixelsize*/ 0, file, index, /*antialias*/ true, primaryWritingSystem);
+                /*pixelsize*/ 0, file, index, /*antialias*/ true, writingSystems);
 
         FT_Done_Face(face);
         ++index;
@@ -190,11 +198,21 @@ void QFontDatabasePrivate::loadFromCache(const QString &fontPath)
         QByteArray file;
         int fileIndex;
         quint8 antialiased;
-        quint8 primaryWritingSystem;
+        quint8 writingSystemCount;
+
+        QList<QFontDatabase::WritingSystem> writingSystems;
+
         stream >> familyname >> foundryname >> weight >> italic >> pixelSize
-               >> file >> fileIndex >> antialiased >> primaryWritingSystem;
+               >> file >> fileIndex >> antialiased >> writingSystemCount;
+
+        for (quint8 i = 0; i < writingSystemCount; ++i) {
+            quint8 ws;
+            stream >> ws;
+            writingSystems.append(QFontDatabase::WritingSystem(ws));
+        }
+
         addFont(familyname, foundryname.toLatin1().constData(), weight, italic, pixelSize, file, fileIndex, antialiased,
-                static_cast<QFontDatabase::WritingSystem>(primaryWritingSystem));
+                writingSystems);
     }
 }
 
@@ -378,7 +396,8 @@ static void initializeDb()
             db->addFont(info.family(), foundry.toLatin1().constData(),
                         weight, info.style() != QFont::StyleNormal,
                         qRound(info.pixelSize()), /*file*/QByteArray(),
-                        /*fileIndex*/0, /*antiAliased*/true);
+                        /*fileIndex*/0, /*antiAliased*/true,
+                        info.writingSystems());
         }
     }
 #endif

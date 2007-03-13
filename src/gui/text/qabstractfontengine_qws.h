@@ -19,6 +19,7 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qfactoryinterface.h>
 #include <QtGui/qpaintengine.h>
+#include <QtGui/qfontdatabase.h>
 
 QT_BEGIN_HEADER
 
@@ -33,7 +34,7 @@ public:
     QDOC_PROPERTY(qreal pixelSize READ pixelSize WRITE setPixelSize)
     QDOC_PROPERTY(int weight READ weight WRITE setWeight)
     QDOC_PROPERTY(QFont::Style style READ style WRITE setStyle)
-    // QList<WritingSystem> supportedWritingSystems
+    QDOC_PROPERTY(QList<QFontDatabase::WritingSystem> writingSystems READ writingSystems WRITE setWritingSystems)
 
     QFontEngineInfo();
     explicit QFontEngineInfo(const QString &family);
@@ -52,6 +53,9 @@ public:
 
     void setStyle(QFont::Style style);
     QFont::Style style() const;
+
+    QList<QFontDatabase::WritingSystem> writingSystems() const;
+    void setWritingSystems(const QList<QFontDatabase::WritingSystem> &writingSystems);
 
 private:
     QFontEngineInfoPrivate *d;

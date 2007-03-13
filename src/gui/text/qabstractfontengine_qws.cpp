@@ -28,6 +28,7 @@ public:
     qreal pixelSize;
     int weight;
     QFont::Style style;
+    QList<QFontDatabase::WritingSystem> writingSystems;
 };
 
 /*!
@@ -152,6 +153,23 @@ void QFontEngineInfo::setStyle(QFont::Style style)
 QFont::Style QFontEngineInfo::style() const
 {
     return d->style;
+}
+
+/*!
+   \property QFontEngineInfo::writingSystems
+   the writing systems supported by the font
+
+   An empty list means that any writing system is supported.
+*/
+
+QList<QFontDatabase::WritingSystem> QFontEngineInfo::writingSystems() const
+{
+    return d->writingSystems;
+}
+
+void QFontEngineInfo::setWritingSystems(const QList<QFontDatabase::WritingSystem> &writingSystems)
+{
+    d->writingSystems = writingSystems;
 }
 
 class QFontEnginePluginPrivate : public QObjectPrivate
