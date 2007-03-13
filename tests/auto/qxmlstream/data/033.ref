@@ -1,8 +1,5 @@
 StartDocument( )
 Comment( text=" Reserved prefixes and namespaces: binding another prefix
      to the xmlns namespace " )
-StartElement( name="foo" qualifiedName="foo"
-    NamespaceDeclaration( prefix="ymlns" namespaceUri="http://www.w3.org/2000/xmlns/" )
- )
-EndElement( name="foo" qualifiedName="foo" )
-EndDocument( )
+Invalid( name="foo" qualifiedName="foo" )
+ERROR: Illegal namespace declaration.

@@ -5,11 +5,5 @@ StartElement( name="foo" namespaceUri="http://example.org/namespace" qualifiedNa
  )
 Characters( whitespace text="
  " )
-StartElement( name="foo" qualifiedName="a:foo"
-    NamespaceDeclaration( prefix="a" )
- )
-EndElement( name="foo" qualifiedName="a:foo" )
-Characters( whitespace text="
-" )
-EndElement( name="foo" namespaceUri="http://example.org/namespace" qualifiedName="a:foo" )
-EndDocument( )
+Invalid( name="foo" qualifiedName="a:foo" )
+ERROR: Illegal namespace declaration.

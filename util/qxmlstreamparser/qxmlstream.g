@@ -1342,10 +1342,12 @@ attribute ::= qname space_opt EQ space_opt attribute_value;
                 NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
                 namespaceDeclaration.prefix.clear();
 
-                if(symString(5) == QLatin1String("http://www.w3.org/2000/xmlns/"))
+                const QStringRef ns(symString(5));
+                if(ns == QLatin1String("http://www.w3.org/2000/xmlns/") ||
+                   ns == QLatin1String("http://www.w3.org/XML/1998/namespace"))
                     raiseWellFormedError(QXmlStream::tr("Illegal namespace declaration."));
                 else
-                    namespaceDeclaration.namespaceUri = addToStringStorage(symString(5));
+                    namespaceDeclaration.namespaceUri = addToStringStorage(ns);
             } else {
                 Attribute &attribute = attributeStack.push();
                 attribute.key = sym(1);
@@ -1393,6 +1395,8 @@ attribute ::= qname space_opt EQ space_opt attribute_value;
                     attributeStack.pop();
                     if ((namespacePrefix == QLatin1String("xml")
                          ^ namespaceUri == QLatin1String("http://www.w3.org/XML/1998/namespace"))
+                        || namespaceUri == QLatin1String("http://www.w3.org/2000/xmlns/")
+                        || namespaceUri.isEmpty()
                         || namespacePrefix == QLatin1String("xmlns"))
                         raiseWellFormedError(QXmlStream::tr("Illegal namespace declaration."));
 
