@@ -194,11 +194,11 @@ bool QProxyFontEngine::stringToCMap(const QChar *str, int len, QGlyphLayout *gly
     }
 
     QVarLengthArray<uint> glyphIndicies(*nglyphs);
-    if (!engine->convertStringToGlyphIndices(str, len, glyphIndicies.data(), nglyphs, QAbstractFontEngine::ShaperFlags(int(flags))))
+    if (!engine->convertStringToGlyphIndices(str, len, glyphIndicies.data(), nglyphs, QAbstractFontEngine::TextShapingFlags(int(flags))))
         return false;
 
     QVarLengthArray<QAbstractFontEngine::Fixed> advances(*nglyphs);
-    engine->getGlyphAdvances(glyphIndicies.data(), *nglyphs, advances.data(), QAbstractFontEngine::ShaperFlags(int(flags)));
+    engine->getGlyphAdvances(glyphIndicies.data(), *nglyphs, advances.data(), QAbstractFontEngine::TextShapingFlags(int(flags)));
 
     for (int i = 0; i < *nglyphs; ++i) {
         glyphs[i].glyph = glyphIndicies[i];

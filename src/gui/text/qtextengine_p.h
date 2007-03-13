@@ -480,10 +480,9 @@ public:
         WidthOnly = 0x07
     };
 
-    // keep in sync with QAbstractFontEngine::ShaperFlag!!
+    // keep in sync with QAbstractFontEngine::TextShapingFlag!!
     enum ShaperFlag {
         RightToLeft = 0x0001,
-        Mirrored = 0x0001,
         DesignMetrics = 0x0002,
         GlyphIndicesOnly = 0x0004
     };
