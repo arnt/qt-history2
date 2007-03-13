@@ -108,7 +108,7 @@ void tst_Q3UrlOperator::initTestCase()
 {
     // prepare: make sure that there is a unique directory for FTP upload
     // testing (to avoid parallel executed tests interfere with each other)
-    ftpQtestUpload = "ftp://trueblue.troll.no/";
+    ftpQtestUpload = "ftp://fluke.troll.no/";
     QString dir = QString( "qtest/upload/%1" ).arg( (ulong)this );
 
     Q3UrlOperator opMkdir( ftpQtestUpload );
@@ -166,8 +166,8 @@ void tst_Q3UrlOperator::cleanup()
 
 void tst_Q3UrlOperator::copy_data()
 {
-    const QString ftpQtest( "ftp://trueblue.troll.no/qtest" );
-    const QString httpQtest( "http://trueblue.troll.no/qtest" );
+    const QString ftpQtest( "ftp://fluke.troll.no/qtest" );
+    const QString httpQtest( "http://fluke.troll.no/qtest" );
 
     // argument for the constructor
     QTest::addColumn<QString>("url");
@@ -287,8 +287,8 @@ void tst_Q3UrlOperator::slotFinished_copy( Q3NetworkOperation *op )
 
 void tst_Q3UrlOperator::put_data()
 {
-    const QString httpQtest( "http://trueblue.troll.no/qtest/cgi-bin" );
-    const QString httpQtestGet( "http://trueblue.troll.no/qtest/cgi-bin/retrieve_testfile.cgi" );
+    const QString httpQtest( "http://fluke.troll.no/qtest/cgi-bin" );
+    const QString httpQtestGet( "http://fluke.troll.no/qtest/cgi-bin/retrieve_testfile.cgi" );
 
     QByteArray putData_1( 5 );
     putData_1[0] = 'a';
