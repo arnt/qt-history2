@@ -1543,6 +1543,7 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &reg)
         break;
 #endif
     default:
+        qCritical("QScreen::blit(): Screen depth %d not supported", d);
         break;
     }
     if (!func)
@@ -1758,6 +1759,7 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
         func = fill_8;
 #endif
     default:
+        qCritical("QScreen::solidFill(): Screen depth %d not supported", d);
         break;
     }
     if (!func)
