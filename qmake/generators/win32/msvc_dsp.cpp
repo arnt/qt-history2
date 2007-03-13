@@ -291,8 +291,12 @@ DspMakefileGenerator::init()
     project->values("MSVCDSP_INCPATH").append("/I" + escapeFilePath(specdir()));
 
     QString dest;
+    QString preLinkStep;
     QString postLinkStep;
     QString copyDllStep;
+
+    if(!project->values("QMAKE_PRE_LINK").isEmpty())
+        preLinkStep += var("QMAKE_PRE_LINK");
 
     if(!project->values("QMAKE_POST_LINK").isEmpty())
         postLinkStep += var("QMAKE_POST_LINK");
@@ -322,6 +326,15 @@ DspMakefileGenerator::init()
         for(QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir) {
             copyDllStep += "copy \"$(TargetPath)\" " + escapeFilePath(Option::fixPathToTargetOS(*dlldir)) + "\t";
         }
+    }
+
+    if(!preLinkStep.isEmpty()) {
+        project->values("MSVCDSP_PRE_LINK").append(
+            "# Begin Special Build Tool\n"
+            "SOURCE=$(InputPath)\n"
+            "PreLink_Desc=Post Build Step\n"
+            "PreLink_Cmds=" + preLinkStep + "\n"
+            "# End Special Build Tool\n");
     }
 
     if(!postLinkStep.isEmpty() || !copyDllStep.isEmpty()) {
@@ -964,6 +977,9 @@ bool DspMakefileGenerator::writeDspConfig(QTextStream &t, DspMakefileGenerator *
         t << "LINK32=" << config->var("QMAKE_LINK") << endl;
         t << "# ADD LINK32 " << config->var("MSVCDSP_LFLAGS") << " " << config->var("MSVCDSP_LIBS") << " " << config->var("MSVCDSP_TARGET") << " " << config->var("PRECOMPILED_OBJECT") << endl;
     }
+
+    if (!config->project->values("MSVCDSP_PRE_LINK").isEmpty())
+        t << config->project->values("MSVCDSP_PRE_LINK").first();
 
     if (!config->project->values("MSVCDSP_POST_LINK").isEmpty())
         t << config->project->values("MSVCDSP_POST_LINK").first();

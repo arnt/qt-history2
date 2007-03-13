@@ -1073,6 +1073,12 @@ void VcprojGenerator::initPostBuildEventTools()
 
 void VcprojGenerator::initPreLinkEventTools()
 {
+    VCConfiguration &conf = vcProject.Configuration;
+    if(!project->values("QMAKE_PRE_LINK").isEmpty()) {
+        QString cmdline = fixCommandLine(conf.CompilerVersion, var("QMAKE_PRE_LINK"));
+        conf.preLink.Description = cmdline;
+        conf.preLink.CommandLine = cmdline;
+    }
 }
 
 void VcprojGenerator::initRootFiles()
