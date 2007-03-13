@@ -4861,6 +4861,37 @@ static uint detectCPUFeatures() {
 	pop ebx
 	pop eax
     }
+
+    _asm {
+	push eax
+	push ebx
+	push ecx
+	push edx
+	pushfd
+	pop eax
+	mov ebx, eax
+	xor eax, 00200000h
+	push eax
+	popfd
+	pushfd
+        pop eax
+	mov edx, 0
+	xor eax, ebx
+	jz skip2
+
+	mov eax, 80000000h
+	cpuid
+        cmp eax, 80000000h
+        jbe skip2
+        mov eax, 80000001h
+        cpuid
+	mov extended_result, edx
+    skip2:
+        pop edx
+	pop ecx
+	pop ebx
+	pop eax
+    }
 #endif
 
     static const bool doMMX = !qgetenv("QT_NO_MMX").toInt();
