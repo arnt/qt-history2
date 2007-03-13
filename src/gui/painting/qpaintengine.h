@@ -226,6 +226,7 @@ private:
 #ifdef Q_WS_QWS
     friend class QtopiaPrintEngine;
     friend class QtopiaPrintEnginePrivate;
+    friend class QProxyFontEngine;
 #endif
     friend class QPainter;
     friend class QPainterPrivate;

@@ -445,6 +445,11 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
         QFontDef def = request;
         def.pixelSize = pixelSize;
 
+        static bool dontShareFonts = !qgetenv("QWS_NO_SHARE_FONTS").isEmpty();
+        bool shareFonts = !dontShareFonts;
+
+        QFontEngine *engine = 0;
+
         if (file.isEmpty()) {
             QCustomFontEngineFactoryInterface *factory = qobject_cast<QCustomFontEngineFactoryInterface *>(loader()->instance(foundry->name));
             if (factory) {
@@ -455,13 +460,17 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
                 info.setWeight(request.weight);
                 // #### antialiased
 
-                QCustomFontEngine *engine = factory->create(info);
-                if (engine) {
-                    QProxyFontEngine *proxy = new QProxyFontEngine(engine, def);
-                    QFontEngineQPF *fe = new QFontEngineQPF(def, -1, proxy);
-                    if (fe->isValid())
-                        return fe;
-                    delete fe;
+                QCustomFontEngine *customEngine = factory->create(info);
+                if (customEngine) {
+                    engine = new QProxyFontEngine(customEngine, def);
+
+                    if (shareFonts) {
+                        QVariant hint = customEngine->fontProperty(QCustomFontEngine::GlyphShareHint);
+                        if (hint.isValid())
+                            shareFonts = hint.toBool();
+                        else
+                            shareFonts = (pixelSize < 64);
+                    }
                 }
             }
         } else if (QFile::exists(file) || privateDb()->isApplicationFont(file)) {
@@ -474,18 +483,25 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 #ifdef QT_NO_QPF2
                 return fte;
 #else
-                static bool dontShareFonts = !qgetenv("QWS_NO_SHARE_FONTS").isEmpty();
+                engine = fte;
                 // try to distinguish between bdf and ttf fonts we can pre-render
                 // and don't try to share outline fonts
-                if (fte->drawAsOutline()
-                        || fte->getSfntTable(MAKE_TAG('h', 'e', 'a', 'd')).isEmpty()
-                        || dontShareFonts)
-                    return fte;
-                QFontEngineQPF *fe = new QFontEngineQPF(def, -1, fte);
+                shareFonts = shareFonts
+                             && !fte->drawAsOutline()
+                             && !fte->getSfntTable(MAKE_TAG('h', 'e', 'a', 'd')).isEmpty();
+#endif
+            } else {
+                delete fte;
+            }
+        }
+        if (engine) {
+            if (shareFonts) {
+                QFontEngineQPF *fe = new QFontEngineQPF(def, -1, engine);
                 if (fe->isValid())
                     return fe;
-                delete fe;
-#endif
+                engine = 0;
+            } else {
+                return engine;
             }
         }
     } else

@@ -50,11 +50,13 @@ public:
     virtual const char *name() const { return "proxy engine"; }
 
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
-    virtual void draw(QPaintEngine *, qreal, qreal, const QTextItemInt &)  {}
+    virtual void draw(QPaintEngine *, qreal, qreal, const QTextItemInt &);
 #endif
 
     inline QCustomFontEngine::FontEngineFeatures supportedFeatures() const
     { return engine->supportedFeatures(); }
+
+    bool drawAsOutline() const;
 
 private:
     QCustomFontEngine *engine;

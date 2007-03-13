@@ -135,7 +135,11 @@ public:
         MaxCharWidth,
         MinLeftBearing,
         MinRightBearing,
-        TotalGlyphCount
+        TotalGlyphCount,
+
+        // hints
+        GlyphShareHint,
+        OutlineRenderHint
     };
 
     enum Extension {

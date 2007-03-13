@@ -15,6 +15,7 @@
 #include "qcustomfontengine_p.h"
 
 #include <private/qtextengine_p.h>
+#include <private/qpaintengine_raster_p.h>
 
 QCustomFontInfo::QCustomFontInfo()
 {
@@ -264,5 +265,49 @@ bool QProxyFontEngine::canRender(const QChar *string, int len)
             return false;
 
     return true;
+}
+
+void QProxyFontEngine::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemInt &si)
+{
+    QPaintEngineState *pState = p->state;
+    QRasterPaintEngine *paintEngine = static_cast<QRasterPaintEngine*>(p);
+
+    QTransform matrix = pState->transform();
+    matrix.translate(_x, _y);
+    QFixed x = QFixed::fromReal(matrix.dx());
+    QFixed y = QFixed::fromReal(matrix.dy());
+
+    QVarLengthArray<QFixedPoint> positions;
+    QVarLengthArray<glyph_t> glyphs;
+    getGlyphPositions(si.glyphs, si.num_glyphs, matrix, si.flags, glyphs, positions);
+    if (glyphs.size() == 0)
+        return;
+
+    for(int i = 0; i < glyphs.size(); i++) {
+        QImage glyph = engine->renderGlyph(glyphs[i]);
+        if (glyph.isNull())
+            continue;
+
+        if (glyph.format() != QImage::Format_Indexed8
+            && glyph.format() != QImage::Format_Mono)
+            continue;
+
+        QCustomFontEngine::GlyphMetrics metrics = engine->getGlyphMetrics(glyphs[i]);
+
+
+        paintEngine->alphaPenBlt(glyph.bits(), glyph.bytesPerLine(), glyph.format() == QImage::Format_Mono,
+                                 qRound(positions[i].x + QFixed::fromFixed(metrics.x)),
+                                 qRound(positions[i].y + QFixed::fromFixed(metrics.y)),
+                                 glyph.width(), glyph.height());
+    }
+}
+
+bool QProxyFontEngine::drawAsOutline() const
+{
+    if (!(engine->supportedFeatures() & QCustomFontEngine::GlyphOutlines))
+        return false;
+
+    QVariant outlineHint = engine->fontProperty(QCustomFontEngine::OutlineRenderHint);
+    return !outlineHint.isValid() || outlineHint.toBool();
 }
 

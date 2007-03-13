@@ -58,6 +58,7 @@
 #  if !defined(QT_NO_QWS_QPF2)
 #    include <private/qfontengine_qpf_p.h>
 #  endif
+#  include <private/qcustomfontengine_p.h>
 #endif
 
 #if defined(Q_WS_WIN64)
@@ -2583,16 +2584,19 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
 #else
 
+    QFontEngine *fontEngine = ti.fontEngine;
 #if defined(Q_WS_QWS)
     if (d->txop < QTransform::TxScale
-        && (ti.fontEngine->type() == QFontEngine::QPF1 || ti.fontEngine->type() == QFontEngine::QPF2)) {
-        ti.fontEngine->draw(this, qRound(p.x()), qRound(p.y()), ti);
+        && (fontEngine->type() == QFontEngine::QPF1 || fontEngine->type() == QFontEngine::QPF2
+            || (fontEngine->type() == QFontEngine::Proxy
+                && !(static_cast<QProxyFontEngine *>(fontEngine)->drawAsOutline()))
+           )) {
+        fontEngine->draw(this, qRound(p.x()), qRound(p.y()), ti);
         return;
     }
 #endif // Q_WS_QWS
 
 #if (defined(Q_WS_X11) || defined(Q_WS_QWS)) && !defined(QT_NO_FREETYPE)
-    QFontEngine *fontEngine = ti.fontEngine;
 
 #if defined(Q_WS_QWS) && !defined(QT_NO_QWS_QPF2)
     if (fontEngine->type() == QFontEngine::QPF2) {
