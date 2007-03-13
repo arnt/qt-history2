@@ -1173,6 +1173,11 @@ void QMenuBarPrivate::handleReparent()
 
     oldParent = newParent;
     oldWindow = newWindow;
+
+#ifdef Q_WS_MAC
+    macDestroyMenuBar();
+    macCreateMenuBar(newParent);
+#endif
 }
 
 #ifdef QT3_SUPPORT
