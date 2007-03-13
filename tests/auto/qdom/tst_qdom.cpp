@@ -75,6 +75,7 @@ private slots:
     void initTestCase();
     void indentComments() const;
     void checkLiveness() const;
+    void reportDuplicateAttributes() const;
 
 private:
     static int hasAttributesHelper( const QDomNode& node );
@@ -1518,6 +1519,15 @@ void tst_QDom::checkLiveness() const
     QCOMPARE(children.count(), 2);
     QCOMPARE(children.at(0), static_cast<const QDomNode &>(t1));
     QCOMPARE(children.at(1), static_cast<const QDomNode &>(e2));
+}
+
+void tst_QDom::reportDuplicateAttributes() const
+{
+    QDomDocument dd;
+    bool isSuccess = dd.setContent(QLatin1String("<test x=\"1\" x=\"2\"/>"));
+
+    QEXPECT_FAIL("", "The parser doesn't flag duplicate attributes. Fixing this would change behavior.", Continue);
+    QVERIFY2(!isSuccess, "Duplicate attributes are well-formedness errors, and should be reported as such.");
 }
 
 QTEST_MAIN(tst_QDom)
