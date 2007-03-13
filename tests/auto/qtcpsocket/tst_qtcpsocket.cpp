@@ -32,6 +32,9 @@
 #include <QStringList>
 #include <QTcpServer>
 #include <QTcpSocket>
+#ifndef QT_NO_OPENSSL
+#include <QSslSocket>
+#endif
 #include <QTextStream>
 #include <QThread>
 #include <QTime>
@@ -51,8 +54,8 @@
 #include <unistd.h>
 #endif
 
-Q_DECLARE_METATYPE(QAbstractSocket::SocketError)   
-Q_DECLARE_METATYPE(QAbstractSocket::SocketState)   
+Q_DECLARE_METATYPE(QAbstractSocket::SocketError)
+Q_DECLARE_METATYPE(QAbstractSocket::SocketState)
 
 //TESTED_FILES=network/qtcpsocket.cpp network/qtcpsocket.h network/qabstractsocket.cpp network/qabstractsocket.h network/qabstractsocket_p.h
 
@@ -153,6 +156,7 @@ protected slots:
     void remoteCloseErrorSlot();
 
 private:
+    QTcpSocket *newSocket() const;
     QTcpSocket *nonBlockingIMAP_socket;
     QStringList nonBlockingIMAP_data;
     qint64 nonBlockingIMAP_totalWritten;
@@ -185,11 +189,21 @@ void tst_QTcpSocket::initTestCase_data()
 {
     QTest::addColumn<bool>("setProxy");
     QTest::addColumn<int>("proxyType");
+#ifndef QT_NO_OPENSSL
+    QTest::addColumn<bool>("ssl");
+#endif
 
-    QTest::newRow("WithoutProxy") << false << 0;
+    QTest::newRow("WithoutProxy") << false << 0 << false;
 #ifdef TEST_QNETWORK_PROXY
-    QTest::newRow("WithSocks5Proxy") << true << int(QNetworkProxy::Socks5Proxy);
-    QTest::newRow("WithHttpProxy") << true << int(QNetworkProxy::HttpProxy);
+    QTest::newRow("WithSocks5Proxy") << true << int(QNetworkProxy::Socks5Proxy) << false;
+    QTest::newRow("WithHttpProxy") << true << int(QNetworkProxy::HttpProxy) << false;
+#endif
+#ifndef QT_NO_OPENSSL
+    QTest::newRow("WithoutProxy SSL") << false << 0 << true;
+#ifdef TEST_QNETWORK_PROXY
+    QTest::newRow("WithSocks5Proxy SSL") << true << int(QNetworkProxy::Socks5Proxy) << true;
+    QTest::newRow("WithHttpProxy SSL") << true << int(QNetworkProxy::HttpProxy) << true;
+#endif
 #endif
 }
 
@@ -210,6 +224,16 @@ void tst_QTcpSocket::init()
     }
 }
 
+QTcpSocket *tst_QTcpSocket::newSocket() const
+{
+    QFETCH_GLOBAL(bool, ssl);
+#ifndef QT_NO_OPENSSL
+    return ssl ? new QSslSocket : new QTcpSocket;
+#else
+    return new QTcpSocket;
+#endif
+}
+
 void tst_QTcpSocket::cleanup()
 {
     QFETCH_GLOBAL(bool, setProxy);
@@ -224,40 +248,43 @@ void tst_QTcpSocket::cleanup()
 
 void tst_QTcpSocket::constructing()
 {
-    QTcpSocket socket;
+    QTcpSocket *socket = newSocket();
 
     // Check the initial state of the QTcpSocket.
-    QCOMPARE(socket.state(), QTcpSocket::UnconnectedState);
-    QVERIFY(socket.isSequential());
-    QVERIFY(!socket.isOpen());
-    QVERIFY(!socket.isValid());
-    QCOMPARE(socket.socketType(), QTcpSocket::TcpSocket);
+    QCOMPARE(socket->state(), QTcpSocket::UnconnectedState);
+    QVERIFY(socket->isSequential());
+    QVERIFY(!socket->isOpen());
+    QVERIFY(!socket->isValid());
+    QCOMPARE(socket->socketType(), QTcpSocket::TcpSocket);
 
-    QCOMPARE((int) socket.bytesAvailable(), 0);
-    QCOMPARE(socket.canReadLine(), false);
+    QCOMPARE((int) socket->bytesAvailable(), 0);
+    QCOMPARE(socket->canReadLine(), false);
     QTest::ignoreMessage(QtWarningMsg, "QIODevice::getChar: Closed device");
-    QCOMPARE(socket.readLine(), QByteArray());
-    QCOMPARE(socket.socketDescriptor(), -1);
-    QCOMPARE((int) socket.localPort(), 0);
-    QVERIFY(socket.localAddress() == QHostAddress());
-    QCOMPARE((int) socket.peerPort(), 0);
-    QVERIFY(socket.peerAddress() == QHostAddress());
-    QCOMPARE(socket.error(), QTcpSocket::UnknownSocketError);
-    QCOMPARE(socket.errorString(), QString("Unknown error"));
+    QCOMPARE(socket->readLine(), QByteArray());
+    QCOMPARE(socket->socketDescriptor(), -1);
+    QCOMPARE((int) socket->localPort(), 0);
+    QVERIFY(socket->localAddress() == QHostAddress());
+    QCOMPARE((int) socket->peerPort(), 0);
+    QVERIFY(socket->peerAddress() == QHostAddress());
+    QCOMPARE(socket->error(), QTcpSocket::UnknownSocketError);
+    QCOMPARE(socket->errorString(), QString("Unknown error"));
 
     // Check the state of the socket layer?
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 
 void tst_QTcpSocket::setInvalidSocketDescriptor()
 {
-    QTcpSocket socket;
-    QCOMPARE(socket.socketDescriptor(), -1);
-    QVERIFY(!socket.setSocketDescriptor(-5, QTcpSocket::UnconnectedState));
-    QCOMPARE(socket.socketDescriptor(), -1);
+    QTcpSocket *socket = newSocket();
+    QCOMPARE(socket->socketDescriptor(), -1);
+    QVERIFY(!socket->setSocketDescriptor(-5, QTcpSocket::UnconnectedState));
+    QCOMPARE(socket->socketDescriptor(), -1);
 
-    QCOMPARE(socket.error(), QTcpSocket::UnsupportedSocketOperationError);
+    QCOMPARE(socket->error(), QTcpSocket::UnsupportedSocketOperationError);
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
@@ -266,9 +293,9 @@ void tst_QTcpSocket::setSocketDescriptor()
 {
 #ifdef Q_OS_WIN
     // need the dummy to ensure winsock is started
-    QTcpSocket dummy;
-    dummy.connectToHost("fluke.troll.no", 143);
-    QVERIFY(dummy.waitForConnected());
+    QTcpSocket *dummy = newSocket();
+    dummy->connectToHost("fluke.troll.no", 143);
+    QVERIFY(dummy->waitForConnected());
 
     SOCKET sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock == INVALID_SOCKET) {
@@ -279,17 +306,21 @@ void tst_QTcpSocket::setSocketDescriptor()
 #endif
 
     QVERIFY(sock != INVALID_SOCKET);
-    QTcpSocket socket;
-    QVERIFY(socket.setSocketDescriptor(sock, QTcpSocket::UnconnectedState));
-    QCOMPARE(socket.socketDescriptor(), (int)sock);
+    QTcpSocket *socket = newSocket();
+    QVERIFY(socket->setSocketDescriptor(sock, QTcpSocket::UnconnectedState));
+    QCOMPARE(socket->socketDescriptor(), (int)sock);
 
-    socket.connectToHost("fluke.troll.no", 143);
-    QCOMPARE(socket.state(), QTcpSocket::HostLookupState);
-    QCOMPARE(socket.socketDescriptor(), (int)sock);
-    QVERIFY(socket.waitForConnected(10000));
+    socket->connectToHost("fluke.troll.no", 143);
+    QCOMPARE(socket->state(), QTcpSocket::HostLookupState);
+    QCOMPARE(socket->socketDescriptor(), (int)sock);
+    QVERIFY(socket->waitForConnected(10000));
 #ifdef TEST_QNETWORK_PROXY
     if (QNetworkProxy::applicationProxy().type() == QNetworkProxy::NoProxy)
-        QCOMPARE(socket.socketDescriptor(), (int)sock);
+        QCOMPARE(socket->socketDescriptor(), (int)sock);
+#endif
+    delete socket;
+#ifdef Q_OS_WIN
+    delete dummy;
 #endif
 }
 
@@ -297,123 +328,129 @@ void tst_QTcpSocket::setSocketDescriptor()
 
 void tst_QTcpSocket::blockingIMAP()
 {
-    QTcpSocket socket;
+    QTcpSocket *socket = newSocket();
 
     // Connect
-    socket.connectToHost("fluke.troll.no", 143);
-    QVERIFY(socket.waitForConnected(10000));
-    QCOMPARE(socket.state(), QTcpSocket::ConnectedState);
-    QVERIFY(socket.isValid());
+    socket->connectToHost("fluke.troll.no", 143);
+    QVERIFY(socket->waitForConnected(10000));
+    QCOMPARE(socket->state(), QTcpSocket::ConnectedState);
+    QVERIFY(socket->isValid());
 
     // Read greeting
-    QVERIFY(socket.waitForReadyRead(5000));
-    QString s = socket.readLine();
+    QVERIFY(socket->waitForReadyRead(5000));
+    QString s = socket->readLine();
     QCOMPARE(s.toLatin1().constData(), "* OK fluke Cyrus IMAP4 v2.2.12 server ready\r\n");
 
     // Write NOOP
-    QCOMPARE((int) socket.write("1 NOOP\r\n", 8), 8);
-    QCOMPARE((int) socket.write("2 NOOP\r\n", 8), 8);
+    QCOMPARE((int) socket->write("1 NOOP\r\n", 8), 8);
+    QCOMPARE((int) socket->write("2 NOOP\r\n", 8), 8);
 
-    if (!socket.canReadLine())
-        QVERIFY(socket.waitForReadyRead(5000));
+    if (!socket->canReadLine())
+        QVERIFY(socket->waitForReadyRead(5000));
 
     // Read response
-    s = socket.readLine();
+    s = socket->readLine();
     QCOMPARE(s.toLatin1().constData(), "1 OK Completed\r\n");
 
     // Write a third NOOP to verify that write doesn't clear the read buffer
-    QCOMPARE((int) socket.write("3 NOOP\r\n", 8), 8);
+    QCOMPARE((int) socket->write("3 NOOP\r\n", 8), 8);
 
     // Read second response
-    if (!socket.canReadLine())
-        QVERIFY(socket.waitForReadyRead(5000));
-    s = socket.readLine();
+    if (!socket->canReadLine())
+        QVERIFY(socket->waitForReadyRead(5000));
+    s = socket->readLine();
     QCOMPARE(s.toLatin1().constData(), "2 OK Completed\r\n");
 
     // Read third response
-    if (!socket.canReadLine())
-        QVERIFY(socket.waitForReadyRead(5000));
-    s = socket.readLine();
+    if (!socket->canReadLine())
+        QVERIFY(socket->waitForReadyRead(5000));
+    s = socket->readLine();
     QCOMPARE(s.toLatin1().constData(), "3 OK Completed\r\n");
 
 
     // Write LOGOUT
-    QCOMPARE((int) socket.write("4 LOGOUT\r\n", 10), 10);
+    QCOMPARE((int) socket->write("4 LOGOUT\r\n", 10), 10);
 
-    if (!socket.canReadLine())
-        QVERIFY(socket.waitForReadyRead(5000));
+    if (!socket->canReadLine())
+        QVERIFY(socket->waitForReadyRead(5000));
 
     // Read two lines of respose
-    s = socket.readLine();
+    s = socket->readLine();
     QCOMPARE(s.toLatin1().constData(), "* BYE LOGOUT received\r\n");
 
-    if (!socket.canReadLine())
-        QVERIFY(socket.waitForReadyRead(5000));
+    if (!socket->canReadLine())
+        QVERIFY(socket->waitForReadyRead(5000));
 
-    s = socket.readLine();
+    s = socket->readLine();
     QCOMPARE(s.toLatin1().constData(), "4 OK Completed\r\n");
 
     // Close the socket
-    socket.close();
+    socket->close();
 
     // Check that it's closed
-    QCOMPARE(socket.state(), QTcpSocket::UnconnectedState);
+    QCOMPARE(socket->state(), QTcpSocket::UnconnectedState);
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 
 void tst_QTcpSocket::hostNotFound()
 {
-    QTcpSocket socket;
+    QTcpSocket *socket = newSocket();
 
-    socket.connectToHost("nosuchserver.troll.no", 80);
-    QVERIFY(!socket.waitForConnected());
-    QCOMPARE(socket.error(), QTcpSocket::HostNotFoundError);
-    QCOMPARE(socket.state(), QTcpSocket::UnconnectedState);
+    socket->connectToHost("nosuchserver.troll.no", 80);
+    QVERIFY(!socket->waitForConnected());
+    QCOMPARE(socket->error(), QTcpSocket::HostNotFoundError);
+    QCOMPARE(socket->state(), QTcpSocket::UnconnectedState);
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 
 void tst_QTcpSocket::timeoutConnect()
 {
-    QTcpSocket socket;
+    QTcpSocket *socket = newSocket();
 
     // Outgoing port 53 is firewalled in the Oslo office.
-    socket.connectToHost("cisco.com", 53);
-    QVERIFY(!socket.waitForConnected(100));
-    QCOMPARE(socket.error(), QTcpSocket::SocketTimeoutError);
-    QCOMPARE(socket.state(), QTcpSocket::UnconnectedState);
+    socket->connectToHost("cisco.com", 53);
+    QVERIFY(!socket->waitForConnected(100));
+    QCOMPARE(socket->error(), QTcpSocket::SocketTimeoutError);
+    QCOMPARE(socket->state(), QTcpSocket::UnconnectedState);
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 
 void tst_QTcpSocket::nonBlockingIMAP()
 {
-    QTcpSocket socket;
-    connect(&socket, SIGNAL(hostFound()), SLOT(nonBlockingIMAP_hostFound()));
-    connect(&socket, SIGNAL(connected()), SLOT(nonBlockingIMAP_connected()));
-    connect(&socket, SIGNAL(disconnected()), SLOT(nonBlockingIMAP_closed()));
-    connect(&socket, SIGNAL(bytesWritten(qint64)), SLOT(nonBlockingIMAP_bytesWritten(qint64)));
-    connect(&socket, SIGNAL(readyRead()), SLOT(nonBlockingIMAP_readyRead()));
-    nonBlockingIMAP_socket = &socket;
+    QTcpSocket *socket = newSocket();
+    connect(socket, SIGNAL(hostFound()), SLOT(nonBlockingIMAP_hostFound()));
+    connect(socket, SIGNAL(connected()), SLOT(nonBlockingIMAP_connected()));
+    connect(socket, SIGNAL(disconnected()), SLOT(nonBlockingIMAP_closed()));
+    connect(socket, SIGNAL(bytesWritten(qint64)), SLOT(nonBlockingIMAP_bytesWritten(qint64)));
+    connect(socket, SIGNAL(readyRead()), SLOT(nonBlockingIMAP_readyRead()));
+    nonBlockingIMAP_socket = socket;
 
     // Connect
-    socket.connectToHost("fluke.troll.no", 143);
-    QCOMPARE(socket.state(), QTcpSocket::HostLookupState);
+    socket->connectToHost("fluke.troll.no", 143);
+    QCOMPARE(socket->state(), QTcpSocket::HostLookupState);
 
     enterLoop(30);
     if (timeout()) {
         QFAIL("Timed out");
     }
 
-    if (socket.state() == QTcpSocket::ConnectingState) {
+    if (socket->state() == QTcpSocket::ConnectingState) {
         enterLoop(30);
         if (timeout()) {
             QFAIL("Timed out");
         }
     }
 
-    QCOMPARE(socket.state(), QTcpSocket::ConnectedState);
+    QCOMPARE(socket->state(), QTcpSocket::ConnectedState);
 
     enterLoop(30);
     if (timeout()) {
@@ -429,7 +466,7 @@ void tst_QTcpSocket::nonBlockingIMAP()
     nonBlockingIMAP_totalWritten = 0;
 
     // Write NOOP
-    QCOMPARE((int) socket.write("1 NOOP\r\n", 8), 8);
+    QCOMPARE((int) socket->write("1 NOOP\r\n", 8), 8);
 
 
     enterLoop(30);
@@ -455,7 +492,7 @@ void tst_QTcpSocket::nonBlockingIMAP()
     nonBlockingIMAP_totalWritten = 0;
 
     // Write LOGOUT
-    QCOMPARE((int) socket.write("2 LOGOUT\r\n", 10), 10);
+    QCOMPARE((int) socket->write("2 LOGOUT\r\n", 10), 10);
 
     enterLoop(30);
     if (timeout()) {
@@ -476,10 +513,12 @@ void tst_QTcpSocket::nonBlockingIMAP()
     nonBlockingIMAP_data.clear();
 
     // Close the socket
-    socket.close();
+    socket->close();
 
     // Check that it's closed
-    QCOMPARE(socket.state(), QTcpSocket::UnconnectedState);
+    QCOMPARE(socket->state(), QTcpSocket::UnconnectedState);
+
+    delete socket;
 }
 
 void tst_QTcpSocket::nonBlockingIMAP_hostFound()
@@ -514,86 +553,92 @@ void tst_QTcpSocket::nonBlockingIMAP_closed()
 
 void tst_QTcpSocket::delayedClose()
 {
-    QTcpSocket socket;
-    connect(&socket, SIGNAL(connected()), SLOT(nonBlockingIMAP_connected()));
-    connect(&socket, SIGNAL(disconnected()), SLOT(exitLoopSlot()));
+    QTcpSocket *socket = newSocket();
+    connect(socket, SIGNAL(connected()), SLOT(nonBlockingIMAP_connected()));
+    connect(socket, SIGNAL(disconnected()), SLOT(exitLoopSlot()));
 
-    socket.connectToHost("fluke.troll.no", 143);
+    socket->connectToHost("fluke.troll.no", 143);
 
     enterLoop(30);
     if (timeout())
         QFAIL("Timed out");
 
-    QCOMPARE(socket.state(), QTcpSocket::ConnectedState);
+    QCOMPARE(socket->state(), QTcpSocket::ConnectedState);
 
-    QCOMPARE((int) socket.write("1 LOGOUT\r\n", 10), 10);
+    QCOMPARE((int) socket->write("1 LOGOUT\r\n", 10), 10);
 
     // Add a huge bulk of data to be written after the logout
     // command. The server will shut down after receiving the LOGOUT,
     // so this data will not be read. But our close call should
     // schedule a delayed close because all the data can not be
     // written in one go.
-    QCOMPARE((int) socket.write(QByteArray(100000, '\n'), 100000), 100000);
+    QCOMPARE((int) socket->write(QByteArray(100000, '\n'), 100000), 100000);
 
-    socket.close();
+    socket->close();
 
-    QCOMPARE((int) socket.state(), (int) QTcpSocket::ClosingState);
+    QCOMPARE((int) socket->state(), (int) QTcpSocket::ClosingState);
 
     enterLoop(10);
     if (timeout())
         QFAIL("Timed out");
 
-    QCOMPARE(socket.state(), QTcpSocket::UnconnectedState);
+    QCOMPARE(socket->state(), QTcpSocket::UnconnectedState);
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 
 void tst_QTcpSocket::partialRead()
 {
-    QTcpSocket socket;
-    socket.connectToHost("fluke.troll.no", 143);
-    QVERIFY(socket.waitForConnected(10000));
-    QVERIFY(socket.state() == QTcpSocket::ConnectedState);
+    QTcpSocket *socket = newSocket();
+    socket->connectToHost("fluke.troll.no", 143);
+    QVERIFY(socket->waitForConnected(10000));
+    QVERIFY(socket->state() == QTcpSocket::ConnectedState);
     char buf[512];
 
     QByteArray greeting = "* OK fluke Cyrus IMAP4 v2.2.12 server ready";
 
     for (int i = 0; i < 10; i += 2) {
-        while (socket.bytesAvailable() < 2)
-            QVERIFY(socket.waitForReadyRead(5000));
-        QVERIFY(socket.read(buf, 2) == 2);
+        while (socket->bytesAvailable() < 2)
+            QVERIFY(socket->waitForReadyRead(5000));
+        QVERIFY(socket->read(buf, 2) == 2);
         buf[2] = '\0';
         QCOMPARE((char *)buf, greeting.mid(i, 2).data());
     }
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 
 void tst_QTcpSocket::unget()
 {
-    QTcpSocket socket;
-    socket.connectToHost("fluke.troll.no", 143);
-    QVERIFY(socket.waitForConnected(10000));
-    QVERIFY(socket.state() == QTcpSocket::ConnectedState);
+    QTcpSocket *socket = newSocket();
+    socket->connectToHost("fluke.troll.no", 143);
+    QVERIFY(socket->waitForConnected(10000));
+    QVERIFY(socket->state() == QTcpSocket::ConnectedState);
     char buf[512];
 
     QByteArray greeting = "* OK fluke Cyrus IMAP4 v2.2.12 server ready";
 
     for (int i = 0; i < 10; i += 2) {
-        while (socket.bytesAvailable() < 2)
-            QVERIFY(socket.waitForReadyRead(5000));
-        int bA = socket.bytesAvailable();
-        QVERIFY(socket.read(buf, 2) == 2);
+        while (socket->bytesAvailable() < 2)
+            QVERIFY(socket->waitForReadyRead(5000));
+        int bA = socket->bytesAvailable();
+        QVERIFY(socket->read(buf, 2) == 2);
         buf[2] = '\0';
         QCOMPARE((char *)buf, greeting.mid(i, 2).data());
-        QCOMPARE((int)socket.bytesAvailable(), bA - 2);
-        socket.ungetChar(buf[1]);
-        socket.ungetChar(buf[0]);
-        QCOMPARE((int)socket.bytesAvailable(), bA);
-        QVERIFY(socket.read(buf, 2) == 2);
+        QCOMPARE((int)socket->bytesAvailable(), bA - 2);
+        socket->ungetChar(buf[1]);
+        socket->ungetChar(buf[0]);
+        QCOMPARE((int)socket->bytesAvailable(), bA);
+        QVERIFY(socket->read(buf, 2) == 2);
         buf[2] = '\0';
         QCOMPARE((char *)buf, greeting.mid(i, 2).data());
     }
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
@@ -605,47 +650,51 @@ void tst_QTcpSocket::readRegularFile_readyRead()
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::readAllAfterClose()
 {
-    QTcpSocket socket;
-    socket.connectToHost("fluke.troll.no", 143);
-    connect(&socket, SIGNAL(readyRead()), SLOT(readRegularFile_readyRead()));
+    QTcpSocket *socket = newSocket();
+    socket->connectToHost("fluke.troll.no", 143);
+    connect(socket, SIGNAL(readyRead()), SLOT(readRegularFile_readyRead()));
     enterLoop(10);
     if (timeout())
         QFAIL("Network operation timed out");
 
-    socket.close();
-    QByteArray array = socket.readAll();
+    socket->close();
+    QByteArray array = socket->readAll();
     QCOMPARE(array.size(), 0);
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::openCloseOpenClose()
 {
-    QTcpSocket socket;
+    QTcpSocket *socket = newSocket();
 
     for (int i = 0; i < 3; ++i) {
-        QCOMPARE(socket.state(), QTcpSocket::UnconnectedState);
-        QVERIFY(socket.isSequential());
-        QVERIFY(!socket.isOpen());
-        QVERIFY(socket.socketType() == QTcpSocket::TcpSocket);
+        QCOMPARE(socket->state(), QTcpSocket::UnconnectedState);
+        QVERIFY(socket->isSequential());
+        QVERIFY(!socket->isOpen());
+        QVERIFY(socket->socketType() == QTcpSocket::TcpSocket);
 
-        QCOMPARE((int) socket.bytesAvailable(), 0);
-        QCOMPARE(socket.canReadLine(), false);
+        QCOMPARE((int) socket->bytesAvailable(), 0);
+        QCOMPARE(socket->canReadLine(), false);
         QTest::ignoreMessage(QtWarningMsg, "QIODevice::getChar: Closed device");
-        QCOMPARE(socket.readLine(), QByteArray());
-        QCOMPARE(socket.socketDescriptor(), -1);
-        QCOMPARE((int) socket.localPort(), 0);
-        QVERIFY(socket.localAddress() == QHostAddress());
-        QCOMPARE((int) socket.peerPort(), 0);
-        QVERIFY(socket.peerAddress() == QHostAddress());
-        QCOMPARE(socket.error(), QTcpSocket::UnknownSocketError);
-        QCOMPARE(socket.errorString(), QString("Unknown error"));
+        QCOMPARE(socket->readLine(), QByteArray());
+        QCOMPARE(socket->socketDescriptor(), -1);
+        QCOMPARE((int) socket->localPort(), 0);
+        QVERIFY(socket->localAddress() == QHostAddress());
+        QCOMPARE((int) socket->peerPort(), 0);
+        QVERIFY(socket->peerAddress() == QHostAddress());
+        QCOMPARE(socket->error(), QTcpSocket::UnknownSocketError);
+        QCOMPARE(socket->errorString(), QString("Unknown error"));
 
-        QVERIFY(socket.state() == QTcpSocket::UnconnectedState);
+        QVERIFY(socket->state() == QTcpSocket::UnconnectedState);
 
-        socket.connectToHost("fluke.troll.no", 143);
-        QVERIFY(socket.waitForConnected(10000));
-        socket.close();
+        socket->connectToHost("fluke.troll.no", 143);
+        QVERIFY(socket->waitForConnected(10000));
+        socket->close();
     }
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
@@ -653,7 +702,7 @@ void tst_QTcpSocket::downloadBigFile()
 {
     if (tmpSocket)
         delete tmpSocket;
-    tmpSocket = new QTcpSocket;
+    tmpSocket = newSocket();
 
     connect(tmpSocket, SIGNAL(connected()), SLOT(exitLoopSlot()));
     connect(tmpSocket, SIGNAL(readyRead()), SLOT(downloadBigFileSlot()));
@@ -729,15 +778,15 @@ void tst_QTcpSocket::downloadBigFileSlot()
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::readLine()
 {
-    QTcpSocket socket;
-    socket.connectToHost("fluke.troll.no", 143);
-    QVERIFY(socket.waitForConnected(5000));
+    QTcpSocket *socket = newSocket();
+    socket->connectToHost("fluke.troll.no", 143);
+    QVERIFY(socket->waitForConnected(5000));
 
-    while (!socket.canReadLine())
-        QVERIFY(socket.waitForReadyRead(10000));
+    while (!socket->canReadLine())
+        QVERIFY(socket->waitForReadyRead(10000));
 
     char buffer[1024];
-    QCOMPARE(socket.readLine(buffer, sizeof(buffer)), qint64(45));
+    QCOMPARE(socket->readLine(buffer, sizeof(buffer)), qint64(45));
 
     // * OK fluke Cyrus IMAP4 v2.2.12 server ready__
     // 01234567890123456789012345678901234567890123456789
@@ -745,106 +794,118 @@ void tst_QTcpSocket::readLine()
     QCOMPARE((int) buffer[44], (int) '\n');
     QCOMPARE((int) buffer[45], (int) '\0');
 
-    QCOMPARE(socket.write("1 NOOP\r\n"), qint64(8));
+    QCOMPARE(socket->write("1 NOOP\r\n"), qint64(8));
 
-    while (socket.bytesAvailable() < 10)
-        QVERIFY(socket.waitForReadyRead(10000));
+    while (socket->bytesAvailable() < 10)
+        QVERIFY(socket->waitForReadyRead(10000));
 
-    QCOMPARE(socket.readLine(buffer, 11), qint64(10));
+    QCOMPARE(socket->readLine(buffer, 11), qint64(10));
     QCOMPARE((const char *)buffer, "1 OK Compl");
 
-    while (socket.bytesAvailable() < 6)
-        QVERIFY(socket.waitForReadyRead(10000));
+    while (socket->bytesAvailable() < 6)
+        QVERIFY(socket->waitForReadyRead(10000));
 
-    QCOMPARE(socket.readLine(buffer, 11), qint64(6));
+    QCOMPARE(socket->readLine(buffer, 11), qint64(6));
     QCOMPARE((const char *)buffer, "eted\r\n");
 
-    QVERIFY(!socket.waitForReadyRead(100));
-    QCOMPARE(socket.readLine(buffer, sizeof(buffer)), qint64(-1));
-    QVERIFY(socket.error() == QAbstractSocket::SocketTimeoutError
-            || socket.error() == QAbstractSocket::RemoteHostClosedError);
-    QCOMPARE(socket.bytesAvailable(), qint64(0));
+    QVERIFY(!socket->waitForReadyRead(100));
+    QCOMPARE(socket->readLine(buffer, sizeof(buffer)), qint64(-1));
+    QVERIFY(socket->error() == QAbstractSocket::SocketTimeoutError
+            || socket->error() == QAbstractSocket::RemoteHostClosedError);
+    QCOMPARE(socket->bytesAvailable(), qint64(0));
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::readLineString()
 {
-    QTcpSocket socket;
+    QTcpSocket *socket = newSocket();
     QByteArray expected("* OK fluke Cyrus IMAP4 v2.2.12 server ready\r\n");
-    socket.connectToHost("fluke.troll.no", 143);
-    QVERIFY(socket.waitForReadyRead(10000));
+    socket->connectToHost("fluke.troll.no", 143);
+    QVERIFY(socket->waitForReadyRead(10000));
 
-    QByteArray arr = socket.readLine();
+    QByteArray arr = socket->readLine();
     QCOMPARE(arr, expected);
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::readChunks()
 {
-    QTcpSocket socket;
-    socket.connectToHost("fluke.troll.no", 143);
-    QVERIFY(socket.waitForConnected(10000));
-    QVERIFY(socket.waitForReadyRead(5000));
+    QTcpSocket *socket = newSocket();
+    socket->connectToHost("fluke.troll.no", 143);
+    QVERIFY(socket->waitForConnected(10000));
+    QVERIFY(socket->waitForReadyRead(5000));
 
     char buf[4096];
     memset(buf, '@', sizeof(buf));
-    qint64 dataLength = socket.read(buf, sizeof(buf));
+    qint64 dataLength = socket->read(buf, sizeof(buf));
     QVERIFY(dataLength > 0);
 
     QCOMPARE(buf[dataLength - 2], '\r');
     QCOMPARE(buf[dataLength - 1], '\n');
     QCOMPARE(buf[dataLength], '@');
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::waitForBytesWritten()
 {
-    QTcpSocket socket;
-    socket.connectToHost("shusaku.troll.no", 22);
-    QVERIFY(socket.waitForConnected(10000));
+    QTcpSocket *socket = newSocket();
+    socket->connectToHost("fluke.troll.no", 22);
+    QVERIFY(socket->waitForConnected(10000));
 
-    socket.write(QByteArray(10000, '@'));
-    qint64 toWrite = socket.bytesToWrite();
-    QVERIFY(socket.waitForBytesWritten(5000));
-    QVERIFY(toWrite > socket.bytesToWrite());
+    socket->write(QByteArray(10000, '@'));
+    qint64 toWrite = socket->bytesToWrite();
+    QVERIFY(socket->waitForBytesWritten(5000));
+    QVERIFY(toWrite > socket->bytesToWrite());
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::waitForReadyRead()
 {
-    QTcpSocket socket;
-    socket.connectToHost("shusaku.troll.no", 22);
-    socket.waitForReadyRead(0);
+    QTcpSocket *socket = newSocket();
+    socket->connectToHost("fluke.troll.no", 22);
+    socket->waitForReadyRead(0);
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::flush()
 {
-    QTcpSocket socket;
-    socket.flush();
+    QTcpSocket *socket = newSocket();
+    socket->flush();
 
-    connect(&socket, SIGNAL(connected()), SLOT(exitLoopSlot()));
-    socket.connectToHost("fluke.troll.no", 143);
+    connect(socket, SIGNAL(connected()), SLOT(exitLoopSlot()));
+    socket->connectToHost("fluke.troll.no", 143);
     enterLoop(5000);
-    QVERIFY(socket.isOpen());
+    QVERIFY(socket->isOpen());
 
-    socket.write("1 LOGOUT\r\n");
-    QCOMPARE(socket.bytesToWrite(), qint64(10));
-    socket.flush();
-    QCOMPARE(socket.bytesToWrite(), qint64(0));
-    socket.close();
+    socket->write("1 LOGOUT\r\n");
+    QCOMPARE(socket->bytesToWrite(), qint64(10));
+    socket->flush();
+    QCOMPARE(socket->bytesToWrite(), qint64(0));
+    socket->close();
+
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::synchronousApi()
 {
-    QTcpSocket ftpSocket;
-    ftpSocket.connectToHost("fluke.troll.no", 21);
-    ftpSocket.write("QUIT\r\n");
-    QVERIFY(ftpSocket.waitForDisconnected(10000));
-    QVERIFY(ftpSocket.bytesAvailable() > 0);
-    QByteArray arr = ftpSocket.readAll();
+    QTcpSocket *ftpSocket = newSocket();
+    ftpSocket->connectToHost("fluke.troll.no", 21);
+    ftpSocket->write("QUIT\r\n");
+    QVERIFY(ftpSocket->waitForDisconnected(10000));
+    QVERIFY(ftpSocket->bytesAvailable() > 0);
+    QByteArray arr = ftpSocket->readAll();
     QVERIFY(arr.size() > 0);
+    delete ftpSocket;
 }
 
 //----------------------------------------------------------------------------------
@@ -857,29 +918,30 @@ void tst_QTcpSocket::dontCloseOnTimeout()
     if (!(server.serverAddress() == QHostAddress::Any))
         serverAddress = server.serverAddress();
 
-    QTcpSocket socket;
-    socket.connectToHost(serverAddress, server.serverPort());
-    QVERIFY(!socket.waitForReadyRead(100));
-    QCOMPARE(socket.error(), QTcpSocket::SocketTimeoutError);
-    QVERIFY(socket.isOpen());
+    QTcpSocket *socket = newSocket();
+    socket->connectToHost(serverAddress, server.serverPort());
+    QVERIFY(!socket->waitForReadyRead(100));
+    QCOMPARE(socket->error(), QTcpSocket::SocketTimeoutError);
+    QVERIFY(socket->isOpen());
 
-    QVERIFY(!socket.waitForDisconnected(100));
-    QCOMPARE(socket.error(), QTcpSocket::SocketTimeoutError);
-    QVERIFY(socket.isOpen());
+    QVERIFY(!socket->waitForDisconnected(100));
+    QCOMPARE(socket->error(), QTcpSocket::SocketTimeoutError);
+    QVERIFY(socket->isOpen());
 
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::recursiveReadyRead()
 {
-    QTcpSocket smtp;
-    connect(&smtp, SIGNAL(connected()), SLOT(exitLoopSlot()));
-    connect(&smtp, SIGNAL(readyRead()), SLOT(recursiveReadyReadSlot()));
-    tmpSocket = &smtp;
+    QTcpSocket *smtp = newSocket();
+    connect(smtp, SIGNAL(connected()), SLOT(exitLoopSlot()));
+    connect(smtp, SIGNAL(readyRead()), SLOT(recursiveReadyReadSlot()));
+    tmpSocket = smtp;
 
-    QSignalSpy spy(&smtp, SIGNAL(readyRead()));
+    QSignalSpy spy(smtp, SIGNAL(readyRead()));
 
-    smtp.connectToHost("smtp.trolltech.com", 25);
+    smtp->connectToHost("smtp.trolltech.com", 25);
     enterLoop(30);
     QVERIFY2(!timeout(),
             "Timed out when connecting to smtp.trolltech.com:25");
@@ -890,6 +952,7 @@ void tst_QTcpSocket::recursiveReadyRead()
 
     QCOMPARE(spy.count(), 1);
 
+    delete smtp;
 }
 
 void tst_QTcpSocket::recursiveReadyReadSlot()
@@ -914,15 +977,17 @@ void tst_QTcpSocket::recursiveReadyReadSlot()
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::atEnd()
 {
-    QTcpSocket socket;
-    socket.connectToHost("fluke.troll.no", 21);
+    QTcpSocket *socket = newSocket();
+    socket->connectToHost("fluke.troll.no", 21);
 
-    QVERIFY(socket.waitForReadyRead(15000));
-    QTextStream stream(&socket);
+    QVERIFY(socket->waitForReadyRead(15000));
+    QTextStream stream(socket);
     QVERIFY(!stream.atEnd());
     QString greeting = stream.readLine();
     QVERIFY(stream.atEnd());
     QCOMPARE(greeting, QString("220 (vsFTPd 2.0.4)"));
+
+    delete socket;
 }
 
 class TestThread : public QThread
@@ -938,6 +1003,12 @@ public:
 protected:
     inline void run()
     {
+        QFETCH_GLOBAL(bool, ssl);
+#ifndef QT_NO_OPENSSL
+        if (ssl)
+            socket = new QSslSocket;
+        else
+#endif
         socket = new QTcpSocket;
         connect(socket, SIGNAL(readyRead()), this, SLOT(getData()), Qt::DirectConnection);
         connect(socket, SIGNAL(disconnected()), this, SLOT(closed()), Qt::DirectConnection);
@@ -1005,20 +1076,22 @@ void tst_QTcpSocket::socketsInThreads()
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::waitForReadyReadInASlot()
 {
-    QTcpSocket socket;
-    tmpSocket = &socket;
-    connect(&socket, SIGNAL(connected()), this, SLOT(waitForReadyReadInASlotSlot()));
+    QTcpSocket *socket = newSocket();
+    tmpSocket = socket;
+    connect(socket, SIGNAL(connected()), this, SLOT(waitForReadyReadInASlotSlot()));
 
-    socket.connectToHost("www.trolltech.com", 80);
-    socket.write("GET / HTTP/1.0\r\n\r\n");
+    socket->connectToHost("fluke.troll.no", 80);
+    socket->write("GET / HTTP/1.0\r\n\r\n");
 
     enterLoop(30);
     QVERIFY(!timeout());
+
+    delete socket;
 }
 
 void tst_QTcpSocket::waitForReadyReadInASlotSlot()
 {
-    QVERIFY(tmpSocket->waitForReadyRead(5000));
+    QVERIFY(tmpSocket->waitForReadyRead(10000));
     exitLoop();
 }
 
@@ -1047,33 +1120,33 @@ void tst_QTcpSocket::remoteCloseError()
 
     QCoreApplication::instance()->processEvents();
 
-    QTcpSocket clientSocket;
-    connect(&clientSocket, SIGNAL(readyRead()), this, SLOT(exitLoopSlot()));
+    QTcpSocket *clientSocket = newSocket();
+    connect(clientSocket, SIGNAL(readyRead()), this, SLOT(exitLoopSlot()));
 
-    clientSocket.connectToHost(server.serverAddress(), server.serverPort());
+    clientSocket->connectToHost(server.serverAddress(), server.serverPort());
 
     enterLoop(30);
     QVERIFY(!timeout());
 
     QVERIFY(server.hasPendingConnections());
     QTcpSocket *serverSocket = server.nextPendingConnection();
-    connect(&clientSocket, SIGNAL(disconnected()), this, SLOT(exitLoopSlot()));
+    connect(clientSocket, SIGNAL(disconnected()), this, SLOT(exitLoopSlot()));
 
     serverSocket->write("Hello");
 
     enterLoop(30);
     QVERIFY(!timeout());
 
-    QCOMPARE(clientSocket.bytesAvailable(), qint64(5));
+    QCOMPARE(clientSocket->bytesAvailable(), qint64(5));
 
     qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
-    QSignalSpy errorSpy(&clientSocket, SIGNAL(error(QAbstractSocket::SocketError)));
-    QSignalSpy disconnectedSpy(&clientSocket, SIGNAL(disconnected()));
+    QSignalSpy errorSpy(clientSocket, SIGNAL(error(QAbstractSocket::SocketError)));
+    QSignalSpy disconnectedSpy(clientSocket, SIGNAL(disconnected()));
 
     serverSocket->disconnectFromHost();
 
-    tmpSocket = &clientSocket;
-    connect(&clientSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+    tmpSocket = clientSocket;
+    connect(clientSocket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(remoteCloseErrorSlot()));
 
     enterLoop(30);
@@ -1081,11 +1154,11 @@ void tst_QTcpSocket::remoteCloseError()
 
     QCOMPARE(disconnectedSpy.count(), 1);
     QCOMPARE(errorSpy.count(), 1);
-    QCOMPARE(clientSocket.error(), QAbstractSocket::RemoteHostClosedError);
+    QCOMPARE(clientSocket->error(), QAbstractSocket::RemoteHostClosedError);
 
     delete serverSocket;
 
-    clientSocket.connectToHost(server.serverAddress(), server.serverPort());
+    clientSocket->connectToHost(server.serverAddress(), server.serverPort());
 
     enterLoop(30);
     QVERIFY(!timeout());
@@ -1097,7 +1170,9 @@ void tst_QTcpSocket::remoteCloseError()
     enterLoop(30);
     QVERIFY(!timeout());
 
-    QCOMPARE(clientSocket.state(), QAbstractSocket::UnconnectedState);
+    QCOMPARE(clientSocket->state(), QAbstractSocket::UnconnectedState);
+
+    delete clientSocket;
 }
 
 void tst_QTcpSocket::remoteCloseErrorSlot()
@@ -1122,7 +1197,7 @@ void tst_QTcpSocket::messageBoxSlot()
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::openMessageBoxInErrorSlot()
 {
-    QTcpSocket *socket = new QTcpSocket;
+    QTcpSocket *socket = newSocket();
     QPointer<QTcpSocket> p(socket);
     connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(messageBoxSlot()));
 
@@ -1138,7 +1213,7 @@ void tst_QTcpSocket::connectToLocalHostNoService()
     // This test was created after we received a report that claimed
     // QTcpSocket would crash if trying to connect to "localhost" on a random
     // port with no service listening.
-    QTcpSocket *socket = new QTcpSocket;
+    QTcpSocket *socket = newSocket();
     socket->connectToHost("localhost", 31415); // no service running here, one suspects
 
     while(socket->state() == QTcpSocket::HostLookupState || socket->state() == QTcpSocket::ConnectingState) {
@@ -1160,7 +1235,7 @@ void tst_QTcpSocket::waitForConnectedInHostLookupSlot()
     // loop. When the signal has been received, the connection is torn down,
     // then reopened. Yikes. If we reproduce this by calling
     // waitForConnected() inside hostLookupSlot(), it will even crash.
-    tmpSocket = new QTcpSocket;
+    tmpSocket = newSocket();
     QEventLoop loop;
     connect(tmpSocket, SIGNAL(connected()), &loop, SLOT(quit()));
     QTimer timer;
@@ -1186,14 +1261,26 @@ void tst_QTcpSocket::hostLookupSlot()
 class Foo : public QObject
 {
     Q_OBJECT
-    QTcpSocket sock;
+    QTcpSocket *sock;
 public:
     int count;
 
     inline Foo(QObject *parent = 0) : QObject(parent)
     {
         count = 0;
-        connect(&sock, SIGNAL(connected()), this, SLOT(connectedToIt()));
+        QFETCH_GLOBAL(bool, ssl);
+#ifndef QT_NO_OPENSSL
+        if (ssl)
+            sock = new QSslSocket;
+        else
+#endif
+        sock = new QTcpSocket;
+        connect(sock, SIGNAL(connected()), this, SLOT(connectedToIt()));
+    }
+
+    inline ~Foo()
+    {
+        delete sock;
     }
 
 public slots:
@@ -1202,14 +1289,14 @@ public slots:
 
     inline void doIt()
     {
-        sock.connectToHost("fluke.troll.no", 80);
+        sock->connectToHost("fluke.troll.no", 80);
 
 #ifdef Q_OS_MAC
         pthread_yield_np();
 #elif defined Q_OS_LINUX
         pthread_yield();
 #endif
-        sock.waitForConnected();
+        sock->waitForConnected();
         tst_QTcpSocket::exitLoop();
     }
 
@@ -1243,25 +1330,27 @@ void tst_QTcpSocket::waitForConnectedInHostLookupSlot2()
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::readyReadSignalsAfterWaitForReadyRead()
 {
-    QTcpSocket socket;
+    QTcpSocket *socket = newSocket();
 
-    QSignalSpy readyReadSpy(&socket, SIGNAL(readyRead()));
+    QSignalSpy readyReadSpy(socket, SIGNAL(readyRead()));
 
     // Connect
-    socket.connectToHost("fluke.troll.no", 143);
+    socket->connectToHost("fluke.troll.no", 143);
 
     // Wait for the read
-    QVERIFY(socket.waitForReadyRead(10000));
+    QVERIFY(socket->waitForReadyRead(10000));
 
     QCOMPARE(readyReadSpy.count(), 1);
 
-    QString s = socket.readLine();
+    QString s = socket->readLine();
     QCOMPARE(s.toLatin1().constData(), "* OK fluke Cyrus IMAP4 v2.2.12 server ready\r\n");
-    QCOMPARE(socket.bytesAvailable(), qint64(0));
+    QCOMPARE(socket->bytesAvailable(), qint64(0));
 
     QCoreApplication::instance()->processEvents();
-    QCOMPARE(socket.bytesAvailable(), qint64(0));
+    QCOMPARE(socket->bytesAvailable(), qint64(0));
     QCOMPARE(readyReadSpy.count(), 1);
+
+    delete socket;
 }
 
 class TestThread2 : public QThread
@@ -1294,12 +1383,14 @@ void tst_QTcpSocket::linuxKernelBugLocalSocket()
 
     test.wait();
 
-    QTcpSocket socket;
-    socket.setSocketDescriptor(fileReader.handle());
-    QVERIFY(socket.waitForReadyRead(5000));
-    QCOMPARE(socket.bytesAvailable(), qint64(128));
+    QTcpSocket *socket = newSocket();
+    socket->setSocketDescriptor(fileReader.handle());
+    QVERIFY(socket->waitForReadyRead(5000));
+    QCOMPARE(socket->bytesAvailable(), qint64(128));
 
     QFile::remove("fifo");
+
+    delete socket;
 }
 #endif
 
@@ -1310,19 +1401,19 @@ void tst_QTcpSocket::abortiveClose()
     QVERIFY(server.listen(QHostAddress::LocalHost));
     connect(&server, SIGNAL(newConnection()), this, SLOT(exitLoopSlot()));
 
-    QTcpSocket clientSocket;
-    clientSocket.connectToHost(server.serverAddress(), server.serverPort());
+    QTcpSocket *clientSocket = newSocket();
+    clientSocket->connectToHost(server.serverAddress(), server.serverPort());
 
     enterLoop(10);
     QVERIFY(server.hasPendingConnections());
 
     QVERIFY(tmpSocket = server.nextPendingConnection());
-    
-    qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
-    QSignalSpy readyReadSpy(&clientSocket, SIGNAL(readyRead()));
-    QSignalSpy errorSpy(&clientSocket, SIGNAL(error(QAbstractSocket::SocketError)));
 
-    connect(&clientSocket, SIGNAL(disconnected()), this, SLOT(exitLoopSlot()));
+    qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
+    QSignalSpy readyReadSpy(clientSocket, SIGNAL(readyRead()));
+    QSignalSpy errorSpy(clientSocket, SIGNAL(error(QAbstractSocket::SocketError)));
+
+    connect(clientSocket, SIGNAL(disconnected()), this, SLOT(exitLoopSlot()));
     QTimer::singleShot(0, this, SLOT(abortiveClose_abortSlot()));
 
     enterLoop(5);
@@ -1333,6 +1424,7 @@ void tst_QTcpSocket::abortiveClose()
     QCOMPARE(*static_cast<const int *>(errorSpy.at(0).at(0).constData()),
              int(QAbstractSocket::RemoteHostClosedError));
 
+    delete clientSocket;
 }
 
 void tst_QTcpSocket::abortiveClose_abortSlot()
@@ -1348,46 +1440,48 @@ void tst_QTcpSocket::localAddressEmptyOnBSD()
 
     // we try 10 times, but note that this doesn't always provoke the bug
     for (int i = 0; i < 10; ++i) {
-        QTcpSocket tcpSocket;
-        tcpSocket.connectToHost(QHostAddress::LocalHost, server.serverPort());
-        if (!tcpSocket.waitForConnected(0)) {
+        QTcpSocket *tcpSocket = newSocket();
+        tcpSocket->connectToHost(QHostAddress::LocalHost, server.serverPort());
+        if (!tcpSocket->waitForConnected(0)) {
             // to provoke the bug, we need a local socket that connects immediately
             // --i;
-            tcpSocket.abort();
-            if (tcpSocket.state() != QTcpSocket::UnconnectedState)
-                QVERIFY(tcpSocket.waitForDisconnected(-1));
+            tcpSocket->abort();
+            if (tcpSocket->state() != QTcpSocket::UnconnectedState)
+                QVERIFY(tcpSocket->waitForDisconnected(-1));
             continue;
         }
-        QCOMPARE(tcpSocket.localAddress(), QHostAddress(QHostAddress::LocalHost));
+        QCOMPARE(tcpSocket->localAddress(), QHostAddress(QHostAddress::LocalHost));
     }
 }
 
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::readWriteFailsOnUnconnectedSocket()
 {
-    QTcpSocket socket;
-    socket.connectToHost("www.trolltech.com", 80);
-    socket.write("GET / HTTP/1.0\r\n\r\n");
-    QVERIFY(socket.waitForDisconnected(10000));
-    QCOMPARE(socket.error(), QAbstractSocket::RemoteHostClosedError);
+    QTcpSocket *socket = newSocket();
+    socket->connectToHost("fluke.troll.no", 80);
+    socket->write("GET / HTTP/1.0\r\n\r\n");
+    QVERIFY(socket->waitForDisconnected(10000));
+    QCOMPARE(socket->error(), QAbstractSocket::RemoteHostClosedError);
 
     char c[16];
-    QCOMPARE(socket.write("BLUBBER"), qint64(-1));
-    QVERIFY(!socket.readAll().isEmpty());
-    QCOMPARE(socket.read(c, 16), qint64(0));
+    QCOMPARE(socket->write("BLUBBER"), qint64(-1));
+    QVERIFY(!socket->readAll().isEmpty());
+    QCOMPARE(socket->read(c, 16), qint64(0));
     QEXPECT_FAIL("", "socket.readLine() /should/ return 0 when there's nothing to read", Continue);
-    QCOMPARE(socket.readLine(c, 16), qint64(0));
+    QCOMPARE(socket->readLine(c, 16), qint64(0));
     QTest::ignoreMessage(QtWarningMsg, "QIODevice::getChar: Closed device");
-    QVERIFY(!socket.getChar(c));
-    QVERIFY(!socket.putChar('a'));
+    QVERIFY(!socket->getChar(c));
+    QVERIFY(!socket->putChar('a'));
 
-    socket.close();
+    socket->close();
 
-    QCOMPARE(socket.read(c, 16), qint64(-1));
-    QCOMPARE(socket.readLine(c, 16), qint64(-1));
+    QCOMPARE(socket->read(c, 16), qint64(-1));
+    QCOMPARE(socket->readLine(c, 16), qint64(-1));
     QTest::ignoreMessage(QtWarningMsg, "QIODevice::getChar: Closed device");
-    QVERIFY(!socket.getChar(c));
-    QVERIFY(!socket.putChar('a'));
+    QVERIFY(!socket->getChar(c));
+    QVERIFY(!socket->putChar('a'));
+
+    delete socket;
 }
 
 void tst_QTcpSocket::connectionRefused()
@@ -1398,26 +1492,28 @@ void tst_QTcpSocket::connectionRefused()
 
     qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
     qRegisterMetaType<QAbstractSocket::SocketState>("QAbstractSocket::SocketState");
-    
-    QTcpSocket socket;
-    QSignalSpy stateSpy(&socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)));
-    QSignalSpy errorSpy(&socket, SIGNAL(error(QAbstractSocket::SocketError)));
+
+    QTcpSocket *socket = newSocket();
+    QSignalSpy stateSpy(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)));
+    QSignalSpy errorSpy(socket, SIGNAL(error(QAbstractSocket::SocketError)));
     QEventLoop loop;
-    connect(&socket, SIGNAL(error(QAbstractSocket::SocketError)), &loop, SLOT(quit()));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), &loop, SLOT(quit()));
     QTimer::singleShot(10000, &loop, SLOT(quit()));
 
-    socket.connectToHost("fluke.troll.no", 144);
+    socket->connectToHost("fluke.troll.no", 144);
 
     loop.exec();
 
-    QCOMPARE(socket.state(), QAbstractSocket::UnconnectedState);
-    QCOMPARE(socket.error(), QAbstractSocket::ConnectionRefusedError);
+    QCOMPARE(socket->state(), QAbstractSocket::UnconnectedState);
+    QCOMPARE(socket->error(), QAbstractSocket::ConnectionRefusedError);
 
     QCOMPARE(stateSpy.count(), 3);
     QCOMPARE(qVariantValue<QAbstractSocket::SocketState>(stateSpy.at(0).at(0)), QAbstractSocket::HostLookupState);
     QCOMPARE(qVariantValue<QAbstractSocket::SocketState>(stateSpy.at(1).at(0)), QAbstractSocket::ConnectingState);
     QCOMPARE(qVariantValue<QAbstractSocket::SocketState>(stateSpy.at(2).at(0)), QAbstractSocket::UnconnectedState);
     QCOMPARE(errorSpy.count(), 1);
+
+    delete socket;
 }
 
 void tst_QTcpSocket::suddenRemoteDisconnect_data()
@@ -1435,7 +1531,7 @@ void tst_QTcpSocket::suddenRemoteDisconnect()
 {
     QFETCH(QString, client);
     QFETCH(QString, server);
-    
+
     QFETCH_GLOBAL(bool, setProxy);
     if (setProxy)
         return;
@@ -1483,22 +1579,24 @@ void tst_QTcpSocket::connectToMultiIP()
 {
     qDebug("Please wait, this test can take a while...");
 
-    QTcpSocket socket;
+    QTcpSocket *socket = newSocket();
     // rationale: this domain resolves to 3 A-records, 2 of them are
     // invalid. QTcpSocket should never spend more than 30 seconds per IP, and
     // 30s*2 = 60s.
     QTime stopWatch;
     stopWatch.start();
-    socket.connectToHost("multi.andreas.hanssen.name", 80);
-    QVERIFY(socket.waitForConnected(60000));
+    socket->connectToHost("multi.andreas.hanssen.name", 80);
+    QVERIFY(socket->waitForConnected(60000));
     QVERIFY(stopWatch.elapsed() < 70000);
-    socket.abort();
+    socket->abort();
 
     stopWatch.restart();
-    socket.connectToHost("multi.andreas.hanssen.name", 81);
-    QVERIFY(!socket.waitForConnected(1000));
+    socket->connectToHost("multi.andreas.hanssen.name", 81);
+    QVERIFY(!socket->waitForConnected(1000));
     QVERIFY(stopWatch.elapsed() < 2000);
-    QCOMPARE(socket.error(), QAbstractSocket::SocketTimeoutError);
+    QCOMPARE(socket->error(), QAbstractSocket::SocketTimeoutError);
+
+    delete socket;
 }
 
 QTEST_MAIN(tst_QTcpSocket)
