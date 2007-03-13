@@ -22,6 +22,7 @@ class QProxyFontEngine : public QFontEngine
 {
 public:
     QProxyFontEngine(QCustomFontEngine *engine, const QFontDef &def);
+    virtual ~QProxyFontEngine();
 
     virtual bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
     virtual QImage alphaMapForGlyph(glyph_t);

@@ -441,13 +441,33 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 #ifndef QT_NO_FREETYPE
     if ( foundry->name != QLatin1String("qt") ) { ///#### is this the best way????
         QString file = size->fileName;
-        if (QFile::exists(file) || privateDb()->isApplicationFont(file)) {
+
+        QFontDef def = request;
+        def.pixelSize = pixelSize;
+
+        if (file.isEmpty()) {
+            QCustomFontEngineFactoryInterface *factory = qobject_cast<QCustomFontEngineFactoryInterface *>(loader()->instance(foundry->name));
+            if (factory) {
+                QCustomFontInfo info;
+                info.setFamily(request.family);
+                info.setPixelSize(request.pixelSize);
+                info.setStyle(request.style);
+                info.setWeight(request.weight);
+                // #### antialiased
+
+                QCustomFontEngine *engine = factory->create(info);
+                if (engine) {
+                    QProxyFontEngine *proxy = new QProxyFontEngine(engine, def);
+                    QFontEngineQPF *fe = new QFontEngineQPF(def, -1, proxy);
+                    if (fe->isValid())
+                        return fe;
+                    delete fe;
+                }
+            }
+        } else if (QFile::exists(file) || privateDb()->isApplicationFont(file)) {
             QFontEngine::FaceId faceId;
             faceId.filename = file.toLocal8Bit();
             faceId.index = size->fileIndex;
-
-            QFontDef def = request;
-            def.pixelSize = pixelSize;
 
             QFontEngineFT *fte = new QFontEngineFT(def);
             if (fte->init(faceId, style->antialiased)) {

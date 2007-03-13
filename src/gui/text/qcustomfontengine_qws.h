@@ -126,12 +126,12 @@ public:
         UnderlinePosition,
         MaxCharWidth,
         MinLeftBearing,
-        MinRightBearing
+        MinRightBearing,
+        TotalGlyphCount
     };
 
     enum Extension {
         TrueTypeFontTable,
-        TotalGlyphCount
     };
 
     virtual bool stringToGlyphIndices(const QChar *string, int length, uint *glyphs, int *numGlyphs, uint flags) const = 0;

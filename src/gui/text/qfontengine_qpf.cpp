@@ -473,6 +473,15 @@ QByteArray QFontEngineQPF::getSfntTable(uint tag) const
 
 bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
 {
+    if (!externalCMap && !cmapOffset && renderingFontEngine) {
+        if (!renderingFontEngine->stringToCMap(str, len, glyphs, nglyphs, flags))
+            return false;
+#ifndef QT_NO_FREETYPE
+        const_cast<QFontEngineQPF *>(this)->ensureGlyphsLoaded(glyphs, *nglyphs);
+#endif
+        return true;
+    }
+
     if (*nglyphs < len) {
         *nglyphs = len;
         return false;
@@ -690,7 +699,7 @@ bool QFontEngineQPF::canRender(const QChar *string, int len)
 
 bool QFontEngineQPF::isValid() const
 {
-    return fontData && dataSize && (cmapOffset || externalCMap)
+    return fontData && dataSize && (cmapOffset || externalCMap || renderingFontEngine)
            && glyphMapOffset && glyphDataOffset && (fd >= 0 || glyphDataSize > 0);
 }
 

@@ -103,6 +103,11 @@ QProxyFontEngine::QProxyFontEngine(QCustomFontEngine *customEngine, const QFontD
     fontDef = def;
 }
 
+QProxyFontEngine::~QProxyFontEngine()
+{
+    delete engine;
+}
+
 bool QProxyFontEngine::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
 {
     if (*nglyphs < len) {
@@ -223,7 +228,7 @@ qreal QProxyFontEngine::minRightBearing() const
 
 int QProxyFontEngine::glyphCount() const
 {
-    return engine->extension(QCustomFontEngine::TotalGlyphCount).toInt();
+    return engine->fontProperty(QCustomFontEngine::TotalGlyphCount).toInt();
 }
 
 bool QProxyFontEngine::canRender(const QChar *string, int len)
