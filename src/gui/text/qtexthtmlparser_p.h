@@ -26,6 +26,7 @@
 //
 
 #include "QtCore/qvector.h"
+#include "QtGui/qbrush.h"
 #include "QtGui/qcolor.h"
 #include "QtGui/qfont.h"
 #include "QtGui/qtextdocument.h"
@@ -154,6 +155,8 @@ struct QTextHtmlParserNode {
     int tableCellColSpan;
     qreal tableCellSpacing;
     qreal tableCellPadding;
+    QBrush borderBrush;
+    QTextFrameFormat::BorderStyle borderStyle;
 
     int cssListIndent;
 

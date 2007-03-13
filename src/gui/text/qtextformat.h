@@ -168,6 +168,8 @@ public:
         FrameBottomMargin = 0x4006,
         FrameLeftMargin   = 0x4007,
         FrameRightMargin  = 0x4008,
+        FrameBorderBrush = 0x4009,
+        FrameBorderStyle = 0x4010,
 
         TableColumns = 0x4100,
         TableColumnWidthConstraints = 0x4101,
@@ -567,6 +569,20 @@ public:
 //        Absolute
     };
 
+    enum BorderStyle {
+        BorderStyle_None,
+        BorderStyle_Dotted,
+        BorderStyle_Dashed,
+        BorderStyle_Solid,
+        BorderStyle_Double,
+        BorderStyle_DotDash,
+        BorderStyle_DotDotDash,
+        BorderStyle_Groove,
+        BorderStyle_Ridge,
+        BorderStyle_Inset,
+        BorderStyle_Outset,
+    };
+
     inline void setPosition(Position f)
     { setProperty(CssFloat, f); }
     inline Position position() const
@@ -575,6 +591,16 @@ public:
     inline void setBorder(qreal border);
     inline qreal border() const
     { return doubleProperty(FrameBorder); }
+
+    inline void setBorderBrush(const QBrush &brush)
+    { setProperty(FrameBorderBrush, brush); }
+    inline QBrush borderBrush() const
+    { return brushProperty(FrameBorderBrush); }
+
+    inline void setBorderStyle(BorderStyle style)
+    { setProperty(FrameBorderStyle, style); }
+    inline BorderStyle borderStyle() const
+    { return static_cast<BorderStyle>(intProperty(FrameBorderStyle)); }
 
     void setMargin(qreal margin);
     inline qreal margin() const

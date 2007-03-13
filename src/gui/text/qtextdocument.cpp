@@ -1819,6 +1819,54 @@ void QTextHtmlExporter::emitFloatStyle(QTextFrameFormat::Position pos, StyleMode
         html += QLatin1Char('\"');
 }
 
+void QTextHtmlExporter::emitBorderStyle(QTextFrameFormat::BorderStyle style)
+{
+    Q_ASSERT(style <= QTextFrameFormat::BorderStyle_Outset);
+
+    html += QLatin1String(" border-style:");
+
+    switch (style) {
+    case QTextFrameFormat::BorderStyle_None:
+        html += QLatin1String("none");
+        break;
+    case QTextFrameFormat::BorderStyle_Dotted:
+        html += QLatin1String("dotted");
+        break;
+    case QTextFrameFormat::BorderStyle_Dashed:
+        html += QLatin1String("dashed");
+        break;
+    case QTextFrameFormat::BorderStyle_Solid:
+        html += QLatin1String("solid");
+        break;
+    case QTextFrameFormat::BorderStyle_Double:
+        html += QLatin1String("double");
+        break;
+    case QTextFrameFormat::BorderStyle_DotDash:
+        html += QLatin1String("dot-dash");
+        break;
+    case QTextFrameFormat::BorderStyle_DotDotDash:
+        html += QLatin1String("dot-dot-dash");
+        break;
+    case QTextFrameFormat::BorderStyle_Groove:
+        html += QLatin1String("groove");
+        break;
+    case QTextFrameFormat::BorderStyle_Ridge:
+        html += QLatin1String("ridge");
+        break;
+    case QTextFrameFormat::BorderStyle_Inset:
+        html += QLatin1String("inset");
+        break;
+    case QTextFrameFormat::BorderStyle_Outset:
+        html += QLatin1String("outset");
+        break;
+    default:
+        Q_ASSERT(false);
+        break;
+    };
+
+    html += QLatin1Char(';');
+}
+
 void QTextHtmlExporter::emitMargins(const QString &top, const QString &bottom, const QString &left, const QString &right)
 {
     html += QLatin1String(" margin-top:");
@@ -2282,7 +2330,18 @@ void QTextHtmlExporter::emitFrameStyle(const QTextFrameFormat &format, FrameType
     if (frameType == TextFrame)
         html += QLatin1String("-qt-table-type: frame;");
 
+    const QTextFrameFormat defaultFormat;
+
     emitFloatStyle(format.position(), OmitStyleTag);
+
+    if (format.borderBrush() != defaultFormat.borderBrush()) {
+        html += QLatin1String(" border-color:");
+        html += format.borderBrush().color().name();
+        html += QLatin1Char(';');
+    }
+
+    if (format.borderStyle() != defaultFormat.borderStyle())
+        emitBorderStyle(format.borderStyle());
 
     if (format.hasProperty(QTextFormat::FrameMargin)
         || format.hasProperty(QTextFormat::FrameLeftMargin)

@@ -206,6 +206,8 @@ private slots:
     void html_dontInheritAlignmentForFloatingImages();
     void html_verticalImageAlignment();
     void html_verticalCellAlignment();
+    void html_borderColor();
+    void html_borderStyle();
 
 private:
     inline void setHtml(const QString &html)
@@ -3230,6 +3232,28 @@ void tst_QTextDocumentFragment::html_verticalCellAlignment()
         QCOMPARE(table->cellAt(0, 1).format().verticalAlignment(), QTextCharFormat::AlignTop);
         QCOMPARE(table->cellAt(0, 2).format().verticalAlignment(), QTextCharFormat::AlignBottom);
     }
+}
+
+void tst_QTextDocumentFragment::html_borderColor()
+{
+    const char html[] = "<table border=1 style=\"border-color:#0000ff;\"><tr><td>Foo</td></tr></table>";
+    cursor.insertFragment(QTextDocumentFragment::fromHtml(QString::fromLatin1(html)));
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextBlock);
+    QVERIFY(cursor.currentTable());
+    QCOMPARE(cursor.currentTable()->format().borderStyle(), QTextFrameFormat::BorderStyle_Outset);
+    QCOMPARE(cursor.currentTable()->format().borderBrush(), QBrush(QColor("#0000ff")));
+}
+
+void tst_QTextDocumentFragment::html_borderStyle()
+{
+    const char html[] = "<table border=1 style=\"border-style:solid;\"><tr><td>Foo</td></tr></table>";
+    cursor.insertFragment(QTextDocumentFragment::fromHtml(QString::fromLatin1(html)));
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextBlock);
+    QVERIFY(cursor.currentTable());
+    QCOMPARE(cursor.currentTable()->format().borderStyle(), QTextFrameFormat::BorderStyle_Solid);
+    QCOMPARE(cursor.currentTable()->format().borderBrush(), QBrush(Qt::darkGray));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

@@ -323,6 +323,7 @@ private:
     void emitMargins(const QString &top, const QString &bottom, const QString &left, const QString &right);
     void emitAttribute(const char *attribute, const QString &value);
     void emitFrameStyle(const QTextFrameFormat &format, FrameType frameType);
+    void emitBorderStyle(QTextFrameFormat::BorderStyle style);
 
     QString html;
     QTextCharFormat defaultCharFormat;

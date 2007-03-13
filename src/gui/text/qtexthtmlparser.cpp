@@ -450,6 +450,7 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       displayMode(QTextHtmlElement::DisplayInline),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
       tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0),
+      borderBrush(Qt::darkGray), borderStyle(QTextFrameFormat::BorderStyle_Outset),
       cssListIndent(0), wsm(WhiteSpaceModeUndefined)
 {
     margin[QTextHtmlParser::MarginLeft] = 0;
@@ -1156,6 +1157,11 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
             identifier = static_cast<QCss::KnownValue>(decl.values.first().variant.toInt());
 
         switch (decl.propertyId) {
+            case QCss::BorderColor: borderBrush = QBrush(decl.colorValue()); break;
+            case QCss::BorderStyles:
+                if (decl.styleValue() != QCss::BorderStyle_Unknown && decl.styleValue() != QCss::BorderStyle_Native)
+                    borderStyle = static_cast<QTextFrameFormat::BorderStyle>(decl.styleValue() - 1);
+                break;
             case QCss::Color: charFormat.setForeground(decl.colorValue()); break;
             case QCss::Float:
                 cssFloat = QTextFrameFormat::InFlow;

@@ -1923,11 +1923,32 @@ QTextListFormat::QTextListFormat()
 */
 
 /*!
+    \enum QTextFrameFormat::BorderStyle
+
+    \value BorderStyle_None
+    \value BorderStyle_Dotted
+    \value BorderStyle_Dashed
+    \value BorderStyle_Solid
+    \value BorderStyle_Double
+    \value BorderStyle_DotDash
+    \value BorderStyle_DotDotDash
+    \value BorderStyle_Groove
+    \value BorderStyle_Ridge
+    \value BorderStyle_Inset
+    \value BorderStyle_Outset
+
+*/
+
+/*!
     \fn QTextFrameFormat::QTextFrameFormat()
 
     Constructs a text frame format object with the default properties.
 */
-QTextFrameFormat::QTextFrameFormat() : QTextFormat(FrameFormat) {}
+QTextFrameFormat::QTextFrameFormat() : QTextFormat(FrameFormat)
+{
+    setBorderStyle(BorderStyle_Outset);
+    setBorderBrush(Qt::darkGray);
+}
 
 /*!
     \fn QTextFrameFormat::isValid() const
@@ -1961,6 +1982,30 @@ QTextFrameFormat::QTextFrameFormat() : QTextFormat(FrameFormat) {}
 */
 
 /*!
+    \fn QTextFrameFormat::setBorderBrush(const QBrush &brush)
+
+    Sets the \a brush used for the frame's border.
+*/
+
+/*!
+    \fn QBrush QTextFrameFormat::borderBrush() const
+
+    Returns the brush used for the frame's border.
+*/
+
+/*!
+    \fn QTextFrameFormat::setBorderStyle(BorderStyle style)
+
+    Sets the \a style of the frame's border.
+*/
+
+/*!
+    \fn BorderStyle QTextFrameFormat::borderStyle() const
+
+    Returns the style of the frame's border.
+*/
+
+/*!
     \fn QTextFrameFormat::setMargin(qreal margin)
 
     Sets the frame's \a margin in pixels.
@@ -1991,7 +2036,7 @@ void QTextFrameFormat::setMargin(qreal amargin)
 */
 
 /*!
-    \fn qreal QTextFrameFormat::topMargin(qreal margin)
+    \fn qreal QTextFrameFormat::topMargin() const
 
     Returns the width of the frame's top margin in pixels.
 */
@@ -2009,7 +2054,7 @@ qreal QTextFrameFormat::topMargin() const
 */
 
 /*!
-    \fn qreal QTextFrameFormat::bottomMargin(qreal margin)
+    \fn qreal QTextFrameFormat::bottomMargin() const
 
     Returns the width of the frame's bottom margin in pixels.
 */
@@ -2027,7 +2072,7 @@ qreal QTextFrameFormat::bottomMargin() const
 */
 
 /*!
-    \fn qreal QTextFrameFormat::leftMargin(qreal margin)
+    \fn qreal QTextFrameFormat::leftMargin() const
 
     Returns the width of the frame's left margin in pixels.
 */
@@ -2045,7 +2090,7 @@ qreal QTextFrameFormat::leftMargin() const
 */
 
 /*!
-    \fn qreal QTextFrameFormat::rightMargin(qreal margin)
+    \fn qreal QTextFrameFormat::rightMargin() const
 
     Returns the width of the frame's right margin in pixels.
 */

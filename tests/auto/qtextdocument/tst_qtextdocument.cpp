@@ -1266,6 +1266,21 @@ void tst_QTextDocument::toHtml_data()
                                              "\n<td></td></tr>"
                                              "</table>");
     }
+
+    {
+        CREATE_DOC_AND_CURSOR();
+
+        QTextTableFormat fmt;
+        fmt.setBorderBrush(QColor("#0000ff"));
+        fmt.setBorderStyle(QTextFrameFormat::BorderStyle_Solid);
+        cursor.insertTable(2, 2, fmt);
+
+        QTest::newRow("tableborder") << QTextDocumentFragment(&doc)
+                                     << QString("<table border=\"1\" style=\" border-color:#0000ff; border-style:solid;\" cellspacing=\"2\">"
+                                                "\n<tr>\n<td></td>\n<td></td></tr>"
+                                                "\n<tr>\n<td></td>\n<td></td></tr>"
+                                                "</table>");
+    }
 }
 
 void tst_QTextDocument::toHtml()

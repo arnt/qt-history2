@@ -646,7 +646,6 @@ static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal
             c = c.color().lighter();
 
     p->save();
-    p->setRenderHint(QPainter::Antialiasing);
     qreal pwby2 = pw/2;
     p->setBrush(Qt::NoBrush);
     QPen pen = qPenFromStyle(c, pw, s);
@@ -696,7 +695,6 @@ void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, qreal dw1, q
                Edge edge, BorderStyle style, QBrush c)
 {
     p->save();
-    p->setRenderHint(QPainter::Antialiasing);
     const qreal width = (edge == TopEdge || edge == BottomEdge) ? (y2-y1) : (x2-x1);
 
     if (width <= 2 && style == BorderStyle_Double)
@@ -1053,6 +1051,9 @@ void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
     QSize tlr, trr, blr, brr;
     getRadii(rect, &tlr, &trr, &blr, &brr);
 
+    p->save();
+    p->setRenderHint(QPainter::Antialiasing);
+
     // Drawn in increasing order of precendence
     if (styles[BottomEdge] != BorderStyle_None) {
         qreal dw1 = (blr.width() || paintsOver(BottomEdge, LeftEdge)) ? 0 : borders[LeftEdge];
@@ -1102,6 +1103,7 @@ void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
         if (tlr.width() || trr.width())
             qDrawRoundedCorners(p, x1, y1, x2, y2, tlr, trr, TopEdge, styles[TopEdge], colors[TopEdge]);
     }
+    p->restore();
 }
 
 void QRenderRule::drawBackground(QPainter *p, const QRect& rect, const QPoint& off)

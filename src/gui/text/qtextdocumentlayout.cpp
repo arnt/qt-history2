@@ -19,6 +19,7 @@
 #include "qtextengine_p.h"
 
 #include "qabstracttextdocumentlayout_p.h"
+#include "qcssparser_p.h"
 
 #include <qpainter.h>
 #include <qrect.h>
@@ -355,7 +356,7 @@ public:
     void drawTableCell(const QRectF &cellRect, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &cell_context,
                        QTextTable *table, QTextTableData *td, int r, int c,
                        QTextBlock *cursorBlockNeedingRepaint, QPointF *cursorBlockOffset) const;
-    void drawBorder(QPainter *painter, const QRectF &rect, qreal border, bool invert = false) const;
+    void drawBorder(QPainter *painter, const QRectF &rect, qreal border, const QBrush &brush, QTextFrameFormat::BorderStyle style) const;
     void drawFrameDecoration(QPainter *painter, QTextFrame *frame, QTextFrameData *fd, const QRectF &clip, const QRectF &rect) const;
 
     enum HitPoint {
@@ -660,53 +661,43 @@ qreal QTextDocumentLayoutPrivate::indent(QTextBlock bl) const
     return indent * TextIndentValue * scale;
 }
 
-static void drawRect(QPainter *painter, qreal pageHeight, qreal pageTopMargin, qreal pageBottomMargin, const QRectF &rect)
-{
-    qreal heightRemaining = rect.height();
-    qreal top = rect.top();
+// qstylesheetstyle.cpp
+extern void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, qreal dw1, qreal dw2,
+                      QCss::Edge edge, QCss::BorderStyle style, QBrush c);
 
-    while (heightRemaining > 0 && !qFuzzyCompare(heightRemaining, 0)) {
-        int page = static_cast<int>(top / pageHeight);
-        qreal heightOnPage = qMax(static_cast<qreal>(0), qMin(heightRemaining, (page + 1) * pageHeight - pageBottomMargin - top));
-
-        if (!qFuzzyCompare(heightOnPage, 0))
-            painter->drawRect(QRectF(QPointF(rect.left(), top), QSizeF(rect.width(), heightOnPage)));
-
-        top = (page + 1) * pageHeight + pageTopMargin;
-        heightRemaining -= heightOnPage + pageTopMargin + pageBottomMargin;
-    }
-}
-
-void QTextDocumentLayoutPrivate::drawBorder(QPainter *painter, const QRectF &rect, qreal border, bool invert) const
+void QTextDocumentLayoutPrivate::drawBorder(QPainter *painter, const QRectF &rect, qreal border, const QBrush &brush, QTextFrameFormat::BorderStyle style) const
 {
     Q_Q(const QTextDocumentLayout);
     QTextFrameData *fd = data(q->document()->rootFrame());
 
     const qreal pageHeight = q->document()->pageSize().height();
+    const int topPage = static_cast<int>(rect.top() / pageHeight);
+    const int bottomPage = static_cast<int>((rect.bottom() + border) / pageHeight);
 
-    const qreal pageTopMargin = fd->topMargin.toReal();
-    const qreal pageBottomMargin = fd->bottomMargin.toReal();
+    if (topPage != bottomPage) {
+        const qreal pageWidth = q->document()->pageSize().width();
+        const qreal pageTopMargin = fd->topMargin.toReal();
+        const qreal pageBottomMargin = fd->bottomMargin.toReal();
+        const qreal clipHeight = pageHeight - pageTopMargin - pageBottomMargin;
 
-    painter->setBrush(invert ?  Qt::darkGray : Qt::lightGray);
-    painter->setPen(Qt::NoPen);
+        QRegion clipRegion;
+        for (int i = topPage; i <= bottomPage; ++i) {
+            const qreal clipTop = i * pageHeight + pageTopMargin;
+            clipRegion |= QRectF(0, clipTop, pageWidth, clipHeight).toRect();
+        }
+        painter->save();
+        painter->setClipRegion(clipRegion, Qt::IntersectClip);
+    }
 
-    // left border
-    drawRect(painter, pageHeight, pageTopMargin, pageBottomMargin,
-             QRectF(rect.left(), rect.top(), border, rect.height() + border));
+    QCss::BorderStyle cssStyle = static_cast<QCss::BorderStyle>(style + 1);
 
-    // top border
-    drawRect(painter, pageHeight, pageTopMargin, pageBottomMargin,
-             QRectF(rect.left() + border, rect.top(), rect.width(), border));
+    qDrawEdge(painter, rect.left(), rect.top(), rect.left() + border, rect.bottom() + border, 0, 0, QCss::LeftEdge, cssStyle, brush);
+    qDrawEdge(painter, rect.left() + border, rect.top(), rect.right() + border, rect.top() + border, 0, 0, QCss::TopEdge, cssStyle, brush);
+    qDrawEdge(painter, rect.right(), rect.top() + border, rect.right() + border, rect.bottom(), 0, 0, QCss::RightEdge, cssStyle, brush);
+    qDrawEdge(painter, rect.left() + border, rect.bottom(), rect.right() + border, rect.bottom() + border, 0, 0, QCss::BottomEdge, cssStyle, brush);
 
-    painter->setBrush(invert ? Qt::lightGray : Qt::darkGray);
-
-    // right border
-    drawRect(painter, pageHeight, pageTopMargin, pageBottomMargin,
-             QRectF(rect.left() + rect.width(), rect.top() + border, border, rect.height() - border));
-
-    // bottom border
-    drawRect(painter, pageHeight, pageTopMargin, pageBottomMargin,
-             QRectF(rect.left() + border, rect.top() + rect.height(), rect.width(), border));
+    if (topPage != bottomPage)
+        painter->restore();
 }
 
 void QTextDocumentLayoutPrivate::drawFrameDecoration(QPainter *painter, QTextFrame *frame, QTextFrameData *fd, const QRectF &clip, const QRectF &rect) const
@@ -725,7 +716,7 @@ void QTextDocumentLayoutPrivate::drawFrameDecoration(QPainter *painter, QTextFra
         const qreal w = rect.width() - 2 * border - leftMargin - rightMargin;
         const qreal h = rect.height() - 2 * border - topMargin - bottomMargin;
 
-        drawBorder(painter, QRectF(leftEdge, rect.top() + topMargin, w + border, h + border), border);
+        drawBorder(painter, QRectF(leftEdge, rect.top() + topMargin, w + border, h + border), border, frame->frameFormat().borderBrush(), frame->frameFormat().borderStyle());
 
         painter->restore();
     }
@@ -904,7 +895,26 @@ void QTextDocumentLayoutPrivate::drawTableCell(const QRectF &cellRect, QPainter 
 
         QRectF borderRect(cellRect.left() - border, cellRect.top() - border, cellRect.width() + border, cellRect.height() + border);
 
-        drawBorder(painter, borderRect, border, true);
+        // invert the border style for cells
+        QTextFrameFormat::BorderStyle cellBorder = table->format().borderStyle();
+        switch (cellBorder) {
+        case QTextFrameFormat::BorderStyle_Inset:
+            cellBorder = QTextFrameFormat::BorderStyle_Outset;
+            break;
+        case QTextFrameFormat::BorderStyle_Outset:
+            cellBorder = QTextFrameFormat::BorderStyle_Inset;
+            break;
+        case QTextFrameFormat::BorderStyle_Groove:
+            cellBorder = QTextFrameFormat::BorderStyle_Ridge;
+            break;
+        case QTextFrameFormat::BorderStyle_Ridge:
+            cellBorder = QTextFrameFormat::BorderStyle_Groove;
+            break;
+        default:
+            break;
+        }
+
+        drawBorder(painter, borderRect, border, table->format().borderBrush(), cellBorder);
 
         painter->setBrush(oldBrush);
         painter->setPen(oldPen);

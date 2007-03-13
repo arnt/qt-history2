@@ -872,6 +872,8 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
         && qFuzzyCompare(fmt.leftMargin(), fmt.bottomMargin()))
         fmt.setProperty(QTextFormat::FrameMargin, fmt.leftMargin());
 
+    fmt.setBorderStyle(node.borderStyle);
+    fmt.setBorderBrush(node.borderBrush);
     fmt.setBorder(node.tableBorder);
     fmt.setWidth(node.width);
     fmt.setHeight(node.height);
