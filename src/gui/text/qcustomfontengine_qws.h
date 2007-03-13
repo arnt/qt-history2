@@ -58,18 +58,11 @@ public:
     { insert(Style, style); }
     inline int style() const
     { return value(Style).toInt(); }
+
+    // ### missing foundry
 };
 
 class QCustomFontEngine;
-
-class Q_GUI_EXPORT QCustomFontEngineFactory : public QObject
-{
-    Q_OBJECT
-public:
-    QCustomFontEngineFactory(QObject *parent = 0);
-
-    virtual QCustomFontEngine *create(const QCustomFontInfo &info) = 0;
-};
 
 struct Q_GUI_EXPORT QCustomFontEngineFactoryInterface : public QFactoryInterface
 {
@@ -119,6 +112,9 @@ public:
 
     struct GlyphMetrics
     {
+        inline GlyphMetrics()
+            : x(0), y(0), width(0), height(0),
+              advance(0) {}
         Fixed x, y;
         Fixed width, height;
         Fixed advance;
@@ -143,17 +139,26 @@ public:
     };
 
     enum Extension {
-        TrueTypeFontTable,
+        GetTrueTypeTable
     };
 
     FontEngineFeatures supportedFeatures() const;
 
+    // convertStringToGlyphIndices
     virtual bool stringToGlyphIndices(const QChar *string, int length, uint *glyphs, int *numGlyphs, uint flags) const = 0;
+
+    // calculateGlyphAdvances
     virtual void getGlyphAdvances(const uint *glyphs, int numGlyphs, Fixed *advances, uint flags) const = 0;
+
+    // metrics | glyphMetrics
     virtual GlyphMetrics getGlyphMetrics(uint glyph) const = 0;
+
     virtual QVariant fontProperty(FontProperty property) const = 0;
 
+    // render | renderGlyph (see above)
     virtual QImage renderGlyph(uint glyph);
+
+    // addGlyphOutlinesToPath
     virtual void addGlyphsToPath(uint *glyphs, int numGlyphs, Fixed *positions, QPainterPath *path, QTextItem::RenderFlags flags);
 
     virtual QVariant extension(Extension extension, const QVariant &argument = QVariant());
