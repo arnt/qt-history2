@@ -58,7 +58,7 @@
 #  if !defined(QT_NO_QWS_QPF2)
 #    include <private/qfontengine_qpf_p.h>
 #  endif
-#  include <private/qcustomfontengine_p.h>
+#  include <private/qabstractfontengine_p.h>
 #endif
 
 #if defined(Q_WS_WIN64)

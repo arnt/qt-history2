@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#ifndef QCUSTOMFONTENGINE_P_H
-#define QCUSTOMFONTENGINE_P_H
+#ifndef QABSTRACTFONTENGINE_P_H
+#define QABSTRACTFONTENGINE_P_H
 
 #include "qfontengine_p.h"
-#include "qcustomfontengine_qws.h"
+#include "qabstractfontengine_qws.h"
 
 class QCustomFontEngine;
 
@@ -53,8 +53,8 @@ public:
     virtual void draw(QPaintEngine *, qreal, qreal, const QTextItemInt &);
 #endif
 
-    inline QAbstractFontEngine::FontEngineFeatures supportedFeatures() const
-    { return engine->supportedFeatures(); }
+    inline QAbstractFontEngine::Capabilities capabilities() const
+    { return engine->capabilities(); }
 
     bool drawAsOutline() const;
 

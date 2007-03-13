@@ -38,7 +38,7 @@
 #if defined(Q_WS_QWS)
 #include "private/qwscommand_qws_p.h"
 #include "qwsdisplay_qws.h"
-#include "qcustomfontengine_p.h"
+#include "qabstractfontengine_p.h"
 #endif
 #include "qplatformdefs.h"
 
@@ -573,7 +573,7 @@ void QFontEngineQPF::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
 {
     if (renderingFontEngine &&
         (renderingFontEngine->type() != QFontEngine::Proxy
-         || static_cast<QProxyFontEngine *>(renderingFontEngine)->supportedFeatures() & QAbstractFontEngine::GlyphOutlines)) {
+         || static_cast<QProxyFontEngine *>(renderingFontEngine)->capabilities() & QAbstractFontEngine::GlyphOutlines)) {
         renderingFontEngine->addOutlineToPath(x, y, glyphs, numGlyphs, path, flags);
         return;
     }

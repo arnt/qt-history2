@@ -21,8 +21,8 @@
 #endif
 #include "qfontengine_qpf_p.h"
 #include "private/qfactoryloader_p.h"
-#include "qcustomfontengine_qws.h"
-#include "qcustomfontengine_p.h"
+#include "qabstractfontengine_qws.h"
+#include "qabstractfontengine_p.h"
 #include <qdatetime.h>
 
 // for mmap

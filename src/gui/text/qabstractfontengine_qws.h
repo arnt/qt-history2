@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QCUSTOMFONTENGINE_QWS_H
-#define QCUSTOMFONTENGINE_QWS_H
+#ifndef QABSTRACTFONTENGINE_QWS_H
+#define QABSTRACTFONTENGINE_QWS_H
 
 #include <QtCore/qobject.h>
 #include <QtCore/qhash.h>
@@ -99,13 +99,13 @@ class Q_GUI_EXPORT QAbstractFontEngine : public QObject
 {
     Q_OBJECT
 public:
-    enum FontEngineFeature {
+    enum Capability {
         GlyphRendering = 1,
         GlyphOutlines  = 2
     };
-    Q_DECLARE_FLAGS(FontEngineFeatures, FontEngineFeature)
+    Q_DECLARE_FLAGS(Capabilities, Capability)
 
-    explicit QAbstractFontEngine(FontEngineFeatures supportedFeatures, QObject *parent = 0);
+    explicit QAbstractFontEngine(Capabilities capabilities, QObject *parent = 0);
     ~QAbstractFontEngine();
 
     typedef int Fixed; // 26.6
@@ -147,7 +147,7 @@ public:
         GetTrueTypeTable
     };
 
-    FontEngineFeatures supportedFeatures() const;
+    Capabilities capabilities() const;
 
     virtual bool convertStringToGlyphIndices(const QChar *string, int length, uint *glyphs, int *numGlyphs, uint flags) const = 0;
 
@@ -170,7 +170,7 @@ private:
     Q_DISABLE_COPY(QAbstractFontEngine)
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractFontEngine::FontEngineFeatures)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractFontEngine::Capabilities)
 
 QT_END_HEADER
 
