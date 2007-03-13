@@ -78,6 +78,7 @@ public:
     QAbstractSocket(SocketType socketType, QObject *parent);
     virtual ~QAbstractSocket();
 
+    // ### Qt 5: Make connectToHost() and disconnectFromHost() virtual.
     void connectToHost(const QString &hostName, quint16 port, OpenMode mode = ReadWrite);
     void connectToHost(const QHostAddress &address, quint16 port, OpenMode mode = ReadWrite);
     void disconnectFromHost();
@@ -100,6 +101,7 @@ public:
 
     void abort();
 
+    // ### Qt 5: Make socketDescriptor() and setSocketDescriptor() virtual.
     int socketDescriptor() const;
     bool setSocketDescriptor(int socketDescriptor, SocketState state = ConnectedState,
                              OpenMode openMode = ReadWrite);
@@ -115,6 +117,7 @@ public:
     bool flush();
 
     // for synchronous access
+    // ### Qt 5: Make waitForConnected() and waitForDisconnected() virtual.
     bool waitForConnected(int msecs = 30000);
     bool waitForReadyRead(int msecs = 30000);
     bool waitForBytesWritten(int msecs = 30000);

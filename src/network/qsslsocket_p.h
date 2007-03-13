@@ -92,6 +92,7 @@ public:
 
     // The socket itself, including private slots.
     QTcpSocket *plainSocket;
+    void createPlainSocket(QIODevice::OpenMode openMode);
     void _q_connectedSlot();
     void _q_hostFoundSlot();
     void _q_disconnectedSlot();

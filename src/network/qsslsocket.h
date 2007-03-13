@@ -69,6 +69,7 @@ public:
 
     // Autostarting the SSL client handshake.
     void connectToHostEncrypted(const QString &hostName, quint16 port, OpenMode mode = ReadWrite);
+    bool setSocketDescriptor(int socketDescriptor, SocketState state, OpenMode openMode);
 
     Mode mode() const;
     bool isEncrypted() const;
@@ -82,6 +83,7 @@ public:
     bool canReadLine() const;
     void close();
     bool atEnd() const;
+    bool flush();
 
     // Certificate & cipher accessors.
     void setLocalCertificate(const QSslCertificate &certificate);
@@ -117,9 +119,11 @@ public:
     static QList<QSslCertificate> globalCaCertificates();
     static QList<QSslCertificate> systemCaCertificates();
 
-    bool waitForEncrypted(int msecs);
-    bool waitForReadyRead(int msecs);
-    bool waitForBytesWritten(int msecs);
+    bool waitForConnected(int msecs = 30000);
+    bool waitForEncrypted(int msecs = 30000);
+    bool waitForReadyRead(int msecs = 30000);
+    bool waitForBytesWritten(int msecs = 30000);
+    bool waitForDisconnected(int msecs = 30000);
 
     static bool supportsSsl();
 

@@ -292,6 +292,10 @@
 #include <qpointer.h>
 #include <qtimer.h>
 
+#ifndef QT_NO_OPENSSL
+#include <QtNetwork/qsslsocket.h>
+#endif
+
 #include <private/qthread_p.h>
 
 #ifdef QABSTRACTSOCKET_DEBUG
@@ -358,6 +362,7 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
       localPort(0),
       peerPort(0),
       socketEngine(0),
+      cachedSocketDescriptor(-1),
       readBufferMaxSize(0),
       readBuffer(QABSTRACTSOCKET_BUFFERSIZE),
       writeBuffer(QABSTRACTSOCKET_BUFFERSIZE),
@@ -402,6 +407,7 @@ void QAbstractSocketPrivate::resetSocketLayer()
         socketEngine->disconnect();
         delete socketEngine;
         socketEngine = 0;
+        cachedSocketDescriptor = -1;
     }
     if (connectTimer) {
         connectTimer->stop();
@@ -460,6 +466,8 @@ bool QAbstractSocketPrivate::initSocketLayer(const QHostAddress &host, QAbstract
 	q->setErrorString(socketEngine->errorString());
         return false;
     }
+
+    cachedSocketDescriptor = socketEngine->socketDescriptor();
 
     if (threadData->eventDispatcher)
         setupSocketNotifiers();
@@ -963,9 +971,6 @@ bool QAbstractSocketPrivate::readFromSocket()
 void QAbstractSocketPrivate::fetchConnectionParameters()
 {
     Q_Q(QAbstractSocket);
-    state = QAbstractSocket::ConnectedState;
-    emit q->stateChanged(state);
-    emit q->connected();
 
     peerName = hostName;
     if (socketEngine) {
@@ -976,6 +981,10 @@ void QAbstractSocketPrivate::fetchConnectionParameters()
         localAddress = socketEngine->localAddress();
         peerAddress = socketEngine->peerAddress();
     }
+
+    state = QAbstractSocket::ConnectedState;
+    emit q->stateChanged(state);
+    emit q->connected();
 
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::fetchConnectionParameters() connection to %s:%i established",
@@ -1041,7 +1050,7 @@ QAbstractSocket::~QAbstractSocket()
 */
 bool QAbstractSocket::isValid() const
 {
-    return d_func()->socketEngine ? d_func()->socketEngine->isValid() : false;
+    return isOpen();
 }
 
 /*!
@@ -1283,8 +1292,7 @@ bool QAbstractSocket::canReadLine() const
 int QAbstractSocket::socketDescriptor() const
 {
     Q_D(const QAbstractSocket);
-    Q_CHECK_SOCKETENGINE(-1);
-    return d->socketEngine->socketDescriptor();
+    return d->cachedSocketDescriptor;
 }
 
 /*!
@@ -1303,6 +1311,11 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, SocketState sock
                                           OpenMode openMode)
 {
     Q_D(QAbstractSocket);
+#ifndef QT_NO_OPENSSL
+    if (QSslSocket *socket = qobject_cast<QSslSocket *>(this))
+        return socket->setSocketDescriptor(socketDescriptor, socketState, openMode);
+#endif
+
     d->resetSocketLayer();
     d->socketEngine = QAbstractSocketEngine::createSocketEngine(socketDescriptor, this);
     bool result = d->socketEngine->initialize(socketDescriptor, socketState);
@@ -1327,6 +1340,7 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, SocketState sock
     d->peerPort = d->socketEngine->peerPort();
     d->localAddress = d->socketEngine->localAddress();
     d->peerAddress = d->socketEngine->peerAddress();
+    d->cachedSocketDescriptor = socketDescriptor;
 
 #ifdef Q_OS_LINUX
     // ### This is a workaround for certain broken Linux kernels, when using
@@ -1388,6 +1402,13 @@ bool QAbstractSocket::waitForConnected(int msecs)
 #endif
         return true;
     }
+
+#ifndef QT_NO_OPENSSL
+    // Manual polymorphism; this function is not virtual, but has an overload
+    // in QSslSocket.
+    if (QSslSocket *socket = qobject_cast<QSslSocket *>(this))
+        return socket->waitForConnected(msecs);
+#endif
 
     QTime stopWatch;
     stopWatch.start();
@@ -1598,6 +1619,13 @@ bool QAbstractSocket::waitForDisconnected(int msecs)
         return false;
     }
 
+#ifndef QT_NO_OPENSSL
+    // Manual polymorphism; this function is not virtual, but has an overload
+    // in QSslSocket.
+    if (QSslSocket *socket = qobject_cast<QSslSocket *>(this))
+        return socket->waitForDisconnected(msecs);
+#endif
+
     QTime stopWatch;
     stopWatch.start();
 
@@ -1708,9 +1736,16 @@ bool QAbstractSocket::atEnd() const
 
     \sa write(), waitForBytesWritten()
 */
+// Note! docs copied to QSslSocket::flush()
 bool QAbstractSocket::flush()
 {
     Q_D(QAbstractSocket);
+#ifndef QT_NO_OPENSSL
+    // Manual polymorphism; flush() isn't virtual, but QSslSocket overloads
+    // it.
+    if (QSslSocket *socket = qobject_cast<QSslSocket *>(this))
+        return socket->flush();
+#endif
     Q_CHECK_SOCKETENGINE(false);
     return d->flush();
 }
@@ -1942,6 +1977,12 @@ void QAbstractSocket::close()
         d->closeCalled = true;
         disconnectFromHost();
     }
+
+    d->localPort = 0;
+    d->peerPort = 0;
+    d->localAddress.clear();
+    d->peerAddress.clear();
+    d->peerName.clear();
 }
 
 /*!

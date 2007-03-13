@@ -72,6 +72,7 @@ public:
     QString peerName;
 
     QAbstractSocketEngine *socketEngine;
+    int cachedSocketDescriptor;
 
     void resetSocketLayer();
     bool flush();
