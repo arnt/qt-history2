@@ -30,32 +30,70 @@ public:
     QFont::Style style;
 };
 
+/*!
+    \class QFontEngineInfo
+    \preliminary
+    \brief The QFontEngineInfo class describes a specific font provided by a font engine plugin.
+
+    \ingroup qws
+
+    \tableofcontents
+
+    QFontEngineInfo is used to describe a request of a font to a font engine plugin as well as to
+    describe the actual fonts a plugin provides.
+
+    \sa QAbstractFontEngine, QFontEnginePlugin
+*/
+
+/*!
+   Constructs a new empty QFontEngineInfo.
+*/
 QFontEngineInfo::QFontEngineInfo()
 {
     d = new QFontEngineInfoPrivate;
 }
 
+/*!
+   Constructs a new QFontEngineInfo with the specified \a family.
+   The resulting object represents a freely scalable font with normal
+   weight and style.
+*/
 QFontEngineInfo::QFontEngineInfo(const QString &family)
 {
     d = new QFontEngineInfoPrivate;
     d->family = family;
 }
 
+/*!
+   Creates a new font engine info object with the same attributes as \a other.
+*/
 QFontEngineInfo::QFontEngineInfo(const QFontEngineInfo &other)
     : d(new QFontEngineInfoPrivate(*other.d))
 {
 }
 
+/*!
+   Assigns \a other to this font engine info object, and returns a reference
+   to this.
+*/
 QFontEngineInfo &QFontEngineInfo::operator=(const QFontEngineInfo &other)
 {
     *d = *other.d;
     return *this;
 }
 
+/*!
+   Destroys this QFontEngineInfo object.
+*/
 QFontEngineInfo::~QFontEngineInfo()
 {
     delete d;
 }
+
+/*!
+   \property QFontEngineInfo::family
+   the family name of the font
+*/
 
 void QFontEngineInfo::setFamily(const QString &family)
 {
@@ -67,6 +105,13 @@ QString QFontEngineInfo::family() const
     return d->family;
 }
 
+/*!
+   \property QFontEngineInfo::pixelSize
+   the pixel size of the font
+
+   A pixel size of 0 represents a freely scalable font.
+*/
+
 void QFontEngineInfo::setPixelSize(qreal size)
 {
     d->pixelSize = size;
@@ -77,6 +122,13 @@ qreal QFontEngineInfo::pixelSize() const
     return d->pixelSize;
 }
 
+/*!
+   \property QFontEngineInfo::weight
+   the weight of the font
+
+   The value should be from the \l{QFont::Weight} enumeration.
+*/
+
 void QFontEngineInfo::setWeight(int weight)
 {
     d->weight = weight;
@@ -86,6 +138,11 @@ int QFontEngineInfo::weight() const
 {
     return d->weight;
 }
+
+/*!
+   \property QFontEngineInfo::style
+   the style of the font
+*/
 
 void QFontEngineInfo::setStyle(QFont::Style style)
 {
@@ -104,6 +161,27 @@ class QFontEnginePluginPrivate : public QObjectPrivate
     QString foundry;
 };
 
+/*!
+    \class QFontEnginePlugin
+    \preliminary
+    \brief QFontEnginePlugin is the base class for font engine factory plugins in Qtopia Core.
+
+    \ingroup qws
+
+    \tableofcontents
+
+    QFontEnginePlugin is provided by font engine plugins to create instances of subclasses of
+    QAbstractFontEngine.
+
+    The following functions need to be implemented: create() and availableFontEngines().
+
+    \sa QAbstractFontEngine, QFontEngineInfo
+*/
+
+/*!
+   Creates a font engine plugin that creates font engines with the specified \a foundry
+   and \a parent.
+*/
 QFontEnginePlugin::QFontEnginePlugin(const QString &foundry, QObject *parent)
     : QObject(*new QFontEnginePluginPrivate, parent)
 {
@@ -111,57 +189,116 @@ QFontEnginePlugin::QFontEnginePlugin(const QString &foundry, QObject *parent)
     d->foundry = foundry;
 }
 
+/*!
+   Destroys this font engine plugin.
+*/
 QFontEnginePlugin::~QFontEnginePlugin()
 {
 }
 
+/*!
+   Returns a list of foundries the font engine plugin provides.
+   The default implementation returns the foundry specified with the constructor.
+*/
 QStringList QFontEnginePlugin::keys() const
 {
     Q_D(const QFontEnginePlugin);
     return QStringList(d->foundry);
 }
 
+/*!
+    \fn QAbstractFontEngine *QFontEnginePlugin::create(const QFontEngineInfo &info)
+
+    Implemented in subclasses to create a new font engine that provides a font that
+    matches \a info.
+*/
+
+/*!
+    \fn QList<QFontEngineInfo> QFontEnginePlugin::availableFontEngines() const
+
+    Implemented in subclasses to return a list of QFontEngineInfo objects that represents all font
+    engines the plugin can create.
+*/
+
 class QAbstractFontEnginePrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractFontEngine)
 public:
-    QAbstractFontEngine::Capabilities capabilities;
 };
 
-QAbstractFontEngine::QAbstractFontEngine(Capabilities capabilities, QObject *parent)
+/*!
+    \class QAbstractFontEngine
+    \preliminary
+    \brief QAbstractFontEngine is the base class for font engine plugins in Qtopia Core.
+
+    \ingroup qws
+
+    \tableofcontents
+
+    QAbstractFontEngine is implemented by font engine plugins through QFontEnginePlugin.
+
+    \sa QFontEnginePlugin, QFontEngineInfo
+*/
+
+/*!
+   \enum QAbstractFontEngine::Capability
+
+   This enum describes the capabilities of a font engine.
+
+   \value RenderGlyphs The font engine can render individual glyphs into images.
+   \value OutlineGlyphs The font engine can convert glyphs to painter paths.
+*/
+
+/*!
+   \enum QAbstractFontEngine::FontProperty
+
+   This enum describes the properties of a font provided by a font engine.
+
+   \value Ascent The ascent of the font, specified as a 26.6 fixed point value.
+   \value Descent The descent of the font, specified as a 26.6 fixed point value.
+   \value Leading The leading of the font, specified as a 26.6 fixed point value.
+   \value XHeight The 'x' height of the font, specified as a 26.6 fixed point value.
+   \value AverageCharWidth The average character width of the font, specified as a 26.6 fixed point value.
+   \value LineThickness The thickness of the underline and strikeout lines for the font, specified as a 26.6 fixed point value.
+   \value UnderlinePosition The distance from the base line to the underline position for the font, specified as a 26.6 fixed point value.
+   \value MaxCharWidth The width of the widest character in the font, specified as a 26.6 fixed point value.
+   \value MinLeftBearing The minimum left bearing of the font, specified as a 26.6 fixed point value.
+   \value MinRightBearing The maximum right bearing of the font, specified as a 26.6 fixed point value.
+   \value GlyphCount The number of glyphs in the font, specified as an integer value.
+   \value CacheGlyphsHint A boolean value specifying whether rendered glyphs should be cached by Qt.
+   \value OutlineGlyphsHint A boolean value specifying whether the font engine prefers outline drawing over image rendering for uncached glyphs.
+*/
+
+QAbstractFontEngine::QAbstractFontEngine(QObject *parent)
     : QObject(*new QAbstractFontEnginePrivate, parent)
 {
-    Q_D(QAbstractFontEngine);
-    d->capabilities = capabilities;
 }
 
 QAbstractFontEngine::~QAbstractFontEngine()
 {
 }
 
-QAbstractFontEngine::Capabilities QAbstractFontEngine::capabilities() const
-{
-    Q_D(const QAbstractFontEngine);
-    return d->capabilities;
-}
-
-QImage QAbstractFontEngine::renderGlyph(uint glyph)
+bool QAbstractFontEngine::renderGlyph(uint glyph, int depth, int bytesPerLine, int height, uchar *buffer)
 {
     Q_UNUSED(glyph)
+    Q_UNUSED(depth)
+    Q_UNUSED(bytesPerLine)
+    Q_UNUSED(height)
+    Q_UNUSED(buffer)
     qWarning("QAbstractFontEngine: renderGlyph is not implemented in font plugin!");
-    return QImage();
+    return false;
 }
 
-void QAbstractFontEngine::addGlyphOutlinesToPath(uint *glyphs, int numGlyphs, FixedPoint *positions, QPainterPath *path, QTextItem::RenderFlags flags)
+void QAbstractFontEngine::addGlyphOutlinesToPath(uint *glyphs, int numGlyphs, FixedPoint *positions, QPainterPath *path)
 {
     Q_UNUSED(glyphs)
     Q_UNUSED(numGlyphs)
     Q_UNUSED(positions)
     Q_UNUSED(path)
-    Q_UNUSED(flags)
     qWarning("QAbstractFontEngine: addGlyphOutlinesToPath is not implemented in font plugin!");
 }
 
+/*
 bool QAbstractFontEngine::supportsExtension(Extension extension) const
 {
     Q_UNUSED(extension)
@@ -174,6 +311,7 @@ QVariant QAbstractFontEngine::extension(Extension extension, const QVariant &arg
     Q_UNUSED(extension)
     return QVariant();
 }
+*/
 
 QProxyFontEngine::QProxyFontEngine(QAbstractFontEngine *customEngine, const QFontDef &def)
     : engine(customEngine)
@@ -210,15 +348,34 @@ bool QProxyFontEngine::stringToCMap(const QChar *str, int len, QGlyphLayout *gly
 
 QImage QProxyFontEngine::alphaMapForGlyph(glyph_t glyph)
 {
-    if (engine->capabilities() & QAbstractFontEngine::RenderGlyphs)
-        return engine->renderGlyph(glyph);
-    return QFontEngine::alphaMapForGlyph(glyph);
+    if (!(engine->capabilities() & QAbstractFontEngine::CanRenderGlyphs_Gray))
+        return QFontEngine::alphaMapForGlyph(glyph);
+
+    QAbstractFontEngine::GlyphMetrics metrics = engine->glyphMetrics(glyph);
+    if (metrics.width <= 0 || metrics.height <= 0)
+        return QImage();
+
+    QImage img(metrics.width >> 6, metrics.height >> 6, QImage::Format_Indexed8);
+
+    // ### we should have QImage::Format_GrayScale8
+    static QVector<QRgb> colorMap;
+    if (colorMap.isEmpty()) {
+        colorMap.resize(256);
+        for (int i=0; i<256; ++i)
+            colorMap[i] = qRgba(0, 0, 0, i);
+    }
+
+    img.setColorTable(colorMap);
+
+    engine->renderGlyph(glyph, /*depth*/8, img.bytesPerLine(), img.height(), img.bits());
+
+    return img;
 }
 
 void QProxyFontEngine::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs, QPainterPath *path, QTextItem::RenderFlags flags)
 {
-    if (engine->capabilities() & QAbstractFontEngine::OutlineGlyphs)
-        engine->addGlyphOutlinesToPath(glyphs, nglyphs, reinterpret_cast<QAbstractFontEngine::FixedPoint *>(positions), path, flags);
+    if (engine->capabilities() & QAbstractFontEngine::CanOutlineGlyphs)
+        engine->addGlyphOutlinesToPath(glyphs, nglyphs, reinterpret_cast<QAbstractFontEngine::FixedPoint *>(positions), path);
     else
         QFontEngine::addGlyphsToPath(glyphs, positions, nglyphs, path, flags);
 }
@@ -339,7 +496,7 @@ void QProxyFontEngine::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItem
         return;
 
     for(int i = 0; i < glyphs.size(); i++) {
-        QImage glyph = engine->renderGlyph(glyphs[i]);
+        QImage glyph = alphaMapForGlyph(glyphs[i]);
         if (glyph.isNull())
             continue;
 
@@ -364,7 +521,7 @@ void QProxyFontEngine::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItem
  */
 bool QProxyFontEngine::drawAsOutline() const
 {
-    if (!(engine->capabilities() & QAbstractFontEngine::OutlineGlyphs))
+    if (!(engine->capabilities() & QAbstractFontEngine::CanOutlineGlyphs))
         return false;
 
     QVariant outlineHint = engine->fontProperty(QAbstractFontEngine::OutlineGlyphsHint);

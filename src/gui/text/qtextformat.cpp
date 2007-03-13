@@ -580,7 +580,7 @@ QTextFormat::QTextFormat(int type)
 /*!
     \fn QTextFormat::QTextFormat(const QTextFormat &other)
 
-    Creates a new text format with the same attributes at the \a other
+    Creates a new text format with the same attributes as the \a other
     text format.
 */
 QTextFormat::QTextFormat(const QTextFormat &rhs)

@@ -29,6 +29,12 @@ class QFontEngineInfoPrivate;
 class Q_GUI_EXPORT QFontEngineInfo
 {
 public:
+    QDOC_PROPERTY(QString family READ family WRITE setFamily)
+    QDOC_PROPERTY(qreal pixelSize READ pixelSize WRITE setPixelSize)
+    QDOC_PROPERTY(int weight READ weight WRITE setWeight)
+    QDOC_PROPERTY(QFont::Style style READ style WRITE setStyle)
+    // QList<WritingSystem> supportedWritingSystems
+
     QFontEngineInfo();
     explicit QFontEngineInfo(const QString &family);
     QFontEngineInfo(const QFontEngineInfo &other);
@@ -89,12 +95,14 @@ class Q_GUI_EXPORT QAbstractFontEngine : public QObject
     Q_OBJECT
 public:
     enum Capability {
-        RenderGlyphs  = 1,
-        OutlineGlyphs = 2
+        CanOutlineGlyphs = 1,
+        CanRenderGlyphs_Mono = 2,
+        CanRenderGlyphs_Gray = 4,
+        CanRenderGlyphs = CanRenderGlyphs_Mono | CanRenderGlyphs_Gray
     };
     Q_DECLARE_FLAGS(Capabilities, Capability)
 
-    explicit QAbstractFontEngine(Capabilities capabilities, QObject *parent = 0);
+    explicit QAbstractFontEngine(QObject *parent = 0);
     ~QAbstractFontEngine();
 
     typedef int Fixed; // 26.6
@@ -128,7 +136,7 @@ public:
         GlyphCount,
 
         // hints
-        ShareGlyphsHint,
+        CacheGlyphsHint,
         OutlineGlyphsHint
     };
 
@@ -139,27 +147,27 @@ public:
     };
     Q_DECLARE_FLAGS(TextShapingFlags, TextShapingFlag)
 
-    enum Extension {
-        GetTrueTypeTable
-    };
-
-    Capabilities capabilities() const;
+    virtual Capabilities capabilities() const = 0;
+    virtual QVariant fontProperty(FontProperty property) const = 0;
 
     virtual bool convertStringToGlyphIndices(const QChar *string, int length, uint *glyphs, int *numGlyphs, TextShapingFlags flags) const = 0;
 
-    // Fixed or FixedPoint?
     virtual void getGlyphAdvances(const uint *glyphs, int numGlyphs, Fixed *advances, TextShapingFlags flags) const = 0;
 
     virtual GlyphMetrics glyphMetrics(uint glyph) const = 0;
 
-    virtual QVariant fontProperty(FontProperty property) const = 0;
+    virtual bool renderGlyph(uint glyph, int depth, int bytesPerLine, int height, uchar *buffer);
 
-    virtual QImage renderGlyph(uint glyph);
+    virtual void addGlyphOutlinesToPath(uint *glyphs, int numGlyphs, FixedPoint *positions, QPainterPath *path);
 
-    virtual void addGlyphOutlinesToPath(uint *glyphs, int numGlyphs, FixedPoint *positions, QPainterPath *path, QTextItem::RenderFlags flags);
+    /*
+    enum Extension {
+        GetTrueTypeTable
+    };
 
-    virtual bool supportsExtension(Extension extension) const; // ?
+    virtual bool supportsExtension(Extension extension) const;
     virtual QVariant extension(Extension extension, const QVariant &argument = QVariant());
+    */
 
 private:
     Q_DECLARE_PRIVATE(QAbstractFontEngine)

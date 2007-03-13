@@ -465,7 +465,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
                     engine = new QProxyFontEngine(customEngine, def);
 
                     if (shareFonts) {
-                        QVariant hint = customEngine->fontProperty(QAbstractFontEngine::ShareGlyphsHint);
+                        QVariant hint = customEngine->fontProperty(QAbstractFontEngine::CacheGlyphsHint);
                         if (hint.isValid())
                             shareFonts = hint.toBool();
                         else
