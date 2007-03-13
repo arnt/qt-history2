@@ -54,12 +54,13 @@ public:
 #endif
 
     inline QAbstractFontEngine::Capabilities capabilities() const
-    { return engine->capabilities(); }
+    { return engineCapabilities; }
 
     bool drawAsOutline() const;
 
 private:
     QAbstractFontEngine *engine;
+    QAbstractFontEngine::Capabilities engineCapabilities;
 };
 
 #endif

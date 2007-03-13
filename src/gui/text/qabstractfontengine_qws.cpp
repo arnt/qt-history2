@@ -317,6 +317,7 @@ QProxyFontEngine::QProxyFontEngine(QAbstractFontEngine *customEngine, const QFon
     : engine(customEngine)
 {
     fontDef = def;
+    engineCapabilities = engine->capabilities();
 }
 
 QProxyFontEngine::~QProxyFontEngine()
@@ -348,7 +349,7 @@ bool QProxyFontEngine::stringToCMap(const QChar *str, int len, QGlyphLayout *gly
 
 QImage QProxyFontEngine::alphaMapForGlyph(glyph_t glyph)
 {
-    if (!(engine->capabilities() & QAbstractFontEngine::CanRenderGlyphs_Gray))
+    if (!(engineCapabilities & QAbstractFontEngine::CanRenderGlyphs_Gray))
         return QFontEngine::alphaMapForGlyph(glyph);
 
     QAbstractFontEngine::GlyphMetrics metrics = engine->glyphMetrics(glyph);
@@ -374,7 +375,7 @@ QImage QProxyFontEngine::alphaMapForGlyph(glyph_t glyph)
 
 void QProxyFontEngine::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs, QPainterPath *path, QTextItem::RenderFlags flags)
 {
-    if (engine->capabilities() & QAbstractFontEngine::CanOutlineGlyphs)
+    if (engineCapabilities & QAbstractFontEngine::CanOutlineGlyphs)
         engine->addGlyphOutlinesToPath(glyphs, nglyphs, reinterpret_cast<QAbstractFontEngine::FixedPoint *>(positions), path);
     else
         QFontEngine::addGlyphsToPath(glyphs, positions, nglyphs, path, flags);
@@ -521,7 +522,7 @@ void QProxyFontEngine::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItem
  */
 bool QProxyFontEngine::drawAsOutline() const
 {
-    if (!(engine->capabilities() & QAbstractFontEngine::CanOutlineGlyphs))
+    if (!(engineCapabilities & QAbstractFontEngine::CanOutlineGlyphs))
         return false;
 
     QVariant outlineHint = engine->fontProperty(QAbstractFontEngine::OutlineGlyphsHint);

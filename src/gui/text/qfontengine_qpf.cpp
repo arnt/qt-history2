@@ -380,7 +380,7 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef &def, int fileDescriptor, QFontEng
     if (!freetype) {
         QString newPath = QLibraryInfo::location(QLibraryInfo::LibrariesPath)
                           + QLatin1String("/fonts/")
-                          + QFileInfo(face_id.filename).fileName();
+                          + QFileInfo(QFile::decodeName(face_id.filename)).fileName();
         face_id.filename = QFile::encodeName(newPath);
         freetype = QFreetypeFace::getFace(face_id);
     }
