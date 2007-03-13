@@ -144,8 +144,10 @@ bool QSharedMemory::attach ()
     shmId = shmget (key, shmSize, 0);
 
   shmBase = shmat (shmId, 0, 0);
+  if ((long)shmBase == -1)
+      shmBase = 0;
 
-  return (long)shmBase != -1 && shmBase != 0;
+  return (long)shmBase != 0;
 }
 
 
