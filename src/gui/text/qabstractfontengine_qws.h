@@ -109,7 +109,8 @@ public:
 
     struct FixedPoint
     {
-        Fixed x, y;
+        Fixed x;
+        Fixed y;
     };
 
     struct GlyphMetrics
@@ -117,8 +118,10 @@ public:
         inline GlyphMetrics()
             : x(0), y(0), width(0), height(0),
               advance(0) {}
-        Fixed x, y;
-        Fixed width, height;
+        Fixed x;
+        Fixed y;
+        Fixed width;
+        Fixed height;
         Fixed advance;
     };
 

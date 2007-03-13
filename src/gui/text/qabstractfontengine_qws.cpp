@@ -281,6 +281,75 @@ public:
 */
 
 /*!
+   \typedef QAbstractFontEngine::Fixed
+
+   This type is \c int, interpreted as a 26.6 fixed point value.
+*/
+
+/*!
+   \class QAbstractFontEngine::GlyphMetrics
+   \brief QAbstractFontEngine::GlyphMetrics defines the metrics of a single glyph.
+   \preliminary
+   \since 4.3
+*/
+
+/*!
+   \variable QAbstractFontEngine::GlyphMetrics::x
+
+   The horizontal offset from the origin.
+*/
+
+/*!
+   \fn QAbstractFontEngine::GlyphMetrics::GlyphMetrics()
+
+   Constructs an empty glyph metrics object with all values
+   set to zero.
+*/
+
+/*!
+   \variable QAbstractFontEngine::GlyphMetrics::y
+
+   The vertical offset from the origin (baseline).
+*/
+
+/*!
+   \variable QAbstractFontEngine::GlyphMetrics::width
+
+   The width of the glyph.
+*/
+
+/*!
+   \variable QAbstractFontEngine::GlyphMetrics::height
+
+   The height of the glyph.
+*/
+
+/*!
+   \variable QAbstractFontEngine::GlyphMetrics::advance
+
+   The advance of the glyph.
+*/
+
+/*!
+   \class QAbstractFontEngine::FixedPoint
+   \brief QAbstractFontEngine::FixedPoint defines a point in the place using 26.6 fixed point precision.
+   \preliminary
+   \since 4.3
+*/
+
+/*!
+   \variable QAbstractFontEngine::FixedPoint::x
+
+   The x coordinate of this point.
+*/
+
+/*!
+   \variable QAbstractFontEngine::FixedPoint::y
+
+   The y coordinate of this point.
+*/
+
+/*!
    Constructs a new QAbstractFontEngine with the given \a parent.
 */
 QAbstractFontEngine::QAbstractFontEngine(QObject *parent)
