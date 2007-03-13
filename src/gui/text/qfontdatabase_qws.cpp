@@ -77,7 +77,7 @@ void QFontDatabasePrivate::addQPF2File(const QByteArray &file)
     struct stat st;
     if (stat(file.constData(), &st))
         return;
-    int f = ::open(QFile::encodeName(file), O_RDONLY);
+    int f = ::open(file, O_RDONLY);
     if (f < 0)
         return;
     const uchar *data = (const uchar *)mmap(0, st.st_size, PROT_READ, MAP_SHARED, f, 0);
@@ -96,7 +96,7 @@ void QFontDatabasePrivate::addQPF2File(const QByteArray &file)
                 bool italic = static_cast<QFont::Style>(style.toInt()) & QFont::StyleItalic;
 
                 addFont(fontName, /*foundry*/ "prerendered", fontWeight, italic,
-                        pixelSize, QFile::encodeName(file), /*fileIndex*/ 0,
+                        pixelSize, file, /*fileIndex*/ 0,
                         /*antialiased*/ true);
             }
         } else {
@@ -236,7 +236,7 @@ static void initializeDb()
 
     QString dbFileName = qws_fontCacheDir() + QLatin1String("/fontdb");
 
-    QFile binaryDb(dbFileName + ".tmp");
+    QFile binaryDb(dbFileName + QLatin1String(".tmp"));
     binaryDb.open(QIODevice::WriteOnly | QIODevice::Truncate);
     db->stream = new QDataStream(&binaryDb);
     *db->stream << DatabaseVersion << quint8(db->stream->version());
@@ -266,7 +266,7 @@ static void initializeDb()
                     filename += QLatin1String("/lib/fonts/");
 #endif
                 }
-                filename += file;
+                filename += QLatin1String(file);
                 bool italic = isitalic[0] == 'y';
                 bool smooth = QByteArray(flags).contains('s');
                 if (file[0] && QFile::exists(filename))
@@ -376,7 +376,7 @@ static void initializeDb()
                 weight = QFont::Normal;
 
             db->addFont(info.family(), foundry.toLatin1().constData(),
-                        weight, info.style() != QFont::Normal,
+                        weight, info.style() != QFont::StyleNormal,
                         qRound(info.pixelSize()), /*file*/QByteArray(),
                         /*fileIndex*/0, /*antiAliased*/true);
         }
@@ -428,7 +428,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 
 #ifndef QT_NO_QPF2
     if (foundry->name == QLatin1String("prerendered")) {
-        int f = ::open(QFile::encodeName(size->fileName), O_RDONLY);
+        int f = ::open(size->fileName, O_RDONLY);
         if (f >= 0) {
             QFontEngineQPF *fe = new QFontEngineQPF(request, f);
             if (fe->isValid())
@@ -440,7 +440,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 #endif
 #ifndef QT_NO_FREETYPE
     if ( foundry->name != QLatin1String("qt") ) { ///#### is this the best way????
-        QString file = size->fileName;
+        QString file = QFile::decodeName(size->fileName);
 
         QFontDef def = request;
         def.pixelSize = pixelSize;
