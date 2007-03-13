@@ -31,7 +31,9 @@ public:
         Family,
         PixelSize,
         Weight,
-        Style
+        Style,
+        NoAntialiasing,
+        SupportedWritingSystems
     };
 
     QCustomFontInfo();
@@ -80,7 +82,7 @@ Q_DECLARE_INTERFACE(QCustomFontEngineFactoryInterface, QCustomFontEngineFactoryI
 
 class QCustomFontEnginePluginPrivate;
 
-class QCustomFontEnginePlugin : public QObject, public QCustomFontEngineFactoryInterface
+class Q_GUI_EXPORT QCustomFontEnginePlugin : public QObject, public QCustomFontEngineFactoryInterface
 {
     Q_OBJECT
     Q_INTERFACES(QCustomFontEngineFactoryInterface:QFactoryInterface)
@@ -98,7 +100,7 @@ private:
     Q_DISABLE_COPY(QCustomFontEnginePlugin)
 };
 
-class QCustomFontEngine : public QObject
+class Q_GUI_EXPORT QCustomFontEngine : public QObject
 {
     Q_OBJECT
 public:

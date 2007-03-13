@@ -20,6 +20,9 @@
 #include "qfontengine_ft_p.h"
 #endif
 #include "qfontengine_qpf_p.h"
+#include "private/qfactoryloader_p.h"
+#include "qcustomfontengine_qws.h"
+#include "qcustomfontengine_p.h"
 #include <qdatetime.h>
 
 // for mmap
@@ -31,13 +34,18 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#ifndef QT_NO_LIBRARY
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+    (QCustomFontEngineFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/fontengines"), Qt::CaseInsensitive))
+#endif
+
 const quint8 DatabaseVersion = 3;
 
 void QFontDatabasePrivate::addFont(const QString &familyname, const char *foundryname, int weight, bool italic, int pixelSize,
                                    const QByteArray &file, int fileIndex, bool antialiased,
                                    QFontDatabase::WritingSystem primaryWritingSystem)
 {
-    //qDebug() << "Adding font" << familyname << weight << italic << pixelSize << file << fileIndex << antialiased;
+//    qDebug() << "Adding font" << familyname << weight << italic << pixelSize << file << fileIndex << antialiased;
     QtFontStyle::Key styleKey;
     styleKey.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
     styleKey.weight = weight;
@@ -346,6 +354,34 @@ static void initializeDb()
         }
     }
 #endif // QFONTDATABASE_DEBUG
+
+#ifndef QT_NO_LIBRARY
+    QStringList pluginFoundries = loader()->keys();
+//    qDebug() << "plugin foundries:" << pluginFoundries;
+    for (int i = 0; i < pluginFoundries.count(); ++i) {
+        const QString foundry(pluginFoundries.at(i));
+
+        QCustomFontEngineFactoryInterface *factory = qobject_cast<QCustomFontEngineFactoryInterface *>(loader()->instance(foundry));
+        if (!factory) {
+            qDebug() << "Could not load plugin for foundry" << foundry;
+            continue;
+        }
+
+        QList<QCustomFontInfo> fonts = factory->availableFonts();
+        for (int i = 0; i < fonts.count(); ++i) {
+            QCustomFontInfo info = fonts.at(i);
+
+            int weight = info.weight();
+            if (weight <= 0)
+                weight = QFont::Normal;
+
+            db->addFont(info.family(), foundry.toLatin1().constData(),
+                        weight, info.style() != QFont::Normal,
+                        qRound(info.pixelSize()), /*file*/QByteArray(),
+                        /*fileIndex*/0, /*antiAliased*/true);
+        }
+    }
+#endif
 
     delete db->stream;
     db->stream = 0;
