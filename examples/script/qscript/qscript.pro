@@ -1,5 +1,5 @@
 
-QT = core script
+QT = core gui script
 win32: CONFIG += console
 
 SOURCES += main.cpp
@@ -11,3 +11,8 @@ contains(QT_CONFIG, qdbus) {
     CONFIG += qdbus
 }
 
+# install
+target.path = $$[QT_INSTALL_EXAMPLES]/script/qscript
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qscript.pro
+sources.path = $$[QT_INSTALL_EXAMPLES]/script/qscript
+INSTALLS += target sources
