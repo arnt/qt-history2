@@ -178,27 +178,9 @@ private slots:
     void compatibilityChildInsertedEvents();
 
 private:
-    bool ensureScreenSize(int width, int height);
-
     QWidget *testWidget;
 };
 
-bool tst_QWidget::ensureScreenSize(int width, int height)
-{
-    QSize available;
-#ifdef Q_WS_QWS
-    available = QDesktopWidget().availableGeometry().size();
-    if (available.width() < width || available.height() < height) {
-        QScreen *screen = QScreen::instance();
-        if (!screen)
-            return false;
-        screen->setMode(width, height, screen->depth());
-    }
-#endif // Q_WS_QWS
-
-    available = QDesktopWidget().availableGeometry().size();
-    return (available.width() >= width && available.height() >= height);
-}
 
 class MyInputContext : public QInputContext
 {
@@ -3045,17 +3027,28 @@ void tst_QWidget::childDeletesItsSibling()
 
 }
 
+#ifdef Q_WS_QWS
+# define SET_SAFE_SIZE(w) \
+    do { \
+        QSize safeSize(qt_screen->width() - 250, qt_screen->height() - 250);      \
+         if (!safeSize.isValid()) \
+             QSKIP("Screen size too small", SkipAll); \
+         if (defaultSize.width() > safeSize.width() || defaultSize.height() > safeSize.height()) { \
+             defaultSize = safeSize; \
+             w.resize(defaultSize); \
+             w.setAttribute(Qt::WA_Resized, false); \
+         } \
+    } while (false)
+#else
+# define SET_SAFE_SIZE(w)
+#endif
+
+
 void tst_QWidget::setMinimumSize()
 {
     QWidget w;
     QSize defaultSize = w.size();
-
-#if defined(Q_WS_QWS) && (QT_VERSION < 0x040300)
-    QEXPECT_FAIL(0, "setMode() not implemented for the VNC screen driver",
-                 Abort);
-#endif
-    QVERIFY(ensureScreenSize(defaultSize.width() + 250,
-                             defaultSize.height() + 250));
+    SET_SAFE_SIZE(w);
 
     w.setMinimumSize(defaultSize + QSize(100, 100));
     QCOMPARE(w.size(), defaultSize + QSize(100, 100));
@@ -3074,13 +3067,7 @@ void tst_QWidget::setMaximumSize()
 {
     QWidget w;
     QSize defaultSize = w.size();
-
-#if defined(Q_WS_QWS) && (QT_VERSION < 0x040300)
-    QEXPECT_FAIL(0, "setMode() not implemented for the VNC screen driver",
-                 Abort);
-#endif
-    QVERIFY(ensureScreenSize(defaultSize.width() + 250,
-                             defaultSize.height() + 250));
+    SET_SAFE_SIZE(w);
 
     w.setMinimumSize(defaultSize + QSize(100, 100));
     QCOMPARE(w.size(), defaultSize + QSize(100, 100));
@@ -3099,13 +3086,7 @@ void tst_QWidget::setFixedSize()
 {
     QWidget w;
     QSize defaultSize = w.size();
-
-#if defined(Q_WS_QWS) && (QT_VERSION < 0x040300)
-    QEXPECT_FAIL(0, "setMode() not implemented for the VNC screen driver",
-                 Abort);
-#endif
-    QVERIFY(ensureScreenSize(defaultSize.width() + 250,
-                             defaultSize.height() + 250));
+    SET_SAFE_SIZE(w);
 
     w.setFixedSize(defaultSize + QSize(100, 100));
     QCOMPARE(w.size(), defaultSize + QSize(100, 100));
