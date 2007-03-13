@@ -18,6 +18,7 @@
 #include <QtCore/qhash.h>
 #include <QtCore/qvariant.h>
 #include <QtCore/qfactoryinterface.h>
+#include <QtGui/qpaintengine.h>
 
 QT_BEGIN_HEADER
 
@@ -94,6 +95,51 @@ public:
 private:
     Q_DECLARE_PRIVATE(QCustomFontEnginePlugin)
     Q_DISABLE_COPY(QCustomFontEnginePlugin)
+};
+
+class QCustomFontEngine : public QObject
+{
+    Q_OBJECT
+public:
+    QCustomFontEngine(QObject *parent = 0);
+    ~QCustomFontEngine();
+
+    typedef int Fixed; // 26.6
+
+    struct GlyphMetrics
+    {
+        Fixed x, y;
+        Fixed width, height;
+        Fixed xOffset, yOffset;
+    };
+
+    enum FontProperty {
+        Ascent,
+        Descent,
+        Leading,
+        XHeight,
+        AverageCharWidth,
+        LineThickness,
+        UnderlinePosition,
+        MaxCharWidth,
+        MinLeftBearing,
+        MinRightBearing
+    };
+
+    enum Extension {
+        TrueTypeFontTable,
+        TotalGlyphCount
+    };
+
+    virtual bool stringToGlyphIndices(const QChar *string, int length, uint *glyphs, int *numGlyphs, uint flags) const = 0;
+    virtual void getGlyphAdvances(const uint *glyphs, int numGlyphs, Fixed *advances, uint flags) const = 0;
+    virtual GlyphMetrics getGlyphMetrics(uint glyph) const = 0;
+    virtual QVariant fontProperty(FontProperty property) const = 0;
+
+    virtual QImage renderGlyph(uint glyph);
+    virtual void addGlyphsToPath(uint *glyphs, int numGlyphs, Fixed *positions, QTextItem::RenderFlags flags);
+
+    virtual QVariant extension(Extension extension, const QVariant &argument);
 };
 
 QT_END_HEADER
