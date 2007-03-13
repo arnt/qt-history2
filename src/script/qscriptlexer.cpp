@@ -668,6 +668,8 @@ int QScript::Lexer::lex()
         quint64 i;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
         sscanf_s(buffer8, "%Lx", &i);
+#elif defined(Q_OS_MAC)
+        sscanf(buffer8, "%llx", &i);
 #else
         sscanf(buffer8, "%Lx", &i);
 #endif
