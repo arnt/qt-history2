@@ -153,6 +153,59 @@ QStringList QFontDatabasePrivate::addTTFile(const QByteArray &file, const QByteA
 
 static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt);
 
+bool QFontDatabasePrivate::loadFromCache(const QString &fontPath)
+{
+    QFile binaryDb(qws_fontCacheDir() + QLatin1String("/fontdb"));
+    if (!binaryDb.exists())
+        return false;
+
+    QDateTime fontPathTimeStamp = QFileInfo(fontpath).lastModified();
+    QDateTime dbTimeStamp = QFileInfo(binaryDb.fileName()).lastModified();
+    if (dbTimeStamp < fontPathTimeStamp)
+        return false;
+
+    QString fontDirFile = fontPath + QLatin1String("/fontdir");
+    if (QFile::exists(fontDirFile)) {
+        QDateTime fontDirTimeStamp = QFileInfo(fontDirFile).lastModified();
+        if (dbTimeStamp < fontDirTimeStamp)
+            return false;
+    }
+
+    if (!binaryDb.open(QIODevice::ReadOnly))
+        return false;
+
+    QDataStream stream(&binaryDb);
+    quint8 version, dataStreamVersion = 0;
+    stream >> version;
+    if (version != DatabaseVersion)
+        return false;
+
+    stream >> dataStreamVersion;
+    if (dataStreamVersion != stream.version())
+        return false;
+
+    QString originalFontPath;
+    stream >> originalFontPath;
+    if (originalFontPath != fontPath)
+        return false;
+
+    //qDebug() << "populating database from" << binaryDb.fileName();
+    while (!stream.atEnd()) {
+        QString familyname, foundryname;
+        int weight;
+        quint8 italic;
+        int pixelSize;
+        QByteArray file;
+        int fileIndex;
+        quint8 antialiased;
+        quint8 primaryWritingSystem;
+        stream >> familyname >> foundryname >> weight >> italic >> pixelSize
+               >> file >> fileIndex >> antialiased >> primaryWritingSystem;
+        addFont(familyname, foundryname.toLatin1().constData(), weight, italic, pixelSize, file, fileIndex, antialiased,
+                static_cast<QFontDatabase::WritingSystem>(primaryWritingSystem));
+    }
+}
+
 /*!
     \internal
 */
@@ -186,46 +239,16 @@ static void initializeDb()
                fontpath.toLocal8Bit().constData());
     }
 
-    QFile binaryDb(qws_fontCacheDir() + QLatin1String("/fontdb"));
-    if (binaryDb.exists()) {
-        QDateTime fontPathTimeStamp = QFileInfo(fontpath).lastModified();
-        QDateTime dbTimeStamp = QFileInfo(binaryDb.fileName()).lastModified();
-        QDateTime fontDirTimeStamp = QFileInfo(fontDirFile).lastModified();
-        if (dbTimeStamp > fontPathTimeStamp
-            && (!QFile::exists(fontDirFile) || dbTimeStamp > fontDirTimeStamp)) {
-            binaryDb.open(QIODevice::ReadOnly);
-            QDataStream stream(&binaryDb);
-            quint8 version, dataStreamVersion = 0;
-            stream >> version;
-            if (version == DatabaseVersion)
-                stream >> dataStreamVersion;
-            if (version == DatabaseVersion && dataStreamVersion == stream.version()) {
-                //qDebug() << "populating database from" << binaryDb.fileName();
-                while (!stream.atEnd()) {
-                    QString familyname, foundryname;
-                    int weight;
-                    quint8 italic;
-                    int pixelSize;
-                    QByteArray file;
-                    int fileIndex;
-                    quint8 antialiased;
-                    quint8 primaryWritingSystem;
-                    stream >> familyname >> foundryname >> weight >> italic >> pixelSize
-                           >> file >> fileIndex >> antialiased >> primaryWritingSystem;
-                    db->addFont(familyname, foundryname.toLatin1().constData(), weight, italic, pixelSize, file, fileIndex, antialiased,
-                                static_cast<QFontDatabase::WritingSystem>(primaryWritingSystem));
-                }
-                return;
-            } else {
-                binaryDb.close();
-            }
-        }
-    }
-    QString dbFileName = binaryDb.fileName();
-    binaryDb.setFileName(dbFileName + QLatin1String(".tmp"));
+    if (db->loadFromCache(fontpath))
+        return;
+
+    QString dbFileName = qws_fontCacheDir() + QLatin1String("/fontdb");
+
+    QFile binaryDb(dbFileName + ".tmp");
     binaryDb.open(QIODevice::WriteOnly | QIODevice::Truncate);
     db->stream = new QDataStream(&binaryDb);
-    *db->stream << DatabaseVersion << quint8(db->stream->version());
+    *db->stream << DatabaseVersion << quint8(db->stream->version())
+                << fontpath;
 //    qDebug() << "creating binary database at" << binaryDb.fileName();
 
     // Load in font definition file
