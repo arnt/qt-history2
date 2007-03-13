@@ -2781,7 +2781,7 @@ QRect QRegion::boundingRect() const
 */
 bool qt_region_strictContains(const QRegion &region, const QRect &rect)
 {
-    if (region.isEmpty() || rect.isNull())
+    if (::isEmpty(region.d->qt_rgn) || !rect.isValid())
         return false;
 
 #if 0 // TEST_INNERRECT
@@ -2807,9 +2807,8 @@ bool qt_region_strictContains(const QRegion &region, const QRect &rect)
 #endif
 
     const QRect r1 = region.d->qt_rgn->innerRect;
-    const QRect r2 = rect.normalized();
-    return (r2.left() >= r1.left() && r2.right() <= r1.right()
-            && r2.top() >= r1.top() && r2.bottom() <= r1.bottom());
+    return (rect.left() >= r1.left() && rect.right() <= r1.right()
+            && rect.top() >= r1.top() && rect.bottom() <= r1.bottom());
 }
 
 /*!
