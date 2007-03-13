@@ -1128,16 +1128,7 @@ bool QMainWindow::event(QEvent *event)
 
 #ifndef QT_NO_TOOLBAR
         case QEvent::ToolBarChange: {
-            QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
-            QSize minimumSize = d->layout->minimumSize();
-            for (int i = 0; i < toolbars.size(); ++i) {
-                QToolBar *toolbar = toolbars.at(i);
-                toolbar->setVisible(!toolbar->isVisible());
-            }
-            QApplication::sendPostedEvents(this, QEvent::LayoutRequest);
-            QSize newMinimumSize = d->layout->minimumSize();
-            QSize delta = newMinimumSize - minimumSize;
-            resize(size() + delta);
+            d->layout->toggleToolBarsVisible();
             return true;
         }
 #endif

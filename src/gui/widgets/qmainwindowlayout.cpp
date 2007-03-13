@@ -1067,6 +1067,17 @@ void QMainWindowLayout::getStyleOptionInfo(QStyleOptionToolBar *option, QToolBar
     layoutState.toolBarAreaLayout.getStyleOptionInfo(option, toolBar);
 }
 
+void QMainWindowLayout::toggleToolBarsVisible()
+{
+    layoutState.toolBarAreaLayout.visible = !layoutState.toolBarAreaLayout.visible;
+    
+    QRect r = parentWidget()->geometry();
+    r = layoutState.toolBarAreaLayout.rectHint(r);
+
+//    widgetAnimator->animate(parentWidget(), r, true);
+    parentWidget()->setGeometry(r);
+}
+
 #endif // QT_NO_TOOLBAR
 
 /******************************************************************************

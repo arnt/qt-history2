@@ -108,13 +108,15 @@ public:
     QRect rect;
     QMainWindow *mainWindow;
     QToolBarAreaLayoutInfo docks[4];
+    bool visible;
 
     QToolBarAreaLayout(QMainWindow *win);
 
     QRect fitLayout();
 
     QSize minimumSize(const QSize &centerMin) const;
-    QSize sizeHint(const QSize &centerHint) const;
+    QRect rectHint(const QRect &r) const;
+    QSize sizeHint(const QSize &center) const;
     void apply(bool animate);
 
     QLayoutItem *itemAt(int *x, int index) const;

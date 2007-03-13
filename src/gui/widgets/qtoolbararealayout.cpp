@@ -457,6 +457,7 @@ QRect QToolBarAreaLayoutInfo::appendLineDropRect() const
 
 QToolBarAreaLayout::QToolBarAreaLayout(QMainWindow *win)
 {
+    visible = true;
     mainWindow = win;
     for (int i = 0; i < QInternal::DockCount; ++i) {
         QInternal::DockPosition pos = static_cast<QInternal::DockPosition>(i);
@@ -466,6 +467,9 @@ QToolBarAreaLayout::QToolBarAreaLayout(QMainWindow *win)
 
 QRect QToolBarAreaLayout::fitLayout()
 {
+    if (!visible)
+        return rect;
+    
     QSize left_hint = docks[QInternal::LeftDock].sizeHint();
     QSize right_hint = docks[QInternal::RightDock].sizeHint();
     QSize top_hint = docks[QInternal::TopDock].sizeHint();
@@ -493,6 +497,9 @@ QRect QToolBarAreaLayout::fitLayout()
 
 QSize QToolBarAreaLayout::minimumSize(const QSize &centerMin) const
 {
+    if (!visible)
+        return centerMin;
+    
     QSize result = centerMin;
 
     QSize left_min = docks[QInternal::LeftDock].minimumSize();
@@ -513,6 +520,9 @@ QSize QToolBarAreaLayout::minimumSize(const QSize &centerMin) const
 
 QSize QToolBarAreaLayout::sizeHint(const QSize &centerHint) const
 {
+    if (!visible)
+        return centerHint;
+    
     QSize result = centerHint;
 
     QSize left_hint = docks[QInternal::LeftDock].sizeHint();
@@ -527,6 +537,23 @@ QSize QToolBarAreaLayout::sizeHint(const QSize &centerHint) const
 
     result.rwidth() += left_hint.width() + right_hint.width();
     result.rheight() += top_hint.height() + bottom_hint.height();
+
+    return result;
+}
+
+QRect QToolBarAreaLayout::rectHint(const QRect &r) const
+{
+    int coef = visible ? 1 : -1;
+
+    QRect result = r;
+
+    QSize left_hint = docks[QInternal::LeftDock].sizeHint();
+    QSize right_hint = docks[QInternal::RightDock].sizeHint();
+    QSize top_hint = docks[QInternal::TopDock].sizeHint();
+    QSize bottom_hint = docks[QInternal::BottomDock].sizeHint();
+
+    result.adjust(-left_hint.width()*coef, -top_hint.height()*coef,
+                    right_hint.width()*coef, bottom_hint.height()*coef);
 
     return result;
 }
@@ -673,16 +700,18 @@ void QToolBarAreaLayout::apply(bool animate)
                     continue;
 
                 QRect r;
-                if (line.o == Qt::Horizontal) {
-                    r.setTop(line.rect.top());
-                    r.setBottom(line.rect.bottom());
-                    r.setLeft(line.rect.left() + item.pos);
-                    r.setRight(line.rect.left() + item.pos + item.size - 1);
-                } else {
-                    r.setLeft(line.rect.left());
-                    r.setRight(line.rect.right());
-                    r.setTop(line.rect.top() + item.pos);
-                    r.setBottom(line.rect.top() + item.pos + item.size - 1);
+                if (visible) {
+                    if (line.o == Qt::Horizontal) {
+                        r.setTop(line.rect.top());
+                        r.setBottom(line.rect.bottom());
+                        r.setLeft(line.rect.left() + item.pos);
+                        r.setRight(line.rect.left() + item.pos + item.size - 1);
+                    } else {
+                        r.setLeft(line.rect.left());
+                        r.setRight(line.rect.right());
+                        r.setTop(line.rect.top() + item.pos);
+                        r.setBottom(line.rect.top() + item.pos + item.size - 1);
+                    }
                 }
 
                 QWidget *widget = item.widgetItem->widget();
@@ -705,7 +734,7 @@ void QToolBarAreaLayout::apply(bool animate)
                 }
 
                 QRect geo = r;
-                if (dock.o == Qt::Horizontal)
+                if (visible && dock.o == Qt::Horizontal)
                     geo = QStyle::visualRect(dir, line.rect, geo);
                 layout->widgetAnimator->animate(widget, geo, animate);
             }
