@@ -480,6 +480,7 @@ public:
         WidthOnly = 0x07
     };
 
+    // keep in sync with QAbstractFontEngine::ShaperFlag!!
     enum ShaperFlag {
         RightToLeft = 0x0001,
         Mirrored = 0x0001,

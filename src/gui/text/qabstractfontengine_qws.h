@@ -132,16 +132,24 @@ public:
         OutlineGlyphsHint
     };
 
+    // keep in sync with QTextEngine::ShaperFlag!!
+    enum ShaperFlag {
+        RightToLeft      = 0x0001,
+        Mirrored         = 0x0001,
+        UseDesignMetrics = 0x0002
+    };
+    Q_DECLARE_FLAGS(ShaperFlags, ShaperFlag)
+
     enum Extension {
         GetTrueTypeTable
     };
 
     Capabilities capabilities() const;
 
-    virtual bool convertStringToGlyphIndices(const QChar *string, int length, uint *glyphs, int *numGlyphs, uint flags) const = 0;
+    virtual bool convertStringToGlyphIndices(const QChar *string, int length, uint *glyphs, int *numGlyphs, ShaperFlags flags) const = 0;
 
     // Fixed or FixedPoint?
-    virtual void getGlyphAdvances(const uint *glyphs, int numGlyphs, Fixed *advances, uint flags) const = 0;
+    virtual void getGlyphAdvances(const uint *glyphs, int numGlyphs, Fixed *advances, ShaperFlags flags) const = 0;
 
     virtual GlyphMetrics glyphMetrics(uint glyph) const = 0;
 
@@ -160,6 +168,7 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractFontEngine::Capabilities)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractFontEngine::ShaperFlags)
 
 QT_END_HEADER
 
