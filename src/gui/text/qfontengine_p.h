@@ -71,6 +71,7 @@ public:
         Freetype,
         QPF1,
         QPF2,
+        Proxy,
         TestFontEngine = 0x1000
     };
 

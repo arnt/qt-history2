@@ -101,7 +101,8 @@ embedded {
 	HEADERS += \
 		text/qfontengine_ft_p.h \
 		text/qfontengine_qpf_p.h \
-		text/qcustomfontengine_qws.h
+		text/qcustomfontengine_qws.h \
+		text/qcustomfontengine_p.h
 	DEFINES += QT_NO_FONTCONFIG
 }
 

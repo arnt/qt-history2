@@ -138,9 +138,9 @@ public:
     virtual QVariant fontProperty(FontProperty property) const = 0;
 
     virtual QImage renderGlyph(uint glyph);
-    virtual void addGlyphsToPath(uint *glyphs, int numGlyphs, Fixed *positions, QTextItem::RenderFlags flags);
+    virtual void addGlyphsToPath(uint *glyphs, int numGlyphs, Fixed *positions, QPainterPath *path, QTextItem::RenderFlags flags);
 
-    virtual QVariant extension(Extension extension, const QVariant &argument);
+    virtual QVariant extension(Extension extension, const QVariant &argument = QVariant());
 };
 
 QT_END_HEADER
