@@ -263,7 +263,8 @@ void tst_QFileSystemWatcher::watchDirectory()
     changedSpy.clear();
 
     // recreate the file, we should not get any notification
-    QDir().mkdir("testDir");
+    if (!QDir().mkdir("testDir"))
+        QSKIP("Failed to recreate directory, skipping final test.", SkipSingle);
 
     // qDebug() << "waiting max 5 seconds for notification for dir recreation to trigger";
     timer.start(5000);
