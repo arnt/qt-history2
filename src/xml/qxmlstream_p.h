@@ -934,6 +934,11 @@ public:
     void raiseError(QXmlStreamReader::Error error, const QString& message = QString());
     void raiseWellFormedError(const QString &message);
 
+private:
+    static inline QString illegalNamespaceMessage() 
+    {
+        return QXmlStream::tr("Illegal namespace declaration.");
+    }
 };
 
 bool QXmlStreamReaderPrivate::parse()
@@ -1579,7 +1584,11 @@ bool QXmlStreamReaderPrivate::parse()
             if (prefix.isEmpty() && symString(1) == QLatin1String("xmlns") && namespaceProcessing) {
                 NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
                 namespaceDeclaration.prefix.clear();
-                namespaceDeclaration.namespaceUri = addToStringStorage(symString(5));
+
+                if(symString(5) == QLatin1String("http://www.w3.org/2000/xmlns/"))
+                    raiseWellFormedError(illegalNamespaceMessage());
+                else
+                    namespaceDeclaration.namespaceUri = addToStringStorage(symString(5));
             } else {
                 Attribute &attribute = attributeStack.push();
                 attribute.key = sym(1);
@@ -1628,7 +1637,7 @@ bool QXmlStreamReaderPrivate::parse()
                     if ((namespacePrefix == QLatin1String("xml")
                          ^ namespaceUri == QLatin1String("http://www.w3.org/XML/1998/namespace"))
                         || namespacePrefix == QLatin1String("xmlns"))
-                        raiseWellFormedError(QXmlStream::tr("Illegal namespace declaration."));
+                        raiseWellFormedError(illegalNamespaceMessage());
 
                     namespaceDeclaration.prefix = addToStringStorage(namespacePrefix);
                     namespaceDeclaration.namespaceUri = addToStringStorage(namespaceUri);

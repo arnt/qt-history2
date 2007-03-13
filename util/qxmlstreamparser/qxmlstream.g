@@ -1341,7 +1341,11 @@ attribute ::= qname space_opt EQ space_opt attribute_value;
             if (prefix.isEmpty() && symString(1) == QLatin1String("xmlns") && namespaceProcessing) {
                 NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
                 namespaceDeclaration.prefix.clear();
-                namespaceDeclaration.namespaceUri = addToStringStorage(symString(5));
+
+                if(symString(5) == QLatin1String("http://www.w3.org/2000/xmlns/"))
+                    raiseWellFormedError(QXmlStream::tr("Illegal namespace declaration."));
+                else
+                    namespaceDeclaration.namespaceUri = addToStringStorage(symString(5));
             } else {
                 Attribute &attribute = attributeStack.push();
                 attribute.key = sym(1);
