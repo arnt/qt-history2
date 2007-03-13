@@ -27,20 +27,22 @@ static QByteArray qNtlmPhase1();
 static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phase2data);
 
 /*!
-  class QAuthenticator
-
-  \since 4.3
-
+  \class QAuthenticator
   \brief The QAuthenticator class provides an authentication object.
+  \since 4.3
 
   \reentrant
   \ingroup io
   \module network
 
   The QAuthenticator class is usually used in the
-  authenticationRequired and proxyAuthenticationRequired signals of
-  QHttp and QAbstractSocket. The class provieds a means to pass back
-  the required authentication information to the socket.
+  \l{QHttp::}{authenticationRequired()} and
+  \l{QHttp::}{proxyAuthenticationRequired()} signals of QHttp and
+  QAbstractSocket. The class provides a way to pass back the required
+  authentication information to the socket when accessing services that
+  require authentication.
+
+  \sa QSslSocket
 */
 
 
