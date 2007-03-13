@@ -1607,26 +1607,26 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 
                 lines[0] = QLine(rect.left() + 2, rect.top(), rect.right() - 2, rect.top());
                 lines[1] = QLine(rect.left() + 2, rect.bottom(), rect.right() - 2, rect.bottom());
-                painter->drawLines(lines, 2);
+                p->drawLines(lines, 2);
 
                 p->setPen(QPen(hoverOuter, 0));
                 lines[0] = QLine(rect.left() + 1, rect.top() + 1, rect.right() - 1, rect.top() + 1);
                 lines[1] = QLine(rect.left() + 1, rect.bottom() - 1, rect.right() - 1, rect.bottom() - 1);
-                painter->drawLines(lines, 2);
+                p->drawLines(lines, 2);
 
                 QBrush hoverInner = hover;
                 qBrushSetAlphaF(&hoverInner, 0.45);
                 p->setPen(QPen(hoverInner, 0));
                 lines[0] = QLine(rect.left() + 1, rect.top() + 2, rect.right() - 1, rect.top() + 2);
                 lines[1] = QLine(rect.left() + 1, rect.bottom() - 2, rect.right() - 1, rect.bottom() - 2);
-                painter->drawLines(lines, 2);
+                p->drawLines(lines, 2);
 
                 QBrush hoverSide = hover;
                 qBrushSetAlphaF(&hoverSide, 0.075);
                 p->setPen(QPen(hoverSide, 0));
                 lines[0] = QLine(rect.left() + 1, rect.top() + 2, rect.left() + 1, rect.bottom() - 2);
                 lines[1] = QLine(rect.right() - 1, rect.top() + 2, rect.right() - 1, rect.bottom() - 2);
-                painter->drawLines(lines, 2);
+                p->drawLines(lines, 2);
             }
 
             p->setPen(oldPen);
