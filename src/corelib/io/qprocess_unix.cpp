@@ -481,6 +481,40 @@ bool QProcessPrivate::createChannel(Channel &channel)
     }
 }
 
+static char **_q_dupEnvironment(const QStringList &environment, int *envc)
+{
+    // if LD_LIBRARY_PATH exists in the current environment, but
+    // not in the environment list passed by the programmer, then
+    // copy it over.
+#if defined(Q_OS_MAC)
+    static const char libraryPath[] = "DYLD_LIBRARY_PATH";
+#else
+    static const char libraryPath[] = "LD_LIBRARY_PATH";
+#endif
+    const QString libraryPathString = QLatin1String(libraryPath);
+    QStringList env = environment;
+    QStringList matches = env.filter(
+        QRegExp(QLatin1Char('^') + libraryPathString + QLatin1Char('=')));
+    const QString envLibraryPath = QString::fromLocal8Bit(::getenv(libraryPath));
+    if (matches.isEmpty() && !envLibraryPath.isEmpty()) {
+        QString entry = libraryPathString;
+        entry += QLatin1Char('=');
+        entry += envLibraryPath;
+        env << libraryPathString + QLatin1Char('=') + envLibraryPath;
+    }
+
+    char **envp = new char *[env.count() + 1];
+    envp[env.count()] = 0;
+
+    for (int j = 0; j < env.count(); ++j) {
+        QString item = env.at(j);
+        envp[j] = ::strdup(item.toLocal8Bit().constData());
+    }
+
+    *envc = env.count();
+    return envp;
+}
+
 // under QNX RTOS we have to use vfork() when multithreading
 inline pid_t qt_fork()
 {
@@ -529,11 +563,95 @@ void QProcessPrivate::startProcess()
     processState = QProcess::Starting;
     emit q->stateChanged(processState);
 
-    QByteArray encodedProg = QFile::encodeName(program);
+    // Create argument list with right number of elements, and set the final
+    // one to 0.
+    char **argv = new char *[arguments.count() + 2];
+    argv[arguments.count() + 1] = 0;
+
+    // Encode the program name.
+    QByteArray encodedProgramName = QFile::encodeName(program);
+#ifdef Q_OS_MAC
+    // allow invoking of .app bundles on the Mac.
+    QFileInfo fileInfo(QString::fromUtf8(encodedProgramName.constData()));
+    if (encodedProgramName.endsWith(".app") && fileInfo.isDir()) {
+        QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(0,
+                                                          QCFString(fileInfo.absoluteFilePath()),
+                                                          kCFURLPOSIXPathStyle, true);
+        QCFType<CFBundleRef> bundle = CFBundleCreate(0, url);
+        url = CFBundleCopyExecutableURL(bundle);
+        if (url) {
+            QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
+            encodedProgramName += "/Contents/MacOS/" + static_cast<QString>(str).toUtf8();
+        }
+    }
+#endif
+
+    // Add the program name to the argument list.
+    char *dupProgramName = ::strdup(encodedProgramName.constData());
+    argv[0] = dupProgramName;
+
+    // Add every argument to the list
+    for (int i = 0; i < arguments.count(); ++i) {
+        QString arg = arguments.at(i);
+#ifdef Q_OS_MAC
+        // Mac OS X uses UTF8 for exec, regardless of the system locale.
+        argv[i + 1] = ::strdup(arg.toUtf8().constData());
+#else
+        argv[i + 1] = ::strdup(arg.toLocal8Bit().constData());
+#endif
+    }
+
+    // Duplicate the environment.
+    int envc = 0;
+    char **envp = _q_dupEnvironment(environment, &envc);
+
+    // Encode the working directory if it's non-empty, otherwise just pass 0.
+    const char *workingDirPtr = 0;
+    QByteArray encodedWorkingDirectory;
+    if (!workingDirectory.isEmpty()) {
+        encodedWorkingDirectory = QFile::encodeName(workingDirectory);
+        workingDirPtr = encodedWorkingDirectory.constData();
+    }
+
+    // If the program does not specify a path, generate a list of possible
+    // locations for the binary using the PATH environment variable.
+    char **path = 0;
+    int pathc = 0;
+    if (!program.contains(QLatin1Char('/'))) {
+        const QString pathEnv = QString::fromLocal8Bit(::getenv("PATH"));
+        if (!pathEnv.isEmpty()) {
+            QStringList pathEntries = pathEnv.split(QLatin1Char(':'), QString::SkipEmptyParts);
+            if (!pathEntries.isEmpty()) {
+                pathc = pathEntries.size();
+                path = new char *[pathc + 1];
+                path[pathc] = 0;
+                
+                for (int k = 0; k < pathEntries.size(); ++k) {
+                    QByteArray tmp = QFile::encodeName(pathEntries.at(k));
+                    if (!tmp.endsWith('/')) tmp += '/';
+                    tmp += encodedProgramName;
+                    path[k] = ::strdup(tmp.constData());
+                }
+            }
+        }
+    }
+
+    // Start the process manager, and fork off the child process.
     processManager()->lock();
-
     pid_t childPid = qt_fork();
-
+    if (childPid != 0) {
+        // Clean up duplicated memory.
+        free(dupProgramName);
+        for (int i = 1; i <= arguments.count(); ++i)
+            free(argv[i]);
+        for (int i = 0; i < envc; ++i)
+            free(envp[i]);
+        for (int i = 0; i < pathc; ++i)
+            free(path[i]);
+        delete [] argv;
+        delete [] envp;
+        delete [] path;
+    }
     if (childPid < 0) {
         // Cleanup, report error and return
         processManager()->unlock();
@@ -546,10 +664,14 @@ void QProcessPrivate::startProcess()
         return;
     }
 
+    // Start the child.
     if (childPid == 0) {
-        execChild(encodedProg);
+        execChild(workingDirPtr, path, argv, envp);
         ::_exit(-1);
     }
+
+    // Register the child. In the mean time, we can get a SIGCHLD, so we need
+    // to keep the lock held to avoid a race to catch the child.
     processManager()->add(childPid, q);
     pid = Q_PID(childPid);
     processManager()->unlock();
@@ -584,46 +706,11 @@ void QProcessPrivate::startProcess()
         ::fcntl(stderrChannel.pipe[0], F_SETFL, ::fcntl(stderrChannel.pipe[0], F_GETFL) | O_NONBLOCK);
 }
 
-void QProcessPrivate::execChild(const QByteArray &programName)
+void QProcessPrivate::execChild(const char *workingDir, char **path, char **argv, char **envp)
 {
     ::signal(SIGPIPE, SIG_DFL);         // reset the signal that we ignored
 
-    QByteArray encodedProgramName = programName;
     Q_Q(QProcess);
-
-    // create argument list with right number of elements, and set the
-    // final one to 0.
-    char **argv = new char *[arguments.count() + 2];
-    argv[arguments.count() + 1] = 0;
-
-    // allow invoking of .app bundles on the Mac.
-#ifdef Q_OS_MAC
-    QFileInfo fileInfo(QString::fromUtf8(encodedProgramName.constData()));
-    if (encodedProgramName.endsWith(".app") && fileInfo.isDir()) {
-        QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(0,
-                                                          QCFString(fileInfo.absoluteFilePath()),
-                                                          kCFURLPOSIXPathStyle, true);
-        QCFType<CFBundleRef> bundle = CFBundleCreate(0, url);
-        url = CFBundleCopyExecutableURL(bundle);
-        if (url) {
-            QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
-            encodedProgramName += "/Contents/MacOS/" + static_cast<QString>(str).toUtf8();
-        }
-    }
-#endif
-
-    // add the program name
-    argv[0] = ::strdup(encodedProgramName.constData());
-
-    // add every argument to the list
-    for (int i = 0; i < arguments.count(); ++i) {
-        QString arg = arguments.at(i);
-#ifdef Q_OS_MAC
-        argv[i + 1] = ::strdup(arg.toUtf8().constData());
-#else
-        argv[i + 1] = ::strdup(arg.toLocal8Bit().constData());
-#endif
-    }
 
     // copy the stdin socket
     qt_native_dup2(stdinChannel.pipe[0], fileno(stdin));
@@ -645,8 +732,8 @@ void QProcessPrivate::execChild(const QByteArray &programName)
     ::fcntl(childStartedPipe[1], F_SETFD, FD_CLOEXEC);
 
     // enter the working directory
-    if (!workingDirectory.isEmpty())
-        qt_native_chdir(QFile::encodeName(workingDirectory).constData());
+    if (workingDir)
+        qt_native_chdir(workingDir);
 
     // this is a virtual call, and it base behavior is to do nothing.
     q->setupChildProcess();
@@ -655,47 +742,15 @@ void QProcessPrivate::execChild(const QByteArray &programName)
     if (environment.isEmpty()) {
         qt_native_execvp(argv[0], argv);
     } else {
-        // if LD_LIBRARY_PATH exists in the current environment, but
-        // not in the environment list passed by the programmer, then
-        // copy it over.
-#if defined(Q_OS_MAC)
-        static const char libraryPath[] = "DYLD_LIBRARY_PATH";
-#else
-        static const char libraryPath[] = "LD_LIBRARY_PATH";
-#endif
-        const QString libraryPathString = QLatin1String(libraryPath);
-        QStringList matches = environment.filter(
-                QRegExp(QLatin1Char('^') + libraryPathString + QLatin1Char('=')));
-        const QString envLibraryPath = QString::fromLocal8Bit(::getenv(libraryPath));
-        if (matches.isEmpty() && !envLibraryPath.isEmpty()) {
-            QString entry = libraryPathString;
-            entry += QLatin1Char('=');
-            entry += envLibraryPath;
-            environment << libraryPathString + QLatin1Char('=') + envLibraryPath;
-        }
-
-        char **envp = new char *[environment.count() + 1];
-        envp[environment.count()] = 0;
-
-        for (int j = 0; j < environment.count(); ++j) {
-            QString item = environment.at(j);
-            envp[j] = ::strdup(item.toLocal8Bit().constData());
-        }
-
-        if (!encodedProgramName.contains("/")) {
-            const QString path = QString::fromLocal8Bit(::getenv("PATH"));
-            if (!path.isEmpty()) {
-                QStringList pathEntries = path.split(QLatin1Char(':'));
-                for (int k = 0; k < pathEntries.size(); ++k) {
-                    QByteArray tmp = QFile::encodeName(pathEntries.at(k));
-                    if (!tmp.endsWith('/')) tmp += '/';
-                    tmp += encodedProgramName;
-                    argv[0] = tmp.data();
+        if (path) {
+            char **arg = path;
+            while (*arg) {
+                argv[0] = *arg;
 #if defined (QPROCESS_DEBUG)
-                    fprintf(stderr, "QProcessPrivate::execChild() searching / starting %s\n", argv[0]);
+                fprintf(stderr, "QProcessPrivate::execChild() searching / starting %s\n", argv[0]);
 #endif
-                    qt_native_execve(argv[0], argv, envp);
-                }
+                qt_native_execve(argv[0], argv, envp);
+                ++arg;
             }
         } else {
 #if defined (QPROCESS_DEBUG)
@@ -941,7 +996,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 	if (stdinChannel.pipe[1] != -1 && FD_ISSET(stdinChannel.pipe[1], &fdwrite))
 	    _q_canWrite();
 
-	if (FD_ISSET(deathPipe[0], &fdread)) {
+	if (deathPipe[0] == -1 || FD_ISSET(deathPipe[0], &fdread)) {
             if (_q_processDied())
                 return false;
         }
@@ -1007,7 +1062,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 	if (stderrChannel.pipe[0] != -1 && FD_ISSET(stderrChannel.pipe[0], &fdread))
 	    _q_canReadStandardError();
 
-	if (FD_ISSET(deathPipe[0], &fdread)) {
+	if (deathPipe[0] == -1 || FD_ISSET(deathPipe[0], &fdread)) {
             if (_q_processDied())
                 return false;
         }
@@ -1073,7 +1128,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
 	if (stderrChannel.pipe[0] != -1 && FD_ISSET(stderrChannel.pipe[0], &fdread))
 	    _q_canReadStandardError();
 
-	if (FD_ISSET(deathPipe[0], &fdread)) {
+	if (deathPipe[0] == -1 || FD_ISSET(deathPipe[0], &fdread)) {
             if (_q_processDied())
                 return true;
 	}

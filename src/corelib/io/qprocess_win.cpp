@@ -600,12 +600,6 @@ void QProcessPrivate::startProcess()
     _q_startupNotification();
 }
 
-void QProcessPrivate::execChild(const QByteArray &encodedProgramName)
-{
-    Q_UNUSED(encodedProgramName);
-    // unix only
-}
-
 bool QProcessPrivate::processStarted()
 {
     return processState == QProcess::Running;

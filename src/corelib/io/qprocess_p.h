@@ -168,7 +168,9 @@ public:
     QWinEventNotifier *processFinishedNotifier;
 
     void startProcess();
-    void execChild(const QByteArray &encodedProgramName);
+#ifdef Q_OS_UNIX
+    void execChild(const char *workingDirectory, char **path, char **argv, char **envp);
+#endif
     bool processStarted();
     void terminateProcess();
     void killProcess();
