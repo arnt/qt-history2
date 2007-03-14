@@ -20,8 +20,8 @@
 
 #include "qwidgetanimator_p.h"
 
-static const int g_animation_steps = 14;
-static const int g_animation_interval = 20;
+static const int g_animation_steps = 12;
+static const int g_animation_interval = 16;
 
 // 1000 * (x/(1 + x*x) + 0.5) on interval [-1, 1]
 static const int g_animate_function[] =
