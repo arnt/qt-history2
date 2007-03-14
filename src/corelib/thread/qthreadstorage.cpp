@@ -106,7 +106,7 @@ void **QThreadStorageData::set(void *p)
 void QThreadStorageData::finish(void **p)
 {
     QHash<int, void *> *tls = reinterpret_cast<QHash<int, void *> *>(p);
-    if (!tls || tls->isEmpty())
+    if (!tls || tls->isEmpty() || !mutex())
         return; // nothing to do
 
     DEBUG("QThreadStorageData: Destroying storage for thread %p", QThread::currentThread());
