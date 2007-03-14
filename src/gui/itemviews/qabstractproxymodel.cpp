@@ -176,6 +176,15 @@ QVariant QAbstractProxyModel::headerData(int section, Qt::Orientation orientatio
 /*!
     \reimp
  */
+QMap<int, QVariant> QAbstractProxyModel::itemData(const QModelIndex &proxyIndex) const
+{
+    Q_D(const QAbstractProxyModel);
+    return d->model->itemData(mapToSource(proxyIndex));
+}
+
+/*!
+    \reimp
+ */
 Qt::ItemFlags QAbstractProxyModel::flags(const QModelIndex &index) const
 {
     Q_D(const QAbstractProxyModel);

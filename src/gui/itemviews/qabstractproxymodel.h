@@ -47,6 +47,7 @@ public:
 
     QVariant data(const QModelIndex &proxyIndex, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QMap<int, QVariant> itemData(const QModelIndex &index) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
 protected:
