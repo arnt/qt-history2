@@ -43,8 +43,8 @@ static void resolveLibs()
     static bool triedResolve = false;
     if (!triedResolve) {
         QLibrary lib(QLatin1String("shell32"));
-	triedResolve = true;
-	ptrShell_NotifyIcon = (PtrShell_NotifyIcon) lib.resolve("Shell_NotifyIconW");
+	    triedResolve = true;
+	    ptrShell_NotifyIcon = (PtrShell_NotifyIcon) lib.resolve("Shell_NotifyIconW");
     }
 }
 
@@ -67,25 +67,37 @@ public:
     QRect findTrayGeometry();
     HBITMAP createIconMask(const QBitmap &bitmap);
     void createIcon();
+    int detectShellVersion() const;
     HICON hIcon;
     QPoint globalPos;
     QSystemTrayIcon *q;
 private:
     uint notifyIconSizeW;
     uint notifyIconSizeA;
-
+    int currentShellVersion;
+    int maxTipLength;
 };
 
 // Checks for the shell32 dll version number, since only version
 // 5 or later of supports ballon messages
 bool QSystemTrayIconSys::supportsMessages()
 {
+    if (currentShellVersion >= 5)
+        return true;
+    else
+        return false;
+}
+
+//Returns the runtime major version of the shell32 dll
+int QSystemTrayIconSys::detectShellVersion() const
+{
     HMODULE hmod = LoadLibraryA("shell32.dll");
+    int shellVersion = 4; //NT 4.0 and W95
     if (hmod)
     {
         DLLGETVERSIONPROC pDllGetVersion;
         pDllGetVersion = (DLLGETVERSIONPROC)GetProcAddress(hmod,
-                          "DllGetVersion");
+            "DllGetVersion");
         if (pDllGetVersion)
         {
             DLLVERSIONINFO dvi;
@@ -96,23 +108,29 @@ bool QSystemTrayIconSys::supportsMessages()
             if (SUCCEEDED(hr)) {
                 if (dvi.dwMajorVersion >= 5)
                 {
-#if NOTIFYICON_VERSION >= 3
-                    notifyIconSizeA = FIELD_OFFSET(NOTIFYICONDATAA, guidItem); // NOTIFYICONDATAA_V2_SIZE
-                    notifyIconSizeW = FIELD_OFFSET(NOTIFYICONDATAW, guidItem); // NOTIFYICONDATAW_V2_SIZE;
-#endif
-                    return true;
+                    shellVersion = dvi.dwMajorVersion;
                 }
             }
         }
     }
-    return false;
+    return shellVersion;
 }
 
 QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *object)
     : hIcon(0), q(object)
 {
+    currentShellVersion = detectShellVersion();
     notifyIconSizeA = FIELD_OFFSET(NOTIFYICONDATAA, szTip[64]); // NOTIFYICONDATAA_V1_SIZE
     notifyIconSizeW = FIELD_OFFSET(NOTIFYICONDATAW, szTip[64]); // NOTIFYICONDATAW_V1_SIZE;
+    maxTipLength = 64;
+
+#if NOTIFYICON_VERSION >= 3
+    if (currentShellVersion >=5) {
+        notifyIconSizeA = FIELD_OFFSET(NOTIFYICONDATAA, guidItem); // NOTIFYICONDATAA_V2_SIZE
+        notifyIconSizeW = FIELD_OFFSET(NOTIFYICONDATAW, guidItem); // NOTIFYICONDATAW_V2_SIZE;
+        maxTipLength = 128;
+    }
+#endif
 
     // For restoring the tray icon after explorer crashes
     if (!MYWM_TASKBARCREATED) {
@@ -123,7 +141,7 @@ QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *object)
 QSystemTrayIconSys::~QSystemTrayIconSys()
 {
     if (hIcon)
-	DestroyIcon(hIcon);
+        DestroyIcon(hIcon);
 }
 
 void QSystemTrayIconSys::setIconContentsW(NOTIFYICONDATAW &tnd)
@@ -132,10 +150,11 @@ void QSystemTrayIconSys::setIconContentsW(NOTIFYICONDATAW &tnd)
     tnd.uCallbackMessage = MYWM_NOTIFYICON;
     tnd.hIcon = hIcon;
     QString tip = q->toolTip();
+
     if (!tip.isNull()) {
-        // Tip is limited to 63 + NULL; lstrcpyn appends a NULL terminator.
-        tip = tip.left(63) + QChar();
-        lstrcpynW(tnd.szTip, (TCHAR*)tip.utf16(), qMin(tip.length()+1, 64));
+        // Tip is limited to maxTipLength - NULL; lstrcpyn appends a NULL terminator.
+        tip = tip.left(maxTipLength - 1) + QChar();
+        lstrcpynW(tnd.szTip, (TCHAR*)tip.utf16(), qMin(tip.length()+1, maxTipLength));
     }
 }
 
@@ -145,10 +164,11 @@ void QSystemTrayIconSys::setIconContentsA(NOTIFYICONDATAA &tnd)
     tnd.uCallbackMessage = MYWM_NOTIFYICON;
     tnd.hIcon = hIcon;
     QString tip = q->toolTip();
+
     if (!tip.isNull()) {
-        // Tip is limited to 63 + NULL; lstrcpyn appends a NULL terminator.
-        tip = tip.left(63) + QChar();
-        lstrcpynA(tnd.szTip, tip.toLocal8Bit().constData(), qMin(tip.length()+1, 64));
+        // Tip is limited to maxTipLength - NULL; lstrcpyn appends a NULL terminator.
+        tip = tip.left(maxTipLength - 1) + QChar();
+        lstrcpynA(tnd.szTip, tip.toLocal8Bit().constData(), qMin(tip.length()+1, maxTipLength));
     }
 }
 
