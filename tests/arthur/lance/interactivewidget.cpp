@@ -58,6 +58,7 @@ InteractiveWidget::InteractiveWidget()
     QPushButton *run = new QPushButton("&Run", panel);
     QPushButton *load = new QPushButton("&Load", panel);
     QPushButton *save = new QPushButton("&Save", panel);
+    run->setFocusPolicy(Qt::NoFocus);
 
     vlayout->addSpacing(20);
     vlayout->addWidget(run);
@@ -108,7 +109,7 @@ void InteractiveWidget::load()
         QString("Load QPaintEngine Script"),
         QFileInfo(m_filename).absoluteFilePath(),
         QString("QPaintEngine Script (*.qps);;All files (*.*)"));
-    
+
     load(fname);
 }
 
@@ -144,7 +145,7 @@ void InteractiveWidget::save()
         QTextStream textFile(&file);
         textFile << script;
         m_onScreenWidget->m_filename = fname;
-    }    
+    }
 }
 
 /***************************************************************************************************/
