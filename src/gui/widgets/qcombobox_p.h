@@ -50,6 +50,9 @@
 class QComboBoxListView : public QListView
 {
     Q_OBJECT
+public:
+        QComboBoxListView(QComboBox *cmb = 0) : combo(cmb){};
+
 protected:
     void resizeEvent(QResizeEvent *event)
     {
@@ -61,8 +64,13 @@ protected:
     {
         QStyleOptionViewItem option = QListView::viewOptions();
         option.showDecorationSelected = true;
+        if (combo)
+            option.font = combo->font();
         return option;
     }
+    
+private:
+    QComboBox *combo;    
 };
 
 

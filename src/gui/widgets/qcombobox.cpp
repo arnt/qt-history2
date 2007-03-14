@@ -833,7 +833,7 @@ QComboBoxPrivateContainer* QComboBoxPrivate::viewContainer()
         return container;
 
     Q_Q(QComboBox);
-    container = new QComboBoxPrivateContainer(new QComboBoxListView(), q);
+    container = new QComboBoxPrivateContainer(new QComboBoxListView(q), q);
     container->itemView()->setModel(q->model());
     container->itemView()->setTextElideMode(Qt::ElideMiddle);
     QStyleOptionComboBox opt;
