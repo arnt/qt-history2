@@ -188,38 +188,52 @@ void tst_QImageReader::readImage()
     QFETCH(bool, success);
     QFETCH(QByteArray, format);
 
-    QImageReader io("images/" + fileName, format);
-    if (success) {
-        if (!io.supportsAnimation())
-            QVERIFY(io.imageCount() > 0);
-    } else {
-        QCOMPARE(io.imageCount(), -1);
-    }
-    QImage image = io.read();
-    if (!success) {
-        QVERIFY(image.isNull());
-        return;
-    }
+    for (int i = 0; i < 2; ++i) {
+        QImageReader io("images/" + fileName, i ? QByteArray() : format);
+        if (success) {
+            if (!io.supportsAnimation())
+                QVERIFY(io.imageCount() > 0);
+        } else {
+            QCOMPARE(io.imageCount(), -1);
+        }
+        QImage image = io.read();
+        if (!success) {
+            QVERIFY(image.isNull());
+            return;
+        }
 
-    QVERIFY2(!image.isNull(), io.errorString().toLatin1().constData());
-
-    // No format
-    QImageReader io2("images/" + fileName);
-    QVERIFY2(!io2.read().isNull(), io.errorString().toLatin1().constData());
-
-    // No extension, no format
-    QImageReader io3("images/" + fileName.left(fileName.lastIndexOf(QLatin1Char('.'))));
-    QVERIFY2(!io3.read().isNull(), io.errorString().toLatin1().constData());
-
-    // Read into \a image2
-    QImage image2;
-    QImageReader image2Reader("images/" + fileName, format);
-    QVERIFY(image2Reader.read(&image2));
-    QCOMPARE(image, image2);
-
-    do {
         QVERIFY2(!image.isNull(), io.errorString().toLatin1().constData());
-    } while (!(image = io.read()).isNull());
+
+        // No format
+        QImageReader io2("images/" + fileName);
+        QVERIFY2(!io2.read().isNull(), io.errorString().toLatin1().constData());
+
+        // No extension, no format
+        QImageReader io3("images/" + fileName.left(fileName.lastIndexOf(QLatin1Char('.'))));
+        QVERIFY2(!io3.read().isNull(), io.errorString().toLatin1().constData());
+
+        // Read into \a image2
+        QImage image2;
+        QImageReader image2Reader("images/" + fileName, i ? QByteArray() : format);
+        QCOMPARE(image2Reader.format(), format);
+        QVERIFY(image2Reader.read(&image2));
+        if (image2Reader.canRead()) {
+            if (i)
+                QVERIFY(!image2Reader.format().isEmpty());
+            else
+                QCOMPARE(image2Reader.format(), format);
+        } else {
+            if (i)
+                QVERIFY(image2Reader.format().isEmpty());
+            else
+                QVERIFY(!image2Reader.format().isEmpty());
+        }
+        QCOMPARE(image, image2);
+
+        do {
+            QVERIFY2(!image.isNull(), io.errorString().toLatin1().constData());
+        } while (!(image = io.read()).isNull());
+    }
 }
 
 void tst_QImageReader::jpegRgbCmyk()
