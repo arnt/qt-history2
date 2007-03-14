@@ -1524,7 +1524,7 @@ QString Symbol::lexem() const
     for (int i = 0; i < len; ++i) {
         if (text.at(start + i) == QLatin1Char('\\') && i < len - 1)
             ++i;
-        result.append(text.at(start + i));
+        result.inline_append(text.at(start + i));
     }
     return result;
 }
