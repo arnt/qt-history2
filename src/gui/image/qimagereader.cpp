@@ -596,7 +596,11 @@ void QImageReader::setFormat(const QByteArray &format)
         // reader.format() == "png"
     \endcode
 
-    \sa setFormat()
+    If the reader cannot read any image from the device (e.g., there is no
+    image there, or the image has already been read), or if the format is
+    unsupported, this function returns an empty QByteArray().
+
+    \sa setFormat(), supportedImageFormats()
 */
 QByteArray QImageReader::format() const
 {
