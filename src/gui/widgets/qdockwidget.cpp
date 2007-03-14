@@ -239,11 +239,12 @@ QSize QDockWidgetLayout::sizeFromContent(const QSize &content, bool floating) co
             ? w->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, 0)
             : 0;
 
+    const int th = titleHeight();
     if (!nativeDeco) {
         if (verticalTitleBar)
-            result += QSize(titleHeight() + 2*fw, 2*fw);
+            result += QSize(th + 2*fw, 2*fw);
         else
-            result += QSize(2*fw, titleHeight() + 2*fw);
+            result += QSize(2*fw, th + 2*fw);
     }
 
     result.setHeight(qMin(result.height(), (int) QWIDGETSIZE_MAX));
@@ -255,9 +256,20 @@ QSize QDockWidgetLayout::sizeFromContent(const QSize &content, bool floating) co
         result.setHeight(-1);
 
     QSize min = w->minimumSize();
-    if (min.width() == 0)
+
+    /* A floating dockwidget will automatically get its minimumSize set to the layout's
+       minimum size + deco. We're *not* interested in this, we only take minimumSize()
+       into account if the user set it herself. Otherwise we end up expanding the result
+       of a calculation for a non-floating dock widget to a floating dock widget's
+       minimum size + window decorations. */
+
+    uint explicitMin = 0;
+    if (w->d_func()->extra != 0)
+        explicitMin = w->d_func()->extra->explicitMinSize;
+
+    if (!(explicitMin & Qt::Horizontal) || min.width() == 0)
         min.setWidth(-1);
-    if (min.height() == 0)
+    if (!(explicitMin & Qt::Vertical) || min.height() == 0)
         min.setHeight(-1);
     return result.boundedTo(w->maximumSize()).expandedTo(min);
 }
