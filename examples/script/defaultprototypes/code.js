@@ -6,7 +6,7 @@ listWidget.addItem("Yellow");
 listWidget.addItem("Purple");
 listWidget.addItems(["Orange", "Gray"]);
 
-listWidget.itemClicked.connect(
+listWidget.currentItemChanged.connect(
     function(item)
     {
         this.setBackgroundColor(item.text);
