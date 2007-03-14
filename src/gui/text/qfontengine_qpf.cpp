@@ -46,6 +46,9 @@
 
 #include <dlfcn.h>
 
+#  ifdef QT_NO_MREMAP
+#    undef QT_NO_MREMAP
+#  endif
 #  define MREMAP_MAYMOVE 1
 #  define RTLD_DEFAULT   ((void *) 0)
 
@@ -895,7 +898,22 @@ void QFontEngineQPF::unlockFile()
 void QFontEngineQPF::remapFontData()
 {
     off_t newFileSize = ::lseek(fd, 0, SEEK_END);
+#ifdef QT_NO_MREMAP
+    int status = ::munmap((void *)fontData, dataSize);
+    if (status != 0)
+        qErrnoWarning(status, "QFontEngineQPF::remapFomrData: munmap failed!");
+
+    fontData = (const uchar *)::mmap(0, newFileSize, PROT_READ | (renderingFontEngine ? PROT_WRITE : 0), MAP_SHARED, fd, 0);
+    if (!fontData || fontData == (const uchar *)MAP_FAILED) {
+#  if defined(DEBUG_FONTENGINE)
+        perror("mmap failed");
+#  endif
+        fontData = 0;
+        return;
+    }
+#else
     fontData = static_cast<uchar *>(::mremap(const_cast<uchar *>(fontData), dataSize, newFileSize, MREMAP_MAYMOVE));
+#endif
     dataSize = newFileSize;
     glyphDataSize = newFileSize - glyphDataOffset;
 #if defined(DEBUG_FONTENGINE)

@@ -568,6 +568,7 @@ CFG_DOUBLEFORMAT=auto
 CFG_ARMFPA=auto
 CFG_IWMMXT=no
 CFG_CLOCK_MONOTONIC=auto
+CFG_MREMAP=auto
 CFG_GETADDRINFO=auto
 CFG_IPV6IFNAME=auto
 CFG_GETIFADDRS=auto
@@ -4355,6 +4356,15 @@ if [ "$CFG_CLOCK_MONOTONIC" = "auto" ]; then
     fi
 fi
 
+# detect mremap
+if [ "$CFG_MREMAP" = "auto" ]; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/mremap "mremap" $L_FLAGS $I_FLAGS $l_FLAGS; then
+	CFG_MREMAP=yes
+    else
+	CFG_MREMAP=no
+    fi
+fi
+
 # find if the platform provides getaddrinfo (ipv6 dns lookups)
 if [ "$CFG_GETADDRINFO" != "no" ]; then
     if "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/getaddrinfo "getaddrinfo" $L_FLAGS $I_FLAGS $l_FLAGS; then
@@ -4591,6 +4601,9 @@ if [ "$CFG_IPV6" = "yes" ]; then
 fi
 if [ "$CFG_CLOCK_MONOTONIC" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG clock-monotonic"
+fi
+if [ "$CFG_MREMAP" = "yes" ]; then
+    QT_CONFIG="$QT_CONFIG mremap"
 fi
 if [ "$CFG_GETADDRINFO" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG getaddrinfo"
@@ -5101,6 +5114,7 @@ QMakeVar set sql-plugins "$SQL_PLUGINS"
 [ "$CFG_ICONV" = "no" ]      && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_ICONV"
 [ "$CFG_GLIB" != "yes" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GLIB"
 [ "$CFG_CLOCK_MONOTONIC" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_CLOCK_MONOTONIC"
+[ "$CFG_MREMAP" = "no" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_MREMAP"
 [ "$CFG_GETADDRINFO" = "no" ]&& QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GETADDRINFO"
 [ "$CFG_IPV6IFNAME" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6IFNAME"
 [ "$CFG_GETIFADDRS" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GETIFADDRS"
