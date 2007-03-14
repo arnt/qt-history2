@@ -104,31 +104,6 @@ struct QImageData {        // internal image data
     uint has_alpha_clut : 1;
 
 #ifndef QT_NO_IMAGE_TEXT
-    QMap<QImageTextKeyLang, QString> text_lang;
-
-    QStringList languages() const
-    {
-        QStringList r;
-        QMap<QImageTextKeyLang,QString>::const_iterator it = text_lang.begin();
-        for (; it != text_lang.end(); ++it) {
-            QString lang = QString::fromAscii(it.key().lang.constData());
-            r.removeAll(lang);
-            r.append(lang);
-        }
-        return r;
-    }
-    QStringList keys() const
-    {
-        QStringList r;
-        QMap<QImageTextKeyLang,QString>::const_iterator it = text_lang.begin();
-        for (; it != text_lang.end(); ++it) {
-            QString key = QString::fromAscii(it.key().key.constData());
-            r.removeAll(key);
-            r.append(key);
-        }
-        return r;
-    }
-
     QMap<QString, QString> text;
 #endif
     bool doImageIO(const QImage *image, QImageWriter* io, int quality) const;
@@ -1330,7 +1305,7 @@ QImage QImage::copy(const QRect& r) const
         image.d->offset = d->offset;
         image.d->has_alpha_clut = d->has_alpha_clut;
 #ifndef QT_NO_IMAGE_TEXT
-        image.d->text_lang = d->text_lang;
+        image.d->text = d->text;
 #endif
         return image;
     }
@@ -1422,7 +1397,7 @@ QImage QImage::copy(const QRect& r) const
     image.d->offset = offset();
     image.d->has_alpha_clut = d->has_alpha_clut;
 #ifndef QT_NO_IMAGE_TEXT
-    image.d->text_lang = d->text_lang;
+    image.d->text = d->text;
 #endif
     return image;
 }
@@ -2984,7 +2959,6 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
 
 #if !defined(QT_NO_IMAGE_TEXT)
         image.d->text = d->text;
-        image.d->text_lang = d->text_lang;
 #endif // !QT_NO_IMAGE_TEXT
 
         converter(image.d, d, flags);
@@ -3004,7 +2978,6 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
 
 #if !defined(QT_NO_IMAGE_TEXT)
         image.d->text = d->text;
-        image.d->text_lang = d->text_lang;
 #endif // !QT_NO_IMAGE_TEXT
 
         convert_32_to_16(image.d, tmp.d, flags);
@@ -3017,7 +2990,6 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
 
 #if !defined(QT_NO_IMAGE_TEXT)
         image.d->text = d->text;
-        image.d->text_lang = d->text_lang;
 #endif // !QT_NO_IMAGE_TEXT
 
         convert_16_to_32(image.d, d, flags);
@@ -3141,7 +3113,6 @@ QImage QImage::convertToFormat(Format format, const QVector<QRgb> &colorTable, Q
 
 #if !defined(QT_NO_IMAGE_TEXT)
         image.d->text = d->text;
-        image.d->text_lang = d->text_lang;
 #endif // !QT_NO_IMAGE_TEXT
 
     converter(image.d, d, flags);
@@ -4546,8 +4517,10 @@ QString QImage::text(const QString &key) const
 */
 void QImage::setText(const QString &key, const QString &value)
 {
-    if (d)
-        d->text.insert(key, value);
+    if (!d)
+        return;
+    detach();
+    d->text.insert(key, value);
 }
 
 /*!
@@ -4564,7 +4537,12 @@ void QImage::setText(const QString &key, const QString &value)
 */
 QString QImage::text(const char* key, const char* lang) const
 {
-    return d ? d->text_lang.value(QImageTextKeyLang(key,lang)) : QString();
+    if (!d)
+        return QString();
+    QString k = QString::fromAscii(key);
+    if (lang && *lang)
+        k += QLatin1Char('/') + QString::fromAscii(lang);
+    return d->text.value(k);
 }
 
 /*!
@@ -4581,7 +4559,12 @@ QString QImage::text(const char* key, const char* lang) const
 */
 QString QImage::text(const QImageTextKeyLang& kl) const
 {
-    return d ? d->text_lang.value(kl) : QString();
+    if (!d)
+        return QString();
+    QString k = QString::fromAscii(kl.key);
+    if (!kl.lang.isEmpty())
+        k += QLatin1Char('/') + QString::fromAscii(kl.lang);
+    return d->text.value(k);
 }
 
 /*!
@@ -4596,7 +4579,17 @@ QString QImage::text(const QImageTextKeyLang& kl) const
 */
 QStringList QImage::textLanguages() const
 {
-    return d ? d->languages() : QStringList();
+    if (!d)
+        return QStringList();
+    QStringList keys = textKeys();
+    QStringList languages;
+    for (int i = 0; i < keys.size(); ++i) {
+        int index = keys.at(i).indexOf(QLatin1Char('/'));
+        if (index > 0)
+            languages += keys.at(i).mid(index+1);
+    }
+    
+    return languages;
 }
 
 /*!
@@ -4612,7 +4605,21 @@ QStringList QImage::textLanguages() const
 */
 QList<QImageTextKeyLang> QImage::textList() const
 {
-    return d ? d->text_lang.keys() : QList<QImageTextKeyLang>();
+    QList<QImageTextKeyLang> imageTextKeys;
+    if (!d)
+        return imageTextKeys;
+    QStringList keys = textKeys();
+    for (int i = 0; i < keys.size(); ++i) {
+        int index = keys.at(i).indexOf(QLatin1Char('/'));
+        if (index > 0) {
+            QImageTextKeyLang tkl;
+            tkl.key = keys.at(i).left(index).toAscii();
+            tkl.lang = keys.at(i).mid(index+1).toAscii();
+            imageTextKeys += tkl;
+        }
+    }
+    
+    return imageTextKeys;
 }
 
 /*!
@@ -4643,8 +4650,10 @@ void QImage::setText(const char* key, const char* lang, const QString& s)
     if (!d)
         return;
     detach();
-    QImageTextKeyLang x(key, lang);
-    d->text_lang.insert(x, s);
+    QString k = QString::fromAscii(key);
+    if (lang && *lang)
+        k += QLatin1Char('/') + QString::fromAscii(lang);
+    d->text.insert(k, s);
 }
 
 #endif // QT_NO_IMAGE_TEXT
