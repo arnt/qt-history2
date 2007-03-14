@@ -18,6 +18,11 @@
 #include "qabstractfileengine.h"
 #if !defined(QT_NO_FREETYPE)
 #include "qfontengine_ft_p.h"
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include FT_TRUETYPE_TABLES_H
+
 #endif
 #include "qfontengine_qpf_p.h"
 #include "private/qfactoryloader_p.h"
@@ -144,7 +149,6 @@ QStringList QFontDatabasePrivate::addTTFile(const QByteArray &file, const QByteA
         if (face->style_flags & FT_STYLE_FLAG_BOLD)
             weight = QFont::Bold;
 
-        // ### get info from freetype
         QList<QFontDatabase::WritingSystem> writingSystems;
         // detect symbol fonts
         for (int i = 0; i < face->num_charmaps; ++i) {
@@ -153,6 +157,21 @@ QStringList QFontDatabasePrivate::addTTFile(const QByteArray &file, const QByteA
                     || cm->encoding == ft_encoding_symbol) {
                 writingSystems.append(QFontDatabase::Symbol);
                 break;
+            }
+        }
+        if (writingSystems.isEmpty()) {
+            TT_OS2 *os2 = (TT_OS2 *)FT_Get_Sfnt_Table(face, ft_sfnt_os2);
+            if (os2) {
+                ushort unicodeRange[4] = {
+                    os2->ulUnicodeRange1, os2->ulUnicodeRange2, os2->ulUnicodeRange3, os2->ulUnicodeRange4
+                };
+                ushort codePageRange[2] = {
+                    os2->ulCodePageRange1, os2->ulCodePageRange2
+                };
+
+                writingSystems = determineWritingSystemsFromTrueTypeBits(unicodeRange, codePageRange);
+                //for (int i = 0; i < writingSystems.count(); ++i)
+                //    qDebug() << QFontDatabase::writingSystemName(writingSystems.at(i));
             }
         }
 
