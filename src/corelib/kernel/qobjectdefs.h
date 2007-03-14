@@ -83,7 +83,7 @@ class QByteArray;
 # define QT_TR_FUNCTIONS
 #endif
 
-#ifdef QT_NO_MEMBER_TEMPLATES
+#if defined(QT_NO_MEMBER_TEMPLATES) || defined(QT_NO_QOBJECT_CHECK)
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT_CHECK
 #else
@@ -110,7 +110,6 @@ inline int qYouForgotTheQ_OBJECT_Macro(T, T) { return 0; }
 
 template <typename T1, typename T2>
 inline void qYouForgotTheQ_OBJECT_Macro(T1, T2) {}
-
 #endif // QT_NO_MEMBER_TEMPLATES
 
 /* tmake ignore Q_OBJECT */
