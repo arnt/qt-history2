@@ -316,53 +316,16 @@ void addFontToDatabase(QString familyName, const QString &scriptName,
         family->fixedPitch = fixed;
 
         if (!family->writingSystemCheck && type & TRUETYPE_FONTTYPE) {
-            bool hasScript = false;
-
-            int i;
-            for(i = 0; i < QFontDatabase::WritingSystemsCount; i++) {
-                int bit = requiredUnicodeBits[i][0];
-                int index = bit/32;
-                int flag =  1 << (bit&31);
-                if (bit != 126 && signature->fsUsb[index] & flag) {
-                    bit = requiredUnicodeBits[i][1];
-                    index = bit/32;
-
-                    flag =  1 << (bit&31);
-                    if (bit == 127 || signature->fsUsb[index] & flag) {
-                        family->writingSystems[i] = QtFontFamily::Supported;
-                        hasScript = true;
-                        // qDebug("font %s: index=%d, flag=%8x supports script %d", familyName.latin1(), index, flag, i);
-                    }
-                }
-            }
-            if(signature->fsCsb[0] & (1 << SimplifiedChineseCsbBit)) {
-                family->writingSystems[QFontDatabase::SimplifiedChinese] = QtFontFamily::Supported;
-                hasScript = true;
-                //qDebug("font %s supports Simplified Chinese", familyName.latin1());
-            }
-            if(signature->fsCsb[0] & (1 << TraditionalChineseCsbBit)) {
-                family->writingSystems[QFontDatabase::TraditionalChinese] = QtFontFamily::Supported;
-                hasScript = true;
-                //qDebug("font %s supports Traditional Chinese", familyName.latin1());
-            }
-            if(signature->fsCsb[0] & (1 << JapaneseCsbBit)) {
-                family->writingSystems[QFontDatabase::Japanese] = QtFontFamily::Supported;
-                hasScript = true;
-                //qDebug("font %s supports Japanese", familyName.latin1());
-            }
-            if(signature->fsCsb[0] & (1 << KoreanCsbBit)) {
-                family->writingSystems[QFontDatabase::Korean] = QtFontFamily::Supported;
-                hasScript = true;
-                //qDebug("font %s supports Korean", familyName.latin1());
-            }
-#ifdef Q_OS_TEMP
-            // ##### FIXME
-            family->writingSystems[QFontDatabase::Latin] = QtFontFamily::Supported;
-#endif
-            if (!hasScript)
-                family->writingSystems[QFontDatabase::Symbol] = QtFontFamily::Supported;
-            family->writingSystemCheck = true;
-            // qDebug("usb=%08x %08x csb=%08x for %s", signature.fsUsb[0], signature.fsUsb[1], signature.fsCsb[0], familyName.latin1());
+            quint32 unicodeRange[4] = {
+                signature->fsUsb[0], signature->fsUsb[1],
+                signature->fsUsb[2], signature->fsUsb[3]
+            };
+            quint32 codePageRange[2] = {
+                signature->fsCsb[0], signature->fsCsb[1]
+            };
+            QList<QFontDatabase::WritingSystem> systems = determineWritingSystemsFromTrueTypeBits(unicodeRange, codePageRange);
+            for (int i = 0; i < systems.count(); ++i)
+                family->writingSystems[systems.at(i)] = QtFontFamily::Supported;
         } else if (!family->writingSystemCheck) {
             //qDebug("family='%s' script=%s", family->name.latin1(), script.latin1());
             if (scriptName == QLatin1String("Western")

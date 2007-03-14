@@ -462,8 +462,8 @@ static int requiredUnicodeBits[QFontDatabase::WritingSystemsCount][2] = {
 #define JapaneseCsbBit 17
 #define KoreanCsbBit 21
 
-#if defined(Q_WS_QWS)
-static QList<QFontDatabase::WritingSystem> determineWritingSystemsFromTrueTypeBits(ushort unicodeRange[4], ushort codePageRange[2])
+#if defined(Q_WS_QWS) || defined(Q_WS_WIN)
+static QList<QFontDatabase::WritingSystem> determineWritingSystemsFromTrueTypeBits(quint32 unicodeRange[4], quint32 codePageRange[2])
 {
     QList<QFontDatabase::WritingSystem> writingSystems;
     bool hasScript = false;
