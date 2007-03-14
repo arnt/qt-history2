@@ -14,8 +14,7 @@
 #include "qpathclipper_p.h"
 
 #include <private/qbezier_p.h>
-
-#include <math.h>
+#include <private/qmath_p.h>
 
 /**
    The algorithm used here is a little complicated. It's based on
@@ -683,7 +682,7 @@ void VertexList::dump()
 
 static qreal dist(qreal x1, qreal y1, qreal x2, qreal y2)
 {
-    return sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+    return qSqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
 }
 
 

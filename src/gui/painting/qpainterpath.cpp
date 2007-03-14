@@ -1319,10 +1319,10 @@ static QRectF qt_painterpath_bezier_extrema(const QBezier &b)
             }
 
         } else {
-            qreal t1 = (-bx + sqrt(bx * bx - 4 * ax * cx)) / (2 * ax);
+            qreal t1 = (-bx + qSqrt(bx * bx - 4 * ax * cx)) / (2 * ax);
             QT_BEZIER_CHECK_T(b, t1);
 
-            qreal t2 = (-bx - sqrt(bx * bx - 4 * ax * cx)) / (2 * ax);
+            qreal t2 = (-bx - qSqrt(bx * bx - 4 * ax * cx)) / (2 * ax);
             QT_BEZIER_CHECK_T(b, t2);
         }
     }
@@ -1343,10 +1343,10 @@ static QRectF qt_painterpath_bezier_extrema(const QBezier &b)
             }
 
         } else {
-            qreal t1 = (-by + sqrt(by * by - 4 * ay * cy)) / (2 * ay);
+            qreal t1 = (-by + qSqrt(by * by - 4 * ay * cy)) / (2 * ay);
             QT_BEZIER_CHECK_T(b, t1);
 
-            qreal t2 = (-by - sqrt(by * by - 4 * ay * cy)) / (2 * ay);
+            qreal t2 = (-by - qSqrt(by * by - 4 * ay * cy)) / (2 * ay);
             QT_BEZIER_CHECK_T(b, t2);
         }
     }

@@ -18,7 +18,7 @@
 #include <QDebug>
 
 #include <limits.h>
-#include <math.h>
+#include <private/qmath_p.h>
 
 //#define DEBUG
 #ifdef DEBUG
@@ -262,7 +262,7 @@ bool QTessellatorPrivate::Edge::intersect(const Edge &other, Q27Dot5 *y, bool *d
     qint64 det = a1 * b2 - a2 * b1;
     if (det == 0)
         return false;
-    
+
     qint64 c1 = qint64(v1->x) * v0->y - qint64(v0->x) * v1->y;
 
     qint64 r3 = a1 * other.v0->x + b1 * other.v0->y + c1;
@@ -1397,7 +1397,7 @@ void QTessellator::tessellateRect(const QPointF &a_, const QPointF &b_, qreal wi
         addTrap(trap);
     } else {
         QPointF perp(pb.y() - pa.y(), pa.x() - pb.x());
-        qreal length = sqrt(perp.x() * perp.x() + perp.y() * perp.y());
+        qreal length = qSqrt(perp.x() * perp.x() + perp.y() * perp.y());
 
         if (qFuzzyCompare(length, static_cast<qreal>(0)))
             return;

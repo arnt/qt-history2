@@ -23,8 +23,7 @@
 #include "qabstractfileengine.h"
 #include "qopentype_p.h"
 #include <private/qpdf_p.h>
-
-#include <math.h>
+#include <private/qmath_p.h>
 
 #include "qfontengine_ft_p.h"
 #include <ft2build.h>
@@ -988,7 +987,7 @@ QFontEngineFT::QGlyphSet *QFontEngineFT::loadTransformedGlyphSet(glyph_t *glyphs
                                                                  GlyphFormat format)
 {
     // don't try to load huge fonts
-    if (fontDef.pixelSize * sqrt(matrix.det()) >= 64)
+    if (fontDef.pixelSize * qSqrt(matrix.det()) >= 64)
         return 0;
 
     FT_Matrix m;

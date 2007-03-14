@@ -128,10 +128,10 @@
 #include <QStyleOption>
 #include <QDesktopWidget>
 #include <QDebug>
-#include <math.h>
+#include <private/qmath_p.h>
 
 // Asserts in debug mode, gives warning otherwise.
-static bool inline sanityCheck(const QMdiSubWindow * const child, const char *where)
+static bool sanityCheck(const QMdiSubWindow * const child, const char *where)
 {
     if (!child) {
         const char error[] = "null pointer";
@@ -142,7 +142,7 @@ static bool inline sanityCheck(const QMdiSubWindow * const child, const char *wh
     return true;
 }
 
-static bool inline sanityCheck(const QList<QWidget *> &widgets, const int index, const char *where)
+static bool sanityCheck(const QList<QWidget *> &widgets, const int index, const char *where)
 {
     if (index < 0 || index >= widgets.size()) {
         const char error[] = "index out of range";
@@ -159,7 +159,7 @@ static bool inline sanityCheck(const QList<QWidget *> &widgets, const int index,
     return true;
 }
 
-static void inline setIndex(int *index, int candidate, int min, int max, bool isIncreasing)
+static void setIndex(int *index, int candidate, int min, int max, bool isIncreasing)
 {
     if (!index)
         return;
@@ -186,7 +186,7 @@ void RegularTiler::rearrange(QList<QWidget *> &widgets, const QRect &domain) con
         return;
 
     const int n = widgets.size();
-    const int ncols = qMax(int(ceil(sqrt(float(n)))), 1);
+    const int ncols = qMax(qCeil(qSqrt(qreal(n))), 1);
     const int nrows = qMax((n % ncols) ? (n / ncols + 1) : (n / ncols), 1);
     const int nspecial = (n % ncols) ? (ncols - n % ncols) : 0;
     const int dx = domain.width()  / ncols;
@@ -945,7 +945,7 @@ QMdiSubWindow *QMdiArea::activeSubWindow() const
 
 /*!
     Activates the subwindow \a window. If \a window is 0, any
-    current active window is deactivated. 
+    current active window is deactivated.
 
     \sa activeSubWindow()
 */
@@ -1032,7 +1032,7 @@ QList<QMdiSubWindow *> QMdiArea::subWindowList(WindowOrder order) const
     before they are closed (if the MDI area activates the subwindow
     when another is closing).
 
-    Subwindows that ignore the close event will remain open. 
+    Subwindows that ignore the close event will remain open.
 
     \sa closeActiveSubWindow()
 */

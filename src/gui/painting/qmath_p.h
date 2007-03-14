@@ -71,4 +71,14 @@ inline qreal qCos(qreal v)
         return cos(v);
 }
 
+inline qreal qSqrt(qreal v)
+{
+#ifdef QT_USE_MATH_H_FLOATS
+    if (sizeof(qreal) == sizeof(float))
+        return sqrtf(v);
+    else
+#endif
+        return sqrt(v);
+}
+
 #endif // QMATH_P_H

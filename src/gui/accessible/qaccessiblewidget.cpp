@@ -22,8 +22,7 @@
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #include "qwidget.h"
-
-#include <math.h>
+#include "private/qmath_p.h"
 
 static QList<QWidget*> childWidgets(const QWidget *widget)
 {
@@ -563,7 +562,7 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
 		    break;
                 }
 
-                int dist = (int)sqrt((double)distp.x() * distp.x() + distp.y() * distp.y());
+                int dist = (int)qSqrt((qreal)distp.x() * distp.x() + distp.y() * distp.y());
                 if (dist < mindist) {
                     delete candidate;
                     candidate = sibling;

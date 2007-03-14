@@ -1067,7 +1067,7 @@ void QRasterPaintEngine::updateMatrix(const QTransform &matrix)
     }
 
     d->txscale = d->txop > QTransform::TxTranslate ?
-        sqrt(qMax(d->matrix.m11() * d->matrix.m11()
+        qSqrt(qMax(d->matrix.m11() * d->matrix.m11()
                   + d->matrix.m21() * d->matrix.m21(),
                   d->matrix.m12() * d->matrix.m12()
                   + d->matrix.m22() * d->matrix.m22()))

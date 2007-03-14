@@ -941,7 +941,7 @@ static const uint * QT_FASTCALL fetchRadialGradient(uint *buffer, const Operator
         while (buffer < end) {
             qreal b  = 2*(rx*op->radial.dx + ry*op->radial.dy);
             qreal det = determinant(op->radial.a, b , -(rx*rx + ry*ry));
-            qreal s = realRoots(op->radial.a, b, sqrt(det));
+            qreal s = realRoots(op->radial.a, b, qSqrt(det));
 
             *buffer = qt_gradient_pixel(&data->gradient,  s);
 
@@ -959,7 +959,7 @@ static const uint * QT_FASTCALL fetchRadialGradient(uint *buffer, const Operator
             qreal gy = ry/rw;
             qreal b  = 2*(gx*op->radial.dx + gy*op->radial.dy);
             qreal det = determinant(op->radial.a, b , -(gx*gx + gy*gy));
-            qreal s = realRoots(op->radial.a, b, sqrt(det));
+            qreal s = realRoots(op->radial.a, b, qSqrt(det));
 
         *buffer = qt_gradient_pixel(&data->gradient, s);
 
