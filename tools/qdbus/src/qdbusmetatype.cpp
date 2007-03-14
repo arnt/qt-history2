@@ -63,6 +63,8 @@ int QDBusMetaTypeId::argument;
 int QDBusMetaTypeId::variant;
 int QDBusMetaTypeId::objectpath;
 int QDBusMetaTypeId::signature;
+int QDBusMetaTypeId::error;
+
 void QDBusMetaTypeId::init()
 {
     static volatile bool initialized = false;
@@ -76,6 +78,7 @@ void QDBusMetaTypeId::init()
         variant = qRegisterMetaType<QDBusVariant>("QDBusVariant");
         objectpath = qRegisterMetaType<QDBusObjectPath>("QDBusObjectPath");
         signature = qRegisterMetaType<QDBusSignature>("QDBusSignature");
+	error = qRegisterMetaType<QDBusError>("QDBusError");
 
 #ifndef QDBUS_NO_SPECIALTYPES
         // and register QtCore's with us

@@ -34,6 +34,7 @@ struct QDBusMetaTypeId
     static int variant;         // QDBusVariant
     static int objectpath;      // QDBusObjectPath
     static int signature;       // QDBusSignature
+    static int error;           // QDBusError
 
     static void init();
 };

@@ -227,7 +227,7 @@ class QDBusErrorHelper: public QObject
     friend class QDBusConnectionPrivate;
 public:
     inline QDBusErrorHelper(QObject *target, const char *member)
-    { connect(this, SIGNAL(pendingCallError(QDBusError,QDBusMessage)), target, member); }
+    { connect(this, SIGNAL(pendingCallError(QDBusError,QDBusMessage)), target, member, Qt::QueuedConnection); }
 signals:
     void pendingCallError(const QDBusError &, const QDBusMessage &);
 };
