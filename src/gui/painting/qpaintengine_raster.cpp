@@ -1177,7 +1177,10 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
 
     if (d->paint_unclipped) {
     } else if (flags & DirtyClipPath) {
-        updateClipPath(state.clipPath(), state.clipOperation());
+        if (state.clipOperation() == Qt::NoClip)
+            updateClipRegion(QRegion(), Qt::NoClip);
+        else
+            updateClipPath(state.clipPath(), state.clipOperation());
     } else if (flags & DirtyClipRegion) {
         updateClipRegion(state.clipRegion(), state.clipOperation());
     } else if (flags & DirtyClipEnabled) {
