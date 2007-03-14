@@ -141,6 +141,9 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::At
         glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
                                      GL_RENDERBUFFER_EXT, depth_stencil_buffer);
         fbo_attachments = QGLFramebufferObject::DepthStencil;
+        valid = checkFramebufferStatus();
+        if (!valid)
+            glDeleteRenderbuffersEXT(1, &depth_stencil_buffer);
     } else if (attachments == QGLFramebufferObject::Depth
                || attachments == QGLFramebufferObject::DepthStencil)
     {
@@ -154,12 +157,18 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::At
         glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
                                      GL_RENDERBUFFER_EXT, depth_stencil_buffer);
         fbo_attachments = QGLFramebufferObject::Depth;
+        valid = checkFramebufferStatus();
+        if (!valid)
+            glDeleteRenderbuffersEXT(1, &depth_stencil_buffer);
     } else {
         fbo_attachments = QGLFramebufferObject::NoDepthStencil;
     }
 
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-    valid = checkFramebufferStatus();
+    if (!valid) {
+        glDeleteTextures(1, &texture);
+        glDeleteFramebuffersEXT(1, &fbo);
+    }
     QT_CHECK_GLERROR();
 }
 

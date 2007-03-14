@@ -457,6 +457,7 @@ private:
 
     // dimensions of mask texture (square)
     int mask_dim;
+    QSize last_failed_size;
 
     bool drawable_fbo;
 
@@ -495,9 +496,12 @@ void QGLOffscreen::initialize()
     int dim = qMax(2048, static_cast<int>(qt_next_power_of_two(qMax(drawable.size().width(), drawable.size().height()))));
 
     bool shared_context = qgl_share_reg()->checkSharing(drawable.context(), ctx);
+    bool would_fail = last_failed_size.isValid() &&
+                      (drawable.size().width() >= last_failed_size.width() ||
+                       drawable.size().height() >= last_failed_size.height());
     bool needs_refresh = dim > mask_dim || !shared_context;
 
-    if (needs_refresh) {
+    if (needs_refresh && !would_fail) {
         DEBUG_ONCE qDebug() << "QGLOffscreen::initialize(): creating offscreen of size" << dim;
         delete offscreen;
         offscreen = new QGLFramebufferObject(dim, dim);
@@ -507,6 +511,8 @@ void QGLOffscreen::initialize()
             qWarning("QGLOffscreen: Invalid offscreen fbo (size %dx%d)", mask_dim, mask_dim);
             delete offscreen;
             offscreen = 0;
+            mask_dim = 0;
+            last_failed_size = drawable.size();
         }
     }
 
@@ -1215,11 +1221,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     d->offscreen.begin();
-
-    if (d->high_quality_antialiasing && !d->offscreen.isValid()) {
-        d->high_quality_antialiasing = false;
-        glEnable(GL_MULTISAMPLE);
-    }
 
     const QColor &c = d->drawable.backgroundColor();
     glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
@@ -2231,28 +2232,28 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 
     d->flushDrawQueue();
 
-    if (!(QGLExtensions::glExtensions & QGLExtensions::SampleBuffers))
-        return;
-
     if (hints & QPainter::Antialiasing) {
         if (d->use_fragment_programs && QGLOffscreen::isSupported() && hints & QPainter::HighQualityAntialiasing)
             d->high_quality_antialiasing = true;
         else {
             d->high_quality_antialiasing = false;
-            glEnable(GL_MULTISAMPLE);
+            if (QGLExtensions::glExtensions & QGLExtensions::SampleBuffers)
+                glEnable(GL_MULTISAMPLE);
         }
     } else {
         d->high_quality_antialiasing = false;
-        glDisable(GL_MULTISAMPLE);
+        if (QGLExtensions::glExtensions & QGLExtensions::SampleBuffers)
+            glDisable(GL_MULTISAMPLE);
     }
 
     if (d->high_quality_antialiasing) {
         d->offscreen.initialize();
 
         if (!d->offscreen.isValid()) {
-            qWarning("Unable to initialize offscreen, disabling high quality antialiasing");
+            DEBUG_ONCE_STR("Unable to initialize offscreen, disabling high quality antialiasing");
             d->high_quality_antialiasing = false;
-            glEnable(GL_MULTISAMPLE);
+            if (QGLExtensions::glExtensions & QGLExtensions::SampleBuffers)
+                glEnable(GL_MULTISAMPLE);
         }
     }
 }
