@@ -103,8 +103,9 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     if (lastValue != q->currentValue())
         emit q->valueChanged(q->currentValue());
     if (lastFrame != currentFrame) {
-        if (looping && !finished)
-            emit q->frameChanged(direction == QTimeLine::Forward ? endFrame : startFrame);
+        const int transitionframe = (direction == QTimeLine::Forward ? endFrame : startFrame);
+        if (looping && !finished && transitionframe != currentFrame)
+            emit q->frameChanged(transitionframe);
         emit q->frameChanged(currentFrame);
     }
     if (finished) {
@@ -604,7 +605,7 @@ void QTimeLine::start()
     else if (curTime == 0 && d->direction == Backward)
         curTime = d->duration;
     d->timerId = startTimer(d->updateInterval);
-    d->startTime = d->currentTime;
+    d->startTime = curTime;
     d->currentLoopCount = 0;
     d->timer.start();
     d->setState(Running);
