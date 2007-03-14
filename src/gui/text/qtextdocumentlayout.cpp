@@ -2040,7 +2040,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             // if the block right before a table is empty 'hide' it by
             // positioning it into the table border
             if (isEmptyBlockBeforeTable(block, it)) {
-                layoutStruct->y = origY;
+                const QTextBlock lastBlock = lastIt.currentBlock();
+                const qreal lastBlockBottomMargin = lastBlock.isValid() ? lastBlock.blockFormat().bottomMargin() : 0.0f;
+                layoutStruct->y = origY + QFixed::fromReal(qMax(lastBlockBottomMargin, block.blockFormat().topMargin()));
                 layoutStruct->pageBottom = origPageBottom;
             } else {
                 // if the block right after a table is empty then 'hide' it, too
