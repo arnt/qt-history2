@@ -1586,7 +1586,7 @@ void QScreen::blit(QWSWindow *win, const QRegion &clip)
 }
 
 struct fill_data {
-    uint color;
+    quint32 color;
     uchar *data;
     int lineStep;
     int x;
@@ -1600,110 +1600,46 @@ typedef void (*fillFunc)(const fill_data *);
 #ifdef QT_QWS_DEPTH_32
 static void fill_32(const fill_data *data)
 {
-    const int dbpl = data->lineStep / 4;
-
-    uint *dest = (uint *)data->data;
-    dest += data->y * dbpl + data->x;
-
-    int h = data->h;
-    while (h) {
-        for (int i = 0; i < data->w; ++i)
-            dest[i] = data->color;
-        dest += dbpl;
-        --h;
-    }
+    qt_rectfill((quint32*)(data->data), data->color,
+                data->x, data->y, data->w, data->h, data->lineStep);
 }
 #endif // QT_QWS_DEPTH_32
 
 #ifdef QT_QWS_DEPTH_18
 static void fill_18(const fill_data *data)
 {
-    const int dbpl = data->lineStep;
-    uchar b = data->color & 0xff;
-    uchar g = (data->color >> 8) & 0xff;
-    uchar r = (data->color >> 16) & 0xff;
-    uint p = (b>>2) | ((g>>2) << 6) | ((r>>2) << 12);
-    uchar b0 = p & 0xff;
-    uchar b1 = (p >> 8) & 0xff;
-    uchar b2 = (p >> 16) & 0xff;
+    const quint18 c = qt_colorConvert<quint18,quint32>(data->color);
 
-    uchar *dest = (uchar *)data->data;
-    dest += data->y * dbpl + data->x*3;
-
-    int h = data->h;
-    while (h) {
-        uchar *d = dest;
-        for (int i = 0; i < data->w; ++i) {
-            *d++ = b0;
-            *d++ = b1;
-            *d++ = b2;
-        }
-        dest += dbpl;
-        --h;
-    }
+    qt_rectfill((quint18*)(data->data), c,
+                data->x, data->y, data->w, data->h, data->lineStep);
 }
 #endif // QT_QWS_DEPTH_18
 
 #ifdef QT_QWS_DEPTH_24
 static void fill_24(const fill_data *data)
 {
-    const int dbpl = data->lineStep;
-    uchar r = data->color & 0xff;
-    uchar g = (data->color >> 8) & 0xff;
-    uchar b = (data->color >> 16) & 0xff;
+    const quint24 c = qt_colorConvert<quint24,quint32>(data->color);
 
-    uchar *dest = (uchar *)data->data;
-    dest += data->y * dbpl + data->x*3;
-
-    int h = data->h;
-    while (h) {
-        uchar *d = dest;
-        for (int i = 0; i < data->w; ++i) {
-            *d++ = r;
-            *d++ = g;
-            *d++ = b;
-        }
-        dest += dbpl;
-        --h;
-    }
+    qt_rectfill((quint24*)(data->data), c,
+                data->x, data->y, data->w, data->h, data->lineStep);
 }
 #endif // QT_QWS_DEPTH_24
 
 #ifdef QT_QWS_DEPTH_16
 static void fill_16(const fill_data *data)
 {
-    const int dbpl = data->lineStep / 2;
-    ushort color = qt_convRgbTo16(data->color);
-
-    ushort *dest = (ushort *)data->data;
-    dest += data->y * dbpl + data->x;
-
-    int h = data->h;
-    while (h) {
-        for (int i = 0; i < data->w; ++i)
-            dest[i] = color;
-        dest += dbpl;
-        --h;
-    }
+    const quint16 c = qt_colorConvert<quint16,quint32>(data->color);
+    qt_rectfill((quint16*)(data->data), c,
+                data->x, data->y, data->w, data->h, data->lineStep);
 }
 #endif // QT_QWS_DEPTH_16
 
 #ifdef QT_QWS_DEPTH_8
 static void fill_8(const fill_data *data)
 {
-    const int dbpl = data->lineStep;
-    uchar color = qt_32_to_8(data->color);
-
-    uchar *dest = (uchar *)data->data;
-    dest += data->y * dbpl + data->x;
-
-    int h = data->h;
-    while (h) {
-        for (int i = 0; i < data->w; ++i)
-            dest[i] = color;
-        dest += dbpl;
-        --h;
-    }
+    const quint8 c = qt_colorConvert<quint8,quint32>(data->color);
+    qt_rectfill((quint8*)(data->data), c,
+                data->x, data->y, data->w, data->h, data->lineStep);
 }
 #endif // QT_QWS_DEPTH_8
 
@@ -1757,6 +1693,7 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
 #ifdef QT_QWS_DEPTH_8
     case 8:
         func = fill_8;
+        break;
 #endif
     default:
         qCritical("QScreen::solidFill(): Screen depth %d not supported", d);
