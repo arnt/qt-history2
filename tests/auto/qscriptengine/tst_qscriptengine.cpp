@@ -670,6 +670,10 @@ struct Baz : public Bar {
 Q_DECLARE_METATYPE(Bar*)
 Q_DECLARE_METATYPE(Baz*)
 
+Q_DECLARE_METATYPE(QGradient)
+Q_DECLARE_METATYPE(QGradient*)
+Q_DECLARE_METATYPE(QLinearGradient)
+
 void tst_QScriptEngine::castWithPrototypeChain()
 {
     QScriptEngine eng;
@@ -713,6 +717,35 @@ void tst_QScriptEngine::castWithPrototypeChain()
         QVERIFY(pbar == 0);
     }
 
+    {
+        QScriptValue b = qScriptValueFromValue(&eng, QBrush());
+        b.setPrototype(barProto);
+        // this shows that a "wrong" cast is possible, if you
+        // don't play by the rules (the pointer is actually a QBrush*)...
+        Bar *pbar = qscriptvalue_cast<Bar*>(b);
+        QVERIFY(pbar != 0);
+    }
+
+    {
+        QScriptValue gradientProto = qScriptValueFromValue(&eng, QGradient());
+        QScriptValue linearGradientProto = qScriptValueFromValue(&eng, QLinearGradient());
+        linearGradientProto.setPrototype(gradientProto);
+        QLinearGradient lg(10, 20, 30, 40);
+        QScriptValue linearGradient = qScriptValueFromValue(&eng, lg);
+        {
+            QGradient *pgrad = qscriptvalue_cast<QGradient*>(linearGradient);
+            QVERIFY(pgrad == 0);
+        }
+        linearGradient.setPrototype(linearGradientProto);
+        {
+            QGradient *pgrad = qscriptvalue_cast<QGradient*>(linearGradient);
+            QVERIFY(pgrad != 0);
+            QCOMPARE(pgrad->type(), QGradient::LinearGradient);
+            QLinearGradient *plingrad = static_cast<QLinearGradient*>(pgrad);
+            QCOMPARE(plingrad->start(), lg.start());
+            QCOMPARE(plingrad->finalStop(), lg.finalStop());
+        }
+    }
 }
 
 QTEST_MAIN(tst_QScriptEngine)

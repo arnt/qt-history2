@@ -1198,8 +1198,13 @@ bool QScriptEnginePrivate::convert(const QScriptValueImpl &value,
             // look in the prototype chain
             QScriptValueImpl proto = value.prototype();
             while (proto.isObject() && proto.isVariant()) {
-                if (type == proto.variantValue().userType()) {
-                    *reinterpret_cast<void* *>(ptr) = *reinterpret_cast<void* *>(var.data());
+                if ((type == proto.variantValue().userType())
+                    || (valueType && (valueType == proto.variantValue().userType()))) {
+                    QByteArray varTypeName = QMetaType::typeName(var.userType());
+                    if (varTypeName.endsWith('*'))
+                        *reinterpret_cast<void* *>(ptr) = *reinterpret_cast<void* *>(var.data());
+                    else
+                        *reinterpret_cast<void* *>(ptr) = var.data();
                     return true;
                 }
                 proto = proto.prototype();
