@@ -341,7 +341,7 @@ void tst_QColumnView::moveGrip()
     grip->moveGrip(-10);
     QCOMPARE(oldX, view.width());
     grip->moveGrip(-800);
-    QCOMPARE(view.width(), 0);
+    QVERIFY(view.width() == 0 || view.width() == 1);
     grip->moveGrip(800);
     view.setMinimumWidth(200);
     grip->moveGrip(-800);
