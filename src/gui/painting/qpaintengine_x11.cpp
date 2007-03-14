@@ -1442,11 +1442,13 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     Q_D(QX11PaintEngine);
     if (path.isEmpty())
         return;
-    bool adjust_coords = (d->has_alpha_pen || (d->cpen.style() > Qt::SolidLine)) && !(d->render_hints & QPainter::Antialiasing);
     QTransform old_matrix = d->matrix;
+    bool adjust_coords = !(d->render_hints & QPainter::Antialiasing) &&
+                         (d->has_alpha_pen || (d->has_alpha_brush && !d->has_alpha_pen)
+                          || (d->cpen.style() > Qt::SolidLine));
     if (adjust_coords) {
         d->matrix = QTransform(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(), d->matrix.m22(),
-                            d->matrix.dx() + 0.5f, d->matrix.dy() + 0.5f);
+                               d->matrix.dx() + 0.5f, d->matrix.dy() + 0.5f);
     }
     if (d->has_brush)
         d->fillPath(path, QX11PaintEnginePrivate::BrushGC, true);
@@ -1461,8 +1463,6 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
             stroker.setDashPattern(d->cpen.dashPattern());
             stroker.setDashOffset(d->cpen.dashOffset());
         }
-        else
-            stroker.setDashPattern(d->cpen.style());
         stroker.setCapStyle(d->cpen.capStyle());
         stroker.setJoinStyle(d->cpen.joinStyle());
         QPainterPath stroke;
