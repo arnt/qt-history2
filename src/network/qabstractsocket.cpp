@@ -1050,7 +1050,7 @@ QAbstractSocket::~QAbstractSocket()
 */
 bool QAbstractSocket::isValid() const
 {
-    return isOpen();
+    return d_func()->socketEngine ? d_func()->socketEngine->isValid() : isOpen();
 }
 
 /*!
