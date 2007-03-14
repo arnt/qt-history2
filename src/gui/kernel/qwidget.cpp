@@ -60,6 +60,7 @@
 #include "qx11info_x11.h"
 #endif
 
+#include <private/qwindowsurface_p.h>
 #ifndef Q_WS_MAC
 #include <private/qbackingstore_p.h>
 #else
@@ -8790,6 +8791,7 @@ void QWidget::setWindowSurface(QWindowSurface *surface)
     delete topData->windowSurface;
     topData->windowSurface = surface;
 
+#ifndef Q_WS_MAC
     QWidgetBackingStore *bs = d->maybeBackingStore();
     if (!bs)
         return;
@@ -8800,6 +8802,7 @@ void QWidget::setWindowSurface(QWindowSurface *surface)
     else
 #endif
         bs->windowSurface = surface;
+#endif
 }
 
 /*!
@@ -8812,6 +8815,7 @@ QWindowSurface *QWidget::windowSurface() const
 {
     Q_D(const QWidget);
 
+#ifndef Q_WS_MAC
     QWidgetBackingStore *bs = d->maybeBackingStore();
     if (!bs)
         return 0;
@@ -8820,6 +8824,7 @@ QWindowSurface *QWidget::windowSurface() const
     if (bs->subSurfaces.isEmpty())
 #endif
         return bs->windowSurface;
+#endif
 
 #ifdef Q_BACKINGSTORE_SUBSURFACES
     // hw: loop up to window() instead of doing this recursively!!
@@ -8829,9 +8834,8 @@ QWindowSurface *QWidget::windowSurface() const
 
     if (isTopLevel())
         return 0;
-
-    return parentWidget()->windowSurface();
 #endif
+    return parentWidget()->windowSurface();
 }
 
 
