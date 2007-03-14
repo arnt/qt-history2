@@ -703,6 +703,7 @@ QMdiSubWindowPrivate::QMdiSubWindowPrivate()
       isShadeMode(false),
       ignoreWindowTitleChange(false),
       isShadeRequestFromMinimizeMode(false),
+      isMaximizeMode(false),
       keyboardSingleStep(5),
       keyboardPageStep(20),
       currentOperation(None),
@@ -925,8 +926,16 @@ void QMdiSubWindowPrivate::updateGeometryConstraints()
     int margin, minWidth;
     sizeParameters(&margin, &minWidth);
     q->setContentsMargins(margin, titleBarHeight(), margin, margin);
-    resizeEnabled = q->windowFlags() & Qt::MSWindowsFixedSizeDialogHint ? false : true;
-    moveEnabled = true;
+    if (q->isMaximized() || (q->isMinimized() && !q->isShaded())) {
+        moveEnabled = false;
+        resizeEnabled = false;
+    } else {
+        moveEnabled = true;
+        if ((q->windowFlags() & Qt::MSWindowsFixedSizeDialogHint) || q->isShaded())
+            resizeEnabled = false;
+        else
+            resizeEnabled = true;
+    }
     updateDirtyRegions();
 }
 
@@ -1025,7 +1034,7 @@ void QMdiSubWindowPrivate::setMinimizeMode()
     isShadeRequestFromMinimizeMode = false;
 
     moveEnabled = false;
-    setEnabled(MoveAction, false);
+    setEnabled(MoveAction, moveEnabled);
 
     Q_ASSERT(q->windowState() & Qt::WindowMinimized);
     Q_ASSERT(!(q->windowState() & Qt::WindowMaximized));
@@ -1043,6 +1052,7 @@ void QMdiSubWindowPrivate::setNormalMode()
     Q_ASSERT(q->parent());
 
     isShadeMode = false;
+    isMaximizeMode = false;
     ensureWindowState(Qt::WindowNoState);
     removeButtonsFromMenuBar();
 
@@ -1118,7 +1128,7 @@ void QMdiSubWindowPrivate::setMaximizeMode()
     setNewGeometry(&availableRect);
     ensureWindowState(Qt::WindowMaximized);
 
-    setEnabled(MoveAction, false);
+    setEnabled(MoveAction, moveEnabled);
     setEnabled(MaximizeAction, false);
     setEnabled(MinimizeAction, true);
     setEnabled(RestoreAction, true);
@@ -1128,6 +1138,7 @@ void QMdiSubWindowPrivate::setMaximizeMode()
     Q_ASSERT(!(q->windowState() & Qt::WindowMinimized));
 
     isShadeMode = false;
+    isMaximizeMode = true;
     restoreFocus();
     updateMask();
 }
@@ -1642,7 +1653,7 @@ void QMdiSubWindowPrivate::updateActions()
         return;
 
     setVisible(StayOnTopAction, true);
-    setVisible(MoveAction, true);
+    setVisible(MoveAction, moveEnabled);
     setVisible(ResizeAction, resizeEnabled);
 
     // CloseAction
@@ -2175,6 +2186,8 @@ void QMdiSubWindow::showShaded()
     if (!d->isShadeRequestFromMinimizeMode && isShaded())
         return;
 
+    d->isMaximizeMode = false;
+
     QWidget *currentFocusWidget = QApplication::focusWidget();
     if (!d->restoreFocusWidget && isAncestorOf(currentFocusWidget))
         d->restoreFocusWidget = currentFocusWidget;
@@ -2208,6 +2221,7 @@ void QMdiSubWindow::showShaded()
     d->internalMinimumSize = minimumSizeHint();
     resize(d->internalMinimumSize);
     d->resizeEnabled = false;
+    d->moveEnabled = true;
     d->updateDirtyRegions();
     d->updateMask();
 
@@ -2215,7 +2229,7 @@ void QMdiSubWindow::showShaded()
     d->setEnabled(QMdiSubWindowPrivate::ResizeAction, d->resizeEnabled);
     d->setEnabled(QMdiSubWindowPrivate::MaximizeAction, true);
     d->setEnabled(QMdiSubWindowPrivate::RestoreAction, true);
-    d->setEnabled(QMdiSubWindowPrivate::MoveAction, true);
+    d->setEnabled(QMdiSubWindowPrivate::MoveAction, d->moveEnabled);
 }
 
 /*!
@@ -2346,6 +2360,7 @@ bool QMdiSubWindow::event(QEvent *event)
         if (d->isInRubberBandMode)
             d->leaveRubberBandMode();
         d->isShadeMode = false;
+        d->isMaximizeMode = false;
         if (!parent()) {
 #if !defined(QT_NO_SIZEGRIP) && defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
             if (qobject_cast<QMacStyle *>(style()))
@@ -2551,9 +2566,26 @@ void QMdiSubWindow::resizeEvent(QResizeEvent *resizeEvent)
         return;
     }
 
-    if (d->currentOperation == QMdiSubWindowPrivate::None) // resize from outside
-        d->updateDirtyRegions();
+    if (d->isMaximizeMode)
+        d->ensureWindowState(Qt::WindowMaximized);
+
+    d->updateDirtyRegions();
     d->updateMask();
+}
+
+/*!
+    \reimp
+*/
+void QMdiSubWindow::moveEvent(QMoveEvent *moveEvent)
+{
+    if (!parent()) {
+        QWidget::moveEvent(moveEvent);
+        return;
+    }
+
+    Q_D(QMdiSubWindow);
+    if (d->isMaximizeMode)
+        d->ensureWindowState(Qt::WindowMaximized);
 }
 
 /*!
@@ -2694,7 +2726,6 @@ void QMdiSubWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
             d->leaveRubberBandMode();
         if (d->resizeEnabled || d->moveEnabled)
             d->oldGeometry = geometry();
-        d->updateDirtyRegions();
     }
 
     d->currentOperation = d->getOperation(mouseEvent->pos());

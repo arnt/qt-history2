@@ -79,6 +79,7 @@ protected:
     void closeEvent(QCloseEvent *closeEvent);
     void leaveEvent(QEvent *leaveEvent);
     void resizeEvent(QResizeEvent *resizeEvent);
+    void moveEvent(QMoveEvent *moveEvent);
     void paintEvent(QPaintEvent *paintEvent);
     void mousePressEvent(QMouseEvent *mouseEvent);
     void mouseDoubleClickEvent(QMouseEvent *mouseEvent);

@@ -1341,16 +1341,9 @@ void QMdiArea::resizeEvent(QResizeEvent *resizeEvent)
 
     // Resize maximized views.
     foreach (QMdiSubWindow *child, d->childWindows) {
-        if (!sanityCheck(child, "QMdiArea::resizeEvent"))
-            continue;
-        if (child->isMaximized()) {
-            Qt::WindowStates oldChildState = child->windowState();
-            Qt::WindowStates oldWidgetState = child->widget() ?
-                child->widget()->windowState() : Qt::WindowStates(Qt::WindowNoState);
+        if (sanityCheck(child, "QMdiArea::resizeEvent") && child->isMaximized()
+                && child->size() != resizeEvent->size()) {
             child->resize(resizeEvent->size());
-            child->overrideWindowState(oldChildState | Qt::WindowMaximized);
-            if (child->widget())
-                child->widget()->overrideWindowState(oldWidgetState | Qt::WindowMaximized);
         }
     }
 }
