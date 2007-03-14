@@ -383,6 +383,66 @@ bool QDockAreaLayoutInfo::expansive(Qt::Orientation o) const
     return false;
 }
 
+/* QDockAreaLayoutInfo::maximumSize() doesn't return the real max size. For example,
+   if the layout is empty, it returns QWIDGETSIZE_MAX. This is so that empty dock areas
+   don't constrain the size of the QMainWindow, but sometimes we really need to know the
+   maximum size. Also, these functions take into account widgets that want to keep their
+   size (f.ex. when they are hidden and then shown, they should not change size).
+*/
+
+static int realMinSize(const QDockAreaLayoutInfo &info)
+{
+    int result = 0;
+    bool first = true;
+    for (int i = 0; i < info.item_list.size(); ++i) {
+        const QDockAreaLayoutItem &item = info.item_list.at(i);
+        if (item.skip())
+            continue;
+
+        int min = 0;
+        if (item.keep_size && item.size != -1)
+            min = item.size;
+        else
+            min = pick(info.o, item.minimumSize());
+
+        if (!first)
+            result += info.sep;
+        result += min;
+
+        first = false;
+    }
+
+    return result;
+}
+
+static int realMaxSize(const QDockAreaLayoutInfo &info)
+{
+    int result = 0;
+    bool first = true;
+    for (int i = 0; i < info.item_list.size(); ++i) {
+        const QDockAreaLayoutItem &item = info.item_list.at(i);
+        if (item.skip())
+            continue;
+
+        int max = 0;
+        if (item.keep_size && item.size != -1)
+            max = item.size;
+        else
+            max = pick(info.o, item.maximumSize());
+
+        if (!first)
+            result += info.sep;
+        result += max;
+
+        if (result >= QWIDGETSIZE_MAX)
+            return QWIDGETSIZE_MAX;
+
+        first = false;
+    }
+
+    return result;
+}
+
 void QDockAreaLayoutInfo::fitItems()
 {
 #ifndef QT_NO_TABBAR
@@ -395,9 +455,9 @@ void QDockAreaLayoutInfo::fitItems()
     int j = 0;
 
     int size = pick(o, rect.size());
-    int min_size = pick(o, minimumSize());
-    int max_size = pick(o, maximumSize());
-    bool too_large = size > max_size;
+    int min_size = realMinSize(*this);
+    int max_size = realMaxSize(*this);
+    int last_index = -1;
 
     bool prev_gap = false;
     bool first = true;
@@ -417,13 +477,25 @@ void QDockAreaLayoutInfo::fitItems()
         }
 
         if (item.keep_size) {
-            int d = item.size - pick(o, item.minimumSize());
-            if (min_size + d <= size)
-                min_size -= d;
-            else
-                item.keep_size = false; // sorry, not enough space
+            // Check if the item can keep its size, without violating size constraints
+            // of other items.
+
+            if (size < min_size) {
+                // There is too little space to keep this widget's size
+                item.keep_size = false;
+                min_size -= item.size;
+                min_size += pick(o, item.minimumSize());
+                min_size = qMax(0, min_size);
+            } else if (size > max_size) {
+                // There is too much space to keep this widget's size
+                item.keep_size = false;
+                max_size -= item.size;
+                max_size += pick(o, item.maximumSize());
+                max_size = qMin(QWIDGETSIZE_MAX, max_size);
+            }
         }
 
+        last_index = j;
         QLayoutStruct &ls = layout_struct_list[j++];
         ls.init();
         ls.empty = false;
@@ -432,21 +504,11 @@ void QDockAreaLayoutInfo::fitItems()
             ls.expansive = false;
             ls.stretch = 0;
         } else {
-            if (too_large) {
-                ls.maximumSize = QWIDGETSIZE_MAX;
-                ls.expansive = true;
-                too_large = false;
-            } else {
-                ls.maximumSize = pick(o, item.maximumSize());
-                ls.expansive = item.expansive(o);
-            }
+            ls.maximumSize = pick(o, item.maximumSize());
+            ls.expansive = item.expansive(o);
             ls.minimumSize = pick(o, item.minimumSize());
-            if (ls.expansive) {
-                ls.sizeHint = item.size == -1 ? pick(o, item.sizeHint()) : item.size;
-                ls.stretch = item.size == -1 ? pick(o, item.sizeHint()) : item.size;
-            } else {
-                ls.sizeHint = item.size == -1 ? pick(o, item.sizeHint()) : item.size;
-            }
+            ls.sizeHint = item.size == -1 ? pick(o, item.sizeHint()) : item.size;
+            ls.stretch = ls.expansive ? ls.sizeHint : 0;
         }
 
         item.keep_size = false;
@@ -454,6 +516,13 @@ void QDockAreaLayoutInfo::fitItems()
         first = false;
     }
     layout_struct_list.resize(j);
+
+    // If there is more space than the widgets can take (due to maximum size constraints),
+    // we detect it here and stretch the last widget to take up the rest of the space.
+    if (size > max_size && last_index != -1) {
+        layout_struct_list[last_index].maximumSize = QWIDGETSIZE_MAX;
+        layout_struct_list[last_index].expansive = true;
+    }
 
     qGeomCalc(layout_struct_list, 0, j, pick(o, rect.topLeft()), size, 0);
 
