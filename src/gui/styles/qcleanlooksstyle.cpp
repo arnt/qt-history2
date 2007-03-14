@@ -1086,33 +1086,26 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                                      qMin(255, (int)(buttonColor.value()*0.93)));
 
             QRect gradRect = rect.adjusted(1, 2, -1, -2);
-            if (isEnabled) {
-                // gradient fill
-                QRect innerBorder = r.adjusted(1, 1, -1, 0);
+            // gradient fill
+            QRect innerBorder = r.adjusted(1, 1, -1, 0);
 
-                if (down) {
-                    painter->fillRect(gradRect, gradientStopColor.darker(110));
-                    painter->setPen(gradientStopColor.darker(125));
-                    painter->drawLine(innerBorder.topLeft(), innerBorder.topRight());
-                    painter->drawLine(innerBorder.topLeft(), innerBorder.bottomLeft());
-                } else {
-                    if (option->state & State_Enabled && option->state & State_MouseOver ) {
-                        qt_cleanlooks_draw_buttongradient(painter, gradRect,
-                                                    highlightedGradientStartColor,
-                                                    highlightedGradientMidColor,
-                                                    highlightedGradientStopColor, TopDown, option->palette.button());
-                    } else {
-                        qt_cleanlooks_draw_buttongradient(painter, gradRect,
-                                                    gradientStartColor,
-                                                    gradientMidColor,
-                                                    gradientStopColor, TopDown, option->palette.button());
-                    }
-                }
+            if (down) {
+                painter->fillRect(gradRect, gradientStopColor.darker(110));
+                painter->setPen(gradientStopColor.darker(125));
+                painter->drawLine(innerBorder.topLeft(), innerBorder.topRight());
+                painter->drawLine(innerBorder.topLeft(), innerBorder.bottomLeft());
             } else {
-                qt_cleanlooks_draw_buttongradient(painter, gradRect,
+                if (isEnabled && option->state & State_MouseOver ) {
+                    qt_cleanlooks_draw_buttongradient(painter, gradRect,
+                                                highlightedGradientStartColor,
+                                                highlightedGradientMidColor,
+                                                highlightedGradientStopColor, TopDown, option->palette.button());
+                } else {
+                    qt_cleanlooks_draw_buttongradient(painter, gradRect,
                                                 gradientStartColor,
                                                 gradientMidColor,
                                                 gradientStopColor, TopDown, option->palette.button());
+                }
             }
 
             bool hasFocus = option->state & State_HasFocus;
