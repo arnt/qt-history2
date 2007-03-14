@@ -737,6 +737,7 @@ void tst_CssParser::colorValue_data()
     QTest::newRow("invalid1") << "color: rgb(why, does, it, always, rain, on, me)" << QColor();
     QTest::newRow("invalid2") << "color: rgba(i, meant, norway)" << QColor();
     QTest::newRow("role") << "color: palette(base)" << qApp->palette().color(QPalette::Base);
+    QTest::newRow("transparent") << "color: transparent" << QColor(Qt::transparent);
 }
 
 void tst_CssParser::colorValue()

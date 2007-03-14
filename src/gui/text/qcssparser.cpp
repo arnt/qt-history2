@@ -537,6 +537,9 @@ static QColor parseColorValue(Value v, const QPalette &pal)
     if (v.type == Value::Color)
         return qvariant_cast<QColor>(v.variant);
 
+    if (v.type == Value::KnownIdentifier && v.variant.toInt() == Value_Transparent)
+        return Qt::transparent;
+
     if (v.type != Value::Function)
         return QColor();
 
