@@ -2967,8 +2967,9 @@ int QApplication::x11ProcessEvent(XEvent* event)
             break;
         if (curWin && widget->internalWinId() != curWin)
             break;
-        if (event->xcrossing.mode != NotifyNormal
+        if ((event->xcrossing.mode != NotifyNormal
             && event->xcrossing.mode != NotifyUngrab)
+            || event->xcrossing.detail == NotifyInferior)
             break;
         if (!(widget->windowType() == Qt::Desktop))
             widget->translateMouseEvent(event); //we don't get MotionNotify, emulate it
