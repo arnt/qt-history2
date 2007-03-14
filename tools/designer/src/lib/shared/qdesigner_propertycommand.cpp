@@ -508,6 +508,10 @@ PropertyHelper::Value PropertyHelper::applyValue(QDesignerFormWindowInterface *f
 
     m_propertySheet->setProperty(m_index, newValue.first);
     m_propertySheet->setChanged(m_index, newValue.second);
+    if (m_specialProperty == SP_ObjectName) {
+        fw->ensureUniqueObjectName(m_object);
+        newValue.first = m_propertySheet->property(m_index);
+    }
 
     updateObject(fw, oldValue, newValue.first);
     return newValue;
@@ -556,6 +560,11 @@ PropertyHelper::Value PropertyHelper::restoreDefaultValue(QDesignerFormWindowInt
 
     if (m_objectType == OT_Widget) {
         checkApplyWidgetValue(fw, qobject_cast<QWidget *>(m_object), m_specialProperty, defaultValue.first);
+    }
+
+    if (m_specialProperty == SP_ObjectName) {
+        fw->ensureUniqueObjectName(m_object);
+        defaultValue.first = m_propertySheet->property(m_index);
     }
 
     updateObject(fw, currentValue, defaultValue.first);

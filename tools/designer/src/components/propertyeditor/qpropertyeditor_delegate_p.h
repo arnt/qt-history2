@@ -80,6 +80,7 @@ protected:
 
 private:
     bool m_readOnly;
+    bool m_syncing;
 };
 
 }  // namespace qdesigner_internal

@@ -82,7 +82,8 @@ void EditorWithReset::setChildEditor(QWidget *child_editor)
 
 QPropertyEditorDelegate::QPropertyEditorDelegate(QObject *parent)
     : QItemDelegate(parent),
-      m_readOnly(false)
+      m_readOnly(false),
+      m_syncing(false)
 {
 }
 
@@ -233,7 +234,7 @@ void QPropertyEditorDelegate::setEditorData(QWidget *editor,
 
     const QAbstractItemModel *model = index.model();
     IProperty *property = static_cast<const QPropertyEditorModel*>(model)->privateData(index);
-    if (property && property->hasEditor()) {
+    if (property && property->hasEditor() && !m_syncing) {
         property->updateEditorContents(editor);
     }
 }
@@ -291,10 +292,12 @@ void QPropertyEditorDelegate::drawDecoration(QPainter *painter, const QStyleOpti
 
 void QPropertyEditorDelegate::sync()
 {
+    m_syncing = true;
     QWidget *w = qobject_cast<QWidget*>(sender());
     if (w == 0)
         return;
     emit commitData(w);
+    m_syncing = false;
 }
 
 void QPropertyEditorDelegate::resetProperty(const IProperty *property, QPropertyEditorModel *model)
