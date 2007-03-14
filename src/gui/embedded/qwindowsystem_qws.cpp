@@ -2211,6 +2211,9 @@ void QWSServerPrivate::sendQCopEvent(QWSClient *c, const QString &ch,
     Q_ASSERT(c);
 
     QWSQCopMessageEvent event;
+    event.channel = ch.toLatin1();
+    event.message = msg.toLatin1();
+    event.data = data;
     event.simpleData.is_response = response;
     event.simpleData.lchannel = ch.length();
     event.simpleData.lmessage = msg.length();
@@ -2219,15 +2222,15 @@ void QWSServerPrivate::sendQCopEvent(QWSClient *c, const QString &ch,
             event.simpleData.ldata;
 
     // combine channel, message and data into one block of raw bytes
-    QByteArray raw(l, 0);
-    char *d = (char*)raw.data();
-    memcpy(d, ch.toLatin1().constData(), event.simpleData.lchannel);
+    char *tmp = new char [l];
+    char *d = tmp;
+    memcpy(d, event.channel.constData(), event.simpleData.lchannel);
     d += event.simpleData.lchannel;
-    memcpy(d, msg.toLatin1().constData(), event.simpleData.lmessage);
+    memcpy(d, event.message.constData(), event.simpleData.lmessage);
     d += event.simpleData.lmessage;
-    memcpy(d, data.data(), event.simpleData.ldata);
+    memcpy(d, data.constData(), event.simpleData.ldata);
 
-    event.setData(raw.data(), l);
+    event.setDataDirect(tmp, l);
 
     c->sendEvent(&event);
 }

@@ -296,6 +296,11 @@ struct QWSQCopMessageEvent : QWSEvent {
         data = QByteArray(p, simpleData.ldata);
     }
 
+    void setDataDirect(const char *d, int len) {
+        QWSEvent::setData(d, len, false);
+        deleteRaw = true;
+    }
+
     struct SimpleData {
         bool is_response;
         int lchannel;

@@ -572,6 +572,9 @@ struct QWSQCopSendCommand : public QWSCommand
     void setMessage(const QString &c, const QString &m,
                      const QByteArray &data)
     {
+        this->channel = c;
+        this->message = m;
+        this->data = data;
         simpleData.clen = c.length();
         simpleData.mlen = m.length();
         simpleData.dlen = data.size();
@@ -585,8 +588,8 @@ struct QWSQCopSendCommand : public QWSCommand
         memcpy(d, m.unicode(), simpleData.mlen*sizeof(QChar));
         d += simpleData.mlen*sizeof(QChar);
         memcpy(d, data.data(), simpleData.dlen);
-        setData(tmp, l, true);
-        delete[] tmp;
+        QWSCommand::setData(tmp, l, false);
+        deleteRaw = true;
     }
 
     struct SimpleData {
