@@ -2662,9 +2662,24 @@ void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
 */
 void QTreeWidget::setCurrentItem(QTreeWidgetItem *item, int column)
 {
-    Q_D(const QTreeWidget);
+    Q_D(QTreeWidget);
     setCurrentIndex(d->index(item, column));
 }
+
+/*!
+  \since 4.4
+  Sets the current \a item in the tree widget and the curernt column to \a column,
+  using the given \a command.
+
+  \sa currentItem()
+*/
+void QTreeWidget::setCurrentItem(QTreeWidgetItem *item, int column,
+				 QItemSelectionModel::SelectionFlags command)
+{
+    Q_D(QTreeWidget);
+    d->selectionModel->setCurrentIndex(d->index(item, column), command);
+}
+
 
 /*!
   Returns a pointer to the item at the coordinates \a p.

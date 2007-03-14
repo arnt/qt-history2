@@ -256,6 +256,7 @@ public:
     int currentColumn() const;
     void setCurrentItem(QTreeWidgetItem *item);
     void setCurrentItem(QTreeWidgetItem *item, int column);
+    void setCurrentItem(QTreeWidgetItem *item, int column, QItemSelectionModel::SelectionFlags command);
 
     QTreeWidgetItem *itemAt(const QPoint &p) const;
     inline QTreeWidgetItem *itemAt(int x, int y) const;

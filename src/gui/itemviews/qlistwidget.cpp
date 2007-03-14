@@ -1372,6 +1372,15 @@ void QListWidget::setCurrentItem(QListWidgetItem *item)
 }
 
 /*!
+  \since 4.4
+  Set the current item to \a item, using the given \a command.
+*/
+void QListWidget::setCurrentItem(QListWidgetItem *item, QItemSelectionModel::SelectionFlags command)
+{
+    setCurrentRow(row(item), command);
+}
+
+/*!
   \property QListWidget::currentRow
   \brief the row of the current item.
 
@@ -1393,6 +1402,17 @@ void QListWidget::setCurrentRow(int row)
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     else
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+}
+
+/*!
+  \since 4.4
+
+  Sets the current row to be the given \a row, using the given \a command,
+*/
+void QListWidget::setCurrentRow(int row, QItemSelectionModel::SelectionFlags command)
+{
+    Q_D(QListWidget);
+    d->selectionModel->setCurrentIndex(d->model()->index(row), command);
 }
 
 /*!

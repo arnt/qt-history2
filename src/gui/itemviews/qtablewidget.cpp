@@ -2110,6 +2110,19 @@ void QTableWidget::setCurrentItem(QTableWidgetItem *item)
 }
 
 /*!
+  \since 4.4
+  
+  Sets the current item to be \a item, using the given \a command.
+
+  \sa currentItem(), setCurrentCell()
+*/
+void QTableWidget::setCurrentItem(QTableWidgetItem *item, QItemSelectionModel::SelectionFlags command)
+{
+    Q_D(QTableWidget);
+    d->selectionModel->setCurrentIndex(d->model()->index(item), command);
+}
+
+/*!
     \since 4.1
 
     Sets the current cell to be the cell at position (\a row, \a
@@ -2122,6 +2135,20 @@ void QTableWidget::setCurrentItem(QTableWidgetItem *item)
 void QTableWidget::setCurrentCell(int row, int column)
 {
     setCurrentIndex(model()->index(row, column, QModelIndex()));
+}
+
+/*!
+  \since 4.4
+  
+  Sets the current cell to be the cell at position (\a row, \a
+  column), using the given \a command.
+
+  \sa setCurrentItem(), currentRow(), currentColumn()
+*/
+void QTableWidget::setCurrentCell(int row, int column, QItemSelectionModel::SelectionFlags command)
+{
+    Q_D(QTableWidget);
+    d->selectionModel->setCurrentIndex(model()->index(row, column, QModelIndex()), command);
 }
 
 /*!
