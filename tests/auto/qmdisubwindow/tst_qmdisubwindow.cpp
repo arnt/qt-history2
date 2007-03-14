@@ -154,6 +154,7 @@ private slots:
     void defaultSizeGrip();
 #endif
     void hideAndShow();
+    void keepWindowMaximizedState();
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -1330,6 +1331,44 @@ void tst_QMdiSubWindow::hideAndShow()
 #endif
 }
 
+void tst_QMdiSubWindow::keepWindowMaximizedState()
+{
+    QMdiArea mdiArea;
+    QMdiSubWindow *subWindow = mdiArea.addSubWindow(new QTextEdit);
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+
+    subWindow->showMaximized();
+    QVERIFY(subWindow->isMaximized());
+
+    // move
+    const QPoint newPosition = subWindow->pos() + QPoint(10, 10);
+    subWindow->move(newPosition);
+    QCOMPARE(subWindow->pos(), newPosition);
+    QVERIFY(subWindow->isMaximized());
+
+    // resize
+    const QSize newSize = subWindow->size() - QSize(10, 10);
+    subWindow->resize(newSize);
+    QCOMPARE(subWindow->size(), newSize);
+    QVERIFY(subWindow->isMaximized());
+
+    // setGeometry
+    const QRect newGeometry = QRect(newPosition - QPoint(10, 10), newSize + QSize(10, 10));
+    subWindow->setGeometry(newGeometry);
+    QCOMPARE(subWindow->geometry(), newGeometry);
+    QVERIFY(subWindow->isMaximized());
+
+    subWindow->showNormal();
+
+    // Verify that we don't force Qt::WindowMaximized.
+    QVERIFY(!subWindow->isMaximized());
+    subWindow->setGeometry(QRect(newPosition, newSize));
+    QCOMPARE(subWindow->geometry(), QRect(newPosition, newSize));
+    QVERIFY(!subWindow->isMaximized());
+}
 QTEST_MAIN(tst_QMdiSubWindow)
 #include "tst_qmdisubwindow.moc"
 
