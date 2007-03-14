@@ -447,14 +447,17 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     QByteArray  str1;
     QString     str;
     QPointF     p, p1, p2;
+    QPoint      ip, ip1, ip2;
+    QRect       ir;
     QRectF      r;
     QPolygonF   a;
-    QPolygon    pa;
+    QPolygon    ia;
     QColor      color;
     QFont       font;
     QPen        pen;
     QBrush      brush;
     QRegion     rgn;
+    QMatrix     wmatrix;
     QTransform  matrix;
 
     QTransform worldMatrix = painter->transform();
@@ -476,8 +479,13 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
         case QPicturePrivate::PdcNOP:
             break;
         case QPicturePrivate::PdcDrawPoint:
-            s >> p;
-            painter->drawPoint(p);
+            if (d->formatMajor <= 5) {
+                s >> ip;
+                painter->drawPoint(ip);
+            } else {
+                s >> p;
+                painter->drawPoint(p);
+            }
             break;
         case QPicturePrivate::PdcDrawPoints:
 // ## implement me in the picture paint engine
@@ -491,73 +499,135 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             break;
         }
         case QPicturePrivate::PdcDrawLine:
-            s >> p1 >> p2;
-            painter->drawLine(p1, p2);
+            if (d->formatMajor <= 5) {
+                s >> ip1 >> ip2;
+                painter->drawLine(ip1, ip2);
+            } else {
+                s >> p1 >> p2;
+                painter->drawLine(p1, p2);
+            }
             break;
         case QPicturePrivate::PdcDrawRect:
-            s >> r;
-            painter->drawRect(r);
+            if (d->formatMajor <= 5) {
+                s >> ir;
+                painter->drawRect(ir);
+            } else {
+                s >> r;
+                painter->drawRect(r);
+            }
             break;
         case QPicturePrivate::PdcDrawRoundRect:
-            s >> r >> i1_16 >> i2_16;
-            painter->drawRoundRect(r, i1_16, i2_16);
+            if (d->formatMajor <= 5) {
+                s >> ir >> i1_16 >> i2_16;
+                painter->drawRoundRect(ir, i1_16, i2_16);
+            } else {
+                s >> r >> i1_16 >> i2_16;
+                painter->drawRoundRect(r, i1_16, i2_16);
+            }
             break;
         case QPicturePrivate::PdcDrawEllipse:
-            s >> r;
-            painter->drawEllipse(r);
+            if (d->formatMajor <= 5) {
+                s >> ir;
+                painter->drawEllipse(ir);
+            } else {
+                s >> r;
+                painter->drawEllipse(r);
+            }
             break;
         case QPicturePrivate::PdcDrawArc:
-            s >> r >> i1_16 >> i2_16;
+            if (d->formatMajor <= 5) {
+                s >> ir;
+                r = ir;
+            } else {
+                s >> r;
+            }
+            s >> i1_16 >> i2_16;
             painter->drawArc(r, i1_16, i2_16);
             break;
         case QPicturePrivate::PdcDrawPie:
-            s >> r >> i1_16 >> i2_16;
+            if (d->formatMajor <= 5) {
+                s >> ir;
+                r = ir;
+            } else {
+                s >> r;
+            }
+            s >> i1_16 >> i2_16;
             painter->drawPie(r, i1_16, i2_16);
             break;
         case QPicturePrivate::PdcDrawChord:
-            s >> r >> i1_16 >> i2_16;
+            if (d->formatMajor <= 5) {
+                s >> ir;
+                r = ir;
+            } else {
+                s >> r;
+            }
+            s >> i1_16 >> i2_16;
             painter->drawChord(r, i1_16, i2_16);
             break;
         case QPicturePrivate::PdcDrawLineSegments:
-            s >> pa;
-            painter->drawLines(pa);
-            pa.clear();
+            s >> ia;
+            painter->drawLines(ia);
+            ia.clear();
             break;
         case QPicturePrivate::PdcDrawPolyline:
-            s >> a;
-            painter->drawPolyline(a);
-            a.clear();
+            if (d->formatMajor <= 5) {
+                s >> ia;
+                painter->drawPolyline(ia);
+                ia.clear();
+            } else {
+                s >> a;
+                painter->drawPolyline(a);
+                a.clear();
+            }
             break;
         case QPicturePrivate::PdcDrawPolygon:
-            s >> a >> i_8;
-            painter->drawPolygon(a, i_8 ? Qt::WindingFill : Qt::OddEvenFill);
-            a.clear();
+            if (d->formatMajor <= 5) {
+                s >> ia >> i_8;
+                painter->drawPolygon(ia, i_8 ? Qt::WindingFill : Qt::OddEvenFill);
+                a.clear();
+            } else {
+                s >> a >> i_8;
+                painter->drawPolygon(a, i_8 ? Qt::WindingFill : Qt::OddEvenFill);
+                a.clear();
+            }
             break;
         case QPicturePrivate::PdcDrawCubicBezier: {
-            s >> a;
+            s >> ia;
             QPainterPath path;
-            Q_ASSERT(a.size() == 4);
-            path.moveTo(a.at(0));
-            path.cubicTo(a.at(1), a.at(2), a.at(3));
+            Q_ASSERT(ia.size() == 4);
+            path.moveTo(ia.at(0));
+            path.cubicTo(ia.at(1), ia.at(2), ia.at(3));
             painter->strokePath(path, painter->pen());
             a.clear();
         }
             break;
         case QPicturePrivate::PdcDrawText:
-            s >> p >> str1;
-            painter->drawText(p, QString::fromLatin1(str1));
+            s >> ip >> str1;
+            painter->drawText(ip, QString::fromLatin1(str1));
             break;
         case QPicturePrivate::PdcDrawTextFormatted:
-            s >> r >> i_16 >> str1;
-            painter->drawText(r, i_16, QString::fromLatin1(str1));
+            s >> ir >> i_16 >> str1;
+            painter->drawText(ir, i_16, QString::fromLatin1(str1));
             break;
         case QPicturePrivate::PdcDrawText2:
-            s >> p >> str;
-            painter->drawText(p, str);
+            if (d->formatMajor <= 5) {
+                s >> ip >> str;
+                painter->drawText(ip, str);
+            } else {
+                s >> p >> str;
+                painter->drawText(p, str);
+            }
             break;
         case QPicturePrivate::PdcDrawText2Formatted:
-            s >> r >> i_16 >> str;
-            painter->drawText(r, i_16, str);
+            qDebug() << "PdcDrawText2Formatted";
+            qDebug() << s.device()->pos();
+            s >> ir;
+            qDebug() << s.device()->pos();
+            s >> i_16;
+            qDebug() << s.device()->pos();
+            s >> str;
+            qDebug() << s.device()->pos();
+            painter->drawText(ir, i_16, str);
             break;
         case QPicturePrivate::PdcDrawTextItem: {
             s >> p >> str >> font >> ul;
@@ -572,8 +642,11 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
         case QPicturePrivate::PdcDrawPixmap: {
             QPixmap pixmap;
             if (d->formatMajor < 4) {
-                s >> p >> pixmap;
-                painter->drawPixmap(p, pixmap);
+                s >> ip >> pixmap;
+                painter->drawPixmap(ip, pixmap);
+            } else if (d->formatMajor <= 5) {
+                s >> ir >> pixmap;
+                painter->drawPixmap(ir, pixmap);
             } else {
                 QRectF sr;
                 s >> r >> pixmap >> sr;
@@ -592,6 +665,9 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             if (d->formatMajor < 4) {
                 s >> p >> image;
                 painter->drawPixmap(p, QPixmap::fromImage(image));
+            } else if (d->formatMajor <= 5){
+                s >> ir >> image;
+                painter->drawPixmap(ir, QPixmap::fromImage(image), QRect(0, 0, ir.width(), ir.height()));
             } else {
                 s >> r >> image;
                 painter->drawPixmap(r, QPixmap::fromImage(image), QRectF(0, 0, r.width(), r.height()));
@@ -622,10 +698,16 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             painter->setBackgroundMode((Qt::BGMode)i_8);
             break;
         case QPicturePrivate::PdcSetROP: // NOP
+            s >> i_8;
             break;
         case QPicturePrivate::PdcSetBrushOrigin:
-            s >> p;
-            painter->setBrushOrigin(p);
+            if (d->formatMajor <= 5) {
+                s >> ip;
+                painter->setBrushOrigin(ip);
+            } else {
+                s >> p;
+                painter->setBrushOrigin(p);
+            }
             break;
         case QPicturePrivate::PdcSetFont:
             s >> font;
@@ -676,9 +758,14 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             painter->setMatrixEnabled(i_8);
             break;
         case QPicturePrivate::PdcSetWMatrix:
-            s >> matrix >> i_8;
+            if (d->formatMajor >= 8) {
+                s >> matrix >> i_8;
+            } else {
+                s >> wmatrix >> i_8;
+                matrix = QTransform(wmatrix);
+            }
             // i_8 is always false due to updateXForm() in qpaintengine_pic.cpp
-            painter->setTransform(matrix * worldMatrix, false);
+            painter->setTransform(matrix * worldMatrix, i_8);
             break;
 // #ifdef Q_Q3PAINTER
 //             case QPicturePrivate::PdcSaveWMatrix:
@@ -720,7 +807,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 s.device()->seek(s.device()->pos()+len);
         }
 #if defined(QT_DEBUG)
-        //qDebug("device->at(): %i, strm_pos: %i len: %i", s.device()->at(), strm_pos, len);
+        //qDebug("device->at(): %i, strm_pos: %i len: %i", (int)s.device()->pos(), strm_pos, len);
         Q_ASSERT(qint32(s.device()->pos() - strm_pos) == len);
 #endif
     }
