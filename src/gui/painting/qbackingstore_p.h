@@ -64,7 +64,9 @@ private:
 #endif
 
     QWindowSurface *windowSurface;
-
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    QList<QWindowSurface*> subSurfaces;
+#endif
     QPoint tlwOffset;
 
     void copyToScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool recursive = true);

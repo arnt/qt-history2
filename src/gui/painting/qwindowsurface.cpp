@@ -89,7 +89,7 @@ QWindowSurface::QWindowSurface(QWidget *window)
 QWindowSurface::~QWindowSurface()
 {
     if (d_ptr->window)
-        d_ptr->window->setWindowSurface(0);
+        d_ptr->window->d_func()->extra->topextra->windowSurface = 0;
     delete d_ptr;
 }
 

@@ -312,6 +312,18 @@ void qt_syncBackingStore(QWidget *widget)
     QRegion toClean;
     if (surface)
         toClean = surface->dirtyRegion();
+
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    if (bs) {
+        QList<QWindowSurface*> subSurfaces = bs->subSurfaces;
+        for (int i = 0; i < subSurfaces.size(); ++i) {
+            QWSWindowSurface *s = static_cast<QWSWindowSurface*>(subSurfaces.at(i));
+            QPoint offset = s->window()->mapTo(tlw, QPoint());
+            toClean += s->dirtyRegion().translated(-offset);
+        }
+    }
+#endif
+
 #ifdef Q_WIDGET_USE_DIRTYLIST
     if (!toClean.isEmpty() || !bs->dirtyWidgets.isEmpty())
 #else
@@ -353,6 +365,19 @@ QWidgetBackingStore::QWidgetBackingStore(QWidget *t) : tlw(t)
     windowSurface = tlw->windowSurface();
     if (!windowSurface)
         windowSurface = qt_default_window_surface(t);
+
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    // XXX: hw: workaround to ensure all existing subsurfaces are added to the list
+    QList<QObject*> children = t->children();
+    for (int i = 0; i < children.size(); ++i) {
+        QWidget *child = qobject_cast<QWidget*>(children.at(i));
+        if (!child)
+            continue;
+        QTLWExtra *extra = child->d_func()->maybeTopData();
+        if (extra && extra->windowSurface)
+            subSurfaces.append(extra->windowSurface);
+    }
+#endif
 }
 
 QWidgetBackingStore::~QWidgetBackingStore()
@@ -615,6 +640,170 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
 #endif
 }
 
+
+
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+
+void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool recursiveCopyToScreen)
+{
+    if (!widget->isVisible() || !widget->updatesEnabled() || !tlw->testAttribute(Qt::WA_Mapped))
+        return;
+
+    if(QWidgetBackingStore::paintOnScreen(widget))
+        return;
+
+    QRegion toClean;
+#if defined(Q_WS_QWS)
+    QRect tlwRect = tlw->frameGeometry();
+#else
+    QRect tlwRect = tlw->geometry();
+#endif
+
+#ifdef Q_WS_QWS
+    QList<QWindowSurface*> surfaces = subSurfaces;
+    surfaces.prepend(windowSurface);
+
+    for (int i = 0; i < surfaces.size(); ++i) {
+        QWindowSurface *windowSurface = surfaces.at(i);
+        QWidget *currWidget = windowSurface->window();
+        QRect tlwRect;
+        if (currWidget->isWindow()) {
+            QWSWindowSurface *s = static_cast<QWSWindowSurface*>(windowSurface);
+            tlwRect = QRect(currWidget->mapToGlobal(-s->painterOffset()),
+                            currWidget->frameGeometry().size());
+        } else {
+            // XXX: hw: currently subsurfaces are resized in setGeometry_sys
+            tlwRect = windowSurface->geometry();
+        }
+#endif
+#ifdef Q_WS_QWS
+        if (!static_cast<QWSWindowSurface*>(windowSurface)->isValid()) {
+            windowSurface->setGeometry(QRect());
+            delete windowSurface;
+            windowSurface = qt_default_window_surface(tlw);
+        }
+#endif
+        if (windowSurface->geometry() != tlwRect) {
+            if (windowSurface->geometry().size() != tlwRect.size()) {
+                toClean = QRect(QPoint(0, 0), tlwRect.size());
+                recursiveCopyToScreen = true;
+#ifdef Q_WIDGET_USE_DIRTYLIST
+                for (int i = 0; i < dirtyWidgets.size(); ++i)
+                    dirtyWidgets.at(i)->d_func()->dirty = QRegion();
+                dirtyWidgets.clear();
+#endif
+            }
+            windowSurface->setGeometry(tlwRect);
+        } else {
+#ifdef Q_WS_QWS
+            toClean = static_cast<QWSWindowSurface*>(windowSurface)->dirtyRegion();
+#else
+            toClean = dirty;
+#endif
+        }
+#ifdef Q_WS_QWS
+        if (currWidget->isWindow())
+            tlwOffset = static_cast<QWSWindowSurface*>(windowSurface)->painterOffset();
+#endif
+        // ### move into prerender step
+
+        QRegion toFlush = rgn;
+#ifdef Q_WIDGET_USE_DIRTYLIST
+        if (!toClean.isEmpty() || !dirtyWidgets.isEmpty()) {
+#else
+        if (!toClean.isEmpty()) {
+#endif
+#ifndef Q_WS_QWS
+            dirty -= toClean;
+#endif
+            if (tlw->updatesEnabled()) {
+                // Pre render config
+                windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
+
+                // hw: XXX the toClean region is not correct if !dirtyWidgets.isEmpty()
+
+
+// Avoid deadlock with QT_FLUSH_PAINT: the server will wait for
+// the BackingStore lock, so if we hold that, the server will
+// never release the Communication lock that we are waiting for in
+// sendSynchronousCommand
+#ifndef QT_NO_PAINT_DEBUG
+                const bool flushing = (test_qt_flushPaint() > 0);
+#else
+                const bool flushing = false;
+#endif
+                if (!flushing)
+                    windowSurface->beginPaint(toClean);
+                windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
+
+#ifdef Q_WIDGET_USE_DIRTYLIST
+#ifdef Q_WS_QWS
+                const QPoint poffset = static_cast<QWSWindowSurface*>(windowSurface)->painterOffset();
+#else
+                const QPoint poffset(0,0);
+#endif
+                for (int i = 0; i < dirtyWidgets.size(); ++i) {
+                    QWidget *w = dirtyWidgets.at(i);
+                    const QPoint offset = w->mapTo(tlw, QPoint());
+                    const QRegion dirty = w->d_func()->dirty;
+                    w->d_func()->drawWidget(w->windowSurface()->paintDevice(), dirty,
+                                            poffset + offset, 0);
+                    toFlush += dirty.translated(offset);
+                    w->d_func()->dirty = QRegion();
+                }
+                dirtyWidgets.clear();
+#endif // Q_WIDGET_USE_DIRTYLIST
+
+                if (!toClean.isEmpty())
+                    currWidget->d_func()->drawWidget(windowSurface->paintDevice(),
+                                                     toClean, tlwOffset);
+
+                // Drawing the overlay...
+                windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
+                if (!flushing)
+                    windowSurface->endPaint(toClean);
+                windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
+            }
+        }
+
+#ifdef Q_WS_QWS
+        if (toFlush.isEmpty())
+            continue;
+        // XXX: hack to make copyToScreen work on the correct windowsurface
+        QWindowSurface *oldSurface = this->windowSurface;
+        this->windowSurface = windowSurface;
+#endif
+#if 0
+        if (recursiveCopyToScreen) {
+            toFlush.translate(widget->mapTo(tlw, QPoint()));
+#ifdef Q_WS_QWS
+            toFlush.translate(currWidget->mapFrom(tlw, QPoint()));
+            copyToScreen(toFlush, currWidget, tlwOffset, recursiveCopyToScreen);
+#else
+            copyToScreen(toFlush, tlw, tlwOffset, recursiveCopyToScreen);
+#endif
+        } else {
+#ifdef Q_WS_X11
+            toFlush += widget->d_func()->dirtyOnScreen;
+#endif
+#ifdef Q_WS_QWS
+            copyToScreen(toFlush, currWidget,
+                         currWidget->mapFrom(tlw, widget->mapTo(tlw, QPoint())),
+                         false);
+#else
+            copyToScreen(toFlush, widget, widget->mapTo(tlw, QPoint()), false);
+#endif
+        }
+#else // XXX
+        copyToScreen(toClean & static_cast<QWSWindowSurface*>(windowSurface)->clipRegion(), currWidget, tlwOffset, recursiveCopyToScreen);
+#endif
+#ifdef Q_WS_QWS
+        this->windowSurface = oldSurface;
+#endif
+    }
+}
+
+#else // Q_BACKINGSTORE_SUBSURFACES
 void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool recursiveCopyToScreen)
 {
     if (!widget->isVisible() || !widget->updatesEnabled() || !tlw->testAttribute(Qt::WA_Mapped))
@@ -728,6 +917,8 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         copyToScreen(toFlush, widget, widget->mapTo(tlw, QPoint()), false);
     }
 }
+
+#endif // Q_BACKINGSTORE_SUBSURFACES
 
 #ifdef Q_WS_QWS
 void QWidgetBackingStore::releaseBuffer()

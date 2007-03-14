@@ -41,6 +41,7 @@
 #if defined(Q_WS_QWS)
 #include "qwsmanager_qws.h"
 #include "qpaintengine.h" // for PorterDuff
+#include "private/qwindowsurface_qws_p.h"
 #endif
 #include "qpainter.h"
 #include "qtooltip.h"
@@ -1272,6 +1273,9 @@ void QWidgetPrivate::deleteExtra()
             delete extra->topextra->iconPixmap;
 #if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
             delete extra->topextra->qwsManager;
+#endif
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+            delete extra->topextra->windowSurface;
 #endif
             delete extra->topextra;
         }
@@ -8772,23 +8776,62 @@ void QWidget::setWindowSurface(QWindowSurface *surface)
 {
     // ### createWinId() ??
 
+#ifndef Q_BACKINGSTORE_SUBSURFACES
     if (!isTopLevel())
         return;
+#endif
 
-    // ### Global update ??
-    d_func()->topData()->windowSurface = surface;
+    Q_D(QWidget);
+
+    QTLWExtra *topData = d->topData();
+    if (topData->windowSurface == surface)
+        return;
+
+    delete topData->windowSurface;
+    topData->windowSurface = surface;
+
+    QWidgetBackingStore *bs = d->maybeBackingStore();
+    if (!bs)
+        return;
+
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    if (!isTopLevel())
+        bs->subSurfaces.append(surface);
+    else
+#endif
+        bs->windowSurface = surface;
 }
 
 /*!
     \preliminary
     \since 4.2
+
+    Returns the QWindowSurface this widget will be drawn into.
 */
 QWindowSurface *QWidget::windowSurface() const
 {
-    if (!isTopLevel())
+    Q_D(const QWidget);
+
+    QWidgetBackingStore *bs = d->maybeBackingStore();
+    if (!bs)
         return 0;
 
-    return d_func()->topData()->windowSurface;
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    if (bs->subSurfaces.isEmpty())
+#endif
+        return bs->windowSurface;
+
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    // hw: loop up to window() instead of doing this recursively!!
+    QTLWExtra *extra = d->maybeTopData();
+    if (extra && extra->windowSurface)
+        return extra->windowSurface;
+
+    if (isTopLevel())
+        return 0;
+
+    return parentWidget()->windowSurface();
+#endif
 }
 
 
@@ -8813,17 +8856,17 @@ void QWidgetPrivate::getLayoutItemMargins(int *left, int *top, int *right, int *
 void QWidgetPrivate::setLayoutItemMargins(int left, int top, int right, int bottom)
 {
     if (leftLayoutItemMargin == left
-                    && topLayoutItemMargin == top
-                        && rightLayoutItemMargin == right
-                        && bottomLayoutItemMargin == bottom)
-                return;
+        && topLayoutItemMargin == top
+        && rightLayoutItemMargin == right
+        && bottomLayoutItemMargin == bottom)
+        return;
 
-        Q_Q(QWidget);
+    Q_Q(QWidget);
     leftLayoutItemMargin = (signed char)left;
     topLayoutItemMargin = (signed char)top;
     rightLayoutItemMargin = (signed char)right;
     bottomLayoutItemMargin = (signed char)bottom;
-        q->updateGeometry();
+    q->updateGeometry();
 }
 
 void QWidgetPrivate::setLayoutItemMargins(QStyle::SubElement element, const QStyleOption *opt)

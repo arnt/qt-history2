@@ -89,8 +89,11 @@ public:
     inline bool isBuffered() const { return surfaceFlags() & Buffered; }
     inline bool isOpaque() const { return surfaceFlags() & Opaque; }
 
+    int winId() const;
+
 protected:
     void setSurfaceFlags(SurfaceFlags type);
+    void setWinId(int id);
 
 private:
     QWSWindowSurfacePrivate *d_ptr;
@@ -215,7 +218,6 @@ public:
     QImage image() const { return img; }
 
 private:
-    int winId;
     int delay;
     QSize surfaceSize; // client side
     QImage img; // server side
@@ -251,11 +253,11 @@ public:
     QImage image() const { return QImage(); }
     QPaintDevice *paintDevice() { return 0; }
 
-    WId windowId() const { return static_cast<WId>(winId); }
+    // hw: get rid of this
+    WId windowId() const { return static_cast<WId>(winId()); }
 
     QScreen *screen() const { return _screen; }
 private:
-    int winId;
     QScreen *_screen;
 };
 

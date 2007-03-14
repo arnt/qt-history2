@@ -2480,6 +2480,14 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 #endif
 
     QPointer<QETWidget> widget = static_cast<QETWidget*>(QWidget::find(WId(event->window())));
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    if (!widget) { // XXX: hw: hack for accessing subsurfaces
+        extern QWSWindowSurface* qt_findWindowSurface(int);
+        QWSWindowSurface *s = qt_findWindowSurface(event->window());
+        if (s)
+            widget = static_cast<QETWidget*>(s->window());
+    }
+#endif
 
 #ifndef QT_NO_DIRECTPAINTER
     if (!widget && d->directPainters) {
@@ -3348,25 +3356,19 @@ bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab) /* grab i
 
 bool QETWidget::translateRegionEvent(const QWSRegionEvent *event)
 {
-    Q_D(QWidget);
-
-    QWidget *win = QWidget::find(WId(event->window()));
-    if (!win)
-        return true;
-
-    QWidgetBackingStore *bs = d->topData()->backingStore;
-    QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
+    QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(windowSurface());
+    Q_ASSERT(surface);
 
     QRegion region;
     region.setRects(event->rectangles, event->simpleData.nrectangles);
 
     switch (event->simpleData.type) {
     case QWSRegionEvent::Allocation:
-        region.translate(-win->geometry().topLeft());
+        region.translate(-mapToGlobal(QPoint()));
         surface->setClipRegion(region);
         break;
     case QWSRegionEvent::Request:
-        win->setGeometry(region.boundingRect());
+        setGeometry(region.boundingRect());
         break;
     default:
         break;

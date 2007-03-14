@@ -4,7 +4,7 @@ TEMPLATE = subdirs
 unset(SRC_SUBDIRS)
 win32:SRC_SUBDIRS += src_winmain
 SRC_SUBDIRS += src_tools_moc src_tools_rcc src_tools_uic src_corelib src_xml src_gui src_sql src_network src_svg src_script
-!embedded:contains(QT_CONFIG, opengl): SRC_SUBDIRS += src_opengl
+contains(QT_CONFIG, opengl): SRC_SUBDIRS += src_opengl
 contains(QT_CONFIG, qt3support): SRC_SUBDIRS += src_qt3support
 !cross_compile {
     contains(QT_CONFIG, qt3support): SRC_SUBDIRS += src_tools_uic3

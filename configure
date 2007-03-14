@@ -4507,6 +4507,9 @@ fi
 if [ "$CFG_OPENGL" = "no" ]; then
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_OPENGL"
 else
+    if [ "$PLATFORM_QWS" = "yes" ]; then
+	QCONFIG_FLAGS="$QCONFIG_FLAGS Q_BACKINGSTORE_SUBSURFACES"
+    fi
     QT_CONFIG="$QT_CONFIG opengl"
 fi
 

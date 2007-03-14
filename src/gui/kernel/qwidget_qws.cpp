@@ -531,8 +531,22 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
     }
 
     QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(wbs->windowSurface);
-    if (surface)
+    if (surface) {
         surface->setDirty(wrgn);
+
+
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+        // dirty on all subsurfaces...
+
+        QList<QWindowSurface*> subSurfaces = wbs->subSurfaces;
+        // XXX: hw: only if region intersects any of the subsurfaces
+        for (int i = 0; i < subSurfaces.size(); ++i) {
+            QWSWindowSurface *s = static_cast<QWSWindowSurface*>(subSurfaces.at(i));
+            QPoint p = s->window()->mapTo(tlw, QPoint()); // must use widget?
+            s->setDirty(wrgn.translated(-p));
+        }
+#endif // Q_BACKINGSTORE_SUBSURFACES
+    }
 }
 
 void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
@@ -562,7 +576,7 @@ void QWidgetPrivate::show_sys()
     q->setAttribute(Qt::WA_Mapped);
     if (q->isWindow()) {
 
-        if (QWindowSurface *surface = currentWindowSurface()) {
+        if (QWindowSurface *surface = q->windowSurface()) {
             const QRect frameRect = q->frameGeometry();
             if (surface->geometry() != frameRect)
                 surface->setGeometry(frameRect);
@@ -591,6 +605,14 @@ void QWidgetPrivate::show_sys()
         altitude = staysontop ? QWSChangeAltitudeCommand::StaysOnTop : QWSChangeAltitudeCommand::Raise;
         QWidget::qwsDisplay()->setAltitude(data.winid, altitude, true);
     }
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    else if (q->windowSurface()) {
+        QWSWindowSurface *surface;
+        surface = static_cast<QWSWindowSurface*>(q->windowSurface());
+        const QPoint p = q->mapToGlobal(QPoint());
+        surface->setGeometry(QRect(p, q->size()));
+    }
+#endif
 
     if (!q->window()->data->in_show) {
          invalidateBuffer(q->rect());
@@ -722,6 +744,7 @@ void QWidgetPrivate::raise_sys()
         Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
         QWidget::qwsDisplay()->setAltitude(q->internalWinId(),
                                            QWSChangeAltitudeCommand::Raise);
+        // XXX: subsurfaces?
 #ifdef QT_NO_WINDOWGROUPHINT
 #else
         QObjectList childObjects =  q->children();
@@ -820,13 +843,24 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             if (bs)
                 surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
             if (isMove && !isResize && (!surface || surface->isBuffered())) {
-                QWidget::qwsDisplay()->moveRegion(data.winid, x - oldp.x(), y - oldp.y());
+                const QPoint offset(x - oldp.x(), y - oldp.y());
+                QWidget::qwsDisplay()->moveRegion(data.winid, offset.x(), offset.y());
                 toplevelMove = true; //server moves window, but we must send moveEvent, which might trigger painting
 
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+                // XXX: move subsurfaces...
+                QList<QWindowSurface*> surfaces = bs->subSurfaces;
+                for (int i = 0; i < surfaces.size(); ++i) {
+                    QWSWindowSurface *s = static_cast<QWSWindowSurface*>(surfaces.at(i));
+                    QWSDisplay::instance()->moveRegion(s->winId(),
+                                                       offset.x(), offset.y());
+                }
+#endif
             } else {
                     updateFrameStrut();
             }
         }
+
 
         //### must have frame geometry correct before sending move/resize events
         if (isMove) {
@@ -843,7 +877,35 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                     surface->setGeometry(q->frameGeometry());
                 else
                     invalidateBuffer(q->rect()); //###
-            } else {
+
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+                // XXX: resize subsurfaces...
+                const QRect clipRect = q->geometry();
+                QWidgetBackingStore *bs = maybeBackingStore();
+                QList<QWindowSurface*> surfaces = bs->subSurfaces;
+                for (int i = 0; i < surfaces.size(); ++i) {
+                    QWSWindowSurface *s = static_cast<QWSWindowSurface*>(surfaces.at(i));
+                    QRect srect = s->geometry();
+                    s->setGeometry(clipRect & srect);
+                }
+#endif
+            }
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+            // XXX: merge this case with the isWindow() case
+            else if (maybeTopData() && topData()->windowSurface) {
+                QWSWindowSurface *surface;
+                surface = static_cast<QWSWindowSurface*>(q->windowSurface());
+                if (isMove && !isResize) {
+                    QWSDisplay::instance()->moveRegion(surface->winId(),
+                                                       x - oldp.x(),
+                                                       y - oldp.y());
+                } else {
+                    const QPoint p = q->mapToGlobal(QPoint(x, y));
+                    surface->setGeometry(QRect(p, QSize(w, h)));
+                }
+            }
+#endif
+            else {
                 if (isMove && !isResize) {
                     moveRect(QRect(oldPos, olds), x - oldPos.x(), y - oldPos.y());
                 } else {
@@ -1116,9 +1178,3 @@ void QWidgetPrivate::setModal_sys()
 {
 }
 
-QWindowSurface *QWidgetPrivate::currentWindowSurface()
-{
-    Q_Q(QWidget);
-    QWidgetBackingStore *bs =  q->window()->d_func()->maybeBackingStore();
-    return bs ? bs->windowSurface : 0;
-}

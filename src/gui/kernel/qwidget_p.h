@@ -121,7 +121,6 @@ struct QTLWExtra {
     HICON winIconSmall; // internal small Windows icon
 #endif
     QRect normalGeometry; // used by showMin/maximized/FullScreen
-
     QWindowSurface *windowSurface;
 };
 
@@ -175,7 +174,6 @@ public:
     QWidgetBackingStore *maybeBackingStore() const;
 #endif
 #ifdef Q_WS_QWS
-    QWindowSurface *currentWindowSurface();
     void setMaxWindowState_helper();
 #endif
     void init(QWidget *desktopWidget, Qt::WindowFlags f);

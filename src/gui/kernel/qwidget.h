@@ -671,6 +671,7 @@ private:
     friend class QScreen;
     friend class QVNCScreen;
     friend bool isWidgetOpaque(const QWidget *);
+    friend class QGLWidgetPrivate;
 #endif
 
     friend Q_GUI_EXPORT QWidgetData *qt_qwidget_data(QWidget *widget);
