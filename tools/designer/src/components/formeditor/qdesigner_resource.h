@@ -52,6 +52,7 @@ public:
     DomUI *copy(const QList<QWidget*> &selection);
     QList<QWidget*> paste(DomUI *ui, QWidget *parentWidget);
     QList<QWidget*> paste(QIODevice *dev, QWidget *parentWidget);
+    static QString qtify(const QString &name);
 
 protected:
     using QSimpleResource::create;
