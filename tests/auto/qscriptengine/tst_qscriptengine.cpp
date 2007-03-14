@@ -10,6 +10,8 @@
 #include <QtTest/QtTest>
 
 #include <qscriptengine.h>
+#include <qgraphicsitem.h>
+#include <qstandarditemmodel.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=qscriptengine.h qscriptengine.cpp
@@ -44,6 +46,7 @@ private slots:
     void importExtension();
     void infiniteRecursion();
     void castWithPrototypeChain();
+    void castWithMultipleInheritance();
 };
 
 tst_QScriptEngine::tst_QScriptEngine()
@@ -746,6 +749,33 @@ void tst_QScriptEngine::castWithPrototypeChain()
             QCOMPARE(plingrad->finalStop(), lg.finalStop());
         }
     }
+}
+
+class Klazz : public QWidget,
+              public QStandardItem,
+              public QGraphicsItem
+{
+    Q_OBJECT
+public:
+    Klazz(QWidget *parent = 0) : QWidget(parent) { }
+    virtual QRectF boundingRect() const { return QRectF(); }
+    virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) { }
+};
+
+Q_DECLARE_METATYPE(Klazz*)
+Q_DECLARE_METATYPE(QStandardItem*)
+
+void tst_QScriptEngine::castWithMultipleInheritance()
+{
+    QScriptEngine eng;
+    Klazz klz;
+    QScriptValue v = eng.newQObject(&klz);
+
+    QCOMPARE(qscriptvalue_cast<Klazz*>(v), &klz);
+    QCOMPARE(qscriptvalue_cast<QWidget*>(v), (QWidget *)&klz);
+    QCOMPARE(qscriptvalue_cast<QObject*>(v), (QObject *)&klz);
+    QCOMPARE(qscriptvalue_cast<QStandardItem*>(v), (QStandardItem *)&klz);
+    QCOMPARE(qscriptvalue_cast<QGraphicsItem*>(v), (QGraphicsItem *)&klz);
 }
 
 QTEST_MAIN(tst_QScriptEngine)

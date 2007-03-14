@@ -1182,8 +1182,8 @@ bool QScriptEnginePrivate::convert(const QScriptValueImpl &value,
     if (value.isQObject() && name.endsWith('*')) {
         QByteArray className = name.left(name.size()-1);
         QObject *qobject = value.toQObject();
-        if (qobject->inherits(className)) {
-            *reinterpret_cast<QObject* *>(ptr) = qobject;
+        if (void *instance = qobject->qt_metacast(className)) {
+            *reinterpret_cast<void* *>(ptr) = instance;
             return true;
         }
     }
