@@ -282,7 +282,7 @@ static OPENFILENAME* qt_win_make_OFN(QWidget *parent,
 
 static void qt_win_clean_up_OFN(OPENFILENAME **ofn)
 {
-    delete (*ofn)->lpstrFile;
+    delete [] (*ofn)->lpstrFile;
     delete *ofn;
     *ofn = 0;
 }
