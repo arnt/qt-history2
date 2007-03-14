@@ -762,12 +762,15 @@ void QColumnViewPrivate::setPreviewWidget(QWidget *widget)
     Q_Q(QColumnView);
     if (previewColumn)
         previewColumn->deleteLater();
-    previewColumn = new QColumnViewPreviewColumn(q);
+    QColumnViewPreviewColumn *column = new QColumnViewPreviewColumn(q);
+    column->setPreviewWidget(widget);
+    previewColumn = column;
+    previewColumn->hide();
     previewColumn->setFrameShape(QFrame::NoFrame);
     previewColumn->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     previewColumn->setSelectionMode(QAbstractItemView::NoSelection);
     previewColumn->setMinimumWidth(qMax(previewColumn->verticalScrollBar()->width(),
-                                   previewColumn->minimumWidth()));
+                previewColumn->minimumWidth()));
     previewWidget = widget;
     previewWidget->setParent(previewColumn->viewport());
 }
@@ -816,7 +819,7 @@ void QColumnView::currentChanged(const QModelIndex &current, const QModelIndex &
     }
     if (!found)
         d->closeColumns(current, true);
-    
+
     if (!model()->hasChildren(current))
         emit updatePreviewWidget(current);
 
@@ -839,7 +842,7 @@ void QColumnViewPrivate::_q_changeCurrentColumn()
 
     // We might have scrolled far to the left so we need to close all of the children
     closeColumns(current, true);
-    
+
     // Set up the "current" column with focus
     int currentColumn = qMax(0, columns.size() - 2);
     QAbstractItemView *parentColumn = columns.at(currentColumn);

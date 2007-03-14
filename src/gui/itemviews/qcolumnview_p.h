@@ -42,12 +42,17 @@
 class QColumnViewPreviewColumn : public QAbstractItemView {
 
 public:
-    QColumnViewPreviewColumn(QWidget *widget) : QAbstractItemView(){
+    QColumnViewPreviewColumn(QWidget *parent) : QAbstractItemView(parent), previewWidget(0) {
+    }
+
+    void setPreviewWidget(QWidget *widget) {
         previewWidget = widget;
         setMinimumWidth(previewWidget->minimumWidth());
     }
 
     void resizeEvent(QResizeEvent * event){
+        if (!previewWidget)
+            return;
         previewWidget->resize(
                 qMax(previewWidget->minimumWidth(), event->size().width()),
                 previewWidget->height());
