@@ -28,7 +28,7 @@ t()
              close SOUT"
 }
 
-for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support QtSvg; do
+for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support QtSvg QtScript; do
    [ -d "${3}/Library/Frameworks/${lib}.framework" ] || continue
    cd "${3}/Library/Frameworks/${lib}.framework/Versions/$VERSION_MAJOR$.0" 
    Products="bad product"

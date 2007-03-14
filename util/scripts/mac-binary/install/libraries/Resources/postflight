@@ -62,7 +62,7 @@ def readLicenseFile():
 def fixLibraries():
     licensee, product, licensekey = readLicenseFile()
 
-    frameworks = [ "QtCore", "QtGui", "QtNetwork", "QtXml", "QtOpenGL", "QtSql", "Qt3Support", "QtSvg" ]
+    frameworks = [ "QtCore", "QtGui", "QtNetwork", "QtXml", "QtOpenGL", "QtSql", "Qt3Support", "QtSvg", "QtScript" ]
     for framework in frameworks:
         frameworkPath = os.path.join(sys.argv[3], 'Library', 'Frameworks', framework + '.framework')
         if not os.path.exists(frameworkPath):

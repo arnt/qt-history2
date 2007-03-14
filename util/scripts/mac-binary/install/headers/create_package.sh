@@ -22,7 +22,7 @@ done
 FRAMEWORK_DIR="$OUTDIR/Library/Frameworks"
 mkdir -p "$FRAMEWORK_DIR"
 
-for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support QtSvg; do
+for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support QtSvg QtScript; do
     if [ ! -d "$BINDIR/lib/${lib}.framework/Headers" ]; then
 	echo "No headers for $lib"
         continue
