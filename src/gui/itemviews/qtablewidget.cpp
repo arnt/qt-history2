@@ -2296,7 +2296,7 @@ QList<QTableWidgetItem*> QTableWidget::selectedItems()
     QList<QTableWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i) {
         QModelIndex index = indexes.at(i);
-        if(isIndexHidden(index))
+        if (isIndexHidden(index))
             continue;
         QTableWidgetItem *item = d->model()->item(index);
         if (item)
