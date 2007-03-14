@@ -394,8 +394,11 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     XSetWindowAttributes wsa;
 
     if (window) {                                // override the old window
-        if (destroyOldWindow)
+        if (destroyOldWindow) {
+            if (topLevel)
+                X11->dndEnable(q, false);
             destroyw = data.winid;
+        }
         id = window;
         setWinId(window);
         XWindowAttributes a;
@@ -683,7 +686,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             if (QTLWExtra *topData = maybeTopData())
                 setWindowTitle_helper(topData->caption);
 
-            X11->dndEnable(q, true); //always enable dnd: it's not worth the effort to maintain the state
+            //always enable dnd: it's not worth the effort to maintain the state
+            // NOTE: this always creates topData()
+            X11->dndEnable(q, true);
 
             if (maybeTopData() && maybeTopData()->opacity != 255)
                 q->setWindowOpacity(maybeTopData()->opacity/255.);
@@ -769,6 +774,8 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             if (acceptDrops())
                 X11->dndEnable(this, false);
         } else {
+            if (isWindow())
+                X11->dndEnable(this, false);
             if (destroyWindow)
                 qt_XDestroyWindow(this, X11->display, data->winid);
         }
