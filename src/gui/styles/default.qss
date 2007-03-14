@@ -81,3 +81,6 @@ QProgressBar {
     -qt-background-role: base;
 }
 
+QScrollBar {
+    -qt-background-role: window;
+}

@@ -428,6 +428,8 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
     QStyleSheetStyle *style = qobject_cast<QStyleSheetStyle *>(widget->style());
     Q_ASSERT(style);
     fixupBorder(style->nativeFrameWidth(widget));
+    if (hasBorder() && border()->hasBorderImage())
+        defaultBackground = QBrush();
 }
 
 QRect QRenderRule::borderRect(const QRect& r) const
@@ -1648,6 +1650,13 @@ static bool hasStyleRule(const QWidget *w, int part = PseudoElement_None)
 static Origin defaultOrigin(int pe)
 {
     switch (pe) {
+    case PseudoElement_ScrollBarSlider:
+    case PseudoElement_ScrollBarAddPage:
+    case PseudoElement_ScrollBarSubPage:
+    case PseudoElement_ScrollBarAddLine:
+    case PseudoElement_ScrollBarSubLine:
+    case PseudoElement_ScrollBarFirst:
+    case PseudoElement_ScrollBarLast:
     case PseudoElement_GroupBoxTitle:
     case PseudoElement_GroupBoxIndicator: // never used
     case PseudoElement_ToolButtonMenu:
@@ -1681,11 +1690,15 @@ static Qt::Alignment defaultPosition(int pe)
     case PseudoElement_ExclusiveIndicator:
         return Qt::AlignLeft | Qt::AlignVCenter;
 
+    case PseudoElement_ScrollBarAddLine:
+    case PseudoElement_ScrollBarLast:   
     case PseudoElement_SpinBoxDownButton:
     case PseudoElement_MenuIndicator:
     case PseudoElement_ToolButtonDownArrow:
         return Qt::AlignRight | Qt::AlignBottom;
 
+    case PseudoElement_ScrollBarSubLine:
+    case PseudoElement_ScrollBarFirst:
     case PseudoElement_SpinBoxUpButton:
     case PseudoElement_ComboBoxDropDown:
     case PseudoElement_ToolButtonMenu:
@@ -1779,6 +1792,19 @@ QSize QStyleSheetStyle::defaultSize(const QWidget *w, QSize sz, const QRect& rec
         break;
                                             }
 
+    
+    case PseudoElement_ScrollBarFirst:
+    case PseudoElement_ScrollBarLast:
+    case PseudoElement_ScrollBarAddLine:
+    case PseudoElement_ScrollBarSubLine:
+    case PseudoElement_ScrollBarSlider: {
+        int pm = pixelMetric(QStyle::PM_ScrollBarExtent, 0, w);
+        if (sz.width() == -1)
+            sz.setWidth(pm);
+        if (sz.height() == -1)
+            sz.setHeight(pm);
+                                        }
+
     default:
         break;
     }
@@ -1792,19 +1818,35 @@ QSize QStyleSheetStyle::defaultSize(const QWidget *w, QSize sz, const QRect& rec
     return sz;
 }
 
+static PositionMode defaultPositionMode(int pe)
+{
+    switch (pe) {
+    case PseudoElement_ScrollBarFirst:
+    case PseudoElement_ScrollBarLast:
+    case PseudoElement_ScrollBarAddLine:
+    case PseudoElement_ScrollBarSubLine:
+    case PseudoElement_ScrollBarAddPage:
+    case PseudoElement_ScrollBarSubPage:
+    case PseudoElement_ScrollBarSlider: 
+        return PositionMode_Absolute;
+    default:
+        return PositionMode_Static;
+    }
+}
+
 QRect QStyleSheetStyle::positionRect(const QWidget *w, const QRenderRule& rule1, const QRenderRule& rule2, int pe,
                                      const QRect& rect, Qt::LayoutDirection dir) const
 {
     const QStyleSheetPositionData *p = rule2.position();
     Origin origin = (p && p->origin != Origin_Unknown) ? p->origin : defaultOrigin(pe);
     QRect originRect = rule1.originRect(rect, origin);
-    PositionMode mode = p ? p->mode : PositionMode_Static;
+    PositionMode mode = p ? p->mode : defaultPositionMode(pe);
     Qt::Alignment position = (p && p->position != 0) ? p->position : defaultPosition(pe);
     QRect r;
 
     if (mode != PositionMode_Absolute) {
         QSize sz = defaultSize(w, rule2.size(), originRect, pe);
-        sz = rule2.boxSize(sz.expandedTo(rule2.minimumContentsSize()));
+        sz = sz.expandedTo(rule2.minimumContentsSize());
         r = QStyle::alignedRect(dir, position, sz, originRect);
         if (p) {
             int left = p->left ? p->left : -p->right;
@@ -1816,8 +1858,9 @@ QRect QStyleSheetStyle::positionRect(const QWidget *w, const QRenderRule& rule1,
             r = originRect.adjusted(dir == Qt::LeftToRight ? p->left : p->right, p->top,
                                     dir == Qt::LeftToRight ? -p->right : -p->left, -p->bottom);
         if (rule2.hasContentsSize()) {
-            QSize sz = defaultSize(w, rule2.size(), r, pe);
-            sz = rule2.boxSize(sz.expandedTo(rule2.minimumContentsSize()));
+            QSize sz = rule2.size().expandedTo(rule2.minimumContentsSize());
+            if (sz.width() == -1) sz.setWidth(r.width());
+            if (sz.height() == -1) sz.setHeight(r.height());
             r = QStyle::alignedRect(dir, position, sz, r);
         }
     }
@@ -2104,6 +2147,7 @@ void QStyleSheetStyle::polish(QWidget *w)
               || QString::fromLocal8Bit(super->className()) == QLatin1String("QDialog");
 
     w->setAttribute(Qt::WA_StyledBackground, on);
+    w->setAttribute(Qt::WA_OpaquePaintEvent, false);
     updateWidget(w);
 }
 
@@ -2220,18 +2264,18 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
                 customUp = (opt->subControls & QStyle::SC_SpinBoxUp)
                            && hasStyleRule(w, PseudoElement_SpinBoxUpButton);
                 if (customUp)
-                        spinOpt.subControls &= ~QStyle::SC_SpinBoxUp;
+                    spinOpt.subControls &= ~QStyle::SC_SpinBoxUp;
                 customDown = (opt->subControls & QStyle::SC_SpinBoxDown)
-                                         && hasStyleRule(w, PseudoElement_SpinBoxDownButton);
+                             && hasStyleRule(w, PseudoElement_SpinBoxDownButton);
                 if (customDown)
-                        spinOpt.subControls &= ~QStyle::SC_SpinBoxDown;
+                    spinOpt.subControls &= ~QStyle::SC_SpinBoxDown;
                 if (rule.baseStyleCanDraw()) {
-                        baseStyle()->drawComplexControl(cc, &spinOpt, p, w);
+                    baseStyle()->drawComplexControl(cc, &spinOpt, p, w);
                 } else {
-                        QWindowsStyle::drawComplexControl(cc, &spinOpt, p, w);
+                    QWindowsStyle::drawComplexControl(cc, &spinOpt, p, w);
                 }
                 if (!customUp && !customDown)
-                        return;
+                    return;
             } else {
                 rule.drawFrame(p, opt->rect);
             }
@@ -2394,9 +2438,16 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
         break;
 
     case CC_ScrollBar:
-        if (rule.hasDrawable() || rule.hasBox()) {
-            rule.drawRule(p, opt->rect);
-            ParentStyle::drawComplexControl(cc, opt, p, w);
+        if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
+            QStyleOptionSlider sbOpt(*sb);
+            if (!rule.hasDrawable()) {
+                sbOpt.rect = rule.borderRect(opt->rect);
+                rule.drawBackgroundImage(p, opt->rect);
+                baseStyle()->drawComplexControl(cc, &sbOpt, p, w);
+            } else {
+                rule.drawFrame(p, opt->rect);
+                QWindowsStyle::drawComplexControl(cc, opt, p, w);
+            }
             return;
         }
         break;
@@ -2418,6 +2469,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
     QRenderRule rule = renderRule(w, opt);
     int pe1 = PseudoElement_None, pe2 = PseudoElement_None;
+    bool fallback = false;
 
     switch (ce) {
     case CE_ToolButtonLabel:
@@ -2829,11 +2881,13 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
     case CE_ScrollBarAddLine:
         pe1 = PseudoElement_ScrollBarAddLine;
         pe2 = PseudoElement_DownArrow;
+        fallback = true;
         break;
 
     case CE_ScrollBarSubLine:
         pe1 = PseudoElement_ScrollBarSubLine;
         pe2 = PseudoElement_UpArrow;
+        fallback = true;
         break;
 
     case CE_ScrollBarFirst:
@@ -2846,6 +2900,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
     case CE_ScrollBarSlider:
         pe1 = PseudoElement_ScrollBarSlider;
+        fallback = true;
         break;
 
     default:
@@ -2853,10 +2908,13 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
     }
 
     if (pe1 != PseudoElement_None) {
-        if (!hasStyleRule(w, pe1))
-            return;
         QRenderRule subRule = renderRule(w, opt, pe1);
-        subRule.drawRule(p, opt->rect);
+        if (subRule.hasDrawable()) {
+            subRule.drawRule(p, opt->rect);
+        } else if (fallback) {
+            QWindowsStyle::drawControl(ce, opt, p, w);
+            pe2 = PseudoElement_None;
+        }
         if (pe2 != PseudoElement_None) {
             QRenderRule subSubRule = renderRule(w, opt, pe2);
             QRect r = positionRect(w, subRule, subSubRule, pe2, opt->rect, opt->direction);
@@ -3083,18 +3141,17 @@ QStyle::SubControl QStyleSheetStyle::hitTestComplexControl(ComplexControl cc, co
                                  const QPoint &pt, const QWidget *w) const
 {
     switch (cc) {
-    case CC_ScrollBar:
-        if (hasStyleRule(w)) {
-            QRenderRule rule = renderRule(w, opt);
-            if (!rule.hasBorder() && !rule.hasBox() && !rule.hasDrawable())
-                break;
-        }
+    case CC_ScrollBar: {
+        QRenderRule rule = renderRule(w, opt);
+        if (rule.hasNativeBorder())
+            break;
+                       }
         // intentionally falls through
     case CC_GroupBox:
     case CC_ComboBox:
     case CC_Slider:
     case CC_ToolButton:
-        return ParentStyle::hitTestComplexControl(cc, opt, pt, w);
+        return QWindowsStyle::hitTestComplexControl(cc, opt, pt, w);
     default:
         break;
     }
@@ -3243,6 +3300,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
             QSize sz = rule.size();
             if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(opt))
                 return sb->orientation == Qt::Horizontal ? sz.height() : sz.width();
+            return sz.width() == -1 ? sz.height() : sz.width();
         }
         break;
 
@@ -3252,6 +3310,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
             QSize msz = subRule.minimumSize();
             if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(opt))
                 return sb->orientation == Qt::Horizontal ? msz.width() : msz.height();
+            return msz.width() == -1 ? msz.height() : msz.width();
         }
         break;
 
@@ -3459,7 +3518,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
 
     QRenderRule rule = renderRule(w, opt);
     switch (cc) {
-   case CC_ComboBox:
+    case CC_ComboBox:
         if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             if (rule.hasBox() || !rule.hasNativeBorder()) {
                 switch (sc) {
@@ -3592,7 +3651,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
 
     case CC_ScrollBar:
         if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
-            if (rule.hasDrawable() || rule.hasBox()) {
+            if (!rule.hasNativeBorder()) {
                 QRenderRule subRule;
                 PseudoElement pe = PseudoElement_None;
                 switch (sc) {
@@ -3640,11 +3699,14 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
                 case SC_ScrollBarLast: pe = PseudoElement_ScrollBarLast; break;
                 default: break;
                 }
-                if (!hasStyleRule(w, pe))
-                    return QRect();
                 subRule = renderRule(w, opt, pe);
                 return positionRect(w, rule, subRule, pe, opt->rect, opt->direction);
             }
+
+            QStyleOptionSlider scrollBar(*sb);
+            scrollBar.rect = rule.borderRect(opt->rect);
+            return rule.baseStyleCanDraw() ? baseStyle()->subControlRect(cc, &scrollBar, sc, w)
+                                           : QWindowsStyle::subControlRect(cc, &scrollBar, sc, w);
         }
         break;
     default:
