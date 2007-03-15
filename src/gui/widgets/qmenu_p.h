@@ -191,6 +191,7 @@ public:
         }
     } *mac_menu;
     MenuRef macMenu(MenuRef merge);
+    void setMacMenuEnabled(bool enable = true);
 #endif
 
     QPointer<QWidget> noReplayFor;

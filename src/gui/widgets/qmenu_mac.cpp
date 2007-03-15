@@ -985,6 +985,27 @@ QMenuPrivate::macMenu(MenuRef merge)
 }
 
 /*!
+  \internal
+*/
+void QMenuPrivate::setMacMenuEnabled(bool enable)
+{
+    if (!macMenu(0))
+        return;
+
+    if (enable) {
+        // Only enable those items which contains an enabled QAction.
+        // i == 0 -> the menu itself, hence i + 1 for items.
+        for (int i = 0; i < mac_menu->actionItems.count(); ++i) {
+            QMacMenuAction *menuItem = mac_menu->actionItems.at(i);
+            if (menuItem && menuItem->action && menuItem->action->isEnabled())
+                EnableMenuItem(mac_menu->menu, i + 1);
+        }
+    } else {
+        DisableAllMenuItems(mac_menu->menu);
+    }
+}
+
+/*!
     \internal
 
     This function will return the MenuRef used to create the native menu bar

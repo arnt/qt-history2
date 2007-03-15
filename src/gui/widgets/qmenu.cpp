@@ -1994,6 +1994,9 @@ void QMenu::changeEvent(QEvent *e)
         if (d->tornPopup) // torn-off menu
             d->tornPopup->setEnabled(isEnabled());
         d->menuAction->setEnabled(isEnabled());
+#ifdef Q_WS_MAC
+        d->setMacMenuEnabled(isEnabled());
+#endif
     }
     QWidget::changeEvent(e);
 }
