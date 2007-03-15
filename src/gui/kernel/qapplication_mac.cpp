@@ -422,6 +422,7 @@ void qt_mac_update_os_settings()
             pal.setColor(QPalette::Disabled, QPalette::HighlightedText, qc);
         }
         QApplicationPrivate::setSystemPalette(pal);
+        QApplication::setPalette(pal);
 #ifdef DEBUG_PLATFORM_SETTINGS
         qt_mac_debug_palette(pal, QApplication::palette(), "Global Palette");
 #endif
