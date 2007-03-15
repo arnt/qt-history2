@@ -915,8 +915,13 @@ struct QTestDataSetter
 };
 
 /*!
+    \internal
+
     Call init(), slot_data(), slot(), slot(), slot()..., cleanup()
     If data is set then it is the only test that is performed
+
+    If the function was successfully called, true is returned, otherwise
+    false.
  */
 static bool qInvokeTestMethod(const char *slotName, const char *data=0)
 {
@@ -1030,7 +1035,7 @@ void *fetchData(QTestData *data, const char *tagName, int typeId)
  
  Returns a pointer to a string which is \a ba represented as a
  space separated sequence of hex characters. If the input is considered too long,
- it is truncated which signalled by an ending ellipsis.
+ it is truncated, which is signalled by an ending ellipsis.
 
  */
 char *toHexRepresentation(const char *ba, int length)
@@ -1049,8 +1054,6 @@ char *toHexRepresentation(const char *ba, int length)
     const int len = qMin(maxLen, length);
     char *result = 0;
 
-    /* We output a space between each hex number, and also an elipsis if it's
-     * too long. */
     if(length > maxLen) {
         const int size = len * 3 + 4;
         result = new char[size];
@@ -1152,25 +1155,28 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
     QTestTable::globalTestTable();
     QMetaObject::invokeMethod(testObject, "initTestCase_data", Qt::DirectConnection);
 
-    if (!QTest::skipCurrentTest) {
-        QTestResult::setCurrentTestLocation(QTestResult::Func);
+    if (!QTest::skipCurrentTest && !QTest::currentTestFailed()) {
+        QTestResult::setCurrentTestLocation(QTestResult::InitFunc);
         QMetaObject::invokeMethod(testObject, "initTestCase");
-        QTestResult::finishedCurrentTestFunction();
 
-        if (lastTestFuncIdx >= 0) {
-            for (int i = 0; i <= lastTestFuncIdx; ++i) {
-                if (!qInvokeTestMethod(metaObject->method(testFuncs[i].function).signature(),
-                                       testFuncs[i].data))
-                    break;
-            }
-        } else {
-            int methodCount = metaObject->methodCount();
-            for (int i = 0; i < methodCount; ++i) {
-                QMetaMethod slotMethod = metaObject->method(i);
-                if (!isValidSlot(slotMethod))
-                    continue;
-                if (!qInvokeTestMethod(slotMethod.signature()))
-                    break;
+        if(!QTest::skipCurrentTest && !QTest::currentTestFailed()) {
+            QTestResult::finishedCurrentTestFunction();
+
+            if (lastTestFuncIdx >= 0) {
+                for (int i = 0; i <= lastTestFuncIdx; ++i) {
+                    if (!qInvokeTestMethod(metaObject->method(testFuncs[i].function).signature(),
+                                           testFuncs[i].data))
+                        break;
+                }
+            } else {
+                int methodCount = metaObject->methodCount();
+                for (int i = 0; i < methodCount; ++i) {
+                    QMetaMethod slotMethod = metaObject->method(i);
+                    if (!isValidSlot(slotMethod))
+                        continue;
+                    if (!qInvokeTestMethod(slotMethod.signature()))
+                        break;
+                }
             }
         }
 

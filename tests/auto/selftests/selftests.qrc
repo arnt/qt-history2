@@ -15,5 +15,9 @@
         <file>expected_crashes_1.txt</file>
         <file>expected_crashes_2.txt</file>
         <file>expected_multiexec.txt</file>
+        <file>expected_failinit.txt</file>
+        <file>expected_failinitdata.txt</file>
+        <file>expected_skipinitdata.txt</file>
+        <file>expected_skipinit.txt</file>
     </qresource>
 </RCC>

@@ -1,0 +1,7 @@
+********* Start testing of tst_SkipInitData *********
+Config: Using QTest library 4.4.0, Qt 4.4.0
+SKIP   : tst_SkipInitData::initTestCase() Skip inside initTestCase. This should skip all tests in the class.
+   Loc: [/home/fenglich/dev/qt/tests/auto/selftests/skipinitdata/tst_skipinitdata.cpp(23)]
+PASS   : tst_SkipInitData::initTestCase()
+Totals: 1 passed, 0 failed, 1 skipped
+********* Finished testing of tst_SkipInitData *********

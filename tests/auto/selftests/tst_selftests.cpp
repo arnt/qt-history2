@@ -50,6 +50,10 @@ void tst_Selftests::runSubTest_data()
     QTest::newRow("fetchbogus") << "fetchbogus";
     QTest::newRow("crashes") << "crashes";
     QTest::newRow("multiexec") << "multiexec";
+    QTest::newRow("failinit") << "failinit";
+    QTest::newRow("failinitdata") << "failinitdata";
+    QTest::newRow("skipinit") << "skipinit";
+    QTest::newRow("skipinitdata") << "skipinitdata";
 }
 
 void tst_Selftests::runSubTest()
