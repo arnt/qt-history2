@@ -274,7 +274,7 @@
          </sizepolicy>
         </property>
         <property name="text" >
-         <string>Files of Type:</string>
+         <string>Files of type:</string>
         </property>
        </widget>
       </item>
