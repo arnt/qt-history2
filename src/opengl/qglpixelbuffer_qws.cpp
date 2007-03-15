@@ -45,7 +45,7 @@ bool QGLPixelBuffer::bindToDynamicTexture(GLuint texture_id)
 void QGLPixelBuffer::releaseFromDynamicTexture()
 {
 }
-}
+
 
 GLuint QGLPixelBuffer::generateDynamicTexture() const
 {
