@@ -729,6 +729,7 @@ void QSortFilterProxyModelPrivate::updateChildrenMapping(const QModelIndex &sour
                                                          Qt::Orientation orient, int start, int end, int delta_item_count, bool remove)
 {
     // see if any mapped children should be (re)moved
+    QVector<QPair<QModelIndex, Mapping*> > moved_source_index_mappings;
     QVector<QModelIndex>::iterator it2 = parent_mapping->mapped_children.begin();
     for ( ; it2 != parent_mapping->mapped_children.end();) {
         const QModelIndex source_child_index = *it2;
@@ -761,9 +762,15 @@ void QSortFilterProxyModelPrivate::updateChildrenMapping(const QModelIndex &sour
             // update mapping
             Mapping *cm = source_index_mapping.take(source_child_index);
             Q_ASSERT(cm);
-            cm->map_iter = source_index_mapping.insert(new_index, cm);
+	    // we do not reinsert right away, because the new index might be identical with another, old index
+	    moved_source_index_mappings.append(QPair<QModelIndex, Mapping*>(new_index, cm));
         }
     }
+
+    // reinsert moved, mapped indexes
+    QVector<QPair<QModelIndex, Mapping*> >::iterator it = moved_source_index_mappings.begin();
+    for (; it != moved_source_index_mappings.end(); ++it)
+        (*it).second->map_iter = source_index_mapping.insert((*it).first, (*it).second);
 }
 
 /*!
