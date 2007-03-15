@@ -37,6 +37,7 @@ SOURCES += \
         painting/qbrush.cpp \
         painting/qcolor.cpp \
         painting/qcolor_p.cpp \
+        painting/qcssutil.cpp \
         painting/qdrawutil.cpp \
         painting/qpaintengine.cpp \
         painting/qpainter.cpp \

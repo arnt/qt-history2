@@ -17,6 +17,7 @@
 #include "qtexttable.h"
 #include "qtextlist.h"
 #include "qtextengine_p.h"
+#include "private/qcssutil_p.h"
 
 #include "qabstracttextdocumentlayout_p.h"
 #include "qcssparser_p.h"
@@ -660,10 +661,6 @@ qreal QTextDocumentLayoutPrivate::indent(QTextBlock bl) const
 
     return indent * TextIndentValue * scale;
 }
-
-// qstylesheetstyle.cpp
-extern void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, qreal dw1, qreal dw2,
-                      QCss::Edge edge, QCss::BorderStyle style, QBrush c);
 
 void QTextDocumentLayoutPrivate::drawBorder(QPainter *painter, const QRectF &rect, qreal border, const QBrush &brush, QTextFrameFormat::BorderStyle style) const
 {
