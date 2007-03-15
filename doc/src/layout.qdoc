@@ -231,9 +231,9 @@
     sizes and call \l{QWidget::setGeometry()}{setGeometry()} on each
     child.
 
-    The widget will get an event of type QEvent::LayoutHint when the
-    layout needs to be recalculated. Reimplement QWidget::event() to
-    handle QEvent::LayoutHint events.
+    The widget will get an event of type QEvent::LayoutRequest when
+    the layout needs to be recalculated. Reimplement QWidget::event()
+    to handle QEvent::LayoutRequest events.
 
     \section1 Writing Custom Layout Managers
 
