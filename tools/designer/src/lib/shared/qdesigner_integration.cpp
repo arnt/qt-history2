@@ -247,6 +247,12 @@ void QDesignerIntegration::getSelection(Selection &s)
     // Get multiselection from object inspector
     if (QDesignerObjectInspector *designerObjectInspector = qobject_cast<QDesignerObjectInspector *>(core()->objectInspector())) {
         designerObjectInspector->getSelection(s);
+        // Action editor puts actions that are not on the form yet
+        // into the property editor only.
+        if (s.empty())
+            if (QObject *object = core()->propertyEditor()->object())
+                s.m_selectedObjects.push_back(object);
+            
     } else {
         s.clear();
         // get single selection

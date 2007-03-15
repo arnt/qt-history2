@@ -365,8 +365,8 @@ PropertyHelper::PropertyHelper(QObject* object,
         m_parentWidget = (qobject_cast<QWidget*>(object))->parentWidget();
         m_objectType = OT_Widget;
     } else {
-        if (qobject_cast<const QAction *>(m_object))
-            m_objectType = OT_Action;
+        if (const QAction *action = qobject_cast<const QAction *>(m_object))
+            m_objectType = action->associatedWidgets().empty() ? OT_FreeAction : OT_AssociatedAction;
     }
 
     if(debugPropertyCommands)
@@ -432,10 +432,11 @@ unsigned PropertyHelper::updateMask() const
     switch (m_specialProperty) {
     case SP_ObjectName:
     case SP_CurrentTabName:
-         rc |=  UpdateObjectInspector;
+        if (m_objectType != OT_FreeAction)
+            rc |=  UpdateObjectInspector;
         break;
     case  SP_Icon:
-        if (m_objectType == OT_Action)
+        if (m_objectType == OT_AssociatedAction)
             rc |=  UpdateObjectInspector;
         break;
     default:
@@ -471,7 +472,8 @@ void PropertyHelper::updateObject(QDesignerFormWindowInterface *fw, const QVaria
             break;
         }
     } break;
-    case OT_Action:
+    case OT_AssociatedAction:
+    case OT_FreeAction:
         if (m_specialProperty == SP_ObjectName) {
             QAction *act = qobject_cast<QAction *>(m_object);
             act->setData(QVariant(true)); // this triggers signal "changed" in QAction

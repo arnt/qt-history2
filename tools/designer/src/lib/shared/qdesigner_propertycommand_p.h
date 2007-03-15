@@ -54,7 +54,7 @@ public:
     // A pair of Value and changed flag
     typedef QPair<QVariant, bool> Value;
 
-    enum ObjectType {OT_Object, OT_Action, OT_Widget};
+    enum ObjectType {OT_Object, OT_FreeAction, OT_AssociatedAction, OT_Widget};
 
     PropertyHelper(QObject* object,
                    SpecialProperty specialProperty,

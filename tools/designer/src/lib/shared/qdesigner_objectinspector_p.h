@@ -59,6 +59,7 @@ public:
     // Select a qobject unmanaged by form window
     virtual bool selectObject(QObject *o) = 0;
     virtual void getSelection(Selection &s) const = 0;
+    virtual void clearSelection() = 0;
 
     virtual QWidget *widgetAt(const QPoint &global_mouse_pos) = 0;
 };

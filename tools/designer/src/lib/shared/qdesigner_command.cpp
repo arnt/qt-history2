@@ -28,6 +28,7 @@
 #include <QtDesigner/QDesignerContainerExtension>
 #include <QtDesigner/QDesignerLayoutDecorationExtension>
 #include <QtDesigner/QDesignerWidgetFactoryInterface>
+#include <QtDesigner/QDesignerObjectInspectorInterface>
 #include <QtCore/qdebug.h>
 
 #include <QtGui/QMenuBar>
@@ -1995,10 +1996,10 @@ void AddActionCommand::undo()
 
 // ---- RemoveActionCommand ----
 
-RemoveActionCommand::RemoveActionCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QLatin1String("Remove action"), formWindow)
+RemoveActionCommand::RemoveActionCommand(QDesignerFormWindowInterface *formWindow) :
+    QDesignerFormWindowCommand(QLatin1String("Remove action"), formWindow),
+    m_action(0)
 {
-    m_action = 0;
 }
 
 template <typename T>
@@ -2040,6 +2041,8 @@ void RemoveActionCommand::redo()
     }
     core()->actionEditor()->setFormWindow(formWindow());
     core()->actionEditor()->unmanageAction(m_action);
+    if (!m_actionData.empty())
+        core()->objectInspector()->setFormWindow(formWindow());
 }
 
 void RemoveActionCommand::undo()
@@ -2049,6 +2052,8 @@ void RemoveActionCommand::undo()
     foreach (const ActionDataItem &item, m_actionData) {
         item.widget->insertAction(item.before, m_action);
     }
+    if (!m_actionData.empty())
+        core()->objectInspector()->setFormWindow(formWindow());
 }
 
 // ---- InsertActionIntoCommand ----

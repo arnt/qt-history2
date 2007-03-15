@@ -19,6 +19,7 @@
 
 #include <QtCore/QPointer>
 #include <QtCore/QList>
+#include <QtCore/QSet>
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
@@ -40,6 +41,7 @@ public:
 
     virtual void getSelection(Selection &s) const;
     virtual bool selectObject(QObject *o);
+    virtual void clearSelection();
 
     void setFormWindow(QDesignerFormWindowInterface *formWindow);
 
@@ -55,6 +57,9 @@ private:
     void showContainersCurrentPage(QWidget *widget);
 
 private:
+    typedef QSet<const QObject *> PreviousSelection;
+    PreviousSelection previousSelection(QDesignerFormWindowInterface *fw, bool formWindowChanged) const;
+
     typedef QList<QTreeWidgetItem *> ItemList;
     static void findRecursion(QTreeWidgetItem *item, QObject *o, ItemList &matchList);
 

@@ -304,8 +304,17 @@ void ActionEditor::slotItemChanged(QListWidgetItem *item)
         return;
     }
 
-    if (QDesignerObjectInspector *oi = qobject_cast<QDesignerObjectInspector *>(core()->objectInspector())) {
-        oi->selectObject(action);
+    QDesignerObjectInspector *oi = qobject_cast<QDesignerObjectInspector *>(core()->objectInspector());
+
+    if (action->associatedWidgets().empty()) {
+        // Special case: action not in object tree. Unselect all and set in property editor
+        fw->clearSelection(false);
+        if (oi)
+            oi->clearSelection();
+        core()->propertyEditor()->setObject(action);
+    } else {
+        if (oi)
+            oi->selectObject(action);
     }
 }
 
@@ -420,7 +429,7 @@ static inline bool isSameIcon(const QIcon &i1, const QIcon &i2)
 }
 
 // return a FormWindow command to apply an icon
-QDesignerFormWindowCommand *setIconPropertyCommand(const QIcon &newIcon, QAction *action, QDesignerFormWindowInterface *fw)
+static QDesignerFormWindowCommand *setIconPropertyCommand(const QIcon &newIcon, QAction *action, QDesignerFormWindowInterface *fw)
 {
     const QString iconProperty = QLatin1String("icon");
     if (newIcon.isNull()) {
@@ -430,6 +439,18 @@ QDesignerFormWindowCommand *setIconPropertyCommand(const QIcon &newIcon, QAction
     }
     SetPropertyCommand *cmd = new SetPropertyCommand(fw);
     cmd->init(action, iconProperty, newIcon);
+    return cmd;
+}
+
+static QDesignerFormWindowCommand *setTextPropertyCommand(const QString &propertyName, const QString &text, QAction *action, QDesignerFormWindowInterface *fw)
+{
+    if (text.isEmpty()) {
+        ResetPropertyCommand *cmd = new ResetPropertyCommand(fw);
+        cmd->init(action, propertyName);
+        return cmd;
+    }
+    SetPropertyCommand *cmd = new SetPropertyCommand(fw);
+    cmd->init(action, propertyName, text);
     return cmd;
 }
 
@@ -471,16 +492,12 @@ void ActionEditor::editAction(QListWidgetItem *item)
     if (severalChanges)
         formWindow()->beginCommand(QLatin1String("Edit action"));
 
-    if (changedMask & NameChanged) {
-        SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
-        cmd->init(action, QLatin1String("objectName"), newName);
-        formWindow()->commandHistory()->push(cmd);
-    }
-    if (changedMask & TextChanged) {
-        SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
-        cmd->init(action, QLatin1String("text"), newText);
-        formWindow()->commandHistory()->push(cmd);
-    }
+    if (changedMask & NameChanged)
+        formWindow()->commandHistory()->push(setTextPropertyCommand(QLatin1String("objectName"), newName, action, formWindow()));
+
+    if (changedMask & TextChanged)
+        formWindow()->commandHistory()->push(setTextPropertyCommand(QLatin1String("text"), newText, action, formWindow()));
+
     if (changedMask & IconChanged)
         formWindow()->commandHistory()->push(setIconPropertyCommand(newIcon, action, formWindow()));
 
@@ -517,9 +534,10 @@ QString ActionEditor::actionTextToName(const QString &text)
 
     name[0] = name.at(0).toUpper();
     name.prepend(QLatin1String("action"));
-    name.replace(QRegExp(QString(QLatin1String("[^a-zA-Z_0-9]"))), QString(QLatin1Char('_')));
-    name.replace(QRegExp(QLatin1String("__*")), QString(QLatin1Char('_')));
-    if (name.endsWith(QLatin1Char('_')))
+    const QString underscore = QString(QLatin1Char('_'));
+    name.replace(QRegExp(QString(QLatin1String("[^a-zA-Z_0-9]"))), underscore);
+    name.replace(QRegExp(QLatin1String("__*")), underscore);
+    if (name.endsWith(underscore.at(0)))
         name.truncate(name.size() - 1);
 
     return name;

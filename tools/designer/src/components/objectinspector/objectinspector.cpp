@@ -136,21 +136,81 @@ bool ObjectInspector::sortEntry(const QObject *a, const QObject *b)
     return a->objectName() < b->objectName();
 }
 
+namespace {
+    enum SelectionType {
+        NoSelection,
+        // A QObject that has a meta database entry
+        QObjectSelection,
+        // Unmanaged widget, menu bar or the like
+        UnmanagedWidgetSelection,
+        // A widget managed by the form window
+        ManagedWidgetSelection };
+}
+
+static inline SelectionType selectionType(const QDesignerFormWindowInterface *fw, QObject *o)
+{
+    if (!o->isWidgetType())
+        return fw->core()->metaDataBase()->item(o) ?  QObjectSelection : NoSelection;
+    return fw->isManaged(qobject_cast<QWidget *>(o)) ? ManagedWidgetSelection :  UnmanagedWidgetSelection;
+}
+
+ObjectInspector::PreviousSelection ObjectInspector::previousSelection(QDesignerFormWindowInterface *fw,
+                                                                      bool formWindowChanged) const
+{
+    PreviousSelection rc;
+    const QDesignerFormWindowCursorInterface* cursor = fw->cursor();
+    const QWidget *current = cursor->current();
+    const bool currentIsMainContainer = current == fw || current == fw->mainContainer();
+    const int selectedWidgetCount = cursor->selectedWidgetCount();
+    // If the selection is current main container only, check previously selected
+    // non-managed widgets or objects
+    if (currentIsMainContainer && selectedWidgetCount <= 1 && !formWindowChanged) {
+        typedef  QList<QTreeWidgetItem*> ItemList;
+        const ItemList selection = m_treeWidget->selectedItems ();
+        if (!selection.empty()) {
+            const ItemList::const_iterator cend = selection.constEnd();
+            for (ItemList::const_iterator it = selection.constBegin(); it != cend; ++it)
+                if (QObject *o = objectOfItem(*it))
+                    switch (selectionType(fw, o)) {
+                    case QObjectSelection:
+                    case UnmanagedWidgetSelection:
+                        rc.insert(o);
+                        break;
+                    default:
+                        break;
+                    }
+        }
+    }
+
+    // None - Add widget selection
+    if (rc.empty())
+        for (int i = 0; i < selectedWidgetCount; i++)
+            rc.insert(cursor->selectedWidget(i));
+    return rc;
+}
+
 void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
 {
-    const bool resizeToColumn =  m_formWindow != fw;
+    const bool formWindowChanged = m_formWindow != fw;
+    const bool resizeToColumn = formWindowChanged;
     m_formWindow = fw;
 
     const int oldWidth = m_treeWidget->columnWidth(0);
     const int xoffset = m_treeWidget->horizontalScrollBar()->value();
     const int yoffset = m_treeWidget->verticalScrollBar()->value();
 
+    if (!fw || !fw->mainContainer()) {
+        m_treeWidget->clear();
+        return;
+    }
+
+    // maintain selection
+    const PreviousSelection oldSelection = previousSelection(fw, formWindowChanged);
     m_treeWidget->clear();
 
     if (!fw || !fw->mainContainer())
         return;
 
-    const QDesignerFormWindowCursorInterface* cursor=fw->cursor();
     const QDesignerWidgetDataBaseInterface *db = fw->core()->widgetDataBase();
 
     m_treeWidget->setUpdatesEnabled(false);
@@ -177,10 +237,8 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
         const bool isWidget = object->isWidgetType();
 
         // MainWindow can be current, but not explicitly be selected.
-        if (isWidget && (cursor && cursor->isWidgetSelected(static_cast<QWidget*>(object)) ||
-                         object == cursor->current())) {
+        if (oldSelection.contains(object))
             selectionList.push_back(item);
-        }
 
         QString className = QLatin1String(object->metaObject()->className());
         if (QDesignerWidgetDataBaseItemInterface *widgetItem = db->item(db->indexOfObject(object, true))) {
@@ -340,7 +398,6 @@ void ObjectInspector::slotSelectionChanged()
             core()->propertyEditor()->setEnabled(selection.m_selectedObjects.size());
         }
     }
-
     QMetaObject::invokeMethod(m_formWindow->core()->formWindowManager(), "slotUpdateActions");
 }
 
@@ -348,26 +405,30 @@ void ObjectInspector::getSelection(Selection &s) const
 {
     s.clear();
 
+    if (!m_formWindow)
+        return;
+
     const QList<QTreeWidgetItem*> items = m_treeWidget->selectedItems();
     if (items.empty())
         return;
 
     // sort objects
-    foreach (QTreeWidgetItem *item, items) {
-        QObject *object = objectOfItem(item);
-        QWidget *widget = qobject_cast<QWidget*>(object);
-        if (widget && m_formWindow->isManaged(widget)) {
-            s.m_cursorSelection.push_back(widget);
-        } else {
-            if (core()->metaDataBase()->item(object)) {
+    foreach (QTreeWidgetItem *item, items)
+        if (QObject *object = objectOfItem(item))
+            switch (selectionType(m_formWindow, object)) {
+            case NoSelection:
+                break;
+            case QObjectSelection:
+            case UnmanagedWidgetSelection:
                 // It is actually possible to select an action
                 // twice if it is in a menu bar and in a tool bar.
-                if (!s.m_selectedObjects.contains(object)) {
+                if (!s.m_selectedObjects.contains(object))
                     s.m_selectedObjects.push_back(object);
-                }
+                break;
+            case ManagedWidgetSelection:
+                s.m_cursorSelection.push_back(qobject_cast<QWidget *>(object));
+                break;
             }
-        }
-    }
 }
 
 void ObjectInspector::findRecursion(QTreeWidgetItem *item, QObject *o,  ItemList &matchList)
@@ -411,6 +472,11 @@ bool ObjectInspector::selectObject(QObject *o)
     }
     slotSelectionChanged();
     return true;
+}
+
+void ObjectInspector::clearSelection()
+{
+    m_treeWidget->clearSelection();
 }
 
 void ObjectInspector::slotHeaderDoubleClicked(int column)
