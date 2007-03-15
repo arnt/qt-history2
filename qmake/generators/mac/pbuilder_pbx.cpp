@@ -942,7 +942,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         t << "\t\t" << key << " = {" << "\n"
           << "\t\t\t" << writeSettings("buildActionMask", "2147483647", SettingsNoQuote) << ";" << "\n"
           << "\t\t\t" << "files = (" << "\n";
-        if(!project->isEmpty("ICON")) {//FUCK
+        if(!project->isEmpty("ICON")) {
             QString icon = project->first("ICON");
             if(icon.length() >= 2 && (icon[0] == '"' || icon[0] == '\'') && icon[(int)icon.length()-1] == icon[0])
                 icon = icon.mid(1, icon.length()-2);

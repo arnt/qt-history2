@@ -732,7 +732,7 @@ void QMenuPrivate::scrollMenu(QMenuScroller::ScrollDirection direction, bool pag
         }
     } else if (direction == QMenuScroller::ScrollDown) {
         bool scrolled = false;
-        for(int i = 0, saccum = topScroll; i < actionList.count(); i++) { //FUCK saccum = topScroll
+        for(int i = 0, saccum = topScroll; i < actionList.count(); i++) { // saccum = topScroll
             QAction *act = actionList.at(i);
             const int iHeight = actionRects.value(act).height();
             saccum -= iHeight;
