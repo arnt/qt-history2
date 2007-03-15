@@ -2575,6 +2575,7 @@ void QHttpPrivate::_q_slotBytesWritten(qint64 written)
 void QHttpPrivate::_q_slotReadyRead()
 {
     Q_Q(QHttp);
+    QHttp::State oldState = state;
     if (state != QHttp::Reading) {
         setState(QHttp::Reading);
         buffer = QByteArray();
@@ -2676,6 +2677,10 @@ void QHttpPrivate::_q_slotReadyRead()
 
             if (!repost)
                 emit q->responseHeaderReceived(response);
+        } else {
+            // Restore the state, the next incoming data will be treated as if
+            // we never say the 100 response.
+            state = oldState;
         }
     }
 
