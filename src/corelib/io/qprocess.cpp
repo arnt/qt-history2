@@ -640,7 +640,8 @@ bool QProcessPrivate::_q_processDied()
 
     cleanup();
 
-    bool wasRunning = (processState == QProcess::Running);
+    // ### Fix this better; wasRunning should be true if started() has been emitted.
+    bool wasRunning = true;//(processState == QProcess::Running);
     processState = QProcess::NotRunning;
     emit q->stateChanged(processState);
     if (wasRunning) {
