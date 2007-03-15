@@ -56,7 +56,7 @@ class QGLDirectPainter;
 class QEGLWindowSurface;
 #endif
 
-#include <private/qglextensions_p.h>
+#include <QtOpenGL/private/qglextensions_p.h>
 
 class QGLFormatPrivate
 {
