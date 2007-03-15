@@ -855,8 +855,8 @@ QString QDBusConnection::baseService() const
 */
 bool QDBusConnection::registerService(const QString &serviceName)
 {
-    if (interface()->unregisterService(serviceName)) {
-        if (d) d->unregisterService(serviceName);
+    if (interface()->registerService(serviceName)) {
+        if (d) d->registerService(serviceName);
         return true;
     }
     return false;
