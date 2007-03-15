@@ -979,7 +979,7 @@ QCursor QGraphicsItem::cursor() const
         item->setCursor(Qt::IBeamCursor);
     \endcode
 
-    If no cursor has been set, the parent's cursor is used.
+    If no cursor has been set, the cursor of the item beneath is used.
 
     \sa cursor(), hasCursor(), unsetCursor(), QWidget::cursor,
     QApplication::overrideCursor()
@@ -994,7 +994,8 @@ void QGraphicsItem::setCursor(const QCursor &cursor)
             if (view->underMouse()) {
                 foreach (QGraphicsItem *itemUnderCursor, view->items(view->mapFromGlobal(QCursor::pos()))) {
                     if (itemUnderCursor->hasCursor()) {
-                        QMetaObject::invokeMethod(view, "_q_setViewportCursor", Q_ARG(QCursor, cursor));
+                        QMetaObject::invokeMethod(view, "_q_setViewportCursor",
+                                                  Q_ARG(QCursor, itemUnderCursor->cursor()));
                         break;
                     }
                 }
