@@ -491,7 +491,7 @@ void QDockAreaLayoutInfo::fitItems()
                 item.keep_size = false;
                 max_size -= item.size;
                 max_size += pick(o, item.maximumSize());
-                max_size = qMin(QWIDGETSIZE_MAX, max_size);
+                max_size = qMin<int>(QWIDGETSIZE_MAX, max_size);
             }
         }
 
