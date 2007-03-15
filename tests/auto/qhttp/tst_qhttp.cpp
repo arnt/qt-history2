@@ -229,22 +229,22 @@ void tst_QHttp::get_data()
 
     // test the two get() modes in one routine
     for ( int i=0; i<2; i++ ) {
-	QTest::newRow(QString("path_01_%1").arg(i).toLatin1()) << QString("trueblue.troll.no") << 80u
+	QTest::newRow(QString("path_01_%1").arg(i).toLatin1()) << QString("fluke.troll.no") << 80u
 	    << QString("/qtest/rfc3252.txt") << 1 << 200 << rfc3252 << (bool)(i==1);
 	QTest::newRow( QString("path_02_%1").arg(i).toLatin1() ) << QString("www.ietf.org") << 80u
 	    << QString("/rfc/rfc3252.txt") << 1 << 200 << rfc3252 << (bool)(i==1);
 
-	QTest::newRow( QString("uri_01_%1").arg(i).toLatin1() ) << QString("trueblue.troll.no") << 80u
-	    << QString("http://trueblue/qtest/rfc3252.txt") << 1 << 200 << rfc3252 << (bool)(i==1);
+	QTest::newRow( QString("uri_01_%1").arg(i).toLatin1() ) << QString("fluke.troll.no") << 80u
+	    << QString("http://fluke/qtest/rfc3252.txt") << 1 << 200 << rfc3252 << (bool)(i==1);
 	QTest::newRow( QString("uri_02_%1").arg(i).toLatin1() ) << "www.ietf.org" << 80u
 	    << QString("http://www.ietf.org/rfc/rfc3252.txt") << 1 << 200 << rfc3252 << (bool)(i==1);
 
 	QTest::newRow( QString("fail_01_%1").arg(i).toLatin1() ) << QString("foo") << 80u
 	    << QString("/qtest/rfc3252.txt") << 0 << 0 << QByteArray() << (bool)(i==1);
 
-	QTest::newRow( QString("failprot_01_%1").arg(i).toLatin1() ) << QString("trueblue.troll.no") << 80u
+	QTest::newRow( QString("failprot_01_%1").arg(i).toLatin1() ) << QString("fluke.troll.no") << 80u
 	    << QString("/t") << 1 << 404 << QByteArray() << (bool)(i==1);
-	QTest::newRow( QString("failprot_02_%1").arg(i).toLatin1() ) << QString("trueblue.troll.no") << 80u
+	QTest::newRow( QString("failprot_02_%1").arg(i).toLatin1() ) << QString("fluke.troll.no") << 80u
 	    << QString("qtest/rfc3252.txt") << 1 << 400 << QByteArray() << (bool)(i==1);
 
   // doc.trolltech.com uses transfer-encoding=chunked
@@ -252,7 +252,7 @@ void tst_QHttp::get_data()
     QTest::newRow( QString("chunked_01_%1").arg(i).toLatin1() ) << QString("test.troll.no") << 80u
 	    << QString("/") << 1 << 200 << trolltech << (bool)(i==1);
     */
-	QTest::newRow( QString("chunked_02_%1").arg(i).toLatin1() ) << QString("trueblue.troll.no") << 80u
+	QTest::newRow( QString("chunked_02_%1").arg(i).toLatin1() ) << QString("fluke.troll.no") << 80u
 	    << QString("/qtest/cgi-bin/rfc.cgi") << 1 << 200 << rfc3252 << (bool)(i==1);
     }
 }
@@ -327,29 +327,29 @@ void tst_QHttp::head_data()
     QTest::addColumn<int>("statusCode");
     QTest::addColumn<uint>("contentLength");
 
-    QTest::newRow( "path_01" ) << QString("trueblue.troll.no") << 80u
+    QTest::newRow( "path_01" ) << QString("fluke.troll.no") << 80u
 	<< QString("/qtest/rfc3252.txt") << 1 << 200 << 25962u;
     QTest::newRow( "path_02" ) << QString("www.ietf.org") << 80u
 	<< QString("/rfc/rfc3252.txt") << 1 << 200 << 25962u;
 
-    QTest::newRow( "uri_01" ) << QString("trueblue.troll.no") << 80u
-	<< QString("http://trueblue/qtest/rfc3252.txt") << 1 << 200 << 25962u;
+    QTest::newRow( "uri_01" ) << QString("fluke.troll.no") << 80u
+	<< QString("http://fluke/qtest/rfc3252.txt") << 1 << 200 << 25962u;
     QTest::newRow( "uri_02" ) << QString("www.ietf.org") << 80u
 	<< QString("http://www.ietf.org/rfc/rfc3252.txt") << 1 << 200 << 25962u;
 
     QTest::newRow( "fail_01" ) << QString("foo") << 80u
 	<< QString("/qtest/rfc3252.txt") << 0 << 0 << 0u;
 
-    QTest::newRow( "failprot_01" ) << QString("trueblue.troll.no") << 80u
+    QTest::newRow( "failprot_01" ) << QString("fluke.troll.no") << 80u
 	<< QString("/t") << 1 << 404 << 0u;
-    QTest::newRow( "failprot_02" ) << QString("trueblue.troll.no") << 80u
+    QTest::newRow( "failprot_02" ) << QString("fluke.troll.no") << 80u
 	<< QString("qtest/rfc3252.txt") << 1 << 400 << 0u;
 
     /* doc.trolltech.com no longer seams to be using chuncked encodig.
     QTest::newRow( "chunked_01" ) << QString("doc.trolltech.com") << 80u
 	<< QString("/index.html") << 1 << 200 << 0u;
     */
-    QTest::newRow( "chunked_02" ) << QString("trueblue.troll.no") << 80u
+    QTest::newRow( "chunked_02" ) << QString("fluke.troll.no") << 80u
 	<< QString("/qtest/cgi-bin/rfc.cgi") << 1 << 200 << 0u;
 }
 
@@ -500,8 +500,8 @@ void tst_QHttp::proxy2()
     QHttp http;
     http.setProxy("shusaku.troll.no", 3128);
     http.setHost("intern.troll.no");
-    http.get("/");
-    http.get("/");
+    http.get("/index.cgi");
+    http.get("/index.cgi");
 
     connect(&http, SIGNAL(requestFinished(int, bool)),
             this, SLOT(proxy2_slot()));
