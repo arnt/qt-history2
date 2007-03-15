@@ -73,7 +73,6 @@ private slots:
     void filterTable();
 //    void filterCurrent();
 
-#if QT_VERSION >= 0x040200
     void changeSourceLayout();
     void removeSourceRows_data();
     void removeSourceRows();
@@ -91,7 +90,8 @@ private slots:
     void invalidateMappedChildren();
     void insertRowIntoFilteredParent();
     void filterOutParentAndFilterInChild();
-#endif // QT_VERSION
+
+    void sourceInsertRows();
 
 protected:
     void buildHierarchy(const QStringList &data, QAbstractItemModel *model);
@@ -1452,8 +1452,6 @@ void tst_QSortFilterProxyModel::filterCurrent()
 }
 #endif
 
-#if QT_VERSION >= 0x040200
-
 void tst_QSortFilterProxyModel::changeSourceLayout()
 {
     QStandardItemModel model(2, 1);
@@ -2234,7 +2232,32 @@ void tst_QSortFilterProxyModel::filterOutParentAndFilterInChild()
     QCOMPARE(insertedSpy.count(), 0);
 }
 
-#endif // QT_VERSION
+void tst_QSortFilterProxyModel::sourceInsertRows()
+{
+    QStandardItemModel model;
+    QSortFilterProxyModel proxyModel;
+    proxyModel.setSourceModel(&model);
+
+    model.insertColumns(0, 1, QModelIndex());
+    model.insertRows(0, 2, QModelIndex());
+
+    {
+      QModelIndex parent = model.index(0, 0, QModelIndex());
+      model.insertColumns(0, 1, parent);
+      model.insertRows(0, 1, parent);
+    }
+
+    {
+      QModelIndex parent = model.index(1, 0, QModelIndex());
+      model.insertColumns(0, 1, parent);
+      model.insertRows(0, 1, parent);
+    }
+   
+    model.insertRows(0, 1, QModelIndex());
+    model.insertRows(0, 1, QModelIndex());
+
+    QVERIFY(true); // if you got here without asserting, it's all good
+}
 
 QTEST_MAIN(tst_QSortFilterProxyModel)
 #include "tst_qsortfilterproxymodel.moc"
