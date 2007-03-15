@@ -67,7 +67,8 @@ template<> inline char *toString(const QDate &date)
 template<> inline char *toString(const QDateTime &dateTime)
 {
     return dateTime.isValid()
-        ? qstrdup(dateTime.toString(QLatin1String("yyyy/MM/dd hh:mm:ss.zzz")).toLatin1())
+        ? qstrdup((dateTime.toString(QLatin1String("yyyy/MM/dd hh:mm:ss.zzz")) +
+                  (dateTime.timeSpec() == Qt::LocalTime ? QLatin1String("[local time]") : QLatin1String("[UTC]"))).toLatin1())
         : qstrdup("Invalid QDateTime");
 }
 

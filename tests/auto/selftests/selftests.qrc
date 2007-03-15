@@ -19,5 +19,6 @@
         <file>expected_failinitdata.txt</file>
         <file>expected_skipinitdata.txt</file>
         <file>expected_skipinit.txt</file>
+        <file>expected_datetime.txt</file>
     </qresource>
 </RCC>

@@ -54,6 +54,7 @@ void tst_Selftests::runSubTest_data()
     QTest::newRow("failinitdata") << "failinitdata";
     QTest::newRow("skipinit") << "skipinit";
     QTest::newRow("skipinitdata") << "skipinitdata";
+    QTest::newRow("datetime") << "datetime";
 }
 
 void tst_Selftests::runSubTest()
