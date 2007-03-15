@@ -1125,7 +1125,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         bool panel = (pe == PE_PanelButtonTool);
         if ((!(opt->state & State_Sunken ))
             && (!(opt->state & State_Enabled)
-                || ((opt->state & State_Enabled ) && !(opt->state & State_MouseOver)))
+                || !(opt->state & State_MouseOver && opt->state & State_AutoRaise))
             && (opt->state & State_On) && use2000style) {
             fill = QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
             stippled = true;
