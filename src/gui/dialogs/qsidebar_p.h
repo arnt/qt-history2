@@ -66,7 +66,8 @@ Q_SIGNALS:
     void goToUrl(const QUrl &url);
 
 public:
-    QSidebar(QFileSystemModel *model, const QList<QUrl> &newUrls, QWidget *parent = 0);
+    QSidebar(QWidget *parent = 0);
+    void init(QFileSystemModel *model, const QList<QUrl> &newUrls);
     ~QSidebar();
 
     QSize sizeHint() const;

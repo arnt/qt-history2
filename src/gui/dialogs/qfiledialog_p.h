@@ -30,6 +30,7 @@
 #include "qfiledialog.h"
 #include "private/qdialog_p.h"
 
+
 #include "qfilesystemmodel_p.h"
 #include <qlistview.h>
 #include <qtreeview.h>
@@ -38,15 +39,14 @@
 #include <qlabel.h>
 #include <qevent.h>
 #include <qlineedit.h>
-#include "qsidebar_p.h"
 #include <qurl.h>
 #include <qstackedwidget.h>
-#include <qsplitter.h>
 #include <qdialogbuttonbox.h>
 #include <qabstractproxymodel.h>
 #include <qcompleter.h>
 #include <qtimeline.h>
 #include <qdebug.h>
+#include "qsidebar_p.h"
 
 #if defined (Q_OS_UNIX) && !defined (Q_OS_MAC)
 #include <sys/statvfs.h>
@@ -58,6 +58,7 @@ class QFileDialogLineEdit;
 class QGridLayout;
 class QCompleter;
 class QHBoxLayout;
+class Ui_QFileDialog;
 
 struct QFileDialogArgs
 {
@@ -80,28 +81,7 @@ class QFileDialogPrivate : public QDialogPrivate
 
 public:
     QFileDialogPrivate() :
-    fileNameLabel(0),
-    fileNameEdit(0),
-    expandButton(0),
-    line(0),
-    backButton(0),
-    forwardButton(0),
-    toParentButton(0),
-    detailModeButton(0),
-    listModeButton(0),
-    lookInLabel(0),
-    lookInCombo(0),
     urlModel(0),
-    bottomRightSpacer(0),
-    splitter(0),
-    sidebar(0),
-    stackedWidget(0),
-    listView(0),
-    treeView(0),
-    fileTypeLabel(0),
-    fileTypeCombo(0),
-    newFolderButton(0),
-    buttonBox(0),
     proxyModel(0),
     model(0),
     fileMode(QFileDialog::AnyFile),
@@ -112,13 +92,13 @@ public:
     showHiddenAction(0),
     saveState(false),
     useDefaultCaption(true),
-    defaultFileTypes(true)
+    defaultFileTypes(true),
+    qFileDialogUi(0)
     {};
 
     void createToolButtons();
     void createMenuActions();
     void createWidgets();
-    void layout();
 
     void init(const QString &directory = QString(), const QString &nameFilter = QString(),
               const QString &caption = QString());
@@ -136,11 +116,7 @@ public:
     inline QModelIndex select(const QModelIndex &index) const;
     inline QString rootPath() const;
 
-    QLineEdit *lineEdit() const {
-        if (acceptMode == QFileDialog::AcceptSave)
-            return (QLineEdit*)fileNameEdit;
-        return (QLineEdit*)quickLineEdit;
-    }
+    QLineEdit *lineEdit() const;
 
     int maxNameLength(const QString &path) {
 #if defined (Q_OS_UNIX) && !defined (Q_OS_MAC)
@@ -173,11 +149,7 @@ public:
         return QDir::Drives | QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot;
     }
 
-    QAbstractItemView *currentView() const {
-        if (!stackedWidget)
-            return 0;
-        return qobject_cast<QAbstractItemView*>(stackedWidget->currentWidget());
-    }
+    QAbstractItemView *currentView() const;
 
     static inline QString toInternal(const QString &path)
     {
@@ -222,29 +194,7 @@ public:
     void _q_rowsInserted(const QModelIndex & parent);
 
     // layout
-    QLabel *fileNameLabel;
-    QFileDialogLineEdit *fileNameEdit;
-    QFileDialogLineEdit *quickLineEdit;
-    QToolButton *expandButton;
-    QFrame *line;
-    QToolButton *backButton;
-    QToolButton *forwardButton;
-    QToolButton *toParentButton;
-    QToolButton *detailModeButton;
-    QToolButton *listModeButton;
-    QLabel *lookInLabel;
-    QComboBox *lookInCombo;
     QUrlModel *urlModel;
-    QWidget *bottomRightSpacer;
-    QSplitter *splitter;
-    QSidebar *sidebar;
-    QStackedWidget *stackedWidget;
-    QFileDialogListView *listView;
-    QFileDialogTreeView *treeView;
-    QLabel *fileTypeLabel;
-    QComboBox *fileTypeCombo;
-    QPushButton *newFolderButton;
-    QDialogButtonBox *buttonBox;
     QAbstractProxyModel *proxyModel;
 
     // data
@@ -273,13 +223,15 @@ public:
     bool saveState;
     bool useDefaultCaption;
     bool defaultFileTypes;
+
+    Ui_QFileDialog *qFileDialogUi;
 };
 
 class QFileDialogLineEdit : public QLineEdit
 {
 public:
-    QFileDialogLineEdit(QFileDialogPrivate *d_pointer) :
-     QLineEdit(qobject_cast<QWidget*>(d_pointer->q_ptr)), hideOnEsc(false), d_ptr(d_pointer){}
+    QFileDialogLineEdit(QWidget *parent = 0) : QLineEdit(parent), hideOnEsc(false), d_ptr(0){}
+    void init(QFileDialogPrivate *d_pointer) {d_ptr = d_pointer; }
     void keyPressEvent(QKeyEvent *e);
     bool hideOnEsc;
 private:
@@ -289,24 +241,10 @@ private:
 class QFileDialogListView : public QListView
 {
 public:
-    QFileDialogListView(QFileDialogPrivate *d_pointer);
+    QFileDialogListView(QWidget *parent = 0);
+    void init(QFileDialogPrivate *d_pointer);
 protected:
-    void keyPressEvent(QKeyEvent *e)
-    {
-        if (d_ptr->itemViewKeyboardEvent(e)) {
-            e->accept();
-        } else {
-            if (e->text().isEmpty()
-                || e->key() == Qt::Key_Escape
-                || e->key() == Qt::Key_Enter
-                || e->key() == Qt::Key_Return) {
-            QListView::keyPressEvent(e);
-            } else {
-                d_ptr->_q_chooseLocation();
-                d_ptr->quickLineEdit->keyPressEvent(e);
-            }
-        }
-    }
+    void keyPressEvent(QKeyEvent *e);
 private:
     QFileDialogPrivate *d_ptr;
 };
@@ -314,7 +252,8 @@ private:
 class QFileDialogTreeView : public QTreeView
 {
 public:
-    QFileDialogTreeView(QFileDialogPrivate *d_pointer);
+    QFileDialogTreeView(QWidget *parent);
+    void init(QFileDialogPrivate *d_pointer);
 
     void selectAnyIndex() {
         QModelIndex idx = moveCursor(QAbstractItemView::MoveDown, Qt::NoModifier);
@@ -324,22 +263,7 @@ public:
     }
 
 protected:
-    void keyPressEvent(QKeyEvent *e)
-    {
-        if (d_ptr->itemViewKeyboardEvent(e)) {
-            e->accept();
-        } else {
-            if (e->text().isEmpty()
-                || e->key() == Qt::Key_Escape
-                || e->key() == Qt::Key_Enter
-                || e->key() == Qt::Key_Return) {
-            QTreeView::keyPressEvent(e);
-            } else {
-                d_ptr->_q_chooseLocation();
-                d_ptr->quickLineEdit->keyPressEvent(e);
-            }
-        }
-    }
+    void keyPressEvent(QKeyEvent *e);
     QSize sizeHint() const;
 private:
     QFileDialogPrivate *d_ptr;
@@ -350,37 +274,6 @@ inline QModelIndex QFileDialogPrivate::mapToSource(const QModelIndex &index) con
 }
 inline QModelIndex QFileDialogPrivate::mapFromSource(const QModelIndex &index) const {
     return proxyModel ? proxyModel->mapFromSource(index) : index;
-}
-
-/*
-    Returns the file system model index that is the root index in the
-    views
-*/
-inline QModelIndex QFileDialogPrivate::rootIndex() const {
-    return mapToSource(listView->rootIndex());
-}
-
-/*
-    Sets the view root index to be the file system model index
-*/
-inline void QFileDialogPrivate::setRootIndex(const QModelIndex &index) const {
-    Q_ASSERT(index.isValid() ? index.model() == model : true);
-    QModelIndex idx = mapFromSource(index);
-    treeView->setRootIndex(idx);
-    listView->setRootIndex(idx);
-}
-
-/*
-    Select a file system model index
-    returns the index that was selected (or not depending upon sortfilterproxymodel)
-*/
-inline QModelIndex QFileDialogPrivate::select(const QModelIndex &index) const {
-    Q_ASSERT(index.isValid() ? index.model() == model : true);
-    QModelIndex idx = mapFromSource(index);
-    if (idx.isValid())
-    listView->selectionModel()->select(idx,
-            QItemSelectionModel::Select | QItemSelectionModel::Rows);
-    return idx;
 }
 
 inline QString QFileDialogPrivate::rootPath() const {

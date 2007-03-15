@@ -58,6 +58,8 @@ embedded {
         }
 }
 
+FORMS += dialogs/qfiledialog.ui
+INCLUDEPATH += $$PWD
 SOURCES += \
 	dialogs/qabstractprintdialog.cpp \
 	dialogs/qabstractpagesetupdialog.cpp \

@@ -297,7 +297,11 @@ void QUrlModel::changed(const QString &path)
     }
 }
 
-QSidebar::QSidebar(QFileSystemModel *model, const QList<QUrl> &newUrls, QWidget *parent) : QListView(parent)
+QSidebar::QSidebar(QWidget *parent) : QListView(parent)
+{
+}
+
+void QSidebar::init(QFileSystemModel *model, const QList<QUrl> &newUrls)
 {
     // ### TODO make icon size dynamic
     setIconSize(QSize(24,24));
@@ -328,7 +332,9 @@ void QSidebar::dragEnterEvent(QDragEnterEvent *event)
 
 QSize QSidebar::sizeHint() const
 {
+    if (model())
     return QListView::sizeHintForIndex(model()->index(0, 0));
+    return QListView::sizeHint();
 }
 
 void QSidebar::selectUrl(const QUrl &url)

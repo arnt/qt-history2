@@ -26,6 +26,7 @@
 #include <qsettings.h>
 #include <qdebug.h>
 #include <qapplication.h>
+#include "ui_qfiledialog.h"
 
 /*!
   \class QFileDialog
@@ -292,6 +293,7 @@ QFileDialog::~QFileDialog()
         settings.beginGroup(QLatin1String("General"));
         settings.setValue(QLatin1String("filedialog"), saveState());
     }
+    delete d->qFileDialogUi;
 }
 
 /*!
@@ -301,7 +303,7 @@ QFileDialog::~QFileDialog()
 void QFileDialog::setSidebarUrls(const QList<QUrl> &urls)
 {
     Q_D(QFileDialog);
-    d->sidebar->setUrls(urls);
+    d->qFileDialogUi->sidebar->setUrls(urls);
 }
 
 /*!
@@ -311,7 +313,7 @@ void QFileDialog::setSidebarUrls(const QList<QUrl> &urls)
 QList<QUrl> QFileDialog::sidebarUrls() const
 {
     Q_D(const QFileDialog);
-    return d->sidebar->urls();
+    return d->qFileDialogUi->sidebar->urls();
 }
 
 static const qint32 QFileDialogMagic = 0xbe;
@@ -333,12 +335,12 @@ QByteArray QFileDialog::saveState() const
     stream << qint32(QFileDialogMagic);
     stream << qint32(version);
     stream << saveGeometry();
-    stream << d->splitter->saveState();
-    stream << d->sidebar->urls();
+    stream << d->qFileDialogUi->splitter->saveState();
+    stream << d->qFileDialogUi->sidebar->urls();
     stream << history();
     stream << directory().absolutePath();
     stream << isDetailsExpanded();
-    stream << d->treeView->header()->saveState();
+    stream << d->qFileDialogUi->treeView->header()->saveState();
     return data;
 }
 
@@ -385,12 +387,12 @@ bool QFileDialog::restoreState(const QByteArray &state)
     if (!restoreGeometry(geometry))
         return false;
 
-    if (expanded && !d->splitter->restoreState(splitterState))
+    if (expanded && !d->qFileDialogUi->splitter->restoreState(splitterState))
         return false;
-    d->sidebar->setUrls(bookmarks);
+    d->qFileDialogUi->sidebar->setUrls(bookmarks);
     setHistory(history);
     setDirectory(currentDirectory);
-    if (!d->treeView->header()->restoreState(headerData))
+    if (!d->qFileDialogUi->treeView->header()->restoreState(headerData))
         return false;
     return true;
 }
@@ -424,13 +426,13 @@ void QFileDialogPrivate::retranslateStrings()
 {
     Q_Q(QFileDialog);
     /* WIDGETS */
-    lookInLabel->setText(QFileDialog::tr("Where:"));
-    fileTypeLabel->setText(QFileDialog::tr("Files of type:"));
+    qFileDialogUi->lookInLabel->setText(QFileDialog::tr("Where:"));
+    qFileDialogUi->fileTypeLabel->setText(QFileDialog::tr("Files of type:"));
 
     if (defaultFileTypes)
         q->setFilter(QFileDialog::tr("All Files (*.*)"));
 
-    QList<QAction*> actions = treeView->header()->actions();
+    QList<QAction*> actions = qFileDialogUi->treeView->header()->actions();
     QAbstractItemModel *abstractModel = model;
     if (proxyModel)
         abstractModel = proxyModel;
@@ -441,12 +443,12 @@ void QFileDialogPrivate::retranslateStrings()
 
     /* TOOL BUTTONS */
 #ifndef QT_NO_TOOLTIP
-    backButton->setToolTip(QFileDialog::tr("Back"));
-    forwardButton->setToolTip(QFileDialog::tr("Forward"));
-    toParentButton->setToolTip(QFileDialog::tr("Parent Directory"));
-    newFolderButton->setText(QFileDialog::tr("New Folder"));
-    listModeButton->setToolTip(QFileDialog::tr("List View"));
-    detailModeButton->setToolTip(QFileDialog::tr("Detail View"));
+    qFileDialogUi->backButton->setToolTip(QFileDialog::tr("Back"));
+    qFileDialogUi->forwardButton->setToolTip(QFileDialog::tr("Forward"));
+    qFileDialogUi->toParentButton->setToolTip(QFileDialog::tr("Parent Directory"));
+    qFileDialogUi->newFolderButton->setText(QFileDialog::tr("New Folder"));
+    qFileDialogUi->listModeButton->setToolTip(QFileDialog::tr("List View"));
+    qFileDialogUi->detailModeButton->setToolTip(QFileDialog::tr("Detail View"));
 #endif
 
     /* MENU ACTIONS */
@@ -488,13 +490,13 @@ void QFileDialog::setDirectory(const QString &directory)
     }
 
     QModelIndex root = d->model->setRootPath(directory);
-    d->newFolderButton->setEnabled(d->model->flags(root) & Qt::ItemIsDropEnabled);
+    d->qFileDialogUi->newFolderButton->setEnabled(d->model->flags(root) & Qt::ItemIsDropEnabled);
     d->setRootIndex(root);
-    d->listView->selectionModel()->clear();
-    if (d->treeView->model()->rowCount(d->treeView->rootIndex()) > 0
+    d->qFileDialogUi->listView->selectionModel()->clear();
+    if (d->qFileDialogUi->treeView->model()->rowCount(d->qFileDialogUi->treeView->rootIndex()) > 0
         && d->lineEdit()->text().isEmpty()
         && d->acceptMode == AcceptOpen)
-        d->treeView->selectAnyIndex();
+        d->qFileDialogUi->treeView->selectAnyIndex();
 }
 
 /*!
@@ -524,7 +526,7 @@ void QFileDialog::selectFile(const QString &filename)
     }
     QModelIndex index = d->select(d->model->index(text));
     if (!index.isValid()) {
-        d->listView->selectionModel()->clear();
+        d->qFileDialogUi->listView->selectionModel()->clear();
         if (!d->lineEdit()->hasFocus())
             d->lineEdit()->setText(text);
     }
@@ -581,7 +583,7 @@ QStringList QFileDialogPrivate::typedFiles() const
 QStringList QFileDialog::selectedFiles() const
 {
     Q_D(const QFileDialog);
-    QModelIndexList indexes = d->listView->selectionModel()->selectedRows();
+    QModelIndexList indexes = d->qFileDialogUi->listView->selectionModel()->selectedRows();
     QStringList files;
     for (int i = 0; i < indexes.count(); ++i)
         files.append(d->model->filePath(d->mapToSource(indexes.at(i))));
@@ -656,10 +658,10 @@ void QFileDialog::setFilters(const QStringList &filters)
 {
     Q_D(QFileDialog);
     d->defaultFileTypes = (filters == QStringList(QFileDialog::tr("All Files (*.*)")));
-    d->fileTypeCombo->clear();
+    d->qFileDialogUi->fileTypeCombo->clear();
     if (filters.isEmpty())
         return;
-    d->fileTypeCombo->addItems(filters);
+    d->qFileDialogUi->fileTypeCombo->addItems(filters);
     d->updateFileTypeVisibility();
     d->_q_useNameFilter(filters.first());
 }
@@ -672,8 +674,8 @@ QStringList QFileDialog::filters() const
 {
     Q_D(const QFileDialog);
     QStringList items;
-    for (int i = 0; i < d->fileTypeCombo->count(); ++i)
-        items.append(d->fileTypeCombo->itemText(i));
+    for (int i = 0; i < d->qFileDialogUi->fileTypeCombo->count(); ++i)
+        items.append(d->qFileDialogUi->fileTypeCombo->itemText(i));
     return items;
 }
 
@@ -686,10 +688,10 @@ QStringList QFileDialog::filters() const
 void QFileDialog::selectFilter(const QString &filter)
 {
     Q_D(QFileDialog);
-    int i = d->fileTypeCombo->findText(filter);
+    int i = d->qFileDialogUi->fileTypeCombo->findText(filter);
     if (i >= 0) {
-        d->fileTypeCombo->setCurrentIndex(i);
-        d->_q_useNameFilter(d->fileTypeCombo->currentText());
+        d->qFileDialogUi->fileTypeCombo->setCurrentIndex(i);
+        d->_q_useNameFilter(d->qFileDialogUi->fileTypeCombo->currentText());
     }
 }
 
@@ -701,7 +703,7 @@ void QFileDialog::selectFilter(const QString &filter)
 QString QFileDialog::selectedFilter() const
 {
     Q_D(const QFileDialog);
-    return d->fileTypeCombo->currentText();
+    return d->qFileDialogUi->fileTypeCombo->currentText();
 }
 
 /*!
@@ -725,7 +727,7 @@ void QFileDialog::setViewMode(QFileDialog::ViewMode mode)
 QFileDialog::ViewMode QFileDialog::viewMode() const
 {
     Q_D(const QFileDialog);
-    return (d->stackedWidget->currentWidget() == d->listView ? QFileDialog::List : QFileDialog::Detail);
+    return (d->qFileDialogUi->stackedWidget->currentWidget() == d->qFileDialogUi->listView->parent() ? QFileDialog::List : QFileDialog::Detail);
 }
 
 /*!
@@ -750,25 +752,25 @@ void QFileDialog::setFileMode(QFileDialog::FileMode mode)
         selectionMode = QAbstractItemView::ExtendedSelection;
     else
         selectionMode = QAbstractItemView::SingleSelection;
-    d->listView->setSelectionMode(selectionMode);
-    d->treeView->setSelectionMode(selectionMode);
+    d->qFileDialogUi->listView->setSelectionMode(selectionMode);
+    d->qFileDialogUi->treeView->setSelectionMode(selectionMode);
     // set filter
     QDir::Filters filters = d->filterForMode(mode);
     d->model->setFilter(filters);
     // setup file type for directory
     QString buttonText = (d->acceptMode == AcceptOpen ? tr("&Open") : tr("&Save"));
     if (mode == DirectoryOnly || mode == Directory) {
-        d->newFolderButton->setVisible(isDetailsExpanded());
-        d->fileTypeCombo->clear();
-        d->fileTypeCombo->addItem(tr("Directories"));
-        d->fileTypeCombo->setEnabled(false);
+        d->qFileDialogUi->newFolderButton->setVisible(isDetailsExpanded());
+        d->qFileDialogUi->fileTypeCombo->clear();
+        d->qFileDialogUi->fileTypeCombo->addItem(tr("Directories"));
+        d->qFileDialogUi->fileTypeCombo->setEnabled(false);
         setLabelText(FileName, tr("Directory:"));
         buttonText = tr("&Choose");
     } else {
         setLabelText(FileName, tr("Save &as:"));
     }
     setLabelText(Accept, buttonText);
-    d->fileTypeCombo->setEnabled(mode != DirectoryOnly);
+    d->qFileDialogUi->fileTypeCombo->setEnabled(mode != DirectoryOnly);
 }
 
 QFileDialog::FileMode QFileDialog::fileMode() const
@@ -791,33 +793,76 @@ void QFileDialog::setAcceptMode(QFileDialog::AcceptMode mode)
     d->acceptMode = mode;
     bool directoryMode = (d->fileMode == Directory || d->fileMode == DirectoryOnly);
     QDialogButtonBox::StandardButton button = (mode == AcceptOpen ? QDialogButtonBox::Open : QDialogButtonBox::Save);
-    d->buttonBox->setStandardButtons(button | QDialogButtonBox::Cancel);
-    d->buttonBox->button(button)->setEnabled(false);
+    d->qFileDialogUi->buttonBox->setStandardButtons(button | QDialogButtonBox::Cancel);
+    d->qFileDialogUi->buttonBox->button(button)->setEnabled(false);
     if (mode == AcceptOpen && directoryMode)
         setLabelText(Accept, tr("&Choose"));
     else
         setLabelText(Accept, (mode == AcceptOpen ? tr("&Open") : tr("&Save")));
-    d->newFolderButton->setVisible((mode == AcceptSave || directoryMode) && isDetailsExpanded());
+    d->qFileDialogUi->newFolderButton->setVisible((mode == AcceptSave || directoryMode) && isDetailsExpanded());
     d->updateFileTypeVisibility();
-    d->fileNameEdit->setVisible(mode == AcceptSave);
-    d->expandButton->setVisible(mode == AcceptSave);
-    d->line->setVisible(mode == AcceptSave && isDetailsExpanded());
-    d->fileNameLabel->setVisible(mode == AcceptSave);
+    d->qFileDialogUi->fileNameEdit->setVisible(mode == AcceptSave);
+    d->qFileDialogUi->expandButton->setVisible(mode == AcceptSave);
+    d->qFileDialogUi->topRightSpacer->setVisible(mode == AcceptSave);
+    d->qFileDialogUi->line->setVisible(mode == AcceptSave && isDetailsExpanded());
+    d->qFileDialogUi->fileNameLabel->setVisible(mode == AcceptSave);
 
     if (mode == AcceptSave) {
-        if (!d->quickLineEdit->text().isEmpty())
-            d->fileNameEdit->setText(d->quickLineEdit->text());
-        d->lookInCombo->setEditable(false);
+        if (!d->qFileDialogUi->quickLineEdit->text().isEmpty())
+            d->qFileDialogUi->fileNameEdit->setText(d->qFileDialogUi->quickLineEdit->text());
+        d->qFileDialogUi->lookInCombo->setEditable(false);
     }
+}
+
+
+/*
+    Returns the file system model index that is the root index in the
+    views
+*/
+QModelIndex QFileDialogPrivate::rootIndex() const {
+    return mapToSource(qFileDialogUi->listView->rootIndex());
+}
+
+QAbstractItemView *QFileDialogPrivate::currentView() const {
+    if (!qFileDialogUi->stackedWidget)
+        return 0;
+    return qobject_cast<QAbstractItemView*>(qFileDialogUi->stackedWidget->currentWidget());
+}
+
+QLineEdit *QFileDialogPrivate::lineEdit() const {
+    if (acceptMode == QFileDialog::AcceptSave)
+        return (QLineEdit*)qFileDialogUi->fileNameEdit;
+    return (QLineEdit*)qFileDialogUi->quickLineEdit;
+}
+
+/*
+    Sets the view root index to be the file system model index
+*/
+void QFileDialogPrivate::setRootIndex(const QModelIndex &index) const {
+    Q_ASSERT(index.isValid() ? index.model() == model : true);
+    QModelIndex idx = mapFromSource(index);
+    qFileDialogUi->treeView->setRootIndex(idx);
+    qFileDialogUi->listView->setRootIndex(idx);
+}
+/*
+    Select a file system model index
+    returns the index that was selected (or not depending upon sortfilterproxymodel)
+*/
+QModelIndex QFileDialogPrivate::select(const QModelIndex &index) const {
+    Q_ASSERT(index.isValid() ? index.model() == model : true);
+    QModelIndex idx = mapFromSource(index);
+    if (idx.isValid())
+    qFileDialogUi->listView->selectionModel()->select(idx,
+            QItemSelectionModel::Select | QItemSelectionModel::Rows);
+    return idx;
 }
 
 void QFileDialogPrivate::updateFileTypeVisibility()
 {
     bool showFilterGUI = true;
-    if (fileTypeCombo->count() == 1 && defaultFileTypes)
+    if (qFileDialogUi->fileTypeCombo->count() == 1 && defaultFileTypes)
         showFilterGUI = false;
-    fileTypeCombo->setVisible(showFilterGUI);
-    fileTypeLabel->setVisible(showFilterGUI);
+    qFileDialogUi->extraBox->setVisible(showFilterGUI);
 }
 
 QFileDialog::AcceptMode QFileDialog::acceptMode() const
@@ -838,7 +883,7 @@ void QFileDialog::setReadOnly(bool disabled)
     Q_D(QFileDialog);
     d->model->setReadOnly(disabled);
     if (disabled) {
-        d->newFolderButton->setEnabled(false);
+        d->qFileDialogUi->newFolderButton->setEnabled(false);
         d->renameAction->setEnabled(false);
         d->deleteAction->setEnabled(false);
     }
@@ -865,38 +910,38 @@ void QFileDialog::setDetailsExpanded(bool expanded)
 
     // The order matters because otherwise it widgets will jump around
     if (expanded)
-        d->lookInLabel->setVisible(!expanded);
+        d->qFileDialogUi->lookInLabel->setVisible(!expanded);
     d->updateFileTypeVisibility();
-    d->backButton->setVisible(expanded);
-    d->forwardButton->setVisible(expanded);
-    d->toParentButton->setVisible(expanded);
-    d->splitter->setVisible(expanded);
-    d->listModeButton->setVisible(expanded);
-    d->detailModeButton->setVisible(expanded);
-    d->newFolderButton->setVisible(expanded);
-    d->line->setVisible(expanded);
-    if (d->bottomRightSpacer)
-        d->bottomRightSpacer->setVisible(expanded);
+    d->qFileDialogUi->backButton->setVisible(expanded);
+    d->qFileDialogUi->forwardButton->setVisible(expanded);
+    d->qFileDialogUi->toParentButton->setVisible(expanded);
+    d->qFileDialogUi->splitter->setVisible(expanded);
+    d->qFileDialogUi->listModeButton->setVisible(expanded);
+    d->qFileDialogUi->detailModeButton->setVisible(expanded);
+    d->qFileDialogUi->newFolderButton->setVisible(expanded);
+    d->qFileDialogUi->line->setVisible(expanded);
+    if (d->qFileDialogUi->bottomRightSpacer)
+        d->qFileDialogUi->bottomRightSpacer->setVisible(expanded);
     if (!expanded)
-        d->lookInLabel->setVisible(!expanded);
+        d->qFileDialogUi->lookInLabel->setVisible(!expanded);
 
     if (expanded) {
-        QSize size = d->expandButton->size();
-        d->expandButton->setArrowType(Qt::UpArrow);
-        d->expandButton->setFixedSize(size);
+        QSize size = d->qFileDialogUi->expandButton->size();
+        d->qFileDialogUi->expandButton->setArrowType(Qt::UpArrow);
+        d->qFileDialogUi->expandButton->setFixedSize(size);
     } else {
-        d->fileNameEdit->setFocus();
+        d->qFileDialogUi->fileNameEdit->setFocus();
         // ### auto select the file name
-        QSize size = d->expandButton->size();
-        d->expandButton->setArrowType(Qt::DownArrow);
-        d->expandButton->setFixedSize(size);
+        QSize size = d->qFileDialogUi->expandButton->size();
+        d->qFileDialogUi->expandButton->setArrowType(Qt::DownArrow);
+        d->qFileDialogUi->expandButton->setFixedSize(size);
     }
 }
 
 bool QFileDialog::isDetailsExpanded() const
 {
     Q_D(const QFileDialog);
-    return (d->expandButton->arrowType() == Qt::UpArrow);
+    return (d->qFileDialogUi->expandButton->arrowType() == Qt::UpArrow);
 }
 
 /*!
@@ -981,7 +1026,7 @@ void QFileDialog::setHistory(const QStringList &paths)
     // add "my computer"
     list.append(QUrl::fromLocalFile(QLatin1String("")));
     d->urlModel->addUrls(list, 0);
-    idx = d->lookInCombo->model()->index(d->lookInCombo->model()->rowCount() - 1, 0);
+    idx = d->qFileDialogUi->lookInCombo->model()->index(d->qFileDialogUi->lookInCombo->model()->rowCount() - 1, 0);
 
     // ### append history
     QList<QUrl> urls;
@@ -991,11 +1036,11 @@ void QFileDialog::setHistory(const QStringList &paths)
             urls += path;
     }
     if (urls.count() > 0) {
-        d->lookInCombo->model()->insertRow(d->lookInCombo->model()->rowCount());
-        idx = d->lookInCombo->model()->index(d->lookInCombo->model()->rowCount()-1, 0);
+        d->qFileDialogUi->lookInCombo->model()->insertRow(d->qFileDialogUi->lookInCombo->model()->rowCount());
+        idx = d->qFileDialogUi->lookInCombo->model()->index(d->qFileDialogUi->lookInCombo->model()->rowCount()-1, 0);
         // ### TODO disable this item and maybe add a horizontal line before it
-        d->lookInCombo->model()->setData(idx, QLatin1String("Recent Places"));
-        QStandardItemModel *m = qobject_cast<QStandardItemModel*>(d->lookInCombo->model());
+        d->qFileDialogUi->lookInCombo->model()->setData(idx, QLatin1String("Recent Places"));
+        QStandardItemModel *m = qobject_cast<QStandardItemModel*>(d->qFileDialogUi->lookInCombo->model());
         if (m) {
             Qt::ItemFlags flags = m->flags(idx);
             flags &= ~Qt::ItemIsEnabled;
@@ -1003,7 +1048,7 @@ void QFileDialog::setHistory(const QStringList &paths)
         }
         d->urlModel->addUrls(urls, -1, false);
     }
-    d->lookInCombo->setCurrentIndex(0);
+    d->qFileDialogUi->lookInCombo->setCurrentIndex(0);
 }
 
 /*!
@@ -1026,8 +1071,8 @@ QStringList QFileDialog::history() const
 void QFileDialog::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     Q_D(QFileDialog);
-    d->listView->setItemDelegate(delegate);
-    d->treeView->setItemDelegate(delegate);
+    d->qFileDialogUi->listView->setItemDelegate(delegate);
+    d->qFileDialogUi->treeView->setItemDelegate(delegate);
 }
 
 /*!
@@ -1037,7 +1082,7 @@ void QFileDialog::setItemDelegate(QAbstractItemDelegate *delegate)
 QAbstractItemDelegate *QFileDialog::itemDelegate() const
 {
     Q_D(const QFileDialog);
-    return d->listView->itemDelegate();
+    return d->qFileDialogUi->listView->itemDelegate();
 }
 
 /*!
@@ -1068,24 +1113,24 @@ void QFileDialog::setLabelText(DialogLabel label, const QString &text)
     QPushButton *button;
     switch (label) {
     case LookIn:
-        d->lookInLabel->setText(text);
+        d->qFileDialogUi->lookInLabel->setText(text);
         break;
     case FileName:
-        d->fileNameLabel->setText(text);
+        d->qFileDialogUi->fileNameLabel->setText(text);
         break;
     case FileType:
-        d->fileTypeLabel->setText(text);
+        d->qFileDialogUi->fileTypeLabel->setText(text);
         break;
     case Accept:
         if (acceptMode() == AcceptOpen)
-            button = d->buttonBox->button(QDialogButtonBox::Open);
+            button = d->qFileDialogUi->buttonBox->button(QDialogButtonBox::Open);
         else
-            button = d->buttonBox->button(QDialogButtonBox::Save);
+            button = d->qFileDialogUi->buttonBox->button(QDialogButtonBox::Save);
         if (button)
             button->setText(text);
         break;
     case Reject:
-        button = d->buttonBox->button(QDialogButtonBox::Cancel);
+        button = d->qFileDialogUi->buttonBox->button(QDialogButtonBox::Cancel);
         if (button)
             button->setText(text);
         break;
@@ -1101,20 +1146,20 @@ QString QFileDialog::labelText(DialogLabel label) const
     Q_D(const QFileDialog);
     switch (label) {
     case LookIn:
-        return d->lookInLabel->text();
+        return d->qFileDialogUi->lookInLabel->text();
     case FileName:
-        return d->fileNameLabel->text();
+        return d->qFileDialogUi->fileNameLabel->text();
     case FileType:
-        return d->fileTypeLabel->text();
+        return d->qFileDialogUi->fileTypeLabel->text();
     case Accept:
         if (acceptMode() == AcceptOpen)
-            button = d->buttonBox->button(QDialogButtonBox::Open);
+            button = d->qFileDialogUi->buttonBox->button(QDialogButtonBox::Open);
         else
-            button = d->buttonBox->button(QDialogButtonBox::Save);
+            button = d->qFileDialogUi->buttonBox->button(QDialogButtonBox::Save);
         if (button)
             return button->text();
     case Reject:
-        button = d->buttonBox->button(QDialogButtonBox::Cancel);
+        button = d->qFileDialogUi->buttonBox->button(QDialogButtonBox::Cancel);
         if (button)
             return button->text();
     }
@@ -1540,9 +1585,9 @@ void QFileDialog::accept()
     // special case for ".."
     if (lineEditText == QLatin1String("..")) {
         d->_q_navigateToParent();
-        bool block = d->fileNameEdit->blockSignals(true);
+        bool block = d->qFileDialogUi->fileNameEdit->blockSignals(true);
         d->lineEdit()->selectAll();
-        d->fileNameEdit->blockSignals(block);
+        d->qFileDialogUi->fileNameEdit->blockSignals(block);
         return;
     }
 
@@ -1558,7 +1603,7 @@ void QFileDialog::accept()
             QString message = tr("\nFile not found.\nPlease verify the "
                                  "correct file name was given");
 
-            QPushButton *button = d->buttonBox->button(acceptMode() == AcceptOpen ?
+            QPushButton *button = d->qFileDialogUi->buttonBox->button(acceptMode() == AcceptOpen ?
                                                        QDialogButtonBox::Open : QDialogButtonBox::Save);
             QMessageBox::warning(this, button->text(), info.fileName() + message);
 #endif // QT_NO_MESSAGEBOX
@@ -1591,7 +1636,7 @@ void QFileDialog::accept()
             QDialog::accept();
 #ifndef QT_NO_MESSAGEBOX
         } else {
-            QPushButton *button = d->buttonBox->button(acceptMode() == AcceptOpen ?
+            QPushButton *button = d->qFileDialogUi->buttonBox->button(acceptMode() == AcceptOpen ?
                                                        QDialogButtonBox::Open : QDialogButtonBox::Save);
             if (QMessageBox::warning(this, button->text(),
                                      tr("%1 already exists.\nDo you want to replace it?")
@@ -1614,7 +1659,7 @@ void QFileDialog::accept()
 #ifndef QT_NO_MESSAGEBOX
                 QString message = tr("%1\nFile not found.\nPlease verify the "
                                      "correct file name was given.");
-                QPushButton *button = d->buttonBox->button(acceptMode() == AcceptOpen ?
+                QPushButton *button = d->qFileDialogUi->buttonBox->button(acceptMode() == AcceptOpen ?
                                                             QDialogButtonBox::Open : QDialogButtonBox::Save);
 
                 QMessageBox::warning(this, button->text(), message.arg(info.fileName()));
@@ -1640,8 +1685,8 @@ void QFileDialog::timerEvent(QTimerEvent *event)
 {
     Q_D(QFileDialog);
     if (event->timerId() == d->autoHideLineEdit.timerId()) {
-        d->quickLineEdit->hide();
-        d->quickLineEdit->completer()->popup()->hide();
+        d->qFileDialogUi->quickLineEdit->hide();
+        d->qFileDialogUi->quickLineEdit->completer()->popup()->hide();
         d->currentView()->setFocus(Qt::ShortcutFocusReason);
         d->autoHideLineEdit.stop();
         return;
@@ -1662,11 +1707,10 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
         useDefaultCaption = false;
         q->setWindowTitle(caption);
     }
+
     createWidgets();
     createMenuActions();
-    createToolButtons();
     retranslateStrings();
-    layout();
     oldSize = q->sizeHint();
 
     // Default case
@@ -1677,167 +1721,10 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
     q->setDirectory(workingDirectory(directory));
     q->selectFile(initialSelection(directory));
     if (acceptMode != QFileDialog::AcceptSave)
-        stackedWidget->currentWidget()->setFocus();
+        qFileDialogUi->stackedWidget->currentWidget()->setFocus();
     else
-        fileNameEdit->setFocus();
+        qFileDialogUi->fileNameEdit->setFocus();
     _q_updateOkButton();
-}
-
-/*!
-    \internal
-
-    layout all the widgets in a grid
-*/
-void QFileDialogPrivate::layout()
-{
-    Q_Q(QFileDialog);
-#if defined(Q_WS_QWS)
-    QGridLayout *grid = new QGridLayout(q);
-
-    // First row
-    QHBoxLayout *layout1 = new QHBoxLayout();
-    layout1->addWidget(fileNameLabel, 0, Qt::AlignRight);
-    layout1->addWidget(fileNameEdit, 0, Qt::AlignHCenter);
-    layout1->addWidget(expandButton, 0, Qt::AlignLeft);
-    grid->addLayout(layout1, 0, 0, 1, 1);
-
-    // line
-    grid->addWidget(line, 1, 0, 1, 1);
-
-    // third
-    QHBoxLayout *layout2 = new QHBoxLayout();
-    layout2->addWidget(lookInLabel, 0, Qt::AlignRight);
-    layout2->addWidget(lookInCombo, 0, Qt::AlignHCenter);
-    grid->addLayout(layout2, 2, 0, 1, 1);
-
-    // second line
-    QHBoxLayout *layout3 = new QHBoxLayout();
-    layout3->addWidget(backButton);
-    layout3->addWidget(forwardButton);
-    layout3->addWidget(toParentButton);
-    layout3->addWidget(listModeButton);
-    layout3->addWidget(detailModeButton);
-    layout3->addStretch();
-    grid->addLayout(layout3, 3, 0, 1, 1);
-
-    // main box
-    grid->addWidget(splitter, 4, 0, 1, 1);
-    // The sidebar could be turned into a combo or appended to the existing combo
-    sidebar->hide();
-
-    // bottom
-    QHBoxLayout *layout5 = new QHBoxLayout();
-    layout5->addWidget(fileTypeLabel);
-    layout5->addWidget(fileTypeCombo);
-    grid->addLayout(layout5, 5, 0, 1, 1);
-
-    // lastLine
-    QHBoxLayout *layout6 = new QHBoxLayout();
-    layout6->addWidget(newFolderButton, 0, Qt::AlignLeft);
-    layout6->addStretch();
-    layout6->addWidget(buttonBox, 0, Qt::AlignRight);
-    grid->addLayout(layout6, 6, 0, 1, 1);
-
-    // tab order
-    QWidget::setTabOrder(fileNameEdit, lookInCombo);
-    QWidget::setTabOrder(lookInCombo, expandButton);
-    QWidget::setTabOrder(expandButton, backButton);
-    QWidget::setTabOrder(backButton, forwardButton);
-    QWidget::setTabOrder(forwardButton, toParentButton);
-    QWidget::setTabOrder(toParentButton, listModeButton);
-    QWidget::setTabOrder(listModeButton, detailModeButton);
-    QWidget::setTabOrder(detailModeButton, sidebar);
-    QWidget::setTabOrder(sidebar, listView);
-    QWidget::setTabOrder(listView, treeView);
-    QWidget::setTabOrder(treeView, fileTypeCombo);
-    QWidget::setTabOrder(fileTypeCombo, newFolderButton);
-    QWidget::setTabOrder(newFolderButton, buttonBox);
-    QWidget::setTabOrder(buttonBox, fileNameEdit);
-
-    q->resize(QSize(240,320));
-#else
-    q->setSizeGripEnabled(true);
-    QGridLayout *grid = new QGridLayout(q);
-    // First row
-    QGridLayout *topGrid = new QGridLayout();
-    topGrid->setColumnStretch(1, 2);
-    QHBoxLayout *topLeftLayout = new QHBoxLayout();
-    topLeftLayout->addStretch();
-    topLeftLayout->addWidget(fileNameLabel, 0, Qt::AlignHCenter);
-
-    topGrid->addLayout(topLeftLayout, 0, 0);
-    topGrid->addWidget(fileNameEdit, 0, 1);
-    QHBoxLayout *topRightLayout = new QHBoxLayout();
-    topRightLayout->addWidget(expandButton);
-    QWidget *topRightSpacer = new QWidget(q);
-    topRightSpacer->setMinimumWidth(backButton->sizeHint().width() * 4);
-    topRightLayout->addWidget(topRightSpacer);
-    topGrid->addLayout(topRightLayout, 0, 2);
-    // line
-    topGrid->addWidget(line, 1, 0, 1, 3);
-
-    // second line
-    QHBoxLayout *bottomLeftLayout = new QHBoxLayout();
-    bottomLeftLayout->addWidget(backButton);
-    bottomLeftLayout->addWidget(forwardButton);
-    bottomLeftLayout->addWidget(toParentButton);
-
-    // Add some space
-    QWidget *bottomLeftSpacer = new QWidget(q);
-    bottomLeftSpacer->setMinimumWidth(backButton->sizeHint().width() * 2);
-    bottomLeftLayout->addWidget(bottomLeftSpacer);
-
-
-    bottomLeftLayout->addWidget(lookInLabel);
-    topGrid->addLayout(bottomLeftLayout, 2, 0);
-
-    int old = fileNameLabel->minimumWidth();
-    if (old < bottomLeftLayout->minimumSize().width())
-        fileNameLabel->setMinimumWidth(backButton->sizeHint().width() * 5);
-
-    topGrid->addWidget(lookInCombo, 2, 1);
-    lookInCombo->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-
-    QHBoxLayout *bottomRightLayout = new QHBoxLayout();
-    bottomRightSpacer = new QWidget(q);
-    bottomRightSpacer->setMinimumWidth(backButton->sizeHint().width() * 3);
-    bottomRightSpacer->setMaximumWidth(backButton->sizeHint().width() * 3);
-    bottomRightLayout->addWidget(bottomRightSpacer);
-    bottomRightLayout->addWidget(listModeButton);
-    bottomRightLayout->addWidget(detailModeButton);
-    topGrid->addLayout(bottomRightLayout, 2, 2);
-
-    grid->addLayout(topGrid, 0, 0, 1, 3);
-
-    // main box
-    grid->addWidget(splitter, 2, 0, 1, 3);
-
-    // bottom
-    grid->addWidget(fileTypeLabel, 3, 1);
-    grid->addWidget(fileTypeCombo, 3, 2, 1, 1);
-
-    grid->addWidget(newFolderButton, 4, 0, 1, 1);
-    grid->addWidget(buttonBox,       4, 2);
-    grid->setRowStretch(2, 1);
-
-    // tab order
-    QWidget::setTabOrder(fileNameEdit, expandButton);
-    QWidget::setTabOrder(expandButton, backButton);
-    QWidget::setTabOrder(backButton, forwardButton);
-    QWidget::setTabOrder(forwardButton, toParentButton);
-    QWidget::setTabOrder(toParentButton, lookInCombo);
-    QWidget::setTabOrder(lookInCombo, listModeButton);
-    QWidget::setTabOrder(listModeButton, detailModeButton);
-    QWidget::setTabOrder(detailModeButton, sidebar);
-    QWidget::setTabOrder(sidebar, listView);
-    QWidget::setTabOrder(listView, treeView);
-    QWidget::setTabOrder(treeView, fileTypeCombo);
-    QWidget::setTabOrder(fileTypeCombo, newFolderButton);
-    QWidget::setTabOrder(newFolderButton, buttonBox);
-    QWidget::setTabOrder(buttonBox, fileNameEdit);
-
-    q->resize(q->sizeHint());
-#endif
 }
 
 /*!
@@ -1861,92 +1748,69 @@ void QFileDialogPrivate::createWidgets()
             q, SLOT(_q_rowsInserted(const QModelIndex &)));
     model->setReadOnly(false);
 
-    splitter = new QSplitter(q);
+    qFileDialogUi = new Ui_QFileDialog();
+    qFileDialogUi->setupUi(q);
 
     QList<QUrl> initialBookmarks;
     initialBookmarks << QUrl::fromLocalFile(QLatin1String(""))
                      << QUrl::fromLocalFile(QDir::homePath());
-    sidebar = new QSidebar(model, initialBookmarks, splitter);
-    sidebar->setObjectName(QLatin1String("qt_sidebar"));
-    QFileDialog::connect(sidebar, SIGNAL(goToUrl(const QUrl &)),
+    qFileDialogUi->sidebar->init(model, initialBookmarks);
+    QFileDialog::connect(qFileDialogUi->sidebar, SIGNAL(goToUrl(const QUrl &)),
                          q, SLOT(_q_goToUrl(const QUrl &)));
 
-    // labels
-    lookInLabel = new QLabel(q);
-    lookInLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    lookInLabel->setObjectName(QLatin1String("qt_look_in_label"));
-    lookInLabel->hide();
-    fileNameLabel = new QLabel(q);
-    fileNameLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    fileTypeLabel = new QLabel(q);
-    fileTypeLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    QObject::connect(qFileDialogUi->buttonBox, SIGNAL(accepted()), q, SLOT(accept()));
+    QObject::connect(qFileDialogUi->buttonBox, SIGNAL(rejected()), q, SLOT(reject()));
 
-    // push buttons
-    buttonBox = new QDialogButtonBox(QDialogButtonBox::Open
-                                     | QDialogButtonBox::Cancel, Qt::Horizontal, q);
-    buttonBox->setObjectName(QLatin1String("qt_button_box"));
-    QObject::connect(buttonBox, SIGNAL(accepted()), q, SLOT(accept()));
-    QObject::connect(buttonBox, SIGNAL(rejected()), q, SLOT(reject()));
-
-    // "lookin" combobox
-    lookInCombo = new QComboBox(q);
-    lookInCombo->setObjectName(QLatin1String("qt_look_in_combo"));
-    lookInCombo->setMinimumWidth(lookInCombo->sizeHint().width() * 3);
-    lookInCombo->setInsertPolicy(QComboBox::NoInsert);
-    lookInCombo->setDuplicatesEnabled(false);
     urlModel = new QUrlModel(q);
     urlModel->setFileSystemModel(model);
-    lookInCombo->setModel(urlModel);
-    QObject::connect(lookInCombo, SIGNAL(activated(QString)), q, SLOT(_q_goToDirectory(QString)));
-    lookInCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    qFileDialogUi->lookInCombo->setModel(urlModel);
+    QObject::connect(qFileDialogUi->lookInCombo, SIGNAL(activated(QString)), q, SLOT(_q_goToDirectory(QString)));
+
+    qFileDialogUi->lookInCombo->setInsertPolicy(QComboBox::NoInsert);
+    qFileDialogUi->lookInCombo->setDuplicatesEnabled(false);
+    qFileDialogUi->lookInLabel->hide();
 
     // filename
-    fileNameEdit = new QFileDialogLineEdit(this);
-    fileNameEdit->setObjectName(QLatin1String("qt_file_name_edit"));
-    fileNameLabel->setBuddy(fileNameEdit);
-    fileNameEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    qFileDialogUi->fileNameEdit->init(this);
+    qFileDialogUi->fileNameLabel->setBuddy(qFileDialogUi->fileNameEdit);
     completer = new QFSCompletor(model, q);
-    fileNameEdit->setCompleter(completer);
-    QObject::connect(fileNameEdit, SIGNAL(textChanged(QString)),
+    qFileDialogUi->fileNameEdit->setCompleter(completer);
+    QObject::connect(qFileDialogUi->fileNameEdit, SIGNAL(textChanged(QString)),
                      q, SLOT(_q_updateOkButton()));
-    QObject::connect(fileNameEdit, SIGNAL(textChanged(QString)),
+    QObject::connect(qFileDialogUi->fileNameEdit, SIGNAL(textChanged(QString)),
             q, SLOT(_q_autoCompleteFileName(QString)));
-    QObject::connect(fileNameEdit, SIGNAL(returnPressed()), q, SLOT(accept()));
+    QObject::connect(qFileDialogUi->fileNameEdit, SIGNAL(returnPressed()), q, SLOT(accept()));
 
     // filetype
-    fileTypeCombo = new QComboBox(q);
-    fileTypeCombo->setObjectName(QLatin1String("qt_file_type_combo"));
-    fileTypeCombo->setDuplicatesEnabled(false);
-    fileTypeCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
-    fileTypeCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    QObject::connect(fileTypeCombo, SIGNAL(activated(const QString &)),
+    qFileDialogUi->fileTypeCombo->setDuplicatesEnabled(false);
+    qFileDialogUi->fileTypeCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+    qFileDialogUi->fileTypeCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    QObject::connect(qFileDialogUi->fileTypeCombo, SIGNAL(activated(const QString &)),
                      q, SLOT(_q_useNameFilter(const QString &)));
-    QObject::connect(fileTypeCombo, SIGNAL(activated(const QString &)),
+    QObject::connect(qFileDialogUi->fileTypeCombo, SIGNAL(activated(const QString &)),
                      q, SIGNAL(filterSelected(const QString &)));
 
-    listView = new QFileDialogListView(this);
-    listView->setObjectName(QLatin1String("qt_list_view"));
-    listView->setModel(model);
-    QObject::connect(listView, SIGNAL(activated(QModelIndex)),
+    qFileDialogUi->listView->init(this);
+    qFileDialogUi->listView->setModel(model);
+    QObject::connect(qFileDialogUi->listView, SIGNAL(activated(QModelIndex)),
                      q, SLOT(_q_enterDirectory(QModelIndex)));
-    QObject::connect(listView, SIGNAL(customContextMenuRequested(QPoint)),
+    QObject::connect(qFileDialogUi->listView, SIGNAL(customContextMenuRequested(QPoint)),
                     q, SLOT(_q_showContextMenu(QPoint)));
 #ifndef QT_NO_SHORTCUT
-    QShortcut *shortcut = new QShortcut(listView);
+    QShortcut *shortcut = new QShortcut(qFileDialogUi->listView);
     shortcut->setKey(QKeySequence(QLatin1String("Delete")));
     QObject::connect(shortcut, SIGNAL(activated()), q, SLOT(_q_deleteCurrent()));
 #endif
 
-    treeView = new QFileDialogTreeView(this);
-    treeView->setObjectName(QLatin1String("qt_tree_view"));
-    treeView->setModel(model);
-    QHeaderView *treeHeader = treeView->header();
+    qFileDialogUi->treeView->init(this);
+    qFileDialogUi->treeView->setModel(model);
+    QHeaderView *treeHeader = qFileDialogUi->treeView->header();
     treeHeader->setSectionHidden(1, true);
     treeHeader->setSectionHidden(2, true);
     treeHeader->setStretchLastSection(false);
     treeHeader->setResizeMode(0, QHeaderView::Interactive);
-    treeHeader->resizeSection(0, 2 * treeHeader->sectionSizeHint(3));
-    treeHeader->resizeSection(3, (int)(1.5 * treeHeader->sectionSizeHint(3)));
+    treeHeader->resizeSection(0, (int)(1.7 * treeHeader->sectionSizeHint(0)));
+    treeHeader->resizeSection(3, (int)(1.2 * treeHeader->sectionSizeHint(3)));
     treeHeader->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     QActionGroup *showActionGroup = new QActionGroup(q);
@@ -1965,56 +1829,42 @@ void QFileDialogPrivate::createWidgets()
         treeHeader->addAction(showHeader);
     }
 
-    QItemSelectionModel *selModel = treeView->selectionModel();
-    treeView->setSelectionModel(listView->selectionModel());
+    QItemSelectionModel *selModel = qFileDialogUi->treeView->selectionModel();
+    qFileDialogUi->treeView->setSelectionModel(qFileDialogUi->listView->selectionModel());
     delete selModel;
-    QObject::connect(treeView, SIGNAL(activated(QModelIndex)),
+    QObject::connect(qFileDialogUi->treeView, SIGNAL(activated(QModelIndex)),
                      q, SLOT(_q_enterDirectory(QModelIndex)));
-    QObject::connect(treeView, SIGNAL(customContextMenuRequested(QPoint)),
+    QObject::connect(qFileDialogUi->treeView, SIGNAL(customContextMenuRequested(QPoint)),
                      q, SLOT(_q_showContextMenu(QPoint)));
 #ifndef QT_NO_SHORTCUT
-    shortcut = new QShortcut(treeView);
+    shortcut = new QShortcut(qFileDialogUi->treeView);
     shortcut->setKey(QKeySequence(QLatin1String("Delete")));
     QObject::connect(shortcut, SIGNAL(activated()), q, SLOT(_q_deleteCurrent()));
 #endif
 
     // Selections
-    QItemSelectionModel *selections = listView->selectionModel();
+    QItemSelectionModel *selections = qFileDialogUi->listView->selectionModel();
     QObject::connect(selections, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
                      q, SLOT(_q_selectionChanged()));
     QObject::connect(selections, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                      q, SLOT(_q_currentChanged(QModelIndex)));
-
-    stackedWidget = new QStackedWidget(splitter);
-    stackedWidget->addWidget(treeView);
-    stackedWidget->addWidget(listView);
-
-    splitter->setObjectName(QLatin1String("qt_splitter"));
-    splitter->addWidget(sidebar);
-
-    QWidget *w = new QWidget(q);
-    QVBoxLayout *layout = new QVBoxLayout(w);
-    layout->setSpacing(0);
-    layout->setMargin(0);
-    layout->addWidget(stackedWidget);
-    quickLineEdit = new QFileDialogLineEdit(this);
-    quickLineEdit->setObjectName(QLatin1String("qt_quick_line_edit"));
-    quickLineEdit->hide();
-    quickLineEdit->hideOnEsc = true;
-    QObject::connect(quickLineEdit, SIGNAL(textChanged(QString)),
+    qFileDialogUi->quickLineEdit->init(this);
+    qFileDialogUi->quickLineEdit->hide();
+    qFileDialogUi->quickLineEdit->hideOnEsc = true;
+    QObject::connect(qFileDialogUi->quickLineEdit, SIGNAL(textChanged(QString)),
             q, SLOT(_q_autoCompleteFileName(QString)));
-    QObject::connect(quickLineEdit, SIGNAL(textChanged(QString)), q, SLOT(_q_updateOkButton()));
-    QObject::connect(quickLineEdit, SIGNAL(returnPressed()), q, SLOT(accept()));
-    quickLineEdit->setCompleter(completer);
+    QObject::connect(qFileDialogUi->quickLineEdit, SIGNAL(textChanged(QString)), q, SLOT(_q_updateOkButton()));
+    QObject::connect(qFileDialogUi->quickLineEdit, SIGNAL(returnPressed()), q, SLOT(accept()));
+    qFileDialogUi->quickLineEdit->setCompleter(completer);
+    qFileDialogUi->splitter->setStretchFactor(qFileDialogUi->splitter->indexOf(qFileDialogUi->splitter->widget(1)), QSizePolicy::Expanding);
 
-    layout->addWidget(quickLineEdit);
-    splitter->addWidget(w);
-    splitter->setStretchFactor(splitter->indexOf(w), QSizePolicy::Expanding);
+    createToolButtons();
+    q->resize(q->sizeHint());
 
-    line = new QFrame(q);
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    line->hide();
+    qFileDialogUi->lookInCombo->setMinimumWidth(qFileDialogUi->lookInCombo->sizeHint().width() * 3);
+    qFileDialogUi->bottomRightSpacer->setMinimumWidth(qFileDialogUi->expandButton->minimumWidth());
+    qFileDialogUi->topRightSpacer->setMinimumWidth(qFileDialogUi->toParentButton->width() * 2 + qFileDialogUi->gridLayout->margin() * 1);
+    qFileDialogUi->fileNameLabel->setMinimumWidth(qFileDialogUi->toParentButton->width() * 3 + qFileDialogUi->gridLayout->margin() * 2);
 
     vTimeLine = new QTimeLine(100, q);
     hTimeLine = new QTimeLine(100, q);
@@ -2026,7 +1876,7 @@ void QFileDialogPrivate::_q_showHeader(QAction *action)
 {
     Q_Q(QFileDialog);
     QActionGroup *actionGroup = qobject_cast<QActionGroup*>(q->sender());
-    treeView->header()->setSectionHidden(actionGroup->actions().indexOf(action) + 1, !action->isChecked());
+    qFileDialogUi->treeView->header()->setSectionHidden(actionGroup->actions().indexOf(action) + 1, !action->isChecked());
 }
 
 void QFileDialogPrivate::_q_animateDialogV(int x)
@@ -2038,7 +1888,7 @@ void QFileDialogPrivate::_q_animateDialogV(int x)
     if ((vTimeLine->endFrame() == x && vTimeLine->direction() == QTimeLine::Forward)
        || (vTimeLine->startFrame() == x && vTimeLine->direction() == QTimeLine::Backward)
        || x == -1){
-        q->setDetailsExpanded(expandButton->arrowType() == Qt::UpArrow);
+        q->setDetailsExpanded(qFileDialogUi->expandButton->arrowType() == Qt::UpArrow);
     }
 }
 
@@ -2075,19 +1925,19 @@ void QFileDialog::setProxyModel(QAbstractProxyModel *proxyModel)
     if (proxyModel != 0) {
         d->proxyModel = proxyModel;
         proxyModel->setSourceModel(d->model);
-        d->listView->setModel(d->proxyModel);
-        d->treeView->setModel(d->proxyModel);
+        d->qFileDialogUi->listView->setModel(d->proxyModel);
+        d->qFileDialogUi->treeView->setModel(d->proxyModel);
         connect(d->proxyModel, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
             this, SLOT(_q_rowsInserted(const QModelIndex &)));
     } else {
         d->proxyModel = 0;
-        d->listView->setModel(d->model);
-        d->treeView->setModel(d->model);
+        d->qFileDialogUi->listView->setModel(d->model);
+        d->qFileDialogUi->treeView->setModel(d->model);
         connect(d->model, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
             this, SLOT(_q_rowsInserted(const QModelIndex &)));
     }
-    QItemSelectionModel *selModel = d->treeView->selectionModel();
-    d->treeView->setSelectionModel(d->listView->selectionModel());
+    QItemSelectionModel *selModel = d->qFileDialogUi->treeView->selectionModel();
+    d->qFileDialogUi->treeView->setSelectionModel(d->qFileDialogUi->listView->selectionModel());
     delete selModel;
     d->setRootIndex(idx);
 }
@@ -2108,8 +1958,8 @@ void QFileDialogPrivate::_q_animateDialog()
     Q_Q(QFileDialog);
 
     // flip button arrow
-    bool expanded = (expandButton->arrowType() == Qt::DownArrow);
-    expandButton->setArrowType(expanded ? Qt::UpArrow : Qt::DownArrow);
+    bool expanded = (qFileDialogUi->expandButton->arrowType() == Qt::DownArrow);
+    qFileDialogUi->expandButton->setArrowType(expanded ? Qt::UpArrow : Qt::DownArrow);
 
     // initial size of oldSize is the big window
     QSize newSize;
@@ -2152,60 +2002,45 @@ void QFileDialogPrivate::createToolButtons()
 {
     Q_Q(QFileDialog);
 
-    expandButton = new QToolButton(q);
-    expandButton->setObjectName(QLatin1String("qt_expand_button"));
-    expandButton->setArrowType(Qt::UpArrow);
-    QObject::connect(expandButton, SIGNAL(clicked()), q, SLOT(_q_animateDialog()));
-    expandButton->setVisible(false);
+    qFileDialogUi->expandButton->setArrowType(Qt::UpArrow);
+    QObject::connect(qFileDialogUi->expandButton, SIGNAL(clicked()), q, SLOT(_q_animateDialog()));
+    qFileDialogUi->expandButton->setVisible(false);
 
-    backButton = new QToolButton(q);
-    backButton->setObjectName(QLatin1String("qt_back_button"));
-    backButton->setIcon(q->style()->standardIcon(QStyle::SP_ArrowBack));
-    backButton->setAutoRaise(true);
-    backButton->setEnabled(false);
-    QObject::connect(backButton, SIGNAL(clicked()), q, SLOT(_q_navigateBackward()));
+    qFileDialogUi->backButton->setIcon(q->style()->standardIcon(QStyle::SP_ArrowBack));
+    qFileDialogUi->backButton->setAutoRaise(true);
+    qFileDialogUi->backButton->setEnabled(false);
+    QObject::connect(qFileDialogUi->backButton, SIGNAL(clicked()), q, SLOT(_q_navigateBackward()));
 
-    forwardButton = new QToolButton(q);
-    forwardButton->setObjectName(QLatin1String("qt_forward_button"));
-    forwardButton->setIcon(q->style()->standardIcon(QStyle::SP_ArrowForward));
-    forwardButton->setAutoRaise(true);
-    forwardButton->setEnabled(false);
-    QObject::connect(forwardButton, SIGNAL(clicked()), q, SLOT(_q_navigateForward()));
+    qFileDialogUi->forwardButton->setIcon(q->style()->standardIcon(QStyle::SP_ArrowForward));
+    qFileDialogUi->forwardButton->setAutoRaise(true);
+    qFileDialogUi->forwardButton->setEnabled(false);
+    QObject::connect(qFileDialogUi->forwardButton, SIGNAL(clicked()), q, SLOT(_q_navigateForward()));
 
-    toParentButton = new QToolButton(q);
-    toParentButton->setObjectName(QLatin1String("qt_toParent_button"));
-    toParentButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogToParent));
-    toParentButton->setAutoRaise(true);
-    toParentButton->setEnabled(false);
-    QObject::connect(toParentButton, SIGNAL(clicked()), q, SLOT(_q_navigateToParent()));
+    qFileDialogUi->toParentButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogToParent));
+    qFileDialogUi->toParentButton->setAutoRaise(true);
+    qFileDialogUi->toParentButton->setEnabled(false);
+    QObject::connect(qFileDialogUi->toParentButton, SIGNAL(clicked()), q, SLOT(_q_navigateToParent()));
 
-    newFolderButton = new QPushButton(q);
-    newFolderButton->setObjectName(QLatin1String("qt_new_folder_button"));
-    newFolderButton->setEnabled(false);
-    QObject::connect(newFolderButton, SIGNAL(clicked()), q, SLOT(_q_createDirectory()));
+    qFileDialogUi->newFolderButton->setEnabled(false);
+    QObject::connect(qFileDialogUi->newFolderButton, SIGNAL(clicked()), q, SLOT(_q_createDirectory()));
 
-    listModeButton = new QToolButton(q);
-    listModeButton->setObjectName(QLatin1String("qt_list_mode_button"));
-    listModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogListView));
-    listModeButton->setAutoRaise(true);
-    QObject::connect(listModeButton, SIGNAL(clicked()), q, SLOT(_q_showListView()));
+    qFileDialogUi->listModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogListView));
+    qFileDialogUi->listModeButton->setAutoRaise(true);
+    QObject::connect(qFileDialogUi->listModeButton, SIGNAL(clicked()), q, SLOT(_q_showListView()));
 
-    detailModeButton = new QToolButton(q);
-    detailModeButton->setObjectName(QLatin1String("qt_detail_mode_button"));
-    detailModeButton->setDown(true);
-    detailModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogDetailedView));
-    detailModeButton->setAutoRaise(true);
-    QObject::connect(detailModeButton, SIGNAL(clicked()), q, SLOT(_q_showDetailsView()));
+    qFileDialogUi->detailModeButton->setDown(true);
+    qFileDialogUi->detailModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogDetailedView));
+    qFileDialogUi->detailModeButton->setAutoRaise(true);
+    QObject::connect(qFileDialogUi->detailModeButton, SIGNAL(clicked()), q, SLOT(_q_showDetailsView()));
 
-    QSize toolSize(fileNameEdit->sizeHint().height(), fileNameEdit->sizeHint().height());
-    expandButton->setFixedSize(toolSize);
-    backButton->setFixedSize(toolSize);
-    listModeButton->setFixedSize(toolSize);
-    detailModeButton->setFixedSize(toolSize);
-    forwardButton->setFixedSize(toolSize);
-    toParentButton->setFixedSize(toolSize);
+    QSize toolSize(qFileDialogUi->fileNameEdit->sizeHint().height(), qFileDialogUi->fileNameEdit->sizeHint().height());
+    qFileDialogUi->expandButton->setFixedSize(toolSize);
+    qFileDialogUi->backButton->setFixedSize(toolSize);
+    qFileDialogUi->listModeButton->setFixedSize(toolSize);
+    qFileDialogUi->detailModeButton->setFixedSize(toolSize);
+    qFileDialogUi->forwardButton->setFixedSize(toolSize);
+    qFileDialogUi->toParentButton->setFixedSize(toolSize);
 }
-
 
 /*!
     \internal
@@ -2265,9 +2100,9 @@ void QFileDialogPrivate::_q_goHome()
 
 void QFileDialogPrivate::_q_chooseLocation()
 {
-    quickLineEdit->show();
-    quickLineEdit->setFocus(Qt::ShortcutFocusReason);
-    quickLineEdit->selectAll();
+    qFileDialogUi->quickLineEdit->show();
+    qFileDialogUi->quickLineEdit->setFocus(Qt::ShortcutFocusReason);
+    qFileDialogUi->quickLineEdit->selectAll();
 }
 
 /*!
@@ -2279,17 +2114,17 @@ void QFileDialogPrivate::_q_pathChanged(const QString &newPath)
 {
     Q_Q(QFileDialog);
     QDir dir(model->rootDirectory());
-    toParentButton->setEnabled(dir.exists());
-    backButton->setEnabled(!backHistory.isEmpty());
-    forwardButton->setEnabled(!forwardHistory.isEmpty());
-    sidebar->selectUrl(QUrl::fromLocalFile(newPath));
+    qFileDialogUi->toParentButton->setEnabled(dir.exists());
+    qFileDialogUi->backButton->setEnabled(!backHistory.isEmpty());
+    qFileDialogUi->forwardButton->setEnabled(!forwardHistory.isEmpty());
+    qFileDialogUi->sidebar->selectUrl(QUrl::fromLocalFile(newPath));
     q->setHistory(history);
 
     // Ugly hack to workaround headerview
-    if (treeView->header()->sectionSize(0) == 0) {
-        QHeaderView::ResizeMode oldMode = treeView->header()->resizeMode(0);
-        treeView->header()->setResizeMode(0, QHeaderView::ResizeToContents);
-        treeView->header()->setResizeMode(0, oldMode);
+    if (qFileDialogUi->treeView->header()->sectionSize(0) == 0) {
+        QHeaderView::ResizeMode oldMode = qFileDialogUi->treeView->header()->resizeMode(0);
+        qFileDialogUi->treeView->header()->setResizeMode(0, QHeaderView::ResizeToContents);
+        qFileDialogUi->treeView->header()->setResizeMode(0, oldMode);
     }
 }
 
@@ -2346,7 +2181,7 @@ void QFileDialogPrivate::_q_navigateToParent()
 void QFileDialogPrivate::_q_createDirectory()
 {
     Q_Q(QFileDialog);
-    listView->clearSelection();
+    qFileDialogUi->listView->clearSelection();
 
     QString newFolderString = QFileDialog::tr("New Folder");
     QString folderName = newFolderString;
@@ -2365,25 +2200,25 @@ void QFileDialogPrivate::_q_createDirectory()
 
     index = select(index);
     if (index.isValid()) {
-        treeView->setCurrentIndex(index);
+        qFileDialogUi->treeView->setCurrentIndex(index);
         currentView()->edit(index);
     }
 }
 
 void QFileDialogPrivate::_q_showListView()
 {
-    listModeButton->setDown(true);
-    detailModeButton->setDown(false);
-    listView->doItemsLayout();
-    stackedWidget->setCurrentWidget(listView);
+    qFileDialogUi->listModeButton->setDown(true);
+    qFileDialogUi->detailModeButton->setDown(false);
+    qFileDialogUi->listView->doItemsLayout();
+    qFileDialogUi->stackedWidget->setCurrentWidget(qFileDialogUi->listView->parentWidget());
 }
 
 void QFileDialogPrivate::_q_showDetailsView()
 {
-    listModeButton->setDown(false);
-    detailModeButton->setDown(true);
-    treeView->doItemsLayout();
-    stackedWidget->setCurrentWidget(treeView);
+    qFileDialogUi->listModeButton->setDown(false);
+    qFileDialogUi->detailModeButton->setDown(true);
+    qFileDialogUi->treeView->doItemsLayout();
+    qFileDialogUi->stackedWidget->setCurrentWidget(qFileDialogUi->treeView->parentWidget());
 }
 
 /*!
@@ -2399,9 +2234,9 @@ void QFileDialogPrivate::_q_showContextMenu(const QPoint &position)
     Q_Q(QFileDialog);
     QAbstractItemView *view = 0;
     if (q->viewMode() == QFileDialog::Detail)
-        view = treeView;
+        view = qFileDialogUi->treeView;
     else
-        view = listView;
+        view = qFileDialogUi->listView;
     QModelIndex index = view->indexAt(position);
     index = mapToSource(index.sibling(index.row(), 0));
 
@@ -2415,7 +2250,7 @@ void QFileDialogPrivate::_q_showContextMenu(const QPoint &position)
         menu.addSeparator();
     }
     menu.addAction(showHiddenAction);
-    if (newFolderButton->isVisible())
+    if (qFileDialogUi->newFolderButton->isVisible())
         menu.addAction(newFolderAction);
     menu.exec(view->viewport()->mapToGlobal(position));
 #endif // QT_NO_MENU
@@ -2427,12 +2262,12 @@ void QFileDialogPrivate::_q_showContextMenu(const QPoint &position)
 void QFileDialogPrivate::_q_renameCurrent()
 {
     Q_Q(QFileDialog);
-    QModelIndex index = listView->currentIndex();
+    QModelIndex index = qFileDialogUi->listView->currentIndex();
     index = index.sibling(index.row(), 0);
     if (q->viewMode() == QFileDialog::List)
-        listView->edit(index);
+        qFileDialogUi->listView->edit(index);
     else
-        treeView->edit(index);
+        qFileDialogUi->treeView->edit(index);
 }
 
 /*!
@@ -2443,7 +2278,7 @@ void QFileDialogPrivate::_q_renameCurrent()
 void QFileDialogPrivate::_q_deleteCurrent()
 {
     Q_Q(QFileDialog);
-    QModelIndex index = listView->currentIndex();
+    QModelIndex index = qFileDialogUi->listView->currentIndex();
     index = mapToSource(index.sibling(index.row(), 0));
     if (!index.isValid() || model->isReadOnly())
         return;
@@ -2486,7 +2321,7 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text) {
         idx = mapFromSource(model->index(rootPath() + QDir::separator() + text));
 
     if (!idx.isValid()) {
-        listView->selectionModel()->clear();
+        qFileDialogUi->listView->selectionModel()->clear();
         QStringList multipleFiles = typedFiles();
         if (multipleFiles.count() > 0) {
             for (int i = 0; i < multipleFiles.count(); ++i) {
@@ -2494,9 +2329,9 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text) {
             }
         }
     } else {
-        listView->setCurrentIndex(idx);
+        qFileDialogUi->listView->setCurrentIndex(idx);
     }
-    if (lineEdit() == quickLineEdit)
+    if (lineEdit() == qFileDialogUi->quickLineEdit)
         autoHideLineEdit.start(5000, q);
 }
 
@@ -2505,11 +2340,11 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text) {
 */
 void QFileDialogPrivate::_q_updateOkButton() {
     Q_Q(QFileDialog);
-    QPushButton *button =  buttonBox->button((acceptMode == QFileDialog::AcceptOpen)
+    QPushButton *button =  qFileDialogUi->buttonBox->button((acceptMode == QFileDialog::AcceptOpen)
                     ? QDialogButtonBox::Open : QDialogButtonBox::Save);
     if (!button)
         return;
-    QModelIndex index = mapToSource(treeView->currentIndex());
+    QModelIndex index = mapToSource(qFileDialogUi->treeView->currentIndex());
     switch (fileMode) {
     case QFileDialog::DirectoryOnly:
     case QFileDialog::Directory:
@@ -2523,7 +2358,7 @@ void QFileDialogPrivate::_q_updateOkButton() {
         QStringList files = q->selectedFiles();
         bool enableButton = !files.isEmpty();
         // make sure the typed in names are not too long for the file system
-        if (enableButton && fileNameEdit->isVisible()) {
+        if (enableButton && qFileDialogUi->fileNameEdit->isVisible()) {
             QString lastDirectory;
             int maxLength = -1;
             for (int i = 0; i < files.count(); ++i) {
@@ -2589,9 +2424,9 @@ void QFileDialogPrivate::_q_goToDirectory(const QString &path)
  #ifndef QT_NO_MESSAGEBOX
     Q_Q(QFileDialog);
 #endif
-    QModelIndex index = lookInCombo->model()->index(lookInCombo->currentIndex(),
-                                                    lookInCombo->modelColumn(),
-                                                    lookInCombo->rootModelIndex());
+    QModelIndex index = qFileDialogUi->lookInCombo->model()->index(qFileDialogUi->lookInCombo->currentIndex(),
+                                                    qFileDialogUi->lookInCombo->modelColumn(),
+                                                    qFileDialogUi->lookInCombo->rootModelIndex());
     QString path2 = path;
     if (!index.isValid())
         index = mapFromSource(model->index(getEnvironmentVariable(path)));
@@ -2632,7 +2467,7 @@ static QStringList qt_clean_filter_list(const QString &filter)
     \internal
 
     Sets the current name filter to be nameFilter and
-    update the fileNameEdit when in AcceptSave mode with the new extension.
+    update the qFileDialogUi->fileNameEdit when in AcceptSave mode with the new extension.
 */
 void QFileDialogPrivate::_q_useNameFilter(const QString &nameFilter)
 {
@@ -2666,7 +2501,7 @@ void QFileDialogPrivate::_q_selectionChanged()
     if (lineEdit()->hasFocus())
         return; // the selection changed because of auto completion
 
-    QModelIndexList indexes = listView->selectionModel()->selectedRows();
+    QModelIndexList indexes = qFileDialogUi->listView->selectionModel()->selectedRows();
     bool stripDirs = (fileMode != QFileDialog::DirectoryOnly && fileMode != QFileDialog::Directory);
     bool addQuotes = indexes.count() > 1;
     QString allFiles;
@@ -2705,15 +2540,16 @@ void QFileDialogPrivate::_q_showHidden()
 */
 void QFileDialogPrivate::_q_rowsInserted(const QModelIndex &parent)
 {
-    if (!treeView
-        || parent != treeView->rootIndex()
-        || treeView->selectionModel()->hasSelection()
-        || treeView->model()->rowCount(parent) == 0)
+    if (!qFileDialogUi->treeView
+        || parent != qFileDialogUi->treeView->rootIndex()
+        || !qFileDialogUi->treeView->selectionModel()
+        || qFileDialogUi->treeView->selectionModel()->hasSelection()
+        || qFileDialogUi->treeView->model()->rowCount(parent) == 0)
         return;
     if (fileMode != QFileDialog::ExistingFile
         && lineEdit()->text().isEmpty()
         && acceptMode == QFileDialog::AcceptOpen)
-    treeView->selectAnyIndex();
+    qFileDialogUi->treeView->selectAnyIndex();
 }
 
 /*!
@@ -2759,9 +2595,13 @@ QString QFileDialogPrivate::getEnvironmentVariable(const QString &string)
     return string;
 }
 
-QFileDialogListView::QFileDialogListView(QFileDialogPrivate *d_pointer)
-    : QListView(qobject_cast<QWidget*>(d_pointer->q_ptr)), d_ptr(d_pointer)
+QFileDialogListView::QFileDialogListView(QWidget *parent) : QListView(parent)
 {
+}
+
+void QFileDialogListView::init(QFileDialogPrivate *d_pointer)
+{
+    d_ptr = d_pointer;
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setWrapping(true);
     setResizeMode(QListView::Adjust);
@@ -2772,9 +2612,30 @@ QFileDialogListView::QFileDialogListView(QFileDialogPrivate *d_pointer)
 #endif
 }
 
-QFileDialogTreeView::QFileDialogTreeView(QFileDialogPrivate *d_pointer)
-    : QTreeView(qobject_cast<QWidget*>(d_pointer->q_ptr)), d_ptr(d_pointer)
+void QFileDialogListView::keyPressEvent(QKeyEvent *e)
 {
+    if (d_ptr->itemViewKeyboardEvent(e)) {
+        e->accept();
+    } else {
+        if (e->text().isEmpty()
+            || e->key() == Qt::Key_Escape
+            || e->key() == Qt::Key_Enter
+            || e->key() == Qt::Key_Return) {
+        QListView::keyPressEvent(e);
+        } else {
+            d_ptr->_q_chooseLocation();
+            d_ptr->qFileDialogUi->quickLineEdit->keyPressEvent(e);
+        }
+    }
+}
+
+QFileDialogTreeView::QFileDialogTreeView(QWidget *parent) : QTreeView(parent)
+{
+}
+
+void QFileDialogTreeView::init(QFileDialogPrivate *d_pointer)
+{
+    d_ptr = d_pointer;
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setRootIsDecorated(false);
     setItemsExpandable(false);
@@ -2787,6 +2648,23 @@ QFileDialogTreeView::QFileDialogTreeView(QFileDialogPrivate *d_pointer)
 #ifndef QT_NO_DRAGANDDROP
     setDragDropMode(QAbstractItemView::DragOnly);
 #endif
+}
+
+void QFileDialogTreeView::keyPressEvent(QKeyEvent *e)
+{
+    if (d_ptr->itemViewKeyboardEvent(e)) {
+        e->accept();
+    } else {
+        if (e->text().isEmpty()
+            || e->key() == Qt::Key_Escape
+            || e->key() == Qt::Key_Enter
+            || e->key() == Qt::Key_Return) {
+        QTreeView::keyPressEvent(e);
+        } else {
+            d_ptr->_q_chooseLocation();
+            d_ptr->qFileDialogUi->quickLineEdit->keyPressEvent(e);
+        }
+    }
 }
 
 QSize QFileDialogTreeView::sizeHint() const
