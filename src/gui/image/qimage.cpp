@@ -2753,6 +2753,7 @@ static void convert_Mono_to_Indexed8(QImageData *dest, const QImageData *src, Qt
         ctbl << 0xffffffff;
     }
     dest->colortable = ctbl;
+    dest->has_alpha_clut = src->has_alpha_clut;
 
 
     const uchar *src_data = src->data;
@@ -4588,7 +4589,7 @@ QStringList QImage::textLanguages() const
         if (index > 0)
             languages += keys.at(i).mid(index+1);
     }
-    
+
     return languages;
 }
 
@@ -4618,7 +4619,7 @@ QList<QImageTextKeyLang> QImage::textList() const
             imageTextKeys += tkl;
         }
     }
-    
+
     return imageTextKeys;
 }
 
