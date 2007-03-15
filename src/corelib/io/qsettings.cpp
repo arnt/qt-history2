@@ -2283,6 +2283,21 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     backslashes; you should use a native windows API if you need to do
     so.
 
+    \section2 Accessing Common Registry Settings on Windows
+
+    On windows, it is possible for a key to have both a value and subkeys.
+    Its default value is accessed by using "Default" or "." in
+    place of a subkey:
+
+    \code
+        settings.setValue("HKEY_CURRENT_USER\\MySoft\\Star Runner\\Galaxy", "Milkyway");
+        settings.setValue("HKEY_CURRENT_USER\\MySoft\\Star Runner\\Galaxy\\Sun", "OurStar");
+        settings.value("HKEY_CURRENT_USER\\MySoft\\Star Runner\\Galaxy\\Default"); // returns "Milkyway"
+    \endcode
+    
+    On other platforms than windows, "Default" and "." would be
+    treated as regular subkeys.
+
     \section2 Platform Limitations
 
     While QSettings attempts to smooth over the differences between
