@@ -286,8 +286,7 @@ void tst_QTimeLine::loopCount()
     QCOMPARE(timeLine.state(), QTimeLine::Running);
     timeLine.stop();
 
-    timeLine.setDuration(2500);
-    timeLine.setDuration(400);
+    timeLine.setDuration(250);
 	timeLine.setFrameRange(0, 2);
     timeLine.setLoopCount(4);
 
@@ -296,15 +295,23 @@ void tst_QTimeLine::loopCount()
     QEventLoop loop;
     connect(&timeLine, SIGNAL(finished()), &loop, SLOT(quit()));
 
-    timeLine.setCurrentTime(0);
-    timeLine.start();
-    loop.exec();
 
-    QCOMPARE(finishedSpy.count(), 1);
-    QCOMPARE(frameChangedSpy.count(), 11);
-	for (int i = 0; i < 11; ++i) {
-        QCOMPARE(frameChangedSpy.at(i).at(0).toInt(), (i+1) % 3);
-	}
+    for(int i=0;i<2;i++) {
+
+        timeLine.start();
+        //we clear te list after the start so we don't catch
+        //a frameChanged signal for the frame 0 at the beginning
+        finishedSpy.clear();
+        frameChangedSpy.clear();
+
+        loop.exec();
+
+        QCOMPARE(finishedSpy.count(), 1);
+        QCOMPARE(frameChangedSpy.count(), 11);
+        for (int i = 0; i < 11; ++i) {
+            QCOMPARE(frameChangedSpy.at(i).at(0).toInt(), (i+1) % 3);
+        }
+    }
 
     timeLine.setDirection(QTimeLine::Backward);
     timeLine.start();
@@ -313,8 +320,7 @@ void tst_QTimeLine::loopCount()
     QCOMPARE(finishedSpy.count(), 2);
     QCOMPARE(frameChangedSpy.count(), 22);
 	for (int i = 11; i < 22; ++i) {
-        qDebug() << "result is " << frameChangedSpy.at(i).at(0).toInt();
-        QCOMPARE(frameChangedSpy.at(i).at(0).toInt(), (22-i) % 3);
+        QCOMPARE(frameChangedSpy.at(i).at(0).toInt(), 2 - (i+2) % 3);
 	}
 }
 
