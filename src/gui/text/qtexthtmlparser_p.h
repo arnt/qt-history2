@@ -157,6 +157,7 @@ struct QTextHtmlParserNode {
     qreal tableCellPadding;
     QBrush borderBrush;
     QTextFrameFormat::BorderStyle borderStyle;
+    int userState;
 
     int cssListIndent;
 

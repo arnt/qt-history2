@@ -451,7 +451,7 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
       tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0),
       borderBrush(Qt::darkGray), borderStyle(QTextFrameFormat::BorderStyle_Outset),
-      cssListIndent(0), wsm(WhiteSpaceModeUndefined)
+      userState(-1), cssListIndent(0), wsm(WhiteSpaceModeUndefined)
 {
     margin[QTextHtmlParser::MarginLeft] = 0;
     margin[QTextHtmlParser::MarginRight] = 0;
@@ -1190,6 +1190,9 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
             case QCss::QtTableType:
                 if (decl.values.first().variant.toString().compare(QLatin1String("frame"), Qt::CaseInsensitive) == 0)
                     isTextFrame = true;
+                break;
+            case QCss::QtUserState:
+                userState = decl.values.first().variant.toInt();
                 break;
             case QCss::Whitespace:
                 switch (identifier) {

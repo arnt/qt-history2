@@ -55,6 +55,7 @@ enum Property {
     QtListIndent,
     QtParagraphType,
     QtTableType,
+    QtUserState,
     TextDecoration,
     TextIndent,
     TextUnderlineStyle,

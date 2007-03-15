@@ -208,6 +208,7 @@ private slots:
     void html_verticalCellAlignment();
     void html_borderColor();
     void html_borderStyle();
+    void html_userState();
 
 private:
     inline void setHtml(const QString &html)
@@ -3254,6 +3255,16 @@ void tst_QTextDocumentFragment::html_borderStyle()
     QVERIFY(cursor.currentTable());
     QCOMPARE(cursor.currentTable()->format().borderStyle(), QTextFrameFormat::BorderStyle_Solid);
     QCOMPARE(cursor.currentTable()->format().borderBrush(), QBrush(Qt::darkGray));
+}
+
+void tst_QTextDocumentFragment::html_userState()
+{
+    const char html[] = "<p style=\"-qt-user-state:42;\">A</p><p style=\"-qt-user-state:0;\">B</p><p>C</p>";
+    cursor.insertFragment(QTextDocumentFragment::fromHtml(QString::fromLatin1(html)));
+    QTextBlock block = doc->begin();
+    QCOMPARE(block.userState(), 42);
+    QCOMPARE(block.next().userState(), 0);
+    QCOMPARE(block.next().next().userState(), -1);
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

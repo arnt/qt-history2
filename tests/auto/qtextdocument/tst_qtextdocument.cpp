@@ -1281,6 +1281,19 @@ void tst_QTextDocument::toHtml_data()
                                                 "\n<tr>\n<td></td>\n<td></td></tr>"
                                                 "</table>");
     }
+
+    {
+        CREATE_DOC_AND_CURSOR();
+
+        cursor.insertBlock();
+        cursor.insertText("Foo");
+
+        cursor.block().setUserState(42);
+
+        QTest::newRow("userstate") << QTextDocumentFragment(&doc)
+                                   << QString("EMPTYBLOCK") +
+                                      QString("<p OPENDEFAULTBLOCKSTYLE -qt-user-state:42;\">Foo</p>");
+    }
 }
 
 void tst_QTextDocument::toHtml()

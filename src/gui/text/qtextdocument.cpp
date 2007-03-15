@@ -2011,6 +2011,12 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
     html += QString::number(format.indent());
     html += QLatin1String("px;");
 
+    if (block.userState() != -1) {
+        html += QLatin1String(" -qt-user-state:");
+        html += QString::number(block.userState());
+        html += QLatin1Char(';');
+    }
+
     const QTextCharFormat blockCharFmt = block.charFormat();
     QTextCharFormat diff = formatDifference(defaultCharFormat, blockCharFmt).toCharFormat();
 

@@ -1024,6 +1024,9 @@ QTextHtmlImporter::ProcessNodeResult QTextHtmlImporter::processBlockNode()
         }
     }
 
+    if (currentNode->userState != -1)
+        cursor.block().setUserState(currentNode->userState);
+
     if (currentNode->id == Html_li && !lists.isEmpty()) {
         List &l = lists.last();
         if (l.list) {

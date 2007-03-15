@@ -77,6 +77,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "-qt-paragraph-type", QtParagraphType },
     { "-qt-style-features", QtStyleFeatures },
     { "-qt-table-type", QtTableType },
+    { "-qt-user-state", QtUserState },
     { "alternate-background-color", QtAlternateBackground },
     { "background", Background },
     { "background-attachment", BackgroundAttachment },
