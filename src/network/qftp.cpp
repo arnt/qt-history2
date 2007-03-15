@@ -61,6 +61,7 @@ public:
 
     void connectToHost(const QString & host, quint16 port);
     int setupListener(const QHostAddress &address);
+    void waitForConnection();
 
     QTcpSocket::SocketState state() const;
     qint64 bytesAvailable() const;
@@ -297,8 +298,16 @@ int QFtpDTP::setupListener(const QHostAddress &address)
 {
     if (!listener.isListening() && !listener.listen(address, 0))
         return -1;
-
     return listener.serverPort();
+}
+
+void QFtpDTP::waitForConnection()
+{
+    // This function is only interesting in Active transfer mode; it works
+    // around a limitation in QFtp's design by blocking, waiting for an
+    // incoming connection. For the default Passive mode, it does nothing.
+    if (listener.isListening())
+        listener.waitForNewConnection();
 }
 
 QTcpSocket::SocketState QFtpDTP::state() const
@@ -1023,6 +1032,7 @@ bool QFtpPI::processReply()
         if (currentCmd.startsWith(QLatin1String("SIZE ")))
             dtp.setBytesTotal(replyText.simplified().toLongLong());
     } else if (replyCode[0]==1 && currentCmd.startsWith(QLatin1String("STOR "))) {
+        dtp.waitForConnection();
         dtp.writeData();
     }
 
