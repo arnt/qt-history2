@@ -414,6 +414,7 @@ void ActionEditor::slotNewAction()
     if (dlg.exec() == QDialog::Accepted) {
         QAction *action = new QAction(formWindow());
         action->setObjectName(dlg.actionName());
+        formWindow()->ensureUniqueObjectName(action);
         action->setText(dlg.actionText());
         action->setIcon(dlg.actionIcon());
 
