@@ -91,7 +91,7 @@
     there are points where threads must stop and wait for other
     threads. For example, if two threads try to access the same
     global variable simultaneously, the results are usually
-    undefined.
+    undefined. 
 
     QMutex provides a mutually exclusive lock, or mutex. At most one
     thread can hold the mutex at any time. If a thread tries to
@@ -124,6 +124,10 @@
     wake them all. The \l{threads/waitconditions}{Wait Conditions}
     example shows how to solve the producer-consumer problem using
     QWaitCondition instead of QSemaphore.
+
+    Note that Qt's synchronization classes rely on the use of properly
+    aligned pointers. For instance, you cannot use packed classes with
+    MSVC.
 
     \keyword reentrant
     \keyword thread-safe
