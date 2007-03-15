@@ -4499,7 +4499,7 @@ public:
     bool eventFilter(QObject *object, QEvent *event)
     {
         QWidget *widget = qobject_cast<QWidget *>(object);
-        if (widget)
+        if (widget && !event->spontaneous())
             events.append(qMakePair(widget, event->type()));
         return false;
     }
@@ -4553,9 +4553,7 @@ void tst_QWidget::compatibilityChildInsertedEvents()
         expected =
             EventRecorder::EventList()
             << qMakePair(&widget, QEvent::PolishRequest)
-            << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
-            << qMakePair(&widget, QEvent::UpdateRequest)
-            << qMakePair(&widget, QEvent::Paint);
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 1));
         QCOMPARE(spy.eventList(), expected);
     }
 
@@ -4643,9 +4641,7 @@ void tst_QWidget::compatibilityChildInsertedEvents()
 #endif
             << qMakePair(&widget, QEvent::PolishRequest)
             << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
-            << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
-            << qMakePair(&widget, QEvent::Paint)
-            << qMakePair(&widget, QEvent::UpdateRequest);
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 2));
         QCOMPARE(spy.eventList(), expected);
     }
 
@@ -4733,9 +4729,7 @@ void tst_QWidget::compatibilityChildInsertedEvents()
 #endif
             << qMakePair(&widget, QEvent::PolishRequest)
             << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
-            << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
-            << qMakePair(&widget, QEvent::Paint)
-            << qMakePair(&widget, QEvent::UpdateRequest);
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 2));
         QCOMPARE(spy.eventList(), expected);
     }
 }
