@@ -21,9 +21,6 @@
     <height>399</height>
    </rect>
   </property>
-  <property name="windowTitle" >
-   <string>File dialog</string>
-  </property>
   <property name="sizeGripEnabled" >
    <bool>true</bool>
   </property>
@@ -87,13 +84,25 @@
     </widget>
    </item>
    <item row="2" column="0" >
-    <widget class="QToolButton" name="backButton" />
+    <widget class="QToolButton" name="backButton" >
+     <property name="toolTip" >
+      <string>Back</string>
+     </property>
+    </widget>
    </item>
    <item row="2" column="1" >
-    <widget class="QToolButton" name="forwardButton" />
+    <widget class="QToolButton" name="forwardButton" >
+     <property name="toolTip" >
+      <string>Forward</string>
+     </property>
+    </widget>
    </item>
    <item row="2" column="2" >
-    <widget class="QToolButton" name="toParentButton" />
+    <widget class="QToolButton" name="toParentButton" >
+     <property name="toolTip" >
+      <string>Parent Directory</string>
+     </property>
+    </widget>
    </item>
    <item row="2" column="3" >
     <widget class="QLabel" name="lookInLabel" >
@@ -129,10 +138,18 @@
     </widget>
    </item>
    <item row="2" column="6" >
-    <widget class="QToolButton" name="detailModeButton" />
+    <widget class="QToolButton" name="detailModeButton" >
+     <property name="toolTip" >
+      <string>Detail View</string>
+     </property>
+    </widget>
    </item>
    <item row="2" column="7" >
-    <widget class="QToolButton" name="listModeButton" />
+    <widget class="QToolButton" name="listModeButton" >
+     <property name="toolTip" >
+      <string>List View</string>
+     </property>
+    </widget>
    </item>
    <item row="3" column="0" colspan="8" >
     <widget class="QSplitter" name="splitter" >
@@ -256,6 +273,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="text" >
+         <string>Files of Type:</string>
+        </property>
        </widget>
       </item>
       <item row="0" column="2" >
@@ -284,7 +304,7 @@
      <item>
       <widget class="QPushButton" name="newFolderButton" >
        <property name="text" >
-        <string/>
+        <string>New Folder</string>
        </property>
       </widget>
      </item>

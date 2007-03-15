@@ -427,7 +427,6 @@ void QFileDialogPrivate::retranslateStrings()
     Q_Q(QFileDialog);
     /* WIDGETS */
     qFileDialogUi->lookInLabel->setText(QFileDialog::tr("Where:"));
-    qFileDialogUi->fileTypeLabel->setText(QFileDialog::tr("Files of type:"));
 
     if (defaultFileTypes)
         q->setFilter(QFileDialog::tr("All Files (*.*)"));
@@ -441,21 +440,12 @@ void QFileDialogPrivate::retranslateStrings()
         actions.at(i - 1)->setText(QFileDialog::tr("Show ") + abstractModel->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString());
     }
 
-    /* TOOL BUTTONS */
-#ifndef QT_NO_TOOLTIP
-    qFileDialogUi->backButton->setToolTip(QFileDialog::tr("Back"));
-    qFileDialogUi->forwardButton->setToolTip(QFileDialog::tr("Forward"));
-    qFileDialogUi->toParentButton->setToolTip(QFileDialog::tr("Parent Directory"));
-    qFileDialogUi->newFolderButton->setText(QFileDialog::tr("New Folder"));
-    qFileDialogUi->listModeButton->setToolTip(QFileDialog::tr("List View"));
-    qFileDialogUi->detailModeButton->setToolTip(QFileDialog::tr("Detail View"));
-#endif
-
     /* MENU ACTIONS */
     renameAction->setText(QFileDialog::tr("&Rename"));
     deleteAction->setText(QFileDialog::tr("&Delete"));
     showHiddenAction->setText(QFileDialog::tr("Show &hidden files"));
     newFolderAction->setText(QFileDialog::tr("&New Folder"));
+    qFileDialogUi->retranslateUi(q);
 }
 
 /*!
@@ -2040,6 +2030,11 @@ void QFileDialogPrivate::createToolButtons()
     qFileDialogUi->detailModeButton->setFixedSize(toolSize);
     qFileDialogUi->forwardButton->setFixedSize(toolSize);
     qFileDialogUi->toParentButton->setFixedSize(toolSize);
+
+    if (qFileDialogUi->newFolderButton->text().isEmpty()) {
+        qFileDialogUi->newFolderButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogNewFolder));
+        qFileDialogUi->newFolderButton->setFixedSize(toolSize);
+    }
 }
 
 /*!
