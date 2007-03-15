@@ -40,6 +40,7 @@ public:
     virtual void setReadOnly(bool readOnly);
     virtual void setPropertyValue(const QString &name, const QVariant &value, bool changed = true);
     virtual void setPropertyComment(const QString &name, const QString &value);
+    virtual void updatePropertySheet();
 
     virtual void setObject(QObject *object);
 
@@ -68,6 +69,7 @@ private:
     IPropertyGroup *m_properties;
     QDesignerPropertySheetExtension *m_prop_sheet;
     QPointer<QObject> m_object;
+    QMap<int, IProperty *> m_indexToProperty;
 };
 
 }  // namespace qdesigner_internal

@@ -349,6 +349,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
 
             QList<IProperty*> &groupProperties = groups[groupIndex].properties;
             groupProperties.append(p);
+            m_indexToProperty[i] = p;
         }
     }
 
@@ -356,6 +357,20 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
         root->addProperty(new SeparatorProperty(QString(), g.name));
         foreach (IProperty *p, g.properties) {
             root->addProperty(p);
+        }
+    }
+}
+
+void PropertyEditor::updatePropertySheet()
+{
+    if (!m_prop_sheet)
+        return;
+
+    for (int i = 0; i < m_prop_sheet->count(); ++i) {
+        if (m_indexToProperty.contains(i)) {
+            IProperty *p = m_indexToProperty[i];
+            p->setValue(m_prop_sheet->property(i));
+            m_editor->editorModel()->refresh(p);
         }
     }
 }
@@ -497,6 +512,8 @@ void PropertyEditor::setObject(QObject *object)
     IPropertyGroup *old_properties = m_properties;
     m_properties = 0;
     m_prop_sheet = 0;
+
+    m_indexToProperty.clear();
 
     if (m_object) {
         PropertyCollection *collection = new PropertyCollection(QLatin1String("<root>"));

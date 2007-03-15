@@ -48,6 +48,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     virtual void setPropertyComment(const QString &name, const QString &value) = 0;
+    virtual void updatePropertySheet() = 0;
 };
 
 }  // namespace qdesigner_internal

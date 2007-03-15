@@ -14,6 +14,7 @@
 #include "qdesigner_propertycommand_p.h"
 #include "qdesigner_utils_p.h"
 #include "dynamicpropertysheet.h"
+#include "qdesigner_propertyeditor_p.h"
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
@@ -810,6 +811,9 @@ void PropertyListCommand::update(unsigned updateMask)
 void PropertyListCommand::undo()
 {
     update(restoreOldValue());
+    QDesignerPropertyEditor *designerPropertyEditor = qobject_cast<QDesignerPropertyEditor *>(core()->propertyEditor());
+    if (designerPropertyEditor)
+        designerPropertyEditor->updatePropertySheet();
 }
 
 // check if lists are aequivalent for command merging (same widgets and props)
@@ -890,6 +894,9 @@ void SetPropertyCommand::setDescription()
 void SetPropertyCommand::redo()
 {
     update(setValue(m_newValue, true, m_subPropertyMask));
+    QDesignerPropertyEditor *designerPropertyEditor = qobject_cast<QDesignerPropertyEditor *>(core()->propertyEditor());
+    if (designerPropertyEditor)
+        designerPropertyEditor->updatePropertySheet();
 }
 
 
@@ -965,6 +972,9 @@ void ResetPropertyCommand::setDescription()
 void ResetPropertyCommand::redo()
 {
     update(restoreDefaultValue());
+    QDesignerPropertyEditor *designerPropertyEditor = qobject_cast<QDesignerPropertyEditor *>(core()->propertyEditor());
+    if (designerPropertyEditor)
+        designerPropertyEditor->updatePropertySheet();
 }
 
 AddDynamicPropertyCommand::AddDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow)
