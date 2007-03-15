@@ -36,6 +36,7 @@
 #ifndef QT_NO_MENU
 
 class QTornOffMenu;
+class QEventLoop;
 
 #ifdef Q_WS_MAC
 struct QMacMenuAction {
