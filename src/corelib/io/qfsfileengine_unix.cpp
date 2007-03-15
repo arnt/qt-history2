@@ -477,12 +477,12 @@ bool QFSFileEnginePrivate::isSymlink() const
     return is_link;
 }
 
-#if defined (Q_WS_MAC)
+#if !defined(QWS) && defined(Q_OS_MAC)
 static bool _q_isMacHidden(const QString &path)
 {
     OSErr err = noErr;
     FSRef fsRef;
-    err = FSPathMakeRef((const UInt8 *)QFile::encodeName(QDir::cleanPath(path)).data(), &fsRef, 0);
+    err = FSPathMakeRefWithOptions((const UInt8 *)QFile::encodeName(path).data(), kFSPathMakeRefDoNotFollowLeafSymlink, &fsRef, 0);
     if (err != noErr)
         return false;
 
@@ -579,7 +579,7 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(FileFlags type) const
         if (exists)
             ret |= ExistsFlag;
         if (fileName(BaseName)[0] == QLatin1Char('.')
-#if defined(Q_WS_MAC)
+#if !defined(QWS) && defined(Q_OS_MAC)
             || _q_isMacHidden(d->filePath)
 #endif
         )
