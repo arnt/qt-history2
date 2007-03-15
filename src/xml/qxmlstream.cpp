@@ -227,7 +227,7 @@ QXmlStreamReader::QXmlStreamReader(const QByteArray &data)
     : d_ptr(new QXmlStreamReaderPrivate(this))
 {
     Q_D(QXmlStreamReader);
-    d->rawReadBuffer = data;
+    d->dataBuffer = data;
 }
 
 /*!
@@ -239,7 +239,7 @@ QXmlStreamReader::QXmlStreamReader(const QString &data)
     : d_ptr(new QXmlStreamReaderPrivate(this))
 {
     Q_D(QXmlStreamReader);
-    d->rawReadBuffer = d->codec->fromUnicode(data);
+    d->dataBuffer = d->codec->fromUnicode(data);
     d->decoder = d->codec->makeDecoder();
     d->lockEncoding = true;
 
@@ -254,7 +254,7 @@ QXmlStreamReader::QXmlStreamReader(const char *data)
     : d_ptr(new QXmlStreamReaderPrivate(this))
 {
     Q_D(QXmlStreamReader);
-    d->rawReadBuffer = QByteArray(data);
+    d->dataBuffer = QByteArray(data);
 }
 
 /*!
@@ -313,7 +313,7 @@ void QXmlStreamReader::addData(const QByteArray &data)
         qWarning("QXmlStreamReader: addData() with device()");
         return;
     }
-    d->rawReadBuffer += data;
+    d->dataBuffer += data;
 }
 
 /*!\overload
@@ -380,7 +380,7 @@ bool QXmlStreamReader::atEnd() const
         if (d->device)
             return d->device->atEnd();
         else
-            return (d->rawReadBuffer.size() < (d->decoder ? 1 : 2));
+            return !d->dataBuffer.size();
     }
     return (d->atEnd || d->type == QXmlStreamReader::Invalid);
 }
@@ -551,6 +551,7 @@ void QXmlStreamReaderPrivate::init()
     lockEncoding = false;
     namespaceProcessing = true;
     rawReadBuffer.clear();
+    dataBuffer.clear();
     readBuffer.clear();
 
     type = QXmlStreamReader::NoToken;
@@ -1100,13 +1101,18 @@ ushort QXmlStreamReaderPrivate::getChar_helper()
     characterOffset += readBufferPos;
     readBufferPos = 0;
     readBuffer.resize(0);
+    if (decoder)
+        nbytesread = 0;
     if (device) {
         rawReadBuffer.resize(BUFFER_SIZE);
-        if (decoder)
-            nbytesread = 0;
         nbytesread += device->read(rawReadBuffer.data() + nbytesread, BUFFER_SIZE - nbytesread);
     } else {
+        if (nbytesread)
+            rawReadBuffer += dataBuffer;
+        else
+            rawReadBuffer = dataBuffer;
         nbytesread = rawReadBuffer.size();
+        dataBuffer.clear();
     }
     if (!nbytesread) {
         atEnd = true;
@@ -1135,8 +1141,6 @@ ushort QXmlStreamReaderPrivate::getChar_helper()
     }
 
     decoder->toUnicode(&readBuffer, rawReadBuffer.data(), nbytesread);
-    if (!device)
-        rawReadBuffer.clear();
     readBuffer.reserve(1); // keep capacity when calling resize() next time
 
     if (readBufferPos < readBuffer.size()) {

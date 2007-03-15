@@ -184,6 +184,7 @@ public:
     void init();
 
     QByteArray rawReadBuffer;
+    QByteArray dataBuffer;
     uchar firstByte;
     qint64 nbytesread;
     QString readBuffer;
