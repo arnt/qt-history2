@@ -21,6 +21,8 @@ class MyScriptable : public QObject, protected QScriptable
     Q_OBJECT
     Q_PROPERTY(int baz READ baz WRITE setBaz)
     Q_PROPERTY(QObject* zab READ zab WRITE setZab)
+    Q_PROPERTY(int 0 READ baz)
+    Q_PROPERTY(QObject* 1 READ zab)
 public:
     MyScriptable(QObject *parent = 0)
         : QObject(parent), m_lastEngine(0)
@@ -163,8 +165,17 @@ void tst_QScriptable::engine()
     QCOMPARE(m_scriptable.lastEngine(), (QScriptEngine *)0);
 
     // reading property
-    m_engine.evaluate("scriptable.baz");
+    {
+        QScriptValue ret = m_engine.evaluate("scriptable.baz");
+        QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, 123)), true);
+    }
     QCOMPARE(m_scriptable.lastEngine(), &m_engine);
+    {
+        QScriptValue ret = m_engine.evaluate("scriptable[0]");
+        QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, 123)), true);
+    }
+    QCOMPARE(m_scriptable.lastEngine(), &m_engine);
+    // when reading from C++, engine() should be 0
     (void)m_scriptable.property("baz");
     QCOMPARE(m_scriptable.lastEngine(), (QScriptEngine *)0);
 
@@ -215,6 +226,11 @@ void tst_QScriptable::thisObject()
     // property getter
     {
         QScriptValue ret = m_engine.evaluate("scriptable.zab");
+        QCOMPARE(ret.isQObject(), true);
+        QCOMPARE(ret.toQObject(), &m_scriptable);
+    }
+    {
+        QScriptValue ret = m_engine.evaluate("scriptable[1]");
         QCOMPARE(ret.isQObject(), true);
         QCOMPARE(ret.toQObject(), &m_scriptable);
     }
