@@ -2030,7 +2030,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     t << "####### Compile" << endl << endl;
     writeObj(t, "SOURCES");
     writeObj(t, "GENERATED_SOURCES");
-    
+
     t << "####### Install" << endl << endl;
     writeInstalls(t, "INSTALLS");
 
@@ -2688,6 +2688,7 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
             if(out_fi.exists())
                 out_dir = out_fi.canonicalFilePath();
         }
+
         QFileInfo qfileinfo(fileInfo(qfile));
         if(out_dir != in_dir || !qfileinfo.isRelative()) {
             if(qfileinfo.isRelative()) {
@@ -2697,7 +2698,7 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
             ret = Option::fixPathToTargetOS(ret, false, canon);
             if(canon && qfileinfo.exists() &&
                file == Option::fixPathToTargetOS(ret, true, canon))
-                ret = qfileinfo.canonicalFilePath();
+                ret = Option::fixPathToTargetOS(qfileinfo.canonicalFilePath());
             QString match_dir = Option::fixPathToTargetOS(out_dir, false, canon);
             if(ret == match_dir) {
                 ret = "";
@@ -2741,7 +2742,7 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
     }
     if(ret.isEmpty())
         ret = ".";
-    debug_msg(3, "Fixed %s :: to :: %s [%s::%s] [%s::%s]", orig_file.toLatin1().constData(),
+    debug_msg(3, "Fixed[%d] %s :: to :: %s [%s::%s] [%s::%s]", fix, orig_file.toLatin1().constData(),
               ret.toLatin1().constData(), in_d.toLatin1().constData(), out_d.toLatin1().constData(),
               pwd.toLatin1().constData(), Option::output_dir.toLatin1().constData());
     cache->insert(cacheKey, ret);
