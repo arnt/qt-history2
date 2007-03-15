@@ -32,7 +32,7 @@ BINARY_DIR=
 SOURCE_DIR=
 SOURCE_PACKAGE=
 EVAL_PATCHES=
-CONFIGURE_ARGS="-qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -framework -confirm-license -no-rpath -I/usr/local/pgsql/include -I/usr/local/mysql/include/mysql -L/usr/local/pgsql/lib -L/usr/local/mysql/lib/mysql -universal -sdk /Developer/SDKs/MacOSX10.4u.sdk"
+CONFIGURE_ARGS="-qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -framework -confirm-license -no-rpath -I/usr/local/pgsql/include -I/usr/local/mysql/include/mysql -L/usr/local/pgsql/lib -L/usr/local/mysql/lib/mysql -universal -sdk /Developer/SDKs/MacOSX10.4u.sdk -optimized-qmake"
 
 doStringReplace()
 {
