@@ -112,13 +112,6 @@ QPaintDevice *QEGLWindowSurface::paintDevice()
         return d->device;
 }
 
-void QEGLWindowSurface::scroll(const QRegion &area, int dx, int dy)
-{
-    Q_UNUSED(area);
-    Q_UNUSED(dx);
-    Q_UNUSED(dy);
-}
-
 QGLContext *QEGLWindowSurface::context() const
 {
     Q_D(const QEGLWindowSurface);

@@ -53,6 +53,7 @@ class QMacWindowChangeEvent;
 #ifdef Q_WS_QWS
 #include <GLES/egl.h>
 class QGLDirectPainter;
+class QEGLWindowSurface;
 #endif
 
 #include <private/qglextensions_p.h>

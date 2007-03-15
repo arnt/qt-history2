@@ -18,6 +18,7 @@ Hybrid Graphics, Ltd.
 */
 
 #include "qegl_qws_p.h"
+#ifndef Q_USE_EGLWINDOWSURFACE
 #include <qimage.h>
 #include <qrect.h>
 #include <vanilla/eglVanilla.h>
@@ -74,3 +75,4 @@ void QEGL::destroyNativePixmap(NativePixmapType pix)
 {
     delete (VanillaPixmap *)pix;
 }
+#endif

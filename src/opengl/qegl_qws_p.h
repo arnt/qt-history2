@@ -25,6 +25,8 @@
 #ifndef QEGL_H
 #define QEGL_H
 
+#include <qglobal.h>
+#ifndef Q_USE_EGLWINDOWSURFACE
 #include <EGL/egl.h>
 
 
@@ -41,5 +43,6 @@ public:
     // static NativePixmapType toNativePixmap(QPixmap *);
 };
 
+#endif
 
 #endif

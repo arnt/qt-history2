@@ -231,12 +231,11 @@ inline QSize QGLDrawable::size() const
 {
     if (widget)
 #ifdef Q_WS_QWS
-        if (widget->windowFlags() & Qt::WhilePaintingWindowDecorations)
-            return widget->frameSize();
-        else
-#else
-            return widget->size();
+//        if (widget->windowFlags() & Qt::WhilePaintingWindowDecorations)
+//            return widget->frameSize();
+//        else
 #endif
+            return widget->size();
     else if (buffer)
         return buffer->size();
     else if (fbo)
@@ -321,7 +320,7 @@ inline bool QGLDrawable::autoFillBackground() const
 #ifndef Q_WS_QWS
         return widget->autoFillBackground();
 #else
-    return widget->autoFillBackground() && !(widget->windowFlags() & Qt::WhilePaintingWindowDecorations);
+    return widget->autoFillBackground() /*&& !(widget->windowFlags() & Qt::WhilePaintingWindowDecorations)*/;
 #endif
     return false;
 }
@@ -1635,6 +1634,7 @@ void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
 
 static void drawTrapezoid(const QGLTrapezoid &trap, const qreal offscreenHeight, QGLContext *ctx)
 {
+#ifndef Q_WS_QWS
     qreal minX = qMin(trap.topLeftX, trap.bottomLeftX);
     qreal maxX = qMax(trap.topRightX, trap.bottomRightX);
 
@@ -1689,6 +1689,7 @@ static void drawTrapezoid(const QGLTrapezoid &trap, const qreal offscreenHeight,
     glVertex2d(bounds_bottomLeftX - left_padding, bottomY);
 
     glTexCoord4f(0.0f, 0.0f, 0.0f, 1.0f);
+#endif
 }
 
 class QOpenGLTrapezoidToArrayTessellator : public QOpenGLTessellator
@@ -2179,7 +2180,7 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
             d->crgn = region.intersected(sysClip);
         else
 #endif
-        d->crgn = region;
+            d->crgn = region;
         break;
     case Qt::UniteClip:
         d->crgn |= region;
@@ -4166,7 +4167,9 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
                     // get hold of the old font texture
                     uchar *old_tex_data = (uchar *) malloc(font_tex->width*font_tex->height*2);
                     int old_tex_height = font_tex->height;
+#ifndef Q_WS_QWS
                     glGetTexImage(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, old_tex_data);
+#endif
 
                     // realloc a larger texture
                     glDeleteTextures(1, &font_tex->texture);

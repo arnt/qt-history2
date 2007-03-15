@@ -49,10 +49,8 @@ public:
 
     QPaintDevice *paintDevice();
 
-    void scroll(const QRegion &area, int dx, int dy);
-
-    bool isValidFor(const QWidget*) const { return true; }
-    const QImage image() const { return QImage(); }
+    bool isValid() const { return true; }
+    QImage image() const { return QImage(); }
 
     virtual bool chooseContext(QGLContext *context, const QGLContext *shareContext) = 0;
     QGLContext *context() const;
