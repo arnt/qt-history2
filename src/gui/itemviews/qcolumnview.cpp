@@ -621,8 +621,7 @@ QAbstractItemView *QColumnViewPrivate::createColumn(const QModelIndex &index, bo
         view = q->createColumn(index);
         q->connect(view, SIGNAL(clicked(const QModelIndex &)),
                    q, SLOT(_q_clicked(const QModelIndex &)));
-    }
-    else {
+    } else {
         if (!previewColumn)
             setPreviewWidget(new QWidget(q));
         view = previewColumn;
