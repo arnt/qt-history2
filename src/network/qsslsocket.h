@@ -84,6 +84,7 @@ public:
     void close();
     bool atEnd() const;
     bool flush();
+    void abort();
 
     // Certificate & cipher accessors.
     void setLocalCertificate(const QSslCertificate &certificate);

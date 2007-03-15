@@ -1679,6 +1679,12 @@ void QAbstractSocket::abort()
 #endif
     if (d->state == UnconnectedState)
         return;
+#ifndef QT_NO_OPENSSL
+    if (QSslSocket *socket = qobject_cast<QSslSocket *>(this)) {
+        socket->abort();
+        return;
+    }
+#endif
     if (d->connectTimer) {
         d->connectTimer->stop();
         delete d->connectTimer;
@@ -2282,6 +2288,92 @@ QNetworkProxy QAbstractSocket::proxy() const
 
     Use closed() instead.
 */
+
+#ifndef QT_NO_DEBUG
+Q_NETWORK_EXPORT QDebug operator<<(QDebug debug, QAbstractSocket::SocketError error)
+{
+    switch (error) {
+    case QAbstractSocket::ConnectionRefusedError:
+        debug << "QAbstractSocket::ConnectionRefusedError";
+        break;
+    case QAbstractSocket::RemoteHostClosedError:
+        debug << "QAbstractSocket::RemoteHostClosedError";
+        break;
+    case QAbstractSocket::HostNotFoundError:
+        debug << "QAbstractSocket::HostNotFoundError";
+        break;
+    case QAbstractSocket::SocketAccessError:
+        debug << "QAbstractSocket::SocketAccessError";
+        break;
+    case QAbstractSocket::SocketResourceError:
+        debug << "QAbstractSocket::SocketResourceError";
+        break;
+    case QAbstractSocket::SocketTimeoutError:
+        debug << "QAbstractSocket::SocketTimeoutError";
+        break;
+    case QAbstractSocket::DatagramTooLargeError:
+        debug << "QAbstractSocket::DatagramTooLargeError";
+        break;
+    case QAbstractSocket::NetworkError:
+        debug << "QAbstractSocket::NetworkError";
+        break;
+    case QAbstractSocket::AddressInUseError:
+        debug << "QAbstractSocket::AddressInUseError";
+        break;
+    case QAbstractSocket::SocketAddressNotAvailableError:
+        debug << "QAbstractSocket::SocketAddressNotAvailableError";
+        break;
+    case QAbstractSocket::UnsupportedSocketOperationError:
+        debug << "QAbstractSocket::UnsupportedSocketOperationError";
+        break;
+    case QAbstractSocket::UnfinishedSocketOperationError:
+        debug << "QAbstractSocket::UnfinishedSocketOperationError";
+        break;
+    case QAbstractSocket::ProxyAuthenticationRequiredError:
+        debug << "QAbstractSocket::ProxyAuthenticationRequiredError";
+        break;
+    case QAbstractSocket::UnknownSocketError:
+        debug << "QAbstractSocket::UnknownSocketError";
+        break;
+    default:
+        debug << "QAbstractSocket::SocketError(" << int(error) << ")";
+        break;
+    }
+    return debug;
+}
+
+Q_NETWORK_EXPORT QDebug operator<<(QDebug debug, QAbstractSocket::SocketState state)
+{
+    switch (state) {
+    case QAbstractSocket::UnconnectedState:
+        debug << "QAbstractSocket::UnconnectedState";
+        break;
+    case QAbstractSocket::HostLookupState:
+        debug << "QAbstractSocket::HostLookupState";
+        break;
+    case QAbstractSocket::ConnectingState:
+        debug << "QAbstractSocket::ConnectingState";
+        break;
+    case QAbstractSocket::ConnectedState:
+        debug << "QAbstractSocket::ConnectedState";
+        break;
+    case QAbstractSocket::BoundState:
+        debug << "QAbstractSocket::BoundState";
+        break;
+    case QAbstractSocket::ListeningState:
+        debug << "QAbstractSocket::ListeningState";
+        break;
+    case QAbstractSocket::ClosingState:
+        debug << "QAbstractSocket::ClosingState";
+        break;
+    default:
+        debug << "QAbstractSocket::SocketState(" << int(state) << ")";
+        break;
+    }
+    return debug;
+}
+#endif
+
 #endif
 
 

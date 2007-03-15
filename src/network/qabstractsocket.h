@@ -193,6 +193,12 @@ Q_SIGNALS:
 #endif
 };
 
+#ifndef QT_NO_DEBUG
+#include <QtCore/qdebug.h>
+Q_NETWORK_EXPORT QDebug operator<<(QDebug, QAbstractSocket::SocketError);
+Q_NETWORK_EXPORT QDebug operator<<(QDebug, QAbstractSocket::SocketState);
+#endif
+
 QT_END_HEADER
 
 #endif // QABSTRACTSOCKET_H

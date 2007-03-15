@@ -26,6 +26,8 @@
 **
 ****************************************************************************/
 
+//#define QSSLSOCKET_DEBUG
+
 /*!
     \class QSslSocket
     \brief The QSslSocket class provides an SSL encrypted socket for both
@@ -163,6 +165,7 @@
 #include "qsslsocket.h"
 #include "qsslsocket_openssl_p.h"
 
+#include <QtCore/qdebug.h>
 #include <QtCore/qdir.h>
 #include <QtCore/qdatetime.h>
 #include <QtCore/qmutex.h>
@@ -186,6 +189,9 @@ QSslSocket::QSslSocket(QObject *parent)
     : QTcpSocket(*new QSslSocketBackendPrivate, parent)
 {
     Q_D(QSslSocket);
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::QSslSocket(" << parent << "), this =" << (void *)this;
+#endif
     d->q_ptr = this;
     d->init();
 }
@@ -195,6 +201,9 @@ QSslSocket::QSslSocket(QObject *parent)
 */
 QSslSocket::~QSslSocket()
 {
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::~QSslSocket(), this =" << (void *)this;
+#endif
 }
 
 /*!
@@ -256,6 +265,10 @@ void QSslSocket::connectToHostEncrypted(const QString &hostName, quint16 port, O
 bool QSslSocket::setSocketDescriptor(int socketDescriptor, SocketState state, OpenMode openMode)
 {
     Q_D(QSslSocket);
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::setSocketDescriptor(" << socketDescriptor << ","
+             << state << "," << openMode << ")";
+#endif
     if (!d->plainSocket)
         d->createPlainSocket(openMode);
     bool retVal = d->plainSocket->setSocketDescriptor(socketDescriptor, state, openMode);
@@ -374,6 +387,9 @@ bool QSslSocket::canReadLine() const
 */
 void QSslSocket::close()
 {
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::close()";
+#endif
     QTcpSocket::close();
 }
 
@@ -406,8 +422,28 @@ bool QSslSocket::atEnd() const
 bool QSslSocket::flush()
 {
     Q_D(QSslSocket);
-    // ### maybe flush unencrypted data ?
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::flush()";
+#endif
     return d->plainSocket ? d->plainSocket->flush() : false;
+}
+
+/*!
+    Aborts the current connection and resets the socket. Unlike
+    disconnectFromHost(), this function immediately closes the socket,
+    clearing any pending data in the write buffer.
+
+    \sa disconnectFromHost(), close()
+*/
+// Note! docs copied from QAbstractSocket::aborts()
+void QSslSocket::abort()
+{
+    Q_D(QSslSocket);
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::abort()";
+#endif
+    if (d->plainSocket)
+        d->plainSocket->abort();
 }
 
 /*!
@@ -933,12 +969,9 @@ void QSslSocket::startClientHandShake()
         qWarning("QSslSocket::startClientHandShake: cannot start handshake on non-plain connection");
         return;
     }
-    /* ###
-    if (!d->plainSocket || d->plainSocket->state() != UnconnectedState) {
-        qWarning("QSslSocket::startClientHandShake: cannot start handshake on an unconnected socket");
-        return;
-    }
-    */
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::startClientHandShake()";
+#endif
     d->mode = SslClientMode;
     emit modeChanged(d->mode);
     d->startClientHandShake();
@@ -968,12 +1001,9 @@ void QSslSocket::startServerHandShake()
         qWarning("QSslSocket::startClientHandShake: cannot start handshake on non-plain connection");
         return;
     }
-    /* ###
-    if (!d->plainSocket || d->plainSocket->state() != UnconnectedState) {
-        qWarning("QSslSocket::startClientHandShake: cannot start handshake on an unconnected socket");
-        return;
-    }
-    */
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::startServerHandShake()";
+#endif
     d->mode = SslServerMode;
     emit modeChanged(d->mode);
     d->startServerHandShake();
@@ -1005,8 +1035,17 @@ void QSslSocket::connectToHostImplementation(const QString &hostName, quint16 po
                                              OpenMode openMode)
 {
     Q_D(QSslSocket);
-    if (!d->plainSocket)
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::connectToHostImplementation("
+             << hostName << "," << port << "," << openMode << ")";
+#endif
+    if (!d->plainSocket) {
+#ifdef QSSLSOCKET_DEBUG
+        qDebug() << "\tcreating internal plain socket";
+#endif
         d->createPlainSocket(openMode);
+    }
+    setOpenMode(openMode);
     d->plainSocket->connectToHost(hostName, port, openMode);
     d->cachedSocketDescriptor = d->plainSocket->socketDescriptor();
 }
@@ -1017,12 +1056,16 @@ void QSslSocket::connectToHostImplementation(const QString &hostName, quint16 po
 void QSslSocket::disconnectFromHostImplementation()
 {
     Q_D(QSslSocket);
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::disconnectFromHostImplementation()";
+#endif
     if (!d->plainSocket)
         return;
-    if (d->mode == PlainMode)
+    if (d->mode == PlainMode) {
         d->plainSocket->disconnectFromHost();
-    else
+    } else {
         d->disconnectFromHost();
+    }
 }
 
 /*!
@@ -1031,12 +1074,15 @@ void QSslSocket::disconnectFromHostImplementation()
 qint64 QSslSocket::readData(char *data, qint64 maxlen)
 {
     Q_D(QSslSocket);
-    if (d->mode == PlainMode && !d->autoStartHandShake) {
-        // ### Call readData instead?
-        return d->plainSocket->read(data, maxlen);
-    }
-
-    return d->readBuffer.read(data, maxlen);
+    qint64 readBytes = 0;
+    if (d->mode == PlainMode && !d->autoStartHandShake)
+        readBytes = d->plainSocket->read(data, maxlen);
+    else
+        readBytes = d->readBuffer.read(data, maxlen);
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::readData(" << (void *)data << "," << maxlen << ") ==" << readBytes;
+#endif
+    return readBytes;
 }
 
 /*!
@@ -1045,10 +1091,11 @@ qint64 QSslSocket::readData(char *data, qint64 maxlen)
 qint64 QSslSocket::writeData(const char *data, qint64 len)
 {
     Q_D(QSslSocket);
-    if (d->mode == PlainMode && !d->autoStartHandShake) {
-        // ### Call writeData instead?
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::writeData(" << (void *)data << "," << len << ")";
+#endif
+    if (d->mode == PlainMode && !d->autoStartHandShake)
         return d->plainSocket->write(data, len);
-    }
 
     d->writeBuffer.write(data, len);
 
@@ -1228,7 +1275,12 @@ void QSslSocketPrivate::_q_connectedSlot()
     q->setPeerPort(plainSocket->peerPort());
     q->setPeerAddress(plainSocket->peerAddress());
     q->setPeerName(plainSocket->peerName());
-    
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::_q_connectedSlot()";
+    qDebug() << "\tstate =" << q->state();
+    qDebug() << "\tpeer =" << q->peerName() << q->peerAddress() << q->peerPort();
+    qDebug() << "\tlocal =" << q->localAddress() << q->localPort();
+#endif
     emit q->connected();
 
     if (autoStartHandShake)
@@ -1241,6 +1293,10 @@ void QSslSocketPrivate::_q_connectedSlot()
 void QSslSocketPrivate::_q_hostFoundSlot()
 {
     Q_Q(QSslSocket);
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::_q_hostFoundSlot()";
+    qDebug() << "\tstate =" << q->state();
+#endif
     emit q->hostFound();
 }
 
@@ -1250,6 +1306,10 @@ void QSslSocketPrivate::_q_hostFoundSlot()
 void QSslSocketPrivate::_q_disconnectedSlot()
 {
     Q_Q(QSslSocket);
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::_q_disconnectedSlot()";
+    qDebug() << "\tstate =" << q->state();
+#endif
     emit q->disconnected();
 }
 
@@ -1259,6 +1319,9 @@ void QSslSocketPrivate::_q_disconnectedSlot()
 void QSslSocketPrivate::_q_stateChangedSlot(QAbstractSocket::SocketState state)
 {
     Q_Q(QSslSocket);
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::_q_stateChangedSlot(" << state << ")";
+#endif
     q->setSocketState(state);
     emit q->stateChanged(state);
 }
@@ -1269,7 +1332,13 @@ void QSslSocketPrivate::_q_stateChangedSlot(QAbstractSocket::SocketState state)
 void QSslSocketPrivate::_q_errorSlot(QAbstractSocket::SocketError error)
 {
     Q_Q(QSslSocket);
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::_q_errorSlot(" << error << ")";
+    qDebug() << "\tstate =" << q->state();
+    qDebug() << "\terrorString =" << q->errorString();
+#endif
     q->setSocketError(plainSocket->error());
+    q->setErrorString(plainSocket->errorString());
     emit q->error(error);
 }
 
@@ -1279,6 +1348,9 @@ void QSslSocketPrivate::_q_errorSlot(QAbstractSocket::SocketError error)
 void QSslSocketPrivate::_q_readyReadSlot()
 {
     Q_Q(QSslSocket);
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::_q_readyReadSlot() -" << plainSocket->bytesAvailable() << "bytes available";
+#endif
     if (mode == QSslSocket::PlainMode) {
         emit q->readyRead();
         return;
@@ -1293,6 +1365,9 @@ void QSslSocketPrivate::_q_readyReadSlot()
 void QSslSocketPrivate::_q_bytesWrittenSlot(qint64 written)
 {
     Q_Q(QSslSocket);
+#ifdef QSSLSOCKET_DEBUG
+    qDebug() << "QSslSocket::_q_bytesWrittenSlot(" << written << ")";
+#endif
     emit q->bytesWritten(written);
 }
 
