@@ -98,6 +98,7 @@ private slots:
     void failToStartWithWait();
     void failToStartWithEventLoop();
     void removeFileWhileProcessIsRunning();
+    void fileWriterProcess();
 
 protected slots:
     void readFromProcess();
@@ -1607,6 +1608,30 @@ void tst_QProcess::setStandardOutputProcess()
     else
         // shivery typing...
         QCOMPARE(all, QByteArray("HHeelllloo,,  WWoorrlldd"));
+}
+
+void tst_QProcess::fileWriterProcess()
+{
+    QString stdinStr;
+    for (int i = 0; i < 5000; ++i)
+        stdinStr += QString::fromLatin1("%1 -- testing testing 1 2 3\n").arg(i);
+
+    QTime stopWatch;
+    stopWatch.start();
+    do {
+        QFile::remove("fileWriterProcess.txt");
+        QProcess process;
+        process.start("fileWriterProcess/fileWriterProcess",
+                      QIODevice::ReadWrite | QIODevice::Text);
+        process.write(stdinStr.toLatin1());
+        process.closeWriteChannel();
+        while (process.bytesToWrite()) {
+            QVERIFY(stopWatch.elapsed() < 3500);
+            QVERIFY(process.waitForBytesWritten(2000));
+        }
+        QVERIFY(process.waitForFinished());
+        QCOMPARE(QFile("fileWriterProcess.txt").size(), qint64(stdinStr.size()));
+    } while (stopWatch.elapsed() < 3000);
 }
 
 QTEST_MAIN(tst_QProcess)

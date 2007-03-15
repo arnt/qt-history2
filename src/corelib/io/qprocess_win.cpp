@@ -91,6 +91,10 @@ public:
         QMutexLocker locker(&lock);
         return data.size();
     }
+    bool hadWritten() const
+    {
+        return hasWritten;
+    }
 
 signals:
     void canWrite();
@@ -135,7 +139,11 @@ bool QWindowsPipeWriter::waitForWrite(int msecs)
     hasWritten = false;
     if (hadWritten)
         return true;
-    return waitCondition.wait(&lock, msecs) && hasWritten;
+    if (!waitCondition.wait(&lock, msecs))
+        return false;
+    hadWritten = hasWritten;
+    hasWritten = false;
+    return hadWritten;
 }
 
 qint64 QWindowsPipeWriter::write(const char *ptr, qint64 maxlen)
@@ -144,8 +152,6 @@ qint64 QWindowsPipeWriter::write(const char *ptr, qint64 maxlen)
         return -1;
 
     QMutexLocker locker(&lock);
-    if (!data.isEmpty())
-        return 0;
     data.append(QByteArray(ptr, maxlen));
     waitCondition.wakeOne();
     return maxlen;
@@ -766,35 +772,59 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 
     QIncrementalSleepTimer timer(msecs);
 
-    bool dataPending = false;
     forever {
-        if (!dataPending && writeBuffer.isEmpty())
+        // Check if we have any data pending: the pipe writer has
+        // bytes waiting to written, or it has written data since the
+        // last time we called pipeWriter->waitForWrite().
+        bool pendingDataInPipe = pipeWriter && (pipeWriter->bytesToWrite() || pipeWriter->hadWritten());
+
+        // If we don't have pending data, and our write buffer is
+        // empty, we fail.
+        if (!pendingDataInPipe && writeBuffer.isEmpty())
             return false;
-        if (!dataPending) {
-            dataPending = !writeBuffer.isEmpty();
+
+        // If we don't have pending data and we do have data in our
+        // write buffer, try to flush that data over to the pipe
+        // writer.  Fail on error.
+        if (!pendingDataInPipe) {
             if (!_q_canWrite())
                 return false;
         }
-        if (pipeWriter && pipeWriter->waitForWrite(0))
+
+        // Wait for the pipe writer to acknowledge that it has
+        // written. This will succeed if either the pipe writer has
+        // already written the data, or if it manages to write data
+        // within the given timeout. If the write buffer was non-empty
+        // and the pipeWriter is now dead, that means _q_canWrite()
+        // destroyed the writer after it successfully wrote the last
+        // batch.
+        if (!pipeWriter || pipeWriter->waitForWrite(0))
             return true;
 
+        // If we wouldn't write anything, check if we can read stdout.
         if (bytesAvailableFromStdout() != 0) {
             _q_canReadStandardOutput();
             timer.resetIncrements();
         }
 
+        // Check if we can read stderr.
         if (bytesAvailableFromStderr() != 0) {
             _q_canReadStandardError();
             timer.resetIncrements();
         }
 
+        // Check if the process died while reading.
         if (!pid)
             return false;
+
+        // Wait for the process to signal any change in its state,
+        // such as incoming data, or if the process died.
         if (WaitForSingleObject(pid->hProcess, 0) == WAIT_OBJECT_0) {
             _q_processDied();
             return false;
         }
 
+        // Only wait for as long as we've been asked.
         if (timer.hasTimedOut())
             break;
     }

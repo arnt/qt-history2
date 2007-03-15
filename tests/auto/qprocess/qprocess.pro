@@ -14,7 +14,8 @@ SUBDIRS = testProcessCrash \
           testProcessSpacesArgs/twospaces.pro \
           testExitCodes \
           testSpaceInName \
-          testGuiProcess
+          testGuiProcess \
+          fileWriterProcess
 
 win32 {
           SUBDIRS += testProcessEchoGui
