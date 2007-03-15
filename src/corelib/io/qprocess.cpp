@@ -640,10 +640,13 @@ bool QProcessPrivate::_q_processDied()
 
     cleanup();
 
+    bool wasRunning = (processState == QProcess::Running);
     processState = QProcess::NotRunning;
     emit q->stateChanged(processState);
-    emit q->finished(exitCode);
-    emit q->finished(exitCode, exitStatus);
+    if (wasRunning) {
+        emit q->finished(exitCode);
+        emit q->finished(exitCode, exitStatus);
+    }
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::_q_processDied() process is dead");
 #endif

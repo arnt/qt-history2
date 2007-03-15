@@ -21,6 +21,7 @@
 //TESTED_FILES=corelib/io/qprocess.h corelib/io/qprocess.cpp corelib/io/qprocess_p.h corelib/io/qprocess_unix.cpp
 
 Q_DECLARE_METATYPE(QList<QProcess::ExitStatus>);
+Q_DECLARE_METATYPE(QProcess::ExitStatus);
 
 #define QPROCESS_VERIFY(Process, Fn) \
 { \
@@ -1460,9 +1461,20 @@ void tst_QProcess::waitForReadyReadForNonexistantProcess()
 {
     // This comes from task 108968
     // Start a program that doesn't exist, process events and then try to waitForReadyRead
+    qRegisterMetaType<QProcess::ProcessError>("QProcess::ProcessError");
+    qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
     
     QProcess process;
+    QSignalSpy errorSpy(&process, SIGNAL(error(QProcess::ProcessError)));
+    QSignalSpy finishedSpy1(&process, SIGNAL(finished(int)));
+    QSignalSpy finishedSpy2(&process, SIGNAL(finished(int, QProcess::ExitStatus)));
     QVERIFY(!process.waitForReadyRead()); // used to crash
+    process.start("doesntexist");
+    QVERIFY(!process.waitForReadyRead());
+    QCOMPARE(errorSpy.count(), 1);
+    QCOMPARE(errorSpy.at(0).at(0).toInt(), 0);
+    QCOMPARE(finishedSpy1.count(), 0);
+    QCOMPARE(finishedSpy2.count(), 0);
 }
 
 //-----------------------------------------------------------------------------
