@@ -112,6 +112,7 @@ private slots:
     void adjustScrollbars();
     void currentCharFormatChanged();
     void textObscuredByScrollbars();
+    void setTextPreservesUndoRedoEnabled();
 
 private:
     void createSelection();
@@ -1500,6 +1501,23 @@ void tst_QTextEdit::textObscuredByScrollbars()
     QSize viewportSize = ed->viewport()->size();
 
     QVERIFY(documentSize.width() <= viewportSize.width());
+}
+
+void tst_QTextEdit::setTextPreservesUndoRedoEnabled()
+{
+    QVERIFY(ed->isUndoRedoEnabled());
+
+    ed->setPlainText("Test");
+
+    QVERIFY(ed->isUndoRedoEnabled());
+
+    ed->setUndoRedoEnabled(false);
+    QVERIFY(!ed->isUndoRedoEnabled());
+    ed->setPlainText("Test2");
+    QVERIFY(!ed->isUndoRedoEnabled());
+
+    ed->setHtml("<p>hello");
+    QVERIFY(!ed->isUndoRedoEnabled());
 }
 
 QTEST_MAIN(tst_QTextEdit)

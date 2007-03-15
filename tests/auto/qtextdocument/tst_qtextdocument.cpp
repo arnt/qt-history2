@@ -104,6 +104,8 @@ private slots:
 
     void nonZeroDocumentLengthOnClear();
 
+    void setTextPreservesUndoRedoEnabled();
+
 private:
     QTextDocument *doc;
     QTextCursor cursor;
@@ -1896,6 +1898,23 @@ void tst_QTextDocument::nonZeroDocumentLengthOnClear()
     doc->clear();
     QVERIFY(lout->called);
     QVERIFY(!lout->lastDocumentLengths.contains(0));
+}
+
+void tst_QTextDocument::setTextPreservesUndoRedoEnabled()
+{
+    QVERIFY(doc->isUndoRedoEnabled());
+
+    doc->setPlainText("Test");
+
+    QVERIFY(doc->isUndoRedoEnabled());
+
+    doc->setUndoRedoEnabled(false);
+    QVERIFY(!doc->isUndoRedoEnabled());
+    doc->setPlainText("Test2");
+    QVERIFY(!doc->isUndoRedoEnabled());
+
+    doc->setHtml("<p>hello");
+    QVERIFY(!doc->isUndoRedoEnabled());
 }
 
 QTEST_MAIN(tst_QTextDocument)

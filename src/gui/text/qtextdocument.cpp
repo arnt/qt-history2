@@ -851,10 +851,11 @@ QString QTextDocument::toPlainText() const
 void QTextDocument::setPlainText(const QString &text)
 {
     Q_D(QTextDocument);
-    setUndoRedoEnabled(false);
+    bool previousState = d->isUndoRedoEnabled();
+    d->enableUndoRedo(false);
     d->clear();
     QTextCursor(this).insertText(text);
-    setUndoRedoEnabled(true);
+    d->enableUndoRedo(previousState);
 }
 
 /*!
@@ -870,10 +871,11 @@ void QTextDocument::setPlainText(const QString &text)
 void QTextDocument::setHtml(const QString &html)
 {
     Q_D(QTextDocument);
-    setUndoRedoEnabled(false);
+    bool previousState = d->isUndoRedoEnabled();
+    d->enableUndoRedo(false);
     d->clear();
     QTextHtmlImporter(this, html, QTextHtmlImporter::ImportToDocument).import();
-    setUndoRedoEnabled(true);
+    d->enableUndoRedo(previousState);
 }
 
 /*!

@@ -359,6 +359,12 @@ void QTextControlPrivate::createAutoBulletList()
     cursor.endEditBlock();
 }
 
+void QTextControlPrivate::init(Qt::TextFormat format, const QString &text, QTextDocument *document)
+{
+    setContent(format, text, document);
+    doc->setUndoRedoEnabled(interactionFlags & Qt::TextEditable);
+}
+
 void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text, QTextDocument *document)
 {
     Q_Q(QTextControl);
@@ -393,6 +399,7 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
         QObject::connect(doc, SIGNAL(redoAvailable(bool)), q, SIGNAL(redoAvailable(bool)));
     }
 
+    bool previousUndoRedoState = doc->isUndoRedoEnabled();
     doc->setUndoRedoEnabled(false);
 
     // avoid multiple textChanged() signals being emitted
@@ -433,7 +440,7 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
 
     QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
     emit q->textChanged();
-    doc->setUndoRedoEnabled(interactionFlags & Qt::TextEditable);
+    doc->setUndoRedoEnabled(previousUndoRedoState);
     _q_updateCurrentCharFormatAndSelection();
     doc->setModified(false);
     q->ensureCursorVisible();
@@ -679,21 +686,21 @@ QTextControl::QTextControl(QObject *parent)
     : QObject(*new QTextControlPrivate, parent)
 {
     Q_D(QTextControl);
-    d->setContent(); // init
+    d->init();
 }
 
 QTextControl::QTextControl(const QString &text, QObject *parent)
     : QObject(*new QTextControlPrivate, parent)
 {
     Q_D(QTextControl);
-    d->setContent(Qt::RichText, text); // init
+    d->init(Qt::RichText, text);
 }
 
 QTextControl::QTextControl(QTextDocument *doc, QObject *parent)
     : QObject(*new QTextControlPrivate, parent)
 {
     Q_D(QTextControl);
-    d->setContent(Qt::RichText, QString(), doc); // init
+    d->init(Qt::RichText, QString(), doc);
 }
 
 QTextControl::~QTextControl()
