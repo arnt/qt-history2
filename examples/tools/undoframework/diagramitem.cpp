@@ -29,8 +29,8 @@ DiagramItem::DiagramItem(DiagramType diagramType, QGraphicsItem *item,
         setPolygon(trianglePolygon);
     }
 
-    QBrush brush(QColor(uint(qrand()) % 256, uint(qrand()) % 256,
-                        uint(qrand()) % 256));
+    QColor color(qrand() % 256, qrand() % 256, qrand() % 256);
+    QBrush brush(color);
     setBrush(brush);
     setFlag(QGraphicsItem::ItemIsSelectable);
     setFlag(QGraphicsItem::ItemIsMovable);
