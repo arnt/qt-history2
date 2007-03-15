@@ -39,6 +39,7 @@ public:
 #define Q_SCRIPT_DEFINE_OPERATOR(op) OP_##op,
 #include "instruction.table"
 #undef Q_SCRIPT_DEFINE_OPERATOR
+        OP_Dummy
     };
 
 public:

@@ -1962,6 +1962,9 @@ Ltop:
     }   Next();
 
 #ifndef Q_SCRIPT_DIRECT_CODE
+    I(Dummy):
+    { ; }
+
     } // end switch
 #endif
 

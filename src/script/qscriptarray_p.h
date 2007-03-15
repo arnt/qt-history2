@@ -59,7 +59,7 @@ public:
 private:
     enum Mode {
         VectorMode,
-        MapMode,
+        MapMode
     };
 
     Mode m_mode;

@@ -120,7 +120,7 @@ class QScriptEnginePrivate
     Q_DECLARE_PUBLIC(QScriptEngine)
 
     enum {
-        DefaultHashSize = 1021,
+        DefaultHashSize = 1021
     };
 
 public:

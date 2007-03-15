@@ -73,7 +73,7 @@ public:
 
     enum SpecialValue {
         NullValue,
-        UndefinedValue,
+        UndefinedValue
     };
 
 public:
