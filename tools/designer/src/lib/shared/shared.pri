@@ -2,8 +2,6 @@
 INCLUDEPATH += $$PWD
 QT += script
 
-UI_DIR = $$PWD
-
 # Input
 FORMS += $$PWD/findicondialog.ui \
     $$PWD/orderdialog.ui \
