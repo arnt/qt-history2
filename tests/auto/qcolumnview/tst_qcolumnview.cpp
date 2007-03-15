@@ -9,7 +9,7 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
-#include <QStandardItemModel>
+#include <qstandarditemmodel.h>
 #include <qcolumnview.h>
 #include "../../../src/gui/itemviews/qcolumnviewgrip_p.h"
 #include <qdirmodel.h>
@@ -39,11 +39,14 @@ private slots:
     void scrollContentsBy();
     void scrollTo();
     void moveCursor();
+    void selectAll();
 
     // grip
     void moveGrip();
     void doubleClick();
     void gripMoved();
+
+    void preview();
 
 protected:
 };
@@ -242,6 +245,7 @@ void tst_QColumnView::scrollContentsBy()
 {
     ColumnView view;
     view.ScrollContentsBy(-1, -1);
+    view.ScrollContentsBy(0, 0);
 }
 
 void tst_QColumnView::scrollTo()
@@ -309,6 +313,8 @@ void tst_QColumnView::scrollTo()
 void tst_QColumnView::moveCursor()
 {
     ColumnView view;
+    view.MoveCursor(ColumnView::MoveUp, Qt::NoModifier);
+
     QDirModel model;
     view.setModel(&model);
     QModelIndex ci = view.currentIndex();
@@ -327,6 +333,16 @@ void tst_QColumnView::moveCursor()
 
     view.setCurrentIndex(ci);
     QCOMPARE(view.MoveCursor(ColumnView::MoveRight, Qt::NoModifier), model.index(0,0, ci));
+}
+
+void tst_QColumnView::selectAll()
+{
+    ColumnView view;
+    view.selectAll();
+
+    QDirModel model;
+    view.setModel(&model);
+    view.selectAll();
 }
 
 void tst_QColumnView::moveGrip()
@@ -385,6 +401,21 @@ void tst_QColumnView::gripMoved()
 
     QCOMPARE(spy.count(), 1);
     QCOMPARE(view.width(), oldWidth + 65);
+}
+
+void tst_QColumnView::preview()
+{
+    QColumnView view;
+    QWidget *previewWidget = new QWidget(&view);
+    QCOMPARE(view.previewWidget(), (QWidget*)0);
+    view.setPreviewWidget(previewWidget);
+    QCOMPARE(view.previewWidget(), previewWidget);
+    QVERIFY(previewWidget->parent() != ((QWidget*)&view));
+
+    // previewWidget should be marked for deletion
+    QWidget *previewWidget2 = new QWidget(&view);
+    view.setPreviewWidget(previewWidget2);
+    QCOMPARE(view.previewWidget(), previewWidget2);
 }
 
 QTEST_MAIN(tst_QColumnView)
