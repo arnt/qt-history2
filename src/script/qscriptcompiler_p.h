@@ -49,6 +49,14 @@ public:
     CompilationUnit compile(AST::Node *node, const QList<QScriptNameIdImpl *> &formals
                             = QList<QScriptNameIdImpl *>());
 
+    struct Label {
+        Label(int o = 0):
+            offset (o) {}
+
+        int offset;
+        QVector<int> uses;
+    };
+
 // instruction set
     void iAdd();
     void iAssign();
@@ -297,14 +305,6 @@ private:
     QVector<QScriptInstruction> m_instructions;
     QVector<ExceptionHandlerDescriptor> m_exceptionHandlers;
     QList<QScriptNameIdImpl *> m_formals;
-
-    struct Label {
-        Label(int o = 0):
-            offset (o) {}
-
-        int offset;
-        QVector<int> uses;
-    };
 
     struct Loop {
         Loop(QScriptNameIdImpl *n = 0):
