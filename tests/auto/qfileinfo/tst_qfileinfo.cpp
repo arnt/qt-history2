@@ -93,6 +93,7 @@ private slots:
 
     void isSymLink();
 
+    void isHidden_data();
     void isHidden();
 
     void refresh();
@@ -313,7 +314,7 @@ void tst_QFileInfo::absFilePath_data()
     QTest::newRow("relativeFileInSubDir") << "temp/tmp.txt" << QDir::currentPath() + "/" + "temp/tmp.txt";
 #ifdef Q_OS_WIN
     QString curr = QDir::currentPath();
-    curr.remove(0, 2);   // Make it a absolute path with no drive specifier: \depot\qt-4.2\tests\auto\qfileinfo 
+    curr.remove(0, 2);   // Make it a absolute path with no drive specifier: \depot\qt-4.2\tests\auto\qfileinfo
     QTest::newRow(".")            << curr << QDir::currentPath();
     QTest::newRow("absFilePath") << "c:\\home\\andy\\tmp.txt" << "C:/home/andy/tmp.txt";
 #else
@@ -736,14 +737,26 @@ void tst_QFileInfo::isSymLink()
 
 }
 
+void tst_QFileInfo::isHidden_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<bool>("isHidden");
+    foreach (QFileInfo info, QDir::drives()) {
+	QTest::newRow(qPrintable("drive." + info.path())) << info.path() << false;
+    }
+#ifdef Q_OS_MAC
+    QTest::newRow("mac_etc") << QString::fromLatin1("/etc") << true;
+    QTest::newRow("mac_private_etc") << QString::fromLatin1("/private/etc") << false;
+    QTest::newRow("mac_Applications") << QString::fromLatin1("/Applications") << false;
+#endif
+}
+
 void tst_QFileInfo::isHidden()
 {
-    // Drives
-    foreach (QFileInfo info, QDir::drives()) {
-        QVERIFY(info.exists());
-        QVERIFY(info.isDir());
-        QVERIFY(!info.isHidden());
-    }
+    QFETCH(QString, path);
+    QFETCH(bool, isHidden);
+    QFileInfo fi(path);
+    QCOMPARE(fi.isHidden(), isHidden);
 }
 
 void tst_QFileInfo::refresh()
