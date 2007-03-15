@@ -81,7 +81,7 @@ void tst_QFiledialog::directory()
     QCOMPARE(temp.absolutePath(), fd.directory().absolutePath());
 
     // Check my way
-    QList<QListView*> list = fd.findChildren<QListView*>("qt_list_view");
+    QList<QListView*> list = fd.findChildren<QListView*>("listView");
     QVERIFY(list.count() > 0);
     QCOMPARE(list.at(0)->rootIndex().data().toString(), temp.dirName());
 }
@@ -91,19 +91,21 @@ void tst_QFiledialog::acceptMode()
     QFileDialog fd;
     fd.show();
 
-    QPushButton* newButton = fd.findChild<QPushButton*>("qt_new_folder_button");
+    QPushButton* newButton = fd.findChild<QPushButton*>("newFolderButton");
+    QVERIFY(newButton);
 
     // default
     QCOMPARE(fd.acceptMode(), QFileDialog::AcceptOpen);
     QCOMPARE(newButton && newButton->isVisible(), false);
 
+    //fd.setDetailsExpanded(true);
     fd.setAcceptMode(QFileDialog::AcceptSave);
     QCOMPARE(fd.acceptMode(), QFileDialog::AcceptSave);
-    QCOMPARE(newButton && newButton->isVisible(), true);
+    QCOMPARE(newButton->isVisible(), true);
 
     fd.setAcceptMode(QFileDialog::AcceptOpen);
     QCOMPARE(fd.acceptMode(), QFileDialog::AcceptOpen);
-    QCOMPARE(newButton && newButton->isVisible(), false);
+    QCOMPARE(newButton->isVisible(), false);
 }
 
 void tst_QFiledialog::confirmOverwrite()
@@ -148,7 +150,7 @@ void tst_QFiledialog::filters()
     QCOMPARE(fd.filters(), QStringList("All Files (*.*)"));
 
     // effects
-    QList<QComboBox*> views = fd.findChildren<QComboBox*>("qt_file_type_combo");
+    QList<QComboBox*> views = fd.findChildren<QComboBox*>("fileTypeCombo");
     QVERIFY(views.count() == 1);
     QCOMPARE(views.at(0)->isVisible(), false);
 
@@ -220,7 +222,7 @@ void tst_QFiledialog::isReadOnly()
 {
     QFileDialog fd;
 
-    QPushButton* newButton = fd.findChild<QPushButton*>("qt_new_folder_button");
+    QPushButton* newButton = fd.findChild<QPushButton*>("newFolderButton");
     QAction* renameAction = fd.findChild<QAction*>("qt_rename_action");
     QAction* deleteAction = fd.findChild<QAction*>("qt_delete_action");
 
@@ -304,13 +306,13 @@ void tst_QFiledialog::viewMode()
     fd.show();
 
     // find widgets
-    QList<QTreeView*> treeView = fd.findChildren<QTreeView*>("qt_tree_view");
+    QList<QTreeView*> treeView = fd.findChildren<QTreeView*>("treeView");
     QCOMPARE(treeView.count(), 1);
-    QList<QListView*> listView = fd.findChildren<QListView*>("qt_list_view");
+    QList<QListView*> listView = fd.findChildren<QListView*>("listView");
     QCOMPARE(listView.count(), 1);
-    QList<QToolButton*> listButton = fd.findChildren<QToolButton*>("qt_list_mode_button");
+    QList<QToolButton*> listButton = fd.findChildren<QToolButton*>("listModeButton");
     QCOMPARE(listButton.count(), 1);
-    QList<QToolButton*> treeButton = fd.findChildren<QToolButton*>("qt_detail_mode_button");
+    QList<QToolButton*> treeButton = fd.findChildren<QToolButton*>("detailModeButton");
     QCOMPARE(treeButton.count(), 1);
 
     // default value
@@ -339,7 +341,7 @@ void tst_QFiledialog::isDetailsExpanded()
 {
     QFileDialog fd;
     fd.show();
-    QWidget* sidebar = fd.findChild<QWidget*>("qt_sidebar");
+    QWidget* sidebar = fd.findChild<QWidget*>("sidebar");
     QVERIFY(sidebar);
 
     QCOMPARE(fd.isDetailsExpanded(), true);
