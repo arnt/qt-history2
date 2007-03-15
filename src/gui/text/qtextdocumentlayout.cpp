@@ -824,9 +824,17 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
 
                     if (row_start != -1) {
                         if (r >= row_start && r < row_start + num_rows
-                            && c >= col_start && c < col_start + num_cols) {
-                            cell_context.selections[i].cursor.setPosition(cell.firstPosition());
-                            cell_context.selections[i].cursor.setPosition(cell.lastPosition(), QTextCursor::KeepAnchor);
+                            && c >= col_start && c < col_start + num_cols)
+                        {
+                            int firstPosition = cell.firstPosition();
+                            int lastPosition = cell.lastPosition();
+
+                            // make sure empty cells are still selected
+                            if (firstPosition == lastPosition)
+                                ++lastPosition;
+
+                            cell_context.selections[i].cursor.setPosition(firstPosition);
+                            cell_context.selections[i].cursor.setPosition(lastPosition, QTextCursor::KeepAnchor);
                         } else {
                             cell_context.selections[i].cursor.clearSelection();
                         }
