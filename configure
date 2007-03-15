@@ -650,7 +650,7 @@ if [ -d "$relpath/src/plugins/decorations" ]; then
   for a in "$relpath/src/plugins/decorations/"*; do
      if [ -d "$a" ]; then
 	 base_a=`basename $a`
-  	 CFG_DECORATION_PLUGIN_AVAILABLE="${CFG_SQL_AVAILABLE} ${base_a}"
+  	 CFG_DECORATION_PLUGIN_AVAILABLE="${CFG_DECORATION_PLUGIN_AVAILABLE} ${base_a}"
      fi
   done
 fi
@@ -660,7 +660,7 @@ if [ -d "$relpath/src/plugins/mousedrivers" ]; then
   for a in "$relpath/src/plugins/mousedrivers/"*; do
      if [ -d "$a" ]; then
 	 base_a=`basename $a`
-  	 CFG_MOUSE_PLUGIN_AVAILABLE="${CFG_SQL_AVAILABLE} ${base_a}"
+  	 CFG_MOUSE_PLUGIN_AVAILABLE="${CFG_MOUSE_PLUGIN_AVAILABLE} ${base_a}"
      fi
   done
 fi
@@ -670,7 +670,7 @@ if [ -d "$relpath/src/plugins/gfxdrivers" ]; then
   for a in "$relpath/src/plugins/gfxdrivers/"*; do
      if [ -d "$a" ]; then
 	 base_a=`basename $a`
-  	 CFG_GFX_PLUGIN_AVAILABLE="${CFG_SQL_AVAILABLE} ${base_a}"
+  	 CFG_GFX_PLUGIN_AVAILABLE="${CFG_GFX_PLUGIN_AVAILABLE} ${base_a}"
      fi
   done
   CFG_GFX_OFF="$CFG_GFX_AVAILABLE" # assume all off
