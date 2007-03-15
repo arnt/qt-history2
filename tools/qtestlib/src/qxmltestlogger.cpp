@@ -78,7 +78,7 @@ void QXmlTestLogger::startLogging()
 
     if (xmlmode == QXmlTestLogger::Complete) {
         QTest::qt_snprintf(buf, sizeof(buf),
-                "<?xml version=\"1.0\" encoding=\"ISO8859-1\"?>\n"
+                "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
                 "<TestCase name=\"%s\">\n", QTestResult::currentTestObjectName());
         outputString(buf);
     }
