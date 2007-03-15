@@ -57,13 +57,14 @@ void QFontDatabasePrivate::addFont(const QString &familyname, const char *foundr
     styleKey.stretch = 100;
     QtFontFamily *f = family(familyname, true);
 
-    uchar defaultStatus = writingSystems.isEmpty() ? QtFontFamily::Supported : QtFontFamily::Unsupported;
-    for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws)
-        f->writingSystems[ws] = defaultStatus;
-
-    if (defaultStatus == QtFontFamily::Unsupported) {
-        for (int i = 0; i < writingSystems.count(); ++i)
+    if (writingSystems.isEmpty()) {
+        for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws) {
+            f->writingSystems[ws] = QtFontFamily::Supported;
+        }
+    } else {
+        for (int i = 0; i < writingSystems.count(); ++i) {
             f->writingSystems[writingSystems.at(i)] = QtFontFamily::Supported;
+        }
     }
 
     QtFontFoundry *foundry = f->foundry(QString::fromLatin1(foundryname), true);
