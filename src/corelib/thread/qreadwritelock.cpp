@@ -118,7 +118,8 @@ QReadWriteLock::~QReadWriteLock()
 
 /*!
     Locks the lock for reading. This function will block the current
-    thread if another thread has locked for writing.
+    thread if any thread (including the current) has locked for
+    writing.
 
     \sa unlock() lockForWrite() tryLockForRead()
 */
