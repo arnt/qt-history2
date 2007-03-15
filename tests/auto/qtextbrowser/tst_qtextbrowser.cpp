@@ -207,6 +207,10 @@ void tst_QTextBrowser::anchors()
     browser->setSource(QUrl("bigpage.html"));
     browser->setSource(QUrl("#bottom"));
     QVERIFY(browser->verticalScrollBar()->value() > 0);
+
+    browser->setSource(QUrl("bigpage.html"));
+    browser->setSource(QUrl("#id-anchor"));
+    QVERIFY(browser->verticalScrollBar()->value() > 0);
 }
 
 void tst_QTextBrowser::resourceAutoDetection()

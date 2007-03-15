@@ -1558,6 +1558,9 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
                 node->blockFormat.setLayoutDirection(Qt::RightToLeft);
         } else if (key == QLatin1String("title")) {
             node->charFormat.setToolTip(value);
+        } else if (key == QLatin1String("id")) {
+            node->charFormat.setAnchor(true);
+            node->charFormat.setAnchorName(value);
         }
     }
 
