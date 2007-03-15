@@ -166,7 +166,8 @@ QString MainWindow::fixedWindowTitle(const Document *doc) const
 
         bool unique = true;
         for (int j = 0; j < documentTabs->count(); ++j) {
-            if (documentTabs->widget(j) == doc)
+            const QWidget *widget = documentTabs->widget(j);
+            if (widget == doc)
                 continue;
             if (result == documentTabs->tabText(j)) {
                 unique = false;
