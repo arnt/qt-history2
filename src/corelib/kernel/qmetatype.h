@@ -175,7 +175,11 @@ inline int qRegisterMetaType(
 #endif
 )
 {
+#ifdef Q_CC_SUN
+    return qMetaTypeId(static_cast<T *>(0));
+#else
     return qMetaTypeId(dummy);
+#endif
 }
 
 #define Q_DECLARE_METATYPE(TYPE) \
