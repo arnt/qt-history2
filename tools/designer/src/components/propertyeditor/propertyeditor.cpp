@@ -317,7 +317,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new CursorProperty(qvariant_cast<QCursor>(value), pname);
                 break;
             case QVariant::KeySequence:
-                p = createStringProperty(object, pname, qvariant_cast<QKeySequence>(value), isMainContainer);
+                p = new KeySequenceProperty(qvariant_cast<QKeySequence>(value), pname);
                 break;
             case QVariant::Palette:
                 p = new PaletteProperty(m_core, qvariant_cast<QPalette>(value),

@@ -32,7 +32,10 @@
 #include <QtGui/QApplication>
 #include <QtGui/QBitmap>
 #include <QtGui/QLabel>
+#include <QtGui/QMenu>
+#include <QtGui/QHBoxLayout>
 #include <QtCore/QUrl>
+#include <QContextMenuEvent>
 #include <private/qfont_p.h>
 
 #include <QtCore/qdebug.h>
@@ -1256,6 +1259,227 @@ void TimeProperty::updateValue(QWidget *editor)
     }
 }
 
+// QtKeqSequenceEdit
+
+class QtKeySequenceEdit : public QWidget
+{
+    Q_OBJECT
+public:
+    QtKeySequenceEdit(QWidget *parent = 0);
+
+    QKeySequence keySequence() const;
+    bool eventFilter(QObject *o, QEvent *e);
+public Q_SLOTS:
+    void setKeySequence(const QKeySequence &sequence);
+Q_SIGNALS:
+    void keySequenceChanged(const QKeySequence &sequence);
+protected:
+    void focusInEvent(QFocusEvent *e);
+    void focusOutEvent(QFocusEvent *e);
+    void keyPressEvent(QKeyEvent *e);
+    void keyReleaseEvent(QKeyEvent *e);
+    bool event(QEvent *e);
+private slots:
+    void slotClearShortcut();
+private:
+    void handleKeyEvent(QKeyEvent *e);
+    int translateModifiers(Qt::KeyboardModifiers state) const;
+
+    int m_num;
+    QKeySequence m_keySequence;
+    QLineEdit *m_lineEdit;
+};
+
+bool QtKeySequenceEdit::event(QEvent *e)
+{
+    if (e->type() == QEvent::Shortcut ||
+            e->type() == QEvent::ShortcutOverride  ||
+            e->type() == QEvent::KeyRelease) {
+        e->accept();
+        return true;
+    }
+    return QWidget::event(e);
+}
+
+QtKeySequenceEdit::QtKeySequenceEdit(QWidget *parent)
+    : QWidget(parent), m_num(0)
+{
+    m_lineEdit = new QLineEdit(this);
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->addWidget(m_lineEdit);
+    layout->setMargin(0);
+    m_lineEdit->installEventFilter(this);
+    m_lineEdit->setReadOnly(true);
+    m_lineEdit->setFocusProxy(this);
+    setFocusPolicy(m_lineEdit->focusPolicy());
+    setAttribute(Qt::WA_InputMethodEnabled);
+}
+
+bool QtKeySequenceEdit::eventFilter(QObject *o, QEvent *e)
+{
+    if (o == m_lineEdit && e->type() == QEvent::ContextMenu) {
+        QContextMenuEvent *c = static_cast<QContextMenuEvent *>(e);
+        QMenu *menu = m_lineEdit->createStandardContextMenu();
+        QList<QAction *> actions = menu->actions();
+        QListIterator<QAction *> itAction(actions);
+        while (itAction.hasNext()) {
+            QAction *action = itAction.next();
+            action->setShortcut(QKeySequence());
+            QString actionString = action->text();
+            int pos = actionString.lastIndexOf("\t");
+            if (pos > 0) {
+                actionString = actionString.mid(0, pos);
+            }
+            action->setText(actionString);
+        }
+        QAction *actionBefore = 0;
+        if (actions.count() > 0)
+            actionBefore = actions[0];
+        QAction *clearAction = new QAction(tr("Clear Shortcut"), menu);
+        menu->insertAction(actionBefore, clearAction);
+        menu->insertSeparator(actionBefore);
+        clearAction->setEnabled(!m_keySequence.isEmpty());
+        connect(clearAction, SIGNAL(triggered()), this, SLOT(slotClearShortcut()));
+        menu->exec(c->globalPos());
+        delete menu;
+        e->accept();
+        return true;
+    }
+
+    return QWidget::eventFilter(o, e);
+}
+
+void QtKeySequenceEdit::slotClearShortcut()
+{
+    setKeySequence(QKeySequence());
+}
+
+void QtKeySequenceEdit::handleKeyEvent(QKeyEvent *e)
+{
+    int nextKey = e->key();
+    if (nextKey == Qt::Key_Control || nextKey == Qt::Key_Shift ||
+            nextKey == Qt::Key_Meta || nextKey == Qt::Key_Alt || nextKey == Qt::Key_Super_L)
+        return;
+
+    nextKey |= translateModifiers(e->modifiers());
+    int k0 = m_keySequence[0];
+    int k1 = m_keySequence[1];
+    int k2 = m_keySequence[2];
+    int k3 = m_keySequence[3];
+    switch (m_num) {
+        case 0: k0 = nextKey; k1 = 0; k2 = 0; k3 = 0; break;
+        case 1: k1 = nextKey; k2 = 0; k3 = 0; break;
+        case 2: k2 = nextKey; k3 = 0; break;
+        case 3: k3 = nextKey; break;
+        default: break;
+    }
+    ++m_num;
+    if (m_num > 3)
+        m_num = 0;
+    m_keySequence = QKeySequence(k0, k1, k2, k3);
+    m_lineEdit->setText(m_keySequence.toString(QKeySequence::NativeText));
+    e->accept();
+    emit keySequenceChanged(m_keySequence);
+}
+
+void QtKeySequenceEdit::setKeySequence(const QKeySequence &sequence)
+{
+    if (sequence == m_keySequence)
+        return;
+    m_num = 0;
+    m_keySequence = sequence;
+    m_lineEdit->setText(m_keySequence.toString(QKeySequence::NativeText));
+}
+
+QKeySequence QtKeySequenceEdit::keySequence() const
+{
+    return m_keySequence;
+}
+
+int QtKeySequenceEdit::translateModifiers(Qt::KeyboardModifiers state) const
+{
+    int result = 0;
+    if (state & Qt::ShiftModifier)
+        result |= Qt::SHIFT;
+    if (state & Qt::ControlModifier)
+        result |= Qt::CTRL;
+    if (state & Qt::MetaModifier)
+        result |= Qt::META;
+    if (state & Qt::AltModifier)
+        result |= Qt::ALT;
+    return result;
+}
+
+void QtKeySequenceEdit::focusInEvent(QFocusEvent *e)
+{
+    m_lineEdit->event(e);
+    m_lineEdit->selectAll();
+    QWidget::focusInEvent(e);
+}
+
+void QtKeySequenceEdit::focusOutEvent(QFocusEvent *e)
+{
+    m_num = 0;
+    m_lineEdit->event(e);
+    QWidget::focusOutEvent(e);
+}
+
+void QtKeySequenceEdit::keyPressEvent(QKeyEvent *e)
+{
+    handleKeyEvent(e);
+    e->accept();
+}
+
+void QtKeySequenceEdit::keyReleaseEvent(QKeyEvent *e)
+{
+    m_lineEdit->event(e);
+}
+
+
+
+// -------------------------------------------------------------------------
+KeySequenceProperty::KeySequenceProperty(const QKeySequence &value, const QString &name)
+    : AbstractProperty<QKeySequence>(value, name)
+{
+}
+
+void KeySequenceProperty::setValue(const QVariant &value)
+{
+    m_value = qVariantValue<QKeySequence>(value);
+}
+
+QString KeySequenceProperty::toString() const
+{
+    return m_value.toString();
+}
+
+QWidget *KeySequenceProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
+{
+    QtKeySequenceEdit *keyEdit = new QtKeySequenceEdit(parent);
+    QObject::connect(keyEdit, SIGNAL(keySequenceChanged(QKeySequence)), target, receiver);
+    return keyEdit;
+}
+
+void KeySequenceProperty::updateEditorContents(QWidget *editor)
+{
+    if (QtKeySequenceEdit *keyEdit = qobject_cast<QtKeySequenceEdit*>(editor)) {
+        keyEdit->setKeySequence(m_value);
+    }
+}
+
+void KeySequenceProperty::updateValue(QWidget *editor)
+{
+    if (QtKeySequenceEdit *keyEdit = qobject_cast<QtKeySequenceEdit*>(editor)) {
+        const QKeySequence newValue = keyEdit->keySequence();
+
+        if (newValue != m_value) {
+            m_value = newValue;
+            setChanged(true);
+        }
+
+    }
+}
+
 // -------------------------------------------------------------------------
 CursorProperty::CursorProperty(const QCursor &value, const QString &name)
     : AbstractProperty<QCursor>(value, name)
@@ -1874,3 +2098,5 @@ void ULongLongProperty::updateValue(QWidget *editor)
 
     }
 }
+
+#include "qpropertyeditor_items.moc"
