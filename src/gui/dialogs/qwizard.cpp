@@ -2785,13 +2785,14 @@ void QWizard::paintEvent(QPaintEvent * event)
 #endif
 }
 
-#if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSVISTA)
+#if defined(Q_WS_WIN)
 /*!
     \reimp
 */
 bool QWizard::winEvent(MSG *message, long *result)
 {
-    Q_D(QWizard);
+#  if !defined(QT_NO_STYLE_WINDOWSVISTA)
+     Q_D(QWizard);
     const bool enterCompositionMode =
         d->vistaHelper->isCompositionEnabled() && !d->wasCompositionEnabled;
     const bool leaveCompositionMode =
@@ -2809,6 +2810,9 @@ bool QWizard::winEvent(MSG *message, long *result)
         }
     }
     return d->vistaHelper->handleWinEvent(message, result);
+#  else
+    return QDialog::winEvent(message, result);
+#  endif
 }
 #endif
 
