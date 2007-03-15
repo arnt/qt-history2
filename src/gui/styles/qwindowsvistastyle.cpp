@@ -22,6 +22,13 @@ static const int windowsItemVMargin      =  4; // menu item ver text margin
 static const int windowsArrowHMargin     =  6; // arrow horizontal margin
 static const int windowsRightBorder      = 15; // right border on windows
 
+#ifndef TMT_CONTENTMARGINS
+#  define TMT_CONTENTMARGINS 3602
+#endif                               
+#ifndef TMT_SIZINGMARGINS            
+#  define TMT_SIZINGMARGINS 3601
+#endif                               
+
 // Runtime resolved theme engine function calls
 
 
