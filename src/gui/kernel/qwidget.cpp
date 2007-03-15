@@ -7937,9 +7937,10 @@ void QWidget::setWindowModified(bool mod)
 
   \brief the widget's tooltip
 
-  Note that by default tooltips are only shown for active windows. You
-  can change this behavior by setting the attribute
-  Qt::WA_AlwaysShowToolTips to true.
+  Note that by default tooltips are only shown for widgets that are
+  children of the active window. You can change this behavior by
+  setting the attribute Qt::WA_AlwaysShowToolTips on the \e window,
+  not on the widget with the tooltip.
 
   If you want to control a tooltip's behavior, you can intercept the
   event() function and catch the QEvent::ToolTip event (e.g., if you
