@@ -83,6 +83,8 @@ private slots:
     void dateTimeFromStringFormat_data();
     void dateTimeFromStringFormat();
 
+    void fromString();
+
 private:
     bool europeanTimeZone;
     QDate defDate() const { return QDate(1900, 1, 1); }
@@ -1108,6 +1110,21 @@ void tst_QDateTime::dateTimeFromStringFormat()
     QDateTime dt = QDateTime::fromString(string, format);
 
     QCOMPARE(dt, expected);
+}
+
+void tst_QDateTime::fromString()
+{
+    QDateTime dt = QDateTime::fromString("Thu Jan 1 00:00:00 1970");
+    QCOMPARE(dt, QDateTime(QDate(1970, 1, 1), QTime(0, 0, 0)));
+
+    dt = QDateTime::fromString(" Thu   Jan   1    00:00:00    1970  ");
+    QCOMPARE(dt, QDateTime(QDate(1970, 1, 1), QTime(0, 0, 0)));
+
+    QDate d = QDate::fromString("Thu Jan 1 1970");
+    QCOMPARE(d, QDate(1970, 1, 1));
+
+    d = QDate::fromString("   Thu     Jan   1  1970   ");
+    QCOMPARE(d, QDate(1970, 1, 1));
 }
 
 QTEST_APPLESS_MAIN(tst_QDateTime)

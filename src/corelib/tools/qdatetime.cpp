@@ -931,42 +931,52 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
         break;
     default:
 #ifndef QT_NO_TEXTDATE
-    case Qt::TextDate:
-        {
-            /*
-              This will fail gracefully if the input string doesn't
-              contain any space.
-            */
-            int monthPos = s.indexOf(QLatin1Char(' ')) + 1;
-            int dayPos = s.indexOf(QLatin1Char(' '), monthPos) + 1;
-            int yearPos = s.indexOf(QLatin1Char(' '), dayPos) + 1;
+    case Qt::TextDate: {
+        QStringList parts = s.split(QLatin1Char(' '), QString::SkipEmptyParts);
 
-            QString monthName(s.mid(monthPos, dayPos - monthPos - 1));
-            int month = -1;
+        if (parts.count() != 4) {
+            qWarning("QDateTime::fromString: Parameter out of range");
+            return QDate();
+        }
 
-            // try English names first
-            for (int i = 0; i < 12; i++) {
-                if (monthName == QLatin1String(qt_shortMonthNames[i])) {
-                    month = i + 1;
+        QString monthName = parts.at(1);
+        int month = -1;
+        // Assume that English monthnames are the default
+        for (int i = 0; i < 12; ++i) {
+            if (monthName == QLatin1String(qt_shortMonthNames[i])) {
+                month = i + 1;
+                break;
+            }
+        }
+        // If English names can't be found, search the localized ones
+        if (month == -1) {
+            for (int i = 1; i <= 12; ++i) {
+                if (monthName == QDate::shortMonthName(i)) {
+                    month = i;
                     break;
                 }
             }
-
-            // try the localized names
-            if (month == -1) {
-                for (int i = 0; i < 12; i++) {
-                    if (monthName == shortMonthName(i + 1)) {
-                        month = i + 1;
-                        break;
-                    }
-                }
-            }
-            if (month >= 1 && month <= 12) {
-                int day = s.mid(dayPos, 2).trimmed().toInt();
-                int year = s.mid(yearPos).toInt();
-                return strictDate(year, month, day);
-            }
         }
+        if (month < 1 || month > 12) {
+            qWarning("QDateTime::fromString: Parameter out of range");
+            return QDate();
+        }
+
+        bool ok;
+        int day = parts.at(2).toInt(&ok);
+        if (!ok) {
+            qWarning("QDateTime::fromString: Parameter out of range");
+            return QDate();
+        }
+
+        int year = parts.at(3).toInt(&ok);
+        if (!ok) {
+            qWarning("QDateTime::fromString: Parameter out of range");
+            return QDate();
+        }
+
+        return strictDate(year, month, day);
+    }
 #else
         break;
 #endif
@@ -2564,7 +2574,7 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
     }
 #if !defined(QT_NO_TEXTDATE)
     else if (f == Qt::TextDate) {
-        QStringList parts = s.split(QLatin1Char(' '));
+        QStringList parts = s.split(QLatin1Char(' '), QString::SkipEmptyParts);
 
         if (parts.count() != 5) {
             qWarning("QDateTime::fromString: Parameter out of range");
