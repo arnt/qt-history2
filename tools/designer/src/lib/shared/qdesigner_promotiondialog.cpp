@@ -71,6 +71,7 @@ namespace qdesigner_internal {
         m_addButton(new QPushButton(tr("Add")))
     {
         setTitle(tr("New Promoted Class"));
+        setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
         QHBoxLayout *hboxLayout = new QHBoxLayout(this);
 
         m_classNameEdit->setValidator(new QRegExpValidator(QRegExp(QLatin1String("[_a-zA-Z:][:_a-zA-Z0-9]*")), m_classNameEdit));
@@ -90,7 +91,7 @@ namespace qdesigner_internal {
         addGridRow(tr("Header file:"),         gridLayout, m_includeFileEdit, row);
         addGridRow(tr("Global include"),       gridLayout, m_globalIncludeCheckBox, row);
         hboxLayout->addLayout(gridLayout);
-        hboxLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+        hboxLayout->addItem(new QSpacerItem(15, 0, QSizePolicy::Fixed, QSizePolicy::Ignored));
         // Button box
         QVBoxLayout *buttonLayout = new QVBoxLayout();
 
