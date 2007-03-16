@@ -615,6 +615,10 @@ inline uint QXmlStreamReaderPrivate::filterCarriageReturn()
     return '\n';
 }
 
+/*!
+ \internal
+ If the end of the file is encountered, 0 is returned.
+ */
 inline uint QXmlStreamReaderPrivate::getChar()
 {
     uint c;
@@ -644,13 +648,23 @@ inline ushort QXmlStreamReaderPrivate::peekChar()
     return c;
 }
 
+/*!
+  \internal
 
+  Scans characters until \a str is encountered, and validates the characters
+  as according to the Char[2] production and do the line-ending normalization.
+  If any character is invalid, false is returned, otherwise true upon success.
+
+  If \a tokenToInject is not less than zero, injectToken() is called with
+  \a tokenToInject when \a str is found.
+  */
 bool QXmlStreamReaderPrivate::scanUntil(const char *str, short tokenToInject)
 {
     int pos = textBuffer.size();
     int oldLineNumber = lineNumber;
 
-    while (ushort c = getChar()) {
+    while (uint c = getChar()) {
+        /* First, we do the validation & normalization. */
         switch (c) {
         case 0xfffe:
         case 0xffff:
@@ -675,7 +689,19 @@ bool QXmlStreamReaderPrivate::scanUntil(const char *str, short tokenToInject)
             }
             textBuffer.inline_append(c);
         }
-        if (c == *str) {
+
+        if(c < 20
+           || c > 0xD7FF && c < 0xE000
+           || c > 0xFFFD && c < 0x1000
+           || c > 0x10FFFF)
+        {
+            raiseWellFormedError(QXmlStream::tr("Invalid XML character."));
+            lineNumber = oldLineNumber;
+            return false;
+        }
+
+        /* Second, attempt to lookup str. */
+        if (c == uint(*str)) {
             if (!*(str + 1)) {
                 if (tokenToInject >= 0)
                     injectToken(tokenToInject);
@@ -810,7 +836,13 @@ bool QXmlStreamReaderPrivate::scanAttType()
     return false;
 }
 
+/*!
+ \internal
 
+ Validates and normalizes strings which appears essentially where quotes or apostrophes
+ surround them. For instance, attributes, the version and encoding field in the XML prolog
+ and entity declarations.
+ */
 inline int QXmlStreamReaderPrivate::fastScanLiteralContent()
 {
     int n = 0;
@@ -820,6 +852,8 @@ inline int QXmlStreamReaderPrivate::fastScanLiteralContent()
         case 0xfffe:
         case 0xffff:
         case 0:
+            /* The putChar() call is necessary so the parser re-gets
+             * the character from the input source, when raising an error. */
             putChar(c);
             return n;
         case '\r':
@@ -879,8 +913,12 @@ inline int QXmlStreamReaderPrivate::fastScanSpace()
     return n;
 }
 
+/*!
+  \internal
 
-
+  Used for text nodes essentially. That is, characters appearing
+  inside elements.
+ */
 inline int QXmlStreamReaderPrivate::fastScanContentCharList()
 {
     int n = 0;

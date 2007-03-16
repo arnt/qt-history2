@@ -324,7 +324,7 @@ public:
     Value *sym_stack;
     int *state_stack;
     inline void reallocateStack();
-    inline Value &sym(int index)
+    inline Value &sym(int index) const
     { return sym_stack[tos + index - 1]; }
     QString textBuffer, dtdBuffer;
     inline void clearTextBuffer() {
