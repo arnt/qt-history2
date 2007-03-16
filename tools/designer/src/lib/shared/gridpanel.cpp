@@ -26,7 +26,7 @@ static void addGridRow(const QString &description, QGridLayout *gridLayout, QWid
     label->setBuddy(w1);
     gridLayout->addWidget(label, row, 0);
     gridLayout->addWidget(w1, row, 1);
-    gridLayout->addWidget(w2, row, 2, Qt::AlignRight);
+    gridLayout->addWidget(w2, row, 2, Qt::AlignLeft);
     ++row;
 }
 

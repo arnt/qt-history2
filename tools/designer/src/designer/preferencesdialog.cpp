@@ -77,7 +77,7 @@ QWidget *PreferencesDialog::initUIModeControls()
     m_uiModeCombo->addItem(tr("Multiple Top-Level Windows"), QVariant(TopLevelMode));
     m_uiModeCombo->setEditable(false);
     hboxLayout->addWidget(m_uiModeCombo);
-    hboxLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+    hboxLayout->setAlignment(m_uiModeCombo, Qt::AlignLeft);
     return uiModeGroup;
 }
 
@@ -99,6 +99,7 @@ QWidget *PreferencesDialog::initTemplatePathControls()
     hboxLayout->addWidget(m_removeTemplatePathButton);
     hboxLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding,  QSizePolicy::Ignored));
     templatePathVLayout->addLayout(hboxLayout);
+    templatePathModeGroup->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     return templatePathModeGroup;
 }
 
