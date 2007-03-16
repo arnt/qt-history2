@@ -383,6 +383,7 @@ public:
         WA_LayoutUsesWidgetRect = 92,
         WA_StyledBackground = 93, // internal
         WA_MSWindowsUseDirect3D = 94, // Win only
+        WA_CanHostQMdiSubWindowTitleBar = 95, // Internal
 
         // Add new attributes before this line
         WA_AttributeCount

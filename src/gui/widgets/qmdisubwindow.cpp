@@ -1106,6 +1106,8 @@ void QMdiSubWindowPrivate::setMaximizeMode()
     if (!drawTitleBarWhenMaximized() && q->isVisible()) {
         if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(q->window()))
             showButtonsInMenuBar(mainWindow->menuBar());
+        else if (!controlContainer)
+            controlContainer = new ControlContainer(q);
     }
 
     QRect availableRect = q->parentWidget()->contentsRect();
@@ -1471,10 +1473,12 @@ void QMdiSubWindowPrivate::sizeParameters(int *margin, int *minWidth) const
 */
 bool QMdiSubWindowPrivate::drawTitleBarWhenMaximized() const
 {
+    Q_Q(const QMdiSubWindow);
+    if (q->window()->testAttribute(Qt::WA_CanHostQMdiSubWindowTitleBar))
+        return false;
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
     return true;
 #else
-    Q_Q(const QMdiSubWindow);
     if (q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
         return true;
     QMainWindow *mainWindow = qobject_cast<QMainWindow *>(q->window());
