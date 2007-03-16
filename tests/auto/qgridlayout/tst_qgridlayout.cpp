@@ -57,6 +57,7 @@ private slots:
     void layoutSpacingImplementation();
     void spacing();
     void spacerWithSpacing();
+    void contentsRect();
 
 private:
     QWidget *testWidget;
@@ -1505,6 +1506,24 @@ void tst_QGridLayout::spacerWithSpacing()
             }
         }
     }
+}
+
+void tst_QGridLayout::contentsRect()
+{
+    QWidget w;
+    QGridLayout grid;
+    w.setLayout(&grid);
+    grid.addWidget(new QPushButton(&w));
+    w.show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(widget);     // wait for the show
+#endif
+    int l, t, r, b;
+    grid.getContentsMargins(&l, &t, &r, &b);
+    QRect geom = grid.geometry();
+    
+    QCOMPARE(geom.adjusted(+l, +t, -r, -b), grid.contentsRect());
+    
 }
 
 QTEST_MAIN(tst_QGridLayout)

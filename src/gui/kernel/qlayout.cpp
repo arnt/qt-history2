@@ -119,8 +119,8 @@ QLayout::QLayout(QLayoutPrivate &dd, QLayout *lay, QWidget *w)
 }
 
 QLayoutPrivate::QLayoutPrivate()
-    : QObjectPrivate(), insideSpacing(-1), leftMargin(-1), topMargin(-1), rightMargin(-1),
-      bottomMargin(-1), topLevel(false), enabled(true), activated(true), autoNewChild(false),
+    : QObjectPrivate(), insideSpacing(-1), userLeftMargin(-1), userTopMargin(-1), userRightMargin(-1),
+      userBottomMargin(-1), topLevel(false), enabled(true), activated(true), autoNewChild(false),
       constraint(QLayout::SetDefaultConstraint), menubar(0)
 {
 }
@@ -394,10 +394,10 @@ void QLayout::setSpacing(int spacing)
 void QLayout::setContentsMargins(int left, int top, int right, int bottom)
 {
     Q_D(QLayout);
-    d->leftMargin = left;
-    d->topMargin = top;
-    d->rightMargin = right;
-    d->bottomMargin = bottom;
+    d->userLeftMargin = left;
+    d->userTopMargin = top;
+    d->userRightMargin = right;
+    d->userBottomMargin = bottom;
     invalidate();
 }
 
@@ -420,10 +420,10 @@ void QLayout::setContentsMargins(int left, int top, int right, int bottom)
 void QLayout::getContentsMargins(int *left, int *top, int *right, int *bottom) const
 {
     Q_D(const QLayout);
-    d->getMargin(left, d->leftMargin, QStyle::PM_LayoutLeftMargin);
-    d->getMargin(top, d->topMargin, QStyle::PM_LayoutTopMargin);
-    d->getMargin(right, d->rightMargin, QStyle::PM_LayoutRightMargin);
-    d->getMargin(bottom, d->bottomMargin, QStyle::PM_LayoutBottomMargin);
+    d->getMargin(left, d->userLeftMargin, QStyle::PM_LayoutLeftMargin);
+    d->getMargin(top, d->userTopMargin, QStyle::PM_LayoutTopMargin);
+    d->getMargin(right, d->userRightMargin, QStyle::PM_LayoutRightMargin);
+    d->getMargin(bottom, d->userBottomMargin, QStyle::PM_LayoutBottomMargin);
 }
 
 /*!
@@ -437,7 +437,9 @@ void QLayout::getContentsMargins(int *left, int *top, int *right, int *bottom) c
 QRect QLayout::contentsRect() const
 {
     Q_D(const QLayout);
-    return d->rect.adjusted(+d->leftMargin, +d->topMargin, -d->rightMargin, -d->bottomMargin);
+    int left, top, right, bottom;
+    getContentsMargins(&left, &top, &right, &bottom);
+    return d->rect.adjusted(+left, +top, -right, -bottom);
 }
 
 #ifdef QT3_SUPPORT

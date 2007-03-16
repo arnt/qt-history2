@@ -40,10 +40,10 @@ public:
     void reparentChildWidgets(QWidget *mw);
 
     int insideSpacing;
-    int leftMargin;
-    int topMargin;
-    int rightMargin;
-    int bottomMargin;
+    int userLeftMargin;
+    int userTopMargin;
+    int userRightMargin;
+    int userBottomMargin;
     uint topLevel : 1;
     uint enabled : 1;
     uint activated : 1;
