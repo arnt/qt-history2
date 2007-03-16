@@ -87,6 +87,7 @@ public:
     void _q_printToFileChanged(int);
     void _q_rbPrintRangeToggled(bool);
     void _q_printerChanged(int index);
+    void _q_chbPrintLastFirstToggled(bool);
 #ifndef QT_NO_FILEDIALOG
     void _q_btnBrowseClicked();
 #endif
@@ -960,6 +961,8 @@ void QPrintDialogPrivate::init()
                      q, SLOT(_q_rbPrintRangeToggled(bool)));
     QObject::connect(ui.cbPrinters, SIGNAL(currentIndexChanged(int)),
                      q, SLOT(_q_printerChanged(int)));
+    QObject::connect(ui.chbPrintLastFirst, SIGNAL(toggled(bool)),
+                     q, SLOT(_q_chbPrintLastFirstToggled(bool)));
 
 #ifndef QT_NO_FILEDIALOG
     QObject::connect(ui.btnBrowse, SIGNAL(clicked()), q, SLOT(_q_btnBrowseClicked()));
@@ -1082,6 +1085,15 @@ void QPrintDialogPrivate::_q_printerChanged(int index)
 #endif
 
     refreshPageSizes();
+}
+
+void QPrintDialogPrivate::_q_chbPrintLastFirstToggled(bool checked)
+{
+    Q_Q(QPrintDialog);
+    if (checked)
+        q->printer()->setPageOrder(QPrinter::LastPageFirst);
+    else
+        q->printer()->setPageOrder(QPrinter::FirstPageFirst);
 }
 
 void QPrintDialogPrivate::refreshPageSizes()
