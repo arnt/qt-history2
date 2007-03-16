@@ -1002,7 +1002,8 @@ bool QXmlStreamReaderPrivate::parse()
     // the main parse loop
     int act, r;
 
-    if (resumeReduction) {
+    bool isResume = resumeReduction;
+    if (isResume) {
         act = state_stack[tos-1];
         r = resumeReduction;
         resumeReduction = 0;
@@ -1012,7 +1013,6 @@ bool QXmlStreamReaderPrivate::parse()
     act = state_stack[tos];
 
     forever {
-
         if (token == -1 && - TERMINAL_COUNT != action_index[act]) {
             uint cu = getChar();
             token = NOTOKEN;
@@ -1214,7 +1214,8 @@ bool QXmlStreamReaderPrivate::parse()
         break;
 
         case 11:
-            xmlDeclOK = (characterOffset + readBufferPos - putStack.size() == 2);
+	    if (!isResume)
+                xmlDeclOK = (characterOffset + readBufferPos - putStack.size() == 2);
             if (!scanString(spell[XML], XML) && atEnd) {
                 resume(11);
                 return false;
@@ -1828,6 +1829,7 @@ bool QXmlStreamReaderPrivate::parse()
     default:
         ;
     } // switch
+            isResume = false; 
             act = state_stack[tos] = nt_action (act, lhs[r] - TERMINAL_COUNT);
             if (type != QXmlStreamReader::NoToken)
                 return true;

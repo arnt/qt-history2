@@ -737,10 +737,10 @@ bool QXmlStreamReaderPrivate::scanString(const char *str, short tokenToInject, b
         textBuffer.inline_append(ushort(str[i]));
     if (requireSpace) {
         int s = fastScanSpace();
-        if (!s) {
-            textBuffer.chop(n + s);
-            while (n--)
-                putChar(ushort(str[n]));
+        if (!s || atEnd) {
+            int pos = textBuffer.size() - n - s;
+            putString(textBuffer, pos);
+            textBuffer.resize(pos);
             return false;
         }
     }
@@ -1014,10 +1014,10 @@ inline int QXmlStreamReaderPrivate::fastScanName(int *prefix)
         case '*':
             putChar(c);
             if (prefix && *prefix == n+1) {
+                *prefix = 0;
                 putChar(':');
                 --n;
             }
-
             return n;
         case ':':
             if (prefix) {
@@ -1037,11 +1037,13 @@ inline int QXmlStreamReaderPrivate::fastScanName(int *prefix)
             ++n;
         }
     }
-    if (prefix && *prefix == n+1) {
-        putChar(':');
-        --n;
-    }
-    return n;
+
+    if (prefix)
+        *prefix = 0;
+    int pos = textBuffer.size() - n;
+    putString(textBuffer, pos);
+    textBuffer.resize(pos);
+    return 0;
 }
 
 
@@ -1158,7 +1160,8 @@ ushort QXmlStreamReaderPrivate::getChar_helper()
     }
 
     if (!decoder) {
-        if (nbytesread == 1) {
+        if (nbytesread < 4) { // the 4 is to cover 0xef 0xbb 0xbf plus
+                              // one extra for the utf8 codec
             atEnd = true;
             return 0;
         }

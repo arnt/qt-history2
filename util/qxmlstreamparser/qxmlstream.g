@@ -494,7 +494,6 @@ bool QXmlStreamReaderPrivate::parse()
     act = state_stack[tos];
 
     forever {
-
         if (token == -1 && - TERMINAL_COUNT != action_index[act]) {
             uint cu = getChar();
             token = NOTOKEN;
@@ -716,10 +715,16 @@ entity_done ::= ENTITY_DONE;
 ./
 
 
-langle_questionmark ::= LANGLE QUESTIONMARK;
+langle_questionmark_helper ::= LANGLE QUESTIONMARK
 /.
         case $rule_number:
             xmlDeclOK = (characterOffset + readBufferPos - putStack.size() == 2);
+        break;
+./
+
+langle_questionmark ::= langle_questionmark_helper;
+/.
+        case $rule_number:
             if (!scanString(spell[XML], XML) && atEnd) {
                 resume($rule_number);
                 return false;
