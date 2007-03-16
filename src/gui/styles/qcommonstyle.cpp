@@ -4275,7 +4275,7 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opti
         return QPixmap(filedialog_end_xpm);
 #endif // QT_NO_IMAGEFORMAT_XPM
 #ifndef QT_NO_IMAGEFORMAT_PNG
-    case SP_CommandLinkGlyph:
+    case SP_CommandLink:
     case SP_ArrowForward:
         if (QApplication::layoutDirection() == Qt::RightToLeft)
             return standardPixmap(SP_ArrowLeft, option, widget);
