@@ -760,9 +760,9 @@ QVariant QStandardItem::data(int role) const
 
   \sa flags(), setData()
 */
-void QStandardItem::setFlags(Qt::ItemFlags newFlags)
+void QStandardItem::setFlags(Qt::ItemFlags flags)
 {
-    setData((int)newFlags, Qt::UserRole - 1);
+    setData((int)flags, Qt::UserRole - 1);
 }
 
 /*!
