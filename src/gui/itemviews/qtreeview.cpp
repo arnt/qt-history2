@@ -1487,9 +1487,7 @@ void QTreeView::mousePressEvent(QMouseEvent *event)
         return;
     }
     int i = d->itemDecorationAt(event->pos());
-    if (i == -1) {
-        QAbstractItemView::mousePressEvent(event);
-    } else if (itemsExpandable() && d->hasVisibleChildren(d->viewItems.at(i).index)) {
+    if ((i != -1) && itemsExpandable() && d->hasVisibleChildren(d->viewItems.at(i).index)) {
         if (d->viewItems.at(i).expanded)
             d->collapse(i, true);
         else
@@ -1498,6 +1496,8 @@ void QTreeView::mousePressEvent(QMouseEvent *event)
             updateGeometries();
             viewport()->update();
         }
+    } else {
+        QAbstractItemView::mousePressEvent(event);
     }
 }
 
