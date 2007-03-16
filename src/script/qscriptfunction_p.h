@@ -65,6 +65,7 @@ public: // ### private
 
 namespace QScript {
 
+// public API function
 class CFunction: public QScriptFunction
 {
 public:
@@ -82,6 +83,7 @@ private:
     QScriptFunctionSignature m_funPtr;
 };
 
+// internal API function
 class C2Function: public QScriptFunction
 {
 public:

@@ -870,7 +870,7 @@ QScriptValueImpl QScriptEnginePrivate::call(const QScriptValueImpl &callee,
             popContext();
             return QScriptValueImpl();
         }
-        activation_data->m_objects[i] = arg;
+        activation_data->m_objects[i] = arg.isValid() ? arg : undefined;
     }
 
     nested->argc = argc;

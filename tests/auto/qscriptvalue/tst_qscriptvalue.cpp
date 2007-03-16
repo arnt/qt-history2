@@ -9,6 +9,7 @@
 
 #include <QtTest/QtTest>
 #include <QtGui/QPushButton>
+#include <QtCore/qnumeric.h>
 
 #include <QtScript/qscriptvalue.h>
 #include <QtScript/qscriptengine.h>
@@ -1006,6 +1007,26 @@ void tst_QScriptValue::getSetScope()
     QCOMPARE(object2.scope().strictEqualTo(object), true);
 }
 
+static QScriptValue getArg(QScriptContext *ctx, QScriptEngine *)
+{
+    return ctx->argument(0);
+}
+
+static QScriptValue evaluateArg(QScriptContext *, QScriptEngine *eng)
+{
+    return eng->evaluate("arguments[0]");
+}
+
+static QScriptValue addArgs(QScriptContext *, QScriptEngine *eng)
+{
+    return eng->evaluate("arguments[0] + arguments[1]");
+}
+
+static QScriptValue returnInvalidValue(QScriptContext *, QScriptEngine *)
+{
+    return QScriptValue();
+}
+
 void tst_QScriptValue::call()
 {
     QScriptEngine eng;
@@ -1083,8 +1104,73 @@ void tst_QScriptValue::call()
         }
     }
 
+    {
+        QScriptValue fun = eng.newFunction(getArg);
+        {
+            QScriptValueList args;
+            args << QScriptValue(&eng, 123.0);
+            QScriptValue result = fun.call(eng.undefinedValue(), args);
+            QCOMPARE(result.isNumber(), true);
+            QCOMPARE(result.toNumber(), 123.0);
+        }
+    }
+
+    {
+        QScriptValue fun = eng.newFunction(evaluateArg);
+        {
+            QScriptValueList args;
+            args << QScriptValue(&eng, 123.0);
+            QScriptValue result = fun.call(eng.undefinedValue(), args);
+            QCOMPARE(result.isNumber(), true);
+            QCOMPARE(result.toNumber(), 123.0);
+        }
+    }
+
     QScriptValue inv;
     QCOMPARE(inv.call().isValid(), false);
+
+    // test that invalid arguments are handled gracefully
+    {
+        QScriptValue fun = eng.newFunction(getArg);
+        {
+            QScriptValueList args;
+            args << QScriptValue();
+            QScriptValue ret = fun.call(QScriptValue(), args);
+            QCOMPARE(ret.isValid(), true);
+            QCOMPARE(ret.isUndefined(), true);
+        }
+    }
+    {
+        QScriptValue fun = eng.newFunction(evaluateArg);
+        {
+            QScriptValueList args;
+            args << QScriptValue();
+            QScriptValue ret = fun.call(QScriptValue(), args);
+            QCOMPARE(ret.isValid(), true);
+            QCOMPARE(ret.isUndefined(), true);
+        }
+    }
+    {
+        QScriptValue fun = eng.newFunction(addArgs);
+        {
+            QScriptValueList args;
+            args << QScriptValue() << QScriptValue();
+            QScriptValue ret = fun.call(QScriptValue(), args);
+            QCOMPARE(ret.isValid(), true);
+            QCOMPARE(ret.isNumber(), true);
+            QCOMPARE(qIsNan(ret.toNumber()), true);
+        }
+    }
+
+    // test that invalid return value is handled gracefully
+    {
+        QScriptValue fun = eng.newFunction(returnInvalidValue);
+        eng.globalObject().setProperty("returnInvalidValue", fun);
+        QScriptValue ret = eng.evaluate("returnInvalidValue() + returnInvalidValue()");
+        QCOMPARE(ret.isValid(), true);
+        QCOMPARE(ret.isNumber(), true);
+        QCOMPARE(qIsNan(ret.toNumber()), true);
+    }
 
     {
         QScriptEngine otherEngine;

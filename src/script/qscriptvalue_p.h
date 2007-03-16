@@ -62,7 +62,7 @@ inline QScriptValueImplList QScriptValuePrivate::toImplList(const QScriptValueLi
     QScriptValueImplList result;
     QScriptValueList::const_iterator it;
     for (it = lst.constBegin(); it != lst.constEnd(); ++it)
-        result.append((*it).d_ptr->value);
+        result.append(valueOf(*it));
     return result;
 }
 

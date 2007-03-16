@@ -29,6 +29,7 @@ QString QScriptFunction::toString(QScriptContextPrivate *) const
     return result;
 }
 
+// public API function
 void QScript::CFunction::execute(QScriptContextPrivate *context)
 {
     QScriptEngine *eng = context->engine();
@@ -37,10 +38,13 @@ void QScript::CFunction::execute(QScriptContextPrivate *context)
     eng_p->newUndefined(&context->m_result);
 
     bool blocked = eng_p->blockGC(true);
-    context->m_result = QScriptValuePrivate::valueOf((*m_funPtr)(eng->currentContext(), eng));
+    QScriptValueImpl result = QScriptValuePrivate::valueOf((*m_funPtr)(eng->currentContext(), eng));
+    if (result.isValid())
+        context->m_result = result;
     eng_p->blockGC(blocked);
 }
 
+// internal API function
 void QScript::C2Function::execute(QScriptContextPrivate *context)
 {
     QScriptEngine *eng = context->engine();
@@ -50,5 +54,6 @@ void QScript::C2Function::execute(QScriptContextPrivate *context)
 
     bool blocked = eng_p->blockGC(true);
     context->m_result = (*m_funPtr)(context, eng_p, m_classInfo);
+    Q_ASSERT(context->m_result.isValid());
     eng_p->blockGC(blocked);
 }
