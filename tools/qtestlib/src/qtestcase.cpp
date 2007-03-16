@@ -1158,9 +1158,9 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
     if (!QTest::skipCurrentTest && !QTest::currentTestFailed()) {
         QTestResult::setCurrentTestLocation(QTestResult::InitFunc);
         QMetaObject::invokeMethod(testObject, "initTestCase");
+        QTestResult::finishedCurrentTestFunction();
 
         if(!QTest::skipCurrentTest && !QTest::currentTestFailed()) {
-            QTestResult::finishedCurrentTestFunction();
 
             if (lastTestFuncIdx >= 0) {
                 for (int i = 0; i <= lastTestFuncIdx; ++i) {
