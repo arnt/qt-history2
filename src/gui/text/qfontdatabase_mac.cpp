@@ -16,9 +16,40 @@
 #include <qfile.h>
 #include <qabstractfileengine.h>
 #include <stdlib.h>
+#include <qendian.h>
 
 int qt_mac_pixelsize(const QFontDef &def, int dpi); //qfont_mac.cpp
 int qt_mac_pointsize(const QFontDef &def, int dpi); //qfont_mac.cpp
+
+static void initWritingSystems(QtFontFamily *family, ATSFontRef atsFont)
+{
+    ByteCount length = 0;
+    if (ATSFontGetTable(atsFont, MAKE_TAG('O', 'S', '/', '2'), 0, 0, 0, &length) != noErr)
+        return;
+    QVarLengthArray<uchar> os2Table(length);
+    if (length < 86
+        || ATSFontGetTable(atsFont, MAKE_TAG('O', 'S', '/', '2'), 0, length, os2Table.data(), &length) != noErr)
+        return;
+
+    quint32 unicodeRange[4] = {
+        qFromBigEndian<quint32>(os2Table.data() + 42),
+        qFromBigEndian<quint32>(os2Table.data() + 46),
+        qFromBigEndian<quint32>(os2Table.data() + 50),
+        qFromBigEndian<quint32>(os2Table.data() + 54)
+    };
+    quint32 codePageRange[2] = { qFromBigEndian<quint32>(os2Table.data() + 78), qFromBigEndian<quint32>(os2Table.data() + 82) };
+    QList<QFontDatabase::WritingSystem> systems = determineWritingSystemsFromTrueTypeBits(unicodeRange, codePageRange);
+#if 0
+    QCFString name;
+    ATSFontGetName(atsFont, kATSOptionFlagsDefault, &name);
+    qDebug() << systems.count() << "writing systems for" << QString(name);
+qDebug() << "first char" << hex << unicodeRange[0];
+    for (int i = 0; i < systems.count(); ++i)
+        qDebug() << QFontDatabase::writingSystemName(systems.at(i));
+#endif
+    for (int i = 0; i < systems.count(); ++i)
+        family->writingSystems[systems.at(i)] = QtFontFamily::Supported;
+}
 
 static void initializeDb()
 {
@@ -102,8 +133,6 @@ static void initializeDb()
             fam_name = familyStr;
 
             QtFontFamily *family = db->family(fam_name, true);
-            for(int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws)
-                family->writingSystems[ws] = QtFontFamily::Supported;
             QtFontFoundry *foundry = family->foundry(foundry_name, true);
 
             FMFontFamilyInstanceIterator fit;
@@ -122,6 +151,9 @@ static void initializeDb()
                     QtFontStyle *style = foundry->style(styleKey, true);
                     style->pixelSize(font_size, true);
                     style->smoothScalable = true;
+
+                    ATSFontRef atsFont = FMGetATSFontRefFromFont(font);
+                    initWritingSystems(family, atsFont);
                 }
                 FMDisposeFontFamilyInstanceIterator(&fit);
             }
