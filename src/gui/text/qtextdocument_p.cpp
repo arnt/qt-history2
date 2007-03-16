@@ -1165,7 +1165,7 @@ QTextFrame *QTextDocumentPrivate::rootFrame() const
 {
     if (!rtFrame) {
         QTextFrameFormat defaultRootFrameFormat;
-        defaultRootFrameFormat.setMargin(2);
+        defaultRootFrameFormat.setMargin(DefaultRootFrameMargin);
         rtFrame = qobject_cast<QTextFrame *>(const_cast<QTextDocumentPrivate *>(this)->createObject(defaultRootFrameFormat));
     }
     return rtFrame;

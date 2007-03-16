@@ -1624,7 +1624,17 @@ QString QTextHtmlExporter::toHtml(const QByteArray &encoding, ExportMode mode)
     }
     html += QLatin1Char('>');
 
-    emitFrame(doc->rootFrame()->begin());
+    QTextFrameFormat rootFmt = doc->rootFrame()->frameFormat();
+    rootFmt.clearProperty(QTextFormat::BackgroundBrush);
+
+    QTextFrameFormat defaultFmt;
+    defaultFmt.setMargin(DefaultRootFrameMargin);
+
+    if (rootFmt == defaultFmt)
+        emitFrame(doc->rootFrame()->begin());
+    else
+        emitTextFrame(doc->rootFrame());
+
     html += QLatin1String("</body></html>");
     return html;
 }
@@ -2303,30 +2313,40 @@ void QTextHtmlExporter::emitFrame(QTextFrame::Iterator frameIt)
             if (QTextTable *table = qobject_cast<QTextTable *>(f)) {
                 emitTable(table);
             } else {
-                html += QLatin1String("\n<table");
-                QTextFrameFormat format = f->frameFormat();
-
-                if (format.hasProperty(QTextFormat::FrameBorder))
-                    emitAttribute("border", QString::number(format.border()));
-
-                emitFrameStyle(format, TextFrame);
-
-                emitTextLength("width", format.width());
-                emitTextLength("height", format.height());
-
-                QBrush bg = format.background();
-                if (bg != Qt::NoBrush)
-                    emitAttribute("bgcolor", bg.color().name());
-
-                html += QLatin1Char('>');
-                html += QLatin1String("\n<tr>\n<td style=\"border: none;\">");
-                emitFrame(f->begin());
-                html += QLatin1String("</td></tr></table>");
+                emitTextFrame(f);
             }
         } else if (it.currentBlock().isValid()) {
             emitBlock(it.currentBlock());
         }
     }
+}
+
+void QTextHtmlExporter::emitTextFrame(const QTextFrame *f)
+{
+    FrameType frameType = f->parentFrame() ? TextFrame : RootFrame;
+
+    html += QLatin1String("\n<table");
+    QTextFrameFormat format = f->frameFormat();
+
+    if (format.hasProperty(QTextFormat::FrameBorder))
+        emitAttribute("border", QString::number(format.border()));
+
+    emitFrameStyle(format, frameType);
+
+    emitTextLength("width", format.width());
+    emitTextLength("height", format.height());
+
+    // root frame's bcolor goes in the <body> tag
+    if (frameType != RootFrame) {
+        QBrush bg = format.background();
+        if (bg != Qt::NoBrush)
+            emitAttribute("bgcolor", bg.color().name());
+    }
+
+    html += QLatin1Char('>');
+    html += QLatin1String("\n<tr>\n<td style=\"border: none;\">");
+    emitFrame(f->begin());
+    html += QLatin1String("</td></tr></table>");
 }
 
 void QTextHtmlExporter::emitFrameStyle(const QTextFrameFormat &format, FrameType frameType)
@@ -2337,6 +2357,8 @@ void QTextHtmlExporter::emitFrameStyle(const QTextFrameFormat &format, FrameType
 
     if (frameType == TextFrame)
         html += QLatin1String("-qt-table-type: frame;");
+    else if (frameType == RootFrame)
+        html += QLatin1String("-qt-table-type: root;");
 
     const QTextFrameFormat defaultFormat;
 

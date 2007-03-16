@@ -887,7 +887,12 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
     fmt.setPosition(QTextFrameFormat::Position(node.cssFloat));
 
     if (node.isTextFrame) {
-        table.frame = cursor.insertFrame(fmt);
+        if (node.isRootFrame) {
+            table.frame = cursor.currentFrame();
+            table.frame->setFrameFormat(fmt);
+        } else
+            table.frame = cursor.insertFrame(fmt);
+
         table.isTextFrame = true;
     } else {
         const int oldPos = cursor.position();

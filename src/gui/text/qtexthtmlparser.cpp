@@ -446,7 +446,7 @@ static QString quoteNewline(const QString &s)
 QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(Html_unknown),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false),
-      hasCssListIndent(false), isEmptyParagraph(false), isTextFrame(false),
+      hasCssListIndent(false), isEmptyParagraph(false), isTextFrame(false), isRootFrame(false),
       displayMode(QTextHtmlElement::DisplayInline),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
       tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0),
@@ -1190,6 +1190,10 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
             case QCss::QtTableType:
                 if (decl.values.first().variant.toString().compare(QLatin1String("frame"), Qt::CaseInsensitive) == 0)
                     isTextFrame = true;
+                else if (decl.values.first().variant.toString().compare(QLatin1String("root"), Qt::CaseInsensitive) == 0) {
+                    isTextFrame = true;
+                    isRootFrame = true;
+                }
                 break;
             case QCss::QtUserState:
                 userState = decl.values.first().variant.toInt();

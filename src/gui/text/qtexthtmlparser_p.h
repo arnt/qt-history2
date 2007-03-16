@@ -143,6 +143,7 @@ struct QTextHtmlParserNode {
     uint hasCssListIndent : 1;
     uint isEmptyParagraph : 1;
     uint isTextFrame : 1;
+    uint isRootFrame : 1;
     uint displayMode : 3; // QTextHtmlElement::DisplayMode
     QTextListFormat::Style listStyle;
     QString imageName;

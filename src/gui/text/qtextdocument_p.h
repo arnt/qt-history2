@@ -58,6 +58,8 @@ class QTextFrame;
 #define QTextBeginningOfFrame QChar(0xfdd0)
 #define QTextEndOfFrame QChar(0xfdd1)
 
+enum { DefaultRootFrameMargin = 2 };
+
 class QTextFragmentData : public QFragment
 {
 public:
@@ -308,9 +310,10 @@ public:
 
 private:
     enum StyleMode { EmitStyleTag, OmitStyleTag };
-    enum FrameType { TextFrame, TableFrame };
+    enum FrameType { TextFrame, TableFrame, RootFrame };
 
     void emitFrame(QTextFrame::Iterator frameIt);
+    void emitTextFrame(const QTextFrame *frame);
     void emitBlock(const QTextBlock &block);
     void emitTable(const QTextTable *table);
     void emitFragment(const QTextFragment &fragment);

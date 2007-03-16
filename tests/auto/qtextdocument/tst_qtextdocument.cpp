@@ -66,6 +66,7 @@ private slots:
     void setFragmentMarkersInHtmlExport();
 
     void toHtmlBodyBgColor();
+    void toHtmlRootFrameProperties();
 
     void cursorPositionChanged();
 
@@ -1372,7 +1373,7 @@ void tst_QTextDocument::toHtmlBodyBgColor()
 
     cursor.insertText("Blah");
 
-    QTextFrameFormat fmt;
+    QTextFrameFormat fmt = doc.rootFrame()->frameFormat();
     fmt.setBackground(QColor("#0000ff"));
     doc.rootFrame()->setFrameFormat(fmt);
 
@@ -1387,6 +1388,30 @@ void tst_QTextDocument::toHtmlBodyBgColor()
     expectedHtml = expectedHtml.arg(defaultFont.family()).arg(defaultFont.pointSizeF()).arg(defaultFont.weight() * 8).arg((defaultFont.italic() ? "italic" : "normal"));
 
     QCOMPARE(doc.toHtml(), expectedHtml);
+}
+
+void tst_QTextDocument::toHtmlRootFrameProperties()
+{
+    CREATE_DOC_AND_CURSOR();
+
+    QTextFrameFormat fmt = doc.rootFrame()->frameFormat();
+    fmt.setTopMargin(10);
+    fmt.setLeftMargin(10);
+    fmt.setBorder(2);
+    doc.rootFrame()->setFrameFormat(fmt);
+
+    cursor.insertText("Blah");
+
+    QString expectedOutput("<table border=\"2\" style=\"-qt-table-type: root; margin-top:10px; "
+                           "margin-bottom:2px; margin-left:10px; margin-right:2px;\">\n"
+                           "<tr>\n<td style=\"border: none;\">\n"
+                           "<p DEFAULTBLOCKSTYLE>Blah</p></td></tr></table>");
+
+    expectedOutput.prepend(htmlHead);
+    expectedOutput.replace("DEFAULTBLOCKSTYLE", "style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"");
+    expectedOutput.append(htmlTail);
+
+    QCOMPARE(doc.toHtml(), expectedOutput);
 }
 
 class CursorPosSignalSpy : public QObject
