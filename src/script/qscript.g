@@ -20,7 +20,7 @@
 %token T_AND "&"                T_AND_AND "&&"              T_AND_EQ "&="
 %token T_BREAK "break"          T_CASE "case"               T_CATCH "catch"
 %token T_COLON ":"              T_COMMA ";"                 T_CONTINUE "continue"
-%token T_DEFAULT "default"      T_DELETE "delete"           T_DIVIDE "/"
+%token T_DEFAULT "default"      T_DELETE "delete"           T_DIVIDE_ "/"
 %token T_DIVIDE_EQ "/="         T_DO "do"                   T_DOT "."
 %token T_ELSE "else"            T_EQ "="                    T_EQ_EQ "=="
 %token T_EQ_EQ_EQ "==="         T_FINALLY "finally"         T_FOR "for"
@@ -45,7 +45,7 @@
 %token T_WITH "with"            T_XOR "^"                   T_XOR_EQ "^="
 %token T_NULL "null"            T_TRUE "true"               T_FALSE "false"
 %token T_CONST "const"
-%token T_RESERVED "reserved word"
+%token T_RESERVED_WORD "reserved word"
 
 %start Program
 
@@ -332,7 +332,7 @@ case $rule_number: {
 } break;
 ./
 
-PrimaryExpression: T_DIVIDE ;
+PrimaryExpression: T_DIVIDE_ ;
 /.
 case $rule_number: {
   bool rx = lexer->scanRegExp();
@@ -695,7 +695,7 @@ case $rule_number: {
 } break;
 ./
 
-MultiplicativeExpression: MultiplicativeExpression T_DIVIDE UnaryExpression ;
+MultiplicativeExpression: MultiplicativeExpression T_DIVIDE_ UnaryExpression ;
 /.
 case $rule_number: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Div, sym(3).Expression);

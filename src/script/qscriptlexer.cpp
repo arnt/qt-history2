@@ -117,7 +117,7 @@ int QScript::Lexer::findReservedWord(const QChar *c, int size) const
             return QScriptGrammar::T_VAR;
         else if (check_reserved) {
             if (c[0] == QLatin1Char('i') && c[1] == QLatin1Char('n') && c[2] == QLatin1Char('t'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
         }
     }   break;
 
@@ -146,19 +146,19 @@ int QScript::Lexer::findReservedWord(const QChar *c, int size) const
         else if (check_reserved) {
             if (c[0] == QLatin1Char('e') && c[1] == QLatin1Char('n')
                     && c[2] == QLatin1Char('u') && c[3] == QLatin1Char('m'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('b') && c[1] == QLatin1Char('y')
                     && c[2] == QLatin1Char('t') && c[3] == QLatin1Char('e'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('l') && c[1] == QLatin1Char('o')
                     && c[2] == QLatin1Char('n') && c[3] == QLatin1Char('g'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('c') && c[1] == QLatin1Char('h')
                     && c[2] == QLatin1Char('a') && c[3] == QLatin1Char('r'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('g') && c[1] == QLatin1Char('o')
                     && c[2] == QLatin1Char('t') && c[3] == QLatin1Char('o'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
         }
     }   break;
 
@@ -191,23 +191,23 @@ int QScript::Lexer::findReservedWord(const QChar *c, int size) const
             if (c[0] == QLatin1Char('s') && c[1] == QLatin1Char('h')
                     && c[2] == QLatin1Char('o') && c[3] == QLatin1Char('r')
                     && c[4] == QLatin1Char('t'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('s') && c[1] == QLatin1Char('u')
                     && c[2] == QLatin1Char('p') && c[3] == QLatin1Char('e')
                     && c[4] == QLatin1Char('r'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('f') && c[1] == QLatin1Char('i')
                     && c[2] == QLatin1Char('n') && c[3] == QLatin1Char('a')
                     && c[4] == QLatin1Char('l'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('c') && c[1] == QLatin1Char('l')
                     && c[2] == QLatin1Char('a') && c[3] == QLatin1Char('s')
                     && c[4] == QLatin1Char('s'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('f') && c[1] == QLatin1Char('l')
                     && c[2] == QLatin1Char('o') && c[3] == QLatin1Char('a')
                     && c[4] == QLatin1Char('t'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
         }
     }   break;
 
@@ -232,31 +232,31 @@ int QScript::Lexer::findReservedWord(const QChar *c, int size) const
             if (c[0] == QLatin1Char('e') && c[1] == QLatin1Char('x')
                     && c[2] == QLatin1Char('p') && c[3] == QLatin1Char('o')
                     && c[4] == QLatin1Char('r') && c[5] == QLatin1Char('t'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('s') && c[1] == QLatin1Char('t')
                     && c[2] == QLatin1Char('a') && c[3] == QLatin1Char('t')
                     && c[4] == QLatin1Char('i') && c[5] == QLatin1Char('c'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('d') && c[1] == QLatin1Char('o')
                     && c[2] == QLatin1Char('u') && c[3] == QLatin1Char('b')
                     && c[4] == QLatin1Char('l') && c[5] == QLatin1Char('e'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('i') && c[1] == QLatin1Char('m')
                     && c[2] == QLatin1Char('p') && c[3] == QLatin1Char('o')
                     && c[4] == QLatin1Char('r') && c[5] == QLatin1Char('t'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('p') && c[1] == QLatin1Char('u')
                     && c[2] == QLatin1Char('b') && c[3] == QLatin1Char('l')
                     && c[4] == QLatin1Char('i') && c[5] == QLatin1Char('c'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('n') && c[1] == QLatin1Char('a')
                     && c[2] == QLatin1Char('t') && c[3] == QLatin1Char('i')
                     && c[4] == QLatin1Char('v') && c[5] == QLatin1Char('e'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('t') && c[1] == QLatin1Char('h')
                     && c[2] == QLatin1Char('r') && c[3] == QLatin1Char('o')
                     && c[4] == QLatin1Char('w') && c[5] == QLatin1Char('s'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
         }
     }   break;
 
@@ -276,22 +276,22 @@ int QScript::Lexer::findReservedWord(const QChar *c, int size) const
                     && c[2] == QLatin1Char('o') && c[3] == QLatin1Char('l')
                     && c[4] == QLatin1Char('e') && c[5] == QLatin1Char('a')
                     && c[6] == QLatin1Char('n'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('e') && c[1] == QLatin1Char('x')
                     && c[2] == QLatin1Char('t') && c[3] == QLatin1Char('e')
                     && c[4] == QLatin1Char('n') && c[5] == QLatin1Char('d')
                     && c[6] == QLatin1Char('s'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('p') && c[1] == QLatin1Char('a')
                     && c[2] == QLatin1Char('c') && c[3] == QLatin1Char('k')
                     && c[4] == QLatin1Char('a') && c[5] == QLatin1Char('g')
                     && c[6] == QLatin1Char('e'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('p') && c[1] == QLatin1Char('r')
                     && c[2] == QLatin1Char('i') && c[3] == QLatin1Char('v')
                     && c[4] == QLatin1Char('a') && c[5] == QLatin1Char('t')
                     && c[6] == QLatin1Char('e'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
         }
     }   break;
 
@@ -311,17 +311,17 @@ int QScript::Lexer::findReservedWord(const QChar *c, int size) const
                     && c[2] == QLatin1Char('s') && c[3] == QLatin1Char('t')
                     && c[4] == QLatin1Char('r') && c[5] == QLatin1Char('a')
                     && c[6] == QLatin1Char('c') && c[7] == QLatin1Char('t'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('d') && c[1] == QLatin1Char('e')
                     && c[2] == QLatin1Char('b') && c[3] == QLatin1Char('u')
                     && c[4] == QLatin1Char('g') && c[5] == QLatin1Char('g')
                     && c[6] == QLatin1Char('e') && c[7] == QLatin1Char('r'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('v') && c[1] == QLatin1Char('o')
                     && c[2] == QLatin1Char('l') && c[3] == QLatin1Char('a')
                     && c[4] == QLatin1Char('t') && c[5] == QLatin1Char('i')
                     && c[6] == QLatin1Char('l') && c[7] == QLatin1Char('e'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
         }
     }   break;
 
@@ -332,19 +332,19 @@ int QScript::Lexer::findReservedWord(const QChar *c, int size) const
                     && c[4] == QLatin1Char('r') && c[5] == QLatin1Char('f')
                     && c[6] == QLatin1Char('a') && c[7] == QLatin1Char('c')
                     && c[8] == QLatin1Char('e'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('t') && c[1] == QLatin1Char('r')
                     && c[2] == QLatin1Char('a') && c[3] == QLatin1Char('n')
                     && c[4] == QLatin1Char('s') && c[5] == QLatin1Char('i')
                     && c[6] == QLatin1Char('e') && c[7] == QLatin1Char('n')
                     && c[8] == QLatin1Char('t'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
             else if (c[0] == QLatin1Char('p') && c[1] == QLatin1Char('r')
                     && c[2] == QLatin1Char('o') && c[3] == QLatin1Char('t')
                     && c[4] == QLatin1Char('e') && c[5] == QLatin1Char('c')
                     && c[6] == QLatin1Char('t') && c[7] == QLatin1Char('e')
                     && c[8] == QLatin1Char('d'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
         }
     }   break;
 
@@ -361,7 +361,7 @@ int QScript::Lexer::findReservedWord(const QChar *c, int size) const
                     && c[4] == QLatin1Char('e') && c[5] == QLatin1Char('m')
                     && c[6] == QLatin1Char('e') && c[7] == QLatin1Char('n')
                     && c[8] == QLatin1Char('t') && c[9] == QLatin1Char('s'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
         }
     }   break;
 
@@ -373,7 +373,7 @@ int QScript::Lexer::findReservedWord(const QChar *c, int size) const
                     && c[6] == QLatin1Char('o') && c[7] == QLatin1Char('n')
                     && c[8] == QLatin1Char('i') && c[9] == QLatin1Char('z')
                     && c[10] == QLatin1Char('e') && c[11] == QLatin1Char('d'))
-                return QScriptGrammar::T_RESERVED;
+                return QScriptGrammar::T_RESERVED_WORD;
         }
     }   break;
 
@@ -860,7 +860,7 @@ int QScript::Lexer::matchPunctuator(ushort c1, ushort c2,
         case '+': shift(1); return QScriptGrammar::T_PLUS;
         case '-': shift(1); return QScriptGrammar::T_MINUS;
         case '*': shift(1); return QScriptGrammar::T_STAR;
-        case '/': shift(1); return QScriptGrammar::T_DIVIDE;
+        case '/': shift(1); return QScriptGrammar::T_DIVIDE_;
         case '&': shift(1); return QScriptGrammar::T_AND;
         case '|': shift(1); return QScriptGrammar::T_OR;
         case '^': shift(1); return QScriptGrammar::T_XOR;
