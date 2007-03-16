@@ -334,6 +334,9 @@ void QAbstractItemViewPrivate::init()
     This signal is emitted when a mouse button is pressed. The item
     the mouse was pressed on is specified by \a index. The signal is
     only emitted when the index is valid.
+    
+    Use the QApplication::mouseButtons() function to get the state
+    of the mouse buttons.
 
     \sa activated(), clicked(), doubleClicked(), entered()
 */
