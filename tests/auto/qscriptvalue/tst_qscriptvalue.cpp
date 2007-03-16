@@ -787,6 +787,24 @@ void tst_QScriptValue::instanceOf()
     QCOMPARE(arr.instanceOf(eng.evaluate("Array.prototype")), true);
 }
 
+static QScriptValue getter(QScriptContext *ctx, QScriptEngine *)
+{
+    return ctx->thisObject().property("x");
+}
+
+static QScriptValue setter(QScriptContext *ctx, QScriptEngine *)
+{
+    ctx->thisObject().setProperty("x", ctx->argument(0));
+    return ctx->argument(0);
+}
+
+static QScriptValue getterSetter(QScriptContext *ctx, QScriptEngine *)
+{
+    if (ctx->argumentCount() > 0)
+        ctx->thisObject().setProperty("x", ctx->argument(0));
+    return ctx->thisObject().property("x");
+}
+
 void tst_QScriptValue::getSetProperty()
 {
     QScriptEngine eng;
@@ -856,6 +874,91 @@ void tst_QScriptValue::getSetProperty()
     QCOMPARE(object3.property("foo").strictEqualTo(num), true);
     object3.setProperty("foo", QScriptValue());
     object3.setProperty("foo", QScriptValue());
+
+    eng.globalObject().setProperty("object3", object3);
+    QCOMPARE(eng.evaluate("object3.hasOwnProperty('foo')")
+             .strictEqualTo(QScriptValue(&eng, false)), true);
+    object3.setProperty("foo", num);
+    QCOMPARE(eng.evaluate("object3.hasOwnProperty('foo')")
+             .strictEqualTo(QScriptValue(&eng, true)), true);
+    eng.globalObject().setProperty("object3", QScriptValue());
+    QCOMPARE(eng.evaluate("this.hasOwnProperty('object3')")
+             .strictEqualTo(QScriptValue(&eng, false)), true);
+
+    // getters and setters
+    {
+        QScriptValue object4 = eng.newObject();
+        for (int x = 0; x < 2; ++x) {
+            object4.setProperty("foo", QScriptValue());
+            // getter() returns this.x
+            object4.setProperty("foo", eng.newFunction(getter), QScriptValue::PropertyGetter);
+            object4.setProperty("x", num);
+            QCOMPARE(object4.property("foo").strictEqualTo(num), true);
+            
+            // setter() sets this.x
+            object4.setProperty("foo", eng.newFunction(setter), QScriptValue::PropertySetter);
+            object4.setProperty("foo", str);
+            QCOMPARE(object4.property("x").strictEqualTo(str), true);
+            QCOMPARE(object4.property("foo").strictEqualTo(str), true);
+            
+            // kill the getter
+            object4.setProperty("foo", QScriptValue(), QScriptValue::PropertyGetter);
+            QCOMPARE(object4.property("foo").isValid(), false);
+            
+            // setter should still work
+            object4.setProperty("foo", num);
+            QCOMPARE(object4.property("x").strictEqualTo(num), true);
+            
+            // kill the setter too
+            object4.setProperty("foo", QScriptValue(), QScriptValue::PropertySetter);
+            // now foo is just a regular property
+            object4.setProperty("foo", str);
+            QCOMPARE(object4.property("x").strictEqualTo(num), true);
+            QCOMPARE(object4.property("foo").strictEqualTo(str), true);
+        }
+
+        for (int x = 0; x < 2; ++x) {
+            object4.setProperty("foo", QScriptValue());
+            // setter() sets this.x
+            object4.setProperty("foo", eng.newFunction(setter), QScriptValue::PropertySetter);
+            object4.setProperty("foo", str);
+            QCOMPARE(object4.property("x").strictEqualTo(str), true);
+            QCOMPARE(object4.property("foo").isValid(), false);
+            
+            // getter() returns this.x
+            object4.setProperty("foo", eng.newFunction(getter), QScriptValue::PropertyGetter);
+            object4.setProperty("x", num);
+            QCOMPARE(object4.property("foo").strictEqualTo(num), true);
+            
+            // kill the setter
+            object4.setProperty("foo", QScriptValue(), QScriptValue::PropertySetter);
+            
+            // getter should still work
+            QCOMPARE(object4.property("foo").strictEqualTo(num), true);
+            
+            // kill the getter too
+            object4.setProperty("foo", QScriptValue(), QScriptValue::PropertyGetter);
+            // now foo is just a regular property
+            object4.setProperty("foo", str);
+            QCOMPARE(object4.property("x").strictEqualTo(num), true);
+            QCOMPARE(object4.property("foo").strictEqualTo(str), true);
+        }
+
+        // use a single function as both getter and setter
+        object4.setProperty("foo", QScriptValue());
+        object4.setProperty("foo", eng.newFunction(getterSetter),
+                            QScriptValue::PropertyGetter | QScriptValue::PropertySetter);
+        object4.setProperty("x", num);
+        QCOMPARE(object4.property("foo").strictEqualTo(num), true);
+
+        // killing the getter will also kill the setter, since they are the same function
+        object4.setProperty("foo", QScriptValue(), QScriptValue::PropertyGetter);
+        QCOMPARE(object4.property("foo").isValid(), false);
+        // now foo is just a regular property
+        object4.setProperty("foo", str);
+        QCOMPARE(object4.property("x").strictEqualTo(num), true);
+        QCOMPARE(object4.property("foo").strictEqualTo(str), true);
+    }
 }
 
 void tst_QScriptValue::getSetPrototype()

@@ -159,38 +159,62 @@ void QScriptValueImpl::setProperty(QScriptNameIdImpl *nameId,
             // setting the getter or setter of a property in this object
             if (member.isSetter()) {
                 // the property we resolved is a setter
-                if (!(flags & QScriptValue::PropertySetter)) {
+                if (!(flags & QScriptValue::PropertySetter) && !member.isGetter()) {
                     // find the getter, if not, create one
-                    if (!m_object_value->findGetter(&member))
+                    if (!m_object_value->findGetter(&member)) {
+                        if (!value.isValid())
+                            return; // don't create property for invalid value
                         createMember(nameId, &member, flags);
+                    }
                 }
             } else {
                 // the property we resolved is a getter
                 if (!(flags & QScriptValue::PropertyGetter)) {
                     // find the setter, if not, create one
-                    if (!m_object_value->findSetter(&member))
+                    if (!m_object_value->findSetter(&member)) {
+                        if (!value.isValid())
+                            return; // don't create property for invalid value
                         createMember(nameId, &member, flags);
+                    }
                 }
+            }
+            Q_ASSERT(member.isValid());
+            if (!value.isValid()) {
+                // remove the property
+                removeMember(member);
+                return;
             }
         } else {
             // setting the value
             if (member.isGetterOrSetter()) {
                 // call the setter
                 QScriptValueImpl setter;
-                if (member.isObjectProperty() && !member.isSetter())
-                    base.m_object_value->findSetter(&member);
+                if (member.isObjectProperty() && !member.isSetter()) {
+                    if (!base.m_object_value->findSetter(&member))
+                        return;
+                }
                 base.get(member, &setter);
                 setter.call(*this, QScriptValueImplList() << value);
                 return;
             } else {
                 if (base.m_object_value != m_object_value) {
+                    if (!value.isValid())
+                        return; // don't create property for invalid value
                     createMember(nameId, &member, flags);
                     base = *this;
+                } else {
+                    if (!value.isValid()) {
+                        // remove the property
+                        removeMember(member);
+                        return;
+                    }
                 }
             }
         }
     } else {
-        // did not find it, create
+        // property does not exist
+        if (!value.isValid())
+            return; // don't create property for invalid value
         createMember(nameId, &member, flags);
         base = *this;
     }

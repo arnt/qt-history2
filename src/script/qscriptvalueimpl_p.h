@@ -684,8 +684,10 @@ inline QScriptValueImpl QScriptValueImpl::property(QScriptNameIdImpl *nameId,
     base.get(nameId, &value);
     if (member.isGetterOrSetter()) {
         QScriptValueImpl getter;
-        if (member.isObjectProperty() && !member.isGetter())
-            base.m_object_value->findGetter(&member);
+        if (member.isObjectProperty() && !member.isGetter()) {
+            if (!base.m_object_value->findGetter(&member))
+                return QScriptValueImpl();
+        }
         base.get(member, &getter);
         value = getter.call(*this);
     }

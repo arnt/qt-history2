@@ -622,6 +622,8 @@ const QMetaObject *QScriptValue::toQMetaObject() const
   a new property is created; the given \a flags then specify how this
   property may be accessed by script code.
 
+  If \a value is invalid, the property is removed.
+
   \sa property()
 */
 void QScriptValue::setProperty(const QString &name, const QScriptValue &value,
