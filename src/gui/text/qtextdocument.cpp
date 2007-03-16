@@ -1921,7 +1921,7 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
     }
 
     QString txt = fragment.text();
-    const bool isObject = (txt.count() == 1 && txt.at(0) == QChar::ObjectReplacementCharacter);
+    const bool isObject = txt.contains(QChar::ObjectReplacementCharacter);
     const bool isImage = isObject && format.isImageFormat();
 
     QLatin1String styleTag("<span style=\"");
@@ -1936,7 +1936,7 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
         html.chop(qstrlen(styleTag.latin1()));
 
     if (isObject) {
-        if (isImage) {
+        for (int i = 0; isImage && i < txt.length(); ++i) {
             QTextImageFormat imgFmt = format.toImageFormat();
 
             html += QLatin1String("<img");
