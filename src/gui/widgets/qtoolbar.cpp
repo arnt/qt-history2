@@ -52,9 +52,6 @@ void QToolBarPrivate::init()
     q->setBackgroundRole(QPalette::Button);
     q->setMouseTracking(true);
 
-    QStyleOptionToolBar opt;
-    q->initStyleOption(&opt);
-
     QStyle *style = q->style();
     int e = style->pixelMetric(QStyle::PM_ToolBarIconSize, 0, q);
     iconSize = QSize(e, e);
@@ -177,12 +174,10 @@ void QToolBarPrivate::endDrag()
 
 void QToolBarPrivate::mousePressEvent(QMouseEvent *event)
 {
-    Q_Q(QToolBar);
-
     if (event->button() != Qt::LeftButton)
         return;
 
-    if (!q->isMovable())
+    if (!layout->movable())
         return;
 
     initDrag(event->pos());
@@ -204,7 +199,9 @@ void QToolBarPrivate::mouseMoveEvent(QMouseEvent *event)
         return;
 
     QMainWindow *win = qobject_cast<QMainWindow*>(q->parentWidget());
-    Q_ASSERT(win != 0);
+    if (win == 0)
+        return;
+
     QMainWindowLayout *layout = qobject_cast<QMainWindowLayout*>(win->layout());
     Q_ASSERT(layout != 0);
 
@@ -420,7 +417,10 @@ void QToolBar::setMovable(bool movable)
 }
 
 bool QToolBar::isMovable() const
-{ Q_D(const QToolBar); return d->movable; }
+{
+    Q_D(const QToolBar);
+    return d->movable;
+}
 
 /*!
     \property QToolBar::allowedAreas
@@ -878,7 +878,7 @@ bool QToolBar::event(QEvent *event)
             QMouseEvent fake(QEvent::MouseMove, mapFromGlobal(pos), pos, Qt::NoButton,
                 QApplication::mouseButtons(), QApplication::keyboardModifiers());
             d->mouseMoveEvent(&fake);
-        } else 
+        } else
 #endif
         if (d->layout->expanded && !d->layout->collapsing) {
             d->layout->setExpanded(false);
@@ -933,6 +933,8 @@ QWidget *QToolBar::widgetForAction(QAction *action) const
 
 void QToolBar::initStyleOption(QStyleOptionToolBar *option) const
 {
+    Q_D(const QToolBar);
+
     if (!option)
         return;
 
@@ -940,7 +942,9 @@ void QToolBar::initStyleOption(QStyleOptionToolBar *option) const
     if (orientation() == Qt::Horizontal)
         option->state |= QStyle::State_Horizontal;
     option->lineWidth = style()->pixelMetric(QStyle::PM_ToolBarFrameWidth, 0, this);
-    option->features = isMovable() ? QStyleOptionToolBar::Movable : QStyleOptionToolBar::None;
+    option->features = d->layout->movable()
+                        ? QStyleOptionToolBar::Movable
+                        : QStyleOptionToolBar::None;
 
     // Add more styleoptions if the toolbar has been added to a mainwindow.
     QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget());

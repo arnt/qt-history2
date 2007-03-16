@@ -75,6 +75,8 @@ public:
 
     void setUseQMenu(bool set); // Yeah, there's no getter, but it's internal.
 
+    bool movable() const;
+
 public slots:
     void setExpanded(bool b);
 
