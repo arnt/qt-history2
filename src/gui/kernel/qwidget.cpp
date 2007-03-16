@@ -1064,6 +1064,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 #ifndef Q_WS_MAC
     if (isWindow()) {
         delete d->topData()->backingStore;
+        // QWidgetBackingStore will check this variable, hence it must be 0
+        d->topData()->backingStore = 0; 
         d->topData()->backingStore = new QWidgetBackingStore(this);
     }
 #endif
