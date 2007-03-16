@@ -55,6 +55,7 @@ private:
     bool m_syntaxerror;
     bool m_fixBackSlashes;
     int m_currentLineNumber;
+    bool m_contNextLine;
 };
 
 #endif //PROREADER_H

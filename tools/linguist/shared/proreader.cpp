@@ -97,6 +97,7 @@ bool ProReader::parseline(QByteArray line)
         else if (!parens && !quote) {
             if (c == '#') {
                 insertComment(line.mid(i + 1));
+                contNextLine = m_contNextLine;
                 break;
             } else if (c == '\\' && (i >= line.count() - 1)) {
                 updateItem();
@@ -129,10 +130,11 @@ bool ProReader::parseline(QByteArray line)
 
         m_proitem += c;
     }
+    m_contNextLine = contNextLine;
 
     if (!m_syntaxerror) {
         updateItem();
-        if (!contNextLine)
+        if (!m_contNextLine)
             finalizeBlock();
     }
     return !m_syntaxerror;
