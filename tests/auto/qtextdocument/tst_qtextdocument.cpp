@@ -967,6 +967,18 @@ void tst_QTextDocument::toHtml_data()
     {
         CREATE_DOC_AND_CURSOR();
 
+        QTextImageFormat fmt;
+        fmt.setName("foo");
+        cursor.insertImage(fmt);
+        cursor.insertImage(fmt);
+
+        QTest::newRow("2images") << QTextDocumentFragment(&doc)
+                            << QString("<p DEFAULTBLOCKSTYLE><img src=\"foo\" /><img src=\"foo\" /></p>");
+    }
+
+    {
+        CREATE_DOC_AND_CURSOR();
+
         QString txt = QLatin1String("Blah");
         txt += QChar::LineSeparator;
         txt += QLatin1String("Bar");
