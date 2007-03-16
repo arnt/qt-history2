@@ -968,7 +968,7 @@ int QAccessibleDockWidget::navigate(RelationFlag relation, int entry, QAccessibl
 
 int QAccessibleDockWidget::childAt(int x, int y) const
 {
-    for (int i = childCount(); i >= 1; --i) {
+    for (int i = childCount(); i >= 0; --i) {
         if (rect(i).contains(x,y))
             return i;
     }
@@ -1204,7 +1204,7 @@ QRect QAccessibleTitleBar::rect (int child ) const
 
 int QAccessibleTitleBar::childAt(int x, int y) const
 {
-    for (int i = childCount(); i >= 1; --i) {
+    for (int i = childCount(); i >= 0; --i) {
         if (rect(i).contains(x,y))
             return i;
     }
