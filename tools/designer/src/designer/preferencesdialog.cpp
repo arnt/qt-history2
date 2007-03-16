@@ -99,7 +99,6 @@ QWidget *PreferencesDialog::initTemplatePathControls()
     hboxLayout->addWidget(m_removeTemplatePathButton);
     hboxLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding,  QSizePolicy::Ignored));
     templatePathVLayout->addLayout(hboxLayout);
-    templatePathModeGroup->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     return templatePathModeGroup;
 }
 
