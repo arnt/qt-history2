@@ -860,7 +860,7 @@ void tst_QDateTime::toString_strformat_data()
                                  << QString("'ap'apdd-MM-yyyy 'AP'hh:mm:ss.zzz")
                                  << QString("appm31-12-1999 AP11:59:59.999");
     QTest::newRow( "datetime5" ) << QDateTime(QDate(1999, 12, 31), QTime(23, 59, 59, 999))
-                                 << QString("'''") << QString();
+                                 << QString("'''") << QString("'");
     QTest::newRow( "datetime6" ) << QDateTime(QDate(1999, 12, 31), QTime(23, 59, 59, 999))
                                  << QString("'ap") << QString("ap");
     QTest::newRow( "datetime7" ) << QDateTime(QDate(1999, 12, 31), QTime(23, 59, 59, 999))
@@ -875,6 +875,9 @@ void tst_QDateTime::toString_strformat_data()
                                  << QString("HHHhhhAaAPap") << QString("23231111PMpmPMpm");
     QTest::newRow( "datetime12" ) << QDateTime(QDate(1999, 12, 31), QTime(3, 59, 59, 999))
                                  << QString("HHHhhhAaAPap") << QString("033033AMamAMam");
+    QTest::newRow( "datetime13" ) << QDateTime(QDate(1974, 12, 1), QTime(14, 14, 20))
+                                 << QString("hh''mm''ss dd''MM''yyyy")
+                                 << QString("14'14'20 01'12'1974");
 }
 
 void tst_QDateTime::toString_strformat()

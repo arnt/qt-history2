@@ -664,7 +664,8 @@ QString QDate::toString(Qt::DateFormat f) const
 
     All other input characters will be ignored. Any sequence of characters that
     are enclosed in singlequotes will be treated as text and not be used as an
-    expression.
+    expression. Two consecutive singlequotes ("''") are replaced by a singlequote
+    in the output.
 
     Example format strings (assuming that the QDate is the 20 July
     1969):
@@ -1388,7 +1389,8 @@ QString QTime::toString(Qt::DateFormat f) const
 
     All other input characters will be ignored. Any sequence of characters that
     are enclosed in singlequotes will be treated as text and not be used as an
-    expression.
+    expression. Two consecutive singlequotes ("''") are replaced by a singlequote
+    in the output.
 
     Example format strings (assuming that the QTime is 14:13:09.042)
 
@@ -2223,7 +2225,8 @@ QString QDateTime::toString(Qt::DateFormat f) const
 
     All other input characters will be ignored. Any sequence of characters that
     are enclosed in singlequotes will be treated as text and not be used as an
-    expression.
+    expression. Two consecutive singlequotes ("''") are replaced by a singlequote
+    in the output.
 
     Example format strings (assumed that the QDateTime is 21 May 2001
     14:13:09):
@@ -3107,6 +3110,8 @@ static QString fmtDateTime(const QString& f, const QTime* dt, const QDate* dd)
     for (int i = 0; i < (int)f.length(); ++i) {
         if (f.at(i) == quote) {
             if (status == quote) {
+                if (i > 0 && f.at(i - 1) == quote)
+                    buf += QLatin1Char('\'');
                 status = QLatin1Char('0');
             } else {
                 if (!frm.isEmpty()) {
