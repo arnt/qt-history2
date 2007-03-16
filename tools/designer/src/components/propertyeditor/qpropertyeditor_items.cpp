@@ -1450,7 +1450,7 @@ void KeySequenceProperty::setValue(const QVariant &value)
 
 QString KeySequenceProperty::toString() const
 {
-    return m_value.toString();
+    return m_value.toString(QKeySequence::NativeText);
 }
 
 QWidget *KeySequenceProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
