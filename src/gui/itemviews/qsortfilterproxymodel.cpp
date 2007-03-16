@@ -899,13 +899,13 @@ void QSortFilterProxyModelPrivate::handle_filter_changed(
 }
 
 void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &source_top_left,
-                                                     const QModelIndex &source_bottom_right)
+							const QModelIndex &source_bottom_right)
 {
     Q_Q(QSortFilterProxyModel);
     if (!source_top_left.isValid() || !source_bottom_right.isValid())
         return;
     QModelIndex source_parent = source_top_left.parent();
-    IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
+    IndexMap::const_iterator it = create_mapping(source_parent);
     if (it == source_index_mapping.constEnd()) {
         // Don't care, since we don't have mapping for this index
         return;
@@ -958,7 +958,11 @@ void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &sourc
                             source_parent, Qt::Vertical, false);
         update_persistent_indexes(source_indexes);
         emit q->layoutChanged();
-    } else if (!source_rows_change.isEmpty()) {
+	// Make sure we also emit dataChanged for the rows
+	source_rows_change += source_rows_resort;
+    }
+
+    if (!source_rows_change.isEmpty()) {
         // Find the proxy row range
         int proxy_start_row;
         int proxy_end_row;
