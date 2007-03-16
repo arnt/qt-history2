@@ -236,8 +236,14 @@ bool QLayout::autoAdd() const { Q_D(const QLayout); return d->autoNewChild; }
     Implemented in subclasses to add an \a item. How it is added is
     specific to each subclass.
 
-    The ownership of \a item is transferred to the layout, and it's
+    This function is not usually called in application code. To add a widget
+    to a layout, use the addWidget() function; to add a child layout, use the
+    addLayout() function provided by the relevant QLayout subclass.
+
+    \bold{Note:} The ownership of \a item is transferred to the layout, and it's
     the layout's responsibility to delete it.
+
+    \sa addWidget(), QBoxLayout::addLayout(), QGridLayout::addLayout()
 */
 
 /*!
