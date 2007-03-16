@@ -219,8 +219,11 @@ int QAccessibleItemRow::navigate(RelationFlag relation, int index,
             *iface = ancestor;
             return 1;
         }
-        else if (index > 1)
-            return ancestor->navigate(Ancestor, index - 1, iface);
+        else if (index > 1) {
+            int ret = ancestor->navigate(Ancestor, index - 1, iface);
+            delete ancestor;
+            return ret;
+        }
         }
     case Child: {
         if (!index)
