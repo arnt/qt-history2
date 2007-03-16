@@ -250,7 +250,7 @@ bool ProFileEvaluator::visitProFunction(ProFunction *func)
 
     QString arguments(QString::fromLatin1(text.mid(lparen + 1, rparen - lparen - 1)));
     QByteArray funcName = text.left(lparen);
-    ok &= evaluateConditionalFunction(funcName, arguments, &result);
+    ok &= evaluateConditionalFunction(funcName.trimmed(), arguments, &result);
     return ok;
 }
 
