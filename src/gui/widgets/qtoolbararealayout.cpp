@@ -469,7 +469,7 @@ QRect QToolBarAreaLayout::fitLayout()
 {
     if (!visible)
         return rect;
-    
+
     QSize left_hint = docks[QInternal::LeftDock].sizeHint();
     QSize right_hint = docks[QInternal::RightDock].sizeHint();
     QSize top_hint = docks[QInternal::TopDock].sizeHint();
@@ -499,7 +499,7 @@ QSize QToolBarAreaLayout::minimumSize(const QSize &centerMin) const
 {
     if (!visible)
         return centerMin;
-    
+
     QSize result = centerMin;
 
     QSize left_min = docks[QInternal::LeftDock].minimumSize();
@@ -522,7 +522,7 @@ QSize QToolBarAreaLayout::sizeHint(const QSize &centerHint) const
 {
     if (!visible)
         return centerHint;
-    
+
     QSize result = centerHint;
 
     QSize left_hint = docks[QInternal::LeftDock].sizeHint();
@@ -946,8 +946,10 @@ void QToolBarAreaLayout::saveState(QDataStream &stream) const
     }
 }
 
-bool QToolBarAreaLayout::restoreState(QDataStream &stream, const QList<QToolBar*> &toolBars)
+bool QToolBarAreaLayout::restoreState(QDataStream &stream, const QList<QToolBar*> &_toolBars)
 {
+    QList<QToolBar*> toolBars = _toolBars;
+
     uchar tmarker;
     stream >> tmarker;
     if (tmarker != ToolBarStateMarker && tmarker != ToolBarStateMarkerEx)
@@ -984,7 +986,7 @@ bool QToolBarAreaLayout::restoreState(QDataStream &stream, const QList<QToolBar*
             QToolBar *toolBar = 0;
             for (int x = 0; x < toolBars.count(); ++x) {
                 if (toolBars.at(x)->objectName() == objectName) {
-                    toolBar = toolBars.at(x);
+                    toolBar = toolBars.takeAt(x);
                     break;
                 }
             }

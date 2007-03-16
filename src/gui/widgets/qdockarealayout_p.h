@@ -99,7 +99,7 @@ public:
         WidgetMarker = 0xfb
     };
     void saveState(QDataStream &stream) const;
-    bool restoreState(QDataStream &stream, const QList<QDockWidget*> &widgets);
+    bool restoreState(QDataStream &stream, QList<QDockWidget*> &widgets);
 
     void fitItems();
     bool expansive(Qt::Orientation o) const;

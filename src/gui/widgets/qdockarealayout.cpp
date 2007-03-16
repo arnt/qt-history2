@@ -1677,7 +1677,7 @@ void QDockAreaLayoutInfo::saveState(QDataStream &stream) const
     }
 }
 
-bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWidget*> &widgets)
+bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, QList<QDockWidget*> &widgets)
 {
     uchar marker;
     stream >> marker;
@@ -1717,7 +1717,7 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
             QDockWidget *widget = 0;
             for (int j = 0; j < widgets.count(); ++j) {
                 if (widgets.at(j)->objectName() == name) {
-                    widget = widgets.at(j);
+                    widget = widgets.takeAt(j);
                     break;
                 }
             }
@@ -1999,8 +1999,10 @@ void QDockAreaLayout::saveState(QDataStream &stream) const
         stream << static_cast<int>(corners[i]);
 }
 
-bool QDockAreaLayout::restoreState(QDataStream &stream, const QList<QDockWidget*> &dockwidgets)
+bool QDockAreaLayout::restoreState(QDataStream &stream, const QList<QDockWidget*> &_dockwidgets)
 {
+    QList<QDockWidget*> dockwidgets = _dockwidgets;
+
     uchar dmarker;
     stream >> dmarker;
     if (dmarker != DockWidgetStateMarker)
