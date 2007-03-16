@@ -1,6 +1,7 @@
 /*!
     \page activeqt.html
     \title ActiveQt Framework
+    \brief An overview of Qt's ActiveX and COM integration on Windows.
 
     \ingroup platform-notes
     \keyword ActiveQt
