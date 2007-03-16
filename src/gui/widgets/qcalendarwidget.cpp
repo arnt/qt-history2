@@ -1878,6 +1878,7 @@ void QCalendarWidgetPrivate::_q_editingFinished()
     \brief The QCalendarWidget class provides a monthly based
     calendar widget allowing the user to select a date.
     \since 4.2
+    \mainclass
 
     \image cleanlooks-calendarwidget.png
 
@@ -2709,6 +2710,23 @@ void QCalendarWidget::setDateTextFormat(const QDate &date, const QTextCharFormat
     d->m_view->updateGeometry();
 }
 
+/*!
+    \property QCalendarWidget::dateEditEnabled
+    \brief whether the date edit popup is enabled
+
+    If this property is enabled, pressing a non-modifier key will cause a
+    date edit to popup if the calendar widget has focus, allowing the user
+    to specify a date in the form specified by the current locale.
+
+    By default, this property is enabled.
+
+    The date edit is simpler in appearance than QDateEdit, but allows the
+    user to navigate between fields using the left and right cursor keys,
+    increment and decrement individual fields using the up and down cursor
+    keys, and enter values directly using the number keys.
+
+    \sa QCalendarWidget::dateEditAcceptDelay
+*/
 bool QCalendarWidget::isDateEditEnabled() const
 {
     Q_D(const QCalendarWidget);
@@ -2738,6 +2756,17 @@ void QCalendarWidget::setDateEditEnabled(bool enable)
     }
 }
 
+/*!
+    \property QCalendarWidget::dateEditAcceptDelay
+    \brief the time an inactive date edit is shown before its contents are accepted
+
+    If the calendar widget's \l{dateEditEnabled}{date edit is enabled}, this
+    property specifies the amount of time (in millseconds) that the date edit
+    remains open after the most recent user input. Once this time has elapsed,
+    the date specified in the date edit is accepted and the popup is closed.
+
+    By default, the delay is defined to be 1500 milliseconds (1.5 seconds).
+*/
 int QCalendarWidget::dateEditAcceptDelay() const
 {
     Q_D(const QCalendarWidget);
