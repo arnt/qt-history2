@@ -6188,12 +6188,10 @@ bool QWidget::event(QEvent *event)
         break;
 #ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip:
-        if (d->toolTip.size()
-            && (window()->testAttribute(Qt::WA_AlwaysShowToolTips) || isActiveWindow())) {
+        if (!d->toolTip.isEmpty())
             QToolTip::showText(static_cast<QHelpEvent*>(event)->globalPos(), d->toolTip, this);
-        } else {
+        else
             event->ignore();
-        }
         break;
 #endif
 #ifndef QT_NO_WHATSTHIS

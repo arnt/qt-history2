@@ -101,7 +101,7 @@ QDataStream &operator>>(QDataStream &in, QHeaderViewPrivate::SectionSpan &span)
 
     QTableWidget and QTableView create default headers. If you want
     the headers to be visible, you can use \l{QFrame::}{setVisible()}.
-    
+
     \sa {Model/View Programming}, QListView, QTableView, QTreeView
 */
 
@@ -1829,20 +1829,20 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         opt.state |= QStyle::State_Horizontal;
         if (currentSectionRect.left() > translatedEventRect.left()) {
             opt.rect = QRect(translatedEventRect.left(), 0,
-                             currentSectionRect.left() - translatedEventRect.left(), height); 
+                             currentSectionRect.left() - translatedEventRect.left(), height);
             style()->drawControl(QStyle::CE_HeaderEmptyArea, &opt, &painter, this);
         }
     } else if (currentSectionRect.right() < translatedEventRect.right()) {
         // paint to the right
         opt.state |= QStyle::State_Horizontal;
         opt.rect = QRect(currentSectionRect.right() + 1, 0,
-                         translatedEventRect.right() - currentSectionRect.right(), height); 
+                         translatedEventRect.right() - currentSectionRect.right(), height);
         style()->drawControl(QStyle::CE_HeaderEmptyArea, &opt, &painter, this);
     } else if (currentSectionRect.bottom() < translatedEventRect.bottom()) {
         // paint the bottom section
         opt.state &= ~QStyle::State_Horizontal;
         opt.rect = QRect(0, currentSectionRect.bottom() + 1,
-                         width, height - currentSectionRect.bottom() - 1); 
+                         width, height - currentSectionRect.bottom() - 1);
         style()->drawControl(QStyle::CE_HeaderEmptyArea, &opt, &painter, this);
     }
 
@@ -2061,8 +2061,6 @@ bool QHeaderView::viewportEvent(QEvent *e)
     switch (e->type()) {
 #ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip: {
-        if (!isActiveWindow())
-            break;
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
         if (logical != -1) {

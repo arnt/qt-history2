@@ -2020,7 +2020,9 @@ bool QApplication::event(QEvent *e)
         if (te->timerId() == d->toolTipWakeUp.timerId()) {
             d->toolTipWakeUp.stop();
             d->toolTipFallAsleep.start(2000, this);
-            if (d->toolTipWidget) {
+            if (d->toolTipWidget
+                && (d->toolTipWidget->window()->testAttribute(Qt::WA_AlwaysShowToolTips)
+                    || d->toolTipWidget->isActiveWindow())) {
                 QHelpEvent e(QEvent::ToolTip, d->toolTipPos, d->toolTipGlobalPos);
                 QApplication::sendEvent(d->toolTipWidget, &e);
             }

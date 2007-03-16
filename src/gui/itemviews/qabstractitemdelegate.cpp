@@ -177,7 +177,7 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
     otherwise, \l{QMouseEvent}s received by the widget will propagate
     to the view. The view's background will shine through unless the
     editor paints its own background (e.g., with
-    \l{QWidget::}{setAutoFillBackground()}). 
+    \l{QWidget::}{setAutoFillBackground()}).
 
     \sa setModelData() setEditorData()
 */
@@ -301,8 +301,6 @@ bool QAbstractItemDelegate::helpEvent(QHelpEvent *event,
     switch (event->type()) {
 #ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip: {
-        if (!view->isActiveWindow())
-            break;
         QHelpEvent *he = static_cast<QHelpEvent*>(event);
         QVariant tooltip = index.data(Qt::ToolTipRole);
         if (qVariantCanConvert<QString>(tooltip)) {

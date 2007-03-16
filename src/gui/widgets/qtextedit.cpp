@@ -973,12 +973,10 @@ bool QTextEdit::event(QEvent *e)
         const bool result = QAbstractScrollArea::event(&ce);
         e->setAccepted(ce.isAccepted());
         return result;
-    } else if (e->type() == QEvent::ShortcutOverride) {
+    } else if (e->type() == QEvent::ShortcutOverride
+               || e->type() == QEvent::ToolTip) {
         d->sendControlEvent(e);
-    } else if (e->type() == QEvent::ToolTip) {
-        if ((window()->testAttribute(Qt::WA_AlwaysShowToolTips) || isActiveWindow()))
-            d->sendControlEvent(e);
-    } 
+    }
 #ifdef QT_KEYPAD_NAVIGATION
     else if (e->type() == QEvent::EnterEditFocus || e->type() == QEvent::LeaveEditFocus) {
         if (QApplication::keypadNavigationEnabled())
