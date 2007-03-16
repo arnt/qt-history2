@@ -736,8 +736,9 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 drawPrimitive(PE_FrameDefaultButton, opt, p, widget);
             if (btn->features & QStyleOptionButton::AutoDefaultButton)
                 br.setCoords(br.left() + dbi, br.top() + dbi, br.right() - dbi, br.bottom() - dbi);
-            if (!(btn->features & QStyleOptionButton::Flat)
-                || btn->state & (State_Sunken | State_On)) {
+            if (!(btn->features & (QStyleOptionButton::Flat | QStyleOptionButton::CommandLinkButton)) 
+                || btn->state & (State_Sunken | State_On) 
+                || (btn->features & QStyleOptionButton::CommandLinkButton && btn->state & State_MouseOver)) {
                 QStyleOptionButton tmpBtn = *btn;
                 tmpBtn.rect = br;
                 drawPrimitive(PE_PanelButtonCommand, &tmpBtn, p, widget);
@@ -4274,6 +4275,7 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opti
         return QPixmap(filedialog_end_xpm);
 #endif // QT_NO_IMAGEFORMAT_XPM
 #ifndef QT_NO_IMAGEFORMAT_PNG
+    case SP_CommandLinkGlyph:
     case SP_ArrowForward:
         if (QApplication::layoutDirection() == Qt::RightToLeft)
             return standardPixmap(SP_ArrowLeft, option, widget);

@@ -196,7 +196,7 @@ public:
     enum StyleOptionVersion { Version = 1 };
 
     enum ButtonFeature { None = 0x00, Flat = 0x01, HasMenu = 0x02, DefaultButton = 0x04,
-                         AutoDefaultButton = 0x08 };
+                         AutoDefaultButton = 0x08, CommandLinkButton = 0x10  };
     Q_DECLARE_FLAGS(ButtonFeatures, ButtonFeature)
 
     ButtonFeatures features;

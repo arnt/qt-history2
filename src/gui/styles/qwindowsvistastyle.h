@@ -60,6 +60,10 @@ public:
     bool event(QEvent *event);
     QPalette standardPalette() const;
 
+protected Q_SLOTS:
+    QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
+                                     const QWidget *widget = 0) const;
+
 private:
     Q_DISABLE_COPY(QWindowsVistaStyle)
     Q_DECLARE_PRIVATE(QWindowsVistaStyle)

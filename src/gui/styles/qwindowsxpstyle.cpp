@@ -1908,7 +1908,10 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         {
             name = QLatin1String("BUTTON");
             partId = BP_PUSHBUTTON;
-            bool justFlat = (btn->features & QStyleOptionButton::Flat) && !(flags & (State_On|State_Sunken));
+            bool justFlat = (btn->features & QStyleOptionButton::Flat) && !(flags & (State_On|State_Sunken))
+                || (btn->features & QStyleOptionButton::CommandLinkButton 
+                    && !(flags & State_MouseOver) 
+                    && !(btn->features & QStyleOptionButton::DefaultButton));
             if (!(flags & State_Enabled) && !(btn->features & QStyleOptionButton::Flat))
                 stateId = PBS_DISABLED;
             else if (justFlat)

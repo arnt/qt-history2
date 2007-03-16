@@ -641,6 +641,8 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
             } else {
                 name = QLatin1String("BUTTON");
                 partId = BP_PUSHBUTTON;
+                if (btn->features & QStyleOptionButton::CommandLinkButton)
+                    partId = BP_COMMANDLINK;
                 bool justFlat = (btn->features & QStyleOptionButton::Flat) && !(flags & (State_On|State_Sunken));
                 if (!(flags & State_Enabled) && !(btn->features & QStyleOptionButton::Flat))
                     stateId = PBS_DISABLED;
@@ -2096,6 +2098,58 @@ bool QWindowsVistaStylePrivate::resolveSymbols()
         pGetThemeTransitionDuration = (PtrGetThemeTransitionDuration)themeLib.resolve("GetThemeTransitionDuration");
     }
     return pGetThemeTransitionDuration != 0;
+}
+
+/*!
+\internal
+*/
+QIcon QWindowsVistaStyle::standardIconImplementation(StandardPixmap standardIcon,
+                                                  const QStyleOption *option,
+                                                  const QWidget *widget) const
+{
+    if (!QWindowsVistaStylePrivate::useVista()) {
+        return QWindowsStyle::standardIconImplementation(standardIcon, option, widget);
+    }
+
+    QWindowsVistaStylePrivate *d = const_cast<QWindowsVistaStylePrivate *>(d_func());
+    switch(standardIcon) {
+    case SP_CommandLinkGlyph:
+        {
+            XPThemeData theme(0, 0, QLatin1String("BUTTON"), BP_COMMANDLINKGLYPH, CMDLGS_NORMAL);
+            if (theme.isValid()) {
+                SIZE size;
+                pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
+                QIcon linkGlyph;
+                QPixmap pm = QPixmap(size.cx, size.cy);
+                pm.fill(Qt::transparent);
+                QPainter p(&pm);
+                theme.painter = &p;
+                theme.rect = QRect(0, 0, size.cx, size.cy);
+                d->drawBackground(theme);
+                linkGlyph.addPixmap(pm, QIcon::Normal, QIcon::Off);    // Normal
+                pm.fill(Qt::transparent);
+
+                theme.stateId = CMDLGS_PRESSED;
+                d->drawBackground(theme);
+                linkGlyph.addPixmap(pm, QIcon::Normal, QIcon::On);     // Pressed
+                pm.fill(Qt::transparent);
+ 
+                theme.stateId = CMDLGS_HOT;
+                d->drawBackground(theme);
+                linkGlyph.addPixmap(pm, QIcon::Active, QIcon::Off);    // Hover
+                pm.fill(Qt::transparent);
+
+                theme.stateId = CMDLGS_DISABLED;
+                d->drawBackground(theme);
+                linkGlyph.addPixmap(pm, QIcon::Disabled, QIcon::Off);  // Disabled
+                return linkGlyph;
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    return QWindowsXPStyle::standardIconImplementation(standardIcon, option, widget);
 }
 
 #endif //QT_NO_WINDOWSVISTA

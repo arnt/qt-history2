@@ -1134,13 +1134,14 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 /*!
     \enum QStyleOptionButton::ButtonFeature
 
-    This enum describles the different types of features a push button can have.
+    This enum describes the different types of features a push button can have.
 
     \value None Indicates a normal push button.
     \value Flat Indicates a flat push button.
     \value HasMenu Indicates that the button has a drop down menu.
     \value DefaultButton Indicates that the button is a default button.
     \value AutoDefaultButton Indicates that the button is an auto default button.
+    \value CommandLinkButton Indicates that the button is a Windows Vista type command link.
 
     \sa features
 */
