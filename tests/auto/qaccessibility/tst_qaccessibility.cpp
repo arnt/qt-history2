@@ -3420,15 +3420,14 @@ void tst_QAccessibility::pushButtonTest()
     QWidget *toplevel = createGUI();
     QObject *topRight = toplevel->child("topRight");
 
-    QPushButton *pb = qobject_cast<QPushButton*>(topRight->child("pbOk"));
-    QPoint pt = pb->mapToGlobal(pb->geometry().topLeft());
-    QRect rect(pt, pb->geometry().size());
-    pt = rect.center();
-
     toplevel->show();
 #if defined(Q_WS_X11)
     qt_x11_wait_for_window_manager(toplevel);
 #endif
+    QPushButton *pb = qobject_cast<QPushButton*>(topRight->child("pbOk"));
+    QPoint pt = pb->mapToGlobal(pb->geometry().topLeft());
+    QRect rect(pt, pb->geometry().size());
+    pt = rect.center();
 
     QAccessibleInterface *accToplevel = QAccessible::queryAccessibleInterface(toplevel);
     QAccessibleInterface *acc;
