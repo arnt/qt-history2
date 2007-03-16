@@ -81,6 +81,9 @@ public:
 
     QList<int> dirtyRegions;
     QList<QDecoration::DecorationState> dirtyStates;
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    bool paintingDecorations;
+#endif
 };
 
 #endif // QT_NO_QWS_MANAGER

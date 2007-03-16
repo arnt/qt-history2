@@ -39,6 +39,8 @@
 #ifdef Q_WS_QWS
 #include "private/qpaintdevice_egl_p.h"
 #include "private/qwindowsurface_egl_p.h"
+#include "qwsmanager_qws.h"
+#include "private/qwsmanager_p.h"
 #endif
 
 extern QImage qt_imageForBrush(int brushStyle, bool invert); //in qbrush.cpp
@@ -211,29 +213,26 @@ inline void QGLDrawable::makeCurrent()
         buffer->makeCurrent();
     else if (fbo)
         fbo->bind();
-#ifdef Q_WS_QWS
-    else if (wsurf)
-        wsurf->beginPaint(QRegion());
-#endif
 }
 
 inline void QGLDrawable::doneCurrent()
 {
     if (fbo)
         fbo->release();
-#ifdef Q_WS_QWS
-    else if (wsurf)
-        wsurf->endPaint(QRegion());
-#endif
 }
 
 inline QSize QGLDrawable::size() const
 {
     if (widget)
 #ifdef Q_WS_QWS
-//        if (widget->windowFlags() & Qt::WhilePaintingWindowDecorations)
-//            return widget->frameSize();
-//        else
+        if (widget->isWindow()) {
+            QTLWExtra *topextra = widget->d_func()->extra->topextra;
+            QWSManager *manager = topextra->qwsManager;
+            if (manager && manager->d_func()->paintingDecorations)
+                return widget->frameSize();
+            else
+                return widget->size();
+        } else
 #endif
             return widget->size();
     else if (buffer)
@@ -320,7 +319,15 @@ inline bool QGLDrawable::autoFillBackground() const
 #ifndef Q_WS_QWS
         return widget->autoFillBackground();
 #else
-    return widget->autoFillBackground() /*&& !(widget->windowFlags() & Qt::WhilePaintingWindowDecorations)*/;
+    if (widget->isWindow()) {
+            QTLWExtra *topextra = widget->d_func()->extra->topextra;
+            QWSManager *manager = topextra->qwsManager;
+            if (manager && manager->d_func()->paintingDecorations)
+                return false;
+            else
+                return widget->autoFillBackground();
+    } else
+        return widget->autoFillBackground();
 #endif
     return false;
 }

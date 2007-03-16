@@ -47,6 +47,9 @@ QPoint QWSManagerPrivate::mousePos;
 QWSManagerPrivate::QWSManagerPrivate()
     : QObjectPrivate(), activeRegion(QDecoration::None), managed(0), popup(0),
       previousRegionType(0), previousRegionRepainted(false)
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    , paintingDecorations(false)
+#endif
 {
     cached_region.regionType = 0;
 }
@@ -413,6 +416,9 @@ void QWSManagerPrivate::paint(QPaintDevice *paintDevice, const QRegion &region)
         return;
     }
 
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    paintingDecorations = true;
+#endif
     const QRegion surfaceClip = clippedRegion.translated(bs->topLevelOffset());
 
     paintDevice->paintEngine()->setSystemClip(surfaceClip);
@@ -439,6 +445,9 @@ void QWSManagerPrivate::paint(QPaintDevice *paintDevice, const QRegion &region)
     dirtyRegions.clear();
     dirtyStates.clear();
     delete painter;
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    paintingDecorations = false;
+#endif
 }
 
 bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationState state)

@@ -76,6 +76,7 @@ private:
     friend class QApplicationPrivate;
     friend class QWidgetBackingStore;
     friend class QWSWindowSurface;
+    friend class QGLDrawable;
 };
 
 #include <QtGui/qdecorationdefault_qws.h>
