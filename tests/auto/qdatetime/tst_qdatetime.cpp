@@ -1120,11 +1120,17 @@ void tst_QDateTime::fromString()
     dt = QDateTime::fromString(" Thu   Jan   1    00:00:00    1970  ");
     QCOMPARE(dt, QDateTime(QDate(1970, 1, 1), QTime(0, 0, 0)));
 
+    dt = QDateTime::fromString("Thu Jan 1 00:00:00");
+    QCOMPARE(dt, QDateTime());
+
     QDate d = QDate::fromString("Thu Jan 1 1970");
     QCOMPARE(d, QDate(1970, 1, 1));
 
     d = QDate::fromString("   Thu     Jan   1  1970   ");
     QCOMPARE(d, QDate(1970, 1, 1));
+
+    d = QDate::fromString("Thu Jan 1");
+    QCOMPARE(d, QDate());
 }
 
 QTEST_APPLESS_MAIN(tst_QDateTime)
