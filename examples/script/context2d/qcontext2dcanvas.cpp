@@ -23,10 +23,6 @@
 #include <QMouseEvent>
 #include <QDateTime>
 
-struct FakeDomEvent;
-
-Q_DECLARE_METATYPE(FakeDomEvent)
-
 struct FakeDomEvent
 {
     enum KeyCodes  {
@@ -224,28 +220,6 @@ struct FakeDomEvent
         eng->setDefaultPrototype(qMetaTypeId<FakeDomEvent>(), m_proto);
     }
 
-
-    static void setup(QScriptEngine *e)
-    {
-        qRegisterMetaType<FakeDomEvent>();
-
-        m_proto = e->newObject();
-
-        setupDefaults(e);
-
-        m_proto.setProperty("bubbles", QScriptValue(e, 0));
-        m_proto.setProperty("cancelBubble", QScriptValue(e, 0));
-        m_proto.setProperty("cancelable", QScriptValue(e, 0));
-        m_proto.setProperty("currentTarget", QScriptValue(e, 0));
-        m_proto.setProperty("detail", QScriptValue(e, 0));
-        m_proto.setProperty("eventPhase", QScriptValue(e, 0));
-        m_proto.setProperty("explicitOriginalTarget", QScriptValue(e, 0));
-        m_proto.setProperty("originalTarget", QScriptValue(e, 0));
-        m_proto.setProperty("relatedTarget", QScriptValue(e, 0));
-        m_proto.setProperty("target", QScriptValue(e, 0));
-        m_proto.setProperty("view", QScriptValue(e, 0));
-    }
-
     static void setupDefaults(QScriptEngine *e)
     {
         m_proto.setProperty("timeStamp", QScriptValue(e, QDateTime::currentDateTime().toTime_t()));
@@ -285,7 +259,32 @@ struct FakeDomEvent
         else
             m_proto.setProperty("shiftKey", QScriptValue(eng, true));
     }
+
+    static void setup(QScriptEngine *e);
 };
+
+Q_DECLARE_METATYPE(FakeDomEvent)
+
+void FakeDomEvent::setup(QScriptEngine *e)
+{
+    qRegisterMetaType<FakeDomEvent>();
+
+    m_proto = e->newObject();
+
+    setupDefaults(e);
+
+    m_proto.setProperty("bubbles", QScriptValue(e, 0));
+    m_proto.setProperty("cancelBubble", QScriptValue(e, 0));
+    m_proto.setProperty("cancelable", QScriptValue(e, 0));
+    m_proto.setProperty("currentTarget", QScriptValue(e, 0));
+    m_proto.setProperty("detail", QScriptValue(e, 0));
+    m_proto.setProperty("eventPhase", QScriptValue(e, 0));
+    m_proto.setProperty("explicitOriginalTarget", QScriptValue(e, 0));
+    m_proto.setProperty("originalTarget", QScriptValue(e, 0));
+    m_proto.setProperty("relatedTarget", QScriptValue(e, 0));
+    m_proto.setProperty("target", QScriptValue(e, 0));
+    m_proto.setProperty("view", QScriptValue(e, 0));
+}
 
 QScriptValue FakeDomEvent::m_proto;
 

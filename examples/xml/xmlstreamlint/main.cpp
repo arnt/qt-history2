@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     QFile outputFile;
     if (!outputFile.open(stdout, QIODevice::WriteOnly))
     {
-        QTextStream(stderr) << XmlStreamLint::tr("Failed to open stdout.");
+        errorStream << XmlStreamLint::tr("Failed to open stdout.");
         return WriteError;
     }
 
