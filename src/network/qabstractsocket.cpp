@@ -2288,6 +2288,7 @@ QNetworkProxy QAbstractSocket::proxy() const
 
     Use closed() instead.
 */
+#endif // QT3_SUPPORT
 
 #ifndef QT_NO_DEBUG
 Q_NETWORK_EXPORT QDebug operator<<(QDebug debug, QAbstractSocket::SocketError error)
@@ -2374,7 +2375,6 @@ Q_NETWORK_EXPORT QDebug operator<<(QDebug debug, QAbstractSocket::SocketState st
 }
 #endif
 
-#endif
 
 
 #include "moc_qabstractsocket.cpp"
