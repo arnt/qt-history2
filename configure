@@ -3504,6 +3504,10 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         EXTRA_CFLAGS="\$(QMAKE_CFLAGS)"
         EXTRA_CXXFLAGS="\$(QMAKE_CXXFLAGS)"
         EXTRA_LFLAGS="\$(QMAKE_LFLAGS)"
+	
+        if [ "$PLATFORM" = "irix-cc" ] || [ "$PLATFORM" = "irix-cc-64" ]; then
+	    EXTRA_LFLAGS="$EXTRA_LFLAGS -lm"
+        fi
 
 	[ -n "$CC" ] && echo "CC = $CC" >>$mkfile
 	[ -n "$CXX" ] && echo "CXX = $CXX" >>$mkfile
