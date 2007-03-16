@@ -75,7 +75,6 @@ class Array;
 class Lexer;
 class Code;
 class CompilationUnit;
-class DebuggerClient;
 class IdTable;
 
 class IdTable
@@ -167,9 +166,6 @@ public:
     void evaluate(QScriptContextPrivate *context, const QString &contents, int lineNumber);
 
     inline QScript::Code *findCode(QScript::AST::Node *node) const;
-
-    inline QScript::DebuggerClient *debuggerClient() const;
-    inline void setDebuggerClient(QScript::DebuggerClient *client);
 
     inline void setLexer(QScript::Lexer *lexer);
 
@@ -339,7 +335,6 @@ public: // attributes
 
     QHash<QScript::AST::Node*, QScript::Code*> m_codeCache;
     QScriptFunction *m_evalFunction;
-    QScript::DebuggerClient *m_debuggerClient;
 
     QLinkedList<QScriptClassInfo> m_allocated_classes;
     QScriptClassInfo *m_class_activation;

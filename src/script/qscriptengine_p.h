@@ -495,16 +495,6 @@ inline QScript::Code *QScriptEnginePrivate::findCode(QScript::AST::Node *node) c
     return m_codeCache.value(node);
 }
 
-inline QScript::DebuggerClient *QScriptEnginePrivate::debuggerClient() const
-{
-    return m_debuggerClient;
-}
-
-inline void QScriptEnginePrivate::setDebuggerClient(QScript::DebuggerClient *client)
-{
-    m_debuggerClient = client;
-}
-
 inline QScriptClassInfo *QScriptEnginePrivate::registerClass(const QString &pname, QScript::Type type)
 {
     if (type == -1)

@@ -1284,7 +1284,6 @@ void QScriptEnginePrivate::init()
     m_context = 0;
     m_abstractSyntaxTree = 0;
     m_lexer = 0;
-    m_debuggerClient = 0;
 
     objectConstructor = 0;
     numberConstructor = 0;
