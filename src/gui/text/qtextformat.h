@@ -580,7 +580,7 @@ public:
         BorderStyle_Groove,
         BorderStyle_Ridge,
         BorderStyle_Inset,
-        BorderStyle_Outset,
+        BorderStyle_Outset
     };
 
     inline void setPosition(Position f)
