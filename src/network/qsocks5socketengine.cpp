@@ -685,7 +685,7 @@ void QSocks5SocketEnginePrivate::parseRequestMethodReply()
         return;
     }
     if (buf[pos++] != S5_VERSION_5) {
-        QSOCKS5_DEBUG << "totaly lost";
+        QSOCKS5_DEBUG << "totally lost";
     }
     if (buf[pos++] != S5_SUCCESS ) {
         socks5Error = Socks5Error(buf[pos-1]);
@@ -696,7 +696,7 @@ void QSocks5SocketEnginePrivate::parseRequestMethodReply()
         return;
     }
     if (buf[pos++] != 0x00) {
-        QSOCKS5_DEBUG << "totaly lost";
+        QSOCKS5_DEBUG << "totally lost";
     }
     if (!qt_socks5_get_host_address_and_port(inBuf, &localAddress, &localPort, &pos)) {
         QSOCKS5_DEBUG << "error getting address";
@@ -735,7 +735,7 @@ void QSocks5SocketEnginePrivate::parseNewConnection()
         return;
     }
     if (buf[pos++] != S5_VERSION_5) {
-        QSOCKS5_D_DEBUG << "totaly lost";
+        QSOCKS5_D_DEBUG << "totally lost";
     }
     if (buf[pos++] != S5_SUCCESS) {
         QSOCKS5_D_DEBUG <<  "Request error :" << s5RequestErrorToString(buf[pos-1]);
@@ -746,7 +746,7 @@ void QSocks5SocketEnginePrivate::parseNewConnection()
         return;
     }
     if (buf[pos++] != 0x00) {
-        QSOCKS5_D_DEBUG << "totaly lost";
+        QSOCKS5_D_DEBUG << "totally lost";
     }
     if (!qt_socks5_get_host_address_and_port(inBuf, &bindData->peerAddress, &bindData->peerPort, &pos)) {
         QSOCKS5_D_DEBUG << "error getting address";
