@@ -18,11 +18,7 @@
 #include <qmutex.h>
 #include <qwaitcondition.h>
 #include <qfilesystemwatcher.h>
-#if QT_VERSION >= 0x040300
 #include <qfileiconprovider.h>
-#else
-#include <qdirmodel.h>
-#endif
 #include <qpair.h>
 #include <qdatetime.h>
 #include <qstack.h>

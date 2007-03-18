@@ -14,9 +14,7 @@
 #include "qfileinfogatherer_p.h"
 #include <qdebug.h>
 #include <qfsfileengine.h>
-#if QT_VERSION >= 0x040300
 #include <qdiriterator.h>
-#endif
 #ifndef Q_OS_WIN
 #include <unistd.h>
 #include <sys/types.h>
@@ -287,7 +285,6 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
     QList<QPair<QString,QExtendedInformation> > updatedFiles;
     QStringList filesToCheck = files;
 
-#if QT_VERSION >= 0x040300
     QString itPath = files.isEmpty() ? path : QLatin1String("");
     QDirIterator dirIt(itPath, QDir::AllEntries | QDir::System | QDir::Hidden);
     QStringList allFiles;
@@ -299,13 +296,6 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
     }
     if (!allFiles.isEmpty())
         emit newListOfFiles(path, allFiles);
-#else
-    if (files.isEmpty()) {
-	QDir dir(path);
-	filesToCheck = dir.entryList(QDir::AllEntries | QDir::System | QDir::Hidden);
-	emit newListOfFiles(path, filesToCheck);
-    }
-#endif
 
     QStringList::const_iterator filesIt = filesToCheck.constBegin();
     while(!abort && filesIt != filesToCheck.constEnd()) {
@@ -328,4 +318,3 @@ void QFileInfoGatherer::fetch(const QFileInfo &fileInfo, QTime &base, bool &firs
         firstTime = false;
     }
 }
-

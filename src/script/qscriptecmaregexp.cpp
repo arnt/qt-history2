@@ -90,11 +90,7 @@ void RegExp::newRegExp(QScriptValueImpl *result, const QString &pattern, const Q
     bool ignoreCase = flags.contains(QLatin1Char('i'));
 
     QRegExp rx(pattern,
-        (ignoreCase ? Qt::CaseInsensitive: Qt::CaseSensitive)
-#if QT_VERSION >= 0x040200
-        , QRegExp::RegExp2
-#endif
-        );
+        (ignoreCase ? Qt::CaseInsensitive: Qt::CaseSensitive), QRegExp::RegExp2);
 
     newRegExp_helper(result, rx, flags);
 #else

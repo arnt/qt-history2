@@ -309,11 +309,6 @@ void QWizardHeader::setup(const QWizardLayoutInfo &info, const QString &title,
         subTitleLabel->setMinimumSize(candidateSubTitleWidth, desiredSubTitleHeight);
 
         QSize size = layout->totalMinimumSize();
-#if QT_VERSION < 0x040200
-        // work around bug in QGridLayout
-        size += QSize(minColumnWidth0 + (3 * GapBetweenLogoAndRightEdge), 9);
-#endif
-
         setMinimumSize(size);
         setMaximumSize(QWIDGETSIZE_MAX, size.height());
     } else {
