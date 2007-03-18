@@ -1926,7 +1926,7 @@ void QTreeWidgetItem::insertChildren(int index, const QList<QTreeWidgetItem*> &c
 /*!
   \since 4.1
 
-  Removes the list of children and returns it, otherwise return an empty list.
+  Removes the list of children and returns it, otherwise returns an empty list.
 */
 QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
 {
