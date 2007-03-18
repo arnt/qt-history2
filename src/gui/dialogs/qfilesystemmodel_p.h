@@ -331,7 +331,7 @@ public:
 #ifndef QT_NO_REGEXP
     QList<QRegExp> nameFilters;
 #endif
-    // ### resolvedSymLinks goes away in Qt5
+    // ### Qt 5: resolvedSymLinks goes away
     QHash<QString, QString> resolvedSymLinks;
 
     QFileSystemNode root;
