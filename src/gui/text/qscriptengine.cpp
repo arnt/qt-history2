@@ -2667,7 +2667,7 @@ static inline void splitMatra(unsigned short *reordered, int matra, int &len, in
     while (split[0] < matra_uc)
         split += 3;
 
-    assert(*split == matra_uc);
+    Q_ASSERT(*split == matra_uc);
     ++split;
 
     if (indic_position(*split) == Pre) {
@@ -3424,7 +3424,7 @@ static void indic_attributes(int script, const QString &text, int from, int len,
             ++uc;
             ++i;
         }
-        assert(i == boundary);
+        Q_ASSERT(i == boundary);
     }
 
 
@@ -3739,7 +3739,7 @@ static void tibetan_attributes(int script, const QString &text, int from, int le
             ++uc;
             ++i;
         }
-        assert(i == boundary);
+        Q_ASSERT(i == boundary);
     }
 }
 
@@ -4077,7 +4077,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 #endif
     // according to the specs this is the max length one can get
     // ### the real value should be smaller
-    assert(item->length < 13);
+    Q_ASSERT(item->length < 13);
 
     KHDEBUG("syllable from %d len %d, str='%s'", item->from, item->length,
 	    item->string->mid(item->from, item->length).toUtf8().data());
@@ -4304,7 +4304,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 
 static bool khmer_shape(QShaperItem *item)
 {
-    assert(item->script == QUnicodeTables::Khmer);
+    Q_ASSERT(item->script == QUnicodeTables::Khmer);
 
 #ifndef QT_NO_OPENTYPE
     QOpenType *openType = item->font->openType();
@@ -4373,7 +4373,7 @@ static void khmer_attributes( int script, const QString &text, int from, int len
 	    ++uc;
 	    ++i;
 	}
-	assert( i == boundary );
+	Q_ASSERT( i == boundary );
     }
 }
 

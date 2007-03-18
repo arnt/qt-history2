@@ -23,7 +23,6 @@
 #include <private/qeventdispatcher_win_p.h>
 
 #include <windows.h>
-#include <assert.h>
 
 #ifndef Q_OS_TEMP
 #ifndef _MT

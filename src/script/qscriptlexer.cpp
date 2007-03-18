@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 #define shiftWindowsLineBreak() if(current == '\r' && next1 == '\n') shift(1);
 
@@ -729,7 +728,7 @@ int QScript::Lexer::lex()
     case Bad:
         return -1;
     default:
-        assert(!"unhandled numeration value in switch");
+        Q_ASSERT(!"unhandled numeration value in switch");
         return -1;
     }
 }
@@ -933,7 +932,7 @@ QChar QScript::Lexer::convertUnicode(ushort c1, ushort c2,
 
 void QScript::Lexer::record8(ushort c)
 {
-    assert(c <= 0xff);
+    Q_ASSERT(c <= 0xff);
 
     // enlarge buffer if full
     if (pos8 >= size8 - 1) {

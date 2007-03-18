@@ -173,7 +173,7 @@ QOpenType::~QOpenType()
 
 bool QOpenType::checkScript(unsigned int script)
 {
-    assert(script < QUnicodeTables::ScriptCount);
+    Q_ASSERT(script < QUnicodeTables::ScriptCount);
 
     uint tag = ot_scripts[script].tag;
     int requirements = ot_scripts[script].flags;
@@ -215,7 +215,7 @@ void QOpenType::selectScript(QShaperItem *item, unsigned int script, const Featu
     if (current_script == script && kerning_feature_selected == item->kerning_enabled)
         return;
 
-    assert(script < QUnicodeTables::ScriptCount);
+    Q_ASSERT(script < QUnicodeTables::ScriptCount);
     // find script in our list of supported scripts.
     uint tag = ot_scripts[script].tag;
 

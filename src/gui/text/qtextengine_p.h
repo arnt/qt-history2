@@ -42,9 +42,6 @@
 #endif
 
 #include <stdlib.h>
-#ifndef Q_OS_TEMP
-#include <assert.h>
-#endif // Q_OS_TEMP
 
 class QFontPrivate;
 class QFontEngine;
@@ -609,7 +606,6 @@ public:
 
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTextEngine::ShaperFlags)
-
 
 
 #endif // QTEXTENGINE_P_H

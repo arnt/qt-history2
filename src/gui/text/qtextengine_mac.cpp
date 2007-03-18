@@ -15,7 +15,7 @@
 
 void QTextEngine::shapeText(int item) const
 {
-    assert(item < layoutData->items.size());
+    Q_ASSERT(item < layoutData->items.size());
     QScriptItem &si = layoutData->items[item];
 
     if (si.num_glyphs)

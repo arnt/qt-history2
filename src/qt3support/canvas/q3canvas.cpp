@@ -119,7 +119,7 @@ void Q3CanvasClusterizer::add(const QRect& rect)
 {
     QRect biggerrect(rect.x()-1,rect.y()-1,rect.width()+2,rect.height()+2);
 
-    //assert(rect.width()>0 && rect.height()>0);
+    //Q_ASSERT(rect.width()>0 && rect.height()>0);
 
     int cursor;
 
