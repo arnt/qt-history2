@@ -9,13 +9,20 @@
 
 #include <QtCore>
 #include <QtTest/QtTest>
+#include <QtXml/QXmlStreamReader>
 
 class tst_Selftests: public QObject
 {
     Q_OBJECT
 private slots:
+    void initTestCase();
     void runSubTest_data();
     void runSubTest();
+    void checkXML() const;
+    void checkXML_data();
+
+private:
+    QStringList m_checkXMLBlacklist;
 };
 
 static QList<QByteArray> splitLines(QByteArray ba)
@@ -104,6 +111,45 @@ void tst_Selftests::runSubTest()
             continue;
         QCOMPARE(QString::fromLatin1(line), QString::fromLatin1(exp.at(i)));
     }
+}
+
+void tst_Selftests::initTestCase()
+{
+    m_checkXMLBlacklist.append("crashes"); // This test crashes
+    m_checkXMLBlacklist.append("fetchbogus"); // This test asserts
+}
+
+void tst_Selftests::checkXML() const
+{
+    QFETCH(QString, subdir);
+
+    QEXPECT_FAIL("multiexec", "Output from several tests is broken with the XML output method, "
+                              "and it's quite heavy in the design. See task 155001.", Abort);
+
+    if(m_checkXMLBlacklist.contains(subdir))
+        return;
+
+    QProcess proc;
+    proc.setEnvironment(QStringList(""));
+    proc.start(subdir + "/tst_" + subdir + " -xml");
+    QVERIFY(proc.waitForFinished());
+
+    QByteArray out(proc.readAllStandardOutput());
+    QByteArray err(proc.readAllStandardError());
+
+    QVERIFY2(err.isEmpty(), err.constData());
+
+    QXmlStreamReader reader(out);
+
+    while(!reader.atEnd())
+        reader.readNext();
+
+    QVERIFY(!reader.error());
+}
+
+void tst_Selftests::checkXML_data()
+{
+    runSubTest_data();
 }
 
 QTEST_MAIN(tst_Selftests)
