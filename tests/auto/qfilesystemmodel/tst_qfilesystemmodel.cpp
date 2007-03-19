@@ -203,6 +203,7 @@ void tst_QFileSystemModel::iconProvider()
 
 bool tst_QFileSystemModel::createFiles(const QString &test_path, const QStringList &initial_files, const QStringList &initial_dirs, const QString &dir)
 {
+    QTest::qWait(WAITTIME);
     QDir baseDir(dir);
     if (!baseDir.exists(test_path)) {
         if (!baseDir.mkdir(test_path) && false) {
