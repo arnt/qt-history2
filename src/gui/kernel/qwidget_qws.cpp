@@ -767,7 +767,8 @@ void QWidgetPrivate::raise_sys()
         }
 #endif // QT_NO_WINDOWGROUPHINT
     } else if (QWidget *p = q->parentWidget()) {
-        p->update(q->geometry());
+        setDirtyOpaqueRegion();
+        q->update(q->rect());
     }
 }
 
@@ -779,7 +780,8 @@ void QWidgetPrivate::lower_sys()
         QWidget::qwsDisplay()->setAltitude(data.winid,
                                            QWSChangeAltitudeCommand::Lower);
     } else if (QWidget *p = q->parentWidget()) {
-        p->update(q->geometry());
+        setDirtyOpaqueRegion();
+        p->d_func()->invalidateBuffer(q->geometry());
     }
 }
 
@@ -787,7 +789,8 @@ void QWidgetPrivate::stackUnder_sys(QWidget*)
 {
     Q_Q(QWidget);
     if (QWidget *p = q->parentWidget()) {
-        p->update(q->geometry());
+        setDirtyOpaqueRegion();
+        p->d_func()->invalidateBuffer(q->geometry());
     }
 }
 
