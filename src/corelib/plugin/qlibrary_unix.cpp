@@ -82,10 +82,10 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 #else // POSIX
 #include <dlfcn.h>
 
-static const char *qdlerror()
+static QString qdlerror()
 {
     const char *err = dlerror();
-    return err ? err : "";
+    return err ? QString::fromLocal8Bit(err) : QString();
 }
 
 bool QLibraryPrivate::load_sys()
@@ -178,7 +178,7 @@ bool QLibraryPrivate::load_sys()
     }
 # endif
     if (!pHnd) {
-        errorString = QLibrary::tr("QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(QString::fromAscii(qdlerror()));
+        errorString = QLibrary::tr("QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(qdlerror());
     }
     if (pHnd) {
         qualifiedFileName = attempt;
@@ -190,7 +190,7 @@ bool QLibraryPrivate::load_sys()
 bool QLibraryPrivate::unload_sys()
 {
     if (dlclose(pHnd)) {
-        errorString = QLibrary::tr("QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(QString::fromAscii(qdlerror()));
+        errorString = QLibrary::tr("QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(qdlerror());
         return false;
     }
     errorString.clear();
@@ -218,7 +218,7 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 #endif
     if (!address) {
         errorString = QLibrary::tr("QLibrary::resolve_sys: Symbol \"%1\" undefined in %2 (%3)").arg(
-            QString::fromAscii(symbol)).arg(fileName).arg(QString::fromAscii(qdlerror()));
+            QString::fromAscii(symbol)).arg(fileName).arg(qdlerror());
     } else {
         errorString.clear();
     }
