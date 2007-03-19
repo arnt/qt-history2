@@ -31,7 +31,11 @@ static const int windowsRightBorder      = 15; // right border on windows
 #ifndef BP_COMMANDLINK
 #  define BP_COMMANDLINK 6
 #  define BP_COMMANDLINKGLYPH 7
-#endif                               
+#  define CMDLS_NORMAL = 1,
+#  define CMDLS_HOT = 2,
+#  define CMDLS_PRESSED = 3,
+#  define CMDLS_DISABLED = 4,
+#endif        
 
 // Runtime resolved theme engine function calls
 
