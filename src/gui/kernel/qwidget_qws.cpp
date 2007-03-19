@@ -160,7 +160,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
         if (initializeWindow) {
             //XXX XDefineCursor(dpy, winid, oc ? oc->handle() : cursor().handle());
         }
-        q->setAttribute(Qt::WA_SetCursor);
         QWidget::qwsDisplay()->nameRegion(q->internalWinId(), q->objectName(), q->windowTitle());
     }
 
