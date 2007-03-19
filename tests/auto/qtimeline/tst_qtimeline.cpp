@@ -286,7 +286,7 @@ void tst_QTimeLine::loopCount()
     QCOMPARE(timeLine.state(), QTimeLine::Running);
     timeLine.stop();
 
-    timeLine.setDuration(250);
+    timeLine.setDuration(2500); // ### some platforms have a very low resolution timer
 	timeLine.setFrameRange(0, 2);
     timeLine.setLoopCount(4);
 
