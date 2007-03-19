@@ -7,7 +7,6 @@ TARGET = validators
 DEPENDPATH += .
 INCLUDEPATH += .
 
-CONFIG += debug
 FORMS += validators.ui
 RESOURCES += validators.qrc
 
