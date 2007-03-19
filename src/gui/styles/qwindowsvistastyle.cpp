@@ -27,6 +27,10 @@ static const int windowsRightBorder      = 15; // right border on windows
 #endif                               
 #ifndef TMT_SIZINGMARGINS            
 #  define TMT_SIZINGMARGINS 3601
+#endif          
+#ifndef BP_COMMANDLINK
+#  define BP_COMMANDLINK 6
+#  define BP_COMMANDLINKGLYPH 7
 #endif                               
 
 // Runtime resolved theme engine function calls
@@ -641,10 +645,8 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
             } else {
                 name = QLatin1String("BUTTON");
                 partId = BP_PUSHBUTTON;
-#if 0
                 if (btn->features & QStyleOptionButton::CommandLinkButton)
                     partId = BP_COMMANDLINK;
-#endif
                 bool justFlat = (btn->features & QStyleOptionButton::Flat) && !(flags & (State_On|State_Sunken));
                 if (!(flags & State_Enabled) && !(btn->features & QStyleOptionButton::Flat))
                     stateId = PBS_DISABLED;
@@ -2115,7 +2117,6 @@ QIcon QWindowsVistaStyle::standardIconImplementation(StandardPixmap standardIcon
 
     QWindowsVistaStylePrivate *d = const_cast<QWindowsVistaStylePrivate *>(d_func());
     switch(standardIcon) {
-#if 0
     case SP_CommandLink:
         {
             XPThemeData theme(0, 0, QLatin1String("BUTTON"), BP_COMMANDLINKGLYPH, CMDLGS_NORMAL);
@@ -2149,7 +2150,6 @@ QIcon QWindowsVistaStyle::standardIconImplementation(StandardPixmap standardIcon
             }
         }
         break;
-#endif
     default:
         break;
     }
