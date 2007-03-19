@@ -28,6 +28,7 @@ var ECLIPSE_MINGW_LOCATION
 !define MODULE_ECLIPSE_QTDESIGNER_ID "com.trolltech.qtdesigner_${MODULE_ECLIPSE_VERSION}"
 !define MODULE_ECLIPSE_QTDESIGNER_LABEL "Qt Designer Integration"
 !define MODULE_ECLIPSE_QTDESIGNER_INSTALLEDKEY "EclipseQtDesignerInstalled"
+!define MODULE_ECLIPSE_QTDESIGNER_QT_ID "com.trolltech.qtdesigner.qt_${MODULE_ECLIPSE_VERSION}"
 !define MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID "com.trolltech.qtdesignerplugins"
 
 !define MODULE_ECLIPSE_QTINTEGRATIONHELP_ID "com.trolltech.qtintegrationhelp_${MODULE_ECLIPSE_VERSION}"
@@ -90,6 +91,7 @@ Section "${MODULE_ECLIPSE_QTDESIGNER_LABEL}" ECLIPSE_SEC02
   SetOutPath "$ECLIPSE_LOCATION\plugins\"
   SetOverwrite ifnewer
   File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNER_ID}.jar"
+  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNER_QT_ID}.jar"
   
   SetOutPath "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID}\"
   SetOverwrite ifnewer
@@ -293,10 +295,8 @@ Section un."Eclipse Integration"
     push "$ECLIPSE_INSTDIR\qtdesigner.dll"
     call un.RegSvr
 
-;; qdesignerplugins  
-;;    Delete "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNERPLUGINS_ID}\qt3supportwidgets.dll"
-
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTDESIGNER_ID}.jar"
+    Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTDESIGNER_QT_ID}.jar"
     Delete "$ECLIPSE_INSTDIR\QtDesigner4.dll"
     Delete "$ECLIPSE_INSTDIR\QtScript4.dll"
     Delete "$ECLIPSE_INSTDIR\QtDesignerComponents4.dll"
