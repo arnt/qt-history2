@@ -4553,7 +4553,11 @@ void tst_QWidget::compatibilityChildInsertedEvents()
         expected =
             EventRecorder::EventList()
             << qMakePair(&widget, QEvent::PolishRequest)
-            << qMakePair(&widget, QEvent::Type(QEvent::User + 1));
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+            << qMakePair(&widget, QEvent::UpdateRequest)
+#endif
+            ;
         QCOMPARE(spy.eventList(), expected);
     }
 
@@ -4641,7 +4645,11 @@ void tst_QWidget::compatibilityChildInsertedEvents()
 #endif
             << qMakePair(&widget, QEvent::PolishRequest)
             << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
-            << qMakePair(&widget, QEvent::Type(QEvent::User + 2));
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+            << qMakePair(&widget, QEvent::UpdateRequest)
+#endif
+            ;
         QCOMPARE(spy.eventList(), expected);
     }
 
@@ -4729,7 +4737,11 @@ void tst_QWidget::compatibilityChildInsertedEvents()
 #endif
             << qMakePair(&widget, QEvent::PolishRequest)
             << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
-            << qMakePair(&widget, QEvent::Type(QEvent::User + 2));
+            << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+            << qMakePair(&widget, QEvent::UpdateRequest)
+#endif
+            ;
         QCOMPARE(spy.eventList(), expected);
     }
 }
