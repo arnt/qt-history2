@@ -18,7 +18,6 @@
 #include "mainwindow.h"
 #include "config.h"
 #include "tabbedbrowser.h"
-#include "private/qunicodetables_p.h"
 
 #include <QtGui>
 #include <QtDebug>
