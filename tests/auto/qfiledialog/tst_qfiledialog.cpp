@@ -53,6 +53,7 @@ private slots:
     void isDetailsExpanded();
     void proxymodel();
     void setFilter();
+    void focus();
 
 };
 
@@ -374,6 +375,18 @@ void tst_QFiledialog::setFilter()
     QFileDialog fd;
     fd.setFilter(QString());
     fd.setFilters(QStringList());
+}
+
+void tst_QFiledialog::focus()
+{
+    QFileDialog fd;
+    fd.show();
+    qApp->processEvents();
+
+    QList<QTreeView*> treeView = fd.findChildren<QTreeView*>("treeView");
+    QCOMPARE(treeView.count(), 1);
+    QVERIFY(treeView.at(0));
+    QCOMPARE(treeView.at(0)->hasFocus(), true);
 }
 
 QTEST_MAIN(tst_QFiledialog)
