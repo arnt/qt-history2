@@ -1587,6 +1587,7 @@ void tst_QComboBox::flaggedItems_data()
         IntList deselectFlagList;
         IntList disableFlagList;
         KeyList keyMovementList;
+
         keyMovementList << Qt::Key_Down << Qt::Key_Down << Qt::Key_Down << Qt::Key_Down;
         QTest::newRow(testCase + "normal") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 4;
 
@@ -1605,7 +1606,6 @@ void tst_QComboBox::flaggedItems_data()
         deselectFlagList << 1 << 3;
         disableFlagList << 2 << 3;
         QTest::newRow(testCase + "mixed") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 6;
-
         deselectFlagList.clear();
         disableFlagList.clear();
         disableFlagList << 0 << 1 << 2 << 3 << 4 << 5 << 6;
@@ -1648,10 +1648,12 @@ void tst_QComboBox::flaggedItems_data()
             keyMovementList << Qt::Key_End << Qt::Key_Up << Qt::Key_Up << Qt::Key_PageDown << Qt::Key_PageUp << Qt::Key_PageUp << Qt::Key_Down;
             QTest::newRow(testCase + "all key combinations") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 4;
         } else {
+            deselectFlagList.clear();
             disableFlagList.clear();
             disableFlagList << 1;
+            keyMovementList.clear();
             keyMovementList << Qt::Key_T << Qt::Key_Enter;
-            QTest::newRow(testCase + "broken autocompletion") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 2;
+            QTest::newRow(testCase + "disabled") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 2;
         }
     }
 }
@@ -1678,20 +1680,17 @@ void tst_QComboBox::flaggedItems()
 
     comboBox.setModel(listWidget.model());
     comboBox.setView(&listWidget);
-
-    // ### makes the test fail, and does not impact the other test comparisons
-    //we have to show and put the focus because the completer
-    //is only used when the widget actually has the focus
-    //comboBox.show();
-    //comboBox.setFocus();
-    //qApp->processEvents();
-    //QCOMPARE(qApp->focusWidget(), &comboBox);
+    comboBox.show();
+    comboBox.setFocus();
+    qApp->processEvents();
 
     if (editable)
         comboBox.lineEdit()->selectAll();
 
-    foreach (Qt::Key key, keyMovementList)
+    foreach (Qt::Key key, keyMovementList) {
+        qApp->processEvents();
         QTest::keyClick(&comboBox, key);
+    }
 
     QCOMPARE(comboBox.currentIndex() , expectedIndex);
 }
