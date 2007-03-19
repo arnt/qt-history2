@@ -108,7 +108,7 @@ public:
     OptimizationFlags optimizationFlags() const;
     void setOptimizationFlag(OptimizationFlag flag, bool enabled = true);
     void setOptimizationFlags(OptimizationFlags flags);
-    
+
     DragMode dragMode() const;
     void setDragMode(DragMode mode);
 
@@ -230,8 +230,8 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QGraphicsView)
 #ifndef QT_NO_CURSOR
-    Q_PRIVATE_SLOT(d, void _q_setViewportCursor(const QCursor &))
-    Q_PRIVATE_SLOT(d, void _q_unsetViewportCursor())
+    Q_PRIVATE_SLOT(d_func(), void _q_setViewportCursor(const QCursor &))
+    Q_PRIVATE_SLOT(d_func(), void _q_unsetViewportCursor())
 #endif
     friend class QGraphicsSceneWidget;
 };

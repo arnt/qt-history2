@@ -3321,7 +3321,5 @@ void QGraphicsView::resetTransform()
     setTransform(QTransform());
 }
 
-#define d d_func()
 #include "moc_qgraphicsview.cpp"
-
 #endif // QT_NO_GRAPHICSVIEW
