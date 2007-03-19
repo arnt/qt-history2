@@ -59,12 +59,13 @@
 
 extern Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap);
 
-static int serialNumCounter = 0;
+QBasicAtomic serialNumCounter = Q_ATOMIC_INIT(0);
 
 class QIconPrivate
 {
 public:
-    QIconPrivate():ref(1),engine(0),serialNum(++serialNumCounter), detach_no(0), engine_version(2) {}
+    QIconPrivate():ref(1), engine(0), serialNum(serialNumCounter.fetchAndAdd(1)), detach_no(0), engine_version(2) {}
+
     ~QIconPrivate() { delete engine; }
     QAtomic ref;
     QIconEngine *engine;
