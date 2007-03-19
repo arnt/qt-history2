@@ -2410,7 +2410,7 @@ void tst_QWidget::widgetAt()
     w1->setGeometry(0,0,150,150);
     w1->setObjectName("w1");
 
-    QWidget *w2 = new QWidget(0, Qt::X11BypassWindowManagerHint);
+    QWidget *w2 = new QWidget(0, Qt::X11BypassWindowManagerHint  | Qt::FramelessWindowHint);
     w2->setGeometry(50,50,100,100);
     w2->setObjectName("w2");
     w1->show();
