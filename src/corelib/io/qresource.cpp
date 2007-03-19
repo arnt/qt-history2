@@ -28,6 +28,8 @@
 #include <qplatformdefs.h>
 #include "private/qabstractfileengine_p.h"
 
+//#define DEBUG_RESOURCE_MATCH
+
 //resource glue
 class QResourceRoot
 {
@@ -563,8 +565,17 @@ int QResourceRoot::findNode(const QString &_path, const QLocale &locale) const
     //now iterate up the tree
     int node = -1;
     QStringList segments = path.split(QLatin1Char('/'), QString::SkipEmptyParts);
+#ifdef DEBUG_RESOURCE_MATCH
+    qDebug() << "****" << segments;
+#endif
     for(int i = 0; child_count && i < segments.size(); ++i) {
         const QString &segment = segments[i];
+#ifdef DEBUG_RESOURCE_MATCH
+        qDebug() << "  TRY" << segment;
+        for(int j = 0; j < child_count; ++j) {
+            qDebug() << "   " << j << " :: " << name(child+j);
+        }
+#endif
         const int h = qHash(segment);
 
         //do the binary search for the hash

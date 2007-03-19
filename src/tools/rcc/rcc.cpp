@@ -12,12 +12,13 @@
 ****************************************************************************/
 
 #include "rcc.h"
-#include <QFile>
-#include <QDateTime>
-#include <QByteArray>
-#include <QDir>
-#include <QStack>
-#include <QDomDocument>
+#include <qdebug.h>
+#include <qfile.h>
+#include <qdatetime.h>
+#include <qbytearray.h>
+#include <qdir.h>
+#include <qstack.h>
+#include <qdom.h>
 
 static bool qt_rcc_write_number(FILE *out, quint32 number, int width, RCCResourceLibrary::Format format)
 {
@@ -164,6 +165,7 @@ qint64 RCCFileInfo::writeDataBlob(FILE *out, qint64 offset, RCCResourceLibrary::
 
 qint64 RCCFileInfo::writeDataName(FILE *out, qint64 offset, RCCResourceLibrary::Format format)
 {
+    qDebug() << this << name;
     //capture the offset
     nameOffset = offset;
 
@@ -334,15 +336,20 @@ bool RCCResourceLibrary::addFile(const QString &alias, const RCCFileInfo &file)
                 file.fileInfo.absoluteFilePath().toLatin1().constData());
         return false;
     }
-    if(!root)
+    if(!root) {
         root = new RCCFileInfo(QLatin1String(""), QFileInfo(), QLocale::C, QLocale::AnyCountry, RCCFileInfo::Directory);
+        qDebug() << __LINE__ << root;
+    }
 
     RCCFileInfo *parent = root;
     const QStringList nodes = alias.split(QLatin1Char('/'));
     for(int i = 1; i < nodes.size()-1; ++i) {
-        const QString node = nodes.at(i);
+        QString node = nodes.at(i);
+        if(node.isEmpty())
+            continue;
         if(!parent->children.contains(node)) {
             RCCFileInfo *s = new RCCFileInfo(node, QFileInfo(), QLocale::C, QLocale::AnyCountry, RCCFileInfo::Directory);
+            qDebug() << __LINE__ << s;
             s->parent = parent;
             parent->children.insert(node, s);
             parent = s;
@@ -353,6 +360,7 @@ bool RCCResourceLibrary::addFile(const QString &alias, const RCCFileInfo &file)
 
     const QString filename = nodes.at(nodes.size()-1);
     RCCFileInfo *s = new RCCFileInfo(file);
+    qDebug() << __LINE__ << s;
     s->parent = parent;
     parent->children.insertMulti(filename, s);
     return true;
