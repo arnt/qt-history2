@@ -121,7 +121,7 @@ QSslCipher &QSslCipher::operator=(const QSslCipher &other)
 */
 bool QSslCipher::operator==(const QSslCipher &other) const
 {
-    return d->name == other.d->name && d->protocol && other.d->protocol;
+    return d->name == other.d->name && d->protocol == other.d->protocol;
 }
 
 /*!

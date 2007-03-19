@@ -575,9 +575,11 @@ QSslKey QSslSocket::privateKey() const
     peer. The list is returned in descending preferred order (i.e., the first
     cipher in the list is the most preferred cipher).
 
-    By default, the socket will use a predefined set of ciphers that works for
-    most common cases. This predefined set is defined by the current SSL
-    libraries, and may vary from system to system.
+    By default, the socket will use supportedCiphers(), a predefined set of
+    ciphers that works for most common cases. This predefined set is defined
+    by the current SSL libraries, and may vary from system to system. If you
+    change the ciphers for this socket, you can later call resetCiphers() at
+    any time to revert to using the default set.
 
     \sa setCiphers(), resetCiphers(), globalCiphers(), supportedCiphers()
 */
@@ -845,7 +847,7 @@ bool QSslSocket::waitForEncrypted(int msecs)
     Q_D(QSslSocket);
     if (!d->plainSocket || d->connectionEncrypted)
         return false;
-    if (!d->autoStartHandShake)
+    if (d->mode == PlainMode && !d->autoStartHandShake)
         return false;
 
     QTime stopWatch;
@@ -1132,6 +1134,7 @@ QSslSocketPrivate::~QSslSocketPrivate()
 */
 void QSslSocketPrivate::init()
 {
+    Q_Q(QSslSocket);
     mode = QSslSocket::PlainMode;
     autoStartHandShake = false;
     connectionEncrypted = false;
@@ -1144,6 +1147,8 @@ void QSslSocketPrivate::init()
     readBuffer.clear();
     writeBuffer.clear();
     peerCertificate.clear();
+
+    q->resetCiphers();
 }
 
 /*!

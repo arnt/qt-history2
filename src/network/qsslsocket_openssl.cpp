@@ -180,7 +180,17 @@ QSslCipher QSslSocketBackendPrivate::QSslCipher_from_SSL_CIPHER(SSL_CIPHER *ciph
         // ### crude code.
         ciph.d->isNull = false;
         ciph.d->name = descriptionList.at(0);
-        ciph.d->protocolString = descriptionList.at(1);
+
+        QString protoString = descriptionList.at(1);
+        ciph.d->protocolString = protoString;
+        ciph.d->protocol = QSslCipher::Unknown;
+        if (protoString == QLatin1String("SSLv3"))
+            ciph.d->protocol = QSslCipher::SslV3;
+        else if (protoString == QLatin1String("SSLv2"))
+            ciph.d->protocol = QSslCipher::SslV2;
+        else if (protoString == QLatin1String("TLSv1"))
+            ciph.d->protocol = QSslCipher::TlsV1;
+        
         if (descriptionList.at(2).startsWith(QLatin1String("Kx=")))
             ciph.d->keyExchangeMethod = descriptionList.at(2).mid(3);
         if (descriptionList.at(3).startsWith(QLatin1String("Au=")))
@@ -496,8 +506,10 @@ bool QSslSocketBackendPrivate::testConnection()
 
 void QSslSocketBackendPrivate::disconnectFromHost()
 {
-    if (ssl)
+    if (ssl) {
         q_SSL_shutdown(ssl);
+        transmit();
+    }
     plainSocket->disconnectFromHost();
 }
 

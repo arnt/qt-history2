@@ -8,10 +8,10 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
-#include <qsslsocket.h>
-
 #include <QtNetwork/qhostaddress.h>
 #include <QtNetwork/qnetworkproxy.h>
+#include <QtNetwork/qsslcipher.h>
+#include <QtNetwork/qsslsocket.h>
 
 class tst_QSslSocket : public QObject
 {
@@ -61,9 +61,7 @@ private slots:
     void privateKey();
     void protocol();
     void resetCaCertificates();
-    void resetCiphers();
     void setCaCertificates();
-    void setCiphers();
     void setLocalCertificate();
     void setPrivateKey();
     void setProtocol();
@@ -299,6 +297,14 @@ void tst_QSslSocket::caCertificates()
 
 void tst_QSslSocket::ciphers()
 {
+    QSslSocket socket;
+    QCOMPARE(socket.ciphers(), QSslSocket::supportedCiphers());
+    socket.setCiphers(QList<QSslCipher>());
+    QVERIFY(socket.ciphers().isEmpty());
+    socket.resetCiphers();
+    QCOMPARE(socket.ciphers(), QSslSocket::supportedCiphers());
+    socket.resetCiphers();
+    QCOMPARE(socket.ciphers(), QSslSocket::supportedCiphers());
 }
 
 void tst_QSslSocket::connectToHostEncrypted()
@@ -307,6 +313,19 @@ void tst_QSslSocket::connectToHostEncrypted()
 
 void tst_QSslSocket::currentCipher()
 {
+    QSslSocket socket;
+    this->socket = &socket;
+    connect(&socket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(ignoreErrorSlot()));
+    QVERIFY(socket.currentCipher().isNull());
+    socket.connectToHost("fluke.troll.no", 443 /* https */);
+    QVERIFY(socket.waitForConnected(5000));
+    QVERIFY(socket.currentCipher().isNull());
+    socket.startClientHandShake();
+    QVERIFY(socket.waitForEncrypted(5000));
+    QVERIFY(!socket.currentCipher().isNull());
+    QVERIFY(QSslSocket::supportedCiphers().contains(socket.currentCipher()));
+    socket.disconnectFromHost();
+    QVERIFY(socket.waitForDisconnected());
 }
 
 void tst_QSslSocket::flush()
@@ -345,15 +364,7 @@ void tst_QSslSocket::resetCaCertificates()
 {
 }
 
-void tst_QSslSocket::resetCiphers()
-{
-}
-
 void tst_QSslSocket::setCaCertificates()
-{
-}
-
-void tst_QSslSocket::setCiphers()
 {
 }
 

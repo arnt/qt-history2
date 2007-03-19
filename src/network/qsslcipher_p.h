@@ -42,7 +42,8 @@ class QSslCipherPrivate
 {
 public:
     QSslCipherPrivate()
-        : isNull(true)
+        : isNull(true), supportedBits(0), bits(0),
+          exportable(false), protocol(QSslCipher::Unknown)
     {
     }
 
