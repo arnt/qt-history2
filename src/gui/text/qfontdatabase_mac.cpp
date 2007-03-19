@@ -115,50 +115,63 @@ static void initializeDb()
         }
     }
 #else
-    FMFontFamilyIterator it;
-    QString foundry_name = QLatin1String("ATSUI");
-    if(!FMCreateFontFamilyIterator(NULL, NULL, kFMUseGlobalScopeOption, &it)) {
-        FMFontFamily fam;
-        QString fam_name;
-        while(!FMGetNextFontFamily(&it, &fam)) {
-            { //sanity check the font, and see if we can use it at all! --Sam
-                ATSUFontID fontID;
-                if(ATSUFONDtoFontID(fam, 0, &fontID) != noErr)
-                    continue;
-            }
+    FMFontIterator it;
+    if (!FMCreateFontIterator(0, 0, kFMUseGlobalScopeOption, &it)) {
+        while (true) {
+            FMFont fmFont;
+            if (FMGetNextFont(&it, &fmFont) != noErr)
+                break;
 
-            ATSFontFamilyRef familyRef = FMGetATSFontFamilyRefFromFontFamily(fam);
-            QCFString familyStr;
-            ATSFontFamilyGetName(familyRef, kATSOptionFlagsDefault, &familyStr);
-            fam_name = familyStr;
+            FMFontFamily fmFamily;
+            FMFontStyle fmStyle;
+            QString familyName;
 
-            QtFontFamily *family = db->family(fam_name, true);
-            QtFontFoundry *foundry = family->foundry(foundry_name, true);
+            QtFontStyle::Key styleKey;
 
-            FMFontFamilyInstanceIterator fit;
-            if(!FMCreateFontFamilyInstanceIterator(fam, &fit)) {
-                FMFont font;
-                FMFontStyle font_style;
-                FMFontSize font_size;
+            ATSFontRef atsFont = FMGetATSFontRefFromFont(fmFont);
 
-                while(!FMGetNextFontFamilyInstance(&fit, &font, &font_style, &font_size)) {
-                    bool italic = (bool)(font_style & ::italic);
-                    int weight = ((font_style & ::bold) ? QFont::Bold : QFont::Normal);
-                    QtFontStyle::Key styleKey;
-                    styleKey.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
-                    styleKey.weight = weight;
-
-                    QtFontStyle *style = foundry->style(styleKey, true);
-                    style->pixelSize(font_size, true);
-                    style->smoothScalable = true;
-
-                    ATSFontRef atsFont = FMGetATSFontRefFromFont(font);
-                    initWritingSystems(family, atsFont);
+            if (!FMGetFontFamilyInstanceFromFont(fmFont, &fmFamily, &fmStyle)) {
+                { //sanity check the font, and see if we can use it at all! --Sam
+                    ATSUFontID fontID;
+                    if(ATSUFONDtoFontID(fmFamily, 0, &fontID) != noErr)
+                        continue;
                 }
-                FMDisposeFontFamilyInstanceIterator(&fit);
+
+                if (fmStyle & ::italic)
+                    styleKey.style = QFont::StyleItalic;
+                if (fmStyle & ::bold)
+                    styleKey.weight = QFont::Bold;
+
+                ATSFontFamilyRef familyRef = FMGetATSFontFamilyRefFromFontFamily(fmFamily);
+                QCFString cfFamilyName;;
+                ATSFontFamilyGetName(familyRef, kATSOptionFlagsDefault, &cfFamilyName);
+                familyName = cfFamilyName;
+            } else {
+                QCFString cfFontName;
+                ATSFontGetName(atsFont, kATSOptionFlagsDefault, &cfFontName);
+                familyName = cfFontName;
+                quint16 macStyle = 0;
+                {
+                    uchar data[4];
+                    ByteCount len = 4;
+                    if (ATSFontGetTable(atsFont, MAKE_TAG('h', 'e', 'a', 'd'), 44, 4, &data, &len) == noErr)
+                        macStyle = qFromBigEndian<quint16>(data);
+                }
+                if (macStyle & 1)
+                    styleKey.weight = QFont::Bold;
+                if (macStyle & 2)
+                    styleKey.style = QFont::StyleItalic;
             }
+
+            QtFontFamily *family = db->family(familyName, true);
+            QtFontFoundry *foundry = family->foundry(QString(), true);
+            QtFontStyle *style = foundry->style(styleKey, true);
+            style->pixelSize(0, true);
+            style->smoothScalable = true;
+
+            initWritingSystems(family, atsFont);
         }
-        FMDisposeFontFamilyIterator(&it);
+        FMDisposeFontIterator(&it);
     }
 #endif
 }
