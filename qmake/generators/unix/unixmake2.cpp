@@ -109,13 +109,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     {
         const QStringList &incs = project->values("INCLUDEPATH");
-        for(QStringList::ConstIterator incit = incs.begin(); incit != incs.end(); ++incit)
-            t << " " << "-I" << escapeFilePath((*incit));
-    }
-    {
-        const QStringList &incs = project->values("INCLUDEPATH");
-        for(QStringList::ConstIterator incit = incs.begin(); incit != incs.end(); ++incit)
-            t << " " << "-I" << escapeFilePath((*incit));
+        for(int i = 0; i < incs.size(); ++i) {
+            QString inc = escapeFilePath(incs.at(i));
+            if(!inc.isEmpty())
+                t << " " << "-I" << inc;
+        }
     }
     if(!project->isEmpty("QMAKE_FRAMEWORKPATH_FLAGS"))
        t << " " << var("QMAKE_FRAMEWORKPATH_FLAGS");

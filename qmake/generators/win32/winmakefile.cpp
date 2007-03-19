@@ -501,12 +501,13 @@ void Win32MakefileGenerator::writeIncPart(QTextStream &t)
 {
     t << "INCPATH       = ";
 
-    QStringList &incs = project->values("INCLUDEPATH");
-    for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
-        QString inc = (*incit);
+    const QStringList &incs = project->values("INCLUDEPATH");
+    for(int i = 0; i < incs.size(); ++i) {
+        QString inc = incs.at(i);
         inc.replace(QRegExp("\\\\$"), "");
         inc.replace(QRegExp("\""), "");
-        t << "-I" << "\"" << inc << "\" ";
+        if(!inc.isEmpty())
+            t << "-I" << "\"" << inc << "\" ";
     }
     t << "-I\"" << specdir() << "\""
       << endl;
