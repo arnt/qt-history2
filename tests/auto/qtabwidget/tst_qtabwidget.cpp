@@ -27,6 +27,10 @@
 # include <qwindowsystem_qws.h>
 #endif
 
+#ifndef Q_CHECK_PAINTEVENTS
+#define Q_CHECK_PAINTEVENTS
+#endif //Q_CHECK_PAINTEVENTS
+
 
 class QTabWidgetChild:public QTabWidget {
   public:
