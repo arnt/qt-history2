@@ -398,22 +398,27 @@ void QCursorData::update()
     case Qt::SizeVerCursor:
         cursorData = cur_ver_bits;
         cursorMaskData = mcur_ver_bits;
+        hx = hy = 8;
         break;
     case Qt::SizeHorCursor:
         cursorData = cur_hor_bits;
         cursorMaskData = mcur_hor_bits;
+        hx = hy = 8;
         break;
     case Qt::SizeBDiagCursor:
         cursorData = cur_fdiag_bits;
         cursorMaskData = mcur_fdiag_bits;
+        hx = hy = 8;
         break;
     case Qt::SizeFDiagCursor:
         cursorData = cur_bdiag_bits;
         cursorMaskData = mcur_bdiag_bits;
+        hx = hy = 8;
         break;
     case Qt::UpArrowCursor:
         cursorData = cur_up_arrow_bits;
         cursorMaskData = mcur_up_arrow_bits;
+        hx = 8;
         break;
 #endif
     default:
