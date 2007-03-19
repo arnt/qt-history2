@@ -1065,7 +1065,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     if (isWindow()) {
         delete d->topData()->backingStore;
         // QWidgetBackingStore will check this variable, hence it must be 0
-        d->topData()->backingStore = 0; 
+        d->topData()->backingStore = 0;
         d->topData()->backingStore = new QWidgetBackingStore(this);
     }
 #endif
@@ -1277,9 +1277,7 @@ void QWidgetPrivate::deleteExtra()
 #if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
             delete extra->topextra->qwsManager;
 #endif
-#ifdef Q_BACKINGSTORE_SUBSURFACES
             delete extra->topextra->windowSurface;
-#endif
             delete extra->topextra;
         }
         delete extra;
@@ -8773,6 +8771,8 @@ QRect QWidgetPrivate::frameStrut() const
     \obsolete
 
     Sets the window surface to be the \a surface specified.
+    The QWidget takes will ownership of the \a surface.
+    widget itself is deleted.
 */
 void QWidget::setWindowSurface(QWindowSurface *surface)
 {
