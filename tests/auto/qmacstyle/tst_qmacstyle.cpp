@@ -188,7 +188,7 @@ void tst_QMacStyle::sizeHints()
 
     // QMacStyle bug: label doesn't react to Small and Mini
     QLabel label1("Blah", &w);
-    QCOMPARE(sh(&label1).height(), SIZE(17, 14, 11));
+    QCOMPARE(sh(&label1).height(), SIZE(18, 14, 11));
 }
 
 void tst_QMacStyle::layoutMargins_data()
