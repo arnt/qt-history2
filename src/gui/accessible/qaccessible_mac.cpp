@@ -753,6 +753,9 @@ static QString nameForEventKind(UInt32 kind)
 */
 static bool qt_mac_append_cf_uniq(CFMutableArrayRef array, CFTypeRef value)
 {
+    if (value == 0)
+        return false; 
+
     CFRange range;
     range.location = 0;
     range.length = CFArrayGetCount(array);
@@ -782,6 +785,11 @@ static AXUIElementRef lookupCreateChild(const QInterfaceItem interface, const in
 {
     const QInterfaceItem child_iface = interface.navigate(QAccessible::Child, childIndex);
     if (child_iface.isValid() == false)
+        return 0;
+
+    // The current mac accessibility bridge does not handle the case where two 
+    // QAccessibleInterfaces in a parent-child relation share the the same object.
+    if (child_iface.id() == 0 && child_iface.object() == interface.object())
         return 0;
 
     AXUIElementRef childElement = accessibleHierarchyManager()->lookup(child_iface);
