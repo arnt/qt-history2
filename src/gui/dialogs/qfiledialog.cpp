@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <qvariant.h>
+#include <private/qwidgetitemdata_p.h>
 #include "qfiledialog.h"
 
 #ifndef QT_NO_FILEDIALOG
