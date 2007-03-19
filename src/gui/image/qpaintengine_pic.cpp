@@ -365,7 +365,14 @@ void QPicturePaintEngine::drawTextItem(const QPointF &p , const QTextItem &ti)
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> drawTextItem():" << p << ti.text();
 #endif
-    if (d->pic_d->formatMajor >= 8) {
+
+    if (d->pic_d->formatMajor >= 9) {
+        int pos;
+        SERIALIZE_CMD(QPicturePrivate::PdcDrawTextItem);
+        d->s << p << ti.text() << ti.font() << ti.renderFlags();
+        writeCmdLength(pos, /*brect=*/QRectF(), /*corr=*/false);
+    } else if (d->pic_d->formatMajor >= 8) {
+        // old old (buggy) format
         int pos;
         SERIALIZE_CMD(QPicturePrivate::PdcDrawTextItem);
         d->s << QPointF(p.x(), p.y() - ti.ascent()) << ti.text() << ti.font() << ti.renderFlags();

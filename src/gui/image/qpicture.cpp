@@ -635,8 +635,25 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             // the text layout direction is not used here because it's already
             // aligned when QPicturePaintEngine::drawTextItem() serializes the
             // drawText() call, therefore ul is unsed in this context
-            qt_format_text(font, QRectF(p, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip,
-                           str, /*brect=*/0, /*tabstops=*/0, /*...*/0, /*tabarraylen=*/0, painter);
+
+            if (d->formatMajor >= 9) {
+                QFont f(font, painter->device());
+                QFontMetrics fm(f);
+                QTransform transform = painter->transform();
+                QTransform old_transform = transform;
+                qreal inv_scale_x = qreal(qt_defaultDpi()) / qreal(painter->device()->logicalDpiX());
+                qreal inv_scale_y = qreal(qt_defaultDpi()) / qreal(painter->device()->logicalDpiY());
+                QPointF pt(p.x()/inv_scale_x, p.y()/inv_scale_y - fm.ascent());
+                transform.scale(inv_scale_x, inv_scale_y);
+                painter->setTransform(transform);
+                qt_format_text(f, QRectF(pt, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip,
+                               str, /*brect=*/0, /*tabstops=*/0, /*...*/0, /*tabarraylen=*/0, painter);
+                painter->setTransform(old_transform);
+            } else {
+                qt_format_text(font, QRectF(p, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip,
+                               str, /*brect=*/0, /*tabstops=*/0, /*...*/0, /*tabarraylen=*/0, painter);
+            }
+
             break;
         }
         case QPicturePrivate::PdcDrawPixmap: {
