@@ -252,6 +252,10 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
     the QSqlRelationalTableModel and QSqlRelationalDelegate if you
     want to resolve foreign keys.
 
+    The QSQLITE driver locks for updates until a select is finished.
+    QSqlTableModel fetches data (QSqlQuery::fetchMore()) as needed;
+    this may cause the updates to time out.
+
     \sa QSqlRelationalTableModel, QSqlQuery, {Model/View Programming},
         {Table Model Example}, {Cached Table Example}
 */

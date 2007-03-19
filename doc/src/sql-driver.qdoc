@@ -552,6 +552,11 @@
     SQLite doesn't have a type-system like other databases, so Qt
     will interpret fields as strings.
 
+    The driver is locked for updates while a select is executed. This
+    may cause problems when using QSqlTableModel because Qt's item views
+    fetch data as needed (with QSqlQuery::fetchMore() in the case of
+    QSqlTableModel).
+
     You can find information about SQLite on \l{http://www.sqlite.org}.
 
     \section3 How to Build the Plugin
