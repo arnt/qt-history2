@@ -452,8 +452,8 @@ static void qt_set_windows_resources()
 
     QT_WA({
         NONCLIENTMETRICS ncm;
-        ncm.cbSize = sizeof(ncm);
-        SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
+        ncm.cbSize = FIELD_OFFSET(NONCLIENTMETRICS, lfMessageFont) + sizeof(LOGFONTW);
+        SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize , &ncm, 0);
         menuFont = qt_LOGFONTtoQFont(ncm.lfMenuFont,true);
         messageFont = qt_LOGFONTtoQFont(ncm.lfMessageFont,true);
         statusFont = qt_LOGFONTtoQFont(ncm.lfStatusFont,true);
@@ -462,8 +462,8 @@ static void qt_set_windows_resources()
     } , {
         // A version
         NONCLIENTMETRICSA ncm;
-        ncm.cbSize = sizeof(ncm);
-        SystemParametersInfoA(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
+        ncm.cbSize = FIELD_OFFSET(NONCLIENTMETRICSA, lfMessageFont) + sizeof(LOGFONTA);
+        SystemParametersInfoA(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0);
         menuFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMenuFont,true);
         messageFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMessageFont,true);
         statusFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfStatusFont,true);
