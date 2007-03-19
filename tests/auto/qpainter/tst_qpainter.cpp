@@ -89,6 +89,13 @@ private slots:
     void setEqualClipRegionAndPath_data();
     void setEqualClipRegionAndPath();
 
+    void clippedFillPath_data();
+    void clippedFillPath();
+    void clippedLines_data();
+    void clippedLines();
+    void clippedPolygon_data();
+    void clippedPolygon();
+
 private:
     void fillData();
     QColor baseColor( int k, int intensity=255 );
@@ -1303,6 +1310,33 @@ void tst_QPainter::setEqualClipRegionAndPath()
 #endif
     QCOMPARE(img1, img2);
 
+#if 0
+    // rotated
+    img1.fill(0x12345678);
+    img2.fill(0x12345678);
+
+    {
+        QPainter p(&img1);
+        p.rotate(25);
+        p.setClipRegion(region);
+        p.fillRect(0, 0, img1.width(), img1.height(), QColor(Qt::red));
+    }
+    {
+        QPainter p(&img2);
+        p.rotate(25);
+        p.setClipPath(path);
+        p.fillRect(0, 0, img2.width(), img2.height(), QColor(Qt::red));
+    }
+
+#if 1
+    if (img1 != img2) {
+        img1.save("setEqualClipRegionAndPath_1.xpm", "XPM");
+        img2.save("setEqualClipRegionAndPath_2.xpm", "XPM");
+    }
+#endif
+    QCOMPARE(img1, img2);
+#endif
+
     // simple uniteclip
     img1.fill(0x12345678);
     img2.fill(0x12345678);
@@ -1386,6 +1420,387 @@ void tst_QPainter::setEqualClipRegionAndPath()
 #endif
     QCOMPARE(img1, img2);
 
+}
+
+void tst_QPainter::clippedFillPath_data()
+{
+    QTest::addColumn<QSize>("imageSize");
+    QTest::addColumn<QPainterPath>("path");
+    QTest::addColumn<QRect>("clipRect");
+    QTest::addColumn<QBrush>("brush");
+    QTest::addColumn<QPen>("pen");
+
+    QLinearGradient gradient(QPoint(0, 0), QPoint(100, 100));
+    gradient.setColorAt(0, Qt::red);
+    gradient.setColorAt(1, Qt::blue);
+
+
+    QPen pen2(QColor(223, 223, 0, 223));
+    pen2.setWidth(2);
+
+    QPainterPath path;
+    path.addRect(QRect(15, 15, 50, 50));
+    QTest::newRow("simple rect 0") << QSize(100, 100) << path
+                                   << QRect(15, 15, 49, 49)
+                                   << QBrush(Qt::NoBrush)
+                                   << QPen(Qt::black);
+    QTest::newRow("simple rect 1") << QSize(100, 100) << path
+                                   << QRect(15, 15, 50, 50)
+                                   << QBrush(Qt::NoBrush)
+                                   << QPen(Qt::black);
+    QTest::newRow("simple rect 2") << QSize(100, 100) << path
+                                   << QRect(15, 15, 51, 51)
+                                   << QBrush(Qt::NoBrush)
+                                   << QPen(Qt::black);
+    QTest::newRow("simple rect 3") << QSize(100, 100) << path
+                                   << QRect(15, 15, 51, 51)
+                                   << QBrush(QColor(Qt::blue))
+                                   << QPen(Qt::NoPen);
+    QTest::newRow("simple rect 4") << QSize(100, 100) << path
+                                   << QRect(15, 15, 51, 51)
+                                   << QBrush(gradient)
+                                   << pen2;
+
+    path = QPainterPath();
+    path.addEllipse(QRect(15, 15, 50, 50));
+    QTest::newRow("ellipse 0") << QSize(100, 100) << path
+                               << QRect(15, 15, 49, 49)
+                               << QBrush(Qt::NoBrush)
+                               << QPen(Qt::black);
+    QTest::newRow("ellipse 1") << QSize(100, 100) << path
+                               << QRect(15, 15, 50, 50)
+                               << QBrush(Qt::NoBrush)
+                               << QPen(Qt::black);
+    QTest::newRow("ellipse 2") << QSize(100, 100) << path
+                               << QRect(15, 15, 51, 51)
+                               << QBrush(Qt::NoBrush)
+                               << QPen(Qt::black);
+    QTest::newRow("ellipse 3") << QSize(100, 100) << path
+                               << QRect(15, 15, 51, 51)
+                               << QBrush(QColor(Qt::blue))
+                               << QPen(Qt::NoPen);
+    QTest::newRow("ellipse 4") << QSize(100, 100) << path
+                               << QRect(15, 15, 51, 51)
+                               << QBrush(gradient)
+                               << pen2;
+
+    path = QPainterPath();
+    path.addRoundRect(QRect(15, 15, 50, 50), 20);
+    QTest::newRow("round rect 0") << QSize(100, 100) << path
+                                  << QRect(15, 15, 49, 49)
+                                  << QBrush(Qt::NoBrush)
+                                  << QPen(Qt::black);
+    QTest::newRow("round rect 1") << QSize(100, 100) << path
+                                  << QRect(15, 15, 50, 50)
+                                  << QBrush(Qt::NoBrush)
+                                  << QPen(Qt::black);
+    QTest::newRow("round rect 2") << QSize(100, 100) << path
+                                  << QRect(15, 15, 51, 51)
+                                  << QBrush(Qt::NoBrush)
+                                  << QPen(Qt::black);
+    QTest::newRow("round rect 3") << QSize(100, 100) << path
+                                  << QRect(15, 15, 51, 51)
+                                  << QBrush(QColor(Qt::blue))
+                                  << QPen(Qt::NoPen);
+    QTest::newRow("round rect 4") << QSize(100, 100) << path
+                                  << QRect(15, 15, 51, 51)
+                                  << QBrush(gradient)
+                                  << pen2;
+
+    path = QPainterPath();
+    path.moveTo(15, 50);
+    path.cubicTo(40, 50, 40, 15, 65, 50);
+    path.lineTo(15, 50);
+    QTest::newRow("cubic 0") << QSize(100, 100) << path
+                             << QRect(15, 15, 49, 49)
+                             << QBrush(Qt::NoBrush)
+                             << QPen(Qt::black);
+    QTest::newRow("cubic 1") << QSize(100, 100) << path
+                             << QRect(15, 15, 50, 50)
+                             << QBrush(Qt::NoBrush)
+                             << QPen(Qt::black);
+    QTest::newRow("cubic 2") << QSize(100, 100) << path
+                             << QRect(15, 15, 51, 51)
+                             << QBrush(Qt::NoBrush)
+                             << QPen(Qt::black);
+    QTest::newRow("cubic 3") << QSize(100, 100) << path
+                             << QRect(15, 15, 51, 51)
+                             << QBrush(QColor(Qt::blue))
+                             << QPen(Qt::NoPen);
+    QTest::newRow("cubic 4") << QSize(100, 100) << path
+                             << QRect(15, 15, 51, 51)
+                             << QBrush(gradient)
+                             << pen2;
+}
+
+void tst_QPainter::clippedFillPath()
+{
+    QFETCH(QSize, imageSize);
+    QFETCH(QPainterPath, path);
+    QFETCH(QRect, clipRect);
+    QPainterPath clipPath;
+    clipPath.addRect(clipRect);
+    QFETCH(QBrush, brush);
+    QFETCH(QPen, pen);
+
+    const int width = imageSize.width();
+    const int height = imageSize.height();
+
+    QImage clippedRect(width, height, QImage::Format_ARGB32_Premultiplied);
+    clippedRect.fill(0x12345678);
+    {
+        QPainter painter(&clippedRect);
+        painter.setPen(pen);
+        painter.setBrush(brush);
+        painter.setClipRect(clipRect);
+        painter.drawPath(path);
+    }
+
+    QImage clippedPath(width, height, QImage::Format_ARGB32_Premultiplied);
+    clippedPath.fill(0x12345678);
+    {
+        QPainter painter(&clippedPath);
+        painter.setPen(pen);
+        painter.setBrush(brush);
+        painter.setClipPath(clipPath);
+        painter.drawPath(path);
+    }
+
+#if 0
+    if (clippedRect != clippedPath) {
+        clippedRect.save(QString("clippedRect.png"), "PNG");
+        clippedPath.save(QString("clippedPath.png"), "PNG");
+    }
+#endif
+    QCOMPARE(clippedRect, clippedPath);
+
+    // repeat with antialiasing
+
+    clippedRect.fill(0x12345678);
+    {
+        QPainter painter(&clippedRect);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(pen);
+        painter.setBrush(brush);
+        painter.setClipRect(clipRect);
+        painter.drawPath(path);
+    }
+
+    clippedPath.fill(0x12345678);
+    {
+        QPainter painter(&clippedPath);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(pen);
+        painter.setBrush(brush);
+        painter.setClipPath(clipPath);
+        painter.drawPath(path);
+    }
+
+#if 1
+    if (clippedRect != clippedPath) {
+        clippedRect.save(QString("clippedRect.png"), "PNG");
+        clippedPath.save(QString("clippedPath.png"), "PNG");
+    }
+#endif
+    QCOMPARE(clippedRect, clippedPath);
+
+}
+
+void tst_QPainter::clippedLines_data()
+{
+    QTest::addColumn<QSize>("imageSize");
+    QTest::addColumn<QLineF>("line");
+    QTest::addColumn<QRect>("clipRect");
+    QTest::addColumn<QPen>("pen");
+
+    QPen pen2(QColor(223, 223, 0, 223));
+    pen2.setWidth(2);
+
+    QVector<QLineF> lines;
+    lines << QLineF(15, 15, 65, 65)
+          << QLineF(14, 14, 66, 66)
+          << QLineF(16, 16, 64, 64)
+          << QLineF(65, 65, 15, 15)
+          << QLineF(66, 66, 14, 14)
+          << QLineF(64, 64, 14, 14)
+          << QLineF(15, 50, 15, 64)
+          << QLineF(15, 50, 15, 65)
+          << QLineF(15, 50, 15, 66)
+          << QLineF(15, 50, 64, 50)
+          << QLineF(15, 50, 65, 50)
+          << QLineF(15, 50, 66, 50);
+
+    foreach (QLineF line, lines) {
+        QString desc = QString("line (%1, %2, %3, %4) %5").arg(line.x1())
+                       .arg(line.y1()).arg(line.x2()).arg(line.y2());
+        QTest::newRow(desc.arg(0)) << QSize(100, 100) << line
+                                   << QRect(15, 15, 49, 49)
+                                   << QPen(Qt::black);
+        QTest::newRow(desc.arg(1)) << QSize(100, 100) << line
+                                   << QRect(15, 15, 50, 50)
+                                   << QPen(Qt::black);
+        QTest::newRow(desc.arg(2)) << QSize(100, 100) << line
+                                   << QRect(15, 15, 51, 51)
+                                   << QPen(Qt::black);
+        QTest::newRow(desc.arg(3)) << QSize(100, 100) << line
+                                   << QRect(15, 15, 51, 51)
+                                   << QPen(Qt::NoPen);
+        QTest::newRow(desc.arg(4)) << QSize(100, 100) << line
+                                   << QRect(15, 15, 51, 51)
+                                   << pen2;
+    }
+}
+
+void tst_QPainter::clippedLines()
+{
+    QFETCH(QSize, imageSize);
+    QFETCH(QLineF, line);
+    QFETCH(QRect, clipRect);
+    QPainterPath clipPath;
+    clipPath.addRect(clipRect);
+    QFETCH(QPen, pen);
+
+    const int width = imageSize.width();
+    const int height = imageSize.height();
+
+    QImage clippedRect(width, height, QImage::Format_ARGB32_Premultiplied);
+    clippedRect.fill(0x12345678);
+    {
+        QPainter painter(&clippedRect);
+        painter.setPen(pen);
+        painter.setClipRect(clipRect);
+        painter.drawLine(line);
+        painter.drawLine(line.toLine());
+    }
+
+    QImage clippedPath(width, height, QImage::Format_ARGB32_Premultiplied);
+    clippedPath.fill(0x12345678);
+    {
+        QPainter painter(&clippedPath);
+        painter.setPen(pen);
+        painter.setClipPath(clipPath);
+        painter.drawLine(line);
+        painter.drawLine(line.toLine());
+    }
+
+#if 0
+    if (clippedRect != clippedPath) {
+        clippedRect.save(QString("clippedRect.png"), "PNG");
+        clippedPath.save(QString("clippedPath.png"), "PNG");
+    }
+#endif
+    QCOMPARE(clippedRect, clippedPath);
+
+    // repeat with antialiasing
+    clippedRect.fill(0x12345678);
+    {
+        QPainter painter(&clippedRect);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(pen);
+        painter.setClipRect(clipRect);
+        painter.drawLine(line);
+        painter.drawLine(line.toLine());
+    }
+
+    clippedPath.fill(0x12345678);
+    {
+        QPainter painter(&clippedPath);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(pen);
+        painter.setClipPath(clipPath);
+        painter.drawLine(line);
+        painter.drawLine(line.toLine());
+    }
+
+#if 0
+    if (clippedRect != clippedPath) {
+        clippedRect.save(QString("clippedRect.png"), "PNG");
+        clippedPath.save(QString("clippedPath.png"), "PNG");
+    }
+#endif
+    QCOMPARE(clippedRect, clippedPath);
+}
+
+void tst_QPainter::clippedPolygon_data()
+{
+    clippedFillPath_data();
+};
+
+void tst_QPainter::clippedPolygon()
+{
+    QFETCH(QSize, imageSize);
+    QFETCH(QPainterPath, path);
+    QPolygonF polygon = path.toFillPolygon();
+    QFETCH(QRect, clipRect);
+    QPainterPath clipPath;
+    clipPath.addRect(clipRect);
+    QFETCH(QPen, pen);
+    QFETCH(QBrush, brush);
+
+    const int width = imageSize.width();
+    const int height = imageSize.height();
+
+    QImage clippedRect(width, height, QImage::Format_ARGB32_Premultiplied);
+    clippedRect.fill(0x12345678);
+    {
+        QPainter painter(&clippedRect);
+        painter.setPen(pen);
+        painter.setBrush(brush);
+        painter.setClipRect(clipRect);
+        painter.drawPolygon(polygon);
+        painter.drawPolygon(polygon.toPolygon());
+    }
+
+    QImage clippedPath(width, height, QImage::Format_ARGB32_Premultiplied);
+    clippedPath.fill(0x12345678);
+    {
+        QPainter painter(&clippedPath);
+        painter.setPen(pen);
+        painter.setBrush(brush);
+        painter.setClipRect(clipRect);
+        painter.drawPolygon(polygon);
+        painter.drawPolygon(polygon.toPolygon());
+    }
+
+#if 0
+    if (clippedRect != clippedPath) {
+        clippedRect.save(QString("clippedRect.png"), "PNG");
+        clippedPath.save(QString("clippedPath.png"), "PNG");
+    }
+#endif
+    QCOMPARE(clippedRect, clippedPath);
+
+    // repeat with antialiasing
+
+    clippedRect.fill(0x12345678);
+    {
+        QPainter painter(&clippedRect);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(pen);
+        painter.setBrush(brush);
+        painter.setClipRect(clipRect);
+        painter.drawPolygon(polygon);
+        painter.drawPolygon(polygon.toPolygon());
+    }
+
+    clippedPath.fill(0x12345678);
+    {
+        QPainter painter(&clippedPath);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(pen);
+        painter.setBrush(brush);
+        painter.setClipRect(clipRect);
+        painter.drawPolygon(polygon);
+        painter.drawPolygon(polygon.toPolygon());
+    }
+
+#if 0
+    if (clippedRect != clippedPath) {
+        clippedRect.save(QString("clippedRect.png"), "PNG");
+        clippedPath.save(QString("clippedPath.png"), "PNG");
+    }
+#endif
+    QCOMPARE(clippedRect, clippedPath);
 }
 
 QTEST_MAIN(tst_QPainter)

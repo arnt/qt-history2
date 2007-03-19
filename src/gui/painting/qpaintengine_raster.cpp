@@ -1418,14 +1418,9 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, QSpanData *fillData)
                               fillData);
     }
 
-#ifdef QT_EXPERIMENTAL_REGIONS
-    // hw: XXX is this safe? what about the size of the pen/brush?
-    ProcessSpans blend = d->getSpanFunc(d->matrix.mapRect(path.controlPointRect()),
-                                        fillData);
+    ProcessSpans blend = d->getBrushFunc(d->matrix.mapRect(path.controlPointRect()),
+                                         fillData);
     d->rasterize(d->outlineMapper->convertPath(path), blend, fillData, d->rasterBuffer);
-#else
-    d->rasterize(d->outlineMapper->convertPath(path), fillData->blend, fillData, d->rasterBuffer);
-#endif
 }
 
 static void fillRect(const QRect &r, QSpanData *data,
@@ -1452,7 +1447,7 @@ static void fillRect(const QRect &r, QSpanData *data,
     if (rect.isEmpty())
         return;
 
-    if (pe && data->fillRect && pe->isUnclipped(rect)) {
+    if (pe && data->fillRect && pe->isUnclipped(rect, 0)) {
         const QPainter::CompositionMode mode = pe->rasterBuffer->compositionMode;
         if (mode == QPainter::CompositionMode_Source
             || (mode == QPainter::CompositionMode_SourceOver
@@ -1464,7 +1459,7 @@ static void fillRect(const QRect &r, QSpanData *data,
         }
     }
 
-    ProcessSpans blend = pe ? pe->getSpanFunc(rect, data) : data->blend;
+    ProcessSpans blend = pe ? pe->getBrushFunc(rect, data) : data->blend;
 
     const int nspans = 256;
     QT_FT_Span spans[nspans];
@@ -1614,14 +1609,10 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
             resolveGradientBounds(path.controlPointRect(),
                                   &d->penData);
         }
-#ifdef QT_EXPERIMENTAL_REGIONS
-        // hw: XXX is this safe? what about the size of the pen/brush?
+
         const QRectF brect = d->matrix.mapRect(path.controlPointRect());
-        ProcessSpans blend = d->getSpanFunc(brect, &d->penData);
+        ProcessSpans blend = d->getPenFunc(brect, &d->penData);
         d->rasterize(d->outlineMapper->outline(), blend, &d->penData, d->rasterBuffer);
-#else
-        d->rasterize(d->outlineMapper->outline(), d->penData.blend, &d->penData, d->rasterBuffer);
-#endif
         d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
 
@@ -1713,6 +1704,8 @@ void QRasterPaintEngine::fillPolygon(const QPointF *points, int pointCount, Poly
     } while (p < ep);
     d->outlineMapper->endOutline();
 
+    // hw: TODO: try unclipped
+
     // scanconvert.
     d->rasterize(d->outlineMapper->outline(), d->brushData.blend, &d->brushData, d->rasterBuffer);
 }
@@ -1753,17 +1746,20 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             for (int i=1; i<pointCount; ++i) {
                 QPointF lp1 = points[i-1] * d->matrix;
                 QPointF lp2 = points[i] * d->matrix;
+
+                const QRectF brect(lp1, lp2);
+                ProcessSpans penBlend = d->getPenFunc(brect, &d->penData);
                 if (d->pen.style() == Qt::SolidLine) {
                     drawLine_midpoint_i(qFloor(lp1.x()), qFloor(lp1.y()),
                                         qFloor(lp2.x()), qFloor(lp2.y()),
-                                        d->penData.blend, &d->penData,
+                                        penBlend, &d->penData,
                                         i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
                                         devRect);
                 } else {
                     drawLine_midpoint_dashed_i(qFloor(lp1.x()), qFloor(lp1.y()),
                                                qFloor(lp2.x()), qFloor(lp2.y()),
                                                &d->pen,
-                                               d->penData.blend, &d->penData,
+                                               penBlend, &d->penData,
                                                i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
                                                devRect, &dashOffset);
                 }
@@ -1773,17 +1769,20 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             if (needs_closing) {
                 QPointF lp1 = points[pointCount-1] * d->matrix;
                 QPointF lp2 = points[0] * d->matrix;
+
+                const QRectF brect(lp1, lp2);
+                ProcessSpans penBlend = d->getPenFunc(brect, &d->penData);
                 if (d->pen.style() == Qt::SolidLine) {
                     drawLine_midpoint_i(qFloor(lp1.x()), qFloor(lp1.y()),
                                         qFloor(lp2.x()), qFloor(lp2.y()),
-                                        d->penData.blend, &d->penData,
+                                        penBlend, &d->penData,
                                         LineDrawIncludeLastPixel,
                                         devRect);
                 } else {
                     drawLine_midpoint_dashed_i(qFloor(lp1.x()), qFloor(lp1.y()),
                                                qFloor(lp2.x()), qFloor(lp2.y()),
                                                &d->pen,
-                                               d->penData.blend, &d->penData,
+                                               penBlend, &d->penData,
                                                LineDrawIncludeLastPixel,
                                                devRect, &dashOffset);
                 }
@@ -1804,6 +1803,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             }
             d->outlineMapper->endOutline();
 
+            // hw: TODO: try unclipped
             d->rasterize(d->outlineMapper->outline(), d->penData.blend, &d->penData, d->rasterBuffer);
 
             d->outlineMapper->setMatrix(d->matrix, d->txop);
@@ -1845,6 +1845,7 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
         d->outlineMapper->endOutline();
 
         // scanconvert.
+        // hw: TODO: try unclipped
         d->rasterize(d->outlineMapper->outline(), d->brushData.blend, &d->brushData, d->rasterBuffer);
     }
 
@@ -1872,17 +1873,22 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
         if (affine) {
             // Draw all the line segments.
             for (int i=1; i<pointCount; ++i) {
+                const QPoint lp1 = points[i-1] * d->matrix;
+                const QPoint lp2 = points[i] * d->matrix;
+                const QRect brect(lp1, lp2);
+                ProcessSpans penBlend = d->getPenFunc(brect, &d->penData);
+
                 if (d->pen.style() == Qt::SolidLine)
-                    drawLine_midpoint_i(points[i-1].x() * m11 + dx, points[i-1].y() * m22 + dy,
-                                        points[i].x() * m11 + dx, points[i].y() * m22 + dy,
-                                        d->penData.blend, &d->penData,
+                    drawLine_midpoint_i(lp1.x(), lp1.y(),
+                                        lp2.x(), lp2.y(),
+                                        penBlend, &d->penData,
                                         i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
                                         devRect);
                 else
-                    drawLine_midpoint_dashed_i(points[i-1].x() * m11 + dx, points[i-1].y() * m22 + dy,
-                                               points[i].x() * m11 + dx, points[i].y() * m22 + dy,
+                    drawLine_midpoint_dashed_i(lp1.x(), lp1.y(),
+                                               lp2.x(), lp2.y(),
                                                &d->pen,
-                                               d->penData.blend, &d->penData,
+                                               penBlend, &d->penData,
                                                i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
                                                devRect, &dashOffset);
 
@@ -1890,16 +1896,21 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
 
             // Polygons are implicitly closed.
             if (needs_closing) {
+                const QPoint lp1 = points[pointCount - 1] * d->matrix;
+                const QPoint lp2 = points[0] * d->matrix;
+                const QRect brect(lp1, lp2);
+                ProcessSpans penBlend = d->getPenFunc(brect, &d->penData);
+
                 if (d->pen.style() == Qt::SolidLine)
-                    drawLine_midpoint_i(points[pointCount-1].x() * m11 + dx, points[pointCount-1].y() * m22 + dy,
-                                        points[0].x() * m11 + dx, points[0].y() * m22 + dy,
-                                        d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
+                    drawLine_midpoint_i(lp1.x(), lp1.y(),
+                                        lp2.x(), lp2.y(),
+                                        penBlend, &d->penData, LineDrawIncludeLastPixel,
                                         devRect);
                 else
-                    drawLine_midpoint_dashed_i(points[pointCount-1].x() * m11 + dx, points[pointCount-1].y() * m22 + dy,
-                                               points[0].x() * m11 + dx, points[0].y() * m22 + dy,
+                    drawLine_midpoint_dashed_i(lp1.x(), lp1.y(),
+                                               lp2.x(), lp2.y(),
                                                &d->pen,
-                                               d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
+                                               penBlend, &d->penData, LineDrawIncludeLastPixel,
                                                devRect, &dashOffset);
             }
         } else {
@@ -2142,8 +2153,8 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
             return;
     }
 
-    const bool unclipped = d->isUnclipped(rect);
-    ProcessSpans blend = d->getSpanFunc(rect, &d->penData);
+    const bool unclipped = d->isUnclipped(rect, 0);
+    ProcessSpans blend = unclipped ? d->penData.unclipped_blend : d->penData.blend;
     const uchar * scanline = static_cast<const uchar *>(src) + y0*bpl;
 
     if (unclipped && d->fast_text && mono && d->penData.bitmapBlit) {
@@ -2373,7 +2384,8 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
 }
 #endif // Q_WS_WIN
 
-inline bool QRasterPaintEnginePrivate::isUnclipped(const QRect &rect) const
+inline bool QRasterPaintEnginePrivate::isUnclipped(const QRect &rect,
+                                                   int penWidth) const
 {
     if (paint_unclipped)
         return true;
@@ -2381,33 +2393,77 @@ inline bool QRasterPaintEnginePrivate::isUnclipped(const QRect &rect) const
     if (rasterBuffer->clip)
         return false;
 
-    if (!rasterBuffer->clipRect.isEmpty())
-        return rasterBuffer->clipRect.contains(rect);
-    else
-        return qt_region_strictContains(clipRegion, rect);
+    // currently all painting functions clips to deviceRect internally
+    if (rasterBuffer->clipRect == deviceRect)
+        return true;
+
+    if (antialiased)
+        ++penWidth;
+
+    QRect r = rect.normalized();
+    if (penWidth > 0) {
+        r.setX(r.x() - penWidth);
+        r.setY(r.y() - penWidth);
+        r.setWidth(r.width() + 2 * penWidth);
+        r.setHeight(r.height() + 2 * penWidth);
+    }
+
+    if (!rasterBuffer->clipRect.isEmpty()) {
+        // return rasterBuffer->clipRect.contains(r);
+
+        // inline for performance (we know the rects are normalized)
+        const QRect r1 = rasterBuffer->clipRect;
+        return (r.left() >= r1.left() && r.right() <= r1.right()
+                && r.top() >= r1.top() && r.bottom() <= r1.bottom());
+    } else {
+        return qt_region_strictContains(clipRegion, r);
+    }
 }
 
-inline bool QRasterPaintEnginePrivate::isUnclipped(const QRectF &rect) const
+inline bool QRasterPaintEnginePrivate::isUnclipped(const QRectF &rect,
+                                                   int penWidth) const
 {
     const QRect r(qFloor(rect.x()), qFloor(rect.y()),
                   qCeil(rect.width()), qCeil(rect.height()));
-    return isUnclipped(r);
+    return isUnclipped(r, penWidth);
 }
 
 //### combine with resolveGradientBounds when ready
 inline ProcessSpans
-QRasterPaintEnginePrivate::getSpanFunc(const QRect &rect,
-                                       const QSpanData *data) const
+QRasterPaintEnginePrivate::getBrushFunc(const QRect &rect,
+                                        const QSpanData *data) const
 {
-    return isUnclipped(rect) ? data->unclipped_blend : data->blend;
+    return isUnclipped(rect, 0) ? data->unclipped_blend : data->blend;
 }
 
 //### combine with resolveGradientBounds when ready
 inline ProcessSpans
-QRasterPaintEnginePrivate::getSpanFunc(const QRectF &rect,
-                                       const QSpanData *data) const
+QRasterPaintEnginePrivate::getBrushFunc(const QRectF &rect,
+                                        const QSpanData *data) const
 {
-    return isUnclipped(rect) ? data->unclipped_blend : data->blend;
+    return isUnclipped(rect, 0) ? data->unclipped_blend : data->blend;
+}
+
+//### combine with resolveGradientBounds when ready
+inline ProcessSpans
+QRasterPaintEnginePrivate::getPenFunc(const QRect &rect,
+                                      const QSpanData *data) const
+{
+    if (!fast_pen && txop > QTransform::TxTranslate)
+        return data->blend;
+    const int penWidth = fast_pen ? 1 : qCeil(pen.widthF());
+    return isUnclipped(rect, penWidth) ? data->unclipped_blend : data->blend;
+}
+
+//### combine with resolveGradientBounds when ready
+inline ProcessSpans
+QRasterPaintEnginePrivate::getPenFunc(const QRectF &rect,
+                                      const QSpanData *data) const
+{
+    if (!fast_pen && txop > QTransform::TxTranslate)
+        return data->blend;
+    const int penWidth = fast_pen ? 1 : qCeil(pen.widthF());
+    return isUnclipped(rect, penWidth) ? data->unclipped_blend : data->blend;
 }
 
 /*!
@@ -2769,7 +2825,7 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
                 int y2 = l.y2() * m22 + dy;
 
                 const QRect brect(QPoint(x1, y1), QPoint(x2, y2));
-                ProcessSpans penBlend = d->getSpanFunc(brect, &d->penData);
+                ProcessSpans penBlend = d->getPenFunc(brect, &d->penData);
                 if (d->pen.style() == Qt::SolidLine)
                     drawLine_midpoint_i(x1, y1, x2, y2,
                                         penBlend, &d->penData, mode, bounds);
@@ -2780,10 +2836,15 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
                                                &dashOffset);
             } else {
                 QLineF line = lines[i] * d->matrix;
-#ifdef QT_EXPERIMENTAL_REGIONS
-                const QRect brect(QPoint(int(line.x1()), int(line.y1())),
-                                  QPoint(int(line.x2()), int(line.y2())));
-                ProcessSpans penBlend = d->getSpanFunc(brect, &d->penData);
+                const QRectF brect(QPointF(line.x1(), line.y1()),
+                                   QPointF(line.x2(), line.y2()));
+                if ((d->penData.type == QSpanData::LinearGradient ||
+                     d->penData.type == QSpanData::RadialGradient ||
+                     d->penData.type == QSpanData::ConicalGradient) &&
+                    d->penData.gradient.needsResolving) {
+                    resolveGradientBounds(brect, &d->penData);
+                }
+                ProcessSpans penBlend = d->getPenFunc(brect, &d->penData);
                 if (d->pen.style() == Qt::SolidLine)
                     drawLine_midpoint_i(int(line.x1()), int(line.y1()),
                                         int(line.x2()), int(line.y2()),
@@ -2794,26 +2855,6 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
                                                &d->pen, penBlend,
                                                &d->penData, mode, bounds,
                                                &dashOffset);
-#else
-                if ((d->penData.type == QSpanData::LinearGradient ||
-                     d->penData.type == QSpanData::RadialGradient ||
-                     d->penData.type == QSpanData::ConicalGradient) &&
-                    d->penData.gradient.needsResolving) {
-                    const QRectF brect(QPointF(line.x1(), line.y1()),
-                                       QPointF(line.x2(), line.y2()));
-                    resolveGradientBounds(brect, &d->penData);
-                }
-                if (d->pen.style() == Qt::SolidLine)
-                    drawLine_midpoint_i(int(line.x1()), int(line.y1()),
-                                        int(line.x2()), int(line.y2()),
-                                        d->penData.blend, &d->penData, mode, bounds);
-                else
-                    drawLine_midpoint_dashed_i(int(line.x1()), int(line.y1()),
-                                               int(line.x2()), int(line.y2()),
-                                               &d->pen, d->penData.blend,
-                                               &d->penData, mode, bounds,
-                                               &dashOffset);
-#endif
             }
         }
     } else {
@@ -2841,10 +2882,15 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
         int dashOffset = int(d->pen.dashOffset());
         for (int i=0; i<lineCount; ++i) {
             QLineF line = lines[i] * d->matrix;
-#ifdef QT_EXPERIMENTAL_REGIONS
-            const QRect brect(QPoint(int(line.x1()), int(line.y1())),
-                              QPoint(int(line.x2()), int(line.y2())));
-            ProcessSpans penBlend = d->getSpanFunc(brect, &d->penData);
+            const QRectF brect(QPointF(line.x1(), line.y1()),
+                               QPointF(line.x2(), line.y2()));
+            if ((d->penData.type == QSpanData::LinearGradient ||
+                 d->penData.type == QSpanData::RadialGradient ||
+                 d->penData.type == QSpanData::ConicalGradient) &&
+                d->penData.gradient.needsResolving) {
+                resolveGradientBounds(brect, &d->penData);
+            }
+            ProcessSpans penBlend = d->getPenFunc(brect, &d->penData);
             if (d->pen.style() == Qt::SolidLine)
                 drawLine_midpoint_i(brect.left(), brect.top(),
                                     brect.right(), brect.bottom(),
@@ -2855,26 +2901,6 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
                                            &d->pen,
                                            penBlend, &d->penData, mode,
                                            bounds, &dashOffset);
-#else
-            if ((d->penData.type == QSpanData::LinearGradient ||
-                 d->penData.type == QSpanData::RadialGradient ||
-                 d->penData.type == QSpanData::ConicalGradient) &&
-                d->penData.gradient.needsResolving) {
-                const QRectF brect(QPointF(line.x1(), line.y1()),
-                                   QPointF(line.x2(), line.y2()));
-                resolveGradientBounds(brect, &d->penData);
-            }
-            if (d->pen.style() == Qt::SolidLine)
-                drawLine_midpoint_i(int(line.x1()), int(line.y1()),
-                                    int(line.x2()), int(line.y2()),
-                                    d->penData.blend, &d->penData, mode, bounds);
-            else
-                drawLine_midpoint_dashed_i(int(line.x1()), int(line.y1()),
-                                           int(line.x2()), int(line.y2()),
-                                           &d->pen,
-                                           d->penData.blend, &d->penData, mode,
-                                           bounds, &dashOffset);
-#endif
         }
     } else {
         QPaintEngine::drawLines(lines, lineCount);
@@ -2906,8 +2932,8 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         const QRect brect = QRect(int(r.x()), int(r.y()),
                                   int_dim(r.x(), r.width()),
                                   int_dim(r.y(), r.height()));
-        ProcessSpans penBlend = d->getSpanFunc(brect, &d->penData);
-        ProcessSpans brushBlend = d->getSpanFunc(brect, &d->brushData);
+        ProcessSpans penBlend = d->getPenFunc(brect, &d->penData);
+        ProcessSpans brushBlend = d->getBrushFunc(brect, &d->brushData);
         drawEllipse_midpoint_i(brect, devRect, penBlend, brushBlend,
                                &d->penData, &d->brushData);
         return;
@@ -2927,6 +2953,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         }
         d->outlineMapper->endOutline();
 
+        // hw: todo: try unclipped
         d->rasterize(d->outlineMapper->outline(), d->brushData.blend, &d->brushData, d->rasterBuffer);
     }
 
@@ -2941,6 +2968,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         }
         d->outlineMapper->endOutline();
 
+        // hw: todo: try unclipped
         d->rasterize(d->outlineMapper->outline(), d->penData.blend, &d->penData, d->rasterBuffer);
 
         d->outlineMapper->setMatrix(d->matrix, d->txop);

@@ -166,10 +166,12 @@ public:
         return m;
     }
 
-    bool isUnclipped(const QRect &rect) const;
-    bool isUnclipped(const QRectF &rect) const;
-    ProcessSpans getSpanFunc(const QRect &rect, const QSpanData *data) const;
-    ProcessSpans getSpanFunc(const QRectF &rect, const QSpanData *data) const;
+    bool isUnclipped(const QRect &rect, int penWidth) const;
+    bool isUnclipped(const QRectF &rect, int penWidth) const;
+    ProcessSpans getPenFunc(const QRect &rect, const QSpanData *data) const;
+    ProcessSpans getPenFunc(const QRectF &rect, const QSpanData *data) const;
+    ProcessSpans getBrushFunc(const QRect &rect, const QSpanData *data) const;
+    ProcessSpans getBrushFunc(const QRectF &rect, const QSpanData *data) const;
 
     QPointF brushOffset;
     QBrush brush;
