@@ -641,8 +641,10 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
             } else {
                 name = QLatin1String("BUTTON");
                 partId = BP_PUSHBUTTON;
+#if 0
                 if (btn->features & QStyleOptionButton::CommandLinkButton)
                     partId = BP_COMMANDLINK;
+#endif
                 bool justFlat = (btn->features & QStyleOptionButton::Flat) && !(flags & (State_On|State_Sunken));
                 if (!(flags & State_Enabled) && !(btn->features & QStyleOptionButton::Flat))
                     stateId = PBS_DISABLED;
@@ -2113,7 +2115,8 @@ QIcon QWindowsVistaStyle::standardIconImplementation(StandardPixmap standardIcon
 
     QWindowsVistaStylePrivate *d = const_cast<QWindowsVistaStylePrivate *>(d_func());
     switch(standardIcon) {
-    case SP_CommandLinkGlyph:
+#if 0
+    case SP_CommandLink:
         {
             XPThemeData theme(0, 0, QLatin1String("BUTTON"), BP_COMMANDLINKGLYPH, CMDLGS_NORMAL);
             if (theme.isValid()) {
@@ -2146,6 +2149,7 @@ QIcon QWindowsVistaStyle::standardIconImplementation(StandardPixmap standardIcon
             }
         }
         break;
+#endif
     default:
         break;
     }
