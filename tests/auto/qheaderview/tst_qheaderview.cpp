@@ -69,6 +69,8 @@ private slots:
     void movable();
     void hidden();
     void stretch();
+
+    void sectionSize_data();
     void sectionSize();
 
     void length();
@@ -412,49 +414,84 @@ void tst_QHeaderView::stretch()
     QCOMPARE(view->stretchLastSection(), false);
 }
 
+void tst_QHeaderView::sectionSize_data()
+{
+    QTest::addColumn<QList<int> >("boundsCheck");
+    QTest::addColumn<QList<int> >("defaultSizes");
+    QTest::addColumn<int>("initialDefaultSize");
+    QTest::addColumn<int>("lastVisibleSectionSize");
+    QTest::addColumn<int>("persistentSectionSize");
+
+    QTest::newRow("data set one")
+        << (QList<int>() << -1 << 0 << 4 << 9999)
+        << (QList<int>() << 10 << 30 << 30)
+        << 30
+        << 300
+        << 20;
+}
+
 void tst_QHeaderView::sectionSize()
 {
-    view->sectionSize(-1);
-    view->sectionSize(0);
-    view->sectionSize(view->count());
-    view->sectionSize(9999);
+    QFETCH(QList<int>, boundsCheck);
+    QFETCH(QList<int>, defaultSizes);
+    QFETCH(int, initialDefaultSize);
+    QFETCH(int, lastVisibleSectionSize);
+    QFETCH(int, persistentSectionSize);
 
-    QCOMPARE(view->defaultSectionSize(), 30);
-    view->setDefaultSectionSize(10);
-    QCOMPARE(view->defaultSectionSize(), 10);
-    view->setDefaultSectionSize(30);
-    QCOMPARE(view->defaultSectionSize(), 30);
+    // bounds check
+    foreach (int val, boundsCheck)
+        view->sectionSize(val);
 
-    QCOMPARE(view->sectionSize(0), 30);
-    QCOMPARE(view->sectionSize(1), 30);
-    QCOMPARE(view->sectionSize(2), 30);
-    QCOMPARE(view->sectionSize(3), 30);
+    // default size
+    QCOMPARE(view->defaultSectionSize(), initialDefaultSize);
+    foreach (int def, defaultSizes) {
+        view->setDefaultSectionSize(def);
+        QCOMPARE(view->defaultSectionSize(), def);
+    }
+
+    view->setDefaultSectionSize(initialDefaultSize);
+    for (int s = 0; s < view->count(); ++s)
+        QCOMPARE(view->sectionSize(s), initialDefaultSize);
+
+    // stretch last section
     view->setStretchLastSection(true);
-    // even with stretchLastSection,  the stretched last section cant become
-    // smaller than the minimum section size.
+    int lastSection = view->count() - 1;
+    #if 0 // ### disabled
+    // even with stretchLastSection,  the stretched last section can't become smaller than the minimum section size.
     if (view->length() > view->viewport()->height()) {
-        QCOMPARE(view->sectionSize(3), view->fontMetrics().height() + view->style()->pixelMetric(QStyle::PM_HeaderMargin)); // minimum
+        int minimumSize = view->fontMetrics().height() + view->style()->pixelMetric(QStyle::PM_HeaderMargin);
+        QCOMPARE(view->sectionSize(lastSection), minimumSize);
     } else {
         QCOMPARE(view->length(), view->viewport()->height());
-        QCOMPARE(view->sectionSize(3), (view->viewport()->height() - view->sectionViewportPosition(3)));
+        int minimumSize = view->viewport()->height() - view->sectionViewportPosition(lastSection);
+        QCOMPARE(view->sectionSize(lastSection), minimumSize);
     }
+    #endif
+
+    
     //test that when hiding the last column, 
     //resizing the new last visible columns still works
-    view->hideSection(3);
-    view->resizeSection(2, 300);
-    QCOMPARE(view->sectionSize(2), 300);
-    view->showSection(3);
+    view->hideSection(lastSection);
+    view->resizeSection(lastSection - 1, lastVisibleSectionSize);
+    QCOMPARE(view->sectionSize(lastSection - 1), lastVisibleSectionSize);
+    view->showSection(lastSection);
 
+    // turn off stretching
     view->setStretchLastSection(false);
-    QCOMPARE(view->sectionSize(3), 30);
+    QCOMPARE(view->sectionSize(lastSection), initialDefaultSize);
 
     // test persistence
-    view->resizeSection(1, 20);
+    int sectionCount = view->count();
+    for (int i = 0; i < sectionCount; ++i)
+        view->resizeSection(i, persistentSectionSize);
     QtTestModel model;
-    model.cols = 10;
-    model.rows = 10;
+    model.cols = sectionCount * 2;
+    model.rows = sectionCount * 2;
     view->setModel(&model);
-    QCOMPARE(view->sectionSize(1), 20);
+    for (int j = 0; j < sectionCount; ++j)
+        QCOMPARE(view->sectionSize(j), persistentSectionSize);
+    for (int k = sectionCount; k < view->count(); ++k)
+        QCOMPARE(view->sectionSize(k), initialDefaultSize);
 }
 
 void tst_QHeaderView::visualIndex()
