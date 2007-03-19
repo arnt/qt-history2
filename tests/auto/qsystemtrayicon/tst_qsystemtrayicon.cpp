@@ -93,7 +93,7 @@ void tst_QSystemTrayIcon::getSetCheck()
 void tst_QSystemTrayIcon::supportsMessages()
 {
     // This is rather idiotic, but it does improve coverage
-#if !defined(Q_WS_MAC) && !defined(Q_WS_QWS)
+#if !defined(Q_WS_QWS)
     QCOMPARE(QSystemTrayIcon::supportsMessages(), true );
 #else
     QCOMPARE(QSystemTrayIcon::supportsMessages(), false );
