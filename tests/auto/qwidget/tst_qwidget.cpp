@@ -4557,7 +4557,7 @@ void tst_QWidget::compatibilityChildInsertedEvents()
             EventRecorder::EventList()
             << qMakePair(&widget, QEvent::PolishRequest)
             << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11)
             << qMakePair(&widget, QEvent::UpdateRequest)
 #endif
             ;
@@ -4649,7 +4649,7 @@ void tst_QWidget::compatibilityChildInsertedEvents()
             << qMakePair(&widget, QEvent::PolishRequest)
             << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
             << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11)
             << qMakePair(&widget, QEvent::UpdateRequest)
 #endif
             ;
@@ -4741,7 +4741,7 @@ void tst_QWidget::compatibilityChildInsertedEvents()
             << qMakePair(&widget, QEvent::PolishRequest)
             << qMakePair(&widget, QEvent::Type(QEvent::User + 1))
             << qMakePair(&widget, QEvent::Type(QEvent::User + 2))
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11)
             << qMakePair(&widget, QEvent::UpdateRequest)
 #endif
             ;
