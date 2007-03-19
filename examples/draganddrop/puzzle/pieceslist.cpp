@@ -89,6 +89,6 @@ void PiecesList::startDrag(Qt::DropActions supportedActions)
     drag->setHotSpot(QPoint(pixmap.width()/2, pixmap.height()/2));
     drag->setPixmap(pixmap);
 
-    if (drag->start(Qt::MoveAction) == Qt::MoveAction)
+    if (drag->exec(Qt::MoveAction) == Qt::MoveAction)
         delete takeItem(row(item));
 }

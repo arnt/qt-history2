@@ -302,13 +302,13 @@
     \skipto if
     \printuntil /^\}/
 
-    Then we start the drag using QDrag's \l {QDrag::}{start()} method
+    Then we start the drag using QDrag's \l {QDrag::}{exec()} method
     requesting that the magnet is moved when the drag is
     completed. The method returns the performed drop action; if this
-    action is equal to Qt::MoveAction we will close the acttvated
+    action is equal to Qt::MoveAction we will close the activated
     fridge magnet widget because we then create a new one (with the
     same data) at the drop position (see the implementation of our
-    main widgets \l {drop}{dropEvent()} method). Otherwise, e.g., if
+    main widgets \l {drop}{dropEvent()} method). Otherwise, if
     the drop is outside our main widget, we simply show the widget in
     its original position.
 */

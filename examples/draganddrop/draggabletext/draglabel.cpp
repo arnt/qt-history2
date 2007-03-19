@@ -34,7 +34,7 @@ void DragLabel::mousePressEvent(QMouseEvent *event)
     drag->setMimeData(mimeData);
     drag->setHotSpot(event->pos() - rect().topLeft());
 
-    Qt::DropAction dropAction = drag->start(Qt::CopyAction | Qt::MoveAction);
+    Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction, Qt::CopyAction);
     
     if (dropAction == Qt::MoveAction) {
         close();

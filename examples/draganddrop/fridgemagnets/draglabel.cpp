@@ -61,7 +61,7 @@ void DragLabel::mousePressEvent(QMouseEvent *event)
 
     hide();
 
-    if (drag->start(Qt::MoveAction) == Qt::MoveAction)
+    if (drag->exec(Qt::MoveAction | Qt::CopyAction, Qt::CopyAction) == Qt::MoveAction)
         close();
     else
         show();

@@ -91,6 +91,6 @@ void ColorItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	drag->setHotSpot(QPoint(15, 20));
     }
 
-    drag->start();
+    drag->exec();
     setCursor(Qt::OpenHandCursor);
 }
