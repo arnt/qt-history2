@@ -15,6 +15,7 @@
 
 #include <qmenu.h>
 #include <qmenubar.h>
+#include <QtGui/QAction>
 #include <qstyle.h>
 
 #ifndef QT_NO_ACCESSIBILITY
@@ -57,28 +58,6 @@ int QAccessibleMenu::childAt(int x, int y) const
         act = 0;
     return menu()->actions().indexOf(act) + 1;
 }
-
-/*int QAccessibleMenu::navigate(NavDirection direction, int startControl) const
-{
-    if (direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl)
-        return QAccessibleWidgetEx::navigate(direction, startControl);
-
-    switch (direction) {
-    case NavFirstChild:
-        return 1;
-    case NavLastChild:
-        return childCount();
-    case NavNext:
-    case NavDown:
-        return (startControl + 1) > childCount() ? -1 : startControl + 1;
-    case NavPrevious:
-    case NavUp:
-        return (startControl - 1) < 1 ? -1 : startControl - 1;
-    default:
-        break;
-    }
-    return -1;
-}*/
 
 QString QAccessibleMenu::text(Text t, int child) const
 {
@@ -169,20 +148,60 @@ bool QAccessibleMenu::doAction(int act, int child, const QVariantList &)
     return true;
 }
 
-/*bool QAccessibleMenu::setFocus(int child)
+int QAccessibleMenu::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
 {
-    if (!child)
-        return false;
+    int ret = -1;
+    if (entry < 0) {
+        *target = 0;
+        return ret;
+    }
+    
+    if (relation == Self || entry == 0) {
+        *target = new QAccessibleMenu(menu());
+        return 0;
+    }
 
-    int id = menu()->idAt(child -1);
-    QMenuItem *item = menu()->findItem(id);
-    if (!item || !item->isEnabled())
-        return false;
+    switch (relation) {
+    case Child:
+        if (entry <= childCount()) {
+            *target = new QAccessibleMenuItem(menu(), menu()->actions().at( entry - 1 ));
+            ret = 0;
+        }
+        break;
+    case Ancestor: {
+        QAccessibleInterface *iface = new QAccessibleMenuItem(menu()->parentWidget(), menu()->menuAction());
+        if (entry == 1) {
+            *target = iface;
+            ret = 0;
+        } else {
+            ret = iface->navigate(Ancestor, entry - 1, target);
+            delete iface;
+        }
+        break;}
+    default:
+        return QAccessibleWidgetEx::navigate(relation, entry, target);
+    }
+    
 
-    menu()->setActiveItem(child - 1);
-    return true;
+    if (ret == -1)
+        *target = 0;
+
+    return ret;
+    
 }
-*/
+
+int QAccessibleMenu::indexOfChild( const QAccessibleInterface *child ) const
+{
+    int index = -1;
+    Role r = child->role(0);
+    if ((r == MenuItem || r == Separator) && menu()) {
+        index = menu()->actions().indexOf(qobject_cast<QAction*>(child->object()));
+        if (index != -1)
+            ++index;
+    }
+    return index;
+}
+
 #endif // QT_NO_MENU
 
 #ifndef QT_NO_MENUBAR
@@ -214,40 +233,49 @@ QRect QAccessibleMenuBar::rect(int child) const
 
 int QAccessibleMenuBar::childAt(int x, int y) const
 {
-    QPoint p = menuBar()->mapFromGlobal(QPoint(x,y));
-    return menuBar()->actions().indexOf(menuBar()->actionAt(p)) + 1;
-}
-
-/*
-int QAccessibleMenuBar::navigate(NavDirection direction, int startControl) const
-{
-    if (direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl)
-        return QAccessibleWidgetEx::navigate(direction, startControl);
-
-    switch (direction) {
-    case NavFirstChild:
-        return 1;
-    case NavLastChild:
-        return childCount();
-    case NavNext:
-    case NavRight:
-        return (startControl + 1) > childCount() ? -1 : startControl + 1;
-    case NavPrevious:
-    case NavLeft:
-        return (startControl - 1) < 1 ? -1 : startControl - 1;
-    default:
-        break;
+    for (int i = childCount(); i >= 0; --i) {
+        if (rect(i).contains(x,y))
+            return i;
     }
-
     return -1;
 }
-*/
+
+int QAccessibleMenuBar::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
+{
+    int ret = -1;
+    if (entry < 0) {
+        *target = 0;
+        return ret;
+    }
+    
+    if (relation == Self || entry == 0) {
+        *target = new QAccessibleMenuBar(menuBar());
+        return 0;
+    }
+
+    switch (relation) {
+    case Child:
+        if (entry <= childCount()) {
+            *target = new QAccessibleMenuItem(menuBar(), menuBar()->actions().at( entry - 1 ));
+            ret = 0;
+        }
+        break;
+    default:
+        return QAccessibleWidgetEx::navigate(relation, entry, target);
+    }
+    
+
+    if (ret == -1)
+        *target = 0;
+
+    return ret;
+}
 
 QString QAccessibleMenuBar::text(Text t, int child) const
 {
     QString str;
 
-    if(child) {
+    if (child) {
         if (QAction *action = menuBar()->actions().value(child - 1, 0)) {
             switch (t) {
             case Name:
@@ -328,19 +356,244 @@ bool QAccessibleMenuBar::doAction(int act, int child, const QVariantList &)
     return true;
 }
 
-/*
-bool QAccessibleMenuBar::setFocus(int child)
-{
-    if (!child)
-        return false;
-
-    int id = menuBar()->idAt(child -1);
-    QMenuItem *item = menuBar()->findItem(id);
-    if (!item || !item->isEnabled())
-        return false;
-
-    return true;
-}
-*/
 #endif // QT_NO_MENUBAR
+
+QAccessibleMenuItem::QAccessibleMenuItem(QWidget *owner, QAction *action) : m_action(action), m_owner(owner)
+{
+}
+
+
+QAccessibleMenuItem::~QAccessibleMenuItem()
+{}
+
+int QAccessibleMenuItem::childAt(int x, int y ) const
+{
+    for (int i = childCount(); i >= 0; --i) {
+        if (rect(i).contains(x,y))
+            return i;
+    }
+    return -1;
+}
+
+int QAccessibleMenuItem::childCount() const
+{
+    return m_action->menu() ? 1 : 0;
+}
+
+QString QAccessibleMenuItem::actionText(int action, Text text, int child ) const
+{
+    if (text == Name && child == 0) {
+        switch (action) {
+        case Press:
+        case DefaultAction:
+            return QMenu::tr("Execute");
+            break;
+        default:
+            break;
+        }
+    }
+    return QString();
+}
+
+bool QAccessibleMenuItem::doAction(int action, int child, const QVariantList & /*params = QVariantList()*/ )
+{
+    if ((action == Press || action == DefaultAction) && child == 0) {
+        m_action->trigger();
+        return true;
+    }
+    return false;
+}
+
+int QAccessibleMenuItem::indexOfChild( const QAccessibleInterface * child ) const
+{
+    if (child->role(0) == PopupMenu && child->object() == m_action->menu())
+        return 1;
+
+    return -1;
+}
+
+bool QAccessibleMenuItem::isValid() const
+{
+    return m_action ? true : false;
+}
+
+int QAccessibleMenuItem::navigate(RelationFlag relation, int entry, QAccessibleInterface ** target ) const
+{
+    int ret = -1;
+    if (entry < 0) {
+        *target = 0;
+        return ret;
+    }
+
+    if (relation == Self || entry == 0) {
+        *target = new QAccessibleMenuItem(owner(), action());
+        return 0;
+    }
+
+    switch (relation) {
+    case Child:
+        if (entry <= childCount()) {
+            *target = new QAccessibleMenu(action()->menu());
+            ret = 0;
+        }
+        break;
+
+    case Ancestor:{
+        QWidget *parent = owner();
+        QAccessibleInterface *ancestor = parent ? QAccessible::queryAccessibleInterface(parent) : 0;
+        if (ancestor) {
+            if (entry == 1) {
+                *target = ancestor;
+                ret = 0;
+            } else {
+                ret = ancestor->navigate(Ancestor, entry - 1, target);
+                delete ancestor;
+            }
+        }
+        break;}
+    case Up:
+    case Down:{
+        QAccessibleInterface *parent = 0;
+        int ent = navigate(Ancestor, 1, &parent);
+        if (ent == 0) {
+            int index = parent->indexOfChild(this);
+            if (index != -1) {
+                index += (relation == Down ? +1 : -1);
+                ret = parent->navigate(Child, index, target);
+            }
+        }
+        delete parent;
+        break;}
+    case Sibling: {
+        QAccessibleInterface *parent = 0;
+        int ent = navigate(Ancestor, 1, &parent);
+        if (ent == 0) {
+            ret = parent->navigate(Child, entry, target);
+        }
+        delete parent;
+        break;}
+    default:
+        break;
+
+    }
+    if (ret == -1)
+        *target = 0;
+    return ret;
+}
+
+QObject *QAccessibleMenuItem::object() const
+{
+    return m_action;
+}
+
+QRect QAccessibleMenuItem::rect (int child ) const
+{
+    QRect rect;
+    if (child == 0) {
+        QWidget *own = owner();
+        if (QMenuBar *menuBar = qobject_cast<QMenuBar*>(own)) {
+            rect = menuBar->actionGeometry(m_action);
+            QPoint globalPos = menuBar->mapToGlobal(QPoint(0,0));
+            rect = rect.translated(globalPos);
+        }else if (QMenu *menu = qobject_cast<QMenu*>(own)) {
+            rect = menu->actionGeometry(m_action);
+            QPoint globalPos = menu->mapToGlobal(QPoint(0,0));
+            rect = rect.translated(globalPos);            
+        }
+    } else if (child == 1) {
+        QMenu *menu = m_action->menu();
+        if (menu) {
+            rect = menu->rect();
+            QPoint globalPos = menu->mapToGlobal(QPoint(0,0));
+            rect = rect.translated(globalPos);
+        }
+    }
+    return rect;
+}
+
+QAccessible::Relation QAccessibleMenuItem::relationTo ( int child, const QAccessibleInterface * other, int otherChild ) const
+{
+    if (other->object() == owner()) {
+        return Child;
+    }
+    // ###
+    return Unrelated;
+}
+
+QAccessible::Role QAccessibleMenuItem::role(int child ) const
+{
+    return m_action->isSeparator() ? Separator :MenuItem;
+}
+
+void QAccessibleMenuItem::setText ( Text /*t*/, int /*child*/, const QString & /*text */)
+{
+
+}
+
+QAccessible::State QAccessibleMenuItem::state ( int child ) const
+{
+    QAccessible::State s = Unavailable;
+
+    if (child == 0) {
+        s = Normal;
+        QWidget *own = owner();
+
+        if (own->testAttribute(Qt::WA_WState_Visible) == false || m_action->isVisible() == false) {
+            s |= Invisible;
+        }
+
+        if (QMenu *menu = qobject_cast<QMenu*>(own)) {
+            if (menu->activeAction() == m_action)
+                s |= Focused;
+        } else if (QMenuBar *menuBar = qobject_cast<QMenuBar*>(own)) {
+            if (menuBar->activeAction() == m_action)
+                s |= Focused;
+        }
+        if (own->style()->styleHint(QStyle::SH_Menu_MouseTracking))
+            s |= HotTracked;
+        if (m_action->isSeparator() || !m_action->isEnabled())
+            s |= Unavailable;
+        if (m_action->isChecked())
+            s |= Checked;
+    } else if (child == 1) {
+        QMenu *menu = m_action->menu();
+        if (menu) {
+            QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(menu);
+            s = iface->state(0);
+            delete iface;
+        }
+    }
+    return s;
+}
+
+QString QAccessibleMenuItem::text ( Text t, int child ) const
+{
+    QString str;
+    if (t == Name) {
+        if (child == 0) {
+            str = m_action->text();
+        } else if (child == 1) {
+            QMenu *m = m_action->menu();
+            if (m)
+                str = m->title();
+        }
+    }
+    return qt_accStripAmp(str);
+}
+
+int QAccessibleMenuItem::userActionCount ( int child ) const
+{
+    return 0;
+}
+
+
+QAction *QAccessibleMenuItem::action() const
+{
+    return m_action;
+}
+
+QWidget *QAccessibleMenuItem::owner() const
+{
+    return m_owner;
+}
 #endif // QT_NO_ACCESSIBILITY
