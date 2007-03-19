@@ -1250,43 +1250,6 @@ void tst_QGridLayout::layoutSpacingImplementation_data()
 
 
     {
-        style->hspacing = -1;
-        style->vspacing = -1;
-        style->reimplementSubelementRect = false;
-        QApplication::setStyle(style);
-        QWidget *w = new QWidget();
-        QHBoxLayout *layout = new QHBoxLayout();
-        QLineEdit *le1 = new QLineEdit(w);
-        QLineEdit *le2 = new QLineEdit(w);
-        QLineEdit *le3 = new QLineEdit(w);
-        layout->addWidget(le1, 0, Qt::AlignTop | Qt::AlignLeft);
-        layout->addWidget(le2, 0, Qt::AlignTop | Qt::AlignLeft);
-        layout->addWidget(le3, 0, Qt::AlignTop | Qt::AlignLeft);
-
-        QPushButton *b1 = new QPushButton(QLatin1String("Push 1"), w);
-        QPushButton *b2 = new QPushButton(QLatin1String("Push 2"), w);
-        QPushButton *b3 = new QPushButton(QLatin1String("Push 3"), w);
-        layout->addWidget(b1, 0, Qt::AlignTop | Qt::AlignLeft);
-        layout->addWidget(b2, 0, Qt::AlignTop | Qt::AlignLeft);
-        layout->addWidget(b3, 0, Qt::AlignTop | Qt::AlignLeft);
-
-        layout->addStretch(1);
-        w->setLayout(layout);
-        int lw = le1->sizeHint().width();
-        int pw = b1->sizeHint().width();
-        QTest::newRow("6x1, line edit + push buttons")
-                << w << (PointList()
-                << QPoint(0, 3)
-                << QPoint(0 + lw + 5, 3)
-                << QPoint(0 + 2*(lw + 5), 3)
-                << QPoint(0 + 3*(lw + 5), 3)
-                << QPoint(0 + 3*(lw + 5) + 1*(pw + 2), 3)
-                << QPoint(0 + 3*(lw + 5) + 2*(pw + 2), 3))
-                << style->hspacing << style->vspacing << style->reimplementSubelementRect;
-    }
-
-
-    {
         /* A 3x4 gridlayout, modified arrowpad example:
          *      [PB]
          * [PB]      [PB]
