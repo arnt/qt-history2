@@ -1522,6 +1522,10 @@ QWidget *CursorProperty::createEditor(QWidget *parent, const QObject *target, co
     addCursor(combo, Qt::SplitHCursor);
     addCursor(combo, Qt::PointingHandCursor);
     addCursor(combo, Qt::ForbiddenCursor);
+    addCursor(combo, Qt::WhatsThisCursor);
+    addCursor(combo, Qt::BusyCursor);
+    addCursor(combo, Qt::OpenHandCursor);
+    addCursor(combo, Qt::ClosedHandCursor);
 
     QObject::connect(combo, SIGNAL(activated(int)), target, receiver);
 
@@ -1565,6 +1569,8 @@ QString CursorProperty::cursorName(int shape)
     case Qt::SplitHCursor: return QString::fromUtf8("Split Horizontal");
     case Qt::PointingHandCursor: return QString::fromUtf8("Pointing Hand");
     case Qt::ForbiddenCursor: return QString::fromUtf8("Forbidden");
+    case Qt::OpenHandCursor: return QString::fromUtf8("Open Hand");
+    case Qt::ClosedHandCursor: return QString::fromUtf8("Closed Hand");
     case Qt::WhatsThisCursor: return QString::fromUtf8("Whats This");
     case Qt::BusyCursor: return QString::fromUtf8("Busy");
     default: return QString();
@@ -1594,6 +1600,8 @@ QPixmap CursorProperty::cursorPixmap(int shape)
     case Qt::SplitHCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/hsplit.png"));
     case Qt::PointingHandCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/hand.png"));
     case Qt::ForbiddenCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/no.png"));
+    case Qt::OpenHandCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/openhand.png"));
+    case Qt::ClosedHandCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/closedhand.png"));
     case Qt::WhatsThisCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/whatsthis.png"));
     case Qt::BusyCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/busy.png"));
     default: return QPixmap();
