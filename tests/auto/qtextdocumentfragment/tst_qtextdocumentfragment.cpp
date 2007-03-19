@@ -3268,7 +3268,7 @@ void tst_QTextDocumentFragment::html_userState()
     QCOMPARE(block.next().next().userState(), -1);
 }
 
-void html_rootFrameProperties()
+void tst_QTextDocumentFragment::html_rootFrameProperties()
 {
     const char html[] = "<table border=1 style=\"-qt-table-type:root; margin-top:10px;\"><tr><td>Foo</tr></td>";
     doc->setHtml(html);
@@ -3276,11 +3276,11 @@ void html_rootFrameProperties()
     QCOMPARE(doc->rootFrame()->childFrames().size(), 0);
 
     QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
-    QCOMPARE(fmt.topMargin(), 10);
-    QCOMPARE(fmt.bottomMargin(), 2);
-    QCOMPARE(fmt.leftMargin(), 2);
-    QCOMPARE(fmt.rightMargin(), 2);
-    QCOMPARE(fmt.border(), 2);
+    QCOMPARE(fmt.topMargin(), qreal(10));
+    QCOMPARE(fmt.bottomMargin(), qreal(2));
+    QCOMPARE(fmt.leftMargin(), qreal(2));
+    QCOMPARE(fmt.rightMargin(), qreal(2));
+    QCOMPARE(fmt.border(), qreal(2));
 
     QString normalFrameHtml = QLatin1String(html);
     normalFrameHtml.replace(QLatin1String("root"), QLatin1String("frame"));
