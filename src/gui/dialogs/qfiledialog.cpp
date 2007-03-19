@@ -816,7 +816,9 @@ QModelIndex QFileDialogPrivate::rootIndex() const {
 QAbstractItemView *QFileDialogPrivate::currentView() const {
     if (!qFileDialogUi->stackedWidget)
         return 0;
-    return qobject_cast<QAbstractItemView*>(qFileDialogUi->stackedWidget->currentWidget());
+    if (qFileDialogUi->stackedWidget->currentWidget() == qFileDialogUi->listView->parent())
+        return qFileDialogUi->listView;
+    return qFileDialogUi->treeView;
 }
 
 QLineEdit *QFileDialogPrivate::lineEdit() const {
@@ -1711,7 +1713,7 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
     q->setDirectory(workingDirectory(directory));
     q->selectFile(initialSelection(directory));
     if (acceptMode != QFileDialog::AcceptSave)
-        qFileDialogUi->stackedWidget->currentWidget()->setFocus();
+        currentView()->setFocus();
     else
         qFileDialogUi->fileNameEdit->setFocus();
     _q_updateOkButton();
