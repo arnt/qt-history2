@@ -2140,7 +2140,7 @@ void tst_QAccessibility::menuTest()
     QCOMPARE(interface->rect(0).size(), mw.menuBar()->size());
 
 // Not working at the moment, task to fix is #100019.
-#if 0
+#if 1
     QVERIFY(interface->rect(0).contains(interface->rect(1)));
     QVERIFY(interface->rect(0).contains(interface->rect(2)));
     // QVERIFY(interface->rect(0).contains(interface->rect(3))); //separator might be invisible
@@ -2208,6 +2208,97 @@ void tst_QAccessibility::menuTest()
     QCOMPARE(interface->actionText(QAccessible::DefaultAction, QAccessible::Name, 3), QString("Execute"));
     QCOMPARE(interface->actionText(QAccessible::DefaultAction, QAccessible::Name, 4), QString());
     QCOMPARE(interface->actionText(QAccessible::DefaultAction, QAccessible::Name, 5), QString("Execute"));
+
+    QAccessibleInterface *iface = 0;
+    QAccessibleInterface *iface2 = 0;
+
+    // traverse siblings with navigate(Sibling, ...)
+    int entry = interface->navigate(QAccessible::Child, 1, &iface);
+    QCOMPARE(entry, 0);
+    QVERIFY(iface);
+    QCOMPARE(iface->role(0), QAccessible::MenuItem);
+
+    QAccessible::Role fileRoles[5] = {
+        QAccessible::MenuItem,
+        QAccessible::MenuItem,
+        QAccessible::MenuItem,
+        QAccessible::Separator,
+        QAccessible::MenuItem
+    };
+    for (int child = 0; child < 5; ++child) {
+        entry = iface->navigate(QAccessible::Sibling, child + 1, &iface2);
+        QCOMPARE(entry, 0);
+        QVERIFY(iface2);
+        QCOMPARE(iface2->role(0), fileRoles[child]);
+        delete iface2;
+    }
+    delete iface;
+
+    // traverse menu items with navigate(Down, ...)
+    entry = interface->navigate(QAccessible::Child, 1, &iface);
+    QCOMPARE(entry, 0);
+    QVERIFY(iface);
+    QCOMPARE(iface->role(0), QAccessible::MenuItem);
+
+    for (int child = 0; child < 4; ++child) {
+        entry = iface->navigate(QAccessible::Down, 1, &iface2);
+        delete iface;
+        iface = iface2;
+        QCOMPARE(entry, 0);
+        QVERIFY(iface);
+        QCOMPARE(iface->role(0), fileRoles[child + 1]);
+    }
+    delete iface;
+
+    // traverse menu items with navigate(Up, ...)
+    entry = interface->navigate(QAccessible::Child, interface->childCount(), &iface);
+    QCOMPARE(entry, 0);
+    QVERIFY(iface);
+    QCOMPARE(iface->role(0), QAccessible::MenuItem);
+
+    for (int child = 3; child >= 0; --child) {
+        entry = iface->navigate(QAccessible::Up, 1, &iface2);
+        delete iface;
+        iface = iface2;
+        QCOMPARE(entry, 0);
+        QVERIFY(iface);
+        QCOMPARE(iface->role(0), fileRoles[child]);
+    }
+    delete iface;
+
+
+
+    // "New" item
+    entry = interface->navigate(QAccessible::Child, 1, &iface);
+    QCOMPARE(entry, 0);
+    QVERIFY(iface);
+    QCOMPARE(iface->role(0), QAccessible::MenuItem);
+
+    // "New" menu
+    entry = iface->navigate(QAccessible::Child, 1, &iface2);
+    delete iface;
+    iface = iface2;
+    QCOMPARE(entry, 0);
+    QVERIFY(iface);
+    QCOMPARE(iface->role(0), QAccessible::PopupMenu);
+
+    // "Text file" menu item
+    entry = iface->navigate(QAccessible::Child, 1, &iface2);
+    delete iface;
+    iface = iface2;
+    QCOMPARE(entry, 0);
+    QVERIFY(iface);
+    QCOMPARE(iface->role(0), QAccessible::MenuItem);
+    
+    // Traverse to the menubar.
+    QAccessibleInterface *ifaceMenuBar = 0;
+    entry = iface->navigate(QAccessible::Ancestor, 5, &ifaceMenuBar);
+    QCOMPARE(ifaceMenuBar->role(0), QAccessible::MenuBar);
+    delete ifaceMenuBar;
+
+    delete iface;
+
+
 
 #if QT_VERSION < 0x040102
     QEXPECT_FAIL("", "Submenus don't open, task 99301", Continue);
