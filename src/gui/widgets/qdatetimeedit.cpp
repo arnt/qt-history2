@@ -925,12 +925,10 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *event)
         forward = false;
     case Qt::Key_Right:
 #endif
-#ifndef Q_WS_QWS
         if (!(event->modifiers() & Qt::ControlModifier)) {
             select = false;
             break;
         }
-#endif
 #ifdef Q_WS_MAC
         else {
             select = (event->modifiers() & Qt::ShiftModifier);
