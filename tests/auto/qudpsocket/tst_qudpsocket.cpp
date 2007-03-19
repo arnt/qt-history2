@@ -60,6 +60,7 @@ private slots:
     void writeToNonExistingPeer();
     void outOfProcessConnectedClientServerTest();
     void outOfProcessUnconnectedClientServerTest();
+    void zeroLengthDatagram();
 
 protected slots:
     void empty_readyReadSlot();
@@ -698,6 +699,28 @@ void tst_QUdpSocket::outOfProcessUnconnectedClientServerTest()
     QVERIFY(clientProcess.waitForFinished());
     serverProcess.kill();
     QVERIFY(serverProcess.waitForFinished());
+}
+
+void tst_QUdpSocket::zeroLengthDatagram()
+{
+    QFETCH_GLOBAL(bool, setProxy);
+    if (setProxy)
+        return;
+
+    QUdpSocket receiver;
+    QVERIFY(receiver.bind());
+
+    QVERIFY(!receiver.waitForReadyRead(100));
+    QVERIFY(!receiver.hasPendingDatagrams());
+
+    QUdpSocket sender;
+    QCOMPARE(sender.writeDatagram(QByteArray(), QHostAddress::LocalHost, receiver.localPort()), qint64(0));
+
+    QVERIFY(receiver.waitForReadyRead(1000));
+    QVERIFY(receiver.hasPendingDatagrams());
+
+    char buf;
+    QCOMPARE(receiver.readDatagram(&buf, 1), qint64(0));
 }
 
 QTEST_MAIN(tst_QUdpSocket)

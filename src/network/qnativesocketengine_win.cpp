@@ -780,13 +780,9 @@ bool QNativeSocketEnginePrivate::nativeHasPendingDatagrams() const
                           storagePtr, &storageSize, 0, 0);
         }
     } else {
-    // If the port was set in the sockaddr structure, then a new message is available.
-#if !defined(QT_NO_IPV6)
-        if (storagePtr->sa_family == AF_INET6)
-            result = (storagePtrIPv6->sin6_port != 0);
-        else
-#endif
-        result = (storagePtrIPv4->sin_port != 0);
+        // If there's no error, or if our buffer was too small, there must be
+        // a pending datagram.
+        result = true;
     }
 #if defined (QNATIVESOCKETENGINE_DEBUG)
     qDebug("QNativeSocketEnginePrivate::nativeHasPendingDatagrams() == %s",
