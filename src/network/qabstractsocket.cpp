@@ -1613,18 +1613,18 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
 bool QAbstractSocket::waitForDisconnected(int msecs)
 {
     Q_D(QAbstractSocket);
-    // require calling connectToHost() before waitForDisconnected()
-    if (state() == UnconnectedState) {
-        qWarning("QAbstractSocket::waitForDisconnected() is not allowed in UnconnectedState");
-        return false;
-    }
-
 #ifndef QT_NO_OPENSSL
     // Manual polymorphism; this function is not virtual, but has an overload
     // in QSslSocket.
     if (QSslSocket *socket = qobject_cast<QSslSocket *>(this))
         return socket->waitForDisconnected(msecs);
 #endif
+
+    // require calling connectToHost() before waitForDisconnected()
+    if (state() == UnconnectedState) {
+        qWarning("QAbstractSocket::waitForDisconnected() is not allowed in UnconnectedState");
+        return false;
+    }
 
     QTime stopWatch;
     stopWatch.start();

@@ -929,6 +929,13 @@ bool QSslSocket::waitForBytesWritten(int msecs)
 bool QSslSocket::waitForDisconnected(int msecs)
 {
     Q_D(QSslSocket);
+
+    // require calling connectToHost() before waitForDisconnected()
+    if (state() == UnconnectedState) {
+        qWarning("QSslSocket::waitForDisconnected() is not allowed in UnconnectedState");
+        return false;
+    }
+
     if (!d->plainSocket)
         return false;
     bool retVal = d->plainSocket->waitForDisconnected(msecs);
