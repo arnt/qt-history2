@@ -1062,8 +1062,12 @@ void QWidget::setMask(const QRegion& region)
             d->data.fstrut_dirty = true;
             d->invalidateBuffer(rect());
             QWindowSurface *surface = d->extra->topextra->backingStore->windowSurface;
-            if (surface)
+            if (surface) {
+                // QWSWindowSurface::setGeometry() returns without doing anything
+                // if old geom  == new geom. Therefore, we need to reset the old value.
+                surface->QWindowSurface::setGeometry(QRect());
                 surface->setGeometry(frameGeometry());
+            }
         } else {
             parentR += d->extra->mask;
             parentWidget()->update(parentR.translated(geometry().topLeft()));
