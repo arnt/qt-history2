@@ -707,7 +707,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #endif
         // ### move into prerender step
 
-        QRegion toFlush = rgn;
+        QRegion toFlush = toClean;
 #ifdef Q_WIDGET_USE_DIRTYLIST
         if (!toClean.isEmpty() || !dirtyWidgets.isEmpty()) {
 #else
@@ -754,6 +754,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
                 dirtyWidgets.clear();
 #endif // Q_WIDGET_USE_DIRTYLIST
 
+                // XXX: Must map to tlw!!!?
                 if (!toClean.isEmpty())
                     currWidget->d_func()->drawWidget(windowSurface->paintDevice(),
                                                      toClean, tlwOffset);
@@ -795,7 +796,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #endif
         }
 #else // XXX
-        copyToScreen(toClean & static_cast<QWSWindowSurface*>(windowSurface)->clipRegion(), currWidget, tlwOffset, recursiveCopyToScreen);
+        copyToScreen(toFlush & static_cast<QWSWindowSurface*>(windowSurface)->clipRegion(), currWidget, tlwOffset, recursiveCopyToScreen);
 #endif
 #ifdef Q_WS_QWS
         this->windowSurface = oldSurface;
@@ -940,15 +941,24 @@ bool QWidgetBackingStore::isOpaque(const QWidget *widget)
 
 
 void QWidgetBackingStore::paintSiblingsRecursive(QPaintDevice *pdev, const QObjectList& siblings, int index, const QRegion &rgn,
-                                                 const QPoint &offset, int flags)
+                                                 const QPoint &offset, int flags
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+                                                 , const QWindowSurface *currentSurface
+#endif
+    )
 {
     QWidget *w = 0;
 
     do {
         QWidget *x =  qobject_cast<QWidget*>(siblings.at(index));
         if (x && !x->isWindow() && !x->isHidden() && qRectIntersects(rgn.boundingRect(), x->geometry())) {
-            w = x;
-            break;
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+            if (x->windowSurface() == currentSurface)
+#endif
+            {
+                w = x;
+                break;
+            }
         }
         --index;
     } while (index >= 0);
@@ -968,7 +978,11 @@ void QWidgetBackingStore::paintSiblingsRecursive(QPaintDevice *pdev, const QObje
                 wr -= extra->mask.translated(w->pos());
             }
         }
-        paintSiblingsRecursive(pdev, siblings, index - 1, wr, offset, flags);
+        paintSiblingsRecursive(pdev, siblings, index - 1, wr, offset, flags
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+                               , currentSurface
+#endif
+            );
     }
     if(w->updatesEnabled()) {
         QRegion wRegion(rgn & w->geometry());
@@ -1102,8 +1116,13 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
 
     if (recursive) {
         const QObjectList children = q->children();
-        if (!children.isEmpty())
-            QWidgetBackingStore::paintSiblingsRecursive(pdev, children, children.size()-1, rgn, offset, flags & ~DrawAsRoot);
+        if (!children.isEmpty()) {
+            QWidgetBackingStore::paintSiblingsRecursive(pdev, children, children.size()-1, rgn, offset, flags & ~DrawAsRoot
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+                                                        , q->windowSurface()
+#endif
+                );
+        }
     }
 }
 
