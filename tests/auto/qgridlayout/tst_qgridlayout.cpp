@@ -1516,7 +1516,7 @@ void tst_QGridLayout::contentsRect()
     grid.addWidget(new QPushButton(&w));
     w.show();
 #if defined(Q_WS_X11)
-    qt_x11_wait_for_window_manager(widget);     // wait for the show
+    qt_x11_wait_for_window_manager(&w);     // wait for the show
 #endif
     int l, t, r, b;
     grid.getContentsMargins(&l, &t, &r, &b);
