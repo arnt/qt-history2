@@ -2007,6 +2007,7 @@ void tst_QWidget::raise()
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(parent);
 #endif
+    QApplication::processEvents();
 
     QList<QObject *> list1;
     list1 << child1 << child2 << child3 << child4;
@@ -2064,6 +2065,7 @@ void tst_QWidget::lower()
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(parent);
 #endif
+    QApplication::processEvents();
 
     QList<QObject *> list1;
     list1 << child1 << child2 << child3 << child4;
@@ -2121,6 +2123,7 @@ void tst_QWidget::stackUnder()
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(parent);
 #endif
+    QApplication::processEvents();
 
     QList<QObject *> list1;
     list1 << child1 << child2 << child3 << child4;
