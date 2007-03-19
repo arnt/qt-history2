@@ -207,14 +207,14 @@ void tst_QMdiSubWindow::setWidget()
     QCOMPARE(widget->windowTitle(), QString::fromLatin1("DummyTitle"));
     window.setWidget(widget);
     QCOMPARE(window.windowTitle(), window.widget()->windowTitle());
-    QCOMPARE(widget->parent(), &window);
+    QCOMPARE(widget->parentWidget(), static_cast<QWidget *>(&window));
     QVERIFY(!widget->isVisible());
     QCOMPARE(window.layout()->count(), 1);
 
     QTest::ignoreMessage(QtWarningMsg,"QMdiSubWindow::setWidget: widget is already set");
     window.setWidget(widget);
     QCOMPARE(window.widget(), static_cast<QWidget *>(widget));
-    QCOMPARE(widget->parent(), &window);
+    QCOMPARE(widget->parentWidget(), static_cast<QWidget *>(&window));
 
     window.setWidget(0);
     QVERIFY(widget);
@@ -226,7 +226,7 @@ void tst_QMdiSubWindow::setWidget()
     delete window.layout();
     QVERIFY(!window.layout());
     QVERIFY(window.widget());
-    QCOMPARE(window.widget()->parent(), &window);
+    QCOMPARE(window.widget()->parentWidget(), static_cast<QWidget *>(&window));
 
     delete window.widget();
     QVERIFY(!widget);
@@ -878,7 +878,7 @@ void tst_QMdiSubWindow::setSystemMenu()
     QVERIFY(!qApp->activePopupWidget());
     subWindow->showSystemMenu();
     QTest::qWait(250);
-    QCOMPARE(qApp->activePopupWidget(), qobject_cast<QMenu *>(systemMenu));
+    QCOMPARE(qApp->activePopupWidget(), qobject_cast<QWidget *>(systemMenu));
 
     systemMenu->hide();
     QVERIFY(!qApp->activePopupWidget());
@@ -894,14 +894,14 @@ void tst_QMdiSubWindow::setSystemMenu()
                           QObject::tr("&Close"), subWindow, SLOT(close()));
     subWindow->setSystemMenu(systemMenu);
     QCOMPARE(subWindow->systemMenu(), qobject_cast<QMenu *>(systemMenu));
-    QCOMPARE(subWindow->systemMenu()->parent(), subWindow);
+    QCOMPARE(subWindow->systemMenu()->parentWidget(), static_cast<QWidget *>(subWindow));
     QCOMPARE(subWindow->systemMenu()->actions().count(), 1);
 
     // Show the new system menu
     QVERIFY(!qApp->activePopupWidget());
     subWindow->showSystemMenu();
     QTest::qWait(250);
-    QCOMPARE(qApp->activePopupWidget(), qobject_cast<QMenu *>(systemMenu));
+    QCOMPARE(qApp->activePopupWidget(), qobject_cast<QWidget *>(systemMenu));
 
     delete systemMenu;
     QVERIFY(!qApp->activePopupWidget());
@@ -959,7 +959,7 @@ void tst_QMdiSubWindow::restoreFocus()
     expectedFocusWindow->showMinimized();
     qApp->processEvents();
     QVERIFY(expectedFocusWindow->isMinimized());
-    QCOMPARE(qApp->focusWidget(), expectedFocusWindow);
+    QCOMPARE(qApp->focusWidget(), static_cast<QWidget *>(expectedFocusWindow));
 
     // Minimized -> normal
     expectedFocusWindow->showNormal();
@@ -998,17 +998,17 @@ void tst_QMdiSubWindow::restoreFocus()
     expectedFocusWindow->showMinimized();
     qApp->processEvents();
     QVERIFY(expectedFocusWindow->isMinimized());
-    QCOMPARE(qApp->focusWidget(), expectedFocusWindow);
+    QCOMPARE(qApp->focusWidget(), static_cast<QWidget *>(expectedFocusWindow));
 
     complexWindow->showMinimized();
     qApp->processEvents();
     QVERIFY(complexWindow->isMinimized());
-    QCOMPARE(qApp->focusWidget(), complexWindow);
+    QCOMPARE(qApp->focusWidget(), static_cast<QWidget *>(complexWindow));
 
     complexWindow->showNormal();
     qApp->processEvents();
     QVERIFY(!complexWindow->isMinimized());
-    QCOMPARE(qApp->focusWidget(), expectedFocusWindow);
+    QCOMPARE(qApp->focusWidget(), static_cast<QWidget *>(expectedFocusWindow));
 }
 
 void tst_QMdiSubWindow::changeFocusWithTab()
@@ -1029,23 +1029,23 @@ void tst_QMdiSubWindow::changeFocusWithTab()
     QCOMPARE(mdiArea.subWindowList().count(), 1);
 
     qApp->setActiveWindow(&mdiArea);
-    QCOMPARE(qApp->focusWidget(), firstLineEdit);
+    QCOMPARE(qApp->focusWidget(), static_cast<QWidget *>(firstLineEdit));
 
     // Next
     QTest::keyPress(widget, Qt::Key_Tab);
-    QCOMPARE(qApp->focusWidget(), secondLineEdit);
+    QCOMPARE(qApp->focusWidget(), static_cast<QWidget *>(secondLineEdit));
 
     // Next
     QTest::keyPress(widget, Qt::Key_Tab);
-    QCOMPARE(qApp->focusWidget(), thirdLineEdit);
+    QCOMPARE(qApp->focusWidget(), static_cast<QWidget *>(thirdLineEdit));
 
     // Previous
     QTest::keyPress(widget, Qt::Key_Backtab);
-    QCOMPARE(qApp->focusWidget(), secondLineEdit);
+    QCOMPARE(qApp->focusWidget(), static_cast<QWidget *>(secondLineEdit));
 
     // Previous
     QTest::keyPress(widget, Qt::Key_Backtab);
-    QCOMPARE(qApp->focusWidget(), firstLineEdit);
+    QCOMPARE(qApp->focusWidget(), static_cast<QWidget *>(firstLineEdit));
 
     QMdiSubWindow *window = mdiArea.addSubWindow(new QPushButton);
     window->show();

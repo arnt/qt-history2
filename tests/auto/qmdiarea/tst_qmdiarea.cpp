@@ -1240,16 +1240,16 @@ void tst_QMdiArea::focusWidgetAfterAddSubWindow()
     view->layout()->addWidget(lineEdit2);
 
     lineEdit2->setFocus();
-    QCOMPARE(view->focusWidget(), lineEdit2);
+    QCOMPARE(view->focusWidget(), static_cast<QWidget *>(lineEdit2));
 
     QMdiArea mdiArea;
     mdiArea.addSubWindow(view);
-    QCOMPARE(view->focusWidget(), lineEdit2);
+    QCOMPARE(view->focusWidget(), static_cast<QWidget *>(lineEdit2));
 
     mdiArea.show();
     view->show();
     qApp->setActiveWindow(&mdiArea);
-    QCOMPARE(qApp->focusWidget(), lineEdit2);
+    QCOMPARE(qApp->focusWidget(), static_cast<QWidget *>(lineEdit2));
 }
 
 void tst_QMdiArea::dontMaximizeSubWindowOnActivation()
