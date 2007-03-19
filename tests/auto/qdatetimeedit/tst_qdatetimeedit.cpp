@@ -557,7 +557,7 @@ void tst_QDateTimeEdit::selectAndScrollWithKeys()
 #endif
     QTest::keyClick(testWidget, Qt::Key_Right, Qt::ShiftModifier);
 #ifdef Q_WS_QWS
-    QEXPECT_FAIL(0, "Qt/Embedded does Ctrl-arrow behaviour by default", Abort);
+//???    QEXPECT_FAIL(0, "Qt/Embedded does Ctrl-arrow behaviour by default", Abort);
 #endif
     QCOMPARE(testWidget->lineEdit()->selectedText(), QString("1"));
     QTest::keyClick(testWidget, Qt::Key_Right, Qt::ShiftModifier);
@@ -680,7 +680,7 @@ void tst_QDateTimeEdit::backspaceKey()
 
     QTest::keyClick(testWidget, Qt::Key_Backspace);
 #ifdef Q_WS_QWS
-    QEXPECT_FAIL(0, "Qt/Embedded does Ctrl-arrow behaviour by default", Abort);
+//???    QEXPECT_FAIL(0, "Qt/Embedded does Ctrl-arrow behaviour by default", Abort);
 #endif
     QCOMPARE(testWidget->text(), QString("11/05/"));
     QTest::keyClick(testWidget, Qt::Key_Left);
@@ -2263,7 +2263,7 @@ void tst_QDateTimeEdit::weirdCase()
     QTest::keyClick(testWidget, Qt::Key_Right);
     QVERIFY(!testWidget->lineEdit()->hasSelectedText());
 #ifdef Q_WS_QWS
-    QEXPECT_FAIL(0, "Qt/Embedded does Ctrl-arrow behaviour by default", Abort);
+//???    QEXPECT_FAIL(0, "Qt/Embedded does Ctrl-arrow behaviour by default", Abort);
 #endif
     QCOMPARE(testWidget->lineEdit()->cursorPosition(), 8);
 
@@ -2299,7 +2299,7 @@ void tst_QDateTimeEdit::newCase()
     QTest::keyClick(testWidget, Qt::Key_Left);
 
 #ifdef Q_WS_QWS
-    QEXPECT_FAIL(0, "Qt/Embedded does Ctrl-arrow behaviour by default", Abort);
+//???    QEXPECT_FAIL(0, "Qt/Embedded does Ctrl-arrow behaviour by default", Abort);
 #endif
 
     QCOMPARE(testWidget->text(), QString("Jula7bJulc07"));
