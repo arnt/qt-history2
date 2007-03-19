@@ -481,8 +481,31 @@ bool QFSFileEnginePrivate::isSymlink() const
 static bool _q_isMacHidden(const QString &path)
 {
     OSErr err = noErr;
+
     FSRef fsRef;
-    err = FSPathMakeRefWithOptions((const UInt8 *)QFile::encodeName(path).data(), kFSPathMakeRefDoNotFollowLeafSymlink, &fsRef, 0);
+
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+        err = FSPathMakeRefWithOptions(reinterpret_cast<const UInt8 *>(QFile::encodeName(path).constData()),
+                                        kFSPathMakeRefDoNotFollowLeafSymlink, &fsRef, 0);
+    } else
+#endif
+    {
+        QFileInfo fi(path);
+        if (!fi.isSymLink()) {
+            err = FSPathMakeRef(reinterpret_cast<const UInt8 *>(QFile::encodeName(path).constData()), &fsRef, 0);
+        } else {
+            FSRef parentRef;
+            err = FSPathMakeRef(reinterpret_cast<const UInt8 *>(fi.absoluteDir().canonicalPath().toUtf8().constData()),
+                                &parentRef, 0);
+            if (err == noErr) {
+                QString fileName = fi.fileName();
+                err = FSMakeFSRefUnicode(&parentRef, fileName.length(),
+                                         reinterpret_cast<const UniChar *>(fileName.unicode()),
+                                         kTextEncodingUnknown, &fsRef);
+            }
+        }
+    }
     if (err != noErr)
         return false;
 
