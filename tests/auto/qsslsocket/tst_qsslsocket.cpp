@@ -43,7 +43,45 @@ private slots:
     void constructing();
     void simpleConnect();
     void simpleConnectWithIgnore();
+
+    // API tests
+    void addCaCertificate();
+    void addCaCertificates();
+    void addCaCertificates2();
+    void caCertificates();
+    void ciphers();
+    void connectToHostEncrypted();
+    void currentCipher();
+    void flush();
+    void isEncrypted();
+    void localCertificate();
+    void mode();
+    void peerCertificate();
+    void peerCertificateChain();
+    void privateKey();
+    void protocol();
+    void resetCaCertificates();
+    void resetCiphers();
+    void setCaCertificates();
+    void setCiphers();
+    void setLocalCertificate();
+    void setPrivateKey();
+    void setProtocol();
+    void setSocketDescriptor();
     void waitForEncrypted();
+    void startClientHandShake();
+    void startServerHandShake();
+    void addGlobalCaCertificate();
+    void addGlobalCaCertificates();
+    void addGlobalCaCertificates2();
+    void globalCaCertificates();
+    void globalCiphers();
+    void resetGlobalCiphers();
+    void setGlobalCaCertificates();
+    void setGlobalCiphers();
+    void supportedCiphers();
+    void supportsSsl();
+    void systemCaCertificates();
 
     static void exitLoop()
     {
@@ -149,8 +187,9 @@ void tst_QSslSocket::constructing()
     QCOMPARE(socket.socketDescriptor(), -1);
     QCOMPARE(socket.socketType(), QAbstractSocket::TcpSocket);
     QVERIFY(!socket.waitForConnected(10));
-    QTest::ignoreMessage(QtWarningMsg, "QAbstractSocket::waitForDisconnected() is not allowed in UnconnectedState");
+    QTest::ignoreMessage(QtWarningMsg, "QSslSocket::waitForDisconnected() is not allowed in UnconnectedState");
     QVERIFY(!socket.waitForDisconnected(10));
+    QCOMPARE(socket.protocol(), QSslSocket::SslV3);
 }
 
 void tst_QSslSocket::simpleConnect()
@@ -242,6 +281,98 @@ void tst_QSslSocket::simpleConnectWithIgnore()
     socket.disconnectFromHost();
 }
 
+void tst_QSslSocket::addCaCertificate()
+{
+}
+
+void tst_QSslSocket::addCaCertificates()
+{
+}
+
+void tst_QSslSocket::addCaCertificates2()
+{
+}
+
+void tst_QSslSocket::caCertificates()
+{
+}
+
+void tst_QSslSocket::ciphers()
+{
+}
+
+void tst_QSslSocket::connectToHostEncrypted()
+{
+}
+
+void tst_QSslSocket::currentCipher()
+{
+}
+
+void tst_QSslSocket::flush()
+{
+}
+
+void tst_QSslSocket::isEncrypted()
+{
+}
+
+void tst_QSslSocket::localCertificate()
+{
+}
+
+void tst_QSslSocket::mode()
+{
+}
+
+void tst_QSslSocket::peerCertificate()
+{
+}
+
+void tst_QSslSocket::peerCertificateChain()
+{
+}
+
+void tst_QSslSocket::privateKey()
+{
+}
+
+void tst_QSslSocket::protocol()
+{
+}
+
+void tst_QSslSocket::resetCaCertificates()
+{
+}
+
+void tst_QSslSocket::resetCiphers()
+{
+}
+
+void tst_QSslSocket::setCaCertificates()
+{
+}
+
+void tst_QSslSocket::setCiphers()
+{
+}
+
+void tst_QSslSocket::setLocalCertificate()
+{
+}
+
+void tst_QSslSocket::setPrivateKey()
+{
+}
+
+void tst_QSslSocket::setProtocol()
+{
+}
+
+void tst_QSslSocket::setSocketDescriptor()
+{
+}
+
 void tst_QSslSocket::waitForEncrypted()
 {
     QSslSocket socket;
@@ -251,6 +382,58 @@ void tst_QSslSocket::waitForEncrypted()
     socket.connectToHostEncrypted("imap.troll.no", 993);
 
     QVERIFY(socket.waitForEncrypted(10000));
+}
+
+void tst_QSslSocket::startClientHandShake()
+{
+}
+
+void tst_QSslSocket::startServerHandShake()
+{
+}
+
+void tst_QSslSocket::addGlobalCaCertificate()
+{
+}
+
+void tst_QSslSocket::addGlobalCaCertificates()
+{
+}
+
+void tst_QSslSocket::addGlobalCaCertificates2()
+{
+}
+
+void tst_QSslSocket::globalCaCertificates()
+{
+}
+
+void tst_QSslSocket::globalCiphers()
+{
+}
+
+void tst_QSslSocket::resetGlobalCiphers()
+{
+}
+
+void tst_QSslSocket::setGlobalCaCertificates()
+{
+}
+
+void tst_QSslSocket::setGlobalCiphers()
+{
+}
+
+void tst_QSslSocket::supportedCiphers()
+{
+}
+
+void tst_QSslSocket::supportsSsl()
+{
+}
+
+void tst_QSslSocket::systemCaCertificates()
+{
 }
 
 #endif // QT_NO_OPENSSL
