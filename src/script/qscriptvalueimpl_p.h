@@ -89,6 +89,11 @@ inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, const QS
     engine->newString(this, val);
 }
 
+inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, QScriptNameIdImpl *val)
+{
+    engine->newNameId(this, val);
+}
+
 inline QScript::Type QScriptValueImpl::type() const
 {
     Q_ASSERT(isValid());

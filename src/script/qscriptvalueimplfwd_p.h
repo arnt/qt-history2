@@ -53,6 +53,7 @@ public:
     inline QScriptValueImpl(QScriptEnginePrivate *engine, qulonglong val);
     inline QScriptValueImpl(QScriptEnginePrivate *engine, qsreal val);
     inline QScriptValueImpl(QScriptEnginePrivate *engine, const QString &val);
+    inline QScriptValueImpl(QScriptEnginePrivate *engine, QScriptNameIdImpl *val);
 
     inline QScript::Type type() const;
     inline QScriptEngine *engine() const;
