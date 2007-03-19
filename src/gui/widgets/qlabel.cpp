@@ -629,7 +629,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
             control->setTextWidth(oldTextWidth);
         } else {
             int flags = align;
-            if (shortcutId) {
+            if (hasShortcut) {
                 flags |= Qt::TextShowMnemonic;
                 QStyleOption opt;
                 opt.initFrom(q);
@@ -968,7 +968,7 @@ void QLabel::paintEvent(QPaintEvent *)
             painter.restore();
         } else {
             int flags = align;
-            if (d->shortcutId) {
+            if (d->hasShortcut) {
                 flags |= Qt::TextShowMnemonic;
                 QStyleOption opt;
                 opt.initFrom(this);
@@ -1114,6 +1114,11 @@ void QLabelPrivate::updateShortcut()
 {
     Q_Q(QLabel);
     Q_ASSERT(shortcutId == 0);
+    // Introduce an extra boolean to indicate the presence of a shortcut in the
+    // text. We cannot use the shortcutId itself because on the mac mnemonics are
+    // off by default, so QKeySequence::mnemonic always returns an empty sequence.
+    // But then we do want to hide the ampersands, so we can't use shortcutId.
+    hasShortcut = false;
 
     if (control) {
         ensureTextPopulated();
@@ -1121,12 +1126,14 @@ void QLabelPrivate::updateShortcut()
         shortcutCursor = control->document()->find(QLatin1String("&"));
         if (shortcutCursor.isNull())
             return;
+        hasShortcut = true;
         shortcutId = q->grabShortcut(QKeySequence::mnemonic(text));
         shortcutCursor.deleteChar(); // remove the ampersand
         shortcutCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
     } else {
         if (!text.contains(QLatin1String("&")))
             return;
+        hasShortcut = true;
         shortcutId = q->grabShortcut(QKeySequence::mnemonic(text));
     }
 }
@@ -1207,6 +1214,7 @@ void QLabelPrivate::clearContents()
     delete control;
     control = 0;
     isTextLabel = false;
+    hasShortcut = false;
 
 #ifndef QT_NO_PICTURE
     delete picture;

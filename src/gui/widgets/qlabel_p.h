@@ -80,6 +80,7 @@ public:
     mutable uint textDirty : 1;
     mutable uint isRichText : 1;
     mutable uint isTextLabel : 1;
+    mutable uint hasShortcut : 1;
     Qt::TextFormat textformat;
     mutable QTextControl *control;
     QTextCursor shortcutCursor;
