@@ -1346,7 +1346,7 @@ void tst_QGridLayout::layoutSpacingImplementation()
     style->vspacing = vSpacing;
     style->reimplementSubelementRect = customSubElementRect;
     QApplication::setStyle(style);
-
+    widget->resize(widget->sizeHint());
     widget->show();
 #if defined(Q_WS_X11)
     qt_x11_wait_for_window_manager(widget);     // wait for the show
