@@ -1426,7 +1426,7 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
                                                 d->devModeA());
             });
 
-            if (!available)
+            if (available <= 0)
                 break;
             data = (WORD *) malloc(available * sizeof(WORD));
 
