@@ -35,6 +35,7 @@
 #include <qtextlayout.h>
 #include <private/qobject_p.h>
 #include <private/qdnd_p.h>
+#include <private/qtextengine_p.h>
 #include <qdebug.h>
 #include <qlocale.h>
 
@@ -111,11 +112,11 @@ QRect QItemDelegatePrivate::textLayoutBounds(const QStyleOptionViewItemV2 &optio
     switch (option.decorationPosition) {
     case QStyleOptionViewItem::Left:
     case QStyleOptionViewItem::Right:
-        rect.setWidth(wrapText && rect.isValid() ? rect.width() : INT_MAX >> 6);
+        rect.setWidth(wrapText && rect.isValid() ? rect.width() : (QFIXED_MAX));
         break;
     case QStyleOptionViewItem::Top:
     case QStyleOptionViewItem::Bottom:
-        rect.setWidth(wrapText ? option.decorationSize.width() : (INT_MAX >> 6));
+        rect.setWidth(wrapText ? option.decorationSize.width() : (QFIXED_MAX));
         break;
     }
 
