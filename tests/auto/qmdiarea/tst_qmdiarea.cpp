@@ -332,6 +332,15 @@ void tst_QMdiArea::changeWindowTitle()
     QCOMPARE( mw->windowTitle(), QString::fromLatin1("%1 - [%2]").arg(mwc).arg(wc) );
 #endif
 
+    mw->hide();
+    qApp->processEvents();
+    mw->show();
+    qApp->processEvents();
+
+#if !defined(Q_WS_MAC)
+    QCOMPARE( mw->windowTitle(), QString::fromLatin1("%1 - [%2]").arg(mwc).arg(wc) );
+#endif
+
 #ifdef USE_SHOW
     widget->showNormal();
 #else
