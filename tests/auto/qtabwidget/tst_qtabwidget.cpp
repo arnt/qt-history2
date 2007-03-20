@@ -321,6 +321,7 @@ void tst_QTabWidget::currentWidget()
 
     int index2 = addPage();
     QWidget *w2 = tw->widget(index2);
+    Q_UNUSED(w2);
     QVERIFY(tw->currentWidget() == w);
     QCOMPARE(tw->currentIndex(), index);
 
@@ -412,7 +413,7 @@ void tst_QTabWidget::clear()
 void tst_QTabWidget::keyboardNavigation()
 {
     int firstIndex = addPage();
-    int index = addPage();
+    addPage();
     addPage();
     tw->setCurrentIndex(firstIndex);
     QCOMPARE(tw->currentIndex(), firstIndex);
@@ -481,27 +482,33 @@ void tst_QTabWidget::paintEventCount()
 
     tw->show();
 
-    QTest::qWait(10);
+    QTest::qWait(100);
 
-#ifdef Q_WS_WIN
-    tab1->count--; // on Windows we get one more paintevents when the window gets activated
+    // Mac and Windows get multiple repaints on the first show, so use those as a starting point.
+    static const int InitialPaintCount =
+#if defined(Q_WS_WIN)
+        2;
+#elif defined(Q_WS_MAC)
+        5;
+#else
+        1;
 #endif
 
-    QCOMPARE(tab1->count, 1);
+    QCOMPARE(tab1->count, InitialPaintCount);
     QCOMPARE(tab2->count, 0);
 
     tw->setCurrentIndex(1);
 
-    QTest::qWait(10);
+    QTest::qWait(100);
 
-    QCOMPARE(tab1->count, 1);
+    QCOMPARE(tab1->count, InitialPaintCount);
     QCOMPARE(tab2->count, 1);
 
     tw->setCurrentIndex(0);
 
-    QTest::qWait(10);
+    QTest::qWait(100);
 
-    QCOMPARE(tab1->count, 2);
+    QCOMPARE(tab1->count, InitialPaintCount + 1);
     QCOMPARE(tab2->count, 1);
 }
 
