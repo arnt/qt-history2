@@ -115,6 +115,7 @@
     \o \l{itemviews/puzzle}{Puzzle}
     \o \l{itemviews/simpledommodel}{Simple DOM Model}\raisedaster
     \o \l{itemviews/simpletreemodel}{Simple Tree Model}\raisedaster
+    \o \l{itemviews/simplewidgetmapper}{Simple Widget Mapper}
     \o \l{itemviews/spinboxdelegate}{Spin Box Delegate}\raisedaster
     \o \l{itemviews/stardelegate}{Star Delegate}\raisedaster
     \endlist
