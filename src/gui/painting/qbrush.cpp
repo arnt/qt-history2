@@ -247,9 +247,9 @@ static QBrushData *nullBrushInstance()
     if (!defaultBrush.pointer && !defaultBrush.destroyed) {
         QBrushData *x = new QBrushData;
         x->ref = 1; x->style = Qt::BrushStyle(0); x->color = Qt::black;
+        x->hasTransform = false;
         if (!q_atomic_test_and_set_ptr(&defaultBrush.pointer, 0, x))
             delete x;
-        x->hasTransform = false;
     }
     return defaultBrush.pointer;
 }
