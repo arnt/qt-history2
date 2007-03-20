@@ -1335,6 +1335,10 @@ void QTabBar::keyPressEvent(QKeyEvent *e)
 void QTabBar::changeEvent(QEvent *e)
 {
     Q_D(QTabBar);
+    if (e->type() == QEvent::StyleChange) {
+        d->elideMode = Qt::TextElideMode(style()->styleHint(QStyle::SH_TabBar_ElideMode, 0, this));
+        d->useScrollButtons = !style()->styleHint(QStyle::SH_TabBar_PreferNoArrows, 0, this);
+    }
     d->refresh();
     QWidget::changeEvent(e);
 }
