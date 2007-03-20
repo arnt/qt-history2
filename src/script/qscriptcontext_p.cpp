@@ -279,10 +279,18 @@ void ScriptFunction::execute(QScriptContextPrivate *context)
 
 } // namespace QScript
 
-bool QScriptContextPrivate::resolveField(QScriptValueImpl *stackPtr)
-{
-    QScriptEnginePrivate *eng = QScriptEnginePrivate::get(engine());
+/*!
+  \internal
 
+  Resolves and gets the value specified by \a stackPtr.
+  stackPtr[0] contains the member specifier, stackPtr[-1] contains the object.
+  If the member can be resolved, sets \a value to the value of that member,
+  otherwise returns false.
+*/
+bool QScriptContextPrivate::resolveField(QScriptEnginePrivate *eng,
+                                         QScriptValueImpl *stackPtr,
+                                         QScriptValueImpl *value)
+{
     const QScriptValueImpl &m = stackPtr[0];
     QScriptValueImpl &object = stackPtr[-1];
 
@@ -291,9 +299,6 @@ bool QScriptContextPrivate::resolveField(QScriptValueImpl *stackPtr)
 
     if (! object.isValid())
         return false;
-
-    QScriptValueImpl undefined;
-    eng->newUndefined(&undefined);
 
     if (QScript::Ecma::Array::Instance *arrayInstance = eng->arrayConstructor->get(object)) {
         qint32 pos = -1;
@@ -310,10 +315,10 @@ bool QScriptContextPrivate::resolveField(QScriptValueImpl *stackPtr)
         }
 
         if (pos != -1) {
-            *stackPtr = arrayInstance->value.at(pos);
+            *value = arrayInstance->value.at(pos);
 
-            if (! stackPtr->isValid())
-                eng->newUndefined(&stackPtr[0]);
+            if (! value->isValid())
+                eng->newUndefined(value);
 
             return true;
         }
@@ -335,7 +340,7 @@ bool QScriptContextPrivate::resolveField(QScriptValueImpl *stackPtr)
     else if (object.m_class == eng->m_class_with)
         stackPtr[-1] = object.prototype();
 
-    base.get(member, stackPtr);
+    base.get(member, value);
 
     return true;
 }
@@ -587,15 +592,18 @@ Ltop:
         if (! isReference) { // we have a value
             base = eng->m_globalObject;
             callee = argp[0];
-        } else if (resolveField(&argp[-1])) {
+        } else if (resolveField(eng, &argp[-1], &callee)) {
             base = argp[-2];
-            callee = argp[-1];
         } else {
+            QScriptValueImpl member = argp[-1];
             stackPtr = argp - 1;
-            if (isReference)
-                stackPtr -= 2;
+            Q_ASSERT(isReference);
+            stackPtr -= 2;
 
-            throwNotDefined(QLatin1String("function")); // ### name
+            if (member.isString())
+                throwNotDefined(member.toString());
+            else
+                throwNotDefined(QLatin1String("function"));
             HandleException();
         }
 
@@ -604,7 +612,15 @@ Ltop:
 
         QScriptFunction *function = eng->convertToNativeFunction(callee);
         if (! function) {
-            throwTypeError(QLatin1String("not a function")); // ### name
+            QScriptValueImpl member = argp[-1];
+            QString message;
+            if (member.isString()) {
+                message = QString::fromLatin1("%0 is not a function")
+                          .arg(member.toString());
+            } else {
+                message = QLatin1String("not a function");
+            }
+            throwTypeError(message);
             HandleException();
         }
 
@@ -707,13 +723,12 @@ Ltop:
         if (! isReference) { // we have a value
             // base = eng->globalObject;
             callee = argp[0];
-        } else if (resolveField(&argp[-1])) {
+        } else if (resolveField(eng, &argp[-1], &callee)) {
             // base = argp[-2];
-            callee = argp[-1];
         } else {
             stackPtr = argp - 1;
-            if (isReference)
-                stackPtr -= 2;
+            Q_ASSERT(isReference);
+            stackPtr -= 2;
 
             throwTypeError(QLatin1String("not a constructor"));
             HandleException();
@@ -1721,8 +1736,7 @@ Ltop:
 
         if (! isReference) { // we have a value
             object = stackPtr[0];
-        } else if (resolveField(&stackPtr[-1])) {
-            object = stackPtr[-1];
+        } else if (resolveField(eng, &stackPtr[-1], &object)) {
             stackPtr -= 2;
         } else {
             object = undefined;

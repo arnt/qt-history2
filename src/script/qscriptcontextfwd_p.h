@@ -70,7 +70,8 @@ public:
 
     static inline bool strict_eq_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs);
 
-    bool resolveField(QScriptValueImpl *stackPtr);
+    bool resolveField(QScriptEnginePrivate *eng, QScriptValueImpl *stackPtr,
+                      QScriptValueImpl *value);
 
     void execute(QScript::Code *code);
 
