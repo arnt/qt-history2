@@ -27,6 +27,7 @@ extern unsigned long qAxLockCount();
 extern QString qAxInit();
 extern void qAxCleanup();
 extern HANDLE qAxInstance;
+static uint qAxThreadId = 0;
 
 extern HRESULT UpdateRegistry(int bRegister);
 extern HRESULT GetClassObject(const GUID &clsid, const GUID &iid, void **ppUnk);
@@ -43,6 +44,11 @@ STDAPI DllUnregisterServer()
 
 STDAPI DllGetClassObject(const GUID &clsid, const GUID &iid, void** ppv)
 {
+    if (!qAxThreadId)
+        qAxThreadId = GetCurrentThreadId();
+    else if (GetCurrentThreadId() != qAxThreadId)
+        return E_FAIL; 
+
     GetClassObject(clsid, iid, ppv);
     if (!*ppv)
         return CLASS_E_CLASSNOTAVAILABLE;
@@ -51,6 +57,8 @@ STDAPI DllGetClassObject(const GUID &clsid, const GUID &iid, void** ppv)
 
 STDAPI DllCanUnloadNow()
 {
+    if (GetCurrentThreadId() != qAxThreadId)
+        return S_FALSE;
     if (qAxLockCount())
         return S_FALSE;
     if (!qax_ownQApp)
