@@ -42,6 +42,7 @@ private slots:
     void fromUnicode_data();
     void fromUnicode();
     void toUnicode_codecForHtml();
+    void toUnicode_incremental();
     void codecForLocale();
     void asciiToIscii() const;
 };
@@ -224,6 +225,34 @@ void tst_QTextCodec::toUnicode_codecForHtml()
     QByteArray data = file.readAll();
     QTextCodec *codec = Qt::codecForHtml(data);
     codec->toUnicode(data); // this line crashes
+}
+
+
+void tst_QTextCodec::toUnicode_incremental()
+{
+    QByteArray ba;
+    ba += 0xf0;
+    ba += 0x90;
+    ba += 0x80;
+    ba += 0x80;
+    ba += 0xf4;
+    ba += 0x8f;
+    ba += 0xbf;
+    ba += 0xbd;
+
+    QString expected = QString::fromUtf8(ba);
+
+    QString incremental;
+    QTextDecoder *utf8Decoder = QTextCodec::codecForMib(106)->makeDecoder();
+
+    QString actual;
+    for (int i = 0; i < ba.size(); ++i)
+        utf8Decoder->toUnicode(&actual, ba.constData() + i, 1);
+
+    QCOMPARE(actual, expected);
+
+
+    delete utf8Decoder;
 }
 
 void tst_QTextCodec::codecForLocale()
