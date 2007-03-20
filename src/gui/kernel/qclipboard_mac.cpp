@@ -26,12 +26,7 @@
 /*****************************************************************************
   QClipboard debug facilities
  *****************************************************************************/
-//#define DEBUG_PASTEBOARD
-
-
-#ifdef QT3_SUPPORT
-//# define PASTEBOARD_USE_QT3SUPPORT
-#endif
+#define DEBUG_PASTEBOARD
 
 #ifndef QT_NO_CLIPBOARD
 
@@ -201,8 +196,8 @@ OSStatus QMacPasteboard::promiseKeeper(PasteboardRef paste, PasteboardItemID id,
 {
     QMacPasteboard *qpaste = (QMacPasteboard*) data;
     const long promise_id = (long)id;
-    
-    // Find the promise that promised to deliver 
+
+    // Find the promise that promised to deliver
     // data for the given flavor:
     const QString flavorAsQString = QCFString::toQString(flavor);
     QMacPasteboard::Promise promise;
@@ -220,7 +215,7 @@ OSStatus QMacPasteboard::promiseKeeper(PasteboardRef paste, PasteboardItemID id,
         qDebug("Pasteboard: %d: Request for %ld, %s, but no promise found!", __LINE__, promise_id, qPrintable(flavorAsQString));
         return cantGetFlavorErr;
     }
-    
+
 #ifdef DEBUG_PASTEBOARD
     qDebug("PasteBoard: Calling in promise for %s[%ld] [%s] (%s)", qPrintable(promise.mime), promise_id,
            qPrintable(flavorAsQString),
@@ -237,7 +232,7 @@ OSStatus QMacPasteboard::promiseKeeper(PasteboardRef paste, PasteboardItemID id,
     } else {
         // Mac expects different files to be different items
         // on the pasteboard. So we return only one URL.
-        // The list index is synced with the promise_id. 
+        // The list index is synced with the promise_id.
         if (md.size() < promise_id)
             return cantGetFlavorErr;
         const QByteArray &ba = md[promise_id - 1];
@@ -362,7 +357,7 @@ void QMacPasteboard::putMimetypeOntoPasteboard(int itemId, const QString &mimeTy
         QString flavor(c->flavorFor(mimeType));
         if(!flavor.isEmpty()) {
             // We have a pasteboard mime that can convert
-            // the given mimetype into a flavor 
+            // the given mimetype into a flavor
             promises.append(QMacPasteboard::Promise(itemId, c, mimeType,
                                                     static_cast<QMacMimeData*>(mime_src)->variantData(mimeType)));
             PasteboardPutItemFlavor(paste, (PasteboardItemID)itemId, QCFString(flavor), 0, kPasteboardFlavorNoFlags);
@@ -387,7 +382,7 @@ QMacPasteboard::setMimeData(QMimeData *mime_src)
     mime = mime_src;
 
     if (mime != 0) {
-        clear();  
+        clear();
         QStringList formats = mime_src->formats();
 
         if (!mime_src->hasUrls()){
@@ -438,7 +433,7 @@ QMacPasteboard::formats() const
         for(int i = 0; i < type_count; ++i) {
             const QString flavor = QCFString::toQString((CFStringRef)CFArrayGetValueAtIndex(types, i));
 #ifdef DEBUG_PASTEBOARD
-            qDebug(" -%s [0x%x]", qPrintable(QString(flavor)), qmt);
+            qDebug(" -%s", qPrintable(QString(flavor)));
 #endif
             QString mimeType = QMacPasteboardMime::flavorToMime(mime_type, flavor);
             if(!mimeType.isEmpty() && !ret.contains(mimeType)) {
