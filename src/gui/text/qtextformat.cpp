@@ -1160,7 +1160,7 @@ QTextCharFormat::QTextCharFormat() : QTextFormat(CharFormat) {}
 
     Sets the text format's font weight to \a weight.
 
-    \sa setFont()
+    \sa setFont(), QFont::Weight
 */
 
 
@@ -1169,7 +1169,7 @@ QTextCharFormat::QTextCharFormat() : QTextFormat(CharFormat) {}
 
     Returns the text format's font weight.
 
-    \sa font()
+    \sa font(), QFont::Weight
 */
 
 
