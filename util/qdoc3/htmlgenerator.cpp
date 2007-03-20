@@ -870,13 +870,11 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     generateTitle(fake->fullTitle(), Text() << fake->subTitle(), subTitleSize,
                   fake, marker);
 
-    bool isGroup = fake->subType() == FakeNode::Group;
-    if (!isGroup) {
+    if (fake->subType() == FakeNode::Module) {
+        // Only generate brief text and status for modules.
         generateBrief(fake, marker);
         generateStatus(fake, marker);
-    }
 
-    if (fake->subType() == FakeNode::Module) {
         if (moduleNamespaceMap.contains(fake->name())) {
             out() << "<h2>Namespaces</h2>\n";
             generateAnnotatedList(fake, marker, moduleNamespaceMap[fake->name()]);
@@ -897,16 +895,11 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     }
 
     Text brief = fake->doc().briefText();
-    if (!isGroup && !brief.isEmpty())
+    if (fake->subType() == FakeNode::Module && !brief.isEmpty()) {
         out() << "<a name=\"" << registerRef("details") << "\"></a>\n";
-
-    if (!isGroup && !fake->doc().isEmpty()) {
-        if (!brief.isEmpty()) {
-            if (fake->subType() != FakeNode::Module)
-                out() << "<hr />\n";
-            out() << "<h2>" << "Detailed Description" << "</h2>\n";
-        }
+        out() << "<h2>" << "Detailed Description" << "</h2>\n";
     }
+
     generateBody(fake, marker);
     generateAlsoList(fake, marker);
 
