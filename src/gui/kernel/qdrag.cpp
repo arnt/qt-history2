@@ -229,7 +229,10 @@ Qt::DropAction QDrag::exec(Qt::DropActions supportedActions)
 Qt::DropAction QDrag::exec(Qt::DropActions supportedActions, Qt::DropAction defaultDropAction)
 {
     Q_D(QDrag);
-    Q_ASSERT_X(d->data, "QDrag", "No mimedata set before starting the drag");
+    if (!d->data) {
+        qWarning("QDrag: No mimedata set before starting the drag");
+        return d->executed_action;
+    }
     QDragManager *manager = QDragManager::self();
     d->defaultDropAction = Qt::IgnoreAction;
     d->possible_actions = supportedActions;
@@ -270,7 +273,10 @@ Qt::DropAction QDrag::exec(Qt::DropActions supportedActions, Qt::DropAction defa
 Qt::DropAction QDrag::start(Qt::DropActions request)
 {
     Q_D(QDrag);
-    Q_ASSERT_X(d->data, "QDrag", "No mimedata set before starting the drag");
+    if (!d->data) {
+        qWarning("QDrag: No mimedata set before starting the drag");
+        return d->executed_action;
+    }
     QDragManager *manager = QDragManager::self();
     d->defaultDropAction = Qt::IgnoreAction;
     d->possible_actions = request | Qt::CopyAction;
