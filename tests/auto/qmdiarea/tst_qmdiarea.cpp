@@ -315,13 +315,15 @@ void tst_QMdiArea::changeWindowTitle()
     mw->setCentralWidget( ws );
     mw->menuBar();
     mw->show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(mw);
+#endif
 
     QWidget *widget = new QWidget( ws );
     widget->setWindowTitle( wc );
     ws->addSubWindow(widget);
 
     QCOMPARE( mw->windowTitle(), mwc );
-
 
 #ifdef USE_SHOW
     widget->showMaximized();
@@ -333,8 +335,14 @@ void tst_QMdiArea::changeWindowTitle()
 #endif
 
     mw->hide();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(mw);
+#endif
     qApp->processEvents();
     mw->show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(mw);
+#endif
     qApp->processEvents();
 
 #if !defined(Q_WS_MAC)
@@ -1142,6 +1150,9 @@ void tst_QMdiArea::cascadeAndTileSubWindows()
     QMdiArea workspace;
     workspace.resize(400, 400);
     workspace.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&workspace);
+#endif
 
     const int windowCount = 10;
     QList<QMdiSubWindow *> windows;
