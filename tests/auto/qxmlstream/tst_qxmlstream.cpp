@@ -372,10 +372,17 @@ public:
                     docType = QLatin1String("dummy");
 
                 bool hasError = true;
-                const QByteArray input(makeCanonical(inputFilePath, docType, hasError));
+                bool incremental = false;
+
+                QByteArray input(makeCanonical(inputFilePath, docType, hasError, incremental));
+
+                if (!hasError && !expectedFilePath.isEmpty() && input == expected)
+                    input = makeCanonical(inputFilePath, docType, hasError, (incremental = true));
 
                 if(hasError)
-                    failures.append(qMakePair(id, QString::fromLatin1("Failed to parse %1").arg(inputFilePath)));
+                    failures.append(qMakePair(id, QString::fromLatin1("Failed to parse %1%2")
+                                              .arg(incremental?"(incremental run only) ":"")
+                                              .arg(inputFilePath)));
 
                 if(!expectedFilePath.isEmpty() && input != expected)
                 {
