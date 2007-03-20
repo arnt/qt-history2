@@ -1016,6 +1016,7 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
 /*!
     \class QGradient
     \ingroup multimedia
+    \ingroup shared
 
     \brief The QGradient class is used in combination with QBrush to
     specify gradient fills.
