@@ -3406,6 +3406,7 @@ QString QString::fromUtf8(const char *str, int size)
     result.resize(size); // worst case
     ushort *qch = result.d->data;
     uint uc = 0;
+    uint min_uc = 0;
     int need = 0;
     int error = -1;
     uchar ch;
@@ -3420,6 +3421,12 @@ QString QString::fromUtf8(const char *str, int size)
                         // surrogate pair
                         *qch++ = QChar::highSurrogate(uc);
                         uc = QChar::lowSurrogate(uc);
+                    } else if ((uc < min_uc) || (uc >= 0xd800 && uc <= 0xdfff) || (uc >= 0xfffe)) {
+			// overlong seqence, UTF16 surrogate or BOM
+                        i = error;
+                        qch = addOne(qch, result);
+                        *qch++ = 0xdbff;
+                        uc = 0xde00 + ((uchar)str[i]);
                     }
                     *qch++ = uc;
                 }
@@ -3441,14 +3448,17 @@ QString QString::fromUtf8(const char *str, int size)
                 uc = ch & 0x1f;
                 need = 1;
                 error = i;
+                min_uc = 0x80;
             } else if ((ch & 0xf0) == 0xe0) {
                 uc = ch & 0x0f;
                 need = 2;
                 error = i;
+                min_uc = 0x800;
             } else if ((ch&0xf8) == 0xf0) {
                 uc = ch & 0x07;
                 need = 3;
                 error = i;
+                min_uc = 0x10000;
             } else {
                 // Error
                 qch = addOne(qch, result);

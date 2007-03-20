@@ -118,14 +118,17 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
     int need = 0;
     int error = -1;
     uint uc = 0;
+    uint min_uc = 0;
     if (state) {
         if (state->flags & IgnoreHeader)
             headerdone = true;
         if (state->flags & ConvertInvalidToNull)
             replacement = QChar::Null;
         need = state->remainingChars;
-        if (need)
+        if (need) {
             uc = state->state_data[0];
+            min_uc = state->state_data[1];
+        }
     }
     if (!headerdone && len > 3
         && (uchar)chars[0] == 0xef && (uchar)chars[1] == 0xbb && (uchar)chars[2] == 0xbf) {
@@ -143,7 +146,7 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
     int invalid = 0;
 
     for (int i=0; i<len; i++) {
-        ch = *chars++;
+        ch = chars[i];
         if (need) {
             if ((ch&0xc0) == 0x80) {
                 uc = (uc << 6) | (ch & 0x3f);
@@ -164,6 +167,10 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
 
                         *qch++ = QChar(high);
                         *qch++ = QChar(low);
+                    } else if ((uc < min_uc) || (uc >= 0xd800 && uc <= 0xdfff) || (uc >= 0xfffe)) {
+                        // error
+                        *qch++ = QChar::ReplacementCharacter;
+                        ++invalid;
                     } else {
                         *qch++ = uc;
                     }
@@ -182,14 +189,21 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
                 uc = ch & 0x1f;
                 need = 1;
                 error = i;
+                min_uc = 0x80;
             } else if ((ch & 0xf0) == 0xe0) {
                 uc = ch & 0x0f;
                 need = 2;
                 error = i;
+                min_uc = 0x800;
             } else if ((ch&0xf8) == 0xf0) {
                 uc = ch & 0x07;
                 need = 3;
                 error = i;
+                min_uc = 0x10000;
+            } else {
+                // error
+                *qch++ = QChar::ReplacementCharacter;
+                ++invalid;
             }
         }
     }
@@ -200,6 +214,7 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
         if (headerdone)
             state->flags |= IgnoreHeader;
         state->state_data[0] = need ? uc : 0;
+        state->state_data[1] = need ? min_uc : 0;
     }
 }
 
