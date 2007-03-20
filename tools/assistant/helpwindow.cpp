@@ -43,12 +43,14 @@
 #endif
 
 HelpWindow::HelpWindow(MainWindow *w, QWidget *parent)
-    : QTextBrowser(parent), mw(w), blockScroll(false),
-      shiftPressed(false), newWindow(false)
+    : QTextBrowser(parent)
+    , mw(w)
+    , blockScroll(false)
+    , shiftPressed(false)
+    , newWindow(false)
 {
-    QFont f = font();
-    f.setPointSizeF(Config::configuration()->fontPointSize());
-    setFont(f);
+    FontSettings settings = Config::configuration()->fontSettings();
+    setFont(settings.browserFont);
 }
 
 void HelpWindow::setSource(const QUrl &name)

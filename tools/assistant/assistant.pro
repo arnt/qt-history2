@@ -1,3 +1,5 @@
+include($$QT_SOURCE_TREE/tools/shared/fontpanel/fontpanel.pri)
+
 TEMPLATE = app
 LANGUAGE = C++
 TARGET = assistant
@@ -29,7 +31,8 @@ SOURCES += main.cpp \
         config.cpp \
         helpdialog.cpp \
         mainwindow.cpp \
-        tabbedbrowser.cpp
+        tabbedbrowser.cpp \
+        fontsettingsdialog.cpp
 
 HEADERS += helpwindow.h \
         topicchooser.h \
@@ -39,7 +42,8 @@ HEADERS += helpwindow.h \
         helpdialog.h \
         mainwindow.h \
         tabbedbrowser.h \
-        config.h
+        config.h \
+        fontsettingsdialog.h
 
 RESOURCES += assistant.qrc
 

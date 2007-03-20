@@ -119,6 +119,17 @@ void Config::load()
     rebuildDocs = settings.value( key + QLatin1String("RebuildDocDB"), true ).toBool();
 
     profileNames = settings.value( key + QLatin1String("Profile") ).toStringList();
+    
+    m_fontSettings.windowFont = qVariantValue<QFont>(settings.value(key + QLatin1String("windowfont"), qApp->font()));
+    m_fontSettings.browserFont = qVariantValue<QFont>(settings.value(key + QLatin1String("browserfont"), qApp->font()));
+    m_fontSettings.useWindowFont = settings.value(key + QLatin1String("usewindowfont"), false).toBool();
+    m_fontSettings.useBrowserFont = settings.value(key + QLatin1String("usebrowserfont"), false).toBool();
+    m_fontSettings.windowWritingSystem = static_cast<QFontDatabase::WritingSystem>(
+        settings.value(key + QLatin1String("windowwritingsystem"), QFontDatabase::Latin).toInt());
+    m_fontSettings.browserWritingSystem = static_cast<QFontDatabase::WritingSystem>(
+        settings.value(key + QLatin1String("browserwritingsystem"), QFontDatabase::Latin).toInt());
+
+    m_fontSettings.browserFont.setPointSizeF(pointFntSize);
 }
 
 void Config::save()
@@ -147,6 +158,13 @@ void Config::saveSettings()
     settings.setValue( key + QLatin1String("MainWindowState"), mainWinState );
     settings.setValue( key + QLatin1String("FontSize"), pointFntSize);
     settings.setValue( key + QLatin1String("RebuildDocDB"), rebuildDocs );
+
+    settings.setValue(key + QLatin1String("windowfont"), m_fontSettings.windowFont);
+    settings.setValue(key + QLatin1String("browserfont"), m_fontSettings.browserFont);
+    settings.setValue(key + QLatin1String("usewindowfont"), m_fontSettings.useWindowFont);
+    settings.setValue(key + QLatin1String("usebrowserfont"), m_fontSettings.useBrowserFont);
+    settings.setValue(key + QLatin1String("windowwritingsystem"), m_fontSettings.windowWritingSystem);
+    settings.setValue(key + QLatin1String("browserwritingsystem"), m_fontSettings.browserWritingSystem);
 }
 
 #ifdef ASSISTANT_DEBUG

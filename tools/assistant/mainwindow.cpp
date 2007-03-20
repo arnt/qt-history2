@@ -15,6 +15,7 @@
 #include "tabbedbrowser.h"
 #include "helpdialog.h"
 #include "config.h"
+#include "fontsettingsdialog.h"
 
 #include <QDockWidget>
 #include <QDir>
@@ -183,6 +184,8 @@ void MainWindow::setup()
     QObject::connect(ui.actionEditFind, SIGNAL(triggered()), tabs, SLOT(find()));
     QObject::connect(ui.actionEditFindNext, SIGNAL(triggered()), tabs, SLOT(findNext()));
     QObject::connect(ui.actionEditFindPrev, SIGNAL(triggered()), tabs, SLOT(findPrevious()));
+    connect(ui.actionEditFont_Settings, SIGNAL(triggered()), this, SLOT(showFontSettingsDialog()));
+
 	qApp->restoreOverrideCursor();
     ui.actionGoPrevious->setEnabled(false);
     ui.actionGoNext->setEnabled(false);
@@ -761,4 +764,35 @@ void MainWindow::on_actionSaveAs_triggered()
     s << src;
     s.flush();
     file.close();
+}
+
+void MainWindow::showFontSettingsDialog()
+{
+    Config *config = Config::configuration();
+    FontSettings settings = config->fontSettings();
+
+    { // It is important that the dialog be deleted before UI mode changes.
+        FontSettingsDialog dialog;
+        if (!dialog.showDialog(&settings))
+            return;
+    }
+    
+    config->setFontPointSize(settings.browserFont.pointSizeF());
+    config->setFontSettings(settings);
+    
+    updateApplicationFontSettings(settings);
+}
+
+void MainWindow::updateApplicationFontSettings(FontSettings &settings)
+{
+    QFont font = settings.windowFont;
+    if (this->font() != font)
+        qApp->setFont(font, "QWidget");
+
+    font = settings.browserFont;
+    QList<HelpWindow*> browsers = tabs->browsers();
+    foreach (HelpWindow *browser, browsers) {
+        if (browser->font() != font)
+            browser->setFont(font);
+    }
 }

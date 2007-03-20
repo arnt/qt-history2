@@ -1,15 +1,15 @@
 <ui version="4.0" >
- <comment>*********************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $TROLLTECH_DUAL_LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
+ <comment>*********************************************************************&#xd;
+**&#xd;
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.&#xd;
+**&#xd;
+** This file is part of the $MODULE$ of the Qt Toolkit.&#xd;
+**&#xd;
+** $TROLLTECH_DUAL_LICENSE$&#xd;
+**&#xd;
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE&#xd;
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&#xd;
+**&#xd;
 *********************************************************************</comment>
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow" >
@@ -33,7 +33,10 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <attribute name="toolBarArea" >
-    <number>4</number>
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
    </attribute>
    <addaction name="actionGoPrevious" />
    <addaction name="actionGoNext" />
@@ -57,7 +60,10 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <attribute name="toolBarArea" >
-    <number>4</number>
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
    </attribute>
   </widget>
   <widget class="QMenuBar" name="menubar" >
@@ -127,6 +133,8 @@
     <addaction name="actionEditFind" />
     <addaction name="actionEditFindNext" />
     <addaction name="actionEditFindPrev" />
+    <addaction name="separator" />
+    <addaction name="actionEditFont_Settings" />
    </widget>
    <addaction name="fileMenu" />
    <addaction name="editMenu" />
@@ -391,6 +399,11 @@
    </property>
    <property name="whatsThis" >
     <string>Select the page in contents tab.</string>
+   </property>
+  </action>
+  <action name="actionEditFont_Settings" >
+   <property name="text" >
+    <string>Font Settings...</string>
    </property>
   </action>
  </widget>

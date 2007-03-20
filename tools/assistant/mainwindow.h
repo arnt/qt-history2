@@ -15,6 +15,8 @@
 #define MAINWINDOW_H
 
 #include "ui_mainwindow.h"
+#include "config.h"
+
 #include <QPointer>
 #include <QMap>
 
@@ -74,6 +76,7 @@ private slots:
     void browserTabChanged();
     void copyAvailable(bool yes);
     void updateTabActions(int index);
+    void showFontSettingsDialog();
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -82,6 +85,7 @@ protected:
 private:
     void setupGoActions();
     bool insertActionSeparator();
+    void updateApplicationFontSettings(FontSettings &settings);
 
 private:
     Ui::MainWindow ui;

@@ -403,6 +403,10 @@ int main( int argc, char ** argv )
     new AssistantAdaptor(mw);
 #endif // QT_NO_DBUS
 
+    FontSettings settings = conf->fontSettings();
+    if (mw->font() != settings.windowFont)
+        a.setFont(settings.windowFont, "QWidget");
+
     mw->show();
 
     if (!file.isEmpty())
@@ -411,7 +415,7 @@ int main( int argc, char ** argv )
         mw->showLinks( links );
 
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
-
+    
     int appExec = a.exec();
     delete (MainWindow*)mw;
     return appExec;

@@ -21,7 +21,26 @@
 #include <QPixmap>
 #include <QMap>
 
+#include <QtGui/QFont>
+#include <QtGui/QFontDatabase>
+
 class Profile;
+
+struct FontSettings
+{
+    FontSettings() : useWindowFont(false), useBrowserFont(false),
+        windowWritingSystem(QFontDatabase::Latin), browserWritingSystem(QFontDatabase::Latin)
+        { }
+
+    QFont windowFont;
+    QFont browserFont;
+
+    bool useWindowFont;
+    bool useBrowserFont;
+
+    QFontDatabase::WritingSystem windowWritingSystem;
+    QFontDatabase::WritingSystem browserWritingSystem;
+};
 
 class Config
 {
@@ -68,7 +87,15 @@ public:
     void setMainWindowState( const QByteArray &state ) { mainWinState = state; }
 
     qreal fontPointSize() const { return pointFntSize; }
-    void setFontPointSize(qreal size) { pointFntSize = size; }
+    void setFontPointSize(qreal size)
+    { 
+        pointFntSize = size;
+        m_fontSettings.useBrowserFont = true;
+        m_fontSettings.browserFont.setPointSizeF(size); 
+    }
+
+    FontSettings fontSettings() { return m_fontSettings; }
+    void setFontSettings(const FontSettings &settings) { m_fontSettings = settings; }
 
     QString assistantDocPath() const;
 
@@ -100,6 +127,7 @@ private:
     int sideBar;
     bool hideSidebar;
     bool rebuildDocs;
+    FontSettings m_fontSettings;
 };
 
 #endif // CONFIG_H
