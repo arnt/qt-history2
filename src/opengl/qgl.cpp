@@ -1075,13 +1075,6 @@ QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT qOpenGLVersionFlagsFromString(co
 */
 QGLFormat::OpenGLVersionFlags QGLFormat::openGLVersionFlags()
 {
-    QGLWidget *dummy = 0;
-
-    if (QGLContext::currentContext() == 0) {
-        dummy = new QGLWidget;
-        dummy->makeCurrent(); // glGetString() needs a current context
-    }
-
     static bool firstTime=true;
     static OpenGLVersionFlags versionFlags = OpenGL_Version_None;
 
@@ -1093,12 +1086,18 @@ QGLFormat::OpenGLVersionFlags QGLFormat::openGLVersionFlags()
 
     if (firstTime) {
         firstTime = false;
+        QGLWidget *dummy = 0;
+
+        if (QGLContext::currentContext() == 0) {
+            dummy = new QGLWidget;
+            dummy->makeCurrent(); // glGetString() needs a current context
+        }
 
         QString versionString(QLatin1String(reinterpret_cast<const char*>(glGetString(GL_VERSION))));
         versionFlags = qOpenGLVersionFlagsFromString(versionString);
+        if (dummy)
+            delete dummy;
     }
-    if (dummy)
-        delete dummy;
 
     return versionFlags;
 }
