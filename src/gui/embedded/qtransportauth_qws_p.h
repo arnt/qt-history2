@@ -31,19 +31,20 @@
 #if !defined(QT_NO_SXE) || defined(SXE_INSTALLER)
 
 #include <qmutex.h>
-
+#include <qdatetime.h>
 #include "private/qobject_p.h"
 
+#include <QtCore/qcache.h>
+
 // Uncomment to generate debug output
-//#define QTRANSPORTAUTH_DEBUG 1
+// #define QTRANSPORTAUTH_DEBUG 1
 
 #ifdef QTRANSPORTAUTH_DEBUG
 void hexstring( char *buf, const unsigned char* key, size_t sz );
 #endif
 
-// Rekeying is scheduled every this many seconds, note this should be not a multiple
-// of 24hrs to avoid it happening at the same time every day
-#define QSXE_KEY_PERIOD 200000
+// proj id for ftok usage in sxe
+#define SXE_PROJ 10022
 
 /*!
   \internal
@@ -245,7 +246,10 @@ struct AuthCookie
 };
 
 /*
-  Auth data as written to the key file
+  Auth data as written to the key file - SUPERSEDED by usr_key_entry
+
+  This is still used internally for some functions, ie the socket
+  related calls.
 */
 struct AuthRecord
 {
@@ -256,6 +260,58 @@ struct AuthRecord
     time_t change_time;
 };
 
+/*!
+  \class usr_key_entry
+  This comes from the SXE kernel patch file include/linux/lidsif.h
+
+  This is the (new) data record for the key file (version 2).
+
+  The key file is (now) either /proc/lids/keys (and the per-process
+  keys in /proc/<pid>/lids_key) OR for desktop/development ONLY (not
+  for production) it is $QPEDIR/etc/keyfile
+
+  The key file maps keys to files.
+
+  File are identified by inode and device numbers, not paths.
+
+  (See the "installs" file for path to inode/device mapping)
+*/
+struct usr_key_entry
+{
+    char key[QSXE_KEY_LEN];
+    ino_t ino;
+    dev_t dev;
+};
+
+
+/*!
+  \class IdBlock
+  \brief Data record for the manifest file.
+  The manifest file maps program id's to files
+*/
+struct IdBlock
+{
+    quint64 inode;
+    quint64 device;
+    unsigned char pad;
+    unsigned char progId;
+    unsigned short installId;
+    unsigned int keyOffset;
+    qint64 install_time;
+};
+
+class SxeRegistryLocker : public QObject
+{
+    Q_OBJECT
+public:
+    SxeRegistryLocker( QObject * );
+    ~SxeRegistryLocker();
+    bool success() const { return m_success; }
+private:
+    bool m_success;
+    QObject *m_reg;
+};
+
 class QTransportAuthPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QTransportAuth)
@@ -263,7 +319,6 @@ public:
     QTransportAuthPrivate();
     ~QTransportAuthPrivate();
 
-    void freeCache();
     const unsigned char *getClientKey( unsigned char progId );
     void invalidateClientKeyCache();
 
@@ -271,12 +326,41 @@ public:
     bool keyChanged;
     QString m_logFilePath;
     QString m_keyFilePath;
+    QObject *m_packageRegistry;
     AuthCookie authKey;
     QList<QTransportAuth::Data*> data;
+    QCache<unsigned char, char> keyCache;
     QHash<QTransportAuth::Data*,QAuthDevice*> buffers;
     QList< QPointer<QObject> > policyReceivers;
     QHash< QObject*, QIODevice*> buffersByClient;
     QMutex keyfileMutex;
+};
+
+/*!
+  \internal
+  Enforces the Global Authentication Rate.  If more than 30 authentications
+  are received per minute the sxemonitor is notified that the GAR has been exceeded
+*/
+class GAREnforcer
+{
+    public:
+        static GAREnforcer *getInstance();
+        void logAuthAttempt( QDateTime time = QDateTime::currentDateTime() );
+        void reset();
+
+    #ifndef TEST_GAR_ENFORCER
+    private:
+    #endif
+        GAREnforcer();
+        GAREnforcer( const GAREnforcer & );
+        GAREnforcer &operator=(GAREnforcer const & );
+        
+        static const QString GARMessage;
+        static const int minutelyRate;
+        static const QString SxeTag;
+        static const int minute;
+        
+        QList<QDateTime> authAttempts;
 };
 
 #endif // QT_NO_SXE

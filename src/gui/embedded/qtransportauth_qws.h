@@ -113,6 +113,7 @@ public:
     QMutex *getKeyFileMutex();
     void setLogFilePath( const QString & );
     QString logFilePath() const;
+    void setPackageRegistry( QObject *registry );
     bool isDiscoveryMode() const;
     void setProcessKey( const char * );
     void setProcessKey( const char *, const char * );
