@@ -1,6 +1,8 @@
 /*!
     \example script/calculator
     \title QtScript Calculator Example
+    \ingroup scripting
+    \brief A simple example of application scripting.
 
     This QtScript example shows how to implement the functionality of a calculator widget.
 
