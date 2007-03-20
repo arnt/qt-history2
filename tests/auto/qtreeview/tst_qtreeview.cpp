@@ -959,7 +959,7 @@ void tst_QTreeView::keyboardSearch()
     qApp->processEvents();
 
     // Nothing is selected
-    QCOMPARE(view.selectionModel()->currentIndex(), QModelIndex());
+    QVERIFY(!view.selectionModel()->hasSelection());
     QVERIFY(!view.selectionModel()->isSelected(model.index(0, 0)));
 
     // First item is selected
