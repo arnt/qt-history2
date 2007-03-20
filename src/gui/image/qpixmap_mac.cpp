@@ -786,7 +786,11 @@ static void qt_mac_grabDisplayRect(CGDirectDisplayID display, const QRect &displ
     // Fetch the data in XRGB format, matching the bitmap context.
     ptrglReadPixels(GLint(displayRect.x()), GLint(displayRect.y()),
                  GLint(displayRect.width()), GLint(displayRect.height()),
+#ifdef __BIG_ENDIAN__
                  GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, buffer);
+#else
+                 GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, buffer);
+#endif
 
     ptrCGLSetCurrentContext(NULL);
     ptrCGLClearDrawable(glContextObj); // disassociate from full screen
