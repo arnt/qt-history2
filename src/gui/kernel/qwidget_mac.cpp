@@ -312,9 +312,9 @@ static inline bool qt_mac_menu_buttons_explicitly_sat(const Qt::WindowFlags &fla
     // if CustomizeWindowHint is sat, together
     // with any of the buttons, return true:
     return (flags & Qt::CustomizeWindowHint
-        && (flags & Qt::WindowSystemMenuHint)
+        && ((flags & Qt::WindowSystemMenuHint)
         || (flags & Qt::WindowMinimizeButtonHint)
-        || (flags & Qt::WindowMaximizeButtonHint));
+        || (flags & Qt::WindowMaximizeButtonHint)));
 }
 
 static void qt_mac_set_window_group_to_stays_on_top(WindowRef windowRef, Qt::WindowType type)
