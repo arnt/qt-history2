@@ -345,7 +345,6 @@ void QPixmap::setMask(const QBitmap &newmask)
 
 void QPixmap::detach()
 {
-    ++data->detach_no;
     if(data->cg_mask) {
         CGImageRelease(data->cg_mask);
         data->cg_mask = 0;
@@ -357,6 +356,7 @@ void QPixmap::detach()
 #endif
         data->ser_no = ++qt_pixmap_serial;
     }
+    ++data->detach_no;
     data->uninit = false;
 }
 
