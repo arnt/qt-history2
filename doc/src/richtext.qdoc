@@ -4,6 +4,8 @@
 
 \title Rich Text Processing
 \ingroup architecture
+\ingroup text-processing
+\brief An overview of Qt's rich text processing, editing and display features.
 
 The Scribe framework provides a set of classes for reading and manipulating
 structured rich text documents. Unlike previous rich text support in Qt, the

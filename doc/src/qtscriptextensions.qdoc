@@ -13,7 +13,8 @@
 /*!
     \page qtscriptextensions.html
     \title Creating QtScript Extensions
-    \ingroup script
+    \ingroup scripting
+    \brief A guide to creating and using QtScript extensions.
 
     QtScript extensions can make additional functionality available to scripts
     evaluated by a QScriptEngine. Extensions are imported by calling
@@ -38,7 +39,7 @@
     \c{"foo.bar.baz"}, the engine will ensure that the extensions \c{"foo"} and \c{"foo.bar"}
     are imported, locating and evaluating the corresponding \c{__init__.js}
     in the same manner (in folders \c{foo} and \c{foo/bar}, respectively).
-    
+
     The contents of \c{__init__.js} are evaluated in a new QScriptContext,
     as if it were the body of a function. The engine's Global Object acts as
     the \c{this} object. The following local variables are initially available

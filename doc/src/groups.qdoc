@@ -267,7 +267,7 @@
     \group multimedia
     \ingroup groups
 
-    \title Multimedia, Graphics, and Printing
+    \title Multimedia, Graphics and Printing
     \brief Classes that provide support for graphics (2D, and with OpenGL, 3D),
     image encoding, decoding, and manipulation, sound, animation,
     printing, etc.
@@ -452,8 +452,9 @@
 /*!
     \group text
     \ingroup groups
+    \ingroup text-processing
 
-    \title Text Related Classes
+    \title Text Processing Classes
     \brief Classes for text processing. (See also \l{XML Classes}.)
 
     These classes are relevant to text processing. See also the
@@ -512,9 +513,10 @@
 /*!
     \group script
     \ingroup groups
+    \ingroup scripting
 
-    \title Script Classes
-    \brief Qt Script-related classes.
+    \title Scripting Classes
+    \brief Qt Script-related classes and overviews.
 
     These classes are relevant to Qt Script users.
 */

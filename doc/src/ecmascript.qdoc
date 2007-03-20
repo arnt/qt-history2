@@ -1,7 +1,8 @@
 /*!
     \page ecmascript.html
     \title ECMAScript Reference
-    \ingroup misc
+    \ingroup scripting
+    \brief A list of objects, functions and properties supported by QtScript.
 
     \tableofcontents
 
@@ -15,7 +16,7 @@
     \o undefined
     \o Math
     \endlist
-        
+
     \section2 Function Properties
 
     \list
@@ -258,7 +259,7 @@
     \o name
     \o message
     \endlist
-        
+
     \section2 Function Properties
 
     \list

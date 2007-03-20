@@ -2,7 +2,8 @@
   \page printing.html
   \title Printing with Qt
   \ingroup multimedia
-  \ingroup text
+  \ingroup text-processing
+  \brief A guide to producing printed output with Qt's paint system and widgets.
 
   Qt provides extensive cross-platform support for printing. Using the printing
   systems on each platform, Qt applications can print to attached printers and

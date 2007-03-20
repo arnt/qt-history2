@@ -145,7 +145,22 @@ platform and tool-specific documentation.
 \generatelist{related}
 */
 
-/*! \title Tools for ActiveQt
+/*!
+\title Text Processing
+\group text-processing
+\ingroup topics
+\brief Text processing guides and classes.
+
+Qt provides an extensive collection of classes for text handling.
+The following guides and references describe basic text handling, support
+for internationalization and character encodings, and Qt's rich text
+system.
+
+\generatelist{related}
+*/
+
+/*!
+\title Tools for ActiveQt
 \group activeqt-tools
 \ingroup topics
 \brief Tools to help integrate Qt applications with ActiveX components.
@@ -155,4 +170,17 @@ These tools provide support for integrating Qt with ActiveX components.
 \generatelist{related}
 
 \sa {ActiveQt Framework}
+*/
+
+/*!
+\title Scripting with ECMAScript
+\group scripting
+\ingroup topics
+\brief Guides and references covering application scripting with ECMAScript.
+
+Qt 4.3 and later provides support for application scripting with ECMAScript.
+The following guides and references cover aspects of programming with
+ECMAScript and Qt.
+
+\generatelist{related}
 */
