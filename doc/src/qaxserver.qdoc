@@ -4,6 +4,7 @@
     \contentspage Qt's Modules
     \previouspage QAxContainer
     \nextpage QtDBus module
+    \ingroup modules
 
     \brief The QAxServer module is a Windows-only static library that
     you can use to turn a standard Qt binary into a COM server. 

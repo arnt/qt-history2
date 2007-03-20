@@ -4,6 +4,7 @@
     \contentspage Qt's Modules
     \previouspage QtCore
     \nextpage QtNetwork
+    \ingroup modules
 
     \brief The QtGui module extends QtCore with GUI functionality.
 

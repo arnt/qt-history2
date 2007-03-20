@@ -4,6 +4,7 @@
     \contentspage Qt's Modules
     \previouspage QtUiTools
     \nextpage Qt3Support
+    \ingroup modules
 
     \brief The QtAssistant module provides a means of launching \QA
     to provide online help.

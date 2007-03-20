@@ -4,6 +4,7 @@
     \contentspage Qt's Modules
     \previouspage QtGui
     \nextpage QtOpenGL
+    \ingroup modules
 
     \brief The QtNetwork module offers classes that allow you to
     write TCP/IP clients and servers.

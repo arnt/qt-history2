@@ -4,7 +4,9 @@
     \contentspage Qt's Modules
     \previouspage QtAssistant
     \nextpage QtTest
+    \ingroup modules
 
+    \keyword Qt3Support
     \brief The Qt3Support module provides classes that ease porting
     from Qt 3 to Qt 4.
 

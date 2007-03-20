@@ -15,6 +15,7 @@
     \title QtDBus module
     \contentspage Qt's Modules
     \previouspage QAxServer
+    \ingroup modules
 
     \keyword QtDBus
 

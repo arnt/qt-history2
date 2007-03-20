@@ -4,6 +4,7 @@
     \contentspage Qt's Modules
     \previouspage QtNetwork
     \nextpage QtSql
+    \ingroup modules
 
     \brief The QtOpenGL module offers classes that make it easy to
     use OpenGL in Qt applications.

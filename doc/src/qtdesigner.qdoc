@@ -4,6 +4,7 @@
     \contentspage Qt's Modules
     \previouspage QtXml
     \nextpage QtUiTools
+    \ingroup modules
 
     \brief The QtDesigner module provides classes that allow you to
     create your own custom widget plugins for Qt Designer, and classes

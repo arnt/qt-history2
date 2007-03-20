@@ -4,6 +4,7 @@
     \contentspage Qt's Modules
     \previouspage QtTest
     \nextpage QAxServer
+    \ingroup modules
 
     \brief The QAxContainer module is a Windows-only extension for
     accessing ActiveX controls and COM objects.

@@ -5,6 +5,7 @@
   \contentspage Qt's Modules
   \previouspage QtSvg
   \nextpage QtXml
+  \ingroup modules
 
   \brief The QtScript module provides classes for making Qt applications scriptable.
 
@@ -226,7 +227,7 @@
 
   This section explains how to implement application objects and
   provides the necessary technical background material.
- 
+
   \section2 Making a C++ object available to Scripts Written in Qt Script
 
   Making C++ classes and objects available to a scripting language is
@@ -259,7 +260,7 @@
   signatures, etc., at runtime. Because we obtain the information we
   need about classes dynamically at run time, there is no need to
   write wrappers for QObject derived classes.
- 
+
   \section2 Making C++ Class Member Functions Available in Qt Script
 
   The meta object system makes information about slots dynamically
@@ -294,7 +295,7 @@
   In the example above, aNonScriptableFunction() is not declared as a
   slot, so it will not be available in Qt Script. The other three
   functions will automatically be made available in Qt Script.
- 
+
   \section2 Making C++ Class Properties Available in Qt Script
 
   In the previous example, if we wanted to get or set a property using
@@ -349,7 +350,7 @@
   The only difference from the original code is the use of the macro
   \c{Q_PROPERTY}, which takes the type and name of the property, and
   the names of the setter and getter functions as arguments.
- 
+
   \section2 Reacting to C++ Objects Signals in Scripts
 
   In the Qt object model, signals are used as a notification mechanism
@@ -406,7 +407,7 @@
         print( "obj is enabled: " + obj.enabled );
     }
     \endcode
- 
+
   \section2 Design of Application Objects
 
   The previous section described how to implement C++ objects which

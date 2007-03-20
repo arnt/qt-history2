@@ -4,6 +4,7 @@
     \contentspage Qt's Modules
     \previouspage QtSvg
     \nextpage QtDesigner
+    \ingroup modules
 
     \brief The QtXml module provides a stream reader and writer for
     XML documents, and C++ implementations of SAX and DOM.

@@ -5,6 +5,7 @@
   \contentspage Qt's Modules
   \previouspage QtDesigner
   \nextpage QtAssistant
+  \ingroup modules
 
   \brief The QtUiTools module provides classes to handle forms created with Qt Designer.
 
