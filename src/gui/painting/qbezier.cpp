@@ -34,18 +34,18 @@
 #define M_SQRT2	1.41421356237309504880
 #endif
 
-#define log2(x) (log(x)/log(2.))
+#define log2(x) (qLog(x)/qLog(2.))
 
-static inline double log4(double x)
+static inline qreal log4(qreal x)
 {
-    return 0.5 * log2(x);
+    return qreal(0.5) * log2(x);
 }
 
 /*!
   \internal
 */
 QBezier QBezier::fromPoints(const QPointF &p1, const QPointF &p2,
-                              const QPointF &p3, const QPointF &p4)
+                            const QPointF &p3, const QPointF &p4)
 {
     QBezier b;
     b.x1 = p1.x();
@@ -95,13 +95,13 @@ static inline void flattenBezierWithoutInflections(QBezier &bez,
         qreal dx = bez.x2 - bez.x1;
         qreal dy = bez.y2 - bez.y1;
 
-        qreal normalized = sqrt(dx * dx + dy * dy);
+        qreal normalized = qSqrt(dx * dx + dy * dy);
         if (qFuzzyCompare(normalized, 0))
            break;
 
         qreal d = qAbs(dx * (bez.y3 - bez.y2) - dy * (bez.x3 - bez.x2));
 
-        qreal t = sqrt(4. / 3. * normalized * flatness / d);
+        qreal t = qSqrt(4. / 3. * normalized * flatness / d);
         if (t > 1 || qFuzzyCompare(t, (qreal)1.))
             break;
         bez.parameterSplitLeft(t, &left);
@@ -126,13 +126,13 @@ static inline int quadraticRoots(qreal a, qreal b, qreal c,
         }
         if (det > 0) {
             if (qFuzzyCompare(b, 0)) {
-                *x2 = sqrt(-c / a);
+                *x2 = qSqrt(-c / a);
                 *x1 = -(*x2);
                 return 2;
             }
             const qreal stableA = b / (2 * a);
             const qreal stableB = c / (a * stableA * stableA);
-            const qreal stableC = -1 - sqrt(1 - stableB);
+            const qreal stableC = -1 - qSqrt(1 - stableB);
             *x2 = stableA * stableC;
             *x1 = (stableA * stableB) / stableC;
             return 2;
@@ -457,18 +457,18 @@ static void addCircle(const QBezier *b, qreal offset, QBezier *o)
     QPointF normals[3];
 
     normals[0] = QPointF(b->y2 - b->y1, b->x1 - b->x2);
-    qreal dist = sqrt(normals[0].x()*normals[0].x() + normals[0].y()*normals[0].y());
+    qreal dist = qSqrt(normals[0].x()*normals[0].x() + normals[0].y()*normals[0].y());
     if (qFuzzyCompare(dist, 0))
         return;
     normals[0] /= dist;
     normals[2] = QPointF(b->y4 - b->y3, b->x3 - b->x4);
-    dist = sqrt(normals[2].x()*normals[2].x() + normals[2].y()*normals[2].y());
+    dist = qSqrt(normals[2].x()*normals[2].x() + normals[2].y()*normals[2].y());
     if (qFuzzyCompare(dist, 0))
         return;
     normals[2] /= dist;
 
     normals[1] = QPointF(b->x1 - b->x2 - b->x3 + b->x4, b->y1 - b->y2 - b->y3 + b->y4);
-    normals[1] /= -1*sqrt(normals[1].x()*normals[1].x() + normals[1].y()*normals[1].y());
+    normals[1] /= -1*qSqrt(normals[1].x()*normals[1].x() + normals[1].y()*normals[1].y());
 
     qreal angles[2];
     qreal sign = 1.;
@@ -572,7 +572,7 @@ static inline bool IntersectBB(const QBezier &a, const QBezier &b)
 int IntersectBB(const QBezier &a, const QBezier &b)
 {
     // Compute bounding box for a
-    double minax, maxax, minay, maxay;
+    qreal minax, maxax, minay, maxay;
     if (a.x1 > a.x4)	 // These are the most likely to be extremal
 	minax = a.x4, maxax = a.x1;
     else
@@ -604,7 +604,7 @@ int IntersectBB(const QBezier &a, const QBezier &b)
 	maxay = a.y2;
 
     // Compute bounding box for b
-    double minbx, maxbx, minby, maxby;
+    qreal minbx, maxbx, minby, maxby;
     if (b.x1 > b.x4)
 	minbx = b.x4, maxbx = b.x1;
     else
@@ -656,8 +656,8 @@ static QDebug operator<<(QDebug dbg, const QBezier &bz)
 }
 #endif
 
-void RecursivelyIntersect(const QBezier &a, double t0, double t1, int deptha,
-			  const QBezier &b, double u0, double u1, int depthb,
+void RecursivelyIntersect(const QBezier &a, qreal t0, qreal t1, int deptha,
+			  const QBezier &b, qreal u0, qreal u1, int depthb,
                           QVector< QList<qreal> > &parameters)
 {
 #ifdef QDEBUG_BEZIER
@@ -670,7 +670,7 @@ void RecursivelyIntersect(const QBezier &a, double t0, double t1, int deptha,
     if (deptha > 0) {
 	QBezier A[2];
         a.split(&A[0], &A[1]);
-	double tmid = (t0+t1)*0.5;
+	qreal tmid = (t0+t1)*0.5;
         //qDebug()<<"\t1)"<<A[0];
         //qDebug()<<"\t2)"<<A[1];
 	deptha--;
@@ -679,7 +679,7 @@ void RecursivelyIntersect(const QBezier &a, double t0, double t1, int deptha,
             b.split(&B[0], &B[1]);
             //qDebug()<<"\t3)"<<B[0];
             //qDebug()<<"\t4)"<<B[1];
-	    double umid = (u0+u1)*0.5;
+	    qreal umid = (u0+u1)*0.5;
 	    depthb--;
 	    if (IntersectBB(A[0], B[0])) {
                 //fprintf(stderr, "\t 1 from %d\n", currentD);
@@ -723,7 +723,7 @@ void RecursivelyIntersect(const QBezier &a, double t0, double t1, int deptha,
 	if (depthb > 0) {
 	    QBezier B[2];
             b.split(&B[0], &B[1]);
-	    double umid = (u0 + u1)*0.5;
+	    qreal umid = (u0 + u1)*0.5;
 	    depthb--;
 	    if (IntersectBB(a, B[0])) {
                 //fprintf(stderr, "\t 7 from %d\n", currentD);
@@ -740,19 +740,19 @@ void RecursivelyIntersect(const QBezier &a, double t0, double t1, int deptha,
         }
 	else {
             // Both segments are fully subdivided; now do line segments
-	    double xlk = a.x4 - a.x1;
-	    double ylk = a.y4 - a.y1;
-	    double xnm = b.x4 - b.x1;
-	    double ynm = b.y4 - b.y1;
-	    double xmk = b.x1 - a.x1;
-	    double ymk = b.y1 - a.y1;
-	    double det = xnm * ylk - ynm * xlk;
+	    qreal xlk = a.x4 - a.x1;
+	    qreal ylk = a.y4 - a.y1;
+	    qreal xnm = b.x4 - b.x1;
+	    qreal ynm = b.y4 - b.y1;
+	    qreal xmk = b.x1 - a.x1;
+	    qreal ymk = b.y1 - a.y1;
+	    qreal det = xnm * ylk - ynm * xlk;
 	    if (1.0 + det == 1.0) {
 		return;
             } else {
-		double detinv = 1.0 / det;
-		double s = (xnm * ymk - ynm *xmk) * detinv;
-		double t = (xlk * ymk - ylk * xmk) * detinv;
+		qreal detinv = 1.0 / det;
+		qreal s = (xnm * ymk - ynm *xmk) * detinv;
+		qreal t = (xlk * ymk - ylk * xmk) * detinv;
 		if ((s < 0.0) || (s > 1.0) || (t < 0.0) || (t > 1.0))
 		    return;
 		parameters[0].append(t0 + s * (t1 - t0));
@@ -780,7 +780,7 @@ QVector< QList<qreal> > QBezier::findIntersections(const QBezier &a, const QBezi
 	QPointF lb;
 	if (lb1.x() > lb2.x()) lb.setX(lb1.x()); else lb.setX(lb2.x());
 	if (lb1.y() > lb2.y()) lb.setY(lb1.y()); else lb.setY(lb2.y());
-	double l0;
+	qreal l0;
 	if (la.x() > la.y())
 	    l0 = la.x();
 	else
@@ -789,7 +789,7 @@ QVector< QList<qreal> > QBezier::findIntersections(const QBezier &a, const QBezi
 	if (l0 * 0.75 * M_SQRT2 + 1.0 == 1.0)
 	    ra = 0;
 	else
-	    ra = (int)ceil(log4(M_SQRT2 * 6.0 / 8.0 * INV_EPS * l0));
+	    ra = qCeil(log4(M_SQRT2 * 6.0 / 8.0 * INV_EPS * l0));
 	if (lb.x() > lb.y())
 	    l0 = lb.x();
 	else
@@ -798,7 +798,7 @@ QVector< QList<qreal> > QBezier::findIntersections(const QBezier &a, const QBezi
 	if (l0 * 0.75 * M_SQRT2 + 1.0 == 1.0)
 	    rb = 0;
 	else
-	    rb = (int)ceil(log4(M_SQRT2 * 6.0 / 8.0 * INV_EPS * l0));
+	    rb = qCeil(log4(M_SQRT2 * 6.0 / 8.0 * INV_EPS * l0));
 
 	RecursivelyIntersect(a, 0., 1., ra, b, 0., 1., rb, parameters);
     }
@@ -812,7 +812,7 @@ QVector< QList<qreal> > QBezier::findIntersections(const QBezier &a, const QBezi
     return parameters;
 }
 
-static inline void splitBezierAt(const QBezier &bez, double t,
+static inline void splitBezierAt(const QBezier &bez, qreal t,
                                  QBezier *left, QBezier *right)
 {
     left->x1 = bez.x1;
@@ -884,8 +884,8 @@ void QBezier::addIfClose(qreal *length, qreal error) const
 {
     QBezier left, right;     /* bez poly splits */
 
-    double len = 0.0;        /* arc length */
-    double chord;            /* chord length */
+    qreal len = 0.0;        /* arc length */
+    qreal chord;            /* chord length */
 
     len = len + QLineF(QPointF(x1, y1),QPointF(x2, y2)).length();
     len = len + QLineF(QPointF(x2, y2),QPointF(x3, y3)).length();
@@ -970,7 +970,7 @@ static inline void bindInflectionPoint(const QBezier &bez, const qreal t,
     qreal ex = 3 * (right.x2 - right.x3);
     qreal ey = 3 * (right.y2 - right.y3);
 
-    qreal s4 = qAbs(6 * (ey * ax - ex * ay) / sqrt(ex * ex + ey * ey)) + 0.00001f;
+    qreal s4 = qAbs(6 * (ey * ax - ex * ay) / qSqrt(ex * ex + ey * ey)) + 0.00001f;
     qreal tf = pow(9 * flatness / s4, 1./3.);
     *tMinus = t - (1 - t) * tf;
     *tPlus  = t + (1 - t) * tf;

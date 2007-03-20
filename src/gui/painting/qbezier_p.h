@@ -63,7 +63,7 @@ public:
     inline QLineF startTangent() const;
     inline QLineF endTangent() const;
 
-    inline void parameterSplitLeft(double t, QBezier *left);
+    inline void parameterSplitLeft(qreal t, QBezier *left);
     inline void split(QBezier *firstHalf, QBezier *secondHalf) const;
     int shifted(QBezier *curveSegments, int maxSegmets,
                 qreal offset, float threshold) const;
@@ -179,7 +179,7 @@ inline void QBezier::split(QBezier *firstHalf, QBezier *secondHalf) const
     firstHalf->y4 = secondHalf->y1 = (firstHalf->y3 + secondHalf->y2)*.5;
 }
 
-inline void QBezier::parameterSplitLeft(double t, QBezier *left)
+inline void QBezier::parameterSplitLeft(qreal t, QBezier *left)
 {
     left->x1 = x1;
     left->y1 = y1;

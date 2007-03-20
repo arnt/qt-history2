@@ -81,4 +81,14 @@ inline qreal qSqrt(qreal v)
         return sqrt(v);
 }
 
+inline qreal qLog(qreal v)
+{
+#ifdef QT_USE_MATH_H_FLOATS
+    if (sizeof(qreal) == sizeof(float))
+        return logf(v);
+    else
+#endif
+        return log(v);
+}
+
 #endif // QMATH_P_H
