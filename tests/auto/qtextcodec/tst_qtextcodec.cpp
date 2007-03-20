@@ -1369,48 +1369,6 @@ void tst_QTextCodec::utf8Codec()
 
     QString str = codec->toUnicode(utf8.isNull() ? 0 : utf8.constData(),
                                    len < 0 ? qstrlen(utf8.constData()) : len);
-
-#if 1
-    QEXPECT_FAIL("invalid utf8",
-                 "QUtf8Codec eats trailing invalid UTF-8 sequences",
-                 Continue);
-    QEXPECT_FAIL("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 3.3.1",
-                 "QUtf8Codec eats trailing invalid UTF-8 sequences",
-                 Continue);
-    QEXPECT_FAIL("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 3.3.2",
-                 "QUtf8Codec eats trailing invalid UTF-8 sequences",
-                 Continue);
-    QEXPECT_FAIL("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 3.3.2-2",
-                 "QUtf8Codec eats trailing invalid UTF-8 sequences",
-                 Continue);
-    QEXPECT_FAIL("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 3.3.3",
-                 "QUtf8Codec eats trailing invalid UTF-8 sequences",
-                 Continue);
-    QEXPECT_FAIL("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 3.3.3-2",
-                 "QUtf8Codec eats trailing invalid UTF-8 sequences",
-                 Continue);
-    QEXPECT_FAIL("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 3.3.3-4",
-                 "QUtf8Codec eats trailing invalid UTF-8 sequences",
-                 Continue);
-    QEXPECT_FAIL("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 3.3.6",
-                 "QUtf8Codec eats trailing invalid UTF-8 sequences",
-                 Continue);
-    QEXPECT_FAIL("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 3.3.7",
-                 "QUtf8Codec eats trailing invalid UTF-8 sequences",
-                 Continue);
-    QEXPECT_FAIL("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 3.3.7-2",
-                 "QUtf8Codec eats trailing invalid UTF-8 sequences",
-                 Continue);
-    QEXPECT_FAIL("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 3.3.8",
-                 "QUtf8Codec eats trailing invalid UTF-8 sequences",
-                 Continue);
-    QEXPECT_FAIL("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 3.3.8-2",
-                 "QUtf8Codec eats trailing invalid UTF-8 sequences",
-                 Continue);
-    QEXPECT_FAIL("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 3.3.8-4",
-                 "QUtf8Codec eats trailing invalid UTF-8 sequences",
-                 Continue);
-#endif
     QCOMPARE(str, res);
 }
 

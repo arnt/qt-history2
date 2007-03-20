@@ -207,6 +207,13 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
             }
         }
     }
+    if (!state && need > 0) {
+        // unterminated UTF sequence
+        for (int i = error; i < len; ++i) {
+            *qch++ = QChar::ReplacementCharacter;
+            ++invalid;
+        }
+    }
     result.truncate(qch - result.unicode());
     if (state) {
         state->invalidChars += invalid;
