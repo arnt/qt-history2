@@ -257,6 +257,7 @@ inline static QPaintEngine::PaintEngineFeatures qt_mac_cg_features()
 {
     // Supports all except gradients...
     return QPaintEngine::PaintEngineFeatures(QPaintEngine::AllFeatures
+            & ~QPaintEngine::PorterDuff
             & ~QPaintEngine::PaintOutsidePaintEvent
             & ~QPaintEngine::PerspectiveTransform
             & (~(QPaintEngine::ConicalGradientFill | QPaintEngine::BrushStroke))
