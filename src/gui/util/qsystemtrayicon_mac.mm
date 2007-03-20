@@ -170,8 +170,20 @@ bool QSystemTrayIconPrivate::isSystemTrayAvailable_sys()
 
 void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon icon, int)
 {
+
     if(sys) {
 #ifdef QT_MAC_SYSTEMTRAY_USE_GROWL
+        // Make sure that we have Growl installed on the machine we are running on.
+        QCFType<CFURLRef> cfurl;
+        OSStatus status = LSGetApplicationForInfo(kLSUnknownType, kLSUnknownCreator,
+                                                  CFSTR("growlTicket"), kLSRolesAll, 0, &cfurl);
+        if (status == kLSApplicationNotFoundErr)
+            return;
+        QCFType<CFBundleRef> bundle = CFBundleCreate(0, cfurl);
+
+        if (CFStringCompare(CFBundleGetIdentifier(bundle), CFSTR("com.Growl.GrowlHelperApp"),
+                    kCFCompareCaseInsensitive |  kCFCompareBackwards) != kCFCompareEqualTo)
+            return;
         QPixmap notificationIconPixmap;
         if(icon == QSystemTrayIcon::Information)
             notificationIconPixmap = QApplication::style()->standardPixmap(QStyle::SP_MessageBoxInformation);
@@ -198,7 +210,7 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString
 
             "-- Register our script with growl.\n"
             "register as application \"") + notificationApp + QLatin1String("\" all notifications allNotificationsList default notifications enabledNotificationsList\n"
-	 
+
             "--	Send a Notification...\n") +
             QLatin1String("notify with name \"") + notificationType +
             QLatin1String("\" title \"") + title +
@@ -216,7 +228,6 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString
         QPoint p(qRound([w frame].origin.x), qRound([w frame].origin.y));
         qDebug() << p;
         QBalloonTip::showBalloon(icon, message, title, q, QPoint(0, 0), msecs);
-        // else do growl? we need to weak link the framework and stuff then, less than desirable - IMO.
 #else
         Q_UNUSED(icon);
         Q_UNUSED(title);
