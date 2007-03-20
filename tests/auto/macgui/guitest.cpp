@@ -164,22 +164,31 @@ GuiTester::~GuiTester()
         delete action;
 }
 
+bool checkPixel(QColor pixel, QColor expected)
+{
+    const int allowedDiff = 20;
+
+    return !(qAbs(pixel.red() - expected.red()) > allowedDiff ||
+            qAbs(pixel.green() - expected.green()) > allowedDiff ||
+            qAbs(pixel.blue() - expected.blue()) > allowedDiff);
+}
+
 /*
     Tests that the pixels inside rect in image all have the given color. 
 */
 bool GuiTester::isFilled(const QImage image, const QRect &rect, const QColor &color)
 {
-    const QRgb rgb = color.rgb();
-    
     for (int y = rect.top(); y <= rect.bottom(); ++y)
         for (int x = rect.left(); x <= rect.right(); ++x) {
-            if (image.pixel(x, y) != rgb) {
-//                qDebug()<< "Wrong pixel value at" << x << ys << image.pixel(x, y);
+            const QColor pixel = image.pixel(x, y);
+            if (checkPixel(pixel, color) == false) {
+//                qDebug()<< "Wrong pixel value at" << x << y << pixel.red() << pixel.green() << pixel.blue();
                 return false;
             }
         }
     return true;
 }
+
 
 /*
     Tests that stuff is painted to the pixels inside rect.
@@ -190,16 +199,16 @@ bool GuiTester::isContent(const QImage image, const QRect &rect, Directions dire
 {
     if (directions & Horizontal) {
         for (int y = rect.top(); y <= rect.bottom(); ++y) {
-            QRgb currentColor = image.pixel(rect.left(), y);
+            QColor currentColor = image.pixel(rect.left(), y);
             bool fullRun = true;
             for (int x = rect.left() + 1; x <= rect.right(); ++x) {
-                if (image.pixel(x, y) != currentColor) {
+                if (checkPixel(image.pixel(x, y), currentColor) == false) {
                     fullRun = false;
                     break;
                 }
             }
             if (fullRun) {
-    //            qDebug() << "Single-color line at horizontal line " << y << currentColor;
+//                qDebug() << "Single-color line at horizontal line " << y  << currentColor;
                 return false;
             }
         }
@@ -211,13 +220,13 @@ bool GuiTester::isContent(const QImage image, const QRect &rect, Directions dire
             QRgb currentColor = image.pixel(x, rect.top());
             bool fullRun = true;
             for (int y = rect.top() + 1; y <= rect.bottom(); ++y) {
-                if (image.pixel(x, y) != currentColor) {
+                if (checkPixel(image.pixel(x, y), currentColor) == false) {
                     fullRun = false;
                     break;
                 }
             }
             if (fullRun) {
-    //            qDebug() << "Single-color line at vertical line" << x << currentColor;
+//                qDebug() << "Single-color line at vertical line" << x << currentColor;
                 return false;
             }
         }

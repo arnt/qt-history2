@@ -59,6 +59,12 @@ void tst_gui::clickButtonSelfTest()
     QVERIFY(QTestEventLoop::instance().timeout() == false);
 }
 
+QPixmap grabWindowContents(QWidget * widget)
+{
+    const int titleBarHeight = widget->frameGeometry().height() - widget->height();
+    return QPixmap::grabWindow(widget->winId(), 0, titleBarHeight, -1, widget->height());
+}
+
 void tst_gui::fillSelfTest()
 {
     ColorWidget widget;
@@ -67,11 +73,11 @@ void tst_gui::fillSelfTest()
 
     ColorWidget colorWidget(&widget);
     colorWidget.move(10, 10);
-    colorWidget.resize(100, 100);
+    colorWidget.resize(10, 10);
     widget.show();
+    QTest::qWait(100);
     
-    QPixmap pixmap = QPixmap::grabWindow(widget.winId());
-    pixmap.save("test.png", "png");
+    QPixmap pixmap = grabWindowContents(&widget);
 
     {
         QRect colorRect = colorWidget.geometry();
@@ -89,15 +95,13 @@ void tst_gui::contentSelfTest()
     widget.color = QColor(Qt::green);
     widget.resize(300, 300);
 
-
     ColorWidget colorWidget(&widget);
-    colorWidget.move(10, 10);
+    colorWidget.move(2, 2);
     colorWidget.resize(100, 100);
     widget.show();
+    QTest::qWait(100);
     
-    QPixmap pixmap = QPixmap::grabWindow(widget.winId());
-    pixmap.save("test.png", "png");
-
+    QPixmap pixmap = grabWindowContents(&widget);
     {
         QRect colorRect = colorWidget.geometry();
         QVERIFY(isContent(pixmap.toImage(), colorRect, Horizontal) == false);
@@ -140,12 +144,12 @@ void tst_gui::scrollbarPainting()
     horizontalScrollbar.resize(scrollBarSize);
 
     colorWidget.show();
+    QTest::qWait(100);
 
-    QPixmap pixmap = QPixmap::grabWindow(colorWidget.winId());
-    pixmap.save("test.png", "png");
+    QPixmap pixmap = grabWindowContents(&colorWidget);
 
-    QVERIFY(isContent(pixmap.toImage(), verticalScrollbar.geometry()));
-    QVERIFY(isContent(pixmap.toImage(), horizontalScrollbar.geometry()));
+    QVERIFY(isContent(pixmap.toImage(), verticalScrollbar.geometry(), GuiTester::Horizontal));
+    QVERIFY(isContent(pixmap.toImage(), horizontalScrollbar.geometry(), GuiTester::Vertical));
 }
 
 /*
@@ -260,10 +264,10 @@ void tst_gui::spinBoxArrowButtons()
     QSpinBox spinBox2(&colorWidget);
     spinBox2.move(0, 100);
     colorWidget.show();
+    QTest::qWait(100);
     
     // Grab an unfocused spin box.
-    const QImage noFocus = QPixmap::grabWindow(colorWidget.winId()).toImage();
-    noFocus.save("nofocus.png", "png");
+    const QImage noFocus = grabWindowContents(&colorWidget).toImage();
 
     // Set focus by clicking the less button.
     InterfaceChildPair lessInterface = wn.find(QAccessible::Name, "Less", &spinBox);
@@ -274,7 +278,7 @@ void tst_gui::spinBoxArrowButtons()
     QTestEventLoop::instance().enterLoop(timeout);
 
     // Grab a focused spin box.
-    const QImage focus = QPixmap::grabWindow(colorWidget.winId()).toImage();
+    const QImage focus = grabWindowContents(&colorWidget).toImage();
 
     // Compare the arrow area of the less button to see if it moved.
     const QRect lessRect = lessInterface.iface->rect(lessInterface.possibleChild);
