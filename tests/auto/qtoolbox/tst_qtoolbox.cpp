@@ -82,6 +82,8 @@ void tst_QToolBox::getSetCheck()
     QCOMPARE(w1, obj1.currentWidget());
     obj1.setCurrentWidget(w3);
     QCOMPARE(w3, obj1.currentWidget());
+    obj1.setCurrentWidget((QWidget *)0);
+    QCOMPARE(w3, obj1.currentWidget());
 }
 
 tst_QToolBox::tst_QToolBox()
