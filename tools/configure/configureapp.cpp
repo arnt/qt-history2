@@ -1338,7 +1338,9 @@ bool Configure::checkAvailability(const QString &part)
         available = findFile("ibase.h") && (findFile("gds32_ms.lib") || findFile("gds32.lib"));
     else if (part == "SSE2")
         available = (dictionary.value("QMAKESPEC") != "win32-msvc") && (dictionary.value("QMAKESPEC") != "win32-g++");
-    else if (part == "MMX" || part == "3DNOW" || part == "SSE")
+    else if (part == "3DNOW" )
+        available = (dictionary.value("QMAKESPEC") != "win32-msvc") && findFile("mm3dnow.h");
+    else if (part == "MMX" || part == "SSE")
         available = (dictionary.value("QMAKESPEC") != "win32-msvc");
     else if (part == "OPENSSL")
         available = findFile("ssl.h");
