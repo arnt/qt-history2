@@ -83,8 +83,8 @@
     also be used in the weaker wildcard mode that works in a
     similar way to command shells. It can even be feed with fixed
     strings (see setPatternSyntax()). A good text on regexps is \e
-    {Mastering Regular Expressions: Powerful Techniques for Perl and
-    Other Tools} by Jeffrey E. Friedl, ISBN 1565922573.
+    {Mastering Regular Expressions} (Third Edition) by Jeffrey E. F.
+    Friedl, ISBN 0-596-52812-4.
 
     \tableofcontents
 
