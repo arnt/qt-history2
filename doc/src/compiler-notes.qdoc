@@ -45,11 +45,11 @@
 
     \section2 HP-UX
 
-    Please use gcc 3.2.3 or better. 
+    Please use gcc 3.2.3 or better.
 
     \section2 Solaris
 
-    Please use gcc 3.3.0 or better. 
+    Please use gcc 3.3.0 or better.
 
     \section2 Altix
 
@@ -99,19 +99,6 @@
     Note that MIPSpro version 7.4.4m is currently not supported, since it has
     introduced a number of problems that have not yet been resolved.
     We recommend using 7.4.2m for Qt development.
-
-    \section2 MIPSpro 7.4
-
-    In MIPSpro C/C++ 7.4 there is a bug in the intrinsic version of
-    \c{memcmp()} which may result in UIC crashing when compiling
-    Qt Designer. Either upgrade to 7.4.2m or use the libc.so version of
-    \c{memcmp()}.
-
-    To use the libc.so version, comment out the
-    \code
-    #pragma intrinsic (memcmp)
-    \endcode
-    line in the /usr/include/internal/string_core.h file.
 
     \target Sun Studio
     \section1 Forte Developer / Sun Studio (Solaris)
