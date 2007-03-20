@@ -1294,10 +1294,9 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc, co
 
     If the document is not paginated, like for example a document used in a QTextEdit,
     then a temporary copy of the document is created and the copy is broken into
-    multiple pages according to the size of the QPrinter's paperRect(). The default
-    font size is also set to a font with 10 points and a 2 cm margin is set around the
-    document contents. In addition the current page number is printed at the bottom of
-    each page.
+    multiple pages according to the size of the QPrinter's paperRect(). By default
+    a 2 cm margin is set around the document contents. In addition the current page
+    number is printed at the bottom of each page.
 
     Note that QPrinter::Selection is not supported as print range with this function since
     the selection is a property of QTextCursor. If you have a QTextEdit associated with
@@ -1375,9 +1374,6 @@ void QTextDocument::print(QPrinter *printer) const
                                 + QFontMetrics(doc->defaultFont(), p.device()).ascent()
                                 + 5 * p.device()->logicalDpiY() / 72);
 
-        QFont font(doc->defaultFont());
-        font.setPointSize(10); // we define 10pt to be a nice base size for printing
-        clonedDoc->setDefaultFont(font);
         clonedDoc->setPageSize(body.size());
     }
 
