@@ -556,9 +556,6 @@ void tst_QDateTimeEdit::selectAndScrollWithKeys()
     QTest::keyClick(testWidget, Qt::Key_Home);
 #endif
     QTest::keyClick(testWidget, Qt::Key_Right, Qt::ShiftModifier);
-#ifdef Q_WS_QWS
-//???    QEXPECT_FAIL(0, "Qt/Embedded does Ctrl-arrow behaviour by default", Abort);
-#endif
     QCOMPARE(testWidget->lineEdit()->selectedText(), QString("1"));
     QTest::keyClick(testWidget, Qt::Key_Right, Qt::ShiftModifier);
     QCOMPARE(testWidget->lineEdit()->selectedText(), QString("11"));
@@ -679,9 +676,6 @@ void tst_QDateTimeEdit::backspaceKey()
     }
 
     QTest::keyClick(testWidget, Qt::Key_Backspace);
-#ifdef Q_WS_QWS
-//???    QEXPECT_FAIL(0, "Qt/Embedded does Ctrl-arrow behaviour by default", Abort);
-#endif
     QCOMPARE(testWidget->text(), QString("11/05/"));
     QTest::keyClick(testWidget, Qt::Key_Left);
     QTest::keyClick(testWidget, Qt::Key_Backspace);
@@ -824,9 +818,7 @@ void tst_QDateTimeEdit::enterKey()
     QTest::keyClick(testWidget, Qt::Key_5);
     //qDebug() << ++counter << testWidget->lineEdit()->cursorPosition();
     QTest::keyClick(testWidget, Qt::Key_Left);
-#ifndef Q_WS_QWS
     QTest::keyClick(testWidget, Qt::Key_Left);
-#endif
 
     //qDebug() << ++counter << testWidget->lineEdit()->cursorPosition();
     QTest::keyClick(testWidget, Qt::Key_Enter);
@@ -2262,9 +2254,6 @@ void tst_QDateTimeEdit::weirdCase()
     QTest::keyClick(testWidget, Qt::Key_Right);
     QTest::keyClick(testWidget, Qt::Key_Right);
     QVERIFY(!testWidget->lineEdit()->hasSelectedText());
-#ifdef Q_WS_QWS
-//???    QEXPECT_FAIL(0, "Qt/Embedded does Ctrl-arrow behaviour by default", Abort);
-#endif
     QCOMPARE(testWidget->lineEdit()->cursorPosition(), 8);
 
     QTest::keyClick(testWidget, Qt::Key_Delete);
@@ -2298,9 +2287,6 @@ void tst_QDateTimeEdit::newCase()
     QTest::keyClick(testWidget, Qt::Key_Delete);
     QTest::keyClick(testWidget, Qt::Key_Left);
 
-#ifdef Q_WS_QWS
-//???    QEXPECT_FAIL(0, "Qt/Embedded does Ctrl-arrow behaviour by default", Abort);
-#endif
 
     QCOMPARE(testWidget->text(), QString("Jula7bJulc07"));
     QTest::keyClick(testWidget, Qt::Key_Delete);
