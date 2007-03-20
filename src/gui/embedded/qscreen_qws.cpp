@@ -299,16 +299,78 @@ void QScreenCursor::initSoftwareCursor()
 class QScreenPrivate
 {
 public:
-    QScreenPrivate(QScreen *parent)
-        :  pixelFormat(QImage::Format_Invalid), q_ptr(parent) {}
+    QScreenPrivate(QScreen *parent);
 
     inline QImage::Format preferredImageFormat() const;
+
+    typedef void (*SolidFillFunc)(QScreen *screen, const QColor&,
+                                  const QRegion&);
+    SolidFillFunc solidFill;
 
     QPoint offset;
     QList<QScreen*> subScreens;
     QImage::Format pixelFormat;
     QScreen *q_ptr;
 };
+
+template <typename T>
+static void solidFill_template(QScreen *screen, const QColor &color,
+                               const QRegion &region)
+{
+    T *dest = reinterpret_cast<T*>(screen->base());
+    const T c = qt_colorConvert<T, quint32>(color.rgba());
+    const int stride = screen->linestep();
+    const QVector<QRect> rects = region.rects();
+
+    for (int i = 0; i < rects.size(); ++i) {
+        const QRect r = rects.at(i);
+        qt_rectfill(dest, c, r.x(), r.y(), r.width(), r.height(), stride);
+    }
+}
+
+void solidFill_setup(QScreen *screen, const QColor &color,
+                     const QRegion &region)
+{
+    switch (screen->depth()) {
+#ifdef QT_QWS_DEPTH_32
+    case 32:
+        screen->d_ptr->solidFill = solidFill_template<quint32>;
+        break;
+#endif
+#ifdef QT_QWS_DEPTH_24
+    case 24:
+        screen->d_ptr->solidFill = solidFill_template<quint24>;
+        break;
+#endif
+#ifdef QT_QWS_DEPTH_18
+    case 18:
+        screen->d_ptr->solidFill = solidFill_template<quint18>;
+        break;
+#endif
+#ifdef QT_QWS_DEPTH_16
+    case 16:
+        screen->d_ptr->solidFill = solidFill_template<quint16>;
+        break;
+#endif
+#ifdef QT_QWS_DEPTH_8
+    case 8:
+        screen->d_ptr->solidFill = solidFill_template<quint8>;
+        break;
+#endif
+    default:
+        qFatal("solidFill_setup(): Screen depth %d not supported!",
+               screen->depth());
+        screen->d_ptr->solidFill = 0;
+        break;
+    }
+    screen->solidFill(color, region);
+}
+
+QScreenPrivate::QScreenPrivate(QScreen *parent)
+    :  pixelFormat(QImage::Format_Invalid), q_ptr(parent)
+{
+    solidFill = solidFill_setup;
+}
 
 QImage::Format QScreenPrivate::preferredImageFormat() const
 {
@@ -1543,7 +1605,7 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &reg)
         break;
 #endif
     default:
-        qCritical("QScreen::blit(): Screen depth %d not supported", d);
+        qCritical("QScreen::blit(): Screen depth %d not supported!", d);
         break;
     }
     if (!func)
@@ -1595,54 +1657,6 @@ struct fill_data {
     int h;
 };
 
-typedef void (*fillFunc)(const fill_data *);
-
-#ifdef QT_QWS_DEPTH_32
-static void fill_32(const fill_data *data)
-{
-    qt_rectfill((quint32*)(data->data), data->color,
-                data->x, data->y, data->w, data->h, data->lineStep);
-}
-#endif // QT_QWS_DEPTH_32
-
-#ifdef QT_QWS_DEPTH_18
-static void fill_18(const fill_data *data)
-{
-    const quint18 c = qt_colorConvert<quint18,quint32>(data->color);
-
-    qt_rectfill((quint18*)(data->data), c,
-                data->x, data->y, data->w, data->h, data->lineStep);
-}
-#endif // QT_QWS_DEPTH_18
-
-#ifdef QT_QWS_DEPTH_24
-static void fill_24(const fill_data *data)
-{
-    const quint24 c = qt_colorConvert<quint24,quint32>(data->color);
-
-    qt_rectfill((quint24*)(data->data), c,
-                data->x, data->y, data->w, data->h, data->lineStep);
-}
-#endif // QT_QWS_DEPTH_24
-
-#ifdef QT_QWS_DEPTH_16
-static void fill_16(const fill_data *data)
-{
-    const quint16 c = qt_colorConvert<quint16,quint32>(data->color);
-    qt_rectfill((quint16*)(data->data), c,
-                data->x, data->y, data->w, data->h, data->lineStep);
-}
-#endif // QT_QWS_DEPTH_16
-
-#ifdef QT_QWS_DEPTH_8
-static void fill_8(const fill_data *data)
-{
-    const quint8 c = qt_colorConvert<quint8,quint32>(data->color);
-    qt_rectfill((quint8*)(data->data), c,
-                data->x, data->y, data->w, data->h, data->lineStep);
-}
-#endif // QT_QWS_DEPTH_8
-
 /*!
     Fills the given \a region of the screen with the specified \a
     color.
@@ -1661,58 +1675,9 @@ static void fill_8(const fill_data *data)
 // the base class implementation works in device coordinates, so that transformed drivers can use it
 void QScreen::solidFill(const QColor &color, const QRegion &region)
 {
-    const QVector<QRect> rects = region.rects();
-    const QRect bound(offset(), QSize(dw, dh));
-    fill_data data;
-    data.color = color.rgba();
-    data.data = this->data;
-    data.lineStep = lstep;
-    fillFunc func = 0;
-    switch(d) {
-#ifdef QT_QWS_DEPTH_32
-    case 32:
-        func = fill_32;
-        break;
-#endif
-#ifdef QT_QWS_DEPTH_24
-    case 24:
-        func = fill_24;
-        break;
-#endif
-#ifdef QT_QWS_DEPTH_18
-    case 18:
-    case 19:
-        func = fill_18;
-        break;
-#endif
-#ifdef QT_QWS_DEPTH_16
-    case 16:
-        func = fill_16;
-        break;
-#endif
-#ifdef QT_QWS_DEPTH_8
-    case 8:
-        func = fill_8;
-        break;
-#endif
-    default:
-        qCritical("QScreen::solidFill(): Screen depth %d not supported", d);
-        break;
-    }
-    if (!func)
-        return;
-
     QWSDisplay::grab();
-    for (int i = 0; i < rects.size(); ++i) {
-        QRect r = rects.at(i) & bound;
-        data.w = r.width();
-        data.h = r.height();
-        if (data.w <= 0 || data.h <= 0)
-            continue;
-        data.x = r.x() - offset().x();
-        data.y = r.y() - offset().y();
-        func(&data);
-    }
+    d_ptr->solidFill(this, color,
+                     region.translated(-offset()) & QRect(0, 0, dw, dh));
     QWSDisplay::ungrab();
 }
 
