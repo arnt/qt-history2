@@ -1369,7 +1369,7 @@
         \code
         while (!hash.isEmpty()) {
             T *value = *hash.begin();
-            dict.erase(hash.begin());
+            hash.erase(hash.begin());
             delete value;
         }
         \endcode
