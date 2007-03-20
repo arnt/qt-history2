@@ -394,13 +394,20 @@ void tst_QWizard::setPixmap()
     QVERIFY(wizard.pixmap(QWizard::BannerPixmap).isNull());
     QVERIFY(wizard.pixmap(QWizard::LogoPixmap).isNull());
     QVERIFY(wizard.pixmap(QWizard::WatermarkPixmap).isNull());
+#ifdef Q_WS_MAC
+    QVERIFY(wizard.pixmap(QWizard::BackgroundPixmap).isNull() == false);
+#else
     QVERIFY(wizard.pixmap(QWizard::BackgroundPixmap).isNull());
+#endif
 
     QVERIFY(page->pixmap(QWizard::BannerPixmap).isNull());
     QVERIFY(page->pixmap(QWizard::LogoPixmap).isNull());
     QVERIFY(page->pixmap(QWizard::WatermarkPixmap).isNull());
+#ifdef Q_WS_MAC
+    QVERIFY(page->pixmap(QWizard::BackgroundPixmap).isNull() == false);
+#else
     QVERIFY(page->pixmap(QWizard::BackgroundPixmap).isNull());
-
+#endif
     wizard.setPixmap(QWizard::BannerPixmap, p1);
     wizard.setPixmap(QWizard::LogoPixmap, p2);
     wizard.setPixmap(QWizard::WatermarkPixmap, p3);
