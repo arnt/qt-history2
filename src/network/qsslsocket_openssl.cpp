@@ -35,6 +35,7 @@
 #include <QtCore/qdatetime.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qdir.h>
+#include <QtCore/qdiriterator.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qmutex.h>
@@ -84,7 +85,7 @@ public:
         QMutexLocker locker(&locksLocker);
         QMutex *tmp = locks[num];
         if (!tmp)
-            tmp = locks[num] = new QMutex;
+            tmp = locks[num] = new QMutex(QMutex::Recursive);
         return tmp;
     }
 
@@ -124,44 +125,8 @@ QSslSocketBackendPrivate::QSslSocketBackendPrivate()
       writeBio(0),
       session(0)
 {
-    if (!q_resolveOpenSslSymbols()) {
-        qWarning("QSslSocketBackendPrivate::QSslSocketBackendPrivate: unable to resolve all symbols");
-        return;
-    }
-
-    // Check if the library itself needs to be initialized.
-    openssl_locks()->globalLock()->lock();
-    static int q_initialized = false;
-    bool doInit = !q_initialized;
-    if (doInit)
-        q_initialized = true;
-    openssl_locks()->globalLock()->unlock();
-
-    if (doInit) {
-        // Initialize OpenSSL.
-        q_CRYPTO_set_id_callback(id_function);
-        q_CRYPTO_set_locking_callback(locking_function);
-        q_SSL_library_init();
-        q_SSL_load_error_strings();
-
-        // Initialize OpenSSL's random seed.
-        if (!q_RAND_status()) {
-            struct {
-                int msec;
-                int sec;
-                void *stack;
-            } randomish;
-
-            // This is probably not secure enough.
-            randomish.stack = (void *)&randomish;
-            randomish.msec = QTime::currentTime().msec();
-            randomish.sec = QTime::currentTime().second();
-            q_RAND_seed((const char *)&randomish, sizeof(randomish));
-        }
-
-        resetGlobalCiphers();
-        setGlobalCaCertificates(systemCaCertificates());
-    }
+    // Calls SSL_library_init().
+    ensureInitialized();
 }
 
 QSslSocketBackendPrivate::~QSslSocketBackendPrivate()
@@ -209,6 +174,54 @@ QSslCipher QSslSocketBackendPrivate::QSslCipher_from_SSL_CIPHER(SSL_CIPHER *ciph
 /*!
     \internal
 
+    Declared static in QSslSocketPrivate, makes sure the SSL libraries have
+    been initialized.
+*/
+void QSslSocketPrivate::ensureInitialized()
+{
+    if (!q_resolveOpenSslSymbols()) {
+        qWarning("QSslSocketBackendPrivate::ensureInitialized: unable to resolve all symbols");
+        return;
+    }
+
+    // Check if the library itself needs to be initialized.
+    openssl_locks()->globalLock()->lock();
+    static int q_initialized = false;
+    if (!q_initialized) {
+        q_initialized = true;
+        openssl_locks()->globalLock()->unlock();
+
+        // Initialize OpenSSL.
+        q_CRYPTO_set_id_callback(id_function);
+        q_CRYPTO_set_locking_callback(locking_function);
+        q_SSL_library_init();
+        q_SSL_load_error_strings();
+
+        // Initialize OpenSSL's random seed.
+        if (!q_RAND_status()) {
+            struct {
+                int msec;
+                int sec;
+                void *stack;
+            } randomish;
+
+            // This is probably not secure enough.
+            randomish.stack = (void *)&randomish;
+            randomish.msec = QTime::currentTime().msec();
+            randomish.sec = QTime::currentTime().second();
+            q_RAND_seed((const char *)&randomish, sizeof(randomish));
+        }
+
+        resetGlobalCiphers();
+        setGlobalCaCertificates(systemCaCertificates());
+    } else {
+        openssl_locks()->globalLock()->unlock();
+    }
+}
+
+/*!
+    \internal
+
     Declared static in QSslSocketPrivate, backend-dependent loading of
     application-wide global ciphers.
 */
@@ -244,7 +257,36 @@ void QSslSocketPrivate::resetGlobalCiphers()
 
 QList<QSslCertificate> QSslSocketPrivate::systemCaCertificates()
 {
-    return certificatesFromPath(QLatin1String("/etc/ssl/certs"));
+#ifdef Q_OS_UNIX
+    // Check known locations for the system's default bundle.  ### On Windows,
+    // we should use CAPI to find the bundle, and not rely on default unix
+    // locations.
+    const char *standardLocations[] = {"/etc/ssl/certs/",
+#if 0
+                                       // KDE uses KConfig for its SSL store,
+                                       // but it also stores the bundle at
+                                       // this location
+                                       "$HOME/.kde/share/apps/kssl/ca-bundle.crt",
+#endif
+                                       0};
+    const char **it = standardLocations;
+    QStringList nameFilter;
+    nameFilter << QLatin1String("*.pem") << QLatin1String("*.crt");
+    while (*it) {
+        if (QDirIterator(QLatin1String(*it), nameFilter).hasNext())
+            return certificatesFromPath(QLatin1String(*it));
+        ++it;
+    }
+#endif
+
+    // Qt provides a default bundle when we cannot detect the system's default
+    // bundle.
+    QFile caBundle(QLatin1String(":/trolltech/network/ssl/qt-ca-bundle.crt"));
+    if (caBundle.open(QIODevice::ReadOnly))
+        return QSslCertificate::fromDevice(&caBundle);
+
+    // Unreachable; return no bundle.
+    return QList<QSslCertificate>();
 }
 
 QList<QSslCertificate> QSslSocketPrivate::certificatesFromPath(const QString &path)
@@ -745,16 +787,23 @@ QSslCertificate QSslSocketBackendPrivate::QByteArray_to_QSslCertificate(const QB
         return QSslCertificate();
     startPos += sizeof(BeginCertString) - 1;
 
-    int endPos = array.lastIndexOf(EndCertString);
+    int endPos = array.indexOf(EndCertString, startPos);
     if (endPos == -1)
         return QSslCertificate();
+
+    qDebug("startPos: %d, endPos: %d", startPos, endPos);
+    qDebug("blob: %s", QByteArray::fromRawData(array.data() + startPos, endPos - startPos).data());
 
     QByteArray decoded = QByteArray::fromBase64(QByteArray::fromRawData(array.data() + startPos, endPos - startPos));
     const unsigned char *data = (unsigned char *)decoded.data();
 
+    qDebug("decoding...");
     X509 *x509 = q_d2i_X509(0, &data, decoded.size());
+    qDebug("done...");
     QSslCertificate certificate = X509_to_QSslCertificate(x509);
+    qDebug("converted.");
     q_X509_free(x509);
+    qDebug("returning copy.");
 
     return certificate;
 }

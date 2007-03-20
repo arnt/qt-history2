@@ -71,6 +71,7 @@ public:
     QList<QSslCertificate> peerCertificateChain;
     QSslCertificate localCertificate;
 
+    static void ensureInitialized();
     static QList<QSslCipher> globalCiphers();
     static QList<QSslCipher> supportedCiphers();
     static void setGlobalCiphers(const QList<QSslCipher> &ciphers);

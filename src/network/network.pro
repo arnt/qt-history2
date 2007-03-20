@@ -77,6 +77,9 @@ contains(QT_CONFIG, openssl) {
         win32:LIBS += ssleay32 libeay32
         unix:LIBS += -lssl -lcrypto
     }
+
+    # Include Qt's default CA bundle
+    RESOURCES += network.qrc
 }
 
 mac:INCLUDEPATH += ../3rdparty/dlcompat #qdns.cpp uses it (on Jaguar)

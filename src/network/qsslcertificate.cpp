@@ -113,6 +113,8 @@ QSslCertificate::QSslCertificate(QIODevice *device)
     if (device) {
         QSslCertificate cert = QSslSocketBackendPrivate::QByteArray_to_QSslCertificate(device->readAll());
         *d = *cert.d;
+        if (d->x509)
+            d->x509 = q_X509_dup(d->x509);
     } else {
         d->null = true;
         d->x509 = 0;
@@ -130,6 +132,8 @@ QSslCertificate::QSslCertificate(const QByteArray &data)
     if (!data.isEmpty()) {
         QSslCertificate cert = QSslSocketBackendPrivate::QByteArray_to_QSslCertificate(data);
         *d = *cert.d;
+        if (d->x509)
+            d->x509 = q_X509_dup(d->x509);
     } else {
         d->null = true;
         d->x509 = 0;

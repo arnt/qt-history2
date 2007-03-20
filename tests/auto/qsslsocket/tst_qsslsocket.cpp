@@ -106,6 +106,7 @@ int tst_QSslSocket::loopLevel = 0;
 
 tst_QSslSocket::tst_QSslSocket()
 {
+    qDebug("Hei");
 #ifndef QT_NO_OPENSSL
     qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
 #endif
@@ -133,6 +134,7 @@ void tst_QSslSocket::cleanup()
 void tst_QSslSocket::constructing()
 {
     QSslSocket socket;
+
     QCOMPARE(socket.state(), QSslSocket::UnconnectedState);
     QCOMPARE(socket.mode(), QSslSocket::PlainMode);
     QVERIFY(!socket.isEncrypted());
@@ -417,6 +419,10 @@ void tst_QSslSocket::addGlobalCaCertificates2()
 
 void tst_QSslSocket::globalCaCertificates()
 {
+    QList<QSslCertificate> certs = QSslSocket::globalCaCertificates();
+    QVERIFY(!certs.isEmpty());
+    QEXPECT_FAIL("", "", Continue);
+    QCOMPARE(certs, QSslSocket::systemCaCertificates());
 }
 
 void tst_QSslSocket::globalCiphers()
@@ -437,14 +443,26 @@ void tst_QSslSocket::setGlobalCiphers()
 
 void tst_QSslSocket::supportedCiphers()
 {
+    QList<QSslCipher> ciphers = QSslSocket::supportedCiphers();
+    QVERIFY(!ciphers.isEmpty());
+
+    QSslSocket socket;
+    QCOMPARE(socket.supportedCiphers(), ciphers);
+    QCOMPARE(socket.globalCiphers(), ciphers);
+    QCOMPARE(socket.ciphers(), ciphers);
 }
 
 void tst_QSslSocket::supportsSsl()
 {
+    QVERIFY(QSslSocket::supportsSsl());
 }
 
 void tst_QSslSocket::systemCaCertificates()
 {
+    QList<QSslCertificate> certs = QSslSocket::systemCaCertificates();
+    QVERIFY(!certs.isEmpty());
+    QEXPECT_FAIL("", "", Continue);
+    QCOMPARE(certs, QSslSocket::globalCaCertificates());
 }
 
 #endif // QT_NO_OPENSSL

@@ -103,6 +103,7 @@ DEFINEFUNC3(char *, X509_NAME_oneline, X509_NAME *a, a, char *b, b, int c, c, re
 #ifdef QT_SHARED
 bool q_resolveOpenSslSymbols()
 {
+    // ### This is non-reentrant
     static bool symbolsResolved = false;
     if (symbolsResolved)
         return true;

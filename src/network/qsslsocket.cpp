@@ -793,6 +793,7 @@ void QSslSocket::setGlobalCaCertificates(const QList<QSslCertificate> &certifica
 */
 QList<QSslCertificate> QSslSocket::globalCaCertificates()
 {
+    QSslSocketPrivate::ensureInitialized();
     return QSslSocketPrivate::globalCaCertificates();
 }
 
@@ -803,6 +804,7 @@ QList<QSslCertificate> QSslSocket::globalCaCertificates()
 */
 QList<QSslCertificate> QSslSocket::systemCaCertificates()
 {
+    QSslSocketPrivate::ensureInitialized();
     return QSslSocketPrivate::systemCaCertificates();
 }
 
@@ -1165,6 +1167,7 @@ QList<QSslCipher> QSslSocketPrivate::globalCiphers()
 */
 QList<QSslCipher> QSslSocketPrivate::supportedCiphers()
 {
+    QSslSocketPrivate::ensureInitialized();
     QMutexLocker locker(&globalData()->mutex);
     return globalData()->supportedCiphers;
 }
