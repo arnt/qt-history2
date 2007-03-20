@@ -27,12 +27,12 @@ public:
     bool fatalError(const QXmlParseException &exception);
 
     QStringList& names();
-    QValueList<int>& indentations();
+    QList<int>& indentations();
 
 private:
     int indentationLevel;
     QStringList elementName;
-    QValueList<int> elementIndentation;
+    QList<int> elementIndentation;
 };
 
 #endif

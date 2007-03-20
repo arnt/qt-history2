@@ -21,6 +21,7 @@ When a starting element is found, the indentation level is increased;
 when an ending element is found, the indentation level is decreased.
 */
 
+#include <QDebug>
 #include "handler.h"
 
 /*!
@@ -83,8 +84,9 @@ bool Handler::endElement(const QString &, const QString &,
 
 bool Handler::fatalError (const QXmlParseException & exception)
 {
-    qWarning("Fatal error on line %d, column %d: %s", exception.lineNumber(),
-             exception.columnNumber(), exception.message().ascii());
+    qWarning() << QString("Fatal error on line %1, column %2: %3").arg(
+        exception.lineNumber()).arg(exception.columnNumber()).arg(
+        exception.message());
 
     return false;
 }
@@ -102,7 +104,7 @@ QStringList& Handler::names ()
     Return the list of indentations used for each element found.
 */
 
-QValueList<int>& Handler::indentations ()
+QList<int>& Handler::indentations ()
 {
     return elementIndentation;
 }

@@ -26,14 +26,14 @@ int main(int argc, char **argv)
         std::cout << "Parsing failed." << std::endl;
     else {
         QStringList names = handler->names();
-        QValueList<int> indentations = handler->indentations();
+        QList<int> indentations = handler->indentations();
 
         int items = names.count();
 
         for (int i = 0; i < items; ++i) {
             for (int j = 0; j < indentations[i]; ++j)
                 std::cout << " ";
-            std::cout << names[i] << std::endl;
+            std::cout << names[i].toLocal8Bit().constData() << std::endl;
         }
     }
 
