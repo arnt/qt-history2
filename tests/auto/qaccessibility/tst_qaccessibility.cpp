@@ -3517,7 +3517,7 @@ void tst_QAccessibility::dockWidgetTest()
     for (int i = 1; i < 5; ++i) {
         if (accMainWindow->role(i) == QAccessible::Window) {
             accMainWindow->navigate(QAccessible::Child, i, &accDock1);
-            if (qobject_cast<QDockWidget*>(accDock1->object()) == dock1) {
+            if (accDock1 && qobject_cast<QDockWidget*>(accDock1->object()) == dock1) {
                 break;
             } else {
                 delete accDock1;
@@ -3608,7 +3608,7 @@ void tst_QAccessibility::comboBoxTest()
     qt_x11_wait_for_window_manager(w);
 #endif
     QAccessibleInterface *acc = QAccessible::queryAccessibleInterface(w);
-    //QCOMPARE(verifyHierarchy(acc), 0);
+    QCOMPARE(verifyHierarchy(acc), 0);
     delete acc;
 
     acc = QAccessible::queryAccessibleInterface(cb);
@@ -3617,7 +3617,7 @@ void tst_QAccessibility::comboBoxTest()
     for (int i = 1; i < acc->childCount(); ++i) {
         QVERIFY(accRect.contains(acc->rect(i)));
     }
-
+#if 0
     QAccessibleInterface *accList = 0;
     int entry = acc->navigate(QAccessible::Child, 3, &accList);
     QCOMPARE(entry, 0);
@@ -3627,7 +3627,7 @@ void tst_QAccessibility::comboBoxTest()
     delete acc2;
     
     delete accList;
-    
+#endif
     delete acc;
     delete w;
 
