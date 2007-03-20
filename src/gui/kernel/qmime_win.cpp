@@ -32,6 +32,9 @@
 #include "qdir.h"
 
 #ifndef QT_NO_IMAGEFORMAT_BMP
+#ifndef CF_DIBV5
+#define CF_DIBV5 17
+#endif
 #define BMP_LCS_sRGB  'sRGB'
 #define BMP_LCS_GM_IMAGES  0x00000004L
 
@@ -73,8 +76,8 @@ static const int BMP_BITFIELDS = 3;
 
 extern bool qt_read_dib(QDataStream&, QImage&); // qimage.cpp
 extern bool qt_write_dib(QDataStream&, QImage);   // qimage.cpp
-bool qt_write_dibv5(QDataStream &s, QImage image);
-bool qt_read_dibv5(QDataStream &s, QImage &image);
+static bool qt_write_dibv5(QDataStream &s, QImage image);
+static bool qt_read_dibv5(QDataStream &s, QImage &image);
 #endif
 
 //#define QMIME_DEBUG
