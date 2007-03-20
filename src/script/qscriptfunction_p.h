@@ -42,6 +42,7 @@ class QScriptFunction: public QScriptObjectData
 public:
     enum Type {
         Unknown,
+        Script,
         C,
         C2,
         Qt,

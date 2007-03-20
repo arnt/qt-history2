@@ -222,7 +222,7 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
 
 namespace QScript {
 
-class ScriptFunction: public QScriptFunction // ### rename
+class ScriptFunction: public QScriptFunction
 {
 public:
     ScriptFunction(QScript::AST::Node *functionBody):
@@ -248,6 +248,9 @@ public:
         out << endl << QLatin1String("}") << endl;
         return str;
     }
+
+    virtual Type type() const
+    { return QScriptFunction::Script; }
 
 private:
     QScript::AST::Node *m_functionBody;
