@@ -1146,7 +1146,7 @@ void tst_QItemSelectionModel::select_data()
 		 << (QItemSelectionModel::NoUpdate)                                // press 3
 		 << (QItemSelectionModel::Toggle|QItemSelectionModel::Rows)        // release 3
 	         << (QItemSelectionModel::NoUpdate)                                // press 2 again
-		 << (QItemSelectionModel::ToggleCurrent|QItemSelectionModel::Rows);// move 2
+		 << (QItemSelectionModel::Toggle/*Current*/|QItemSelectionModel::Rows);// move 2
 
 	expected << model->index(0, 0, QModelIndex())
 		 << model->index(0, 1, QModelIndex())
