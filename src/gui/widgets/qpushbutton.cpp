@@ -333,6 +333,7 @@ void QPushButton::setAutoDefault(bool enable)
     if (d->autoDefault != QPushButtonPrivate::Auto && d->autoDefault == state)
         return;
     d->autoDefault = state;
+    d->sizeHint = QSize();
     update();
     updateGeometry();
 }
@@ -372,6 +373,9 @@ bool QPushButton::isDefault() const
 */
 QSize QPushButton::sizeHint() const
 {
+    Q_D(const QPushButton);
+    if (d->sizeHint.isValid())
+        return d->sizeHint;
     ensurePolished();
 
     int w = 0, h = 0;
@@ -402,8 +406,9 @@ QSize QPushButton::sizeHint() const
         w += sz.width();
     if(!empty || !h)
         h = qMax(h, sz.height());
-    return (style()->sizeFromContents(QStyle::CT_PushButton, &opt, QSize(w, h), this).
-            expandedTo(QApplication::globalStrut()));
+    d->sizeHint = (style()->sizeFromContents(QStyle::CT_PushButton, &opt, QSize(w, h), this).
+                  expandedTo(QApplication::globalStrut()));
+    return d->sizeHint;
 }
 
 /*!
@@ -514,6 +519,7 @@ void QPushButton::setMenu(QMenu* menu)
         addAction(d->menu->menuAction());
 
 	d->resetLayoutItemMargins();
+    d->sizeHint = QSize();
     update();
     updateGeometry();
 }
@@ -607,6 +613,7 @@ void QPushButton::setFlat(bool flat)
         return;
     d->flat = flat;
 	d->resetLayoutItemMargins();
+    d->sizeHint = QSize();
     update();
     updateGeometry();
 }

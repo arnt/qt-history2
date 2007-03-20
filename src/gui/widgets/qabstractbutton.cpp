@@ -599,6 +599,7 @@ void QAbstractButton::setText(const QString &text)
     if (!newMnemonic.isEmpty())
         setShortcut(newMnemonic);
 #endif
+    d->sizeHint = QSize();
     update();
     updateGeometry();
 #ifndef QT_NO_ACCESSIBILITY
@@ -624,6 +625,7 @@ void QAbstractButton::setIcon(const QIcon &icon)
 {
     Q_D(QAbstractButton);
     d->icon = icon;
+    d->sizeHint = QSize();
     update();
     updateGeometry();
 }
@@ -1220,13 +1222,14 @@ void QAbstractButton::focusOutEvent(QFocusEvent *e)
 /*! \reimp */
 void QAbstractButton::changeEvent(QEvent *e)
 {
-//     Q_D(QAbstractButton);
+    Q_D(QAbstractButton);
     switch (e->type()) {
     case QEvent::EnabledChange:
         if (!isEnabled())
             setDown(false);
         break;
     default:
+        d->sizeHint = QSize();
         break;
     }
     QWidget::changeEvent(e);
@@ -1328,6 +1331,7 @@ void QAbstractButton::setIconSize(const QSize &size)
         return;
 
     d->iconSize = size;
+    d->sizeHint = QSize();
     updateGeometry();
     if (isVisible()) {
         update();

@@ -57,6 +57,7 @@ public:
     int autoRepeatDelay, autoRepeatInterval;
 
     QSizePolicy::ControlType controlType;
+    mutable QSize sizeHint;
 
     void init();
     void click();

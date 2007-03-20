@@ -161,6 +161,9 @@ void QRadioButton::initStyleOption(QStyleOptionButton *option) const
 */
 QSize QRadioButton::sizeHint() const
 {
+    Q_D(const QRadioButton);
+    if (d->sizeHint.isValid())
+        return d->sizeHint;
     ensurePolished();
     QStyleOptionButton opt;
     initStyleOption(&opt);
@@ -168,8 +171,9 @@ QSize QRadioButton::sizeHint() const
                                      false, text()).size();
     if (!opt.icon.isNull())
         sz = QSize(sz.width() + opt.iconSize.width() + 4, qMax(sz.height(), opt.iconSize.height()));
-    return (style()->sizeFromContents(QStyle::CT_RadioButton, &opt, sz, this).
-            expandedTo(QApplication::globalStrut()));
+    d->sizeHint = (style()->sizeFromContents(QStyle::CT_RadioButton, &opt, sz, this).
+                  expandedTo(QApplication::globalStrut()));
+    return d->sizeHint;
 }
 
 /*!

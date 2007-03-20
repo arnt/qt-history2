@@ -360,6 +360,8 @@ QToolButton::~QToolButton()
 QSize QToolButton::sizeHint() const
 {
     Q_D(const QToolButton);
+    if (d->sizeHint.isValid())
+        return d->sizeHint;
     ensurePolished();
 
     int w = 0, h = 0;
@@ -394,8 +396,9 @@ QSize QToolButton::sizeHint() const
     if (d->popupMode == MenuButtonPopup)
         w += style()->pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
 
-    return style()->sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), this).
-            expandedTo(QApplication::globalStrut());
+    d->sizeHint = style()->sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), this).
+                  expandedTo(QApplication::globalStrut());
+    return d->sizeHint;
 }
 
 /*!
@@ -457,6 +460,7 @@ void QToolButton::setToolButtonStyle(Qt::ToolButtonStyle style)
         return;
 
     d->toolButtonStyle = style;
+    d->sizeHint = QSize();
     updateGeometry();
     if (isVisible()) {
         update();
@@ -470,6 +474,7 @@ void QToolButton::setArrowType(Qt::ArrowType type)
         return;
 
     d->arrowType = type;
+    d->sizeHint = QSize();
     updateGeometry();
     if (isVisible()) {
         update();
