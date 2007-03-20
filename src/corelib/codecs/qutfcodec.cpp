@@ -116,6 +116,7 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
     bool headerdone = false;
     QChar replacement = QChar::ReplacementCharacter;
     int need = 0;
+    int error = -1;
     uint uc = 0;
     if (state) {
         if (state->flags & IgnoreHeader)
@@ -134,9 +135,10 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
         headerdone = true;
     }
 
+    int originalLength = target->length();
     QString &result = *target;
-    result.resize(len); // worst case
-    QChar *qch = result.data();
+    result.resize(originalLength + len); // worst case
+    QChar *qch = result.data() + originalLength;
     uchar ch;
     int invalid = 0;
 
@@ -152,6 +154,14 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
                         uc -= 0x10000;
                         unsigned short high = uc/0x400 + 0xd800;
                         unsigned short low = uc%0x400 + 0xdc00;
+
+                        // resize if necessary
+                        long where = qch - result.unicode();
+                        if (where + 2 >= result.length()) {
+                            result.resize(where + 2);
+                            qch = result.data() + where;
+                        }
+
                         *qch++ = QChar(high);
                         *qch++ = QChar(low);
                     } else {
@@ -160,6 +170,7 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
                 }
             } else {
                 // error
+                i = error;
                 *qch++ = QChar::ReplacementCharacter;
                 ++invalid;
                 need = 0;
@@ -170,12 +181,15 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
             } else if ((ch & 0xe0) == 0xc0) {
                 uc = ch & 0x1f;
                 need = 1;
+                error = i;
             } else if ((ch & 0xf0) == 0xe0) {
                 uc = ch & 0x0f;
                 need = 2;
+                error = i;
             } else if ((ch&0xf8) == 0xf0) {
                 uc = ch & 0x07;
                 need = 3;
+                error = i;
             }
         }
     }
