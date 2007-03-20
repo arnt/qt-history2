@@ -67,9 +67,9 @@
     \row    \o QTextCodecPlugin        \o \c plugins/codecs           \o Case Sensitive
     \endtable
 
-    But where is the \c{plugins} directory? When the application is
-    run, Qt will first treat the application's executable directory as
-    the \c{pluginsbase}. For example if the application is in
+    But where is the \c{plugins} directory? When the application
+    is run, Qt will first treat the application's executable directory
+    as the \c{pluginsbase}. For example if the application is in
     \c{C:\Program Files\MyApp} and has a style plugin, Qt will look in
     \c{C:\Program Files\MyApp\styles}. (See
     QCoreApplication::applicationDirPath() for how to find out where
@@ -83,7 +83,10 @@
     own path or paths you can use QCoreApplication::setLibraryPaths().
     You can also use a \c qt.conf file to override the hard-coded
     paths that are compiled into the Qt library. For more information,
-    see the \l {Using qt.conf} documentation.
+    see the \l {Using qt.conf} documentation. Yet another possibility
+    is to set the \c QT_PLUGIN_PATH environment variable before running
+    the application. If set, Qt will look for plugins in the
+    paths (separated by the system path separator) specified in the variable.
 
     Suppose that you have a new style class called \c MyStyle that you
     want to make available as a plugin. The required code is
