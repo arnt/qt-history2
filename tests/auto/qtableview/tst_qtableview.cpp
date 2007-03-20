@@ -2185,7 +2185,7 @@ void tst_QTableView::scrollTo()
     QtTestTableView view;
 
     view.show();
-    view.resize(columnWidth * 3, rowHeight * 3);
+    view.resize(columnWidth * 2, rowHeight * 2);
     QTest::qWait(0);
 
     view.setModel(&model);
