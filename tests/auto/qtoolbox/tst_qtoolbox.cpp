@@ -64,7 +64,7 @@ void tst_QToolBox::getSetCheck()
     obj1.addItem(w3, "Page3");
     obj1.addItem(w4, "Page4");
     obj1.addItem(w5, "Page5");
-    
+
     // int QToolBox::currentIndex()
     // void QToolBox::setCurrentIndex(int)
     obj1.setCurrentIndex(3);
@@ -81,8 +81,6 @@ void tst_QToolBox::getSetCheck()
     obj1.setCurrentWidget(w1);
     QCOMPARE(w1, obj1.currentWidget());
     obj1.setCurrentWidget(w3);
-    QCOMPARE(w3, obj1.currentWidget());
-    obj1.setCurrentWidget((QWidget *)0);
     QCOMPARE(w3, obj1.currentWidget());
 }
 
