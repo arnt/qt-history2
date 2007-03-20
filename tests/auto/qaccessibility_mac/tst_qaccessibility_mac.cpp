@@ -954,15 +954,15 @@ void tst_accessibiliry_mac::testListView()
     listWidget->setWindowTitle(windowTitle);
 
 
-    qDebug()  << "object is" << listWidget;
+//    qDebug()  << "object is" << listWidget;
     listWidget->addItem("A");
     listWidget->addItem("B");
     listWidget->addItem("C");
     listWidget->show();
 
-
-    QAccessibleInterface *f = QAccessible::queryAccessibleInterface(listWidget);
 /*
+    QAccessibleInterface *f = QAccessible::queryAccessibleInterface(listWidget);
+
     qDebug() << f->childCount();
     qDebug() << hex << f->role(0);
     qDebug() << hex << f->role(1);
@@ -1183,6 +1183,6 @@ QTEST_NOOP_MAIN
 
 #endif
 
-#include "tst_accessibility_mac.moc"
+#include "tst_qaccessibility_mac.moc"
 
 

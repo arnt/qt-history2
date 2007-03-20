@@ -1,9 +1,9 @@
 CONFIG += qttest_p4 
-SOURCES += tst_accessibility_mac.cpp
+SOURCES += tst_qaccessibility_mac.cpp
 TARGET = tst_qaccessibility_mac
 
 mac {
-#  this setup should support both building as an autotest
+# this setup should support both building as an autotest
 # (where uilib isn't built by default), and when running shadow
 # builds (where QTDIR points to the build directory).
 # autotest + shadow build is not supported :)
