@@ -3277,10 +3277,10 @@ void tst_QTextDocumentFragment::html_rootFrameProperties()
 
     QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
     QCOMPARE(fmt.topMargin(), qreal(10));
-    QCOMPARE(fmt.bottomMargin(), qreal(2));
-    QCOMPARE(fmt.leftMargin(), qreal(2));
-    QCOMPARE(fmt.rightMargin(), qreal(2));
-    QCOMPARE(fmt.border(), qreal(2));
+    QCOMPARE(fmt.bottomMargin(), qreal(0));
+    QCOMPARE(fmt.leftMargin(), qreal(0));
+    QCOMPARE(fmt.rightMargin(), qreal(0));
+    QCOMPARE(fmt.border(), qreal(1));
 
     QString normalFrameHtml = QLatin1String(html);
     normalFrameHtml.replace(QLatin1String("root"), QLatin1String("frame"));
