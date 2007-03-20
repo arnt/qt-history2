@@ -179,11 +179,11 @@ QMacPasteboard::QMacPasteboard(CFStringRef name, uchar mt)
 
 QMacPasteboard::~QMacPasteboard()
 {
-    // Copy all promised data to the clip board before exiting.
+    // Copy all promised data to the clipboard before exiting.
     for (int i = 0; i < promises.count(); ++i) {
         const Promise &promise = promises.at(i);
         QCFString flavor = QCFString(promise.convertor->flavorFor(promise.mime));
-        promiseKeeper(paste, (void *)i, flavor, this);
+        promiseKeeper(paste, (PasteboardItemID)promise.itemId, flavor, this);
     }
 
     if(paste)
@@ -200,23 +200,32 @@ OSStatus QMacPasteboard::promiseKeeper(PasteboardRef paste, PasteboardItemID id,
 {
     QMacPasteboard *qpaste = (QMacPasteboard*) data;
     const long promise_id = (long)id;
-
-    if(promise_id < 0 || promise_id >= qpaste->promises.size()) {
-        qDebug("Pasteboard: %d: Unexpected [%ld]!", __LINE__, promise_id); //shouldn't happen
-        return cantGetFlavorErr;
+    
+    // Find the promise that promised to deliver 
+    // data for the given flavor:
+    const QString flavorAsQString = QCFString::toQString(flavor);
+    QMacPasteboard::Promise promise;
+    for (int i = 0; i < qpaste->promises.size(); i++){
+        QMacPasteboard::Promise tmp = qpaste->promises[i];
+        if (tmp.itemId == promise_id && tmp.convertor->canConvert(tmp.mime, flavorAsQString)){
+            promise = tmp;
+            break;
+        }
     }
 
-    QMacPasteboard::Promise promise = qpaste->promises[promise_id];
-    const QString flavorAsQString = QCFString::toQString(flavor);
+    if (!promise.itemId) {
+        // There was no promise that could deliver data for the
+        // given id and flavor. This should not happend.
+        qDebug("Pasteboard: %d: Request for %ld, %s, but no promise found!", __LINE__, promise_id, qPrintable(flavorAsQString));
+        return cantGetFlavorErr;
+    }
+    
 #ifdef DEBUG_PASTEBOARD
     qDebug("PasteBoard: Calling in promise for %s[%ld] [%s] (%s)", qPrintable(promise.mime), promise_id,
            qPrintable(flavorAsQString),
            qPrintable(promise.convertor->convertorName()));
 #endif
-    if(!promise.convertor->canConvert(promise.mime, flavorAsQString)) {
-        qDebug("Pasteboard: %d: Unexpected [%ld]!", __LINE__, promise_id); //shouldn't happen
-        return cantGetFlavorErr;
-    }
+
     QList<QByteArray> md = promise.convertor->convertFromMime(promise.mime, promise.data, flavorAsQString);
     for(int i = 0; i < md.size(); ++i) {
         const QByteArray &ba = md[i];
@@ -347,6 +356,7 @@ QMacPasteboard::setMimeData(QMimeData *mime_src)
 
     if((mime = mime_src)) {
         clear();
+        
 #ifdef DEBUG_PASTEBOARD
         qDebug("PasteBoard: setMimeData [%p]", mime_src);
 #endif
@@ -357,19 +367,30 @@ QMacPasteboard::setMimeData(QMimeData *mime_src)
             qDebug(" - FOUND FORMAT <%s>", qPrintable(formats.at(i)));
 #endif
 
-        for (int i = 0, count = 0; i < formats.size(); ++i) {
+        // Each item in the pasteboard have separate ID's, and the first item
+        // start at 1. If an item has more than one flavor, it should use the
+        // same ID for all its flavors.
+        int itemId = 0;
+                
+        for (int i = 0; i < formats.size(); ++i) {
+            bool bumpId = true;
             QString mimeType = formats.at(i);
             for(QList<QMacPasteboardMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
                 QMacPasteboardMime *c = (*it);
                 QString flavor(c->flavorFor(mimeType));
                 if(!flavor.isEmpty()) {
-                    promises.append(QMacPasteboard::Promise(c, mimeType,
+                    if (bumpId){
+                        ++itemId;
+                        bumpId = false;
+                    } 
+                    promises.append(QMacPasteboard::Promise(itemId, c, mimeType,
                                                             static_cast<QMacMimeData*>(mime_src)->variantData(mimeType)));
+                    PasteboardPutItemFlavor(paste, (PasteboardItemID)itemId, QCFString(flavor), 0, kPasteboardFlavorNoFlags);
+
 #ifdef DEBUG_PASTEBOARD
-                    qDebug(" -  adding %s[%d] [%s] <%s>", qPrintable(mimeType), count, qPrintable(flavor),
-                           qPrintable(c->convertorName()));
+                    qDebug(" -  adding %d %s [%s] <%s>",
+                        itemId, qPrintable(mimeType), qPrintable(flavor), qPrintable(c->convertorName()));
 #endif
-                    PasteboardPutItemFlavor(paste, (PasteboardItemID)count++, QCFString(flavor), 0, kPasteboardFlavorNoFlags);
                 }
             }
         }

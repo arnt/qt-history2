@@ -164,7 +164,9 @@ class QMimeData;
 class QMacPasteboard
 {
     struct Promise {
-        Promise(QMacPasteboardMime *c, QString m, QVariant d) : convertor(c), mime(m), data(d) { }
+        Promise() : itemId(0), convertor(0) { }
+        Promise(int itemId, QMacPasteboardMime *c, QString m, QVariant d) : itemId(itemId), convertor(c), mime(m), data(d) { }
+        int itemId;
         QMacPasteboardMime *convertor;
         QString mime;
         QVariant data;
