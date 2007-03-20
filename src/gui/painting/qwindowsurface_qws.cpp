@@ -323,25 +323,23 @@ QWSWindowSurface::QWSWindowSurface()
 QWSWindowSurface::QWSWindowSurface(QWidget *widget)
     : QWindowSurface(widget), d_ptr(new QWSWindowSurfacePrivate)
 {
-    if (widget && widget->isWindow()) {
+    if (!widget)
+        return;
+
+    if (widget->isWindow()) {
         d_ptr->winId = widget->winId();
-    } else {
+    }
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    else {
         QWSDisplay *display = QWSDisplay::instance();
         const int id = display->takeId();
-#ifdef Q_BACKINGSTORE_SUBSURFACES
         qt_insertWindowSurface(id, this);
-#endif
         d_ptr->winId = id;
-        if (!widget)
-            display->nameRegion(id, QString(), QString());
-        else
-            display->nameRegion(id, widget->objectName(),
-                                widget->windowTitle());
+        display->nameRegion(id, widget->objectName(), widget->windowTitle());
 
-#ifdef Q_BACKINGSTORE_SUBSURFACES
         QWSDisplay::instance()->setAltitude(id, 1, true); // XXX
-#endif
     }
+#endif
 }
 
 QWSWindowSurface::~QWSWindowSurface()
@@ -1115,9 +1113,18 @@ static inline QScreen *getPrimaryScreen()
 }
 
 QWSDirectPainterSurface::QWSDirectPainterSurface(bool isClient)
-    : QWSWindowSurface((QWidget*)0)
+    : QWSWindowSurface()
 {
     setSurfaceFlags(Opaque);
+
+    if (isClient) {
+        setWinId(QWidget::qwsDisplay()->takeId());
+        QWidget::qwsDisplay()->nameRegion(winId(),
+                                          QLatin1String("QDirectPainter reserved space"),
+                                          QLatin1String("reserved"));
+    } else {
+        setWinId(0);
+    }
 
     _screen = QScreen::instance();
     if (!_screen->base()) {
