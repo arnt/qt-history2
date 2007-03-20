@@ -260,13 +260,24 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     // previous versions
     family_list << QApplication::font().defaultFamily();
 
-    //find it!
     ATSUFontID fontID = 0;
+    QFontDatabasePrivate *db = privateDb();
+    if (!db->count)
+        initializeDb();
     for(int i = 0; i < family_list.size(); ++i) {
-        QByteArray family_name = family_list.at(i).toUtf8();
-        if(ATSUFindFontFromName(family_name.data(), family_name.size(), kFontFullName,
-                                kFontNoPlatformCode, kFontNoScriptCode, kFontNoLanguageCode, &fontID) == noErr)
-		    break;
+        bool found = false;
+        for (int k = 0; k < db->count; ++k) {
+            if (db->families[k]->name.compare(family_list.at(i), Qt::CaseInsensitive) == 0) {
+                QByteArray family_name = db->families[k]->name.toUtf8();
+                if(ATSUFindFontFromName(family_name.data(), family_name.size(), kFontFullName,
+                                        kFontNoPlatformCode, kFontNoScriptCode, kFontNoLanguageCode, &fontID) == noErr) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (found)
+            break;
     }
 
     //fill in the engine's font definition
