@@ -35,7 +35,8 @@ class QTextBrowserPrivate : public QTextEditPrivate
     Q_DECLARE_PUBLIC(QTextBrowser)
 public:
     inline QTextBrowserPrivate()
-        : textOrSourceChanged(false), forceLoadOnSourceChange(false), openExternalLinks(false)
+        : textOrSourceChanged(false), forceLoadOnSourceChange(false), openExternalLinks(false),
+          openLinks(true)
 #ifdef QT_KEYPAD_NAVIGATION
         , lastKeypadScrollValue(-1)
 #endif
@@ -70,6 +71,7 @@ public:
     bool forceLoadOnSourceChange;
 
     bool openExternalLinks;
+    bool openLinks;
 
 #ifndef QT_NO_CURSOR
     QCursor oldCursor;
@@ -162,9 +164,14 @@ void QTextBrowserPrivate::_q_activateAnchor(const QString &href)
     viewport->setCursor(oldCursor);
 #endif
 
-    textOrSourceChanged = false;
-
     const QUrl url = resolveUrl(href);
+
+    if (!openLinks) {
+        emit q->anchorClicked(url);
+        return;
+    }
+
+    textOrSourceChanged = false;
 
 #ifndef QT_NO_DESKTOPSERVICES
     if (openExternalLinks
@@ -747,9 +754,9 @@ void QTextBrowser::setSource(const QUrl &url)
     URL referred to by the anchor is passed in \a link.
 
     Note that the browser will automatically handle navigation to the
-    location specified by \a link unless you call setSource() in a slot
-    connected. This mechanism is used to override the default navigation
-    features of the browser.
+    location specified by \a link unless the openLinks property
+    is set to false or you call setSource() in a slot connected.
+    This mechanism is used to override the default navigation features of the browser.
 */
 
 /*!
@@ -1064,6 +1071,30 @@ void QTextBrowser::setOpenExternalLinks(bool open)
 {
     Q_D(QTextBrowser);
     d->openExternalLinks = open;
+}
+
+/*!
+   \property QTextBrowser::openLinks
+   \since 4.3
+
+   This property specifies whether QTextBrowser should automatically open links the user tries to
+   activate by mouse or keyboard.
+
+   Regardless of the value of this property the anchorClicked signal is always emitted.
+
+   The default value is true.
+*/
+
+bool QTextBrowser::openLinks() const
+{
+    Q_D(const QTextBrowser);
+    return d->openLinks;
+}
+
+void QTextBrowser::setOpenLinks(bool open)
+{
+    Q_D(QTextBrowser);
+    d->openLinks = open;
 }
 
 /*! \reimp */
