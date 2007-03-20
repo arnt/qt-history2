@@ -60,7 +60,7 @@ public:
     Role role(int child) const;
     State state(int child) const;
     int navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const;
-
+    int indexOfChild( const QAccessibleInterface *child ) const;
 
     QString actionText(int action, QAccessible::Text text, int child) const;
     bool doAction(int action, int child, const QVariantList &params);

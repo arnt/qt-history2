@@ -271,6 +271,18 @@ int QAccessibleMenuBar::navigate(RelationFlag relation, int entry, QAccessibleIn
     return ret;
 }
 
+int QAccessibleMenuBar::indexOfChild( const QAccessibleInterface *child ) const
+{
+    int index = -1;
+    Role r = child->role(0);
+    if ((r == MenuItem || r == Separator) && menuBar()) {
+        index = menuBar()->actions().indexOf(qobject_cast<QAction*>(child->object()));
+        if (index != -1)
+            ++index;
+    }
+    return index;
+}
+
 QString QAccessibleMenuBar::text(Text t, int child) const
 {
     QString str;

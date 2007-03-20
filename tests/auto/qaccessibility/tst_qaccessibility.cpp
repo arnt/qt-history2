@@ -2090,6 +2090,51 @@ void tst_QAccessibility::tabTest()
 #endif
 }
 
+#define EXPECT(cond) \
+    do { \
+        if (!(cond)) \
+            errorAt = __LINE__; \
+    } while (0)
+
+static int verifyHierarchy(QAccessibleInterface *iface)
+{
+    int errorAt = 0;
+    int entry = 0;
+    QAccessibleInterface *middleChild, *if2, *if3;
+    middleChild = 0;
+
+    int middle = iface->childCount()/2 + 1;
+    if (iface->childCount()) {
+        entry = iface->navigate(QAccessible::Child, middle, &middleChild);
+    }
+    for (int i = 0; i < iface->childCount() && !errorAt; ++i) {
+        entry = iface->navigate(QAccessible::Child, i + 1, &if2);
+        if (entry == 0) {
+            // navigate Ancestor...
+            QAccessibleInterface *parent = 0;
+            entry = if2->navigate(QAccessible::Ancestor, 1, &parent);
+            EXPECT(entry == 0 && iface->object() == parent->object());
+            delete parent;
+            
+            // navigate Sibling...
+            if (middleChild) {
+                entry = if2->navigate(QAccessible::Sibling, middle, &if3);
+                EXPECT(entry == 0 && if3->object() == middleChild->object());
+                delete if3;
+            }
+
+            // verify children...
+            errorAt = verifyHierarchy(if2);
+            delete if2;
+        } else {
+            // leaf nodes
+        }
+    }
+    delete middleChild;
+
+    return errorAt;
+}
+
 void tst_QAccessibility::menuTest()
 {
 #ifdef QTEST_ACCESSIBILITY
@@ -2128,6 +2173,9 @@ void tst_QAccessibility::menuTest()
     QTest::qWait(100);
 
     QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(mw.menuBar());
+
+    QCOMPARE(verifyHierarchy(interface),  0);
+
     QVERIFY(interface);
     QCOMPARE(interface->childCount(), 5);
     QCOMPARE(interface->role(0), QAccessible::MenuBar);
