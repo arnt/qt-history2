@@ -510,8 +510,11 @@ QWidget * QToolBox::currentWidget() const
  */
 void QToolBox::setCurrentWidget(QWidget *widget)
 {
-    Q_ASSERT_X(indexOf(widget) >= 0, "QToolBox::setCurrentWidget", "widget not contained in tool box");
-    setCurrentIndex(indexOf(widget));
+    int i = indexOf(widget);
+    if (i >= 0)
+        setCurrentIndex(i);
+    else
+        qWarning("QToolBox::setCurrentWidget: widget not contained in tool box");
 }
 
 /*!
@@ -535,7 +538,7 @@ QWidget *QToolBox::widget(int index) const
 int QToolBox::indexOf(QWidget *widget) const
 {
     Q_D(const QToolBox);
-    QToolBoxPrivate::Page *c = d->page(widget);
+    QToolBoxPrivate::Page *c = (widget ? d->page(widget) : 0);
     return c ? d->pageList.indexOf(*c) : -1;
 }
 
