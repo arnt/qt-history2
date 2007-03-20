@@ -1418,6 +1418,8 @@ bool QTextEdit::focusNextPrevChild(bool next)
 }
 
 /*!
+  \fn void QTextEdit::contextMenuEvent(QContextMenuEvent *event)
+
   Shows the standard context menu created with createStandardContextMenu().
 
   If you do not want the text edit to have a context menu, you can set
@@ -1426,17 +1428,18 @@ bool QTextEdit::focusNextPrevChild(bool next)
   to extend the standard context menu, reimplement this function, call
   createStandardContextMenu() and extend the menu returned.
 
-  Information about the event is passed in \a e.
+  Information about the event is passed in the \a event object.
 
-    \code
-    void TextEdit::contextMenuEvent(QContextMenuEvent * e) {
-            QMenu *menu = createStandardContextMenu();
-            menu->addAction(My Menu Item");
-            //...
-            menu->exec(e->globalPos());
-            delete menu;
-    }
-    \endcode
+  \code
+  void MyTextEdit::contextMenuEvent(QContextMenuEvent *event)
+  {
+      QMenu *menu = createStandardContextMenu();
+      menu->addAction(tr("My Menu Item"));
+      //...
+      menu->exec(event->globalPos());
+      delete menu;
+  }
+  \endcode
 */
 void QTextEdit::contextMenuEvent(QContextMenuEvent *e)
 {
