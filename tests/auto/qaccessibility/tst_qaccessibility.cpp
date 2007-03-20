@@ -95,6 +95,56 @@ static inline int indexOfChild(QAccessibleInterface *parentInterface, QWidget *c
     return index;
 }
 
+#define EXPECT(cond) \
+    do { \
+        if (!errorAt && !(cond)) { \
+            errorAt = __LINE__; \
+            qWarning("level: %d, ", treelevel); \
+        } \
+    } while (0)
+
+static int verifyHierarchy(QAccessibleInterface *iface)
+{
+    int errorAt = 0;
+    int entry = 0;
+    static int treelevel = 0;   // for error diagnostics
+    QAccessibleInterface *middleChild, *if2, *if3;
+    middleChild = 0;
+    ++treelevel;
+    int middle = iface->childCount()/2 + 1;
+    if (iface->childCount() >= 2) {
+        entry = iface->navigate(QAccessible::Child, middle, &middleChild);
+    }
+    for (int i = 0; i < iface->childCount() && !errorAt; ++i) {
+        entry = iface->navigate(QAccessible::Child, i + 1, &if2);
+        if (entry == 0) {
+            // navigate Ancestor...
+            QAccessibleInterface *parent = 0;
+            entry = if2->navigate(QAccessible::Ancestor, 1, &parent);
+            EXPECT(entry == 0 && iface->object() == parent->object());
+            delete parent;
+            
+            // navigate Sibling...
+            if (middleChild) {
+                entry = if2->navigate(QAccessible::Sibling, middle, &if3);
+                EXPECT(entry == 0 && if3->object() == middleChild->object());
+                delete if3;
+            }
+
+            // verify children...
+            if (!errorAt)
+                errorAt = verifyHierarchy(if2);
+            delete if2;
+        } else {
+            // leaf nodes
+        }
+    }
+    delete middleChild;
+
+    --treelevel;
+    return errorAt;
+}
+
 
 //TESTED_FILES=
 
@@ -158,6 +208,7 @@ private slots:
     void calendarWidgetTest();
     void dockWidgetTest();
     void pushButtonTest();
+    void comboBoxTest();
 
 private:
     QWidget *createGUI();
@@ -2090,51 +2141,6 @@ void tst_QAccessibility::tabTest()
 #endif
 }
 
-#define EXPECT(cond) \
-    do { \
-        if (!(cond)) \
-            errorAt = __LINE__; \
-    } while (0)
-
-static int verifyHierarchy(QAccessibleInterface *iface)
-{
-    int errorAt = 0;
-    int entry = 0;
-    QAccessibleInterface *middleChild, *if2, *if3;
-    middleChild = 0;
-
-    int middle = iface->childCount()/2 + 1;
-    if (iface->childCount()) {
-        entry = iface->navigate(QAccessible::Child, middle, &middleChild);
-    }
-    for (int i = 0; i < iface->childCount() && !errorAt; ++i) {
-        entry = iface->navigate(QAccessible::Child, i + 1, &if2);
-        if (entry == 0) {
-            // navigate Ancestor...
-            QAccessibleInterface *parent = 0;
-            entry = if2->navigate(QAccessible::Ancestor, 1, &parent);
-            EXPECT(entry == 0 && iface->object() == parent->object());
-            delete parent;
-            
-            // navigate Sibling...
-            if (middleChild) {
-                entry = if2->navigate(QAccessible::Sibling, middle, &if3);
-                EXPECT(entry == 0 && if3->object() == middleChild->object());
-                delete if3;
-            }
-
-            // verify children...
-            errorAt = verifyHierarchy(if2);
-            delete if2;
-        } else {
-            // leaf nodes
-        }
-    }
-    delete middleChild;
-
-    return errorAt;
-}
-
 void tst_QAccessibility::menuTest()
 {
 #ifdef QTEST_ACCESSIBILITY
@@ -3590,6 +3596,46 @@ void tst_QAccessibility::pushButtonTest()
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
+}
+
+void tst_QAccessibility::comboBoxTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QWidget *w = new QWidget();
+    QComboBox *cb = new QComboBox(w);
+    w->show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(w);
+#endif
+    QAccessibleInterface *acc = QAccessible::queryAccessibleInterface(w);
+    //QCOMPARE(verifyHierarchy(acc), 0);
+    delete acc;
+
+    acc = QAccessible::queryAccessibleInterface(cb);
+    
+    QRect accRect = acc->rect(0);
+    for (int i = 1; i < acc->childCount(); ++i) {
+        QVERIFY(accRect.contains(acc->rect(i)));
+    }
+
+    QAccessibleInterface *accList = 0;
+    int entry = acc->navigate(QAccessible::Child, 3, &accList);
+    QCOMPARE(entry, 0);
+    QAccessibleInterface *acc2 = 0;
+    entry = accList->navigate(QAccessible::Ancestor, 1, &acc2);
+    QCOMPARE(entry, 0);
+    delete acc2;
+    
+    delete accList;
+    
+    delete acc;
+    delete w;
+
+    QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+
 }
 
 QTEST_MAIN(tst_QAccessibility)
