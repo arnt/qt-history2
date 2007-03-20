@@ -269,9 +269,10 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
         for (int k = 0; k < db->count; ++k) {
             if (db->families[k]->name.compare(family_list.at(i), Qt::CaseInsensitive) == 0) {
                 QByteArray family_name = db->families[k]->name.toUtf8();
-                if(ATSUFindFontFromName(family_name.data(), family_name.size(), kFontFullName,
-                                        kFontNoPlatformCode, kFontNoScriptCode, kFontNoLanguageCode, &fontID) == noErr) {
+                if(ATSFontRef atsfontref = ATSFontFindFromName(QCFString(db->families[k]->name),
+                                                               kATSOptionFlagsDefault)) {
                     found = true;
+                    fontID = FMGetFontFromATSFontRef(atsfontref);
                     break;
                 }
             }
