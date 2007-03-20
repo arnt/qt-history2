@@ -317,7 +317,7 @@ void tst_QDialog::showAsTool()
 {
 #if defined(Q_WS_X11)
     QSKIP("Qt/X11: Skipped since activeWindow() is not respected by all window managers", SkipAll);
-#elif defined(Q_WS_QWS)  && QT_VERSION < 0x040300
+#elif defined(Q_WS_QWS)  && QT_VERSION < 0x040400
     QEXPECT_FAIL(0, "Qtopia Core has messed up WStyle_Tool  (task 126435)", Continue);
 #endif
     ToolDialog dialog(testWidget);
