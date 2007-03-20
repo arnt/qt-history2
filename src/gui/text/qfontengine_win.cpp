@@ -362,6 +362,9 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
     *nglyphs = getGlyphIndexes(str, len, glyphs, flags & QTextEngine::RightToLeft);
 
+    if (flags & QTextEngine::GlyphIndicesOnly)
+        return true;
+
     HDC hdc = shared_dc;
     if (flags & QTextEngine::DesignMetrics) {
         HGDIOBJ oldFont = 0;
