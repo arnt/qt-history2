@@ -273,7 +273,7 @@ QScript::AST::Node *QScriptEnginePrivate::createAbstractSyntaxTree(const QString
 
     if (! parser.parse(this)) {
         m_errorMessage = parser.errorMessage();
-        lineNumber = lex.lineNo();
+        lineNumber = parser.errorLineNumber();
         return 0;
     }
 

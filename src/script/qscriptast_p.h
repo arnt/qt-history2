@@ -161,7 +161,8 @@ public:
     };
 
     inline Node():
-        startLine(0), startColumn(0), kind(Kind_Node) {}
+        startLine(0), startColumn(0),
+        endLine(0), endColumn(0), kind(Kind_Node) {}
 
     virtual ~Node() {}
 
@@ -187,6 +188,8 @@ public:
 
     int startLine;
     int startColumn;
+    int endLine;
+    int endColumn;
     Kind kind;
 };
 
@@ -1416,14 +1419,10 @@ public:
 class SourceElement: public Node
 {
 public:
-    inline SourceElement():
-        startLine(0), startColumn(0)
+    inline SourceElement()
         { kind = Kind_SourceElement; }
 
     virtual ~SourceElement() {}
-
-    int startLine;
-    int startColumn;
 };
 
 class FunctionSourceElement: public SourceElement

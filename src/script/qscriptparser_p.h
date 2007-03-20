@@ -63,6 +63,13 @@ public:
       QScript::AST::VariableDeclarationList *VariableDeclarationList;
     };
 
+    struct Location {
+      int startLine;
+      int startColumn;
+      int endLine;
+      int endColumn;
+    };
+
 public:
     QScriptParser();
     ~QScriptParser();
@@ -71,6 +78,10 @@ public:
 
     inline QString errorMessage() const
     { return error_message; }
+    inline int errorLineNumber() const
+    { return error_lineno; }
+    inline int errorColumnNumber() const
+    { return error_column; }
 
 protected:
     inline void reallocateStack();
@@ -78,13 +89,18 @@ protected:
     inline Value &sym(int index)
     { return sym_stack [tos + index - 1]; }
 
+    inline Location &loc(int index)
+    { return location_stack [tos + index - 2]; }
+
 protected:
     int tos;
     int stack_size;
     Value *sym_stack;
     int *state_stack;
-    int *location_stack;
+    Location *location_stack;
     QString error_message;
+    int error_lineno;
+    int error_column;
 };
 
 inline void QScriptParser::reallocateStack()
@@ -96,7 +112,7 @@ inline void QScriptParser::reallocateStack()
 
     sym_stack = reinterpret_cast<Value*> (qRealloc(sym_stack, stack_size * sizeof(Value)));
     state_stack = reinterpret_cast<int*> (qRealloc(state_stack, stack_size * sizeof(int)));
-    location_stack = reinterpret_cast<int*> (qRealloc(location_stack, stack_size * sizeof(int)));
+    location_stack = reinterpret_cast<Location*> (qRealloc(location_stack, stack_size * sizeof(Location)));
 }
 
 #endif // QSCRIPTPARSER_P_H

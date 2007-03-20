@@ -26,8 +26,11 @@
 #include "qscriptast_p.h"
 #include "qscriptnodepool_p.h"
 
-#define Q_SCRIPT_UPDATE_POSITION(node) do {         \
-    node->startLine = location_stack [tos];         \
+#define Q_SCRIPT_UPDATE_POSITION(node, startloc, endloc) do {     \
+    node->startLine = startloc.startLine; \
+    node->startColumn = startloc.startColumn; \
+    node->endLine = endloc.endLine; \
+    node->endColumn = endloc.endColumn; \
 } while (0)
 
 
@@ -60,6 +63,16 @@ QScriptParser::~QScriptParser()
     }
 }
 
+static inline QScriptParser::Location location(QScript::Lexer *lexer)
+{
+    QScriptParser::Location loc;
+    loc.startLine = lexer->startLineNo();
+    loc.startColumn = lexer->startColumnNo();
+    loc.endLine = lexer->endLineNo();
+    loc.endColumn = lexer->endColumnNo();
+    return loc;
+}
+
 bool QScriptParser::parse(QScriptEnginePrivate *driver)
 {
   const int INITIAL_STATE = 0;
@@ -81,7 +94,7 @@ bool QScriptParser::parse(QScriptEnginePrivate *driver)
           if (saved_yytoken == -1)
             {
               yytoken = lexer->lex();
-              location_stack [tos] = lexer->lineNo();
+              location_stack [tos] = location(lexer);
             }
           else
             {
@@ -102,7 +115,7 @@ bool QScriptParser::parse(QScriptEnginePrivate *driver)
 
           sym_stack [tos].dval = lexer->dval ();
           state_stack [tos] = act;
-          location_stack [tos] = lexer->lineNo ();
+          location_stack [tos] = location(lexer);
           yytoken = -1;
         }
 
@@ -117,37 +130,37 @@ bool QScriptParser::parse(QScriptEnginePrivate *driver)
 
 case 0: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ThisExpression> (driver->nodePool());
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 1: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::IdentifierExpression> (driver->nodePool(), sym(1).sval);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 2: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::NullExpression> (driver->nodePool());
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 3: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::TrueLiteral> (driver->nodePool());
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 4: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::FalseLiteral> (driver->nodePool());
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 5: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::NumericLiteral> (driver->nodePool(), sym(1).dval);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 6: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::StringLiteral> (driver->nodePool(), sym(1).sval);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 7: {
@@ -157,22 +170,22 @@ case 7: {
       return false;
   }
   sym(1).Node = QScript::makeAstNode<QScript::AST::RegExpLiteral> (driver->nodePool(), lexer->pattern, lexer->flags);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 8: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ArrayLiteral> (driver->nodePool(), sym(2).Elision);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 9: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ArrayLiteral> (driver->nodePool(), sym(2).ElementList->finish ());
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 10: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ArrayLiteral> (driver->nodePool(), sym(2).ElementList->finish (), sym(4).Elision);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
 case 11: {
@@ -180,32 +193,32 @@ case 11: {
     sym(1).Node = QScript::makeAstNode<QScript::AST::ObjectLiteral> (driver->nodePool(), sym(2).PropertyNameAndValueList->finish ());
   else
     sym(1).Node = QScript::makeAstNode<QScript::AST::ObjectLiteral> (driver->nodePool());
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 12: {
   sym(1) = sym(2);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 13: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ElementList> (driver->nodePool(), sym(1).Elision, sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 14: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ElementList> (driver->nodePool(), sym(1).ElementList, sym(3).Elision, sym(4).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
 } break;
 
 case 15: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::Elision> (driver->nodePool());
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 16: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::Elision> (driver->nodePool(), sym(1).Elision);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 17: {
@@ -214,43 +227,43 @@ case 17: {
 
 case 18: {
   sym(1).Elision = sym(1).Elision->finish ();
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 19: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::PropertyNameAndValueList> (driver->nodePool(), sym(1).PropertyName, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 20: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::PropertyNameAndValueList> (driver->nodePool(), sym(1).PropertyNameAndValueList, sym(3).PropertyName, sym(5).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
 case 21: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::IdentifierPropertyName> (driver->nodePool(), sym(1).sval);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 22: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::StringLiteralPropertyName> (driver->nodePool(), sym(1).sval);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 23: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::NumericLiteralPropertyName> (driver->nodePool(), sym(1).dval);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 26: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ArrayMemberExpression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
 } break;
 
 case 27: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::FieldMemberExpression> (driver->nodePool(), sym(1).Expression, sym(4).sval);
   lexer->scanExtraIdentifiers(false);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
 } break;
 
 case 28: {
@@ -259,32 +272,32 @@ case 28: {
 
 case 29: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::NewMemberExpression> (driver->nodePool(), sym(2).Expression, sym(3).ArgumentList);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 31: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::NewExpression> (driver->nodePool(), sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 32: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::CallExpression> (driver->nodePool(), sym(1).Expression, sym(2).ArgumentList);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 33: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::CallExpression> (driver->nodePool(), sym(1).Expression, sym(2).ArgumentList);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 34: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ArrayMemberExpression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
 } break;
 
 case 35: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::FieldMemberExpression> (driver->nodePool(), sym(1).Expression, sym(3).sval);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 36: {
@@ -293,277 +306,277 @@ case 36: {
 
 case 37: {
   sym(1).Node = sym(2).ArgumentList->finish ();
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 38: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ArgumentList> (driver->nodePool(), sym(1).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 39: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ArgumentList> (driver->nodePool(), sym(1).ArgumentList, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 43: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::PostIncrementExpression> (driver->nodePool(), sym(1).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 44: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::PostDecrementExpression> (driver->nodePool(), sym(1).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 46: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::DeleteExpression> (driver->nodePool(), sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 47: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::VoidExpression> (driver->nodePool(), sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 48: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::TypeOfExpression> (driver->nodePool(), sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 49: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::PreIncrementExpression> (driver->nodePool(), sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 50: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::PreDecrementExpression> (driver->nodePool(), sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 51: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::UnaryPlusExpression> (driver->nodePool(), sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 52: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::UnaryMinusExpression> (driver->nodePool(), sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 53: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::TildeExpression> (driver->nodePool(), sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 54: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::NotExpression> (driver->nodePool(), sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 56: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Mul, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 57: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Div, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 58: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Mod, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 60: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Add, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 61: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Sub, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 63: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::LShift, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 64: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::RShift, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 65: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::URShift, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 67: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Lt, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 68: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Gt, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 69: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Le, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 70: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Ge, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 71: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::InstanceOf, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 72: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::In, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 74: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Lt, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 75: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Gt, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 76: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Le, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 77: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Ge, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 78: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::InstanceOf, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 80: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Equal, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 81: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::NotEqual, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 82: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::StrictEqual, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 83: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::StrictNotEqual, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 85: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Equal, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 86: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::NotEqual, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 87: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::StrictEqual, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 88: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::StrictNotEqual, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 90: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitAnd, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 92: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitAnd, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 94: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitXor, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 96: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitXor, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 98: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitOr, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 100: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::BitOr, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 102: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::And, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 104: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::And, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 106: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Or, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 108: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, QSOperator::Or, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 110: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ConditionalExpression> (driver->nodePool(), sym(1).Expression, sym(3).Expression, sym(5).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 112: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ConditionalExpression> (driver->nodePool(), sym(1).Expression, sym(3).Expression, sym(5).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 114: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, sym(2).ival, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 116: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BinaryExpression> (driver->nodePool(), sym(1).Expression, sym(2).ival, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 117: {
@@ -616,7 +629,7 @@ case 128: {
 
 case 130: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::Expression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 131: {
@@ -625,7 +638,7 @@ case 131: {
 
 case 134: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::Expression> (driver->nodePool(), sym(1).Expression, sym(3).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 135: {
@@ -634,17 +647,17 @@ case 135: {
 
 case 151: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::Block> (driver->nodePool(), sym(2).StatementList);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 152: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::StatementList> (driver->nodePool(), sym(1).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 153: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::StatementList> (driver->nodePool(), sym(1).StatementList, sym(2).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 154: {
@@ -657,7 +670,7 @@ case 155: {
 
 case 157: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::VariableStatement> (driver->nodePool(), sym(2).VariableDeclarationList->finish (/*readOnly=*/sym(1).ival == T_CONST));
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 158: {
@@ -670,37 +683,37 @@ case 159: {
 
 case 160: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::VariableDeclarationList> (driver->nodePool(), sym(1).VariableDeclaration);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 161: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::VariableDeclarationList> (driver->nodePool(), sym(1).VariableDeclarationList, sym(3).VariableDeclaration);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 162: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::VariableDeclarationList> (driver->nodePool(), sym(1).VariableDeclaration);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 163: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::VariableDeclarationList> (driver->nodePool(), sym(1).VariableDeclarationList, sym(3).VariableDeclaration);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 164: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::VariableDeclaration> (driver->nodePool(), sym(1).sval, sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 165: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::VariableDeclaration> (driver->nodePool(), sym(1).sval, sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 166: {
   sym(1) = sym(2);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 167: {
@@ -709,7 +722,7 @@ case 167: {
 
 case 169: {
   sym(1) = sym(2);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 170: {
@@ -718,107 +731,107 @@ case 170: {
 
 case 172: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::EmptyStatement> (driver->nodePool());
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 174: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ExpressionStatement> (driver->nodePool(), sym(1).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 175: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::IfStatement> (driver->nodePool(), sym(3).Expression, sym(5).Statement, sym(7).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(7));
 } break;
 
 case 176: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::IfStatement> (driver->nodePool(), sym(3).Expression, sym(5).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
 case 178: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::DoWhileStatement> (driver->nodePool(), sym(2).Statement, sym(5).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(7));
 } break;
 
 case 179: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::WhileStatement> (driver->nodePool(), sym(3).Expression, sym(5).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
 case 180: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ForStatement> (driver->nodePool(), sym(3).Expression, sym(5).Expression, sym(7).Expression, sym(9).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(9));
 } break;
 
 case 181: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::LocalForStatement> (driver->nodePool(), sym(4).VariableDeclarationList->finish (/*readOnly=*/false), sym(6).Expression, sym(8).Expression, sym(10).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(10));
 } break;
 
 case 182: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ForEachStatement> (driver->nodePool(), sym(3).Expression, sym(5).Expression, sym(7).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(7));
 } break;
 
 case 183: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::LocalForEachStatement> (driver->nodePool(), sym(4).VariableDeclaration, sym(6).Expression, sym(8).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(8));
 } break;
 
 case 185: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ContinueStatement> (driver->nodePool());
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 187: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ContinueStatement> (driver->nodePool(), sym(2).sval);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 189: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BreakStatement> (driver->nodePool());
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 191: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::BreakStatement> (driver->nodePool(), sym(2).sval);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 193: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ReturnStatement> (driver->nodePool(), sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 194: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::WithStatement> (driver->nodePool(), sym(3).Expression, sym(5).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
 case 195: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::SwitchStatement> (driver->nodePool(), sym(3).Expression, sym(5).CaseBlock);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
 case 196: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::CaseBlock> (driver->nodePool(), sym(2).CaseClauses);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 197: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::CaseBlock> (driver->nodePool(), sym(2).CaseClauses, sym(3).DefaultClause, sym(4).CaseClauses);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
 case 198: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::CaseClauses> (driver->nodePool(), sym(1).CaseClause);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 199: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::CaseClauses> (driver->nodePool(), sym(1).CaseClauses, sym(2).CaseClause);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 200: {
@@ -827,72 +840,72 @@ case 200: {
 
 case 201: {
   sym(1).Node = sym(1).CaseClauses->finish ();
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 202: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::CaseClause> (driver->nodePool(), sym(2).Expression, sym(4).StatementList);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
 } break;
 
 case 203: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::DefaultClause> (driver->nodePool(), sym(3).StatementList);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 204: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::LabelledStatement> (driver->nodePool(), sym(1).sval, sym(3).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 206: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::ThrowStatement> (driver->nodePool(), sym(2).Expression);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 207: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::TryStatement> (driver->nodePool(), sym(2).Statement, sym(3).Catch);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 208: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::TryStatement> (driver->nodePool(), sym(2).Statement, sym(3).Finally);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 209: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::TryStatement> (driver->nodePool(), sym(2).Statement, sym(3).Catch, sym(4).Finally);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(4));
 } break;
 
 case 210: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::Catch> (driver->nodePool(), sym(3).sval, sym(5).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(5));
 } break;
 
 case 211: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::Finally> (driver->nodePool(), sym(2).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 212: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::FunctionDeclaration> (driver->nodePool(), sym(2).sval, sym(4).FormalParameterList, sym(7).FunctionBody);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(8));
 } break;
 
 case 213: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::FunctionExpression> (driver->nodePool(), sym(2).sval, sym(4).FormalParameterList, sym(7).FunctionBody);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(8));
 } break;
 
 case 214: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::FormalParameterList> (driver->nodePool(), sym(1).sval);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 215: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::FormalParameterList> (driver->nodePool(), sym(1).FormalParameterList, sym(3).sval);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(3));
 } break;
 
 case 216: {
@@ -901,7 +914,7 @@ case 216: {
 
 case 217: {
   sym(1).Node = sym(1).FormalParameterList->finish ();
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 218: {
@@ -910,33 +923,33 @@ case 218: {
 
 case 220: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::FunctionBody> (driver->nodePool(), sym(1).SourceElements->finish ());
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 221: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::Program> (driver->nodePool(), sym(1).SourceElements->finish ());
   driver->changeAbstractSyntaxTree(sym(1).Node);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 222: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::SourceElements> (driver->nodePool(), sym(1).SourceElement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 223: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::SourceElements> (driver->nodePool(), sym(1).SourceElements, sym(2).SourceElement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(2));
 } break;
 
 case 224: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::StatementSourceElement> (driver->nodePool(), sym(1).Statement);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 225: {
   sym(1).Node = QScript::makeAstNode<QScript::AST::FunctionSourceElement> (driver->nodePool(), sym(1).FunctionDeclaration);
-  Q_SCRIPT_UPDATE_POSITION(sym(1).Node);
+  Q_SCRIPT_UPDATE_POSITION(sym(1).Node, loc(1), loc(1));
 } break;
 
 case 226: {
@@ -950,6 +963,12 @@ case 228: {
           } // switch
 
           state_stack [tos] = nt_action (act, lhs [r] - TERMINAL_COUNT);
+
+          if (rhs[r] > 1) {
+              location_stack[tos - 1].endLine = location_stack[tos + rhs[r] - 2].endLine;
+              location_stack[tos - 1].endColumn = location_stack[tos + rhs[r] - 2].endColumn;
+              location_stack[tos] = location_stack[tos + rhs[r] - 1];
+          }
         }
 
       else
@@ -1002,6 +1021,9 @@ case 228: {
 
           if (error_message.isEmpty())
               error_message = lexer->errorMessage();
+
+          error_lineno = lexer->startLineNo();
+          error_column = lexer->startColumnNo();
 
           return false;
         }

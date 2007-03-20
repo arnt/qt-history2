@@ -42,7 +42,16 @@ public:
     void setCode(const QString &c, int lineno);
     int lex();
 
-    int lineNo() const { return yylineno; }
+    int currentLineNo() const { return yylineno; }
+    int currentColumnNo() const { return yycolumn; }
+
+    int startLineNo() const { return startlineno; }
+    int startColumnNo() const { return startcolumn; }
+
+    int endLineNo() const { return currentLineNo(); }
+    int endColumnNo() const
+    { int col = currentColumnNo(); return (col > 0) ? col - 1 : col; }
+
     bool prevTerminator() const { return terminator; }
 
     enum State { Start,
@@ -133,12 +142,15 @@ public:
 private:
     void record8(ushort c);
     void record16(QChar c);
+    void recordStartPos();
 
     int findReservedWord(const QChar *buffer, int size) const;
 
     const QChar *code;
     uint length;
     int yycolumn;
+    int startlineno;
+    int startcolumn;
     int bol;     // begin of line
 
     union {

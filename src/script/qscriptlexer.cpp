@@ -61,6 +61,7 @@ void QScript::Lexer::setCode(const QString &c, int lineno)
 {
     errmsg = QString();
     yylineno = lineno;
+    yycolumn = 0;
     restrKeyword = false;
     delimited = false;
     stackToken = -1;
@@ -79,7 +80,8 @@ void QScript::Lexer::setCode(const QString &c, int lineno)
 void QScript::Lexer::shift(uint p)
 {
     while (p--) {
-        pos++;
+        ++pos;
+        ++yycolumn;
         current = next1;
         next1 = next2;
         next2 = next3;
@@ -404,9 +406,11 @@ int QScript::Lexer::lex()
             if (isWhiteSpace()) {
                 // do nothing
             } else if (current == '/' && next1 == '/') {
+                recordStartPos();
                 shift(1);
                 state = InSingleLineComment;
             } else if (current == '/' && next1 == '*') {
+                recordStartPos();
                 shift(1);
                 state = InMultiLineComment;
             } else if (current == 0) {
@@ -415,11 +419,13 @@ int QScript::Lexer::lex()
                     token = ';';
                     stackToken = 0;
                     setDone(Other);
-                } else
+                } else {
                     setDone(Eof);
+                }
             } else if (isLineTerminator()) {
                 shiftWindowsLineBreak();
                 yylineno++;
+                yycolumn = -1;
                 bol = true;
                 terminator = true;
                 if (restrKeyword) {
@@ -427,21 +433,27 @@ int QScript::Lexer::lex()
                     setDone(Other);
                 }
             } else if (current == '"' || current == '\'') {
+                recordStartPos();
                 state = InString;
                 stringType = current;
             } else if (isIdentLetter(current)) {
+                recordStartPos();
                 record16(current);
                 state = InIdentifier;
             } else if (current == '0') {
+                recordStartPos();
                 record8(current);
                 state = InNum0;
             } else if (isDecimalDigit(current)) {
+                recordStartPos();
                 record8(current);
                 state = InNum;
             } else if (current == '.' && isDecimalDigit(next1)) {
+                recordStartPos();
                 record8(current);
                 state = InDecimal;
             } else {
+                recordStartPos();
                 token = matchPunctuator(current, next1, next2, next3);
                 if (token != -1)
                     setDone(Other);
@@ -527,6 +539,7 @@ int QScript::Lexer::lex()
             if (isLineTerminator()) {
                 shiftWindowsLineBreak();
                 yylineno++;
+                yycolumn = -1;
                 terminator = true;
                 bol = true;
                 if (restrKeyword) {
@@ -958,6 +971,12 @@ void QScript::Lexer::record16(QChar c)
     }
 
     buffer16[pos16++] = c;
+}
+
+void QScript::Lexer::recordStartPos()
+{
+    startlineno = yylineno;
+    startcolumn = yycolumn;
 }
 
 bool QScript::Lexer::scanRegExp()
