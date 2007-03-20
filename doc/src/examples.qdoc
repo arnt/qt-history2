@@ -247,11 +247,11 @@
     \section1 QtScript Examples
 
     \list
-    \o \l{script/calculator}{Calculator}\raisedaster
-    \o \l{script/context2d}{Context2D}\raisedaster
-    \o \l{script/defaultprototypes}{Default Prototypes}\raisedaster
-    \o \l{script/helloscript}{Hello Script}\raisedaster
-    \o \l{script/tetrix}{Tetrix}\raisedaster
+    \o \l{script/calculator}{Calculator}
+    \o \l{script/context2d}{Context2D}
+    \o \l{script/defaultprototypes}{Default Prototypes}
+    \o \l{script/helloscript}{Hello Script}
+    \o \l{script/tetrix}{Tetrix}
     \endlist
 
     \section1 Qt Designer Examples
