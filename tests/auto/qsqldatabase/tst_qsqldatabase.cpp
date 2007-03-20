@@ -120,6 +120,9 @@ private slots:
     void odbc_reopenDatabase_data() { generic_data(); }
     void odbc_reopenDatabase();
 
+    void oci_serverDetach_data() { generic_data(); }
+    void oci_serverDetach(); // For task 154518
+
 private:
     void createTestTables(QSqlDatabase db);
     void dropTestTables(QSqlDatabase db);
@@ -1784,6 +1787,29 @@ void tst_QSqlDatabase::ibase_useCustomCharset()
     QVERIFY2(q.next(), q.lastError().text());
     QCOMPARE(q.value(0).toString(), QString("‰Î¸ˆÔ"));
     q.exec(QString("DROP TABLE %1").arg(tableName));
+}
+
+void tst_QSqlDatabase::oci_serverDetach()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QOCI")) {
+        QSKIP("Oracle server specific test", SkipSingle);
+        return;
+    }
+
+    for (int i = 0; i < 200; i++) {
+        db.close();
+        if (db.open()) {
+            QSqlQuery query(db);
+            query.exec("SELECT 1 FROM DUAL");
+            db.close();
+        } else {
+            QFAIL(QString("Can't open database: " + db.lastError().text()));
+        }
+    }
 }
 
 QTEST_MAIN(tst_QSqlDatabase)

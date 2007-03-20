@@ -2016,6 +2016,7 @@ void QOCIDriver::close()
         return;
 
     OCISessionEnd(d->svc, d->err, d->authp, OCI_DEFAULT);
+    OCIServerDetach(d->srvhp, d->err, OCI_DEFAULT);
     OCIHandleFree(d->authp, OCI_HTYPE_SESSION);
     d->authp = 0;
     OCIHandleFree(d->srvhp, OCI_HTYPE_SERVER);
