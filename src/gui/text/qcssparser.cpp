@@ -215,29 +215,37 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
 };
 
 static const QCssKnownValue pseudos[NumPseudos - 1] = {
+    { "bottom", PseudoClass_Bottom },
     { "checked", PseudoClass_Checked },
     { "children", PseudoClass_Children },
     { "default", PseudoClass_Default },
     { "disabled", PseudoClass_Disabled },
     { "enabled", PseudoClass_Enabled },
+    { "exclusive", PseudoClass_Exclusive },
     { "first", PseudoClass_First },
+    { "flat", PseudoClass_Flat },
     { "focus", PseudoClass_Focus },
+    { "frameless", PseudoClass_Frameless },
     { "horizontal", PseudoClass_Horizontal },
     { "hover", PseudoClass_Hover },
     { "indeterminate" , PseudoClass_Indeterminate },
     { "last", PseudoClass_Last },
+    { "left", PseudoClass_Left },
     { "middle", PseudoClass_Middle },
     { "next-selected", PseudoClass_NextSelected },
+    { "non-exclusive", PseudoClass_NonExclusive },
     { "off", PseudoClass_Unchecked },
     { "on", PseudoClass_Checked },
     { "only-one", PseudoClass_OnlyOne },
     { "open", PseudoClass_Open },
     { "pressed", PseudoClass_Pressed },
     { "previous-selected", PseudoClass_PreviousSelected },
+    { "right", PseudoClass_Right },
     { "selected", PseudoClass_Selected },
     { "sibling", PseudoClass_Sibling },
+    { "top", PseudoClass_Top },
     { "unchecked" , PseudoClass_Unchecked },
-    { "vertical", PseudoClass_Vertical }
+    { "vertical", PseudoClass_Vertical },
 };
 
 static const QCssKnownValue origins[NumKnownOrigins - 1] = {

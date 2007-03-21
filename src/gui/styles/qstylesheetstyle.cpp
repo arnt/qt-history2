@@ -1339,41 +1339,107 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         default:
             break;
         }
-    } else if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
-        if (mi->menuItemType == QStyleOptionMenuItem::DefaultItem)
-            extraClass |= PseudoClass_Default;
-    } else if (const QStyleOptionHeader *hdr = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
-        if (hdr->position == QStyleOptionHeader::OnlyOneSection)
-            extraClass |= PseudoClass_OnlyOne;
-        else if (hdr->position == QStyleOptionHeader::Beginning)
-            extraClass |= PseudoClass_First;
-        else if (hdr->position == QStyleOptionHeader::End)
-            extraClass |= PseudoClass_Last;
-        else if (hdr->position == QStyleOptionHeader::Middle)
-            extraClass |= PseudoClass_Middle;
 
-        if (hdr->selectedPosition == QStyleOptionHeader::NextAndPreviousAreSelected)
-            extraClass |= (PseudoClass_NextSelected | PseudoClass_PreviousSelected);
-        else if (hdr->selectedPosition == QStyleOptionHeader::NextIsSelected)
-            extraClass |= PseudoClass_NextSelected;
-        else if (hdr->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
-            extraClass |= PseudoClass_PreviousSelected;
-    } else if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
-        if (tab->position == QStyleOptionTab::OnlyOneTab)
-            extraClass |= PseudoClass_OnlyOne;
-        else if (tab->position == QStyleOptionTab::Beginning)
-            extraClass |= PseudoClass_First;
-        else if (tab->position == QStyleOptionTab::End)
-            extraClass |= PseudoClass_Last;
-        else if (tab->position == QStyleOptionTab::Middle)
-            extraClass |= PseudoClass_Middle;
-
-        if (tab->selectedPosition == QStyleOptionTab::NextIsSelected)
-            extraClass |= PseudoClass_NextSelected;
-        else if (tab->selectedPosition == QStyleOptionTab::PreviousIsSelected)
-            extraClass |= PseudoClass_PreviousSelected;
+        if (const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+            if (!combo->frame)
+                extraClass |= PseudoClass_Frameless;
+        } else if (const QStyleOptionSpinBox *spin = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
+            if (!spin->frame)
+                extraClass |= PseudoClass_Frameless;
+        }
     } else {
-        // Add hacks for simple controls here
+        // handle simple style options
+        if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
+            if (mi->menuItemType == QStyleOptionMenuItem::DefaultItem)
+                extraClass |= PseudoClass_Default;
+        } else if (const QStyleOptionHeader *hdr = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
+            if (hdr->position == QStyleOptionHeader::OnlyOneSection)
+                extraClass |= PseudoClass_OnlyOne;
+            else if (hdr->position == QStyleOptionHeader::Beginning)
+                extraClass |= PseudoClass_First;
+            else if (hdr->position == QStyleOptionHeader::End)
+                extraClass |= PseudoClass_Last;
+            else if (hdr->position == QStyleOptionHeader::Middle)
+                extraClass |= PseudoClass_Middle;
+
+            if (hdr->selectedPosition == QStyleOptionHeader::NextAndPreviousAreSelected)
+                extraClass |= (PseudoClass_NextSelected | PseudoClass_PreviousSelected);
+            else if (hdr->selectedPosition == QStyleOptionHeader::NextIsSelected)
+                extraClass |= PseudoClass_NextSelected;
+            else if (hdr->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
+                extraClass |= PseudoClass_PreviousSelected;
+        } else if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
+            if (tab->position == QStyleOptionTab::OnlyOneTab)
+                extraClass |= PseudoClass_OnlyOne;
+            else if (tab->position == QStyleOptionTab::Beginning)
+                extraClass |= PseudoClass_First;
+            else if (tab->position == QStyleOptionTab::End)
+                extraClass |= PseudoClass_Last;
+            else if (tab->position == QStyleOptionTab::Middle)
+                extraClass |= PseudoClass_Middle;
+
+            if (tab->selectedPosition == QStyleOptionTab::NextIsSelected)
+                extraClass |= PseudoClass_NextSelected;
+            else if (tab->selectedPosition == QStyleOptionTab::PreviousIsSelected)
+                extraClass |= PseudoClass_PreviousSelected;
+
+            switch (tab->shape) {
+                case QTabBar::RoundedNorth:
+                case QTabBar::TriangularNorth:
+                    extraClass |= PseudoClass_Top;
+                    break;
+                case QTabBar::RoundedSouth:
+                case QTabBar::TriangularSouth:
+                    extraClass |= PseudoClass_Bottom;
+                    break;
+                case QTabBar::RoundedEast:
+                case QTabBar::TriangularEast:
+                    extraClass |= PseudoClass_Left;
+                    break;
+                case QTabBar::RoundedWest:
+                case QTabBar::TriangularWest:
+                    extraClass |= PseudoClass_Right;
+                    break;
+                default:
+                    break;
+            }
+        } else if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
+            if (btn->features & QStyleOptionButton::Flat)
+                extraClass |= PseudoClass_Flat;
+            if (btn->features & QStyleOptionButton::DefaultButton)
+                extraClass |= PseudoClass_Default;
+        } else if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+            if (frm->lineWidth == 0)
+                extraClass |= PseudoClass_Frameless;
+            if (const QStyleOptionFrameV2 *frm2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(opt)) {
+                if (frm2->features & QStyleOptionFrameV2::Flat)
+                    extraClass |= PseudoClass_Flat;
+            }
+        } else if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
+            if (mi->checkType == QStyleOptionMenuItem::Exclusive)
+                extraClass |= PseudoClass_Exclusive;
+            else if (mi->checkType == QStyleOptionMenuItem::NonExclusive)
+                extraClass |= PseudoClass_NonExclusive;
+        } else if (const QStyleOptionToolBar *tb = qstyleoption_cast<const QStyleOptionToolBar *>(opt)) {
+            if (tb->toolBarArea == Qt::LeftToolBarArea)
+                extraClass |= PseudoClass_Left;
+            else if (tb->toolBarArea == Qt::RightToolBarArea)
+                extraClass |= PseudoClass_Right;
+            else if (tb->toolBarArea == Qt::TopToolBarArea)
+                extraClass |= PseudoClass_Top;
+            else if (tb->toolBarArea == Qt::BottomToolBarArea)
+                extraClass |= PseudoClass_Bottom;
+
+            if (tb->positionWithinLine == QStyleOptionToolBar::Beginning)
+                extraClass |= PseudoClass_First;
+            else if (tb->positionWithinLine == QStyleOptionToolBar::Middle)
+                extraClass |= PseudoClass_Middle;
+            else if (tb->positionWithinLine == QStyleOptionToolBar::End)
+                extraClass |= PseudoClass_Last;
+            else if (tb->positionWithinLine == QStyleOptionToolBar::OnlyOne)
+                extraClass |= PseudoClass_OnlyOne;
+        }
+
 #ifndef QT_NO_LINEEDIT
         // LineEdit sets Sunken flag to indicate Sunken frame (argh)
         if (qobject_cast<const QLineEdit *>(w)) {
@@ -2146,13 +2212,13 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
         if (const QStyleOptionToolButton *tool = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
             QStyleOptionToolButton toolOpt(*tool);
             toolOpt.rect = rule.borderRect(opt->rect);
-            bool customArrow = (tool->features & QStyleOptionToolButton::HasMenu), 
-                     customDropDown = (tool->subControls & QStyle::SC_ToolButtonMenu);
+            bool customArrow = (tool->features & QStyleOptionToolButton::HasMenu),
+                 customDropDown = (tool->subControls & QStyle::SC_ToolButtonMenu);
             if (rule.hasNativeBorder()) {
                 rule.drawBackground(p, toolOpt.rect);
                 customArrow = customArrow && hasStyleRule(w, PseudoElement_ToolButtonDownArrow);
                 if (customArrow)
-                        toolOpt.features &= ~QStyleOptionToolButton::HasMenu;
+                    toolOpt.features &= ~QStyleOptionToolButton::HasMenu;
                 customDropDown = customDropDown && hasStyleRule(w, PseudoElement_ToolButtonMenu);
                 if (customDropDown)
                     toolOpt.subControls &= ~QStyle::SC_ToolButtonMenu;
