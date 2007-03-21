@@ -155,6 +155,7 @@ private slots:
 #endif
     void hideAndShow();
     void keepWindowMaximizedState();
+    void explicitlyHiddenWidget();
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -426,7 +427,8 @@ void tst_QMdiSubWindow::emittingOfSignals()
     QMdiSubWindow *window = qobject_cast<QMdiSubWindow *>(workspace.addSubWindow(new QWidget));
     qApp->processEvents();
     window->show();
-    workspace.setActiveSubWindow(0);
+    if (signal != SIGNAL(windowRestored()))
+        workspace.setActiveSubWindow(0);
     qApp->processEvents();
 
     QSignalSpy spy(window, signal == SIGNAL(aboutToActivate())
@@ -1191,13 +1193,15 @@ void tst_QMdiSubWindow::resizeEvents()
     QFETCH(int, expectedWidgetResizeEvents);
     QFETCH(bool, isShadeMode);
 
-    QMdiArea mdiArea;
-    mdiArea.show();
+    QMainWindow mainWindow;
+    QMdiArea *mdiArea = new QMdiArea;
+    mainWindow.setCentralWidget(mdiArea);
+    mainWindow.show();
 #if defined(Q_WS_X11)
-    qt_x11_wait_for_window_manager(&mdiArea);
+    qt_x11_wait_for_window_manager(&mainWindow);
 #endif
 
-    QMdiSubWindow *window = mdiArea.addSubWindow(new QTextEdit);
+    QMdiSubWindow *window = mdiArea->addSubWindow(new QTextEdit);
     window->show();
 
     EventSpy windowResizeEventSpy(window, QEvent::Resize);
@@ -1205,19 +1209,30 @@ void tst_QMdiSubWindow::resizeEvents()
     EventSpy widgetResizeEventSpy(window->widget(), QEvent::Resize);
     QCOMPARE(widgetResizeEventSpy.count(), 0);
 
-    // Set the window state and check how many resize events we got.
+    // Set the window state.
     if (!isShadeMode)
         window->setWindowState(windowState);
     else
         window->showShaded();
+
+    // Check that the window state is correct.
+    QCOMPARE(window->windowState(), windowState | Qt::WindowActive);
+    QCOMPARE(window->widget()->windowState(), windowState);
+
+    // Make sure we got as many resize events as expected.
     QCOMPARE(windowResizeEventSpy.count(), expectedWindowResizeEvents);
     QCOMPARE(widgetResizeEventSpy.count(), expectedWidgetResizeEvents);
-
     windowResizeEventSpy.clear();
     widgetResizeEventSpy.clear();
 
-    // Normalize and check how many resize events we got.
+    // Normalize.
     window->showNormal();
+
+    // Check that the window state is correct.
+    QCOMPARE(window->windowState(), Qt::WindowNoState | Qt::WindowActive);
+    QCOMPARE(window->widget()->windowState(), Qt::WindowNoState);
+
+    // Make sure we got as many resize events as expected.
     QCOMPARE(windowResizeEventSpy.count(), expectedWindowResizeEvents);
     QCOMPARE(widgetResizeEventSpy.count(), expectedWidgetResizeEvents);
 }
@@ -1329,6 +1344,20 @@ void tst_QMdiSubWindow::hideAndShow()
     QVERIFY(subWindow->maximizedSystemMenuIconWidget());
     QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
 #endif
+
+    // Hide QMainWindow.
+    mainWindow.hide();
+    QVERIFY(!subWindow->maximizedButtonsWidget());
+    QVERIFY(!subWindow->maximizedSystemMenuIconWidget());
+    QVERIFY(!menuBar->cornerWidget(Qt::TopRightCorner));
+
+    // Show QMainWindow.
+    mainWindow.show();
+#ifndef Q_WS_MAC
+    QVERIFY(subWindow->maximizedButtonsWidget());
+    QVERIFY(subWindow->maximizedSystemMenuIconWidget());
+    QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
+#endif
 }
 
 void tst_QMdiSubWindow::keepWindowMaximizedState()
@@ -1368,6 +1397,58 @@ void tst_QMdiSubWindow::keepWindowMaximizedState()
     subWindow->setGeometry(QRect(newPosition, newSize));
     QCOMPARE(subWindow->geometry(), QRect(newPosition, newSize));
     QVERIFY(!subWindow->isMaximized());
+}
+
+void tst_QMdiSubWindow::explicitlyHiddenWidget()
+{
+    QMdiArea mdiArea;
+    QTextEdit *textEdit = new QTextEdit;
+    textEdit->hide();
+    QMdiSubWindow *subWindow = mdiArea.addSubWindow(textEdit);
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+
+    QVERIFY(subWindow->isVisible());
+    QVERIFY(!textEdit->isVisible());
+
+    textEdit->show();
+    QVERIFY(textEdit->isVisible());
+
+    // normal -> minimized
+    subWindow->showMinimized();
+    QVERIFY(subWindow->isVisible());
+    QVERIFY(!textEdit->isVisible());
+
+    // minimized -> normal
+    subWindow->showNormal();
+    QVERIFY(subWindow->isVisible());
+    QVERIFY(textEdit->isVisible());
+
+    // minimized -> maximized
+    subWindow->showMinimized();
+    subWindow->showMaximized();
+    QVERIFY(subWindow->isVisible());
+    QVERIFY(textEdit->isVisible());
+
+    textEdit->hide();
+
+    // maximized -> normal
+    subWindow->showNormal();
+    QVERIFY(subWindow->isVisible());
+    QVERIFY(!textEdit->isVisible());
+
+    textEdit->show();
+
+    subWindow->showMinimized();
+    subWindow->setWidget(0);
+    delete textEdit;
+    textEdit = new QTextEdit;
+    textEdit->hide();
+    subWindow->showNormal();
+    QVERIFY(subWindow->isVisible());
+    QVERIFY(!textEdit->isVisible());
 }
 QTEST_MAIN(tst_QMdiSubWindow)
 #include "tst_qmdisubwindow.moc"
