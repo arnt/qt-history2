@@ -1449,7 +1449,7 @@ void QLabelPrivate::ensureTextControl() const
 void QLabelPrivate::sendControlEvent(QEvent *e)
 {
     Q_Q(QLabel);
-    if (!isTextLabel || !control) {
+    if (!isTextLabel || !control || textInteractionFlags == Qt::NoTextInteraction) {
         e->ignore();
         return;
     }
