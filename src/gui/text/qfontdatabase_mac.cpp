@@ -90,7 +90,8 @@ static void initializeDb()
                 double d;
                 if(CFNumberGetValue(italic, kCFNumberDoubleType, &d)) {
                     //qDebug() << "ITALIC" << (QString)family_name << d;
-                    styleKey.weight = (d > 0.0);
+                    if (d > 0.0)
+                        styleKey.style = QFont::StyleItalic;
                 }
             }
         }
@@ -98,7 +99,7 @@ static void initializeDb()
         QtFontStyle *style = foundry->style(styleKey, true);
         style->smoothScalable = true;
         if(QCFType<CFNumberRef> size = (CFNumberRef)CTFontDescriptorCopyAttribute(font, kCTFontSizeAttribute)) {
-            qDebug() << "WHEE";
+            //qDebug() << "WHEE";
             int pixel_size=0;
             if(CFNumberIsFloatType(size)) {
                 double d;
@@ -107,7 +108,7 @@ static void initializeDb()
             } else {
                 CFNumberGetValue(size, kCFNumberIntType, &pixel_size);
             }
-            qDebug() << "SIZE" << (QString)family_name << pixel_size;
+            //qDebug() << "SIZE" << (QString)family_name << pixel_size;
             if(pixel_size)
                 style->pixelSize(pixel_size, true);
         } else {
