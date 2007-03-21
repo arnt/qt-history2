@@ -148,6 +148,7 @@ class Q_CORE_EXPORT QVariant
     QVariant(qlonglong ll);
     QVariant(qulonglong ull);
     QVariant(bool b);
+    QVariant(QBool b);
     QVariant(double d);
 #ifndef QT_NO_CAST_FROM_ASCII
     QT_ASCII_CAST_WARN_CONSTRUCTOR QVariant(const char *str);
