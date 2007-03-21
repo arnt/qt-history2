@@ -47,6 +47,7 @@ private slots:
     void gripMoved();
 
     void preview();
+    void sizes();
 
 protected:
 };
@@ -422,6 +423,33 @@ void tst_QColumnView::preview()
     QWidget *previewWidget2 = new QWidget(&view);
     view.setPreviewWidget(previewWidget2);
     QCOMPARE(view.previewWidget(), previewWidget2);
+}
+
+void tst_QColumnView::sizes()
+{
+    QColumnView view;
+    QCOMPARE(view.columnWidths().count(), 0);
+
+    QList<int> newSizes;
+    newSizes << 10 << 4 << 50 << 6;
+
+    QList<int> visibleSizes;
+    view.setColumnWidths(newSizes);
+    QCOMPARE(view.columnWidths(), visibleSizes);
+
+    QDirModel model;
+    view.setModel(&model);
+    QModelIndex home = model.index(QDir::homePath());
+    view.setCurrentIndex(home);
+
+    QCOMPARE(view.columnWidths().mid(0, newSizes.count()), newSizes);
+
+    QList<int> smallerSizes;
+    smallerSizes << 6;
+    view.setColumnWidths(smallerSizes);
+    QList<int> expectedSizes = newSizes;
+    expectedSizes[0] = 6;
+    QCOMPARE(view.columnWidths().mid(0, newSizes.count()), expectedSizes);
 }
 
 QTEST_MAIN(tst_QColumnView)
