@@ -2190,11 +2190,10 @@ void tst_QAccessibility::menuTest()
     QCOMPARE(interface->role(3), QAccessible::Separator);
     QCOMPARE(interface->role(4), QAccessible::MenuItem);
     QCOMPARE(interface->role(5), QAccessible::MenuItem);
+#ifndef Q_WS_MAC
     QCOMPARE(mw.mapFromGlobal(interface->rect(0).topLeft()), mw.menuBar()->geometry().topLeft());
     QCOMPARE(interface->rect(0).size(), mw.menuBar()->size());
 
-// Not working at the moment, task to fix is #100019.
-#if 1
     QVERIFY(interface->rect(0).contains(interface->rect(1)));
     QVERIFY(interface->rect(0).contains(interface->rect(2)));
     // QVERIFY(interface->rect(0).contains(interface->rect(3))); //separator might be invisible
