@@ -45,7 +45,7 @@ QAccessibleItemRow::QAccessibleItemRow(QAbstractItemView *aView, const QModelInd
 
 QRect QAccessibleItemRow::rect(int child) const
 {
-    if (!row.isValid() || !view)
+    if (!row.isValid() || !view || !view->isVisible())
         return QRect();
 
     QRect r;
