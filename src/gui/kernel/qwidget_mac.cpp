@@ -1554,7 +1554,7 @@ void QWidgetPrivate::createWindow_sys()
 
     if (qt_mac_is_macsheet(q)){
         SetThemeWindowBackground(qt_mac_window_for(q), kThemeBrushSheetBackgroundTransparent, true);
-        float alpha = 0;
+        CGFloat alpha = 0;
         GetWindowAlpha(qt_mac_window_for(q), &alpha);
         if (alpha == 1){
             // For some reason the 'SetThemeWindowBackground' does not seem
