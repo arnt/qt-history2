@@ -2542,9 +2542,9 @@ void tst_QAccessibility::mdiAreaTest()
     QMdiArea mdiArea;
     mdiArea.resize(400,300);
     mdiArea.show();
-    const int subWindowCount =  5;
+    const int subWindowCount = 3;
     for (int i = 0; i < subWindowCount; ++i)
-        mdiArea.addSubWindow(new QWidget)->show();
+        mdiArea.addSubWindow(new QWidget, Qt::Dialog)->show();
 
     QList<QMdiSubWindow *> subWindows = mdiArea.subWindowList();
     QCOMPARE(subWindows.count(), subWindowCount);
@@ -2596,7 +2596,6 @@ void tst_QAccessibility::mdiSubWindowTest()
 #ifdef QTEST_ACCESSIBILITY
     {
     QMdiArea mdiArea;
-    mdiArea.resize(400,300);
     mdiArea.show();
 #if defined(Q_WS_X11)
     qt_x11_wait_for_window_manager(&mdiArea);
@@ -2651,6 +2650,8 @@ void tst_QAccessibility::mdiSubWindowTest()
     QVERIFY(interface->state(0) & QAccessible::Focused);
     testWindow->setGeometry(originalGeometry);
 
+#ifndef Q_WS_QWS
+    // Embedded has too small screen size for this part....
     // navigate
     QAccessibleInterface *destination = 0;
     QCOMPARE(interface->navigate(QAccessible::Child, 1, &destination), 1);
@@ -2665,6 +2666,7 @@ void tst_QAccessibility::mdiSubWindowTest()
     QVERIFY(destination);
     QCOMPARE(destination->object(), subWindows.at(4));
     delete destination;
+#endif
 
     // rect
     const QPoint globalPos = testWindow->mapToGlobal(QPoint(0, 0));
@@ -2740,12 +2742,13 @@ void tst_QAccessibility::workspaceTest()
     QWorkspace workspace;
     workspace.resize(400,300);
     workspace.show();
-    const int subWindowCount =  5;
+    const int subWindowCount =  3;
     for (int i = 0; i < subWindowCount; ++i) {
         QWidget *window = workspace.addWindow(new QWidget);
         if (i > 0)
             window->move(window->x() + 1, window->y());
         window->show();
+        window->resize(70, window->height());
     }
 
     QWidgetList subWindows = workspace.windowList();
