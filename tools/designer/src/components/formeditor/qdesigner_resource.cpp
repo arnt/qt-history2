@@ -259,8 +259,31 @@ static bool convert3(const QString &fileName, QByteArray& ba, QString &errorMess
 }
 
 namespace {
-    enum LoadPreCheck {  LoadPreCheckFailed, LoadPreCheckVersionMismatch,  LoadPreCheckOk  };
+    enum LoadPreCheck {  LoadPreCheckFailed, LoadPreCheckVersion3, LoadPreCheckVersionMismatch,  LoadPreCheckOk  };
+    // Pair of major, minor
+    typedef QPair<int, int> UiVersion;
 }
+
+static UiVersion uiVersion(const QString &attr)
+{
+    const QStringList versions = attr.split(QLatin1Char('.'));
+    if (versions.empty())
+        return UiVersion(-1, -1);
+
+    bool ok = false;
+    UiVersion rc(versions.at(0).toInt(&ok), 0);
+
+    if (!ok)
+        return UiVersion(-1, -1);
+
+    if (versions.size() > 1) {
+        const int minorVersion = versions.at(1).toInt(&ok);
+        if (ok)
+            rc.second =  minorVersion;
+    }
+    return rc;
+}
+
 
 // While loading a file, check language, version and extra extension
 static LoadPreCheck loadPrecheck(QDesignerFormEditorInterface *core, DomUI *ui, QString &errorMessage)
@@ -276,9 +299,19 @@ static LoadPreCheck loadPrecheck(QDesignerFormEditorInterface *core, DomUI *ui, 
     }
 
     // Version
-    if (ui->hasAttributeVersion() && ui->attributeVersion() != QLatin1String("4.0"))
-        return LoadPreCheckVersionMismatch;
-
+    if (ui->hasAttributeVersion()) {
+        const QString versionString = ui->attributeVersion();
+        const UiVersion version = uiVersion(versionString);
+        switch (version.first) {
+        case 3:
+            return  LoadPreCheckVersion3;
+        case 4:
+            break;
+        default:
+            errorMessage = QApplication::translate("Designer", "This file was created using Designer from Qt-%1 and cannot be read.").arg(versionString);
+            return LoadPreCheckVersionMismatch;
+        }
+    }
     // Load extra
     if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core->extensionManager(), core)) {
         if (!extra->loadUiExtraInfo(ui)) {
@@ -294,9 +327,10 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
     QString errorMessage;
     switch (loadPrecheck(core(), ui,  errorMessage)) {
     case LoadPreCheckFailed:
+    case LoadPreCheckVersionMismatch:
         QMessageBox::warning(parentWidget->window(),  QApplication::translate("Designer", "Qt Designer"), errorMessage, QMessageBox::Ok, 0);
         return 0;
-    case LoadPreCheckVersionMismatch: {
+    case LoadPreCheckVersion3: {
         const QString version = ui->attributeVersion();
         QWidget *w = 0;
         QByteArray ba;
