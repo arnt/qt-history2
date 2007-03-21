@@ -64,8 +64,12 @@ QRect QAccessibleItemRow::rect(int child) const
 
 QString QAccessibleItemRow::text(Text t, int child) const
 {
-    if (!child)
-        return QString();
+    if (!child) {
+        if (children().count() == 1)
+            child = 1;
+        else 
+            return QString();
+    }
 
     QModelIndex idx = childIndex(child);
     if (!idx.isValid())
@@ -90,8 +94,12 @@ QString QAccessibleItemRow::text(Text t, int child) const
 
 void QAccessibleItemRow::setText(Text t, int child, const QString &text)
 {
-    if (!child)
-        return;
+    if (!child) {
+        if (children().count() == 1)
+            child = 1;
+        else 
+            return;
+    }
 
     QModelIndex idx = childIndex(child);
     if (!idx.isValid())
