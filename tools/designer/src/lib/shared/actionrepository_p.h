@@ -45,7 +45,7 @@ public:
 
 signals:
     void contextMenuRequested(QContextMenuEvent *event, QListWidgetItem *item);
-    void resourceImageDropped(const ResourceMimeData *data, QAction *action);
+    void resourceImageDropped(const ResourceMimeData &data, QAction *action);
 
 public slots:
     void filter(const QString &text);

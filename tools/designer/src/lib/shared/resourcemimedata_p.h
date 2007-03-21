@@ -26,21 +26,19 @@
 #define RESOURCEMIMEDATA_H
 
 #include "shared_global_p.h"
+#include <QtCore/QString>
 
-#include <QtCore/QMimeData>
+class QMimeData;
 
 namespace qdesigner_internal {
 
 // Resources for drag and drop
-class QDESIGNER_SHARED_EXPORT ResourceMimeData : public QMimeData
+class QDESIGNER_SHARED_EXPORT ResourceMimeData
 {
-    Q_OBJECT
-
 public:
     enum Type { Image, File };
 
     ResourceMimeData(Type t = File);
-    virtual QStringList formats() const;
 
     Type type() const        { return m_type; }
 
@@ -50,6 +48,11 @@ public:
     void setQrcPath(const QString &qrcPath)   {  m_qrcPath  = qrcPath; }
     void setFilePath(const QString &filePath) {  m_filePath = filePath;}
     void setType(Type type)                   {  m_type     = type;}
+
+    QMimeData *toMimeData() const;
+    static bool isResourceMimeData(const QMimeData *md);
+    static bool isResourceMimeData(const QMimeData *md, Type desiredType);
+    bool fromMimeData(const QMimeData *md);
 
 private:
     Type m_type;

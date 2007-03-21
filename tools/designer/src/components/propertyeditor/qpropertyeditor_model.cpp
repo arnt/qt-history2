@@ -233,7 +233,7 @@ int QPropertyEditorModel::rowOf(IProperty *property) const
     return static_cast<const IPropertyGroup*>(parent)->indexOf(property);
 }
     
-static bool setImage(const ResourceMimeData *image, PixmapProperty *property)
+static bool setImage(const ResourceMimeData &image, PixmapProperty *property)
 {
     QDesignerFormWindowInterface *form = property->core()->formWindowManager()->activeFormWindow();
     if (!form)
@@ -248,7 +248,7 @@ static bool setImage(const ResourceMimeData *image, PixmapProperty *property)
     return true;
 }
     
-static bool setIcon(const ResourceMimeData *image, IconProperty *property)
+static bool setIcon(const ResourceMimeData &image, IconProperty *property)
 {
     QDesignerFormWindowInterface *form = property->core()->formWindowManager()->activeFormWindow();
     if (!form)
@@ -263,9 +263,9 @@ static bool setIcon(const ResourceMimeData *image, IconProperty *property)
     return true;
 }
     
-bool QPropertyEditorModel::resourceImageDropped(const QModelIndex &index, const ResourceMimeData *resourceMimeData)
+bool QPropertyEditorModel::resourceImageDropped(const QModelIndex &index, const ResourceMimeData &resourceMimeData)
 {
-    if (!index.isValid() || resourceMimeData->type() != ResourceMimeData::Image)
+    if (!index.isValid() || resourceMimeData.type() != ResourceMimeData::Image)
         return false;    
 
     IProperty *property = static_cast<IProperty*>(index.internalPointer());

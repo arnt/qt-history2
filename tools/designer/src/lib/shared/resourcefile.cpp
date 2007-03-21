@@ -796,9 +796,9 @@ QMimeData *ResourceModel::mimeData(const QModelIndexList & indexes) const
     getItem(indexes.front(), prefix, file);
     if (prefix.isEmpty() || file.isEmpty())
         return 0;
-    ResourceMimeData *rc = new ResourceMimeData(iconFileExtension(file) ?  ResourceMimeData::Image : ResourceMimeData::File);
-    rc->setQrcPath(m_resource_file.fileName());
-    rc->setFilePath(resourcePath(prefix, file));
-    return rc;
+    ResourceMimeData md(iconFileExtension(file) ?  ResourceMimeData::Image : ResourceMimeData::File);
+    md.setQrcPath(m_resource_file.fileName());
+    md.setFilePath(resourcePath(prefix, file));
+    return md.toMimeData();
 }
 } // namespace qdesigner_internal

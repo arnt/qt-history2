@@ -26,15 +26,6 @@ static inline QAction *actionOfItem(const QListWidgetItem* item)
     return qvariant_cast<QAction*>(item->data(qdesigner_internal::ActionRepository::ActionRole));
 }
 
-// Check for image
-static inline const qdesigner_internal::ResourceMimeData *imageResourceMimeData(const QMimeData *data)
-{
-    const qdesigner_internal::ResourceMimeData *resourceMimeData = qobject_cast<const qdesigner_internal::ResourceMimeData *>(data);
-    if (!resourceMimeData || resourceMimeData->type() != qdesigner_internal::ResourceMimeData::Image)
-        return 0;
-    return resourceMimeData;
-}
-
 namespace qdesigner_internal {
 
 ActionRepository::ActionRepository(QWidget *parent)
@@ -97,18 +88,17 @@ void ActionRepository::dragEnterEvent(QDragEnterEvent *event)
 {
     // We can not override the mime types of the model,
     // so we do our own checking
-    if (imageResourceMimeData(event->mimeData())) {
+    if (ResourceMimeData::isResourceMimeData(event->mimeData(), ResourceMimeData::Image))
         event->acceptProposedAction();
-    } else {
+    else
         event->ignore();
-    }
 }
 
 void  ActionRepository::dragMoveEvent(QDragMoveEvent *event)
 {
-    if (imageResourceMimeData(event->mimeData()))
+    if (ResourceMimeData::isResourceMimeData(event->mimeData(), ResourceMimeData::Image))
         event->acceptProposedAction();
-    else 
+    else
         event->ignore();
 }
 
@@ -121,10 +111,11 @@ bool ActionRepository::dropMimeData(int index, const QMimeData * data, Qt::DropA
     if (!droppedItem)
         return false;
 
-    const ResourceMimeData *resourceMimeData = imageResourceMimeData(data);
-    if (!resourceMimeData)
+    ResourceMimeData md;
+    if (!md.fromMimeData(data) || md.type() != ResourceMimeData::Image)
         return false;
-    emit resourceImageDropped(resourceMimeData, actionOfItem(droppedItem));
+
+    emit resourceImageDropped(md, actionOfItem(droppedItem));
     return true;
 }
 

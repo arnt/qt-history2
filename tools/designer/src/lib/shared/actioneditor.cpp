@@ -167,8 +167,8 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
 #endif
 
     m_actionRepository = new ActionRepository(splitter);
-    connect(m_actionRepository, SIGNAL(resourceImageDropped(const ResourceMimeData*,QAction*)),
-            this, SLOT(resourceImageDropped(const ResourceMimeData*,QAction*)));
+    connect(m_actionRepository, SIGNAL(resourceImageDropped(ResourceMimeData,QAction*)),
+            this, SLOT(resourceImageDropped(ResourceMimeData,QAction*)));
     splitter->addWidget(m_actionRepository);
 
     connect(m_actionRepository, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
@@ -544,7 +544,7 @@ QString ActionEditor::actionTextToName(const QString &text)
     return name;
 }
 
-void  ActionEditor::resourceImageDropped(const ResourceMimeData *data, QAction *action)
+void  ActionEditor::resourceImageDropped(const ResourceMimeData &data, QAction *action)
 {
     QDesignerFormWindowInterface *fw =  formWindow();
     if (!fw)

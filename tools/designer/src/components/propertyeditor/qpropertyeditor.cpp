@@ -173,19 +173,9 @@ void QPropertyEditor::headerDoubleClicked(int column)
     resizeColumnToContents(column);
 }
 
-// Check for image
-static inline const ResourceMimeData *imageResourceMimeData(const QMimeData *data)
-{
-    const ResourceMimeData *resourceMimeData = qobject_cast<const qdesigner_internal::ResourceMimeData *>(data);
-    if (!resourceMimeData || resourceMimeData->type() != ResourceMimeData::Image)
-        return 0;
-    return resourceMimeData;
-}
-
-
 void  QPropertyEditor::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (!isReadOnly() && imageResourceMimeData(event->mimeData()))
+    if (!isReadOnly() && ResourceMimeData::isResourceMimeData(event->mimeData(), ResourceMimeData::Image))
         event->acceptProposedAction();
     else
         event->ignore();
@@ -193,7 +183,7 @@ void  QPropertyEditor::dragEnterEvent(QDragEnterEvent *event)
 
 void  QPropertyEditor::dragMoveEvent(QDragMoveEvent *event)
 {
-    if (!isReadOnly() && imageResourceMimeData(event->mimeData()))
+    if (!isReadOnly() && ResourceMimeData::isResourceMimeData(event->mimeData(), ResourceMimeData::Image))
         event->acceptProposedAction();
     else
         event->ignore();
@@ -206,15 +196,15 @@ void QPropertyEditor::dropEvent ( QDropEvent * event )
         if (isReadOnly())
             break;
 
-        const ResourceMimeData *image = imageResourceMimeData(event->mimeData());
-        if (!image)
-            break;
-
         const QModelIndex index = indexAt(event->pos());
         if (!index.isValid())
             break;
 
-        accept = m_model->resourceImageDropped(index, image);
+        ResourceMimeData md;
+        if (!md.fromMimeData(event->mimeData()) || md.type() != ResourceMimeData::Image)
+            break;
+
+        accept = m_model->resourceImageDropped(index, md);
     } while (false);
 
     if ( accept) {

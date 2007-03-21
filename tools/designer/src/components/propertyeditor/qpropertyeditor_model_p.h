@@ -53,7 +53,7 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex &index) const;
     
-    bool resourceImageDropped(const QModelIndex &index, const ResourceMimeData *m);
+    bool resourceImageDropped(const QModelIndex &index, const ResourceMimeData &m);
 
 signals:
     void propertyChanged(IProperty *property);

@@ -74,9 +74,9 @@ public:
 };
 
 // Convenience to return a dropped icon, normalized to form directory
-QDESIGNER_SHARED_EXPORT QIcon resourceMimeDataToIcon(const ResourceMimeData *rmd, QDesignerFormWindowInterface *fw);
+QDESIGNER_SHARED_EXPORT QIcon resourceMimeDataToIcon(const ResourceMimeData &rmd, QDesignerFormWindowInterface *fw);
 // Convenience to return an dropped pixmap, normalized to form directory
-QDESIGNER_SHARED_EXPORT QPixmap resourceMimeDataToPixmap(const ResourceMimeData *rmd, QDesignerFormWindowInterface *fw);
+QDESIGNER_SHARED_EXPORT QPixmap resourceMimeDataToPixmap(const ResourceMimeData &rmd, QDesignerFormWindowInterface *fw);
 // Find a suitable variable name for a class.
 QDESIGNER_SHARED_EXPORT QString qtify(const QString &name);
 } // namespace qdesigner_internal

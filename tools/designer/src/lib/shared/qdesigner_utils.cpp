@@ -138,23 +138,23 @@ namespace qdesigner_internal
     }
 
     // Convenience to return an icon normalized to form directory
-    QDESIGNER_SHARED_EXPORT QIcon resourceMimeDataToIcon(const ResourceMimeData *rmd, QDesignerFormWindowInterface *fw)
+    QDESIGNER_SHARED_EXPORT QIcon resourceMimeDataToIcon(const ResourceMimeData &rmd, QDesignerFormWindowInterface *fw)
     {
-        if (rmd->type() != ResourceMimeData::Image)
+        if (rmd.type() != ResourceMimeData::Image)
             return QIcon();
 
-        const QString normalizedQrcPath = fw->absoluteDir().absoluteFilePath(rmd->qrcPath());
-        const QIcon rc =  fw->core()->iconCache()->nameToIcon(rmd->filePath(), normalizedQrcPath);
+        const QString normalizedQrcPath = fw->absoluteDir().absoluteFilePath(rmd.qrcPath());
+        const QIcon rc =  fw->core()->iconCache()->nameToIcon(rmd.filePath(), normalizedQrcPath);
         return rc;
     }
     // Convenience to return an icon normalized to form directory
-    QDESIGNER_SHARED_EXPORT QPixmap resourceMimeDataToPixmap(const ResourceMimeData *rmd, QDesignerFormWindowInterface *fw)
+    QDESIGNER_SHARED_EXPORT QPixmap resourceMimeDataToPixmap(const ResourceMimeData &rmd, QDesignerFormWindowInterface *fw)
     {
-        if (rmd->type() != ResourceMimeData::Image)
+        if (rmd.type() != ResourceMimeData::Image)
             return QPixmap();
 
-        const QString normalizedQrcPath = fw->absoluteDir().absoluteFilePath(rmd->qrcPath());
-        const QPixmap rc =  fw->core()->iconCache()->nameToPixmap(rmd->filePath(), normalizedQrcPath);
+        const QString normalizedQrcPath = fw->absoluteDir().absoluteFilePath(rmd.qrcPath());
+        const QPixmap rc =  fw->core()->iconCache()->nameToPixmap(rmd.filePath(), normalizedQrcPath);
         return rc;
     }
 

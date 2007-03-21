@@ -74,7 +74,7 @@ private slots:
     void slotNewAction();
     void slotDeleteAction();
     void slotNotImplemented();
-    void resourceImageDropped(const ResourceMimeData *data, QAction *action);
+    void resourceImageDropped(const ResourceMimeData &data, QAction *action);
     
 signals:
     void itemActivated(QListWidgetItem *item);
