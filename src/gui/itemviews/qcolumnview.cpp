@@ -775,6 +775,39 @@ void QColumnViewPrivate::setPreviewWidget(QWidget *widget)
 }
 
 /*!
+    Sets the column widths to the values given in the list.  Extra values in the list are kept and used when the columns are created.
+
+    If list contains too few values, only width of the rest of the columns will not be modified.
+
+    \sa columnWidths(), createColumn()
+*/
+void QColumnView::setColumnWidths(const QList<int> &list)
+{
+    Q_D(QColumnView);
+    int i = 0;
+    for (; (i < list.count() && i < d->columns.count()); ++i) {
+        d->columns.at(i)->resize(list.at(i), d->columns.at(i)->height());
+        d->columnSizes[i] = list.at(i);
+    }
+    for (; i < list.count(); ++i)
+        d->columnSizes.append(list.at(i));
+}
+
+/*!
+    Returns a list of the width of all the columns in this view.
+
+    \sa setColumnWidths()
+*/
+QList<int> QColumnView::columnWidths() const
+{
+    Q_D(const QColumnView);
+    QList<int> list;
+    for (int i = 0; i < d->columns.count(); ++i)
+        list.append(d->columnSizes.at(i));
+    return list;
+}
+
+/*!
     \reimp
 */
 void QColumnView::currentChanged(const QModelIndex &current, const QModelIndex &previous)

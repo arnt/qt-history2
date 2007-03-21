@@ -53,6 +53,9 @@ public:
     QWidget *previewWidget() const;
     void setPreviewWidget(QWidget *widget);
 
+    void setColumnWidths(const QList<int> &list);
+    QList<int> columnWidths() const;
+
 protected:
     QColumnView(QColumnViewPrivate &dd, QWidget *parent = 0);
 
