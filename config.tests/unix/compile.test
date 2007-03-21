@@ -35,6 +35,9 @@ while [ "$#" -gt 0 ]; do
     -f*)
         CXXFLAGS="$CXXFLAGS $PARAM"
         ;;
+    -m*)
+        CXXFLAGS="$CXXFLAGS $PARAM"
+        ;;
     *)  ;;
     esac
     shift

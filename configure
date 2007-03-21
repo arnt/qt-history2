@@ -2312,58 +2312,6 @@ if [ "$CFG_REDUCE_RELOCATIONS" != "no" ]; then
     fi
 fi
 
-# detect availability of float math.h functions
-if "$unixtests/floatmath.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
-    CFG_USE_FLOATMATH=no
-else
-    CFG_USE_FLOATMATH=yes
-fi
-
-# detect mmx support
-if [ "${CFG_MMX}" = "auto" ]; then
-    if "$unixtests/mmx.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
-	CFG_MMX=no
-    else
-	CFG_MMX=yes
-    fi
-fi
-
-# detect 3dnow support
-if [ "${CFG_3DNOW}" = "auto" ]; then
-    if "$unixtests/3dnow.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
-	CFG_3DNOW=no
-    else
-	CFG_3DNOW=yes
-    fi
-fi
-
-# detect sse support
-if [ "${CFG_SSE}" = "auto" ]; then
-    if "$unixtests/sse.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
-	CFG_SSE=no
-    else
-	CFG_SSE=yes
-    fi
-fi
-
-# detect sse2 support
-if [ "${CFG_SSE2}" = "auto" ]; then
-    if "$unixtests/sse2.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
-       CFG_SSE2=no
-    else
-       CFG_SSE2=yes
-    fi
-fi
-
-# check iWMMXt support
-if [ "$CFG_IWMMXT" = "yes" ]; then
-    if ! "$unixtests/iwmmxt.test" "$XQMAKESPEC" "$OPT_VERBOSE"; then
-        echo "The iWMMXt functionality test failed!"
-	echo " Please make sure your compiler supports iWMMXt intrinsics!"
-	exit 1
-    fi
-fi
-
 # auto-detect GNU make support
 if [ "$CFG_USE_GNUMAKE" = "auto" ] && "$MAKE" -v | grep "GNU Make" >/dev/null 2>&1; then
    CFG_USE_GNUMAKE=yes
@@ -3614,6 +3562,58 @@ fi # Build qmake
 #-------------------------------------------------------------------------------
 # tests that need qmake
 #-------------------------------------------------------------------------------
+
+# detect availability of float math.h functions
+if "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/floatmath "floatmath" $L_FLAGS $I_FLAGS $l_FLAGS; then
+    CFG_USE_FLOATMATH=yes
+else
+    CFG_USE_FLOATMATH=no
+fi
+
+# detect mmx support
+if [ "${CFG_MMX}" = "auto" ]; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/mmx "mmx" $L_FLAGS $I_FLAGS $l_FLAGS "-mmmx"; then
+	CFG_MMX=yes
+    else
+	CFG_MMX=no
+    fi
+fi
+
+# detect 3dnow support
+if [ "${CFG_3DNOW}" = "auto" ]; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/3dnow "3dnow" $L_FLAGS $I_FLAGS $l_FLAGS "-m3dnow"; then
+	CFG_3DNOW=yes
+    else
+	CFG_3DNOW=no
+    fi
+fi
+
+# detect sse support
+if [ "${CFG_SSE}" = "auto" ]; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/sse "sse" $L_FLAGS $I_FLAGS $l_FLAGS "-msse"; then
+	CFG_SSE=yes
+    else
+	CFG_SSE=no
+    fi
+fi
+
+# detect sse2 support
+if [ "${CFG_SSE2}" = "auto" ]; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/sse2 "sse2" $L_FLAGS $I_FLAGS $l_FLAGS "-msse2"; then
+       CFG_SSE2=yes
+    else
+       CFG_SSE2=no
+    fi
+fi
+
+# check iWMMXt support
+if [ "$CFG_IWMMXT" = "yes" ]; then
+    if ! "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/iwmmxt "iwmmxt" $L_FLAGS $I_FLAGS $l_FLAGS "-mcpu=iwmmxt"; then
+        echo "The iWMMXt functionality test failed!"
+	echo " Please make sure your compiler supports iWMMXt intrinsics!"
+	exit 1
+    fi
+fi
 
 # detect zlib
 if [ "$CFG_ZLIB" = "auto" ]; then
