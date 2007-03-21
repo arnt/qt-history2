@@ -8,6 +8,7 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
+#include <QtGui>
 
 #include <qsqldatabase.h>
 #include <qsqlerror.h>
@@ -16,6 +17,7 @@
 #include <qsqlrecord.h>
 
 #include <qsqlquerymodel.h>
+#include <qsortfilterproxymodel.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=sql/gui/qsqlquerymodel.h sql/gui/qsqlquerymodel.cpp
@@ -42,6 +44,9 @@ private slots:
     void record();
     void setHeaderData();
     void fetchMore();
+
+    //problem specific tests
+    void withSortFilterProxyModel();
 };
 
 /* Stupid class that makes protected members public for testing */
@@ -77,6 +82,10 @@ void tst_QSqlQueryModel::initTestCase()
             q.lastError().text().toLatin1());
     QVERIFY2(q.exec("insert into test2 values(1, 'herr')"), q.lastError().text().toLatin1());
     QVERIFY2(q.exec("insert into test2 values(2, 'mister')"), q.lastError().text().toLatin1());
+
+    QVERIFY2(q.exec("create table test3(id int primary key)"), q.lastError().text().toLatin1());
+    for (int i = 0; i < 260; i++)
+        QVERIFY2(q.exec(QString("insert into test3 values(%1)").arg(i)), q.lastError().text().toLatin1());
 
     qRegisterMetaType<QModelIndex>("QModelIndex");
 
@@ -331,6 +340,45 @@ void tst_QSqlQueryModel::fetchMore()
 
     QCOMPARE(spy.value(0).value(1).toInt(), rowCount);
     QCOMPARE(spy.value(0).value(2).toInt(), newRowCount - 1);
+}
+
+// For task 149491: When used with QSortFilterProxyModel, a view and a
+// database that doesn't support the QuerySize feature, blank rows was
+// appended if the query returned more than 256 rows and setQuery()
+// was called more than once. This because an insertion of rows was
+// triggered at the same time as the model was being clared.
+void tst_QSqlQueryModel::withSortFilterProxyModel()
+{
+    QSqlQueryModel model;
+    model.setQuery("SELECT * FROM test3");
+    QSortFilterProxyModel proxy;
+    proxy.setSourceModel(&model);
+
+    QTableView view;
+    view.setModel(&proxy);
+
+    QSignalSpy modelRowsRemovedSpy(&model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)));
+    QSignalSpy modelRowsInsertedSpy(&model, SIGNAL(rowsInserted(const QModelIndex &, int, int)));
+    model.setQuery("SELECT * FROM test3");
+    view.scrollToBottom();
+    
+    QTestEventLoop::instance().enterLoop(1);
+
+    QCOMPARE(proxy.rowCount(), 260);
+
+    // The second call to setQuery() clears the model by removing it's rows.
+    // Only 256 rows because that is what was cached.
+    QCOMPARE(modelRowsRemovedSpy.count(), 1);
+    QCOMPARE(modelRowsRemovedSpy.value(0).value(1).toInt(), 0);
+    QCOMPARE(modelRowsRemovedSpy.value(0).value(2).toInt(), 255);
+
+    // The call to scrollToBottom() forces the model to fetch all rows,
+    // which will be done in two steps.
+    QCOMPARE(modelRowsInsertedSpy.count(), 2);
+    QCOMPARE(modelRowsInsertedSpy.value(0).value(1).toInt(), 0);
+    QCOMPARE(modelRowsInsertedSpy.value(0).value(2).toInt(), 255);
+    QCOMPARE(modelRowsInsertedSpy.value(1).value(1).toInt(), 256);
+    QCOMPARE(modelRowsInsertedSpy.value(1).value(2).toInt(), 259);
 }
 
 QTEST_MAIN(tst_QSqlQueryModel)
