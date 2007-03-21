@@ -33,10 +33,69 @@
 #include "QtCore/qt_windows.h"
 #include "private/qpaintengine_p.h"
 
+class QAlphaPaintEnginePrivate;
 class QWin32PrintEnginePrivate;
 class QPrinterPrivate;
+class QPainterState;
 
-class QWin32PrintEngine : public QPaintEngine, public QPrintEngine
+class QAlphaPaintEngine : public QPaintEngine
+{
+    Q_DECLARE_PRIVATE(QAlphaPaintEngine)
+public:
+    ~QAlphaPaintEngine();
+
+    virtual bool begin(QPaintDevice *pdev);
+    virtual bool end();
+
+    virtual void updateState(const QPaintEngineState &state);
+
+    virtual void drawPath(const QPainterPath &path);
+
+    virtual void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
+
+    virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
+    virtual void drawTextItem(const QPointF &p, const QTextItem &textItem);
+    virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);
+
+protected:
+    QAlphaPaintEngine(QAlphaPaintEnginePrivate &data, PaintEngineFeatures devcaps = 0);
+    QRegion alphaClipping() const;
+    bool redirect() const;
+};
+
+class QAlphaPaintEnginePrivate : public QPaintEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QAlphaPaintEngine)
+public:
+    QAlphaPaintEnginePrivate();
+    ~QAlphaPaintEnginePrivate();
+
+    QPainterState *m_initstate;
+    int m_pass;
+    QPicture *m_pic;
+    QPaintEngine *m_picengine;
+    QPainter *m_picpainter;
+
+    QPaintEngine::PaintEngineFeatures m_savedcaps;
+    QPaintDevice *m_pdev;
+
+    QRegion m_alphargn;
+    QRegion m_cliprgn;
+
+    bool m_hasalpha;
+    bool m_alphaPen;
+    bool m_alphaBrush;
+    bool m_alphaOpacity;
+
+    QTransform m_transform;
+    QPen m_pen;
+
+    void addAlphaRect(const QRectF &rect);
+    QRectF addPenWidth(const QRectF &rect);
+    void drawAlphaImage(const QRectF &rect);
+};
+
+class QWin32PrintEngine : public QAlphaPaintEngine, public QPrintEngine
 {
     Q_DECLARE_PRIVATE(QWin32PrintEngine)
 public:
@@ -79,7 +138,7 @@ private:
     friend class QPageSetupDialog;
 };
 
-class QWin32PrintEnginePrivate : public QPaintEnginePrivate
+class QWin32PrintEnginePrivate : public QAlphaPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QWin32PrintEngine)
 public:

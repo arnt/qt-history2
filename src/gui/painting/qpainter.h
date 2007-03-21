@@ -446,6 +446,7 @@ private:
     friend class QWin32PaintEngine;
     friend class QWin32PaintEnginePrivate;
     friend class QRasterPaintEngine;
+    friend class QAlphaPaintEngine;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPainter::RenderHints)

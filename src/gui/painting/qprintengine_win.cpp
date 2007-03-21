@@ -25,6 +25,7 @@
 #include <qbitmap.h>
 #include <qdebug.h>
 #include <qvector.h>
+#include <qpicture.h>
 
 // #define QT_DEBUG_DRAW
 
@@ -178,10 +179,310 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
     return bmi;
 }
 
+QAlphaPaintEngine::QAlphaPaintEngine(QAlphaPaintEnginePrivate &data, PaintEngineFeatures devcaps)
+    : QPaintEngine(data, devcaps)
+{
+
+}
+
+QAlphaPaintEngine::~QAlphaPaintEngine()
+{
+
+}
+
+bool QAlphaPaintEngine::begin(QPaintDevice *pdev)
+{
+    Q_D(QAlphaPaintEngine);
+    Q_ASSERT(d->m_pass == 0);
+
+    if (d->m_initstate) {
+        delete d->m_initstate;
+        d->m_initstate = 0;
+    }
+
+    d->m_pdev = pdev;
+    d->m_savedcaps = gccaps;
+    gccaps = AllFeatures;
+
+    d->m_pic = new QPicture();
+    d->m_picpainter = new QPainter(d->m_pic);
+    d->m_picengine = d->m_picpainter->paintEngine();
+
+    d->m_alphaPen = false;
+    d->m_alphaBrush = false;
+    d->m_alphaOpacity = false;
+    d->m_hasalpha = false;
+
+    // clear alpha region
+    d->m_alphargn = QRegion();
+    d->m_cliprgn = QRegion();
+    d->m_pen = QPen();
+    d->m_transform = QTransform();
+
+    return true;
+}
+
+extern int qt_defaultDpi();
+
+bool QAlphaPaintEngine::end()
+{
+    Q_D(QAlphaPaintEngine);
+    Q_ASSERT(d->m_pass == 0);
+    Q_ASSERT(d->m_initstate != 0);
+
+    d->m_picpainter->end();
+    
+    // set clip region
+    d->m_cliprgn = d->m_alphargn;
+
+    // now replay the QPicture
+    ++d->m_pass; // we are now doing pass #2
+
+    // reset states
+    gccaps = d->m_savedcaps;
+    painter()->d_func()->updateState(d->m_initstate);
+
+    begin(d->m_pdev);
+
+    // make sure the output from QPicture is unscaled
+    QTransform mtx = painter()->transform();
+    mtx.scale(1.0f / (qreal(d->m_pdev->logicalDpiX()) / qreal(qt_defaultDpi())),
+                      1.0f / (qreal(d->m_pdev->logicalDpiY()) / qreal(qt_defaultDpi())));
+    painter()->setTransform(mtx);
+    painter()->drawPicture(0, 0, *d->m_pic);
+
+    d->m_cliprgn = QRegion();
+    painter()->setClipPath(QPainterPath(), Qt::NoClip);
+
+    QVector<QRect> rects = d->m_alphargn.rects();
+    for (int i=0; i<rects.count(); ++i) {
+        d->drawAlphaImage(rects.at(i));
+    }
+        
+    --d->m_pass; // pass #2 finished
+
+    return true;
+}
+
+void QAlphaPaintEngine::updateState(const QPaintEngineState &state)
+{
+    Q_D(QAlphaPaintEngine);
+    Q_ASSERT(d->m_pass == 0);
+
+    if (!d->m_initstate)
+        d->m_initstate = new QPainterState(static_cast<QPainterState *>(this->state));
+
+    DirtyFlags flags = state.state();
+    if (flags & QPaintEngine::DirtyOpacity) {
+        d->m_alphaOpacity = (state.opacity() != 1.0f);
+    }
+
+    if (flags & QPaintEngine::DirtyBrush) {
+        if (state.brush().style() == Qt::NoBrush)
+            d->m_alphaBrush = false;
+        else
+            d->m_alphaBrush = !state.brush().isOpaque();
+    }
+    
+    if (flags & QPaintEngine::DirtyPen) {
+        d->m_pen = state.pen();
+        if (d->m_pen.style() == Qt::NoPen)
+            d->m_alphaPen = false;
+        else
+            d->m_alphaPen = !d->m_pen.brush().isOpaque();
+    }
+
+    if (flags & QPaintEngine::DirtyTransform) {
+        d->m_transform = state.transform();
+    }
+
+    d->m_hasalpha = d->m_alphaOpacity || d->m_alphaBrush || d->m_alphaPen;
+
+    d->m_picengine->updateState(state);
+}
+
+void QAlphaPaintEngine::drawPath(const QPainterPath &path)
+{
+    Q_D(QAlphaPaintEngine);
+    if (d->m_pass == 0) {
+        if (d->m_hasalpha) {
+            QRectF tr = d->addPenWidth(path.controlPointRect());
+            d->addAlphaRect(d->m_transform.mapRect(tr));
+        }
+        d->m_picengine->drawPath(path);
+    } else {
+        QPaintEngine::drawPath(path);
+    }
+}
+
+void QAlphaPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
+{
+    Q_D(QAlphaPaintEngine);
+    if (d->m_pass == 0) {
+        if (d->m_hasalpha) {
+            QPolygonF poly;
+            for (int i=0; i<pointCount; ++i)
+                poly.append(points[i]);
+            QRectF tr = d->addPenWidth(poly.boundingRect());
+            d->addAlphaRect(d->m_transform.mapRect(tr));
+        }
+        d->m_picengine->drawPolygon(points, pointCount, mode);
+    } else {
+        QPaintEngine::drawPolygon(points, pointCount, mode);
+    }
+}
+
+void QAlphaPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
+{
+    Q_D(QAlphaPaintEngine);
+    Q_ASSERT(d->m_pass == 0);
+
+    if (pm.hasAlpha() || d->m_alphaOpacity) {
+        d->addAlphaRect(d->m_transform.mapRect(r));
+    }
+
+    d->m_picengine->drawPixmap(r, pm, sr);
+}
+
+void QAlphaPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
+{
+    Q_D(QAlphaPaintEngine);
+    if (d->m_pass == 0) {
+        if (d->m_alphaPen || d->m_alphaOpacity) {
+            QRectF tr(p.x(), p.y() - textItem.ascent(), textItem.width() + 5, textItem.ascent() + textItem.descent() + 5);
+            d->addAlphaRect(d->m_transform.mapRect(tr));
+        }
+
+        d->m_picengine->drawTextItem(p, textItem);
+    } else {
+        QPaintEngine::drawTextItem(p, textItem);
+    }
+}
+
+void QAlphaPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s)
+{
+    Q_D(QAlphaPaintEngine);
+    if (d->m_pass == 0) {
+        if (pixmap.hasAlpha() || d->m_alphaOpacity) {
+            d->addAlphaRect(d->m_transform.mapRect(r));
+        }
+        d->m_picengine->drawTiledPixmap(r, pixmap, s);
+    } else {
+        QPaintEngine::drawTiledPixmap(r, pixmap, s);
+    }
+}
+
+QRegion QAlphaPaintEngine::alphaClipping() const
+{
+    Q_D(const QAlphaPaintEngine);
+    return d->m_cliprgn;
+}
+
+bool QAlphaPaintEngine::redirect() const
+{
+    Q_D(const QAlphaPaintEngine);
+    return (d->m_pass == 0);
+}
+
+QAlphaPaintEnginePrivate::QAlphaPaintEnginePrivate()
+    :   m_pass(0),
+        m_pic(0),
+        m_picengine(0),
+        m_picpainter(0),
+        m_initstate(0),
+        m_alphaPen(false),
+        m_alphaBrush(false),
+        m_alphaOpacity(false),
+        m_hasalpha(false)
+{
+        
+}
+
+QAlphaPaintEnginePrivate::~QAlphaPaintEnginePrivate()
+{
+    delete m_initstate;
+    delete m_picpainter;
+    delete m_pic;
+}
+
+QRectF QAlphaPaintEnginePrivate::addPenWidth(const QRectF &rect)
+{
+    QRectF br = rect;
+    if (m_pen.style() != Qt::NoPen) {
+        int w2 = m_pen.width() / 2;
+        br.setCoords(br.left() - w2, br.top() - w2,
+                    br.right() + w2, br.bottom() + w2);
+    }
+    return br;
+}
+
+void QAlphaPaintEnginePrivate::addAlphaRect(const QRectF &rect)
+{
+    QRect r;
+    r.setLeft(rect.left());
+    r.setTop(rect.top());
+    r.setRight(rect.right() + 1);
+    r.setBottom(rect.bottom() + 1);
+    m_alphargn |= r;
+}
+
+void QAlphaPaintEnginePrivate::drawAlphaImage(const QRectF &rect)
+{
+    Q_Q(QAlphaPaintEngine);
+
+    qreal dpiX = qMax(m_pdev->logicalDpiX(), 300);
+    qreal dpiY = qMax(m_pdev->logicalDpiY(), 300);
+    qreal xscale = (dpiX / m_pdev->logicalDpiX());
+    qreal yscale = (dpiY / m_pdev->logicalDpiY());
+    qreal txscale = qreal(dpiX) / qreal(qt_defaultDpi());
+    qreal tyscale = qreal(dpiY) / qreal(qt_defaultDpi());
+
+    QTransform picscale;
+    picscale.scale(qreal(qt_defaultDpi()) / qreal(dpiX),
+        qreal(qt_defaultDpi()) / qreal(dpiY));
+    picscale.scale(xscale, yscale);
+
+    QSize size((rect.width() * xscale), (rect.height() * yscale));
+    int divw = (size.width() / 1024);
+    int divh = (size.height() / 1024);
+    divw += 1;
+    divh += 1;
+
+    int incx = rect.width() / divw;
+    int incy = rect.height() / divh;
+
+    for (int y=0; y<divh; ++y) {
+        int ypos = (incy * y) + rect.y();
+        int height = ( (y == (divh - 1)) ? (rect.height() - (incy * y)) : incy ) + 1;
+
+        for (int x=0; x<divw; ++x) {
+            int xpos = (incx * x) + rect.x();
+            int width = ( (x == (divw - 1)) ? (rect.width() - (incx * x)) : incx ) + 1;
+
+            QSize imgsize(width * xscale, height * yscale);
+            QImage img(imgsize, QImage::Format_RGB32);
+            img.setDotsPerMeterX((dpiX * 100) / 2.54f);
+            img.setDotsPerMeterY((dpiY * 100) / 2.54f);
+            img.fill(QColor(Qt::white).rgb());
+
+            QPainter imgpainter(&img);
+            imgpainter.setTransform(picscale);
+            QPointF picpos(qreal(-xpos) * txscale, qreal(-ypos) * tyscale);
+            imgpainter.drawPicture(picpos, *m_pic);
+            imgpainter.end();
+
+            q->painter()->setTransform(QTransform());
+            QRect r(xpos, ypos, width, height);
+            q->painter()->drawImage(r, img);
+        }
+    }
+}
+
 QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
-    : QPaintEngine(*(new QWin32PrintEnginePrivate),
+    : QAlphaPaintEngine(*(new QWin32PrintEnginePrivate),
                    PaintEngineFeatures(PrimitiveTransform
                                        | PixmapTransform
+                                       | PerspectiveTransform
                                        | PainterPaths
                                        | Antialiasing
                                        | PaintOutsidePaintEvent))
@@ -193,9 +494,14 @@ QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
     d->initialize();
 }
 
-bool QWin32PrintEngine::begin(QPaintDevice *)
+bool QWin32PrintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QWin32PrintEngine);
+
+    if (redirect()) {
+        return QAlphaPaintEngine::begin(pdev);
+    }
+
     if (d->reinit) {
        d->resetDC();
     }
@@ -265,6 +571,10 @@ bool QWin32PrintEngine::begin(QPaintDevice *)
 bool QWin32PrintEngine::end()
 {
     Q_D(QWin32PrintEngine);
+
+    if (redirect())
+        QAlphaPaintEngine::end();
+
     if (d->hdc) {
         if (d->state == QPrinter::Aborted) {
             AbortDoc(d->hdc);
@@ -357,6 +667,11 @@ extern void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hd
 void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     Q_D(const QWin32PrintEngine);
+
+    if (redirect()) {
+        QAlphaPaintEngine::drawTextItem(p, textItem);
+        return;
+    }
 
     QRgb brushColor = state->pen().brush().color().rgb();
     bool fallBack = state->pen().brush().style() != Qt::SolidPattern
@@ -511,6 +826,11 @@ void QWin32PrintEngine::updateState(const QPaintEngineState &state)
 {
     Q_D(QWin32PrintEngine);
 
+    if (redirect()) {
+        QAlphaPaintEngine::updateState(state);
+        return;
+    }
+
     if (state.state() & DirtyTransform) {
         updateMatrix(state.transform());
     }
@@ -549,27 +869,39 @@ void QWin32PrintEngine::updateClipPath(const QPainterPath &clipPath, Qt::ClipOpe
 {
     Q_D(QWin32PrintEngine);
 
+    bool doclip = true;
     if (op == Qt::NoClip) {
         SelectClipRgn(d->hdc, 0);
-        return;
+        doclip = false;
     }
 
-    QPainterPath xformed = clipPath * d->matrix;
-    if (xformed.isEmpty()) {
-        QRegion empty(-0x1000000, -0x1000000, 1, 1);
-        SelectClipRgn(d->hdc, empty.handle());
-    } else {
-        d->composeGdiPath(xformed);
-        const int ops[] = {
-            -1,         // Qt::NoClip, covered above
-            RGN_COPY,   // Qt::ReplaceClip
-            RGN_AND,    // Qt::IntersectClip
-            RGN_OR      // Qt::UniteClip
-        };
-        Q_ASSERT(op > 0 && unsigned(op) <= sizeof(ops) / sizeof(int));
-        SelectClipPath(d->hdc, ops[op]);
+    if (doclip) {
+        QPainterPath xformed = clipPath * d->matrix;
+
+        if (xformed.isEmpty()) {
+            QRegion empty(-0x1000000, -0x1000000, 1, 1);
+            SelectClipRgn(d->hdc, empty.handle());
+        } else {
+            d->composeGdiPath(xformed);
+            const int ops[] = {
+                -1,         // Qt::NoClip, covered above
+                RGN_COPY,   // Qt::ReplaceClip
+                RGN_AND,    // Qt::IntersectClip
+                RGN_OR      // Qt::UniteClip
+            };
+            Q_ASSERT(op > 0 && unsigned(op) <= sizeof(ops) / sizeof(int));
+            SelectClipPath(d->hdc, ops[op]);
+        }
     }
 
+    QPainterPath aclip;
+    aclip.addRegion(alphaClipping());
+    if (!aclip.isEmpty()) {
+        QTransform tx;
+        tx.scale(d->stretch_x, d->stretch_y);
+        d->composeGdiPath(tx.map(aclip));
+        SelectClipPath(d->hdc, RGN_DIFF);
+    }
 }
 
 void QWin32PrintEngine::updateMatrix(const QTransform &m)
@@ -590,7 +922,7 @@ void QWin32PrintEngine::updateMatrix(const QTransform &m)
     else
         d->txop = QTransform::TxNone;
 
-    d->complex_xform = (d->txop > QTransform::TxTranslate);
+    d->complex_xform = (d->txop > QTransform::TxScale);
 }
 
 void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
@@ -598,112 +930,104 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
                                    const QRectF &sourceRect)
 {
     Q_D(QWin32PrintEngine);
-#if defined QT_DEBUG_DRAW
-    printf("\n - QWin32PrintEngine::drawPixmap(), "
-           "[%.2f,%.2f,%.2f,%.2f], "
-           "size=[%d,%d], "
-           "sr=[%.2f,%.2f,%.2f,%.2f]\n",
-           targetRect.x(), targetRect.y(), targetRect.width(), targetRect.height(),
-           originalPixmap.width(), originalPixmap.height(),
-           sourceRect.x(), sourceRect.y(), sourceRect.width(), sourceRect.height());
-#endif
+
+    if (redirect()) {
+        QAlphaPaintEngine::drawPixmap(targetRect, originalPixmap, sourceRect);
+        return;
+    }
+
+    const int tilesize = 2048;
 
     QRectF r = targetRect;
     QRectF sr = sourceRect;
 
-    QTransform scaleMatrix;
     QPixmap pixmap = originalPixmap;
-
     if (sr.size() != pixmap.size()) {
         pixmap = pixmap.copy(sr.toRect());
     }
 
-    bool stretched = r.width() != pixmap.width() || r.height() != pixmap.height();
-    if (stretched) {
-        scaleMatrix.scale(r.width() / pixmap.width(), r.height() / pixmap.height());
-    }
-    
-    qreal xform_offset_x = 0;
-    qreal xform_offset_y = 0;
+    qreal scaleX = 1.0f;
+    qreal scaleY = 1.0f;
+
+    QTransform scaleMatrix;
+    scaleMatrix.scale(r.width() / pixmap.width(), r.height() / pixmap.height());
+    QTransform adapted = QPixmap::trueMatrix(d->painterMatrix * scaleMatrix, 
+        pixmap.width(), pixmap.height());
+
+    qreal xform_offset_x = adapted.dx();
+    qreal xform_offset_y = adapted.dy();
+
     if (d->complex_xform) {
-        QTransform adapted = QPixmap::trueMatrix(d->painterMatrix * scaleMatrix, 
-            pixmap.width(), pixmap.height());
         pixmap = pixmap.transformed(adapted);
-        xform_offset_x = adapted.dx();
-        xform_offset_y = adapted.dy();
-    } else if (stretched) {
-        pixmap = pixmap.transformed(scaleMatrix);
+        scaleX = d->stretch_x;
+        scaleY = d->stretch_y;
+    } else {
+        scaleX = d->stretch_x * (r.width() / pixmap.width()) * d->painterMatrix.m11();
+        scaleY = d->stretch_y * (r.height() / pixmap.height()) * d->painterMatrix.m22();
     }
 
-    HBITMAP hbitmap = pixmap.toWinHBITMAP(QPixmap::NoAlpha);
-    HDC hbitmap_hdc = CreateCompatibleDC(qt_win_display_dc());
-    HGDIOBJ null_bitmap = SelectObject(hbitmap_hdc, hbitmap);
-
-    QPointF topLeft = targetRect.topLeft() * d->painterMatrix;
-    int tx = qRound(topLeft.x() * d->stretch_x + d->origin_x);
-    int ty = qRound(topLeft.y() * d->stretch_y + d->origin_y);
-    int tw = qRound(pixmap.width() * d->stretch_x);
-    int th = qRound(pixmap.height() * d->stretch_y);
+    QPointF topLeft = r.topLeft() * d->painterMatrix;
+    int tx = topLeft.x() * d->stretch_x + d->origin_x;
+    int ty = topLeft.y() * d->stretch_y + d->origin_y;
+    int tw = pixmap.width() * scaleX;
+    int th = pixmap.height() * scaleY;
 
     xform_offset_x *= d->stretch_x;
     xform_offset_y *= d->stretch_y;
 
     int dc_state = SaveDC(d->hdc);
 
-    HRGN region = 0;
-    if (pixmap.hasAlpha()) {
+    int tilesw = pixmap.width() / tilesize;
+    int tilesh = pixmap.height() / tilesize;
+    ++tilesw;
+    ++tilesh;
 
-        QRegion r(pixmap.mask());
-        QVector<QRect> rects = r.rects();
-        RGNDATA *rgnd = (RGNDATA *) malloc(sizeof(RGNDATAHEADER) + sizeof(RECT) * rects.size());
+    int txinc = tw / tilesw;
+    int tyinc = th / tilesh;
 
-        QTransform m(d->stretch_x, 0, 0, d->stretch_y,
-                  tx - xform_offset_x, ty - xform_offset_y);
-        RECT *gdi_rect = (RECT *) rgnd->Buffer;
-        for (int i=0; i<rects.size(); ++i) {
-            QRect rect = m.mapRect(rects.at(i));
-            gdi_rect->left = rect.x();
-            gdi_rect->top = rect.y();
-            gdi_rect->right = rect.x() + rect.width();
-            gdi_rect->bottom = rect.y() + rect.height();
-            ++gdi_rect;
+    for (int y = 0; y < tilesh; ++y) {
+        int tposy = ty + (y * tyinc);
+        int imgh = tilesize;
+        int height = tyinc;
+        if (y == (tilesh - 1)) {
+            imgh = pixmap.height() - (y * tilesize);
+            height = (th - (y * tyinc));
         }
+        for (int x = 0; x < tilesw; ++x) {
+            int tposx = tx + (x * txinc);
+            int imgw = tilesize;
+            int width = txinc;
+            if (x == (tilesw - 1)) {
+                imgw = pixmap.width() - (x * tilesize);
+                width = (tw - (x * txinc));
+            }
 
-        rgnd->rdh.dwSize = sizeof(RGNDATAHEADER);
-        rgnd->rdh.iType = RDH_RECTANGLES;
-        rgnd->rdh.nCount = rects.size();
-        rgnd->rdh.nRgnSize = sizeof(RECT) * rects.size();
+            QPixmap p = pixmap.copy(tilesize * x, tilesize * y, imgw, imgh);
+            HBITMAP hbitmap = p.toWinHBITMAP(QPixmap::NoAlpha);
+            HDC hbitmap_hdc = CreateCompatibleDC(qt_win_display_dc());
+            HGDIOBJ null_bitmap = SelectObject(hbitmap_hdc, hbitmap);
 
-        QRect brect = m.mapRect(r.boundingRect());
-        rgnd->rdh.rcBound.left = brect.x();
-        rgnd->rdh.rcBound.top = brect.y();
-        rgnd->rdh.rcBound.right = brect.x() + brect.width();
-        rgnd->rdh.rcBound.bottom = brect.y() + brect.height();
+            if (!StretchBlt(d->hdc, qRound(tposx - xform_offset_x), qRound(tposy - xform_offset_y), width, height,
+                            hbitmap_hdc, 0, 0, p.width(), p.height(), SRCCOPY))
+                qErrnoWarning("QWin32PrintEngine::drawPixmap, StretchBlt failed");
 
-        region = ExtCreateRegion(0, sizeof(RGNDATAHEADER) + sizeof(RECT) * rects.size(), rgnd);
-
-        ExtSelectClipRgn(d->hdc, region, RGN_AND);
-
-        free(rgnd);
+            SelectObject(hbitmap_hdc, null_bitmap);
+            DeleteObject(hbitmap);
+            DeleteDC(hbitmap_hdc);
+        }
     }
 
-    if (!StretchBlt(d->hdc, qRound(tx - xform_offset_x), qRound(ty - xform_offset_y), tw, th,
-                    hbitmap_hdc, 0, 0, pixmap.width(), pixmap.height(), SRCCOPY))
-        qErrnoWarning("QWin32PrintEngine::drawPixmap, StretchBlt failed");
-
-    SelectObject(hbitmap_hdc, null_bitmap);
-    DeleteObject(hbitmap);
-    DeleteDC(hbitmap_hdc);
-
     RestoreDC(d->hdc, dc_state);
-
-    if (region != 0)
-        DeleteObject(region);
 }
 
 
 void QWin32PrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &pos)
 {
+    if (redirect()) {
+        QAlphaPaintEngine::drawTiledPixmap(r, pm, pos);
+        return;
+    }
+
     QRectF rectAtOrigin(0, 0, r.width(), r.height());
     QImage image(rectAtOrigin.size().toSize(), QImage::Format_ARGB32_Premultiplied);
     QPainter p(&image);
@@ -847,6 +1171,11 @@ void QWin32PrintEngine::drawPath(const QPainterPath &path)
 
     Q_D(QWin32PrintEngine);
 
+    if (redirect()) {
+        QAlphaPaintEngine::drawPath(path);
+        return;
+    }
+
     if (d->has_brush)
         d->fillPath(path, d->brush_color);
 
@@ -861,8 +1190,13 @@ void QWin32PrintEngine::drawPolygon(const QPointF *points, int pointCount, Polyg
     qDebug() << " - QWin32PrintEngine::drawPolygon(), pointCount: " << pointCount;
 #endif
 
-    Q_ASSERT(pointCount > 1);
+    if (redirect()) {
+        QAlphaPaintEngine::drawPolygon(points, pointCount, mode);
+        return;
+    }
 
+    Q_ASSERT(pointCount > 1);
+    
     QPainterPath path(points[0]);
 
     for (int i=1; i<pointCount; ++i) {
