@@ -350,6 +350,12 @@ void tst_QWidget::getSetCheck()
     QCOMPARE(true, obj1.autoFillBackground());
 
     delete var1;
+#ifdef Q_WS_WIN
+    obj1.setWindowFlags(Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
+    HWND handle = obj1.winId();
+    long flags = GetWindowLong(handle, GWL_STYLE);
+    QVERIFY(flags & WS_POPUP);
+#endif
 }
 
 #ifdef Q_WS_X11

@@ -230,7 +230,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     if (popup)
         flags |= Qt::WindowStaysOnTopHint; // a popup stays on top
 
-    if (flags & (Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint | Qt::WindowContextHelpButtonHint)) {
+    if (flags & (Qt::WindowMinMaxButtonsHint | Qt::WindowContextHelpButtonHint)) {
         flags |= Qt::WindowSystemMenuHint;
         flags |= Qt::WindowTitleHint;
         flags &= ~Qt::FramelessWindowHint;
