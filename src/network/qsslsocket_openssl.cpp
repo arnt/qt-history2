@@ -590,11 +590,14 @@ bool QSslSocketBackendPrivate::testConnection()
 
     if (!errors.isEmpty()) {
         ignoreSslErrors = false;
+        sslErrors = errors;
         emit q->sslErrors(errors);
         if (!ignoreSslErrors) {
             plainSocket->disconnectFromHost();
             return false;
         }
+    } else {
+        sslErrors.clear();
     }
     
     connectionEncrypted = true;

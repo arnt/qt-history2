@@ -152,7 +152,8 @@
 
     If you want to continue connecting despite the errors that have occurred,
     you must call QSslSocket::ignoreErrors() from inside a slot connected to
-    this signal.
+    this signal. If you need to access the error list at a later point, you
+    can call sslErrors() (without arguments).
 
     \a errors contains one or more errors that prevent QSslSocket from
     verifying the identity of the peer.
@@ -964,6 +965,19 @@ bool QSslSocket::waitForDisconnected(int msecs)
         setErrorString(d->plainSocket->errorString());
     }
     return retVal;
+}
+
+/*!
+    Returns a list of the last SSL errors that occurred. This is the same list
+    as QSslSocket passes via the sslErrors() signal. If the connection has
+    been encrypted with no errors, this function will return an empty list.
+
+    \sa connectToHostEncrypted()
+*/
+QList<QSslError> QSslSocket::sslErrors() const
+{
+    Q_D(const QSslSocket);
+    return d->sslErrors;
 }
 
 /*!

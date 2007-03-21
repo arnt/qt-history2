@@ -70,6 +70,7 @@ public:
     QSslCertificate peerCertificate;
     QList<QSslCertificate> peerCertificateChain;
     QSslCertificate localCertificate;
+    QList<QSslError> sslErrors;
 
     static void ensureInitialized();
     static QList<QSslCipher> globalCiphers();

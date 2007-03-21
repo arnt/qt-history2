@@ -126,6 +126,8 @@ public:
     bool waitForBytesWritten(int msecs = 30000);
     bool waitForDisconnected(int msecs = 30000);
 
+    QList<QSslError> sslErrors() const;
+
     static bool supportsSsl();
 
 public Q_SLOTS:
