@@ -157,6 +157,8 @@ SUBDIRS += bic \
            qmainwindow \
            qmake \
            qmap \
+           qmdiarea \
+           qmdisubwindow \
            qmenu \
            qmenubar \
            qmessagebox \
