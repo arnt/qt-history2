@@ -410,8 +410,14 @@ void MainWindow::setupDockWidgets()
         ColorSwatch *swatch = new ColorSwatch(tr(sets[i].name), this, Qt::WindowFlags(sets[i].flags));
         if (i%2)
             swatch->setWindowIcon(QIcon(QPixmap(":/res/qt.png")));
-        if (qstrcmp(sets[i].name, "Blue") == 0)
+        if (qstrcmp(sets[i].name, "Blue") == 0) {
             swatch->setTitleBarWidget(new BlueTitleBar(swatch));
+#ifdef Q_WS_QWS
+            QPalette pal = palette();
+            pal.setBrush(backgroundRole(), QColor(0,0,0,0));
+            swatch->setPalette(pal);
+#endif
+        }
         addDockWidget(sets[i].area, swatch);
         dockWidgetMenu->addMenu(swatch->menu);
     }
