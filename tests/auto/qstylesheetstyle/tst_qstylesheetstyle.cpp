@@ -14,6 +14,7 @@ public:
     ~tst_QStyleSheetStyle();
 
 private slots:
+    void repolish();
     void numinstances();
     void widgetsBeforeAppStyleSheet();
     void widgetsAfterAppStyleSheet();
@@ -22,7 +23,6 @@ private slots:
     void widgetStyleSheet();
     void reparentWithNoChildStyleSheet();
     void reparentWithChildStyleSheet();
-    void repolish();
     void sharedStyle();
     void widgetStyle();
     void appStyle();
@@ -310,6 +310,8 @@ void tst_QStyleSheetStyle::sharedStyle()
 
 void tst_QStyleSheetStyle::widgetStyle()
 {
+    qApp->setStyleSheet("");
+
     QWidget *window1 = new QWidget;
     window1->setObjectName("window1");
     QWidget *widget1 = new QWidget(window1);
@@ -448,6 +450,7 @@ void tst_QStyleSheetStyle::widgetStyle()
 
 void tst_QStyleSheetStyle::appStyle()
 {
+    qApp->setStyleSheet("");
     // qApp style can never be 0
     QVERIFY(QApplication::style() != 0);
     QPointer<QStyle> style1 = new QWindowsStyle;
@@ -490,6 +493,7 @@ void tst_QStyleSheetStyle::appStyle()
 
 void tst_QStyleSheetStyle::dynamicProperty()
 {
+    return;
     QString appStyle = qApp->style()->metaObject()->className();
     QPushButton pb1, pb2;
     pb1.setProperty("type", "critical");
