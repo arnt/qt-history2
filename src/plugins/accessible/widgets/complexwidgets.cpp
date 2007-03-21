@@ -225,7 +225,7 @@ int QAccessibleItemRow::navigate(RelationFlag relation, int index,
         QAccessibleItemView *ancestor = new QAccessibleItemView(view, true);
         if (index == 1) {
             *iface = ancestor;
-            return 1;
+            return 0;
         }
         else if (index > 1) {
             int ret = ancestor->navigate(Ancestor, index - 1, iface);
@@ -242,8 +242,15 @@ int QAccessibleItemRow::navigate(RelationFlag relation, int index,
 
         return index;}
     case Sibling:
-	if (index)
-            return navigate(Child, index, iface);
+        if (index) {
+            QAccessibleInterface *ifaceParent = 0;
+            navigate(Ancestor, 1, &ifaceParent);
+            if (ifaceParent) {
+                int entry = ifaceParent->navigate(Child, index, iface);
+                delete ifaceParent;
+                return entry;
+            }
+        }
         return -1;
     case Up:
     case Down:
@@ -1150,7 +1157,8 @@ int QAccessibleComboBox::childAt(int x, int y) const
 /*! \reimp */
 int QAccessibleComboBox::indexOfChild(const QAccessibleInterface *child) const
 {
-    if (child->object() == comboBox()->view())
+    QObject *viewParent = comboBox()->view() ? comboBox()->view()->parentWidget() : 0;
+    if (child->object() == viewParent)
         return PopupList;
     return -1;
 }
