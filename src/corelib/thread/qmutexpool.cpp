@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qatomic.h"
 #include "qmutexpool_p.h"
 
 #ifndef QT_NO_THREAD
