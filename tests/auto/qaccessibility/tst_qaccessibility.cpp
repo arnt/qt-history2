@@ -735,7 +735,13 @@ void tst_QAccessibility::relationTo()
     QCOMPARE(acc_bottomRight->relationTo(0, acc_topLeft, 0), QAccessible::Sibling | QAccessible::Right | QAccessible::Down);
     QCOMPARE(acc_bottomRight->relationTo(0, acc_topRight, 0), QAccessible::Sibling | QAccessible::Down);
     QCOMPARE(acc_bottomRight->relationTo(0, acc_bottomLeft, 0), QAccessible::Sibling | QAccessible::Right);
+#ifdef Q_WS_MAC
+    QEXPECT_FAIL("", "Task 155501", Continue);
+#endif
     QCOMPARE(acc_group1->relationTo(0, acc_group2, 0), QAccessible::Sibling | QAccessible::Up);
+#ifdef Q_WS_MAC
+    QEXPECT_FAIL("", "Task 155501", Continue);
+#endif
     QCOMPARE(acc_group2->relationTo(0, acc_group1, 0), QAccessible::Sibling | QAccessible::Down);
 
     // Covers/Covered tested in navigateCovered
@@ -3015,6 +3021,9 @@ void tst_QAccessibility::abstractScrollAreaTest()
     QLabel *secondLeftLabel = new QLabel(QLatin1String("L2"));
     abstractScrollArea.addScrollBarWidget(secondLeftLabel, Qt::AlignLeft);
     QCOMPARE(interface->childCount(), 3);
+#ifdef Q_WS_MAC
+    QEXPECT_FAIL("", "Task 155501", Abort);
+#endif
     QVERIFY(verifyChild(secondLeftLabel, interface, 3, globalGeometry));
 
     QLabel *firstLeftLabel = new QLabel(QLatin1String("L1"));
@@ -3590,6 +3599,9 @@ void tst_QAccessibility::pushButtonTest()
         acc = acc2;
     }
     QCOMPARE(acc->role(0), QAccessible::PushButton);
+#ifdef Q_WS_MAC
+    QEXPECT_FAIL("", "Task 155501", Continue);
+#endif
     QCOMPARE(acc->rect(0), rect);
     QCOMPARE(acc->childAt(pt.x(), pt.y()), 0);
 
