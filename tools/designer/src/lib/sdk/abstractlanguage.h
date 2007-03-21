@@ -56,9 +56,6 @@ public:
 
     virtual bool signalMatchesSlot(const QString &signal, const QString &slot) const = 0;
 
-    virtual QString enumerator(const QString &neutralName) const = 0;
-    virtual QString neutralEnumerator(const QString &enumName) const = 0;
-
     virtual QString widgetBoxContents() const = 0;
 
     virtual QString uiExtension() const = 0;

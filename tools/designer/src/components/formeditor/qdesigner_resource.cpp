@@ -1439,12 +1439,9 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         return 0;
     }
 
-    QExtensionManager *mgr = core()->extensionManager();
-    QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*> (mgr, core());
-
     if (qVariantCanConvert<EnumType>(value)) {
         const EnumType e = qvariant_cast<EnumType>(value);
-        const QString id = e.id(lang);
+        const QString id = e.id();
         if (id.isEmpty())
             return 0;
 
@@ -1462,7 +1459,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         return applyProperStdSetAttribute(object, propertyName, p);
     } else if (qVariantCanConvert<FlagType>(value)) {
         const FlagType f = qvariant_cast<FlagType>(value);
-        const QString flagString = f.flagString(lang);
+        const QString flagString = f.flagString();
         if (flagString.isEmpty())
             return 0;
 

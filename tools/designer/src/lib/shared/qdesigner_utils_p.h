@@ -27,8 +27,6 @@
 
 #include "shared_global_p.h"
 
-class QDesignerLanguageExtension;
-
 #include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtCore/QVariant>
@@ -49,9 +47,6 @@ public:
     typedef QMap<QString, QVariant> ItemMap;
 
     QString id() const;
-    QString id(const QDesignerLanguageExtension *lang) const;
-
-    void remapKeys(const QDesignerLanguageExtension *lang);
 
     QVariant value;
     ItemMap items;
@@ -64,10 +59,8 @@ class QDESIGNER_SHARED_EXPORT FlagType
 public:
     typedef QMap<QString, QVariant> ItemMap;
 
-    QStringList flags(const QDesignerLanguageExtension *lang) const;
-    QString flagString(const QDesignerLanguageExtension *lang) const;
-
-    void remapKeys(const QDesignerLanguageExtension *lang);
+    QStringList flags() const;
+    QString flagString() const;
 
     QVariant value;
     ItemMap items;

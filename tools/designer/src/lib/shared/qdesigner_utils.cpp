@@ -14,7 +14,6 @@
 #include "qdesigner_utils_p.h"
 #include "resourcemimedata_p.h"
 
-#include <QtDesigner/QDesignerLanguageExtension>
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerIconCacheInterface>
@@ -33,36 +32,6 @@ namespace qdesigner_internal
         qWarning(prefixedMessage.toUtf8().constData());
     }
 
-    // ------- EnumType
-    void EnumType::remapKeys(const QDesignerLanguageExtension *lang)
-    {
-        bool keyChanged = false;
-        ItemMap remappedItems;
-        QStringList remappedNames;
-        const ItemMap::const_iterator cend = items.constEnd();
-        for (ItemMap::const_iterator it = items.constBegin();it != cend; ++it )  {
-            const QString oldKey = it.key();
-            const QString newKey = lang->enumerator(oldKey);
-
-            remappedItems.insert(newKey, it.value());
-            remappedNames.push_back(newKey);
-
-            if (oldKey != newKey)
-                keyChanged = true;
-        }
-        if (keyChanged) {
-            items = remappedItems;
-            names = remappedNames;
-        }
-    }
-
-    QString EnumType::id(const QDesignerLanguageExtension *lang) const {
-        const QString rc = id();
-        if (!lang || rc.isEmpty())
-            return rc;
-        return lang->neutralEnumerator(rc);
-    }
-
     QString EnumType::id() const
     {
         const int v = value.toInt();
@@ -75,7 +44,7 @@ namespace qdesigner_internal
     }
 
     // ------- FlagType
-    QStringList FlagType::flags(const QDesignerLanguageExtension *lang) const
+    QStringList FlagType::flags() const
     {
         QStringList rc;
         const uint v = value.toUInt();
@@ -85,27 +54,18 @@ namespace qdesigner_internal
             // Check for equality first as flag values can be 0 or -1, too. Takes preference over a bitwise flag
             if (v == itemValue) {
                 rc.clear();
-                const QString id = it.key();
-                if (lang)
-                    rc.push_back(lang->neutralEnumerator(id));
-                else
-                    rc.push_back(id);
+                rc.push_back(it.key());
                 return rc;
             }
-            if (v & itemValue) {
-                const QString id = it.key();
-                if (lang)
-                    rc.push_back(lang->neutralEnumerator(id));
-                else
-                    rc.push_back(id);
-            }
+            if (v & itemValue)
+                rc.push_back(it.key());
         }
         return rc;
     }
 
-    QString FlagType::flagString(const QDesignerLanguageExtension *lang) const
+    QString FlagType::flagString() const
     {
-        const QStringList flagIds = flags(lang);
+        const QStringList flagIds = flags();
         switch (flagIds.size()) {
         case 0:
             return QString();
@@ -116,25 +76,6 @@ namespace qdesigner_internal
         }
         static const QString delimiter = QString(QLatin1Char('|'));
         return flagIds.join(delimiter);
-    }
-
-    void FlagType::remapKeys(const QDesignerLanguageExtension *lang)
-    {
-
-        bool keyChanged = false;
-        ItemMap remappedItems;
-        const ItemMap::const_iterator cend = items.constEnd();
-        for (ItemMap::const_iterator it = items.constBegin();it != cend; ++it )  {
-            const QString oldKey = it.key();
-            const QString newKey = lang->enumerator(oldKey);
-
-            remappedItems.insert(newKey, it.value());
-
-            if (oldKey != newKey)
-                keyChanged = true;
-        }
-        if (keyChanged)
-            items = remappedItems;
     }
 
     // Convenience to return an icon normalized to form directory

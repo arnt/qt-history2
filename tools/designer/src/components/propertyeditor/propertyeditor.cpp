@@ -23,7 +23,6 @@
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
 #include <QtDesigner/QExtensionManager>
-#include <QtDesigner/QDesignerLanguageExtension>
 #include <QtDesigner/QDesignerPropertySheetExtension>
 // shared
 #include <qdesigner_utils_p.h>
@@ -207,7 +206,6 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
     QList<Group> groups;
 
     QExtensionManager *m = m_core->extensionManager();
-    QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*> (m, m_core);
 
     bool isMainContainer = false;
     if (QWidget *widget = qobject_cast<QWidget*>(object)) {
@@ -229,15 +227,10 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             if (pname == QLatin1String("alignment")) {
                 p = new AlignmentProperty(f.items, Qt::Alignment(f.value.toInt()), pname);
             } else {
-                if (lang)
-                    f.remapKeys(lang);
                 p = new FlagsProperty(f.items, f.value.toInt(), pname);
             }
         } else if (qVariantCanConvert<EnumType>(value)) {
             EnumType e = qvariant_cast<EnumType>(value);
-            if (lang)
-                e.remapKeys(lang);
-
             p = new MapProperty(e.items, e.value, pname, e.names);
         }
 
