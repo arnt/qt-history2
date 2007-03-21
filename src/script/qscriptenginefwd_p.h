@@ -20,7 +20,7 @@
 #include <QtCore/qobjectdefs.h>
 
 #include <QtCore/QHash>
-#include <QtCore/QLinkedList>
+#include <QtCore/QList>
 #include <QtCore/QSet>
 #include <QtCore/QStringList>
 
@@ -336,7 +336,7 @@ public: // attributes
     QHash<QScript::AST::Node*, QScript::Code*> m_codeCache;
     QScriptFunction *m_evalFunction;
 
-    QLinkedList<QScriptClassInfo> m_allocated_classes;
+    QList<QScriptClassInfo*> m_allocated_classes;
     QScriptClassInfo *m_class_activation;
     QScriptClassInfo *m_class_boolean;
     QScriptClassInfo *m_class_double;

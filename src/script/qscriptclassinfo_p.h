@@ -57,7 +57,7 @@ private:
 
 private:
     friend class QScriptEnginePrivate;
-    // Q_DISABLE_COPY(QScriptClassInfo) // ### disable copy
+    Q_DISABLE_COPY(QScriptClassInfo)
 };
 
 #endif // QSCRIPTCLASSINFO_P_H

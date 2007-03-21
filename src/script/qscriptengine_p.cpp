@@ -252,6 +252,8 @@ QScriptEnginePrivate::~QScriptEnginePrivate()
     qDeleteAll(m_codeCache);
     m_codeCache.clear();
     delete[] tempStackBegin;
+
+    qDeleteAll(m_allocated_classes);
 }
 
 QScript::AST::Node *QScriptEnginePrivate::changeAbstractSyntaxTree(QScript::AST::Node *prg)

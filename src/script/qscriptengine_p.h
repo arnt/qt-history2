@@ -500,8 +500,8 @@ inline QScriptClassInfo *QScriptEnginePrivate::registerClass(const QString &pnam
     if (type == -1)
         type = QScript::Type(QScript::ObjectBased | ++m_class_prev_id);
 
-    QScriptClassInfo *oc = &*m_allocated_classes.insert(
-        m_allocated_classes.end (), QScriptClassInfo());
+    QScriptClassInfo *oc = new QScriptClassInfo();
+    m_allocated_classes.append(oc);
     oc->m_engine = q_func();
     oc->m_type = type;
     oc->m_name = pname;
