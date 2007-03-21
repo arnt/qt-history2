@@ -26,7 +26,7 @@
 /*****************************************************************************
   QClipboard debug facilities
  *****************************************************************************/
-#define DEBUG_PASTEBOARD
+//#define DEBUG_PASTEBOARD
 
 #ifndef QT_NO_CLIPBOARD
 
