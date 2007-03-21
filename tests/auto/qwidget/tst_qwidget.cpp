@@ -4153,6 +4153,7 @@ void tst_QWidget::setFocus()
         QApplication::setActiveWindow(&window);
 #else
         window.activateWindow();
+        QApplication::processEvents();
 #endif
 
         child1.setFocus();
@@ -4190,6 +4191,7 @@ void tst_QWidget::setFocus()
         QCOMPARE(QApplication::focusWidget(), static_cast<QWidget *>(0));
 
         child1.show();
+        QApplication::processEvents();
         QVERIFY(child1.hasFocus());
         QCOMPARE(window.focusWidget(), &child1);
         QCOMPARE(QApplication::focusWidget(), &child1);
