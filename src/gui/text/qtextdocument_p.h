@@ -166,6 +166,7 @@ public:
     inline void beginEditBlock() { editBlock++; }
     void joinPreviousEditBlock();
     void endEditBlock();
+    inline bool isInEditBlock() const { return editBlock; }
     void enableUndoRedo(bool enable);
     inline bool isUndoRedoEnabled() const { return undoEnabled; }
 
