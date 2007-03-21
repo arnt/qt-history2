@@ -763,10 +763,9 @@ QBitmap tst_QPainter::getBitmap( const QString &dir, const QString &filename, bo
     return bm;
 }
 
-static QRect getPaintedSize(const QPixmap &pm, const QColor &background)
+static QRect getPaintedSize(const QImage &image, const QColor &background)
 {
     // not the fastest but at least it works..
-    QImage image = pm.toImage();
     int xmin = image.width() + 1;
     int xmax = -1;
     int ymin = image.height() +1;
@@ -788,6 +787,11 @@ static QRect getPaintedSize(const QPixmap &pm, const QColor &background)
     }
 
     return QRect(xmin, ymin, xmax - xmin + 1, ymax - ymin + 1);
+}
+
+static QRect getPaintedSize(const QPixmap &pm, const QColor &background)
+{
+    return getPaintedSize(pm.toImage(), background);
 }
 
 void tst_QPainter::initFrom()
@@ -941,7 +945,6 @@ void tst_QPainter::drawRect()
 
 void tst_QPainter::fillRect()
 {
-    QPixmap pixmap;
     QImage image(100, 100, QImage::Format_ARGB32_Premultiplied);
     image.fill(QColor(0, 0, 0, 0).rgba());
 
@@ -949,20 +952,18 @@ void tst_QPainter::fillRect()
 
     p.fillRect(0, 0, 100, 100, QColor(255, 0, 0, 127));
 
-    pixmap = QPixmap::fromImage(image);
-    pixmap.save("bla1.png", "PNG");
-    QCOMPARE(getPaintedSize(pixmap, QColor(0, 0, 0, 0)),
+//    pixmap.save("bla1.png", "PNG");
+    QCOMPARE(getPaintedSize(image, QColor(0, 0, 0, 0)),
              QRect(0, 0, 100, 100));
-    QCOMPARE(getPaintedSize(pixmap, QColor(127, 0, 0, 127)).isValid(),
+    QCOMPARE(getPaintedSize(image, QColor(127, 0, 0, 127)).isValid(),
              QRect().isValid());
 
     p.setCompositionMode(QPainter::CompositionMode_SourceIn);
     p.fillRect(50, 0, 50, 100, QColor(0, 0, 255, 255));
 
-    pixmap = QPixmap::fromImage(image);
-    QCOMPARE(getPaintedSize(pixmap, QColor(127, 0, 0, 127)),
+    QCOMPARE(getPaintedSize(image, QColor(127, 0, 0, 127)),
              QRect(50, 0, 50, 100));
-    QCOMPARE(getPaintedSize(pixmap, QColor(0, 0, 127, 127)),
+    QCOMPARE(getPaintedSize(image, QColor(0, 0, 127, 127)),
              QRect(0, 0, 50, 100));
 }
 
