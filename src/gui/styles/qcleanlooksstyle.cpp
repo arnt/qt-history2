@@ -429,6 +429,31 @@ static const char * const qt_cleanlooks_checkbox_checked[] = {
     "             ",
     "             "};
 
+#define BEGIN_CLEANLOOKS_PIXMAPCACHE(a) \
+    QRect rect = option->rect; \
+    QPixmap cache; \
+    QPainter *p = painter; \
+    QString unique = uniqueName((a), option, option->rect.size()); \
+    if (UsePixmapCache) { \
+        if (!QPixmapCache::find(unique, cache)) { \
+            rect.setRect(0, 0, option->rect.width(), option->rect.height()); \
+            cache = QPixmap(option->rect.size()); \
+            cache.fill(Qt::transparent); \
+            p = new QPainter(&cache); \
+        } else { \
+            painter->drawPixmap(option->rect.topLeft(), cache); \
+            break; \
+        } \
+    }
+
+#define END_CLEANLOOKS_PIXMAPCACHE \
+    if (p != painter) { \
+        p->end(); \
+        delete p; \
+        painter->drawPixmap(option->rect.topLeft(), cache); \
+        QPixmapCache::insert(unique, cache); \
+    }
+
 
 class QCleanlooksStylePrivate : public QWindowsStylePrivate
 {
@@ -1042,35 +1067,42 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
         }
         break;
     case PE_PanelButtonCommand:
-        painter->save();
         {
-            bool down = (option->state & State_Sunken) || (option->state & State_On);
-
             bool isDefault = false;
-            QRect r = option->rect;
-            r.adjust(0, 1, 0, -1);
+            bool isFlat = false;
+            bool isDown = false;
+            QPen oldPen = painter->pen();
+            QBrush oldBrush = painter->brush();
+            QRect r = option->rect.adjusted(0, 1, 0, -1);
+            
             if (const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton*>(option)) {
-                isDefault = (button->features & QStyleOptionButton::DefaultButton) &&(button->state & State_Enabled);
-                if ((button->features & QStyleOptionButton::Flat) && !down) {
-                    if (isDefault) {
-                        painter->setPen(QPen(Qt::black, 0));
-                        painter->drawLine(QPoint(r.left() + 2, r.top()),
-                                        QPoint(r.right() - 2, r.top()));
-                        painter->drawLine(QPoint(r.left(), r.top() + 2),
-                                        QPoint(r.left(), r.bottom() - 2));
-                        painter->drawLine(QPoint(r.right(), r.top() + 2),
-                                        QPoint(r.right(), r.bottom() - 2));
-                        painter->drawLine(QPoint(r.left() + 2, r.bottom()),
-                                        QPoint(r.right() - 2, r.bottom()));
-                        painter->drawPoint(QPoint(r.right() - 1, r.bottom() - 1));
-                        painter->drawPoint(QPoint(r.right() - 1, r.top() + 1));
-                        painter->drawPoint(QPoint(r.left() + 1, r.bottom() - 1));
-                        painter->drawPoint(QPoint(r.left() + 1, r.top() + 1));
-                    }
-                    painter->restore();
-                    break;
-                }
+                isDown = (option->state & State_Sunken) || (option->state & State_On);
+                isDefault = (button->features & QStyleOptionButton::DefaultButton) && (button->state & State_Enabled);
+                isFlat = (button->features & QStyleOptionButton::Flat);
             }
+
+            if (isFlat && !isDown) {
+                if (isDefault) {
+                    painter->setPen(QPen(Qt::black, 0));
+                    painter->drawLine(QPoint(r.left() + 2, r.top()),
+                                    QPoint(r.right() - 2, r.top()));
+                    painter->drawLine(QPoint(r.left(), r.top() + 2),
+                                    QPoint(r.left(), r.bottom() - 2));
+                    painter->drawLine(QPoint(r.right(), r.top() + 2),
+                                    QPoint(r.right(), r.bottom() - 2));
+                    painter->drawLine(QPoint(r.left() + 2, r.bottom()),
+                                    QPoint(r.right() - 2, r.bottom()));
+                    painter->drawPoint(QPoint(r.right() - 1, r.bottom() - 1));
+                    painter->drawPoint(QPoint(r.right() - 1, r.top() + 1));
+                    painter->drawPoint(QPoint(r.left() + 1, r.bottom() - 1));
+                    painter->drawPoint(QPoint(r.left() + 1, r.top() + 1));
+                    painter->setPen(oldPen);
+                }
+                return;
+            }
+            
+            BEGIN_CLEANLOOKS_PIXMAPCACHE(QString::fromLatin1("pushbutton-%1").arg(isDefault))
+            
             bool isEnabled = (option->state & State_Enabled);
 
             QColor highlightedGradientStartColor = option->palette.button().color().lighter(107);
@@ -1089,19 +1121,19 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             // gradient fill
             QRect innerBorder = r.adjusted(1, 1, -1, 0);
 
-            if (down) {
-                painter->fillRect(gradRect, gradientStopColor.darker(110));
-                painter->setPen(gradientStopColor.darker(125));
-                painter->drawLine(innerBorder.topLeft(), innerBorder.topRight());
-                painter->drawLine(innerBorder.topLeft(), innerBorder.bottomLeft());
+            if (isDown) {
+                p->fillRect(gradRect, gradientStopColor.darker(110));
+                p->setPen(gradientStopColor.darker(125));
+                p->drawLine(innerBorder.topLeft(), innerBorder.topRight());
+                p->drawLine(innerBorder.topLeft(), innerBorder.bottomLeft());
             } else {
                 if (isEnabled && option->state & State_MouseOver ) {
-                    qt_cleanlooks_draw_buttongradient(painter, gradRect,
+                    qt_cleanlooks_draw_buttongradient(p, gradRect,
                                                 highlightedGradientStartColor,
                                                 highlightedGradientMidColor,
                                                 highlightedGradientStopColor, TopDown, option->palette.button());
                 } else {
-                    qt_cleanlooks_draw_buttongradient(painter, gradRect,
+                    qt_cleanlooks_draw_buttongradient(p, gradRect,
                                                 gradientStartColor,
                                                 gradientMidColor,
                                                 gradientStopColor, TopDown, option->palette.button());
@@ -1111,76 +1143,78 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             bool hasFocus = option->state & State_HasFocus;
 
             if (!isEnabled)
-                painter->setPen(QPen(dark.lighter(115)));
+                p->setPen(QPen(dark.lighter(115)));
             else if (isDefault)
-                painter->setPen(QPen(Qt::black, 1));
+                p->setPen(QPen(Qt::black, 1));
             else
-                painter->setPen(QPen(darkOutline, 1));
+                p->setPen(QPen(darkOutline, 1));
 
-            painter->drawLine(QPoint(r.left(), r.top() + 2),
+            p->drawLine(QPoint(r.left(), r.top() + 2),
                               QPoint(r.left(), r.bottom() - 2));
-            painter->drawLine(QPoint(r.right(), r.top() + 2),
+            p->drawLine(QPoint(r.right(), r.top() + 2),
                               QPoint(r.right(), r.bottom() - 2));
-            painter->drawLine(QPoint(r.left() + 2, r.bottom()),
+            p->drawLine(QPoint(r.left() + 2, r.bottom()),
                               QPoint(r.right() - 2, r.bottom()));
-            painter->drawPoint(QPoint(r.right() - 1, r.bottom() - 1));
-            painter->drawPoint(QPoint(r.right() - 1, r.top() + 1));
-            painter->drawPoint(QPoint(r.left() + 1, r.bottom() - 1));
-            painter->drawPoint(QPoint(r.left() + 1, r.top() + 1));
+            p->drawPoint(QPoint(r.right() - 1, r.bottom() - 1));
+            p->drawPoint(QPoint(r.right() - 1, r.top() + 1));
+            p->drawPoint(QPoint(r.left() + 1, r.bottom() - 1));
+            p->drawPoint(QPoint(r.left() + 1, r.top() + 1));
 
             if (!isDefault && !hasFocus && isEnabled)
-                painter->setPen(QPen(darkOutline.darker(110), 0));
+                p->setPen(QPen(darkOutline.darker(110), 0));
 
-            painter->drawLine(QPoint(r.left() + 2, r.top()),
+            p->drawLine(QPoint(r.left() + 2, r.top()),
                               QPoint(r.right() - 2, r.top()));
 
             QColor highlight = Qt::white;
             highlight.setAlpha(110);
-            painter->setPen(highlight);
-            painter->drawLine(QPoint(r.left() + 1, r.top() + 2),
+            p->setPen(highlight);
+            p->drawLine(QPoint(r.left() + 1, r.top() + 2),
                               QPoint(r.left() + 1, r.bottom() - 2));
-            painter->drawLine(QPoint(r.left() + 3, r.bottom() + 1),
+            p->drawLine(QPoint(r.left() + 3, r.bottom() + 1),
                               QPoint(r.right() - 3, r.bottom() + 1));
 
             QColor topShadow = darkOutline;
             topShadow.setAlpha(60);
 
-            painter->setPen(topShadow);
-            painter->drawPoint(QPoint(r.right(), r.top() + 1));
-            painter->drawPoint(QPoint(r.right() - 1, r.top() ));
-            painter->drawPoint(QPoint(r.right(), r.bottom() - 1));
-            painter->drawPoint(QPoint(r.right() - 1, r.bottom() ));
-            painter->drawPoint(QPoint(r.left() + 1, r.bottom()));
-            painter->drawPoint(QPoint(r.left(), r.bottom() - 1));
-            painter->drawPoint(QPoint(r.left() + 1, r.top()));
-            painter->drawPoint(QPoint(r.left(), r.top() + 1));
+            p->setPen(topShadow);
+            p->drawPoint(QPoint(r.right(), r.top() + 1));
+            p->drawPoint(QPoint(r.right() - 1, r.top() ));
+            p->drawPoint(QPoint(r.right(), r.bottom() - 1));
+            p->drawPoint(QPoint(r.right() - 1, r.bottom() ));
+            p->drawPoint(QPoint(r.left() + 1, r.bottom()));
+            p->drawPoint(QPoint(r.left(), r.bottom() - 1));
+            p->drawPoint(QPoint(r.left() + 1, r.top()));
+            p->drawPoint(QPoint(r.left(), r.top() + 1));
 
             topShadow.setAlpha(30);
-            painter->setPen(topShadow);
+            p->setPen(topShadow);
 
-            painter->drawLine(QPoint(r.right() - 1, r.top() + 2),
+            p->drawLine(QPoint(r.right() - 1, r.top() + 2),
                               QPoint(r.right() - 1, r.bottom() - 2));
-            painter->drawLine(QPoint(r.left() + 2, r.top() - 1),
+            p->drawLine(QPoint(r.left() + 2, r.top() - 1),
                               QPoint(r.right() - 2, r.top() - 1));
 
             if (isDefault) {
                 r.adjust(-1, -1, 1, 1);
-                painter->setPen(buttonShadowAlpha.darker(120));
-                painter->drawLine(r.topLeft() + QPoint(3, 0), r.topRight() - QPoint(3, 0));
-                painter->drawLine(r.bottomLeft() + QPoint(3, 0), r.bottomRight() - QPoint(3, 0));
-                painter->drawLine(r.topLeft() + QPoint(0, 3), r.bottomLeft() - QPoint(0, 3));
-                painter->drawLine(r.topRight() + QPoint(0, 3), r.bottomRight() - QPoint(0, 3));
-                painter->drawPoint(r.topRight() + QPoint(-2, 1));
-                painter->drawPoint(r.topRight() + QPoint(-1, 2));
-                painter->drawPoint(r.bottomRight() + QPoint(-1, -2));
-                painter->drawPoint(r.bottomRight() + QPoint(-2, -1));
-                painter->drawPoint(r.topLeft() + QPoint(1, 2));
-                painter->drawPoint(r.topLeft() + QPoint(2, 1));
-                painter->drawPoint(r.bottomLeft() + QPoint(1, -2));
-                painter->drawPoint(r.bottomLeft() + QPoint(2, -1));
+                p->setPen(buttonShadowAlpha.darker(120));
+                p->drawLine(r.topLeft() + QPoint(3, 0), r.topRight() - QPoint(3, 0));
+                p->drawLine(r.bottomLeft() + QPoint(3, 0), r.bottomRight() - QPoint(3, 0));
+                p->drawLine(r.topLeft() + QPoint(0, 3), r.bottomLeft() - QPoint(0, 3));
+                p->drawLine(r.topRight() + QPoint(0, 3), r.bottomRight() - QPoint(0, 3));
+                p->drawPoint(r.topRight() + QPoint(-2, 1));
+                p->drawPoint(r.topRight() + QPoint(-1, 2));
+                p->drawPoint(r.bottomRight() + QPoint(-1, -2));
+                p->drawPoint(r.bottomRight() + QPoint(-2, -1));
+                p->drawPoint(r.topLeft() + QPoint(1, 2));
+                p->drawPoint(r.topLeft() + QPoint(2, 1));
+                p->drawPoint(r.bottomLeft() + QPoint(1, -2));
+                p->drawPoint(r.bottomLeft() + QPoint(2, -1));
             }
-        }
-        painter->restore();
+            painter->setPen(oldPen);
+            painter->setBrush(oldBrush);
+            END_CLEANLOOKS_PIXMAPCACHE
+        }        
         break;
 #ifndef QT_NO_TABBAR
         case PE_FrameTabWidget:
