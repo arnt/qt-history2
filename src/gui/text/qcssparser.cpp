@@ -888,7 +888,7 @@ static bool setFontWeightFromValue(const Value &value, QFont *font)
     }
     if (value.type != Value::Number)
         return false;
-    font->setWeight(value.variant.toInt() / 8);
+    font->setWeight(qMin(value.variant.toInt() / 8, 99));
     return true;
 }
 
