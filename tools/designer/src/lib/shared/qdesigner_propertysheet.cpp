@@ -30,6 +30,7 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QDialog>
 #include <QtGui/QLabel>
+#include <QtGui/QGroupBox>
 #include <QtGui/QStyle>
 
 static const QMetaObject *propertyIntroducedBy(const QMetaObject *meta, int index)
@@ -554,6 +555,25 @@ void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
     } else {
         const QMetaProperty p = m_meta->property(index);
         p.write(m_object, resolvePropertyValue(value));
+        if (qobject_cast<QGroupBox *>(m_object) && propertyName(index) == QLatin1String("checkable")) {
+            int idx = indexOf(QLatin1String("focusPolicy"));
+            if (!isChanged(idx)) {
+                qdesigner_internal::EnumType e = qVariantValue<qdesigner_internal::EnumType>(property(idx));
+                if (value.toBool()) {
+                    const QMetaProperty p = m_meta->property(idx);
+                    p.write(m_object, Qt::NoFocus);
+                    e.value = Qt::StrongFocus;
+                    QVariant v;
+                    qVariantSetValue(v, e);
+                    setFakeProperty(idx, v);
+                } else {
+                    e.value = Qt::NoFocus;
+                    QVariant v;
+                    qVariantSetValue(v, e);
+                    setFakeProperty(idx, v);
+                }
+            }
+        }
     }
 }
 
