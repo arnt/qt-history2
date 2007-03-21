@@ -296,15 +296,19 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     if (d->colOffsets.size() != newRec.count() || columnsChanged)
         d->initColOffsets(newRec.count());
 
-    d->atEnd = true;
-    beginRemoveRows(QModelIndex(), 0, qMax(d->bottom.row(), 0));
+    bool mustClearModel = d->bottom.isValid();
+    if (mustClearModel) {
+        d->atEnd = true;
+        beginRemoveRows(QModelIndex(), 0, qMax(d->bottom.row(), 0));
+        d->bottom = QModelIndex();
+    }
 
-    d->bottom = QModelIndex();
     d->error = QSqlError();
     d->query = query;
     d->rec = newRec;
    
-    endRemoveRows();
+    if (mustClearModel)
+        endRemoveRows();
     
     d->atEnd = false;    
 

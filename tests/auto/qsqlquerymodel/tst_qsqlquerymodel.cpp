@@ -47,6 +47,7 @@ private slots:
 
     //problem specific tests
     void withSortFilterProxyModel();
+    void setQuerySignalEmission();
 };
 
 /* Stupid class that makes protected members public for testing */
@@ -379,6 +380,30 @@ void tst_QSqlQueryModel::withSortFilterProxyModel()
     QCOMPARE(modelRowsInsertedSpy.value(0).value(2).toInt(), 255);
     QCOMPARE(modelRowsInsertedSpy.value(1).value(1).toInt(), 256);
     QCOMPARE(modelRowsInsertedSpy.value(1).value(2).toInt(), 259);
+}
+
+// For task 155402: When the model is already empty when setQuery() is called
+// no rows have to be removed and rowsAboutToBeRemoved and rowsRemoved should
+// not be emitted.
+void tst_QSqlQueryModel::setQuerySignalEmission()
+{
+    QSqlQueryModel model;
+    QSignalSpy modelRowsAboutToBeRemovedSpy(&model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex &, int, int)));
+    QSignalSpy modelRowsRemovedSpy(&model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)));
+
+    // First select, the model was empty and no rows had to be removed!
+    model.setQuery("SELECT * FROM test"); 
+    QCOMPARE(modelRowsAboutToBeRemovedSpy.count(), 0);
+    QCOMPARE(modelRowsRemovedSpy.count(), 0);
+
+    // Second select, the model wasn't empty and two rows had to be removed!
+    model.setQuery("SELECT * FROM test"); 
+    QCOMPARE(modelRowsAboutToBeRemovedSpy.count(), 1);
+    QCOMPARE(modelRowsAboutToBeRemovedSpy.value(0).value(1).toInt(), 0);
+    QCOMPARE(modelRowsAboutToBeRemovedSpy.value(0).value(2).toInt(), 1);
+    QCOMPARE(modelRowsRemovedSpy.count(), 1);
+    QCOMPARE(modelRowsRemovedSpy.value(0).value(1).toInt(), 0);
+    QCOMPARE(modelRowsRemovedSpy.value(0).value(2).toInt(), 1);
 }
 
 QTEST_MAIN(tst_QSqlQueryModel)
