@@ -26,6 +26,7 @@
 #include "win-newlines.h"
 #endif
 #include "escapes-in-string-literals.h"
+#include "cstyle-enums.h"
 
 
 #if defined(PARSE_BOOST)
@@ -430,6 +431,7 @@ private slots:
 #endif
     void escapesInStringLiterals();
     void frameworkSearchPath();
+    void cstyleEnums();
 
 signals:
     void sigWithUnsignedArg(unsigned foo);
@@ -875,6 +877,17 @@ void tst_Moc::frameworkSearchPath()
 #else
     QSKIP("Only tested/relevant on unixy platforms", SkipAll);
 #endif
+}
+
+void tst_Moc::cstyleEnums()
+{
+    const QMetaObject &obj = CStyleEnums::staticMetaObject;
+    QCOMPARE(obj.enumeratorCount(), 1);
+    QMetaEnum metaEnum = obj.enumerator(0);
+    QCOMPARE(metaEnum.name(), "Baz");
+    QCOMPARE(metaEnum.keyCount(), 2);
+    QCOMPARE(metaEnum.key(0), "Foo");
+    QCOMPARE(metaEnum.key(1), "Bar");
 }
 
 QTEST_MAIN(tst_Moc)
