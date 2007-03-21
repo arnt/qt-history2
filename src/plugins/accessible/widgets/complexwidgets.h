@@ -230,6 +230,7 @@ public:
     State state(int child) const;
 
     bool doAction(int action, int child, const QVariantList &params);
+    QString actionText(int action, Text t, int child) const;
 
 protected:
     QComboBox *comboBox() const;

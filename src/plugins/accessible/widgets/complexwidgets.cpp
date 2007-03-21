@@ -851,7 +851,7 @@ QTabBar *QAccessibleTabBar::tabBar() const
 
 QAbstractButton *QAccessibleTabBar::button(int child) const
 {
-    if (child <= tabBar()->count() || !tabBar()->isVisible())
+    if (child <= tabBar()->count())
         return 0;
     QTabBarPrivate * const tabBarPrivate = tabBar()->d_func();
     if (child - tabBar()->count() == 1)
@@ -883,8 +883,6 @@ QRect QAccessibleTabBar::rect(int child) const
 int QAccessibleTabBar::childCount() const
 {
     // tabs + scroll buttons
-    if (!tabBar()->isVisible())
-        return 0;
     return tabBar()->count() + 2;
 }
 
@@ -892,8 +890,6 @@ int QAccessibleTabBar::childCount() const
 QString QAccessibleTabBar::text(Text t, int child) const
 {
     QString str;
-    if (!tabBar()->isVisible())
-        return str;
 
     if (child > tabBar()->count()) {
         bool left = child - tabBar()->count() == 1;
@@ -966,7 +962,7 @@ QAccessible::State QAccessibleTabBar::state(int child) const
 /*! \reimp */
 bool QAccessibleTabBar::doAction(int action, int child, const QVariantList &)
 {
-    if (!child || !tabBar()->isVisible())
+    if (!child)
         return false;
 
     if (action != QAccessible::DefaultAction && action != QAccessible::Press)
@@ -974,7 +970,7 @@ bool QAccessibleTabBar::doAction(int action, int child, const QVariantList &)
 
     if (child > tabBar()->count()) {
         QAbstractButton *bt = button(child);
-        if (!bt->isEnabled() || !bt->isVisible())
+        if (!bt->isEnabled())
             return false;
         bt->animateClick();
         return true;
@@ -1065,7 +1061,7 @@ QRect QAccessibleComboBox::rect(int child) const
     QPoint tp;
     QStyle::SubControl sc;
     QRect r;
-    switch(child) {
+    switch (child) {
     case CurrentText:
         if (comboBox()->isEditable()) {
             tp = comboBox()->lineEdit()->mapToGlobal(QPoint(0,0));
@@ -1086,6 +1082,7 @@ QRect QAccessibleComboBox::rect(int child) const
 
     if (sc != QStyle::SC_None) {
         QStyleOptionComboBox option;
+        option.initFrom(comboBox());
         r = comboBox()->style()->subControlRect(QStyle::CC_ComboBox, &option, sc, comboBox());
     }
     return QRect(tp.x() + r.x(), tp.y() + r.y(), r.width(), r.height());
@@ -1100,7 +1097,9 @@ int QAccessibleComboBox::navigate(RelationFlag rel, int entry, QAccessibleInterf
         if (entry < PopupList)
             return entry;
         if (entry == PopupList) {
-            *target = QAccessible::queryAccessibleInterface(comboBox()->view());
+            QAbstractItemView *view = comboBox()->view();
+            QWidget *parent = view ? view->parentWidget() : 0;
+            *target = QAccessible::queryAccessibleInterface(parent);
             return *target ? 0 : -1;
         }
     case QAccessible::Left:
@@ -1204,12 +1203,25 @@ QAccessible::State QAccessibleComboBox::state(int /*child*/) const
 }
 
 /*! \reimp */
-bool QAccessibleComboBox::doAction(int, int child, const QVariantList &)
+bool QAccessibleComboBox::doAction(int action, int child, const QVariantList &)
 {
-    if (child != 2)
-        return false;
-    comboBox()->showPopup();
-    return true;
+    if (child == 2 && (action == DefaultAction || action == Press)) {
+        if (comboBox()->view()->isVisible()) {
+            comboBox()->hidePopup();
+        } else {
+            comboBox()->showPopup();
+        }
+        return true;
+    }
+    return false;
+}
+
+QString QAccessibleComboBox::actionText(int action, Text t, int child) const
+{
+    QString text;
+    if (child == 2 && t == Name && (action == DefaultAction || action == Press))
+        text = comboBox()->view()->isVisible() ? QComboBox::tr("Close") : QComboBox::tr("Open");
+    return text;
 }
 #endif // QT_NO_COMBOBOX
 
@@ -1235,8 +1247,6 @@ QAccessibleAbstractScrollArea::QAccessibleAbstractScrollArea(QWidget *widget)
 
 QString QAccessibleAbstractScrollArea::text(Text textType, int child) const
 {
-    if (!abstractScrollArea()->isVisible())
-        return QString();
     if (child == Self)
         return QAccessibleWidgetEx::text(textType, 0);
     QWidgetList children = accessibleChildren();
@@ -1252,7 +1262,7 @@ QString QAccessibleAbstractScrollArea::text(Text textType, int child) const
 
 void QAccessibleAbstractScrollArea::setText(Text textType, int child, const QString &text)
 {
-    if (!abstractScrollArea()->isVisible() || text.isEmpty())
+    if (text.isEmpty())
         return;
     if (child == 0) {
         QAccessibleWidgetEx::setText(textType, 0, text);
@@ -1290,14 +1300,12 @@ QVariant QAccessibleAbstractScrollArea::invokeMethodEx(QAccessible::Method, int,
 
 int QAccessibleAbstractScrollArea::childCount() const
 {
-    if (!abstractScrollArea()->isVisible())
-        return 0;
     return accessibleChildren().count();
 }
 
 int QAccessibleAbstractScrollArea::indexOfChild(const QAccessibleInterface *child) const
 {
-    if (!child || !child->object() || !abstractScrollArea()->isVisible())
+    if (!child || !child->object())
         return -1;
     int index = accessibleChildren().indexOf(qobject_cast<QWidget *>(child->object()));
     if (index >= 0)
@@ -1307,218 +1315,224 @@ int QAccessibleAbstractScrollArea::indexOfChild(const QAccessibleInterface *chil
 
 int QAccessibleAbstractScrollArea::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
 {
-    if (!abstractScrollArea()->isVisible() || !target)
+    if (!target)
         return -1;
 
     *target = 0;
-    QWidgetList children = accessibleChildren();
-    if (entry < 0 || entry > children.count())
-        return -1;
 
     QWidget *targetWidget = 0;
     QWidget *entryWidget = 0;
-    if (entry == 0)
-        entryWidget = abstractScrollArea();
-    else if (entry > 0)
-        entryWidget = children.at(entry - 1);
-    AbstractScrollAreaElement entryElement = elementType(entryWidget);
 
-    // Widgets to the left for the horizontal scrollBar.
-    QWidgetList leftScrollBarWidgets = abstractScrollArea()
-        ->scrollBarWidgets(isLeftToRight() ? Qt::AlignLeft : Qt::AlignRight);
-    removeInvisibleWidgetsFromList(&leftScrollBarWidgets);
+    if (relation == Child || 
+        relation == Left || relation == Up || relation == Right || relation == Down) {
+        QWidgetList children = accessibleChildren();
+        if (entry < 0 || entry > children.count())
+            return -1;
+        
+        if (entry == 0) {
+            entryWidget = abstractScrollArea();
+        } else if (entry > 0)
+            entryWidget = children.at(entry - 1);
+        AbstractScrollAreaElement entryElement = elementType(entryWidget);
 
-    // Widgets to the right for the horizontal scrollBar.
-    QWidgetList rightScrollBarWidgets = abstractScrollArea()
-        ->scrollBarWidgets(isLeftToRight() ? Qt::AlignRight : Qt::AlignLeft);
-    removeInvisibleWidgetsFromList(&rightScrollBarWidgets);
 
-    // Widgets above the vertical scrollBar.
-    QWidgetList topScrollBarWidgets = abstractScrollArea()->scrollBarWidgets(Qt::AlignTop);
-    removeInvisibleWidgetsFromList(&topScrollBarWidgets);
+        // Widgets to the left for the horizontal scrollBar.
+        QWidgetList leftScrollBarWidgets = abstractScrollArea()
+            ->scrollBarWidgets(isLeftToRight() ? Qt::AlignLeft : Qt::AlignRight);
+        removeInvisibleWidgetsFromList(&leftScrollBarWidgets);
 
-    // Widgets below the vertical scrollBar.
-    QWidgetList bottomScrollBarWidgets = abstractScrollArea()->scrollBarWidgets(Qt::AlignBottom);
-    removeInvisibleWidgetsFromList(&bottomScrollBarWidgets);
+        // Widgets to the right for the horizontal scrollBar.
+        QWidgetList rightScrollBarWidgets = abstractScrollArea()
+            ->scrollBarWidgets(isLeftToRight() ? Qt::AlignRight : Qt::AlignLeft);
+        removeInvisibleWidgetsFromList(&rightScrollBarWidgets);
 
-    // Not one of the most beautiful switches I've ever seen, but I believe it has
-    // to be like this since each case need special handling.
-    // It might be possible to make it more general, but I'll leave that as an exercise
-    // to the reader. :-)
-    switch (relation) {
-    case Child:
-        if (entry > 0)
-            targetWidget = children.at(entry - 1);
-        break;
-    case Left:
-        if (entry < 1)
+        // Widgets above the vertical scrollBar.
+        QWidgetList topScrollBarWidgets = abstractScrollArea()->scrollBarWidgets(Qt::AlignTop);
+        removeInvisibleWidgetsFromList(&topScrollBarWidgets);
+
+        // Widgets below the vertical scrollBar.
+        QWidgetList bottomScrollBarWidgets = abstractScrollArea()->scrollBarWidgets(Qt::AlignBottom);
+        removeInvisibleWidgetsFromList(&bottomScrollBarWidgets);
+
+        // Not one of the most beautiful switches I've ever seen, but I believe it has
+        // to be like this since each case need special handling.
+        // It might be possible to make it more general, but I'll leave that as an exercise
+        // to the reader. :-)
+        switch (relation) {
+        case Child:
+            if (entry > 0)
+                targetWidget = children.at(entry - 1);
             break;
-        switch (entryElement) {
-        case Viewport:
-            if (!isLeftToRight())
-                targetWidget = abstractScrollArea()->verticalScrollBar();
-            break;
-        case HorizontalScrollBar:
-            if (leftScrollBarWidgets.count() >= 1)
-                targetWidget = leftScrollBarWidgets.back();
-            else if (!isLeftToRight())
-                targetWidget = abstractScrollArea()->cornerWidget();
-            break;
-        case VerticalScrollBar:
-        case VerticalScrollBarWidget:
-            if (isLeftToRight())
-                targetWidget = abstractScrollArea()->viewport();
-            break;
-        case CornerWidget:
-            if (!isLeftToRight())
+        case Left:
+            if (entry < 1)
                 break;
-            if (rightScrollBarWidgets.count() >= 1)
-                targetWidget = rightScrollBarWidgets.back();
-            else
-                targetWidget = abstractScrollArea()->horizontalScrollBar();
-            break;
-        case HorizontalScrollBarWidget: {
-            int index = leftScrollBarWidgets.indexOf(entryWidget);
-            if (index != -1) {
-                if (index > 0)
-                    targetWidget = leftScrollBarWidgets.at(index - 1);
+            switch (entryElement) {
+            case Viewport:
+                if (!isLeftToRight())
+                    targetWidget = abstractScrollArea()->verticalScrollBar();
+                break;
+            case HorizontalScrollBar:
+                if (leftScrollBarWidgets.count() >= 1)
+                    targetWidget = leftScrollBarWidgets.back();
                 else if (!isLeftToRight())
                     targetWidget = abstractScrollArea()->cornerWidget();
                 break;
-            }
-            index = rightScrollBarWidgets.indexOf(entryWidget);
-            if (index > 0)
-                targetWidget = rightScrollBarWidgets.at(index - 1);
-            else
-                targetWidget = abstractScrollArea()->horizontalScrollBar();
-            break;
-        }
-        default:
-            break;
-        }
-        break;
-    case Right:
-        if (entry < 1)
-            break;
-        switch (entryElement) {
-        case Viewport:
-            if (isLeftToRight())
-                targetWidget = abstractScrollArea()->verticalScrollBar();
-            break;
-        case HorizontalScrollBar:
-            if (rightScrollBarWidgets.count() >= 1)
-                targetWidget = rightScrollBarWidgets.at(0);
-            else
-                targetWidget = abstractScrollArea()->cornerWidget();
-            break;
-        case VerticalScrollBar:
-        case VerticalScrollBarWidget:
-            if (!isLeftToRight())
-                targetWidget = abstractScrollArea()->viewport();
-            break;
-        case CornerWidget:
-            if (isLeftToRight())
+            case VerticalScrollBar:
+            case VerticalScrollBarWidget:
+                if (isLeftToRight())
+                    targetWidget = abstractScrollArea()->viewport();
                 break;
-            if (leftScrollBarWidgets.count() >= 1)
-                targetWidget = rightScrollBarWidgets.at(0);
-            else
-                targetWidget = abstractScrollArea()->horizontalScrollBar();
-            break;
-        case HorizontalScrollBarWidget: {
-            int index = leftScrollBarWidgets.indexOf(entryWidget);
-            if (index != -1) {
-                if (index < leftScrollBarWidgets.count() - 1)
-                    targetWidget = leftScrollBarWidgets.at(index + 1);
-                break;
-            }
-            index = rightScrollBarWidgets.indexOf(entryWidget);
-            if (index != -1 && index < rightScrollBarWidgets.count() - 1) {
-                targetWidget = rightScrollBarWidgets.at(index + 1);
-                break;
-            }
-            if (isLeftToRight())
-                targetWidget = abstractScrollArea()->cornerWidget();
-            break;
-        }
-        default:
-            break;
-        }
-        break;
-    case Up:
-        if (entry < 1)
-            break;
-        switch (entryElement) {
-        case HorizontalScrollBar:
-        case HorizontalScrollBarWidget:
-            targetWidget = abstractScrollArea()->viewport();
-            break;
-        case VerticalScrollBar: {
-            if (topScrollBarWidgets.count() >= 1)
-                targetWidget = topScrollBarWidgets.back();
-            break;
-        }
-        case VerticalScrollBarWidget: {
-            int index = topScrollBarWidgets.indexOf(entryWidget);
-            if (index != -1) {
-                if (index > 0)
-                    targetWidget = topScrollBarWidgets.at(index - 1);
-                break;
-            }
-            index = bottomScrollBarWidgets.indexOf(entryWidget);
-            if (index > 0) {
-                targetWidget = bottomScrollBarWidgets.at(index - 1);
-                break;
-            }
-            targetWidget = abstractScrollArea()->verticalScrollBar();
-            break;
-        }
-        case CornerWidget:
-            if (bottomScrollBarWidgets.count() >= 1)
-                targetWidget = bottomScrollBarWidgets.back();
-            break;
-        default:
-            break;
-        }
-        break;
-    case Down:
-        if (entry < 1)
-            break;
-        switch (entryElement) {
-        case Viewport:
-            targetWidget = abstractScrollArea()->horizontalScrollBar();
-            break;
-        case VerticalScrollBar:
-            if (bottomScrollBarWidgets.count() >= 1)
-                targetWidget = bottomScrollBarWidgets.at(0);
-            break;
-        case VerticalScrollBarWidget: {
-            int index = topScrollBarWidgets.indexOf(entryWidget);
-            if (index != -1) {
-                if (index < topScrollBarWidgets.count() - 1)
-                    targetWidget = topScrollBarWidgets.at(index + 1);
+            case CornerWidget:
+                if (!isLeftToRight())
+                    break;
+                if (rightScrollBarWidgets.count() >= 1)
+                    targetWidget = rightScrollBarWidgets.back();
                 else
+                    targetWidget = abstractScrollArea()->horizontalScrollBar();
+                break;
+            case HorizontalScrollBarWidget: {
+                int index = leftScrollBarWidgets.indexOf(entryWidget);
+                if (index != -1) {
+                    if (index > 0)
+                        targetWidget = leftScrollBarWidgets.at(index - 1);
+                    else if (!isLeftToRight())
+                        targetWidget = abstractScrollArea()->cornerWidget();
+                    break;
+                }
+                index = rightScrollBarWidgets.indexOf(entryWidget);
+                if (index > 0)
+                    targetWidget = rightScrollBarWidgets.at(index - 1);
+                else
+                    targetWidget = abstractScrollArea()->horizontalScrollBar();
+                break;
+            }
+            default:
+                break;
+            }
+            break;
+        case Right:
+            if (entry < 1)
+                break;
+            switch (entryElement) {
+            case Viewport:
+                if (isLeftToRight())
                     targetWidget = abstractScrollArea()->verticalScrollBar();
                 break;
-            }
-            index = bottomScrollBarWidgets.indexOf(entryWidget);
-            if (index != -1) {
-                if (index < bottomScrollBarWidgets.count() - 1)
-                    targetWidget = bottomScrollBarWidgets.at(index + 1);
+            case HorizontalScrollBar:
+                if (rightScrollBarWidgets.count() >= 1)
+                    targetWidget = rightScrollBarWidgets.at(0);
+                else
+                    targetWidget = abstractScrollArea()->cornerWidget();
+                break;
+            case VerticalScrollBar:
+            case VerticalScrollBarWidget:
+                if (!isLeftToRight())
+                    targetWidget = abstractScrollArea()->viewport();
+                break;
+            case CornerWidget:
+                if (isLeftToRight())
+                    break;
+                if (leftScrollBarWidgets.count() >= 1)
+                    targetWidget = rightScrollBarWidgets.at(0);
+                else
+                    targetWidget = abstractScrollArea()->horizontalScrollBar();
+                break;
+            case HorizontalScrollBarWidget: {
+                int index = leftScrollBarWidgets.indexOf(entryWidget);
+                if (index != -1) {
+                    if (index < leftScrollBarWidgets.count() - 1)
+                        targetWidget = leftScrollBarWidgets.at(index + 1);
+                    break;
+                }
+                index = rightScrollBarWidgets.indexOf(entryWidget);
+                if (index != -1 && index < rightScrollBarWidgets.count() - 1) {
+                    targetWidget = rightScrollBarWidgets.at(index + 1);
+                    break;
+                }
+                if (isLeftToRight())
+                    targetWidget = abstractScrollArea()->cornerWidget();
                 break;
             }
-            targetWidget = abstractScrollArea()->cornerWidget();
+            default:
+                break;
+            }
             break;
-        }
+        case Up:
+            if (entry < 1)
+                break;
+            switch (entryElement) {
+            case HorizontalScrollBar:
+            case HorizontalScrollBarWidget:
+                targetWidget = abstractScrollArea()->viewport();
+                break;
+            case VerticalScrollBar: {
+                if (topScrollBarWidgets.count() >= 1)
+                    targetWidget = topScrollBarWidgets.back();
+                break;
+            }
+            case VerticalScrollBarWidget: {
+                int index = topScrollBarWidgets.indexOf(entryWidget);
+                if (index != -1) {
+                    if (index > 0)
+                        targetWidget = topScrollBarWidgets.at(index - 1);
+                    break;
+                }
+                index = bottomScrollBarWidgets.indexOf(entryWidget);
+                if (index > 0) {
+                    targetWidget = bottomScrollBarWidgets.at(index - 1);
+                    break;
+                }
+                targetWidget = abstractScrollArea()->verticalScrollBar();
+                break;
+            }
+            case CornerWidget:
+                if (bottomScrollBarWidgets.count() >= 1)
+                    targetWidget = bottomScrollBarWidgets.back();
+                break;
+            default:
+                break;
+            }
+            break;
+        case Down:
+            if (entry < 1)
+                break;
+            switch (entryElement) {
+            case Viewport:
+                targetWidget = abstractScrollArea()->horizontalScrollBar();
+                break;
+            case VerticalScrollBar:
+                if (bottomScrollBarWidgets.count() >= 1)
+                    targetWidget = bottomScrollBarWidgets.at(0);
+                break;
+            case VerticalScrollBarWidget: {
+                int index = topScrollBarWidgets.indexOf(entryWidget);
+                if (index != -1) {
+                    if (index < topScrollBarWidgets.count() - 1)
+                        targetWidget = topScrollBarWidgets.at(index + 1);
+                    else
+                        targetWidget = abstractScrollArea()->verticalScrollBar();
+                    break;
+                }
+                index = bottomScrollBarWidgets.indexOf(entryWidget);
+                if (index != -1) {
+                    if (index < bottomScrollBarWidgets.count() - 1)
+                        targetWidget = bottomScrollBarWidgets.at(index + 1);
+                    break;
+                }
+                targetWidget = abstractScrollArea()->cornerWidget();
+                break;
+            }
+            default:
+                break;
+            }
+            break;
         default:
             break;
         }
-        break;
-    default:
+    } else {
         return QAccessibleWidgetEx::navigate(relation, entry, target);
     }
 
-    if (targetWidget && !targetWidget->isVisible())
-        return -1;
     *target = QAccessible::queryAccessibleInterface(targetWidget);
     return indexOfChild(*target);
 }
@@ -1567,7 +1581,7 @@ QWidgetList QAccessibleAbstractScrollArea::accessibleChildren() const
 
     // Viewport.
     QWidget * viewport = abstractScrollArea()->viewport();
-    if (viewport && viewport->isVisible())
+    if (viewport)
         children.append(viewport);
 
     // Horizontal scrollBar and all its scrollWidgets.

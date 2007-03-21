@@ -23,6 +23,7 @@
 #include "qwhatsthis.h"
 #include "qwidget.h"
 #include "private/qmath_p.h"
+#include <QRubberBand>
 
 static QList<QWidget*> childWidgets(const QWidget *widget)
 {
@@ -30,7 +31,7 @@ static QList<QWidget*> childWidgets(const QWidget *widget)
     QList<QWidget*> widgets;
     for (int i = 0; i < list.size(); ++i) {
         QWidget *w = qobject_cast<QWidget *>(list.at(i));
-        if (w && w->isVisible() && !w->isWindow())
+        if (w && !w->isWindow())
             widgets.append(w);
     }
     return widgets;
@@ -732,9 +733,6 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
         break;
     }
 
-    QWidget *targetWidget = qobject_cast<QWidget *>(targetObject);
-    if (targetWidget && !targetWidget->isVisible())
-        return -1;
     *target = QAccessible::queryAccessibleInterface(targetObject);
     return *target ? 0 : -1;
 }
@@ -742,8 +740,6 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
 /*! \reimp */
 int QAccessibleWidget::childCount() const
 {
-    if (!widget()->isVisible())
-        return 0;
     QWidgetList cl = childWidgets(widget());
     return cl.size();
 }
@@ -751,8 +747,6 @@ int QAccessibleWidget::childCount() const
 /*! \reimp */
 int QAccessibleWidget::indexOfChild(const QAccessibleInterface *child) const
 {
-    if (!widget()->isVisible())
-        return -1;
     QWidgetList cl = childWidgets(widget());
     int index = cl.indexOf(qobject_cast<QWidget *>(child->object()));
     if (index != -1)
@@ -767,8 +761,6 @@ extern QString qt_setWindowTitle_helperHelper(const QString &, QWidget*);
 QString QAccessibleWidget::text(Text t, int child) const
 {
     QString str;
-    if (!widget()->isVisible())
-        return str;
 
     switch (t) {
     case Name:
@@ -829,8 +821,6 @@ int QAccessibleWidget::userActionCount(int child) const
 /*! \reimp */
 QString QAccessibleWidget::actionText(int action, Text t, int child) const
 {
-    if (!widget()->isVisible())
-        return QString();
     if (action == DefaultAction)
         action = SetFocus;
 
@@ -856,8 +846,6 @@ QString QAccessibleWidget::actionText(int action, Text t, int child) const
 /*! \reimp */
 bool QAccessibleWidget::doAction(int action, int child, const QVariantList &params)
 {
-    if (!widget()->isVisible())
-        return false;
     if (action == SetFocus || action == DefaultAction) {
         if (child || !widget()->isEnabled())
             return false;

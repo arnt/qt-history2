@@ -263,7 +263,7 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
 #endif
 #ifndef QT_NO_RUBBERBAND
     } else if (classname == QLatin1String("QRubberBand")) {
-        iface = new QAccessibleRubberBand(widget);
+        iface = new QAccessibleWidgetEx(widget, QAccessible::Border);
 #endif
 #ifndef QT_NO_TEXTBROWSER
     } else if (classname == QLatin1String("QTextBrowser")) {
