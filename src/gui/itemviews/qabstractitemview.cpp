@@ -2859,7 +2859,7 @@ void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
         QDrag *drag = new QDrag(this);
         drag->setPixmap(pixmap);
         drag->setMimeData(data);
-        drag->setHotSpot(d->viewport->mapFromGlobal(QCursor::pos()) - rect.topLeft());
+        drag->setHotSpot(d->pressedPosition - rect.topLeft());
         if (drag->start(supportedActions) == Qt::MoveAction)
             d->clearOrRemove();
     }
