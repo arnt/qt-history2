@@ -703,6 +703,7 @@ void QWSDisplay::Data::init()
         memset(sharedRam,0,sharedRamSize);
 
         QWSIdentifyCommand cmd;
+        cmd.setId(appName, -1);
         qt_server_enqueue(&cmd);
     }
 
