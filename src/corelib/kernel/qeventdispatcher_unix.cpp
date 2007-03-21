@@ -24,7 +24,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 #if (_POSIX_MONOTONIC_CLOCK-0 <= 0)
 #  include <sys/times.h>
