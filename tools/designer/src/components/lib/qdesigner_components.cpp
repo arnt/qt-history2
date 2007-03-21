@@ -35,6 +35,7 @@
 #include <QtDesigner/QDesignerResourceBrowserInterface>
 
 #include <QtCore/qplugin.h>
+#include <QtCore/QDir>
 
 // ### keep it in sync with Q_IMPORT_PLUGIN in qplugin.h
 #define DECLARE_PLUGIN_INSTANCE(PLUGIN) \
@@ -115,7 +116,36 @@ QObject *QDesignerComponents::createTaskMenu(QDesignerFormEditorInterface *core,
     Returns a new widget box interface with the given \a parent for the \a core interface.*/
 QDesignerWidgetBoxInterface *QDesignerComponents::createWidgetBox(QDesignerFormEditorInterface *core, QWidget *parent)
 {
-    return new qdesigner_internal::WidgetBox(core, parent);
+    qdesigner_internal::WidgetBox *widgetBox = new qdesigner_internal::WidgetBox(core, parent);
+
+    const QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*>(core->extensionManager(), core);
+
+    do {
+        if (lang) {
+            const QString languageWidgetBox = lang->widgetBoxContents();
+            if (!languageWidgetBox.isEmpty()) {
+                widgetBox->loadContents(lang->widgetBoxContents());
+                break;
+            }
+        }
+
+        widgetBox->setFileName(QLatin1String(":/trolltech/widgetbox/widgetbox.xml"));
+        widgetBox->load();
+    } while (false);
+
+    QString rc = QDir::homePath();
+    rc += QLatin1String("/.designer");
+    rc += QLatin1String("/widgetbox");
+    if (lang) {
+        rc += QLatin1Char('.');
+        rc += lang->uiExtension();
+    }
+    rc += QLatin1String(".xml");
+
+    widgetBox->setFileName(rc);
+    widgetBox->load();
+
+    return widgetBox;
 }
 
 /*!

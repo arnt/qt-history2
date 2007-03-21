@@ -43,6 +43,7 @@ public:
     LoadMode loadMode() const;
     void setLoadMode(LoadMode lm);
 
+    virtual bool loadContents(const QString &contents) = 0;
 private:
     LoadMode m_loadMode;
 };

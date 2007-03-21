@@ -208,6 +208,7 @@ public:
     void setFileName(const QString &file_name);
     QString fileName() const;
     bool load(WidgetBox::LoadMode loadMode);
+    bool loadContents(const QString &contents, const QString &fileName);
     bool save();
 
 signals:
@@ -438,16 +439,24 @@ bool WidgetBoxTreeView::load(WidgetBox::LoadMode loadMode)
 
     QFile f(name);
     if (!f.open(QIODevice::ReadOnly)) {
+        const QString msg = QObject::tr("The widgetbox could not load the file %1.").arg(name);
         return false;
     }
+    const QString contents = QString::fromUtf8(f.readAll());
+    return loadContents(contents, name);
+}
 
+bool WidgetBoxTreeView::loadContents(const QString &contents, const QString &fileName)
+{
     QString error_msg;
     int line, col;
     QDomDocument doc;
-    if (!doc.setContent(&f, &error_msg, &line, &col)) {
-        const QString msg = QObject::tr("The widgetbox could not parse the file %1. An error occurred at line %2: %3").
-            arg(name).arg(line).arg(error_msg);
-        qdesigner_internal::designerWarning(msg);
+    if (!doc.setContent(contents, &error_msg, &line, &col)) {
+        if (!fileName.isEmpty()) {
+            const QString msg = QObject::tr("The widgetbox could not parse the file %1. An error occurred at line %2: %3").
+                arg(fileName).arg(line).arg(error_msg);
+            qdesigner_internal::designerWarning(msg);
+        }
         return false;
     }
 
@@ -1051,6 +1060,11 @@ QString WidgetBox::fileName() const
 bool WidgetBox::load()
 {
     return m_view->load(loadMode());
+}
+
+bool WidgetBox::loadContents(const QString &contents)
+{
+    return m_view->loadContents(contents, QString());
 }
 
 bool WidgetBox::save()

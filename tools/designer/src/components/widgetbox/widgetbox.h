@@ -52,6 +52,8 @@ public:
     virtual bool load();
     virtual bool save();
 
+    virtual bool loadContents(const QString &contents);
+
 private slots:
     void handleMousePress(const QString &name, const QString &xml, bool custom, const QPoint &global_mouse_pos);
 

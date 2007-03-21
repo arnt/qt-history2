@@ -25,10 +25,6 @@ QDesignerWidgetBox::QDesignerWidgetBox(QDesignerWorkbench *workbench)
 {
     setObjectName(QLatin1String("WidgetBox"));
     QDesignerWidgetBoxInterface *widget = QDesignerComponents::createWidgetBox(workbench->core(), this);
-    widget->setFileName(QLatin1String(":/trolltech/widgetbox/widgetbox.xml"));
-    widget->load();
-    widget->setFileName(QDesignerSettings().defaultUserWidgetBoxXml());
-    widget->load();
 
     workbench->core()->setWidgetBox(widget);
 
