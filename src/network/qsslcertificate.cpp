@@ -430,7 +430,7 @@ QList<QSslCertificate> QSslCertificate::fromPath(const QString &path)
     QList<QSslCertificate> certs;
     foreach (QString path, entryList) {
         QFile file(path);
-        if (file.open(QIODevice::ReadOnly))
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
             certs << QSslCertificate(file.readAll());
     }
     return certs;
@@ -444,8 +444,7 @@ QList<QSslCertificate> QSslCertificate::fromPath(const QString &path)
 */
 QList<QSslCertificate> QSslCertificate::fromDevice(QIODevice *device)
 {
-    // ### crude
-    return (QList<QSslCertificate>() << QSslCertificate(device->readAll()));
+    return fromData(device->readAll());
 }
 
 /*!
@@ -456,8 +455,7 @@ QList<QSslCertificate> QSslCertificate::fromDevice(QIODevice *device)
 */
 QList<QSslCertificate> QSslCertificate::fromData(const QByteArray &data)
 {
-    // ### crude
-    return (QList<QSslCertificate>() << QSslCertificate(data));
+    return QSslSocketBackendPrivate::QByteArray_to_QSslCertificates(data);
 }
 
 #ifndef QT_NO_DEBUG

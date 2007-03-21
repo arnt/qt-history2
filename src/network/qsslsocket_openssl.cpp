@@ -282,7 +282,7 @@ QList<QSslCertificate> QSslSocketPrivate::systemCaCertificates()
     // Qt provides a default bundle when we cannot detect the system's default
     // bundle.
     QFile caBundle(QLatin1String(":/trolltech/network/ssl/qt-ca-bundle.crt"));
-    if (caBundle.open(QIODevice::ReadOnly))
+    if (caBundle.open(QIODevice::ReadOnly | QIODevice::Text))
         return QSslCertificate::fromDevice(&caBundle);
 
     // Unreachable; return no bundle.
@@ -295,7 +295,7 @@ QList<QSslCertificate> QSslSocketPrivate::certificatesFromPath(const QString &pa
     QFileInfo info(path);
     if (info.isFile()) {
         QFile file(path);
-        if (file.open(QIODevice::ReadOnly))
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
             return QSslSocketBackendPrivate::QByteArray_to_QSslCertificates(file.readAll());
         return QList<QSslCertificate>();
     }
@@ -303,7 +303,7 @@ QList<QSslCertificate> QSslSocketPrivate::certificatesFromPath(const QString &pa
     QList<QSslCertificate> certs;
     foreach (QString entry, QDir(path).entryList(QDir::Files)) {
         QFile file(path + QLatin1String("/") + entry);
-        if (file.open(QIODevice::ReadOnly))
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
             certs += QSslSocketBackendPrivate::QByteArray_to_QSslCertificates(file.readAll());
     }
 
@@ -867,6 +867,7 @@ QList<QSslCertificate> QSslSocketBackendPrivate::QByteArray_to_QSslCertificates(
         int endPos = array.indexOf(EndCertString, startPos);
         if (endPos == -1)
             break;
+
         offset = endPos + sizeof(EndCertString) - 1;
 
         QByteArray decoded = QByteArray::fromBase64(QByteArray::fromRawData(array.data() + startPos, endPos - startPos));
