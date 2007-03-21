@@ -1,0 +1,3 @@
+setPen afff0000 4
+setBrush dome_rgb32.png
+drawEllipse 10 10 200 200

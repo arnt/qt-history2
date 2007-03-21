@@ -1276,16 +1276,12 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
 
     bool antialias = render_hints & QPainter::Antialiasing;
 
-    // don't take the XRender path unless we really, really have to
-    if (has_fill_texture && !antialias && !fill.texture().hasAlpha())
-        has_fill_texture = false;
-
     if (X11->use_xrender
         && picture
         && !has_fill_pattern
         && (clippedCount > 0)
         && (fill.style() != Qt::NoBrush)
-        && (has_fill_texture || antialias || !solid_fill || has_alpha_pen != has_alpha_brush))
+        && (has_fill_texture && fill.texture().hasAlpha() || antialias || !solid_fill || has_alpha_pen != has_alpha_brush))
     {
         QRect br = tessellator->tessellate((QPointF *)clippedPoints, clippedCount,
                                               mode == QPaintEngine::WindingMode);
