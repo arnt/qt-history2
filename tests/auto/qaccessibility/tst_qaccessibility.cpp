@@ -99,7 +99,7 @@ static inline int indexOfChild(QAccessibleInterface *parentInterface, QWidget *c
     do { \
         if (!errorAt && !(cond)) { \
             errorAt = __LINE__; \
-            qWarning("level: %d, ", treelevel); \
+            qWarning("level: %d, (%s)", treelevel, #cond); \
         } \
     } while (0)
 
@@ -594,7 +594,6 @@ void tst_QAccessibility::childCount()
     QVERIFY(acc_bottomLeft);
     QVERIFY(acc_bottomRight);
 
-    QCOMPARE(acc_toplevel->childCount(), 0);
     toplevel->show();
     QCOMPARE(acc_toplevel->childCount(), toplevel->queryList("QWidget", 0, 0, 0).count());
     QCOMPARE(acc_topLeft->childCount(), topLeft->queryList("QWidget", 0, 0, 0).count());
@@ -2442,10 +2441,10 @@ void tst_QAccessibility::textEditTest()
 
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&edit);
     QCOMPARE(iface->text(QAccessible::Value, 0), text);
-    QCOMPARE(iface->childCount(), 4);
-    QCOMPARE(iface->text(QAccessible::Value, 2), QString("hello world"));
-    QCOMPARE(iface->text(QAccessible::Value, 3), QString("how are you today?"));
-    QCOMPARE(iface->text(QAccessible::Value, 4), QString());
+    QCOMPARE(iface->childCount(), 6);
+    QCOMPARE(iface->text(QAccessible::Value, 4), QString("hello world"));
+    QCOMPARE(iface->text(QAccessible::Value, 5), QString("how are you today?"));
+    QCOMPARE(iface->text(QAccessible::Value, 6), QString());
     }
     QTestAccessibility::clearEvents();
 #else
@@ -2466,10 +2465,10 @@ void tst_QAccessibility::textBrowserTest()
     QVERIFY(interface);
     QCOMPARE(interface->role(0), QAccessible::StaticText);
     QCOMPARE(interface->text(QAccessible::Value, 0), text);
-    QCOMPARE(interface->childCount(), 4);
-    QCOMPARE(interface->text(QAccessible::Value, 2), QString("Hello world"));
-    QCOMPARE(interface->text(QAccessible::Value, 3), QString("how are you today?"));
-    QCOMPARE(interface->text(QAccessible::Value, 4), QString());
+    QCOMPARE(interface->childCount(), 6);
+    QCOMPARE(interface->text(QAccessible::Value, 4), QString("Hello world"));
+    QCOMPARE(interface->text(QAccessible::Value, 5), QString("how are you today?"));
+    QCOMPARE(interface->text(QAccessible::Value, 6), QString());
     }
     QTestAccessibility::clearEvents();
 #else
@@ -2484,7 +2483,7 @@ void tst_QAccessibility::listViewTest()
         QListView listView;
         QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&listView);
         QVERIFY(iface);
-        QCOMPARE(iface->childCount(), 0);
+        QCOMPARE(iface->childCount(), 1);
         delete iface;
     }
     {
@@ -2981,7 +2980,6 @@ void tst_QAccessibility::abstractScrollAreaTest()
 
     QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&abstractScrollArea);
     QVERIFY(interface);
-    QCOMPARE(interface->childCount(), 0);
     QVERIFY(!interface->rect(0).isValid());
     QVERIFY(!interface->rect(1).isValid());
     QCOMPARE(interface->childAt(200, 200), -1);
@@ -3390,7 +3388,6 @@ void tst_QAccessibility::calendarWidgetTest()
     QAccessibleInterface *interface = QAccessible::queryAccessibleInterface(&calendarWidget);
     QVERIFY(interface);
     QCOMPARE(interface->role(0), QAccessible::Table);
-    QCOMPARE(interface->childCount(), 0);
     QVERIFY(!interface->rect(0).isValid());
     QVERIFY(!interface->rect(1).isValid());
     QCOMPARE(interface->childAt(200, 200), -1);
@@ -3512,9 +3509,9 @@ void tst_QAccessibility::dockWidgetTest()
 #endif
 
     QAccessibleInterface *accMainWindow = QAccessible::queryAccessibleInterface(mw);
-    QCOMPARE(accMainWindow->childCount(), 4);
+    QCOMPARE(accMainWindow->childCount(), 5);
     QAccessibleInterface *accDock1 = 0;
-    for (int i = 1; i < 5; ++i) {
+    for (int i = 1; i <= 5; ++i) {
         if (accMainWindow->role(i) == QAccessible::Window) {
             accMainWindow->navigate(QAccessible::Child, i, &accDock1);
             if (accDock1 && qobject_cast<QDockWidget*>(accDock1->object()) == dock1) {
@@ -3603,6 +3600,7 @@ void tst_QAccessibility::comboBoxTest()
 #ifdef QTEST_ACCESSIBILITY
     QWidget *w = new QWidget();
     QComboBox *cb = new QComboBox(w);
+    cb->addItems(QStringList() << "one" << "two" << "three");
     w->show();
 #if defined(Q_WS_X11)
     qt_x11_wait_for_window_manager(w);
@@ -3617,7 +3615,8 @@ void tst_QAccessibility::comboBoxTest()
     for (int i = 1; i < acc->childCount(); ++i) {
         QVERIFY(accRect.contains(acc->rect(i)));
     }
-#if 0
+    QCOMPARE(acc->doAction(QAccessible::Press, 2), true);
+    QTest::qWait(400);
     QAccessibleInterface *accList = 0;
     int entry = acc->navigate(QAccessible::Child, 3, &accList);
     QCOMPARE(entry, 0);
@@ -3627,7 +3626,6 @@ void tst_QAccessibility::comboBoxTest()
     delete acc2;
     
     delete accList;
-#endif
     delete acc;
     delete w;
 
