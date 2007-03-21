@@ -240,10 +240,9 @@ public:
 
     enum Error {
         NoError,
-        CustomError,
         UnexpectedElementError,
-        InvalidDocumentError,
-        XmlNotWellFormedError,
+        CustomError,
+        NotWellFormedError,
         PrematureEndOfDocumentError
     };
     void raiseError(const QString& message = QString());

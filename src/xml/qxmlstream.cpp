@@ -60,8 +60,7 @@
 
     \value NoError No error has occured.
     \value CustomError A custom error has been raised with raiseError()
-    \value UnexpectedElementError An unexpected element was read in readElementText().
-    \value XmlNotWellFormedError The parser internally raised an error due to the read XML not being well-formed.
+    \value NotWellFormedError The parser internally raised an error due to the read XML not being well-formed.
     \value PrematureEndOfDocumentError The input stream ended before the document was parsed completely. This error can be recovered from.
 */
 
@@ -1428,7 +1427,7 @@ void QXmlStreamReaderPrivate::raiseError(QXmlStreamReader::Error error, const QS
 
 void QXmlStreamReaderPrivate::raiseWellFormedError(const QString &message)
 {
-    raiseError(QXmlStreamReader::XmlNotWellFormedError, message);
+    raiseError(QXmlStreamReader::NotWellFormedError, message);
 }
 
 void QXmlStreamReaderPrivate::parseError()
