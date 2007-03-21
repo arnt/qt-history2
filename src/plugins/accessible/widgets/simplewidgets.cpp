@@ -643,7 +643,7 @@ int QAccessibleLineEdit::cursorPosition()
     return lineEdit()->cursorPosition();
 }
 
-QRect QAccessibleLineEdit::characterRect(int offset, CoordinateType coordType)
+QRect QAccessibleLineEdit::characterRect(int /*offset*/, CoordinateType /*coordType*/)
 {
     // QLineEdit doesn't hand out character rects
     return QRect();
@@ -680,22 +680,22 @@ QString QAccessibleLineEdit::text(int startOffset, int endOffset)
     return lineEdit()->text().mid(startOffset, endOffset - startOffset);
 }
 
-QString QAccessibleLineEdit::textBeforeOffset (int offset, BoundaryType boundaryType,
-        int *startOffset, int *endOffset)
+QString QAccessibleLineEdit::textBeforeOffset (int /*offset*/, BoundaryType /*boundaryType*/,
+        int * /*startOffset*/, int * /*endOffset*/)
 {
     // TODO
     return QString();
 }
 
-QString QAccessibleLineEdit::textAfterOffset(int offset, BoundaryType boundaryType,
-        int *startOffset, int *endOffset)
+QString QAccessibleLineEdit::textAfterOffset(int /*offset*/, BoundaryType /*boundaryType*/,
+        int * /*startOffset*/, int * /*endOffset*/)
 {
     // TODO
     return QString();
 }
 
-QString QAccessibleLineEdit::textAtOffset(int offset, BoundaryType boundaryType,
-        int *startOffset, int *endOffset)
+QString QAccessibleLineEdit::textAtOffset(int /*offset*/, BoundaryType /*boundaryType*/,
+        int * /*startOffset*/, int * /*endOffset*/)
 {
     // TODO
     return QString();
