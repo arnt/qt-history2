@@ -1411,8 +1411,8 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         } else if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
             if (frm->lineWidth == 0)
                 extraClass |= PseudoClass_Frameless;
-            if (const QStyleOptionFrameV2 *frm2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(opt)) {
-                if (frm2->features & QStyleOptionFrameV2::Flat)
+            if (const QStyleOptionFrameV2 *frame2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(opt)) {
+                if (frame2->features & QStyleOptionFrameV2::Flat)
                     extraClass |= PseudoClass_Flat;
             }
         } else if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
