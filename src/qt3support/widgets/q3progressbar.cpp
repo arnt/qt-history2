@@ -254,6 +254,7 @@ static QStyleOptionProgressBar getStyleOption(const Q3ProgressBar *pb)
 {
     QStyleOptionProgressBar opt;
     opt.init(pb);
+    opt.rect = pb->contentsRect();
     opt.minimum = 0;
     opt.maximum = pb->totalSteps();
     opt.progress = pb->progress();
@@ -399,12 +400,12 @@ void Q3ProgressBar::paintEvent(QPaintEvent *)
     opt.rect = style()->subElementRect(QStyle::SE_ProgressBarGroove, &opt, this);
 
     style()->drawControl(QStyle::CE_ProgressBarGroove, &opt, p, this);
-    opt.rect = rect();
+    opt.rect = contentsRect();
     opt.rect = style()->subElementRect(QStyle::SE_ProgressBarContents, &opt, this);
     style()->drawControl(QStyle::CE_ProgressBarContents, &opt, p, this);
 
     if (percentageVisible()) {
-        opt.rect = rect();
+        opt.rect = contentsRect();
         opt.rect = style()->subElementRect(QStyle::SE_ProgressBarLabel, &opt, this);
         style()->drawControl(QStyle::CE_ProgressBarLabel, &opt, p, this);
     }
