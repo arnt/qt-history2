@@ -239,7 +239,7 @@ void QSslSocketPrivate::resetGlobalCiphers()
             if (cipher->valid) {
                 QSslCipher ciph = QSslSocketBackendPrivate::QSslCipher_from_SSL_CIPHER(cipher);
                 if (!ciph.isNull()) {
-                    if (!ciph.name().toLower().startsWith(QLatin1String("ADH")))
+                    if (!ciph.name().toLower().startsWith(QLatin1String("adh")))
                         ciphers << ciph;
                 }
             }
@@ -435,6 +435,21 @@ void QSslSocketBackendPrivate::transmit()
     } while (transmitting);
 }
 
+// ### This list is shared between all threads, and protected by a
+// mutex. Use TLS instead.
+struct QSslErrorList
+{
+    QMutex mutex;
+    QList<int> errors;
+};
+Q_GLOBAL_STATIC(QSslErrorList, _q_sslErrorList)
+static int q_X509Callback(int /* ok */, X509_STORE_CTX *ctx)
+{
+    // This list is protected by a mutex.
+    _q_sslErrorList()->errors << ctx->error;
+    return ctx->error;
+}
+
 bool QSslSocketBackendPrivate::testConnection()
 {
     Q_Q(QSslSocket);
@@ -487,49 +502,90 @@ bool QSslSocketBackendPrivate::testConnection()
         errors << QSslError(QSslError::NoPeerCertificate);
     }
 
-    int err;
-    switch ((err = q_SSL_get_verify_result(ssl))) {
-    case X509_V_OK:
-        // X509_V_OK is also reported if the peer had no certificate.
-        break;
-    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
-        errors << QSslError(QSslError::UnableToGetIssuerCert); break;
-    case X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE:
-        errors << QSslError(QSslError::UnableToDecryptCertSignature); break;
-    case X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY:
-        errors << QSslError(QSslError::UnableToDecodeIssuerPublicKey); break;
-    case X509_V_ERR_CERT_SIGNATURE_FAILURE:
-        errors << QSslError(QSslError::CertificateSignatureFailed); break;
-    case X509_V_ERR_CERT_NOT_YET_VALID:
-        errors << QSslError(QSslError::CertificateNotYetValid); break;
-    case X509_V_ERR_CERT_HAS_EXPIRED:
-        errors << QSslError(QSslError::CertificateExpired); break;
-    case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
-        errors << QSslError(QSslError::InvalidNotBeforeField); break;
-    case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
-        errors << QSslError(QSslError::InvalidNotAfterField); break;
-    case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
-        errors << QSslError(QSslError::SelfSignedCertificate); break;
-    case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
-        errors << QSslError(QSslError::SelfSignedCertificateInChain); break;
-    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
-        errors << QSslError(QSslError::UnableToGetLocalIssuerCertificate); break;
-    case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
-        errors << QSslError(QSslError::UnableToVerifyFirstCertificate); break;
-    case X509_V_ERR_CERT_REVOKED:
-        errors << QSslError(QSslError::CertificateRevoked); break;
-    case X509_V_ERR_INVALID_CA:
-        errors << QSslError(QSslError::InvalidCaCertificate); break;
-    case X509_V_ERR_PATH_LENGTH_EXCEEDED:
-        errors << QSslError(QSslError::PathLengthExceeded); break;
-    case X509_V_ERR_INVALID_PURPOSE:
-        errors << QSslError(QSslError::InvalidPurpose); break;
-    case X509_V_ERR_CERT_UNTRUSTED:
-        errors << QSslError(QSslError::CertificateUntrusted); break;
-    case X509_V_ERR_CERT_REJECTED:
-        errors << QSslError(QSslError::CertificateRejected); break;
-    default:
-        errors << QSslError(QSslError::UnspecifiedError); break;
+    // Create a new X509 certificate store.
+    X509_STORE *certificateStore = q_X509_STORE_new();
+
+    // Use this store to verify certificates, using the default callback.
+    X509_STORE_set_verify_cb_func(certificateStore, q_X509Callback);
+
+    // Add all our CAs to this store.
+    foreach (const QSslCertificate &caCertificate, q->caCertificates())
+        q_X509_STORE_add_cert(certificateStore, q_X509_dup((X509 *)caCertificate.handle()));
+
+    // Create a new X509 certificate store context.
+    X509_STORE_CTX *certificateStoreCtx = q_X509_STORE_CTX_new();
+
+    // Associate the peer certificate and the store with this store context.
+    q_X509_STORE_CTX_init(certificateStoreCtx, certificateStore,
+                          (X509 *)peerCertificate.handle(), 0);
+
+    // Set if this is a client or server certificate.
+    int purpose = 0;
+    if (mode == QSslSocket::SslClientMode) {
+        purpose = X509_PURPOSE_SSL_SERVER;
+    } else {
+        purpose = X509_PURPOSE_SSL_CLIENT;
+    }
+    q_X509_STORE_CTX_set_purpose(certificateStoreCtx, purpose);
+
+    // Verify the authenticity of the certificate. This code should really go
+    // into QSslCertificate.  ### Crude and inefficient.
+    _q_sslErrorList()->mutex.lock();
+    _q_sslErrorList()->errors.clear();
+    q_X509_verify_cert(certificateStoreCtx);
+    QList<int> errorList = _q_sslErrorList()->errors;
+    _q_sslErrorList()->mutex.unlock();
+
+    // Clean up.
+    q_X509_STORE_CTX_free(certificateStoreCtx);
+    q_X509_STORE_free(certificateStore);
+
+    // Check if the certificate is OK.
+    for (int i = 0; i < errorList.size(); ++i) {
+        int err = errorList.at(i);
+        switch (err) {
+        case X509_V_OK:
+            // X509_V_OK is also reported if the peer had no certificate.
+            break;
+        case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
+            errors << QSslError(QSslError::UnableToGetIssuerCert); break;
+        case X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE:
+            errors << QSslError(QSslError::UnableToDecryptCertSignature); break;
+        case X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY:
+            errors << QSslError(QSslError::UnableToDecodeIssuerPublicKey); break;
+        case X509_V_ERR_CERT_SIGNATURE_FAILURE:
+            errors << QSslError(QSslError::CertificateSignatureFailed); break;
+        case X509_V_ERR_CERT_NOT_YET_VALID:
+            errors << QSslError(QSslError::CertificateNotYetValid); break;
+        case X509_V_ERR_CERT_HAS_EXPIRED:
+            errors << QSslError(QSslError::CertificateExpired); break;
+        case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
+            errors << QSslError(QSslError::InvalidNotBeforeField); break;
+        case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
+            errors << QSslError(QSslError::InvalidNotAfterField); break;
+        case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
+            errors << QSslError(QSslError::SelfSignedCertificate); break;
+        case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
+            errors << QSslError(QSslError::SelfSignedCertificateInChain); break;
+        case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
+            errors << QSslError(QSslError::UnableToGetLocalIssuerCertificate); break;
+        case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
+            errors << QSslError(QSslError::UnableToVerifyFirstCertificate); break;
+        case X509_V_ERR_CERT_REVOKED:
+            errors << QSslError(QSslError::CertificateRevoked); break;
+        case X509_V_ERR_INVALID_CA:
+            errors << QSslError(QSslError::InvalidCaCertificate); break;
+        case X509_V_ERR_PATH_LENGTH_EXCEEDED:
+            errors << QSslError(QSslError::PathLengthExceeded); break;
+        case X509_V_ERR_INVALID_PURPOSE:
+            errors << QSslError(QSslError::InvalidPurpose); break;
+        case X509_V_ERR_CERT_UNTRUSTED:
+            errors << QSslError(QSslError::CertificateUntrusted); break;
+        case X509_V_ERR_CERT_REJECTED:
+            errors << QSslError(QSslError::CertificateRejected); break;
+        default:
+            errors << QSslError(QSslError::UnspecifiedError); break;
+        }
     }
 
     if (!errors.isEmpty()) {
@@ -630,14 +686,7 @@ bool QSslSocketBackendPrivate::initOpenSsl()
         emit q->error(QAbstractSocket::UnknownSocketError);
         return false;
     }
-
-    // Set verify paths
-    q_SSL_CTX_set_default_verify_paths(ctx);
-
-    // Load CA certificates.
-    foreach (const QSslCertificate &certificate, !localCaCertificates.isEmpty() ? localCaCertificates : globalCaCertificates())
-        q_SSL_CTX_use_certificate(ctx, q_X509_dup((X509 *)certificate.handle()));
-
+    
     // Load private key
     /*
       if (!SSL_CTX_use_PrivateKey_file(d->ctx, QFile::encodeName(d->key).constData(), SSL_FILETYPE_PEM)) {
@@ -646,7 +695,7 @@ bool QSslSocketBackendPrivate::initOpenSsl()
             return false;
             }
     */
-    
+
     // Check if the certificate matches the private key.
     /*
       if  (!SSL_CTX_check_private_key(d->ctx)) {
@@ -752,6 +801,7 @@ static QMap<QString, QString> mapFromOnelineName(char *name)
 
 QSslCertificate QSslSocketBackendPrivate::X509_to_QSslCertificate(X509 *x509)
 {
+    ensureInitialized();
     QSslCertificate certificate;
     if (!x509)
         return certificate;
@@ -772,6 +822,7 @@ QSslCertificate QSslSocketBackendPrivate::X509_to_QSslCertificate(X509 *x509)
 
 QList<QSslCertificate> QSslSocketBackendPrivate::STACKOFX509_to_QSslCertificates(STACK_OF(X509) *x509)
 {
+    ensureInitialized();
     QList<QSslCertificate> certificates;
     for (int i = 0; i < q_sk_X509_num(x509); ++i) {
         if (X509 *entry = q_sk_X509_value(x509, i))
@@ -782,6 +833,7 @@ QList<QSslCertificate> QSslSocketBackendPrivate::STACKOFX509_to_QSslCertificates
 
 QSslCertificate QSslSocketBackendPrivate::QByteArray_to_QSslCertificate(const QByteArray &array)
 {
+    ensureInitialized();
     int startPos = array.indexOf(BeginCertString);
     if (startPos == -1)
         return QSslCertificate();
@@ -791,19 +843,12 @@ QSslCertificate QSslSocketBackendPrivate::QByteArray_to_QSslCertificate(const QB
     if (endPos == -1)
         return QSslCertificate();
 
-    qDebug("startPos: %d, endPos: %d", startPos, endPos);
-    qDebug("blob: %s", QByteArray::fromRawData(array.data() + startPos, endPos - startPos).data());
-
     QByteArray decoded = QByteArray::fromBase64(QByteArray::fromRawData(array.data() + startPos, endPos - startPos));
     const unsigned char *data = (unsigned char *)decoded.data();
 
-    qDebug("decoding...");
     X509 *x509 = q_d2i_X509(0, &data, decoded.size());
-    qDebug("done...");
     QSslCertificate certificate = X509_to_QSslCertificate(x509);
-    qDebug("converted.");
     q_X509_free(x509);
-    qDebug("returning copy.");
 
     return certificate;
 }

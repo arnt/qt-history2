@@ -89,6 +89,7 @@ public:
     QByteArray toPem() const;
     QByteArray toDer() const;
 
+    static QList<QSslCertificate> fromPath(const QString &path);
     static QList<QSslCertificate> fromDevice(QIODevice *device);
     static QList<QSslCertificate> fromData(const QByteArray &data);
 

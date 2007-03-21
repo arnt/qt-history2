@@ -7,11 +7,11 @@
 **
 ****************************************************************************/
 
-#include <QtTest/QtTest>
 #include <QtNetwork/qhostaddress.h>
 #include <QtNetwork/qnetworkproxy.h>
 #include <QtNetwork/qsslcipher.h>
 #include <QtNetwork/qsslsocket.h>
+#include <QtTest/QtTest>
 
 class tst_QSslSocket : public QObject
 {
@@ -106,7 +106,6 @@ int tst_QSslSocket::loopLevel = 0;
 
 tst_QSslSocket::tst_QSslSocket()
 {
-    qDebug("Hei");
 #ifndef QT_NO_OPENSSL
     qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
 #endif
@@ -311,6 +310,15 @@ void tst_QSslSocket::ciphers()
 
 void tst_QSslSocket::connectToHostEncrypted()
 {
+    QSslSocket socket;
+    socket.addGlobalCaCertificates(QLatin1String("certs/fluke.ca.pem"));
+    socket.connectToHostEncrypted("fluke.troll.no", 443);
+
+    // This should pass unconditionally when using fluke's CA certificate.
+    QVERIFY(socket.waitForEncrypted(10000));
+
+    socket.disconnectFromHost();
+    QVERIFY(socket.waitForDisconnected());
 }
 
 void tst_QSslSocket::currentCipher()
@@ -407,6 +415,19 @@ void tst_QSslSocket::startServerHandShake()
 
 void tst_QSslSocket::addGlobalCaCertificate()
 {
+    // Reset the global CA chain
+    QSslSocket::setGlobalCaCertificates(QSslSocket::systemCaCertificates());
+
+    QList<QSslCertificate> flukeCerts = QSslCertificate::fromPath("certs/fluke.ca.pem");
+    QCOMPARE(flukeCerts.size(), 1);
+    QList<QSslCertificate> globalCerts = QSslSocket::globalCaCertificates();
+    QVERIFY(!globalCerts.contains(flukeCerts.first()));
+    QSslSocket::addGlobalCaCertificate(flukeCerts.first());
+    QCOMPARE(QSslSocket::globalCaCertificates().size(), globalCerts.size() + 1);
+    QVERIFY(QSslSocket::globalCaCertificates().contains(flukeCerts.first()));
+
+    // Restore the global CA chain
+    QSslSocket::setGlobalCaCertificates(QSslSocket::systemCaCertificates());
 }
 
 void tst_QSslSocket::addGlobalCaCertificates()
@@ -420,8 +441,7 @@ void tst_QSslSocket::addGlobalCaCertificates2()
 void tst_QSslSocket::globalCaCertificates()
 {
     QList<QSslCertificate> certs = QSslSocket::globalCaCertificates();
-    QVERIFY(!certs.isEmpty());
-    QEXPECT_FAIL("", "", Continue);
+    QVERIFY(certs.size() > 1);
     QCOMPARE(certs, QSslSocket::systemCaCertificates());
 }
 
@@ -444,7 +464,7 @@ void tst_QSslSocket::setGlobalCiphers()
 void tst_QSslSocket::supportedCiphers()
 {
     QList<QSslCipher> ciphers = QSslSocket::supportedCiphers();
-    QVERIFY(!ciphers.isEmpty());
+    QVERIFY(ciphers.size() > 1);
 
     QSslSocket socket;
     QCOMPARE(socket.supportedCiphers(), ciphers);
@@ -460,8 +480,7 @@ void tst_QSslSocket::supportsSsl()
 void tst_QSslSocket::systemCaCertificates()
 {
     QList<QSslCertificate> certs = QSslSocket::systemCaCertificates();
-    QVERIFY(!certs.isEmpty());
-    QEXPECT_FAIL("", "", Continue);
+    QVERIFY(certs.size() > 1);
     QCOMPARE(certs, QSslSocket::globalCaCertificates());
 }
 

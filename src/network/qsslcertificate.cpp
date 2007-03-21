@@ -97,7 +97,9 @@
 #ifndef QT_NO_DEBUG
 #include <QtCore/qdebug.h>
 #endif
-#include <QtCore/qiodevice.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qfileinfo.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
@@ -184,7 +186,7 @@ bool QSslCertificate::operator==(const QSslCertificate &other) const
     if (d->null && other.d->null)
         return true;
     if (d->x509 && other.d->x509)
-        return q_X509_cmp(d->x509, other.d->x509);
+        return q_X509_cmp(d->x509, other.d->x509) == 0;
     return false;
 }
 
@@ -407,6 +409,31 @@ QByteArray QSslCertificate::toDer() const
     if (!d->x509)
         return QByteArray();
     return QSslSocketBackendPrivate::X509_to_QByteArray(d->x509, /* pemEncoded = */ false);
+}
+
+/*!
+    Searches for and parses all certificates in all files in \a path, and
+    returns the list of certificates. \a path can be a file or a path, and it
+    can also contain wildcards.
+
+    \sa fromData()
+*/
+QList<QSslCertificate> QSslCertificate::fromPath(const QString &path)
+{
+    QStringList entryList;
+    if (QFileInfo(path).isDir()) {
+        entryList = QDir(path).entryList();
+    } else {
+        entryList << path;
+    }
+
+    QList<QSslCertificate> certs;
+    foreach (QString path, entryList) {
+        QFile file(path);
+        if (file.open(QIODevice::ReadOnly))
+            certs << QSslCertificate(file.readAll());
+    }
+    return certs;
 }
 
 /*!

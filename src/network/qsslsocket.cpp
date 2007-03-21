@@ -170,6 +170,7 @@
 #include <QtCore/qdatetime.h>
 #include <QtCore/qmutex.h>
 #include <QtNetwork/qhostaddress.h>
+#include <QtNetwork/qhostinfo.h>
 
 class QSslSocketGlobalData
 {
@@ -793,7 +794,6 @@ void QSslSocket::setGlobalCaCertificates(const QList<QSslCertificate> &certifica
 */
 QList<QSslCertificate> QSslSocket::globalCaCertificates()
 {
-    QSslSocketPrivate::ensureInitialized();
     return QSslSocketPrivate::globalCaCertificates();
 }
 
@@ -1195,6 +1195,7 @@ void QSslSocketPrivate::setGlobalSupportedCiphers(const QList<QSslCipher> &ciphe
 */
 QList<QSslCertificate> QSslSocketPrivate::globalCaCertificates()
 {
+    QSslSocketPrivate::ensureInitialized();
     QMutexLocker locker(&globalData()->mutex);
     return globalData()->caCertificates;
 }
@@ -1204,6 +1205,7 @@ QList<QSslCertificate> QSslSocketPrivate::globalCaCertificates()
 */
 void QSslSocketPrivate::setGlobalCaCertificates(const QList<QSslCertificate> &certs)
 {
+    QSslSocketPrivate::ensureInitialized();
     QMutexLocker locker(&globalData()->mutex);
     globalData()->caCertificates = certs;
 }
@@ -1213,6 +1215,7 @@ void QSslSocketPrivate::setGlobalCaCertificates(const QList<QSslCertificate> &ce
 */
 bool QSslSocketPrivate::addGlobalCaCertificates(const QString &path)
 {
+    QSslSocketPrivate::ensureInitialized();
     QList<QSslCertificate> certs = QSslSocketPrivate::certificatesFromPath(path);
     if (certs.isEmpty())
         return false;
@@ -1227,6 +1230,7 @@ bool QSslSocketPrivate::addGlobalCaCertificates(const QString &path)
 */
 void QSslSocketPrivate::addGlobalCaCertificate(const QSslCertificate &cert)
 {
+    QSslSocketPrivate::ensureInitialized();
     QMutexLocker locker(&globalData()->mutex);
     globalData()->caCertificates += cert;
 }
@@ -1236,6 +1240,7 @@ void QSslSocketPrivate::addGlobalCaCertificate(const QSslCertificate &cert)
 */
 void QSslSocketPrivate::addGlobalCaCertificates(const QList<QSslCertificate> &certs)
 {
+    QSslSocketPrivate::ensureInitialized();
     QMutexLocker locker(&globalData()->mutex);
     globalData()->caCertificates += certs;
 }
@@ -1294,7 +1299,8 @@ void QSslSocketPrivate::_q_connectedSlot()
     qDebug() << "QSslSocket::_q_connectedSlot()";
     qDebug() << "\tstate =" << q->state();
     qDebug() << "\tpeer =" << q->peerName() << q->peerAddress() << q->peerPort();
-    qDebug() << "\tlocal =" << q->localAddress() << q->localPort();
+    qDebug() << "\tlocal =" << QHostInfo::fromName(q->localAddress().toString()).hostName()
+             << q->localAddress() << q->localPort();
 #endif
     emit q->connected();
 

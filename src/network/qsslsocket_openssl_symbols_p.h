@@ -222,7 +222,16 @@ X509 *q_X509_dup(X509 *a);
 void q_X509_free(X509 *a);
 X509_NAME *q_X509_get_issuer_name(X509 *a);
 X509_NAME *q_X509_get_subject_name(X509 *a);
+int q_X509_verify_cert(X509_STORE_CTX *ctx);
 char *q_X509_NAME_oneline(X509_NAME *a, char *b, int c);
+void q_X509_STORE_free(X509_STORE *store);
+X509_STORE *q_X509_STORE_new();
+int q_X509_STORE_add_cert(X509_STORE *ctx, X509 *x);
+void q_X509_STORE_CTX_free(X509_STORE_CTX *storeCtx);
+int q_X509_STORE_CTX_init(X509_STORE_CTX *ctx, X509_STORE *store,
+                          X509 *x509, STACK_OF(X509) *chain);
+X509_STORE_CTX *q_X509_STORE_CTX_new();
+int q_X509_STORE_CTX_set_purpose(X509_STORE_CTX *ctx, int purpose);
 time_t q_getTimeFromASN1(const ASN1_TIME *aTime);
 
 #define q_BIO_pending(b) (int)q_BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
@@ -233,6 +242,8 @@ time_t q_getTimeFromASN1(const ASN1_TIME *aTime);
 #define q_sk_X509_value(st, i) q_SKM_sk_value(X509, (st), (i))
 #define q_sk_SSL_CIPHER_num(st) q_SKM_sk_num(SSL_CIPHER, (st))
 #define q_sk_SSL_CIPHER_value(st, i) q_SKM_sk_value(SSL_CIPHER, (st), (i))
+#define q_SSL_CTX_add_extra_chain_cert(ctx,x509) \
+        q_SSL_CTX_ctrl(ctx,SSL_CTRL_EXTRA_CHAIN_CERT,0,(char *)x509)
 
 #endif
  
