@@ -90,6 +90,7 @@ public:
 
     QList<QSslCipher> ciphers;
     QList<QSslCertificate> localCaCertificates;
+    bool useLocalCaCertificatesOnly;
 
     // The socket itself, including private slots.
     QTcpSocket *plainSocket;

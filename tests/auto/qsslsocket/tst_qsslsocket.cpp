@@ -13,6 +13,10 @@
 #include <QtNetwork/qsslsocket.h>
 #include <QtTest/QtTest>
 
+Q_DECLARE_METATYPE(QAbstractSocket::SocketState)
+Q_DECLARE_METATYPE(QAbstractSocket::SocketError)
+Q_DECLARE_METATYPE(QSslSocket::Mode)
+
 class tst_QSslSocket : public QObject
 {
     Q_OBJECT
@@ -25,7 +29,6 @@ public:
     {
         ++loopLevel;
         QTestEventLoop::instance().enterLoop(secs);
-        --loopLevel;
     }
 
     static bool timeout()
@@ -48,7 +51,6 @@ private slots:
     void addCaCertificate();
     void addCaCertificates();
     void addCaCertificates2();
-    void caCertificates();
     void ciphers();
     void connectToHostEncrypted();
     void currentCipher();
@@ -60,7 +62,6 @@ private slots:
     void peerCertificateChain();
     void privateKey();
     void protocol();
-    void resetCaCertificates();
     void setCaCertificates();
     void setLocalCertificate();
     void setPrivateKey();
@@ -85,8 +86,10 @@ private slots:
     {
         // Safe exit - if we aren't in an event loop, don't
         // exit one.
-        if (loopLevel > 0)
+        if (loopLevel > 0) {
+            --loopLevel;
             QTestEventLoop::instance().exitLoop();
+        }
     }
 
 protected slots:
@@ -108,6 +111,9 @@ tst_QSslSocket::tst_QSslSocket()
 {
 #ifndef QT_NO_OPENSSL
     qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
+    qRegisterMetaType<QAbstractSocket::SocketState>("QAbstractSocket::SocketState");
+    qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
+    qRegisterMetaType<QAbstractSocket::SocketState>("QSslSocket::Mode");
 #endif
 }
 
@@ -292,10 +298,6 @@ void tst_QSslSocket::addCaCertificates2()
 {
 }
 
-void tst_QSslSocket::caCertificates()
-{
-}
-
 void tst_QSslSocket::ciphers()
 {
     QSslSocket socket;
@@ -311,6 +313,7 @@ void tst_QSslSocket::ciphers()
 void tst_QSslSocket::connectToHostEncrypted()
 {
     QSslSocket socket;
+
     socket.addGlobalCaCertificates(QLatin1String("certs/fluke.ca.pem"));
     socket.connectToHostEncrypted("fluke.troll.no", 443);
 
@@ -368,14 +371,41 @@ void tst_QSslSocket::privateKey()
 
 void tst_QSslSocket::protocol()
 {
-}
-
-void tst_QSslSocket::resetCaCertificates()
-{
+    QSslSocket socket;
+    QCOMPARE(socket.protocol(), QSslSocket::SslV3);
+    {
+        // Fluke allows TLSV1.
+        socket.setProtocol(QSslSocket::TlsV1);
+        QCOMPARE(socket.protocol(), QSslSocket::TlsV1);
+        socket.connectToHostEncrypted(QLatin1String("fluke.troll.no"), 443);
+        QVERIFY2(socket.waitForEncrypted(), qPrintable(socket.errorString()));
+        socket.abort();
+    }
+    {
+        // Fluke allows SSLV2.
+        socket.setProtocol(QSslSocket::SslV2);
+        QCOMPARE(socket.protocol(), QSslSocket::SslV2);
+        socket.connectToHostEncrypted(QLatin1String("fluke.troll.no"), 443);
+        QVERIFY(socket.waitForEncrypted());
+        socket.abort();
+    }
+    {
+        // Fluke allows SSLV3, so it allows Compat.
+        socket.setProtocol(QSslSocket::Compat);
+        QCOMPARE(socket.protocol(), QSslSocket::Compat);
+        socket.connectToHostEncrypted(QLatin1String("fluke.troll.no"), 443);
+        QVERIFY(socket.waitForEncrypted());
+    }
 }
 
 void tst_QSslSocket::setCaCertificates()
 {
+    QSslSocket socket;
+    QCOMPARE(socket.caCertificates(), QSslSocket::globalCaCertificates());
+    socket.setCaCertificates(QSslCertificate::fromPath("certs/fluke.ca.pem"));
+    QCOMPARE(socket.caCertificates().size(), 1);
+    socket.resetCaCertificates();
+    QCOMPARE(socket.caCertificates(), QSslSocket::globalCaCertificates());
 }
 
 void tst_QSslSocket::setLocalCertificate()

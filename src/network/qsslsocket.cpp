@@ -195,6 +195,7 @@ QSslSocket::QSslSocket(QObject *parent)
 #endif
     d->q_ptr = this;
     d->init();
+    resetCiphers();
 }
 
 /*!
@@ -247,6 +248,12 @@ QSslSocket::~QSslSocket()
 void QSslSocket::connectToHostEncrypted(const QString &hostName, quint16 port, OpenMode mode)
 {
     Q_D(QSslSocket);
+    if (d->state == ConnectedState || d->state == ConnectingState) {
+        qWarning("QSslSocket::connectToHostEncrypted() called when already connecting/connected");
+        return;
+    }
+
+    d->init();
     d->autoStartHandShake = true;
     connectToHost(hostName, port, mode);
 }
@@ -710,13 +717,18 @@ void QSslSocket::addCaCertificates(const QList<QSslCertificate> &certificates)
 }
 
 /*!
-    Sets \a certificates to be this socket's CA certificate database.
+    Sets \a certificates to be this socket's CA certificate database. Any
+    global CA certificates are ignored.
+
+    You can later call resetCaCertificates() to restore the global CA
+    certificate defaults.
 
     \sa caCertificates(), resetCaCertificates(), addGlobalCaCertificate()
 */
 void QSslSocket::setCaCertificates(const QList<QSslCertificate> &certificates)
 {
     Q_D(QSslSocket);
+    d->useLocalCaCertificatesOnly = true;
     d->localCaCertificates = certificates;
 }
 
@@ -729,6 +741,7 @@ void QSslSocket::setCaCertificates(const QList<QSslCertificate> &certificates)
 void QSslSocket::resetCaCertificates()
 {
     Q_D(QSslSocket);
+    d->useLocalCaCertificatesOnly = false;
     d->localCaCertificates.clear();
 }
 
@@ -740,6 +753,8 @@ void QSslSocket::resetCaCertificates()
 QList<QSslCertificate> QSslSocket::caCertificates() const
 {
     Q_D(const QSslSocket);
+    if (d->useLocalCaCertificatesOnly)
+        return d->localCaCertificates;
     return d->globalCaCertificates() + d->localCaCertificates;
 }
 
@@ -1136,12 +1151,12 @@ QSslSocketPrivate::~QSslSocketPrivate()
 */
 void QSslSocketPrivate::init()
 {
-    Q_Q(QSslSocket);
     mode = QSslSocket::PlainMode;
     autoStartHandShake = false;
     connectionEncrypted = false;
     ignoreSslErrors = false;
     protocol = QSslSocket::SslV3;
+    useLocalCaCertificatesOnly = false;
 
     // Setup socket.
     delete plainSocket;
@@ -1149,8 +1164,6 @@ void QSslSocketPrivate::init()
     readBuffer.clear();
     writeBuffer.clear();
     peerCertificate.clear();
-
-    q->resetCiphers();
 }
 
 /*!
@@ -1331,6 +1344,7 @@ void QSslSocketPrivate::_q_disconnectedSlot()
     qDebug() << "QSslSocket::_q_disconnectedSlot()";
     qDebug() << "\tstate =" << q->state();
 #endif
+    disconnected();
     emit q->disconnected();
 }
 

@@ -618,7 +618,6 @@ void QSslSocketBackendPrivate::disconnected()
         ssl = 0;
     }
     if (ctx) {
-        // ### Reuse CTX?
         q_SSL_CTX_free(ctx);
         ctx = 0;
     }
