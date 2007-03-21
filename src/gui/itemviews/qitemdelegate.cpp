@@ -797,19 +797,23 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     Q_D(const QItemDelegate);
     const QWidget *widget = d->widget(option);
     QStyle *style = widget ? widget->style() : QApplication::style();
-    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, widget) + 1;
+    const bool hasCheck = checkRect->isValid();
+    const bool hasPixmap = pixmapRect->isValid();
+    const bool hasText = textRect->isValid();
+    const int textMargin = hasText ? style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, widget) + 1 : 0;
+    const int pixmapMargin = hasPixmap ? style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, widget) + 1 : 0;
     int x = option.rect.left();
     int y = option.rect.top();
     int w, h;
 
     textRect->adjust(-textMargin, 0, textMargin, 0); // add width padding
-    if (textRect->height() == 0)
+    if (textRect->height() == 0 && !hasPixmap)
         textRect->setHeight(option.fontMetrics.height());
 
     QSize pm(0, 0);
-    if (pixmapRect->isValid()) {
+    if (hasPixmap) {
         pm = pixmapRect->size();
-        pm.rwidth() += 2 * textMargin;
+        pm.rwidth() += 2 * pixmapMargin;
     }
     if (hint) {
         h = qMax(checkRect->height(), qMax(textRect->height(), pm.height()));
@@ -826,7 +830,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
 
     int cw = 0;
     QRect check;
-    if (checkRect->isValid()) {
+    if (hasCheck) {
         cw = checkRect->width() + 2 * textMargin;
         if (hint) w += cw;
         if (option.direction == Qt::RightToLeft) {
@@ -842,8 +846,8 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     QRect decoration;
     switch (option.decorationPosition) {
     case QStyleOptionViewItem::Top: {
-        if (!pm.isEmpty())
-            pm.setHeight(pm.height() + textMargin); // add space
+        if (hasPixmap)
+            pm.setHeight(pm.height() + pixmapMargin); // add space
         h = hint ? textRect->height() : h - pm.height();
 
         if (option.direction == Qt::RightToLeft) {
@@ -855,7 +859,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
         }
         break; }
     case QStyleOptionViewItem::Bottom: {
-        if (!textRect->isEmpty())
+        if (hasText)
             textRect->setHeight(textRect->height() + textMargin); // add space
         h = hint ? textRect->height() + pm.height() : h;
 
