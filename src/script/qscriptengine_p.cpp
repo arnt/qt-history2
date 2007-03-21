@@ -289,8 +289,14 @@ void QScriptEnginePrivate::markObject(const QScriptValueImpl &object, int genera
 
     enum { MAX_GC_DEPTH = 32 };
 
-    if (block->generation + 1 != generation || m_gc_depth >= MAX_GC_DEPTH)
+    if (block->generation + 1 != generation)
         return;
+
+    if (m_gc_depth >= MAX_GC_DEPTH) {
+        // do the marking later
+        m_markStack.append(object);
+        return;
+    }
 
     ++block->generation;
     ++m_gc_depth;
@@ -474,6 +480,10 @@ void QScriptEnginePrivate::maybeGC_helper(bool do_string_gc)
         for (it = m_customTypes.constBegin(); it != m_customTypes.constEnd(); ++it)
             (*it).prototype.mark(generation);
     }
+
+    // mark the objects we couldn't process due to recursion depth
+    while (!m_markStack.isEmpty())
+        markObject(m_markStack.takeLast(), generation);
 
     objectAllocator.sweep(generation);
 

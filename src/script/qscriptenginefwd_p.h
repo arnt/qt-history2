@@ -300,6 +300,7 @@ public: // attributes
     int m_callDepth;
     int m_maxCallDepth;
     int m_gc_depth;
+    QList<QScriptValueImpl> m_markStack;
     QScriptValueImpl m_globalObject;
     int m_oldStringRepositorySize;
     int m_oldTempStringRepositorySize;

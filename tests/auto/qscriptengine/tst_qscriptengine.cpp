@@ -47,6 +47,7 @@ private slots:
     void infiniteRecursion();
     void castWithPrototypeChain();
     void castWithMultipleInheritance();
+    void gcWithNestedDataStructure();
 };
 
 tst_QScriptEngine::tst_QScriptEngine()
@@ -776,6 +777,36 @@ void tst_QScriptEngine::castWithMultipleInheritance()
     QCOMPARE(qscriptvalue_cast<QObject*>(v), (QObject *)&klz);
     QCOMPARE(qscriptvalue_cast<QStandardItem*>(v), (QStandardItem *)&klz);
     QCOMPARE(qscriptvalue_cast<QGraphicsItem*>(v), (QGraphicsItem *)&klz);
+}
+
+void tst_QScriptEngine::gcWithNestedDataStructure()
+{
+    QScriptEngine eng;
+    eng.evaluate(
+        "function makeList(size)"
+        "{"
+        "  var head = { };"
+        "  var l = head;"
+        "  for (var i = 0; i < size; ++i) {"
+        "    l.data = i + \"\";"
+        "    l.next = { }; l = l.next;"
+        "  }"
+        "  l.next = null;"
+        "  return head;"
+        "}");
+    QCOMPARE(eng.hasUncaughtException(), false);
+    const int size = 200;
+    QScriptValue head = eng.evaluate(QString::fromLatin1("makeList(%0)").arg(size));
+    QCOMPARE(eng.hasUncaughtException(), false);
+    for (int x = 0; x < 2; ++x) {
+        if (x == 1)
+            eng.evaluate("gc()");
+        QScriptValue l = head;
+        for (int i = 0; i < 200; ++i) {
+            QCOMPARE(l.property("data").toString(), QString::number(i));
+            l = l.property("next");
+        }
+    }
 }
 
 QTEST_MAIN(tst_QScriptEngine)
