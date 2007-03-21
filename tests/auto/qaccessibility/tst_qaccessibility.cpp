@@ -463,6 +463,7 @@ QWidget *tst_QAccessibility::createGUI()
 
     // topLeft - hierarchies
     Q3VBox *topLeft = new Q3VBox(toplevel, "topLeft");
+    topLeft->setSpacing(2);
     grid->addWidget(topLeft, 0, 0);
 
 	Q3VButtonGroup *group1 = new Q3VButtonGroup("Title1:", topLeft, "group1");
