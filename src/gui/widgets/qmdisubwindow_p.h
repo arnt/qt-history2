@@ -155,6 +155,7 @@ public:
     bool ignoreWindowTitleChange;
     bool isShadeRequestFromMinimizeMode;
     bool isMaximizeMode;
+    bool isWidgetHiddenByUs;
     int keyboardSingleStep;
     int keyboardPageStep;
     Operation currentOperation;

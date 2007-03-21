@@ -704,6 +704,7 @@ QMdiSubWindowPrivate::QMdiSubWindowPrivate()
       ignoreWindowTitleChange(false),
       isShadeRequestFromMinimizeMode(false),
       isMaximizeMode(false),
+      isWidgetHiddenByUs(false),
       keyboardSingleStep(5),
       keyboardPageStep(20),
       currentOperation(None),
@@ -825,6 +826,7 @@ void QMdiSubWindowPrivate::removeBaseWidget()
     lastChildWindowTitle.clear();
     baseWidget->setParent(0);
     baseWidget = 0;
+    isWidgetHiddenByUs = false;
 }
 
 /*!
@@ -1053,17 +1055,29 @@ void QMdiSubWindowPrivate::setNormalMode()
 
     isShadeMode = false;
     isMaximizeMode = false;
+
     ensureWindowState(Qt::WindowNoState);
     removeButtonsFromMenuBar();
 
-    // Don't show the widget before we have updated the geometry,
-    // otherwise the widget will get a resize event, which it shouldn't.
-    QRect newGeometry = oldGeometry;
-    newGeometry.setSize(restoreSize.expandedTo(q->minimumSizeHint()));
-    q->setGeometry(newGeometry);
-    if (baseWidget)
-        baseWidget->show();
+    // Hide the window before we change the geometry to avoid multiple resize
+    // events and wrong window state.
+    const bool wasVisible = q->isVisible();
+    if (wasVisible)
+        q->setVisible(false);
+
     updateGeometryConstraints();
+    QRect newGeometry = oldGeometry;
+    newGeometry.setSize(restoreSize.expandedTo(internalMinimumSize));
+    q->setGeometry(newGeometry);
+
+    // Show the internal widget if it was hidden by us,
+    if (baseWidget && isWidgetHiddenByUs) {
+        baseWidget->show();
+        isWidgetHiddenByUs = false;
+    }
+
+    if (wasVisible)
+        q->setVisible(true);
 
     // Invalidate the restore size.
     restoreSize.setWidth(-1);
@@ -1095,28 +1109,16 @@ void QMdiSubWindowPrivate::setMaximizeMode()
     Q_Q(QMdiSubWindow);
     Q_ASSERT(q->parent());
 
+    ensureWindowState(Qt::WindowMaximized);
+    isShadeMode = false;
+    isMaximizeMode = true;
+
     if (!restoreFocusWidget && q->isAncestorOf(QApplication::focusWidget()))
         restoreFocusWidget = QApplication::focusWidget();
 
-    ensureWindowState(Qt::WindowMaximized);
-    if (baseWidget)
-        baseWidget->show();
-    updateGeometryConstraints();
-
-    if (!drawTitleBarWhenMaximized() && q->isVisible()) {
-        if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(q->window()))
-            showButtonsInMenuBar(mainWindow->menuBar());
-        else if (!controlContainer)
-            controlContainer = new ControlContainer(q);
-    }
-
-    QRect availableRect = q->parentWidget()->contentsRect();
 #ifndef QT_NO_SIZEGRIP
     setSizeGripVisible(false);
 #endif
-
-    resizeEnabled = false;
-    moveEnabled = false;
 
     // Store old geometry and set restore size if not already set.
     if (!restoreSize.isValid()) {
@@ -1125,10 +1127,37 @@ void QMdiSubWindowPrivate::setMaximizeMode()
         restoreSize.setHeight(oldGeometry.height());
     }
 
-    // setGeometry() will reset the Qt::WindowMaximized flag because
-    // this window is not a top level window.
+    // Hide the window before we change the geometry to avoid multiple resize
+    // events and wrong window state.
+    const bool wasVisible = q->isVisible();
+    if (wasVisible)
+        q->setVisible(false);
+
+    // Show the internal widget if it was hidden by us.
+    if (baseWidget && isWidgetHiddenByUs) {
+        baseWidget->show();
+        isWidgetHiddenByUs = false;
+    }
+
+    updateGeometryConstraints();
+
+    if (!drawTitleBarWhenMaximized() && wasVisible) {
+        if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(q->window()))
+            showButtonsInMenuBar(mainWindow->menuBar());
+        else if (!controlContainer)
+            controlContainer = new ControlContainer(q);
+    }
+
+    QRect availableRect = q->parentWidget()->contentsRect();
     setNewGeometry(&availableRect);
+    // QWidget::setGeometry will reset Qt::WindowMaximized so we have to update it here.
     ensureWindowState(Qt::WindowMaximized);
+
+    if (wasVisible)
+        q->setVisible(true);
+
+    resizeEnabled = false;
+    moveEnabled = false;
 
     setEnabled(MoveAction, moveEnabled);
     setEnabled(MaximizeAction, false);
@@ -1139,8 +1168,6 @@ void QMdiSubWindowPrivate::setMaximizeMode()
     Q_ASSERT(q->windowState() & Qt::WindowMaximized);
     Q_ASSERT(!(q->windowState() & Qt::WindowMinimized));
 
-    isShadeMode = false;
-    isMaximizeMode = true;
     restoreFocus();
     updateMask();
 }
@@ -1482,7 +1509,7 @@ bool QMdiSubWindowPrivate::drawTitleBarWhenMaximized() const
     if (q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
         return true;
     QMainWindow *mainWindow = qobject_cast<QMainWindow *>(q->window());
-    if (!mainWindow || !mainWindow->menuWidget() || !mainWindow->menuWidget()->isVisible())
+    if (!mainWindow || !mainWindow->menuWidget() || mainWindow->menuWidget()->isHidden())
         return true;
     return isChildOfQMdiSubWindow(q);
 #endif
@@ -1507,6 +1534,15 @@ void QMdiSubWindowPrivate::showButtonsInMenuBar(QMenuBar *menuBar)
     QWidget *topLevelWindow = q->window();
     topLevelWindow->setWindowModified(q->isWindowModified());
     topLevelWindow->installEventFilter(q);
+
+    // This will rarely happen.
+    if (menuBar && menuBar->height() < controlContainer->controllerWidget()->height()
+            && topLevelWindow->layout()) {
+        // Make sure topLevelWindow->contentsRect returns correct geometry.
+        // topLevelWidget->updateGeoemtry will not do the trick here since it will post the event.
+        QEvent event(QEvent::LayoutRequest);
+        QApplication::sendEvent(topLevelWindow, &event);
+    }
 }
 
 /*!
@@ -1701,7 +1737,7 @@ void QMdiSubWindowPrivate::setFocusWidget()
 
     if (QWidget *focusWidget = baseWidget->focusWidget()) {
         if (!focusWidget->hasFocus() && q->isAncestorOf(focusWidget)
-                && focusWidget->isVisible()
+                && focusWidget->isVisible() && !q->isMinimized()
                 && focusWidget->focusPolicy() != Qt::NoFocus) {
             focusWidget->setFocus();
         } else {
@@ -2209,9 +2245,6 @@ void QMdiSubWindow::showShaded()
     if (hasFocus() || isAncestorOf(currentFocusWidget))
         d->ensureWindowState(Qt::WindowActive);
 
-    if (d->baseWidget)
-        d->baseWidget->hide();
-    setFocus();
 #ifndef QT_NO_SIZEGRIP
     d->setSizeGripVisible(false);
 #endif
@@ -2222,8 +2255,25 @@ void QMdiSubWindow::showShaded()
         d->restoreSize.setHeight(d->oldGeometry.height());
     }
 
-    d->internalMinimumSize = minimumSizeHint();
+    // Hide the window before we change the geometry to avoid multiple resize
+    // events and wrong window state.
+    const bool wasVisible = isVisible();
+    if (wasVisible)
+        setVisible(false);
+
+    d->updateGeometryConstraints();
     resize(d->internalMinimumSize);
+
+    // Hide the internal widget if not already hidden by the user.
+    if (d->baseWidget && !d->baseWidget->isHidden()) {
+        d->baseWidget->hide();
+        d->isWidgetHiddenByUs = true;
+    }
+
+    if (wasVisible)
+        setVisible(true);
+
+    d->setFocusWidget();
     d->resizeEnabled = false;
     d->moveEnabled = true;
     d->updateDirtyRegions();
@@ -2264,18 +2314,11 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
 
     switch (event->type()) {
     case QEvent::Show:
-        d->updateGeometryConstraints();
         d->setActive(true);
         break;
     case QEvent::ShowToParent:
-        show();
-        break;
-    case QEvent::Hide:
-        // We don't want to call updateGeometryConstraints when minimized
-        // because it can trigger a resize event (due to setContentsMargins),
-        // which is not something we want.
-        if (!isMinimized())
-            d->updateGeometryConstraints();
+        if (!d->isWidgetHiddenByUs)
+            show();
         break;
     case QEvent::WindowStateChange: {
         QWindowStateChangeEvent *changeEvent = static_cast<QWindowStateChangeEvent*>(event);
@@ -2365,6 +2408,7 @@ bool QMdiSubWindow::event(QEvent *event)
             d->leaveRubberBandMode();
         d->isShadeMode = false;
         d->isMaximizeMode = false;
+        d->isWidgetHiddenByUs = false;
         if (!parent()) {
 #if !defined(QT_NO_SIZEGRIP) && defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
             if (qobject_cast<QMacStyle *>(style()))
@@ -2461,10 +2505,7 @@ void QMdiSubWindow::showEvent(QShowEvent *showEvent)
 */
 void QMdiSubWindow::hideEvent(QHideEvent * /*hideEvent*/)
 {
-    Q_D(QMdiSubWindow);
-    // Remove buttons from the menu bar when QMdiSubWindow is hidden.
-    if (isMaximized() && d->controlContainer && !d->drawTitleBarWhenMaximized())
-        d->removeButtonsFromMenuBar();
+    d_func()->removeButtonsFromMenuBar();
 }
 
 /*!
@@ -2498,10 +2539,12 @@ void QMdiSubWindow::changeEvent(QEvent *changeEvent)
     // QWidget ensures that the widget is visible _after_ setWindowState(),
     // but we need to ensure that the widget is visible _before_
     // setWindowState() returns.
-    if (!isVisible())
-        setVisible(true);
-
     Q_D(QMdiSubWindow);
+    if (!isVisible()) {
+        d->ensureWindowState(Qt::WindowNoState);
+        setVisible(true);
+    }
+
     if (!d->oldGeometry.isValid())
         d->oldGeometry = geometry();
 
@@ -2781,10 +2824,8 @@ void QMdiSubWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
 
     // Do not resize/move if not allowed.
     d->currentOperation = d->getOperation(mouseEvent->pos());
-    if (d->isResizeOperation() && !d->resizeEnabled || d->isMoveOperation() && !d->moveEnabled) {
+    if (d->isResizeOperation() && !d->resizeEnabled || d->isMoveOperation() && !d->moveEnabled)
         d->currentOperation = QMdiSubWindowPrivate::None;
-        d->hoveredSubControl = QStyle::SC_None;
-    }
     d->updateCursor();
 }
 
@@ -2945,17 +2986,19 @@ QSize QMdiSubWindow::minimumSizeHint() const
         return QSize(qMax(minWidth, width()), d->titleBarHeight());
 
     // Content
-    if (layout()) {
-        QSize minLayoutSize = layout()->minimumSize();
-        if (minLayoutSize.isValid()) {
-            minWidth = qMax(minWidth, minLayoutSize.width() + 2 * margin);
-            minHeight += minLayoutSize.height();
-        }
-    } else if (d->baseWidget && d->baseWidget->isVisible()) {
-        QSize minBaseWidgetSize = d->baseWidget->minimumSizeHint();
-        if (minBaseWidgetSize.isValid()) {
-            minWidth = qMax(minWidth, minBaseWidgetSize.width() + 2 * margin);
-            minHeight += minBaseWidgetSize.height();
+    if (!isMinimized()) {
+        if (layout()) {
+            QSize minLayoutSize = layout()->minimumSize();
+            if (minLayoutSize.isValid()) {
+                minWidth = qMax(minWidth, minLayoutSize.width() + 2 * margin);
+                minHeight += minLayoutSize.height();
+            }
+        } else if (d->baseWidget && d->baseWidget->isVisible()) {
+            QSize minBaseWidgetSize = d->baseWidget->minimumSizeHint();
+            if (minBaseWidgetSize.isValid()) {
+                minWidth = qMax(minWidth, minBaseWidgetSize.width() + 2 * margin);
+                minHeight += minBaseWidgetSize.height();
+            }
         }
     }
 
