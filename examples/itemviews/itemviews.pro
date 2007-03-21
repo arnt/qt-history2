@@ -8,6 +8,7 @@ SUBDIRS       = basicsortfiltermodel \
                 puzzle \
                 simpledommodel \
                 simpletreemodel \
+                simplewidgetmapper \
                 spinboxdelegate \
                 stardelegate
 
