@@ -276,6 +276,7 @@ void tst_QComboBox::getSetCheck()
     QCOMPARE(obj1.model(), (QAbstractItemModel *)var11);
 #endif
     delete var11;
+    obj1.model();
 
     // int QComboBox::modelColumn()
     // void QComboBox::setModelColumn(int)
