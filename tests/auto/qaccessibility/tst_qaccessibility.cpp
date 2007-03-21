@@ -2600,6 +2600,8 @@ void tst_QAccessibility::mdiSubWindowTest()
 #if defined(Q_WS_X11)
     qt_x11_wait_for_window_manager(&mdiArea);
 #endif
+    qApp->setActiveWindow(&mdiArea);
+
     const int subWindowCount =  5;
     for (int i = 0; i < subWindowCount; ++i)
         mdiArea.addSubWindow(new QPushButton("QAccessibilityTest"))->show();
@@ -2626,8 +2628,10 @@ void tst_QAccessibility::mdiSubWindowTest()
     interface->setText(QAccessible::Name, 1, QLatin1String("TitleSetOnChild"));
     QCOMPARE(interface->text(QAccessible::Name, 0), QLatin1String("TitleSetOnChild"));
 
+    mdiArea.setActiveSubWindow(testWindow);
+
     // state
-    QAccessible::State state = QAccessible::Normal | QAccessible::Focusable
+    QAccessible::State state = QAccessible::Normal | QAccessible::Focusable | QAccessible::Focused
                                | QAccessible::Movable | QAccessible::Sizeable;
     QCOMPARE(interface->state(0), state);
     const QRect originalGeometry = testWindow->geometry();
