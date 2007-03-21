@@ -338,11 +338,17 @@ void tst_QColumnView::moveCursor()
 void tst_QColumnView::selectAll()
 {
     ColumnView view;
+    QDirModel model;
     view.selectAll();
 
-    QDirModel model;
     view.setModel(&model);
     view.selectAll();
+    QVERIFY(view.selectionModel()->selectedIndexes().count() >= 0);
+
+    QModelIndex home = model.index(QDir::homePath());
+    view.setCurrentIndex(home);
+    view.selectAll();
+    QVERIFY(view.selectionModel()->selectedIndexes().count() > 0);
 }
 
 void tst_QColumnView::moveGrip()
