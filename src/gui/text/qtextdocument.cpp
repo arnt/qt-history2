@@ -1326,7 +1326,7 @@ void QTextDocument::print(QPrinter *printer) const
     QRectF body = QRectF(QPointF(0, 0), d->pageSize);
     QPointF pageNumberPos;
 
-    if (d->pageSize.isValid()
+    if (d->pageSize.isValid() && !d->pageSize.isNull()
         && d->pageSize.height() != INT_MAX) {
         extern int qt_defaultDpi();
 
