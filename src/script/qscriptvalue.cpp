@@ -348,13 +348,22 @@ QScriptValue QScriptValue::prototype() const
 */
 void QScriptValue::setPrototype(const QScriptValue &prototype)
 {
-    if (isObject() && prototype.isValid() && (prototype.engine() != engine())) {
+    if (!isObject())
+        return;
+    if (prototype.isValid() && (prototype.engine() != engine())) {
         qWarning("QScriptValue::setPrototype() failed: "
                  "cannot set a prototype created in "
                  "a different engine");
         return;
     }
-    QScriptValuePrivate::valueOf(*this).setPrototype(QScriptValuePrivate::valueOf(prototype));
+    QScriptValueImpl self = QScriptValuePrivate::valueOf(*this);
+    QScriptValueImpl was = self.prototype();
+    self.setPrototype(QScriptValuePrivate::valueOf(prototype));
+    if (self.detectedCycle()) {
+        qWarning("QScriptValue::setPrototype() failed: "
+                 "cyclic prototype value");
+        self.setPrototype(was);
+    }
 }
 
 /*!

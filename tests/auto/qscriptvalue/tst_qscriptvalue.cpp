@@ -982,6 +982,29 @@ void tst_QScriptValue::getSetPrototype()
     QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setPrototype() failed: cannot set a prototype created in a different engine");
     object2.setPrototype(object3);
     QCOMPARE(object2.prototype().strictEqualTo(object), true);
+
+    // cyclic prototypes
+    QScriptValue old = object.prototype();
+    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setPrototype() failed: cyclic prototype value");
+    object.setPrototype(object);
+    QCOMPARE(object.prototype().strictEqualTo(old), true);
+
+    object2.setPrototype(object);
+    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setPrototype() failed: cyclic prototype value");
+    object.setPrototype(object2);
+    QCOMPARE(object.prototype().strictEqualTo(old), true);
+
+    {
+        QScriptValue ret = eng.evaluate("o = { }; p = { }; o.__proto__ = p; p.__proto__ = o");
+        QCOMPARE(eng.hasUncaughtException(), true);
+        QCOMPARE(ret.isError(), true);
+        QCOMPARE(ret.toString(), QLatin1String("Error: cycle in prototype chain"));
+    }
+    {
+        QScriptValue ret = eng.evaluate("p.__proto__ = { }");
+        QCOMPARE(eng.hasUncaughtException(), false);
+        QCOMPARE(ret.isError(), false);
+    }
 }
 
 void tst_QScriptValue::getSetScope()

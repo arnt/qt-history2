@@ -539,7 +539,7 @@ inline void QScriptValueImpl::put(const QScript::Member &member, const QScriptVa
             QScriptValueImpl was = prototype();
             setPrototype(object);
             if (detectedCycle()) {
-                qWarning() << "*** cycle detected"; // ### throw an exception
+                eng_p->currentContext()->throwError(QLatin1String("cycle in prototype chain"));
                 setPrototype(was);
             }
         }

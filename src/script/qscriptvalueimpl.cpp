@@ -20,16 +20,17 @@
 
 static void dfs(QScriptObject *instance, QHash<QScriptObject*, int> &dfn, int n)
 {
-    if (dfn.contains(instance))
-        return; // nothing to do
-    
+    bool found = dfn.contains(instance);
     dfn[instance] = n;
+
+    if (found)
+        return;
     
     if (instance->m_prototype.isValid() && instance->m_prototype.isObject())
-        dfs (instance->m_prototype.m_object_value, dfn, ++n);
+        dfs (instance->m_prototype.m_object_value, dfn, n + 1);
     
     if (instance->m_scope.isValid() && instance->m_scope.isObject())
-        dfs (instance->m_scope.m_object_value, dfn, ++n);
+        dfs (instance->m_scope.m_object_value, dfn, n + 1);
 }
 
 

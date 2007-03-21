@@ -111,7 +111,7 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
                 member = tmp; \
             } \
             value = getter.call(object); \
-            if (engine()->hasUncaughtException()) \
+            if (eng->hasUncaughtException()) \
                 Done(); \
         } \
     } else if (!isMemberAssignment) { \
@@ -127,7 +127,7 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
 #define END_PREFIX_OPERATOR \
     if (member.isSetter()) { \
         setter.call(object, QScriptValueImplList() << value); \
-        if (engine()->hasUncaughtException()) { \
+        if (eng->hasUncaughtException()) { \
             stackPtr -= 2; \
             Done(); \
         } \
@@ -191,7 +191,7 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
                 member = tmp; \
             } \
             lhs = getter.call(object); \
-            if (engine()->hasUncaughtException()) \
+            if (eng->hasUncaughtException()) \
                 Done(); \
         } \
     } else if (!isMemberAssignment) { \
@@ -208,7 +208,7 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
 #define END_INPLACE_OPERATOR \
     if (member.isSetter()) { \
         setter.call(object, QScriptValueImplList() << *stackPtr); \
-        if (engine()->hasUncaughtException()) \
+        if (eng->hasUncaughtException()) \
             Done(); \
     } else { \
         if (isMemberAssignment && (base.m_object_value != object.m_object_value)) { \
@@ -536,7 +536,7 @@ Ltop:
                         *stackPtr = getter.call(m_scopeChain.prototype());
                     else
                         *stackPtr = getter.call(m_scopeChain);
-                    if (engine()->hasUncaughtException())
+                    if (eng->hasUncaughtException())
                         Done();
                 }
             } else {
@@ -890,7 +890,7 @@ Ltop:
                     base.get(member, &getter);
                 }
                 *stackPtr = getter.call(object);
-                if (engine()->hasUncaughtException())
+                if (eng->hasUncaughtException())
                     Done();
             }
         } else {
@@ -1002,8 +1002,6 @@ Ltop:
                 }
                 base.get(member, &setter);
                 value = setter.call(object, QScriptValueImplList() << value);
-                if (engine()->hasUncaughtException())
-                    Done();
             } else {
                 if (isMemberAssignment && (base.m_object_value != object.m_object_value)) {
                     base = object;
@@ -1021,6 +1019,8 @@ Ltop:
                     }
                 }
             }
+            if (eng->hasUncaughtException())
+                Done();
         }
 
         *stackPtr = value;
@@ -1434,7 +1434,7 @@ Ltop:
                 member = tmp;
             }
             value = getter.call(object);
-            if (engine()->hasUncaughtException()) {
+            if (eng->hasUncaughtException()) {
                 stackPtr -= 2;
                 Done();
             }
@@ -1446,7 +1446,7 @@ Ltop:
 
         if (member.isSetter()) {
             setter.call(object, QScriptValueImplList() << value);
-            if (engine()->hasUncaughtException()) {
+            if (eng->hasUncaughtException()) {
                 stackPtr -= 2;
                 Done();
             }
@@ -1536,7 +1536,7 @@ Ltop:
                 member = tmp;
             }
             value = getter.call(object);
-            if (engine()->hasUncaughtException()) {
+            if (eng->hasUncaughtException()) {
                 stackPtr -= 2;
                 Done();
             }
@@ -1548,7 +1548,7 @@ Ltop:
 
         if (member.isSetter()) {
             setter.call(object, QScriptValueImplList() << value);
-            if (engine()->hasUncaughtException()) {
+            if (eng->hasUncaughtException()) {
                 stackPtr -= 2;
                 Done();
             }
