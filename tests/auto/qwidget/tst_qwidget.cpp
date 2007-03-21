@@ -3488,11 +3488,7 @@ void tst_QWidget::isOpaque()
     palette.setColor(QPalette::Window, QColor(0, 0, 255, 127));
     w.setPalette(palette);
 
-#ifdef Q_WS_QWS // only platform that currently supports transparent top-levels
     QVERIFY(!QWidgetBackingStore::isOpaque(&w));
-#else
-    QVERIFY(QWidgetBackingStore::isOpaque(&w));
-#endif
 
     child.setAutoFillBackground(false);
     QVERIFY(!QWidgetBackingStore::isOpaque(&child));
@@ -3518,11 +3514,7 @@ void tst_QWidget::isOpaque()
     QVERIFY(QWidgetBackingStore::isOpaque(&w));
 
     w.setAttribute(Qt::WA_NoSystemBackground);
-#ifdef Q_WS_QWS
     QVERIFY(!QWidgetBackingStore::isOpaque(&w));
-#else
-    QVERIFY(QWidgetBackingStore::isOpaque(&w));
-#endif
 
     w.setAttribute(Qt::WA_NoSystemBackground, false);
     QVERIFY(QWidgetBackingStore::isOpaque(&w));
