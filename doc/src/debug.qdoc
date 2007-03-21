@@ -83,6 +83,20 @@
     looks or acts strangely. More useful if you use \l{QObject::setObjectName()}{object names}
     than not, but often useful even without names.
 
+    \section1 Providing Support for the qDebug() Stream Operator
+
+    You can implement the stream operator used by qDebug() to provide
+    debugging support for your classes. The class that implements the
+    stream is \c QDebug. The functions you need to know about in \c
+    QDebug are \c space() and \c nospace(). They both return a debug
+    stream; the difference between them is whether a space is inserted
+    between each item. Here is an example for a class that represents
+    a 2D coordinate.
+
+    \quotefromfile snippets/qdebugsnippet.cpp
+    \skipto /QDebug/
+    \printuntil /^\}/
+
     \section1 Debugging Macros
 
     The header file \c <QtGlobal> contains some debugging macros and
