@@ -109,48 +109,48 @@ q_atomic_set_ptr_retry:
 	.size q_atomic_set_ptr,.-q_atomic_set_ptr
 
         .align 4
-	.type q_atomic_fetch_and_add,#function
-	.global q_atomic_fetch_and_add
-q_atomic_fetch_and_add:
-q_atomic_fetch_and_add_retry:
+	.type q_atomic_fetch_and_add_int,#function
+	.global q_atomic_fetch_and_add_int
+q_atomic_fetch_and_add_int:
+q_atomic_fetch_and_add_int_retry:
 	ld [%o0],%o3
 	add %o3,%o1,%o4
 	cas [%o0],%o3,%o4
 	cmp %o3,%o4
-	bne q_atomic_fetch_and_add_retry
+	bne q_atomic_fetch_and_add_int_retry
 	nop
 	retl
 	mov %o3,%o0
-	.size q_atomic_fetch_and_add,.-q_atomic_fetch_and_add
+	.size q_atomic_fetch_and_add_int,.-q_atomic_fetch_and_add_int
 
         .align 4
-	.type q_atomic_fetch_and_add_acquire,#function
-	.global q_atomic_fetch_and_add_acquire
-q_atomic_fetch_and_add_acquire:
-q_atomic_fetch_and_add_acquire_retry:
+	.type q_atomic_fetch_and_add_acquire_int,#function
+	.global q_atomic_fetch_and_add_acquire_int
+q_atomic_fetch_and_add_acquire_int:
+q_atomic_fetch_and_add_acquire_int_retry:
 	ld [%o0],%o3
 	add %o3,%o1,%o4
 	cas [%o0],%o3,%o4
 	cmp %o3,%o4
-	bne q_atomic_fetch_and_add_acquire_retry
+	bne q_atomic_fetch_and_add_acquire_int_retry
 	nop
 	membar #LoadLoad | #LoadStore
 	retl
 	mov %o3,%o0
-	.size q_atomic_fetch_and_add_acquire,.-q_atomic_fetch_and_add_acquire
+	.size q_atomic_fetch_and_add_acquire_int,.-q_atomic_fetch_and_add_acquire_int
 
         .align 4
-	.type q_atomic_fetch_and_add_release,#function
-	.global q_atomic_fetch_and_add_release
-q_atomic_fetch_and_add_release:
-q_atomic_fetch_and_add_release_retry:
-	membar #LoadLoad | #LoadStore
+	.type q_atomic_fetch_and_add_release_int,#function
+	.global q_atomic_fetch_and_add_release_int
+q_atomic_fetch_and_add_release_int:
+q_atomic_fetch_and_add_release_int_retry:
+	membar #LoadStore | #StoreStore
 	ld [%o0],%o3
 	add %o3,%o1,%o4
 	cas [%o0],%o3,%o4
 	cmp %o3,%o4
-	bne q_atomic_fetch_and_add_release_retry
+	bne q_atomic_fetch_and_add_release_int_retry
 	nop
 	retl
 	mov %o3,%o0
-	.size q_atomic_fetch_and_add_release,.-q_atomic_fetch_and_add_release
+	.size q_atomic_fetch_and_add_release_int,.-q_atomic_fetch_and_add_release_int
