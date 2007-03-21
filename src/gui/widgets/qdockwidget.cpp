@@ -166,7 +166,7 @@ QDockWidgetLayout::QDockWidgetLayout(QWidget *parent)
 
 bool QDockWidgetLayout::nativeWindowDeco() const
 {
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
     return false;
 #else
     return parentWidget()->isWindow() && item_list[QDockWidgetLayout::TitleBar] == 0;
@@ -231,7 +231,7 @@ QSize QDockWidgetLayout::sizeFromContent(const QSize &content, bool floating) co
     QDockWidget *w = qobject_cast<QDockWidget*>(parentWidget());
     bool customTitleBar = item_list[TitleBar] != 0;
     bool nativeDeco = floating && !customTitleBar;
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
     nativeDeco = false;
 #endif
 
@@ -889,7 +889,7 @@ void QDockWidgetPrivate::setWindowState(bool floating, bool unplug, const QRect 
 
     QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(q->layout());
     bool nativeDeco = floating && layout->widget(QDockWidgetLayout::TitleBar) == 0;
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
     nativeDeco = false;
 #endif
 
