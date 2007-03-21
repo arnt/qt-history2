@@ -2151,15 +2151,20 @@ void QComboBox::showPopup()
     }
     container->setGeometry(listRect);
 
+    bool updatesEnabled = container->updatesEnabled();
+    container->setUpdatesEnabled(false);
+    container->raise();
+    container->show();
+    container->updateScrollers();
+    view()->setFocus();
+
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this))
         view()->scrollTo(view()->currentIndex(), QAbstractItemView::PositionAtCenter);
     else
         view()->scrollTo(view()->currentIndex(), QAbstractItemView::EnsureVisible);
 
-    container->raise();
-    container->show();
-    container->updateScrollers();
-    view()->setFocus();
+    container->setUpdatesEnabled(updatesEnabled);
+    container->update();
 }
 
 /*!
