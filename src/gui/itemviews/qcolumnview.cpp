@@ -477,7 +477,7 @@ QSize QColumnView::sizeHint() const
     for (int i = 0; i < d->columns.size(); ++i) {
         sizeHint += d->columns.at(i)->sizeHint();
     }
-    return sizeHint.expandedTo(QSize(540,370));
+    return sizeHint.expandedTo(QAbstractItemView::sizeHint());
 }
 
 /*!
