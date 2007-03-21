@@ -374,8 +374,7 @@ void Q3GVector::sort()				// sort vector
     }
 
 #ifndef QT_NO_THREAD
-    QMutexLocker locker( qt_global_mutexpool ?
-			 qt_global_mutexpool->get( &sort_vec ) : 0 );
+    QMutexLocker locker(QMutexPool::globalInstanceGet(&sort_vec));
 #endif
 
     sort_vec = (Q3GVector*)this;

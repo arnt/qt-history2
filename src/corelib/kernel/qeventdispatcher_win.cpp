@@ -75,8 +75,7 @@ static void resolveTimerAPI()
     static bool triedResolve = false;
     if (!triedResolve) {
 #ifndef QT_NO_THREAD
-        QMutexLocker locker(qt_global_mutexpool ?
-                            qt_global_mutexpool->get(&triedResolve) : 0);
+        QMutexLocker locker(QMutexPool::globalInstanceGet(&triedResolve));
         if (triedResolve)
             return;
 #endif

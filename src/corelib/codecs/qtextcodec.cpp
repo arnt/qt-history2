@@ -463,8 +463,7 @@ static void setupLocaleMapper()
 static void setup()
 {
 #ifndef QT_NO_THREAD
-    QMutexLocker locker(qt_global_mutexpool ?
-                        qt_global_mutexpool->get(&all) : 0);
+    QMutexLocker locker(QMutexPool::globalInstanceGet(&all));
 #endif
 
     if (all)

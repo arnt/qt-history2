@@ -80,8 +80,7 @@ void QFSFileEnginePrivate::resolveLibs()
 
         // protect initialization
 #ifndef QT_NO_THREAD
-        QMutexLocker locker(qt_global_mutexpool ?
-            qt_global_mutexpool->get(&triedResolve) : 0);
+        QMutexLocker locker(QMutexPool::globalInstanceGet(&triedResolve));
         // check triedResolve again, since another thread may have already
         // done the initialization
         if(triedResolve) {
@@ -172,8 +171,7 @@ bool QFSFileEnginePrivate::resolveUNCLibs_NT()
     static bool triedResolve = false;
     if (!triedResolve) {
 #ifndef QT_NO_THREAD
-        QMutexLocker locker(qt_global_mutexpool ?
-            qt_global_mutexpool->get(&triedResolve) : 0);
+        QMutexLocker locker(QMutexPool::globalInstanceGet(&triedResolve));
         if (triedResolve) {
             return ptrNetShareEnum_NT && ptrNetApiBufferFree_NT;
         }
@@ -209,8 +207,7 @@ bool QFSFileEnginePrivate::resolveUNCLibs_9x()
     static bool triedResolve = false;
     if (!triedResolve) {
 #ifndef QT_NO_THREAD
-        QMutexLocker locker(qt_global_mutexpool ?
-            qt_global_mutexpool->get(&triedResolve) : 0);
+        QMutexLocker locker(QMutexPool::globalInstanceGet(&triedResolve));
         if (triedResolve) {
             return ptrNetShareEnum_9x;
         }

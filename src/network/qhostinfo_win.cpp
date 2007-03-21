@@ -87,7 +87,7 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
     // Load res_init on demand.
     static volatile bool triedResolve = false;
     if (!triedResolve) {
-        QMutexLocker locker(qt_global_mutexpool ? qt_global_mutexpool->get(&local_getaddrinfo) : 0);
+        QMutexLocker locker(QMutexPool::globalInstanceGet(&local_getaddrinfo));
         if (!triedResolve) {
             resolveLibrary();
             triedResolve = true;

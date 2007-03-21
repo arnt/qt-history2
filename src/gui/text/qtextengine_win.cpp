@@ -125,8 +125,7 @@ static void resolveUsp10()
 
 #ifndef QT_NO_THREAD
         // protect initialization
-        QMutexLocker locker(qt_global_mutexpool ?
-                             qt_global_mutexpool->get((void*)&resolveUsp10) : 0);
+        QMutexLocker locker(QMutexPool::globalInstanceGet((void*)&resolveUsp10));
         // check triedResolve again, since another thread may have already
         // done the initialization
         if (resolvedUsp10) {

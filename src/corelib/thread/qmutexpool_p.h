@@ -36,6 +36,8 @@ public:
     ~QMutexPool();
 
     QMutex *get(const void *address);
+    static QMutexPool *instance();
+    static QMutex *globalInstanceGet(const void *address);
 
 private:
     QMutex mutex;

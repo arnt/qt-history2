@@ -468,7 +468,7 @@ void QThread::initialize()
 {
     if (qt_global_mutexpool)
         return;
-    qt_global_mutexpool = new QMutexPool(true);
+    qt_global_mutexpool = QMutexPool::instance();
 
 #if defined (Q_OS_WIN)
     extern void qt_create_tls();
@@ -482,7 +482,6 @@ void QThread::initialize()
 */
 void QThread::cleanup()
 {
-    delete qt_global_mutexpool;
     qt_global_mutexpool = 0;
 }
 
