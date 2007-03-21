@@ -211,9 +211,15 @@ Type Moc::parseType()
 
 bool Moc::parseEnum(EnumDef *def)
 {
-    if (!test(IDENTIFIER))
-        return false; // anonymous enum
-    def->name = lexem();
+    bool isTypdefEnum = false; // typedef enum { ... } Foo;
+
+    if (test(IDENTIFIER)) {
+        def->name = lexem();
+    } else {
+        if (lookup(-1) != TYPEDEF)
+            return false; // anonymous enum
+        isTypdefEnum = true;
+    }
     if (!test(LBRACE))
         return false;
     do {
@@ -223,6 +229,11 @@ bool Moc::parseEnum(EnumDef *def)
         def->values += lexem();
     } while (test(EQ) ? until(COMMA) : test(COMMA));
     next(RBRACE);
+    if (isTypdefEnum) {
+        if (!test(IDENTIFIER))
+            return false;
+        def->name = lexem();
+    }
     return true;
 }
 
