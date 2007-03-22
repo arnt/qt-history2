@@ -2279,14 +2279,6 @@ void tst_QWidget::saveRestoreGeometry()
         savedGeometry = widget.saveGeometry();
     }
 
-#if 0
-    // Code for saving a new geometry.dat file.
-    QFile f("geometry.dat");
-    f.open(QIODevice::WriteOnly);
-    f.write(savedGeometry);
-    f.close();
-#endif
-
     {
         QWidget widget;
 
@@ -2421,6 +2413,7 @@ void tst_QWidget::restoreVersion1Geometry()
     f.open(QIODevice::ReadOnly);
     const QByteArray savedGeometry = f.readAll();
     QCOMPARE(savedGeometry.count(), 46);
+    f.close();
 
     QWidget widget;
 
@@ -2454,6 +2447,31 @@ void tst_QWidget::restoreVersion1Geometry()
 #endif
     QCOMPARE(widget.pos(), expectedPosition);
     QCOMPARE(widget.size(), expectedSize);
+
+
+#if 0
+    // Code for saving a new geometry*.dat files
+    {
+        QWidget widgetToSave;
+        widgetToSave.move(expectedPosition);
+        widgetToSave.resize(expectedSize);
+        widgetToSave.setWindowState(Qt::WindowStates(expectedWindowState));
+        widgetToSave.show();
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(&widget);
+#endif
+        QTest::qWait(1000); // stabilize
+
+        QByteArray geometryToSave = widgetToSave.saveGeometry();
+
+        // Code for saving a new geometry.dat file.
+        f.setFileName(fileName.mid(1));
+        QVERIFY(f.open(QIODevice::WriteOnly)); // did you forget to 'p4 edit *.dat'? :)
+        f.write(geometryToSave);
+        f.close();
+    }
+#endif
+
 }
 
 void tst_QWidget::widgetAt()
