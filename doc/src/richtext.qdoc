@@ -37,7 +37,7 @@ This document is divided up into chapters for convenient reference:
 \i \l{Supported HTML Subset} lists the HTML tags supported by QTextDocument.
 \endlist
 
-See also the list of \l{Text Related Classes}.
+See also the list of \l{Text Processing Classes}.
 
 */
 

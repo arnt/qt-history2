@@ -469,7 +469,7 @@
            \l{#hover-ps}{:hover} pseudo-state. For QFrame and its subclasses, 
            you must set the QFrame::frameStyle property to QFrame::StyledPanel; 
            otherwise, the background and border attributes will not be respected.
-           
+
     \row
         \o QGroupBox
         \o Supports the \l{box model}. The title can be styled using the
@@ -1901,6 +1901,7 @@
 
     \endtable
 
+    \target subcontrols
     \section2 List of Sub-Controls
 
     The following subcontrols are available:

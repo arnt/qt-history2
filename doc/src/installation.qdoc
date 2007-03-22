@@ -181,7 +181,7 @@ as part of the \l{Qt Commercial Editions}.
 \o  Uncompress the files into the directory you want Qt installed;
     e.g. \c{C:\Qt\%VERSION%}.
 
-    NOTE: The install path must not contain any spaces.
+    \bold{Note:} The install path must not contain any spaces.
 
 \o Environment variables
 
@@ -195,8 +195,8 @@ as part of the \l{Qt Commercial Editions}.
     This is done by adding \c{c:\Qt\%VERSION%\bin} to the \c PATH variable.
 
     For newer versions of Windows, \c PATH can be extended through
-    "Control Panel->System->Advanced->Environment variables" and for
-    older versions by editing \c{c:\autoexec.bat}.
+    the \menu{Control Panel|System|Advanced|Environment variables} menu
+    and for older versions by editing \c{c:\autoexec.bat}.
 
     You may also need to ensure that the locations of your compiler and
     other build tools are listed in the \c PATH variable. This will depend

@@ -16,6 +16,8 @@
     \page unicode.html
     \title Unicode
     \ingroup architecture
+    \ingroup text-processing
+    \brief Information about support for Unicode in Qt.
 
     Unicode is a multi-byte character set, portable across all major
     computing platforms and with decent coverage over most of the world.
