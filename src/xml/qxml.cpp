@@ -3774,10 +3774,8 @@ bool QXmlSimpleReaderPrivate::finalizeAttributes()
         if(useNamespaces) {
             // Is it a namespace declaration?
             namespaceSupport.splitName(name, prefix, lname);
-            qDebug() << "USE NSS" << name << prefix << lname;
             if (prefix == QLatin1String("xmlns"))
             {
-                qDebug() << "DOING THE KOALA DANCE.";
                 // namespace declaration
                 namespaceSupport.setPrefix(name == QLatin1String("xmlns") ? QString() : lname, unresolvedAttributes.at(i).second);
 
