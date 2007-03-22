@@ -1862,6 +1862,7 @@ void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, co
         if (!icon.isNull()) item->setData(icon, Qt::DecorationRole);
         if (userData.isValid()) item->setData(userData, Qt::UserRole);
         m->insertRow(index, item);
+        ++itemCount;
     } else {
         d->inserting = true;
         if (d->model->insertRows(index, 1, d->root)) {
@@ -1877,14 +1878,14 @@ void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, co
             }
             d->inserting = false;
             d->_q_rowsInserted(d->root, index, index);
+            ++itemCount;
         } else {
             d->inserting = false;
         }
     }
 
-    int mc = itemCount + 1;
-    if (mc > d->maxCount)
-        d->model->removeRows(mc - 1, mc - d->maxCount, d->root);
+    if (itemCount > d->maxCount)
+        d->model->removeRows(itemCount - 1, itemCount - d->maxCount, d->root);
 }
 
 /*!
