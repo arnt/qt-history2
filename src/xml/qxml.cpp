@@ -297,8 +297,13 @@ private:
     bool reportWhitespaceCharData;
     bool reportEntities;
 
-    // used to build the attribute list
+    // Used to build the attribute list. It is populated first after
+    // all the attributes have been parsed, in order to be able
+    // to resolve all prefixes.
     QXmlAttributes attList;
+
+    // Attributes before they have been resolved. After, they are appended to attList.
+    QVector<QPair<QString, QString> > unresolvedAttributes;
 
     // used in QXmlSimpleReader::parseContent() to decide whether character
     // data was read
@@ -441,6 +446,9 @@ private:
     QXmlSimpleReader *q_ptr;
 
     friend class QXmlSimpleReaderLocator;
+
+private:
+    bool finalizeAttributes();
 };
 
 /*!
@@ -735,9 +743,16 @@ QString QXmlNamespaceSupport::uri(const QString& prefix) const
     return d->ns[prefix];
 }
 
+/* Qt5 ###: Make this function static. After a second thought, remove/rename it
+ *          since it got things quite wrong. For instance, if \a qname is an NCName,
+ *          it is put into \a prefix instead of \a localname. */
+
 /*!
     Splits the name \a qname at the ':' and returns the prefix in \a
     prefix and the local name in \a localname.
+
+    Although this function is a non-static member of this class, it
+    is not affected by the state of the class object.
 
     \sa processName()
 */
@@ -3736,6 +3751,90 @@ bool QXmlSimpleReaderPrivate::parseProlog()
     return false;
 }
 
+/*! \internal
+ 
+ Takes unresolvedAttributes and resolve the prefixes and put them in attList. Any namespace
+ declarations appearing in unresolvedAttributes are sent off with QXmlContentHandler::startPrefixMapping().
+
+ The reason for this complexity is that namespace declarations can appear after the attributes
+ that use them.
+ */
+bool QXmlSimpleReaderPrivate::finalizeAttributes()
+{
+    const int attrLen = unresolvedAttributes.size();
+    QString prefix;
+    QString lname;
+
+    // In this first loop, only care about namespace declarations.
+    for (int i = 0; i < attrLen; ++i)
+    {
+        const QString &name = unresolvedAttributes.at(i).first;
+        const QString &value = unresolvedAttributes.at(i).second;
+
+        if(useNamespaces) {
+            // Is it a namespace declaration?
+            namespaceSupport.splitName(name, prefix, lname);
+            qDebug() << "USE NSS" << name << prefix << lname;
+            if (prefix == QLatin1String("xmlns"))
+            {
+                qDebug() << "DOING THE KOALA DANCE.";
+                // namespace declaration
+                namespaceSupport.setPrefix(name == QLatin1String("xmlns") ? QString() : lname, unresolvedAttributes.at(i).second);
+
+                // call the handler for prefix mapping
+                if (contentHnd) {
+                    if (!contentHnd->startPrefixMapping(lname, value)) {
+                        reportParseError(contentHnd->errorString());
+                        return false;
+                    }
+                }
+            }
+        }
+        else
+            attList.append(name, QString(), QString(), value);
+    }
+
+    if(!useNamespaces)
+    {
+        unresolvedAttributes.clear();
+        return true;
+    }
+
+    QString uri;
+    // The namespace context is now complete, and we can safely
+    // resolve the attribute names.
+    for(int i = 0; i < attrLen; ++i)
+    {
+        const QString &name = unresolvedAttributes.at(i).first;
+        const QString &value = unresolvedAttributes.at(i).second;
+
+        namespaceSupport.processName(name, true, uri, lname);
+
+        // splitName requires that the QName isn't an NCName so if we have no
+        // colon, do this manually
+        if(name.contains(QLatin1Char(':')))
+            namespaceSupport.splitName(name, prefix, lname);
+        else
+        {
+            prefix.clear();
+            lname = name;
+        }
+
+        if(prefix == QLatin1String("xmlns")) {
+            if (useNamespacePrefixes) {
+                // According to http://www.w3.org/2000/xmlns/, the prefix
+                // xmlns maps to the namespace http://www.w3.org/2000/xmlns/.
+                attList.append(name, QLatin1String("http://www.w3.org/2000/xmlns/"), lname, value);
+            }
+        }
+        else
+            attList.append(name, uri, lname, value);
+    }
+
+    unresolvedAttributes.clear();
+    return true;
+}
+
 /*
   Parse an element [39].
 
@@ -3866,19 +3965,20 @@ bool QXmlSimpleReaderPrivate::parseElement()
                 // call the handler
                 if (contentHnd) {
                     const QString &tagsTop = tags.top();
-                    if (useNamespaces) {
-                        QString uri, lname;
+
+                    // Resolve the element's prefix.
+                    QString uri, lname;
+
+                    finalizeAttributes();
+                    if (useNamespaces)
                         namespaceSupport.processName(tagsTop, false, uri, lname);
-                        if (!contentHnd->startElement(uri, lname, tagsTop, attList)) {
-                            reportParseError(contentHnd->errorString());
-                            return false;
-                        }
-                    } else {
-                        if (!contentHnd->startElement(QString(), QString(), tagsTop, attList)) {
-                            reportParseError(contentHnd->errorString());
-                            return false;
-                        }
+
+                    if (!contentHnd->startElement(uri, lname, tagsTop, attList)) {
+                        reportParseError(contentHnd->errorString());
+                        return false;
                     }
+
+                    attList.clear();
                 }
                 next();
                 break;
@@ -3927,6 +4027,9 @@ bool QXmlSimpleReaderPrivate::parseElement()
 /*
   Helper to break down the size of the code in the case statement.
   Return false on error, otherwise true.
+
+  This function is used to finish an element with no child nodes. For instance,
+  <prefix:localName attr1="value"/>
 */
 bool QXmlSimpleReaderPrivate::processElementEmptyTag()
 {
@@ -3934,12 +4037,16 @@ bool QXmlSimpleReaderPrivate::processElementEmptyTag()
     // pop the stack and call the handler
     if (contentHnd) {
         if (useNamespaces) {
+
+            finalizeAttributes();
+
             // report startElement first...
             namespaceSupport.processName(tags.top(), false, uri, lname);
             if (!contentHnd->startElement(uri, lname, tags.top(), attList)) {
                 reportParseError(contentHnd->errorString());
                 return false;
             }
+
             // ... followed by endElement...
             if (!contentHnd->endElement(uri, lname, tags.pop())) {
                 reportParseError(contentHnd->errorString());
@@ -3967,6 +4074,7 @@ bool QXmlSimpleReaderPrivate::processElementEmptyTag()
                 reportParseError(contentHnd->errorString());
                 return false;
             }
+
             // ... followed by endElement
             if (!contentHnd->endElement(QString(), QString(), tags.pop())) {
                 reportParseError(contentHnd->errorString());
@@ -4032,39 +4140,7 @@ bool QXmlSimpleReaderPrivate::processElementETagBegin2()
 */
 bool QXmlSimpleReaderPrivate::processElementAttribute()
 {
-    QString uri, lname, prefix;
-    const QString &name = QXmlSimpleReaderPrivate::name();
-    const QString &string = QXmlSimpleReaderPrivate::string();
-
-    // add the attribute to the list
-    if (useNamespaces) {
-        // is it a namespace declaration?
-        namespaceSupport.splitName(name, prefix, lname);
-        if (prefix == QLatin1String("xmlns")) {
-            // namespace declaration
-            namespaceSupport.setPrefix(lname, string);
-            if (useNamespacePrefixes) {
-                // according to http://www.w3.org/2000/xmlns/, the "prefix"
-                // xmlns maps to the namespace name
-                // http://www.w3.org/2000/xmlns/
-                attList.append(name, QLatin1String("http://www.w3.org/2000/xmlns/"), lname, string);
-            }
-            // call the handler for prefix mapping
-            if (contentHnd) {
-                if (!contentHnd->startPrefixMapping(lname, string)) {
-                    reportParseError(contentHnd->errorString());
-                    return false;
-                }
-            }
-        } else {
-            // no namespace delcaration
-            namespaceSupport.processName(name, true, uri, lname);
-            attList.append(name, uri, lname, string);
-        }
-    } else {
-        // no namespace support
-        attList.append(name, uri, lname, string);
-    }
+    unresolvedAttributes.append(qMakePair(name(), string()));
     return true;
 }
 

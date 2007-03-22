@@ -572,13 +572,15 @@ public:
     bool comment(const QString& ch);
 
     // decl handler
-    bool externalEntityDecl(const QString &name, const QString &publicId, const QString &systemId) ;
+    bool externalEntityDecl(const QString &name, const QString &publicId, const QString &systemId);
 
     // DTD handler
     bool notationDecl(const QString & name, const QString & publicId, const QString & systemId);
-    bool unparsedEntityDecl(const QString &name, const QString &publicId, const QString &systemId, const QString &notationName) ;
+    bool unparsedEntityDecl(const QString &name, const QString &publicId, const QString &systemId, const QString &notationName);
 
     void setDocumentLocator(QXmlLocator *locator);
+
+    bool startPrefixMapping(const QString &prefix, const QString &uri);
 
     QString errorMsg;
     int errorLine;
@@ -591,6 +593,14 @@ private:
     bool cdata;
     bool nsProcessing;
     QXmlLocator *locator;
+
+    /*!
+      A list of namespace bindings. The first member is
+      the prefix, the second the namespace URI.
+
+      This is used for each element in order to handle namespace declaration attributes.
+     */
+    QList<QPair<QString, QString> > nsBindings;
 };
 
 /**************************************************************
@@ -4240,22 +4250,37 @@ void QDomAttrPrivate::save(QTextStream& s, int, int) const
     if (namespaceURI.isNull()) {
         s << name << "=\"" << encodeText(value, s, true, true) << '\"';
     } else {
-        s << prefix << ':' << name << "=\"" << encodeText(value, s, true, true) << '\"';
         /* This is a fix for 138243, as good as it gets.
          *
          * QDomElementPrivate::save() output a namespace declaration if
          * the element is in a namespace, no matter what. This function do as well, meaning
-         * that we get two identical namespace declaration if we don't have the if-
-         * statement below.
+         * that we get two identical namespace declaration if we don't have the
+         * if-statement below.
          *
          * This doesn't work when the parent element has the same prefix as us but
          * a different namespace. However, this can only occur by the user modifying the element,
-         * and we don't do fixups by that anyway, and hence it's the user responsibility to not
-         * arrive in those situations. */
-        if(!ownerNode ||
-           ownerNode->prefix != prefix) {
-            s << " xmlns:" << prefix << "=\"" << encodeText(namespaceURI, s, true, true) << '\"';
+         * and we don't do fixups for that anyway, and hence it's the user's responsibility to not
+         * end up in those situations. */
+        if(ownerNode &&
+           ownerNode->prefix != prefix)
+        {
+            /* This is a fix for 154573.
+             *
+             * Since part of the fix of 154573 is that QDomHandler::startPrefixMapping()
+             * creates attributes for namespace declarations, the case can be that a namespace declaration
+             * already is/will be added. Hence we check so we don't have a namespace declaration attribute
+             * before outputting it.
+             */
+            const QDomNamedNodeMapPrivate *const attrs = static_cast<const QDomElementPrivate *>(ownerNode)->attributes();
+
+            if(!attrs->containsNS(namespaceURI, name.right(name.indexOf(QLatin1Char(':')))))
+                s << " xmlns:" << prefix << "=\"" << encodeText(namespaceURI, s, true, true) << "\" ";
         }
+
+        if(!prefix.isEmpty())
+            s << prefix << ':';
+        
+        s << name << "=\"" << encodeText(value, s, true, true) << '\"';
     }
 }
 
@@ -7466,8 +7491,26 @@ bool QDomHandler::startElement(const QString& nsURI, const QString&, const QStri
     node->appendChild(n);
     node = n;
 
-    // attributes
-    for (int i=0; i<atts.length(); i++)
+    // Namespace attributes.
+    const int len = nsBindings.count();
+    for(int i = 0; i < len; ++i)
+    {
+        const QString prefix(nsBindings.at(i).first);
+
+        if(prefix == QLatin1String("xmlns"))
+            static_cast<QDomElementPrivate *>(node)->setAttributeNS(QLatin1String("http://www.w3.org/2000/xmlns/"),
+                                                                    QLatin1String("xmlns"),
+                                                                    nsBindings.at(i).second);
+        else
+            static_cast<QDomElementPrivate *>(node)->setAttributeNS(nsBindings.at(i).second,
+                                                                    QLatin1String("xmlns:") + prefix,
+                                                                    nsBindings.at(i).second);
+    }
+    nsBindings.clear();
+
+    const int attrLen = atts.length();
+    // Other attributes.
+    for (int i = 0; i < attrLen; i++)
     {
         if (nsProcessing) {
             ((QDomElementPrivate*)node)->setAttributeNS(atts.uri(i), atts.qName(i), atts.value(i));
@@ -7484,6 +7527,29 @@ bool QDomHandler::endElement(const QString&, const QString&, const QString&)
     if (node == doc)
         return false;
     node = node->parent();
+
+    return true;
+}
+
+bool QDomHandler::startPrefixMapping(const QString &prefix, const QString &uri)
+{
+    //if (nsProcessing)
+    Q_ASSERT_X(nsProcessing, Q_FUNC_INFO, "If we're not ns-processing, we should "
+                                          "receive the namespace declarations as attributes.");
+    /* We receive startPrefixMapping() events before startElement which means that
+     * the node member can be null. Hence we just store the bindings and do it later
+     * in startElement(). */
+    nsBindings.append(qMakePair(prefix == QLatin1String("xmlns") ? QString() : prefix, uri));
+    /*
+    }
+    else
+    {
+        if(prefix.isEmpty())
+            static_cast<QDomElementPrivate *>(node)->setAttribute(QLatin1String("xmlns"), uri);
+        else
+            static_cast<QDomElementPrivate *>(node)->setAttribute(QLatin1String("xmlns:") + prefix, uri);
+    }
+    */
 
     return true;
 }

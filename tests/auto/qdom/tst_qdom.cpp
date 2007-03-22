@@ -7,15 +7,17 @@
 **
 ****************************************************************************/
 
+#include <QBuffer>
+#include <QByteArray>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QFile>
+#include <QList>
+#include <QRegExp>
+#include <QTextStream>
 #include <QtTest/QtTest>
-#include <qdom.h>
-#include <qfile.h>
-#include <qregexp.h>
-#include <qxml.h>
-
-#include <qlist.h>
-#include <qvariant.h>
-#include <qcoreapplication.h>
+#include <QtXml>
+#include <QVariant>
 
 //TESTED_CLASS=
 //TESTED_FILES=xml/qdom.h xml/qdom.cpp
@@ -28,6 +30,7 @@ class tst_QDom : public QObject
     Q_OBJECT
 
 private slots:
+    void namespacedAttributes() const;
     void setContent_data();
     void setContent();
     void toString_01_data();
@@ -78,6 +81,7 @@ private slots:
     void reportDuplicateAttributes() const;
 
 private:
+    static QDomDocument doc(const QString &title, const QByteArray &ba);;
     static int hasAttributesHelper( const QDomNode& node );
     static bool compareDocuments( const QDomDocument &doc1, const QDomDocument &doc2 );
     static bool compareNodes( const QDomNode &node1, const QDomNode &node2, bool deep );
@@ -265,6 +269,7 @@ void tst_QDom::toString_01()
 {
     QFETCH(QString, fileName);
 
+    qDebug() << "READING:" << fileName;
     QFile f(fileName);
     QVERIFY2(f.open(QIODevice::ReadOnly), qPrintable(QString::fromLatin1("Failed to open file %1, file error: %2").arg(fileName).arg(f.error())));
 
@@ -1528,6 +1533,32 @@ void tst_QDom::reportDuplicateAttributes() const
 
     QEXPECT_FAIL("", "The parser doesn't flag duplicate attributes. Fixing this would change behavior.", Continue);
     QVERIFY2(!isSuccess, "Duplicate attributes are well-formedness errors, and should be reported as such.");
+}
+
+QDomDocument tst_QDom::doc(const QString &title, const QByteArray &ba)
+{
+    QDomDocument doc(title);
+    const bool ret = doc.setContent(ba, true);
+    Q_ASSERT(ret);
+    return doc;
+}
+
+void tst_QDom::namespacedAttributes() const
+{
+    static const char *const xml =
+        "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>\n"
+        "<xan:td xmlns:xan=\"http://www.someurl.com/Something\" "
+        "        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+        "        xsi:schemaLocation=\"http://www.someurl.com/Something/../../xml/td.xsd\" "
+        "        xmlns:xi=\"http://www.w3.org/2001/XInclude\" "
+        "        xmlns=\"http://www.someurl.com/Something\">\n"
+        "  <Title displayLabel='Title' >>>> SIMPLE BASIC OP - SEND - DUT AS SINK</Title>\n"
+        "</xan:td>\n";
+
+    QDomDocument one = doc("document", xml);
+    QDomDocument two = doc("document2", one.toByteArray(2));
+
+    QVERIFY(isDeepEqual(one, two));
 }
 
 QTEST_MAIN(tst_QDom)

@@ -7,6 +7,7 @@
 **
 ****************************************************************************/
 
+#include <QDomDocument>
 #include <qthread.h>
 #include <qtcpserver.h>
 #include <qtcpsocket.h>
@@ -126,8 +127,12 @@ class tst_QXmlSimpleReader : public QObject
         void idsInParseException1();
         void idsInParseException2();
         void preserveCharacterReferences() const;
+        void reportNamespace() const;
+        void reportNamespace_data() const;
+        void roundtripWithNamespaces() const;
 
     private:
+        static QDomDocument fromByteArray(const QString &title, const QByteArray &ba);
         XmlServer *server;
 };
 
@@ -580,6 +585,120 @@ void tst_QXmlSimpleReader::preserveCharacterReferences() const
         QVERIFY(reader.parse(&source, false));
 
         QCOMPARE(h.received, QString(4, QChar(160)));
+    }
+}
+
+void tst_QXmlSimpleReader::reportNamespace() const
+{
+    class Handler : public QXmlDefaultHandler
+    {
+    public:
+        virtual bool startElement(const QString &namespaceURI,
+                                  const QString &localName,
+                                  const QString &qName,
+                                  const QXmlAttributes &)
+        {
+            startNamespaceURI = namespaceURI;
+            startLocalName = localName;
+            startQName = qName;
+
+            return true;
+        }
+
+        virtual bool endElement(const QString &namespaceURI,
+                                const QString &localName,
+                                const QString &qName)
+        {
+            endNamespaceURI = namespaceURI;
+            endLocalName = localName;
+            endQName = qName;
+
+            return true;
+        }
+
+        QString startLocalName;
+        QString startQName;
+        QString startNamespaceURI;
+        QString endLocalName;
+        QString endQName;
+        QString endNamespaceURI;
+    };
+
+    QXmlSimpleReader reader;
+    Handler handler;
+    reader.setContentHandler(&handler);
+
+    QFETCH(QByteArray,  input);
+
+    QBuffer buffer(&input);
+    QVERIFY(buffer.open(QIODevice::ReadOnly));
+
+    QXmlInputSource source(&buffer);
+    QVERIFY(reader.parse(source));
+
+    QFETCH(QString,     expectedQName);
+    QFETCH(QString,     expectedLocalName);
+    QFETCH(QString,     expectedNamespace);
+
+    QCOMPARE(handler.startNamespaceURI, expectedNamespace);
+    QCOMPARE(handler.startLocalName, expectedLocalName);
+    QCOMPARE(handler.startQName, expectedQName);
+
+    QCOMPARE(handler.endNamespaceURI, expectedNamespace);
+    QCOMPARE(handler.endLocalName, expectedLocalName);
+    QCOMPARE(handler.endQName, expectedQName);
+}
+
+void tst_QXmlSimpleReader::reportNamespace_data() const
+{
+    QTest::addColumn<QByteArray>("input");
+    QTest::addColumn<QString>("expectedQName");
+    QTest::addColumn<QString>("expectedLocalName");
+    QTest::addColumn<QString>("expectedNamespace");
+
+    QTest::newRow("default ns") << QByteArray("<element xmlns='http://example.com/'/>")
+                                << QString("element")
+                                << QString("element")
+                                << QString("http://example.com/");
+
+    QTest::newRow("with prefix") << QByteArray("<p:element xmlns:p='http://example.com/'/>")
+                                 << QString("p:element")
+                                 << QString("element")
+                                 << QString("http://example.com/");
+}
+
+QDomDocument tst_QXmlSimpleReader::fromByteArray(const QString &title, const QByteArray &ba)
+{
+        QDomDocument doc(title);
+            const bool ret = doc.setContent(ba, true);
+                Q_ASSERT(ret);
+                    return doc;
+}
+
+void tst_QXmlSimpleReader::roundtripWithNamespaces() const
+{
+    const char *const expected = "<element b:attr=\"value\" xmlns:a=\"http://www.example.com/A\" xmlns:b=\"http://www.example.com/B\" />\n";
+
+    {
+        const char *const xml = "<element xmlns:b=\"http://www.example.com/B\" b:attr=\"value\" xmlns:a=\"http://www.example.com/A\"/>";
+
+        const QDomDocument one(fromByteArray("document", xml));
+        const QDomDocument two(fromByteArray("document2", one.toByteArray(2)));
+
+        QCOMPARE(expected, one.toByteArray().constData());
+        QCOMPARE(one.toByteArray(2).constData(), two.toByteArray(2).constData());
+        QCOMPARE(two.toByteArray(2).constData(), two.toByteArray(2).constData());
+    }
+
+    {
+        const char *const xml = "<element b:attr=\"value\" xmlns:b=\"http://www.example.com/B\" xmlns:a=\"http://www.example.com/A\"/>";
+
+        const QDomDocument one(fromByteArray("document", xml));
+        const QDomDocument two(fromByteArray("document2", one.toByteArray(2)));
+
+        QCOMPARE(expected, one.toByteArray().constData());
+        QCOMPARE(one.toByteArray(2).constData(), two.toByteArray(2).constData());
+        QCOMPARE(two.toByteArray(2).constData(), two.toByteArray(2).constData());
     }
 }
 
