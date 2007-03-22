@@ -1253,6 +1253,9 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
                     case QCss::Value_UpperAlpha: hasOwnListStyle = true; listStyle = QTextListFormat::ListUpperAlpha; break;
                     default: break;
                 }
+                // allow individual list items to override the style
+                if (id == Html_li && hasOwnListStyle)
+                    blockFormat.setProperty(QTextFormat::ListStyle, listStyle);
                 break;
             default: break;
         }

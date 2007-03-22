@@ -1099,9 +1099,12 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
     const QFontMetrics fontMetrics(font);
     QTextObject * const object = q->document()->objectForFormat(blockFormat);
     const QTextListFormat lf = object->format().toListFormat();
-    const int style = lf.style();
+    int style = lf.style();
     QString itemText;
     QSizeF size;
+
+    if (blockFormat.hasProperty(QTextFormat::ListStyle))
+        style = QTextListFormat::Style(blockFormat.intProperty(QTextFormat::ListStyle));
 
     QTextLayout *layout = bl.layout();
     if (layout->lineCount() == 0)
