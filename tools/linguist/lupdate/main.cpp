@@ -69,8 +69,10 @@ static void updateTsFiles( const MetaTranslator& fetchedTor,
         MetaTranslator tor;
         MetaTranslator out;
         tor.load( *t );
-        if ( !codecForTr.isEmpty() )
+        if ( !codecForTr.isEmpty() ) {
+            out.setCodec( codecForTr.toLatin1() );
             tor.setCodec( codecForTr.toLatin1() );
+        }
         if ( verbose )
             fprintf( stderr, "Updating '%s'...\n", fn.toLatin1().constData() );
  
