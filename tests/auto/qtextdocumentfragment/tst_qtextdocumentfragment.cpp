@@ -2553,6 +2553,12 @@ void tst_QTextDocumentFragment::css_listStyleType()
     cursor.movePosition(QTextCursor::End);
     QVERIFY(cursor.currentList());
     QVERIFY(cursor.currentList()->format().style() == QTextListFormat::ListUpperAlpha);
+
+    // ignore the unsupported list-style-position inside the list-style shorthand property
+    doc->setHtml("<ul style=\"list-style: outside decimal\"><li>Blah</li></ul>");
+    cursor.movePosition(QTextCursor::End);
+    QVERIFY(cursor.currentList());
+    QVERIFY(cursor.currentList()->format().style() == QTextListFormat::ListDecimal);
 }
 
 void tst_QTextDocumentFragment::universalSelectors_data()

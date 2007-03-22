@@ -121,6 +121,7 @@ enum Property {
     QtStyleFeatures,
     QtBackgroundRole,
     ListStyleType,
+    ListStyle,
     NumProperties
 };
 

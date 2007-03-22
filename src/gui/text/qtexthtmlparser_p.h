@@ -206,6 +206,7 @@ struct QTextHtmlParserNode {
 
     void parseStyleAttribute(const QString &value, const QTextDocument *resourceProvider);
     void applyCssDeclarations(const QVector<QCss::Declaration> &declarations, const QTextDocument *resrouceProvider);
+    void setListStyle(const QVector<QCss::Value> &cssValues);
 
     bool hasOnlyWhitespace() const;
 

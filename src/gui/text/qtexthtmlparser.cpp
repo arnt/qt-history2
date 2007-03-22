@@ -1142,6 +1142,26 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     }
 }
 
+void QTextHtmlParserNode::setListStyle(const QVector<QCss::Value> &cssValues)
+{
+    for (int i = 0; i < cssValues.count(); ++i) {
+        if (cssValues.at(i).type == QCss::Value::KnownIdentifier) {
+            switch (static_cast<QCss::KnownValue>(cssValues.at(i).variant.toInt())) {
+                case QCss::Value_Disc: hasOwnListStyle = true; listStyle = QTextListFormat::ListDisc; break;
+                case QCss::Value_Square: hasOwnListStyle = true; listStyle = QTextListFormat::ListSquare; break;
+                case QCss::Value_Circle: hasOwnListStyle = true; listStyle = QTextListFormat::ListCircle; break;
+                case QCss::Value_Decimal: hasOwnListStyle = true; listStyle = QTextListFormat::ListDecimal; break;
+                case QCss::Value_LowerAlpha: hasOwnListStyle = true; listStyle = QTextListFormat::ListLowerAlpha; break;
+                case QCss::Value_UpperAlpha: hasOwnListStyle = true; listStyle = QTextListFormat::ListUpperAlpha; break;
+                default: break;
+            }
+        }
+    }
+    // allow individual list items to override the style
+    if (id == Html_li && hasOwnListStyle)
+        blockFormat.setProperty(QTextFormat::ListStyle, listStyle);
+}
+
 void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> &declarations, const QTextDocument *resourceProvider)
 {
     QCss::ValueExtractor extractor(declarations);
@@ -1244,18 +1264,8 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
                 }
                 break;
             case QCss::ListStyleType:
-                switch (identifier) {
-                    case QCss::Value_Disc: hasOwnListStyle = true; listStyle = QTextListFormat::ListDisc; break;
-                    case QCss::Value_Square: hasOwnListStyle = true; listStyle = QTextListFormat::ListSquare; break;
-                    case QCss::Value_Circle: hasOwnListStyle = true; listStyle = QTextListFormat::ListCircle; break;
-                    case QCss::Value_Decimal: hasOwnListStyle = true; listStyle = QTextListFormat::ListDecimal; break;
-                    case QCss::Value_LowerAlpha: hasOwnListStyle = true; listStyle = QTextListFormat::ListLowerAlpha; break;
-                    case QCss::Value_UpperAlpha: hasOwnListStyle = true; listStyle = QTextListFormat::ListUpperAlpha; break;
-                    default: break;
-                }
-                // allow individual list items to override the style
-                if (id == Html_li && hasOwnListStyle)
-                    blockFormat.setProperty(QTextFormat::ListStyle, listStyle);
+            case QCss::ListStyle:
+                setListStyle(decl.values);
                 break;
             default: break;
         }
