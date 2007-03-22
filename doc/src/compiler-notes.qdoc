@@ -51,10 +51,6 @@
 
     Please use gcc 3.3.0 or better.
 
-    \section2 Altix
-
-    Please use gcc 3.2.3 or better.
-
     \section2 Mac OS X
 
     Please use the latest gcc 3.3 from Apple or better. The gcc 3.3 that is
@@ -75,7 +71,7 @@
     Earlier versions of aCC do not support the \c{-Ae} option (this enables
     the ANSI C c89 mode) and therefore you need to use \c{cc} instead.
 
-    \section1 Intel C++ (Linux, Altix, Windows, FreeBSD)
+    \section1 Intel C++ (Linux, Windows, FreeBSD)
 
     Qt 4 has been tested successfully with:
 
