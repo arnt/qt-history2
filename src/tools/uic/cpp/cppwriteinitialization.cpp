@@ -178,6 +178,8 @@ SizePolicyHandle::SizePolicyHandle(const DomSizePolicy *domSizePolicy) :
 {
 }
 
+inline uint qHash(const SizePolicyHandle &key) { return uint(key.m_domSizePolicy); }
+
 int SizePolicyHandle::compare(const SizePolicyHandle &rhs) const
 {
 
@@ -1004,7 +1006,7 @@ void WriteInitialization::writeProperties(const QString &varName,
             break;
         }
         case DomProperty::SizePolicy: {
-            const QString spName = writeSizePolicy( p->elementSizePolicy());
+            const QString spName = writeSizePolicy(p->elementSizePolicy());
             m_output << m_option.indent << spName << QString::fromLatin1(
                 ".setHeightForWidth(%1->sizePolicy().hasHeightForWidth());\n")
                 .arg(varName);

@@ -16,6 +16,7 @@
 
 #include "treewalker.h"
 
+#include <QHash>
 #include <QMap>
 #include <QSet>
 #include <QString>
@@ -71,7 +72,7 @@ private:
 
     QSet<QString> m_knownClasses;
 
-    typedef QMap<QString, QString> StringMap;
+    typedef QHash<QString, QString> StringMap;
     StringMap m_classToHeader;
     StringMap m_oldHeaderToNewHeader;
     bool m_scriptsActivated;

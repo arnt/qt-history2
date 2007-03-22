@@ -47,9 +47,9 @@ namespace CPP {
         int compare(const SizePolicyHandle &) const;
     private:
         const DomSizePolicy *m_domSizePolicy;
+        friend uint qHash(const SizePolicyHandle &key);
     };
     inline bool operator ==(const SizePolicyHandle &f1, const SizePolicyHandle &f2) { return f1.compare(f2) == 0; }
-    inline bool operator  <(const SizePolicyHandle &f1, const SizePolicyHandle &f2) { return f1.compare(f2) < 0; }
 
 
 
@@ -187,7 +187,7 @@ private:
     typedef QMap<FontHandle, QString> FontPropertiesNameMap;
     FontPropertiesNameMap m_FontPropertiesNameMap;
     // Map from size policy to  variable for reuse
-    typedef QMap<SizePolicyHandle, QString> SizePolicyNameMap;
+    typedef QHash<SizePolicyHandle, QString> SizePolicyNameMap;
     SizePolicyNameMap m_SizePolicyNameMap;
 
     class LayoutDefaultHandler {
