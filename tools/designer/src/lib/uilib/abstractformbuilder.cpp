@@ -55,6 +55,8 @@
 
 #include <limits.h>
 
+Q_DECLARE_METATYPE(QWidgetList)
+
 #ifdef QFORMINTERNAL_NAMESPACE
 using namespace QFormInternal;
 #endif
@@ -1044,7 +1046,16 @@ DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parent
         for (int i = 0; i < splitter->count(); ++i)
             children.append(splitter->widget(i));
     } else {
-        children = widget->children();
+        QList<QObject *> childObjects = widget->children();
+
+        QList<QWidget *> list = qVariantValue<QWidgetList>(widget->property("_q_widgetOrder"));
+        foreach (QWidget *w, list) {
+            if (childObjects.contains(w)) {
+                children.append(w);
+                childObjects.removeAll(w);
+            }
+        }
+        children += childObjects;
     }
 
     foreach (QObject *obj, children) {

@@ -46,6 +46,8 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QApplication>
 
+Q_DECLARE_METATYPE(QWidgetList)
+
 namespace qdesigner_internal {
 
 // ---- InsertWidgetCommand ----
@@ -67,6 +69,11 @@ void InsertWidgetCommand::init(QWidget *widget, bool already_in_form)
     m_insertMode = deco ? deco->currentInsertMode() : QDesignerLayoutDecorationExtension::InsertWidgetMode;
     m_cell = deco ? deco->currentCell() : qMakePair(0, 0);
     m_widgetWasManaged = already_in_form;
+    QList<QWidget *> list = qVariantValue<QWidgetList>(parentWidget->property("_q_widgetOrder"));
+    list.append(widget);
+    QVariant v;
+    qVariantSetValue(v, list);
+    parentWidget->setProperty("_q_widgetOrder", v);
 }
 
 static void recursiveUpdate(QWidget *w)
@@ -358,12 +365,25 @@ void ReparentWidgetCommand::init(QWidget *widget, QWidget *parentWidget)
     m_newPos = m_newParentWidget->mapFromGlobal(m_oldParentWidget->mapToGlobal(m_oldPos));
 
     setText(QApplication::translate("Command", "Reparent '%1'").arg(widget->objectName()));
+
+    m_oldParentList = qVariantValue<QWidgetList>(m_oldParentWidget->property("_q_widgetOrder"));
 }
 
 void ReparentWidgetCommand::redo()
 {
     m_widget->setParent(m_newParentWidget);
     m_widget->move(m_newPos);
+
+    QWidgetList oldList = m_oldParentList;
+    oldList.removeAll(m_widget);
+    QVariant v;
+    qVariantSetValue(v, oldList);
+    m_oldParentWidget->setProperty("_q_widgetOrder", v);
+
+    QWidgetList newList = qVariantValue<QWidgetList>(m_newParentWidget->property("_q_widgetOrder"));
+    newList.append(m_widget);
+    qVariantSetValue(v, newList);
+    m_newParentWidget->setProperty("_q_widgetOrder", v);
 
     m_widget->show();
 }
@@ -372,6 +392,15 @@ void ReparentWidgetCommand::undo()
 {
     m_widget->setParent(m_oldParentWidget);
     m_widget->move(m_oldPos);
+
+    QVariant v;
+    qVariantSetValue(v, m_oldParentList);
+    m_oldParentWidget->setProperty("_q_widgetOrder", v);
+
+    QWidgetList newList = qVariantValue<QWidgetList>(m_newParentWidget->property("_q_widgetOrder"));
+    newList.removeAll(m_widget);
+    qVariantSetValue(v, newList);
+    m_newParentWidget->setProperty("_q_widgetOrder", v);
 
     m_widget->show();
 }

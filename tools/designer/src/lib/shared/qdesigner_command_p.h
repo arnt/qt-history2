@@ -168,6 +168,7 @@ private:
     QPoint m_newPos;
     QPointer<QWidget> m_oldParentWidget;
     QPointer<QWidget> m_newParentWidget;
+    QList<QWidget *> m_oldParentList;
 };
 
 class QDESIGNER_SHARED_EXPORT ChangeLayoutItemGeometry: public QDesignerFormWindowCommand

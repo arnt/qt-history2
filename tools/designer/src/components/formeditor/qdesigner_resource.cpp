@@ -70,6 +70,8 @@
 
 #include <QtXml/QDomDocument>
 
+Q_DECLARE_METATYPE(QWidgetList)
+
 namespace {
     typedef QList<DomProperty*> DomPropertyList;
 }
@@ -672,6 +674,13 @@ QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *par
     QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), parentWidget);
     if (!qobject_cast<QMenu*>(w) && (!parentWidget || !container)) {
         m_formWindow->manageWidget(w);
+        if (parentWidget) {
+            QList<QWidget *> list = qVariantValue<QWidgetList>(parentWidget->property("_q_widgetOrder"));
+            list.append(w);
+            QVariant v;
+            qVariantSetValue(v, list);
+            parentWidget->setProperty("_q_widgetOrder", v);
+        }
     } else {
         core()->metaDataBase()->add(w);
     }
