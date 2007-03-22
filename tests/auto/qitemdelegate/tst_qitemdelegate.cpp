@@ -275,9 +275,9 @@ void tst_QItemDelegate::sizeHint_data()
 
     QFont font;
     QFontMetrics fontMetrics(font);
-    int m = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
+    //int m = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     QTest::newRow("empty")
-        << QSize(2 * m, fontMetrics.height());
+        << QSize(0, fontMetrics.height());
 
 }
 
