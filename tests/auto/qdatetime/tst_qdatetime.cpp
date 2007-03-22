@@ -402,10 +402,10 @@ void tst_QDateTime::toString_enumformat()
 
 
     QString str1 = dt1.toString(Qt::TextDate);
-#ifndef Q_WS_WIN
-    QCOMPARE(str1, QString("Sat May 20 12:34:56 1995"));
+#if defined (Q_WS_WIN) || defined (Q_WS_MAC)
+    QVERIFY(!str1.isEmpty()); // It's locale dependent on Windows and Mac
 #else
-    QVERIFY(!str1.isEmpty()); // It's locale dependent on Windows
+    QCOMPARE(str1, QString("Sat May 20 12:34:56 1995"));
 #endif
 
     QString str2 = dt1.toString(Qt::ISODate);
