@@ -65,6 +65,7 @@ private slots:
     void insertRow_data();
     void insertRow();
     void insertRows();
+    void insertRowsItems();
     void insertRowInHierarcy();
     void insertColumn_data();
     void insertColumn();
@@ -260,6 +261,22 @@ void tst_QStandardItemModel::insertRows()
 
     // check header data has moved
     QCOMPARE(m_model->headerData(3, Qt::Vertical).toString(), headerLabel);
+}
+
+void tst_QStandardItemModel::insertRowsItems()
+{
+    int rowCount = m_model->rowCount();
+
+    QList<QStandardItem *> items;
+    QStandardItemModel *m = qobject_cast<QStandardItemModel*>(m_model);
+    QStandardItem *hiddenRoot = m->invisibleRootItem();
+    for (int i = 0; i < 3; ++i)
+        items.append(new QStandardItem(QString("%1").arg(i + 10)));
+    hiddenRoot->appendRows(items);
+    QCOMPARE(m_model->rowCount(), rowCount + 3);
+    QCOMPARE(m_model->index(rowCount + 0, 0).data().toInt(), 10);
+    QCOMPARE(m_model->index(rowCount + 1, 0).data().toInt(), 11);
+    QCOMPARE(m_model->index(rowCount + 2, 0).data().toInt(), 12);
 }
 
 void tst_QStandardItemModel::insertRowInHierarcy()
