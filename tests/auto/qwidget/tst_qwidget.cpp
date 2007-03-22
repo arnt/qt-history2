@@ -2385,13 +2385,14 @@ void tst_QWidget::restoreVersion1Geometry_data()
     QTest::addColumn<uint>("expectedWindowState");
     QTest::addColumn<QPoint>("expectedPosition");
     QTest::addColumn<QSize>("expectedSize");
-
+    QTest::addColumn<QRect>("expectedNormalGeometry");
     const QPoint position(100, 100);
     const QSize size(200, 200);
+    const QRect normalGeometry(102, 124, 200, 200);
 
-    QTest::newRow("geometry.dat") << ":geometry.dat" << uint(Qt::WindowNoState) << position << size;
-    QTest::newRow("geometry-maximized.dat") << ":geometry-maximized.dat" << uint(Qt::WindowMaximized) << position << size;
-    QTest::newRow("geometry-fullscreen.dat") << ":geometry-fullscreen.dat" << uint(Qt::WindowFullScreen) << position << size;
+    QTest::newRow("geometry.dat") << ":geometry.dat" << uint(Qt::WindowNoState) << position << size << normalGeometry;
+    QTest::newRow("geometry-maximized.dat") << ":geometry-maximized.dat" << uint(Qt::WindowMaximized) << position << size << normalGeometry;
+    QTest::newRow("geometry-fullscreen.dat") << ":geometry-fullscreen.dat" << uint(Qt::WindowFullScreen) << position << size << normalGeometry;
 }
 
 /*
@@ -2404,6 +2405,7 @@ void tst_QWidget::restoreVersion1Geometry()
     QFETCH(uint, expectedWindowState);
     QFETCH(QPoint, expectedPosition);
     QFETCH(QSize, expectedSize);
+    QFETCH(QRect, expectedNormalGeometry);
 
     // WindowActive is uninteresting for this test
     const uint WindowStateMask = Qt::WindowFullScreen | Qt::WindowMaximized | Qt::WindowMinimized;
@@ -2437,17 +2439,14 @@ void tst_QWidget::restoreVersion1Geometry()
 
     widget.showNormal();
     QTest::qWait(1000);
-#ifdef Q_WS_X11
-    if (expectedWindowState != Qt::WindowNoState) {
-        QEXPECT_FAIL("",
-                     "On X11, there is no way to tell the WM what the "
-                     "normal geometry should be upon restoring",
-                     Continue);
-    }
-#endif
-    QCOMPARE(widget.pos(), expectedPosition);
-    QCOMPARE(widget.size(), expectedSize);
 
+    if (expectedWindowState != Qt::WindowNoState) {
+        // restoring from maximized or fullscreen, we can only restore to the normal geometry
+        QCOMPARE(widget.geometry(), expectedNormalGeometry);
+    } else {
+        QCOMPARE(widget.pos(), expectedPosition);
+        QCOMPARE(widget.size(), expectedSize);
+    }
 
 #if 0
     // Code for saving a new geometry*.dat files
@@ -2455,12 +2454,13 @@ void tst_QWidget::restoreVersion1Geometry()
         QWidget widgetToSave;
         widgetToSave.move(expectedPosition);
         widgetToSave.resize(expectedSize);
-        widgetToSave.setWindowState(Qt::WindowStates(expectedWindowState));
         widgetToSave.show();
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&widget);
 #endif
-        QTest::qWait(1000); // stabilize
+        QTest::qWait(500); // stabilize
+        widgetToSave.setWindowState(Qt::WindowStates(expectedWindowState));
+        QTest::qWait(500); // stabilize
 
         QByteArray geometryToSave = widgetToSave.saveGeometry();
 
