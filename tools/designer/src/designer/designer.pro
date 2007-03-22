@@ -112,4 +112,3 @@ INSTALLS += target
 include(../sharedcomponents.pri)
 
 unix:!mac:LIBS += -lm
-TRANSLATIONS=designer_de.ts
