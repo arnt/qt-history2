@@ -1333,7 +1333,7 @@ void QCalendarView::keyPressEvent(QKeyEvent *event)
             case Qt::Key_Enter:
             case Qt::Key_Select:
                 emit editingFinished();
-                break;
+                return;
             default:
                 break;
         }
