@@ -8,6 +8,7 @@ goto END
 goto :eof
 
 :output
+  set IWMAKE_OUTPUT_FILE=%~1
   echo !define OUTPUT_FILE "%~1" >> %IWMAKE_NSISCONF%
 goto :eof
 
@@ -192,6 +193,11 @@ goto :eof
   set IWMAKE_TMP2=%~1
   call "%IWMAKE_ROOT%\iwmake_tmp.bat"
   echo     Delete ${removepath}\%IWMAKE_TMP2% >> "%IWMAKE_NSISCONF%"
+goto :eof
+
+:sign
+  echo Signing Installer ...
+  %IWMAKE_SIGNPATH%\signtool.exe sign /v /t http://timestamp.verisign.com/scripts/timestamp.dll /f "%IWMAKE_SIGNPATH%\keys.pfx" "%IWMAKE_OUTPUT_FILE%" >> %IWMAKE_LOGFILE%
 goto :eof
 
 :END

@@ -36,6 +36,10 @@ goto :eof
 
 :checkrequirements
   if not exist %IWMAKE_ROOT% mkdir %IWMAKE_ROOT%
+  if not "%IWMAKE_SIGNPATH%"=="" goto CheckSIGNOK
+  call "%IWMAKE_SCRIPTDIR%\batch\copy.bat" extsync sign
+  call "%IWMAKE_SCRIPTDIR%\batch\env.bat" signPath "%IWMAKE_ROOT%\sign"
+:CheckSIGNOK
   if not "%IWMAKE_WGET%"=="" goto CheckWGETOK
   call "%IWMAKE_SCRIPTDIR%\batch\copy.bat" extsync wget
   call "%IWMAKE_SCRIPTDIR%\batch\env.bat" wgetDir wget

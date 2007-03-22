@@ -14,6 +14,10 @@ set IWMAKE_NSISPATH=%PROGRAMFILES%\NSIS
 call %IWMAKE_SCRIPTDIR%\batch\log.bat fileAbs "%IWMAKE_STARTDIR%\log.txt"
 goto :eof
 
+:signPath
+  set IWMAKE_SIGNPATH=%~1
+goto :eof
+
 :wgetPath
   set IWMAKE_WGET=%~1
 goto :eof
@@ -82,6 +86,8 @@ set IWMAKE_SRCDIR=
 set IWMAKE_EXTRACTSRC=
 set IWMAKE_EXTRACTDEST=
 set IWMAKE_PARSESECTION=
+set IWMAKE_OUTPUT_FILE=
+set IWMAKE_SIGNPATH=
 goto :eof
 
 :root
