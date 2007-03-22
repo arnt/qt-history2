@@ -1700,25 +1700,46 @@ void WriteInitialization::initializeComboBox(DomWidget *w)
 
     m_refreshOut << m_option.indent << varName << "->clear();\n";
 
+    // If possible use qcombobox's addItems() which is much faster then a bunch of addItem() calls
+    bool noIcons = true;
+    QStringList list;
     for (int i=0; i<items.size(); ++i) {
         const DomItem *item = items.at(i);
-
         const DomPropertyMap properties = propertyMap(item->elementProperty());
         const DomProperty *text = properties.value(QLatin1String("text"));
         const DomProperty *pixmap = properties.value(QLatin1String("icon"));
-        if (!(text || pixmap))
-            continue;
-
-        m_refreshOut << m_option.indent << varName << "->addItem(";
-
         if (pixmap != 0) {
-            m_refreshOut << pixCall(pixmap);
-
-            if (text)
-                m_refreshOut << ", ";
+            noIcons = false;
+            break;
         }
+        list.append(trCall(text->elementString()));
+    }
 
-        m_refreshOut << trCall(text->elementString()) << ");\n";
+    if (noIcons) {
+        m_refreshOut << m_option.indent << varName << "->insertItems(0, QStringList()" << '\n';
+        for (int i=0; i<list.size(); ++i)
+            m_refreshOut << m_option.indent << " << " << list.at(i) << "\n";
+        m_refreshOut << m_option.indent << ");\n";
+    } else {
+        for (int i=0; i<items.size(); ++i) {
+            const DomItem *item = items.at(i);
+            const DomPropertyMap properties = propertyMap(item->elementProperty());
+            const DomProperty *text = properties.value(QLatin1String("text"));
+            const DomProperty *pixmap = properties.value(QLatin1String("icon"));
+            if (!(text || pixmap))
+                continue;
+
+            m_refreshOut << m_option.indent << varName << "->addItem(";
+
+            if (pixmap != 0) {
+                m_refreshOut << pixCall(pixmap);
+
+                if (text)
+                    m_refreshOut << ", ";
+            }
+
+            m_refreshOut << trCall(text->elementString()) << ");\n";
+        }
     }
 }
 
