@@ -105,6 +105,7 @@ public:
     const QMap<int, QVariant> itemData() const;
 
     bool insertRows(int row, int count, const QList<QStandardItem*> &items);
+    bool insertRows(int row, const QList<QStandardItem*> &items);
     bool insertColumns(int column, int count, const QList<QStandardItem*> &items);
 
     void sortChildren(int column, Qt::SortOrder order);

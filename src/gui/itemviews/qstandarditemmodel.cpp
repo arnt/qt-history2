@@ -308,6 +308,32 @@ void QStandardItemModelPrivate::_q_emitItemChanged(const QModelIndex &topLeft,
 /*!
     \internal
 */
+bool QStandardItemPrivate::insertRows(int row, const QList<QStandardItem*> &items)
+{
+    Q_Q(QStandardItem);
+    if ((row < 0) || (row > rowCount()))
+        return false;
+    int count = items.count();
+    if (model)
+        model->d_func()->rowsAboutToBeInserted(q, row, row + count - 1);
+    if (rowCount() == 0) {
+        children.resize(columnCount() * count);
+        rows = count;
+    } else {
+        rows += count;
+        int index = childIndex(row, 0);
+        if (index != -1)
+            children.insert(index, columnCount() * count, 0);
+    }
+    for (int i = 0; i < items.count(); ++i) {
+        int index = childIndex(i + row, 0);
+        children.replace(index, items.at(i));
+    }
+    if (model)
+        model->d_func()->rowsInserted(q, row, count);
+    return true;
+}
+
 bool QStandardItemPrivate::insertRows(int row, int count, const QList<QStandardItem*> &items)
 {
     Q_Q(QStandardItem);
@@ -1339,6 +1365,19 @@ void QStandardItem::insertRow(int row, const QList<QStandardItem*> &items)
 }
 
 /*!
+    Inserts \a items at \a row. The column count wont be changed.
+
+    \sa insertRows(), insertColumn()
+*/
+void QStandardItem::insertRows(int row, const QList<QStandardItem*> &items)
+{
+    Q_D(QStandardItem);
+    if (row < 0)
+        return;
+    d->insertRows(row, items);
+}
+
+/*!
     Inserts a column at \a column containing \a items. If necessary,
     the row count is increased to the size of \a items.
 
@@ -1389,6 +1428,14 @@ void QStandardItem::insertColumns(int column, int count)
 
     Appends a row containing \a items. If necessary, the column count is
     increased to the size of \a items.
+
+    \sa insertRow()
+*/
+
+/*!
+    \fn void QStandardItem::appendRows(const QList<QStandardItem*> &items)
+
+    Appends rows containing \a items.  The column count will not change.
 
     \sa insertRow()
 */
