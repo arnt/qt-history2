@@ -88,7 +88,6 @@ class QAccessibleLineEdit : public QAccessibleWidgetEx, public QAccessibleTextIn
 public:
     explicit QAccessibleLineEdit(QWidget *o, const QString &name = QString());
 
-    int childCount() const;
     QString text(Text t, int child) const;
     void setText(Text t, int control, const QString &text);
     State state(int child) const;

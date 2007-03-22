@@ -536,21 +536,6 @@ QLineEdit *QAccessibleLineEdit::lineEdit() const
 {
     return qobject_cast<QLineEdit*>(object());
 }
-int QAccessibleLineEdit::childCount () const
-{
-    QList<QWidget*> children = childWidgets(lineEdit());
-#ifdef Q_OS_MAC
-    QList<QWidget*>::iterator it = children.begin();
-    while (it != children.end()) {
-        if (qobject_cast<QFocusFrame*>(*it)) {
-            it = children.erase(it);
-        } else {
-            ++it;
-        }
-    }
-#endif
-    return children.count();
-}
 
 /*! \reimp */
 QString QAccessibleLineEdit::text(Text t, int child) const

@@ -24,6 +24,7 @@
 #include "qwidget.h"
 #include "private/qmath_p.h"
 #include <QRubberBand>
+#include <QtGui/QFocusFrame>
 
 static QList<QWidget*> childWidgets(const QWidget *widget)
 {
@@ -31,7 +32,7 @@ static QList<QWidget*> childWidgets(const QWidget *widget)
     QList<QWidget*> widgets;
     for (int i = 0; i < list.size(); ++i) {
         QWidget *w = qobject_cast<QWidget *>(list.at(i));
-        if (w && !w->isWindow())
+        if (w && !w->isWindow() && !qobject_cast<QFocusFrame*>(w))
             widgets.append(w);
     }
     return widgets;
