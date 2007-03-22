@@ -4116,7 +4116,12 @@ void tst_QGraphicsItem::untransformable()
     view.show();
     view.scale(8, 8);
     view.centerOn(0, 0);
+
+// Painting with the DiagCrossPattern is really slow on Mac
+// when zoomed out. (The test times out). Task to fix is 155567.
+#ifndef Q_WS_MAC
     view.setBackgroundBrush(QBrush(Qt::black, Qt::DiagCrossPattern));
+#endif
 
     for (int i = 0; i < 10; ++i) {
         QPoint center = view.viewport()->rect().center();
