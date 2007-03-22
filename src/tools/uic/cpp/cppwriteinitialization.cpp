@@ -178,7 +178,7 @@ SizePolicyHandle::SizePolicyHandle(const DomSizePolicy *domSizePolicy) :
 {
 }
 
-inline uint qHash(const SizePolicyHandle &key) { return uint(key.m_domSizePolicy); }
+inline uint qHash(const SizePolicyHandle &key) { return qHash(key.m_domSizePolicy); }
 
 int SizePolicyHandle::compare(const SizePolicyHandle &rhs) const
 {
@@ -268,7 +268,7 @@ void WriteInitialization::LayoutDefaultHandler::writeProperty(int p, const QStri
         // the default value, layout properties were always written
         const bool useLayoutFunctionPre43 = !suppressDefault && (m_state[p] == (HasDefaultFunction|HasDefaultValue)) && value == m_defaultValues[p];
         if (!useLayoutFunctionPre43) {
-            bool ifndefMac = (!(m_state[p] & (HasDefaultFunction|HasDefaultValue)) 
+            bool ifndefMac = (!(m_state[p] & (HasDefaultFunction|HasDefaultValue))
                              && value == defaultStyleValue);
             if (ifndefMac)
                 str << "#ifndef Q_OS_MAC\n";
@@ -629,7 +629,7 @@ void WriteInitialization::acceptLayout(DomLayout *node)
             if (oldLayoutProperties)
                 marginType = m_layoutMarginType;
 
-            m_LayoutDefaultHandler.writeProperties(m_option.indent, 
+            m_LayoutDefaultHandler.writeProperties(m_option.indent,
                                     objectName, properties, marginType, false, m_output);
         }
     }
