@@ -1339,7 +1339,7 @@ bool Configure::checkAvailability(const QString &part)
     else if (part == "SSE2")
         available = (dictionary.value("QMAKESPEC") != "win32-msvc") && (dictionary.value("QMAKESPEC") != "win32-g++");
     else if (part == "3DNOW" )
-        available = (dictionary.value("QMAKESPEC") != "win32-msvc") && findFile("mm3dnow.h");
+        available = (dictionary.value("QMAKESPEC") != "win32-msvc") && (dictionary.value("QMAKESPEC") != "win32-icc") && findFile("mm3dnow.h");
     else if (part == "MMX" || part == "SSE")
         available = (dictionary.value("QMAKESPEC") != "win32-msvc");
     else if (part == "OPENSSL")
