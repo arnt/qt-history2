@@ -67,7 +67,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="c:\depot\qt\util\scripts\mac-binary\package\InstallerPane"
+				AdditionalIncludeDirectories="..\..\..\..\..\..\qt\util\scripts\mac-binary\package\InstallerPane"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;QTNSISEXT_EXPORTS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
