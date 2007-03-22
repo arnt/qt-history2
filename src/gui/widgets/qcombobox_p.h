@@ -68,9 +68,9 @@ protected:
             option.font = combo->font();
         return option;
     }
-    
+
 private:
-    QComboBox *combo;    
+    QComboBox *combo;
 };
 
 
@@ -241,7 +241,7 @@ public:
     bool contains(const QString &text, int role);
     void emitActivated(const QModelIndex&);
     void _q_emitHighlighted(const QModelIndex&);
-    void _q_emitCurrentIndexChanged(int index);
+    void _q_emitCurrentIndexChanged(const QModelIndex &index);
     void _q_modelDestroyed();
     void _q_modelReset();
 #ifdef QT_KEYPAD_NAVIGATION
@@ -279,6 +279,7 @@ public:
     int maxVisibleItems;
     int maxCount;
     int modelColumn;
+    bool inserting;
     mutable QSize minimumSizeHint;
     mutable QSize sizeHint;
     QStyle::StateFlag arrowState;

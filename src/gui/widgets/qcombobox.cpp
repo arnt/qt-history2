@@ -51,6 +51,7 @@ QComboBoxPrivate::QComboBoxPrivate()
       maxVisibleItems(10),
       maxCount(INT_MAX),
       modelColumn(0),
+      inserting(false),
       arrowState(QStyle::State_None),
       hoverControl(QStyle::SC_None),
       autoCompletionCaseSensitivity(Qt::CaseInsensitive),
@@ -822,7 +823,7 @@ void QComboBoxPrivate::init()
 {
     Q_Q(QComboBox);
     q->setFocusPolicy(Qt::WheelFocus);
-    q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed, 
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed,
                                  QSizePolicy::ComboBox));
     setLayoutItemMargins(QStyle::SE_ComboBoxLayoutItem);
     q->setModel(new QStandardItemModel(0, 1, q));
@@ -860,7 +861,7 @@ void QComboBoxPrivate::_q_resetButton()
 void QComboBoxPrivate::_q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     Q_Q(QComboBox);
-    if (topLeft.parent() != root)
+    if (inserting || topLeft.parent() != root)
         return;
 
     if (sizeAdjustPolicy == QComboBox::AdjustToContents) {
@@ -888,10 +889,8 @@ void QComboBoxPrivate::_q_rowsAboutToBeInserted(const QModelIndex & parent,
 
 void QComboBoxPrivate::_q_rowsInserted(const QModelIndex &parent, int start, int end)
 {
-    Q_UNUSED(start);
-    Q_UNUSED(end);
     Q_Q(QComboBox);
-    if (parent != root)
+    if (inserting || parent != root)
         return;
 
     if (sizeAdjustPolicy == QComboBox::AdjustToContents) {
@@ -903,10 +902,10 @@ void QComboBoxPrivate::_q_rowsInserted(const QModelIndex &parent, int start, int
     // set current index if combo was previously empty
     if (start == 0 && (end - start + 1) == q->count() && !currentIndex.isValid()) {
         q->setCurrentIndex(0);
-    // need to emit changed if model updated index "silently"
+        // need to emit changed if model updated index "silently"
     } else if (currentIndex.row() != indexBeforeChange) {
         q->update();
-        _q_emitCurrentIndexChanged(currentIndex.row());
+        _q_emitCurrentIndexChanged(currentIndex);
     }
 }
 
@@ -936,13 +935,12 @@ void QComboBoxPrivate::_q_rowsRemoved(const QModelIndex &parent, int /*start*/, 
             q->setCurrentIndex(qMin(q->count() - 1, qMax(indexBeforeChange, 0)));
             return;
         }
-        
         if (lineEdit) {
             lineEdit->setText(q->itemText(currentIndex.row()));
             updateLineEditGeometry();
         }
         q->update();
-        _q_emitCurrentIndexChanged(currentIndex.row());
+        _q_emitCurrentIndexChanged(currentIndex);
     }
 }
 
@@ -1095,15 +1093,11 @@ void QComboBoxPrivate::_q_emitHighlighted(const QModelIndex &index)
     emit q->highlighted(text);
 }
 
-void QComboBoxPrivate::_q_emitCurrentIndexChanged(int index)
+void QComboBoxPrivate::_q_emitCurrentIndexChanged(const QModelIndex &index)
 {
     Q_Q(QComboBox);
-    QModelIndex mi = model->index(index, modelColumn, q->rootModelIndex());
-    QString text;
-    if (mi.isValid())
-        text = itemText(mi);
-    emit q->currentIndexChanged(index);
-    emit q->currentIndexChanged(text);
+    emit q->currentIndexChanged(index.row());
+    emit q->currentIndexChanged(itemText(index));
 }
 
 QString QComboBoxPrivate::itemText(const QModelIndex &index) const
@@ -1159,7 +1153,7 @@ void QComboBox::setMaxVisibleItems(int maxItems)
 int QComboBox::count() const
 {
     Q_D(const QComboBox);
-    return d->model->rowCount(rootModelIndex());
+    return d->model->rowCount(d->root);
 }
 
 /*!
@@ -1180,7 +1174,7 @@ void QComboBox::setMaxCount(int max)
     }
 
     if (max < count())
-        d->model->removeRows(max, count() - max, rootModelIndex());
+        d->model->removeRows(max, count() - max, d->root);
 
     d->maxCount = max;
 }
@@ -1322,7 +1316,7 @@ int QComboBox::findData(const QVariant &data, int role, Qt::MatchFlags flags) co
 {
     Q_D(const QComboBox);
     QModelIndexList result;
-    QModelIndex start = d->model->index(0, d->modelColumn, rootModelIndex());
+    QModelIndex start = d->model->index(0, d->modelColumn, d->root);
     result = d->model->match(start, role, data, 1, flags);
     if (result.isEmpty())
         return -1;
@@ -1719,7 +1713,7 @@ void QComboBox::setModel(QAbstractItemModel *model)
 
     if (count()) {
         for (int pos=0; pos < count(); pos++) {
-            if (d->model->index(pos, d->modelColumn, rootModelIndex()).flags() & Qt::ItemIsEnabled) {
+            if (d->model->index(pos, d->modelColumn, d->root).flags() & Qt::ItemIsEnabled) {
                 setCurrentIndex(pos);
                 break;
             }
@@ -1768,7 +1762,7 @@ int QComboBox::currentIndex() const
 void QComboBox::setCurrentIndex(int index)
 {
     Q_D(QComboBox);
-    QModelIndex mi = d->model->index(index, d->modelColumn, rootModelIndex());
+    QModelIndex mi = d->model->index(index, d->modelColumn, d->root);
 
     bool indexChanged = (mi != d->currentIndex);
     if (indexChanged)
@@ -1779,7 +1773,7 @@ void QComboBox::setCurrentIndex(int index)
     }
     if (indexChanged) {
         update();
-        d->_q_emitCurrentIndexChanged(d->currentIndex.row());
+        d->_q_emitCurrentIndexChanged(d->currentIndex);
     }
 }
 
@@ -1804,7 +1798,7 @@ QString QComboBox::currentText() const
 QString QComboBox::itemText(int index) const
 {
     Q_D(const QComboBox);
-    QModelIndex mi = d->model->index(index, d->modelColumn, rootModelIndex());
+    QModelIndex mi = d->model->index(index, d->modelColumn, d->root);
     return d->itemText(mi);
 }
 
@@ -1814,7 +1808,7 @@ QString QComboBox::itemText(int index) const
 QIcon QComboBox::itemIcon(int index) const
 {
     Q_D(const QComboBox);
-    QVariant decoration = d->model->data(d->model->index(index, d->modelColumn, rootModelIndex()), Qt::DecorationRole);
+    QVariant decoration = d->model->data(d->model->index(index, d->modelColumn, d->root), Qt::DecorationRole);
     if (decoration.type() == QVariant::Pixmap)
         return QIcon(qvariant_cast<QPixmap>(decoration));
     else
@@ -1828,7 +1822,7 @@ QIcon QComboBox::itemIcon(int index) const
 QVariant QComboBox::itemData(int index, int role) const
 {
     Q_D(const QComboBox);
-    QModelIndex mi = d->model->index(index, d->modelColumn, rootModelIndex());
+    QModelIndex mi = d->model->index(index, d->modelColumn, d->root);
     return d->model->data(mi, role);
 }
 
@@ -1856,35 +1850,41 @@ QVariant QComboBox::itemData(int index, int role) const
 void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, const QVariant &userData)
 {
     Q_D(QComboBox);
-    if (index < 0)
-        index = 0;
-    else if (index > count())
-        index = count();
+    int itemCount = count();
+    index = qBound(0, index, itemCount);
     if (index >= d->maxCount)
         return;
 
-    QModelIndex item;
-    disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-               this, SLOT(_q_rowsInserted(QModelIndex,int,int)));
-    disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-               this, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
-    if (d->model->insertRows(index, 1, rootModelIndex())) {
-        item = d->model->index(index, d->modelColumn, rootModelIndex());
-        QMap<int, QVariant> values;
-        if (!text.isNull()) values.insert(Qt::EditRole, text);
-        if (!icon.isNull()) values.insert(Qt::DecorationRole, icon);
-        if (!userData.isNull()) values.insert(Qt::UserRole, userData);
-        if (!values.isEmpty()) d->model->setItemData(item, values);
-        d->_q_rowsInserted(rootModelIndex(), index, index);
+    // For the common case where we are using the built in QStandardItemModel
+    // construct a QStandardItem, reducing the number of expensive signals from the model
+    if (QStandardItemModel *m = qobject_cast<QStandardItemModel*>(d->model)) {
+        QStandardItem *item = new QStandardItem(text);
+        if (!icon.isNull()) item->setData(icon, Qt::DecorationRole);
+        if (userData.isValid()) item->setData(userData, Qt::UserRole);
+        m->insertRow(index, item);
+    } else {
+        d->inserting = true;
+        if (d->model->insertRows(index, 1, d->root)) {
+            QModelIndex item = d->model->index(index, d->modelColumn, d->root);
+            if (icon.isNull() && !userData.isValid()) {
+                d->model->setData(item, text, Qt::EditRole);
+            } else {
+                QMap<int, QVariant> values;
+                if (!text.isNull()) values.insert(Qt::EditRole, text);
+                if (!icon.isNull()) values.insert(Qt::DecorationRole, icon);
+                if (userData.isValid()) values.insert(Qt::UserRole, userData);
+                if (!values.isEmpty()) d->model->setItemData(item, values);
+            }
+            d->inserting = false;
+            d->_q_rowsInserted(d->root, index, index);
+        } else {
+            d->inserting = false;
+        }
     }
-    connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this, SLOT(_q_rowsInserted(QModelIndex,int,int)));
-    connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
 
-    int mc = count();
+    int mc = itemCount + 1;
     if (mc > d->maxCount)
-        d->model->removeRows(mc - 1, mc - d->maxCount, rootModelIndex());
+        d->model->removeRows(mc - 1, mc - d->maxCount, d->root);
 }
 
 /*!
@@ -1902,34 +1902,27 @@ void QComboBox::insertItems(int index, const QStringList &list)
     Q_D(QComboBox);
     if (list.isEmpty())
         return;
-
-    if (index < 0)
-        index = 0;
-    else if (index < 0 || index > count())
-        index = count();
-
+    index = qBound(0, index, count());
     int insertCount = qMin(d->maxCount - index, list.count());
     if (insertCount <= 0)
         return;
-    disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-               this, SLOT(_q_rowsInserted(QModelIndex,int,int)));
-    disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-               this, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
-    if (d->model->insertRows(index, insertCount, rootModelIndex())) {
+
+    d->inserting = true;
+    if (d->model->insertRows(index, insertCount, d->root)) {
         QModelIndex item;
         for (int i = 0; i < insertCount; ++i) {
-            item = d->model->index(i+index, d->modelColumn, rootModelIndex());
+            item = d->model->index(i+index, d->modelColumn, d->root);
             d->model->setData(item, list.at(i), Qt::EditRole);
         }
-        d->_q_rowsInserted(rootModelIndex(), index, index + insertCount - 1);
+        d->inserting = false;
+        d->_q_rowsInserted(d->root, index, index + insertCount - 1);
+    } else {
+        d->inserting = false;
     }
-    connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this, SLOT(_q_rowsInserted(QModelIndex,int,int)));
-    connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
+
     int mc = count();
     if (mc > d->maxCount)
-        d->model->removeRows(d->maxCount, mc - d->maxCount, rootModelIndex());
+        d->model->removeRows(d->maxCount, mc - d->maxCount, d->root);
 }
 
 /*!
@@ -1940,7 +1933,7 @@ void QComboBox::removeItem(int index)
 {
     Q_ASSERT(index >= 0 && index < count());
     Q_D(QComboBox);
-    d->model->removeRows(index, 1, rootModelIndex());
+    d->model->removeRows(index, 1, d->root);
 }
 
 /*!
@@ -1949,7 +1942,7 @@ void QComboBox::removeItem(int index)
 void QComboBox::setItemText(int index, const QString &text)
 {
     Q_D(const QComboBox);
-    QModelIndex item = d->model->index(index, d->modelColumn, rootModelIndex());
+    QModelIndex item = d->model->index(index, d->modelColumn, d->root);
     if (item.isValid()) {
         d->model->setData(item, text, Qt::EditRole);
     }
@@ -1961,7 +1954,7 @@ void QComboBox::setItemText(int index, const QString &text)
 void QComboBox::setItemIcon(int index, const QIcon &icon)
 {
     Q_D(const QComboBox);
-    QModelIndex item = d->model->index(index, d->modelColumn, rootModelIndex());
+    QModelIndex item = d->model->index(index, d->modelColumn, d->root);
     if (item.isValid()) {
         d->model->setData(item, icon, Qt::DecorationRole);
     }
@@ -1974,7 +1967,7 @@ void QComboBox::setItemIcon(int index, const QIcon &icon)
 void QComboBox::setItemData(int index, const QVariant &value, int role)
 {
     Q_D(const QComboBox);
-    QModelIndex item = d->model->index(index, d->modelColumn, rootModelIndex());
+    QModelIndex item = d->model->index(index, d->modelColumn, d->root);
     if (item.isValid()) {
         d->model->setData(item, value, role);
     }
@@ -2059,7 +2052,7 @@ void QComboBox::showPopup()
                                               QItemSelectionModel::ClearAndSelect);
     QComboBoxPrivateContainer* container = d->viewContainer();
     // use top item as height for complete listView
-    int itemHeight = view()->sizeHintForIndex(d->model->index(0, d->modelColumn, rootModelIndex())).height()
+    int itemHeight = view()->sizeHintForIndex(d->model->index(0, d->modelColumn, d->root)).height()
                      + container->spacing();
     QStyleOptionComboBox opt;
     initStyleOption(&opt);
@@ -2191,7 +2184,7 @@ void QComboBox::hidePopup()
 void QComboBox::clear()
 {
     Q_D(QComboBox);
-    d->model->removeRows(0, d->model->rowCount(rootModelIndex()), rootModelIndex());
+    d->model->removeRows(0, d->model->rowCount(d->root), d->root);
 }
 
 /*!
@@ -2526,14 +2519,14 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
             newIndex = -1;
         case MoveDown:
             newIndex++;
-            while ((newIndex < count()) && !(d->model->flags(d->model->index(newIndex,d->modelColumn,rootModelIndex())) & Qt::ItemIsEnabled))
+            while ((newIndex < count()) && !(d->model->flags(d->model->index(newIndex,d->modelColumn,d->root)) & Qt::ItemIsEnabled))
                 newIndex++;
             break;
         case MoveLast:
             newIndex = count();
         case MoveUp:
             newIndex--;
-            while ((newIndex >= 0) && !(d->model->flags(d->model->index(newIndex,d->modelColumn,rootModelIndex())) & Qt::ItemIsEnabled))
+            while ((newIndex >= 0) && !(d->model->flags(d->model->index(newIndex,d->modelColumn,d->root)) & Qt::ItemIsEnabled))
                 newIndex--;
             break;
         default:
@@ -2572,11 +2565,11 @@ void QComboBox::wheelEvent(QWheelEvent *e)
 
         if (e->delta() > 0) {
             newIndex--;
-            while ((newIndex >= 0) && !(d->model->flags(d->model->index(newIndex,d->modelColumn,rootModelIndex())) & Qt::ItemIsEnabled))
+            while ((newIndex >= 0) && !(d->model->flags(d->model->index(newIndex,d->modelColumn,d->root)) & Qt::ItemIsEnabled))
                 newIndex--;
         } else {
             newIndex++;
-            while ((newIndex < count()) && !(d->model->flags(d->model->index(newIndex,d->modelColumn,rootModelIndex())) & Qt::ItemIsEnabled))
+            while ((newIndex < count()) && !(d->model->flags(d->model->index(newIndex,d->modelColumn,d->root)) & Qt::ItemIsEnabled))
                 newIndex++;
         }
 
