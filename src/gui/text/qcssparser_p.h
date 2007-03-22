@@ -120,6 +120,7 @@ enum Property {
     Position,
     QtStyleFeatures,
     QtBackgroundRole,
+    ListStyleType,
     NumProperties
 };
 
@@ -164,6 +165,12 @@ enum KnownValue {
     Value_Always,
     Value_None,
     Value_Transparent,
+    Value_Disc,
+    Value_Circle,
+    Value_Square,
+    Value_Decimal,
+    Value_LowerAlpha,
+    Value_UpperAlpha,
 
     /* keep these in same order as QPalette::ColorRole */
     Value_FirstColorRole,

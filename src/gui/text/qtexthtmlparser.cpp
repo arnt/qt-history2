@@ -1243,6 +1243,17 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
                     default: break;
                 }
                 break;
+            case QCss::ListStyleType:
+                switch (identifier) {
+                    case QCss::Value_Disc: hasOwnListStyle = true; listStyle = QTextListFormat::ListDisc; break;
+                    case QCss::Value_Square: hasOwnListStyle = true; listStyle = QTextListFormat::ListSquare; break;
+                    case QCss::Value_Circle: hasOwnListStyle = true; listStyle = QTextListFormat::ListCircle; break;
+                    case QCss::Value_Decimal: hasOwnListStyle = true; listStyle = QTextListFormat::ListDecimal; break;
+                    case QCss::Value_LowerAlpha: hasOwnListStyle = true; listStyle = QTextListFormat::ListLowerAlpha; break;
+                    case QCss::Value_UpperAlpha: hasOwnListStyle = true; listStyle = QTextListFormat::ListUpperAlpha; break;
+                    default: break;
+                }
+                break;
             default: break;
         }
     }

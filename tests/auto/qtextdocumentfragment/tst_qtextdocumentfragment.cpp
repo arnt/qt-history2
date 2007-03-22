@@ -166,6 +166,7 @@ private slots:
     void css_textUnderlineStyle_data();
     void css_textUnderlineStyle();
     void css_textUnderlineStyleAndDecoration();
+    void css_listStyleType();
     void universalSelectors_data();
     void universalSelectors();
     void screenMedia();
@@ -2519,6 +2520,39 @@ void tst_QTextDocumentFragment::css_textUnderlineStyleAndDecoration()
     QVERIFY(fragment.isValid());
     QVERIFY(fragment.charFormat().underlineStyle() == QTextCharFormat::SingleUnderline);
     QVERIFY(fragment.charFormat().fontOverline());
+}
+
+void tst_QTextDocumentFragment::css_listStyleType()
+{
+    doc->setHtml("<ol style=\"list-style-type: disc\"><li>Blah</li></ol>");
+    cursor.movePosition(QTextCursor::End);
+    QVERIFY(cursor.currentList());
+    QVERIFY(cursor.currentList()->format().style() == QTextListFormat::ListDisc);
+
+    doc->setHtml("<ul style=\"list-style-type: square\"><li>Blah</li></ul>");
+    cursor.movePosition(QTextCursor::End);
+    QVERIFY(cursor.currentList());
+    QVERIFY(cursor.currentList()->format().style() == QTextListFormat::ListSquare);
+
+    doc->setHtml("<ul style=\"list-style-type: circle\"><li>Blah</li></ul>");
+    cursor.movePosition(QTextCursor::End);
+    QVERIFY(cursor.currentList());
+    QVERIFY(cursor.currentList()->format().style() == QTextListFormat::ListCircle);
+
+    doc->setHtml("<ul style=\"list-style-type: decimal\"><li>Blah</li></ul>");
+    cursor.movePosition(QTextCursor::End);
+    QVERIFY(cursor.currentList());
+    QVERIFY(cursor.currentList()->format().style() == QTextListFormat::ListDecimal);
+
+    doc->setHtml("<ul style=\"list-style-type: lower-alpha\"><li>Blah</li></ul>");
+    cursor.movePosition(QTextCursor::End);
+    QVERIFY(cursor.currentList());
+    QVERIFY(cursor.currentList()->format().style() == QTextListFormat::ListLowerAlpha);
+
+    doc->setHtml("<ul style=\"list-style-type: upper-alpha\"><li>Blah</li></ul>");
+    cursor.movePosition(QTextCursor::End);
+    QVERIFY(cursor.currentList());
+    QVERIFY(cursor.currentList()->format().style() == QTextListFormat::ListUpperAlpha);
 }
 
 void tst_QTextDocumentFragment::universalSelectors_data()
