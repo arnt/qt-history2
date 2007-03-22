@@ -1907,18 +1907,27 @@ void QComboBox::insertItems(int index, const QStringList &list)
     int insertCount = qMin(d->maxCount - index, list.count());
     if (insertCount <= 0)
         return;
-
-    d->inserting = true;
-    if (d->model->insertRows(index, insertCount, d->root)) {
-        QModelIndex item;
-        for (int i = 0; i < insertCount; ++i) {
-            item = d->model->index(i+index, d->modelColumn, d->root);
-            d->model->setData(item, list.at(i), Qt::EditRole);
-        }
-        d->inserting = false;
-        d->_q_rowsInserted(d->root, index, index + insertCount - 1);
+    // For the common case where we are using the built in QStandardItemModel
+    // construct a QStandardItem, reducing the number of expensive signals from the model
+    if (QStandardItemModel *m = qobject_cast<QStandardItemModel*>(d->model)) {
+        QList<QStandardItem *> items;
+        QStandardItem *hiddenRoot = m->invisibleRootItem();
+        for (int i = 0; i < insertCount; ++i)
+            items.append(new QStandardItem(list.at(i)));
+        hiddenRoot->insertRows(index, items);
     } else {
-        d->inserting = false;
+        d->inserting = true;
+        if (d->model->insertRows(index, insertCount, d->root)) {
+            QModelIndex item;
+            for (int i = 0; i < insertCount; ++i) {
+                item = d->model->index(i+index, d->modelColumn, d->root);
+                d->model->setData(item, list.at(i), Qt::EditRole);
+            }
+            d->inserting = false;
+            d->_q_rowsInserted(d->root, index, index + insertCount - 1);
+        } else {
+            d->inserting = false;
+        }
     }
 
     int mc = count();
