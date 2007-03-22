@@ -121,6 +121,8 @@ private slots:
     void stackUnder();
     void testContentsPropagation();
     void saveRestoreGeometry();
+
+    void restoreVersion1Geometry_data();
     void restoreVersion1Geometry();
 
     void windowTitle();
@@ -2385,35 +2387,73 @@ void tst_QWidget::saveRestoreGeometry()
     }
 }
 
+void tst_QWidget::restoreVersion1Geometry_data()
+{
+    QTest::addColumn<QString>("fileName");
+    QTest::addColumn<uint>("expectedWindowState");
+    QTest::addColumn<QPoint>("expectedPosition");
+    QTest::addColumn<QSize>("expectedSize");
+
+    const QPoint position(100, 100);
+    const QSize size(200, 200);
+
+    QTest::newRow("geometry.dat") << ":geometry.dat" << uint(Qt::WindowNoState) << position << size;
+    QTest::newRow("geometry-maximized.dat") << ":geometry-maximized.dat" << uint(Qt::WindowMaximized) << position << size;
+    QTest::newRow("geometry-fullscreen.dat") << ":geometry-fullscreen.dat" << uint(Qt::WindowFullScreen) << position << size;
+}
+
 /*
     Test that the current version of restoreGeometry() can restore geometry
     saved width saveGeometry() version 1.0.
 */
 void tst_QWidget::restoreVersion1Geometry()
 {
-    const QPoint position(100, 100);
-    const QSize size(200, 200);
+    QFETCH(QString, fileName);
+    QFETCH(uint, expectedWindowState);
+    QFETCH(QPoint, expectedPosition);
+    QFETCH(QSize, expectedSize);
 
-    QFile f(":geometry.dat");
+    // WindowActive is uninteresting for this test
+    const uint WindowStateMask = Qt::WindowFullScreen | Qt::WindowMaximized | Qt::WindowMinimized;
+
+    QFile f(fileName);
     QVERIFY(f.exists());
     f.open(QIODevice::ReadOnly);
-    const QByteArray savedGeometry = f.readAll();;
+    const QByteArray savedGeometry = f.readAll();
     QCOMPARE(savedGeometry.count(), 46);
 
     QWidget widget;
+
     QVERIFY(widget.restoreGeometry(savedGeometry));
-#ifdef Q_WS_X11
-    QEXPECT_FAIL("", "On X11, pos() == geometry().topLeft() for windows that haven't been shown", Continue);
-#endif
-    QCOMPARE(widget.pos(), position);
-    QCOMPARE(widget.size(), size);
+
+    QCOMPARE(uint(widget.windowState() & WindowStateMask), expectedWindowState);
+    if (expectedWindowState == Qt::WindowNoState) {
+        QCOMPARE(widget.pos(), expectedPosition);
+        QCOMPARE(widget.size(), expectedSize);
+    }
     widget.show();
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&widget);
 #endif
     QTest::qWait(100);
-    QCOMPARE(widget.pos(), position);
-    QCOMPARE(widget.size(), size);
+
+    if (expectedWindowState == Qt::WindowNoState) {
+        QCOMPARE(widget.pos(), expectedPosition);
+        QCOMPARE(widget.size(), expectedSize);
+    }
+
+    widget.showNormal();
+    QTest::qWait(1000);
+#ifdef Q_WS_X11
+    if (expectedWindowState != Qt::WindowNoState) {
+        QEXPECT_FAIL("",
+                     "On X11, there is no way to tell the WM what the "
+                     "normal geometry should be upon restoring",
+                     Continue);
+    }
+#endif
+    QCOMPARE(widget.pos(), expectedPosition);
+    QCOMPARE(widget.size(), expectedSize);
 }
 
 void tst_QWidget::widgetAt()

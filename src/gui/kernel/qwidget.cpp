@@ -4918,7 +4918,8 @@ bool QWidget::restoreGeometry(const QByteArray &geometry)
     restoredNormalGeometry.moveTop(qMax(restoredNormalGeometry.top(), availableGeometry.top() + frameHeight));
 
     if (maximized || fullScreen) {
-        setGeometry(restoredNormalGeometry);
+        move(restoredFrameGeometry.topLeft());
+        resize(restoredNormalGeometry.size());
         Qt::WindowStates ws = windowState();
         if (maximized)
             ws |= Qt::WindowMaximized;
@@ -4927,7 +4928,8 @@ bool QWidget::restoreGeometry(const QByteArray &geometry)
             setWindowState(ws);
     } else {
         setWindowState(windowState() & ~(Qt::WindowMaximized | Qt::WindowFullScreen));
-        setGeometry(restoredNormalGeometry);
+        move(restoredFrameGeometry.topLeft());
+        resize(restoredNormalGeometry.size());
     }
     return true;
 }
