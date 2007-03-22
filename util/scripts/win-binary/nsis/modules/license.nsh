@@ -73,13 +73,13 @@
     FileWrite $1 '# Qt license file (Created by the binary installer)$\r$\n'
 
     strcmp "$4" "" +2
-      FileWrite $1 "CustomerID="$4"$\r$\n"
+      FileWrite $1 'CustomerID="$4"$\r$\n'
 
     FileWrite $1 'LicenseID="$2"$\r$\n'
     FileWrite $1 'Licensee="$LICENSEE"$\r$\n'
 
     strcmp "$5" "" +2
-      FileWrite $1 "Products="$5"$\r$\n"
+      FileWrite $1 'Products="$5"$\r$\n'
 
     strcmp "$6" "" +2
       FileWrite $1 "ExpiryDate=$6$\r$\n"
