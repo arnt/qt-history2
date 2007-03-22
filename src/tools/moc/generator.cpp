@@ -1006,7 +1006,7 @@ QMetaObject *Generator::generateMetaObject(bool ignoreProperties)
     for (int i = 0; i < meta_data.count(); ++i)
         meta_data_output[i] = meta_data_src[i];
 
-    QMetaObject *meta_object = new (blob + meta_object_offset)QMetaObject();
+    QMetaObject *meta_object = new (blob + meta_object_offset)QMetaObject;
     meta_object->d.superdata = 0;
     meta_object->d.stringdata = string_data_output;
     meta_object->d.data = meta_data_output;
