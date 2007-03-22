@@ -74,10 +74,12 @@ QMacCGContext::QMacCGContext(QPainter *p)
   QCoreGraphicsPaintEngine utility functions
  *****************************************************************************/
 
-//colour conversion
+//conversion
 inline static float qt_mac_convert_color_to_cg(int c) { return ((float)c * 1000 / 255) / 1000; }
 inline static int qt_mac_convert_color_from_cg(float c) { return qRound(c * 255); }
-
+CGAffineTransform qt_mac_convert_transform_to_cg(const QTransform &t) {
+    return CGAffineTransformMake(t.m11(), t.m12(), t.m21(), t.m22(), t.dx(),  t.dy());
+}
 
 #ifdef QMAC_NATIVE_GRADIENTS
 //gradiant callback
@@ -267,12 +269,12 @@ inline static QPaintEngine::PaintEngineFeatures qt_mac_cg_features()
             );
 }
 
-    QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
+QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
 : QPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), qt_mac_cg_features())
 {
 }
 
-    QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr)
+QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr)
 : QPaintEngine(dptr, qt_mac_cg_features())
 {
 }
@@ -293,7 +295,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     //initialization
     d->pdev = pdev;
     d->complexXForm = false;
-    d->cosmeticPen = true;
+    d->cosmeticPen = QCoreGraphicsPaintEnginePrivate::CosmeticSetPenWidth;
     d->cosmeticPenSize = 1;
     d->current.clipEnabled = false;
     d->pixelSize = QPoint(1,1);
@@ -337,7 +339,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     return true;
 }
 
-    bool
+bool
 QCoreGraphicsPaintEngine::end()
 {
     Q_D(QCoreGraphicsPaintEngine);
@@ -358,13 +360,13 @@ QCoreGraphicsPaintEngine::end()
     return true;
 }
 
-void QCoreGraphicsPaintEngine::updateState(const QPaintEngineState &state)
+void
+QCoreGraphicsPaintEngine::updateState(const QPaintEngineState &state)
 {
     Q_D(QCoreGraphicsPaintEngine);
     QPaintEngine::DirtyFlags flags = state.state();
     if(flags & DirtyTransform)
         updateMatrix(state.transform());
-
     if(flags & DirtyPen)
         updatePen(state.pen());
     if(flags & (DirtyBrush|DirtyBrushOrigin))
@@ -387,14 +389,22 @@ void QCoreGraphicsPaintEngine::updateState(const QPaintEngineState &state)
         updateRenderHints(state.renderHints());
 
     if (flags & (DirtyPen | DirtyTransform)) {
-        static const float sqrt2 = sqrt(2);
-        qreal width = d->current.pen.widthF();
-        if (width == 0)
-            width = 1;
-
-        d->cosmeticPenSize =
-            sqrt(pow(d->pixelSize.y(), 2) + pow(d->pixelSize.x(), 2)) / sqrt2
-            * width;
+        if(!d->current.pen.isCosmetic()) {
+            d->cosmeticPen = QCoreGraphicsPaintEnginePrivate::CosmeticNone;
+        } else if(d->current.transform.m11() < d->current.transform.m22()-1.0 ||
+                  d->current.transform.m11() > d->current.transform.m22()+1.0) {
+            d->cosmeticPen = QCoreGraphicsPaintEnginePrivate::CosmeticTransformPath;
+            d->cosmeticPenSize = d->adjustPenWidth(d->current.pen.widthF());
+            if(!d->cosmeticPenSize)
+                d->cosmeticPenSize = 1.0;
+        } else {
+            d->cosmeticPen = QCoreGraphicsPaintEnginePrivate::CosmeticSetPenWidth;
+            static const float sqrt2 = sqrt(2);
+            qreal width = d->current.pen.widthF();
+            if(!width)
+                width = 1;
+            d->cosmeticPenSize = sqrt(pow(d->pixelSize.y(), 2) + pow(d->pixelSize.x(), 2)) / sqrt2 * width;
+        }
     }
 }
 
@@ -405,7 +415,6 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
     Q_ASSERT(isActive());
     d->current.pen = pen;
     d->setStrokePen(pen);
-    d->cosmeticPen = pen.isCosmetic();
 }
 
 void
@@ -437,15 +446,14 @@ QCoreGraphicsPaintEngine::updateFont(const QFont &)
 }
 
 void
-QCoreGraphicsPaintEngine::updateMatrix(const QTransform &matrix)
+QCoreGraphicsPaintEngine::updateMatrix(const QTransform &transform)
 {
     Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
-    d->setTransform(matrix.isIdentity() ? 0 : &matrix);
-
-    d->complexXForm = (matrix.m11() != 1 || matrix.m22() != 1
-            || matrix.m12() != 0 || matrix.m21() != 0);
-
+    d->current.transform = transform;
+    d->setTransform(transform.isIdentity() ? 0 : &transform);
+    d->complexXForm = (transform.m11() != 1 || transform.m22() != 1
+            || transform.m12() != 0 || transform.m21() != 0);
     d->pixelSize = d->devicePixelSize(d->hd);
 }
 
@@ -558,14 +566,7 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointF *points, int pointCount)
         CGPathMoveToPoint(path, 0, x, y);
         CGPathAddLineToPoint(path, 0, x, y);
     }
-
-    const bool needPenWidthChange = !d->cosmeticPen && !(state->renderHints() & QPainter::Antialiasing);
-    if (needPenWidthChange)
-        CGContextSetLineWidth(d->hd, d->current.pen.widthF());
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke, path);
-    if (needPenWidthChange)
-        CGContextSetLineWidth(d->hd, d->adjustPenWidth(d->current.pen.widthF()));
-
     CGPathRelease(path);
 }
 
@@ -893,18 +894,18 @@ QPointF QCoreGraphicsPaintEnginePrivate::devicePixelSize(CGContextRef context)
 float QCoreGraphicsPaintEnginePrivate::adjustPenWidth(float penWidth)
 {
     Q_Q(QCoreGraphicsPaintEngine);
-    if (complexXForm || q->state->renderHints() & QPainter::Antialiasing)
-        return penWidth;
-
-    if (penWidth < 2) {
-        return 1;
-    } else if (penWidth < 3) {
-        return 1.5;
-    } else {
-        return penWidth -1;
+    float ret = penWidth;
+    if (!complexXForm && !(q->state->renderHints() & QPainter::Antialiasing)) {
+        if (penWidth < 2)
+            ret = 1;
+        else if (penWidth < 3)
+            ret = 1.5;
+        else
+            ret = penWidth -1;
     }
-
-    return penWidth;
+    if(ret < 1)
+        ret = 1.0f;
+    return ret;
 }
 
 void
@@ -917,7 +918,6 @@ QCoreGraphicsPaintEnginePrivate::setStrokePen(const QPen &pen)
     else if(pen.capStyle() == Qt::RoundCap)
         cglinecap = kCGLineCapRound;
     CGContextSetLineCap(hd, cglinecap);
-
     CGContextSetLineWidth(hd, adjustPenWidth(pen.widthF()));
 
     //join
@@ -1017,7 +1017,7 @@ QCoreGraphicsPaintEnginePrivate::setFillBrush(const QBrush &brush, const QPointF
 
             Qt::BrushStyle bsForPattern;
             switch (bs) {
-            // Since the matrix is flipped, we need to filp the diagonal
+            // Since the transform is flipped, we need to filp the diagonal
             default:
                 bsForPattern = bs;
                 break;
@@ -1086,6 +1086,39 @@ QCoreGraphicsPaintEnginePrivate::setClip(const QRegion *rgn)
     }
 }
 
+struct qt_mac_cg_transform_path {
+    CGMutablePathRef path;
+    CGAffineTransform transform;
+};
+
+void qt_mac_cg_transform_path_apply(void *info, const CGPathElement *element)
+{
+    Q_ASSERT(info && element);
+    qt_mac_cg_transform_path *t = (qt_mac_cg_transform_path*)info;
+    switch(element->type) {
+    case kCGPathElementMoveToPoint:
+        CGPathMoveToPoint(t->path, &t->transform, element->points[0].x, element->points[0].y);
+        break;
+    case kCGPathElementAddLineToPoint:
+        CGPathAddLineToPoint(t->path, &t->transform, element->points[0].x, element->points[0].y);
+        break;
+    case kCGPathElementAddQuadCurveToPoint:
+        CGPathAddQuadCurveToPoint(t->path, &t->transform, element->points[0].x, element->points[0].y,
+                                  element->points[1].x, element->points[1].y);
+        break;
+    case kCGPathElementAddCurveToPoint:
+        CGPathAddCurveToPoint(t->path, &t->transform, element->points[0].x, element->points[0].y,
+                              element->points[1].x, element->points[1].y,
+                              element->points[2].x, element->points[2].y);
+        break;
+    case kCGPathElementCloseSubpath:
+        CGPathCloseSubpath(t->path);
+        break;
+    default:
+        qDebug() << "Unhandled path transform type: " << element->type;
+    }
+}
+
 void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
 {
     Q_Q(QCoreGraphicsPaintEngine);
@@ -1112,7 +1145,7 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
     if((ops & CGStroke) && current.pen.style() == Qt::NoPen)
         ops &= ~CGStroke;
 
-    if (ops & (CGEOFill | CGFill)) {
+    if(ops & (CGEOFill | CGFill)) {
         CGContextBeginPath(hd);
         CGContextAddPath(hd, path);
         if (ops & CGEOFill)
@@ -1122,15 +1155,21 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
     }
 
     // Avoid saving and restoring the context if we can.
-    const bool needContextSave = (cosmeticPen || !(q->state->renderHints() & QPainter::Antialiasing));
-
-    if (ops & CGStroke) {
+    const bool needContextSave = (cosmeticPen != QCoreGraphicsPaintEnginePrivate::CosmeticNone ||
+                                  !(q->state->renderHints() & QPainter::Antialiasing));
+    if(ops & CGStroke) {
         if (needContextSave)
             CGContextSaveGState(hd);
         CGContextBeginPath(hd);
 
-        // Handle cosmetic pens by setting the line width.
-        if (cosmeticPen) {
+        // Translate a fraction of a pixel size in the y direction
+        // to make sure that primitives painted at pixel borders
+        // fills the right pixel. This is needed since the y xais
+        // in the Quartz coordinate system is inverted compared to Qt.
+        if (!(q->state->renderHints() & QPainter::Antialiasing))
+            CGContextTranslateCTM(hd, double(pixelSize.x()) * 0.25, double(pixelSize.y()) * 0.25);
+
+        if (cosmeticPen != QCoreGraphicsPaintEnginePrivate::CosmeticNone) {
             // If antialiazing is enabled, use the cosmetic pen size directly.
             if (q->state->renderHints() & QPainter::Antialiasing)
                 CGContextSetLineWidth(hd,  cosmeticPenSize);
@@ -1139,15 +1178,19 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
             else
                 CGContextSetLineWidth(hd, cosmeticPenSize);
         }
+        if(cosmeticPen == QCoreGraphicsPaintEnginePrivate::CosmeticTransformPath) {
+            qt_mac_cg_transform_path t;
+            t.transform = qt_mac_convert_transform_to_cg(current.transform);
+            t.path = CGPathCreateMutable();
+            CGPathApply(path, &t, qt_mac_cg_transform_path_apply); //transform the path
+            setTransform(0); //unset the context transform
+            CGContextSetLineWidth(hd,  cosmeticPenSize);
+            CGContextAddPath(hd, t.path);
+            CGPathRelease(t.path);
+        } else {
+            CGContextAddPath(hd, path);
+        }
 
-        // Translate a fraction of a pixel size in the y direction
-        // to make sure that primitves painted at pixel borders
-        // fills the right pixel. This is needed since the y xais
-        // in the Quartz coordinate system is inverted compared to Qt.
-        if (!(q->state->renderHints() & QPainter::Antialiasing))
-            CGContextTranslateCTM(hd, double(pixelSize.x()) * 0.25, double(pixelSize.y()) * 0.25);
-
-        CGContextAddPath(hd, path);
         CGContextStrokePath(hd);
         if (needContextSave)
             CGContextRestoreGState(hd);

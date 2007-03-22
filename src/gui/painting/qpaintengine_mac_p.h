@@ -116,7 +116,7 @@ public:
         QBrush brush;
         uint clipEnabled : 1;
         QRegion clip;
-        QTransform matrix;
+        QTransform transform;
    } current;
 
     //state info (shared with QD)
@@ -126,7 +126,7 @@ public:
     CGContextRef hd;
     CGShadingRef shading;
     bool complexXForm;
-    bool cosmeticPen;
+    enum { CosmeticNone, CosmeticTransformPath, CosmeticSetPenWidth } cosmeticPen;
 
     // pixel and cosmetic pen size in user coordinates.
     QPointF pixelSize;
@@ -145,11 +145,10 @@ public:
     {
         CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
         CGAffineTransform xform = orig_xform;
-        if(matrix)
-            xform = CGAffineTransformConcat(CGAffineTransformMake(matrix->m11(), matrix->m12(),
-                                                                  matrix->m21(), matrix->m22(),
-                                                                  matrix->dx(),  matrix->dy()),
-                                            xform);
+        if(matrix) {
+            extern CGAffineTransform qt_mac_convert_transform_to_cg(const QTransform &);
+            xform = CGAffineTransformConcat(qt_mac_convert_transform_to_cg(*matrix), xform);
+        }
         CGContextConcatCTM(hd, xform);
         CGContextSetTextMatrix(hd, xform);
     }
