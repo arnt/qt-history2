@@ -2402,6 +2402,9 @@ void tst_QWidget::restoreVersion1Geometry()
 
     QWidget widget;
     QVERIFY(widget.restoreGeometry(savedGeometry));
+#ifdef Q_WS_X11
+    QEXPECT_FAIL("", "On X11, pos() == geometry().topLeft() for windows that haven't been shown", Continue);
+#endif
     QCOMPARE(widget.pos(), position);
     QCOMPARE(widget.size(), size);
     widget.show();
