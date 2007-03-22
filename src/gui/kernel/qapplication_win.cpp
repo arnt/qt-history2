@@ -2783,8 +2783,13 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
     // by modality, we send the event to it first
     int ret = 0;
     QWidget* w = QApplication::widgetAt(globalPos);
-    if (!w || !qt_try_modal(w, (MSG*)&msg, ret))
-        w = this;
+    if (!w || !qt_try_modal(w, (MSG*)&msg, ret)) {
+        //synaptics touchpad shows its own widget at this position 
+        //so widgetAt() will fail with that HWND, try child of this widget
+        w = this->childAt(this->mapFromGlobal(globalPos));
+        if (!w)
+            w = this;
+    }
 
     // send the event to the widget or its ancestors
     {
