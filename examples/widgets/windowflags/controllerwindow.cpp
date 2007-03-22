@@ -81,6 +81,8 @@ void ControllerWindow::updatePreview()
         flags |= Qt::WindowShadeButtonHint;
     if (windowStaysOnTopCheckBox->isChecked())
         flags |= Qt::WindowStaysOnTopHint;
+    if (customizeWindowHintCheckBox->isChecked())
+        flags |= Qt::CustomizeWindowHint;
 
     previewWindow->setWindowFlags(flags);
     previewWindow->show();
@@ -136,6 +138,7 @@ void ControllerWindow::createHintsGroupBox()
             createCheckBox(tr("Window context help button"));
     windowShadeButtonCheckBox = createCheckBox(tr("Window shade button"));
     windowStaysOnTopCheckBox = createCheckBox(tr("Window stays on top"));
+    customizeWindowHintCheckBox= createCheckBox(tr("Customize window"));
 
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(msWindowsFixedSizeDialogCheckBox, 0, 0);
@@ -148,6 +151,7 @@ void ControllerWindow::createHintsGroupBox()
     layout->addWidget(windowContextHelpButtonCheckBox, 2, 1);
     layout->addWidget(windowShadeButtonCheckBox, 3, 1);
     layout->addWidget(windowStaysOnTopCheckBox, 4, 1);
+    layout->addWidget(customizeWindowHintCheckBox, 5, 0);
     hintsGroupBox->setLayout(layout);
 }
 

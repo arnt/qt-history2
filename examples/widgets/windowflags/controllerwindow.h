@@ -65,6 +65,7 @@ private:
     QCheckBox *windowContextHelpButtonCheckBox;
     QCheckBox *windowShadeButtonCheckBox;
     QCheckBox *windowStaysOnTopCheckBox;
+    QCheckBox *customizeWindowHintCheckBox;
 };
 
 #endif
