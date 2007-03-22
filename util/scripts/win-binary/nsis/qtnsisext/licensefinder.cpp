@@ -10,6 +10,9 @@ LicenseFinder::LicenseFinder()
     memset(licensee, '\0', sizeof(licensee)*sizeof(char));
     memset(m_key, '\0', sizeof(m_key)*sizeof(char));
     memset(m_oldkey, '\0', sizeof(m_oldkey)*sizeof(char));
+    memset(m_customerId, '\0', sizeof(m_customerId)*sizeof(char));
+    memset(m_products, '\0', sizeof(m_products)*sizeof(char));
+    memset(m_expiryDate, '\0', sizeof(m_expiryDate)*sizeof(char));
 }
 
 char *LicenseFinder::getLicensee()
@@ -34,6 +37,30 @@ char *LicenseFinder::getOldLicenseKey()
         searchLicense();
 
     return m_oldkey;
+}
+
+char *LicenseFinder::getCustomerID()
+{
+    if (!searched)
+        searchLicense();
+
+    return m_customerId;
+}
+
+char *LicenseFinder::getProducts()
+{
+    if (!searched)
+        searchLicense();
+
+    return m_products;
+}
+
+char *LicenseFinder::getExpiryDate()
+{
+    if (!searched)
+        searchLicense();
+
+    return m_expiryDate;
 }
 
 void LicenseFinder::searchLicense()
@@ -72,6 +99,9 @@ bool LicenseFinder::lookInDirectory(const char *dir)
     memset(licensee, '\0', sizeof(licensee));
     memset(m_key, '\0', sizeof(m_key));
     memset(m_oldkey, '\0', sizeof(m_oldkey));
+    memset(m_customerId, '\0', sizeof(m_customerId));
+    memset(m_products, '\0', sizeof(m_products));
+    memset(m_expiryDate, '\0', sizeof(m_expiryDate));
 
     if (((strlen(dir)+strlen("\\.qt-license"))*sizeof(char)) >= _MAX_PATH)
         return false;
@@ -102,7 +132,7 @@ bool LicenseFinder::lookInDirectory(const char *dir)
             end = strchr(tmp, '\n');
         if (end && ((end-tmp) < MAX_KEY_LENGTH))
             strncpy(m_key, tmp, end-tmp);
-        else
+        else if (strlen(tmp) < MAX_KEY_LENGTH)
             strcpy(m_key, tmp);
     }
 
@@ -115,8 +145,39 @@ bool LicenseFinder::lookInDirectory(const char *dir)
             end = strchr(tmp, '\n');
         if (end && ((end-tmp) < MAX_KEY_LENGTH))
             strncpy(m_oldkey, tmp, end-tmp);
-        else
+        else if (strlen(tmp) < MAX_KEY_LENGTH)
             strcpy(m_oldkey, tmp);
+    }
+
+    /* CustomerID */
+    const char *pat4 = "CustomerID=\"";
+    tmp = findPattern(buf, pat4, ulong(r));
+    if (tmp && (strlen(tmp) > 1)) {
+        char *end = strchr(tmp, '\"');
+        if (end && ((end-tmp) < MAX_QT3INFO_LENGTH))
+            strncpy(m_customerId, tmp, end-tmp);
+    }
+
+    /* Products */
+    const char *pat5 = "Products=\"";
+    tmp = findPattern(buf, pat5, ulong(r));
+    if (tmp && (strlen(tmp) > 1)) {
+        char *end = strchr(tmp, '\"');
+        if (end && ((end-tmp) < MAX_QT3INFO_LENGTH))
+            strncpy(m_products, tmp, end-tmp);
+    }
+
+    /* ExpiryDate */
+    const char *pat6 = "ExpiryDate=";
+    tmp = findPattern(buf, pat6, ulong(r));
+    if (tmp) {
+        char *end = strchr(tmp, '\r');
+        if (!end)
+            end = strchr(tmp, '\n');
+        if (end && ((end-tmp) < MAX_QT3INFO_LENGTH))
+            strncpy(m_expiryDate, tmp, end-tmp);
+        else if (strlen(tmp) < MAX_QT3INFO_LENGTH)
+            strcpy(m_expiryDate, tmp);
     }
 
     fclose(f);

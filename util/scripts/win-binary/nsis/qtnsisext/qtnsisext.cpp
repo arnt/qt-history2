@@ -236,6 +236,9 @@ EXPORT_NSIS_FUNCTION(GetLicenseInfo)
     pushstring(f.getLicenseKey());
     pushstring(f.getOldLicenseKey());
     pushstring(f.getLicensee());
+    pushstring(f.getCustomerID());
+    pushstring(f.getProducts());
+    pushstring(f.getExpiryDate());
 }
 
 EXPORT_NSIS_FUNCTION(PatchVC6Binary)

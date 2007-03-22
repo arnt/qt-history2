@@ -25,8 +25,14 @@
     push $1
     push $2
     push $3
+    push $4
+    push $5
+    push $6
     
     qtnsisext::GetLicenseInfo
+    pop $6 ; ExpiryDate
+    pop $5 ; Products
+    pop $4 ; CustomerID
     pop $1 ; Licensee
     pop $3 ; OldLicenseKey
     pop $0 ; License Key
@@ -65,14 +71,28 @@
     FileOpen $1 "$0\.qt-license" w
     IfErrors done
     FileWrite $1 '# Qt license file (Created by the binary installer)$\r$\n'
+
+    strcmp "$4" "" +2
+      FileWrite $1 "CustomerID="$4"$\r$\n"
+
     FileWrite $1 'LicenseID="$2"$\r$\n'
     FileWrite $1 'Licensee="$LICENSEE"$\r$\n'
+
+    strcmp "$5" "" +2
+      FileWrite $1 "Products="$5"$\r$\n"
+
+    strcmp "$6" "" +2
+      FileWrite $1 "ExpiryDate=$6$\r$\n"
+
     strcmp "$3" "" +2
       FileWrite $1 "LicenseKey=$3$\r$\n"
     FileWrite $1 "LicenseKeyExt=$LICENSE_KEY$\r$\n"
     FileClose $1
 
     done:
+    pop $6
+    pop $5
+    pop $4
     pop $3
     pop $2
     pop $1
@@ -245,12 +265,22 @@
   push $0
   push $1
   push $2
+  push $3
+  push $4
+  push $5
+
   qtnsisext::GetLicenseInfo
+  pop $5 ; ExpiryDate
+  pop $4 ; Products
+  pop $3 ; CustomerID
   pop $1 ; Licensee
   pop $2 ; OldLicenseKey
   pop $0 ; License Key
   !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 2" "State" "$1"
   !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 3" "State" "$0"
+  pop $5
+  pop $4
+  pop $3
   pop $2
   pop $1
   pop $0
