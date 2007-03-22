@@ -309,6 +309,7 @@ void QGLContext::reset()
     Q_D(QGLContext);
     if (!d->valid)
         return;
+    doneCurrent();
 #ifndef Q_USE_EGLWINDOWSURFACE
     if (d->cx)
         eglDestroyContext(d->dpy, d->cx);
@@ -347,7 +348,7 @@ void QGLContext::makeCurrent()
     }
 #else
     if (device()->devType() == QInternal::Widget) {
-        // EGL Only works if drawable is a QGLWidget, QGLFramebufferObject, QGLPixelBuffer not supported
+        // EGL Only works if drawable is a QGLWidget. QGLFramebufferObject, QGLPixelBuffer not supported
         static_cast<QGLWidget*>(device())->d_func()->wsurf->beginPaint(QRegion());
     }
 #endif
