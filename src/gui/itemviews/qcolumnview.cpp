@@ -775,7 +775,7 @@ void QColumnViewPrivate::setPreviewWidget(QWidget *widget)
 }
 
 /*!
-    Sets the column widths to the values given in the list.  Extra values in the list are kept and used when the columns are created.
+    Sets the column widths to the values given in the \a list.  Extra values in the list are kept and used when the columns are created.
 
     If list contains too few values, only width of the rest of the columns will not be modified.
 
