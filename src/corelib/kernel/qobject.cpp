@@ -51,7 +51,7 @@ static int *queuedConnectionTypes(const QList<QByteArray> &typeNames)
 
         if (!types[i]) {
             qWarning("QObject::connect: Cannot queue arguments of type '%s'\n"
-                     "(Make sure '%s' is registed using qRegisterMetaType().)",
+                     "(Make sure '%s' is registered using qRegisterMetaType().)",
                      typeName.constData(), typeName.constData());
             qFree(types);
             return 0;
@@ -2425,7 +2425,7 @@ int QObject::receivers(const char *signal) const
 
     \code
         QObject::connect: Cannot queue arguments of type 'MyType'
-        (Make sure 'MyType' is registed using qRegisterMetaType().)
+        (Make sure 'MyType' is registered using qRegisterMetaType().)
     \endcode
 
     call qRegisterMetaType() to register the data type before you

@@ -270,7 +270,7 @@ QUuid QAxFactory::eventsID(const QString &key) const
 /*!
     Registers additional values for the class \a key in the system
     registry using the \a settings object. The standard values have
-    already been registed by the framework, but additional values,
+    already been registered by the framework, but additional values,
     e.g. implemented categories, can be added in an implementation of
     this function.
 
