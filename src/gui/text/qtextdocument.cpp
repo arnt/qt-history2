@@ -582,14 +582,9 @@ qreal QTextDocument::textWidth() const
 */
 qreal QTextDocument::idealWidth() const
 {
-#ifndef QT_NO_PROPERTIES
-    QAbstractTextDocumentLayout *lout = documentLayout();
-    if (lout->metaObject()->indexOfProperty("idealWidth") == -1)
-        return textWidth();
-    return lout->property("idealWidth").toDouble();
-#else
+    if (QTextDocumentLayout *lout = qobject_cast<QTextDocumentLayout *>(documentLayout()))
+        return lout->idealWidth();
     return textWidth();
-#endif
 }
 
 /*!
