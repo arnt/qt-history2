@@ -1559,7 +1559,7 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
         return;
 
     // Default source rect = viewport rect
-    QRect sourceRect = source;
+    QRect sourceRect;
     if (source.isNull())
         sourceRect = viewport()->rect();
 
@@ -1586,7 +1586,8 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
 
     // Find all items to draw, and reverse the list (we want to draw
     // in reverse order).
-    QList<QGraphicsItem *> itemList = d->scene->items(mapToScene(sourceRect),
+    QPolygonF sourceScenePoly = mapToScene(sourceRect.adjusted(-1, -1, 1, 1));
+    QList<QGraphicsItem *> itemList = d->scene->items(sourceScenePoly,
                                                       Qt::IntersectsItemBoundingRect);
     QGraphicsItem **itemArray = new QGraphicsItem *[itemList.size()];
     int numItems = itemList.size();
@@ -1642,13 +1643,14 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
                        * QTransform().scale(xratio, yratio)
                        * QTransform().translate(-sourceRect.left(), -sourceRect.top()));
     QPainterPath path;
-    path.addPolygon(mapToScene(sourceRect));
+    path.addPolygon(sourceScenePoly);
     painter->setClipPath(path);
 
     // Render the scene.
-    drawBackground(painter, sourceRect);
+    QRectF sourceSceneRect = sourceScenePoly.boundingRect();
+    drawBackground(painter, sourceSceneRect);
     drawItems(painter, numItems, itemArray, styleOptionArray);
-    drawForeground(painter, sourceRect);
+    drawForeground(painter, sourceSceneRect);
 
     delete [] itemArray;
     delete [] styleOptionArray;
