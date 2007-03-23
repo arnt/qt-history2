@@ -158,6 +158,7 @@ public:
     bool isWidgetHiddenByUs;
     int keyboardSingleStep;
     int keyboardPageStep;
+    int resizeTimerId;
     Operation currentOperation;
     QStyle::SubControl hoveredSubControl;
     QStyle::SubControl activeSubControl;
@@ -167,6 +168,11 @@ public:
     QPointer<QAction> actions[NumWindowStateActions];
     QMdiSubWindow::SubWindowOptions options;
     QString lastChildWindowTitle;
+    QPalette titleBarPalette;
+    QString windowTitle;
+    QFont font;
+    QIcon menuIcon;
+    QStyleOptionTitleBar cachedStyleOptions;
 
     // Slots.
     void _q_updateStaysOnTopHint();
@@ -213,6 +219,7 @@ public:
     void setSizeGrip(QSizeGrip *sizeGrip);
     void setSizeGripVisible(bool visible = true) const;
 #endif
+    void updateInternalWindowTitle();
 
     inline int titleBarHeight() const
     {

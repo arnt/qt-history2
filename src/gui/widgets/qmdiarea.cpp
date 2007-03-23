@@ -194,11 +194,11 @@ void RegularTiler::rearrange(QList<QWidget *> &widgets, const QRect &domain) con
 
     int i = 0;
     for (int row = 0; row < nrows; ++row) {
+        const int y1 = int(row * (dy + 1));
         for (int col = 0; col < ncols; ++col) {
             if (row == 1 && col < nspecial)
                 continue;
             const int x1 = int(col * (dx + 1));
-            const int y1 = int(row * (dy + 1));
             int x2 = int(x1 + dx);
             int y2 = int(y1 + dy);
             if (row == 0 && col < nspecial) {
@@ -457,7 +457,8 @@ QMdiAreaPrivate::QMdiAreaPrivate()
       isSubWindowsTiled(false),
       showActiveWindowMaximized(false),
       indexToNextWindow(-1),
-      indexToPreviousWindow(-1)
+      indexToPreviousWindow(-1),
+      resizeTimerId(-1)
 {
 }
 
@@ -649,7 +650,7 @@ void QMdiAreaPrivate::rearrange(Rearranger *rearranger)
 
     rearranger->rearrange(widgets, q->viewport()->rect());
 
-    if (rearranger->type() == Rearranger::RegularTiler)
+    if (rearranger->type() == Rearranger::RegularTiler && !widgets.isEmpty())
         isSubWindowsTiled = true;
     else if (rearranger->type() == Rearranger::SimpleCascader)
         isSubWindowsTiled = false;
@@ -805,8 +806,7 @@ void QMdiAreaPrivate::updateActiveWindow(int removedIndex)
 void QMdiAreaPrivate::updateScrollBars()
 {
     Q_Q(QMdiArea);
-
-    if (!q->scrollBarsEnabled() || ignoreGeometryChange)
+    if (ignoreGeometryChange || !q->scrollBarsEnabled())
         return;
 
     QRect viewportRect = q->viewport()->rect();
@@ -1271,7 +1271,11 @@ QBrush QMdiArea::background() const
 
 void QMdiArea::setBackground(const QBrush &brush)
 {
-    d_func()->background = brush;
+    Q_D(QMdiArea);
+    if (d->background != brush) {
+        d->background = brush;
+        update();
+    }
 }
 
 /*!
@@ -1330,21 +1334,43 @@ void QMdiArea::resizeEvent(QResizeEvent *resizeEvent)
     if (d->isSubWindowsTiled) {
         tileSubWindows();
         d->isSubWindowsTiled = true;
+        d->resizeTimerId = startTimer(200);
+        // We don't have scroll bars or any maximized views.
+        return;
     }
 
     d->updateScrollBars();
-    d->arrangeMinimizedSubWindows();
-
-    // We don't have any maximized views.
-    if (d->isSubWindowsTiled)
-        return;
 
     // Resize maximized views.
+    bool hasMaximizedSubWindow = false;
     foreach (QMdiSubWindow *child, d->childWindows) {
         if (sanityCheck(child, "QMdiArea::resizeEvent") && child->isMaximized()
                 && child->size() != resizeEvent->size()) {
             child->resize(resizeEvent->size());
+            if (!hasMaximizedSubWindow)
+                hasMaximizedSubWindow = true;
         }
+    }
+
+    // Minimized views are stacked under maximized views so there's
+    // no need to re-arrange minimized views on-demand. Start a timer
+    // just to make things faster with subsequent resize events.
+    if (hasMaximizedSubWindow)
+        d->resizeTimerId = startTimer(200);
+    else
+        d->arrangeMinimizedSubWindows();
+}
+
+/*!
+    \reimp
+*/
+void QMdiArea::timerEvent(QTimerEvent *timerEvent)
+{
+    Q_D(QMdiArea);
+    if (timerEvent->timerId() == d->resizeTimerId) {
+        killTimer(d->resizeTimerId);
+        d->resizeTimerId = -1;
+        d->arrangeMinimizedSubWindows();
     }
 }
 

@@ -127,6 +127,7 @@ public:
     bool showActiveWindowMaximized;
     int indexToNextWindow;
     int indexToPreviousWindow;
+    int resizeTimerId;
 
     // Slots.
     void _q_deactivateAllWindows();
