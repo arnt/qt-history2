@@ -3080,14 +3080,30 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                                        || key->key() == Qt::Key_Down);
             }
             bool def = key->isAccepted();
+            QPointer<QWidget> pw = w;
             while (w) {
                 if (def)
                     key->accept();
                 else
                     key->ignore();
                 res = d->notify_helper(w, e);
-                if ((res && key->isAccepted()) || w->isWindow() || !w->parentWidget())
+                if ((res && key->isAccepted())
+                    /*
+                       QLineEdit will emit a signal on Key_Return, but
+                       ignore the event, and sometimes the connected
+                       slot deletes the QLineEdit (common in itemview
+                       delegates), so we have to check if the widget
+                       was destroyed even if the event was ignored (to
+                       prevent a crash)
+
+                       note that we don't have to reset pw while
+                       propagating (because the original receiver will
+                       be destroyed if one of it's ancestors is)
+                    */
+                    || !pw
+                    || w->isWindow() || !w->parentWidget()) {
                     break;
+                }
                 w = w->parentWidget();
             }
             qt_in_tab_key_event = false;
