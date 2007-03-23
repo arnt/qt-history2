@@ -97,7 +97,7 @@ void QColumnViewGrip::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     QStyleOption opt;
     opt.initFrom(this);
-    style()->drawControl(QStyle::CE_ColumnViewGrip, &opt, &painter);
+    style()->drawControl(QStyle::CE_ColumnViewGrip, &opt, &painter, this);
     event->accept();
 }
 
