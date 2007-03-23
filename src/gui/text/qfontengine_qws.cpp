@@ -417,6 +417,9 @@ bool QFontEngineQPF1::stringToCMap(const QChar *str, int len, QGlyphLayout *glyp
 
         g.advance.x = glyph ? glyph->metrics->advance : 0;
         g.advance.y = 0;
+
+        if (!glyph)
+            g.glyph = 0;
     }
 
     return true;
