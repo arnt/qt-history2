@@ -100,6 +100,7 @@ void QFontDatabasePrivate::addQPF2File(const QByteArray &file)
             int pixelSize = QFontEngineQPF::extractHeaderField(data, QFontEngineQPF::Tag_PixelSize).toInt();
             QVariant weight = QFontEngineQPF::extractHeaderField(data, QFontEngineQPF::Tag_Weight);
             QVariant style = QFontEngineQPF::extractHeaderField(data, QFontEngineQPF::Tag_Style);
+            QByteArray writingSystemBits = QFontEngineQPF::extractHeaderField(data, QFontEngineQPF::Tag_WritingSystems).toByteArray();
 
             if (!fontName.isEmpty() && pixelSize) {
                 int fontWeight = 50;
@@ -108,9 +109,19 @@ void QFontDatabasePrivate::addQPF2File(const QByteArray &file)
 
                 bool italic = static_cast<QFont::Style>(style.toInt()) & QFont::StyleItalic;
 
+                QList<QFontDatabase::WritingSystem> writingSystems;
+                for (int i = 0; i < writingSystemBits.count(); ++i) {
+                    uchar currentByte = writingSystemBits.at(i);
+                    for (int j = 0; j < 8; ++j) {
+                        if (currentByte & 1)
+                            writingSystems << QFontDatabase::WritingSystem(i * 8 + j);
+                        currentByte >>= 1;
+                    }
+                }
+
                 addFont(fontName, /*foundry*/ "prerendered", fontWeight, italic,
                         pixelSize, file, /*fileIndex*/ 0,
-                        /*antialiased*/ true);
+                        /*antialiased*/ true, writingSystems);
             }
         } else {
             qDebug() << "header verification of QPF2 font" << file << "failed. maybe it is corrupt?";
