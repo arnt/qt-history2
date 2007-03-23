@@ -16,7 +16,6 @@
 #include <private/qpainter_p.h>
 #include <private/qmath_p.h>
 #include <private/qdrawhelper_x86_p.h>
-
 #include <math.h>
 #define MASK(src, a) src = BYTE_MUL(src, a)
 
@@ -4765,12 +4764,14 @@ qt_memfill32_func qt_memfill32 = qt_memfill32_setup;
 qt_memfill16_func qt_memfill16 = qt_memfill16_setup;
 
 enum CPUFeatures {
-    None     = 0,
-    MMX      = 0x1,
-    MMX3DNOW = 0x2,
-    SSE      = 0x4,
-    SSE2     = 0x8,
-    CMOV     = 0x10
+    None        = 0,
+    MMX         = 0x1,
+    MMXEXT      = 0x2,
+    MMX3DNOW    = 0x4,
+    MMX3DNOWEXT = 0x8,
+    SSE         = 0x10,
+    SSE2        = 0x20,
+    CMOV        = 0x40
 };
 
 static uint detectCPUFeatures() {
@@ -4895,7 +4896,9 @@ static uint detectCPUFeatures() {
 #endif
 
     static const bool doMMX = !qgetenv("QT_NO_MMX").toInt();
+    static const bool doMMXEXT = !qgetenv("QT_NO_MMXEXT").toInt();
     static const bool do3DNOW = !qgetenv("QT_NO_3DNOW").toInt();
+    static const bool do3DNOWEXT = !qgetenv("QT_NO_3DNOWEXT").toInt();
     static const bool doSSE = !qgetenv("QT_NO_SSE").toInt();
     static const bool doSSE2 = !qgetenv("QT_NO_SSE2").toInt();
 
@@ -4905,8 +4908,12 @@ static uint detectCPUFeatures() {
         features |= CMOV;
     if (doMMX && (result & (1 << 23)))
         features |= MMX;
+    if (doMMXEXT && (extended_result & (1 << 22)))
+        features |= MMXEXT;
     if (do3DNOW && (extended_result & (1 << 31)))
         features |= MMX3DNOW;
+    if (do3DNOWEXT && (extended_result & (1 << 30)))
+        features |= MMX3DNOWEXT;
     if (doSSE && (result & (1 << 25)))
         features |= SSE;
     if (doSSE2 && (result & (1 << 26)))
