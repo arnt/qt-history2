@@ -867,7 +867,7 @@ while [ "$#" -gt 0 ]; do
         CFG_USE_GNUMAKE="$VAL"
         ;;
     mysql_config)
-	CFG_MSYQL_CONFIG="$VAL"
+	CFG_MYSQL_CONFIG="$VAL"
 	;;
     prefix)
         QT_INSTALL_PREFIX="$VAL"
@@ -3695,8 +3695,8 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
         case $_SQLDR in
         mysql)
             if [ "$CFG_SQL_mysql" != "no" ]; then
-		[ -z "$CFG_MYSQL_CONFIG" ] && CFG_MSYQL_CONFIG=`$WHICH mysql_config`
-                if [ -x "$CFG_MSYQL_CONFIG" ]; then
+		[ -z "$CFG_MYSQL_CONFIG" ] && CFG_MYSQL_CONFIG=`$WHICH mysql_config`
+                if [ -x "$CFG_MYSQL_CONFIG" ]; then
                     QT_CFLAGS_MYSQL=`$CFG_MYSQL_CONFIG --include 2>/dev/null`
                     QT_LFLAGS_MYSQL_R=`$CFG_MYSQL_CONFIG --libs_r 2>/dev/null`
                     QT_LFLAGS_MYSQL=`$CFG_MYSQL_CONFIG --libs 2>/dev/null`
