@@ -70,11 +70,8 @@ public:
     static int titleBarSize() { return frameSize() + captionSize(); }
 
     static int topPadding() { return 8; } // standard Aero (?)
-    //static int topPadding() { return 0; } // tighter
 
     static int topOffset() { return titleBarSize() + 13; } // standard Aero
-    //static int topOffset() { return 2 * topPadding(); } // nicer!(?)
-    //static int topOffset() { return titleBarSize() * 4; } // extreme
 
 private:
     static HFONT getCaptionFont(HANDLE hTheme);
@@ -88,8 +85,9 @@ private:
     static int iconSize() { return 16; } // Standard Aero
     static int padding() { return 7; } // Standard Aero
     static int leftMargin() { return backButtonSize() + padding(); }
-    static int titleOffset() { return leftMargin() + iconSize() + padding(); }
+    static int glowSize() { return 10; }
 
+    int titleOffset();
     bool resolveSymbols();
     void drawTitleBar(QPainter *painter);
     void setMouseCursor(QPoint pos);

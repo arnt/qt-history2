@@ -256,9 +256,8 @@ void QVistaHelper::drawTitleBar(QPainter *painter)
     const QFont font = QApplication::font("QWorkspaceTitleBar");
     const QFontMetrics fontMetrics(font);
     const QRect brect = fontMetrics.boundingRect(text);
-    const int glowSize = 10; // ## should be calculated somehow
-    const int textHeight = brect.height() + glowSize;
-    const int textWidth = brect.width() + glowSize;
+    const int textHeight = brect.height() + 2*glowSize();
+    const int textWidth = brect.width() + 2*glowSize();
     drawTitleText(
         text,
         QRect(titleOffset(), verticalCenter - textHeight / 2, textWidth, textHeight),
@@ -562,7 +561,7 @@ bool QVistaHelper::drawTitleText(const QString &text, const QRect &rect, HDC hdc
         RECT rctext ={0,0, rect.width(), rect.height()};
 
         dto.dwFlags = WIZ_DTT_COMPOSITED|WIZ_DTT_GLOWSIZE;
-        dto.iGlowSize = 10;
+        dto.iGlowSize = glowSize();
  
         pDrawThemeTextEx(hTheme, dcMem, 0, 0, (LPCWSTR)text.utf16(), -1, uFormat, &rctext, &dto );
         BitBlt(hdc, rect.left(), rect.top(), rect.width(), rect.height(), dcMem, 0, 0, SRCCOPY);
@@ -631,6 +630,12 @@ bool QVistaHelper::resolveSymbols()
         }
     }
     return (pDwmIsCompositionEnabled != 0 && pIsAppThemed != 0);
+}
+
+int QVistaHelper::titleOffset()
+{
+    int iconOffset = wizard ->windowIcon().isNull() ? 0 : iconSize() + padding();
+    return leftMargin() + iconOffset;
 }
 
 #endif // QT_NO_STYLE_WINDOWSVISTA
