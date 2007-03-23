@@ -407,6 +407,13 @@ void tst_QApplication::lastWindowClosed()
     app.exec();
     QVERIFY(!widget);
     QCOMPARE(spy.count(), 1);
+    spy.clear();
+
+    // everything is closed, so doing this should not emit lastWindowClosed() again
+    QMetaObject::invokeMethod(dialog, "close", Qt::QueuedConnection);
+    QTimer::singleShot(1000, &app, SLOT(quit()));
+    app.exec();
+    QCOMPARE(spy.count(), 0);
 
     delete dialog;
 }
