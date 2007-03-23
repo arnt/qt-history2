@@ -16,6 +16,7 @@
 #include "qwindowsystem_qws.h"
 #include "qlibraryinfo.h"
 #include "qabstractfileengine.h"
+#include <QtCore/qsettings.h>
 #if !defined(QT_NO_FREETYPE)
 #include "qfontengine_ft_p.h"
 
@@ -477,6 +478,21 @@ static void initializeDb()
     binaryDb.rename(dbFileName);
 }
 
+// called from qapplication_qws.cpp
+void qt_applyFontDatabaseSettings(const QSettings &settings)
+{
+    initializeDb();
+    QFontDatabasePrivate *db = privateDb();
+    for (int i = 0; i < db->count; ++i) {
+        QtFontFamily *family = db->families[i];
+        if (settings.contains(family->name))
+            family->fallbackFamilies = settings.value(family->name).toStringList();
+    }
+
+    if (settings.contains("Global Fallbacks"))
+        db->fallbackFamilies = settings.value("Global Fallbacks").toStringList();
+}
+
 static inline void load(const QString & = QString(), int = -1)
 {
     initializeDb();
@@ -628,7 +644,13 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
     if (fe
         && script == QUnicodeTables::Common
         && !(request.styleStrategy & QFont::NoFontMerging) && !fe->symbol) {
-        fe = new QFontEngineMultiQWS(fe, script, privateDb()->fallbackFamilies);
+
+        QStringList fallbacks = privateDb()->fallbackFamilies;
+
+        if (family && !family->fallbackFamilies.isEmpty())
+            fallbacks = family->fallbackFamilies;
+
+        fe = new QFontEngineMultiQWS(fe, script, fallbacks);
     }
     return fe;
 }

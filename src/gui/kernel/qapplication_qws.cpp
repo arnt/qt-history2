@@ -1844,6 +1844,14 @@ bool QApplicationPrivate::qws_apply_settings()
 
     settings.endGroup(); // Qt
 
+    settings.beginGroup(QLatin1String("QWS Font Fallbacks"));
+    if (!settings.childKeys().isEmpty()) {
+        // from qfontdatabase_qws.cpp
+        extern void qt_applyFontDatabaseSettings(const QSettings &);
+        qt_applyFontDatabaseSettings(settings);
+    }
+    settings.endGroup();
+
     return true;
 #else
     return false;
