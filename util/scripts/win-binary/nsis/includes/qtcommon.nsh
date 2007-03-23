@@ -468,7 +468,13 @@ CommonCheckDirectory_DirDoesNotExist:
   IntCmp 0 $0 0 instDirError
 
   StrLen $0 $4
+
+!ifdef USE_NODIRLENGTHCHECK
+  StrCpy $1 "400"
+!else
   StrLen $1 $5
+!endif
+
   IntCmp $1 $0 0 directoryToLong
 
   ;check for spaces
