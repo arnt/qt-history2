@@ -1692,7 +1692,9 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
     Q_D(QLineEdit);
 
 #ifndef QT_NO_COMPLETER
-    if (d->completer && d->completer->popup()->isVisible()) {
+    if (d->completer
+        && d->completer->popup()
+        && d->completer->popup()->isVisible()) {
         // The following keys are forwarded by the completer to the widget
         // Ignoring the events lets the completer provide suitable default behavior
        switch (event->key()) {
