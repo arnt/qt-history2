@@ -25,7 +25,7 @@ QWindowsFileSystemWatcherEngine::QWindowsFileSystemWatcherEngine()
 {
     HANDLE h = QT_WA_INLINE(CreateEventW(0, false, false, 0),
                                 CreateEventA(0, false, false, 0));
-    if (h) {
+    if (h != INVALID_HANDLE_VALUE) {
         handles.reserve(MAXIMUM_WAIT_OBJECTS);
         handles.append(h);
     }
@@ -40,10 +40,10 @@ QWindowsFileSystemWatcherEngine::~QWindowsFileSystemWatcherEngine()
     wait();
 
     CloseHandle(handles.at(0));
-    handles[0] = 0;
+    handles[0] = INVALID_HANDLE_VALUE;
 
     foreach (HANDLE h, handles) {
-        if (!h)
+        if (h == INVALID_HANDLE_VALUE)
             continue;
         FindCloseChangeNotification(h);
     }
@@ -160,8 +160,8 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
         }
 
         const QString absolutePath = isDir ? fileInfo.absoluteFilePath() : fileInfo.absolutePath();
-        HANDLE handle = handleForDir.value(absolutePath);
-        if (!handle) {
+        HANDLE handle = handleForDir.value(absolutePath, INVALID_HANDLE_VALUE);
+        if (handle == INVALID_HANDLE_VALUE) {
             QT_WA({
                 handle = FindFirstChangeNotificationW((TCHAR *) absolutePath.utf16(),
                                                       false,
@@ -181,7 +181,7 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
                                                        | FILE_NOTIFY_CHANGE_LAST_WRITE
                                                        | FILE_NOTIFY_CHANGE_SECURITY));
             })
-            if (!handle)
+            if (handle == INVALID_HANDLE_VALUE)
                 continue;
             // qDebug() << "Added handle" << handle << "for" << absolutePath << "to watch" << fileInfo.absoluteFilePath();
             handles.append(handle);
@@ -229,12 +229,12 @@ QStringList QWindowsFileSystemWatcherEngine::removePaths(const QStringList &path
         QFileInfo fileInfo(normalPath.toLower());
 
         QString absolutePath = fileInfo.absoluteFilePath();
-        HANDLE handle = handleForDir.value(absolutePath);
-        if (!handle) {
+        HANDLE handle = handleForDir.value(absolutePath, INVALID_HANDLE_VALUE);
+        if (handle == INVALID_HANDLE_VALUE) {
             // perhaps path is a file?
             absolutePath = fileInfo.absolutePath();
-            handle = handleForDir.value(absolutePath);
-            if (!handle)
+            handle = handleForDir.value(absolutePath, INVALID_HANDLE_VALUE);
+            if (handle == INVALID_HANDLE_VALUE)
                 continue;
         }
 
