@@ -789,7 +789,7 @@ QT_BEGIN_HEADER
 
 typedef int QNoImplicitBoolCast;
 
-#if defined(__arm__) || defined(__mips__)
+#if defined(QT_ARCH_ARM) || defined(QT_ARCH_MIPS)
 #define QT_NO_FPU
 #endif
 
