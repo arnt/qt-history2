@@ -1139,6 +1139,7 @@ void tst_QMdiArea::tileSubWindows()
     workspace.setActiveSubWindow(windows.at(5));
     workspace.resize(workspace.size() - QSize(10, 10));
     qApp->setActiveWindow(0);
+    QTest::qWait(250); // delayed re-arrange of minimized windows
     QCOMPARE(workspace.viewport()->childrenRect(), workspace.viewport()->rect());
 
     // Add another window and verify that the views are not tiled anymore.

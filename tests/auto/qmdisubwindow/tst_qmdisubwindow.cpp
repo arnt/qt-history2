@@ -623,6 +623,8 @@ void tst_QMdiSubWindow::setOpaqueResizeAndMove()
     resizeSpy.clear();
     QCOMPARE(resizeSpy.count(), 0);
 
+    QTest::qWait(250); // delayed update of dirty regions
+
     // Enter resize mode.
     int offset = window->style()->pixelMetric(QStyle::PM_MDIFrameWidth) / 2;
     QPoint mousePosition(mouseReceiver->width() - qMax(offset, 2), mouseReceiver->height() - qMax(offset, 2));
