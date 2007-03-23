@@ -1967,9 +1967,9 @@ QStandardItemModel::QStandardItemModel(int rows, int columns, QObject *parent)
 {
     Q_D(QStandardItemModel);
     d->init();
+    d->root->insertColumns(0, columns);
+    d->root->insertRows(0, rows);
     d->root->d_func()->setModel(this);
-    d->root->setRowCount(rows);
-    d->root->setColumnCount(columns);
 }
 
 /*!
