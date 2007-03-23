@@ -12,26 +12,29 @@
 ****************************************************************************/
 
 #include <qdebug.h>
-#include <qpaintdevice.h>
+#include "qpaintengine_d3d_p.h"
+
+#include "private/qdrawhelper_p.h"
+#include "private/qfont_p.h"
+#include "private/qfontengine_p.h"
+#include "private/qmath_p.h"
+#include "private/qpaintengine_p.h"
+#include "private/qtessellator_p.h"
+#include <private/qbezier_p.h>
+#include <private/qpainter_p.h>
+#include <private/qpixmap_p.h>
+#include <private/qpolygonclipper_p.h>
 #include <qbuffer.h>
 #include <qcache.h>
 #include <qdir.h>
 #include <qfileinfo.h>
-#include <qlibraryinfo.h>
-#include <private/qpixmap_p.h>
-#include <private/qpolygonclipper_p.h>
-#include <private/qpainter_p.h>
-#include "qpaintengine_d3d_p.h"
-#include <private/qbezier_p.h>
-#include "private/qtessellator_p.h"
-#include "private/qfont_p.h"
-#include "private/qfontengine_p.h"
-#include "private/qmath_p.h"
-#include "qpixmapcache.h"
 #include <qlibrary.h>
+#include <qlibraryinfo.h>
+#include <qpaintdevice.h>
+#include <qpixmapcache.h>
 
 #include <d3d9.h>
-#include <d3dx9math.h>
+#include <d3dx9.h>
 
 #include <mmintrin.h>
 #include <xmmintrin.h>
@@ -100,6 +103,266 @@ static PFNDIRECT3DCREATE9 pDirect3DCreate9 = 0;
 static PFND3DXCREATEBUFFER pD3DXCreateBuffer = 0;
 static PFND3DXCREATEEFFECT pD3DXCreateEffect = 0;
 static PFND3DXMATRIXORTHOOFFCENTERLH pD3DXMatrixOrthoOffCenterLH = 0;
+
+
+
+class QD3DWindowManager : public QObject {
+    Q_OBJECT
+
+public:
+    enum QD3DWindowManagerStatus {
+        NoStatus = 0,
+        NeedsReseting = 0x01,
+        MaxSizeChanged = 0x02
+    };
+
+    QD3DWindowManager();
+    ~QD3DWindowManager();
+
+    void init(LPDIRECT3D9 object);
+
+    void setPaintDevice(QPaintDevice *pd);
+
+    int status() const;
+    void reset();
+
+    LPDIRECT3DSURFACE9 renderTarget();
+
+    LPDIRECT3DSURFACE9 surface(QPaintDevice *pd);
+    LPDIRECT3DSWAPCHAIN9 swapChain(QPaintDevice *pd);
+    void releasePaintDevice(QPaintDevice *pd);
+
+    LPDIRECT3DDEVICE9 device();
+    void cleanup();
+
+    QSize maxSize() const;
+
+private:
+    struct D3DSwapChain {
+        QSize size;
+        LPDIRECT3DSWAPCHAIN9 swapchain;
+        LPDIRECT3DSURFACE9 surface;
+    };
+
+    void updateMaxSize();
+    void initPresentParameters(D3DPRESENT_PARAMETERS *params);
+    D3DSwapChain *createSwapChain(QWidget *w);
+
+    QSize m_maxSize;
+    int m_status;
+    QMap<QPaintDevice *, D3DSwapChain *> m_swapchains;
+
+    LPDIRECT3DDEVICE9 m_device;
+    QPaintDevice *m_pd;
+    HWND m_dummy;
+    D3DSwapChain *m_current;
+
+private Q_SLOTS:
+    void cleanupPaintDevice(QObject *);
+};
+
+struct vertex {
+    D3DXVECTOR3 pos;
+    DWORD color;
+    FLOAT s0, t0, r0, q0;
+    FLOAT s1, t1, r1, q1;
+};
+
+struct QD3DMaskPosition {
+public:
+    int x, y, channel;
+};
+
+#define QD3D_BATCH_SIZE 256
+
+struct QD3DBatchItem {
+    enum QD3DBatchInfo {
+        BI_WINDING          = 0x0001,
+        BI_AA               = 0x0002,
+        BI_BRECT            = 0x0004,
+        BI_MASKFULL         = 0x0008,
+        BI_TEXT             = 0x0010,
+        BI_MASK             = 0x0020,
+        BI_CLIP             = 0x0040,
+        BI_SCISSOR          = 0x0080,
+
+        BI_PIXMAP           = 0x0100,
+        BI_IMAGE            = 0x0200,
+        BI_COMPLEXBRUSH     = 0x0400,
+
+        BI_CLEARCLIP        = 0x0800, // clip nothing (filling the clip mask with 0)
+        BI_TRANSFORM        = 0x1000,
+        BI_MASKSCISSOR      = 0x2000,
+        BI_FASTLINE         = 0x4000,
+        BI_LINESTRIP        = 0x8000
+    };
+
+    int m_info;
+
+    int m_count;
+    int m_offset;
+
+    QD3DMaskPosition m_maskpos;
+    qreal m_xoffset;
+    qreal m_yoffset;
+    qreal m_opacity;
+
+    QPixmap m_pixmap;
+    QRectF m_brect;
+    QBrush m_brush;
+
+    IDirect3DTexture9 *m_texture;
+
+    qreal m_width;
+    qreal m_distance;
+
+    D3DXMATRIX m_matrix;
+    QPainter::CompositionMode m_cmode;
+
+    QVector<int> m_pointstops;
+};
+
+class QD3DBatch {
+public:
+    int m_itemIndex;
+    QD3DBatchItem items[QD3D_BATCH_SIZE];
+};
+
+class QD3DStateManager;
+class QD3DFontCache;
+class QD3DMaskAllocator;
+class QD3DVertexBuffer;
+class QD3DGradientCache;
+
+class QDirect3DPaintEnginePrivate : public QPaintEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QDirect3DPaintEngine)
+
+public:
+    enum RenderTechnique {
+        RT_NoTechnique,
+        RT_Antialiased,
+        RT_Aliased,
+    };
+
+    QDirect3DPaintEnginePrivate()
+        : m_d3dObject(0)
+        , m_d3dDevice(0)
+        , m_txop(QTransform::TxNone)
+        , m_effect(0)
+        , m_flushOnEnd(0)
+    { init(); }
+
+    ~QDirect3DPaintEnginePrivate();
+
+    bool init();
+    void initDevice();
+
+    inline QD3DBatchItem *nextBatchItem();
+
+    QPolygonF brushCoordinates(const QRectF &r, bool stroke, qreal *fp) const;
+    void fillAliasedPath(QPainterPath path, const QRectF &brect, const QTransform &txform);
+    void fillAntialiasedPath(const QPainterPath &path, const QRectF &brect,
+        const QTransform &txform, bool stroke);
+    void fillPath(const QPainterPath &path, QRectF brect);
+
+    void strokePath(const QPainterPath &path, QRectF brect, bool simple = false);
+    QPainterPath strokePathFastPen(const QPainterPath &path);
+    void strokeAliasedPath(QPainterPath path, const QRectF &brect, const QTransform &txform);
+
+    void flushBatch();
+    int flushAntialiased(int offset);
+    void flushAliased(QD3DBatchItem *item, int offset);
+    void flushText(QD3DBatchItem *item, int offset);
+    void flushLines(QD3DBatchItem *item, int offset);
+
+    void updateTransform(const QTransform &matrix);
+    void updatePen(const QPen &pen);
+    void updateBrush(const QBrush &pen);
+    void updateClipRegion(const QRegion &clipregion, Qt::ClipOperation op = Qt::ReplaceClip);
+    void updateClipPath(const QPainterPath &clipregion, Qt::ClipOperation op = Qt::ReplaceClip);
+    void updateFont(const QFont &font);
+
+    void setRenderTechnique(RenderTechnique technique);
+
+    QPointF transformPoint(const QPointF &p, qreal *w) const;
+
+    bool prepareBatch(QD3DBatchItem *item, int offset);
+    void prepareItem(QD3DBatchItem *item);
+    void cleanupItem(QD3DBatchItem *item);
+    void setCompositionMode(QPainter::CompositionMode mode);
+
+    bool isFastRect(const QRectF &rect);
+
+    void releaseDC();
+
+    void cleanup();
+    bool testCaps();
+
+    // clipping
+    QPainterPath m_sysClipPath;
+    QPainterPath m_clipPath;
+    QRegion m_sysClipRegion;
+    QRegion m_clipRegion;
+
+    qreal m_opacity;
+    D3DCOLOR m_opacityColor;
+
+    int m_currentState;
+
+    ID3DXEffect* m_effect;
+
+    RenderTechnique m_currentTechnique;
+
+    QTransform m_matrix;
+    D3DXMATRIX m_d3dxmatrix;
+    D3DXMATRIX m_d3dxidentmatrix;
+    qreal m_invScale;
+
+    QPen m_pen;
+    Qt::BrushStyle m_pen_brush_style;
+    QTransform m_inv_pen_matrix;
+    D3DCOLOR m_penColor;
+    qreal m_pen_width;
+
+    QBrush m_brush;
+    Qt::BrushStyle m_brush_style;
+    QTransform m_inv_brush_matrix;
+    D3DCOLOR m_brushColor;
+    QTransform m_brushOrigin;
+
+    uint clipping_enabled : 1;
+    uint has_complex_clipping : 1;
+    uint use_complex_clipping : 1;
+    uint cleartype_text: 1;
+    uint has_pen : 1;
+    uint has_cosmetic_pen : 1;
+    uint has_brush : 1;
+    uint has_fast_pen : 1;
+    uint m_flushOnEnd : 1;
+    uint m_supports_d3d : 1;
+
+    QTransform::TransformationCodes m_txop;
+
+    QPainter::CompositionMode m_cmode;
+
+    QD3DWindowManager m_winManager;
+    QSize m_winSize;
+
+    LPDIRECT3D9 m_d3dObject;
+    LPDIRECT3DDEVICE9 m_d3dDevice;
+    IDirect3DSurface9 *m_defaultSurface;
+    bool m_inScene;
+
+    QD3DGradientCache *m_gradCache;
+    QD3DVertexBuffer *m_vBuffer;
+    QD3DBatch m_batch;
+    QD3DStateManager *m_statemanager;
+
+    HDC m_dc;
+    IDirect3DSurface9 *m_dcsurface;
+};
+
 
 class QD3DStateManager : public ID3DXEffectStateManager {
 public:
@@ -227,7 +490,7 @@ QD3DGlyphCache::~QD3DGlyphCache()
 {
 }
 
-QD3DGlyphCoord *QD3DGlyphCache::lookup(QFontEngine *engine, glyph_t g)
+QD3DGlyphCoord *QD3DGlyphCache::lookup(QFontEngine *, glyph_t g)
 {
     Q_ASSERT(current_cache != 0);
     QD3DGlyphHash::const_iterator it = current_cache->constFind(g);
@@ -302,7 +565,7 @@ QImage QD3DGlyphCache::clearTypeGlyph(QFontEngine *engine, glyph_t glyph)
     return im;
 }
 
-#if 1
+#if 0
 static void dump_font_texture(QD3DFontTexture *tex)
 {
     QColor color(Qt::red);
@@ -1318,8 +1581,8 @@ void QD3DWindowManager::cleanup()
     qd3d_glyph_cache()->cleanCache();
 
     // release doomed textures
-    for (int i=0; i<qd3d_release_list.size(); ++i)
-        qd3d_release_list.at(i)->Release();
+    for (int k=0; k<qd3d_release_list.size(); ++k)
+        qd3d_release_list.at(k)->Release();
     qd3d_release_list.clear();
 
     QMap<QPaintDevice *, D3DSwapChain *>::const_iterator i = m_swapchains.constBegin();
@@ -3033,7 +3296,7 @@ bool QDirect3DPaintEnginePrivate::init()
     m_currentTechnique = RT_NoTechnique;
 
     if (!pDirect3DCreate9) {
-        QLibrary d3d_lib("d3d9.dll");
+        QLibrary d3d_lib(QLatin1String("d3d9.dll"));
         pDirect3DCreate9 = (PFNDIRECT3DCREATE9) d3d_lib.resolve("Direct3DCreate9");
         if (!pDirect3DCreate9) {
             qWarning("QDirect3DPaintEngine: failed to resolve symbols from d3d9.dll.\n"
@@ -3043,7 +3306,7 @@ bool QDirect3DPaintEnginePrivate::init()
     }
 
     if (!pD3DXCreateBuffer || !pD3DXCreateEffect || !pD3DXMatrixOrthoOffCenterLH) {
-        QLibrary d3dx_lib("d3dx9_32.dll");
+        QLibrary d3dx_lib(QLatin1String("d3dx9_32.dll"));
         pD3DXCreateBuffer = (PFND3DXCREATEBUFFER) d3dx_lib.resolve("D3DXCreateBuffer");
         pD3DXCreateEffect = (PFND3DXCREATEEFFECT) d3dx_lib.resolve("D3DXCreateEffect");
         pD3DXMatrixOrthoOffCenterLH = (PFND3DXMATRIXORTHOOFFCENTERLH)
@@ -3077,7 +3340,7 @@ bool QDirect3DPaintEnginePrivate::init()
 
     /* load shaders */
     //QFile file("C:\\depot\\qt\\main\\src\\gui\\painting\\qpaintengine_d3d.fx");
-    QFile file(":/qpaintengine_d3d.fx");
+    QFile file(QLatin1String(":/qpaintengine_d3d.fx"));
     QByteArray fxFile;
     if (file.open(QFile::ReadOnly))
         fxFile = file.readAll();
@@ -3351,6 +3614,7 @@ bool QDirect3DPaintEnginePrivate::isFastRect(const QRectF &rect)
 void QDirect3DPaintEnginePrivate::setCompositionMode(QPainter::CompositionMode mode)
 {
     switch(mode) {
+        case QPainter::CompositionMode_SourceOver:
         default:
             m_statemanager->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
             m_statemanager->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
@@ -3398,7 +3662,7 @@ void QDirect3DPaintEnginePrivate::flushAliased(QD3DBatchItem *item, int offset)
     }
 }
 
-void QDirect3DPaintEnginePrivate::flushText(QD3DBatchItem *item, int offset)
+void QDirect3DPaintEnginePrivate::flushText(QD3DBatchItem *item, int)
 {
     prepareItem(item);
     m_statemanager->setTexture(item->m_texture);
@@ -3410,7 +3674,7 @@ void QDirect3DPaintEnginePrivate::flushText(QD3DBatchItem *item, int offset)
     cleanupItem(item);
 }
 
-void QDirect3DPaintEnginePrivate::flushLines(QD3DBatchItem *item, int offset)
+void QDirect3DPaintEnginePrivate::flushLines(QD3DBatchItem *item, int)
 {
     m_vBuffer->drawAliasedLines(item);
 
@@ -3592,7 +3856,7 @@ void QDirect3DPaintEngine::drawEllipse(const QRect &rect)
 }
 
 void QDirect3DPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF &sr,
-                                     Qt::ImageConversionFlags flags)
+                                     Qt::ImageConversionFlags)
 {
 #ifdef QT_DEBUG_D3D_CALLS
     qDebug() << "QDirect3DPaintEngine::drawImage";
