@@ -140,7 +140,6 @@ static inline bool isTransient(const QWidget *w)
 {
     return ((w->windowType() == Qt::Dialog)
             || (w->windowType() == Qt::Sheet)
-            || (w->windowFlags() & Qt::MSWindowsFixedSizeDialogHint)
             || (w->windowType() == Qt::Tool)
             || (w->windowType() == Qt::SplashScreen)
             || (w->windowType() == Qt::ToolTip)
@@ -323,8 +322,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     bool topLevel = (flags & Qt::Window);
     bool popup = (type == Qt::Popup);
     bool dialog = (type == Qt::Dialog
-                   || type == Qt::Sheet
-                   || (flags & Qt::MSWindowsFixedSizeDialogHint));
+                   || type == Qt::Sheet);
     bool desktop = (type == Qt::Desktop);
     bool tool = (type == Qt::Tool || type == Qt::SplashScreen
                  || type == Qt::ToolTip || type == Qt::Drawer);
