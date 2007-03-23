@@ -2787,6 +2787,13 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         }
        break;
 
+    case CE_ColumnViewGrip:
+       if (rule.hasDrawable()) {
+           rule.drawRule(p, opt->rect);
+           return;
+       }
+       break;
+
     default:
         break;
     }
@@ -2798,6 +2805,8 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         } else if (fallback) {
             QWindowsStyle::drawControl(ce, opt, p, w);
             pe2 = PseudoElement_None;
+        } else {
+            baseStyle()->drawControl(ce, opt, p, w);
         }
         if (pe2 != PseudoElement_None) {
             QRenderRule subSubRule = renderRule(w, opt, pe2);
@@ -2957,6 +2966,15 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
 
     case PE_IndicatorArrowRight:
         pseudoElement = PseudoElement_RightArrow;
+        break;
+
+    case PE_IndicatorColumnViewArrow:
+        if (const QStyleOptionViewItem *viewOpt = qstyleoption_cast<const QStyleOptionViewItem *>(opt)) {
+            bool reverse = (viewOpt->direction == Qt::RightToLeft);
+            pseudoElement = reverse ? PseudoElement_LeftArrow : PseudoElement_RightArrow;
+        } else {
+            pseudoElement = PseudoElement_RightArrow;
+        }
         break;
 
     case PE_IndicatorBranch:
