@@ -355,6 +355,7 @@ void tst_QXmlSimpleReader::testBadXmlFile()
     QEXPECT_FAIL("xmldocs/not-wf/sa/182.xml", "", Continue);
     QEXPECT_FAIL("xmldocs/not-wf/sa/185.xml", "", Continue);
     QEXPECT_FAIL("xmldocs/not-wf/sa/186.xml", "", Continue);
+
     QVERIFY(!parser.parseFile(&file));
 
     QFile ref_file(file_name + ".ref");
@@ -669,14 +670,16 @@ void tst_QXmlSimpleReader::reportNamespace_data() const
 
 QDomDocument tst_QXmlSimpleReader::fromByteArray(const QString &title, const QByteArray &ba)
 {
-        QDomDocument doc(title);
-            const bool ret = doc.setContent(ba, true);
-                Q_ASSERT(ret);
-                    return doc;
+    QDomDocument doc(title);
+    const bool ret = doc.setContent(ba, true);
+    Q_ASSERT(ret);
+    return doc;
 }
 
 void tst_QXmlSimpleReader::roundtripWithNamespaces() const
 {
+    QEXPECT_FAIL("", "Known problem, see 154573. The fix happens to break uic.", Abort);
+
     const char *const expected = "<element b:attr=\"value\" xmlns:a=\"http://www.example.com/A\" xmlns:b=\"http://www.example.com/B\" />\n";
 
     {
