@@ -1673,22 +1673,22 @@ void QComboBox::setModel(QAbstractItemModel *model)
         d->lineEdit->completer()->setModel(model);
 #endif
     if (d->model) {
-    disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-               this, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
-    disconnect(d->model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
-               this, SLOT(_q_rowsAboutToBeInserted(QModelIndex,int,int)));
-    disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-               this, SLOT(_q_rowsInserted(QModelIndex,int,int)));
-    disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-               this, SLOT(_q_rowsAboutToBeRemoved(QModelIndex,int,int)));
-    disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-               this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
-    disconnect(d->model, SIGNAL(destroyed()),
-               this, SLOT(_q_modelDestroyed()));
-    disconnect(d->model, SIGNAL(modelReset()),
-               this, SLOT(_q_modelReset()));
-    if (d->model->QObject::parent() == this)
-        delete d->model;
+        disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                   this, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
+        disconnect(d->model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
+                   this, SLOT(_q_rowsAboutToBeInserted(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                   this, SLOT(_q_rowsInserted(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                   this, SLOT(_q_rowsAboutToBeRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                   this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(destroyed()),
+                   this, SLOT(_q_modelDestroyed()));
+        disconnect(d->model, SIGNAL(modelReset()),
+                   this, SLOT(_q_modelReset()));
+        if (d->model->QObject::parent() == this)
+            delete d->model;
     }
 
     d->model = model;
