@@ -1154,6 +1154,9 @@ QAbstractItemModel::~QAbstractItemModel()
 
     Returns the number of rows under the given \a parent.
 
+    \bold{Tip:} When implementing a table based model, rowCount() should return 0 when
+    the parent is valid.
+
     \sa columnCount()
 */
 
@@ -1168,6 +1171,9 @@ QAbstractItemModel::~QAbstractItemModel()
     \quotefromfile itemviews/simpledommodel/dommodel.cpp
     \skipto ::columnCount
     \printuntil /^\}$/
+
+    \bold{Tip:} When implementing a table based model, columnCount() should return 0 when
+    the parent is valid.
 
     \sa rowCount()
 */
