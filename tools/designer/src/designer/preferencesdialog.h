@@ -17,15 +17,9 @@
 #include <QDialog>
 
 struct Preferences;
-class FontPanel;
-class QListWidget;
 
-class QDialogButtonBox;
-class QComboBox;
-class QPushButton;
-
-namespace qdesigner_internal {
-    class GridPanel;
+namespace Ui {
+    class PreferencesDialog;
 }
 
 class PreferencesDialog: public QDialog
@@ -33,6 +27,7 @@ class PreferencesDialog: public QDialog
     Q_OBJECT
 public:
     explicit PreferencesDialog(QWidget *parentWidget);
+    ~PreferencesDialog();
 
     bool showDialog(Preferences &p);
 
@@ -44,18 +39,10 @@ private slots:
     void templatePathSelectionChanged();
 
 private:
-    QWidget *initUIModeControls();
-    QWidget *initTemplatePathControls();
-
     void setPreferences(const Preferences &p);
     void getPreferences(Preferences &p) const;
 
-    QComboBox *m_uiModeCombo;
-    FontPanel *m_fontPanel;
-    qdesigner_internal::GridPanel *m_gridPanel;
-    QListWidget *m_templatePathListWidget;
-    QPushButton *m_removeTemplatePathButton;
-    QDialogButtonBox *m_dialogButtonBox;
+    Ui::PreferencesDialog *m_ui;
 };
 
 #endif // PREFERENCESDIALOG_H

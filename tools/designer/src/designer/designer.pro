@@ -94,7 +94,8 @@ FORMS += \
     newform.ui \
     plugindialog.ui \
     saveformastemplate.ui \
-    formwindowsettings.ui
+    formwindowsettings.ui \
+    preferencesdialog.ui
 
 win32 {
    RC_FILE	= designer.rc
