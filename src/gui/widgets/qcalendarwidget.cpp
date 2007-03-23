@@ -1059,6 +1059,7 @@ QTextCharFormat QCalendarModel::formatForCell(int row, int col) const
     bool header = (m_weekNumbersShown && col == HeaderColumn)
                   || (horizontalHeaderFormat != QCalendarWidget::NoHorizontalHeader && row == HeaderRow);
     format.setBackground(pal.brush(cg, header ? QPalette::AlternateBase : QPalette::Base));
+    format.setForeground(pal.brush(cg, QPalette::Text));
     if (header) {
         format.merge(m_headerFormat);
     }
