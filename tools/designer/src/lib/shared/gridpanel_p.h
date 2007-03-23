@@ -27,20 +27,24 @@
 
 #include "shared_global_p.h"
 
-#include <QtGui/QGroupBox>
-
-class QSpinBox;
-class QCheckBox;
+#include <QtGui/QWidget>
 
 namespace qdesigner_internal {
 
 class Grid;
 
-class  QDESIGNER_SHARED_EXPORT GridPanel : public QGroupBox
+namespace Ui {
+    class GridPanel;
+}
+
+class  QDESIGNER_SHARED_EXPORT GridPanel : public QWidget
 {
     Q_OBJECT
 public:
     GridPanel(QWidget *parentWidget = 0);
+    ~GridPanel();
+
+    void setTitle(const QString &title);
 
     void setGrid(const Grid &g);
     Grid grid() const;
@@ -49,11 +53,7 @@ private slots:
     void reset();
 
 private:
-    QCheckBox *m_visibleCheckBox;
-    QCheckBox *m_snapXCheckBox;
-    QCheckBox *m_snapYCheckBox;
-    QSpinBox *m_deltaXSpinBox;
-    QSpinBox *m_deltaYSpinBox;
+    Ui::GridPanel *m_ui;
 };
 }
 #endif // GRIDPANEL_H

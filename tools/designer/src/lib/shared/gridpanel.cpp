@@ -12,73 +12,47 @@
 ****************************************************************************/
 
 #include "gridpanel_p.h"
+#include "ui_gridpanel.h"
 #include "grid_p.h"
-
-#include <QtGui/QSpinBox>
-#include <QtGui/QCheckBox>
-#include <QtGui/QGridLayout>
-#include <QtGui/QPushButton>
-#include <QtGui/QLabel>
-
-// Add a row consisting of widget1, widget2 and a description label to a grid.
-static void addGridRow(const QString &description, QGridLayout *gridLayout, QWidget *w1,  QWidget *w2, int &row) {
-    QLabel *label = new QLabel(description);
-    label->setBuddy(w1);
-    gridLayout->addWidget(label, row, 0);
-    gridLayout->addWidget(w1, row, 1);
-    gridLayout->addWidget(w2, row, 2, Qt::AlignLeft);
-    ++row;
-}
-
-static QSpinBox *createDeltaSpinBox()
-{
-    QSpinBox * rc = new QSpinBox;
-    rc->setMaximum (100);
-    rc->setMinimum (2);
-    return rc;
-}
 
 namespace qdesigner_internal {
 
 GridPanel::GridPanel(QWidget *parentWidget) :
-    QGroupBox(parentWidget),
-    m_visibleCheckBox(new QCheckBox(tr("Visible"))),
-    m_snapXCheckBox(new QCheckBox(tr("Snap"))),
-    m_snapYCheckBox(new QCheckBox(tr("Snap"))),
-    m_deltaXSpinBox(createDeltaSpinBox()),
-    m_deltaYSpinBox(createDeltaSpinBox())
+    QWidget(parentWidget)
 {
-    QGridLayout *gridLayout = new QGridLayout(this);
-    int row = 0;
+    m_ui = new Ui::GridPanel;
+    m_ui->setupUi(this);
 
-    gridLayout->addWidget(m_visibleCheckBox, row, 0, 1, 3);
-    QPushButton *resetButton  = new QPushButton(tr("Reset"));
-    connect(resetButton, SIGNAL(clicked()), this, SLOT(reset()));
-    gridLayout->addWidget(resetButton, row, 2,  Qt::AlignRight);
+    connect(m_ui->m_resetButton, SIGNAL(clicked()), this, SLOT(reset()));
+}
 
-    row++;
-
-    addGridRow(tr("Grid-&X:"), gridLayout, m_deltaXSpinBox, m_snapXCheckBox, row);
-    addGridRow(tr("Grid-&Y:"), gridLayout, m_deltaYSpinBox, m_snapYCheckBox, row);
+GridPanel::~GridPanel()
+{
+    delete m_ui;
 }
 
 void GridPanel::setGrid(const Grid &g)
 {
-    m_deltaXSpinBox->setValue(g.deltaX());
-    m_deltaYSpinBox->setValue(g.deltaY());
-    m_visibleCheckBox->setCheckState(g.visible() ? Qt::Checked : Qt::Unchecked);
-    m_snapXCheckBox->setCheckState(g.snapX()  ? Qt::Checked : Qt::Unchecked);
-    m_snapYCheckBox->setCheckState(g.snapY()  ? Qt::Checked : Qt::Unchecked);
+    m_ui->m_deltaXSpinBox->setValue(g.deltaX());
+    m_ui->m_deltaYSpinBox->setValue(g.deltaY());
+    m_ui->m_visibleCheckBox->setCheckState(g.visible() ? Qt::Checked : Qt::Unchecked);
+    m_ui->m_snapXCheckBox->setCheckState(g.snapX()  ? Qt::Checked : Qt::Unchecked);
+    m_ui->m_snapYCheckBox->setCheckState(g.snapY()  ? Qt::Checked : Qt::Unchecked);
+}
+
+void GridPanel::setTitle(const QString &title)
+{
+    m_ui->m_gridGroupBox->setTitle(title);
 }
 
 Grid GridPanel::grid() const
 {
     Grid rc;
-    rc.setDeltaX(m_deltaXSpinBox->value());
-    rc.setDeltaY(m_deltaYSpinBox->value());
-    rc.setSnapX(m_snapXCheckBox->checkState() == Qt::Checked);
-    rc.setSnapY(m_snapYCheckBox->checkState() == Qt::Checked);
-    rc.setVisible(m_visibleCheckBox->checkState() == Qt::Checked);
+    rc.setDeltaX(m_ui->m_deltaXSpinBox->value());
+    rc.setDeltaY(m_ui->m_deltaYSpinBox->value());
+    rc.setSnapX(m_ui->m_snapXCheckBox->checkState() == Qt::Checked);
+    rc.setSnapY(m_ui->m_snapYCheckBox->checkState() == Qt::Checked);
+    rc.setVisible(m_ui->m_visibleCheckBox->checkState() == Qt::Checked);
     return rc;
 }
 

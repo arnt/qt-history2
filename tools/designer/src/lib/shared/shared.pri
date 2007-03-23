@@ -6,7 +6,8 @@ QT += script
 FORMS += $$PWD/findicondialog.ui \
     $$PWD/orderdialog.ui \
     $$PWD/newactiondialog.ui \
-    $$PWD/resourceeditor.ui
+    $$PWD/resourceeditor.ui \
+    $$PWD/gridpanel.ui
 
 HEADERS += \
     $$PWD/shared_global_p.h \
