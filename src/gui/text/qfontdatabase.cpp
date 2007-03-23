@@ -359,6 +359,7 @@ struct QtFontFamily
 
 #ifdef Q_WS_QWS
     bool bogusWritingSystems;
+    QStringList fallbackFamilies;
 #endif
     unsigned char writingSystems[QFontDatabase::WritingSystemsCount];
 
@@ -575,6 +576,7 @@ public:
     QStringList addTTFile(const QByteArray &file, const QByteArray &fontData = QByteArray());
 
     QDataStream *stream;
+    QStringList fallbackFamilies;
 #endif
 
 Q_SIGNALS:

@@ -221,9 +221,11 @@ void QFontDatabasePrivate::loadFromCache(const QString &fontPath)
         qFatal("QFontDatabase::loadFromCache: Wrong version of the font database cache detected. Found %d/%d expected %d/%d",
                version, dataStreamVersion, DatabaseVersion, stream.version());
 
+    QString familyname;
+    stream >> familyname;
     //qDebug() << "populating database from" << binaryDb.fileName();
-    while (!stream.atEnd()) {
-        QString familyname, foundryname;
+    while (!familyname.isEmpty() && !stream.atEnd()) {
+        QString foundryname;
         int weight;
         quint8 italic;
         int pixelSize;
@@ -234,7 +236,7 @@ void QFontDatabasePrivate::loadFromCache(const QString &fontPath)
 
         QList<QFontDatabase::WritingSystem> writingSystems;
 
-        stream >> familyname >> foundryname >> weight >> italic >> pixelSize
+        stream >> foundryname >> weight >> italic >> pixelSize
                >> file >> fileIndex >> antialiased >> writingSystemCount;
 
         for (quint8 i = 0; i < writingSystemCount; ++i) {
@@ -245,7 +247,12 @@ void QFontDatabasePrivate::loadFromCache(const QString &fontPath)
 
         addFont(familyname, foundryname.toLatin1().constData(), weight, italic, pixelSize, file, fileIndex, antialiased,
                 writingSystems);
+
+        stream >> familyname;
     }
+
+    stream >> fallbackFamilies;
+    //qDebug() << "fallback families from cache:" << fallbackFamilies;
 }
 
 /*!
@@ -434,6 +441,36 @@ static void initializeDb()
     }
 #endif
 
+    // the empty string/familyname signifies the end of the font list.
+    *db->stream << QString();
+
+    {
+        bool coveredWritingSystems[QFontDatabase::WritingSystemsCount] = { 0 };
+
+        db->fallbackFamilies.clear();
+
+        for (int i = 0; i < db->count; ++i) {
+            QtFontFamily *family = db->families[i];
+            bool add = false;
+            if (family->count == 0)
+                continue;
+            if (family->bogusWritingSystems)
+                continue;
+            for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws) {
+                if (coveredWritingSystems[ws])
+                    continue;
+                if (family->writingSystems[ws] & QtFontFamily::Supported) {
+                    coveredWritingSystems[ws] = true;
+                    add = true;
+                }
+            }
+            if (add)
+                db->fallbackFamilies << family->name;
+        }
+        //qDebug() << "fallbacks on the server:" << db->fallbackFamilies;
+        *db->stream << db->fallbackFamilies;
+    }
+
     delete db->stream;
     db->stream = 0;
     QFile::remove(dbFileName);
@@ -591,32 +628,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
     if (fe
         && script == QUnicodeTables::Common
         && !(request.styleStrategy & QFont::NoFontMerging) && !fe->symbol) {
-        static QStringList fallbacks;
-        if (fallbacks.isEmpty()) {
-            bool coveredWritingSystems[QFontDatabase::WritingSystemsCount] = { 0 };
-
-            QFontDatabasePrivate *db = privateDb();
-            for (int i = 0; i < db->count; ++i) {
-                QtFontFamily *family = db->families[i];
-                bool add = false;
-                if (family->count == 0)
-                    continue;
-                if (family->bogusWritingSystems)
-                    continue;
-                for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws) {
-                    if (coveredWritingSystems[ws])
-                        continue;
-                    if (family->writingSystems[ws] & QtFontFamily::Supported) {
-                        coveredWritingSystems[ws] = true;
-                        add = true;
-                    }
-                }
-                if (add)
-                    fallbacks << family->name;
-            }
-            //qDebug() << "fallbacks:" << fallbacks;
-        }
-        fe = new QFontEngineMultiQWS(fe, script, fallbacks);
+        fe = new QFontEngineMultiQWS(fe, script, privateDb()->fallbackFamilies);
     }
     return fe;
 }
