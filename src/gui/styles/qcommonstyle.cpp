@@ -626,14 +626,14 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         bool reverse = (viewOpt->direction == Qt::RightToLeft);
         p->save();
         QPainterPath path;
-        int x = viewOpt->rect.x() + viewOpt->rect.width();
+        int x = viewOpt->rect.x() + 1;
         int offset = (viewOpt->rect.height() / 3);
         int height = (viewOpt->rect.height()) - offset * 2;
         if (height % 2 == 1)
             --height;
         int x2 = x + height - 1;
         if (reverse) {
-            x = viewOpt->rect.x() + + height - 1;
+            x = viewOpt->rect.x() + viewOpt->rect.width() - 1;
             x2 = x - height + 1;
         }
         path.moveTo(x, viewOpt->rect.y() + offset);

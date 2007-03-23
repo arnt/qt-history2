@@ -1028,7 +1028,7 @@ void QColumnViewDelegate::paint(QPainter *painter,
     bool reverse = (option.direction == Qt::RightToLeft);
     int width = ((option.rect.height() * 2) / 3);
     // Modify the options to give us room to add an arrow
-    QStyleOptionViewItem opt = option;
+    QStyleOptionViewItemV3 opt = option;
     if (reverse)
         opt.rect.adjust(width,0,0,0);
     else
@@ -1041,9 +1041,17 @@ void QColumnViewDelegate::paint(QPainter *painter,
 
     QItemDelegate::paint(painter, opt, index);
 
+    if (reverse)
+        opt.rect = QRect(option.rect.x(), option.rect.y(), width, option.rect.height());
+    else
+        opt.rect = QRect(option.rect.x() + option.rect.width() - width, option.rect.y(),
+                         width, option.rect.height());
+
     // Draw >
     if (index.model()->hasChildren(index)) {
-        qApp->style()->drawPrimitive(QStyle::PE_IndicatorColumnViewArrow, &opt, painter);
+        const QWidget *view = opt.widget;
+        QStyle *style = view ? view->style() : qApp->style();
+        style->drawPrimitive(QStyle::PE_IndicatorColumnViewArrow, &opt, painter, view);
     }
 }
 
