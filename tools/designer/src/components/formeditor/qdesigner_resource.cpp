@@ -1532,13 +1532,13 @@ void QDesignerResource::createResources(DomResources *resources)
     foreach (DomResource *res, dom_include) {
         QString path = m_formWindow->absoluteDir().absoluteFilePath(res->attributeLocation());
         while (!QFile::exists(path)) {
-            if (QMessageBox::warning(m_formWindow->core()->topLevel(), QApplication::translate("qdesigner_internal::QDesignerResource",
+            const QMessageBox::StandardButton answer = 
+                QMessageBox::warning(m_formWindow->core()->topLevel(), QApplication::translate("qdesigner_internal::QDesignerResource",
                 "Loading qrc file", 0, QApplication::UnicodeUTF8),
                 QApplication::translate("qdesigner_internal::QDesignerResource",
                 "The specified qrc file <p><b>%1</b></p><p>could not be found. Do you want to update the file location?</p>", 0, QApplication::UnicodeUTF8).arg(path),
-                QApplication::translate("qdesigner_internal::QDesignerResource", "&Yes", 0, QApplication::UnicodeUTF8),
-                QApplication::translate("qdesigner_internal::QDesignerResource", "&No", 0, QApplication::UnicodeUTF8),
-                QString(), 0, 1) == 0) {
+                QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+            if (answer == QMessageBox::Yes) {
                 const QFileInfo fi(path);
                 path = QFileDialog::getOpenFileName(m_formWindow->core()->topLevel(),
                     QApplication::translate("qdesigner_internal::QDesignerResource",

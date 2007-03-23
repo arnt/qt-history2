@@ -301,16 +301,15 @@ QModelIndex EditableResourceModel::addFiles(const QModelIndex &idx,
     if (good_file_list.size() == file_list.size()) {
         result = ResourceModel::addFiles(idx, good_file_list);
     } else if (good_file_list.size() > 0) {
-        const int answer =
-            QMessageBox::warning(0, tr("Invalid files"),
-                                    tr("Files referenced in a qrc must be in the qrc's "
-                                        "directory or one of its subdirectories:<p><b>%1</b><p>"
-                                        "Some of the selected files do not comply with this.")
-                                            .arg(absolutePath(QString())),
-                                    tr("Cancel"), tr("Only insert files which comply"),
-                                    QString(), 1);
-
-        if (answer != 0)
+        QMessageBox msgBox(QMessageBox::Warning, tr("Invalid files"),
+                           tr("Files referenced in a qrc must be in the qrc's "
+                              "directory or one of its subdirectories:<p><b>%1</b><p>"
+                              "Some of the selected files do not comply with this.")
+                           .arg(absolutePath(QString())), QMessageBox::Cancel);
+        QPushButton *insertButton = msgBox.addButton(tr("Only insert files which comply"), QMessageBox::AcceptRole);
+        msgBox.setDefaultButton(insertButton);
+        msgBox.exec();
+        if (msgBox.clickedButton() == insertButton)
             result = ResourceModel::addFiles(idx, good_file_list);
     } else {
         QMessageBox::warning(0, tr("Invalid files"),

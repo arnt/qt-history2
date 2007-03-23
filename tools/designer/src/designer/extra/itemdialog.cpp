@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
+#include "itemdialog.h"
+#include "item.h"
+
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QPixmap>
 #include <QtGui/QPushButton>
-#include <QtCore/QList>
-
-#include "itemdialog.h"
-#include "item.h"
+#include <QtGui/QDialogButtonBox>
 
 QList<ItemDialog *> ItemDialog::openDialogs;
 
@@ -46,14 +46,14 @@ ItemDialog::ItemDialog(QWidget *parent, const Item *item)
     descFont.setItalic(true);
     descFont.setPointSize(descFont.pointSize() - 2);
     lblDesc->setFont(descFont);
-    QPushButton *btn = new QPushButton(tr("Close"));
-    btn->setDefault(true);
-    connect(btn, SIGNAL(clicked()), this, SLOT(close()));
+
+    QDialogButtonBox *btnBox = new QDialogButtonBox(QDialogButtonBox::Close);
+    connect(btnBox, SIGNAL(rejected()), this, SLOT(close()));
 
     layout->addWidget(lblPix, 0, 0, 2, 2);
     layout->addWidget(lblName, 0, 2, 1, 1);
     layout->addWidget(lblDesc, 1, 2, 1, 1);
-    layout->addWidget(btn, 2, 3, 1, 1);
+    layout->addWidget(btnBox, 2, 3, 1, 1);
     openDialogs.append(this);
 }
 

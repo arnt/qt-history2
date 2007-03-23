@@ -946,30 +946,31 @@ QDockWidget *QDesignerWorkbench::magicalDockWidget(QWidget *widget) const
 
 bool QDesignerWorkbench::readInBackup()
 {
-    QMap<QString, QString> backupFileMap;
-    backupFileMap = QDesignerSettings().backup();
-    if(!backupFileMap.isEmpty()) {
-        if (QMessageBox::question(0, tr("Backup Information"),
-                                    tr("Designer was not correctly terminated during your last session."
+    const QMap<QString, QString> backupFileMap = QDesignerSettings().backup();
+    if (backupFileMap.isEmpty())
+        return false;
+
+    const  QMessageBox::StandardButton answer =
+        QMessageBox::question(0, tr("Backup Information"),
+                                 tr("Designer was not correctly terminated during your last session."
                                        "There are existing Backup files, do you want to load them?"),
-                                    tr("&Yes"), tr("&No"), QString(), 0, 1) == 0)
-        {
-            QMapIterator<QString, QString> it(backupFileMap);
-            while(it.hasNext()) {
-                it.next();
+                                    QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+    if (answer == QMessageBox::No)
+        return false;
 
-                QString fileName = it.key();
-                fileName.remove(QLatin1String("[*]"));
+    const QString modifiedPlaceHolder = QLatin1String("[*]");
+    QMapIterator<QString, QString> it(backupFileMap);
+    while(it.hasNext()) {
+        it.next();
 
-                if(m_actionManager->readInForm(it.value())) {
-                    formWindowManager()->activeFormWindow()->setFileName(fileName);
-                }
-            }
-            return true;
-        }
+        QString fileName = it.key();
+        fileName.remove(modifiedPlaceHolder);
+
+        if(m_actionManager->readInForm(it.value()))
+            formWindowManager()->activeFormWindow()->setFileName(fileName);
+
     }
-
-    return false;
+    return true;
 }
 
 void QDesignerWorkbench::updateBackup(QDesignerFormWindowInterface* fwi)

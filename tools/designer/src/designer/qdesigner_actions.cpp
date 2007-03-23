@@ -746,7 +746,7 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
                                "\nReason: %2"
                                "\nWould you like to retry or change your file?")
                                 .arg(f.fileName()).arg(f.errorString()));
-        QPushButton *retryButton = box.addButton(tr("Retry"), QMessageBox::AcceptRole);
+        QPushButton *retryButton = box.addButton(QMessageBox::Retry);
         retryButton->setDefault(true);
         QPushButton *switchButton = box.addButton(tr("Select New File"), QMessageBox::AcceptRole);
         QPushButton *cancelButton = box.addButton(QMessageBox::Cancel);
@@ -779,19 +779,19 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
     while (f.write(utf8Array, utf8Array.size()) != utf8Array.size()) {
         QMessageBox box(QMessageBox::Warning, tr("Save Form?"),
                         tr("Could not write file"),
-                        QMessageBox::NoButton, fw);
+                        QMessageBox::Retry|QMessageBox::Cancel, fw);
         box.setWindowModality(Qt::WindowModal);
         box.setInformativeText(tr("It was not possible to write the entire file, %1, to disk."
                                 "\nReason:%2\nWould you like to retry?")
                                 .arg(f.fileName()).arg(f.errorString()));
-        QPushButton *retryButton = box.addButton(tr("Retry"), QMessageBox::AcceptRole);
-        retryButton->setDefault(true);
-        QPushButton *noRetry = box.addButton(tr("Retry"), QMessageBox::RejectRole);
-        box.exec();
-        if (box.clickedButton() == retryButton)
+        box.setDefaultButton(QMessageBox::Retry);
+        switch (box.exec()) {
+        case QMessageBox::Retry:
             f.resize(0);
-        else if (box.clickedButton() == noRetry)
+            break;
+        default:
             return false;
+        }
     }
     f.close();
     removeBackup(backupFile);
