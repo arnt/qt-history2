@@ -85,7 +85,7 @@ win32 {
                 HEADERS += painting/qpaintengine_d3d_p.h
                 SOURCES += painting/qpaintengine_d3d.cpp
                 RESOURCES += painting/qpaintengine_d3d.qrc
-                LIBS += -ld3d9 -ld3dx9 -ldxguid
+                LIBS += -ldxguid
         }
 }
 

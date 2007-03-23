@@ -28,6 +28,7 @@
 #include "private/qfontengine_p.h"
 #include "private/qmath_p.h"
 #include "qpixmapcache.h"
+#include <qlibrary.h>
 
 #include <d3d9.h>
 #include <d3dx9math.h>
@@ -85,6 +86,20 @@
 #define D3D_RENDER_STATES           210
 #define D3D_TEXTURE_STATES          33
 #define D3D_SAMPLE_STATES           14
+
+
+typedef HRESULT (APIENTRY *PFND3DXCREATEBUFFER)(DWORD, LPD3DXBUFFER *);
+typedef HRESULT (APIENTRY *PFND3DXCREATEEFFECT)(LPDIRECT3DDEVICE9, LPCVOID, UINT, CONST D3DXMACRO *,
+                                                LPD3DXINCLUDE, DWORD, LPD3DXEFFECTPOOL,
+                                                LPD3DXEFFECT *, LPD3DXBUFFER *);
+typedef D3DXMATRIX *(APIENTRY *PFND3DXMATRIXORTHOOFFCENTERLH)(D3DMATRIX *, FLOAT, FLOAT,
+                                                              FLOAT, FLOAT, FLOAT, FLOAT);
+typedef IDirect3D9 *(APIENTRY *PFNDIRECT3DCREATE9)(uint);
+
+static PFNDIRECT3DCREATE9 pDirect3DCreate9 = 0;
+static PFND3DXCREATEBUFFER pD3DXCreateBuffer = 0;
+static PFND3DXCREATEEFFECT pD3DXCreateEffect = 0;
+static PFND3DXMATRIXORTHOOFFCENTERLH pD3DXMatrixOrthoOffCenterLH = 0;
 
 class QD3DStateManager : public ID3DXEffectStateManager {
 public:
@@ -1946,7 +1961,7 @@ void QD3DVertexBuffer::setMaskSize(QSize size)
 
     m_pe->m_d3dDevice->ColorFill(m_maskSurface, 0, D3DCOLOR_ARGB(255,0,0,0));
     D3DXMATRIX projMatrix;
-    D3DXMatrixOrthoOffCenterLH(&projMatrix, 0, m_width, m_height, 0, 0, 1);
+    pD3DXMatrixOrthoOffCenterLH(&projMatrix, 0, m_width, m_height, 0, 0, 1);
     m_pe->m_effect->SetMatrix("g_mMaskProjection", &projMatrix);
     m_pe->m_effect->SetTexture("g_mAAMask", m_mask);
 }
@@ -2993,6 +3008,7 @@ void QDirect3DPaintEnginePrivate::fillPath(const QPainterPath &path, QRectF brec
     }
 }
 
+
 bool QDirect3DPaintEnginePrivate::init()
 {
 #ifdef QT_DEBUG_D3D_CALLS
@@ -3016,8 +3032,31 @@ bool QDirect3DPaintEnginePrivate::init()
     m_batch.m_itemIndex = 0;
     m_currentTechnique = RT_NoTechnique;
 
+    if (!pDirect3DCreate9) {
+        QLibrary d3d_lib("d3d9.dll");
+        pDirect3DCreate9 = (PFNDIRECT3DCREATE9) d3d_lib.resolve("Direct3DCreate9");
+        if (!pDirect3DCreate9) {
+            qWarning("QDirect3DPaintEngine: failed to resolve symbols from d3d9.dll.\n"
+                     "Make sure you have the DirectX run-time installed.");
+            return false;
+        }
+    }
+
+    if (!pD3DXCreateBuffer || !pD3DXCreateEffect || !pD3DXMatrixOrthoOffCenterLH) {
+        QLibrary d3dx_lib("d3dx9_32.dll");
+        pD3DXCreateBuffer = (PFND3DXCREATEBUFFER) d3dx_lib.resolve("D3DXCreateBuffer");
+        pD3DXCreateEffect = (PFND3DXCREATEEFFECT) d3dx_lib.resolve("D3DXCreateEffect");
+        pD3DXMatrixOrthoOffCenterLH = (PFND3DXMATRIXORTHOOFFCENTERLH)
+                                        d3dx_lib.resolve("D3DXMatrixOrthoOffCenterLH");
+        if (!(pD3DXCreateBuffer && pD3DXCreateEffect && pD3DXMatrixOrthoOffCenterLH)) {
+            qWarning("QDirect3DPaintEngine: failed to resolve symbols from d3dx9_32.dll.\n"
+                     "Make sure you have the DirectX run-time installed.");
+            return false;
+        }
+    }
+
     if (!m_d3dObject) {
-        m_d3dObject = Direct3DCreate9(D3D_SDK_VERSION);
+        m_d3dObject = pDirect3DCreate9(D3D_SDK_VERSION);
         if (!m_d3dObject) {
             qWarning("QDirect3DPaintEngine: failed to create Direct3D object.\n"
                      "Direct3D support in Qt will be disabled.");
@@ -3045,10 +3084,10 @@ bool QDirect3DPaintEnginePrivate::init()
 
     if (fxFile.size() > 0) {
         LPD3DXBUFFER compout;
-        D3DXCreateBuffer(4096, &compout);
+        pD3DXCreateBuffer(4096, &compout);
         DWORD dwShaderFlags = D3DXFX_NOT_CLONEABLE|D3DXFX_DONOTSAVESTATE;
-        if(FAILED(D3DXCreateEffect(m_d3dDevice, fxFile.constData(), fxFile.size(),
-                                   NULL, NULL, dwShaderFlags, NULL, &m_effect, &compout))) {
+        if(FAILED(pD3DXCreateEffect(m_d3dDevice, fxFile.constData(), fxFile.size(),
+                                      NULL, NULL, dwShaderFlags, NULL, &m_effect, &compout))) {
             qWarning("QDirect3DPaintEngine: failed to compile effect file");
             if (compout)
                 qWarning((char *)compout->GetBufferPointer());
@@ -3504,7 +3543,7 @@ bool QDirect3DPaintEngine::begin(QPaintDevice *device)
 
 
     D3DXMATRIX projMatrix;
-    D3DXMatrixOrthoOffCenterLH(&projMatrix, 0, d->m_winSize.width(), d->m_winSize.height(), 0, 0.0f, 1.0f);
+    pD3DXMatrixOrthoOffCenterLH(&projMatrix, 0, d->m_winSize.width(), d->m_winSize.height(), 0, 0.0f, 1.0f);
     d->m_statemanager->setProjection(&projMatrix);
 
     if (!d->m_inScene) {
