@@ -48,7 +48,7 @@
 #include <qdebug.h>
 #include "qsidebar_p.h"
 
-#if defined (Q_OS_UNIX) && !defined (Q_OS_MAC) && !defined (Q_OS_OPENBSD)
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC) && !defined(Q_OS_OPENBSD)
 #include <sys/statvfs.h>
 #endif
 
@@ -119,11 +119,11 @@ public:
     QLineEdit *lineEdit() const;
 
     int maxNameLength(const QString &path) {
-#if defined (Q_OS_UNIX) && !defined (Q_OS_MAC) && !defined (Q_OS_OPENBSD)
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC) && !defined(Q_OS_OPENBSD)
         struct statvfs vfs;
         if (statvfs(path.toLocal8Bit().constData(), &vfs) >= 0)
             return vfs.f_namemax;
-#elif defined (Q_OS_WIN)
+#elif defined(Q_OS_WIN)
         DWORD maxLength;
         QString drive = path.left(3);
         if (QT_WA_INLINE(::GetVolumeInformationW(reinterpret_cast<const WCHAR *>(path.utf16()), NULL, 0, NULL, &maxLength, NULL, NULL, 0),
@@ -293,4 +293,3 @@ public:
 #endif
 
 #endif
-
