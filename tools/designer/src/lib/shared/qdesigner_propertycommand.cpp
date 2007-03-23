@@ -214,8 +214,8 @@ unsigned compareSubProperties(const QVariant & q1, const QVariant & q2, qdesigne
 QRect applyRectSubProperty(const QRect &oldValue, const QRect &newValue, unsigned mask)
 {
     QRect rc = oldValue;
-    SET_SUBPROPERTY(rc, newValue, x,      setX,      mask, SubPropertyX)
-    SET_SUBPROPERTY(rc, newValue, y,      setY,      mask, SubPropertyY)
+    SET_SUBPROPERTY(rc, newValue, x,      moveLeft,  mask, SubPropertyX)
+    SET_SUBPROPERTY(rc, newValue, y,      moveTop,   mask, SubPropertyY)
     SET_SUBPROPERTY(rc, newValue, width,  setWidth,  mask, SubPropertyWidth)
     SET_SUBPROPERTY(rc, newValue, height, setHeight, mask, SubPropertyHeight)
     return rc;
