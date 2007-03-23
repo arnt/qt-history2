@@ -32,6 +32,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QGroupBox>
 #include <QtGui/QStyle>
+#include <QtGui/QApplication>
 
 static const QMetaObject *propertyIntroducedBy(const QMetaObject *meta, int index)
 {
@@ -655,6 +656,22 @@ bool QDesignerPropertySheet::reset(int index)
         const bool result = p.reset(m_object);
         m_fakeProperties[index] = p.read(m_object);
         return result;
+    } else if (propertyName(index) == QLatin1String("geometry")) {
+        QWidget *w = qobject_cast<QWidget*>(m_object);
+        if (w) {
+            QWidget *widget = w;
+            QDesignerFormWindowInterface *formWindow = QDesignerFormWindowInterface::findFormWindow(widget);
+            if (qdesigner_internal::Utils::isCentralWidget(formWindow, widget) && formWindow->parentWidget())
+                widget = formWindow->parentWidget();
+
+            if (widget != w && widget->parentWidget()) {
+                QApplication::processEvents();
+                widget->parentWidget()->adjustSize();
+            }
+            QApplication::processEvents();
+            widget->adjustSize();
+            return true;
+        }
     }
 
     // ### TODO: reset for fake properties.
