@@ -21,7 +21,7 @@ static QTextStream qerr(stderr, QIODevice::WriteOnly);
 
 static void usage()
 {
-    qerr << "Usage: parse [-report-whitespace-only-chardata] [-report-start-end-entity] <in-file> [<out-file>]";
+    qerr << "Usage: parse [-report-whitespace-only-chardata] [-report-start-end-entity] <in-file> [<out-file>]\n";
     exit(1);
 }
 
@@ -51,8 +51,8 @@ int main(int argc, const char *argv[])
 
     QFile in_file(file_name);
     if (!in_file.open(QIODevice::ReadOnly)) {
-    	qerr << "Could not open " << file_name << ": " << strerror(errno);
-	return 1;
+        qerr << "Could not open " << file_name << ": " << strerror(errno) << endl;
+        return 1;
     }
 
     if (out_file_name.isEmpty())
@@ -66,7 +66,7 @@ int main(int argc, const char *argv[])
     } else {
         _out_file.setFileName(out_file_name);
         if (!_out_file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-            qerr << "Could not open " << out_file_name << ": " << strerror(errno);
+            qerr << "Could not open " << out_file_name << ": " << strerror(errno) << endl;
             return 1;
         }
         _out_stream.setDevice(&_out_file);
