@@ -60,11 +60,10 @@ static QByteArray makeCanonical(const QString &filename,
     QByteArray buffer;
     int bufferPos = 0;
 
-    if (!testIncremental) {
-        reader.setDevice(&file);
-    } else {
+    if (testIncremental)
         buffer = file.readAll();
-    }
+    else
+        reader.setDevice(&file);
 
     QByteArray outarray;
     QXmlStreamWriter writer(&outarray);
@@ -328,27 +327,35 @@ public:
                 return true;
             }
 
-            QXmlStreamReader reader(&inputFile);
-
             if(type == QLatin1String("not-wf"))
             {
-                while(!reader.atEnd())
-                    reader.readNext();
-
-                if(reader.error())
-                    successes.append(id);
-                else
+                if(isWellformed(&inputFile, ParseSinglePass))
                 {
                      failures.append(qMakePair(id, QString::fromLatin1("Failed to flag %1 as not well-formed.")
                                                    .arg(inputFilePath)));
+
+                     /* Exit, the incremental test will fail as well, no need to flood the output. */
+                     return true;
                 }
+                else
+                    successes.append(id);
+
+                if(isWellformed(&inputFile, ParseIncrementally))
+                {
+                     failures.append(qMakePair(id, QString::fromLatin1("Failed to flag %1 as not well-formed with incremental parsing.")
+                                                   .arg(inputFilePath)));
+                }
+                else
+                    successes.append(id);
 
                 return true;
             }
 
+            QXmlStreamReader reader(&inputFile);
+
             /* See testcases.dtd which reads: 'Nonvalidating parsers
              * must also accept "invalid" testcases, but validating ones must reject them.' */
-            else if(type == QLatin1String("invalid") || type == QLatin1String("valid"))
+            if(type == QLatin1String("invalid") || type == QLatin1String("valid"))
             {
                 QByteArray expected;
                 QString docType;
@@ -416,6 +423,54 @@ public:
     }
 
 private:
+    enum ParseMode
+    {
+        ParseIncrementally,
+        ParseSinglePass
+    };
+
+    static bool isWellformed(QIODevice *const inputFile, const ParseMode mode)
+    {
+        Q_ASSERT(inputFile);
+        Q_ASSERT_X(inputFile->isOpen(), Q_FUNC_INFO, "The caller is responsible for opening the device.");
+        Q_ASSERT(mode == ParseIncrementally || mode == ParseSinglePass);
+
+        if(mode == ParseIncrementally)
+        {
+            QXmlStreamReader reader;
+            QByteArray buffer;
+            int bufferPos = 0;
+
+            buffer = inputFile->readAll();
+
+            while(true)
+            {
+                while(!reader.atEnd())
+                    reader.readNext();
+
+                if(bufferPos < buffer.size())
+                {
+                    ++bufferPos;
+                    reader.addData(QByteArray(buffer.data() + bufferPos, 1));
+                }
+                else
+                    break;
+            }
+
+            return !reader.error();
+        }
+        else
+        {
+            QXmlStreamReader reader;
+            reader.setDevice(inputFile);
+
+            while(!reader.atEnd())
+                reader.readNext();
+
+            return !reader.error();
+        }
+    }
+
     QStack<QXmlAttributes>  m_atts;
     QString                 m_ch;
     QStack<QUrl>            m_baseURI;
