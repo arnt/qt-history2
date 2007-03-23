@@ -837,7 +837,7 @@ void tst_QScriptValue::getSetProperty()
 
     QScriptEngine otherEngine;
     QScriptValue otherNum = QScriptValue(&otherEngine, 123);
-    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setProperty() failed: cannot set value created in a different engine");
+    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setProperty(oof) failed: cannot set value created in a different engine");
     object.setProperty("oof", otherNum);
     QCOMPARE(object.property("oof").isValid(), false);
 
@@ -933,6 +933,8 @@ void tst_QScriptValue::getSetProperty()
             
             // kill the setter
             object4.setProperty("foo", QScriptValue(), QScriptValue::PropertySetter);
+            QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setProperty() failed: property 'foo' has a getter but no setter");
+            object4.setProperty("foo", str);
             
             // getter should still work
             QCOMPARE(object4.property("foo").strictEqualTo(num), true);

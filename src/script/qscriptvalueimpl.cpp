@@ -191,8 +191,12 @@ void QScriptValueImpl::setProperty(QScriptNameIdImpl *nameId,
                 // call the setter
                 QScriptValueImpl setter;
                 if (member.isObjectProperty() && !member.isSetter()) {
-                    if (!base.m_object_value->findSetter(&member))
+                    if (!base.m_object_value->findSetter(&member)) {
+                        qWarning("QScriptValue::setProperty() failed: "
+                                 "property '%s' has a getter but no setter",
+                                 qPrintable(nameId->s));
                         return;
+                    }
                 }
                 base.get(member, &setter);
                 setter.call(*this, QScriptValueImplList() << value);

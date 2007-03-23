@@ -639,8 +639,9 @@ void QScriptValue::setProperty(const QString &name, const QScriptValue &value,
                                const PropertyFlags &flags)
 {
     if (isValid() && value.isValid() && (value.engine() != engine())) {
-        qWarning("QScriptValue::setProperty() failed: "
-                 "cannot set value created in a different engine");
+        qWarning("QScriptValue::setProperty(%s) failed: "
+                 "cannot set value created in a different engine",
+                 qPrintable(name));
         return;
     }
     QScriptValuePrivate::valueOf(*this).setProperty(name, QScriptValuePrivate::valueOf(value), flags);
