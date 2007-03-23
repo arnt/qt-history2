@@ -910,13 +910,19 @@ bool QCoreApplication::compressEvent(QEvent *event, QObject *receiver, QPostEven
                 return true;
             }
         }
-    }
-#else
-    Q_UNUSED(event);
-    Q_UNUSED(receiver);
-    Q_UNUSED(postedEvents);
+    } else
 #endif
-
+        if (event->type() == QEvent::DeferredDelete
+            && receiver->d_func()->postedEvents > 0) {
+            for (int i = 0; i < postedEvents->size(); ++i) {
+                const QPostEvent &cur = postedEvents->at(i);
+                if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type())
+                    continue;
+                // found a DeferredDelete for this receiver
+                delete event;
+                return true;
+            }
+        }
     return false;
 }
 

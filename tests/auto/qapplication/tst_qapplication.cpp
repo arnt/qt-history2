@@ -774,14 +774,20 @@ class EventLoopNester : public QObject
     Q_OBJECT
 public slots:
     void deleteLaterAndEnterLoop()
-        {
-            QEventLoop eventLoop;
-            QPointer<QObject> p(this);
-            deleteLater();
-            QTimer::singleShot(1000, &eventLoop, SLOT(quit()));
-            eventLoop.exec();
-            QVERIFY(p);
-        }
+    {
+        QEventLoop eventLoop;
+        QPointer<QObject> p(this);
+        deleteLater();
+        /*
+          DeferredDelete events are compressed, meaning this second
+          deleteLater() will *not* delete the object in the nested
+          event loop
+        */
+        QMetaObject::invokeMethod(this, "deleteLater", Qt::QueuedConnection);
+        QTimer::singleShot(1000, &eventLoop, SLOT(quit()));
+        eventLoop.exec();
+        QVERIFY(p);
+    }
 };
 
 void tst_QApplication::testDeleteLaterProcessEvents()
@@ -1056,8 +1062,8 @@ void tst_QApplication::focusChanged()
     parent1.activateWindow();
     QApplication::setActiveWindow(&parent1); // needs this on twm (focus follows mouse)
     QVERIFY(spy.count() == 1 || spy.count() == 2); // one for deactivation, one for activation on Windows
-    
-    //on windows, the change of focus is made in 2 steps 
+
+    //on windows, the change of focus is made in 2 steps
     //(the focusChanged SIGNAL is emitted twice)
     if (spy.count()==1)
         old = qVariantValue<QWidget*>(spy.at(spy.count()-1).at(0));
@@ -1167,7 +1173,7 @@ void tst_QApplication::windowsCommandLine()
     QByteArray error = testProcess.readAllStandardError();
     QString procError(error);
     QCOMPARE(procError, QString("Hello \"World\""));
-#endif 
+#endif
 }
 
 //QTEST_APPLESS_MAIN(tst_QApplication)
