@@ -133,6 +133,7 @@ private:
     friend class QFontPrivate;
     friend class QFontDialog;
     friend class QFontEngineMultiXLFD;
+    friend class QFontEngineMultiQWS;
 
     QFontDatabasePrivate *d;
 };

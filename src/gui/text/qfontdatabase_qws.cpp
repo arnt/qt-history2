@@ -457,10 +457,10 @@ static inline void load(const QString & = QString(), int = -1)
 #endif // QT_NO_FREETYPE
 
 static
-QFontEngine *loadEngine(int script, const QFontPrivate *fp,
-                         const QFontDef &request,
-                         QtFontFamily *family, QtFontFoundry *foundry,
-                         QtFontStyle *style, QtFontSize *size)
+QFontEngine *loadSingleEngine(int script, const QFontPrivate *fp,
+                              const QFontDef &request,
+                              QtFontFamily *family, QtFontFoundry *foundry,
+                              QtFontStyle *style, QtFontSize *size)
 {
     Q_UNUSED(script);
     Q_UNUSED(fp);
@@ -577,6 +577,24 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 #endif // QT_NO_QWS_QPF
     }
     return new QFontEngineBox(pixelSize);
+}
+
+static
+QFontEngine *loadEngine(int script, const QFontPrivate *fp,
+                        const QFontDef &request,
+                        QtFontFamily *family, QtFontFoundry *foundry,
+                        QtFontStyle *style, QtFontSize *size)
+{
+    QFontEngine *fe = loadSingleEngine(script, fp, request, family, foundry,
+                                       style, size);
+    if (fe
+        && script == QUnicodeTables::Common
+        && !(request.styleStrategy & QFont::NoFontMerging) && !fe->symbol) {
+        QStringList fallbacks;
+        fallbacks << "wenquanyi" << "unifont"; // #####
+        fe = new QFontEngineMultiQWS(fe, script, fallbacks);
+    }
+    return fe;
 }
 
 static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)

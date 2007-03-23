@@ -114,6 +114,7 @@ static inline const uchar *verifyTag(const uchar *tagPtr, const uchar *endPtr)
         return endPtr;
     if (tag < QFontEngineQPF::NumTags) {
         switch (tagTypes[tag]) {
+            case QFontEngineQPF::BitFieldType:
             case QFontEngineQPF::StringType:
                 // can't do anything...
                 break;
@@ -1038,3 +1039,35 @@ void QPFGenerator::writeTaggedQFixed(QFontEngineQPF::HeaderTag tag, QFixed value
 }
 
 #endif
+
+QFontEngineMultiQWS::QFontEngineMultiQWS(QFontEngine *fe, int _script, const QStringList &fallbacks)
+    : QFontEngineMulti(fallbacks.size() + 1),
+      fallbackFamilies(fallbacks), script(_script)
+{
+    engines[0] = fe;
+    fe->ref.ref();
+    fontDef = engines[0]->fontDef;
+}
+
+void QFontEngineMultiQWS::loadEngine(int at)
+{
+    Q_ASSERT(at < engines.size());
+    Q_ASSERT(engines.at(at) == 0);
+
+    QFontDef request = fontDef;
+    request.styleStrategy |= QFont::NoFontMerging;
+    request.family = fallbackFamilies.at(at-1);
+    engines[at] = QFontDatabase::findFont(script,
+                                          /*fontprivate*/0,
+                                          request);
+    Q_ASSERT(engines[at]);
+    engines[at]->ref.ref();
+    engines[at]->fontDef = request;
+}
+
+void QFontEngineMultiQWS::draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si)
+{
+    qFatal("QFontEngineMultiQWS::draw should never be called!");
+}
+
+

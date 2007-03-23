@@ -232,4 +232,17 @@ struct QPFGenerator
     QFontEngine *fe;
 };
 
+class QFontEngineMultiQWS : public QFontEngineMulti
+{
+public:
+    QFontEngineMultiQWS(QFontEngine *fe, int script, const QStringList &fallbacks);
+
+    void loadEngine(int at);
+    void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si);
+
+private:
+    QStringList fallbackFamilies;
+    int script;
+};
+
 #endif // QFONTENGINE_QPF_P_H
