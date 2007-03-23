@@ -40,7 +40,7 @@ class Q_GUI_EXPORT QFontEngineQPF : public QFontEngine
 {
 public:
     // if you add new tags please make sure to update the tables in
-    // qfontengine_qpf.cpp and tools/makeqpf2/qpf2.cpp
+    // qpfutil.cpp and tools/makeqpf/qpf2.cpp
     enum HeaderTag {
         Tag_FontName,          // 0 string
         Tag_FileName,          // 1 string
@@ -62,6 +62,7 @@ public:
         Tag_Weight,            // 17 quint8
         Tag_Style,             // 18 quint8
         Tag_EndOfHeader,       // 19 string
+        Tag_WritingSystems,    // 20 bitfield
 
         NumTags
     };
@@ -70,7 +71,8 @@ public:
         StringType,
         FixedType,
         UInt8Type,
-        UInt32Type
+        UInt32Type,
+        BitFieldType
     };
 
     struct Tag

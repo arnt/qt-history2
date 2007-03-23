@@ -16,9 +16,187 @@
 #include <math.h>
 #include <private/qfontengine_p.h>
 #include <QFile>
+#include <qendian.h>
 #include "../../src/gui/text/qpfutil.cpp"
 
 int QPF::debugVerbosity = 0;
+
+// ### copied from qfontdatabase.cpp
+
+// see the Unicode subset bitfields in the MSDN docs
+static int requiredUnicodeBits[QFontDatabase::WritingSystemsCount][2] = {
+        // Any,
+    { 127, 127 },
+        // Latin,
+    { 0, 127 },
+        // Greek,
+    { 7, 127 },
+        // Cyrillic,
+    { 9, 127 },
+        // Armenian,
+    { 10, 127 },
+        // Hebrew,
+    { 11, 127 },
+        // Arabic,
+    { 13, 127 },
+        // Syriac,
+    { 71, 127 },
+    //Thaana,
+    { 72, 127 },
+    //Devanagari,
+    { 15, 127 },
+    //Bengali,
+    { 16, 127 },
+    //Gurmukhi,
+    { 17, 127 },
+    //Gujarati,
+    { 18, 127 },
+    //Oriya,
+    { 19, 127 },
+    //Tamil,
+    { 20, 127 },
+    //Telugu,
+    { 21, 127 },
+    //Kannada,
+    { 22, 127 },
+    //Malayalam,
+    { 23, 127 },
+    //Sinhala,
+    { 73, 127 },
+    //Thai,
+    { 24, 127 },
+    //Lao,
+    { 25, 127 },
+    //Tibetan,
+    { 70, 127 },
+    //Myanmar,
+    { 74, 127 },
+        // Georgian,
+    { 26, 127 },
+        // Khmer,
+    { 80, 127 },
+        // SimplifiedChinese,
+    { 126, 127 },
+        // TraditionalChinese,
+    { 126, 127 },
+        // Japanese,
+    { 126, 127 },
+        // Korean,
+    { 56, 127 },
+        // Vietnamese,
+    { 0, 127 }, // same as latin1
+        // Other,
+    { 126, 127 }
+};
+
+#define SimplifiedChineseCsbBit 18
+#define TraditionalChineseCsbBit 20
+#define JapaneseCsbBit 17
+#define KoreanCsbBit 21
+
+static QList<QFontDatabase::WritingSystem> determineWritingSystemsFromTrueTypeBits(quint32 unicodeRange[4], quint32 codePageRange[2])
+{
+    QList<QFontDatabase::WritingSystem> writingSystems;
+    bool hasScript = false;
+
+    int i;
+    for(i = 0; i < QFontDatabase::WritingSystemsCount; i++) {
+        int bit = requiredUnicodeBits[i][0];
+        int index = bit/32;
+        int flag =  1 << (bit&31);
+        if (bit != 126 && unicodeRange[index] & flag) {
+            bit = requiredUnicodeBits[i][1];
+            index = bit/32;
+
+            flag =  1 << (bit&31);
+            if (bit == 127 || unicodeRange[index] & flag) {
+                writingSystems.append(QFontDatabase::WritingSystem(i));
+                hasScript = true;
+                // qDebug("font %s: index=%d, flag=%8x supports script %d", familyName.latin1(), index, flag, i);
+            }
+        }
+    }
+    if(codePageRange[0] & (1 << SimplifiedChineseCsbBit)) {
+        writingSystems.append(QFontDatabase::SimplifiedChinese);
+        hasScript = true;
+        //qDebug("font %s supports Simplified Chinese", familyName.latin1());
+    }
+    if(codePageRange[0] & (1 << TraditionalChineseCsbBit)) {
+        writingSystems.append(QFontDatabase::TraditionalChinese);
+        hasScript = true;
+        //qDebug("font %s supports Traditional Chinese", familyName.latin1());
+    }
+    if(codePageRange[0] & (1 << JapaneseCsbBit)) {
+        writingSystems.append(QFontDatabase::Japanese);
+        hasScript = true;
+        //qDebug("font %s supports Japanese", familyName.latin1());
+    }
+    if(codePageRange[0] & (1 << KoreanCsbBit)) {
+        writingSystems.append(QFontDatabase::Korean);
+        hasScript = true;
+        //qDebug("font %s supports Korean", familyName.latin1());
+    }
+    if (!hasScript)
+        writingSystems.append(QFontDatabase::Symbol);
+
+    return writingSystems;
+}
+
+static QByteArray getWritingSystems(QFontEngine *fontEngine)
+{
+    QByteArray os2Table = fontEngine->getSfntTable(MAKE_TAG('O', 'S', '/', '2'));
+    if (os2Table.isEmpty())
+        return QByteArray();
+
+    const uchar *data = reinterpret_cast<const uchar *>(os2Table.constData());
+
+    quint32 unicodeRange[4] = {
+        qFromBigEndian<quint32>(data + 42),
+        qFromBigEndian<quint32>(data + 46),
+        qFromBigEndian<quint32>(data + 50),
+        qFromBigEndian<quint32>(data + 54)
+    };
+    quint32 codePageRange[2] = { qFromBigEndian<quint32>(data + 78), qFromBigEndian<quint32>(data + 82) };
+    QList<QFontDatabase::WritingSystem> systems = determineWritingSystemsFromTrueTypeBits(unicodeRange, codePageRange);
+
+    QByteArray bitField((QFontDatabase::WritingSystemsCount + 7) / 8, 0);
+
+    for (int i = 0; i < systems.count(); ++i) {
+        int bitPos = systems.at(i);
+        bitField[bitPos / 8] = bitField.at(bitPos / 8) | (1 << (bitPos % 8));
+    }
+
+    return bitField;
+}
+
+static QString stringify(const QByteArray &bits)
+{
+    QString result;
+    for (int i = 0; i < bits.count(); ++i) {
+        uchar currentByte = bits.at(i);
+        for (int j = 0; j < 8; ++j) {
+            if (currentByte & 1)
+                result += '1';
+            else
+                result += '0';
+            currentByte >>= 1;
+        }
+    }
+    return result;
+}
+
+static void dumpWritingSystems(const QByteArray &bits)
+{
+    QStringList writingSystems;
+
+    QString bitString = stringify(bits);
+    for (int i = 0; i < qMin(int(QFontDatabase::WritingSystemsCount), bitString.length()); ++i) {
+        if (bitString.at(i) == QLatin1Char('1'))
+            writingSystems << QFontDatabase::writingSystemName(QFontDatabase::WritingSystem(i));
+    }
+
+    qDebug() << "Supported writing systems:" << writingSystems;
+}
 
 static const char *headerTagNames[QFontEngineQPF::NumTags] = {
     "FontName",
@@ -40,7 +218,8 @@ static const char *headerTagNames[QFontEngineQPF::NumTags] = {
     "PixelSize",
     "Weight",
     "Style",
-    "EndOfHeader"
+    "EndOfHeader",
+    "WritingSystems"
 };
 
 QString QPF::fileNameForFont(const QFont &f)
@@ -123,6 +302,10 @@ void QPF::addHeader(QFontEngine *fontEngine)
     addTaggedUInt8(QFontEngineQPF::Tag_PixelSize, fontEngine->fontDef.pixelSize);
     addTaggedUInt8(QFontEngineQPF::Tag_Weight, fontEngine->fontDef.weight);
     addTaggedUInt8(QFontEngineQPF::Tag_Style, fontEngine->fontDef.style);
+
+    QByteArray writingSystemBitField = getWritingSystems(fontEngine);
+    if (!writingSystemBitField.isEmpty())
+        addTaggedString(QFontEngineQPF::Tag_WritingSystems, writingSystemBitField);
 
     addTaggedUInt8(QFontEngineQPF::Tag_GlyphFormat, QFontEngineQPF::AlphamapGlyphs);
 
@@ -477,6 +660,12 @@ const uchar *QPF::dumpHeaderTag(const uchar *data)
             Q_ASSERT(size == sizeof(quint32));
             qDebug() << "Payload =" << qFromBigEndian<quint32>(data);
             break;
+        case QFontEngineQPF::BitFieldType: {
+            QByteArray bits(reinterpret_cast<const char *>(data), size);
+            qDebug() << "Payload =" << stringify(bits);
+            if (QPF::debugVerbosity > 2 && tag == QFontEngineQPF::Tag_WritingSystems)
+                dumpWritingSystems(bits);
+            } break;
     }
 
     data += size;

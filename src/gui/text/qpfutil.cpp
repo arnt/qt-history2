@@ -31,7 +31,8 @@ static QFontEngineQPF::TagType tagTypes[QFontEngineQPF::NumTags] = {
     QFontEngineQPF::UInt8Type,  // PixelSize
     QFontEngineQPF::UInt8Type,  // Weight
     QFontEngineQPF::UInt8Type,  // Style
-    QFontEngineQPF::StringType  // EndOfHeader
+    QFontEngineQPF::StringType, // EndOfHeader
+    QFontEngineQPF::BitFieldType// WritingSystems
 };
 
 

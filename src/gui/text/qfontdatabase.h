@@ -38,6 +38,8 @@ class Q_GUI_EXPORT QFontDatabase
     Q_GADGET
     Q_ENUMS(WritingSystem)
 public:
+    // do not re-order or delete entries from this enum without updating the
+    // QPF2 format and makeqpf!!
     enum WritingSystem {
         Any,
 

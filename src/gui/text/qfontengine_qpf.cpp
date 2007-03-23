@@ -201,6 +201,8 @@ QVariant QFontEngineQPF::extractHeaderField(const uchar *data, HeaderTag request
                     return QVariant(uint(*tagPtr));
                 case FixedType:
                     return QVariant(QFixed::fromFixed(readValue<quint32>(tagPtr)).toReal());
+                case BitFieldType:
+                    return QVariant(QByteArray(reinterpret_cast<const char *>(tagPtr), length));
             }
             return QVariant();
         } else if (tag == Tag_EndOfHeader) {
