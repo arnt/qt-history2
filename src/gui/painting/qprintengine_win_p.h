@@ -61,6 +61,8 @@ protected:
     QAlphaPaintEngine(QAlphaPaintEnginePrivate &data, PaintEngineFeatures devcaps = 0);
     QRegion alphaClipping() const;
     bool redirect() const;
+    void flushAndInit(bool init = true);
+    void cleanUp();
 };
 
 class QAlphaPaintEnginePrivate : public QPaintEnginePrivate

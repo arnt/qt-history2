@@ -193,20 +193,14 @@ QAlphaPaintEngine::~QAlphaPaintEngine()
 bool QAlphaPaintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QAlphaPaintEngine);
-    Q_ASSERT(d->m_pass == 0);
+    
+    d->m_savedcaps = gccaps;
+    d->m_pdev = pdev;
 
     if (d->m_initstate) {
         delete d->m_initstate;
         d->m_initstate = 0;
     }
-
-    d->m_pdev = pdev;
-    d->m_savedcaps = gccaps;
-    gccaps = AllFeatures;
-
-    d->m_pic = new QPicture();
-    d->m_picpainter = new QPainter(d->m_pic);
-    d->m_picengine = d->m_picpainter->paintEngine();
 
     d->m_alphaPen = false;
     d->m_alphaBrush = false;
@@ -219,6 +213,8 @@ bool QAlphaPaintEngine::begin(QPaintDevice *pdev)
     d->m_pen = QPen();
     d->m_transform = QTransform();
 
+    flushAndInit();
+
     return true;
 }
 
@@ -226,41 +222,7 @@ extern int qt_defaultDpi();
 
 bool QAlphaPaintEngine::end()
 {
-    Q_D(QAlphaPaintEngine);
-    Q_ASSERT(d->m_pass == 0);
-    Q_ASSERT(d->m_initstate != 0);
-
-    d->m_picpainter->end();
-    
-    // set clip region
-    d->m_cliprgn = d->m_alphargn;
-
-    // now replay the QPicture
-    ++d->m_pass; // we are now doing pass #2
-
-    // reset states
-    gccaps = d->m_savedcaps;
-    painter()->d_func()->updateState(d->m_initstate);
-
-    begin(d->m_pdev);
-
-    // make sure the output from QPicture is unscaled
-    QTransform mtx = painter()->transform();
-    mtx.scale(1.0f / (qreal(d->m_pdev->logicalDpiX()) / qreal(qt_defaultDpi())),
-                      1.0f / (qreal(d->m_pdev->logicalDpiY()) / qreal(qt_defaultDpi())));
-    painter()->setTransform(mtx);
-    painter()->drawPicture(0, 0, *d->m_pic);
-
-    d->m_cliprgn = QRegion();
-    painter()->setClipPath(QPainterPath(), Qt::NoClip);
-
-    QVector<QRect> rects = d->m_alphargn.rects();
-    for (int i=0; i<rects.count(); ++i) {
-        d->drawAlphaImage(rects.at(i));
-    }
-        
-    --d->m_pass; // pass #2 finished
-
+    flushAndInit(false);
     return true;
 }
 
@@ -298,7 +260,8 @@ void QAlphaPaintEngine::updateState(const QPaintEngineState &state)
 
     d->m_hasalpha = d->m_alphaOpacity || d->m_alphaBrush || d->m_alphaPen;
 
-    d->m_picengine->updateState(state);
+    if (d->m_picengine)
+        d->m_picengine->updateState(state);
 }
 
 void QAlphaPaintEngine::drawPath(const QPainterPath &path)
@@ -309,7 +272,8 @@ void QAlphaPaintEngine::drawPath(const QPainterPath &path)
             QRectF tr = d->addPenWidth(path.controlPointRect());
             d->addAlphaRect(d->m_transform.mapRect(tr));
         }
-        d->m_picengine->drawPath(path);
+        if (d->m_picengine)
+            d->m_picengine->drawPath(path);
     } else {
         QPaintEngine::drawPath(path);
     }
@@ -326,7 +290,9 @@ void QAlphaPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polyg
             QRectF tr = d->addPenWidth(poly.boundingRect());
             d->addAlphaRect(d->m_transform.mapRect(tr));
         }
-        d->m_picengine->drawPolygon(points, pointCount, mode);
+
+        if (d->m_picengine)
+            d->m_picengine->drawPolygon(points, pointCount, mode);
     } else {
         QPaintEngine::drawPolygon(points, pointCount, mode);
     }
@@ -341,7 +307,8 @@ void QAlphaPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRe
         d->addAlphaRect(d->m_transform.mapRect(r));
     }
 
-    d->m_picengine->drawPixmap(r, pm, sr);
+    if (d->m_picengine)
+        d->m_picengine->drawPixmap(r, pm, sr);
 }
 
 void QAlphaPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
@@ -353,7 +320,8 @@ void QAlphaPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
             d->addAlphaRect(d->m_transform.mapRect(tr));
         }
 
-        d->m_picengine->drawTextItem(p, textItem);
+        if (d->m_picengine)
+            d->m_picengine->drawTextItem(p, textItem);
     } else {
         QPaintEngine::drawTextItem(p, textItem);
     }
@@ -366,7 +334,9 @@ void QAlphaPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, 
         if (pixmap.hasAlpha() || d->m_alphaOpacity) {
             d->addAlphaRect(d->m_transform.mapRect(r));
         }
-        d->m_picengine->drawTiledPixmap(r, pixmap, s);
+
+        if (d->m_picengine)
+            d->m_picengine->drawTiledPixmap(r, pixmap, s);
     } else {
         QPaintEngine::drawTiledPixmap(r, pixmap, s);
     }
@@ -382,6 +352,72 @@ bool QAlphaPaintEngine::redirect() const
 {
     Q_D(const QAlphaPaintEngine);
     return (d->m_pass == 0);
+}
+
+void QAlphaPaintEngine::flushAndInit(bool init)
+{
+    Q_D(QAlphaPaintEngine);
+    Q_ASSERT(d->m_pass == 0);
+
+    if (d->m_pic) {
+        d->m_picpainter->end();
+        
+        // set clip region
+        d->m_cliprgn = d->m_alphargn;
+
+        // now replay the QPicture
+        ++d->m_pass; // we are now doing pass #2
+
+        // reset states
+        gccaps = d->m_savedcaps;
+
+        if (d->m_initstate) {
+            static_cast<QPainterState *>(state)->changeFlags = AllDirty;
+            painter()->d_func()->updateState(d->m_initstate);
+        }
+
+        // make sure the output from QPicture is unscaled
+        QTransform mtx = painter()->transform();
+        mtx.scale(1.0f / (qreal(d->m_pdev->logicalDpiX()) / qreal(qt_defaultDpi())),
+                          1.0f / (qreal(d->m_pdev->logicalDpiY()) / qreal(qt_defaultDpi())));
+        painter()->setTransform(mtx);
+        painter()->drawPicture(0, 0, *d->m_pic);
+
+        d->m_cliprgn = QRegion();
+        if (d->m_initstate) {
+            static_cast<QPainterState *>(state)->changeFlags = AllDirty;
+            painter()->d_func()->updateState(d->m_initstate);
+        }
+
+        QVector<QRect> rects = d->m_alphargn.rects();
+        for (int i=0; i<rects.count(); ++i) {
+            d->drawAlphaImage(rects.at(i));
+        }
+            
+        --d->m_pass; // pass #2 finished
+
+        cleanUp();
+    }
+
+    if (init) {
+        gccaps = AllFeatures;
+
+        d->m_pic = new QPicture();
+        d->m_picpainter = new QPainter(d->m_pic);
+        d->m_picengine = d->m_picpainter->paintEngine();
+    }
+}
+
+void QAlphaPaintEngine::cleanUp()
+{
+    Q_D(QAlphaPaintEngine);
+
+    delete d->m_picpainter;
+    delete d->m_pic;
+
+    d->m_picpainter = 0;
+    d->m_pic = 0;
+    d->m_picengine = 0;
 }
 
 QAlphaPaintEnginePrivate::QAlphaPaintEnginePrivate()
@@ -499,7 +535,7 @@ bool QWin32PrintEngine::begin(QPaintDevice *pdev)
     Q_D(QWin32PrintEngine);
 
     if (redirect()) {
-        return QAlphaPaintEngine::begin(pdev);
+        QAlphaPaintEngine::begin(pdev);
     }
 
     if (d->reinit) {
@@ -565,6 +601,9 @@ bool QWin32PrintEngine::begin(QPaintDevice *pdev)
 
     updateMatrix(d->matrix);
 
+    if (!ok)
+        cleanUp();
+
     return ok;
 }
 
@@ -572,17 +611,22 @@ bool QWin32PrintEngine::end()
 {
     Q_D(QWin32PrintEngine);
 
+    if (d->hdc) {
+        if (d->state == QPrinter::Aborted) {
+            cleanUp();
+            AbortDoc(d->hdc);
+            return true;
+        }
+    }
+
     if (redirect())
         QAlphaPaintEngine::end();
 
     if (d->hdc) {
-        if (d->state == QPrinter::Aborted) {
-            AbortDoc(d->hdc);
-        } else {
-            EndPage(d->hdc);                 // end; printing done
-            EndDoc(d->hdc);
-        }
+        EndPage(d->hdc);                 // end; printing done
+        EndDoc(d->hdc);
     }
+
     d->state = QPrinter::Idle;
     return true;
 }
@@ -593,6 +637,8 @@ bool QWin32PrintEngine::newPage()
     Q_ASSERT(isActive());
 
     Q_ASSERT(d->hdc);
+
+    flushAndInit();
 
     bool transparent = GetBkMode(d->hdc) == TRANSPARENT;
 
