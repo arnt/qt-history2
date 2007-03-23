@@ -39,9 +39,11 @@ public slots:
     void updateWindowTitle(const QString &fileName);
     void updateChanged();
     void geometryChanged();
+    void widgetActivated(QWidget *widget);
 
 signals:
     void minimizationStateChanged(QDesignerFormWindowInterface *formWindow, bool minimized);
+    void triggerAction();
     
 protected:
     virtual void changeEvent(QEvent *e);

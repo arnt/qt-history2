@@ -317,6 +317,7 @@ private:
 
     QList<SetPropertyCommand*> m_moveSelection;
     int m_lastUndoIndex;
+    bool m_dblClicked;
 
 private:
     friend class WidgetEditorTool;

@@ -243,7 +243,7 @@ void FormWindow::Selection::updateGeometry(QWidget *w)
 // ------------------------ FormWindow
 FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WindowFlags flags)
     : FormWindowBase(parent, flags),
-      m_core(core), m_selection(new Selection()), m_widgetStack(0)
+      m_core(core), m_selection(new Selection()), m_widgetStack(0), m_dblClicked(false)
 {
     init();
 
@@ -615,6 +615,10 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
 
 bool FormWindow::handleMouseReleaseEvent(QWidget *w, QWidget *mw, QMouseEvent *e)
 {
+    if (m_dblClicked) {
+        m_dblClicked = false;
+        return true;
+    }
     if (debugFormWindow)
         qDebug() << "handleMousePressEvent:" << w << ',' << mw;
 
@@ -1502,10 +1506,8 @@ bool FormWindow::handleMouseButtonDblClickEvent(QWidget *, QWidget *managedWidge
 {
     e->accept();
 
-    clearSelection(false);
-    selectWidget(managedWidget);
-
     emit activated(managedWidget);
+    m_dblClicked = true;
     return true;
 }
 

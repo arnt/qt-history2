@@ -22,10 +22,12 @@
 #include <QtDesigner/QDesignerPropertySheetExtension>
 #include <QtDesigner/QDesignerPropertyEditorInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QDesignerTaskMenuExtension>
 #include <QtDesigner/QExtensionManager>
 
 #include <QtCore/QEvent>
 #include <QtCore/QFile>
+#include <QtCore/QTimer>
 
 #include <QtGui/QAction>
 #include <QtGui/QCloseEvent>
@@ -63,12 +65,28 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, Q
     connect(m_editor->commandHistory(), SIGNAL(indexChanged(int)), this, SLOT(updateChanged()));
     connect(m_editor, SIGNAL(fileNameChanged(QString)), this, SLOT(updateWindowTitle(QString)));
     connect(m_editor, SIGNAL(geometryChanged()), this, SLOT(geometryChanged()));
+    connect(m_editor, SIGNAL(activated(QWidget *)), this, SLOT(widgetActivated(QWidget *)));
 }
 
 QDesignerFormWindow::~QDesignerFormWindow()
 {
     if (workbench())
         workbench()->removeFormWindow(this);
+}
+
+void QDesignerFormWindow::widgetActivated(QWidget *widget)
+{
+    if (const QDesignerTaskMenuExtension *taskMenu = qt_extension<QDesignerTaskMenuExtension*>(m_editor->core()->extensionManager(), widget)) {
+        QAction *action = taskMenu->preferredEditAction();
+        if (!action) {
+            const QList<QAction *> actions = taskMenu->taskActions();
+            if (!actions.isEmpty())
+                action = actions.first();
+        }
+        if (action) {
+            QTimer::singleShot(0, action, SIGNAL(triggered()));
+        }
+    }
 }
 
 QAction *QDesignerFormWindow::action() const
