@@ -61,6 +61,7 @@ void QFontDatabasePrivate::addFont(const QString &familyname, const char *foundr
         for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws) {
             f->writingSystems[ws] = QtFontFamily::Supported;
         }
+        f->bogusWritingSystems = true;
     } else {
         for (int i = 0; i < writingSystems.count(); ++i) {
             f->writingSystems[writingSystems.at(i)] = QtFontFamily::Supported;
@@ -590,8 +591,31 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
     if (fe
         && script == QUnicodeTables::Common
         && !(request.styleStrategy & QFont::NoFontMerging) && !fe->symbol) {
-        QStringList fallbacks;
-        fallbacks << "wenquanyi" << "unifont"; // #####
+        static QStringList fallbacks;
+        if (fallbacks.isEmpty()) {
+            bool coveredWritingSystems[QFontDatabase::WritingSystemsCount] = { 0 };
+
+            QFontDatabasePrivate *db = privateDb();
+            for (int i = 0; i < db->count; ++i) {
+                QtFontFamily *family = db->families[i];
+                bool add = false;
+                if (family->count == 0)
+                    continue;
+                if (family->bogusWritingSystems)
+                    continue;
+                for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws) {
+                    if (coveredWritingSystems[ws])
+                        continue;
+                    if (family->writingSystems[ws] & QtFontFamily::Supported) {
+                        coveredWritingSystems[ws] = true;
+                        add = true;
+                    }
+                }
+                if (add)
+                    fallbacks << family->name;
+            }
+            //qDebug() << "fallbacks:" << fallbacks;
+        }
         fe = new QFontEngineMultiQWS(fe, script, fallbacks);
     }
     return fe;

@@ -315,7 +315,11 @@ struct QtFontFamily
 #if !defined(QWS) && defined(Q_OS_MAC)
         fixedPitchComputed(false),
 #endif
-        name(n), count(0), foundries(0) {
+        name(n), count(0), foundries(0)
+#if defined(Q_WS_QWS)
+        , bogusWritingSystems(false)
+#endif
+    {
         memset(writingSystems, 0, sizeof(writingSystems));
     }
     ~QtFontFamily() {
@@ -353,6 +357,9 @@ struct QtFontFamily
     int count;
     QtFontFoundry **foundries;
 
+#ifdef Q_WS_QWS
+    bool bogusWritingSystems;
+#endif
     unsigned char writingSystems[QFontDatabase::WritingSystemsCount];
 
     QtFontFoundry *foundry(const QString &f, bool = false);
