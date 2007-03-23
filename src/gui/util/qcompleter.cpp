@@ -756,19 +756,15 @@ void QCompleterPrivate::init(QAbstractItemModel *m)
 #ifdef QT_NO_LISTVIEW
     q->setCompletionMode(QCompleter::InlineCompletion);
 #else
-    QListView *listView = new QListView;
-    listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    listView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    listView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    listView->setSelectionMode(QAbstractItemView::SingleSelection);
-    listView->setModelColumn(column);
-    q->setPopup(listView);
     q->setCompletionMode(QCompleter::PopupCompletion);
 #endif // QT_NO_LISTVIEW
 }
 
 void QCompleterPrivate::setCurrentIndex(QModelIndex index, bool select)
 {
+    Q_Q(QCompleter);
+    if (!q->popup())
+        return;
     if (!select) {
         popup->selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     } else {
@@ -825,6 +821,9 @@ void QCompleterPrivate::_q_complete(QModelIndex index, bool highlighted)
 
 void QCompleterPrivate::showPopup(const QRect& rect)
 {
+    Q_Q(QCompleter);
+    if (!popup)
+        return;
     const QRect screen = QApplication::desktop()->availableGeometry(widget);
     Qt::LayoutDirection dir = widget->layoutDirection();
     QPoint pos;
@@ -912,7 +911,7 @@ void QCompleter::setWidget(QWidget *widget)
 {
     Q_D(QCompleter);
     d->widget = widget;
-    if (d->popup) {
+    if (popup()) {
         d->popup->hide();
         d->popup->setFocusProxy(d->widget);
     }
@@ -1000,6 +999,9 @@ void QCompleter::setCompletionMode(QCompleter::CompletionMode mode)
     if (mode == QCompleter::InlineCompletion) {
         if (d->widget)
             d->widget->removeEventFilter(this);
+        if (d->popup)
+            d->popup->deleteLater();
+        d->popup = 0;
         return;
     }
 
@@ -1064,6 +1066,18 @@ void QCompleter::setPopup(QAbstractItemView *popup)
 QAbstractItemView *QCompleter::popup() const
 {
     Q_D(const QCompleter);
+#ifndef QT_NO_LISTVIEW
+    if (!d->popup && completionMode() != QCompleter::InlineCompletion) {
+        QListView *listView = new QListView;
+        listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        listView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        listView->setSelectionBehavior(QAbstractItemView::SelectRows);
+        listView->setSelectionMode(QAbstractItemView::SingleSelection);
+        listView->setModelColumn(d->column);
+        QCompleter *that = const_cast<QCompleter*>(this);
+        that->setPopup(listView);
+    }
+#endif // QT_NO_LISTVIEW
     return d->popup;
 }
 
@@ -1211,7 +1225,7 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
 #endif
 
     case QEvent::MouseButtonPress: {
-#ifdef QT_KEYPAD_NAVIGATION 
+#ifdef QT_KEYPAD_NAVIGATION
         if (QApplication::keypadNavigationEnabled()) {
             // if we've clicked in the widget (or its descendant), let it handle the click
             QWidget *source = qobject_cast<QWidget *>(o);
@@ -1232,7 +1246,6 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
             d->popup->hide();
             return true;
         }
-        
         }
         return false;
 
@@ -1269,10 +1282,12 @@ void QCompleter::complete(const QRect& rect)
     Q_ASSERT(d->widget != 0);
     if ((d->mode == QCompleter::PopupCompletion && !idx.isValid())
         || (d->mode == QCompleter::UnfilteredPopupCompletion && d->proxy->rowCount() == 0)) {
-        d->popup->hide(); // no suggestion, hide
+        if (d->popup)
+            d->popup->hide(); // no suggestion, hide
         return;
     }
 
+    popup();
     if (d->mode == QCompleter::UnfilteredPopupCompletion)
         d->setCurrentIndex(idx, false);
 
