@@ -499,7 +499,7 @@ SeeAlso: ???
 Feature: FILEDIALOG
 Description: Supports a dialog widget for selecting files or directories. 
 Section: Dialogs
-Requires: DIRMODEL TREEVIEW COMBOBOX TOOLBUTTON BUTTONGROUP 
+Requires: DIRMODEL TREEVIEW COMBOBOX TOOLBUTTON BUTTONGROUP TOOLTIP
 Name: QFileDialog
 SeeAlso: ???
 

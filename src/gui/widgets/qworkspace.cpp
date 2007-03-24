@@ -56,7 +56,7 @@ signals:
 
 public:
     QMDIControl(QWidget *widget);
-    
+
 private:
     QSize sizeHint() const;
     void paintEvent(QPaintEvent *event);
@@ -76,8 +76,9 @@ bool QMDIControl::event(QEvent *event)
         QStyleOptionComplex opt;
         initStyleOption(&opt);
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
-        QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt, 
+        QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt,
                                                                  helpEvent->pos(), this);
+#ifndef QT_NO_TOOLTIP
         if (ctrl == QStyle::SC_MDICloseButton)
             QToolTip::showText(helpEvent->globalPos(), QWorkspace::tr("Close"));
         else if (ctrl == QStyle::SC_MDIMinButton)
@@ -86,6 +87,7 @@ bool QMDIControl::event(QEvent *event)
             QToolTip::showText(helpEvent->globalPos(), QWorkspace::tr("Restore Down"));
         else
             QToolTip::hideText();
+#endif // QT_NO_TOOLTIP
     }
     return QWidget::event(event);
 }
@@ -124,7 +126,7 @@ void QMDIControl::mousePressEvent(QMouseEvent *event)
     }
     QStyleOptionComplex opt;
     initStyleOption(&opt);
-    QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt, 
+    QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt,
                                                              event->pos(), this);
     activeControl = ctrl;
     update();
