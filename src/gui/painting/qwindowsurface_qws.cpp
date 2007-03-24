@@ -563,6 +563,11 @@ void QWSWindowSurface::setGeometry(const QRect &rect)
 static inline void flushUpdate(QWidget *widget, const QRegion &region,
                                const QPoint &offset)
 {
+#ifdef QT_NO_PAINT_DEBUG
+    Q_UNUSED(widget);
+    Q_UNUSED(region);
+    Q_UNUSED(offset);
+#else
     static int delay = -1;
 
     if (delay == -1)
@@ -574,6 +579,7 @@ static inline void flushUpdate(QWidget *widget, const QRegion &region,
     static QWSYellowSurface surface(true);
     surface.setDelay(delay);
     surface.flush(widget, region, offset);
+#endif // QT_NO_PAINT_DEBUG
 }
 
 void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
