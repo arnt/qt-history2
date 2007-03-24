@@ -88,11 +88,11 @@ void QWSVr41xxMouseHandler::suspend()
 QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler *h, const QString &, const QString &device)
     : currLength(0), handler(h)
 {
-    QStringList options = device.split(":");
+    QStringList options = device.split(QLatin1String(":"));
     int index = -1;
 
     filterSize = defaultFilterSize;
-    QRegExp filterRegExp("filter=(\\d+)");
+    QRegExp filterRegExp(QLatin1String("filter=(\\d+)"));
     index = options.indexOf(filterRegExp);
     if (index != -1) {
         filterSize = qMax(1, filterRegExp.cap(1).toInt());
@@ -101,7 +101,7 @@ QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler
     handler->setFilterSize(filterSize);
 
     pressLimit = 750;
-    QRegExp pressRegExp("press=(\\d+)");
+    QRegExp pressRegExp(QLatin1String("press=(\\d+)"));
     index = options.indexOf(pressRegExp);
     if (index != -1) {
         pressLimit = filterRegExp.cap(1).toInt();
