@@ -1741,16 +1741,7 @@
     \row
         \o \bold{Font \target Font Size
            Size}
-        \o \c xx-small \BR
-           | \c x-small \BR
-           | \c small \BR
-           | \c medium \BR
-           | \c large \BR
-           | \c x-large \BR
-           | \c xx-large \BR
-           | \c larger \BR
-           | \c smaller \BR
-           | \l{Length}
+        \o \l{Length}
         \o The size of a font.
 
     \row
