@@ -3148,10 +3148,14 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
     case PM_ButtonMargin:
-    case PM_DefaultFrameWidth:
     case PM_ButtonDefaultIndicator:
         if (rule.hasBox())
             return 0;
+        break;
+
+    case PM_DefaultFrameWidth:
+        if (rule.hasBorder())
+            return rule.border()->borders[LeftEdge];
         break;
 
     case PM_ExclusiveIndicatorWidth:
