@@ -820,60 +820,22 @@ void tst_QSpinBox::undoRedo()
     QVERIFY(!spin.isRedoAvailable());
     QVERIFY(spin.isUndoAvailable());
 
-    spin.stepBy(1);
-    spin.undo();
-    QCOMPARE(spin.value(), 1);
-    spin.redo();
-    QCOMPARE(spin.value(), 2);
     spin.setValue(55);
     QVERIFY(!spin.isUndoAvailable());
     QVERIFY(!spin.isRedoAvailable());
 
-    spin.stepBy(1);
-    spin.stepBy(1);
-    spin.undo();
+    QTest::keyClick(&spin, Qt::Key_Return);
+    QTest::keyClick(&spin, '1');
     QVERIFY(spin.isUndoAvailable());
-    QVERIFY(spin.isRedoAvailable());
-    spin.setSpecialValueText(QString());
-    QVERIFY(!spin.isUndoAvailable());
     QVERIFY(!spin.isRedoAvailable());
-
-    spin.stepBy(1);
-    spin.stepBy(1);
     spin.undo();
-    QVERIFY(spin.isUndoAvailable());
-    QVERIFY(spin.isRedoAvailable());
-    spin.setMinimum(spin.minimum());
+    QCOMPARE(spin.value(), 55);
     QVERIFY(!spin.isUndoAvailable());
-    QVERIFY(!spin.isRedoAvailable());
-
-    spin.stepBy(1);
-    spin.stepBy(1);
-    spin.undo();
-    QVERIFY(spin.isUndoAvailable());
     QVERIFY(spin.isRedoAvailable());
-    spin.setMaximum(spin.maximum());
-    QVERIFY(!spin.isUndoAvailable());
-    QVERIFY(!spin.isRedoAvailable());
-
-    spin.stepBy(1);
-    spin.stepBy(1);
-    spin.undo();
+    spin.redo();
+    QCOMPARE(spin.value(), 1);
     QVERIFY(spin.isUndoAvailable());
-    QVERIFY(spin.isRedoAvailable());
-    spin.setPrefix(QString());
-    QVERIFY(!spin.isUndoAvailable());
     QVERIFY(!spin.isRedoAvailable());
-
-    spin.stepBy(1);
-    spin.stepBy(1);
-    spin.undo();
-    QVERIFY(spin.isUndoAvailable());
-    QVERIFY(spin.isRedoAvailable());
-    spin.setSuffix(QString());
-    QVERIFY(!spin.isUndoAvailable());
-    QVERIFY(!spin.isRedoAvailable());
-
 
 }
 
