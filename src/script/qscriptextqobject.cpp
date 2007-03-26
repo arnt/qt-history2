@@ -26,6 +26,8 @@
 #include <QtCore/QRegExp>
 #include "qscriptextqobject_p.h"
 
+Q_DECLARE_METATYPE(QVariant)
+
 // we use bits 15..12 of property flags
 enum {
     PROPERTY_ID      = 0 << 12,
@@ -747,7 +749,6 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
     }
 
     QList<QVariant> vlist; // ### use QVector
-    QBitArray argIsVariant;
     for (int index = m_initialIndex; index >= 0; --index) {
         QMetaMethod method = meta->method(index);
         QList<QByteArray> parameterTypes = method.parameterTypes();
@@ -768,24 +769,17 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
 
         bool converted = true;
         vlist.clear();
-        argIsVariant.resize(1 + parameterTypes.count());
 
         QByteArray returnTypeName = method.typeName();
         int rtype = QMetaType::type(returnTypeName);
         if (rtype == 0 && !returnTypeName.isEmpty()) {
-            if (returnTypeName == "QVariant") {
-                argIsVariant.setBit(0, true);
-            } else {
-                result = context->throwError(
-                    QScriptContext::TypeError,
-                    QString::fromUtf8("cannot call %0::%1(): unknown return type `%2'")
-                    .arg(QLatin1String(meta->className()))
-                    .arg(QLatin1String(funName))
-                    .arg(QLatin1String(method.typeName())));
-                continue;
-            }
-        } else {
-            argIsVariant.setBit(0, false);
+            result = context->throwError(
+                QScriptContext::TypeError,
+                QString::fromUtf8("cannot call %0::%1(): unknown return type `%2'")
+                .arg(QLatin1String(meta->className()))
+                .arg(QLatin1String(funName))
+                .arg(QLatin1String(method.typeName())));
+            continue;
         }
         vlist.append(QVariant(rtype, (void *)0)); // the result
 
@@ -796,24 +790,15 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
             QVariant v(atype, (void *)0);
 
             if (atype == 0) {
-                // either void (OK), QVariant (OK) or some other, unknown type (not OK)
-                if (!argTypeName.isEmpty()) {
-                    if (argTypeName == "QVariant") {
-                        argIsVariant.setBit(1 + i, true);
-                        v = arg.toVariant();
-                    } else {
-                        result = context->throwError(
-                            QScriptContext::TypeError,
-                            QString::fromUtf8("cannot call %0::%1(): unknown argument type `%2'")
-                            .arg(QLatin1String(meta->className()))
-                            .arg(QString::fromLatin1(funName))
-                            .arg(QLatin1String(argTypeName)));
-                        converted = false;
-                        continue;
-                    }
-                }
+                result = context->throwError(
+                    QScriptContext::TypeError,
+                    QString::fromUtf8("cannot call %0::%1(): unknown argument type `%2'")
+                    .arg(QLatin1String(meta->className()))
+                    .arg(QString::fromLatin1(funName))
+                    .arg(QLatin1String(argTypeName)));
+                converted = false;
+                continue;
             } else {
-                argIsVariant.setBit(1 + i, false);
                 converted = eng_p->convert(arg, atype, v.data());
                 if (!converted && arg.isVariant()) {
                     QVariant &vv = arg.variantValue();
@@ -855,10 +840,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
 
             for (int i = 0; i < vlist.count(); ++i) {
                 const QVariant &v = vlist.at(i);
-                if (argIsVariant.at(i))
-                    params[i] = const_cast<QVariant*>(&v);
-                else
-                    params[i] = const_cast<void*>(v.constData());
+                params[i] = const_cast<void*>(v.constData());
             }
 
             QScriptable *scriptable = scriptableFromQObject(thisQObject);
