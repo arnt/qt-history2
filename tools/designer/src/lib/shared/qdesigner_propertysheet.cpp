@@ -162,9 +162,8 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         info.group = pgroup;
         info.propertyType = propertyTypeFromName(name);
 
-        QVariant v = p.read(m_object);
-        if (v.type() == QVariant::Cursor) {
-            info.defaultValue = v;
+        if (p.type() == QVariant::Cursor) {
+            info.defaultValue = p.read(m_object);
         }
     }
 
