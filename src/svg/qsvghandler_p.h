@@ -99,7 +99,7 @@ public:
     void setAnimPeriod(int start, int end);
     int animationDuration() const;
 
-    bool parseCSStoXMLAttrs(QString css, QVector<QSvgCssAttribute> *attributes);
+    void parseCSStoXMLAttrs(QString css, QVector<QSvgCssAttribute> *attributes);
 
 public:
     bool startElement(const QString &localName, const QXmlStreamAttributes &attributes);
