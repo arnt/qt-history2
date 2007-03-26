@@ -173,12 +173,14 @@ int FontHandle::compare(const FontHandle &rhs) const
 }
 
 
+#if defined(Q_OS_MAC) && defined(Q_CC_GNU) && (__GNUC__ == 3 && __GNUC_MINOR__ == 3)
+inline uint qHash(const SizePolicyHandle &handle) { return qHash(handle.m_domSizePolicy); }
+#endif
+
 SizePolicyHandle::SizePolicyHandle(const DomSizePolicy *domSizePolicy) :
     m_domSizePolicy(domSizePolicy)
 {
 }
-
-inline uint qHash(const SizePolicyHandle &key) { return qHash(key.m_domSizePolicy); }
 
 int SizePolicyHandle::compare(const SizePolicyHandle &rhs) const
 {
@@ -268,7 +270,7 @@ void WriteInitialization::LayoutDefaultHandler::writeProperty(int p, const QStri
         // the default value, layout properties were always written
         const bool useLayoutFunctionPre43 = !suppressDefault && (m_state[p] == (HasDefaultFunction|HasDefaultValue)) && value == m_defaultValues[p];
         if (!useLayoutFunctionPre43) {
-            bool ifndefMac = (!(m_state[p] & (HasDefaultFunction|HasDefaultValue))
+            bool ifndefMac = (!(m_state[p] & (HasDefaultFunction|HasDefaultValue)) 
                              && value == defaultStyleValue);
             if (ifndefMac)
                 str << "#ifndef Q_OS_MAC\n";
@@ -629,7 +631,7 @@ void WriteInitialization::acceptLayout(DomLayout *node)
             if (oldLayoutProperties)
                 marginType = m_layoutMarginType;
 
-            m_LayoutDefaultHandler.writeProperties(m_option.indent,
+            m_LayoutDefaultHandler.writeProperties(m_option.indent, 
                                     objectName, properties, marginType, false, m_output);
         }
     }
@@ -1006,7 +1008,7 @@ void WriteInitialization::writeProperties(const QString &varName,
             break;
         }
         case DomProperty::SizePolicy: {
-            const QString spName = writeSizePolicy(p->elementSizePolicy());
+            const QString spName = writeSizePolicy( p->elementSizePolicy());
             m_output << m_option.indent << spName << QString::fromLatin1(
                 ".setHeightForWidth(%1->sizePolicy().hasHeightForWidth());\n")
                 .arg(varName);
