@@ -39,8 +39,9 @@ DEFINEFUNC(int, CRYPTO_num_locks,,, return 0)
 DEFINEFUNC(void, CRYPTO_set_locking_callback, void (*a)(int, int, const char *, int), a,)
 DEFINEFUNC(void, CRYPTO_set_id_callback, unsigned long (*a)(), a,)
 DEFINEFUNC(void, CRYPTO_free, void *a, a,)
-#if OPENSSL_VERSION_NUMBER >= 0x00908000L
-// 0.9.8 broke SC and BC by changing this function's signature.
+#if OPENSSL_VERSION_NUMBER < 0x00908000L
+DEFINEFUNC3(X509 *, d2i_X509, X509 **a, a, unsigned char **b, b, long c, c, return 0)
+#else // 0.9.8 broke SC and BC by changing this function's signature.
 DEFINEFUNC3(X509 *, d2i_X509, X509 **a, a, const unsigned char **b, b, long c, c, return 0)
 #endif
 DEFINEFUNC2(char *, ERR_error_string, unsigned long a, a, char *b, b, return 0)
