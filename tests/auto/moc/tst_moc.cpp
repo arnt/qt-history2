@@ -19,7 +19,7 @@
 #include "slots-with-void-template.h"
 #include "qinvokable.h"
 // msvc and friends crap out on it
-#if !defined(Q_CC_MSVC)
+#if !defined(Q_CC_MSVC) && !defined(Q_CC_HPACC)
 #include "os9-newlines.h"
 // msvc and friends crap out on this file too,
 // it seems to contain Mac 9 EOLs, and not windows EOLs.
@@ -425,10 +425,8 @@ private slots:
     void namespacedFlags();
     void warnOnMultipleInheritance();
     void forgottenQInterface();
-#if !defined(Q_CC_MSVC)
     void os9Newline();
     void winNewline();
-#endif
     void escapesInStringLiterals();
     void frameworkSearchPath();
     void cstyleEnums();
@@ -799,9 +797,9 @@ void tst_Moc::forgottenQInterface()
 #endif
 }
 
-#if !defined(Q_CC_MSVC)
 void tst_Moc::os9Newline()
 {
+#if !defined(Q_CC_MSVC) && !defined(Q_CC_HPACC)
     const QMetaObject &mo = Os9Newlines::staticMetaObject;
     QVERIFY(mo.indexOfSlot("testSlot()") != -1);
     QFile f(srcify("os9-newlines.h"));
@@ -810,10 +808,12 @@ void tst_Moc::os9Newline()
     f.close();
     QVERIFY(!data.contains('\n'));
     QVERIFY(data.contains('\r'));
+#endif
 }
 
 void tst_Moc::winNewline()
 {
+#if !defined(Q_CC_MSVC) && !defined(Q_CC_HPACC)
     const QMetaObject &mo = WinNewlines::staticMetaObject;
     QVERIFY(mo.indexOfSlot("testSlot()") != -1);
     QFile f(srcify("win-newlines.h"));
@@ -829,8 +829,8 @@ void tst_Moc::winNewline()
             QVERIFY(data.at(i) != '\n');
         }
     }
-}
 #endif
+}
 
 void tst_Moc::escapesInStringLiterals()
 {

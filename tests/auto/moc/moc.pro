@@ -12,7 +12,7 @@ DEFINES += SRCDIR=\\\"$$PWD\\\"
 HEADERS += using-namespaces.h no-keywords.h task87883.h c-comments.h backslash-newlines.h oldstyle-casts.h \
            slots-with-void-template.h qinvokable.h namespaced-flags.h trigraphs.h \
            escapes-in-string-literals.h cstyle-enums.h
-!win32: HEADERS += os9-newlines.h win-newlines.h
+!win32:!hpux-acc*:!hpuxi-acc*: HEADERS += os9-newlines.h win-newlines.h
 SOURCES += tst_moc.cpp
 
 QT += sql network svg script
