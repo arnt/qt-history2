@@ -901,6 +901,8 @@ QApplication::~QApplication()
     app_palettes()->clear();
     delete QApplicationPrivate::app_font;
     QApplicationPrivate::app_font = 0;
+    delete QApplicationPrivate::set_font;
+    QApplicationPrivate::set_font = 0;
     app_fonts()->clear();
 
     delete QApplicationPrivate::app_style;
