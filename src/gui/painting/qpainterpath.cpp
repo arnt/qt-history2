@@ -2953,7 +2953,7 @@ bool QPainterPath::intersects(const QPainterPath &p) const
 /*!
   \since 4.3
 
-  Returns true if the given path \p is contained within
+  Returns true if the given path \a p is contained within
   the current path.
  */
 bool QPainterPath::contains(const QPainterPath &p) const

@@ -295,7 +295,7 @@ void QLabelPrivate::init()
     in read-only mode instead. QTextEdit can also provide a scroll bar
     when necessary.
 
-    Note: This function enables mouse tracking if \atext contains rich
+    \note This function enables mouse tracking if \a text contains rich
     text.
 
     \sa setTextFormat(), setBuddy(), alignment

@@ -1045,7 +1045,7 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
 
 /*!
     \class QWindowsXPStyle
-    \brief The QWindowsXPStyle class provides a Microsoft WindowsXP-like look and feel.
+    \brief The QWindowsXPStyle class provides a Microsoft Windows XP-like look and feel.
 
     \ingroup appearance
 
