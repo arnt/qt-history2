@@ -133,6 +133,7 @@ void tst_QIntValidator::validate_data()
     QTest::newRow("8.9") << -1 << 100 << QString("5") << ACC;
     QTest::newRow("8.10") << -1 << 100 << QString("+") << ITM;
     QTest::newRow("8.11") << -1 << 100 << QString("+50") << ACC;
+    QTest::newRow("lineedittest") << 0 << 100 << QString("153") << INV;
 }
 
 void tst_QIntValidator::validateArabic()
