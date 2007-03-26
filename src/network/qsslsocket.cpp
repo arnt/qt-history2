@@ -897,7 +897,7 @@ bool QSslSocket::waitForReadyRead(int msecs)
     Q_D(QSslSocket);
     if (!d->plainSocket)
         return false;
-    if (d->mode == PlainMode)
+    if (d->mode == PlainMode && !d->autoStartHandShake)
         return d->plainSocket->waitForReadyRead(msecs);
 
     int oldReadBufferSize = d->readBuffer.size();
@@ -1115,10 +1115,18 @@ qint64 QSslSocket::readData(char *data, qint64 maxlen)
 {
     Q_D(QSslSocket);
     qint64 readBytes = 0;
-    if (d->mode == PlainMode && !d->autoStartHandShake)
+
+    if (d->mode == PlainMode && !d->autoStartHandShake) {
         readBytes = d->plainSocket->read(data, maxlen);
-    else
-        readBytes = d->readBuffer.read(data, maxlen);
+    } else {
+        do {
+            const char *readPtr = d->readBuffer.readPointer();
+            int bytesToRead = qMin<int>(maxlen, d->readBuffer.nextDataBlockSize());
+            ::memcpy(data + readBytes, readPtr, bytesToRead);
+            readBytes += bytesToRead;
+            d->readBuffer.free(bytesToRead);
+        } while (!d->readBuffer.isEmpty());
+    }
 #ifdef QSSLSOCKET_DEBUG
     qDebug() << "QSslSocket::readData(" << (void *)data << "," << maxlen << ") ==" << readBytes;
 #endif
