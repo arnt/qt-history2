@@ -1070,13 +1070,12 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
         {
             bool isDefault = false;
             bool isFlat = false;
-            bool isDown = false;
+            bool isDown = (option->state & State_Sunken) || (option->state & State_On);
             QPen oldPen = painter->pen();
             QBrush oldBrush = painter->brush();
             QRect r = option->rect.adjusted(0, 1, 0, -1);
             
             if (const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton*>(option)) {
-                isDown = (option->state & State_Sunken) || (option->state & State_On);
                 isDefault = (button->features & QStyleOptionButton::DefaultButton) && (button->state & State_Enabled);
                 isFlat = (button->features & QStyleOptionButton::Flat);
             }
