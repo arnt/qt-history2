@@ -119,7 +119,7 @@ struct QStyleSheetBorderData : public QSharedData
             borders[i] = b[i];
             styles[i] = s[i];
             colors[i] = c[i];
-            radii[i] = r[i].expandedTo(QSize(0, 0));
+            radii[i] = r[i];
         }
     }
 
@@ -200,10 +200,11 @@ public:
     QRect originRect(const QRect &rect, Origin origin) const;
 
     bool paintsOver(Edge e1, Edge e2);
+    QPainterPath setClip(QPainter *, QRect rect);
     void drawBorder(QPainter *, const QRect&);
     void drawBorderImage(QPainter *, const QRect&);
     void drawBackground(QPainter *, const QRect&, const QPoint& = QPoint(0, 0));
-    void drawBackgroundImage(QPainter *, const QRect&, QPoint = QPoint(0, 0));
+    void drawBackgroundImage(QPainter *, const QRect&, QPoint = QPoint(0, 0), bool = true);
     void drawFrame(QPainter *, const QRect&);
     void drawImage(QPainter *p, const QRect &rect);
     void drawRule(QPainter *, const QRect&);
@@ -224,9 +225,9 @@ public:
     bool hasGradientBackground() const { return bg && bg->brush.style() >= Qt::LinearGradientPattern
                                                    && bg->brush.style() <= Qt::ConicalGradientPattern; }
 
-    bool hasNativeBorder() const { 
+    bool hasNativeBorder() const {
         return bd == 0
-               || (!bd->hasBorderImage() && bd->styles[0] == BorderStyle_Native); 
+               || (!bd->hasBorderImage() && bd->styles[0] == BorderStyle_Native);
     }
 
     bool nativeBorder() const {
@@ -501,7 +502,12 @@ void QRenderRule::fixupBorder(int nativeWidth)
         bd->bi = 0;
         // ignore the color, border of edges that have none border-style
         QBrush color = pal ? pal->foreground : QBrush();
+        const bool hasRadius = bd->radii[0].isValid() || bd->radii[1].isValid()
+                               || bd->radii[2].isValid() || bd->radii[3].isValid();
         for (int i = 0; i < 4; i++) {
+            if ((bd->styles[i] == BorderStyle_Native) && hasRadius)
+                bd->styles[i] = BorderStyle_None;
+
             switch (bd->styles[i]) {
             case BorderStyle_None:
                 // border-style: none forces width to be 0
@@ -720,7 +726,7 @@ QRect QRenderRule::originRect(const QRect &rect, Origin origin) const
     }
 }
 
-void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, QPoint off)
+void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, QPoint off, bool clip)
 {
     if (!hasBackground())
         return;
@@ -728,6 +734,10 @@ void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, QPoint off
     const QPixmap& bgp = background()->pixmap;
     if (bgp.isNull())
         return;
+
+    QPainterPath clipPath;
+    if (clip)
+        clipPath = setClip(p, rect);
 
     if (background()->attachment == Attachment_Fixed)
         off = QPoint(0, 0);
@@ -758,21 +768,26 @@ void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, QPoint off
                       inter.y() - aligned.y() + off.y(), inter.width(), inter.height());
         break;
     }
+
+    if (!clipPath.isEmpty())
+        p->restore();
 }
 
 void QRenderRule::getRadii(const QRect &br, QSize *tlr, QSize *trr, QSize *blr, QSize *brr) const
 {
     Q_ASSERT(hasBorder());
     const QSize *radii = border()->radii;
-    *tlr = radii[0];
-    *trr = radii[1];
-    *blr = radii[2];
-    *brr = radii[3];
-    if (tlr->width() + trr->width() > br.width()
-        || blr->width() + brr->width() > br.width())
+    *tlr = radii[0].expandedTo(QSize(0, 0));
+    *trr = radii[1].expandedTo(QSize(0, 0));
+    *blr = radii[2].expandedTo(QSize(0, 0));
+    *brr = radii[3].expandedTo(QSize(0, 0));
+    if (tlr->width() + trr->width() > br.width())
+        *tlr = *trr = QSize(0, 0);
+    if (blr->width() + brr->width() > br.width())
+        *blr = *brr = QSize(0, 0);
+    if (tlr->height() + blr->height() > br.height())
         *tlr = *blr = QSize(0, 0);
-    if (tlr->height() + trr->height() > br.height()
-        || blr->height() + brr->height() > br.height())
+    if (trr->height() + brr->height() > br.height())
         *trr = *brr = QSize(0, 0);
 }
 
@@ -794,7 +809,7 @@ void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
     QSize tlr, trr, blr, brr;
     getRadii(rect, &tlr, &trr, &blr, &brr);
 
-    p->save();
+    QPainter::RenderHints oldHints = p->renderHints();
     p->setRenderHint(QPainter::Antialiasing);
 
     // Drawn in increasing order of precendence
@@ -846,11 +861,53 @@ void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
         if (tlr.width() || trr.width())
             qDrawRoundedCorners(p, x1, y1, x2, y2, tlr, trr, TopEdge, styles[TopEdge], colors[TopEdge]);
     }
-    p->restore();
+    p->setRenderHints(oldHints);
+}
+
+QPainterPath QRenderRule::setClip(QPainter *p, QRect r)
+{
+    if (!hasBorder())
+        return QPainterPath();
+
+    QSize tlr, trr, blr, brr;
+    getRadii(r, &tlr, &trr, &blr, &brr);
+    if (tlr.isNull() && trr.isNull() && blr.isNull() && brr.isNull())
+        return QPainterPath();
+
+    const QRectF rect(r);
+    const int *borders = border()->borders;
+    QPainterPath path;
+    qreal curY = rect.y() + borders[TopEdge]/2.0;
+    path.moveTo(rect.x() + tlr.width(), curY);
+    path.lineTo(rect.right() - trr.width(), curY);
+    qreal curX = rect.right() - borders[RightEdge]/2.0;
+    path.arcTo(curX - 2*trr.width() + borders[RightEdge], curY,
+               trr.width()*2 - borders[RightEdge], trr.height()*2 - borders[TopEdge], 90, -90);
+
+    path.lineTo(curX, rect.bottom() - brr.height());
+    curY = rect.bottom() - borders[BottomEdge]/2.0;
+    path.arcTo(curX - 2*brr.width() + borders[RightEdge], curY - 2*brr.height() + borders[BottomEdge],
+               brr.width()*2 - borders[RightEdge], brr.height()*2 - borders[BottomEdge], 0, -90);
+
+    path.lineTo(rect.x() + blr.width(), curY);
+    curX = rect.left() + borders[LeftEdge]/2.0;
+    path.arcTo(curX, rect.bottom() - 2*blr.height() + borders[BottomEdge]/2,
+               blr.width()*2 - borders[LeftEdge], blr.height()*2 - borders[BottomEdge], 270, -90);
+
+    path.lineTo(curX, rect.top() + tlr.height());
+    path.arcTo(curX, rect.top() + borders[TopEdge]/2,
+               tlr.width()*2 - borders[LeftEdge], tlr.height()*2 - borders[TopEdge], 180, -90);
+
+    path.closeSubpath();
+
+    p->save();
+    p->setClipPath(path);
+    return path;
 }
 
 void QRenderRule::drawBackground(QPainter *p, const QRect& rect, const QPoint& off)
 {
+    QPainterPath clip = setClip(p, borderRect(rect));
     QBrush brush = hasBackground() ? background()->brush : QBrush();
     if (brush.style() == Qt::NoBrush)
         brush = defaultBackground;
@@ -858,7 +915,9 @@ void QRenderRule::drawBackground(QPainter *p, const QRect& rect, const QPoint& o
     if (brush.style() != Qt::NoBrush)
         p->fillRect(borderRect(rect), brush);
 
-    drawBackgroundImage(p, rect, off);
+    drawBackgroundImage(p, rect, off, false);
+    if (!clip.isEmpty())
+        p->restore();
 }
 
 void QRenderRule::drawFrame(QPainter *p, const QRect& rect)
