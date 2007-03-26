@@ -1508,9 +1508,13 @@ QString QCoreApplication::applicationFilePath()
 
     return filePath.filePath();
 #elif defined(Q_WS_MAC)
-    QFileInfo fi(qAppFileName());
-    return fi.exists() ? fi.canonicalFilePath() : QString();
-#else
+    QString qAppFileName_str = qAppFileName();
+    if(!qAppFileName_str.isEmpty()) {
+        QFileInfo fi(qAppFileName_str);
+        return fi.exists() ? fi.canonicalFilePath() : QString();
+    }
+#endif
+#if defined( Q_OS_UNIX )
 #  ifdef Q_OS_LINUX
     // Try looking for a /proc/<pid>/exe symlink first which points to
     // the absolute path of the executable

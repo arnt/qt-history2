@@ -23,8 +23,11 @@ QString qAppFileName()
     static QString appFileName;
     if (appFileName.isEmpty()) {
         QCFType<CFURLRef> bundleURL(CFBundleCopyExecutableURL(CFBundleGetMainBundle()));
-        QCFString cfPath(CFURLCopyFileSystemPath(bundleURL, kCFURLPOSIXPathStyle));
-        appFileName = cfPath;
+        if(bundleURL) {
+            QCFString cfPath(CFURLCopyFileSystemPath(bundleURL, kCFURLPOSIXPathStyle));
+            if(cfPath)
+                appFileName = cfPath;
+        }
     }
     return appFileName;
 }
