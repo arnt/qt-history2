@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
 
     QTcpServer server;
-    if (!server.listen(QHostAddress::LocalHost, 49152)) {
+    if (!server.listen(QHostAddress::LocalHost, 49199)) {
         qDebug("Failed to listen: %s", server.errorString().toLatin1().constData());
         return 1;
     }

@@ -580,7 +580,7 @@ void tst_QTcpServer::addressReusable()
     QVERIFY(process.waitForReadyRead(5000));
 
     QTcpSocket socket;
-    socket.connectToHost(QHostAddress::LocalHost, 49152);
+    socket.connectToHost(QHostAddress::LocalHost, 49199);
     QVERIFY(socket.waitForConnected(5000));
 
     QVERIFY(process.waitForFinished(5000));
@@ -589,7 +589,7 @@ void tst_QTcpServer::addressReusable()
     QTest::qSleep(10);
     
     QTcpServer server;
-    QVERIFY(server.listen(QHostAddress::LocalHost, 49152));
+    QVERIFY(server.listen(QHostAddress::LocalHost, 49199));
 }
 
 void tst_QTcpServer::setNewSocketDescriptorBlocking()
