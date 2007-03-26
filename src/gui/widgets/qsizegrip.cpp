@@ -33,6 +33,7 @@
 #endif
 
 #include <private/qwidget_p.h>
+#include <QtGui/qabstractscrollarea.h>
 
 #define SZ_SIZEBOTTOMRIGHT  0xf008
 #define SZ_SIZEBOTTOMLEFT   0xf007
@@ -268,10 +269,22 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
 
     // Find available desktop/workspace geometry.
     QRect availableGeometry;
+    bool hasVerticalSizeConstraint = true;
+    bool hasHorizontalSizeConstraint = true;
     if (tlw->isWindow())
         availableGeometry = QApplication::desktop()->availableGeometry(tlw);
-    else
-        availableGeometry = tlw->parentWidget()->contentsRect();
+    else {
+        const QWidget *tlwParent = tlw->parentWidget();
+        // Check if tlw is inside QAbstractScrollArea/QScrollArea.
+        // If that's the case tlw->parentWidget() will return the viewport
+        // and tlw->parentWidget()->parentWidget() will return the scroll area.
+        QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(tlwParent->parentWidget());
+        if (scrollArea) {
+            hasHorizontalSizeConstraint = scrollArea->horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOff;
+            hasVerticalSizeConstraint = scrollArea->verticalScrollBarPolicy() == Qt::ScrollBarAlwaysOff;
+        }
+        availableGeometry = tlwParent->contentsRect();
+    }
 
     // Find frame geometries, title bar height, and decoration sizes.
     const QRect frameGeometry = tlw->frameGeometry();
@@ -281,17 +294,31 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
 
     // Determine dyMax depending on whether the sizegrip is at the bottom
     // of the widget or not.
-    if (d->atBottom())
-        d->dyMax = availableGeometry.bottom() - d->r.bottom() - bottomDecoration;
-    else
-        d->dyMax = availableGeometry.y() - d->r.y() + titleBarHeight;
+    if (d->atBottom()) {
+        if (hasVerticalSizeConstraint)
+            d->dyMax = availableGeometry.bottom() - d->r.bottom() - bottomDecoration;
+        else
+            d->dyMax = INT_MAX;
+    } else {
+        if (hasVerticalSizeConstraint)
+            d->dyMax = availableGeometry.y() - d->r.y() + titleBarHeight;
+        else
+            d->dyMax = -INT_MAX;
+    }
 
     // In RTL mode, the size grip is to the left; find dxMax from the desktop/workspace
     // geometry, the size grip geometry and the width of the decoration.
-    if (d->atLeft())
-        d->dxMax = availableGeometry.x() - d->r.x() + leftRightDecoration;
-    else
-        d->dxMax = availableGeometry.right() - d->r.right() - leftRightDecoration;
+    if (d->atLeft()) {
+        if (hasHorizontalSizeConstraint)
+            d->dxMax = availableGeometry.x() - d->r.x() + leftRightDecoration;
+        else
+            d->dxMax = -INT_MAX;
+    } else {
+        if (hasHorizontalSizeConstraint)
+            d->dxMax = availableGeometry.right() - d->r.right() - leftRightDecoration;
+        else
+            d->dxMax = INT_MAX;
+    }
 }
 
 
@@ -326,16 +353,6 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 #endif
 
     QPoint np(e->globalPos());
-
-    if (!tlw->isWindow()) {
-        QWidget* ws = tlw->parentWidget();
-        QPoint tmp(ws->mapFromGlobal(np));
-        if (tmp.x() > ws->width())
-            tmp.setX(ws->width());
-        if (tmp.y() > ws->height())
-            tmp.setY(ws->height());
-        np = ws->mapToGlobal(tmp);
-    }
 
     // Don't extend beyond the available geometry; bound to dyMax and dxMax.
     QSize ns;
