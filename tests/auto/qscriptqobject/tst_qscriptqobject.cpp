@@ -32,6 +32,8 @@ struct CustomType
 Q_DECLARE_METATYPE(CustomType)
 
 Q_DECLARE_METATYPE(QBrush*)
+Q_DECLARE_METATYPE(QObjectList)
+Q_DECLARE_METATYPE(QList<int>)
 
 class MyQObject : public QObject
 {
@@ -562,8 +564,6 @@ void tst_QScriptExtQObject::getSetChildren()
 Q_DECLARE_METATYPE(QVector<int>)
 Q_DECLARE_METATYPE(QVector<double>)
 Q_DECLARE_METATYPE(QVector<QString>)
-Q_DECLARE_METATYPE(QObjectList)
-Q_DECLARE_METATYPE(QList<int>)
 
 void tst_QScriptExtQObject::callQtInvokable()
 {
