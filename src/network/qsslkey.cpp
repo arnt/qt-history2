@@ -154,7 +154,7 @@ int QSslKey::length() const
 /*!
     Returns a pointer to key bits.
 
-    \sa keyLength()
+    \sa length()
 */
 const uchar *QSslKey::data() const
 {

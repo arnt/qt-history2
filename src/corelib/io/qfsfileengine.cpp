@@ -171,7 +171,8 @@ bool QFSFileEngine::open(QIODevice::OpenMode openMode)
 }
 
 /*!
-    \reimp
+    Opens the file handle \a fh in \a openMode mode. Returns true on
+    success; otherwise returns false.
 */
 bool QFSFileEngine::open(QIODevice::OpenMode openMode, FILE *fh)
 {
@@ -223,7 +224,8 @@ bool QFSFileEnginePrivate::openFh(QIODevice::OpenMode openMode, FILE *fh)
 }
 
 /*!
-    \reimp
+    Opens the file descriptor \a fd in \a openMode mode. Returns true
+    on success; otherwise returns false.
 */
 bool QFSFileEngine::open(QIODevice::OpenMode openMode, int fd)
 {
@@ -415,7 +417,7 @@ qint64 QFSFileEngine::pos() const
 }
 
 /*!
-    \reimp
+    \internal
 */
 qint64 QFSFileEnginePrivate::posFdFh() const
 {

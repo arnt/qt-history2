@@ -1568,13 +1568,13 @@ QHttp::~QHttp()
 
     This enum is used to specify the mode of connection to use:
 
-    \value Http The connection is a regular Http connection to the server
-    \value Https The Https protocol is used and the connection is encrypted using SSL.
+    \value ConnectionModeHttp The connection is a regular Http connection to the server
+    \value ConnectionModeHttps The Https protocol is used and the connection is encrypted using SSL.
 
     When using the Https mode, care should be taken to connect to the sslErrors signal, and
     handle possible Ssl errors.
 
-    \sa QSslSocket()
+    \sa QSslSocket
 */
 
 /*!
@@ -1609,6 +1609,10 @@ QHttp::~QHttp()
     \value WrongContentLength The client could not read the content correctly
     because an error with respect to the content length occurred.
     \value Aborted The request was aborted with abort().
+    \value ProxyAuthenticationRequiredError QHttp is using a proxy, and the
+    proxy server requires authentication to establish a connection.
+    \value AuthenticationRequiredError The web server requires authentication
+    to complete the request.
     \value UnknownError An error other than those specified above
     occurred.
 
@@ -1732,7 +1736,7 @@ QHttp::~QHttp()
 /*!
     \fn void QHttp::proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator)
 
-    This signal can be emitted when a proxy that requires
+    This signal can be emitted when a \a proxy that requires
     authentication is used. The \a authenticator object can then be
     filled in with the required details to allow authentication and
     continue the connection.
@@ -1749,10 +1753,10 @@ QHttp::~QHttp()
 /*!
     \fn void QHttp::authenticationRequired(const QString &hostname, quint16 port, QAuthenticator *authenticator)
 
-    This signal can be emitted when a web server that requires
-    authentication is used. The \a authenticator object can then be
-    filled in with the required details to allow authentication and
-    continue the connection.
+    This signal can be emitted when a web server on a given \a hostname and \a
+    port requires authentication. The \a authenticator object can then be
+    filled in with the required details to allow authentication and continue
+    the connection.
 
     \note It is not possible to use a QueuedConnection to connect to
     this signal, as the connection will fail if the authenticator has
@@ -1762,11 +1766,12 @@ QHttp::~QHttp()
 */
 
 /*!
-  \fn void QHttp::sslErrors(const QList<QSslError> &errors)
+    \fn void QHttp::sslErrors(const QList<QSslError> &errors)
 
-  Forwards the sslErrors signal from the QSslSocket used in QHttp.
+    Forwards the sslErrors signal from the QSslSocket used in QHttp. \a errors
+    is the list of errors that occurred during the SSL handshake.
 
-  \sa QSslSocket ignoreSslErrors
+    \sa QSslSocket QSslSocket::ignoreSslErrors()
 */
 
 /*!
@@ -2106,7 +2111,9 @@ int QHttp::setProxy(const QString &host, int port,
 }
 
 /*!
-  \overload
+    \overload
+
+    Enables HTTP proxy support using the proxy settings from \a proxy.
 */
 int QHttp::setProxy(const QNetworkProxy &proxy)
 {
@@ -2954,7 +2961,7 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
   Tells the QSslSocket used for the Http connection to ignore
   the errors reported in the sslErrors signal
 
-  \sa QSslSocket sslErrors
+  \sa QSslSocket QSslSocket::sslErrors()
 */
 #ifndef QT_NO_OPENSSL
 void QHttp::ignoreSslErrors()

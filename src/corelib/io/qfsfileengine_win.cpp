@@ -408,7 +408,7 @@ QString QFSFileEnginePrivate::longFileName(const QString &path)
     return prefix + absPath;
 }
 
-/*!
+/*
     \internal
 */
 void QFSFileEnginePrivate::nativeInitFileName()
@@ -422,7 +422,7 @@ void QFSFileEnginePrivate::nativeInitFileName()
     });
 }
 
-/*!
+/*
     \internal
 */
 bool QFSFileEnginePrivate::nativeOpen(QIODevice::OpenMode openMode)
@@ -481,7 +481,7 @@ bool QFSFileEnginePrivate::nativeOpen(QIODevice::OpenMode openMode)
     return true;
 }
 
-/*!
+/*
     \internal
 */
 bool QFSFileEnginePrivate::nativeClose()
@@ -501,7 +501,7 @@ bool QFSFileEnginePrivate::nativeClose()
     return true;
 }
 
-/*!
+/*
     \internal
 */
 bool QFSFileEnginePrivate::nativeFlush()
@@ -596,7 +596,7 @@ qint64 QFSFileEnginePrivate::nativeSize() const
     return size;
 }
 
-/*!
+/*
     \internal
 */
 qint64 QFSFileEnginePrivate::nativePos() const
@@ -644,7 +644,7 @@ qint64 QFSFileEnginePrivate::nativePos() const
 #endif
 }
 
-/*!
+/*
     \internal
 */
 bool QFSFileEnginePrivate::nativeSeek(qint64 pos)
@@ -687,7 +687,7 @@ bool QFSFileEnginePrivate::nativeSeek(qint64 pos)
 #endif
 }
 
-/*!
+/*
     \internal
 */
 qint64 QFSFileEnginePrivate::nativeRead(char *data, qint64 maxlen)
@@ -734,7 +734,7 @@ qint64 QFSFileEnginePrivate::nativeRead(char *data, qint64 maxlen)
     return qint64(totalRead);
 }
 
-/*!
+/*
     \internal
 */
 qint64 QFSFileEnginePrivate::nativeReadLine(char *data, qint64 maxlen)
@@ -754,7 +754,7 @@ qint64 QFSFileEnginePrivate::nativeReadLine(char *data, qint64 maxlen)
     return q->QAbstractFileEngine::readLine(data, maxlen);
 }
 
-/*!
+/*
     \internal
 */
 qint64 QFSFileEnginePrivate::nativeWrite(const char *data, qint64 len)
@@ -796,7 +796,7 @@ qint64 QFSFileEnginePrivate::nativeWrite(const char *data, qint64 len)
     return qint64(totalWritten);
 }
 
-/*!
+/*
     \internal
 */
 int QFSFileEnginePrivate::nativeHandle() const
@@ -812,7 +812,7 @@ int QFSFileEnginePrivate::nativeHandle() const
 #endif
 }
 
-/*!
+/*
     \internal
 */
 bool QFSFileEnginePrivate::nativeIsSequential() const
@@ -1002,7 +1002,8 @@ bool QFSFileEngine::caseSensitive() const
 }
 
 /*!
-    Sets the current path (e.g., for QDir), to \a path.
+    Sets the current path (e.g., for QDir), to \a path. Returns true if the
+    new path exists; otherwise this function does nothing, and returns false.
 
     \sa currentPath()
 */

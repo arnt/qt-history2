@@ -42,7 +42,7 @@
     for transmitting encrypted data. It can operate both in client and server
     mode, and it supports all modern SSL protocols, including SSLv3 and
     TLSv1. By default, QSslSocket uses SSLv3, but you can decide which SSL
-    protocol to use by passing the protocol to QSslSocket's constructor.
+    protocol to use by calling setProtocol() before the handshake is started. 
 
     SSL encryption operates on top of the existing TCP stream, and is entered
     after the socket enters ConnectedState. There are two main ways to
@@ -70,7 +70,7 @@
     
     Once encrypted, you can use QSslSocket just like a regular
     QTcpSocket. When readyRead() is emitted, you can call read(),
-    canReadLin()/readLine() or getChar() to read decrypted data from
+    canReadLine()/readLine() or getChar() to read decrypted data from
     QSslSocket's internal buffer, and you can call write() or putChar() to
     write data back to the peer. QSslSocket will automatically encrypt the
     data for you, and emit bytesWritten() once the data has been written to
@@ -264,7 +264,7 @@ void QSslSocket::connectToHostEncrypted(const QString &hostName, quint16 port, O
     socketDescriptor. Returns true if \a socketDescriptor is accepted
     as a valid socket descriptor; otherwise returns false.
     The socket is opened in the mode specified by \a openMode, and
-    enters the socket state specified by \a socketState.
+    enters the socket state specified by \a state.
 
     \bold{Note:} It is not possible to initialize two sockets with the same
     native socket descriptor.
@@ -825,7 +825,11 @@ QList<QSslCertificate> QSslSocket::systemCaCertificates()
 }
 
 /*!
-    \reimp
+    Waits until the socket is connected, up to \a msecs
+    milliseconds. If the connection has been established, this
+    function returns true; otherwise it returns false.
+
+    \sa QAbstractSocket::waitForConnected()
 */
 bool QSslSocket::waitForConnected(int msecs)
 {
@@ -944,7 +948,11 @@ bool QSslSocket::waitForBytesWritten(int msecs)
 }
 
 /*!
-    \reimp
+    Waits until the socket has disconnected, up to \a msecs
+    milliseconds. If the connection has been disconnected, this
+    function returns true; otherwise it returns false.
+
+    \sa QAbstractSocket::waitForDisconnected()
 */
 bool QSslSocket::waitForDisconnected(int msecs)
 {

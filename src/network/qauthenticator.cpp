@@ -64,7 +64,7 @@ QAuthenticator::~QAuthenticator()
 }
 
 /*!
-  Copy constructor
+    Constructs a copy of \a other.
 */
 QAuthenticator::QAuthenticator(const QAuthenticator &other)
     : d(other.d)
@@ -74,7 +74,7 @@ QAuthenticator::QAuthenticator(const QAuthenticator &other)
 }
 
 /*!
-  Assignment operator
+    Assigns the contents of \a other to this authenticator.
 */
 QAuthenticator &QAuthenticator::operator=(const QAuthenticator &other)
 {
@@ -87,7 +87,8 @@ QAuthenticator &QAuthenticator::operator=(const QAuthenticator &other)
 }
 
 /*!
-  returns true if the two authenitcator objects are identical
+    Returns true if this authenticator is identical to \a other; otherwise
+    returns false.
 */
 bool QAuthenticator::operator==(const QAuthenticator &other) const
 {
@@ -98,6 +99,13 @@ bool QAuthenticator::operator==(const QAuthenticator &other) const
         && d->realm == other.d->realm
         && d->method == other.d->method;
 }
+
+/*!
+    \fn bool QAuthenticator::operator!=(const QAuthenticator &other) const
+
+    Returns true if this authenticator is different from \a other; otherwise
+    returns false.
+*/
 
 /*!
   returns the user used for authentication.

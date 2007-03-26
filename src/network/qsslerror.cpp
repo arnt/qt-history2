@@ -70,6 +70,7 @@
     \value NoPeerCertificate
     \value HostNameMismatch
     \value UnspecifiedError
+    \value NoSslSupport
 
     \sa QSslError::errorString()
 */

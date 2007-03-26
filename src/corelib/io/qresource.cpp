@@ -1036,7 +1036,7 @@ QResource::registerResource(const uchar *rccData, const QString &resourceRoot)
 /*!
   \fn bool QResource::unregisterResource(const uchar *rccData, const QString &mapRoot)
 
-  Unregisters the resource with the given \a rccFileName at the location in the
+  Unregisters the resource with the given \a rccData at the location in the
   resource tree specified by \a mapRoot, and returns true if the resource is
   successfully unloaded and no references exist into the resource; otherwise returns false.
 

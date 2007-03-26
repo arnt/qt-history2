@@ -188,7 +188,7 @@
 /*!
     \fn void QAbstractSocket::proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator)
 
-    This signal can be emitted when a proxy that requires
+    This signal can be emitted when a \a proxy that requires
     authentication is used. The \a authenticator object can then be
     filled in with the required details to allow authentication and
     continue the connection.
@@ -253,7 +253,12 @@
     \value UnsupportedSocketOperationError The requested socket operation is
            not supported by the local operating system (e.g., lack of
            IPv6 support).
+    \value ProxyAuthenticationRequiredError The socket is using a proxy, and
+           the proxy requires authentication.
     \value UnknownSocketError An unidentified error occurred.
+
+    \omitvalue UnfinishedSocketOperationError Used by QAbstractSocketEngine only,
+           this error indicates that the last operation could not complete.
 
     \sa QAbstractSocket::error()
 */

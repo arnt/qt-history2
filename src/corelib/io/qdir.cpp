@@ -1070,7 +1070,7 @@ void QDir::setSearchPaths(const QString &prefix, const QStringList &searchPaths)
 
     Adds \a path to the search path for \a prefix.
 
-    \sa setSearchPaths
+    \sa setSearchPaths()
 */
 void QDir::addSearchPath(const QString &prefix, const QString &path)
 {

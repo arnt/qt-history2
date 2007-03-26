@@ -316,7 +316,7 @@ bool Q3SocketDevice::open( OpenMode mode )
 */
 /*!
     The current Q3SocketDevice implementation does not buffer at all,
-    so this is a no-op.
+    so this is a no-op. This function always returns true.
 */
 bool Q3SocketDevice::flush()
 {

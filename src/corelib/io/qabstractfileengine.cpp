@@ -287,6 +287,7 @@ QAbstractFileEngine *QAbstractFileEngine::create(const QString &fileName)
     \value ExistsFlag The file actually exists in the file system.
     \value RootFlag  The file or the file pointed to is the root of the filesystem.
     \value LocalDiskFlag The file resides on the local disk and can be passed to standard file functions.
+    \value Refresh Passing this flag will force the file engine to refresh all flags.
 
     \omitvalue PermsMask
     \omitvalue TypesMask

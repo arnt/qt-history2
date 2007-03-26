@@ -46,7 +46,7 @@
 // Useful defines
 #define SSL_ERRORSTR() QString::fromLocal8Bit(q_ERR_error_string(q_ERR_get_error(), NULL))
 
-/*! \internal
+/* \internal
 
     From OpenSSL's thread(3) manual page:
 

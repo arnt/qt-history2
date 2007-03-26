@@ -575,7 +575,7 @@ void Q3Url::reset()
 }
 
 /*!
-    Parses the \a url.
+    Parses the \a url. Returns true on success; otherwise returns false.
 */
 
 bool Q3Url::parse( const QString& url )
@@ -1295,7 +1295,8 @@ Q3Url::operator QString() const
 }
 
 /*!
-    Changes the directory to one directory up.
+    Changes the directory to one directory up. This function always returns
+    true.
 
     \sa setPath()
 */
