@@ -152,10 +152,15 @@ void tst_CompilerWarnings::warnings()
     compilerName = "aCC";
     args << "-I" + qtDir + "/include"
          << "-I/usr/local/mesa/aCC-64/include"
-# if QT_POINTER_SIZE == 8
+         << "-I/opt/graphics/OpenGL/include"
+# if QT_POINTER_SIZE == 8 && !defined __ia64
          << "+DA2.0W"
 # endif
-         << "-DQT_NO_STL" << "-c" << "+w" << "+W" << "392,655,818,887"
+         // aCC generates too much bogus.
+         << "-DQT_NO_STL" << "-c" << "-w"
+# if !defined __ia64
+         << "392,655,818,887"
+#endif
          << "-o" << tmpFile
          << "test.cpp";
 #elif defined(Q_CC_MIPS)
