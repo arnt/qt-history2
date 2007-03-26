@@ -1160,6 +1160,11 @@ void QWSDirectPainterSurface::setRegion(const QRegion &region)
     QWidget::qwsDisplay()->requestRegion(winId(), key(), permanentState(), reg);
 }
 
+void QWSDirectPainterSurface::flush(QWidget *, const QRegion &r, const QPoint &)
+{
+    QWSDisplay::instance()->repaintRegion(winId(), true, r);
+}
+
 QByteArray QWSDirectPainterSurface::permanentState() const
 {
     QByteArray res;

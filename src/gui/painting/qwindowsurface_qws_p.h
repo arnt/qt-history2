@@ -241,7 +241,7 @@ public:
     void setRegion(const QRegion &region);
     QRegion region() const { return clipRegion(); }
 
-    void flush(QWidget*, const QRegion &, const QPoint &) {};
+    void flush(QWidget*, const QRegion &, const QPoint &);
 
     bool isValid() const { return false; }
 

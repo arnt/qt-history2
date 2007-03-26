@@ -352,7 +352,10 @@ void QDirectPainter::regionChanged(const QRegion &region)
     \preliminary
     \since 4.2
 
-    The current implementation does nothing.
+    Call this function before you start updating the pixels in the
+    allocated region.
+
+    \sa endPainting, flush
 */
 void QDirectPainter::startPainting(bool lockDisplay)
 {
@@ -363,7 +366,7 @@ void QDirectPainter::startPainting(bool lockDisplay)
     \preliminary
     \since 4.2
 
-    The current implementation does nothing.
+    Call this function whenever you are done updating the screen.
 */
 void QDirectPainter::endPainting()
 {
@@ -372,19 +375,25 @@ void QDirectPainter::endPainting()
 /*!
     \preliminary
     \since 4.3
+    \overload
+
+    This function will automatically call flush() with the given \region.
 */
 void QDirectPainter::endPainting(const QRegion &region)
 {
-    Q_UNUSED(region);
+    flush(region);
 }
 
 /*!
     \preliminary
     \since 4.3
+
+    Flushes the given \region onto the screen.
 */
 void QDirectPainter::flush(const QRegion &region)
 {
-    Q_UNUSED(region);
+    Q_D(QDirectPainter);
+    d->surface->flush(0, region, QPoint());
 }
 
 /*!
