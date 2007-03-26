@@ -144,6 +144,14 @@ public:
     void updateActiveWindow(int removedIndex);
     void updateScrollBars();
     void internalRaise(QMdiSubWindow *child) const;
+
+    inline void startResizeTimer()
+    {
+        Q_Q(QMdiArea);
+        if (resizeTimerId > 0)
+            q->killTimer(resizeTimerId);
+        resizeTimerId = q->startTimer(200);
+    }
 };
 
 #endif // QMDIAREA_P_H

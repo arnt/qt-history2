@@ -1334,7 +1334,7 @@ void QMdiArea::resizeEvent(QResizeEvent *resizeEvent)
     if (d->isSubWindowsTiled) {
         tileSubWindows();
         d->isSubWindowsTiled = true;
-        d->resizeTimerId = startTimer(200);
+        d->startResizeTimer();
         // We don't have scroll bars or any maximized views.
         return;
     }
@@ -1356,7 +1356,7 @@ void QMdiArea::resizeEvent(QResizeEvent *resizeEvent)
     // no need to re-arrange minimized views on-demand. Start a timer
     // just to make things faster with subsequent resize events.
     if (hasMaximizedSubWindow)
-        d->resizeTimerId = startTimer(200);
+        d->startResizeTimer();
     else
         d->arrangeMinimizedSubWindows();
 }
