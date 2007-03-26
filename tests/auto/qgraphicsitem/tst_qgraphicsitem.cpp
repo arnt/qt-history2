@@ -4119,7 +4119,7 @@ void tst_QGraphicsItem::untransformable()
 
 // Painting with the DiagCrossPattern is really slow on Mac
 // when zoomed out. (The test times out). Task to fix is 155567.
-#ifndef Q_WS_MAC
+#if !defined(Q_WS_MAC) || 1
     view.setBackgroundBrush(QBrush(Qt::black, Qt::DiagCrossPattern));
 #endif
 
