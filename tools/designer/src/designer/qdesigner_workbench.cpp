@@ -88,8 +88,6 @@ QMdiSubWindow *createFormMdiSubWindow(QMdiArea *a, QDesignerFormWindow *fw, Qt::
         }
     }
     rc->setMinimumSize(QSize(0, 0));
-    rc->setOption(QMdiSubWindow::RubberBandResize, true);
-    rc->setOption(QMdiSubWindow::RubberBandMove, true);
     return rc;
 }
 
