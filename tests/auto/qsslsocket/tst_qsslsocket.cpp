@@ -15,7 +15,9 @@
 
 Q_DECLARE_METATYPE(QAbstractSocket::SocketState)
 Q_DECLARE_METATYPE(QAbstractSocket::SocketError)
+#ifndef QT_NO_OPENSSL
 Q_DECLARE_METATYPE(QSslSocket::Mode)
+#endif
 
 class tst_QSslSocket : public QObject
 {
