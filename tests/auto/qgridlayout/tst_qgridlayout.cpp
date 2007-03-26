@@ -190,6 +190,7 @@ void tst_QGridLayout::badDistributionBug()
     ui.vboxLayout->setSpacing(0);
     ui.okButton->setFixedHeight(20);
     ui.moreButton->setFixedHeight(20);
+    ui.primaryGroupBox->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui.primaryGroupBox->setFixedHeight(200);
 
     QSize minSize = dialog.layout()->minimumSize();
