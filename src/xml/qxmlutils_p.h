@@ -36,7 +36,7 @@ class QXmlCharRange;
 
  This class is intentionally Not exported.
  */
-class QXmlUtils
+class Q_XML_EXPORT QXmlUtils
 {
 public:
     static bool isEncName(const QString &encName);
