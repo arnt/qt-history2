@@ -4295,9 +4295,9 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
     if (w == 0 || h == 0 || sw <= 0 || sh <= 0)
         return;
 
-    if ((d->state->txop > QTransform::TxTranslate && !d->engine->hasFeature(QPaintEngine::PixmapTransform))
-        || (!d->state->matrix.isAffine() && !d->engine->hasFeature(QPaintEngine::PerspectiveTransform))
-        || (sw != w || sh != h))
+    if (((d->state->txop > QTransform::TxTranslate || (sw != w || sh != h))
+         && !d->engine->hasFeature(QPaintEngine::PixmapTransform))
+        || (!d->state->matrix.isAffine() && !d->engine->hasFeature(QPaintEngine::PerspectiveTransform)))
     {
         save();
         translate(x, y);
