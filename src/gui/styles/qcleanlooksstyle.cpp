@@ -3713,6 +3713,8 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
         newSize += QSize(0, -2);
         break;
     case CT_ComboBox:
+        newSize += QSize(2, 4);
+        break;
     case CT_LineEdit:
         newSize += QSize(0, 4);
         break;
@@ -4003,8 +4005,7 @@ QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptio
                          option->rect.height() - 2 * frameWidth);
             if (const QStyleOptionComboBox *box = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
                 if (!box->editable) {
-                    rect.setLeft(rect.left() + 2);
-                    rect.setRight(rect.right() - 2);
+                    rect.adjust(2, 0, 0, 0);
                     if (box->state & (State_Sunken | State_On))
                         rect.translate(1, 1);
                 }
