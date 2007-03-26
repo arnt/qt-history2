@@ -1073,7 +1073,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             bool isDown = (option->state & State_Sunken) || (option->state & State_On);
             QPen oldPen = painter->pen();
             QBrush oldBrush = painter->brush();
-            QRect r = option->rect.adjusted(0, 1, 0, -1);
+            QRect r;
             
             if (const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton*>(option)) {
                 isDefault = (button->features & QStyleOptionButton::DefaultButton) && (button->state & State_Enabled);
@@ -1082,6 +1082,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
 
             if (isFlat && !isDown) {
                 if (isDefault) {
+                    r = option->rect.adjusted(0, 1, 0, -1);
                     painter->setPen(QPen(Qt::black, 0));
                     painter->drawLine(QPoint(r.left() + 2, r.top()),
                                     QPoint(r.right() - 2, r.top()));
@@ -1101,7 +1102,8 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             }
             
             BEGIN_CLEANLOOKS_PIXMAPCACHE(QString::fromLatin1("pushbutton-%1").arg(isDefault))
-            
+            r = rect.adjusted(0, 1, 0, -1);
+
             bool isEnabled = (option->state & State_Enabled);
 
             QColor highlightedGradientStartColor = option->palette.button().color().lighter(107);
