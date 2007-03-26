@@ -768,7 +768,7 @@ public:
     QTransform matrix;
     GLubyte pen_color[4];
     GLubyte brush_color[4];
-    QTransform::TransformationCodes txop;
+    QTransform::TransformationType txop;
     QGLDrawable drawable;
     QGLOffscreen offscreen;
 
@@ -2112,7 +2112,7 @@ void QOpenGLPaintEngine::updateMatrix(const QTransform &mtx)
     mat[3][2] = 0;
     mat[3][3] = 1;
 
-    d->txop = (QTransform::TransformationCodes)mtx.type();
+    d->txop = mtx.type();
 
     // 1/10000 == 0.0001, so we have good enough res to cover curves
     // that span the entire widget...
@@ -3249,7 +3249,7 @@ void QOpenGLPaintEnginePrivate::drawFastRect(const QRectF &r)
 
 bool QOpenGLPaintEnginePrivate::isFastRect(const QRectF &rect)
 {
-    if (matrix.type() < QTransform::TxRotShear) {
+    if (matrix.type() < QTransform::TxRotate) {
         QRectF r = matrix.mapRect(rect);
         return r.topLeft().toPoint() == r.topLeft()
             && r.bottomRight().toPoint() == r.bottomRight();
@@ -3683,7 +3683,7 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
             && d->cpen.style() == Qt::SolidLine
             && d->cpen.isSolid()
             && d->cpen.color().alpha() == 255
-            && d->txop <= QTransform::TxRotShear
+            && d->txop < QTransform::TxProject
             && d->cpen.widthF() >= 2.0 / sqrt(qMin(d->matrix.m11() * d->matrix.m11()
                                                    + d->matrix.m21() * d->matrix.m21(),
                                                    d->matrix.m12() * d->matrix.m12()

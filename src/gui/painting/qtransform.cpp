@@ -194,6 +194,17 @@
 */
 
 /*!
+    \enum QTransform::TransformationType
+
+    \value TxNone
+    \value TxTranslate
+    \value TxScale
+    \value TxRotate
+    \value TxShear
+    \value TxProject
+*/
+
+/*!
     Constructs an identity matrix.
 
     All elements are set to zero except \c m11 and \c m22 (specifying
@@ -203,6 +214,8 @@
 */
 QTransform::QTransform()
     : m_13(0), m_23(0), m_33(1)
+    , m_type(TxNone)
+    , m_dirty(TxNone)
 {
 
 }
@@ -218,6 +231,8 @@ QTransform::QTransform(qreal h11, qreal h12, qreal h13,
                        qreal h31, qreal h32, qreal h33)
     : affine(h11, h12, h21, h22, h31, h32),
       m_13(h13), m_23(h23), m_33(h33)
+    , m_type(TxNone)
+    , m_dirty(TxProject)
 {
 
 }
@@ -232,6 +247,8 @@ QTransform::QTransform(qreal h11, qreal h12, qreal h21,
                        qreal h22, qreal dx, qreal dy)
     : affine(h11, h12, h21, h22, dx, dy),
       m_13(0), m_23(0), m_33(1)
+    , m_type(TxNone)
+    , m_dirty(TxShear)
 {
 
 }
@@ -243,6 +260,8 @@ QTransform::QTransform(qreal h11, qreal h12, qreal h21,
 QTransform::QTransform(const QMatrix &mtx)
     : affine(mtx),
       m_13(0), m_23(0), m_33(1)
+    , m_type(TxNone)
+    , m_dirty(TxShear)
 {
 
 }
@@ -310,6 +329,9 @@ QTransform QTransform::inverted(bool *invertible) const
     invert = QTransform(invert.m11()/invert.m33(), invert.m12()/invert.m33(), invert.m13()/invert.m33(),
                         invert.m21()/invert.m33(), invert.m22()/invert.m33(), invert.m23()/invert.m33(),
                         invert.m31()/invert.m33(), invert.m32()/invert.m33(), 1);
+    // inverting doesn't change the type
+    invert.m_type = m_type;
+    invert.m_dirty = m_dirty;
     return invert;
 }
 
@@ -323,6 +345,7 @@ QTransform & QTransform::translate(qreal dx, qreal dy)
 {
     affine._dx += dx*affine._m11 + dy*affine._m21;
     affine._dy += dy*affine._m22 + dx*affine._m12;
+    m_dirty |= TxTranslate;
     return *this;
 }
 
@@ -338,6 +361,7 @@ QTransform & QTransform::scale(qreal sx, qreal sy)
     affine._m12 *= sx;
     affine._m21 *= sy;
     affine._m22 *= sy;
+    m_dirty |= TxScale;
     return *this;
 }
 
@@ -357,6 +381,7 @@ QTransform & QTransform::shear(qreal sh, qreal sv)
     affine._m12 += tm12;
     affine._m21 += tm21;
     affine._m22 += tm22;
+    m_dirty |= TxShear;
     return *this;
 }
 
@@ -400,6 +425,7 @@ QTransform & QTransform::rotate(qreal a, Qt::Axis axis)
         qreal tm22 = -sina*affine._m12 + cosa*affine._m22;
         affine._m11 = tm11; affine._m12 = tm12;
         affine._m21 = tm21; affine._m22 = tm22;
+        m_dirty |= TxRotate;
     } else {
         QTransform result;
         if (axis == Qt::YAxis) {
@@ -409,6 +435,7 @@ QTransform & QTransform::rotate(qreal a, Qt::Axis axis)
             result.affine._m22 = cosa;
             result.m_23 = -sina * inv_dist_to_plane;
         }
+        m_dirty = TxProject;
         operator*=(result);
     }
 
@@ -441,6 +468,7 @@ QTransform & QTransform::rotateRadians(qreal a, Qt::Axis axis)
         qreal tm22 = -sina*affine._m12 + cosa*affine._m22;
         affine._m11 = tm11; affine._m12 = tm12;
         affine._m21 = tm21; affine._m22 = tm22;
+        m_dirty |= TxRotate;
     } else {
         QTransform result;
         if (axis == Qt::YAxis) {
@@ -450,6 +478,7 @@ QTransform & QTransform::rotateRadians(qreal a, Qt::Axis axis)
             result.affine._m22 = cosa;
             result.m_23 = -sina * inv_dist_to_plane;
         }
+        m_dirty = TxProject;
         operator*=(result);
     }
     return *this;
@@ -501,6 +530,8 @@ QTransform & QTransform::operator*=(const QTransform &o)
     affine._m21 = m21/m33; affine._m22 = m22/m33; m_23 = m23/m33;
     affine._dx = m31/m33; affine._dy = m32/m33; m_33 = 1.0;
 
+    m_dirty = m_dirty | m_type | o.m_dirty | o.m_type;
+
     return *this;
 }
 
@@ -532,6 +563,8 @@ QTransform & QTransform::operator=(const QTransform &matrix)
     affine._dx = matrix.affine._dx;
     affine._dy = matrix.affine._dy;
     m_33 = matrix.m_33;
+    m_type = matrix.m_type;
+    m_dirty = matrix.m_dirty;
 
     return *this;
 }
@@ -548,6 +581,8 @@ void QTransform::reset()
 {
     affine._m11 = affine._m22 = m_33 = 1.0;
     affine._m12 = m_13 = affine._m21 = m_23 = affine._dx = affine._dy = 0;
+    m_type = TxNone;
+    m_dirty = TxNone;
 }
 
 #ifndef QT_NO_DATASTREAM
@@ -966,6 +1001,9 @@ QTransform QTransform::operator/(qreal div)
     affine._dx *= div;
     affine._dy *= div;
     m_33 *= div;
+
+    m_dirty = TxProject;
+
     return *this;
 }
 
@@ -1081,6 +1119,8 @@ void QTransform::setMatrix(qreal m11, qreal m12, qreal m13,
     affine._m11 = m11; affine._m12 = m12; m_13 = m13;
     affine._m21 = m21; affine._m22 = m22; m_23 = m23;
     affine._dx = m31; affine._dy = m32; m_33 = m33;
+    m_type = TxNone;
+    m_dirty = TxProject;
 }
 
 QRect QTransform::mapRect(const QRect &rect) const
@@ -1260,16 +1300,31 @@ const QMatrix &QTransform::toAffine() const
     return affine;
 }
 
-int QTransform::type() const
+/*!
+  Returns the transformation type of this matrix.
+  */
+QTransform::TransformationType QTransform::type() const
 {
-    if (affine._m12 != 0 || affine._m21 != 0)
-        return TxRotShear;
-    else if (affine._m11 != 1 || affine._m22 != 1)
-        return TxScale;
-    else if (affine._dx != 0 || affine._dy != 0)
-        return TxTranslate;
-    else
-        return TxNone;
+    if (m_dirty != TxNone && m_dirty >= m_type) {
+        if (m_dirty > TxShear && (!qFuzzyCompare(m_13, 0) || !qFuzzyCompare(m_23, 0)))
+             m_type = TxProject;
+        else if (m_dirty > TxScale && (!qFuzzyCompare(affine._m12, 0) || !qFuzzyCompare(affine._m21, 0))) {
+            const qreal dot = affine._m11 * affine._m12 + affine._m21 * affine._m22;
+            if (qFuzzyCompare(dot, 0))
+                m_type = TxRotate;
+            else
+                m_type = TxShear;
+        } else if (m_dirty > TxTranslate && (!qFuzzyCompare(affine._m11, 1) || !qFuzzyCompare(affine._m22, 1) || !qFuzzyCompare(m_33, 1)))
+            m_type = TxScale;
+        else if (m_dirty > TxNone && (!qFuzzyCompare(affine._dx, 0) || !qFuzzyCompare(affine._dy, 0)))
+            m_type = TxTranslate;
+        else
+            m_type = TxNone;
+
+        m_dirty = TxNone;
+    }
+
+    return static_cast<TransformationType>(m_type);
 }
 
 /*!

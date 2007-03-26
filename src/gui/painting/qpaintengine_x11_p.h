@@ -190,7 +190,7 @@ public:
 
     const QX11Info *xinfo;
     QPointF bg_origin;
-    QTransform::TransformationCodes txop;
+    QTransform::TransformationType txop;
     QPolygonClipper<qt_float_point, qt_float_point, float> polygonClipper;
 
     int xlibMaxLinePoints;

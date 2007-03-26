@@ -316,19 +316,7 @@ void QPainterPrivate::updateMatrix()
                     * (state->VxF ? viewTransform() : QTransform());
 
     txinv = false;                                // no inverted matrix
-    state->txop  = QTransform::TxNone;
-    if (state->matrix.m12()==0.0 && state->matrix.m21()==0.0
-        && state->matrix.m13()==0.0 && state->matrix.m23()==0.0
-        && state->matrix.m11() >= 0.0 && state->matrix.m22() >= 0.0) {
-        if (state->matrix.m11()==1.0 && state->matrix.m22()==1.0) {
-            if (state->matrix.dx()!=0.0 || state->matrix.dy()!=0.0)
-                state->txop = QTransform::TxTranslate;
-        } else {
-            state->txop = QTransform::TxScale;
-        }
-    } else {
-        state->txop = QTransform::TxRotShear;
-    }
+    state->txop = static_cast<int>(state->matrix.type());
     if (!redirection_offset.isNull()) {
         state->txop |= QTransform::TxTranslate;
         // We want to translate in dev space so we do the adding of the redirection

@@ -957,17 +957,7 @@ void QWin32PrintEngine::updateMatrix(const QTransform &m)
     QTransform stretch(d->stretch_x, 0, 0, d->stretch_y, d->origin_x, d->origin_y);
     d->painterMatrix = m;
     d->matrix = d->painterMatrix * stretch;
-
-    if (d->matrix.m12() != 0 || d->matrix.m21() != 0 ||
-        d->matrix.m13() != 0 || d->matrix.m23() != 0)
-        d->txop = QTransform::TxRotShear;
-    else if (d->matrix.m11() != 1 || d->matrix.m22() != 1)
-        d->txop = QTransform::TxScale;
-    else if (d->matrix.dx() != 0 || d->matrix.dy() != 0)
-        d->txop = QTransform::TxTranslate;
-    else
-        d->txop = QTransform::TxNone;
-
+    d->txop = d->matrix.type();
     d->complex_xform = (d->txop > QTransform::TxScale);
 }
 

@@ -40,6 +40,7 @@ private slots:
     void scale();
     void matrix();
     void testOffset();
+    void types();
 
 private:
     void mapping_data();
@@ -412,6 +413,123 @@ void tst_QTransform::testOffset()
     QTransform trans;
     const QMatrix &aff = trans.toAffine();
     QCOMPARE((void*)(&aff), (void*)(&trans));
+}
+
+void tst_QTransform::types()
+{
+    QTransform m1;
+    QCOMPARE(m1.type(), QTransform::TxNone);
+
+    m1.translate(1.0f, 0.0f);
+    QCOMPARE(m1.type(), QTransform::TxTranslate);
+    QCOMPARE(m1.inverted().type(), QTransform::TxTranslate);
+
+    m1.scale(1.0f, 2.0f);
+    QCOMPARE(m1.type(), QTransform::TxScale);
+    QCOMPARE(m1.inverted().type(), QTransform::TxScale);
+
+    m1.rotate(45.0f);
+    QCOMPARE(m1.type(), QTransform::TxRotate);
+    QCOMPARE(m1.inverted().type(), QTransform::TxRotate);
+
+    m1.shear(0.5f, 0.25f);
+    QCOMPARE(m1.type(), QTransform::TxShear);
+    QCOMPARE(m1.inverted().type(), QTransform::TxShear);
+
+    m1.rotate(45.0f, Qt::XAxis);
+    QCOMPARE(m1.type(), QTransform::TxProject);
+    m1.shear(0.5f, 0.25f);
+    QCOMPARE(m1.type(), QTransform::TxProject);
+    m1.rotate(45.0f);
+    QCOMPARE(m1.type(), QTransform::TxProject);
+    m1.scale(1.0f, 2.0f);
+    QCOMPARE(m1.type(), QTransform::TxProject);
+    m1.translate(1.0f, 0.0f);
+    QCOMPARE(m1.type(), QTransform::TxProject);
+
+    QTransform m2(1.0f, 0.0f, 0.0f,
+                  0.0f, 1.0f, 0.0f,
+                  -1.0f, -1.0f, 1.0f);
+
+    QCOMPARE(m2.type(), QTransform::TxTranslate);
+    QCOMPARE((m1 * m2).type(), QTransform::TxProject);
+
+    m1 *= QTransform();
+    QCOMPARE(m1.type(), QTransform::TxProject);
+
+    m1 *= QTransform(1.0f, 0.0f, 0.0f,
+                     0.0f, 1.0f, 0.0f,
+                     1.0f, 0.0f, 1.0f);
+    QCOMPARE(m1.type(), QTransform::TxProject);
+
+    m2.reset();
+    QCOMPARE(m2.type(), QTransform::TxNone);
+
+    m2.setMatrix(1.0f, 0.0f, 0.0f,
+                 0.0f, 1.0f, 0.0f,
+                 0.0f, 0.0f, 1.0f);
+    QCOMPARE(m2.type(), QTransform::TxNone);
+
+    m2 *= QTransform();
+    QCOMPARE(m2.type(), QTransform::TxNone);
+
+    m2.setMatrix(2.0f, 0.0f, 0.0f,
+                 0.0f, 1.0f, 0.0f,
+                 0.0f, 0.0f, 1.0f);
+    QCOMPARE(m2.type(), QTransform::TxScale);
+    m2 *= QTransform();
+    QCOMPARE(m2.type(), QTransform::TxScale);
+
+    m2.setMatrix(0.0f, 1.0f, 0.0f,
+                 1.0f, 0.0f, 0.0f,
+                 0.0f, 1.0f, 1.0f);
+    QCOMPARE(m2.type(), QTransform::TxRotate);
+    m2 *= QTransform();
+    QCOMPARE(m2.type(), QTransform::TxRotate);
+
+    m2.setMatrix(1.0f, 0.0f, 0.5f,
+                 0.0f, 1.0f, 0.0f,
+                 0.0f, 0.0f, 1.0f);
+    QCOMPARE(m2.type(), QTransform::TxProject);
+    m2 *= QTransform();
+    QCOMPARE(m2.type(), QTransform::TxProject);
+
+    m2.setMatrix(1.0f, 1.0f, 0.0f,
+                 1.0f, 0.0f, 0.0f,
+                 0.0f, 1.0f, 1.0f);
+    QCOMPARE(m2.type(), QTransform::TxShear);
+
+    m2 *= m2.inverted();
+    QCOMPARE(m2.type(), QTransform::TxNone);
+
+    m2.translate(5.0f, 5.0f);
+    m2.rotate(45.0f);
+    m2.rotate(-45.0f);
+    QCOMPARE(m2.type(), QTransform::TxTranslate);
+
+    m2.scale(2.0f, 3.0f);
+    m2.shear(1.0f, 0.0f);
+    m2.shear(-1.0f, 0.0f);
+    QCOMPARE(m2.type(), QTransform::TxScale);
+
+    m2 *= QTransform(1.0f, 1.0f, 0.0f,
+                     0.0f, 1.0f, 0.0f,
+                     0.0f, 0.0f, 1.0f);
+    QCOMPARE(m2.type(), QTransform::TxShear);
+
+    m2 *= QTransform(1.0f, 0.0f, 0.0f,
+                     0.0f, 1.0f, 0.0f,
+                     1.0f, 0.0f, 1.0f);
+    QCOMPARE(m2.type(), QTransform::TxShear);
+
+    QTransform m3(1.8f, 0.0f, 0.0f,
+                  0.0f, 1.8f, 0.0f,
+                  0.0f, 0.0f, 1.0f);
+
+    QCOMPARE(m3.type(), QTransform::TxScale);
+    m3.translate(5.0f, 5.0f);
+    QCOMPARE(m3.type(), QTransform::TxScale);
+    QCOMPARE(m3.inverted().type(), QTransform::TxScale);
 }
 
 QTEST_APPLESS_MAIN(tst_QTransform)

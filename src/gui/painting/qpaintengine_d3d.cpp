@@ -3602,7 +3602,7 @@ void QDirect3DPaintEnginePrivate::cleanupItem(QD3DBatchItem *item)
 
 bool QDirect3DPaintEnginePrivate::isFastRect(const QRectF &rect)
 {
-    if (m_matrix.type() < QTransform::TxRotShear) {
+    if (m_matrix.type() < QTransform::TxRotate) {
         QRectF r = m_matrix.mapRect(rect);
         return r.topLeft().toPoint() == r.topLeft()
             && r.bottomRight().toPoint() == r.bottomRight();

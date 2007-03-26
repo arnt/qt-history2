@@ -324,43 +324,26 @@ void QFTOutlineMapper::endOutline()
                 m_elements_dev << QPointF(e.x() + m_dx, e.y() + m_dy);
             }
         } else if (m_txop == QTransform::TxScale) {
-            bool affine = !m_m13 && !m_m23;
-            if (affine) {
-                for (int i=0; i<m_elements.size(); ++i) {
-                    const QPointF &e = m_elements.at(i);
-                    m_elements_dev << QPointF(m_m11 * e.x() + m_dx, m_m22 * e.y() + m_dy);
-                }
-            } else {
-                for (int i=0; i<m_elements.size(); ++i) {
-                    const QPointF &e = m_elements.at(i);
-                    qreal x = m_m11 * e.x() + m_dx;
-                    qreal y = m_m22 * e.y() + m_dy;
-                    qreal w = m_m13*e.x() + m_m23*e.y() + 1.;
-                    w = 1/w;
-                    x *= w;
-                    y *= w;
-                    m_elements_dev << QPointF(x, y);
-                }
+            for (int i=0; i<m_elements.size(); ++i) {
+                const QPointF &e = m_elements.at(i);
+                m_elements_dev << QPointF(m_m11 * e.x() + m_dx, m_m22 * e.y() + m_dy);
+            }
+        } else if (m_txop < QTransform::TxProject) {
+            for (int i=0; i<m_elements.size(); ++i) {
+                const QPointF &e = m_elements.at(i);
+                m_elements_dev << QPointF(m_m11 * e.x() + m_m21 * e.y() + m_dx,
+                                          m_m22 * e.y() + m_m12 * e.x() + m_dy);
             }
         } else {
-            bool affine = !m_m13 && !m_m23;
-            if (affine) {
-                for (int i=0; i<m_elements.size(); ++i) {
-                    const QPointF &e = m_elements.at(i);
-                    m_elements_dev << QPointF(m_m11 * e.x() + m_m21 * e.y() + m_dx,
-                                              m_m22 * e.y() + m_m12 * e.x() + m_dy);
-                }
-            } else {
-                for (int i=0; i<m_elements.size(); ++i) {
-                    const QPointF &e = m_elements.at(i);
-                    qreal x = m_m11 * e.x() + m_m21 * e.y() + m_dx;
-                    qreal y = m_m22 * e.y() + m_m12 * e.x() + m_dy;
-                    qreal w = m_m13*e.x() + m_m23*e.y() + 1.;
-                    w = 1/w;
-                    x *= w;
-                    y *= w;
-                    m_elements_dev << QPointF(x, y);
-                }
+            for (int i=0; i<m_elements.size(); ++i) {
+                const QPointF &e = m_elements.at(i);
+                qreal x = m_m11 * e.x() + m_m21 * e.y() + m_dx;
+                qreal y = m_m22 * e.y() + m_m12 * e.x() + m_dy;
+                qreal w = m_m13*e.x() + m_m23*e.y() + 1.;
+                w = 1/w;
+                x *= w;
+                y *= w;
+                m_elements_dev << QPointF(x, y);
             }
         }
         elements = m_elements_dev.data();
@@ -1048,22 +1031,21 @@ void QRasterPaintEngine::updateMatrix(const QTransform &matrix)
 
     d->matrix = matrix;
     d->int_xform = false;
-    if (d->matrix.m12() != 0 || d->matrix.m21() != 0 ||
-        d->matrix.m13() != 0 || d->matrix.m23() != 0) {
-        d->txop = QTransform::TxRotShear;
-    } else if (d->matrix.m11() != 1 || d->matrix.m22() != 1) {
-        d->txop = QTransform::TxScale;
+    d->txop = static_cast<int>(d->matrix.type());
+    switch (d->txop) {
+    case QTransform::TxScale:
         d->int_xform = qreal(int(d->matrix.dx())) == d->matrix.dx()
                             && qreal(int(d->matrix.dy())) == d->matrix.dy()
                             && qreal(int(d->matrix.m11())) == d->matrix.m11()
                             && qreal(int(d->matrix.m22())) == d->matrix.m22();
-    } else if (d->matrix.dx() != 0 || d->matrix.dy() != 0) {
-        d->txop = QTransform::TxTranslate;
+        break;
+    case QTransform::TxTranslate:
         d->int_xform = qreal(int(d->matrix.dx())) == d->matrix.dx()
                             && qreal(int(d->matrix.dy())) == d->matrix.dy();
-    } else {
-        d->txop = QTransform::TxNone;
+        break;
+    case QTransform::TxNone:
         d->int_xform = true;
+        break;
     }
 
     d->txscale = d->txop > QTransform::TxTranslate ?
@@ -1252,7 +1234,7 @@ void QRasterPaintEnginePrivate::updateMatrixData(QSpanData *spanData, const QBru
     if (b.d->style == Qt::NoBrush || b.d->style == Qt::SolidPattern)
         return;
     if (b.d->hasTransform) {
-        spanData->setupMatrix(b.transform() * m, txop, bilinear);
+        spanData->setupMatrix(b.transform() * m, bilinear);
     } else {
         if (txop <= QTransform::TxTranslate) {
             // specialize setupMatrix for translation matrices
@@ -1269,7 +1251,7 @@ void QRasterPaintEnginePrivate::updateMatrixData(QSpanData *spanData, const QBru
             spanData->bilinear = bilinear;
             spanData->adjustSpanMethods();
         } else {
-            spanData->setupMatrix(m, txop, bilinear);
+            spanData->setupMatrix(m, bilinear);
         }
     }
 }
@@ -2055,7 +2037,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
         if (stretch_sr)
             copy.scale(r.width() / sr.width(), r.height() / sr.height());
         copy.translate(-sr.x(), -sr.y());
-        textureData.setupMatrix(copy, QTransform::TxRotShear, d->bilinear);
+        textureData.setupMatrix(copy, d->bilinear);
 	textureData.adjustSpanMethods();
 
         bool wasAntialiased = d->antialiased;
@@ -2100,7 +2082,7 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
         QTransform copy = d->matrix;
         copy.translate(r.x(), r.y());
         copy.translate(-sr.x(), -sr.y());
-        textureData.setupMatrix(copy, QTransform::TxRotShear, d->bilinear);
+        textureData.setupMatrix(copy, d->bilinear);
 
         bool wasAntialiased = d->antialiased;
         if (!d->antialiased)
@@ -4533,7 +4515,7 @@ void QSpanData::adjustSpanMethods()
         blend = unclipped_blend;
 }
 
-void QSpanData::setupMatrix(const QTransform &matrix, int tx, int bilin)
+void QSpanData::setupMatrix(const QTransform &matrix, int bilin)
 {
     QTransform inv = matrix.inverted();
     m11 = inv.m11();
@@ -4544,7 +4526,7 @@ void QSpanData::setupMatrix(const QTransform &matrix, int tx, int bilin)
     m23 = inv.m23();
     dx = inv.dx();
     dy = inv.dy();
-    txop = tx;
+    txop = inv.type();
     bilinear = bilin;
     adjustSpanMethods();
 }

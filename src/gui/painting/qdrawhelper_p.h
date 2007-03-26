@@ -207,7 +207,7 @@ struct QSpanData
     };
     void init(QRasterBuffer *rb, QRasterPaintEngine *pe = 0);
     void setup(const QBrush &brush, int alpha);
-    void setupMatrix(const QTransform &matrix, int txop, int bilinear);
+    void setupMatrix(const QTransform &matrix, int bilinear);
     void initTexture(const QImage *image, int alpha, TextureData::Type = TextureData::Plain);
     void adjustSpanMethods();
 };

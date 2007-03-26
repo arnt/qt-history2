@@ -30,14 +30,17 @@ class QVariant;
 
 class Q_GUI_EXPORT QTransform
 {
+    Q_ENUMS(TransformationType)
 public:
-    enum TransformationCodes {
-        TxNone = 0,
-        TxTranslate = 1,
-        TxScale = 2,
-        TxRotShear = 3
+    enum TransformationType {
+        TxNone      = 0x00,
+        TxTranslate = 0x01,
+        TxScale     = 0x02,
+        TxRotate    = 0x04,
+        TxShear     = 0x08,
+        TxProject   = 0x10
     };
-public:
+
     QTransform();
     QTransform(qreal h11, qreal h12, qreal h13,
                qreal h21, qreal h22, qreal h23,
@@ -53,7 +56,7 @@ public:
     bool isRotating() const;
     bool isTranslating() const;
 
-    int type() const;
+    TransformationType type() const;
 
     inline qreal determinant() const;
     qreal det() const;
@@ -117,11 +120,15 @@ public:
     void map(qreal x, qreal y, qreal *tx, qreal *ty) const;
 
     const QMatrix &toAffine() const;
+
 private:
     QMatrix affine;
     qreal   m_13;
     qreal   m_23;
     qreal   m_33;
+
+    mutable uint m_type : 5;
+    mutable uint m_dirty : 5;
 
     class Private;
     Private *d;

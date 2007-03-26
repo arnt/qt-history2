@@ -1674,7 +1674,7 @@ void QX11PaintEngine::updateMatrix(const QTransform &mtx)
 {
     Q_D(QX11PaintEngine);
     d->matrix = mtx;
-    d->txop = (QTransform::TransformationCodes)mtx.type();
+    d->txop = d->matrix.type();
 
     d->has_complex_xform = (d->txop > QTransform::TxTranslate);
 }
