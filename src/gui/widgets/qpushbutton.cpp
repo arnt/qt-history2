@@ -171,10 +171,10 @@ public:
 
 /*!
     \property QPushButton::autoDefault
-    \brief whether the push button is the auto default button
+    \brief whether the push button is an auto default button
 
-    If this property is set to true then the push button is the auto
-    default button in a dialog.
+    If this property is set to true then the push button is an auto
+    default button.
 
     In some GUI styles a default button is drawn with an extra frame
     around it, up to 3 pixels or more. Qt automatically keeps this
@@ -192,16 +192,15 @@ public:
     \property QPushButton::default
     \brief whether the push button is the default button
 
-    If this property is set to true then the push button will be
-    pressed if the user presses the Enter (or Return) key in a dialog.
+    Default and autodefault buttons decide what happens when the user
+    presses enter in a dialog.
 
-    Regardless of focus, if the user presses Enter: If there is a
-    default button the default button is pressed; otherwise, if
-    there are one or more \l autoDefault buttons the first \l autoDefault
-    button that is next in the tab order is pressed. If there are no
-    default or \l autoDefault buttons only pressing Space on a button
-    with focus, mouse clicking, or using a shortcut will press a
-    button.
+    A button with this property set to true (i.e., the dialog's
+    \e default button,) will automatically be pressed when the user presses enter,
+    with one exception: if an \a autoDefault button currently has focus, the autoDefault
+    button is pressed. When the dialog has \l autoDefault buttons but no default button,
+    pressing enter will press either the \l autoDefault button that currently has focus, or if no
+    button has focus, the next \l autoDefault button in the focus chain.
 
     In a dialog, only one push button at a time can be the default
     button. This button is then displayed with an additional frame
@@ -211,9 +210,9 @@ public:
     can always be clicked from the keyboard by pressing Spacebar when
     the button has focus.
 
-    If the default property is unset on the current default button
-    while the dialog is visible, a new default will be assigned the
-    next time a pushbutton in the dialog receives focus.
+    If the default property is set to false on the current default button
+    while the dialog is visible, a new default will automatically be
+    assigned the next time a pushbutton in the dialog receives focus.
 
     This property's default is false.
 */
