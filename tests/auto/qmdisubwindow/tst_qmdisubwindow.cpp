@@ -26,6 +26,9 @@
 #include <QStyleOptionTitleBar>
 #include <QPushButton>
 #include <QSizeGrip>
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
+#include <QMacStyle>
+#endif
 
 #if defined(Q_WS_X11)
 extern void qt_x11_wait_for_window_manager(QWidget *w);
@@ -157,6 +160,7 @@ private slots:
     void keepWindowMaximizedState();
     void explicitlyHiddenWidget();
     void resizeTimer();
+    void fixedMinMaxSize();
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -1474,6 +1478,65 @@ void tst_QMdiSubWindow::resizeTimer()
     QTest::qWait(500); // Wait for timer events to occur.
 
     QCOMPARE(timerEventSpy.count(), 1);
+}
+
+void tst_QMdiSubWindow::fixedMinMaxSize()
+{
+    QMdiArea mdiArea;
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+
+    const QSize minimumSize = QSize(300, 300);
+    const QSize maximumSize = QSize(350, 350);
+
+    // Add the sub window to QMdiArea and set min/max size.
+    QMdiSubWindow *subWindow = new QMdiSubWindow;
+    subWindow->setMinimumSize(minimumSize);
+    QCOMPARE(subWindow->minimumSize(), minimumSize);
+    subWindow->setMaximumSize(maximumSize);
+    QCOMPARE(subWindow->maximumSize(), maximumSize);
+    mdiArea.addSubWindow(subWindow);
+    subWindow->show();
+    QCOMPARE(subWindow->size(), minimumSize);
+
+    // Calculate the size of a minimized sub window.
+    QStyleOptionTitleBar options;
+    options.initFrom(subWindow);
+    int minimizedHeight = subWindow->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options);
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
+    // ### Remove this after mac style has been fixed
+    if (qobject_cast<QMacStyle *>(subWindow->style()))
+        minimizedHeight -= 4;
+#endif
+    if (!subWindow->style()->styleHint(QStyle::SH_TitleBar_NoBorder, &options, subWindow))
+        minimizedHeight += 8;
+    int minimizedWidth = subWindow->style()->pixelMetric(QStyle::PM_MDIMinimizedWidth, &options);
+    const QSize minimizedSize = QSize(minimizedWidth, minimizedHeight);
+
+    // Even though the sub window has a minimum size set, it should be possible
+    // to minimize the window.
+    subWindow->showMinimized();
+    QVERIFY(subWindow->isMinimized());
+    QCOMPARE(subWindow->size(), minimizedSize);
+    QCOMPARE(subWindow->minimumSize(), minimizedSize);
+
+    // Restore minimum size.
+    subWindow->showNormal();
+    QVERIFY(!subWindow->isMinimized());
+    QCOMPARE(subWindow->size(), minimumSize);
+    QCOMPARE(subWindow->minimumSize(), minimumSize);
+
+    // Well, the logic here is of course broken (calling showMaximized on a window with
+    // maximum size set), but we should handle it :)
+    subWindow->showMaximized();
+    QVERIFY(subWindow->isMaximized());
+    QCOMPARE(subWindow->size(), maximumSize);
+
+    subWindow->showNormal();
+    QVERIFY(!subWindow->isMaximized());
+    QCOMPARE(subWindow->size(), minimumSize);
 }
 
 QTEST_MAIN(tst_QMdiSubWindow)
