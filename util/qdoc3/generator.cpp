@@ -63,7 +63,7 @@ void Generator::initialize(const Config &config)
 	    if ( !Config::removeDirContents(outDir) )
 		config.lastLocation().error(tr("Cannot empty output directory '%1'").arg(outDir));
 	} else {
-	    if ( !dirInfo.mkdir(outDir) )
+	    if ( !dirInfo.mkpath(outDir) )
 		config.lastLocation().fatal(tr("Cannot create output directory '%1'").arg(outDir));
 	}
 

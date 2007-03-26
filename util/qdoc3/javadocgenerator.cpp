@@ -219,7 +219,7 @@ void JavadocGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker 
         }
     }
     --currentDepth;
-    
+
     generateIndent();
     out() << "</class>\n";
 }
@@ -289,6 +289,11 @@ QString JavadocGenerator::linkForNode( const Node *node, const Node *relative )
     // ### EVIL, relative should never be null
     if (!relative)
         relative = node;
+
+    if (packageName(node).isEmpty()) {
+        // ### jasmin: Fixme
+        return QString();
+    }
 
     QString result;
     if (node->type() == Node::Fake) {

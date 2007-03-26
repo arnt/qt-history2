@@ -37,12 +37,17 @@ QString JavaCodeMarker::plainName( const Node *node )
 
 QString JavaCodeMarker::plainFullName( const Node *node, const Node * /* relative */ )
 {
+    if (!node)
+        return QString();
+
     QString fullName;
     for ( ;; ) {
 	fullName.prepend( plainName(node) );
-	if ( node->parent()->name().isEmpty() )
+	if ( node->parent() && node->parent()->name().isEmpty() )
 	    break;
 	node = node->parent();
+    if (!node)
+        break;
 	fullName.prepend(".");
     }
     return fullName;
