@@ -51,6 +51,12 @@ typedef bool (*StyleParseMethod)(QSvgStyleProperty *,
                                  const QXmlStreamAttributes &,
                                  QSvgHandler *);
 
+struct QSvgCssAttribute
+{
+    QXmlStreamStringRef name;
+    QXmlStreamStringRef value;
+};
+
 class QSvgHandler
 {
 public:
@@ -93,7 +99,7 @@ public:
     void setAnimPeriod(int start, int end);
     int animationDuration() const;
 
-    bool parseCSStoXMLAttrs(QString css, QXmlStreamAttributes &attributes);
+    bool parseCSStoXMLAttrs(QString css, QVector<QSvgCssAttribute> *attributes);
 
 public:
     bool startElement(const QString &localName, const QXmlStreamAttributes &attributes);
