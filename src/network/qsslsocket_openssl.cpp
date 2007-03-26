@@ -826,7 +826,7 @@ QSslCertificate QSslSocketBackendPrivate::QByteArray_to_QSslCertificate(const QB
         return QSslCertificate();
 
     QByteArray decoded = QByteArray::fromBase64(QByteArray::fromRawData(array.data() + startPos, endPos - startPos));
-#if OPENSSL_VERSION_NUMBER > 0x00905000L
+#if OPENSSL_VERSION_NUMBER >= 0x00908000L
     const unsigned char *data = (const unsigned char *)decoded.data();
 #else
     unsigned char *data = (unsigned char *)decoded.data();
@@ -857,7 +857,7 @@ QList<QSslCertificate> QSslSocketBackendPrivate::QByteArray_to_QSslCertificates(
         offset = endPos + sizeof(EndCertString) - 1;
 
         QByteArray decoded = QByteArray::fromBase64(QByteArray::fromRawData(array.data() + startPos, endPos - startPos));
-#if OPENSSL_VERSION_NUMBER > 0x00905000L
+#if OPENSSL_VERSION_NUMBER >= 0x00908000L
         const unsigned char *data = (const unsigned char *)decoded.data();
 #else
         unsigned char *data = (unsigned char *)decoded.data();
