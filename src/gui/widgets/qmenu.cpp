@@ -2017,6 +2017,12 @@ QMenu::event(QEvent *e)
             return true;
         }
     } break;
+    case QEvent::ContextMenu:
+        if(QMenuPrivate::menuDelayTimer.isActive()) {
+            QMenuPrivate::menuDelayTimer.stop();
+            internalDelayedPopup();
+        }
+        break;
     case QEvent::Resize:
         d->itemsDirty = 1;
         d->updateActions();
