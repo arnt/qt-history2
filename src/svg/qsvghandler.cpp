@@ -30,7 +30,6 @@
 #include "qfileinfo.h"
 #include "qfile.h"
 #include "qdebug.h"
-#include "private/qcssparser_p.h"
 #include "private/qmath_p.h"
 
 #include <math.h>
@@ -1693,8 +1692,7 @@ static void parseCSStoXMLAttrs(const QVector<QCss::Declaration> &declarations,
     }
 }
 
-static bool parseCSStoXMLAttrs(QString css,
-                               QXmlStreamAttributes &attributes)
+bool QSvgHandler::parseCSStoXMLAttrs(QString css, QXmlStreamAttributes &attributes)
 {
 #if 0
     css.prepend(QLatin1String("dummy {"));
@@ -1707,33 +1705,33 @@ static bool parseCSStoXMLAttrs(QString css,
     return attributes.count();
 #else
     // preprocess (for unicode escapes), tokenize and remove comments
-    QCss::Parser parser(css);
+    m_cssParser.init(css);
 
-    while (parser.hasNext()) {
-        parser.skipSpace();
+    while (m_cssParser.hasNext()) {
+        m_cssParser.skipSpace();
 
-        if (!parser.hasNext())
+        if (!m_cssParser.hasNext())
             break;
-        parser.next();
-        const QString key = parser.lexem();
+        m_cssParser.next();
+        const QString key = m_cssParser.lexem();
 
-        parser.skipSpace();
-        if (!parser.test(QCss::COLON))
+        m_cssParser.skipSpace();
+        if (!m_cssParser.test(QCss::COLON))
             break;
 
-        parser.skipSpace();
-        if (!parser.hasNext())
+        m_cssParser.skipSpace();
+        if (!m_cssParser.hasNext())
             break;
 
         QString value;
         do {
-            parser.next();
-            value += parser.lexem();
-        } while (parser.hasNext() && !parser.test(QCss::SEMICOLON));
+            m_cssParser.next();
+            value += m_cssParser.lexem();
+        } while (m_cssParser.hasNext() && !m_cssParser.test(QCss::SEMICOLON));
 
         attributes.append(QString(), key, value);
 
-        parser.skipSpace();
+        m_cssParser.skipSpace();
     }
 
     return attributes.count();
@@ -1764,7 +1762,7 @@ static bool parseDefaultTextStyle(QSvgNode *node,
     QString css = attrs.value(QString(), QLatin1String("style")).toString();
     QString fontFamily = attrs.value(QString(), QLatin1String("font-family")).toString();
 
-    parseCSStoXMLAttrs(css, attrs);
+    handler->parseCSStoXMLAttrs(css, attrs);
 
     QString anchor = attrs.value(QString(), QLatin1String("text-anchor")).toString();
 
@@ -2033,8 +2031,8 @@ static bool parseStyle(QSvgNode *node,
 {
     QXmlStreamAttributes attributes = attrs;
     if (!attrs.value(QString(), QLatin1String("style")).isEmpty()) {
-        parseCSStoXMLAttrs(attributes.value(QLatin1String("style")).toString(),
-                           attributes);
+        handler->parseCSStoXMLAttrs(attributes.value(QLatin1String("style")).toString(),
+                                    attributes);
     }
 
     parseColor(node, attributes, handler);
@@ -2851,7 +2849,7 @@ static bool parseStopNode(QSvgStyleProperty *parent,
     QXmlStreamAttributes attrs = attributes;
     QString cssStyle = attrs.value(QString(), QLatin1String("style")).toString();
     if (!cssStyle.isEmpty()) {
-        parseCSStoXMLAttrs(cssStyle, attrs);
+        handler->parseCSStoXMLAttrs(cssStyle, attrs);
     }
 
     for (int i = 0; i < decls.count(); ++i) {

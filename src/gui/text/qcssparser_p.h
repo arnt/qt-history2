@@ -600,15 +600,17 @@ class Q_AUTOTEST_EXPORT Scanner
 {
 public:
     static QString preprocess(const QString &input);
-    static QVector<Symbol> scan(const QString &preprocessedInput);
+    static void scan(const QString &preprocessedInput, QVector<Symbol> *symbols);
     static const char *tokenName(TokenType t);
 };
 
 class Q_GUI_EXPORT Parser
 {
 public:
+    Parser();
     explicit Parser(const QString &css);
 
+    void init(const QString &css);
     bool parse(StyleSheet *styleSheet);
     Symbol errorSymbol();
 

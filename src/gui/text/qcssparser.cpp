@@ -1516,9 +1516,8 @@ int QCssScanner_Generated::handleCommentStart()
     return S;
 }
 
-QVector<Symbol> Scanner::scan(const QString &preprocessedInput)
+void Scanner::scan(const QString &preprocessedInput, QVector<Symbol> *symbols)
 {
-    QVector<Symbol> symbols;
     QCssScanner_Generated scanner(preprocessedInput);
     Symbol sym;
     int tok = scanner.lex();
@@ -1527,10 +1526,9 @@ QVector<Symbol> Scanner::scan(const QString &preprocessedInput)
         sym.text = scanner.input;
         sym.start = scanner.lexemStart;
         sym.len = scanner.lexemLength;
-        symbols.append(sym);
+        symbols->append(sym);
         tok = scanner.lex();
     }
-    return symbols;
 }
 
 QString Symbol::lexem() const
@@ -1548,9 +1546,22 @@ QString Symbol::lexem() const
 
 Parser::Parser(const QString &css)
 {
-    symbols = Scanner::scan(Scanner::preprocess(css));
+    init(css);
+}
+
+Parser::Parser()
+{
     index = 0;
     errorIndex = -1;
+}
+
+void Parser::init(const QString &css)
+{
+    symbols.resize(0);
+    Scanner::scan(Scanner::preprocess(css), &symbols);
+    index = 0;
+    errorIndex = -1;
+    symbols.reserve(qMax(symbols.capacity(), symbols.size()));
 }
 
 bool Parser::parse(StyleSheet *styleSheet)

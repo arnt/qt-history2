@@ -29,6 +29,7 @@
 #include "QtCore/qhash.h"
 #include "QtCore/qstack.h"
 #include "qsvgstyle_p.h"
+#include "private/qcssparser_p.h"
 
 class QSvgNode;
 class QSvgTinyDocument;
@@ -91,6 +92,9 @@ public:
 
     void setAnimPeriod(int start, int end);
     int animationDuration() const;
+
+    bool parseCSStoXMLAttrs(QString css, QXmlStreamAttributes &attributes);
+
 public:
     bool startElement(const QString &localName, const QXmlStreamAttributes &attributes);
     bool endElement(const QStringRef &localName);
@@ -127,6 +131,7 @@ private:
     int m_animEnd;
 private:
     QXmlStreamReader xml;
+    QCss::Parser m_cssParser;
     void parse();
     static QHash<QString, FactoryMethod> s_groupFactory;
     static QHash<QString, FactoryMethod> s_graphicsFactory;
