@@ -39,7 +39,7 @@
   QScriptValueIterator it(object);
   while (it.hasNext()) {
     it.next();
-    qDebug() << it.name() << ": " << it.value();
+    qDebug() << it.name() << ": " << it.value().toString();
   }
   \endcode
 
@@ -55,7 +55,21 @@
   Note that QScriptValueIterator only iterates over the QScriptValue's
   own properties; i.e. it does not follow the prototype chain.
 
-  \sa QScriptValue::setProperty()
+  Note that QScriptValueIterator will not automatically skip over
+  properties that have the QScriptValue::SkipInEnumeration flag set;
+  that flag only affects iteration in script code.  If you want, you
+  can skip over such properties with code like the following:
+
+  \code
+  while (it.hasNext()) {
+    it.next();
+    if (it.flags() & QScriptValue::SkipInEnumeration)
+        continue;
+    qDebug() << "found enumerated property:" << it.name();
+  }
+  \endcode
+
+  \sa QScriptValue::property()
 */
 
 /*!
@@ -81,6 +95,8 @@ QScriptValueIterator::~QScriptValueIterator()
   Returns true if there is at least one item ahead of the iterator,
   i.e. the iterator is \i not at the back of the property sequence;
   otherwise returns false.
+
+  \sa next(), hasPrevious()
 */
 bool QScriptValueIterator::hasNext() const
 {
@@ -124,6 +140,8 @@ bool QScriptValueIterator::hasNext() const
 /*!
   Returns the name of the next property and advances the iterator by
   one position.
+
+  \sa hasNext(), previous()
 */
 QString QScriptValueIterator::next()
 {
@@ -140,6 +158,8 @@ QString QScriptValueIterator::next()
   Returns true if there is at least one item behind the iterator,
   i.e. the iterator is \i not at the front of the property sequence;
   otherwise returns false.
+
+  \sa previous(), hasNext()
 */
 bool QScriptValueIterator::hasPrevious() const
 {
@@ -183,6 +203,8 @@ bool QScriptValueIterator::hasPrevious() const
 /*!
   Returns the name of the previous property and moves the iterator
   back by one position.
+
+  \sa hasPrevious(), next()
 */
 QString QScriptValueIterator::previous()
 {
@@ -198,6 +220,8 @@ QString QScriptValueIterator::previous()
 /*!
   Moves the iterator to the front of the QScriptValue (before the
   first property).
+
+  \sa toBack(), next()
 */
 void QScriptValueIterator::toFront()
 {
@@ -209,6 +233,8 @@ void QScriptValueIterator::toFront()
 /*!
   Moves the iterator to the back of the QScriptValue (after the
   last property).
+
+  \sa toFront(), previous()
 */
 void QScriptValueIterator::toBack()
 {
@@ -220,6 +246,8 @@ void QScriptValueIterator::toBack()
 /*!
   Returns the name of the last property that was jumped over using
   next() or previous().
+
+  \sa value(), flags()
 */
 QString QScriptValueIterator::name() const
 {
@@ -245,6 +273,8 @@ QString QScriptValueIterator::name() const
 /*!
   Returns the value of the last property that was jumped over using
   next() or previous().
+
+  \sa setValue(), name()
 */
 QScriptValue QScriptValueIterator::value() const
 {
@@ -265,6 +295,8 @@ QScriptValue QScriptValueIterator::value() const
 /*!
   Sets the \a value of the last property that was jumped over using
   next() or previous().
+
+  \sa value(), name()
 */
 void QScriptValueIterator::setValue(const QScriptValue &value)
 {
@@ -283,6 +315,8 @@ void QScriptValueIterator::setValue(const QScriptValue &value)
 /*!
   Returns the flags of the last property that was jumped over using
   next() or previous().
+
+  \sa value()
 */
 QScriptValue::PropertyFlags QScriptValueIterator::flags() const
 {
@@ -301,6 +335,8 @@ QScriptValue::PropertyFlags QScriptValueIterator::flags() const
 /*!
   Removes the last property that was jumped over using next()
   or previous().
+
+  \sa setValue()
 */
 void QScriptValueIterator::remove()
 {

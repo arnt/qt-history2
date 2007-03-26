@@ -27,10 +27,10 @@
   \ingroup script
   \mainclass
 
-  A QScriptContext contains the `this' object and arguments passed to
-  a script function. You typically want to access this information
-  when you're writing a native (C++) function (see
-  QScriptEngine::createFunction()) that will be called from script
+  A QScriptContext provides access to the `this' object and arguments
+  passed to a script function. You typically want to access this
+  information when you're writing a native (C++) function (see
+  QScriptEngine::newFunction()) that will be called from script
   code. For example, when the script code
 
   \code
@@ -63,11 +63,13 @@
   Use engine() to obtain a pointer to the QScriptEngine that this context
   resides in.
 
-  \sa QScriptEngine
+  \sa QScriptEngine::newFunction(), QScriptable
 */
 
 /*!
-    \enum QScriptContext::State
+    \enum QScriptContext::ExecutionState
+
+    This enum specifies the execution state of the context.
 
     \value Normal The context is in a normal state.
 
@@ -76,6 +78,8 @@
 
 /*!
     \enum QScriptContext::Error
+
+    This enum specifies types of error.
 
     \value ReferenceError A reference error.
 
@@ -94,7 +98,7 @@
   Throws an exception with the given \a value.
   Returns the value thrown (the same as the argument).
 
-  \sa throwError(), recoverFromException(), state()
+  \sa throwError(), state()
 */
 QScriptValue QScriptContext::throwValue(const QScriptValue &value)
 {
@@ -111,7 +115,7 @@ QScriptValue QScriptContext::throwValue(const QScriptValue &value)
   The \a text will be stored in the \c{message} property of the error
   object.
 
-  \sa throwValue(), recoverFromException(), state()
+  \sa throwValue(), state()
 */
 QScriptValue QScriptContext::throwError(Error error, const QString &text)
 {
@@ -125,7 +129,7 @@ QScriptValue QScriptContext::throwError(Error error, const QString &text)
   Throws an error with the given \a text.
   Returns the created error object.
 
-  \sa throwValue(), recoverFromException(), state()
+  \sa throwValue(), state()
 */
 QScriptValue QScriptContext::throwError(const QString &text)
 {
@@ -237,6 +241,10 @@ QScriptContext *QScriptContext::parentContext() const
   Returns the number of arguments passed to the function
   in this invocation.
 
+  Note that the argument count can be different from the
+  formal number of arguments (the \c{length} property of
+  callee()).
+
   \sa argument()
 */
 int QScriptContext::argumentCount() const
@@ -265,7 +273,7 @@ void QScriptContext::setReturnValue(const QScriptValue &result)
 
 /*!
   Returns the activation object of this QScriptContext. The activation
-  objects provides access to the local variables associated with this
+  object provides access to the local variables associated with this
   context.
 
   \sa argument(), argumentsObject()
@@ -277,7 +285,8 @@ QScriptValue QScriptContext::activationObject() const
 }
 
 /*!
-  Sets the activation object of this QScriptContext.
+  Sets the activation object of this QScriptContext to be the given \a
+  activation.
 */
 void QScriptContext::setActivationObject(const QScriptValue &activation)
 {
@@ -341,7 +350,7 @@ const QScriptInstruction *QScriptContext::lastInstruction() const
 }
 
 /*!
-  Returns the state of this QScriptContext.
+  Returns the execution state of this QScriptContext.
 */
 QScriptContext::ExecutionState QScriptContext::state() const
 {

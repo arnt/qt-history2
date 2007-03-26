@@ -36,32 +36,53 @@
     QScriptValue three = myEngine.evaluate("1 + 2");
   \endcode
 
-  Use newObject() to create a standard Qt Script object. Use newDate()
-  to create a \c{Date} object, and newRegExp() to create a \c{RegExp}
-  object.  Use newQObject() to wrap a QObject (or subclass) pointer,
-  and newQMetaObject() to wrap a QMetaObject. Use newVariant() to wrap
-  a QVariant. Use newFunction() to wrap a native (C++) function.
+  evaluate() can throw a script exception (e.g. due to a syntax
+  error); in that case, the return value is the value that was thrown
+  (typically an \c{Error} object). You can check whether the
+  evaluation caused an exception by calling hasUncaughtException(). In
+  that case, you can call toString() on the error object to obtain an
+  error message.
 
-  When wrapping a QObject pointer with newQObject(), properties,
-  children and signals and slots of the object will then become
-  available to script code as properties of the created QScriptValue.
-  No binding code is needed because it is done dynamically using the
-  Qt meta object system. See the \l{QtScript} documentation for more
-  information.
+  \code
+    QScriptValue result = myEngine.evaluate(...);
+    if (myEngine.hasUncaughtException()) {
+        int line = myEngine.uncaughtExceptionLineNumber();
+        qDebug() << "uncaught exception at line" << line << ":" << result.toString();
+    }
+  \endcode
 
-  Typically, you set properties in the engine's Global Object to make
-  your own extensions available to scripts; properties of the Global
-  Object are accessible from any script code.
+  Use newObject() to create a standard Qt Script object. You can use
+  the object-specific functionality in QScriptValue to manipulate the
+  script object (e.g. QScriptValue::setProperty()). Use newArray() to
+  create a Qt script array object.
 
-  Here is an example of how to expose a number value through the
-  Global Object:
+  Use newDate() to create a \c{Date} object, and newRegExp() to create
+  a \c{RegExp} object. Use newVariant() to wrap a QVariant.
+
+  Use newQObject() to wrap a QObject (or subclass) pointer, and
+  newQMetaObject() to wrap a QMetaObject. When wrapping a QObject
+  pointer with newQObject(), properties, children and signals and
+  slots of the object will then become available to script code as
+  properties of the created QScriptValue.  No binding code is needed
+  because it is done dynamically using the Qt meta object system. See
+  the \l{QtScript} documentation for more information.
+
+  Use newFunction() to wrap a native (C++) function.
+
+  Use importExtension() to import plugin-based extensions into the
+  engine.
+
+  Use globalObject() to access the unique \bold {Global Object}
+  associated with the script engine. Properties of the Global Object
+  are accessible from any script code. Typically, you set properties
+  in the engine's Global Object to make your own extensions available
+  to scripts. Here is an example of how to expose a number value
+  through the Global Object:
 
   \code
     QScriptValue myNumber = QScriptValue(&myEngine, 123);
     myEngine.globalObject().setProperty("myNumber", myNumber);
-
     ...
-
     QScriptValue myNumberPlusOne = myEngine.evaluate("myNumber + 1");
   \endcode
 
@@ -95,13 +116,14 @@
     QSscriptValue result = myEngine.evaluate("myAdd(myNumber, 1)");
   \endcode
 
-  A different approach to writing and exposing (either generic or
-  non-generic) native functions is by using a combination of
-  newQObject() and QScriptable; see the documentation for
-  QScriptable for details.
+  You can define shared script functionality for a custom C++ type
+  by creating your own default prototype object and setting it with
+  setDefaultPrototype(); see also QScriptable.
 
-  You can extend the C++ types recognized by QScriptEngine by calling
-  qScriptRegisterMetaType() or qScriptRegisterSequenceMetaType().
+  Use fromScriptValue() to cast from a QScriptValue to another type,
+  and toScriptValue() to create a QScriptValue from another value.
+  You can specify how the conversion of C++ types is to be performed
+  with qScriptRegisterMetaType() and qScriptRegisterSequenceMetaType().
 
   \sa QScriptValue, QScriptContext
 
@@ -137,7 +159,7 @@ QScriptEngine::QScriptEngine(QScriptEnginePrivate &dd)
 /*!
     Constructs a QScriptEngine object.
 
-    The Global Object is initialized to have properties as described in
+    The globalObject() is initialized to have properties as described in
     \l{ECMA-262}, Section 15.1.
 */
 QScriptEngine::QScriptEngine()
@@ -150,7 +172,7 @@ QScriptEngine::QScriptEngine()
 /*!
     Constructs a QScriptEngine object with the given \a parent.
 
-    The Global Object is initialized to have properties as described in
+    The globalObject() is initialized to have properties as described in
     \l{ECMA-262}, Section 15.1.
 */
 
@@ -189,9 +211,11 @@ QScriptEngine::~QScriptEngine()
   Returns this engine's Global Object.
 
   The Global Object contains the built-in objects that are part of
-  \l{ECMA-262}, such as Math, Date and String. Additionally, you can set
-  properties of the Global Object to make your own extensions
-  available to all script code.
+  \l{ECMA-262}, such as Math, Date and String. Additionally, you can
+  set properties of the Global Object to make your own extensions
+  available to all script code. Non-local variables in script code
+  will be created as properties of the Global Object, as well as local
+  variables in global code.
 */
 QScriptValue QScriptEngine::globalObject() const
 {
@@ -323,6 +347,48 @@ QScriptValue QScriptEngine::newActivationObject()
   QScriptContext associated with the invocation to determine the
   actual number of arguments passed.
 
+  By combining newFunction() and the property flags
+  QScriptValue::PropertyGetter and QScriptValue::PropertySetter, you
+  can create script object properties that behave like normal
+  properties in script code, but are in fact accessed through
+  functions (analogous to how properties work in \l{Qt's Property
+  System}). Example:
+
+  \code
+    static QScriptValue getSetFoo(QScriptContext *context, QScriptEngine *engine)
+    {
+        QScriptValue callee = context->callee();
+        if (context->argumentCount() == 1) // writing?
+            callee.setProperty("value", context->argument(0));
+        return callee.property("value");
+    }
+
+    ....
+
+    QScriptValue object = engine.newObject();
+    object.setProperty("foo", engine.newFunction(getSetFoo),
+        QScriptValue::PropertyGetter | QScriptValue::PropertySetter);
+  \endcode
+
+  When the property \c{foo} of the script object is subsequently
+  accessed in script code, \c{getSetFoo()} will be invoked to handle
+  the access.  In this particular case, we chose to store the "real"
+  value of \c{foo} as a property of the accessor function itself; you
+  are of course free to do whatever you like in this function.
+
+  In the above example, a single native function was used to handle
+  both reads and writes to the property; the argument count is used to
+  determine if we are handling a read or write. You can also use two
+  separate functions; just specify the relevant flag
+  (QScriptValue::PropertyGetter or QScriptValue::PropertySetter) when
+  setting the property, e.g.:
+
+  \code
+    QScriptValue object = engine.newObject();
+    object.setProperty("foo", engine.newFunction(getFoo), QScriptValue::PropertyGetter);
+    object.setProperty("foo", engine.newFunction(setFoo), QScriptValue::PropertySetter);
+  \endcode
+
   \sa QScriptValue::call()
 */
 QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun, int length)
@@ -394,6 +460,8 @@ QScriptValue QScriptEngine::newDate(const QDateTime &value)
   Enums of \a metaObject are available as properties of the created
   QScriptValue. When the class is called as a function, \a ctor will
   be called to create a new instance of the class.
+
+  \sa newQObject()
 */
 QScriptValue QScriptEngine::newQMetaObject(
     const QMetaObject *metaObject, const QScriptValue &ctor)
@@ -445,6 +513,10 @@ QScriptValue QScriptEngine::newQMetaObject(
   Returns true if \a program can be evaluated (is syntactically
   complete); otherwise returns false.
 
+  Note that this function only does a static check of \a program;
+  e.g. it does not check whether references to variables are
+  valid, and so on.
+
   \sa evaluate()
 */
 bool QScriptEngine::canEvaluate(const QString &program) const
@@ -458,6 +530,12 @@ bool QScriptEngine::canEvaluate(const QString &program) const
 
   The script code will be evaluated in the current context.
 
+  The evaluation of \a program can cause an exception in the
+  engine; in this case the return value will be the exception
+  that was thrown (typically an \c{Error} object). You can call
+  hasUncaughtException() to determine if an exception occurred in
+  the last call to evaluate().
+
   \sa canEvaluate(), hasUncaughtException()
 */
 QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber)
@@ -469,6 +547,8 @@ QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber)
 }
 
 /*!
+  \overload
+
   Evaluates \a program and returns the result of the evaluation.
 
   The script code will be evaluated in the current context.
@@ -486,7 +566,8 @@ QScriptValue QScriptEngine::evaluate(const QString &program)
   Returns the current context.
 
   The current context is typically accessed to retrieve the arguments
-  to native functions.
+  and `this' object in native functions; for convenience, it is
+  available as the first argument in QScriptEngine::FunctionSignature.
 */
 QScriptContext *QScriptEngine::currentContext() const
 {
@@ -544,7 +625,7 @@ int QScriptEngine::uncaughtExceptionLineNumber() const
   Returns the default prototype associated with the given \a metaTypeId,
   or an invalid QScriptValue if no default prototype has been set.
 
-  \sa setDefaultPrototype(), newVariant()
+  \sa setDefaultPrototype()
 */
 QScriptValue QScriptEngine::defaultPrototype(int metaTypeId) const
 {
@@ -555,7 +636,13 @@ QScriptValue QScriptEngine::defaultPrototype(int metaTypeId) const
 /*!
   Sets the default prototype of the given \a metaTypeId to \a prototype.
 
-  \sa newVariant(), qScriptRegisterMetaType()
+  The default prototype provides a script interface for values of
+  type \a metaTypeId when a value of that type is accessed from script
+  code.  Whenever the script engine (implicitly or explicitly) creates
+  a QScriptValue from a value of type \a metaTypeId, the default
+  prototype will be set as the QScriptValue's prototype.
+
+  \sa defaultPrototype(), qScriptRegisterMetaType(), {Default Prototypes Example}
 */
 void QScriptEngine::setDefaultPrototype(int metaTypeId, const QScriptValue &prototype)
 {
@@ -627,7 +714,7 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     once; subsequent calls to importExtension() with the same extension
     name will do nothing and return undefinedValue().
 
-    \sa QScriptExtensionPlugin
+    \sa QScriptExtensionPlugin, \l{Creating QtScript Extensions}
 */
 QScriptValue QScriptEngine::importExtension(const QString &extension)
 {
@@ -639,6 +726,12 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
 
     Creates a QScriptValue with the given \a value.
 
+    Note that the template type \c{T} must be known to QMetaType.
+
+    By default, non-built-in types are represented as QVariants; you
+    can change this behavior by installing your own type conversion
+    functions with qScriptRegisterMetaType().
+
     \warning This function is not available with MSVC 6. Use
     qScriptValueFromValue() instead if you need to support that
     version of the compiler.
@@ -649,6 +742,8 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
 /*! \fn T QScriptEngine::fromScriptValue(const QScriptValue &value)
 
     Returns the given \a value converted to the template type \c{T}.
+
+    Note that \c{T} must be known to QMetaType.
 
     \warning This function is not available with MSVC 6. Use
     qScriptValueToValue() or qscriptvalue_cast() instead if you need
@@ -707,6 +802,12 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
 
     Returns the internal ID used by QMetaType.
 
+    You only need to call this function if you want to provide custom
+    conversion of values of type \c{T}, i.e. if the default QVariant-based
+    representation and conversion is not appropriate. If you only want to
+    define a script interface for values of type \c{T}, and don't care how
+    those values are represented, use \l{QScriptEngine::setDefaultPrototype()}{setDefaultPrototype}() instead.
+
     You need to declare the custom type first with
     Q_DECLARE_METATYPE().
 
@@ -721,15 +822,14 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
     and the script side.
 
     The following is an example of how to use this function. We will
-    make our engine able to handle our custom type
-    \c{MyStruct}. Here's the C++ type:
+    specify custom conversion of our type \c{MyStruct}. Here's the C++
+    type:
 
     \code
       struct MyStruct {
         int x;
         int y;
       };
-
     \endcode
 
     We must declare it so that the type will be known to QMetaType:
@@ -738,7 +838,8 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
       Q_DECLARE_METATYPE(MyStruct)
     \endcode
 
-    Here are the \c{MyStruct} conversion functions:
+    Next, the \c{MyStruct} conversion functions. We represent the
+    \c{MyStruct} value as a script object and just copy the properties:
 
     \code
     QScriptValue toScriptValue(QScriptEngine *engine, const MyStruct &s)
@@ -764,17 +865,16 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
     Working with \c{MyStruct} values is now easy:
     \code
     MyStruct s = qscriptvalue_cast<MyStruct>(context->argument(0));
-
     ...
-
     MyStruct s2;
     s2.x = s.x + 10;
     s2.y = s.y + 20;
     QScriptValue v = engine->toScriptValue(s2);
     \endcode
 
-    If you want to construct values of your custom type from script code,
-    you have to register a constructor function for the type. For example:
+    If you want to be able to construct values of your custom type
+    from script code, you have to register a constructor function for
+    the type. For example:
 
     \code
     QScriptValue createMyStruct(QScriptContext *, QScriptEngine *engine)
@@ -784,9 +884,7 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
         s.y = 456;
         return engine->toScriptValue(s);
     }
-
     ...
-
     QScriptValue ctor = engine.newFunction(createMyStruct);
     engine.globalObject().setProperty("MyStruct", ctor);
     \endcode

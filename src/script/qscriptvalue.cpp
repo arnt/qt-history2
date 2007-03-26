@@ -35,12 +35,12 @@
   standard: The primitive types, which are Undefined, Null, Boolean,
   Number, and String; and the Object type. Additionally, Qt Script
   defines two types: \c{Variant} (a QVariant), and \c{QObject} (a pointer to a
-  QObject (or subclass)). Custom types are supported by means of the
-  Qt meta type system; see qScriptRegisterMetaType().
+  QObject (or subclass)).
 
-  To obtain a QScriptValue, you use one of the scriptValue() or
-  scriptValueFromT() methods in QScriptEngine
-  (e.g. \c{QScriptEngine::scriptValue(123)}).
+  For the object-based types (including Date and RegExp), use the
+  newT() functions in QScriptEngine (e.g. QScriptEngine::newObject())
+  to create a QScriptValue of the desired type. For the primitive types,
+  use one of the QScriptValue constructor overloads.
 
   The methods named isT() (e.g. isBoolean(), isUndefined()) can be
   used to test if a value is of a certain type. The methods named
@@ -54,14 +54,25 @@
 
   Object values have an internal \c{prototype} property, which can be
   accessed with prototype() and setPrototype(). Properties added to a
-  prototype are shared by all objects having that prototype. For more
-  information, see the \l{QtScript} documentation.
+  prototype are shared by all objects having that prototype; this is
+  referred to as prototype-based inheritance. For more information,
+  see the \l{QtScript} documentation.
 
   Function objects (objects for which isFunction() returns true) can
   be invoked by calling call(). Constructor functions can be used to
   construct new objects by calling construct().
 
-  \sa QScriptEngine
+  \sa QScriptEngine, QScriptValueIterator
+*/
+
+/*!
+    \enum QScriptValue::SpecialValue
+
+    This enum is used to specify a single-valued type.
+
+    \value UndefinedValue An undefined value.
+
+    \value NullValue A null value.
 */
 
 /*!
@@ -146,6 +157,7 @@ QScriptValue::QScriptValue(const QScriptValue &other)
 }
 
 /*!
+  Constructs a new QScriptValue with the given \a value.
 */
 QScriptValue::QScriptValue(QScriptEngine *engine, QScriptValue::SpecialValue value)
 {
@@ -655,7 +667,7 @@ void QScriptValue::setProperty(const QString &name, const QScriptValue &value,
 
   If no such property exists, an invalid QScriptValue is returned.
 
-  \sa setProperty()
+  \sa setProperty(), propertyFlags()
 */
 QScriptValue QScriptValue::property(const QString &name,
                                     const ResolveFlags &mode) const
@@ -695,6 +707,8 @@ void QScriptValue::setProperty(quint32 arrayIndex, const QScriptValue &value,
 /*!
   Returns the flags of the property with the given \a name, using the
   given \a mode to resolve the property.
+
+  \sa property()
 */
 QScriptValue::PropertyFlags QScriptValue::propertyFlags(const QString &name,
                                                         const ResolveFlags &mode) const
@@ -774,7 +788,7 @@ QScriptValue QScriptValue::call(const QScriptValue &thisObject,
   \a arguments can be an arguments object, an array, null or
   undefined; any other type will cause a TypeError to be thrown.
 
-  \sa call(), newObject()
+  \sa call(), QScriptEngine::newObject()
 */
 QScriptValue QScriptValue::construct(const QScriptValueList &args)
 {
@@ -858,7 +872,7 @@ bool QScriptValue::isFunction() const
   Returns true if this QScriptValue is of the primitive type Null;
   otherwise returns false.
 
-  \sa QScriptEngine::nullScriptValue()
+  \sa QScriptEngine::nullValue()
 */
 bool QScriptValue::isNull() const
 {
@@ -869,7 +883,7 @@ bool QScriptValue::isNull() const
   Returns true if this QScriptValue is of the primitive type Undefined;
   otherwise returns false.
 
-  \sa QScriptEngine::undefinedScriptValue()
+  \sa QScriptEngine::undefinedValue()
 */
 bool QScriptValue::isUndefined() const
 {
