@@ -120,7 +120,7 @@ bool QDesignerMenu::handleEvent(QWidget *widget, QEvent *event)
     return true;
 }
 
-void QDesignerMenu::startDrag(const QPoint &pos)
+void QDesignerMenu::startDrag(const QPoint &pos, Qt::KeyboardModifiers modifiers)
 {
     const int index = findAction(pos);
     if (index >= realActionCount())
@@ -128,9 +128,11 @@ void QDesignerMenu::startDrag(const QPoint &pos)
 
     QAction *action = safeActionAt(index);
 
-    RemoveActionFromCommand *cmd = new RemoveActionFromCommand(formWindow());
-    cmd->init(this, action, actions().at(index + 1));
-    formWindow()->commandHistory()->push(cmd);
+    if (!(modifiers & Qt::ControlModifier)) {
+        RemoveActionFromCommand *cmd = new RemoveActionFromCommand(formWindow());
+        cmd->init(this, action, actions().at(index + 1));
+        formWindow()->commandHistory()->push(cmd);
+    }
 
     QDrag *drag = new QDrag(this);
     drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
@@ -143,9 +145,11 @@ void QDesignerMenu::startDrag(const QPoint &pos)
     if (drag->start() == Qt::IgnoreAction) {
         QAction *previous = safeActionAt(index);
 
-        InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
-        cmd->init(this, action, previous);
-        formWindow()->commandHistory()->push(cmd);
+        if (!(modifiers & Qt::ControlModifier)) {
+            InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+            cmd->init(this, action, previous);
+            formWindow()->commandHistory()->push(cmd);
+        }
 
         m_currentIndex = old_index;
     }
@@ -399,7 +403,7 @@ bool QDesignerMenu::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
     if ((pos - m_startPosition).manhattanLength() < qApp->startDragDistance())
         return true;
 
-    startDrag(m_startPosition);
+    startDrag(m_startPosition, event->modifiers());
     m_startPosition = QPoint();
 
     return true;

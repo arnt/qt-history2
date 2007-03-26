@@ -106,7 +106,7 @@ protected:
     bool handleContextMenuEvent(QWidget *widget, QContextMenuEvent *event);
     bool handleKeyPressEvent(QWidget *widget, QKeyEvent *event);
 
-    void startDrag(const QPoint &pos);
+    void startDrag(const QPoint &pos, Qt::KeyboardModifiers modifiers);
 
     void adjustIndicator(const QPoint &pos);
     int findAction(const QPoint &pos) const;

@@ -83,7 +83,7 @@ protected:
     virtual void dragLeaveEvent(QDragLeaveEvent *event);
     virtual void dropEvent(QDropEvent *event);
 
-    void startDrag(const QPoint &pos);
+    void startDrag(const QPoint &pos, Qt::KeyboardModifiers modifiers);
     bool handleEvent(QWidget *widget, QEvent *event);
     bool handleMousePressEvent(QWidget *widget, QMouseEvent *event);
     bool handleMouseReleaseEvent(QWidget *widget, QMouseEvent *event);

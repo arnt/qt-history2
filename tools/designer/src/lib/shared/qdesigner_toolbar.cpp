@@ -82,17 +82,19 @@ bool QDesignerToolBar::handleEvent(QWidget *widget, QEvent *event)
     return true;
 }
 
-void QDesignerToolBar::startDrag(const QPoint &pos)
+void QDesignerToolBar::startDrag(const QPoint &pos, Qt::KeyboardModifiers modifiers)
 {
     int index = findAction(pos);
     if (index == actions().count() - 1)
         return;
 
     QAction *action = actions().at(index);
-    removeAction(action);
-    adjustSize();
 
-    adjustIndicator(pos);
+    if (!(modifiers & Qt::ControlModifier)) {
+        RemoveActionFromCommand *cmd = new RemoveActionFromCommand(formWindow());
+        cmd->init(this, action, actions().at(index + 1));
+        formWindow()->commandHistory()->push(cmd);
+    }
 
     QDrag *drag = new QDrag(this);
     drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
@@ -102,9 +104,11 @@ void QDesignerToolBar::startDrag(const QPoint &pos)
     if (drag->start() == Qt::IgnoreAction) {
         QAction *previous = actions().at(index);
 
-        InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
-        cmd->init(this, action, previous);
-        formWindow()->commandHistory()->push(cmd);
+        if (!(modifiers & Qt::ControlModifier)) {
+            InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+            cmd->init(this, action, previous);
+            formWindow()->commandHistory()->push(cmd);
+        }
     }
 }
 
@@ -148,7 +152,7 @@ bool QDesignerToolBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
     if ((pos - m_startPosition).manhattanLength() < qApp->startDragDistance())
         return true;
 
-    startDrag(m_startPosition);
+    startDrag(m_startPosition, event->modifiers());
     m_startPosition = QPoint();
 
     return true;
