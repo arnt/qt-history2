@@ -90,24 +90,18 @@ void Grid::paint(QWidget *widget, QPaintEvent *e, bool needFrame) const
         const int xstart = (e->rect().x() / m_deltaX) * m_deltaX;
         const int ystart = (e->rect().y() / m_deltaY) * m_deltaY;
 
-        const int xend = (e->rect().right()  / m_deltaX) * m_deltaX;
-        const int yend = (e->rect().bottom() / m_deltaY) * m_deltaY;
+        const int xend = e->rect().right();
+        const int yend = e->rect().bottom();
 
         typedef QVector<QPointF> Points;
         static Points points;
-        if (points.empty()) {
-            points.reserve(4096);
-        } else {
-            points.clear();
-        }
+        points.clear();
 
         for (int x = xstart; x <= xend; x += m_deltaX) {
-            int pointsCount = 0;
-            for (int y = ystart; y <= yend; y += m_deltaY) {
+            points.reserve((yend - ystart) / m_deltaY + 1);
+            for (int y = ystart; y <= yend; y += m_deltaY)
                 points.push_back(QPointF(x, y));
-                pointsCount++;
-            }
-            p.drawPoints( &(*points.begin()), pointsCount);
+            p.drawPoints( &(*points.begin()), points.count());
             points.clear();
         }
     }
