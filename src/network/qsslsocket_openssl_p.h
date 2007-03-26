@@ -68,6 +68,16 @@ public:
     QSslSocketBackendPrivate();
     virtual ~QSslSocketBackendPrivate();
 
+    // SSL context
+    bool initSslContext();
+    SSL *ssl;
+    SSL_CTX *ctx;
+    BIO *readBio;
+    BIO *writeBio;
+    SSL_SESSION *session;
+    X509_STORE *certificateStore;
+    X509_STORE_CTX *certificateStoreCtx;
+
     // Platform specific functions
     void startClientHandShake();
     void startServerHandShake();
@@ -76,16 +86,6 @@ public:
     void disconnectFromHost();
     void disconnected();
     QSslCipher currentCipher() const;
-
-    // SSL context
-    static bool resolveSsl();
-    bool initOpenSsl();
-    bool initialized;
-    SSL *ssl;
-    SSL_CTX *ctx;
-    BIO *readBio;
-    BIO *writeBio;
-    SSL_SESSION *session;
 
     static QSslCipher QSslCipher_from_SSL_CIPHER(SSL_CIPHER *cipher);
     static QByteArray X509_to_QByteArray(X509 *x509, bool pemEncoded);

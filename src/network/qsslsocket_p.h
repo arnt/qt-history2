@@ -72,7 +72,7 @@ public:
     QSslCertificate localCertificate;
     QList<QSslError> sslErrors;
 
-    static void ensureInitialized();
+    static bool ensureInitialized();
     static QList<QSslCipher> globalCiphers();
     static QList<QSslCipher> supportedCiphers();
     static void setGlobalCiphers(const QList<QSslCipher> &ciphers);

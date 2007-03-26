@@ -175,7 +175,12 @@ int q_CRYPTO_num_locks();
 void q_CRYPTO_set_locking_callback(void (*a)(int, int, const char *, int));
 void q_CRYPTO_set_id_callback(unsigned long (*a)());
 void q_CRYPTO_free(void *a);
+#if OPENSSL_VERSION_NUMBER > 0x00905000L
+// 0.9.8 broke SC and BC by changing this function's signature.
 X509 *q_d2i_X509(X509 **a, const unsigned char **b, long c);
+#else
+X509 *q_d2i_X509(X509 **a, unsigned char **b, long c);
+#endif
 char *q_ERR_error_string(unsigned long a, char *b);
 unsigned long q_ERR_get_error();
 int q_i2d_X509(X509 *a, unsigned char **b);

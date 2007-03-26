@@ -67,6 +67,8 @@ class OpenSslLocks
 {
 public:
     inline OpenSslLocks()
+        : initLocker(QMutex::Recursive),
+          locksLocker(QMutex::Recursive)
     {
         QMutexLocker locker(&locksLocker);
         int numLocks = q_CRYPTO_num_locks();
@@ -94,7 +96,13 @@ public:
         return &locksLocker;
     }
 
+    QMutex *initLock()
+    {
+        return &initLocker;
+    }
+
 private:
+    QMutex initLocker;
     QMutex locksLocker;
     QMutex **locks;
 };
@@ -118,8 +126,7 @@ static unsigned long id_function()
 } // extern "C"
 
 QSslSocketBackendPrivate::QSslSocketBackendPrivate()
-    : initialized(false),
-      ssl(0),
+    : ssl(0),
       ctx(0),
       readBio(0),
       writeBio(0),
@@ -171,30 +178,154 @@ QSslCipher QSslSocketBackendPrivate::QSslCipher_from_SSL_CIPHER(SSL_CIPHER *ciph
     return ciph;
 }
 
+// ### This list is shared between all threads, and protected by a
+// mutex. Investigate using thread local storage instead.
+struct QSslErrorList
+{
+    QMutex mutex;
+    QList<int> errors;
+};
+Q_GLOBAL_STATIC(QSslErrorList, _q_sslErrorList)
+static int q_X509Callback(int ok, X509_STORE_CTX *ctx)
+{
+    Q_UNUSED(ok);
+    _q_sslErrorList()->errors << ctx->error;
+    return ctx->error;
+}
+
+bool QSslSocketBackendPrivate::initSslContext()
+{
+    Q_Q(QSslSocket);
+
+    // Create and initialize SSL context. Accept SSLv2, SSLv3 and TLSv1.
+    bool client = (mode == QSslSocket::SslClientMode);
+    switch (protocol) {
+    case QSslSocket::SslV2:
+        ctx = q_SSL_CTX_new(client ? q_SSLv2_client_method() : q_SSLv2_server_method());
+        break;
+    case QSslSocket::SslV3:
+        ctx = q_SSL_CTX_new(client ? q_SSLv3_client_method() : q_SSLv3_server_method());
+        break;
+    case QSslSocket::Compat:
+        ctx = q_SSL_CTX_new(client ? q_SSLv23_client_method() : q_SSLv23_server_method());
+        break;
+    case QSslSocket::TlsV1:
+        ctx = q_SSL_CTX_new(client ? q_TLSv1_client_method() : q_TLSv1_server_method());
+        break;
+    }
+    if (!ctx) {
+        // ### Bad error code
+        q->setErrorString(QSslSocket::tr("Error creating SSL context (%1)").arg(SSL_ERRORSTR()));
+        q->setSocketError(QAbstractSocket::UnknownSocketError);
+        emit q->error(QAbstractSocket::UnknownSocketError);
+        return false;
+    }
+
+    // Enable all bug workarounds.
+    q_SSL_CTX_set_options(ctx, SSL_OP_ALL);
+
+    // Initialize ciphers
+    QByteArray cipherString;
+    int first = true;
+    foreach (const QSslCipher &cipher, ciphers.isEmpty() ? globalCiphers() : ciphers) {
+        if (first)
+            first = false;
+        else
+            cipherString.append(":");
+        cipherString.append(cipher.name().toLatin1());
+    }
+
+    if (!q_SSL_CTX_set_cipher_list(ctx, cipherString.data())) {
+        // ### Bad error code
+        q->setErrorString(QSslSocket::tr("Invalid or empty cipher list (%1)").arg(SSL_ERRORSTR()));
+        q->setSocketError(QAbstractSocket::UnknownSocketError);
+        emit q->error(QAbstractSocket::UnknownSocketError);
+        return false;
+    }
+
+    // Add all our CAs to this store.
+    foreach (const QSslCertificate &caCertificate, q->caCertificates())
+        q_X509_STORE_add_cert(ctx->cert_store, q_X509_dup((X509 *)caCertificate.handle()));
+
+    // Register a custom callback to get all verification errors.
+    X509_STORE_set_verify_cb_func(ctx->cert_store, q_X509Callback);
+
+    // Load private key
+    /*
+      if (!SSL_CTX_use_PrivateKey_file(d->ctx, QFile::encodeName(d->key).constData(), SSL_FILETYPE_PEM)) {
+      setErrorString(tr("Error loading private key, %1").arg(SSL_ERRORSTR()));
+      emit error(UnknownSocketError);
+            return false;
+            }
+    */
+
+    // Check if the certificate matches the private key.
+    /*
+      if  (!SSL_CTX_check_private_key(d->ctx)) {
+      setErrorString(tr("Private key do not certificate public key, %1").arg(SSL_ERRORSTR()));
+      emit error(UnknownSocketError);
+      return false;
+      }
+    */
+
+    // Create and initialize SSL session
+    if (!(ssl = q_SSL_new(ctx))) {
+        // ### Bad error code
+        q->setErrorString(QSslSocket::tr("Error creating SSL session, %1").arg(SSL_ERRORSTR()));
+        q->setSocketError(QAbstractSocket::UnknownSocketError);
+        emit q->error(QAbstractSocket::UnknownSocketError);
+        return false;
+    }
+
+    // Clear the session.
+    q_SSL_clear(ssl);
+
+    // Initialize memory BIOs for encryption and decryption.
+    readBio = q_BIO_new(q_BIO_s_mem());
+    writeBio = q_BIO_new(q_BIO_s_mem());
+    if (!readBio || !writeBio) {
+        // ### Bad error code
+        q->setErrorString(QSslSocket::tr("Error creating SSL session: %1").arg(SSL_ERRORSTR()));
+        q->setSocketError(QAbstractSocket::UnknownSocketError);
+        emit q->error(QAbstractSocket::UnknownSocketError);
+        return false;
+    }
+
+    // Assign the bios.
+    q_SSL_set_bio(ssl, readBio, writeBio);
+
+    if (mode == QSslSocket::SslClientMode)
+        q_SSL_set_connect_state(ssl);
+    else
+        q_SSL_set_accept_state(ssl);
+
+    return true;
+}
+
 /*!
     \internal
 
     Declared static in QSslSocketPrivate, makes sure the SSL libraries have
     been initialized.
 */
-void QSslSocketPrivate::ensureInitialized()
+bool QSslSocketPrivate::ensureInitialized()
 {
     if (!q_resolveOpenSslSymbols()) {
         qWarning("QSslSocketBackendPrivate::ensureInitialized: unable to resolve all symbols");
-        return;
+        return false;
     }
 
     // Check if the library itself needs to be initialized.
-    openssl_locks()->globalLock()->lock();
+    QMutexLocker locker(openssl_locks()->initLock());
     static int q_initialized = false;
     if (!q_initialized) {
         q_initialized = true;
-        openssl_locks()->globalLock()->unlock();
 
         // Initialize OpenSSL.
         q_CRYPTO_set_id_callback(id_function);
         q_CRYPTO_set_locking_callback(locking_function);
-        q_SSL_library_init();
+        if (q_SSL_library_init() != 1)
+            return false;
         q_SSL_load_error_strings();
 
         // Initialize OpenSSL's random seed.
@@ -214,9 +345,8 @@ void QSslSocketPrivate::ensureInitialized()
 
         resetGlobalCiphers();
         setGlobalCaCertificates(systemCaCertificates());
-    } else {
-        openssl_locks()->globalLock()->unlock();
     }
+    return true;
 }
 
 /*!
@@ -257,7 +387,7 @@ void QSslSocketPrivate::resetGlobalCiphers()
 
 QList<QSslCertificate> QSslSocketPrivate::systemCaCertificates()
 {
-#ifdef Q_OS_UNIX
+#ifdef QQ_OS_UNIX
     // Check known locations for the system's default bundle.  ### On Windows,
     // we should use CAPI to find the bundle, and not rely on default unix
     // locations.
@@ -312,7 +442,7 @@ QList<QSslCertificate> QSslSocketPrivate::certificatesFromPath(const QString &pa
 
 void QSslSocketBackendPrivate::startClientHandShake()
 {
-    if (!initOpenSsl()) {
+    if (!initSslContext()) {
         // ### report error: internal OpenSSL failure
         return;
     }
@@ -325,7 +455,7 @@ void QSslSocketBackendPrivate::startClientHandShake()
 
 void QSslSocketBackendPrivate::startServerHandShake()
 {
-    if (!initOpenSsl()) {
+    if (!initSslContext()) {
         // ### report error: internal OpenSSL failure
         return;
     }
@@ -435,25 +565,19 @@ void QSslSocketBackendPrivate::transmit()
     } while (transmitting);
 }
 
-// ### This list is shared between all threads, and protected by a
-// mutex. Use TLS instead.
-struct QSslErrorList
-{
-    QMutex mutex;
-    QList<int> errors;
-};
-Q_GLOBAL_STATIC(QSslErrorList, _q_sslErrorList)
-static int q_X509Callback(int /* ok */, X509_STORE_CTX *ctx)
-{
-    // This list is protected by a mutex.
-    _q_sslErrorList()->errors << ctx->error;
-    return ctx->error;
-}
-
 bool QSslSocketBackendPrivate::testConnection()
 {
     Q_Q(QSslSocket);
+
+    // Check if the connection has been established. Get all errors from the
+    // verification stage.
+    _q_sslErrorList()->mutex.lock();
+    _q_sslErrorList()->errors.clear();
     int result = (mode == QSslSocket::SslClientMode) ? q_SSL_connect(ssl) : q_SSL_accept(ssl);
+    QList<int> errorList = _q_sslErrorList()->errors;
+    _q_sslErrorList()->mutex.unlock();
+
+    // Check if we're encrypted or not.
     if (result <= 0) {
         switch (q_SSL_get_error(ssl, result)) {
         case SSL_ERROR_WANT_READ:
@@ -495,50 +619,14 @@ bool QSslSocketBackendPrivate::testConnection()
         QString commonName = peerCertificate.subjectInfo(QSslCertificate::CommonName);
         // ### Both CommonName and AlternameSubjectNames can contain wildcards.
         QString peerName = q->peerName();
-        if (commonName != peerName && !peerCertificate.alternateSubjectNames().contains(peerName)) {
+        if (commonName != peerName && !peerCertificate.alternateSubjectNames().contains(peerName))
             errors << QSslError(QSslError::HostNameMismatch);
-        }
     } else {
         errors << QSslError(QSslError::NoPeerCertificate);
     }
 
-    // Create a new X509 certificate store.
-    X509_STORE *certificateStore = q_X509_STORE_new();
-
-    // Use this store to verify certificates, using the default callback.
-    X509_STORE_set_verify_cb_func(certificateStore, q_X509Callback);
-
-    // Add all our CAs to this store.
-    foreach (const QSslCertificate &caCertificate, q->caCertificates())
-        q_X509_STORE_add_cert(certificateStore, q_X509_dup((X509 *)caCertificate.handle()));
-
-    // Create a new X509 certificate store context.
-    X509_STORE_CTX *certificateStoreCtx = q_X509_STORE_CTX_new();
-
-    // Associate the peer certificate and the store with this store context.
-    q_X509_STORE_CTX_init(certificateStoreCtx, certificateStore,
-                          (X509 *)peerCertificate.handle(), 0);
-
-    // Set if this is a client or server certificate.
-    int purpose = 0;
-    if (mode == QSslSocket::SslClientMode) {
-        purpose = X509_PURPOSE_SSL_SERVER;
-    } else {
-        purpose = X509_PURPOSE_SSL_CLIENT;
-    }
-    q_X509_STORE_CTX_set_purpose(certificateStoreCtx, purpose);
-
     // Verify the authenticity of the certificate. This code should really go
     // into QSslCertificate.  ### Crude and inefficient.
-    _q_sslErrorList()->mutex.lock();
-    _q_sslErrorList()->errors.clear();
-    q_X509_verify_cert(certificateStoreCtx);
-    QList<int> errorList = _q_sslErrorList()->errors;
-    _q_sslErrorList()->mutex.unlock();
-
-    // Clean up.
-    q_X509_STORE_CTX_free(certificateStoreCtx);
-    q_X509_STORE_free(certificateStore);
 
     // Check if the certificate is OK.
     for (int i = 0; i < errorList.size(); ++i) {
@@ -632,114 +720,6 @@ QSslCipher QSslSocketBackendPrivate::currentCipher() const
         return QSslCipher();
     SSL_CIPHER *currentCipher = q_SSL_get_current_cipher(ssl);
     return currentCipher ? QSslCipher_from_SSL_CIPHER(currentCipher) : QSslCipher();
-}
-
-bool QSslSocketBackendPrivate::resolveSsl()
-{
-    return q_resolveOpenSslSymbols();
-}
-
-bool QSslSocketBackendPrivate::initOpenSsl()
-{
-    Q_Q(QSslSocket);
-
-    // Create and initialize SSL context. Accept SSLv2, SSLv3 and TLSv1.
-    bool client = (mode == QSslSocket::SslClientMode);
-    switch (protocol) {
-    case QSslSocket::SslV2:
-        ctx = q_SSL_CTX_new(client ? q_SSLv2_client_method() : q_SSLv2_server_method());
-        break;
-    case QSslSocket::SslV3:
-        ctx = q_SSL_CTX_new(client ? q_SSLv3_client_method() : q_SSLv3_server_method());
-        break;
-    case QSslSocket::Compat:
-        ctx = q_SSL_CTX_new(client ? q_SSLv23_client_method() : q_SSLv23_server_method());
-        break;
-    case QSslSocket::TlsV1:
-        ctx = q_SSL_CTX_new(client ? q_TLSv1_client_method() : q_TLSv1_server_method());
-        break;
-    }
-    if (!ctx) {
-        // ### Bad error code
-        q->setErrorString(QSslSocket::tr("Error creating SSL context (%1)").arg(SSL_ERRORSTR()));
-        q->setSocketError(QAbstractSocket::UnknownSocketError);
-        emit q->error(QAbstractSocket::UnknownSocketError);
-        return false;
-    }
-
-    // Enable all bug workarounds.
-    q_SSL_CTX_set_options(ctx, SSL_OP_ALL);
-
-    // Initialize ciphers
-    QByteArray cipherString;
-    int first = true;
-    foreach (const QSslCipher &cipher, ciphers.isEmpty() ? globalCiphers() : ciphers) {
-        if (first)
-            first = false;
-        else
-            cipherString.append(":");
-        cipherString.append(cipher.name().toLatin1());
-    }
-
-    if (!q_SSL_CTX_set_cipher_list(ctx, cipherString.data())) {
-        // ### Bad error code
-        q->setErrorString(QSslSocket::tr("Invalid or empty cipher list (%1)").arg(SSL_ERRORSTR()));
-        q->setSocketError(QAbstractSocket::UnknownSocketError);
-        emit q->error(QAbstractSocket::UnknownSocketError);
-        return false;
-    }
-    
-    // Load private key
-    /*
-      if (!SSL_CTX_use_PrivateKey_file(d->ctx, QFile::encodeName(d->key).constData(), SSL_FILETYPE_PEM)) {
-      setErrorString(tr("Error loading private key, %1").arg(SSL_ERRORSTR()));
-      emit error(UnknownSocketError);
-            return false;
-            }
-    */
-
-    // Check if the certificate matches the private key.
-    /*
-      if  (!SSL_CTX_check_private_key(d->ctx)) {
-      setErrorString(tr("Private key do not certificate public key, %1").arg(SSL_ERRORSTR()));
-      emit error(UnknownSocketError);
-      return false;
-      }
-    */
-
-    // Create and initialize SSL session
-    if (!(ssl = q_SSL_new(ctx))) {
-        // ### Bad error code
-        q->setErrorString(QSslSocket::tr("Error creating SSL session, %1").arg(SSL_ERRORSTR()));
-        q->setSocketError(QAbstractSocket::UnknownSocketError);
-        emit q->error(QAbstractSocket::UnknownSocketError);
-        return false;
-    }
-
-    // Clear the session.
-    q_SSL_clear(ssl);
-
-    // Initialize memory BIOs for encryption and decryption.
-    readBio = q_BIO_new(q_BIO_s_mem());
-    writeBio = q_BIO_new(q_BIO_s_mem());
-    if (!readBio || !writeBio) {
-        // ### Bad error code
-        q->setErrorString(QSslSocket::tr("Error creating SSL session: %1").arg(SSL_ERRORSTR()));
-        q->setSocketError(QAbstractSocket::UnknownSocketError);
-        emit q->error(QAbstractSocket::UnknownSocketError);
-        return false;
-    }
-
-    // Assign the bios.
-    q_SSL_set_bio(ssl, readBio, writeBio);
-
-    if (mode == QSslSocket::SslClientMode)
-        q_SSL_set_connect_state(ssl);
-    else
-        q_SSL_set_accept_state(ssl);
-
-    initialized = true;
-    return true;
 }
 
 static const char BeginCertString[] = "-----BEGIN CERTIFICATE-----\n";
@@ -846,7 +826,11 @@ QSslCertificate QSslSocketBackendPrivate::QByteArray_to_QSslCertificate(const QB
         return QSslCertificate();
 
     QByteArray decoded = QByteArray::fromBase64(QByteArray::fromRawData(array.data() + startPos, endPos - startPos));
-    const unsigned char *data = (unsigned char *)decoded.data();
+#if OPENSSL_VERSION_NUMBER > 0x00905000L
+    const unsigned char *data = (const unsigned char *)decoded.data();
+#else
+    unsigned char *data = (unsigned char *)decoded.data();
+#endif
 
     X509 *x509 = q_d2i_X509(0, &data, decoded.size());
     QSslCertificate certificate = X509_to_QSslCertificate(x509);
@@ -873,8 +857,12 @@ QList<QSslCertificate> QSslSocketBackendPrivate::QByteArray_to_QSslCertificates(
         offset = endPos + sizeof(EndCertString) - 1;
 
         QByteArray decoded = QByteArray::fromBase64(QByteArray::fromRawData(array.data() + startPos, endPos - startPos));
-        const unsigned char *data = (unsigned char *)decoded.data();
-
+#if OPENSSL_VERSION_NUMBER > 0x00905000L
+        const unsigned char *data = (const unsigned char *)decoded.data();
+#else
+        unsigned char *data = (unsigned char *)decoded.data();
+#endif
+        
         if (X509 *x509 = q_d2i_X509(0, &data, decoded.size())) {
             certificates << X509_to_QSslCertificate(x509);
             q_X509_free(x509);

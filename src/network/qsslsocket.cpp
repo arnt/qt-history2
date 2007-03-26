@@ -988,7 +988,7 @@ QList<QSslError> QSslSocket::sslErrors() const
 */
 bool QSslSocket::supportsSsl()
 {
-    return QSslSocketBackendPrivate::resolveSsl();
+    return QSslSocketPrivate::ensureInitialized();
 }
 
 /*!
