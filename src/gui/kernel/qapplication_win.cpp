@@ -1710,7 +1710,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 
 #ifndef Q_OS_TEMP
             case WM_MOUSEACTIVATE:
-                if (widget->windowType() == Qt::Tool) {
+                if (widget->window()->windowType() == Qt::Tool) {
                     QWidget *w = widget;
                     if (!w->window()->focusWidget()) {
                         while (w && (w->focusPolicy() & Qt::ClickFocus) == 0) {
