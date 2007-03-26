@@ -1466,9 +1466,12 @@ static inline bool isHexDigit(const char c)
            ;
 }
 
-QString Scanner::preprocess(const QString &input)
+QString Scanner::preprocess(const QString &input, bool *hasEscapeSequences)
 {
     QString output = input;
+
+    if (hasEscapeSequences)
+        *hasEscapeSequences = false;
 
     int i = 0;
     while (i < output.size()) {
@@ -1484,8 +1487,11 @@ QString Scanner::preprocess(const QString &input)
                 ++hexCount;
                 ++i;
             }
-            if (hexCount == 0)
+            if (hexCount == 0) {
+                if (hasEscapeSequences)
+                    *hasEscapeSequences = true;
                 continue;
+            }
 
             hexCount = qMin(hexCount, 6);
             bool ok = false;
@@ -1553,12 +1559,13 @@ Parser::Parser()
 {
     index = 0;
     errorIndex = -1;
+    hasEscapeSequences = false;
 }
 
 void Parser::init(const QString &css)
 {
     symbols.resize(0);
-    Scanner::scan(Scanner::preprocess(css), &symbols);
+    Scanner::scan(Scanner::preprocess(css, &hasEscapeSequences), &symbols);
     index = 0;
     errorIndex = -1;
     symbols.reserve(qMax(symbols.capacity(), symbols.size()));

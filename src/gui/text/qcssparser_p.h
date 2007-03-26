@@ -599,7 +599,7 @@ struct Q_GUI_EXPORT Symbol
 class Q_AUTOTEST_EXPORT Scanner
 {
 public:
-    static QString preprocess(const QString &input);
+    static QString preprocess(const QString &input, bool *hasEscapeSequences = 0);
     static void scan(const QString &preprocessedInput, QVector<Symbol> *symbols);
     static const char *tokenName(TokenType t);
 };
@@ -687,6 +687,7 @@ public:
     QVector<Symbol> symbols;
     int index;
     int errorIndex;
+    bool hasEscapeSequences;
 };
 
 }
