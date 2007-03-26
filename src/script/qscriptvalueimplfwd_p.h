@@ -123,6 +123,9 @@ public:
     inline void setProperty(quint32 arrayIndex, const QScriptValueImpl &value,
                      const QScriptValue::PropertyFlags &flags = 0);
 
+    inline QScriptValue::PropertyFlags propertyFlags(const QString &name,
+                                                     const QScriptValue::ResolveFlags &mode = QScriptValue::ResolvePrototype) const;
+
     inline QScriptValueImpl call(const QScriptValueImpl &thisObject = QScriptValueImpl(),
                                  const QScriptValueImplList &args = QScriptValueImplList());
     inline QScriptValueImpl call(const QScriptValueImpl &thisObject,

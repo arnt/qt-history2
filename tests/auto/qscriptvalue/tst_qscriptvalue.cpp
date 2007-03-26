@@ -962,6 +962,97 @@ void tst_QScriptValue::getSetProperty()
         QCOMPARE(object4.property("x").strictEqualTo(num), true);
         QCOMPARE(object4.property("foo").strictEqualTo(str), true);
     }
+
+    eng.globalObject().setProperty("object", object);
+
+  // ReadOnly
+    object.setProperty("readOnlyProperty", num, QScriptValue::ReadOnly);
+    QCOMPARE(object.propertyFlags("readOnlyProperty"), QScriptValue::ReadOnly);
+    QCOMPARE(object.property("readOnlyProperty").strictEqualTo(num), true);
+    eng.evaluate("object.readOnlyProperty = !object.readOnlyProperty");
+    QCOMPARE(object.property("readOnlyProperty").strictEqualTo(num), true);
+    // should still be part of enumeration
+    {
+        QScriptValue ret = eng.evaluate(
+            "found = false;"
+            "for (var p in object) {"
+            "  if (p == 'readOnlyProperty') {"
+            "    found = true; break;"
+            "  }"
+            "} found");
+        QCOMPARE(ret.strictEqualTo(QScriptValue(&eng, true)), true);
+    }
+    // should still be deletable
+    {
+        QScriptValue ret = eng.evaluate("delete object.readOnlyProperty");
+        QCOMPARE(ret.strictEqualTo(QScriptValue(&eng, true)), true);
+        QCOMPARE(object.property("readOnlyProperty").isValid(), false);
+    }
+
+  // Undeletable
+    object.setProperty("undeletableProperty", num, QScriptValue::Undeletable);
+    QCOMPARE(object.propertyFlags("undeletableProperty"), QScriptValue::Undeletable);
+    QCOMPARE(object.property("undeletableProperty").strictEqualTo(num), true);
+    {
+        QScriptValue ret = eng.evaluate("delete object.undeletableProperty");
+        QCOMPARE(ret.strictEqualTo(QScriptValue(&eng, true)), false);
+        QCOMPARE(object.property("undeletableProperty").strictEqualTo(num), true);
+    }
+    // should still be writable
+    eng.evaluate("object.undeletableProperty = object.undeletableProperty + 1");
+    QCOMPARE(object.property("undeletableProperty").toNumber(), num.toNumber() + 1);
+    // should still be part of enumeration
+    {
+        QScriptValue ret = eng.evaluate(
+            "found = false;"
+            "for (var p in object) {"
+            "  if (p == 'undeletableProperty') {"
+            "    found = true; break;"
+            "  }"
+            "} found");
+        QCOMPARE(ret.strictEqualTo(QScriptValue(&eng, true)), true);
+    }
+
+  // SkipInEnumeration
+    object.setProperty("dontEnumProperty", num, QScriptValue::SkipInEnumeration);
+    QCOMPARE(object.propertyFlags("dontEnumProperty"), QScriptValue::SkipInEnumeration);
+    QCOMPARE(object.property("dontEnumProperty").strictEqualTo(num), true);
+    // should not be part of enumeration
+    {
+        QScriptValue ret = eng.evaluate(
+            "found = false;"
+            "for (var p in object) {"
+            "  if (p == 'dontEnumProperty') {"
+            "    found = true; break;"
+            "  }"
+            "} found");
+        QCOMPARE(ret.strictEqualTo(QScriptValue(&eng, false)), true);
+    }
+    // should still be writable
+    eng.evaluate("object.dontEnumProperty = object.dontEnumProperty + 1");
+    QCOMPARE(object.property("dontEnumProperty").toNumber(), num.toNumber() + 1);
+    // should still be deletable
+    {
+        QScriptValue ret = eng.evaluate("delete object.dontEnumProperty");
+        QCOMPARE(ret.strictEqualTo(QScriptValue(&eng, true)), true);
+        QCOMPARE(object.property("dontEnumProperty").isValid(), false);
+    }
+
+    // change flags
+    object.setProperty("flagProperty", str);
+    QCOMPARE(object.propertyFlags("flagProperty"), static_cast<QScriptValue::PropertyFlags>(0));
+
+    object.setProperty("flagProperty", str, QScriptValue::ReadOnly);
+    QCOMPARE(object.propertyFlags("flagProperty"), QScriptValue::ReadOnly);
+
+    object.setProperty("flagProperty", str, object.propertyFlags("flagProperty") | QScriptValue::Undeletable);
+    QCOMPARE(object.propertyFlags("flagProperty"), QScriptValue::ReadOnly | QScriptValue::Undeletable);
+
+    object.setProperty("flagProperty", str, QScriptValue::KeepExistingFlags);
+    QCOMPARE(object.propertyFlags("flagProperty"), QScriptValue::ReadOnly | QScriptValue::Undeletable);
+
+    object.setProperty("flagProperty", str, QScriptValue::UserRange);
+    QCOMPARE(object.propertyFlags("flagProperty"), QScriptValue::UserRange);
 }
 
 void tst_QScriptValue::getSetPrototype()

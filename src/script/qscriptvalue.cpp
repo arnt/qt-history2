@@ -92,6 +92,8 @@
 
     \value PropertySetter The property is defined by a function which will be called to set the property value.
 
+    \value KeepExistingFlags This value is used to indicate to setProperty() that the property's flags should be left unchanged. If the property doesn't exist, the default flags (0) will be used.
+
     \value UserRange Flags in this range are not used by Qt Script, and can be used for custom purposes.
 */
 
@@ -688,6 +690,16 @@ void QScriptValue::setProperty(quint32 arrayIndex, const QScriptValue &value,
         return;
     }
     QScriptValuePrivate::valueOf(*this).setProperty(arrayIndex, QScriptValuePrivate::valueOf(value), flags);
+}
+
+/*!
+  Returns the flags of the property with the given \a name, using the
+  given \a mode to resolve the property.
+*/
+QScriptValue::PropertyFlags QScriptValue::propertyFlags(const QString &name,
+                                                        const ResolveFlags &mode) const
+{
+    return QScriptValuePrivate::valueOf(*this).propertyFlags(name, mode);
 }
 
 /*!

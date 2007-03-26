@@ -74,17 +74,17 @@ inline bool QScript::Member::dontEnum() const
 
 inline bool QScript::Member::isObjectProperty() const
 {
-    return m_flags & QScriptValue::ObjectProperty;
+    return m_flags & ObjectProperty;
 }
 
 inline bool QScript::Member::isNativeProperty() const
 {
-    return m_flags & QScriptValue::NativeProperty;
+    return m_flags & NativeProperty;
 }
 
 inline bool QScript::Member::isUninitializedConst() const
 {
-    return m_flags & QScriptValue::UninitializedConst;
+    return m_flags & UninitializedConst;
 }
 
 inline bool QScript::Member::isGetter() const
@@ -126,20 +126,20 @@ inline void QScript::Member::invalidate()
 
 inline void QScript::Member::native(QScriptNameIdImpl *nameId, int id, uint flags)
 {
-    Q_ASSERT(! (flags & QScriptValue::ObjectProperty));
+    Q_ASSERT(! (flags & ObjectProperty));
 
     m_nameId = nameId;
     m_id = id;
-    m_flags = flags | QScriptValue::NativeProperty;
+    m_flags = flags | NativeProperty;
 }
 
 inline void QScript::Member::object(QScriptNameIdImpl *nameId, int id, uint flags)
 {
-    Q_ASSERT(! (flags & QScriptValue::NativeProperty));
+    Q_ASSERT(! (flags & NativeProperty));
 
     m_nameId = nameId;
     m_id = id;
-    m_flags = flags | QScriptValue::ObjectProperty;
+    m_flags = flags | ObjectProperty;
 }
 
 inline bool QScript::Member::operator==(const QScript::Member &other) const

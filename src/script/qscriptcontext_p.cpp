@@ -923,9 +923,9 @@ Ltop:
         QScriptValueImpl object;
 
         if (! act.resolve(memberName, &member, &object, QScriptValue::ResolveLocal)) {
-            QScriptValue::PropertyFlags flags = QScriptValue::Undeletable;
+            uint flags = QScriptValue::Undeletable;
             if (readOnly)
-                flags |= QScriptValue::UninitializedConst | QScriptValue::ReadOnly;
+                flags |= QScript::Member::UninitializedConst | QScriptValue::ReadOnly;
             act.createMember(memberName, &member, flags);
             act.put(member, undefined);
         }
@@ -1015,7 +1015,7 @@ Ltop:
                     base.put(member, value);
                     if (member.isObjectProperty()) {
                         base.m_object_value->m_members[member.id()]
-                            .unsetFlags(QScriptValue::UninitializedConst);
+                            .unsetFlags(QScript::Member::UninitializedConst);
                     }
                 }
             }

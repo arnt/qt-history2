@@ -59,13 +59,10 @@ public:
         Undeletable         = 0x00000002,
         SkipInEnumeration   = 0x00000004,
 
-        UninitializedConst  = 0x00000080,
+        PropertyGetter      = 0x00000008,
+        PropertySetter      = 0x00000010,
 
-        ObjectProperty      = 0x00000100,           // Stored in the member table
-        NativeProperty      = 0x00000200,
-
-        PropertyGetter      = 0x00000400,
-        PropertySetter      = 0x00000800,
+        KeepExistingFlags   = 0x00000800,
 
         UserRange           = 0xffff0000            // Users may use these as they see fit.
     };
@@ -145,12 +142,15 @@ public:
     QScriptValue property(const QString &name,
                           const ResolveFlags &mode = ResolvePrototype) const;
     void setProperty(const QString &name, const QScriptValue &value,
-                     const PropertyFlags &flags = 0);
+                     const PropertyFlags &flags = KeepExistingFlags);
 
     QScriptValue property(quint32 arrayIndex,
                           const ResolveFlags &mode = ResolvePrototype) const;
     void setProperty(quint32 arrayIndex, const QScriptValue &value,
-                     const PropertyFlags &flags = 0);
+                     const PropertyFlags &flags = KeepExistingFlags);
+
+    QScriptValue::PropertyFlags propertyFlags(
+        const QString &name, const ResolveFlags &mode = ResolvePrototype) const;
 
     QScriptValue call(const QScriptValue &thisObject = QScriptValue(),
                       const QScriptValueList &args = QScriptValueList());

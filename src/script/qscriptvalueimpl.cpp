@@ -214,13 +214,25 @@ void QScriptValueImpl::setProperty(QScriptNameIdImpl *nameId,
                         return;
                     }
                 }
+                if (flags != QScriptValue::KeepExistingFlags) {
+                    // change flags
+                    if (member.isNativeProperty()) {
+                        qWarning("QScriptValue::setProperty(%s): "
+                                 "cannot change flags of a native property",
+                                 qPrintable(nameId->s));
+                    } else {
+                        uint newFlags = member.flags() & QScript::Member::InternalRange;
+                        newFlags |= flags & ~QScript::Member::InternalRange;
+                        base.m_object_value->m_members[member.id()].resetFlags(newFlags);
+                    }
+                }
             }
         }
     } else {
         // property does not exist
         if (!value.isValid())
             return; // don't create property for invalid value
-        createMember(nameId, &member, flags);
+        createMember(nameId, &member, flags & ~QScript::Member::InternalRange);
         base = *this;
     }
 

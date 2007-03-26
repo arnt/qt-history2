@@ -32,6 +32,15 @@ namespace QScript {
     class Member
     {
     public:
+        enum PropertyFlag {
+            ObjectProperty      = 0x00000100, // Stored in the member table
+            NativeProperty      = 0x00000200,
+
+            UninitializedConst  = 0x00000800, // NB: shared with QScriptValue::KeepExistingFlags
+
+            InternalRange       = 0x0000ff00  // Not user-accessible (read as 0, don't change on write)
+        };
+
         inline void resetFlags(uint flags);
         inline void setFlags(uint flags);
         inline void unsetFlags(uint flags);

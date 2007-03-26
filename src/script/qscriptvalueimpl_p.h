@@ -751,6 +751,21 @@ inline void QScriptValueImpl::setProperty(quint32 arrayIndex, const QScriptValue
     setProperty(id.toString(), value, flags);
 }
 
+inline QScriptValue::PropertyFlags QScriptValueImpl::propertyFlags(const QString &name,
+                                                const QScriptValue::ResolveFlags &mode) const
+{
+    if (!isObject())
+        return 0;
+    QScriptNameIdImpl *nameId = QScriptEnginePrivate::get(engine())->nameId(name);
+
+    QScriptValueImpl base;
+    QScript::Member member;
+    if (! resolve(nameId, &member, &base, mode))
+        return 0;
+
+    return QScriptValue::PropertyFlags(member.flags() & ~QScript::Member::InternalRange);
+}
+
 inline QScriptValueImpl QScriptValueImpl::call(const QScriptValueImpl &thisObject,
                                                const QScriptValueImplList &args)
 {
