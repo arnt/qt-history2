@@ -103,6 +103,9 @@
 
     and enter the root password.
 
+    \note You can use the \c INSTALL_ROOT environment variable to specify
+    the location of the installed files when invoking \c{make install}.
+
     \section1 Step 4: Adjusting the Environment Variables
 
     In order to use \l {Qtopia Core}, the \c PATH variable must be extended
