@@ -1751,6 +1751,8 @@ void QSvgHandler::parseCSStoXMLAttrs(QString css, QVector<QSvgCssAttribute> *att
     m_cssParser.init(css);
     QString key;
 
+    attributes->reserve(10);
+
     while (m_cssParser.hasNext()) {
         m_cssParser.skipSpace();
 
