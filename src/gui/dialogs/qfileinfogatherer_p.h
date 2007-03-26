@@ -111,7 +111,9 @@ private:
     QStack<QString> path;
     QStack<QStringList> files;
 
+#ifndef QT_NO_FILESYSTEMWATCHER
     QFileSystemWatcher *watcher;
+#endif
     bool m_resolveSymlinks;
     QFileIconProvider *m_iconProvider;
     QFileIconProvider defaultProvider;

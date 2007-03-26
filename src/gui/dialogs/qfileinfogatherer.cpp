@@ -116,10 +116,12 @@ void QFileInfoGatherer::updateFile(const QString &filePath)
 */
 void QFileInfoGatherer::clear()
 {
+#ifndef QT_NO_FILESYSTEMWATCHER
     mutex.lock();
     watcher->removePaths(watcher->files());
     watcher->removePaths(watcher->directories());
     mutex.unlock();
+#endif
 }
 
 /*
@@ -207,6 +209,7 @@ QExtendedInformation QFileInfoGatherer::getInfo(const QFileInfo &fileInfo) const
     if (fileInfo.isDir()) info.fileType = QExtendedInformation::Dir;
     if (fileInfo.isFile()) info.fileType = QExtendedInformation::File;
 
+#ifndef QT_NO_FILESYSTEMWATCHER
     // Enable the next two commented out lines to get updates when the file sizes change...
     if (!fileInfo.exists() && !fileInfo.isSymLink()) {
         info.size = -1;
@@ -217,6 +220,7 @@ QExtendedInformation QFileInfoGatherer::getInfo(const QFileInfo &fileInfo) const
             //watcher->addPath(fileInfo.absoluteFilePath());
         }
     }
+#endif
 
     if (fileInfo.isSymLink() && m_resolveSymlinks) {
         QFileInfo resolvedInfo(fileInfo.symLinkTarget());
@@ -253,11 +257,13 @@ QString QFileInfoGatherer::translateDriveName(const QFileInfo &drive) const
  */
 void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &files)
 {
+#ifndef QT_NO_FILESYSTEMWATCHER
     if (files.isEmpty()
         && !watcher->directories().contains(path)
         && !path.isEmpty()) {
         watcher->addPath(path);
     }
+#endif
 
     // List drives
     if (path.isEmpty()) {
