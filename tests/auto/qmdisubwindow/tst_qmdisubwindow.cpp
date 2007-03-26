@@ -156,6 +156,7 @@ private slots:
     void hideAndShow();
     void keepWindowMaximizedState();
     void explicitlyHiddenWidget();
+    void resizeTimer();
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -1452,6 +1453,29 @@ void tst_QMdiSubWindow::explicitlyHiddenWidget()
     QVERIFY(subWindow->isVisible());
     QVERIFY(!textEdit->isVisible());
 }
+
+void tst_QMdiSubWindow::resizeTimer()
+{
+    QMdiArea mdiArea;
+    QMdiSubWindow *subWindow = mdiArea.addSubWindow(new QWidget);
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+
+    EventSpy timerEventSpy(subWindow, QEvent::Timer);
+    QCOMPARE(timerEventSpy.count(), 0);
+
+    for (int i = 0; i < 20; ++i) {
+        subWindow->resize(subWindow->size() + QSize(2, 2));
+        qApp->processEvents();
+    }
+
+    QTest::qWait(500); // Wait for timer events to occur.
+
+    QCOMPARE(timerEventSpy.count(), 1);
+}
+
 QTEST_MAIN(tst_QMdiSubWindow)
 #include "tst_qmdisubwindow.moc"
 

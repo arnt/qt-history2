@@ -72,6 +72,7 @@ private slots:
     void dontMaximizeSubWindowOnActivation();
     void delayedPlacement();
     void iconGeometryInMenuBar();
+    void resizeTimer();
 
 private:
     QMdiSubWindow *activeWindow;
@@ -1430,6 +1431,55 @@ void tst_QMdiArea::iconGeometryInMenuBar()
                                         QRect(pos, leftCornerWidget->size()));
     QCOMPARE(leftCornerWidget->geometry(), geometry);
 #endif
+}
+
+class EventSpy : public QObject
+{
+public:
+    EventSpy(QObject *object, QEvent::Type event)
+        : eventToSpy(event), _count(0)
+    {
+        if (object)
+            object->installEventFilter(this);
+    }
+
+    int count() const { return _count; }
+    void clear() { _count = 0; }
+
+protected:
+    bool eventFilter(QObject *object, QEvent *event)
+    {
+        if (event->type() == eventToSpy)
+            ++_count;
+        return  QObject::eventFilter(object, event);
+    }
+
+private:
+    QEvent::Type eventToSpy;
+    int _count;
+};
+
+void tst_QMdiArea::resizeTimer()
+{
+    QMdiArea mdiArea;
+    QMdiSubWindow *subWindow = mdiArea.addSubWindow(new QWidget);
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+
+    EventSpy timerEventSpy(subWindow, QEvent::Timer);
+    QCOMPARE(timerEventSpy.count(), 0);
+
+    mdiArea.tileSubWindows();
+    QCOMPARE(timerEventSpy.count(), 0);
+
+    mdiArea.resize(mdiArea.size() + QSize(2, 2));
+    qApp->processEvents();
+
+    QTest::qWait(500); // Wait for timer events to occur.
+
+    QCOMPARE(timerEventSpy.count(), 1);
 }
 
 QTEST_MAIN(tst_QMdiArea)
