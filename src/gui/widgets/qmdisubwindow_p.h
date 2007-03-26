@@ -146,6 +146,7 @@ public:
     QPoint mousePressPosition;
     QRect oldGeometry;
     QSize internalMinimumSize;
+    QSize userMinimumSize;
     QSize restoreSize;
     bool resizeEnabled;
     bool moveEnabled;

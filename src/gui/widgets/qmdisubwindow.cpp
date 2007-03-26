@@ -1072,6 +1072,12 @@ void QMdiSubWindowPrivate::setNormalMode()
     if (wasVisible)
         q->setVisible(false);
 
+    // Restore minimum size if set by user.
+    if (userMinimumSize.isValid()) {
+        q->setMinimumSize(userMinimumSize);
+        userMinimumSize = QSize(-1, -1);
+    }
+
     updateGeometryConstraints();
     QRect newGeometry = oldGeometry;
     newGeometry.setSize(restoreSize.expandedTo(internalMinimumSize));
@@ -2289,6 +2295,11 @@ void QMdiSubWindow::showShaded()
         setVisible(false);
 
     d->updateGeometryConstraints();
+    // Update minimum size to internalMinimumSize if set by user.
+    if (minimumSize().isValid()) {
+        d->userMinimumSize = minimumSize();
+        setMinimumSize(d->internalMinimumSize);
+    }
     resize(d->internalMinimumSize);
 
     // Hide the internal widget if not already hidden by the user.
@@ -3054,32 +3065,33 @@ QSize QMdiSubWindow::minimumSizeHint() const
     Q_D(const QMdiSubWindow);
     if (isVisible())
         ensurePolished();
+
+    // Minimized window.
     if (parent() && isMinimized() && !isShaded())
         return d->iconSize();
 
-    // Window decoration
+    // Calculate window decoration.
     int margin, minWidth;
     d->sizeParameters(&margin, &minWidth);
     int decorationHeight = margin + d->titleBarHeight();
     int minHeight = decorationHeight;
 
+    // Shaded window.
     if (parent() && isShaded())
         return QSize(qMax(minWidth, width()), d->titleBarHeight());
 
     // Content
-    if (!isMinimized()) {
-        if (layout()) {
-            QSize minLayoutSize = layout()->minimumSize();
-            if (minLayoutSize.isValid()) {
-                minWidth = qMax(minWidth, minLayoutSize.width() + 2 * margin);
-                minHeight += minLayoutSize.height();
-            }
-        } else if (d->baseWidget && d->baseWidget->isVisible()) {
-            QSize minBaseWidgetSize = d->baseWidget->minimumSizeHint();
-            if (minBaseWidgetSize.isValid()) {
-                minWidth = qMax(minWidth, minBaseWidgetSize.width() + 2 * margin);
-                minHeight += minBaseWidgetSize.height();
-            }
+    if (layout()) {
+        QSize minLayoutSize = layout()->minimumSize();
+        if (minLayoutSize.isValid()) {
+            minWidth = qMax(minWidth, minLayoutSize.width() + 2 * margin);
+            minHeight += minLayoutSize.height();
+        }
+    } else if (d->baseWidget && d->baseWidget->isVisible()) {
+        QSize minBaseWidgetSize = d->baseWidget->minimumSizeHint();
+        if (minBaseWidgetSize.isValid()) {
+            minWidth = qMax(minWidth, minBaseWidgetSize.width() + 2 * margin);
+            minHeight += minBaseWidgetSize.height();
         }
     }
 
