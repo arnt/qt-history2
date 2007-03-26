@@ -357,7 +357,6 @@ bool QSslSocketPrivate::ensureInitialized()
 */
 void QSslSocketPrivate::resetGlobalCiphers()
 {
-    bool deleteSsl = false;
     SSL_CTX *myCtx = q_SSL_CTX_new(q_SSLv23_client_method());
     SSL *mySsl = q_SSL_new(myCtx);
 
@@ -375,11 +374,9 @@ void QSslSocketPrivate::resetGlobalCiphers()
             }
         }
     }
-    
-    if (deleteSsl) {
-        q_SSL_CTX_free(myCtx);
-        q_SSL_free(mySsl);
-    }
+
+    q_SSL_CTX_free(myCtx);
+    q_SSL_free(mySsl);
 
     setGlobalSupportedCiphers(ciphers);
     setGlobalCiphers(ciphers);
@@ -530,7 +527,7 @@ void QSslSocketBackendPrivate::transmit()
                 break;
             }
         }
-    
+
         int readBytes = 0;
         data.resize(4096);
         ::memset(data.data(), 0, data.size());
@@ -562,7 +559,7 @@ void QSslSocketBackendPrivate::transmit()
                 break;
             }
         } while (readBytes > 0);
-    } while (transmitting);
+    } while (ssl && ctx && transmitting);
 }
 
 bool QSslSocketBackendPrivate::testConnection()
