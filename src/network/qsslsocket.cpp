@@ -50,6 +50,14 @@
     SSL handshake, or a delayed handshake where the socket starts out in
     plain, unencrypted mode, and later enters SSL mode.
 
+    \code
+        QSslSocket *socket = new QSslSocket(this);
+        connect(socket, SIGNAL(encrypted()), this, SLOT(ready()));
+
+        socket->connectToHostEncrypted("imap.example.com", 993);
+        socket->write("1 CAPABILITY\r\n");
+    \endcode
+
     The most common way to use QSslSocket is to construct an object, and start
     a connection by calling connectToHostEncrypted(), which starts an
     immediate SSL handshake once the connection has been established. As with
@@ -59,6 +67,24 @@
     and if there are no problems, QSslSocket will emit encrypted(), indicating
     that the socket has entered its encrypted state, and is ready for use.
 
+    For servers, you can reimplement incomingConnection() in a subclass of
+    QTcpServer, and construct a QSslSocket, passing the incoming socket
+    descriptor to QSslSocket::setSocketDescriptor(). To start the server side
+    handshake, call startServerHandShake().
+
+    \code
+        void SslServer::incomingConnection(int socketDescriptor)
+        {
+            QSslSocket *serverSocket = new QSslSocket;
+            if (serverSocket->setSocketDescriptor(socketDescriptor)) {
+                connect(serverSocket, SIGNAL(encrypted()), this, SLOT(ready()));
+                serverSocket->startServerHandShake();
+            } else {
+                delete serverSocket;
+            }
+        }
+    \endcode
+    
     If an error occurs, QSslSocket will emit sslErrors(). Unless any action is
     taken, the connection will then be dropped; the connection will fail. To
     recover from an SSL handshake error, you must connect a slot to the
@@ -81,6 +107,19 @@
     waitForDisconnected(). In addition, it provides waitForEncrypted(), which
     will block the calling thread until an encrypted connection has been
     established.
+
+    \code
+        QSslSocket socket;
+        socket.connectToHostEncrypted("http.example.com", 443);
+        if (!socket.waitForEncrypted()) {
+            qDebug() << socket.errorString();
+            return false;
+        }
+
+        socket.write("GET / HTTP/1.0\r\n\r\n");
+        while (socket.waitForReadyRead())
+            qDebug() << socket.readAll().data();
+    \endcode
 
     QSslSocket provides an extensive, easy-to-use API for handling SSL
     certificates, ciphers, and for managing errors. You can customize the
