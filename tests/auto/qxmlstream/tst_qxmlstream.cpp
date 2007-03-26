@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <QDirIterator>
 #include <QtTest/QtTest>
 #include <QUrl>
 #include <QXmlDefaultHandler>
@@ -312,7 +313,9 @@ public:
             const QString ents(m_atts.top().value(QString(), QLatin1String("ENTITIES")));
             m_atts.pop();
 
-            if(ents == QLatin1String("both") || ents == QLatin1String("parameter"))
+            if(ents == QLatin1String("both") ||
+               ents == QLatin1String("general") ||
+               ents == QLatin1String("parameter"))
             {
                 ++skipCount;
                 return true;
@@ -422,7 +425,6 @@ public:
         return true;
     }
 
-private:
     enum ParseMode
     {
         ParseIncrementally,
@@ -471,6 +473,7 @@ private:
         }
     }
 
+private:
     QStack<QXmlAttributes>  m_atts;
     QString                 m_ch;
     QStack<QUrl>            m_baseURI;
@@ -495,6 +498,7 @@ private slots:
     void testReader_data() const;
     void reportSuccess() const;
     void reportSuccess_data() const;
+    void parseXSLTTestSuite() const;
 
 private:
     static QByteArray readFile(const QString &filename);
@@ -721,6 +725,34 @@ void tst_QXmlStream::testReader_data() const
     }
 }
 
+void tst_QXmlStream::parseXSLTTestSuite() const
+{
+    const int expectedRunCount = -1;
+
+    QStringList nameFilters;
+    nameFilters.append("*.xsl");
+    nameFilters.append("*.xml");
+
+    QDirIterator dirIterator("XSLT-Test-Suite/", nameFilters,    
+                             QDir::AllEntries, QDirIterator::Subdirectories);
+    int filesParsed = 0;
+
+    while(dirIterator.hasNext())
+    {
+        dirIterator.next();
+        const QString fp(dirIterator.filePath());
+        qDebug() << "Found" << fp;
+
+        QFile file(fp);
+        QVERIFY(file.open(QIODevice::ReadOnly));
+
+        QVERIFY(TestSuiteHandler::isWellformed(&file, TestSuiteHandler::ParseSinglePass));
+
+        ++filesParsed;
+    }
+
+    QCOMPARE(expectedRunCount, filesParsed);
+}
 
 QTEST_MAIN(tst_QXmlStream)
 #include "tst_qxmlstream.moc"
