@@ -196,10 +196,31 @@ void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt, CGAff
     }
 }
 
+
 //pattern handling (tiling)
+#if 1
+#  define QMACPATTERN_MASK_MULTIPLIER 32
+#else
+#  define QMACPATTERN_MASK_MULTIPLIER 1
+#endif
 struct QMacPattern {
     QMacPattern() : as_mask(false), image(0) { data.bytes = 0; }
     ~QMacPattern() { CGImageRelease(image); }
+    int width() {
+        if(image)
+            return CGImageGetWidth(image);
+        if(data.bytes)
+            return 8*QMACPATTERN_MASK_MULTIPLIER;
+        return data.pixmap.width();
+    }
+    int height() {
+        if(image)
+            return CGImageGetHeight(image);
+        if(data.bytes)
+            return 8*QMACPATTERN_MASK_MULTIPLIER;
+        return data.pixmap.height();
+    }
+
     //input
     QColor foreground;
     bool as_mask;
@@ -216,10 +237,41 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
     int w = 0, h = 0;
     if(!pat->image) { //lazy cache
         if(pat->as_mask) {
+            Q_ASSERT(pat->data.bytes);
             w = h = 8;
-            CGDataProviderRef provider = CGDataProviderCreateWithData(0, pat->data.bytes, 64, 0);
+#if (QMACPATTERN_MASK_MULTIPLIER == 1)
+            CGDataProviderRef provider = CGDataProviderCreateWithData(0, pat->data.bytes, w*h, 0);
             pat->image = CGImageMaskCreate(w, h, 1, 1, 1, provider, 0, false);
             CGDataProviderRelease(provider);
+#else
+            const int numBytes = (w*h)/sizeof(uchar);
+            uchar xor_bytes[numBytes];
+            for(int i = 0; i < numBytes; ++i)
+                xor_bytes[i] = pat->data.bytes[i] ^ 0xFF;
+            CGDataProviderRef provider = CGDataProviderCreateWithData(0, xor_bytes, w*h, 0);
+            CGImageRef swatch = CGImageMaskCreate(w, h, 1, 1, 1, provider, 0, false);
+            CGDataProviderRelease(provider);
+
+            const QColor c0(0, 0, 0, 0), c1(255, 255, 255, 255);
+            QPixmap pm(w*QMACPATTERN_MASK_MULTIPLIER, h*QMACPATTERN_MASK_MULTIPLIER);
+            pm.fill(c0);
+            CGContextRef pm_ctx = qt_mac_cg_context(&pm);
+            CGContextSetRGBFillColor(c, qt_mac_convert_color_to_cg(c1.red()), qt_mac_convert_color_to_cg(c1.green()),
+                                     qt_mac_convert_color_to_cg(c1.blue()),   qt_mac_convert_color_to_cg(c1.alpha()));
+            CGRect rect = CGRectMake(0, 0, w, h);
+            for(int x = 0; x < QMACPATTERN_MASK_MULTIPLIER; ++x) {
+                rect.origin.x = x * w;
+                for(int y = 0; y < QMACPATTERN_MASK_MULTIPLIER; ++y) {
+                    rect.origin.y = y * h;
+                    HIViewDrawCGImage(pm_ctx, &rect, swatch);
+                }
+            }
+            pat->image = qt_mac_create_imagemask(pm, pm.rect());
+            CGImageRelease(swatch);
+            CGContextRelease(pm_ctx);
+            w *= QMACPATTERN_MASK_MULTIPLIER;
+            h *= QMACPATTERN_MASK_MULTIPLIER;
+#endif
         } else {
             w = pat->data.pixmap.width();
             h = pat->data.pixmap.height();
@@ -234,16 +286,18 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
     }
 
     //draw
-    CGRect rect = CGRectMake(0, 0, w, h);
-    CGContextSaveGState(c);
+    bool needRestore = false;
     if(CGImageIsMask(pat->image)) {
+        CGContextSaveGState(c);
         CGContextSetRGBFillColor(c, qt_mac_convert_color_to_cg(pat->foreground.red()),
                 qt_mac_convert_color_to_cg(pat->foreground.green()),
                 qt_mac_convert_color_to_cg(pat->foreground.blue()),
                 qt_mac_convert_color_to_cg(pat->foreground.alpha()));
     }
+    CGRect rect = CGRectMake(0, 0, w, h);
     HIViewDrawCGImage(c, &rect, pat->image);
-    CGContextRestoreGState(c);
+    if(needRestore)
+        CGContextRestoreGState(c);
 }
 static void qt_mac_dispose_pattern(void *info)
 {
@@ -787,7 +841,7 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     callbks.version = 0;
     callbks.drawPattern = qt_mac_draw_pattern;
     callbks.releaseInfo = qt_mac_dispose_pattern;
-    const int width = pixmap.width(), height = pixmap.height();
+    const int width = qpattern->width(), height = qpattern->height();
     CGAffineTransform trans = CGContextGetCTM(d->hd);
     CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height),
             trans, width, height,
@@ -997,7 +1051,6 @@ QCoreGraphicsPaintEnginePrivate::setFillBrush(const QBrush &brush, const QPointF
         qWarning("QCoreGraphicsPaintEngine: Unhandled gradient %d", (int)bs);
 #endif
     } else if(bs != Qt::SolidPattern && bs != Qt::NoBrush) {
-        int width = 0, height = 0;
         QMacPattern *qpattern = new QMacPattern;
         CGFloat components[4] = { 1.0, 1.0, 1.0, 1.0 };
         CGColorSpaceRef base_colorspace = 0;
@@ -1010,14 +1063,12 @@ QCoreGraphicsPaintEnginePrivate::setFillBrush(const QBrush &brush, const QPointF
                 components[2] = qt_mac_convert_color_to_cg(col.blue());
                 base_colorspace = CGColorSpaceCreateDeviceRGB();
             }
-            width = qpattern->data.pixmap.width();
-            height = qpattern->data.pixmap.height();
         } else {
             qpattern->as_mask = true;
 
             Qt::BrushStyle bsForPattern;
             switch (bs) {
-            // Since the transform is flipped, we need to filp the diagonal
+            // Since the transform is flipped, we need to flip the diagonal
             default:
                 bsForPattern = bs;
                 break;
@@ -1029,13 +1080,13 @@ QCoreGraphicsPaintEnginePrivate::setFillBrush(const QBrush &brush, const QPointF
                 break;
             }
             qpattern->data.bytes = qt_patternForBrush(bsForPattern, false);
-            width = height = 8;
             const QColor &col = brush.color();
             components[0] = qt_mac_convert_color_to_cg(col.red());
             components[1] = qt_mac_convert_color_to_cg(col.green());
             components[2] = qt_mac_convert_color_to_cg(col.blue());
             base_colorspace = CGColorSpaceCreateDeviceRGB();
         }
+        int width = qpattern->width(), height = qpattern->height();
         qpattern->foreground = brush.color();
 
         CGColorSpaceRef fill_colorspace = CGColorSpaceCreatePattern(base_colorspace);
