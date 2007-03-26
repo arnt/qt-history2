@@ -342,7 +342,7 @@ public:
     uint m_flushOnEnd : 1;
     uint m_supports_d3d : 1;
 
-    QTransform::TransformationCodes m_txop;
+    QTransform::TransformationType m_txop;
 
     QPainter::CompositionMode m_cmode;
 
@@ -3469,7 +3469,7 @@ void QDirect3DPaintEnginePrivate::updateTransform(const QTransform &matrix)
     m_matrix = matrix;
     m_invScale = qMax(1 / qMax( qMax(qAbs(m_matrix.m11()), qAbs(m_matrix.m22())),
         qMax(qAbs(m_matrix.m12()), qAbs(m_matrix.m21())) ), 0.0001);
-    m_txop = (QTransform::TransformationCodes)matrix.type();
+    m_txop = matrix.type();
 }
 
 int QDirect3DPaintEnginePrivate::flushAntialiased(int offset)
