@@ -373,7 +373,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     associate the format with a QTextObject. It is used to represent
     lists, frames, and tables inside the document.
 
-    \sa {Text Related Classes}
+    \sa {Text Processing Classes}
 */
 
 /*!
@@ -449,15 +449,21 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
 
     Table and frame properties
 
-    \value TableColumns
     \value FrameBorder
+    \value FrameBorderBrush
+    \value FrameBorderStyle
+    \value FrameBottomMargin
+    \value FrameHeight
+    \value FrameLeftMargin 
     \value FrameMargin
     \value FramePadding
+    \value FrameRightMargin
+    \value FrameTopMargin
     \value FrameWidth
-    \value FrameHeight
-    \value TableColumnWidthConstraints
     \value TableCellSpacing
     \value TableCellPadding
+    \value TableColumns
+    \value TableColumnWidthConstraints
     \value TableHeaderRowCount
 
     Table cell properties
@@ -1082,6 +1088,10 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
                             normal text.
     \value AlignMiddle This is currently only implemented for inline objects. The center
                        of the object is vertically aligned with the base line.
+    \value AlignBottom The bottom edge of the object is vertically aligned with
+                       the base line.
+    \value AlignTop    The top edge of the object is vertically aligned with
+                       the base line.
 */
 
 /*!
@@ -1313,10 +1323,10 @@ void QTextCharFormat::setUnderlineStyle(UnderlineStyle style)
 */
 
 /*!
-    \fn void QTextCharFormat::setToolTip(const QString &tip)
+    \fn void QTextCharFormat::setToolTip(const QString &text)
     \since 4.3
 
-    Sets the tool tip that is supposed to be used for a fragment of text.
+    Sets the tool tip for a fragment of text to the given \a text.
 */
 
 /*!
