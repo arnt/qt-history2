@@ -412,10 +412,12 @@
   in the Qt 4 series. This documents covers the most important features in this
   release, separated by category.
 
+  \omit
   A comprehensive list of changes between Qt 4.2 and Qt 4.3 is included
   in the \c changes-4.3.0 file provided with Qt, and is also
   \l{http://www.trolltech.com/developer/notes/changes/changes-4.3.0}{available
   online}.
+  \endomit
 
   A list of other Qt 4 features can be found on the
   \bold{\l{What's New in Qt 4}} page.
@@ -510,6 +512,16 @@
   to choose between high quality rendering or speed when older or
   less-capable hardware is used.
 
+  The QTransform class adds support for arbitrary matrix operations on
+  two-dimensional coordinates, allowing perspective transformations to
+  be applied to 2D graphics.
+
+  \bold{Support for set operations on paths} has been added to QPainterPath,
+  improving support for clipping and animations.
+
+  An object bounding mode for gradients that enables them to be defined
+  in terms of the bounding rectangle of the objects they are applied to.
+
   \section1 New Widgets and Desktop Integration Enhancements
 
   Applications running on Windows Vista automatically support animations
@@ -528,6 +540,16 @@
        \o \inlineimage qtwizard-aero2.png
   \endtable
 
+  \bold{Unified toolbar support on Mac OS X} improves the look and feel of
+  applications by blending adjacent toolbars and window title bars
+  together.
+
+  \image macintosh-unified-toolbar.png
+
+  Qt's range of model/view classes has been expanded to include the
+  QColumnView class, an animated list view similar to that found on
+  small-screen devices.
+
   The QMdiArea class provides an Multiple Document Interface (MDI)
   widget that is intended to provide a more consistent API for developers
   to use and more predictable behavior for users.
@@ -537,26 +559,58 @@
 
   \image qfiledialog-small.png
 
-  On X11, QFileDialog has a brand new look and feel, and has been
-  optimized to perform better with directories containing large numbers
-  of files.
+  On X11, QFileDialog has been optimized to perform better with directories
+  containing large numbers of files, automatically updates when files are
+  added or removed, and has a brand new look and feel.
 
   \image qfiledialog-expanded.png
- \omit
+
+  A platform-independent way to notify users about activity in a window
+  is provided by the QApplication::alert() function. This alerts the user
+  by using the appropriate notification mechanism for their chosen platform
+  and environment.
+
+  QWidget now provides a \l{QWidget::}{locale} property that can be used
+  to give individual windows, dialogs and widgets different look and feel
+
+  Almost all standard widgets can be styled with \l{Qt Style Sheets},
+  making it easier to customize the appearance of applications.
+
+  An \bold{enhanced layout system} accommodates many special cases for
+  Mac OS X, enabling Mac OS X style to provide a faithful Mac look and
+  feel.
+
   \section1 Qt Designer Improvements
 
- Support the new margin/spacing properties 
- Added support for dynamic properties 
- Added QColumnView? widget 
- Made it possible to change properties on a multiselection 
- Added Qt script support for widget construction 
- Improved handling for promoted widgets 
- Enabled multiline editing for labels 
- Drag and drop widget to the object inspector 
- Improved custom widget plugin handling 
- Drag and drop of images from resource editor to action editor and image/iconproperties 
- Some uic optimizations
- \endomit
+  \l{Qt Designer} has seen a number of improvements since Qt 4.2, many of
+  which are focused on making the application easier to use. Other
+  improvements track other additions and new features in Qt, such as new
+  widgets.
+
+  Support for
+  \l{Qt Designer's Widget Editing Mode#The Property Editor}{dynamic properties}
+  enables standard Qt widgets and user-created forms to be customized with
+  extra information from within Qt Designer.
+
+  \image designer-adding-dynamic-property.png
+
+  The property editor has been updated to support the new margin and spacing
+  properties added to Qt as part of improvements to the layout system.
+
+  Selection handling has been improved to allow properties to be changed
+  when more than one widget has been selected.
+
+  \omit
+  Added QColumnView? widget 
+  Added Qt script support for widget construction 
+  Improved handling for promoted widgets 
+  Enabled multiline editing for labels 
+  Drag and drop widget to the object inspector 
+  Improved custom widget plugin handling 
+  Drag and drop of images from resource editor to action editor and image/iconproperties 
+  Some uic optimizations
+  \endomit
+
   \section1 Extended and Improved Infrastructure
 
   The QtNetwork module has been extended to include \bold{support for
@@ -573,9 +627,7 @@
   QXmlStreamWriter complement Qt's existing range of SAX and DOM-based
   classes. 
 
-  An \bold{enhanced layout system} accommodates many special cases for
-  Mac OS X, enabling Mac OS X style to provide a faithful Mac look and
-  feel.
+  Support for the MSYS environment for MinGW on Windows.
 
   Qt's threading has been enhanced to include \bold{support for timed
   try-locks} in QMutex, QReadWriteLock and QSemaphore. Additionally, a
@@ -586,6 +638,22 @@
   function. This takes various system-specific factors into account to
   determine the optimal number of threads that can be run on a given
   system.
+
+  \bold{The event system \l{QCoreApplication::postEvent()}{has been extended}
+  to allow events to be posted with specific priorities}, enabling
+  applications to prioritize certain types of event depending on the
+  activities they are performing.
+
+  QDir has been enhanced with the \l{QDir::}{addSearchPath()} function to
+  provide \bold{an extensible mechanism, allowing search paths to be added at
+  run-time} to \l{The Qt Resource System}{Qt's resource system}.
+
+  The new QDirIterator class provides a convenient and less resource-intensive
+  way to traverse large directory structures.
+
+  \omit
+  Support for Unicode 5.
+  \endomit
 
   \section1 Qtopia Core
 
