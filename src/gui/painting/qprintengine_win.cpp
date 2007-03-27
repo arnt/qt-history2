@@ -602,6 +602,7 @@ bool QWin32PrintEngine::begin(QPaintDevice *pdev)
 
     if (d->reinit) {
        d->resetDC();
+       d->reinit = false;
     }
 
     // ### set default colors and stuff...
@@ -715,6 +716,7 @@ bool QWin32PrintEngine::newPage()
             qErrnoWarning("QWin32PrintEngine::newPage: ResetDC failed");
             return false;
         }
+        d->reinit = false;
     }
 
     if (!StartPage(d->hdc)) {
@@ -747,6 +749,7 @@ bool QWin32PrintEngine::newPage()
             if (d->reinit) {
                 if (!d->resetDC())
                     qErrnoWarning("QWin32PrintEngine::newPage(), ResetDC failed (2)");
+                d->reinit = false;
             }
             success = (StartPage(d->hdc) != SP_ERROR);
         }
@@ -1610,6 +1613,7 @@ void QWin32PrintEnginePrivate::doReinit()
     } else {
         resetDC();
         initDevRects();
+        reinit = false;
     }
 }
 
