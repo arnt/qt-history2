@@ -8,7 +8,7 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
-
+#include <qplatformdefs.h>
 
 #include <QAbstractFileEngine>
 #include <QFSFileEngine>
@@ -129,6 +129,7 @@ private slots:
     void appendAndRead();
     void miscWithUncPathAsCurrentDir();
     void standarderror();
+    void handle();
 
 public:
 // disabled this test for the moment... it hangs
@@ -1932,6 +1933,30 @@ void tst_QFile::standarderror()
     f.close();
 }
 
+void tst_QFile::handle()
+{
+    QFile file("tst_qfile.cpp");
+    QVERIFY(file.open(QIODevice::ReadOnly));
+#ifdef Q_OS_WIN
+    QCOMPARE(int(file.handle()), -1);
+#else
+    QVERIFY(int(file.handle()) > 2);
+#endif
+
+    QFile file2;
+    FILE *fp = fopen("tst_qfile.cpp", "r");
+    file2.open(fp, QIODevice::ReadOnly);
+    QCOMPARE(int(file2.handle()), fileno(fp));
+    fclose(fp);
+
+#ifdef Q_OS_UNIX
+    QFile file3;
+    int fd = QT_OPEN("tst_qfile.cpp", QT_OPEN_RDONLY);
+    file3.open(fd, QIODevice::ReadOnly);
+    QCOMPARE(int(file3.handle()), fd);
+    QT_CLOSE(fd);
+#endif
+}
 
 QTEST_MAIN(tst_QFile)
 #include "tst_qfile.moc"

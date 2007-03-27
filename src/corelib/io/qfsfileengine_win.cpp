@@ -803,13 +803,7 @@ int QFSFileEnginePrivate::nativeHandle() const
 {
     if (fh || fd != -1)
         return fh ? QT_FILENO(fh) : fd;
-#if defined (Q_OS_WIN64)
-    // int(fileHandle) is broken
     return -1;
-#else
-    // int(fileHandle) works
-    return int(fileHandle);
-#endif
 }
 
 /*
