@@ -3386,26 +3386,26 @@ void QSvgHandler::init()
 {
     Q_ASSERT(s_groupFactory.isEmpty());
 
-    s_utilFactory.insert(QLatin1String("a"), parseAnchorNode);
-    s_utilFactory.insert(QLatin1String("animate"), parseAnimateNode);
-    s_utilFactory.insert(QLatin1String("animateColor"), parseAnimateColorNode);
-    s_utilFactory.insert(QLatin1String("animateMotion"), parseAimateMotionNode);
-    s_utilFactory.insert(QLatin1String("animateTransform"), parseAnimateTransformNode);
-    s_utilFactory.insert(QLatin1String("audio"), parseAudioNode);
-    s_utilFactory.insert(QLatin1String("desc"), parseDescNode);
-    s_utilFactory.insert(QLatin1String("discard"), parseDiscardNode);
-    s_utilFactory.insert(QLatin1String("foreignObject"), parseForeignObjectNode);
-    s_utilFactory.insert(QLatin1String("handler"), parseHandlerNode);
-    s_utilFactory.insert(QLatin1String("hkern"), parseHkernNode);
-    s_utilFactory.insert(QLatin1String("metadata"), parseMetadataNode);
-    s_utilFactory.insert(QLatin1String("mpath"), parseMpathNode);
-    s_utilFactory.insert(QLatin1String("prefetch"), parsePrefetchNode);
-    s_utilFactory.insert(QLatin1String("script"), parseScriptNode);
-    s_utilFactory.insert(QLatin1String("set"), parseSetNode);
-    s_utilFactory.insert(QLatin1String("style"), parseStyleNode);
-    s_utilFactory.insert(QLatin1String("tBreak"), parseTbreakNode);
-    s_utilFactory.insert(QLatin1String("title"), parseTitleNode);
-    s_utilFactory.insert(QLatin1String("tspan"), parseTspanNode);
+    s_utilFactory.insert(QLatin1String("a"), (ParseMethod) parseAnchorNode);
+    s_utilFactory.insert(QLatin1String("animate"), (ParseMethod) parseAnimateNode);
+    s_utilFactory.insert(QLatin1String("animateColor"), (ParseMethod) parseAnimateColorNode);
+    s_utilFactory.insert(QLatin1String("animateMotion"), (ParseMethod) parseAimateMotionNode);
+    s_utilFactory.insert(QLatin1String("animateTransform"), (ParseMethod) parseAnimateTransformNode);
+    s_utilFactory.insert(QLatin1String("audio"), (ParseMethod) parseAudioNode);
+    s_utilFactory.insert(QLatin1String("desc"), (ParseMethod) parseDescNode);
+    s_utilFactory.insert(QLatin1String("discard"), (ParseMethod) parseDiscardNode);
+    s_utilFactory.insert(QLatin1String("foreignObject"), (ParseMethod) parseForeignObjectNode);
+    s_utilFactory.insert(QLatin1String("handler"), (ParseMethod) parseHandlerNode);
+    s_utilFactory.insert(QLatin1String("hkern"), (ParseMethod) parseHkernNode);
+    s_utilFactory.insert(QLatin1String("metadata"), (ParseMethod) parseMetadataNode);
+    s_utilFactory.insert(QLatin1String("mpath"), (ParseMethod) parseMpathNode);
+    s_utilFactory.insert(QLatin1String("prefetch"), (ParseMethod) parsePrefetchNode);
+    s_utilFactory.insert(QLatin1String("script"), (ParseMethod) parseScriptNode);
+    s_utilFactory.insert(QLatin1String("set"), (ParseMethod) parseSetNode);
+    s_utilFactory.insert(QLatin1String("style"), (ParseMethod) parseStyleNode);
+    s_utilFactory.insert(QLatin1String("tBreak"), (ParseMethod) parseTbreakNode);
+    s_utilFactory.insert(QLatin1String("title"), (ParseMethod) parseTitleNode);
+    s_utilFactory.insert(QLatin1String("tspan"), (ParseMethod) parseTspanNode);
 
     s_groupFactory.insert(QLatin1String("svg"), (FactoryMethod) createSvgNode);
     s_groupFactory.insert(QLatin1String("g"), (FactoryMethod) createGNode);
@@ -3431,13 +3431,13 @@ void QSvgHandler::init()
     s_styleFactory.insert(QLatin1String("font"), (StyleFactoryMethod) createFontNode);
     s_styleFactory.insert(QLatin1String("solidColor"), (StyleFactoryMethod) createSolidColorNode);
 
-    s_styleUtilFactory.insert(QLatin1String("font-face"), parseFontFaceNode);
-    s_styleUtilFactory.insert(QLatin1String("font-face-name"), parseFontFaceNameNode);
-    s_styleUtilFactory.insert(QLatin1String("font-face-src"), parseFontFaceSrcNode);
-    s_styleUtilFactory.insert(QLatin1String("font-face-uri"), parseFontFaceUriNode);
-    s_styleUtilFactory.insert(QLatin1String("glyph"), parseGlyphNode);
-    s_styleUtilFactory.insert(QLatin1String("missing-glyph"), parseMissingGlyphNode);
-    s_styleUtilFactory.insert(QLatin1String("stop"), parseStopNode);
+    s_styleUtilFactory.insert(QLatin1String("font-face"), (StyleParseMethod) parseFontFaceNode);
+    s_styleUtilFactory.insert(QLatin1String("font-face-name"), (StyleParseMethod) parseFontFaceNameNode);
+    s_styleUtilFactory.insert(QLatin1String("font-face-src"), (StyleParseMethod) parseFontFaceSrcNode);
+    s_styleUtilFactory.insert(QLatin1String("font-face-uri"), (StyleParseMethod) parseFontFaceUriNode);
+    s_styleUtilFactory.insert(QLatin1String("glyph"), (StyleParseMethod) parseGlyphNode);
+    s_styleUtilFactory.insert(QLatin1String("missing-glyph"), (StyleParseMethod) parseMissingGlyphNode);
+    s_styleUtilFactory.insert(QLatin1String("stop"), (StyleParseMethod) parseStopNode);
 }
 
 QSvgTinyDocument * QSvgHandler::document() const
