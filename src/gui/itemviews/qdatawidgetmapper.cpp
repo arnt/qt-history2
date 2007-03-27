@@ -265,12 +265,16 @@ void QDataWidgetMapperPrivate::_q_modelDestroyed()
     can be used to navigate in the model and update the widgets with contents from
     the model.
 
+    The setRootIndex() function enables a particular item in a model to be
+    specified as the root index - children of this item will be mapped to
+    the relevant widgets in the user interface.
+
     QDataWidgetMapper supports two submit policies, \c AutoSubmit and \c{ManualSubmit}.
     \c AutoSubmit will update the model as soon as the current widget loses focus,
     \c ManualSubmit will not update the model unless submit() is called. \c ManualSubmit
     is useful when displaying a dialog that lets the user cancel all modifications.
     Also, other views that display the model won't update until the user finishes
-    all his modifications and submits.
+    all their modifications and submits.
 
     Note that QDataWidgetMapper keeps track of external modifications. If the contents
     of the model are updated in another module of the application, the widgets are
