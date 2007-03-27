@@ -2034,7 +2034,13 @@ void QWidget::activateWindow()
 
 void QWidget::update()
 {
-    update(0, 0, width(), height());
+    if (updatesEnabled() && isVisible()) {
+        if (testAttribute(Qt::WA_WState_InPaintEvent)) {
+            QApplication::postEvent(this, new QUpdateLaterEvent(rect()));
+        } else {
+            HIViewSetNeedsDisplay(qt_mac_hiview_for(this), true);
+        }
+    }
 }
 
 void QWidget::update(const QRect &r)
@@ -2044,8 +2050,14 @@ void QWidget::update(const QRect &r)
         w = data->crect.width()  - x;
     if(h < 0)
         h = data->crect.height() - y;
-    if(w && h)
-        update(QRegion(x, y, w, h));
+    if (w && h && updatesEnabled() && isVisible()) {
+        if (testAttribute(Qt::WA_WState_InPaintEvent)) {
+            QApplication::postEvent(this, new QUpdateLaterEvent(QRect(x, y, w, h)));
+        } else {
+            HIRect r = CGRectMake(x, y, w, h);
+            HIViewSetNeedsDisplayInRect(qt_mac_hiview_for(this), &r, true);
+        }
+    }
 }
 
 void QWidget::update(const QRegion &rgn)
