@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include <private/qdrawhelper_sse_p.h>
-
 #ifdef QT_HAVE_SSE
+
+#include <private/qdrawhelper_sse_p.h>
 
 const CompositionFunctionSolid qt_functionForModeSolid_SSE[] = {
     comp_func_solid_SourceOver<QSSEIntrinsics>,

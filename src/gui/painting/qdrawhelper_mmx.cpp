@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include <private/qdrawhelper_mmx_p.h>
-
 #if defined(QT_HAVE_MMX)
+
+#include <private/qdrawhelper_mmx_p.h>
 
 const CompositionFunctionSolid qt_functionForModeSolid_MMX[] = {
     comp_func_solid_SourceOver<QMMXIntrinsics>,
