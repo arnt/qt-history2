@@ -294,6 +294,7 @@ private:
 };
 
 /*!
+    \class ControlLabel
     \internal
 */
 ControlLabel::ControlLabel(QWidget *parent)
@@ -383,7 +384,8 @@ void ControlLabel::updateWindowIcon()
     update();
 }
 
-/*!
+/*
+    \class ControllerWidget
     \internal
 */
 class ControllerWidget : public QWidget
@@ -418,7 +420,7 @@ private:
     }
 };
 
-/*!
+/*
     \internal
 */
 ControllerWidget::ControllerWidget(QWidget *parent)
@@ -431,7 +433,7 @@ ControllerWidget::ControllerWidget(QWidget *parent)
     setMouseTracking(true);
 }
 
-/*!
+/*
     \internal
 */
 QSize ControllerWidget::sizeHint() const
@@ -443,7 +445,7 @@ QSize ControllerWidget::sizeHint() const
     return style()->sizeFromContents(QStyle::CT_MDIControls, &opt, size, this);
 }
 
-/*!
+/*
     \internal
 */
 void ControllerWidget::paintEvent(QPaintEvent * /*paintEvent*/)
@@ -461,7 +463,7 @@ void ControllerWidget::paintEvent(QPaintEvent * /*paintEvent*/)
     style()->drawComplexControl(QStyle::CC_MDIControls, &opt, &painter, this);
 }
 
-/*!
+/*
     \internal
 */
 void ControllerWidget::mousePressEvent(QMouseEvent *event)
@@ -474,7 +476,7 @@ void ControllerWidget::mousePressEvent(QMouseEvent *event)
     update();
 }
 
-/*!
+/*
     \internal
 */
 void ControllerWidget::mouseReleaseEvent(QMouseEvent *event)
@@ -505,7 +507,7 @@ void ControllerWidget::mouseReleaseEvent(QMouseEvent *event)
     update();
 }
 
-/*!
+/*
     \internal
 */
 void ControllerWidget::mouseMoveEvent(QMouseEvent *event)
@@ -518,7 +520,7 @@ void ControllerWidget::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-/*!
+/*
     \internal
 */
 void ControllerWidget::leaveEvent(QEvent * /*event*/)
@@ -527,7 +529,7 @@ void ControllerWidget::leaveEvent(QEvent * /*event*/)
     update();
 }
 
-/*!
+/*
     \internal
 */
 bool ControllerWidget::event(QEvent *event)
@@ -556,7 +558,7 @@ bool ControllerWidget::event(QEvent *event)
     return QWidget::event(event);
 }
 
-/*!
+/*
     \internal
 */
 void ControllerWidget::initStyleOption(QStyleOptionComplex *option) const
@@ -566,7 +568,7 @@ void ControllerWidget::initStyleOption(QStyleOptionComplex *option) const
     option->activeSubControls = QStyle::SC_None;
 }
 
-/*!
+/*
     \internal
 */
 ControlContainer::ControlContainer(QMdiSubWindow *mdiChild)
@@ -598,7 +600,7 @@ ControlContainer::~ControlContainer()
     m_controllerWidget = 0;
 }
 
-/*!
+/*
     \internal
 */
 void ControlContainer::showButtonsInMenuBar(QMenuBar *menuBar)
@@ -630,7 +632,7 @@ void ControlContainer::showButtonsInMenuBar(QMenuBar *menuBar)
     setNewWindowTitle(mdiChild);
 }
 
-/*!
+/*
     \internal
 */
 void ControlContainer::removeButtonsFromMenuBar()
