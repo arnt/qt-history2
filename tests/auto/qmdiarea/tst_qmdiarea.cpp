@@ -1143,6 +1143,9 @@ void tst_QMdiArea::tileSubWindows()
     workspace.setActiveSubWindow(windows.at(5));
     workspace.resize(workspace.size() - QSize(10, 10));
     workspace.setActiveSubWindow(0);
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&workspace);
+#endif
     QTest::qWait(250); // delayed re-arrange of minimized windows
     QCOMPARE(workspace.viewport()->childrenRect(), workspace.viewport()->rect());
 
@@ -1254,7 +1257,8 @@ void tst_QMdiArea::resizeMaximizedChildWindows()
         QCOMPARE(window->rect(), workspace.contentsRect());
 
         workspace.resize(workspaceSize + QSize(increment, increment));
-        qApp->syncX();
+        QTest::qWait(100);
+        qApp->processEvents();
         QCOMPARE(workspace.size(), workspaceSize + QSize(increment, increment));
         QCOMPARE(window->size(), windowSize + QSize(increment, increment));
         workspaceSize = workspace.size();
