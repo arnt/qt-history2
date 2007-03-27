@@ -590,6 +590,19 @@ int QMetaCallEvent::placeMetaCall(QObject *object)
     \l{Using a Component in Your Application#A Dialog With Auto-Connect}{Using a
     Component in Your Application} section of the \QD manual.
 
+    \section1 Dynamic Properties
+
+    From Qt 4.2, dynamic properties can be added to and removed from QObject
+    instances at run-time. Dynamic properties do not need to be declared at
+    compile-time, yet they provide the same advantages as static properties
+    and are manipulated using the same API - using property() to read them
+    and setProperty() to write them.
+
+    From Qt 4.3, dynamic properties are supported by
+    \l{Qt Designer's Widget Editing Mode#The Property Editor}{Qt Designer},
+    and both standard Qt widgets and user-created forms can be given dynamic
+    properties.
+
     \sa QMetaObject, QPointer, QObjectCleanupHandler,
         {Object Trees and Object Ownership}
 */
@@ -3094,8 +3107,8 @@ void QMetaObject::activate(QObject *sender, const QMetaObject *m,
 
   If the property is defined in the class using Q_PROPERTY then
   true is returned on success and false otherwise. If the property
-  is not defined using Q_PROPERTY and therefore not listed in the
-  meta object it is added as dynamic property and false is returned.
+  is not defined using Q_PROPERTY, and therefore not listed in the
+  meta-object, it is added as a dynamic property and false is returned.
 
   Information about all available properties is provided through the
   metaObject() and dynamicPropertyNames().
