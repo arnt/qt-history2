@@ -79,8 +79,8 @@ protected:
 private:
     void logMessage(const QString &msg, MessageType mt = MT_DebugLevel2);
     void logMessage(MessageType mt, const char *msg, ...);
-    QString expandVariableReferences(const QString &value);
-    QString evaluateExpandFunction(const QByteArray &func, const QString &arguments);
+    QStringList expandVariableReferences(const QString &value);
+    QStringList evaluateExpandFunction(const QByteArray &func, const QString &arguments);
 
     bool evaluateConditionalFunction(const QByteArray &function, const QString &arguments, bool *result);
     bool evaluateFile(const QString &fileName, bool *result);

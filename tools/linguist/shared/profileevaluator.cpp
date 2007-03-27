@@ -172,8 +172,7 @@ bool ProFileEvaluator::visitProValue(ProValue *value)
 
     QByteArray varName = m_lastVarName;
 
-    QString v = expandVariableReferences(val);
-    unquote(&v);
+    QStringList v = expandVariableReferences(val);
 
     switch (m_variableOperator) {
         case ProVariable::UniqueAddOperator:    // *
@@ -190,7 +189,6 @@ bool ProFileEvaluator::visitProValue(ProValue *value)
         case ProVariable::ReplaceOperator:      // ~
             {
                 // DEFINES ~= s/a/b/?[gqi]
-                QStringList vm = m_valuemap.value(varName);
                 QChar sep = val.at(1);
                 QStringList func = val.split(sep);
                 if (func.count() < 3 || func.count() > 4) {
@@ -297,11 +295,11 @@ bool ProFileEvaluator::visitProCondition(ProCondition * cond)
 }
 
 
-QString ProFileEvaluator::expandVariableReferences(const QString &str)
+QStringList ProFileEvaluator::expandVariableReferences(const QString &str)
 {
     bool fOK;
     bool *ok = &fOK;
-    QString ret;
+    QStringList ret;
     if(ok)
         *ok = true;
     if(str.isEmpty())
@@ -314,7 +312,7 @@ QString ProFileEvaluator::expandVariableReferences(const QString &str)
     const ushort LPAREN = '(';
     const ushort RPAREN = ')';
     const ushort DOLLAR = '$';
-    const ushort SLASH = '\\';
+    const ushort BACKSLASH = '\\';
     const ushort UNDERSCORE = '_';
     const ushort DOT = '.';
     const ushort SPACE = ' ';
@@ -332,7 +330,7 @@ QString ProFileEvaluator::expandVariableReferences(const QString &str)
     for(int i = 0; i < str_len; ++i) {
         unicode = (str_data+i)->unicode();
         const int start_var = i;
-        if(unicode == SLASH) {
+        if (unicode == BACKSLASH) {
             bool escape = false;
             const char *symbols = "[]{}()$\\";
             for(const char *s = symbols; *s; ++s) {
@@ -352,6 +350,7 @@ QString ProFileEvaluator::expandVariableReferences(const QString &str)
         if(unicode == SPACE || unicode == TAB) {
             unicode = 0;
             if(!current.isEmpty()) {
+                unquote(&current);
                 ret.append(current);
                 current.clear();
             }
@@ -415,33 +414,44 @@ QString ProFileEvaluator::expandVariableReferences(const QString &str)
                             MT_DebugLevel1);
                         if(ok)
                             *ok = false;
-                        return QString();
+                        return QStringList();
                     }
                     unicode = 0;
                 } else if(i > str_len-1) {
                     unicode = 0;
                 }
 
-                QString replacement;
-                if(var_type == ENVIRON) {
-                    replacement = QString::fromLocal8Bit(qgetenv(var.toLatin1().constData()));
+                QStringList replacement;
+                if (var_type == ENVIRON) {
+                    replacement << QString::fromLocal8Bit(qgetenv(var.toLatin1().constData()));
                 } else if(var_type == PROPERTY) {
-                    replacement = propertyValue(var);
+                    replacement << propertyValue(var);
                     //if(prop)
                     //    replacement = QStringList(prop->value(var));
                 } else if(var_type == FUNCTION) {
-                    replacement = evaluateExpandFunction( var.toAscii(), args );
+                    replacement << evaluateExpandFunction( var.toAscii(), args );
                 } else if(var_type == VAR) {
-                    replacement = values(var).join(QLatin1String(" "));
+                    replacement += values(var);
                 }
-                if(!(replaced++) && start_var)
+                if (!(replaced++) && start_var)
                     current = str.left(start_var);
-                if(!replacement.isEmpty()) {
-                    current.append(replacement);
+                if (!replacement.isEmpty()) {
+                    /* If a list is beteen two strings make sure it expands in such a way
+                     * that the string to the left is prepended to the first string and
+                     * the string to the right is appended to the last string, example:
+                     *  LIST = a b c
+                     *  V3 = x/$$LIST/f.cpp
+                     *  message($$member(V3,0))     # Outputs "x/a"
+                     *  message($$member(V3,1))     # Outputs "b"
+                     *  message($$member(V3,2))     # Outputs "c/f.cpp"
+                     */
+                    current.append(replacement.at(0));
+                    for (int i = 1; i < replacement.count(); ++i) {
+                        unquote(&current);
+                        ret.append(current);
+                        current = replacement.at(i);
+                    }
                 }
-                logMessage(MT_DebugLevel2, "Project Parser [var replace]: %s -> %s",
-                          str.toLatin1().constData(), var.toLatin1().constData(),
-                          replacement.toLatin1().constData());
             } else {
                 if(replaced)
                     current.append(QLatin1String("$"));
@@ -450,10 +460,17 @@ QString ProFileEvaluator::expandVariableReferences(const QString &str)
         if(replaced && unicode)
             current.append(QChar(unicode));
     }
-    if(!replaced)
-        ret = str;
-    else if(!current.isEmpty())
+    if (!replaced) {
+        current = str;
+        unquote(&current);
         ret.append(current);
+    } else if(!current.isEmpty()) {
+        unquote(&current);
+        ret.append(current);
+        logMessage(MT_DebugLevel2, "Project Parser [var replace]: %s -> [%s]\n",
+                  str.toLatin1().constData(), ret.join(QLatin1String(",")).toLatin1().constData());
+
+    }
     return ret;
 }
 
@@ -489,13 +506,12 @@ bool ProFileEvaluator::isActiveConfig(const QByteArray &config, bool regex)
     return false;
 }
 
-QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const QString &arguments)
+QStringList ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const QString &arguments)
 {
-    const char field_sep = ' ';
-
-    QStringList args = split_arg_list(arguments);
-    for (int i = 0; i < args.count(); ++i) {
-        args[i] = expandVariableReferences(args[i]);
+    QStringList argumentsList = split_arg_list(arguments);
+    QStringList args;
+    for (int i = 0; i < argumentsList.count(); ++i) {
+        args +=expandVariableReferences(argumentsList[i]);
     }
     enum ExpandFunc { E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
                       E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
@@ -522,7 +538,7 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
         expands->insert("find", E_FIND);
         expands->insert("system", E_SYSTEM);                //v
         expands->insert("unique", E_UNIQUE);
-        expands->insert("quote", E_QUOTE);
+        expands->insert("quote", E_QUOTE);                  //v
         expands->insert("escape_expand", E_ESCAPE_EXPAND);
         expands->insert("upper", E_UPPER);
         expands->insert("lower", E_LOWER);
@@ -533,7 +549,7 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
     }
     ExpandFunc func_t = (ExpandFunc)expands->value(func.toLower());
 
-    QString ret;
+    QStringList ret;
 
     switch(func_t) {
         case E_BASENAME:
@@ -571,13 +587,10 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
             if(!var.isNull()) {
                 const QStringList l = values(var);
                 for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-                    QString separator = sep;
-                    if(!ret.isEmpty())
-                        ret += QLatin1Char(field_sep);
                     if(regexp)
-                        ret += (*it).section(QRegExp(separator), beg, end);
+                        ret += (*it).section(QRegExp(sep), beg, end);
                     else
-                        ret += (*it).section(separator, beg, end);
+                        ret += (*it).section(sep, beg, end);
                 }
             }
             break; }
@@ -594,23 +607,19 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
                     after = args[3];
                 const QStringList &var = values(args.first());
                 if(!var.isEmpty())
-                    ret = before + var.join(glue) + after;
+                    ret.append(before + var.join(glue) + after);
             }
             break; }
         case E_SPLIT: {
-            if(args.count() < 2 || args.count() > 3) {
-                logMessage(QString::fromAscii("split(var, sep, join) requires three arguments\n"));
+            if(args.count() < 2 || args.count() > 2) {
+                logMessage(QString::fromAscii("split(var, sep) requires two arguments\n"));
             } else {
-                QString sep = args[1], join = QString(QLatin1Char(field_sep));
-                if(args.count() == 3)
-                    join = args[2];
+                QString sep = args[1];
                 QStringList var = values(args.first());
                 for(QStringList::ConstIterator vit = var.begin(); vit != var.end(); ++vit) {
                     QStringList lst = (*vit).split(sep);
                     for(QStringList::ConstIterator spltit = lst.begin(); spltit != lst.end(); ++spltit) {
-                        if(!ret.isEmpty())
-                            ret += join;
-                        ret += (*spltit);
+                        ret.append(*spltit);
                     }
                 }
             }
@@ -656,14 +665,10 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
                         //nothing
                     } else if(start < end) {
                         for(int i = start; i <= end && (int)var.count() >= i; i++) {
-                            if(!ret.isEmpty())
-                                ret += QLatin1Char(field_sep);
-                            ret += var[i];
+                            ret.append(var[i]);
                         }
                     } else {
                         for(int i = start; i >= end && (int)var.count() >= i && i >= 0; i--) {
-                            if(!ret.isEmpty())
-                                ret += QLatin1Char(field_sep);
                             ret += var[i];
                         }
                     }
@@ -679,9 +684,9 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
                 const QStringList var = values(args.first());
                 if(!var.isEmpty()) {
                     if(func_t == E_FIRST)
-                        ret = var[0];
+                        ret.append(var[0]);
                     else
-                        ret = var[var.size()-1];
+                        ret.append(var.last());
                 }
             }
             break; }
@@ -696,6 +701,7 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
                     bool singleLine = true;
                     if(args.count() > 1)
                         singleLine = (args[1].toLower() == QLatin1String("true"));
+                    QString output;
                     while(proc && !feof(proc)) {
                         int read_in = int(fread(buff, 1, 255, proc));
                         if(!read_in)
@@ -705,11 +711,17 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
                                 buff[i] = ' ';
                         }
                         buff[read_in] = '\0';
-                        ret += QString::fromLatin1(buff);
+                        output += QLatin1String(buff);
                     }
+                    ret += split_value_list(output);
                 }
             }
             break; }
+        case E_QUOTE:
+            for (int i = 0; i < args.count(); ++i) {
+                ret += (QStringList)args.at(i);
+            }
+            break;
         case 0: {
             logMessage(MT_DebugLevel2, "'%s' is not a function\n", func.data());
             break; }
@@ -723,9 +735,12 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
 
 bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, const QString &arguments, bool *result)
 {
-    QStringList args = split_arg_list(arguments);
-    for (int i = 0; i < args.count(); ++i) {
-        args[i] = expandVariableReferences(args[i]);
+    QStringList argumentsList = split_arg_list(arguments);
+    QString sep = QLatin1Char(Option::field_sep);
+
+    QStringList args;
+    for (int i = 0; i < argumentsList.count(); ++i) {
+        args += expandVariableReferences(argumentsList[i]).join(sep);
     }
     enum ConditionFunc { CF_CONFIG = 1, CF_CONTAINS, CF_COUNT, CF_EXISTS, CF_INCLUDE,
         CF_LOAD, CF_ISEMPTY, CF_SYSTEM, CF_MESSAGE};
