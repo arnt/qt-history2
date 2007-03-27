@@ -312,7 +312,9 @@ public:
     void _q_alertTimeOut();
     QHash<QWidget *, QTimer *> alertTimerHash;
 #endif
+#ifndef QT_NO_STYLE_STYLESHEET
     static QString styleSheet;
+#endif
 
 private:
 #ifdef Q_WS_QWS

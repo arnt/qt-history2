@@ -455,6 +455,12 @@ void QApplicationPrivate::process_cmdline()
                 is_session_restored = true;
             }
 #endif
+#ifndef QT_NO_STYLESHEETSTYLE
+        } else if (arg == "-stylesheet" && i < argc -1) {
+            styleSheet = QString::fromLocal8Bit(argv[++i]);
+        } else if (arg.indexOf("-stylesheet=") != -1) {
+            styleSheet = QString::fromLocal8Bit(arg.right(arg.length() - 12));
+#endif
         } else if (qstrcmp(arg, "-reverse") == 0) {
             force_reverse = true;
             q->setLayoutDirection(Qt::RightToLeft);
@@ -518,6 +524,9 @@ void QApplicationPrivate::process_cmdline()
        with additional styles or have additional styles as plugins these
        will be available to the \c -style command line option.
   \o -style \e style, is the same as listed above.
+  \o -stylesheet= \e stylesheet, sets the application \l styleSheet. The value
+       may be a file name which contains the style sheet or the style sheet itself.
+  \o -stylesheet \e stylesheet, is the same as listed above.
   \o -session= \e session, restores the application from an earlier
        \link session.html session \endlink.
   \o -session \e session, is the same as listed above.
@@ -1163,8 +1172,13 @@ QStyle *QApplication::style()
     if (QApplicationPrivate::set_pal) // repolish set palette with the new style
         QApplication::setPalette(*QApplicationPrivate::set_pal);
 
+#ifndef QT_NO_STYLE_STYLESHEET
+    if (!QApplicationPrivate::styleSheet.isEmpty()) {
+        qApp->setStyleSheet(QApplicationPrivate::styleSheet);
+    } else
+#endif
+        QApplicationPrivate::app_style->polish(qApp);
 
-    QApplicationPrivate::app_style->polish(qApp);
     return QApplicationPrivate::app_style;
 }
 
