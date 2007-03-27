@@ -4531,23 +4531,30 @@ void tst_QWidget::minAndMaxSizeWithX11BypassWindowManagerHint()
 {
     { // Maximum size.
     QWidget widget(0, Qt::X11BypassWindowManagerHint);
-    widget.setMaximumSize(50, 50);
-    QCOMPARE(widget.size(), QSize(50, 50));
+
+    const QSize newMaximumSize = widget.size() - QSize(10, 10);
+    widget.setMaximumSize(newMaximumSize);
+    QCOMPARE(widget.size(), newMaximumSize);
+
     widget.show();
     qt_x11_wait_for_window_manager(&widget);
-    QCOMPARE(widget.size(), QSize(50, 50));
+    QCOMPARE(widget.size(), newMaximumSize);
     }
 
     { // Minimum size.
     QWidget widget(0, Qt::X11BypassWindowManagerHint);
-    const QSize desktopSize = QApplication::desktop()->size();
+
     // Same size as in QWidget::create_sys().
+    const QSize desktopSize = QApplication::desktop()->size();
     const QSize originalSize(desktopSize.width() / 2, desktopSize.height() * 4 / 10);
-    widget.setMinimumSize(originalSize + QSize(10, 10));
-    QCOMPARE(widget.size(), originalSize + QSize(10, 10));
+
+    const QSize newMinimumSize = widget.size().expandedTo(originalSize) + QSize(10, 10);
+    widget.setMinimumSize(newMinimumSize);
+    QCOMPARE(widget.size(), newMinimumSize);
+
     widget.show();
     qt_x11_wait_for_window_manager(&widget);
-    QCOMPARE(widget.size(), originalSize + QSize(10, 10));
+    QCOMPARE(widget.size(), newMinimumSize);
     }
 }
 #endif
