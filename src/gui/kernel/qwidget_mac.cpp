@@ -335,7 +335,7 @@ inline static void qt_mac_set_window_group_to_stays_on_top(WindowRef window, Qt:
     // all stays on top (aka popups) will fall into the same
     // group and be able to be raise()'d with releation to one another (from
     // within the same window group).
-    qt_mac_set_window_group(window, type|Qt::WindowStaysOnTopHint, qt_mac_get_group_level(kOverlayWindowClass));
+    qt_mac_set_window_group(window, type|Qt::WindowStaysOnTopHint, kCGOverlayWindowLevelKey);
 }
 
 inline static void qt_mac_set_window_group_to_tooltip(WindowRef window)
@@ -353,7 +353,7 @@ inline static void qt_mac_set_window_group_to_popup(WindowRef window)
     // Since new groups are created for 'stays on top' windows, the
     // same must be done for popups. Otherwise, popups would be drawn
     // below 'stays on top' windows.
-    qt_mac_set_window_group(window, Qt::Popup, qt_mac_get_group_level(kOverlayWindowClass)+2);
+    qt_mac_set_window_group(window, Qt::Popup, kCGOverlayWindowLevelKey+1);
 }
 
 void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
