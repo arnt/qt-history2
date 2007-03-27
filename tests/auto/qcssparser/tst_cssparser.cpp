@@ -88,7 +88,8 @@ void tst_CssParser::scanner()
 
     QFile inputFile(input);
     QVERIFY(inputFile.open(QIODevice::ReadOnly|QIODevice::Text));
-    QVector<QCss::Symbol> symbols = QCss::Scanner::scan(QCss::Scanner::preprocess(QString::fromUtf8(inputFile.readAll())));
+    QVector<QCss::Symbol> symbols;
+    QCss::Scanner::scan(QCss::Scanner::preprocess(QString::fromUtf8(inputFile.readAll())), &symbols);
 
     QVERIFY(symbols.count() > 1);
     QVERIFY(symbols.last().token == QCss::S);
