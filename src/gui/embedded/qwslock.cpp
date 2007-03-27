@@ -71,6 +71,7 @@ QWSLock::QWSLock()
 QWSLock::QWSLock(int id)
 {
     semId = id;
+    QWSSignalHandler::instance()->addSemaphore(semId);
     lockCount[0] = lockCount[1] = 0;
 }
 
