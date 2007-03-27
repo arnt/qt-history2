@@ -150,7 +150,7 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
     }
 #else
     // add the "/" item, since it is a valid path element on Unix
-    if (pathElements[0] != QLatin1String(":"))
+    if (path[0] == '/')
         pathElements.prepend(QLatin1String("/"));
 #endif
 
@@ -949,7 +949,7 @@ QString QFileSystemModel::filePath(const QModelIndex &index) const
     }
     QString fullPath = path.join(QDir::separator());
 #ifndef Q_OS_WIN
-    if (fullPath[0] != ':')
+    if ((fullPath.length() > 2) && fullPath[0] == '/' && fullPath[1] == '/')
         fullPath = fullPath.mid(1);
 #endif
     return QDir::toNativeSeparators(fullPath);
@@ -961,6 +961,9 @@ QString QFileSystemModel::filePath(const QModelIndex &index) const
 QModelIndex QFileSystemModel::mkdir(const QModelIndex &parent, const QString &name)
 {
     Q_D(QFileSystemModel);
+    if (!parent.isValid())
+        return parent;
+
     QDir dir(filePath(parent));
     if (!dir.mkdir(name))
         return QModelIndex();
