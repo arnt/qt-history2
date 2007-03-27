@@ -1,5 +1,3 @@
-#define SHOW_ERRORS
-
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
