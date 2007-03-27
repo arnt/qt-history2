@@ -92,8 +92,32 @@ tst_QPluginLoader::~tst_QPluginLoader()
 
 void tst_QPluginLoader::errorString()
 {
-
     const QString unknown(QLatin1String("Unknown error"));
+
+    {
+    QPluginLoader loader; // default constructed
+    bool loaded = loader.load();
+#ifdef SHOW_ERRORS
+    qDebug() << loader.errorString();
+#endif
+    QCOMPARE(loaded, false);
+    QCOMPARE(loader.errorString(), unknown);
+
+    QObject *obj = loader.instance();
+#ifdef SHOW_ERRORS
+    qDebug() << loader.errorString();
+#endif
+    QCOMPARE(obj, static_cast<QObject*>(0));
+    QCOMPARE(loader.errorString(), unknown);
+
+    bool unloaded = loader.unload();
+#ifdef SHOW_ERRORS
+    qDebug() << loader.errorString();
+#endif
+    QCOMPARE(unloaded, false);
+    QCOMPARE(loader.errorString(), unknown);
+    }
+
     {
     QPluginLoader loader( sys_qualifiedLibraryName("mylib"));     //not a plugin
     bool loaded = loader.load();
@@ -157,6 +181,7 @@ void tst_QPluginLoader::errorString()
 #endif
     QVERIFY(loader.errorString() != unknown);
 
+    QEXPECT_FAIL("", "See task 156276", Continue);
     QCOMPARE(loader.unload(), false);
 #ifdef SHOW_ERRORS
     qDebug() << loader.errorString();
