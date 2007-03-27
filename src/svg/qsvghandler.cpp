@@ -1790,7 +1790,7 @@ void QSvgHandler::parseCSStoXMLAttrs(QString css, QVector<QSvgCssAttribute> *att
         bool canExtractValueByRef = !m_cssParser.hasEscapeSequences;
         if (canExtractValueByRef) {
             int len = m_cssParser.symbols.at(firstSymbol).len;
-            for (int i = firstSymbol + 1; i < m_cssParser.index - 1; ++i) {
+            for (int i = firstSymbol + 1; i < firstSymbol + symbolCount; ++i) {
                 len += m_cssParser.symbols.at(i).len;
 
                 if (m_cssParser.symbols.at(i - 1).start + m_cssParser.symbols.at(i - 1).len
