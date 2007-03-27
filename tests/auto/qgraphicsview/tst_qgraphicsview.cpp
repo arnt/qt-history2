@@ -24,6 +24,7 @@ QTEST_NOOP_MAIN
 #include <QtGui/QPainterPath>
 #include <QtGui/QRubberBand>
 #include <QtGui/QScrollBar>
+#include <QtGui/QStyleOption>
 
 //TESTED_CLASS=QGraphicsView
 //TESTED_FILES=gui/graphicsview/qgraphicsview.cpp
@@ -103,6 +104,8 @@ private slots:
     void viewportUpdateMode();
     void acceptDrops();
     void optimizationFlags();
+    void levelOfDetail_data();
+    void levelOfDetail();
 };
 
 void tst_QGraphicsView::construction()
@@ -1931,6 +1934,69 @@ void tst_QGraphicsView::optimizationFlags()
                               | QGraphicsView::DontClipPainter);
     QCOMPARE(view.optimizationFlags(), QGraphicsView::OptimizationFlags(QGraphicsView::DontAdjustForAntialiasing
              | QGraphicsView::DontClipPainter));
+}
+
+class LodItem : public QGraphicsRectItem
+{
+public:
+    LodItem(const QRectF &rect) : QGraphicsRectItem(rect), lastLod(1)
+    { }
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *viewport)
+    {
+        lastLod = option->levelOfDetail;
+        QGraphicsRectItem::paint(painter, option, viewport);
+    }
+    
+    qreal lastLod;
+};
+
+void tst_QGraphicsView::levelOfDetail_data()
+{
+    QTest::addColumn<QTransform>("transform");
+    QTest::addColumn<qreal>("lod");
+
+    QTest::newRow("1:4, 1:4") << QTransform().scale(0.25, 0.25) << 0.25;
+    QTest::newRow("1:2, 1:4") << QTransform().scale(0.5, 0.25) << ::sqrt(0.125);
+    QTest::newRow("4:1, 1:2") << QTransform().scale(0.25, 0.5) << ::sqrt(0.125);
+
+    QTest::newRow("1:2, 1:2") << QTransform().scale(0.5, 0.5) << 0.5;
+    QTest::newRow("1:1, 1:2") << QTransform().scale(1, 0.5) << ::sqrt(0.5);
+    QTest::newRow("2:1, 1:1") << QTransform().scale(0.5, 1) << ::sqrt(0.5);
+
+    QTest::newRow("1:1, 1:1") << QTransform().scale(1, 1) << 1.0;
+    QTest::newRow("2:1, 1:1") << QTransform().scale(2, 1) << ::sqrt(2.0);
+    QTest::newRow("1:1, 2:1") << QTransform().scale(2, 1) << ::sqrt(2.0);
+    QTest::newRow("2:1, 2:1") << QTransform().scale(2, 2) << 2.0;
+    QTest::newRow("2:1, 4:1") << QTransform().scale(2, 4) << ::sqrt(8.0);
+    QTest::newRow("4:1, 2:1") << QTransform().scale(4, 2) << ::sqrt(8.0);
+    QTest::newRow("4:1, 4:1") << QTransform().scale(4, 4) << 4.0;
+}
+
+void tst_QGraphicsView::levelOfDetail()
+{
+    QFETCH(QTransform, transform);
+    QFETCH(qreal, lod);
+
+    LodItem *item = new LodItem(QRectF(0, 0, 100, 100));
+
+    QGraphicsScene scene;
+    scene.addItem(item);
+
+    QGraphicsView view(&scene);
+    view.show();
+
+    qApp->processEvents();
+    qApp->processEvents();
+
+    QCOMPARE(item->lastLod, qreal(1));
+
+    view.setTransform(transform);
+
+    qApp->processEvents();
+    qApp->processEvents();
+
+    QCOMPARE(item->lastLod, lod);
 }
 
 QTEST_MAIN(tst_QGraphicsView)

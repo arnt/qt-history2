@@ -254,6 +254,8 @@ static const int QGRAPHICSVIEW_REGION_RECT_THRESHOLD = 50;
 #include <QtGui/qstyleoption.h>
 #include <private/qabstractscrollarea_p.h>
 
+#include <math.h>
+
 class QGraphicsViewPrivate : public QAbstractScrollAreaPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsView)
@@ -1600,9 +1602,9 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     moveMatrix.translate(-d->horizontalScroll(), -d->verticalScroll());
     QTransform painterMatrix = d->matrix * moveMatrix;
 
-    // Prepare the length of a unit vector.
-    QLineF unitVector(0, 0, 1, 1);
-    qreal unitVectorLength = unitVector.length();
+    // Two unit vectors.
+    QLineF v1(0, 0, 1, 0);
+    QLineF v2(0, 0, 0, 1);
 
     // Generate the style options
     QStyleOptionGraphicsItem *styleOptionArray = new QStyleOptionGraphicsItem[numItems];
@@ -1625,7 +1627,7 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
 
         // Calculate a simple level-of-detail metric.
         QTransform neo = item->sceneTransform() * painterMatrix;
-        option.levelOfDetail = neo.map(unitVector).length() / unitVectorLength;
+        option.levelOfDetail = ::sqrt(double(neo.map(v1).length() * neo.map(v2).length()));
         option.matrix = neo.toAffine();
 
         option.exposedRect = item->boundingRect();
@@ -2957,9 +2959,9 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     int backgroundTime = stopWatch.elapsed() - exposedTime;
 #endif
 
-    // Prepare the length of a unit vector.
-    QLineF unitVector(0, 0, 1, 1);
-    qreal unitVectorLength = unitVector.length();
+    // Two unit vectors.
+    QLineF v1(0, 0, 1, 0);
+    QLineF v2(0, 0, 0, 1);
 
     // Generate the style options
     QStyleOptionGraphicsItem *styleOptionArray = new QStyleOptionGraphicsItem[numItems];
@@ -2983,7 +2985,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
         // Calculate a simple level-of-detail metric.
         QTransform itemSceneMatrix = item->sceneTransform();
         QTransform neo = itemSceneMatrix * painter.transform();
-        option.levelOfDetail = neo.map(unitVector).length() / unitVectorLength;
+        option.levelOfDetail = ::sqrt(double(neo.map(v1).length() * neo.map(v2).length()));
         option.matrix = neo.toAffine(); //### discards perspective
 
         // Determine the item's exposed area
