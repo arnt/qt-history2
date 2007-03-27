@@ -2,6 +2,7 @@
     \page eventsandfilters.html
     \title Events and Event Filters
     \ingroup architecture
+    \brief A guide to event handling in Qt.
 
     In Qt, events are objects, derived from the abstract QEvent class,
     that represent things that have happened either within an application

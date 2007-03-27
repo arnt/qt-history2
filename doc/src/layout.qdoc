@@ -18,6 +18,8 @@
     \title Layout Classes
     \ingroup architecture
     \ingroup classlists
+    \brief A tour of the standard layout managers and an introduction
+    to custom layouts.
 
     The Qt layout system provides a simple and powerful way of
     specifying the layout of child widgets.

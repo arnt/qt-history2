@@ -3,6 +3,8 @@
     \title The Graphics View Framework
     \ingroup architecture
     \ingroup multimedia
+    \brief An overview of the Graphics View framework for interactive 2D
+    graphics.
 
     \keyword Graphics View
     \keyword GraphicsView

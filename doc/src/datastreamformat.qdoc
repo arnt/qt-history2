@@ -16,6 +16,7 @@
     \page datastreamformat.html
     \title Format of the QDataStream Operators
     \ingroup architecture
+    \brief Representations of data types that can be serialized by QDataStream.
 
     The \l QDataStream allows you to serialize some of the Qt data types.
     The table below lists the data types that QDataStream can serialize
@@ -225,10 +226,10 @@
     \row \o QRegExp
          \o \list
             \o The regexp pattern (QString)
-	    \o Case sensitivity (quint8)
-	    \o Regular expression syntax (quint8)
-	    \o Minimal matching (quint8)
-	    \endlist
+            \o Case sensitivity (quint8)
+            \o Regular expression syntax (quint8)
+            \o Minimal matching (quint8)
+            \endlist
     \row \o QRegion
          \o \list
             \o The size of the data, i.e. 8 + 16 * (number of rectangles) (quint32)

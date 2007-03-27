@@ -5,6 +5,8 @@
 
     \title Model/View Programming
     \ingroup architecture
+    \brief A guide to the extensible model/view architecture used by Qt's
+    item view classes.
 
     \tableofcontents
 

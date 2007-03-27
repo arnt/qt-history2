@@ -17,6 +17,7 @@
     \title Keyboard Focus
     \ingroup architecture
     \ingroup gui-programming
+    \brief An overview of the keyboard focus management and handling.
 
     \keyword keyboard focus
 

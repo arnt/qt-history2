@@ -2,6 +2,8 @@
 \page objecttrees.html
 \title Object Trees and Object Ownership
 \ingroup architecture
+\brief Information about the parent-child pattern used to describe
+object ownership in Qt.
 
 \link QObject QObjects\endlink organize themselves in object trees.
 When you create a QObject with another object as parent, it's added to

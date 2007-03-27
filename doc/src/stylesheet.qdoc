@@ -2,6 +2,7 @@
     \page stylesheet.html
     \title Qt Style Sheets
     \ingroup architecture
+    \brief How to use style sheets to customize the appearance of widgets.
 
     \keyword style sheet
     \keyword stylesheet

@@ -16,6 +16,7 @@
 
     \keyword QtDBus
     \ingroup architecture
+    \brief An introduction to Inter-Process Communication and Remote Procedure Calling with D-Bus.
 
     \section1 Introduction
 

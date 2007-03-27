@@ -2,6 +2,7 @@
     \page geometry.html
     \title Window Geometry
     \ingroup architecture
+    \brief An overview of window geometry handling and management.
 
     QWidget provides several functions that deal with a widget's
     geometry. Some of these functions operate on the pure client area

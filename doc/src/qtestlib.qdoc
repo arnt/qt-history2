@@ -1,8 +1,9 @@
 /*!
     \page qtestlib-manual.html
     \title QTestLib Manual
-
     \ingroup architecture
+    \brief An overview of Qt's unit testing framework.
+
     \keyword qtestlib
 
     The QTestLib framework, provided by Trolltech, is a tool for unit

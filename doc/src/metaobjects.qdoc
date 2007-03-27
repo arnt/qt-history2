@@ -15,15 +15,15 @@
 /*!
     \page metaobjects.html
     \title Meta-Object System
-
+    \brief An overview of Qt's meta-object system and introspection capabilities.
     \ingroup architecture
     \keyword meta-object
 
-    Qt's Meta-Object System provides the signals and slots mechanism for
+    Qt's meta-object system provides the signals and slots mechanism for
     inter-object communication, run-time type information, and the dynamic
     property system.
 
-    The Meta-Object System is based on three things:
+    The meta-object system is based on three things:
 
     \list 1
     \o The \l QObject class provides a base class for objects that can

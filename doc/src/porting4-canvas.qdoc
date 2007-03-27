@@ -1,8 +1,10 @@
 /*!
     \page graphicsview-porting.html
     \title Porting to Graphics View
-    \ingroup architecture
+    \ingroup porting
     \ingroup multimedia
+    \brief Hints and tips to assist with porting canvas applications to the
+    Graphics View framework.
 
     \keyword QGraphicsView GraphicsView Porting Graphics Canvas
     \since 4.2
@@ -64,7 +66,7 @@
         replaced with an implicitly maintained internal BSP tree.
 
         \section2 Porting table
-        
+
         \table
         \header \o Q3Canvas \o QGraphicsScene
 
@@ -235,7 +237,7 @@
             private:
                 QRect tileRect(int x, int y) const;
                 QRect tileRect(int tileNum) const;
-            
+
                 QVector<QVector<int> > tiles;
                 QPixmap tilePixmap;
                 int tileW, tileH;
@@ -395,7 +397,7 @@
         click-and-pull navigation using the
         \l{Qt::OpenHandCursor}{OpenHandCursor} and
         \l{Qt::ClosedHandCursor}{ClosedHandCursor} cursors.
-        
+
     \section1 Porting from Q3CanvasItem
 
         The closest equivalent to Q3CanvasItem in Graphics View is

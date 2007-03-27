@@ -16,6 +16,7 @@
     \page dnd.html
     \title Drag and Drop
     \ingroup architecture
+    \brief An overview of the drag and drop system provided by Qt.
 
     Drag and drop provides a simple visual mechanism which users can use
     to transfer information between and within applications. (In the
@@ -441,6 +442,7 @@
     \page porting4-dnd.html
     \title Porting to Qt 4 (Drag and Drop)
     \ingroup porting
+    \brief An overview of the porting process for applications that use drag and drop.
 
     Qt 4 introduces a new set of classes to handle drag and drop operations
     that aim to be easier to use than their counterparts in Qt 3. As a result,
