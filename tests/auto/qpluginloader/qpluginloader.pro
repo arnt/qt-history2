@@ -1,6 +1,7 @@
 TEMPLATE    =	subdirs
 CONFIG  += ordered
 SUBDIRS	=	lib \
+                almostplugin \
                 theplugin \
 		tst
 TARGET = tst_qpluginloader

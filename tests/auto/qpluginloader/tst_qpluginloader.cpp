@@ -1,3 +1,5 @@
+#define SHOW_ERRORS
+
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -142,7 +144,28 @@ void tst_QPluginLoader::errorString()
     QVERIFY(loader.errorString() != unknown);
     }
 
-    
+    {
+    QPluginLoader loader( sys_qualifiedLibraryName("almostplugin"));     //a plugin with unresolved symbols
+    loader.setLoadHints(QLibrary::ResolveAllSymbolsHint);
+    QCOMPARE(loader.load(), false);
+#ifdef SHOW_ERRORS
+    qDebug() << loader.errorString();
+#endif
+    QVERIFY(loader.errorString() != unknown);
+
+    QCOMPARE(loader.instance(), static_cast<QObject*>(0));
+#ifdef SHOW_ERRORS
+    qDebug() << loader.errorString();
+#endif
+    QVERIFY(loader.errorString() != unknown);
+
+    QCOMPARE(loader.unload(), false);
+#ifdef SHOW_ERRORS
+    qDebug() << loader.errorString();
+#endif
+    QVERIFY(loader.errorString() != unknown);
+    }
+
     {
     QPluginLoader loader( sys_qualifiedLibraryName("theplugin"));     //a plugin
     QCOMPARE(loader.load(), true);

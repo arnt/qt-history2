@@ -186,10 +186,9 @@ bool QPluginLoader::load()
 */
 bool QPluginLoader::unload()
 {
-    if (did_load) {
-        did_load = false;
+    did_load = false;
+    if (d->pHnd)
         return d->unload();
-    }
     if (d)  // Ouch
         d->errorString = tr("The plugin was not loaded.");
     return false;
@@ -253,6 +252,30 @@ QString QPluginLoader::errorString() const
 
 typedef QList<QtPluginInstanceFunction> StaticInstanceFunctionList;
 Q_GLOBAL_STATIC(StaticInstanceFunctionList, staticInstanceFunctionList)
+
+/*! \since 4.4
+
+    \property QPluginLoader::loadHints
+    \brief Give the load() function some hints on how it should behave.
+
+    You can give hints on how the symbols in the plugin are
+    resolved. By default, none of the hints are set.
+
+    See the documentation of QLibrary::loadHints for a complete
+    description of how this property works.
+
+    \sa QLibrary::loadHints
+*/
+
+void QPluginLoader::setLoadHints(QLibrary::LoadHints loadHints)
+{
+    d->loadHints = loadHints;
+}
+
+QLibrary::LoadHints QPluginLoader::loadHints() const
+{
+    return d->loadHints;
+}
 
 /*!
     \relates QPluginLoader

@@ -14,7 +14,7 @@
 #ifndef QPLUGINLOADER_H
 #define QPLUGINLOADER_H
 
-#include <QtCore/qobject.h>
+#include <QtCore/qlibrary.h>
 
 #ifndef QT_NO_LIBRARY
 
@@ -28,6 +28,7 @@ class Q_CORE_EXPORT QPluginLoader : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
+    Q_PROPERTY(QLibrary::LoadHints loadHints READ loadHints WRITE setLoadHints)
 public:
     explicit QPluginLoader(QObject *parent = 0);
     explicit QPluginLoader(const QString &fileName, QObject *parent = 0);
@@ -45,12 +46,15 @@ public:
     QString fileName() const;
 
     QString errorString() const;
+
+    void setLoadHints(QLibrary::LoadHints loadHints);
+    QLibrary::LoadHints loadHints() const;
+
 private:
     QLibraryPrivate *d;
     bool did_load;
     Q_DISABLE_COPY(QPluginLoader)
 };
-
 
 QT_END_HEADER
 
