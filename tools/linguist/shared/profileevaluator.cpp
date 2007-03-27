@@ -736,7 +736,8 @@ QStringList ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, con
 bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, const QString &arguments, bool *result)
 {
     QStringList argumentsList = split_arg_list(arguments);
-    QString sep = QLatin1Char(Option::field_sep);
+    QString sep;
+    sep.append(QLatin1Char(Option::field_sep));
 
     QStringList args;
     for (int i = 0; i < argumentsList.count(); ++i) {
