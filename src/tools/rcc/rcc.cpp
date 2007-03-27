@@ -17,6 +17,7 @@
 #include <qdatetime.h>
 #include <qbytearray.h>
 #include <qdir.h>
+#include <qdiriterator.h>
 #include <qstack.h>
 #include <qdom.h>
 
@@ -309,12 +310,13 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                             }
                             if (!alias.endsWith(QLatin1String("/")))
                                 alias += QLatin1Char('/');
-                            QFileInfoList children = dir.entryInfoList();
-                            for(int i = 0; i < children.size(); ++i) {
-                                if(children[i].fileName() != QLatin1String(".") &&
-                                   children[i].fileName() != QLatin1String(".."))
-                                    addFile(alias + children[i].fileName(),
-                                            RCCFileInfo(children[i].fileName(), children[i], language, country,
+                            QDirIterator it(dir, QDirIterator::FollowSymlinks|QDirIterator::Subdirectories);
+                            while(it.hasNext()) {
+                                it.next();
+                                QFileInfo child(it.fileInfo());
+                                if(child.fileName() != QLatin1String(".") && child.fileName() != QLatin1String(".."))
+                                    addFile(alias + child.fileName(),
+                                            RCCFileInfo(child.fileName(), child, language, country,
                                                         RCCFileInfo::NoFlags, compressLevel, compressThreshold));
                             }
                         }
