@@ -971,7 +971,7 @@ static inline void bindInflectionPoint(const QBezier &bez, const qreal t,
     qreal ey = 3 * (right.y2 - right.y3);
 
     qreal s4 = qAbs(6 * (ey * ax - ex * ay) / qSqrt(ex * ex + ey * ey)) + 0.00001f;
-    qreal tf = pow(9 * flatness / s4, 1./3.);
+    qreal tf = pow(qreal(9 * flatness / s4), qreal(1./3.));
     *tMinus = t - (1 - t) * tf;
     *tPlus  = t + (1 - t) * tf;
 }
