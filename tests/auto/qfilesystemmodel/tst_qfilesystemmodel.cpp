@@ -568,7 +568,7 @@ void tst_QFileSystemModel::sort()
 void tst_QFileSystemModel::mkdir()
 {
     QString tmp = QDir::tempPath();
-    QString newFolderPath = tmp + QDir::separator() + "NewFoldermkdirtest4";
+    QString newFolderPath = QDir::toNativeSeparators(tmp + QDir::separator() + "NewFoldermkdirtest4");
     QModelIndex tmpDir = model->index(tmp);
     QVERIFY(tmpDir.isValid());
     QDir bestatic(newFolderPath);
@@ -584,11 +584,12 @@ void tst_QFileSystemModel::mkdir()
     int oldRow = idx.row();
     QTest::qWait(WAITTIME);
     idx = model->index(newFolderPath);
+    QDir cleanup(tmp);
+    QVERIFY(cleanup.rmdir(QLatin1String("NewFoldermkdirtest3")));
+    QVERIFY(cleanup.rmdir(QLatin1String("NewFoldermkdirtest5")));
+    bestatic.rmdir(newFolderPath);
     QVERIFY(0 != idx.row());
     QCOMPARE(oldRow, idx.row());
-    bestatic.rmdir(tmp + QLatin1String("NewFoldermkdirtest3"));
-    bestatic.rmdir(tmp + QLatin1String("NewFoldermkdirtest5"));
-    bestatic.rmdir(newFolderPath);
 }
 
 QTEST_MAIN(tst_QFileSystemModel)
