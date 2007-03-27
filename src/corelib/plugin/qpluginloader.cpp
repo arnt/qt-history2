@@ -186,9 +186,10 @@ bool QPluginLoader::load()
 */
 bool QPluginLoader::unload()
 {
-    did_load = false;
-    if (d->pHnd)
+    if (did_load) {
+        did_load = false;
         return d->unload();
+    }
     if (d)  // Ouch
         d->errorString = tr("The plugin was not loaded.");
     return false;
@@ -247,7 +248,7 @@ QString QPluginLoader::fileName() const
 */
 QString QPluginLoader::errorString() const
 {
-    return d->errorString.isEmpty() ? tr("Unknown error") : d->errorString;
+    return !d || d->errorString.isEmpty() ? tr("Unknown error") : d->errorString;
 }
 
 typedef QList<QtPluginInstanceFunction> StaticInstanceFunctionList;
