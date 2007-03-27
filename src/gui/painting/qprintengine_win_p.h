@@ -60,7 +60,7 @@ public:
 protected:
     QAlphaPaintEngine(QAlphaPaintEnginePrivate &data, PaintEngineFeatures devcaps = 0);
     QRegion alphaClipping() const;
-    bool redirect() const;
+    bool continueCall() const;
     void flushAndInit(bool init = true);
     void cleanUp();
 };
@@ -72,7 +72,6 @@ public:
     QAlphaPaintEnginePrivate();
     ~QAlphaPaintEnginePrivate();
 
-    QPainterState *m_initstate;
     int m_pass;
     QPicture *m_pic;
     QPaintEngine *m_picengine;
@@ -88,6 +87,10 @@ public:
     bool m_alphaPen;
     bool m_alphaBrush;
     bool m_alphaOpacity;
+    bool m_advancedPen;
+    bool m_advancedBrush;
+    bool m_complexTransform;
+    bool m_continueCall;
 
     QTransform m_transform;
     QPen m_pen;
@@ -95,6 +98,10 @@ public:
     void addAlphaRect(const QRectF &rect);
     QRectF addPenWidth(const QRectF &rect);
     void drawAlphaImage(const QRectF &rect);
+    QRect toRect(const QRectF &rect) const;
+    bool fullyContained(const QRectF &rect) const;
+
+    void resetState(QPainter *p);
 };
 
 class QWin32PrintEngine : public QAlphaPaintEngine, public QPrintEngine

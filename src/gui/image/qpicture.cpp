@@ -444,6 +444,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     qint16     i_16, i1_16, i2_16;     // parameters...
     qint8      i_8;
     quint32    ul;
+    qreal      qrl;
+    bool       bl;
     QByteArray  str1;
     QString     str;
     QPointF     p, p1, p2;
@@ -809,6 +811,14 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
         case QPicturePrivate::PdcSetCompositionMode:
             s >> ul;
             painter->setCompositionMode((QPainter::CompositionMode)ul);
+            break;
+        case QPicturePrivate::PdcSetClipEnabled:
+            s >> bl;
+            painter->setClipping(bl);
+            break;
+        case QPicturePrivate::PdcSetOpacity:
+            s >> qrl;
+            painter->setOpacity(qrl);
             break;
         default:
             qWarning("QPicture::play: Invalid command %d", c);

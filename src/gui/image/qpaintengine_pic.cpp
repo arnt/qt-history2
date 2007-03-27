@@ -149,6 +149,30 @@ void QPicturePaintEngine::updateCompositionMode(QPainter::CompositionMode cmode)
     writeCmdLength(pos, QRectF(), false);
 }
 
+void QPicturePaintEngine::updateClipEnabled(bool enabled)
+{
+    Q_D(QPicturePaintEngine);
+#ifdef QT_PICTURE_DEBUG
+    qDebug() << " -> updateCompositionMode():" << cmode;
+#endif
+    int pos;
+    SERIALIZE_CMD(QPicturePrivate::PdcSetClipEnabled);
+    d->s << enabled;
+    writeCmdLength(pos, QRectF(), false);
+}
+
+void QPicturePaintEngine::updateOpacity(qreal opacity)
+{
+    Q_D(QPicturePaintEngine);
+#ifdef QT_PICTURE_DEBUG
+    qDebug() << " -> updateCompositionMode():" << cmode;
+#endif
+    int pos;
+    SERIALIZE_CMD(QPicturePrivate::PdcSetOpacity);
+    d->s << opacity;
+    writeCmdLength(pos, QRectF(), false);
+}
+
 void QPicturePaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 {
     Q_D(QPicturePaintEngine);
@@ -391,13 +415,16 @@ void QPicturePaintEngine::updateState(const QPaintEngineState &state)
     QPaintEngine::DirtyFlags flags = state.state();
     if (flags & DirtyPen) updatePen(state.pen());
     if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
-    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
+    if (flags & DirtyBrushOrigin) updateBrush(state.brush(), state.brushOrigin());
     if (flags & DirtyFont) updateFont(state.font());
+    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
     if (flags & DirtyTransform) updateMatrix(state.transform());
-    if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
     if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
+    if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
     if (flags & DirtyHints) updateRenderHints(state.renderHints());
     if (flags & DirtyCompositionMode) updateCompositionMode(state.compositionMode());
+    if (flags & DirtyClipEnabled) updateClipEnabled(state.isClipEnabled());
+    if (flags & DirtyOpacity) updateOpacity(state.opacity());
 }
 
 #endif // QT_NO_PICTURE

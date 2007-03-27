@@ -54,6 +54,8 @@ public:
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
     void updateRenderHints(QPainter::RenderHints hints);
     void updateCompositionMode(QPainter::CompositionMode cmode);
+    void updateClipEnabled(bool enabled);
+    void updateOpacity(qreal opacity);
 
     void drawPath(const QPainterPath &path);
     void drawPolygon(const QPointF *points, int numPoints, PolygonDrawMode mode);

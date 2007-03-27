@@ -103,6 +103,8 @@ public:
         PdcSetClipPath = 62, // path
         PdcSetRenderHint = 63, // ival
         PdcSetCompositionMode = 64, // ival
+        PdcSetClipEnabled = 65, // bool
+        PdcSetOpacity = 66, // qreal
 
         PdcReservedStart = 0, // codes 0-199 are reserved
         PdcReservedStop = 199 //   for Qt
