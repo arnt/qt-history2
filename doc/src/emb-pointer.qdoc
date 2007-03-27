@@ -165,4 +165,31 @@
     above.
 
     \endtable
+
+    \section1 Troubleshooting
+
+    \section2 Make sure you are using the correct device file. 
+
+    As a minimum you can test whether the device file actually gives any 
+    output. If you for instance have specified the mouse driver as 
+    \c QWS_MOUSE_PROTO=IntelliMouse:/dev/input/mouse0
+    try the command
+    \code
+        cat /dev/input/mouse0 | hexdump
+    \endcode
+    and see if anything is printed on the console when you mouse the mouse.
+
+    \section2 Make sure you have sufficient permissions to the device file.
+
+    The Qtopia Core server process needs at least read permission to the 
+    device file. Some drivers requires also write access to the device file. 
+    If you for instance have specified the mouse driver as 
+    \c QWS_MOUSE_PROTO=IntelliMouse:/dev/input/mouse0
+    try the command
+    \code
+        chmod a+rw /dev/input/mouse0
+    \endcode
+
+    If the device file is actually a symlink to another file, you must change
+    the permission of the actual file instead.
 */
