@@ -624,8 +624,8 @@ form, and experiment with different layouts in each of them.
 The Property Editor always displays the properties of
 the currently selected object on the form. The properties available depend
 on the object being edited, but all of the widgets provided have common
-properties such as \c objectName (the object's internal name) and
-\c enabled (whether it can be interacted with).
+properties such as \l{QObject::}{objectName} (the object's internal name) and
+\l{QWidget::}{enabled} (whether it can be interacted with).
 
 \target EditingProperties
 \table
@@ -638,6 +638,26 @@ of objects on the form. Textual properties are shown in line edits,
 integer properties are displayed in spinboxes, and compound properties such
 as colors and sizes are presented in drop-down lists of input widgets.
 \endtable
+
+\raw HTML
+<table align="center" width="80%">
+<tr><td>
+\endraw
+\inlineimage designer-adding-dynamic-property.png
+\raw HTML
+</td><td>
+\endraw
+\inlineimage designer-creating-dynamic-property.png
+\raw HTML
+</td></tr>
+</table>
+\endraw
+
+The property editor can also be used to add new
+\l{QObject#Dynamic Properties}{dynamic properties} to both standard Qt
+widgets and to forms themselves. Dynamic properties are added and removed
+via the property editor's context menu - click the right mouse button
+to open this.
 
 \section1 The Object Inspector
 
