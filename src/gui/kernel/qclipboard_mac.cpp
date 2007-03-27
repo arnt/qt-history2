@@ -16,8 +16,6 @@
 #include "qbitmap.h"
 #include "qdatetime.h"
 #include "qapplication_p.h"
-#include "qfile.h"
-#include "qfileinfo.h"
 #include <private/qt_mac_p.h>
 #include "qevent.h"
 #include "qurl.h"
@@ -232,31 +230,14 @@ OSStatus QMacPasteboard::promiseKeeper(PasteboardRef paste, PasteboardItemID id,
         }
     } else {
         // Mac expects different files to be different items
-        // on the pasteboard. So return only one file
+        // on the pasteboard. So put only one URL onto the board.
         // (The list index is synced with the promise_id).
-        // We should either return the location of the file, or
-        // move the file directly. Check the latter first:
-        QCFType<CFURLRef> pasteLocation = 0;
-        PasteboardCopyPasteLocation(paste, &pasteLocation);
-        if (pasteLocation){
-            QList<QVariant> urls = promise.data.toList();
-            QUrl fromUrl = urls.at(promise_id - 1).toUrl();
-            QString filename = QFileInfo(fromUrl.path()).fileName();
-            QUrl toUrl(QCFString::toQString(CFURLGetString(pasteLocation)) + filename);
-            if (!QFile::rename(fromUrl.path(), toUrl.path()))
-                return badDragItemErr;
-#ifdef DEBUG_PASTEBOARD
-            qDebug("Moving %s to %s", qPrintable(fromUrl.path()), qPrintable(toUrl.path()));
-#endif
-        } else {
-            // Put the URL on the pasteboard:
-            QList<QByteArray> md = promise.convertor->convertFromMime(promise.mime, promise.data, flavorAsQString);
-            if (md.size() < promise_id)
-                return cantGetFlavorErr;
-            const QByteArray &ba = md[promise_id - 1];
-            QCFType<CFDataRef> data = CFDataCreate(0, (UInt8*)ba.constData(), ba.size());
-            PasteboardPutItemFlavor(paste, id, flavor, data, kPasteboardFlavorNoFlags);
-        }
+        QList<QByteArray> md = promise.convertor->convertFromMime(promise.mime, promise.data, flavorAsQString);
+        if (md.size() < promise_id)
+            return cantGetFlavorErr;
+        const QByteArray &ba = md[promise_id - 1];
+        QCFType<CFDataRef> data = CFDataCreate(0, (UInt8*)ba.constData(), ba.size());
+        PasteboardPutItemFlavor(paste, id, flavor, data, kPasteboardFlavorNoFlags);
     }
     return noErr;
 }

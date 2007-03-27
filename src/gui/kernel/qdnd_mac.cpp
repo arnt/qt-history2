@@ -20,6 +20,8 @@
 #include "qpainter.h"
 #include "qurl.h"
 #include "qwidget.h"
+#include "qfile.h"
+#include "qfileinfo.h"
 #include <stdlib.h>
 #include <string.h>
 #ifndef QT_NO_ACCESSIBILITY
@@ -585,6 +587,40 @@ Qt::DropAction QDragManager::drag(QDrag *o)
     }
     object = 0;
     if(result == noErr) {
+        // Check if the receiver points us to
+        // a file location. If so, we need to do
+        // the file copy/move ourselves:
+        QCFType<CFURLRef> pasteLocation = 0;
+        PasteboardCopyPasteLocation(dragBoard.pasteBoard(), &pasteLocation);
+        if (pasteLocation){
+            Qt::DropAction action = o->d_func()->defaultDropAction;
+            if (action == Qt::IgnoreAction){
+                if (o->d_func()->possible_actions & Qt::MoveAction)
+                    action = Qt::MoveAction;
+                else if (o->d_func()->possible_actions & Qt::CopyAction)
+                    action = Qt::CopyAction;
+                
+            }
+            bool atleastOne = false;
+            QList<QUrl> urls = o->mimeData()->urls();
+            for (int i = 0; i < urls.size(); ++i){
+                QUrl fromUrl = urls.at(i);
+                QString filename = QFileInfo(fromUrl.path()).fileName();
+                QUrl toUrl(QCFString::toQString(CFURLGetString(pasteLocation)) + filename);
+                if (action == Qt::MoveAction){
+                    if (QFile::rename(fromUrl.path(), toUrl.path()))
+                        atleastOne = true;
+                } else if (action == Qt::CopyAction){
+                    if (QFile::copy(fromUrl.path(), toUrl.path()))
+                        atleastOne = true;
+                }
+            }
+            if (atleastOne){
+                DisposeDrag(dragRef);
+                return action;
+            }
+        }
+
         DragActions ret = kDragActionNothing;
         GetDragDropAction(dragRef, &ret);
         DisposeDrag(dragRef); //cleanup
