@@ -303,8 +303,8 @@ void tst_QFileSystemModel::rowsInserted()
     int oldCount = model->rowCount(root);
     for (int i = 0; i < count; ++i)
         QVERIFY(createFiles(tmp, QStringList(QString("c%1").arg(i))));
-    QCOMPARE(spy0.count(), 0);
     QTest::qWait(WAITTIME);
+    QCOMPARE(spy0.count(), count);
     QCOMPARE(model->rowCount(root), oldCount + count);
     if (assending == (Qt::SortOrder)Qt::AscendingOrder) {
         QString letter = model->index(model->rowCount(root) - 1, 0, root).data().toString();
