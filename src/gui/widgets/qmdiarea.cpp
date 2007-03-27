@@ -915,10 +915,12 @@ QSize QMdiArea::minimumSizeHint() const
     QSize size(style()->pixelMetric(QStyle::PM_MDIMinimizedWidth),
                style()->pixelMetric(QStyle::PM_TitleBarHeight));
     size = size.expandedTo(QAbstractScrollArea::minimumSizeHint());
-    foreach (QMdiSubWindow *child, d_func()->childWindows) {
-        if (!sanityCheck(child, "QMdiArea::sizeHint"))
-            continue;
-        size = size.expandedTo(child->minimumSizeHint());
+    if (!scrollBarsEnabled()) {
+        foreach (QMdiSubWindow *child, d_func()->childWindows) {
+            if (!sanityCheck(child, "QMdiArea::sizeHint"))
+                continue;
+            size = size.expandedTo(child->minimumSizeHint());
+        }
     }
     return size.expandedTo(QApplication::globalStrut());
 }
