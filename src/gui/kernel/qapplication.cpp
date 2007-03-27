@@ -1256,8 +1256,7 @@ void QApplication::setStyle(QStyle *style)
 
         for (QWidgetList::ConstIterator it2 = all.constBegin(); it2 != all.constEnd(); ++it2) {
             register QWidget *w = *it2;
-            if (w->windowType() != Qt::Desktop && w->testAttribute(Qt::WA_WState_Polished)
-                && !w->testAttribute(Qt::WA_SetStyle)) {
+            if (w->windowType() != Qt::Desktop && !w->testAttribute(Qt::WA_SetStyle)) {
                     QEvent e(QEvent::StyleChange);
                     QApplication::sendEvent(w, &e);
 #ifdef QT3_SUPPORT
