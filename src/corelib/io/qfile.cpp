@@ -868,13 +868,18 @@ bool QFile::isSequential() const
 }
 
 /*!
-    Opens the file using OpenMode \a mode.
+    Opens the file using OpenMode \a mode, returning true if successful;
+    otherwise false.
 
     The \a mode must be QIODevice::ReadOnly, QIODevice::WriteOnly, or
     QIODevice::ReadWrite. It may also have additional flags, such as
     QIODevice::Text and QIODevice::Unbuffered.
 
-    \sa QIODevice::OpenMode
+    \note In \l{QIODevice::}{WriteOnly} or \l{QIODevice::}{ReadWrite}
+    mode, if the relevant file does not already exist, this function
+    will try to create a new file before opening it.
+
+    \sa QIODevice::OpenMode, setFileName()
 */
 bool QFile::open(OpenMode mode)
 {
