@@ -48,7 +48,7 @@
     Handling} documentation for details. In addition, the tslib
     headers and library must be present in the build environment.  The
     tslib sources can be downloaded from \l
-    {http://cvs.arm.linux.org.uk}.  Use the \c -L and \c -I options
+    {http://tslib.berlios.de/}.  Use the \c -L and \c -I options
     with \c configure to explicitly specify the location of the
     library and its headers:
 

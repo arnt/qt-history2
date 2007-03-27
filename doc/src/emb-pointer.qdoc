@@ -140,7 +140,7 @@
     in the build environment.
 
     The tslib sources can be downloaded from \l
-    http://cvs.arm.linux.org.uk. Use the \c configure script's -L and
+    http://tslib.berlios.de. Use the \c configure script's -L and
     -I options to explicitly specify the location of the library and
     its headers:
 
