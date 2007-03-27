@@ -122,6 +122,9 @@ private:
 
     void setPalette(QWidget *);
     void unsetPalette(QWidget *);
+    void setProperties(QWidget *);
+    QVector<QCss::StyleRule> styleRules(const QWidget *w) const;
+    bool hasStyleRule(const QWidget *w, int part) const;
 
 public:
     static int numinstances;
