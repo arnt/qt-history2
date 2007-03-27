@@ -45,7 +45,8 @@ static void printHelp()
            "    -ps             Paints to a ps\n"
            "    -picture        Prints into a picture, then shows the result in a label\n"
            "    -printer        Prints the commands to a file called output.ps|pdf\n"
-           "    -highres        Prints in highres mod\n"
+           "    -highres        Prints in highres mode\n"
+           "    -printdialog    Opens a print dialog, then prints to the selected printer\n"
            "    -grab           Paints the files to an image called filename_qps.png\n"
            "    -i              Interactive mode.\n"
            "    -v              Verbose.\n"
@@ -156,6 +157,7 @@ int main(int argc, char **argv)
     QStringList files;
 
     bool interactive = false;
+    bool printdlg = false;
     bool highres = false;
     bool show_cmp = false;
     int width = 800, height = 800;
@@ -206,6 +208,9 @@ int main(int argc, char **argv)
             else if (option == "highres") {
                 type = PrinterType;
                 highres = true;
+            } else if (option == "printdialog") {
+                type = PrinterType;
+                printdlg = true;
             }
             else if (option == "grab")
                 type = GrabType;
@@ -426,17 +431,27 @@ int main(int argc, char **argv)
 
             case PrinterType:
                 {
-                    QPrinter p(highres ? QPrinter::HighResolution : QPrinter::ScreenResolution);
-                    p.setOutputToFile(true);
                     QString file = QString(files.at(j)).replace(".", "_") + ".ps";
-                    p.setOutputFileName(file);
+
+                    QPrinter p(highres ? QPrinter::HighResolution : QPrinter::ScreenResolution);
+                    if (printdlg) {
+                        QPrintDialog printDialog(&p, 0);
+                        if (printDialog.exec() != QDialog::Accepted)
+                            break;
+                    } else {
+                        p.setOutputToFile(true);
+                        p.setOutputFileName(file);
+                    }
+
                     QPainter pt(&p);
                     pcmd.setPainter(&pt);
                     pcmd.setFilePath(fileinfo.absolutePath());
                     pcmd.runCommands();
                     pt.end();
 
-                    printf("wrote file: %s\n", qPrintable(file));
+                    if (!printdlg) {
+                        printf("wrote file: %s\n", qPrintable(file));
+                    }
 
                     Q_ASSERT(!p.paintingActive());
                     break;
