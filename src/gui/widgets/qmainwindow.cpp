@@ -301,7 +301,7 @@ QMainWindow::~QMainWindow()
 
 /*!
     \property QMainWindow::dockOptions
-    \brief the docking bahvaior of QMainWindow.
+    \brief the docking behavior of QMainWindow.
 
     The default value is AnimatedDocks | AllowTabbedDocks.
 */
