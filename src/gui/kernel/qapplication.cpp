@@ -4179,7 +4179,8 @@ bool QApplication::keypadNavigationEnabled()
 
     A global pointer referring to the unique application object. It is
     equivalent to the pointer returned by the
-    QCoreApplication::instance() function.
+    QCoreApplication::instance() function except that, in GUI applications,
+    it is a pointer to a QApplication instance.
 
     Only one application object can be created.
 
