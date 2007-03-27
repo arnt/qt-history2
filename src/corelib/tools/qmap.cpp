@@ -448,7 +448,8 @@ void QMapData::dump()
     \sa isEmpty(), count()
 */
 
-/*! \fn bool QMap::isEmpty() const
+/*! 
+    \fn bool QMap::isEmpty() const
 
     Returns true if the map contains no items; otherwise returns
     false.
@@ -900,10 +901,12 @@ void QMapData::dump()
     Typedef for int. Provided for STL compatibility.
 */
 
-/*! \fn bool QMap::empty() const
+/*! 
+    \fn bool QMap::empty() const
 
     This function is provided for STL compatibility. It is equivalent
-    to isEmpty().
+    to isEmpty(), returning true if the map is empty; otherwise
+    returning false.
 */
 
 /*! \class QMap::iterator

@@ -1839,7 +1839,7 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
 */
 
 /*!
-    \macro const char* Q_FUNC_INFO
+    \macro const char* Q_FUNC_INFO()
     \relates <QtGlobal>
 
     Expands to a string that describe the function the macro resides in. How this string looks

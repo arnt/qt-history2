@@ -522,7 +522,7 @@ bool QFSFileEnginePrivate::nativeFlush()
     return true;
 }
 
-/*!
+/*
     \internal
 */
 qint64 QFSFileEnginePrivate::nativeSize() const

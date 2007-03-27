@@ -926,7 +926,7 @@ QList<QByteArray> QTextCodec::aliases() const
 }
 
 /*!
-    \fn QString QTextCodec::convertToUnicode char *chars, int len,
+    \fn QString QTextCodec::convertToUnicode(const char *chars, int len,
                                              ConverterState *state) const
 
     QTextCodec subclasses must reimplement this function.
