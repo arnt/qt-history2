@@ -1260,12 +1260,9 @@ void tst_QWidget::setTabOrder()
 
     container.show();
     container.setActiveWindow();
+    qApp->setActiveWindow(&container);
     qApp->processEvents(QEventLoop::AllEvents);
 
-#ifdef Q_WS_X11
-    if (!lastEdit->hasFocus())
-        QSKIP("Your window manager is too broken for this test.", SkipAll);
-#endif
     QVERIFY(lastEdit->hasFocus());
     container.tab();
     do {
