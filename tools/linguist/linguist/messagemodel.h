@@ -329,6 +329,7 @@ private:
 
     QLocale::Language m_language;
     QLocale::Country m_country;
+    QByteArray m_codecForTr;
 
     friend class iterator;
 };

@@ -13,6 +13,7 @@
 
 #include "messagemodel.h"
 #include "trwindow.h"
+#include <QtCore/QTextCodec>
 
 static Qt::SortOrder sSortOrder = Qt::AscendingOrder;
 static int sSortColumn = 1;
@@ -605,6 +606,7 @@ bool MessageModel::load(const QString &fileName)
     MetaTranslator tor;
     bool ok = tor.load(fileName);
     if (ok) {
+        m_codecForTr = tor.codecForTr()->name();
         int messageCount = 0;
         clearContextList();
         m_numFinished = 0;
@@ -697,6 +699,7 @@ bool MessageModel::save(const QString &fileName)
         QString languageCode = locale.name();
         tor.setLanguageCode(languageCode);
     }
+    tor.setCodecForTr(m_codecForTr.constData());
     bool ok = tor.save(fileName);
     if (ok) setModified(false);
     return ok;
