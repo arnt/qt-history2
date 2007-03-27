@@ -54,11 +54,9 @@
 /*****************************************************************************
   QWidget globals
  *****************************************************************************/
-typedef QHash<Qt::WindowType, WindowGroupRef> StaysOnTopHash;
-Q_GLOBAL_STATIC(StaysOnTopHash, qt_mac_stays_on_top)
+typedef QHash<Qt::WindowFlags, WindowGroupRef> WindowGroupHash;
+Q_GLOBAL_STATIC(WindowGroupHash, qt_mac_window_groups)
 static bool qt_mac_raise_process = true;
-static WindowGroupRef qt_mac_tooltip_group = 0;
-static WindowGroupRef qt_mac_popup_group = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 const UInt32 kWidgetCreatorQt = 'cute';
@@ -265,9 +263,9 @@ Q_GUI_EXPORT WindowPtr qt_mac_window_for(const QWidget *w)
     group gets removed from the hash table */
 static void qt_mac_release_stays_on_top_group(WindowGroupRef group)
 {
-    for (StaysOnTopHash::iterator it = qt_mac_stays_on_top()->begin(); it != qt_mac_stays_on_top()->end(); ++it) {
+    for (WindowGroupHash::iterator it = qt_mac_window_groups()->begin(); it != qt_mac_window_groups()->end(); ++it) {
         if (it.value() == group) {
-            qt_mac_stays_on_top()->remove(it.key());
+            qt_mac_window_groups()->remove(it.key());
             return;
         }
     }
@@ -278,7 +276,6 @@ static void qt_mac_release_stays_on_top_group(WindowGroupRef group)
 static void qt_mac_release_window_group(WindowGroupRef group)
 {
     ReleaseWindowGroup(group);
-
     if (GetWindowGroupRetainCount(group) == 0)
         qt_mac_release_stays_on_top_group(group);
 }
@@ -317,55 +314,46 @@ static inline bool qt_mac_menu_buttons_explicitly_sat(const Qt::WindowFlags &fla
         || (flags & Qt::WindowMaximizeButtonHint)));
 }
 
-static void qt_mac_set_window_group_to_stays_on_top(WindowRef windowRef, Qt::WindowType type)
+static void qt_mac_set_window_group(WindowRef window, Qt::WindowFlags flags, int level)
+{
+    WindowGroupRef group = 0;
+    if (qt_mac_window_groups()->contains(flags)) {
+        group = qt_mac_window_groups()->value(flags);
+        RetainWindowGroup(group);
+    } else {
+        CreateWindowGroup(kWindowActivationScopeNone, &group);
+        SetWindowGroupLevel(group, level);
+        SetWindowGroupParent(group, GetWindowGroupOfClass(kAllWindowClasses));
+        qt_mac_window_groups()->insert(flags, group);
+    }
+    SetWindowGroup(window, group);
+}
+
+inline static void qt_mac_set_window_group_to_stays_on_top(WindowRef window, Qt::WindowType type)
 {
     // We create one static stays on top window group so that
     // all stays on top (aka popups) will fall into the same
     // group and be able to be raise()'d with releation to one another (from
     // within the same window group).
-    WindowGroupRef group = 0;
-    if (qt_mac_stays_on_top()->contains(type)) {
-        group = qt_mac_stays_on_top()->value(type);
-        RetainWindowGroup(group);
-    } else {
-        CreateWindowGroup(kWindowActivationScopeNone, &group);
-        SetWindowGroupLevel(group, qt_mac_get_group_level(kOverlayWindowClass));
-        SetWindowGroupParent(group, GetWindowGroupOfClass(kAllWindowClasses));
-        qt_mac_stays_on_top()->insert(type, group);
-    }
-    SetWindowGroup(windowRef, group);
+    qt_mac_set_window_group(window, type|Qt::WindowStaysOnTopHint, qt_mac_get_group_level(kOverlayWindowClass));
 }
 
-static void qt_mac_set_window_group_to_tooltip(WindowRef windowRef)
+inline static void qt_mac_set_window_group_to_tooltip(WindowRef window)
 {
     // Since new groups are created for 'stays on top' windows, the
     // same must be done for tooltips. Otherwise, tooltips would be drawn
     // below 'stays on top' widgets even tough they are on the same level.
     // Also, add 'two' to the group level to make sure they also get on top of popups.
-    if (qt_mac_tooltip_group){
-        RetainWindowGroup(qt_mac_tooltip_group);
-    } else {
-        CreateWindowGroup(kWindowActivationScopeNone, &qt_mac_tooltip_group);
-        SetWindowGroupLevel(qt_mac_tooltip_group, qt_mac_get_group_level(kHelpWindowClass) + 2);
-        SetWindowGroupParent(qt_mac_tooltip_group, GetWindowGroupOfClass(kAllWindowClasses));
-    }
-    SetWindowGroup(windowRef, qt_mac_tooltip_group);
+    qt_mac_set_window_group(window, Qt::ToolTip, qt_mac_get_group_level(kHelpWindowClass)+2);
 }
 
-static void qt_mac_set_window_group_to_popup(WindowRef windowRef)
+inline static void qt_mac_set_window_group_to_popup(WindowRef window)
 {
     // In Qt, a popup is seen as a 'stay on top' window.
     // Since new groups are created for 'stays on top' windows, the
     // same must be done for popups. Otherwise, popups would be drawn
     // below 'stays on top' windows.
-    if (qt_mac_popup_group){
-        RetainWindowGroup(qt_mac_popup_group);
-    } else {
-        CreateWindowGroup(kWindowActivationScopeNone, &qt_mac_popup_group);
-        SetWindowGroupLevel(qt_mac_popup_group, qt_mac_get_group_level(kOverlayWindowClass) + 1);
-        SetWindowGroupParent(qt_mac_popup_group, GetWindowGroupOfClass(kAllWindowClasses));
-    }
-    SetWindowGroup(windowRef, qt_mac_popup_group);
+    qt_mac_set_window_group(window, Qt::Popup, qt_mac_get_group_level(kOverlayWindowClass)+2);
 }
 
 void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
