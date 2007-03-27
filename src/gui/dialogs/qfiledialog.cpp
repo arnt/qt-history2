@@ -2249,8 +2249,10 @@ void QFileDialogPrivate::_q_showContextMenu(const QPoint &position)
         menu.addSeparator();
     }
     menu.addAction(showHiddenAction);
-    if (qFileDialogUi->newFolderButton->isVisible())
+    if (qFileDialogUi->newFolderButton->isVisible()) {
+        newFolderAction->setEnabled(qFileDialogUi->newFolderButton->isEnabled());
         menu.addAction(newFolderAction);
+    }
     menu.exec(view->viewport()->mapToGlobal(position));
 #endif // QT_NO_MENU
 }
