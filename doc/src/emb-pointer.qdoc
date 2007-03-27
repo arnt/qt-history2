@@ -168,28 +168,41 @@
 
     \section1 Troubleshooting
 
-    \section2 Make sure you are using the correct device file. 
+    \section2 Device Files
 
-    As a minimum you can test whether the device file actually gives any 
-    output. If you for instance have specified the mouse driver as 
-    \c QWS_MOUSE_PROTO=IntelliMouse:/dev/input/mouse0
-    try the command
+    Make sure you are using the correct device file.
+
+    As a first step, you can test whether the device file actually gives any
+    output. For instance, if you have specified the mouse driver with
     \code
-        cat /dev/input/mouse0 | hexdump
+    QWS_MOUSE_PROTO=IntelliMouse:/dev/input/mouse0}
     \endcode
-    and see if anything is printed on the console when you mouse the mouse.
+    then try examining
+    the output from the device by entering the following command in a console:
+    \code
+    cat /dev/input/mouse0 | hexdump
+    \endcode
 
-    \section2 Make sure you have sufficient permissions to the device file.
+    If you see output from the device printed on the console when you move
+    the mouse, you are probably using the correct device file; otherwise, you
+    will need to experiment to find the correct device file.
 
-    The Qtopia Core server process needs at least read permission to the 
-    device file. Some drivers requires also write access to the device file. 
-    If you for instance have specified the mouse driver as 
-    \c QWS_MOUSE_PROTO=IntelliMouse:/dev/input/mouse0
-    try the command
+    \section2 File Permissions
+
+    Make sure you have sufficient permissions to access the device file.
+
+    The Qtopia Core server process needs at least read permission for the 
+    device file. Some drivers also require write access to the device file. 
+    For instance, if you have specified the mouse driver with
+    \code
+    QWS_MOUSE_PROTO=IntelliMouse:/dev/input/mouse0
+    \endcode
+    then examine the permissions of the device file by entering the following
+    command in a console:
     \code
         chmod a+rw /dev/input/mouse0
     \endcode
 
-    If the device file is actually a symlink to another file, you must change
-    the permission of the actual file instead.
+    If the device file is actually a symbolic link to another file, you must
+    change the permissions of the actual file instead.
 */
