@@ -688,6 +688,7 @@ public:
     int index;
     int errorIndex;
     bool hasEscapeSequences;
+    QString sourcePath;
 };
 
 }

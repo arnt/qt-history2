@@ -1552,7 +1552,14 @@ QString Symbol::lexem() const
 
 Parser::Parser(const QString &css)
 {
-    init(css);
+    QString ss = css;
+    QFile file(css);
+    if (file.open(QFile::ReadOnly)) {
+        sourcePath = QFileInfo(css).absolutePath() + QLatin1String("/");
+        QTextStream stream(&file);
+        ss = stream.readAll();
+    }
+    init(ss);
 }
 
 Parser::Parser()
@@ -2043,6 +2050,9 @@ bool Parser::parseTerm(Value *value)
                 if (name == QLatin1String("url")) {
                     value->type = Value::Uri;
                     removeOptionalQuotes(&args);
+                    if (QFileInfo(args).isRelative() && !sourcePath.isEmpty()) {
+                        args.prepend(sourcePath);
+                    }
                     value->variant = args;
                 } else {
                     value->type = Value::Function;
