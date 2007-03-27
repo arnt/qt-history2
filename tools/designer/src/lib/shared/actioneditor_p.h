@@ -59,7 +59,7 @@ public:
     virtual void manageAction(QAction *action);
     virtual void unmanageAction(QAction *action);
 
-    static QString actionTextToName(const QString &text);
+    static QString actionTextToName(const QString &text, const QString &prefix = QLatin1String("action"));
 
     QAction *itemToAction(QListWidgetItem *item) const;
     QListWidgetItem *actionToItem(QAction *action) const;

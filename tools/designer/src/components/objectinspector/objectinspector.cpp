@@ -470,6 +470,7 @@ bool ObjectInspector::selectObject(QObject *o)
     for (ItemList::const_iterator it = items.constBegin(); it != cend; ++it )  {
         (*it)->setSelected(true);
     }
+    m_treeWidget->scrollToItem(items.first());
     slotSelectionChanged();
     return true;
 }

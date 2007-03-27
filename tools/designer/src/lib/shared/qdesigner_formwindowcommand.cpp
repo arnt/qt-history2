@@ -13,6 +13,7 @@
 
 
 #include "qdesigner_formwindowcommand_p.h"
+#include "qdesigner_objectinspector_p.h"
 #include "layout_p.h"
 
 #include <QtDesigner/QDesignerFormEditorInterface>
@@ -21,6 +22,7 @@
 #include <QtDesigner/QDesignerActionEditorInterface>
 #include <QtDesigner/QDesignerMetaDataBaseInterface>
 #include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
 #include <QtDesigner/QExtensionManager>
 
 #include <QtCore/QVariant>
@@ -115,6 +117,16 @@ void QDesignerFormWindowCommand::checkParent(QWidget *widget, QWidget *parentWid
 
     if (widget->parentWidget() != parentWidget)
         widget->setParent(parentWidget);
+}
+
+void QDesignerFormWindowCommand::selectUnmanagedObject(QObject *unmanagedObject)
+{
+    // Keep selection in sync
+    if (QDesignerObjectInspector *oi = qobject_cast<QDesignerObjectInspector *>(core()->objectInspector())) {
+        oi->clearSelection();
+        oi->selectObject(unmanagedObject);
+    }
+    core()->propertyEditor()->setObject(unmanagedObject);
 }
 
 } // namespace qdesigner_internal

@@ -527,14 +527,14 @@ void ActionEditor::slotNotImplemented()
     QMessageBox::information(this, tr("Designer"), tr("Feature not implemented!"));
 }
 
-QString ActionEditor::actionTextToName(const QString &text)
+QString ActionEditor::actionTextToName(const QString &text, const QString &prefix)
 {
     QString name = text;
     if (name.isEmpty())
         return QString();
 
     name[0] = name.at(0).toUpper();
-    name.prepend(QLatin1String("action"));
+    name.prepend(prefix);
     const QString underscore = QString(QLatin1Char('_'));
     name.replace(QRegExp(QString(QLatin1String("[^a-zA-Z_0-9]"))), underscore);
     name.replace(QRegExp(QLatin1String("__*")), underscore);

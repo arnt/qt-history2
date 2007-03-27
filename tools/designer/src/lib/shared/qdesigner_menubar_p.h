@@ -74,7 +74,7 @@ public:
     void moveDown();
 
 private slots:
-    void slotRemoveSelectedAction();
+    void deleteMenu();
     void slotRemoveMenuBar();
 
 protected:
@@ -117,16 +117,16 @@ protected:
     void leaveEditMode(LeaveEditMode mode);
     void showLineEdit();
 
-    void deleteMenu();
     void showMenu(int index = -1);
     void hideMenu(int index = -1);
 
-    QAction *createAction(const QString &objectName);
     QAction *safeActionAt(int index) const;
 
     bool swap(int a, int b);
 
 private:
+    void updateCurrentAction(bool selectAction);
+
     QAction *m_addMenu;
     QPointer<QMenu> m_activeMenu;
     QPoint m_startPosition;

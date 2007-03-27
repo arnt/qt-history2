@@ -58,6 +58,7 @@ protected:
 
     void cheapUpdate();
 
+    void selectUnmanagedObject(QObject *unmanagedObject);
 private:
     QPointer<QDesignerFormWindowInterface> m_formWindow;
 };

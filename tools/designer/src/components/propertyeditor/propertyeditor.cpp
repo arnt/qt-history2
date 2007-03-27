@@ -497,11 +497,6 @@ void PropertyEditor::setObject(QObject *object)
         clearDirty(m_editor->initialInput());
 
     m_object = object;
-    if (QAction *action = qobject_cast<QAction*>(m_object)) {
-        if (action->menu())
-            m_object = action->menu();
-    }
-
     IPropertyGroup *old_properties = m_properties;
     m_properties = 0;
     m_prop_sheet = 0;

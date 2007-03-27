@@ -411,7 +411,6 @@ PromoteToCustomWidgetCommand::PromoteToCustomWidgetCommand
 {
 }
 
-    
 void PromoteToCustomWidgetCommand::init(const WidgetList &widgets,const QString &customClassName)
 {
     m_widgets = widgets;
@@ -2031,26 +2030,24 @@ RemoveActionCommand::RemoveActionCommand(QDesignerFormWindowInterface *formWindo
 {
 }
 
-template <typename T>
-static RemoveActionCommand::ActionData findActionIn(QDesignerFormWindowInterface *formWindow,
-                                                    QAction *action)
+static RemoveActionCommand::ActionData findActionIn(QAction *action)
 {
     RemoveActionCommand::ActionData result;
-
-    const QList<T*> widgetList = qFindChildren<T*>(formWindow->mainContainer());
-    foreach (QWidget *widget, widgetList) {
-        const QList<QAction*> actionList = widget->actions();
-        for (int i = 0; i < actionList.size(); ++i) {
-            if (actionList.at(i) == action) {
-                QAction *before = 0;
-                if (i + 1 < actionList.size())
-                    before = actionList.at(i + 1);
-                result.append(RemoveActionCommand::ActionDataItem(before, widget));
-                break;
+    // We only want menus and toolbars, no toolbuttons.
+    foreach (QWidget *widget, action->associatedWidgets())
+        if (qobject_cast<const QMenu *>(widget) || qobject_cast<const QToolBar *>(widget)) {
+            const QList<QAction*> actionList = widget->actions();
+            const int size = actionList.size();
+            for (int i = 0; i < size; ++i) {
+                if (actionList.at(i) == action) {
+                    QAction *before = 0;
+                    if (i + 1 < size)
+                        before = actionList.at(i + 1);
+                    result.append(RemoveActionCommand::ActionDataItem(before, widget));
+                    break;
+                }
             }
         }
-    }
-
     return result;
 }
 
@@ -2059,8 +2056,7 @@ void RemoveActionCommand::init(QAction *action)
     Q_ASSERT(m_action == 0);
     m_action = action;
 
-    m_actionData = findActionIn<QMenu>(formWindow(), action);
-    m_actionData += findActionIn<QToolBar>(formWindow(), action);
+    m_actionData = findActionIn(action);
 }
 
 void RemoveActionCommand::redo()
@@ -2085,16 +2081,18 @@ void RemoveActionCommand::undo()
         core()->objectInspector()->setFormWindow(formWindow());
 }
 
-// ---- InsertActionIntoCommand ----
+// ---- ActionInsertionCommand ----
 
-InsertActionIntoCommand::InsertActionIntoCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QApplication::translate("Command", "Add action"), formWindow),
-    m_parentWidget(0), m_action(0), m_beforeAction(0)
+ActionInsertionCommand::ActionInsertionCommand(const QString &text, QDesignerFormWindowInterface *formWindow) :
+    QDesignerFormWindowCommand(text, formWindow),
+    m_parentWidget(0),
+    m_action(0),
+    m_beforeAction(0),
+    m_update(false)
 {
 }
 
-void InsertActionIntoCommand::init(QWidget *parentWidget, QAction *action,
-            QAction *beforeAction, bool update)
+void ActionInsertionCommand::init(QWidget *parentWidget, QAction *action, QAction *beforeAction, bool update)
 {
     Q_ASSERT(m_parentWidget == 0);
     Q_ASSERT(m_action == 0);
@@ -2105,7 +2103,7 @@ void InsertActionIntoCommand::init(QWidget *parentWidget, QAction *action,
     m_update = update;
 }
 
-void InsertActionIntoCommand::redo()
+void ActionInsertionCommand::insertAction()
 {
     Q_ASSERT(m_action != 0);
     Q_ASSERT(m_parentWidget != 0);
@@ -2113,12 +2111,14 @@ void InsertActionIntoCommand::redo()
     m_parentWidget->insertAction(m_beforeAction, m_action);
 
     if (m_update) {
-        core()->propertyEditor()->setObject(m_action);
         cheapUpdate();
+        if (QMenu *menu = m_action->menu())
+            selectUnmanagedObject(menu);
+        else
+            selectUnmanagedObject(m_action);
     }
 }
-
-void InsertActionIntoCommand::undo()
+void ActionInsertionCommand::removeAction()
 {
     Q_ASSERT(m_action != 0);
     Q_ASSERT(m_parentWidget != 0);
@@ -2129,151 +2129,110 @@ void InsertActionIntoCommand::undo()
     m_parentWidget->removeAction(m_action);
 
     if (m_update) {
-        core()->propertyEditor()->setObject(m_parentWidget);
         cheapUpdate();
+        selectUnmanagedObject(m_parentWidget);
     }
 }
 
+InsertActionIntoCommand::InsertActionIntoCommand(QDesignerFormWindowInterface *formWindow) :
+    ActionInsertionCommand(QApplication::translate("Command", "Add action"), formWindow)
+{
+}
 // ---- RemoveActionFromCommand ----
 
-RemoveActionFromCommand::RemoveActionFromCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QApplication::translate("Command", "Remove action"), formWindow),
-    m_parentWidget(0), m_action(0), m_beforeAction(0)
+RemoveActionFromCommand::RemoveActionFromCommand(QDesignerFormWindowInterface *formWindow) :
+    ActionInsertionCommand(QApplication::translate("Command", "Remove action"), formWindow)
 {
-}
-
-void RemoveActionFromCommand::init(QWidget *parentWidget, QAction *action,
-            QAction *beforeAction, bool update)
-{
-    Q_ASSERT(m_parentWidget == 0);
-    Q_ASSERT(m_action == 0);
-
-    m_parentWidget = parentWidget;
-    m_action = action;
-    m_beforeAction = beforeAction;
-    m_update = update;
-}
-
-void RemoveActionFromCommand::redo()
-{
-    Q_ASSERT(m_action != 0);
-    Q_ASSERT(m_parentWidget != 0);
-
-    if (QDesignerMenu *menu = qobject_cast<QDesignerMenu*>(m_parentWidget))
-        menu->hideSubMenu();
-    m_parentWidget->removeAction(m_action);
-
-    if (m_update) {
-        core()->propertyEditor()->setObject(m_parentWidget);
-        cheapUpdate();
-    }
-}
-
-void RemoveActionFromCommand::undo()
-{
-    Q_ASSERT(m_action != 0);
-    Q_ASSERT(m_parentWidget != 0);
-
-    m_parentWidget->insertAction(m_beforeAction, m_action);
-
-    if (m_update) {
-        core()->propertyEditor()->setObject(m_action);
-        cheapUpdate();
-    }
 }
 
 // ---- AddMenuActionCommand ----
-AddMenuActionCommand::AddMenuActionCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QApplication::translate("Command", "Add menu"), formWindow)
+
+MenuActionCommand::MenuActionCommand(const QString &text, QDesignerFormWindowInterface *formWindow) :
+    QDesignerFormWindowCommand(text, formWindow),
+    m_action(0),
+    m_actionBefore(0),
+    m_menuParent(0),
+    m_associatedWidget(0),
+    m_objectToSelect(0)
 {
-    m_action = 0;
-    m_parent = 0;
 }
 
-void AddMenuActionCommand::init(QAction *action, QWidget *parent)
+void MenuActionCommand::init(QAction *action, QAction *actionBefore,
+                             QWidget *associatedWidget, QWidget *objectToSelect)
 {
-    Q_ASSERT(action->menu() != 0);
+    QMenu *menu = action->menu();
+    Q_ASSERT(menu);
+    m_menuParent = menu->parentWidget();
     m_action = action;
-    m_parent = parent;
+    m_actionBefore = actionBefore;
+    m_associatedWidget = associatedWidget;
+    m_objectToSelect = objectToSelect;
 }
 
-void AddMenuActionCommand::redo()
+void MenuActionCommand::insertMenu()
 {
     core()->metaDataBase()->add(m_action);
-    core()->metaDataBase()->add(m_action->menu());
-
-    core()->propertyEditor()->setObject(m_action->menu());
+    QMenu *menu = m_action->menu();
+    if (m_menuParent && menu->parentWidget() != m_menuParent)
+        menu->setParent(m_menuParent);
+    core()->metaDataBase()->add(menu);
+    m_associatedWidget->insertAction(m_actionBefore, m_action);
     cheapUpdate();
+    selectUnmanagedObject(menu);
 }
 
-void AddMenuActionCommand::undo()
+void MenuActionCommand::removeMenu()
 {
-    core()->metaDataBase()->remove(m_action->menu());
+    m_action->menu()->setParent(0);
+    QMenu *menu = m_action->menu();
+    core()->metaDataBase()->remove(menu);
+    menu->setParent(0);
     core()->metaDataBase()->remove(m_action);
-
-    core()->propertyEditor()->setObject(m_parent);
+    m_associatedWidget->removeAction(m_action);
     cheapUpdate();
+    selectUnmanagedObject(m_objectToSelect);
+}
+
+AddMenuActionCommand::AddMenuActionCommand(QDesignerFormWindowInterface *formWindow)  :
+    MenuActionCommand(QApplication::translate("Command", "Add menu"), formWindow)
+{
 }
 
 // ---- RemoveMenuActionCommand ----
-RemoveMenuActionCommand::RemoveMenuActionCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QApplication::translate("Command", "Remove menu"), formWindow)
+RemoveMenuActionCommand::RemoveMenuActionCommand(QDesignerFormWindowInterface *formWindow) :
+    MenuActionCommand(QApplication::translate("Command", "Remove menu"), formWindow)
 {
-    m_action = 0;
-    m_parent = 0;
-}
-
-void RemoveMenuActionCommand::init(QAction *action, QWidget *parent)
-{
-    Q_ASSERT(action->menu() != 0);
-    m_action = action;
-    m_parent = parent;
-}
-
-void RemoveMenuActionCommand::redo()
-{
-    m_action->menu()->setParent(0);
-    core()->metaDataBase()->remove(m_action->menu());
-    core()->metaDataBase()->remove(m_action);
-
-    core()->propertyEditor()->setObject(m_parent);
-    cheapUpdate();
-}
-
-void RemoveMenuActionCommand::undo()
-{
-    m_action->menu()->setParent(m_parent);
-    core()->metaDataBase()->add(m_action);
-    core()->metaDataBase()->add(m_action->menu());
-
-    core()->propertyEditor()->setObject(m_action->menu());
-    cheapUpdate();
 }
 
 // ---- CreateSubmenuCommand ----
-CreateSubmenuCommand::CreateSubmenuCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QApplication::translate("Command", "Create submenu"), formWindow)
+CreateSubmenuCommand::CreateSubmenuCommand(QDesignerFormWindowInterface *formWindow) :
+    QDesignerFormWindowCommand(QApplication::translate("Command", "Create submenu"), formWindow),
+    m_action(0),
+    m_menu(0),
+    m_objectToSelect(0)
 {
-    m_action = 0;
-    m_menu = 0;
 }
 
-void CreateSubmenuCommand::init(QDesignerMenu *menu, QAction *action)
+void CreateSubmenuCommand::init(QDesignerMenu *menu, QAction *action, QObject *objectToSelect)
 {
     m_menu = menu;
     m_action = action;
+    m_objectToSelect = objectToSelect;
 }
 
 void CreateSubmenuCommand::redo()
 {
     m_menu->createRealMenuAction(m_action);
     cheapUpdate();
+    if (m_objectToSelect)
+        selectUnmanagedObject(m_objectToSelect);
 }
 
 void CreateSubmenuCommand::undo()
 {
     m_menu->removeRealMenu(m_action);
     cheapUpdate();
+    selectUnmanagedObject(m_menu);
 }
 
 // ---- DeleteToolBarCommand ----

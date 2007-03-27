@@ -252,7 +252,7 @@ class QDESIGNER_SHARED_EXPORT DemoteFromCustomWidgetCommand : public QDesignerFo
 {
 public:
     typedef PromoteToCustomWidgetCommand::WidgetList WidgetList;
-    
+
     explicit DemoteFromCustomWidgetCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(const WidgetList &promoted);
@@ -834,15 +834,18 @@ private:
     ActionData m_actionData;
 };
 
-class QDESIGNER_SHARED_EXPORT InsertActionIntoCommand : public QDesignerFormWindowCommand
+class QDESIGNER_SHARED_EXPORT ActionInsertionCommand : public QDesignerFormWindowCommand
 {
 
-public:
-    explicit InsertActionIntoCommand(QDesignerFormWindowInterface *formWindow);
+protected:
+    ActionInsertionCommand(const QString &text, QDesignerFormWindowInterface *formWindow);
 
+public:
     void init(QWidget *parentWidget, QAction *action, QAction *beforeAction, bool update = true);
-    virtual void redo();
-    virtual void undo();
+
+protected:
+    void insertAction();
+    void removeAction();
 
 private:
     QWidget *m_parentWidget;
@@ -851,47 +854,62 @@ private:
     bool m_update;
 };
 
-class QDESIGNER_SHARED_EXPORT RemoveActionFromCommand : public QDesignerFormWindowCommand
+class QDESIGNER_SHARED_EXPORT InsertActionIntoCommand : public ActionInsertionCommand
 {
 
 public:
-    explicit RemoveActionFromCommand(QDesignerFormWindowInterface *formWindow);
+    InsertActionIntoCommand(QDesignerFormWindowInterface *formWindow);
 
-    void init(QWidget *parentWidget, QAction *action, QAction *beforeAction, bool update = true);
-    virtual void redo();
-    virtual void undo();
-
-private:
-    QWidget *m_parentWidget;
-    QAction *m_action;
-    QAction *m_beforeAction;
-    bool m_update;
+    virtual void redo() {  insertAction(); }
+    virtual void undo() {  removeAction(); }
 };
 
-class QDESIGNER_SHARED_EXPORT AddMenuActionCommand : public QDesignerFormWindowCommand
+class QDESIGNER_SHARED_EXPORT RemoveActionFromCommand : public ActionInsertionCommand
+{
+
+public:
+    RemoveActionFromCommand(QDesignerFormWindowInterface *formWindow);
+
+    virtual void redo()  {  removeAction(); }
+    virtual void undo()  {  insertAction(); }
+};
+
+class QDESIGNER_SHARED_EXPORT MenuActionCommand : public QDesignerFormWindowCommand
+{
+public:
+    void init(QAction *action, QAction *actionBefore, QWidget *associatedWidget, QWidget *objectToSelect);
+
+protected:    
+    MenuActionCommand(const QString &text, QDesignerFormWindowInterface *formWindow);
+    void insertMenu();
+    void removeMenu();
+
+private:
+    QAction *m_action;
+    QAction *m_actionBefore;
+    QWidget *m_menuParent;
+    QWidget *m_associatedWidget;
+    QWidget *m_objectToSelect;
+};
+
+class QDESIGNER_SHARED_EXPORT AddMenuActionCommand : public MenuActionCommand
 {
 
 public:
     explicit AddMenuActionCommand(QDesignerFormWindowInterface *formWindow);
-    void init(QAction *action, QWidget *parent);
-    virtual void redo();
-    virtual void undo();
-private:
-    QAction *m_action;
-    QWidget *m_parent;
+
+    virtual void redo() { insertMenu(); }
+    virtual void undo() { removeMenu(); }
 };
 
-class QDESIGNER_SHARED_EXPORT RemoveMenuActionCommand : public QDesignerFormWindowCommand
+class QDESIGNER_SHARED_EXPORT RemoveMenuActionCommand : public MenuActionCommand
 {
 
 public:
     explicit RemoveMenuActionCommand(QDesignerFormWindowInterface *formWindow);
-    void init(QAction *action, QWidget *parent);
-    virtual void redo();
-    virtual void undo();
-private:
-    QAction *m_action;
-    QWidget *m_parent;
+
+    virtual void redo() { removeMenu(); }
+    virtual void undo() { insertMenu(); }
 };
 
 class QDESIGNER_SHARED_EXPORT CreateSubmenuCommand : public QDesignerFormWindowCommand
@@ -899,12 +917,13 @@ class QDESIGNER_SHARED_EXPORT CreateSubmenuCommand : public QDesignerFormWindowC
 
 public:
     explicit CreateSubmenuCommand(QDesignerFormWindowInterface *formWindow);
-    void init(QDesignerMenu *menu, QAction *action);
+    void init(QDesignerMenu *menu, QAction *action, QObject *m_objectToSelect = 0);
     virtual void redo();
     virtual void undo();
 private:
     QAction *m_action;
     QDesignerMenu *m_menu;
+    QObject *m_objectToSelect;
 };
 
 } // namespace qdesigner_internal
