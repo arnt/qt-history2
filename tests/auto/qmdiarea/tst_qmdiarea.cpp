@@ -558,6 +558,14 @@ void tst_QMdiArea::fixedSize()
     delete ws;
 }
 
+class LargeWidget : public QWidget
+{
+public:
+    LargeWidget(QWidget *parent = 0) : QWidget(parent) {}
+    QSize sizeHint() const { return QSize(1280, 1024); }
+    QSize minimumSizeHint() const { return QSize(300, 300); }
+};
+
 // New tests
 void tst_QMdiArea::minimumSizeHint()
 {
@@ -575,6 +583,13 @@ void tst_QMdiArea::minimumSizeHint()
     qApp->processEvents();
     window->show();
     QCOMPARE(workspace.minimumSizeHint(), expectedSize.expandedTo(window->minimumSizeHint()));
+
+    QMdiSubWindow *subWindow = workspace.addSubWindow(new LargeWidget);
+    subWindow->show();
+    QCOMPARE(workspace.minimumSizeHint(), expectedSize.expandedTo(subWindow->minimumSizeHint()));
+
+    workspace.setScrollBarsEnabled(true);
+    QCOMPARE(workspace.minimumSizeHint(), expectedSize);
 }
 
 void tst_QMdiArea::sizeHint()
@@ -641,13 +656,6 @@ void tst_QMdiArea::setActiveSubWindow()
     workspace.setActiveSubWindow(&fakeWindow);
 
 }
-
-class LargeWidget : public QWidget
-{
-public:
-    LargeWidget(QWidget *parent = 0) : QWidget(parent) {}
-    QSize sizeHint() const { return QSize(1280, 1024); }
-};
 
 void tst_QMdiArea::addAndRemoveWindows()
 {
