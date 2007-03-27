@@ -2336,13 +2336,13 @@ void QWSServerPrivate::sendKeyEventUnfiltered(int unicode, int keycode, Qt::Keyb
     event.simpleData.modifiers = modifiers;
     event.simpleData.is_press = isPress;
     event.simpleData.is_auto_repeat = autoRepeat;
-#ifdef QT_QWS_KEYEVENT_SINGLECLIENT
-    if (win)
-        win->client()->sendEvent(&event);
-    else
-#endif
-        for (ClientIterator it = qwsServerPrivate->clientMap.begin(); it != qwsServerPrivate->clientMap.end(); ++it)
-            (*it)->sendEvent(&event);
+
+    QWSClient *serverClient = qwsServerPrivate->clientMap.value(-1);
+    QWSClient *winClient = win ? win->client() : 0;
+    if (serverClient)
+        serverClient->sendEvent(&event);
+    if (winClient && winClient != serverClient)
+        winClient->sendEvent(&event);
 }
 
 /*!
