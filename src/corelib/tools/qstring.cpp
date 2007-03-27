@@ -4445,7 +4445,8 @@ QString QString::toLower() const
     return *this;
 }
 
-
+/*!
+*/
 QString QString::toCaseFolded() const
 {
     if (!d->size)
@@ -5390,8 +5391,8 @@ QString &QString::setNum(qulonglong n, int base)
     to the given \a format and \a precision, and returns a reference
     to the string.
 
-    The \a format can be 'f', 'F', 'e', 'E', 'g' or 'G' (see
-    \l{#arg-formats}{arg()} for an explanation of the formats).
+    The \a format can be 'f', 'F', 'e', 'E', 'g' or 'G' (see the
+    arg() function documentation for an explanation of the formats).
 
     Unlike QLocale::toString(), this function doesn't honor the
     user's locale settings.
@@ -5522,8 +5523,8 @@ QString QString::number(qulonglong n, int base)
 
     Returns a string equivalent of the number \a n, formatted
     according to the specified \a format and \a precision. The \a
-    format can be 'f', 'F', 'e', 'E', 'g' or 'G' (see
-    \l{#arg-formats}{arg()} for an explanation of the formats).
+    format can be 'f', 'F', 'e', 'E', 'g' or 'G' (see the
+    arg() function documentation for an explanation of the formats).
 
     Unlike QLocale::toString(), this function does not honor the
     user's locale settings.
@@ -5663,8 +5664,7 @@ QStringList QString::split(const QRegExp &rx, SplitBehavior behavior) const
 */
 
 /*!
-
-    Returns the string in the given Unicode normalization \a form.
+    Returns the string in the given Unicode normalization \a mode.
 */
 QString QString::normalized(QString::NormalizationForm mode) const
 {
@@ -5675,7 +5675,7 @@ QString QString::normalized(QString::NormalizationForm mode) const
 /*!
     \overload
 
-    Returns the string in the given Unicode normalization \a form,
+    Returns the string in the given Unicode normalization \a mode,
     according to the given \a version of the Unicode standard.
 */
 QString QString::normalized(QString::NormalizationForm mode, QChar::UnicodeVersion version) const
@@ -5943,8 +5943,8 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     \overload
 
     This is the same as calling \c
-    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5)}, except that the strings \a
-    a1 to \a a5 are replaced in one pass.
+    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5)}, except that the strings 
+    \a a1, \a a2, \a a3, \a a4, and \a a5 are replaced in one pass.
 */
 
 /*!
@@ -5952,8 +5952,8 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     \overload
 
     This is the same as calling \c
-    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5).arg(a6))}, except that the strings \a
-    a1 to \a a6 are replaced in one pass.
+    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5).arg(a6))}, except that the strings
+    \a a1, \a a2, \a a3, \a a4, \a a5, and \a a6 are replaced in one pass.
 */
 
 /*!
@@ -5961,8 +5961,8 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     \overload
 
     This is the same as calling \c
-    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5).arg(a6).arg(a7)}, except that the strings \a
-    a1 to \a a7 are replaced in one pass.
+    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5).arg(a6).arg(a7)}, except that the strings
+    \a a1, \a a2, \a a3, \a a4, \a a5, \a a6, and \a a7 are replaced in one pass.
 */
 
 /*!
@@ -5970,8 +5970,8 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     \overload
 
     This is the same as calling \c
-    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5).arg(a6).arg(a7).arg(a8)}, except that the strings \a
-    a1 to \a a8 are replaced in one pass.
+    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5).arg(a6).arg(a7).arg(a8)}, except that the strings
+    \a a1, \a a2, \a a3, \a a4, \a a5, \a a6, \a a7, and \a a8 are replaced in one pass.
 */
 
 /*!
@@ -5979,8 +5979,8 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     \overload
 
     This is the same as calling \c
-    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5).arg(a6).arg(a7).arg(a8).arg(a9)}, except that the strings \a
-    a1 to \a a9 are replaced in one pass.
+    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5).arg(a6).arg(a7).arg(a8).arg(a9)}, except that the strings
+    \a a1, \a a2, \a a3, \a a4, \a a5, \a a6, \a a7, \a a8, and \a a9 are replaced in one pass.
 */
 
 /*! \fn QString QString::arg(int a, int fieldWidth, int base, const QChar &fillChar) const
@@ -6588,6 +6588,19 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
+/*! \fn bool QLatin1String::operator==(const char *other) const
+
+    \overload
+
+    The \a other const char pointer is converted to a QLatin1String using
+    the QString::fromAscii() function.
+
+    You can disable this operator by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications. This
+    can be useful if you want to ensure that all user-visible strings
+    go through QObject::tr(), for example.
+*/
+
 /*! \fn bool QLatin1String::operator!=(const QString &other) const
 
     Returns true if this string is not equal to string \a other;
@@ -6599,6 +6612,19 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
+/*! \fn bool QLatin1String::operator!=(const char *other) const
+
+    \overload
+
+    The \a other const char pointer is converted to a QLatin1String using
+    the QString::fromAscii() function.
+
+    You can disable this operator by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications. This
+    can be useful if you want to ensure that all user-visible strings
+    go through QObject::tr(), for example.
+*/
+
 /*! \fn bool QLatin1String::operator>(const QString &other) const
 
     Returns true if this string is lexically greater than string \a
@@ -6608,6 +6634,19 @@ QString QString::fromRawData(const QChar *unicode, int size)
     of the characters and is very fast, but is not what a human would
     expect. Consider sorting user-interface strings with
     QString::localeAwareCompare().
+*/
+
+/*! \fn bool QLatin1String::operator>(const char *other) const
+
+    \overload
+
+    The \a other const char pointer is converted to a QLatin1String using
+    the QString::fromAscii() function.
+
+    You can disable this operator by defining \c QT_NO_CAST_FROM_ASCII
+    when you compile your applications. This can be useful if you want
+    to ensure that all user-visible strings go through QObject::tr(),
+    for example.
 */
 
 /*!
@@ -6622,6 +6661,19 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare() function.
 */
 
+/*! \fn bool QLatin1String::operator<(const char *other) const
+
+    \overload
+
+    The \a other const char pointer is converted to a QLatin1String using
+    the QString::fromAscii() function.
+
+    You can disable this operator by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications. This
+    can be useful if you want to ensure that all user-visible strings
+    go through QObject::tr(), for example.
+*/
+
 /*! \fn bool QLatin1String::operator>=(const QString &other) const
 
     Returns true if this string is lexically greater than or equal
@@ -6633,6 +6685,19 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
+/*! \fn bool QLatin1String::operator>=(const char *other) const
+
+    \overload
+
+    The \a other const char pointer is converted to a QLatin1String using
+    the QString::fromAscii() function.
+
+    You can disable this operator by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications. This
+    can be useful if you want to ensure that all user-visible strings
+    go through QObject::tr(), for example.
+*/
+
 /*! \fn bool QLatin1String::operator<=(const QString &other) const
 
     Returns true if this string is lexically less than or equal
@@ -6642,6 +6707,19 @@ QString QString::fromRawData(const QChar *unicode, int size)
     of the characters and is very fast, but is not what a human would
     expect. Consider sorting user-interface strings with
     QString::localeAwareCompare().
+*/
+
+/*! \fn bool QLatin1String::operator<=(const char *other) const
+
+    \overload
+
+    The \a other const char pointer is converted to a QString using
+    the QString::fromAscii() function.
+
+    You can disable this operator by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications. This
+    can be useful if you want to ensure that all user-visible strings
+    go through QObject::tr(), for example.
 */
 
 
@@ -7074,11 +7152,11 @@ Constructs a string reference to the range of characters in the given
 
 \warning This function exists to improve performance as much as possible,
 and performs no bounds checking. For program correctness, \a position and
-\a size must describe a valid substring of \a string.
+\a length must describe a valid substring of \a string.
 
 This means that the starting \a position must be positive or 0 and smaller
-than \a string's size, and \a size must be positive or 0 but smaller than
-the string's size minus the starting \a position;
+than \a string's length, and \a length must be positive or 0 but smaller than
+the string's length minus the starting \a position;
 i.e, 0 <= position < string->length() and
 0 <= length <= string->length() - position must both be satisfied.
 */
@@ -7188,7 +7266,7 @@ ownership of it, no memory is freed when instances are destroyed.
 /*!
     Returns a copy of the string reference as a QString object.
 
-    If the string reference is not a complete reference of \a string
+    If the string reference is not a complete reference of the string
     (meaning that position() is 0 and size() equals string()->size()),
     this function will allocate a new string to return.
 
@@ -7286,7 +7364,7 @@ bool operator<(const QStringRef &s1,const QStringRef &s2)
     QString::localeAwareCompare() function.
 */
 
-/*!\fn bool operator>=(const QStringRef &s1,const QStringRef &s2)
+/*!\fn bool operator>(const QStringRef &s1,const QStringRef &s2)
 
    \relates QStringRef
 
