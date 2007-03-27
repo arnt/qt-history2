@@ -1173,11 +1173,6 @@ void tst_QWidget::checkFocus()
     // that when setEnabled(FALSE) then setEnabled(TRUE) was called on
     // the parent of a child widget which had focus while hidden, then
     // when the widget was shown, the focus would be in the wrong place.
-    // And it doesn't seem to work on linux at all.
-
-#ifdef Q_WS_X11
-    QSKIP("This test doesn't work on X11", SkipAll);
-#endif
 
     Q3HBox widget;
     QLineEdit *focusWidget = new QLineEdit( &widget );
