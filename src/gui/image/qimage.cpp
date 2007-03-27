@@ -3184,8 +3184,8 @@ bool QImage::valid(int x, int y) const
 */
 int QImage::pixelIndex(int x, int y) const
 {
-    if (!d || x < 0 || x >= d->width) {
-        qWarning("QImage::pixel: X coordinate %d out of range", x);
+    if (!d || x < 0 || x >= d->width || y < 0 || y >= height()) {
+        qWarning("QImage::pixelIndex: coordinate (%d,%d) out of range", x, y);
         return -12345;
     }
     const uchar * s = scanLine(y);
@@ -3221,8 +3221,8 @@ int QImage::pixelIndex(int x, int y) const
 */
 QRgb QImage::pixel(int x, int y) const
 {
-    if (!d || x < 0 || x >= d->width) {
-        qWarning("QImage::pixel: X coordinate %d out of range", x);
+    if (!d || x < 0 || x >= d->width || y < 0 || y >= height()) {
+        qWarning("QImage::pixel: coordinate (%d,%d) out of range", x, y);
         return 12345;
     }
     const uchar * s = scanLine(y);
@@ -3265,8 +3265,8 @@ QRgb QImage::pixel(int x, int y) const
 */
 void QImage::setPixel(int x, int y, uint index_or_rgb)
 {
-    if (!d || x < 0 || x >= width()) {
-        qWarning("QImage::setPixel: X coordinate %d out of range", x);
+    if (!d || x < 0 || x >= width() || y < 0 || y >= height()) {
+        qWarning("QImage::setPixel: coordinate (%d,%d) out of range", x, y);
         return;
     }
     detach();
