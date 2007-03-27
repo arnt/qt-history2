@@ -1717,6 +1717,7 @@ QD3DWindowManager::D3DSwapChain *QD3DWindowManager::createSwapChain(QWidget *w)
     if (FAILED(swapchain->swapchain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &swapchain->surface)))
         qWarning("QDirect3DPaintEngine: GetBackBuffer failed");
     m_swapchains.insert(w, swapchain);
+    connect(w, SIGNAL(destroyed(QObject *)), SLOT(cleanupPaintDevice(QObject *)));
 
     // init with background color
     QColor bg = w->palette().color(QPalette::Background);
