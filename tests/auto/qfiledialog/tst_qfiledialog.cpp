@@ -50,7 +50,6 @@ private slots:
     void selectFile();
     void selectFilter();
     void viewMode();
-    void isDetailsExpanded();
     void proxymodel();
     void setFilter();
     void focus();
@@ -92,12 +91,12 @@ void tst_QFiledialog::acceptMode()
     QFileDialog fd;
     fd.show();
 
-    QPushButton* newButton = fd.findChild<QPushButton*>("newFolderButton");
+    QToolButton* newButton = fd.findChild<QToolButton*>("newFolderButton");
     QVERIFY(newButton);
 
     // default
     QCOMPARE(fd.acceptMode(), QFileDialog::AcceptOpen);
-    QCOMPARE(newButton && newButton->isVisible(), false);
+    QCOMPARE(newButton && newButton->isVisible(), true);
 
     //fd.setDetailsExpanded(true);
     fd.setAcceptMode(QFileDialog::AcceptSave);
@@ -106,7 +105,7 @@ void tst_QFiledialog::acceptMode()
 
     fd.setAcceptMode(QFileDialog::AcceptOpen);
     QCOMPARE(fd.acceptMode(), QFileDialog::AcceptOpen);
-    QCOMPARE(newButton->isVisible(), false);
+    QCOMPARE(newButton->isVisible(), true);
 }
 
 void tst_QFiledialog::confirmOverwrite()
@@ -255,7 +254,7 @@ void tst_QFiledialog::itemDelegate()
 void tst_QFiledialog::labelText()
 {
     QFileDialog fd;
-    QCOMPARE(fd.labelText(QFileDialog::LookIn), QString("Where:"));
+    QCOMPARE(fd.labelText(QFileDialog::LookIn), QString("Look in:"));
     QCOMPARE(fd.labelText(QFileDialog::FileName), QString("Save &as:"));
     QCOMPARE(fd.labelText(QFileDialog::FileType), QString("Files of type:"));
     QCOMPARE(fd.labelText(QFileDialog::Accept), QString("&Open"));
@@ -338,36 +337,13 @@ void tst_QFiledialog::viewMode()
     QCOMPARE(listButton.at(0)->isDown(), true);
 }
 
-void tst_QFiledialog::isDetailsExpanded()
-{
-    QFileDialog fd;
-    fd.show();
-    QWidget* sidebar = fd.findChild<QWidget*>("sidebar");
-    QVERIFY(sidebar);
-
-    QCOMPARE(fd.isDetailsExpanded(), true);
-
-#if defined(Q_WS_QWS)
-    return;
-#endif
-
-    fd.setDetailsExpanded(false);
-    QCOMPARE(fd.isDetailsExpanded(), false);
-    QCOMPARE(sidebar->isVisible(), false);
-
-    fd.setDetailsExpanded(true);
-    QCOMPARE(fd.isDetailsExpanded(), true);
-    QCOMPARE(sidebar->isVisible(), true);
-}
-
-
 void tst_QFiledialog::proxymodel()
 {
     QFileDialog fd;
     QCOMPARE(fd.proxyModel(), (QAbstractProxyModel*)0);
-    QSortFilterProxyModel proxyModel;
-    fd.setProxyModel(&proxyModel);
-    QCOMPARE(fd.proxyModel(), &proxyModel);
+    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(&fd);
+    fd.setProxyModel(proxyModel);
+    QCOMPARE(fd.proxyModel(), proxyModel);
 }
 
 void tst_QFiledialog::setFilter()
@@ -383,7 +359,7 @@ void tst_QFiledialog::focus()
     fd.show();
     qApp->processEvents();
 
-    QList<QTreeView*> treeView = fd.findChildren<QTreeView*>("treeView");
+    QList<QWidget*> treeView = fd.findChildren<QWidget*>("fileNameEdit");
     QCOMPARE(treeView.count(), 1);
     QVERIFY(treeView.at(0));
     QCOMPARE(treeView.at(0)->hasFocus(), true);
