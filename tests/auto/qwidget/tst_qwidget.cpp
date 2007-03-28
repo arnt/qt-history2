@@ -4521,10 +4521,14 @@ void tst_QWidget::testWindowIconChangeEventPropagation()
 #ifdef Q_WS_X11
 void tst_QWidget::minAndMaxSizeWithX11BypassWindowManagerHint()
 {
+    // Same size as in QWidget::create_sys().
+    const QSize desktopSize = QApplication::desktop()->size();
+    const QSize originalSize(desktopSize.width() / 2, desktopSize.height() * 4 / 10);
+
     { // Maximum size.
     QWidget widget(0, Qt::X11BypassWindowManagerHint);
 
-    const QSize newMaximumSize = widget.size() - QSize(10, 10);
+    const QSize newMaximumSize = widget.size().boundedTo(originalSize) - QSize(10, 10);
     widget.setMaximumSize(newMaximumSize);
     QCOMPARE(widget.size(), newMaximumSize);
 
@@ -4535,10 +4539,6 @@ void tst_QWidget::minAndMaxSizeWithX11BypassWindowManagerHint()
 
     { // Minimum size.
     QWidget widget(0, Qt::X11BypassWindowManagerHint);
-
-    // Same size as in QWidget::create_sys().
-    const QSize desktopSize = QApplication::desktop()->size();
-    const QSize originalSize(desktopSize.width() / 2, desktopSize.height() * 4 / 10);
 
     const QSize newMinimumSize = widget.size().expandedTo(originalSize) + QSize(10, 10);
     widget.setMinimumSize(newMinimumSize);
