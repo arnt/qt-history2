@@ -125,7 +125,8 @@ static bool qt_mac_collapse_on_dblclick = true;
 extern int qt_antialiasing_threshold; // from qapplication.cpp
 QPointer<QWidget> qt_button_down;                // widget got last button-down
 static bool qt_button_down_in_content; // whether the button_down was in the content area.
-static bool previous_press_in_popup_mode = false;
+static bool qt_mac_previous_press_in_popup_mode = false;
+static bool qt_mac_no_click_through_mode = false;
 static QPointer<QWidget> qt_mouseover;
 #if defined(QT_DEBUG)
 static bool        appNoGrab        = false;        // mouse/keyboard grabbing
@@ -1502,9 +1503,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         // that no events are generated for the release part of that click.
         // (The press goes to the popup and closes it.)
         if (inPopupMode && etype == QEvent::MouseButtonPress) {
-            previous_press_in_popup_mode = true;
-        } else if (previous_press_in_popup_mode && !inPopupMode && etype == QEvent::MouseButtonRelease) {
-            previous_press_in_popup_mode = false;
+            qt_mac_previous_press_in_popup_mode = true;
+        } else if (qt_mac_previous_press_in_popup_mode && !inPopupMode && etype == QEvent::MouseButtonRelease) {
+            qt_mac_previous_press_in_popup_mode = false;
             handled_event = true;
             break; // break from case kEventClassMouse
         }
@@ -1664,6 +1665,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         }
 
         if(ekind == kEventMouseDown) {
+            qt_mac_no_click_through_mode = false;
             if(!widget) {
                 const short windowPart = qt_mac_window_at(where.h, where.v, 0);
                 if(windowPart == inMenuBar) {
@@ -1679,6 +1681,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                    && !window->isActiveWindow()) {
                    window->activateWindow();
                    if(!qt_mac_can_clickThrough(widget)) {
+                       qt_mac_no_click_through_mode = true;
                        handled_event = false;
                        break;
                    }
@@ -1711,8 +1714,12 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             } else {
                 qt_mac_dblclick.last_x = qt_mac_dblclick.last_y = -1;
             }
-
-       }
+        } else if(qt_mac_no_click_through_mode) {
+            if(ekind == kEventMouseUp)
+                qt_mac_no_click_through_mode = false;
+            handled_event = false;
+            break;
+        }
 
         switch(ekind) {
         case kEventMouseDragged:
@@ -1953,6 +1960,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             }
             QMenuBar::macUpdateMenuBar();
         } else if(ekind == kEventAppDeactivated) {
+            //qt_mac_no_click_through_mode = false;
             while(app->d_func()->inPopupMode())
                 app->activePopupWidget()->close();
             if(app) {
