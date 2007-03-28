@@ -909,9 +909,13 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                     case QMetaType::UInt:
                         matchDistance += 4;
                         break;
+                    case QMetaType::Short:
+                    case QMetaType::UShort:
+                        matchDistance += 5;
+                        break;
                     case QMetaType::Char:
                     case QMetaType::UChar:
-                        matchDistance += 5;
+                        matchDistance += 6;
                         break;
                     default:
                         matchDistance += 10;
