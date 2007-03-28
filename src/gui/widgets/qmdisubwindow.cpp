@@ -129,7 +129,9 @@
 #elif defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSXP)
 #include <QWindowsXPStyle>
 #endif
+#if !defined(QT_NO_STYLE_CLEANLOOKS)
 #include <QCleanlooksStyle>
+#endif
 
 static const QStyle::SubControl SubControls[] =
 {
@@ -2753,8 +2755,10 @@ void QMdiSubWindow::paintEvent(QPaintEvent *paintEvent)
 
     // Cleanlooks and XP draws PE_FrameWindow differently so they need a clip rect.
     bool setClipRect = false;
+#if !defined(QT_NO_STYLE_CLEANLOOKS)
     if (qobject_cast<QCleanlooksStyle *>(style()))
         setClipRect = true;
+#endif
 #if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSXP)
     if (!setClipRect && qobject_cast<QWindowsXPStyle *>(style()))
         setClipRect = true;
