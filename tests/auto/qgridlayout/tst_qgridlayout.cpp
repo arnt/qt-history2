@@ -869,7 +869,7 @@ QRect CustomLayoutStyle::subElementRect(SubElement sr, const QStyleOption *opt,
 }
 
 #define CT1(c) CT2(c, c)
-#define CT2(c1, c2) ((uint(c1) << 16) | uint(c2))
+#define CT2(c1, c2) ((uint)c1 << 16) | (uint)c2
 
 int CustomLayoutStyle::layoutSpacingImplementation(QSizePolicy::ControlType control1,
                                 QSizePolicy::ControlType control2,
