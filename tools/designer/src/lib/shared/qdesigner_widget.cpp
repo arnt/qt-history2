@@ -38,7 +38,6 @@ QDesignerWidget::QDesignerWidget(QDesignerFormWindowInterface* formWindow, QWidg
     QWidget(parent),
     m_formWindow(qobject_cast<qdesigner_internal::FormWindowBase*>(formWindow))
 {
-    setBackgroundRole(QPalette::Window);
 }
 
 QDesignerWidget::~QDesignerWidget()

@@ -60,6 +60,9 @@ TRANSLATOR qdesigner_internal::FormWindow
 #include <QtGui/QApplication>
 #include <QtGui/QSplitter>
 #include <QtGui/QMessageBox>
+#include <QtGui/QPainter>
+#include <QtGui/QGroupBox>
+#include <QtGui/QDockWidget>
 
 namespace {
 class BlockSelection
@@ -1379,6 +1382,40 @@ void FormWindow::paste()
 
 }
 
+bool FormWindow::frameNeeded(QWidget *w) const
+{
+    if (!core()->widgetDataBase()->isContainer(w))
+        return false;
+    if (qobject_cast<QGroupBox *>(w))
+        return false;
+    if (qobject_cast<QToolBox *>(w))
+        return false;
+    if (qobject_cast<QTabWidget *>(w))
+        return false;
+    if (qobject_cast<QStackedWidget *>(w))
+        return false;
+    if (qobject_cast<QDockWidget *>(w))
+        return false;
+    return true;
+}
+
+bool FormWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    bool ret = FormWindowBase::eventFilter(watched, event);
+    if (event->type() == QEvent::Paint) {
+        if (QWidget *w = qobject_cast<QWidget *>(watched)) {
+            QPainter p(w);
+            QPen pen(QColor(0, 0, 0, 32), 0, Qt::DotLine);
+            //QPen pen(QColor(0, 0, 0), 0, Qt::DashDotLine);
+            p.setPen(pen);
+            p.setBrush(QBrush(Qt::NoBrush));
+            p.drawRect(w->rect().adjusted(0, 0, -1, -1));
+            //p.drawRect(w->rect().adjusted(1, 1, -2, -2));
+        }
+    }
+    return ret;
+}
+
 void FormWindow::manageWidget(QWidget *w)
 {
     if (isManaged(w))
@@ -1398,6 +1435,9 @@ void FormWindow::manageWidget(QWidget *w)
 
     emit changed();
     emit widgetManaged(w);
+
+    if (frameNeeded(w))
+        w->installEventFilter(this);
 }
 
 void FormWindow::unmanageWidget(QWidget *w)
@@ -1416,6 +1456,9 @@ void FormWindow::unmanageWidget(QWidget *w)
 
     emit changed();
     emit widgetUnmanaged(w);
+
+    if (frameNeeded(w))
+        w->removeEventFilter(this);
 }
 
 bool FormWindow::isManaged(QWidget *w) const

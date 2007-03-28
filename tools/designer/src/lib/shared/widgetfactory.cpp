@@ -390,9 +390,6 @@ void WidgetFactory::initialize(QObject *object) const
             widget->setMinimumSize(QSize(16, 16));
 
         widget->setAttribute(Qt::WA_TransparentForMouseEvents, false);
-
-        if (!(qobject_cast<QDesignerWidget*>(widget) || qobject_cast<QDesignerDialog*>(widget)))
-            widget->setAttribute(Qt::WA_TintedBackground);
     }
 
     if (qobject_cast<QDockWidget*>(object) || qobject_cast<QToolBar*>(object)) {

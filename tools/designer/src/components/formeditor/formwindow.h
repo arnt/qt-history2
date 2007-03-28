@@ -177,6 +177,7 @@ public:
 
     //  Initialize and return a popup menu for a managed widget
     QMenu *initializePopupMenu(QWidget *managedWidget);
+    bool eventFilter(QObject *watched, QEvent *event);
 
 signals:
     void contextMenuRequested(QMenu *menu, QWidget *widget);
@@ -217,6 +218,8 @@ private slots:
 private:
     void init();
     void initializeCoreTools();
+
+    bool frameNeeded(QWidget *w) const;
 
     enum RectType { Insert, Rubber };
 
