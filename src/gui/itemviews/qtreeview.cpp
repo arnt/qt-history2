@@ -1350,13 +1350,16 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         }
 
         if (headerSection == 0) {
-            painter->save();
-            painter->setClipRect(QRect(position, y, width, height));
             const int i = d->indentationForItem(d->current);
+            QRect branches(reverse ? position + width - i : position, y, i, height);
+            const bool setClipRect = branches.width() > width;
+            if (setClipRect) {
+                painter->save();
+                painter->setClipRect(QRect(position, y, width, height));
+            }
             opt.rect.setRect(reverse ? position : i + position, y, width - i, height);
             if (alternate && (d->current & 1))
                 painter->fillRect(opt.rect, opt.palette.alternateBase());
-            QRect branches(reverse ? position + width - i : position, y, i, height);
             QPalette::ColorGroup cg = opt.state & QStyle::State_Enabled
                               ? QPalette::Active : QPalette::Disabled;
             if (cg == QPalette::Active && !(opt.state & QStyle::State_Active))
@@ -1367,7 +1370,8 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             else if (alternate && (d->current & 1))
                 painter->fillRect(branches, opt.palette.alternateBase());
             drawBranches(painter, branches, index);
-            painter->restore();
+            if (setClipRect)
+                painter->restore();
         } else {
             opt.rect.setRect(position, y, width, height);
             if (alternate & (d->current & 1)) {
