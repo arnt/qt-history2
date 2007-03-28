@@ -6624,6 +6624,11 @@ void QWidget::leaveEvent(QEvent *)
     ...
     \endcode
 
+    Note: In general, one should refrain from calling update() or repaint()
+    \em{inside} of paintEvent(). For example, calling update() or repaint() on
+    children inside a paintEvent() results in undefined behavior; the child may
+    or may not get a paint event.
+
     \sa event(), repaint(), update(), QPainter, QPixmap, QPaintEvent, {Analog Clock Example}
 */
 
