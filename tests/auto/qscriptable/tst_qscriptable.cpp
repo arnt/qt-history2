@@ -34,6 +34,7 @@ public:
 public slots:
     void foo();
     void setX(int x);
+    void setX(const QString &x);
     void setX2(int x);
     bool isBar();
     int baz();
@@ -103,6 +104,12 @@ void MyScriptable::setOtherEngine()
 }
 
 void MyScriptable::setX(int x)
+{
+    m_lastEngine = engine();
+    thisObject().setProperty("x", QScriptValue(engine(), x));
+}
+
+void MyScriptable::setX(const QString &x)
 {
     m_lastEngine = engine();
     thisObject().setProperty("x", QScriptValue(engine(), x));
@@ -188,8 +195,16 @@ void tst_QScriptable::engine()
     // calling slot
     m_engine.evaluate("scriptable.setX(123)");
     QCOMPARE(m_scriptable.lastEngine(), &m_engine);
+    QCOMPARE(m_engine.evaluate("scriptable.x")
+             .strictEqualTo(QScriptValue(&m_engine, 123)), true);
     (void)m_scriptable.setProperty("baz", 123);
     QCOMPARE(m_scriptable.lastEngine(), (QScriptEngine *)0);
+
+    // calling overloaded slot
+    m_engine.evaluate("scriptable.setX('123')");
+    QCOMPARE(m_scriptable.lastEngine(), &m_engine);
+    QCOMPARE(m_engine.evaluate("scriptable.x")
+             .strictEqualTo(QScriptValue(&m_engine, QLatin1String("123"))), true);
 
     // calling a slot from another slot
     m_engine.evaluate("scriptable.evalIsBar()");

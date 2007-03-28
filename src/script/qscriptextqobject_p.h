@@ -278,13 +278,14 @@ private:
 
 struct QScriptMetaArguments
 {
+    int matchDistance;
     int index;
     QScriptMetaMethod method;
     QVector<QVariant> args;
 
-    inline QScriptMetaArguments(int idx, const QScriptMetaMethod &mtd,
+    inline QScriptMetaArguments(int dist, int idx, const QScriptMetaMethod &mtd,
                                 const QVector<QVariant> &as)
-        : index(idx), method(mtd), args(as) { }
+        : matchDistance(dist), index(idx), method(mtd), args(as) { }
     inline QScriptMetaArguments()
         : index(-1) { }
 

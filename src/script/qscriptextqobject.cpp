@@ -830,7 +830,8 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
 
         if (!mtd.fullyResolved()) {
             // remember it so we can give an error message later, if necessary
-            candidates.append(QScriptMetaArguments(index, mtd, QVector<QVariant>()));
+            candidates.append(QScriptMetaArguments(/*matchDistance=*/INT_MAX, index,
+                                                   mtd, QVector<QVariant>()));
             continue;
         }
 
@@ -842,7 +843,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
 
         // try to convert arguments
         bool converted = true;
-        bool exactMatch = true;
+        int matchDistance = 0;
         for (int i = 0; converted && i < context->argumentCount(); ++i) {
             QScriptValueImpl actual = context->argument(i);
             QScriptMetaType argType = mtd.argumentType(i);
@@ -857,19 +858,18 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                     if (argType.isVariant()) {
                         v = vv;
                         converted = true;
-                        exactMatch = true;
                     } else if (vv.canConvert(QVariant::Type(tid))) {
                         v = vv;
                         converted = v.convert(QVariant::Type(tid));
                         if (converted)
-                            exactMatch = false;
+                            matchDistance += 10;
                     } else {
                         QByteArray vvTypeName = vv.typeName();
                         if (vvTypeName.endsWith('*')
                             && (vvTypeName.left(vvTypeName.size()-1) == argType.name())) {
                             v = QVariant(tid, *reinterpret_cast<void* *>(vv.data()));
                             converted = true;
-                            exactMatch = false;
+                            matchDistance += 10;
                         }
                     }
                 } else if (actual.isNumber() && (tid >= 256)) {
@@ -881,22 +881,91 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                             if (m.valueToKey(ival) != 0) {
                                 qVariantSetValue(v, ival);
                                 converted = true;
-                                exactMatch = false;
+                                matchDistance += 10;
                             }
                             break;
                         }
                     }
                 }
             } else {
-                // check if the conversion was exact
-                if (exactMatch) {
-                    exactMatch = actual.isNumber() && (tid == QMetaType::Double)
-                                 || actual.isString() && (tid == QMetaType::QString)
-                                 || actual.isBoolean() && (tid == QMetaType::Bool)
-                                 || actual.isDate() && (tid == QMetaType::QDateTime)
-                                 || actual.isRegExp() && (tid == QMetaType::QRegExp)
-                                 || actual.isVariant() && (tid == actual.variantValue().userType()
-                                                           || argType.name() == "QVariant");
+                // determine how well the conversion matched
+                if (actual.isNumber()) {
+                    switch (tid) {
+                    case QMetaType::Double:
+                        // perfect
+                        break;
+                    case QMetaType::Float:
+                        matchDistance += 1;
+                        break;
+                    case QMetaType::LongLong:
+                    case QMetaType::ULongLong:
+                        matchDistance += 2;
+                        break;
+                    case QMetaType::Long:
+                    case QMetaType::ULong:
+                        matchDistance += 3;
+                        break;
+                    case QMetaType::Int:
+                    case QMetaType::UInt:
+                        matchDistance += 4;
+                        break;
+                    case QMetaType::Char:
+                    case QMetaType::UChar:
+                        matchDistance += 5;
+                        break;
+                    default:
+                        matchDistance += 10;
+                        break;
+                    }
+                } else if (actual.isString()) {
+                    switch (tid) {
+                    case QMetaType::QString:
+                        // perfect
+                        break;
+                    default:
+                        matchDistance += 10;
+                        break;
+                    }
+                } else if (actual.isBoolean()) {
+                    switch (tid) {
+                    case QMetaType::Bool:
+                        // perfect
+                        break;
+                    default:
+                        matchDistance += 10;
+                        break;
+                    }
+                } else if (actual.isDate()) {
+                    switch (tid) {
+                    case QMetaType::QDateTime:
+                        // perfect
+                        break;
+                    case QMetaType::QDate:
+                        matchDistance += 1;
+                        break;
+                    case QMetaType::QTime:
+                        matchDistance += 2;
+                        break;
+                    default:
+                        matchDistance += 10;
+                        break;
+                    }
+                } else if (actual.isRegExp()) {
+                    switch (tid) {
+                    case QMetaType::QRegExp:
+                        // perfect
+                        break;
+                    default:
+                        matchDistance += 10;
+                        break;
+                    }
+                } else if (actual.isVariant()) {
+                    if (actual.variantValue().userType()
+                        || argType.name() == "QVariant") {
+                        // perfect
+                    } else {
+                        matchDistance += 10;
+                    }
                 }
             }
 
@@ -905,13 +974,13 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
         }
 
         if (converted) {
-            if (exactMatch) {
-                // look no further, we're happy with this one
+            if (matchDistance == 0) {
+                // perfect match, use this one
                 chosenMethod = mtd;
                 chosenIndex = index;
                 break;
             } else {
-                candidates.append(QScriptMetaArguments(index, mtd, args));
+                candidates.append(QScriptMetaArguments(matchDistance, index, mtd, args));
             }
         } else if (!m_maybeOverloaded) {
             break;
@@ -927,14 +996,15 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
             .arg(QLatin1String(funName)));
     } else {
         if (chosenIndex == -1) {
-            // pick one
+            // pick the one with lowest match distance
+            int dist = INT_MAX;
             for (int i = 0; i < candidates.size(); ++i) {
                 QScriptMetaArguments cdt = candidates.at(i);
-                if (cdt.method.fullyResolved()) {
+                if (cdt.method.fullyResolved() && (cdt.matchDistance < dist)) {
+                    dist = cdt.matchDistance;
                     chosenMethod = cdt.method;
                     chosenIndex = cdt.index;
                     args = cdt.args;
-                    break;
                 }
             }
         }
