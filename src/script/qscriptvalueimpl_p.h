@@ -766,6 +766,25 @@ inline QScriptValue::PropertyFlags QScriptValueImpl::propertyFlags(const QString
     return QScriptValue::PropertyFlags(member.flags() & ~QScript::Member::InternalRange);
 }
 
+inline bool QScriptValueImpl::deleteProperty(QScriptNameIdImpl *nameId,
+                                             const QScriptValue::ResolveFlags &mode)
+{
+    if (!isObject())
+        return true;
+    QScript::Member member;
+    QScriptValueImpl base;
+    if (resolve(nameId, &member, &base, mode)) {
+        if (!member.isDeletable())
+            return false;
+        base.removeMember(member);
+        if (member.isGetterOrSetter() && (member.isGetter() != member.isSetter())) {
+            // delete the "other half" of the property too (getter or setter)
+            return deleteProperty(nameId, mode);
+        }
+    }
+    return true;
+}
+
 inline QScriptValueImpl QScriptValueImpl::call(const QScriptValueImpl &thisObject,
                                                const QScriptValueImplList &args)
 {

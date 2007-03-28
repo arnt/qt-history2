@@ -126,6 +126,9 @@ public:
     inline QScriptValue::PropertyFlags propertyFlags(const QString &name,
                                                      const QScriptValue::ResolveFlags &mode = QScriptValue::ResolvePrototype) const;
 
+    inline bool deleteProperty(QScriptNameIdImpl *nameId,
+                               const QScriptValue::ResolveFlags &mode = QScriptValue::ResolveLocal);
+
     inline QScriptValueImpl call(const QScriptValueImpl &thisObject = QScriptValueImpl(),
                                  const QScriptValueImplList &args = QScriptValueImplList());
     inline QScriptValueImpl call(const QScriptValueImpl &thisObject,

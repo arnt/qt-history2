@@ -1823,17 +1823,7 @@ Ltop:
             else
                 nameId = eng->nameId(eng->convertToNativeString(stackPtr[-1]),
                                      /*persistent=*/false);
-
-            QScriptValueImpl base;
-            QScript::Member member;
-
-            if (object.resolve(nameId, &member, &base, QScriptValue::ResolveScope)) {
-                result = member.isDeletable();
-                if (result)
-                    base.removeMember(member);
-            } else {
-                result = true; // doesn't have the property ==> return true
-            }
+            result = object.deleteProperty(nameId, QScriptValue::ResolveScope);
             stackPtr -= 2;
         }
 
