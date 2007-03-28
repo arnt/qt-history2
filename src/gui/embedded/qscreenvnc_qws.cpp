@@ -2155,12 +2155,14 @@ QWSWindowSurface* QVNCScreen::createSurface(QWidget *widget) const
     if (d_ptr->subscreen)
         return d_ptr->subscreen->createSurface(widget);
 
+#ifndef QT_NO_PAINTONSCREEN
     // XXX: will not work together with transparent windows until full
     // compositioning is implemented
     if (d_ptr->doOnScreenSurface) {
         if (widget->d_func()->isOpaque() && (depth() == 16 || depth() == 32))
             return new QWSOnScreenSurface(widget);
     }
+#endif
 
     return QScreen::createSurface(widget);
 }
