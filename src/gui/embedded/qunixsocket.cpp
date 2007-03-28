@@ -1418,7 +1418,7 @@ bool QUnixSocket::isSequential() const
 }
 
 /*! \internal */
-bool QUnixSocket::waitForReadyRead(int msec)
+bool QUnixSocket::waitForReadyRead(int msecs)
 {
     if(UnconnectedState == d->state)
         return false;
@@ -1429,33 +1429,46 @@ bool QUnixSocket::waitForReadyRead(int msec)
 
     Q_ASSERT(-1 != d->fd);
 
-    struct timeval tv;
-    struct timeval *ptrTv = 0;
-    if(-1 != msec) {
-        tv.tv_sec = msec / 1000;
-        tv.tv_usec = (msec % 1000) * 1000;
-        ptrTv = &tv;
+    int     timeout = msecs;
+    struct  timeval tv;
+    struct  timeval *ptrTv = 0;
+    QTime   stopWatch;
+
+    stopWatch.start();
+
+    do
+    {
+        fd_set readset;
+
+        FD_ZERO(&readset);
+        FD_SET(d->fd, &readset);
+
+        if(-1 != msecs) {
+            tv.tv_sec = timeout / 1000;
+            tv.tv_usec = (timeout % 1000) * 1000;
+            ptrTv = &tv;
+        }
+
+        int rv = ::select(d->fd + 1, &readset, 0, 0, ptrTv);
+        switch(rv) {
+            case 0:
+                // timeout
+                return false;
+            case 1:
+                // ok
+                d->readActivated();
+                return true;
+            default:
+                if (errno != EINTR)
+                    abort();    // error
+                break;
+        }
+
+        timeout = msecs - stopWatch.elapsed();
     }
+    while (timeout > 0);
 
-    fd_set readset;
-    FD_ZERO(&readset);
-    FD_SET(d->fd, &readset);
-
-    int rv = ::select(d->fd + 1, &readset, 0, 0, ptrTv);
-
-    switch(rv) {
-        case 0:
-            // timeout
-            return false;
-        case 1:
-            // ok
-            d->readActivated();
-            return true;
-        default:
-            // error
-            abort();
-            return false;
-    }
+    return false;
 }
 
 bool QUnixSocket::waitForBytesWritten(int msecs)
