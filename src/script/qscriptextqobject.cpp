@@ -20,13 +20,11 @@
 #include "qscriptable.h"
 #include "qscriptable_p.h"
 
-#include <QtCore/QBitArray>
 #include <QtCore/QtDebug>
 #include <QtCore/QMetaMethod>
 #include <QtCore/QRegExp>
+#include <QtCore/QVarLengthArray>
 #include "qscriptextqobject_p.h"
-
-Q_DECLARE_METATYPE(QVariant)
 
 // we use bits 15..12 of property flags
 enum {
@@ -144,6 +142,13 @@ public:
             return false;
 
         const QMetaObject *meta = qobject->metaObject();
+
+#ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+        QScriptMetaObject *metaCache = eng->cachedMetaObject(meta);
+        if (metaCache->findMember(nameId, member))
+            return true;
+#endif
+
         QString memberName = eng->toString(nameId);
         QByteArray name = memberName.toLatin1();
 
@@ -158,6 +163,9 @@ public:
                                | QScriptValue::SkipInEnumeration
                                | QScriptValue::ReadOnly
                                | METHOD_ID);
+#ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+                metaCache->registerMember(nameId, *member);
+#endif
                 return true;
             }
         }
@@ -174,6 +182,9 @@ public:
                                      | QScriptValue::PropertySetter)
                                   : QScriptValue::PropertyFlag(0))
                                | PROPERTY_ID);
+#ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+                metaCache->registerMember(nameId, *member);
+#endif
                 return true;
             }
         }
@@ -183,6 +194,7 @@ public:
             member->native(nameId, index,
                            QScriptValue::SkipInEnumeration
                            | DYNAPROPERTY_ID);
+            // not cached because it can be removed
             return true;
         }
 
@@ -193,6 +205,9 @@ public:
                                QScriptValue::SkipInEnumeration
                                | METHOD_ID
                                | MAYBE_OVERLOADED);
+#ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+                metaCache->registerMember(nameId, *member);
+#endif
                 return true;
             }
         }
@@ -204,6 +219,7 @@ public:
 
             if (child->objectName() == memberName) {
                 member->native(nameId, index, QScriptValue::ReadOnly | CHILD_ID); // ### flags
+                // not cached because it can be removed or change name
                 return true;
             }
         }
@@ -731,12 +747,13 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
     if (!thisQObject) // ### TypeError
         thisQObject = m_object;
 
-    QByteArray funName = methodName(meta->method(m_initialIndex));
+    QByteArray funName;
     if (!meta->cast(thisQObject)) {
 #if 0
         // ### find common superclass, see if initialIndex is
         //     in that class (or a superclass of that class),
         //     then it's still safe to execute it
+        funName = methodName(meta->method(m_initialIndex));
         context->throwError(
             QString::fromUtf8("cannot execute %0: %1 does not inherit %2")
             .arg(QLatin1String(funName))
@@ -748,99 +765,196 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
         thisQObject = m_object;
     }
 
-    QList<QVariant> vlist; // ### use QVector
-    for (int index = m_initialIndex; index >= 0; --index) {
-        QMetaMethod method = meta->method(index);
-        QList<QByteArray> parameterTypes = method.parameterTypes();
+#ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+    QScriptMetaObject *metaCache = eng_p->cachedMetaObject(meta);
+#endif
 
-        if ((methodName(method) != funName)
-            || (context->argumentCount() != parameterTypes.count())) {
-            if (index == 0) {
-                if (!result.isError()) {
-                    result = context->throwError(
-                        QScriptContext::SyntaxError,
-                        QString::fromUtf8("incorrect number or type of arguments in call to %0::%1()")
-                        .arg(QLatin1String(meta->className()))
-                        .arg(QLatin1String(funName)));
+    QScriptMetaMethod chosenMethod;
+    int chosenIndex = -1;
+    QVector<QVariant> args;
+    QVector<QScriptMetaArguments> candidates;
+    for (int index = m_initialIndex; index >= 0; --index) {
+#ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+        QScriptMetaMethod mtd = metaCache->findMethod(index);
+        if (!mtd.isValid())
+#else
+        QScriptMetaMethod mtd;
+#endif
+        {
+            QMetaMethod method = meta->method(index);
+
+            QVector<QScriptMetaType> types;
+            // resolve return type
+            QByteArray returnTypeName = method.typeName();
+            int rtype = QMetaType::type(returnTypeName);
+            if ((rtype == 0) && !returnTypeName.isEmpty()) {
+                if (returnTypeName == "QVariant")
+                    types.append(QScriptMetaType::variant());
+                else if (returnTypeName.endsWith('*'))
+                    types.append(QScriptMetaType::metaType(QMetaType::VoidStar, returnTypeName));
+                else
+                    types.append(QScriptMetaType::unresolved(returnTypeName));
+            } else {
+                types.append(QScriptMetaType::metaType(rtype, returnTypeName));
+            }
+            // resolve argument types
+            QList<QByteArray> parameterTypeNames = method.parameterTypes();
+            for (int i = 0; i < parameterTypeNames.count(); ++i) {
+                QByteArray argTypeName = parameterTypeNames.at(i);
+                int atype = QMetaType::type(argTypeName);
+                if (atype == 0) {
+                    if (argTypeName == "QVariant")
+                        types.append(QScriptMetaType::variant());
+                    else
+                        types.append(QScriptMetaType::unresolved(argTypeName));
+                } else {
+                    types.append(QScriptMetaType::metaType(atype, argTypeName));
                 }
             }
+
+            mtd = QScriptMetaMethod(methodName(method), types);
+
+#ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+            if (mtd.fullyResolved())
+                metaCache->registerMethod(index, mtd);
+#endif
+        }
+
+        if (index == m_initialIndex)
+            funName = mtd.name();
+        else if (mtd.name() != funName)
+            continue;
+
+        if (context->argumentCount() != mtd.argumentCount())
+            continue;
+
+        if (!mtd.fullyResolved()) {
+            // remember it so we can give an error message later, if necessary
+            candidates.append(QScriptMetaArguments(index, mtd, QVector<QVariant>()));
             continue;
         }
 
+        if (args.count() != mtd.count())
+            args.resize(mtd.count());
+
+        QScriptMetaType retType = mtd.returnType();
+        args[0] = QVariant(retType.typeId(), (void *)0); // the result
+
+        // try to convert arguments
         bool converted = true;
-        vlist.clear();
-
-        QByteArray returnTypeName = method.typeName();
-        int rtype = QMetaType::type(returnTypeName);
-        if (rtype == 0 && !returnTypeName.isEmpty()) {
-            result = context->throwError(
-                QScriptContext::TypeError,
-                QString::fromUtf8("cannot call %0::%1(): unknown return type `%2'")
-                .arg(QLatin1String(meta->className()))
-                .arg(QLatin1String(funName))
-                .arg(QLatin1String(method.typeName())));
-            continue;
-        }
-        vlist.append(QVariant(rtype, (void *)0)); // the result
-
+        bool exactMatch = true;
         for (int i = 0; converted && i < context->argumentCount(); ++i) {
-            QScriptValueImpl arg = context->argument(i);
-            QByteArray argTypeName = parameterTypes.at(i);
-            int atype = QMetaType::type(argTypeName);
-            QVariant v(atype, (void *)0);
-
-            if (atype == 0) {
-                result = context->throwError(
-                    QScriptContext::TypeError,
-                    QString::fromUtf8("cannot call %0::%1(): unknown argument type `%2'")
-                    .arg(QLatin1String(meta->className()))
-                    .arg(QString::fromLatin1(funName))
-                    .arg(QLatin1String(argTypeName)));
-                converted = false;
-                continue;
-            } else {
-                converted = eng_p->convert(arg, atype, v.data());
-                if (!converted && arg.isVariant()) {
-                    QVariant &vv = arg.variantValue();
-                    if (vv.canConvert(QVariant::Type(atype))) {
+            QScriptValueImpl actual = context->argument(i);
+            QScriptMetaType argType = mtd.argumentType(i);
+            int tid = argType.typeId();
+            QVariant v(tid, (void *)0);
+                
+            converted = eng_p->convert(actual, tid, v.data());
+                
+            if (!converted) {
+                if (actual.isVariant()) {
+                    QVariant &vv = actual.variantValue();
+                    if (argType.isVariant()) {
                         v = vv;
-                        converted = v.convert(QVariant::Type(atype));
+                        converted = true;
+                        exactMatch = true;
+                    } else if (vv.canConvert(QVariant::Type(tid))) {
+                        v = vv;
+                        converted = v.convert(QVariant::Type(tid));
+                        if (converted)
+                            exactMatch = false;
                     } else {
                         QByteArray vvTypeName = vv.typeName();
                         if (vvTypeName.endsWith('*')
-                            && (vvTypeName.left(vvTypeName.size()-1) == argTypeName)) {
-                            v = QVariant(atype, *reinterpret_cast<void* *>(vv.data()));
+                            && (vvTypeName.left(vvTypeName.size()-1) == argType.name())) {
+                            v = QVariant(tid, *reinterpret_cast<void* *>(vv.data()));
                             converted = true;
+                            exactMatch = false;
                         }
                     }
-                }
-            }
-
-            if (!converted) {
-                if ((atype >= 256) && arg.isNumber()) {
+                } else if (actual.isNumber() && (tid >= 256)) {
                     // see if it's an enum value
-                    int ival = arg.toInt32();
+                    int ival = actual.toInt32();
                     for (int e = 0; e < meta->enumeratorCount(); ++e) {
                         QMetaEnum m = meta->enumerator(e);
-                        if (m.name() == argTypeName) {
+                        if (m.name() == argType.name()) {
                             if (m.valueToKey(ival) != 0) {
                                 qVariantSetValue(v, ival);
                                 converted = true;
+                                exactMatch = false;
                             }
                             break;
                         }
                     }
                 }
+            } else {
+                // check if the conversion was exact
+                if (exactMatch) {
+                    exactMatch = actual.isNumber() && (tid == QMetaType::Double)
+                                 || actual.isString() && (tid == QMetaType::QString)
+                                 || actual.isBoolean() && (tid == QMetaType::Bool)
+                                 || actual.isDate() && (tid == QMetaType::QDateTime)
+                                 || actual.isRegExp() && (tid == QMetaType::QRegExp)
+                                 || actual.isVariant() && (tid == actual.variantValue().userType()
+                                                           || argType.name() == "QVariant");
+                }
             }
-            vlist.append(v);
+
+            if (converted)
+                args[i+1] = v;
         }
 
         if (converted) {
-            void **params = new void*[vlist.count()];
+            if (exactMatch) {
+                // look no further, we're happy with this one
+                chosenMethod = mtd;
+                chosenIndex = index;
+                break;
+            } else {
+                candidates.append(QScriptMetaArguments(index, mtd, args));
+            }
+        } else if (!m_maybeOverloaded) {
+            break;
+        }
+    }
 
-            for (int i = 0; i < vlist.count(); ++i) {
-                const QVariant &v = vlist.at(i);
-                params[i] = const_cast<void*>(v.constData());
+    if ((chosenIndex == -1) && candidates.isEmpty()) {
+        // conversion failed, or incorrect number of arguments
+        result = context->throwError(
+            QScriptContext::SyntaxError,
+            QString::fromUtf8("incorrect number or type of arguments in call to %0::%1()")
+            .arg(QLatin1String(meta->className()))
+            .arg(QLatin1String(funName)));
+    } else {
+        if (chosenIndex == -1) {
+            // pick one
+            for (int i = 0; i < candidates.size(); ++i) {
+                QScriptMetaArguments cdt = candidates.at(i);
+                if (cdt.method.fullyResolved()) {
+                    chosenMethod = cdt.method;
+                    chosenIndex = cdt.index;
+                    args = cdt.args;
+                    break;
+                }
+            }
+        }
+
+        if (chosenIndex != -1) {
+            // call it
+            QVarLengthArray<void*, 9> array(args.count());
+            void **params = array.data();
+            for (int i = 0; i < args.count(); ++i) {
+                const QVariant &v = args[i];
+                switch (chosenMethod.type(i).kind()) {
+                case QScriptMetaType::Variant:
+                    params[i] = const_cast<QVariant*>(&v);
+                    break;
+                case QScriptMetaType::MetaType:
+                    params[i] = const_cast<void*>(v.constData());
+                    break;
+                default:
+                    Q_ASSERT(0);
+                }
             }
 
             QScriptable *scriptable = scriptableFromQObject(thisQObject);
@@ -850,7 +964,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                 QScriptablePrivate::get(scriptable)->engine = eng;
             }
 
-            thisQObject->qt_metacall(QMetaObject::InvokeMetaMethod, index, params);
+            thisQObject->qt_metacall(QMetaObject::InvokeMetaMethod, chosenIndex, params);
 
             if (scriptable)
                 QScriptablePrivate::get(scriptable)->engine = oldEngine;
@@ -858,21 +972,29 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
             if (context->state() == QScriptContext::ExceptionState) {
                 result = context->returnValue(); // propagate
             } else {
-                if (rtype != 0) {
-                    result = eng_p->create(rtype, params[0]);
+                QScriptMetaType retType = chosenMethod.returnType();
+                if (retType.typeId() != 0) {
+                    result = eng_p->create(retType.typeId(), params[0]);
                     if (!result.isValid())
-                        result = eng_p->newVariant(QVariant(rtype, params[0]));
-                } else if (returnTypeName == "QVariant") {
+                        result = eng_p->newVariant(QVariant(retType.typeId(), params[0]));
+                } else if (retType.name() == "QVariant") {
                     result = eng_p->newVariant(*(QVariant *)params[0]);
                 } else {
                     result = eng_p->undefinedValue();
                 }
             }
-
-            delete[] params;
-            break;
-        } else if (! m_maybeOverloaded) {
-            break;
+        } else {
+            // one or more types are unresolved
+            QScriptMetaArguments argsInstance = candidates.first();
+            int unresolvedIndex = argsInstance.method.firstUnresolvedIndex();
+            Q_ASSERT(unresolvedIndex != -1);
+            QScriptMetaType unresolvedType = argsInstance.method.type(unresolvedIndex);
+            result = context->throwError(
+                QScriptContext::TypeError,
+                QString::fromUtf8("cannot call %0::%1(): unknown type `%2'")
+                .arg(QLatin1String(meta->className()))
+                .arg(QString::fromLatin1(funName))
+                .arg(QLatin1String(unresolvedType.name())));
         }
     }
 

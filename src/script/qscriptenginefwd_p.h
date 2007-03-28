@@ -99,6 +99,10 @@ public:
 
 } // namespace QScript
 
+#ifndef QT_NO_QOBJECT
+class QScriptMetaObject;
+#endif
+
 class QScriptCustomTypeInfo
 {
 public:
@@ -247,6 +251,10 @@ public:
 #ifndef QT_NO_QOBJECT
     inline QScriptValueImpl newQObject(QObject *object,
                                        QScriptEngine::ValueOwnership ownership = QScriptEngine::QtOwnership);
+
+# ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+    inline QScriptMetaObject *cachedMetaObject(const QMetaObject *meta);
+# endif
 #endif
 
     inline QScriptNameIdImpl *nameId(const QString &str, bool persistent = false);
@@ -368,6 +376,12 @@ public: // attributes
     QSet<QString> m_importedExtensions;
     QSet<QString> m_extensionsBeingImported;
     QHash<QString, QStringList> m_cachedPluginKeys;
+
+#ifndef QT_NO_QOBJECT
+# ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+    QHash<const QMetaObject*, QScriptMetaObject*> m_cachedMetaObjects;
+# endif
+#endif
 
 #ifdef QT_NO_QOBJECT
     QScriptEngine *q_ptr;

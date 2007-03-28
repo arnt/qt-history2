@@ -688,7 +688,20 @@ inline QScriptValueImpl QScriptEnginePrivate::newQObject(QObject *object,
     }
     return v;
 }
+
+#ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+inline QScriptMetaObject *QScriptEnginePrivate::cachedMetaObject(const QMetaObject *meta)
+{
+    QScriptMetaObject *value = m_cachedMetaObjects.value(meta);
+    if (!value) {
+        value = new QScriptMetaObject;
+        m_cachedMetaObjects.insert(meta, value);
+    }
+    return value;
+}
 #endif
+
+#endif // !QT_NO_QOBJECT
 
 inline QScriptNameIdImpl *QScriptEnginePrivate::nameId(const QString &str, bool persistent)
 {

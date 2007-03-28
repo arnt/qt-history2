@@ -253,6 +253,12 @@ QScriptEnginePrivate::~QScriptEnginePrivate()
     m_codeCache.clear();
     delete[] tempStackBegin;
 
+#ifndef QT_NO_QOBJECT
+# ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+    qDeleteAll(m_cachedMetaObjects);
+# endif
+#endif
+
     qDeleteAll(m_allocated_classes);
 }
 
@@ -451,6 +457,20 @@ void QScriptEnginePrivate::maybeGC_helper(bool do_string_gc)
         for (it = m_stringHandles.constBegin(); it != m_stringHandles.constEnd(); ++it)
             markString((*it)->value.stringValue(), generation);
     }
+
+#ifndef QT_NO_QOBJECT
+# ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+    {
+        QHash<const QMetaObject*, QScriptMetaObject*>::const_iterator it;
+        for (it = m_cachedMetaObjects.constBegin(); it != m_cachedMetaObjects.constEnd(); ++it) {
+            QList<QScriptNameIdImpl*> memberNames = (*it)->registeredMemberNames();
+            QList<QScriptNameIdImpl*>::const_iterator it2;
+            for (it2 = memberNames.constBegin(); it2 != memberNames.constEnd(); ++it2)
+                markString(*it2, generation);
+        }
+    }
+# endif
+#endif
 
     {
         QScriptContext *current = currentContext();

@@ -218,6 +218,31 @@ public Q_SLOTS:
     void mySlotWithStringArg(const QString &arg)
         { m_qtFunctionInvoked = 23; m_actuals << arg; }
 
+    void myOverloadedSlot()
+        { m_qtFunctionInvoked = 24; }
+    void myOverloadedSlot(bool arg)
+        { m_qtFunctionInvoked = 25; m_actuals << arg; }
+    void myOverloadedSlot(double arg)
+        { m_qtFunctionInvoked = 26; m_actuals << arg; }
+    void myOverloadedSlot(float arg)
+        { m_qtFunctionInvoked = 27; m_actuals << arg; }
+    void myOverloadedSlot(int arg)
+        { m_qtFunctionInvoked = 28; m_actuals << arg; }
+    void myOverloadedSlot(const QString &arg)
+        { m_qtFunctionInvoked = 29; m_actuals << arg; }
+    void myOverloadedSlot(const QColor &arg)
+        { m_qtFunctionInvoked = 30; m_actuals << arg; }
+    void myOverloadedSlot(const QBrush &arg)
+        { m_qtFunctionInvoked = 31; m_actuals << arg; }
+    void myOverloadedSlot(const QDateTime &arg)
+        { m_qtFunctionInvoked = 32; m_actuals << arg; }
+    void myOverloadedSlot(const QDate &arg)
+        { m_qtFunctionInvoked = 33; m_actuals << arg; }
+    void myOverloadedSlot(const QRegExp &arg)
+        { m_qtFunctionInvoked = 34; m_actuals << arg; }
+    void myOverloadedSlot(const QVariant &arg)
+        { m_qtFunctionInvoked = 35; m_actuals << arg; }
+
 Q_SIGNALS:
     void mySignal();
     void mySignalWithIntArg(int arg);
@@ -273,6 +298,7 @@ private slots:
     void transferInvokable();
     void findChild();
     void findChildren();
+    void overloadedSlots();
 
 private:
     QScriptEngine *m_engine;
@@ -579,6 +605,12 @@ void tst_QScriptExtQObject::callQtInvokable()
     QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 123);
 
     m_myObject->resetQtFunctionInvoked();
+    QCOMPARE(m_engine->evaluate("myObject.myInvokableWithIntArg('123')").isUndefined(), true);
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 1);
+    QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+    QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 123);
+
+    m_myObject->resetQtFunctionInvoked();
     qScriptRegisterMetaType<qlonglong>(m_engine, fromLongLong, toLongLong);
     QCOMPARE(m_engine->evaluate("myObject.myInvokableWithLonglongArg(123)").isUndefined(), true);
     QCOMPARE(m_myObject->qtFunctionInvoked(), 2);
@@ -602,6 +634,12 @@ void tst_QScriptExtQObject::callQtInvokable()
     QCOMPARE(m_myObject->qtFunctionInvoked(), 5);
     QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
     QCOMPARE(m_myObject->qtFunctionActuals().at(0).toString(), QLatin1String("ciao"));
+
+    m_myObject->resetQtFunctionInvoked();
+    QCOMPARE(m_engine->evaluate("myObject.myInvokableWithStringArg(123)").isUndefined(), true);
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 5);
+    QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+    QCOMPARE(m_myObject->qtFunctionActuals().at(0).toString(), QLatin1String("123"));
 
     m_myObject->resetQtFunctionInvoked();
     QCOMPARE(m_engine->evaluate("myObject.myInvokableWithIntArgs(123, 456)").isUndefined(), true);
@@ -1079,6 +1117,45 @@ void tst_QScriptExtQObject::findChildren()
     delete anotherChild;
     delete namelessChild;
     delete child;
+}
+
+void tst_QScriptExtQObject::overloadedSlots()
+{
+    // should pick myOverloadedSlot(double)
+    m_myObject->resetQtFunctionInvoked();
+    m_engine->evaluate("myObject.myOverloadedSlot(10)");
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 26);
+
+    // should pick myOverloadedSlot(double)
+    m_myObject->resetQtFunctionInvoked();
+    m_engine->evaluate("myObject.myOverloadedSlot(10.0)");
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 26);
+
+    // should pick myOverloadedSlot(QString)
+    m_myObject->resetQtFunctionInvoked();
+    m_engine->evaluate("myObject.myOverloadedSlot('10')");
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 29);
+
+    // should pick myOverloadedSlot(bool)
+    m_myObject->resetQtFunctionInvoked();
+    m_engine->evaluate("myObject.myOverloadedSlot(true)");
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 25);
+
+    // should pick myOverloadedSlot(QDateTime)
+    m_myObject->resetQtFunctionInvoked();
+    m_engine->evaluate("myObject.myOverloadedSlot(new Date())");
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 32);
+
+    // should pick myOverloadedSlot(QRegExp)
+    m_myObject->resetQtFunctionInvoked();
+    m_engine->evaluate("myObject.myOverloadedSlot(new RegExp())");
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 34);
+
+    // should pick myOverloadedSlot(QVariant) -- or QString?
+    m_myObject->resetQtFunctionInvoked();
+    QScriptValue f = m_engine->evaluate("myObject.myOverloadedSlot");
+    f.call(QScriptValue(), QScriptValueList() << m_engine->newVariant(QVariant("ciao")));
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 35);
 }
 
 QTEST_MAIN(tst_QScriptExtQObject)

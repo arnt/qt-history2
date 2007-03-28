@@ -25,15 +25,19 @@
 // We mean it.
 //
 
+#ifndef QT_NO_QOBJECT
+
 #include "qscriptecmacore_p.h"
 #include "qscriptclassdata_p.h"
 #include "qscriptfunction_p.h"
 #include "qscriptengine.h"
+#include "qscriptmemberfwd_p.h"
 
-#ifndef QT_NO_QOBJECT
-
+#include <QtCore/QHash>
 #include <QtCore/QPointer>
 #include <QtCore/QObject>
+#include <QtCore/QVariant>
+#include <QtCore/QVector>
 
 namespace QScript {
 
@@ -176,6 +180,155 @@ protected:
 };
 
 } // namespace QScript
+
+class QScriptMetaType
+{
+public:
+    enum Kind {
+        Invalid,
+        Variant,
+        MetaType,
+        Unresolved
+    };
+
+    inline QScriptMetaType()
+        : m_kind(Invalid) { }
+
+    inline Kind kind() const
+    { return m_kind; }
+
+    inline int typeId() const
+    { return m_typeId; }
+
+    inline bool isValid() const
+    { return (m_kind != Invalid); }
+
+    inline bool isVariant() const
+    { return (m_kind == Variant); }
+
+    inline QByteArray name() const
+    { return m_name; }
+
+    static inline QScriptMetaType variant()
+    { return QScriptMetaType(Variant); }
+
+    static inline QScriptMetaType metaType(int typeId, const QByteArray &name)
+    { return QScriptMetaType(MetaType, typeId, name); }
+
+    static inline QScriptMetaType unresolved(const QByteArray &name)
+    { return QScriptMetaType(Unresolved, /*typeId=*/0, name); }
+
+private:
+    inline QScriptMetaType(Kind kind, int typeId = 0, const QByteArray &name = QByteArray())
+        : m_kind(kind), m_typeId(typeId), m_name(name) { }
+
+    Kind m_kind;
+    int m_typeId;
+    QByteArray m_name;
+};
+
+class QScriptMetaMethod
+{
+public:
+    inline QScriptMetaMethod()
+        { }
+    inline QScriptMetaMethod(const QByteArray &name, const QVector<QScriptMetaType> &types)
+        : m_name(name), m_types(types), m_firstUnresolvedIndex(-1)
+    {
+        QVector<QScriptMetaType>::const_iterator it;
+        for (it = m_types.constBegin(); it != m_types.constEnd(); ++it) {
+            if ((*it).kind() == QScriptMetaType::Unresolved) {
+                m_firstUnresolvedIndex = it - m_types.constBegin();
+                break;
+            }
+        }
+    }
+    inline bool isValid() const
+    { return !m_types.isEmpty(); }
+
+    QByteArray name() const
+    { return m_name; }
+
+    inline QScriptMetaType returnType() const
+    { return m_types.at(0); }
+
+    inline int argumentCount() const
+    { return m_types.count() - 1; }
+
+    inline QScriptMetaType argumentType(int arg) const
+    { return m_types.at(arg + 1); }
+
+    inline bool fullyResolved() const
+    { return m_firstUnresolvedIndex == -1; }
+
+    inline int firstUnresolvedIndex() const
+    { return m_firstUnresolvedIndex; }
+
+    inline int count() const
+    { return m_types.count(); }
+
+    inline QScriptMetaType type(int index) const
+    { return m_types.at(index); }
+
+private:
+    QByteArray m_name;
+    QVector<QScriptMetaType> m_types;
+    int m_firstUnresolvedIndex;
+};
+
+struct QScriptMetaArguments
+{
+    int index;
+    QScriptMetaMethod method;
+    QVector<QVariant> args;
+
+    inline QScriptMetaArguments(int idx, const QScriptMetaMethod &mtd,
+                                const QVector<QVariant> &as)
+        : index(idx), method(mtd), args(as) { }
+    inline QScriptMetaArguments()
+        : index(-1) { }
+
+    inline bool isValid() const
+    { return (index != -1); }
+};
+
+class QScriptMetaObject
+{
+public:
+    inline QScriptMetaMethod findMethod(int index) const
+    {
+        return m_methods.value(index);
+    }
+
+    inline void registerMethod(int index, const QScriptMetaMethod &method)
+    {
+        m_methods.insert(index, method);
+    }
+
+    inline bool findMember(QScriptNameIdImpl *nameId, QScript::Member *member) const
+    {
+        QHash<QScriptNameIdImpl*, QScript::Member>::const_iterator it;
+        it = m_members.constFind(nameId);
+        if (it == m_members.constEnd())
+            return false;
+        *member = it.value();
+        return true;
+    }
+
+    inline void registerMember(QScriptNameIdImpl *nameId, const QScript::Member &member)
+    {
+        m_members.insert(nameId, member);
+    }
+
+    inline QList<QScriptNameIdImpl*> registeredMemberNames() const
+    {
+        return m_members.keys();
+    }
+
+private:
+    QHash<int, QScriptMetaMethod> m_methods;
+    QHash<QScriptNameIdImpl*, QScript::Member> m_members;
+};
 
 #endif // QT_NO_QOBJECT
 
