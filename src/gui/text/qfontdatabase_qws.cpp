@@ -489,8 +489,8 @@ void qt_applyFontDatabaseSettings(const QSettings &settings)
             family->fallbackFamilies = settings.value(family->name).toStringList();
     }
 
-    if (settings.contains("Global Fallbacks"))
-        db->fallbackFamilies = settings.value("Global Fallbacks").toStringList();
+    if (settings.contains(QLatin1String("Global Fallbacks")))
+        db->fallbackFamilies = settings.value(QLatin1String("Global Fallbacks")).toStringList();
 }
 
 static inline void load(const QString & = QString(), int = -1)
