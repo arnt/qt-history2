@@ -2043,7 +2043,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             q->setAttribute(Qt::WA_OutsideWSRange, true);
             if (q->isVisible() && q->testAttribute(Qt::WA_Mapped))
                 hide_sys();
-        } else if (q->isVisible() && !q->testAttribute(Qt::WA_Mapped)) {
+        } else if (q->isVisible() && q->testAttribute(Qt::WA_OutsideWSRange)) {
             q->setAttribute(Qt::WA_OutsideWSRange, false);
 
             // put the window in its place and show it

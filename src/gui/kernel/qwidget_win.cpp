@@ -1350,7 +1350,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         data.window_state &= ~Qt::WindowFullScreen;
         topData()->savedFlags = 0;
     }
-
+    
     if (q->testAttribute(Qt::WA_WState_ConfigPending)) {        // processing config event
         qWinRequestConfig(q->internalWinId(), isMove ? 2 : 1, x, y, w, h);
     } else {
@@ -1370,7 +1370,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 if (q->isVisible() && q->testAttribute(Qt::WA_Mapped))
                     hide_sys();
                 data.crect = QRect(x, y, w, h);
-            } else if (q->isVisible() && !q->testAttribute(Qt::WA_Mapped)) {
+            } else if (q->isVisible() && q->testAttribute(Qt::WA_OutsideWSRange)) {
                 q->setAttribute(Qt::WA_OutsideWSRange, false);
 
                 // put the window in its place and show it
