@@ -421,7 +421,7 @@ void Configure::parseCmdLine()
         else if( configCmdLine.at(i) == "-qt-gif" )
             dictionary[ "GIF" ] = "auto";
 
-        else if( configCmdLine.at(i) == "-no-tiff" ) {
+        else if( configCmdLine.at(i) == "-no-libtiff" ) {
               dictionary[ "TIFF"] = "no";
               dictionary[ "LIBTIFF" ] = "no";
         } else if( configCmdLine.at(i) == "-system-libtiff" ) {
