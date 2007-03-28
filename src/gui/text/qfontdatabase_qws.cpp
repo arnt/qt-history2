@@ -658,7 +658,11 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
 {
     QFontDatabasePrivate *db = privateDb();
+#ifdef QT_NO_FREETYPE
+    Q_UNUSED(fnt);
+#else
     fnt->families = db->addTTFile(QFile::encodeName(fnt->fileName), fnt->data);
+#endif
     db->reregisterAppFonts = true;
 }
 

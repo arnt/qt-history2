@@ -401,6 +401,8 @@ QtFontFoundry *QtFontFamily::foundry(const QString &f, bool create)
 
 // ### copied to tools/makeqpf/qpf2.cpp
 
+#ifndef QT_NO_FREETYPE
+
 // see the Unicode subset bitfields in the MSDN docs
 static int requiredUnicodeBits[QFontDatabase::WritingSystemsCount][2] = {
         // Any,
@@ -521,6 +523,7 @@ static QList<QFontDatabase::WritingSystem> determineWritingSystemsFromTrueTypeBi
     return writingSystems;
 }
 #endif
+#endif // QT_NO_FREETYPE
 
 class QFontDatabasePrivate : public QObject
 {
