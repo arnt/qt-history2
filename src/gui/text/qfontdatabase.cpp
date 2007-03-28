@@ -401,8 +401,7 @@ QtFontFoundry *QtFontFamily::foundry(const QString &f, bool create)
 
 // ### copied to tools/makeqpf/qpf2.cpp
 
-#ifndef QT_NO_FREETYPE
-
+#if (defined(Q_WS_QWS) && !defined(QT_NO_FREETYPE)) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
 // see the Unicode subset bitfields in the MSDN docs
 static int requiredUnicodeBits[QFontDatabase::WritingSystemsCount][2] = {
         // Any,
@@ -474,7 +473,6 @@ static int requiredUnicodeBits[QFontDatabase::WritingSystemsCount][2] = {
 #define JapaneseCsbBit 17
 #define KoreanCsbBit 21
 
-#if defined(Q_WS_QWS) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
 static QList<QFontDatabase::WritingSystem> determineWritingSystemsFromTrueTypeBits(quint32 unicodeRange[4], quint32 codePageRange[2])
 {
     QList<QFontDatabase::WritingSystem> writingSystems;
@@ -523,7 +521,6 @@ static QList<QFontDatabase::WritingSystem> determineWritingSystemsFromTrueTypeBi
     return writingSystems;
 }
 #endif
-#endif // QT_NO_FREETYPE
 
 class QFontDatabasePrivate : public QObject
 {
