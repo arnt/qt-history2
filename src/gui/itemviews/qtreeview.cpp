@@ -1350,6 +1350,8 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         }
 
         if (headerSection == 0) {
+            painter->save();
+            painter->setClipRect(QRect(position, y, width, height));
             const int i = d->indentationForItem(d->current);
             opt.rect.setRect(reverse ? position : i + position, y, width - i, height);
             if (alternate && (d->current & 1))
@@ -1365,6 +1367,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             else if (alternate && (d->current & 1))
                 painter->fillRect(branches, opt.palette.alternateBase());
             drawBranches(painter, branches, index);
+            painter->restore();
         } else {
             opt.rect.setRect(position, y, width, height);
             if (alternate & (d->current & 1)) {
