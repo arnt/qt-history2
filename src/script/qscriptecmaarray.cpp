@@ -280,7 +280,8 @@ QScriptValueImpl Array::method_join(QScriptContextPrivate *context,
 
     QScriptValueImpl self = context->thisObject();
 
-    QScriptValueImpl length = self.property(QLatin1String("length"));
+    QScriptNameIdImpl *id_length = eng->idTable()->id_length;
+    QScriptValueImpl length = self.property(id_length);
     qsreal r1 = length.isValid() ? length.toNumber() : 0;
     quint32 r2 = QScriptEnginePrivate::toUint32(r1);
 
@@ -310,7 +311,8 @@ QScriptValueImpl Array::method_pop(QScriptContextPrivate *context,
                                    QScriptEnginePrivate *eng,
                                    QScriptClassInfo *classInfo)
 {
-    if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
+    QScriptValueImpl self = context->thisObject();
+    if (Instance *instance = Instance::get(self, classInfo)) {
         QScriptValueImpl elt = instance->value.pop();
         if (! elt.isValid())
             elt = eng->undefinedValue();
@@ -320,7 +322,6 @@ QScriptValueImpl Array::method_pop(QScriptContextPrivate *context,
 
     QScriptNameIdImpl *id_length = eng->idTable()->id_length;
 
-    QScriptValueImpl self = context->thisObject();
     QScriptValueImpl r1 = self.property(id_length);
     quint32 r2 = r1.toUInt32();
     if (! r2) {
@@ -340,7 +341,8 @@ QScriptValueImpl Array::method_push(QScriptContextPrivate *context,
                                     QScriptEnginePrivate *eng,
                                     QScriptClassInfo *classInfo)
 {
-    if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
+    QScriptValueImpl self = context->thisObject();
+    if (Instance *instance = Instance::get(self, classInfo)) {
         int pos = instance->value.size();
         for (int i = 0; i < context->argumentCount(); ++i) {
             instance->value.assign(pos++, context->argument(i));
@@ -348,17 +350,16 @@ QScriptValueImpl Array::method_push(QScriptContextPrivate *context,
         return QScriptValueImpl(eng, instance->value.size());
     }
 
-    QScriptValueImpl self = context->thisObject();
-
-    QScriptValueImpl r0 = self.property(QLatin1String("length"));
-    quint32 n = r0.isValid() ? QScriptEnginePrivate::toUint32(r0.toNumber()) : 0;
+    QScriptNameIdImpl *id_length = eng->idTable()->id_length;
+    QScriptValueImpl r1 = self.property(id_length);
+    quint32 n = r1.toUInt32();
     for (int index = 0; index < context->argumentCount(); ++index, ++n) {
         QScriptValueImpl r3 = context->argument(index);
         QScriptNameIdImpl *name = eng->nameId(QScriptValueImpl(eng, n).toString());
         self.setProperty(name, r3);
     }
     QScriptValueImpl r(eng, n);
-    self.setProperty(QLatin1String("length"), r);
+    self.setProperty(id_length, r);
     return r;
 }
 
@@ -366,7 +367,8 @@ QScriptValueImpl Array::method_reverse(QScriptContextPrivate *context,
                                        QScriptEnginePrivate *eng,
                                        QScriptClassInfo *classInfo)
 {
-    if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
+    QScriptValueImpl self = context->thisObject();
+    if (Instance *instance = Instance::get(self, classInfo)) {
         int lo = 0, hi = instance->value.count () - 1;
 
         for (; lo < hi; ++lo, --hi) {
@@ -376,9 +378,7 @@ QScriptValueImpl Array::method_reverse(QScriptContextPrivate *context,
         }
 
     } else {
-        QScriptValueImpl self = context->thisObject();
-
-        QScriptNameIdImpl *id_length = eng->nameId(QLatin1String("length"));
+        QScriptNameIdImpl *id_length = eng->idTable()->id_length;
 
         QScriptValueImpl lengthValue = self.property(id_length);
         quint32 length = 0;
@@ -431,15 +431,15 @@ QScriptValueImpl Array::method_shift(QScriptContextPrivate *context,
                                      QScriptEnginePrivate *eng,
                                      QScriptClassInfo *)
 {
-    QScriptNameIdImpl *id_length = eng->nameId(QLatin1String("length"));
+    QScriptNameIdImpl *id_length = eng->idTable()->id_length;
 
-    quint32 length = QScriptEnginePrivate::toUint32(context->thisObject().property(id_length).toNumber());
+    QScriptValueImpl self = context->thisObject();
+    quint32 length = self.property(id_length).toUInt32();
     if (length == 0) {
-        context->thisObject().setProperty(id_length, QScriptValueImpl(eng, 0));
+        self.setProperty(id_length, QScriptValueImpl(eng, 0));
         return eng->undefinedValue();
     }
 
-    QScriptValueImpl self = context->thisObject();
     QScript::Member member;
     QScriptValueImpl base;
 
@@ -480,7 +480,8 @@ QScriptValueImpl Array::method_slice(QScriptContextPrivate *context,
     QScriptValueImpl end = context->argument(1);
 
     QScriptValueImpl self = context->thisObject();
-    qsreal r2 = self.property(QLatin1String("length")).toNumber();
+    QScriptNameIdImpl *id_length = eng->idTable()->id_length;
+    qsreal r2 = self.property(id_length).toNumber();
     quint32 r3 = QScriptEnginePrivate::toUint32(r2);
     qint32 r4 = qint32 (start.toInteger());
     quint32 r5 = r4 < 0 ? qMax(quint32(r3 + r4), quint32(0)) : qMin(quint32(r4), r3);
@@ -501,8 +502,9 @@ QScriptValueImpl Array::method_sort(QScriptContextPrivate *context,
                                     QScriptEnginePrivate *,
                                     QScriptClassInfo *classInfo)
 {
+    QScriptValueImpl self = context->thisObject();
     QScriptValueImpl comparefn = context->argument(0);
-    if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
+    if (Instance *instance = Instance::get(self, classInfo)) {
         instance->value.sort(comparefn);
         return context->thisObject();
     }
@@ -524,7 +526,7 @@ QScriptValueImpl Array::method_splice(QScriptContextPrivate *context,
     QScriptValueImpl arrayCtor = eng->globalObject().property(QLatin1String("Array"));
     QScriptValueImpl a = arrayCtor.construct();
 
-    if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
+    if (Instance *instance = Instance::get(self, classInfo)) {
         QVector<QScriptValueImpl> items;
         for (int i = 2; i < context->argumentCount(); ++i)
             items << context->argument(i);
@@ -542,7 +544,8 @@ QScriptValueImpl Array::method_unshift(QScriptContextPrivate *context,
 {
     QScriptValueImpl self = context->thisObject();
 
-    QScriptValueImpl r1 = self.property(QLatin1String("length"));
+    QScriptNameIdImpl *id_length = eng->idTable()->id_length;
+    QScriptValueImpl r1 = self.property(id_length);
     quint32 r2 = r1.isValid() ? QScriptEnginePrivate::toUint32(r1.toNumber()) : 0;
     quint32 r3 = quint32 (context->argumentCount());
     quint32 k = r2;
@@ -568,7 +571,7 @@ QScriptValueImpl Array::method_unshift(QScriptContextPrivate *context,
         self.setProperty(r17, r16);
     }
     QScriptValueImpl r(eng, r2 + r3);
-    self.setProperty(QLatin1String("length"), r);
+    self.setProperty(id_length, r);
     return (r);
 }
 
