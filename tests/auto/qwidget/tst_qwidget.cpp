@@ -1182,8 +1182,11 @@ void tst_QWidget::checkFocus()
     widget.setEnabled( FALSE );
     widget.setEnabled( TRUE );
     widget.show();
-    QTest::qWait( 1000 );
-    QVERIFY( qApp->focusWidget() == focusWidget );
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&widget);
+#endif
+    QTest::qWait( 100 );
+    QVERIFY( widget.focusWidget() == focusWidget );
 }
 
 class Container : public QWidget
@@ -1259,6 +1262,9 @@ void tst_QWidget::setTabOrder()
     lastEdit->setFocus();
 
     container.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&container);
+#endif
     container.setActiveWindow();
     qApp->setActiveWindow(&container);
     qApp->processEvents(QEventLoop::AllEvents);
