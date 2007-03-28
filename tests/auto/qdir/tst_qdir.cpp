@@ -492,6 +492,10 @@ void tst_QDir::entryList()
     QFile::link("nothing", "entrylist/brokenlink.lnk");
 #endif
 
+#ifdef Q_WS_MAC
+    if (qstrcmp(QTest::currentDataTag(), "unprintablenames") == 0)
+        QSKIP("p4 doesn't sync the files with the unprintable names properly on Mac",SkipSingle);
+#endif
     QDir dir(dirName);
     QVERIFY(dir.exists());
 
