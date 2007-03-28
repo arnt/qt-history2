@@ -646,7 +646,6 @@ void QFileDialog::setFilters(const QStringList &filters)
     if (filters.isEmpty())
         return;
     d->qFileDialogUi->fileTypeCombo->addItems(filters);
-    d->updateFileTypeVisibility();
     d->_q_useNameFilter(filters.first());
 }
 
@@ -782,7 +781,6 @@ void QFileDialog::setAcceptMode(QFileDialog::AcceptMode mode)
         setLabelText(Accept, tr("&Choose"));
     else
         setLabelText(Accept, (mode == AcceptOpen ? tr("&Open") : tr("&Save")));
-    d->updateFileTypeVisibility();
     if (mode == AcceptSave) {
         d->qFileDialogUi->lookInCombo->setEditable(false);
     }
@@ -829,15 +827,6 @@ QModelIndex QFileDialogPrivate::select(const QModelIndex &index) const {
     qFileDialogUi->listView->selectionModel()->select(idx,
             QItemSelectionModel::Select | QItemSelectionModel::Rows);
     return idx;
-}
-
-void QFileDialogPrivate::updateFileTypeVisibility()
-{
-    bool showFilterGUI = true;
-    if (qFileDialogUi->fileTypeCombo->count() == 1 && defaultFileTypes)
-        showFilterGUI = false;
-    qFileDialogUi->fileTypeCombo->setVisible(showFilterGUI);
-    qFileDialogUi->fileTypeLabel->setVisible(showFilterGUI);
 }
 
 QFileDialog::AcceptMode QFileDialog::acceptMode() const

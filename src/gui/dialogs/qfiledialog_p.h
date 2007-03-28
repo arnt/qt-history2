@@ -105,7 +105,6 @@ public:
     QString getEnvironmentVariable(const QString &string);
     static QString workingDirectory(const QString &path);
     static QString initialSelection(const QString &path);
-    void updateFileTypeVisibility();
     QStringList typedFiles() const;
 
     inline QModelIndex mapToSource(const QModelIndex &index) const;
