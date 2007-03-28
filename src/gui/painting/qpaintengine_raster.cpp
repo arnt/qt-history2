@@ -744,6 +744,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->inverseScale = qreal(1);
 
 #if defined(Q_WS_WIN)
+    d->isPlain45DegreeRotation = true;
     d->clear_type_text = false;
     QT_WA({
         UINT result;
@@ -1065,6 +1066,32 @@ void QRasterPaintEngine::updateMatrix(const QTransform &matrix)
     d->outlineMapper->setMatrix(d->matrix, d->txop);
     d->updateMatrixData(&d->penData, d->pen.brush(), matrix);
     d->updateMatrixData(&d->brushData, d->brush, d->brushMatrix());
+
+#ifdef Q_WS_WIN
+    d->isPlain45DegreeRotation = false;
+    if (d->txop >= QTransform::TxRotate) {
+        d->isPlain45DegreeRotation =
+            (qFuzzyCompare(matrix.m11(), qreal(0))
+             && qFuzzyCompare(matrix.m12(), qreal(1))
+             && qFuzzyCompare(matrix.m21(), qreal(-1))
+             && qFuzzyCompare(matrix.m22(), qreal(0))
+                )
+            ||
+            (qFuzzyCompare(matrix.m11(), qreal(-1))
+             && qFuzzyCompare(matrix.m12(), qreal(0))
+             && qFuzzyCompare(matrix.m21(), qreal(0))
+             && qFuzzyCompare(matrix.m22(), qreal(-1))
+                )
+            ||
+            (qFuzzyCompare(matrix.m11(), qreal(0.0))
+             && qFuzzyCompare(matrix.m12(), qreal(-1))
+             && qFuzzyCompare(matrix.m21(), qreal(1))
+             && qFuzzyCompare(matrix.m22(), qreal(0))
+                )
+            ;
+    }
+#endif
+
 }
 
 /*!
@@ -2470,13 +2497,6 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     if (!d->penData.blend)
         return;
 
-    if (QT_WA_INLINE(false, d->txop >= QTransform::TxScale)
-        || d->txscale * textItem.font().pointSize() > 64)
-    {
-        QPaintEngine::drawTextItem(p, textItem);
-        return;
-    }
-
     // Only support cleartype for solid pens, 32 bit target buffers and when the pen color is
     // opaque
     bool clearType = d->clear_type_text
@@ -2484,6 +2504,20 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
                      && d->deviceDepth == 32
                      &&  qAlpha(d->penData.solid.color) == 255;
 
+    bool usefallback = false;
+
+#ifdef Q_WS_WIN
+    usefallback = (d->txop >= QTransform::TxRotate) && ti.font().pointSize() < 14
+        && (painter()->renderHints() & QPainter::TextAntialiasing) && !clearType
+        && !d->isPlain45DegreeRotation;
+#endif
+
+    if (QT_WA_INLINE(false, d->txop >= QTransform::TxScale)
+        || (d->txscale * textItem.font().pointSize() > 64) || usefallback)
+    {
+        QPaintEngine::drawTextItem(p, textItem);
+        return;
+    }
 
     QFixed x_buffering = ti.ascent;
 

@@ -223,6 +223,9 @@ public:
     uint user_clip_enabled : 1;
     uint fast_text : 1;
     uint paint_unclipped : 1;
+#ifdef Q_WS_WIN
+    uint isPlain45DegreeRotation : 1;
+#endif
 };
 
 class QClipData {
