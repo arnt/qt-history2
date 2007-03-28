@@ -348,20 +348,10 @@ bool QTranslator::load(const QString & filename, const QString & directory,
     d->clear();
 
     QString prefix;
-
-    const int l = filename.size();
-    if (!((l > 0 && filename[0] == QLatin1Char('/'))
-#ifdef Q_WS_WIN
-          || (l >= 2 && filename[0].isLetter() && filename[1] == QLatin1Char(':'))
-          || (l >= 1 && filename[0] == QLatin1Char('\\'))
-#endif
-            )) {
+    if (QFileInfo(filename).isRelative()) { 
         prefix = directory;
-    }
-
-    if (prefix.length()) {
-        if (prefix[int(prefix.length()-1)] != QLatin1Char('/'))
-            prefix += QLatin1Char('/');
+	if (prefix.length() && !prefix.endsWith(QLatin1Char('/')))
+	    prefix += QLatin1Char('/');
     }
 
     QString fname = filename;
