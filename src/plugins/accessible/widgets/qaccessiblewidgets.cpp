@@ -1257,6 +1257,9 @@ void QAccessibleTextEdit::addSelection(int startOffset, int endOffset)
 QString QAccessibleTextEdit::attributes(int offset, int *startOffset, int *endOffset)
 {
     // TODO - wait for a definition of attributes
+    Q_UNUSED(offset);
+    Q_UNUSED(startOffset);
+    Q_UNUSED(endOffset);
     return QString();
 }
 
@@ -1341,6 +1344,10 @@ QString QAccessibleTextEdit::textBeforeOffset (int offset, BoundaryType boundary
         int *startOffset, int *endOffset)
 {
     // TODO - what exactly is before?
+    Q_UNUSED(offset);
+    Q_UNUSED(boundaryType);
+    Q_UNUSED(startOffset);
+    Q_UNUSED(endOffset);
     return QString();
 }
 
@@ -1348,6 +1355,10 @@ QString QAccessibleTextEdit::textAfterOffset(int offset, BoundaryType boundaryTy
         int *startOffset, int *endOffset)
 {
     // TODO - what exactly is after?
+    Q_UNUSED(offset);
+    Q_UNUSED(boundaryType);
+    Q_UNUSED(startOffset);
+    Q_UNUSED(endOffset);
     return QString();
 }
 
@@ -1526,6 +1537,9 @@ void QAccessibleTextEdit::replaceText(int startOffset, int endOffset, const QStr
 void QAccessibleTextEdit::setAttributes(int startOffset, int endOffset, const QString &attributes)
 {
     // TODO
+    Q_UNUSED(startOffset);
+    Q_UNUSED(endOffset);
+    Q_UNUSED(attributes);
 }
 
 #ifndef QT_NO_MAINWINDOW
