@@ -1023,7 +1023,7 @@ bool Configure::displayHelp()
                     "[-no-libjpeg] [-qt-libjpeg] [-system-libjpeg] [-no-libmng]\n"
                     "[-qt-libmng] [-system-libmng] [-no-qt3support]\n"
                     "[-no-mmx] [-no-3dnow] [-no-sse] [-no-sse2] [-direct3d]\n"
-                    "[-openssl][-no-openssl][-platform <spec>]\n\n", 0, 7);
+                    "[-openssl] [-no-openssl] [-platform <spec>]\n\n", 0, 7);
 
         desc("Installation options:\n\n");
 #if !defined(EVAL)
