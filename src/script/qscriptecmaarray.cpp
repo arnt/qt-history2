@@ -318,28 +318,22 @@ QScriptValueImpl Array::method_pop(QScriptContextPrivate *context,
         return elt;
     }
 
-    QScriptNameIdImpl *id_length = eng->nameId(QLatin1String("length"));
+    QScriptNameIdImpl *id_length = eng->idTable()->id_length;
 
     QScriptValueImpl self = context->thisObject();
-    QScriptValueImpl length = self.property(id_length);
-    qsreal r1 = length.isValid() ? length.toNumber() : 0;
-    quint32 r2 = QScriptEnginePrivate::toUint32(r1);
+    QScriptValueImpl r1 = self.property(id_length);
+    quint32 r2 = r1.toUInt32();
     if (! r2) {
         self.setProperty(id_length, QScriptValueImpl(eng, 0));
         return eng->undefinedValue();
     }
     QScriptNameIdImpl *r6 = eng->nameId(QScriptValueImpl(eng, r2 - 1).toString());
     QScriptValueImpl r7 = self.property(r6);
-    if (! r7.isValid())
-        return eng->undefinedValue();
-
-    QScript::Member member;
-    QScriptValueImpl base;
-    self.resolve(r6, &member, &base, QScriptValue::ResolveLocal);
-    Q_ASSERT(member.isValid());
-    self.removeMember(member);
+    self.deleteProperty(r6);
     self.setProperty(id_length, QScriptValueImpl(eng, r2 - 1));
-    return (r7);
+    if (!r7.isValid())
+        return eng->undefinedValue();
+    return r7;
 }
 
 QScriptValueImpl Array::method_push(QScriptContextPrivate *context,
