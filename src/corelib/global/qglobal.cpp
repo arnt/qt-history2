@@ -2026,7 +2026,7 @@ QString qt_error_string(int errorCode)
     \fn QtMsgHandler qInstallMsgHandler(QtMsgHandler handler)
     \relates <QtGlobal>
 
-    Installs a Qt message \a handler whis has been defined
+    Installs a Qt message \a handler which has been defined
     previously. Returns a pointer to the message \a handler.
 
     The message handler is a function that prints out debug messages,
