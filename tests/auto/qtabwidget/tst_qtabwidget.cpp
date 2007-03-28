@@ -482,7 +482,7 @@ void tst_QTabWidget::paintEventCount()
 
     tw->show();
 
-    QTest::qWait(100);
+    QTest::qWait(1000);
 
     // Mac and Windows get multiple repaints on the first show, so use those as a starting point.
     static const int InitialPaintCount =
