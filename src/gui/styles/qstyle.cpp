@@ -2220,6 +2220,7 @@ QDebug operator<<(QDebug debug, QStyle::State state)
     if (state & QStyle::State_On) states << QLatin1String("On");
     if (state & QStyle::State_Open) states << QLatin1String("Open");
     if (state & QStyle::State_Raised) states << QLatin1String("Raised");
+    if (state & QStyle::State_ReadOnly) states << QLatin1String("ReadOnly");
     if (state & QStyle::State_Selected) states << QLatin1String("Selected");
     if (state & QStyle::State_Sibling) states << QLatin1String("Sibling");
     if (state & QStyle::State_Sunken) states << QLatin1String("Sunken");
