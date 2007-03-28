@@ -165,9 +165,14 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
 
         // we couldn't find the path element, we create a new node since we
         // _know_ that the path is valid
-        if (row != -1
-            && (parent->children.count() == 0 || parent->children[row].fileName != element))
-            row = -1;
+        if (row != -1) {
+	    if ((parent->children.count() == 0)
+                || (parent->caseSensitive()
+                    && parent->children[row].fileName != element)
+                || (!parent->caseSensitive()
+                    && parent->children[row].fileName.toLower() != element.toLower()))
+	        row = -1;
+	}
 
         if (row == -1) {
             // Someone might call ::index("file://cookie/monster/doesn't/like/veggies"),
