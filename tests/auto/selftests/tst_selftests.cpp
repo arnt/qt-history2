@@ -62,6 +62,7 @@ void tst_Selftests::runSubTest_data()
     QTest::newRow("skipinit") << "skipinit";
     QTest::newRow("skipinitdata") << "skipinitdata";
     QTest::newRow("datetime") << "datetime";
+    QTest::newRow("singleskip") << "singleskip";
 }
 
 void tst_Selftests::runSubTest()
@@ -123,9 +124,6 @@ void tst_Selftests::checkXML() const
 {
     QFETCH(QString, subdir);
 
-    QEXPECT_FAIL("multiexec", "Output from several tests is broken with the XML output method, "
-                              "and it's quite heavy in the design. See task 155001.", Abort);
-
     if(m_checkXMLBlacklist.contains(subdir))
         return;
 
@@ -143,6 +141,9 @@ void tst_Selftests::checkXML() const
 
     while(!reader.atEnd())
         reader.readNext();
+
+    QEXPECT_FAIL("multiexec", "Output from several tests is broken with the XML output method, "
+                              "and it's quite heavy in the design. See task 155001.", Abort);
 
     QVERIFY(!reader.error());
 }

@@ -1,16 +1,14 @@
 ********* Start testing of tst_Skip *********
-Config: Using QTest library 4.1.0, Qt 4.2.0
+Config: Using QTest library 4.3.0, Qt 4.3.0
 PASS   : tst_Skip::initTestCase()
 SKIP   : tst_Skip::test() skipping all
-   Loc: [tst_skip.cpp(26)]
-PASS   : tst_Skip::test()
+   Loc: [/home/fenglich/dev/qt-4.3/tests/auto/selftests/skip/tst_skip.cpp(35)]
 SKIP   : tst_Skip::emptytest() skipping all
-   Loc: [tst_skip.cpp(36)]
-PASS   : tst_Skip::emptytest()
+   Loc: [/home/fenglich/dev/qt-4.3/tests/auto/selftests/skip/tst_skip.cpp(45)]
 SKIP   : tst_Skip::singleSkip(local 1) skipping one
-   Loc: [tst_skip.cpp(55)]
+   Loc: [/home/fenglich/dev/qt-4.3/tests/auto/selftests/skip/tst_skip.cpp(64)]
 this line should only be reached once (true)
 PASS   : tst_Skip::singleSkip()
 PASS   : tst_Skip::cleanupTestCase()
-Totals: 5 passed, 0 failed, 3 skipped
+Totals: 3 passed, 0 failed, 3 skipped
 ********* Finished testing of tst_Skip *********

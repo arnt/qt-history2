@@ -69,6 +69,12 @@ public:
                            QTest::TestFailMode mode, const char *file, int line);
     static bool verify(bool statement, const char *statementStr, const char *extraInfo,
                        const char *file, int line);
+    static bool testFailed();
+    static void setSkipCurrentTest(bool value);
+    static bool skipCurrentTest();
+
+private:
+    Q_DISABLE_COPY(QTestResult)
 };
 
 #endif

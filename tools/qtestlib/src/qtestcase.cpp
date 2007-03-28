@@ -672,7 +672,6 @@
 
 namespace QTest
 {
-    static bool skipCurrentTest = false;
     static QObject *currentTestObject = 0;
 
     struct TestFunction {
@@ -681,6 +680,13 @@ namespace QTest
         int function;
         char *data;
     } testFuncs[512];
+
+    /**
+     * Contains the count of test functions that was supplied
+     * on the command line, if any. Hence, if lastTestFuncIdx is
+     * more than zero, those functions should be run instead of
+     * all appearing in the test case.
+     */
     static int lastTestFuncIdx = -1;
 
     static int keyDelay = -1;
@@ -937,6 +943,8 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
     const QTestTable *gTable = QTestTable::globalTestTable();
     const int globalDataCount = gTable->dataCount();
     int curGlobalDataIndex = 0;
+
+    /* For each test function that has a *_data() table/function, do: */
     do {
         if (!gTable->isEmpty())
             QTestResult::setCurrentGlobalTestData(gTable->testData(curGlobalDataIndex));
@@ -947,16 +955,19 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
             QMetaObject::invokeMethod(QTest::currentTestObject, member, Qt::DirectConnection);
             // if we encounter a SkipAll in the _data slot, we skip the whole
             // testfunction, no matter how much global data exists
-            if (QTest::skipCurrentTest) {
+            if (QTestResult::skipCurrentTest()) {
                 QTestResult::setCurrentGlobalTestData(0);
                 break;
             }
         }
 
         bool foundFunction = false;
-        if (!QTest::skipCurrentTest) {
+        if (!QTestResult::skipCurrentTest()) {
             int curDataIndex = 0;
             const int dataCount = table.dataCount();
+            QTestResult::setSkipCurrentTest(false);
+
+            /* For each entry in the data table, do: */
             do {
                 if (!data || !qstrcmp(data, table.testData(curDataIndex)->dataTag())) {
                     foundFunction = true;
@@ -964,7 +975,7 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
                                                       : table.testData(curDataIndex));
                     QTestResult::setCurrentTestLocation(QTestResult::InitFunc);
                     QMetaObject::invokeMethod(QTest::currentTestObject, "init");
-                    if (QTest::skipCurrentTest)
+                    if (QTestResult::skipCurrentTest())
                         break;
 
                     QTestResult::setCurrentTestLocation(QTestResult::Func);
@@ -978,7 +989,7 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
                     QMetaObject::invokeMethod(QTest::currentTestObject, "cleanup");
                     QTestResult::setCurrentTestLocation(QTestResult::NoWhere);
 
-                    if (QTest::skipCurrentTest)
+                    if (QTestResult::skipCurrentTest())
                         // check whether SkipAll was requested
                         break;
                     if (data)
@@ -987,7 +998,6 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
                 ++curDataIndex;
             } while (curDataIndex < dataCount);
         }
-        QTest::skipCurrentTest = false;
 
         if (data && !foundFunction) {
             printf("Unknown testdata for function %s: '%s'\n", slotName, data);
@@ -1001,8 +1011,8 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
         ++curGlobalDataIndex;
     } while (curGlobalDataIndex < globalDataCount);
 
-    QTest::skipCurrentTest = false;
     QTestResult::finishedCurrentTestFunction();
+    QTestResult::setSkipCurrentTest(false);
     QTestResult::setCurrentTestData(0);
     delete[] slot;
 
@@ -1012,7 +1022,7 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
 void *fetchData(QTestData *data, const char *tagName, int typeId)
 {
     QTEST_ASSERT(typeId);
-    QTEST_ASSERT_X(data, "QTest::fetchData()", "Test data requested, but no testdata available .");
+    QTEST_ASSERT_X(data, "QTest::fetchData()", "Test data requested, but no testdata available.");
     QTEST_ASSERT(data->parent());
 
     int idx = data->parent()->indexOf(tagName);
@@ -1155,12 +1165,15 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
     QTestTable::globalTestTable();
     QMetaObject::invokeMethod(testObject, "initTestCase_data", Qt::DirectConnection);
 
-    if (!QTest::skipCurrentTest && !QTest::currentTestFailed()) {
+    if (!QTestResult::skipCurrentTest() && !QTest::currentTestFailed()) {
         QTestResult::setCurrentTestLocation(QTestResult::InitFunc);
         QMetaObject::invokeMethod(testObject, "initTestCase");
+
+        // finishedCurrentTestFunction() resets QTestResult::testFailed(), so use a local copy.
+        const bool previousFailed = QTestResult::testFailed();
         QTestResult::finishedCurrentTestFunction();
 
-        if(!QTest::skipCurrentTest && !QTest::currentTestFailed()) {
+        if(!QTestResult::skipCurrentTest() && !previousFailed) {
 
             if (lastTestFuncIdx >= 0) {
                 for (int i = 0; i <= lastTestFuncIdx; ++i) {
@@ -1180,6 +1193,7 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
             }
         }
 
+        QTestResult::setSkipCurrentTest(false);
         QTestResult::setCurrentTestFunction("cleanupTestCase");
         QMetaObject::invokeMethod(testObject, "cleanupTestCase");
     }
@@ -1236,7 +1250,7 @@ void QTest::qSkip(const char *message, QTest::SkipMode mode,
 {
     QTestResult::addSkip(message, mode, file, line);
     if (mode == QTest::SkipAll)
-        skipCurrentTest = true;
+        QTestResult::setSkipCurrentTest(true);
 }
 
 /*! \fn bool QTest::qExpectFail(const char *dataIndex, const char *comment, TestFailMode mode, const char *file, int line)

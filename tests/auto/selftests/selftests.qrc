@@ -20,5 +20,6 @@
         <file>expected_skipinitdata.txt</file>
         <file>expected_skipinit.txt</file>
         <file>expected_datetime.txt</file>
+        <file>expected_singleskip.txt</file>
     </qresource>
 </RCC>
