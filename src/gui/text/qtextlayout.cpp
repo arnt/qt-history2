@@ -1559,9 +1559,6 @@ void QTextLine::layout_helper(int maxGlyphs)
             if (checkFullOtherwiseExtend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
                 goto found;
         } else if (current.isObject) {
-            QTextFormat format = eng->formats()->format(eng->formatIndex(&eng->layoutData->items[item]));
-            if (eng->block.docHandle())
-                eng->docLayout()->positionInlineObject(QTextInlineObject(item, eng), eng->block.position() + current.position, format);
             tmpData.length++;
 
             // the width of the linesep doesn't count into the textwidth
@@ -1573,6 +1570,10 @@ void QTextLine::layout_helper(int maxGlyphs)
                 line += tmpData;
                 goto found;
             }
+
+            QTextFormat format = eng->formats()->format(eng->formatIndex(&eng->layoutData->items[item]));
+            if (eng->block.docHandle())
+                eng->docLayout()->positionInlineObject(QTextInlineObject(item, eng), eng->block.position() + current.position, format);
 
             tmpData.textWidth += current.width;
 
@@ -1831,6 +1832,9 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
         QScriptItem &si = iterator.next();
 
         if (si.isObject || si.isTab) {
+            if (eng->layoutData->string.at(si.position) == QChar::LineSeparator)
+                continue;
+
             if (eng->hasFormats() &&
                 (!selection || (si.position < selection->start + selection->length
                                 && si.position + iterator.itemLength > selection->start))) {
