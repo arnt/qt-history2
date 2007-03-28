@@ -64,9 +64,7 @@ struct QBasicAtomic
 
     inline QBasicAtomic &operator=(int x)
     {
-        q_atomic_lock(lock);
         atomic = x;
-        q_atomic_unlock(lock);
         return *this;
     }
 
@@ -150,9 +148,7 @@ struct QBasicAtomicPointer
 
     inline QBasicAtomicPointer<T> &operator=(T *t)
     {
-        q_atomic_lock(lock);
         pointer = const_cast<T *>(t);
-        q_atomic_unlock(lock);
         return *this;
     }
 
