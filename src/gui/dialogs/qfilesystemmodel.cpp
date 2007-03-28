@@ -87,11 +87,8 @@ QModelIndex QFileSystemModel::index(const QString &path, int column) const
   */
 QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QModelIndex &index) const
 {
-    Q_Q(const QFileSystemModel);
     if (!index.isValid())
         return const_cast<QFileSystemNode*>(&root);
-
-    Q_ASSERT(index.model() == q);
     QFileSystemModelPrivate::QFileSystemNode *indexNode = static_cast<QFileSystemModelPrivate::QFileSystemNode*>(index.internalPointer());
     Q_ASSERT(indexNode);
     return indexNode;
@@ -150,7 +147,7 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
     }
 #else
     // add the "/" item, since it is a valid path element on Unix
-    if (path[0] == '/')
+    if (path[0] == QLatin1Char('/'))
         pathElements.prepend(QLatin1String("/"));
 #endif
 
@@ -583,12 +580,7 @@ QVariant QFileSystemModel::headerData(int section, Qt::Orientation orientation, 
             return pixmap;
         }
     case Qt::TextAlignmentRole:
-        switch (section) {
-        case 0: return Qt::AlignLeft;
-        case 1: return Qt::AlignRight;
-        case 2: return Qt::AlignLeft;
-        case 3: return Qt::AlignLeft;
-        }
+        return Qt::AlignLeft;
     }
 
     if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
@@ -949,7 +941,7 @@ QString QFileSystemModel::filePath(const QModelIndex &index) const
     }
     QString fullPath = path.join(QDir::separator());
 #ifndef Q_OS_WIN
-    if ((fullPath.length() > 2) && fullPath[0] == '/' && fullPath[1] == '/')
+    if ((fullPath.length() > 2) && fullPath[0] == QLatin1Char('/') && fullPath[1] == QLatin1Char('/'))
         fullPath = fullPath.mid(1);
 #endif
     return QDir::toNativeSeparators(fullPath);

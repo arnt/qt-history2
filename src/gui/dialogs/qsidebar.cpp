@@ -31,7 +31,7 @@
 
     Example usage: File dialog sidebar and combo box
  */
-QUrlModel::QUrlModel(QObject *parent) : QStandardItemModel(parent), fileSystemModel(0)
+QUrlModel::QUrlModel(QObject *parent) : QStandardItemModel(parent), showFullPath(false), fileSystemModel(0)
 {
 }
 
@@ -123,6 +123,9 @@ bool QUrlModel::setData(const QModelIndex &index, const QVariant &value, int rol
     if (value.type() == QVariant::Url) {
         QUrl url = value.toUrl();
         QModelIndex dirIndex = fileSystemModel->index(url.path());
+        if (showFullPath)
+            QStandardItemModel::setData(index, fileSystemModel->data(dirIndex, Qt::UserRole + 1).toString());
+        else
         QStandardItemModel::setData(index, fileSystemModel->data(dirIndex).toString());
         QStandardItemModel::setData(index, fileSystemModel->data(dirIndex, Qt::DecorationRole),
                                            Qt::DecorationRole);

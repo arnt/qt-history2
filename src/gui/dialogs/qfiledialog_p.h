@@ -90,7 +90,6 @@ public:
     renameAction(0),
     deleteAction(0),
     showHiddenAction(0),
-    saveState(false),
     useDefaultCaption(true),
     defaultFileTypes(true),
     qFileDialogUi(0)
@@ -166,7 +165,6 @@ public:
     void retranslateWindowTitle();
     void retranslateStrings();
 
-    void _q_chooseLocation();
     void _q_goHome();
     void _q_pathChanged(const QString &);
     void _q_navigateBackward();
@@ -187,9 +185,6 @@ public:
     void _q_useNameFilter(const QString &nameFilter);
     void _q_selectionChanged();
     void _q_goToUrl(const QUrl &url);
-    void _q_animateDialog();
-    void _q_animateDialogV(int);
-    void _q_animateDialogH(int);
     void _q_autoCompleteFileName(const QString &);
     void _q_rowsInserted(const QModelIndex & parent);
 
@@ -216,11 +211,6 @@ public:
     QAction *showHiddenAction;
     QAction *newFolderAction;
 
-    QTimeLine *vTimeLine;
-    QTimeLine *hTimeLine;
-    QBasicTimer autoHideLineEdit;
-    QSize oldSize;
-    bool saveState;
     bool useDefaultCaption;
     bool defaultFileTypes;
 
@@ -243,6 +233,7 @@ class QFileDialogListView : public QListView
 public:
     QFileDialogListView(QWidget *parent = 0);
     void init(QFileDialogPrivate *d_pointer);
+    QSize sizeHint() const;
 protected:
     void keyPressEvent(QKeyEvent *e);
 private:
@@ -254,6 +245,7 @@ class QFileDialogTreeView : public QTreeView
 public:
     QFileDialogTreeView(QWidget *parent);
     void init(QFileDialogPrivate *d_pointer);
+    QSize sizeHint() const;
 
     void selectAnyIndex() {
         QModelIndex idx = moveCursor(QAbstractItemView::MoveDown, Qt::NoModifier);
@@ -264,7 +256,6 @@ public:
 
 protected:
     void keyPressEvent(QKeyEvent *e);
-    QSize sizeHint() const;
 private:
     QFileDialogPrivate *d_ptr;
 };

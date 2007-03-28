@@ -39,7 +39,6 @@ class Q_GUI_EXPORT QFileDialog : public QDialog
     Q_PROPERTY(ViewMode viewMode READ viewMode WRITE setViewMode)
     Q_PROPERTY(FileMode fileMode READ fileMode WRITE setFileMode)
     Q_PROPERTY(AcceptMode acceptMode READ acceptMode WRITE setAcceptMode)
-    Q_PROPERTY(bool detailsExpanded READ isDetailsExpanded WRITE setDetailsExpanded)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_PROPERTY(bool resolveSymlinks READ resolveSymlinks WRITE setResolveSymlinks)
     Q_PROPERTY(bool confirmOverwrite READ confirmOverwrite WRITE setConfirmOverwrite)
@@ -57,8 +56,7 @@ public:
         DontResolveSymlinks = 0x02,
         DontConfirmOverwrite = 0x04,
         DontUseSheet = 0x08,
-        DontUseNativeDialog = 0x10,
-        StoreState = 0x20
+        DontUseNativeDialog = 0x10
     };
     Q_DECLARE_FLAGS(Options, Option)
 
@@ -91,9 +89,6 @@ public:
 
     void setAcceptMode(AcceptMode mode);
     AcceptMode acceptMode() const;
-
-    void setDetailsExpanded(bool enabled);
-    bool isDetailsExpanded() const;
 
     void setReadOnly(bool enabled);
     bool isReadOnly() const;
@@ -218,7 +213,6 @@ protected:
     QFileDialog(const QFileDialogArgs &args);
     void done(int result);
     void accept();
-    void timerEvent(QTimerEvent *event);
     void changeEvent(QEvent *e);
 
 private:
@@ -244,12 +238,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_useNameFilter(const QString &nameFilter))
     Q_PRIVATE_SLOT(d_func(), void _q_selectionChanged())
     Q_PRIVATE_SLOT(d_func(), void _q_goToUrl(const QUrl &url))
-    Q_PRIVATE_SLOT(d_func(), void _q_chooseLocation())
     Q_PRIVATE_SLOT(d_func(), void _q_goHome())
     Q_PRIVATE_SLOT(d_func(), void _q_showHeader(QAction *))
-    Q_PRIVATE_SLOT(d_func(), void _q_animateDialog())
-    Q_PRIVATE_SLOT(d_func(), void _q_animateDialogV(int))
-    Q_PRIVATE_SLOT(d_func(), void _q_animateDialogH(int))
     Q_PRIVATE_SLOT(d_func(), void _q_autoCompleteFileName(const QString &text))
     Q_PRIVATE_SLOT(d_func(), void _q_rowsInserted(const QModelIndex & parent))
 };
