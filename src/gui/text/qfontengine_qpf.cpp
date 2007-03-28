@@ -924,6 +924,8 @@ void QFontEngineQPF::remapFontData()
 #endif
 }
 
+#endif // QT_NO_FREETYPE
+
 void QPFGenerator::generate()
 {
     writeHeader();
@@ -1037,8 +1039,6 @@ void QPFGenerator::writeTaggedQFixed(QFontEngineQPF::HeaderTag tag, QFixed value
     writeUInt16(sizeof(quint32));
     writeUInt32(value.value());
 }
-
-#endif
 
 QFontEngineMultiQWS::QFontEngineMultiQWS(QFontEngine *fe, int _script, const QStringList &fallbacks)
     : QFontEngineMulti(fallbacks.size() + 1),
