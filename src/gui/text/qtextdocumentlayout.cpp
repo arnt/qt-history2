@@ -119,6 +119,10 @@ public:
 
     QVector<QFixed> cellVerticalOffsets;
 
+    // maps from cell index (row + col * rowCount) to child frames belonging to
+    // the specific cell
+    QMultiHash<int, QTextFrame *> childFrameMap;
+
     inline QFixed cellWidth(int column, int colspan) const
     { return columnPositions.at(column + colspan - 1) + widths.at(column + colspan - 1)
              - columnPositions.at(column) - 2 * cellPadding; }
@@ -156,6 +160,11 @@ static inline QTextFrameData *data(QTextFrame *f)
     if (!data)
         data = createData(f);
     return data;
+}
+
+static bool isFrameFromInlineObject(QTextFrame *f)
+{
+    return f->firstPosition() > f->lastPosition();
 }
 
 void QTextTableData::updateTableSize()
@@ -349,7 +358,7 @@ public:
     void drawFrame(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                    QTextFrame *f) const;
     void drawFlow(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
-                  QTextFrame::Iterator it, QTextBlock *cursorBlockNeedingRepaint) const;
+                  QTextFrame::Iterator it, const QList<QTextFrame *> &floats, QTextBlock *cursorBlockNeedingRepaint) const;
     void drawBlock(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                    QTextBlock bl) const;
     void drawListItem(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
@@ -373,7 +382,7 @@ public:
     HitPoint hitTest(QTextBlock bl, const QFixedPoint &point, int *position, QTextLayout **l, Qt::HitTestAccuracy accuracy) const;
 
     QLayoutStruct layoutCell(QTextTable *t, const QTextTableCell &cell, QFixed width,
-                            int layoutFrom, int layoutTo, const QMultiHash<int, QTextFrame *> &childFrameMap, bool withPageBreaks = false);
+                            int layoutFrom, int layoutTo, QTextTableData *tableData, bool withPageBreaks = false);
     void setCellPosition(QTextTable *t, const QTextTableCell &cell, const QPointF &pos);
     QRectF layoutTable(QTextTable *t, int layoutFrom, int layoutTo);
 
@@ -857,7 +866,11 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
         if (frame == q->document()->rootFrame())
             it = frameIteratorForYPosition(QFixed::fromReal(context.clip.top()));
 
-        drawFlow(off, painter, context, it, &cursorBlockNeedingRepaint);
+        QList<QTextFrame *> floats;
+        for (int i = 0; i < fd->floats.count(); ++i)
+            floats.append(fd->floats.at(i));
+
+        drawFlow(off, painter, context, it, floats, &cursorBlockNeedingRepaint);
     }
 
     if (cursorBlockNeedingRepaint.isValid()) {
@@ -937,7 +950,9 @@ void QTextDocumentLayoutPrivate::drawTableCell(const QRectF &cellRect, QPainter 
                                     cellRect.top() + (td->cellPadding + verticalOffset).toReal());
 
     QTextBlock repaintBlock;
-    drawFlow(cellPos, painter, cell_context, cell.begin(), &repaintBlock);
+    drawFlow(cellPos, painter, cell_context, cell.begin(),
+             td->childFrameMap.values(r + c * table->rows()),
+             &repaintBlock);
     if (repaintBlock.isValid()) {
         *cursorBlockNeedingRepaint = repaintBlock;
         *cursorBlockOffset = cellPos;
@@ -945,8 +960,9 @@ void QTextDocumentLayoutPrivate::drawTableCell(const QRectF &cellRect, QPainter 
 }
 
 void QTextDocumentLayoutPrivate::drawFlow(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
-                                          QTextFrame::Iterator it, QTextBlock *cursorBlockNeedingRepaint) const
+                                          QTextFrame::Iterator it, const QList<QTextFrame *> &floats, QTextBlock *cursorBlockNeedingRepaint) const
 {
+    Q_Q(const QTextDocumentLayout);
     const bool inRootFrame = (!it.atEnd() && it.parentFrame() && it.parentFrame()->parentFrame() == 0);
 
     QVector<QCheckPoint>::ConstIterator lastVisibleCheckPoint = checkPoints.end();
@@ -996,6 +1012,22 @@ void QTextDocumentLayoutPrivate::drawFlow(const QPointF &offset, QPainter *paint
         }
 
         lastBlock = it.currentBlock();
+    }
+
+    QTextDocument *document = q->document();
+    for (int i = 0; i < floats.count(); ++i) {
+        QTextFrame *frame = floats.at(i);
+        if (!isFrameFromInlineObject(frame)
+            || frame->frameFormat().position() == QTextFrameFormat::InFlow)
+            continue;
+
+        const int pos = frame->firstPosition() - 1;
+        QTextCharFormat format = const_cast<QTextDocumentLayout *>(q)->format(pos);
+        QTextObjectInterface *handler = q->handlerForObject(format.objectType());
+        if (handler) {
+            QRectF rect = frameBoundingRectInternal(frame);
+            handler->drawObject(painter, rect, document, pos, format);
+        }
     }
 }
 
@@ -1222,11 +1254,10 @@ static QFixed firstChildPos(const QTextFrame *f)
 }
 
 QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTableCell &cell, QFixed width,
-                                                    int layoutFrom, int layoutTo, const QMultiHash<int, QTextFrame *> &childFrameMap,
+                                                    int layoutFrom, int layoutTo, QTextTableData *td,
                                                     bool withPageBreaks)
 {
     Q_Q(QTextDocumentLayout);
-    QTextTableData *td = static_cast<QTextTableData *>(data(t));
     QFixed cellY = withPageBreaks ? td->position.y + td->rowPositions.at(cell.row()) + td->cellPadding : 0;
 
     LDEBUG << "layoutCell";
@@ -1266,7 +1297,7 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
     // layoutFlow with regards to the cell height (layoutStruct->y), so for a safety measure we
     // do that here. For example with <td><img align="right" src="..." />blah</td>
     // when the image happens to be higher than the text
-    const QList<QTextFrame *> childFrames = childFrameMap.values(cell.row() + cell.column() * t->rows());
+    const QList<QTextFrame *> childFrames = td->childFrameMap.values(cell.row() + cell.column() * t->rows());
     for (int i = 0; i < childFrames.size(); ++i) {
         QTextFrame *frame = childFrames.at(i);
         QTextFrameData *cd = data(frame);
@@ -1305,13 +1336,13 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
 
     const QTextTableFormat fmt = table->format();
 
-    QMultiHash<int, QTextFrame *> childFrameMap;
+    td->childFrameMap.clear();
     {
         const QList<QTextFrame *> children = table->childFrames();
         for (int i = 0; i < children.count(); ++i) {
             QTextFrame *frame = children.at(i);
             QTextTableCell cell = table->cellAt(frame->firstPosition());
-            childFrameMap.insertMulti(cell.row() + cell.column() * rows, frame);
+            td->childFrameMap.insertMulti(cell.row() + cell.column() * rows, frame);
         }
     }
 
@@ -1360,7 +1391,7 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
             // to figure out the min and the max width lay out the cell at
             // maximum width. otherwise the maxwidth calculation sometimes
             // returns wrong values
-            QLayoutStruct layoutStruct = layoutCell(table, cell, QFIXED_MAX, layoutFrom, layoutTo, childFrameMap);
+            QLayoutStruct layoutStruct = layoutCell(table, cell, QFIXED_MAX, layoutFrom, layoutTo, td);
 
             // distribute the minimum width over all columns the cell spans
             QFixed widthToDistribute = layoutStruct.minimumWidth + 2 * td->cellPadding;
@@ -1571,7 +1602,7 @@ relayout:
             }
 
             const QFixed width = td->cellWidth(c, cspan);
-            QLayoutStruct layoutStruct = layoutCell(table, cell, width, layoutFrom, layoutTo, childFrameMap, true);
+            QLayoutStruct layoutStruct = layoutCell(table, cell, width, layoutFrom, layoutTo, td, true);
 
             const QFixed height = layoutStruct.y + 2 * td->cellPadding;
 
@@ -1764,9 +1795,8 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
         }
     }
 
-    int startPos = f->firstPosition();
-    int endPos = f->lastPosition();
-    if (startPos > endPos) {
+    if (isFrameFromInlineObject(f)) {
+        int startPos = f->firstPosition();
         fd->contentsWidth = newContentsWidth;
         // inline image
         QTextCharFormat format = q->format(startPos - 1);
@@ -2602,18 +2632,14 @@ void QTextDocumentLayout::positionInlineObject(QTextInlineObject item, int posIn
 void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
                                            int posInDocument, const QTextFormat &format)
 {
-    Q_D(QTextDocumentLayout);
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
     QTextFrame *frame = qobject_cast<QTextFrame *>(document()->objectForFormat(f));
-    QRectF r = rect;
-    if (frame) {
-        QTextFrameData *fd = data(frame);
-        if (frame->frameFormat().position() != QTextFrameFormat::InFlow)
-            r = d->frameBoundingRectInternal(frame);
-    }
+    if (frame && frame->frameFormat().position() != QTextFrameFormat::InFlow)
+        return; // don't draw floating frames from inline objects here but in drawFlow instead
+
 //    qDebug() << "drawObject at" << r;
-    QAbstractTextDocumentLayout::drawInlineObject(p, r, item, posInDocument, format);
+    QAbstractTextDocumentLayout::drawInlineObject(p, rect, item, posInDocument, format);
 }
 
 int QTextDocumentLayout::dynamicPageCount() const
