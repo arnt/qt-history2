@@ -1273,6 +1273,7 @@ bool QIBaseDriver::open(const QString & db,
     const QStringList opts(connOpts.split(QLatin1Char(';'), QString::SkipEmptyParts));
 
     QString encString;
+    QByteArray role;
     for (int i = 0; i < opts.count(); ++i) {
         QString tmp(opts.at(i).simplified());
         int idx;
@@ -1281,6 +1282,10 @@ bool QIBaseDriver::open(const QString & db,
             QString opt = tmp.left(idx).simplified();
             if (opt.toUpper() == QLatin1String("ISC_DPB_LC_CTYPE"))
                 encString = val;
+            else if (opt.toUpper() == QLatin1String("ISC_DPB_SQL_ROLE_NAME")) {
+                role = val.toLocal8Bit();
+                role.truncate(255);
+            }
         }
     }
 
@@ -1303,7 +1308,7 @@ bool QIBaseDriver::open(const QString & db,
     pass.truncate(255);
 
     QByteArray ba;
-    ba.resize(usr.length() + pass.length() + enc.length() + 6);
+    ba.resize(usr.length() + pass.length() + enc.length() + role.length() + 6);
     int i = -1;
     ba[++i] = isc_dpb_version1;
     ba[++i] = isc_dpb_user_name;
@@ -1318,6 +1323,13 @@ bool QIBaseDriver::open(const QString & db,
     ba[++i] = enc.length();
     memcpy(ba.data() + ++i, enc.data(), enc.length());
     i += enc.length();
+
+    if (!role.isEmpty()) {
+        ba[i] = isc_dpb_sql_role_name;
+        ba[++i] = role.length();
+        memcpy(ba.data() + ++i, role.data(), role.length());
+        i += role.length();
+    }
 
     QString ldb;
     if (!host.isEmpty())

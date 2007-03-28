@@ -1205,6 +1205,7 @@ QSqlRecord QSqlDatabase::record(const QString& tablename) const
     \i
     \list
     \i ISC_DPB_LC_CTYPE
+    \i ISC_DPB_SQL_ROLE_NAME
     \endlist
 
     \endtable
