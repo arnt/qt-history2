@@ -627,5 +627,7 @@ void QFrame::changeEvent(QEvent *ev)
 /*! \reimp */
 bool QFrame::event(QEvent *e)
 {
+    if (e->type() == QEvent::ParentChange)
+        d_func()->updateFrameWidth();
     return QWidget::event(e);
 }
