@@ -63,8 +63,14 @@ void tst_QNumeric::qIsEqual()
 void tst_QNumeric::qNan()
 {
     double nan = qQNan();
+#if defined( __INTEL_COMPILER)
+    QCOMPARE((0 > nan), false);
+    QCOMPARE((0 < nan), false);
+    QSKIP("This fails due to a bug in the Intel Compiler", SkipAll);
+#else
     QVERIFY(!(0 > nan));
     QVERIFY(!(0 < nan));
+#endif
     QVERIFY(qIsNan(nan));
     QVERIFY(qIsNan(nan + 1));
     QVERIFY(qIsNan(-nan));
