@@ -763,7 +763,7 @@ public:
     const ushort unicode() const { return QChar(*this).unicode(); }
 
 #ifdef QT3_SUPPORT
-    inline QT3_SUPPORT bool QT3_SUPPORT mirrored() const { return hasMirrored(); }
+    inline QT3_SUPPORT bool mirrored() const { return hasMirrored(); }
     inline QT3_SUPPORT QChar lower() const { return QChar(*this).toLower(); }
     inline QT3_SUPPORT QChar upper() const { return QChar(*this).toUpper(); }
     const QT3_SUPPORT char latin1() const { return QChar(*this).toLatin1(); }
