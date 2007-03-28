@@ -114,6 +114,14 @@
 
     See \c src/3rdparty/libpng/LICENSE for license details.
 
+    \section1 TIFF Software Distribution (\c libtiff)
+
+    \e {libtiff is a set of C functions (a library) that support the
+    manipulation of TIFF image files.} -- quoted from \c
+    src/libtiff/html/libtiff.html
+
+    See \c src/3rdparty/libtiff/COPYRIGHT for license details.
+
     \section1 SQLite (\c sqlite)
 
     \e{SQLite is a small C library that implements a
