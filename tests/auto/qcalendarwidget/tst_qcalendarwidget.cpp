@@ -151,6 +151,7 @@ void tst_QCalendarWidget::buttonClickCheck()
     QTest::mouseClick(button, Qt::LeftButton);
     QVERIFY(!button->isVisible());
     QSpinBox *spinbox = qFindChild<QSpinBox *>(&object, "qt_calendar_yearedit");
+    QTest::qWait(500);
     QTest::keyClick(spinbox, '2');
     QTest::keyClick(spinbox, '0');
     QTest::keyClick(spinbox, '0');
