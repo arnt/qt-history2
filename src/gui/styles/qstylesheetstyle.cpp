@@ -1405,7 +1405,13 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         } else if (const QStyleOptionSpinBox *spin = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
             if (!spin->frame)
                 extraClass |= PseudoClass_Frameless;
+        } else if (const QStyleOptionGroupBox *gb = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
+            if (gb->features & QStyleOptionFrameV2::Flat)
+                extraClass |= PseudoClass_Flat;
+            if (gb->lineWidth == 0)
+                extraClass |= PseudoClass_Frameless;
         }
+
     } else {
         // handle simple style options
         if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
@@ -2247,9 +2253,10 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
 
             // draw the text
             if (!gb->text.isEmpty()) {
-                int alignment = int(Qt::AlignCenter);
-                if (!styleHint(QStyle::SH_UnderlineShortcut, opt, w))
+                int alignment = int(Qt::AlignCenter | Qt::TextShowMnemonic);
+                if (!styleHint(QStyle::SH_UnderlineShortcut, opt, w)) {
                     alignment |= Qt::TextHideMnemonic;
+                }
 
                 QPalette pal = gb->palette;
                 if (gb->textColor.isValid())
@@ -3053,9 +3060,14 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         }
         return;
 
+    case PE_FrameGroupBox:
+        if (rule.nativeBorder())
+            break;
+        rule.drawBorder(p, opt->rect);
+        return;
+
     case PE_FrameTabBarBase:
     case PE_FrameTabWidget:
-    case PE_FrameGroupBox:
         if (rule.nativeBorder())
             break;
         rule.drawBorder(p, rule.borderRect(opt->rect));
