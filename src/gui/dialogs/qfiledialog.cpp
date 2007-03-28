@@ -327,13 +327,12 @@ static const qint32 QFileDialogMagic = 0xbe;
 QByteArray QFileDialog::saveState() const
 {
     Q_D(const QFileDialog);
-    int version = 2;
+    int version = 3;
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
 
     stream << qint32(QFileDialogMagic);
     stream << qint32(version);
-    stream << saveGeometry();
     stream << d->qFileDialogUi->splitter->saveState();
     stream << d->qFileDialogUi->sidebar->urls();
     stream << history();
@@ -354,12 +353,11 @@ QByteArray QFileDialog::saveState() const
 bool QFileDialog::restoreState(const QByteArray &state)
 {
     Q_D(QFileDialog);
-    int version = 2;
+    int version = 3;
     QByteArray sd = state;
     QDataStream stream(&sd, QIODevice::ReadOnly);
     if (stream.atEnd())
         return true;
-    QByteArray geometry;
     QByteArray splitterState;
     QByteArray headerData;
     QList<QUrl> bookmarks;
@@ -373,15 +371,12 @@ bool QFileDialog::restoreState(const QByteArray &state)
     if (marker != QFileDialogMagic || v != version)
         return false;
 
-    stream >> geometry
-           >> splitterState
+    stream >> splitterState
            >> bookmarks
            >> history
            >> currentDirectory
            >> expanded
            >> headerData;
-    if (!restoreGeometry(geometry))
-        return false;
 
     if (expanded && !d->qFileDialogUi->splitter->restoreState(splitterState))
         return false;
