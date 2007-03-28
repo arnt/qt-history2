@@ -22,5 +22,6 @@
         <file>expected_datetime.txt</file>
         <file>expected_singleskip.txt</file>
         <file>expected_assert.txt</file>
+        <file>expected_fatal.txt</file>
     </qresource>
 </RCC>

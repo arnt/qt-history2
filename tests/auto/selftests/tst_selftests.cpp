@@ -64,6 +64,7 @@ void tst_Selftests::runSubTest_data()
     QTest::newRow("datetime") << "datetime";
     QTest::newRow("singleskip") << "singleskip";
     QTest::newRow("assert") << "assert";
+    QTest::newRow("fatal") << "fatal";
 }
 
 void tst_Selftests::runSubTest()
@@ -118,8 +119,6 @@ void tst_Selftests::runSubTest()
 void tst_Selftests::initTestCase()
 {
     m_checkXMLBlacklist.append("crashes"); // This test crashes
-    m_checkXMLBlacklist.append("fetchbogus"); // This test asserts
-    m_checkXMLBlacklist.append("assert"); // This test asserts as well.
 }
 
 void tst_Selftests::checkXML() const

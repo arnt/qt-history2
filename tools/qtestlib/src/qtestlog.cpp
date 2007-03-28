@@ -123,6 +123,13 @@ namespace QTest {
             break;
         case QtFatalMsg:
             QTest::testLogger->addMessage(QAbstractTestLogger::QFatal, msg);
+            /* Right now, we're inside the custom message handler and we're
+             * being qt_message_output in qglobal.cpp. After we return from
+             * this function, it will proceed with calling exit() and abort()
+             * and hence crash. Therefore, we call these logging functions such
+             * that we wrap up nicely, and in particular produce well-formed XML. */
+            QTestLog::leaveTestFunction();
+            QTestLog::stopLogging();
             break;
         }
     }
