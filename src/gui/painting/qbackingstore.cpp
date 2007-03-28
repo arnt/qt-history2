@@ -926,6 +926,10 @@ void QWidgetBackingStore::releaseBuffer()
 {
     if (windowSurface)
         windowSurface->setGeometry(QRect());
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    for (int i = 0; i < subSurfaces.size(); ++i)
+        subSurfaces.at(i)->setGeometry(QRect());
+#endif
 }
 #elif defined(Q_WS_WIN)
 void QWidgetBackingStore::releaseBuffer()
