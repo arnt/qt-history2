@@ -573,7 +573,9 @@ public:
                  bool antialiased,
                  const QList<QFontDatabase::WritingSystem> &writingSystems = QList<QFontDatabase::WritingSystem>());
     void addQPF2File(const QByteArray &file);
+#ifndef QT_NO_FREETYPE
     QStringList addTTFile(const QByteArray &file, const QByteArray &fontData = QByteArray());
+#endif
 
     QDataStream *stream;
     QStringList fallbackFamilies;
