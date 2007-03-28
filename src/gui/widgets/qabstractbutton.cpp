@@ -1066,8 +1066,10 @@ void QAbstractButton::mouseReleaseEvent(QMouseEvent *e)
         return;
     }
 
-    if (!d->down)
+    if (!d->down) {
+        e->ignore();
         return;
+    }
 
     if (hitButton(e->pos())) {
         d->repeatTimer.stop();
