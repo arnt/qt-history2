@@ -2569,7 +2569,7 @@ void tst_QAccessibility::mdiAreaTest()
         } else {
             QVERIFY(destination);
             QCOMPARE(index, i + 2);
-            QCOMPARE(destination->object(), subWindows.at(i + 1));
+            QCOMPARE(destination->object(), (QObject*)subWindows.at(i + 1));
             delete destination;
         }
     }
@@ -2584,7 +2584,7 @@ void tst_QAccessibility::mdiAreaTest()
         } else {
             QVERIFY(destination);
             QCOMPARE(index, i - 1);
-            QCOMPARE(destination->object(), subWindows.at(i - 2));
+            QCOMPARE(destination->object(), (QObject*)subWindows.at(i - 2));
             delete destination;
         }
     }
@@ -2666,15 +2666,15 @@ void tst_QAccessibility::mdiSubWindowTest()
     QAccessibleInterface *destination = 0;
     QCOMPARE(interface->navigate(QAccessible::Child, 1, &destination), 1);
     QVERIFY(destination);
-    QCOMPARE(destination->object(), testWindow->widget());
+    QCOMPARE(destination->object(), (QObject*)testWindow->widget());
     delete destination;
     QCOMPARE(interface->navigate(QAccessible::Left, 0, &destination), 0);
     QVERIFY(destination);
-    QCOMPARE(destination->object(), subWindows.at(2));
+    QCOMPARE(destination->object(), (QObject*)subWindows.at(2));
     delete destination;
     QCOMPARE(interface->navigate(QAccessible::Right, 0, &destination), 0);
     QVERIFY(destination);
-    QCOMPARE(destination->object(), subWindows.at(4));
+    QCOMPARE(destination->object(), (QObject*)subWindows.at(4));
     delete destination;
 #endif
 
@@ -2778,7 +2778,7 @@ void tst_QAccessibility::workspaceTest()
         } else {
             QVERIFY(destination);
             QCOMPARE(index, i + 2);
-            QCOMPARE(destination->object(), subWindows.at(i + 1));
+            QCOMPARE(destination->object(), (QObject*)subWindows.at(i + 1));
             delete destination;
         }
     }
@@ -2793,7 +2793,7 @@ void tst_QAccessibility::workspaceTest()
         } else {
             QVERIFY(destination);
             QCOMPARE(index, i - 1);
-            QCOMPARE(destination->object(), subWindows.at(i - 2));
+            QCOMPARE(destination->object(), (QObject*)subWindows.at(i - 2));
             delete destination;
         }
     }
@@ -3086,7 +3086,7 @@ void tst_QAccessibility::abstractScrollAreaTest()
     QVERIFY(horizontalScrollBarIndex != -1);
     QCOMPARE(interface->navigate(QAccessible::Down, viewportIndex, &target), horizontalScrollBarIndex);
     QVERIFY(target);
-    QCOMPARE(target->object(), horizontalScrollBar);
+    QCOMPARE(target->object(), (QObject*)horizontalScrollBar);
     delete target;
     target = 0;
 
@@ -3095,7 +3095,7 @@ void tst_QAccessibility::abstractScrollAreaTest()
     QVERIFY(firstRightLabelIndex != -1);
     QCOMPARE(interface->navigate(QAccessible::Right, horizontalScrollBarIndex, &target), firstRightLabelIndex);
     QVERIFY(target);
-    QCOMPARE(target->object(), firstRightLabel);
+    QCOMPARE(target->object(), (QObject*)firstRightLabel);
     delete target;
     target = 0;
 
@@ -3104,7 +3104,7 @@ void tst_QAccessibility::abstractScrollAreaTest()
     QVERIFY(secondRightLabelIndex != -1);
     QCOMPARE(interface->navigate(QAccessible::Right, firstRightLabelIndex, &target), secondRightLabelIndex);
     QVERIFY(target);
-    QCOMPARE(target->object(), secondRightLabel);
+    QCOMPARE(target->object(), (QObject*)secondRightLabel);
     delete target;
     target = 0;
 
@@ -3113,7 +3113,7 @@ void tst_QAccessibility::abstractScrollAreaTest()
     QVERIFY(cornerWidgetIndex != -1);
     QCOMPARE(interface->navigate(QAccessible::Right, secondRightLabelIndex, &target), cornerWidgetIndex);
     QVERIFY(target);
-    QCOMPARE(target->object(), cornerWidget);
+    QCOMPARE(target->object(), (QObject*)cornerWidget);
     delete target;
     target = 0;
 
@@ -3127,7 +3127,7 @@ void tst_QAccessibility::abstractScrollAreaTest()
     QVERIFY(secondBottomLabelIndex != -1);
     QCOMPARE(interface->navigate(QAccessible::Up, cornerWidgetIndex, &target), secondBottomLabelIndex);
     QVERIFY(target);
-    QCOMPARE(target->object(), secondBottomLabel);
+    QCOMPARE(target->object(), (QObject*)secondBottomLabel);
     delete target;
     target = 0;
 
@@ -3136,7 +3136,7 @@ void tst_QAccessibility::abstractScrollAreaTest()
     QVERIFY(firstBottomLabelIndex != -1);
     QCOMPARE(interface->navigate(QAccessible::Up, secondBottomLabelIndex, &target), firstBottomLabelIndex);
     QVERIFY(target);
-    QCOMPARE(target->object(), firstBottomLabel);
+    QCOMPARE(target->object(), (QObject*)firstBottomLabel);
     delete target;
     target = 0;
 
@@ -3145,7 +3145,7 @@ void tst_QAccessibility::abstractScrollAreaTest()
     QVERIFY(verticalScrollBarIndex != -1);
     QCOMPARE(interface->navigate(QAccessible::Up, firstBottomLabelIndex, &target), verticalScrollBarIndex);
     QVERIFY(target);
-    QCOMPARE(target->object(), verticalScrollBar);
+    QCOMPARE(target->object(), (QObject*)verticalScrollBar);
     delete target;
     target = 0;
 
@@ -3154,7 +3154,7 @@ void tst_QAccessibility::abstractScrollAreaTest()
     QVERIFY(secondTopLabelIndex != -1);
     QCOMPARE(interface->navigate(QAccessible::Up, verticalScrollBarIndex, &target), secondTopLabelIndex);
     QVERIFY(target);
-    QCOMPARE(target->object(), secondTopLabel);
+    QCOMPARE(target->object(), (QObject*)secondTopLabel);
     delete target;
     target = 0;
 
@@ -3163,7 +3163,7 @@ void tst_QAccessibility::abstractScrollAreaTest()
     QVERIFY(firstTopLabelIndex != -1);
     QCOMPARE(interface->navigate(QAccessible::Up, secondTopLabelIndex, &target), firstTopLabelIndex);
     QVERIFY(target);
-    QCOMPARE(target->object(), firstTopLabel);
+    QCOMPARE(target->object(), (QObject*)firstTopLabel);
     delete target;
     target = 0;
 
@@ -3174,21 +3174,21 @@ void tst_QAccessibility::abstractScrollAreaTest()
     // firstTopLabel -> Left -> viewport
     QCOMPARE(interface->navigate(QAccessible::Left, firstTopLabelIndex, &target), viewportIndex);
     QVERIFY(target);
-    QCOMPARE(target->object(), viewport);
+    QCOMPARE(target->object(), (QObject*)viewport);
     delete target;
     target = 0;
 
     // firstRightLabel -> Left -> horizontalScrollBar
     QCOMPARE(interface->navigate(QAccessible::Left, firstRightLabelIndex, &target), horizontalScrollBarIndex);
     QVERIFY(target);
-    QCOMPARE(target->object(), horizontalScrollBar);
+    QCOMPARE(target->object(), (QObject*)horizontalScrollBar);
     delete target;
     target = 0;
 
     // secondTopLabel -> Down -> verticalScrollBar
     QCOMPARE(interface->navigate(QAccessible::Down, secondTopLabelIndex, &target), verticalScrollBarIndex);
     QVERIFY(target);
-    QCOMPARE(target->object(), verticalScrollBar);
+    QCOMPARE(target->object(), (QObject*)verticalScrollBar);
     delete target;
     target = 0;
 
@@ -3457,7 +3457,7 @@ void tst_QAccessibility::calendarWidgetTest()
     QAccessibleInterface *navigationBarInterface = 0;
     QCOMPARE(interface->navigate(QAccessible::Child, 1, &navigationBarInterface), 1);
     QVERIFY(navigationBarInterface);
-    QCOMPARE(navigationBarInterface->object(), navigationBar);
+    QCOMPARE(navigationBarInterface->object(), (QObject*)navigationBar);
     delete navigationBarInterface;
     navigationBarInterface = 0;
 
@@ -3465,7 +3465,7 @@ void tst_QAccessibility::calendarWidgetTest()
     QAccessibleInterface *calendarViewInterface = 0;
     QCOMPARE(interface->navigate(QAccessible::Child, 2, &calendarViewInterface), 2);
     QVERIFY(calendarViewInterface);
-    QCOMPARE(calendarViewInterface->object(), calendarView);
+    QCOMPARE(calendarViewInterface->object(), (QObject*)calendarView);
     delete calendarViewInterface;
     calendarViewInterface = 0;
 
@@ -3476,14 +3476,14 @@ void tst_QAccessibility::calendarWidgetTest()
     // Navigate from navigation bar -> view (Down).
     QCOMPARE(interface->navigate(QAccessible::Down, 1, &calendarViewInterface), 2);
     QVERIFY(calendarViewInterface);
-    QCOMPARE(calendarViewInterface->object(), calendarView);
+    QCOMPARE(calendarViewInterface->object(), (QObject*)calendarView);
     delete calendarViewInterface;
     calendarViewInterface = 0;
 
     // Navigate from view -> navigation bar (Up).
     QCOMPARE(interface->navigate(QAccessible::Up, 2, &navigationBarInterface), 1);
     QVERIFY(navigationBarInterface);
-    QCOMPARE(navigationBarInterface->object(), navigationBar);
+    QCOMPARE(navigationBarInterface->object(), (QObject*)navigationBar);
     delete navigationBarInterface;
     navigationBarInterface = 0;
 
