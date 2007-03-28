@@ -1722,12 +1722,15 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         }
 
         switch(ekind) {
+        case kEventMouseUp:
+            qt_button_down = 0;
+            //fall through
         case kEventMouseDragged:
         case kEventMouseMoved: {
             // If we are in popup mode, widget will point to the current popup no matter
             // where the mouse cursor is. In that case find out if the mouse cursor is
             // really over the popup in order to send correct enter / leave envents.
-            QWidget * const enterLeaveWidget = inPopupMode ?
+            QWidget * const enterLeaveWidget = (inPopupMode || ekind == kEventMouseUp) ?
                     QApplication::widgetAt(where.h, where.v) :  static_cast<QWidget*>(widget);
 
             if((QWidget *)qt_mouseover != enterLeaveWidget || inNonClientArea) {
@@ -1741,8 +1744,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 QApplicationPrivate::dispatchEnterLeave(enterLeaveWidget, qt_mouseover);
                 qt_mouseover = enterLeaveWidget;
             }
-            break;
-        }
+            break; }
         case kEventMouseDown: {
             if(button == Qt::LeftButton && !mac_context_timer && qt_mac_press_and_hold_context) {
                 remove_context_timer = false;
@@ -1754,11 +1756,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             qt_button_down = widget;
             WindowPartCode wpc = qt_mac_window_at(where.h, where.v, 0);
             qt_button_down_in_content = (wpc == inContent || wpc == inStructure);
-            break;
-        }
-        case kEventMouseUp:
-            qt_button_down = 0;
-            break;
+            break;  }
         }
 
         if(widget) {
