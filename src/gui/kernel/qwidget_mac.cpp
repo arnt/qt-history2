@@ -2042,8 +2042,15 @@ void QWidget::update(const QRect &r)
         if (testAttribute(Qt::WA_WState_InPaintEvent)) {
             QApplication::postEvent(this, new QUpdateLaterEvent(QRect(x, y, w, h)));
         } else {
-            HIRect r = CGRectMake(x, y, w, h);
-            HIViewSetNeedsDisplayInRect(qt_mac_hiview_for(this), &r, true);
+#ifdef MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+                HIRect r = CGRectMake(x, y, w, h);
+                HIViewSetNeedsDisplayInRect(qt_mac_hiview_for(this), &r, true);
+            } else
+#endif
+            {
+                update(QRegion(x, y, w, h));
+            }
         }
     }
 }
