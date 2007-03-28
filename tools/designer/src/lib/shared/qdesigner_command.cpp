@@ -228,27 +228,31 @@ void DeleteWidgetCommand::init(QWidget *widget)
     if (hasLayout(m_parentWidget)) {
         m_layoutType = LayoutInfo::layoutType(formWindow()->core(), m_parentWidget);
 
-        switch (m_layoutType) {
-            case LayoutInfo::VBox:
-                m_index = static_cast<QVBoxLayout*>(m_parentWidget->layout())->indexOf(m_widget);
-                break;
-            case LayoutInfo::HBox:
-                m_index = static_cast<QHBoxLayout*>(m_parentWidget->layout())->indexOf(m_widget);
-                break;
-            case LayoutInfo::Grid: {
-                m_index = 0;
-                while (QLayoutItem *item = m_parentWidget->layout()->itemAt(m_index)) {
-                    if (item->widget() == m_widget)
-                        break;
-                    ++m_index;
-                }
+        if (QSplitter *splitter = qobject_cast<QSplitter *>(m_parentWidget)) {
+            m_index = splitter->indexOf(widget);
+        } else {
+            switch (m_layoutType) {
+                case LayoutInfo::VBox:
+                    m_index = qobject_cast<QVBoxLayout*>(m_parentWidget->layout())->indexOf(m_widget);
+                    break;
+                case LayoutInfo::HBox:
+                    m_index = qobject_cast<QHBoxLayout*>(m_parentWidget->layout())->indexOf(m_widget);
+                    break;
+                case LayoutInfo::Grid: {
+                    m_index = 0;
+                    while (QLayoutItem *item = m_parentWidget->layout()->itemAt(m_index)) {
+                        if (item->widget() == m_widget)
+                            break;
+                        ++m_index;
+                    }
 
-                static_cast<QGridLayout*>(m_parentWidget->layout())->getItemPosition(m_index, &m_row, &m_col, &m_rowspan, &m_colspan);
-            } break;
+                    static_cast<QGridLayout*>(m_parentWidget->layout())->getItemPosition(m_index, &m_row, &m_col, &m_rowspan, &m_colspan);
+                } break;
 
-            default:
-                break;
-        } // end switch
+                default:
+                    break;
+            } // end switch
+        }
     }
 
     m_formItem = formWindow()->core()->metaDataBase()->item(formWindow());

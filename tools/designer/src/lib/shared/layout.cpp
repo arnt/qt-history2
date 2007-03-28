@@ -64,6 +64,8 @@ void insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget)
         QLayoutWidgetItem *item = new QLayoutWidgetItem(layoutWidget);
         item->addTo(box);
         static_cast<FriendlyBoxLayout*>(box)->insertItem(index, item);
+    } else if (QSplitter *splitter = qobject_cast<QSplitter *>(widget->parent())) {
+        splitter->insertWidget(index, widget);
     } else {
         box->insertWidget(index, widget);
     }
