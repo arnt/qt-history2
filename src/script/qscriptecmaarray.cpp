@@ -394,7 +394,7 @@ QScriptValueImpl Array::method_reverse(QScriptContextPrivate *context,
             QScript::Member imember;
             QScriptValueImpl ibase;
             QScriptValueImpl ival;
-            bool iok = self.resolve(iid, &imember, &ibase, QScriptValue::ResolveLocal);
+            bool iok = self.resolve(iid, &imember, &ibase, QScriptValue::ResolvePrototype);
             if (iok)
                 ibase.get(iid, &ival);
             else
@@ -403,7 +403,7 @@ QScriptValueImpl Array::method_reverse(QScriptContextPrivate *context,
             QScript::Member jmember;
             QScriptValueImpl jbase;
             QScriptValueImpl jval;
-            bool jok = self.resolve(jid, &jmember, &jbase, QScriptValue::ResolveLocal);
+            bool jok = self.resolve(jid, &jmember, &jbase, QScriptValue::ResolvePrototype);
             if (jok)
                 jbase.get(jid, &jval);
             else
@@ -411,15 +411,23 @@ QScriptValueImpl Array::method_reverse(QScriptContextPrivate *context,
 
             if (!jok) {
                 if (iok) {
-                    self.removeMember(imember);
+                    if (ibase.strictEqualTo(self))
+                        ibase.removeMember(imember);
                     self.setProperty(jid, ival);
                 }
             } else if (!iok) {
                 self.setProperty(iid, jval);
-                self.removeMember(jmember);
+                if (jbase.strictEqualTo(self))
+                    jbase.removeMember(jmember);
             } else {
-                self.put(imember, jval);
-                self.put(jmember, ival);
+                if (self.strictEqualTo(ibase))
+                    self.put(imember, jval);
+                else
+                    self.setProperty(iid, jval);
+                if (self.strictEqualTo(jbase))
+                    self.put(jmember, ival);
+                else
+                    self.setProperty(jid, ival);
             }
         }
     }
