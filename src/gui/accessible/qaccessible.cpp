@@ -119,7 +119,19 @@
     \value SetCursorPosition
     \value GetCursorPosition
 
+    \omitvalue ForegroundColor
+    \omitvalue BackgroundColor
+    
     \sa QAccessibleInterface::invokeMethod()
+*/
+
+/*!
+    \fn QSet<Method> QAccessibleInterface::supportedMethods()
+
+    Returns a QSet of \l{QAccessible::}{Method}s that are supported by this
+    accessible interface.
+
+    \sa QAccessible::Method invokeMethod()
 */
 
 /*!
@@ -170,40 +182,41 @@
     This enum type defines accessible event types.
 
     \value AcceleratorChanged
-    \value Alert
-    \value ContextHelpEnd
-    \value ContextHelpStart
-    \value DefaultActionChanged
-    \value DescriptionChanged
-    \value DialogEnd
-    \value DialogStart
-    \value DragDropEnd
-    \value DragDropStart
-    \value Focus
-    \value ForegroundChanged
-    \value HelpChanged
-    \value LocationChanged
-    \value MenuCommand
-    \value MenuEnd
-    \value MenuStart
-    \value NameChanged
-    \value ObjectCreated
-    \value ObjectDestroyed
-    \value ObjectHide
-    \value ObjectReorder
-    \value ObjectShow
-    \value ParentChanged
-    \value PopupMenuEnd
-    \value PopupMenuStart
-    \value ScrollingEnd
-    \value ScrollingStart
-    \value Selection
-    \value SelectionAdd
-    \value SelectionRemove
-    \value SelectionWithin
-    \value SoundPlayed
-    \value StateChanged
-    \value ValueChanged
+    \value Alert                 A system alert (e.g., a message from a QMessageBox)
+    \value ContextHelpEnd        Context help (QWhatsThis) for an object is finished.
+    \value ContextHelpStart      Context help (QWhatsThis) for an object is initiated.
+    \value DefaultActionChanged  The default QAccessible::Action for the accessible object changed
+    \value DescriptionChanged    The objects QAccessible::Description changed.
+    \value DialogEnd             A dialog (QDialog) is been hidden
+    \value DialogStart           A dialog (QDialog) has been set visible.
+    \value DragDropEnd           A Drag & Drop operation is about to finished.
+    \value DragDropStart         A Drag & Drop operation is about to be initiated.
+    \value Focus                 An object has gained keyboard focus.
+    \value ForegroundChanged     A window has been activated (i.e., a new window has gained focus on the desktop)
+    \value HelpChanged           The QAccessible::Help text property of an object has changed
+    \value LocationChanged       An objects location on the screen changed
+    \value MenuCommand           A menu item is triggered.
+    \value MenuEnd               A menu has been closed (Qt uses PopupMenuEnd for all menus)
+    \value MenuStart             A menu has been opened on the menubar (Qt uses PopupMenuStart for all menus)
+    \value NameChanged           The QAccessible::Name property of an object has changed
+    \value ObjectCreated         A new object is created.
+    \value ObjectDestroyed       An object is deleted.
+    \value ObjectHide            An object is hidden (i.e., with QWidget::hide()). Any children the object that is hidden has do not send this event.
+                                 It is not send when an object is hidden as it is being obcured by others.
+    \value ObjectReorder         A layout or item view  has added, removed, or moved an object (Qt does not use this event).
+    \value ObjectShow            An object is displayed (i.e., with QWidget::show()).
+    \value ParentChanged         An objects parent object changed.
+    \value PopupMenuEnd          A popup menu has closed.
+    \value PopupMenuStart        A popupmenu has opened.
+    \value ScrollingEnd          A scrollbar scroll operation has ended (the mouse has released the slider handle)
+    \value ScrollingStart        A scrollbar scroll operation is about to start (i.e., the mouse has pressed on the slider handle)
+    \value Selection             The selection has changed in a menu or item view.
+    \value SelectionAdd          An item has been added to the selection in an item view.
+    \value SelectionRemove       An item has been removed from an item view selection.
+    \value SelectionWithin       Several changes to a selection has occurred in an item view.
+    \value SoundPlayed           A sound has been played by an object
+    \value StateChanged          The QAccessible::State of an object has changed.
+    \value ValueChanged          The QAccessible::Value of an object has changed.
 */
 
 /*!
@@ -399,6 +412,8 @@ static void qAccessibleCleanup()
 /*!
     \typedef QAccessible::UpdateHandler
 
+    \internal
+
     A function pointer type. Use a function with this prototype to install
     your own update function.
 
@@ -407,6 +422,8 @@ static void qAccessibleCleanup()
 
 /*!
     \typedef QAccessible::RootObjectHandler
+
+    \internal
 
     A function pointer type. Use a function with this prototype to install
     your own root object handler.
@@ -441,6 +458,8 @@ void QAccessible::removeFactory(InterfaceFactory factory)
 }
 
 /*!
+    \internal
+
     Installs the given \a handler as the function to be used by
     updateAccessibility(), and returns the previously installed
     handler.
@@ -534,6 +553,8 @@ bool QAccessible::isActive()
 }
 
 /*!
+    \internal
+
     \fn void QAccessible::setRootObject(QObject *object)
 
     Sets the root accessible object of this application to \a object.
@@ -904,6 +925,36 @@ const QAccessibleInterface *other, int otherChild) const
     \a action can be a predefined or a custom action.
 
     \sa userActionCount(), actionText()
+*/
+
+/*!
+    \fn QColor QAccessibleInterface::backgroundColor()
+    \internal
+*/
+
+/*!
+    \fn QAccessibleEditableTextInterface *QAccessibleInterface::editableTextInterface()
+    \internal
+*/
+
+/*!
+    \fn QColor QAccessibleInterface::foregroundColor()
+    \internal
+*/
+
+/*!
+    \fn QAccessibleTextInterface *QAccessibleInterface::textInterface()
+    \internal
+*/
+
+/*!
+    \fn QAccessibleValueInterface *QAccessibleInterface::valueInterface()
+    \internal
+*/
+
+/*!
+    \fn QAccessibleTableInterface *QAccessibleInterface::tableInterface()
+    \internal
 */
 
 /*!

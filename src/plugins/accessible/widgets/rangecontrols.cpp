@@ -220,7 +220,7 @@ QVariant QAccessibleAbstractSpinBox::invokeMethodEx(Method method, int child, co
 */
 
 /*!
-    \enum QAccessibleSpinBox::SpinBoxElements
+    \enum QAccessibleAbstractSpinBox::SpinBoxElements
 
     This enum identifies the components of the spin box.
 

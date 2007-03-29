@@ -18,6 +18,7 @@
 /*!
     \namespace QAccessible2
     \ingroup accessibility
+    \internal
     \preliminary
 
     \brief The QAccessible2 namespace defines constants relating to
@@ -30,6 +31,7 @@
     \class QAccessibleTextInterface
 
     \ingroup accessibility
+    \internal
     \preliminary
 
     \brief The QAccessibleTextInterface class implements support for
@@ -41,6 +43,7 @@
 /*!
     \class QAccessibleEditableTextInterface
     \ingroup accessibility
+    \internal
     \preliminary
 
     \brief The QAccessibleEditableTextInterface class implements support for
@@ -52,6 +55,7 @@
 /*!
     \class QAccessibleSimpleEditableTextInterface
     \ingroup accessibility
+    \internal
     \preliminary
 
     \brief The QAccessibleSimpleEditableTextInterface class is a convenience class for
@@ -63,6 +67,7 @@
 /*!
     \class QAccessibleValueInterface
     \ingroup accessibility
+    \internal
     \preliminary
 
     \brief The QAccessibleValueInterface class implements support for
