@@ -1190,8 +1190,12 @@ void FormWindow::handleArrowKeyEvent(int key, bool modifier)
                 break;
         }
 
-        if (!modifier)
-            geom.moveTopLeft(designerGrid().snapPoint(geom.topLeft()));
+        if (!modifier) {
+            if (key == Qt::Key_Left || key == Qt::Key_Right)
+                geom.moveLeft(designerGrid().snapPoint(geom.topLeft()).x());
+            else
+                geom.moveTop(designerGrid().snapPoint(geom.topLeft()).y());
+        }
 
         SetPropertyCommand *cmd = 0;
 
