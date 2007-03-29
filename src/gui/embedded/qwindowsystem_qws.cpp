@@ -2165,7 +2165,7 @@ void QWSServer::setMouseHandler(QWSMouseHandler* mh)
 
 /*!
   \internal
-
+  \obsolete
   Caller owns data in list, and must delete contents
 */
 QList<QWSInternalWindowInfo*> * QWSServer::windowList()
@@ -2176,27 +2176,8 @@ QList<QWSInternalWindowInfo*> * QWSServer::windowList()
         QWSInternalWindowInfo * qwi=new QWSInternalWindowInfo();
         qwi->winid=window->winId();
         qwi->clientid=window->client()->clientId();
-#ifndef QT_NO_QWS_PROPERTIES
-        const char * name;
-        int len;
-        qwsServerPrivate->propertyManager.getProperty(qwi->winid,
-                                               QT_QWS_PROPERTY_WINDOWNAME,
-                                               name,len);
-        if(name) {
-            char * buf=(char *)malloc(len+2);
-            strncpy(buf,name,len);
-            buf[len]=0;
-            qwi->name = QLatin1String(buf);
-            free(buf);
-        } else {
-            qwi->name = QLatin1String("unknown");
-        }
-#else
-        qwi->name = QLatin1String("unknown");
-#endif
         ret->append(qwi);
     }
-
     return ret;
 }
 
