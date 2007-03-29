@@ -205,8 +205,11 @@ licenseRemove["opensource"] = [ new RegExp("^README-QT.TXT"),
                                 new RegExp("^tools/designer/src/plugins/activeqt"),
                                 new RegExp("^src/activeqt") ];
 
-licenseRemove["preview"] = [ new RegExp("^bin/qtusagereporter") ];
-licenseRemove["snapshots"] = [ new RegExp("^bin/qtusagereporter") ];
+licenseRemove["preview-opensource"] = licenseRemove["opensource"];
+licenseRemove["preview-commercial"] = licenseRemove["commercial"];
+
+licenseRemove["snapshot-opensource"] = licenseRemove["opensource"];
+licenseRemove["snapshot-commercial"] = licenseRemove["commercial"];
 
 var binaryFileList = [ new RegExp("examples/tools/codecs/encodedfiles/utf-16.txt"),
                        new RegExp("examples/tools/codecs/encodedfiles/utf-16be.txt"),
@@ -303,12 +306,9 @@ for (var p in validPlatforms) {
 
             // purge platform and license files
             print("Purging platform and license specific files...");
-            var platformPurge = [].concat(platformRemove[platform]).concat(licenseRemove[license]);
-            if (options["snapshots"])
-                platformPurge = platformPurge.concat(licenseRemove["snapshots"]);
-            if (options["preview"])
-                platformPurge = platformPurge.concat(licenseRemove["preview"]);
-            purgeFiles(platDir, getFileList(platDir),plaformPurge);
+            purgeFiles(platDir, getFileList(platDir),[]
+                       .concat(platformRemove[platform])
+                       .concat(licenseRemove[license]));
 
             checkLicense(platDir, getFileList(platDir), "final");
 
