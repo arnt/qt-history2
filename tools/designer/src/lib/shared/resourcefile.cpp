@@ -629,10 +629,11 @@ QModelIndex ResourceModel::prefixIndex(const QModelIndex &sel_idx) const
 
 QModelIndex ResourceModel::addNewPrefix()
 {
-    int i = 0;
-    QString prefix = tr("/new/prefix1");
-    while (m_resource_file.contains(prefix))
-        prefix = tr("/new/prefix%1").arg((++i)+1);
+    const QString format = QLatin1String("/new/prefix%1");
+    int i = 1;
+    QString prefix = format.arg(i);
+    for ( ; m_resource_file.contains(prefix); i++)
+        prefix = format.arg(i);
 
     i = rowCount(QModelIndex());
     beginInsertRows(QModelIndex(), i, i);

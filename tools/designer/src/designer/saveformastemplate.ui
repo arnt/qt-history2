@@ -22,7 +22,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Save Form As Template...</string>
+   <string>Save Form As Template</string>
   </property>
   <layout class="QVBoxLayout" >
    <property name="margin" >

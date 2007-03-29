@@ -2002,8 +2002,8 @@ void ChangeListContentsCommand::changeContents(QComboBox *comboBox,
 
 // ---- AddActionCommand ----
 
-AddActionCommand::AddActionCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QLatin1String("Add action"), formWindow)
+AddActionCommand::AddActionCommand(QDesignerFormWindowInterface *formWindow) :
+    QDesignerFormWindowCommand(QApplication::translate("Command", "Add action"), formWindow)
 {
     m_action = 0;
 }
@@ -2029,7 +2029,7 @@ void AddActionCommand::undo()
 // ---- RemoveActionCommand ----
 
 RemoveActionCommand::RemoveActionCommand(QDesignerFormWindowInterface *formWindow) :
-    QDesignerFormWindowCommand(QLatin1String("Remove action"), formWindow),
+    QDesignerFormWindowCommand(QApplication::translate("Command", "Remove action"), formWindow),
     m_action(0)
 {
 }

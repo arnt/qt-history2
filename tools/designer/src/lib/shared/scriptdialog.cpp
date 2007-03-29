@@ -37,7 +37,7 @@ namespace qdesigner_internal {
 
         QVBoxLayout *vboxLayout = new QVBoxLayout(this);
 
-        const QString textHelp = QLatin1String("\
+        const QString textHelp = tr("\
 <html>Enter a Qt Script snippet to be executed while loading the form.<br>\
 The widget and its children are accessible via the \
 variables <i>widget</i> and <i>childWidgets</i>, respectively.");

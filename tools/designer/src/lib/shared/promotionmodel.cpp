@@ -82,8 +82,10 @@ namespace {
         // referenced
         rc[ReferencedColumn]->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
         rc[ClassNameColumn]->setData(userData);
-        if (!referenced)
-            rc[ReferencedColumn]->setText(QLatin1String("Not used"));
+        if (!referenced) {
+            static const QString notUsed = QObject::tr("Not used");
+            rc[ReferencedColumn]->setText(notUsed);
+        }
         return rc;
     }
 }
@@ -98,10 +100,10 @@ namespace qdesigner_internal {
 
     void PromotionModel::initializeHeaders() {
         setColumnCount(NumColumns);
-        QStringList horizontalLabels(QLatin1String("Name"));
-        horizontalLabels += QLatin1String("Header file");
-        horizontalLabels += QLatin1String("Global include");
-        horizontalLabels += QLatin1String("Usage");
+        QStringList horizontalLabels(tr("Name"));
+        horizontalLabels += tr("Header file");
+        horizontalLabels += tr("Global include");
+        horizontalLabels += tr("Usage");
         setHorizontalHeaderLabels (horizontalLabels);
     }
 

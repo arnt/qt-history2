@@ -361,7 +361,7 @@ OldSignalSlotDialog::OldSignalSlotDialog(QDesignerFormEditorInterface *core, QWi
     m_source(source),
     m_destination(destination),
     m_core(core),
-    m_show_all_checkbox(new QCheckBox(tr("Show all signals and slots")))
+    m_show_all_checkbox(new QCheckBox(QObject::tr("Show all signals and slots")))
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_signal_list->setTextElideMode (Qt::ElideMiddle);
@@ -409,7 +409,7 @@ OldSignalSlotDialog::OldSignalSlotDialog(QDesignerFormEditorInterface *core, QWi
     l1->addWidget(m_show_all_checkbox);
     l1->addWidget(m_buttonBox);
 
-    setWindowTitle(tr("Configure Connection"));
+    setWindowTitle(QObject::tr("Configure Connection"));
 
     populateSignalList();
 }

@@ -82,11 +82,11 @@ ObjectNameDialog::ObjectNameDialog(QWidget *parent, const QString &oldName)
       m_editor( new qdesigner_internal::TextPropertyEditor(qdesigner_internal::TextPropertyEditor::EmbeddingNone,
                                                            qdesigner_internal::ValidationObjectName, this))
 {
-    setWindowTitle(tr("Change Object Name"));
+    setWindowTitle(QObject::tr("Change Object Name"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     QVBoxLayout *vboxLayout = new QVBoxLayout(this);
-    vboxLayout->addWidget(new QLabel(tr("Object Name")));
+    vboxLayout->addWidget(new QLabel(QObject::tr("Object Name")));
 
     m_editor->setText(oldName);
     m_editor->selectAll();

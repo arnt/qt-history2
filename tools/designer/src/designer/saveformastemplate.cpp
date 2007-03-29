@@ -61,7 +61,7 @@ void SaveFormAsTemplate::accept()
 
     if (file.exists()) {
         QMessageBox msgBox(QMessageBox::Information, tr("Template Exists"),
-                        tr("A template with the name %1 already exits\n"
+                        tr("A template with the name %1 already exists.\n"
                            "Do you want overwrite the template?").arg(name), QMessageBox::Cancel, m_formWindow);
         msgBox.setDefaultButton(QMessageBox::Cancel);
         QPushButton *overwriteButton = msgBox.addButton(tr("Overwrite Template"), QMessageBox::AcceptRole);

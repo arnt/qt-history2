@@ -110,6 +110,7 @@ QVariant QPropertyEditorModel::data(const QModelIndex &index, int role) const
     if (!privateData(index))
         return QVariant();
 
+    static const QString noname = tr("<noname>");
     const IProperty *o = privateData(index);
     switch (index.column()) {  // ### cleanup
         case 0:
@@ -118,7 +119,7 @@ QVariant QPropertyEditorModel::data(const QModelIndex &index, int role) const
                 case Qt::DisplayRole:
                 case Qt::ToolTipRole:
                     return o->propertyName().isEmpty()
-                        ? QLatin1String("<noname>")
+                        ? noname
                         : o->propertyName();
                 default:
                     break;
@@ -150,8 +151,8 @@ QVariant QPropertyEditorModel::data(const QModelIndex &index, int role) const
 QString QPropertyEditorModel::columnText(int col) const
 {
     switch (col) {
-        case 0: return QLatin1String("Property");
-        case 1: return QLatin1String("Value");
+        case 0: return tr("Property");
+        case 1: return tr("Value");
         default: return QString();
     }
 }
