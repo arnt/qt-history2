@@ -66,6 +66,7 @@ public:
 
 public slots:
     void setFilter(const QString &filter);
+    void mainContainerChanged();
 
 private slots:
     void slotItemChanged(QListWidgetItem *item);

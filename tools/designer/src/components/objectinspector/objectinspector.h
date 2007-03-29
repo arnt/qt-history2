@@ -47,6 +47,9 @@ public:
 
     QWidget *widgetAt(const QPoint &global_mouse_pos);
 
+public slots:
+    virtual void mainContainerChanged();
+
 private slots:
     void slotSelectionChanged();
     void slotPopupContextMenu(const QPoint &pos);

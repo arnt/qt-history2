@@ -62,6 +62,9 @@ public:
     virtual void clearSelection() = 0;
 
     virtual QWidget *widgetAt(const QPoint &global_mouse_pos) = 0;
+
+public slots:
+    virtual void mainContainerChanged();
 };
 
 }  // namespace qdesigner_internal

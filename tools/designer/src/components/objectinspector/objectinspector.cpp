@@ -501,4 +501,11 @@ QWidget *ObjectInspector::widgetAt(const QPoint &global_mouse_pos)
     QWidget *rc = qobject_cast<QWidget *>(o);
     return rc;
 }
+
+void ObjectInspector::mainContainerChanged()
+{
+    // Invalidate references to objects kept in items
+    if (sender() == m_formWindow)
+        setFormWindow(0);
+}
 }

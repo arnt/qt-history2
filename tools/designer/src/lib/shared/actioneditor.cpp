@@ -558,6 +558,12 @@ void  ActionEditor::resourceImageDropped(const ResourceMimeData &data, QAction *
     fw->commandHistory()->push(setIconPropertyCommand(icon , action, fw));
 }
 
+void ActionEditor::mainContainerChanged()
+{
+    // Invalidate references to objects kept in model
+    if (sender() == formWindow())
+        setFormWindow(0);
+}
 } // namespace qdesigner_internal
 
 #include "actioneditor.moc"

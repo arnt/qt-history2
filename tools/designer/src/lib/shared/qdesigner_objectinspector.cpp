@@ -20,6 +20,10 @@ QDesignerObjectInspector::QDesignerObjectInspector(QWidget *parent, Qt::WindowFl
 {
 }
 
+void QDesignerObjectInspector::mainContainerChanged()
+{
+}
+
 void Selection::clear()
 {
     m_cursorSelection.clear();
@@ -39,5 +43,4 @@ Selection::ObjectList Selection::selection() const
     }
     return rc;
 }
-
 }

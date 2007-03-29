@@ -29,6 +29,7 @@ TRANSLATOR qdesigner_internal::FormWindowManager
 #include <layoutinfo_p.h>
 #include <qlayout_widget_p.h>
 #include <qdesigner_objectinspector_p.h>
+#include <actioneditor_p.h>
 
 #include <QtDesigner/QDesignerWidgetFactoryInterface>
 #include <QtDesigner/QExtensionManager>
@@ -203,6 +204,11 @@ void FormWindowManager::addFormWindow(QDesignerFormWindowInterface *w)
     connect(formWindow, SIGNAL(selectionChanged()), this, SLOT(slotUpdateActions()));
     connect(formWindow->commandHistory(), SIGNAL(indexChanged(int)), this, SLOT(slotUpdateActions()));
     connect(formWindow, SIGNAL(toolChanged(int)), this, SLOT(slotUpdateActions()));
+
+    if (ActionEditor *ae = qobject_cast<ActionEditor *>(m_core->actionEditor()))
+        connect(w, SIGNAL(mainContainerChanged(QWidget*)), ae, SLOT(mainContainerChanged()));
+    if (QDesignerObjectInspector *oi = qobject_cast<QDesignerObjectInspector *>(m_core->objectInspector()))
+        connect(w, SIGNAL(mainContainerChanged(QWidget*)), oi, SLOT(mainContainerChanged()));
 
     m_formWindows.append(formWindow);
     emit formWindowAdded(formWindow);
