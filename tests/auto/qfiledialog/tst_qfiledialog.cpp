@@ -255,7 +255,7 @@ void tst_QFiledialog::labelText()
 {
     QFileDialog fd;
     QCOMPARE(fd.labelText(QFileDialog::LookIn), QString("Look in:"));
-    QCOMPARE(fd.labelText(QFileDialog::FileName), QString("Save &as:"));
+    QCOMPARE(fd.labelText(QFileDialog::FileName), QString("File &name:"));
     QCOMPARE(fd.labelText(QFileDialog::FileType), QString("Files of type:"));
     QCOMPARE(fd.labelText(QFileDialog::Accept), QString("&Open"));
     QCOMPARE(fd.labelText(QFileDialog::Reject), QString("Cancel"));
@@ -283,7 +283,11 @@ void tst_QFiledialog::resolveSymlinks()
     QCOMPARE(fd.resolveSymlinks(), true);
 #endif
     fd.setResolveSymlinks(true);
+#ifdef Q_OS_WIN
     QCOMPARE(fd.resolveSymlinks(), true);
+#else
+    QCOMPARE(fd.resolveSymlinks(), false);
+#endif
 
     fd.setResolveSymlinks(false);
     QCOMPARE(fd.resolveSymlinks(), false);
@@ -316,7 +320,7 @@ void tst_QFiledialog::viewMode()
     QCOMPARE(treeButton.count(), 1);
 
     // default value
-    QCOMPARE(fd.viewMode(), QFileDialog::Detail);
+    QCOMPARE(fd.viewMode(), QFileDialog::List);
 
     // detail
     fd.setViewMode(QFileDialog::ViewMode(QFileDialog::Detail));
