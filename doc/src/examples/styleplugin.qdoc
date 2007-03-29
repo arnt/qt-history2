@@ -101,14 +101,10 @@
     document}, we have other examples and articles that concern
     plugins.
 
-    In the Qt Quarterly article \l{Writing a Qt Image Plugin}, you can
-    see a more complex example of a plugin that extend Qt. In the
-    article the implementation of a plugin that provides Qt with the
-    possibility to support a custom image format is examined
-    step-by-step. In the \l{Echo Plugin Example}{echo plugin example}
-    we show how to implement plugins that extends Qt applications
-    rather than Qt itself, which is the case with the style plugin of
-    this example. The \l{Plug & Paint Example}{plug & paint} example
-    shows how to implement a static plugin as well as being a more
-    involved example on plugins that extend applications.
+    In the \l{Echo Plugin Example}{echo plugin example} we show how to
+    implement plugins that extends Qt applications rather than Qt
+    itself, which is the case with the style plugin of this example.
+    The \l{Plug & Paint Example}{plug & paint} example shows how to
+    implement a static plugin as well as being a more involved example
+    on plugins that extend applications.
 */
