@@ -293,7 +293,7 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
     TMM::ConstIterator m = mm.begin();
     while ( m != mm.end() ) {
         MetaTranslatorMessage msg = m.key();
-        QString location = msg.fileName() + QLatin1String(msg.context()) + msg.lineNumber();
+        QString location = msg.fileName() + QLatin1String(msg.context()) + QString::number(msg.lineNumber());
         mtSortByFileName.insertMulti(location, msg);
         ++m;
     }
