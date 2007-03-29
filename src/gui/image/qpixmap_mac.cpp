@@ -476,7 +476,7 @@ QPixmapData::macGetAlphaChannel(QPixmap *pix, bool asMask) const
         srow = sptr + (y * (sbpr/4));
         if(asMask) {
             for(int x = 0; x < w; ++x) {
-                if(*(srow+x) & RGB_MASK)
+                if(*(srow+x) & qRgba(0, 0, 0, 255))
                     *(drow+x) = 0x00000000;
                 else
                     *(drow+x) = 0xFFFFFFFF;
@@ -711,8 +711,7 @@ static bool resolveOpenGLSymbols()
         ptrglPixelStorei = (PtrglPixelStorei)(library.resolve("glPixelStorei"));
         ptrglReadBuffer = (PtrglReadBuffer)(library.resolve("glReadBuffer"));
         ptrglReadPixels = (PtrglReadPixels)(library.resolve("glReadPixels"));
-     }
-
+    }
     return ptrCGLChoosePixelFormat && ptrCGLClearDrawable && ptrCGLCreateContext
         && ptrCGLDestroyContext && ptrCGLDestroyPixelFormat && ptrCGLSetCurrentContext
         && ptrCGLSetFullScreen && ptrglFinish && ptrglPixelStorei
@@ -720,7 +719,7 @@ static bool resolveOpenGLSymbols()
 }
 
 // Inverts the given pixmap in the y direction.
-static void qt_mac_swizzlePixmap(void * data, int rowBytes, int height)
+static void qt_mac_flipPixmap(void *data, int rowBytes, int height)
 {
     int bottom = height - 1;
     void *base = data;
@@ -748,13 +747,12 @@ static void qt_mac_grabDisplayRect(CGDirectDisplayID display, const QRect &displ
     if (display == kCGNullDirectDisplay)
         return;
 
-    CGLPixelFormatAttribute attribs[] =
-    {
+    CGLPixelFormatAttribute attribs[] = {
         kCGLPFAFullScreen,
         kCGLPFADisplayMask,
         (CGLPixelFormatAttribute)0,    /* Display mask bit goes here */
         (CGLPixelFormatAttribute)0
-    } ;
+    };
 
     attribs[2] = (CGLPixelFormatAttribute)CGDisplayIDToOpenGLDisplayMask(display);
 
@@ -763,13 +761,14 @@ static void qt_mac_grabDisplayRect(CGDirectDisplayID display, const QRect &displ
     long numPixelFormats;
 
     ptrCGLChoosePixelFormat( attribs, &pixelFormatObj, &numPixelFormats );
-    if (pixelFormatObj == NULL)    // No full screen context support
+
+    if (!pixelFormatObj)    // No full screen context support
         return;
 
     CGLContextObj glContextObj;
-    ptrCGLCreateContext(pixelFormatObj, NULL, &glContextObj);
+    ptrCGLCreateContext(pixelFormatObj, 0, &glContextObj);
     ptrCGLDestroyPixelFormat(pixelFormatObj) ;
-    if (glContextObj == NULL)
+    if (!glContextObj)
         return;
 
     ptrCGLSetCurrentContext(glContextObj);
@@ -785,78 +784,55 @@ static void qt_mac_grabDisplayRect(CGDirectDisplayID display, const QRect &displ
 
     // Fetch the data in XRGB format, matching the bitmap context.
     ptrglReadPixels(GLint(displayRect.x()), GLint(displayRect.y()),
-                 GLint(displayRect.width()), GLint(displayRect.height()),
+                    GLint(displayRect.width()), GLint(displayRect.height()),
 #ifdef __BIG_ENDIAN__
-                 GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, buffer);
+                    GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, buffer
 #else
-                 GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, buffer);
+                    GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, buffer
 #endif
+        );
 
-    ptrCGLSetCurrentContext(NULL);
+    ptrCGLSetCurrentContext(0);
     ptrCGLClearDrawable(glContextObj); // disassociate from full screen
     ptrCGLDestroyContext(glContextObj); // and destroy the context
 }
 
-// (callback function)
-static void releaseBitmapContextImageData(void *,
-				    const void *data, size_t)
+static CGImageRef qt_mac_createImageFromBitmapContext(CGContextRef c)
 {
-    free((char *)data);
-}
+    void *rasterData = CGBitmapContextGetData(c);
+    const int width = CGBitmapContextGetBytesPerRow(c),
+             height = CGBitmapContextGetHeight(c);
+    size_t imageDataSize = width*height;
 
-// (callback function)
-static uint myCGContextGetBitmapInfo(CGContextRef c)
-{
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
-    if(CGBitmapContextGetBitmapInfo != NULL)
-        return CGBitmapContextGetBitmapInfo(c);
-    else
-#endif
-        return CGBitmapContextGetAlphaInfo(c);
-}
-
-static CGImageRef createImageFromBitmapContext(CGContextRef c)
-{
-    CGImageRef image;
-	void *rasterData = CGBitmapContextGetData(c);
-    size_t imageDataSize =
-		CGBitmapContextGetBytesPerRow(c)*CGBitmapContextGetHeight(c);
-
-	if(rasterData == NULL)
-		return NULL;
+    if(!rasterData)
+        return 0;
 
     // Create the data provider from the image data, using
-	// the image releaser function releaseBitmapContextImageData.
-    CGDataProviderRef dataProvider = CGDataProviderCreateWithData(NULL,
-					    rasterData,
-					    imageDataSize,
-					    releaseBitmapContextImageData);
+    // the image releaser function releaseBitmapContextImageData.
+    CGDataProviderRef dataProvider = CGDataProviderCreateWithData(0, rasterData,
+                                                                  imageDataSize,
+                                                                  qt_mac_cgimage_data_free);
 
-    if(dataProvider == NULL)
-		return NULL;
+    if(!dataProvider)
+        return 0;
 
-	// Now create the image. The parameters for the image closely match
-	// the parameters of the bitmap context. This code uses a NULL
-	// decode array and shouldInterpolate is true.
-    image = CGImageCreate(CGBitmapContextGetWidth(c),
-			  CGBitmapContextGetHeight(c),
-			  CGBitmapContextGetBitsPerComponent(c),
-			  CGBitmapContextGetBitsPerPixel(c),
-			  CGBitmapContextGetBytesPerRow(c),
-			  CGBitmapContextGetColorSpace(c),
-			  myCGContextGetBitmapInfo(c),
-			  dataProvider,
-			  NULL,
-			  true,
-			  kCGRenderingIntentDefault);
-
-    return image;
+    uint bitmapInfo = 0;
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
+    if(CGBitmapContextGetBitmapInfo)
+        bitmapInfo = CGBitmapContextGetBitmapInfo(c);
+    else
+#endif
+        bitmapInfo = CGBitmapContextGetAlphaInfo(c);
+    return CGImageCreate(width, height, CGBitmapContextGetBitsPerComponent(c),
+                         CGBitmapContextGetBitsPerPixel(c), CGBitmapContextGetBytesPerRow(c),
+                         CGBitmapContextGetColorSpace(c), bitmapInfo, dataProvider,
+                         0, true, kCGRenderingIntentDefault);
 }
 
 // Returns a pixmap containing the screen contents at rect.
 static QPixmap qt_mac_grabScreenRect(const QRect &rect)
 {
-    if (resolveOpenGLSymbols() == false)
+    if (!resolveOpenGLSymbols())
         return QPixmap();
 
     const int maxDisplays = 128; // 128 displays should be enough for everyone.
@@ -881,7 +857,7 @@ static QPixmap qt_mac_grabScreenRect(const QRect &rect)
         qt_mac_grabDisplayRect(displays[i], displayRect, buffer.data());
     }
 
-    qt_mac_swizzlePixmap(buffer.data(), bytewidth, rect.height());
+    qt_mac_flipPixmap(buffer.data(), bytewidth, rect.height());
 
     QCFType<CGColorSpaceRef> cSpace = CGColorSpaceCreateWithName(kCGColorSpaceUserRGB);
     QCFType<CGContextRef> bitmap = CGBitmapContextCreate(buffer.data(), rect.width(), rect.height(), 8, bytewidth,
@@ -894,8 +870,8 @@ static QPixmap qt_mac_grabScreenRect(const QRect &rect)
     } else
 #endif
     {
-        QCFType<CGImageRef> image = createImageFromBitmapContext(bitmap);
-        if (image == NULL)
+        QCFType<CGImageRef> image = qt_mac_createImageFromBitmapContext(bitmap);
+        if (!image)
             return QPixmap();
         return QPixmap::fromMacCGImageRef(image);
     }
