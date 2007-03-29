@@ -125,10 +125,12 @@ bool QUrlModel::setData(const QModelIndex &index, const QVariant &value, int rol
         QModelIndex dirIndex = fileSystemModel->index(url.path());
         if (showFullPath)
             QStandardItemModel::setData(index, fileSystemModel->data(dirIndex, Qt::UserRole + 1).toString());
-        else
-        QStandardItemModel::setData(index, fileSystemModel->data(dirIndex).toString());
+        else {
+            QStandardItemModel::setData(index, fileSystemModel->data(dirIndex, Qt::UserRole + 1).toString(), Qt::ToolTipRole);
+            QStandardItemModel::setData(index, fileSystemModel->data(dirIndex).toString());
+        }
         QStandardItemModel::setData(index, fileSystemModel->data(dirIndex, Qt::DecorationRole),
-                                           Qt::DecorationRole);
+                                               Qt::DecorationRole);
         QStandardItemModel::setData(index, url, UrlRole);
         return true;
     }
@@ -363,6 +365,8 @@ void QSidebar::showContextMenu(const QPoint &position)
     QList<QAction *> actions;
     if (indexAt(position).isValid()) {
         QAction *action = new QAction(QFileDialog::tr("Remove"), this);
+        if (indexAt(position).data(QUrlModel::UrlRole).toUrl().path().isEmpty())
+            action->setEnabled(false);
         connect(action, SIGNAL(triggered()), this, SLOT(removeEntry()));
         actions.append(action);
     }
@@ -383,7 +387,8 @@ void QSidebar::removeEntry()
         indexes.append(idxs.at(i));
 
     for (int i = 0; i < indexes.count(); ++i)
-        model()->removeRow(indexes.at(i).row());
+        if (!indexes.at(i).data(QUrlModel::UrlRole).toUrl().path().isEmpty())
+            model()->removeRow(indexes.at(i).row());
 }
 
 /*!
@@ -406,6 +411,21 @@ void QSidebar::focusInEvent(QFocusEvent *event)
 {
     QAbstractScrollArea::focusInEvent(event);
     viewport()->update();
+}
+
+/*!
+    \reimp
+ */
+bool QSidebar::event(QEvent * event)
+{
+    if (event->type() == QEvent::KeyRelease) {
+        QKeyEvent* ke = (QKeyEvent*) event;
+        if (ke->key() == Qt::Key_Delete) {
+            removeEntry();
+            return true;
+        }
+    }
+    return QListView::event(event);
 }
 
 #endif

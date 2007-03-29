@@ -52,9 +52,12 @@ QFileInfoGatherer::~QFileInfoGatherer()
 
 void QFileInfoGatherer::setResolveSymlinks(bool enable)
 {
+    Q_UNUSED(enable);
+#ifdef Q_OS_WIN
     mutex.lock();
     m_resolveSymlinks = enable;
     mutex.unlock();
+#endif
 }
 
 bool QFileInfoGatherer::resolveSymlinks() const

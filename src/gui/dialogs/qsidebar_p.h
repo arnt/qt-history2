@@ -80,6 +80,7 @@ public:
     void selectUrl(const QUrl &url);
 
 protected:
+    bool event(QEvent * e);
     void focusInEvent(QFocusEvent *event);
     void dragEnterEvent(QDragEnterEvent *event);
 

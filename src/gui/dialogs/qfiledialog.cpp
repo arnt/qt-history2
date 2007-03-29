@@ -17,6 +17,7 @@
 
 #ifndef QT_NO_FILEDIALOG
 #include "qfiledialog_p.h"
+#include <qfontmetrics.h>
 #include <qaction.h>
 #include <qheaderview.h>
 #include <qshortcut.h>
@@ -338,6 +339,7 @@ QByteArray QFileDialog::saveState() const
     stream << history();
     stream << directory().absolutePath();
     stream << d->qFileDialogUi->treeView->header()->saveState();
+    stream << qint32(viewMode());
     return data;
 }
 
@@ -363,9 +365,9 @@ bool QFileDialog::restoreState(const QByteArray &state)
     QList<QUrl> bookmarks;
     QStringList history;
     QString currentDirectory;
-    bool expanded;
     qint32 marker;
     qint32 v;
+    qint32 viewMode;
     stream >> marker;
     stream >> v;
     if (marker != QFileDialogMagic || v != version)
@@ -375,16 +377,17 @@ bool QFileDialog::restoreState(const QByteArray &state)
            >> bookmarks
            >> history
            >> currentDirectory
-           >> expanded
-           >> headerData;
+           >> headerData
+           >> viewMode;
 
-    if (expanded && !d->qFileDialogUi->splitter->restoreState(splitterState))
+    if (!d->qFileDialogUi->splitter->restoreState(splitterState))
         return false;
     d->qFileDialogUi->sidebar->setUrls(bookmarks);
     setHistory(history);
     setDirectory(currentDirectory);
     if (!d->qFileDialogUi->treeView->header()->restoreState(headerData))
         return false;
+    setViewMode(ViewMode(viewMode));
     return true;
 }
 
@@ -744,7 +747,7 @@ void QFileDialog::setFileMode(QFileDialog::FileMode mode)
         setLabelText(FileName, tr("Directory:"));
         buttonText = tr("&Choose");
     } else {
-        setLabelText(FileName, tr("Save &as:"));
+        setLabelText(FileName, tr("File &name:"));
     }
     setLabelText(Accept, buttonText);
     d->qFileDialogUi->fileTypeCombo->setEnabled(mode != DirectoryOnly);
@@ -856,10 +859,10 @@ bool QFileDialog::isReadOnly() const
 
 /*!
     \property QFileDialog::resolveSymlinks
-    \brief whether the filedialog should resolve symbolic links
+    \brief whether the filedialog should resolve shortcuts
 
     If this property is set to true, the file dialog will resolve
-    symbolic links.
+    shortcuts.
 */
 void QFileDialog::setResolveSymlinks(bool enabled)
 {
@@ -1700,11 +1703,11 @@ void QFileDialogPrivate::createWidgets()
     qFileDialogUi->treeView->init(this);
     qFileDialogUi->treeView->setModel(model);
     QHeaderView *treeHeader = qFileDialogUi->treeView->header();
-    treeHeader->setStretchLastSection(false);
-    treeHeader->setResizeMode(0, QHeaderView::Stretch);
-    treeHeader->setResizeMode(1, QHeaderView::ResizeToContents);
-    treeHeader->setResizeMode(2, QHeaderView::ResizeToContents);
-    treeHeader->setResizeMode(3, QHeaderView::ResizeToContents);
+    QFontMetrics fm(q->font());
+    treeHeader->resizeSection(0, fm.width(QLatin1String("wwwwwwwwwwwwwwwwwwwwwwwwww")));
+    treeHeader->resizeSection(1, fm.width(QLatin1String("128.88 GB")));
+    treeHeader->resizeSection(2, fm.width(QLatin1String("mp3Folder")));
+    treeHeader->resizeSection(3, fm.width(QLatin1String("10/29/81 02:02PM")));
     treeHeader->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     QActionGroup *showActionGroup = new QActionGroup(q);
@@ -1833,9 +1836,9 @@ void QFileDialogPrivate::createToolButtons()
 
     qFileDialogUi->listModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogListView));
     qFileDialogUi->listModeButton->setAutoRaise(true);
+    qFileDialogUi->listModeButton->setDown(true);
     QObject::connect(qFileDialogUi->listModeButton, SIGNAL(clicked()), q, SLOT(_q_showListView()));
 
-    qFileDialogUi->detailModeButton->setDown(true);
     qFileDialogUi->detailModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogDetailedView));
     qFileDialogUi->detailModeButton->setAutoRaise(true);
     QObject::connect(qFileDialogUi->detailModeButton, SIGNAL(clicked()), q, SLOT(_q_showDetailsView()));
@@ -2404,7 +2407,7 @@ void QFileDialogListView::init(QFileDialogPrivate *d_pointer)
 QSize QFileDialogListView::sizeHint() const
 {
     int height = qMax(10, sizeHintForRow(0));
-    return QSize(QListView::sizeHint().width() * 2, height * 20);
+    return QSize(QListView::sizeHint().width() * 2, height * 30);
 }
 
 void QFileDialogListView::keyPressEvent(QKeyEvent *e)
@@ -2429,7 +2432,7 @@ void QFileDialogTreeView::init(QFileDialogPrivate *d_pointer)
     setSortingEnabled(true);
     header()->setSortIndicator(0, Qt::AscendingOrder);
     header()->setStretchLastSection(false);
-    header()->resizeSection(0, 0);
+    setTextElideMode(Qt::ElideMiddle);
     setEditTriggers(QAbstractItemView::EditKeyPressed);
     setContextMenuPolicy(Qt::CustomContextMenu);
 #ifndef QT_NO_DRAGANDDROP
@@ -2450,7 +2453,7 @@ QSize QFileDialogTreeView::sizeHint() const
 {
     int height = qMax(10, sizeHintForRow(0));
     QSize sizeHint = header()->sizeHint();
-    return QSize(sizeHint.width() * 4, height * 20);
+    return QSize(sizeHint.width() * 4, height * 30);
 }
 
 /*!
