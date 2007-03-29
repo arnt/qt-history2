@@ -307,7 +307,9 @@ public:
     static QWidget *oldEditFocus;
 #endif
 
+    static bool tryEmitLastWindowClosedPending;
     void _q_tryEmitLastWindowClosed();
+
 #if defined(Q_WS_MAC) || defined(Q_WS_X11)
     void _q_alertTimeOut();
     QHash<QWidget *, QTimer *> alertTimerHash;

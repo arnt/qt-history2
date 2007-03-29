@@ -69,6 +69,7 @@ QApplicationPrivate *QApplicationPrivate::self = 0;
 QInputContext *QApplicationPrivate::inputContext;
 
 bool QApplicationPrivate::quitOnLastWindowClosed = true;
+bool QApplicationPrivate::tryEmitLastWindowClosedPending = false;
 
 QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::Type type)
     : QCoreApplicationPrivate(argc, argv)
@@ -81,6 +82,7 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::T
 #endif
 
     quitOnLastWindowClosed = true;
+    tryEmitLastWindowClosedPending = false;
 
 #ifdef QT3_SUPPORT
     qt_compat_used = 0;
@@ -4126,6 +4128,8 @@ void QApplicationPrivate::emitLastWindowClosed()
 
 void QApplicationPrivate::_q_tryEmitLastWindowClosed()
 {
+    tryEmitLastWindowClosedPending = false;
+
     /* if there is no non-withdrawn primary window left (except
        the ones without QuitOnClose), we emit the lastWindowClosed
        signal */

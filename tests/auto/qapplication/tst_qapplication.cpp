@@ -418,6 +418,18 @@ void tst_QApplication::lastWindowClosed()
 #endif
 
     delete dialog;
+
+    // show 3 windows, close them, should only get lastWindowClosed once
+    QWidget w1;
+    QWidget w2;
+    QWidget w3;
+    w1.show();
+    w2.show();
+    w3.show();
+
+    QTimer::singleShot(1000, &app, SLOT(closeAllWindows()));
+    app.exec();
+    QCOMPARE(spy.count(), 1);
 }
 
 #define QT_TST_QAPP_DEBUG
