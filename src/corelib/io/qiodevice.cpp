@@ -85,7 +85,7 @@ static const qint64 QIODEVICE_BUFFERSIZE = 16384;
 /*! \internal
  */
 QIODevicePrivate::QIODevicePrivate()
-    : openMode(QIODevice::NotOpen),
+    : openMode(QIODevice::NotOpen), buffer(QIODEVICE_BUFFERSIZE),
       pos(0), devicePos(0), accessMode(Unset)
 {
 }
