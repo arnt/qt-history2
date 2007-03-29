@@ -164,8 +164,8 @@ void tst_QLibrary::load_data()
 
     QString currDir = QDir::currentPath();
     QTest::newRow( "ok00" ) << currDir + "/mylib" << (bool)TRUE;
-    QTest::newRow( "bad00" ) << currDir + "/nolib" << (bool)FALSE;
-    QTest::newRow( "bad00" ) << currDir + "/qlibrary.pro" << (bool)FALSE;
+    QTest::newRow( "notexist" ) << currDir + "/nolib" << (bool)FALSE;
+    QTest::newRow( "badlibrary" ) << currDir + "/qlibrary.pro" << (bool)FALSE;
 
 #ifdef Q_OS_MAC
     QTest::newRow("ok (libmylib ver. 1)") << currDir + "/libmylib" <<(bool)TRUE;
@@ -209,7 +209,7 @@ void tst_QLibrary::unload_data()
     if (QSysInfo::MacintoshVersion <= QSysInfo::MV_10_3)
         QEXPECT_FAIL("mylib", "dlcompat cannot unload libraries", Continue);
 #endif
-    QTest::newRow( "nolib" ) << currDir + "/nolib" << (bool)TRUE;
+    QTest::newRow( "ok01" ) << currDir + "/nolib" << (bool)FALSE;
 }
 
 void tst_QLibrary::unload()
@@ -322,7 +322,7 @@ void tst_QLibrary::errorString_data()
 
 
 #ifdef Q_OS_WIN
-    QTest::newRow("bad load()") << (int)Load << QString("nosuchlib.dll") << false << QString("QLibrary::load_sys: Cannot load nosuchlib.dll \\(The specified module could not be found.\\)");
+    QTest::newRow("bad load() with .dll suffix") << (int)Load << QString("nosuchlib.dll") << false << QString("QLibrary::load_sys: Cannot load nosuchlib.dll \\(The specified module could not be found.\\)");
 //    QTest::newRow("bad unload") << (int)Unload << QString("nosuchlib.dll") << false << QString("QLibrary::unload_sys: Cannot unload nosuchlib.dll (The specified module could not be found.)");
 #elif defined Q_OS_MAC
 
@@ -459,19 +459,22 @@ void tst_QLibrary::multipleInstancesForOneLibrary()
     lib1.load();
     QCOMPARE(lib1.isLoaded(), true);
     QCOMPARE(lib2.isLoaded(), true);
-    lib1.unload();
+    QCOMPARE(lib1.unload(), true);
     QCOMPARE(lib1.isLoaded(), false);
     QCOMPARE(lib2.isLoaded(), false);
     lib1.load();
     lib2.load();
     QCOMPARE(lib1.isLoaded(), true);
     QCOMPARE(lib2.isLoaded(), true);
-    lib1.unload();
+    QCOMPARE(lib1.unload(), false);
     QCOMPARE(lib1.isLoaded(), true);
     QCOMPARE(lib2.isLoaded(), true);
-    lib2.unload();
+    QCOMPARE(lib2.unload(), true);
     QCOMPARE(lib1.isLoaded(), false);
     QCOMPARE(lib2.isLoaded(), false);
+
+    // Finally; unload on that is already unloaded
+    QCOMPARE(lib1.unload(), false);
 }
 
 QTEST_APPLESS_MAIN(tst_QLibrary)

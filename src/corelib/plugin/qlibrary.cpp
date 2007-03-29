@@ -441,7 +441,7 @@ bool QLibraryPrivate::load()
 bool QLibraryPrivate::unload()
 {
     if (!pHnd)
-        return true;
+        return false;
     if (!libraryUnloadCount.deref()) // only unload if ALL QLibrary instance wanted to
         if  (unload_sys())
             pHnd = 0;
