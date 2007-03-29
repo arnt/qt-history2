@@ -461,7 +461,7 @@ static EventTypeSpec window_events[] = {
     { kEventClassWindow, kEventWindowDragStarted },
     { kEventClassWindow, kEventWindowDragCompleted },
     { kEventClassWindow, kEventWindowBoundsChanging },
-/    { kEventClassWindow, kEventWindowBoundsChanged },
+    { kEventClassWindow, kEventWindowBoundsChanged },
     { kEventClassWindow, kEventWindowGetRegion },
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
     { kEventClassWindow, kEventWindowGetClickModality },
