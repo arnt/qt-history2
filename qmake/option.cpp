@@ -711,7 +711,8 @@ QString qmake_libraryInfoFile()
             if ((*p).isEmpty())
                 continue;
             QString candidate = currentDir.absoluteFilePath(*p + QLatin1Char('/') + argv0);
-            if (QFile::exists(candidate)) {
+            QFileInfo candidate_fi(candidate);
+            if (candidate_fi.exists() && !candidate_fi.isDir()) {
                 absPath = candidate;
                 break;
             }
