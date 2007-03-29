@@ -558,6 +558,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PE_PanelTipLabel The panel for a tip label.
     \value PE_FrameTabBarBase The frame that is drawn for a tab bar, ususally drawn for a tab bar that isn't part of a tab widget.
     \value PE_IndicatorTabTear An indicator that a tab is partially scrolled out of the visible tab bar when there are many tabs.
+    \value PE_IndicatorColumnViewArrow An arrow in a QColumnView.
 
     \value PE_Widget  A plain QWidget.
 
@@ -615,6 +616,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value State_Sunken
     \value State_Top
     \value State_UpArrow
+    \value State_Window
     \omitvalue State_Default
 
     \sa drawPrimitive()
@@ -757,6 +759,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CE_ToolBoxTabLabel  The toolbox's tab label.
     \value CE_HeaderEmptyArea  The area of a header view where there are no header sections.
 
+    \omitvalue CE_ColumnViewGrip
+
     \sa drawControl()
 */
 
@@ -877,6 +881,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SE_ProgressBarGroove  Area for the groove.
     \value SE_ProgressBarContents  Area for the progress indicator.
     \value SE_ProgressBarLabel  Area for the text label.
+    \value SE_ProgressBarLayoutItem Area that counts for the parent layout.
 
     \omitvalue SE_DialogButtonAccept
     \omitvalue SE_DialogButtonReject
@@ -921,6 +926,15 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SE_CustomBase  Base value for custom sub-elements.
     Custom values must be greater than this value.
+
+    \value SE_DockWidgetFloatButton The float button of a dock
+                                    widget.
+    \value SE_DockWidgetTitleBarText The text bounds of the dock
+                                     widgets title.
+    \value SE_DockWidgetCloseButton The close button of a dock
+                                    widget.
+    \value SE_DockWidgetIcon The icon of a dock widget.
+    \value SE_ComboBoxLayoutItem Area that counts for the parent layout.
 
     \sa subElementRect()
 */
@@ -971,6 +985,9 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CC_Q3ListView        Used for drawing the Q3ListView class.
     \value CC_GroupBox          A group box, like QGroupBox.
     \value CC_Dial              A dial, like QDial.
+    \value CC_MDIControls       The minimize, close, and normal
+                                button in the menu bar for a
+                                maximized MDI subwindow.
 
     \value CC_CustomBase Base value for custom complex controls. Custom
     values must be greater than this value.
@@ -1038,6 +1055,13 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SC_GroupBoxLabel The title of a group box.
     \value SC_GroupBoxCheckBox The optional check box of a group box.
     \value SC_GroupBoxContents The group box contents.
+
+    \value SC_MDINormalButton The normal button for a MDI
+                              subwindow in the menu bar.
+    \value SC_MDIMinButton The minimize button for a MDI 
+                           subwindow in the menu bar.
+    \value SC_MDICloseButton The close button for a MDI subwindow
+                             in the menu bar.    
 
     \value SC_All  Special value that matches all sub-controls.
     \omitvalue SC_Q3ListViewBranch
@@ -1163,7 +1187,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value PM_ButtonMargin  Amount of whitespace between push button
         labels and the frame.
-    \value PM_DockWidgetTitleButtonMargin  Amount of whitespace between dock widget's
+    \value PM_DockWidgetTitleBarButtonMargin Amount of whitespace between dock widget's
         title bar button labels and the frame.
     \value PM_ButtonDefaultIndicator  Width of the default-button indicator frame.
     \value PM_MenuButtonIndicator  Width of the menu button indicator
@@ -1374,6 +1398,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value CT_CustomBase  Base value for custom contents types.
     Custom values must be greater than this value.
+
+    \value CT_MDIControls The minimize, normal, and close button
+                          in the menu bar for a maximized MDI
+                          subwindow.
 
     \sa sizeFromContents()
 */
@@ -1750,7 +1778,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SP_CustomBase  Base value for custom standard pixmaps;
     custom values must be greater than this value.
 
-    \sa standardPixmap() standardIcon
+    \sa standardPixmap() standardIcon()
 */
 
 /*###

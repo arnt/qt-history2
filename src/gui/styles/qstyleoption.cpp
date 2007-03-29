@@ -3163,6 +3163,9 @@ QStyleOptionDockWidgetV2::QStyleOptionDockWidgetV2(int version)
     \value Arrow The tool button is an arrow.
     \value Menu The tool button has a menu.
     \value PopupDelay There is a delay to showing the menu.
+    \value HasMenu The button has a popup menu.
+    \value MenuButtonPopup The button should display an arrow to
+           indicate that a menu is present.
 
     \sa features, QToolButton::toolButtonStyle(), QToolButton::popupMode()
 */
@@ -3585,7 +3588,7 @@ QStyleOptionToolBoxV2::QStyleOptionToolBoxV2(const QStyleOptionToolBox &other)
 
     If the \a{other} style option's version is 1, this style option's \l
     position and \l selectedPosition values are set to \l
-    QStyleOptionToolBoxV2::Begining and \l QStyleOptionToolBoxV2::NotAdjacent
+    QStyleOptionToolBoxV2::Beginning and \l QStyleOptionToolBoxV2::NotAdjacent
     respectively. If its version is 2, these values are simply copied to this
     style option.
 */
@@ -3601,7 +3604,8 @@ QStyleOptionToolBoxV2 &QStyleOptionToolBoxV2::operator=(const QStyleOptionToolBo
 }
 
 
-/*! \enum QStyleOptionToolBox::SelectedPosition
+/*!
+    \enum QStyleOptionToolBoxV2::SelectedPosition
 
     This enum describes the position of the selected tab. Some styles
     need to draw a tab differently depending on whether or not it is
@@ -3615,7 +3619,27 @@ QStyleOptionToolBoxV2 &QStyleOptionToolBoxV2::operator=(const QStyleOptionToolBo
 */
 
 /*!
-    \variable QStyleOptionToolBox::selectedPosition
+    \enum QStyleOptionToolBoxV2::StyleOptionVersion
+
+    This enum holds the version of this style option
+
+    \value Version 2
+*/
+
+/*!
+    \enum QStyleOptionToolBoxV2::TabPosition
+
+    This enum describes tab positions relative to other tabs.
+
+    \value Beginning The tab is the first (i.e., top-most) tab in
+           the toolbox.
+    \value Middle The tab is placed in the middle of the toolbox.
+    \value End The tab is placed at the bottom of the toolbox.
+    \value OnlyOneTab There is only one tab in the toolbox.
+*/
+
+/*!
+    \variable QStyleOptionToolBoxV2::selectedPosition
     \brief the position of the selected tab in relation to this tab
 
     The default value is NotAdjacent, i.e. the tab is not adjacent to
