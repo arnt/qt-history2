@@ -749,7 +749,7 @@ QWizardLayoutInfo QWizardPrivate::layoutInfoForCurrentPage()
     info.buttonSpacing = info.spacing;
 #ifdef Q_WS_MAC
     if (qobject_cast<QMacStyle *>(style))
-        info.buttonSpacing = 0;
+        info.buttonSpacing = 12;
 #endif
 
     info.wizStyle = wizStyle;
