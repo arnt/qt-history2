@@ -248,6 +248,7 @@ static const QCssKnownValue pseudos[NumPseudos - 1] = {
     { "open", PseudoClass_Open },
     { "pressed", PseudoClass_Pressed },
     { "previous-selected", PseudoClass_PreviousSelected },
+    { "read-only", PseudoClass_ReadOnly },
     { "right", PseudoClass_Right },
     { "selected", PseudoClass_Selected },
     { "sibling", PseudoClass_Sibling },
