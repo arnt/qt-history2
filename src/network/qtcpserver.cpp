@@ -78,7 +78,7 @@
         return returnValue; \
     } } while (0)
 
-class QTcpServerPrivate : public QObjectPrivate
+class QTcpServerPrivate : public QObjectPrivate, public QAbstractSocketEngineReceiver
 {
     Q_DECLARE_PUBLIC(QTcpServer)
 public:
@@ -102,8 +102,12 @@ public:
     QNetworkProxy *proxy;
 #endif
 
-    // private slots
-    void _q_processIncomingConnection();
+    // from QAbstractSocketEngineReceiver
+    void readNotification();
+    inline void writeNotification() {}
+    inline void exceptionNotification() {}
+    inline void proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *) {}
+
 };
 
 /*! \internal
@@ -131,7 +135,7 @@ QTcpServerPrivate::~QTcpServerPrivate()
 
 /*! \internal
 */
-void QTcpServerPrivate::_q_processIncomingConnection()
+void QTcpServerPrivate::readNotification()
 {
     Q_Q(QTcpServer);
     for (;;) {
@@ -247,7 +251,7 @@ bool QTcpServer::listen(const QHostAddress &address, quint16 port)
         return false;
     }
 
-    connect(d->socketEngine, SIGNAL(readNotification()), SLOT(_q_processIncomingConnection()));
+    d->socketEngine->setReceiver(d);
     d->socketEngine->setReadNotificationEnabled(true);
 
     d->state = QAbstractSocket::ListeningState;
@@ -342,7 +346,7 @@ bool QTcpServer::setSocketDescriptor(int socketDescriptor)
         return false;
     }
 
-    connect(d->socketEngine, SIGNAL(readNotification()), SLOT(_q_processIncomingConnection()));
+    d->socketEngine->setReceiver(d);
     d->socketEngine->setReadNotificationEnabled(true);
 
     d->state = d->socketEngine->state();
@@ -413,7 +417,7 @@ bool QTcpServer::waitForNewConnection(int msec, bool *timedOut)
     if (timedOut && *timedOut)
         return false;
 
-    d->_q_processIncomingConnection();
+    d->readNotification();
 
     return true;
 }

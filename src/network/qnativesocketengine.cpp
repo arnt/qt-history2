@@ -893,7 +893,7 @@ void QNativeSocketEngine::setReadNotificationEnabled(bool enable)
         d->readNotifier = new QSocketNotifier(d->socketDescriptor,
                                               QSocketNotifier::Read, this);
         QObject::connect(d->readNotifier, SIGNAL(activated(int)),
-                         this, SIGNAL(readNotification()));
+                         this, SLOT(readNotification()));
         d->readNotifier->setEnabled(true);
     }
 }
@@ -913,7 +913,7 @@ void QNativeSocketEngine::setWriteNotificationEnabled(bool enable)
         d->writeNotifier = new QSocketNotifier(d->socketDescriptor,
                                               QSocketNotifier::Write, this);
         QObject::connect(d->writeNotifier, SIGNAL(activated(int)),
-                         this, SIGNAL(writeNotification()));
+                         this, SLOT(writeNotification()));
         d->writeNotifier->setEnabled(true);
     }
 }

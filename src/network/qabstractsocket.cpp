@@ -13,7 +13,7 @@
 
 //#define QABSTRACTSOCKET_DEBUG
 
-/*! 
+/*!
     \class QAbstractSocket
 
     \brief The QAbstractSocket class provides the base functionality
@@ -212,7 +212,7 @@
     \sa QHostAddress::protocol()
 */
 
-/*! 
+/*!
     \enum QAbstractSocket::SocketType
 
     This enum describes the transport layer protocol.
@@ -224,7 +224,7 @@
     \sa QAbstractSocket::socketType()
 */
 
-/*! 
+/*!
     \enum QAbstractSocket::SocketError
 
     This enum describes the socket errors that can occur.
@@ -423,24 +423,6 @@ void QAbstractSocketPrivate::resetSocketLayer()
 
 /*! \internal
 
-    Creates one read and one write socket notifier, and disables them
-    both. Connects their signals to the respective private slots
-    _q_canReadNotification() and _q_canWriteNotification().
-*/
-void QAbstractSocketPrivate::setupSocketNotifiers()
-{
-    Q_Q(QAbstractSocket);
-
-    QObject::connect(socketEngine, SIGNAL(readNotification()),
-                     q, SLOT(_q_canReadNotification()));
-    QObject::connect(socketEngine, SIGNAL(writeNotification()),
-                     q, SLOT(_q_canWriteNotification()));
-    QObject::connect(socketEngine, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)),
-                     q, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)));
-}
-
-/*! \internal
-
     Initializes the socket layer to by of type \a type, using the
     network layer protocol \a protocol. Resets the socket layer first
     if it's already initialized. Sets up the socket notifiers.
@@ -475,7 +457,7 @@ bool QAbstractSocketPrivate::initSocketLayer(const QHostAddress &host, QAbstract
     cachedSocketDescriptor = socketEngine->socketDescriptor();
 
     if (threadData->eventDispatcher)
-        setupSocketNotifiers();
+        socketEngine->setReceiver(this);
 
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::initSocketLayer(%s, %s) success",
@@ -490,11 +472,11 @@ bool QAbstractSocketPrivate::initSocketLayer(const QHostAddress &host, QAbstract
     when new data is available for reading, or when the socket has
     been closed. Handles recursive calls.
 */
-bool QAbstractSocketPrivate::_q_canReadNotification()
+bool QAbstractSocketPrivate::canReadNotification()
 {
     Q_Q(QAbstractSocket);
 #if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocketPrivate::_q_canReadNotification()");
+    qDebug("QAbstractSocketPrivate::canReadNotification()");
 #endif
 
     // Prevent recursive calls
@@ -516,7 +498,7 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
         // Return if there is no space in the buffer
         if (readBufferMaxSize && readBuffer.size() >= readBufferMaxSize) {
 #if defined (QABSTRACTSOCKET_DEBUG)
-            qDebug("QAbstractSocketPrivate::_q_canReadNotification() buffer is full");
+            qDebug("QAbstractSocketPrivate::canReadNotification() buffer is full");
 #endif
             readSocketNotifierCalled = false;
             return false;
@@ -527,7 +509,7 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
         newBytes = readBuffer.size();
         if (!readFromSocket()) {
 #if defined (QABSTRACTSOCKET_DEBUG)
-            qDebug("QAbstractSocketPrivate::_q_canReadNotification() disconnecting socket");
+            qDebug("QAbstractSocketPrivate::canReadNotification() disconnecting socket");
 #endif
             q->disconnectFromHost();
             readSocketNotifierCalled = false;
@@ -554,7 +536,7 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
     // return.
     if (state == QAbstractSocket::UnconnectedState || state == QAbstractSocket::ClosingState) {
 #if defined (QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::_q_canReadNotification() socket is closing - returning");
+        qDebug("QAbstractSocketPrivate::canReadNotification() socket is closing - returning");
 #endif
         readSocketNotifierCalled = false;
         return true;
@@ -579,7 +561,7 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
     Slot connected to the write socket notifier. It's called during a
     delayed connect or when the socket is ready for writing.
 */
-bool QAbstractSocketPrivate::_q_canWriteNotification()
+bool QAbstractSocketPrivate::canWriteNotification()
 {
 #if defined (Q_OS_WIN)
     if (socketEngine && socketEngine->isWriteNotificationEnabled())
@@ -590,14 +572,14 @@ bool QAbstractSocketPrivate::_q_canWriteNotification()
     // established, otherwise flush pending data.
     if (state == QAbstractSocket::ConnectingState) {
 #if defined (QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::_q_canWriteNotification() testing connection");
+        qDebug("QAbstractSocketPrivate::canWriteNotification() testing connection");
 #endif
         _q_testConnection();
         return false;
     }
 
 #if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocketPrivate::_q_canWriteNotification() flushing");
+    qDebug("QAbstractSocketPrivate::canWriteNotification() flushing");
 #endif
     int tmp = writeBuffer.size();
     flush();
@@ -620,7 +602,7 @@ bool QAbstractSocketPrivate::_q_canWriteNotification()
     Writes pending data in the write buffers to the socket. The
     function writes as much as it can without blocking.
 
-    It is usually invoked by _q_canWriteNotification after one or more
+    It is usually invoked by canWriteNotification after one or more
     calls to write().
 
     Emits bytesWritten().
@@ -880,7 +862,7 @@ void QAbstractSocketPrivate::_q_testConnection()
         if (connectTimer)
             connectTimer->stop();
     }
-            
+
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::_q_testConnection() connection failed,"
            " checking for alternative addresses");
@@ -939,7 +921,7 @@ bool QAbstractSocketPrivate::readFromSocket()
     qDebug("QAbstractSocketPrivate::readFromSocket() about to read %d bytes",
            int(bytesToRead));
 #endif
-    
+
     // Read from the socket, store data in the read buffer.
     char *ptr = readBuffer.reserve(bytesToRead);
     qint64 readBytes = socketEngine->read(ptr, bytesToRead);
@@ -1331,7 +1313,7 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, SocketState sock
     }
 
     if (d->threadData->eventDispatcher)
-        d->setupSocketNotifiers();
+        d->socketEngine->setReceiver(d);
 
     setOpenMode(openMode);
 
@@ -1447,7 +1429,7 @@ bool QAbstractSocket::waitForConnected(int msecs)
                msecs, timeout / 1000.0, attempt++);
 #endif
         timedOut = false;
-        
+
         if (d->socketEngine->waitForWrite(timeout, &timedOut) && !timedOut) {
             d->_q_testConnection();
         } else {
@@ -1514,12 +1496,12 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
         }
 
         if (readyToRead) {
-            if (d->_q_canReadNotification())
+            if (d->canReadNotification())
                 return true;
         }
 
         if (readyToWrite)
-            d->_q_canWriteNotification();
+            d->canWriteNotification();
 
         if (state() != ConnectedState)
             return false;
@@ -1573,15 +1555,15 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
 
         if (readyToRead) {
 #if defined (QABSTRACTSOCKET_DEBUG)
-            qDebug("QAbstractSocket::waitForBytesWritten calls _q_canReadNotification");
+            qDebug("QAbstractSocket::waitForBytesWritten calls canReadNotification");
 #endif
-            if(!d->_q_canReadNotification())
+            if(!d->canReadNotification())
                 return false;
         }
 
 
         if (readyToWrite) {
-            if (d->_q_canWriteNotification()) {
+            if (d->canWriteNotification()) {
 #if defined (QABSTRACTSOCKET_DEBUG)
                 qDebug("QAbstractSocket::waitForBytesWritten returns true");
 #endif
@@ -1659,9 +1641,9 @@ bool QAbstractSocket::waitForDisconnected(int msecs)
         }
 
         if (readyToRead)
-            d->_q_canReadNotification();
+            d->canReadNotification();
         if (readyToWrite)
-            d->_q_canWriteNotification();
+            d->canWriteNotification();
 
         if (state() == UnconnectedState)
             return true;
@@ -2235,7 +2217,7 @@ QNetworkProxy QAbstractSocket::proxy() const
     \value ErrSocketRead Use QAbstractSocket::UnknownSocketError instead.
 */
 
-/*! 
+/*!
     \typedef QAbstractSocket::State
     \compat
 
