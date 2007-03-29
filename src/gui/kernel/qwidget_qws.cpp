@@ -793,6 +793,16 @@ void QWidgetPrivate::stackUnder_sys(QWidget*)
     }
 }
 
+static void moveSurface(QWindowSurface *surface, const QPoint &offset)
+{
+    const int winId = static_cast<QWSWindowSurface*>(surface)->winId();
+    QWSDisplay::instance()->moveRegion(winId, offset.x(), offset.y());
+
+    // update surface geometry without triggering QWSDisplay::requestRegion()
+    const QRect newGeometry = surface->geometry().translated(offset);
+    surface->QWindowSurface::setGeometry(newGeometry);
+}
+
 void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
     Q_Q(QWidget);
@@ -846,17 +856,13 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
             if (isMove && !isResize && (!surface || surface->isBuffered())) {
                 const QPoint offset(x - oldp.x(), y - oldp.y());
-                QWidget::qwsDisplay()->moveRegion(data.winid, offset.x(), offset.y());
+                moveSurface(surface, offset);
                 toplevelMove = true; //server moves window, but we must send moveEvent, which might trigger painting
 
 #ifdef Q_BACKINGSTORE_SUBSURFACES
-                // XXX: move subsurfaces...
                 QList<QWindowSurface*> surfaces = bs->subSurfaces;
-                for (int i = 0; i < surfaces.size(); ++i) {
-                    QWSWindowSurface *s = static_cast<QWSWindowSurface*>(surfaces.at(i));
-                    QWSDisplay::instance()->moveRegion(s->winId(),
-                                                       offset.x(), offset.y());
-                }
+                for (int i = 0; i < surfaces.size(); ++i)
+                    moveSurface(surfaces.at(i), offset);
 #endif
             } else {
                     updateFrameStrut();
@@ -898,9 +904,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 QWSWindowSurface *surface;
                 surface = static_cast<QWSWindowSurface*>(q->windowSurface());
                 if (isMove && !isResize) {
-                    QWSDisplay::instance()->moveRegion(surface->winId(),
-                                                       x - oldp.x(),
-                                                       y - oldp.y());
+                    moveSurface(surface, QPoint(x - oldp.x(), y - oldp.y()));
                 } else {
                     const QPoint p = q->mapToGlobal(QPoint(x, y));
                     surface->setGeometry(QRect(p, QSize(w, h)));
