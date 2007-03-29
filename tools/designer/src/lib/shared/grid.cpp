@@ -85,6 +85,7 @@ void Grid::paint(QWidget *widget, QPaintEvent *e, bool needFrame) const
 {
     QPainter p(widget);
     p.fillRect(e->rect(), widget->palette().brush(widget->backgroundRole()));
+    p.setPen(widget->palette().dark().color());
 
     if (m_visible) {
         const int xstart = (e->rect().x() / m_deltaX) * m_deltaX;
@@ -106,7 +107,6 @@ void Grid::paint(QWidget *widget, QPaintEvent *e, bool needFrame) const
         }
     }
     if (needFrame) {
-        p.setPen(widget->palette().dark().color());
         p.drawRect(e->rect());
     }
 }
