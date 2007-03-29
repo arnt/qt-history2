@@ -4297,26 +4297,12 @@ void QWidget::setFocus(Qt::FocusReason reason)
 
     if (f->isActiveWindow()) {
         QApplicationPrivate::setFocusWidget(f, reason);
-
-#if defined(Q_WS_MAC)
-        if (f->testAttribute(Qt::WA_WState_Created)) {
-            extern WindowPtr qt_mac_window_for(const QWidget *w); //qwidget_mac.cpp
-            extern HIViewRef qt_mac_hiview_for(const QWidget *w); //qwidget_mac.cpp
-            SetKeyboardFocus(qt_mac_window_for(f), qt_mac_hiview_for(f), 1);
-        }
-#endif
-
-#if defined(Q_WS_WIN)
-        if (f->testAttribute(Qt::WA_WState_Created)) {
-            if (!(f->window()->windowType() == Qt::Popup))
-                SetFocus(f->internalWinId());
-        } else {
-#endif
+        f->d_func()->setFocus_sys();
 #ifndef QT_NO_ACCESSIBILITY
-            QAccessible::updateAccessibility(f, 0, QAccessible::Focus);
-#endif
 #if defined(Q_WS_WIN)
-        }
+        if (!f->testAttribute(Qt::WA_WState_Created))
+#endif
+            QAccessible::updateAccessibility(f, 0, QAccessible::Focus);
 #endif
     }
 }
@@ -4356,12 +4342,11 @@ void QWidget::clearFocus()
 #if defined(Q_WS_WIN)
         if (!(windowType() == Qt::Popup) && GetFocus() == internalWinId())
             SetFocus(0);
-        else {
+        else
 #endif
 #ifndef QT_NO_ACCESSIBILITY
+        {
             QAccessible::updateAccessibility(this, 0, QAccessible::Focus);
-#endif
-#if defined(Q_WS_WIN)
         }
 #endif
     }
@@ -8824,7 +8809,6 @@ void QWidget::setWindowSurface(QWindowSurface *surface)
 QWindowSurface *QWidget::windowSurface() const
 {
     Q_D(const QWidget);
-
 #ifndef Q_WS_MAC
     QWidgetBackingStore *bs = d->maybeBackingStore();
     if (!bs)

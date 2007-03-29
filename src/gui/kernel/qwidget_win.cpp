@@ -1153,6 +1153,13 @@ void QWidget::show_sys()
 
 #endif // Q_OS_TEMP -------------------------------------------------
 
+void QWidgetPrivate::setFocus_sys()
+{
+    Q_Q(QWidget);
+    if (q->testAttribute(Qt::WA_WState_Created) && q->window()->windowType() != Qt::Popup)
+        SetFocus(q->internalWinId());
+}
+
 void QWidgetPrivate::raise_sys()
 {
     Q_Q(QWidget);
@@ -1350,7 +1357,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         data.window_state &= ~Qt::WindowFullScreen;
         topData()->savedFlags = 0;
     }
-    
+
     if (q->testAttribute(Qt::WA_WState_ConfigPending)) {        // processing config event
         qWinRequestConfig(q->internalWinId(), isMove ? 2 : 1, x, y, w, h);
     } else {

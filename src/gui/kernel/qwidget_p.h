@@ -206,6 +206,8 @@ public:
     void lower_sys();
     void stackUnder_sys(QWidget *);
 
+    void setFocus_sys();
+
     void setFont_helper(const QFont &);
     void resolveFont();
 

@@ -967,6 +967,15 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                 handled_event = false;
             }
         } else if(ekind == kEventControlSetFocusPart) {
+            if(widget) {
+                ControlPartCode part;
+                GetEventParameter(event, kEventParamControlPart, typeControlPartCode, 0,
+                                  sizeof(part), 0, &part);
+                if(part == kControlFocusNoPart)
+                    widget->clearFocus();
+                else
+                    widget->setFocus();
+            }
             if(!HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget))
                 CallNextEventHandler(er, event);
         } else if(ekind == kEventControlGetClickActivation) {
@@ -2308,6 +2317,17 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
     if (needSendStateChange) {
         QWindowStateChangeEvent e(oldstate);
         QApplication::sendEvent(this, &e);
+    }
+}
+
+void QWidgetPrivate::setFocus_sys()
+{
+    Q_Q(QWidget);
+    if (q->testAttribute(Qt::WA_WState_Created)) {
+        WindowPtr window = qt_mac_window_for(q);
+        HIViewRef hiview = qt_mac_hiview_for(q), focus;
+        if(GetKeyboardFocus(window, &focus) != noErr || hiview != focus)
+            SetKeyboardFocus(window, hiview, 1);
     }
 }
 

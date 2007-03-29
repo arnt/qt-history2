@@ -735,6 +735,11 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
     QApplication::sendEvent(this, &e);
 }
 
+void QWidgetPrivate::setFocus_sys()
+{
+
+}
+
 void QWidgetPrivate::raise_sys()
 {
     Q_Q(QWidget);

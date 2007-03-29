@@ -1772,6 +1772,12 @@ void QWidgetPrivate::hide_sys()
     q->setAttribute(Qt::WA_Mapped, false);
 }
 
+void QWidgetPrivate::setFocus_sys()
+{
+
+}
+
+
 void QWidgetPrivate::raise_sys()
 {
     Q_Q(QWidget);
