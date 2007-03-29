@@ -375,12 +375,6 @@ void QScriptContextPrivate::execute(QScript::Code *code)
 
     m_scopeChain = m_activation;
 
-#ifdef Q_SCRIPT_DEBUGGER_CLIENT
-    QScript::DebuggerClient *dbg = eng->debuggerClient();
-    if (dbg)
-        dbg->frameEntry(q);
-#endif
-
 
 #ifndef Q_SCRIPT_DIRECT_CODE
 
@@ -1797,12 +1791,6 @@ Ltop:
         eng->maybeGC();
         currentLine = iPtr->operand[0].m_int_value;
         currentColumn = iPtr->operand[1].m_int_value;
-
-#ifdef Q_SCRIPT_DEBUGGER_CLIENT
-        if (dbg)
-            dbg->lineChange(engine(), currentLine, currentColumn);
-#endif
-
         ++iPtr;
     }   Next();
 
@@ -2000,11 +1988,6 @@ Ldone:
             }
         }
     }
-
-#ifdef Q_SCRIPT_DEBUGGER_CLIENT
-    if (dbg)
-        dbg->frameExit(q);
-#endif
 
     eng->maybeGC();
 }
