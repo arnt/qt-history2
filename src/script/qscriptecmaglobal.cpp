@@ -259,7 +259,6 @@ public:
     virtual void execute(QScriptContextPrivate *context)
     {
         QScriptEnginePrivate *eng = context->enginePrivate();
-        bool blocked = eng->blockGC(true);
         for (int i = 0; i < context->argumentCount(); ++i) {
             if (i != 0)
                 qout << QLatin1String(" ");
@@ -270,7 +269,6 @@ public:
         qout << endl;
 
         context->setReturnValue(eng->undefinedValue());
-        eng->blockGC(blocked);
     }
 
     QTextStream qout;
