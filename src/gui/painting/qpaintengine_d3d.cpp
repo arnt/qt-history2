@@ -3069,6 +3069,7 @@ void QDirect3DPaintEnginePrivate::fillAntialiasedPath(const QPainterPath &path, 
     if (has_fast_pen && stroke) {
         tpath = txform.map(path);
         txrect = tpath.controlPointRect();
+        txrect.adjust(-(m_pen_width/2),-(m_pen_width/2), m_pen_width, m_pen_width); 
     } else {
         poly = path.toFillPolygon(txform);
         txrect = poly.boundingRect();
@@ -3238,8 +3239,7 @@ void QDirect3DPaintEnginePrivate::strokePath(const QPainterPath &path, QRectF br
     if (!brect.isNull()) {
         // brect is set when the path is transformed already,
         // this is the case when we have a cosmetic pen.
-        qreal penwidth = m_pen.width();
-        brect.adjust(-(penwidth/2),-(penwidth/2), penwidth, penwidth);
+        brect.adjust(-(m_pen_width/2),-(m_pen_width/2), m_pen_width, m_pen_width);
     }
 
     if (brect.isNull())
