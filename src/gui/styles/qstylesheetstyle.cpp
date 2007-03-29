@@ -1172,6 +1172,7 @@ enum PseudoElement {
     PseudoElement_ScrollBarSubLine,
     PseudoElement_ScrollBarFirst,
     PseudoElement_ScrollBarLast,
+    PseudoElement_SplitterHandle,
     PseudoElement_ToolBarHandle,
     PseudoElement_ToolBarSeparator,
     PseudoElement_MenuScroller,
@@ -1224,6 +1225,7 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_ScrollBarSubLine, "sub-line" },
     { QStyle::SC_ScrollBarFirst, "first" },
     { QStyle::SC_ScrollBarLast, "last" },
+    { QStyle::SC_None, "handle" },
     { QStyle::SC_None, "handle" },
     { QStyle::SC_None, "separator" },
     { QStyle::SC_None, "scroller" },
@@ -2444,10 +2446,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         return;
 
     case CE_Splitter:
-        if (rule.hasDrawable()) {
-            rule.drawRule(p, opt->rect);
-            return;
-        }
+        pe1 = PseudoElement_SplitterHandle;
         break;
 
     case CE_ToolBar:
@@ -3224,9 +3223,13 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_ToolBarExtensionExtent:
         break;
 
+    case PM_SplitterWidth:
     case PM_ToolBarSeparatorExtent:
     case PM_ToolBarHandleExtent: {
-        PseudoElement ps = m == PM_ToolBarHandleExtent ? PseudoElement_ToolBarHandle : PseudoElement_ToolBarSeparator;
+        PseudoElement ps;
+        if (m == PM_ToolBarHandleExtent) ps = PseudoElement_ToolBarHandle;
+        else if (m == PM_SplitterWidth) ps = PseudoElement_SplitterHandle;
+        else ps = PseudoElement_ToolBarSeparator;
         subRule = renderRule(w, opt, ps);
         if (subRule.hasContentsSize()) {
             QSize sz = subRule.size();
@@ -3234,11 +3237,6 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         }
         break;
                                  }
-
-    case PM_SplitterWidth:
-        if (rule.hasContentsSize())
-            return rule.size().width();
-        break;
 
     case PM_RadioButtonLabelSpacing:
         if (rule.hasBox() && rule.box()->spacing != -1)
@@ -3380,9 +3378,11 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
             return sz;
         break;
 
+    case CT_Splitter:
     case CT_MenuItem:
     case CT_MenuBarItem: {
-        QRenderRule subRule = renderRule(w, opt, PseudoElement_Item);
+        PseudoElement pe = (ct == CT_Splitter) ? PseudoElement_SplitterHandle : PseudoElement_Item;
+        QRenderRule subRule = renderRule(w, opt, pe);
         if (subRule.hasBox() || subRule.hasBorder())
             return subRule.boxSize(sz);
         break;
@@ -3394,7 +3394,6 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
             : rule.boxSize(baseStyle()->sizeFromContents(ct, opt, sz, w));
         break;
 
-    case CT_Splitter:
     case CT_ProgressBar:
         if (rule.hasBorder() || rule.hasBox())
             return rule.boxSize(sz);
