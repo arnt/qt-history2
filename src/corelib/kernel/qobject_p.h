@@ -111,6 +111,7 @@ public:
         QList<QVariant> propertyValues;
     };
     ExtraData *extraData;
+    mutable quint32 connectedSignals;
 
     QString objectName;
 };

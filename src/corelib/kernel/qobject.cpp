@@ -293,6 +293,7 @@ QObjectPrivate::QObjectPrivate(int version)
     receiveChildEvents = true;
     postedEvents = 0;
     extraData = 0;
+    connectedSignals = 0;
 }
 
 QObjectPrivate::~QObjectPrivate()
@@ -2819,6 +2820,8 @@ bool QMetaObject::connect(const QObject *sender, int signal_index,
     QWriteLocker locker(&list->lock);
     list->addConnection(const_cast<QObject *>(sender), signal_index,
                         const_cast<QObject *>(receiver), method_index, type, types);
+    if (signal_index < 32)
+        sender->d_func()->connectedSignals |= (1 << signal_index);
     return true;
 }
 
@@ -2962,6 +2965,17 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
 {
     if (sender->d_func()->blockSig)
         return;
+    if (from_signal_index < 32 && to_signal_index < 32) {
+        uint signal_mask = 0;
+        for (int i = from_signal_index; i <= to_signal_index; ++i)
+            signal_mask |= 1 << i;
+        if ((sender->d_func()->connectedSignals & signal_mask) == 0
+            && !qt_signal_spy_callback_set.signal_begin_callback
+            && !qt_signal_spy_callback_set.signal_end_callback) {
+            // nothing connected to these signals, and no spy
+            return;
+        }
+    }
 
     QConnectionList * const list = ::connectionList();
     if (!list)
