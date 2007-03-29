@@ -410,6 +410,10 @@ void QWSCalibratedMouseHandler::readCalibration()
     if (file.open(QIODevice::ReadOnly)) {
         QTextStream t(&file);
         t >> a >> b >> c >> d >> e >> f >> s;
+        if (s == 0 || t.status() != QTextStream::Ok) {
+            qCritical("Corrupt calibration data");
+            clearCalibration();
+        }
     } else
 #endif
     {
@@ -481,10 +485,10 @@ void QWSCalibratedMouseHandler::calibrate(const QWSPointerCalibrationData *data)
 
     qint64 scale = ((xd0 - xd2)*(yd1 - yd2) - (xd1 - xd2)*(yd0 - yd2));
     int shift = 0;
-
+    qint64 absScale = qAbs(scale);
     // use maximum 16 bit precision to reduce risk of integer overflow
-    if (scale > (1 << 16)) {
-        shift = ilog2(scale >> 16) + 1;
+    if (absScale > (1 << 16)) {
+        shift = ilog2(absScale >> 16) + 1;
         scale >>= shift;
     }
 
