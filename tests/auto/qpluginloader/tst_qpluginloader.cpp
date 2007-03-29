@@ -166,6 +166,7 @@ void tst_QPluginLoader::errorString()
     QVERIFY(loader.errorString() != unknown);
     }
 
+#ifndef Q_OS_WIN
     {
     QPluginLoader loader( sys_qualifiedLibraryName("almostplugin"));     //a plugin with unresolved symbols
     loader.setLoadHints(QLibrary::ResolveAllSymbolsHint);
@@ -181,13 +182,13 @@ void tst_QPluginLoader::errorString()
 #endif
     QVERIFY(loader.errorString() != unknown);
 
-    QEXPECT_FAIL("", "See task 156276", Continue);
     QCOMPARE(loader.unload(), false);
 #ifdef SHOW_ERRORS
     qDebug() << loader.errorString();
 #endif
     QVERIFY(loader.errorString() != unknown);
     }
+#endif
 
     {
     QPluginLoader loader( sys_qualifiedLibraryName("theplugin"));     //a plugin

@@ -1,9 +1,9 @@
 TEMPLATE    =	subdirs
 CONFIG  += ordered
 SUBDIRS	=	lib \
-                almostplugin \
                 theplugin \
 		tst
+!win32: SUBDIRS += almostplugin
 TARGET = tst_qpluginloader
 
 # no special install rule for subdir
