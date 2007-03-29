@@ -471,6 +471,11 @@ struct QWSDefineCursorCommand : public QWSCommand
     void setData(const char *d, int len, bool allocateMem = true) {
         QWSCommand::setData(d, len, allocateMem);
         data = reinterpret_cast<unsigned char *>(rawDataPtr);
+        if (simpleData.height * ((simpleData.width+7) / 8) > len) {
+            qWarning("define cursor command - width %d height %d- buffer size %d - buffer overrun",
+                     simpleData.width, simpleData.height, len );
+            simpleData.width = simpleData.height = 0;
+        }
     }
 
     struct SimpleData {
