@@ -61,10 +61,12 @@ public:
     bool wrap;
 
     bool eatFocusOut;
+    QRect popupRect;
 
     void showPopup(const QRect&);
     void _q_complete(QModelIndex, bool = false);
     void _q_completionSelected(const QItemSelection&);
+    void _q_autoResizePopup();
     void setCurrentIndex(QModelIndex, bool = true);
 };
 
@@ -209,8 +211,12 @@ public:
 
     Q_DECLARE_PRIVATE(QCompletionModel)
 
+signals:
+    void rowsAdded();
+
 public Q_SLOTS:
     void invalidate();
+    void rowsInserted();
     void modelDestroyed();
 };
 

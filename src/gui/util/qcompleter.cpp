@@ -166,7 +166,7 @@ void QCompletionModel::setSourceModel(QAbstractItemModel *source)
     connect(d->model, SIGNAL(modelReset()), this, SLOT(invalidate()));
     connect(d->model, SIGNAL(destroyed()), this, SLOT(modelDestroyed()));
     connect(d->model, SIGNAL(layoutChanged()), this, SLOT(invalidate()));
-    connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(invalidate()));
+    connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted()));
     connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(invalidate()));
     connect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)), this, SLOT(invalidate()));
     connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)), this, SLOT(invalidate()));
@@ -375,6 +375,12 @@ void QCompletionModel::modelDestroyed()
     invalidate();
 }
 
+void QCompletionModel::rowsInserted()
+{
+    invalidate();
+    emit rowsAdded();
+}
+
 void QCompletionModel::invalidate()
 {
     engine->cache.clear();
@@ -383,8 +389,12 @@ void QCompletionModel::invalidate()
 
 void QCompletionModel::filter(const QStringList& parts)
 {
+    Q_D(QCompletionModel);
     engine->filter(parts);
     resetModel();
+
+    if (d->model->canFetchMore(engine->curParent))
+        d->model->fetchMore(engine->curParent);
 }
 
 void QCompletionModel::resetModel()
@@ -427,8 +437,7 @@ void QCompletionEngine::filter(const QStringList& parts)
             return;
         parent = model->index(emi, c->column, parent);
     }
-    if (model->canFetchMore(parent))
-        c->proxy->sourceModel()->fetchMore(parent);
+
     // Note that we set the curParent to a valid parent, even if we have no matches
     // When filtering is disabled, we show all the items under this parent
     curParent = parent;
@@ -752,6 +761,7 @@ void QCompleterPrivate::init(QAbstractItemModel *m)
 {
     Q_Q(QCompleter);
     proxy = new QCompletionModel(this, q);
+    QObject::connect(proxy, SIGNAL(rowsAdded()), q, SLOT(_q_autoResizePopup()));
     q->setModel(m);
 #ifdef QT_NO_LISTVIEW
     q->setCompletionMode(QCompleter::InlineCompletion);
@@ -819,11 +829,15 @@ void QCompleterPrivate::_q_complete(QModelIndex index, bool highlighted)
     }
 }
 
+void QCompleterPrivate::_q_autoResizePopup()
+{
+    if (!popup || !popup->isVisible())
+        return;
+    showPopup(popupRect);
+}
+
 void QCompleterPrivate::showPopup(const QRect& rect)
 {
-    Q_Q(QCompleter);
-    if (!popup)
-        return;
     const QRect screen = QApplication::desktop()->availableGeometry(widget);
     Qt::LayoutDirection dir = widget->layoutDirection();
     QPoint pos;
@@ -1292,6 +1306,7 @@ void QCompleter::complete(const QRect& rect)
         d->setCurrentIndex(idx, false);
 
     d->showPopup(rect);
+    d->popupRect = rect;
 }
 
 /*!

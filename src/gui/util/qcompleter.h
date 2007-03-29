@@ -124,6 +124,7 @@ private:
 
     Q_PRIVATE_SLOT(d_func(), void _q_complete(QModelIndex))
     Q_PRIVATE_SLOT(d_func(), void _q_completionSelected(const QItemSelection&))
+    Q_PRIVATE_SLOT(d_func(), void _q_autoResizePopup())
 };
 
 #endif // QT_NO_COMPLETER
