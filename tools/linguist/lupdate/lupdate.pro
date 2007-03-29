@@ -17,6 +17,7 @@ HEADERS         = ../shared/metatranslator.h \
                   ../shared/xliff.h
 
 SOURCES         = fetchtr.cpp \
+                  fetchtrjava.cpp \
                   main.cpp \
                   merge.cpp \
                   numberh.cpp \

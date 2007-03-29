@@ -28,6 +28,10 @@
 // defined in fetchtr.cpp
 extern void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
                          const char *defaultContext, bool mustExist, const QByteArray &codecForSource );
+
+extern void fetchtr_java( const char *fileName, MetaTranslator *tor,
+			  const char *defaultContext, bool mustExist, const QByteArray &codecForSource );
+
 extern void fetchtr_ui( const char *fileName, MetaTranslator *tor,
                         const char *defaultContext, bool mustExist );
 
@@ -282,7 +286,10 @@ int main( int argc, char **argv )
 #ifdef LINGUIST_DEBUG
             qDebug() << "  " << (*it);
 #endif
-            if ( (*it).endsWith(QLatin1String(".ui"), Qt::CaseInsensitive) ) {
+	    if ( (*it).endsWith(QLatin1String(".java"), Qt::CaseInsensitive) ) {
+	        fetchtr_java( (*it).toAscii(), &fetchedTor, defaultContext.toAscii(), true, codecForSource );
+	    }
+            else if ( (*it).endsWith(QLatin1String(".ui"), Qt::CaseInsensitive) ) {
 #ifdef LINGUIST_DEBUG
                 qDebug() << "  " << (*it) + ".h";
 #endif
