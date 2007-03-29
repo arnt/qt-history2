@@ -1315,6 +1315,8 @@ static int pseudoClass(QStyle::State state)
         pc |= PseudoClass_Children;
     if (state & QStyle::State_Sibling)
         pc |= PseudoClass_Sibling;
+    if (state & QStyle::State_ReadOnly)
+        pc |= PseudoClass_ReadOnly;
 
     return pc;
 }
@@ -1356,7 +1358,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         switch (pseudoElement) {
         case PseudoElement_ComboBoxDropDown:
         case PseudoElement_ComboBoxArrow:
-            state |= (state & QStyle::State_On); // propagate popup state as on/off
+            state |= (complex->state & (QStyle::State_On|QStyle::State_ReadOnly));
             break;
         case PseudoElement_SpinBoxUpButton:
         case PseudoElement_SpinBoxDownButton:
@@ -1376,7 +1378,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
 #endif // QT_NO_SPINBOX
             break;
         case PseudoElement_GroupBoxTitle:
-            state |= (state & (QStyle::State_MouseOver | QStyle::State_Sunken));
+            state |= (complex->state & (QStyle::State_MouseOver | QStyle::State_Sunken));
             break;
         case PseudoElement_ToolButtonMenu:
         case PseudoElement_ToolButtonMenuArrow:
@@ -1386,22 +1388,23 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
                 complex->activeSubControls & QStyle::SC_ToolButtonMenu)
                 state |= QStyle::State_Sunken;
             break;
-        case PseudoElement_None:
-            // QStyle::State_On is set when the popup is being shown
-            // Propagate EditField Pressed state
-            if (qstyleoption_cast<const QStyleOptionComboBox *>(opt)
-                && (complex->activeSubControls & QStyle::SC_ComboBoxEditField)
-                && (!(state & QStyle::State_MouseOver))) {
-                state |= QStyle::State_Sunken;
-            }
-            break;
         default:
             break;
         }
 
         if (const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+            // QStyle::State_On is set when the popup is being shown
+            // Propagate EditField Pressed state
+            if (pseudoElement == PseudoElement_None
+                && (complex->activeSubControls & QStyle::SC_ComboBoxEditField)
+                && (!(state & QStyle::State_MouseOver))) {
+                state |= QStyle::State_Sunken;
+            }
+
             if (!combo->frame)
                 extraClass |= PseudoClass_Frameless;
+            if (!combo->editable)
+                extraClass |= PseudoClass_ReadOnly;
         } else if (const QStyleOptionSpinBox *spin = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
             if (!spin->frame)
                 extraClass |= PseudoClass_Frameless;
@@ -1509,18 +1512,6 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         // LineEdit sets Sunken flag to indicate Sunken frame (argh)
         if (qobject_cast<const QLineEdit *>(w)) {
             state &= ~QStyle::State_Sunken;
-        } else
-#endif
-#ifndef QT_NO_MENUBAR
-        if (qobject_cast<const QMenuBar *>(w)) {
-            if (state & QStyle::State_Sunken) {
-                state &= ~QStyle::State_Sunken;
-                state |= QStyle::State_On;
-            }
-            if (state & QStyle::State_Selected) {
-                state &= ~QStyle::State_Selected;
-                state |= QStyle::State_MouseOver;
-            }
         } else
 #endif
         { } // required for the above ifdef'ery
