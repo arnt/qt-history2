@@ -37,13 +37,9 @@ extern bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event); //qapplication
 Q_GUI_EXPORT void qt_mac_secure_keyboard(bool b)
 {
     if(b) {
-        SInt32 (*EnableSecureEventInput_ptr)() = EnableSecureEventInput; // workaround for gcc warning
-        if(EnableSecureEventInput_ptr)
-            (*EnableSecureEventInput_ptr)();
+        EnableSecureEventInput();
     } else {
-        SInt32 (*DisableSecureEventInput_ptr)() = DisableSecureEventInput;
-        if(DisableSecureEventInput_ptr)
-            (*DisableSecureEventInput_ptr)();
+        DisableSecureEventInput();
     }
 }
 
