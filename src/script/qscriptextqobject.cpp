@@ -771,7 +771,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
 
     QScriptMetaMethod chosenMethod;
     int chosenIndex = -1;
-    QVector<QVariant> args;
+    QVarLengthArray<QVariant, 9> args;
     QVector<QScriptMetaArguments> candidates;
     for (int index = m_initialIndex; index >= 0; --index) {
 #ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
@@ -831,7 +831,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
         if (!mtd.fullyResolved()) {
             // remember it so we can give an error message later, if necessary
             candidates.append(QScriptMetaArguments(/*matchDistance=*/INT_MAX, index,
-                                                   mtd, QVector<QVariant>()));
+                                                   mtd, QVarLengthArray<QVariant, 9>()));
             continue;
         }
 

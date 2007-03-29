@@ -37,6 +37,7 @@
 #include <QtCore/QPointer>
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
+#include <QtCore/QVarLengthArray>
 #include <QtCore/QVector>
 
 namespace QScript {
@@ -281,10 +282,10 @@ struct QScriptMetaArguments
     int matchDistance;
     int index;
     QScriptMetaMethod method;
-    QVector<QVariant> args;
+    QVarLengthArray<QVariant, 9> args;
 
     inline QScriptMetaArguments(int dist, int idx, const QScriptMetaMethod &mtd,
-                                const QVector<QVariant> &as)
+                                const QVarLengthArray<QVariant, 9> &as)
         : matchDistance(dist), index(idx), method(mtd), args(as) { }
     inline QScriptMetaArguments()
         : index(-1) { }
