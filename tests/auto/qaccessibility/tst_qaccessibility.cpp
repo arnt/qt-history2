@@ -3037,9 +3037,6 @@ void tst_QAccessibility::abstractScrollAreaTest()
     QLabel *secondLeftLabel = new QLabel(QLatin1String("L2"));
     abstractScrollArea.addScrollBarWidget(secondLeftLabel, Qt::AlignLeft);
     QCOMPARE(interface->childCount(), 3);
-#ifdef Q_WS_MAC
-    QEXPECT_FAIL("", "Task 155501", Abort);
-#endif
     QVERIFY(verifyChild(secondLeftLabel, interface, 3, globalGeometry));
 
     QLabel *firstLeftLabel = new QLabel(QLatin1String("L1"));
