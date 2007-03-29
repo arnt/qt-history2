@@ -562,7 +562,7 @@ QScriptValueImpl Global::method_gc(QScriptContextPrivate *,
                                    QScriptEnginePrivate *eng,
                                    QScriptClassInfo *)
 {
-    eng->maybeGC_helper(true);
+    eng->gc();
     return QScriptValueImpl(eng, eng->objectAllocator.freeBlocks());
 }
 

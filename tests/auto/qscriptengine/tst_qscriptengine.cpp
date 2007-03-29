@@ -47,6 +47,7 @@ private slots:
     void infiniteRecursion();
     void castWithPrototypeChain();
     void castWithMultipleInheritance();
+    void gc();
     void gcWithNestedDataStructure();
 };
 
@@ -777,6 +778,22 @@ void tst_QScriptEngine::castWithMultipleInheritance()
     QCOMPARE(qscriptvalue_cast<QObject*>(v), (QObject *)&klz);
     QCOMPARE(qscriptvalue_cast<QStandardItem*>(v), (QStandardItem *)&klz);
     QCOMPARE(qscriptvalue_cast<QGraphicsItem*>(v), (QGraphicsItem *)&klz);
+}
+
+void tst_QScriptEngine::gc()
+{
+    QScriptEngine eng;
+    eng.evaluate("a = new Object(); a = new Object(); a = new Object()");
+    QScriptValue a = eng.newObject();
+    a = eng.newObject();
+    a = eng.newObject();
+    QPointer<QObject> ptr = new QObject();
+    QVERIFY(ptr != 0);
+    {
+        QScriptValue v = eng.newQObject(ptr, QScriptEngine::ScriptOwnership);
+    }
+    eng.gc();
+    QVERIFY(ptr == 0);
 }
 
 void tst_QScriptEngine::gcWithNestedDataStructure()

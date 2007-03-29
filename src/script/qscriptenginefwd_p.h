@@ -158,6 +158,8 @@ public:
 
     inline bool blockGC(bool block);
 
+    void gc();
+
     void markObject(const QScriptValueImpl &object, int generation);
     void markFrame(QScriptContextPrivate *context, int generation);
 

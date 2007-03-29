@@ -1679,3 +1679,15 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
 #endif // QT_NO_QOBJECT
     return undefinedValue();
 }
+
+void QScriptEnginePrivate::gc()
+{
+    if (!objectAllocator.blocked()) {
+        // do the GC now
+        maybeGC_helper(/*do_string_gc=*/true);
+    } else {
+        // GC will be performed the next time maybeGC()
+        // is called and the allocator is not blocked
+        objectAllocator.requestGC();
+    }
+}

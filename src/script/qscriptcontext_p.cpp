@@ -2005,6 +2005,8 @@ Ldone:
     if (dbg)
         dbg->frameExit(q);
 #endif
+
+    eng->maybeGC();
 }
 
 QScriptValueImpl QScriptContextPrivate::throwError(QScriptContext::Error error, const QString &text)

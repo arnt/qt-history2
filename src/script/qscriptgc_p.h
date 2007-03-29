@@ -164,18 +164,23 @@ public:
         return was;
     }
 
+    inline void requestGC()
+    {
+        m_force_gc = true;
+    }
+
     inline bool poll()
     {
         if (m_blocked_gc || ! m_head)
             return false;
 
-        else if (m_free && ! m_free->next)
-            return true;
-
         else if (m_force_gc) {
             m_force_gc = false;
             return true;
         }
+
+        else if (m_free && ! m_free->next)
+            return true;
 
         return m_new_allocated_blocks >= MaxNumberOfBlocks;
     }

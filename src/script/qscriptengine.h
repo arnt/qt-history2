@@ -152,6 +152,8 @@ public:
 
     QScriptValue importExtension(const QString &extension);
 
+    void gc();
+
 private:
     QScriptValue create(int type, const void *ptr);
 
