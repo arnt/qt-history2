@@ -461,6 +461,7 @@ static EventTypeSpec window_events[] = {
     { kEventClassWindow, kEventWindowDragStarted },
     { kEventClassWindow, kEventWindowDragCompleted },
     { kEventClassWindow, kEventWindowBoundsChanging },
+/    { kEventClassWindow, kEventWindowBoundsChanged },
     { kEventClassWindow, kEventWindowGetRegion },
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
     { kEventClassWindow, kEventWindowGetClickModality },
@@ -596,80 +597,89 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
             QMacBlockingFunction::subRef();
         } else if(ekind == kEventWindowDragCompleted) {
             QMacBlockingFunction::subRef();
-        } else if(ekind == kEventWindowBoundsChanging) {
-            UInt32 flags = 0;
-            GetEventParameter(event, kEventParamAttributes, typeUInt32, 0,
-                                  sizeof(flags), 0, &flags);
-            Rect nr;
-            GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, 0,
-                                  sizeof(nr), 0, &nr);
-
-            QRect newRect(nr.left, nr.top, nr.right - nr.left, nr.bottom - nr.top);
-
-            QTLWExtra * const tlwExtra = widget->d_func()->maybeTopData();
-            if (tlwExtra && tlwExtra->isSetGeometry == 1) {
-                widget->d_func()->setGeometry_sys_helper(newRect.left(), newRect.top(), newRect.width(), newRect.height(), tlwExtra->isMove);
-            } else {
-                //implicitly removes the maximized bit
-                if((widget->data->window_state & Qt::WindowMaximized) &&
-                   IsWindowInStandardState((WindowPtr)widget->handle(), 0, 0)) {
-                    widget->data->window_state &= ~Qt::WindowMaximized;
-                    QWindowStateChangeEvent e(Qt::WindowStates(widget->data->window_state
-                                                | Qt::WindowMaximized));
-                    QApplication::sendSpontaneousEvent(widget, &e);
-
-                }
-
+        } else if(ekind == kEventWindowBoundsChanging || ekind == kEventWindowBoundsChanged) {
+            // Panther doesn't send Changing for sheets, only changed, so only
+            // bother handling Changed event if we are on 10.3 and we are a
+            // sheet.
+            if (ekind == kEventWindowBoundsChanged
+                    && (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4
+                        || !(widget->windowFlags() & Qt::Sheet))) {
                 handled_event = false;
-                const QRect oldRect = widget->data->crect;
-                if((flags & kWindowBoundsChangeOriginChanged)) {
-                    if(nr.left != oldRect.x() || nr.top != oldRect.y()) {
-                        widget->data->crect.moveTo(nr.left, nr.top);
-                        QMoveEvent qme(widget->data->crect.topLeft(), oldRect.topLeft());
-                        QApplication::sendSpontaneousEvent(widget, &qme);
+            } else {
+                UInt32 flags = 0;
+                GetEventParameter(event, kEventParamAttributes, typeUInt32, 0,
+                                      sizeof(flags), 0, &flags);
+                Rect nr;
+                GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, 0,
+                                      sizeof(nr), 0, &nr);
+
+                QRect newRect(nr.left, nr.top, nr.right - nr.left, nr.bottom - nr.top);
+
+                QTLWExtra * const tlwExtra = widget->d_func()->maybeTopData();
+                if (tlwExtra && tlwExtra->isSetGeometry == 1) {
+                    widget->d_func()->setGeometry_sys_helper(newRect.left(), newRect.top(), newRect.width(), newRect.height(), tlwExtra->isMove);
+                } else {
+                    //implicitly removes the maximized bit
+                    if((widget->data->window_state & Qt::WindowMaximized) &&
+                       IsWindowInStandardState((WindowPtr)widget->handle(), 0, 0)) {
+                        widget->data->window_state &= ~Qt::WindowMaximized;
+                        QWindowStateChangeEvent e(Qt::WindowStates(widget->data->window_state
+                                                    | Qt::WindowMaximized));
+                        QApplication::sendSpontaneousEvent(widget, &e);
+
                     }
-                }
-                if((flags & kWindowBoundsChangeSizeChanged)) {
-                    if (widget->isWindow()
-                            && widget->layout() && widget->layout()->hasHeightForWidth()) {
-                        QRect rect = widget->geometry();
-                        QSize newSize = QLayout::closestAcceptableSize(widget, newRect.size());
-                        int dh = newSize.height() - newRect.height();
-                        int dw = newSize.width() - newRect.width();
-                        if (dw != 0 || dh != 0) {
-                            handled_event = true;  // We want to change the bounds, so we handle the event
 
-                            // set the rect, so we can also do the resize down below (yes, we need to resize).
-                            newRect.setBottom(newRect.bottom() + dh);
-                            newRect.setRight(newRect.right() + dw);
-
-                            nr.left = newRect.x();
-                            nr.top = newRect.y();
-                            nr.right = nr.left + newRect.width();
-                            nr.bottom = nr.top + newRect.height();
-                            SetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, sizeof(Rect), &nr);
+                    handled_event = false;
+                    const QRect oldRect = widget->data->crect;
+                    if((flags & kWindowBoundsChangeOriginChanged)) {
+                        if(nr.left != oldRect.x() || nr.top != oldRect.y()) {
+                            widget->data->crect.moveTo(nr.left, nr.top);
+                            QMoveEvent qme(widget->data->crect.topLeft(), oldRect.topLeft());
+                            QApplication::sendSpontaneousEvent(widget, &qme);
                         }
                     }
+                    if((flags & kWindowBoundsChangeSizeChanged)) {
+                        if (widget->isWindow()
+                                && widget->layout() && widget->layout()->hasHeightForWidth()) {
+                            QRect rect = widget->geometry();
+                            QSize newSize = QLayout::closestAcceptableSize(widget, newRect.size());
+                            int dh = newSize.height() - newRect.height();
+                            int dw = newSize.width() - newRect.width();
+                            if (dw != 0 || dh != 0) {
+                                handled_event = true;  // We want to change the bounds, so we handle the event
 
-                    if (oldRect.width() != newRect.width() || oldRect.height() != newRect.height()) {
-                        widget->data->crect.setSize(newRect.size());
-                        HIRect bounds = CGRectMake(0, 0, newRect.width(), newRect.height());
+                                // set the rect, so we can also do the resize down below (yes, we need to resize).
+                                newRect.setBottom(newRect.bottom() + dh);
+                                newRect.setRight(newRect.right() + dw);
 
-                        // If the WA_StaticContents attribute is set we can optimize the resize
-                        // by only repainting the newly exposed area. We do this by disabling
-                        // painting when setting the size of the view. The OS will invalidate
-                        // the newly exposed area for us.
-                        const bool staticContents = widget->testAttribute(Qt::WA_StaticContents);
-                        const HIViewRef view = qt_mac_hiview_for(widget);
-                        if (staticContents)
-                            HIViewSetDrawingEnabled(view, false);
-                        HIViewSetFrame(view, &bounds);
-                        if (staticContents)
-                            HIViewSetDrawingEnabled(view, true);
+                                nr.left = newRect.x();
+                                nr.top = newRect.y();
+                                nr.right = nr.left + newRect.width();
+                                nr.bottom = nr.top + newRect.height();
+                                SetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, sizeof(Rect), &nr);
+                            }
+                        }
 
-                        QResizeEvent qre(newRect.size(), oldRect.size());
-                        QApplication::sendSpontaneousEvent(widget, &qre);
-                        qt_event_request_window_change();
+                        if (oldRect.width() != newRect.width() || oldRect.height() != newRect.height()) {
+                            widget->data->crect.setSize(newRect.size());
+                            HIRect bounds = CGRectMake(0, 0, newRect.width(), newRect.height());
+
+                            // If the WA_StaticContents attribute is set we can optimize the resize
+                            // by only repainting the newly exposed area. We do this by disabling
+                            // painting when setting the size of the view. The OS will invalidate
+                            // the newly exposed area for us.
+                            const bool staticContents = widget->testAttribute(Qt::WA_StaticContents);
+                            const HIViewRef view = qt_mac_hiview_for(widget);
+                            if (staticContents)
+                                HIViewSetDrawingEnabled(view, false);
+                            HIViewSetFrame(view, &bounds);
+                            if (staticContents)
+                                HIViewSetDrawingEnabled(view, true);
+
+                            QResizeEvent qre(newRect.size(), oldRect.size());
+                            QApplication::sendSpontaneousEvent(widget, &qre);
+                            qt_event_request_window_change();
+                        }
                     }
                 }
             }
