@@ -1422,6 +1422,8 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             if (mi->menuItemType == QStyleOptionMenuItem::DefaultItem)
                 extraClass |= PseudoClass_Default;
+            if (pseudoElement == PseudoElement_Item && opt->state & QStyle::State_Selected)
+                extraClass |= PseudoClass_Hover;
         } else if (const QStyleOptionHeader *hdr = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
             if (hdr->position == QStyleOptionHeader::OnlyOneSection)
                 extraClass |= PseudoClass_OnlyOne;
@@ -2511,8 +2513,11 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                 || (mi.menuItemType == QStyleOptionMenuItem::SubMenu && hasStyleRule(w, PseudoElement_LeftArrow))
                 || (mi.checkType != QStyleOptionMenuItem::NotCheckable && hasStyleRule(w, PseudoElement_MenuCheckMark))) {
                 subRule.drawRule(p, opt->rect);
-                if (pseudo != PseudoElement_MenuSeparator)
+                if (pseudo != PseudoElement_MenuSeparator) {
+                    mi.palette.setBrush(QPalette::Highlight, mi.palette.brush(QPalette::Button));
+                    mi.palette.setBrush(QPalette::HighlightedText, mi.palette.brush(QPalette::ButtonText));
                     QWindowsStyle::drawControl(ce, &mi, p, w);
+                }
             } else {
                 baseStyle()->drawControl(ce, &mi, p, w);
             }
@@ -3378,8 +3383,17 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
             return sz;
         break;
 
-    case CT_Splitter:
     case CT_MenuItem:
+        if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
+            if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
+                QRenderRule subRule = renderRule(w, opt, PseudoElement_MenuSeparator);
+                if (subRule.hasContentsSize())
+                    return subRule.size();
+                break;
+            }
+        }
+        // intentionally falls through
+    case CT_Splitter:
     case CT_MenuBarItem: {
         PseudoElement pe = (ct == CT_Splitter) ? PseudoElement_SplitterHandle : PseudoElement_Item;
         QRenderRule subRule = renderRule(w, opt, pe);
