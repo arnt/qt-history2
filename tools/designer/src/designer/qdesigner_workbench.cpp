@@ -343,6 +343,14 @@ void QDesignerWorkbench::initialize()
     m_integration = new qdesigner_internal::QDesignerIntegration(core(), this);
 
     // create the toolbars
+    m_fileToolBar = new QToolBar;
+    m_fileToolBar->setObjectName(QLatin1String("fileToolBar"));
+    m_fileToolBar->setWindowTitle(tr("File"));
+    foreach (QAction *action, m_actionManager->fileActions()->actions()) {
+        if (action->icon().isNull() == false)
+            m_fileToolBar->addAction(action);
+    }
+
     m_editToolBar = new QToolBar;
     m_editToolBar->setObjectName(QLatin1String("editToolBar"));
     m_editToolBar->setWindowTitle(tr("Edit"));
@@ -368,6 +376,7 @@ void QDesignerWorkbench::initialize()
     }
 
     QMenu *toolbarMenu = m_toolMenu->addMenu(tr("Toolbars"));
+    toolbarMenu->addAction(m_fileToolBar->toggleViewAction());
     toolbarMenu->addAction(m_editToolBar->toggleViewAction());
     toolbarMenu->addAction(m_toolToolBar->toggleViewAction());
     toolbarMenu->addAction(m_formToolBar->toggleViewAction());
@@ -444,6 +453,7 @@ void QDesignerWorkbench::switchToNeutralMode()
 #ifndef Q_WS_MAC
     m_globalMenuBar->setParent(0);
 #endif
+    m_fileToolBar->setParent(0);
     m_editToolBar->setParent(0);
     m_toolToolBar->setParent(0);
     m_formToolBar->setParent(0);
@@ -502,9 +512,11 @@ void QDesignerWorkbench::switchToDockedMode()
     mw->setMenuBar(m_globalMenuBar);
     m_globalMenuBar->show();
 #endif
+    mw->addToolBar(m_fileToolBar);
     mw->addToolBar(m_editToolBar);
     mw->addToolBar(m_toolToolBar);
     mw->addToolBar(m_formToolBar);
+    m_fileToolBar->show();
     m_editToolBar->show();
     m_toolToolBar->show();
     m_formToolBar->show();
@@ -603,6 +615,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
         qDesigner->setMainWindow(widgetBoxWrapper);
         widgetBoxWrapper->setWindowTitle(tr("Qt Designer"));
 #endif
+        widgetBoxWrapper->addToolBar(m_fileToolBar);
         widgetBoxWrapper->addToolBar(m_editToolBar);
         widgetBoxWrapper->addToolBar(m_toolToolBar);
         widgetBoxWrapper->addToolBar(m_formToolBar);
@@ -922,9 +935,10 @@ void QDesignerWorkbench::formWindowActionTriggered(QAction *a)
 
 void QDesignerWorkbench::showToolBars()
 {
+    m_fileToolBar->show();
+    m_editToolBar->show();
     m_toolToolBar->show();
     m_formToolBar->show();
-    m_editToolBar->show();
 }
 
 void QDesignerWorkbench::closeAllToolWindows()

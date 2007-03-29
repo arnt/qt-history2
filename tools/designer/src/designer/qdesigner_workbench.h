@@ -157,6 +157,7 @@ private:
     QToolBar *m_toolToolBar;
     QToolBar *m_formToolBar;
     QToolBar *m_editToolBar;
+    QToolBar *m_fileToolBar;
 
     UIMode m_mode;
 
