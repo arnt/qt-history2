@@ -1654,7 +1654,7 @@ void QD3DWindowManager::init(LPDIRECT3D9 object)
                                0, 0, 1, 1,
                                0, 0, qWinAppInst(), 0);
     } , {
-        m_dummy = CreateWindowA(cname.latin1(), cname.latin1(), 0,
+        m_dummy = CreateWindowA(cname.latin1(), cname.toLatin1(), 0,
                                 0, 0, 1, 1,
                                 0, 0, qWinAppInst(), 0);
     });
