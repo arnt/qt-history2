@@ -2152,6 +2152,7 @@ void tst_QAccessibility::menuTest()
 #ifdef QTEST_ACCESSIBILITY
     {
     QMainWindow mw;
+    mw.resize(300, 200);
     QMenu *file = mw.menuBar()->addMenu("&File");
     QMenu *fileNew = file->addMenu("&New...");
     fileNew->menuAction()->setShortcut(tr("Ctrl+N"));
@@ -2608,9 +2609,24 @@ void tst_QAccessibility::mdiSubWindowTest()
 #endif
     qApp->setActiveWindow(&mdiArea);
 
+    bool isSubWindowsPlacedNextToEachOther = false;
     const int subWindowCount =  5;
-    for (int i = 0; i < subWindowCount; ++i)
-        mdiArea.addSubWindow(new QPushButton("QAccessibilityTest"))->show();
+    for (int i = 0; i < subWindowCount; ++i) {
+        QMdiSubWindow *window = mdiArea.addSubWindow(new QPushButton("QAccessibilityTest"));
+        window->show();
+        // Parts of this test requires that the sub windows are placed next
+        // to each other. In order to achieve that QMdiArea must have
+        // a width which is larger than subWindow->width() * subWindowCount.
+        if (i == 0) {
+            int minimumWidth = window->width() * subWindowCount + 20;
+            mdiArea.resize(mdiArea.size().expandedTo(QSize(minimumWidth, 0)));
+#if defined(Q_WS_X11)
+            qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+            if (mdiArea.width() >= minimumWidth)
+                isSubWindowsPlacedNextToEachOther = true;
+        }
+    }
 
     QList<QMdiSubWindow *> subWindows = mdiArea.subWindowList();
     QCOMPARE(subWindows.count(), subWindowCount);
@@ -2660,23 +2676,23 @@ void tst_QAccessibility::mdiSubWindowTest()
     QVERIFY(interface->state(0) & QAccessible::Focused);
     testWindow->setGeometry(originalGeometry);
 
-#ifndef Q_WS_QWS
-    // Embedded has too small screen size for this part....
-    // navigate
-    QAccessibleInterface *destination = 0;
-    QCOMPARE(interface->navigate(QAccessible::Child, 1, &destination), 1);
-    QVERIFY(destination);
-    QCOMPARE(destination->object(), (QObject*)testWindow->widget());
-    delete destination;
-    QCOMPARE(interface->navigate(QAccessible::Left, 0, &destination), 0);
-    QVERIFY(destination);
-    QCOMPARE(destination->object(), (QObject*)subWindows.at(2));
-    delete destination;
-    QCOMPARE(interface->navigate(QAccessible::Right, 0, &destination), 0);
-    QVERIFY(destination);
-    QCOMPARE(destination->object(), (QObject*)subWindows.at(4));
-    delete destination;
-#endif
+    if (isSubWindowsPlacedNextToEachOther) {
+        // This part of the test can only be run if the sub windows are
+        // placed next to each other.
+        QAccessibleInterface *destination = 0;
+        QCOMPARE(interface->navigate(QAccessible::Child, 1, &destination), 1);
+        QVERIFY(destination);
+        QCOMPARE(destination->object(), (QObject*)testWindow->widget());
+        delete destination;
+        QCOMPARE(interface->navigate(QAccessible::Left, 0, &destination), 0);
+        QVERIFY(destination);
+        QCOMPARE(destination->object(), (QObject*)subWindows.at(2));
+        delete destination;
+        QCOMPARE(interface->navigate(QAccessible::Right, 0, &destination), 0);
+        QVERIFY(destination);
+        QCOMPARE(destination->object(), (QObject*)subWindows.at(4));
+        delete destination;
+    }
 
     // rect
     const QPoint globalPos = testWindow->mapToGlobal(QPoint(0, 0));
