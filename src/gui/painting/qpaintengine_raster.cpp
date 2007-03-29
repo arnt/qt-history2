@@ -2437,8 +2437,9 @@ inline bool QRasterPaintEnginePrivate::isUnclipped(const QRect &rect,
 inline bool QRasterPaintEnginePrivate::isUnclipped(const QRectF &rect,
                                                    int penWidth) const
 {
-    const QRect r(qFloor(rect.x()), qFloor(rect.y()),
-                  qCeil(rect.width()), qCeil(rect.height()));
+    const QRectF rn = rect.normalized();
+    const QRect r(qFloor(rn.x()), qFloor(rn.y()),
+                  qCeil(rn.width()), qCeil(rn.height()));
     return isUnclipped(r, penWidth);
 }
 
