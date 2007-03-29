@@ -127,9 +127,12 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
         QString host = QLatin1String("\\\\") + pathElements.first();
         int r = 0;
         for (; r < root.children.count(); ++r)
-            if (root.children.at(r).fileName == host)
+            if (root.children.at(r).fileName.toLower() == host.toLower())
                 break;
         QFileSystemModelPrivate::QFileSystemNode *rootNode = const_cast<QFileSystemModelPrivate::QFileSystemNode*>(&root);
+        QFileInfo info(host);
+        if (!info.exists())
+            return rootNode;
         if (r >= root.children.count()) {
             QFileSystemModelPrivate *p = const_cast<QFileSystemModelPrivate*>(this);
             r = p->addNode(rootNode, host);
