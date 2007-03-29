@@ -562,8 +562,16 @@ QStringList QSQLiteDriver::tables(QSql::TableType type) const
 
 static QSqlIndex qGetTableInfo(QSqlQuery &q, const QString &tableName, bool onlyPIndex = false)
 {
+    QString schema;
+    QString table(tableName);
+    int indexOfSeparator = tableName.indexOf(QLatin1String("."));
+    if (indexOfSeparator > -1) {
+        schema = tableName.left(indexOfSeparator).append(QLatin1String("."));
+        table = tableName.mid(indexOfSeparator + 1);
+    }
+    q.exec(QLatin1String("PRAGMA ") + schema + QLatin1String("table_info ('") + table + QLatin1String("')"));
+
     QSqlIndex ind;
-    q.exec(QLatin1String("PRAGMA table_info ('") + tableName + QLatin1String("')"));
     while (q.next()) {
         bool isPk = q.value(5).toInt();
         if (onlyPIndex && !isPk)
@@ -605,15 +613,11 @@ QVariant QSQLiteDriver::handle() const
     return qVariantFromValue(d->access);
 }
 
-QString QSQLiteDriver::escapeIdentifier(const QString &identifier, IdentifierType type) const
+QString QSQLiteDriver::escapeIdentifier(const QString &identifier, IdentifierType /*type*/) const
 {
     QString res = identifier;
     res.replace(QLatin1Char('"'), QLatin1String("\"\""));
     res.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
-
-    if (type == QSqlDriver::TableName)
-        return res;
-
     res.replace(QLatin1Char('.'), QLatin1String("\".\""));
     return res;
 }

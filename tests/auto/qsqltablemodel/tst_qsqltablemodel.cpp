@@ -9,7 +9,6 @@
 
 #include <QtTest/QtTest>
 #include "../qsqldatabase/tst_databases.h"
-
 #include <QtSql>
 #include <QSignalSpy>
 
@@ -65,6 +64,7 @@ private slots:
     void insertRecordBeforeSelect();
     void submitAllOnInvalidTable();
     void insertRecordsInLoop();
+    void sqlite_attachedDatabase(); // For task 130799
 };
 
 tst_QSqlTableModel::tst_QSqlTableModel()
@@ -782,6 +782,63 @@ void tst_QSqlTableModel::insertRecordsInLoop()
 
     QCOMPARE(model.rowCount(), 13);
     QCOMPARE(model.columnCount(), 3);
+}
+
+void tst_QSqlTableModel::sqlite_attachedDatabase()
+{
+    QFETCH_GLOBAL(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QSQLITE")) {
+        QSKIP("SQLite server specific test", SkipSingle);
+        return;
+    }
+
+    QSqlDatabase attachedDb = QSqlDatabase::addDatabase("QSQLITE", "attached");
+    attachedDb.setDatabaseName("attached.dat");
+    QVERIFY2(attachedDb.open(), attachedDb.lastError().text().toLatin1());
+
+    QSqlQuery q(attachedDb);
+    q.exec("DROP TABLE atest"), q.lastError().text().toLatin1();
+    q.exec("DROP TABLE atest1"), q.lastError().text().toLatin1();
+    QVERIFY2(q.exec("CREATE TABLE atest(id int, text varchar(20))"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("CREATE TABLE atest2(id int, text varchar(20))"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("INSERT INTO atest VALUES(1, 'attached-atest')"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("INSERT INTO atest2 VALUES(2, 'attached-atest2')"), q.lastError().text().toLatin1());
+
+    QSqlQuery q2(db);
+    QVERIFY2(q2.exec("CREATE TABLE atest(id int, text varchar(20))"), q.lastError().text().toLatin1());
+    QVERIFY2(q2.exec("INSERT INTO atest VALUES(3, 'main')"), q.lastError().text().toLatin1());
+    q2.exec("ATTACH DATABASE \"attached.dat\" as adb");
+
+    // This should query the table in the attached database (schema supplied)
+    QSqlTableModel model(0, db);
+    model.setTable("adb.atest");
+    QVERIFY2(model.select(), q.lastError().text().toLatin1());
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(model.data(model.index(0, 0), Qt::DisplayRole).toInt(), 1);
+    QCOMPARE(model.data(model.index(0, 1), Qt::DisplayRole).toString(), QLatin1String("attached-atest"));
+
+    // This should query the table in the attached database (unique tablename)
+    model.setTable("atest2");
+    QVERIFY2(model.select(), q.lastError().text().toLatin1());
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(model.data(model.index(0, 0), Qt::DisplayRole).toInt(), 2);
+    QCOMPARE(model.data(model.index(0, 1), Qt::DisplayRole).toString(), QLatin1String("attached-atest2"));
+
+    // This should query the table in the main database (tables in main db has 1st priority)
+    model.setTable("atest");
+    QVERIFY2(model.select(), q.lastError().text().toLatin1());
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(model.data(model.index(0, 0), Qt::DisplayRole).toInt(), 3);
+    QCOMPARE(model.data(model.index(0, 1), Qt::DisplayRole).toString(), QLatin1String("main"));
+
+    QVERIFY2(q2.exec("DROP TABLE adb.atest"), q.lastError().text().toLatin1());
+    QVERIFY2(q2.exec("DROP TABLE atest2"), q.lastError().text().toLatin1());
+    QVERIFY2(q2.exec("DROP TABLE atest"), q.lastError().text().toLatin1());
+
+    attachedDb.close();
 }
 
 QTEST_MAIN(tst_QSqlTableModel)
