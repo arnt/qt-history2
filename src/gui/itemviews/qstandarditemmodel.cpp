@@ -1367,7 +1367,7 @@ void QStandardItem::insertRow(int row, const QList<QStandardItem*> &items)
 /*!
     Inserts \a items at \a row. The column count wont be changed.
 
-    \sa insertRows(), insertColumn()
+    \sa insertRow(), insertColumn()
 */
 void QStandardItem::insertRows(int row, const QList<QStandardItem*> &items)
 {
