@@ -176,7 +176,7 @@ mac {
     win32-g++|!win32:!*-icc* {
         mmx {
             mmx_compiler.commands = $$QMAKE_CXX -c
-            mmx: mmx_compiler.commands += -mmmx
+            mmx_compiler.commands += -mmmx
             mmx_compiler.commands += $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
             mmx_compiler.dependency_type = TYPE_C
             mmx_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
@@ -193,9 +193,7 @@ mac {
         }
         3dnow {
             3dnow_compiler.commands = $$QMAKE_CXX -c
-            3dnow: 3dnow_compiler.commands += -m3dnow
-            mmx: 3dnow_compiler.commands += -mmmx
-            sse: 3dnow_compiler.commands += -msse
+            3dnow_compiler.commands += -m3dnow
             3dnow_compiler.commands += $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
             3dnow_compiler.dependency_type = TYPE_C
             3dnow_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
@@ -207,7 +205,7 @@ mac {
         }
         sse {
             sse_compiler.commands = $$QMAKE_CXX -c
-            sse: sse_compiler.commands += -msse
+            sse_compiler.commands += -msse
             sse_compiler.commands += $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
             sse_compiler.dependency_type = TYPE_C
             sse_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
@@ -219,7 +217,7 @@ mac {
         }
         sse2 {
             sse2_compiler.commands = $$QMAKE_CXX -c
-            sse2: sse2_compiler.commands += -msse2
+            sse2_compiler.commands += -msse2
             sse2_compiler.commands += $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
             sse2_compiler.dependency_type = TYPE_C
             sse2_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
@@ -231,7 +229,7 @@ mac {
         }
         iwmmxt {
             iwmmxt_compiler.commands = $$QMAKE_CXX -c
-            iwmmxt: iwmmxt_compiler.commands += -miwmmxt
+            iwmmxt_compiler.commands += -mcpu=iwmmxt
             iwmmxt_compiler.commands += $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
             iwmmxt_compiler.dependency_type = TYPE_C
             iwmmxt_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
