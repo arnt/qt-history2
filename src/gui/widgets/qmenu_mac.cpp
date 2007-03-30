@@ -197,17 +197,20 @@ void qt_mac_command_set_enabled(MenuRef menu, UInt32 cmd, bool b)
 //toggling of modal state
 void qt_mac_set_modal_state(MenuRef menu, bool on)
 {
-    for(int i = 1; i < CountMenuItems(menu); i++) {
-        MenuRef submenu;
-        GetMenuItemHierarchicalMenu(menu, i+1, &submenu);
-        if (on)
-            DisableMenuItem(submenu, 0);
-        else
-            EnableMenuItem(submenu, 0);
-    }
     MenuRef merge = 0;
     GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyMergeMenu,
                         sizeof(merge), 0, &merge);
+
+    for(int i = 0; i < CountMenuItems(menu); i++) {
+        MenuRef submenu;
+        GetMenuItemHierarchicalMenu(menu, i+1, &submenu);
+        if(submenu != merge) {
+            if (on)
+                DisableMenuItem(submenu, 0);
+            else
+                EnableMenuItem(submenu, 0);
+        }
+    }
 
     UInt32 commands[] = { kHICommandQuit, kHICommandPreferences, kHICommandAbout, kHICommandAboutQt, 0 };
     for(int c = 0; commands[c]; c++) {
@@ -405,14 +408,14 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
 
     if (action_e == QAction::Trigger && by_accel && action->ignore_accel) //no, not a real accel (ie tab)
         return false;
-    
-    // Unhighlight the highlighted menu item before triggering the action to 
+
+    // Unhighlight the highlighted menu item before triggering the action to
     // prevent items from staying highlighted while a modal dialog is shown.
     // This also fixed the problem that parentless modal dialogs leave
-    // the menu item highlighted (since the menu bar is cleared for these types of dialogs).  
+    // the menu item highlighted (since the menu bar is cleared for these types of dialogs).
     if (action_e == QAction::Trigger)
         HiliteMenu(0);
-        
+
     action->action->activate(action_e);
 
     //now walk up firing for each "caused" widget (like in the platform independent menu)
@@ -948,7 +951,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
 
     //actually set it
     SetMenuItemData(action->menu, action->command, true, &data);
-    
+
     // Free up memory
     if (data.iconHandle)
         ReleaseIconRef(IconRef(data.iconHandle));
