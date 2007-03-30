@@ -1214,9 +1214,9 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_SpinBoxDown, "down-arrow" },
     { QStyle::SC_GroupBoxLabel, "title" },
     { QStyle::SC_GroupBoxCheckBox, "indicator" },
-    { QStyle::SC_ToolButtonMenu, "drop-down" },
-    { QStyle::SC_None, "down-arrow" },
-    { QStyle::SC_None, "down-arrow" },
+    { QStyle::SC_ToolButtonMenu, "menu-button" },
+    { QStyle::SC_ToolButtonMenu, "menu-arrow" },
+    { QStyle::SC_None, "menu-arrow" },
     { QStyle::SC_None, "tab" },
     { QStyle::SC_ScrollBarSlider, "slider" },
     { QStyle::SC_ScrollBarAddPage, "add-page" },
@@ -1394,6 +1394,10 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
             break;
         }
 
+        
+        if (const QStyleOptionToolButton *combo = qstyleoption_cast<const QStyleOptionToolButton *>(opt))
+            qDebug() << pseudoElement << opt->state;
+
         if (const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             // QStyle::State_On is set when the popup is being shown
             // Propagate EditField Pressed state
@@ -1416,7 +1420,6 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
             if (gb->lineWidth == 0)
                 extraClass |= PseudoClass_Frameless;
         }
-
     } else {
         // handle simple style options
         if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
@@ -2269,8 +2272,8 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
         if (const QStyleOptionToolButton *tool = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
             QStyleOptionToolButton toolOpt(*tool);
             toolOpt.rect = rule.borderRect(opt->rect);
-            bool customArrow = (tool->features & QStyleOptionToolButton::HasMenu),
-                 customDropDown = (tool->subControls & QStyle::SC_ToolButtonMenu);
+            bool customArrow = (tool->features & (QStyleOptionToolButton::HasMenu | QStyleOptionToolButton::MenuButtonPopup));
+            bool customDropDown = tool->features & QStyleOptionToolButton::MenuButtonPopup;
             if (rule.hasNativeBorder()) {
                 rule.drawBackground(p, toolOpt.rect);
                 customArrow = customArrow && hasStyleRule(w, PseudoElement_ToolButtonDownArrow);
@@ -2280,18 +2283,22 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
                 if (customDropDown)
                     toolOpt.subControls &= ~QStyle::SC_ToolButtonMenu;
 
-                if (rule.baseStyleCanDraw()) {
+                if (rule.baseStyleCanDraw() && !(tool->features & QStyleOptionToolButton::Arrow)) {
                     baseStyle()->drawComplexControl(cc, &toolOpt, p, w);
                 } else {
                     QWindowsStyle::drawComplexControl(cc, &toolOpt, p, w);
                 }
+
                 if (!customArrow && !customDropDown)
                     return;
             } else {
                 rule.drawFrame(p, opt->rect);
                 toolOpt.rect = rule.contentsRect(opt->rect);
+                if (rule.hasFont)
+                    toolOpt.font = rule.font;
                 drawControl(CE_ToolButtonLabel, &toolOpt, p, w);
             }
+
 
             QRenderRule subRule = renderRule(w, opt, PseudoElement_ToolButtonMenu);
             QRect r = subControlRect(CC_ToolButton, opt, QStyle::SC_ToolButtonMenu, w);
@@ -2313,7 +2320,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
                           ? positionRect(w, subRule, subRule2, PseudoElement_ToolButtonMenuArrow, r, opt->direction)
                           : positionRect(w, rule, subRule2, PseudoElement_ToolButtonDownArrow, opt->rect, opt->direction);
                 if (subRule2.hasDrawable()) {
-                        subRule2.drawRule(p, r2);
+                    subRule2.drawRule(p, r2);
                 } else {
                     toolOpt.rect = r2;
                     baseStyle()->drawPrimitive(QStyle::PE_IndicatorArrowDown, &toolOpt, p, w);
@@ -2356,32 +2363,14 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
     switch (ce) {
     case CE_ToolButtonLabel:
         if (const QStyleOptionToolButton *btn = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
-            if (btn->features & QStyleOptionToolButton::Arrow) {
-                PrimitiveElement pe;
-                switch (btn->arrowType) {
-                case Qt::LeftArrow:
-                    pe = QStyle::PE_IndicatorArrowLeft;
-                    break;
-                case Qt::RightArrow:
-                    pe = QStyle::PE_IndicatorArrowRight;
-                    break;
-                case Qt::UpArrow:
-                    pe = QStyle::PE_IndicatorArrowUp;
-                    break;
-                case Qt::DownArrow:
-                    pe = QStyle::PE_IndicatorArrowDown;
-                    break;
-                default:
-                    return;
-                }
-
-                drawPrimitive(pe, btn, p, w);
+            if (rule.hasBox() || btn->features & QStyleOptionToolButton::Arrow) {
+                QCommonStyle::drawControl(ce, opt, p, w);
             } else {
                 QStyleOptionToolButton butOpt(*btn);
                 rule.configurePalette(&butOpt.palette, QPalette::ButtonText, QPalette::Button);
                 baseStyle()->drawControl(ce, &butOpt, p, w);
-                return;
             }
+            return;
         }
         break;
 
@@ -3333,6 +3322,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
 
     switch (ct) {
     case CT_ToolButton:
+        sz += QSize(3, 3); // ### broken QToolButton
     case CT_SpinBox:
     case CT_ComboBox:
     case CT_PushButton:
