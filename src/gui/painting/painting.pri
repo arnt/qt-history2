@@ -186,14 +186,16 @@ mac {
             silent:mmx_compiler.commands = @echo compiling[mmx] ${QMAKE_FILE_IN} && $$mmx_compiler.commands
             QMAKE_EXTRA_COMPILERS += mmx_compiler
 
-#            *g++ {
-#                DEFINES += QT_HAVE_MMXEXT
-#                SOURCES += painting/qdrawhelper_mmxext.s
-#            }
+            *g++ {
+                DEFINES += QT_HAVE_MMXEXT
+                SOURCES += painting/qdrawhelper_mmxext.S
+            }
         }
         3dnow {
             3dnow_compiler.commands = $$QMAKE_CXX -c
             3dnow_compiler.commands += -m3dnow
+            mmx: 3dnow_compiler.commands += -mmmx
+            sse: 3dnow_compiler.commands += -msse
             3dnow_compiler.commands += $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
             3dnow_compiler.dependency_type = TYPE_C
             3dnow_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
