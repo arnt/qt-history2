@@ -312,15 +312,23 @@ static void qt_mac_dispose_pattern(void *info)
 inline static QPaintEngine::PaintEngineFeatures qt_mac_cg_features()
 {
     // Supports all except gradients...
-    return QPaintEngine::PaintEngineFeatures(QPaintEngine::AllFeatures
-            & ~QPaintEngine::PorterDuff
-            & ~QPaintEngine::PaintOutsidePaintEvent
-            & ~QPaintEngine::PerspectiveTransform
-            & (~(QPaintEngine::ConicalGradientFill | QPaintEngine::BrushStroke))
+    QPaintEngine::PaintEngineFeatures ret(QPaintEngine::AllFeatures
+                                          & ~QPaintEngine::PaintOutsidePaintEvent
+                                          & ~QPaintEngine::PerspectiveTransform
+                                          & (~(QPaintEngine::ConicalGradientFill | QPaintEngine::BrushStroke))
 #ifndef QMAC_NATIVE_GRADIENTS
-            & (~(QPaintEngine::LinearGradientFill|QPaintEngine::RadialGradientFill))
+                                          & (~(QPaintEngine::LinearGradientFill|QPaintEngine::RadialGradientFill))
 #endif
-            );
+        );
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+        ret &= ~QPaintEngine::PorterDuff;
+    } else
+#endif
+    {
+        ret &= ~(QPaintEngine::PorterDuff|QPaintEngine::BlendModes);
+    }
+    return ret;
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
@@ -441,6 +449,8 @@ QCoreGraphicsPaintEngine::updateState(const QPaintEngineState &state)
         updateClipRegion(state.clipRegion(), state.clipOperation());
     if(flags & DirtyHints)
         updateRenderHints(state.renderHints());
+    if (flags & DirtyCompositionMode)
+        updateCompositionMode(state.compositionMode());
 
     if (flags & (DirtyPen | DirtyTransform)) {
         if(!d->current.pen.isCosmetic()) {
@@ -908,6 +918,67 @@ QCoreGraphicsPaintEngine::supportedRenderHints() const
 }
 
 void
+QCoreGraphicsPaintEngine::updateCompositionMode(QPainter::CompositionMode mode)
+{
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+        CGBlendMode cg_mode = kCGBlendModeNormal;
+        switch(mode) {
+        case QPainter::CompositionMode_Multiply:
+            cg_mode = kCGBlendModeMultiply;
+            break;
+        case QPainter::CompositionMode_Screen:
+            cg_mode = kCGBlendModeScreen;
+            break;
+        case QPainter::CompositionMode_Overlay:
+            cg_mode = kCGBlendModeOverlay;
+            break;
+        case QPainter::CompositionMode_Darken:
+            cg_mode = kCGBlendModeDarken;
+            break;
+        case QPainter::CompositionMode_Lighten:
+            cg_mode = kCGBlendModeLighten;
+            break;
+        case QPainter::CompositionMode_ColorDodge:
+            cg_mode = kCGBlendModeColorDodge;
+            break;
+        case QPainter::CompositionMode_ColorBurn:
+            cg_mode = kCGBlendModeColorBurn;
+            break;
+        case QPainter::CompositionMode_HardLight:
+            cg_mode = kCGBlendModeHardLight;
+            break;
+        case QPainter::CompositionMode_SoftLight:
+            cg_mode = kCGBlendModeSoftLight;
+            break;
+        case QPainter::CompositionMode_Difference:
+            cg_mode = kCGBlendModeDifference;
+            break;
+        case QPainter::CompositionMode_Exclusion:
+            cg_mode = kCGBlendModeExclusion;
+            break;
+        case QPainter::CompositionMode_SourceOver:
+        case QPainter::CompositionMode_DestinationOver:
+        case QPainter::CompositionMode_Clear:
+        case QPainter::CompositionMode_Source:
+        case QPainter::CompositionMode_Destination:
+        case QPainter::CompositionMode_SourceIn:
+        case QPainter::CompositionMode_DestinationIn:
+        case QPainter::CompositionMode_SourceOut:
+        case QPainter::CompositionMode_DestinationOut:
+        case QPainter::CompositionMode_SourceAtop:
+        case QPainter::CompositionMode_DestinationAtop:
+        case QPainter::CompositionMode_Xor:
+        case QPainter::CompositionMode_Plus:
+            qWarning() << "QCoreGraphicsPaintEngine::updateCompositionMode unhandled mode" << mode;
+            break;
+        }
+        CGContextSetBlendMode(d_func()->hd, cg_mode);
+    }
+#endif
+}
+
+void
 QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     Q_D(QCoreGraphicsPaintEngine);
@@ -1199,10 +1270,17 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
     if(ops & (CGEOFill | CGFill)) {
         CGContextBeginPath(hd);
         CGContextAddPath(hd, path);
-        if (ops & CGEOFill)
+        if(current.brush.style() == Qt::SolidPattern && current.brush.color() == Qt::transparent) {
+            CGContextSaveGState(hd);
+            CGContextClip(hd);
+            CGContextClearRect(hd, CGPathGetBoundingBox(path));
+            CGContextRestoreGState(hd);
+            ops &= ~CGStroke;
+        } else if (ops & CGEOFill) {
             CGContextEOFillPath(hd);
-        else
+        } else {
             CGContextFillPath(hd);
+        }
     }
 
     // Avoid saving and restoring the context if we can.

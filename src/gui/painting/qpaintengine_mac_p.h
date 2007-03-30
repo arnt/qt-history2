@@ -55,6 +55,7 @@ public:
     void updateTransform(const QTransform &matrix);
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
+    void updateCompositionMode(QPainter::CompositionMode mode);
     void updateRenderHints(QPainter::RenderHints hints);
 
     void drawLines(const QLineF *lines, int lineCount);

@@ -1628,7 +1628,7 @@ void QPainter::setCompositionMode(CompositionMode mode)
         qWarning("QPainter::setCompositionMode: Painter not active");
         return;
     } else if (!d->engine->hasFeature(QPaintEngine::PorterDuff)) {
-        qWarning("QPainter::setCompositionMode: Composition modes not supported on device");
+        qWarning("QPainter::setCompositionMode: PorterDuff modes not supported on device");
         return;
     }
 
