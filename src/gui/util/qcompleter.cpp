@@ -157,20 +157,24 @@ int QCompletionModel::columnCount(const QModelIndex &) const
 
 void QCompletionModel::setSourceModel(QAbstractItemModel *source)
 {
-    Q_D(const QCompletionModel);
-    QObject::disconnect(d->model, 0, this, 0);
+    bool hadModel = (sourceModel() != 0);
+
+    if (hadModel)
+        QObject::disconnect(sourceModel(), 0, this, 0);
 
     QAbstractProxyModel::setSourceModel(source);
 
-    // TODO: Optimize updates in the source model
-    connect(d->model, SIGNAL(modelReset()), this, SLOT(invalidate()));
-    connect(d->model, SIGNAL(destroyed()), this, SLOT(modelDestroyed()));
-    connect(d->model, SIGNAL(layoutChanged()), this, SLOT(invalidate()));
-    connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted()));
-    connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(invalidate()));
-    connect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)), this, SLOT(invalidate()));
-    connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)), this, SLOT(invalidate()));
-    connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(invalidate()));
+    if (source) {
+        // TODO: Optimize updates in the source model
+        connect(source, SIGNAL(modelReset()), this, SLOT(invalidate()));
+        connect(source, SIGNAL(destroyed()), this, SLOT(modelDestroyed()));
+        connect(source, SIGNAL(layoutChanged()), this, SLOT(invalidate()));
+        connect(source, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted()));
+        connect(source, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(invalidate()));
+        connect(source, SIGNAL(columnsInserted(QModelIndex,int,int)), this, SLOT(invalidate()));
+        connect(source, SIGNAL(columnsRemoved(QModelIndex,int,int)), this, SLOT(invalidate()));
+        connect(source, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(invalidate()));
+    }
 
     invalidate();
 }
@@ -924,12 +928,15 @@ QCompleter::~QCompleter()
 void QCompleter::setWidget(QWidget *widget)
 {
     Q_D(QCompleter);
+    if (d->widget)
+        d->widget->removeEventFilter(this);
     d->widget = widget;
-    if (popup()) {
+    if (d->widget)
+        d->widget->installEventFilter(this);
+    if (d->popup) {
         d->popup->hide();
         d->popup->setFocusProxy(d->widget);
     }
-    setCompletionMode(d->mode); // will install event filter depending on mode
 }
 
 /*!
@@ -1006,21 +1013,20 @@ QAbstractItemModel *QCompleter::model() const
 void QCompleter::setCompletionMode(QCompleter::CompletionMode mode)
 {
     Q_D(QCompleter);
-
     d->mode = mode;
     d->proxy->setFiltered(mode != QCompleter::UnfilteredPopupCompletion);
 
     if (mode == QCompleter::InlineCompletion) {
         if (d->widget)
             d->widget->removeEventFilter(this);
-        if (d->popup)
+        if (d->popup) {
             d->popup->deleteLater();
-        d->popup = 0;
-        return;
+            d->popup = 0;
+        }
+    } else {
+        if (d->widget)
+            d->widget->installEventFilter(this);
     }
-
-    if (d->widget)
-        d->widget->installEventFilter(this);
 }
 
 QCompleter::CompletionMode QCompleter::completionMode() const
