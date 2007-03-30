@@ -185,6 +185,11 @@ mac {
             mmx_compiler.name = compiling[mmx] ${QMAKE_FILE_IN}
             silent:mmx_compiler.commands = @echo compiling[mmx] ${QMAKE_FILE_IN} && $$mmx_compiler.commands
             QMAKE_EXTRA_COMPILERS += mmx_compiler
+
+            *g++ {
+                DEFINES += QT_HAVE_MMXEXT
+                SOURCES += painting/qdrawhelper_mmxext.s
+            }
         }
         3dnow {
             3dnow_compiler.commands = $$QMAKE_CXX -c

@@ -70,6 +70,13 @@ extern const CompositionFunctionSolid qt_functionForModeSolid_MMX[];
 void qt_blend_color_argb_mmx(int count, const QSpan *spans, void *userData);
 #endif
 
+#ifdef QT_HAVE_MMXEXT
+void qt_memfill32_mmxext(quint32 *dest, quint32 value, int count);
+void qt_bitmapblit16_mmxext(QRasterBuffer *rasterBuffer, int x, int y,
+                            quint32 color, const uchar *src,
+                            int width, int height, int stride);
+#endif
+
 #ifdef QT_HAVE_3DNOW
 #if defined(QT_HAVE_MMX) || !defined(QT_HAVE_SSE)
 extern const CompositionFunction qt_functionForMode_MMX3DNOW[];

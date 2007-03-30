@@ -4956,8 +4956,12 @@ void qInitDrawhelperAsm()
         }
 #endif
 #endif // SSE
+#ifdef QT_HAVE_MMXEXT
+    } else if (features & MMXEXT) {
+        qt_memfill32 = qt_memfill32_mmxext;
+        qDrawHelper[QImage::Format_RGB16].bitmapBlit = qt_bitmapblit16_mmxext;
+#endif // MMXEXT
     }
-
 #ifdef QT_HAVE_MMX
     if (features & MMX) {
         functionForMode = qt_functionForMode_MMX;
