@@ -879,6 +879,18 @@ QMdiArea::QMdiArea(QWidget *parent)
 */
 QMdiArea::~QMdiArea()
 {
+    Q_D(QMdiArea);
+    delete d->cascader;
+    d->cascader = 0;
+
+    delete d->regularTiler;
+    d->regularTiler = 0;
+
+    delete d->iconTiler;
+    d->iconTiler = 0;
+
+    delete d->placer;
+    d->placer = 0;
 }
 
 /*!

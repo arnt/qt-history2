@@ -476,7 +476,9 @@ void tst_QMdiSubWindow::emittingOfSignals()
     spy.clear();
     triggerSignal(window, &workspace, signal);
     QCOMPARE(spy.count(), 0);
-    window->close();
+
+    delete window;
+    window = 0;
 }
 
 void tst_QMdiSubWindow::showShaded()
@@ -1453,6 +1455,7 @@ void tst_QMdiSubWindow::explicitlyHiddenWidget()
     delete textEdit;
     textEdit = new QTextEdit;
     textEdit->hide();
+    subWindow->setWidget(textEdit);
     subWindow->showNormal();
     QVERIFY(subWindow->isVisible());
     QVERIFY(!textEdit->isVisible());

@@ -724,8 +724,10 @@ void tst_QMdiArea::addAndRemoveWindows()
     }
 
     // removeSubWindow
-    foreach (QWidget *window, workspace.subWindowList())
+    foreach (QWidget *window, workspace.subWindowList()) {
         workspace.removeSubWindow(window);
+        delete window;
+    }
     QCOMPARE(workspace.subWindowList().count(), 0);
 
     // removeSubWindow with 0 pointer
