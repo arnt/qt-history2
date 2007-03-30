@@ -116,7 +116,7 @@ public:
 
     void inputMethodEvent(QInputMethodEvent *);
 
-    void activateLinkUnderCursor();
+    void activateLinkUnderCursor(QString href = QString());
 
 #ifndef QT_NO_TOOLTIP
     void showToolTip(const QPoint &globalPos, const QPointF &pos, QWidget *contextWidget);

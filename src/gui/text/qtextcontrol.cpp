@@ -1555,9 +1555,13 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
         if (!cursor.hasSelection()
             || (anchor == anchorOnMousePress && hadSelectionOnMousePress)) {
 
-            anchorOnMousePress = QString();
-            setCursorPosition(pos);
-            activateLinkUnderCursor();
+            const int anchorPos = doc->documentLayout()->hitTest(pos, Qt::ExactHit);
+            if (anchorPos != -1) {
+                cursor.setPosition(anchorPos);
+
+                activateLinkUnderCursor(anchorOnMousePress);
+                anchorOnMousePress = QString();
+            }
         }
     }
 }
@@ -2310,31 +2314,55 @@ bool QTextControl::findNextPrevAnchor(const QTextCursor &startCursor, bool next,
     return false;
 }
 
-void QTextControlPrivate::activateLinkUnderCursor()
+void QTextControlPrivate::activateLinkUnderCursor(QString href)
 {
-    QTextCursor tmp = cursor;
-    if (tmp.selectionStart() != tmp.position())
-        tmp.setPosition(tmp.selectionStart());
-    tmp.movePosition(QTextCursor::NextCharacter);
-    const QString href = tmp.charFormat().anchorHref();
+    if (href.isEmpty()) {
+        QTextCursor tmp = cursor;
+        if (tmp.selectionStart() != tmp.position())
+            tmp.setPosition(tmp.selectionStart());
+        tmp.movePosition(QTextCursor::NextCharacter);
+        href = tmp.charFormat().anchorHref();
+    }
     if (href.isEmpty())
         return;
 
     if (!cursor.hasSelection()) {
-        QTextCursor linkFinder = cursor;
+        QTextBlock block = cursor.block();
+        const int cursorPos = cursor.position();
 
-        while (linkFinder.charFormat().anchorHref() == href) {
-            linkFinder.movePosition(QTextCursor::PreviousCharacter);
+        QTextBlock::Iterator it = block.begin();
+        QTextBlock::Iterator linkFragment;
+
+        for (; !it.atEnd(); ++it) {
+            QTextFragment fragment = it.fragment();
+            const int fragmentPos = fragment.position();
+            if (fragmentPos <= cursorPos &&
+                fragmentPos + fragment.length() > cursorPos) {
+                linkFragment = it;
+                break;
+            }
         }
-        int startPos = linkFinder.position();
 
-        linkFinder = cursor;
-        while (linkFinder.charFormat().anchorHref() == href
-               && linkFinder.movePosition(QTextCursor::NextCharacter))
-            ;
+        if (!linkFragment.atEnd()) {
+            it = linkFragment;
+            cursor.setPosition(it.fragment().position());
+            if (it != block.begin()) {
+                do {
+                    --it;
+                    QTextFragment fragment = it.fragment();
+                    if (fragment.charFormat().anchorHref() != href)
+                        break;
+                    cursor.setPosition(fragment.position());
+                } while (it != block.begin());
+            }
 
-        cursor.setPosition(startPos);
-        cursor.setPosition(linkFinder.position() - 1, QTextCursor::KeepAnchor);
+            for (it = linkFragment; !it.atEnd(); ++it) {
+                QTextFragment fragment = it.fragment();
+                if (fragment.charFormat().anchorHref() != href)
+                    break;
+                cursor.setPosition(fragment.position() + fragment.length(), QTextCursor::KeepAnchor);
+            }
+        }
     }
 
     cursorIsFocusIndicator = true;
