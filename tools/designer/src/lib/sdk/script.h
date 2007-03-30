@@ -26,7 +26,7 @@ public:
     virtual ~QDesignerScriptExtension();
 
     virtual QVariantMap data() const = 0;
-    virtual void setData(const QVariantMap &) = 0;
+    virtual void setData(const QVariantMap &data) = 0;
 
     virtual QString script() const = 0;
 

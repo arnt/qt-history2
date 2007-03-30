@@ -2172,8 +2172,9 @@ QPixmap QAbstractFormBuilder::domPropertyToPixmap(const DomProperty* p)
 */
 
 /*!
-     \fn void QFormScriptRunner *QAbstractFormBuilder::formScriptRunner()
+     \fn QFormScriptRunner *QAbstractFormBuilder::formScriptRunner() const
      \internal
+     \since 4.3
 */
 #ifndef QT_FORMBUILDER_NO_SCRIPT
 QFormScriptRunner *QAbstractFormBuilder::formScriptRunner() const
@@ -2183,7 +2184,8 @@ QFormScriptRunner *QAbstractFormBuilder::formScriptRunner() const
 #endif
 
 /*!
-   Enable the execution of scripts.
+    Sets whether the execution of scripts is enabled to \a enabled.
+    \since 4.3
 */
 
 void QAbstractFormBuilder::setScriptingEnabled(bool enabled)
@@ -2202,8 +2204,9 @@ void QAbstractFormBuilder::setScriptingEnabled(bool enabled)
 }
 
 /*!
-   Returns whether the execution of scripts is enabled.
-  \sa setScriptingEnabled()
+    Returns whether the execution of scripts is enabled.
+    \sa setScriptingEnabled()
+    \since 4.3
 */
 
 bool QAbstractFormBuilder::isScriptingEnabled() const

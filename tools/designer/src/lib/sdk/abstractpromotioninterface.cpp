@@ -24,6 +24,7 @@ QDesignerPromotionInterface::~QDesignerPromotionInterface()
            the promoted classes in Designer.
     \inmodule QtDesigner
     \internal
+    \since 4.3
 */
 
 /*!
@@ -33,37 +34,48 @@ QDesignerPromotionInterface::~QDesignerPromotionInterface()
     \typedef QDesignerPromotionInterface::PromotedClasses
     A list of PromotedClass items.
 
-    virtual QDesignerPromotionInterface::PromotedClasses promotedClasses()  const = 0;
+    virtual QDesignerPromotionInterface::PromotedClasses promotedClasses()  const
 
     Returns a list of promoted classes along with their base classes in alphabetical order.
     It can be used to populate tree models for editing promoted widgets.
 
 */
 
-/*!  \fn virtual QSet<QString> QDesignerPromotionInterface::referencedPromotedClassNames()  const = 0;
-     Returns a set of promoted classed that are referenced by the currently opened forms.
+/*!
+    \fn virtual QSet<QString> QDesignerPromotionInterface::referencedPromotedClassNames()  const
+
+    Returns a set of promoted classed that are referenced by the currently opened forms.
 */
 
-/*! \fn virtual bool QDesignerPromotionInterface::addPromotedClass(const QString &baseClass, const QString &className, const QString &includeFile, QString *errorMessage)= 0;
+/*! 
+    \fn virtual bool QDesignerPromotionInterface::addPromotedClass(const QString &baseClass, const QString &className, const QString &includeFile, QString *errorMessage)
 
-    Add a promoted class.
+    Add a promoted class named \a with the base class \a and include file \a includeFile. Returns \c true on success or \c false along
+    with an error message in \a errorMessage on failure.
 */
 
-/*! \fn  virtual bool QDesignerPromotionInterface::removePromotedClass(const QString &className, QString *errorMessage)= 0;
+/*! 
+    \fn  virtual bool QDesignerPromotionInterface::removePromotedClass(const QString &className, QString *errorMessage)
 
-    Remove a promoted class unless it is referenced by a form.
+    Remove the promoted class named \a className unless it is referenced by a form. Returns \c true on success or \c false along
+    with an error message in \a errorMessage on failure.
 */
 
-/*! \fn  virtual bool QDesignerPromotionInterface::changePromotedClassName(const QString &oldClassName, const QString &newClassName,  QString *errorMessage)= 0;
+/*! 
+    \fn  virtual bool QDesignerPromotionInterface::changePromotedClassName(const QString &oldClassName, const QString &newClassName,  QString *errorMessage)
 
-    Change the class name of a promoted class.
+    Change the class name of a promoted class from \a oldClassName to  \a newClassName. Returns \c true on success or \c false along
+    with an error message in \a errorMessage on failure.
 */
 
-/*! \fn  virtual bool QDesignerPromotionInterface::setPromotedClassIncludeFile(const QString &className, const QString &includeFile, QString *errorMessage)= 0
-   Change the include file of a promoted class.
+/*! 
+    \fn  virtual bool QDesignerPromotionInterface::setPromotedClassIncludeFile(const QString &className, const QString &includeFile, QString *errorMessage)
+
+    Change the include file of a promoted class named \a className to be \a includeFile. Returns \c true on success or \c false along
+    with an error message in \a errorMessage on failure.
 */
 
-/*! \fn virtual QList<QDesignerWidgetDataBaseItemInterface *> QDesignerPromotionInterface::promotionBaseClasses() const = 0;
+/*! \fn virtual QList<QDesignerWidgetDataBaseItemInterface *> QDesignerPromotionInterface::promotionBaseClasses() const
 
      Return a list of base classes that are suitable for promotion.
 */

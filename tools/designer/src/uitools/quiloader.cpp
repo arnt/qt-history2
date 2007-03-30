@@ -536,7 +536,8 @@ QDir QUiLoader::workingDirectory() const
 }
 
 /*!
-   Enable the execution of scripts.
+    Sets whether the execution of scripts is enabled to \a enabled.
+    \since 4.3
 */
 
 void QUiLoader::setScriptingEnabled(bool enabled)
@@ -548,6 +549,7 @@ void QUiLoader::setScriptingEnabled(bool enabled)
 /*!
    Returns whether the execution of scripts is enabled.
   \sa setScriptingEnabled()
+  \since 4.3
 */
 
 bool QUiLoader::isScriptingEnabled() const
