@@ -55,7 +55,7 @@
     \section1 Dragging
 
     To start a drag, create a QDrag object, and call its
-    start() function. In most applications, it is a good idea to begin a drag
+    exec() function. In most applications, it is a good idea to begin a drag
     and drop operation only after a mouse button has been pressed and the
     cursor has been moved a certain distance. However, the simplest way to
     enable dragging from a widget is to reimplement the widget's
@@ -64,19 +64,19 @@
 
     \quotefromfile snippets/dragging/mainwindow.cpp
     \skipto mousePressEvent
-    \printuntil drag->start
+    \printuntil drag->exec
     \dots 8
     \skipto statusBar
     \skipto }
     \printuntil /^\}/
 
     Although the user may take some time to complete the dragging operation,
-    as far as the application is concerned the start() function is a blocking
+    as far as the application is concerned the exec() function is a blocking
     function that returns with \l{Qt::DropActions}{one of several values}.
     These indicate how the operation ended, and are described in more detail
     below.
 
-    Note that the start() function does not block the main event loop.
+    Note that the exec() function does not block the main event loop.
 
     For widgets that need to distinguish between mouse clicks and drags, it
     is useful to reimplement the widget's
@@ -93,7 +93,7 @@
 
     \quotefromfile snippets/draganddrop/dragwidget.cpp
     \skipto mouseMoveEvent
-    \printuntil drag->start(
+    \printuntil drag->exec(
     \dots
     \skipto /^\}/
     \printuntil /^\}/
@@ -184,7 +184,7 @@
     delete the original. This is described by the \c CopyAction action.
     The target may also choose to handle other actions, specifically the
     \c MoveAction and \c LinkAction actions. If the source calls
-    QDrag::start(), and it returns \c MoveAction, the source is responsible
+    QDrag::exec(), and it returns \c MoveAction, the source is responsible
     for deleting any original data if it chooses to do so. The QMimeData
     and QDrag objects created by the source widget \e{should not be deleted}
     - they will be destroyed by Qt. The target is responsible for taking
@@ -267,12 +267,12 @@
 
     \quotefromfile snippets/draganddrop/dragwidget.cpp
     \skipto mouseMoveEvent
-    \printuntil drag->start
+    \printuntil drag->exec
     \dots
     \skipto /^\}/
     \printuntil /^\}/
 
-    The action returned by the start() function may default to a
+    The action returned by the exec() function may default to a
     \c CopyAction if the information is dropped into another application
     but, if it is dropped in another widget in the same application, we
     may obtain a different drop action.
@@ -474,18 +474,18 @@
     \endcode
 
     Similarly, in Qt 4, drag operations are also initiated when a QDrag object
-    is constructed and its \l{QDrag::}{start()} function is called. In contrast,
+    is constructed and its \l{QDrag::}{exec()} function is called. In contrast,
     these objects are typically constructed on the stack rather than the heap
     since each drag and drop operation is performed synchronously as far as the
     drag source is concerned. One key benefit of this is that the drag source
     can receive information about how the operation ended from the value returned
-    by \l{QDrag::}{start()}.
+    by \l{QDrag::}{exec()}.
 
     \quotefromfile snippets/porting4-dropevents/window.cpp
     \skipto mousePressEvent
     \printuntil {
     \skipto if (
-    \printuntil drag->start
+    \printuntil drag->exec
     \dots 8
     \skipto accept
     \printuntil }

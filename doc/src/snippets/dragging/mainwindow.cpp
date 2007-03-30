@@ -39,7 +39,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         drag->setMimeData(mimeData);
         drag->setPixmap(iconPixmap);
 
-        Qt::DropAction dropAction = drag->start();
+        Qt::DropAction dropAction = drag->exec();
 
         QString actionText;
         switch (dropAction) {

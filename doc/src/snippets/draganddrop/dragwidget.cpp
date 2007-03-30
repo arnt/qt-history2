@@ -67,7 +67,7 @@ void DragWidget::mouseMoveEvent(QMouseEvent *event)
     mimeData->setData(mimeType, data);
     drag->setMimeData(mimeData);
 
-    Qt::DropAction dropAction = drag->start(Qt::CopyAction | Qt::MoveAction);
+    Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
 
     switch (dropAction) {
         case Qt::CopyAction:
