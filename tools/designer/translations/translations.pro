@@ -52,5 +52,5 @@ FORMS += $$APP_DIR/newform.ui \
 
 SOURCES += ../../shared/fontpanel/fontpanel.cpp
 
-TRANSLATIONS=$$APP_DIR/designer_de.ts $$APP_DIR/designer_untranslated.ts
+TRANSLATIONS=$$[QT_INSTALL_TRANSLATIONS]/designer_de.ts $$[QT_INSTALL_TRANSLATIONS]/designer_untranslated.ts
 error("This is a dummy profile to be used for translations ONLY.")
