@@ -1488,8 +1488,8 @@ void tst_QMdiSubWindow::fixedMinMaxSize()
     qt_x11_wait_for_window_manager(&mdiArea);
 #endif
 
-    const QSize minimumSize = QSize(300, 300);
-    const QSize maximumSize = QSize(350, 350);
+    const QSize minimumSize = QSize(250, 150);
+    const QSize maximumSize = QSize(300, 200);
 
     // Add the sub window to QMdiArea and set min/max size.
     QMdiSubWindow *subWindow = new QMdiSubWindow;
