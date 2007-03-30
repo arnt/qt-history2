@@ -2316,6 +2316,8 @@ bool QTextControl::findNextPrevAnchor(const QTextCursor &startCursor, bool next,
 
 void QTextControlPrivate::activateLinkUnderCursor(QString href)
 {
+    QTextCursor oldCursor = cursor;
+
     if (href.isEmpty()) {
         QTextCursor tmp = cursor;
         if (tmp.selectionStart() != tmp.position())
@@ -2366,7 +2368,7 @@ void QTextControlPrivate::activateLinkUnderCursor(QString href)
     }
 
     cursorIsFocusIndicator = true;
-    repaintCursor();
+    repaintOldAndNewSelection(oldCursor);
 
 #ifndef QT_NO_DESKTOPSERVICES
     if (openExternalLinks)
