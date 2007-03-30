@@ -503,7 +503,8 @@ void QTextControlPrivate::repaintOldAndNewSelection(const QTextCursor &oldSelect
         && cursor.currentFrame() == oldSelection.currentFrame()
         && !cursor.hasComplexSelection()
         && !oldSelection.hasComplexSelection()
-        && cursor.anchor() == oldSelection.anchor()) {
+        && cursor.anchor() == oldSelection.anchor()
+        && cursorIsFocusIndicator) {
         QTextCursor differenceSelection(doc);
         differenceSelection.setPosition(oldSelection.position());
         differenceSelection.setPosition(cursor.position(), QTextCursor::KeepAnchor);
@@ -1382,6 +1383,8 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
         cursor.movePosition(QTextCursor::StartOfBlock);
         cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 
+        anchorOnMousePress = QString();
+
         trippleClickTimer.stop();
     } else {
         int cursorPos = doc->documentLayout()->hitTest(pos, Qt::FuzzyHit);
@@ -1595,6 +1598,7 @@ void QTextControlPrivate::mouseDoubleClickEvent(QEvent *e, Qt::MouseButton butto
     }
     repaintOldAndNewSelection(oldSelection);
 
+    cursorIsFocusIndicator = false;
     selectedWordOnDoubleClick = cursor;
 
     trippleClickPoint = pos;
