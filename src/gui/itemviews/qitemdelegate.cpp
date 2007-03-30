@@ -1181,10 +1181,6 @@ bool QItemDelegate::editorEvent(QEvent *event,
     // make sure that we have the right event type
     if ((event->type() == QEvent::MouseButtonRelease)
         || (event->type() == QEvent::MouseButtonDblClick)) {
-        Q_D(QItemDelegate);
-        const QWidget *widget = d->widget(option);
-        QStyle *style = widget ? widget->style() : QApplication::style();
-        const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, widget) + 1;
         QRect checkRect = check(option, option.rect, Qt::Checked);
         if (!checkRect.contains(static_cast<QMouseEvent*>(event)->pos()))
             return false;
