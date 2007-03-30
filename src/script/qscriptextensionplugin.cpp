@@ -16,6 +16,7 @@
 #include "qscriptengine.h"
 
 /*!
+    \since 4.3
     \class QScriptExtensionPlugin
     \brief The QScriptExtensionPlugin class provides an abstract base for custom QScript extension plugins.
 
