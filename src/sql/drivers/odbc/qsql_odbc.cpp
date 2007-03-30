@@ -256,6 +256,7 @@ static QVariant::Type qDecodeODBCType(SQLSMALLINT sqltype, const T* p, bool isSi
         type = p->sql_char_type;
         break;
     case SQL_VARCHAR:
+    case SQL_GUID:
         type = p->sql_varchar_type;
         break;
     case SQL_LONGVARCHAR:

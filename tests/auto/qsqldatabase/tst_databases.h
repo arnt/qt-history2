@@ -281,7 +281,9 @@ public:
     }
 
     static bool isSqlServer( QSqlDatabase db ) {
-	return db.databaseName().contains( "sql server", Qt::CaseInsensitive ) || db.databaseName().contains( "sqlserver", Qt::CaseInsensitive );
+	return db.databaseName().contains("sql server", Qt::CaseInsensitive) 
+            || db.databaseName().contains("sqlserver", Qt::CaseInsensitive)
+            || db.databaseName().contains("sql native client", Qt::CaseInsensitive);
     }
 
     static bool isMSAccess( QSqlDatabase db ) {

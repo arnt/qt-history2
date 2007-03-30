@@ -119,6 +119,8 @@ private slots:
     void formatValueTrimStrings();
     void odbc_reopenDatabase_data() { generic_data(); }
     void odbc_reopenDatabase();
+    void odbc_uniqueidentifier_data() { generic_data(); }
+    void odbc_uniqueidentifier(); // For task 141822
 
     void oci_serverDetach_data() { generic_data(); }
     void oci_serverDetach(); // For task 154518
@@ -261,11 +263,16 @@ void tst_QSqlDatabase::dropTestTables(QSqlDatabase db)
     tst_Databases::safeDropTable(db, qTableName("qtestalter"));
     tst_Databases::safeDropTable(db, qTableName("qtest_temp"));
     tst_Databases::safeDropTable(db, qTableName("qtest_bigint"));
-
+    
+    QSqlQuery q(0, db);
     if (db.driverName().startsWith("QPSQL")) {
-        QSqlQuery q(0, db);
         q.exec("drop schema " + qTableName("qtestschema") + " cascade");
         q.exec("drop table \"" + qTableName("qtest") + " test\"");
+    }
+
+    if (testWhiteSpaceNames(db.driverName())) {
+        QString qry = "drop table \"" + qTableName("qtest") + " test\"";
+        q.exec(qry), q.lastError().text();
     }
 }
 
@@ -1163,15 +1170,17 @@ void tst_QSqlDatabase::recordSQLServer()
 
     // ### TODO: Add the rest of the fields
     static const FieldDef fieldDefs[] = {
-	FieldDef("varchar(20)", QVariant::String, QString("Blah1")),
-	FieldDef("bigint", QVariant::LongLong, 12345),
-	FieldDef("int", QVariant::Int, 123456),
-	FieldDef("tinyint", QVariant::Int, 255),
-	FieldDef("image", QVariant::ByteArray, Q3CString("Blah1")),
-	FieldDef("float", QVariant::Double, 1.12345),
+        FieldDef("varchar(20)", QVariant::String, QString("Blah1")),
+        FieldDef("bigint", QVariant::LongLong, 12345),
+        FieldDef("int", QVariant::Int, 123456),
+        FieldDef("tinyint", QVariant::Int, 255),
+        FieldDef("image", QVariant::ByteArray, Q3CString("Blah1")),
+        FieldDef("float", QVariant::Double, 1.12345),
         FieldDef("numeric(5,2)", QVariant::Double, 123.45),
+        FieldDef("uniqueidentifier", QVariant::String,
+            QString("AA7DF450-F119-11CD-8465-00AA00425D90")),
 
-	FieldDef(QString::null, QVariant::Invalid)
+        FieldDef(QString::null, QVariant::Invalid)
     };
 
     const uint fieldCount = createFieldTable(fieldDefs, db);
@@ -1729,8 +1738,8 @@ void tst_QSqlDatabase::odbc_reopenDatabase()
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
 
-    if (!db.driverName().startsWith("QODBC")) {
-        QSKIP("PostgreSQL server specific test", SkipSingle);
+    if (!tst_Databases::isSqlServer(db)) {
+        QSKIP("SQL Server (ODBC) specific test", SkipSingle);
         return;
     }
 
@@ -1811,6 +1820,45 @@ void tst_QSqlDatabase::oci_serverDetach()
         }
     }
 }
+
+// This test isn't really necessary as SQL_GUID / uniqueidentifier is
+// already tested in recordSQLServer().
+void tst_QSqlDatabase::odbc_uniqueidentifier()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+    if (!tst_Databases::isSqlServer(db)) {
+        QSKIP("SQL Server (ODBC) specific test", SkipSingle);
+        return;
+    }
+
+    QString tableName = qTableName("qtest_sqlguid");
+    QString guid = QString("AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE");
+    QString invalidGuid = QString("GAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE");
+
+    QSqlQuery q(db);
+    tst_Databases::safeDropTable(db, tableName);
+    QVERIFY2(q.exec(QString("CREATE TABLE %1(id uniqueidentifier)").arg(tableName)),
+        q.lastError().text());
+
+    q.prepare(QString("INSERT INTO %1 VALUES(?)").arg(tableName));;
+    q.addBindValue(guid);
+    QVERIFY2(q.exec(), q.lastError().text());
+
+    q.addBindValue(invalidGuid);
+    QEXPECT_FAIL("", "The GUID string is required to be correctly formated!",
+        Continue);
+    QVERIFY2(q.exec(), q.lastError().text());
+
+    QVERIFY2(q.exec(QString("SELECT id FROM %1").arg(tableName)),
+        q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).toString(), guid);
+
+    q.exec(QString("DROP TABLE %1").arg(tableName));
+}
+
 
 QTEST_MAIN(tst_QSqlDatabase)
 #include "tst_qsqldatabase.moc"
