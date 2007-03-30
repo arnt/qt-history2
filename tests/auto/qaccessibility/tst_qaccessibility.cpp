@@ -2363,6 +2363,8 @@ void tst_QAccessibility::menuTest()
 #if QT_VERSION < 0x040102
     QEXPECT_FAIL("", "Submenus don't open, task 99301", Continue);
 #endif
+    if (menuFade)
+        QTest::qWait(menuFadeDelay);
     interface->doAction(QAccessible::DefaultAction, 1);
     QTestEventLoop::instance().enterLoop(1);
 
