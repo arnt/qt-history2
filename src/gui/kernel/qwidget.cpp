@@ -2542,7 +2542,7 @@ void QWidgetPrivate::setEnabled_helper(bool enable)
             w->d_func()->setEnabled_helper(enable);
     }
 #if defined(Q_WS_X11)
-    if (q->testAttribute(Qt::WA_SetCursor)) {
+    if (q->testAttribute(Qt::WA_SetCursor) || q->isWindow()) {
         // enforce the windows behavior of clearing the cursor on
         // disabled widgets
         extern void qt_x11_enforce_cursor(QWidget * w); // defined in qwidget_x11.cpp

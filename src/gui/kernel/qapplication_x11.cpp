@@ -2303,7 +2303,7 @@ void QApplication::setOverrideCursor(const QCursor &cursor)
     QWidgetList all = allWidgets();
     for (QWidgetList::ConstIterator it = all.constBegin(); it != all.constEnd(); ++it) {
         register QWidget *w = *it;
-        if (w->testAttribute(Qt::WA_SetCursor))
+        if (w->testAttribute(Qt::WA_SetCursor) || w->isWindow())
             qt_x11_enforce_cursor(w);
     }
     XFlush(X11->display);                                // make X execute it NOW
@@ -2330,7 +2330,7 @@ void QApplication::restoreOverrideCursor()
         QWidgetList all = allWidgets();
         for (QWidgetList::ConstIterator it = all.constBegin(); it != all.constEnd(); ++it) {
             register QWidget *w = *it;
-            if (w->testAttribute(Qt::WA_SetCursor))
+            if (w->testAttribute(Qt::WA_SetCursor) || w->isWindow())
                 qt_x11_enforce_cursor(w);
         }
         XFlush(X11->display);
