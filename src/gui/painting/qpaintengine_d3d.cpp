@@ -2223,7 +2223,7 @@ void QD3DVertexBuffer::setMaskSize(QSize size)
         qWarning() << "QDirect3DPaintEngine: GetSurfaceLevel() failed.";
     }
 
-    m_pe->m_d3dDevice->ColorFill(m_maskSurface, 0, D3DCOLOR_ARGB(255,0,0,0));
+    m_pe->m_d3dDevice->ColorFill(m_maskSurface, 0, D3DCOLOR_ARGB(0,0,0,0));
     D3DXMATRIX projMatrix;
     pD3DXMatrixOrthoOffCenterLH(&projMatrix, 0, m_width, m_height, 0, 0, 1);
     m_pe->m_effect->SetMatrix("g_mMaskProjection", &projMatrix);
