@@ -27,6 +27,7 @@
 #define ANIMATION_DURATION_MSEC 150
 
 /*!
+    \since 4.3
     \class QColumnView
     \brief The QColumnView class provides a model/view implementation of a column view.
     \ingroup model-view
