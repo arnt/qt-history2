@@ -80,6 +80,8 @@
 #define PASS_STENCIL_NOSTENCILCHECK_DIRECT  6
 #define PASS_TEXT                           7
 #define PASS_CLEARTYPE_TEXT                 8
+#define PASS_ALIASED_LINES                  9
+#define PASS_ALIASED_LINES_DIRECT          10
 
 #define PASS_AA_CREATEMASK                  0
 #define PASS_AA_DRAW                        1
@@ -193,8 +195,7 @@ struct QD3DBatchItem {
         BI_CLEARCLIP        = 0x0800, // clip nothing (filling the clip mask with 0)
         BI_TRANSFORM        = 0x1000,
         BI_MASKSCISSOR      = 0x2000,
-        BI_FASTLINE         = 0x4000,
-        BI_LINESTRIP        = 0x8000
+        BI_FASTLINE         = 0x4000
     };
 
     int m_info;
@@ -809,10 +810,8 @@ QD3DImage::QD3DImage(IDirect3DDevice9 *device, const QImage &image)
     }
     DWORD *dst = (DWORD *) rect.pBits;
     DWORD *src = (DWORD *) im.scanLine(0);
-    int dst_ppl = rect.Pitch/4;
-    int src_ppl = im.bytesPerLine()/4;
 
-    Q_ASSERT(dst_ppl == src_ppl);
+    Q_ASSERT((rect.Pitch/4) == (im.bytesPerLine()/4));
     memcpy(dst, src, rect.Pitch*im.height());
     texture->UnlockRect(0);
 }
@@ -1010,6 +1009,8 @@ private:
     D3DCOLOR m_color;
     D3DXMATRIX m_d3dIdentityMatrix;
     bool m_clearmask;
+    bool m_isLine;
+    bool m_firstPoint;
 };
 
 QD3DStateManager::QD3DStateManager(LPDIRECT3DDEVICE9 pDevice, ID3DXEffect *effect)
@@ -1787,7 +1788,8 @@ int QD3DStateManager::m_maskChannels[4][4] =
 
 QD3DVertexBuffer::QD3DVertexBuffer(QDirect3DPaintEnginePrivate *pe)
     : m_pe(pe), m_d3dvbuff(0), m_maskSurface(0), m_depthStencilSurface(0),
-      m_locked(false), m_mask(0), m_startindex(0), m_index(0), m_vbuff(0), m_clearmask(true)
+      m_locked(false), m_mask(0), m_startindex(0), m_index(0), m_vbuff(0), m_clearmask(true),
+      m_isLine(false), m_firstPoint(true)
 {
     if (FAILED(D3DXMatrixIdentity(&m_d3dIdentityMatrix))) {
         qWarning("QDirect3DPaintEngine: D3DXMatrixIdentity failed");
@@ -2087,7 +2089,8 @@ void QD3DVertexBuffer::queueAntialiasedLines(const QPainterPath &path, QD3DBatch
     *item = m_item;
 }
 
-void QD3DVertexBuffer::queueAliasedLines(const QLineF *lines, int lineCount, QD3DBatchItem **item, D3DCOLOR color, bool transform)
+void QD3DVertexBuffer::queueAliasedLines(const QLineF *lines, int lineCount, QD3DBatchItem **item,
+                                         D3DCOLOR color, bool transform)
 {
     lock();
 
@@ -2096,26 +2099,25 @@ void QD3DVertexBuffer::queueAliasedLines(const QLineF *lines, int lineCount, QD3
 
     for (int i=0; i<lineCount; ++i) {
         QLineF line = transform ? m_pe->m_matrix.map(lines[i]) : lines[i];
-
-        int x1 = line.x1();
-        int y1 = line.y1();
-
-        // extend the line one unit in the direction of the line vector
-        qreal rx2 = line.x2();
-        qreal ry2 = line.y2();
-        line.setLength(1.0f);
-        int x2 = (rx2 + line.dx());
-        int y2 = (ry2 + line.dy());
-
-        vertex v1 = {D3DXVECTOR3(x1, y1, 0.5f), color,
-                     0.f, 0.f, 0.f, 0.f,
+        vertex v1 = {D3DXVECTOR3(line.p1().x(), line.p1().y(), m_pe->m_pen_width), color,
+                     -1.f, -1.f, line.p2().x(), line.p2().y(),
                      0.f, 0.f, 0.f, 0.f };
-        vertex v2 = {D3DXVECTOR3(x2, y2, 0.5f), color,
-                     0.f, 0.f, 0.f, 0.f,
+        vertex v2 = {D3DXVECTOR3(line.p1().x(), line.p1().y(), m_pe->m_pen_width), color,
+                     1.f, -1.f, line.p2().x(), line.p2().y(),
+                     0.f, 0.f, 0.f, 0.f };
+        vertex v3 = {D3DXVECTOR3(line.p1().x(), line.p1().y(), m_pe->m_pen_width), color,
+                     1.f, 1.f, line.p2().x(), line.p2().y(),
+                     0.f, 0.f, 0.f, 0.f };
+        vertex v4 = {D3DXVECTOR3(line.p1().x(), line.p1().y(), m_pe->m_pen_width), color,
+                     -1.f, 1.f, line.p2().x(), line.p2().y(),
                      0.f, 0.f, 0.f, 0.f };
 
         m_vbuff[m_index++] = v1;
         m_vbuff[m_index++] = v2;
+        m_vbuff[m_index++] = v4;
+        m_vbuff[m_index++] = v4;
+        m_vbuff[m_index++] = v2;
+        m_vbuff[m_index++] = v3;
 
         if (m_index >= (QT_VERTEX_BUF_SIZE - 16)) {
             m_item->m_offset = m_startindex;
@@ -2131,7 +2133,7 @@ void QD3DVertexBuffer::queueAliasedLines(const QLineF *lines, int lineCount, QD3
     }
 
     m_item->m_offset = m_startindex;
-    m_item->m_count = ( m_index - m_startindex ) / 2;
+    m_item->m_count = ( m_index - m_startindex ) - 2;
     m_startindex = m_index;
 
     *item = m_item;
@@ -2383,29 +2385,11 @@ void QD3DVertexBuffer::drawAliasedLines(QD3DBatchItem *item)
     } else {
         m_pe->m_statemanager->setTransformation(&m_pe->m_d3dxidentmatrix);
     }
-    int pass = (item->m_info & QD3DBatchItem::BI_MASK) ?
-        PASS_STENCIL_ODDEVEN : PASS_STENCIL_NOSTENCILCHECK_DIRECT;
+    int pass = (item->m_info & QD3DBatchItem::BI_MASK)
+               ? PASS_ALIASED_LINES
+               : PASS_ALIASED_LINES_DIRECT;
     m_pe->m_effect->BeginPass(pass);
-
-    if (item->m_info & QD3DBatchItem::BI_LINESTRIP) {
-        int prev_stop = 0;
-        for (int i=0; i<item->m_pointstops.count(); ++i) {
-            int stop = item->m_pointstops.at(i);
-
-#ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
-            int vbstart = (item->m_offset + prev_stop);
-            for (int j=vbstart; j<(vbstart+(stop - prev_stop)); ++j) {
-                if (accesscontrol[j] != WRITE)
-                    qDebug() << "Vertex Buffer: Access Error";
-                accesscontrol[j] |= READ;
-            }
-#endif
-            m_pe->m_d3dDevice->DrawPrimitive(D3DPT_LINESTRIP, item->m_offset + prev_stop, (stop - prev_stop) - 1);
-            prev_stop = stop;
-        }
-    } else {
-        m_pe->m_d3dDevice->DrawPrimitive(D3DPT_LINELIST, item->m_offset, item->m_count);
-    }
+    m_pe->m_d3dDevice->DrawPrimitive(D3DPT_TRIANGLELIST, item->m_offset, (item->m_count + 2) / 3);
     m_pe->m_effect->EndPass();
 }
 
@@ -2543,7 +2527,12 @@ void QD3DVertexBuffer::tessellate(const QPolygonF &poly) {
 
 inline void QD3DVertexBuffer::lineToStencil(qreal x, qreal y)
 {
+    QPointF lastPt = tess_lastpoint;
     tess_lastpoint = QPointF(x, y);
+
+    if (m_isLine && m_firstPoint)
+        return;
+
 
 #ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
     if (m_index > QT_VERTEX_BUF_SIZE)
@@ -2553,11 +2542,33 @@ inline void QD3DVertexBuffer::lineToStencil(qreal x, qreal y)
     accesscontrol[m_index] |= WRITE;
 #endif
 
-    vertex v = {D3DXVECTOR3(x , y, 0.5f), m_color,
-        0.f, 0.f, 0.f, 0.f,
-        0.f, 0.f, 0.f, 0.f};
-
-    m_vbuff[m_index++] = v;
+    vertex v;
+    if (m_isLine) {
+        vertex v1 = {D3DXVECTOR3(lastPt.x(), lastPt.y(), m_pe->m_pen_width), m_color,
+                     -1.f, -1.f, x, y,
+                     0.f, 0.f, 0.f, 0.f};
+        vertex v2 = {D3DXVECTOR3(lastPt.x(), lastPt.y(), m_pe->m_pen_width), m_color,
+                     1.f, -1.f, x, y,
+                     0.f, 0.f, 0.f, 0.f};
+        vertex v3 = {D3DXVECTOR3(lastPt.x(), lastPt.y(), m_pe->m_pen_width), m_color,
+                     1.f, 1.f, x, y,
+                     0.f, 0.f, 0.f, 0.f};
+        vertex v4 = {D3DXVECTOR3(lastPt.x(), lastPt.y(), m_pe->m_pen_width), m_color,
+                     -1.f, 1.f, x, y,
+                     0.f, 0.f, 0.f, 0.f};
+        m_vbuff[m_index++] = v1;
+        m_vbuff[m_index++] = v2;
+        m_vbuff[m_index++] = v4;
+        m_vbuff[m_index++] = v4;
+        m_vbuff[m_index++] = v2;
+        m_vbuff[m_index++] = v3;
+    } else {
+        vertex v1 = {D3DXVECTOR3(x, y, 0.5f), m_color,
+                     0.f, 0.f, 0.f, 0.f,
+                     0.f, 0.f, 0.f, 0.f};
+        m_vbuff[m_index++] = v1;
+        v = v1;
+    }
     ++tess_index;
 
     // check if buffer is full
@@ -2580,24 +2591,28 @@ inline void QD3DVertexBuffer::lineToStencil(qreal x, qreal y)
 
         // start new polygon
         lock();
-        tess_index = 2;
         m_item->m_pointstops.clear();
+        if (!m_isLine) {
+            tess_index = 2;
 
 #ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
-        if (accesscontrol[m_index] != CLEAR)
-            qDebug() << "Vertex Buffer: Access Error";
-        accesscontrol[m_index] |= WRITE;
+            if (accesscontrol[m_index] != CLEAR)
+                qDebug() << "Vertex Buffer: Access Error";
+            accesscontrol[m_index] |= WRITE;
 #endif
 
-        m_vbuff[m_index++] = first;
+            m_vbuff[m_index++] = first;
 
 #ifdef QT_DEBUG_VERTEXBUFFER_ACCESS
-        if (accesscontrol[m_index] != CLEAR)
-            qDebug() << "Vertex Buffer: Access Error";
-        accesscontrol[m_index] |= WRITE;
+            if (accesscontrol[m_index] != CLEAR)
+                qDebug() << "Vertex Buffer: Access Error";
+            accesscontrol[m_index] |= WRITE;
 #endif
 
-        m_vbuff[m_index++] = v;
+            m_vbuff[m_index++] = v;
+        } else {
+            tess_index = 0;
+        }
     }
 
     if (x > max_x)
@@ -2610,7 +2625,8 @@ inline void QD3DVertexBuffer::lineToStencil(qreal x, qreal y)
         min_y = y;
 }
 
-inline void QD3DVertexBuffer::curveToStencil(const QPointF &cp1, const QPointF &cp2, const QPointF &ep)
+inline void QD3DVertexBuffer::curveToStencil(const QPointF &cp1, const QPointF &cp2,
+                                             const QPointF &ep)
 {
     qreal inverseScale = 0.5f;
     qreal inverseScaleHalf = inverseScale / 2;
@@ -2644,16 +2660,18 @@ inline void QD3DVertexBuffer::curveToStencil(const QPointF &cp1, const QPointF &
 
 QRectF QD3DVertexBuffer::pathToVertexArrays(const QPainterPath &path)
 {
-    bool line = (m_item->m_info & QD3DBatchItem::BI_FASTLINE);
+    m_isLine = (m_item->m_info & QD3DBatchItem::BI_FASTLINE);
     const QPainterPath::Element &first = path.elementAt(0);
     firstx = first.x;
     firsty = first.y;
     min_x = max_x = firstx;
     min_y = max_y = firsty;
 
+    m_firstPoint = true;
     tess_index = 0;
     m_item->m_pointstops.clear();
     lineToStencil(firstx, firsty);
+    m_firstPoint = false;
 
     for (int i=1; i<path.elementCount(); ++i) {
         const QPainterPath::Element &e = path.elementAt(i);
@@ -2674,7 +2692,7 @@ QRectF QD3DVertexBuffer::pathToVertexArrays(const QPainterPath &path)
         }
     }
 
-    if (!line)
+    if (!m_isLine)
         lineToStencil(firstx, firsty);
 
     m_item->m_pointstops.append(tess_index);
@@ -2689,7 +2707,7 @@ QRectF QD3DVertexBuffer::pathToVertexArrays(const QPainterPath &path)
     result.setTop(min_y);
     result.setBottom(max_y);
 
-    if (line)
+    if (m_isLine)
         result.adjust(0,0,1,1);
 
     return result;
@@ -2997,7 +3015,7 @@ void QDirect3DPaintEnginePrivate::strokeAliasedPath(QPainterPath path, const QRe
         solid_color = m_penColor;
     }
     if (has_fast_pen) {
-        item->m_info |= QD3DBatchItem::BI_FASTLINE|QD3DBatchItem::BI_LINESTRIP;
+        item->m_info |= QD3DBatchItem::BI_FASTLINE;
         if (m_pen_brush_style == Qt::SolidPattern) {
             m_vBuffer->queueAliasedMask(path, &item, solid_color);
             item->m_info &= ~QD3DBatchItem::BI_MASK; // bypass stencil buffer
@@ -3014,7 +3032,8 @@ void QDirect3DPaintEnginePrivate::strokeAliasedPath(QPainterPath path, const QRe
         item->m_matrix = m_d3dxmatrix;
     } else {
         trect = txrect;
-        txcoord = QPolygonF(4);
+        static const QPolygonF empty_poly(4);
+        txcoord = empty_poly;
     }
 
     m_vBuffer->queueRect(trect, item, solid_color, txcoord);
@@ -3051,7 +3070,8 @@ void QDirect3DPaintEnginePrivate::fillAliasedPath(QPainterPath path, const QRect
         item->m_matrix = m_d3dxmatrix;
     } else {
         trect = txrect;
-        txcoord = QPolygonF(4);
+        static const QPolygonF empty_poly(4);
+        txcoord = empty_poly;
     }
 
     m_vBuffer->queueRect(trect, item, solid_color, txcoord);
@@ -3069,7 +3089,7 @@ void QDirect3DPaintEnginePrivate::fillAntialiasedPath(const QPainterPath &path, 
     if (has_fast_pen && stroke) {
         tpath = txform.map(path);
         txrect = tpath.controlPointRect();
-        txrect.adjust(-(m_pen_width/2),-(m_pen_width/2), m_pen_width, m_pen_width); 
+        txrect.adjust(-(m_pen_width/2),-(m_pen_width/2), m_pen_width, m_pen_width);
     } else {
         poly = path.toFillPolygon(txform);
         txrect = poly.boundingRect();
@@ -3126,7 +3146,8 @@ void QDirect3DPaintEnginePrivate::fillAntialiasedPath(const QPainterPath &path, 
         txcoord = brushCoordinates(brect, stroke, &focaldist);
     } else {
         trect = adj_txrect;
-        txcoord = QPolygonF(4);
+        static const QPolygonF empty_poly(4);
+        txcoord = empty_poly;
     }
 
     bool maskfull;
@@ -4007,10 +4028,8 @@ void QDirect3DPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const 
         }
         DWORD *dst = (DWORD *) rect.pBits;
         DWORD *src = (DWORD *) im.scanLine(0);
-        int dst_ppl = rect.Pitch/4;
-        int src_ppl = im.bytesPerLine()/4;
 
-        Q_ASSERT(dst_ppl == src_ppl);
+        Q_ASSERT((rect.Pitch/4) == (im.bytesPerLine()/4));
         memcpy(dst, src, rect.Pitch*im.height());
         pm.data->texture->UnlockRect(0);
     }
@@ -4103,7 +4122,8 @@ void QDirect3DPaintEngine::drawRects(const QRectF *rects, int rectCount)
             item->m_info |= QD3DBatchItem::BI_TRANSFORM;
             item->m_info &= ~QD3DBatchItem::BI_AA;
             item->m_matrix = d->m_d3dxmatrix;
-            d->m_vBuffer->queueRect(rects[i], item, d->m_brushColor, QPolygonF(4));
+            static const QPolygonF empty_poly(4);
+            d->m_vBuffer->queueRect(rects[i], item, d->m_brushColor, empty_poly);
             if (d->has_pen) {
                 QPainterPath path;
                 QRectF brect;
@@ -4343,8 +4363,9 @@ void QDirect3DPaintEngine::updateState(const QPaintEngineState &state)
         d->updateBrush(state.brush());
 
     if (update_fast_pen && d->has_pen) {
-        d->has_fast_pen = ((d->m_pen_width == 0 || (d->m_pen_width <= 1 && d->m_txop <= QTransform::TxTranslate))
-             || d->has_cosmetic_pen) && d->m_pen.style() == Qt::SolidLine;
+        d->has_fast_pen = ((d->m_txop <= QTransform::TxTranslate) || d->has_cosmetic_pen)
+                          && (d->m_pen.style() == Qt::SolidLine)
+                          && (d->m_pen.capStyle() == Qt::SquareCap);
     }
 }
 

@@ -173,7 +173,7 @@ PS_OUTPUT DirectMaskPS(VS_FULL In, float2 pixelPos : VPOS)
 PS_OUTPUT MaskPS(VS_FULL In, float2 pixelPos : VPOS)
 {
     PS_OUTPUT Out;
-    
+
     if (g_mBrushMode == 1) {
         Out.Color = tex2D(PixmapSampler, In.TexCoords0.xy);
         Out.Color.a = Out.Color.a * In.Diffuse.a;
@@ -186,11 +186,11 @@ PS_OUTPUT MaskPS(VS_FULL In, float2 pixelPos : VPOS)
         float2 tc = float2(In.TexCoords0.x, abs(In.TexCoords0.y));
         float a = (tc.x - g_mFocalDist) / tc.y;
         float b = g_mFocalDist;
-        
+
         float A = 1 + (a * a);
         float B = 2.0 * a * b;
         float C = (b * b) - 1;
-        
+
         float y = (-B + sqrt(B*B - 4.0*A*C)) / (2.0*A);
         Out.Color = tex1D(PixmapSampler, (tc.y / y) );
     } else {
@@ -246,11 +246,11 @@ float4 SimplePS(float4 Color : COLOR0, float4 TexCoords : TEXCOORD0) : COLOR0
         float2 tc = float2(TexCoords.x, abs(TexCoords.y));
         float a = (tc.x - g_mFocalDist) / tc.y;
         float b = g_mFocalDist;
-        
+
         float A = 1 + (a * a);
         float B = 2.0 * a * b;
         float C = (b * b) - 1;
-        
+
         float y = (-B + sqrt(B*B - 4.0*A*C)) / (2.0*A);
         Color = tex1D(PixmapSampler, (tc.y / y) );
     }
@@ -298,6 +298,40 @@ VS_NORMAL AliasedVS(VS_NORMAL In)
 
     return Output;
 }
+
+VS_NORMAL AliasedLinesVS(VS_NORMAL In)
+{
+    VS_NORMAL Output;
+
+    float2 start = In.Position.xy;
+    float2 end = In.TexCoords.zw;
+
+    float2 line_vec = end - start;
+    float2 vec = normalize(line_vec);
+    float2 norm = float2(-vec.y, vec.x);
+
+    float pen_width = In.Position.z;
+    norm = norm * pen_width * 0.5;
+    vec = vec * pen_width * 0.5;
+
+    Output.Position = In.Position;
+    Output.Position.x = In.Position.x + (vec.x * In.TexCoords.x);
+    Output.Position.x = Output.Position.x + (norm.x * In.TexCoords.y);
+    Output.Position.x = Output.Position.x + (line_vec.x * step(0, In.TexCoords.x));
+    Output.Position.y = In.Position.y + (vec.y * In.TexCoords.x);
+    Output.Position.y = Output.Position.y + (norm.y * In.TexCoords.y);
+    Output.Position.y = Output.Position.y + (line_vec.y * step(0, In.TexCoords.x));
+    Output.Position.z = 0.5;
+
+    Output.Position = mul(Output.Position, g_mTransformation);
+    Output.Position = mul(Output.Position, g_mViewProjection);
+
+    Output.Diffuse = In.Diffuse;
+    Output.TexCoords = In.TexCoords;
+
+    return Output;
+}
+
 
 technique Antialiased
 {
@@ -516,6 +550,38 @@ technique Aliased
 
         VertexShader = compile vs_3_0 AliasedVS();
         PixelShader = compile ps_3_0 ClearTypePS();
+    }
+
+    pass PASS_ALIASED_LINES
+    {
+        TwoSidedStencilMode = False;
+        StencilEnable = True;
+        StencilPass = Invert;
+        StencilFunc = Always;
+        ColorWriteEnable = 0;
+
+        ZEnable = False;
+        ZWriteEnable = False;
+
+        VertexShader = compile vs_1_1 AliasedLinesVS();
+        PixelShader = compile ps_2_0 DirectSimplePS();
+    }
+
+    pass PASS_ALIASED_LINES_DIRECT
+    {
+        StencilEnable = False;
+
+        ZEnable = True;
+        ZWriteEnable = False;
+        ZFunc = Greater;
+
+        ColorWriteEnable = 0x0f;
+
+        SrcBlend = SrcAlpha;
+        DestBlend = InvSrcAlpha;
+
+        VertexShader = compile vs_1_1 AliasedLinesVS();
+        PixelShader = compile ps_2_0 DirectSimplePS();
     }
 }
 
