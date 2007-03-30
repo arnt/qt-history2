@@ -1124,45 +1124,101 @@ bool FormWindow::handleKeyPressEvent(QWidget *widget, QWidget *, QKeyEvent *e)
         case Qt::Key_Right:
         case Qt::Key_Up:
         case Qt::Key_Down:
-            if (e->modifiers() & Qt::ControlModifier)
-                handleArrowKeyEvent(e->key(), !(e->modifiers() & Qt::ShiftModifier));
+            handleArrowKeyEvent(e->key(), e->modifiers());
             break;
     }
 
     return true;
 }
 
-void FormWindow::handleArrowKeyEvent(int key, bool modifier)
+int FormWindow::getValue(const QRect &rect, int key, bool size) const
+{
+    if (size) {
+        if (key == Qt::Key_Left || key == Qt::Key_Right)
+            return rect.width();
+        return rect.height();
+    }
+    if (key == Qt::Key_Left || key == Qt::Key_Right)
+        return rect.x();
+    return rect.y();
+}
+
+int FormWindow::calcValue(int val, bool forward, bool snap, int snapOffset) const
+{
+    if (snap) {
+        const int rest = val % snapOffset;
+        if (rest) {
+            const int offset = forward ? snapOffset : 0;
+            const int newOffset = rest < 0 ? offset - snapOffset : offset;
+            return val + newOffset - rest;
+        }
+        return (forward ? val + snapOffset : val - snapOffset);
+    }
+    return (forward ? val + 1 : val - 1);
+}
+
+QRect FormWindow::applyValue(const QRect &rect, int val, int key, bool size) const
+{
+    QRect r = rect;
+    if (size) {
+        if (key == Qt::Key_Left || key == Qt::Key_Right)
+            r.setWidth(val);
+        else
+            r.setHeight(val);
+    } else {
+        if (key == Qt::Key_Left || key == Qt::Key_Right)
+            r.moveLeft(val);
+        else
+            r.moveTop(val);
+    }
+    return r;
+}
+
+void FormWindow::handleArrowKeyEvent(int key, Qt::KeyboardModifiers modifiers)
 {
     bool startMacro = false;
     QDesignerFormWindowCursorInterface *c = cursor();
     if (!c->hasSelection())
         return;
 
-    const int selCount = c->selectedWidgetCount();
-    int x = grid().x();
-    int y = grid().y();
-
-    if (modifier) {
-        x = 1;
-        y = 1;
-    }
+    QList<QWidget *> selection;
 
     // check if a laid out widget is selected
-    for (int index=0; index<c->selectedWidgetCount(); ++index) {
+    for (int index = 0; index < c->selectedWidgetCount(); ++index) {
         QWidget *w = c->selectedWidget(index);
-        if (LayoutInfo::isWidgetLaidout(m_core, w))
-            return;
+        if (!LayoutInfo::isWidgetLaidout(m_core, w))
+            selection.append(w);
     }
 
+    if (selection.isEmpty())
+        return;
+
+    QWidget *current = c->current();
+    if (!current || LayoutInfo::isWidgetLaidout(m_core, current)) {
+        current = selection.first();
+    }
+
+    const bool size = modifiers & Qt::ShiftModifier;
+
+    const bool snap = !(modifiers & Qt::ControlModifier);
+    const bool forward = (key == Qt::Key_Right || key == Qt::Key_Down);
+    const int snapPoint = (key == Qt::Key_Left || key == Qt::Key_Right) ? grid().x() : grid().y();
+
+    const int oldValue = getValue(current->geometry(), key, size);
+
+    const int newValue = calcValue(oldValue, forward, snap, snapPoint);
+
+    const int offset = newValue - oldValue;
+
+    const int selCount = selection.count();
     // check if selection is the same as last time
     if (selCount != m_moveSelection.count() ||
         m_lastUndoIndex != m_commandHistory->index()) {
         m_moveSelection.clear();
         startMacro = true;
     } else {
-        for (int index=0; index<selCount; ++index) {
-            if (m_moveSelection[index]->object() != c->selectedWidget(index)) {
+        for (int index = 0; index < selCount; ++index) {
+            if (m_moveSelection[index]->object() != selection.at(index)) {
                 m_moveSelection.clear();
                 startMacro = true;
                 break;
@@ -1173,29 +1229,10 @@ void FormWindow::handleArrowKeyEvent(int key, bool modifier)
     if (startMacro)
         beginCommand(tr("Key Move"));
 
-    for (int index=0; index<selCount; ++index) {
-        QRect geom = c->selectedWidget(index)->geometry();
-        switch(key) {
-            case Qt::Key_Left:
-                geom.adjust(-x, 0,-x, 0);
-                break;
-            case Qt::Key_Right:
-                geom.adjust( x, 0, x, 0);
-                break;
-            case Qt::Key_Up:
-                geom.adjust( 0,-y, 0,-y);
-                break;
-            case Qt::Key_Down:
-                geom.adjust( 0, y, 0, y);
-                break;
-        }
-
-        if (!modifier) {
-            if (key == Qt::Key_Left || key == Qt::Key_Right)
-                geom.moveLeft(designerGrid().snapPoint(geom.topLeft()).x());
-            else
-                geom.moveTop(designerGrid().snapPoint(geom.topLeft()).y());
-        }
+    for (int index = 0; index < selCount; ++index) {
+        QWidget *w = selection.at(index);
+        const QRect oldGeom = w->geometry();
+        const QRect geom = applyValue(oldGeom, getValue(oldGeom, key, size) + offset, key, size);
 
         SetPropertyCommand *cmd = 0;
 
@@ -1204,7 +1241,7 @@ void FormWindow::handleArrowKeyEvent(int key, bool modifier)
 
         if (!cmd) {
             cmd = new SetPropertyCommand(this);
-            cmd->init(c->selectedWidget(index), QLatin1String("geometry"), geom);
+            cmd->init(w, QLatin1String("geometry"), geom);
             cmd->setText(tr("Key Move"));
             m_commandHistory->push(cmd);
 

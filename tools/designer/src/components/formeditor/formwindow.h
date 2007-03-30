@@ -219,6 +219,10 @@ private:
     void init();
     void initializeCoreTools();
 
+    int getValue(const QRect &rect, int key, bool size) const;
+    int calcValue(int val, bool forward, bool snap, int snapOffset) const;
+    QRect applyValue(const QRect &rect, int val, int key, bool size) const;
+
     bool frameNeeded(QWidget *w) const;
 
     enum RectType { Insert, Rubber };
@@ -266,7 +270,7 @@ private:
 
     void updateWidgets();
 
-    void handleArrowKeyEvent(int key, bool modifier);
+    void handleArrowKeyEvent(int key, Qt::KeyboardModifiers modifiers);
 
 private:
     FormEditor *m_core;
