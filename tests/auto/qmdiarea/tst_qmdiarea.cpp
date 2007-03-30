@@ -33,6 +33,9 @@ static const Qt::WindowFlags DefaultWindowFlags
 Q_DECLARE_METATYPE(QMdiArea::WindowOrder)
 Q_DECLARE_METATYPE(QMdiSubWindow *)
 
+//TESTED_CLASS=QMdiArea
+//TESTED_FILES=gui/widgets/qmdiarea.cpp gui/widgets/qmdiarea_p.h
+
 class tst_QMdiArea : public QObject
 {
     Q_OBJECT
