@@ -238,7 +238,7 @@
     flags argument is a bitwise-OR of the Qt::ImageConversionFlags;
     passing 0 for flags sets all the default options).
 
-    Finally, we set the label's \l {QPixmap::pixmap}{pixmap property}
+    Finally, we set the label's \l {QLabel::pixmap}{pixmap property}
     and store the label's text for later use. Note that setting the
     pixmap clears any previous content, and disables the label
     widget's buddy shortcut, if any.

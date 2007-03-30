@@ -23,6 +23,7 @@
     QXmlStreamWriter operating on the output file object:
 
     \quotefromfile xml/xmlstreamlint/main.cpp
+    \skipto main(
     \skipto QXmlStreamReader
     \printuntil QXmlStreamWriter
 
@@ -38,7 +39,7 @@
     value from the main function.
 
     \skipto else
-    \printuntil /^    \}/
+    \printuntil /^\s\s\s\s\}/
 
     For valid input, the writer is fed the current token from the reader,
     and this is written to the output file that was specified when it was

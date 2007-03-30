@@ -55,13 +55,6 @@
     is incompatible with \QD, it won't be loaded and
     installed.
 
-    When building in both debug and release mode, we must (on Mac and
-    Windows) also ensure that the proper suffix is added to the debug
-    plugin:
-
-    \skipto CONFIG
-    \printuntil /^\}/
-
     The header and source files for the widget are declared in the usual way,
     and we provide an implementation of the plugin interface so that \QD can
     use the custom widget:

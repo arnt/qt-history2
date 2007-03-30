@@ -1,5 +1,6 @@
 TEMPLATE      = subdirs
 SUBDIRS       = dombookmarks \
+                rsslisting \
                 saxbookmarks \
                 xmlstreamlint
 

@@ -58,7 +58,7 @@
     the plugin. \c loadPlugin() returns false if the plugin could not
     be loaded, in which case we disable the widgets. If you wish a
     more detailed error message, you can use
-    \l{QPluginLoader::}{errorMessage()}; we will look more closely at
+    \l{QPluginLoader::}{errorString()}; we will look more closely at
     QPluginLoader later.
 
     Here is the implementation of \c sendEcho():
@@ -189,14 +189,10 @@
     \section1 Further reading and examples
 
     You can find an overview of the macros needed to create plugins
-    \l{<QtPlugin> - Macros for Defining Plugins}{here}.
+    \l{Macros for Defining Plugins}{here}.
     
     We give an example of a plugin that extend Qt in the \l{Style
     Plugin Example}{style plugin} example. The \l{Plug & Paint
     Example}{plug and paint} example shows how to create static
-    plugins. The \l{Writing a Qt Image Plugin} article from Qt
-    Quarterly describes a more involved example of a plugin that
-    extend Qt. The article explains in detail the implementation of a
-    plugin that gives support for an image format. You can also
-    download the source code.
+    plugins.
 */
