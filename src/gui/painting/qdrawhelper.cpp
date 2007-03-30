@@ -4771,7 +4771,8 @@ enum CPUFeatures {
     MMX3DNOWEXT = 0x8,
     SSE         = 0x10,
     SSE2        = 0x20,
-    CMOV        = 0x40
+    CMOV        = 0x40,
+    IWMMXT      = 0x80
 };
 
 static uint detectCPUFeatures() {
@@ -4779,8 +4780,10 @@ static uint detectCPUFeatures() {
     return MMX|SSE|SSE2|CMOV;
 #elif defined(__ia64__)
     return MMX|SSE|SSE2;
-#elif defined(__IWMMXT__)
-    return MMX|SSE;
+#elif defined(QT_HAVE_IWMMXT)
+    // runtime detection only available when running as a previlegied process
+    static const bool doIWMMXT = !qgetenv("QT_NO_IWMMXT").toInt();
+    return doIWMMXT ? IWMMXT : 0;
 #elif defined(__i386__) || defined(_M_IX86)
     unsigned int extended_result = 0;
     uint result = 0;
@@ -4991,6 +4994,15 @@ void qInitDrawhelperAsm()
 #endif // 3DNOW
     }
 #endif // SSE
+
+#ifdef QT_HAVE_IWMMXT
+    if (features & IWMMXT) {
+        functionForMode = qt_functionForMode_IWMMXT;
+        functionForModeSolid = qt_functionForModeSolid_IWMMXT;
+        qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_iwmmxt;
+    }
+#endif // IWMMXT
+
 #endif // QT_NO_DEBUG
 }
 

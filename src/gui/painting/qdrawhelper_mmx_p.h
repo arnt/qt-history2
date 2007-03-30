@@ -26,9 +26,9 @@
 //
 
 #include <private/qdrawhelper_x86_p.h>
+#include <private/qpaintengine_raster_p.h>
 
 #ifdef QT_HAVE_MMX
-#include <private/qpaintengine_raster_p.h>
 #include <mmintrin.h>
 #endif
 
@@ -130,8 +130,6 @@ struct QMMXCommonIntrinsics
         return _store(x, _mm_setzero_si64());
     }
 };
-
-#ifdef QT_HAVE_MMX
 
 /*
   result = 0
@@ -639,12 +637,13 @@ static inline void qt_blend_color_argb_x86(int count, const QSpan *spans,
     }
 }
 
+#ifdef QT_HAVE_MMX
 struct QMMXIntrinsics : public QMMXCommonIntrinsics
 {
     static inline void end() {
         _mm_empty();
     }
 };
-
 #endif // QT_HAVE_MMX
+
 #endif // QDRAWHELPER_MMX_P_H

@@ -123,4 +123,11 @@ void qt_bitmapblit16_sse2(QRasterBuffer *rasterBuffer, int x, int y,
                           const uchar *src, int width, int height, int stride);
 #endif // QT_HAVE_SSE2
 
+#ifdef QT_HAVE_IWMMXT
+void qt_blend_color_argb_iwmmxt(int count, const QSpan *spans, void *userData);
+
+extern const CompositionFunction qt_functionForMode_IWMMXT[];
+extern const CompositionFunctionSolid qt_functionForModeSolid_IWMMXT[];
+#endif
+
 #endif // QDRAWHELPER_X86_P_H
