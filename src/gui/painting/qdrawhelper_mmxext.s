@@ -18,6 +18,7 @@
  */
 
 .globl _Z22qt_bitmapblit16_mmxextP13QRasterBufferiijPKhiii
+        .hidden _Z22qt_bitmapblit16_mmxextP13QRasterBufferiijPKhiii
 	.type	_Z22qt_bitmapblit16_mmxextP13QRasterBufferiijPKhiii, @function
 _Z22qt_bitmapblit16_mmxextP13QRasterBufferiijPKhiii:
 	pushl	%ebp
@@ -196,6 +197,7 @@ _Z22qt_bitmapblit16_mmxextP13QRasterBufferiijPKhiii:
 	.size	_Z22qt_bitmapblit16_mmxextP13QRasterBufferiijPKhiii, .-_Z22qt_bitmapblit16_mmxextP13QRasterBufferiijPKhiii
 
 .globl _Z19qt_memfill32_mmxextPjji
+        .hidden _Z19qt_memfill32_mmxextPjji
 	.type	_Z19qt_memfill32_mmxextPjji, @function
 _Z19qt_memfill32_mmxextPjji:
 	pushl	%ebp
