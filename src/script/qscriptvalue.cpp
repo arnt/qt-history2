@@ -62,6 +62,9 @@
   be invoked by calling call(). Constructor functions can be used to
   construct new objects by calling construct().
 
+  Use equalTo(), strictEqualTo() and lessThan() to compare a QScriptValue
+  to another.
+
   \sa QScriptEngine, QScriptValueIterator
 */
 
@@ -278,6 +281,7 @@ QScriptValue::QScriptValue(QScriptEngine *engine, const char *val)
 #endif
 
 /*!
+  Assigns the \a other value to this QScriptValue.
 */
 QScriptValue &QScriptValue::operator=(const QScriptValue &other)
 {
@@ -357,6 +361,10 @@ QScriptValue QScriptValue::prototype() const
   If this QScriptValue is an object, sets the internal prototype
   (\c{__proto__} property) of this object to be \a prototype;
   otherwise does nothing.
+
+  The internal prototype should not be confused with the public
+  property with name "prototype"; the public prototype is usually
+  only set on functions that act as constructors.
 
   \sa prototype(), isObject()
 */
@@ -562,7 +570,7 @@ QVariant QScriptValue::toVariant() const
   Returns the object value of this QScriptValue, as defined in
   \l{ECMA-262} section 9.9, "ToObject".
 
-  \sa isObject()
+  \sa isObject(), QScriptEngine::newObject()
 */
 QScriptValue QScriptValue::toObject() const
 {
@@ -610,8 +618,6 @@ QScriptValue QScriptValue::toPrimitive(TypeHint hint) const
 }
 
 /*!
-  Returns the QObject value of this QScriptValue.
-
   If this QScriptValue is a QObject, returns the QObject pointer
   that the QScriptValue represents; otherwise, returns 0.
 
@@ -623,8 +629,6 @@ QObject *QScriptValue::toQObject() const
 }
 
 /*!
-  Returns the QMetaObject value of this QScriptValue.
-
   If this QScriptValue is a QMetaObject, returns the QMetaObject pointer
   that the QScriptValue represents; otherwise, returns 0.
 
@@ -676,10 +680,17 @@ QScriptValue QScriptValue::property(const QString &name,
 }
 
 /*!
-  Returns the property at the given \a arrayIndex.
+  \overload
+
+  Returns the property at the given \a arrayIndex, using the given \a
+  mode to resolve the property.
 
   This function is provided for convenience and performance when
   working with array objects.
+
+  If this QScriptValue is not an Array object, this function behaves
+  as if property() was called with the string representation of \a
+  arrayIndex.
 */
 QScriptValue QScriptValue::property(quint32 arrayIndex,
                                     const ResolveFlags &mode) const
@@ -688,10 +699,16 @@ QScriptValue QScriptValue::property(quint32 arrayIndex,
 }
 
 /*!
+  \overload
+
   Sets the property at the given \a arrayIndex to the given \a value.
 
   This function is provided for convenience and performance when
   working with array objects.
+
+  If this QScriptValue is not an Array object, this function behaves
+  as if setProperty() was called with the string representation of \a
+  arrayIndex.
 */
 void QScriptValue::setProperty(quint32 arrayIndex, const QScriptValue &value,
                                const PropertyFlags &flags)

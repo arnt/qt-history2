@@ -54,10 +54,9 @@
   Use newObject() to create a standard Qt Script object. You can use
   the object-specific functionality in QScriptValue to manipulate the
   script object (e.g. QScriptValue::setProperty()). Use newArray() to
-  create a Qt script array object.
-
-  Use newDate() to create a \c{Date} object, and newRegExp() to create
-  a \c{RegExp} object. Use newVariant() to wrap a QVariant.
+  create a Qt script array object. Use newDate() to create a \c{Date}
+  object, and newRegExp() to create a \c{RegExp} object. Use
+  newVariant() to wrap a QVariant.
 
   Use newQObject() to wrap a QObject (or subclass) pointer, and
   newQMetaObject() to wrap a QMetaObject. When wrapping a QObject
@@ -67,7 +66,8 @@
   because it is done dynamically using the Qt meta object system. See
   the \l{QtScript} documentation for more information.
 
-  Use newFunction() to wrap a native (C++) function.
+  Use newFunction() to wrap native (C++) functions, including
+  constructors for your own custom types.
 
   Use importExtension() to import plugin-based extensions into the
   engine.
@@ -105,7 +105,7 @@
   of the Global Object:
 
   \code
-    QScriptValue fun = myEngine.scriptValue(myAdd);
+    QScriptValue fun = myEngine.newFunction(myAdd);
     myEngine.globalObject().setProperty("myAdd", fun);
   \endcode
 
@@ -225,6 +225,8 @@ QScriptValue QScriptEngine::globalObject() const
 
 /*!
   Returns a QScriptValue of the primitive type Null.
+
+  \sa undefinedValue()
 */
 QScriptValue QScriptEngine::nullValue()
 {
@@ -234,6 +236,8 @@ QScriptValue QScriptEngine::nullValue()
 
 /*!
   Returns a QScriptValue of the primitive type Undefined.
+
+  \sa nullValue()
 */
 QScriptValue QScriptEngine::undefinedValue()
 {
@@ -246,6 +250,77 @@ QScriptValue QScriptEngine::undefinedValue()
   The \c{prototype} property of the resulting function is set to be the
   given \a prototype. The \c{constructor} property of \a prototype is
   set to be the resulting function.
+
+  When a function is called as a constructor (e.g. \c{new Foo()}), the
+  `this' object associated with the function call is the new object
+  that the function is expected to initialize; the prototype of this
+  default constructed object will be the function's public
+  \c{prototype} property. If you always want the function to behave as
+  a constructor (e.g. \c{Foo()} should also create a new object), or
+  if you need to create your own object rather than using the default
+  `this' object, you should make sure that the prototype of your
+  object is set correctly; either by setting it manually, or, when
+  wrapping a custom type, by having registered the defaultPrototype()
+  of that type. Example:
+
+  \code
+  QScriptValue Foo(QScriptContext *context, QScriptEngine *engine)
+  {
+      if (context->calledAsConstructor()) {
+          // initialize the new object
+          context->thisObject().setProperty("bar", ...);
+          // ...
+          // return a non-object value to indicate that the
+          // thisObject() should be the result of the "new Foo()" expression
+          return engine->undefinedValue();
+      } else {
+          // not called as "new Foo()", just "Foo()"
+          // create our own object and return that one
+          QScriptValue object = engine->newObject();
+          object.setPrototype(context->callee().property("prototype"));
+          object.setProperty("baz", ...);
+          return object;
+      }
+  }
+
+  ...
+
+  QScriptValue fooProto = engine->newObject();
+  fooProto.setProperty("whatever", ...);
+  engine->globalObject().setProperty("Foo", engine->newFunction(Foo, fooProto));
+  \endcode
+
+  To wrap a custom type and provide a constructor for it, you'd typically
+  do something like this:
+
+  \code
+  class Bar { ... };
+
+  Q_DECLARE_METATYPE(Bar)
+
+  QScriptValue constructBar(QScriptContext *context, QScriptEngine *engine)
+  {
+      Bar bar;
+      // initialize from arguments in context, if desired
+      ...
+      return engine->toScriptValue(bar);
+  }
+
+  class BarPrototype : public QObject, public QScriptable
+  {
+  // provide the scriptable interface of this type using slots and properties
+  ...
+  };
+
+  ...
+
+  // create and register the Bar prototype and constructor in the engine
+  BarPrototype *barPrototypeObject = new BarPrototype(...);
+  QScriptValue barProto = engine->newQObject(barPrototypeObject);
+  engine->setDefaultPrototype(qMetaTypeId<Bar>, barProto);
+  QScriptValue barCtor = engine->newFunction(constructBar, barProto);
+  engine->globalObject().setProperty("Bar", barCtor);
+  \endcode
 */
 QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun,
                                         const QScriptValue &prototype,
@@ -263,6 +338,8 @@ QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun,
 /*!
   Creates a QScriptValue object of class RegExp with the given
   \a regexp.
+
+  \sa QScriptValue::toRegExp()
 */
 QScriptValue QScriptEngine::newRegExp(const QRegExp &regexp)
 {
@@ -282,7 +359,7 @@ QScriptValue QScriptEngine::newRegExp(const QRegExp &regexp)
   prototype; otherwise, the prototype will be the Object prototype
   object.
 
-  \sa setDefaultPrototype()
+  \sa setDefaultPrototype(), QScriptValue::toVariant()
 */
 QScriptValue QScriptEngine::newVariant(const QVariant &value)
 {
@@ -300,6 +377,8 @@ QScriptValue QScriptEngine::newVariant(const QVariant &value)
   information, see the \l{QtScript} documentation.
 
   If \a object is a null pointer, this function returns nullValue().
+
+  \sa QScriptValue::toQObject()
 */
 QScriptValue QScriptEngine::newQObject(QObject *object, ValueOwnership ownership)
 {
@@ -314,6 +393,8 @@ QScriptValue QScriptEngine::newQObject(QObject *object, ValueOwnership ownership
 
   The prototype of the created object will be the Object
   prototype object.
+
+  \sa newArray()
 */
 QScriptValue QScriptEngine::newObject()
 {
@@ -404,6 +485,8 @@ QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun, in
 
 /*!
   Creates a QScriptValue object of class Array with the given \a length.
+
+  \sa newObject()
 */
 QScriptValue QScriptEngine::newArray(uint length)
 {
@@ -443,6 +526,8 @@ QScriptValue QScriptEngine::newDate(qsreal value)
 /*!
   Creates a QScriptValue object of class Date from the given
   \a value.
+
+  \sa QScriptValue::toDateTime()
 */
 QScriptValue QScriptEngine::newDate(const QDateTime &value)
 {
@@ -642,7 +727,7 @@ QScriptValue QScriptEngine::defaultPrototype(int metaTypeId) const
   a QScriptValue from a value of type \a metaTypeId, the default
   prototype will be set as the QScriptValue's prototype.
 
-  \sa defaultPrototype(), qScriptRegisterMetaType(), {Default Prototypes Example}
+  \sa defaultPrototype(), qScriptRegisterMetaType(), QScriptable, {Default Prototypes Example}
 */
 void QScriptEngine::setDefaultPrototype(int metaTypeId, const QScriptValue &prototype)
 {
@@ -714,7 +799,7 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     once; subsequent calls to importExtension() with the same extension
     name will do nothing and return undefinedValue().
 
-    \sa QScriptExtensionPlugin, \l{Creating QtScript Extensions}
+    \sa QScriptExtensionPlugin, {Creating QtScript Extensions}
 */
 QScriptValue QScriptEngine::importExtension(const QString &extension)
 {
@@ -803,10 +888,13 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
     Returns the internal ID used by QMetaType.
 
     You only need to call this function if you want to provide custom
-    conversion of values of type \c{T}, i.e. if the default QVariant-based
-    representation and conversion is not appropriate. If you only want to
-    define a script interface for values of type \c{T}, and don't care how
-    those values are represented, use \l{QScriptEngine::setDefaultPrototype()}{setDefaultPrototype}() instead.
+    conversion of values of type \c{T}, i.e. if the default
+    QVariant-based representation and conversion is not
+    appropriate. If you only want to define a common script interface
+    for values of type \c{T}, and don't care how those values are
+    represented, use
+    \l{QScriptEngine::setDefaultPrototype()}{setDefaultPrototype}()
+    instead.
 
     You need to declare the custom type first with
     Q_DECLARE_METATYPE().
@@ -929,6 +1017,11 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
     ...
 
     qScriptRegisterSequenceMetaType<QVector<int> >(engine);
+    ...
+    QVector<int> v = qscriptvalue_cast<QVector<int> >(engine->evaluate("[5, 1, 3, 2]"));
+    qSort(v.begin(), v.end());
+    QScriptValue a = engine->toScriptValue(v);
+    qDebug() << a.toString(); // outputs "[1, 2, 3, 5]"
     \endcode
 
     \sa qScriptRegisterMetaType()

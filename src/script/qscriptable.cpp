@@ -88,6 +88,8 @@
       return qscriptvalue_cast<double>(thisObject());
     }
   \endcode
+
+  \sa {Default Prototypes Example}, QScriptEngine::newFunction()
 */
 
 /*!
