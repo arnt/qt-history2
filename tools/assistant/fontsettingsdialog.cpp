@@ -103,3 +103,4 @@ void FontSettingsDialog::setupFontSettingsDialog(const FontSettings *settings)
     m_windowFontPanel->setChecked(settings->useWindowFont);
     m_browserFontPanel->setChecked(settings->useBrowserFont);
 }
+

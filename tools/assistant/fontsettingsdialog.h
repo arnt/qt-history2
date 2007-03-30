@@ -39,3 +39,4 @@ private:
 };
 
 #endif  // _FONT_SETTINGS_DIALOG_H_
+
