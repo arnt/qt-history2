@@ -983,6 +983,9 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 p->drawLine(x, rect.y(), x, rect.height());
             } else {
                 const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, pb, widget);
+                if (!unit_width)
+                    return;
+
                 int u;
                 if (unit_width > 1)
                     u = (rect.width() + unit_width / 3) / unit_width;
