@@ -2398,8 +2398,8 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
 }
 #endif // Q_WS_WIN
 
-inline bool QRasterPaintEnginePrivate::isUnclipped(const QRect &rect,
-                                                   int penWidth) const
+bool QRasterPaintEnginePrivate::isUnclipped(const QRect &rect,
+                                            int penWidth) const
 {
     if (paint_unclipped)
         return true;
