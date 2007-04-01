@@ -606,7 +606,8 @@ bool MessageModel::load(const QString &fileName)
     MetaTranslator tor;
     bool ok = tor.load(fileName);
     if (ok) {
-        m_codecForTr = tor.codecForTr()->name();
+        if(tor.codecForTr())
+            m_codecForTr = tor.codecForTr()->name();
         int messageCount = 0;
         clearContextList();
         m_numFinished = 0;
