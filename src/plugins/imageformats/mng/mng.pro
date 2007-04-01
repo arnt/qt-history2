@@ -44,6 +44,6 @@ contains(QT_CONFIG, system-zlib) {
         INCLUDEPATH +=  ../../../3rdparty/zlib
 }
 
-QTDIR_build:DESTDIR  = $$QT_BUILD_TREE/plugins/imageformats
+QTDIR_build:DESTDIR = $$QT_BUILD_TREE/plugins/imageformats
 target.path += $$[QT_INSTALL_PLUGINS]/imageformats
 INSTALLS += target

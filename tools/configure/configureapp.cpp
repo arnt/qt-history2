@@ -424,6 +424,9 @@ void Configure::parseCmdLine()
         else if( configCmdLine.at(i) == "-no-libtiff" ) {
               dictionary[ "TIFF"] = "no";
               dictionary[ "LIBTIFF" ] = "no";
+        } else if( configCmdLine.at(i) == "-qt-libtiff" ) {
+            dictionary[ "TIFF" ] = "plugin";
+            dictionary[ "LIBTIFF" ] = "qt";
         } else if( configCmdLine.at(i) == "-system-libtiff" ) {
               dictionary[ "TIFF" ] = "plugin";
               dictionary[ "LIBTIFF" ] = "system";
@@ -1019,9 +1022,9 @@ bool Configure::displayHelp()
                     "[-no-style-<style>] [-qt-style-<style>] [-redo]\n"
                     "[-saveconfig <config>] [-loadconfig <config>] [-no-zlib]\n"
                     "[-qt-zlib] [-system-zlib] [-no-gif] [-qt-gif] [-no-libpng]\n"
-                    "[-qt-libpng] [-system-libpng] [-no-libtiff] [-system-libtiff]\n"
-                    "[-no-libjpeg] [-qt-libjpeg] [-system-libjpeg] [-no-libmng]\n"
-                    "[-qt-libmng] [-system-libmng] [-no-qt3support]\n"
+                    "[-qt-libpng] [-system-libpng] [-no-libtiff] [-qt-libtiff]\n"
+                    "[-system-libtiff] [-no-libjpeg] [-qt-libjpeg] [-system-libjpeg]\n"
+                    "[-no-libmng] [-qt-libmng] [-system-libmng] [-no-qt3support]\n"
                     "[-no-mmx] [-no-3dnow] [-no-sse] [-no-sse2] [-direct3d]\n"
                     "[-openssl] [-no-openssl] [-platform <spec>]\n\n", 0, 7);
 
@@ -1128,6 +1131,7 @@ bool Configure::displayHelp()
         desc("LIBMNG", "system","-system-libmng",       "Use libmng from the operating system.\nSee See http://www.libmng.com\n");
 
         desc("LIBTIFF", "no",    "-no-libtiff",         "Do not compile the plugin for TIFF support.");
+        desc("LIBTIFF", "qt",    "-qt-libtiff",         "Use the libtiff bundled with Qt.");
         desc("LIBTIFF", "system","-system-libtiff",     "Use libtiff from the operating system.\nSee http://www.libtiff.org\n");
 
         desc("LIBJPEG", "no",    "-no-libjpeg",         "Do not compile the plugin for JPEG support.");
@@ -1461,7 +1465,7 @@ bool Configure::verifyConfiguration()
      system-mng no-mng mng
      system-png no-png png
      system-zlib no-zlib zlib
-     system-tiff no-tiff
+     system-tiff no-tiff tiff
      no-gif gif
      dll staticlib
 
@@ -1568,6 +1572,8 @@ void Configure::generateOutputVars()
 
     if( dictionary[ "TIFF" ] == "no" )
           qtConfig += "no-tiff";
+    else if( dictionary[ "TIFF" ] == "plugin" )
+        qmakeFormatPlugins += "tiff";
     if( dictionary[ "LIBTIFF" ] == "system" )
         qtConfig += "system-tiff";
 
