@@ -187,8 +187,8 @@ mac {
             QMAKE_EXTRA_COMPILERS += mmx_compiler
 
             *g++ {
-                DEFINES += QT_HAVE_MMXEXT
-                SOURCES += painting/qdrawhelper_mmxext.S
+#                DEFINES += QT_HAVE_MMXEXT
+#                SOURCES += painting/qdrawhelper_mmxext.S
             }
         }
         3dnow {
