@@ -2815,13 +2815,11 @@ bool QGraphicsScenePrivate::dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEv
 
     int itemIndex = hoverItems.indexOf(item);
     if (itemIndex == -1) {
-        if (hoverItems.isEmpty() || !hoverItems.last()->isAncestorOf(item)) {
-            // Send HoverLeave events to all existing hover items, topmost first.
-            while (!hoverItems.isEmpty()) {
-                QGraphicsItem *lastItem = hoverItems.takeLast();
-                if (lastItem->acceptsHoverEvents())
-                    sendHoverEvent(QEvent::GraphicsSceneHoverLeave, lastItem, hoverEvent);
-            }
+        // Send HoverLeave events to all existing hover items, topmost first.
+        while (!hoverItems.isEmpty() && !hoverItems.last()->isAncestorOf(item)) {
+            QGraphicsItem *lastItem = hoverItems.takeLast();
+            if (lastItem->acceptsHoverEvents())
+                sendHoverEvent(QEvent::GraphicsSceneHoverLeave, lastItem, hoverEvent);
         }
 
         // Item is a child of a known item. Generate enter events for the

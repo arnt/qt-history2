@@ -2776,8 +2776,11 @@ bool QGraphicsItem::isAncestorOf(const QGraphicsItem *child) const
 {
     if (!child || child == this)
         return false;
-    for (int i = 0; i < d_ptr->children.size(); ++i)
-        return d_ptr->children.at(i) == child || d_ptr->children.at(i)->isAncestorOf(child);
+    const QGraphicsItem *ancestor = child;
+    while ((ancestor = ancestor->parentItem())) {
+        if (ancestor == this)
+            return true;
+    }
     return false;
 }
 
