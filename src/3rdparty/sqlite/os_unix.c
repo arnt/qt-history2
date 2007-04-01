@@ -16,7 +16,7 @@
 #include "os.h"
 #if OS_UNIX              /* This file is used on unix only */
 
-#include <QtCore/qconfig.h>
+#include <qconfig.h>
 
 /* #define SQLITE_ENABLE_LOCKING_STYLE 0 */
 

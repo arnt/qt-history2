@@ -16,7 +16,7 @@
 #include "os.h"
 #if OS_WIN               /* This file is used for windows only */
 
-#include <QtCore/qconfig.h>
+#include <qconfig.h>
 
 #include <winbase.h>
 
