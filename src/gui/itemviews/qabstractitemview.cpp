@@ -1922,8 +1922,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
 #ifdef Q_WS_MAC
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        if (!edit(currentIndex(), EditKeyPressed, event))
-            event->ignore();
+        edit(currentIndex(), EditKeyPressed, event);
         break;
     case Qt::Key_O:
         if (event->modifiers() & Qt::ControlModifier && currentIndex().isValid())
