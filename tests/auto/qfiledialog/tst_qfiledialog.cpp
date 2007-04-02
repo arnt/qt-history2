@@ -35,6 +35,9 @@ public:
     tst_QFiledialog();
     virtual ~tst_QFiledialog();
 
+public slots:
+    void init();
+
 private slots:
     void directory();
     void acceptMode();
@@ -65,6 +68,13 @@ tst_QFiledialog::tst_QFiledialog()
 
 tst_QFiledialog::~tst_QFiledialog()
 {
+}
+
+void tst_QFiledialog::init()
+{
+    QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
+    settings.beginGroup(QLatin1String("Qt"));
+    settings.remove(QLatin1String("filedialog"));
 }
 
 class MyAbstractItemDelegate : public QAbstractItemDelegate
