@@ -105,6 +105,15 @@
     device, e.g., \c /dev/mouse for mouse devices and \c /dev/ts for
     touch panels.
 
+    Multiple keyboard drivers can be specified in one go:
+
+    \code
+         export QWS_MOUSE_PROTO="<driver>[:<driver specific options>]
+                 <driver>[:<driver specific options>]
+                 <driver>[:<driver specific options>]"
+    \endcode
+
+    Input will be read from all specified drivers.
     Note that the \c Vr41xx driver also accepts two optional
     arguments: \c press=<value> defining a mouseclick (the default
     value is 750) and \c filter=<value> specifying the length of the
