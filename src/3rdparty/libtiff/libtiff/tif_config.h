@@ -139,6 +139,9 @@
 
 /* Define to 1 if you have the <windows.h> header file. */
 /* #undef HAVE_WINDOWS_H */
+#ifdef Q_OS_WIN
+#define TIF_PLATFORM_CONSOLE
+#endif
 
 /* Native cpu byte order: 1 if big-endian (Motorola) or 0 if little-endian
    (Intel) */
