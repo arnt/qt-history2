@@ -61,6 +61,10 @@ public:
 
     X509 *x509;
 
+    static QByteArray QByteArray_from_X509(X509 *x509, bool pemEncoded);
+    static QSslCertificate QSslCertificate_from_X509(X509 *x509);
+    static QList<QSslCertificate> QSslCertificates_from_QByteArray(const QByteArray &array, int count = -1);
+
     friend class QSslSocketBackendPrivate;
 };
 

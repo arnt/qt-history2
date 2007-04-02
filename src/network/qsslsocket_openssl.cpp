@@ -423,7 +423,7 @@ QList<QSslCertificate> QSslSocketPrivate::certificatesFromPath(const QString &pa
     if (info.isFile()) {
         QFile file(path);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-            return QSslSocketBackendPrivate::QByteArray_to_QSslCertificates(file.readAll());
+            return QSslCertificate::fromData(file.readAll());
         return QList<QSslCertificate>();
     }
 
@@ -431,7 +431,7 @@ QList<QSslCertificate> QSslSocketPrivate::certificatesFromPath(const QString &pa
     foreach (QString entry, QDir(path).entryList(QDir::Files)) {
         QFile file(path + QLatin1String("/") + entry);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-            certs += QSslSocketBackendPrivate::QByteArray_to_QSslCertificates(file.readAll());
+            certs += QSslCertificate::fromData(file.readAll());
     }
 
     return certs;
@@ -595,7 +595,7 @@ bool QSslSocketBackendPrivate::testConnection()
     // peer certificate and the chain may be empty if the peer didn't present
     // any certificate.
     peerCertificateChain = STACKOFX509_to_QSslCertificates(q_SSL_get_peer_cert_chain(ssl));
-    peerCertificate = X509_to_QSslCertificate(q_SSL_get_peer_certificate(ssl));
+    peerCertificate = QSslCertificatePrivate::QSslCertificate_from_X509(q_SSL_get_peer_certificate(ssl));
 
     // This is now.
     QDateTime now = QDateTime::currentDateTime();
@@ -719,152 +719,13 @@ QSslCipher QSslSocketBackendPrivate::currentCipher() const
     return currentCipher ? QSslCipher_from_SSL_CIPHER(currentCipher) : QSslCipher();
 }
 
-static const char BeginCertString[] = "-----BEGIN CERTIFICATE-----\n";
-static const char EndCertString[] = "-----END CERTIFICATE-----\n";
-
-QByteArray QSslSocketBackendPrivate::X509_to_QByteArray(X509 *x509, bool pemEncoded)
-{
-    if (!x509) {
-        qWarning("QSslSocketBackendPrivate::X509_to_QByteArray: null X509");
-        return QByteArray();
-    }
-
-    // Use i2d_X509 to convert the X509 to an array.
-    int length = q_i2d_X509(x509, 0);
-    QByteArray array;
-    array.resize(length);
-    char *data = array.data();
-    char **dataP = &data;
-    unsigned char **dataPu = (unsigned char **)dataP;
-    q_i2d_X509(x509, dataPu);
-
-    if (!pemEncoded)
-        return array;
-
-    // Convert to Base64 - wrap at 64 characters.
-    array = array.toBase64();
-    QByteArray tmp;
-    for (int i = 0; i < array.size() - 64; i += 64) {
-        tmp += QByteArray::fromRawData(array.data() + i, 64);
-        tmp += "\n";
-    }
-    if (int remainder = array.size() % 64) {
-        tmp += QByteArray::fromRawData(array.data() + array.size() - remainder, remainder);
-        tmp += "\n";
-    }
-
-    return BeginCertString + tmp + EndCertString;
-}
-
-static QMap<QString, QString> mapFromOnelineName(char *name)
-{
-    QMap<QString, QString> info;
-    QString issuerInfoStr = QString::fromLocal8Bit(name);
-    q_CRYPTO_free(name);
-
-    foreach (QString entry, issuerInfoStr.split(QLatin1String("/"), QString::SkipEmptyParts)) {
-        // ### The right-hand encoding seems to allow hex (Regulierungsbeh\xC8orde)
-        //entry.replace(QLatin1String("\\x"), QLatin1String("%"));
-        //entry = QUrl::fromPercentEncoding(entry.toLatin1());
-        
-        int splitPos = entry.indexOf(QLatin1String("="));
-        if (splitPos != -1) {
-            info.insert(entry.left(splitPos), entry.mid(splitPos + 1));
-        } else {
-            info.insert(entry, QString());
-        }
-    }
-
-    return info;
-}
-
-QSslCertificate QSslSocketBackendPrivate::X509_to_QSslCertificate(X509 *x509)
-{
-    ensureInitialized();
-    QSslCertificate certificate;
-    if (!x509)
-        return certificate;
-
-    // ### Don't use X509_NAME_oneline, at least try QRegexp splitting
-    certificate.d->issuerInfo = mapFromOnelineName(q_X509_NAME_oneline(q_X509_get_issuer_name(x509), 0, 0));
-    certificate.d->subjectInfo = mapFromOnelineName(q_X509_NAME_oneline(q_X509_get_subject_name(x509), 0, 0));
-
-    ASN1_TIME *nbef = X509_get_notBefore(x509);
-    ASN1_TIME *naft = X509_get_notAfter(x509);
-    certificate.d->notValidBefore.setTime_t(q_getTimeFromASN1(nbef));
-    certificate.d->notValidAfter.setTime_t(q_getTimeFromASN1(naft));
-    certificate.d->null = false;
-    certificate.d->x509 = q_X509_dup(x509);
-
-    return certificate;
-}
-
 QList<QSslCertificate> QSslSocketBackendPrivate::STACKOFX509_to_QSslCertificates(STACK_OF(X509) *x509)
 {
     ensureInitialized();
     QList<QSslCertificate> certificates;
     for (int i = 0; i < q_sk_X509_num(x509); ++i) {
         if (X509 *entry = q_sk_X509_value(x509, i))
-            certificates << X509_to_QSslCertificate(entry);
+            certificates << QSslCertificatePrivate::QSslCertificate_from_X509(entry);
     }
-    return certificates;
-}
-
-QSslCertificate QSslSocketBackendPrivate::QByteArray_to_QSslCertificate(const QByteArray &array)
-{
-    ensureInitialized();
-    int startPos = array.indexOf(BeginCertString);
-    if (startPos == -1)
-        return QSslCertificate();
-    startPos += sizeof(BeginCertString) - 1;
-
-    int endPos = array.indexOf(EndCertString, startPos);
-    if (endPos == -1)
-        return QSslCertificate();
-
-    QByteArray decoded = QByteArray::fromBase64(QByteArray::fromRawData(array.data() + startPos, endPos - startPos));
-#if OPENSSL_VERSION_NUMBER >= 0x00908000L
-    const unsigned char *data = (const unsigned char *)decoded.data();
-#else
-    unsigned char *data = (unsigned char *)decoded.data();
-#endif
-
-    X509 *x509 = q_d2i_X509(0, &data, decoded.size());
-    QSslCertificate certificate = X509_to_QSslCertificate(x509);
-    q_X509_free(x509);
-
-    return certificate;
-}
-
-QList<QSslCertificate> QSslSocketBackendPrivate::QByteArray_to_QSslCertificates(const QByteArray &array)
-{
-    int offset = 0;
-    QList<QSslCertificate> certificates;
-
-    forever {
-        int startPos = array.indexOf(BeginCertString, offset);
-        if (startPos == -1)
-            break;
-        startPos += sizeof(BeginCertString) - 1;
-        
-        int endPos = array.indexOf(EndCertString, startPos);
-        if (endPos == -1)
-            break;
-
-        offset = endPos + sizeof(EndCertString) - 1;
-
-        QByteArray decoded = QByteArray::fromBase64(QByteArray::fromRawData(array.data() + startPos, endPos - startPos));
-#if OPENSSL_VERSION_NUMBER >= 0x00908000L
-        const unsigned char *data = (const unsigned char *)decoded.data();
-#else
-        unsigned char *data = (unsigned char *)decoded.data();
-#endif
-        
-        if (X509 *x509 = q_d2i_X509(0, &data, decoded.size())) {
-            certificates << X509_to_QSslCertificate(x509);
-            q_X509_free(x509);
-        }
-    }
-
     return certificates;
 }

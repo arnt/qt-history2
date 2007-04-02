@@ -97,6 +97,7 @@ public:
 
 private:
     QSslCertificatePrivate *d;
+    friend class QSslCertificatePrivate;
     friend class QSslSocketBackendPrivate;
 };
 

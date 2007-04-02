@@ -88,12 +88,7 @@ public:
     QSslCipher currentCipher() const;
 
     static QSslCipher QSslCipher_from_SSL_CIPHER(SSL_CIPHER *cipher);
-    static QByteArray X509_to_QByteArray(X509 *x509, bool pemEncoded);
-    static X509 *QSslCertificate_to_X509(const QSslCertificate &certificate);
-    static QSslCertificate X509_to_QSslCertificate(X509 *x509);
     static QList<QSslCertificate> STACKOFX509_to_QSslCertificates(STACK_OF(X509) *x509);
-    static QSslCertificate QByteArray_to_QSslCertificate(const QByteArray &array);
-    static QList<QSslCertificate> QByteArray_to_QSslCertificates(const QByteArray &array);
 };
 
 #endif
