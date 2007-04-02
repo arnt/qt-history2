@@ -40,3 +40,6 @@ Third party components
 
  - QTabBar 
         Added int tabAt(const QPoint &pos) const
+
+ - QString
+        fromUtf8() now discards UTF-8 encoded byte order marks just like the UTF-8 QTextCodec

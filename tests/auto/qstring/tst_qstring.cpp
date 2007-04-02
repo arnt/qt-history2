@@ -3825,6 +3825,14 @@ void tst_QString::fromUtf8_data()
     utf8 += 0xbf;
     str = fromInvalidUtf8Sequence(utf8);
     QTest::newRow("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 5.3.2") << utf8 << str << -1;
+
+    // strip a utf-8 encoded bom
+    utf8.clear();
+    utf8 += 0xef;
+    utf8 += 0xbb;
+    utf8 += 0xbf;
+    utf8 += "Test";
+    QTest::newRow("utf8-bom") << utf8 << QString("Test") << -1;
 }
 
 void tst_QString::fromUtf8()

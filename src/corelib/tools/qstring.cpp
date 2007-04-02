@@ -3410,7 +3410,14 @@ QString QString::fromUtf8(const char *str, int size)
     int need = 0;
     int error = -1;
     uchar ch;
-    for (int i = 0; i < size; ++i) {
+    int i = 0;
+
+    // skip utf8-encoded byte order mark
+    if (size >= 3
+        && (uchar)str[0] == 0xef && (uchar)str[1] == 0xbb && (uchar)str[2] == 0xbf)
+        i += 3;
+
+    for (; i < size; ++i) {
         ch = str[i];
         if (need) {
             if ((ch&0xc0) == 0x80) {
