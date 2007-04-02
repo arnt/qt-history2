@@ -46,7 +46,11 @@
 const int GapBetweenLogoAndRightEdge = 5;
 const int ModernHeaderTopMargin = 2;
 const int ClassicHMargin = 4;
-const int MacButtonHMargin = 13;
+const int MacButtonTopMargin = 13;
+const int MacLayoutLeftMargin = 20;
+const int MacLayoutTopMargin = 14;
+const int MacLayoutRightMargin = 20;
+const int MacLayoutBottomMargin = 17;
 
 static void changeSpacerSize(QLayout *layout, int index, int width, int height)
 {
@@ -171,12 +175,14 @@ class QWizardLayoutInfo
 {
 public:
     inline QWizardLayoutInfo()
-        : topLevelMargin(-1), childMargin(-1), spacing(-1), wizStyle(QWizard::ClassicStyle),
-          header(false), watermark(false), title(false), subTitle(false), extension(false) {}
+        : topLevelMargin(-1), childMargin(-1), hspacing(-1), vspacing(-1),
+          wizStyle(QWizard::ClassicStyle), header(false), watermark(false), title(false),
+          subTitle(false), extension(false) {}
 
     int topLevelMargin;
     int childMargin;
-    int spacing;
+    int hspacing;
+    int vspacing;
     int buttonSpacing;
     QWizard::WizardStyle wizStyle;
     bool header;
@@ -193,7 +199,8 @@ bool QWizardLayoutInfo::operator==(const QWizardLayoutInfo &other)
 {
     return topLevelMargin == other.topLevelMargin
            && childMargin == other.childMargin
-           && spacing == other.spacing
+           && hspacing == other.hspacing
+           && vspacing == other.vspacing
            && buttonSpacing == other.buttonSpacing
            && wizStyle == other.wizStyle
            && header == other.header
@@ -581,9 +588,6 @@ void QWizardPrivate::init()
     pageVBoxLayout->addStretch(1);
 
     buttonLayout = new QHBoxLayout;
-    buttonLayout->addSpacing(0);
-    buttonLayout->addSpacing(0);
-
     mainLayout = new QGridLayout(antiFlickerWidget);
     mainLayout->setSizeConstraint(QLayout::SetNoConstraint);
 
@@ -743,10 +747,11 @@ QWizardLayoutInfo QWizardPrivate::layoutInfoForCurrentPage()
 
     QWizardLayoutInfo info;
 
-    info.topLevelMargin = style->pixelMetric(QStyle::PM_DefaultTopLevelMargin);
+    info.topLevelMargin = style->pixelMetric(QStyle::PM_LayoutBottomMargin, 0, q);
     info.childMargin = style->pixelMetric(QStyle::PM_DefaultChildMargin);
-    info.spacing = style->pixelMetric(QStyle::PM_DefaultLayoutSpacing);
-    info.buttonSpacing = info.spacing;
+    info.hspacing = style->pixelMetric(QStyle::PM_LayoutHorizontalSpacing);
+    info.vspacing = style->pixelMetric(QStyle::PM_LayoutVerticalSpacing);
+    info.buttonSpacing = info.hspacing;
 #ifdef Q_WS_MAC
     if (qobject_cast<QMacStyle *>(style))
         info.buttonSpacing = 12;
@@ -806,7 +811,7 @@ void QWizardPrivate::recreateLayout(const QWizardLayoutInfo &info)
     bool modern = (info.wizStyle == QWizard::ModernStyle);
     bool aero = (info.wizStyle == QWizard::AeroStyle);
     int deltaMargin = info.topLevelMargin - info.childMargin;
-    int deltaSpacing = info.topLevelMargin - info.spacing;
+    int deltaVSpacing = info.topLevelMargin - info.vspacing;
 
     int row = 0;
     int numColumns;
@@ -822,8 +827,8 @@ void QWizardPrivate::recreateLayout(const QWizardLayoutInfo &info)
     if (mac) {
         mainLayout->setMargin(0);
         mainLayout->setSpacing(0);
-        buttonLayout->setMargin(0);
-        pageVBoxLayout->setMargin(10);
+        buttonLayout->setContentsMargins(MacLayoutLeftMargin, MacButtonTopMargin, MacLayoutRightMargin, MacLayoutBottomMargin);
+        pageVBoxLayout->setMargin(7);
     } else {
         if (modern) {
             mainLayout->setMargin(0);
@@ -832,14 +837,13 @@ void QWizardPrivate::recreateLayout(const QWizardLayoutInfo &info)
             buttonLayout->setMargin(info.topLevelMargin);
         } else {
             mainLayout->setMargin(info.topLevelMargin);
-            mainLayout->setSpacing(info.spacing);
+            mainLayout->setHorizontalSpacing(info.hspacing);
+            mainLayout->setVerticalSpacing(info.vspacing);
             pageVBoxLayout->setMargin(0);
             buttonLayout->setMargin(0);
         }
     }
     buttonLayout->setSpacing(info.buttonSpacing);
-    changeSpacerSize(buttonLayout, 0, mac ? MacButtonHMargin : 0, 0);
-    changeSpacerSize(buttonLayout, buttonLayout->count() - 1, mac ? MacButtonHMargin : 0, 0);
 
     if (info.header) {
         if (!headerWidget)
@@ -853,7 +857,7 @@ void QWizardPrivate::recreateLayout(const QWizardLayoutInfo &info)
     int watermarkStartRow = row;
 
     if (mac)
-        mainLayout->setRowMinimumHeight(row++, info.topLevelMargin + 1);
+        mainLayout->setRowMinimumHeight(row++, 10);
 
     if (info.title) {
         if (!titleLabel) {
@@ -863,7 +867,7 @@ void QWizardPrivate::recreateLayout(const QWizardLayoutInfo &info)
         }
 
         QFont titleFont = q->font();
-        titleFont.setPointSize(titleFont.pointSize() + (mac ? 1 : 4));
+        titleFont.setPointSize(titleFont.pointSize() + (mac ? 3 : 4));
         titleFont.setBold(true);
         titleLabel->setPalette(QPalette());
 
@@ -896,7 +900,7 @@ void QWizardPrivate::recreateLayout(const QWizardLayoutInfo &info)
             mainLayout->addWidget(placeholderWidget2, row++, pageColumn);
         }
         if (mac)
-            mainLayout->setRowMinimumHeight(row++, info.topLevelMargin - 4);
+            mainLayout->setRowMinimumHeight(row++, 7);
     }
     if (placeholderWidget1)
         placeholderWidget1->setVisible(info.title && modern);
@@ -915,6 +919,7 @@ void QWizardPrivate::recreateLayout(const QWizardLayoutInfo &info)
         }
     }
 
+    // ### try to replace with margin.
     changeSpacerSize(pageVBoxLayout, 0, 0, info.subTitle ? info.childMargin : 0);
 
     int hMargin = mac ? 1 : 0;
@@ -1000,10 +1005,7 @@ void QWizardPrivate::recreateLayout(const QWizardLayoutInfo &info)
 
     int watermarkEndRow = row;
     if (classic)
-        mainLayout->setRowMinimumHeight(row++, deltaSpacing);
-
-    if (mac)
-        mainLayout->setRowMinimumHeight(row, 2 + 2 * deltaSpacing);
+        mainLayout->setRowMinimumHeight(row++, deltaVSpacing);
 
     int buttonStartColumn = info.extension ? 1 : 0;
     int buttonNumColumns = info.extension ? 1 : numColumns;
@@ -1015,13 +1017,9 @@ void QWizardPrivate::recreateLayout(const QWizardLayoutInfo &info)
     }
 
     if (classic)
-        mainLayout->setRowMinimumHeight(row++, deltaSpacing);
+        mainLayout->setRowMinimumHeight(row++, deltaVSpacing);
 
-    if (mac)
-        mainLayout->setRowMinimumHeight(row++, info.childMargin);
     mainLayout->addLayout(buttonLayout, row++, buttonStartColumn, 1, buttonNumColumns);
-    if (mac)
-        mainLayout->setRowMinimumHeight(row++, info.childMargin);
 
     if (info.watermark) {
         if (info.extension)
@@ -1190,23 +1188,20 @@ void QWizardPrivate::setButtonLayout(const QWizard::WizardButton *array, int siz
 {
     QWidget *prev = pageFrame;
 
-    // we deliberately skip the first and the last item, which are spacers
-    for (int i = buttonLayout->count() - 2; i >= 1; --i) {
+    for (int i = buttonLayout->count() - 1; i >= 0; --i) {
         QLayoutItem *item = buttonLayout->takeAt(i);
         if (QWidget *widget = item->widget())
             widget->hide();
         delete item;
     }
 
-    int pos = 1;
-
     for (int i = 0; i < size; ++i) {
         QWizard::WizardButton which = array[i];
         if (which == QWizard::Stretch) {
-            buttonLayout->insertStretch(pos++, 1);
+            buttonLayout->addStretch(1);
         } else if (which != QWizard::NoButton) {
             ensureButton(which);
-            buttonLayout->insertWidget(pos++, btns[which]);
+            buttonLayout->addWidget(btns[which]);
 
             // Back, Next, Commit, and Finish are handled in _q_updateButtonStates()
             if (which != QWizard::BackButton && which != QWizard::NextButton
