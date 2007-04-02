@@ -1421,9 +1421,6 @@ void tst_QMdiArea::delayedPlacement()
 #endif
 
     QCOMPARE(window1->geometry().topLeft(), QPoint(0, 0));
-#ifdef Q_WS_MAC
-    QEXPECT_FAIL("", "Task 155394", Continue);
-#endif
     QCOMPARE(window2->geometry().topLeft(), window1->geometry().topRight() + QPoint(1, 0));
 }
 
