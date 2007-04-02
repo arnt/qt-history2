@@ -54,7 +54,7 @@
 
     We have chosen to simplify the constructor by implementing two
     private convenience functions to create the various actions, to
-    add them to menues and to insert the menus into our main window's
+    add them to menus and to insert the menus into our main window's
     menu bar.
 
     \skipto fileMenu
