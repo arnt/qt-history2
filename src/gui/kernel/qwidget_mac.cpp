@@ -1057,7 +1057,11 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                 QRect rect(newBounds.left, newBounds.top,
                             newBounds.right - newBounds.left, newBounds.bottom - newBounds.top);
 
+                bool moved = widget->testAttribute(Qt::WA_Moved);
+                bool resized = widget->testAttribute(Qt::WA_Resized);
                 widget->setGeometry(rect);
+                widget->setAttribute(Qt::WA_Moved, moved);
+                widget->setAttribute(Qt::WA_Resized, resized);
             }
         } else if (ekind == kEventControlGetSizeConstraints) {
             if (!widget) {
@@ -2283,7 +2287,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                 QRect orect(geometry().x(), geometry().y(), width(), height()),
                       nrect(bounds.left, bounds.top, bounds.right - bounds.left,
                             bounds.bottom - bounds.top);
-                if(orect != nrect) { // no real point..
+                if(orect != nrect) { // the new rect differ from the old
                     Rect oldr;
                     QTLWExtra *tlextra = d->topData();
                     SetRect(&oldr, tlextra->normalGeometry.left(), tlextra->normalGeometry.top(),
@@ -2292,7 +2296,11 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
 
                     SetWindowStandardState(window, &bounds);
                     ZoomWindow(window, inZoomOut, false);
+                    bool moved = testAttribute(Qt::WA_Moved);
+                    bool resized = testAttribute(Qt::WA_Resized);
                     setGeometry(nrect);
+                    setAttribute(Qt::WA_Moved, moved);
+                    setAttribute(Qt::WA_Resized, resized);
                     needSendStateChange = oldstate == windowState(); // Zoom didn't change flags.
                 }
             } else if(oldstate & Qt::WindowMaximized) {
