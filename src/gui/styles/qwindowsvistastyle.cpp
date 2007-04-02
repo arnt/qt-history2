@@ -494,6 +494,14 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
             d->drawBackground(theme);
         }
         break;
+
+    case PE_FrameMenu:
+        {
+            int stateId = option->state & State_Active ? MB_ACTIVE : MB_INACTIVE;
+            XPThemeData theme(widget, painter, QLatin1String("MENU"), MENU_POPUPBORDERS, stateId, option->rect);
+            d->drawBackground(theme);
+        }
+        break;
     case PE_FrameLineEdit:
         if (Animation *anim = d->widgetAnimation(widget)) {
             anim->paint(painter, option);

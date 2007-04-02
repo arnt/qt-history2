@@ -59,6 +59,8 @@
 #define MBI_HOT                     2
 #define MBI_PUSHED                  3
 #define MBI_DISABLED                4
+#define MB_ACTIVE                   1
+#define MB_INACTIVE                 2
 #define PP_FILL                     5
 #define PP_FILLVERT                 6
 #define PP_MOVEOVERLAY              8
@@ -69,6 +71,7 @@
 #define MENU_POPUPCHECKBACKGROUND   12
 #define MENU_POPUPGUTTER            13
 #define MENU_POPUPITEM              14
+#define MENU_POPUPBORDERS           10
 #define MENU_POPUPSEPARATOR         15
 #define MC_CHECKMARKNORMAL          1
 #define MC_CHECKMARKDISABLED        2
