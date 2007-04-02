@@ -350,8 +350,17 @@ void tst_QFileSystemModel::rowsRemoved()
         QTest::qWait(WAITTIME);
         qApp->processEvents();
         qDebug() << spy0.count();
-        if (count != 0) QVERIFY(spy0.count() >= 1); else QVERIFY(spy0.count() == 0);
-        if (count != 0) QVERIFY(spy1.count() >= 1); else QVERIFY(spy1.count() == 0);
+        if (count != 0) {
+            if (i == 10 || spy0.count() != 0) {
+                QVERIFY(spy0.count() >= 1);
+                QVERIFY(spy1.count() >= 1);
+            }
+        } else {
+            if (i == 10 || spy0.count() == 0) {
+                QVERIFY(spy0.count() == 0);
+                QVERIFY(spy1.count() == 0);
+            }
+        }
         QStringList lst;
         for (int i = 0; i < model->rowCount(root); ++i)
             lst.append(model->index(i, 0, root).data().toString());
