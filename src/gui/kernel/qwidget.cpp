@@ -4297,7 +4297,6 @@ void QWidget::setFocus(Qt::FocusReason reason)
 
     if (f->isActiveWindow()) {
         QApplicationPrivate::setFocusWidget(f, reason);
-        f->d_func()->setFocus_sys();
 #ifndef QT_NO_ACCESSIBILITY
 #if defined(Q_WS_WIN)
         if (!f->testAttribute(Qt::WA_WState_Created))

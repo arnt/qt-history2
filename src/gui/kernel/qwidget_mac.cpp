@@ -2331,12 +2331,8 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
 void QWidgetPrivate::setFocus_sys()
 {
     Q_Q(QWidget);
-    if (q->testAttribute(Qt::WA_WState_Created)) {
-        WindowPtr window = qt_mac_window_for(q);
-        HIViewRef hiview = qt_mac_hiview_for(q), focus;
-        if(GetKeyboardFocus(window, &focus) != noErr || hiview != focus)
-            SetKeyboardFocus(window, hiview, 1);
-    }
+    if (q->testAttribute(Qt::WA_WState_Created))
+        SetKeyboardFocus(qt_mac_window_for(q), qt_mac_hiview_for(q), 1);
 }
 
 void QWidgetPrivate::raise_sys()

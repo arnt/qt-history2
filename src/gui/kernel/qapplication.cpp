@@ -1837,6 +1837,8 @@ void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
         }
 
         focus_widget = focus;
+        if(focus_widget)
+            focus_widget->d_func()->setFocus_sys();
 
         if (reason != Qt::NoFocusReason) {
 
