@@ -55,13 +55,6 @@ contains(QT_CONFIG, system-tiff) {
             }
 }
 
-contains(QT_CONFIG, system-jpeg) {
-        LIBS += -ljpeg
-}
-!contains(QT_CONFIG, system-jpeg) {
-        INCLUDEPATH +=  ../../../3rdparty/libjpeg
-}
-
 contains(QT_CONFIG, system-zlib) {
         LIBS += -lz
 }
