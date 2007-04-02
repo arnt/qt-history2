@@ -111,10 +111,22 @@ void Grid::paint(QWidget *widget, QPaintEvent *e, bool needFrame) const
     }
 }
 
+int Grid::snapValue(int value, int grid) const
+{
+    const int rest = value % grid;
+    const int absRest = (rest < 0) ? -rest : rest;
+    int offset = 0;
+    if (2 * absRest > grid)
+        offset = 1;
+    if (rest < 0)
+        offset *= -1;
+    return (value / grid + offset) * grid;
+}
+
 QPoint Grid::snapPoint(const QPoint &p) const
 {
-    const int sx = m_snapX ? ((p.x() + m_deltaX / 2) / m_deltaX) * m_deltaX : p.x();
-    const int sy = m_snapY ? ((p.y() + m_deltaY / 2) / m_deltaY) * m_deltaY : p.y();
+    const int sx = m_snapX ? snapValue(p.x(), m_deltaX) : p.x();
+    const int sy = m_snapY ? snapValue(p.y(), m_deltaY) : p.y();
     return QPoint(sx, sy);
 }
 

@@ -585,6 +585,12 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
     }
 
     sel = widget_set.toList();
+    QDesignerFormWindowCursorInterface *c = cursor();
+    QWidget *current = c->current();
+    if (sel.contains(current)) {
+        sel.removeAll(current);
+        sel.prepend(current);
+    }
 
     QDesignerResource builder(this);
 
@@ -956,7 +962,6 @@ void FormWindow::insertWidget(QWidget *w, const QRect &rect, QWidget *container,
      * geometry of the widget. */
     QRect r = rect;
     Q_ASSERT(r.isValid());
-    r.moveTopLeft(designerGrid().snapPoint(container->mapFromGlobal(r.topLeft())));
     SetPropertyCommand *geom_cmd = new SetPropertyCommand(this);
     geom_cmd->init(w, QLatin1String("geometry"), r); // ### use rc.size()
 
@@ -1010,7 +1015,6 @@ void FormWindow::resizeWidget(QWidget *widget, const QRect &geometry)
     Q_ASSERT(isDescendant(this, widget));
 
     QRect r = geometry;
-    r.moveTopLeft(designerGrid().snapPoint(geometry.topLeft()));
     SetPropertyCommand *cmd = new SetPropertyCommand(this);
     cmd->init(widget, QLatin1String("geometry"), r);
     cmd->setText(tr("Resize"));
@@ -2256,6 +2260,26 @@ bool FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
     clearSelection(false);
     highlightWidget(target, target->mapFromGlobal(correctedGlobalPos), FormWindow::Restore);
 
+    QWidget *container = findContainer(parent, false);
+
+    QPoint offset;
+    QDesignerDnDItemInterface *current = 0;
+    QDesignerFormWindowCursorInterface *c = cursor();
+    foreach (QDesignerDnDItemInterface *item, item_list) {
+        QWidget *w = item->widget();
+        if (!current)
+            current = item;
+        if (c->current() == w) {
+            current = item;
+            break;
+        }
+    }
+    if (current) {
+        QRect geom = (dm == DropNormal) ? current->decoration()->geometry() : QRect(correctedGlobalPos, current->decoration()->size());
+        QPoint topLeft = container->mapFromGlobal(geom.topLeft());
+        offset = designerGrid().snapPoint(topLeft) - topLeft;
+    }
+
     foreach (QDesignerDnDItemInterface *item, item_list) {
         DomUI *dom_ui = item->domUi();
         QRect geometry;
@@ -2270,36 +2294,35 @@ bool FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
         }
         Q_ASSERT(dom_ui != 0);
 
-        if (item->type() == QDesignerDnDItemInterface::CopyDrop) {
+        geometry.moveTopLeft(container->mapFromGlobal(geometry.topLeft()) + offset);
+        if (item->type() == QDesignerDnDItemInterface::CopyDrop) { // from widget box or CTRL + mouse move
             QWidget *widget = createWidget(dom_ui, geometry, parent);
             if (!widget)
                 return false;
             selectWidget(widget, true);
             mainContainer()->setFocus(Qt::MouseFocusReason); // in case focus was in e.g. object inspector
-        } else {
+        } else { // move
             QWidget *widget = item->widget();
             Q_ASSERT(widget != 0);
             QDesignerFormWindowInterface *dest = findFormWindow(widget);
 
-            QWidget *container = findContainer(parent, false);
             QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), container);
-            if (dest == this) {
-                if (deco == 0) {
+            if (dest == this) { // the same form
+                if (deco == 0) { // into container without layout
                     parent = container;
-                    if (parent != widget->parent()) {
+                    if (parent != widget->parent()) { // different parent
                         ReparentWidgetCommand *cmd = new ReparentWidgetCommand(dest);
                         cmd->init(widget, parent);
                         commandHistory()->push(cmd);
                     }
 
-                    geometry.moveTopLeft(parent->mapFromGlobal(geometry.topLeft()));
                     resizeWidget(widget, geometry);
                     selectWidget(widget, true);
                     widget->show();
-                } else {
+                } else { // into layout
                     insertWidget(widget, geometry, container, true);
                 }
-            } else {
+            } else { // from other form
                 FormWindow *source = qobject_cast<FormWindow*>(item->source());
                 Q_ASSERT(source != 0);
 

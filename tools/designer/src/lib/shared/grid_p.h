@@ -68,6 +68,7 @@ public:
     int widgetHandleAdjustY(int y) const;
 
 private:
+    int snapValue(int value, int grid) const;
     bool m_visible;
     bool m_snapX;
     bool m_snapY;
