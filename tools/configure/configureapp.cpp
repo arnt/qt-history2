@@ -1253,7 +1253,7 @@ QString Configure::defaultTo(const QString &option)
 
     // The JPEG image library can only be a plugin
     if (option == "JPEG"
-        || option == "MNG")
+        || option == "MNG" || option == "TIFF")
         return "plugin";
 
     // GIF off by default
@@ -1263,9 +1263,6 @@ QString Configure::defaultTo(const QString &option)
         else
             return "yes";
     }
-
-    if (option == "TIFF")
-        return (dictionary["LIBTIFF"] == "no" ? "no" : "plugin");
 
     // By default we do not want to compile OCI driver when compiling with
     // MinGW, due to lack of such support from Oracle. It prob. wont work.
@@ -1376,6 +1373,8 @@ void Configure::autoDetection()
         dictionary["PNG"] = defaultTo("PNG");
     if (dictionary["MNG"] == "auto")
         dictionary["MNG"] = defaultTo("MNG");
+    if (dictionary["TIFF"] == "auto")
+        dictionary["TIFF"] == defaultTo("TIFF");
     if (dictionary["LIBJPEG"] == "auto")
         dictionary["LIBJPEG"] = checkAvailability("LIBJPEG") ? defaultTo("LIBJPEG") : "qt";
     if (dictionary["LIBPNG"] == "auto")
@@ -1383,10 +1382,7 @@ void Configure::autoDetection()
     if (dictionary["LIBMNG"] == "auto")
         dictionary["LIBMNG"] = checkAvailability("LIBMNG") ? defaultTo("LIBMNG") : "qt";
     if (dictionary["LIBTIFF"] == "auto")
-        dictionary["LIBTIFF"] = checkAvailability("LIBTIFF") ? defaultTo("LIBTIFF") : "no";
-    // We have to handle TIFF after LIBTIFF, since we need to know if the TIFF lib is installed
-    if (dictionary["TIFF"] == "auto")
-        dictionary["TIFF"] == defaultTo("TIFF");
+        dictionary["LIBTIFF"] = checkAvailability("LIBTIFF") ? defaultTo("LIBTIFF") : "qt";
 
     // SQL detection (not on by default)
     if (dictionary["SQL_MYSQL"] == "auto")
