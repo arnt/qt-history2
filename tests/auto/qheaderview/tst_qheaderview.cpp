@@ -26,6 +26,16 @@ Q_DECLARE_METATYPE(BoolList)
 //TESTED_CLASS=
 //TESTED_FILES=gui/itemviews/qheaderview.h gui/itemviews/qheaderview.cpp
 
+// Will try to wait for the condition while allowing event processing
+// for a maximum of 2 seconds.
+#define WAIT_FOR_CONDITION(expr, expected) \
+    do { \
+        const int step = 100; \
+        for (int i = 0; i < 2000 && expr != expected; i+=step) { \
+            QTest::qWait(step); \
+        } \
+    } while(0)
+
 class protected_QHeaderView : public QHeaderView
 {
     Q_OBJECT
@@ -1179,8 +1189,9 @@ void tst_QHeaderView::focusPolicy()
     widget.setFocus(Qt::OtherFocusReason);
 
     qApp->processEvents();
-    qApp->processEvents();
-    
+
+    WAIT_FOR_CONDITION(widget.hasFocus(), true);
+
     QVERIFY(widget.hasFocus());
     QVERIFY(!widget.header()->hasFocus());
 
