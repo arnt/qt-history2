@@ -1535,7 +1535,7 @@ void QFileDialog::accept()
         QFileInfo info(fn);
         if (info.isDir()) {
             setDirectory(info.absoluteFilePath());
-            d->lineEdit()->selectAll();
+            d->lineEdit()->clear();
             return;
         }
 
@@ -1582,7 +1582,7 @@ void QFileDialog::accept()
             }
             if (info.isDir()) {
                 setDirectory(info.absoluteFilePath());
-                d->lineEdit()->selectAll();
+                d->lineEdit()->clear();
                 return;
             }
         }
