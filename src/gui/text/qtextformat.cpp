@@ -1067,10 +1067,6 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
     setAnchorHref() and setAnchorNames() functions are used to specify the
     information about the hyperlink's destination and the anchor's name.
 
-    If the text is written within a table, it can be made to span a number of
-    rows and columns with the setTableCellRowSpan() and setTableCellColumnSpan()
-    functions.
-
     \sa QTextFormat QTextBlockFormat QTextTableFormat QTextListFormat
 */
 
@@ -1471,6 +1467,7 @@ QStringList QTextCharFormat::anchorNames() const
 
 /*!
     \fn void QTextCharFormat::setTableCellRowSpan(int tableCellRowSpan)
+    \internal
 
     If this character format is applied to characters in a table cell,
     the cell will span \a tableCellRowSpan rows.
@@ -1479,6 +1476,7 @@ QStringList QTextCharFormat::anchorNames() const
 
 /*!
     \fn int QTextCharFormat::tableCellRowSpan() const
+    \internal
 
     If this character format is applied to characters in a table cell,
     this function returns the number of rows spanned by the text (this may
@@ -1488,6 +1486,7 @@ QStringList QTextCharFormat::anchorNames() const
 
 /*!
     \fn void QTextCharFormat::setTableCellColumnSpan(int tableCellColumnSpan)
+    \internal
 
     If this character format is applied to characters in a table cell,
     the cell will span \a tableCellColumnSpan columns.
@@ -1496,6 +1495,7 @@ QStringList QTextCharFormat::anchorNames() const
 
 /*!
     \fn int QTextCharFormat::tableCellColumnSpan() const
+    \internal
 
     If this character format is applied to characters in a table cell,
     this function returns the number of columns spanned by the text (this
