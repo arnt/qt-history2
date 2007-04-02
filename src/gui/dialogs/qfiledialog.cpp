@@ -382,6 +382,13 @@ bool QFileDialog::restoreState(const QByteArray &state)
 
     if (!d->qFileDialogUi->splitter->restoreState(splitterState))
         return false;
+    QList<int> list = d->qFileDialogUi->splitter->sizes();
+    if (list.count() >= 2 && list.at(0) == 0 && list.at(1) == 0) {
+        for (int i = 0; i < list.count(); ++i)
+            list[i] = d->qFileDialogUi->splitter->widget(i)->sizeHint().width();
+        d->qFileDialogUi->splitter->setSizes(list);
+    }
+
     d->qFileDialogUi->sidebar->setUrls(bookmarks);
     setHistory(history);
     setDirectory(currentDirectory);
@@ -775,6 +782,7 @@ void QFileDialog::setAcceptMode(QFileDialog::AcceptMode mode)
     QDialogButtonBox::StandardButton button = (mode == AcceptOpen ? QDialogButtonBox::Open : QDialogButtonBox::Save);
     d->qFileDialogUi->buttonBox->setStandardButtons(button | QDialogButtonBox::Cancel);
     d->qFileDialogUi->buttonBox->button(button)->setEnabled(false);
+    d->_q_updateOkButton();
     if (mode == AcceptOpen && directoryMode)
         setLabelText(Accept, tr("&Choose"));
     else
@@ -1615,11 +1623,7 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
     q->setDirectory(workingDirectory(directory));
     q->selectFile(initialSelection(directory));
 
-
-    if (!qFileDialogUi->fileNameEdit->isHidden())
-        qFileDialogUi->fileNameEdit->setFocus();
-    else
-        currentView()->setFocus();
+    qFileDialogUi->fileNameEdit->setFocus();
 
     _q_updateOkButton();
     q->resize(q->sizeHint());
@@ -2150,9 +2154,10 @@ void QFileDialogPrivate::_q_updateOkButton() {
         QStringList files = q->selectedFiles();
         bool enableButton = !files.isEmpty();
         // make sure the typed in names are not too long for the file system
-        if (enableButton && qFileDialogUi->fileNameEdit->isVisible()) {
+        if (enableButton) {
             QString lastDirectory;
             int maxLength = -1;
+            bool emptyFileName = true;
             for (int i = 0; i < files.count(); ++i) {
                 QString base = basename(files.at(i));
                 QString directory = files.at(i).left(files.at(i).count() - base.count());
@@ -2162,11 +2167,16 @@ void QFileDialogPrivate::_q_updateOkButton() {
                 }
                 if (maxLength < 0)
                     break;
-                if (basename(files.at(i)).length() > maxLength) {
+                QString baseName = basename(files.at(i));
+                if (baseName.length() > maxLength) {
                     enableButton = false;
                     break;
                 }
+                if (!baseName.isEmpty())
+                    emptyFileName = false;
             }
+            if (emptyFileName)
+                enableButton = false;
         }
         button->setEnabled(enableButton);
         break;
