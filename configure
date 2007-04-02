@@ -3661,12 +3661,13 @@ if [ "$CFG_TIFF" = "auto" ]; then
         CFG_TIFF=yes
     fi
 fi
+
 # detect tiff
 if [ "$CFG_LIBTIFF" = "auto" ]; then
     if "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/libtiff "libtiff" $L_FLAGS $I_FLAGS $l_FLAGS; then
         CFG_LIBTIFF=system
     else
-        CFG_LIBTIFF=no
+        CFG_LIBTIFF=qt
     fi
 fi
 
