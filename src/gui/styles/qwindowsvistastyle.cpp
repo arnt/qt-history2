@@ -911,8 +911,8 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                 return;
             }
 
-            QRect vCheckRect = visualRect(option->direction, menuitem->rect, QRect(menuitem->rect.x() + 1,
-                                          menuitem->rect.y(), checkcol - 7, menuitem->rect.height()));
+            QRect vCheckRect = visualRect(option->direction, menuitem->rect, QRect(menuitem->rect.x(),
+                                          menuitem->rect.y(), checkcol - 6, menuitem->rect.height()));
 
             if (act) {
                 int stateId = stateId = MBI_HOT;
