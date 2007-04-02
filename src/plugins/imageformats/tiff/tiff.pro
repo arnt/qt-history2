@@ -12,7 +12,7 @@ contains(QT_CONFIG, system-tiff) {
         win32:LIBS += libtiff.lib
 }
 !contains(QT_CONFIG, system-tiff) {
-	INCLUDEPATH += ../../../../3rdparty/libtiff/libtiff
+	INCLUDEPATH += ../../../3rdparty/libtiff/libtiff
 	SOURCES  += \
 	    ../../../3rdparty/libtiff/libtiff/tif_aux.c \
 	    ../../../3rdparty/libtiff/libtiff/tif_close.c \
@@ -30,11 +30,9 @@ contains(QT_CONFIG, system-tiff) {
 	    ../../../3rdparty/libtiff/libtiff/tif_fax3sm.c \
 	    ../../../3rdparty/libtiff/libtiff/tif_flush.c \
 	    ../../../3rdparty/libtiff/libtiff/tif_getimage.c \
-	    ../../../3rdparty/libtiff/libtiff/tif_jpeg.c \
 	    ../../../3rdparty/libtiff/libtiff/tif_luv.c \
 	    ../../../3rdparty/libtiff/libtiff/tif_lzw.c \
 	    ../../../3rdparty/libtiff/libtiff/tif_next.c \
-	    ../../../3rdparty/libtiff/libtiff/tif_ojpeg.c \
 	    ../../../3rdparty/libtiff/libtiff/tif_open.c \
 	    ../../../3rdparty/libtiff/libtiff/tif_packbits.c \
 	    ../../../3rdparty/libtiff/libtiff/tif_pixarlog.c \
@@ -52,10 +50,7 @@ contains(QT_CONFIG, system-tiff) {
 	    win32 {
 	       SOURCES += ../../../3rdparty/libtiff/libtiff/tif_win32.c
 	    }
-	    mac {
-	       SOURCES += ../../../3rdparty/libtiff/libtiff/tif_apple.c
-	    }
-            unix:!mac {
+            unix: {
 	       SOURCES += ../../../3rdparty/libtiff/libtiff/tif_unix.c
             }
 }
