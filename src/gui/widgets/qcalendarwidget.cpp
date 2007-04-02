@@ -1826,13 +1826,6 @@ void QCalendarWidgetPrivate::updateNavigationBar()
     monthButton->setText(monthName);
     yearButton->setText(QString::number(m_model->shownYear));
     yearEdit->setValue(m_model->shownYear);
-
-    QFontMetrics fm = monthButton->fontMetrics();
-    monthButton->setMaximumWidth(fm.boundingRect(monthName).width() +
-        fm.boundingRect(QLatin1Char('y')).width());
-
-    fm = yearButton->fontMetrics();
-    yearButton->setMaximumWidth(fm.boundingRect(QLatin1String("55555")).width());
 }
 
 void QCalendarWidgetPrivate::update()
@@ -2112,11 +2105,11 @@ QSize QCalendarWidget::minimumSizeHint() const
             QString monthName = locale().monthName(i, QLocale::LongFormat);
             monthW = qMax(monthW, fm.boundingRect(monthName).width());
         }
-        monthW += fm.boundingRect(QLatin1Char('y')).width();
-        headerW += monthW;
+        const int buttonDecoMargin = d->monthButton->sizeHint().width() - fm.boundingRect(d->monthButton->text()).width();
+        headerW += monthW + buttonDecoMargin;
 
         fm = d->yearButton->fontMetrics();
-        headerW += fm.boundingRect(QLatin1String("55555")).width();
+        headerW += fm.boundingRect(QLatin1String("5555")).width() + buttonDecoMargin;
 
         headerSize = QSize(headerW, headerH);
     }
