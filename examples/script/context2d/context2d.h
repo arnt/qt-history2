@@ -79,9 +79,9 @@ class Context2D : public QObject
 public:
     Context2D(QContext2DCanvas *parent);
     void setSize(int w, int h);
-    
+
     void begin();
-    const QPixmap & end();
+    const QImage &end();
 
     void clear();
 
@@ -171,7 +171,7 @@ public slots:
     ImageData getImageData(qreal sx, qreal sy, qreal sw, qreal sh);
     void putImageData(ImageData image, qreal dx, qreal dy);
 private:
-    QPixmap  m_cache;
+    QImage  m_cache;
     QPainter m_painter;
     QPainterPath m_path;
     struct State {

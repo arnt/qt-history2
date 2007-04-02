@@ -561,15 +561,15 @@ void Context2D::putImageData(ImageData image, qreal dx, qreal dy)
 
 Context2D::Context2D(QContext2DCanvas *parent)
     : QObject(parent),
-      m_cache(parent->size())
+      m_cache(parent->size(), QImage::Format_ARGB32_Premultiplied)
 {
-    m_cache.fill(Qt::transparent);
+    m_cache.fill(qRgba(0,0,0,0));
     CanvasGradientData::setup(parent->engine());
 
     begin();
 }
 
-const QPixmap & Context2D::end()
+const QImage &Context2D::end()
 {
     m_painter.end();
     m_state.creatingShape = false;
@@ -587,19 +587,19 @@ void Context2D::begin()
 
 void Context2D::clear()
 {
-    m_cache.fill(Qt::transparent);
+    m_cache.fill(qRgba(0,0,0,0));
 }
 
 void Context2D::setSize(int w, int h)
 {
     if (m_painter.isActive())
         end();
-    QPixmap newp(w, h);
-    newp.fill(Qt::transparent);
-    QPainter p(&newp);
-    p.drawPixmap(0, 0, m_cache);
+    QImage newi(w, h, QImage::Format_ARGB32_Premultiplied);
+    newi.fill(qRgba(0,0,0,0));
+    QPainter p(&newi);
+    p.drawImage(0, 0, m_cache);
     p.end();
-    m_cache = newp;
+    m_cache = newi;
     begin();
 }
 
@@ -615,7 +615,7 @@ void Context2D::drawImage(DomImage *image, qreal dx, qreal dy)
 
         drawImage(image, sx, sy, sw, sh, 0, 0, sw, sh);
     } else {
-        m_painter.drawPixmap(QPointF(dx, dy), image->image());
+        m_painter.drawImage(QPointF(dx, dy), image->image());
     }
 }
 
@@ -624,8 +624,7 @@ void Context2D::drawImage(DomImage *image, qreal dx, qreal dy,
 {
     if (!image)
         return;
-
-    m_painter.drawPixmap(QRectF(dx, dy, dw, dh).toRect(), image->image());
+    m_painter.drawImage(QRectF(dx, dy, dw, dh).toRect(), image->image());
 }
 
 void Context2D::drawImage(DomImage *image, qreal sx, qreal sy,
@@ -634,7 +633,6 @@ void Context2D::drawImage(DomImage *image, qreal sx, qreal sy,
 {
     if (!image)
         return;
-
-    m_painter.drawPixmap(QRectF(dx, dy, dw, dh), image->image(),
-                         QRectF(sx, sy, sw, sh));
+    m_painter.drawImage(QRectF(dx, dy, dw, dh), image->image(),
+                        QRectF(sx, sy, sw, sh));
 }

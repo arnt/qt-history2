@@ -420,7 +420,7 @@ void QContext2DCanvas::paintEvent(QPaintEvent *e)
         m_timer.stop();
         return;
     }
-    p.drawPixmap(0, 0, m_context->end());
+    p.drawImage(0, 0, m_context->end());
 
     if (m_firstRun) {
         m_keyDownHandler = m_doc.property("onkeydown");

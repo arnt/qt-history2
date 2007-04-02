@@ -44,7 +44,7 @@ QString DomImage::src() const
 void DomImage::setSrc(const QString &src)
 {
     m_src = src;
-    m_image = QPixmap(m_src);
+    m_image = QImage(m_src);
 }
 
 

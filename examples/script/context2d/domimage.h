@@ -25,7 +25,7 @@ class DomImage
 public:
     DomImage();
     static void setup(QScriptEngine *e);
-    
+
     int width() const;
     int height() const;
 
@@ -36,12 +36,12 @@ public:
 
     static QScriptValue s_self;
 
-    const QPixmap &image() const
+    const QImage &image() const
     {
         return m_image;
     }
 private:
-    QPixmap  m_image;
+    QImage  m_image;
     QString m_src;
     //attribute boolean         isMap;
     //attribute DOMString       longDesc;
