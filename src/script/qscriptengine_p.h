@@ -457,6 +457,11 @@ inline void QScriptEnginePrivate::maybeGC()
     maybeGC_helper(do_string_gc);
 }
 
+inline void QScriptEnginePrivate::adjustBytesAllocated(int bytes)
+{
+    objectAllocator.adjustBytesAllocated(bytes);
+}
+
 inline bool QScriptEnginePrivate::blockGC(bool block)
 {
     return objectAllocator.blockGC(block);

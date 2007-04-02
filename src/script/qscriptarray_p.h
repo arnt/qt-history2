@@ -29,6 +29,7 @@
 #include <QtCore/QVector>
 
 #include "qscriptvalueimplfwd_p.h"
+#include "qscriptenginefwd_p.h"
 
 namespace QScript {
 
@@ -190,8 +191,13 @@ inline QScriptValueImpl QScript::Array::at(uint index) const
 
 inline void QScript::Array::assign(uint index, const QScriptValueImpl &v)
 {
-    if (index >= size())
+    if (index >= size()) {
         resize(index + 1);
+        if (v.isValid()) {
+            QScriptEnginePrivate *eng = QScriptEnginePrivate::get(v.engine());
+            eng->adjustBytesAllocated(sizeof(QScriptValueImpl) * (size() - index));
+        }
+    }
 
     if (v.isValid() && (v.isObject() || v.isString()))
         ++m_instances;

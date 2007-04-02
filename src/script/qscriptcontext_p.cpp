@@ -71,6 +71,11 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
     qscript_uint_to_string_helper(uint(i), s);
 }
 
+#define CREATE_MEMBER(__obj__, __name__, __member__, __flags__) do { \
+    (__obj__).createMember(__name__, __member__, __flags__); \
+    eng->adjustBytesAllocated(sizeof(QScript::Member) + sizeof(QScriptValueImpl)); \
+} while (0)
+
 #define BEGIN_PREFIX_OPERATOR \
     QScriptValue::ResolveFlags mode; \
     mode = QScriptValue::ResolveFlags(stackPtr[0].m_int_value) \
@@ -120,7 +125,7 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
         HandleException(); \
     } else { \
         base = object; \
-        base.createMember(memberName, &member, /*flags=*/0); \
+        CREATE_MEMBER(base, memberName, &member, /*flags=*/0); \
         eng->newUndefined(&value); \
     }
 
@@ -134,7 +139,7 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
     } else { \
         if (isMemberAssignment && (base.m_object_value != object.m_object_value)) { \
             base = object; \
-            base.createMember(memberName, &member, /*flags=*/0); \
+            CREATE_MEMBER(base, memberName, &member, /*flags=*/0); \
         } \
         if (member.isWritable()) \
             base.put(member, value); \
@@ -200,7 +205,7 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
         HandleException(); \
     } else { \
         base = object; \
-        base.createMember(memberName, &member, /*flags=*/0); \
+        CREATE_MEMBER(base, memberName, &member, /*flags=*/0); \
         eng->newUndefined(&lhs); \
     } \
     const QScriptValueImpl &rhs = stackPtr[0];
@@ -213,7 +218,7 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
     } else { \
         if (isMemberAssignment && (base.m_object_value != object.m_object_value)) { \
             base = object; \
-            base.createMember(memberName, &member, /*flags=*/0); \
+            CREATE_MEMBER(base, memberName, &member, /*flags=*/0); \
         } \
         if (member.isWritable()) \
             base.put(member, *stackPtr); \
@@ -565,7 +570,7 @@ Ltop:
 
         if (! object.resolve(memberName, &member, &base, QScriptValue::ResolveLocal)) {
             base = object;
-            base.createMember(memberName, &member, /*flags=*/0);
+            CREATE_MEMBER(base, memberName, &member, /*flags=*/0);
         }
 
         base.put(member, value);
@@ -920,7 +925,7 @@ Ltop:
             uint flags = QScriptValue::Undeletable;
             if (readOnly)
                 flags |= QScript::Member::UninitializedConst | QScriptValue::ReadOnly;
-            act.createMember(memberName, &member, flags);
+            CREATE_MEMBER(act, memberName, &member, flags);
             act.put(member, undefined);
         }
         ++iPtr;
@@ -978,7 +983,7 @@ Ltop:
                 else
                     base = eng->m_globalObject;
 
-                base.createMember(memberName, &member, /*flags=*/0);
+                CREATE_MEMBER(base, memberName, &member, /*flags=*/0);
             }
 
             if (value.isString() && ! value.m_string_value->unique)
@@ -999,7 +1004,7 @@ Ltop:
             } else {
                 if (isMemberAssignment && (base.m_object_value != object.m_object_value)) {
                     base = object;
-                    base.createMember(memberName, &member, /*flags=*/0);
+                    CREATE_MEMBER(base, memberName, &member, /*flags=*/0);
                 }
 
                 if (member.isWritable())
@@ -1311,10 +1316,10 @@ Ltop:
         eng->objectConstructor->newObject(&proto);
 
         QScript::Member member;
-        proto.createMember(eng->idTable()->id_constructor, &member,
-                                   QScriptValue::Undeletable
-                                   | QScriptValue::ReadOnly
-                                   | QScriptValue::SkipInEnumeration);
+        CREATE_MEMBER(proto, eng->idTable()->id_constructor, &member,
+                      QScriptValue::Undeletable
+                      | QScriptValue::ReadOnly
+                      | QScriptValue::SkipInEnumeration);
         proto.put(member, *stackPtr);
 
         stackPtr->createMember(eng->idTable()->id_prototype, &member,
@@ -1400,7 +1405,7 @@ Ltop:
                 HandleException();
             }
             base = object;
-            base.createMember(memberName, &member, /*flags=*/0);
+            CREATE_MEMBER(base, memberName, &member, /*flags=*/0);
             base.put(member, undefined);
         }
 
@@ -1447,7 +1452,7 @@ Ltop:
         } else {
             if (isMemberAssignment && (base.m_object_value != object.m_object_value)) {
                 base = object;
-                base.createMember(memberName, &member, /*flags=*/0);
+                CREATE_MEMBER(base, memberName, &member, /*flags=*/0);
             }
             if (member.isWritable())
                 base.put(member, value);
@@ -1501,7 +1506,7 @@ Ltop:
                     HandleException();
                 }
                 base = object;
-                base.createMember(memberName, &member, /*flags=*/0);
+                CREATE_MEMBER(base, memberName, &member, /*flags=*/0);
                 base.put(member, undefined);
             }
         }
@@ -1549,7 +1554,7 @@ Ltop:
         } else {
             if (isMemberAssignment && (base.m_object_value != object.m_object_value)) {
                 base = object;
-                base.createMember(memberName, &member, /*flags=*/0);
+                CREATE_MEMBER(base, memberName, &member, /*flags=*/0);
             }
             if (member.isWritable())
                 base.put(member, value);
@@ -1936,7 +1941,7 @@ Ltop:
         QScriptValueImpl object;
         eng->newObject(&object, undefined); // ### prototype
         QScript::Member member;
-        object.createMember(iPtr->operand[0].m_string_value, &member, /*flags=*/0);
+        CREATE_MEMBER(object, iPtr->operand[0].m_string_value, &member, /*flags=*/0);
         object.put(member, m_result);
         // make catch-object head of scopechain
         object.m_object_value->m_scope = m_scopeChain;

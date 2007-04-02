@@ -63,6 +63,7 @@ class GCAlloc
 private:
     int m_new_allocated_blocks;
     int m_free_blocks;
+    int m_new_allocated_extra_bytes;
     GCBlock *m_head;
     GCBlock *m_current;
     GCBlock *m_free;
@@ -73,11 +74,13 @@ private:
 
 public:
     enum { MaxNumberOfBlocks = 1 << 14 };
+    enum { MaxNumberOfExtraBytes = 0x800000 };
 
 public:
     inline GCAlloc():
         m_new_allocated_blocks(0),
         m_free_blocks(0),
+        m_new_allocated_extra_bytes(0),
         m_head(0),
         m_current(0),
         m_free(0),
@@ -169,6 +172,9 @@ public:
         m_force_gc = true;
     }
 
+    inline void adjustBytesAllocated(int bytes)
+    { m_new_allocated_extra_bytes += bytes; }
+
     inline bool poll()
     {
         if (m_blocked_gc || ! m_head)
@@ -182,7 +188,9 @@ public:
         else if (m_free && ! m_free->next)
             return true;
 
-        return m_new_allocated_blocks >= MaxNumberOfBlocks;
+        return (m_new_allocated_blocks >= MaxNumberOfBlocks)
+            || ((m_new_allocated_extra_bytes >= MaxNumberOfExtraBytes)
+                && (m_new_allocated_blocks > 0));
     }
 
     inline int generation(_Tp *ptr) const
@@ -197,6 +205,7 @@ public:
         m_current = 0;
 
         m_new_allocated_blocks = 0;
+        m_new_allocated_extra_bytes = 0;
 
         while (blk != 0) {
             if (blk->generation != generation) {

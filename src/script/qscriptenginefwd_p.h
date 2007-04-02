@@ -160,6 +160,8 @@ public:
 
     void gc();
 
+    inline void adjustBytesAllocated(int bytes);
+
     void markObject(const QScriptValueImpl &object, int generation);
     void markFrame(QScriptContextPrivate *context, int generation);
 
