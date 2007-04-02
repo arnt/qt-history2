@@ -292,6 +292,10 @@ void tst_QHostInfo::reverseLookup()
     if (!ipv6LookupsAvailable && hostNames.contains("classical.hexago.com")) {
         QSKIP("IPv6 lookups are not supported on this platform", SkipSingle);
     }
+#ifdef Q_OS_HPUX && defined __ia64
+    if (hostNames.contains("classical.hexago.com"))
+        QSKIP("HP-UX 11i does not support IPv6 reverse lookups.", SkipSingle);
+#endif
 
     QHostInfo info = QHostInfo::fromName(address);
 
