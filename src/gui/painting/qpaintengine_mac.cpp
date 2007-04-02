@@ -630,7 +630,17 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointF *points, int pointCount)
         CGPathMoveToPoint(path, 0, x, y);
         CGPathAddLineToPoint(path, 0, x, y);
     }
+
+    bool doRestore = false;
+    if(d->cosmeticPen == QCoreGraphicsPaintEnginePrivate::CosmeticNone && !(state->renderHints() & QPainter::Antialiasing)) {
+        //we don't want adjusted pens for point rendering
+       doRestore = true;
+       CGContextSaveGState(d->hd);
+       CGContextSetLineWidth(d->hd, d->current.pen.widthF());
+    }
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke, path);
+    if (doRestore)
+        CGContextRestoreGState(d->hd);
     CGPathRelease(path);
 }
 
@@ -1028,8 +1038,6 @@ float QCoreGraphicsPaintEnginePrivate::adjustPenWidth(float penWidth)
         else
             ret = penWidth -1;
     }
-    if(ret < 1)
-        ret = 1.0f;
     return ret;
 }
 
