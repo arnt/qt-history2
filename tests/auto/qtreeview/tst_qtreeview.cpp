@@ -785,6 +785,7 @@ void tst_QTreeView::iconSize()
 
     view.show();
     qApp->processEvents();
+    QTest::qWait(200);
     qApp->processEvents();
     QVERIFY(view.repainted);
     QCOMPARE(view.iconSize(), QSize());
