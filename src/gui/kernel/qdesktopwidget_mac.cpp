@@ -121,7 +121,7 @@ const QRect QDesktopWidget::availableGeometry(int screen) const
         screen = d->appScreen;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
     HIRect r;
-    HIWindowGetAvailablePositioningBounds(d->devs[screen], kHICoordSpaceScreenPixel, &r);
+    HIWindowGetAvailablePositioningBounds(d->devs[screen], kHICoordSpace72DPIGlobal, &r);
     return QRectF(r.origin.x, r.origin.y, r.size.width, r.size.height).toRect();
 #else
     Rect r;
