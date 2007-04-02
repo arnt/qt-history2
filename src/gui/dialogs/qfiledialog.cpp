@@ -273,11 +273,6 @@ QFileDialog::QFileDialog(const QFileDialogArgs &args)
     setFileMode(args.mode);
     setConfirmOverwrite(!(args.options & DontConfirmOverwrite));
     setResolveSymlinks(!(args.options & DontResolveSymlinks));
-#ifndef QT_NO_SETTINGS
-    QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
-    settings.beginGroup(QLatin1String("Qt"));
-    restoreState(settings.value(QLatin1String("filedialog")).toByteArray());
-#endif
     selectFile(args.selection);
     d->lineEdit()->selectAll();
 }
@@ -1627,6 +1622,13 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
 
     _q_updateOkButton();
     q->resize(q->sizeHint());
+
+#ifndef QT_NO_SETTINGS
+    QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
+    settings.beginGroup(QLatin1String("Qt"));
+    q->restoreState(settings.value(QLatin1String("filedialog")).toByteArray());
+#endif
+
 }
 
 /*!
