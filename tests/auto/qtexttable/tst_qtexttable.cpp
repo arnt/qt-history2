@@ -691,8 +691,12 @@ void tst_QTextTable::setCellFormat()
     QTextCharFormat fmt;
     fmt.setObjectIndex(23);
     fmt.setBackground(Qt::blue);
+    fmt.setTableCellColumnSpan(25);
+    fmt.setTableCellRowSpan(42);
     cell.setFormat(fmt);
     QVERIFY(cell.format().background().color() == QColor(Qt::blue));
+    QCOMPARE(cell.format().tableCellColumnSpan(), 1);
+    QCOMPARE(cell.format().tableCellRowSpan(), 1);
 }
 
 void tst_QTextTable::removeRows1()

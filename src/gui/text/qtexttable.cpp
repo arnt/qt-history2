@@ -78,6 +78,9 @@
     format.setBackground(Qt::blue);
     cell.setFormat(format);
 
+    Note that the cell's row or column span cannot be changed through this function. You have
+    to use QTextTable::mergeCells and QTextTable::splitCell instead.
+
     \sa format()
 */
 void QTextTableCell::setFormat(const QTextCharFormat &format)
@@ -86,6 +89,12 @@ void QTextTableCell::setFormat(const QTextCharFormat &format)
     fmt.clearProperty(QTextFormat::ObjectIndex);
     QTextDocumentPrivate *p = table->docHandle();
     QTextDocumentPrivate::FragmentIterator frag(&p->fragmentMap(), fragment);
+
+    QTextFormatCollection *c = p->formatCollection();
+    QTextCharFormat oldFormat = c->charFormat(frag->format);
+    fmt.setTableCellRowSpan(oldFormat.tableCellRowSpan());
+    fmt.setTableCellColumnSpan(oldFormat.tableCellColumnSpan());
+
     p->setCharFormat(frag.position(), 1, fmt, QTextDocumentPrivate::SetFormatAndPreserveObjectIndices);
 }
 
