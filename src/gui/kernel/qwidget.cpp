@@ -8818,6 +8818,8 @@ QWindowSurface *QWidget::windowSurface() const
     if (bs->subSurfaces.isEmpty())
 #endif
         return bs->windowSurface;
+#else
+    Q_UNUSED(d);
 #endif
 
 #ifdef Q_BACKINGSTORE_SUBSURFACES
