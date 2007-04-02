@@ -21,6 +21,7 @@
 #include <qtoolbutton.h>
 #include <qtreeview.h>
 #include <qaction.h>
+#include <qdialogbuttonbox.h>
 #include <qsortfilterproxymodel.h>
 
 //TESTED_CLASS=
@@ -54,6 +55,8 @@ private slots:
     void setFilter();
     void focus();
 
+    void disableSaveButton_data();
+    void disableSaveButton();
 };
 
 tst_QFiledialog::tst_QFiledialog()
@@ -367,6 +370,31 @@ void tst_QFiledialog::focus()
     QCOMPARE(treeView.count(), 1);
     QVERIFY(treeView.at(0));
     QCOMPARE(treeView.at(0)->hasFocus(), true);
+}
+
+void tst_QFiledialog::disableSaveButton_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<bool>("isEnabled");
+
+    QTest::newRow("valid path") << QDir::temp().absolutePath() + QDir::separator() + "foo" << true;
+    QTest::newRow("no path") << "" << false;
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC) && !defined(Q_OS_OPENBSD)
+    QTest::newRow("too long path") << "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii" << false;
+#endif
+}
+
+void tst_QFiledialog::disableSaveButton()
+{
+    QFETCH(QString, path);
+    QFETCH(bool, isEnabled);
+
+    QFileDialog fd(0, "caption", path);
+    fd.setAcceptMode(QFileDialog::AcceptSave);
+    QDialogButtonBox *buttonBox = fd.findChild<QDialogButtonBox*>("buttonBox");
+    QPushButton *button = buttonBox->button(QDialogButtonBox::Save);
+    QVERIFY(button);
+    QCOMPARE(button->isEnabled(), isEnabled);
 }
 
 QTEST_MAIN(tst_QFiledialog)
