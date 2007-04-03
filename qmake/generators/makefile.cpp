@@ -2809,7 +2809,7 @@ MakefileGenerator::findFileForDep(const QMakeLocalFileName &dep, const QMakeLoca
     if(!ret.isNull())
         return ret;
 
-    //these are some hacky heuristics it will try to do on an include
+    //these are some "hacky" heuristics it will try to do on an include
     //however these can be turned off at runtime, I'm not sure how
     //reliable these will be, most likely when problems arise turn it off
     //and see if they go away..
@@ -2839,20 +2839,22 @@ MakefileGenerator::findFileForDep(const QMakeLocalFileName &dep, const QMakeLoca
                 }
             }
         }
-        { //is it form an EXTRA_TARGET
+        { //is it from an EXTRA_TARGET
+            const QString dep_basename = dep.local().section(Option::dir_sep, -1);
             QStringList &qut = project->values("QMAKE_EXTRA_TARGETS");
             for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
                 QString targ = var((*it) + ".target");
                 if(targ.isEmpty())
                     targ = (*it);
-                if(targ.endsWith(dep.real())) {
-                    ret = QMakeLocalFileName(targ);
+                QMakeLocalFileName out = unescapeFilePath(targ);
+                if(out == dep || out.local().section(Option::dir_sep, -1) == dep_basename) {
+                    ret = out;
                     goto found_dep_from_heuristic;
                 }
             }
         }
         { //is it from an EXTRA_COMPILER
-            const QString dep_basename = dep.real().section("/", -1);
+            const QString dep_basename = dep.local().section(Option::dir_sep, -1);
             const QStringList &quc = project->values("QMAKE_EXTRA_COMPILERS");
             for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
                 QString tmp_out = project->values((*it) + ".output").first();
@@ -2862,57 +2864,11 @@ MakefileGenerator::findFileForDep(const QMakeLocalFileName &dep, const QMakeLoca
                 for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
                     QStringList &inputs = project->values((*it2));
                     for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-                        QString out = unescapeFilePath(replaceExtraCompilerVariables(tmp_out, (*input), QString()));
-                        if(out == dep.real() || out.endsWith("/" + dep_basename)) {
-                            ret = QMakeLocalFileName(fileFixify(out, qmake_getpwd(), Option::output_dir));
+                        QMakeLocalFileName out = unescapeFilePath(replaceExtraCompilerVariables(tmp_out, (*input), QString()));
+                        if(out == dep || out.local().section(Option::dir_sep, -1) == dep_basename) {
+                            ret = QMakeLocalFileName(fileFixify(out.real(), qmake_getpwd(), Option::output_dir));
                             goto found_dep_from_heuristic;
                         }
-                    }
-                }
-            }
-        }
-        if(project->isActiveConfig("lex_included")) { //is this the lex file?
-            QString rhs = Option::lex_mod + Option::cpp_ext.first();
-            if(dep.real().endsWith(rhs)) {
-                QString lhs = dep.real().left(dep.real().length() - rhs.length()) + Option::lex_ext;
-                QStringList ll = project->values("LEXSOURCES");
-                for(QStringList::Iterator it = ll.begin(); it != ll.end(); ++it) {
-                    QString s = (*it), d;
-                    int slsh = s.lastIndexOf(Option::dir_sep);
-                    if(slsh != -1) {
-                        d = s.left(slsh + 1);
-                            s = s.right(s.length() - slsh - 1);
-                    }
-                    if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
-                        d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
-                    if(s == lhs) {
-                        QString ret_name = d + dep.real();
-                        ret_name = fileFixify(ret_name, qmake_getpwd(), Option::output_dir);
-                        ret = QMakeLocalFileName(ret_name);
-                        goto found_dep_from_heuristic;
-                    }
-                }
-            }
-        }
-        { //is it from a .y?
-            QString rhs = Option::yacc_mod + Option::h_ext.first();
-            if(dep.real().endsWith(rhs)) {
-                QString lhs = dep.local().left(dep.local().length() - rhs.length()) + Option::yacc_ext;
-                QStringList yl = project->values("YACCSOURCES");
-                for(QStringList::Iterator it = yl.begin(); it != yl.end(); ++it) {
-                    QString s = (*it), d;
-                    int slsh = s.lastIndexOf(Option::dir_sep);
-                    if(slsh != -1) {
-                        d = s.left(slsh + 1);
-                        s = s.right(s.length() - slsh - 1);
-                    }
-                    if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
-                        d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
-                    if(s == lhs) {
-                        QString ret_name = d + dep.local();
-                        ret_name = fileFixify(ret_name, qmake_getpwd(), Option::output_dir);
-                        ret = QMakeLocalFileName(ret_name);
-                        goto found_dep_from_heuristic;
                     }
                 }
             }
