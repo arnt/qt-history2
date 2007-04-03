@@ -122,7 +122,7 @@ bool QUrlModel::setData(const QModelIndex &index, const QVariant &value, int rol
 {
     if (value.type() == QVariant::Url) {
         QUrl url = value.toUrl();
-        QModelIndex dirIndex = fileSystemModel->index(url.path());
+        QModelIndex dirIndex = fileSystemModel->index(url.toLocalFile());
         if (showFullPath)
             QStandardItemModel::setData(index, fileSystemModel->data(dirIndex, Qt::UserRole + 1).toString());
         else {
