@@ -1284,8 +1284,8 @@ QString Configure::defaultTo(const QString &option)
         return "plugin";
 
     if (option == "SYNCQT"
-        && !(QFile(buildPath + "/bin/syncqt").exists()
-        && QFile(buildPath + "/bin/syncqt.bat").exists()))
+        && (!QFile::exists(sourcePath + "/bin/syncqt") || 
+            !QFile::exists(sourcePath + "/bin/syncqt.bat")))
         return "no";
 
     return "yes";
