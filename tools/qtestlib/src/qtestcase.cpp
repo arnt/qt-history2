@@ -1259,7 +1259,7 @@ void QTest::qSkip(const char *message, QTest::SkipMode mode,
 bool QTest::qExpectFail(const char *dataIndex, const char *comment,
                        QTest::TestFailMode mode, const char *file, int line)
 {
-    return QTestResult::expectFail(dataIndex, comment, mode, file, line);
+    return QTestResult::expectFail(dataIndex, qstrdup(comment), mode, file, line);
 }
 
 /*! \internal

@@ -102,6 +102,7 @@ void QTestResult::setCurrentTestFunction(const char *func)
 static void clearExpectFail()
 {
     QTest::expectFailMode = 0;
+    delete [] QTest::expectFailComment;
     QTest::expectFailComment = 0;
 }
 

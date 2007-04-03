@@ -15,11 +15,12 @@ class tst_ExpectFail: public QObject
     Q_OBJECT
 
 private slots:
-    void expectAndContinue();
-    void expectAndAbort();
+    void expectAndContinue() const;
+    void expectAndAbort() const;
+    void xfailWithQString() const;
 };
 
-void tst_ExpectFail::expectAndContinue()
+void tst_ExpectFail::expectAndContinue() const
 {
     qDebug("begin");
     QEXPECT_FAIL("", "This should xfail", Continue);
@@ -27,12 +28,23 @@ void tst_ExpectFail::expectAndContinue()
     qDebug("after");
 }
 
-void tst_ExpectFail::expectAndAbort()
+void tst_ExpectFail::expectAndAbort() const
 {
     qDebug("begin");
     QEXPECT_FAIL("", "This should xfail", Abort);
     QVERIFY(false);
     qDebug("this should not be reached");
+}
+
+void tst_ExpectFail::xfailWithQString() const
+{
+    QEXPECT_FAIL("", QString("A string").toLatin1().constData(), Continue);
+    QVERIFY(false);
+
+    int bugNo = 5;
+    QString msg("The message");
+    QEXPECT_FAIL( "", QString("Bug %1 (%2)").arg(bugNo).arg(msg).toLatin1().constData(), Continue);
+    QVERIFY(false);
 }
 
 QTEST_MAIN(tst_ExpectFail)
