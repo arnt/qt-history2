@@ -80,32 +80,63 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     int lastFrame = q->currentFrame();
 
     // Determine if we are looping.
-    int elapsed = (direction == QTimeLine::Backward) ? (-msecs + duration) : msecs;
-    int loopCount = ((elapsed + 1) / duration);
+    int elapsed = (direction == QTimeLine::Backward) ? (-msecs +  duration) : msecs;
+    int loopCount = elapsed / duration;
+
     bool looping = (loopCount != currentLoopCount);
+#ifdef QTIMELINE_DEBUG
+    qDebug() << "QTimeLinePrivate::setCurrentTime:" << msecs << duration << "with loopCount" << loopCount
+             << "currentLoopCount" << currentLoopCount
+             << "looping" << looping;
+#endif
     if (looping)
         currentLoopCount = loopCount;
 
     // Normalize msecs to be between 0 and duration, inclusive.
-    while (msecs < 0)
-        msecs += duration;
-    currentTime = msecs % (duration + 1);
+    currentTime = elapsed % duration;
+    if (direction == QTimeLine::Backward)
+        currentTime = duration - currentTime;
 
     // Check if we have reached the end of loopcount.
     bool finished = false;
     if (totalLoopCount && currentLoopCount >= totalLoopCount) {
         finished = true;
         currentTime = (direction == QTimeLine::Backward) ? 0 : duration;
+        currentLoopCount = totalLoopCount - 1;
     }
 
     int currentFrame = q->frameForTime(currentTime);
-
+#ifdef QTIMELINE_DEBUG
+    qDebug() << "QTimeLinePrivate::setCurrentTime: frameForTime" << currentTime << currentFrame;
+#endif
     if (lastValue != q->currentValue())
         emit q->valueChanged(q->currentValue());
     if (lastFrame != currentFrame) {
         const int transitionframe = (direction == QTimeLine::Forward ? endFrame : startFrame);
-        if (looping && !finished && transitionframe != currentFrame)
+        if (looping && !finished && transitionframe != currentFrame) {
+#ifdef QTIMELINE_DEBUG
+            qDebug() << "QTimeLinePrivate::setCurrentTime: transitionframe";
+#endif
             emit q->frameChanged(transitionframe);
+        }
+#ifdef QTIMELINE_DEBUG
+        else {
+            QByteArray reason;
+            if (!looping)
+                reason += " not looping";
+            if (finished) {
+                if (!reason.isEmpty())
+                    reason += " and";
+                reason += " finished";
+            }
+            if (transitionframe == currentFrame) {
+                if (!reason.isEmpty())
+                    reason += " and";
+                reason += " transitionframe is equal to currentFrame: " + QByteArray::number(currentFrame);
+            }
+            qDebug("QTimeLinePrivate::setCurrentTime: not transitionframe because %s",  reason.constData());
+        }
+#endif
         emit q->frameChanged(currentFrame);
     }
     if (finished) {
@@ -151,7 +182,7 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
         ...
     \endcode
 
-    You can also use QTimeLine with the 
+    You can also use QTimeLine with the
     \l{Graphics View}{Graphics View framework} for
     animations. The QGraphicsItemAnimation class implements animation
     of \l{QGraphicsItem}{QGraphicsItems} with a timeline.
