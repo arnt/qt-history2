@@ -2816,15 +2816,26 @@ void QCalendarWidget::setDateEditAcceptDelay(int delay)
 
     \obsolete
 
-    Use \l navigationBarVisible instead.
+    Use navigationBarVisible() instead.
 */
 
+/*!
+    \obsolete
+
+    Use setNavigationBarVisible() instead.
+*/
 bool QCalendarWidget::isHeaderVisible() const
 {
     Q_D(const QCalendarWidget);
     return d->navBarVisible;
 }
 
+/*!
+    \obsolete
+
+    Use setNavigationBarVisible() instead.
+    
+*/
 void QCalendarWidget::setHeaderVisible(bool visible)
 {
     setNavigationBarVisible(visible);
