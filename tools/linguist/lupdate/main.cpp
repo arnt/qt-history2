@@ -20,6 +20,7 @@
 #include <QString>
 #include <QStringList>
 #include <QTextStream>
+#include <QCoreApplication>
 
 #include <errno.h>
 #include <string.h>
@@ -120,6 +121,8 @@ void recursiveFileInfoList(const QDir &dir, const QStringList &nameFilters, QDir
 
 int main( int argc, char **argv )
 {
+    QCoreApplication app(argc, argv);   
+    
     QString defaultContext = QLatin1String("@default");
     MetaTranslator fetchedTor;
     QByteArray codecForTr;
