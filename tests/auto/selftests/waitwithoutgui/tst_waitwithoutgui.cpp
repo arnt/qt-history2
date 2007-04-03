@@ -7,22 +7,22 @@
 **
 ****************************************************************************/
 
-#include <QtTest/QtTest>
-#include <QPushButton>
+#include <QTest>
+#include <QTextStream>
 
-class tst_WaitWithoutGUI: public QObject
+int main(int argc, char **argv)
 {
-Q_OBJECT
-private slots:
-    void callQWait() const;
-};
+    QCoreApplication app(argc, argv);
 
-void tst_WaitWithoutGUI::callQWait() const
-{
+    QTextStream out(stdout);
+
+    out << "We just output something such that there's a baseline to compare against." << endl;
+
     /* Simply call qWait(). */
     QTest::qWait(100);
+
+    out << "Finished waiting!" << endl;
+
+    return 0;
 }
 
-QTEST_MAIN(tst_WaitWithoutGUI)
-
-#include "tst_waitwithoutgui.moc"

@@ -63,6 +63,7 @@ void tst_Selftests::runSubTest_data()
     QTest::newRow("datetime") << "datetime";
     QTest::newRow("singleskip") << "singleskip";
     QTest::newRow("assert") << "assert";
+    QTest::newRow("waitwithoutgui") << "waitwithoutgui";
 }
 
 void tst_Selftests::runSubTest()
@@ -123,6 +124,7 @@ void tst_Selftests::runSubTest()
 void tst_Selftests::initTestCase()
 {
     m_checkXMLBlacklist.append("crashes"); // This test crashes
+    m_checkXMLBlacklist.append("waitwithoutgui"); // This test is not a a QTestLib test.
 }
 
 void tst_Selftests::checkXML() const

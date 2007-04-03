@@ -23,5 +23,6 @@
         <file>expected_singleskip.txt</file>
         <file>expected_assert.txt</file>
         <file>expected_fatal.txt</file>
+        <file>expected_waitwithoutgui.txt</file>
     </qresource>
 </RCC>

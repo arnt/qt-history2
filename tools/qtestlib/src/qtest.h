@@ -180,6 +180,8 @@ int main(int argc, char *argv[]) \
     return QTest::qExec(&tc, argc, argv); \
 }
 
+#include <QtTest/qtestsystem.h>
+
 #ifdef QT_GUI_LIB
 
 #include <QtTest/qtest_gui.h>
