@@ -321,7 +321,7 @@ char *QMakeSourceFileInfo::getBuffer(int s) {
     return spare_buffer;
 }
 
-#ifdef Q_WS_WIN
+#ifndef S_ISDIR
 #define S_ISDIR(x) (x & _S_IFDIR)
 #endif
 
