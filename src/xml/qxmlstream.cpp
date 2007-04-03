@@ -499,10 +499,7 @@ QXmlStreamPrivateTagStack::QXmlStreamPrivateTagStack()
 }
 
 QXmlStreamReaderPrivate::QXmlStreamReaderPrivate(QXmlStreamReader *q)
-    :q_ptr(q),
-     stack_size(64),
-     sym_stack(0),
-     state_stack(0)
+    :q_ptr(q)
 {
     device = 0;
     deleteDevice = false;
@@ -516,6 +513,9 @@ QXmlStreamReaderPrivate::QXmlStreamReaderPrivate(QXmlStreamReader *q)
 
 void QXmlStreamReaderPrivate::init()
 {
+    stack_size = 64;
+    sym_stack = 0;
+    state_stack = 0;
     tos = 0;
     scanDtd = false;
     token = -1;
@@ -530,17 +530,22 @@ void QXmlStreamReaderPrivate::init()
     resumeReduction = 0;
     state_stack[tos++] = 0;
     state_stack[tos] = 0;
+    putStack.clear();
     putStack.reserve(32);
+    textBuffer.clear();
     textBuffer.reserve(256);
+    dtdBuffer.clear();
     dtdBuffer.reserve(32);
     initTagStack();
     tagsDone = false;
+    attributes.clear();
     attributes.reserve(16);
     lineNumber = lastLineStart = characterOffset = 0;
     readBufferPos = 0;
     nbytesread = 0;
     codec = QTextCodec::codecForMib(106); // utf8
     decoder = 0;
+    attributeStack.clear();
     attributeStack.reserve(16);
     entityParser = 0;
     hasSeenTag = false;
@@ -568,6 +573,8 @@ void QXmlStreamReaderPrivate::parseEntity(const QString &value)
 
     if (value.isEmpty())
         return;
+
+
     if (!entityParser)
         entityParser = new QXmlStreamReaderPrivate(q);
     else
@@ -579,6 +586,7 @@ void QXmlStreamReaderPrivate::parseEntity(const QString &value)
         entityParser->parse();
     if (entityParser->type == QXmlStreamReader::Invalid || entityParser->tagStack.size())
         raiseWellFormedError(QXmlStream::tr("Invalid entity value."));
+
 }
 
 inline void QXmlStreamReaderPrivate::reallocateStack()
