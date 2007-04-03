@@ -141,7 +141,6 @@ Configure::Configure( int& argc, char** argv )
             }
         }
 
-        if (dictionary["SYNCQT"] == "yes")
         { //make a syncqt script(s) that can be used in the shadow
             QFile syncqt(buildPath + "/bin/syncqt");
             if(syncqt.open(QFile::WriteOnly)) {
@@ -1418,9 +1417,10 @@ void Configure::autoDetection()
         dictionary["OPENSSL"] = checkAvailability("OPENSSL") ? "yes" : "no";
 
     // Mark all unknown "auto" to the default value..
-    for (QMap<QString,QString>::iterator i = dictionary.begin(); i != dictionary.end(); ++i)
-        if (i.value() == "auto")
+    for (QMap<QString,QString>::iterator i = dictionary.begin(); i != dictionary.end(); ++i) {
+        if (i.value() == "auto") 
             i.value() = defaultTo(i.key());
+    }
 }
 
 bool Configure::verifyConfiguration()
