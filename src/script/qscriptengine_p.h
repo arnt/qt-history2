@@ -335,9 +335,7 @@ inline quint32 QScriptEnginePrivate::toUint32(qsreal n)
 
     n = ::fmod(sign * ::floor(abs_n), D32);
 
-    const double D31 = D32 / 2.0;
-
-    if (n < -D31)
+    if (n < 0)
         n += D32;
 
     return quint32 (n);
@@ -353,9 +351,7 @@ inline quint16 QScriptEnginePrivate::toUint16(qsreal n)
 
     n = ::fmod(sign * ::floor(abs_n), D16);
 
-    const double D15 = D16 / 2.0;
-
-    if (n < -D15)
+    if (n < 0)
         n += D16;
 
     return quint16 (n);
