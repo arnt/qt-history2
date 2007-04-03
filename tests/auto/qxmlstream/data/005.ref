@@ -1,6 +1,6 @@
 StartDocument( )
 Comment( text=" Namespace name test: a same-document relative URI (deprecated) " )
-DTD( text=">
+DTD( text="
 <!DOCTYPE foo [
 <!ELEMENT foo ANY>
 <!ATTLIST foo xmlns CDATA #IMPLIED>

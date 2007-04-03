@@ -1,6 +1,6 @@
 StartDocument( )
 Comment( text=" Namespace name test: an http IRI that is not a URI " )
-DTD( text=">
+DTD( text="
 <!DOCTYPE foo [
 <!ELEMENT foo ANY>
 <!ATTLIST foo xmlns CDATA #IMPLIED>

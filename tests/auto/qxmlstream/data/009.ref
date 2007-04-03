@@ -1,6 +1,6 @@
 StartDocument( )
 Comment( text=" Namespace equality test: plain repetition " )
-DTD( text=">
+DTD( text="
 <!DOCTYPE foo [
 <!ELEMENT foo ANY>
 <!ATTLIST foo xmlns:a CDATA #IMPLIED

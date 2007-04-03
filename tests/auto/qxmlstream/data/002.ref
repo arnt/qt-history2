@@ -1,7 +1,7 @@
 StartDocument( )
 Comment( text=" Namespace name test: a syntactically plausible URI with a 
      fictitious scheme " )
-DTD( text=">
+DTD( text="
 <!DOCTYPE foo [
 <!ELEMENT foo ANY>
 <!ATTLIST foo xmlns CDATA #IMPLIED>

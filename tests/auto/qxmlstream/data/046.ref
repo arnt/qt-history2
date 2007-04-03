@@ -1,6 +1,6 @@
 StartDocument( )
 Comment( text=" Colon in ID attribute name " )
-DTD( text=">
+DTD( text="
 <!DOCTYPE foo [
 <!ELEMENT foo ANY>
 <!ATTLIST foo id  ID #IMPLIED

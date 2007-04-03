@@ -1,6 +1,6 @@
 StartDocument( )
 Comment( text=" Namespace equality test: use of entity reference " )
-DTD( text=">
+DTD( text="
 <!DOCTYPE foo [
 <!ELEMENT foo ANY>
 <!ATTLIST foo xmlns:a CDATA #IMPLIED
