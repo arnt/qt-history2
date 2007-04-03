@@ -552,18 +552,18 @@ bool QEventDispatcherWin32::hasPendingEvents()
 
 void QEventDispatcherWin32::registerSocketNotifier(QSocketNotifier *notifier)
 {
-    int socket;
-    int type;
-    if (!notifier
-        || (socket = notifier->socket()) < 0
-        || (type = notifier->type()) < 0
-        || notifier->type() > 2) {
+    Q_ASSERT(notifier);
+    int sockfd = notifier->socket();
+    int type = notifier->type();
+#ifndef QT_NO_DEBUG
+    if (sockfd < 0) {
         qWarning("QSocketNotifier: Internal error");
         return;
     } else if (notifier->thread() != thread() || thread() != QThread::currentThread()) {
         qWarning("QSocketNotifier: socket notifiers cannot be enabled from another thread");
         return;
     }
+#endif
 
     Q_D(QEventDispatcherWin32);
     QSNDict *sn_vec[3] = { &d->sn_read, &d->sn_write, &d->sn_except };
@@ -589,18 +589,18 @@ void QEventDispatcherWin32::registerSocketNotifier(QSocketNotifier *notifier)
 
 void QEventDispatcherWin32::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
-    int socket;
-    int type;
-    if (!notifier
-        || (socket = notifier->socket()) < 0
-        || (type = notifier->type()) < 0
-        || notifier->type() > 2) {
+    Q_ASSERT(notifier);
+    int sockfd = notifier->socket();
+    int type = notifier->type();
+#ifndef QT_NO_DEBUG
+    if (sockfd < 0) {
         qWarning("QSocketNotifier: Internal error");
         return;
     } else if (notifier->thread() != thread() || thread() != QThread::currentThread()) {
         qWarning("QSocketNotifier: socket notifiers cannot be disabled from another thread");
         return;
     }
+#endif
 
     Q_D(QEventDispatcherWin32);
     QSNDict *sn_vec[3] = { &d->sn_read, &d->sn_write, &d->sn_except };
