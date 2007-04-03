@@ -483,7 +483,7 @@ class tst_QXmlStream: public QObject
 {
     Q_OBJECT
 public:
-    tst_QXmlStream() : m_handler(QUrl::fromLocalFile(QCoreApplication::applicationDirPath() + QLatin1Char('/'))
+    tst_QXmlStream() : m_handler(QUrl::fromLocalFile(QDir::currentPath()  + QLatin1Char('/'))
                                 .resolved(QUrl(QLatin1String(catalogFile))))
     {
     }
