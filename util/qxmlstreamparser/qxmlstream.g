@@ -469,6 +469,7 @@ bool QXmlStreamReaderPrivate::parse()
     case QXmlStreamReader::ProcessingInstruction:
         processingInstructionTarget.clear();
         processingInstructionData.clear();
+	clearTextBuffer();
         break;
     case QXmlStreamReader::NoToken:
     case QXmlStreamReader::Invalid:
@@ -715,7 +716,7 @@ entity_done ::= ENTITY_DONE;
 ./
 
 
-langle_questionmark_helper ::= LANGLE QUESTIONMARK
+langle_questionmark_helper ::= LANGLE QUESTIONMARK;
 /.
         case $rule_number:
             xmlDeclOK = (characterOffset + readBufferPos - putStack.size() == 2);
@@ -1095,35 +1096,37 @@ langle_bang ::= LANGLE BANG;
 
 comment_start ::= langle_bang DASH DASH;
 /.
+        case $rule_number: 
+            if (!scanUntil("--")) {
+                resume($rule_number);
+                return false;
+            }
+        break;
+./
+
+comment ::= comment_start RANGLE;
+/.
         case $rule_number: {
             type = QXmlStreamReader::Comment;
-            int pos = sym(3).pos + 1;
-            if (scanUntil("--")) {
-                text = QStringRef(&textBuffer, pos, textBuffer.size() - pos - 2);
+            int pos = sym(1).pos + 4;
+            text = QStringRef(&textBuffer, pos, textBuffer.size() - pos - 3);
+        } break;
+./
+
+
+cdata ::= langle_bang CDATA_START;
+/.
+        case $rule_number: {
+            type = QXmlStreamReader::Characters;
+            isCDATA = true;
+            int pos = sym(2).pos;
+            if (scanUntil("]]>", -1)) {
+                text = QStringRef(&textBuffer, pos, textBuffer.size() - pos - 3);
             } else {
                 resume($rule_number);
                 return false;
             }
         } break;
-./
-
-comment ::= comment_start RANGLE;
-
-
-cdata ::= langle_bang CDATA_START;
-/.
-        case $rule_number:
-            type = QXmlStreamReader::Characters;
-            isCDATA = true;
-            clearTextBuffer();
-            if (scanUntil("]]>", -1)) {
-                textBuffer.chop(3);
-                text = &textBuffer;
-            } else {
-                resume($rule_number);
-                return false;
-            }
-        break;
 ./
 
 notation_decl_start ::= langle_bang NOTATION name space;
