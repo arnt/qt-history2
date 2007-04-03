@@ -362,6 +362,9 @@ void tst_QUdpSocket::pendingDatagramSize()
     char c = 0;
     QVERIFY(server.waitForReadyRead());
     if (server.hasPendingDatagrams()) {
+#if defined Q_OS_HPUX && defined __ia64
+        QEXPECT_FAIL("", "HP-UX 11i v2 can't determine the datagram size correctly.", Abort);
+#endif
         QCOMPARE(server.pendingDatagramSize(), qint64(7));
         c = '\0';
         QCOMPARE(server.readDatagram(&c, 1), qint64(1));
