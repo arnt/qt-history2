@@ -427,24 +427,20 @@ void tst_QHttp::authorization()
     QFETCH(QString, pass);
     QFETCH(int, result);
 
-    http = newHttp();
+    QEventLoop loop;
 
-    QCOMPARE(http->currentId(), 0);
-    QCOMPARE((int)http->state(), (int)QHttp::Unconnected);
+    QHttp http;
+    connect(&http, SIGNAL(done(bool)), &loop, SLOT(quit()));
 
     if (!user.isEmpty())
-        addRequest(QHttpRequestHeader(), http->setUser(user, pass));
-    addRequest(QHttpRequestHeader(), http->setHost(host));
-    getId = http->get(path);
-    addRequest(QHttpRequestHeader(), getId);
+        http.setUser(user, pass);
+    http.setHost(host);
+    int id = http.get(path);
 
-    QTestEventLoop::instance().enterLoop(30);
-    if (QTestEventLoop::instance().timeout())
-	QFAIL("Network operation timed out");
+    QTimer::singleShot(5000, &loop, SLOT(quit()));
+    loop.exec();
 
-    ResMapIt res = resultMap.find(getId);
-    QVERIFY(res != resultMap.end());
-    QCOMPARE(res.value().resp.statusCode(), result);
+    QCOMPARE(http.lastResponse().statusCode(), result);
 }
 
 void tst_QHttp::proxy_data()
