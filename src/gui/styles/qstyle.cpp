@@ -1678,6 +1678,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_DialogButtonLayout  Controls how buttons are laid out in a QDialogButtonBox, returns a QDialogButtonBox::ButtonLayout enum.
 
+    \value SH_WizardStyle Controls the look and feel of a QWizard. Returns a QWizard::WizardStyle enum.
+
     \value SH_ComboBox_PopupFrameStyle  The frame style used when drawing a combobox popup menu.
 
     \value SH_DialogButtonBox_ButtonsHaveIcons Indicates whether or not StandardButtons in QDialogButtonBox should have icons or not.

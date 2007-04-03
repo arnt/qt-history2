@@ -35,6 +35,7 @@
 #include <qsplitter.h>
 #include <qprogressbar.h>
 #include <qtoolbar.h>
+#include <qwizard.h>
 
 static const bool UsePixmapCache = true;
 
@@ -4229,6 +4230,9 @@ int QCleanlooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
         break;
     case SH_MessageBox_CenterButtons:
         ret = false;
+        break;
+    case SH_WizardStyle:
+        ret = QWizard::ClassicStyle;
         break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);

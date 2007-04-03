@@ -35,6 +35,7 @@
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qpixmapcache.h"
+#include "qwizard.h"
 
 #ifdef Q_WS_X11
 #include "qfileinfo.h"
@@ -1029,6 +1030,9 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
             if (!ret)
                 ret = '*';
         }
+        break;
+    case SH_WizardStyle:
+        ret = QWizard::ModernStyle;
         break;
     default:
         ret = QCommonStyle::styleHint(hint, opt, widget, returnData);

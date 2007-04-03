@@ -56,6 +56,7 @@
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qtreeview.h>
+#include <qwizard.h>
 #include <qdebug.h>
 
 extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
@@ -2385,6 +2386,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
         break;
     case SH_FocusFrame_AboveWidget:
         ret = true;
+        break;
+    case SH_WizardStyle:
+        ret = QWizard::MacStyle;
         break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);

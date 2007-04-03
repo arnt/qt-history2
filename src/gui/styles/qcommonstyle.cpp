@@ -35,6 +35,7 @@
 #include <private/qmath_p.h>
 #include <qdebug.h>
 #include <qtextformat.h>
+#include <qwizard.h>
 
 #include <limits.h>
 
@@ -4248,6 +4249,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
             fmt.setProperty(QTextFormat::OutlinePen, outline);
             vret->variant = fmt;
         }
+        break;
+    case SH_WizardStyle:
+        ret = QWizard::ClassicStyle;
         break;
     default:
         ret = 0;

@@ -430,16 +430,7 @@ public:
           disableUpdatesCount(0),
           currentPageExplicitlyIncomplete(false),
           currentPageExplicitlyFinal(false),
-#if defined(Q_WS_MAC)
-          wizStyle(QWizard::MacStyle),
-          opts(QWizard::NoDefaultButton | QWizard::NoCancelButton),
-#elif !defined(QT_NO_STYLE_WINDOWSVISTA)
-          wizStyle(QWizard::ModernStyle),
-          opts(QWizard::HelpButtonOnRight),
-#else
-          wizStyle(QWizard::ClassicStyle),
           opts(0),
-#endif
           buttonsHaveCustomLayout(false),
           titleFmt(Qt::AutoText),
           subTitleFmt(Qt::AutoText),
@@ -550,6 +541,12 @@ void QWizardPrivate::init()
     Q_Q(QWizard);
 
     antiFlickerWidget = new QWizardAntiFlickerWidget(q, this);
+    wizStyle = QWizard::WizardStyle(q->style()->styleHint(QStyle::SH_WizardStyle, 0, q));
+    if (wizStyle == QWizard::MacStyle) {
+        opts = (QWizard::NoDefaultButton | QWizard::NoCancelButton);
+    } else if (wizStyle == QWizard::ModernStyle) {
+          opts = QWizard::HelpButtonOnRight;
+    }
 
     for (int wstyle = 0; wstyle < QWizard::NStyles; ++wstyle) {
         QMap<int, QString> texts; // keep in sync with QWizard::WizardButton
