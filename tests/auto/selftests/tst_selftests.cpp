@@ -76,10 +76,14 @@ void tst_Selftests::runSubTest()
     proc.start(subdir + "/tst_" + subdir);
     QVERIFY(proc.waitForFinished());
 
-    QByteArray out = proc.readAllStandardOutput();
-    QByteArray err = proc.readAllStandardError();
+    const QByteArray out(proc.readAllStandardOutput());
+    const QByteArray err(proc.readAllStandardError());
 
-    QVERIFY2(err.isEmpty(), err.constData());
+    QVERIFY2(err.isEmpty()
+#ifdef Q_OS_LINUX
+             || err.trimmed() == "Glib dispatcher checking for g_thread_init()"
+#endif
+             , err.constData());
 
     QList<QByteArray> res = splitLines(out);
     QList<QByteArray> exp = expectedResult(subdir);
