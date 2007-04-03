@@ -209,7 +209,7 @@ QScriptValueImpl Function::method_disconnect(QScriptContextPrivate *context, QSc
     QMetaMethod sig = qtSignal->metaObject()->method(qtSignal->initialIndex());
     if (sig.methodType() != QMetaMethod::Signal) {
         return context->throwError(QScriptContext::TypeError,
-            QString::fromUtf8("Function.prototype.disconnect: %0::%1 is not a signal")
+            QString::fromLatin1("Function.prototype.disconnect: %0::%1 is not a signal")
             .arg(QLatin1String(qtSignal->metaObject()->className()))
             .arg(QLatin1String(sig.signature())));
     }
@@ -272,7 +272,7 @@ QScriptValueImpl Function::method_connect(QScriptContextPrivate *context, QScrip
     QMetaMethod sig = qtSignal->metaObject()->method(qtSignal->initialIndex());
     if (sig.methodType() != QMetaMethod::Signal) {
         return context->throwError(QScriptContext::TypeError,
-            QString::fromUtf8("Function.prototype.connect: %0::%1 is not a signal")
+            QString::fromLatin1("Function.prototype.connect: %0::%1 is not a signal")
             .arg(QLatin1String(qtSignal->metaObject()->className()))
             .arg(QLatin1String(sig.signature())));
     }
@@ -280,8 +280,15 @@ QScriptValueImpl Function::method_connect(QScriptContextPrivate *context, QScrip
     bool ok = false;
     if (otherFun->type() == QScriptFunction::Qt) {
         QtFunction *qtSlot = static_cast<QtFunction*>(otherFun);
-        // ### find the best match using QMetaObject::checkConnectArgs
+        QMetaMethod slot = qtSlot->metaObject()->method(qtSlot->initialIndex());
         // ### check if signal or slot overloaded
+        if (!QMetaObject::checkConnectArgs(sig.signature(), slot.signature())) {
+            return context->throwError(QScriptContext::TypeError,
+                QString::fromLatin1("Function.prototype.connect: "
+                                    "incompatible method signatures: %0 - %1")
+                                    .arg(QLatin1String(sig.signature()))
+                                    .arg(QLatin1String(slot.signature())));
+        }
         ok = QMetaObject::connect(qtSignal->object(), qtSignal->initialIndex(),
                                   qtSlot->object(), qtSlot->initialIndex());
     } else {
