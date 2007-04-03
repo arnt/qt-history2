@@ -428,7 +428,7 @@ QString QProgressBar::text() const
         return result;
     }
 
-    qreal progress = ((qreal(d->value) - qreal(d->minimum)) * 100.0) / totalSteps;
+    int progress = ((qreal(d->value) - qreal(d->minimum)) * 100.0) / totalSteps;
     result.replace(QLatin1String("%p"), QString::fromLatin1("%1").arg(progress));
     return result;
 }
