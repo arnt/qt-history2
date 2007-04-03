@@ -1909,7 +1909,6 @@ QRegion QTreeView::visualRegionForSelection(const QItemSelection &selection) con
                                                  columnWidth(c), height));
         } else {
             QRect combined = leftRect|rightRect;
-            combined.setX(columnViewportPosition(range.left()));
             selectionRegion += combined;
         }
     }
