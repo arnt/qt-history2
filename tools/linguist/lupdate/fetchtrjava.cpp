@@ -21,11 +21,6 @@
 #include <QStack>
 #include <QDebug>
 
-#include <ctype.h>
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-
 enum { Tok_Eof, Tok_class, Tok_return, Tok_tr,
        Tok_translate, Tok_Ident, Tok_Package,
        Tok_Comment, Tok_String, Tok_Colon, Tok_Dot,
@@ -55,143 +50,110 @@ class Scope
 */
 
 static QByteArray yyFileName;
-static int yyCh;
-static char yyIdent[128];
-static size_t yyIdentLen;
-static char yyComment[65536];
-static size_t yyCommentLen;
+static QChar yyCh;
+static QString yyIdent;
+static QString yyComment;
+static QString yyString;
 
-static char yyString[65536];
-static size_t yyStringLen;
+
 static qlonglong yyInteger;
 static int yyParenDepth;
 static int yyLineNo;
 static int yyCurLineNo;
 static int yyParenLineNo;
 static int yyTok;
-static QTextCodec *yyCodecForTr = 0;
-static QTextCodec *yyCodecForSource = 0;
 
 // the file to read from (if reading from a file)
-static FILE *yyInFile;
+static QTextStream *yyInTextStream;
 
 // the string to read from and current position in the string (otherwise)
 static QString yyInStr;
 static int yyInPos;
-
-static int (*getChar)();
-
-static bool yyParsingUtf8;
 
 // The parser maintains the following global variables.
 static QString yyPackage;
 static QStack<Scope*> yyScope;
 static QString yyDefaultContext;
 
-static int getCharFromFile()
-{
-    // ### TODO. what about encoding UTF-16?
-    int c = getc( yyInFile );
-    if ( c == '\n' )
-        yyCurLineNo++;
-    return c;
-}
+static QChar getChar() {
+    yyInPos ++;
+    if(yyInPos == yyInStr.length() || yyInStr.isEmpty())
+    {
+        if( yyInTextStream->atEnd() ) {
+            return 0;
+        }
+        
+        yyInStr = yyInTextStream->readLine();
 
-static void startTokenizer( const char *fileName, int (*getCharFunc)(), QTextCodec *codecForTr, QTextCodec *codecForSource )
-{
-    yyInPos = 0;
-    getChar = getCharFunc;
-    
-    yyFileName = fileName;
-    yyPackage = "";
-
-    yyScope.clear();    
-    
-    yyTok = -1;
-    
-    yyParenDepth = 0;
-    yyCurLineNo = 1;
-
-    yyParenLineNo = 1;
-    yyCh = getChar();
-    yyCodecForTr = codecForTr;
-    if (!yyCodecForTr)
-        yyCodecForTr = QTextCodec::codecForName("ISO-8859-1");
-    Q_ASSERT(yyCodecForTr);
-    yyCodecForSource = codecForSource;
-    
-    yyParsingUtf8 = false;
+        yyCurLineNo ++;
+        yyInPos = -1;
+        return QChar('\n');
+    }
+    return yyInStr.at( yyInPos );
 }
 
 static int getToken()
 {
-    const char tab[] = "abfnrtv";
-    const char backTab[] = "\a\b\f\n\r\t\v";
-    uint n;
-    bool quiet;
+    const char tab[] = "bfnrt\"\'\\";
+    const char backTab[] = "\b\f\n\r\t\"\'\\";
+
+    yyIdent = "";
+    yyComment = "";
+    yyString = "";
     
-    yyIdentLen = 0;
-    yyCommentLen = 0;
-    yyStringLen = 0;
-    
-    while ( yyCh != EOF ) {
+    while ( yyCh != 0 ) {
         yyLineNo = yyCurLineNo;
         
-        if ( isalpha(yyCh) || yyCh == '_' ) {
+        if ( yyCh.isLetter() || yyCh.toLatin1() == '_' ) {
             do {
-                if ( yyIdentLen < sizeof(yyIdent) - 1 )
-                    yyIdent[yyIdentLen++] = (char) yyCh;
+                yyIdent.append(yyCh);
                 yyCh = getChar();
-            } while ( isalnum(yyCh) || yyCh == '_' );
-            yyIdent[yyIdentLen] = '\0';
+            } while ( yyCh.isLetterOrNumber() || yyCh.toLatin1() == '_' );
             
             if(yyTok != Tok_Dot)
             {
-                switch ( yyIdent[0] ) {
+                switch ( yyIdent.at(0).toLatin1() ) {
                     case 'r':
-                        if ( strcmp(yyIdent + 1, "eturn") == 0 )
+                        if ( yyIdent == "return" )
                             return Tok_return;
                         break;
                      case 'c':
-                            if ( strcmp(yyIdent + 1, "lass") == 0 )
-                        return Tok_class;
+                        if ( yyIdent == "class" )
+                            return Tok_class;
                     break;
                 }
             }
-            switch ( yyIdent[0] ) {
+            switch ( yyIdent.at(0).toLatin1() ) {
             case 'T':
                 // TR() for when all else fails
-                if ( qstricmp(yyIdent + 1, "R") == 0 ) {
-                    yyParsingUtf8 = false;
+                if ( yyIdent == "TR" ){
                     return Tok_tr;
                 }    
                 break;
             case 'p':
-                if( strcmp(yyIdent +1, "ackage") == 0 )
+                if( yyIdent == "package" )
                     return Tok_Package;
                 break;
             case 't':
-                if ( strcmp(yyIdent + 1, "r") == 0 ) {
-                    yyParsingUtf8 = false;
+                if ( yyIdent == "tr" ) {
                     return Tok_tr;
-                } else if ( qstrcmp(yyIdent + 1, "ranslate") == 0 ) {
-                    yyParsingUtf8 = false;
+                } else if ( yyIdent == "translate" ) {
                     return Tok_translate;
                 }
             }
             return Tok_Ident;
         } else {
-            switch ( yyCh ) {
+            switch ( yyCh.toLatin1() ) {
                 
             case '/':
                 yyCh = getChar();
                 if ( yyCh == '/' ) {
                     do {
                         yyCh = getChar();
-                        yyComment[yyCommentLen++] = (char) yyCh;
-                    } while ( yyCh != EOF && yyCh != '\n' );
-                    yyComment[yyCommentLen] = '\0';
+                        yyComment.append(yyCh);
+                    } while ( yyCh != 0 && yyCh.toLatin1() != '\n' );
                     return Tok_Comment;
+                    
                 } else if ( yyCh == '*' ) {
                     bool metAster = false;
                     bool metAsterSlash = false;
@@ -199,15 +161,14 @@ static int getToken()
                     while ( !metAsterSlash ) {
                         yyCh = getChar();
                         if ( yyCh == EOF ) {
-                            fprintf( stderr,
-                                     "%s: Unterminated C++ comment starting at"
-                                     " line %d\n",
-                                     (const char *) yyFileName, yyLineNo );
-                            yyComment[yyCommentLen] = '\0';
+                            qFatal( "%s: Unterminated Java comment starting at"
+                                    " line %d\n",
+                                    (const char *) yyFileName, yyLineNo );
+                            
                             return Tok_Comment;
                         }
-                        if ( yyCommentLen < sizeof(yyComment) - 1 )
-                            yyComment[yyCommentLen++] = (char) yyCh;
+                        
+                        yyComment.append( yyCh );
                         
                         if ( yyCh == '*' )
                             metAster = true;
@@ -217,123 +178,66 @@ static int getToken()
                             metAster = false;
                     }
                     yyCh = getChar();
-                    yyCommentLen -= 2;
-                    yyComment[yyCommentLen] = '\0';
+
                     return Tok_Comment;
                 }
                 break;
             case '"':
                 yyCh = getChar();
-                quiet = false;
                 
-                while ( yyCh != EOF && yyCh != '\n' && yyCh != '"' ) {
+                while ( yyCh != 0 && yyCh != '\n' && yyCh != '"' ) {
                     if ( yyCh == '\\' ) {
                         yyCh = getChar();
-                        
-                        if ( yyCh == '\n' ) {
+                        if ( yyCh == 'u' ) {
                             yyCh = getChar();
-                        } else if ( yyCh == 'x' ) {
-                            QByteArray hex = "0";
-                            
-                            yyCh = getChar();
-                            while ( isxdigit(yyCh) ) {
-                                hex += (char) yyCh;
+                            uint unicode(0);
+                            for(int i = 4; i > 0; i--) {
+                                unicode = unicode << 4;
+                                if( yyCh.isDigit() ) {
+                                    unicode += yyCh.digitValue();
+                                }
+                                else {
+                                    int sub(yyCh.toLower().toAscii() - 87);
+                                    if( sub > 15 && sub < 0) {
+                                        qFatal( "%s:%d: Invalid Unicode", (const char *) yyFileName, yyLineNo );    
+                                    }
+                                    unicode += sub;
+                                }
                                 yyCh = getChar();
                             }
-#if defined(_MSC_VER) && _MSC_VER >= 1400
-                            sscanf_s( hex, "%x", &n );
-#else
-                            sscanf( hex, "%x", &n );
-#endif
-                            if ( yyStringLen < sizeof(yyString) - 1 )
-                                yyString[yyStringLen++] = (char) n;
-                        } else if ( yyCh >= '0' && yyCh < '8' ) {    //maybe remove
-                            QByteArray oct = "";
-                            int n = 0;
-                            
-                            do {
-                                oct += (char) yyCh;
-                                ++n;
-                                yyCh = getChar();
-                            } while ( yyCh >= '0' && yyCh < '8' && n < 3 );
-#if defined(_MSC_VER) && _MSC_VER >= 1400
-                            sscanf_s( oct, "%o", &n );
-#else
-                            sscanf( oct, "%o", &n );
-#endif
-                            if ( yyStringLen < sizeof(yyString) - 1 )
-                                yyString[yyStringLen++] = (char) n;
-                        } else {
-                            const char *p = strchr( tab, yyCh );
-                            if ( yyStringLen < sizeof(yyString) - 1 )
-                                yyString[yyStringLen++] = ( p == 0 ) ?
-                                                          (char) yyCh : backTab[p - tab];
+                            yyString.append(QChar(unicode));
+                        }
+                        else if ( yyCh == '\n' ) {
+                            yyCh = getChar();
+                        }
+                        else {
+                            yyString.append( backTab[strchr( tab, yyCh.toAscii() ) - tab] );
                             yyCh = getChar();
                         }
                     } else {
-                        if (!yyCodecForSource) {
-                            if ( yyParsingUtf8 && yyCh >= 0x80 && !quiet) {
-                                qWarning( "%s:%d: Non-ASCII character detected in trUtf8 string",
-                                          (const char *) yyFileName, yyLineNo );
-                                quiet = true;
-                            }
-                            // common case: optimized
-                            if ( yyStringLen < sizeof(yyString) - 1 )
-                                yyString[yyStringLen++] = (char) yyCh;
-                            yyCh = getChar();
-                        } else {
-                            QByteArray originalBytes;
-                            while ( yyCh != EOF && yyCh != '\n' && yyCh != '"' && yyCh != '\\' ) {
-                                if ( yyParsingUtf8 && yyCh >= 0x80 && !quiet) {
-                                    qWarning( "%s:%d: Non-ASCII character detected in trUtf8 string",
-                                              (const char *) yyFileName, yyLineNo );
-                                    quiet = true;
-                                }
-                                originalBytes += (char)yyCh;
-                                yyCh = getChar();
-                            }
-                            
-                            QString unicodeStr = yyCodecForSource->toUnicode(originalBytes);
-                            QByteArray convertedBytes;
-                            
-                            if (!yyCodecForTr->canEncode(unicodeStr) && !quiet) {
-                                qWarning( "%s:%d: Cannot convert C++ string from %s to %s",
-                                          (const char *) yyFileName, yyLineNo, yyCodecForSource->name().constData(),
-                                          yyCodecForTr->name().constData() );
-                                quiet = true;
-                            }
-                            convertedBytes = yyCodecForTr->fromUnicode(unicodeStr);
-                            
-                            size_t len = qMin((size_t)convertedBytes.size(), sizeof(yyString) - yyStringLen - 1);
-                            memcpy(yyString + yyStringLen, convertedBytes.constData(), len);
-                            yyStringLen += len;
-                        }
+                        yyString.append(yyCh);
+                        yyCh = getChar();
                     }
                 }
-                yyString[yyStringLen] = '\0';
                 
                 if ( yyCh != '"' )
-                    qWarning( "%s:%d: Unterminated string",
-                              (const char *) yyFileName, yyLineNo );
+                    qFatal( "%s:%d: Unterminated string", (const char *) yyFileName, yyLineNo );
                 
-                if ( yyCh == EOF ) {
-                    return Tok_Eof;
-                } else {
-                    yyCh = getChar();
-                    return Tok_String;
-                }
-                break;
+                yyCh = getChar();
+                
+                return Tok_String;
+                
             case ':':
                 yyCh = getChar();
                 return Tok_Colon;
             case '\'':
                 yyCh = getChar();
+                 
                 if ( yyCh == '\\' )
                     yyCh = getChar();
-                
                 do {
                     yyCh = getChar();
-                } while ( yyCh != EOF && yyCh != '\'' );
+                } while ( yyCh != 0 && yyCh != '\'' );
                 yyCh = getChar();
                 break;
             case '{':
@@ -382,7 +286,7 @@ static int getToken()
                         ba+=yyCh;
                         yyCh = getChar();
                     }
-                    while ( (hex ? isxdigit(yyCh) : isdigit(yyCh)) ) {
+                    while ( hex ? isxdigit(yyCh.toLatin1()) : yyCh.isDigit() ) {
                         ba+=yyCh;
                         yyCh = getChar();
                     }
@@ -422,7 +326,7 @@ static bool matchEncoding( bool *utf8 )
 {
     if ( yyTok == Tok_Ident ) {
         // com.trolltech.qt.QCoreApplication.encoding
-        while(strcmp(yyIdent, "Encoding") != 0) {
+        while( yyIdent == "Encoding" ) {
             getToken();
             if(!( match( Tok_Dot ) && yyTok == Tok_Ident ))
                 return false;
@@ -434,10 +338,10 @@ static bool matchEncoding( bool *utf8 )
             return false;
         }
     
-        if (strcmp(yyIdent, "UnicodeUTF8") == 0) {
+        if ( yyIdent == "UnicodeUTF8" ) {
             *utf8 = true;
             yyTok = getToken();
-        } else if (strcmp(yyIdent, "CodecForTr") == 0) {
+        } else if ( yyIdent == "CodecForTr") {
             *utf8 = false;
             yyTok = getToken();
         } else {
@@ -532,6 +436,8 @@ static void parse( MetaTranslator *tor )
     QByteArray text;
     QByteArray com;
 
+    yyCh = getChar();    
+    
     bool utf8 = false;
     
     yyTok = getToken();
@@ -669,28 +575,29 @@ void fetchtr_java( const char *fileName,  MetaTranslator *tor,
                    const char *defaultContext, bool mustExist, const QByteArray &codecForSource )
 {
     yyDefaultContext = defaultContext;   
+    yyInPos = -1;
+    yyFileName = fileName;
+    yyPackage = "";
+    yyInStr = "";
+    yyScope.clear();    
+    yyTok = -1;
+    yyParenDepth = 0;
+    yyCurLineNo = 0;
+    yyParenLineNo = 1;
     
-#if defined(_MSC_VER) && _MSC_VER >= 1400
-    if (fopen_s(&yyInFile, fileName, "r")) {
-        if ( mustExist ) {
-            char buf[100];
-            strerror_s(buf, sizeof(buf), errno);
-            fprintf( stderr,
-                     "lupdate error: Cannot open java source file '%s': %s\n",
-                     fileName, buf );
-        }
-#else
-        yyInFile = fopen( fileName, "r" );
-        if ( yyInFile == 0 ) {
-            if ( mustExist )
-                fprintf( stderr,
-                         "lupdate error: Cannot open java source file '%s': %s\n",
-                         fileName, strerror(errno) );
-#endif
-            return;
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        if( mustExist )
+            qFatal( "lupdate error: Cannot open java source file '%s'\n", fileName);
     }
     
-    startTokenizer( fileName, getCharFromFile, tor->codecForTr(), QTextCodec::codecForName(codecForSource) );
+    yyInTextStream = new QTextStream( &file );
+    
+    if( !codecForSource.isEmpty() ) {
+        yyInTextStream->setCodec( QTextCodec::codecForName(codecForSource) );
+    }
+    
     parse( tor );
-    fclose( yyInFile );
+    
+    delete( yyInTextStream );
 }
