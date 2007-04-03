@@ -290,6 +290,9 @@ void tst_QMenuBar::onActivated( int i )
 
 void tst_QMenuBar::accel()
 {
+#ifdef Q_WS_MAC
+    QSKIP("On Mac, native key events are needed to test menu action activation", SkipAll);
+#endif
     // create a popup menu with menu items set the accelerators later...
     initSimpleMenubar();
 
@@ -302,6 +305,9 @@ void tst_QMenuBar::accel()
 
 void tst_QMenuBar::activatedCount()
 {
+#ifdef Q_WS_MAC
+    QSKIP("On Mac, native key events are needed to test menu action activation", SkipAll);
+#endif
     // create a popup menu with menu items set the accelerators later...
     initSimpleMenubar();
 
@@ -502,6 +508,9 @@ void tst_QMenuBar::insertItem_QString_QObject()
 
 void tst_QMenuBar::check_accelKeys()
 {
+#ifdef Q_WS_MAC
+    QSKIP("On Mac, native key events are needed to test menu action activation", SkipAll);
+#endif
     initComplexMenubar();
 
     // start with a bogus key that shouldn't trigger anything
