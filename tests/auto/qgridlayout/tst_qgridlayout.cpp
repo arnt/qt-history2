@@ -804,6 +804,7 @@ void tst_QGridLayout::minMaxSize()
 #if defined(Q_WS_X11)
         qt_x11_wait_for_window_manager(m_toplevel);     // wait for the show
 #endif
+        m_toplevel->adjustSize();
         QTest::qWait(200);                              // wait for the implicit adjustSize
         // If the following fails we might have to wait longer.
         // If that does not help there is likely a problem with the implicit adjustSize in show()
