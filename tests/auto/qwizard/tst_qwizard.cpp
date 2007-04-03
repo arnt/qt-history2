@@ -395,7 +395,9 @@ void tst_QWizard::setPixmap()
     QVERIFY(wizard.pixmap(QWizard::LogoPixmap).isNull());
     QVERIFY(wizard.pixmap(QWizard::WatermarkPixmap).isNull());
 #ifdef Q_WS_MAC
-    QVERIFY(wizard.pixmap(QWizard::BackgroundPixmap).isNull() == false);
+    if (QSysInfo::MacintoshVersion > QSysInfo::MV_10_3)
+        QVERIFY(wizard.pixmap(QWizard::BackgroundPixmap).isNull() == false);
+    else  // fall through since the image doesn't exist on a 10.3 system.
 #else
     QVERIFY(wizard.pixmap(QWizard::BackgroundPixmap).isNull());
 #endif
