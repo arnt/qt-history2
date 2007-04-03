@@ -198,7 +198,7 @@ static int getToken()
                                 }
                                 else {
                                     int sub(yyCh.toLower().toAscii() - 87);
-                                    if( sub > 15 && sub < 0) {
+                                    if( sub > 15 || sub < 10) {
                                         qFatal( "%s:%d: Invalid Unicode", (const char *) yyFileName, yyLineNo );    
                                     }
                                     unicode += sub;
