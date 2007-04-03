@@ -110,15 +110,6 @@ void QDesignerFormWindowCommand::updateBuddies(QDesignerFormWindowInterface *for
     }
 }
 
-
-void QDesignerFormWindowCommand::checkParent(QWidget *widget, QWidget *parentWidget)
-{
-    Q_ASSERT(widget);
-
-    if (widget->parentWidget() != parentWidget)
-        widget->setParent(parentWidget);
-}
-
 void QDesignerFormWindowCommand::selectUnmanagedObject(QObject *unmanagedObject)
 {
     // Keep selection in sync

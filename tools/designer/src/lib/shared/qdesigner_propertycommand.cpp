@@ -463,9 +463,6 @@ void PropertyHelper::updateObject(QDesignerFormWindowInterface *fw, const QVaria
     case OT_Widget: {
         QWidget *widget = qobject_cast<QWidget *>(m_object);
         switch (m_specialProperty) {
-        case SP_Geometry:
-            QDesignerFormWindowCommand::checkParent(widget, m_parentWidget);
-            break;
         case SP_ObjectName:
             QDesignerFormWindowCommand::updateBuddies(fw, oldValue.toString(), newValue.toString());
             break;

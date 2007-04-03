@@ -47,8 +47,6 @@ public:
 
     static void updateBuddies(QDesignerFormWindowInterface *form,
                               const QString &old_name, const QString &new_name);
-    static void checkParent(QWidget *widget, QWidget *parentWidget);
-
 protected:
     QDesignerFormWindowInterface *formWindow() const;
     QDesignerFormEditorInterface *core() const;
