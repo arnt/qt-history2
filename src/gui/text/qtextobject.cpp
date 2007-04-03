@@ -1050,8 +1050,8 @@ int QTextBlock::blockFormatIndex() const
 
 /*!
     Returns the QTextCharFormat that describes the block's character
-    format. This is mainly used to draw block-specific additions such
-    as e.g. list markers.
+    format. The block's character format is used when inserting text into
+    an empty block.
 
     \sa blockFormat()
  */

@@ -435,8 +435,8 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
         QTextBlockFormat blockFmt;
         blockFmt.setLayoutDirection(layoutDirection);
         cursor.mergeBlockFormat(blockFmt);
+        cursor.setCharFormat(charFormatForInsertion);
     }
-    cursor.setCharFormat(charFormatForInsertion);
 
     QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
     emit q->textChanged();

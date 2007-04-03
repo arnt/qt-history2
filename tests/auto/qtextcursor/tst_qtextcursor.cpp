@@ -74,9 +74,8 @@ private slots:
     void setBlockFormatInTable();
 
     void blockCharFormat();
-#if QT_VERSION >= 0x040100
     void blockCharFormat2();
-#endif
+    void blockCharFormat3();
     void blockCharFormatOnSelection();
 
     void anchorInitialized1();
@@ -770,19 +769,58 @@ void tst_QTextCursor::setBlockFormatInTable()
     QVERIFY(cursor.blockFormat().background().color() == Qt::blue);
 }
 
-#if QT_VERSION >= 0x040100
 void tst_QTextCursor::blockCharFormat2()
 {
     QTextCharFormat fmt;
     fmt.setForeground(Qt::green);
     cursor.mergeBlockCharFormat(fmt);
-    cursor.insertText("Test", QTextCharFormat());
+
+    fmt.setForeground(Qt::red);
+
+    cursor.insertText("Test", fmt);
     cursor.movePosition(QTextCursor::Start);
-    cursor.insertText("Green");
+    cursor.insertText("Red");
     cursor.movePosition(QTextCursor::PreviousCharacter);
-    QVERIFY(cursor.charFormat().foreground().color() == Qt::green);
+    QVERIFY(cursor.charFormat().foreground().color() == Qt::red);
 }
-#endif
+
+void tst_QTextCursor::blockCharFormat3()
+{
+    QVERIFY(cursor.atBlockStart());
+    QVERIFY(cursor.atBlockEnd());
+    QVERIFY(cursor.atStart());
+
+    QTextCharFormat fmt;
+    fmt.setForeground(Qt::green);
+    cursor.setBlockCharFormat(fmt);
+    cursor.insertText("Test");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextCharacter);
+    QVERIFY(cursor.charFormat().foreground().color() == Qt::green);
+
+    cursor.movePosition(QTextCursor::Start);
+    QVERIFY(cursor.charFormat().foreground().color() == Qt::green);
+
+    fmt.setForeground(Qt::red);
+    cursor.setBlockCharFormat(fmt);
+    QVERIFY(cursor.blockCharFormat().foreground().color() == Qt::red);
+
+    cursor.movePosition(QTextCursor::End);
+    cursor.movePosition(QTextCursor::Start);
+    QVERIFY(cursor.charFormat().foreground().color() == Qt::green);
+
+    cursor.insertText("Test");
+    QVERIFY(cursor.charFormat().foreground().color() == Qt::green);
+
+    cursor.select(QTextCursor::Document);
+    cursor.removeSelectedText();
+    QVERIFY(cursor.atBlockStart());
+    QVERIFY(cursor.atBlockEnd());
+    QVERIFY(cursor.atStart());
+
+    cursor.insertText("Test");
+    QVERIFY(cursor.charFormat().foreground().color() == Qt::red);
+}
 
 void tst_QTextCursor::blockCharFormat()
 {

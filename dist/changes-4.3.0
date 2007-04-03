@@ -43,3 +43,12 @@ Third party components
 
  - QString
         fromUtf8() now discards UTF-8 encoded byte order marks just like the UTF-8 QTextCodec
+
+ - QTextCursor
+        The definition of the block char format (QTextCursor::blockCharFormat/QTextBlock::charFormat)
+        has been changed to be the format used only when inserting text into an empty block.
+        If a QTextCursor is positioned at the beginning of a block and the text block is not empty
+        then the char format to the right of the cursor (the first character in the block) is returned.
+        If the block is empty the block character format is returned.
+        List markers are now also drawn with the character format of the first character in a block
+        instead of the invisible block character format.

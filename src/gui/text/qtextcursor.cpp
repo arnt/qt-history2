@@ -1425,7 +1425,7 @@ void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
     Returns the block character format of the block the cursor is in.
 
     The block char format is the format used when inserting text at the
-    beginning of a block.
+    beginning of an empty block.
 
     \sa setBlockCharFormat()
  */
@@ -1465,9 +1465,11 @@ void QTextCursor::mergeBlockCharFormat(const QTextCharFormat &modifier)
 
     d->setBlockCharFormat(modifier, QTextDocumentPrivate::MergeFormat);
 }
+
 /*!
-    Returns the format of the character immediately before the
-    cursor position().
+    Returns the format of the character immediately before the cursor position(). If the cursor is
+    positioned at the beginning of a text block that is not empty then the format of the character
+    immediately after the cursor is returned.
 
     \sa insertText(), blockFormat()
  */
@@ -1478,12 +1480,19 @@ QTextCharFormat QTextCursor::charFormat() const
 
     int idx = d->currentCharFormat;
     if (idx == -1) {
-        int pos = d->position - 1;
+        QTextBlock block = d->block();
+
+        int pos;
+        if (d->position == block.position()
+            && block.length() > 1)
+            pos = d->position;
+        else
+            pos = d->position - 1;
+
         if (pos == -1) {
             idx = d->priv->blockCharFormatIndex(d->priv->blockMap().firstNode());
         } else {
             Q_ASSERT(pos >= 0 && pos < d->priv->length());
-
 
             QTextDocumentPrivate::FragmentIterator it = d->priv->find(pos);
             Q_ASSERT(!it.atEnd());
