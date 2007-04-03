@@ -1802,10 +1802,19 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     case MoveRight:
         if (!d->viewItems.at(vi).expanded && d->itemsExpandable) {
             d->expand(vi, true);
-        }
-        else {
-           QScrollBar *sb = horizontalScrollBar();
-           sb->setValue(sb->value() + sb->singleStep());
+        } else {
+            bool descend = style()->styleHint(QStyle::SH_ItemView_ArrowKeysNavigateIntoChildren, 0, this);
+            if (descend) {
+                QModelIndex idx = d->modelIndex(d->below(vi));
+                if (idx.parent() == current)
+                    return idx;
+                else
+                    descend = false;
+            }
+            if (!descend) {
+                QScrollBar *sb = horizontalScrollBar();
+                sb->setValue(sb->value() + sb->singleStep());
+            }
         }
         updateGeometries();
         viewport()->update();

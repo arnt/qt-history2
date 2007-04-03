@@ -1680,6 +1680,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_WizardStyle Controls the look and feel of a QWizard. Returns a QWizard::WizardStyle enum.
 
+    \value SH_ItemView_ArrowKeysNavigateIntoChildren Controls whether the tree view will select the first child when it is exapanded and the right arrow key is pressed.
     \value SH_ComboBox_PopupFrameStyle  The frame style used when drawing a combobox popup menu.
 
     \value SH_DialogButtonBox_ButtonsHaveIcons Indicates whether or not StandardButtons in QDialogButtonBox should have icons or not.

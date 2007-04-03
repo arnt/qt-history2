@@ -643,6 +643,7 @@ public:
         SH_FocusFrame_AboveWidget,
         SH_TextControl_FocusIndicatorTextCharFormat,
         SH_WizardStyle,
+        SH_ItemView_ArrowKeysNavigateIntoChildren,
 
         // Add new style hint values here
 

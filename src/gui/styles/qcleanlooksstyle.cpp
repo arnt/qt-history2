@@ -4234,6 +4234,9 @@ int QCleanlooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
     case SH_WizardStyle:
         ret = QWizard::ClassicStyle;
         break;
+    case SH_ItemView_ArrowKeysNavigateIntoChildren:
+        ret = false;
+        break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
         break;

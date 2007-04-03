@@ -1034,6 +1034,9 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
     case SH_WizardStyle:
         ret = QWizard::ModernStyle;
         break;
+    case SH_ItemView_ArrowKeysNavigateIntoChildren:
+        ret = true;
+        break;
     default:
         ret = QCommonStyle::styleHint(hint, opt, widget, returnData);
         break;

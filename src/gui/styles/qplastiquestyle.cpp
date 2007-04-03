@@ -5398,6 +5398,9 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     case SH_LineEdit_PasswordCharacter:
         ret = QCommonStyle::styleHint(hint, option, widget, returnData);
         break;
+    case SH_ItemView_ArrowKeysNavigateIntoChildren:
+        ret = false;
+        break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
         break;
