@@ -124,7 +124,7 @@ void tst_Selftests::runSubTest()
 void tst_Selftests::initTestCase()
 {
     m_checkXMLBlacklist.append("crashes"); // This test crashes
-    m_checkXMLBlacklist.append("waitwithoutgui"); // This test is not a a QTestLib test.
+    m_checkXMLBlacklist.append("waitwithoutgui"); // This test is not a QTestLib test.
 }
 
 void tst_Selftests::checkXML() const
@@ -150,7 +150,7 @@ void tst_Selftests::checkXML() const
         reader.readNext();
 
     QEXPECT_FAIL("multiexec", "Output from several tests is broken with the XML output method, "
-                              "and it's quite heavy in the design. See task 155001.", Abort);
+                              "and it's quite heavy in the design. See task 155001.", Continue);
 
     QVERIFY(!reader.error());
 }
