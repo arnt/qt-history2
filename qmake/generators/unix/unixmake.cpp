@@ -156,6 +156,7 @@ UnixMakefileGenerator::init()
                 pchFlags = pchFlags.replace("${QMAKE_PCH_OUTPUT}",
                                             pchBaseName + project->first("QMAKE_PCH_OUTPUT_EXT"));
             }
+            qDebug() << "oink" << pchFlags;
 
             if (!pchFlags.isEmpty())
                 compile_flag += " " + pchFlags;
