@@ -42,7 +42,6 @@ static QList<QByteArray> expectedResult(const QString &subdir)
 void tst_Selftests::runSubTest_data()
 {
     QTest::addColumn<QString>("subdir");
-
     QTest::newRow("subtest") << "subtest";
     QTest::newRow("warnings") << "warnings";
     QTest::newRow("maxwarnings") << "maxwarnings";
@@ -64,7 +63,6 @@ void tst_Selftests::runSubTest_data()
     QTest::newRow("datetime") << "datetime";
     QTest::newRow("singleskip") << "singleskip";
     QTest::newRow("assert") << "assert";
-    QTest::newRow("fatal") << "fatal";
 }
 
 void tst_Selftests::runSubTest()
@@ -116,6 +114,8 @@ void tst_Selftests::runSubTest()
             continue;
         if (line.endsWith(" : failure location"))
             continue;
+        if (line.contains("ASSERT"))
+            QEXPECT_FAIL("assert", "QTestLib prints out the absolute path.", Continue);
         QCOMPARE(QString::fromLatin1(line), QString::fromLatin1(exp.at(i)));
     }
 }
