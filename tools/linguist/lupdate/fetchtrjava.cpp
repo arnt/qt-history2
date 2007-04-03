@@ -21,6 +21,8 @@
 #include <QStack>
 #include <QDebug>
 
+#include <ctype.h>
+
 enum { Tok_Eof, Tok_class, Tok_return, Tok_tr,
        Tok_translate, Tok_Ident, Tok_Package,
        Tok_Comment, Tok_String, Tok_Colon, Tok_Dot,
