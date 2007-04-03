@@ -189,6 +189,12 @@ void QAxBindable::reportError(int code, const QString &src, const QString &desc,
     writeData().  The default implementation does nothing and returns
     false.
 
+    \warning ActiveX controls embedded in HTML can use either the 
+    \c type and \c data attribute of the \c object tag to read data,
+    or use a list of \c param tags to initialize properties. If
+    \c param tags are used, then Internet Explorer will ignore the
+    \c data attribute, and readData will not be called.
+
     \sa writeData()
 */
 bool QAxBindable::readData(QIODevice *source, const QString &format)
