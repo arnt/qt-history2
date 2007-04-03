@@ -75,7 +75,7 @@ QString targetName( BuildType buildMode, const QString& target, const QString& v
 	break;
     case Dll: // dll
 	targetName.prepend("lib");
-#if defined (Q_OS_HPUX)
+#if defined (Q_OS_HPUX) && !defined (__ia64)
         targetName.append(".sl");
 #elif defined (Q_OS_AIX)
         targetName.append(".a");
