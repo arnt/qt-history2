@@ -727,6 +727,12 @@ void tst_QXmlStream::testReader_data() const
 
 void tst_QXmlStream::parseXSLTTestSuite() const
 {
+    /* Two problems needs to be solved in order to enable this test:
+     * - The XSLT suite is 69 MB large, which is quite a lot compared to the existing XML suite on 2 mb.
+     * - We need a c14n-like implementation in order to compare the outputs. */
+    QEXPECT_FAIL("", "See comment above", Abort);
+    QVERIFY(false);
+
     const int expectedRunCount = -1;
 
     QStringList nameFilters;
