@@ -175,6 +175,7 @@ QString qax_clean_type(const QString &type, const QMetaObject *mo)
 // The QAxFactory implementation provides the information.
 HRESULT UpdateRegistry(BOOL bRegister)
 {
+    qAxIsServer = false;
     QString file = QString::fromLocal8Bit(qAxModuleFilename);
     QString path = file.left(file.lastIndexOf(QLatin1String("\\"))+1);
     QString module = file.right(file.length() - path.length());
