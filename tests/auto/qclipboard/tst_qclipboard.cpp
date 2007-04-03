@@ -155,16 +155,20 @@ void tst_QClipboard::copy_exit_paste()
 void tst_QClipboard::setMimeData()
 {
     QMimeData *mimeData = new QMimeData;
+    const QString TestName(QLatin1String("tst_QClipboard::setMimeData() mimeData"));
+    mimeData->setObjectName(TestName);
 
     QApplication::clipboard()->setMimeData(mimeData);
     QCOMPARE(QApplication::clipboard()->mimeData(), mimeData);
+    QCOMPARE(QApplication::clipboard()->mimeData()->objectName(), TestName);
 
     // set it to the same data again, it shouldn't delete mimeData (and crash as a result)
     QApplication::clipboard()->setMimeData(mimeData);
     QCOMPARE(QApplication::clipboard()->mimeData(), mimeData);
+    QCOMPARE(QApplication::clipboard()->mimeData()->objectName(), TestName);
     QApplication::clipboard()->clear();
-
-    QVERIFY(QApplication::clipboard()->mimeData() != mimeData);
+    const QMimeData *appMimeData = QApplication::clipboard()->mimeData();
+    QVERIFY(appMimeData != mimeData || appMimeData->objectName() != TestName);
 }
 
 QTEST_MAIN(tst_QClipboard)

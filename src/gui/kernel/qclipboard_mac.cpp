@@ -382,7 +382,7 @@ QMacPasteboard::setMimeData(QMimeData *mime_src)
     mime = mime_src;
 
     if (mime != 0) {
-        clear();
+        clear_helper();
         QStringList formats = mime_src->formats();
 
         if (!mime_src->hasUrls()){
@@ -559,15 +559,21 @@ QMacPasteboard::retrieveData(const QString &format, QVariant::Type) const
     return QVariant();
 }
 
+void QMacPasteboard::clear_helper()
+{
+    if (paste)
+        PasteboardClear(paste);
+    promises.clear();
+}
+
 void
 QMacPasteboard::clear()
 {
 #ifdef DEBUG_PASTEBOARD
     qDebug("PasteBoard: clear!");
 #endif
-    if (paste)
-        PasteboardClear(paste);
-    promises.clear();
+    clear_helper();
+    setMimeData(0);
 }
 
 bool
