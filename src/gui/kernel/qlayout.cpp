@@ -310,15 +310,18 @@ bool QLayout::setAlignment(QLayout *l, Qt::Alignment alignment)
 */
 
 /*!
-    \obsolete
     \property QLayout::margin
     \brief the width of the outside border of the layout
+    \obsolete
 
     Use setContentsMargins() and getContentsMargins() instead.
 
     \sa contentsRect(), spacing
 */
 
+/*!
+    \obsolete
+*/
 int QLayout::margin() const
 {
     int left, top, right, bottom;
@@ -341,10 +344,10 @@ int QLayout::margin() const
     For QGridLayout, it is possible to set different horizontal and
     vertical spacings using \l{QGridLayout::}{setHorizontalSpacing()}
     and \l{QGridLayout::}{setVerticalSpacing()}. In that case,
-    \l{spacing} returns -1.
+    spacing() returns -1.
 
     \sa contentsRect(), getContentsMargins(), QStyle::layoutSpacing(),
-        QStyle::pixelMetrics()
+        QStyle::pixelMetric()
 */
 
 int QLayout::spacing() const
@@ -364,6 +367,9 @@ int QLayout::spacing() const
     }
 }
 
+/*!
+    \obsolete
+*/
 void QLayout::setMargin(int margin)
 {
     setContentsMargins(margin, margin, margin, margin);
@@ -417,7 +423,7 @@ void QLayout::setContentsMargins(int left, int top, int right, int bottom)
     By default, QLayout uses the values provided by the style. On
     most platforms, the margin is 11 pixels in all directions.
 
-    \sa setContentsMargins(), QStyle::pixelMetrics(),
+    \sa setContentsMargins(), QStyle::pixelMetric(),
         {QStyle::}{PM_LayoutLeftMargin},
         {QStyle::}{PM_LayoutTopMargin},
         {QStyle::}{PM_LayoutRightMargin},
@@ -1049,7 +1055,8 @@ void QLayout::update()
     Redoes the layout for parentWidget() if necessary.
 
     You should generally not need to call this because it is
-    automatically called at the most appropriate times.
+    automatically called at the most appropriate times. It returns
+    true if the layout was redone.
 
     \sa update(), QWidget::updateGeometry()
 */
