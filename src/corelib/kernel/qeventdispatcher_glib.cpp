@@ -199,7 +199,6 @@ QEventDispatcherGlibPrivate::QEventDispatcherGlibPrivate(GMainContext *context)
     : mainContext(context)
 {
     if (qgetenv("QT_NO_THREADED_GLIB").isEmpty()) {
-        qDebug("Glib dispatcher checking for g_thread_init()");
         if (!g_thread_supported())
             g_thread_init(NULL);
     }
