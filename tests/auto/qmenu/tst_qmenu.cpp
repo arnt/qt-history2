@@ -346,6 +346,7 @@ void tst_QMenu::overrideMenuAction()
 	m->addAction(aQuit);
 
 	w.show();
+        QTest::qWait(200);
 
 	//test of the action inside the menu
 	QTest::keyClick(&w, Qt::Key_X, Qt::ControlModifier);
