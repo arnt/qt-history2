@@ -328,7 +328,7 @@ bool QEventDispatcherGlib::hasPendingEvents()
     return g_main_context_pending(d->mainContext);
 }
 
-void QEventDispatcherGlib::registerSocketNotifier(QSocketNotifier *socketNotifier)
+void QEventDispatcherGlib::registerSocketNotifier(QSocketNotifier *notifier)
 {
     Q_ASSERT(notifier);
     int sockfd = notifier->socket();
@@ -361,14 +361,14 @@ void QEventDispatcherGlib::registerSocketNotifier(QSocketNotifier *socketNotifie
         p->pollfd.events = G_IO_PRI | G_IO_ERR;
         break;
     }
-    p->socketNotifier = socketNotifier;
+    p->socketNotifier = notifier;
 
     d->socketNotifierSource->pollfds.append(p);
 
     g_source_add_poll(&d->socketNotifierSource->source, &p->pollfd);
 }
 
-void QEventDispatcherGlib::unregisterSocketNotifier(QSocketNotifier *socketNotifier)
+void QEventDispatcherGlib::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
     Q_ASSERT(notifier);
     int sockfd = notifier->socket();
@@ -389,7 +389,7 @@ void QEventDispatcherGlib::unregisterSocketNotifier(QSocketNotifier *socketNotif
 
     for (int i = 0; i < d->socketNotifierSource->pollfds.count(); ++i) {
         GPollFDWithQSocketNotifier *p = d->socketNotifierSource->pollfds.at(i);
-        if (p->socketNotifier == socketNotifier) {
+        if (p->socketNotifier == notifier) {
             // found it
             g_source_remove_poll(&d->socketNotifierSource->source, &p->pollfd);
 
