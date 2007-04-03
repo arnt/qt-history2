@@ -124,16 +124,18 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
     QModelIndex index = QModelIndex(); // start with "My Computer"
 #ifdef Q_OS_WIN
     if (absolutePath.startsWith(QLatin1String("//"))) { // UNC path
-        QString host = QLatin1String("\\\\") + pathElements.first();
+	QString host = QLatin1String("\\\\") + pathElements.first();
         int r = 0;
         for (; r < root.children.count(); ++r)
             if (root.children.at(r).fileName.toLower() == host.toLower())
                 break;
         QFileSystemModelPrivate::QFileSystemNode *rootNode = const_cast<QFileSystemModelPrivate::QFileSystemNode*>(&root);
-        QFileInfo info(host);
-        if (!info.exists())
-            return rootNode;
         if (r >= root.children.count()) {
+            if (pathElements.count() == 1 && !absolutePath.endsWith('/'))
+		return rootNode;
+            QFileInfo info(host);
+            if (!info.exists())
+                return rootNode;
             QFileSystemModelPrivate *p = const_cast<QFileSystemModelPrivate*>(this);
             r = p->addNode(rootNode, host);
             p->addVisibleFiles(rootNode, QStringList(host));
