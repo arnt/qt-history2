@@ -217,6 +217,9 @@ void tst_QPixmap::mask()
     QVERIFY(!pm.isNull());
     QVERIFY(!bm.isNull());
     QVERIFY(pm.mask().isNull());
+#if defined (Q_OS_HPUX)
+    QEXPECT_FAIL("", "Bitmap masks don't work properly on HP-UX", Continue);
+#endif
     QCOMPARE(bm.toImage().format(), QImage::Format_MonoLSB);
 
     pm.setMask(bm);
