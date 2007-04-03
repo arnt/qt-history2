@@ -1922,7 +1922,10 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
 #ifdef Q_WS_MAC
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        edit(currentIndex(), EditKeyPressed, event);
+        // Propagate the enter iff you couldn't edit the item and there are no
+        // current editors (if there are editors, the event was most likely propagated from it).
+        if (!edit(currentIndex(), EditKeyPressed, event) && d->editors.isEmpty())
+            event->ignore();
         break;
     case Qt::Key_O:
         if (event->modifiers() & Qt::ControlModifier && currentIndex().isValid())
