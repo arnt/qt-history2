@@ -371,6 +371,7 @@ private:
     IOleInPlaceFrame *m_spInPlaceFrame;
     ITypeInfo *m_spTypeInfo;
     IStorage *m_spStorage;
+    QSize m_currentExtent;
 };
 
 class QAxServerAggregate : public IUnknown
@@ -1807,6 +1808,7 @@ void QAxServerBase::resize(const QSize &size)
 #endif
         qt_sendSpontaneousEvent(qt.widget, &resizeEvent);
     }
+    m_currentExtent = qt.widget->size();
 }
 
 /*!
@@ -3513,6 +3515,10 @@ HRESULT WINAPI QAxServerBase::SetObjectRects(LPCRECT prcPos, LPCRECT prcClip)
 	    SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
+    //Save the new extent.
+    m_currentExtent.rwidth() = qBound(qt.widget->minimumWidth(), int(prcPos->right - prcPos->left), qt.widget->maximumWidth());
+    m_currentExtent.rheight() = qBound(qt.widget->minimumHeight(), int(prcPos->bottom - prcPos->top), qt.widget->maximumHeight());
+
     return S_OK;
 }
 
@@ -3952,7 +3958,7 @@ HRESULT WINAPI QAxServerBase::GetClipboardData(DWORD, IDataObject**)
 }
 
 /*
-    Returns the current size.
+    Returns the current extent.
 */
 HRESULT WINAPI QAxServerBase::GetExtent(DWORD dwDrawAspect, SIZEL* psizel)
 {
@@ -3960,10 +3966,9 @@ HRESULT WINAPI QAxServerBase::GetExtent(DWORD dwDrawAspect, SIZEL* psizel)
 	return E_FAIL;
     if (!psizel)
 	return E_POINTER;
-
-    QSize size = qt.widget->size();
-    psizel->cx = MAP_PIX_TO_LOGHIM(size.width(), qt.widget->logicalDpiX());
-    psizel->cy = MAP_PIX_TO_LOGHIM(size.height(), qt.widget->logicalDpiY());
+    
+    psizel->cx = MAP_PIX_TO_LOGHIM(m_currentExtent.width(), qt.widget->logicalDpiX());
+    psizel->cy = MAP_PIX_TO_LOGHIM(m_currentExtent.height(), qt.widget->logicalDpiY());
     return S_OK;
 }
 
@@ -4058,6 +4063,9 @@ HRESULT WINAPI QAxServerBase::SetExtent(DWORD dwDrawAspect, SIZEL* psizel)
     // can the widget be resized at all?
     if (qt.widget->minimumSize() == qt.widget->maximumSize() && qt.widget->minimumSize() != proposedSize)
         return E_FAIL;
+    //Save the extent, bound to the widget restrictions.
+    m_currentExtent.rwidth() = qBound(qt.widget->minimumWidth(), proposedSize.width(), qt.widget->maximumWidth());
+    m_currentExtent.rheight() = qBound(qt.widget->minimumHeight(), proposedSize.height(), qt.widget->maximumHeight());
 
     resize(proposedSize);
     return S_OK;
