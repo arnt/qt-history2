@@ -49,7 +49,7 @@ void QRadioButtonPrivate::init()
     \class QRadioButton
     \brief The QRadioButton widget provides a radio button with a text label.
 
-    \ingroup basic
+    \ingroup basicwidgets
     \mainclass
 
     A QRadioButton is an option button that can be switched on (checked) or

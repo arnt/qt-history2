@@ -267,7 +267,8 @@ static inline QRgb colorref2qrgb(COLORREF col)
 }
 #endif
 
-/*!
+/*
+    \class ControlLabel
     \internal
 */
 class ControlLabel : public QWidget
@@ -295,10 +296,6 @@ private:
     void updateWindowIcon();
 };
 
-/*!
-    \class ControlLabel
-    \internal
-*/
 ControlLabel::ControlLabel(QWidget *parent)
     : QWidget(parent), isPressed(false)
 {
@@ -307,7 +304,7 @@ ControlLabel::ControlLabel(QWidget *parent)
     setFixedSize(label.size());
 }
 
-/*!
+/*
     \internal
 */
 QSize ControlLabel::sizeHint() const
@@ -315,7 +312,7 @@ QSize ControlLabel::sizeHint() const
     return label.size();
 }
 
-/*!
+/*
     \internal
 */
 bool ControlLabel::event(QEvent *event)
@@ -325,7 +322,7 @@ bool ControlLabel::event(QEvent *event)
     return QWidget::event(event);
 }
 
-/*!
+/*
     \internal
 */
 void ControlLabel::paintEvent(QPaintEvent * /*paintEvent*/)
@@ -334,7 +331,7 @@ void ControlLabel::paintEvent(QPaintEvent * /*paintEvent*/)
     painter.drawPixmap(0, 0, label);
 }
 
-/*!
+/*
     \internal
 */
 void ControlLabel::mousePressEvent(QMouseEvent *mouseEvent)
@@ -346,7 +343,7 @@ void ControlLabel::mousePressEvent(QMouseEvent *mouseEvent)
     isPressed = true;
 }
 
-/*!
+/*
     \internal
 */
 void ControlLabel::mouseDoubleClickEvent(QMouseEvent *mouseEvent)
@@ -359,7 +356,7 @@ void ControlLabel::mouseDoubleClickEvent(QMouseEvent *mouseEvent)
     emit _q_doubleClicked();
 }
 
-/*!
+/*
     \internal
 */
 void ControlLabel::mouseReleaseEvent(QMouseEvent *mouseEvent)
@@ -374,7 +371,7 @@ void ControlLabel::mouseReleaseEvent(QMouseEvent *mouseEvent)
     }
 }
 
-/*!
+/*
     \internal
 */
 void ControlLabel::updateWindowIcon()

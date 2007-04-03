@@ -31,7 +31,7 @@
     \brief The QScrollArea class provides a scrolling view onto
     another widget.
 
-    \ingroup basic
+    \ingroup basicwidgets
     \mainclass
 
     A scroll area is used to display the contents of a child widget

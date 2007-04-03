@@ -32,7 +32,7 @@
     \class QScrollBar
     \brief The QScrollBar widget provides a vertical or horizontal scroll bar.
 
-    \ingroup basic
+    \ingroup basicwidgets
 
     A scroll bar is a control that enables the user to access parts of a
     document that is larger than the widget used to display it. It provides

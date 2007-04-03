@@ -74,7 +74,7 @@ public:
     \class QSpinBox
     \brief The QSpinBox class provides a spin box widget.
 
-    \ingroup basic
+    \ingroup basicwidgets
     \mainclass
 
     QSpinBox is designed to handle integers and discrete sets of
@@ -500,7 +500,7 @@ void QSpinBox::fixup(QString &input) const
     \brief The QDoubleSpinBox class provides a spin box widget that
     takes doubles.
 
-    \ingroup basic
+    \ingroup basicwidgets
     \mainclass
 
     QDoubleSpinBox allows the user to choose a value by clicking the

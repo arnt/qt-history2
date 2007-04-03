@@ -173,7 +173,7 @@ QStyle::SubControl QSliderPrivate::newHoverControl(const QPoint &pos)
     \class QSlider
     \brief The QSlider widget provides a vertical or horizontal slider.
 
-    \ingroup basic
+    \ingroup basicwidgets
     \mainclass
 
     The slider is the classic widget for controlling a bounded value.

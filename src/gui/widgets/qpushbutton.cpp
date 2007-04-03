@@ -63,7 +63,7 @@ public:
     \class QPushButton qpushbutton.h
     \brief The QPushButton widget provides a command button.
 
-    \ingroup basic
+    \ingroup basicwidgets
     \mainclass
 
     The push button, or command button, is perhaps the most commonly
@@ -221,12 +221,11 @@ public:
     \property QPushButton::flat
     \brief whether the button border is raised
 
-    This property's default is false. If this property is set, most styles will not
-    paint the button background unless the button is being pressed. \l setAutoFillBackground can
-    be used to ensure that the background is filled using the QPalette::Button brush.
+    This property's default is false. If this property is set, most
+    styles will not paint the button background unless the button is
+    being pressed. setAutoFillBackground() can be used to ensure that
+    the background is filled using the QPalette::Button brush.
 */
-
-
 
 /*!
     Constructs a push button with no text and a \a parent.

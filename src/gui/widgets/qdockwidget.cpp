@@ -1311,18 +1311,19 @@ QAction * QDockWidget::toggleViewAction() const
 /*!
     \fn void QDockWidget::visibilityChanged(bool visible)
 
-    This signal is emitted when the dock widget becomes visible or invisible.
-    This happens when the widget is hidden or shown, as well as when it is
-    docked in a tabbed dock area and its tab becomes selected or unselected.
+    This signal is emitted when the dock widget becomes \a visible (or
+    invisible). This happens when the widget is hidden or shown, as
+    well as when it is docked in a tabbed dock area and its tab
+    becomes selected or unselected.
 */
 
 /*!
     \fn void QDockWidget::dockLocationChanged(Qt::DockWidgetArea area)
 
-    This signal is emitted when the dock widget is moved to another dock
-    area, or is moved to a different location in its current dock area.
-    This happens when the dock widget is moved programatically or is
-    dragged to a new location by the user.
+    This signal is emitted when the dock widget is moved to another
+    dock \a area, or is moved to a different location in its current
+    dock area. This happens when the dock widget is moved
+    programatically or is dragged to a new location by the user.
 */
 
 /*!

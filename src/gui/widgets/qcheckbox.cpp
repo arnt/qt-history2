@@ -42,7 +42,7 @@ public:
     \class QCheckBox
     \brief The QCheckBox widget provides a checkbox with a text label.
 
-    \ingroup basic
+    \ingroup basicwidgets
     \mainclass
 
     A QCheckBox is an option button that can be switched on (checked)

@@ -137,7 +137,7 @@ int QDialPrivate::valueFromPoint(const QPoint &p) const
 
     \brief The QDial class provides a rounded range control (like a speedometer or potentiometer).
 
-    \ingroup basic
+    \ingroup basicwidgets
     \mainclass
 
     QDial is used when the user needs to control a value within a

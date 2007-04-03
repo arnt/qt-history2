@@ -1024,7 +1024,7 @@ void QMenu::initStyleOption(QStyleOptionMenuItem *option, const QAction *action)
     bars, context menus, and other popup menus.
 
     \ingroup application
-    \ingroup basic
+    \ingroup basicwidgets
     \mainclass
 
     A menu widget is a selection menu. It can be either a pull-down

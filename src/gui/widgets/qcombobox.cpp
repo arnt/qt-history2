@@ -753,7 +753,7 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name)
     \class QComboBox qcombobox.h
     \brief The QComboBox widget is a combined button and popup list.
 
-    \ingroup basic
+    \ingroup basicwidgets
     \mainclass
 
     A QComboBox provides a means of presenting a list of options to the user

@@ -232,7 +232,7 @@ void QFontComboBoxPrivate::_q_currentChanged(const QString &text)
     select a font family.
 
     \since 4.2
-    \ingroup basic
+    \ingroup basicwidgets
     \ingroup text
 
     The combobox is populated with an alphabetized list of font

@@ -29,7 +29,7 @@
     \class QLabel
     \brief The QLabel widget provides a text or image display.
 
-    \ingroup basic
+    \ingroup basicwidgets
     \ingroup text
     \mainclass
 

@@ -98,7 +98,7 @@ void QLineEdit::initStyleOption(QStyleOptionFrame *option) const
     \class QLineEdit
     \brief The QLineEdit widget is a one-line text editor.
 
-    \ingroup basic
+    \ingroup basicwidgets
     \mainclass
 
     A line edit allows the user to enter and edit a single line of

@@ -492,6 +492,16 @@ void QTextEditPrivate::ensureViewportLayouted()
 */
 
 /*!
+    \property QTextEdit::plainText
+
+	This property gets and sets the text edit's contents as plain
+	text. Previous contents are removed and undo/redo history is reset
+	when the property is set. If the text edit has another content
+	type, it will not be replaced by plain text when you call
+	toPlainText().
+*/
+
+/*!
     \property QTextEdit::undoRedoEnabled
     \brief whether undo and redo are enabled
 
@@ -2062,7 +2072,7 @@ bool QTextEdit::canPaste() const
     is equivalent to calling the print method on the document directly except that this
     function also supports QPrinter::Selection as print range.
 
-    \sa QTextDocument::print
+    \sa QTextDocument::print()
 */
 void QTextEdit::print(QPrinter *printer) const
 {

@@ -112,7 +112,7 @@ public:
   \class QDateTimeEdit qdatetimeedit.h
   \brief The QDateTimeEdit class provides a widget for editing dates and times.
 
-  \ingroup basic
+  \ingroup basicwidgets
   \mainclass
 
   QDateTimeEdit allows the user to edit dates by using the keyboard or
@@ -275,6 +275,20 @@ void QDateTimeEdit::setDateTime(const QDateTime &datetime)
   \sa time
 */
 
+/*!
+    \property QDateEdit::date
+    \brief the QDate that is edited in the QDateEdit
+
+*/
+
+/*!
+    \property QTimeEdit::time
+    \brief the QTime that is edited in the QTimeEdit
+*/
+
+/*!
+    Returns the date of the date time edit.
+*/
 QDate QDateTimeEdit::date() const
 {
     Q_D(const QDateTimeEdit);
@@ -301,6 +315,9 @@ void QDateTimeEdit::setDate(const QDate &date)
   \sa date
 */
 
+/*!
+    Returns the time of the date time edit.
+*/
 QTime QDateTimeEdit::time() const
 {
     Q_D(const QDateTimeEdit);
@@ -1324,7 +1341,7 @@ void QDateTimeEdit::mousePressEvent(QMouseEvent *event)
   \brief The QTimeEdit class provides a widget for editing times based on
   the QDateTimeEdit widget.
 
-  \ingroup basic
+  \ingroup basicwidgets
   \mainclass
 
   Many of the properties and functions provided by QTimeEdit are implemented in
@@ -1378,7 +1395,7 @@ QTimeEdit::QTimeEdit(const QTime &time, QWidget *parent)
   \brief The QDateEdit class provides a widget for editing dates based on
   the QDateTimeEdit widget.
 
-  \ingroup basic
+  \ingroup basicwidgets
   \mainclass
 
   Many of the properties and functions provided by QDateEdit are implemented in

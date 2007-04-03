@@ -107,7 +107,7 @@ Qt::Corner QSizeGripPrivate::corner() const
     \brief The QSizeGrip class provides a resize handle for resizing top-level windows.
 
     \ingroup application
-    \ingroup basic
+    \ingroup basicwidgets
     \ingroup appearance
 
     This widget works like the standard Windows resize handle. In the
@@ -465,6 +465,9 @@ bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
     return false;
 }
 
+/*!
+    \reimp
+*/
 bool QSizeGrip::event(QEvent *event)
 {
     return QWidget::event(event);

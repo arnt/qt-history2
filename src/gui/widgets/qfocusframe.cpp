@@ -87,7 +87,7 @@ void QFocusFrame::initStyleOption(QStyleOption *option) const
     \brief The QFocusFrame widget provides a focus frame which can be
     outside of a widget's normal paintable area.
 
-    \ingroup basic
+    \ingroup basicwidgets
     \mainclass
 
     Normally an application will not need to create its own

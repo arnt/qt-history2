@@ -152,7 +152,7 @@ QValidator::~QValidator()
 /*!
     Returns the locale for the validator. The locale is by default initialized to the same as QLocale().
 
-    \sa setLocale
+    \sa setLocale()
     \sa QLocale::QLocale()
 */
 QLocale QValidator::locale() const
@@ -160,12 +160,14 @@ QLocale QValidator::locale() const
     Q_D(const QValidator);
     return d->locale;
 }
-/*!
-    Sets the locale that will be used for the validator. Unless setLocale has been called,
-    the validator will use the default locale set with QLocale::setDefault(). If a default
-    locale has not been set, it is the operating system's locale.
 
-    \sa locale QLocale::setDefault()
+/*!
+    Sets the \a locale that will be used for the validator. Unless
+    setLocale has been called, the validator will use the default
+    locale set with QLocale::setDefault(). If a default locale has not
+    been set, it is the operating system's locale.
+
+    \sa locale() QLocale::setDefault()
 */
 void QValidator::setLocale(const QLocale &locale)
 {
@@ -454,11 +456,17 @@ void QIntValidator::setTop(int top)
 
 #ifndef QT_NO_REGEXP
 
+/*!
+    \internal
+*/
 QValidator::QValidator(QObjectPrivate &d, QObject *parent)
         : QObject(d, parent)
 {
 }
 
+/*!
+    \internal
+*/
 QValidator::QValidator(QValidatorPrivate &d, QObject *parent)
         : QObject(d, parent)
 {

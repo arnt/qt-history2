@@ -666,10 +666,36 @@ void Q3GroupBox::drawFrame(QPainter *p)
 }
 
 /*!
-    \property QFrame::frameShadow
+    \property Q3GroupBox::frameShadow
     \brief the frame shadow value from the frame style
 
-    \sa frameStyle(), frameShadow()
+    \sa frameStyle() 
+*/
+
+/*
+    \enum Q3GroupBox::FrameShape
+    
+    This enum defines the available frame shapes a group box can
+    have. All values have equivalents in QFrame.
+
+    \value Box QFrame::Box
+    \value Sunken QFrame::Sunken
+    \value Plain QFrame::Plain
+    \value Raised QFrame::Raised
+    \value MShadow QFrame::Shadow_Mask
+    \value NoFrame QFrame::NoFrame
+    \value Panel QFrame::Panel
+    \value StyledPanel QFrame::StyledPanel
+    \value HLine QFrame::HLine
+    \value VLine QFrame::VLine
+    \value WinPanel QFrame::WinPanel
+    \value ToolBarPanel QFrame::StyledPanel
+    \value MenuBarPanel = QFrame::StyledPanel
+    \value PopupPanel QFrame::StyledPanel
+    \value LineEditPanel QFrame::StyledPanel
+    \value TabWidgetPanel QFrame::StyledPanel
+    \value GroupBoxPanel 0x0007
+    \value MShape QFrame::Shape_Mask
 */
 
 
@@ -684,7 +710,7 @@ Q3GroupBox::DummyFrame Q3GroupBox::frameShadow() const
 }
 
 /*!
-    \property QFrame::frameShape
+    \property Q3GroupBox::frameShape
     \brief the frame shape value from the frame style
 
     \sa frameStyle(), frameShadow()
@@ -703,8 +729,8 @@ Q3GroupBox::DummyFrame Q3GroupBox::frameShape() const
 /*!
     \fn void Q3GroupBox::setFrameStyle(int style)
     
-    Sets the frame style to style.
-    The style is the bitwise OR between a frame shape and a frame shadow style.
+    Sets the frame style to \a style.  The style is the bitwise OR
+    between a frame shape and a frame shadow style.
 */
 
 void Q3GroupBox::setFrameStyle(int style)
@@ -781,6 +807,11 @@ int Q3GroupBox::midLineWidth() const
 }
 
 /*!
+    \property Q3GroupBox::frameRect
+    \brief the bounding rectangle of the frame of the group box.
+*/
+
+/*!
     \fn QRect Q3GroupBox::frameRect() const
     \internal
 */
@@ -818,6 +849,31 @@ int Q3GroupBox::frameWidth() const
     return d->frameWidth;
 }
 
+#if defined(Q_MOC_RUN)
+/*!
+    \enum Q3GroupBox::FrameShape
+    \internal
+
+    \value Box
+    \value Sunken
+    \value Plain
+    \value Raised
+    \value MShadow
+    \value NoFrame
+    \value Panel 
+    \value StyledPanel
+    \value HLine 
+    \value VLine 
+    \value GroupBoxPanel
+    \value WinPanel 
+    \value ToolBarPanel 
+    \value MenuBarPanel 
+    \value PopupPanel 
+    \value LineEditPanel 
+    \value TabWidgetPanel 
+    \value MShape
+*/
+#else
 /*!
     \enum Q3GroupBox::DummyFrame
     \internal
@@ -840,6 +896,18 @@ int Q3GroupBox::frameWidth() const
     \value LineEditPanel 
     \value TabWidgetPanel 
     \value MShape
+*/
+#endif
+
+/*!
+    \typedef Q3GroupBox::FrameShape
+    \internal 
+*/
+
+/*!
+    \property Q3GroupBox::margin
+    \brief the width of the margin around the contents of the
+           group box.
 */
 
 /*!
