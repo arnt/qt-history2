@@ -189,7 +189,8 @@ public:
         Invalid,
         Variant,
         MetaType,
-        Unresolved
+        Unresolved,
+        MetaEnum
     };
 
     inline QScriptMetaType()
@@ -199,7 +200,7 @@ public:
     { return m_kind; }
 
     inline int typeId() const
-    { return m_typeId; }
+    { return isMetaEnum() ? 2/*int*/ : m_typeId; }
 
     inline bool isValid() const
     { return (m_kind != Invalid); }
@@ -207,14 +208,29 @@ public:
     inline bool isVariant() const
     { return (m_kind == Variant); }
 
+    inline bool isMetaType() const
+    { return (m_kind == MetaType); }
+
+    inline bool isUnresolved() const
+    { return (m_kind == Unresolved); }
+
+    inline bool isMetaEnum() const
+    { return (m_kind == MetaEnum); }
+
     inline QByteArray name() const
     { return m_name; }
+
+    inline int enumeratorIndex() const
+    { Q_ASSERT(isMetaEnum()); return m_typeId; }
 
     static inline QScriptMetaType variant()
     { return QScriptMetaType(Variant); }
 
     static inline QScriptMetaType metaType(int typeId, const QByteArray &name)
     { return QScriptMetaType(MetaType, typeId, name); }
+
+    static inline QScriptMetaType metaEnum(int enumIndex, const QByteArray &name)
+    { return QScriptMetaType(MetaEnum, enumIndex, name); }
 
     static inline QScriptMetaType unresolved(const QByteArray &name)
     { return QScriptMetaType(Unresolved, /*typeId=*/0, name); }

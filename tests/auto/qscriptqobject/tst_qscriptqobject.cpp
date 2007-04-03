@@ -180,6 +180,12 @@ public:
         { m_qtFunctionInvoked = 9; m_actuals << arg1 << arg2; }
     Q_INVOKABLE void myInvokableWithEnumArg(Policy policy)
         { m_qtFunctionInvoked = 10; m_actuals << policy; }
+    Q_INVOKABLE void myInvokableWithQualifiedEnumArg(MyQObject::Policy policy)
+        { m_qtFunctionInvoked = 36; m_actuals << policy; }
+    Q_INVOKABLE Policy myInvokableReturningEnum()
+        { m_qtFunctionInvoked = 37; return BazPolicy; }
+    Q_INVOKABLE MyQObject::Policy myInvokableReturningQualifiedEnum()
+        { m_qtFunctionInvoked = 38; return BazPolicy; }
     Q_INVOKABLE QVector<int> myInvokableReturningVectorOfInt()
         { m_qtFunctionInvoked = 11; return QVector<int>(); }
     Q_INVOKABLE void myInvokableWithVectorOfIntArg(const QVector<int> &)
@@ -972,6 +978,27 @@ void tst_QScriptExtQObject::classEnums()
     QCOMPARE(m_myObject->qtFunctionInvoked(), 10);
     QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
     QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), int(MyQObject::BazPolicy));
+
+    m_myObject->resetQtFunctionInvoked();
+    QCOMPARE(m_engine->evaluate("myObject.myInvokableWithQualifiedEnumArg(MyQObject.BazPolicy)").isUndefined(), true);
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 36);
+    QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+    QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), int(MyQObject::BazPolicy));
+
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableReturningEnum()");
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 37);
+        QCOMPARE(m_myObject->qtFunctionActuals().size(), 0);
+        QCOMPARE(ret.isVariant(), true);
+    }
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableReturningQualifiedEnum()");
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 38);
+        QCOMPARE(m_myObject->qtFunctionActuals().size(), 0);
+        QCOMPARE(ret.isNumber(), true);
+    }
 }
 
 Q_SCRIPT_DECLARE_QMETAOBJECT(MyQObject, QObject*)

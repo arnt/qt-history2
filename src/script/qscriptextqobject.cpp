@@ -733,10 +733,29 @@ void QScript::QtPropertyFunction::execute(QScriptContextPrivate *context)
     context->m_result = result;
 }
 
+static int indexOfMetaEnum(const QMetaObject *meta, const QByteArray &str)
+{
+    QByteArray scope;
+    QByteArray name;
+    int scopeIdx = str.indexOf("::");
+    if (scopeIdx != -1) {
+        scope = str.left(scopeIdx);
+        name = str.mid(scopeIdx + 2);
+    } else {
+        name = str;
+    }
+    for (int i = meta->enumeratorCount() - 1; i >= 0; --i) {
+        QMetaEnum m = meta->enumerator(i);
+        if ((m.name() == name)/* && (scope.isEmpty() || (m.scope() == scope))*/)
+            return i;
+    }
+    return -1;
+}
+
 void QScript::QtFunction::execute(QScriptContextPrivate *context)
 {
     QScriptEngine *eng = context->engine();
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(context->engine());
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
 
     QScriptValueImpl result = eng_p->undefinedValue();
 
@@ -788,12 +807,17 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
             QByteArray returnTypeName = method.typeName();
             int rtype = QMetaType::type(returnTypeName);
             if ((rtype == 0) && !returnTypeName.isEmpty()) {
-                if (returnTypeName == "QVariant")
+                if (returnTypeName == "QVariant") {
                     types.append(QScriptMetaType::variant());
-                else if (returnTypeName.endsWith('*'))
+                } else if (returnTypeName.endsWith('*')) {
                     types.append(QScriptMetaType::metaType(QMetaType::VoidStar, returnTypeName));
-                else
-                    types.append(QScriptMetaType::unresolved(returnTypeName));
+                } else {
+                    int enumIndex = indexOfMetaEnum(meta, returnTypeName);
+                    if (enumIndex != -1)
+                        types.append(QScriptMetaType::metaEnum(enumIndex, returnTypeName));
+                    else
+                        types.append(QScriptMetaType::unresolved(returnTypeName));
+                }
             } else {
                 types.append(QScriptMetaType::metaType(rtype, returnTypeName));
             }
@@ -803,10 +827,15 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                 QByteArray argTypeName = parameterTypeNames.at(i);
                 int atype = QMetaType::type(argTypeName);
                 if (atype == 0) {
-                    if (argTypeName == "QVariant")
+                    if (argTypeName == "QVariant") {
                         types.append(QScriptMetaType::variant());
-                    else
-                        types.append(QScriptMetaType::unresolved(argTypeName));
+                    } else {
+                        int enumIndex = indexOfMetaEnum(meta, argTypeName);
+                        if (enumIndex != -1)
+                            types.append(QScriptMetaType::metaEnum(enumIndex, argTypeName));
+                        else
+                            types.append(QScriptMetaType::unresolved(argTypeName));
+                    }
                 } else {
                     types.append(QScriptMetaType::metaType(atype, argTypeName));
                 }
@@ -872,18 +901,22 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                             matchDistance += 10;
                         }
                     }
-                } else if (actual.isNumber() && (tid >= 256)) {
+                } else if (actual.isNumber()) {
                     // see if it's an enum value
-                    int ival = actual.toInt32();
-                    for (int e = 0; e < meta->enumeratorCount(); ++e) {
-                        QMetaEnum m = meta->enumerator(e);
-                        if (m.name() == argType.name()) {
-                            if (m.valueToKey(ival) != 0) {
-                                qVariantSetValue(v, ival);
-                                converted = true;
-                                matchDistance += 10;
-                            }
-                            break;
+                    QMetaEnum m;
+                    if (argType.isMetaEnum()) {
+                        m = meta->enumerator(argType.enumeratorIndex());
+                    } else {
+                        int mi = indexOfMetaEnum(meta, argType.name());
+                        if (mi != -1)
+                            m = meta->enumerator(mi);
+                    }
+                    if (m.isValid()) {
+                        int ival = actual.toInt32();
+                        if (m.valueToKey(ival) != 0) {
+                            qVariantSetValue(v, ival);
+                            converted = true;
+                            matchDistance += 10;
                         }
                     }
                 }
@@ -1024,6 +1057,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                     params[i] = const_cast<QVariant*>(&v);
                     break;
                 case QScriptMetaType::MetaType:
+                case QScriptMetaType::MetaEnum:
                     params[i] = const_cast<void*>(v.constData());
                     break;
                 default:
