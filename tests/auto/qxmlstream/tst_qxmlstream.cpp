@@ -72,18 +72,16 @@ static QByteArray makeCanonical(const QString &filename,
     forever {
         while (!reader.atEnd()) {
             reader.readNext();
-            /* TODO
-             * This code is currently commented out because it unconditionally
-             * replaces the DOCTYPE name with "doc". This fails for tests that already
-             * has an internal DTD, since the DOCTYPE name is not always "doc". */
-            Q_UNUSED(docType);
             if (reader.isDTD()) {
                 if (!reader.notationDeclarations().isEmpty()) {
                     QString dtd;
                     dtd += "<!DOCTYPE ";
                     dtd += docType;
                     dtd += " [\n";
-                    foreach (QXmlStreamNotationDeclaration notation, reader.notationDeclarations()) {
+                    QMap<QString, QXmlStreamNotationDeclaration> sortedNotationDeclarations;
+                    foreach (QXmlStreamNotationDeclaration notation, reader.notationDeclarations())
+                        sortedNotationDeclarations.insert(notation.name().toString(), notation);
+                    foreach (QXmlStreamNotationDeclaration notation, sortedNotationDeclarations.values()) {
                         dtd += "<!NOTATION ";
                         dtd += notation.name().toString();
                         if (notation.publicId().isEmpty()) {
@@ -748,7 +746,7 @@ void tst_QXmlStream::parseXSLTTestSuite() const
     nameFilters.append("*.xsl");
     nameFilters.append("*.xml");
 
-    QDirIterator dirIterator("XSLT-Test-Suite/", nameFilters,    
+    QDirIterator dirIterator("XSLT-Test-Suite/", nameFilters,
                              QDir::AllEntries, QDirIterator::Subdirectories);
     int filesParsed = 0;
 
