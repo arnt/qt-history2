@@ -730,6 +730,7 @@ void tst_QFile::copy()
 {
     QFile::setPermissions("tst_qfile_copy.cpp", QFile::WriteUser);
     QFile::remove("tst_qfile_copy.cpp");
+    QFile::remove("test2");
     QVERIFY(QFile::copy("tst_qfile.cpp", "tst_qfile_copy.cpp"));
     QFile in1("tst_qfile.cpp"), in2("tst_qfile_copy.cpp");
     QVERIFY(in1.open(QFile::ReadOnly));
