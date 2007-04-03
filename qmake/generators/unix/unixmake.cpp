@@ -130,6 +130,21 @@ UnixMakefileGenerator::init()
                 project->values("QMAKE_LFLAGS") += var("QMAKE_LFLAGS_RPATH") + escapeFilePath(QFileInfo(rpathdirs[i]).absoluteFilePath());
         }
     }
+
+    project->values("QMAKE_FILETAGS") << "SOURCES" << "GENERATED_SOURCES" << "TARGET" << "DESTDIR";
+    if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
+        const QStringList &quc = project->values("QMAKE_EXTRA_COMPILERS");
+        for(int i = 0; i < quc.size(); ++i)
+            project->values("QMAKE_FILETAGS") += project->values(quc[i]+".input");
+    }
+
+    if(project->isActiveConfig("GNUmake") && !project->isEmpty("QMAKE_CFLAGS_DEPS"))
+        include_deps = true; //do not generate deps
+    if(project->isActiveConfig("compile_libtool"))
+        Option::obj_ext = ".lo"; //override the .o
+
+    MakefileGenerator::init();
+
     QString comps[] = { "C", "CXX", "OBJC", "OBJCXX", QString() };
     for(int i = 0; !comps[i].isNull(); i++) {
         QString compile_flag = var("QMAKE_COMPILE_FLAG");
@@ -156,7 +171,6 @@ UnixMakefileGenerator::init()
                 pchFlags = pchFlags.replace("${QMAKE_PCH_OUTPUT}",
                                             pchBaseName + project->first("QMAKE_PCH_OUTPUT_EXT"));
             }
-            qDebug() << "oink" << pchFlags;
 
             if (!pchFlags.isEmpty())
                 compile_flag += " " + pchFlags;
@@ -180,20 +194,6 @@ UnixMakefileGenerator::init()
         if(project->isEmpty(runCompImp))
             project->values(runCompImp).append("$(" + compiler + ") " + compile_flag + " -o \"$@\" \"$<\"");
     }
-
-    project->values("QMAKE_FILETAGS") << "SOURCES" << "GENERATED_SOURCES" << "TARGET" << "DESTDIR";
-    if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
-        const QStringList &quc = project->values("QMAKE_EXTRA_COMPILERS");
-        for(int i = 0; i < quc.size(); ++i)
-            project->values("QMAKE_FILETAGS") += project->values(quc[i]+".input");
-    }
-
-    if(project->isActiveConfig("GNUmake") && !project->isEmpty("QMAKE_CFLAGS_DEPS"))
-        include_deps = true; //do not generate deps
-    if(project->isActiveConfig("compile_libtool"))
-        Option::obj_ext = ".lo"; //override the .o
-
-    MakefileGenerator::init();
 
     if(project->isActiveConfig("macx") && !project->isEmpty("TARGET") && !project->isActiveConfig("compile_libtool") &&
        ((project->isActiveConfig("build_pass") || project->isEmpty("BUILDS")))) {
