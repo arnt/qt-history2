@@ -121,6 +121,10 @@ QDesignerPropertySheet::PropertyType QDesignerPropertySheet::propertyTypeFromNam
         return  PropertyBuddy;
     if (name == QLatin1String("sizeConstraint"))
         return  PropertySizeConstraint;
+    if (name == QLatin1String("geometry"))
+        return PropertyGeometry;
+    if (name == QLatin1String("checkable"))
+        return PropertyCheckable;
     if (name.startsWith(QLatin1String("accessible")))
         return  PropertyAccessibility;
     return PropertyNone;
@@ -554,8 +558,8 @@ void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
     } else {
         const QMetaProperty p = m_meta->property(index);
         p.write(m_object, resolvePropertyValue(value));
-        if (qobject_cast<QGroupBox *>(m_object) && propertyName(index) == QLatin1String("checkable")) {
-            int idx = indexOf(QLatin1String("focusPolicy"));
+        if (qobject_cast<QGroupBox *>(m_object) && propertyType(index) == PropertyCheckable) {
+            const int idx = indexOf(QLatin1String("focusPolicy"));
             if (!isChanged(idx)) {
                 qdesigner_internal::EnumType e = qVariantValue<qdesigner_internal::EnumType>(property(idx));
                 if (value.toBool()) {
@@ -654,9 +658,8 @@ bool QDesignerPropertySheet::reset(int index)
         const bool result = p.reset(m_object);
         m_fakeProperties[index] = p.read(m_object);
         return result;
-    } else if (propertyName(index) == QLatin1String("geometry")) {
-        QWidget *w = qobject_cast<QWidget*>(m_object);
-        if (w) {
+    } else if (propertyType(index) == PropertyGeometry && m_object->isWidgetType()) {
+        if (QWidget *w = qobject_cast<QWidget*>(m_object)) {
             QWidget *widget = w;
             QDesignerFormWindowInterface *formWindow = QDesignerFormWindowInterface::findFormWindow(widget);
             if (qdesigner_internal::Utils::isCentralWidget(formWindow, widget) && formWindow->parentWidget())
@@ -734,17 +737,24 @@ bool QDesignerPropertySheet::isVisible(int index) const
 {
     if (isAdditionalProperty(index)) {
         if (isFakeLayoutProperty(index) && m_object->isWidgetType()) {
-            QString pname = propertyName(index);
-            QGridLayout *grid = qobject_cast<QGridLayout *>(layout());
-            if (pname == QLatin1String("layoutHorizontalSpacing") ||
-                    pname == QLatin1String("layoutVerticalSpacing")) {
-                return grid != 0;
-            }
-            if (pname == QLatin1String("layoutSpacing") && grid)
+            QLayout *currentLayout = layout();
+            if (!currentLayout)
                 return false;
-            return layout() != 0;
+            switch (propertyType(index)) {
+            case  PropertyLayoutSpacing:
+                if (qobject_cast<const QGridLayout *>(currentLayout))
+                    return false;
+                break;
+            case PropertyLayoutHorizontalSpacing:
+            case PropertyLayoutVerticalSpacing:
+                if (!qobject_cast<const QGridLayout *>(currentLayout))
+                    return false;
+                break;
+            default:
+                break;
+            }
+            return true;
         }
-
         return m_info.value(index).visible;
     }
 
@@ -773,10 +783,7 @@ bool QDesignerPropertySheet::isAttribute(int index) const
 
 void QDesignerPropertySheet::setAttribute(int index, bool attribute)
 {
-    if (!m_info.contains(index))
-        m_info.insert(index, Info());
-
-    m_info[index].attribute = attribute;
+    ensureInfo(index).attribute = attribute;
 }
 
 QLayout* QDesignerPropertySheet::layout(QDesignerPropertySheetExtension **layoutPropertySheet) const

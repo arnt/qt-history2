@@ -96,7 +96,9 @@ public: // For MSVC 6
                         PropertyLayoutVerticalSpacing,
                         PropertySizeConstraint,
                         PropertyBuddy,
-                        PropertyAccessibility };
+                        PropertyAccessibility,
+                        PropertyGeometry,
+                        PropertyCheckable};
 
 protected:
     enum ObjectType { ObjectNone, ObjectLabel, ObjectLayout, ObjectLayoutWidget, ObjectQ3GroupBox };
