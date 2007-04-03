@@ -793,10 +793,14 @@
 
     \value WA_MacMetalStyle Indicates the the widget should be
     drawn in metal style as supported by the windowing system (only
-    meaningful on Mac OS X). This is set by widget's author.
+    meaningful on Mac OS X). 
 
     \value WA_MacNoClickThrough Indicates that the window is only activated
-    when clicked.
+    when clicked. 
+
+    \value WA_MacNoHideWindowOnSuspend Indicates that the window (only
+    meaning ful on Mac OS X with Qt::Tool windows) does not automatically
+    hide itself upon application deactivation. 
 
     \value WA_MacOpaqueSizeGrip Indicates that the native Carbon size grip
     should be opaque instead of transparent (the default). This attribute
