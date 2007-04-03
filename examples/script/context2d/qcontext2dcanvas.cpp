@@ -23,6 +23,9 @@
 #include <QMouseEvent>
 #include <QDateTime>
 
+struct FakeDomEvent;
+Q_DECLARE_METATYPE(FakeDomEvent)
+
 struct FakeDomEvent
 {
     enum KeyCodes  {
@@ -262,8 +265,6 @@ struct FakeDomEvent
 
     static void setup(QScriptEngine *e);
 };
-
-Q_DECLARE_METATYPE(FakeDomEvent)
 
 void FakeDomEvent::setup(QScriptEngine *e)
 {
