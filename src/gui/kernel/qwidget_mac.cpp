@@ -279,7 +279,6 @@ static void qt_mac_release_window_group(WindowGroupRef group)
     if (GetWindowGroupRetainCount(group) == 0)
         qt_mac_release_stays_on_top_group(group);
 }
-
 #define ReleaseWindowGroup(x) Are you sure you wanted to do that? (you wanted qt_mac_release_window_group)
 
 SInt32 qt_mac_get_group_level(WindowClass wclass)
@@ -304,7 +303,7 @@ SInt32 qt_mac_get_group_level(WindowClass wclass)
     QWidgetPrivate::determineWindowClass if the dialog is modal...unless
     the user told us explicitly otherwise.
 */
-static inline bool qt_mac_menu_buttons_explicitly_sat(const Qt::WindowFlags &flags)
+static inline bool qt_mac_menu_buttons_explicitly_set(const Qt::WindowFlags &flags)
 {
     // if CustomizeWindowHint is sat, together
     // with any of the buttons, return true:
@@ -356,77 +355,24 @@ inline static void qt_mac_set_window_group_to_popup(WindowRef window)
     qt_mac_set_window_group(window, Qt::Popup, kCGOverlayWindowLevelKey+1);
 }
 
-void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
+void QWidgetPrivate::macUpdateIsOpaque()
 {
-    if (!w->testAttribute(Qt::WA_WState_Created))
+    Q_Q(QWidget);
+    if (!q->testAttribute(Qt::WA_WState_Created))
         return;
     HIViewFeatures bits;
-    HIViewRef hiview = qt_mac_hiview_for(w);
+    HIViewRef hiview = qt_mac_hiview_for(q);
     HIViewGetFeatures(hiview, &bits);
-    if ((bits & kHIViewIsOpaque) == o)
+    const bool opaque = isOpaque();
+    if ((bits & kHIViewIsOpaque) == opaque)
         return;
-    if(o) {
+    if(opaque) {
         HIViewChangeFeatures(hiview, kHIViewIsOpaque, 0);
     } else {
         HIViewChangeFeatures(hiview, 0, kHIViewIsOpaque);
     }
-    if (w->isVisible())
-        HIViewReshapeStructure(qt_mac_hiview_for(w));
-}
-
-void qt_mac_update_ignore_mouseevents(QWidget *w)
-{
-    if (!w->testAttribute(Qt::WA_WState_Created))
-        return;
-
-    if(w->isWindow()) {
-        if(w->testAttribute(Qt::WA_TransparentForMouseEvents))
-            ChangeWindowAttributes(qt_mac_window_for(w), kWindowIgnoreClicksAttribute, 0);
-        else
-            ChangeWindowAttributes(qt_mac_window_for(w), 0, kWindowIgnoreClicksAttribute);
-        ReshapeCustomWindow(qt_mac_window_for(w));
-    } else {
-#ifndef kHIViewFeatureIgnoresClicks
-#define kHIViewFeatureIgnoresClicks kHIViewIgnoresClicks
-#endif
-        if(w->testAttribute(Qt::WA_TransparentForMouseEvents))
-            HIViewChangeFeatures(qt_mac_hiview_for(w), kHIViewFeatureIgnoresClicks, 0);
-        else
-            HIViewChangeFeatures(qt_mac_hiview_for(w), 0, kHIViewFeatureIgnoresClicks);
-        HIViewReshapeStructure(qt_mac_hiview_for(w));
-    }
-}
-
-void qt_mac_update_metal_style(QWidget *w)
-{
-    if (!w->testAttribute(Qt::WA_WState_Created) || !w->isWindow())
-        return;
-
-    if (w->isWindow()) {
-        QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(w->layout());
-
-        if (w->testAttribute(Qt::WA_MacBrushedMetal)) {
-            if (layout)
-                layout->updateHIToolBarStatus();
-            ChangeWindowAttributes(qt_mac_window_for(w), kWindowMetalAttribute, 0);
-        } else {
-            ChangeWindowAttributes(qt_mac_window_for(w), 0, kWindowMetalAttribute);
-            if (layout)
-                layout->updateHIToolBarStatus();
-        }
-    }
-}
-
-void qt_mac_update_opaque_sizegrip(QWidget *window)
-{
-    if (!window->testAttribute(Qt::WA_WState_Created) || !window->isWindow())
-        return;
-
-    HIViewRef growBox;
-    HIViewFindByID(HIViewGetRoot(qt_mac_window_for(window)), kHIViewWindowGrowBoxID, &growBox);
-    if (!growBox)
-        return;
-    HIGrowBoxViewSetTransparent(growBox, !window->testAttribute(Qt::WA_MacOpaqueSizeGrip));
+    if (q->isVisible())
+        HIViewReshapeStructure(qt_mac_hiview_for(q));
 }
 
 static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
@@ -1266,14 +1212,13 @@ void QWidgetPrivate::determineWindowClass()
     const Qt::WindowType type = q->windowType();
     Qt::WindowFlags &flags = data.window_flags;
     const bool popup = (type == Qt::Popup);
-    const bool tool = (type == Qt::Tool || type == Qt::SplashScreen);
     if (type == Qt::ToolTip)
         flags |= Qt::FramelessWindowHint;
 
     WindowClass wclass = kSheetWindowClass;
     if(qt_mac_is_macdrawer(q))
         wclass = kDrawerWindowClass;
-    else if (q->testAttribute(Qt::WA_ShowModal) && qt_mac_menu_buttons_explicitly_sat(flags))
+    else if (q->testAttribute(Qt::WA_ShowModal) && qt_mac_menu_buttons_explicitly_set(flags))
         wclass = kDocumentWindowClass;
     else if(popup || type == Qt::SplashScreen)
         wclass = kModalWindowClass;
@@ -1281,7 +1226,7 @@ void QWidgetPrivate::determineWindowClass()
         wclass = kMovableModalWindowClass;
     else if(type == Qt::ToolTip)
         wclass = kHelpWindowClass;
-    else if(tool)
+    else if(type == Qt::SplashScreen || type == Qt::Tool)
         wclass = kFloatingWindowClass;
     else
         wclass = kDocumentWindowClass;
@@ -1325,7 +1270,7 @@ void QWidgetPrivate::determineWindowClass()
                        | Qt::WindowSystemMenuHint);
         }
     }
-    if((popup || (tool && type != Qt::SplashScreen)) && !q->isModal())
+    if((popup || type == Qt::Tool) && !q->isModal())
         wattr |= kWindowHideOnSuspendAttribute;
     wattr |= kWindowLiveResizeAttribute;
 
@@ -1359,6 +1304,7 @@ void QWidgetPrivate::determineWindowClass()
         ADD_DEBUG_WINDOW_NAME(kToolbarWindowClass),
         ADD_DEBUG_WINDOW_NAME(kSheetWindowClass),
         ADD_DEBUG_WINDOW_NAME(kFloatingWindowClass),
+        ADD_DEBUG_WINDOW_NAME(kUtilityWindowClass),
         ADD_DEBUG_WINDOW_NAME(kDocumentWindowClass),
         ADD_DEBUG_WINDOW_NAME(kToolbarWindowClass),
         ADD_DEBUG_WINDOW_NAME(kMovableModalWindowClass),
@@ -1578,9 +1524,10 @@ void QWidgetPrivate::createWindow_sys()
         q->setWindowOpacity(topExtra->opacity / 255.0f);
 
     // Since we only now have a window, sync our state.
-    qt_mac_update_opaque_sizegrip(q);
-    qt_mac_update_metal_style(q);
-    qt_mac_update_ignore_mouseevents(q);
+    macUpdateHideOnSuspend();
+    macUpdateOpaqueSizeGrip();
+    macUpdateMetalAttribute();
+    macUpdateIgnoreMouseEvents();
     setWindowTitle_helper(extra->topextra->caption);
     setWindowIconText_helper(extra->topextra->iconText);
     setWindowModified_sys(q->isWindowModified());
@@ -2884,7 +2831,7 @@ void QWidgetPrivate::setModal_sys()
     GetWindowClass(windowRef, &old_wclass);
 
     if (modal || primaryWindowModal) {
-        if (!qt_mac_menu_buttons_explicitly_sat(q->data->window_flags)){
+        if (!qt_mac_menu_buttons_explicitly_set(q->data->window_flags)){
             if (old_wclass == kDocumentWindowClass || old_wclass == kFloatingWindowClass || old_wclass == kUtilityWindowClass)
                 // Only change the class to kMovableModalWindowClass if the no explicit jewels
                 // are set (kMovableModalWindowClass can't contain them), and the current window class
@@ -2898,7 +2845,31 @@ void QWidgetPrivate::setModal_sys()
     }
 }
 
-void QWidgetPrivate::macSizeChange()
+void QWidgetPrivate::macUpdateHideOnSuspend()
+{
+    Q_Q(QWidget);
+    if (!q->testAttribute(Qt::WA_WState_Created) || !q->isWindow() || q->windowType() != Qt::Tool)
+        return;
+    if(q->testAttribute(Qt::WA_MacNoHideWindowOnSuspend))
+        ChangeWindowAttributes(qt_mac_window_for(q), 0, kWindowHideOnSuspendAttribute);
+    else
+        ChangeWindowAttributes(qt_mac_window_for(q), kWindowHideOnSuspendAttribute, 0);
+}
+
+void QWidgetPrivate::macUpdateOpaqueSizeGrip()
+{
+    Q_Q(QWidget);
+    if (!q->testAttribute(Qt::WA_WState_Created) || !q->isWindow())
+        return;
+
+    HIViewRef growBox;
+    HIViewFindByID(HIViewGetRoot(qt_mac_window_for(q)), kHIViewWindowGrowBoxID, &growBox);
+    if (!growBox)
+        return;
+    HIGrowBoxViewSetTransparent(growBox, !q->testAttribute(Qt::WA_MacOpaqueSizeGrip));
+}
+
+void QWidgetPrivate::macUpdateSizeAttribute()
 {
     Q_Q(QWidget);
     QEvent event(QEvent::MacSizeChange);
@@ -2906,9 +2877,55 @@ void QWidgetPrivate::macSizeChange()
     for (int i = 0; i < children.size(); ++i) {
         QWidget *w = qobject_cast<QWidget *>(children.at(i));
         if (w && (!w->isWindow() || w->testAttribute(Qt::WA_WindowPropagation))
-              && !w->testAttribute(Qt::WA_MacMiniSize) // no attribute set? inherit from parent
+              && !q->testAttribute(Qt::WA_MacMiniSize) // no attribute set? inherit from parent
               && !w->testAttribute(Qt::WA_MacSmallSize)
               && !w->testAttribute(Qt::WA_MacNormalSize))
-            w->d_func()->macSizeChange();
+            w->d_func()->macUpdateSizeAttribute();
     }
 }
+
+void QWidgetPrivate::macUpdateIgnoreMouseEvents()
+{
+    Q_Q(QWidget);
+    if (!q->testAttribute(Qt::WA_WState_Created))
+        return;
+
+    if(q->isWindow()) {
+        if(q->testAttribute(Qt::WA_TransparentForMouseEvents))
+            ChangeWindowAttributes(qt_mac_window_for(q), kWindowIgnoreClicksAttribute, 0);
+        else
+            ChangeWindowAttributes(qt_mac_window_for(q), 0, kWindowIgnoreClicksAttribute);
+        ReshapeCustomWindow(qt_mac_window_for(q));
+    } else {
+#ifndef kHIViewFeatureIgnoresClicks
+#define kHIViewFeatureIgnoresClicks kHIViewIgnoresClicks
+#endif
+        if(q->testAttribute(Qt::WA_TransparentForMouseEvents))
+            HIViewChangeFeatures(qt_mac_hiview_for(q), kHIViewFeatureIgnoresClicks, 0);
+        else
+            HIViewChangeFeatures(qt_mac_hiview_for(q), 0, kHIViewFeatureIgnoresClicks);
+        HIViewReshapeStructure(qt_mac_hiview_for(q));
+    }
+}
+
+void QWidgetPrivate::macUpdateMetalAttribute()
+{
+    Q_Q(QWidget);
+    if (!q->testAttribute(Qt::WA_WState_Created) || !q->isWindow())
+        return;
+
+    if (q->isWindow()) {
+        QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(q->layout());
+
+        if (q->testAttribute(Qt::WA_MacBrushedMetal)) {
+            if (layout)
+                layout->updateHIToolBarStatus();
+            ChangeWindowAttributes(qt_mac_window_for(q), kWindowMetalAttribute, 0);
+        } else {
+            ChangeWindowAttributes(qt_mac_window_for(q), 0, kWindowMetalAttribute);
+            if (layout)
+                layout->updateHIToolBarStatus();
+        }
+    }
+}
+

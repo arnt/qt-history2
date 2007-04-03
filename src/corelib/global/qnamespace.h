@@ -385,6 +385,8 @@ public:
         WA_MSWindowsUseDirect3D = 94, // Win only
         WA_CanHostQMdiSubWindowTitleBar = 95, // Internal
 
+        WA_MacNoHideWindowOnSuspend = 96, // Mac only
+
         // Add new attributes before this line
         WA_AttributeCount
     };

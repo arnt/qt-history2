@@ -30,18 +30,18 @@
 #include "qwidget.h"
 #include "qstyleoption.h"
 #ifndef QT_NO_ACCESSIBILITY
-#include "qaccessible.h"
+# include "qaccessible.h"
 #endif
 #if defined(Q_WS_WIN)
-#include "qt_windows.h"
+# include "qt_windows.h"
 #endif
 #ifdef Q_WS_MAC
 # include "qt_mac_p.h"
 #endif
 #if defined(Q_WS_QWS)
-#include "qwsmanager_qws.h"
-#include "qpaintengine.h" // for PorterDuff
-#include "private/qwindowsurface_qws_p.h"
+# include "qwsmanager_qws.h"
+# include "qpaintengine.h" // for PorterDuff
+# include "private/qwindowsurface_qws_p.h"
 #endif
 #include "qpainter.h"
 #include "qtooltip.h"
@@ -52,19 +52,17 @@
 #include "qinputcontext.h"
 
 #ifdef Q_WS_WIN
-#include <private/qwininputcontext_p.h>
+# include <private/qwininputcontext_p.h>
 #endif
 
 #if defined(Q_WS_X11)
-#include <private/qpaintengine_x11_p.h>
-#include "qx11info_x11.h"
+# include <private/qpaintengine_x11_p.h>
+# include "qx11info_x11.h"
 #endif
 
 #include <private/qwindowsurface_p.h>
 #ifndef Q_WS_MAC
-#include <private/qbackingstore_p.h>
-#else
-extern void qt_mac_update_metal_style(QWidget*); //qwidget_mac.cpp
+# include <private/qbackingstore_p.h>
 #endif
 
 #include "qwidget_p.h"
@@ -1621,9 +1619,7 @@ bool QWidgetPrivate::hasBackground() const
 void QWidgetPrivate::updateIsOpaque()
 {
 #ifdef Q_WS_MAC
-    Q_Q(QWidget);
-    extern void qt_mac_set_widget_is_opaque(QWidget*, bool); //qwidget_mac.cpp
-    qt_mac_set_widget_is_opaque(q, isOpaque());
+    macUpdateIsOpaque();
 #endif
 #ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
     // hw: todo: only needed if opacity actually changed
@@ -1983,14 +1979,13 @@ void QWidgetPrivate::setStyle_helper(QStyle *newStyle, bool propagate, bool
         if (polished) {
             oldStyle->unpolish(q);
 #ifdef Q_WS_MAC
-            if (metalHack) {
-                qt_mac_update_metal_style(q);
-            }
+            if (metalHack)
+                macUpdateMetalAttribute();
 #endif
             q->style()->polish(q);
 #ifdef Q_WS_MAC
         } else if (metalHack) {
-            qt_mac_update_metal_style(q);
+            macUpdateMetalAttribute();
 #endif
         }
     }
@@ -7733,8 +7728,7 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         d->setStyle_helper(style(), false, true);  // Make sure things get unpolished/polished correctly.
         // fall through since changing the metal attribute affects the opaque size grip.
     case Qt::WA_MacOpaqueSizeGrip:
-        extern void qt_mac_update_opaque_sizegrip(QWidget*); //qwidget_mac.cpp
-        qt_mac_update_opaque_sizegrip(this);
+        d->macUpdateOpaqueSizeGrip();
         break;
     case Qt::WA_MacShowFocusRect:
         if (hasFocus()) {
@@ -7743,11 +7737,16 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         }
         break;
 #endif
+    case Qt::WA_MacNoHideWindowOnSuspend:
+#ifdef Q_WS_MAC
+        d->macUpdateHideOnSuspend();
+#endif
+        break;
     case Qt::WA_MacNormalSize:
     case Qt::WA_MacSmallSize:
     case Qt::WA_MacMiniSize:
 #ifdef Q_WS_MAC
-        d->macSizeChange();
+        d->macUpdateSizeAttribute();
 #endif
         break;
     case Qt::WA_ShowModal:
@@ -7815,8 +7814,7 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         break;
     case Qt::WA_TransparentForMouseEvents:
 #ifdef Q_WS_MAC
-        extern void qt_mac_update_ignore_mouseevents(QWidget*); //qwidget_mac.cpp
-        qt_mac_update_ignore_mouseevents(this);
+        d->macUpdateIgnoreMouseEvents();
 #endif
         break;
 #ifdef Q_WS_WIN

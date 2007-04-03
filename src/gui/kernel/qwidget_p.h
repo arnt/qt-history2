@@ -199,7 +199,12 @@ public:
 #endif
 
 #ifdef Q_WS_MAC
-    void macSizeChange();
+    void macUpdateSizeAttribute();
+    void macUpdateHideOnSuspend();
+    void macUpdateOpaqueSizeGrip();
+    void macUpdateIgnoreMouseEvents();
+    void macUpdateMetalAttribute();
+    void macUpdateIsOpaque();
 #endif
 
     void raise_sys();
@@ -409,7 +414,7 @@ public:
 
     QPalette::ColorRole fg_role : 8;
     QPalette::ColorRole bg_role : 8;
-    uint high_attributes[2]; // the low ones are in QWidget::widget_attributes
+    uint high_attributes[3]; // the low ones are in QWidget::widget_attributes
     Qt::HANDLE hd;
 #if defined(Q_WIDGET_USE_DIRTYLIST)
     QRegion dirty;
