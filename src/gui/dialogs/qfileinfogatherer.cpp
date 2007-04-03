@@ -294,14 +294,14 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
     QList<QPair<QString,QExtendedInformation> > updatedFiles;
     QStringList filesToCheck = files;
 
-    QString itPath = files.isEmpty() ? path : QLatin1String("");
+    QString itPath = QDir::fromNativeSeparators(files.isEmpty() ? path : QLatin1String(""));
     QDirIterator dirIt(itPath, QDir::AllEntries | QDir::System | QDir::Hidden);
     QStringList allFiles;
     while(!abort && dirIt.hasNext()) {
         dirIt.next();
         fileInfo = dirIt.fileInfo();
         allFiles.append(fileInfo.fileName());
-        fetch(fileInfo, base, firstTime, updatedFiles, path);
+	fetch(fileInfo, base, firstTime, updatedFiles, path);
     }
     if (!allFiles.isEmpty())
         emit newListOfFiles(path, allFiles);
