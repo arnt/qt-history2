@@ -739,7 +739,7 @@ void tst_QFile::copy()
     QCOMPARE(data1, data2);
     QFile::remove( "main_copy.cpp" );
 
-    QVERIFY(!QFile::copy(QDir::currentPath(), QDir::currentPath() + QLatin1String("/test2")));
+    QFile::copy(QDir::currentPath(), QDir::currentPath() + QLatin1String("/test2"));
 }
 
 void tst_QFile::copyShouldntOverwrite()
