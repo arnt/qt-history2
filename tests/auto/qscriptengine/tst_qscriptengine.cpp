@@ -644,9 +644,6 @@ static QScriptValue recurse2(QScriptContext *ctx, QScriptEngine *eng)
 
 void tst_QScriptEngine::infiniteRecursion()
 {
-#ifdef Q_OS_WIN
-    QSKIP("This test aborts on Windows", SkipSingle);
-#endif
     QScriptEngine eng;
     {
         QScriptValue ret = eng.evaluate("function foo() { foo(); }; foo();");

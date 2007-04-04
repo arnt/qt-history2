@@ -1310,7 +1310,11 @@ void QScriptEnginePrivate::init()
     qMetaTypeId<QScriptValue>();
 
     m_callDepth = 0;
+#ifdef Q_OS_WIN
+    m_maxCallDepth = 128;
+#else
     m_maxCallDepth = 768;
+#endif
     m_oldStringRepositorySize = 0;
     m_oldTempStringRepositorySize = 0;
     m_context = 0;
