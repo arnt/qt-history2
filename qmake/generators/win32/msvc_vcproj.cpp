@@ -1203,7 +1203,7 @@ void VcprojGenerator::initResourceFiles()
                 char buff[256];
                 QString dep_cmd = replaceExtraCompilerVariables(rcc_dep_cmd, qrc_files.at(i),"");
 
-                dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+                dep_cmd = Option::fixPathToLocalOS(dep_cmd, true, false);
                 if(canExecute(dep_cmd)) {
                     if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
         	        QString indeps;
