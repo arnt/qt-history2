@@ -63,6 +63,8 @@
 #include <private/qwindowsurface_p.h>
 #ifndef Q_WS_MAC
 # include <private/qbackingstore_p.h>
+#else
+# include <private/qpaintengine_mac_p.h>
 #endif
 
 #include "qwidget_p.h"
@@ -745,7 +747,6 @@ void QWidget::setAutoFillBackground(bool enabled)
 
     \sa QEvent, QPainter, QGridLayout, QBoxLayout
 */
-
 
 QWidgetMapper *QWidgetPrivate::mapper = 0;                // widget with wid
 QWidgetSet *QWidgetPrivate::uncreatedWidgets = 0;         // widgets with no wid
@@ -1676,43 +1677,6 @@ void QPixmap::fill( const QWidget *widget, const QPoint &off )
     widget->d_func()->paintBackground(&p, QRect(off, size()));
 
 }
-
-#ifdef Q_WS_MAC
-/*
-  Fills \a buf with \a r in \a widget. Then blits \a buf on \a res at
-  position \a offset
- */
-void QPixmap::grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
-                                const QRect &r, const QPoint &offset, bool asRoot)
-{
-    if(asRoot || widget->d_func()->hasBackground()) {
-        buf.fill(widget, r.topLeft());
-    } else {
-        QPainter p(&buf);
-        p.drawPixmap(0, 0, res, r.x()+offset.x(), r.y()+offset.y(), r.width(), r.height());
-    }
-
-    QPainter::setRedirected(widget, &buf, r.topLeft());
-    QPaintEvent e(r & widget->rect());
-    QApplication::sendEvent(widget, &e);
-    QPainter::restoreRedirected(widget);
-    {
-        QPainter pt(&res);
-        pt.drawPixmap(offset.x(), offset.y(), buf, 0, 0, r.width(), r.height());
-    }
-
-    const QObjectList children = widget->children();
-    for (int i = 0; i < children.size(); ++i) {
-        QWidget *child = static_cast<QWidget*>(children.at(i));
-        if (!child->isWidgetType() || child->isWindow()
-            || child->isHidden() || !child->geometry().intersects(r))
-            continue;
-        QRect cr = r & child->geometry();
-        cr.translate(-child->pos());
-        grabWidget_helper(child, res, buf, cr, offset + child->pos(), false);
-    }
-}
-#endif
 
 void QWidgetPrivate::paintBackground(QPainter *painter, const QRect &rect, bool asRoot) const
 {
@@ -3880,6 +3844,150 @@ void QWidget::unsetCursor()
 }
 
 #endif
+
+/*!
+    \enum QWidget::RenderFlag
+
+    This enum describes how to render the widget when calling QWidget::render().
+
+    \value DrawWindowBackground If you enable this option, the widget's background
+    is rendered into the target even if autoFillBackground is not set. By default,
+    this option is enabled.
+
+    \value DrawChildren If you enable this option, the widget's children
+    are rendered recursively into the target. By default, this option is enabled.
+
+    \value IgnoreMask If you enable this option, the widget's QWidget::mask()
+    is ignored when rendering into the target. By default, this option is disabled.
+
+    \since 4.3
+*/
+
+/*!
+    Renders the \a sourceRegion of this widget into the \a target
+    using \a renderFlags to determine how to render. Rendering
+    starts at \a targetOffset in the \a target. For example:
+
+    \code
+        QPixmap pixmap(widget->size());
+        widget->render(&pixmap);
+    \endcode
+
+    If \a sourceRegion is a null region, this function will use QWidget::rect() as
+    the region, i.e. the entire widget.
+
+    \bold{Note:} Make sure to call QPainter::end() for the given \a target's
+    active painter (if any) before rendering. For example:
+
+    \code
+        QPainter painter(this);
+        ...
+        painter.end();
+        myWidget->render(this);
+    \endcode
+
+    \since 4.3
+*/
+void QWidget::render(QPaintDevice *target, const QPoint &targetOffset,
+                     const QRegion &sourceRegion, RenderFlags renderFlags)
+{
+    Q_D(QWidget);
+    if (!target) {
+        qWarning("QWidget::render: null pointer to paint device");
+        return;
+    }
+
+    const QRect sourceRect = !sourceRegion.isEmpty() ? sourceRegion.boundingRect() : rect();
+
+    // Calculate the region to be painted.
+    QRegion paintRegion = !sourceRegion.isEmpty() ? sourceRegion : QRegion(sourceRect);
+    if (!(renderFlags & IgnoreMask) && d->extra && !d->extra->mask.isEmpty())
+        paintRegion &= d->extra->mask;
+
+    if (paintRegion.isEmpty())
+        return;
+
+#ifdef Q_WS_MAC
+    // Set system clip.
+    QPaintEngine *paintEngine = target->paintEngine();
+    paintEngine->setSystemRect(data->crect.translated(targetOffset));
+    paintEngine->setSystemClip(paintRegion.translated(targetOffset));
+
+    // Render.
+    d->render_helper(this, target, targetOffset, sourceRect, renderFlags);
+
+    // Restore system clip.
+    paintEngine->setSystemRect(QRect());
+    paintEngine->setSystemClip(QRegion());
+#else
+    // Set backingstore flags.
+    int flags = QWidgetPrivate::DrawPaintOnScreen | QWidgetPrivate::DrawInvisible;
+    if (renderFlags & DrawWindowBackground)
+        flags |= QWidgetPrivate::DrawAsRoot;
+
+    if (renderFlags & DrawChildren)
+        flags |= QWidgetPrivate::DrawRecursive;
+    else
+        flags |= QWidgetPrivate::DontSubtractOpaqueChildren;
+
+    // Use the target's redirected device if set and adjust offset and paint
+    // region accordingly. This is typically the case when people call render
+    // from the paintEvent.
+    QPoint offset = targetOffset;
+    QPoint redirectionOffset;
+    QPaintDevice *redirected = QPainter::redirected(target, &redirectionOffset);
+    if (redirected) {
+        target = redirected;
+        offset -= redirectionOffset;
+        const QRegion redirectedSystemClip = redirected->paintEngine()->systemClip();
+        if (!redirectedSystemClip.isEmpty())
+            paintRegion &= redirectedSystemClip.translated(-offset);
+    }
+
+    // Render via backingstore.
+    d->drawWidget(target, paintRegion, offset, flags);
+#endif
+}
+
+#ifdef Q_WS_MAC
+void QWidgetPrivate::render_helper(QWidget *widget, QPaintDevice *result, const QPoint &offset,
+                                   const QRect &rect, QWidget::RenderFlags renderFlags)
+{
+    // Draw the widget's background.
+    if (widget->d_func()->hasBackground() && (renderFlags & QWidget::DrawWindowBackground)
+        || widget->autoFillBackground()) {
+        QPainter painter(result);
+        painter.translate(-rect.topLeft() + offset);
+        widget->d_func()->paintBackground(&painter, rect);
+    }
+
+    // Redirect all paint commands from the widget to the paint device and
+    // tell the widget to repaint itself.
+    QPainter::setRedirected(widget, result, rect.topLeft() - offset);
+    QPaintEvent paintEvent(rect & widget->rect());
+    QApplication::sendEvent(widget, &paintEvent);
+    QPainter::restoreRedirected(widget);
+
+    if (!(renderFlags & QWidget::DrawChildren))
+        return;
+
+    // Don't draw backgrounds for children.
+    renderFlags &= ~QWidget::DrawWindowBackground;
+
+    // Draw children recursively.
+    const QObjectList children = widget->children();
+    for (int i = 0; i < children.size(); ++i) {
+        QWidget *child = static_cast<QWidget*>(children.at(i));
+        if (!child->isWidgetType() || child->isWindow()
+            || child->isHidden() || !child->geometry().intersects(rect))
+            continue;
+        QRect childRect = rect & child->geometry();
+        childRect.translate(-child->pos());
+        render_helper(child, result, offset + child->pos(), childRect, renderFlags);
+    }
+}
+#endif
+
 
 /*!
     \property QWidget::locale

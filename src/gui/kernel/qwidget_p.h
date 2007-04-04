@@ -234,9 +234,15 @@ public:
         DrawAsRoot = 0x01,
         DrawPaintOnScreen = 0x02,
         DrawRecursive = 0x04,
-        DrawInvisible = 0x08
+        DrawInvisible = 0x08,
+        DontSubtractOpaqueChildren = 0x10
     };
     void drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QPoint &offset, int flags = DrawAsRoot | DrawRecursive);
+
+#ifdef Q_WS_MAC
+    void render_helper(QWidget *widget, QPaintDevice *result, const QPoint &offset,
+                       const QRect &rect, QWidget::RenderFlags renderFlags);
+#endif
 
     QRect clipRect() const;
     QRegion clipRegion() const;

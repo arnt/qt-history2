@@ -187,10 +187,6 @@ private:
     bool doImageIO(QImageWriter *io, int quality) const;
     enum Type { PixmapType, BitmapType };
     QPixmap(const QSize &s, Type);
-#ifdef Q_WS_MAC
-    static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf, const QRect &r, const QPoint &offset, bool);
-#endif
-
     void init(int, int, Type = PixmapType);
     void deref();
 #if defined(Q_WS_WIN)

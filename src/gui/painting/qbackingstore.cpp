@@ -1029,7 +1029,8 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
     QRegion toBePainted = rgn;
     if (asRoot && !alsoInvisible)
         toBePainted &= clipRect(); //(rgn & visibleRegion());
-    subtractOpaqueChildren(toBePainted, q->rect(), QPoint());
+    if (!(flags & DontSubtractOpaqueChildren))
+        subtractOpaqueChildren(toBePainted, q->rect(), QPoint());
 
     if (!toBePainted.isEmpty()) {
         bool onScreen = QWidgetBackingStore::paintOnScreen(q);

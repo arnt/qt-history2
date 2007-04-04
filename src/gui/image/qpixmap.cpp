@@ -826,18 +826,9 @@ QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
     if (!r.intersects(widget->rect()))
         return QPixmap();
 
-     QPixmap res(r.size());
-#ifdef Q_WS_MAC
-    QPixmap buf(r.size());
-    if(res.isNull() || buf.isNull())
-        return res;
-
-    grabWidget_helper(widget, res, buf, r, QPoint(), true);
-#else
-    widget->d_func()->drawWidget(&res, r, -r.topLeft(),
-                                 QWidgetPrivate::DrawRecursive | QWidgetPrivate::DrawAsRoot
-                                 | QWidgetPrivate::DrawPaintOnScreen | QWidgetPrivate::DrawInvisible);
-#endif
+    QPixmap res(r.size());
+    widget->render(&res, -r.topLeft(), r,
+                   QWidget::DrawWindowBackground | QWidget::DrawChildren | QWidget::IgnoreMask);
     return res;
 }
 

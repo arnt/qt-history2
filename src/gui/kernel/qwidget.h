@@ -179,6 +179,13 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(QLocale locale READ locale WRITE setLocale RESET unsetLocale)
 
 public:
+    enum RenderFlag {
+        DrawWindowBackground = 0x1,
+        DrawChildren = 0x2,
+        IgnoreMask = 0x4
+    };
+    Q_DECLARE_FLAGS(RenderFlags, RenderFlag)
+
     explicit QWidget(QWidget* parent = 0, Qt::WindowFlags f = 0);
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QWidget(QWidget* parent, const char *name, Qt::WindowFlags f = 0);
@@ -298,6 +305,10 @@ public:
     void setMask(const QRegion &);
     QRegion mask() const;
     void clearMask();
+
+    void render(QPaintDevice *target, const QPoint &targetOffset = QPoint(),
+                const QRegion &sourceRegion = QRegion(),
+                RenderFlags renderFlags = RenderFlags(DrawWindowBackground | DrawChildren));
 
 public Q_SLOTS:
     void setWindowTitle(const QString &);
@@ -785,6 +796,8 @@ protected:
     virtual void windowActivationChange(bool);  // compat
     virtual void languageChange();  // compat
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QWidget::RenderFlags)
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
 template <> inline QWidget *qobject_cast_helper<QWidget*>(QObject *o, QWidget *)
