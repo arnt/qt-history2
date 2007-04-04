@@ -766,7 +766,24 @@ void tst_QXmlStream::parseXSLTTestSuite() const
 
     QCOMPARE(xsltExpectedRunCount, filesParsed);
 }
+/*
+  In addition to QTestLib's flags, one can specify "-c <filename>" and have that file output in its canonical form.
+*/
+int main(int argc, char *argv[])
+{
+    QCoreApplication app(argc, argv);
 
-QTEST_MAIN(tst_QXmlStream)
+
+    if (argc == 3 && QByteArray(argv[1]).startsWith("-c")) {
+        // output canonical only
+        bool error = false;
+        QByteArray canonical = makeCanonical(argv[2], "doc", error);
+        QTextStream(stdout) << canonical << endl;
+        exit(0);
+    }
+
+    tst_QXmlStream tc;
+    return QTest::qExec(&tc, argc, argv);
+}
 #include "tst_qxmlstream.moc"
 // vim: et:ts=4:sw=4:sts=4
