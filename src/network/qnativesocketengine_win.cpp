@@ -554,8 +554,24 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &address, quin
             case WSAEISCONN:
                 socketState = QAbstractSocket::ConnectedState;
                 break;
+            case WSAEWOULDBLOCK: {
+                // If WSAConnect returns WSAEWOULDBLOCK on the second
+                // connection attempt, we have to check SO_ERROR's
+                // value to detect ECONNREFUSED. If we don't get
+                // ECONNREFUSED, we'll have to treat it as an
+                // unfinished operation.
+                int value = 0;
+                QT_SOCKLEN_T valueSize = sizeof(value);
+                if (::getsockopt(socketDescriptor, SOL_SOCKET, SO_ERROR, (char *) &value, &valueSize) == 0) {
+                    if (value == WSAECONNREFUSED) {
+                        setError(QAbstractSocket::ConnectionRefusedError, ConnectionRefusedErrorString);
+                        socketState = QAbstractSocket::UnconnectedState;
+                        break;
+                    }
+                }
+                // fall through
+            }
             case WSAEINPROGRESS:
-            case WSAEWOULDBLOCK:
                 setError(QAbstractSocket::UnfinishedSocketOperationError, InvalidSocketErrorString);
                 socketState = QAbstractSocket::ConnectingState;
                 break;
