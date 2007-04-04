@@ -104,25 +104,6 @@ static bool optimize_layout = false;
 
 static Q3CleanupHandler<QPixmap> qiv_cleanup_pixmap;
 
-#if !defined(Q_WS_X11)
-static void createSelectionPixmap(const QColorGroup &cg)
-{
-    QBitmap m(2, 2);
-    m.fill(Qt::color1);
-    QPainter p(&m);
-    p.setPen(Qt::color0);
-    for (int j = 0; j < 2; ++j) {
-        p.drawPoint(j % 2, j);
-    }
-    p.end();
-
-    qiv_selection = new QPixmap(2, 2);
-    qiv_cleanup_pixmap.add(&qiv_selection);
-    qiv_selection->fill(Qt::color0);
-    qiv_selection->setMask(m);
-    qiv_selection->fill(cg.highlight());
-}
-#endif
 
 static QPixmap *get_qiv_buffer_pixmap(const QSize &s)
 {
