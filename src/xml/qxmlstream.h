@@ -55,12 +55,12 @@ public:
     inline QStringRef qualifiedName() const { return m_qualifiedName; }
     inline QStringRef value() const { return m_value; }
     inline bool isDefault() const { return m_isDefault; }
-    inline bool operator==(const QXmlStreamAttribute &other) {
-	return (value() == other.value()
+    inline bool operator==(const QXmlStreamAttribute &other) const {
+        return (value() == other.value()
                 && (namespaceUri().isNull() ? (qualifiedName() == other.qualifiedName())
                     : (namespaceUri() == other.namespaceUri() && name() == other.name())));
     }
-    inline bool operator!=(const QXmlStreamAttribute &other)
+    inline bool operator!=(const QXmlStreamAttribute &other) const
         { return !operator==(other); }
 };
 
@@ -96,10 +96,10 @@ public:
     ~QXmlStreamNamespaceDeclaration();
     inline QStringRef prefix() const { return m_prefix; }
     inline QStringRef namespaceUri() const { return m_namespaceUri; }
-    inline bool operator==(const QXmlStreamNamespaceDeclaration &other) {
-	return (prefix() == other.prefix() && namespaceUri() == other.namespaceUri());
+    inline bool operator==(const QXmlStreamNamespaceDeclaration &other) const {
+        return (prefix() == other.prefix() && namespaceUri() == other.namespaceUri());
     }
-    inline bool operator!=(const QXmlStreamNamespaceDeclaration &other)
+    inline bool operator!=(const QXmlStreamNamespaceDeclaration &other) const
         { return !operator==(other); }
 };
 
@@ -119,11 +119,11 @@ public:
     inline QStringRef name() const { return m_name; }
     inline QStringRef systemId() const { return m_systemId; }
     inline QStringRef publicId() const { return m_publicId; }
-    inline bool operator==(const QXmlStreamNotationDeclaration &other) {
-	return (name() == other.name() && systemId() == other.systemId()
+    inline bool operator==(const QXmlStreamNotationDeclaration &other) const {
+        return (name() == other.name() && systemId() == other.systemId()
                 && publicId() == other.publicId());
     }
-    inline bool operator!=(const QXmlStreamNotationDeclaration &other)
+    inline bool operator!=(const QXmlStreamNotationDeclaration &other) const
         { return !operator==(other); }
 };
 
@@ -145,14 +145,14 @@ public:
     inline QStringRef systemId() const { return m_systemId; }
     inline QStringRef publicId() const { return m_publicId; }
     inline QStringRef value() const { return m_value; }
-    inline bool operator==(const QXmlStreamEntityDeclaration &other) {
-	return (name() == other.name()
+    inline bool operator==(const QXmlStreamEntityDeclaration &other) const {
+        return (name() == other.name()
                 && notationName() == other.notationName()
                 && systemId() == other.systemId()
                 && publicId() == other.publicId()
                 && value() == other.value());
     }
-    inline bool operator!=(const QXmlStreamEntityDeclaration &other)
+    inline bool operator!=(const QXmlStreamEntityDeclaration &other) const
         { return !operator==(other); }
 };
 
