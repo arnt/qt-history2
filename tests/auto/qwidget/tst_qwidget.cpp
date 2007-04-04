@@ -1992,6 +1992,7 @@ public:
 
 void tst_QWidget::raise()
 {
+    QTest::qWait(1000);
     QWidget *parent = new QWidget(0);
     QList<UpdateWidget *> allChildren;
 
@@ -2036,6 +2037,10 @@ void tst_QWidget::raise()
     foreach (UpdateWidget *child, allChildren) {
         int expectedPaintEvents = child == child2 ? 1 : 0;
         int expectedZOrderChangeEvents = child == child2 ? 1 : 0;
+#ifdef Q_WS_MAC
+        if (expectedPaintEvents == 1)
+            QEXPECT_FAIL(0, "Carbon Compositor issues double repaints for Z-Order change", Continue);
+#endif
         QCOMPARE(child->numPaintEvents, expectedPaintEvents);
         QCOMPARE(child->numZOrderChangeEvents, expectedZOrderChangeEvents);
         child->reset();
@@ -2108,6 +2113,7 @@ void tst_QWidget::lower()
 
 void tst_QWidget::stackUnder()
 {
+    QTest::qWait(1000);
     QWidget *parent = new QWidget(0);
     QList<UpdateWidget *> allChildren;
 
@@ -2155,6 +2161,10 @@ void tst_QWidget::stackUnder()
     foreach (UpdateWidget *child, allChildren) {
         int expectedPaintEvents = child == child3 ? 1 : 0;
         int expectedZOrderChangeEvents = child == child4 ? 1 : 0;
+#ifdef Q_WS_MAC
+        if (expectedPaintEvents == 1)
+            QEXPECT_FAIL(0, "Carbon Compositor issues double repaints for Z-Order change", Continue);
+#endif
         QCOMPARE(child->numPaintEvents, expectedPaintEvents);
         QCOMPARE(child->numZOrderChangeEvents, expectedZOrderChangeEvents);
         child->reset();
@@ -2171,7 +2181,9 @@ void tst_QWidget::stackUnder()
     foreach (UpdateWidget *child, allChildren) {
         int expectedZOrderChangeEvents = child == child1 ? 1 : 0;
         if (child == child3) {
+#ifndef Q_WS_MAC
             QEXPECT_FAIL(0, "Task 153869", Continue);
+#endif
             QCOMPARE(child->numPaintEvents, 0);
         } else {
             QCOMPARE(child->numPaintEvents, 0);
