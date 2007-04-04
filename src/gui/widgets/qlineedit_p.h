@@ -50,7 +50,12 @@ public:
 #ifndef QT_NO_COMPLETER
         , completer(0)
 #endif
-        {}
+        {
+#ifndef QT_NO_MENU
+            actions[UndoAct] = 0;
+#endif
+        }
+        
     ~QLineEditPrivate()
     {
         delete [] maskData;

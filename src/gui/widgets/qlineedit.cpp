@@ -2496,6 +2496,28 @@ void QLineEdit::contextMenuEvent(QContextMenuEvent *event)
 QMenu *QLineEdit::createStandardContextMenu()
 {
     Q_D(QLineEdit);
+    if (!d->actions[QLineEditPrivate::UndoAct]) {
+        d->actions[QLineEditPrivate::UndoAct] = new QAction(QLineEdit::tr("&Undo") + ACCEL_KEY(Z), this);
+        QObject::connect(d->actions[QLineEditPrivate::UndoAct], SIGNAL(triggered()), this, SLOT(undo()));
+        d->actions[QLineEditPrivate::RedoAct] = new QAction(QLineEdit::tr("&Redo") + ACCEL_KEY(Y), this);
+        QObject::connect(d->actions[QLineEditPrivate::RedoAct], SIGNAL(triggered()), this, SLOT(redo()));
+        //popup->insertSeparator();
+#ifndef QT_NO_CLIPBOARD
+        d->actions[QLineEditPrivate::CutAct] = new QAction(QLineEdit::tr("Cu&t") + ACCEL_KEY(X), this);
+        QObject::connect(d->actions[QLineEditPrivate::CutAct], SIGNAL(triggered()), this, SLOT(cut()));
+        d->actions[QLineEditPrivate::CopyAct] = new QAction(QLineEdit::tr("&Copy") + ACCEL_KEY(C), this);
+        QObject::connect(d->actions[QLineEditPrivate::CopyAct], SIGNAL(triggered()), this, SLOT(copy()));
+        d->actions[QLineEditPrivate::PasteAct] = new QAction(QLineEdit::tr("&Paste") + ACCEL_KEY(V), this);
+        QObject::connect(d->actions[QLineEditPrivate::PasteAct], SIGNAL(triggered()), this, SLOT(paste()));
+#endif
+        d->actions[QLineEditPrivate::ClearAct] = new QAction(QLineEdit::tr("Delete"), this);
+        QObject::connect(d->actions[QLineEditPrivate::ClearAct], SIGNAL(triggered()), this, SLOT(_q_deleteSelected()));
+        //popup->insertSeparator();
+        d->actions[QLineEditPrivate::SelectAllAct] = new QAction(QLineEdit::tr("Select All")
+                                                                 + ACCEL_KEY(A)
+                                                                 , this);
+        QObject::connect(d->actions[QLineEditPrivate::SelectAllAct], SIGNAL(triggered()), this, SLOT(selectAll()));
+    }
     d->actions[QLineEditPrivate::UndoAct]->setEnabled(d->isUndoAvailable());
     d->actions[QLineEditPrivate::RedoAct]->setEnabled(d->isRedoAvailable());
 #ifndef QT_NO_CLIPBOARD
@@ -2592,28 +2614,6 @@ void QLineEditPrivate::init(const QString& txt)
     updateTextLayout();
     cursor = text.length();
 
-#ifndef QT_NO_MENU
-    actions[UndoAct] = new QAction(QLineEdit::tr("&Undo") + ACCEL_KEY(Z), q);
-    QObject::connect(actions[UndoAct], SIGNAL(triggered()), q, SLOT(undo()));
-    actions[RedoAct] = new QAction(QLineEdit::tr("&Redo") + ACCEL_KEY(Y), q);
-    QObject::connect(actions[RedoAct], SIGNAL(triggered()), q, SLOT(redo()));
-    //popup->insertSeparator();
-#ifndef QT_NO_CLIPBOARD
-    actions[CutAct] = new QAction(QLineEdit::tr("Cu&t") + ACCEL_KEY(X), q);
-    QObject::connect(actions[CutAct], SIGNAL(triggered()), q, SLOT(cut()));
-    actions[CopyAct] = new QAction(QLineEdit::tr("&Copy") + ACCEL_KEY(C), q);
-    QObject::connect(actions[CopyAct], SIGNAL(triggered()), q, SLOT(copy()));
-    actions[PasteAct] = new QAction(QLineEdit::tr("&Paste") + ACCEL_KEY(V), q);
-    QObject::connect(actions[PasteAct], SIGNAL(triggered()), q, SLOT(paste()));
-#endif
-    actions[ClearAct] = new QAction(QLineEdit::tr("Delete"), q);
-    QObject::connect(actions[ClearAct], SIGNAL(triggered()), q, SLOT(_q_deleteSelected()));
-    //popup->insertSeparator();
-    actions[SelectAllAct] = new QAction(QLineEdit::tr("Select All")
-                                        + ACCEL_KEY(A)
-                                        , q);
-    QObject::connect(actions[SelectAllAct], SIGNAL(triggered()), q, SLOT(selectAll()));
-#endif // QT_NO_MENU
     q->setAttribute(Qt::WA_MacShowFocusRect);
 }
 
