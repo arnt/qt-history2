@@ -458,6 +458,7 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
                 aft_h += delta - 2;
                 aft_v += delta - 2;
             }
+#if 0
             QBrush brush(option->palette.dark().color(), Qt::Dense4Pattern);
             if (option->state & State_Item) {
                 if (option->direction == Qt::RightToLeft)
@@ -469,6 +470,7 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
                 painter->fillRect(mid_h, aft_v, 1, option->rect.bottom() - aft_v + 1, brush);
             if (option->state & (State_Open | State_Children | State_Item | State_Sibling) && (bef_v > option->rect.y()))
                 painter->fillRect(mid_h, option->rect.y(), 1, bef_v - option->rect.y(), brush);
+#endif
         }
         break; 
 
