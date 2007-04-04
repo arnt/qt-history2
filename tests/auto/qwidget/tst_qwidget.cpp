@@ -26,6 +26,7 @@
 #include <qinputcontext.h>
 #include <qdesktopwidget.h>
 #include <private/qbackingstore_p.h>
+#include <qcalendarwidget.h>
 
 #ifdef Q_WS_QWS
 # include <qscreen_qws.h>
@@ -178,6 +179,7 @@ private slots:
 #endif
 
     void compatibilityChildInsertedEvents();
+    void render();
 
 private:
     QWidget *testWidget;
@@ -4827,6 +4829,76 @@ void tst_QWidget::compatibilityChildInsertedEvents()
             ;
         QCOMPARE(spy.eventList(), expected);
     }
+}
+
+class RenderWidget : public QWidget
+{
+public:
+    RenderWidget(QWidget *source)
+        : source(source), ellipse(false) {}
+
+    void setEllipseEnabled(bool enable = true)
+    {
+        ellipse = enable;
+        update();
+    }
+
+protected:
+    void paintEvent(QPaintEvent *)
+    {
+        if (ellipse) {
+            QPainter painter(this);
+            painter.fillRect(rect(), Qt::red);
+            painter.end();
+            QRegion regionToRender = QRegion(0, 0, source->width(), source->height() / 2,
+                                             QRegion::Ellipse);
+            source->render(this, QPoint(0, 30), regionToRender);
+        } else {
+            source->render(this);
+        }
+    }
+
+private:
+    QWidget *source;
+    bool ellipse;
+};
+
+void tst_QWidget::render()
+{
+    QCalendarWidget source;
+    source.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&source);
+#endif
+
+    // Render the entire source into target.
+    RenderWidget target(&source);
+    target.resize(source.size());
+    target.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&target);
+#endif
+
+    qApp->processEvents();
+    qApp->sendPostedEvents();
+    QTest::qWait(500);
+
+    QImage sourceImage = QPixmap::grabWidget(&source).toImage();
+    QImage targetImage = QPixmap::grabWidget(&target).toImage();
+    QCOMPARE(sourceImage, targetImage);
+
+    // Fill target.rect() will Qt::red and render
+    // QRegion(0, 0, source->width(), source->height() / 2, QRegion::Ellipse)
+    // of source into target with offset (0, 30).
+    target.setEllipseEnabled();
+    qApp->processEvents();
+    qApp->sendPostedEvents();
+
+    targetImage = QPixmap::grabWidget(&target).toImage();
+    QVERIFY(sourceImage != targetImage);
+
+    QCOMPARE(targetImage.pixel(target.width() / 2, 29), QColor(Qt::red).rgb());
+    QCOMPARE(targetImage.pixel(target.width() / 2, 30), sourceImage.pixel(source.width() / 2, 0));
 }
 
 QTEST_MAIN(tst_QWidget)
