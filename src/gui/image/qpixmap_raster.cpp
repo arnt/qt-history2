@@ -392,7 +392,7 @@ QPixmap QPixmap::grabWidget(QWidget *widget, const QRect &rect)
         return QPixmap();
 
     QPixmap res(r.size());
-    widget->render(&res, -r.topLeft(), r
+    widget->render(&res, -r.topLeft(), r,
                    QWidget::DrawWindowBackground | QWidget::DrawChildren | QWidget::IgnoreMask);
 
     return res;
