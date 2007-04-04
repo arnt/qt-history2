@@ -1131,7 +1131,9 @@ void QSslSocket::connectToHostImplementation(const QString &hostName, quint16 po
         qDebug() << "\tcreating internal plain socket";
 #endif
         d->createPlainSocket(openMode);
+#ifndef QT_NO_NETWORKPROXY
         d->plainSocket->setProxy(proxy());
+#endif
     }
     setOpenMode(openMode);
     d->plainSocket->connectToHost(hostName, port, openMode);
