@@ -1195,7 +1195,7 @@ void tst_QLineEdit::undo_keypressevents_data()
 
         // unselect any current selection
         keys.addKeyClick(Qt::Key_Right);
-#ifndef Q_WS_MAC //Mac has a specialcase to handle jumping to the end of a selection
+#ifdef Q_WS_WIN //Mac has a specialcase to handle jumping to the end of a selection
         keys.addKeyClick(Qt::Key_Left);
 #endif
 
