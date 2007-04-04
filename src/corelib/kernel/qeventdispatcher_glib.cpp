@@ -372,7 +372,6 @@ void QEventDispatcherGlib::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
     Q_ASSERT(notifier);
     int sockfd = notifier->socket();
-    int type = notifier->type();
 #ifndef QT_NO_DEBUG
     if (sockfd < 0
         || unsigned(sockfd) >= FD_SETSIZE) {
@@ -412,7 +411,7 @@ void QEventDispatcherGlib::registerTimer(int timerId, int interval, QObject *obj
         return;
     }
 #endif
-    
+
     Q_D(QEventDispatcherGlib);
     d->timerSource->timerList.registerTimer(timerId, interval, object);
 }
@@ -428,7 +427,7 @@ bool QEventDispatcherGlib::unregisterTimer(int timerId)
         return false;
     }
 #endif
-    
+
     Q_D(QEventDispatcherGlib);
     return d->timerSource->timerList.unregisterTimer(timerId);
 }
@@ -444,7 +443,7 @@ bool QEventDispatcherGlib::unregisterTimers(QObject *object)
         return false;
     }
 #endif
-    
+
     Q_D(QEventDispatcherGlib);
     return d->timerSource->timerList.unregisterTimers(object);
 }
