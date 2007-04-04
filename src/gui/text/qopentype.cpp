@@ -430,14 +430,20 @@ bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLo
 //                    (int)(positions[i].x_pos >> 6), (int)(positions[i].y_pos >> 6),
 //                    positions[i].back, positions[i].new_advance);
             // ###### fix the case where we have y advances. How do we handle this in Uniscribe?????
+            QFixed xValue = QFixed::fromFixed(item->flags & QTextEngine::RightToLeft
+                                              ? -positions[i].x_advance : positions[i].x_advance);
+            QFixed yValue = QFixed::fromFixed(-positions[i].y_advance);
+            if (!(item->flags & QTextEngine::DesignMetrics)) {
+                xValue = xValue.round();
+                yValue = yValue.round();
+            }
+
             if (positions[i].new_advance) {
-                glyphs[i].advance.x = QFixed::fromFixed(item->flags & QTextEngine::RightToLeft
-                                          ? -positions[i].x_advance : positions[i].x_advance);
-                glyphs[i].advance.y = QFixed::fromFixed(-positions[i].y_advance);
+                glyphs[i].advance.x = xValue;
+                glyphs[i].advance.y = yValue;
             } else {
-                glyphs[i].advance.x += QFixed::fromFixed(item->flags & QTextEngine::RightToLeft
-                                           ? -positions[i].x_advance : positions[i].x_advance);
-                glyphs[i].advance.y -= QFixed::fromFixed(positions[i].y_advance);
+                glyphs[i].advance.x += xValue;
+                glyphs[i].advance.y += yValue;
             }
 
             int back = 0;
