@@ -523,7 +523,8 @@ void tst_QXmlStream::reportFailures() const
     QFETCH(QString, description);
 
     if(isError)
-        QEXPECT_FAIL("", "This is a bug and needs to be fixed, but is marked as an XFAIL in order to not disturb test reports.", Continue);
+        QEXPECT_FAIL("", qPrintable(QString::fromLatin1("%1 This is a bug and needs to be fixed, "
+                                                        "but is marked as an XFAIL in order to not disturb test reports.").arg(description)), Continue);
 
     QVERIFY2(!isError, qPrintable(description));
 }
