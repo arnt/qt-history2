@@ -5037,8 +5037,20 @@ if [ "$CFG_FRAMEWORK" = "yes" ]; then
     echo "#define QT_MAC_FRAMEWORK_BUILD" >>"$outpath/src/corelib/global/qconfig.h.new"
 fi
 
-"$unixtests/ptrsize.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath"
-echo "#define QT_POINTER_SIZE $?" >>"$outpath/src/corelib/global/qconfig.h.new"
+if [ "$PLATFORM_MAC" = "yes" ]; then 
+    cat >>"$outpath/src/corelib/global/qconfig.h.new" <<EOF 
+#if defined(__LP64__) 
+# define QT_POINTER_SIZE 8 
+#else 
+# define QT_POINTER_SIZE 4 
+#endif 
+EOF
+else 
+    "$unixtests/ptrsize.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" 
+    echo "#define QT_POINTER_SIZE $?" >>"$outpath/src/corelib/global/qconfig.h.new" 
+fi 
+
+
 echo "" >>"$outpath/src/corelib/global/qconfig.h.new"
 
 if [ "$Edition" = "Trolltech" ]; then
