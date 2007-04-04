@@ -544,7 +544,6 @@ void QXmlStreamReaderPrivate::init()
     readBufferPos = 0;
     nbytesread = 0;
     codec = QTextCodec::codecForMib(106); // utf8
-    encoder->fromUnicode(QLatin1String("")); // no byte order mark for utf8
     decoder = 0;
     attributeStack.clear();
     attributeStack.reserve(16);
@@ -2396,6 +2395,7 @@ QXmlStreamWriterPrivate::QXmlStreamWriterPrivate(QXmlStreamWriter *q)
     initTagStack();
     codec = QTextCodec::codecForMib(106); // utf8
     encoder = codec->makeEncoder();
+    encoder->fromUnicode(QLatin1String("")); // no byte order mark for utf8
     inStartElement = inEmptyElement = false;
     wroteSomething = false;
     lastWasStartElement = false;
