@@ -3370,9 +3370,7 @@ void tst_QWidget::showHideEvent()
 
 void tst_QWidget::update()
 {
-#ifdef Q_WS_MAC
     QTest::qWait(1000);  // Wait for the initStuff to do it's stuff.
-#endif
     Q_CHECK_PAINTEVENTS
 
     UpdateWidget w;
