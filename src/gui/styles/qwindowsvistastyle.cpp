@@ -502,6 +502,20 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
             d->drawBackground(theme);
         }
         break;
+    case PE_Frame:
+        if (const QTextEdit *edit = qobject_cast<const QTextEdit*>(widget)) {
+            int stateId = ETS_NORMAL;
+            if (!(state & State_Enabled))
+                stateId = ETS_DISABLED;
+            else if (edit->isReadOnly())
+                stateId = ETS_READONLY;
+            else if (state & State_HasFocus)
+                stateId = ETS_SELECTED;
+            XPThemeData theme(widget, painter, QLatin1String("EDIT"), EP_EDITBORDER_HVSCROLL, stateId, option->rect);
+            d->drawBackground(theme);
+        } else
+            QWindowsXPStyle::drawPrimitive(element, option, painter, widget);
+        break;
     case PE_FrameLineEdit:
         if (Animation *anim = d->widgetAnimation(widget)) {
             anim->paint(painter, option);

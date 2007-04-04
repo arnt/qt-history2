@@ -49,11 +49,13 @@
 #include <qprogressbar.h>
 #include <qdockwidget.h>
 #include <qtreeview.h>
+#include <qtextedit.h>
 
 #if !defined(SCHEMA_VERIFY_VSSYM32)
 #define TMT_ANIMATIONDURATION       5006
 #define TMT_TRANSITIONDURATIONS     6000
 #define EP_EDITBORDER_NOSCROLL      6
+#define EP_EDITBORDER_HVSCROLL      9
 #define PBS_DEFAULTED_ANIMATING     6
 #define MBI_NORMAL                  1
 #define MBI_HOT                     2
