@@ -2356,6 +2356,7 @@ public:
     ~QXmlStreamWriterPrivate() {
         if (deleteDevice)
             delete device;
+        delete encoder;
     }
 
     void write(const QStringRef &);
@@ -2376,6 +2377,7 @@ public:
     int lastNamespaceDeclaration;
 
     QTextCodec *codec;
+    QTextEncoder *encoder;
 
     NamespaceDeclaration &findNamespace(const QString &namespaceUri, bool writeDeclaration = false, bool noDefault = false);
     void writeNamespaceDeclaration(const NamespaceDeclaration &namespaceDeclaration);
@@ -2392,6 +2394,7 @@ QXmlStreamWriterPrivate::QXmlStreamWriterPrivate(QXmlStreamWriter *q)
     deleteDevice = false;
     initTagStack();
     codec = QTextCodec::codecForMib(106); // utf8
+    encoder = codec->makeEncoder();
     inStartElement = inEmptyElement = false;
     wroteSomething = false;
     lastWasStartElement = false;
@@ -2403,7 +2406,7 @@ QXmlStreamWriterPrivate::QXmlStreamWriterPrivate(QXmlStreamWriter *q)
 void QXmlStreamWriterPrivate::write(const QStringRef &s)
 {
     if (device)
-        device->write(codec->fromUnicode(s.constData(), s.size()));
+        device->write(encoder->fromUnicode(s.constData(), s.size()));
     else if (stringDevice)
         s.appendTo(stringDevice);
     else
@@ -2413,7 +2416,7 @@ void QXmlStreamWriterPrivate::write(const QStringRef &s)
 void QXmlStreamWriterPrivate::write(const QString &s)
 {
     if (device)
-        device->write(codec->fromUnicode(s));
+        device->write(encoder->fromUnicode(s));
     else if (stringDevice)
         stringDevice->append(s);
     else
@@ -2448,7 +2451,7 @@ void QXmlStreamWriterPrivate::writeEscaped(const QString &s, bool escapeWhitespa
         }
     }
     if (device)
-        device->write(codec->fromUnicode(escaped));
+        device->write(encoder->fromUnicode(escaped));
     else if (stringDevice)
         stringDevice->append(escaped);
     else
@@ -2460,7 +2463,7 @@ void QXmlStreamWriterPrivate::write(const char *s)
 {
     if (device) {
         if (codec->mibEnum() != 106)
-            device->write(codec->fromUnicode(QLatin1String(s)));
+            device->write(encoder->fromUnicode(QLatin1String(s)));
         else
             device->write(s, strlen(s));
     } else if (stringDevice) {
@@ -2630,7 +2633,11 @@ QIODevice *QXmlStreamWriter::device() const
 void QXmlStreamWriter::setCodec(QTextCodec *codec)
 {
     Q_D(QXmlStreamWriter);
-    d->codec = codec;
+    if (codec) {
+        d->codec = codec;
+        delete d->encoder;
+        d->encoder = codec->makeEncoder();
+    }
 }
 
 /*!
@@ -2643,10 +2650,7 @@ void QXmlStreamWriter::setCodec(QTextCodec *codec)
 */
 void QXmlStreamWriter::setCodec(const char *codecName)
 {
-    Q_D(QXmlStreamWriter);
-    QTextCodec *codec = QTextCodec::codecForName(codecName);
-    if (codec)
-        d->codec = codec;
+    setCodec(QTextCodec::codecForName(codecName));
 }
 
 /*!
