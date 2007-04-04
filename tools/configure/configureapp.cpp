@@ -19,6 +19,7 @@
 
 #include <QDate>
 #include <qdir.h>
+#include <qtemporaryfile.h>
 #include <qstack.h>
 #include <qdebug.h>
 #include <qfileinfo.h>
@@ -124,18 +125,24 @@ Configure::Configure( int& argc, char** argv )
                         QDir().mkpath(od );
                         bool justCopy = true;
                         const QString fname = fi.fileName();
+			const QString outFile(od + "/" + fname), inFile(id + "/" + fname);
                         if(fi.fileName() == "Makefile") { //ignore
                         } else if(fi.suffix() == "h" || fi.suffix() == "cpp") {
-                            QFile out(od + "/" + fname);
-                            if(out.open(QFile::WriteOnly)) {
-                                QTextStream stream(&out);
-                                stream << "#include \"" << id << "/" << fname << "\"" << endl;
+                            QTemporaryFile tmpFile;
+                            if(tmpFile.open()) {
+                                QTextStream stream(&tmpFile);
+                                stream << "#include \"" << inFile << "\"" << endl;
                                 justCopy = false;
-                                out.close();
-                            }
+				stream.flush();
+				tmpFile.flush();
+				if(filesDiffer(tmpFile.fileName(), outFile)) {
+				    QFile::remove(outFile);
+				    tmpFile.copy(outFile);
+				}
+			    }
                         }
-                        if(justCopy)
-                            QFile::copy(id + "/" + fname, od + "/" + fname);
+                        if(justCopy && filesDiffer(inFile, outFile))
+                            QFile::copy(inFile, outFile);
                     }
                 }
             }
@@ -1283,7 +1290,7 @@ QString Configure::defaultTo(const QString &option)
         return "plugin";
 
     if (option == "SYNCQT"
-        && (!QFile::exists(sourcePath + "/bin/syncqt") || 
+        && (!QFile::exists(sourcePath + "/bin/syncqt") ||
             !QFile::exists(sourcePath + "/bin/syncqt.bat")))
         return "no";
 
@@ -1418,7 +1425,7 @@ void Configure::autoDetection()
 
     // Mark all unknown "auto" to the default value..
     for (QMap<QString,QString>::iterator i = dictionary.begin(); i != dictionary.end(); ++i) {
-        if (i.value() == "auto") 
+        if (i.value() == "auto")
             i.value() = defaultTo(i.key());
     }
 }
@@ -1909,62 +1916,60 @@ void Configure::generateConfigfiles()
 {
     QDir(buildPath).mkpath("src/corelib/global");
     QString outName( buildPath + "/src/corelib/global/qconfig.h" );
+    QTemporaryFile tmpFile;
+    QTextStream tmpStream;
 
-    ::SetFileAttributesA( outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
-    QFile::remove( outName );
-    QFile outFile( outName );
-
-    if(outFile.open(QFile::WriteOnly | QFile::Text)) {
-        outStream.setDevice(&outFile);
+    if(tmpFile.open()) {
+        tmpStream.setDevice(&tmpFile);
 
         if( dictionary[ "QCONFIG" ] == "full" ) {
-            outStream << "/* Everything */" << endl;
+            tmpStream << "/* Everything */" << endl;
         } else {
             QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
-            outStream << "/* Copied from " << configName << "*/" << endl;
-            outStream << "#ifndef QT_BOOTSTRAPPED" << endl;
+            tmpStream << "/* Copied from " << configName << "*/" << endl;
+            tmpStream << "#ifndef QT_BOOTSTRAPPED" << endl;
             QFile inFile( buildPath + "/src/corelib/global/" + configName );
             if( inFile.open( QFile::ReadOnly ) ) {
                 QByteArray buffer = inFile.readAll();
-                outFile.write( buffer.constData(), buffer.size() );
+                tmpFile.write( buffer.constData(), buffer.size() );
                 inFile.close();
             }
-            outStream << "#endif // QT_BOOTSTRAPPED" << endl;
+            tmpStream << "#endif // QT_BOOTSTRAPPED" << endl;
         }
-        outStream << endl;
+        tmpStream << endl;
 
         if( dictionary[ "SHARED" ] == "yes" ) {
-            outStream << "#ifndef QT_DLL" << endl;
-            outStream << "#define QT_DLL" << endl;
-            outStream << "#endif" << endl;
+            tmpStream << "#ifndef QT_DLL" << endl;
+            tmpStream << "#define QT_DLL" << endl;
+            tmpStream << "#endif" << endl;
         }
-        outStream << endl;
-        outStream << "/* License information */" << endl;
-        outStream << "#define QT_PRODUCT_LICENSEE \"" << licenseInfo[ "LICENSEE" ] << "\"" << endl;
-        outStream << "#define QT_PRODUCT_LICENSE \"" << dictionary[ "EDITION" ] << "\"" << endl;
-        outStream << endl;
-        outStream << "// Qt Edition" << endl;
-        outStream << "#ifndef QT_EDITION" << endl;
-        outStream << "#  define QT_EDITION " << dictionary["QT_EDITION"] << endl;
-        outStream << "#endif" << endl;
-        outStream << endl;
-        outStream << dictionary["BUILD_KEY"];
-        outStream << endl;
+        tmpStream << endl;
+        tmpStream << "/* License information */" << endl;
+        tmpStream << "#define QT_PRODUCT_LICENSEE \"" << licenseInfo[ "LICENSEE" ] << "\"" << endl;
+        tmpStream << "#define QT_PRODUCT_LICENSE \"" << dictionary[ "EDITION" ] << "\"" << endl;
+        tmpStream << endl;
+        tmpStream << "// Qt Edition" << endl;
+        tmpStream << "#ifndef QT_EDITION" << endl;
+        tmpStream << "#  define QT_EDITION " << dictionary["QT_EDITION"] << endl;
+        tmpStream << "#endif" << endl;
+        tmpStream << endl;
+        tmpStream << dictionary["BUILD_KEY"];
+        tmpStream << endl;
     if (dictionary["EDITION"] == "Trolltech") {
-        outStream << "/* Used for example to export symbols for the certain autotests*/" << endl;
-        outStream << "#define QT_BUILD_INTERNAL" << endl;
-        outStream << endl;
+        tmpStream << "/* Used for example to export symbols for the certain autotests*/" << endl;
+        tmpStream << "#define QT_BUILD_INTERNAL" << endl;
+        tmpStream << endl;
     }
-        outStream << "/* Machine byte-order */" << endl;
-        outStream << "#define Q_BIG_ENDIAN 4321" << endl;
-        outStream << "#define Q_LITTLE_ENDIAN 1234" << endl;
+        tmpStream << "/* Machine byte-order */" << endl;
+        tmpStream << "#define Q_BIG_ENDIAN 4321" << endl;
+        tmpStream << "#define Q_LITTLE_ENDIAN 1234" << endl;
         if ( QSysInfo::ByteOrder == QSysInfo::BigEndian )
-            outStream << "#define Q_BYTE_ORDER Q_BIG_ENDIAN" << endl;
+            tmpStream << "#define Q_BYTE_ORDER Q_BIG_ENDIAN" << endl;
         else
-            outStream << "#define Q_BYTE_ORDER Q_LITTLE_ENDIAN" << endl;
+            tmpStream << "#define Q_BYTE_ORDER Q_LITTLE_ENDIAN" << endl;
 
-        outStream << endl << "// Compile time features" << endl;
-        outStream << "#define QT_ARCH_" << dictionary["ARCHITECTURE"].toUpper() << endl;
+        tmpStream << endl << "// Compile time features" << endl;
+        tmpStream << "#define QT_ARCH_" << dictionary["ARCHITECTURE"].toUpper() << endl;
         QStringList qconfigList;
         if(dictionary["STL"] == "no")                qconfigList += "QT_NO_STL";
         if(dictionary["STYLE_WINDOWS"] != "yes")     qconfigList += "QT_NO_STYLE_WINDOWS";
@@ -2005,15 +2010,26 @@ void Configure::generateConfigfiles()
 
         qconfigList.sort();
         for (int i = 0; i < qconfigList.count(); ++i)
-            outStream << addDefine(qconfigList.at(i));
+            tmpStream << addDefine(qconfigList.at(i));
 
-        outStream.flush();
-        outFile.close();
-        if (!writeToFile("#include \"../../src/corelib/global/qconfig.h\"\n",    buildPath + "/include/QtCore/qconfig.h")
-            || !writeToFile("#include \"../../src/corelib/global/qconfig.h\"\n", buildPath + "/include/Qt/qconfig.h")) {
-            dictionary["DONE"] = "error";
-            return;
-        }
+        tmpStream.flush();
+	tmpFile.flush();
+	if(!QFile::exists(outName) || filesDiffer(tmpFile.fileName(), outName)) {
+	    ::SetFileAttributesA( outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
+	    QFile::remove( outName );
+	    tmpFile.copy( outName );
+	}
+	tmpFile.close();
+
+	if(!QFile::exists(buildPath + "/include/QtCore/qconfig.h")) {
+	    if (!writeToFile("#include \"../../src/corelib/global/qconfig.h\"\n",
+			     buildPath + "/include/QtCore/qconfig.h")
+            || !writeToFile("#include \"../../src/corelib/global/qconfig.h\"\n",
+			    buildPath + "/include/Qt/qconfig.h")) {
+		dictionary["DONE"] = "error";
+		return;
+	    }
+	}
     }
 
     QString archFile = sourcePath + "/src/corelib/arch/qatomic_" + dictionary["ARCHITECTURE"].toLower() + ".h";
@@ -2025,17 +2041,21 @@ void Configure::generateConfigfiles()
     }
     QDir archhelper;
     archhelper.mkdir(buildPath + "/include/QtCore/arch");
-    if (!CopyFileA(archFile.toLocal8Bit(), QString(buildPath + "/include/QtCore/arch/qatomic.h").toLocal8Bit(), FALSE))
-        qDebug("Couldn't copy %s to include/arch", qPrintable(archFile) );
-    if (!SetFileAttributesA(QString(buildPath + "/include/QtCore/arch/qatomic.h").toLocal8Bit(), FILE_ATTRIBUTE_NORMAL))
-        qDebug("Couldn't reset writable file attribute for qatomic.h");
-
-    // Create qatomic.h "symlinks"
-    QString atomicContents = QString("#include \"../../../src/corelib/arch/qatomic_" + dictionary[ "ARCHITECTURE" ].toLower() + ".h\"\n");
-    if (!writeToFile(atomicContents.toLocal8Bit(),    buildPath + "/include/QtCore/arch/qatomic.h")
-        || !writeToFile(atomicContents.toLocal8Bit(), buildPath + "/include/Qt/arch/qatomic.h")) {
-        dictionary[ "DONE" ] = "error";
-        return;
+    const QString outArchFile(buildPath + "/include/QtCore/arch/qatomic.h");
+    if(!QFile::exists(outArchFile) || filesDiffer(archFile, outArchFile)) {
+	if (!CopyFileA(archFile.toLocal8Bit(), outArchFile.toLocal8Bit(), FALSE))
+	    qDebug("Couldn't copy %s to include/arch", qPrintable(archFile) );
+	if (!SetFileAttributesA(QString(buildPath + "/include/QtCore/arch/qatomic.h").toLocal8Bit(), FILE_ATTRIBUTE_NORMAL))
+	    qDebug("Couldn't reset writable file attribute for qatomic.h");
+    }
+    if(!QFile::exists(buildPath + "/include/QtCore/arch/qatomic.h")) {
+	// Create qatomic.h "symlinks"
+	QString atomicContents = QString("#include \"../../../src/corelib/arch/qatomic_" + dictionary[ "ARCHITECTURE" ].toLower() + ".h\"\n");
+	if (!writeToFile(atomicContents.toLocal8Bit(),    buildPath + "/include/QtCore/arch/qatomic.h")
+	    || !writeToFile(atomicContents.toLocal8Bit(), buildPath + "/include/Qt/arch/qatomic.h")) {
+	    dictionary[ "DONE" ] = "error";
+	    return;
+	}
     }
 
     // Copy configured mkspec to default directory, but remove the old one first, if there is any
@@ -2058,25 +2078,22 @@ void Configure::generateConfigfiles()
 
     outName = defSpec + "/qmake.conf";
     ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
-    outFile.setFileName(outName);
-    if (outFile.open(QFile::Append | QFile::WriteOnly | QFile::Text)) {
-        outStream.setDevice(&outFile);
-        outStream << endl << "QMAKESPEC_ORIGINAL=" << pltSpec << endl;
-        outStream.flush();
-        outFile.close();
+    QFile qmakeConfFile(outName);
+    if (qmakeConfFile.open(QFile::Append | QFile::WriteOnly | QFile::Text)) {
+	QTextStream qmakeConfStream;
+        qmakeConfStream.setDevice(&qmakeConfFile);
+        qmakeConfStream << endl << "QMAKESPEC_ORIGINAL=" << pltSpec << endl;
+        qmakeConfStream.flush();
+        qmakeConfFile.close();
     }
 
     // Generate the new qconfig.cpp file
-    // ### Should go through a qconfig.cpp.new, like the X11/Mac/Qtopia
-    // ### one, to avoid unecessary rebuilds, if file hasn't changed
     QDir(buildPath).mkpath("src/corelib/global");
     outName = buildPath + "/src/corelib/global/qconfig.cpp";
-    ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
-    outFile.setFileName(outName);
-    if (outFile.open(QFile::WriteOnly | QFile::Text)) {
-        outStream.setDevice(&outFile);
+    if (tmpFile.open()) {
+        tmpStream.setDevice(&tmpFile);
 
-        outStream << "/* Licensed */" << endl
+        tmpStream << "/* Licensed */" << endl
                   << "static const char qt_configure_licensee_str          [512 + 12] = \"qt_lcnsuser=" << licenseInfo["LICENSEE"] << "\";" << endl
                   << "static const char qt_configure_licensed_products_str [512 + 12] = \"qt_lcnsprod=" << dictionary["EDITION"] << "\";" << endl
                   << "static const char qt_configure_prefix_path_str       [512 + 12] = \"qt_prfxpath=" << QString(dictionary["QT_INSTALL_PREFIX"]).replace( "\\", "\\\\" ) << "\";" << endl
@@ -2106,8 +2123,14 @@ void Configure::generateConfigfiles()
                   //<< "#define QT_CONFIGURE_SETTINGS_PATH qt_configure_settings_path_str + 12;" << endl
                   << endl;
 
-        outStream.flush();
-        outFile.close();
+        tmpStream.flush();
+	tmpFile.flush();
+	if(!QFile::exists(outName) || filesDiffer(tmpFile.fileName(), outName)) {
+	    ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
+	    QFile::remove( outName );
+	    tmpFile.copy(outName);
+	}
+	tmpFile.close();
     }
 }
 #endif
@@ -2673,4 +2696,31 @@ bool Configure::isDone()
 bool Configure::isOk()
 {
     return (dictionary[ "DONE" ] != "error");
+}
+
+bool
+Configure::filesDiffer(const QString &fn1, const QString &fn2)
+{
+    QFile file1(fn1), file2(fn2);
+    if(!file1.open(QFile::ReadOnly) || !file2.open(QFile::ReadOnly))
+	return true;
+    const int chunk = 2048;
+    int used1 = 0, used2 = 0;
+    char b1[chunk], b2[chunk];
+    while(!file1.atEnd() && !file2.atEnd()) {
+	if(!used1)
+	    used1 = file1.read(b1, chunk);
+	if(!used2)
+	    used2 = file2.read(b2, chunk);
+	if(used1 > 0 && used2 > 0) {
+	    const int cmp = qMin(used1, used2);
+	    if(memcmp(b1, b2, cmp))
+		return true;
+	    if((used1 -= cmp))
+		memcpy(b1, b1+cmp, used1);
+	    if((used2 -= cmp))
+		memcpy(b2, b2+cmp, used2);
+	}
+    }
+    return !file1.atEnd() || !file2.atEnd();
 }

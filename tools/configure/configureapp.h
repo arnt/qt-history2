@@ -115,6 +115,7 @@ private:
 
     bool useUnixSeparators;
     QString fixSeparators(QString somePath);
+    bool filesDiffer(const QString &file1, const QString &file2);
 
     static bool findFile(const QString &fileName);
     static bool findFileInPaths(const QString &fileName, const QStringList &paths);
