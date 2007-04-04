@@ -30,6 +30,7 @@
 #include <qabstractitemdelegate.h>
 #include <qvariant.h>
 #include <private/qheaderview_p.h>
+#include <private/qabstractitemmodel_p.h>
 
 #ifndef QT_NO_DATASTREAM
 #include <qdatastream.h>
@@ -300,7 +301,7 @@ void QHeaderView::setModel(QAbstractItemModel *model)
     if (model == this->model())
         return;
     Q_D(QHeaderView);
-    if (d->model) {
+    if (d->model && d->model != QAbstractItemModelPrivate::staticEmptyModel()) {
         if (d->orientation == Qt::Horizontal) {
             QObject::disconnect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
                                 this, SLOT(sectionsInserted(QModelIndex,int,int)));
@@ -323,7 +324,7 @@ void QHeaderView::setModel(QAbstractItemModel *model)
         QObject::disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(_q_layoutChanged()));
     }
 
-    if (model) {
+    if (model && model != QAbstractItemModelPrivate::staticEmptyModel()) {
         if (d->orientation == Qt::Horizontal) {
             QObject::connect(model, SIGNAL(columnsInserted(QModelIndex,int,int)),
                              this, SLOT(sectionsInserted(QModelIndex,int,int)));
