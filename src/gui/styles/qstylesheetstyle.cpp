@@ -1394,10 +1394,11 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
             break;
         }
 
-        
-        if (const QStyleOptionToolButton *combo = qstyleoption_cast<const QStyleOptionToolButton *>(opt))
-            qDebug() << pseudoElement << opt->state;
 
+        if (const QStyleOptionToolButton *combo = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
+            Q_UNUSED(combo);
+            qDebug() << pseudoElement << opt->state;
+        }
         if (const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             // QStyle::State_On is set when the popup is being shown
             // Propagate EditField Pressed state
@@ -3279,7 +3280,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_TabBarTabVSpace:
         subRule = renderRule(w, PseudoElement_TabBarTab);
         if (subRule.hasBox()) {
-           return m == PM_TabBarTabVSpace 
+           return m == PM_TabBarTabVSpace
                ? subRule.box()->paddings[TopEdge] + subRule.box()->paddings[BottomEdge]
                : subRule.box()->paddings[LeftEdge] + subRule.box()->paddings[RightEdge];
         }
@@ -3306,7 +3307,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         break;
 
     //case PM_TabBarBaseHeight:  return 100;
- 
+
     default:
         break;
     }
@@ -3452,7 +3453,7 @@ int QStyleSheetStyle::layoutSpacing(QSizePolicy::ControlType control1, QSizePoli
 
 int QStyleSheetStyle::layoutSpacingImplementation(QSizePolicy::ControlType  control1 ,
                                         QSizePolicy::ControlType  control2,
-                                        Qt::Orientation orientation, 
+                                        Qt::Orientation orientation,
                                         const QStyleOption *  option ,
                                         const QWidget *  widget) const
 {

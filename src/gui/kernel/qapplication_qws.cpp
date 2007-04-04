@@ -2474,7 +2474,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 #ifndef QT_NO_COP
     else if (event->type == QWSEvent::QCopMessage) {
         QWSQCopMessageEvent *e = static_cast<QWSQCopMessageEvent*>(event);
-        QCopChannel::sendLocally(e->channel, e->message, e->data);
+        QCopChannel::sendLocally(QLatin1String(e->channel), QLatin1String(e->message), e->data);
         return 0;
     }
 #endif

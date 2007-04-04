@@ -1065,7 +1065,7 @@ void QFontEngineMultiQWS::loadEngine(int at)
     engines[at]->fontDef = request;
 }
 
-void QFontEngineMultiQWS::draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si)
+void QFontEngineMultiQWS::draw(QPaintEngine */*p*/, qreal /*x*/, qreal /*y*/, const QTextItemInt &/*si*/)
 {
     qFatal("QFontEngineMultiQWS::draw should never be called!");
 }

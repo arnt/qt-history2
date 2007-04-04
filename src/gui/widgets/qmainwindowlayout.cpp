@@ -1070,7 +1070,7 @@ void QMainWindowLayout::getStyleOptionInfo(QStyleOptionToolBar *option, QToolBar
 void QMainWindowLayout::toggleToolBarsVisible()
 {
     layoutState.toolBarAreaLayout.visible = !layoutState.toolBarAreaLayout.visible;
-    
+
     QRect r = parentWidget()->geometry();
     r = layoutState.toolBarAreaLayout.rectHint(r);
 
@@ -1480,6 +1480,7 @@ bool QMainWindowLayout::plug(QLayoutItem *widgetItem)
 
     QLayoutItem *it = layoutState.plug(currentGapPos);
     Q_ASSERT(it == widgetItem);
+    Q_UNUSED(it);
     if (!previousPath.isEmpty())
         layoutState.remove(previousPath);
 

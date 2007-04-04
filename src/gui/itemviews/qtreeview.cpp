@@ -2625,9 +2625,9 @@ void QTreeViewPrivate::layout(int i)
     // so we must make sure that parent points to the actual parent that has children.
     if (parent != root)
         parent = model->index(parent.row(), 0, parent.parent());
-    
+
     if (i>=0 && !parent.isValid()) {
-        //modelIndex() should never return something invalid for the real items. 
+        //modelIndex() should never return something invalid for the real items.
         //This can happen if columncount has been set to 0.
         //To avoid infinite loop we stop here.
         return;
@@ -2908,7 +2908,7 @@ int QTreeViewPrivate::firstVisibleItem(int *offset) const
 
 int QTreeViewPrivate::columnAt(int x) const
 {
-    return header->logicalIndexAt(x); 
+    return header->logicalIndexAt(x);
 }
 
 void QTreeViewPrivate::relayout(const QModelIndex &parent)
@@ -3155,6 +3155,7 @@ void QTreeViewPrivate::rowsRemoved(const QModelIndex &parent,
 
         const uint childLevel = (parentItem == -1)
                                 ? uint(0) : viewItems.at(parentItem).level + 1;
+        Q_UNUSED(childLevel);
         const int firstChildItem = parentItem + 1;
         int lastChildItem = firstChildItem + ((parentItem == -1)
                                               ? viewItems.count()
@@ -3192,7 +3193,7 @@ void QTreeViewPrivate::rowsRemoved(const QModelIndex &parent,
         } else {
             //we have removed items: we should at least update the scroll bar values.
             // They are used to determine the item geometry.
-            updateScrollBars(); 
+            updateScrollBars();
         }
     }
 }
