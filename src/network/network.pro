@@ -54,7 +54,8 @@ win32:SOURCES += qhostinfo_win.cpp qnativesocketengine_win.cpp qnetworkinterface
 contains(QT_CONFIG, openssl) {
     include($$QT_SOURCE_TREE/config.tests/unix/openssl/openssl.pri)
 
-    HEADERS += qsslcertificate.h \
+    HEADERS += qssl.h \
+               qsslcertificate.h \
                qsslcertificate_p.h \
                qsslcipher.h \
                qsslcipher_p.h \
@@ -64,7 +65,8 @@ contains(QT_CONFIG, openssl) {
                qsslsocket_openssl_p.h \
                qsslsocket_openssl_symbols_p.h \
                qsslsocket_p.h
-    SOURCES += qsslcertificate.cpp \
+    SOURCES += qssl.cpp \
+               qsslcertificate.cpp \
                qsslcipher.cpp \
                qsslerror.cpp \
                qsslkey.cpp \

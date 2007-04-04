@@ -40,58 +40,198 @@
     \sa QSslSocket, QSslCertificate, QSslCipher
 */
 
-/*!
-    \enum QSslKey::Type
-
-    Describes the two types of keys QSslKey supports.
-    
-    \value PrivateKey A private key.
-    \value PublicKey A public key.
-*/
-
-/*!
-    \enum QSslKey::Algorithm
-
-    Describes the algorithm for the key.
-
-    \value Rsa The RSA algorithm.
-    \value Dsa The DSA algorithm.
-*/
-
+#include "qsslsocket_openssl_symbols_p.h"
 #include "qsslkey.h"
+#include "qsslsocket.h"
 
 #include <QtCore/qbytearray.h>
 #ifndef QT_NO_DEBUG
 #include <QtCore/qdebug.h>
 #endif
-#include <QtCore/qpair.h>
 
 class QSslKeyPrivate
 {
 public:
     inline QSslKeyPrivate()
+        : rsa(0)
+        , dsa(0)
     { clear(); }
-    inline void clear()
+
+    inline ~QSslKeyPrivate()
+    { clear(); }
+
+    inline void clear(bool deep = true)
     {
         isNull = true;
+        if (!QSslSocket::supportsSsl())
+            return;
+
+        if (rsa) {
+            if (deep)
+                q_RSA_free(rsa);
+            rsa = 0;
+        }
+        if (dsa) {
+            if (deep)
+                q_DSA_free(dsa);
+            dsa = 0;
+        }
     }
 
+    void decodePem(const QByteArray &pem, const QByteArray &passPhrase,
+                   bool deepClear = true);
+    QByteArray pemHeader() const;
+    QByteArray pemFooter() const;
+    QByteArray pemFromDer(const QByteArray &der) const;
+    QByteArray derFromPem(const QByteArray &pem) const;
+
     bool isNull;
-    int keyLength;
-    QByteArray key;
-    QSslKey::Type type;
-    QSslKey::Algorithm algorithm;
+    QSsl::KeyType type;
+    QSsl::Algorithm algorithm;
+    RSA *rsa;
+    DSA *dsa;
 };
 
 /*!
-    Constructs a QSslKey by parsing \a encoded. You can call isNull() later to
-    check if \a encoded contained a valid key or not.
+    \internal
+
+    Allocates a new rsa or dsa struct and decodes \a pem into it
+    according to the current algorithm and type.
+
+    If \a deepClear is true, the rsa/dsa struct is freed if it is was
+    already allocated, otherwise we "leak" memory (which is exactly
+    what we want for copy construction).
+
+    If \a passPhrase is non-empty, it will be used for decrypting
+    \a pem.
 */
-QSslKey::QSslKey(const QByteArray &encoded)
+void QSslKeyPrivate::decodePem(const QByteArray &pem, const QByteArray &passPhrase,
+                               bool deepClear)
+{
+    clear(deepClear);
+
+    if (!QSslSocket::supportsSsl())
+        return;
+
+    BIO *bio = q_BIO_new_mem_buf(const_cast<char *>(pem.data()), pem.size());
+
+    void *phrase = passPhrase.isEmpty()
+        ? (void *)0
+        : (void *)passPhrase.constData();
+
+    if (algorithm == QSsl::Rsa) {
+        RSA *result = (type == QSsl::PublicKey)
+            ? q_PEM_read_bio_RSA_PUBKEY(bio, &rsa, 0, phrase)
+            : q_PEM_read_bio_RSAPrivateKey(bio, &rsa, 0, phrase);
+        if (rsa && rsa == result)
+            isNull = false;
+    } else {
+        DSA *result = (type == QSsl::PublicKey)
+            ? q_PEM_read_bio_DSA_PUBKEY(bio, &dsa, 0, phrase)
+            : q_PEM_read_bio_DSAPrivateKey(bio, &dsa, 0, phrase);
+        if (dsa && dsa == result)
+            isNull = false;
+    }
+
+    q_BIO_free(bio);
+}
+
+/*!
+    Constructs a null key.
+
+    \sa isNull()
+*/
+QSslKey::QSslKey()
     : d(new QSslKeyPrivate)
 {
-    // ### unimplemented; need to dearm encoded first, then extract the key.
-    Q_UNUSED(encoded);
+}
+
+/*!
+    \internal
+*/
+QByteArray QSslKeyPrivate::pemHeader() const
+{
+    // ### use QByteArray::fromRawData() instead
+    if (type == QSsl::PublicKey)
+        return QByteArray("-----BEGIN PUBLIC KEY-----\n");
+    else if (algorithm == QSsl::Rsa)
+        return QByteArray("-----BEGIN RSA PRIVATE KEY-----\n");
+    return QByteArray("-----BEGIN DSA PRIVATE KEY-----\n");
+}
+
+/*!
+    \internal
+*/
+QByteArray QSslKeyPrivate::pemFooter() const
+{
+    // ### use QByteArray::fromRawData() instead
+    if (type == QSsl::PublicKey)
+        return QByteArray("-----END PUBLIC KEY-----\n");
+    else if (algorithm == QSsl::Rsa)
+        return QByteArray("-----END RSA PRIVATE KEY-----\n");
+    return QByteArray("-----END DSA PRIVATE KEY-----\n");
+}
+
+/*!
+    \internal
+
+    Returns a DER key formatted as PEM.
+*/
+QByteArray QSslKeyPrivate::pemFromDer(const QByteArray &der) const
+{
+    QByteArray pem(der.toBase64());
+
+    const int lineWidth = 64; // RFC 1421
+    const int newLines = pem.size() / lineWidth;
+    const bool rem = pem.size() % lineWidth;
+
+    // ### optimize
+    for (int i = 0; i < newLines; ++i)
+        pem.insert((i + 1) * lineWidth + i, '\n');
+    if (rem)
+        pem.append('\n'); // ###
+
+    pem.prepend(pemHeader());
+    pem.append(pemFooter());
+
+    return pem;
+}
+
+/*!
+    \internal
+
+    Returns a PEM key formatted as DER.
+*/
+QByteArray QSslKeyPrivate::derFromPem(const QByteArray &pem) const
+{
+    const QByteArray header = pemHeader();
+    const QByteArray footer = pemFooter();
+
+    QByteArray der(pem);
+
+    const int headerIndex = der.indexOf(header);
+    const int footerIndex = der.indexOf(footer);
+    if (headerIndex == -1 || footerIndex == -1)
+        return QByteArray();
+
+    der = der.mid(headerIndex + header.size(), footerIndex - (headerIndex + header.size()));
+
+    return QByteArray::fromBase64(der); // ignores newlines
+}
+
+/*!
+    Constructs a QSslKey by parsing \a encoded. The key is
+    characterized by \a algorithm, \a encoding, \a type, and an
+    optional \a passPhrase. You can call isNull() later to check if \a
+    encoded contained a valid key or not.
+*/
+QSslKey::QSslKey(const QByteArray &encoded, QSsl::Algorithm algorithm,
+                 QSsl::EncodingFormat encoding, QSsl::KeyType type, const QByteArray &passPhrase)
+    : d(new QSslKeyPrivate)
+{
+    d->type = type;
+    d->algorithm = algorithm;
+    d->decodePem((encoding == QSsl::Der) ? d->pemFromDer(encoded) : encoded, passPhrase);
 }
 
 /*!
@@ -101,6 +241,12 @@ QSslKey::QSslKey(const QSslKey &other)
     : d(new QSslKeyPrivate)
 {
     *d = *other.d;
+
+    d->decodePem(toPem(), QByteArray(), false);
+    // ### using the following functions/macros for deep-copying the rsa/dsa structures is
+    // probably quicker:
+    //     RSAPublicKey_dup(), RSAPrivateKey_dup(),
+    //     i2d_DSAPublicKey(), i2d_DSAPrivateKey(), d2i_DSAPublicKey(), d2i_DSAPrivateKey()
 }
 
 /*!
@@ -120,6 +266,13 @@ QSslKey::~QSslKey()
 QSslKey &QSslKey::operator=(const QSslKey &other)
 {
     *d = *other.d;
+
+    d->decodePem(toPem(), QByteArray(), false);
+    // ### using the following functions/macros for deep-copying the rsa/dsa structures is
+    // probably quicker:
+    //     RSAPublicKey_dup(), RSAPrivateKey_dup(),
+    //     i2d_DSAPublicKey(), i2d_DSAPrivateKey(), d2i_DSAPublicKey(), d2i_DSAPrivateKey()
+
     return *this;
 }
 
@@ -144,27 +297,19 @@ void QSslKey::clear()
 }
 
 /*!
-    Returns the length of the key in bits.
+    Returns the length of the key in bits, or -1 if the key is null.
 */
 int QSslKey::length() const
 {
-    return d->keyLength;
-}
-
-/*!
-    Returns a pointer to key bits.
-
-    \sa length()
-*/
-const uchar *QSslKey::data() const
-{
-    return (const uchar *)d->key.constData();
+    if (d->isNull)
+        return -1;
+    return (d->algorithm == QSsl::Rsa) ? q_BN_num_bits(d->rsa->n) : q_BN_num_bits(d->dsa->p);
 }
 
 /*!
     Returns the type of the key (i.e., PublicKey or PrivateKey).
 */
-QSslKey::Type QSslKey::type() const
+QSsl::KeyType QSslKey::type() const
 {
     return d->type;
 }
@@ -172,46 +317,87 @@ QSslKey::Type QSslKey::type() const
 /*!
     Returns the key algorithm.
 */
-QSslKey::Algorithm QSslKey::algorithm() const
+QSsl::Algorithm QSslKey::algorithm() const
 {
     return d->algorithm;
 }
 
 /*!
-    Returns the key in DER encoding, optionally encrypted and protected by \a
-    passPhrase.
+    Returns the key in DER encoding. The result is encrypted with \a passPhrase
+    if the key is a private key and \a passPhrase is non-empty.
 */
+// ### autotest failure for non-empty passPhrase and private key
 QByteArray QSslKey::toDer(const QByteArray &passPhrase) const
 {
-    // ### unimplemented
-    Q_UNUSED(passPhrase);
-    return QByteArray();
+    if (d->isNull)
+        return QByteArray();
+    return d->derFromPem(toPem(passPhrase));
 }
 
 /*!
-    Returns the key in PEM encoding, optionally encrypted and protected by \a
-    passPhrase.
+    Returns the key in PEM encoding. The result is encrypted with \a passPhrase
+    if the key is a private key and \a passPhrase is non-empty.
 */
 QByteArray QSslKey::toPem(const QByteArray &passPhrase) const
 {
-    // ### unimplemented
-    Q_UNUSED(passPhrase);
-    return QByteArray();
+    if (!QSslSocket::supportsSsl() || d->isNull)
+        return QByteArray();
+
+    BIO *bio = q_BIO_new(q_BIO_s_mem());
+    bool fail = false;
+
+    if (d->algorithm == QSsl::Rsa) {
+        if (d->type == QSsl::PublicKey) {
+            if (!q_PEM_write_bio_RSA_PUBKEY(bio, d->rsa))
+                fail = true;
+        } else {
+            if (!q_PEM_write_bio_RSAPrivateKey(
+                    bio, d->rsa,
+                    // ### the cipher should be selectable in the API:
+                    passPhrase.isEmpty() ? (const EVP_CIPHER *)0 : q_EVP_des_ede3_cbc(),
+                    (uchar *)passPhrase.data(), passPhrase.size(), 0, 0)) {
+                fail = true;
+            }
+        }
+    } else {
+        if (d->type == QSsl::PublicKey) {
+            if (!q_PEM_write_bio_DSA_PUBKEY(bio, d->dsa))
+                fail = true;
+        } else {
+            if (!q_PEM_write_bio_DSAPrivateKey(
+                    bio, d->dsa,
+                    // ### the cipher should be selectable in the API:
+                    passPhrase.isEmpty() ? (const EVP_CIPHER *)0 : q_EVP_des_ede3_cbc(),
+                    (uchar *)passPhrase.data(), passPhrase.size(), 0, 0)) {
+                fail = true;
+            }
+        }
+    }
+
+    QByteArray pem;
+    if (!fail) {
+        char *data;
+        long size = q_BIO_get_mem_data(bio, &data);
+        pem = QByteArray(data, size);
+    }
+    q_BIO_free(bio);
+    return pem;
 }
 
 /*!
-    Generates and returns a new pair of keys (the first is a PrivateKey, and
-    the second is the PublicKey). \a algorithm specifies what algorithm to use
-    when generting the keys, and \a keyLength specifies the number of bits.
+    Returns a pointer to the native key handle, if this is available;
+    otherwise a null pointer is returned.
 
-    This function can be time consuming, and will block the calling thread.
+    You can use this handle together with native API to access extended
+    information about the key.
+
+    \warning Use of this function has a high probability of being
+    non-portable, and its return value may vary between platforms, and between
+    minor Qt releases.
 */
-QPair<QSslKey, QSslKey> QSslKey::generateKeyPair(Algorithm algorithm, int keyLength)
+Qt::HANDLE QSslKey::handle() const
 {
-    // ### unimplemented
-    Q_UNUSED(algorithm);
-    Q_UNUSED(keyLength);
-    return QPair<QSslKey, QSslKey>();
+    return (d->algorithm == QSsl::Rsa) ? Qt::HANDLE(d->rsa) : Qt::HANDLE(d->dsa);
 }
 
 #ifndef QT_NO_DEBUG
@@ -219,8 +405,8 @@ class QDebug;
 QDebug operator<<(QDebug debug, const QSslKey &key)
 {
     debug << "QSslKey("
-          << (key.type() == QSslKey::PublicKey ? "PublicKey" : "PrivateKey")
-          << ", " << (key.algorithm() == QSslKey::Rsa ? "RSA" : "DSA")
+          << (key.type() == QSsl::PublicKey ? "PublicKey" : "PrivateKey")
+          << ", " << (key.algorithm() == QSsl::Rsa ? "RSA" : "DSA")
           << ", " << key.length()
           << ")";
     return debug;

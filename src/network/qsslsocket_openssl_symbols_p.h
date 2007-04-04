@@ -167,14 +167,18 @@
 
 bool q_resolveOpenSslSymbols();
 long q_BIO_ctrl(BIO *a, int b, long c, void *d);
+int q_BIO_free(BIO *a);
 BIO *q_BIO_new(BIO_METHOD *a);
+BIO *q_BIO_new_mem_buf(void *a, int b);
 int q_BIO_read(BIO *a, void *b, int c);
 BIO_METHOD *q_BIO_s_mem();
 int q_BIO_write(BIO *a, const void *b, int c);
+int q_BN_num_bits(const BIGNUM *a);
 int q_CRYPTO_num_locks();
 void q_CRYPTO_set_locking_callback(void (*a)(int, int, const char *, int));
 void q_CRYPTO_set_id_callback(unsigned long (*a)());
 void q_CRYPTO_free(void *a);
+void q_DSA_free(DSA *a);
 #if OPENSSL_VERSION_NUMBER >= 0x00908000L
 // 0.9.8 broke SC and BC by changing this function's signature.
 X509 *q_d2i_X509(X509 **a, const unsigned char **b, long c);
@@ -183,9 +187,28 @@ X509 *q_d2i_X509(X509 **a, unsigned char **b, long c);
 #endif
 char *q_ERR_error_string(unsigned long a, char *b);
 unsigned long q_ERR_get_error();
+EVP_CIPHER *q_EVP_des_ede3_cbc();
 int q_i2d_X509(X509 *a, unsigned char **b);
+#ifdef SSLEAY_MACROS
+// ### verify
+void *q_PEM_ASN1_read_bio(d2i_of_void *a, const char *b, BIO *c, void **d, pem_password_cb *e,
+                          void *f);
+// ### ditto for write
+#else
+DSA *q_PEM_read_bio_DSAPrivateKey(BIO *a, DSA **b, pem_password_cb *c, void *d);
+RSA *q_PEM_read_bio_RSAPrivateKey(BIO *a, RSA **b, pem_password_cb *c, void *d);
+int q_PEM_write_bio_DSAPrivateKey(BIO *a, DSA *b, const EVP_CIPHER *c, unsigned char *d,
+                                  int e, pem_password_cb *f, void *g);
+int q_PEM_write_bio_RSAPrivateKey(BIO *a, RSA *b, const EVP_CIPHER *c, unsigned char *d,
+                                  int e, pem_password_cb *f, void *g);
+#endif
+DSA *q_PEM_read_bio_DSA_PUBKEY(BIO *a, DSA **b, pem_password_cb *c, void *d);
+RSA *q_PEM_read_bio_RSA_PUBKEY(BIO *a, RSA **b, pem_password_cb *c, void *d);
+int q_PEM_write_bio_DSA_PUBKEY(BIO *a, DSA *b);
+int q_PEM_write_bio_RSA_PUBKEY(BIO *a, RSA *b);
 void q_RAND_seed(const void *a, int b);
 int q_RAND_status();
+void q_RSA_free(RSA *a);
 int q_sk_num(STACK *a);
 char * q_sk_value(STACK *a, int b);
 int q_SSL_accept(SSL *a);
@@ -239,7 +262,17 @@ X509_STORE_CTX *q_X509_STORE_CTX_new();
 int q_X509_STORE_CTX_set_purpose(X509_STORE_CTX *ctx, int purpose);
 time_t q_getTimeFromASN1(const ASN1_TIME *aTime);
 
+#define q_BIO_get_mem_data(b, pp) (int)q_BIO_ctrl(b,BIO_CTRL_INFO,0,(char *)pp)
 #define q_BIO_pending(b) (int)q_BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
+#ifdef SSLEAY_MACROS // ### verify
+#define	q_PEM_read_bio_RSAPrivateKey(bp, x, cb, u) \
+        (RSA *)q_PEM_ASN1_read_bio( \
+        (char *(*)())d2i_RSAPrivateKey, PEM_STRING_RSA, bp, (char **)x, cb, u)
+#define	q_PEM_read_bio_DSAPrivateKey(bp, x, cb, u) \
+        (DSA *)q_PEM_ASN1_read_bio( \
+        (char *(*)())d2i_DSAPrivateKey, PEM_STRING_DSA, bp, (char **)x, cb, u)
+// ### ditto for write
+#endif
 #define q_SSL_CTX_set_options(ctx,op) q_SSL_CTX_ctrl((ctx),SSL_CTRL_OPTIONS,(op),NULL)
 #define q_SKM_sk_num(type, st) ((int (*)(const STACK_OF(type) *))q_sk_num)(st)
 #define q_SKM_sk_value(type, st,i) ((type * (*)(const STACK_OF(type) *, int))q_sk_value)(st, i)
@@ -251,4 +284,3 @@ time_t q_getTimeFromASN1(const ASN1_TIME *aTime);
         q_SSL_CTX_ctrl(ctx,SSL_CTRL_EXTRA_CHAIN_CERT,0,(char *)x509)
 
 #endif
- 

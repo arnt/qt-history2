@@ -26,57 +26,31 @@
 **
 ****************************************************************************/
 
-#ifndef QSSLKEY_H
-#define QSSLKEY_H
+#include "qsslkey.h"
 
-#include <QtCore/qnamespace.h>
-#include <QtCore/qbytearray.h>
-#include <QtNetwork/qssl.h>
+/*!
+    \enum QSsl::KeyType
 
-QT_BEGIN_HEADER
-
-QT_MODULE(Network)
-
-#ifndef QT_NO_OPENSSL
-
-template <typename A, typename B> struct QPair;
+    Describes the two types of keys QSslKey supports.
     
-class QSslKeyPrivate;
-class Q_NETWORK_EXPORT QSslKey
-{
-public:
-    QSslKey();
-    QSslKey(const QByteArray &encoded, QSsl::Algorithm algorithm,
-            QSsl::EncodingFormat format = QSsl::Pem,
-            QSsl::KeyType type = QSsl::PrivateKey,
-            const QByteArray &passPhrase = QByteArray());
-    QSslKey(const QSslKey &other);
-    ~QSslKey();
-    QSslKey &operator=(const QSslKey &other);
+    \value PrivateKey A private key.
+    \value PublicKey A public key.
+*/
 
-    bool isNull() const;
-    void clear();
+/*!
+    \enum QSsl::Algorithm
 
-    int length() const;
-    QSsl::KeyType type() const;
-    QSsl::Algorithm algorithm() const;
+    Describes the different key algorithms supported by QSslKey.
 
-    QByteArray toPem(const QByteArray &passPhrase = QByteArray()) const;
-    QByteArray toDer(const QByteArray &passPhrase = QByteArray()) const;
+    \value Rsa The RSA algorithm.
+    \value Dsa The DSA algorithm.
+*/
 
-    Qt::HANDLE handle() const;
+/*!
+    \enum QSsl::EncodingFormat
 
-private:
-    QSslKeyPrivate *d;
-};
+    Describes supported encoding formats for certificates and keys.
 
-#ifndef QT_NO_DEBUG
-class QDebug;
-Q_NETWORK_EXPORT QDebug operator<<(QDebug debug, const QSslKey &key);
-#endif
-
-#endif // QT_NO_OPENSSL
-
-QT_END_HEADER
-
-#endif
+    \value Pem The PEM format.
+    \value Der The DER format.
+*/
