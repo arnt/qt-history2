@@ -165,6 +165,9 @@ QMutex::~QMutex()
 void QMutex::lock()
 {
     ulong self = 0;
+#ifndef QT_NO_DEBUG
+    self = d->self();
+#endif
     if (d->recursive) {
         self = d->self();
         if (d->owner == self) {
@@ -206,6 +209,9 @@ void QMutex::lock()
 bool QMutex::tryLock()
 {
     ulong self = 0;
+#ifndef QT_NO_DEBUG
+    self = d->self();
+#endif
     if (d->recursive) {
         self = d->self();
         if (d->owner == self) {
@@ -246,6 +252,9 @@ bool QMutex::tryLock()
 bool QMutex::tryLock(int timeout)
 {
     ulong self = 0;
+#ifndef QT_NO_DEBUG
+    self = d->self();
+#endif
     if (d->recursive) {
         self = d->self();
         if (d->owner == self) {
