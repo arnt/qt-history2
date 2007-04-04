@@ -54,8 +54,11 @@ public:
     static QThread *mainThread();
     static bool checkInstance(const char *method);
 
+#ifndef QT_NO_DEBUG
     void checkReceiverThread(QObject *receiver);
-
+#else
+    inline void checkReceiverThread(QObject *) {}
+#endif
     int &argc;
     char **argv;
     void appendApplicationPathToLibraryPaths(void);

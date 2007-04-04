@@ -226,6 +226,7 @@ QThread *QCoreApplicationPrivate::mainThread()
     return theMainThread;
 }
 
+#ifndef QT_NO_DEBUG
 void QCoreApplicationPrivate::checkReceiverThread(QObject *receiver)
 {
     QThread *currentThread = QThread::currentThread();
@@ -242,6 +243,7 @@ void QCoreApplicationPrivate::checkReceiverThread(QObject *receiver)
     Q_UNUSED(currentThread);
     Q_UNUSED(thr);
 }
+#endif
 
 void QCoreApplicationPrivate::appendApplicationPathToLibraryPaths()
 {
