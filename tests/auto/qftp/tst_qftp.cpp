@@ -1216,11 +1216,6 @@ void tst_QFtp::abort_data()
 
     QTest::newRow( "get_fluke01" ) << QString("fluke.troll.no") << (uint)21 << QString("qtest/bigfile") << QByteArray();
     QTest::newRow( "get_fluke02" ) << QString("fluke.troll.no") << (uint)21 << QString("qtest/rfc3252") << QByteArray();
-    QTest::newRow( "get_trolltech01" ) << "ftp.trolltech.com" << (uint)21 << QString("qt/source/qt-x11-free-3.0.0.tar.gz") << QByteArray();
-    // ### The microsoft server does not seem to work properly at the moment --
-    // I am also not able to open a data connection with other, non-Qt FTP
-    // clients to it.
-    // QTest::newRow( "get_microsoft01" ) << "ftp.microsoft.com" << (uint)21 << "services/enterprise/business_solutions.exe" << QByteArray();
 
     QByteArray bigData( 10*1024*1024, 0 );
     bigData.fill( 'B' );
