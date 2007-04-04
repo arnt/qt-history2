@@ -17,6 +17,7 @@
 #include <qdir.h>
 #include <qfileinfo.h>
 #ifdef Q_OS_UNIX
+#include <fcntl.h>
 #include <unistd.h>
 #endif
 #ifdef Q_OS_WIN
@@ -830,11 +831,34 @@ void tst_QFileInfo::testDecomposedUnicodeNames_data()
     QTest::addColumn<QString>("filePath");
     QTest::addColumn<QString>("fileName");
     QTest::addColumn<bool>("exists");
-	QString currPath = QDir::currentPath();
-    QTest::newRow("latin-only") << currPath + "/TestFiles/4.pdf" << "4.pdf" << true;
-	QTest::newRow("one-decomposed uni") << currPath + QString::fromUtf8("/TestFiles/4 ä.pdf") << QString::fromUtf8("4 ä.pdf") << true;
-	QTest::newRow("many-decomposed uni") << currPath + QString::fromUtf8("/TestFiles/4 äääcopy.pdf") << QString::fromUtf8("4 äääcopy.pdf") << true;
-	QTest::newRow("no decomposed") << currPath + QString::fromUtf8("/TestFiles/4 øøøcopy.pdf") << QString::fromUtf8("4 øøøcopy.pdf") << true;
+    QString currPath = QDir::currentPath();
+    QTest::newRow("latin-only") << currPath + "/4.pdf" << "4.pdf" << true;
+    QTest::newRow("one-decomposed uni") << currPath + QString::fromUtf8("/4 ä.pdf") << QString::fromUtf8("4 ä.pdf") << true;
+    QTest::newRow("many-decomposed uni") << currPath + QString::fromUtf8("/4 äääcopy.pdf") << QString::fromUtf8("4 äääcopy.pdf") << true;
+    QTest::newRow("no decomposed") << currPath + QString::fromUtf8("/4 øøøcopy.pdf") << QString::fromUtf8("4 øøøcopy.pdf") << true;
+}
+
+static void createFileNative(const QString &filePath)
+{
+#ifdef Q_OS_UNIX
+    int fd = open(filePath.normalized(QString::NormalizationForm_D).toUtf8().constData(), O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+    if (fd < 0) {
+        QFAIL("couldn't create file");
+    } else {
+        close(fd);
+    }
+#else
+    Q_UNSED(filePath);
+#endif
+}
+
+static void removeFileNative(const QString &filePath)
+{
+#ifdef Q_OS_UNIX
+    unlink(filePath.normalized(QString::NormalizationForm_D).toUtf8().constData());
+#else
+    Q_UNSED(filePath);
+#endif
 }
 
 void tst_QFileInfo::testDecomposedUnicodeNames()
@@ -843,10 +867,12 @@ void tst_QFileInfo::testDecomposedUnicodeNames()
     QSKIP("This is a OS X only test (unless you know more about filesystems, then maybe you should try it ;)", SkipAll);
 #endif
     QFETCH(QString, filePath);
+    createFileNative(filePath);
 
     QFileInfo file(filePath);
     QTEST(file.fileName(), "fileName");
     QTEST(file.exists(), "exists");
+    removeFileNative(filePath);
 }
 
 QTEST_MAIN(tst_QFileInfo)
