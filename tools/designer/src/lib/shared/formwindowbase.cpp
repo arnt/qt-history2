@@ -16,6 +16,13 @@ TRANSLATOR qdesigner_internal::FormWindowBase
 */
 
 #include "formwindowbase_p.h"
+#include "connectionedit_p.h"
+#include "qdesigner_command_p.h"
+
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QExtensionManager>
+
 #include <QtCore/qdebug.h>
 #include <QtGui/QMenu>
 
@@ -116,4 +123,44 @@ QMenu *FormWindowBase::initializePopupMenu(QWidget * /*managedWidget*/)
 {
     return 0;
 }
-} // namespace
+
+QWidget *FormWindowBase::widgetUnderMouse(const QPoint &formPos, WidgetUnderMouseMode /* wum */)
+{
+    // widget_under_mouse might be some temporary thing like the dropLine. We need
+    // the actual widget that's part of the edited GUI.
+    QWidget *rc = widgetAt(formPos);
+    if (!rc || qobject_cast<ConnectionEdit*>(rc))
+        return 0;
+
+    if (QWidget *container = findContainer(rc, false))
+        if (QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), container))
+            rc = c->widget(c->currentIndex());
+
+    return rc;
+}
+
+void FormWindowBase::deleteWidgetList(const QWidgetList &widget_list)
+{
+    switch (widget_list.size()) {
+    case 0:
+        break;
+    case 1: {
+        emit widgetRemoved(widget_list.front());
+        DeleteWidgetCommand *cmd = new DeleteWidgetCommand(this);
+        cmd->init(widget_list.front());
+        commandHistory()->push(cmd);
+    }
+        break;
+    default:
+        commandHistory()->beginMacro(tr("Delete"));
+        foreach (QWidget *w, widget_list) {
+            emit widgetRemoved(w);
+            DeleteWidgetCommand *cmd = new DeleteWidgetCommand(this);
+            cmd->init(w);
+            commandHistory()->push(cmd);
+        }
+        commandHistory()->endMacro();
+        break;
+    }
+}
+}

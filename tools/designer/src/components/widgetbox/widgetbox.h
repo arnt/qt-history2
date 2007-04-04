@@ -54,6 +54,11 @@ public:
 
     virtual bool loadContents(const QString &contents);
 
+protected:
+    virtual void dragEnterEvent (QDragEnterEvent * event);
+    virtual void dragMoveEvent(QDragMoveEvent * event);
+    virtual void dropEvent (QDropEvent * event);
+
 private slots:
     void handleMousePress(const QString &name, const QString &xml, bool custom, const QPoint &global_mouse_pos);
 

@@ -44,6 +44,8 @@ class QDESIGNER_SHARED_EXPORT FormWindowBase: public QDesignerFormWindowInterfac
     Q_OBJECT
 
 public:
+    enum HighlightMode  { Restore, Highlight };
+
     FormWindowBase(QWidget *parent = 0, Qt::WindowFlags flags = 0);
 
     QVariantMap formData();
@@ -70,13 +72,19 @@ public:
     // Overwrite to initialize and return a popup menu for a managed widget
     virtual QMenu *initializePopupMenu(QWidget *managedWidget);
 
-    enum DropMode {
-        DropNormal,
-        // This indicates that the QDesignerDnDItemInterface geometry
-        // is to be ignored, for example, when dropping on the object inspector.
-        DropFake };
-    virtual bool dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
-                             const QPoint &global_mouse_pos, DropMode dm) = 0;
+    virtual bool dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
+                             const QPoint &global_mouse_pos) = 0;
+
+    // Helper to find the widget at the mouse position with some flags.
+    enum WidgetUnderMouseMode { FindSingleSelectionDropTarget, FindMultiSelectionDropTarget };
+    QWidget *widgetUnderMouse(const QPoint &formPos, WidgetUnderMouseMode m);
+
+    virtual QWidget *widgetAt(const QPoint &pos) = 0;
+    virtual QWidget *findContainer(QWidget *w, bool excludeLayout) const = 0;
+
+    void deleteWidgetList(const QWidgetList &widget_list);
+
+    virtual void highlightWidget(QWidget *w, const QPoint &pos, HighlightMode mode = Highlight) = 0;
 
 private:
     void syncGridFeature();

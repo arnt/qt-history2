@@ -36,6 +36,7 @@ TRANSLATOR qdesigner_internal::WidgetBoxTreeView
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QMenu>
 #include <QtGui/QLineEdit>
+#include <QtGui/qevent.h>
 
 #include <QtXml/QDomDocument>
 #include <QtCore/QFile>
@@ -969,6 +970,8 @@ WidgetBox::WidgetBox(QDesignerFormEditorInterface *core, QWidget *parent, Qt::Wi
 
     connect(m_view, SIGNAL(pressed(QString,QString,bool,QPoint)),
             this, SLOT(handleMousePress(QString,QString,bool,QPoint)));
+
+    setAcceptDrops (true);
 }
 
 WidgetBox::~WidgetBox()
@@ -1070,6 +1073,49 @@ bool WidgetBox::loadContents(const QString &contents)
 bool WidgetBox::save()
 {
     return m_view->save();
+}
+
+static const QDesignerMimeData *checkDragEvent(QDropEvent * event,
+                                               bool acceptEventsFromWidgetBox)
+{
+    const QDesignerMimeData *mimeData = qobject_cast<const QDesignerMimeData *>(event->mimeData());
+    if (!mimeData) {
+        event->ignore();
+        return 0;
+    }
+    // If desired, ignore a widget box drag and drop, where widget==0.
+    if (!acceptEventsFromWidgetBox) {
+        const bool fromWidgetBox = !mimeData->items().first()->widget();
+        if (fromWidgetBox) {
+            event->ignore();
+            return 0;
+        }
+    }
+
+    mimeData->acceptEvent(event);
+    return mimeData;
+}
+
+void WidgetBox::dragEnterEvent (QDragEnterEvent * event)
+{
+    // We accept event originating from the widget box also here,
+    // because otherwise Windows will not show the DnD pixmap.
+    checkDragEvent(event, true);
+}
+
+void WidgetBox::dragMoveEvent(QDragMoveEvent * event)
+{
+    checkDragEvent(event, true);
+}
+
+void WidgetBox::dropEvent(QDropEvent * event)
+{
+    const QDesignerMimeData *mimeData = checkDragEvent(event, false);
+    if (!mimeData)
+        return;
+
+    dropWidgets(mimeData->items(), event->pos());
+    QDesignerMimeData::removeMovedWidgetsFromSourceForm(mimeData->items());
 }
 }  // namespace qdesigner_internal
 

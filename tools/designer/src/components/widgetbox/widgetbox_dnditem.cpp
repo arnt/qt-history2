@@ -37,9 +37,9 @@ protected:
     virtual QWidget *create(DomWidget *ui_widget, QWidget *parents);
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
 };
-    
+
 WidgetBoxResource::WidgetBoxResource(QDesignerFormEditorInterface *core) :
-    QDesignerFormBuilder(core, UseContainerExtension)    
+    QDesignerFormBuilder(core, UseContainerExtension)
 {
 }
 
@@ -68,11 +68,12 @@ QWidget *WidgetBoxResource::create(DomWidget *ui_widget, QWidget *parent)
 ** WidgetBoxResource
 */
 
-static QSize geometryProp(DomWidget *dw)
+static QSize geometryProp(const DomWidget *dw)
 {
     const QList<DomProperty*> prop_list = dw->elementProperty();
+    const QString geometry = QLatin1String("geometry");
     foreach (DomProperty *prop, prop_list) {
-        if (prop->attributeName() != QLatin1String("geometry"))
+        if (prop->attributeName() !=  geometry)
             continue;
         DomRect *dr = prop->elementRect();
         if (dr == 0)
@@ -88,15 +89,15 @@ static QSize domWidgetSize(DomWidget *dw)
     if (size.isValid())
         return size;
 
-    foreach (DomWidget *child, dw->elementWidget()) {
+    foreach (const DomWidget *child, dw->elementWidget()) {
         size = geometryProp(child);
         if (size.isValid())
             return size;
     }
 
-    foreach (DomLayout *dl, dw->elementLayout()) {
+    foreach (const DomLayout *dl, dw->elementLayout()) {
         foreach (DomLayoutItem *item, dl->elementItem()) {
-            DomWidget *child = item->elementWidget();
+            const DomWidget *child = item->elementWidget();
             if (child == 0)
                 continue;
             size = geometryProp(child);
@@ -124,8 +125,6 @@ static QWidget *decorationFromDomWidget(DomWidget *dom_widget, QDesignerFormEdit
         size.setHeight(minimumSize.height());
     w->setGeometry(QRect(QPoint(0, 0), size));
     result->resize(size);
-    result->setWindowOpacity(0.8);
-
     return result;
 }
 
@@ -142,10 +141,7 @@ WidgetBoxDnDItem::WidgetBoxDnDItem(QDesignerFormEditorInterface *core,
     dom_ui->setElementWidget(root_dom_widget);
 
     QWidget *decoration = decorationFromDomWidget(dom_widget, core);
-    QSize size = decoration->size();
-    QPoint pos(global_mouse_pos.x() - size.width()/2,
-                    global_mouse_pos.y() - size.height()/2);
-    decoration->move(pos);
+    decoration->move(global_mouse_pos - QPoint(5, 5));
 
     init(dom_ui, 0, decoration, global_mouse_pos);
 }

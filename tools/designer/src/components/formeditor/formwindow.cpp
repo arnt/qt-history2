@@ -255,6 +255,7 @@ FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WindowFlags flags)
     core->formWindowManager()->addFormWindow(this);
 
     setDirty(false);
+    setAcceptDrops(true);
 }
 
 FormWindow::~FormWindow()
@@ -592,25 +593,20 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
         sel.prepend(current);
     }
 
-    QDesignerResource builder(this);
-
     QList<QDesignerDnDItemInterface*> item_list;
-    foreach (QWidget *widget, sel) {
-        if (e->modifiers()
+    const QPoint globalPos = mapToGlobal(m_startPos);
+    const QDesignerDnDItemInterface::DropType dropType = (e->modifiers()
 #ifndef Q_WS_MAC
-        & Qt::ControlModifier
+        & Qt::ControlModifier)
 #else
-        & Qt::AltModifier
+        & Qt::AltModifier)
 #endif
-        ) {
-            item_list.append(new FormWindowDnDItem(QDesignerDnDItemInterface::CopyDrop,
-                this, widget, mapToGlobal(m_startPos)));
-        } else {
-            item_list.append(new FormWindowDnDItem(QDesignerDnDItemInterface::MoveDrop,
-                this, widget, mapToGlobal(m_startPos)));
+        ? QDesignerDnDItemInterface::CopyDrop : QDesignerDnDItemInterface::MoveDrop;
+    foreach (QWidget *widget, sel) {
+        item_list.append(new FormWindowDnDItem(dropType,  this, widget, globalPos));
+        if (dropType == QDesignerDnDItemInterface::MoveDrop)
             widget->hide();
         }
-    }
 
     blockSelectionChanged(blocked);
 
@@ -1306,30 +1302,12 @@ void FormWindow::layoutGrid()
     commandHistory()->push(cmd);
 }
 
-void FormWindow::deleteWidgets(const QWidgetList &widget_list)
-{
-    if (widget_list.isEmpty())
-        return;
-
-    beginCommand(tr("Delete"));
-
-    foreach (QWidget *w, widget_list) {
-        emit widgetRemoved(w);
-        DeleteWidgetCommand *cmd = new DeleteWidgetCommand(this);
-        cmd->init(w);
-        m_commandHistory->push(cmd);
-    }
-
-    endCommand();
-}
-
-
 void FormWindow::deleteWidgets()
 {
     QWidgetList selection = selectedWidgets();
     simplifySelection(&selection);
 
-    deleteWidgets(selection);
+    deleteWidgetList(selection);
 }
 
 QString FormWindow::fileName() const
@@ -2232,10 +2210,9 @@ void FormWindow::editContents()
     }
 }
 
-bool FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
-                                const QPoint &global_mouse_pos, DropMode dm)
+bool FormWindow::dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
+                             const QPoint &global_mouse_pos)
 {
-    const QPoint correctedGlobalPos = dm == DropFake ? target->mapToGlobal(QPoint(5, 5)) : global_mouse_pos;
     beginCommand(tr("Drop widget"));
 
     QWidget *parent = target;
@@ -2244,21 +2221,16 @@ bool FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
     // You can only drop stuff onto the central widget of a QMainWindow
     // ### generalize to use container extension
     if (QMainWindow *main_win = qobject_cast<QMainWindow*>(target)) {
-        const QPoint main_win_pos = main_win->mapFromGlobal(correctedGlobalPos);
+        const QPoint main_win_pos = main_win->mapFromGlobal(global_mouse_pos);
         const QRect central_wgt_geo = main_win->centralWidget()->geometry();
-        if (!central_wgt_geo.contains(main_win_pos)) {
-            foreach (QDesignerDnDItemInterface *item, item_list) {
-                if (item->widget() != 0)
-                    item->widget()->show();
-            }
+        if (!central_wgt_geo.contains(main_win_pos))
             return false;
-        }
     }
 
     core()->formWindowManager()->setActiveFormWindow(this);
     mainContainer()->activateWindow();
     clearSelection(false);
-    highlightWidget(target, target->mapFromGlobal(correctedGlobalPos), FormWindow::Restore);
+    highlightWidget(target, target->mapFromGlobal(global_mouse_pos), FormWindow::Restore);
 
     QWidget *container = findContainer(parent, false);
 
@@ -2275,23 +2247,14 @@ bool FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
         }
     }
     if (current) {
-        QRect geom = (dm == DropNormal) ? current->decoration()->geometry() : QRect(correctedGlobalPos, current->decoration()->size());
+        QRect geom = current->decoration()->geometry();
         QPoint topLeft = container->mapFromGlobal(geom.topLeft());
         offset = designerGrid().snapPoint(topLeft) - topLeft;
     }
 
     foreach (QDesignerDnDItemInterface *item, item_list) {
         DomUI *dom_ui = item->domUi();
-        QRect geometry;
-        switch (dm) {
-        case DropNormal:
-            geometry = item->decoration()->geometry();
-            break;
-        case DropFake:
-            // Fake drop (object inspector): Assume it was dropped on parent with little offset
-            geometry = QRect(correctedGlobalPos, item->decoration()->size());
-            break;
-        }
+        QRect geometry = item->decoration()->geometry();
         Q_ASSERT(dom_ui != 0);
 
         geometry.moveTopLeft(container->mapFromGlobal(geometry.topLeft()) + offset);
@@ -2326,7 +2289,7 @@ bool FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
                 FormWindow *source = qobject_cast<FormWindow*>(item->source());
                 Q_ASSERT(source != 0);
 
-                source->deleteWidgets(QWidgetList() << widget);
+                source->deleteWidgetList(QWidgetList() << widget);
                 QWidget *new_widget = createWidget(dom_ui, geometry, parent);
 
                 selectWidget(new_widget, true);

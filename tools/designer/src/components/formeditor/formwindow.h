@@ -51,8 +51,6 @@ class QT_FORMEDITOR_EXPORT FormWindow: public FormWindowBase
     Q_OBJECT
 
 public:
-    enum HighlightMode  { Restore, Highlight };
-
     explicit FormWindow(FormEditor *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~FormWindow();
 
@@ -130,7 +128,6 @@ public:
     QList<QWidget *> widgets(QWidget *widget) const;
 
     QWidget *createWidget(DomUI *ui, const QRect &rect, QWidget *target);
-    void deleteWidgets(const QWidgetList &widget_list);
 
     bool isManaged(QWidget *w) const;
 
@@ -168,10 +165,10 @@ public:
 
     void resizeWidget(QWidget *widget, const QRect &geometry);
 
-    bool dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
-                        const QPoint &global_mouse_pos, DropMode dm);
+    bool dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
+                        const QPoint &global_mouse_pos);
 
-    QWidget *findContainer(QWidget *w, bool excludeLayout) const;
+    virtual QWidget *findContainer(QWidget *w, bool excludeLayout) const;
     // for WidgetSelection only.
     QWidget *designerWidget(QWidget *w) const;
 

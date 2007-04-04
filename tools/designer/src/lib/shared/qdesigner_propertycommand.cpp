@@ -461,7 +461,6 @@ void PropertyHelper::updateObject(QDesignerFormWindowInterface *fw, const QVaria
     }
     switch (m_objectType) {
     case OT_Widget: {
-        QWidget *widget = qobject_cast<QWidget *>(m_object);
         switch (m_specialProperty) {
         case SP_ObjectName:
             QDesignerFormWindowCommand::updateBuddies(fw, oldValue.toString(), newValue.toString());

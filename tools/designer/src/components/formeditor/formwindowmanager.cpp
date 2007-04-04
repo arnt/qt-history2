@@ -25,6 +25,7 @@ TRANSLATOR qdesigner_internal::FormWindowManager
 #include "widgetselection.h"
 #include "connectionedit_p.h"
 
+#include <qdesigner_dnditem_p.h>
 #include <qdesigner_command_p.h>
 #include <layoutinfo_p.h>
 #include <qlayout_widget_p.h>
@@ -74,12 +75,7 @@ FormWindowManager::FormWindowManager(QDesignerFormEditorInterface *core, QObject
     QDesignerFormWindowManagerInterface(parent),
     m_core(core),
     m_activeFormWindow(0),
-    m_layoutChilds(false),
-    m_last_widget_under_mouse(0),
-    m_last_form_under_mouse(0),
-    m_widget_box_under_mouse(0),
-    m_fakeDrop(false),
-    m_savedContextMenuPolicy(Qt::NoContextMenu)
+    m_layoutChilds(false)
 {
     setupActions();
     qApp->installEventFilter(this);
@@ -110,38 +106,8 @@ QDesignerFormWindowInterface *FormWindowManager::formWindow(int index) const
     return m_formWindows.at(index);
 }
 
-static bool isMouseMoveOrRelease(QEvent *e)
-{
-    return e->type() == QEvent::MouseButtonRelease || e->type() == QEvent::MouseMove;
-}
-
 bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 {
-    bool inDragMode =
-#ifdef Q_WS_X11
-        o == m_core->topLevel() &&
-#endif
-        ! m_drag_item_list.isEmpty();
-
-
-    if (inDragMode && e->type() == QEvent::ShortcutOverride) {
-        e->accept();
-        endDrag(QPoint());
-        return true;
-    }
-
-    else if (inDragMode && isMouseMoveOrRelease(e)) {
-        // We're dragging
-        QMouseEvent *me = static_cast<QMouseEvent*>(e);
-        me->accept();
-
-        if (me->type() == QEvent::MouseButtonRelease)
-            endDrag(me->globalPos());
-        else
-            setItemsPos(me->globalPos());
-        return true;
-    }
-
     if (!o->isWidgetType())
         return false;
 
@@ -773,176 +739,7 @@ QAction *FormWindowManager::actionRedo() const
 
 void FormWindowManager::dragItems(const QList<QDesignerDnDItemInterface*> &item_list)
 {
-    if (!m_drag_item_list.isEmpty()) {
-        qDebug("FormWindowManager::dragItem(): called while already dragging");
-        return;
-    }
-
-    beginDrag(item_list, QCursor::pos());
-}
-
-void FormWindowManager::beginDrag(const QList<QDesignerDnDItemInterface*> &item_list, const QPoint &globalPos)
-{
-    Q_ASSERT(m_drag_item_list.isEmpty());
-
-    m_drag_item_list = item_list;
-
-    setItemsPos(globalPos);
-
-    foreach(QDesignerDnDItemInterface *item, m_drag_item_list) {
-        QWidget *deco = item->decoration();
-        deco->setAttribute(Qt::WA_TransparentForMouseEvents);
-        QPoint pos = deco->pos();
-        QRect ag = qApp->desktop()->availableGeometry(deco);
-        deco->move(qMin(qMax(pos.x(), ag.left()), ag.right()), qMin(qMax(pos.y(), ag.top()), ag.bottom()));
-        deco->move(pos);
-        deco->show();
-        deco->setWindowOpacity(0.8);
-    }
-
-#ifdef Q_WS_X11
-    m_core->topLevel()->grabMouse();
-    m_savedContextMenuPolicy = m_core->topLevel()->contextMenuPolicy();
-    m_core->topLevel()->setContextMenuPolicy(Qt::NoContextMenu);
-#endif
-}
-
-template <class W>
-static W *widgetAt(const QPoint &global_pos, const W * /*dw*/= 0)
-{
-    QWidget *w = qApp->widgetAt(global_pos);
-    while (w != 0) {
-        if (W *sw = qobject_cast<W*>(w))
-            return sw;
-        w = w->parentWidget();
-    }
-    return 0;
-}
-
-void FormWindowManager::setItemsPos(QPoint globalPos)
-{
-    foreach(QDesignerDnDItemInterface *item, m_drag_item_list)
-        item->decoration()->move(globalPos - item->hotSpot());
-
-    QWidget *widget_under_mouse = 0;
-
-    if (QDesignerObjectInspector *objectinspector_under_mouse = widgetAt<QDesignerObjectInspector>(globalPos)) {
-        widget_under_mouse = objectinspector_under_mouse->widgetAt(globalPos);
-        if (widget_under_mouse) {
-            if (widget_under_mouse->isVisible()) {
-                globalPos = widget_under_mouse->mapToGlobal(QPoint(5, 5));
-                m_fakeDrop = true;
-            } else {
-                widget_under_mouse = 0;
-            }
-        }
-    } else {
-        m_fakeDrop = false;
-        widget_under_mouse = qApp->widgetAt(globalPos);
-    }
-    int max_try = 3;
-    while (max_try && widget_under_mouse && isDecoration(widget_under_mouse)) {
-        --max_try;
-        widget_under_mouse = qApp->widgetAt(widget_under_mouse->pos() - QPoint(1,1));
-        Q_ASSERT(!qobject_cast<ConnectionEdit*>(widget_under_mouse));
-    }
-    FormWindow *form_under_mouse
-            = qobject_cast<FormWindow*>(QDesignerFormWindowInterface::findFormWindow(widget_under_mouse));
-    if (form_under_mouse && !form_under_mouse->hasFeature(QDesignerFormWindowInterface::EditFeature))
-        form_under_mouse = 0;
-
-    if (form_under_mouse != 0) {
-        const QPoint widget_under_mouse_pos = form_under_mouse->mapFromGlobal(globalPos);
-        // widget_under_mouse might be some temporary thing like the dropLine. We need
-        // the actual widget that's part of the edited GUI.
-        widget_under_mouse
-            = form_under_mouse->widgetAt(widget_under_mouse_pos);
-
-        if (QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), form_under_mouse->findContainer(widget_under_mouse, false))) {
-            widget_under_mouse = c->widget(c->currentIndex());
-        }
-        Q_ASSERT(!qobject_cast<ConnectionEdit*>(widget_under_mouse));
-    }
-
-    if (m_last_form_under_mouse != 0 && widget_under_mouse != m_last_widget_under_mouse) {
-        const  QPoint pos = m_last_widget_under_mouse->mapFromGlobal(globalPos);
-        m_last_form_under_mouse->highlightWidget(m_last_widget_under_mouse, pos,
-                                    FormWindow::Restore);
-    }
-    FormWindow *source_form = qobject_cast<FormWindow*>(m_drag_item_list.first()->source());
-    if (form_under_mouse != 0
-        && (source_form == 0 || widget_under_mouse != source_form->mainContainer())) {
-        const QPoint widget_under_mouse_pos = widget_under_mouse->mapFromGlobal(globalPos);
-        form_under_mouse->highlightWidget(widget_under_mouse,
-                                    widget_under_mouse_pos ,
-                                    FormWindow::Highlight);
-    }
-
-    m_last_widget_under_mouse = widget_under_mouse;
-    m_last_form_under_mouse = form_under_mouse;
-    if (m_last_form_under_mouse) {
-        m_widget_box_under_mouse = 0;
-    } else {
-        m_widget_box_under_mouse = widgetAt<QDesignerWidgetBoxInterface>(globalPos);
-    }
-}
-
-void FormWindowManager::endDrag(const QPoint &pos)
-{
-#ifdef Q_WS_X11
-    m_core->topLevel()->releaseMouse();
-    m_core->topLevel()->setContextMenuPolicy(m_savedContextMenuPolicy);
-#endif
-
-    Q_ASSERT(!m_drag_item_list.isEmpty());
-
-    foreach (QDesignerDnDItemInterface *item, m_drag_item_list)
-        item->decoration()->hide();
-
-    // ugly, but you can't qobject_cast from interfaces
-    do {
-        if (m_last_form_under_mouse != 0 &&
-            m_last_form_under_mouse->hasFeature(QDesignerFormWindowInterface::EditFeature)) {
-            m_last_form_under_mouse->dropWidgets(m_drag_item_list, m_last_widget_under_mouse, pos,
-                                                 m_fakeDrop ? FormWindowBase::DropFake : FormWindowBase::DropNormal);
-            break;
-        }
-
-        if (m_widget_box_under_mouse != 0) {
-            m_widget_box_under_mouse->dropWidgets(m_drag_item_list, pos);
-            foreach (QDesignerDnDItemInterface *item, m_drag_item_list) {
-                if (item->type() != QDesignerDnDItemInterface::CopyDrop)
-                    if (FormWindow *source = qobject_cast<FormWindow*>(item->source()))
-                        if (QWidget *widget = item->widget())
-                            source->deleteWidgets(QList<QWidget*>() << widget);
-            }
-            break;
-        }
-
-        foreach (QDesignerDnDItemInterface *item, m_drag_item_list) {
-            if (item->widget() != 0)
-                item->widget()->show();
-        }
-    } while (false);
-
-    foreach (QDesignerDnDItemInterface *item, m_drag_item_list)
-        delete item;
-
-    m_drag_item_list.clear();
-    m_last_widget_under_mouse = 0;
-    m_last_form_under_mouse = 0;
-    m_widget_box_under_mouse = 0;
-    m_fakeDrop = false;
-}
-
-bool FormWindowManager::isDecoration(QWidget *widget) const
-{
-    foreach (QDesignerDnDItemInterface *item, m_drag_item_list) {
-        if (item->decoration() == widget)
-            return true;
-    }
-
-    return false;
+    QDesignerMimeData::execDrag(item_list, m_core->topLevel());
 }
 
 QUndoGroup *FormWindowManager::undoGroup() const

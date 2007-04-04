@@ -27,7 +27,7 @@ class QDesignerFormWindowInterface;
 class QTreeWidgetItem;
 
 namespace qdesigner_internal {
-
+class FormWindowBase;
 class TreeWidget;
 
 class QT_OBJECTINSPECTOR_EXPORT ObjectInspector: public QDesignerObjectInspector
@@ -45,8 +45,6 @@ public:
 
     void setFormWindow(QDesignerFormWindowInterface *formWindow);
 
-    QWidget *widgetAt(const QPoint &global_mouse_pos);
-
 public slots:
     virtual void mainContainerChanged();
 
@@ -55,11 +53,21 @@ private slots:
     void slotPopupContextMenu(const QPoint &pos);
     void slotHeaderDoubleClicked(int column);
 
+protected:
+    virtual void dragEnterEvent (QDragEnterEvent * event);
+    virtual void dragMoveEvent(QDragMoveEvent * event);
+    virtual void dragLeaveEvent(QDragLeaveEvent * event);
+    virtual void dropEvent (QDropEvent * event);
+
 private:
     static bool sortEntry(const QObject *a, const QObject *b);
     void showContainersCurrentPage(QWidget *widget);
 
 private:
+    void restoreDropHighlighting();
+    QWidget *managedWidgetAt(const QPoint &global_mouse_pos);
+    void handleDragEnterMoveEvent(QDragMoveEvent * event, bool isDragEnter);
+
     typedef QSet<const QObject *> PreviousSelection;
     PreviousSelection previousSelection(QDesignerFormWindowInterface *fw, bool formWindowChanged) const;
 
@@ -70,7 +78,8 @@ private:
 
     QDesignerFormEditorInterface *m_core;
     TreeWidget *m_treeWidget;
-    QPointer<QDesignerFormWindowInterface> m_formWindow;
+    QPointer<FormWindowBase> m_formWindow;
+    QPointer<QWidget> m_formFakeDropTarget;
 };
 
 }  // namespace qdesigner_internal

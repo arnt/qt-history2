@@ -31,6 +31,7 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 // shared
 #include <formwindowbase_p.h>
 #include <tree_widget_p.h>
+#include <qdesigner_dnditem_p.h>
 
 // Qt
 #include <QtGui/QAction>
@@ -41,6 +42,7 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 #include <QtGui/QItemDelegate>
 #include <QtGui/QPainter>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/qevent.h>
 
 #include <QtCore/QStack>
 #include <QtCore/QPair>
@@ -84,7 +86,7 @@ ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *pa
             this, SLOT(slotSelectionChanged()));
 
     connect(m_treeWidget->header(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotHeaderDoubleClicked(int)));
-
+    setAcceptDrops(true);
 }
 
 ObjectInspector::~ObjectInspector()
@@ -189,8 +191,9 @@ ObjectInspector::PreviousSelection ObjectInspector::previousSelection(QDesignerF
     return rc;
 }
 
-void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
+void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fwi)
 {
+    FormWindowBase *fw = qobject_cast<FormWindowBase *>(fwi);
     const bool formWindowChanged = m_formWindow != fw;
     const bool resizeToColumn = formWindowChanged;
     m_formWindow = fw;
@@ -198,6 +201,9 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
     const int oldWidth = m_treeWidget->columnWidth(0);
     const int xoffset = m_treeWidget->horizontalScrollBar()->value();
     const int yoffset = m_treeWidget->verticalScrollBar()->value();
+
+    if (formWindowChanged)
+        m_formFakeDropTarget = 0;
 
     if (!fw || !fw->mainContainer()) {
         m_treeWidget->clear();
@@ -207,9 +213,6 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
     // maintain selection
     const PreviousSelection oldSelection = previousSelection(fw, formWindowChanged);
     m_treeWidget->clear();
-
-    if (!fw || !fw->mainContainer())
-        return;
 
     const QDesignerWidgetDataBaseInterface *db = fw->core()->widgetDataBase();
 
@@ -485,7 +488,7 @@ void ObjectInspector::slotHeaderDoubleClicked(int column)
     m_treeWidget->resizeColumnToContents(column);
 }
 
-QWidget *ObjectInspector::widgetAt(const QPoint &global_mouse_pos)
+QWidget *ObjectInspector::managedWidgetAt(const QPoint &global_mouse_pos)
 {
     if (!m_formWindow)
         return 0;
@@ -499,6 +502,8 @@ QWidget *ObjectInspector::widgetAt(const QPoint &global_mouse_pos)
     if (!o->isWidgetType())
         return 0;
     QWidget *rc = qobject_cast<QWidget *>(o);
+    if (!m_formWindow->isManaged(rc))
+        return 0;
     return rc;
 }
 
@@ -507,5 +512,87 @@ void ObjectInspector::mainContainerChanged()
     // Invalidate references to objects kept in items
     if (sender() == m_formWindow)
         setFormWindow(0);
+}
+
+void  ObjectInspector::dragEnterEvent (QDragEnterEvent * event)
+{
+    handleDragEnterMoveEvent(event, true);
+}
+
+void  ObjectInspector::dragMoveEvent(QDragMoveEvent * event)
+{
+    handleDragEnterMoveEvent(event, false);
+}
+
+void  ObjectInspector::dragLeaveEvent(QDragLeaveEvent * /* event*/)
+{
+    restoreDropHighlighting();
+}
+
+void  ObjectInspector::dropEvent (QDropEvent * event)
+{
+    if (!m_formWindow || !m_formFakeDropTarget) {
+        event->ignore();
+        return;
+    }
+
+    const QDesignerMimeData *mimeData =  qobject_cast<const QDesignerMimeData *>(event->mimeData());
+    if (!mimeData) {
+        event->ignore();
+        return;
+    }
+    const QPoint fakeGlobalDropFormPos = m_formFakeDropTarget->mapToGlobal(QPoint(0, 0));
+    mimeData->moveDecoration(fakeGlobalDropFormPos + mimeData->hotSpot());
+    if (!m_formWindow->dropWidgets(mimeData->items(), m_formFakeDropTarget, fakeGlobalDropFormPos)) {
+        event->ignore();
+        return;
+    }
+    mimeData->acceptEvent(event);
+}
+
+void ObjectInspector::handleDragEnterMoveEvent(QDragMoveEvent * event, bool isDragEnter)
+{
+    if (!m_formWindow) {
+        event->ignore();
+        return;
+    }
+
+    const QDesignerMimeData *mimeData =  qobject_cast<const QDesignerMimeData *>(event->mimeData());
+    if (!mimeData) {
+        event->ignore();
+        return;
+    }
+
+    QWidget *dropTarget = 0;
+    const QPoint fakeDropTargetOffset = QPoint(5, 5);
+    if (QWidget *managedWidget = managedWidgetAt(mapToGlobal(event->pos()))) {
+        // pretend we drag over the managed widget on the form
+        const QPoint fakeFormPos = m_formWindow->mapFromGlobal(managedWidget->mapToGlobal(fakeDropTargetOffset));
+        const FormWindowBase::WidgetUnderMouseMode wum = mimeData->items().size() == 1 ? FormWindowBase::FindSingleSelectionDropTarget : FormWindowBase::FindMultiSelectionDropTarget;
+        dropTarget = m_formWindow->widgetUnderMouse(fakeFormPos, wum);
+    }
+
+    if (m_formFakeDropTarget && dropTarget != m_formFakeDropTarget)
+        m_formWindow->highlightWidget(m_formFakeDropTarget, fakeDropTargetOffset, FormWindow::Restore);
+
+    m_formFakeDropTarget =  dropTarget;
+    if (m_formFakeDropTarget)
+        m_formWindow->highlightWidget(m_formFakeDropTarget, fakeDropTargetOffset, FormWindow::Highlight);
+
+    // Do not refuse enter even if the area is not droppable
+    if (isDragEnter || m_formFakeDropTarget)
+        mimeData->acceptEvent(event);
+    else
+        event->ignore();
+}
+
+void ObjectInspector::restoreDropHighlighting()
+{
+    if (m_formFakeDropTarget) {
+        if (m_formWindow) {
+            m_formWindow->highlightWidget(m_formFakeDropTarget, QPoint(5, 5), FormWindow::Restore);
+        }
+        m_formFakeDropTarget = 0;
+    }
 }
 }
