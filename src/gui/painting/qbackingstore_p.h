@@ -77,6 +77,8 @@ private:
 #endif
         );
 
+    static void updateWidget(QWidget *that, const QRegion &rgn);
+
     friend void qt_syncBackingStore(QRegion, QWidget *);
 #if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_WIN)
     friend void qt_syncBackingStore(QWidget *);

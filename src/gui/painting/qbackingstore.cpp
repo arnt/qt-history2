@@ -1212,22 +1212,30 @@ void QWidget::repaint(const QRegion& rgn)
 
 void QWidget::update()
 {
-    update(rect());
+    if(!isVisible() || !updatesEnabled())
+        return;
+    QWidgetBackingStore::updateWidget(this, rect());
 }
 
 void QWidget::update(const QRect &r)
 {
-    update(QRegion(r));
+    if(!isVisible() || !updatesEnabled() || r.isEmpty())
+        return;
+    QWidgetBackingStore::updateWidget(this, r);
 }
 
 void QWidget::update(const QRegion& rgn)
 {
     if(!isVisible() || !updatesEnabled() || rgn.isEmpty())
         return;
+    QWidgetBackingStore::updateWidget(this, rgn);
+}
 
-    Q_D(QWidget);
-    if (testAttribute(Qt::WA_WState_InPaintEvent)) {
-        QApplication::postEvent(this, new QUpdateLaterEvent(rgn));
+void QWidgetBackingStore::updateWidget(QWidget *that, const QRegion &rgn)
+{
+    QWidgetPrivate * const d = that->d_func();
+    if (that->testAttribute(Qt::WA_WState_InPaintEvent)) {
+        QApplication::postEvent(that, new QUpdateLaterEvent(rgn));
         return;
     }
 
@@ -1237,7 +1245,7 @@ void QWidget::update(const QRegion& rgn)
 
     QRegion wrgn = rgn & d->clipRect();
     d->subtractOpaqueSiblings(wrgn, QPoint());
-    d->subtractOpaqueChildren(wrgn, rect(), QPoint());
+    d->subtractOpaqueChildren(wrgn, that->rect(), QPoint());
 
     if (wrgn.isEmpty())
         return;
@@ -1249,14 +1257,14 @@ void QWidget::update(const QRegion& rgn)
     if (d->isOpaque()) {
         // TODO: overlapping non-opaque siblings
         if (bs->dirtyWidgets.isEmpty())
-            QApplication::postEvent(window(), new QEvent(QEvent::UpdateRequest), Qt::LowEventPriority);
+            QApplication::postEvent(that->window(), new QEvent(QEvent::UpdateRequest), Qt::LowEventPriority);
         if (d->dirty.isEmpty())
-            bs->dirtyWidgets.append(this);
+            bs->dirtyWidgets.append(that);
         d->dirty += wrgn;
         return;
     }
 #endif
 
-    bs->dirtyRegion(wrgn, this);
+    bs->dirtyRegion(wrgn, that);
 }
 
