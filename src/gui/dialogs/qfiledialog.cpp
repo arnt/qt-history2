@@ -1763,6 +1763,8 @@ void QFileDialogPrivate::_q_showHeader(QAction *action)
 }
 
 /*!
+    \since 4.3
+
     Sets the model for the views to the given \a proxyModel.  This is useful if you
     want to modify the underlying model; for example, to add columns, filter
     data or add drives.
