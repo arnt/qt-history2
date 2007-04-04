@@ -1554,6 +1554,9 @@ QSize QWindowsVistaStyle::sizeFromContents(ContentsType type, const QStyleOption
             return sz;
         break;
 #endif
+    case CT_Menu:
+        newSize += QSize(1, 1);
+        break;
     case CT_SpinBox:
         {
             //Spinbox adds frame twice
@@ -1932,6 +1935,11 @@ int QWindowsVistaStyle::pixelMetric(PixelMetric metric, const QStyleOption *opti
         return 5;
     case PM_ScrollBarSliderMin:
         return 18;
+    case PM_MenuHMargin:
+    case PM_MenuVMargin:
+        return 1;
+    case PM_MenuPanelWidth:
+        return 2;
     default:
         break;
     }
