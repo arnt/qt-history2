@@ -1484,10 +1484,6 @@ void tst_QTcpSocket::readWriteFailsOnUnconnectedSocket()
 
 void tst_QTcpSocket::connectionRefused()
 {
-#ifdef Q_OS_WIN
-    QSKIP("On Windows, we cannot determine if you got ConnectionRefused", SkipSingle);
-#endif
-
     qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
     qRegisterMetaType<QAbstractSocket::SocketState>("QAbstractSocket::SocketState");
 
