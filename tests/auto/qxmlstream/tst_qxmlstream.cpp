@@ -17,6 +17,8 @@
 #include <QXmlDefaultHandler>
 #include <QXmlStreamReader>
 
+#include "qc14n.h"
+
 static const char *const catalogFile = "XML-Test-Suite/xmlconf/finalCatalog.xml";
 static const int expectedRunCount = 1886;
 static const int expectedSkipCount = 2162;
@@ -749,20 +751,50 @@ void tst_QXmlStream::parseXSLTTestSuite() const
 
     QDirIterator dirIterator("XSLT-Test-Suite/", nameFilters,
                              QDir::AllEntries, QDirIterator::Subdirectories);
+
     int filesParsed = 0;
 
     while(dirIterator.hasNext())
     {
         dirIterator.next();
+
         const QString fp(dirIterator.filePath());
         qDebug() << "Found" << fp;
 
-        QFile file(fp);
-        QVERIFY(file.open(QIODevice::ReadOnly));
+        QFile inputFile(fp);
+        QVERIFY(inputFile.open(QIODevice::ReadOnly));
 
-        QVERIFY(TestSuiteHandler::isWellformed(&file, TestSuiteHandler::ParseSinglePass));
+        /* Read in and write out to the QByteArray. */
+        QByteArray outputArray;
+        {
+            QXmlStreamReader reader(&inputFile);
 
-        ++filesParsed;
+            QXmlStreamWriter writer(&outputArray);
+
+            while(!reader.atEnd())
+            {
+                writer.writeCurrentToken(reader);
+                reader.readNext();
+
+                QVERIFY2(!reader.error(), qPrintable(reader.errorString()));
+            }
+            /* Might be we got an error here, but we don't care. */
+        }
+
+        /* Read in the two files, and compare them. */
+        {
+            QBuffer outputBuffer(&outputArray);
+            outputBuffer.open(QIODevice::ReadOnly);
+            inputFile.close();
+            inputFile.open(QIODevice::ReadOnly);
+
+            QString message;
+            const bool isEqual = QC14N::isEqual(&inputFile, &outputBuffer, &message);
+
+            QVERIFY2(isEqual, message.toLatin1().constData());
+
+            ++filesParsed;
+        }
     }
 
     QCOMPARE(xsltExpectedRunCount, filesParsed);
@@ -773,7 +805,6 @@ void tst_QXmlStream::parseXSLTTestSuite() const
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
-
 
     if (argc == 3 && QByteArray(argv[1]).startsWith("-c")) {
         // output canonical only
