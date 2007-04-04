@@ -1426,7 +1426,7 @@ QDBusMessage QDBusConnectionPrivate::sendWithReply(const QDBusMessage &message,
     } else { // use the event loop
         QDBusReplyWaiter waiter;
         if (sendWithReplyAsync(message, &waiter, SLOT(reply(QDBusMessage)),
-                               SLOT(error()), timeout) > 0) {
+                               SLOT(error(QDBusMessage)), timeout) > 0) {
             // enter the event loop and wait for a reply
             waiter.exec(QEventLoop::ExcludeUserInputEvents | QEventLoop::WaitForMoreEvents);
 
