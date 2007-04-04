@@ -115,9 +115,14 @@ void tst_Selftests::runSubTest()
             continue;
         if (line.endsWith(" : failure location"))
             continue;
-        if (line.contains("ASSERT"))
+
+        const QString output(QString::fromLatin1(line));
+        const QString expected(QString::fromLatin1(exp.at(i)));
+
+        if (line.contains("ASSERT") && output != expected)
             QEXPECT_FAIL("assert", "QTestLib prints out the absolute path.", Continue);
-        QCOMPARE(QString::fromLatin1(line), QString::fromLatin1(exp.at(i)));
+
+        QCOMPARE(output, expected);
     }
 }
 
