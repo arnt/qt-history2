@@ -1546,7 +1546,9 @@ QSize QWindowsVistaStyle::sizeFromContents(ContentsType type, const QStyleOption
         }
         return sz;
     case CT_MenuItem:
-        return QWindowsStyle::sizeFromContents(type, option, size, widget);
+        sz = QWindowsStyle::sizeFromContents(type, option, size, widget);
+        sz.rwidth() += 28;
+        return sz;
 #ifndef QT_NO_MENUBAR
     case CT_MenuBarItem:
         if (!sz.isEmpty())
