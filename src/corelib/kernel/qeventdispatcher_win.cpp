@@ -572,7 +572,7 @@ void QEventDispatcherWin32::registerSocketNotifier(QSocketNotifier *notifier)
     if (QCoreApplication::closingDown()) // ### d->exitloop?
         return; // after sn_cleanup, don't reinitialize.
 
-    if (dict->contains(socket)) {
+    if (dict->contains(sockfd)) {
         const char *t[] = { "Read", "Write", "Exception" };
         qWarning("QSocketNotifier: Multiple socket notifiers for "
                  "same socket %d and type %s", socket, t[type]);
@@ -580,11 +580,11 @@ void QEventDispatcherWin32::registerSocketNotifier(QSocketNotifier *notifier)
 
     QSockNot *sn = new QSockNot;
     sn->obj = notifier;
-    sn->fd  = socket;
+    sn->fd  = sockfd;
     dict->insert(sn->fd, sn);
 
     if (d->internalHwnd)
-        d->doWsaAsyncSelect(socket);
+        d->doWsaAsyncSelect(sockfd);
 }
 
 void QEventDispatcherWin32::unregisterSocketNotifier(QSocketNotifier *notifier)
@@ -605,15 +605,15 @@ void QEventDispatcherWin32::unregisterSocketNotifier(QSocketNotifier *notifier)
     Q_D(QEventDispatcherWin32);
     QSNDict *sn_vec[3] = { &d->sn_read, &d->sn_write, &d->sn_except };
     QSNDict *dict = sn_vec[type];
-    QSockNot *sn = dict->value(socket);
+    QSockNot *sn = dict->value(sockfd);
     if (!sn)
         return;
 
-    dict->remove(socket);
+    dict->remove(sockfd);
     delete sn;
 
     if (d->internalHwnd)
-        d->doWsaAsyncSelect(socket);
+        d->doWsaAsyncSelect(sockfd);
 }
 
 void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *object)
