@@ -2167,7 +2167,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
             if(fromFile) {
                 int slsh = file.lastIndexOf(Option::dir_sep);
                 if(slsh != -1) {
-                    st->directory = file.left(slsh+1);
+                    st->in_directory = file.left(slsh+1);
                     st->profile = file.mid(slsh+1);
                 } else {
                     st->profile = file;
@@ -2175,16 +2175,17 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
             } else {
                 if(!file.isEmpty() && !project->isActiveConfig("subdir_first_pro"))
                     st->profile = file.section(Option::dir_sep, -1) + Option::pro_ext;
-                st->directory = file;
+                st->in_directory = file;
             }
-            while(st->directory.right(1) == Option::dir_sep)
-                st->directory = st->directory.left(st->directory.length() - 1);
+            while(st->in_directory.right(1) == Option::dir_sep)
+                st->in_directory = st->in_directory.left(st->in_directory.length() - 1);
+	    st->out_directory = fileFixify(st->in_directory, QDir::currentPath(), Option::output_dir);
             if(!project->isEmpty(fixedSubdir + ".makefile")) {
                 st->makefile = project->first(fixedSubdir + ".makefile");
             } else {
                 st->makefile = "$(MAKEFILE)";
                 if(!st->profile.isEmpty()) {
-                    QString basename = st->directory;
+                    QString basename = st->in_directory;
                     int new_slsh = basename.lastIndexOf(Option::dir_sep);
                     if(new_slsh != -1)
                         basename = basename.mid(new_slsh+1);
@@ -2279,10 +2280,12 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     // generate target rules
     for(int target = 0; target < targets.size(); ++target) {
         SubTarget *subtarget = targets.at(target);
-        QString in_directory = subtarget->directory;
+        QString in_directory = subtarget->in_directory;
         if(!in_directory.isEmpty() && !in_directory.endsWith(Option::dir_sep))
             in_directory += Option::dir_sep;
-        QString out_directory = in_directory;
+        QString out_directory = subtarget->out_directory;
+        if(!out_directory.isEmpty() && !out_directory.endsWith(Option::dir_sep))
+            out_directory += Option::dir_sep;
         if(!abs_source_path.isEmpty() && out_directory.startsWith(abs_source_path))
             out_directory = Option::output_dir + out_directory.mid(abs_source_path.length());
 
@@ -2466,10 +2469,12 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             }
             for(int target = 0; target < targets.size(); ++target) {
                 SubTarget *subtarget = targets.at(target);
-                QString in_directory = subtarget->directory;
+                QString in_directory = subtarget->in_directory;
                 if(!in_directory.isEmpty() && !in_directory.endsWith(Option::dir_sep))
                     in_directory += Option::dir_sep;
-                QString out_directory = in_directory;
+                QString out_directory = subtarget->out_directory;
+                if(!out_directory.isEmpty() && !out_directory.endsWith(Option::dir_sep))
+                    out_directory += Option::dir_sep;
                 if(!abs_source_path.isEmpty() && out_directory.startsWith(abs_source_path))
                     out_directory = Option::output_dir + out_directory.mid(abs_source_path.length());
 

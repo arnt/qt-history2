@@ -77,7 +77,8 @@ protected:
     struct SubTarget
     {
         QString name;
-        QString directory, profile, target, makefile;
+	QString in_directory, out_directory;
+        QString profile, target, makefile;
         QStringList depends;
     };
     enum SubTargetFlags {

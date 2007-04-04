@@ -4,15 +4,9 @@
 
 CONFIG += ordered
 TEMPLATE = subdirs
-isEmpty(QT_PROJECTS) {
-   #fallback defaults
-#  SUBDIRS = qmake
-   include(src/src.pro)
-   !cross_compile:SUBDIRS += tools
-   else:SUBDIRS += tools/qtestlib
-   SUBDIRS += demos examples
-} else {
-   #make sure the order makes sense
+isEmpty(QT_PROJECTS) { #defaults
+   QT_PROJECTS = libs tools examples demos 
+} else { #make sure the order makes sense
    contains(QT_PROJECTS, tools) {
        QT_PROJECTS -= tools
        QT_PROJECTS = tools $$QT_PROJECTS
@@ -25,26 +19,25 @@ isEmpty(QT_PROJECTS) {
        QT_PROJECTS -= qmake
        QT_PROJECTS = qmake $$QT_PROJECTS
    }
-
-   #process the projects
-   for(PROJECT, $$list($$lower($$unique(QT_PROJECTS)))) {
-       isEqual(PROJECT, tools) {
-          !cross_compile:SUBDIRS += tools
-          else:SUBDIRS += tools/qtestlib
-       } else:isEqual(PROJECT, examples) {
-          SUBDIRS += examples
-       } else:isEqual(PROJECT, demos) {
-          SUBDIRS += demos
-       } else:isEqual(PROJECT, libs) {
-          include(src/src.pro)
-       } else:isEqual(PROJECT, qmake) {
-#         SUBDIRS += qmake
-       } else {
-          message(Unknown PROJECT: $$PROJECT)
-       }
-   }
 }
 
+#process the projects
+for(PROJECT, $$list($$lower($$unique(QT_PROJECTS)))) {
+    isEqual(PROJECT, tools) {
+       !cross_compile:SUBDIRS += tools
+       else:SUBDIRS += tools/qtestlib
+    } else:isEqual(PROJECT, examples) {
+       SUBDIRS += examples
+    } else:isEqual(PROJECT, demos) {
+       SUBDIRS += demos
+    } else:isEqual(PROJECT, libs) {
+       include(src/src.pro)
+    } else:isEqual(PROJECT, qmake) {
+#      SUBDIRS += qmake
+    } else {
+       message(Unknown PROJECT: $$PROJECT)
+    }
+}
 
 unix {
   confclean.depends += clean
