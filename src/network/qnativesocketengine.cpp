@@ -884,16 +884,77 @@ bool QNativeSocketEngine::isReadNotificationEnabled() const
     return d->readNotifier && d->readNotifier->isEnabled();
 }
 
+class QReadNotifier : public QSocketNotifier
+{
+public:
+    QReadNotifier(int fd, QNativeSocketEngine *parent)
+        : QSocketNotifier(fd, QSocketNotifier::Read, parent) { engine = parent; }
+
+protected:
+    bool event(QEvent *);
+
+    QNativeSocketEngine *engine;
+};
+
+bool QReadNotifier::event(QEvent *e)
+{
+    if (e->type() == QEvent::SockAct) {
+        engine->readNotification();
+        return true;
+    }
+    return QSocketNotifier::event(e);
+}
+
+
+class QWriteNotifier : public QSocketNotifier
+{
+public:
+    QWriteNotifier(int fd, QNativeSocketEngine *parent)
+        : QSocketNotifier(fd, QSocketNotifier::Write, parent) { engine = parent; }
+
+protected:
+    bool event(QEvent *);
+
+    QNativeSocketEngine *engine;
+};
+
+bool QWriteNotifier::event(QEvent *e)
+{
+    if (e->type() == QEvent::SockAct) {
+        engine->writeNotification();
+        return true;
+    }
+    return QSocketNotifier::event(e);
+}
+
+class QExceptionNotifier : public QSocketNotifier
+{
+public:
+    QExceptionNotifier(int fd, QNativeSocketEngine *parent)
+        : QSocketNotifier(fd, QSocketNotifier::Exception, parent) { engine = parent; }
+
+protected:
+    bool event(QEvent *);
+
+    QNativeSocketEngine *engine;
+};
+
+bool QExceptionNotifier::event(QEvent *e)
+{
+    if (e->type() == QEvent::SockAct) {
+        engine->exceptionNotification();
+        return true;
+    }
+    return QSocketNotifier::event(e);
+}
+
 void QNativeSocketEngine::setReadNotificationEnabled(bool enable)
 {
     Q_D(QNativeSocketEngine);
     if (d->readNotifier) {
         d->readNotifier->setEnabled(enable);
     } else if (enable && d->threadData->eventDispatcher) {
-        d->readNotifier = new QSocketNotifier(d->socketDescriptor,
-                                              QSocketNotifier::Read, this);
-        QObject::connect(d->readNotifier, SIGNAL(activated(int)),
-                         this, SLOT(readNotification()));
+        d->readNotifier = new QReadNotifier(d->socketDescriptor, this);
         d->readNotifier->setEnabled(true);
     }
 }
@@ -910,10 +971,7 @@ void QNativeSocketEngine::setWriteNotificationEnabled(bool enable)
     if (d->writeNotifier) {
         d->writeNotifier->setEnabled(enable);
     } else if (enable && d->threadData->eventDispatcher) {
-        d->writeNotifier = new QSocketNotifier(d->socketDescriptor,
-                                              QSocketNotifier::Write, this);
-        QObject::connect(d->writeNotifier, SIGNAL(activated(int)),
-                         this, SLOT(writeNotification()));
+        d->writeNotifier = new QWriteNotifier(d->socketDescriptor, this);
         d->writeNotifier->setEnabled(true);
     }
 }
@@ -930,10 +988,7 @@ void QNativeSocketEngine::setExceptionNotificationEnabled(bool enable)
     if (d->exceptNotifier) {
         d->exceptNotifier->setEnabled(enable);
     } else if (enable && d->threadData->eventDispatcher) {
-        d->exceptNotifier = new QSocketNotifier(d->socketDescriptor,
-                                              QSocketNotifier::Exception, this);
-        QObject::connect(d->exceptNotifier, SIGNAL(activated(int)),
-                         this, SIGNAL(exceptionNotification()));
+        d->exceptNotifier = new QExceptionNotifier(d->socketDescriptor, this);
         d->exceptNotifier->setEnabled(true);
     }
 }

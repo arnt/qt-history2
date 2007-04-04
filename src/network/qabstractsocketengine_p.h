@@ -117,7 +117,7 @@ public:
     virtual bool isExceptionNotificationEnabled() const = 0;
     virtual void setExceptionNotificationEnabled(bool enable) = 0;
 
-protected Q_SLOTS:
+public Q_SLOTS:
     void readNotification();
     void writeNotification();
     void exceptionNotification();
