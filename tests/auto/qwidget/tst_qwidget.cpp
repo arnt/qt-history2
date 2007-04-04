@@ -3370,6 +3370,9 @@ void tst_QWidget::showHideEvent()
 
 void tst_QWidget::update()
 {
+#ifdef Q_WS_MAC
+    QTest::qWait(1000);  // Wait for the initStuff to do it's stuff.
+#endif
     Q_CHECK_PAINTEVENTS
 
     UpdateWidget w;
@@ -3378,7 +3381,7 @@ void tst_QWidget::update()
     QApplication::processEvents();
     QApplication::processEvents();
 
-#if defined(Q_WS_WIN)
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
     QCOMPARE(w.numPaintEvents, 2); //the window gets update once more when it is activated
 #else
     QCOMPARE(w.numPaintEvents, 1);
