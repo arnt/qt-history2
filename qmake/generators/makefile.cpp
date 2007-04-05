@@ -20,6 +20,7 @@
 #include <qtextstream.h>
 #include <qregexp.h>
 #include <qhash.h>
+#include <qdebug.h>
 #include <qbuffer.h>
 #include <qsettings.h>
 #include <qdatetime.h>
@@ -2851,9 +2852,9 @@ MakefileGenerator::findFileForDep(const QMakeLocalFileName &dep, const QMakeLoca
                 QString targ = var((*it) + ".target");
                 if(targ.isEmpty())
                     targ = (*it);
-                QMakeLocalFileName out = unescapeFilePath(targ);
-                if(out == dep || out.local().section(Option::dir_sep, -1) == dep_basename) {
-                    ret = out;
+		QString out = Option::fixPathToTargetOS(targ);
+                if(out == dep.real() || out.section(Option::dir_sep, -1) == dep_basename) {
+		  ret = QMakeLocalFileName(out);
                     goto found_dep_from_heuristic;
                 }
             }
@@ -2869,9 +2870,9 @@ MakefileGenerator::findFileForDep(const QMakeLocalFileName &dep, const QMakeLoca
                 for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
                     QStringList &inputs = project->values((*it2));
                     for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-                        QMakeLocalFileName out = unescapeFilePath(replaceExtraCompilerVariables(tmp_out, (*input), QString()));
-                        if(out == dep || out.local().section(Option::dir_sep, -1) == dep_basename) {
-                            ret = QMakeLocalFileName(fileFixify(out.real(), qmake_getpwd(), Option::output_dir));
+		      QString out = Option::fixPathToTargetOS(unescapeFilePath(replaceExtraCompilerVariables(tmp_out, (*input), QString())));
+		      if(out == dep.real() || out.section(Option::dir_sep, -1) == dep_basename) {
+                            ret = QMakeLocalFileName(fileFixify(out, qmake_getpwd(), Option::output_dir));
                             goto found_dep_from_heuristic;
                         }
                     }
