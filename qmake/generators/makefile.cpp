@@ -2567,8 +2567,11 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
             const QStringList &included = project->values("QMAKE_INTERNAL_INCLUDED_FILES");
             t << escapeFilePaths(included).join(" \\\n\t\t") << "\n\t"
               << qmake << endl;
-            for(int include = 0; include < included.size(); ++include)
-                t << included.at(include) << ":" << endl;
+            for(int include = 0; include < included.size(); ++include) {
+		const QString i(included.at(include));
+		if(!i.isEmpty())
+		    t << i << ":" << endl;
+	    }
         }
         if(project->first("QMAKE_ORIG_TARGET") != "qmake") {
             t << "qmake: " <<
