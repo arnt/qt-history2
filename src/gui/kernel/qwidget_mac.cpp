@@ -207,14 +207,16 @@ QWidget *qt_mac_find_window(WindowPtr window)
 
 inline static void qt_mac_set_fullscreen_mode(bool b)
 {
+    extern bool qt_mac_app_fullscreen; //qapplication_mac.cpp
+    if(qt_mac_app_fullscreen == b)
+        return;
+    qt_mac_app_fullscreen = b;
 #if 0
     if(b)
         SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar);
     else
         SetSystemUIMode(kUIModeNormal, 0);
 #else
-    extern bool qt_mac_app_fullscreen; //qapplication_mac.cpp
-    qt_mac_app_fullscreen = b;
     if(b)
         HideMenuBar();
     else
