@@ -91,15 +91,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC            = " << var("QMAKE_CC") << endl;
     t << "CXX           = " << var("QMAKE_CXX") << endl;
-    t << "LEX           = " << var("QMAKE_LEX") << endl;
-    t << "YACC          = " << var("QMAKE_YACC") << endl;
     t << "DEFINES       = "
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
       << varGlue("DEFINES","-D"," -D","") << endl;
     t << "CFLAGS        = " << var("QMAKE_CFLAGS") << " $(DEFINES)" << endl;
     t << "CXXFLAGS      = " << var("QMAKE_CXXFLAGS") << " $(DEFINES)" << endl;
-    t << "LEXFLAGS      = " << var("QMAKE_LEXFLAGS") << endl;
-    t << "YACCFLAGS     = " << var("QMAKE_YACCFLAGS") << endl;
     t << "INCPATH       = " << "-I" << specdir();
     if(!project->isActiveConfig("no_include_pwd")) {
         QString pwd = escapeFilePath(fileFixify(qmake_getpwd()));
@@ -757,45 +753,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << endl;
 
     QString clean_targets = "compiler_clean " + var("CLEAN_DEPS");
-    t << "yaccclean:" << "\n";
-    if(!var("YACCSOURCES").isEmpty()) {
-        QStringList clean, &l = project->values("YACCSOURCES");
-        for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-            QFileInfo fi(fileInfo((*it)));
-            QString dir;
-            if(fi.path() != ".")
-                dir = fi.path() + Option::dir_sep;
-            dir = fileFixify(dir, qmake_getpwd(), Option::output_dir);
-            if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
-                dir += Option::dir_sep;
-            clean << (dir + fi.completeBaseName() + Option::yacc_mod + Option::cpp_ext.first());
-            clean << (dir + fi.completeBaseName() + Option::yacc_mod + Option::h_ext.first());
-        }
-        if(!clean.isEmpty()) {
-            t << "\t-$(DEL_FILE) " << clean.join(" ") << "\n";
-            clean_targets += " yaccclean";
-        }
-    }
-
-    t << "lexclean:" << "\n";
-    if(!var("LEXSOURCES").isEmpty()) {
-        QStringList clean, &l = project->values("LEXSOURCES");
-        for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-            QFileInfo fi(fileInfo((*it)));
-            QString dir;
-            if(fi.path() != ".")
-                dir = fi.path() + Option::dir_sep;
-            dir = fileFixify(dir, qmake_getpwd(), Option::output_dir);
-            if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
-                dir += Option::dir_sep;
-            clean << (dir + fi.completeBaseName() + Option::lex_mod + Option::cpp_ext.first());
-        }
-        if(!clean.isEmpty()) {
-            t << "\t-$(DEL_FILE) " << clean.join(" ") << "\n";
-            clean_targets += " lexclean";
-        }
-    }
-
     if(do_incremental) {
         t << "incrclean:" << "\n";
         if(src_incremental)

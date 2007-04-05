@@ -518,15 +518,11 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC            = " << var("QMAKE_CC") << endl;
     t << "CXX           = " << var("QMAKE_CXX") << endl;
-    t << "LEX           = " << var("QMAKE_LEX") << endl;
-    t << "YACC          = " << var("QMAKE_YACC") << endl;
     t << "DEFINES       = "
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
       << varGlue("DEFINES","-D"," -D","") << endl;
     t << "CFLAGS        = " << var("QMAKE_CFLAGS") << " $(DEFINES)" << endl;
     t << "CXXFLAGS      = " << var("QMAKE_CXXFLAGS") << " $(DEFINES)" << endl;
-    t << "LEXFLAGS      = " << var("QMAKE_LEXFLAGS") << endl;
-    t << "YACCFLAGS     = " << var("QMAKE_YACCFLAGS") << endl;
 
     writeIncPart(t);
     writeLibsPart(t);
