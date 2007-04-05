@@ -2850,7 +2850,7 @@ void QWidgetPrivate::macUpdateHideOnSuspend()
     Q_Q(QWidget);
     if (!q->testAttribute(Qt::WA_WState_Created) || !q->isWindow() || q->windowType() != Qt::Tool)
         return;
-    if(q->testAttribute(Qt::WA_MacNoHideWindowOnSuspend))
+    if(q->testAttribute(Qt::WA_MacAlwaysShowToolWindow))
         ChangeWindowAttributes(qt_mac_window_for(q), 0, kWindowHideOnSuspendAttribute);
     else
         ChangeWindowAttributes(qt_mac_window_for(q), kWindowHideOnSuspendAttribute, 0);

@@ -959,6 +959,9 @@
 
     \value WA_WindowPropagation Makes a toplevel window inherit font and palette from its parent.
 
+    \value WA_MacAlwaysShowToolWindow On Mac OS X, show the tool window even when the application is not active.
+    By default, all tool windows are hidden when the application is active.
+
     \omitvalue WA_SetLayoutDirection
     \omitvalue WA_InputMethodTransparent
     \omitvalue WA_WState_CompressKeys

@@ -1643,8 +1643,9 @@ bool QWidgetPrivate::isOpaque() const
 
     if (q->autoFillBackground()) {
         const QBrush &autoFillBrush = pal.brush(q->backgroundRole());
-        if (autoFillBrush.style() != Qt::NoBrush && autoFillBrush.isOpaque())
+        if (autoFillBrush.style() != Qt::NoBrush && autoFillBrush.isOpaque()) {
             return true;
+        }
     }
 
     if (q->isWindow() && !q->testAttribute(Qt::WA_NoSystemBackground)) {
@@ -7845,7 +7846,7 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         }
         break;
 #endif
-    case Qt::WA_MacNoHideWindowOnSuspend:
+    case Qt::WA_MacAlwaysShowToolWindow:
 #ifdef Q_WS_MAC
         d->macUpdateHideOnSuspend();
 #endif
