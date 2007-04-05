@@ -351,10 +351,11 @@ void MingwMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 
 void MingwMakefileGenerator::writeRcFilePart(QTextStream &t)
 {
-    if (!project->values("RC_FILE").isEmpty()) {
-        t << var("RES_FILE") << ": " << var("RC_FILE") << "\n\t"
-          << var("QMAKE_RC") << " -i " << var("RC_FILE") << " -o " << var("RES_FILE") << " --include-dir="
-          << fileInfo(var("RC_FILE")).path() << endl << endl;
+    const QString rc_file = fileFixify(project->first("RC_FILE"));
+    if (!rc_file.isEmpty()) {
+        t << var("RES_FILE") << ": " << rc_file << "\n\t"
+          << var("QMAKE_RC") << " -i " << rc_file << " -o " << var("RES_FILE") 
+	  << " --include-dir=" << fileInfo(rc_file).path() << endl << endl;
     }
 }
 
