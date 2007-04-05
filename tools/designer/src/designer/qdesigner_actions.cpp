@@ -608,8 +608,9 @@ void QDesignerActions::previewForm(QAction *action)
     widget->setWindowModality(Qt::ApplicationModal);
 #endif
 
+    // Position over form window
     widget->setAttribute(Qt::WA_DeleteOnClose, true);
-    widget->move(fw->window()->mapToGlobal(QPoint(0, 0)) + QPoint(10, 10));
+    widget->move(fw->mapToGlobal(QPoint(10, 10)));
 
     widget->installEventFilter(this);
     widget->show();
@@ -1039,31 +1040,39 @@ void QDesignerActions::showFormSettings()
 
 bool QDesignerActions::eventFilter(QObject *watched, QEvent *event)
 {
-    QWidget *w = qobject_cast<QWidget *>(watched);
-    if (!w || !w->isWindow())
-        return QObject::eventFilter(watched, event);
+    do {
+        if (!watched->isWidgetType())
+            break;
+        QWidget *previewWindow = qobject_cast<QWidget *>(watched);
+        if (!previewWindow || !previewWindow->isWindow())
+            break;
 
-    switch (event->type()) {
-    case QEvent::KeyPress: {
-        QKeyEvent *keyEvent = (QKeyEvent *)event;
-        if (keyEvent && (keyEvent->key() == Qt::Key_Escape
+        switch (event->type()) {
+        case QEvent::KeyPress:
+        case QEvent::ShortcutOverride:        {
+            const  QKeyEvent *keyEvent = static_cast<const QKeyEvent *>(event);
+            const int key = keyEvent->key();
+            if ((key == Qt::Key_Escape
 #ifdef Q_WS_MAC
-            || (keyEvent->modifiers() == Qt::ControlModifier && keyEvent->key() == Qt::Key_Period)
+                 || (keyEvent->modifiers() == Qt::ControlModifier && key == Qt::Key_Period)
 #endif
-            )) {
-            w->close();
-            return true;
+                 )) {
+                previewWindow->close();
+                return true;
+            }
         }
-    }
-        break;
+            break;
 #ifdef NONMODAL_PREVIEW
-    case QEvent::Destroy:
-        updateCloseAction();
-        break;
+        case QEvent::Close:
+            previewWindow->removeEventFilter(this);
+            m_previewWidget = 0;
+            updateCloseAction();
+            break;
 #endif
-    default:
-        break;
-    }
+        default:
+            break;
+        }
+    } while(false);
     return QObject::eventFilter(watched, event);
 }
 
