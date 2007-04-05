@@ -35,7 +35,9 @@ var ECLIPSE_MINGW_LOCATION
 !define MODULE_ECLIPSE_QTINTEGRATIONHELP_LABEL "Qt Integration Help"
 !define MODULE_ECLIPSE_QTINTEGRATIONHELP_INSTALLEDKEY "EclipseQtIntegrationHelpInstalled"
 
-!define MODULE_ECLIPSE_QTREFERENCE_ID "com.trolltech.help_${MODULE_ECLIPSE_VERSION}"
+!define MODULE_ECLIPSE_QTREFERENCE_QTVERSION "4.3.0"
+!define MODULE_ECLIPSE_QTREFERENCE_VERSION "1.0"
+!define MODULE_ECLIPSE_QTREFERENCE_ID "com.trolltech.help_${MODULE_ECLIPSE_QTREFERENCE_QTVERSION}_${MODULE_ECLIPSE_QTREFERENCE_VERSION}"
 !define MODULE_ECLIPSE_QTREFERENCE_LABEL "Qt Reference documentation"
 !define MODULE_ECLIPSE_QTREFERENCE_INSTALLEDKEY "EclipseQtReferenceInstalled"
 
@@ -124,12 +126,12 @@ Section "${MODULE_ECLIPSE_QTREFERENCE_LABEL}" ECLIPSE_SEC04
   WriteRegDWORD SHCTX "$PRODUCT_UNIQUE_KEY" "${MODULE_ECLIPSE_QTREFERENCE_INSTALLEDKEY}" 1
   SetOutPath "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}"
   SetOverwrite ifnewer
-  File "${MODULE_ECLIPSE_ROOT}\plugins\com.trolltech.help\doc.zip"
-  File "${MODULE_ECLIPSE_ROOT}\plugins\com.trolltech.help\plugin.xml"
-  File "${MODULE_ECLIPSE_ROOT}\plugins\com.trolltech.help\qt.xml"
-  SetOutPath "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTREFERENCE_ID}"
-  SetOverwrite ifnewer
-  File "${MODULE_ECLIPSE_ROOT}\features\com.trolltech.help\feature.xml"
+  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}\doc.zip"
+  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}\plugin.xml"
+  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}\qt.xml"
+;  SetOutPath "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTREFERENCE_ID}"
+;  SetOverwrite ifnewer
+;  File "${MODULE_ECLIPSE_ROOT}\features\${MODULE_ECLIPSE_QTREFERENCE_ID}\feature.xml"
 SectionEnd
 
 SectionGroupEnd
@@ -314,8 +316,8 @@ Section un."Eclipse Integration"
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}\plugin.xml"
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}\qt.xml"
     RMDir "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}"
-    Delete "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTREFERENCE_ID}\feature.xml"
-    RMDir "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTREFERENCE_ID}"
+;    Delete "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTREFERENCE_ID}\feature.xml"
+;    RMDir "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTREFERENCE_ID}"
   DoneUnInstallQtReference:
   
   Delete "$ECLIPSE_INSTDIR\msvcp80.dll"
