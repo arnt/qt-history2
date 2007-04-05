@@ -1,3 +1,4 @@
+StartDocument( )
 StartElement( name="doc" qualifiedName="doc" )
 Characters( whitespace text="    " )
 StartElement( name="paragraph" qualifiedName="paragraph" )

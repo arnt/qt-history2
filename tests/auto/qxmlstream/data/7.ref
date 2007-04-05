@@ -1,3 +1,4 @@
+StartDocument( )
 StartElement( name="doc" qualifiedName="doc" )
 Characters( text="Text and " )
 Characters( CDATA text="text in a CDATA section" )
