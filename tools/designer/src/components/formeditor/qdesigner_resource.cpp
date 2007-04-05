@@ -63,8 +63,6 @@
 
 #include <QtCore/QBuffer>
 #include <QtCore/QDir>
-#include <QtCore/QProcess>
-#include <QtCore/QLibraryInfo>
 #include <QtCore/QMetaProperty>
 #include <QtCore/qdebug.h>
 
@@ -232,34 +230,6 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
         extra->saveUiExtraInfo(ui);
 }
 
-
-
-// Convert uic3 files
-static bool convert3(const QString &fileName, QByteArray& ba, QString &errorMessage) {
-    QString binary = QLibraryInfo::location(QLibraryInfo::BinariesPath);
-    binary += QDir::separator();
-    binary += QLatin1String("uic3");
-    QStringList argv(QLatin1String("-convert"));
-    argv += fileName;
-    // Try to convert it ourselves.
-    QProcess uic3;
-    uic3.start(binary, argv);
-    if (!uic3.waitForStarted()) {
-        errorMessage = QApplication::translate("Designer", "Unable to launch %1.").arg(binary);
-        return false;
-    }
-    if (!uic3.waitForFinished()) {
-        errorMessage = QApplication::translate("Designer", "%1 timed out.").arg(binary);
-        return false;
-    }
-    if (uic3.exitCode()) {
-        errorMessage =  uic3.readAllStandardError();
-        return false;
-    }
-    ba = uic3.readAllStandardOutput();
-    return true;
-}
-
 namespace {
     enum LoadPreCheck {  LoadPreCheckFailed, LoadPreCheckVersion3, LoadPreCheckVersionMismatch,  LoadPreCheckOk  };
     // Pair of major, minor
@@ -336,7 +306,7 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
         const QString version = ui->attributeVersion();
         QWidget *w = 0;
         QByteArray ba;
-        if (convert3( m_formWindow->fileName(), ba, errorMessage)) {
+        if (runUIC( m_formWindow->fileName(), UIC_ConvertV3, ba, errorMessage)) {
             QBuffer buffer(&ba);
             w = load(&buffer, parentWidget);
             if (w) {

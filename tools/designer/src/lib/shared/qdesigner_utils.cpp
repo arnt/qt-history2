@@ -22,6 +22,9 @@
 #include <QtGui/QPixmap>
 #include <QtCore/QDir>
 
+#include <QtGui/QApplication>
+#include <QtCore/QProcess>
+#include <QtCore/QLibraryInfo>
 
 namespace qdesigner_internal
 {
@@ -97,6 +100,39 @@ namespace qdesigner_internal
         const QString normalizedQrcPath = fw->absoluteDir().absoluteFilePath(rmd.qrcPath());
         const QPixmap rc =  fw->core()->iconCache()->nameToPixmap(rmd.filePath(), normalizedQrcPath);
         return rc;
+    }
+
+    QDESIGNER_SHARED_EXPORT bool runUIC(const QString &fileName, UIC_Mode mode, QByteArray& ba, QString &errorMessage)
+    {
+        QStringList argv;
+        QString binary = QLibraryInfo::location(QLibraryInfo::BinariesPath);
+        binary += QDir::separator();
+        switch (mode) {
+        case UIC_GenerateCode:
+            binary += QLatin1String("uic");
+            break;
+        case UIC_ConvertV3:
+            binary += QLatin1String("uic3");
+            argv += QLatin1String("-convert");
+            break;
+        }
+        argv += fileName;
+        QProcess uic;
+        uic.start(binary, argv);
+        if (!uic.waitForStarted()) {
+            errorMessage = QApplication::translate("Designer", "Unable to launch %1.").arg(binary);
+            return false;
+        }
+        if (!uic.waitForFinished()) {
+            errorMessage = QApplication::translate("Designer", "%1 timed out.").arg(binary);
+            return false;
+        }
+        if (uic.exitCode()) {
+            errorMessage =  uic.readAllStandardError();
+            return false;
+        }
+        ba = uic.readAllStandardOutput();
+        return true;
     }
 
     QDESIGNER_SHARED_EXPORT QString qtify(const QString &name)
