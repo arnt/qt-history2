@@ -313,12 +313,12 @@ static bool match( int t )
     return matches;
 }
 
-static bool matchString( QByteArray *s )
+static bool matchString( QString &s )
 {
     bool matches = ( yyTok == Tok_String );
-    *s = "";
+    s = "";
     while ( yyTok == Tok_String ) {
-        *s += yyString;
+        s += yyString;
         yyTok = getToken();
     }
     return matches;
@@ -365,7 +365,7 @@ static bool matchInteger( qlonglong *number)
     return matches;
 }
 
-static bool matchStringOrNull(QByteArray *s)
+static bool matchStringOrNull(QString &s)
 {
     bool matches = matchString(s);
     qlonglong num = 0;
@@ -435,8 +435,8 @@ static const QString context()
 
 static void parse( MetaTranslator *tor )
 {
-    QByteArray text;
-    QByteArray com;
+    QString text;
+    QString com;
 
     yyCh = getChar();    
     
@@ -461,38 +461,38 @@ static void parse( MetaTranslator *tor )
 
         case Tok_tr:
             yyTok = getToken();
-            if ( match(Tok_LeftParen) && matchString(&text) ) {
+            if ( match(Tok_LeftParen) && matchString(text) ) {
                 com = "";
                 bool plural = false;
                 
                 if ( match(Tok_RightParen) ) {
                     // no comment
-                } else if (match(Tok_Comma) && matchStringOrNull(&com)) {   //comment
+                } else if (match(Tok_Comma) && matchStringOrNull(com)) {   //comment
                     if ( match(Tok_RightParen)) {
                         // ok,
                     } else if (match(Tok_Comma)) {
                         plural = true;
                     }
                 }
-                tor->insert( MetaTranslatorMessage(context().toLatin1(), text, com, QLatin1String(yyFileName), yyLineNo,
-                    QStringList(), false, MetaTranslatorMessage::Unfinished, plural) );
+                tor->insert( MetaTranslatorMessage(context().toUtf8(), text.toUtf8(), com.toUtf8(), QLatin1String(yyFileName), yyLineNo,
+                    QStringList(), true, MetaTranslatorMessage::Unfinished, plural) );
             }
             break;
         case Tok_translate:
             {
-                QByteArray contextOverride;
+                QString contextOverride;
                 utf8 = false;
                 yyTok = getToken();
                 if ( match(Tok_LeftParen) &&
-                     matchString(&contextOverride) &&
+                     matchString(contextOverride) &&
                      match(Tok_Comma) &&
-                     matchString(&text) ) {
+                     matchString(text) ) {
 
                     com = "";
                     bool plural = false;
                     if (!match(Tok_RightParen)) {
                         // look for comment
-                        if ( match(Tok_Comma) && matchStringOrNull(&com)) {
+                        if ( match(Tok_Comma) && matchStringOrNull(com)) {
                             if (!match(Tok_RightParen)) {
                                 // look for encoding
                                 if (match(Tok_Comma)) {
@@ -511,8 +511,8 @@ static void parse( MetaTranslator *tor )
                             break;
                         }
                     }
-                    tor->insert( MetaTranslatorMessage(contextOverride, text, com, QLatin1String(yyFileName), yyLineNo,
-                                                       QStringList(), utf8, MetaTranslatorMessage::Unfinished, plural) );
+                    tor->insert( MetaTranslatorMessage(contextOverride.toUtf8(), text.toUtf8(), com.toUtf8(), QLatin1String(yyFileName), yyLineNo,
+                                                       QStringList(), true, MetaTranslatorMessage::Unfinished, plural) );
                 }
             }
             break;
