@@ -967,7 +967,7 @@ QDesignerMenu *QDesignerMenu::findOrCreateSubMenu(QAction *action)
 
 bool QDesignerMenu::canCreateSubMenu(QAction *action) const // ### improve it's a bit too slow
 {
-    foreach (QWidget *aw, action->associatedWidgets())
+    foreach (const QWidget *aw, action->associatedWidgets())
         if (aw != this) {
             if (const QMenu *m = qobject_cast<const QMenu *>(aw)) {
                 if (m->actions().contains(action))
