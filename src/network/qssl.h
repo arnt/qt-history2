@@ -48,7 +48,7 @@ namespace QSsl {
         Rsa,
         Dsa
     };
-};
+}
 
 QT_END_HEADER
 
