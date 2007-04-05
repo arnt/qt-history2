@@ -1739,7 +1739,8 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         if(project->values((*it) + ".CONFIG").indexOf("no_clean") == -1) {
             QString tmp_clean = project->values((*it) + ".clean").join(" ");
             QString tmp_clean_cmds = project->values((*it) + ".clean_commands").join(" ");
-            clean_targets += QString("compiler_" + (*it) + "_clean ");
+            if(!tmp_inputs.isEmpty())
+                clean_targets += QString("compiler_" + (*it) + "_clean ");
             t << "compiler_" << (*it) << "_clean:";
             bool wrote_clean_cmds = false, wrote_clean = false;
             if(tmp_clean_cmds.isEmpty()) {
