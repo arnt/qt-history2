@@ -324,37 +324,6 @@ static bool matchString( QString &s )
     return matches;
 }
 
-static bool matchEncoding( bool *utf8 )
-{
-    if ( yyTok == Tok_Ident ) {
-        // com.trolltech.qt.QCoreApplication.encoding
-        while( yyIdent == "Encoding" ) {
-            getToken();
-            if(!( match( Tok_Dot ) && yyTok == Tok_Ident ))
-                return false;
-        }
-
-        yyTok = getToken();
-
-        if(!( match( Tok_Dot ) && yyTok == Tok_Ident )) {
-            return false;
-        }
-    
-        if ( yyIdent == "UnicodeUTF8" ) {
-            *utf8 = true;
-            yyTok = getToken();
-        } else if ( yyIdent == "CodecForTr") {
-            *utf8 = false;
-            yyTok = getToken();
-        } else {
-            return false;
-        }
-        return true;
-    } else {
-        return false;
-    }
-}
-
 static bool matchInteger( qlonglong *number)
 {
     bool matches = (yyTok == Tok_Integer);
@@ -439,9 +408,7 @@ static void parse( MetaTranslator *tor )
     QString com;
 
     yyCh = getChar();    
-    
-    bool utf8 = false;
-    
+
     yyTok = getToken();
     while ( yyTok != Tok_Eof ) {
         switch ( yyTok ) {
@@ -481,7 +448,6 @@ static void parse( MetaTranslator *tor )
         case Tok_translate:
             {
                 QString contextOverride;
-                utf8 = false;
                 yyTok = getToken();
                 if ( match(Tok_LeftParen) &&
                      matchString(contextOverride) &&
@@ -494,15 +460,8 @@ static void parse( MetaTranslator *tor )
                         // look for comment
                         if ( match(Tok_Comma) && matchStringOrNull(com)) {
                             if (!match(Tok_RightParen)) {
-                                // look for encoding
-                                if (match(Tok_Comma)) {
-                                    if (matchEncoding(&utf8)) {
-                                        if (!match(Tok_RightParen)) {
-                                            if (match(Tok_Comma) && matchExpression() && match(Tok_RightParen)) {
-                                                plural = true;
-                                            }
-                                        }
-                                    }
+                                if (match(Tok_Comma) && matchExpression() && match(Tok_RightParen)) {
+                                    plural = true;
                                 } else {
                                     break;
                                 }
