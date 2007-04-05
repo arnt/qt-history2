@@ -101,65 +101,15 @@ void QDesignerSettings::setGeometryFor(QWidget *w, const QRect &fallBack) const
 void QDesignerSettings::saveGeometryHelper(const QWidget *w, const QString &key)
 {
     beginGroup(key);
-    QPoint pos = w->pos();
-    if (!w->isWindow()) // in workspace
-        pos = w->parentWidget()->pos();
-
-    setValue(QLatin1String("screen"), QApplication::desktop()->screenNumber(w));
-    setValue(QLatin1String("geometry"), QRect(pos, w->size()));
     setValue(QLatin1String("visible"), w->isVisible());
-    setValue(QLatin1String("maximized"), w->isMaximized());
+    setValue(QLatin1String("geometry"), w->saveGeometry());
     endGroup();
 }
 
 void QDesignerSettings::setGeometryHelper(QWidget *w, const QString &key,
                                           const QRect &fallBack) const
 {
-    const int screen = value(key + QLatin1String("/screen"), 0).toInt();
-    QRect g = value(key + QLatin1String("/geometry"), fallBack).toRect();
-    const QRect screenRect = QApplication::desktop()->availableGeometry(screen);
-
-    // Do geometry in a couple of steps
-    // 1) Make sure the rect is within the specified geometry
-    // 2) Make sure the bottom right and top left fit on the screen, move them in.
-    // 3) Check again and resize.
-
-    if (w->isWindow() && g.intersect(screenRect).isEmpty())
-        g = fallBack;
-
-    // Maybe use center?
-    if (!screenRect.contains(g.bottomRight())) {
-        g.moveRight(qMax(0 + g.width(), qMin(screenRect.right(), g.right())));
-        g.moveBottom(qMax(0 + g.height(), qMin(screenRect.bottom(), g.bottom())));
-    }
-
-    if (!screenRect.contains(g.topLeft())) {
-        g.moveLeft(qMin(screenRect.right() - g.width(), qMax(screenRect.left(), g.left())));
-        g.moveTop(qMin(screenRect.bottom() - g.height(), qMax(screenRect.top(), g.top())));
-    }
-
-    if (!screenRect.contains(g.bottomRight())) {
-        g.setRight(qMin(screenRect.right(), g.right()));
-        g.moveBottom(qMin(screenRect.bottom(), g.bottom()));
-    }
-
-    if (!screenRect.contains(g.topLeft())) {
-        g.setLeft(qMax(0, qMin(screenRect.left(), g.left())));
-        g.moveTop(qMax(0, qMin(screenRect.top(), g.top())));
-    }
-
-
-    if (!w->isWindow()) // in workspace
-        w->parentWidget()->move(g.topLeft());
-    else
-        w->move(g.topLeft());
-
-    if (value(key + QLatin1String("/maximized"), false).toBool()) {
-        w->setWindowState(w->windowState() | Qt::WindowMaximized);
-    } else {
-        w->resize(g.size());
-    }
-
+    w->restoreGeometry(value(key + QLatin1String("/geometry"), fallBack).toByteArray());
     if (value(key + QLatin1String("/visible"), true).toBool())
         w->show();
 }
