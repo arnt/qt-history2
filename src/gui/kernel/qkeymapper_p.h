@@ -31,8 +31,8 @@
 #include <qlocale.h>
 #include <qevent.h>
 
-#if defined (Q_WS_MAC) && defined(__LP64__)
-#include <private/qt_mac_p.h>
+#if defined (Q_WS_MAC64)
+# include <private/qt_mac_p.h>
 #endif
 
 class QKeyMapperPrivate;
@@ -157,10 +157,10 @@ public:
         const UCKeyboardLayout *unicode;
         void *other;
     } keyboard_layout_format;
-#ifndef __LP64__
-    KeyboardLayoutRef currentKeyboardLayout;
-#else
+#ifdef Q_WS_MAC64
     QCFType<TISInputSourceRef> currentInputSource;
+#else
+    KeyboardLayoutRef currentKeyboardLayout;
 #endif
     KeyboardLayoutKind keyboard_kind;
     UInt32 keyboard_dead;

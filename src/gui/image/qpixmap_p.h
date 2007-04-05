@@ -93,7 +93,7 @@ struct QPixmapData { // internal pixmap data
     uint nbytes;
     QRectF cg_mask_rect;
     CGImageRef cg_data, cg_mask;
-#ifndef __LP64__
+#ifdef Q_WS_MAC32
     GWorldPtr qd_data, qd_alpha;
     void macQDDisposeAlpha();
     void macQDUpdateAlpha();

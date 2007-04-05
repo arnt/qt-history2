@@ -267,7 +267,7 @@ QList<QByteArray> QMacPasteboardMimeText::convertFromMime(const QString &, QVari
     return ret;
 }
 
-#ifndef __LP64__
+#ifdef Q_WS_MAC32
 #include <QuickTime/QuickTime.h>
 #include "qlibrary.h"
 typedef ComponentResult (*PtrGraphicsImportSetDataHandle)(GraphicsImportComponent, Handle);
@@ -457,7 +457,7 @@ QVariant QMacPasteboardMimeTiff::convertToMime(const QString &mime, QList<QByteA
     } else
 #endif
     {
-#ifndef __LP64__
+#ifdef Q_WS_MAC32
         if (resolveMimeQuickTimeSymbols()) {
             Handle tiff = NewHandle(a.size());
             memcpy(*tiff, a.constData(), a.size());
@@ -517,7 +517,7 @@ QList<QByteArray> QMacPasteboardMimeTiff::convertFromMime(const QString &mime, Q
     } else
 #endif
     {
-#ifndef __LP64__
+#ifdef Q_WS_MAC32
         Handle tiff = NewHandle(0);
         if (resolveMimeQuickTimeSymbols()) {
             GraphicsExportComponent graphicsExporter;
@@ -810,7 +810,7 @@ void QMacPasteboardMime::initialize()
 
         //standard types that we wrap
         new QMacPasteboardMimeTiff;
-#ifndef __LP64__
+#ifdef Q_WS_MAC32
         new QMacPasteboardMimePict;
 #endif
         new QMacPasteboardMimeText;

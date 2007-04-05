@@ -68,6 +68,11 @@
 #if defined(__APPLE__) && (defined(__GNUC__) || defined(__xlC__) || defined(__xlc__))
 #  define Q_OS_DARWIN
 #  define Q_OS_BSD4
+#  ifdef __LP64__
+#    define Q_OS_DARWIN64
+#  else
+#    define Q_OS_DARWIN32
+#  endif
 #elif defined(__CYGWIN__)
 #  define Q_OS_CYGWIN
 #elif defined(MSDOS) || defined(_MSDOS)
@@ -143,6 +148,11 @@
 #if defined(Q_OS_DARWIN)
 #  define Q_OS_MAC /* Q_OS_MAC is mostly for compatibility, but also more clear */
 #  define Q_OS_MACX /* Q_OS_MACX is only for compatibility.*/
+#  if defined(Q_OS_DARWIN64)
+#     define Q_OS_MAC64
+#  elif defined(Q_OS_DARWIN32)
+#     define Q_OS_MAC32
+#  endif
 #endif
 
 #if defined(Q_OS_MSDOS) || defined(Q_OS_OS2) || defined(Q_OS_WIN)
@@ -542,9 +552,14 @@
 #  define Q_WS_PM
 #  error "Qt does not work with OS/2 Presentation Manager or Workplace Shell"
 #elif defined(Q_OS_UNIX)
-#  if defined(Q_OS_DARWIN) && !defined(__USE_WS_X11__) && !defined(Q_WS_QWS)
+#  if defined(Q_OS_MAC) && !defined(__USE_WS_X11__) && !defined(Q_WS_QWS)
 #    define Q_WS_MAC
 #    define Q_WS_MACX
+#    if defined(Q_OS_MAC64)
+#      define Q_WS_MAC64
+#    elif defined(Q_OS_MAC32)
+#      define Q_WS_MAC32
+#    endif
 #  elif !defined(Q_WS_QWS)
 #    define Q_WS_X11
 #  endif
@@ -553,7 +568,6 @@
 #if defined(Q_WS_WIN16) || defined(Q_WS_WIN32)
 #  define Q_WS_WIN
 #endif
-
 
 /*
    Size-dependent types (architechture-dependent byte order)
@@ -582,10 +596,12 @@ typedef unsigned long long quint64; /* 64 bit unsigned */
 typedef qint64 qlonglong;
 typedef quint64 qulonglong;
 
-#if defined(Q_OS_WIN64) || defined(Q_WS_MAC64)
-# define QT_POINTER_SIZE 8
-#elif defined(Q_OS_WIN32)
-# define QT_POINTER_SIZE 4
+#ifndef QT_POINTER_SIZE
+#  if defined(Q_OS_WIN64)
+#   define QT_POINTER_SIZE 8
+#  elif defined(Q_OS_WIN32)
+#   define QT_POINTER_SIZE 4
+#  endif
 #endif
 
 #define Q_INIT_RESOURCE(name) \

@@ -1007,7 +1007,7 @@ CGImageRef qt_mac_create_imagemask(const QPixmap &px, const QRectF &sr)
 
 IconRef qt_mac_create_iconref(const QPixmap &px)
 {
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5) && __LP64__
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5) && defined(Q_WS_MAC64)
 # warning "For now --Sam"
     return 0;
 #endif

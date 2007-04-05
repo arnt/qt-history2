@@ -250,7 +250,7 @@ protected:
     virtual void* chooseVisual();
 #endif
 #if defined(Q_WS_MAC)
-#ifndef __LP64__
+#ifdef Q_WS_MAC32
     virtual void* chooseMacVisual(GDHandle) { return chooseMacVisual(); }
 #endif
     virtual void* chooseMacVisual();

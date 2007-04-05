@@ -85,12 +85,12 @@ typedef struct OpaquePMPageFormat *PMPageFormat;
 typedef struct OpaqueEventHandlerRef *EventHandlerRef;
 typedef struct OpaqueEventHandlerCallRef *EventHandlerCallRef;
 typedef struct OpaqueEventRef *EventRef;
-#ifdef __LP64__
-typedef int OSStatus;
-typedef long WId;
-#else
+#ifdef Q_WS_MAC32
 typedef long int OSStatus;
 typedef int WId;
+#else
+typedef int OSStatus;
+typedef long WId;
 #endif
 typedef struct OpaqueScrapRef *ScrapRef;
 typedef struct OpaqueRgnHandle *RgnHandle;

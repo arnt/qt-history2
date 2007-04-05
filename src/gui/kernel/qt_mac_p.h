@@ -201,7 +201,7 @@ public:
     bool sync() const;
 };
 
-#ifdef __LP64__
+#ifdef Q_WS_MAC64
 # define QT_MAC_NO_QUICKDRAW
 #endif
 

@@ -363,7 +363,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
     //get mac mapping
     static UInt32 tmp_unused_state = 0L;
     const UCKeyboardLayout *uchrData = 0;
-#ifndef __LP64__
+#ifdef Q_OS_MAC32
     Q_UNUSED(er);
     Q_UNUSED(outHandled);
     KeyboardLayoutRef keyLayoutRef = 0;
@@ -431,7 +431,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
                      long(err), __FILE__, __LINE__);
         }
     }
-#ifndef __LP64__
+#ifdef Q_OS_MAC32
     else {
         // The road less travelled; use KeyTranslate
         const void *keyboard_layout;
@@ -500,7 +500,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
 QKeyMapperPrivate::QKeyMapperPrivate()
 {
     memset(keyLayout, 0, sizeof(keyLayout));
-#ifndef __LP64__
+#ifdef Q_OS_MAC32
     keyboard_mode = NullMode;
 #else
     currentInputSource = 0;
@@ -516,7 +516,7 @@ bool
 QKeyMapperPrivate::updateKeyboard()
 {
     const UCKeyboardLayout *uchrData = 0;
-#ifndef __LP64__
+#ifdef Q_OS_MAC32
     KeyboardLayoutRef keyLayoutRef = 0;
     KLGetCurrentKeyboardLayout(&keyLayoutRef);
 
@@ -549,7 +549,7 @@ QKeyMapperPrivate::updateKeyboard()
         keyboard_layout_format.unicode = uchrData;
         keyboard_mode = UnicodeMode;
     }
-#ifndef __LP64__
+#ifdef Q_OS_MAC32
     else {
         void *happy;
         err = KLGetKeyboardLayoutProperty(keyLayoutRef, kKLKCHRData,
@@ -568,7 +568,7 @@ QKeyMapperPrivate::updateKeyboard()
 #endif
     keyboard_dead = 0;
     CFStringRef iso639Code;
-#ifndef __LP64__
+#ifdef Q_OS_MAC32
 # ifndef kKLLanguageCode
 # define kKLLanguageCode 9
 # endif

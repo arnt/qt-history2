@@ -1339,7 +1339,7 @@ void QWizardPrivate::_q_updateButtonStates()
 
 #ifdef Q_WS_MAC
 
-#ifndef __LP64__
+#ifdef Q_WS_MAC32
 #include <QuickTime/QuickTime.h>
 typedef OSErr (*PtrQTNewDataReferenceFromCFURL)(CFURLRef, UInt32, Handle*, OSType*);
 typedef OSErr (*PtrGetGraphicsImporterForDataRefWithFlags)(Handle, OSType, ComponentInstance*, long);
@@ -1395,7 +1395,7 @@ static QPixmap quicktimeTiff(const CFURLRef url)
         return QPixmap::fromMacCGImageRef(imageRef);
     return QPixmap();
 }
-#endif // !__LP64__
+#endif // Q_WS_MAC32
 
 QPixmap QWizardPrivate::findDefaultBackgroundPixmap()
 {
@@ -1421,7 +1421,7 @@ QPixmap QWizardPrivate::findDefaultBackgroundPixmap()
                 } else
 #endif
                 {
-#ifndef __LP64__
+#ifdef Q_WS_MAC32
                     return quicktimeTiff(url);
 #endif
                 }

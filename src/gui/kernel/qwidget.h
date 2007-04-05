@@ -664,7 +664,7 @@ private:
     friend class QD3DWindowSurface;
 
 #ifdef Q_WS_MAC
-#ifndef __LP64__
+#ifdef Q_WS_MAC32
     friend class QMacSavedPortInfo;
 #endif
     friend class QCoreGraphicsPaintEnginePrivate;
