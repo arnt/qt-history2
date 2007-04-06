@@ -68,7 +68,7 @@
      <item>
       <widget class="QToolButton" name="newFolderButton" >
        <property name="toolTip" >
-        <string>Detail View</string>
+        <string>Create New Folder</string>
        </property>
       </widget>
      </item>
