@@ -1521,6 +1521,8 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item, bo
             apply[i] |= IsolProperty|MediProperty|InitProperty;
         else if (properties[i].shape == XInitial)
             apply[i] |= IsolProperty|MediProperty|FinaProperty;
+
+        item->glyphs[i].attributes.justification = properties[i].justification;
     }
 
     if (!openType->shape(item, apply.data())) {
