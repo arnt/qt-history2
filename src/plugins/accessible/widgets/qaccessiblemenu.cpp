@@ -528,11 +528,14 @@ QAccessible::Relation QAccessibleMenuItem::relationTo ( int child, const QAccess
     if (other->object() == owner()) {
         return Child;
     }
+    Q_UNUSED(child)
+    Q_UNUSED(other)
+    Q_UNUSED(otherChild)
     // ###
     return Unrelated;
 }
 
-QAccessible::Role QAccessibleMenuItem::role(int child ) const
+QAccessible::Role QAccessibleMenuItem::role(int /*child*/ ) const
 {
     return m_action->isSeparator() ? Separator :MenuItem;
 }
@@ -593,7 +596,7 @@ QString QAccessibleMenuItem::text ( Text t, int child ) const
     return qt_accStripAmp(str);
 }
 
-int QAccessibleMenuItem::userActionCount ( int child ) const
+int QAccessibleMenuItem::userActionCount ( int /*child*/ ) const
 {
     return 0;
 }
