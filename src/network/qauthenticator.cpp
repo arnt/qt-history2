@@ -249,7 +249,7 @@ void QAuthenticatorPrivate::parseHttpResponse(const QHttpResponseHeader &header,
 QByteArray QAuthenticatorPrivate::calculateResponse(const QByteArray &requestMethod, const QByteArray &path)
 {
     QByteArray response;
-    const char *methodString;
+    const char *methodString = 0;
     switch(method) {
     case QAuthenticatorPrivate::None:
         methodString = "";
