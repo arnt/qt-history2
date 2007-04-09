@@ -389,7 +389,7 @@ inline QList<T> qFindChildren(const QObject *o, const QRegExp &re)
         QList<void *> *voidList;
     } u;
     u.typedList = &list;
-    qt_qFindChildren_helper(o, 0, &re, reinterpret_cast<T>(0)->staticMetaObject, u.voidList);
+    qt_qFindChildren_helper(o, QString(), &re, reinterpret_cast<T>(0)->staticMetaObject, u.voidList);
     return list;
 }
 #endif
