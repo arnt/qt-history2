@@ -1611,8 +1611,10 @@ int QMessageBoxPrivate::showOldMessageBox(QWidget *parent, QMessageBox::Icon ico
 
 void QMessageBoxPrivate::retranslateStrings()
 {
+#ifndef QT_NO_TEXTEDIT
     if (detailsButton)
         detailsButton->setText(detailsText->isHidden() ? detailsText->label(HideLabel) : detailsText->label(ShowLabel));
+#endif
 
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_MSGBOX
