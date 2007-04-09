@@ -371,8 +371,8 @@ void QEventDispatcherGlib::registerSocketNotifier(QSocketNotifier *notifier)
 void QEventDispatcherGlib::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
     Q_ASSERT(notifier);
-    int sockfd = notifier->socket();
 #ifndef QT_NO_DEBUG
+    int sockfd = notifier->socket();
     if (sockfd < 0
         || unsigned(sockfd) >= FD_SETSIZE) {
         qWarning("QSocketNotifier: Internal error");
