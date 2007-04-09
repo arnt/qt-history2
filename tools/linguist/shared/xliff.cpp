@@ -31,7 +31,7 @@ static const char *restypeContext = "x-gettext-domain";
 static const char *restypePlurals = "x-gettext-plurals";
 static const char *dataTypeUIFile = "x-trolltech-designer-ui";
 static const char *contextNameLocation = "po-reference";    //###
-static const char *contextTypeComment = "x-po-transcomment";
+//static const char *contextTypeComment = "x-po-transcomment";
 #else
 static const char *restypeContext = "x-trolltech-linguist-context";
 static const char *restypePlurals = "x-trolltech-linguist-plurals";
@@ -104,7 +104,7 @@ static const CharMnemonic charCodeMnemonics[] = {
 
 static char charFromEscape(char escape)
 {
-    for (int i = 0; i < sizeof(charCodeMnemonics)/sizeof(CharMnemonic); ++i) {
+    for (uint i = 0; i < sizeof(charCodeMnemonics)/sizeof(CharMnemonic); ++i) {
         CharMnemonic cm =  charCodeMnemonics[i];
         if (cm.escape == escape) return cm.ch;
     }
