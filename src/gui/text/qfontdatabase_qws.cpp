@@ -818,3 +818,84 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
 
     return fe;
 }
+
+void QFontDatabase::load(const QFontPrivate *d, int script)
+{
+    QFontDef req = d->request;
+
+    if (req.pixelSize == -1)
+        req.pixelSize = qRound(req.pointSize*d->dpi/72);
+    if (req.pointSize < 0)
+        req.pointSize = req.pixelSize*72.0/d->dpi;
+
+    if (!d->engineData) {
+        QFontCache::Key key(req, script);
+
+        // look for the requested font in the engine data cache
+        d->engineData = QFontCache::instance->findEngineData(key);
+
+        if (!d->engineData) {
+            // create a new one
+            d->engineData = new QFontEngineData;
+            QFontCache::instance->insertEngineData(key, d->engineData);
+        } else {
+            d->engineData->ref.ref();
+        }
+    }
+
+    // the cached engineData could have already loaded the engine we want
+    if (d->engineData->engine) return;
+
+    // load the font
+    QFontEngine *engine = 0;
+    //    double scale = 1.0; // ### TODO: fix the scale calculations
+
+    // list of families to try
+    QStringList family_list;
+
+    if (!req.family.isEmpty()) {
+        family_list = req.family.split(QLatin1Char(','));
+
+        // append the substitute list for each family in family_list
+        QStringList subs_list;
+        QStringList::ConstIterator it = family_list.constBegin(), end = family_list.constEnd();
+        for (; it != end; ++it)
+            subs_list += QFont::substitutes(*it);
+        family_list += subs_list;
+
+        // append the default fallback font for the specified script
+        // family_list << ... ; ###########
+
+        // add the default family
+        QString defaultFamily = QApplication::font().family();
+        if (! family_list.contains(defaultFamily))
+            family_list << defaultFamily;
+
+        // add QFont::defaultFamily() to the list, for compatibility with
+        // previous versions
+        family_list << QApplication::font().defaultFamily();
+    }
+
+    // null family means find the first font matching the specified script
+    family_list << QString();
+
+    QStringList::ConstIterator it = family_list.constBegin(), end = family_list.constEnd();
+    for (; ! engine && it != end; ++it) {
+        req.family = *it;
+
+        engine = QFontDatabase::findFont(script, d, req);
+        if (engine) {
+            if (engine->type() != QFontEngine::Box)
+                break;
+
+            if (! req.family.isEmpty())
+                engine = 0;
+
+            continue;
+        }
+    }
+
+    engine->ref.ref();
+    d->engineData->engine = engine;
+}
+
