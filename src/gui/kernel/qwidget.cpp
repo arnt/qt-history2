@@ -4068,8 +4068,9 @@ void QWidget::unsetLocale()
     \property QWidget::windowTitle
     \brief the window title (caption)
 
-    This property only makes sense for windows. If no
-    caption has been set, the title is an empty string.
+    This property only makes sense for top-level widgets, such as
+    windows and dialogs. If no caption has been set, the title is
+    an empty string.
 
     If you use the \l windowModified mechanism, the window title must
     contain a "[*]" placeholder, which indicates where the '*' should
