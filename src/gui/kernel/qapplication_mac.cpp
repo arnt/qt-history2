@@ -66,7 +66,7 @@
 /*****************************************************************************
   QApplication debug facilities
  *****************************************************************************/
-//#define DEBUG_EVENTS [like EventDebug but more specific to Qt]
+//#define DEBUG_EVENTS //like EventDebug but more specific to Qt
 //#define DEBUG_DROPPED_EVENTS
 //#define DEBUG_MOUSE_MAPS
 //#define DEBUG_MODAL_EVENTS
@@ -1502,11 +1502,14 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         // A click outside a popup closes the popup. Make sure
         // that no events are generated for the release part of that click.
         // (The press goes to the popup and closes it.)
-        if (inPopupMode && etype == QEvent::MouseButtonPress) {
-            qt_mac_previous_press_in_popup_mode = true;
+        if (etype == QEvent::MouseButtonPress) {
+            qt_mac_previous_press_in_popup_mode = inPopupMode;
         } else if (qt_mac_previous_press_in_popup_mode && !inPopupMode && etype == QEvent::MouseButtonRelease) {
             qt_mac_previous_press_in_popup_mode = false;
             handled_event = true;
+#if defined(DEBUG_MOUSE_MAPS)
+            qDebug("Bail out early due to qt_mac_previous_press_in_popup_mode");
+#endif
             break; // break from case kEventClassMouse
         }
 
@@ -1616,6 +1619,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             if(ekind == kEventMouseDown && qt_mac_is_macsheet(QApplication::activeModalWidget()))
                 QApplication::activeModalWidget()->parentWidget()->activateWindow(); //sheets have a parent
             handled_event = false;
+#if defined(DEBUG_MOUSE_MAPS)
+            qDebug("Bail out early due to qt_try_modal");
+#endif
             break;
         }
 
@@ -1659,8 +1665,12 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                                qreal(tabletPointRec.pressure / qreal(0xffff)), tiltX, tiltY,
                                tp, rotation, z, modifiers, tabletUniqueID);
                 QApplication::sendSpontaneousEvent(widget, &e);
-                if (e.isAccepted())
+                if (e.isAccepted()) {
+#if defined(DEBUG_MOUSE_MAPS)
+                    qDebug("Bail out early due to table acceptance");
+#endif
                     break;
+                }
             }
         }
 
@@ -1683,6 +1693,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                    if(!qt_mac_can_clickThrough(widget)) {
                        qt_mac_no_click_through_mode = true;
                        handled_event = false;
+#if defined(DEBUG_MOUSE_MAPS)
+                       qDebug("Bail out early due to qt_mac_canClickThrough %s::%s", widget->metaObject()->className(),
+                              widget->objectName().toLocal8Bit().constData());
+#endif
                        break;
                    }
                 }
@@ -1718,6 +1732,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             if(ekind == kEventMouseUp)
                 qt_mac_no_click_through_mode = false;
             handled_event = false;
+#if defined(DEBUG_MOUSE_MAPS)
+            qDebug("Bail out early due to qt_mac_no_click_through_mode");
+#endif
             break;
         }
 
