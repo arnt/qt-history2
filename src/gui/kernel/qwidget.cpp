@@ -4538,8 +4538,9 @@ QWidget *QWidget::nextInFocusChain() const
     \property QWidget::isActiveWindow
     \brief whether this widget's window is the active window
 
-    The active window is the window that contains the widget that
-    has keyboard focus.
+    The active window is the window that contains the widget that has
+    keyboard focus (The window may still have focus if it has no
+    widgets or none of its widgets accepts keyboard focus).
 
     When popup windows are visible, this property is true for both the
     active window \e and for the popup.
