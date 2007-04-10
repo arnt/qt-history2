@@ -140,8 +140,12 @@ QUrl QTextBrowserPrivate::resolveUrl(const QUrl &url) const
 
     // For the second case QUrl can merge "#someanchor" with "foo.html"
     // correctly to "foo.html#someanchor"
-    if (!currentURL.isRelative() || (url.hasFragment() && url.path().isEmpty()))
+    if (!(currentURL.isRelative()
+          || (currentURL.scheme() == QLatin1String("file")
+              && !isAbsoluteFileName(currentURL.toLocalFile())))
+          || (url.hasFragment() && url.path().isEmpty())) {
         return currentURL.resolved(url);
+    }
 
     // this is our last resort when current url and new url are both relative
     // we try to resolve against the current working directory in the local

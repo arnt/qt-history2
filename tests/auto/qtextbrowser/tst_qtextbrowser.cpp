@@ -191,15 +191,26 @@ void tst_QTextBrowser::relativeLinks()
 {
     qRegisterMetaType<QUrl>("QUrl");
     QSignalSpy sourceChangedSpy(browser, SIGNAL(sourceChanged(const QUrl &)));
-    browser->setSource(QUrl("subdir/index.html"));
+    browser->setSource(QUrl("../qtextbrowser.html"));
     QVERIFY(sourceChangedSpy.count() == 1);
-    QCOMPARE(sourceChangedSpy.takeFirst()[0].toUrl(), QUrl("subdir/index.html"));
+    QCOMPARE(sourceChangedSpy.takeFirst()[0].toUrl(), QUrl("../qtextbrowser.html"));
+    browser->setSource(QUrl("qtextbrowser/subdir/index.html"));
+    QVERIFY(sourceChangedSpy.count() == 1);
+    QCOMPARE(sourceChangedSpy.takeFirst()[0].toUrl(), QUrl("qtextbrowser/subdir/index.html"));
     browser->setSource(QUrl("../anchor.html"));
     QVERIFY(sourceChangedSpy.count() == 1);
     QCOMPARE(sourceChangedSpy.takeFirst()[0].toUrl(), QUrl("../anchor.html"));
     browser->setSource(QUrl("subdir/index.html"));
     QVERIFY(sourceChangedSpy.count() == 1);
     QCOMPARE(sourceChangedSpy.takeFirst()[0].toUrl(), QUrl("subdir/index.html"));
+
+    // using QUrl::fromLocalFile()
+    browser->setSource(QUrl::fromLocalFile("anchor.html"));
+    QVERIFY(sourceChangedSpy.count() == 1);
+    QCOMPARE(sourceChangedSpy.takeFirst()[0].toUrl(), QUrl("file:///anchor.html"));
+    browser->setSource(QUrl("../qtextbrowser.html"));
+    QVERIFY(sourceChangedSpy.count() == 1);
+    QCOMPARE(sourceChangedSpy.takeFirst()[0].toUrl(), QUrl("../qtextbrowser.html"));
 }
 
 void tst_QTextBrowser::anchors()
