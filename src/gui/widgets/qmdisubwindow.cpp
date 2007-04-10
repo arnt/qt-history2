@@ -2664,6 +2664,9 @@ void QMdiSubWindow::resizeEvent(QResizeEvent *resizeEvent)
         d->ensureWindowState(Qt::WindowMaximized);
 
     d->updateMask();
+    if (!isVisible())
+        return;
+
     if (d->resizeTimerId <= 0)
         d->cachedStyleOptions = d->titleBarOptions();
     else
