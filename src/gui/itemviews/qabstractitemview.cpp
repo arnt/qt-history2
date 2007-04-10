@@ -1865,6 +1865,8 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
 
     QPersistentModelIndex oldCurrent = currentIndex();
     if (newCurrent != oldCurrent && newCurrent.isValid()) {
+        if (!hasFocus() && QApplication::focusWidget() == indexWidget(oldCurrent))
+            setFocus();
         QItemSelectionModel::SelectionFlags command = selectionCommand(newCurrent, event);
         if (command != QItemSelectionModel::NoUpdate
              || style()->styleHint(QStyle::SH_ItemView_MovementWithoutUpdatingSelection, 0, this)) {
