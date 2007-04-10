@@ -37,6 +37,7 @@ private slots:
     void stopLinkLoop();
     void engineWithNoIterator();
     void absoluteFilePathsFromRelativeIteratorPath();
+    void recurseWithFilters() const;
 };
 
 tst_QDirIterator::tst_QDirIterator()
@@ -280,6 +281,26 @@ void tst_QDirIterator::absoluteFilePathsFromRelativeIteratorPath()
         it.next();
         QVERIFY(QFileInfo(it.filePath()).absoluteFilePath().contains("entrylist"));
     }
+}
+
+void tst_QDirIterator::recurseWithFilters() const
+{
+    QStringList nameFilters;
+    nameFilters.append("*.txt");
+
+    QDirIterator it("recursiveDirs/", nameFilters, QDir::Files,
+                    QDirIterator::Subdirectories);
+
+    QVERIFY(it.hasNext());
+    it.next();
+    QCOMPARE(it.fileInfo().filePath(), QString::fromLatin1("recursiveDirs/textFileA.txt"));
+
+    QEXPECT_FAIL("", "This is a known bug.", Abort);
+    QVERIFY(it.hasNext());
+    it.next();
+    QCOMPARE(it.fileInfo().filePath(), QString::fromLatin1("recursiveDirs/dir1/textFileB.txt"));
+
+    QVERIFY(!it.hasNext());
 }
 
 QTEST_MAIN(tst_QDirIterator)
