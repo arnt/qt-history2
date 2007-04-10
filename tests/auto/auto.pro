@@ -303,6 +303,7 @@ SUBDIRS += bic \
            qwidget \
            qwidgetaction \
            qwidgetstack \
+           qwindowsurface \
            qwineventnotifier \
            qwmatrix \
            qworkspace \
