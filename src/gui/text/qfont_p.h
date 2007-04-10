@@ -109,11 +109,11 @@ public:
 
     QAtomic ref;
 
-#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+#if !defined(Q_WS_MAC)
     QFontEngine *engines[QUnicodeTables::ScriptCount];
 #else
     QFontEngine *engine;
-#endif // Q_WS_X11 || Q_WS_WIN
+#endif
 };
 
 
@@ -128,7 +128,7 @@ public:
     QFontPrivate(const QFontPrivate &other);
     ~QFontPrivate();
 
-#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+#if !defined(Q_WS_MAC)
     inline QFontEngine *engineForScript(int script) const
     {
         if (script >= QUnicodeTables::Inherited)
@@ -136,15 +136,6 @@ public:
         if (!engineData || !engineData->engines[script])
             QFontDatabase::load(this, script);
         return engineData->engines[script];
-    }
-#elif defined(Q_WS_MAC)
-    inline QFontEngine *engineForScript(int script) const
-    {
-        if (script >= QUnicodeTables::Inherited)
-            script = QUnicodeTables::Common;
-        if (!engineData || !engineData->engine)
-            QFontDatabase::load(this, script);
-        return engineData->engine;
     }
 #else
     inline QFontEngine *engineForScript(int script) const
@@ -155,7 +146,7 @@ public:
             QFontDatabase::load(this, script);
         return engineData->engine;
     }
-#endif // Q_WS_X11 || Q_WS_WIN
+#endif
 
     QAtomic ref;
     QFontDef request;

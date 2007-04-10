@@ -225,16 +225,16 @@ void QFontPrivate::resolve(uint mask, const QFontPrivate *other)
 QFontEngineData::QFontEngineData()
 {
     ref = 1;
-#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+#if !defined(Q_WS_MAC)
     memset(engines, 0, QUnicodeTables::ScriptCount * sizeof(QFontEngine *));
 #else
     engine = 0;
-#endif // Q_WS_X11 || Q_WS_WIN
+#endif
 }
 
 QFontEngineData::~QFontEngineData()
 {
-#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+#if !defined(Q_WS_MAC)
     for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
         if (engines[i])
             engines[i]->ref.deref();
@@ -244,7 +244,7 @@ QFontEngineData::~QFontEngineData()
     if (engine)
         engine->ref.deref();
     engine = 0;
-#endif // Q_WS_X11 || Q_WS_WIN
+#endif // Q_WS_X11 || Q_WS_WIN || Q_WS_MAC
 }
 
 
@@ -2148,7 +2148,7 @@ void QFontCache::clear()
                                  end = engineDataCache.end();
         while (it != end) {
             QFontEngineData *data = it.value();
-#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+#if !defined(Q_WS_MAC)
             for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
                 if (data->engines[i]) {
                     data->engines[i]->ref.deref();
@@ -2210,9 +2210,11 @@ void QFontCache::removeEngineForFont(const QByteArray &_fontName)
                                  end = engineDataCache.end();
         while (it != end) {
             QFontEngineData *data = it.value();
-            if (data->engine && data->engine == engineToRemove) {
-                data->engine->ref.deref();
-                data->engine = 0;
+            for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
+                if (data->engines[i] && data->engines[i] == engineToRemove) {
+                    data->engines[i]->ref.deref();
+                    data->engines[i] = 0;
+                }
             }
             ++it;
         }
@@ -2340,19 +2342,12 @@ void QFontCache::cleanupPrinterFonts()
             }
 
             if(it.value()->ref != 0) {
-#ifdef Q_WS_WIN
                 for(int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
                     if(it.value()->engines[i]) {
                         it.value()->engines[i]->ref.deref();
                         it.value()->engines[i] = 0;
                     }
                 }
-#else
-                if (it.value()->engine) {
-                    it.value()->engine->ref.deref();
-                    it.value()->engine = 0;
-                }
-#endif
                 ++it;
             } else {
 

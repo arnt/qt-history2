@@ -844,7 +844,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     }
 
     // the cached engineData could have already loaded the engine we want
-    if (d->engineData->engine) return;
+    if (d->engineData->engines[script]) return;
 
     // load the font
     QFontEngine *engine = 0;
@@ -896,6 +896,6 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     }
 
     engine->ref.ref();
-    d->engineData->engine = engine;
+    d->engineData->engines[script] = engine;
 }
 
