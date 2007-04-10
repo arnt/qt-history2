@@ -278,14 +278,12 @@ void QDateTimeEdit::setDateTime(const QDateTime &datetime)
 /*!
     \property QDateEdit::date
     \brief the QDate that is edited in the QDateEdit
-    \since 4.3
 
 */
 
 /*!
     \property QTimeEdit::time
     \brief the QTime that is edited in the QTimeEdit
-    \since 4.3
 */
 
 /*!
