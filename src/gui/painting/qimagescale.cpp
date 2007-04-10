@@ -993,6 +993,10 @@ QImage qSmoothScaleImage(const QImage &src, int dw, int dh)
         return buffer;
 
     buffer = QImage(dw, dh, src.format());
+    if (buffer.isNull()) {
+        qWarning("QImage: out of memory, returning null");
+        return QImage();
+    }
 
     if (src.format() == QImage::Format_ARGB32)
         qt_qimageScaleArgb(scaleinfo, (unsigned int *)buffer.scanLine(0),

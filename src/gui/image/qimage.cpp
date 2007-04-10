@@ -62,6 +62,14 @@ static inline QRgb qt_conv16ToRgb(ushort c)
 #pragma message disable narrowptr
 #endif
 
+
+#define QIMAGE_SANITYCHECK_MEMORY(image) \
+    if ((image).isNull()) { \
+        qWarning("QImage: out of memory, returning null image"); \
+        return QImage(); \
+    }
+
+
 // ### Qt 5: remove
 typedef void (*_qt_image_cleanup_hook)(int);
 Q_GUI_EXPORT _qt_image_cleanup_hook qt_image_cleanup_hook = 0;
@@ -2955,6 +2963,9 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
     Image_Converter converter = *converterPtr;
     if (converter) {
         QImage image(d->width, d->height, format);
+
+        QIMAGE_SANITYCHECK_MEMORY(image);
+
         image.setDotsPerMeterY(dotsPerMeterY());
         image.setDotsPerMeterX(dotsPerMeterX());
 
@@ -2974,6 +2985,7 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
         else
             tmp = convertToFormat(Format_RGB32, flags);
         QImage image(d->width, d->height, format);
+        QIMAGE_SANITYCHECK_MEMORY(image);
         image.setDotsPerMeterY(dotsPerMeterY());
         image.setDotsPerMeterX(dotsPerMeterX());
 
@@ -2986,6 +2998,7 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
     } else if (d->format == Format_RGB16) {
         int targetDepth = depthForFormat(format);
         QImage image(d->width, d->height, targetDepth == 32 ? format : Format_RGB32);
+        QIMAGE_SANITYCHECK_MEMORY(image);
         image.setDotsPerMeterY(dotsPerMeterY());
         image.setDotsPerMeterX(dotsPerMeterX());
 
@@ -3111,6 +3124,7 @@ QImage QImage::convertToFormat(Format format, const QVector<QRgb> &colorTable, Q
         return QImage();
 
     QImage image(d->width, d->height, format);
+    QIMAGE_SANITYCHECK_MEMORY(image);
 
 #if !defined(QT_NO_IMAGE_TEXT)
         image.d->text = d->text;
@@ -5389,8 +5403,7 @@ QImage QImage::transformed(const QTransform &matrix, Qt::TransformationMode mode
         target_format = Format_ARGB32_Premultiplied;
 
     QImage dImage(wd, hd, target_format);
-    if (dImage.isNull())
-        return dImage;
+    QIMAGE_SANITYCHECK_MEMORY(dImage);
 
     if (target_format == QImage::Format_MonoLSB
         || target_format == QImage::Format_Mono
