@@ -107,7 +107,7 @@
 /*!
     Constructs a QSslCertificate, and reads from \a device to find the first
     available certificate. You can later call isNull() to see if \a device
-    contains a certificate, and this certificate was loaded successfully.
+    contained a certificate, and this certificate was loaded successfully.
 */
 QSslCertificate::QSslCertificate(QIODevice *device)
     : d(new QSslCertificatePrivate)
@@ -119,16 +119,13 @@ QSslCertificate::QSslCertificate(QIODevice *device)
             if (d->x509)
                 d->x509 = q_X509_dup(d->x509);
         }
-    } else {
-        d->null = true;
-        d->x509 = 0;
     }
 }
 
 /*!
     Constructs a QSslCertificate, and parses \a data to find the first
     available certificate. You can later call isNull() to see if \a data
-    contains a certificate, and this certificate was loaded successfully.
+    contained a certificate, and this certificate was loaded successfully.
 */
 QSslCertificate::QSslCertificate(const QByteArray &data)
     : d(new QSslCertificatePrivate)
@@ -140,9 +137,6 @@ QSslCertificate::QSslCertificate(const QByteArray &data)
             if (d->x509)
                 d->x509 = q_X509_dup(d->x509);
         }
-    } else {
-        d->null = true;
-        d->x509 = 0;
     }
 }
 

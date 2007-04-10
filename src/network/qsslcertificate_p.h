@@ -50,6 +50,10 @@
 class QSslCertificatePrivate
 {
 public:
+    QSslCertificatePrivate()
+        : null(true), x509(0)
+    { }
+
     bool null;
     QByteArray versionString;
     QByteArray serialNumberString;
