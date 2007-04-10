@@ -892,7 +892,9 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                     invalidateBuffer(q->rect()); //###
 
 #ifdef Q_BACKINGSTORE_SUBSURFACES
-                // XXX: resize subsurfaces...
+                // XXX: should not resize subsurfaces. Children within a layout
+                // will be resized automatically while children with a static
+                // geometry should get a new clip region instead.
                 const QRect clipRect = q->geometry();
                 QWidgetBackingStore *bs = maybeBackingStore();
                 QList<QWindowSurface*> surfaces = bs->subSurfaces;
