@@ -133,7 +133,7 @@ static QByteArray makeCanonical(const QString &filename,
             } else if (reader.isProcessingInstruction() && reader.processingInstructionData().isEmpty()) {
                 // for some reason canonical wants a space
                 writer.writeProcessingInstruction(reader.processingInstructionTarget().toString(), QLatin1String(""));
-            } else if (!reader.error()){
+            } else if (!reader.hasError()){
                 writer.writeCurrentToken(reader);
             }
         }
@@ -144,7 +144,7 @@ static QByteArray makeCanonical(const QString &filename,
         }
     }
 
-    if (reader.error()) {
+    if (reader.hasError()) {
         hasError = true;
         outarray += "ERROR:";
         outarray += reader.errorString().toLatin1();
@@ -459,7 +459,7 @@ public:
                     break;
             }
 
-            return !reader.error();
+            return !reader.hasError();
         }
         else
         {
@@ -469,7 +469,7 @@ public:
             while(!reader.atEnd())
                 reader.readNext();
 
-            return !reader.error();
+            return !reader.hasError();
         }
     }
 
@@ -699,7 +699,7 @@ QByteArray tst_QXmlStream::readFile(const QString &filename)
         }
         writer << " )" << endl;
     }
-    if (reader.error())
+    if (reader.hasError())
         writer << "ERROR: " << reader.errorString() << endl;
     return outarray;
 }
@@ -776,7 +776,7 @@ void tst_QXmlStream::parseXSLTTestSuite() const
                 writer.writeCurrentToken(reader);
                 reader.readNext();
 
-                QVERIFY2(!reader.error(), qPrintable(reader.errorString()));
+                QVERIFY2(!reader.hasError(), qPrintable(reader.errorString()));
             }
             /* Might be we got an error here, but we don't care. */
         }

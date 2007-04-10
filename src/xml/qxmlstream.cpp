@@ -111,7 +111,7 @@
         xml.readNext();
         ... // do processing
   }
-  if (xml.error()) {
+  if (xml.hasError()) {
         ... // do error handling
   }
   \endcode
@@ -128,7 +128,8 @@
   DTD.
 
   If an error does occur while parsing, atEnd() returns true and
-  error() returns the kind of error that occured. The functions
+  error() returns the kind of error that occured. hasError() can also
+  be used to check whether an error has occured. The functions
   errorString(), lineNumber(), columnNumber(), and characterOffset()
   make it possible to generate a verbose human-understandable error or
   warning message. In order to simplify application code,
@@ -267,6 +268,12 @@ QXmlStreamReader::~QXmlStreamReader()
         delete d->device;
     delete d;
 }
+
+/*! \fn bool hasError() const
+    Returns true an error has occured, otherwise false.
+    
+    \sa errorString(), error()
+ */
 
 /*!
     Sets the current device to \a device. Setting the device resets

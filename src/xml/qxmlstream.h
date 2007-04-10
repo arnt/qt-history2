@@ -249,6 +249,11 @@ public:
     QString errorString() const;
     Error error() const;
 
+    inline bool hasError() const
+    {
+        return error() != NoError;
+    }
+
 private:
     Q_DISABLE_COPY(QXmlStreamReader)
     Q_DECLARE_PRIVATE(QXmlStreamReader)
