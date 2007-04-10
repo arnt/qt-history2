@@ -119,9 +119,8 @@ public:
 private:
     static void createDatabase();
     static void parseFontName(const QString &name, QString &foundry, QString &family);
-#if !defined(Q_WS_X11) && !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
-    static QFontEngine *findFont(int script, const QFontPrivate *fp,
-                                 const QFontDef &request, int force_encoding_id = -1);
+#if defined(Q_WS_QWS)
+    static QFontEngine *findFont(int script, const QFontPrivate *fp, const QFontDef &request);
 #else
     static void load(const QFontPrivate *d, int script);
 #endif
