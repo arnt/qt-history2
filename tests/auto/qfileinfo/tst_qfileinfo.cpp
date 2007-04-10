@@ -848,7 +848,7 @@ static void createFileNative(const QString &filePath)
         close(fd);
     }
 #else
-    Q_UNSED(filePath);
+    Q_UNUSED(filePath);
 #endif
 }
 
@@ -857,7 +857,7 @@ static void removeFileNative(const QString &filePath)
 #ifdef Q_OS_UNIX
     unlink(filePath.normalized(QString::NormalizationForm_D).toUtf8().constData());
 #else
-    Q_UNSED(filePath);
+    Q_UNUSED(filePath);
 #endif
 }
 
