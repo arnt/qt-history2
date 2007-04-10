@@ -410,11 +410,6 @@ void QWSManagerPrivate::paint(QPaintDevice *paintDevice, const QRegion &region)
     QWSWindowSurface *surface;
     surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
     const QRegion clippedRegion = region & surface->clipRegion();
-    if (clippedRegion.isEmpty()) {
-        dirtyRegions.clear();
-        dirtyStates.clear();
-        return;
-    }
 
 #ifdef Q_BACKINGSTORE_SUBSURFACES
     paintingDecorations = true;
