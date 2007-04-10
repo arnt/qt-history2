@@ -50,9 +50,9 @@
 
 #ifndef QT_NO_SHORTCUT
 #include <qkeysequence.h>
-#define ACCEL_KEY(k) QString::fromLatin1("\t") + QString(QKeySequence( Qt::CTRL | Qt::Key_ ## k ))
+#define ACCEL_KEY(k) QString::fromLatin1("\t") + QString(QKeySequence(k))
 #else
-#define ACCEL_KEY(k) QString("\tCtrl+" #k)
+#define ACCEL_KEY(k) 
 #endif
 
 // could go into QTextCursor...
@@ -1852,18 +1852,19 @@ QMenu *QTextControl::createStandardContextMenu(const QPointF &pos, QWidget *pare
     QAction *a;
 
     if (d->interactionFlags & Qt::TextEditable) {
-        a = menu->addAction(tr("&Undo") + ACCEL_KEY(Z), this, SLOT(undo()));
+        QString text = tr("&Undo");
+        a = menu->addAction(tr("&Undo") + ACCEL_KEY(QKeySequence::Undo), this, SLOT(undo()));
         a->setEnabled(d->doc->isUndoAvailable());
-        a = menu->addAction(tr("&Redo") + ACCEL_KEY(Y), this, SLOT(redo()));
+        a = menu->addAction(tr("&Redo") + ACCEL_KEY(QKeySequence::Redo), this, SLOT(redo()));
         a->setEnabled(d->doc->isRedoAvailable());
         menu->addSeparator();
 
-        a = menu->addAction(tr("Cu&t") + ACCEL_KEY(X), this, SLOT(cut()));
+        a = menu->addAction(tr("Cu&t") + ACCEL_KEY(QKeySequence::Cut), this, SLOT(cut()));
         a->setEnabled(d->cursor.hasSelection());
     }
 
     if (showTextSelectionActions) {
-        a = menu->addAction(tr("&Copy") + ACCEL_KEY(C), this, SLOT(copy()));
+        a = menu->addAction(tr("&Copy") + ACCEL_KEY(QKeySequence::Copy), this, SLOT(copy()));
         a->setEnabled(d->cursor.hasSelection());
     }
 
@@ -1876,7 +1877,7 @@ QMenu *QTextControl::createStandardContextMenu(const QPointF &pos, QWidget *pare
 
     if (d->interactionFlags & Qt::TextEditable) {
 #if !defined(QT_NO_CLIPBOARD)
-        a = menu->addAction(tr("&Paste") + ACCEL_KEY(V), this, SLOT(paste()));
+        a = menu->addAction(tr("&Paste") + ACCEL_KEY(QKeySequence::Paste), this, SLOT(paste()));
         a->setEnabled(canPaste());
 #endif
         a = menu->addAction(tr("Delete"), this, SLOT(_q_deleteSelected()));
@@ -1886,7 +1887,7 @@ QMenu *QTextControl::createStandardContextMenu(const QPointF &pos, QWidget *pare
 
     if (showTextSelectionActions) {
         menu->addSeparator();
-        a = menu->addAction(tr("Select All") + ACCEL_KEY(A), this, SLOT(selectAll()));
+        a = menu->addAction(tr("Select All") + ACCEL_KEY(QKeySequence::SelectAll), this, SLOT(selectAll()));
         a->setEnabled(!d->doc->isEmpty());
     }
 

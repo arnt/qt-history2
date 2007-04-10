@@ -48,9 +48,9 @@
 
 #ifndef QT_NO_SHORTCUT
 #include "qkeysequence.h"
-#define ACCEL_KEY(k) QLatin1String("\t") + QString(QKeySequence(Qt::CTRL | Qt::Key_ ## k))
+#define ACCEL_KEY(k) QLatin1String("\t") + QString(QKeySequence(k))
 #else
-#define ACCEL_KEY(k) QLatin1String("\t") + QString("Ctrl+" #k)
+#define ACCEL_KEY(k)
 #endif
 
 #ifdef Q_WS_MAC
@@ -2497,24 +2497,24 @@ QMenu *QLineEdit::createStandardContextMenu()
 {
     Q_D(QLineEdit);
     if (!d->actions[QLineEditPrivate::UndoAct]) {
-        d->actions[QLineEditPrivate::UndoAct] = new QAction(QLineEdit::tr("&Undo") + ACCEL_KEY(Z), this);
+        d->actions[QLineEditPrivate::UndoAct] = new QAction(QLineEdit::tr("&Undo") + ACCEL_KEY(QKeySequence::Undo), this);
         QObject::connect(d->actions[QLineEditPrivate::UndoAct], SIGNAL(triggered()), this, SLOT(undo()));
-        d->actions[QLineEditPrivate::RedoAct] = new QAction(QLineEdit::tr("&Redo") + ACCEL_KEY(Y), this);
+        d->actions[QLineEditPrivate::RedoAct] = new QAction(QLineEdit::tr("&Redo") + ACCEL_KEY(QKeySequence::Redo), this);
         QObject::connect(d->actions[QLineEditPrivate::RedoAct], SIGNAL(triggered()), this, SLOT(redo()));
         //popup->insertSeparator();
 #ifndef QT_NO_CLIPBOARD
-        d->actions[QLineEditPrivate::CutAct] = new QAction(QLineEdit::tr("Cu&t") + ACCEL_KEY(X), this);
+        d->actions[QLineEditPrivate::CutAct] = new QAction(QLineEdit::tr("Cu&t") + ACCEL_KEY(QKeySequence::Cut), this);
         QObject::connect(d->actions[QLineEditPrivate::CutAct], SIGNAL(triggered()), this, SLOT(cut()));
-        d->actions[QLineEditPrivate::CopyAct] = new QAction(QLineEdit::tr("&Copy") + ACCEL_KEY(C), this);
+        d->actions[QLineEditPrivate::CopyAct] = new QAction(QLineEdit::tr("&Copy") + ACCEL_KEY(QKeySequence::Copy), this);
         QObject::connect(d->actions[QLineEditPrivate::CopyAct], SIGNAL(triggered()), this, SLOT(copy()));
-        d->actions[QLineEditPrivate::PasteAct] = new QAction(QLineEdit::tr("&Paste") + ACCEL_KEY(V), this);
+        d->actions[QLineEditPrivate::PasteAct] = new QAction(QLineEdit::tr("&Paste") + ACCEL_KEY(QKeySequence::Paste), this);
         QObject::connect(d->actions[QLineEditPrivate::PasteAct], SIGNAL(triggered()), this, SLOT(paste()));
 #endif
         d->actions[QLineEditPrivate::ClearAct] = new QAction(QLineEdit::tr("Delete"), this);
         QObject::connect(d->actions[QLineEditPrivate::ClearAct], SIGNAL(triggered()), this, SLOT(_q_deleteSelected()));
         //popup->insertSeparator();
         d->actions[QLineEditPrivate::SelectAllAct] = new QAction(QLineEdit::tr("Select All")
-                                                                 + ACCEL_KEY(A)
+                                                                 + ACCEL_KEY(QKeySequence::SelectAll)
                                                                  , this);
         QObject::connect(d->actions[QLineEditPrivate::SelectAllAct], SIGNAL(triggered()), this, SLOT(selectAll()));
     }
