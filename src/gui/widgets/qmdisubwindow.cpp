@@ -123,6 +123,7 @@
 #include <QWhatsThis>
 #include <QToolTip>
 #include <QMainWindow>
+#include <QStatusBar>
 #include <QDebug>
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 #include <QMacStyle>
@@ -2014,7 +2015,7 @@ void QMdiSubWindow::setWidget(QWidget *widget)
 
 #ifndef QT_NO_SIZEGRIP
     QSizeGrip *sizeGrip = qFindChild<QSizeGrip *>(widget);
-    if (qobject_cast<QMainWindow *>(widget) && sizeGrip)
+    if (sizeGrip && qobject_cast<QStatusBar *>(sizeGrip->parent()))
         sizeGrip->installEventFilter(this);
     else if (sizeGrip && !d->sizeGrip)
         d->setSizeGrip(sizeGrip);
