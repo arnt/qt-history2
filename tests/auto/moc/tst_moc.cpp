@@ -19,7 +19,7 @@
 #include "slots-with-void-template.h"
 #include "qinvokable.h"
 // msvc and friends crap out on it
-#if !defined(Q_CC_MSVC) && !defined(Q_CC_HPACC)
+#if !defined(Q_CC_MSVC) && !defined(Q_CC_HPACC) && !defined(Q_OS_IRIX)
 #include "os9-newlines.h"
 // msvc and friends crap out on this file too,
 // it seems to contain Mac 9 EOLs, and not windows EOLs.
