@@ -629,7 +629,7 @@ QValidator::State QDoubleValidator::validate(QString & input, int &) const
 {
     Q_D(const QDoubleValidator);
 
-    QLocalePrivate::NumberMode numMode;
+    QLocalePrivate::NumberMode numMode = QLocalePrivate::DoubleStandardMode;
     switch (d->notation) {
         case StandardNotation:
             numMode = QLocalePrivate::DoubleStandardMode;
