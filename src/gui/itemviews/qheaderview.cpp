@@ -177,6 +177,7 @@ QDataStream &operator>>(QDataStream &in, QHeaderViewPrivate::SectionSpan &span)
 
 /*!
     \fn void QHeaderView::sectionTouched(int logicalIndex)
+    \since 4.3
 
     This signal is emitted when the cursor moves over the section and the
     left mouse button is pressed. The section's logical index is specified
@@ -215,6 +216,7 @@ QDataStream &operator>>(QDataStream &in, QHeaderViewPrivate::SectionSpan &span)
 
 /*!
     \fn void QHeaderView::sortIndicatorChanged(int logicalIndex, Qt::SortOrder order)
+    \since 4.3
 
     This signal is emitted when the section containing the sort indicator
     or the order indicated is changed. The section's logical index is

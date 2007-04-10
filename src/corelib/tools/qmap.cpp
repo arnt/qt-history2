@@ -621,7 +621,9 @@ void QMapData::dump()
     \sa value(), keys()
 */
 
-/*! \fn Key QMap::key(const T &value, const Key &defaultKey) const
+/*! 
+    \fn Key QMap::key(const T &value, const Key &defaultKey) const
+    \since 4.3
     \overload
 
     Returns the first key with value \a value, or \a defaultKey if

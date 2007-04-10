@@ -127,6 +127,7 @@
 
 /*!
     \fn QSet<Method> QAccessibleInterface::supportedMethods()
+    \since 4.3
 
     Returns a QSet of \l{QAccessible::}{Method}s that are supported by this
     accessible interface.

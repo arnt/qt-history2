@@ -1304,6 +1304,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
 
 /*!
     \fn QRectF::QRectF(const QPointF &topLeft, const QPointF &bottomRight)
+    \since 4.3
 
     Constructs a rectangle with the given \a topLeft and \a bottomRight corners.
 
@@ -2029,6 +2030,7 @@ bool QRectF::intersects(const QRectF &r) const
 
 /*!
     \fn QRect QRectF::toAlignedRect() const
+    \since 4.3
 
     Returns a QRect based on the values of this rectangle that is the
     smallest possible integer rectangle that completly contains this

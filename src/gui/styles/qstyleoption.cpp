@@ -4598,7 +4598,7 @@ QStyleHintReturnMask::QStyleHintReturnMask() : QStyleHintReturn(Version, Type)
 /*!
     \class QStyleHintReturnVariant
     \brief The QStyleHintReturnVariant class provides style hints that return a QVariant.
-
+    \since 4.3
     \ingroup appearance
 */
 

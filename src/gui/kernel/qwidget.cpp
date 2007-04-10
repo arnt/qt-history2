@@ -3993,6 +3993,7 @@ void QWidgetPrivate::render_helper(QWidget *widget, QPaintDevice *result, const 
 /*!
     \property QWidget::locale
     \brief the widget's locale
+    \since 4.3
 
     As long as no special locale has been set, this is either
     the parent's locale or (if this widget is a top level widget),

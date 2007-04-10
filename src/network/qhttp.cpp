@@ -1565,6 +1565,7 @@ QHttp::~QHttp()
 
 /*!
     \enum QHttp::ConnectionMode
+    \since 4.3
 
     This enum is used to specify the mode of connection to use:
 
@@ -1735,6 +1736,7 @@ QHttp::~QHttp()
 
 /*!
     \fn void QHttp::proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator)
+    \since 4.3
 
     This signal can be emitted when a \a proxy that requires
     authentication is used. The \a authenticator object can then be
@@ -1752,6 +1754,7 @@ QHttp::~QHttp()
 
 /*!
     \fn void QHttp::authenticationRequired(const QString &hostname, quint16 port, QAuthenticator *authenticator)
+    \since 4.3
 
     This signal can be emitted when a web server on a given \a hostname and \a
     port requires authentication. The \a authenticator object can then be
@@ -1767,6 +1770,7 @@ QHttp::~QHttp()
 
 /*!
     \fn void QHttp::sslErrors(const QList<QSslError> &errors)
+    \since 4.3
 
     Forwards the sslErrors signal from the QSslSocket used in QHttp. \a errors
     is the list of errors that occurred during the SSL handshake.

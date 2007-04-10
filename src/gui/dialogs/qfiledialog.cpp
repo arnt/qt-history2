@@ -210,12 +210,14 @@
 
 /*!
   \fn void QFileDialog::dirEntered(const QString &directory)
+  \since 4.3
 
   This signal is emitted when the user enters a \a directory.
 */
 
 /*!
   \fn void QFileDialog::filterSelected(const QString &filter)
+  \since 4.3
 
   This signal is emitted when the user selects a \a filter.
 */

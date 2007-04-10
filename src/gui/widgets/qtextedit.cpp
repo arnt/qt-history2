@@ -492,13 +492,14 @@ void QTextEditPrivate::ensureViewportLayouted()
 */
 
 /*!
-    \property QTextEdit::plainText
+        \property QTextEdit::plainText
+        \since 4.3
 
-	This property gets and sets the text edit's contents as plain
-	text. Previous contents are removed and undo/redo history is reset
-	when the property is set. If the text edit has another content
-	type, it will not be replaced by plain text when you call
-	toPlainText().
+        This property gets and sets the text edit's contents as plain
+        text. Previous contents are removed and undo/redo history is reset
+        when the property is set. If the text edit has another content
+        type, it will not be replaced by plain text when you call
+        toPlainText().
 */
 
 /*!

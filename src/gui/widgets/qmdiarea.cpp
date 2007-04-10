@@ -13,8 +13,8 @@
 
 /*!
     \class QMdiArea
-    \brief The QMdiArea widget provides an area in which
-    MDI windows are displayed.
+    \brief The QMdiArea widget provides an area in which MDI windows are displayed.
+    \since 4.3
     \ingroup application
     \mainclass
 

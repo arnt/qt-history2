@@ -1064,6 +1064,7 @@ bool QDomImplementation::isNull()
 
 /*!
    \enum QDomNode::EncodingPolicy
+   \since 4.3
 
    This enum specifies how QDomNode::save() determines what encoding to use
    when serializing.

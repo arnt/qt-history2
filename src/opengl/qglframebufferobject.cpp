@@ -241,6 +241,7 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::At
 
 /*!
     \enum QGLFramebufferObject::Attachments
+    \since 4.3
 
     This enum type is used to configure the depth and stencil buffers
     attached to the framebuffer object when it is created.

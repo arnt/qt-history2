@@ -965,6 +965,7 @@ QString QUndoStack::text(int idx) const
 /*!
     \property QUndoStack::undoLimit
     \brief the maximum number of commands on this stack.
+    \since 4.3
 
     When the number of commands on a stack exceedes the stack's undoLimit, commands are
     deleted from the bottom of the stack. Macro commands (commands with child commands)

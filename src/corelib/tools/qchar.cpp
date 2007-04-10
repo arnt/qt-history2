@@ -782,6 +782,7 @@ bool QChar::hasMirrored() const
 
 /*!
     \fn bool QChar::isTitleCase() const
+    \since 4.3
 
     Returns true if the character is a titlecase letter, i.e.
     category() is Letter_Titlecase.

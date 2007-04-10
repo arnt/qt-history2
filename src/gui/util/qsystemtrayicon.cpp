@@ -328,6 +328,7 @@ bool QSystemTrayIcon::supportsMessages()
 
 /*!
     \fn void QSystemTrayIcon::showMessage(const QString &title, const QString &message, MessageIcon icon, int millisecondsTimeoutHint)
+    \since 4.3
 
     Shows a balloon message for the entry with the given \a title, \a message and
     \a icon for the time specified in \a millisecondsTimeoutHint.

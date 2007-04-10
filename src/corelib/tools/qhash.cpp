@@ -892,7 +892,9 @@ void QHashData::checkSanity()
     \sa value(), keys()
 */
 
-/*! \fn Key QHash::key(const T &value, const Key &defaultKey) const
+/*! 
+    \fn Key QHash::key(const T &value, const Key &defaultKey) const
+    \since 4.3
     \overload
 
     Returns the first key with value \a value, or \a defaultKey if
@@ -1720,7 +1722,9 @@ void QHashData::checkSanity()
     Returns the hash value for \a key.
 */
 
-/*! \fn uint qHash(const QPair<T1, T2> &key)
+/*! 
+    \fn uint qHash(const QPair<T1, T2> &key)
+    \since 4.3
 
     Returns the hash value for \a key.
 

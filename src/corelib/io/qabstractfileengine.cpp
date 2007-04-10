@@ -832,9 +832,10 @@ bool QAbstractFileEngine::atEnd() const
 
 /*!
     \typedef QAbstractFileEngine::Iterator
+    \since 4.3
     \relates QAbstractFileEngine
 
-    Synonym for QAbstractFileEngineIterator
+    Synonym for QAbstractFileEngineIterator.
 */
 
 class QAbstractFileEngineIteratorPrivate

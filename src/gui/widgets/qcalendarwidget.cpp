@@ -2707,6 +2707,7 @@ void QCalendarWidget::setDateTextFormat(const QDate &date, const QTextCharFormat
 /*!
     \property QCalendarWidget::dateEditEnabled
     \brief whether the date edit popup is enabled
+    \since 4.3
 
     If this property is enabled, pressing a non-modifier key will cause a
     date edit to popup if the calendar widget has focus, allowing the user
@@ -2753,6 +2754,7 @@ void QCalendarWidget::setDateEditEnabled(bool enable)
 /*!
     \property QCalendarWidget::dateEditAcceptDelay
     \brief the time an inactive date edit is shown before its contents are accepted
+    \since 4.3
 
     If the calendar widget's \l{dateEditEnabled}{date edit is enabled}, this
     property specifies the amount of time (in millseconds) that the date edit

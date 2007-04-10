@@ -516,6 +516,7 @@ public:
 
  /*!
     \enum QDoubleValidator::Notation
+    \since 4.3
     This enum defines the allowed notations for entering a double.
 
     \value StandardNotation      The string is written as a standard number
@@ -730,6 +731,7 @@ void QDoubleValidator::setDecimals(int decimals)
 
 /*!
     \property QDoubleValidator::notation
+    \since 4.3
     \brief the notation of how a string can describe a number
 
     \sa Notation

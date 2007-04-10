@@ -296,10 +296,11 @@ void QTreeView::setHeader(QHeaderView *header)
 
 /*!
   \property QTreeView::autoExpandDelay
-  \brief delay time before items in a tree is opened during a DND operation.
+  \brief The delay time before items in a tree are opened during a drag and drop operation.
+  \since 4.3
 
-  This property holds the amount of time that the user must wait over
-  an node before that node will automatically open or close.  If the time is
+  This property holds the amount of time in milliseconds that the user must wait over
+  a node before that node will automatically open or close.  If the time is
   set to less then 0 then it will not be activated.
 */
 int QTreeView::autoExpandDelay() const

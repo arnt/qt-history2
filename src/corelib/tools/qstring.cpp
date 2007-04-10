@@ -6595,8 +6595,9 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
-/*! \fn bool QLatin1String::operator==(const char *other) const
-
+/*! 
+    \fn bool QLatin1String::operator==(const char *other) const
+    \since 4.3
     \overload
 
     The \a other const char pointer is converted to a QLatin1String using
@@ -6619,8 +6620,9 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
-/*! \fn bool QLatin1String::operator!=(const char *other) const
-
+/*! 
+    \fn bool QLatin1String::operator!=(const char *other) const
+    \since 4.3
     \overload
 
     The \a other const char pointer is converted to a QLatin1String using
@@ -6632,7 +6634,8 @@ QString QString::fromRawData(const QChar *unicode, int size)
     go through QObject::tr(), for example.
 */
 
-/*! \fn bool QLatin1String::operator>(const QString &other) const
+/*! 
+    \fn bool QLatin1String::operator>(const QString &other) const
 
     Returns true if this string is lexically greater than string \a
     other; otherwise returns false.
@@ -6643,8 +6646,9 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
-/*! \fn bool QLatin1String::operator>(const char *other) const
-
+/*! 
+    \fn bool QLatin1String::operator>(const char *other) const
+    \since 4.3
     \overload
 
     The \a other const char pointer is converted to a QLatin1String using
@@ -6668,8 +6672,9 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare() function.
 */
 
-/*! \fn bool QLatin1String::operator<(const char *other) const
-
+/*! 
+    \fn bool QLatin1String::operator<(const char *other) const
+    \since 4.3
     \overload
 
     The \a other const char pointer is converted to a QLatin1String using
@@ -6681,7 +6686,8 @@ QString QString::fromRawData(const QChar *unicode, int size)
     go through QObject::tr(), for example.
 */
 
-/*! \fn bool QLatin1String::operator>=(const QString &other) const
+/*! 
+    \fn bool QLatin1String::operator>=(const QString &other) const
 
     Returns true if this string is lexically greater than or equal
     to string \a other; otherwise returns false.
@@ -6692,8 +6698,9 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
-/*! \fn bool QLatin1String::operator>=(const char *other) const
-
+/*! 
+    \fn bool QLatin1String::operator>=(const char *other) const
+    \since 4.3
     \overload
 
     The \a other const char pointer is converted to a QLatin1String using
@@ -6716,8 +6723,9 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
-/*! \fn bool QLatin1String::operator<=(const char *other) const
-
+/*! 
+    \fn bool QLatin1String::operator<=(const char *other) const
+    \since 4.3
     \overload
 
     The \a other const char pointer is converted to a QString using
@@ -7109,6 +7117,7 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 
 /*!
     \class QStringRef
+    \since 4.3
     \brief The QStringRef class provides a thin wrapper around QString substrings.
     \reentrant
     \ingroup tools

@@ -1083,6 +1083,7 @@ bool qSharedBuild()
 
 /*!
     \fn T qFromBigEndian(const uchar *src)
+    \since 4.3
     \relates <QtGlobal>
 
     Reads a big-endian number from memory location \a src and returns the number in the
@@ -1100,6 +1101,7 @@ bool qSharedBuild()
 */
 /*!
     \fn T qFromBigEndian(T src)
+    \since 4.3
     \relates <QtGlobal>
     \overload
 
@@ -1111,6 +1113,7 @@ bool qSharedBuild()
 */
 /*!
     \fn T qFromLittleEndian(const uchar *src)
+    \since 4.3
     \relates <QtGlobal>
 
     Reads a little-endian number from memory location \a src and returns the number in
@@ -1128,6 +1131,7 @@ bool qSharedBuild()
 */
 /*!
     \fn T qFromLittleEndian(T src)
+    \since 4.3
     \relates <QtGlobal>
     \overload
 
@@ -1139,6 +1143,7 @@ bool qSharedBuild()
 */
 /*!
     \fn void qToBigEndian(T src, uchar *dest)
+    \since 4.3
     \relates <QtGlobal>
 
     Writes the number \a src with template type \c{T} to the memory location at \a dest
@@ -1154,6 +1159,7 @@ bool qSharedBuild()
 */
 /*!
     \fn T qToBigEndian(T src)
+    \since 4.3
     \relates <QtGlobal>
     \overload
 
@@ -1165,6 +1171,7 @@ bool qSharedBuild()
 */
 /*!
     \fn void qToLittleEndian(T src, uchar *dest)
+    \since 4.3
     \relates <QtGlobal>
 
     Writes the number \a src with template type \c{T} to the memory location at \a dest
@@ -1180,6 +1187,7 @@ bool qSharedBuild()
 */
 /*!
     \fn T qToLittleEndian(T src)
+    \since 4.3
     \relates <QtGlobal>
     \overload
 

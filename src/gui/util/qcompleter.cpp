@@ -1459,6 +1459,7 @@ int QCompleter::completionRole() const
 /*!
     \property QCompleter::wrapAround
     \brief the completions wrap around when navigating through items
+    \since 4.3
 
     The default is true.
 */

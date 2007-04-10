@@ -1310,6 +1310,7 @@ QAction * QDockWidget::toggleViewAction() const
 
 /*!
     \fn void QDockWidget::visibilityChanged(bool visible)
+    \since 4.3
 
     This signal is emitted when the dock widget becomes \a visible (or
     invisible). This happens when the widget is hidden or shown, as
@@ -1319,6 +1320,7 @@ QAction * QDockWidget::toggleViewAction() const
 
 /*!
     \fn void QDockWidget::dockLocationChanged(Qt::DockWidgetArea area)
+    \since 4.3
 
     This signal is emitted when the dock widget is moved to another
     dock \a area, or is moved to a different location in its current

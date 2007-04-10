@@ -53,9 +53,8 @@
 
 /*!
     \class QTransform
-    \brief The QTransform class specifies 2D transformations of a
-    coordinate system.
-
+    \brief The QTransform class specifies 2D transformations of a coordinate system.
+    \since 4.3
     \ingroup multimedia
 
     A transformation specifies how to translate, scale, shear, rotate or project
@@ -588,6 +587,7 @@ void QTransform::reset()
 #ifndef QT_NO_DATASTREAM
 /*!
     \fn QDataStream &operator<<(QDataStream &stream, const QTransform &matrix)
+    \since 4.3
     \relates QTransform
 
     Writes the given \a matrix to the given \a stream and returns a
@@ -611,6 +611,7 @@ QDataStream & operator<<(QDataStream &s, const QTransform &m)
 
 /*!
     \fn QDataStream &operator>>(QDataStream &stream, QTransform &matrix)
+    \since 4.3
     \relates QTransform
 
     Reads the given \a matrix from the given \a stream and returns a
@@ -770,6 +771,7 @@ QLineF QTransform::map(const QLineF &l) const
 
 /*!
     \fn QPolygonF operator *(const QPolygonF &polygon, const QTransform &matrix)
+    \since 4.3
     \relates QTransform
 
     This is the same as \a{matrix}.map(\a{polygon}).
@@ -870,6 +872,7 @@ QRegion QTransform::map(const QRegion &r) const
 
 /*!
     \fn QPainterPath operator *(const QPainterPath &path, const QTransform &matrix)
+    \since 4.3
     \relates QTransform
 
     This is the same as \a{matrix}.map(\a{path}).

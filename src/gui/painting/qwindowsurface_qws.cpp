@@ -229,6 +229,7 @@ void QWSWindowSurface::setWinId(int id)
 
 /*!
     \fn bool QWSWindowSurface::isValid() const
+    \since 4.3
 
     Implement this function to return true if the surface is a valid
     surface for the given top-level \a window; otherwise return
@@ -248,6 +249,7 @@ void QWSWindowSurface::setWinId(int id)
 
 /*!
     \fn QByteArray QWSWindowSurface::permanentState() const
+    \since 4.3
 
     Implement this function to return the data required for creating a
     server-side representation of the surface.
@@ -257,6 +259,7 @@ void QWSWindowSurface::setWinId(int id)
 
 /*!
     \fn void QWSWindowSurface::setPermanentState(const QByteArray &data)
+    \since 4.3
 
     Implement this function to attach a server-side surface instance
     to the corresponding client side instance using the given \a

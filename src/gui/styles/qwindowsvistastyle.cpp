@@ -102,7 +102,7 @@ bool QWindowsVistaStylePrivate::useVista()
 /*!
   \class QWindowsVistaStyle
   \brief The QWindowsVistaStyle class provides a look and feel suitable for applications on Microsoft Windows Vista.
-
+  \since 4.3
   \ingroup appearance
 
   \warning This style is only available on the Windows Vista platform

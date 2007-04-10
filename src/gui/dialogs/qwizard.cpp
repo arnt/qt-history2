@@ -1453,6 +1453,7 @@ void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
 
 /*!
     \class QWizard
+    \since 4.3
     \brief The QWizard class provides a framework for wizards.
 
     A wizard (also called an assistant on Mac OS X) is a special type
@@ -2902,6 +2903,7 @@ int QWizard::nextId() const
 
 /*!
     \class QWizardPage
+    \since 4.3
     \brief The QWizardPage class is the base class for wizard pages.
 
     QWizard represents a wizard. Each page is a QWizardPage. When

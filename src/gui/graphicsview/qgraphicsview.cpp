@@ -1801,6 +1801,7 @@ QList<QGraphicsItem *> QGraphicsView::items(const QRect &rect, Qt::ItemSelection
 
 /*!
     \fn QList<QGraphicsItem *> QGraphicsView::items(int x, int y, int w, int h, Qt::ItemSelectionMode mode) const
+    \since 4.3
 
     This convenience function is equivalent to calling items(QRectF(\a x, \a
     y, \a w, \a h), \a mode).

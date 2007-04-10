@@ -130,6 +130,7 @@ static const int QGRAPHICSSCENE_INDEXTIMER_TIMEOUT = 2000;
 
 /*!
     \enum QGraphicsScene::SceneLayer
+    \since 4.3
 
     This enum describes the rendering layers in a QGraphicsScene. When
     QGraphicsScene draws the scene contents, it renders each of these layers
@@ -1182,6 +1183,7 @@ void QGraphicsScene::setItemIndexMethod(ItemIndexMethod method)
 /*!
     \property QGraphicsScene::bspTreeDepth
     \brief the depth of QGraphicsScene's BSP index tree
+    \since 4.3
 
     This property has no effect when NoIndex is used.
 
@@ -1361,6 +1363,7 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rect, Qt::ItemSelecti
 
 /*!
     \fn QList<QGraphicsItem *> QGraphicsScene::items(qreal x, qreal y, qreal w, qreal h, Qt::ItemSelectionMode mode) const
+    \since 4.3
 
     This convenience function is equivalent to calling items(QRectF(\a x, \a y, \a w, \a h), \a mode).
 */
@@ -1796,6 +1799,7 @@ QGraphicsEllipseItem *QGraphicsScene::addEllipse(const QRectF &rect, const QPen 
 
 /*!
     \fn QGraphicsEllipseItem *QGraphicsScene::addEllipse(qreal x, qreal y, qreal w, qreal h, const QPen &pen, const QBrush &brush)
+    \since 4.3
 
     This convenience function is equivalent to calling addEllipse(QRectF(\a x,
     \a y, \a w, \a h), \a pen, \a brush).
@@ -1825,6 +1829,7 @@ QGraphicsLineItem *QGraphicsScene::addLine(const QLineF &line, const QPen &pen)
 
 /*!
     \fn QGraphicsLineItem *QGraphicsScene::addLine(qreal x1, qreal y1, qreal x2, qreal y2, const QPen &pen)
+    \since 4.3
 
     This convenience function is equivalent to calling addLine(QLineF(\a x1,
     \a y1, \a x2, \a y2), \a pen).
@@ -1922,6 +1927,7 @@ QGraphicsRectItem *QGraphicsScene::addRect(const QRectF &rect, const QPen &pen, 
 
 /*!
     \fn QGraphicsRectItem *QGraphicsScene::addRect(qreal x, qreal y, qreal w, qreal h, const QPen &pen, const QBrush &brush)
+    \since 4.3
 
     This convenience function is equivalent to calling addRect(QRectF(\a x,
     \a y, \a w, \a h), \a pen, \a brush).
@@ -2331,6 +2337,7 @@ void QGraphicsScene::update(const QRectF &rect)
 
 /*!
     \fn void QGraphicsScene::update(qreal x, qreal y, qreal w, qreal h)
+    \since 4.3
 
     This convenience function is equivalent to calling update(QRectF(\a x, \a
     y, \a w, \a h));
@@ -2389,6 +2396,7 @@ void QGraphicsScene::invalidate(const QRectF &rect, SceneLayers layers)
 
 /*!
     \fn void QGraphicsScene::invalidate(qreal x, qreal y, qreal w, qreal h, SceneLayers layers)
+    \since 4.3
 
     This convenience function is equivalent to calling invalidate(QRectF(\a x, \a
     y, \a w, \a h), \a layers);
@@ -3212,6 +3220,7 @@ void QGraphicsScene::drawItems(QPainter *painter,
 
 /*!
     \fn QGraphicsScene::selectionChanged()
+    \since 4.3
 
     This signal is emitted by QGraphicsScene whenever the selection
     changes. You can call selectedItems() to get the new list of selected

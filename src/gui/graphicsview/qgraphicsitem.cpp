@@ -2264,6 +2264,7 @@ bool QGraphicsItem::isObscured(const QRectF &rect) const
 
 /*!
     \fn bool QGraphicsItem::isObscured(qreal x, qreal y, qreal w, qreal h) const
+    \since 4.3
 
     This convenience function is equivalent to calling isObscured(QRectF(\a x, \a y, \a w, \a h)).
 */
@@ -2445,6 +2446,7 @@ QPolygonF QGraphicsItem::mapToItem(const QGraphicsItem *item, const QRectF &rect
 
 /*!
     \fn QPolygonF QGraphicsItem::mapToItem(const QGraphicsItem *item, qreal x, qreal y, qreal w, qreal h) const
+    \since 4.3
 
     This convenience function is equivalent to calling mapToItem(item, QRectF(\a x, \a y, \a w, \a h)).
 */
@@ -2465,6 +2467,7 @@ QPolygonF QGraphicsItem::mapToParent(const QRectF &rect) const
 
 /*!
     \fn QPolygonF QGraphicsItem::mapToParent(qreal x, qreal y, qreal w, qreal h) const
+    \since 4.3
 
     This convenience function is equivalent to calling mapToParent(QRectF(\a x, \a y, \a w, \a h)).
 */
@@ -2483,6 +2486,7 @@ QPolygonF QGraphicsItem::mapToScene(const QRectF &rect) const
 
 /*!
     \fn QPolygonF QGraphicsItem::mapToScene(qreal x, qreal y, qreal w, qreal h) const
+    \since 4.3
 
     This convenience function is equivalent to calling mapToScene(QRectF(\a x, \a y, \a w, \a h)).
 */
@@ -2648,6 +2652,7 @@ QPolygonF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QRectF &re
 
 /*!
     \fn QPolygonF QGraphicsItem::mapFromItem(const QGraphicsItem *item, qreal x, qreal y, qreal w, qreal h) const
+    \since 4.3
 
     This convenience function is equivalent to calling mapFromItem(item, QRectF(\a x, \a y, \a w, \a h)).
 */
@@ -2667,6 +2672,7 @@ QPolygonF QGraphicsItem::mapFromParent(const QRectF &rect) const
 
 /*!
     \fn QPolygonF QGraphicsItem::mapFromParent(qreal x, qreal y, qreal w, qreal h) const
+    \since 4.3
 
     This convenience function is equivalent to calling mapFromItem(QRectF(\a x, \a y, \a w, \a h)).
 */
@@ -2686,6 +2692,7 @@ QPolygonF QGraphicsItem::mapFromScene(const QRectF &rect) const
 
 /*!
     \fn QPolygonF QGraphicsItem::mapFromScene(qreal x, qreal y, qreal w, qreal h) const
+    \since 4.3
 
     This convenience function is equivalent to calling mapFromScene(QRectF(\a x, \a y, \a w, \a h)).
 */
@@ -4304,6 +4311,7 @@ QGraphicsEllipseItem::QGraphicsEllipseItem(const QRectF &rect, QGraphicsItem *pa
 
 /*!
     \fn QGraphicsEllipseItem::QGraphicsEllipseItem(qreal x, qreal y, qreal width, qreal height, QGraphicsItem *parent)
+    \since 4.3
 
     Constructs a QGraphicsEllipseItem using the rectangle defined by (\a x, \a
     y) and the given \a width and \a height, as the default rectangle. \a
@@ -5267,6 +5275,7 @@ void QGraphicsPixmapItem::setOffset(const QPointF &offset)
 
 /*!
     \fn void QGraphicsPixmapItem::setOffset(qreal x, qreal y)
+    \since 4.3
 
     This convenience function is equivalent to calling setOffset(QPointF(\a x, \a y)).
 */

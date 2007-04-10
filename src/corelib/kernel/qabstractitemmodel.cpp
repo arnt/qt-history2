@@ -1170,7 +1170,7 @@ QAbstractItemModel::~QAbstractItemModel()
 
     \quotefromfile itemviews/simpledommodel/dommodel.cpp
     \skipto ::columnCount
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     \bold{Tip:} When implementing a table based model, columnCount() should return 0 when
     the parent is valid.

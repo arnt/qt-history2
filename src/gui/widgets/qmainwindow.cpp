@@ -301,13 +301,15 @@ QMainWindow::~QMainWindow()
 
 /*!
     \property QMainWindow::dockOptions
-    \brief the docking behavior of QMainWindow.
+    \brief the docking behavior of QMainWindow
+    \since 4.3
 
     The default value is AnimatedDocks | AllowTabbedDocks.
 */
 
 /*!
     \enum QMainWindow::DockOption
+    \since 4.3
 
     This enum contains flags that specify the docking behavior of QMainWindow.
 
@@ -1166,7 +1168,8 @@ bool QMainWindow::event(QEvent *event)
 
 /*!
     \property QMainWindow::unifiedTitleAndToolBarOnMac
-    \brief Whether or not the window uses the unified title and toolbar look on Mac OS X.
+    \brief whether the window uses the unified title and toolbar look on Mac OS X
+    \since 4.3
 
     This property is false by default and only has any effect on Mac OS X 10.4 or higher.
 

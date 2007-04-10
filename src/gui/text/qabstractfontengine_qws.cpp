@@ -35,7 +35,7 @@ public:
     \class QFontEngineInfo
     \preliminary
     \brief The QFontEngineInfo class describes a specific font provided by a font engine plugin.
-
+    \since 4.3
     \ingroup qws
 
     \tableofcontents
@@ -183,7 +183,7 @@ class QFontEnginePluginPrivate : public QObjectPrivate
     \class QFontEnginePlugin
     \preliminary
     \brief QFontEnginePlugin is the base class for font engine factory plugins in Qtopia Core.
-
+    \since 4.3
     \ingroup qws
 
     \tableofcontents
@@ -248,7 +248,7 @@ public:
     \class QAbstractFontEngine
     \preliminary
     \brief QAbstractFontEngine is the base class for font engine plugins in Qtopia Core.
-
+    \since 4.3
     \ingroup qws
 
     \tableofcontents

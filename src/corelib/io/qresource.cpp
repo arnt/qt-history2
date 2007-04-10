@@ -1001,6 +1001,7 @@ QResource::unregisterResource(const QString &rccFilename, const QString &resourc
 
 /*!
    \fn bool QResource::registerResource(const uchar *rccData, const QString &mapRoot)
+   \since 4.3
 
    Registers the resource with the given \a rccData at the location in the
    resource tree specified by \a mapRoot, and returns true if the file is
@@ -1035,6 +1036,7 @@ QResource::registerResource(const uchar *rccData, const QString &resourceRoot)
 
 /*!
   \fn bool QResource::unregisterResource(const uchar *rccData, const QString &mapRoot)
+  \since 4.3
 
   Unregisters the resource with the given \a rccData at the location in the
   resource tree specified by \a mapRoot, and returns true if the resource is

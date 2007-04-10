@@ -582,6 +582,7 @@ QScriptValue QScriptEngine::newQMetaObject(
 
 /*!
   \fn QScriptValue qScriptValueFromQMetaObject(QScriptEngine *engine)
+  \since 4.3
   \relates QScriptEngine
 
   Uses \a engine to create a QScriptValue that represents the Qt class
@@ -839,6 +840,7 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
 
 /*!
     \fn QScriptValue qScriptValueFromValue(QScriptEngine *engine, const T &value)
+    \since 4.3
     \relates QScriptEngine
 
     Creates a QScriptValue using the given \a engine with the given \a
@@ -853,6 +855,7 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
 
 /*!
     \fn T qScriptValueToValue(const QScriptValue &value)
+    \since 4.3
     \relates QScriptEngine
 
     Returns the given \a value converted to the template type \c{T}.
@@ -864,7 +867,9 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
     \sa qScriptValueFromValue()
 */
 
-/*! \fn T qscriptvalue_cast(const QScriptValue &value)
+/*! 
+    \fn T qscriptvalue_cast(const QScriptValue &value)
+    \since 4.3
     \relates QScriptValue
 
     Returns the given \a value converted to the template type \c{T}.
@@ -982,6 +987,7 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
 
 /*!
     \macro Q_SCRIPT_DECLARE_QMETAOBJECT(QMetaObject, ArgType)
+    \since 4.3
     \relates QScriptEngine
 
     Declares the given \a QMetaObject. Used in combination with

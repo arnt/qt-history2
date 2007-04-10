@@ -187,6 +187,7 @@
 
 /*!
     \fn void QAbstractSocket::proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator)
+    \since 4.3
 
     This signal can be emitted when a \a proxy that requires
     authentication is used. The \a authenticator object can then be

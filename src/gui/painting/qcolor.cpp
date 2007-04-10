@@ -1791,6 +1791,7 @@ QColor QColor::fromCmykF(qreal c, qreal m, qreal y, qreal k, qreal a)
 
 /*!
     \fn QColor QColor::lighter(int factor) const
+    \since 4.3
 
     Returns a lighter (or darker) color, but does not change this
     object.
@@ -1843,6 +1844,7 @@ QColor QColor::light(int factor) const
 
 /*!
     \fn QColor QColor::darker(int factor) const
+    \since 4.3
 
     Returns a darker (or lighter) color, but does not change this
     object.

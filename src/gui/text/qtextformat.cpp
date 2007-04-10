@@ -1421,6 +1421,7 @@ void QTextCharFormat::setUnderlineStyle(UnderlineStyle style)
 
 /*!
     \fn void QTextCharFormat::setAnchorNames(const QStringList &names)
+    \since 4.3
 
     Sets the text format's anchor \a names. For the anchor to work as a
     hyperlink, the destination must be set with setAnchorHref() and
@@ -1449,6 +1450,7 @@ QString QTextCharFormat::anchorName() const
 
 /*!
     \fn QStringList QTextCharFormat::anchorNames() const
+    \since 4.3
 
     Returns the anchor names associated with this text format, or an empty
     string list if none has been set. If the anchor names are set, text with this
@@ -1934,6 +1936,7 @@ QTextListFormat::QTextListFormat()
 
 /*!
     \enum QTextFrameFormat::BorderStyle
+    \since 4.3
 
     \value BorderStyle_None
     \value BorderStyle_Dotted
@@ -1993,24 +1996,28 @@ QTextFrameFormat::QTextFrameFormat() : QTextFormat(FrameFormat)
 
 /*!
     \fn QTextFrameFormat::setBorderBrush(const QBrush &brush)
+    \since 4.3
 
     Sets the \a brush used for the frame's border.
 */
 
 /*!
     \fn QBrush QTextFrameFormat::borderBrush() const
+    \since 4.3
 
     Returns the brush used for the frame's border.
 */
 
 /*!
     \fn QTextFrameFormat::setBorderStyle(BorderStyle style)
+    \since 4.3
 
     Sets the \a style of the frame's border.
 */
 
 /*!
     \fn BorderStyle QTextFrameFormat::borderStyle() const
+    \since 4.3
 
     Returns the style of the frame's border.
 */
@@ -2041,12 +2048,14 @@ void QTextFrameFormat::setMargin(qreal amargin)
 
 /*!
     \fn QTextFrameFormat::setTopMargin(qreal margin)
+    \since 4.3
 
     Sets the frame's top \a margin in pixels.
 */
 
 /*!
     \fn qreal QTextFrameFormat::topMargin() const
+    \since 4.3
 
     Returns the width of the frame's top margin in pixels.
 */
@@ -2059,12 +2068,14 @@ qreal QTextFrameFormat::topMargin() const
 
 /*!
     \fn QTextFrameFormat::setBottomMargin(qreal margin)
+    \since 4.3
 
     Sets the frame's bottom \a margin in pixels.
 */
 
 /*!
     \fn qreal QTextFrameFormat::bottomMargin() const
+    \since 4.3
 
     Returns the width of the frame's bottom margin in pixels.
 */
@@ -2077,12 +2088,14 @@ qreal QTextFrameFormat::bottomMargin() const
 
 /*!
     \fn QTextFrameFormat::setLeftMargin(qreal margin)
+    \since 4.3
 
     Sets the frame's left \a margin in pixels.
 */
 
 /*!
     \fn qreal QTextFrameFormat::leftMargin() const
+    \since 4.3
 
     Returns the width of the frame's left margin in pixels.
 */
@@ -2095,12 +2108,14 @@ qreal QTextFrameFormat::leftMargin() const
 
 /*!
     \fn QTextFrameFormat::setRightMargin(qreal margin)
+    \since 4.3
 
     Sets the frame's right \a margin in pixels.
 */
 
 /*!
     \fn qreal QTextFrameFormat::rightMargin() const
+    \since 4.3
 
     Returns the width of the frame's right margin in pixels.
 */
