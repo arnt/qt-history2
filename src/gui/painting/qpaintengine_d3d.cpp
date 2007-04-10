@@ -293,6 +293,8 @@ public:
     void cleanupItem(QD3DBatchItem *item);
     void setCompositionMode(QPainter::CompositionMode mode);
 
+    void verifyTexture(const QPixmap &pixmap);
+
     bool isFastRect(const QRectF &rect);
 
     void releaseDC();
@@ -340,6 +342,7 @@ public:
     uint has_cosmetic_pen : 1;
     uint has_brush : 1;
     uint has_fast_pen : 1;
+    uint has_aa_fast_pen : 1;
     uint m_flushOnEnd : 1;
     uint m_supports_d3d : 1;
 
@@ -3086,7 +3089,7 @@ void QDirect3DPaintEnginePrivate::fillAntialiasedPath(const QPainterPath &path, 
     QRectF txrect;
     QPainterPath tpath;
 
-    if (has_fast_pen && stroke) {
+    if (has_aa_fast_pen && stroke) {
         tpath = txform.map(path);
         txrect = tpath.controlPointRect();
         txrect.adjust(-(m_pen_width/2),-(m_pen_width/2), m_pen_width, m_pen_width);
@@ -3171,7 +3174,7 @@ void QDirect3DPaintEnginePrivate::fillAntialiasedPath(const QPainterPath &path, 
         item->m_brect = adj_txrect;
     }
 
-    if (has_fast_pen && stroke) {
+    if (has_aa_fast_pen && stroke) {
         m_vBuffer->queueAntialiasedLines(tpath, &item, txrect);
     } else {
         m_vBuffer->queueAntialiasedMask(poly, &item, txrect);
@@ -3241,7 +3244,7 @@ void QDirect3DPaintEnginePrivate::strokePath(const QPainterPath &path, QRectF br
     QTransform txform;
     QPainterPath tpath;
 
-    if (has_fast_pen) {
+    if (has_fast_pen || has_aa_fast_pen) {
         if (!simple)
             tpath = strokePathFastPen(path);
         else
@@ -3309,6 +3312,7 @@ bool QDirect3DPaintEnginePrivate::init()
     m_currentState = 0;
     m_inScene = false;
     has_fast_pen = false;
+    has_aa_fast_pen = false;
     has_pen = false;
     has_brush = false;
     m_penColor = 0;
@@ -3471,9 +3475,9 @@ void QDirect3DPaintEnginePrivate::updateBrush(const QBrush &brush)
             if (!ok)
                 qWarning() << "QDirect3DPaintEngine: No inverse matix for brush matrix.";
 
-            // make sure the texture is loaded as a texture (###)
-            if (m_brush_style == Qt::TexturePattern && !m_brush.texture().data->texture)
-                m_brush.setTexture(QPixmap::fromImage(m_brush.texture().toImage()));
+            // make sure the texture is loaded as a texture
+            if (m_brush_style == Qt::TexturePattern)
+                verifyTexture(m_brush.texture());
         }
     }
 }
@@ -3620,6 +3624,30 @@ void QDirect3DPaintEnginePrivate::cleanupItem(QD3DBatchItem *item)
     if (item->m_info & QD3DBatchItem::BI_PIXMAP)
         item->m_pixmap = QPixmap();
     item->m_brush = QBrush();
+}
+
+void QDirect3DPaintEnginePrivate::verifyTexture(const QPixmap &pm)
+{
+    if (!pm.data->texture) {
+        QImage im = pm.data->image.convertToFormat(QImage::Format_ARGB32);
+        if (FAILED(m_d3dDevice->CreateTexture(im.width(), im.height(), 1, 0,
+                                                 D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pm.data->texture, 0)))
+        {
+            qWarning("QDirect3DPaintEngine: unable to create Direct3D texture from pixmap.");
+            return;
+        }
+        D3DLOCKED_RECT rect;
+        if (FAILED(pm.data->texture->LockRect(0, &rect, 0, 0))) {
+            qDebug() << "QDirect3DPaintEngine: unable to lock texture rect.";
+            return;
+        }
+        DWORD *dst = (DWORD *) rect.pBits;
+        DWORD *src = (DWORD *) im.scanLine(0);
+
+        Q_ASSERT((rect.Pitch/4) == (im.bytesPerLine()/4));
+        memcpy(dst, src, rect.Pitch*im.height());
+        pm.data->texture->UnlockRect(0);
+    }
 }
 
 bool QDirect3DPaintEnginePrivate::isFastRect(const QRectF &rect)
@@ -3913,8 +3941,7 @@ void QDirect3DPaintEngine::drawLines(const QLineF *lines, int lineCount)
     if (!d->has_pen)
         return;
 
-    if (d->has_fast_pen && !(d->m_currentState & QD3DBatchItem::BI_AA)
-        && (d->m_pen_brush_style == Qt::SolidPattern)) {
+    if (d->has_fast_pen && (d->m_pen_brush_style == Qt::SolidPattern)) {
         QD3DBatchItem *item = d->nextBatchItem();
         if (d->m_txop <= QTransform::TxTranslate) {
             item->m_info |= QD3DBatchItem::BI_TRANSFORM;
@@ -4013,26 +4040,7 @@ void QDirect3DPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const 
     if (d->m_vBuffer->needsFlushing())
         d->flushBatch();
 
-    if (!pm.data->texture) {
-        QImage im = pm.data->image.convertToFormat(QImage::Format_ARGB32);
-        if (FAILED(d->m_d3dDevice->CreateTexture(im.width(), im.height(), 1, 0,
-                                                 D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pm.data->texture, 0)))
-        {
-            qWarning("QDirect3DPaintEngine: unable to create Direct3D texture from pixmap.");
-            return;
-        }
-        D3DLOCKED_RECT rect;
-        if (FAILED(pm.data->texture->LockRect(0, &rect, 0, 0))) {
-            qDebug() << "QDirect3DPaintEngine: unable to lock texture rect.";
-            return;
-        }
-        DWORD *dst = (DWORD *) rect.pBits;
-        DWORD *src = (DWORD *) im.scanLine(0);
-
-        Q_ASSERT((rect.Pitch/4) == (im.bytesPerLine()/4));
-        memcpy(dst, src, rect.Pitch*im.height());
-        pm.data->texture->UnlockRect(0);
-    }
+    d->verifyTexture(pm);
 
     int width = pm.width();
     int height = pm.height();
@@ -4363,9 +4371,17 @@ void QDirect3DPaintEngine::updateState(const QPaintEngineState &state)
         d->updateBrush(state.brush());
 
     if (update_fast_pen && d->has_pen) {
-        d->has_fast_pen = ((d->m_txop <= QTransform::TxTranslate) || d->has_cosmetic_pen)
-                          && (d->m_pen.style() == Qt::SolidLine)
-                          && (d->m_pen.capStyle() == Qt::SquareCap);
+        if (d->m_currentState & QD3DBatchItem::BI_AA) {
+            d->has_fast_pen = false;
+            d->has_aa_fast_pen = ((d->m_txop <= QTransform::TxTranslate) || d->has_cosmetic_pen)
+                && (d->m_pen_width <= 1.0f)
+                && (d->m_pen.style() == Qt::SolidLine);
+        } else {
+            d->has_aa_fast_pen = false;
+            d->has_fast_pen = ((d->m_txop <= QTransform::TxTranslate) || d->has_cosmetic_pen)
+                              && (d->m_pen.style() == Qt::SolidLine)
+                              && (d->m_pen.capStyle() == Qt::SquareCap);
+        }
     }
 }
 
