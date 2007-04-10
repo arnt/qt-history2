@@ -158,31 +158,6 @@ bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::DockWidgetArea where) //us
     return true;
 }
 
-static QSize qt_initial_size(QWidget *w) {
-    QSize s = w->sizeHint();
-    Qt::Orientations exp;
-    if(QLayout *layout = w->layout()) {
-        if (layout->hasHeightForWidth())
-            s.setHeight(layout->totalHeightForWidth(s.width()));
-        exp = layout->expandingDirections();
-    } else {
-        if (w->sizePolicy().hasHeightForWidth())
-            s.setHeight(w->heightForWidth(s.width()));
-        exp = w->sizePolicy().expandingDirections();
-    }
-    if (exp & Qt::Horizontal)
-        s.setWidth(qMax(s.width(), 200));
-    if (exp & Qt::Vertical)
-        s.setHeight(qMax(s.height(), 150));
-    QRect screen = QApplication::desktop()->screenGeometry(w->pos());
-    s.setWidth(qMin(s.width(), screen.width()*2/3));
-    s.setHeight(qMin(s.height(), screen.height()*2/3));
-    int left, top, right, bottom;
-    w->getContentsMargins(&left, &top, &right, &bottom);
-    s += QSize(left + right, top + bottom);
-    return s;
-}
-
 QPoint qt_mac_posInWindow(const QWidget *w)
 {
     QPoint ret = w->data->wrect.topLeft();
@@ -2156,10 +2131,9 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
             if(newstate & Qt::WindowFullScreen) {
                 if(QTLWExtra *tlextra = d->topData()) {
                     if(tlextra->normalGeometry.width() < 0) {
-                        if(testAttribute(Qt::WA_Resized))
-                            tlextra->normalGeometry = geometry();
-                        else
-                            tlextra->normalGeometry = QRect(pos(), qt_initial_size(this));
+                        if(!testAttribute(Qt::WA_Resized))
+                            adjustSize();
+                        tlextra->normalGeometry = geometry();
                     }
                     tlextra->savedFlags = windowFlags();
                 }
@@ -2190,10 +2164,9 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
         if((newstate & Qt::WindowMaximized) && !((newstate & Qt::WindowFullScreen))) {
             if(QTLWExtra *tlextra = d->topData()) {
                 if(tlextra->normalGeometry.width() < 0) {
-                    if(testAttribute(Qt::WA_Resized))
-                        tlextra->normalGeometry = geometry();
-                    else
-                        tlextra->normalGeometry = QRect(pos(), qt_initial_size(this));
+                    if(!testAttribute(Qt::WA_Resized))
+                        adjustSize();
+                    tlextra->normalGeometry = geometry();
                 }
             }
         } else if(!(newstate & Qt::WindowFullScreen)) {
