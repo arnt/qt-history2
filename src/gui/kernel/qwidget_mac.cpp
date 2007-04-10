@@ -2061,9 +2061,10 @@ void QWidgetPrivate::show_sys()
             ShowHide(window, true);
             toggleDrawers(true);
         }
-        if(q->windowState() & Qt::WindowMinimized) //show in collapsed state
+        if (q->windowState() & Qt::WindowMinimized) //show in collapsed state
             CollapseWindow(window, true);
-        qt_event_request_activate(q);
+        else
+            qt_event_request_activate(q);
     } else if(!q->parentWidget() || q->parentWidget()->isVisible()) {
         HIViewSetVisible(qt_mac_hiview_for(q), true);
     }
