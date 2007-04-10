@@ -2681,7 +2681,9 @@ QRectF QD3DVertexBuffer::pathToVertexArrays(const QPainterPath &path)
         switch (e.type) {
         case QPainterPath::MoveToElement:
             m_item->m_pointstops.append(tess_index);
+            m_firstPoint = true;
             lineToStencil(e.x, e.y);
+            m_firstPoint = false;
             break;
         case QPainterPath::LineToElement:
             lineToStencil(e.x, e.y);
