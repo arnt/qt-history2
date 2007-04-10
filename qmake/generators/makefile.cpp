@@ -2181,7 +2181,10 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
             }
             while(st->in_directory.right(1) == Option::dir_sep)
                 st->in_directory = st->in_directory.left(st->in_directory.length() - 1);
-	    st->out_directory = fileFixify(st->in_directory, QDir::currentPath(), Option::output_dir);
+            if(fileInfo(st->in_directory).isRelative())
+                st->out_directory = st->in_directory;
+            else
+                st->out_directory = fileFixify(st->in_directory, qmake_getpwd(), Option::output_dir);
             if(!project->isEmpty(fixedSubdir + ".makefile")) {
                 st->makefile = project->first(fixedSubdir + ".makefile");
             } else {
