@@ -17,6 +17,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWizard>
+#include <QStyle>
 
 //TESTED_CLASS=QWizard
 //TESTED_FILES=gui/dialogs/qwizard.h gui/dialogs/qwizard.cpp
@@ -2111,17 +2112,14 @@ void tst_QWizard::setWizardStyle()
     qApp->processEvents();
 
     // defaults
-#if defined(Q_WS_WIN)
-    // note: AeroStyle requires alpha compositing which will normally be enabled
-    // on Windows Vista (except when the Classic theme is applied)
-    QVERIFY(
-        wizard.wizardStyle() == QWizard::ModernStyle
-        || wizard.wizardStyle() == QWizard::AeroStyle);
-#elif defined(Q_WS_MAC)
-    QCOMPARE(wizard.wizardStyle(), QWizard::MacStyle);
+    const bool styleHintMatch =
+        wizard.wizardStyle() ==
+        QWizard::WizardStyle(wizard.style()->styleHint(QStyle::SH_WizardStyle, 0, &wizard));
+#if !defined(QT_NO_STYLE_WINDOWSVISTA)
+    QVERIFY(styleHintMatch || wizard.wizardStyle() == QWizard::AeroStyle);
 #else
-    QCOMPARE(wizard.wizardStyle(), QWizard::ClassicStyle);
-#endif   
+    QVERIFY(styleHintMatch);
+#endif
 
     // set/get consistency
     for (int wstyle = 0; wstyle < QWizard::NStyles; ++wstyle) {
