@@ -785,7 +785,6 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
             QFontCache::instance->insertEngine(key, fe);
         }
 
-#if defined(Q_WS_X11) && !defined(QT_NO_FONTCONFIG)
         if (scriptRequiresOpenType(script)) {
             QOpenType *ot = fe->openType();
             if (!ot || !ot->supportsScript(script)) {
@@ -793,7 +792,6 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
                 fe = 0;
             }
         }
-#endif
     }
 
     if (!fe) {
