@@ -37,7 +37,7 @@ private slots:
     void recentFileChosen();
 
 private:
-    QIcon formPreviewIcon(const QString &fileName);
+    QPixmap formPreviewPixmap(const QString &fileName);
     void loadFrom(const QString &path, bool resourceFile);
 
 private:

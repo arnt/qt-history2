@@ -32,10 +32,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 
-enum NewForm_CustomRole
-{
-    TemplateNameRole = Qt::UserRole + 100
-};
+enum NewForm_CustomRole {   TemplateNameRole = Qt::UserRole + 100 };
 
 NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget, const QString &fileName)
     : QDialog(parentWidget,
@@ -96,14 +93,14 @@ void NewForm::recentFileChosen()
 void NewForm::on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *)
 {
     if (current && current->parent()) {
-        const QIcon icon = formPreviewIcon(current->data(0, TemplateNameRole).toString());
-        if (icon.isNull()) {
+        const QPixmap pixmap = formPreviewPixmap(current->data(0, TemplateNameRole).toString());
+        if (pixmap.isNull()) {
             m_createButton->setEnabled(false);
             ui.lblPreview->setText(tr("Error loading form"));
         } else {
             m_createButton->setEnabled(true);
             m_createButton->setDefault(true);
-            ui.lblPreview->setPixmap(icon.pixmap(QSize(256, 256)));
+            ui.lblPreview->setPixmap(pixmap);
         }
     } else {
         m_createButton->setEnabled(false);
@@ -134,7 +131,7 @@ void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
         }
         break;
     case QDialogButtonBox::AcceptRole:
-        if (const QTreeWidgetItem *item = ui.treeWidget->currentItem()) { 
+        if (const QTreeWidgetItem *item = ui.treeWidget->currentItem()) {
             if (openTemplate(item->data(0, TemplateNameRole).toString())) {
                 close();
             } else {
@@ -152,101 +149,89 @@ QDesignerWorkbench *NewForm::workbench() const
     return m_workbench;
 }
 
-QIcon NewForm::formPreviewIcon(const QString &fileName)
+QPixmap NewForm::formPreviewPixmap(const QString &fileName)
 {
-    QIcon result;
-
     QFile f(fileName);
-    if (f.open(QFile::ReadOnly)) {
-        qdesigner_internal::QDesignerFormBuilder formBuilder(workbench()->core(), qdesigner_internal::QDesignerFormBuilder::UseContainerExtension);
+    if (!f.open(QFile::ReadOnly))
+        return QPixmap();
 
-        QWidget *fake = new QWidget(0);
+    qdesigner_internal::QDesignerFormBuilder formBuilder(workbench()->core(), qdesigner_internal::QDesignerFormBuilder::UseContainerExtension);
 
-        fake->createWinId();
-        fake->setAttribute(Qt::WA_WState_Visible);
+    QWidget *widget = formBuilder.load(&f, 0);
+    f.close();
+    if (!widget)
+        return QPixmap();
 
-        if (QWidget *widget = formBuilder.load(&f, fake)) {
-            widget->setParent(fake, 0);
-            widget->show();
-            f.close();
+    const int margin = 7;
+    const int shadow = 7;
+    const int previewSize = 256;
 
-            const int margin = 7;
-            const int shadow = 7;
+    const QImage image = QPixmap::grabWidget(widget).toImage().scaled(previewSize - margin * 2, previewSize - margin * 2,
+                                                                      Qt::KeepAspectRatio,
+                                                                      Qt::SmoothTransformation);
+    widget->deleteLater();
 
-            const QPixmap pix = QPixmap::grabWidget(widget);
-            QImage image = pix.toImage();
-            image = image.scaled(256 - margin * 2,
-                                 256 - margin * 2,
-                                 Qt::KeepAspectRatio,
-                                 Qt::SmoothTransformation);
+    QImage dest(previewSize, previewSize, QImage::Format_ARGB32_Premultiplied);
+    dest.fill(0);
 
-            QImage dest(image.width() + margin * 2, image.height() + margin * 2, QImage::Format_ARGB32_Premultiplied);
-            dest.fill(0);
+    QPainter p(&dest);
+    p.drawImage(margin, margin, image);
 
-            QPainter p(&dest);
-            p.drawImage(margin, margin, image);
+    p.setPen(QPen(palette().brush(QPalette::WindowText), 0));
 
-            p.setPen(QPen(palette().brush(QPalette::WindowText), 0));
+    p.drawRect(margin-1, margin-1, image.width() + 1, image.height() + 1);
 
-            p.drawRect(margin-1, margin-1, image.width() + 1, image.height() + 1);
+    const QColor dark(Qt::darkGray);
+    const QColor light(Qt::transparent);
 
-            const QColor dark(Qt::darkGray);
-            const QColor light(Qt::transparent);
-
-            // right shadow
-            {
-                const QRect rect(margin + image.width() + 1, margin + shadow, shadow, image.height() - shadow + 1);
-                QLinearGradient lg(rect.topLeft(), rect.topRight());
-                lg.setColorAt(0, dark);
-                lg.setColorAt(1, light);
-                p.fillRect(rect, lg);
-            }
-
-            // bottom shadow
-            {
-                const QRect rect(margin + shadow, margin + image.height() + 1, image.width() - shadow + 1, shadow);
-                QLinearGradient lg(rect.topLeft(), rect.bottomLeft());
-                lg.setColorAt(0, dark);
-                lg.setColorAt(1, light);
-                p.fillRect(rect, lg);
-            }
-
-            // bottom/right corner shadow
-            {
-                const QRect rect(margin + image.width() + 1, margin + image.height() + 1, shadow, shadow);
-                QRadialGradient g(rect.topLeft(), shadow);
-                g.setColorAt(0, dark);
-                g.setColorAt(1, light);
-                p.fillRect(rect, g);
-            }
-
-            // top/right corner
-            {
-                const QRect rect(margin + image.width() + 1, margin, shadow, shadow);
-                QRadialGradient g(rect.bottomLeft(), shadow);
-                g.setColorAt(0, dark);
-                g.setColorAt(1, light);
-                p.fillRect(rect, g);
-            }
-
-            // bottom/left corner
-            {
-                const QRect rect(margin, margin + image.height() + 1, shadow, shadow);
-                QRadialGradient g(rect.topRight(), shadow);
-                g.setColorAt(0, dark);
-                g.setColorAt(1, light);
-                p.fillRect(rect, g);
-            }
-
-            p.end();
-
-            result = QPixmap::fromImage(dest);
-        }
-
-        fake->deleteLater();
+    // right shadow
+    {
+        const QRect rect(margin + image.width() + 1, margin + shadow, shadow, image.height() - shadow + 1);
+        QLinearGradient lg(rect.topLeft(), rect.topRight());
+        lg.setColorAt(0, dark);
+        lg.setColorAt(1, light);
+        p.fillRect(rect, lg);
     }
 
-    return result;
+    // bottom shadow
+    {
+        const QRect rect(margin + shadow, margin + image.height() + 1, image.width() - shadow + 1, shadow);
+        QLinearGradient lg(rect.topLeft(), rect.bottomLeft());
+        lg.setColorAt(0, dark);
+        lg.setColorAt(1, light);
+        p.fillRect(rect, lg);
+    }
+
+    // bottom/right corner shadow
+    {
+        const QRect rect(margin + image.width() + 1, margin + image.height() + 1, shadow, shadow);
+        QRadialGradient g(rect.topLeft(), shadow);
+        g.setColorAt(0, dark);
+        g.setColorAt(1, light);
+        p.fillRect(rect, g);
+    }
+
+    // top/right corner
+    {
+        const QRect rect(margin + image.width() + 1, margin, shadow, shadow);
+        QRadialGradient g(rect.bottomLeft(), shadow);
+        g.setColorAt(0, dark);
+        g.setColorAt(1, light);
+        p.fillRect(rect, g);
+    }
+
+    // bottom/left corner
+    {
+        const QRect rect(margin, margin + image.height() + 1, shadow, shadow);
+        QRadialGradient g(rect.topRight(), shadow);
+        g.setColorAt(0, dark);
+        g.setColorAt(1, light);
+        p.fillRect(rect, g);
+    }
+
+    p.end();
+
+    return QPixmap::fromImage(dest);
 }
 
 void NewForm::loadFrom(const QString &path, bool resourceFile)
@@ -307,7 +292,7 @@ void NewForm::on_treeWidget_itemPressed(QTreeWidgetItem *item)
 
 // Figure out a title for a new file.
 QString NewForm::newUntitledTitle() const
-{    
+{
     int maxUntitled = 0;
     const int totalWindows = m_workbench->formWindowCount();
     // This will cause some problems with i18n, but for now I need the string to be "static"
@@ -337,7 +322,7 @@ QString NewForm::newUntitledTitle() const
 
 // Figure out a title for a new file.
 QString NewForm::newFileTitle(QString &fileName) const
-{    
+{
     int maxUntitled = 0;
     const int totalWindows = m_workbench->formWindowCount();
 
@@ -345,30 +330,30 @@ QString NewForm::newFileTitle(QString &fileName) const
         if (fileName == m_workbench->formWindow(i)->editor()->fileName())
             ++maxUntitled;
     }
-     
+
     const QString baseName  = QFileInfo(fileName).fileName();
-    QString newTitle = baseName;    
+    QString newTitle = baseName;
 
     if (maxUntitled) {
         newTitle += QLatin1Char(' ');
         newTitle += QString::number(maxUntitled + 1);
         fileName.replace(baseName, newTitle);
     }
-    
+
     newTitle.append(QLatin1String("[*]"));
     return newTitle;
 }
 
 bool NewForm::openTemplate(const QString &templateFileName)
 {
-    
+
     const QString  newTitle = m_fileName.isEmpty() ? newUntitledTitle() : newFileTitle(m_fileName);
     QString errorMessage;
     if (!workbench()->openTemplate(templateFileName,
                                    m_fileName,
                                    newTitle,
-                                   &errorMessage)) {        
-        QMessageBox::warning(this, tr("Read error"), errorMessage);        
+                                   &errorMessage)) {
+        QMessageBox::warning(this, tr("Read error"), errorMessage);
         return false;
     }
     return true;
