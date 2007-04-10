@@ -1068,7 +1068,8 @@ void QListView::paintEvent(QPaintEvent *e)
             previousRow = row;
         }
 
-        d->delegateForIndex(*it)->paint(&painter, option, *it);
+        if (!indexWidget(*it))
+            d->delegateForIndex(*it)->paint(&painter, option, *it);
     }
 
 #ifndef QT_NO_DRAGANDDROP
