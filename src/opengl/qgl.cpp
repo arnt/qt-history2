@@ -3353,6 +3353,9 @@ static void qt_gl_draw_text(QPainter *p, int x, int y, const QString &str,
 void QGLWidget::renderText(int x, int y, const QString &str, const QFont &font, int)
 {
     Q_D(QGLWidget);
+    if (str.isEmpty())
+        return;
+
     bool auto_swap = autoBufferSwap();
 
     QPaintEngine *engine = paintEngine();
@@ -3407,6 +3410,9 @@ void QGLWidget::renderText(int x, int y, const QString &str, const QFont &font, 
 void QGLWidget::renderText(double x, double y, double z, const QString &str, const QFont &font, int)
 {
     Q_D(QGLWidget);
+    if (str.isEmpty())
+        return;
+
     bool auto_swap = autoBufferSwap();
 
     GLdouble model[4][4], proj[4][4];
