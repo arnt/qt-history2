@@ -747,7 +747,7 @@ class QNtlmPhase2Block : public QNtlmPhase2BlockBase
 public:
     QNtlmPhase2Block() {
         magic[0] = 0;
-        type = -1;
+        type = 0xffffffff;
     }
 
     // extracted
