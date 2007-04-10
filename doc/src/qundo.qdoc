@@ -2,6 +2,7 @@
 \page qundo.html
 \title Overview of Qt's Undo Framework
 \keyword Undo framework
+\ingroup architecture
 
 \section1 Introduction
 
