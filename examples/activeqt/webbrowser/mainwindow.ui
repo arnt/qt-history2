@@ -48,7 +48,7 @@
               <number>0</number>
             </property>
             <item>
-              <widget class="QAxWidget" name="WebBrowser" >
+              <widget class="WebAxWidget" name="WebBrowser" >
                 <property name="objectName" >
                   <string notr="true" >WebBrowser</string>
                 </property>
@@ -264,7 +264,14 @@
       </property>
     </actiongroup>
   </widget>
-  <connections>
+	<customwidgets>
+		<customwidget>
+			<class>WebAxWidget</class>
+			<extends>QAxWidget</extends>
+			<header>webaxwidget.h</header>
+		</customwidget>
+	</customwidgets>
+	<connections>
     <connection>
       <sender>addressEdit</sender>
       <signal>returnPressed()</signal>

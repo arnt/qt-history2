@@ -4,6 +4,7 @@ CONFIG += qaxcontainer
 
 QTDIR_build:REQUIRES = shared
 
+HEADERS  = webaxwidget.h
 SOURCES	 = main.cpp
 FORMS	 = mainwindow.ui
 
