@@ -736,9 +736,8 @@ following issues:
     \o You can reduce the amount of blocks in a QTextDocument with 
        \l{QTextDocument::}{maximumBlockCount()}. The document is only
        as large as the number of blocks as far as QTextEdit is concerned.
-    \o When adding text to a text edit, it is an advantage to split the
-       text in chunks and add them one at a time. They should be added within 
-       a single edit block (see the code example below). The result is that the
+    \o When adding text to a text edit, it is an advantage to add it 
+       in an edit block (see example below). The result is that the
        text edit does not need to build the entire document structure at once.
 \endlist
 
