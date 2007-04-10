@@ -1047,7 +1047,7 @@ processing_instruction ::= LANGLE QUESTIONMARK name space;
                 }
                 else if(!QXmlUtils::isNCName(piTarget))
                     raiseWellFormedError(QXmlStream::tr("%1 is an invalid processing instruction name.").arg(piTarget));
-            } else {
+            } else if (type != QXmlStreamReader::Invalid){
                 resume($rule_number);
                 return false;
             }

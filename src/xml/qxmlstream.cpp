@@ -648,6 +648,7 @@ inline uint QXmlStreamReaderPrivate::getChar()
         else
             c = getChar_helper();
     }
+    qDebug() << "getChar" << hex << c;
     return c;
 }
 
@@ -709,9 +710,9 @@ bool QXmlStreamReaderPrivate::scanUntil(const char *str, short tokenToInject)
         }
 
         if(c < 20
-           || c > 0xD7FF && c < 0xE000
-           || c > 0xFFFD && c < 0x1000
-           || c > 0x10FFFF)
+           || (c > 0xFFFD && c < 0x10000)
+           || c > 0x10FFFF
+           )
         {
             raiseWellFormedError(QXmlStream::tr("Invalid XML character."));
             lineNumber = oldLineNumber;
@@ -1200,6 +1201,8 @@ ushort QXmlStreamReaderPrivate::getChar_helper()
     }
 
     decoder->toUnicode(&readBuffer, rawReadBuffer.data(), nbytesread);
+    for (int i = 0; i < readBuffer.size(); ++i)
+        qDebug() << i << hex << readBuffer.at(i).unicode();
     readBuffer.reserve(1); // keep capacity when calling resize() next time
 
     if (readBufferPos < readBuffer.size()) {
