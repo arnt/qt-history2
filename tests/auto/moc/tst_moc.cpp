@@ -863,7 +863,7 @@ void tst_Moc::frameworkSearchPath()
 
     QStringList args;
     args << "-F" << srcify(".")
-         << srcify("/interface-from-framework.h")
+         << srcify("interface-from-framework.h")
          ;
 
     QProcess proc;
