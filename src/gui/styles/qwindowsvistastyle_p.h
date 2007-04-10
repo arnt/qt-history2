@@ -56,6 +56,7 @@
 #define TMT_TRANSITIONDURATIONS     6000
 #define EP_EDITBORDER_NOSCROLL      6
 #define EP_EDITBORDER_HVSCROLL      9
+#define EP_BACKGROUND               3
 #define PBS_DEFAULTED_ANIMATING     6
 #define MBI_NORMAL                  1
 #define MBI_HOT                     2

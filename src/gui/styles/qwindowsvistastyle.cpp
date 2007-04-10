@@ -63,6 +63,7 @@ typedef HRESULT (WINAPI *PtrGetThemeString)(HTHEME hTheme, int iPartId, int iSta
 typedef HRESULT (WINAPI *PtrGetThemeTransitionDuration)(HTHEME hTheme, int iPartId, int iStateFromId, int iStateToId, int iPropId, int *pDuration);
 typedef HRESULT (WINAPI *PtrIsThemePartDefined)(HTHEME hTheme, int iPartId, int iStateId);
 typedef HRESULT (WINAPI *PtrSetWindowTheme)(HWND hwnd, LPCWSTR pszSubAppName, LPCWSTR pszSubIdList);
+typedef HRESULT (WINAPI *PtrGetThemePropertyOrigin)(HTHEME hTheme, int iPartId, int iStateId, int iPropId, OUT enum PROPERTYORIGIN *pOrigin);
 
 static PtrIsThemePartDefined pIsThemePartDefined = 0;
 static PtrOpenThemeData pOpenThemeData = 0;
@@ -85,6 +86,7 @@ static PtrGetThemeRect pGetThemeRect = 0;
 static PtrGetThemeString pGetThemeString = 0;
 static PtrGetThemeTransitionDuration pGetThemeTransitionDuration= 0;
 static PtrSetWindowTheme pSetWindowTheme = 0;
+static PtrGetThemePropertyOrigin pGetThemePropertyOrigin = 0;
 
 /* \internal
     Checks if we should use Vista style , or if we should
@@ -518,6 +520,57 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
         } else
             QWindowsXPStyle::drawPrimitive(element, option, painter, widget);
         break;
+
+    case PE_PanelLineEdit:
+        if (const QStyleOptionFrame *panel = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
+            QBrush bg;
+            bool usePalette = false;
+            bool isEnabled = option->state & State_Enabled;
+            uint resolve_mask = panel->palette.resolve();
+            if (resolve_mask & (1 << QPalette::Base)) {
+                // Base color is set for this widget, so use it
+                bg = panel->palette.brush(QPalette::Base);
+                usePalette = true;
+            }
+            if (usePalette) {
+                painter->fillRect(panel->rect, bg);
+            } else {
+                int partId = EP_BACKGROUND;
+                int stateId = isEnabled ? ETS_NORMAL : ETS_DISABLED;
+                XPThemeData theme(0, painter, QLatin1String("EDIT"), partId, stateId, rect);
+                if (!theme.isValid()) {
+                    QWindowsStyle::drawPrimitive(element, option, painter, widget);
+                    return;
+                }
+                int bgType;
+                pGetThemeEnumValue( theme.handle(),
+                                    partId,
+                                    stateId,
+                                    TMT_BGTYPE,
+                                    &bgType);
+                if( bgType == BT_IMAGEFILE ) {
+                    d->drawBackground(theme);
+                } else {
+                    QBrush fillColor = option->palette.brush(QPalette::Base);
+                    if (!isEnabled) {
+                        PROPERTYORIGIN origin = PO_NOTFOUND;
+                        pGetThemePropertyOrigin(theme.handle(), theme.partId, theme.stateId, TMT_FILLCOLOR, &origin);
+                        // Use only if the fill property comes from our part
+                        if ((origin == PO_PART || origin == PO_STATE)) {
+                            COLORREF bgRef;
+                            pGetThemeColor(theme.handle(), partId, stateId, TMT_FILLCOLOR, &bgRef);
+                            fillColor = QBrush(qRgb(GetRValue(bgRef), GetGValue(bgRef), GetBValue(bgRef)));
+                        }
+                    }
+                    painter->fillRect(option->rect, fillColor);
+                }
+            }
+            if (panel->lineWidth > 0)
+                drawPrimitive(PE_FrameLineEdit, panel, painter, widget);
+            return;
+        }
+        break;
+
     case PE_FrameLineEdit:
         if (Animation *anim = d->widgetAnimation(widget)) {
             anim->paint(painter, option);
@@ -2138,6 +2191,7 @@ bool QWindowsVistaStylePrivate::resolveSymbols()
         pGetThemeRect           = (PtrGetThemeRect          )themeLib.resolve("GetThemeRect");
         pGetThemeString         = (PtrGetThemeString        )themeLib.resolve("GetThemeString");
         pGetThemeTransitionDuration = (PtrGetThemeTransitionDuration)themeLib.resolve("GetThemeTransitionDuration");
+        pGetThemePropertyOrigin = (PtrGetThemePropertyOrigin)themeLib.resolve("GetThemePropertyOrigin");
     }
     return pGetThemeTransitionDuration != 0;
 }
