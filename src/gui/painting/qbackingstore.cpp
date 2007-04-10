@@ -702,8 +702,11 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #endif
         }
 #ifdef Q_WS_QWS
+        const QPoint painterOffset = static_cast<QWSWindowSurface*>(windowSurface)->painterOffset();
         if (currWidget->isWindow())
-            tlwOffset = static_cast<QWSWindowSurface*>(windowSurface)->painterOffset();
+            tlwOffset = painterOffset;
+#else
+        const QPoint painterOffset(0, 0);
 #endif
         // ### move into prerender step
 
@@ -737,27 +740,22 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
                 windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
 
 #ifdef Q_WIDGET_USE_DIRTYLIST
-#ifdef Q_WS_QWS
-                const QPoint poffset = static_cast<QWSWindowSurface*>(windowSurface)->painterOffset();
-#else
-                const QPoint poffset(0,0);
-#endif
                 for (int i = 0; i < dirtyWidgets.size(); ++i) {
                     QWidget *w = dirtyWidgets.at(i);
                     const QPoint offset = w->mapTo(tlw, QPoint());
                     const QRegion dirty = w->d_func()->dirty;
                     w->d_func()->drawWidget(w->windowSurface()->paintDevice(), dirty,
-                                            poffset + offset, 0);
+                                            painterOffset + offset, 0);
                     toFlush += dirty.translated(offset);
                     w->d_func()->dirty = QRegion();
                 }
                 dirtyWidgets.clear();
 #endif // Q_WIDGET_USE_DIRTYLIST
 
-                // XXX: Must map to tlw!!!?
-                if (!toClean.isEmpty())
+                if (!toClean.isEmpty()) {
                     currWidget->d_func()->drawWidget(windowSurface->paintDevice(),
-                                                     toClean, tlwOffset);
+                                                     toClean, painterOffset);
+                }
 
                 // Drawing the overlay...
                 windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
