@@ -46,6 +46,7 @@ private slots:
     void codecForLocale();
 
     void asciiToIscii() const;
+    void flagCodepointFFFF() const;
 
     void utf8Codec_data();
     void utf8Codec();
@@ -326,6 +327,26 @@ void tst_QTextCodec::asciiToIscii() const
         QVERIFY2(textCodec->canEncode(ascii), qPrintable(QString::fromLatin1("Failed for full string with encoding %1")
                                                          .arg(QString::fromLatin1(textCodec->name().constData()))));
     }
+}
+
+void tst_QTextCodec::flagCodepointFFFF() const
+{
+    // This is an invalid Unicode codepoint.
+    const QChar ch(0xFFFF);
+    QString input(ch);
+
+    QTextCodec *const codec = QTextCodec::codecForMib(106); // UTF-8
+    Q_ASSERT(codec);
+
+    QVERIFY(!codec->canEncode(ch));
+    
+    /* We attempt to decode, as a robustness test. */
+    const QByteArray asDecoded(codec->fromUnicode(input));
+
+    /* What is toUnicode() supposed to return? Is it undefined? Currently
+     * it returns 0xFFFD, which must be wrong, since that is a
+     * valid codepoint. Hence, I don't know whether the test below is correct. */
+    QVERIFY(codec->toUnicode(asDecoded) == ch);
 }
 
 QString fromInvalidUtf8Sequence(const QByteArray &ba)
