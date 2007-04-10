@@ -562,8 +562,8 @@ void tst_QXmlStream::checkBaseline() const
     QFETCH(QString, expected);
     QFETCH(QString, output);
 
-    if(isError)
-        QEXPECT_FAIL("", "This is a bug and needs to be fixed, but is marked as an XFAIL in order to not disturb test reports.", Continue);
+//     if(isError)
+//         QEXPECT_FAIL("", "This is a bug and needs to be fixed, but is marked as an XFAIL in order to not disturb test reports.", Continue);
 
     if(isError)
         QCOMPARE(output, expected);

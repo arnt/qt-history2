@@ -271,7 +271,7 @@ QXmlStreamReader::~QXmlStreamReader()
 
 /*! \fn bool hasError() const
     Returns true an error has occured, otherwise false.
-    
+
     \sa errorString(), error()
  */
 
@@ -412,6 +412,9 @@ QXmlStreamReader::TokenType QXmlStreamReader::readNext()
 {
     Q_D(QXmlStreamReader);
     if (d->type != Invalid) {
+        if (!d->hasCheckedStartDocument)
+            if (!d->checkStartDocument())
+                return d->type; // synthetic StartDocument or error
         d->parse();
         if (d->atEnd && d->type != EndDocument && d->type != Invalid)
             d->raiseError(PrematureEndOfDocumentError);
@@ -530,7 +533,6 @@ void QXmlStreamReaderPrivate::init()
     isEmptyElement = false;
     isWhitespace = false;
     isCDATA = false;
-    xmlDeclOK = false;
     standalone = false;
     reallocateStack();
     tos = 0;
@@ -555,6 +557,7 @@ void QXmlStreamReaderPrivate::init()
     attributeStack.clear();
     attributeStack.reserve(16);
     entityParser = 0;
+    hasCheckedStartDocument = false;
     hasSeenTag = false;
     atEnd = false;
     inParseEntity = false;
@@ -1370,6 +1373,26 @@ void QXmlStreamReaderPrivate::checkPublicLiteral(const QStringRef &publicId)
     }
     if (i >= 0)
         raiseWellFormedError(QXmlStream::tr("Unexpected character '%1' in public id literal.").arg(QChar(QLatin1Char(c))));
+}
+
+/*
+  Checks whether the document starts with an xml declaration. If it
+  does, this function returns true; otherwise it sets up everything
+  for a synthetic start document event and returns false.
+ */
+bool QXmlStreamReaderPrivate::checkStartDocument()
+{
+    hasCheckedStartDocument = true;
+
+    if (scanString(spell[XML], XML))
+        return true;
+
+    type = QXmlStreamReader::StartDocument;
+    if (atEnd) {
+        hasCheckedStartDocument = false;
+        raiseError(QXmlStreamReader::PrematureEndOfDocumentError);
+    }
+    return false;
 }
 
 void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)

@@ -74,7 +74,7 @@
 %token NMTOKENS "NMTOKENS"
 
 -- xml declaration
-%token XML "xml"
+%token XML "<?xml"
 %token VERSION "version"
 
 
@@ -240,6 +240,7 @@ public:
     void resolvePublicNamespaces();
     void resolveDtd();
     uint resolveCharRef(int symbolIndex);
+    bool checkStartDocument();
     void startDocument(const QStringRef &version);
     void parseError();
     void checkPublicLiteral(const QStringRef &publicId);
@@ -292,8 +293,8 @@ public:
     uint isEmptyElement : 1;
     uint isWhitespace : 1;
     uint isCDATA : 1;
-    uint xmlDeclOK : 1;
     uint standalone : 1;
+    uint hasCheckedStartDocument : 1;
     uint hasSeenTag : 1;
     uint inParseEntity : 1;
     uint referenceToUnparsedEntityDetected : 1;
@@ -716,24 +717,7 @@ entity_done ::= ENTITY_DONE;
 ./
 
 
-langle_questionmark_helper ::= LANGLE QUESTIONMARK;
-/.
-        case $rule_number:
-            xmlDeclOK = (characterOffset + readBufferPos - putStack.size() == 2);
-        break;
-./
-
-langle_questionmark ::= langle_questionmark_helper;
-/.
-        case $rule_number:
-            if (!scanString(spell[XML], XML) && atEnd) {
-                resume($rule_number);
-                return false;
-            }
-        break;
-./
-
-xml_decl_start ::= langle_questionmark XML;
+xml_decl_start ::= XML;
 /.
         case $rule_number:
             if (!scanString(spell[VERSION], VERSION, false) && atEnd) {
@@ -747,10 +731,7 @@ xml_decl ::= xml_decl_start VERSION space_opt EQ space_opt literal attribute_lis
 /.
         case $rule_number:
             type = QXmlStreamReader::StartDocument;
-            if (xmlDeclOK)
-                startDocument(symString(6));
-            else
-                raiseWellFormedError(QXmlStream::tr("XML declaration not at start of document."));
+            startDocument(symString(6));
         break;
 ./
 
@@ -1052,19 +1033,19 @@ entity_decl ::= entity_decl_start entity_value space_opt RANGLE;
 ./
 
 
-processing_instruction ::= langle_questionmark name space;
+processing_instruction ::= LANGLE QUESTIONMARK name space;
 /.
         case $rule_number: {
             type = QXmlStreamReader::ProcessingInstruction;
-            int pos = sym(3).pos + sym(3).len;
-            processingInstructionTarget = symString(2);
+            int pos = sym(4).pos + sym(4).len;
+            processingInstructionTarget = symString(3);
             if (scanUntil("?>")) {
                 processingInstructionData = QStringRef(&textBuffer, pos, textBuffer.size() - pos - 2);
                 const QString piTarget(processingInstructionTarget.toString());
                 if (!piTarget.compare(QLatin1String("xml"), Qt::CaseInsensitive)) {
-                    raiseWellFormedError(QXmlStream::tr("xml is an invalid processing instruction name."));
+                    raiseWellFormedError(QXmlStream::tr("XML declaration not at start of document."));
                 }
-                else if(!QXmlUtils::isNCName(piTarget)) 
+                else if(!QXmlUtils::isNCName(piTarget))
                     raiseWellFormedError(QXmlStream::tr("%1 is an invalid processing instruction name.").arg(piTarget));
             } else {
                 resume($rule_number);
@@ -1073,11 +1054,11 @@ processing_instruction ::= langle_questionmark name space;
         } break;
 ./
 
-processing_instruction ::= langle_questionmark name QUESTIONMARK RANGLE;
+processing_instruction ::= LANGLE QUESTIONMARK name QUESTIONMARK RANGLE;
 /.
         case $rule_number:
             type = QXmlStreamReader::ProcessingInstruction;
-            processingInstructionTarget = symString(2);
+            processingInstructionTarget = symString(3);
             if (!processingInstructionTarget.toString().compare(QLatin1String("xml"), Qt::CaseInsensitive))
                 raiseWellFormedError(QXmlStream::tr("Invalid processing instruction name."));
         break;
@@ -1096,7 +1077,7 @@ langle_bang ::= LANGLE BANG;
 
 comment_start ::= langle_bang DASH DASH;
 /.
-        case $rule_number: 
+        case $rule_number:
             if (!scanUntil("--")) {
                 resume($rule_number);
                 return false;
