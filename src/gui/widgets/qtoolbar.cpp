@@ -266,11 +266,13 @@ void QToolBarPrivate::plug(const QRect &r)
     show all the items it contains, an extension button will appear as
     the last item in the toolbar. Pressing the extension button will
     pop up a menu containing the items that does not currently fit in
-    the toolbar. Note that only action based items will be shown in
-    the menu. If only non-action based items are to appear in the
-    extension menu (e.g. a QSpinBox), the extension button will appear
-    as usual, but it will be disabled to indicate that some items in
-    the toolbar are currently not visible.
+    the toolbar.
+
+    When a QToolBar is not a child of a QMainWindow, it looses the ability
+    to populate the extension pop up with widgets added to the toolbar using
+    addWidget(). Please use widget actions created by inheriting QWidgetAction
+    and implementing QWidgetAction::createWidget() instead. This is a known
+    issue which will be fixed in a future release.
 
     \sa QToolButton, QMenu, QAction, {Application Example}
 */
@@ -830,7 +832,7 @@ bool QToolBar::event(QEvent *event)
         d->toggleViewAction->setChecked(event->type() == QEvent::Show);
         break;
     case QEvent::ParentChange:
-//        d->handle->setVisible(d->movable && (qobject_cast<QMainWindow *>(parentWidget()) != 0));
+        d->layout->setUsePopupMenu(qobject_cast<QMainWindow*>(parentWidget()) == 0);
         break;
     case QEvent::StyleChange:
         if (!d->explicitIconSize)

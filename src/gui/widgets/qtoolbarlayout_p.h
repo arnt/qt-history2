@@ -73,7 +73,7 @@ public:
     QSize expandedSize(const QSize &size) const;
     bool expanded, collapsing;
 
-    void setUseQMenu(bool set); // Yeah, there's no getter, but it's internal.
+    void setUsePopupMenu(bool set); // Yeah, there's no getter, but it's internal.
 
     bool movable() const;
 

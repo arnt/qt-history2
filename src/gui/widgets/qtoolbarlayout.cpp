@@ -55,7 +55,7 @@ QToolBarLayout::QToolBarLayout(QWidget *parent)
     QObject::connect(tb, SIGNAL(orientationChanged(Qt::Orientation)),
                      extension, SLOT(setOrientation(Qt::Orientation)));
 
-    setUseQMenu(false);
+    setUsePopupMenu(qobject_cast<QMainWindow*>(tb->parentWidget()) == 0);
 }
 
 QToolBarLayout::~QToolBarLayout()
@@ -72,16 +72,15 @@ QToolBarLayout::~QToolBarLayout()
 }
 
 
-void QToolBarLayout::setUseQMenu(bool set)
+void QToolBarLayout::setUsePopupMenu(bool set)
 {
     if (!set) {
         QObject::connect(extension, SIGNAL(clicked(bool)),
-                         this, SLOT(setExpanded(bool)));
+                        this, SLOT(setExpanded(bool)));
         extension->setPopupMode(QToolButton::DelayedPopup);
         extension->setMenu(0);
         delete popupMenu;
         popupMenu = 0;
-
     } else {
         QObject::disconnect(extension, SIGNAL(clicked(bool)),
                             this, SLOT(setExpanded(bool)));
@@ -91,6 +90,8 @@ void QToolBarLayout::setUseQMenu(bool set)
         }
         extension->setMenu(popupMenu);
     }
+
+    invalidate();
 }
 
 void QToolBarLayout::addItem(QLayoutItem*)
@@ -228,7 +229,7 @@ void QToolBarLayout::updateGeomArray() const
             rperp(o, that->minSize) = qMax(s, perp(o, min));
 
             rpick(o, that->hint) += spacing + pick(o, hint);
-            s = perp(o, hint);
+            s = perp(o, that->hint);
             rperp(o, that->hint) = qMax(s, perp(o, hint));
             ++count;
         }
@@ -374,6 +375,12 @@ int QToolBarLayout::expandedWidth(int width) const
     return qMax(width, result);
 }
 
+static bool defaultWidgetAction(QAction *action)
+{
+    QWidgetAction *a = qobject_cast<QWidgetAction*>(action);
+    return a != 0 && a->defaultWidget() != 0;
+}
+
 void QToolBarLayout::setGeometry(const QRect &rect)
 {
     if (rect == geometry())
@@ -397,6 +404,7 @@ void QToolBarLayout::setGeometry(const QRect &rect)
     const int spacing = style->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, tb);
     const int extensionExtent = style->pixelMetric(QStyle::PM_ToolBarExtensionExtent, &opt, tb);
     Qt::Orientation o = tb->orientation();
+    bool extensionMenuContainsOnlyWidgetActions = true;
 
     int space = pick(o, rect.size()) - 2*margin - handleExtent;
     bool ranOutOfSpace = false;
@@ -472,7 +480,7 @@ void QToolBarLayout::setGeometry(const QRect &rect)
 
             if (item->widget()->isHidden())
                 showWidgets << item->widget();
-            if (popupMenu)
+            if (popupMenu && !defaultWidgetAction(item->action))
                 popupMenu->removeAction(item->action);
         }
 
@@ -481,8 +489,12 @@ void QToolBarLayout::setGeometry(const QRect &rect)
                 QToolBarItem *item = items.at(j);
                 if (!item->widget()->isHidden())
                     hideWidgets << item->widget();
-                if (popupMenu)
-                    popupMenu->addAction(item->action);
+                if (popupMenu) {
+                    if (!defaultWidgetAction(item->action)) {
+                        popupMenu->addAction(item->action);
+                        extensionMenuContainsOnlyWidgetActions = false;
+                    }
+                }
             }
             break;
         }
@@ -523,6 +535,7 @@ void QToolBarLayout::setGeometry(const QRect &rect)
             r = QStyle::visualRect(parentWidget()->layoutDirection(), rect, r);
 
         extension->setGeometry(r);
+        extension->setEnabled(popupMenu == 0 || !extensionMenuContainsOnlyWidgetActions);
 
         if (extension->isHidden())
             showWidgets << extension;

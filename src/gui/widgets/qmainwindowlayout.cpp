@@ -915,7 +915,7 @@ void QMainWindowLayout::insertIntoMacHIToolbar(QToolBar *before, QToolBar *toolb
                                                       toolbar->maximumSize()));
     toolbar->setMovable(false);
     toolbar->setMaximumSize(toolbar->sizeHint());
-    static_cast<QToolBarLayout *>(toolbar->layout())->setUseQMenu(true);
+    static_cast<QToolBarLayout *>(toolbar->layout())->setUsePopupMenu(true);
     layoutState.mainWindow->createWinId();
     HIToolbarRef macToolbar;
     WindowRef window = qt_mac_window_for(layoutState.mainWindow);
@@ -980,7 +980,7 @@ void QMainWindowLayout::removeToolBar(QToolBar *toolbar)
                     toolbar->setParent(parentWidget());
                     toolbar->setVisible(saveVisible);
                     ToolBarSaveState saveState = toolbarSaveState.value(toolbar);
-                    static_cast<QToolBarLayout *>(toolbar->layout())->setUseQMenu(false);
+                    static_cast<QToolBarLayout *>(toolbar->layout())->setUsePopupMenu(false);
                     toolbar->setMovable(saveState.movable);
                     toolbar->setMaximumSize(saveState.maximumSize);
                     toolbarSaveState.remove(toolbar);
