@@ -72,6 +72,7 @@ enum WindowsNativeModifiers {
     CapsLock             = 0x00000100,
     NumLock              = 0x00000200,
     ScrollLock           = 0x00000400,
+    ExtendedKey          = 0x01000000,
 
     // Convenience mappings
     ShiftAny             = 0x00000011,

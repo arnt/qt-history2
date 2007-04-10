@@ -737,6 +737,10 @@ QList<int> QKeyMapperPrivate::possibleKeys(QKeyEvent *e)
 
     int baseKey = kbItem->qtKey[0];
     Qt::KeyboardModifiers keyMods = e->modifiers();
+    if (baseKey == Qt::Key_Return && (e->nativeModifiers() & ExtendedKey)) {
+        result << int(Qt::Key_Enter + keyMods);
+        return result;
+    }
     result << int(baseKey + keyMods); // The base key is _always_ valid, of course
 
     for(int i = 1; i < 9; ++i) {
@@ -783,6 +787,8 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
         nModifiers |= (GetKeyState(VK_NUMLOCK ) & 0x01 ? NumLock : 0);
         nModifiers |= (GetKeyState(VK_SCROLL  ) & 0x01 ? ScrollLock : 0);
     }
+    if (msg.lParam & ExtendedKey)
+        nModifiers |= msg.lParam & ExtendedKey;
 
     // Get the modifier states (may be altered later, depending on key code)
     int state = 0;
