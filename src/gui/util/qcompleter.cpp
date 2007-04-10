@@ -645,7 +645,8 @@ QMatchData QSortedModelEngine::filter(const QString& part, const QModelIndex& pa
     const bool exactMatch = QString::compare(probeData, part, c->cs) == 0;
     int emi =  exactMatch ? (order == Qt::AscendingOrder ? low+1 : high-1) : -1;
 
-    int from, to;
+    int from = 0;
+    int to = 0;
     if (order == Qt::AscendingOrder) {
         from = low + 1;
         high = indices.to() + 1;
