@@ -184,8 +184,8 @@ static const int layouts[2][5][14] =
     // Qt::Horizontal
     {
         // WinLayout
-        { ResetRole, Stretch, YesRole, AcceptRole, AlternateRole, DestructiveRole, NoRole, RejectRole, ApplyRole,
-          ActionRole, HelpRole, EOL, EOL, EOL },
+        { ResetRole, Stretch, YesRole, AcceptRole, AlternateRole, DestructiveRole, NoRole, ActionRole, RejectRole, ApplyRole,
+           HelpRole, EOL, EOL, EOL },
 
         // MacLayout
         { HelpRole, ResetRole, ApplyRole, ActionRole, Stretch, DestructiveRole | Reverse,
