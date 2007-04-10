@@ -82,8 +82,10 @@ class QComboBoxPrivateScroller : public QWidget
 
 public:
     QComboBoxPrivateScroller(QAbstractSlider::SliderAction action, QWidget *parent)
-        : QWidget(parent), sliderAction(action) {
+        : QWidget(parent), sliderAction(action)
+    {
         setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        setAttribute(Qt::WA_NoMousePropagation);
     }
     QSize sizeHint() const {
         return QSize(20, style()->pixelMetric(QStyle::PM_MenuScrollerHeight));
