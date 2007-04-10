@@ -36,9 +36,9 @@ using namespace qdesigner_internal;
 
 WidgetEditorTool::WidgetEditorTool(FormWindow *formWindow)
     : QDesignerFormWindowToolInterface(formWindow),
-      m_formWindow(formWindow)
+      m_formWindow(formWindow),
+      m_action(new QAction(tr("Edit Widgets"), this))
 {
-    m_action = new QAction(tr("Edit Widgets"), this);
 }
 
 QAction *WidgetEditorTool::action() const
@@ -197,12 +197,11 @@ bool WidgetEditorTool::handlePaintEvent(QWidget *widget, QWidget *managedWidget,
 
 bool WidgetEditorTool::handleDragEnterMoveEvent(QWidget *, QWidget *, QDragMoveEvent *e, bool isEnter)
 {
-    if (!m_formWindow->hasFeature(QDesignerFormWindowInterface::EditFeature)) {
-        e->ignore();
-        return true;
-    }
     const QDesignerMimeData *mimeData = qobject_cast<const QDesignerMimeData *>(e->mimeData());
-    if (!mimeData) {
+    if (!mimeData)
+        return false;
+
+    if (!m_formWindow->hasFeature(QDesignerFormWindowInterface::EditFeature)) {
         e->ignore();
         return true;
     }
@@ -229,8 +228,10 @@ bool WidgetEditorTool::handleDragEnterMoveEvent(QWidget *, QWidget *, QDragMoveE
 bool WidgetEditorTool::handleDropEvent(QWidget *widget, QWidget */* managedWidget*/, QDropEvent *e)
 {
     const QDesignerMimeData *mimeData = qobject_cast<const QDesignerMimeData *>(e->mimeData());
-    if (!mimeData ||
-        !m_lastDropTarget ||
+    if (!mimeData)
+        return false;
+
+    if (!m_lastDropTarget ||
         !m_formWindow->hasFeature(QDesignerFormWindowInterface::EditFeature)) {
         e->ignore();
         return true;
