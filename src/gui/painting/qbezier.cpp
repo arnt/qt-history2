@@ -144,7 +144,7 @@ static inline int quadraticRoots(qreal a, qreal b, qreal c,
 static inline bool findInflections(qreal a, qreal b, qreal c,
                                    qreal *t1 , qreal *t2, qreal *tCups)
 {
-    qreal r1, r2;
+    qreal r1 = 0, r2 = 0;
 
     short rootsCount = quadraticRoots(a, b, c, &r1, &r2);
 
