@@ -69,7 +69,8 @@ public:
 
     // Autostarting the SSL client handshake.
     void connectToHostEncrypted(const QString &hostName, quint16 port, OpenMode mode = ReadWrite);
-    bool setSocketDescriptor(int socketDescriptor, SocketState state, OpenMode openMode);
+    bool setSocketDescriptor(int socketDescriptor, SocketState state = ConnectedState,
+                             OpenMode openMode = ReadWrite);
 
     Mode mode() const;
     bool isEncrypted() const;
