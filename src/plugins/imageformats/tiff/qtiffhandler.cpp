@@ -15,6 +15,7 @@
 #include <qvariant.h>
 #include <qdebug.h>
 #include <qimage.h>
+#include <qglobal.h>
 extern "C" {
 #include "tiffio.h"
 }
@@ -172,7 +173,11 @@ bool QTiffHandler::write(const QImage &image)
 
         uint32 *bytes = reinterpret_cast<uint32*>(_TIFFmalloc(bytesPerLine));
         for (int y=0; y < height; ++y) {
-            convert32BitOrder(convertedImage.scanLine(y), bytes, width);
+            if (QSysInfo::ByteOrder == QSysInfo::LittleEndian)
+                convert32BitOrder(convertedImage.scanLine(y), bytes, width);
+            else
+                convert32BitOrderBigEndian(convertedImage.scanLine(y), bytes, width);
+
             if (TIFFWriteScanline(tiff, bytes, y) != 1) {
                 _TIFFfree(bytes);
                 TIFFClose(tiff);
@@ -249,3 +254,15 @@ void QTiffHandler::convert32BitOrder(const void *source, void *destination, int 
     }
 }
 
+void QTiffHandler::convert32BitOrderBigEndian(const void *source, void *destination, int width)
+{
+    const uint32 *src = reinterpret_cast<const uint32 *>(source);
+    uint32 *target = reinterpret_cast<uint32 *>(destination);
+    for (int32 x=0; x<width; ++x) {
+        uint32 p = src[x];
+        target[x] = (p & 0xff000000) >> 24
+                    | (p & 0x00ff0000) << 8
+                    | (p & 0x0000ff00) << 8
+                    | (p & 0x000000ff) << 8;
+    }
+}

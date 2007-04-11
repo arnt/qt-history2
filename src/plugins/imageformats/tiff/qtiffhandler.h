@@ -39,6 +39,7 @@ public:
     };
 private:
     void convert32BitOrder(const void *source, void *destination, int width);
+    void convert32BitOrderBigEndian(const void *source, void *destination, int width);
     int compression;
 };
 
