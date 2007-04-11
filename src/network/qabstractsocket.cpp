@@ -1452,7 +1452,17 @@ bool QAbstractSocket::waitForConnected(int msecs)
     return state() == ConnectedState;
 }
 
-/*! \reimp
+/*!
+    This function blocks until data is available for reading and the
+    \l{QIODevice::}{readyRead()} signal has been emitted. The function
+    will timeout after \a msecs milliseconds; the default timeout is
+    3000 milliseconds.
+
+    The function returns true if data is available for reading;
+    otherwise it returns false (if an error occurred or the
+    operation timed out).
+
+    \sa waitForBytesWritten() 
 */
 bool QAbstractSocket::waitForReadyRead(int msecs)
 {
