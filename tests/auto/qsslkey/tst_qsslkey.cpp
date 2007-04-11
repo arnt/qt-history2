@@ -149,10 +149,6 @@ void tst_QSslKey::constructor()
     QFETCH(QSsl::KeyType, type);
     QFETCH(QSsl::EncodingFormat, format);
 
-    static int n = 0;
-    if (n++ > 10)
-        return;
-
     QByteArray encoded = readFile(absFilePath);
     QSslKey key(encoded, algorithm, format, type);
     QVERIFY(!key.isNull());
