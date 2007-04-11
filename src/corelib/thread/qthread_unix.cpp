@@ -77,7 +77,8 @@ QThreadData *QThreadData::current()
     QThreadData *data = reinterpret_cast<QThreadData *>(pthread_getspecific(current_thread_data_key));
     if (!data) {
         QThread *adopted = 0;
-        if (QInternal::activateCallbacks(QInternal::AdoptCurrentThread, (void **) &adopted)) {
+        void *a = adopted;
+        if (QInternal::activateCallbacks(QInternal::AdoptCurrentThread, &a)) {
             Q_ASSERT(adopted);
             data = QThreadData::get2(adopted);
             pthread_setspecific(current_thread_data_key, data);
@@ -180,7 +181,8 @@ void QThreadPrivate::finish(void *arg)
         delete eventDispatcher;
     }
 
-    QThreadStorageData::finish(reinterpret_cast<void **>(&d->data->tls));
+    void *data = &d->data->tls;
+    QThreadStorageData::finish((void **)data);
 
     d->thread_id = 0;
     d->thread_done.wakeAll();

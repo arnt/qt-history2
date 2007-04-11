@@ -100,7 +100,7 @@ private:
     Q_DISABLE_COPY(QThreadStorage)
 
     static inline void deleteData(void *x)
-    { delete reinterpret_cast<T&>(x); }
+    { delete static_cast<T>(x); }
 
 public:
     inline QThreadStorage() : d(deleteData) { }

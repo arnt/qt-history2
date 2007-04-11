@@ -184,7 +184,8 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc, char **aargv)
 QCoreApplicationPrivate::~QCoreApplicationPrivate()
 {
 #ifndef QT_NO_THREAD
-    QThreadStorageData::finish(reinterpret_cast<void **>(&threadData->tls));
+    void *data = &threadData->tls;
+    QThreadStorageData::finish((void **)data);
 #endif
 
     // need to clear the state of the mainData, just in case a new QCoreApplication comes along.
