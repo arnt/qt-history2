@@ -233,7 +233,7 @@ void FtpWindow::addToList(const QUrlInfo &urlInfo)
     }
 }
 
-void FtpWindow::processItem(QTreeWidgetItem *item, int column)
+void FtpWindow::processItem(QTreeWidgetItem *item, int /*column*/)
 {
     QString name = item->text(0);
     if (isDirectory.value(name)) {

@@ -51,7 +51,7 @@ QVariant DomModel::data(const QModelIndex &index, int role) const
         case 0:
             return node.nodeName();
         case 1:
-            for (int i = 0; (unsigned int)(i) < attributeMap.count(); ++i) {
+            for (int i = 0; i < attributeMap.count(); ++i) {
                 QDomNode attribute = attributeMap.item(i);
                 attributes << attribute.nodeName() + "=\""
                               +attribute.nodeValue() + "\"";

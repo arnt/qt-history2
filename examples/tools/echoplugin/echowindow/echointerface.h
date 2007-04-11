@@ -19,6 +19,7 @@ class QString;
 class EchoInterface
 {
 public:
+    virtual ~EchoInterface() {}
     virtual QString echo(const QString &message) = 0;
 };
 

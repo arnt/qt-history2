@@ -29,7 +29,7 @@ ImageItem::ImageItem(int id, const QPixmap &pixmap, QGraphicsItem *parent,
     adjust();
 }
 
-void ImageItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+void ImageItem::hoverEnterEvent(QGraphicsSceneHoverEvent * /*event*/)
 {
     timeLine.setDirection(QTimeLine::Forward);
 
@@ -42,7 +42,7 @@ void ImageItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
         timeLine.start();
 }
 
-void ImageItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+void ImageItem::hoverLeaveEvent(QGraphicsSceneHoverEvent * /*event*/)
 {
     timeLine.setDirection(QTimeLine::Backward);
     if (z != 0.0)

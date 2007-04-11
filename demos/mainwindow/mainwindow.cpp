@@ -152,16 +152,6 @@ void MainWindow::setDockOptions()
     QMainWindow::setDockOptions(opts);
 }
 
-static void dump(const QByteArray &array)
-{
-    QString s;
-    for (int i = 0; i < array.count(); ++i) {
-        s += ' ';
-        s += QString::number((uchar)array.at(i));
-    }
-    qDebug() << "dump():" << s;
-}
-
 void MainWindow::saveLayout()
 {
     QString fileName

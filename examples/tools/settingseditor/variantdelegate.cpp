@@ -282,6 +282,8 @@ QString VariantDelegate::displayText(const QVariant &value)
         return value.toStringList().join(",");
     case QVariant::Time:
         return value.toTime().toString(Qt::ISODate);
+    default:
+        break;
     }
     return QString("<%1>").arg(value.typeName());
 }

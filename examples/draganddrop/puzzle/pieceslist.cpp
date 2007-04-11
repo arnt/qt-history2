@@ -70,7 +70,7 @@ void PiecesList::addPiece(QPixmap pixmap, QPoint location)
                         | Qt::ItemIsDragEnabled);
 }
 
-void PiecesList::startDrag(Qt::DropActions supportedActions)
+void PiecesList::startDrag(Qt::DropActions /*supportedActions*/)
 {
     QListWidgetItem *item = currentItem();
 
