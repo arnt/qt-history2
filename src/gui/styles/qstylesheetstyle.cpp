@@ -1394,11 +1394,6 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
             break;
         }
 
-
-        if (const QStyleOptionToolButton *combo = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
-            Q_UNUSED(combo);
-            qDebug() << pseudoElement << opt->state;
-        }
         if (const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             // QStyle::State_On is set when the popup is being shown
             // Propagate EditField Pressed state
