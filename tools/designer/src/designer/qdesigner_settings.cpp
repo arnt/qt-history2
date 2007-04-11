@@ -109,7 +109,15 @@ void QDesignerSettings::saveGeometryHelper(const QWidget *w, const QString &key)
 void QDesignerSettings::setGeometryHelper(QWidget *w, const QString &key,
                                           const QRect &fallBack) const
 {
-    w->restoreGeometry(value(key + QLatin1String("/geometry"), fallBack).toByteArray());
+    QByteArray ba(value(key + QLatin1String("/geometry")).toByteArray());
+
+    if (ba.isEmpty()) {
+        w->move(fallBack.topLeft());
+        w->resize(fallBack.size());
+    } else {
+        w->restoreGeometry(ba);
+    }
+
     if (value(key + QLatin1String("/visible"), true).toBool())
         w->show();
 }
