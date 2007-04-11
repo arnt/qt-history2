@@ -2029,6 +2029,21 @@ void QWindowsVistaStyle::polish(QWidget *widget)
         widget->setAttribute(Qt::WA_Hover);
     else if (qobject_cast<QGroupBox*>(widget))
         widget->setAttribute(Qt::WA_Hover);
+    else if (widget->inherits("QTipLabel")){
+        //note that since tooltips are not reused
+        //we do not have to care about unpolishing
+        widget->setContentsMargins(3, 0, 4, 0);
+        COLORREF bgRef;
+        HTHEME theme = pOpenThemeData(widget ? QWindowsVistaStylePrivate::winId(widget) : 0, L"TOOLTIP");
+        if (theme) {
+            if (pGetThemeColor(theme, TTP_STANDARD, TTSS_NORMAL, TMT_TEXTCOLOR, &bgRef) == S_OK) {
+                QColor textColor = QBrush(qRgb(GetRValue(bgRef), GetGValue(bgRef), GetBValue(bgRef)));
+                QPalette pal;
+                pal.setColor(QPalette::All, QPalette::WindowText, textColor); 
+                widget->setPalette(pal);
+            }
+        }
+    }
 }
 
 /*!
