@@ -1258,6 +1258,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          vertical toolbar.
 
     \value PM_TabBarTabOverlap  Number of pixels the tabs should overlap.
+        (Currently only used in styles, not inside of QTabBar)
     \value PM_TabBarTabHSpace  Extra space added to the tab width.
     \value PM_TabBarTabVSpace  Extra space added to the tab height.
     \value PM_TabBarBaseHeight  Height of the area between the tab bar
@@ -1364,6 +1365,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \o \l PM_TabBarBaseHeight       \o \l QStyleOptionTab
     \row \o \l PM_TabBarBaseOverlap      \o \l QStyleOptionTab
     \endtable
+
+    Some pixel metrics are called from widgets and some are only called
+    internally by the style. If the metric is not called by a widget, it is the
+    discretion of the style author to make use of it.  For some styles, this
+    may not be appropriate.
 */
 
 /*!
