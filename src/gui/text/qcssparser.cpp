@@ -1554,11 +1554,13 @@ QString Symbol::lexem() const
 Parser::Parser(const QString &css)
 {
     QString ss = css;
-    QFile file(css);
-    if (file.open(QFile::ReadOnly)) {
-        sourcePath = QFileInfo(css).absolutePath() + QLatin1String("/");
-        QTextStream stream(&file);
-        ss = stream.readAll();
+    if (!ss.isEmpty()) {
+        QFile file(css);
+        if (file.open(QFile::ReadOnly)) {
+            sourcePath = QFileInfo(css).absolutePath() + QLatin1String("/");
+            QTextStream stream(&file);
+            ss = stream.readAll();
+        }
     }
     init(ss);
 }
