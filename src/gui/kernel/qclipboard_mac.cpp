@@ -15,6 +15,7 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qdatetime.h"
+#include "qdebug.h"
 #include "qapplication_p.h"
 #include <private/qt_mac_p.h>
 #include "qevent.h"
@@ -39,10 +40,7 @@ static QMacPasteboard *qt_mac_pasteboards[2] = {0, 0};
 
 static inline QMacPasteboard *qt_mac_pasteboard(QClipboard::Mode mode)
 {
-    // Assert on the mode, unsupported modes should be caught before
-    // calling this function.
     Q_ASSERT(mode == QClipboard::Clipboard || mode == QClipboard::FindBuffer);
-
     if (mode == QClipboard::Clipboard)
         return qt_mac_pasteboards[0];
     else
@@ -174,7 +172,7 @@ QMacPasteboard::QMacPasteboard(CFStringRef name, uchar mt)
 
 QMacPasteboard::~QMacPasteboard()
 {
-    // Copy all promised data to the clipboard before exiting.
+    // commit all promises for paste after exit close
     for (int i = 0; i < promises.count(); ++i) {
         const Promise &promise = promises.at(i);
         QCFString flavor = QCFString(promise.convertor->flavorFor(promise.mime));
@@ -191,13 +189,12 @@ QMacPasteboard::pasteBoard() const
     return paste;
 }
 
-OSStatus QMacPasteboard::promiseKeeper(PasteboardRef paste, PasteboardItemID id, CFStringRef flavor, void *data)
+OSStatus QMacPasteboard::promiseKeeper(PasteboardRef paste, PasteboardItemID id, CFStringRef flavor, void *_qpaste)
 {
-    QMacPasteboard *qpaste = (QMacPasteboard*) data;
+    QMacPasteboard *qpaste = (QMacPasteboard*)_qpaste;
     const long promise_id = (long)id;
 
-    // Find the promise that promised to deliver
-    // data for the given flavor:
+    // Find the kept promise
     const QString flavorAsQString = QCFString::toQString(flavor);
     QMacPasteboard::Promise promise;
     for (int i = 0; i < qpaste->promises.size(); i++){
@@ -216,29 +213,16 @@ OSStatus QMacPasteboard::promiseKeeper(PasteboardRef paste, PasteboardItemID id,
     }
 
 #ifdef DEBUG_PASTEBOARD
-    qDebug("PasteBoard: Calling in promise for %s[%ld] [%s] (%s)", qPrintable(promise.mime), promise_id,
-           qPrintable(flavorAsQString),
-           qPrintable(promise.convertor->convertorName()));
+    qDebug("PasteBoard: Calling in promise for %s[%ld] [%s] (%s) [%d]", qPrintable(promise.mime), promise_id,
+           qPrintable(flavorAsQString), qPrintable(promise.convertor->convertorName()), promise.offset);
 #endif
 
-    if (promise.mime != QLatin1String("text/uri-list")){
-        QList<QByteArray> md = promise.convertor->convertFromMime(promise.mime, promise.data, flavorAsQString);
-        for(int i = 0; i < md.size(); ++i) {
-            const QByteArray &ba = md[i];
-            QCFType<CFDataRef> data = CFDataCreate(0, (UInt8*)ba.constData(), ba.size());
-            PasteboardPutItemFlavor(paste, id, flavor, data, kPasteboardFlavorNoFlags);
-        }
-    } else {
-        // Mac expects different files to be different items
-        // on the pasteboard. So put only one URL onto the board.
-        // (The list index is synced with the promise_id).
-        QList<QByteArray> md = promise.convertor->convertFromMime(promise.mime, promise.data, flavorAsQString);
-        if (md.size() < promise_id)
-            return cantGetFlavorErr;
-        const QByteArray &ba = md[promise_id - 1];
-        QCFType<CFDataRef> data = CFDataCreate(0, (UInt8*)ba.constData(), ba.size());
-        PasteboardPutItemFlavor(paste, id, flavor, data, kPasteboardFlavorNoFlags);
-    }
+    QList<QByteArray> md = promise.convertor->convertFromMime(promise.mime, promise.data, flavorAsQString);
+    if (md.size() < promise.offset)
+        return cantGetFlavorErr;
+    const QByteArray &ba = md[promise.offset];
+    QCFType<CFDataRef> data = CFDataCreate(0, (UInt8*)ba.constData(), ba.size());
+    PasteboardPutItemFlavor(paste, id, flavor, data, kPasteboardFlavorNoFlags);
     return noErr;
 }
 
@@ -349,26 +333,6 @@ private:
     QMacMimeData();
 };
 
-void QMacPasteboard::putMimetypeOntoPasteboard(int itemId, const QString &mimeType, QMimeData *mime_src)
-{
-    QList<QMacPasteboardMime*> availableConverters = QMacPasteboardMime::all(mime_type);
-    for (QList<QMacPasteboardMime *>::Iterator it = availableConverters.begin(); it != availableConverters.end(); ++it) {
-        QMacPasteboardMime *c = (*it);
-        QString flavor(c->flavorFor(mimeType));
-        if(!flavor.isEmpty()) {
-            // We have a pasteboard mime that can convert
-            // the given mimetype into a flavor
-            promises.append(QMacPasteboard::Promise(itemId, c, mimeType,
-                                                    static_cast<QMacMimeData*>(mime_src)->variantData(mimeType)));
-            PasteboardPutItemFlavor(paste, (PasteboardItemID)itemId, QCFString(flavor), 0, kPasteboardFlavorNoFlags);
-#ifdef DEBUG_PASTEBOARD
-            qDebug(" -  adding %d %s [%s] <%s>",
-                itemId, qPrintable(mimeType), qPrintable(flavor), qPrintable(c->convertorName()));
-#endif
-        }
-    }
-}
-
 void
 QMacPasteboard::setMimeData(QMimeData *mime_src)
 {
@@ -381,23 +345,36 @@ QMacPasteboard::setMimeData(QMimeData *mime_src)
     delete mime;
     mime = mime_src;
 
+    QList<QMacPasteboardMime*> availableConverters = QMacPasteboardMime::all(mime_type);
     if (mime != 0) {
         clear_helper();
         QStringList formats = mime_src->formats();
 
-        if (!mime_src->hasUrls()){
-            // Put available flavors-for-mime onto
-            // the pasteboard, but see them all as the
-            // same item (with ID == 1)
-            for (int i = 0; i < formats.size(); ++i)
-                putMimetypeOntoPasteboard(1, formats.at(i), mime_src);
-        } else {
-            // Special case: we put one item for
-            // each URL onto the pasteboard
-            QList<QUrl> urls = mime_src->urls();
-            for (int itemId = 1; itemId < urls.size() + 1; ++itemId) {
-                for (int i = 0; i < formats.size(); ++i)
-                    putMimetypeOntoPasteboard(itemId, formats.at(i), mime_src);
+        for(int f = 0; f < formats.size(); ++f) {
+            QString mimeType = formats.at(f);
+            for (QList<QMacPasteboardMime *>::Iterator it = availableConverters.begin(); it != availableConverters.end(); ++it) {
+                QMacPasteboardMime *c = (*it);
+                QString flavor(c->flavorFor(mimeType));
+                if(!flavor.isEmpty()) {
+                    QVariant mimeData = static_cast<QMacMimeData*>(mime_src)->variantData(mimeType);
+#if 0
+                    //### Grrr, why didn't I put in a virtual int QMacPasteboardMime::count()? --Sam
+                    const int numItems = c->convertFromMime(mimeType, mimeData, flavor).size();
+#else
+                    int numItems = 1; //this is a hack but it is much faster than allowing conversion above
+                    if(c->convertorName() == QLatin1String("FileURL"))
+                        numItems = mime_src->urls().count();
+#endif
+                    for(int item = 0; item < numItems; ++item) {
+                        const int itemID = item+1; //id starts at 1
+                        promises.append(QMacPasteboard::Promise(itemID, c, mimeType, mimeData, item));
+                        PasteboardPutItemFlavor(paste, (PasteboardItemID)itemID, QCFString(flavor), 0, kPasteboardFlavorNoFlags);
+#ifdef DEBUG_PASTEBOARD
+                        qDebug(" -  adding %d %s [%s] <%s> [%d]",
+                               itemID, qPrintable(mimeType), qPrintable(flavor), qPrintable(c->convertorName()), item);
+#endif
+                    }
+                }
             }
         }
     }

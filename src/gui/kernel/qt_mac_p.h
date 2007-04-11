@@ -165,8 +165,8 @@ class QMacPasteboard
 {
     struct Promise {
         Promise() : itemId(0), convertor(0) { }
-        Promise(int itemId, QMacPasteboardMime *c, QString m, QVariant d) : itemId(itemId), convertor(c), mime(m), data(d) { }
-        int itemId;
+        Promise(int itemId, QMacPasteboardMime *c, QString m, QVariant d, int o=0) : itemId(itemId), offset(o), convertor(c), mime(m), data(d) { }
+        int itemId, offset;
         QMacPasteboardMime *convertor;
         QString mime;
         QVariant data;
@@ -178,7 +178,6 @@ class QMacPasteboard
     mutable QPointer<QMimeData> mime;
     mutable bool mac_mime_source;
     static OSStatus promiseKeeper(PasteboardRef, PasteboardItemID, CFStringRef, void *);
-    void putMimetypeOntoPasteboard(int itemId, const QString &mimeType, QMimeData *mime_src);
     void clear_helper();
 public:
     QMacPasteboard(PasteboardRef p, uchar mime_type=0);

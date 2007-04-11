@@ -26,6 +26,7 @@
 # include <sys/fcntl.h>
 #endif
 
+#include "qdebug.h"
 #include "qpixmap.h"
 #include "qimagewriter.h"
 #include "qimagereader.h"
@@ -162,28 +163,26 @@ QVariant QMacPasteboardMimeAny::convertToMime(const QString &mime, QList<QByteAr
     if(data.count() > 1)
         qWarning("QMacPasteboardMimeAny: Cannot handle multiple member data");
     QVariant ret;
-    if (mime == QLatin1String("text/plain")) {
+    if (mime == QLatin1String("text/plain"))
         ret = QString::fromUtf8(data.first());
-    } else {
+    else
         ret = data.first();
-    }
     return ret;
 }
 
 QList<QByteArray> QMacPasteboardMimeAny::convertFromMime(const QString &mime, QVariant data, QString)
 {
     QList<QByteArray> ret;
-    if (mime == QLatin1String("text/plain")) {
+    if (mime == QLatin1String("text/plain"))
         ret.append(data.toString().toUtf8());
-    } else {
+    else
         ret.append(data.toByteArray());
-    }
     return ret;
 }
 
-class QMacPasteboardMimeText : public QMacPasteboardMime {
+class QMacPasteboardMimePlainText : public QMacPasteboardMime {
 public:
-    QMacPasteboardMimeText() : QMacPasteboardMime(MIME_ALL) { }
+    QMacPasteboardMimePlainText() : QMacPasteboardMime(MIME_ALL) { }
     QString convertorName();
 
     QString flavorFor(const QString &mime);
@@ -193,12 +192,74 @@ public:
     QList<QByteArray> convertFromMime(const QString &mime, QVariant data, QString flav);
 };
 
-QString QMacPasteboardMimeText::convertorName()
+QString QMacPasteboardMimePlainText::convertorName()
 {
-    return QLatin1String("Text");
+    return QLatin1String("PlainText");
 }
 
-QString QMacPasteboardMimeText::flavorFor(const QString &mime)
+QString QMacPasteboardMimePlainText::flavorFor(const QString &mime)
+{
+    if (mime == QLatin1String("text/plain"))
+        return QLatin1String("com.apple.traditional-mac-plain-text");
+    return QString();
+}
+
+QString QMacPasteboardMimePlainText::mimeFor(QString flav)
+{
+    if (flav == QLatin1String("com.apple.traditional-mac-plain-text"))
+        return QLatin1String("text/plain");
+    return QString();
+}
+
+bool QMacPasteboardMimePlainText::canConvert(const QString &mime, QString flav)
+{
+    return flavorFor(mime) == flav;
+}
+
+QVariant QMacPasteboardMimePlainText::convertToMime(const QString &mimetype, QList<QByteArray> data, QString flavor)
+{
+    if(data.count() > 1)
+        qWarning("QMacPasteboardMimePlainText: Cannot handle multiple member data");
+    const QByteArray &firstData = data.first();
+    QVariant ret;
+    if(flavor == QCFString(QLatin1String("com.apple.traditional-mac-plain-text"))) {
+        QCFString str(CFStringCreateWithBytes(kCFAllocatorDefault,
+                                             reinterpret_cast<const UInt8 *>(firstData.constData()),
+                                             firstData.size(), CFStringGetSystemEncoding(), false));
+        ret = QString(str);
+    } else {
+        qWarning("QMime::convertToMime: unhandled mimetype: %s", qPrintable(mimetype));
+    }
+    return ret;
+}
+
+QList<QByteArray> QMacPasteboardMimePlainText::convertFromMime(const QString &, QVariant data, QString flavor)
+{
+    QList<QByteArray> ret;
+    QString string = data.toString();
+    if(flavor == QCFString(QLatin1String("com.apple.traditional-mac-plain-text")))
+        ret.append(string.toLatin1());
+    return ret;
+}
+
+class QMacPasteboardMimeUnicodeText : public QMacPasteboardMime {
+public:
+    QMacPasteboardMimeUnicodeText() : QMacPasteboardMime(MIME_ALL) { }
+    QString convertorName();
+
+    QString flavorFor(const QString &mime);
+    QString mimeFor(QString flav);
+    bool canConvert(const QString &mime, QString flav);
+    QVariant convertToMime(const QString &mime, QList<QByteArray> data, QString flav);
+    QList<QByteArray> convertFromMime(const QString &mime, QVariant data, QString flav);
+};
+
+QString QMacPasteboardMimeUnicodeText::convertorName()
+{
+    return QLatin1String("UnicodeText");
+}
+
+QString QMacPasteboardMimeUnicodeText::flavorFor(const QString &mime)
 {
     if (mime == QLatin1String("text/plain"))
         return QLatin1String("public.utf16-plain-text");
@@ -213,35 +274,30 @@ QString QMacPasteboardMimeText::flavorFor(const QString &mime)
         else if (cs == QLatin1String("iso-10646-ucs-2")
                  || cs == QLatin1String("utf16"))
             return QLatin1String("public.utf16-plain-text");
-        else if (cs == QLatin1String("macroman") || cs == QLatin1String("ascii"))
-            return QLatin1String("com.apple.traditional-mac-plain-text");
     }
     return QString();
 }
 
-QString QMacPasteboardMimeText::mimeFor(QString flav)
+QString QMacPasteboardMimeUnicodeText::mimeFor(QString flav)
 {
-    if (flav == QLatin1String("public.utf16-plain-text")
-            || flav == QLatin1String("public.utf8-plain-text")
-            || flav == QLatin1String("com.apple.traditional-mac-plain-text"))
+    if (flav == QLatin1String("public.utf16-plain-text") || flav == QLatin1String("public.utf8-plain-text"))
         return QLatin1String("text/plain");
     return QString();
 }
 
-bool QMacPasteboardMimeText::canConvert(const QString &mime, QString flav)
+bool QMacPasteboardMimeUnicodeText::canConvert(const QString &mime, QString flav)
 {
     return flavorFor(mime) == flav;
 }
 
-QVariant QMacPasteboardMimeText::convertToMime(const QString &mimetype, QList<QByteArray> data, QString flavor)
+QVariant QMacPasteboardMimeUnicodeText::convertToMime(const QString &mimetype, QList<QByteArray> data, QString flavor)
 {
     if(data.count() > 1)
-        qWarning("QMacPasteboardMimeText: Cannot handle multiple member data");
+        qWarning("QMacPasteboardMimeUnicodeText: Cannot handle multiple member data");
     const QByteArray &firstData = data.first();
     // I can only handle two types (system and unicode) so deal with them that way
     QVariant ret;
-    if(flavor == QLatin1String("public.utf8-plain-text")
-            || flavor == QCFString(QLatin1String("com.apple.traditional-mac-plain-text"))) {
+    if(flavor == QLatin1String("public.utf8-plain-text")) {
         QCFString str(CFStringCreateWithBytes(kCFAllocatorDefault,
                                              reinterpret_cast<const UInt8 *>(firstData.constData()),
                                              firstData.size(), CFStringGetSystemEncoding(), false));
@@ -255,12 +311,11 @@ QVariant QMacPasteboardMimeText::convertToMime(const QString &mimetype, QList<QB
     return ret;
 }
 
-QList<QByteArray> QMacPasteboardMimeText::convertFromMime(const QString &, QVariant data, QString flavor)
+QList<QByteArray> QMacPasteboardMimeUnicodeText::convertFromMime(const QString &, QVariant data, QString flavor)
 {
     QList<QByteArray> ret;
     QString string = data.toString();
-    if(flavor == QLatin1String("public.utf8-plain-text")
-            || flavor == QCFString(QLatin1String("com.apple.traditional-mac-plain-text")))
+    if(flavor == QLatin1String("public.utf8-plain-text"))
         ret.append(string.toLatin1());
     else if (flavor == QLatin1String("public.utf16-plain-text"))
         ret.append(QByteArray((char*)string.utf16(), string.length()*2));
@@ -813,7 +868,8 @@ void QMacPasteboardMime::initialize()
 #ifdef Q_WS_MAC32
         new QMacPasteboardMimePict;
 #endif
-        new QMacPasteboardMimeText;
+        new QMacPasteboardMimeUnicodeText;
+        new QMacPasteboardMimePlainText;
         new QMacPasteboardMimeFileUri;
 
         //make sure our "non-standard" types are always last! --Sam
