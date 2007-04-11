@@ -66,6 +66,7 @@ public:
     int recursion;
     // offset == set by sendPostedEvents to tell postEvent() where to start insertions
     int offset;
+    int numPostedEvents;
     QMutex mutex;
 
     inline QPostEventList()

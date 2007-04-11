@@ -53,6 +53,7 @@ public:
     static QThread *theMainThread;
     static QThread *mainThread();
     static bool checkInstance(const char *method);
+    static void sendPostedEvents(QObject *receiver, int event_type, QThreadData *data);
 
 #ifndef QT_NO_DEBUG
     void checkReceiverThread(QObject *receiver);

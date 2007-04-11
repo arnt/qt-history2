@@ -20,6 +20,7 @@
 
 #include "qeventdispatcher_unix_p.h"
 #include <private/qthread_p.h>
+#include <private/qcoreapplication_p.h>
 
 #include <errno.h>
 #include <stdio.h>
@@ -94,18 +95,16 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
 
         // Process timers and socket notifiers - the common UNIX stuff
         int highest = 0;
-        FD_ZERO(&sn_vec[0].select_fds);
-        FD_ZERO(&sn_vec[1].select_fds);
-        FD_ZERO(&sn_vec[2].select_fds);
         if (! (flags & QEventLoop::ExcludeSocketNotifiers) && (sn_highest >= 0)) {
             // return the highest fd we can wait for input on
-            if (!sn_vec[0].list.isEmpty())
                 sn_vec[0].select_fds = sn_vec[0].enabled_fds;
-            if (!sn_vec[1].list.isEmpty())
                 sn_vec[1].select_fds = sn_vec[1].enabled_fds;
-            if (!sn_vec[2].list.isEmpty())
                 sn_vec[2].select_fds = sn_vec[2].enabled_fds;
             highest = sn_highest;
+        } else {
+            FD_ZERO(&sn_vec[0].select_fds);
+            FD_ZERO(&sn_vec[1].select_fds);
+            FD_ZERO(&sn_vec[2].select_fds);
         }
 
         FD_SET(thread_pipe[0], &sn_vec[0].select_fds);
@@ -786,27 +785,6 @@ int QEventDispatcherUNIX::activateSocketNotifiers()
     if (d->sn_pending_list.isEmpty())
         return 0;
 
-    // create sets that match the current pending sets (note: we skip
-    // the first one, because we activate first and check second)
-    fd_set rset, wset, xset;
-    FD_ZERO(&rset);
-    FD_ZERO(&wset);
-    FD_ZERO(&xset);
-    for (int i = 1; i < d->sn_pending_list.size(); ++i) {
-        const QSockNot * const sn = d->sn_pending_list.at(i);
-        switch (sn->obj->type()) {
-        case QSocketNotifier::Read:
-            FD_SET(sn->fd, &rset);
-            break;
-        case QSocketNotifier::Write:
-            FD_SET(sn->fd, &wset);
-            break;
-        case QSocketNotifier::Exception:
-            FD_SET(sn->fd, &xset);
-            break;
-        }
-    }
-
     // activate entries
     int n_act = 0;
     QEvent event(QEvent::SockAct);
@@ -828,7 +806,7 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     // we are awake, broadcast it
     emit awake();
-    QCoreApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);
+    QCoreApplicationPrivate::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0, d->threadData);
 
     int nevents = 0;
     const bool canWait = (d->threadData->canWait

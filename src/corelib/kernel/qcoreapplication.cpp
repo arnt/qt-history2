@@ -857,6 +857,7 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event, int priority)
 
         event->posted = true;
         ++receiver->d_func()->postedEvents;
+        ++data->postEventList.numPostedEvents;
         if (event->type() == QEvent::DeferredDelete) {
             if (!data->eventLoops.isEmpty()) {
                 // remember the current running eventloop
@@ -951,6 +952,18 @@ bool QCoreApplication::compressEvent(QEvent *event, QObject *receiver, QPostEven
 
 void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 {
+    QThreadData *data = QThreadData::current();
+
+    QCoreApplicationPrivate::sendPostedEvents(receiver, event_type, data);
+}
+
+void QCoreApplicationPrivate::sendPostedEvents(QObject *receiver, int event_type,
+                                               QThreadData *data)
+{
+    if (!data->postEventList.numPostedEvents
+        || (receiver && !receiver->d_func()->postedEvents))
+        return;
+
     bool doDeferredDeletion = (event_type == QEvent::DeferredDelete);
     if (event_type == -1) {
         // we were called by the event dispatcher.
@@ -958,7 +971,6 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         event_type = 0;
     }
 
-    QThreadData *data = QThreadData::current();
 
     if (receiver && receiver->d_func()->threadData != data) {
         qWarning("QCoreApplication::sendPostedEvents: Cannot send "
@@ -1044,6 +1056,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         QObject * r = pe.receiver;
 
         --r->d_func()->postedEvents;
+        --data->postEventList.numPostedEvents;
         Q_ASSERT(r->d_func()->postedEvents >= 0);
 
         // next, update the data structure so that we're ready
