@@ -4337,6 +4337,11 @@ void QGradientCache::generateGradientColorTable(const QGradientStops& stops, uin
     uint current_color;
     uint next_color;
 
+    // adjust begin position in case when stops.size == 2 and
+    //  stops[0].pos = 1 and stops[1].pos == 1
+    if (begin_pos == end_pos)
+        --begin_pos;
+
      // Up to first point
     current_color = PREMUL(ARGB_COMBINE_ALPHA(stops[0].second.rgba(), opacity));
     while (pos <= begin_pos) {
