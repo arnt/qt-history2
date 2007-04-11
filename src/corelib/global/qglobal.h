@@ -1590,7 +1590,24 @@ public: \
    types must declare a 'bool isDetached(void) const;' member for this
    to work.
 */
-#define Q_DECLARE_SHARED(TYPE) \
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+template <typename T>
+inline void qSwap_helper(T &value1, T &value2, T*)
+{
+    T t = value1;
+    value1 = value2;
+    value2 = t;
+}
+#define Q_DECLARE_SHARED(TYPE)                                          \
+template <> inline bool qIsDetached<TYPE>(TYPE &t) { return t.isDetached(); } \
+template <> inline void qSwap_helper<TYPE>(TYPE &value1, TYPE &value2, TYPE*) \
+{ \
+    const TYPE::DataPtr t = value1.data_ptr(); \
+    value1.data_ptr() = value2.data_ptr(); \
+    value2.data_ptr() = t; \
+}
+#else
+#define Q_DECLARE_SHARED(TYPE)                                          \
 template <> inline bool qIsDetached<TYPE>(TYPE &t) { return t.isDetached(); } \
 template <typename T> inline void qSwap(T &, T &); \
 template <> inline void qSwap<TYPE>(TYPE &value1, TYPE &value2) \
@@ -1599,6 +1616,7 @@ template <> inline void qSwap<TYPE>(TYPE &value1, TYPE &value2) \
     value1.data_ptr() = value2.data_ptr(); \
     value2.data_ptr() = t; \
 }
+#endif
 
 /*
    QTypeInfo primitive specializations
