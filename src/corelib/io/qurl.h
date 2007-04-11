@@ -207,6 +207,9 @@ protected:
 
 private:
     QUrlPrivate *d;
+public:
+    typedef QUrlPrivate * DataPtr;
+    inline DataPtr &data_ptr() { return d; }
 };
 
 Q_DECLARE_TYPEINFO(QUrl, Q_MOVABLE_TYPE);

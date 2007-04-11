@@ -26,7 +26,6 @@ QT_BEGIN_HEADER
 QT_MODULE(Gui)
 
 class QImageWriter;
-class QPixmapPrivate;
 class QColor;
 class QVariant;
 class QX11Info;
@@ -217,6 +216,10 @@ private:
     friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
 #endif
     friend Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap);
+
+public:
+    typedef QPixmapData * DataPtr;
+    inline DataPtr &data_ptr() { return data; }
 };
 
 Q_DECLARE_SHARED(QPixmap)

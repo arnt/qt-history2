@@ -1591,7 +1591,14 @@ public: \
    to work.
 */
 #define Q_DECLARE_SHARED(TYPE) \
-template <> inline bool qIsDetached<TYPE>(TYPE &t) { return t.isDetached(); }
+template <> inline bool qIsDetached<TYPE>(TYPE &t) { return t.isDetached(); } \
+template <typename T> inline void qSwap(T &, T &); \
+template <> inline void qSwap<TYPE>(TYPE &value1, TYPE &value2) \
+{ \
+    const TYPE::DataPtr t = value1.data_ptr(); \
+    value1.data_ptr() = value2.data_ptr(); \
+    value2.data_ptr() = t; \
+}
 
 /*
    QTypeInfo primitive specializations

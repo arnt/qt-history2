@@ -559,6 +559,9 @@ private:
     friend class QStringRef;
     friend inline bool qStringComparisonHelper(const QString &s1, const char *s2);
     friend inline bool qStringComparisonHelper(const QStringRef &s1, const char *s2);
+public:
+    typedef Data * DataPtr;
+    inline DataPtr &data_ptr() { return d; }
 };
 
 

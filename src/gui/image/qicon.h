@@ -86,6 +86,10 @@ private:
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QIcon &);
     friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QIcon &);
 #endif
+
+public:
+    typedef QIconPrivate * DataPtr;
+    inline DataPtr &data_ptr() { return d; }
 };
 
 Q_DECLARE_SHARED(QIcon)

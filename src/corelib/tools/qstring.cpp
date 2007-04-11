@@ -3428,7 +3428,7 @@ QString QString::fromUtf8(const char *str, int size)
                         // surrogate pair
                         *qch++ = QChar::highSurrogate(uc);
                         uc = QChar::lowSurrogate(uc);
-                    } else if ((uc < min_uc) || (uc >= 0xd800 && uc <= 0xdfff) || (uc >= 0xfffe)) {
+                    } else if ((uc < min_uc) || (uc >= 0xd800 && uc <= 0xdfff)) {
 			// overlong seqence, UTF16 surrogate or BOM
                         i = error;
                         qch = addOne(qch, result);

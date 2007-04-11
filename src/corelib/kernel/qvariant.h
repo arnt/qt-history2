@@ -385,6 +385,9 @@ private:
     // force compile error, prevent QVariant(QVariant::Type, int) to be called
     inline QVariant(bool, int) { Q_ASSERT(false); }
 #endif
+public:
+    typedef Private DataPtr;
+    inline DataPtr &data_ptr() { return d; }
 };
 
 typedef QList<QVariant> QVariantList;

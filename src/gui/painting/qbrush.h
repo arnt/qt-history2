@@ -96,12 +96,18 @@ private:
     void init(const QColor &color, Qt::BrushStyle bs);
     QBrushData *d;
     void cleanUp(QBrushData *x);
+
+public:
+    inline bool isDetached() const;
+    typedef QBrushData * DataPtr;
+    inline DataPtr &data_ptr() { return d; }
 };
 
 inline void QBrush::setColor(Qt::GlobalColor acolor)
 { setColor(QColor(acolor)); }
 
 Q_DECLARE_TYPEINFO(QBrush, Q_MOVABLE_TYPE);
+Q_DECLARE_SHARED(QBrush)
 
 /*****************************************************************************
   QBrush stream functions
@@ -129,6 +135,7 @@ inline Qt::BrushStyle QBrush::style() const { return d->style; }
 inline const QColor &QBrush::color() const { return d->color; }
 inline const QMatrix &QBrush::matrix() const { return d->transform.toAffine(); }
 inline QTransform QBrush::transform() const { return d->transform; }
+inline bool QBrush::isDetached() const { return d->ref == 1; }
 
 #ifdef QT3_SUPPORT
 inline QBrush::operator const QColor&() const { return d->color; }

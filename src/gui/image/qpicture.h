@@ -79,6 +79,10 @@ private:
     QPicturePrivate *d_ptr;
     friend class QPicturePaintEngine;
     friend class Q3Picture;
+
+public:
+    typedef QPicturePrivate* DataPtr;
+    inline DataPtr &data_ptr() { return d_ptr; }
 };
 
 Q_DECLARE_SHARED(QPicture)

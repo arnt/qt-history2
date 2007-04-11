@@ -311,6 +311,9 @@ private:
 
     friend class QByteRef;
     friend class QString;
+public:
+    typedef Data * DataPtr;
+    inline DataPtr &data_ptr() { return d; }
 };
 
 inline QByteArray::QByteArray(): d(&shared_null) { d->ref.ref(); }

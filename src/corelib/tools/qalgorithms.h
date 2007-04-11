@@ -114,16 +114,9 @@ inline void qCount(const Container &container, const T &value, Size &n)
 template <typename T>
 inline void qSwap(T &value1, T &value2)
 {
-    if (!QTypeInfo<T>::isComplex || QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) {
-        T t = value1;
-        value1 = value2;
-        value2 = t;
-    } else {
-        const void * const t = reinterpret_cast<const void * const &>(value1);
-        const_cast<const void *&>(reinterpret_cast<const void * const &>(value1)) =
-            reinterpret_cast<const void * const &>(value2);
-        const_cast<const void *&>(reinterpret_cast<const void * const &>(value2)) = t;
-    }
+    T t = value1;
+    value1 = value2;
+    value2 = t;
 }
 
 #ifdef qdoc

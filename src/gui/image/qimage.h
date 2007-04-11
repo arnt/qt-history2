@@ -278,6 +278,10 @@ private:
     friend class QPixmap;
     friend Q_GUI_EXPORT qint64 qt_image_id(const QImage &image);
     friend const QVector<QRgb> *qt_image_colortable(const QImage &image);
+
+public:
+    typedef QImageData * DataPtr;
+    inline DataPtr &data_ptr() { return d; }
 };
 
 Q_DECLARE_SHARED(QImage)
