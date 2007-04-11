@@ -50,7 +50,7 @@ DEFINEFUNC3(X509 *, d2i_X509, X509 **a, a, const unsigned char **b, b, long c, c
 #endif
 DEFINEFUNC2(char *, ERR_error_string, unsigned long a, a, char *b, b, return 0)
 DEFINEFUNC(unsigned long, ERR_get_error,,, return 0)
-DEFINEFUNC(EVP_CIPHER *, EVP_des_ede3_cbc,,, return 0)
+DEFINEFUNC(const EVP_CIPHER *, EVP_des_ede3_cbc,,, return 0)
 DEFINEFUNC2(int, i2d_X509, X509 *a, a, unsigned char **b, b, return -1)
 #ifdef SSLEAY_MACROS // ### verify
 DEFINEFUNC6(void *, PEM_ASN1_read_bio, d2i_of_void *a, a, const char *b, b, BIO *c, c, void **d, d, pem_password_cb *d, d, void *d, d, return 0)

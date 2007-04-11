@@ -187,7 +187,7 @@ X509 *q_d2i_X509(X509 **a, unsigned char **b, long c);
 #endif
 char *q_ERR_error_string(unsigned long a, char *b);
 unsigned long q_ERR_get_error();
-EVP_CIPHER *q_EVP_des_ede3_cbc();
+const EVP_CIPHER *q_EVP_des_ede3_cbc();
 int q_i2d_X509(X509 *a, unsigned char **b);
 #ifdef SSLEAY_MACROS
 // ### verify
