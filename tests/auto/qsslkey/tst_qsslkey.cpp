@@ -108,7 +108,7 @@ static QByteArray readFile(const QString &absFilePath)
 
 void tst_QSslKey::emptyConstructor()
 {
-    if (!QSslSocket::supportsSsl()) // ###
+    if (!QSslSocket::supportsSsl())
         return;
 
     QSslKey key;
@@ -141,7 +141,7 @@ void tst_QSslKey::constructor_data()
 
 void tst_QSslKey::constructor()
 {
-    if (!QSslSocket::supportsSsl()) // ###
+    if (!QSslSocket::supportsSsl())
         return;
 
     QFETCH(QString, absFilePath);
@@ -165,7 +165,7 @@ void tst_QSslKey::copyAndAssign_data()
 
 void tst_QSslKey::copyAndAssign()
 {
-    if (!QSslSocket::supportsSsl()) // ###
+    if (!QSslSocket::supportsSsl())
         return;
 
     QFETCH(QString, absFilePath);
@@ -198,7 +198,7 @@ void tst_QSslKey::length_data()
 
 void tst_QSslKey::length()
 {
-    if (!QSslSocket::supportsSsl()) // ###
+    if (!QSslSocket::supportsSsl())
         return;
 
     QFETCH(QString, absFilePath);
@@ -220,7 +220,7 @@ void tst_QSslKey::toPemOrDer_data()
 
 void tst_QSslKey::toPemOrDer()
 {
-    if (!QSslSocket::supportsSsl()) // ###
+    if (!QSslSocket::supportsSsl())
         return;
 
     QFETCH(QString, absFilePath);
@@ -261,7 +261,7 @@ void tst_QSslKey::toEncryptedPemOrDer_data()
 
 void tst_QSslKey::toEncryptedPemOrDer()
 {
-    if (!QSslSocket::supportsSsl()) // ###
+    if (!QSslSocket::supportsSsl())
         return;
 
     QFETCH(QString, absFilePath);
