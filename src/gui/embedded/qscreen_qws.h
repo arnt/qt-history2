@@ -292,7 +292,7 @@ private:
     void compose(int level, const QRegion &exposed, QRegion &blend, QImage &blendbuffer, int changing_level);
     void paintBackground(const QRegion &);
 
-    friend void solidFill_setup(QScreen*, const QColor&, const QRegion&);
+    friend void qt_solidFill_setup(QScreen*, const QColor&, const QRegion&);
 
     QScreenPrivate *d_ptr;
 };

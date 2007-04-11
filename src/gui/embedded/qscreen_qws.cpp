@@ -328,8 +328,8 @@ static void solidFill_template(QScreen *screen, const QColor &color,
     }
 }
 
-void solidFill_setup(QScreen *screen, const QColor &color,
-                     const QRegion &region)
+void qt_solidFill_setup(QScreen *screen, const QColor &color,
+                        const QRegion &region)
 {
     switch (screen->depth()) {
 #ifdef QT_QWS_DEPTH_32
@@ -369,7 +369,7 @@ void solidFill_setup(QScreen *screen, const QColor &color,
 QScreenPrivate::QScreenPrivate(QScreen *parent)
     :  pixelFormat(QImage::Format_Invalid), q_ptr(parent)
 {
-    solidFill = solidFill_setup;
+    solidFill = qt_solidFill_setup;
 }
 
 QImage::Format QScreenPrivate::preferredImageFormat() const
