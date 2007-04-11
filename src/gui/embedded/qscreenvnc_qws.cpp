@@ -124,10 +124,6 @@ void QVNCScreenPrivate::configure()
 
         q_ptr->setOffset(subscreen->offset());
     } else {
-        const int dpi = 72;
-        q_ptr->physWidth = qRound(q_ptr->dw * 25.4 / dpi);
-        q_ptr->physHeight = qRound(q_ptr->dh * 25.4 / dpi);
-
         q_ptr->lstep = (q_ptr->dw * q_ptr->d + 7) / 8;
         q_ptr->size = q_ptr->h * q_ptr->lstep;
         q_ptr->mapsize = q_ptr->size;
@@ -1865,9 +1861,28 @@ bool QVNCScreen::connect(const QString &displaySpec)
             dh = h = sizeRegexp.cap(2).toInt();
         }
 
-        const int dpi = 72;
-        physWidth = qRound(dw * 25.4 / dpi);
-        physHeight = qRound(dh * 25.4 / dpi);
+        // Handle display physical size spec.
+        QRegExp mmWidthRx(QLatin1String("mmWidth=?(\\d+)"));
+        int dimIdxW = args.indexOf(mmWidthRx);
+        QRegExp mmHeightRx(QLatin1String("mmHeight=?(\\d+)"));
+        int dimIdxH = args.indexOf(mmHeightRx);
+        if (dimIdxW >= 0) {
+            mmWidthRx.exactMatch(args.at(dimIdxW));
+            physWidth = mmWidthRx.cap(1).toInt();
+            if (dimIdxH < 0)
+                physHeight = dh * physWidth / dw;
+        }
+        if (dimIdxH >= 0) {
+            mmHeightRx.exactMatch(args.at(dimIdxH));
+            physHeight = mmHeightRx.cap(1).toInt();
+            if (dimIdxW < 0)
+                physWidth = dw * physHeight / dh;
+        }
+        if (dimIdxW < 0 && dimIdxH < 0) {
+            const int dpi = 72;
+            physWidth = qRound(dw * 25.4 / dpi);
+            physHeight = qRound(dh * 25.4 / dpi);
+        }
 
         lstep = (dw * d + 7) / 8;
         size = h * lstep;
