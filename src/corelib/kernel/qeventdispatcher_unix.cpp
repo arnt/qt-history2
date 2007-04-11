@@ -127,7 +127,7 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
             tm.tv_sec = tm.tv_usec = 0l;
 
             for (int type = 0; type < 3; ++type) {
-                QList<QSockNot *> &list = sn_vec[type].list;
+                QSockNotType::List &list = sn_vec[type].list;
                 if (list.size() == 0)
                     continue;
 
@@ -187,7 +187,7 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
         // if select says data is ready on any socket, then set the socket notifier
         // to pending
         for (int i=0; i<3; i++) {
-            QList<QSockNot *> &list = sn_vec[i].list;
+            QSockNotType::List &list = sn_vec[i].list;
             for (int j = 0; j < list.size(); ++j) {
                 QSockNot *sn = list.at(j);
                 if (FD_ISSET(sn->fd, &sn_vec[i].select_fds))
@@ -658,7 +658,7 @@ void QEventDispatcherUNIX::registerSocketNotifier(QSocketNotifier *notifier)
 #endif
     
     Q_D(QEventDispatcherUNIX);
-    QList<QSockNot *> &list = d->sn_vec[type].list;
+    QSockNotType::List &list = d->sn_vec[type].list;
     fd_set *fds  = &d->sn_vec[type].enabled_fds;
     QSockNot *sn;
 
@@ -702,7 +702,7 @@ void QEventDispatcherUNIX::unregisterSocketNotifier(QSocketNotifier *notifier)
 #endif
 
     Q_D(QEventDispatcherUNIX);
-    QList<QSockNot *> &list = d->sn_vec[type].list;
+    QSockNotType::List &list = d->sn_vec[type].list;
     fd_set *fds  =  &d->sn_vec[type].enabled_fds;
     QSockNot *sn;
     int i;
@@ -745,7 +745,7 @@ void QEventDispatcherUNIX::setSocketNotifierPending(QSocketNotifier *notifier)
 #endif
 
     Q_D(QEventDispatcherUNIX);
-    QList<QSockNot *> &list = d->sn_vec[type].list;
+    QSockNotType::List &list = d->sn_vec[type].list;
     QSockNot *sn = 0;
     int i;
     for (i = 0; i < list.size(); ++i) {

@@ -19,6 +19,7 @@ HEADERS +=  \
 	tools/qlocale_p.h \
 	tools/qlocale_data_p.h \
 	tools/qmap.h \
+        tools/qpodlist_p.h \
         tools/qpoint.h \
 	tools/qqueue.h \
         tools/qrect.h \

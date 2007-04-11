@@ -28,6 +28,7 @@
 #include "QtCore/qabstracteventdispatcher.h"
 #include "QtCore/qlist.h"
 #include "private/qabstracteventdispatcher_p.h"
+#include "private/qpodlist_p.h"
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -131,7 +132,9 @@ public:
     QSockNotType();
     ~QSockNotType();
 
-    QList<QSockNot*> list;
+    typedef QPodList<QSockNot*, 32> List;
+
+    List list;
     fd_set select_fds;
     fd_set enabled_fds;
     fd_set pending_fds;
@@ -198,7 +201,7 @@ public:
     QTimerInfoList timerList;
 
     // pending socket notifiers list
-    QList<QSockNot*> sn_pending_list;
+    QSockNotType::List sn_pending_list;
 
     QAtomic wakeUps;
     bool interrupt;
