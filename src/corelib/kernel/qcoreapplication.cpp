@@ -961,10 +961,6 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 void QCoreApplicationPrivate::sendPostedEvents(QObject *receiver, int event_type,
                                                QThreadData *data)
 {
-    if (!data->postEventList.numPostedEvents
-        || (receiver && !receiver->d_func()->postedEvents))
-        return;
-
     bool doDeferredDeletion = (event_type == QEvent::DeferredDelete);
     if (event_type == -1) {
         // we were called by the event dispatcher.
