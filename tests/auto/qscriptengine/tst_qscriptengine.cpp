@@ -49,6 +49,7 @@ private slots:
     void castWithMultipleInheritance();
     void gc();
     void gcWithNestedDataStructure();
+    void processEventsWhileRunning();
 };
 
 tst_QScriptEngine::tst_QScriptEngine()
@@ -598,7 +599,7 @@ void tst_QScriptEngine::importExtension()
             QScriptValue ret = eng.importExtension("com.trolltech");
             QCOMPARE(eng.hasUncaughtException(), false);
             QCOMPARE(ret.isUndefined(), true);
-            
+
             QScriptValue com = eng.globalObject().property("com");
             QCOMPARE(com.isObject(), true);
             QCOMPARE(com.property("wasDefinedAlready")
@@ -607,7 +608,7 @@ void tst_QScriptEngine::importExtension()
                      .strictEqualTo(QScriptValue(&eng, "com")), true);
             QCOMPARE(com.property("level")
                      .strictEqualTo(QScriptValue(&eng, 1)), true);
-            
+
             QScriptValue trolltech = com.property("trolltech");
             QCOMPARE(trolltech.isObject(), true);
             QCOMPARE(trolltech.property("wasDefinedAlready")
@@ -824,6 +825,45 @@ void tst_QScriptEngine::gcWithNestedDataStructure()
             l = l.property("next");
         }
     }
+}
+
+class EventReceiver : public QObject
+{
+public:
+    EventReceiver() {
+        received = false;
+    }
+
+    bool event(QEvent *e) {
+        received |= (e->type() == QEvent::User + 1);
+        return QObject::event(e);
+    }
+
+    bool received;
+};
+
+void tst_QScriptEngine::processEventsWhileRunning()
+{
+    QString script = QString::fromLatin1(
+        "var end = Number(new Date()) + 1000;"
+        "var x = 0;"
+        "while (Number(new Date()) < end) {"
+        "    ++x;"
+        "}");
+
+    QScriptEngine eng;
+
+    EventReceiver receiver;
+    QCoreApplication::postEvent(&receiver, new QEvent(QEvent::Type(QEvent::User+1)));
+
+    eng.evaluate(script);
+    QVERIFY(!eng.hasUncaughtException());
+    QVERIFY(!receiver.received);
+
+    eng.setProcessEventsInterval(100);
+    eng.evaluate(script);
+    QVERIFY(!eng.hasUncaughtException());
+    QVERIFY(receiver.received);
 }
 
 QTEST_MAIN(tst_QScriptEngine)

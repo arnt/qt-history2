@@ -971,7 +971,7 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
             do {
                 if (!data || !qstrcmp(data, table.testData(curDataIndex)->dataTag())) {
                     foundFunction = true;
-                    QTestDataSetter s(table.isEmpty() ? static_cast<QTestData *>(0) 
+                    QTestDataSetter s(table.isEmpty() ? static_cast<QTestData *>(0)
                                                       : table.testData(curDataIndex));
                     QTestResult::setCurrentTestLocation(QTestResult::InitFunc);
                     QMetaObject::invokeMethod(QTest::currentTestObject, "init");
@@ -1042,7 +1042,7 @@ void *fetchData(QTestData *data, const char *tagName, int typeId)
 }
 
 /*! \internal
- 
+
  Returns a pointer to a string which is \a ba represented as a
  space separated sequence of hex characters. If the input is considered too long,
  it is truncated, which is signalled by an ending ellipsis.
@@ -1138,13 +1138,13 @@ char *toHexRepresentation(const char *ba, int length)
 */
 int QTest::qExec(QObject *testObject, int argc, char **argv)
 {
-#ifndef QT_NO_EXCEPTIONS
-    try {
-#endif
+// #ifndef QT_NO_EXCEPTIONS
+//     try {
+// #endif
 
-#if defined(Q_OS_WIN)
-    SetErrorMode(SetErrorMode(0) | SEM_NOGPFAULTERRORBOX);
-#endif
+// #if defined(Q_OS_WIN)
+//     SetErrorMode(SetErrorMode(0) | SEM_NOGPFAULTERRORBOX);
+// #endif
 
     QTestResult::reset();
 
@@ -1201,22 +1201,22 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
     QTestResult::setCurrentTestFunction(0);
     QTestTable::clearGlobalTestTable();
 
-#ifndef QT_NO_EXCEPTIONS
-    } catch (...) {
-        QTestResult::addFailure("Caught unhandled exception", __FILE__, __LINE__);
-        if (QTestResult::currentTestFunction()) {
-            QTestResult::finishedCurrentTestFunction();
-            QTestResult::setCurrentTestFunction(0);
-        }
+// #ifndef QT_NO_EXCEPTIONS
+//     } catch (...) {
+//         QTestResult::addFailure("Caught unhandled exception", __FILE__, __LINE__);
+//         if (QTestResult::currentTestFunction()) {
+//             QTestResult::finishedCurrentTestFunction();
+//             QTestResult::setCurrentTestFunction(0);
+//         }
 
-        QTestLog::stopLogging();
-#ifdef Q_OS_WIN
-        // rethrow exception to make debugging easier
-        throw;
-#endif
-        return -1;
-    }
-#endif
+//         QTestLog::stopLogging();
+// #ifdef Q_OS_WIN
+//         // rethrow exception to make debugging easier
+//         throw;
+// #endif
+//         return -1;
+//     }
+// #endif
 
     QTestLog::stopLogging();
     currentTestObject = 0;

@@ -23,6 +23,7 @@
 #include <QtCore/QList>
 #include <QtCore/QSet>
 #include <QtCore/QStringList>
+#include <QtCore/QTime>
 
 #include "qscriptengine.h"
 #include "qscriptrepository_p.h"
@@ -308,6 +309,10 @@ public:
 
     QScriptValueImpl importExtension(const QString &extension);
 
+    inline void maybeProcessEvents();
+    void setupProcessEvents();
+    void processEvents();
+
 public: // attributes
     int m_callDepth;
     int m_maxCallDepth;
@@ -380,6 +385,11 @@ public: // attributes
     QSet<QString> m_importedExtensions;
     QSet<QString> m_extensionsBeingImported;
     QHash<QString, QStringList> m_cachedPluginKeys;
+
+    int m_processEventsInterval;
+    int m_nextProcessEvents;
+    int m_processEventIncr;
+    QTime m_processEventTracker;
 
 #ifndef QT_NO_QOBJECT
 # ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE

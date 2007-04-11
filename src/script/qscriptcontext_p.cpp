@@ -365,6 +365,9 @@ void QScriptContextPrivate::execute(QScript::Code *code)
 
     QScriptEnginePrivate *eng = QScriptEnginePrivate::get(engine());
 
+    if (!parentContext())
+        eng->setupProcessEvents();
+
     // set up the temp stack
     if (! tempStack)
         stackPtr = tempStack = eng->tempStackBegin;
@@ -415,8 +418,8 @@ Lfetch:
     }
 
 #endif
-
 Ltop:
+
 #ifndef Q_SCRIPT_DIRECT_CODE
     switch (iPtr->op) {
 #else
@@ -1794,6 +1797,7 @@ Ltop:
     I(Line):
     {
         eng->maybeGC();
+        eng->maybeProcessEvents();
         currentLine = iPtr->operand[0].m_int_value;
         currentColumn = iPtr->operand[1].m_int_value;
         ++iPtr;

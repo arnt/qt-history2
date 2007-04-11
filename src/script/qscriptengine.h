@@ -154,6 +154,9 @@ public:
 
     void gc();
 
+    void setProcessEventsInterval(int interval);
+    int processEventsInterval() const;
+
 private:
     QScriptValue create(int type, const void *ptr);
 

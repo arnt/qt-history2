@@ -488,7 +488,7 @@ void QScriptEnginePrivate::maybeGC_helper(bool do_string_gc)
             if (v.isValid()) {
                 QScriptObject *o = v.objectValue();
                 QScript::GCBlock *block = QScript::GCBlock::get(o);
-                
+
                 if (block->generation != generation)
                     it.value()->value.invalidate();
             }
@@ -1338,7 +1338,7 @@ void QScriptEnginePrivate::init()
 
     m_callDepth = 0;
 #ifdef Q_OS_WIN
-    m_maxCallDepth = 128;
+    m_maxCallDepth = 88;
 #else
     m_maxCallDepth = 768;
 #endif
@@ -1361,6 +1361,10 @@ void QScriptEnginePrivate::init()
     variantConstructor = 0;
     qobjectConstructor = 0;
     qmetaObjectConstructor = 0;
+
+    m_processEventsInterval = -1;
+    m_nextProcessEvents = 0;
+    m_processEventIncr = 0;
 
     m_stringRepository.reserve(DefaultHashSize);
     m_string_hash_size = DefaultHashSize;
@@ -1720,5 +1724,22 @@ void QScriptEnginePrivate::gc()
         // GC will be performed the next time maybeGC()
         // is called and the allocator is not blocked
         objectAllocator.requestGC();
+    }
+}
+
+
+void QScriptEnginePrivate::processEvents()
+{
+    if (m_nextProcessEvents < m_processEventTracker.elapsed()) {
+        QCoreApplication::processEvents();
+        m_nextProcessEvents = m_nextProcessEvents + m_processEventsInterval;
+    }
+}
+
+void QScriptEnginePrivate::setupProcessEvents()
+{
+    if (m_processEventsInterval > 0) {
+        m_nextProcessEvents = m_processEventsInterval;
+        m_processEventTracker.restart();
     }
 }

@@ -867,7 +867,7 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
     \sa qScriptValueFromValue()
 */
 
-/*! 
+/*!
     \fn T qscriptvalue_cast(const QScriptValue &value)
     \since 4.3
     \relates QScriptValue
@@ -1051,4 +1051,40 @@ void QScriptEngine::gc()
 {
     Q_D(QScriptEngine);
     d->gc();
+}
+
+/*!
+
+  Sets the interval between calls to QCoreApplication::processEvents
+  to \a interval milliseconds.
+
+  While the interpreter is running, all event processing is by default
+  blocked. This means for instance that the gui will not be updated
+  and timers will not be fired. To allow event processing during
+  interpreter execution one can specify the processing interval to be
+  a positive value, indicating the number of milliseconds between each
+  time QCoreApplication::processEvents() is called.
+
+  The default value is -1, which disables event processing during
+  interpreter execution.
+
+  \sa processEventsInterval()
+*/
+void QScriptEngine::setProcessEventsInterval(int interval)
+{
+    Q_D(QScriptEngine);
+    d->m_processEventsInterval = interval;
+}
+
+/*!
+
+  Returns the interval in milliseconds between calls to
+  QCoreApplication::processEvents() while the interpreter is running.
+
+  \sa setProcessEventsInterval();
+*/
+int QScriptEngine::processEventsInterval() const
+{
+    Q_D(const QScriptEngine);
+    return d->m_processEventsInterval;
 }

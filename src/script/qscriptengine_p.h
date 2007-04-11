@@ -804,4 +804,12 @@ inline bool QScriptEnginePrivate::hasUncaughtException() const
     return (currentContext()->state() == QScriptContext::ExceptionState);
 }
 
+inline void QScriptEnginePrivate::maybeProcessEvents()
+{
+    if (m_processEventsInterval > 0 && ++m_processEventIncr > 512) {
+        m_processEventIncr = 0;
+        processEvents();
+    }
+}
+
 #endif
