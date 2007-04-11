@@ -23,10 +23,6 @@ class tst_gui : public GuiTester
 {
 Q_OBJECT
 private slots:
-    void fillSelfTest();
-    void contentSelfTest();
-    void clickButtonSelfTest();
-        
     void scrollbarPainting();
     
     void splashScreenModality();
@@ -36,87 +32,11 @@ private slots:
     void spinBoxArrowButtons();
 };
 
-void tst_gui::clickButtonSelfTest()
-{
-    QMessageBox *box = new QMessageBox();
-    box->resize(400, 400);
-    box->setText("accessible!");
-    box->show();
-
-    // Find the "OK" button and schedule a press.
-    InterfaceChildPair interface = wn.find(QAccessible::Name, "OK", box);
-    QVERIFY(interface.iface);
-    
-    clearSequence();
-    addToSequence(new ClickLaterAction(interface, Qt::LeftButton), 3000);
-    runSequence();
-
-    // Show dialog and and enter event loop.
-    connect(wn.getWidget(interface), SIGNAL(clicked()), SLOT(exitLoopSlot()));
-    const int timeout = 8;
-    QTestEventLoop::instance().enterLoop(timeout);
-
-    QVERIFY(QTestEventLoop::instance().timeout() == false);
-}
 
 QPixmap grabWindowContents(QWidget * widget)
 {
     const int titleBarHeight = widget->frameGeometry().height() - widget->height();
     return QPixmap::grabWindow(widget->winId(), 0, titleBarHeight, -1, widget->height());
-}
-
-void tst_gui::fillSelfTest()
-{
-    ColorWidget widget;
-    widget.color = QColor(Qt::green);
-    widget.resize(300, 300);
-
-    ColorWidget colorWidget(&widget);
-    colorWidget.move(10, 10);
-    colorWidget.resize(10, 10);
-    widget.show();
-    QTest::qWait(100);
-    
-    QPixmap pixmap = grabWindowContents(&widget);
-
-    {
-        QRect colorRect = colorWidget.geometry();
-        QVERIFY(isFilled(pixmap.toImage(), colorRect, QColor(Qt::red)));
-    }{
-        QRect colorRect = colorWidget.geometry();
-        colorRect.translate(1, 0);
-        QVERIFY(isFilled(pixmap.toImage(), colorRect, QColor(Qt::red)) == false);
-    }
-}
-
-void tst_gui::contentSelfTest()
-{
-    ColorWidget widget;
-    widget.color = QColor(Qt::green);
-    widget.resize(300, 300);
-
-    ColorWidget colorWidget(&widget);
-    colorWidget.move(2, 2);
-    colorWidget.resize(100, 100);
-    widget.show();
-    QTest::qWait(100);
-    
-    QPixmap pixmap = grabWindowContents(&widget);
-    {
-        QRect colorRect = colorWidget.geometry();
-        QVERIFY(isContent(pixmap.toImage(), colorRect, Horizontal) == false);
-        QVERIFY(isContent(pixmap.toImage(), colorRect, Vertical) == false);
-    }{
-        QRect colorRect = colorWidget.geometry();
-        colorRect.translate(1, 0);
-        QVERIFY(isContent(pixmap.toImage(), colorRect, Horizontal));
-        QVERIFY(isContent(pixmap.toImage(), colorRect, Vertical) == false);
-    }{
-        QRect colorRect = colorWidget.geometry();
-        colorRect.translate(0, 1);
-        QVERIFY(isContent(pixmap.toImage(), colorRect, Horizontal) == false);
-        QVERIFY(isContent(pixmap.toImage(), colorRect, Vertical));
-    }
 }
 
 /*
