@@ -43,6 +43,8 @@
     #define M_PI 3.14159265358979323846
 #endif
 
+#define QD3D_MASK_MARGIN 1
+
 // for the ClearType detection stuff..
 #ifndef SPI_GETFONTSMOOTHINGTYPE
 #define SPI_GETFONTSMOOTHINGTYPE 0x200A
@@ -1741,9 +1743,9 @@ QD3DMaskAllocator::QD3DMaskAllocator() {
 }
 
 void QD3DMaskAllocator::reset() {
-    mask_position.x = mask_position.y = 0;
+    mask_position.x = mask_position.y = QD3D_MASK_MARGIN;
     mask_position.channel = 0;
-    mask_offsetX2 = mask_offsetY2 = 0;
+    mask_offsetX2 = mask_offsetY2 = QD3D_MASK_MARGIN;
 }
 
 // flow allocate free space in mask texture
@@ -1762,12 +1764,12 @@ bool QD3DMaskAllocator::allocate(int w, int h)
     if ((height - mask_offsetY2) >= h && (width - mask_position.x) >= w) {
         mask_position.y = mask_offsetY2;
     } else if ((width - mask_offsetX2) >= w) {
-        mask_position.y = 0;
+        mask_position.y = QD3D_MASK_MARGIN;
         mask_position.x = mask_offsetX2;
     } else if (mask_position.channel < 3) {
         ++mask_position.channel;
-        mask_position.x = mask_position.y = 0;
-        mask_offsetX2 = mask_offsetY2 = 0;
+        mask_position.x = mask_position.y = QD3D_MASK_MARGIN;
+        mask_offsetX2 = mask_offsetY2 = QD3D_MASK_MARGIN;
     } else {
         reset();
         flush_mask = true;
