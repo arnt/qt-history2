@@ -266,8 +266,11 @@ void QLabelPrivate::init()
     q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,
                                  QSizePolicy::Label));
 
+#ifndef QT_NO_CURSOR
     validCursor = false;
     onAnchor = false;
+#endif
+
     openExternalLinks = false;
 
     setLayoutItemMargins(QStyle::SE_LabelLayoutItem);
@@ -1470,24 +1473,22 @@ void QLabelPrivate::sendControlEvent(QEvent *e)
 void QLabelPrivate::_q_linkHovered(const QString &anchor)
 {
     Q_Q(QLabel);
-    if (anchor.isEmpty()) { // restore cursor
 #ifndef QT_NO_CURSOR
+    if (anchor.isEmpty()) { // restore cursor
         if (validCursor)
             q->setCursor(cursor);
         else
             q->unsetCursor();
         onAnchor = false;
-#endif
     } else if (!onAnchor) {
-#ifndef QT_NO_CURSOR
         validCursor = q->testAttribute(Qt::WA_SetCursor);
         if (validCursor) {
             cursor = q->cursor();
         }
         q->setCursor(Qt::PointingHandCursor);
         onAnchor = true;
-#endif
     }
+#endif
     emit q->linkHovered(anchor);
 }
 
