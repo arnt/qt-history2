@@ -24,7 +24,7 @@
 #include <qtablewidget.h>
 #ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>
-#elif defined Q_OS_UNIX
+#elif defined Q_WS_X11
 #include <private/qt_x11_p.h>
 #endif
 
@@ -1180,7 +1180,7 @@ void tst_QComboBox::insertItem()
 
     QCOMPARE(testWidget->count(), initialItems.count() + 1);
     QCOMPARE(testWidget->itemText(expectedIndex), itemLabel);
-    
+
     if (editable)
         QCOMPARE(testWidget->currentText(), QString("FOO"));
 }
