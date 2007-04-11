@@ -133,7 +133,9 @@ public:
     void setCursorIsFocusIndicator(bool b);
     bool cursorIsFocusIndicator() const;
 
+#ifndef QT_NO_PRINTER
     void print(QPrinter *printer) const;
+#endif
 
 public Q_SLOTS:
     void setPlainText(const QString &text);

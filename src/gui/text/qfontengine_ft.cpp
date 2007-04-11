@@ -834,7 +834,9 @@ QFontEngine::Properties QFontEngineFT::properties() const
     Properties p = freetype->properties();
     if (p.postscriptName.isEmpty()) {
         p.postscriptName = fontDef.family.toUtf8();
+#ifndef QT_NO_PRINTER
         p.postscriptName = QPdf::stripSpecialCharacters(p.postscriptName);
+#endif
     }
 
     return freetype->properties();

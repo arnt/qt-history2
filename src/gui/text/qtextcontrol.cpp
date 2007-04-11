@@ -52,7 +52,7 @@
 #include <qkeysequence.h>
 #define ACCEL_KEY(k) QString::fromLatin1("\t") + QString(QKeySequence(k))
 #else
-#define ACCEL_KEY(k) 
+#define ACCEL_KEY(k)
 #endif
 
 // could go into QTextCursor...
@@ -1810,7 +1810,7 @@ QString QTextControlPrivate::anchorForCursor(const QTextCursor &anchorCursor) co
 void QTextControlPrivate::editFocusEvent(QEvent *e)
 {
     Q_Q(QTextControl);
-    
+
     if (QApplication::keypadNavigationEnabled()) {
         if (e->type() == QEvent::EnterEditFocus && interactionFlags & Qt::TextEditable) {
             const QTextCursor oldSelection = cursor;
@@ -1824,12 +1824,12 @@ void QTextControlPrivate::editFocusEvent(QEvent *e)
             }
             selectionChanged();
             repaintOldAndNewSelection(oldSelection);
-            
+
             setBlinkingCursorEnabled(true);
         } else
             setBlinkingCursorEnabled(false);
     }
-    
+
     hasEditFocus = e->type() == QEvent::EnterEditFocus ? true : false;
 }
 #endif
@@ -2110,6 +2110,7 @@ bool QTextControl::cursorIsFocusIndicator() const
     return d->cursorIsFocusIndicator;
 }
 
+#ifndef QT_NO_PRINTER
 void QTextControl::print(QPrinter *printer) const
 {
     Q_D(const QTextControl);
@@ -2129,6 +2130,7 @@ void QTextControl::print(QPrinter *printer) const
     doc->print(printer);
     delete tempDoc;
 }
+#endif // QT_NO_PRINTER
 
 QMimeData *QTextControl::createMimeDataFromSelection() const
 {
