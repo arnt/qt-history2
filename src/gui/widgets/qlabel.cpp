@@ -266,7 +266,8 @@ void QLabelPrivate::init()
     q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred,
                                  QSizePolicy::Label));
 
-    hasCustomCursor = false;
+    validCursor = false;
+    onAnchor = false;
     openExternalLinks = false;
 
     setLayoutItemMargins(QStyle::SE_LabelLayoutItem);
@@ -1241,6 +1242,16 @@ void QLabelPrivate::clearContents()
     }
     movie = 0;
 #endif
+#ifndef QT_NO_CURSOR
+    if (onAnchor) {
+        if (validCursor)
+            q->setCursor(cursor);
+        else
+            q->unsetCursor();
+    }
+    validCursor = false;
+    onAnchor = false;
+#endif
 }
 
 
@@ -1440,7 +1451,7 @@ void QLabelPrivate::ensureTextControl() const
         QObject::connect(control, SIGNAL(linkHovered(QString)),
                          q, SLOT(_q_linkHovered(QString)));
         QObject::connect(control, SIGNAL(linkActivated(QString)),
-                         q, SLOT(_q_activateLink(QString)));
+                         q, SIGNAL(linkActivated(QString)));
         textLayoutDirty = true;
         textDirty = true;
     }
@@ -1461,32 +1472,23 @@ void QLabelPrivate::_q_linkHovered(const QString &anchor)
     Q_Q(QLabel);
     if (anchor.isEmpty()) { // restore cursor
 #ifndef QT_NO_CURSOR
-        if (hasCustomCursor)
+        if (validCursor)
             q->setCursor(cursor);
         else
             q->unsetCursor();
+        onAnchor = false;
 #endif
-    } else {
+    } else if (!onAnchor) {
 #ifndef QT_NO_CURSOR
-        hasCustomCursor = q->testAttribute(Qt::WA_SetCursor);
-        if (hasCustomCursor)
+        validCursor = q->testAttribute(Qt::WA_SetCursor);
+        if (validCursor) {
             cursor = q->cursor();
+        }
         q->setCursor(Qt::PointingHandCursor);
+        onAnchor = true;
 #endif
     }
     emit q->linkHovered(anchor);
-}
-
-void QLabelPrivate::_q_activateLink(const QString &anchor)
-{
-    Q_Q(QLabel);
-#ifndef QT_NO_CURSOR
-    if (hasCustomCursor)
-        q->setCursor(cursor);
-    else
-        q->unsetCursor();
-#endif
-    emit q->linkActivated(anchor);
 }
 
 // Return the layout rect - this is the rect that is given to the layout painting code

@@ -98,7 +98,6 @@ public:
     void sendControlEvent(QEvent *e);
 
     void _q_linkHovered(const QString &link);
-    void _q_activateLink(const QString &link);
 
     QRectF layoutRect() const;
     QRect documentRect() const;
@@ -109,8 +108,9 @@ public:
 
     bool openExternalLinks;
 
-    bool hasCustomCursor;
 #ifndef QT_NO_CURSOR
+    uint validCursor : 1;
+    uint onAnchor : 1;
     QCursor cursor;
 #endif
 
