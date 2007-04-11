@@ -648,7 +648,6 @@ inline uint QXmlStreamReaderPrivate::getChar()
         else
             c = getChar_helper();
     }
-    qDebug() << "getChar" << hex << c;
     return c;
 }
 
@@ -1201,8 +1200,6 @@ ushort QXmlStreamReaderPrivate::getChar_helper()
     }
 
     decoder->toUnicode(&readBuffer, rawReadBuffer.data(), nbytesread);
-    for (int i = 0; i < readBuffer.size(); ++i)
-        qDebug() << i << hex << readBuffer.at(i).unicode();
     readBuffer.reserve(1); // keep capacity when calling resize() next time
 
     if (readBufferPos < readBuffer.size()) {
