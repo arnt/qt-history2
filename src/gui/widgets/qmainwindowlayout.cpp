@@ -1165,6 +1165,7 @@ void QMainWindowLayout::tabifyDockWidget(QDockWidget *first, QDockWidget *second
 
 void QMainWindowLayout::setVerticalTabsEnabled(bool enabled)
 {
+#ifndef QT_NO_TABBAR
     QDockAreaLayout &layout = layoutState.dockAreaLayout;
 
     const QTabBar::Shape verticalShapes[] = {
@@ -1179,6 +1180,7 @@ void QMainWindowLayout::setVerticalTabsEnabled(bool enabled)
             enabled ? verticalShapes[i] : QTabBar::RoundedSouth
         );
     }
+#endif // QT_NO_TABBAR
 }
 
 void QMainWindowLayout::splitDockWidget(QDockWidget *after,

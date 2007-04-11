@@ -1441,6 +1441,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
                 extraClass |= PseudoClass_NextSelected;
             else if (hdr->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
                 extraClass |= PseudoClass_PreviousSelected;
+#ifndef QT_NO_TABBAR
         } else if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
             if (tab->position == QStyleOptionTab::OnlyOneTab)
                 extraClass |= PseudoClass_OnlyOne;
@@ -1476,6 +1477,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
                 default:
                     break;
             }
+#endif // QT_NO_TABBAR
         } else if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             if (btn->features & QStyleOptionButton::Flat)
                 extraClass |= PseudoClass_Flat;
@@ -2796,6 +2798,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         fallback = true;
         break;
 
+#ifndef QT_NO_TABBAR
     case CE_TabBarTab:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
             QStyleOptionTab tabCopy(*tab);
@@ -2832,6 +2835,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             return;
         }
        break;
+#endif // QT_NO_TABBAR
 
     case CE_ColumnViewGrip:
        if (rule.hasDrawable()) {
@@ -3823,6 +3827,7 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
         }
         break;
 
+#ifndef QT_NO_TABBAR
     case SE_TabWidgetTabBar:
     case SE_TabWidgetTabPane:
     case SE_TabWidgetTabContents:
@@ -3858,7 +3863,8 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
             return r;
         }
         break;
-                                }
+    }
+#endif // QT_NO_TABBAR
 
     default:
         break;
