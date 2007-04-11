@@ -1,6 +1,3 @@
-contains(TEMPLATE, "vc.*"):message("We have TEMPLATE with vc")
-contains(TEMPLATE_PREFIX, "vc"):message("We have TEMPLATE_PREFIX with vc")
-
 contains(TEMPLATE, "vc.*")|contains(TEMPLATE_PREFIX, "vc") {
     EOC = \$\$escape_expand(\n\t)
 
