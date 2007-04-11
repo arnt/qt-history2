@@ -1561,7 +1561,7 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
         return;
 
     // Default source rect = viewport rect
-    QRect sourceRect;
+    QRect sourceRect = source;
     if (source.isNull())
         sourceRect = viewport()->rect();
 
@@ -1639,14 +1639,17 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     painter->save();
 
     // Transform the painter.
+    painterMatrix *= QTransform().scale(xratio, yratio).translate(targetRect.left() - sourceRect.left(),
+                                                                  targetRect.top() - sourceRect.top());
+
+    // Clip in device coordinates to avoid QRegion transformations.
     painter->setClipRect(targetRect);
-    painter->setTransform(painterMatrix
-                       * QTransform().translate(targetRect.left(), targetRect.top())
-                       * QTransform().scale(xratio, yratio)
-                       * QTransform().translate(-sourceRect.left(), -sourceRect.top()));
     QPainterPath path;
     path.addPolygon(sourceScenePoly);
-    painter->setClipPath(path);
+    painter->setClipPath(painterMatrix.map(path), Qt::IntersectClip);
+
+    // Transform the painter.
+    painter->setTransform(painterMatrix, true);
 
     // Render the scene.
     QRectF sourceSceneRect = sourceScenePoly.boundingRect();
