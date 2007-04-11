@@ -1730,10 +1730,12 @@ void QScriptEnginePrivate::gc()
 
 void QScriptEnginePrivate::processEvents()
 {
+#ifndef QT_NO_QOBJECT
     if (m_nextProcessEvents < m_processEventTracker.elapsed()) {
         QCoreApplication::processEvents();
         m_nextProcessEvents = m_nextProcessEvents + m_processEventsInterval;
     }
+#endif
 }
 
 void QScriptEnginePrivate::setupProcessEvents()
