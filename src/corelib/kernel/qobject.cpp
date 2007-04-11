@@ -2989,6 +2989,8 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
         return;
     }
 
+    QThreadData *currentThreadData = QThreadData::current();
+
     // QVarLengthArray doesn't use the same growth strategy as the rest of the Tulip classes, so we need to
     // determine the exact number of connections
     int i = 0;
@@ -3012,7 +3014,8 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
         // determine if this connection should be sent immediately or
         // put into the event queue
         if ((c->type == Qt::AutoConnection
-             && c->receiver->d_func()->threadData != sender->d_func()->threadData)
+             && (currentThreadData != sender->d_func()->threadData
+                 || c->receiver->d_func()->threadData != sender->d_func()->threadData))
             || (c->type == Qt::QueuedConnection)) {
             ::queued_activate(sender, *c, argv, from_signal_index, to_signal_index);
             continue;
@@ -3077,7 +3080,7 @@ void QMetaObject::activate(QObject *sender, int signal_index, void **argv)
         && !qt_signal_spy_callback_set.signal_begin_callback
         && !qt_signal_spy_callback_set.signal_end_callback) {
         uint signal_mask = 1 << signal_index;
-        if ((sender->d_func()->connectedSignals & signal_mask) == 0) 
+        if ((sender->d_func()->connectedSignals & signal_mask) == 0)
             // nothing connected to these signals, and no spy
             return;
     }
@@ -3094,7 +3097,7 @@ void QMetaObject::activate(QObject *sender, const QMetaObject *m, int local_sign
         && !qt_signal_spy_callback_set.signal_begin_callback
         && !qt_signal_spy_callback_set.signal_end_callback) {
         uint signal_mask = 1 << signal_index;
-        if ((sender->d_func()->connectedSignals & signal_mask) == 0) 
+        if ((sender->d_func()->connectedSignals & signal_mask) == 0)
             // nothing connected to these signals, and no spy
             return;
     }
@@ -3114,7 +3117,7 @@ void QMetaObject::activate(QObject *sender, const QMetaObject *m,
         && !qt_signal_spy_callback_set.signal_end_callback) {
         uint signal_mask = (1 << (to_signal_index + 1)) - 1;
         signal_mask ^= (1 << from_signal_index) - 1;
-        if ((sender->d_func()->connectedSignals & signal_mask) == 0) 
+        if ((sender->d_func()->connectedSignals & signal_mask) == 0)
             // nothing connected to these signals, and no spy
             return;
     }
