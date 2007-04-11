@@ -3822,6 +3822,12 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
             int xpos = opt->rect.x() + margin;
             int width = opt->rect.width() - 10;
             if (!isTreeView(widget)) {
+                // Our code below doesn't handle vertical headers that well, so just
+                // get the value from the Windows style.
+                if (!(header->state & QStyle::State_Horizontal)) {
+                    rect = QWindowsStyle::subElementRect(sr, opt, widget);
+                    break; // (from the switch)
+                }
                 bdi.kind = kThemeBevelButton;
             } else {
                 bdi.kind = kThemeListHeaderButton;
