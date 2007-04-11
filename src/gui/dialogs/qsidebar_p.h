@@ -35,8 +35,10 @@ public:
 
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
+#ifndef QT_NO_DRAGANDDROP
     bool canDrop(QDragEnterEvent *event);
     bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+#endif
     Qt::ItemFlags flags(const QModelIndex &index) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role=Qt::EditRole);
 
@@ -82,7 +84,9 @@ public:
 protected:
     bool event(QEvent * e);
     void focusInEvent(QFocusEvent *event);
+#ifndef QT_NO_DRAGANDDROP
     void dragEnterEvent(QDragEnterEvent *event);
+#endif
 
 private Q_SLOTS:
     void clicked(const QModelIndex &index);

@@ -144,6 +144,7 @@ public:
     }
     void setTristate(bool tristate);
 
+#ifndef QT_NO_DRAGANDDROP
     inline bool isDragEnabled() const {
         return (flags() & Qt::ItemIsDragEnabled) != 0;
     }
@@ -153,6 +154,7 @@ public:
         return (flags() & Qt::ItemIsDropEnabled) != 0;
     }
     void setDropEnabled(bool dropEnabled);
+#endif // QT_NO_DRAGANDDROP
 
     QStandardItem *parent() const;
     int row() const;

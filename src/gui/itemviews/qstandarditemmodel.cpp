@@ -1178,6 +1178,8 @@ void QStandardItem::setTristate(bool tristate)
   \sa setTristate(), isCheckable(), checkState()
 */
 
+#ifndef QT_NO_DRAGANDDROP
+
 /*!
   Sets whether the item is drag enabled. If \a dragEnabled is true, the item
   can be dragged by the user; otherwise, the user cannot drag the item.
@@ -1233,6 +1235,8 @@ void QStandardItem::setDropEnabled(bool dropEnabled)
 
   \sa setDropEnabled(), isDragEnabled(), flags()
 */
+
+#endif // QT_NO_DRAGANDDROP
 
 /*!
   Returns the row where the item is located in its parent's child table, or
