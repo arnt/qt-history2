@@ -1456,7 +1456,14 @@ void tst_QTreeView::keyboardNavigation()
         }
         case Qt::Key_Right:
 	    QVERIFY(view.isExpanded(index));
-	    break;
+            // windows style right will walk to the first child
+            if (view.currentIndex() != index) {
+                QCOMPARE(view.currentIndex().parent(), index);
+                row = view.currentIndex().row();
+                column = view.currentIndex().column();
+                index = view.currentIndex();
+            }
+            break;
         default:
             QVERIFY(false);
         }
