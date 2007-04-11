@@ -431,7 +431,7 @@ static bool hebrew_shape(QShaperItem *item)
         Rafe = 0x5bf
     };
     unsigned short chars[512];
-    QChar *shapedChars = item->length > 256 ? (QChar *)::malloc(2*item->length * sizeof(QChar)) : (QChar *)chars;
+    QChar *shapedChars = item->length > 256 ? (QChar *)::malloc(2*item->length * sizeof(QChar)) : (QChar *)(void *)chars;
 
     const QChar *uc = item->string->unicode() + item->from;
     unsigned short *logClusters = item->log_clusters;
@@ -4256,7 +4256,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 #ifndef QT_NO_OPENTYPE
     const int availableGlyphs = item->num_glyphs;
 #endif
-    if (!item->font->stringToCMap((const QChar *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+    if (!item->font->stringToCMap((const QChar *)(const void *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
     KHDEBUG("after shaping: len=%d", len);
@@ -4762,7 +4762,7 @@ static bool myanmar_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
 #ifndef QT_NO_OPENTYPE
     const int availableGlyphs = item->num_glyphs;
 #endif
-    if (!item->font->stringToCMap((const QChar *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+    if (!item->font->stringToCMap((const QChar *)(const void *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
     MMDEBUG("after shaping: len=%d", len);
