@@ -809,6 +809,15 @@ public slots:
         eventLoop.exec();
         QVERIFY(p);
     }
+    void deleteLaterAndExitLoop()
+    {
+        QEventLoop eventLoop;
+        QPointer<QObject> p(this);
+        QMetaObject::invokeMethod(this, "deleteLater", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(&eventLoop, "quit", Qt::QueuedConnection);
+        eventLoop.exec();
+        QVERIFY(p); // not dead yet
+    }
 };
 
 void tst_QApplication::testDeleteLaterProcessEvents()
@@ -857,6 +866,21 @@ void tst_QApplication::testDeleteLaterProcessEvents()
         p = nester;
         QTimer::singleShot(3000, &loop, SLOT(quit()));
         QTimer::singleShot(0, nester, SLOT(deleteLaterAndEnterLoop()));
+
+        loop.exec();
+        QVERIFY(!p);
+    }
+
+    {
+        // When the event loop that calls deleteLater() is exited
+        // immediately, the object should die when returning to the
+        // parent event loop
+        QApplication app(argc, 0, QApplication::GuiServer);
+        QEventLoop loop;
+        EventLoopNester *nester = new EventLoopNester;
+        p = nester;
+        QTimer::singleShot(3000, &loop, SLOT(quit()));
+        QTimer::singleShot(0, nester, SLOT(deleteLaterAndExitLoop()));
 
         loop.exec();
         QVERIFY(!p);

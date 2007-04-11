@@ -1030,15 +1030,19 @@ void QCoreApplicationPrivate::sendPostedEvents(QObject *receiver, int event_type
         }
 
         if (pe.event->type() == QEvent::DeferredDelete) {
-            const QEventLoop *const savedEventLoop = reinterpret_cast<QEventLoop *>(pe.event->d);
-            const QEventLoop *const currentEventLoop =
-                data->eventLoops.isEmpty() ? 0 : data->eventLoops.top();
+            QEventLoop *savedEventLoop = reinterpret_cast<QEventLoop *>(pe.event->d);
+            QEventLoop *currentEventLoop = data->eventLoops.isEmpty() ? 0 : data->eventLoops.top();
+            bool savedEventLoopIsRunning = data->eventLoops.contains(savedEventLoop);
 
             // DeferredDelete events are only sent when we are explicitly
             // asked to (s.a. QEventLoop::DeferredDeletion), and then only if
             // there is no current event loop, or if the current event loop is
             // equal to the loop in which deleteLater() was called.
-            if (!doDeferredDeletion || (currentEventLoop && savedEventLoop && savedEventLoop != currentEventLoop)) {
+            if (!doDeferredDeletion
+                || (currentEventLoop
+                    && savedEventLoop
+                    && savedEventLoop != currentEventLoop
+                    && savedEventLoopIsRunning)) {
                 // cannot send deferred delete
                 if (!event_type && !receiver) {
                     // don't lose the event
