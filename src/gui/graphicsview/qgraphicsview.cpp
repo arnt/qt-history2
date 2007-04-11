@@ -1597,10 +1597,12 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
         itemArray[numItems - i - 1] = itemList.at(i);
     itemList.clear();
 
-    // Setup painter
+    // Setup painter matrix.
     QTransform moveMatrix;
     moveMatrix.translate(-d->horizontalScroll(), -d->verticalScroll());
     QTransform painterMatrix = d->matrix * moveMatrix;
+    painterMatrix *= QTransform().scale(xratio, yratio).translate(targetRect.left() - sourceRect.left(),
+                                                                  targetRect.top() - sourceRect.top());
 
     // Two unit vectors.
     QLineF v1(0, 0, 1, 0);
@@ -1627,7 +1629,9 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
 
         // Calculate a simple level-of-detail metric.
         QTransform neo = item->sceneTransform() * painterMatrix;
-        option.levelOfDetail = ::sqrt(double(neo.map(v1).length() * neo.map(v2).length()));
+        QTransform lodMatrix = neo * painter->worldTransform();
+
+        option.levelOfDetail = ::sqrt(double(lodMatrix.map(v1).length() * lodMatrix.map(v2).length()));
         option.matrix = neo.toAffine();
 
         option.exposedRect = item->boundingRect();
@@ -1637,10 +1641,6 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     }
 
     painter->save();
-
-    // Transform the painter.
-    painterMatrix *= QTransform().scale(xratio, yratio).translate(targetRect.left() - sourceRect.left(),
-                                                                  targetRect.top() - sourceRect.top());
 
     // Clip in device coordinates to avoid QRegion transformations.
     painter->setClipRect(targetRect);
