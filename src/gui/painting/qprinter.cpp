@@ -1417,7 +1417,7 @@ void QPrinter::setFromTo(int from, int to)
     if (d->minPage == 0 && d->maxPage == 0) {
         d->minPage = 1;
         d->maxPage = to;
-        d->options |= QPrintDialog::PrintPageRange;
+        d->options |= QAbstractPrintDialog::PrintPageRange;
     }
 }
 
@@ -1429,7 +1429,7 @@ void QPrinter::setFromTo(int from, int to)
 void QPrinter::setPrintRange( PrintRange range )
 {
     Q_D(QPrinter);
-    d->printRange = QPrintDialog::PrintRange(range);
+    d->printRange = QAbstractPrintDialog::PrintRange(range);
 }
 
 /*!

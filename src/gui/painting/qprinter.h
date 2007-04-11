@@ -172,10 +172,8 @@ public:
     int fromPage() const;
     int toPage() const;
 
-#ifndef QT_NO_PRINTDIALOG
     void setPrintRange(PrintRange range);
     PrintRange printRange() const;
-#endif
 
 #ifdef QT3_SUPPORT
 #ifdef Q_WS_MAC

@@ -67,7 +67,7 @@ QString QAccessibleItemRow::text(Text t, int child) const
     if (!child) {
         if (children().count() == 1)
             child = 1;
-        else 
+        else
             return QString();
     }
 
@@ -97,7 +97,7 @@ void QAccessibleItemRow::setText(Text t, int child, const QString &text)
     if (!child) {
         if (children().count() == 1)
             child = 1;
-        else 
+        else
             return;
     }
 
@@ -405,7 +405,7 @@ int QAccessibleItemView::indexOfChild(const QAccessibleInterface *iface) const
     if (atViewport) {
         if (!iface || iface->role(0) != Row)
             return -1;
-        
+
         // ### This will fail if a row is hidden.
         QModelIndex idx = static_cast<const QAccessibleItemRow *>(iface)->row;
         if (!idx.isValid())
@@ -444,7 +444,7 @@ QString QAccessibleItemView::text(Text t, int child) const
         QAccessibleItemRow item(itemView(), childIndex(child));
         return item.text(t, 1);
     } else {
-        return QAccessibleAbstractScrollArea::text(t, child);        
+        return QAccessibleAbstractScrollArea::text(t, child);
     }
 }
 
@@ -595,9 +595,12 @@ int QAccessibleItemView::columnSpan(int /* row */, int /* column */)
 /* Return the horizontal header view */
 QAccessibleInterface *QAccessibleItemView::columnHeader()
 {
+#ifndef QT_NO_TREEVIEW
     if (QTreeView *tree = qobject_cast<QTreeView *>(itemView()))
         return QAccessible::queryAccessibleInterface(tree->header());
-    else if (QTableView *table = qobject_cast<QTableView *>(itemView()))
+    else
+#endif
+    if (QTableView *table = qobject_cast<QTableView *>(itemView()))
         return QAccessible::queryAccessibleInterface(table->horizontalHeader());
     return 0;
 }
@@ -1339,12 +1342,12 @@ int QAccessibleAbstractScrollArea::navigate(RelationFlag relation, int entry, QA
     QWidget *targetWidget = 0;
     QWidget *entryWidget = 0;
 
-    if (relation == Child || 
+    if (relation == Child ||
         relation == Left || relation == Up || relation == Right || relation == Down) {
         QWidgetList children = accessibleChildren();
         if (entry < 0 || entry > children.count())
             return -1;
-        
+
         if (entry == 0) {
             entryWidget = abstractScrollArea();
         } else if (entry > 0)

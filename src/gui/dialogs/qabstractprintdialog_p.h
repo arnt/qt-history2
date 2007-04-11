@@ -25,9 +25,10 @@
 // We mean it.
 //
 
+#include "private/qdialog_p.h"
+
 #ifndef QT_NO_PRINTDIALOG
 
-#include "private/qdialog_p.h"
 #include "QtGui/qabstractprintdialog.h"
 
 class QPrinter;
