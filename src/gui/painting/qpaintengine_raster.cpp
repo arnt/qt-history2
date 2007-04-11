@@ -4339,7 +4339,7 @@ void QGradientCache::generateGradientColorTable(const QGradientStops& stops, uin
 
     // adjust begin position in case when stops.size == 2 and
     //  stops[0].pos = 1 and stops[1].pos == 1
-    if (begin_pos == end_pos)
+    if (begin_pos == end_pos && begin_pos > 0)
         --begin_pos;
 
      // Up to first point
