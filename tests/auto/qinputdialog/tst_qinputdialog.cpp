@@ -110,13 +110,13 @@ template <typename T> void findChild(); // Required by some compilers
 template <typename SpinBoxType, typename ValueType>
 static void testGetNumeric(QInputDialog *dialog, SpinBoxType * = 0, ValueType * = 0)
 {
-    SpinBoxType *sbox = dialog->findChild<SpinBoxType *>();
+    SpinBoxType *sbox = qFindChild<SpinBoxType *>(dialog);
     Q_ASSERT(sbox);
 
-    QLineEdit *ledit = static_cast<QObject *>(sbox)->findChild<QLineEdit *>();
+    QLineEdit *ledit = qFindChild<QLineEdit *>(static_cast<QObject *>(sbox));
     Q_ASSERT(ledit);
 
-    QDialogButtonBox *bbox = dialog->findChild<QDialogButtonBox *>();
+    QDialogButtonBox *bbox = qFindChild<QDialogButtonBox *>(dialog);
     Q_ASSERT(bbox);
     QPushButton *okButton = bbox->button(QDialogButtonBox::Ok);
     Q_ASSERT(okButton);
