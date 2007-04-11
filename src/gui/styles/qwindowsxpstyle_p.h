@@ -83,6 +83,92 @@
     } DTBGOPTS, *PDTBGOPTS;
 #endif // _DTBGOPTS
 
+// Undefined for some compile environments
+#ifndef TMT_TEXTCOLOR
+#  define TMT_TEXTCOLOR 3803
+#endif
+#ifndef TMT_BORDERCOLORHINT
+#  define TMT_BORDERCOLORHINT 3822
+#endif
+#ifndef TMT_BORDERSIZE
+#  define TMT_BORDERSIZE 2403
+#endif
+#ifndef TMT_BORDERONLY
+#  define TMT_BORDERONLY 2203
+#endif
+#ifndef TMT_TRANSPARENTCOLOR
+#  define TMT_TRANSPARENTCOLOR 3809
+#endif
+#ifndef TMT_CAPTIONMARGINS
+#  define TMT_CAPTIONMARGINS 3603
+#endif
+#ifndef TMT_CONTENTMARGINS
+#  define TMT_CONTENTMARGINS 3602
+#endif
+#ifndef TMT_SIZINGMARGINS
+#  define TMT_SIZINGMARGINS 3601
+#endif
+#ifndef TMT_GLYPHTYPE
+#  define TMT_GLYPHTYPE 4012
+#endif
+#ifndef TMT_BGTYPE
+#  define TMT_BGTYPE 4001
+#endif
+#ifndef TMT_TEXTSHADOWTYPE
+#    define TMT_TEXTSHADOWTYPE 4010
+#endif
+#ifndef TMT_BORDERCOLOR
+#    define TMT_BORDERCOLOR 3801
+#endif
+#ifndef BT_IMAGEFILE
+#  define BT_IMAGEFILE 0
+#endif
+#ifndef BT_BORDERFILL
+#  define BT_BORDERFILL 1
+#endif
+#ifndef BT_NONE
+#  define BT_NONE 2
+#endif
+#ifndef TMT_FILLCOLOR
+#  define TMT_FILLCOLOR 3802
+#endif
+#ifndef TMT_PROGRESSCHUNKSIZE
+#  define TMT_PROGRESSCHUNKSIZE 2411
+#endif
+
+// TMT_TEXTSHADOWCOLOR is wrongly defined in mingw
+#if TMT_TEXTSHADOWCOLOR != 3818
+#undef TMT_TEXTSHADOWCOLOR
+#define TMT_TEXTSHADOWCOLOR 3818
+#endif
+#ifndef TST_NONE
+#  define TST_NONE 0
+#endif
+
+#ifndef GT_NONE
+#  define GT_NONE 0
+#endif
+#ifndef GT_IMAGEGLYPH
+#  define GT_IMAGEGLYPH 1
+#endif
+
+// These defines are missing from the tmschema, but still exist as
+// states for their parts
+#ifndef MINBS_INACTIVE
+#define MINBS_INACTIVE 5
+#endif
+#ifndef MAXBS_INACTIVE
+#define MAXBS_INACTIVE 5
+#endif
+#ifndef RBS_INACTIVE
+#define RBS_INACTIVE 5
+#endif
+#ifndef HBS_INACTIVE
+#define HBS_INACTIVE 5
+#endif
+#ifndef CBS_INACTIVE
+#define CBS_INACTIVE 5
+#endif
 
 // Uncomment define below to build debug assisting code, and output
 // #define DEBUG_XP_STYLE
