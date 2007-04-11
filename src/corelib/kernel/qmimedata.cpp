@@ -264,8 +264,13 @@ QVariant QMimeDataPrivate::retrieveTypedData(const QString &format, QVariant::Ty
     The \c value declaration of each format describes the way in which the
     data is encoded.
 
+    On Windows, the MIME format does not always map directly to the
+    clipboard formats. Qt provides QWindowsMime to map clipboard
+    formats to open-standard MIME formats. Similarly, the
+    QMacPasteboardMime maps MIME to Mac flavors.
+
     \sa QClipboard, QDragEnterEvent, QDragMoveEvent, QDropEvent, QDrag,
-        {Drag and Drop}
+        , QWindowsMime, QMacPasteboardMime, {Drag and Drop}
 */
 
 /*!

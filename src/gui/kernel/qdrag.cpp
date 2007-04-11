@@ -73,7 +73,7 @@
     \l{QWidget::mouseMoveEvent()}{mouseMoveEvent()} to check whether a QDrag is
     required.
 
-    \sa {Drag and Drop}, QClipboard, QMimeData,
+    \sa {Drag and Drop}, QClipboard, QMimeData, QWindowsMime, QMacPasteBoardMime,
         {Draggable Icons Example}, {Draggable Text Example}, {Drop Site Example},
 	{Fridge Magnets Example}
 */
