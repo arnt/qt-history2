@@ -703,7 +703,7 @@ void QEventDispatcherUNIX::unregisterSocketNotifier(QSocketNotifier *notifier)
     Q_D(QEventDispatcherUNIX);
     QSockNotType::List &list = d->sn_vec[type].list;
     fd_set *fds  =  &d->sn_vec[type].enabled_fds;
-    QSockNot *sn;
+    QSockNot *sn = 0;
     int i;
     for (i = 0; i < list.size(); ++i) {
         sn = list.at(i);
