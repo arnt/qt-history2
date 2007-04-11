@@ -28,6 +28,7 @@
 #include "private/qwidget_p.h"
 
 #ifndef QT_NO_LINEEDIT
+#include "QtGui/qlineedit.h"
 #include "QtGui/qtextlayout.h"
 #include "QtGui/qstyleoption.h"
 #include "QtCore/qbasictimer.h"
@@ -55,7 +56,7 @@ public:
             actions[UndoAct] = 0;
 #endif
         }
-        
+
     ~QLineEditPrivate()
     {
         delete [] maskData;
