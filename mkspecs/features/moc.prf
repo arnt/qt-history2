@@ -44,6 +44,7 @@ moc_header.variable_out = SOURCES
 moc_header.name = MOC ${QMAKE_FILE_IN}
 silent:moc_header.commands = @echo moc ${QMAKE_FILE_IN} && $$moc_header.commands
 QMAKE_EXTRA_COMPILERS += moc_header
+INCREDIBUILD_XGE += moc_header
 
 #moc sources
 moc_source.CONFIG = no_link moc_verify
@@ -54,6 +55,7 @@ moc_source.input = SOURCES OBJECTIVE_SOURCES
 moc_source.name = MOC ${QMAKE_FILE_IN}
 silent:moc_source.commands = @echo moc ${QMAKE_FILE_IN} && $$moc_source.commands
 QMAKE_EXTRA_COMPILERS += moc_source
+INCREDIBUILD_XGE += moc_source
 
 #make sure we can include these files
 INCLUDEPATH += $$MOC_DIR

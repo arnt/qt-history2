@@ -288,6 +288,8 @@ Configure::Configure( int& argc, char** argv )
         tmp = tmp.mid( tmp.lastIndexOf("/") + 1 );
     }
     dictionary[ "QMAKESPEC" ] = tmp;
+
+    dictionary[ "INCREDIBUILD_XGE" ] = "auto";
 }
 
 Configure::~Configure()
@@ -603,6 +605,10 @@ void Configure::parseCmdLine()
         else if( configCmdLine.at(i) == "-vcproj" )
             dictionary[ "VCPROJFILES" ] = "yes";
 
+        else if( configCmdLine.at(i) == "-no-incredibuild-xge" )
+            dictionary[ "INCREDIBUILD_XGE" ] = "no";
+        else if( configCmdLine.at(i) == "-incredibuild-xge" )
+            dictionary[ "INCREDIBUILD_XGE" ] = "yes";
 #if !defined(EVAL)
         // Others ---------------------------------------------------
         else if (configCmdLine.at(i) == "-fast" )
@@ -1154,6 +1160,9 @@ bool Configure::displayHelp()
         desc("VCPROJFILES", "no", "-no-vcproj",         "Do not generate VC++ .vcproj files.");
         desc("VCPROJFILES", "yes", "-vcproj",           "Generate VC++ .vcproj files, only if platform \"win32-msvc.net\".\n");
 
+        desc("INCREDIBUILD_XGE", "no", "-no-incredibuild-xge", "Do not add IncrediBuild XGE distribution commands to custom build steps.");
+        desc("INCREDIBUILD_XGE", "yes", "-incredibuild-xge",   "Add IncrediBuild XGE distribution commands to custom build steps. This will distribute MOC and UIC steps, and other custom buildsteps which are added to the INCREDIBUILD_XGE variable.\n(The IncrediBuild distribution commands are only added to Visual Studio projects)\n");
+
 #if !defined(EVAL)
         desc("BUILD_QMAKE", "no", "-no-qmake",          "Do not compile qmake.");
         desc("BUILD_QMAKE", "yes", "-qmake",            "Compile qmake.\n");
@@ -1352,6 +1361,9 @@ bool Configure::checkAvailability(const QString &part)
     else if (part == "OPENSSL")
         available = findFile("ssl.h");
 
+    else if (part == "INCREDIBUILD_XGE")
+        available = findFile("BuildConsole.exe") && findFile("xgConsole.exe");
+
     return available;
 }
 
@@ -1422,6 +1434,10 @@ void Configure::autoDetection()
         dictionary["SSE2"] = checkAvailability("SSE2") ? "yes" : "no";
     if (dictionary["OPENSSL"] == "auto")
         dictionary["OPENSSL"] = checkAvailability("OPENSSL") ? "yes" : "no";
+
+    // Detection of IncrediBuild buildconsole
+    if (dictionary["INCREDIBUILD_XGE"] == "auto")
+        dictionary["INCREDIBUILD_XGE"] = checkAvailability("INCREDIBUILD_XGE") ? "yes" : "no";
 
     // Mark all unknown "auto" to the default value..
     for (QMap<QString,QString>::iterator i = dictionary.begin(); i != dictionary.end(); ++i) {
@@ -1858,6 +1874,8 @@ void Configure::generateCachefile()
             configStream << " sse";
         if ( dictionary[ "SSE2" ] == "yes" )
             configStream << " sse2";
+        if ( dictionary["INCREDIBUILD_XGE"] == "yes" )
+            configStream << " incredibuild_xge";
 
         configStream << endl;
         configStream << "QT_ARCH = " << dictionary[ "ARCHITECTURE" ] << endl;
@@ -2234,7 +2252,8 @@ void Configure::displayConfig()
     cout << "Examples installed to......." << dictionary[ "QT_INSTALL_EXAMPLES" ] << endl;
     cout << "Demos installed to.........." << dictionary[ "QT_INSTALL_DEMOS" ] << endl << endl;
 
-    cout << endl;
+    if(checkAvailability("INCREDIBUILD_XGE"))
+        cout << "Using IncrediBuild XGE......" << dictionary["INCREDIBUILD_XGE"] << endl;
     if( !qmakeDefines.isEmpty() ) {
         cout << "Defines.....................";
         for( QStringList::Iterator defs = qmakeDefines.begin(); defs != qmakeDefines.end(); ++defs )

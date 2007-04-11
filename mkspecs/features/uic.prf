@@ -31,6 +31,7 @@ isEmpty(UI_HEADERS_DIR):UI_HEADERS_DIR = $$UI_DIR
     uic.name = UIC ${QMAKE_FILE_IN}
     silent:uic.commands = @echo uic ${QMAKE_FILE_IN} && $$uic.commands
     QMAKE_EXTRA_COMPILERS += uic
+    INCREDIBUILD_XGE += uic
 }
 
 INCLUDEPATH += $$UI_HEADERS_DIR
