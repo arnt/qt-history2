@@ -3424,7 +3424,7 @@ QString QString::fromUtf8(const char *str, int size)
                 uc = (uc << 6) | (ch & 0x3f);
                 need--;
                 if (!need) {
-                    if (uc > 0xffff) {
+                    if (uc > 0xffff && uc < 0x110000) {
                         // surrogate pair
                         *qch++ = QChar::highSurrogate(uc);
                         uc = QChar::lowSurrogate(uc);

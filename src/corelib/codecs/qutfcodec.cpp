@@ -152,7 +152,7 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
                 uc = (uc << 6) | (ch & 0x3f);
                 need--;
                 if (!need) {
-                    if (uc > 0xffff) {
+                    if (uc > 0xffff && uc < 0x110000) {
                         // surrogate pair
                         uc -= 0x10000;
                         unsigned short high = uc/0x400 + 0xd800;

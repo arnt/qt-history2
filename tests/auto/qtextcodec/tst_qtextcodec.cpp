@@ -47,6 +47,7 @@ private slots:
 
     void asciiToIscii() const;
     void flagCodepointFFFF() const;
+    void flagEFBFBF() const;
 
     void utf8Codec_data();
     void utf8Codec();
@@ -344,6 +345,40 @@ void tst_QTextCodec::flagCodepointFFFF() const
     QVERIFY(codec->toUnicode(asDecoded) == QChar(0xfffd));
 }
 
+void tst_QTextCodec::flagEFBFBF() const
+{
+    /* This test case stems from test not-wf-sa-170, tests/qxmlstream/XML-Test-Suite/xmlconf/xmltest/not-wf/sa/166.xml,
+     * whose description reads:
+     *
+     * "Four byte UTF-8 encodings can encode UCS-4 characters
+     *  which are beyond the range of legal XML characters
+     *  (and can't be expressed in Unicode surrogate pairs).
+     *  This document holds such a character."
+     *
+     *  In binary, this is:
+     *  11110111100000001000000010000000
+     *  *       *       *       *
+     *  11110www10xxxxxx10yyyyyy10zzzzzz
+     *
+     *  With multibyte logic removed it is the codepoint 0x1C0000.
+     */
+    QByteArray input;
+    input.resize(4);
+    input[0] = 0xF7;
+    input[1] = 0x80;
+    input[2] = 0x80;
+    input[3] = 0x80;
+
+
+    QTextCodec *const codec = QTextCodec::codecForMib(106); // UTF-8
+    Q_ASSERT(codec);
+
+    //QVERIFY(!codec->canEncode(QChar(0x1C0000)));
+
+    QTextCodec::ConverterState state(QTextCodec::ConvertInvalidToNull);
+    QVERIFY(codec->toUnicode(input.constData(), input.length(), &state) == QChar(0));
+}
+
 QString fromInvalidUtf8Sequence(const QByteArray &ba)
 {
     return QString().fill(QChar::ReplacementCharacter, ba.size());
@@ -510,8 +545,7 @@ void tst_QTextCodec::utf8Codec_data()
     utf8 += 0xbf;
     utf8 += 0xbf;
     str.clear();
-    str += QChar(0xdfbf);
-    str += QChar(0xdfff);
+    str += QChar(QChar::ReplacementCharacter);
     QTest::newRow("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 2.2.4") << utf8 << str << -1;
 
     // 2.2.5 U+03FFFFFF (not a valid Unicode character)
@@ -577,8 +611,7 @@ void tst_QTextCodec::utf8Codec_data()
     utf8 += 0x80;
     utf8 += 0x80;
     str.clear();
-    str += QChar(0xdc00);
-    str += QChar(0xdc00);
+    str += QChar(QChar::ReplacementCharacter);
     QTest::newRow("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 2.3.5") << utf8 << str << -1;
 
     // 3.1.1
