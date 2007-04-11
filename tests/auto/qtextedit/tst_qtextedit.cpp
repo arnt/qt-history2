@@ -1428,6 +1428,8 @@ void tst_QTextEdit::extraSelections()
 
 void tst_QTextEdit::adjustScrollbars()
 {
+// For some reason ff is defined to be << on Mac Panther / gcc 3.3
+#undef ff 
     QFont ff(ed->font());
     ff.setFamily("Tahoma");
     ff.setPointSize(11);
