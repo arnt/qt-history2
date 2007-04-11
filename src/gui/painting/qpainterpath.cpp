@@ -2613,7 +2613,7 @@ qreal QPainterPath::percentAtLength(qreal len) const
     return 0;
 }
 
-static inline QBezier bezierAtT(const QPainterPath &path, qreal t, qreal *startingLength)
+static inline QBezier bezierAtT(const QPainterPath &path, qreal t, qreal *startingLength, qreal *bezierLength)
 {
     *startingLength = 0;
     if (t > 1)
@@ -2634,6 +2634,7 @@ static inline QBezier bezierAtT(const QPainterPath &path, qreal t, qreal *starti
             qreal llen = line.length();
             curLen += llen;
             if (curLen/totalLength >= t) {
+                *bezierLength = llen;
                 return QBezier::fromPoints(path.elementAt(i-1), path.elementAt(i-1),
                                            e, e);
             }
@@ -2649,6 +2650,7 @@ static inline QBezier bezierAtT(const QPainterPath &path, qreal t, qreal *starti
             curLen += blen;
 
             if (curLen/totalLength >= t) {
+                *bezierLength = blen;
                 return b;
             }
 
@@ -2684,8 +2686,9 @@ QPointF QPainterPath::pointAtPercent(qreal t) const
 
     qreal totalLength = length();
     qreal curLen = 0;
-    QBezier b = bezierAtT(*this, t, &curLen);
-    qreal realT = t - (curLen/totalLength);
+    qreal bezierLen = 0;
+    QBezier b = bezierAtT(*this, t, &curLen, &bezierLen);
+    qreal realT = (totalLength * t - curLen) / bezierLen;
 
     return b.pointAt(realT);
 }
@@ -2711,8 +2714,9 @@ qreal QPainterPath::angleAtPercent(qreal t) const
 
     qreal totalLength = length();
     qreal curLen = 0;
-    QBezier bez = bezierAtT(*this, t, &curLen);
-    qreal realT = t - (curLen/totalLength);
+    qreal bezierLen = 0;
+    QBezier bez = bezierAtT(*this, t, &curLen, &bezierLen);
+    qreal realT = (totalLength * t - curLen) / bezierLen;
 
     qreal m1 = slopeAt(realT, bez.x1, bez.x2, bez.x3, bez.x4);
     qreal m2 = slopeAt(realT, bez.y1, bez.y2, bez.y3, bez.y4);
@@ -2770,8 +2774,9 @@ qreal QPainterPath::slopeAtPercent(qreal t) const
 
     qreal totalLength = length();
     qreal curLen = 0;
-    QBezier bez = bezierAtT(*this, t, &curLen);
-    qreal realT = t - (curLen/totalLength);
+    qreal bezierLen = 0;
+    QBezier bez = bezierAtT(*this, t, &curLen, &bezierLen);
+    qreal realT = (totalLength * t - curLen) / bezierLen;
 
     qreal m1 = slopeAt(realT, bez.x1, bez.x2, bez.x3, bez.x4);
     qreal m2 = slopeAt(realT, bez.y1, bez.y2, bez.y3, bez.y4);
