@@ -116,6 +116,8 @@
 
 #include "qmdisubwindow_p.h"
 
+#ifndef QT_NO_MDIAREA
+
 #include <QApplication>
 #include <QStylePainter>
 #include <QVBoxLayout>
@@ -3121,3 +3123,5 @@ QSize QMdiSubWindow::minimumSizeHint() const
 
 #include "moc_qmdisubwindow.cpp"
 #include "qmdisubwindow.moc"
+
+#endif //QT_NO_MDIAREA

@@ -20,6 +20,8 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
+#ifndef QT_NO_MDIAREA
+
 class QMenu;
 
 class QMdiSubWindowPrivate;
@@ -104,5 +106,7 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(QMdiSubWindow::SubWindowOptions)
 
 QT_END_HEADER
+
+#endif // QT_NO_MDIAREA
 
 #endif // QMDISUBWINDOW_H

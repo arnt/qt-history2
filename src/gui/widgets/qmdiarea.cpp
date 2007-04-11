@@ -112,6 +112,8 @@
 
 #include "qmdiarea_p.h"
 
+#ifndef QT_NO_MDIAREA
+
 #include <private/qmdisubwindow_p.h>
 #include <QApplication>
 #include <QStyle>
@@ -1601,3 +1603,4 @@ void QMdiArea::setupViewport(QWidget *viewport)
 
 #include "moc_qmdiarea.cpp"
 
+#endif // QT_NO_MDIAREA

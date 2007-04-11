@@ -27,6 +27,8 @@
 
 #include "qmdisubwindow.h"
 
+#ifndef QT_NO_MDIAREA
+
 #include <QStyle>
 #include <QStyleOptionTitleBar>
 #include <QMenuBar>
@@ -276,5 +278,7 @@ public:
         return currentOperation == Move;
     }
 };
+
+#endif // QT_NO_MDIAREA
 
 #endif // QMDISUBWINDOW_P_H

@@ -28,6 +28,8 @@
 #include "qmdiarea.h"
 #include "qmdisubwindow.h"
 
+#ifndef QT_NO_MDIAREA
+
 #include <QList>
 #include <QRect>
 #include <QPoint>
@@ -153,5 +155,7 @@ public:
         resizeTimerId = q->startTimer(200);
     }
 };
+
+#endif // QT_NO_MDIAREA
 
 #endif // QMDIAREA_P_H
