@@ -515,8 +515,8 @@ CFG_BUILD_PARTS=""
 CFG_NOBUILD_PARTS=""
 CFG_RELEASE_QMAKE=no
 
-CFG_GFX_AVAILABLE="linuxfb transformed qvfb vnc"
-CFG_GFX_ON="linuxfb"
+CFG_GFX_AVAILABLE="linuxfb transformed qvfb vnc multiscreen"
+CFG_GFX_ON="linuxfb multiscreen"
 CFG_GFX_PLUGIN_AVAILABLE=
 CFG_GFX_PLUGIN=
 CFG_GFX_OFF=

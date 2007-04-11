@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscreenmulti_qws_p.h"
+
+#ifndef QT_NO_QWS_MULTISCREEN
+
 #include <qlist.h>
 #include <qstringlist.h>
 #include <qwidget.h>
@@ -425,3 +428,4 @@ void QMultiScreen::removeSubScreen(QScreen *screen)
     d_ptr->region -= screen->region();
 }
 
+#endif // QT_NO_QWS_MULTISCREEN
