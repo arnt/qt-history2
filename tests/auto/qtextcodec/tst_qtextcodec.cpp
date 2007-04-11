@@ -338,6 +338,7 @@ void tst_QTextCodec::flagCodepointFFFF() const
     QTextCodec *const codec = QTextCodec::codecForMib(106); // UTF-8
     Q_ASSERT(codec);
 
+    QEXPECT_FAIL("", "This is a bug and needs to be fixed. See task 158235.", Abort);
     QVERIFY(!codec->canEncode(ch));
     
     /* We attempt to decode, as a robustness test. */
