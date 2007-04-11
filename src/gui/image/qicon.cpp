@@ -398,11 +398,11 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loaderV2,
   When you retrieve a pixmap using pixmap(QSize, Mode, State), and no
   pixmap for this given size, mode and state has been added with
   addFile() or addPixmap(), then QIcon will generate one on the
-  fly. This pixmap generation happens in a QIconEngine. The default
+  fly. This pixmap generation happens in a QIconEngineV2. The default
   engine scales pixmaps down if required, but never up, and it uses
   the current style to calculate a disabled appearance. By using
   custom icon engines, you can customize every aspect of generated
-  icons. With QIconEnginePlugin it is possible to register different
+  icons. With QIconEnginePluginV2 it is possible to register different
   icon engines for different file suffixes, so you could provide a SVG
   icon engine or any other scalable format.
 
@@ -600,6 +600,10 @@ int QIcon::serialNumber() const
 
     The cacheKey() will change when the icon is altered via
     addPixmap() or addFile().
+
+    Cache keys are mostly useful in conjunction with caching.
+
+    \sa QPixmap::cacheKey()
 */
 qint64 QIcon::cacheKey() const
 {

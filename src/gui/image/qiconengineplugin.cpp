@@ -80,15 +80,22 @@ QIconEnginePlugin::~QIconEnginePlugin()
 
     \ingroup plugins
     \since 4.3
+ 
+    Icon engine plugins produces \l{QIconEngine}s for \l{QIcon}s; an
+    icon engine is used to render the icon. The keys that identifies
+    the engines the plugin can create are suffixes of 
+    icon filenames; they are returned by keys(). The create() function
+    receives the icon filename to return an engine for; it should
+    return 0 if it cannot produce an engine for the file.
 
-    The icon engine plugin is a simple plugin interface that makes it easy to
-    create custom icon engines that can be loaded dynamically into applications
-    through QIcon. QIcon uses the file or resource name's suffix to determine
-    what icon engine to use.
+    Writing an icon engine plugin is achieved by inheriting
+    QIconEnginePluginV2, reimplementing keys() and create(), and
+    adding the Q_EXPORT_PLUGIN2() macro.
 
-    Writing a icon engine plugin is achieved by subclassing this base class,
-    reimplementing the pure virtual functions keys() and create(), and
-    exporting the class with the Q_EXPORT_PLUGIN2() macro.
+    You should ensure that you do not duplicate keys. Qt will query
+    the plugins for icon engines in the order in which the plugins are
+    found during plugin search (see the plugins \l{How to Create Qt
+    Plugins}{overview document}).
 
     \sa {How to Create Qt Plugins}
 */

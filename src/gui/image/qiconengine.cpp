@@ -110,22 +110,33 @@ void QIconEngine::addFile(const QString &/*fileName*/, const QSize &/*size*/, QI
 
 
 /*!
-  \class QIconEngineV2
+    \class QIconEngineV2
 
-  \brief The QIconEngineV2 class provides an abstract base class for QIcon renderers.
+    \brief The QIconEngineV2 class provides an abstract base class for QIcon renderers.
 
-  \ingroup multimedia
-  \since 4.3
+    \ingroup multimedia
+    \since 4.3
 
-  QIconEngineV2 extends the API of QIconEngine to allow streaming of
-  the icon engine contents, and should be used instead of QIconEngine
-  for implementing new icon engines.
+    An icon engine renders \l{QIcon}s. With icon engines, you can
+    customize icons. Qt provides a default engine that makes icons
+    adhere to the current style by scaling the icons and providing a
+    disabled appearance.
 
-  An icon engine provides the rendering functions for a QIcon. Each
-  icon has a corresponding icon engine that is responsible for drawing
-  the icon with a requested size, mode and state.
+    An engine is installed on an icon either through a QIcon
+    constructor or through a QIconEnginePluginV2. The plugins are used
+    by Qt if a specific engine is not given when the icon is created.
+    See the QIconEngineV2 class description to learn how to create
+    icon engine plugins.
 
-  \sa QIconEnginePluginV2
+    An icon engine provides the rendering functions for a QIcon. Each
+    icon has a corresponding icon engine that is responsible for drawing
+    the icon with a requested size, mode and state.
+
+    QIconEngineV2 extends the API of QIconEngine to allow streaming of
+    the icon engine contents, and should be used instead of QIconEngine
+    for implementing new icon engines.
+
+    \sa QIconEnginePluginV2
 
 */
 
@@ -146,7 +157,10 @@ QIconEngineV2 *QIconEngineV2::clone() const
 }
 
 /*!
-    Reads icon engine contents from the QDataStream \a in.
+    Reads icon engine contents from the QDataStream \a in. Returns
+    true if the contents were read; otherwise returns false.
+
+    QIconEngineV2's default implementation always return false.
  */
 bool QIconEngineV2::read(QDataStream &)
 {
@@ -155,6 +169,9 @@ bool QIconEngineV2::read(QDataStream &)
 
 /*!
     Writes the contents of this engine to the QDataStream \a out.
+    Returns true if the contents were written; otherwise returns false.
+
+    QIconEngineV2's default implementation always return false.
  */
 bool QIconEngineV2::write(QDataStream &) const
 {
