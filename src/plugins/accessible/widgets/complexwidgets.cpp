@@ -598,10 +598,11 @@ QAccessibleInterface *QAccessibleItemView::columnHeader()
 #ifndef QT_NO_TREEVIEW
     if (QTreeView *tree = qobject_cast<QTreeView *>(itemView()))
         return QAccessible::queryAccessibleInterface(tree->header());
-    else
 #endif
+#ifndef QT_NO_TABLEVIEW
     if (QTableView *table = qobject_cast<QTableView *>(itemView()))
         return QAccessible::queryAccessibleInterface(table->horizontalHeader());
+#endif
     return 0;
 }
 
@@ -647,8 +648,10 @@ int QAccessibleItemView::rowSpan(int /*row*/, int /*column*/)
 
 QAccessibleInterface *QAccessibleItemView::rowHeader()
 {
+#ifndef QT_NO_TABLEVIEW
     if (QTableView *table = qobject_cast<QTableView *>(itemView()))
         return QAccessible::queryAccessibleInterface(table->verticalHeader());
+#endif
     return 0;
 }
 
