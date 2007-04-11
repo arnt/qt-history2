@@ -2223,6 +2223,7 @@ void QD3DVertexBuffer::setMaskSize(QSize size)
     }
 
     m_pe->m_d3dDevice->SetDepthStencilSurface(m_depthStencilSurface);
+    m_pe->m_d3dDevice->Clear(0, 0, D3DCLEAR_ZBUFFER|D3DCLEAR_STENCIL, 0, 0.0f, 0);
 
     if (FAILED(m_mask->GetSurfaceLevel(0, &m_maskSurface))) {
         qWarning() << "QDirect3DPaintEngine: GetSurfaceLevel() failed.";
@@ -3841,15 +3842,6 @@ bool QDirect3DPaintEngine::begin(QPaintDevice *device)
         d->initDevice();
     }
 
-    status = d->m_winManager.status();
-    if (status & QD3DWindowManager::MaxSizeChanged) {
-        QSize maxsize = d->m_winManager.maxSize();
-        d->m_vBuffer->setMaskSize(maxsize);
-        int masksize[2] = {maxsize.width(), maxsize.height()};
-        d->m_effect->SetIntArray("g_mMaskSize", masksize, 2);
-
-    }
-
     LPDIRECT3DSURFACE9 newsurface = d->m_winManager.renderTarget();
     if (d->m_defaultSurface != newsurface) {
         d->m_defaultSurface = newsurface;
@@ -3857,6 +3849,13 @@ bool QDirect3DPaintEngine::begin(QPaintDevice *device)
             qWarning() << "QDirect3DPaintEngine: SetRenderTarget failed!";
     }
 
+    status = d->m_winManager.status();
+    if (status & QD3DWindowManager::MaxSizeChanged) {
+        QSize maxsize = d->m_winManager.maxSize();
+        d->m_vBuffer->setMaskSize(maxsize);
+        int masksize[2] = {maxsize.width(), maxsize.height()};
+        d->m_effect->SetIntArray("g_mMaskSize", masksize, 2);
+    }
 
     D3DXMATRIX projMatrix;
     pD3DXMatrixOrthoOffCenterLH(&projMatrix, 0, d->m_winSize.width(), d->m_winSize.height(), 0, 0.0f, 1.0f);
