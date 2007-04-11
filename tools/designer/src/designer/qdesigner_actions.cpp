@@ -103,7 +103,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
       m_formActions(createActionGroup(this)),
       m_windowActions(createActionGroup(this)),
       m_toolActions(createActionGroup(this, true)),
-      m_helpActions(createHelpActions()),
+      m_helpActions(0),
       m_styleActions(createActionGroup(this, true)),
       m_editWidgetsAction(new QAction(tr("Edit Widgets"), this)),
       m_newFormAction(new QAction(qdesigner_internal::createIconSet(QLatin1String("filenew.png")), tr("&New Form..."), this)),
@@ -126,6 +126,8 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 
     m_core = m_workbench->core();
     Q_ASSERT(m_core != 0);
+    
+    m_helpActions = createHelpActions();
 
     QDesignerFormWindowManagerInterface *formWindowManager = m_core->formWindowManager();
     Q_ASSERT(formWindowManager != 0);

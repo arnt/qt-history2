@@ -179,9 +179,10 @@ namespace qdesigner_internal {
         m_promotion(core->promotion()),
         m_model(new PromotionModel(core)),
         m_treeView(new QTreeView),
-        m_buttonBox(createButtonBox()),
+        m_buttonBox(0),
         m_removeButton(new QPushButton(createIconSet(QString::fromUtf8("minus.png")), QString()))
     {
+        m_buttonBox = createButtonBox();
         setModal(true);
         setWindowTitle(tr("Promoted Widgets"));
         setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);

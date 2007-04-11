@@ -58,7 +58,6 @@ protected:
     QDesignerFormWindowInterface *formWindow() const;
     void changeRichTextProperty(const QString &propertyName);
 
-    QAction *createAction(const QString &text, QObject *receiver, const char *receiverSlot);
     QAction *createSeparator();
 
 private slots:

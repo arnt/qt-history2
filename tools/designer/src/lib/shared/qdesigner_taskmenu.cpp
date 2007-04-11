@@ -119,18 +119,28 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent) :
     m_separator2(createSeparator()),
     m_separator3(createSeparator()),
     m_separator4(createSeparator()),
-    m_changeObjectNameAction(createAction(tr("Change objectName..."), this, SLOT(changeObjectName()))),
-    m_changeToolTip(createAction(tr("Change toolTip..."), this, SLOT(changeToolTip()))),
-    m_changeWhatsThis(createAction(tr("Change whatsThis..."), this, SLOT(changeWhatsThis()))),
-    m_changeStyleSheet(createAction(tr("Change styleSheet..."), this,  SLOT(changeStyleSheet()))),
-    m_addMenuBar(createAction(tr("Create Menu Bar"), this, SLOT(createMenuBar()))),
-    m_addToolBar(createAction(tr("Add Tool Bar"), this, SLOT(addToolBar()))),
-    m_addStatusBar(createAction(tr("Create Status Bar"), this, SLOT(createStatusBar()))),
-    m_removeStatusBar(createAction(tr("Remove Status Bar"), this, SLOT(removeStatusBar()))),
-    m_changeScript(createAction(tr("Change script..."), this, SLOT(changeScript()))),
+    m_changeObjectNameAction(new QAction(tr("Change objectName..."), this)),
+    m_changeToolTip(new QAction(tr("Change toolTip..."), this)),
+    m_changeWhatsThis(new QAction(tr("Change whatsThis..."), this)),
+    m_changeStyleSheet(new QAction(tr("Change styleSheet..."), this)),
+    m_addMenuBar(new QAction(tr("Create Menu Bar"), this)),
+    m_addToolBar(new QAction(tr("Add Tool Bar"), this)),
+    m_addStatusBar(new QAction(tr("Create Status Bar"), this)),
+    m_removeStatusBar(new QAction(tr("Remove Status Bar"), this)),
+    m_changeScript(new QAction(tr("Change script..."), this)),
     m_promotionTaskMenu(new PromotionTaskMenu(widget, PromotionTaskMenu::ModeMultiSelection, this))
 {
     Q_ASSERT(qobject_cast<QDesignerFormWindowInterface*>(widget) == 0);
+
+    connect(m_changeObjectNameAction, SIGNAL(triggered()), this, SLOT(changeObjectName()));
+    connect(m_changeToolTip, SIGNAL(triggered()), this, SLOT(changeToolTip()));
+    connect(m_changeWhatsThis, SIGNAL(triggered()), this, SLOT(changeWhatsThis()));
+    connect(m_changeStyleSheet, SIGNAL(triggered()), this,  SLOT(changeStyleSheet()));
+    connect(m_addMenuBar, SIGNAL(triggered()), this, SLOT(createMenuBar()));
+    connect(m_addToolBar, SIGNAL(triggered()), this, SLOT(addToolBar()));
+    connect(m_addStatusBar, SIGNAL(triggered()), this, SLOT(createStatusBar()));
+    connect(m_removeStatusBar, SIGNAL(triggered()), this, SLOT(removeStatusBar()));
+    connect(m_changeScript, SIGNAL(triggered()), this, SLOT(changeScript()));
 }
 
 QDesignerTaskMenu::~QDesignerTaskMenu()
@@ -140,13 +150,6 @@ QDesignerTaskMenu::~QDesignerTaskMenu()
 QAction *QDesignerTaskMenu::createSeparator() {
     QAction *rc = new QAction(this);
     rc->setSeparator(true);
-    return rc;
-}
-
-QAction *QDesignerTaskMenu::createAction(const QString &text, QObject *receiver, const char *receiverSlot)
-{
-    QAction *rc = new QAction(text, this);
-    connect(rc, SIGNAL(triggered()), receiver, receiverSlot);
     return rc;
 }
 
@@ -253,7 +256,7 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
     actions.append(m_changeStyleSheet);
 
     m_promotionTaskMenu->addActions(formWindow, PromotionTaskMenu::LeadingSeparator, actions);
-    
+
     if (!isMainContainer) {
         actions.append(m_separator4);
         actions.append(m_changeScript);
@@ -340,7 +343,7 @@ void QDesignerTaskMenu::changeStyleSheet()
         dlg.exec();
     }
 }
-    
+
 void QDesignerTaskMenu::changeScript()
 {
     QDesignerFormWindowInterface *fw = formWindow();
@@ -354,7 +357,7 @@ void QDesignerTaskMenu::changeScript()
     const MetaDataBaseItem* item = metaDataBase->metaDataBaseItem(m_widget);
     if (!item)
         return;
-    
+
     const QString oldScript = item->script();
     QString newScript = oldScript;
    
