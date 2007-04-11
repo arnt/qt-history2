@@ -3180,10 +3180,12 @@ bool QWizardPage::isComplete() const
             if (value == field.initialValue)
                 return false;
 
+#ifndef QT_NO_LINEEDIT
             if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(field.object)) {
                 if (!lineEdit->hasAcceptableInput())
                     return false;
             }
+#endif
         }
     }
     return true;
