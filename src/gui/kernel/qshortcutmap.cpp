@@ -39,19 +39,19 @@
 struct QShortcutEntry
 {
     QShortcutEntry()
-        : keyseq(0), context(Qt::WindowShortcut), enabled(false), id(0), autorepeat(1), owner(0)
+        : keyseq(0), context(Qt::WindowShortcut), enabled(false), autorepeat(1), id(0), owner(0)
     {}
 
     QShortcutEntry(const QKeySequence &k)
-        : keyseq(k), context(Qt::WindowShortcut), enabled(false), id(0), autorepeat(1), owner(0)
+        : keyseq(k), context(Qt::WindowShortcut), enabled(false), autorepeat(1), id(0), owner(0)
     {}
 
     QShortcutEntry(QObject *o, const QKeySequence &k, Qt::ShortcutContext c, int i)
-        : keyseq(k), context(c), enabled(true), id(i), autorepeat(1), owner(o)
+        : keyseq(k), context(c), enabled(true), autorepeat(1), id(i), owner(o)
     {}
 
     QShortcutEntry(QObject *o, const QKeySequence &k, Qt::ShortcutContext c, int i, bool a)
-        : keyseq(k), context(c), enabled(true), id(i), autorepeat(a), owner(o)
+        : keyseq(k), context(c), enabled(true), autorepeat(a), id(i), owner(o)
     {}
 
     bool operator<(const QShortcutEntry &f) const
@@ -60,8 +60,8 @@ struct QShortcutEntry
     QKeySequence keyseq;
     Qt::ShortcutContext context;
     bool enabled : 1;
-    signed int id : 31;
     bool autorepeat : 1;
+    signed int id;
     QObject *owner;
 };
 
