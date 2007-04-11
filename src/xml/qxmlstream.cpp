@@ -242,6 +242,7 @@ QXmlStreamReader::QXmlStreamReader(const QString &data)
     Q_D(QXmlStreamReader);
     d->dataBuffer = d->codec->fromUnicode(data);
     d->decoder = d->codec->makeDecoder();
+    d->decoder->setConversionFlags(QTextCodec::ConvertInvalidToNull);
     d->lockEncoding = true;
 
 }
@@ -1197,9 +1198,11 @@ ushort QXmlStreamReaderPrivate::getChar_helper()
         codec = QTextCodec::codecForMib(mib);
         Q_ASSERT(codec);
         decoder = codec->makeDecoder();
+        decoder->setConversionFlags(QTextCodec::ConvertInvalidToNull);
     }
 
     decoder->toUnicode(&readBuffer, rawReadBuffer.data(), nbytesread);
+
     readBuffer.reserve(1); // keep capacity when calling resize() next time
 
     if (readBufferPos < readBuffer.size()) {
@@ -1429,6 +1432,7 @@ void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
                     codec = newCodec;
                     delete decoder;
                     decoder = codec->makeDecoder();
+                    decoder->setConversionFlags(QTextCodec::ConvertInvalidToNull);
                     decoder->toUnicode(&readBuffer, rawReadBuffer.data(), nbytesread);
                 }
             }
