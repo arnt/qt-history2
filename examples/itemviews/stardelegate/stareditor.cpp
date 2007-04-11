@@ -23,7 +23,7 @@ StarEditor::StarEditor(QWidget *parent)
     setAutoFillBackground(true);
 }
 
-QSize StarEditor::sizeHint()
+QSize StarEditor::sizeHint() const
 {
     return myStarRating.sizeHint();
 }
