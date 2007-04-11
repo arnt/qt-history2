@@ -169,7 +169,7 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
                         *qch++ = QChar(low);
                     } else if ((uc < min_uc) || (uc >= 0xd800 && uc <= 0xdfff) || (uc >= 0xfffe)) {
                         // error
-                        *qch++ = QChar::ReplacementCharacter;
+                        *qch++ = replacement;
                         ++invalid;
                     } else {
                         *qch++ = uc;
@@ -178,7 +178,7 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
             } else {
                 // error
                 i = error;
-                *qch++ = QChar::ReplacementCharacter;
+                *qch++ = replacement;
                 ++invalid;
                 need = 0;
             }
@@ -202,7 +202,7 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
                 min_uc = 0x10000;
             } else {
                 // error
-                *qch++ = QChar::ReplacementCharacter;
+                *qch++ = replacement;
                 ++invalid;
             }
         }
@@ -210,7 +210,7 @@ void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, C
     if (!state && need > 0) {
         // unterminated UTF sequence
         for (int i = error; i < len; ++i) {
-            *qch++ = QChar::ReplacementCharacter;
+            *qch++ = replacement;
             ++invalid;
         }
     }

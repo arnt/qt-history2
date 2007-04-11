@@ -338,16 +338,10 @@ void tst_QTextCodec::flagCodepointFFFF() const
     QTextCodec *const codec = QTextCodec::codecForMib(106); // UTF-8
     Q_ASSERT(codec);
 
-    QEXPECT_FAIL("", "This is a bug and needs to be fixed. See task 158235.", Abort);
-    QVERIFY(!codec->canEncode(ch));
-    
-    /* We attempt to decode, as a robustness test. */
     const QByteArray asDecoded(codec->fromUnicode(input));
-
-    /* What is toUnicode() supposed to return? Is it undefined? Currently
-     * it returns 0xFFFD, which must be wrong, since that is a
-     * valid codepoint. Hence, I don't know whether the test below is correct. */
-    QVERIFY(codec->toUnicode(asDecoded) == ch);
+    QTextCodec::ConverterState state(QTextCodec::ConvertInvalidToNull);
+    QVERIFY(codec->toUnicode(asDecoded.constData(), asDecoded.length(), &state) == QChar(0));
+    QVERIFY(codec->toUnicode(asDecoded) == QChar(0xfffd));
 }
 
 QString fromInvalidUtf8Sequence(const QByteArray &ba)
