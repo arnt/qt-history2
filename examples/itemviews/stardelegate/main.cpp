@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     populateTableWidget(&tableWidget);
 
     tableWidget.resizeColumnsToContents();
-    tableWidget.setGeometry(0, 0, 500, 300);
+    tableWidget.resize(500, 300);
     tableWidget.show();
 
     return app.exec();
