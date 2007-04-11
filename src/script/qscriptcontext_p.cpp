@@ -2048,8 +2048,22 @@ QScriptValueImpl QScriptContextPrivate::throwNotDefined(QScriptNameIdImpl *nameI
     return throwNotDefined(QScriptEnginePrivate::get(engine())->toString(nameId));
 }
 
-bool QScriptContextPrivate::eq_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng)
+bool QScriptContextPrivate::eq_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs)
 {
+    QScriptEnginePrivate *eng = enginePrivate();
+
+    if (lhs.isNull() && rhs.isUndefined())
+        return true;
+
+    else if (lhs.isUndefined() && rhs.isNull())
+        return true;
+
+    else if (isNumerical(lhs) && rhs.isString())
+        return eng->convertToNativeDouble(lhs) == eng->convertToNativeDouble(rhs);
+
+    else if (lhs.isString() && isNumerical(rhs))
+        return eng->convertToNativeString(lhs) == eng->convertToNativeString(rhs);
+
     if (lhs.isObject() && ! rhs.isNull()) {
         lhs = eng->toPrimitive(lhs);
 
@@ -2067,8 +2081,13 @@ bool QScriptContextPrivate::eq_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl
     return false;
 }
 
-bool QScriptContextPrivate::lt_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng)
+bool QScriptContextPrivate::lt_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs)
 {
+    if ((lhs.type() == rhs.type()) && (lhs.type() == QScript::StringType))
+        return lhs.m_string_value->s < rhs.m_string_value->s;
+
+    QScriptEnginePrivate *eng = enginePrivate();
+
     if (lhs.isObject())
         lhs = eng->toPrimitive(lhs, QScriptValue::NumberTypeHint);
 
@@ -2083,8 +2102,13 @@ bool QScriptContextPrivate::lt_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl
     return n1 < n2;
 }
 
-bool QScriptContextPrivate::le_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng)
+bool QScriptContextPrivate::le_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs)
 {
+    if ((lhs.type() == rhs.type()) && (lhs.type() == QScript::StringType))
+        return lhs.m_string_value->s <= rhs.m_string_value->s;
+
+    QScriptEnginePrivate *eng = enginePrivate();
+
     if (lhs.isObject())
         lhs = eng->toPrimitive(lhs, QScriptValue::NumberTypeHint);
 

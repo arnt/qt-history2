@@ -60,13 +60,62 @@ public:
     inline bool isNumerical(const QScriptValueImpl &v) const;
 
     inline bool eq_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs);
-    bool eq_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng);
 
-    inline bool lt_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs);
-    bool lt_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng);
+    bool eq_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs);
 
-    inline bool le_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs);
-    bool le_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs, QScriptEnginePrivate *eng);
+    bool lt_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
+    {
+        if (lhs.type() == rhs.type()) {
+            switch (lhs.type()) {
+            case QScript::UndefinedType:
+            case QScript::NullType:
+                return false;
+
+            case QScript::NumberType:
+                return lhs.m_number_value < rhs.m_number_value;
+
+            case QScript::IntegerType:
+                return lhs.m_int_value < rhs.m_int_value;
+
+            case QScript::BooleanType:
+                return lhs.m_bool_value < rhs.m_bool_value;
+
+            default:
+                break;
+            } // switch
+        }
+
+        return lt_cmp_helper(lhs, rhs);
+    }
+
+    bool lt_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs);
+
+    bool le_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
+    {
+        if (lhs.type() == rhs.type()) {
+            switch (lhs.type()) {
+            case QScript::UndefinedType:
+            case QScript::NullType:
+                return true;
+
+            case QScript::NumberType:
+                return lhs.m_number_value <= rhs.m_number_value;
+
+            case QScript::IntegerType:
+                return lhs.m_int_value <= rhs.m_int_value;
+
+            case QScript::BooleanType:
+                return lhs.m_bool_value <= rhs.m_bool_value;
+
+            default:
+                break;
+            } // switch
+        }
+
+        return le_cmp_helper(lhs, rhs);
+    }
+
+    bool le_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs);
 
     static inline bool strict_eq_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs);
 

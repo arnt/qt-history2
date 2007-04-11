@@ -124,8 +124,6 @@ inline bool QScriptContextPrivate::isNumerical(const QScriptValueImpl &v) const
 
 inline bool QScriptContextPrivate::eq_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
 {
-    QScriptEnginePrivate *eng = enginePrivate();
-
     if (lhs.type() == rhs.type()) {
         switch (lhs.type()) {
         case QScript::UndefinedType:
@@ -156,79 +154,7 @@ inline bool QScriptContextPrivate::eq_cmp(const QScriptValueImpl &lhs, const QSc
         }
     }
 
-    if (lhs.isNull() && rhs.isUndefined())
-        return true;
-
-    else if (lhs.isUndefined() && rhs.isNull())
-        return true;
-
-    else if (isNumerical(lhs) && rhs.isString())
-        return eng->convertToNativeDouble(lhs) == eng->convertToNativeDouble(rhs);
-
-    else if (lhs.isString() && isNumerical(rhs))
-        return eng->convertToNativeString(lhs) == eng->convertToNativeString(rhs);
-
-    return eq_cmp_helper(lhs, rhs, eng);
-}
-
-inline bool QScriptContextPrivate::lt_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
-{
-    QScriptEnginePrivate *eng = enginePrivate();
-
-    if (lhs.type() == rhs.type()) {
-        switch (lhs.type()) {
-        case QScript::UndefinedType:
-        case QScript::NullType:
-            return false;
-
-        case QScript::NumberType:
-            return lhs.m_number_value < rhs.m_number_value;
-
-        case QScript::IntegerType:
-            return lhs.m_int_value < rhs.m_int_value;
-
-        case QScript::BooleanType:
-            return lhs.m_bool_value < rhs.m_bool_value;
-
-        case QScript::StringType:
-            return lhs.m_string_value->s < rhs.m_string_value->s;
-
-        default:
-            break;
-        } // switch
-    }
-
-    return lt_cmp_helper(lhs, rhs, eng);
-}
-
-inline bool QScriptContextPrivate::le_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
-{
-    QScriptEnginePrivate *eng = enginePrivate();
-
-    if (lhs.type() == rhs.type()) {
-        switch (lhs.type()) {
-        case QScript::UndefinedType:
-        case QScript::NullType:
-            return true;
-
-        case QScript::NumberType:
-            return lhs.m_number_value <= rhs.m_number_value;
-
-        case QScript::IntegerType:
-            return lhs.m_int_value <= rhs.m_int_value;
-
-        case QScript::BooleanType:
-            return lhs.m_bool_value <= rhs.m_bool_value;
-
-        case QScript::StringType:
-            return lhs.m_string_value->s <= rhs.m_string_value->s;
-
-        default:
-            break;
-        } // switch
-    }
-
-    return le_cmp_helper(lhs, rhs, eng);
+    return eq_cmp_helper(lhs, rhs);
 }
 
 inline bool QScriptContextPrivate::strict_eq_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
