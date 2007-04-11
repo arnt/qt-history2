@@ -64,7 +64,12 @@ private slots:
 
 tst_QSslKey::tst_QSslKey()
 {
+#ifdef Q_WS_MAC
+    // applicationDirPath() points to a path inside the app bundle on Mac.
+    QDir dir(qApp->applicationDirPath() + QLatin1String("/../../../keys"));
+#else
     QDir dir(qApp->applicationDirPath() + QLatin1String("/keys"));
+#endif
     QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::Readable);
     QRegExp rx(QLatin1String("^(rsa|dsa)-(pub|pri)-(\\d+)\\.(pem|der)$"));
     foreach (QFileInfo fileInfo, fileInfoList) {
