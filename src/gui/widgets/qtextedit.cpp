@@ -2067,6 +2067,7 @@ bool QTextEdit::canPaste() const
     return d->control->canPaste();
 }
 
+#ifndef QT_NO_PRINTER
 /*!
     \since 4.3
     Convenience function to print the text edit's document to the given \a printer. This
@@ -2080,6 +2081,7 @@ void QTextEdit::print(QPrinter *printer) const
     Q_D(const QTextEdit);
     d->control->print(printer);
 }
+#endif // QT _NO_PRINTER
 
 /*! \property QTextEdit::tabChangesFocus
   \brief whether \gui Tab changes focus or is accepted as input

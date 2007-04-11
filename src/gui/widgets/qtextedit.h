@@ -195,7 +195,9 @@ public:
 
     bool canPaste() const;
 
+#ifndef QT_NO_PRINTER
     void print(QPrinter *printer) const;
+#endif
 
 public Q_SLOTS:
     void setFontPointSize(qreal s);
