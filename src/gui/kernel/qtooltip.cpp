@@ -279,7 +279,7 @@ void QTipLabel::placeTip(const QPoint &pos, QWidget *w)
     QPoint p = pos;
     p += QPoint(2,
 #ifdef Q_WS_WIN
-                24
+                21
 #else
                 16
 #endif
