@@ -30,11 +30,11 @@
     The most common way to construct a QMdiSubWindow is to call
     QMdiArea::addSubWindow() with the internal widget as the argument.
     You can also create a subwindow yourself, and set an internal
-    widget by calling setWidget(). 
+    widget by calling setWidget().
 
     You use the same API when programming with subwindows as with
     regular top-level windows (e.g., you can call functions such as
-    show(), hide(), showMaximized(), and setWindowTitle()). 
+    show(), hide(), showMaximized(), and setWindowTitle()).
 
     \section1 Subwindow Handling
 
@@ -1239,7 +1239,9 @@ void QMdiSubWindowPrivate::processClickedSubControl()
         q->showSystemMenu();
         break;
     case QStyle::SC_TitleBarContextHelpButton:
+#ifndef QT_NO_WHATSTHIS
         QWhatsThis::enterWhatsThisMode();
+#endif
         break;
     case QStyle::SC_TitleBarShadeButton:
         q->showShaded();
