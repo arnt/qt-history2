@@ -928,7 +928,7 @@ qreal QFontEngineFT::minRightBearing() const
 {
     if (rbearing == SHRT_MIN) {
         lbearing = rbearing = 0;
-        const QChar *ch = (const QChar *)char_table;
+        const QChar *ch = (const QChar *)(const void*)char_table;
         QGlyphLayout glyphs[char_table_entries];
         int ng = char_table_entries;
         stringToCMap(ch, char_table_entries, glyphs, &ng, 0);
