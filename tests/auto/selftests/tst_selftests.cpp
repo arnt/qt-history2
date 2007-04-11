@@ -62,7 +62,12 @@ void tst_Selftests::runSubTest_data()
     QTest::newRow("skipinitdata") << "skipinitdata";
     QTest::newRow("datetime") << "datetime";
     QTest::newRow("singleskip") << "singleskip";
+
+    //on windows assert does nothing in release mode and blocks execution with a popup window in debug mode
+#if !defined(Q_OS_WIN) 
     QTest::newRow("assert") << "assert";
+#endif
+
     QTest::newRow("waitwithoutgui") << "waitwithoutgui";
 }
 
@@ -78,11 +83,12 @@ void tst_Selftests::runSubTest()
     const QByteArray out(proc.readAllStandardOutput());
     const QByteArray err(proc.readAllStandardError());
 
-    QVERIFY2(err.isEmpty()
 #ifdef Q_OS_LINUX
-             || err.trimmed() == "Glib dispatcher checking for g_thread_init()"
+    QVERIFY2(err.isEmpty() || err.trimmed() == "Glib dispatcher checking for g_thread_init()", err.constData());
+#else
+    QVERIFY2(err.isEmpty(), err.constData());
 #endif
-             , err.constData());
+             
 
     QList<QByteArray> res = splitLines(out);
     QList<QByteArray> exp = expectedResult(subdir);
