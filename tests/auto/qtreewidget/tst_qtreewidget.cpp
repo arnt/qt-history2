@@ -96,6 +96,7 @@ private slots:
     void expandAndCallapse();
     void itemData();
     void setDisabled();
+    void removeSelectedItem();
 
 private:
     QTreeWidget *testWidget;
@@ -2448,6 +2449,45 @@ void tst_QTreeWidget::setDisabled()
 
 }
 
+void tst_QTreeWidget::removeSelectedItem()
+{
+    QTreeWidget *w = new QTreeWidget();
+    w->setSortingEnabled(true);
+
+    QTreeWidgetItem *first = new QTreeWidgetItem();
+    first->setText(0, QLatin1String("D"));
+    w->addTopLevelItem(first);
+
+    QTreeWidgetItem *itm = new QTreeWidgetItem();
+    itm->setText(0, QLatin1String("D"));
+    w->addTopLevelItem(itm);
+
+    itm = new QTreeWidgetItem();
+    itm->setText(0, QLatin1String("C"));
+    w->addTopLevelItem(itm);
+    itm->setSelected(true);
+
+    itm = new QTreeWidgetItem();
+    itm->setText(0, QLatin1String("A"));
+    w->addTopLevelItem(itm);
+
+    //w->show();
+
+    QItemSelectionModel *selModel = w->selectionModel();
+    QCOMPARE(selModel->hasSelection(), true);
+    QCOMPARE(selModel->selectedRows().count(), 1);
+
+    QTreeWidgetItem *taken = w->takeTopLevelItem(2);
+    QCOMPARE(taken->text(0), QLatin1String("C"));
+
+    QCOMPARE(selModel->hasSelection(), false);
+    QCOMPARE(selModel->selectedRows().count(), 0);
+    QItemSelection sel = selModel->selection();
+    QCOMPARE(selModel->isSelected(w->model()->index(0,0)), false);
+
+    delete w;
+
+}
 
 QTEST_MAIN(tst_QTreeWidget)
 #include "tst_qtreewidget.moc"

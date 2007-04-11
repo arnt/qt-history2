@@ -1842,8 +1842,13 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
     // we move this outside the check of the index to allow executing
     // pending sorts from inline functions, using this function (hack)
     QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
-    if (model && model->executePendingSort())
-        model = 0; // no need to emit signals
+    if (model) {
+        // This will trigger a layoutChanged signal, thus we might want to optimize
+        // this function by not emitting the rowsRemoved signal etc to the view.
+        // On the other hand we also need to make sure that the selectionmodel
+        // is updated in case we take an item that is selected.
+        model->executePendingSort();
+    }
     if (index >= 0 && index < children.count()) {
         if (model) model->beginRemoveItems(this, index, 1);
         QTreeWidgetItem *item = children.takeAt(index);
@@ -1936,8 +1941,13 @@ QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
     QList<QTreeWidgetItem*> removed;
     if (children.count() > 0) {
         QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
-        if (model && model->executePendingSort())
-            model = 0; // no need to emit signals
+        if (model) {
+            // This will trigger a layoutChanged signal, thus we might want to optimize
+            // this function by not emitting the rowsRemoved signal etc to the view.
+            // On the other hand we also need to make sure that the selectionmodel 
+            // is updated in case we take an item that is selected.
+            model->executePendingSort();
+        }
         if (model) model->beginRemoveItems(this, 0, children.count());
         for (int n = 0; n < children.count(); ++n) {
             QTreeWidgetItem *item = children.at(n);
