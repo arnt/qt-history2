@@ -117,7 +117,9 @@ QVariant AXValueToQVariant(AXValueRef value)
                 var = QRectF(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
         } break;
         case kAXValueCFRangeType :
-        case kAXValueAXErrorType :  
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+        case kAXValueAXErrorType :
+#endif
         case kAXValueIllegalType :
         default:
         qDebug() << "Illegal/Unsuported AXValue:" << type;
@@ -275,10 +277,12 @@ AXUIElementRef window(AXUIElementRef element)
 /*
     Returns the (top-level) UI element(can also be a sheet or drawer) for an element
 */
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
 AXUIElementRef topLevelUIElement(AXUIElementRef element)
 {
     return attribute(element, kAXTopLevelUIElementAttribute).value<AXUIElementRef>();
 }
+#endif
 
 /*
     Returns thie size of the element.
