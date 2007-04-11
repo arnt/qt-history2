@@ -703,6 +703,33 @@ QString QScriptEnginePrivate::convertToNativeString_helper(const QScriptValueImp
     return toString(ids->id_undefined);
 }
 
+QScriptValueImpl QScriptEnginePrivate::toObject_helper(const QScriptValueImpl &value)
+{
+    QScriptValueImpl result;
+    switch (value.type()) {
+    case QScript::UndefinedType:
+    case QScript::NullType:
+        break;
+
+    case QScript::BooleanType:
+        booleanConstructor->newBoolean(&result, value.m_bool_value);
+        break;
+
+    case QScript::NumberType:
+        numberConstructor->newNumber(&result, value.m_number_value);
+        break;
+
+    case QScript::StringType:
+        stringConstructor->newString(&result, value.m_string_value->s);
+        break;
+
+    default:
+        break;
+    } // switch
+
+    return result;
+}
+
 // [[defaultValue]]
 QScriptValueImpl QScriptEnginePrivate::toPrimitive_helper(const QScriptValueImpl &object,
                                                       QScriptValue::TypeHint hint)

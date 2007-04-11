@@ -224,10 +224,10 @@ public:
     inline const QScript::IdTable *idTable() const;
 
     inline QScriptValueImpl toObject(const QScriptValueImpl &value);
+    QScriptValueImpl toObject_helper(const QScriptValueImpl &value);
 
     inline QScriptValueImpl toPrimitive(const QScriptValueImpl &object,
                                         QScriptValue::TypeHint hint = QScriptValue::NoTypeHint);
-
     QScriptValueImpl toPrimitive_helper(const QScriptValueImpl &object,
                                                QScriptValue::TypeHint hint);
 

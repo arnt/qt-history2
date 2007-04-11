@@ -575,35 +575,9 @@ inline QScriptFunction *QScriptEnginePrivate::convertToNativeFunction(const QScr
 
 inline QScriptValueImpl QScriptEnginePrivate::toObject(const QScriptValueImpl &value)
 {
-    if (!value.isValid())
+    if (value.isObject() || !value.isValid())
         return value;
-
-    QScriptValueImpl result;
-
-    switch (value.type()) {
-    case QScript::UndefinedType:
-    case QScript::NullType:
-        break;
-
-    case QScript::BooleanType:
-        booleanConstructor->newBoolean(&result, value.m_bool_value);
-        break;
-
-    case QScript::NumberType:
-        numberConstructor->newNumber(&result, value.m_number_value);
-        break;
-
-    case QScript::StringType:
-        stringConstructor->newString(&result, value.m_string_value->s);
-        break;
-
-    default:
-        if (value.isObject())
-            result = value;
-        break;
-    } // switch
-
-    return result;
+    return toObject_helper(value);
 }
 
 inline QScriptValueImpl QScriptEnginePrivate::toPrimitive(const QScriptValueImpl &object,
