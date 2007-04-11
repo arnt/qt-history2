@@ -19,6 +19,7 @@
 #ifdef Q_OS_UNIX
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #endif
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
