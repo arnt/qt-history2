@@ -1,9 +1,6 @@
 (* This script works by using FileStorm to create a disk image that you can then use as a model .DS_Store file in 
    the disk image. Here's what you need to do:
-   
-   Run FileStorm on Panther (10.3), if you don't do this, the disk image will look wrong
-   on Panther later.
-   
+     
    Run this script, adjusting the path to the items and versions as necessary. If all items don't exist,
    then it won't finish correctly.
    
@@ -13,11 +10,15 @@
    If it's OK, copy /Volumes/Qt-x.y.z/.DS_Store to safe location (call it model-DS_Store.x.y.z)
    
    Edit this file and replace all occurences of backgroundXXXXXXXXXXXX (21 chars) with
-   findersbackground.png (should be two places to correct).
+   findersbackground.png.
    
    Save the file and you should be ready to go.
    
    I believe this is as automated as I can get it.
+   
+   FileStorm 1.9.1 has some new issues:
+   * The file is invisible as well, you can use '/Developer/Tools/SetFile -a v'  to make
+      it visible if you need to use a GUI app to edit it.
 *)
 
 tell application "FileStorm"
@@ -25,10 +26,10 @@ tell application "FileStorm"
 	make new document at before first document with properties {name:"diskimage"}
 	
 	tell first document
-		set disk image name to "/Users/twschulz/Desktop/qt-mac-commercial-4.1.3.dmg"
-		set {volume name} to {"Qt 4.1.3"}
-		set icon path to "/Users/twschulz/troll/qt/4.1/util/scripts/mac-binary/package/backgrounds/DriveIcon.icns"
-		set background image path to "/Users/twschulz/troll/qt/4.1/util/scripts/mac-binary/package/backgrounds/DiskImage-Commercial.png"
+		set disk image name to "/Users/twschulz/Desktop/qt-mac-commercial-4.3.4.dmg"
+		set {volume name} to {"Qt 4.3.4"}
+		set icon path to "/Users/twschulz/troll/qt/4.3/util/scripts/mac-binary/package/backgrounds/DriveIcon.icns"
+		set background image path to "/Users/twschulz/troll/qt/4.3/util/scripts/mac-binary/package/backgrounds/DiskImage-Commercial.png"
 		set height to 660
 		make new file at before first file with properties {file path:"/Users/twschulz/Desktop/foo/Qt.mpkg", left position:295, top position:95}
 		make new file at before first file with properties {file path:"//Users/twschulz/Desktop/foo/ReadMe.txt", left position:295, top position:297}
