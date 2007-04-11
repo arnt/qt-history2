@@ -10,6 +10,7 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #else
+#include <sys/types.h>
 #include <sys/socket.h>
 #define SOCKET int
 #define INVALID_SOCKET -1
