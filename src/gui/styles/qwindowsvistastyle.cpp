@@ -536,7 +536,14 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
                 painter->fillRect(panel->rect, bg);
             } else {
                 int partId = EP_BACKGROUND;
-                int stateId = isEnabled ? ETS_NORMAL : ETS_DISABLED;
+                int stateId = EBS_NORMAL;
+                if (!isEnabled)
+                    stateId = EBS_DISABLED;
+                else if (state & State_ReadOnly)
+                    stateId = EBS_READONLY;
+                else if (state & State_MouseOver)
+                    stateId = EBS_HOT;
+
                 XPThemeData theme(0, painter, QLatin1String("EDIT"), partId, stateId, rect);
                 if (!theme.isValid()) {
                     QWindowsStyle::drawPrimitive(element, option, painter, widget);
@@ -575,14 +582,10 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
         if (Animation *anim = d->widgetAnimation(widget)) {
             anim->paint(painter, option);
         } else {
-            bool readOnly = false;
-            if (const QLineEdit *edit = qobject_cast<const QLineEdit *>(widget))
-                if (edit->isReadOnly())
-                    readOnly = true;
             int stateId = ETS_NORMAL;
             if (!(state & State_Enabled))
                 stateId = ETS_DISABLED;
-            else if (readOnly)
+            else if (state & State_ReadOnly)
                 stateId = ETS_READONLY;
             else if (state & State_MouseOver)
                 stateId = ETS_HOT;
@@ -590,7 +593,12 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
                 stateId = ETS_SELECTED;
 
             XPThemeData theme(widget, painter, QLatin1String("EDIT"), EP_EDITBORDER_NOSCROLL, stateId, option->rect);
+            painter->save();
+            QRegion clipRegion = option->rect;
+            clipRegion -= option->rect.adjusted(2, 2, -2, -2);
+            painter->setClipRegion(clipRegion);
             d->drawBackground(theme);
+            painter->restore();
         }
         break;
 

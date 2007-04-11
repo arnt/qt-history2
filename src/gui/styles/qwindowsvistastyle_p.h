@@ -57,6 +57,10 @@
 #define EP_EDITBORDER_NOSCROLL      6
 #define EP_EDITBORDER_HVSCROLL      9
 #define EP_BACKGROUND               3
+#define EBS_NORMAL                  1
+#define EBS_HOT                     2
+#define EBS_DISABLED                3
+#define EBS_READONLY                5
 #define PBS_DEFAULTED_ANIMATING     6
 #define MBI_NORMAL                  1
 #define MBI_HOT                     2
