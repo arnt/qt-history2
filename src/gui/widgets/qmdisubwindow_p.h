@@ -66,17 +66,21 @@ public:
     ControlContainer(QMdiSubWindow *mdiChild);
     ~ControlContainer();
 
+#ifndef QT_NO_MENUBAR
     void showButtonsInMenuBar(QMenuBar *menuBar);
     void removeButtonsFromMenuBar();
-    void updateWindowIcon(const QIcon &windowIcon);
     QMenuBar *menuBar() const { return m_menuBar; }
+#endif
+    void updateWindowIcon(const QIcon &windowIcon);
     QWidget *controllerWidget() const { return m_controllerWidget; }
     QWidget *systemMenuLabel() const { return m_menuLabel; }
 
 private:
     QPointer<QWidget> previousLeft;
     QPointer<QWidget> previousRight;
+#ifndef QT_NO_MENUBAR
     QPointer<QMenuBar> m_menuBar;
+#endif
     QPointer<QWidget> m_controllerWidget;
     QPointer<QWidget> m_menuLabel;
     QPointer<QMdiSubWindow> mdiChild;
@@ -204,8 +208,10 @@ public:
     int titleBarHeight(const QStyleOptionTitleBar &options) const;
     void sizeParameters(int *margin, int *minWidth) const;
     bool drawTitleBarWhenMaximized() const;
+#ifndef QT_NO_MENUBAR
     void showButtonsInMenuBar(QMenuBar *menuBar);
     void removeButtonsFromMenuBar();
+#endif
     void updateWindowTitle(bool requestFromChild);
     void enterRubberBandMode();
     void leaveRubberBandMode();

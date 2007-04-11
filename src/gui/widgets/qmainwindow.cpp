@@ -1235,12 +1235,13 @@ void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
     // children and for the menu bar as well
     QWidget *child = childAt(event->pos());
     while (child && child != this) {
+#ifndef QT_NO_MENUBAR
         if (QMenuBar *mb = qobject_cast<QMenuBar *>(child)) {
             if (mb->parentWidget() != this)
                 return;
             break;
         }
-
+#endif
 #ifndef QT_NO_DOCKWIDGET
         if (QDockWidget *dw = qobject_cast<QDockWidget *>(child)) {
             if (dw->parentWidget() != this)

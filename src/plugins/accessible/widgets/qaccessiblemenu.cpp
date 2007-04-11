@@ -155,7 +155,7 @@ int QAccessibleMenu::navigate(RelationFlag relation, int entry, QAccessibleInter
         *target = 0;
         return ret;
     }
-    
+
     if (relation == Self || entry == 0) {
         *target = new QAccessibleMenu(menu());
         return 0;
@@ -181,13 +181,13 @@ int QAccessibleMenu::navigate(RelationFlag relation, int entry, QAccessibleInter
     default:
         return QAccessibleWidgetEx::navigate(relation, entry, target);
     }
-    
+
 
     if (ret == -1)
         *target = 0;
 
     return ret;
-    
+
 }
 
 int QAccessibleMenu::indexOfChild( const QAccessibleInterface *child ) const
@@ -247,7 +247,7 @@ int QAccessibleMenuBar::navigate(RelationFlag relation, int entry, QAccessibleIn
         *target = 0;
         return ret;
     }
-    
+
     if (relation == Self || entry == 0) {
         *target = new QAccessibleMenuBar(menuBar());
         return 0;
@@ -263,7 +263,7 @@ int QAccessibleMenuBar::navigate(RelationFlag relation, int entry, QAccessibleIn
     default:
         return QAccessibleWidgetEx::navigate(relation, entry, target);
     }
-    
+
 
     if (ret == -1)
         *target = 0;
@@ -503,14 +503,17 @@ QRect QAccessibleMenuItem::rect (int child ) const
     QRect rect;
     if (child == 0) {
         QWidget *own = owner();
+#ifndef QT_NO_MENUBAR
         if (QMenuBar *menuBar = qobject_cast<QMenuBar*>(own)) {
             rect = menuBar->actionGeometry(m_action);
             QPoint globalPos = menuBar->mapToGlobal(QPoint(0,0));
             rect = rect.translated(globalPos);
-        }else if (QMenu *menu = qobject_cast<QMenu*>(own)) {
+        } else
+#endif // QT_NO_MENUBAR
+        if (QMenu *menu = qobject_cast<QMenu*>(own)) {
             rect = menu->actionGeometry(m_action);
             QPoint globalPos = menu->mapToGlobal(QPoint(0,0));
-            rect = rect.translated(globalPos);            
+            rect = rect.translated(globalPos);
         }
     } else if (child == 1) {
         QMenu *menu = m_action->menu();
@@ -560,9 +563,11 @@ QAccessible::State QAccessibleMenuItem::state ( int child ) const
         if (QMenu *menu = qobject_cast<QMenu*>(own)) {
             if (menu->activeAction() == m_action)
                 s |= Focused;
+#ifndef QT_NO_MENUBAR
         } else if (QMenuBar *menuBar = qobject_cast<QMenuBar*>(own)) {
             if (menuBar->activeAction() == m_action)
                 s |= Focused;
+#endif
         }
         if (own->style()->styleHint(QStyle::SH_Menu_MouseTracking))
             s |= HotTracked;
