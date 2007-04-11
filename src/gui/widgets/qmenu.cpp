@@ -2428,7 +2428,7 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
         if (d->hasHadMouse && !rect().contains(e->pos()))
             d->setCurrentAction(0);
         return;
-    } else if(e->buttons() & Qt::LeftButton) {
+    } else if(e->buttons() & (Qt::LeftButton | Qt::RightButton)) {
         d->mouseDown = this;
     }
     if (d->sloppyRegion.contains(e->pos())) {
