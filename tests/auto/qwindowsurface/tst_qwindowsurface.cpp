@@ -9,6 +9,8 @@
 
 #include <QtTest/QtTest>
 
+#ifndef Q_WS_MAC
+
 #include <private/qwindowsurface_p.h>
 
 class tst_QWindowSurface : public QObject
@@ -47,9 +49,7 @@ void tst_QWindowSurface::getSetWindowSurface()
 
     w.show();
     QApplication::processEvents();
-#ifndef Q_WS_MAC
     QVERIFY(w.windowSurface());
-#endif
 
     MyWindowSurface *surface = new MyWindowSurface(&w);
     QCOMPARE(w.windowSurface(), surface);
@@ -59,5 +59,11 @@ void tst_QWindowSurface::getSetWindowSurface()
 }
 
 QTEST_MAIN(tst_QWindowSurface)
+
+#else // Q_WS_MAC
+
+QTEST_NOOP_MAIN
+
+#endif
 
 #include "tst_qwindowsurface.moc"
