@@ -1102,7 +1102,7 @@ void QComboBoxPrivate::_q_emitCurrentIndexChanged(const QModelIndex &index)
 
 QString QComboBoxPrivate::itemText(const QModelIndex &index) const
 {
-    return model->data(index, itemRole()).toString();
+    return index.isValid() ? model->data(index, itemRole()).toString() : QString();
 }
 
 int QComboBoxPrivate::itemRole() const
