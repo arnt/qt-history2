@@ -75,17 +75,41 @@ static QScriptValue myFunction(QScriptContext *, QScriptEngine *eng)
 void tst_QScriptEngine::newFunction()
 {
     QScriptEngine eng;
-    QScriptValue fun = eng.newFunction(myFunction);
-    QCOMPARE(fun.isValid(), true);
-    QCOMPARE(fun.isFunction(), true);
-    QCOMPARE(fun.isObject(), true);
-    // prototype should be Function.prototype
-    QCOMPARE(fun.prototype().isValid(), true);
-    QCOMPARE(fun.prototype().isFunction(), true);
-    QCOMPARE(fun.prototype().strictEqualTo(eng.evaluate("Function.prototype")), true);
+    {
+        QScriptValue fun = eng.newFunction(myFunction);
+        QCOMPARE(fun.isValid(), true);
+        QCOMPARE(fun.isFunction(), true);
+        QCOMPARE(fun.isObject(), true);
+        // prototype should be Function.prototype
+        QCOMPARE(fun.prototype().isValid(), true);
+        QCOMPARE(fun.prototype().isFunction(), true);
+        QCOMPARE(fun.prototype().strictEqualTo(eng.evaluate("Function.prototype")), true);
+        
+        QCOMPARE(fun.call().isNull(), true);
+        QCOMPARE(fun.construct().isObject(), true);
+    }
 
-    QCOMPARE(fun.call().isNull(), true);
-    QCOMPARE(fun.construct().isObject(), true);
+    // the overload that takes a prototype
+    {
+        QScriptValue proto = eng.newObject();
+        QScriptValue fun = eng.newFunction(myFunction, proto);
+        QCOMPARE(fun.isValid(), true);
+        QCOMPARE(fun.isFunction(), true);
+        QCOMPARE(fun.isObject(), true);
+        // internal prototype should be Function.prototype
+        QCOMPARE(fun.prototype().isValid(), true);
+        QCOMPARE(fun.prototype().isFunction(), true);
+        QCOMPARE(fun.prototype().strictEqualTo(eng.evaluate("Function.prototype")), true);
+        // public prototype should be the one we passed
+        QCOMPARE(fun.property("prototype").strictEqualTo(proto), true);
+        QCOMPARE(fun.propertyFlags("prototype"), QScriptValue::Undeletable);
+        QCOMPARE(proto.property("constructor").strictEqualTo(fun), true);
+        QCOMPARE(proto.propertyFlags("constructor"),
+                 QScriptValue::Undeletable | QScriptValue::SkipInEnumeration);
+
+        QCOMPARE(fun.call().isNull(), true);
+        QCOMPARE(fun.construct().isObject(), true);
+    }
 }
 
 void tst_QScriptEngine::newObject()

@@ -1321,7 +1321,6 @@ Ltop:
         QScript::Member member;
         CREATE_MEMBER(proto, eng->idTable()->id_constructor, &member,
                       QScriptValue::Undeletable
-                      | QScriptValue::ReadOnly
                       | QScriptValue::SkipInEnumeration);
         proto.put(member, *stackPtr);
 

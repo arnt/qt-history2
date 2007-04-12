@@ -329,8 +329,11 @@ QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun,
     Q_D(QScriptEngine);
     QScriptValueImpl v = d->createFunction(new QScript::CFunction(fun, length));
     QScriptValueImpl proto = QScriptValuePrivate::valueOf(prototype);
-    v.setProperty(d->idTable()->id_prototype, proto);
-    proto.setProperty(d->idTable()->id_constructor, v);
+    v.setProperty(d->idTable()->id_prototype, proto,
+                  QScriptValue::Undeletable);
+    proto.setProperty(d->idTable()->id_constructor, v,
+                      QScriptValue::Undeletable
+                      | QScriptValue::SkipInEnumeration);
     return v;
 }
 
