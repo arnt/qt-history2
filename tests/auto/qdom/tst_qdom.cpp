@@ -426,7 +426,7 @@ void tst_QDom::initTestCase()
 
     QByteArray codecName;
 
-    m_excludedCodecs = file.readAll().split('\n');
+    m_excludedCodecs = file.readAll().simplified().split(' ');
 }
 
 void tst_QDom::saveWithSerialization() const
