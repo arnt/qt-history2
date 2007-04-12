@@ -483,7 +483,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
                    this, SLOT(_q_columnsRemoved(QModelIndex,int,int)));
 
         disconnect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
-        disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
+        disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(_q_layoutChanged()));
     }
     d->model = (model ? model : QAbstractItemModelPrivate::staticEmptyModel());
 
@@ -513,7 +513,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
                 this, SLOT(_q_columnsRemoved(QModelIndex,int,int)));
 
         connect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
-        connect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
+        connect(d->model, SIGNAL(layoutChanged()), this, SLOT(_q_layoutChanged()));
     }
     setSelectionModel(new QItemSelectionModel(d->model, this));
     reset(); // kill editors, set new root and do layout
@@ -2788,6 +2788,20 @@ void QAbstractItemViewPrivate::_q_columnsRemoved(const QModelIndex &, int, int)
 void QAbstractItemViewPrivate::_q_modelDestroyed()
 {
     model = QAbstractItemModelPrivate::staticEmptyModel();
+}
+
+/*!
+    \internal
+
+    This slot is called when the layout is changed.
+*/
+void QAbstractItemViewPrivate::_q_layoutChanged()
+{
+    Q_Q(QAbstractItemView);
+    if (q->isHidden())
+        doDelayedItemsLayout();
+    else
+        q->doItemsLayout();
 }
 
 /*!
