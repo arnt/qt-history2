@@ -85,7 +85,6 @@ void ControllerWindow::updatePreview()
         flags |= Qt::CustomizeWindowHint;
 
     previewWindow->setWindowFlags(flags);
-    previewWindow->show();
 
     QPoint pos = previewWindow->pos();
     if (pos.x() < 0)
@@ -93,6 +92,7 @@ void ControllerWindow::updatePreview()
     if (pos.y() < 0)
         pos.setY(0);
     previewWindow->move(pos);
+    previewWindow->show();
 }
 
 void ControllerWindow::createTypeGroupBox()
