@@ -42,7 +42,7 @@ static QStandardItemModel *newStandardTreeModel()
 
     return model;
 }
-    
+
 struct PublicView : public QTreeView
 {
     inline void executeDelayedItemsLayout()
@@ -67,6 +67,10 @@ struct PublicView : public QTreeView
     inline void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command) 
     {
         QTreeView::setSelection(rect, command);
+    }
+    inline int state()
+    {
+        return QTreeView::state();
     }
 };
 
@@ -1762,7 +1766,7 @@ void tst_QTreeView::rowsAboutToBeRemoved()
         }
     }
 
-    QTreeView view;
+    PublicView view;
     view.setModel(&model);
     view.show();
     QModelIndex index = model.index(0,0, QModelIndex());
@@ -1776,6 +1780,7 @@ void tst_QTreeView::rowsAboutToBeRemoved()
     QSignalSpy spy1(&model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)));
 
     model.removeRows(1,1);
+    QCOMPARE(view.state(), 0);
     // Should not be 5 (or any other number for that sake :)
     QCOMPARE(spy1.count(), 1);
 
