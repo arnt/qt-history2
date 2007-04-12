@@ -2974,8 +2974,7 @@ void tst_QString::fromUtf8_data()
     utf8 += 0xbf;
     utf8 += 0xbf;
     str.clear();
-    str += QChar(0xdfbf);
-    str += QChar(0xdfff);
+    str += QChar::ReplacementCharacter;
     QTest::newRow("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 2.2.4") << utf8 << str << -1;
 
     // 2.2.5 U+03FFFFFF (not a valid Unicode character)
@@ -3041,8 +3040,7 @@ void tst_QString::fromUtf8_data()
     utf8 += 0x80;
     utf8 += 0x80;
     str.clear();
-    str += QChar(0xdc00);
-    str += QChar(0xdc00);
+    str += QChar::ReplacementCharacter;
     QTest::newRow("http://www.w3.org/2001/06/utf-8-wrong/UTF-8-test.html 2.3.5") << utf8 << str << -1;
 
     // 3.1.1
