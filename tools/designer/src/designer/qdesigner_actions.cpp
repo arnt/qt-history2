@@ -594,11 +594,12 @@ void QDesignerActions::previewForm(QAction *action)
     if (!widget)
         return;
 
-    // Only Dialogs have close buttons on mac
-#ifdef Q_WS_MAC
-    Qt::WindowFlags windwowFlags = Qt::Dialog;
-#else
+#ifdef Q_WS_WIN
     Qt::WindowFlags windwowFlags = (widget->windowType() == Qt::Window) ? Qt::Window | Qt::WindowMaximizeButtonHint : Qt::WindowFlags(Qt::Dialog);
+#else
+    // Only Dialogs have close buttons on mac
+    // On linux we don't want additional item on task bar and don't want minimize button, we want the preview to be on top
+    Qt::WindowFlags windwowFlags = Qt::Dialog;
 #endif
     // Install filter for Escape key
     widget->setParent(fw->window(), windwowFlags);
