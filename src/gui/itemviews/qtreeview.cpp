@@ -3198,6 +3198,7 @@ void QTreeViewPrivate::rowsRemoved(const QModelIndex &parent,
             updateScrollBars();
         }
     }
+    _q_rowsRemoved(parent, start, end);
 }
 
 void QTreeViewPrivate::updateChildCount(const int parentItem, const int delta)
