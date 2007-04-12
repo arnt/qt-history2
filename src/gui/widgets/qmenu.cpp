@@ -2252,8 +2252,11 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         break; }
 
     case Qt::Key_Alt:
+        if (d->tornoff)
+            break;
+
         key_consumed = true;
-        if ( style()->styleHint(QStyle::SH_MenuBar_AltKeyNavigation, 0, this))
+        if (style()->styleHint(QStyle::SH_MenuBar_AltKeyNavigation, 0, this))
         {
             hide();
 #ifndef QT_NO_MENUBAR
