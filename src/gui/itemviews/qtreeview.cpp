@@ -1795,8 +1795,20 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
         QScrollBar *sb = horizontalScrollBar();
         if (d->viewItems.at(vi).expanded && d->itemsExpandable && sb->value() == sb->minimum())
             d->collapse(vi, true);
-        else
-           sb->setValue(sb->value() - sb->singleStep());
+        else {
+            bool descend = style()->styleHint(QStyle::SH_ItemView_ArrowKeysNavigateIntoChildren, 0, this);
+            if (descend) {
+                QModelIndex par = current.parent();
+                if (par.isValid())
+                    return par;
+                else
+                    descend = false;
+            }
+            if (!descend) {
+                sb->setValue(sb->value() - sb->singleStep());
+            }
+
+        }
         updateGeometries();
         viewport()->update();
         break;

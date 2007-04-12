@@ -149,6 +149,7 @@ private slots:
     void hiddenItems();
     void spanningItems();
     void rowSizeHint();
+    void setSortingEnabled();
 
     void selection();
     void removeAndInsertExpandedCol0();
@@ -1456,6 +1457,13 @@ void tst_QTreeView::keyboardNavigation()
             QScrollBar *b = view.horizontalScrollBar();
             if (b->value() == b->minimum())
 	        QVERIFY(!view.isExpanded(index));
+            // windows style right will walk to the parent
+            if (view.currentIndex() != index) {
+                QCOMPARE(view.currentIndex(), index.parent());
+                index = view.currentIndex();
+                row = index.row();
+                column = index.column();
+            }
             break;
         }
         case Qt::Key_Right:
@@ -2054,6 +2062,22 @@ void tst_QTreeView::rowSizeHint()
     QCOMPARE( view.visualRect(model.index(0,1)).height(), 40);
     QCOMPARE( view.visualRect(model.index(0,2)).height(), 40);
 }
+
+
+//From task 155449 (QTreeWidget has a large width for the first section when sorting 
+//is turned on before items are added)
+void tst_QTreeView::setSortingEnabled()
+{
+    QTreeView view;
+    QStandardItemModel model(1,1);
+    view.setModel(&model);
+    const int size = view.header()->sectionSize(0);
+    view.setSortingEnabled(true);
+    model.setColumnCount(3);
+    //we test that changing the column count doesn't change the 1st column size
+    QCOMPARE(view.header()->sectionSize(0), size);
+}
+
 
 // From Task 145199 (crash when column 0 having at least one expanded item is removed and then
 // inserted). The test passes simply iff it doesn't crash, hence there are no calls

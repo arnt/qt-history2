@@ -1405,7 +1405,7 @@ void tst_QTreeWidget::keyboardNavigation()
 		row -= 1;
 	    } else if (item->parent()) {
 		item = item->parent();
-		row = item->parent() ? item->parent()->indexOfChild(item) : 0;
+		row = item->parent() ? item->parent()->indexOfChild(item) : testWidget->indexOfTopLevelItem(item);
 	    }
             break;
         case Qt::Key_Down:
@@ -1425,13 +1425,21 @@ void tst_QTreeWidget::keyboardNavigation()
                 QVERIFY(testWidget->isItemExpanded(item));
                 QCOMPARE(scrollBar->value(), valueBeforeClick - scrollBar->singleStep());
             }
+            // windows style right will walk to the parent
+            if (testWidget->currentItem() != item) {
+                QCOMPARE(testWidget->currentItem(), item->parent());
+                item = testWidget->currentItem();
+                row = item->parent() ? item->parent()->indexOfChild(item) : testWidget->indexOfTopLevelItem(item);;
+            }
             break;
         case Qt::Key_Right:
             if (checkScroll)
                 QCOMPARE(scrollBar->value(), valueBeforeClick + scrollBar->singleStep());
 	    // windows style right will walk to the first child
-            if (testWidget->currentIndex().row() != row) {
-                row = testWidget->currentIndex().row();
+            if (testWidget->currentItem() != item) {
+                QCOMPARE(testWidget->currentItem()->parent(), item);
+                row = item->indexOfChild(testWidget->currentItem());
+                item = testWidget->currentItem();
                 QCOMPARE(row, 0);
             }
             break;
