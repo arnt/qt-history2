@@ -1537,7 +1537,8 @@ void QListView::updateGeometries()
         if (d->flow == TopToBottom) {
             if (horizontal && d->isWrapping() && d->viewMode == ListMode) {
                 int steps = d->staticListView->segmentPositions.count();
-                const int itemExtent = visualRect(d->staticListView->modelIndex(steps - 1)).size().width();
+                QModelIndex index = (steps < 0 ? QModelIndex() : d->staticListView->modelIndex(steps - 1));
+                const int itemExtent = visualRect(index).size().width();
                 int pageSteps = d->staticListView->perItemScrollingPageSteps(vsize.width(),
                                                                             csize.width(),
                                                                             isWrapping(), itemExtent);
@@ -1551,7 +1552,8 @@ void QListView::updateGeometries()
             }
             if (vertical && !d->isWrapping() && d->viewMode == ListMode) {
                 int steps = d->staticListView->flowPositions.count();
-                const int itemExtent = visualRect(d->staticListView->modelIndex(steps - 1)).size().height();
+                QModelIndex index = (steps < 0 ? QModelIndex() : d->staticListView->modelIndex(steps - 1));
+                const int itemExtent = visualRect(index).size().height();
                 int pageSteps = d->staticListView->perItemScrollingPageSteps(vsize.height(),
                                                                             csize.height(),
                                                                             isWrapping(), itemExtent);
