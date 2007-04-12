@@ -63,6 +63,9 @@ public:
 
     bool eq_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs);
 
+#if defined(Q_CC_GNU) && __GNUC__ <= 3
+    bool lt_cmp(QScriptValueImpl lhs, QScriptValueImpl rhs);
+#else
     bool lt_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
     {
         if (lhs.type() == rhs.type()) {
@@ -89,6 +92,7 @@ public:
     }
 
     bool lt_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs);
+#endif
 
     bool le_cmp(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs)
     {

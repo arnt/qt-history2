@@ -2085,8 +2085,32 @@ bool QScriptContextPrivate::eq_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl
     return false;
 }
 
+#if defined(Q_CC_GNU) && __GNUC__ <= 3
+bool QScriptContextPrivate::lt_cmp(QScriptValueImpl lhs, QScriptValueImpl rhs)
+{
+    if (lhs.type() == rhs.type()) {
+        switch (lhs.type()) {
+        case QScript::UndefinedType:
+        case QScript::NullType:
+            return false;
+            
+        case QScript::NumberType:
+            return lhs.m_number_value < rhs.m_number_value;
+            
+        case QScript::IntegerType:
+            return lhs.m_int_value < rhs.m_int_value;
+            
+        case QScript::BooleanType:
+            return lhs.m_bool_value < rhs.m_bool_value;
+            
+        default:
+            break;
+        } // switch
+    }
+#else
 bool QScriptContextPrivate::lt_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl rhs)
 {
+#endif
     if ((lhs.type() == rhs.type()) && (lhs.type() == QScript::StringType))
         return lhs.m_string_value->s < rhs.m_string_value->s;
 
