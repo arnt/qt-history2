@@ -1665,6 +1665,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 #if !defined(QT_NO_MENU) && !defined(QT_NO_MAINWINDOW)
     case CE_MenuBarEmptyArea:
         if (widget && qobject_cast<const QMainWindow *>(widget->parentWidget())) {
+            p->fillRect(opt->rect, opt->palette.button());
             QPen oldPen = p->pen();
             p->setPen(QPen(opt->palette.dark().color()));
             p->drawLine(opt->rect.bottomLeft(), opt->rect.bottomRight());
