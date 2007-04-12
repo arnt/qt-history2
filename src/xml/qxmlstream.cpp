@@ -1065,7 +1065,6 @@ inline int QXmlStreamReaderPrivate::fastScanName(int *prefix)
     return 0;
 }
 
-
 enum NameChar { NameBeginning, NameNotBeginning, NotName };
 
 static const char Begi = (char)NameBeginning;
@@ -1117,6 +1116,33 @@ static inline NameChar fastDetermineNameChar(QChar ch)
     return NotName;
 }
 
+inline int QXmlStreamReaderPrivate::fastScanNMTOKEN()
+{
+    int n = 0;
+    ushort c = getChar();
+
+    while (c)
+    {
+        if (fastDetermineNameChar(c) == NotName)
+        {
+            putChar(c);
+            return n;
+        }
+        else
+        {
+            ++n;
+            textBuffer.inline_append(c);
+            c = getChar();
+        }
+    }
+
+    int pos = textBuffer.size() - n;
+    putString(textBuffer, pos);
+    textBuffer.resize(pos);
+
+    return n;
+}
+
 bool QXmlStreamReaderPrivate::validateName(const QStringRef &name)
 {
     if (fastDetermineNameChar(name.at(0)) != NameBeginning)
@@ -1126,7 +1152,6 @@ bool QXmlStreamReaderPrivate::validateName(const QStringRef &name)
             return false;
     return true;
 }
-
 
 void QXmlStreamReaderPrivate::putString(const QString &s, int from)
 {

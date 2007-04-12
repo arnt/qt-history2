@@ -392,7 +392,7 @@ public:
         putChar(int(tokenToInject) << 16);
     }
 
-    bool validateName(const QStringRef &name);
+    static bool validateName(const QStringRef &name);
 
     void parseEntity(const QString &value);
     QXmlStreamReaderPrivate *entityParser;
@@ -410,6 +410,7 @@ public:
     int fastScanSpace();
     int fastScanContentCharList();
     int fastScanName(int *prefix = 0);
+    inline int fastScanNMTOKEN();
 
 
     bool parse();
@@ -1665,11 +1666,12 @@ nmtoken ::= DASH;
 nmtoken ::= COLON;
 /.
         case $rule_number:
-            sym(1).len += fastScanName();
+            sym(1).len += fastScanNMTOKEN();
             if (atEnd) {
                 resume($rule_number);
                 return false;
             }
+
         break;
 ./
 
