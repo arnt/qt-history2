@@ -232,16 +232,18 @@ static void find_trans_colors()
         int actualFormat;
         ulong nItems;
         ulong bytesAfter;
-        OverlayProp* overlayProps = 0;
+        unsigned char *retval = 0;
         int res = XGetWindowProperty(appDisplay, rootWin->winId(),
                                       overlayVisualsAtom, 0, 10000, False,
                                       overlayVisualsAtom, &actualType,
                                       &actualFormat, &nItems, &bytesAfter,
-                                      (uchar**)&overlayProps);
+                                      &retval);
 
         if (res != Success || actualType != overlayVisualsAtom
-             || actualFormat != 32 || nItems < 4 || !overlayProps)
+             || actualFormat != 32 || nItems < 4 || !retval)
             return;                                        // Error reading property
+
+        OverlayProp *overlayProps = (OverlayProp *)retval;
 
         int numProps = nItems / 4;
         trans_colors.resize(lastsize + numProps);

@@ -420,11 +420,12 @@ static Bool functor(Display *display, XEvent *event, XPointer arg)
 
 	Atom ret;
 	int format, status;
-	long *state;
+	unsigned char *retval;
 	unsigned long nitems, after;
 	status = XGetWindowProperty(display, data->id, ATOM(WM_STATE), 0, 2, False, ATOM(WM_STATE),
-				    &ret, &format, &nitems, &after, (unsigned char **) &state );
+				    &ret, &format, &nitems, &after, &retval );
 	if (status == Success && ret == ATOM(WM_STATE) && format == 32 && nitems > 0) {
+            long *state = (long *)retval;
 	    if (state[0] == WithdrawnState) {
                 data->clearedWmState = true;
 		return true;

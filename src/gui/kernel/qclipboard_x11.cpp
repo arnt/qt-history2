@@ -1240,7 +1240,7 @@ bool qt_check_selection_sentinel()
           and have already emitted dataChanged() as a result of that)
         */
 
-        Window* owners;
+        unsigned char *retval;
         Atom actualType;
         int actualFormat;
         ulong nitems;
@@ -1250,7 +1250,8 @@ bool qt_check_selection_sentinel()
                                QApplication::desktop()->screen(0)->internalWinId(),
                                ATOM(_QT_SELECTION_SENTINEL), 0, 2, False, XA_WINDOW,
                                &actualType, &actualFormat, &nitems,
-                               &bytesLeft, (unsigned char**)&owners) == Success) {
+                               &bytesLeft, &retval) == Success) {
+            Window *owners = (Window *)retval;
             if (actualType == XA_WINDOW && actualFormat == 32 && nitems == 2) {
                 Window win = owner->internalWinId();
                 if (owners[0] == win || owners[1] == win)
@@ -1280,7 +1281,7 @@ bool qt_check_clipboard_sentinel()
 {
     bool doIt = true;
     if (owner) {
-        Window *owners;
+        unsigned char *retval;
         Atom actualType;
         int actualFormat;
         unsigned long nitems, bytesLeft;
@@ -1289,7 +1290,8 @@ bool qt_check_clipboard_sentinel()
                                QApplication::desktop()->screen(0)->internalWinId(),
                                ATOM(_QT_CLIPBOARD_SENTINEL), 0, 2, False, XA_WINDOW,
                                &actualType, &actualFormat, &nitems, &bytesLeft,
-                               (unsigned char **) &owners) == Success) {
+                               &retval) == Success) {
+            Window *owners = (Window *)retval;
             if (actualType == XA_WINDOW && actualFormat == 32 && nitems == 2) {
                 Window win = owner->internalWinId();
                 if (owners[0] == win || owners[1] == win)

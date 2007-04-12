@@ -759,12 +759,12 @@ static void qt_set_input_encoding()
     Atom type;
     int format;
     ulong  nitems, after = 1;
-    const char *data = 0;
+    unsigned char *data = 0;
 
     int e = XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
                                 ATOM(_QT_INPUT_ENCODING), 0, 1024,
                                 False, XA_STRING, &type, &format, &nitems,
-                                &after, (unsigned char**)&data);
+                                &after, &data);
     if (e != Success || !nitems || type == XNone) {
         // Always use the locale codec, since we have no examples of non-local
         // XIMs, and since we cannot get a sensible answer about the encoding
@@ -772,10 +772,10 @@ static void qt_set_input_encoding()
         qt_input_mapper = QTextCodec::codecForLocale();
 
     } else {
-        if (!qstricmp(data, "locale"))
+        if (!qstricmp((char *)data, "locale"))
             qt_input_mapper = QTextCodec::codecForLocale();
         else
-            qt_input_mapper = QTextCodec::codecForName(data);
+            qt_input_mapper = QTextCodec::codecForName((char *)data);
         // make sure we have an input codec
         if(!qt_input_mapper)
             qt_input_mapper = QTextCodec::codecForName("ISO 8859-1");

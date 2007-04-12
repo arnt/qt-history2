@@ -327,7 +327,7 @@ static void DndReadSourceProperty(Display * dpy,
                                   Window window, Atom dnd_selection,
                                   Atom ** targets, unsigned short * num_targets)
 {
-    DndSrcProp * src_prop = 0;
+    unsigned char *retval = 0;
     Atom type ;
     int format ;
     unsigned long bytesafter, lengthRtn;
@@ -335,11 +335,13 @@ static void DndReadSourceProperty(Display * dpy,
     if ((XGetWindowProperty (dpy, window, dnd_selection, 0L, 100000L,
                              False, ATOM(_MOTIF_DRAG_INITIATOR_INFO), &type,
                              &format, &lengthRtn, &bytesafter,
-                             (unsigned char **) &src_prop) != Success)
+                             &retval) != Success)
         || (type == XNone)) {
         *num_targets = 0;
         return ;
     }
+
+    DndSrcProp * src_prop = (DndSrcProp *)retval;
 
     if (src_prop->byte_order != DndByteOrder()) {
         SWAP2BYTES(src_prop->target_index);
@@ -507,7 +509,7 @@ static Window MotifWindow(Display *display)
     int             format;
     unsigned long   size;
     unsigned long   bytes_after;
-    Window         *property = 0;
+    unsigned char  *property = 0;
     Window            motif_window ;
 
     /* this version does no caching, so it's slow: round trip each time */
@@ -516,9 +518,9 @@ static Window MotifWindow(Display *display)
                              ATOM(_MOTIF_DRAG_WINDOW),
                              0L, 100000L, False, AnyPropertyType,
                              &type, &format, &size, &bytes_after,
-                             (unsigned char **) &property) == Success) &&
+                             &property) == Success) &&
         (type != XNone)) {
-        motif_window = *property;
+        motif_window = *(Window *)property;
     } else {
         XSetWindowAttributes sAttributes;
 
@@ -553,7 +555,7 @@ static DndTargetsTable TargetsTable(Display *display)
     unsigned long   size;
     unsigned long   bytes_after;
     Window motif_window = MotifWindow(display) ;
-    DndTargets * target_prop;
+    unsigned char  *retval;
     DndTargetsTable targets_table ;
     int i,j ;
     char * target_data ;
@@ -566,11 +568,13 @@ static DndTargetsTable TargetsTable(Display *display)
                              ATOM(_MOTIF_DRAG_TARGETS), 0L, 100000L,
                              False, ATOM(_MOTIF_DRAG_TARGETS),
                              &type, &format, &size, &bytes_after,
-                             (unsigned char **) &target_prop) != Success) ||
+                             &retval) != Success) ||
         type == XNone) {
         qWarning("QMotifDND: Cannot get property on Motif window");
         return 0;
     }
+
+    DndTargets * target_prop = (DndTargets *)retval;
 
     if (target_prop->protocol_version != DND_PROTOCOL_VERSION) {
         qWarning("QMotifDND: Protocol mismatch");

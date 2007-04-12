@@ -287,9 +287,10 @@ static WId xdndProxy(WId w)
     Atom type = XNone;
     int f;
     unsigned long n, a;
-    WId *proxy_id_ptr = 0;
+    unsigned char *retval = 0;
     XGetWindowProperty(X11->display, w, ATOM(XdndProxy), 0, 1, False,
-                       XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id_ptr);
+                       XA_WINDOW, &type, &f,&n,&a,&retval);
+    WId *proxy_id_ptr = (WId *)retval;
     WId proxy_id = 0;
     if (type == XA_WINDOW && proxy_id_ptr) {
         proxy_id = *proxy_id_ptr;
@@ -298,7 +299,8 @@ static WId xdndProxy(WId w)
         // Already exists. Real?
         X11->ignoreBadwindow();
         XGetWindowProperty(X11->display, proxy_id, ATOM(XdndProxy), 0, 1, False,
-                           XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id_ptr);
+                           XA_WINDOW, &type, &f,&n,&a,&retval);
+        proxy_id_ptr = (WId *)retval;
         if (X11->badwindow() || type != XA_WINDOW || !proxy_id_ptr || *proxy_id_ptr != proxy_id)
             // Bogus - we will overwrite.
             proxy_id = 0;
@@ -744,9 +746,10 @@ void QX11Data::xdndHandleEnter(QWidget *, const XEvent * xe, bool /*passive*/)
         Atom   type = XNone;
         int f;
         unsigned long n, a;
-        Atom *data;
+        unsigned char *retval;
         XGetWindowProperty(X11->display, qt_xdnd_dragsource_xid, ATOM(XdndTypelist), 0,
-                           qt_xdnd_max_type, False, XA_ATOM, &type, &f,&n,&a,(uchar**)&data);
+                           qt_xdnd_max_type, False, XA_ATOM, &type, &f,&n,&a,&retval);
+        Atom *data = (Atom *)retval;
         for (; j<qt_xdnd_max_type && j < (int)n; j++) {
             qt_xdnd_types[j] = data[j];
         }
@@ -1454,10 +1457,11 @@ void QDragManager::move(const QPoint & globalPos)
         Atom   type = XNone;
         int r, f;
         unsigned long n, a;
-        int *tv;
+        unsigned char *retval;
         X11->ignoreBadwindow();
         r = XGetWindowProperty(X11->display, proxy_target, ATOM(XdndAware), 0,
-                               1, False, AnyPropertyType, &type, &f,&n,&a,(uchar**)&tv);
+                               1, False, AnyPropertyType, &type, &f,&n,&a,&retval);
+        int *tv = (int *)retval;
         if (r != Success || X11->badwindow()) {
             target = 0;
         } else {
