@@ -1424,15 +1424,17 @@ void tst_QTreeWidget::keyboardNavigation()
             if (checkScroll) {
                 QVERIFY(testWidget->isItemExpanded(item));
                 QCOMPARE(scrollBar->value(), valueBeforeClick - scrollBar->singleStep());
-            } else {
-                QVERIFY(!testWidget->isItemExpanded(item));
             }
             break;
         case Qt::Key_Right:
             if (checkScroll)
                 QCOMPARE(scrollBar->value(), valueBeforeClick + scrollBar->singleStep());
-            QVERIFY(testWidget->isItemExpanded(item));
-	    break;
+	    // windows style right will walk to the first child
+            if (testWidget->currentIndex().row() != row) {
+                row = testWidget->currentIndex().row();
+                QCOMPARE(row, 0);
+            }
+            break;
         default:
             QVERIFY(false);
         }
