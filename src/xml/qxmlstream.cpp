@@ -1364,7 +1364,7 @@ void QXmlStreamReaderPrivate::checkPublicLiteral(const QStringRef &publicId)
             case ' ': case '\n': case '\r': case '-': case '(': case ')':
             case '+': case ',': case '.': case '/': case ':': case '=':
             case '?': case ';': case '!': case '*': case '#': case '@':
-            case '$': case '_': case '%':
+            case '$': case '_': case '%': case '\'': case '\"':
                 continue;
             default:
                 if ((c >= 'a' && c <= 'z')
