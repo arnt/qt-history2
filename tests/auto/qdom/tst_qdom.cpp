@@ -422,11 +422,12 @@ void tst_QDom::save()
 void tst_QDom::initTestCase()
 {
     QFile file("testdata/excludedCodecs.txt");
-    QVERIFY(file.open(QIODevice::ReadOnly));
+    QVERIFY(file.open(QIODevice::ReadOnly|QIODevice::Text));
 
     QByteArray codecName;
 
-    m_excludedCodecs = file.readAll().simplified().split(' ');
+    m_excludedCodecs = file.readAll().split('\n');
+
 }
 
 void tst_QDom::saveWithSerialization() const
