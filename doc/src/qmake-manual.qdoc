@@ -4217,9 +4217,16 @@
     the target platform. For example, a library or plugin may be named using a
     different convention on Windows to the one used on Unix platforms:
 
-    \quotefromfile designer/customwidgetplugin/customwidgetplugin.pro
-    \skipto CONFIG(
-    \printuntil /^\}/
+    \omit
+    Note: This was originally used in the customwidgetplugin.pro file, but is
+    no longer needed there.
+    \endomit
+    \code
+    CONFIG(debug, debug|release) {
+        mac: TARGET = $$join(TARGET,,,_debug)
+        win32: TARGET = $$join(TARGET,,d)
+    }
+    \endcode
 
     The default behavior in the above snippet is to modify the name used for
     the build target when building in debug mode. An \c else clause could be
