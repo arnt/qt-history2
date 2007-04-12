@@ -49,11 +49,14 @@ void QtEngines::init()
 {
     m_defaultEngine = new RasterEngine;
     m_engines << m_defaultEngine
-              << new NativeEngine
+              << new NativeEngine;
+
 #if defined(BUILD_OPENGL)
-              << new GLEngine
+    if (QGLFormat::hasOpenGL())
+        m_engines << new GLEngine;
 #endif
-              << new PDFEngine
+
+    m_engines << new PDFEngine
 #ifdef Q_WS_X11
               << new PSEngine
 #endif
