@@ -85,6 +85,7 @@ private:
     void insert_entry(int,int,int);
     void setupOffScreen();
     void createPalette(fb_cmap &cmap, fb_var_screeninfo &vinfo, fb_fix_screeninfo &finfo);
+    void setPixelFormat(struct fb_var_screeninfo);
 
     QLinuxFbScreenPrivate *d_ptr;
 };

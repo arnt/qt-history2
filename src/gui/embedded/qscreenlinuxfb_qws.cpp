@@ -290,16 +290,7 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
         dh = h = 240;
     }
 
-    switch (d) {
-    case 1:
-        setPixelFormat(QImage::Format_Mono); //### LSB???
-    case 8:
-        setPixelFormat(QImage::Format_Indexed8);
-    case 16:
-        setPixelFormat(QImage::Format_RGB16);
-    case 32:
-        setPixelFormat(QImage::Format_ARGB32_Premultiplied);
-    }
+    setPixelFormat(vinfo);
 
     // Handle display physical size spec.
     QStringList displayArgs = displaySpec.split(QLatin1Char(':'));
@@ -1147,6 +1138,45 @@ void QLinuxFbScreen::blank(bool on)
 #endif
 #endif
 #endif
+}
+
+void QLinuxFbScreen::setPixelFormat(struct fb_var_screeninfo info)
+{
+    const fb_bitfield rgba[4] = { info.red, info.green,
+                                  info.blue, info.transp };
+
+    QImage::Format format = QImage::Format_Invalid;
+
+
+    // TODO: big endian
+
+    switch (d) {
+    case 32: {
+        const fb_bitfield argb8888[4] = {{16, 8, 0}, {8, 8, 0},
+                                         {0, 8, 0}, {24, 8, 0}};
+        if (memcmp(rgba, argb8888, 4 * sizeof(fb_bitfield)) == 0)
+            format = QImage::Format_ARGB32;
+        else if (memcmp(rgba, argb8888, 3 * sizeof(fb_bitfield)) == 0)
+            format = QImage::Format_RGB32;
+        break;
+    }
+    case 16: {
+        const fb_bitfield rgb565[4] = {{11, 5, 0}, {5, 6, 0},
+                                       {0, 5, 0}, {0, 0, 0}};
+        if (memcmp(rgba, rgb565, 3 * sizeof(fb_bitfield)) == 0)
+            format = QImage::Format_RGB16;
+        break;
+    }
+    case 8:
+        break;
+    case 1:
+        format = QImage::Format_Mono; //###: LSB???
+        break;
+    default:
+        break;
+    }
+
+    QScreen::setPixelFormat(format);
 }
 
 #endif // QT_NO_QWS_LINUXFB
