@@ -1439,8 +1439,10 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
 
         if ((oldstate & Qt::WindowFullScreen) != (newstate & Qt::WindowFullScreen)) {
             if (X11->isSupportedByWM(ATOM(_NET_WM_STATE_FULLSCREEN))) {
-                if (newstate & Qt::WindowFullScreen)
+                if (newstate & Qt::WindowFullScreen) {
                     top->normalGeometry = geometry();
+                    top->fullScreenOffset = d->frameStrut().topLeft();
+                }
                 qt_change_net_wm_state(this, (newstate & Qt::WindowFullScreen),
                                        ATOM(_NET_WM_STATE_FULLSCREEN));
             } else {
