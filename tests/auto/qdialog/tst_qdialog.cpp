@@ -13,6 +13,7 @@
 #include <qapplication.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
+#include <qstyle.h>
 
 Q_DECLARE_METATYPE(QSize)
 
@@ -315,15 +316,17 @@ void tst_QDialog::showFullScreen()
 
 void tst_QDialog::showAsTool()
 {
-#if defined(Q_WS_X11)
-    QSKIP("Qt/X11: Skipped since activeWindow() is not respected by all window managers", SkipAll);
-#elif defined(Q_WS_QWS)  && QT_VERSION < 0x040400
-    QEXPECT_FAIL(0, "Qtopia Core has messed up WStyle_Tool  (task 126435)", Continue);
-#endif
     ToolDialog dialog(testWidget);
     testWidget->activateWindow();
     dialog.exec();
-    QCOMPARE(dialog.wasActive(), true);
+	if (testWidget->style()->styleHint(QStyle::SH_Widget_ShareActivation, 0, testWidget)) {
+#if defined(Q_WS_QWS)  && QT_VERSION < 0x040400
+		QEXPECT_FAIL(0, "Qtopia Core has messed up WStyle_Tool  (task 126435)", Continue);
+#endif
+		QCOMPARE(dialog.wasActive(), true);
+	} else {
+		QCOMPARE(dialog.wasActive(), false);
+	}
 }
 
 // Verify that pos() returns the same before and after show()
