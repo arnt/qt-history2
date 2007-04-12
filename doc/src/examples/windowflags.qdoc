@@ -82,24 +82,27 @@
     \c flags, then we determine which one of the types that is checked
     and add it to \c flags.
 
-    \skipto msWindows
-    \printuntil show
+    \printuntil /setWindowFlags/
 
     We also determine which of the hints that are checked, and add
     them to \c flags using an OR operator. We use \c flags to set the
-    window flags for the preview window, and call QWidget::show() to
-    make sure the preview window is visible.
+    window flags for the preview window.
 
-    \skipto pos
     \printuntil /^\}/
 
-    Finally, we adjust the position of the preview window. The reason
-    we do that, is that playing around with the window's frame may on
-    some platforms cause the window's position to be changed behind
-    our back. If a window is located in the upper left corner of the
+    We adjust the position of the preview window. The reason we do
+    that, is that playing around with the window's frame may on some
+    platforms cause the window's position to be changed behind our
+    back. If a window is located in the upper left corner of the
     screen, parts of the window may not be visible. So we adjust the
     widget's position to make sure that, if this happens, the window
-    is moved within the screen's boundaries.
+    is moved within the screen's boundaries. Finally, we call
+    QWidget::show() to make sure the preview window is visible.
+
+    \omit
+    \skipto pos
+    \printuntil /^\}/
+    \endomit
 
     \skipto createTypeGroupBox
     \printuntil /^\}/
