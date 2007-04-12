@@ -35,10 +35,10 @@ QString ExampleContent::loadDescription()
     QDomDocument exampleDoc;
     QFile exampleFile(MenuManager::instance()->info[this->name]["docfile"]);
     exampleDoc.setContent(&exampleFile);
-    
+
     QDomNodeList paragraphs = exampleDoc.elementsByTagName("p");
-    
-    QString description = Colors::contentColor + QLatin1String("Could not load description. Ensure that the documentation for Qt is buildt.");
+
+    QString description = Colors::contentColor + QLatin1String("Could not load description. Ensure that the documentation for Qt is built.");
     for (int p = 0; p < int(paragraphs.length()); ++p) {
         description = this->extractTextFromParagraph(paragraphs.item(p));
         if (this->isSummary(description)) {
@@ -58,7 +58,7 @@ QString ExampleContent::extractTextFromParagraph(const QDomNode &parentNode)
 {
     QString description;
     QDomNode node = parentNode.firstChild();
-    
+
     while (!node.isNull()) {
         QString beginTag;
         QString endTag;

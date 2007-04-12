@@ -58,7 +58,7 @@ QString MenuContentItem::loadDescription(int startPara, int nrPara)
             line = "<br><br>" + in.readLine();
         }
     } while (nrPara && !in.atEnd());
-    
+
     return Colors::contentColor + result;
 }
 
@@ -67,9 +67,9 @@ void MenuContentItem::createContent()
     DemoTextItem *heading = new DemoTextItem(this->name, Colors::headingFont(), Colors::heading, -1, this->scene(), this);
     QString para1 = this->loadDescription(0, 1);
     if (para1.isEmpty())
-        para1 = Colors::contentColor + QLatin1String("Could not load description. Ensure that the documentation for Qt is buildt.");
+        para1 = Colors::contentColor + QLatin1String("Could not load description. Ensure that the documentation for Qt is built.");
     QColor bgcolor = Colors::sceneBg1.darker(200);
-    bgcolor.setAlpha(100);        
+    bgcolor.setAlpha(100);
     DemoTextItem *s1 = new DemoTextItem(para1, Colors::contentFont(), Colors::heading, 500, this->scene(), this, DemoTextItem::STATIC_TEXT);
     DemoTextItem *s2 = new DemoTextItem(this->loadDescription(1, 2), Colors::contentFont(), Colors::heading, 250, this->scene(), this, DemoTextItem::STATIC_TEXT);
     heading->setPos(0, 3);
