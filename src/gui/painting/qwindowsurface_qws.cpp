@@ -149,9 +149,7 @@ void QWSWindowSurface::setWinId(int id)
     another used by the server application to perform window
     compositioning. Implement the attach() to create the server-side
     representation of the surface. The data() function must be
-    implemented to provide the required data. In addition, the related
-    detach() function must be implemented to enable the window system
-    to detach the server-side instance from the client.
+    implemented to provide the required data.
 
     Implement the key() function to uniquely identify the surface
     class, and the isValid() function to determine is a surface
@@ -265,16 +263,7 @@ void QWSWindowSurface::setWinId(int id)
     to the corresponding client side instance using the given \a
     data. Return true if successful; otherwise return false.
 
-    \sa detach(), data()
-*/
-
-/*!
-    \fn void QWSWindowSurface::detach()
-
-    Implement this function to detach a server-side instance from the
-    client.
-
-    \sa attach(), release()
+    \sa data()
 */
 
 /*!
