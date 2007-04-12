@@ -1393,8 +1393,8 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPolygonF &polygon, Qt::ItemS
     // Refine it by iterating through all returned items.
     foreach (QGraphicsItem *item, d->estimateItemsInRect(polygon.boundingRect())) {
         if (mode == Qt::IntersectsItemBoundingRect
-            && polygon.contains(item->mapToScene(item->boundingRect().topLeft()),
-                                Qt::OddEvenFill)) {
+            && polygon.containsPoint(item->mapToScene(item->boundingRect().topLeft()),
+                                     Qt::OddEvenFill)) {
             itemsInPolygon << item;
         } else if (polyRect.intersects(item->sceneBoundingRect())) {
             _qt_pathIntersectsItem(polyPath, item, mode, &itemsInPolygon);

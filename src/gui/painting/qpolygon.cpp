@@ -714,7 +714,7 @@ QDebug operator<<(QDebug dbg, const QPolygonF &a)
     Returns true if the given \a point is inside the polygon according to
     the specified winding rule, otherwise returns false.
 */
-bool QPolygonF::contains(const QPointF &pt, Qt::FillRule fillRule) const
+bool QPolygonF::containsPoint(const QPointF &pt, Qt::FillRule fillRule) const
 {
     if (isEmpty())
         return false;
@@ -726,7 +726,7 @@ bool QPolygonF::contains(const QPointF &pt, Qt::FillRule fillRule) const
     for (int i = 1; i < size(); ++i) {
         const QPointF &e = at(i);
         qt_polygon_isect_line(last_pt, e, pt, &winding_number);
-        last_pt = e; 
+        last_pt = e;
     }
 
     // implicitly close last subpath
@@ -744,7 +744,7 @@ bool QPolygonF::contains(const QPointF &pt, Qt::FillRule fillRule) const
     Returns true if the given \a point is inside the polygon according to
     the specified winding rule, otherwise returns false.
 */
-bool QPolygon::contains(const QPointF &pt, Qt::FillRule fillRule) const
+bool QPolygon::containsPoint(const QPointF &pt, Qt::FillRule fillRule) const
 {
     if (isEmpty())
         return false;
@@ -756,16 +756,16 @@ bool QPolygon::contains(const QPointF &pt, Qt::FillRule fillRule) const
     for (int i = 1; i < size(); ++i) {
         const QPointF &e = at(i);
         qt_polygon_isect_line(last_pt, e, pt, &winding_number);
-        last_pt = e; 
+        last_pt = e;
     }
-    
+
     // implicitly close last subpath
     if (last_pt != last_start)
         qt_polygon_isect_line(last_pt, last_start, pt, &winding_number);
-    
+
     return (fillRule == Qt::WindingFill
             ? (winding_number != 0)
-            : ((winding_number % 2) != 0));   
+            : ((winding_number % 2) != 0));
 }
 
 QPolygon QPolygon::united(const QPolygon &r) const
