@@ -55,10 +55,8 @@ public:
     static bool checkInstance(const char *method);
     static void sendPostedEvents(QObject *receiver, int event_type, QThreadData *data);
 
-#ifndef QT_NO_DEBUG
+#if !defined (QT_NO_DEBUG) || defined (QT_MAC_FRAMEWORK_BUILD)
     void checkReceiverThread(QObject *receiver);
-#else
-    inline void checkReceiverThread(QObject *) {}
 #endif
     int &argc;
     char **argv;

@@ -3008,7 +3008,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         return true;
     }
 
+#ifndef QT_NO_DEBUG
     d->checkReceiverThread(receiver);
+#endif
 
 #ifdef QT3_SUPPORT
     if (e->type() == QEvent::ChildRemoved && !receiver->d_func()->pendingChildInsertedEvents.isEmpty())

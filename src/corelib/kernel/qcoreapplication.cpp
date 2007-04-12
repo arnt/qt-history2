@@ -227,7 +227,7 @@ QThread *QCoreApplicationPrivate::mainThread()
     return theMainThread;
 }
 
-#ifndef QT_NO_DEBUG
+#if !defined (QT_NO_DEBUG) || defined (QT_MAC_FRAMEWORK_BUILD)
 void QCoreApplicationPrivate::checkReceiverThread(QObject *receiver)
 {
     QThread *currentThread = QThread::currentThread();
@@ -549,7 +549,9 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *event)
         return true;
     }
 
+#ifndef QT_NO_DEBUG
     d->checkReceiverThread(receiver);
+#endif
 
 #ifdef QT3_SUPPORT
     if (event->type() == QEvent::ChildRemoved && !receiver->d_func()->pendingChildInsertedEvents.isEmpty())
