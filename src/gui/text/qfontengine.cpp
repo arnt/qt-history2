@@ -161,26 +161,37 @@ void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, con
         positions.resize(nglyphs);
         glyphs_out.resize(nglyphs);
         int i = 0;
-        while (i < nglyphs) {
-            if (glyphs[i].attributes.dontPrint) {
+        if (!transform) {
+            while (i < nglyphs) {
+                if (!glyphs[i].attributes.dontPrint) {
+                    positions[current].x = xpos + glyphs[i].offset.x;
+                    positions[current].y = ypos + glyphs[i].offset.y;
+                    glyphs_out[current] = glyphs[i].glyph;
+                    xpos += glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6);
+                    ypos += glyphs[i].advance.y;
+                    ++current;
+                }
                 ++i;
-                continue;
             }
-            QFixed gpos_x = xpos + glyphs[i].offset.x;
-            QFixed gpos_y = ypos + glyphs[i].offset.y;
-            if (transform) {
-                QPointF gpos(gpos_x.toReal(), gpos_y.toReal());
-                gpos = gpos * matrix;
-                gpos_x = QFixed::fromReal(gpos.x());
-                gpos_y = QFixed::fromReal(gpos.y());
+        } else {
+            positions.resize(nglyphs);
+            glyphs_out.resize(nglyphs);
+            int i = 0;
+            while (i < nglyphs) {
+                if (!glyphs[i].attributes.dontPrint) {
+                    QFixed gpos_x = xpos + glyphs[i].offset.x;
+                    QFixed gpos_y = ypos + glyphs[i].offset.y;
+                    QPointF gpos(gpos_x.toReal(), gpos_y.toReal());
+                    gpos = gpos * matrix;
+                    positions[current].x = QFixed::fromReal(gpos.x());
+                    positions[current].y = QFixed::fromReal(gpos.y());
+                    glyphs_out[current] = glyphs[i].glyph;
+                    xpos += glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6);
+                    ypos += glyphs[i].advance.y;
+                    ++current;
+                }
+                ++i;
             }
-            positions[current].x = gpos_x;
-            positions[current].y = gpos_y;
-            glyphs_out[current] = glyphs[i].glyph;
-            xpos += glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6);
-            ypos += glyphs[i].advance.y;
-            ++i;
-            ++current;
         }
     }
     positions.resize(current);

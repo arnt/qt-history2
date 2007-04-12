@@ -186,6 +186,7 @@ struct QFixedPoint {
         return QFixedPoint(QFixed::fromReal(p.x()), QFixed::fromReal(p.y()));
     }
 };
+Q_DECLARE_TYPEINFO(QFixedPoint, Q_PRIMITIVE_TYPE);
 
 inline QFixedPoint operator-(const QFixedPoint &p1, const QFixedPoint &p2)
 { return QFixedPoint(p1.x - p2.x, p1.y - p2.y); }
@@ -203,6 +204,7 @@ struct QFixedSize {
         return size;
     }
 };
+Q_DECLARE_TYPEINFO(QFixedSize, Q_PRIMITIVE_TYPE);
 
 struct QScriptItem;
 class QTextItemInt : public QTextItem
@@ -365,9 +367,10 @@ Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);
 
 inline bool qIsControlChar(ushort uc)
 {
-    return (uc >= 0x200b && uc <= 0x200f /* ZW Space, ZWNJ, ZWJ, LRM and RLM */)
+    return uc >= 0x200b && uc <= 0x206f
+        && (uc <= 0x200f /* ZW Space, ZWNJ, ZWJ, LRM and RLM */
             || (uc >= 0x2028 && uc <= 0x202f /* LS, PS, LRE, RLE, PDF, LRO, RLO, NNBSP */)
-            || (uc >= 0x206a && uc <= 0x206f /* ISS, ASS, IAFS, AFS, NADS, NODS */);
+            || uc >= 0x206a /* ISS, ASS, IAFS, AFS, NADS, NODS */);
 }
 
 

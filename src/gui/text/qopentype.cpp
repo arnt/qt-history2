@@ -120,6 +120,7 @@ enum { NumOTScripts = sizeof(ot_scripts)/sizeof(OTScripts) };
 
 QOpenType::QOpenType(QFontEngine *fe, FT_Face _face)
     : fontEngine(fe), face(_face), gdef(0), gsub(0), gpos(0), current_script(0xffffffff)
+    , allocated(0)
 {
     Q_ASSERT(NumOTScripts == (int)QUnicodeTables::ScriptCount);
 
@@ -215,6 +216,7 @@ void QOpenType::selectScript(QShaperItem *item, unsigned int script, const Featu
     if (current_script == script && kerning_feature_selected == item->kerning_enabled)
         return;
 
+    has_features = false;
     Q_ASSERT(script < QUnicodeTables::ScriptCount);
     // find script in our list of supported scripts.
     uint tag = ot_scripts[script].tag;
@@ -242,6 +244,7 @@ void QOpenType::selectScript(QShaperItem *item, unsigned int script, const Featu
                 if (!error) {
                     DEBUG("  adding feature %s", tag_to_string(features->tag));
                     HB_GSUB_Add_Feature(gsub, feature_index, features->property);
+                    has_features = true;
                 }
                 ++features;
             }
@@ -283,8 +286,10 @@ void QOpenType::selectScript(QShaperItem *item, unsigned int script, const Featu
                         kerning_feature_selected = true;
                     }
                     error = HB_GPOS_Select_Feature(gpos, *feature_tag_list, script_index, 0xffff, &feature_index);
-                    if (!error)
+                    if (!error) {
                         HB_GPOS_Add_Feature(gpos, feature_index, PositioningProperties);
+                        has_features = true;
+                    }
                     ++feature_tag_list;
                 }
                 FT_Memory memory = gpos->memory;
@@ -301,12 +306,18 @@ extern void qt_heuristicPosition(QShaperItem *item);
 
 bool QOpenType::shape(QShaperItem *item, const unsigned int *properties)
 {
+    if (!has_features)
+        return true;
+    
     length = item->num_glyphs;
 
     hb_buffer_clear(hb_buffer);
 
-    tmpAttributes = (QGlyphLayout::Attributes *) realloc(tmpAttributes, length*sizeof(QGlyphLayout::Attributes));
-    tmpLogClusters = (unsigned int *) realloc(tmpLogClusters, length*sizeof(unsigned int));
+    if (allocated < length) {
+        tmpAttributes = (QGlyphLayout::Attributes *) realloc(tmpAttributes, length*sizeof(QGlyphLayout::Attributes));
+        tmpLogClusters = (unsigned int *) realloc(tmpLogClusters, length*sizeof(unsigned int));
+        allocated = length;
+    }
     for (int i = 0; i < length; ++i) {
         hb_buffer_add_glyph(hb_buffer, item->glyphs[i].glyph, properties ? properties[i] : 0, i);
         tmpAttributes[i] = item->glyphs[i].attributes;
@@ -350,6 +361,9 @@ bool QOpenType::shape(QShaperItem *item, const unsigned int *properties)
 
 bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLogClusters)
 {
+    if (!has_features)
+        return true;
+    
     bool glyphs_positioned = false;
     if (gpos) {
         if (fontEngine->type() == QFontEngine::Freetype) {

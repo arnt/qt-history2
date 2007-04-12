@@ -71,10 +71,12 @@ private:
     HB_GPOS gpos;
     bool supported_scripts[QUnicodeTables::ScriptCount];
     FT_ULong current_script;
-    bool positioned : 1;
-    bool kerning_feature_selected : 1;
-    bool glyphs_substituted : 1;
+    bool positioned;
+    bool kerning_feature_selected;
+    bool glyphs_substituted;
+    bool has_features;
     HB_Buffer hb_buffer;
+    int allocated;
     QGlyphLayout::Attributes *tmpAttributes;
     unsigned int *tmpLogClusters;
     int length;
