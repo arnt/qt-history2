@@ -799,7 +799,7 @@ void tst_Moc::forgottenQInterface()
 
 void tst_Moc::os9Newline()
 {
-#if !defined(Q_CC_MSVC) && !defined(Q_CC_HPACC)
+#if !defined(Q_CC_MSVC) && !defined(Q_CC_HPACC) && !defined(Q_OS_IRIX)
     const QMetaObject &mo = Os9Newlines::staticMetaObject;
     QVERIFY(mo.indexOfSlot("testSlot()") != -1);
     QFile f(srcify("os9-newlines.h"));
@@ -813,7 +813,7 @@ void tst_Moc::os9Newline()
 
 void tst_Moc::winNewline()
 {
-#if !defined(Q_CC_MSVC) && !defined(Q_CC_HPACC)
+#if !defined(Q_CC_MSVC) && !defined(Q_CC_HPACC) && !defined(Q_OS_IRIX)
     const QMetaObject &mo = WinNewlines::staticMetaObject;
     QVERIFY(mo.indexOfSlot("testSlot()") != -1);
     QFile f(srcify("win-newlines.h"));
