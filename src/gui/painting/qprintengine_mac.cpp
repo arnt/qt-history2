@@ -13,6 +13,7 @@
 
 #include <private/qprintengine_mac_p.h>
 extern int qt_defaultDpi();
+#include <qdebug.h>
 
 #ifndef QT_NO_PRINTER
 
@@ -674,7 +675,7 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
         OSStatus status = PMSessionCreatePrinterList(d->session, &printerList, &currIndex, &unused);
         if (status != noErr)
             qWarning("QMacPrintEngine::printerName: Problem getting list of printers: %ld", long(status));
-        if (printerList && currIndex < CFArrayGetCount(printerList)) {
+        if (currIndex != -1 && printerList && currIndex < CFArrayGetCount(printerList)) {
             const CFStringRef name = static_cast<CFStringRef>(CFArrayGetValueAtIndex(printerList, currIndex));
             if (name)
                 ret = QCFString::toQString(name);
