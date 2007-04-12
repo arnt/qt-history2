@@ -362,15 +362,6 @@ QKeySequence::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
             QKeyEvent pe = QKeyEvent(e->type(), Qt::Key_Tab, e->modifiers(), e->text());
             result = find(&pe);
         }
-#if 0
-        // ### This is not needed anymore, kill it when qkeymapper is done...
-        // If still no result, try removing the Shift modifier
-        if (result == QKeySequence::NoMatch) {
-            QKeyEvent pe = QKeyEvent(e->type(), e->key(),
-                                     e->modifiers()&~Qt::ShiftModifier, e->text());
-            result = find(&pe);
-        }
-#endif
     }
 
     // Should we eat this key press?
