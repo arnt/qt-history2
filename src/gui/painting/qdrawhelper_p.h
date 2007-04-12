@@ -265,6 +265,11 @@ public:
         data[2] = qRed(v);
     }
 
+    inline operator quint32 ()
+    {
+        return qRgb(data[2], data[1], data[0]);
+    }
+
 private:
     uchar data[3];
 } Q_PACKED;
@@ -292,6 +297,14 @@ public:
         data[0] = qBlue(p);
         data[1] = qGreen(p);
         data[2] = qRed(p);
+    }
+
+    inline operator quint32 ()
+    {
+        const uchar r = (data[2] << 6) | ((data[1] & 0xf0) >> 2) | (data[2] & 0x3);
+        const uchar g = (data[1] << 4) | ((data[0] & 0xc0) >> 4) | ((data[1] & 0x0f) >> 2);
+        const uchar b = (data[0] << 2) | ((data[0] & 0x3f) >> 4);
+        return qRgb(r, g, b);
     }
 
 private:
@@ -367,6 +380,21 @@ static inline void qt_memconvert(DST *dest, const SRC *src, int count)
     case 2:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
     case 1:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
     } while (--n > 0);
+    }
+}
+
+template <class DST, class SRC>
+void qt_rectconvert(DST *dest, const SRC *src,
+                    int x, int y, int width, int height,
+                    int dstStride, int srcStride)
+{
+    dstStride /= sizeof(DST);
+    srcStride /= sizeof(SRC);
+    dest += y * dstStride + x;
+    for (int i = 0; i < height; ++i) {
+        qt_memconvert<DST,SRC>(dest, src, width);
+        dest += dstStride;
+        src += srcStride;
     }
 }
 
