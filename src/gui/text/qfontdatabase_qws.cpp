@@ -786,8 +786,11 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
         }
 
         if (scriptRequiresOpenType(script)) {
+#ifndef QT_NO_FREETYPE
             QOpenType *ot = fe->openType();
-            if (!ot || !ot->supportsScript(script)) {
+            if (!ot || !ot->supportsScript(script))
+#endif
+            {
                 FM_DEBUG("  OpenType support missing for script");
                 fe = 0;
             }
