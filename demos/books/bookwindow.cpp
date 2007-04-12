@@ -61,6 +61,7 @@ BookWindow::BookWindow()
     ui.bookTable->setModel(model);
     ui.bookTable->setItemDelegate(new BookDelegate(ui.bookTable));
     ui.bookTable->setColumnHidden(model->fieldIndex("id"), true);
+    ui.bookTable->setSelectionMode(QAbstractItemView::SingleSelection);
 
     // Initialize the Author combo box
     ui.authorEdit->setModel(model->relationModel(authorIdx));
