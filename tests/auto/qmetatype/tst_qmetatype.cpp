@@ -71,7 +71,7 @@ protected:
     void run()
     {
         for (int i = 0; i < 1000; ++i) {
-            const QByteArray name = QString("Bar%1_%2").arg(i).arg((int)QThread::currentThreadId()).toLatin1();
+            const QByteArray name = QString("Bar%1_%2").arg(i).arg((size_t)QThread::currentThreadId()).toLatin1();
             const char *nm = name.constData();
             int tp = qRegisterMetaType<Bar>(nm);
 #ifdef Q_OS_LINUX
