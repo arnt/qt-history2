@@ -1767,10 +1767,11 @@ void QListViewPrivate::prepareItemsLayout()
     clear();
     layoutBounds = QRect(QPoint(0,0), q->maximumViewportSize());
 
-    int verticalMargin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent,
-                                                 0, q->verticalScrollBar());
-    int horizontalMargin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent,
-                                                   0, q->horizontalScrollBar());
+    int verticalMargin = vbarpolicy==Qt::ScrollBarAlwaysOff ? 0 :
+        q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q->verticalScrollBar());
+    int horizontalMargin =  hbarpolicy==Qt::ScrollBarAlwaysOff ? 0 :
+        q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q->horizontalScrollBar());
+
     layoutBounds.adjust(0, 0, -verticalMargin, -horizontalMargin);
 
     int rowCount = model->rowCount(root);
