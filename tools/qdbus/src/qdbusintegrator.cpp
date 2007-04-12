@@ -1042,7 +1042,7 @@ void QDBusConnectionPrivate::activateObject(const ObjectTreeNode &node, const QD
     QDBusAdaptorConnector *connector;
     if (node.flags & QDBusConnection::ExportAdaptors &&
         (connector = qDBusFindAdaptorConnector(node.obj))) {
-        int newflags = node.flags | QDBusConnection::ExportNonScriptableSlots;
+        int newflags = node.flags | QDBusConnection::ExportAllSlots;
 
         if (msg.interface().isEmpty()) {
             // place the call in all interfaces
