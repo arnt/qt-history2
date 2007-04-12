@@ -2924,9 +2924,13 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 QRegion region(groupBox->rect);
                 if (!groupBox->text.isEmpty()) {
                     bool ltr = groupBox->direction == Qt::LeftToRight;
-                    QRect finalRect = checkBoxRect.united(textRect);
-                    if (groupBox->subControls & QStyle::SC_GroupBoxCheckBox)
+                    QRect finalRect;
+                    if (groupBox->subControls & QStyle::SC_GroupBoxCheckBox) {
+                        finalRect = checkBoxRect.united(textRect);
                         finalRect.adjust(ltr ? -4 : 0, 0, ltr ? 0 : 4, 0);
+                    } else {
+                        finalRect = textRect;
+                    }
                     region -= finalRect;
                 }
                 p->setClipRegion(region);

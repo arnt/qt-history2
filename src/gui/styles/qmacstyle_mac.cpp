@@ -4909,7 +4909,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                     } else if (flat) {
                         int newLeft = labelRect.left() - (rtl ? 3 : -3);
                         labelRect.moveLeft(newLeft);
-                        labelRect.moveTop(labelRect.top() + 5);
+                        labelRect.moveTop(labelRect.top() + 4);
                     } else {
                         int newLeft = labelRect.left() - (rtl ? 3 : 2);
                         labelRect.moveLeft(newLeft);
