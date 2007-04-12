@@ -3087,18 +3087,8 @@ QByteArray QString::toUtf8() const
                         }
                     }
                     if (u > 0xffff) {
-                        // if people are working in utf8, but strings are encoded in eg. latin1, the resulting
-                        // name might be invalid utf8. This and the corresponding code in fromUtf8 takes care
-                        // we can handle this without loosing information. This can happen with latin filenames
-                        // and a utf8 locale under Unix.
-                        if (u > 0x10fe00 && u < 0x10ff00) {
-                            *cursor++ = (u - 0x10fe00);
-                            ++ch;
-                            continue;
-                        } else {
-                            *cursor++ = 0xf0 | ((uchar) (u >> 18));
-                            *cursor++ = 0x80 | (((uchar) (u >> 12)) & 0x3f);
-                        }
+                        *cursor++ = 0xf0 | ((uchar) (u >> 18));
+                        *cursor++ = 0x80 | (((uchar) (u >> 12)) & 0x3f);
                     } else {
                         *cursor++ = 0xe0 | ((uchar) (u >> 12));
                     }
@@ -3379,13 +3369,6 @@ QString QString::fromAscii(const char *str, int size)
     return QString(fromAscii_helper(str, size), 0);
 }
 
-static ushort *addOne(ushort *qch, QString &str)
-{
-    long sidx = qch - str.utf16();
-    str.resize(str.length()+1);
-    return (ushort *)str.data() + sidx;
-}
-
 /*!
     Returns a QString initialized with the first \a size bytes
     of the UTF-8 string \a str.
@@ -3430,23 +3413,14 @@ QString QString::fromUtf8(const char *str, int size)
                         uc = QChar::lowSurrogate(uc);
                     } else if ((uc < min_uc) || (uc >= 0xd800 && uc <= 0xdfff) || (uc >= 0xfffe)) {
 			// overlong seqence, UTF16 surrogate or BOM
-                        i = error;
-                        qch = addOne(qch, result);
-                        *qch++ = 0xdbff;
-                        uc = 0xde00 + ((uchar)str[i]);
+                        uc = QChar::ReplacementCharacter;
                     }
                     *qch++ = uc;
                 }
             } else {
-                // See QString::toUtf8() for explanation.
-                //
-                // The surrogate below corresponds to a Unicode value of (0x10fe00+ch) which
-                // is in one of the private use areas of Unicode.
                 i = error;
-                qch = addOne(qch, result);
-                *qch++ = 0xdbff;
-                *qch++ = 0xde00 + ((uchar)str[i]);
                 need = 0;
+                *qch++ = QChar::ReplacementCharacter;
             }
         } else {
             if (ch < 128) {
@@ -3468,19 +3442,14 @@ QString QString::fromUtf8(const char *str, int size)
                 min_uc = 0x10000;
             } else {
                 // Error
-                qch = addOne(qch, result);
-                *qch++ = 0xdbff;
-                *qch++ = 0xde00 + ((uchar)str[i]);
+                *qch++ = QChar::ReplacementCharacter;
             }
         }
     }
     if (need) {
         // we have some invalid characters remaining we need to add to the string
-        for (int i = error; i < size; ++i) {
-            qch = addOne(qch, result);
-            *qch++ = 0xdbff;
-            *qch++ = 0xde00 + (uchar)str[i];
-        }
+        for (int i = error; i < size; ++i) 
+            *qch++ = QChar::ReplacementCharacter;
     }
 
     result.truncate(qch - result.d->data);
