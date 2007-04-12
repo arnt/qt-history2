@@ -71,6 +71,11 @@ tst_Bic::tst_Bic()
 
     /* Jambi-related classes in Designer */
     bic.addBlacklistedClass(QLatin1String("QDesignerLanguageExtension"));
+
+    /* Harald says it's undocumented and private :) */
+    bic.addBlacklistedClass(QLatin1String("QAccessibleInterfaceEx"));
+    bic.addBlacklistedClass(QLatin1String("QAccessibleObjectEx"));
+    bic.addBlacklistedClass(QLatin1String("QAccessibleWidgetEx"));
 }
 
 void tst_Bic::initTestCase_data()
