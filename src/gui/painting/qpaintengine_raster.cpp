@@ -483,11 +483,11 @@ void QFTOutlineMapper::clipElements(const QPointF *elements,
     }
 
     QPolygonF polygon = path.toFillPolygon();
-    QPointF *clipped_points;
+    QRasterFloatPoint *clipped_points;
     int clipped_count;
 
     m_clipper.clipPolygon((QRasterFloatPoint *) polygon.constData(), polygon.size(),
-                          ((QRasterFloatPoint **) &clipped_points), &clipped_count, true);
+                          &clipped_points, &clipped_count, true);
 
 #ifdef QT_DEBUG_CONVERT
     printf(" - shape was clipped\n");
@@ -504,7 +504,7 @@ void QFTOutlineMapper::clipElements(const QPointF *elements,
     QPainterPath::ElementType *point_types = new QPainterPath::ElementType[clipped_count];
     point_types[0] = QPainterPath::MoveToElement;
     for (int i=0; i<clipped_count; ++i) point_types[i] = QPainterPath::LineToElement;
-    convertElements(clipped_points, point_types, clipped_count);
+    convertElements((const QPointF *)clipped_points, point_types, clipped_count);
     delete[] point_types;
 }
 
