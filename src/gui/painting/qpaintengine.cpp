@@ -361,7 +361,7 @@ void QPaintEngine::drawPoints(const QPoint *points, int pointCount)
             fp[i].y = points[i].y();
             ++i;
         }
-        drawPoints((QPointF *)fp, i);
+        drawPoints((QPointF *)(void *)fp, i);
         points += i;
         pointCount -= i;
     }
@@ -681,7 +681,7 @@ void QPaintEngine::drawLines(const QLine *lines, int lineCount)
             fl[i].p2.y = lines[i].y2();
             ++i;
         }
-        drawLines((QLineF *)fl, i);
+        drawLines((QLineF *)(void *)fl, i);
         lines += i;
         lineCount -= i;
     }
@@ -714,7 +714,7 @@ void QPaintEngine::drawRects(const QRect *rects, int rectCount)
             fr[i].h = rects[i].height();
             ++i;
         }
-        drawRects((QRectF *)fr, i);
+        drawRects((QRectF *)(void *)fr, i);
         rects += i;
         rectCount -= i;
     }
