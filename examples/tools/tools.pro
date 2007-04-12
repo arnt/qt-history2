@@ -12,7 +12,6 @@ SUBDIRS       = codecs \
 		styleplugin \
                 treemodelcompleter \
 		undoframework
-!cross_compile:SUBDIRS += qtdemo 
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/tools

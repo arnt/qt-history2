@@ -11,19 +11,22 @@
 **
 ****************************************************************************/
 
+#ifndef SCAN_ITEM_H
+#define SCAN_ITEM_H
+
 #include <QtGui>
+#include "demoitem.h"
 
-#include "launcher.h"
-
-int main(int argc, char *argv[])
+class ScanItem : public DemoItem
 {
-    Q_INIT_RESOURCE(qtdemo);
+public:
+    ScanItem(QGraphicsScene *scene = 0, QGraphicsItem *parent = 0);
+    virtual ~ScanItem();
+    
+protected:
+    QImage *createImage(const QMatrix &matrix) const;
+    
+};
 
-    QApplication app(argc, argv);
-    Launcher launcher;
-    if (!launcher.setup())
-        return 1;
+#endif // SCAN_ITEM_H
 
-    launcher.show();
-    return app.exec();
-}

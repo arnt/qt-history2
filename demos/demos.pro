@@ -16,7 +16,7 @@ SUBDIRS     = \
 
 !contains(QT_EDITION, Console):!cross_compile:!embedded:SUBDIRS += demos_arthurplugin
 
-!cross_compile:SUBDIRS += demos_sqlbrowser
+!cross_compile:SUBDIRS += demos_sqlbrowser demos_qtdemo
 
 # install
 sources.files = README *.pro
@@ -38,6 +38,7 @@ demos_textedit.subdir = textedit
 demos_arthurplugin.subdir = arthurplugin
 demos_sqlbrowser.subdir = sqlbrowser
 demos_undo.subdir = undo
+demos_qtdemo.subdir = qtdemo
 
 #CONFIG += ordered
 !ordered {

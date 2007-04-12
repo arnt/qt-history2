@@ -30,28 +30,27 @@ Launcher::Launcher(QWidget *parent)
     inFullScreenResize = false;
     currentCategory = "[starting]";
 
+    // Create short-cut key actions for the main window
     QAction *parentPageAction1 = new QAction(tr("Show Parent Page"), this);
     QAction *parentPageAction2 = new QAction(tr("Show Parent Page"), this);
     QAction *parentPageAction3 = new QAction(tr("Show Parent Page"), this);
+    QAction *fullScreenAction = new QAction(tr("Toggle &Full Screen"), this);
+    QAction *exitAction = new QAction(tr("E&xit"), this);
+
     parentPageAction1->setShortcut(QKeySequence(tr("Escape")));
     parentPageAction2->setShortcut(QKeySequence(tr("Backspace")));
     parentPageAction3->setShortcut(QKeySequence(tr("Alt+Left")));
-
-    QAction *fullScreenAction = new QAction(tr("Toggle &Full Screen"), this);
     fullScreenAction->setShortcut(QKeySequence(tr("Ctrl+F")));
-
-    QAction *exitAction = new QAction(tr("E&xit"), this);
     exitAction->setShortcut(QKeySequence(tr("Ctrl+Q")));
 
+    // Connect the actions to  methods inside this class:
     connect(parentPageAction1, SIGNAL(triggered()), this, SIGNAL(showPage()));
     connect(parentPageAction2, SIGNAL(triggered()), this, SIGNAL(showPage()));
     connect(parentPageAction3, SIGNAL(triggered()), this, SIGNAL(showPage()));
-    connect(fullScreenAction, SIGNAL(triggered()),
-            this, SLOT(toggleFullScreen()));
+    connect(fullScreenAction, SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
-    display = new DisplayWidget;
-
+    // Add the actions to the main window
     addAction(parentPageAction1);
     addAction(parentPageAction2);
     addAction(parentPageAction3);
@@ -64,37 +63,37 @@ Launcher::Launcher(QWidget *parent)
     resizeTimer->setSingleShot(true);
     connect(resizeTimer, SIGNAL(timeout()), this, SLOT(redisplayWindow()));
 
-    assistant = new QAssistantClient(
-        QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
-
-    connect(display, SIGNAL(actionRequested(const QString &)),
-            this, SLOT(executeAction(const QString &)));
-    connect(display, SIGNAL(categoryRequested(const QString &)),
-            this, SLOT(showExamples(const QString &)));
-    connect(display, SIGNAL(documentationRequested(const QString &)),
-            this, SLOT(showExampleDocumentation(const QString &)));
-    connect(display, SIGNAL(exampleRequested(const QString &)),
-            this, SLOT(showExampleSummary(const QString &)));
-
-    connect(display, SIGNAL(launchRequested(const QString &)),
-            this, SLOT(launchExample(const QString &)));
-
-    connect(this, SIGNAL(showPage()), this, SLOT(showParentPage()),
-            Qt::QueuedConnection);
-    connect(this, SIGNAL(windowResized()), this, SLOT(redisplayWindow()),
-            Qt::QueuedConnection);
-
+    // Create the central widget that contains the 'menu' of demos:
+    display = new DisplayWidget;
     setCentralWidget(display);
+
+    // Connnect the signals from the central widget to methods in this class:
+    connect(display, SIGNAL(actionRequested(const QString &)),  this, SLOT(executeAction(const QString &)));
+    connect(display, SIGNAL(categoryRequested(const QString &)), this, SLOT(showExamples(const QString &)));
+    connect(display, SIGNAL(documentationRequested(const QString &)),  this, SLOT(showExampleDocumentation(const QString &)));
+    connect(display, SIGNAL(exampleRequested(const QString &)),  this, SLOT(showExampleSummary(const QString &)));
+    connect(display, SIGNAL(launchRequested(const QString &)),  this, SLOT(launchExample(const QString &)));
+
+    connect(this, SIGNAL(showPage()), this, SLOT(showParentPage()), Qt::QueuedConnection);
+    connect(this, SIGNAL(windowResized()), this, SLOT(redisplayWindow()), Qt::QueuedConnection);
+
+    // Configure the looks of our main window:
     setMaximumSize(QApplication::desktop()->screenGeometry().size());
     setWindowTitle(tr("Qt Examples and Demos"));
     setWindowIcon(QPixmap(":/images/qt4-logo.png"));
+
+    // Create an assistant client:
+    assistant = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
 }
 
+/**
+  * This method will optain  paths to different parts of the Qt installation for
+  * e.g. staring the demo applications and showing HTML documentation.
+  */
 bool Launcher::setup()
 {
-    documentationDir = QDir(QLibraryInfo::location(
-                            QLibraryInfo::DocumentationPath));
 
+    documentationDir = QDir(QLibraryInfo::location(QLibraryInfo::DocumentationPath));
     if (!documentationDir.cd("html")) {
         // Failed to find the HTML documentation.
         // We can continue without it.
@@ -197,18 +196,22 @@ void Launcher::findDescriptionAndImages(const QString &uniqueName,
 
 int Launcher::readInfo(const QString &resource, const QDir &dir)
 {
+    // Create a new DOM document from the given resource file, and extract
+    // all 'category' elements into 'categoryNodes':
     QFile categoriesFile(resource);
     QDomDocument document;
     document.setContent(&categoriesFile);
     QDomElement documentElement = document.documentElement();
     QDomNodeList categoryNodes = documentElement.elementsByTagName("category");
+    // -----------------------------------------------------------------------------------------
 
     readCategoryDescription(dir, "[main]");
     qtLogo.load(imagesDir.absoluteFilePath(":/images/qt4-logo.png"));
     trolltechLogo.load(imagesDir.absoluteFilePath(":/images/trolltech-logo.png"));
 
+    // For each category, extract information and iterate over the
+    // category's 'example' elements:
     for (int i = 0; i < int(categoryNodes.length()); ++i) {
-
         QDomNode categoryNode = categoryNodes.item(i);
         QDomElement element = categoryNode.toElement();
         QString categoryName = element.attribute("name");
@@ -216,26 +219,28 @@ int Launcher::readInfo(const QString &resource, const QDir &dir)
         QString categoryDocName = element.attribute("docname");
         QString categoryColor = element.attribute("color", "#f0f0f0");
 
+        // Create a new directory and point it the folder of the current
+        // category. This folder is found inside 'dir':
         QDir categoryDir = dir;
         if (categoryDir.cd(categoryDirName)) {
-
             readCategoryDescription(categoryDir, categoryName);
-
             examples[categoryName] = QStringList();
 
+           // Get all 'example' elements inside the current category ...
             QDomNodeList exampleNodes = element.elementsByTagName("example");
             maximumLabels = qMax(maximumLabels, int(exampleNodes.length()));
 
+            // ... and iterate over each example:
             for (int j = 0; j < int(exampleNodes.length()); ++j) {
-
+                // Get information from the current 'example':
                 QDir exampleDir = categoryDir;
-
                 QDomNode exampleNode = exampleNodes.item(j);
                 element = exampleNode.toElement();
                 QString exampleName = element.attribute("name");
                 QString exampleFileName = element.attribute("filename");
                 QString exampleDirName = element.attribute("dirname");
 
+                // Append the example to the category map:
                 examples[categoryName].append(exampleName);
 
                 QString uniqueName = categoryName+"-"+exampleName;
@@ -295,14 +300,13 @@ QString Launcher::findExecutable(const QDir &dir) const
             return info.absoluteFilePath();
         QDir currentDir(info.absoluteFilePath());
         if (currentDir != dir && currentDir != parentDir &&
-            currentDir.dirName() != "plugin" &&
-            currentDir.dirName() != "styles") {
+            currentDir.dirName() != "plugins") {
             QString path = findExecutable(currentDir);
             if (!path.isNull())
                 return path;
         }
     }
-        
+
     foreach (QFileInfo info, dir.entryInfoList(QDir::Files)) {
         if (info.isExecutable())
             return info.absoluteFilePath();
@@ -310,8 +314,7 @@ QString Launcher::findExecutable(const QDir &dir) const
     return QString();
 }
 
-void Launcher::readCategoryDescription(const QDir &categoryDir,
-                                       const QString &categoryName)
+void Launcher::readCategoryDescription(const QDir &categoryDir, const QString &categoryName)
 {
     if (categoryDir.exists("README")) {
         QFile file(categoryDir.absoluteFilePath("README"));
@@ -450,10 +453,9 @@ void Launcher::closeEvent(QCloseEvent *event)
     if (runningExamples.size() > 0) {
         if (QMessageBox::warning(this, tr("Examples Running"),
                 tr("There are examples running. Do you really want to exit?"),
-                QMessageBox::Yes|QMessageBox::No) == QMessageBox::No) {
+                QMessageBox::Yes|QMessageBox::No) == QMessageBox::No)
             event->ignore();
             return;
-        }
     }
 
     foreach (QProcess *example, runningProcesses.keys()) {
