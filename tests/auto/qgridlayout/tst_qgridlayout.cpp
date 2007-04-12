@@ -58,6 +58,7 @@ private slots:
     void spacing();
     void spacerWithSpacing();
     void contentsRect();
+    void distributeMultiCell();
 
 private:
     QWidget *testWidget;
@@ -343,8 +344,10 @@ void tst_QGridLayout::setMinAndMaxSize()
 class SizeHinter : public QWidget
 {
 public:
-    SizeHinter(QSize s) : sh(s) { }
-    SizeHinter(int w, int h) : sh(QSize(w,h)) {}
+    SizeHinter(const QSize &s, QWidget *parent = 0) 
+        : QWidget(parent), sh(s) { }
+    SizeHinter(int w, int h, QWidget *parent = 0) 
+        : QWidget(parent), sh(QSize(w,h)) {}
     void setSizeHint(QSize s) { sh = s; }
     QSize sizeHint() const { return sh; }
 private:
@@ -1489,6 +1492,32 @@ void tst_QGridLayout::contentsRect()
     
     QCOMPARE(geom.adjusted(+l, +t, -r, -b), grid.contentsRect());
     
+}
+
+void tst_QGridLayout::distributeMultiCell()
+{
+    QWidget w;
+    Qt42Style *style = new Qt42Style();
+    style->spacing = 9;
+
+    w.setStyle(style);
+    QGridLayout grid;
+    w.setLayout(&grid);
+
+    SizeHinter le1(200, 20, &w);
+    le1.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    SizeHinter le2(200, 20, &w);
+    le2.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    SizeHinter box(80, 57, &w);
+    box.setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
+    box.setMinimumSize(80, 57);
+
+    grid.addWidget(&le1, 0, 0, 1, 1);
+    grid.addWidget(&le2, 1, 0, 1, 1);
+    grid.addWidget(&box, 0, 1, 2, 1);
+
+    QCOMPARE(box.sizeHint().height(), 57);
+    QCOMPARE(w.sizeHint().height(), 11 + 57 + 11);
 }
 
 QTEST_MAIN(tst_QGridLayout)

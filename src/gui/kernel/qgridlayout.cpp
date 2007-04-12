@@ -504,7 +504,7 @@ static void distributeMultiBox(QVector<QLayoutStruct> &chain, int start, int end
         int pos = 0;
         for (i = start; i <= end; i++) {
             QLayoutStruct *data = &chain[i];
-            int nextPos = (i == end) ? minSize - 1 : chain.at(i + 1).pos;
+            int nextPos = (i == end) ? minSize : chain.at(i + 1).pos;
             int realSize = nextPos - pos;
             if (i != end)
                 realSize -= data->spacing;
