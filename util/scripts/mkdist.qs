@@ -308,7 +308,7 @@ for (var p in validPlatforms) {
                 platformPurge = platformPurge.concat(licenseRemove["snapshots"]);
             if (options["preview"])
                 platformPurge = platformPurge.concat(licenseRemove["preview"]);
-            purgeFiles(platDir, getFileList(platDir),plaformPurge);
+            purgeFiles(platDir, getFileList(platDir),platformPurge);
 
             checkLicense(platDir, getFileList(platDir), "final");
 
