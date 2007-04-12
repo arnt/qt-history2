@@ -196,7 +196,7 @@ void QWSWindowSurface::setWinId(int id)
     set surface flags can be retrieved and altered using the
     surfaceFlags() and setSurfaceFlags() functions. In addition,
     QWSWindowSurface provides the isBuffered(), isOpaque() and
-    isReserved() convenience functions.  Use the dirtyRegion()
+    isRegionReserved() convenience functions.  Use the dirtyRegion()
     function to retrieve the part of the widget that must be
     repainted, and the setDirty() function to ensure that a region is
     repainted.
@@ -212,7 +212,7 @@ void QWSWindowSurface::setWinId(int id)
     is used by the screen driver to handle region allocation and
     composition.
 
-    \value Reserved The surface contains a reserved area. Once
+    \value RegionReserved The surface contains a reserved area. Once
     allocated, a reserved area can not not be changed by the window
     system, i.e., no other widgets can be drawn on top of this.
 
@@ -286,9 +286,9 @@ void QWSWindowSurface::setWinId(int id)
 */
 
 /*!
-    \fn bool QWSWindowSurface::isReserved() const
+    \fn bool QWSWindowSurface::isRegionReserved() const
 
-    Returns true if the QWSWindowSurface::Reserved is set; otherwise
+    Returns true if the QWSWindowSurface::RegionReserved is set; otherwise
     returns false.
 
     \sa surfaceFlags()
@@ -498,7 +498,7 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
 /*!
     Returns the surface flags describing the contents of this surface.
 
-    \sa isBuffered(), isOpaque(), isReserved()
+    \sa isBuffered(), isOpaque(), isRegionReserved()
 */
 QWSWindowSurface::SurfaceFlags QWSWindowSurface::surfaceFlags() const
 {
