@@ -473,6 +473,44 @@
     ###
 \endomit
 
+    \section1 Painting and Redrawing Widgets
+
+    When implementing custom widgets in Qt 3, it was possible to use
+    QPainter to draw on a widget outside paint events. This made it
+    possible to integrate Qt applications with third party libraries
+    and tools that impose their own rendering models. For example,
+    a widget might be repainted in a slot using data obtained from
+    an external source.
+
+    In Qt 4, it is only possible to paint on a widget from within its
+    \l{QWidget::}{paintEvent()} handler function. This restriction simplifies
+    Qt's interaction with native window systems, improves the performance
+    of applications by reducing the number of redraw operations, and
+    also enables features to be implemented to improve the appearance of
+    widgets, such as a backing store.
+
+    Generally, we recommend redesigning applications to perform all
+    painting operations in \l{QWidget::}{paintEvent()} functions, deferring
+    actual painting until the next time this function is called.
+    Applications can post paint events to trigger repaints, and it may be
+    possible to examine your widget's internal state to determine which
+    part of the widget needs to be repainted.
+
+    If asynchronous repaints are used extensively by your application,
+    and it is not practical to redesign the rendering model to perform
+    all painting operations from within a widget's \l{QWidget::}{paintEvent()}
+    function, it may be necessary to consider using an intermediate painting
+    step. In this approach, one or more images can be updated asynchronously
+    and painted on the widget in the paint event. To avoid excessive
+    buffering, it may be worthwhile disabling the backing store by setting
+    the widget's Qt::WA_PaintOnScreen widget attribute.
+
+    On certain platforms, the Qt::WA_PaintOutsidePaintEvent widget attribute
+    can be set to allow a widget to be painted from outside paint events.
+
+    \note Setting widget attributes to disable key features of Qt's widget
+    rendering model may also cause other features to be disabled.
+
     \section1 QAccel
 
     The \c QAccel class has been renamed Q3Accel and moved to the
@@ -1807,13 +1845,14 @@
     \target qgroupbox.section
     \section1 QGroupBox
 
-    The QGroupBox class has been redesigned in Qt 4. The old \c
-    QGroupBox class has been renamed Q3GroupBox and moved to the
-    Qt3Support library.
+    The QGroupBox class has been redesigned in Qt 4. Many of the
+    features of the old \c QGroupBox class can be obtained by using
+    the Q3GroupBox class from the Qt3Support library.
 
     The new QGroupBox is more lightweight. It doesn't attempt to
-    duplicate functionality already provided by QGridLayout. For that
-    reason, the following members have been removed:
+    duplicate functionality already provided by QGridLayout, and it
+    does not inherit from QFrame. As a result, the following members
+    have been removed:
 
     \list
     \o Q3GroupBox::setColumns(), Q3GroupBox::columns()
@@ -1865,6 +1904,17 @@
 
     See \l{Model/View Programming} for an overview of the new item
     view classes.
+
+    \section1 QHGroupBox
+
+    The \c QHGroupBox class has been renamed Q3HGroupBox and moved to
+    the Qt3Support library.
+    Qt 4 does not provide a specific replacement class for \c QHGroupBox
+    since QGroupBox is designed to be a generic container widget. As a
+    result, you need to supply your own layout for any child widgets.
+
+    See \l{#QGroupBox} for more information about porting code that uses
+    group boxes.
 
     \section1 QHttp
 
@@ -2120,6 +2170,11 @@
     See \l{#properties}{Properties} for a list of QLineEdit
     properties in Qt 3 that have changed in Qt 4.
 
+    Note that QLineEdit in Qt 4 is no longer a subclass of QFrame.
+    If you need to visually style a line edit with a frame, we recommend
+    either using a QFrame as a container for a QLineEdit or customizing
+    the line edit with a \l{Qt Style Sheets}{style sheet}.
+
     \section1 QListBox
 
     The \c QListBox, \c QListBoxItem, \c QListBoxText, and \c
@@ -2206,15 +2261,26 @@
         information.
     \endlist
 
-    \omit
     \section1 QMenuBar
 
-    ### Used to inherit from QFrame and QMenuData; now inherits from QWidget
+    In Qt 3, QMenuBar inherited from QFrame and QMenuData; in Qt 4, it is
+    a direct subclass of QWidget. Applications that provided customized
+    menu bars will need to take advantage of the styling features described
+    in the \l{Qt Style Sheets} document.
+
+    It is not possible to add widgets to menu bars in Qt 4.
 
     \section1 QMenuData
 
-    ###
-    \endomit
+    In Qt 4, the QMenu class provides a menu widget that can be used in all
+    the places where menus are used in an application. Unlike \c QMenuData,
+    QMenu is designed around the concept of actions, provided by the QAction
+    class, instead of the identifiers used in Qt 3.
+
+    In Qt 3, it was possible to insert widgets directly into menus by using
+    a specific \c QMenuData::insertItem() overload. In Qt 4.2 and later,
+    the QWidgetAction class can be used to wrap widgets for use in Qt 4's
+    action-based APIs.
 
     \section1 QMessageBox
 
@@ -3839,6 +3905,9 @@
     See \l{#properties}{Properties} for a list of QToolBar properties
     in Qt 3 that have changed in Qt 4.
 
+    Note that many of the properties that could previously be set in
+    the constructor must now be set separately.
+
     \section1 QToolTip
 
     The QToolTip::setGloballyEnabled() function no longer exists.
@@ -4012,6 +4081,17 @@
 
     Note that child widgets are not automatically placed into the widget's
     layout; you will need to manually add each widget to the QVBoxLayout.
+
+    \section1 QVGroupBox
+
+    The \c QVGroupBox class has been renamed Q3VGroupBox and moved to
+    the Qt3Support library.
+    Qt 4 does not provide a specific replacement class for \c QVGroupBox
+    since QGroupBox is designed to be a generic container widget. As a
+    result, you need to supply your own layout for any child widgets.
+
+    See \l{#QGroupBox} for more information about porting code that uses
+    group boxes.
 
     \section1 QWhatsThis
 
