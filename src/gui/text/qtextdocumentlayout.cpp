@@ -1269,6 +1269,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
         break;
     case QTextListFormat::ListDisc:
         painter->setBrush(brush);
+        painter->setPen(Qt::NoPen);
         painter->drawEllipse(r);
         painter->setBrush(Qt::NoBrush);
         break;
