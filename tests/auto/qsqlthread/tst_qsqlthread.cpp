@@ -92,7 +92,7 @@ public:
 
     void run()
     {
-        QString dbName = QString("QThreadDb%1").arg((int)currentThreadId());
+        QString dbName = QString("QThreadDb%1").arg((size_t)currentThreadId());
         runHelper(dbName);
 
         QSqlDatabase::database(dbName).close();
@@ -133,7 +133,7 @@ public:
 
     void run()
     {
-        QString dbName = QString("Producer%1").arg((int)currentThreadId());
+        QString dbName = QString("Producer%1").arg((size_t)currentThreadId());
         runHelper(dbName);
         QSqlDatabase::database(dbName).close();
         QSqlDatabase::removeDatabase(dbName);
@@ -169,7 +169,7 @@ public:
 
     void run()
     {
-        QString dbName = QString("Consumer%1").arg((int)currentThreadId());
+        QString dbName = QString("Consumer%1").arg((size_t)currentThreadId());
         runHelper(dbName);
         QSqlDatabase::database(dbName).close();
         QSqlDatabase::removeDatabase(dbName);
