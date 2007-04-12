@@ -1025,13 +1025,14 @@ bool QAbstractButton::event(QEvent *e)
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (d->shortcutId != se->shortcutId())
             return false;
-        if (focusPolicy() != Qt::NoFocus)
-            setFocus();
         if (!se->isAmbiguous()) {
             if (!d->animateTimer.isActive())
                 animateClick();
-        } else
+        } else {
+            if (focusPolicy() != Qt::NoFocus)
+                setFocus(Qt::ShortcutFocusReason);
             window()->setAttribute(Qt::WA_KeyboardFocusChange);
+        }
         return true;
     }
 #endif
