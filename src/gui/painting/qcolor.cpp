@@ -513,7 +513,7 @@ void QColor::setNamedColor(const QString &name)
     QRgb rgb;
     if (qt_get_named_rgb(name.constData(), name.length(), &rgb)) {
         setRgb(rgb);
-    } else 
+    } else
 #endif
     {
 #ifdef Q_WS_X11
@@ -1368,7 +1368,7 @@ QColor QColor::toHsv() const
     const qreal min = Q_MIN_3(r, g, b);
     const qreal delta = max - min;
     color.ct.ahsv.value = qRound(max * USHRT_MAX);
-    if (delta == 0.0) {
+    if (qFuzzyCompare(delta, 0.0)) {
         // achromatic case, hue is undefined
         color.ct.ahsv.hue = USHRT_MAX;
         color.ct.ahsv.saturation = 0;
@@ -1376,11 +1376,11 @@ QColor QColor::toHsv() const
         // chromatic case
         qreal hue = 0;
         color.ct.ahsv.saturation = qRound((delta / max) * USHRT_MAX);
-        if (r == max) {
+        if (qFuzzyCompare(r, max)) {
             hue = ((g - b) /delta);
-        } else if (g == max) {
+        } else if (qFuzzyCompare(g, max)) {
             hue = (2.0 + (b - r) / delta);
-        } else if (b == max) {
+        } else if (qFuzzyCompare(b, max)) {
             hue = (4.0 + (r - g) / delta);
         } else {
             Q_ASSERT_X(false, "QColor::toHsv", "internal error");
