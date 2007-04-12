@@ -60,7 +60,7 @@ namespace qdesigner_internal
                 rc.push_back(it.key());
                 return rc;
             }
-            if (v & itemValue)
+            if ((v & itemValue) == itemValue)
                 rc.push_back(it.key());
         }
         return rc;
