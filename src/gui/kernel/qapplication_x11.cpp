@@ -2808,11 +2808,12 @@ int QApplication::x11ProcessEvent(XEvent* event)
     QTabletDeviceDataList *tablets = qt_tablet_devices();
     for (int i = 0; i < tablets->size(); ++i) {
         const QTabletDeviceData &tab = tablets->at(i);
-        if (event->type == tab.xinput_motion
+        if ((event->type == tab.xinput_motion
             || event->type == tab.xinput_button_release
             || event->type == tab.xinput_button_press
             || event->type == tab.xinput_proximity_in
-            || event->type == tab.xinput_proximity_out) {
+            || event->type == tab.xinput_proximity_out)
+            && ! qt_xdnd_dragging) {
             widget->translateXinputEvent(event, &tab);
             return 0;
         }
