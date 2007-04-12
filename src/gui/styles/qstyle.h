@@ -718,6 +718,7 @@ public:
         SP_ArrowForward,
         SP_DirHomeIcon,
         SP_CommandLink,
+        SP_VistaShield,
         // do not add any values below/greater than this
         SP_CustomBase = 0xf0000000
     };

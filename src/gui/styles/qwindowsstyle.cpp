@@ -17,6 +17,7 @@
 
 #if !defined(QT_NO_STYLE_WINDOWS) || defined(QT_PLUGIN)
 
+#include "qlibrary.h"
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qdrawutil.h" // for now
@@ -44,6 +45,7 @@
 #endif
 
 #if defined(Q_WS_WIN)
+
 #include "qt_windows.h"
 #  ifndef COLOR_GRADIENTACTIVECAPTION
 #    define COLOR_GRADIENTACTIVECAPTION     27
@@ -51,7 +53,26 @@
 #  ifndef COLOR_GRADIENTINACTIVECAPTION
 #    define COLOR_GRADIENTINACTIVECAPTION   28
 #  endif
-#endif
+
+
+typedef struct
+{
+    DWORD cbSize;
+    HICON hIcon;
+    int   iSysImageIndex;
+    int   iIcon;
+    WCHAR szPath[MAX_PATH];
+} QSHSTOCKICONINFO;
+
+#define _SHGFI_SMALLICON         0x000000001
+#define _SHGFI_LARGEICON         0x000000000
+#define _SHGFI_ICON              0x000000100
+#define _SIID_SHIELD             77
+
+typedef HRESULT (WINAPI *PtrSHGetStockIconInfo)(int siid, int uFlags, QSHSTOCKICONINFO *psii);
+static PtrSHGetStockIconInfo pSHGetStockIconInfo = 0;
+
+#endif //Q_WS_WIN
 
 #include <limits.h>
 
@@ -75,6 +96,13 @@ enum QSliderDirection { SlUp, SlDown, SlLeft, SlRight };
 QWindowsStylePrivate::QWindowsStylePrivate()
     : alt_down(false), menuBarTimer(0), animationFps(10), animateTimer(0), animateStep(0)
 {
+#ifdef Q_WS_WIN
+    if ((QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA
+        && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based)) {
+        QLibrary shellLib(QLatin1String("shell32"));
+        pSHGetStockIconInfo = (PtrSHGetStockIconInfo)shellLib.resolve("SHGetStockIconInfo");
+    }
+#endif
 }
 
 // Returns true if the toplevel parent of \a widget has seen the Alt-key
@@ -892,6 +920,24 @@ QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyl
             DestroyIcon(iconHandle);
             break;
         }
+    case SP_VistaShield:
+        {
+            if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA
+                && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based
+                && pSHGetStockIconInfo)
+            {
+                QPixmap pixmap;
+                QSHSTOCKICONINFO iconInfo;
+                memset(&iconInfo, 0, sizeof(iconInfo));
+                iconInfo.cbSize = sizeof(iconInfo);
+                if (pSHGetStockIconInfo(_SIID_SHIELD, _SHGFI_ICON | _SHGFI_SMALLICON, &iconInfo) == S_OK) {
+                    pixmap = convertHIconToPixmap(iconInfo.hIcon);
+                    DestroyIcon(iconInfo.hIcon);
+                    return pixmap;
+                }
+            }
+        }
+        break;
     }
     if (!desktopIcon.isNull()) {
         return desktopIcon;
@@ -3150,6 +3196,23 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
                 QPainter painter(&pixmap);
                 painter.drawPixmap(0, 0, size, size, link);
                 icon.addPixmap(pixmap, QIcon::Normal);
+            }
+        }
+        break;
+    case SP_VistaShield:
+        {
+            if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA
+                && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based 
+                && pSHGetStockIconInfo) 
+            {
+                icon.addPixmap(standardPixmap(SP_VistaShield, option, widget)); //fetches small icon
+                QSHSTOCKICONINFO iconInfo; //append large icon
+                memset(&iconInfo, 0, sizeof(iconInfo));
+                iconInfo.cbSize = sizeof(iconInfo);
+                if (pSHGetStockIconInfo(_SIID_SHIELD, _SHGFI_ICON | _SHGFI_LARGEICON, &iconInfo) == S_OK) {
+                    icon.addPixmap(convertHIconToPixmap(iconInfo.hIcon));
+                    DestroyIcon(iconInfo.hIcon);
+                }
             }
         }
         break;
