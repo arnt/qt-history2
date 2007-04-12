@@ -383,6 +383,9 @@ void QItemDelegate::paint(QPainter *painter,
             d->tmp.icon = QIcon();
             decorationRect = QRect(QPoint(0, 0), pixmap.size());
         }
+    } else {
+        d->tmp.icon = QIcon();
+        decorationRect = QRect();
     }
 
     QString text;
