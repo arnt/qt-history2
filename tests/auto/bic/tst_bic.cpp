@@ -175,6 +175,7 @@ QBic::Info tst_Bic::getCurrentInfo(const QString &libName)
 
     QByteArray tmpFileContents = "#include<" + libName.toLatin1() + "/" + libName.toLatin1() + ">\n";
     tmpQFile.write(tmpFileContents);
+    tmpQFile.flush();
 
     QString qtDir = QString::fromLocal8Bit(getenv("QTDIR"));
 #ifdef Q_OS_WIN
