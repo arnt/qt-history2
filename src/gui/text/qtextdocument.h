@@ -90,6 +90,7 @@ class Q_GUI_EXPORT QTextDocument : public QObject
     Q_PROPERTY(int blockCount READ blockCount)
     Q_PROPERTY(QString defaultStyleSheet READ defaultStyleSheet WRITE setDefaultStyleSheet)
     Q_PROPERTY(int maximumBlockCount READ maximumBlockCount WRITE setMaximumBlockCount)
+    QDOC_PROPERTY(QTextOption defaultTextOption READ defaultTextOption WRITE setDefaultTextOption)
 
 public:
     explicit QTextDocument(QObject *parent = 0);

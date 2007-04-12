@@ -1298,7 +1298,7 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc, co
     your QTextDocument then you can use QTextEdit's print() function because QTextEdit has
     access to the user's selection.
 
-    \sa QTextEdit::print
+    \sa QTextEdit::print()
 */
 
 void QTextDocument::print(QPrinter *printer) const
