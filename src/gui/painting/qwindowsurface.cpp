@@ -104,22 +104,10 @@ QWidget* QWindowSurface::window() const
     return d_ptr->window;
 }
 
-/*!
-    This function is called before painting onto the surface begins,
-    with the \a region in which the painting will occur.
-
-    \sa endPaint()
-*/
 void QWindowSurface::beginPaint(const QRegion &)
 {
 }
 
-/*!
-    This function is called after painting onto the surface has ended,
-    with the \a region in which the painting was performed.
-
-    \sa beginPaint()
-*/
 void QWindowSurface::endPaint(const QRegion &)
 {
     qDeleteAll(d_ptr->bufferImages);

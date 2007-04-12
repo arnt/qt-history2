@@ -1025,7 +1025,7 @@ void **QListData::erase(void **xi)
 /*! \fn bool QList::empty() const
 
     This function is provided for STL compatibility. It is equivalent
-    to isEmpty().
+    to isEmpty() and returns true if the list is empty.
 */
 
 /*! \fn QList<T> &QList::operator+=(const QList<T> &other)

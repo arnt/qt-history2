@@ -270,7 +270,7 @@
     implies that the atomic fetch-and-add operation must be performed
     before memory operations after the fetch-and-add.
 
-    \target 3
+    \target 11
     \section2
     int q_atomic_fetch_and_add_release_int (volatile int *ptr, int value)
 

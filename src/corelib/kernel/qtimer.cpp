@@ -144,6 +144,13 @@ QTimer::~QTimer()
 */
 
 /*!
+    \property QTimer::active
+
+    This boolean property is true if the timer is running; otherwise
+    false.
+*/
+
+/*!
     \fn bool QTimer::isActive() const
 
     Returns true if the timer is running (pending); otherwise returns

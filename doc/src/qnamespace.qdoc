@@ -102,6 +102,8 @@
            Note that you can toggle usage of the Direct3D engine on individual
            QWidgets by setting/clearing the \c WA_MSWindowsUseDirect3D attribute
            on a specific widget. \bold {This functionality is experimental}.
+    
+    \omitvalue AA_AttributeCount
 */
 
 /*!

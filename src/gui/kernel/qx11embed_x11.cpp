@@ -184,12 +184,6 @@
 */
 
 /*!
-    \fn QX11EmbedWidget::Error QX11EmbedWidget::error() const
-
-    Returns the last error that occurred.
-*/
-
-/*!
     \fn void QX11EmbedWidget::error(QX11EmbedWidget::Error error)
 
     This signal is emitted if an error occurred as a result of

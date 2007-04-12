@@ -503,7 +503,7 @@ QLinkedListData QLinkedListData::shared_null = {
 /*! \fn bool QLinkedList::empty() const
 
     This function is provided for STL compatibility. It is equivalent
-    to isEmpty().
+    to isEmpty() and returns true if the list is empty.
 */
 
 /*! \fn QLinkedList<T> &QLinkedList::operator+=(const QLinkedList<T> &other)
@@ -1020,10 +1020,10 @@ QLinkedListData QLinkedListData::shared_null = {
 
 /*! \fn QLinkedList::const_iterator QLinkedList::const_iterator::operator-(int j) const
 
-    Returns an iterator to the item at \a j positions backward from
+    This function returns an iterator to the item at \a j positions backward from
     this iterator. (If \a j is negative, the iterator goes forward.)
 
-    This operation can be slow for large \a j values.
+    This operation can be slow for large \a j values. 
 
     \sa operator+()
 */

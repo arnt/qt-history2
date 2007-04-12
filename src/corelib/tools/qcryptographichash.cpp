@@ -90,7 +90,8 @@ void QCryptographicHash::reset()
 }
 
 /*!
-  Adds data to the cryptographic hash
+    Adds the first \a length chars of \a data to the cryptographic
+    hash.
 */
 void QCryptographicHash::addData(const char *data, int length)
 {

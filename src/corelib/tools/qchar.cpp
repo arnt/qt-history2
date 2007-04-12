@@ -613,41 +613,41 @@ bool QChar::isSymbol() const
 }
 
 /*!
-  bool QChar::isHighSurrogate() const
+  \fn bool QChar::isHighSurrogate() const
 
   Returns true if the QChar is the high part of a utf16 surrogate
   (ie. if it's code point is between 0xd800 and 0xdbff).
 */
 
 /*!
-  bool QChar::isLowSurrogate() const
+  \fn bool QChar::isLowSurrogate() const
 
   Returns true if the QChar is the low part of a utf16 surrogate
   (ie. if it's code point is between 0xdc00 and 0xdfff).
 */
 
 /*!
-  static uint QChar::surrogateToUcs4(ushort high, ushort low)
+  \fn static uint QChar::surrogateToUcs4(ushort high, ushort low)
 
   Converts a utf16 surrogate pair to it's ucs4 code point.
 */
 
 /*!
-  static uint QChar::surrogateToUcs4(QChar high, QChar low)
+  \fn static uint QChar::surrogateToUcs4(QChar high, QChar low)
 
   Converts a utf16 surrogate pair to it's ucs4 code point.
 */
 
 
 /*!
-  static ushort QChar::highSurrogate(uint ucs4)
+  \fn static ushort QChar::highSurrogate(uint ucs4)
 
   Returns the high surrogate value of a ucs4 code point.
   The returned result is undefined if \a ucs4 is smaller than 0x10000.
 */
 
 /*!
-  static ushort QChar::lowSurrogate(uint ucs4)
+  \fn static ushort QChar::lowSurrogate(uint ucs4)
 
   Returns the low surrogate value of a ucs4 code point.
   The returned result is undefined if \a ucs4 is smaller than 0x10000.

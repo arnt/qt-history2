@@ -388,7 +388,7 @@ void QDirectPainter::endPainting(const QRegion &region)
     \preliminary
     \since 4.3
 
-    Flushes the given \region onto the screen.
+    Flushes the given \a region onto the screen.
 */
 void QDirectPainter::flush(const QRegion &region)
 {

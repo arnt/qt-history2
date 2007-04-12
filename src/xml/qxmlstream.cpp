@@ -270,7 +270,7 @@ QXmlStreamReader::~QXmlStreamReader()
     delete d;
 }
 
-/*! \fn bool hasError() const
+/*! \fn bool QXmlStreamReader::hasError() const
     Returns true an error has occured, otherwise false.
 
     \sa errorString(), error()
@@ -1869,12 +1869,12 @@ QXmlStreamAttribute::QXmlStreamAttribute(const QString &qualifiedName, const QSt
    value following an ATTLIST declaration in the DTD; otherwise
    returns false.
 */
-/*! \fn bool operator==(const QXmlStreamAttribute &other)
+/*! \fn bool QXmlStreamAttribute::operator==(const QXmlStreamAttribute &other) const
 
     Compares this attribute with \a other and returns true if they are
     equal; otherwise returns false.
  */
-/*! \fn bool operator!=(const QXmlStreamAttribute &other)
+/*! \fn bool QXmlStreamAttribute::operator!=(const QXmlStreamAttribute &other) const
 
     Compares this attribute with \a other and returns true if they are
     not equal; otherwise returns false.
@@ -1991,12 +1991,12 @@ Returns the system identifier.
 Returns the public identifier.
 */
 
-/*! \fn bool operator==(const QXmlStreamNotationDeclaration &other)
+/*! \fn inline bool QXmlStreamNotationDeclaration::operator==(const QXmlStreamNotationDeclaration &other) const
 
     Compares this notation declaration with \a other and returns true
     if they are equal; otherwise returns false.
  */
-/*! \fn bool operator!=(const QXmlStreamNotationDeclaration &other)
+/*! \fn inline bool QXmlStreamNotationDeclaration::operator!=(const QXmlStreamNotationDeclaration &other) const
 
     Compares this notation declaration with \a other and returns true
     if they are not equal; otherwise returns false.
@@ -2020,12 +2020,12 @@ Returns the public identifier.
 
     An namespace declaration consists of a prefix() and a namespaceUri().
 */
-/*! \fn bool operator==(const QXmlStreamNamespaceDeclaration &other)
+/*! \fn inline bool QXmlStreamNamespaceDeclaration::operator==(const QXmlStreamNamespaceDeclaration &other) const
 
     Compares this namespace declaration with \a other and returns true
     if they are equal; otherwise returns false.
  */
-/*! \fn bool operator!=(const QXmlStreamNamespaceDeclaration &other)
+/*! \fn inline bool QXmlStreamNamespaceDeclaration::operator!=(const QXmlStreamNamespaceDeclaration &other) const
 
     Compares this namespace declaration with \a other and returns true
     if they are not equal; otherwise returns false.
@@ -2156,12 +2156,12 @@ Returns the public identifier.
 Returns the entity's value.
 */
 
-/*! \fn bool operator==(const QXmlStreamEntityDeclaration &other)
+/*! \fn bool QXmlStreamEntityDeclaration::operator==(const QXmlStreamEntityDeclaration &other) const
 
     Compares this entity declaration with \a other and returns true if
     they are equal; otherwise returns false.
  */
-/*! \fn bool operator!=(const QXmlStreamEntityDeclaration &other)
+/*! \fn bool QXmlStreamEntityDeclaration::operator!=(const QXmlStreamEntityDeclaration &other) const
 
     Compares this entity declaration with \a other and returns true if
     they are not equal; otherwise returns false.

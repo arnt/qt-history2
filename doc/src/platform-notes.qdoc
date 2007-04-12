@@ -118,6 +118,7 @@
     \code
                 QMAKE_CFLAGS_RELEASE    =
     \endcode
+    \endlist
 
     \section2 HP-UX 11.11
 

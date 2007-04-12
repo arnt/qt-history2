@@ -461,7 +461,6 @@ void QTextDocument::setMaximumBlockCount(int maximum)
 }
 
 /*!
-    \property QTextDocument::defaultTextOption
     \since 4.3
 
     The default text option is used on all QTextLayout objects in the document.

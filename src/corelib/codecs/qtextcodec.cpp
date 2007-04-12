@@ -1209,6 +1209,8 @@ QString QTextDecoder::toUnicode(const char *chars, int len)
 
 
 /*! \overload
+
+    The converted string is returned in \a target.
  */
 void QTextDecoder::toUnicode(QString *target, const char *chars, int len)
 {

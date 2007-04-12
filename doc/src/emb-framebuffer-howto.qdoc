@@ -10,6 +10,7 @@
     opens the frame buffer and draws a gradient-filled red square:
 
     \code
+
     #include <stdlib.h>
     #include <unistd.h>
     #include <stdio.h>
@@ -90,5 +91,9 @@
         close(fbfd);
         return 0;
     }
+
     \endcode
+    \omit
+        To remove qdoc warning
+    \endomit
 */
