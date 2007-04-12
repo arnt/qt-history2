@@ -445,6 +445,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     qint8      i_8;
     quint32    ul;
     qreal      qrl;
+    double     dbl;
     bool       bl;
     QByteArray  str1;
     QString     str;
@@ -817,8 +818,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             painter->setClipping(bl);
             break;
         case QPicturePrivate::PdcSetOpacity:
-            s >> qrl;
-            painter->setOpacity(qrl);
+            s >> dbl;
+            painter->setOpacity(qreal(dbl));
             break;
         default:
             qWarning("QPicture::play: Invalid command %d", c);

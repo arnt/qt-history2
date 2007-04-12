@@ -169,7 +169,7 @@ void QPicturePaintEngine::updateOpacity(qreal opacity)
 #endif
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcSetOpacity);
-    d->s << opacity;
+    d->s << double(opacity);
     writeCmdLength(pos, QRectF(), false);
 }
 
