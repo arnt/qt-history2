@@ -47,6 +47,7 @@ private slots:
 
     void asciiToIscii() const;
     void flagCodepointFFFF() const;
+    void flagF7808080() const;
     void flagEFBFBF() const;
 
     void utf8Codec_data();
@@ -345,7 +346,7 @@ void tst_QTextCodec::flagCodepointFFFF() const
     QVERIFY(codec->toUnicode(asDecoded) == QChar(0xfffd));
 }
 
-void tst_QTextCodec::flagEFBFBF() const
+void tst_QTextCodec::flagF7808080() const
 {
     /* This test case stems from test not-wf-sa-170, tests/qxmlstream/XML-Test-Suite/xmlconf/xmltest/not-wf/sa/166.xml,
      * whose description reads:
@@ -377,6 +378,39 @@ void tst_QTextCodec::flagEFBFBF() const
 
     QTextCodec::ConverterState state(QTextCodec::ConvertInvalidToNull);
     QVERIFY(codec->toUnicode(input.constData(), input.length(), &state) == QChar(0));
+}
+
+void tst_QTextCodec::flagEFBFBF() const
+{
+    QByteArray invalidInput;
+    invalidInput.resize(3);
+    invalidInput[0] = 0xEF;
+    invalidInput[1] = 0xBF;
+    invalidInput[2] = 0xBF;
+
+    const QTextCodec *const codec = QTextCodec::codecForMib(106); // UTF-8
+    Q_ASSERT(codec);
+
+    {
+        //QVERIFY(!codec->canEncode(QChar(0xFFFF)));
+        QTextCodec::ConverterState state(QTextCodec::ConvertInvalidToNull);
+        QVERIFY(codec->toUnicode(invalidInput.constData(), invalidInput.length(), &state) == QChar(0));
+
+        QByteArray start("<?pi ");
+        start.append(invalidInput);
+        start.append("?>");
+    }
+
+    /* When 0xEFBFBF is preceeded by what seems to be an arbitrary character,
+     * QTextCodec fails to flag it. */
+    {
+        QEXPECT_FAIL("", "This is a bug and needs to be fixed.", Continue);
+        QByteArray start("B");
+        start.append(invalidInput);
+
+        QTextCodec::ConverterState state(QTextCodec::ConvertInvalidToNull);
+        QVERIFY(codec->toUnicode(start.constData(), start.length(), &state) == QChar(0));
+    }
 }
 
 QString fromInvalidUtf8Sequence(const QByteArray &ba)
