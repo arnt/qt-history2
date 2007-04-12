@@ -133,7 +133,12 @@ void tst_QIntValidator::validate_data()
     QTest::newRow("8.9") << -1 << 100 << QString("5") << ACC;
     QTest::newRow("8.10") << -1 << 100 << QString("+") << ITM;
     QTest::newRow("8.11") << -1 << 100 << QString("+50") << ACC;
-    QTest::newRow("lineedittest") << 0 << 100 << QString("153") << INV;
+
+/*  I disagree with the test below - the validator will correctly return Intermediate
+    for any three-digit number outside the range. This makes it much more intuitive
+    when you are editing a number (ie. not just adding digits to the end). It's also
+    what the docs currently say - Jacek
+      QTest::newRow("lineedittest") << 0 << 100 << QString("153") << INV; */
 }
 
 void tst_QIntValidator::validateArabic()
