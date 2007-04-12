@@ -444,7 +444,6 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     qint16     i_16, i1_16, i2_16;     // parameters...
     qint8      i_8;
     quint32    ul;
-    qreal      qrl;
     double     dbl;
     bool       bl;
     QByteArray  str1;
