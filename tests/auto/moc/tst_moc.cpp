@@ -19,7 +19,10 @@
 #include "slots-with-void-template.h"
 #include "qinvokable.h"
 // msvc and friends crap out on it
-#if !defined(Q_CC_MSVC) && !defined(Q_CC_HPACC) && !defined(Q_OS_IRIX)
+#if !defined(Q_CC_GNU) || defined(Q_OS_IRIX)
+#define SKIP_NEWLINE_TEST
+#endif
+#if !defined(SKIP_NEWLINE_TEST)
 #include "os9-newlines.h"
 // msvc and friends crap out on this file too,
 // it seems to contain Mac 9 EOLs, and not windows EOLs.
@@ -799,7 +802,7 @@ void tst_Moc::forgottenQInterface()
 
 void tst_Moc::os9Newline()
 {
-#if !defined(Q_CC_MSVC) && !defined(Q_CC_HPACC) && !defined(Q_OS_IRIX)
+#if !defined(SKIP_NEWLINE_TEST)
     const QMetaObject &mo = Os9Newlines::staticMetaObject;
     QVERIFY(mo.indexOfSlot("testSlot()") != -1);
     QFile f(srcify("os9-newlines.h"));
@@ -813,7 +816,7 @@ void tst_Moc::os9Newline()
 
 void tst_Moc::winNewline()
 {
-#if !defined(Q_CC_MSVC) && !defined(Q_CC_HPACC) && !defined(Q_OS_IRIX)
+#if !defined(SKIP_NEWLINE_TEST)
     const QMetaObject &mo = WinNewlines::staticMetaObject;
     QVERIFY(mo.indexOfSlot("testSlot()") != -1);
     QFile f(srcify("win-newlines.h"));
