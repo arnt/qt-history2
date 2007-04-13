@@ -827,7 +827,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         destdir += Option::dir_sep;
     t << "distclean: " << "clean\n";
     if(!project->isEmpty("QMAKE_BUNDLE")) {
-        t << "\t-$(DEL_FILE) -r " << destdir << project->first("QMAKE_BUNDLE") << endl;
+        QString bundlePath = escapeFilePath(destdir + project->first("QMAKE_BUNDLE"));
+        t << "\t-$(DEL_FILE) -r " << bundlePath << endl;
     } else if(project->isActiveConfig("compile_libtool")) {
         t << "\t-$(LIBTOOL) --mode=clean $(DEL_FILE) " << "$(TARGET)" << endl;
     } else if(!project->isActiveConfig("staticlib") && project->values("QMAKE_APP_FLAG").isEmpty() &&
