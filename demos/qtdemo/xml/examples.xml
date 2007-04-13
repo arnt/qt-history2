@@ -134,7 +134,6 @@
     <example filename="customcompleter" name="Custom Completer" />
     <example filename="i18n" name="Internationalization" />
     <example filename="plugandpaint" name="Plug and Paint" />
-    <example filename="qtdemo" name="Qt Demo" executable="false" />
     <example filename="regexp" name="Regular Expressions" />
     <example filename="settingseditor" name="Settings Editor" />
   </category>
