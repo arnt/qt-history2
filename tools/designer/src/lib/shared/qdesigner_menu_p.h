@@ -114,8 +114,8 @@ protected:
 
     QAction *currentAction() const;
     int realActionCount() const;
-    QAction *actionMimeData(const QMimeData *mimeData) const;
-    bool checkAction(QAction *action) const;
+    enum ActionDragCheck { NoActionDrag, ActionDragOnSubMenu, AcceptActionDrag };
+    ActionDragCheck checkAction(QAction *action) const;
 
     void showSubMenu(QAction *action);
 

@@ -219,7 +219,6 @@ WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *pare
     designerWidgetItem->setContainer(true);
     append(designerWidgetItem);
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerDialog")));
-    append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerToolBar")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerMenu")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerMenuBar")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerDockWidget")));
@@ -231,7 +230,6 @@ WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *pare
 
 #if 0 // ### enable me after 4.1
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QToolBar"))))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDesignerToolBar"))))->setContainer(true);
 #endif
 
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QTabWidget"))))->setContainer(true);

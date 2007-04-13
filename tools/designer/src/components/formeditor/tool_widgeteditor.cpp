@@ -247,18 +247,23 @@ bool WidgetEditorTool::handleDropEvent(QWidget *widget, QWidget *, QDropEvent *e
     return true;
 }
 
-void WidgetEditorTool::restoreDropHighlighting()
+bool WidgetEditorTool::restoreDropHighlighting()
 {
-    if (m_lastDropTarget) {
-        m_formWindow->highlightWidget(m_lastDropTarget, m_lastDropTarget->mapFromGlobal(QCursor::pos()), FormWindow::Restore);
-        m_lastDropTarget = 0;
-    }
+    if (!m_lastDropTarget)
+        return false;
+
+    m_formWindow->highlightWidget(m_lastDropTarget, m_lastDropTarget->mapFromGlobal(QCursor::pos()), FormWindow::Restore);
+    m_lastDropTarget = 0;
+    return true;
 }
 
-bool WidgetEditorTool::handleDragLeaveEvent(QWidget *, QWidget *, QDragLeaveEvent *)
+bool WidgetEditorTool::handleDragLeaveEvent(QWidget *, QWidget *, QDragLeaveEvent *event)
 {
-    restoreDropHighlighting();
-    return true;
+    if (restoreDropHighlighting()) {
+        event->accept();
+        return true;
+    }
+    return false;
 }
 
 QWidget *WidgetEditorTool::editor() const

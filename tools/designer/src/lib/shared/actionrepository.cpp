@@ -16,6 +16,9 @@
 
 #include <QtGui/QDrag>
 #include <QtGui/QContextMenuEvent>
+#include <QtGui/QToolButton>
+#include <QtGui/QPixmap>
+#include <QtGui/QAction>
 #include <QtGui/qevent.h>
 
 Q_DECLARE_METATYPE(QAction*)
@@ -53,8 +56,9 @@ void ActionRepository::startDrag(Qt::DropActions supportedActions)
 
     if (indexes.count() > 0) {
         QDrag *drag = new QDrag(this);
-        const QIcon icon = qvariant_cast<QIcon>(model()->data(indexes.front(), Qt::DecorationRole));
-        drag->setPixmap(icon.pixmap(QSize(22, 22)));
+        if (QListWidgetItem *litem = itemFromIndex(indexes.front()))
+            if (QAction *action = actionOfItem(litem))
+                 drag->setPixmap(ActionRepositoryMimeData::actionDragPixmap(action));
         drag->setMimeData(model()->mimeData(indexes));
         drag->start(supportedActions);
     }
@@ -126,7 +130,7 @@ QMimeData *ActionRepository::mimeData(const QList<QListWidgetItem*> items) const
     foreach (QListWidgetItem *item, items)
          actionList += actionOfItem(item);
 
-    return new ActionRepositoryMimeData(actionList);
+    return new ActionRepositoryMimeData(actionList, Qt::CopyAction);
 }
 
 void ActionRepository::filter(const QString &text)
@@ -152,12 +156,14 @@ void ActionRepository::contextMenuEvent(QContextMenuEvent *event)
 }
 
 // ----------     ActionRepositoryMimeData
-ActionRepositoryMimeData::ActionRepositoryMimeData(QAction *a)
+ActionRepositoryMimeData::ActionRepositoryMimeData(QAction *a, Qt::DropAction dropAction) :
+    m_dropAction(dropAction)
 {
     m_actionList += a;
 }
 
-ActionRepositoryMimeData::ActionRepositoryMimeData(const ActionList &al) :
+ActionRepositoryMimeData::ActionRepositoryMimeData(const ActionList &al, Qt::DropAction dropAction) :
+    m_dropAction(dropAction),
     m_actionList(al)
 {
 }
@@ -165,5 +171,37 @@ ActionRepositoryMimeData::ActionRepositoryMimeData(const ActionList &al) :
 QStringList ActionRepositoryMimeData::formats() const
 {
     return QStringList(QLatin1String("action-repository/actions"));
+}
+
+QPixmap  ActionRepositoryMimeData::actionDragPixmap(const QAction *action)
+{
+
+    // Try to find a suitable pixmap. Grab either widget or icon.
+    const QIcon icon = action->icon();
+    if (!icon.isNull())
+        return icon.pixmap(QSize(22, 22));
+
+    foreach (QWidget *w, action->associatedWidgets())
+        if (QToolButton *tb = qobject_cast<QToolButton *>(w))
+            return QPixmap::grabWidget(tb);
+
+    // Create a QToolButton
+    QToolButton *tb = new QToolButton;
+    tb->setText(action->text());
+    tb->adjustSize();
+    tb->setToolButtonStyle (Qt::ToolButtonTextOnly);
+    const QPixmap rc = QPixmap::grabWidget(tb);
+    tb->deleteLater();
+    return rc;
+}
+
+void ActionRepositoryMimeData::accept(QDragMoveEvent *event) const
+{
+    if (event->proposedAction() == m_dropAction) {
+        event->acceptProposedAction();
+    } else {
+        event->setDropAction(m_dropAction);
+        event->accept();
+    }
 }
 } // namespace qdesigner_internal

@@ -29,6 +29,8 @@
 #include <QtCore/QMimeData>
 #include <QtGui/QListWidget>
 
+class QPixmap;
+
 namespace qdesigner_internal {
 
 class ResourceMimeData;
@@ -66,13 +68,18 @@ class QDESIGNER_SHARED_EXPORT ActionRepositoryMimeData: public QMimeData
 public:
     typedef QList<QAction*> ActionList;
 
-    ActionRepositoryMimeData(const ActionList &);
-    ActionRepositoryMimeData(QAction *);
+    ActionRepositoryMimeData(const ActionList &, Qt::DropAction dropAction);
+    ActionRepositoryMimeData(QAction *, Qt::DropAction dropAction);
 
     const ActionList &actionList() const { return m_actionList; }
     virtual QStringList formats() const;
 
+    static QPixmap actionDragPixmap(const QAction *action);
+    
+    // Utility to accept with right action
+    void accept(QDragMoveEvent *event) const;
 private:
+    const Qt::DropAction m_dropAction;
     ActionList m_actionList;
 };
 } // namespace qdesigner_internal

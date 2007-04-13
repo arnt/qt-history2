@@ -298,14 +298,13 @@ void QDesignerMenuBar::startDrag(const QPoint &pos)
     hideMenu(index);
 
     QDrag *drag = new QDrag(this);
-    drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
-
-    drag->setMimeData(new ActionRepositoryMimeData(action));
+    drag->setPixmap(ActionRepositoryMimeData::actionDragPixmap(action));
+    drag->setMimeData(new ActionRepositoryMimeData(action, Qt::MoveAction));
 
     const int old_index = m_currentIndex;
     m_currentIndex = -1;
 
-    if (drag->start() == Qt::IgnoreAction) {
+    if (drag->start(Qt::MoveAction) == Qt::IgnoreAction) {
         InsertActionIntoCommand *cmd = new InsertActionIntoCommand(fw);
         cmd->init(this, action, safeActionAt(index));
         fw->commandHistory()->push(cmd);
@@ -587,58 +586,71 @@ void QDesignerMenuBar::adjustIndicator(const QPoint &pos)
     }
 }
 
-QAction *QDesignerMenuBar::actionMimeData(const QMimeData *mimeData) const
+QDesignerMenuBar::ActionDragCheck QDesignerMenuBar::checkAction(QAction *action) const
 {
-    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(mimeData)) {
-        Q_ASSERT(!d->actionList().isEmpty());
+    // action belongs to another form
+    if (!action || !Utils::isObjectAncestorOf(formWindow()->mainContainer(), action))
+        return NoActionDrag;
 
-        return d->actionList().first();
-    }
-
-    return 0;
-}
-
-bool QDesignerMenuBar::checkAction(QAction *action) const
-{
-    if (!action || !action->menu())
-        return false; // no menu action!! nothing to do
+    if (!action->menu())
+        return ActionDragOnSubMenu; // simple action only on sub menus
 
     QDesignerMenu *m = qobject_cast<QDesignerMenu*>(action->menu());
     if (m && m->parentMenu())
-        return false; // it looks like a submenu
+        return ActionDragOnSubMenu; // it looks like a submenu
 
     if (actions().contains(action))
-        return false; // we already have the action in the menubar
+        return ActionDragOnSubMenu; // we already have the action in the menubar
 
-    if (!Utils::isObjectAncestorOf(formWindow()->mainContainer(), action))
-        return false; // action belongs to another form
-
-    return true;
+    return AcceptActionDrag;
 }
 
 void QDesignerMenuBar::dragEnterEvent(QDragEnterEvent *event)
 {
-    QAction *action = actionMimeData(event->mimeData());
-    if (!action || !Utils::isObjectAncestorOf(formWindow()->mainContainer(), action))
+    const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData());
+    if (!d || d->actionList().empty()) {
+        event->ignore();
         return;
+    }
 
-    m_dragging = true;
-    event->acceptProposedAction();
-
-    if (checkAction(action)) {
+    QAction *action = d->actionList().first();
+    switch (checkAction(action)) {
+    case NoActionDrag:
+        event->ignore();
+        break;
+    case ActionDragOnSubMenu:
+        m_dragging = true;
+        d->accept(event);
+        break;
+    case AcceptActionDrag:
+        m_dragging = true;
+        d->accept(event);
         adjustIndicator(event->pos());
+        break;
     }
 }
 
 void QDesignerMenuBar::dragMoveEvent(QDragMoveEvent *event)
 {
-    if (checkAction(actionMimeData(event->mimeData()))) {
-        event->acceptProposedAction();
-        adjustIndicator(event->pos());
-    } else {
+    const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData());
+    if (!d || d->actionList().empty()) {
         event->ignore();
-        int index = findAction(event->pos());
-        showMenu(index);
+        return;
+    }
+    QAction *action = d->actionList().first();
+
+    switch (checkAction(action)) {
+    case NoActionDrag:
+        event->ignore();
+        break;
+    case ActionDragOnSubMenu:
+        event->ignore();
+        showMenu(findAction(event->pos()));
+        break;
+    case AcceptActionDrag:
+        d->accept(event);
+        adjustIndicator(event->pos());
+        break;
     }
 }
 
@@ -656,7 +668,7 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
     if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData())) {
 
         QAction *action = d->actionList().first();
-        if (checkAction(action)) {
+        if (checkAction(action) == AcceptActionDrag) {
             event->acceptProposedAction();
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);

@@ -13,6 +13,7 @@
 
 #include "default_actionprovider.h"
 #include "invisible_widget_p.h"
+#include "qdesigner_toolbar_p.h"
 
 #include <QtGui/QAction>
 #include <QtGui/QMenu>
@@ -64,7 +65,7 @@ QAction *QDesignerActionProvider::actionAt(const QPoint &pos) const
     else if (QMenu *menu = qobject_cast<QMenu*>(m_widget))
         return menu->actionAt(pos);
     else if (QToolBar *toolBar = qobject_cast<QToolBar*>(m_widget))
-        return toolBar->actionAt(pos);
+        return ToolBarEventFilter::actionAt(toolBar, pos);
 
     Q_ASSERT(0);
     return 0;

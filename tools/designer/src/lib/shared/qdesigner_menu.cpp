@@ -36,6 +36,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QRubberBand>
 #include <QtGui/QToolTip>
+#include <QtGui/QToolBar>
 #include <QtGui/qevent.h>
 
 Q_DECLARE_METATYPE(QAction*)
@@ -127,24 +128,23 @@ void QDesignerMenu::startDrag(const QPoint &pos, Qt::KeyboardModifiers modifiers
     QAction *action = safeActionAt(index);
 
     QDesignerFormWindowInterface *fw = formWindow();
-    if (!(modifiers & Qt::ControlModifier)) {
+    const Qt::DropAction dropAction = (modifiers & Qt::ControlModifier) ? Qt::CopyAction : Qt::MoveAction;
+    if (dropAction == Qt::MoveAction) {
         RemoveActionFromCommand *cmd = new RemoveActionFromCommand(fw);
         cmd->init(this, action, actions().at(index + 1));
         fw->commandHistory()->push(cmd);
     }
 
     QDrag *drag = new QDrag(this);
-    drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
-
-    drag->setMimeData(new ActionRepositoryMimeData(action));
+    drag->setPixmap(ActionRepositoryMimeData::actionDragPixmap(action));
+    drag->setMimeData(new ActionRepositoryMimeData(action, dropAction));
 
     const int old_index = m_currentIndex;
     m_currentIndex = -1;
 
-    if (drag->start() == Qt::IgnoreAction) {
-        QAction *previous = safeActionAt(index);
-
-        if (!(modifiers & Qt::ControlModifier)) {
+    if (drag->start(dropAction) == Qt::IgnoreAction) {
+        if (dropAction == Qt::MoveAction) {
+            QAction *previous = safeActionAt(index);
             InsertActionIntoCommand *cmd = new InsertActionIntoCommand(fw);
             cmd->init(this, action, previous);
             fw->commandHistory()->push(cmd);
@@ -262,6 +262,12 @@ bool QDesignerMenu::handleKeyPressEvent(QWidget * /*widget*/, QKeyEvent *e)
     return true;
 }
 
+static void sendMouseEventTo(QWidget *target, const QPoint &targetPoint, const QMouseEvent *event)
+{
+    QMouseEvent e(event->type(), targetPoint, event->globalPos(), event->button(), event->buttons(), event->modifiers());
+    QApplication::sendEvent(target, &e);
+}
+
 bool QDesignerMenu::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
 {
     event->accept();
@@ -277,12 +283,9 @@ bool QDesignerMenu::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
         QDesignerMenu *menu = qobject_cast<QDesignerMenu*>(target);
         if (mb != 0 || menu != 0) {
             const QPoint pt = target->mapFromGlobal(event->globalPos());
-
             QAction *action = mb == 0 ? menu->actionAt(pt) : mb->actionAt(pt);
-            if (action) {
-                QMouseEvent e(event->type(), pt, event->globalPos(), event->button(), event->buttons(), event->modifiers());
-                QApplication::sendEvent(target, &e);
-            }
+            if (action)
+                 sendMouseEventTo(target, pt, event);
         }
         return true;
     }
@@ -306,21 +309,27 @@ bool QDesignerMenu::handleMouseDoubleClickEvent(QWidget *, QMouseEvent *event)
 bool QDesignerMenu::handleMousePressEvent(QWidget * /*widget*/, QMouseEvent *event)
 {
     if (!rect().contains(event->pos())) {
-        if (QMenuBar *mb = qobject_cast<QMenuBar*>(QApplication::widgetAt(event->globalPos()))) {
+        QWidget *clickedWidget = QApplication::widgetAt(event->globalPos());
+        if (QMenuBar *mb = qobject_cast<QMenuBar*>(clickedWidget)) {
             const QPoint pt = mb->mapFromGlobal(event->globalPos());
             if (QAction *action = mb->actionAt(pt)) {
                 QMenu * menu = action->menu();
                 if (menu == findRootMenu()) {
                     // propagate the mouse press event (but don't close the popup)
-                    QMouseEvent e(event->type(), pt, event->globalPos(), event->button(), event->buttons(), event->modifiers());
-                    QApplication::sendEvent(mb, &e);
+                    sendMouseEventTo(mb, pt, event);
                     return true;
                 }
             }
         }
 
-        // hide the popup Qt will replay the event
+        // hide the popup Qt will replay the event. Try to focus the clicked window.
         slotDeactivateNow();
+        if (clickedWidget) {
+            if (QWidget *focusProxy = clickedWidget->focusProxy())
+                clickedWidget = focusProxy;
+            if (clickedWidget->focusPolicy() != Qt::NoFocus)
+                clickedWidget->setFocus(Qt::OtherFocusReason);
+        }
         return true;
     }
 
@@ -341,7 +350,6 @@ bool QDesignerMenu::handleMousePressEvent(QWidget * /*widget*/, QMouseEvent *eve
 
     const int old_index = m_currentIndex;
     m_currentIndex = index;
-
     if ((hasSubMenuPixmap(action) || action->menu() != 0)
         && pm_rect.contains(m_startPosition)) {
         if (m_currentIndex == m_lastSubMenuIndex) {
@@ -350,10 +358,8 @@ bool QDesignerMenu::handleMousePressEvent(QWidget * /*widget*/, QMouseEvent *eve
             slotShowSubMenuNow();
     } else {
         if (index == old_index) {
-            if (m_currentIndex == m_lastSubMenuIndex) {
+            if (m_currentIndex == m_lastSubMenuIndex)
                 hideSubMenu();
-            } else
-                slotShowSubMenuNow();
         } else {
             hideSubMenu();
         }
@@ -384,11 +390,9 @@ bool QDesignerMenu::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
         if (QMenuBar *mb = qobject_cast<QMenuBar*>(QApplication::widgetAt(event->globalPos()))) {
             const QPoint pt = mb->mapFromGlobal(event->globalPos());
             QAction *action = mb->actionAt(pt);
-
             if (action && action->menu() == findRootMenu()) {
                 // propagate the mouse press event (but don't close the popup)
-                QMouseEvent e(event->type(), pt, event->globalPos(), event->button(), event->buttons(), event->modifiers());
-                QApplication::sendEvent(mb, &e);
+                sendMouseEventTo(mb, pt, event);
                 return true;
             }
             // hide the popup Qt will replay the event
@@ -669,42 +673,43 @@ void QDesignerMenu::adjustIndicator(const QPoint &pos)
     }
 }
 
-QAction *QDesignerMenu::actionMimeData(const QMimeData *mimeData) const
-{
-    if (const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(mimeData)) {
-        Q_ASSERT(!d->actionList().isEmpty());
-
-        return d->actionList().first();
-    }
-
-    return 0;
-}
-
-bool QDesignerMenu::checkAction(QAction *action) const
+QDesignerMenu::ActionDragCheck QDesignerMenu::checkAction(QAction *action) const
 {
     if (!action || (action->menu() && action->menu()->parentWidget() != const_cast<QDesignerMenu*>(this)))
-        return false; // menu action!! nothing to do
-
-    if (actions().contains(action))
-        return false; // we already have the action in the menu
+        return NoActionDrag; // menu action!! nothing to do
 
     if (!Utils::isObjectAncestorOf(formWindow()->mainContainer(), action))
-        return false; // the action belongs to another form window
+        return NoActionDrag; // the action belongs to another form window
 
-    return true;
+    if (actions().contains(action))
+        return ActionDragOnSubMenu; // we already have the action in the menu
+
+    return AcceptActionDrag;
 }
 
 void QDesignerMenu::dragEnterEvent(QDragEnterEvent *event)
 {
-    QAction *action = actionMimeData(event->mimeData());
-    if (!action)
+    const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData());
+    if (!d || d->actionList().empty()) {
+        event->ignore();
         return;
+    }
 
-    m_dragging = true;
-    event->acceptProposedAction();
+    QAction *action = d->actionList().first();
 
-    if (checkAction(action)) {
+    switch (checkAction(action)) {
+    case NoActionDrag:
+        event->ignore();
+        break;
+    case ActionDragOnSubMenu:
+        d->accept(event);
+        m_dragging = true;
+        break;
+    case AcceptActionDrag:
+        d->accept(event);
+        m_dragging = true;
         adjustIndicator(event->pos());
+        break;
     }
 }
 
@@ -716,18 +721,34 @@ void QDesignerMenu::dragMoveEvent(QDragMoveEvent *event)
         return;
     }
 
-    QAction *action = actionMimeData(event->mimeData());
-    if (action == 0 || !checkAction(action)) {
+    const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData());
+    if (!d || d->actionList().empty()) {
         event->ignore();
         return;
     }
 
-    event->acceptProposedAction();
-    adjustIndicator(event->pos());
-    m_currentIndex = findAction(event->pos());
-
-    if (m_lastSubMenuIndex != m_currentIndex)
-        m_showSubMenuTimer->start(300);
+    QAction *action = d->actionList().first();
+    switch (const ActionDragCheck dc = checkAction(action)) {
+    case NoActionDrag:
+        event->ignore();
+        break;
+    case ActionDragOnSubMenu:
+    case AcceptActionDrag: { // Do not pop up submenu of action being dragged
+        const int newIndex = findAction(event->pos());
+        if (safeActionAt(newIndex) != action) {
+            m_currentIndex = newIndex;
+            if (m_lastSubMenuIndex != m_currentIndex)
+                m_showSubMenuTimer->start(300);
+        }
+        if (dc == AcceptActionDrag) {
+            adjustIndicator(event->pos());
+            d->accept(event);
+        } else {
+            event->ignore();
+        }
+    }
+        break;
+    }
 }
 
 void QDesignerMenu::dragLeaveEvent(QDragLeaveEvent *)
@@ -744,8 +765,13 @@ void QDesignerMenu::dropEvent(QDropEvent *event)
     m_dragging = false;
 
     QDesignerFormWindowInterface *fw = formWindow();
-    QAction *action = actionMimeData(event->mimeData());
-    if (action && checkAction(action)) {
+    const ActionRepositoryMimeData *d = qobject_cast<const ActionRepositoryMimeData*>(event->mimeData());
+    if (!d || d->actionList().empty()) {
+        event->ignore();
+        return;
+    }
+    QAction *action = d->actionList().first();
+    if (action && checkAction(action) == AcceptActionDrag) {
         event->acceptProposedAction();
         int index = findAction(event->pos());
         index = qMin(index, actions().count() - 1);
@@ -1173,25 +1199,11 @@ void QDesignerMenu::showLineEdit()
     m_editor->setFocus();
 }
 
-// ### Share me with QDesignerToolBar (a.k.a. he's a copy of me)
 QAction *QDesignerMenu::createAction(const QString &objectName, bool separator)
 {
-    Q_ASSERT(formWindow() != 0);
     QDesignerFormWindowInterface *fw = formWindow();
-
-    QAction *action = new QAction(fw);
-    fw->core()->widgetFactory()->initialize(action);
-    if (separator)
-        action->setSeparator(true);
-
-    action->setObjectName(objectName);
-    fw->ensureUniqueObjectName(action);
-
-    AddActionCommand *cmd = new AddActionCommand(fw);
-    cmd->init(action);
-    fw->commandHistory()->push(cmd);
-
-    return action;
+    Q_ASSERT(fw);
+    return ToolBarEventFilter::createAction(fw, objectName, separator);
 }
 
 // ### share with QDesignerMenu::swap

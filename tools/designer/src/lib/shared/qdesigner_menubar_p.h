@@ -98,8 +98,8 @@ protected:
 
     void startDrag(const QPoint &pos);
 
-    QAction *actionMimeData(const QMimeData *mimeData) const;
-    bool checkAction(QAction *action) const;
+    enum ActionDragCheck { NoActionDrag, ActionDragOnSubMenu, AcceptActionDrag };
+    ActionDragCheck checkAction(QAction *action) const;
 
     void adjustIndicator(const QPoint &pos);
     int findAction(const QPoint &pos) const;

@@ -33,7 +33,7 @@ class QAction;
 class QToolBarExtension;
 class QMenu;
 
-class QToolBarItem : public QWidgetItem
+class Q_GUI_EXPORT QToolBarItem : public QWidgetItem
 {
 public:
     QToolBarItem(QWidget *widget);
@@ -43,7 +43,7 @@ public:
     bool customWidget;
 };
 
-class QToolBarLayout : public QLayout
+class Q_GUI_EXPORT QToolBarLayout : public QLayout
 {
     Q_OBJECT
 

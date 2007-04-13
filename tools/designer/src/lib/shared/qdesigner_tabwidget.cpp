@@ -23,6 +23,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QMenu>
+#include <QtGui/QLabel>
 
 #include <QtCore/qdebug.h>
 
@@ -157,12 +158,20 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
             m_dragPage = currentWidget();
             m_dragLabel = currentTabText();
             m_dragIcon = currentTabIcon();
+            if (m_dragIcon.isNull()) {
+                QLabel *label = new QLabel(m_dragLabel);
+                label->adjustSize();
+                drg->setPixmap(QPixmap::grabWidget(label));
+                label->deleteLater();
+            } else {
+                drg->setPixmap(m_dragIcon.pixmap(22, 22));
+            }
 
             removeTab(m_dragIndex);
 
-            Qt::DropActions dropAction = drg->start(Qt::MoveAction);
+            const Qt::DropActions dropAction = drg->start(Qt::MoveAction);
 
-            if (dropAction == 0) {
+            if (dropAction == Qt::IgnoreAction) {
                 // abort
                 insertTab(m_dragIndex, m_dragPage, m_dragIcon, m_dragLabel);
                 setCurrentIndex(m_dragIndex);
@@ -183,8 +192,13 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
         QDragMoveEvent *de = static_cast<QDragMoveEvent*>(e);
         if (!qdesigner_internal::MyMimeData::fromMyTab(de->mimeData(), this))
             return false;
-        de->accept();
-        de->acceptProposedAction();
+
+        if (de->proposedAction() == Qt::MoveAction)
+            de->acceptProposedAction();
+        else {
+            de->setDropAction(Qt::MoveAction);
+            de->accept();
+        }
 
         QRect rect;
         const int index = pageFromPosition(de->pos(), rect);
@@ -335,7 +349,7 @@ QMenu *QDesignerTabWidget::addContextMenuActions(QMenu *popup)
     QMenu *insertPageMenu = popup->addMenu(tr("Insert Page"));
     insertPageMenu->addAction(m_actionInsertPageAfter);
     insertPageMenu->addAction(m_actionInsertPage);
-    popup->addSeparator(); 
+    popup->addSeparator();
     return pageMenu;
 }
 

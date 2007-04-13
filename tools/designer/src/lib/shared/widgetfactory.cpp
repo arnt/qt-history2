@@ -131,7 +131,9 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
     } else if (widgetName == QLatin1String("QToolBox")) {
         w = new QDesignerToolBox(parentWidget);
     } else if (widgetName == QLatin1String("QToolBar")) {
-        w = new QDesignerToolBar(parentWidget);
+        QToolBar *tb = new QToolBar(parentWidget);
+        w = tb;
+        ToolBarEventFilter::install(tb);
     } else if (widgetName == QLatin1String("QMenuBar")) {
         w = new QDesignerMenuBar(parentWidget);
     } else if (widgetName == QLatin1String("QMenu")) {
@@ -216,8 +218,6 @@ QString WidgetFactory::classNameOf(QDesignerFormEditorInterface *c, QObject* o)
         return QLatin1String("QStackedWidget");
     else if (qobject_cast<QDesignerMenuBar*>(o))
         return QLatin1String("QMenuBar");
-    else if (qobject_cast<QDesignerToolBar*>(o))
-        return QLatin1String("QToolBar");
     else if (qobject_cast<QDesignerDockWidget*>(o))
         return QLatin1String("QDockWidget");
     else if (qobject_cast<QDesignerToolBox*>(o))
@@ -435,9 +435,9 @@ bool WidgetFactory::isPassiveInteractor(QWidget *widget)
         return (m_lastWasAPassiveInteractor = true);
     else if (qobject_cast<QMenuBar*>(widget))
         return (m_lastWasAPassiveInteractor = true);
-    else if (qstrcmp(widget->metaObject()->className(), "QDockWidgetTitle") == 0)
+    else if (qobject_cast<QToolBar*>(widget))
         return (m_lastWasAPassiveInteractor = true);
-    else if (qstrcmp(widget->metaObject()->className(), "QToolBarHandle") == 0)
+    else if (qstrcmp(widget->metaObject()->className(), "QDockWidgetTitle") == 0)
         return (m_lastWasAPassiveInteractor = true);
     else if (widget->objectName().startsWith(QLatin1String("__qt__passive_")))
         return (m_lastWasAPassiveInteractor = true);

@@ -52,6 +52,7 @@
 #include <QtGui/QLayout>
 #include <QtGui/QTabWidget>
 #include <QtGui/QToolBox>
+#include <QtGui/QToolBar>
 #include <QtGui/QTabBar>
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
@@ -96,7 +97,6 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
     m_internal_to_qt.insert(QLatin1String("QDesignerTabWidget"), QLatin1String("QTabWidget"));
     m_internal_to_qt.insert(QLatin1String("QDesignerDialog"), QLatin1String("QDialog"));
     m_internal_to_qt.insert(QLatin1String("QDesignerToolBox"), QLatin1String("QToolBox"));
-    m_internal_to_qt.insert(QLatin1String("QDesignerToolBar"), QLatin1String("QToolBar"));
     m_internal_to_qt.insert(QLatin1String("QDesignerMenuBar"), QLatin1String("QMenuBar"));
     m_internal_to_qt.insert(QLatin1String("QDesignerMenu"), QLatin1String("QMenu"));
     m_internal_to_qt.insert(QLatin1String("QDesignerDockWidget"), QLatin1String("QDockWidget"));
@@ -431,20 +431,18 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
     ui_widget->setElementAddAction(actionRefs);
 
     if (w == 0)
-        return 0;
+       return 0;
 
     // ### generalize using the extension manager
     QDesignerMenu *menu = qobject_cast<QDesignerMenu*>(w);
     QDesignerMenuBar *menuBar = qobject_cast<QDesignerMenuBar*>(w);
-    QDesignerToolBar *toolBar = qobject_cast<QDesignerToolBar*>(w);
+    QToolBar *toolBar = qobject_cast<QToolBar*>(w);
 
     if (menu) {
         menu->interactive(false);
         menu->hide();
     } else if (menuBar) {
         menuBar->interactive(false);
-    } else if (toolBar) {
-        toolBar->interactive(false);
     }
 
     foreach (DomActionRef *ui_action_ref, actionRefs) {
@@ -471,10 +469,8 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
         menuBar->interactive(true);
         menuBar->adjustSpecialActions();
     } else if (toolBar) {
-        toolBar->interactive(true);
-        toolBar->adjustSpecialActions();
+        ToolBarEventFilter::adjustSpecialActions(toolBar);
     }
-
 
     ui_widget->setAttributeClass(className); // fix the class name
     applyExtensionDataFromDOM(this, core(), ui_widget, w, true);
@@ -729,7 +725,7 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         w = saveWidget(stackedWidget, ui_parentWidget);
     else if (QDesignerToolBox *toolBox = qobject_cast<QDesignerToolBox*>(widget))
         w = saveWidget(toolBox, ui_parentWidget);
-    else if (QDesignerToolBar *toolBar = qobject_cast<QDesignerToolBar*>(widget))
+    else if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget))
         w = saveWidget(toolBar, ui_parentWidget);
     else if (QDesignerDockWidget *dockWidget = qobject_cast<QDesignerDockWidget*>(widget))
         w = saveWidget(dockWidget, ui_parentWidget);
@@ -1018,7 +1014,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerStackedWidget *widget, DomWidg
     return ui_widget;
 }
 
-DomWidget *QDesignerResource::saveWidget(QDesignerToolBar *toolBar, DomWidget *ui_parentWidget)
+DomWidget *QDesignerResource::saveWidget(QToolBar *toolBar, DomWidget *ui_parentWidget)
 {
     DomWidget *ui_widget = QAbstractFormBuilder::createDom(toolBar, ui_parentWidget, false);
     if (const QMainWindow *mainWindow = qobject_cast<QMainWindow*>(toolBar->parentWidget())) {
@@ -1031,7 +1027,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerToolBar *toolBar, DomWidget *u
         attr->setAttributeName(QLatin1String("toolBarArea"));
         attr->setElementEnum(QLatin1String(toolBarAreaMetaEnum().valueToKey(area)));
         attributes  << attr;
-        
+
         attr = new DomProperty();
         attr->setAttributeName(QLatin1String("toolBarBreak"));
         attr->setElementBool(toolBarBreak ? QLatin1String("true") : QLatin1String("false"));

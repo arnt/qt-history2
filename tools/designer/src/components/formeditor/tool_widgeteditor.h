@@ -57,7 +57,7 @@ public:
     bool handleDropEvent(QWidget *widget, QWidget *managedWidget, QDropEvent *e);
 
 private:
-    void restoreDropHighlighting();
+    bool restoreDropHighlighting();
 
     FormWindow *m_formWindow;
     QAction *m_action;

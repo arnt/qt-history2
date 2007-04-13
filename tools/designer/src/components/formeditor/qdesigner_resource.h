@@ -32,7 +32,7 @@ class QDesignerWidgetDataBaseItemInterface;
 class QDesignerTabWidget;
 class QDesignerStackedWidget;
 class QDesignerToolBox;
-class QDesignerToolBar;
+class QToolBar;
 class QDesignerDockWidget;
 class QLayoutWidget;
 
@@ -96,7 +96,7 @@ protected:
     DomWidget *saveWidget(QDesignerStackedWidget *widget, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QDesignerToolBox *widget, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QWidget *widget, QDesignerContainerExtension *container, DomWidget *ui_parentWidget);
-    DomWidget *saveWidget(QDesignerToolBar *toolBar, DomWidget *ui_parentWidget);
+    DomWidget *saveWidget(QToolBar *toolBar, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QDesignerDockWidget *dockWidget, DomWidget *ui_parentWidget);
 
     virtual DomCustomWidgets *saveCustomWidgets();
