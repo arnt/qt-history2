@@ -256,7 +256,10 @@ float4 SimplePS(float4 Color : COLOR0, float4 TexCoords : TEXCOORD0) : COLOR0
 
         float y = (-B + sqrt(B*B - 4.0*A*C)) / (2.0*A);
         Color = tex1D(PixmapSampler, (tc.y / y) );
+    } else if (g_mBrushMode == 5) {
+        Color = tex2D(PixmapSampler, TexCoords.xy) * Color;
     }
+    
     return Color;
 }
 
