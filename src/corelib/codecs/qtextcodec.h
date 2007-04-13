@@ -142,6 +142,7 @@ public:
     QString toUnicode(const QByteArray &ba);
     void toUnicode(QString *target, const char *chars, int len);
     bool hasFailure() const;
+    void setConversionFlags(const QTextCodec::ConversionFlags conversionFlags);
 private:
     const QTextCodec *c;
     QTextCodec::ConverterState state;

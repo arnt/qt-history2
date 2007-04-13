@@ -1349,6 +1349,19 @@ QTextCodec *QTextCodec::codecForHtml(const QByteArray &ba)
 }
 
 /*! \internal
+ *  \since 4.3
+ *
+ *  Sets this QTextDecoder's conversion flags to \a conversionFlags.
+ *
+ *  This is useful when being required to use a QTextDecoder in order to keep state, but
+ *  nevertheless wants to influence how characters are converted.
+ */
+void QTextDecoder::setConversionFlags(const QTextCodec::ConversionFlags conversionFlags)
+{
+        state.flags = conversionFlags;
+}
+
+/*! \internal
     \since 4.3
     Determines whether the decoder encountered a failure while decoding the input. If
     an error was encountered, the produced result is undefined, and gets converted as according
