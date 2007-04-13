@@ -4364,6 +4364,7 @@ void QDirect3DPaintEngine::updateState(const QPaintEngineState &state)
             d->m_currentState |= QD3DBatchItem::BI_AA;
         else
             d->m_currentState &= ~QD3DBatchItem::BI_AA;
+        update_fast_pen = true;
     }
 
     if (flags & DirtyFont) {
