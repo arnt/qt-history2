@@ -289,6 +289,8 @@ public:
     QPolygonClipper<QRasterFloatPoint, QRasterFloatPoint, qreal> m_clipper;
     QDataBuffer<QPointF> m_polygon_dev;
 
+    QRectF controlPointRect; // only valid after endOutline()
+
     QT_FT_Outline m_outline;
     uint m_txop;
 
@@ -349,20 +351,29 @@ void QFTOutlineMapper::endOutline()
         elements = m_elements_dev.data();
     }
 
-    // Check for out of dev bounds...
-    const QPointF *last_element = elements + element_count;
+    // Calculate bounding rect
     const QPointF *e = elements;
-    bool do_clip = false;
-    while (e < last_element) {
-        if (e->x() < -QT_RASTER_COORD_LIMIT
-            || e->x() > QT_RASTER_COORD_LIMIT
-            || e->y() < -QT_RASTER_COORD_LIMIT
-            || e->y() > QT_RASTER_COORD_LIMIT) {
-            do_clip = true;
-            break;
-        }
-        ++e;
+    const QPointF *last_element = elements + element_count;
+    qreal minx, maxx, miny, maxy;
+    minx = maxx = e->x();
+    miny = maxy = e->y();
+    while (++e < last_element) {
+        if (e->x() < minx)
+            minx = e->x();
+        else if (e->x() > maxx)
+            maxx = e->x();
+        if (e->y() < miny)
+            miny = e->y();
+        else if (e->y() > maxy)
+            maxy = e->y();
     }
+    controlPointRect.setCoords(minx, miny, maxx, maxy);
+
+    // Check for out of dev bounds...
+    const bool do_clip = (minx < -QT_RASTER_COORD_LIMIT
+                          || maxx > QT_RASTER_COORD_LIMIT
+                          || miny < -QT_RASTER_COORD_LIMIT
+                          || maxy > QT_RASTER_COORD_LIMIT);
 
     if (do_clip) {
         clipElements(elements, m_element_types.data(), element_count);
@@ -1619,8 +1630,8 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
                                   &d->penData);
         }
 
-        const QRectF brect = d->matrix.mapRect(path.controlPointRect());
-        ProcessSpans blend = d->getPenFunc(brect, &d->penData);
+        ProcessSpans blend = d->getPenFunc(d->outlineMapper->controlPointRect,
+                                           &d->penData);
         d->rasterize(d->outlineMapper->outline(), blend, &d->penData, d->rasterBuffer);
         d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
@@ -1713,10 +1724,10 @@ void QRasterPaintEngine::fillPolygon(const QPointF *points, int pointCount, Poly
     } while (p < ep);
     d->outlineMapper->endOutline();
 
-    // hw: TODO: try unclipped
-
     // scanconvert.
-    d->rasterize(d->outlineMapper->outline(), d->brushData.blend, &d->brushData, d->rasterBuffer);
+    ProcessSpans brushBlend = d->getBrushFunc(d->outlineMapper->controlPointRect,
+                                              &d->brushData);
+    d->rasterize(d->outlineMapper->outline(), brushBlend, &d->brushData, d->rasterBuffer);
 }
 
 /*!
@@ -1812,8 +1823,9 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             }
             d->outlineMapper->endOutline();
 
-            // hw: TODO: try unclipped
-            d->rasterize(d->outlineMapper->outline(), d->penData.blend, &d->penData, d->rasterBuffer);
+            ProcessSpans penBlend = d->getPenFunc(d->outlineMapper->controlPointRect,
+                                                  &d->penData);
+            d->rasterize(d->outlineMapper->outline(), penBlend, &d->penData, d->rasterBuffer);
 
             d->outlineMapper->setMatrix(d->matrix, d->txop);
         }
@@ -1854,8 +1866,9 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
         d->outlineMapper->endOutline();
 
         // scanconvert.
-        // hw: TODO: try unclipped
-        d->rasterize(d->outlineMapper->outline(), d->brushData.blend, &d->brushData, d->rasterBuffer);
+        ProcessSpans brushBlend = d->getBrushFunc(d->outlineMapper->controlPointRect,
+                                                  &d->brushData);
+        d->rasterize(d->outlineMapper->outline(), brushBlend, &d->brushData, d->rasterBuffer);
     }
 
     // Do the outline...
