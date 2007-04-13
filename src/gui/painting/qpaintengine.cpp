@@ -212,7 +212,7 @@ QFont QTextItem::font() const
     from QPainters state to the native state is required.
 */
 
-static int qt_polygon_recursion;
+static QPaintEngine *qt_polygon_recursion = 0;
 struct QT_Point {
     int x;
     int y;
@@ -232,9 +232,9 @@ struct QT_Point {
 */
 void QPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
-    Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
+    Q_ASSERT_X(qt_polygon_recursion != this, "QPaintEngine::drawPolygon",
                "At least one drawPolygon function must be implemented");
-    qt_polygon_recursion = 1;
+    qt_polygon_recursion = this;
     Q_ASSERT(sizeof(QT_Point) == sizeof(QPoint));
     QVarLengthArray<QT_Point> p(pointCount);
     for (int i = 0; i < pointCount; ++i) {
@@ -261,9 +261,9 @@ struct QT_PointF {
 */
 void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
 {
-    Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
+    Q_ASSERT_X(qt_polygon_recursion != this, "QPaintEngine::drawPolygon",
                "At least one drawPolygon function must be implemented");
-    qt_polygon_recursion = 1;
+    qt_polygon_recursion = this;
     Q_ASSERT(sizeof(QT_PointF) == sizeof(QPointF));
     QVarLengthArray<QT_PointF> p(pointCount);
     for (int i=0; i<pointCount; ++i) {
