@@ -26,7 +26,7 @@ QColor Colors::buttonBgHigh(QColor(255, 255, 255, 20));
 QColor Colors::buttonText(QColor(255, 255, 255));
 QColor Colors::tt_green(QColor(166, 206, 57));
 QColor Colors::fadeOut(QColor(206, 246, 117, 0));
-QColor Colors::heading(QColor(190, 211, 146));
+QColor Colors::heading(QColor(190,230,80));
 QString Colors::contentColor("<font color='#eeeeee'>");
 
 // Guides:

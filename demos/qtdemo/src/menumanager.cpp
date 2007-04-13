@@ -277,7 +277,7 @@ void MenuManager::createLeftMenu1(const QDomElement &el)
     }
 
     // create quit button:
-    TextButton *backButton = new TextButton("Quit", TextButton::RIGHT, QUIT, this->window->scene, 0, TextButton::GREEN);
+    TextButton *backButton = new TextButton("Quit", TextButton::RIGHT, QUIT, this->window->scene, 0, TextButton::PANEL);
     backButton->setRecursiveVisible(false);
     backButton->setZValue(10);
     qreal iw = backButton->sceneBoundingRect().width();
@@ -300,7 +300,7 @@ void MenuManager::createLeftMenu1(const QDomElement &el)
 
     // Create fullscreen button:
     xOffset = 70;
-    TextButton *item = new TextButton("Toggle fullscreen", TextButton::RIGHT, FULLSCREEN, this->window->scene, 0, TextButton::GREEN);
+    TextButton *item = new TextButton("Toggle fullscreen", TextButton::RIGHT, FULLSCREEN, this->window->scene, 0, TextButton::PANEL);
     item->setRecursiveVisible(false);
     item->setZValue(10);
     
@@ -389,7 +389,7 @@ void MenuManager::createRightMenu1(const QDomElement &el)
     }
     
     // create backbutton:
-    TextButton *backButton = new TextButton("Main menu", TextButton::RIGHT, ROOT, this->window->scene, 0, TextButton::GREEN);
+    TextButton *backButton = new TextButton("Main menu", TextButton::RIGHT, ROOT, this->window->scene, 0, TextButton::PANEL);
     backButton->setRecursiveVisible(false);
     backButton->setZValue(10);
     qreal iw = backButton->sceneBoundingRect().width();
@@ -426,7 +426,7 @@ void MenuManager::createLeafMenu(const QDomElement &el)
     
     // Create launch button
     if (el.attribute("executable") != "false"){
-        TextButton *item = new TextButton("Launch", TextButton::RIGHT, LAUNCH, this->window->scene, 0, TextButton::GREEN);
+        TextButton *item = new TextButton("Launch", TextButton::RIGHT, LAUNCH, this->window->scene, 0, TextButton::PANEL);
         item->setRecursiveVisible(false);
         item->setZValue(10);
         
@@ -453,7 +453,7 @@ void MenuManager::createLeafMenu(const QDomElement &el)
     }
     
     // Create documentation button:
-    TextButton *item = new TextButton("Documentation", TextButton::RIGHT, DOCUMENTATION, this->window->scene, 0, TextButton::GREEN);
+    TextButton *item = new TextButton("Documentation", TextButton::RIGHT, DOCUMENTATION, this->window->scene, 0, TextButton::PANEL);
     item->setRecursiveVisible(false);
     item->setZValue(10);
     

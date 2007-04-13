@@ -25,9 +25,9 @@ class TextButton : public DemoItem
 {
 public:
     enum ALIGNMENT {LEFT, RIGHT};
-    enum BUTTONCOLOR {BLUE, GREEN};
+    enum BUTTONTYPE {SIDEBAR, PANEL};
     
-    TextButton(const QString &text, ALIGNMENT align = LEFT, int userCode = 0, QGraphicsScene *scene = 0, QGraphicsItem *parent = 0, BUTTONCOLOR color = BLUE);
+    TextButton(const QString &text, ALIGNMENT align = LEFT, int userCode = 0, QGraphicsScene *scene = 0, QGraphicsItem *parent = 0, BUTTONTYPE color = SIDEBAR);
     virtual ~TextButton();
     
     // overidden methods:
@@ -51,7 +51,7 @@ private:
     DemoItem *bgOff;
     DemoItem *bgPressed;
     
-    BUTTONCOLOR buttonColor;
+    BUTTONTYPE buttonType;
     ALIGNMENT alignment;
     QString menuName;
     int userCode;

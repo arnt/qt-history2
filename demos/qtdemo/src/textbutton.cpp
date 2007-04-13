@@ -23,16 +23,16 @@
 class ButtonBackground : public DemoItem
 {
 public:
-    TextButton::BUTTONCOLOR color;
+    TextButton::BUTTONTYPE type;
     bool highlighted;
     bool pressed;
 
-    ButtonBackground(TextButton::BUTTONCOLOR color, bool highlighted, bool pressed, QGraphicsScene *scene, QGraphicsItem *parent) : DemoItem(scene, parent)
+    ButtonBackground(TextButton::BUTTONTYPE type, bool highlighted, bool pressed, QGraphicsScene *scene, QGraphicsItem *parent) : DemoItem(scene, parent)
     {
-        this->color = color;
+        this->type = type;
         this->highlighted = highlighted;
         this->pressed = pressed;
-        useSharedImage(QString(__FILE__) + static_cast<int>(color) + highlighted + pressed);
+        useSharedImage(QString(__FILE__) + static_cast<int>(type) + highlighted + pressed);
     }
 
 protected:
@@ -65,10 +65,9 @@ protected:
             QColor normal1(255, 255, 245, 60);
             QColor normal2(255, 255, 235, 10);
 
-            if (this->color == TextButton::GREEN){
-                sunken = QColor(206, 235, 117, 30);
-                normal1 = QColor(226, 255, 137, 80);
-                normal2 = QColor(226, 255, 137, 20);
+            if (this->type == TextButton::PANEL){
+                normal1 = QColor(200, 170, 160, 50);
+                normal2 = QColor(50, 10, 0, 50);
             }
 
            if (pressed) {
@@ -91,12 +90,12 @@ protected:
     }
 };
 
-TextButton::TextButton(const QString &text, ALIGNMENT align, int userCode, QGraphicsScene *scene, QGraphicsItem *parent, BUTTONCOLOR color)
+TextButton::TextButton(const QString &text, ALIGNMENT align, int userCode, QGraphicsScene *scene, QGraphicsItem *parent, BUTTONTYPE type)
     : DemoItem(scene, parent)
 {
     this->menuName = text;
     this->alignment = align;
-    this->buttonColor = color;
+    this->buttonType = type;
     this->userCode = userCode;
 
     this->setAcceptsHoverEvents(true);
@@ -163,9 +162,9 @@ void TextButton::setupScanItem()
 
 void TextButton::setupButtonBg()
 {
-    this->bgOff = new ButtonBackground(this->buttonColor, false, false, this->scene(), this);
-    this->bgOn = new ButtonBackground(this->buttonColor, true, false, this->scene(), this);
-    this->bgPressed = new ButtonBackground(this->buttonColor, true, true, this->scene(), this);
+    this->bgOff = new ButtonBackground(this->buttonType, false, false, this->scene(), this);
+    this->bgOn = new ButtonBackground(this->buttonType, true, false, this->scene(), this);
+    this->bgPressed = new ButtonBackground(this->buttonType, true, true, this->scene(), this);
 }
 
 void TextButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
