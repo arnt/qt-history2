@@ -734,14 +734,10 @@ void tst_QFileInfo::fileTimes_oldFile()
     FILETIME atime = ctime;
     FILETIME mtime = atime;
     QVERIFY(fileHandle);
-    int ret = SetFileTime(fileHandle, &ctime, &atime, &mtime);
-    if (!ret) {
-        qDebug() << qt_error_string();
-        qDebug() << "Handle: " << fileHandle;
-    }
-    QVERIFY(ret != 0);
-    QFileInfo info("oldfile.txt");
+    QVERIFY(SetFileTime(fileHandle, &ctime, &atime, &mtime) != 0);
+
     // ### Only works in the summertime
+    QFileInfo info("oldfile.txt");
     QCOMPARE(info.lastModified(), QDateTime(QDate(1601, 1, 1), QTime(2, 0)));
 
     CloseHandle(fileHandle);
