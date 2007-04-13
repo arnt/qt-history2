@@ -22,7 +22,10 @@ StyleSheetEditor::StyleSheetEditor(QWidget *parent)
 
     QRegExp regExp("Q(.*)Style");
     QString defaultStyle = QApplication::style()->metaObject()->className();
-    if (regExp.exactMatch(defaultStyle))
+
+    if (defaultStyle == QLatin1String("QMacStyle"))
+        defaultStyle = QLatin1String("Macintosh (Aqua)");
+    else if (regExp.exactMatch(defaultStyle))
         defaultStyle = regExp.cap(1);
 
     ui.styleCombo->addItems(QStyleFactory::keys());
