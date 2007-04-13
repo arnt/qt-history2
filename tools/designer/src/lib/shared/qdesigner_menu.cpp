@@ -728,7 +728,8 @@ void QDesignerMenu::dragMoveEvent(QDragMoveEvent *event)
     }
 
     QAction *action = d->actionList().first();
-    switch (const ActionDragCheck dc = checkAction(action)) {
+    const ActionDragCheck dc = checkAction(action);
+    switch (dc) {
     case NoActionDrag:
         event->ignore();
         break;
