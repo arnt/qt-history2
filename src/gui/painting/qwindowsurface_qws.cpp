@@ -507,7 +507,39 @@ void QWSWindowSurface::setSurfaceFlags(SurfaceFlags flags)
 
 void QWSWindowSurface::setGeometry(const QRect &rect)
 {
-    if (rect == geometry())
+    QRegion mask = rect;
+
+    const bool isResize = rect.size() != geometry().size();
+    const QWidget *win = window();
+    if (win) {
+#ifndef QT_NO_QWS_MANAGER
+        if (win->isWindow()) {
+            QTLWExtra *topextra = win->d_func()->extra->topextra;
+            QWSManager *manager = topextra->qwsManager;
+
+            if (manager) {
+                if (!isBuffered() || isResize)
+                    manager->d_func()->dirtyRegion(QDecoration::All,
+                                                   QDecoration::Normal);
+
+                // The frame geometry is the bounding rect of manager->region,
+                // which could be too much, so we need to clip.
+                mask &= (manager->region() + win->geometry());
+            }
+        }
+#endif
+
+        const QRegion winMask = win->mask();
+        if (!winMask.isEmpty())
+            mask &= winMask.translated(win->geometry().topLeft());
+    }
+
+    setGeometry(rect, mask);
+}
+
+void QWSWindowSurface::setGeometry(const QRect &rect, const QRegion &mask)
+{
+    if (rect == geometry()) // XXX: && mask == prevMask
         return;
 
     const bool isResize = rect.size() != geometry().size();
@@ -519,36 +551,12 @@ void QWSWindowSurface::setGeometry(const QRect &rect)
 
     QWindowSurface::setGeometry(rect);
 
+    const QRegion region = mask & rect;
+    QWidget::qwsDisplay()->requestRegion(winId(), key(), permanentState(),
+                                         region);
+
     const QWidget *win = window();
-    if (!win) // XXX: if !winId()
-        return;
-
-    QRegion region = rect;
-
-#ifndef QT_NO_QWS_MANAGER
-    if (win->isWindow()) {
-        QTLWExtra *topextra = win->d_func()->extra->topextra;
-        QWSManager *manager = topextra->qwsManager;
-
-    if (manager) {
-        if (!isBuffered() || isResize)
-            manager->d_func()->dirtyRegion(QDecoration::All,
-                                           QDecoration::Normal);
-
-            // The frame geometry is the bounding rect of manager->region, which
-            // could be too much, so we need to clip.
-            region &= (manager->region() + win->geometry());
-        }
-    }
-#endif
-
-    const QRegion mask = win->mask();
-    if (!mask.isEmpty())
-        region &= mask.translated(win->geometry().topLeft());
-
-    QWidget::qwsDisplay()->requestRegion(winId(), key(), permanentState(), region);
-
-    if (!isBuffered() || isResize)
+    if (win && !isBuffered() || isResize)
         setDirty(region.translated(-win->geometry().topLeft()));
 }
 
@@ -608,6 +616,44 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
 
     d_ptr->dirty = QRegion();
     setDirty(stillDirty);
+}
+
+/*!
+    Move the surface with the given \a offset.
+
+    A subclass may reimplement this function to enable accelerated window move.
+    It must return true if the move was successful and no repaint is necessary,
+    false otherwise.
+
+    The default implementation updates the QWindowSurface geometry and
+    returns false.
+
+    This function is called by the window system on the client instance.
+*/
+bool QWSWindowSurface::move(const QPoint offset)
+{
+    QWindowSurface::setGeometry(geometry().translated(offset));
+    return false;
+}
+
+/*!
+    Move the surface with the given \a offset.
+
+    The new visible region after the window move is given by \a newClip.
+
+    A subclass may reimplement this function to enable accelerated window move.
+    The returned region indicates the area that still needs to be composed
+    on the screen.
+
+    The default implementation updates the QWindowSurface geometry and
+    returns the union of the old and new geometry.
+
+    This function is called by the window system on the server instance.
+*/
+QRegion QWSWindowSurface::move(const QPoint offset, const QRegion &newClip)
+{
+    QWindowSurface::setGeometry(geometry().translated(offset));
+    return newClip + geometry();
 }
 
 static void scroll(const QImage &img, const QRect &rect, const QPoint &point)
