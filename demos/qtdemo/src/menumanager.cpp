@@ -378,9 +378,9 @@ void MenuManager::createRightMenu1(const QDomElement &el)
         anim->setDuration(700 * Colors::animSpeedButtons);
         anim->setStartPos(QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
         anim->setPosAt(0.55, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY - i*2.0));
-        anim->setPosAt(0.70, QPointF(xOffset - 20, (i * ihp) + yOffset + Colors::contentStartY - i*1.5));
+        anim->setPosAt(0.70, QPointF(xOffset - 10, (i * ihp) + yOffset + Colors::contentStartY - i*1.5));
         anim->setPosAt(0.80, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY - i*1.0));
-        anim->setPosAt(0.90, QPointF(xOffset - 5, (i * ihp) + yOffset + Colors::contentStartY - i*0.5));
+        anim->setPosAt(0.90, QPointF(xOffset - 2, (i * ihp) + yOffset + Colors::contentStartY - i*0.5));
         anim->setPosAt(1.00, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
         movie_shake->append(anim);
         
@@ -492,15 +492,15 @@ void MenuManager::createInfo(DemoItem *item, const QString &name)
     item->setZValue(8);
     item->setRecursiveVisible(false);
     
-    float xOffset = 220.0f;
+    float xOffset = 230.0f;
     DemoItemAnimation *infoIn = new DemoItemAnimation(item, DemoItemAnimation::ANIM_IN);
     infoIn->timeline->setCurveShape(QTimeLine::LinearCurve);
     infoIn->setDuration(650);
     infoIn->setStartPos(QPointF(this->window->scene->sceneRect().width(), Colors::contentStartY));
     infoIn->setPosAt(0.60, QPointF(xOffset, Colors::contentStartY));
-    infoIn->setPosAt(0.70, QPointF(xOffset + 40, Colors::contentStartY));
+    infoIn->setPosAt(0.70, QPointF(xOffset + 20, Colors::contentStartY));
     infoIn->setPosAt(0.80, QPointF(xOffset, Colors::contentStartY));
-    infoIn->setPosAt(0.90, QPointF(xOffset + 15, Colors::contentStartY));
+    infoIn->setPosAt(0.90, QPointF(xOffset + 7, Colors::contentStartY));
     infoIn->setPosAt(1.00, QPointF(xOffset, Colors::contentStartY));
     movie_in->append(infoIn);
     
