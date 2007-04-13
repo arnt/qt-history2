@@ -261,11 +261,8 @@ QString QScriptValueIterator::name() const
     if (member.isObjectProperty() || member.nameId())
         return member.nameId()->s;
 
-    else if (member.isNativeProperty()) {
-        QScriptEngine *eng = d->object.engine();
-        QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-        return eng_p->toString(member.id());
-    }
+    else if (member.isNativeProperty())
+        return QScriptEnginePrivate::toString(member.id());
 
     return QString();
 }
