@@ -1466,7 +1466,6 @@ void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
                     codec = newCodec;
                     delete decoder;
                     decoder = codec->makeDecoder();
-                    decoder->setConversionFlags(QTextCodec::ConvertInvalidToNull);
                     decoder->toUnicode(&readBuffer, rawReadBuffer.data(), nbytesread);
                 }
             }
