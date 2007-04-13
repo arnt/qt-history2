@@ -330,8 +330,8 @@ void PaintCommands::staticInit()
                       "drawPie <x> <y> <w> <h> <angleStart> <angleArc>\n  - angles are expressed in 1/16th of degree",
                       "drawPie 10 10 20 20 0 5760");
     DECL_PAINTCOMMAND("drawPixmap", command_drawPixmap,
-                      "^drawPixmap\\s+([\\w.:\\-/]*)"                                             
-                      "\\s+(-?\\w*)\\s+(-?\\w*)\\s*(-?\\w*)?\\s*(-?\\w*)?"    // target rect                                             
+                      "^drawPixmap\\s+([\\w.:\\-/]*)"
+                      "\\s+(-?\\w*)\\s+(-?\\w*)\\s*(-?\\w*)?\\s*(-?\\w*)?"    // target rect
                       "\\s*(-?\\w*)?\\s*(-?\\w*)?\\s*(-?\\w*)?\\s*(-?\\w*)?$", // source rect
                       "drawPixmap <filename> <tx> <ty> <tw> <th> <sx> <sy> <sw> <sh>"
                       "\n- where t means target and s means source"
@@ -1646,7 +1646,7 @@ void PaintCommands::command_setOpacity(QRegExp re)
 /***************************************************************************************************/
 void PaintCommands::command_setBgMode(QRegExp re)
 {
-    QString cap = re.cap(1);
+    QString cap = re.cap(2);
     Qt::BGMode mode = Qt::TransparentMode;
     if (cap == "OpaqueMode" || cap == "Opaque")
         mode = Qt::OpaqueMode;
