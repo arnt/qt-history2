@@ -36,6 +36,8 @@ public:
     virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
     virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+
     void animationStarted(int id = 0);
     void prepare();
 
@@ -44,10 +46,10 @@ private:
     void setupScanItem();
     void setupHoverText();
     
-    DemoItemAnimation *hoverTextAnim;
     DemoItemAnimation *scanAnim;
     DemoItem *bgOn;
     DemoItem *bgOff;
+    DemoItem *bgPressed;
     
     BUTTONCOLOR buttonColor;
     ALIGNMENT alignment;

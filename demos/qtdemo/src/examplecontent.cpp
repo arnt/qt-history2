@@ -91,7 +91,7 @@ void ExampleContent::createContent()
     DemoTextItem *heading = new DemoTextItem(this->name, Colors::headingFont(), Colors::heading, -1, this->scene(), this);
     DemoTextItem *s1 = new DemoTextItem(this->loadDescription(), Colors::contentFont(), Colors::heading, 500, this->scene(), this);
     int imgHeight = 340 - int(s1->boundingRect().height()) + 50;
-    ImageItem *item = new ImageItem(MenuManager::instance()->info[this->name]["imgfile"], 540, imgHeight, this->scene(), this);
+    ImageItem *item = new ImageItem(MenuManager::instance()->info[this->name]["imgfile"], 560, imgHeight, this->scene(), this);
     heading->setPos(0, 3);
     s1->setPos(0, heading->pos().y() + heading->boundingRect().height() + 10);
     item->setPos(0, s1->pos().y() + s1->boundingRect().height() + 10);

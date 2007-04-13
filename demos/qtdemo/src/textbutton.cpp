@@ -25,12 +25,14 @@ class ButtonBackground : public DemoItem
 public:
     TextButton::BUTTONCOLOR color;
     bool highlighted;
+    bool pressed;
 
-    ButtonBackground(TextButton::BUTTONCOLOR color, bool highlighted, QGraphicsScene *scene, QGraphicsItem *parent) : DemoItem(scene, parent)
+    ButtonBackground(TextButton::BUTTONCOLOR color, bool highlighted, bool pressed, QGraphicsScene *scene, QGraphicsItem *parent) : DemoItem(scene, parent)
     {
         this->color = color;
         this->highlighted = highlighted;
-        useSharedImage(QString(__FILE__) + static_cast<int>(color) + highlighted);
+        this->pressed = pressed;
+        useSharedImage(QString(__FILE__) + static_cast<int>(color) + highlighted + pressed);
     }
 
 protected:
@@ -45,28 +47,42 @@ protected:
         painter.setPen(Qt::NoPen);
         
         if (Colors::useEightBitPalette){
-            if (this->highlighted)
-                painter.setBrush(QColor(220, 210, 210));
+            if (this->pressed)
+                painter.setBrush(QColor(100, 100, 100));
+            else if (this->highlighted)
+                painter.setBrush(QColor(120, 120, 120));
             else
-                painter.setBrush(QColor(190, 180, 180));
+                painter.setBrush(QColor(110, 110, 110));
         }
         else {
             QLinearGradient outlinebrush(0, 0, 0, scaledRect.height());
-            outlinebrush.setColorAt(0.0, QColor(255, 255, 255, 70));
-            outlinebrush.setColorAt(1.0, QColor(0, 0, 0, 70));
-            painter.setPen(QPen(outlinebrush, 1));
             QLinearGradient brush(0, 0, 0, scaledRect.height());
+            
             brush.setSpread(QLinearGradient::PadSpread);
-            if (this->color == TextButton::BLUE){
-                brush.setColorAt(0.0, QColor(255, 255, 245, 60));
-                if (!this->highlighted)
-                    brush.setColorAt(1.0, QColor(255, 255, 235, 10));
-            }
-            else {
-                brush.setColorAt(0.0, QColor(226, 255, 137, 80));
-                if (!this->highlighted)
-                    brush.setColorAt(1.0, QColor(226, 255, 137, 20));
+            QColor highlight(255, 255, 255, 70);
+            QColor shadow(0, 0, 0, 70);
+            QColor sunken(220, 220, 220, 30);
+            QColor normal1(255, 255, 245, 60);
+            QColor normal2(255, 255, 235, 10);
 
+            if (this->color == TextButton::GREEN){
+                sunken = QColor(206, 235, 117, 30);
+                normal1 = QColor(226, 255, 137, 80);
+                normal2 = QColor(226, 255, 137, 20);
+            }
+
+           if (pressed) {
+               outlinebrush.setColorAt(0.0f, shadow);
+               outlinebrush.setColorAt(1.0f, highlight);
+               brush.setColorAt(0.0f, sunken);
+               painter.setPen(Qt::NoPen);                    
+           } else {
+               outlinebrush.setColorAt(1.0f, shadow);
+               outlinebrush.setColorAt(0.0f, highlight);
+               brush.setColorAt(0.0f, normal1);                    
+               if (!this->highlighted)
+                   brush.setColorAt(1.0f, normal2);
+               painter.setPen(QPen(outlinebrush, 1));
            }
            painter.setBrush(brush);
         }
@@ -100,8 +116,8 @@ void TextButton::prepare()
 TextButton::~TextButton()
 {
     if (this->prepared){
-        delete this->hoverTextAnim;
-        delete this->scanAnim;
+        if (Colors::useButtonBalls)
+            delete this->scanAnim;
     }
 }
 
@@ -114,50 +130,42 @@ void TextButton::setupHoverText()
 {
     DemoTextItem *textItem = new DemoTextItem(this->menuName, Colors::buttonFont(), Colors::buttonText, -1, this->scene(), this);
     textItem->setZValue(zValue() + 2);
-    float xOffset = 16;
-    float yOffset = 0;
-
-    float down = 0;
-    textItem->setPos(xOffset, yOffset);
-    this->hoverTextAnim = new DemoItemAnimation(textItem);
-    this->hoverTextAnim->setDuration(1000);
-    this->hoverTextAnim->timeline->setLoopCount(1);
-    this->hoverTextAnim->setPosAt(0.0, QPointF(xOffset, yOffset));
-    this->hoverTextAnim->setPosAt(0.001, QPointF(xOffset, yOffset+down));
-    this->hoverTextAnim->setPosAt(0.7, QPointF(xOffset, yOffset+down));
-    this->hoverTextAnim->setPosAt(1.0, QPointF(xOffset + 8, yOffset+down));
+    textItem->setPos(16, 0);
 }
 
 void TextButton::setupScanItem()
 {
-    ScanItem *scanItem = new ScanItem(this->scene(), this);
-    scanItem->setZValue(zValue() + 1);
-
-    this->scanAnim = new DemoItemAnimation(scanItem);
-    this->scanAnim->setDuration(1000);
-    this->scanAnim->timeline->setLoopCount(1);
-
-    float x = 1;
-    float y = 1.5f;
-    float stop = BUTTON_WIDTH - scanItem->boundingRect().width() - x;
-    if (this->alignment == LEFT){
-        this->scanAnim->setPosAt(0.0, QPointF(x, y));
-        this->scanAnim->setPosAt(0.5, QPointF(stop, y));
-        this->scanAnim->setPosAt(1.0, QPointF(x, y));
-        scanItem->setPos(QPointF(x, y));
+    if (Colors::useButtonBalls){
+        ScanItem *scanItem = new ScanItem(0, this);
+        scanItem->setZValue(zValue() + 1);
+        
+        this->scanAnim = new DemoItemAnimation(scanItem);
+        this->scanAnim->setDuration(1000);
+        this->scanAnim->timeline->setLoopCount(1);
+        
+        float x = 1;
+        float y = 1.5f;
+        float stop = BUTTON_WIDTH - scanItem->boundingRect().width() - x;
+        if (this->alignment == LEFT){
+            this->scanAnim->setPosAt(0.0, QPointF(x, y));
+            this->scanAnim->setPosAt(0.5, QPointF(stop, y));
+            this->scanAnim->setPosAt(1.0, QPointF(x, y));
+            scanItem->setPos(QPointF(x, y));
+        }
+        else {
+            this->scanAnim->setPosAt(0.0, QPointF(stop, y));
+            this->scanAnim->setPosAt(0.5, QPointF(x, y));
+            this->scanAnim->setPosAt(1.0, QPointF(stop, y));
+            scanItem->setPos(QPointF(stop, y));
+        }
     }
-    else {
-        this->scanAnim->setPosAt(0.0, QPointF(stop, y));
-        this->scanAnim->setPosAt(0.5, QPointF(x, y));
-        this->scanAnim->setPosAt(1.0, QPointF(stop, y));
-        scanItem->setPos(QPointF(stop, y));
-    }    
 }
 
 void TextButton::setupButtonBg()
 {
-    this->bgOff = new ButtonBackground(this->buttonColor, false, this->scene(), this);
-    this->bgOn = new ButtonBackground(this->buttonColor, true, this->scene(), this);
+    this->bgOff = new ButtonBackground(this->buttonColor, false, false, this->scene(), this);
+    this->bgOn = new ButtonBackground(this->buttonColor, true, false, this->scene(), this);
+    this->bgPressed = new ButtonBackground(this->buttonColor, true, true, this->scene(), this);
 }
 
 void TextButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
@@ -167,7 +175,7 @@ void TextButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
     if (this->locked)
         return;
 
-    if (Colors::noAnimations){
+    if (Colors::noAnimations && Colors::useButtonBalls){
         // wait a bit in the beginning
         // to enhance the effect. Have to this here
         // so that the adaption can be dynamic
@@ -178,30 +186,43 @@ void TextButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
     if (MenuManager::instance()->window->fpsMedian > 10
         || Colors::noAdapt
         || Colors::noTimerUpdate){
-        this->hoverTextAnim->play(true, true);
-        this->scanAnim->play(true, true);
+        if (Colors::useButtonBalls)
+            this->scanAnim->play(true, true);
     }
-    this->bgOn->setRecursiveVisible(true);
-    this->bgOff->setRecursiveVisible(false);
+   this->bgOn->setRecursiveVisible(true);
+   this->bgOff->setRecursiveVisible(false);
+   this->bgPressed->setRecursiveVisible(false);
 }
 
 void TextButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
 
-    if (Colors::noAnimations)
+    if (Colors::noAnimations && Colors::useButtonBalls)
         this->scanAnim->stop();
-    this->hoverTextAnim->stop();
     this->bgOn->setRecursiveVisible(false);
     this->bgOff->setRecursiveVisible(true);
+    this->bgPressed->setRecursiveVisible(false);
 }
 
 void TextButton::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(event);
 
-    if (!this->locked){
-        this->hoverTextAnim->stop();
+    this->bgPressed->setRecursiveVisible(true);
+    this->bgOn->setRecursiveVisible(false);
+    this->bgOff->setRecursiveVisible(false);
+}
+
+void TextButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_UNUSED(event);
+
+    this->bgPressed->setRecursiveVisible(false);
+    this->bgOn->setRecursiveVisible(false);
+    this->bgOff->setRecursiveVisible(true);
+
+    if (!this->locked && this->boundingRect().contains(event->pos())){
         MenuManager::instance()->itemSelected(this->userCode, this->menuName);
     }
 }
@@ -209,6 +230,7 @@ void TextButton::mousePressEvent(QGraphicsSceneMouseEvent *event)
 void TextButton::animationStarted(int)
 {
     this->bgOn->setRecursiveVisible(false);
+    this->bgPressed->setRecursiveVisible(false);    
 }
 
 

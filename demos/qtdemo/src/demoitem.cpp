@@ -57,7 +57,8 @@ void DemoItem::setNeverVisible(bool never)
                 c[i]->setVisible(false);
             }
         }
-    }*/
+    }
+*/    
 }
 
 void DemoItem::setRecursiveVisible(bool visible){

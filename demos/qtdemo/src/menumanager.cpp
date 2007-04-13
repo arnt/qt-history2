@@ -287,14 +287,14 @@ void MenuManager::createLeftMenu1(const QDomElement &el)
     BackButtonIn->setDuration(1800 * Colors::animSpeedButtons);
     BackButtonIn->setStartPos(QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 35));
     BackButtonIn->setPosAt(0.5, QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 35));
-    BackButtonIn->setPosAt(0.7, QPointF(xOffset + 15, Colors::contentStartY + Colors::contentHeight - 35));
-    BackButtonIn->setPosAt(1.0, QPointF(xOffset + 15, Colors::contentStartY + Colors::contentHeight - 26));
+    BackButtonIn->setPosAt(0.7, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 35));
+    BackButtonIn->setPosAt(1.0, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
     movie_in->append(BackButtonIn);
     
     // create out-animation:
     DemoItemAnimation *BackButtonOut = new DemoItemAnimation(backButton, DemoItemAnimation::ANIM_OUT);
     BackButtonOut->setDuration(400 * Colors::animSpeedButtons);
-    BackButtonOut->setStartPos(QPointF(xOffset + 15, Colors::contentStartY + Colors::contentHeight - 26));
+    BackButtonOut->setStartPos(QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
     BackButtonOut->setPosAt(1.0, QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 26));
     movie_out->append(BackButtonOut);
 
@@ -309,15 +309,15 @@ void MenuManager::createLeftMenu1(const QDomElement &el)
     anim->setDuration(1800 * Colors::animSpeedButtons);
     anim->setStartPos(QPointF(sw, Colors::contentStartY + Colors::contentHeight - 35));
     anim->setPosAt(0.5, QPointF(sw, Colors::contentStartY + Colors::contentHeight - 35));
-    anim->setPosAt(0.7, QPointF(xOffset + 520, Colors::contentStartY + Colors::contentHeight - 35));
-    anim->setPosAt(1.0, QPointF(xOffset + 520, Colors::contentStartY + Colors::contentHeight - 26));
+    anim->setPosAt(0.7, QPointF(xOffset + 535, Colors::contentStartY + Colors::contentHeight - 35));
+    anim->setPosAt(1.0, QPointF(xOffset + 535, Colors::contentStartY + Colors::contentHeight - 26));
     movie_in->append(anim);
     
     // create out-animation:
     anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_OUT);
     anim->hideOnFinished = true;
     anim->setDuration(400 * Colors::animSpeedButtons);
-    anim->setStartPos(QPointF(xOffset + 520, Colors::contentStartY + Colors::contentHeight - 26));
+    anim->setStartPos(QPointF(xOffset + 535, Colors::contentStartY + Colors::contentHeight - 26));
     anim->setPosAt(1.0, QPointF(sw, Colors::contentStartY + Colors::contentHeight - 26));
     movie_out->append(anim);
     
@@ -398,13 +398,13 @@ void MenuManager::createRightMenu1(const QDomElement &el)
     BackButtonIn->setDuration(1800 * Colors::animSpeedButtons);
     BackButtonIn->setStartPos(QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 35));
     BackButtonIn->setPosAt(0.5, QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 35));
-    BackButtonIn->setPosAt(0.7, QPointF(xOffset + 15, Colors::contentStartY + Colors::contentHeight - 35));
-    BackButtonIn->setPosAt(1.0, QPointF(xOffset + 15, Colors::contentStartY + Colors::contentHeight - 26));
+    BackButtonIn->setPosAt(0.7, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 35));
+    BackButtonIn->setPosAt(1.0, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
     movie_in->append(BackButtonIn);
     
     DemoItemAnimation *BackButtonOut = new DemoItemAnimation(backButton, DemoItemAnimation::ANIM_OUT);
     BackButtonOut->setDuration(400 * Colors::animSpeedButtons);
-    BackButtonOut->setStartPos(QPointF(xOffset + 15, Colors::contentStartY + Colors::contentHeight - 26));
+    BackButtonOut->setStartPos(QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
     BackButtonOut->setPosAt(1.0, QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 26));
     movie_out->append(BackButtonOut);
     
@@ -422,7 +422,7 @@ void MenuManager::createLeafMenu(const QDomElement &el)
     
     qreal sw = this->window->scene->sceneRect().width();
     qreal sh = this->window->scene->sceneRect().height();
-    int xOffset = 60;
+    int xOffset = 75;
     
     // Create launch button
     if (el.attribute("executable") != "false"){

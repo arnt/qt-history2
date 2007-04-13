@@ -67,6 +67,7 @@ public:
     static bool low;
     static bool noTimerUpdate;
     static bool noTickerMorph;
+    static bool useButtonBalls;
 
     static float animSpeed;
     static float animSpeedButtons;

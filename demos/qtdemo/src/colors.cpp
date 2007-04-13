@@ -24,9 +24,9 @@ QColor Colors::menuTextFg(QColor(255, 0, 0));
 QColor Colors::buttonBgLow(QColor(255, 255, 255, 90));
 QColor Colors::buttonBgHigh(QColor(255, 255, 255, 20));
 QColor Colors::buttonText(QColor(255, 255, 255));
-QColor Colors::tt_green(QColor(167, 215, 99));
+QColor Colors::tt_green(QColor(166, 206, 57));
 QColor Colors::fadeOut(QColor(206, 246, 117, 0));
-QColor Colors::heading(QColor(210, 231, 156));
+QColor Colors::heading(QColor(190, 211, 146));
 QString Colors::contentColor("<font color='#eeeeee'>");
 
 // Guides:
@@ -51,6 +51,7 @@ bool Colors::showBoundingRect = false;
 bool Colors::showFps = false;
 bool Colors::noAdapt = false;
 bool Colors::noWindowMask = true;
+bool Colors::useButtonBalls = false;
 bool Colors::low = false;
 bool Colors::useEightBitPalette = false;
 bool Colors::noTimerUpdate = false;
@@ -91,7 +92,7 @@ QFont Colors::buttonFont()
 {
     QFont font;
     font.setStyleStrategy(QFont::PreferAntialias);
-#if defined(Q_OS_MAC)
+#if 0//defined(Q_OS_MAC)
     font.setPixelSize(11);
     font.setFamily("Silom");
 #else
@@ -193,6 +194,8 @@ void Colors::parseArgs(int argc, char *argv[])
             Colors::useLoop = true;
         else if (s == "-use-8bit")
             Colors::useEightBitPalette = true;
+        else if (s == "-use-balls")
+            Colors::useButtonBalls = true;
         else if (s.startsWith("-ticker-letters"))
             Colors::tickerLetterCount = int(parseFloat(s, "-ticker-letters"));
         else if (s.startsWith("-ticker-text"))
@@ -209,7 +212,7 @@ void Colors::parseArgs(int argc, char *argv[])
             QMessageBox::warning(0, "Arguments",
                                  QString("Usage: qtdemo [-no-adapt] [-no-opengl] [-no-ticker] [-no-rescale] ")
                                  + "[-no-animations] [-no-blending] [-no-sync] [-use-timer-update[0|1]] [-use-window-mask] [-fullscreen] "
-                                 + "[-use-pixmaps] [-show-fps] [-show-br] [-use-8bit] [-use-loop] [-animation-speed<float>] [-fps<int>] "
+                                 + "[-use-pixmaps] [-show-fps] [-show-br] [-use-8bit] [-use-loop] [-use-balls] [-animation-speed<float>] [-fps<int>] "
                                  + "[-low] [-ticker-letters<int>] [-ticker-speed<float>] [-no-ticker-morph] "
                                  + "[-ticker-morph-speed<float>] [-ticker-text<string>]");
             exit(0);
