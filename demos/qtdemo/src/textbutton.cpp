@@ -132,7 +132,7 @@ void TextButton::setupScanItem()
     this->scanAnim->timeline->setLoopCount(1);
 
     float x = 1;
-    float y = 2;
+    float y = 1.5f;
     float stop = BUTTON_WIDTH - scanItem->boundingRect().width() - x;
     if (this->alignment == LEFT){
         this->scanAnim->setPosAt(0.0, QPointF(x, y));
