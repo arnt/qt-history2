@@ -200,13 +200,13 @@ LT..q_atomic_set_ptr:
 	.align 2
 
 	.align 2
-	.globl q_atomic_fetch_and_add
-	.globl .q_atomic_fetch_and_add
-	.csect q_atomic_fetch_and_add[DS],3
-q_atomic_fetch_and_add:
-	.long .q_atomic_fetch_and_add,TOC[tc0],0
+	.globl q_atomic_fetch_and_add_int
+	.globl .q_atomic_fetch_and_add_int
+	.csect q_atomic_fetch_and_add_int[DS],3
+q_atomic_fetch_and_add_int:
+	.long .q_atomic_fetch_and_add_int,TOC[tc0],0
 	.csect .text[PR]
-.q_atomic_fetch_and_add:
+.q_atomic_fetch_and_add_int:
 	lwarx  5,0,3
 	add    6,4,5
         extsw  7,6
@@ -214,23 +214,23 @@ q_atomic_fetch_and_add:
 	bne-   $-12
         extsw  3,5
 	blr
-LT..q_atomic_fetch_and_add:
+LT..q_atomic_fetch_and_add_int:
 	.long 0
 	.byte 0,9,32,64,0,0,1,0
 	.long 0
-	.long LT..q_atomic_fetch_and_add-.q_atomic_fetch_and_add
+	.long LT..q_atomic_fetch_and_add_int-.q_atomic_fetch_and_add_int
 	.short 18
-	.byte "q_atomic_fetch_and_add"
+	.byte "q_atomic_fetch_and_add_int"
 	.align 2
 
 	.align 2
-	.globl q_atomic_fetch_and_add_acquire
-	.globl .q_atomic_fetch_and_add_acquire
-	.csect q_atomic_fetch_and_add_acquire[DS],3
-q_atomic_fetch_and_add_acquire:
-	.long .q_atomic_fetch_and_add_acquire,TOC[tc0],0
+	.globl q_atomic_fetch_and_add_acquire_int
+	.globl .q_atomic_fetch_and_add_acquire_int
+	.csect q_atomic_fetch_and_add_acquire_int[DS],3
+q_atomic_fetch_and_add_acquire_int:
+	.long .q_atomic_fetch_and_add_acquire_int,TOC[tc0],0
 	.csect .text[PR]
-.q_atomic_fetch_and_add_acquire:
+.q_atomic_fetch_and_add_acquire_int:
 	lwarx  5,0,3
 	add    6,4,5
         extsw  7,6
@@ -239,23 +239,23 @@ q_atomic_fetch_and_add_acquire:
         extsw  3,5
 	eieio
 	blr
-LT..q_atomic_fetch_and_add_acquire:
+LT..q_atomic_fetch_and_add_acquire_int:
 	.long 0
 	.byte 0,9,32,64,0,0,1,0
 	.long 0
-	.long LT..q_atomic_fetch_and_add_acquire-.q_atomic_fetch_and_add_acquire
+	.long LT..q_atomic_fetch_and_add_acquire_int-.q_atomic_fetch_and_add_acquire_int
 	.short 18
-	.byte "q_atomic_fetch_and_add_acquire"
+	.byte "q_atomic_fetch_and_add_acquire_int"
 	.align 2
 
 	.align 2
-	.globl q_atomic_fetch_and_add_release
-	.globl .q_atomic_fetch_and_add_release
-	.csect q_atomic_fetch_and_add_release[DS],3
-q_atomic_fetch_and_add_release:
-	.long .q_atomic_fetch_and_add_release,TOC[tc0],0
+	.globl q_atomic_fetch_and_add_release_int
+	.globl .q_atomic_fetch_and_add_release_int
+	.csect q_atomic_fetch_and_add_release_int[DS],3
+q_atomic_fetch_and_add_release_int:
+	.long .q_atomic_fetch_and_add_release_int,TOC[tc0],0
 	.csect .text[PR]
-.q_atomic_fetch_and_add_release:
+.q_atomic_fetch_and_add_release_int:
 	eieio
 	lwarx  5,0,3
 	add    6,4,5
@@ -264,13 +264,13 @@ q_atomic_fetch_and_add_release:
 	bne-   $-12
         extsw  3,5
 	blr
-LT..q_atomic_fetch_and_add_release:
+LT..q_atomic_fetch_and_add_release_int:
 	.long 0
 	.byte 0,9,32,64,0,0,1,0
 	.long 0
-	.long LT..q_atomic_fetch_and_add_release-.q_atomic_fetch_and_add_release
+	.long LT..q_atomic_fetch_and_add_release_int-.q_atomic_fetch_and_add_release_int
 	.short 18
-	.byte "q_atomic_fetch_and_add_release"
+	.byte "q_atomic_fetch_and_add_release_int"
 	.align 2
 
 _section_.text:

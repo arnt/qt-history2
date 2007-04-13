@@ -147,9 +147,9 @@ q_atomic_set_ptr:
 
 	.align 2
 	.align 4
-	.globl q_atomic_fetch_and_add
-	.ent q_atomic_fetch_and_add
-q_atomic_fetch_and_add:
+	.globl q_atomic_fetch_and_add_int
+	.ent q_atomic_fetch_and_add_int
+q_atomic_fetch_and_add_int:
 	.frame $30,0,$26,0
 	.prologue 0
 1:	ldl_l $0,0($16)
@@ -160,13 +160,13 @@ q_atomic_fetch_and_add:
 2:	br    1b
 3:	addl $31,$0,$0
 	ret $31,($26),1
-	.end q_atomic_fetch_and_add
+	.end q_atomic_fetch_and_add_int
 
 	.align 2
 	.align 4
-	.globl q_atomic_fetch_and_add_acquire
-	.ent q_atomic_fetch_and_add_acquire
-q_atomic_fetch_and_add_acquire:
+	.globl q_atomic_fetch_and_add_acquire_int
+	.ent q_atomic_fetch_and_add_acquire_int
+q_atomic_fetch_and_add_acquire_int:
 	.frame $30,0,$26,0
 	.prologue 0
 1:	ldl_l $0,0($16)
@@ -178,13 +178,13 @@ q_atomic_fetch_and_add_acquire:
 3:	mb
         addl $31,$0,$0
 	ret $31,($26),1
-	.end q_atomic_fetch_and_add_acquire
+	.end q_atomic_fetch_and_add_acquire_int
 
 	.align 2
 	.align 4
-	.globl q_atomic_fetch_and_add_acquire
-	.ent q_atomic_fetch_and_add_acquire
-q_atomic_fetch_and_add_acquire:
+	.globl q_atomic_fetch_and_add_release_int
+	.ent q_atomic_fetch_and_add_release_int
+q_atomic_fetch_and_add_release_int:
 	.frame $30,0,$26,0
 	.prologue 0
         mb
@@ -196,4 +196,4 @@ q_atomic_fetch_and_add_acquire:
 2:	br    1b
 3:      addl $31,$0,$0
 	ret $31,($26),1
-	.end q_atomic_fetch_and_add_acquire
+	.end q_atomic_fetch_and_add_release_int
