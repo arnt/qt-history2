@@ -701,7 +701,7 @@ void tst_QScriptExtQObject::callQtInvokable()
         QCOMPARE(m_myObject->qtFunctionInvoked(), 13);
         QCOMPARE(m_myObject->qtFunctionActuals().size(), 0);
         QCOMPARE(ret.isQObject(), true);
-        QCOMPARE(ret.toQObject(), m_myObject);
+        QCOMPARE(ret.toQObject(), (QObject *)m_myObject);
     }
 
     m_myObject->resetQtFunctionInvoked();
@@ -713,7 +713,7 @@ void tst_QScriptExtQObject::callQtInvokable()
         QCOMPARE(ret.property(QLatin1String("length"))
                  .strictEqualTo(QScriptValue(m_engine, 1)), true);
         QCOMPARE(ret.property(QLatin1String("0")).isQObject(), true);
-        QCOMPARE(ret.property(QLatin1String("0")).toQObject(), m_myObject);
+        QCOMPARE(ret.property(QLatin1String("0")).toQObject(), (QObject *)m_myObject);
     }
 
     m_myObject->resetQtFunctionInvoked();
@@ -816,7 +816,7 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 0.0);
     QCOMPARE(m_engine->evaluate("signalSender").toQObject(), (QObject *)0);
-    QCOMPARE(m_engine->evaluate("slotThisObject").toQObject(), m_myObject);
+    QCOMPARE(m_engine->evaluate("slotThisObject").toQObject(), (QObject *)m_myObject);
 
     m_engine->evaluate("gotSignal = false");
     m_myObject->emitMySignal();
