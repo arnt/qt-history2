@@ -216,7 +216,7 @@ void tst_QScriptEngine::newQObject()
         QCOMPARE(qobject.isValid(), true);
         QCOMPARE(qobject.isQObject(), true);
         QCOMPARE(qobject.isObject(), true);
-        QCOMPARE(qobject.toQObject(), this);
+        QCOMPARE(qobject.toQObject(), (QObject *)this);
         // prototype should be QObject.prototype
         QCOMPARE(qobject.prototype().isValid(), true);
         QCOMPARE(qobject.prototype().isQObject(), true);
