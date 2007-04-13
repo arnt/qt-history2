@@ -2401,21 +2401,21 @@ void tst_QLineEdit::setValidator_QIntValidator_data()
             << QString("")
             << bool(useKeys)
             << bool(false);
-        QTest::newRow(QString(inputMode + "range [0,100] inv '153'").toLatin1())
+        QTest::newRow(QString(inputMode + "range [0,100] int '153'").toLatin1())
 	    << 0
             << 100
             << QString("153")
-            << QString(useKeys ? "15" : "")
+            << QString(useKeys ? "153" : "153")
 	    << bool(useKeys)
-	    << bool(useKeys ? true : false);
-        QTest::newRow(QString(inputMode + "range [-100,100] inv '-153'").toLatin1())
+	    << bool(useKeys ? false : false);
+        QTest::newRow(QString(inputMode + "range [-100,100] int '-153'").toLatin1())
             << -100
             << 100
             << QString("-153")
-            << QString(useKeys ? "-15" : "")
+            << QString(useKeys ? "-153" : "-153")
             << bool(useKeys)
-            << bool(useKeys ? true : false);
-        QTest::newRow(QString(inputMode + "range [3,7] inv '2'").toLatin1())
+            << bool(useKeys ? false : false);
+        QTest::newRow(QString(inputMode + "range [3,7] int '2'").toLatin1())
 	    << 3
             << 7
             << QString("2")
@@ -2423,11 +2423,11 @@ void tst_QLineEdit::setValidator_QIntValidator_data()
             << bool(useKeys)
             << bool(false);
 
-        QTest::newRow(QString(inputMode + "range [3,7] inv '8'").toLatin1())
+        QTest::newRow(QString(inputMode + "range [3,7] int '8'").toLatin1())
 	    << 3
             << 7
             << QString("8")
-            << QString("")
+            << QString("8")
             << bool(useKeys)
             << bool(false);
     }
@@ -3000,20 +3000,21 @@ void tst_QLineEdit::editInvalidText()
 
     QVERIFY(!testWidget->hasAcceptableInput());
     QTest::keyPress(testWidget, Qt::Key_Backspace);
+    QTest::keyPress(testWidget, Qt::Key_Backspace);
     QTest::keyPress(testWidget, Qt::Key_A);
     QTest::keyPress(testWidget, Qt::Key_B);
     QTest::keyPress(testWidget, Qt::Key_C);
-    QTest::keyPress(testWidget, Qt::Key_0);
+    QTest::keyPress(testWidget, Qt::Key_1);
     QVERIFY(!testWidget->hasAcceptableInput());
-    QCOMPARE(testWidget->text(), QString("123abc0"));
+    QCOMPARE(testWidget->text(), QString("121"));
     testWidget->cursorBackward(false);
-    testWidget->cursorBackward(true, 4);
+    testWidget->cursorBackward(true, 2);
     QTest::keyPress(testWidget, Qt::Key_Delete);
     QVERIFY(testWidget->hasAcceptableInput());
-    QCOMPARE(testWidget->text(), QString("120"));
+    QCOMPARE(testWidget->text(), QString("1"));
     QTest::keyPress(testWidget, Qt::Key_1);
     QVERIFY(testWidget->hasAcceptableInput());
-    QCOMPARE(testWidget->text(), QString("120"));
+    QCOMPARE(testWidget->text(), QString("11"));
 
     testWidget->setValidator(0);
 }
