@@ -503,6 +503,7 @@ public:
 
     QFixed width(int charFrom, int numChars) const;
     glyph_metrics_t boundingBox(int from,  int len) const;
+    glyph_metrics_t tightBoundingBox(int from,  int len) const;
 
     int length(int item) const {
         const QScriptItem &si = layoutData->items[item];

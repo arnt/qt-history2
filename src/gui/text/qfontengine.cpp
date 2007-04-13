@@ -200,6 +200,30 @@ void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, con
 }
 
 
+glyph_metrics_t QFontEngine::tightBoundingBox(const QGlyphLayout *glyphs, int numGlyphs)
+{
+    glyph_metrics_t overall;
+
+    QFixed ymax = 0;
+    QFixed xmax = 0;
+    for (int i = 0; i < numGlyphs; i++) {
+        glyph_metrics_t bb = boundingBox(glyphs[i].glyph);
+        QFixed x = overall.xoff + glyphs[i].offset.x + bb.x;
+        QFixed y = overall.yoff + glyphs[i].offset.y + bb.y;
+        overall.x = qMin(overall.x, x);
+        overall.y = qMin(overall.y, y);
+        xmax = qMax(xmax, x + bb.width);
+        ymax = qMax(ymax, y + bb.height);
+        overall.xoff += bb.xoff;
+        overall.yoff += bb.yoff;
+    }
+    overall.height = qMax(overall.height, ymax - overall.y);
+    overall.width = xmax - overall.x;
+
+    return overall;
+}
+
+
 void QFontEngine::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path,
                                    QTextItem::RenderFlags flags)
 {

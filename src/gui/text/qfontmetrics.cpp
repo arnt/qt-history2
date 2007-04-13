@@ -597,7 +597,7 @@ int QFontMetrics::charWidth(const QString &text, int pos) const
     The height of the bounding rectangle is at least as large as the
     value returned by height().
 
-    \sa width(), height(), QPainter::boundingRect()
+    \sa width(), height(), QPainter::boundingRect(), tightBoundingRect()
 */
 QRect QFontMetrics::boundingRect(const QString &text) const
 {
@@ -740,6 +740,41 @@ QSize QFontMetrics::size(int flags, const QString &text, int tabStops, int *tabA
 {
     return boundingRect(QRect(0,0,0,0), flags, text, tabStops, tabArray).size();
 }
+
+/*!
+  \since 4.3
+
+    Returns a tight bounding rectangle around the characters in the
+    string specified by \a text. The bounding rectangle always covers
+    at least the set of pixels the text would cover if drawn at (0,
+    0).
+
+    Note that the bounding rectangle may extend to the left of (0, 0),
+    e.g. for italicized fonts, and that the width of the returned
+    rectangle might be different than what the width() method returns.
+
+    If you want to know the advance width of the string (to layout
+    a set of strings next to each other), use width() instead.
+
+    Newline characters are processed as normal characters, \e not as
+    linebreaks.
+
+    \warning Calling this method is very slow on Windows.
+
+    \sa width(), height(), boundingRect()
+*/
+QRect QFontMetrics::tightBoundingRect(const QString &text) const
+{
+    if (text.length() == 0)
+        return QRect();
+
+    QTextEngine layout(text, d);
+    layout.ignoreBidi = true;
+    layout.itemize();
+    glyph_metrics_t gm = layout.tightBoundingBox(0, text.length());
+    return QRect(qRound(gm.x), qRound(gm.y), qRound(gm.width), qRound(gm.height));
+}
+
 
 /*!
     \since 4.2
@@ -1457,6 +1492,40 @@ QRectF QFontMetricsF::boundingRect(const QRectF &rect, int flags, const QString&
 QSizeF QFontMetricsF::size(int flags, const QString &text, int tabStops, int *tabArray) const
 {
     return boundingRect(QRectF(), flags, text, tabStops, tabArray).size();
+}
+
+/*!
+  \since 4.3
+
+    Returns a tight bounding rectangle around the characters in the
+    string specified by \a text. The bounding rectangle always covers
+    at least the set of pixels the text would cover if drawn at (0,
+    0).
+
+    Note that the bounding rectangle may extend to the left of (0, 0),
+    e.g. for italicized fonts, and that the width of the returned
+    rectangle might be different than what the width() method returns.
+
+    If you want to know the advance width of the string (to layout
+    a set of strings next to each other), use width() instead.
+
+    Newline characters are processed as normal characters, \e not as
+    linebreaks.
+
+    \warning Calling this method is very slow on Windows.
+
+    \sa width(), height(), boundingRect()
+*/
+QRectF QFontMetricsF::tightBoundingRect(const QString &text) const
+{
+    if (text.length() == 0)
+        return QRect();
+
+    QTextEngine layout(text, d);
+    layout.ignoreBidi = true;
+    layout.itemize();
+    glyph_metrics_t gm = layout.tightBoundingBox(0, text.length());
+    return QRectF(gm.x.toReal(), gm.y.toReal(), gm.width.toReal(), gm.height.toReal());
 }
 
 /*!

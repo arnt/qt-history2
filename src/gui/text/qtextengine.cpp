@@ -1138,6 +1138,57 @@ glyph_metrics_t QTextEngine::boundingBox(int from,  int len) const
     return gm;
 }
 
+glyph_metrics_t QTextEngine::tightBoundingBox(int from,  int len) const
+{
+    itemize();
+
+    glyph_metrics_t gm;
+
+    for (int i = 0; i < layoutData->items.size(); i++) {
+        const QScriptItem *si = layoutData->items.constData() + i;
+        int pos = si->position;
+        int ilen = length(i);
+        if (pos > from + len)
+            break;
+        if (pos + len > from) {
+            if (!si->num_glyphs)
+                shape(i);
+            unsigned short *logClusters = this->logClusters(si);
+            QGlyphLayout *glyphs = this->glyphs(si);
+
+            // do the simple thing for now and give the first glyph in a cluster the full width, all other ones 0.
+            int charFrom = from - pos;
+            if (charFrom < 0)
+                charFrom = 0;
+            int glyphStart = logClusters[charFrom];
+            if (charFrom > 0 && logClusters[charFrom-1] == glyphStart)
+                while (charFrom < ilen && logClusters[charFrom] == glyphStart)
+                    charFrom++;
+            if (charFrom < ilen) {
+                glyphStart = logClusters[charFrom];
+                int charEnd = from + len - 1 - pos;
+                if (charEnd >= ilen)
+                    charEnd = ilen-1;
+                int glyphEnd = logClusters[charEnd];
+                while (charEnd < ilen && logClusters[charEnd] == glyphEnd)
+                    charEnd++;
+                glyphEnd = (charEnd == ilen) ? si->num_glyphs : logClusters[charEnd];
+                if (glyphStart <= glyphEnd ) {
+                    QFontEngine *fe = fontEngine(*si);
+                    glyph_metrics_t m = fe->tightBoundingBox(glyphs+glyphStart, glyphEnd-glyphStart);
+                    gm.x = qMin(gm.x, m.x + gm.xoff);
+                    gm.y = qMin(gm.y, m.y + gm.yoff);
+                    gm.width = qMax(gm.width, m.width+gm.xoff);
+                    gm.height = qMax(gm.height, m.height+gm.yoff);
+                    gm.xoff += m.xoff;
+                    gm.yoff += m.yoff;
+                }
+            }
+        }
+    }
+    return gm;
+}
+
 QFont QTextEngine::font(const QScriptItem &si) const
 {
     if (!hasFormats())
