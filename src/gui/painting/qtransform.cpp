@@ -992,24 +992,6 @@ QPolygon QTransform::mapToPolygon(const QRect &rect) const
     return a;
 }
 
-QTransform QTransform::operator/(qreal div)
-{
-    div = 1/div;
-    affine._m11 *= div;
-    affine._m12 *= div;
-    m_13 *= div;
-    affine._m21 *= div;
-    affine._m22 *= div;
-    m_23 *= div;
-    affine._dx *= div;
-    affine._dy *= div;
-    m_33 *= div;
-
-    m_dirty = TxProject;
-
-    return *this;
-}
-
 /*!
     Creates a transformation that maps a unit square to a the given
     quad. Returns false if such transformation is impossible, true

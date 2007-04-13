@@ -33,7 +33,6 @@ private slots:
     void mapToPolygon_data();
     void mapRect();
     void operator_star_qrect();
-    void operator_star_qwmatrix();
     void assignments();
     void mapToPolygon();
     void translate();
@@ -41,6 +40,7 @@ private slots:
     void matrix();
     void testOffset();
     void types();
+    void scalarOps();
 
 private:
     void mapping_data();
@@ -282,29 +282,6 @@ void tst_QTransform::operator_star_qrect()
 #endif
 }
 
-
-void tst_QTransform::operator_star_qwmatrix()
-{
-#if 0
-    // Left out until the matrix multiply operator behaves properly..
-    QTransform m1( 2, 3, 4, 5, 6, 7 );
-    QTransform m2( 3, 4, 5, 6, 7, 8 );
-
-    QTransform result1x2( 21, 26, 37, 46, 44, 75 );
-    QTransform result2x1( 22, 29, 34, 45, 53, 80);
-
-    QTransform product12 = m1*m2;
-    QTransform product21 = m2*m1;
-
-    QVERIFY( product12==result1x2 );
-    QVERIFY( product21==result2x1 );
-#else
-    QSKIP( "Not tested with Qt versions since the operator is broken..",
-	  SkipAll );
-#endif
-}
-
-
 void tst_QTransform::assignments()
 {
     QTransform m;
@@ -532,6 +509,31 @@ void tst_QTransform::types()
     QCOMPARE(m3.inverted().type(), QTransform::TxScale);
 }
 
+
+void tst_QTransform::scalarOps()
+{
+    QTransform t;
+    QCOMPARE(t.m11(), 1.);
+    QCOMPARE(t.m33(), 1.);
+    QCOMPARE(t.m21(), 0.);
+
+    t = QTransform() + 3;
+    QCOMPARE(t.m11(), 4.);
+    QCOMPARE(t.m33(), 4.);
+    QCOMPARE(t.m21(), 3.);
+
+    t = t - 3;
+    QCOMPARE(t.m11(), 1.);
+    QCOMPARE(t.m33(), 1.);
+    QCOMPARE(t.m21(), 0.);
+    QCOMPARE(t.isIdentity(), true);
+
+    t += 3;
+    t = t * 2;
+    QCOMPARE(t.m11(), 8.);
+    QCOMPARE(t.m33(), 8.);
+    QCOMPARE(t.m21(), 6.);
+}
 QTEST_APPLESS_MAIN(tst_QTransform)
 
 

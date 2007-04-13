@@ -98,7 +98,6 @@ public:
 
     QTransform &operator*=(const QTransform &);
     QTransform operator*(const QTransform &o) const;
-    QTransform operator/(qreal o);
 
     QTransform &operator=(const QTransform &);
 
@@ -121,6 +120,10 @@ public:
 
     const QMatrix &toAffine() const;
 
+    QTransform &operator*=(qreal div);
+    QTransform &operator/=(qreal div);
+    QTransform &operator+=(qreal div);
+    QTransform &operator-=(qreal div);
 private:
     QMatrix affine;
     qreal   m_13;
@@ -132,7 +135,6 @@ private:
 
     class Private;
     Private *d;
-
 };
 Q_DECLARE_TYPEINFO(QTransform, Q_MOVABLE_TYPE);
 
@@ -226,6 +228,54 @@ inline qreal QTransform::dy() const
     return affine._dy;
 }
 
+inline QTransform &QTransform::operator*=(qreal num)
+{
+    affine._m11 *= num;
+    affine._m12 *= num;
+    m_13        *= num;
+    affine._m21 *= num;
+    affine._m22 *= num;
+    m_23        *= num;
+    affine._dx  *= num;
+    affine._dy  *= num;
+    m_33        *= num;
+    m_dirty     |= TxScale;
+    return *this;
+}
+inline QTransform &QTransform::operator/=(qreal div)
+{
+    div = 1/div;
+    return operator*=(div);
+}
+inline QTransform &QTransform::operator+=(qreal num)
+{
+    affine._m11 += num;
+    affine._m12 += num;
+    m_13        += num;
+    affine._m21 += num;
+    affine._m22 += num;
+    m_23        += num;
+    affine._dx  += num;
+    affine._dy  += num;
+    m_33        += num;
+    m_dirty     |= TxProject;
+    return *this;
+}
+inline QTransform &QTransform::operator-=(qreal num)
+{
+    affine._m11 -= num;
+    affine._m12 -= num;
+    m_13        -= num;
+    affine._m21 -= num;
+    affine._m22 -= num;
+    m_23        -= num;
+    affine._dx  -= num;
+    affine._dy  -= num;
+    m_33        -= num;
+    m_dirty     |= TxProject;
+    return *this;
+}
+
 /****** stream functions *******************/
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QTransform &);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QTransform &);
@@ -252,6 +302,15 @@ Q_GUI_EXPORT_INLINE QRegion operator *(const QRegion &r, const QTransform &m)
 { return m.map(r); }
 Q_GUI_EXPORT_INLINE QPainterPath operator *(const QPainterPath &p, const QTransform &m)
 { return m.map(p); }
+
+Q_GUI_EXPORT_INLINE QTransform operator *(const QTransform &a, qreal n)
+{ QTransform t(a); t *= n; return t; }
+Q_GUI_EXPORT_INLINE QTransform operator /(const QTransform &a, qreal n)
+{ QTransform t(a); t /= n; return t; }
+Q_GUI_EXPORT_INLINE QTransform operator +(const QTransform &a, qreal n)
+{ QTransform t(a); t += n; return t; }
+Q_GUI_EXPORT_INLINE QTransform operator -(const QTransform &a, qreal n)
+{ QTransform t(a); t -= n; return t; }
 
 QT_END_HEADER
 
