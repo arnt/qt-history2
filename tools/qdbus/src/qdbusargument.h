@@ -94,6 +94,7 @@ public:
     bool atEnd() const;
 
 protected:
+    QDBusArgument(QDBusArgumentPrivate *d);
     friend class QDBusArgumentPrivate;
     mutable QDBusArgumentPrivate *d;
 };

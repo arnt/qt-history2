@@ -25,8 +25,6 @@ static inline T qIterGet(DBusMessageIter *it)
 
 QDBusDemarshaller::~QDBusDemarshaller()
 {
-    if (message)
-        dbus_message_unref(message);
 }
 
 inline QString QDBusDemarshaller::currentSignature()

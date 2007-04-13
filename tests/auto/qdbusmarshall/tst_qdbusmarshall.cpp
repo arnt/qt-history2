@@ -36,6 +36,9 @@ private slots:
     void sendComplex_data();
     void sendComplex();
 
+    void sendArgument_data();
+    void sendArgument();
+
 private:
     QProcess proc;
 };
@@ -389,6 +392,112 @@ void tst_QDBusMarshall::sendComplex_data()
     QTest::newRow("sv-map") << qVariantFromValue(svmap) << "a{sv}";
 }
 
+void tst_QDBusMarshall::sendArgument_data()
+{
+    QTest::addColumn<QVariant>("value");
+    QTest::addColumn<QString>("sig");
+
+    QDBusArgument();
+    QDBusArgument arg;
+
+    arg = QDBusArgument();
+    arg << true;
+    QTest::newRow("bool") << qVariantFromValue(arg) << "b";
+
+    arg = QDBusArgument();
+    arg << false;
+    QTest::newRow("bool2") << qVariantFromValue(arg) << "b";
+
+    arg = QDBusArgument();
+    arg << uchar(1);
+    QTest::newRow("byte") << qVariantFromValue(arg) << "y";
+
+    arg = QDBusArgument();
+    arg << short(2);
+    QTest::newRow("int16") << qVariantFromValue(arg) << "n";
+
+    arg = QDBusArgument();
+    arg << ushort(3);
+    QTest::newRow("uint16") << qVariantFromValue(arg) << "q";
+
+    arg = QDBusArgument();
+    arg << 1;
+    QTest::newRow("int32") << qVariantFromValue(arg) << "i";
+
+    arg = QDBusArgument();
+    arg << 2U;
+    QTest::newRow("uint32") << qVariantFromValue(arg) << "u";
+
+    arg = QDBusArgument();
+    arg << Q_INT64_C(3);
+    QTest::newRow("int64") << qVariantFromValue(arg) << "x";
+
+    arg = QDBusArgument();
+    arg << Q_UINT64_C(4);
+    QTest::newRow("uint64") << qVariantFromValue(arg) << "t";
+
+    arg = QDBusArgument();
+    arg << 42.5;
+    QTest::newRow("double") << qVariantFromValue(arg) << "d";
+
+    arg = QDBusArgument();
+    arg << QLatin1String("ping");
+    QTest::newRow("string") << qVariantFromValue(arg) << "s";
+
+    arg = QDBusArgument();
+    arg << QDBusObjectPath("/org/kde");
+    QTest::newRow("objectpath") << qVariantFromValue(arg) << "o";
+
+    arg = QDBusArgument();
+    arg << QDBusSignature("g");
+    QTest::newRow("signature") << qVariantFromValue(arg) << "g";
+
+    arg = QDBusArgument();
+    arg << QLatin1String("");
+    QTest::newRow("emptystring") << qVariantFromValue(arg) << "s";
+
+    arg = QDBusArgument();
+    arg << QString();
+    QTest::newRow("nullstring") << qVariantFromValue(arg) << "s";
+
+    arg = QDBusArgument();
+    arg << QDBusVariant(1);
+    QTest::newRow("variant") << qVariantFromValue(arg) << "v";
+
+    arg = QDBusArgument();
+    arg << QDBusVariant(qVariantFromValue(QDBusVariant(1)));
+    QTest::newRow("variant-variant") << qVariantFromValue(arg) << "v";
+
+    arg = QDBusArgument();
+    arg.beginArray(QVariant::Int);
+    arg << 1 << 2 << 3 << -4;
+    arg.endArray();
+    QTest::newRow("array-of-int") << qVariantFromValue(arg) << "ai";
+
+    arg = QDBusArgument();
+    arg.beginMap(QVariant::Int, QVariant::UInt);
+    arg.beginMapEntry();
+    arg << 1 << 2U;
+    arg.endMapEntry();
+    arg.beginMapEntry();
+    arg << 3 << 4U;
+    arg.endMapEntry();
+    arg.endMap();
+    QTest::newRow("map") << qVariantFromValue(arg) << "a{iu}";
+
+    arg = QDBusArgument();
+    arg.beginStructure();
+    arg << 1 << 2U << short(-3) << ushort(4) << 5.0 << false;
+    arg.endStructure();
+    QTest::newRow("structure") << qVariantFromValue(arg) << "(iunqdb)";
+
+#if 0
+    // this is now unsupported
+    arg << 1 << 2U << short(-3) << ushort(4) << 5.0 << false;
+    QTest::newRow("many-args") << qVariantFromValue(arg) << "(iunqdb)iunqdb";
+#endif
+}
+
 void tst_QDBusMarshall::sendBasic()
 {
     QFETCH(QVariant, value);
@@ -454,6 +563,27 @@ void tst_QDBusMarshall::sendStructs()
 void tst_QDBusMarshall::sendComplex()
 {
     sendBasic();
+}
+
+void tst_QDBusMarshall::sendArgument()
+{
+    QFETCH(QVariant, value);
+
+    QDBusConnection con = QDBusConnection::sessionBus();
+
+    QVERIFY(con.isConnected());
+
+    QDBusMessage msg = QDBusMessage::createMethodCall("org.kde.selftest",
+        "/org/kde/selftest", "org.kde.selftest", "ping");
+    msg << value;
+
+    QDBusMessage reply = con.call(msg);
+    //qDebug() << reply;
+
+//    QCOMPARE(reply.arguments().count(), msg.arguments().count());
+    QTEST(reply.signature(), "sig");
+//    for (int i = 0; i < reply.arguments().count(); ++i)
+//        QVERIFY(compare(reply.arguments().at(i), msg.arguments().at(i)));
 }
 
 QTEST_MAIN(tst_QDBusMarshall)

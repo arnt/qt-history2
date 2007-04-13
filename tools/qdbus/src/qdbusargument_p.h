@@ -34,13 +34,13 @@ class QDBusArgumentPrivate
 {
 public:
     inline QDBusArgumentPrivate()
-        : ref(1)
+        : message(0), ref(1)
     { }
-    inline virtual ~QDBusArgumentPrivate()
-    { }
+    ~QDBusArgumentPrivate();
 
-    bool checkRead();
-    bool checkWrite();
+    static bool checkRead(QDBusArgumentPrivate *d);
+    static bool checkReadAndDetach(QDBusArgumentPrivate *&d);
+    static bool checkWrite(QDBusArgumentPrivate *&d);
 
     QDBusMarshaller *marshaller();
     QDBusDemarshaller *demarshaller();
@@ -48,14 +48,14 @@ public:
     static QByteArray createSignature(int id);
     static inline QDBusArgument create(QDBusArgumentPrivate *d)
     {
-        QDBusArgument q;
-        q.d = d;
+        QDBusArgument q(d);
         return q;
     }
-    static inline QDBusDemarshaller *demarshaller(const QDBusArgument &q)
-    { if (q.d->checkRead()) return q.d->demarshaller(); return 0; }
+    static inline QDBusArgumentPrivate *d(QDBusArgument &q)
+    { return q.d; }
 
 public:
+    DBusMessage *message;
     QAtomic ref;
     enum Direction {
         Marshalling,
@@ -69,6 +69,8 @@ public:
     QDBusMarshaller() : parent(0), ba(0), closeCode(0), ok(true)
     { direction = Marshalling; }
     ~QDBusMarshaller();
+
+    QString currentSignature();
 
     void append(uchar arg);
     void append(bool arg);
@@ -110,12 +112,15 @@ public:
     QByteArray *ba;
     char closeCode;
     bool ok;
+
+private:
+    Q_DISABLE_COPY(QDBusMarshaller)
 };
 
 class QDBusDemarshaller: public QDBusArgumentPrivate
 {
 public:
-    inline QDBusDemarshaller() : message(0), parent(0) { direction = Demarshalling; }
+    inline QDBusDemarshaller() : parent(0) { direction = Demarshalling; }
     ~QDBusDemarshaller();
 
     QString currentSignature();
@@ -155,8 +160,10 @@ public:
 
 public:
     DBusMessageIter iterator;
-    DBusMessage *message;
     QDBusDemarshaller *parent;
+
+private:
+    Q_DISABLE_COPY(QDBusDemarshaller)
 };
 
 inline QDBusMarshaller *QDBusArgumentPrivate::marshaller()

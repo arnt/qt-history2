@@ -27,6 +27,13 @@ QDBusMarshaller::~QDBusMarshaller()
     close();
 }
 
+inline QString QDBusMarshaller::currentSignature()
+{
+    if (message)
+        return QString::fromUtf8(dbus_message_get_signature(message));
+    return QString();
+}
+
 inline void QDBusMarshaller::append(uchar arg)
 {
     qIterAppend(&iterator, ba, DBUS_TYPE_BYTE, &arg);
@@ -296,10 +303,23 @@ bool QDBusMarshaller::appendVariantInternal(const QVariant &arg)
     // intercept QDBusArgument parameters here
     if (id == qMetaTypeId<QDBusArgument>()) {
         QDBusArgument dbusargument = qvariant_cast<QDBusArgument>(arg);
-        QDBusDemarshaller *demarshaller = QDBusArgumentPrivate::demarshaller(dbusargument);
-        if (demarshaller)
-            return appendCrossMarshalling(demarshaller);
-        return false;
+        QDBusArgumentPrivate *d = QDBusArgumentPrivate::d(dbusargument);
+        if (!d->message)
+            return false;       // can't append this one...
+
+        QDBusDemarshaller demarshaller;
+        demarshaller.message = dbus_message_ref(d->message);
+
+        if (d->direction == Demarshalling) {
+            // it's demarshalling; just copy
+            demarshaller.iterator = static_cast<QDBusDemarshaller *>(d)->iterator;
+        } else {
+            // it's marshalling; start over
+            if (!dbus_message_iter_init(demarshaller.message, &demarshaller.iterator))
+                return false;   // error!
+        }
+
+        return appendCrossMarshalling(&demarshaller);
     }
 
     const char *signature = QDBusMetaType::typeToSignature( QVariant::Type(id) );
