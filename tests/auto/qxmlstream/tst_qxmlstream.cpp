@@ -56,7 +56,7 @@ static QByteArray makeCanonical(const QString &filename,
                                 bool testIncremental = false)
 {
     QFile file(filename);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    file.open(QIODevice::ReadOnly);
 
     QXmlStreamReader reader;
 
@@ -715,7 +715,7 @@ void tst_QXmlStream::testReader() const
         file.write(reference);
         file.close();
     } else {
-        QVERIFY(file.open(QIODevice::ReadOnly));
+        QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
         QString reference = QString::fromUtf8(file.readAll());
         QString qxmlstream = QString::fromUtf8(readFile(xml));
         QCOMPARE(qxmlstream, reference);
