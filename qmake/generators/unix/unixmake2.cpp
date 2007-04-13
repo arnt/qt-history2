@@ -724,8 +724,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     else
         ddir = project->first("QMAKE_DISTDIR");
 
-    QString ddir_c = fileFixify((project->isEmpty("OBJECTS_DIR") ? QString(".tmp/") :
-                                 project->first("OBJECTS_DIR")) + ddir);
+    QString ddir_c = escapeFilePath(fileFixify((project->isEmpty("OBJECTS_DIR") ? QString(".tmp/") :
+                                                project->first("OBJECTS_DIR")) + ddir));
     t << "dist: " << "\n\t"
       << mkdir_p_asstring(ddir_c) << "\n\t"
       << "$(COPY_FILE) --parents $(SOURCES) $(DIST) " << ddir_c << Option::dir_sep << " && ";
