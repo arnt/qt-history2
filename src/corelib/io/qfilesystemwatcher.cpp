@@ -416,7 +416,7 @@ void QFileSystemWatcher::addPaths(const QStringList &paths)
     QStringList p = paths;
     QFileSystemWatcherEngine *engine = 0;
 
-    if(!objectName().startsWith("_qt_autotest_force_engine_")) {
+    if(!objectName().startsWith(QLatin1String("_qt_autotest_force_engine_"))) {
         // Normal runtime case - search intelligently for best engine
         if(d->native) {
             engine = d->native;
