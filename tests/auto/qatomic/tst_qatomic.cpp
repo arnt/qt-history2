@@ -9,18 +9,10 @@
 
 #include <QtTest/QtTest>
 
-
-#if QT_VERSION >= 0x040200
-#  include <qatomic_arch.h>
-#else
-#  include <arch/qatomic.h>
-#endif
-#include <qatomic.h>
+#include <QAtomic>
+#include <QCoreApplication>
 
 #include <limits.h>
-
-
-
 
 //TESTED_CLASS=QAtomic
 //TESTED_FILES=
@@ -426,14 +418,14 @@ void tst_QAtomic::fetchAndAdd_threadedLoop()
     FetchAndAddThread t2;
     t2.val = &val;
     t2.iterations = 2000000;
-    
+
     t1.start();
     t2.start();
     t1.wait();
     t2.wait();
-    
+
     QCOMPARE(int(val), 0);
 }
 
-QTEST_APPLESS_MAIN(tst_QAtomic)
+QTEST_MAIN(tst_QAtomic)
 #include "tst_qatomic.moc"
