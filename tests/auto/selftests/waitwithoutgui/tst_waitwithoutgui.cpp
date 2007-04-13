@@ -7,8 +7,9 @@
 **
 ****************************************************************************/
 
-#include <QTest>
+#include <QtTest/QtTest>
 #include <QTextStream>
+#include <QCoreApplication>
 
 int main(int argc, char **argv)
 {
