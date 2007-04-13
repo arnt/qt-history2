@@ -1218,27 +1218,40 @@ Q_GUI_EXPORT QScreen* qt_get_screen(int display_id, const char *spec)
 
 
 /*!
-    \fn void QScreen::exposeRegion(QRegion region, int windows)
+    \fn void QScreen::exposeRegion(QRegion region, int windowIndex)
 
     This function is called by the \l {Qtopia Core} server whenever a
-    screen update is required. The default implementation composes the
-    affected \a windows and paints the given \a region on screen by
+    screen update is required. \a region is the screen region that needs to
+    be updated, and \a windowIndex is the index into QWindowSystem::clientWindows()
+    of the window that caused the update. QWSWindow::state() gives more information
+    about the cause.
+
+    The default implementation composes the
+    affected windows and paints the given \a region on screen by
     calling the blit() and solidFill() functions
 
-    Note that there is no need to call this function explicitly, but
-    it must be reimplemented in derived classes. It can also be
-    reimplemented to make use of accelerated hardware, but this is
-    typically done by reimplementing the blit() and solidFill()
-    functions instead.
+
+    This function can be reimplemented to perform composition in
+    hardware, or to perform transition effects.
+    For simpler hardware acceleration, or to interface with
+    this is typically done by reimplementing the blit() and
+    solidFill() functions instead.
+
+    Note that there is no need to call this function explicitly.
 
     \sa blit(), solidFill(), blank()
 */
-void QScreen::exposeRegion(QRegion r, int changing)
+void QScreen::exposeRegion(QRegion r, int windowIndex)
 {
     r &= region();
     if (r.isEmpty())
         return;
 
+    int changing = windowIndex;
+    // when we have just lowered a window, we have to expose all the windows below where the
+    // window used to be.
+    if (changing && qwsServer->clientWindows().at(changing)->state() == QWSWindow::Lowering)
+        changing = 0;
 #ifdef QTOPIA_PERFTEST
     static enum { PerfTestUnknown, PerfTestOn, PerfTestOff } perfTestState = PerfTestUnknown;
     if(PerfTestUnknown == perfTestState) {

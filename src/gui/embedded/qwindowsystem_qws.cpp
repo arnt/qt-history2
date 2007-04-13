@@ -341,6 +341,30 @@ QWSWindow::QWSWindow(int i, QWSClient* client)
     surface = 0;
 }
 
+
+/*!
+    \enum QWSWindow::State
+
+    This enum describes the state of a window. Most of the
+    transitional states are set just before a call to
+    QScreen::exposeRegion(), and reset immediately afterwards.
+
+    \value NoState Initial state before the window is properly initialized.
+    \value Hidden The window is not visible.
+    \value Showing The window is being shown.
+    \value Visible The window is visible, and not in a transition.
+    \value Hiding The window is being hidden.
+    \value Raising The windoe is being raised.
+    \value Lowering The window is being raised.
+    \value Moving The window is being moved.
+    \value GeometryChanging The window's geometry is being changed.
+    \value Destroyed  The window is destroyed.
+
+    \sa state(), QScreen::exposeRegion
+*/
+
+
+
 /*
   Returns the current state of the window.
 
@@ -3172,7 +3196,8 @@ void QWSServerPrivate::lowerWindow(QWSWindow *changingw, int /*alt*/)
     changingw->d->state = QWSWindow::Lowering;
 
     int i = windows.indexOf(changingw);
-    windows.move(i,windows.size()-1);
+    int newIdx = windows.size()-1;
+    windows.move(i, newIdx);
 
     const QRegion bound = changingw->allocatedRegion();
 
@@ -3184,7 +3209,7 @@ void QWSServerPrivate::lowerWindow(QWSWindow *changingw, int /*alt*/)
         for (int j = i; j < windows.size() - 1; ++j)
             expose += (windows.at(j)->allocatedRegion() & bound);
         if (!expose.isEmpty())
-            exposeRegion(expose, i);
+            exposeRegion(expose, newIdx);
     }
 
     changingw->d->state = oldstate;
