@@ -1026,6 +1026,7 @@ inline int QXmlStreamReaderPrivate::fastScanName(int *prefix)
         case ';':
         case '?':
         case '!':
+        case '^':
         case '|':
         case ',':
         case '(':

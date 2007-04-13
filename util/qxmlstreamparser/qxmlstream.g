@@ -848,7 +848,7 @@ name_pipe_list ::= name_pipe_list space_opt PIPE space_opt name;
 star_opt ::= | STAR;
 
 mixed ::= LPAREN space_opt pcdata space_opt RPAREN star_opt;
-mixed ::= LPAREN space_opt pcdata space_opt name_pipe_list space_opt RPAREN star_opt;
+mixed ::= LPAREN space_opt pcdata space_opt name_pipe_list space_opt RPAREN STAR;
 
 choice_or_seq ::= LPAREN space_opt cp_pipe_or_comma_list RPAREN;
 
