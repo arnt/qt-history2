@@ -1368,7 +1368,7 @@ QColor QColor::toHsv() const
     const qreal min = Q_MIN_3(r, g, b);
     const qreal delta = max - min;
     color.ct.ahsv.value = qRound(max * USHRT_MAX);
-    if (qFuzzyCompare(delta, 0.0)) {
+    if (qFuzzyCompare(delta, qreal(0.0))) {
         // achromatic case, hue is undefined
         color.ct.ahsv.hue = USHRT_MAX;
         color.ct.ahsv.saturation = 0;
