@@ -96,7 +96,7 @@ int QWSWindowSurface::winId() const
 
     const QWidget *win = window();
     if (win && win->isWindow())
-        return win->winId();
+        return win->internalWinId();
     else
         return d_ptr->winId;
 }
