@@ -67,7 +67,7 @@ public:
     int* screensaverintervals;
     int screensavereventblocklevel;
     bool screensaverblockevents;
-    bool screensaverblockevent( int index, int *screensaverinterval, bool isDown ); 
+    bool screensaverblockevent( int index, int *screensaverinterval, bool isDown );
     QWSScreenSaver* saver;
     QWSClient *cursorClient;
     int mouseState;
@@ -93,7 +93,7 @@ private:
                         const QByteArray &surfaceData,
                         const QRegion &region);
     void update_regions();
-    void repaint_region(int winId, bool opaque, QRegion);
+    void repaint_region(int winId, int windowFlags, bool opaque, QRegion);
     void destroy_region(const QWSRegionDestroyCommand *);
     void name_region(const QWSRegionNameCommand *);
     void set_identity(const QWSIdentifyCommand *);

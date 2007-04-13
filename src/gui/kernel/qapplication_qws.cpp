@@ -1213,10 +1213,10 @@ void QWSDisplay::requestRegion(int winId, const QString &surfaceKey,
     }
 }
 
-void QWSDisplay::repaintRegion(int winId, bool opaque, QRegion r)
+void QWSDisplay::repaintRegion(int winId, int windowFlags, bool opaque, QRegion r)
 {
     if (d->directServerConnection()) {
-        qwsServer->d_func()->repaint_region(winId, opaque, r);
+        qwsServer->d_func()->repaint_region(winId, windowFlags, opaque, r);
     } else {
         QVector<QRect> ra = r.rects();
 
@@ -1235,6 +1235,7 @@ void QWSDisplay::repaintRegion(int winId, bool opaque, QRegion r)
         memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
 #endif
         cmd.simpleData.windowid = winId;
+        cmd.simpleData.windowFlags = windowFlags;
         cmd.simpleData.opaque = opaque;
         cmd.simpleData.nrectangles = ra.count();
         cmd.setData(reinterpret_cast<const char *>(ra.constData()),

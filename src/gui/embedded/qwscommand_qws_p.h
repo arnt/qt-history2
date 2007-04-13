@@ -405,6 +405,7 @@ struct QWSRepaintRegionCommand : public QWSCommand
 
     struct SimpleData {
         int windowid;
+        int windowFlags;
         bool opaque;
         int nrectangles;
     } simpleData;

@@ -80,6 +80,11 @@ public:
     bool isPartiallyObscured() const { return requested_region != allocatedRegion(); }
     bool isFullyObscured() const { return allocatedRegion().isEmpty(); }
 
+    enum State { NoState, Hidden, Showing, Visible, Hiding, Raising, Lowering, Moving, GeometryChanging, Destroyed };
+    State state() const;
+    Qt::WindowFlags windowFlags() const;
+    QRegion newlyRepainted() const;
+
     void raise();
     void lower();
     void show();

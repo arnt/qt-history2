@@ -84,7 +84,7 @@ public:
     void requestRegion(int winId, const QString &surfacekey,
                        const QByteArray &surfaceData,
                        const QRegion &region);
-    void repaintRegion(int winId, bool opaque, QRegion);
+    void repaintRegion(int winId, int windowFlags, bool opaque, QRegion);
     void moveRegion(int winId, int dx, int dy);
     void destroyRegion(int winId);
     void requestFocus(int winId, bool get);

@@ -201,11 +201,14 @@ public:
     QList<QWSWindow*> embedded;
     QWSWindow *embedder;
 #endif
+    QWSWindow::State state;
+    Qt::WindowFlags windowFlags;
+    QRegion dirtyOnScreen;
 };
 
 QWSWindowPrivate::QWSWindowPrivate()
 #ifndef QT_NO_QWSEMBEDWIDGET
-    : embedder(0)
+    : embedder(0), state(QWSWindow::NoState)
 #endif
 {
 }
@@ -336,6 +339,36 @@ QWSWindow::QWSWindow(int i, QWSClient* client)
           opaque(true), d(new QWSWindowPrivate)
 {
     surface = 0;
+}
+
+/*
+  Returns the current state of the window.
+
+
+  \since 4.3
+*/
+QWSWindow::State QWSWindow::state() const
+{
+    return d->state;
+}
+
+/*
+  Returns the window flags of the window. This value is only available after the first paint event.
+
+  \since 4.3
+*/
+Qt::WindowFlags QWSWindow::windowFlags() const
+{
+    return d->windowFlags;
+}
+
+/*
+  Returns the region that has been repainted since the previous QScreen::exposeRegion().
+  \since 4.3
+*/
+QRegion QWSWindow::newlyRepainted() const
+{
+    return d->dirtyOnScreen;
 }
 
 void QWSWindow::createSurface(const QString &key, const QByteArray &data)
@@ -1470,6 +1503,7 @@ void QWSServerPrivate::_q_clientClosed()
             propertyManager.removeProperties(w->winId());
 #endif
             emit q->windowEvent(w, QWSServer::Destroy);
+            w->d->state = QWSWindow::Destroyed; //???
             deletedWindows.append(w);
         } else {
             ++i;
@@ -3000,7 +3034,7 @@ void QWSServerPrivate::invokeRepaintRegion(QWSRepaintRegionCommand * cmd,
 {
     QRegion r;
     r.setRects(cmd->rectangles,cmd->simpleData.nrectangles);
-    repaint_region(cmd->simpleData.windowid, cmd->simpleData.opaque, r);
+    repaint_region(cmd->simpleData.windowid, cmd->simpleData.windowFlags, cmd->simpleData.opaque, r);
 }
 
 #ifndef QT_NO_QWSEMBEDWIDGET
@@ -3079,7 +3113,8 @@ void QWSServerPrivate::raiseWindow(QWSWindow *changingw, int /*alt*/)
     Q_Q(QWSServer);
     if (changingw == windows.first())
         return;
-
+    QWSWindow::State oldstate = changingw->d->state;
+    changingw->d->state = QWSWindow::Raising;
     // Expose regions previously overlapped by transparent windows
     const QRegion bound = changingw->allocatedRegion();
     QRegion expose;
@@ -3124,6 +3159,7 @@ void QWSServerPrivate::raiseWindow(QWSWindow *changingw, int /*alt*/)
         if (!expose.isEmpty())
             exposeRegion(expose, newPos);
     }
+    changingw->d->state = oldstate;
     emit q->windowEvent(changingw, QWSServer::Raise);
 }
 
@@ -3132,6 +3168,8 @@ void QWSServerPrivate::lowerWindow(QWSWindow *changingw, int /*alt*/)
     Q_Q(QWSServer);
     if (changingw == windows.last())
         return;
+    QWSWindow::State oldstate = changingw->d->state;
+    changingw->d->state = QWSWindow::Lowering;
 
     int i = windows.indexOf(changingw);
     windows.move(i,windows.size()-1);
@@ -3149,6 +3187,7 @@ void QWSServerPrivate::lowerWindow(QWSWindow *changingw, int /*alt*/)
             exposeRegion(expose, i);
     }
 
+    changingw->d->state = oldstate;
     emit q->windowEvent(changingw, QWSServer::Lower);
 }
 
@@ -3208,6 +3247,8 @@ void QWSServerPrivate::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
     if (!changingw)
         return;
 
+    QWSWindow::State oldState = changingw->d->state;
+    changingw->d->state = QWSWindow::Moving;
     const QRegion oldRegion(changingw->allocatedRegion());
     changingw->requested_region.translate(dx, dy);
     update_regions();
@@ -3215,6 +3256,7 @@ void QWSServerPrivate::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
 
     int idx = windows.indexOf(changingw);
     exposeRegion(oldRegion + newRegion, idx);
+    changingw->d->state = oldState;
 }
 
 /*!
@@ -3483,7 +3525,7 @@ void QWSServerPrivate::set_identity(const QWSIdentifyCommand *cmd)
     invokeIdentify(cmd, clientMap.value(-1));
 }
 
-void QWSServerPrivate::repaint_region(int wid, bool opaque, QRegion region)
+void QWSServerPrivate::repaint_region(int wid, int windowFlags, bool opaque, QRegion region)
 {
     QWSWindow* changingw = findWindow(wid, 0);
     if (!changingw) {
@@ -3492,11 +3534,14 @@ void QWSServerPrivate::repaint_region(int wid, bool opaque, QRegion region)
 
     const bool isOpaque = changingw->opaque;
     changingw->opaque = opaque;
+    changingw->d->windowFlags = QFlag(windowFlags);
+    changingw->d->dirtyOnScreen |= region;
     if (isOpaque != opaque)
         update_regions();
 
     int level = windows.indexOf(changingw);
     exposeRegion(region, level);
+    changingw->d->dirtyOnScreen = QRegion();
 }
 
 QRegion QWSServerPrivate::reserve_region(QWSWindow *win, const QRegion &region)
@@ -3539,7 +3584,16 @@ void QWSServerPrivate::request_region(int wid, const QString &surfaceKey,
     else
         r = region;
 
-    bool isShow = !changingw->isVisible() && !region.isEmpty();
+    QWSWindow::State windowState;
+    if (region.isEmpty()) {
+        windowState = QWSWindow::Hiding;
+    } else {
+        if (changingw->isVisible())
+            windowState = QWSWindow::GeometryChanging;
+        else
+            windowState = QWSWindow::Showing;
+    }
+    changingw->d->state = windowState;
 
     if (wasOpaque != changingw->opaque && surface->isBuffered()) {
         changingw->requested_region = QRegion(); // XXX: force update_regions
@@ -3550,14 +3604,18 @@ void QWSServerPrivate::request_region(int wid, const QString &surfaceKey,
 
     Q_Q(QWSServer);
 
-    if (isShow)
+    if (windowState == QWSWindow::Showing)
         emit q->windowEvent(changingw, QWSServer::Show);
-    if (!region.isEmpty())
-        emit q->windowEvent(changingw, QWSServer::Geometry);
-    else
+    if (windowState == QWSWindow::Hiding)
         emit q->windowEvent(changingw, QWSServer::Hide);
-    if (region.isEmpty())
+    else
+        emit q->windowEvent(changingw, QWSServer::Geometry);
+    if (windowState == QWSWindow::Hiding) {
         handleWindowClose(changingw);
+        changingw->d->state = QWSWindow::Hidden;
+    } else {
+        changingw->d->state = QWSWindow::Visible;
+    }
 }
 
 void QWSServerPrivate::destroy_region(const QWSRegionDestroyCommand *cmd)

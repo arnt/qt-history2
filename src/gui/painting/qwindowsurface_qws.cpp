@@ -611,7 +611,7 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
 
         toFlush.translate(win->mapToGlobal(QPoint(0, 0)));
 
-        win->qwsDisplay()->repaintRegion(winId(), opaque, toFlush);
+        win->qwsDisplay()->repaintRegion(winId(), win->windowFlags(), opaque, toFlush);
     }
 
     d_ptr->dirty = QRegion();
@@ -1133,7 +1133,7 @@ void QWSYellowSurface::flush(QWidget *widget, const QRegion &region,
     const int id = winId();
     display->requestRegion(id, key(), permanentState(), rgn);
     display->setAltitude(id, 1, true);
-    display->repaintRegion(id, false, rgn);
+    display->repaintRegion(id, 0, false, rgn);
 
     ::usleep(500 * delay);
     display->requestRegion(id, key(), permanentState(), QRegion());
@@ -1200,7 +1200,7 @@ void QWSDirectPainterSurface::setRegion(const QRegion &region)
 
 void QWSDirectPainterSurface::flush(QWidget *, const QRegion &r, const QPoint &)
 {
-    QWSDisplay::instance()->repaintRegion(winId(), true, r);
+    QWSDisplay::instance()->repaintRegion(winId(), 0, true, r);
 }
 
 QByteArray QWSDirectPainterSurface::permanentState() const
