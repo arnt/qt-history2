@@ -242,7 +242,6 @@ QXmlStreamReader::QXmlStreamReader(const QString &data)
     Q_D(QXmlStreamReader);
     d->dataBuffer = d->codec->fromUnicode(data);
     d->decoder = d->codec->makeDecoder();
-    d->decoder->setConversionFlags(QTextCodec::ConvertInvalidToNull);
     d->lockEncoding = true;
 
 }
@@ -677,6 +676,8 @@ inline ushort QXmlStreamReaderPrivate::peekChar()
 
   If \a tokenToInject is not less than zero, injectToken() is called with
   \a tokenToInject when \a str is found.
+
+  If any error occured, false is returned, otherwise true.
   */
 bool QXmlStreamReaderPrivate::scanUntil(const char *str, short tokenToInject)
 {
@@ -1219,10 +1220,15 @@ ushort QXmlStreamReaderPrivate::getChar_helper()
         codec = QTextCodec::codecForMib(mib);
         Q_ASSERT(codec);
         decoder = codec->makeDecoder();
-        decoder->setConversionFlags(QTextCodec::ConvertInvalidToNull);
     }
 
     decoder->toUnicode(&readBuffer, rawReadBuffer.data(), nbytesread);
+
+    if(decoder->hasFailure()) {
+        raiseWellFormedError(QXmlStream::tr("Encountered incorrectly encoded content."));
+        readBuffer.clear();
+        return 0;
+    }
 
     readBuffer.reserve(1); // keep capacity when calling resize() next time
 
@@ -1431,6 +1437,12 @@ void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
     initTagStack();
     int n = attributeStack.size();
 
+    /* We use this bool to ensure that the pesudo attributes are in the
+     * proper order:
+     *
+     * [23]     XMLDecl     ::=     '<?xml' VersionInfo EncodingDecl? SDDecl? S? '?>' */
+    bool hasStandalone = false;
+
     for (int i = 0; err.isNull() && i < n; ++i) {
         Attribute &attrib = attributeStack[i];
         QStringRef prefix(symPrefix(attrib.key));
@@ -1440,10 +1452,11 @@ void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
         if (prefix.isEmpty() && key == QLatin1String("encoding")) {
             const QString name(value.toString());
 
+            if(hasStandalone)
+                err = QXmlStream::tr("The standalone pseudo attribute must appear after the encoding.");
             if(!QXmlUtils::isEncName(name))
                 err = QXmlStream::tr("%1 is an invalid encoding name.").arg(name);
-            else
-            {
+            else {
                 QTextCodec *const newCodec = QTextCodec::codecForName(name.toLatin1());
                 if (!newCodec)
                     err = QXmlStream::tr("Encoding %1 is unsupported").arg(name);
@@ -1458,6 +1471,7 @@ void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
                 }
             }
         } else if (prefix.isEmpty() && key == QLatin1String("standalone")) {
+            hasStandalone = true;
             if (value == QLatin1String("yes"))
                 standalone = true;
             else if (value == QLatin1String("no"))

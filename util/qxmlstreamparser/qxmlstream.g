@@ -865,7 +865,7 @@ att_type ::= CDATA;
             lastAttributeIsCData = true;
         } break;
 ./
-att_type ::= | ID | IDREF | IDREFS | ENTITY | ENTITIES | NMTOKEN | NMTOKENS;
+att_type ::= ID | IDREF | IDREFS | ENTITY | ENTITIES | NMTOKEN | NMTOKENS;
 att_type ::= LPAREN space_opt nmtoken_pipe_list space_opt RPAREN space;
 att_type ::= NOTATION LPAREN space_opt nmtoken_pipe_list space_opt RPAREN space;
 
