@@ -1243,25 +1243,27 @@ void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::S
     if (flags & QTextEngine::DesignMetrics) {
         for (int i = 0; i < len; i++) {
             Glyph *g = defaultGlyphSet.glyph_data.value(glyphs[i].glyph);
-            if (!g) {
+            if (g) {
+                glyphs[i].advance.x = QFixed::fromFixed(g->linearAdvance);
+            } else {
                 if (!face)
                     face = lockFace();
                 g = loadGlyph(glyphs[i].glyph);
+                glyphs[i].advance.x = QFixed::fromFixed(face->glyph->linearHoriAdvance >> 10);
             }
-            // for uncachable glyph, get advance from glyphslot
-            glyphs[i].advance.x = QFixed::fromFixed(g ? g->linearAdvance : (face->glyph->linearHoriAdvance >> 10));
             glyphs[i].advance.y = 0;
         }
     } else {
         for (int i = 0; i < len; i++) {
             Glyph *g = defaultGlyphSet.glyph_data.value(glyphs[i].glyph);
-            if (!g) {
+            if (g) {
+                glyphs[i].advance.x = QFixed(g->advance);
+            } else {
                 if (!face)
                     face = lockFace();
                 g = loadGlyph(glyphs[i].glyph);
+                glyphs[i].advance.x = QFixed::fromFixed(face->glyph->metrics.horiAdvance);
             }
-            // for uncachable glyph, get advance from glyphslot
-            glyphs[i].advance.x = g ? QFixed(g->advance) : QFixed::fromFixed(face->glyph->metrics.horiAdvance);
             glyphs[i].advance.y = 0;
         }
     }
