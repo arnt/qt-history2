@@ -11,13 +11,13 @@
 # indicate that you have read the license and understand and accept it
 # fully.
 
-AC_INIT([FreeType], [2.3.2], [freetype@nongnu.org], [freetype])
+AC_INIT([FreeType], [2.3.4], [freetype@nongnu.org], [freetype])
 AC_CONFIG_SRCDIR([ftconfig.in])
 
 
 # Don't forget to update docs/VERSION.DLL!
 
-version_info='9:13:3'
+version_info='9:15:3'
 AC_SUBST([version_info])
 ft_version=`echo $version_info | tr : .`
 AC_SUBST([ft_version])
@@ -218,7 +218,7 @@ if test x$with_old_mac_fonts = xyes; then
        ],
        [
 
-         /* OSHostByteOrder() is typed as `OS_INLINE' */
+         /* OSHostByteOrder() is typed as OS_INLINE */
          int32_t  os_byte_order = OSHostByteOrder();
 
 

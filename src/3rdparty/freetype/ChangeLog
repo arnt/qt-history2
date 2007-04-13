@@ -1,3 +1,145 @@
+2007-04-09  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.3.4 released.
+	=========================
+
+
+	Tag sources with `VER-2-3-4'.
+
+	* docs/CHANGES, docs/VERSION.DLL: Update documentation and bump
+	version number to 2.3.4.
+
+	* README, Jamfile (RefDoc), builds/win32/visualc/index.html,
+	builds/win32/visualc/freetype.dsp,
+	builds/win32/visualc/freetype.vcproj: s/2.3.3/2.3.4/, s/233/234/.
+
+	* include/freetype/freetype.h (FREETYPE_PATCH): Set to 4.
+
+	* builds/unix/configure.raw (version_info): Set to 9:15:3.
+
+2007-04-09  Martin Horak  <horakm@centrum.cz>
+
+	* src/truetype/ttgload.c (load_truetype_glyph): Save and restore
+	memory stream to avoid a crash with the incremental memory
+	interface (Savannah bug #19260).
+
+2007-04-06  David Turner  <david@freetype.org>
+
+	* src/base/ftbimap.c (ft_bitmap_assure_buffer): Fix buffer-overwrite bug
+	(Savannah bug #19536).
+
+2007-04-04  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.3.3 released.
+	=========================
+
+
+	Tag sources with `VER-2-3-3'.
+
+	* docs/CHANGES: Mention CVE-2007-1351.
+
+2007-04-03  David Turner  <david@freetype.org>
+
+	* src/base/ftobjs.c (FT_Set_Char_Size): As suggested by James Cloos,
+	if one of the resolution values is 0, treat it as if it were the
+	same as the other value.
+
+2007-04-02  David Turner  <david@freetype.org>
+
+	Add special code to detect `extra-light' fonts and do not snap their
+	stem widths too much to avoid bizarre hinting effects.
+
+	* src/autofit/aflatin.h (AF_LatinAxisRec): Add `standard_width' and
+	`extra_light' members.
+
+	* src/autofit/aflatin.c (af_latin_metrics_init_widths): Initialize
+	them.
+	(af_latin_metrics_scale_dim): Set `extra_light'.
+	(af_latin_compute_stem_width): Use `extra_light'.
+
+2007-03-28  David Turner  <david@freetype.org>
+
+	* src/base/ftbitmap.c (ft_bitmap_assure_buffer): Fix zero-ing of the
+	padding.
+
+2007-03-28  Werner Lemberg  <wl@gnu.org>
+
+	* src/bdf/bdflib.c (setsbit, sbitset): Handle values >= 128
+	gracefully.
+	(_bdf_set_default_spacing): Increase `name' buffer size to 256 and
+	issue an error for longer names.  This fixes CVE-2007-1351.
+	(_bdf_parse_glyphs): Limit allowed number of glyphs in font to the
+	number of code points in Unicode.
+
+	* builds/win32/visualc/index.html,
+	builds/win32/visualc/freetype.dsp,
+	builds/win32/visualc/freetype.vcproj, README: s/2.3.2/2.3.3/,
+	s/232/233/.
+
+	* docs/CHANGES: Mention ftdiff.
+
+2007-03-26  David Turner  <david@freetype.org>
+
+	* src/truetype/ttinterp.c [FIX_BYTECODE]: Remove it and
+	corresponding code.
+	(Ins_MD): Last regression fix.
+
+	* src/autofit/aflatin.c (af_latin_metrics_init_blues): Fix blues
+	computations in order to ignore single-point contours.  These are
+	never rasterized and correspond in certain fonts to mark-attach
+	points that are very far from the glyph's real outline, ruining the
+	computation.
+
+	* src/autofit/afloader.c (af_loader_load_g): In the case of
+	monospaced fonts, always set `rsb_delta' and `lsb_delta' to 0. 
+	Otherwise code that uses them will most certainly ruin the fixed
+	advance property.
+
+	* docs/CHANGES, docs/VERSION.DLL, README, Jamfile (RefDoc): Update
+	documentation and bump version number to 2.3.3.
+
+	* include/freetype/freetype.h (FREETYPE_PATCH): Set to 3.
+
+	* builds/unix/configure.raw (version_info): Set to 9:14:3.
+
+2007-03-26  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
+	* builds/unix/ftconfig.in: Disable Carbon framework dependency on
+	64bit ABI on Mac OS X 10.4.x (ppc & i386).  Found by Sean McBride.
+	* builds/vms/ftconfig.h: Ditto.
+	* include/freetype/config/ftconfig.h: Ditto.
+
+2007-03-22  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
+	* builds/unix/ftsystem.c (FT_Stream_Open): Temporary fix to prevent
+	32bit unsigned long overflow by 64bit filesize on LP64 platform, as
+	proposed by Sean McBride:
+	http://lists.gnu.org/archive/html/freetype-devel/2007-03/msg00032.html
+
+2007-03-22  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
+	* builds/unix/ftconfig.in: Suppress SGI compiler's warning against
+	setjmp, proposed by Sean McBride:
+	http://lists.gnu.org/archive/html/freetype-devel/2007-03/msg00032.html
+
+2007-03-19  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
+	* builds/unix/configure.raw: Dequote `OS_INLINE' in comment of
+	conftest.c, to avoid unexpected shell evaluation.  Possibly it is a
+	bug or undocumented behaviour of autoconf.
+
+2007-03-18  David Turner   <david@freetype.org>
+
+	* src/truetype/ttinterp.c (Ins_MDRP): Another bytecode regression
+	fix; testing still needed.
+
+	* src/truetype/ttinterp.c (Ins_MD): Another bytecode regression fix.
+
+2007-03-17  David Turner   <david@freetype.org>
+
+	* src/truetype/ttinterp.c (Ins_IP): Fix wrong handling of the
+	(undocumented) twilight zone special case.
+
 2007-03-09  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.3.2 released.
@@ -8,7 +150,7 @@
 
 	* builds/win32/visualc/index.html,
 	builds/win32/visualc/freetype.dsp,
-	builds/win32/visualc/freetype.vcproc, README: s/2.3.1/2.3.2/,
+	builds/win32/visualc/freetype.vcproj, README: s/2.3.1/2.3.2/,
 	s/231/232/.
 
 2007-03-08  David Turner  <david@freetype.org>
