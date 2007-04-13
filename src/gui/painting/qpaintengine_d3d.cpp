@@ -109,7 +109,6 @@ static PFND3DXCREATEEFFECT pD3DXCreateEffect = 0;
 static PFND3DXMATRIXORTHOOFFCENTERLH pD3DXMatrixOrthoOffCenterLH = 0;
 
 
-
 class QD3DWindowManager : public QObject {
     Q_OBJECT
 
@@ -304,6 +303,8 @@ public:
     void cleanup();
     bool testCaps();
 
+    QPixmap getPattern(Qt::BrushStyle style) const;
+
     // clipping
     QPainterPath m_sysClipPath;
     QPainterPath m_clipPath;
@@ -367,6 +368,8 @@ public:
 
     HDC m_dc;
     IDirect3DSurface9 *m_dcsurface;
+
+    QMap<Qt::BrushStyle, QPixmap> m_patterns;
 };
 
 
@@ -2994,8 +2997,14 @@ QPolygonF QDirect3DPaintEnginePrivate::brushCoordinates(const QRectF &r, bool st
             bpoly = matrix.map(QPolygonF(r));
             bpoly = totxcoords.map(bpoly);
             break; }
-        default:
-            bpoly = QPolygonF(4);
+        default: {
+            QTransform totxcoords;
+            QRectF adj_brect = r.adjusted(-0.5f, -0.5f, -0.5f, -0.5f);
+            QPixmap pat = getPattern(style);
+            totxcoords.scale(1.0f/pat.width(),
+                1.0f/pat.height());
+            bpoly = matrix.map(QPolygonF(adj_brect));
+            bpoly = totxcoords.map(bpoly); }
     };
 
     return bpoly;
@@ -3012,16 +3021,15 @@ void QDirect3DPaintEnginePrivate::strokeAliasedPath(QPainterPath path, const QRe
     QRectF trect;
     QPolygonF txcoord;
 
+    solid_color = m_penColor;
     bool has_complex_brush = false;
     if (m_pen_brush_style != Qt::SolidPattern) {
         has_complex_brush = true;
         item->m_brush = m_pen.brush();
         item->m_info |= QD3DBatchItem::BI_COMPLEXBRUSH;
         item->m_opacity = m_opacity;
-        solid_color = m_opacityColor;
-    } else {
-        solid_color = m_penColor;
     }
+
     if (has_fast_pen) {
         item->m_info |= QD3DBatchItem::BI_FASTLINE;
         if (m_pen_brush_style == Qt::SolidPattern) {
@@ -3058,15 +3066,13 @@ void QDirect3DPaintEnginePrivate::fillAliasedPath(QPainterPath path, const QRect
     QRectF trect;
     QPolygonF txcoord;
 
+    solid_color = m_brushColor;
     bool has_complex_brush = false;
     if (m_brush_style != Qt::SolidPattern) {
         has_complex_brush = true;
         item->m_brush = m_brush;
         item->m_info |= QD3DBatchItem::BI_COMPLEXBRUSH;
         item->m_opacity = m_opacity;
-        solid_color = m_opacityColor;
-    } else {
-        solid_color = m_brushColor;
     }
 
     QRectF txrect = m_vBuffer->queueAliasedMask(path, &item, 0);
@@ -3130,21 +3136,17 @@ void QDirect3DPaintEnginePrivate::fillAntialiasedPath(const QPainterPath &path, 
 
     bool has_complex_brush = false;
     if (stroke) {
+        solid_color = m_penColor;
         if (m_pen_brush_style != Qt::SolidPattern) {
             has_complex_brush = true;
             item->m_brush = m_pen.brush();
-            solid_color = m_opacityColor;
-        } else {
-            solid_color = m_penColor;
         }
         item->m_width = m_pen_width;
     } else {
+        solid_color = m_brushColor;
         if (m_brush_style != Qt::SolidPattern) {
             has_complex_brush = true;
             item->m_brush = m_brush;
-            solid_color = m_opacityColor;
-        } else {
-            solid_color = m_brushColor;
         }
     }
 
@@ -3400,6 +3402,25 @@ bool QDirect3DPaintEnginePrivate::init()
     return true;
 }
 
+QPixmap QDirect3DPaintEnginePrivate::getPattern(Qt::BrushStyle style) const
+{
+    if (!m_patterns.contains(style)) {
+        QImage img(16,16,QImage::Format_ARGB32);
+        img.fill(0);
+        QPainter p(&img);
+        p.setBrush(QBrush(Qt::white, style));
+        p.setPen(Qt::NoPen);
+        p.drawRect(0,0,16,16);
+        p.end();
+        QPixmap pattern(img);
+        QDirect3DPaintEnginePrivate *ct = const_cast<QDirect3DPaintEnginePrivate *>(this);
+        ct->verifyTexture(pattern);
+        ct->m_patterns.insert(style, pattern);
+    }
+
+    return m_patterns.value(style);
+}
+
 bool QDirect3DPaintEnginePrivate::testCaps()
 {
     D3DCAPS9 caps;
@@ -3442,9 +3463,15 @@ void QDirect3DPaintEnginePrivate::updatePen(const QPen &pen)
     has_pen = (m_pen.style() != Qt::NoPen);
     if (has_pen) {
         m_pen_brush_style = m_pen.brush().style();
-        int a, r, g, b;
-        m_pen.color().getRgb(&r, &g, &b, &a);
-        m_penColor = D3DCOLOR_ARGB((int)(a * m_opacity),r,g,b);
+
+        if (m_pen_brush_style >= Qt::SolidPattern && m_pen_brush_style <= Qt::DiagCrossPattern) {
+            int a, r, g, b;
+            m_pen.color().getRgb(&r, &g, &b, &a);
+            m_penColor = D3DCOLOR_ARGB((int)(a * m_opacity),r,g,b);
+        } else {
+            m_penColor = m_opacityColor;
+        }
+
         has_cosmetic_pen = m_pen.isCosmetic();
 
         if (m_pen_brush_style != Qt::NoBrush &&
@@ -3470,9 +3497,13 @@ void QDirect3DPaintEnginePrivate::updateBrush(const QBrush &brush)
     m_brush_style = m_brush.style();
     has_brush = (m_brush_style != Qt::NoBrush);
     if (has_brush) {
-        int a, r, g, b;
-        m_brush.color().getRgb(&r, &g, &b, &a);
-        m_brushColor = D3DCOLOR_ARGB((int)(a * m_opacity),r,g,b);
+        if (m_brush_style >= Qt::SolidPattern && m_brush_style <= Qt::DiagCrossPattern) {
+            int a, r, g, b;
+            m_brush.color().getRgb(&r, &g, &b, &a);
+            m_brushColor = D3DCOLOR_ARGB((int)(a * m_opacity),r,g,b);
+        } else {
+            m_brushColor = m_opacityColor;
+        }
 
         if (m_brush_style != Qt::SolidPattern) {
             bool ok;
@@ -3483,6 +3514,8 @@ void QDirect3DPaintEnginePrivate::updateBrush(const QBrush &brush)
             // make sure the texture is loaded as a texture
             if (m_brush_style == Qt::TexturePattern)
                 verifyTexture(m_brush.texture());
+
+            
         }
     }
 }
@@ -3599,6 +3632,9 @@ void QDirect3DPaintEnginePrivate::prepareItem(QD3DBatchItem *item) {
                 m_statemanager->setFocalDistance(item->m_distance);
                 brushmode = 4;
                 break;
+            default:
+                m_statemanager->setTexture(getPattern(brush.style()).data->texture, QGradient::RepeatSpread);
+                brushmode = 5;
         };
     }
 

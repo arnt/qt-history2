@@ -193,6 +193,9 @@ PS_OUTPUT MaskPS(VS_FULL In, float2 pixelPos : VPOS)
 
         float y = (-B + sqrt(B*B - 4.0*A*C)) / (2.0*A);
         Out.Color = tex1D(PixmapSampler, (tc.y / y) );
+    } else if (g_mBrushMode == 5) {
+        Out.Color = tex2D(PixmapSampler, In.TexCoords0.xy);
+        Out.Color = Out.Color * In.Diffuse;
     } else {
         Out.Color = In.Diffuse;
     }
