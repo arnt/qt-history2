@@ -45,8 +45,12 @@ public:
     virtual bool isValid() const = 0;
 
     virtual void setGeometry(const QRect &rect);
+    virtual void setGeometry(const QRect &rect, const QRegion &mask);
     virtual void flush(QWidget *widget, const QRegion &region,
                        const QPoint &offset);
+
+    virtual bool move(const QPoint offset);
+    virtual QRegion move(const QPoint offset, const QRegion &newClip);
 
     virtual QPoint painterOffset() const; // remove!!!
 
