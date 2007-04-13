@@ -3310,6 +3310,10 @@ void QImage::setPixel(int x, int y, uint index_or_rgb)
         s[x] = index_or_rgb;
         break;
     case Format_RGB32:
+        //make sure alpha is 255, we depend on it in qdrawhelper for cases
+        // when image is set as a texture pattern on a qbrush
+        ((uint *)s)[x] = (255 << 24) | index_or_rgb;
+        break;
     case Format_ARGB32:
     case Format_ARGB32_Premultiplied:
         ((uint *)s)[x] = index_or_rgb;
