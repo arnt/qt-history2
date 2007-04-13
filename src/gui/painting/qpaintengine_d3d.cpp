@@ -3670,7 +3670,15 @@ void QDirect3DPaintEnginePrivate::cleanupItem(QD3DBatchItem *item)
 void QDirect3DPaintEnginePrivate::verifyTexture(const QPixmap &pm)
 {
     if (!pm.data->texture) {
-        QImage im = pm.data->image.convertToFormat(QImage::Format_ARGB32);
+        QImage im = pm.data->image;
+        // bitmaps are draw with the current pen color
+        if (im.depth() == 1) {
+            QVector<QRgb> colors(2);
+            colors[0] = 0;
+            colors[1] = m_pen.color().rgba();
+            im.setColorTable(colors);
+        }
+        im = im.convertToFormat(QImage::Format_ARGB32);
         if (FAILED(m_d3dDevice->CreateTexture(im.width(), im.height(), 1, 0,
                                                  D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pm.data->texture, 0)))
         {
