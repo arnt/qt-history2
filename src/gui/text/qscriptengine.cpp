@@ -4952,6 +4952,7 @@ enum HangulType {
     X
 };
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 static inline HangulType hangul_type(unsigned short uc) {
     if (uc > Hangul_SBase && uc < Hangul_SBase + Hangul_SCount)
         return hangul_isLV(uc) ? LV : LVT;
@@ -4999,6 +5000,7 @@ static int hangul_nextSyllableBoundary(const QString &s, int start, int end)
  finish:
     return start+pos;
 }
+#endif
 
 #ifndef QT_NO_OPENTYPE
 static const QOpenType::Features hangul_features [] = {

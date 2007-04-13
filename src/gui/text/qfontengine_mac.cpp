@@ -611,6 +611,7 @@ QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, ATSUFontID fontID, const QFo
     Q_ASSERT(attributeCount < maxAttributeCount + 1);
     OSStatus err = ATSUSetAttributes(style, attributeCount, tags, sizes, values);
     Q_ASSERT(err == noErr);
+    Q_UNUSED(err);
 
     quint16 tmpFsType;
     if (ATSFontGetTable(atsFont, MAKE_TAG('O', 'S', '/', '2'), 8, 2, &tmpFsType, 0) == noErr)
@@ -1033,6 +1034,7 @@ void QFontEngineMac::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_m
     Q_ASSERT(attributeCount < maxAttributeCount + 1);
     OSStatus err = ATSUSetAttributes(unscaledStyle, attributeCount, tags, sizes, values);
     Q_ASSERT(err == noErr);
+    Q_UNUSED(err);
 
     GlyphID atsuGlyph = glyph;
     ATSGlyphScreenMetrics atsuMetrics;

@@ -1683,7 +1683,7 @@ static int qt_UnicodeToBig5(ushort ch, uchar *buf)
 QString QBig5Codec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
     QChar replacement = QChar::ReplacementCharacter;
-    uchar buf[2];
+    uchar buf[2] = {0};
     int nbuf = 0;
     if (state) {
         if (state->flags & ConvertInvalidToNull)
@@ -1802,7 +1802,7 @@ QByteArray QBig5hkscsCodec::_name()
 
 QString QBig5hkscsCodec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
-    uchar buf[2];
+    uchar buf[2] = {0};
     int nbuf = 0;
     QChar replacement = QChar::ReplacementCharacter;
     if (state) {

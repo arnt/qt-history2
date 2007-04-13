@@ -2736,6 +2736,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 #endif
 
     // Fallthrough for embedded and default for mac.
+    Q_UNUSED(fontEngine);
     bool aa = d->antialiased;
     d->antialiased = true;
     QPaintEngine::drawTextItem(p, ti);

@@ -128,6 +128,8 @@ public:
                          ::GetVolumeInformationA(path.toAscii().constData(), NULL, 0, NULL, &maxLength, NULL, NULL, 0)) == FALSE)
             return -1;
         return maxLength;
+#else
+        Q_UNUSED(path);
 #endif
         return -1;
     }

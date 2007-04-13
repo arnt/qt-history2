@@ -266,7 +266,7 @@ static bool qt_parse_pattern(const char *s, uint *version, bool *debug, QByteArr
     return ret;
 }
 
-#if defined(Q_OS_UNIX)
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
 
 #if defined(Q_OS_FREEBSD) || defined(Q_OS_LINUX)
 #  define USE_MMAP
@@ -389,7 +389,7 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
     return ret;
 }
 
-#endif // Q_OS_UNIX
+#endif // Q_OS_UNIX && !Q_OS_MAC
 
 typedef QMap<QString, QLibraryPrivate*> LibraryMap;
 Q_GLOBAL_STATIC(LibraryMap, libraryMap)
