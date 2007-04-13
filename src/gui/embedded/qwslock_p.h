@@ -25,6 +25,10 @@
 // We mean it.
 //
 
+#include <qglobal.h>
+
+#ifndef QT_NO_QWS_MULTIPROCESS
+
 class QWSLock
 {
 public:
@@ -46,4 +50,5 @@ private:
     bool hasLock(LockType type);
 };
 
+#endif // QT_NO_QWS_MULTIPROCESS
 #endif // QWSLOCK_P_H

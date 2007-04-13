@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qwslock_p.h"
+
+#ifndef QT_NO_QWS_MULTIPROCESS
+
 #include "qwssignalhandler_p.h"
 
 #include <qglobal.h>
@@ -150,3 +153,4 @@ bool QWSLock::wait(LockType type, int timeout)
     return ok;
 }
 
+#endif // QT_NO_QWS_MULTIPROCESS
