@@ -602,6 +602,7 @@ CallDeliveryEvent* QDBusConnectionPrivate::prepareReply(QObject *object, int idx
                                                         const QDBusMessage &msg)
 {
     Q_ASSERT(object);
+    Q_UNUSED(object);
 
     int n = metaTypes.count() - 1;
     if (metaTypes[n] == QDBusMetaTypeId::message)
