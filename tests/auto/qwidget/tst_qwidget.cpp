@@ -181,6 +181,7 @@ private slots:
     void compatibilityChildInsertedEvents();
     void render();
 
+    void setContentsMargins();
 private:
     QWidget *testWidget;
 };
@@ -4929,6 +4930,24 @@ void tst_QWidget::render()
 
     QCOMPARE(targetImage.pixel(target.width() / 2, 29), QColor(Qt::red).rgb());
     QCOMPARE(targetImage.pixel(target.width() / 2, 30), sourceImage.pixel(source.width() / 2, 0));
+}
+
+void tst_QWidget::setContentsMargins()
+{
+    QLabel label("why does it always rain on me?");
+    QSize oldSize = label.sizeHint();
+    label.setFrameStyle(QFrame::Sunken | QFrame::Box);
+    QSize newSize = label.sizeHint();
+    QVERIFY(oldSize != newSize);
+
+    QLabel label2("why does it always rain on me?");
+    label2.show();
+    label2.setFrameStyle(QFrame::Sunken | QFrame::Box);
+    QCOMPARE(newSize, label2.sizeHint());
+
+    QLabel label3("why does it always rain on me?");
+    label3.setFrameStyle(QFrame::Sunken | QFrame::Box);
+    QCOMPARE(newSize, label3.sizeHint());
 }
 
 QTEST_MAIN(tst_QWidget)

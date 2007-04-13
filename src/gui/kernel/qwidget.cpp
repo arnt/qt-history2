@@ -5061,7 +5061,7 @@ void QWidget::setContentsMargins(int left, int top, int right, int bottom)
     else
         updateGeometry();
 
-    if (isVisible()) {
+    if (testAttribute(Qt::WA_WState_Polished)) {
         update();
         QResizeEvent e(data->crect.size(), data->crect.size());
         QApplication::sendEvent(this, &e);
