@@ -92,7 +92,7 @@ void tst_QDBusLocalCalls::makeInvalidCalls()
         QCOMPARE(int(replyMsg.type()), int(QDBusMessage::ErrorMessage));
 
         QDBusError error(replyMsg);
-        QCOMPARE(int(error.type()), int(QDBusError::UnknownMethod));
+        QCOMPARE(int(error.type()), int(QDBusError::UnknownObject));
     }
 }
 

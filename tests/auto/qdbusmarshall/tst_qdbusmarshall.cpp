@@ -6,6 +6,10 @@
 #include "common.h"
 #include <limits>
 
+static const char serviceName[] = "com.trolltech.autotests.qpong";
+static const char objectPath[] = "/com/trolltech/qpong";
+static const char *interfaceName = serviceName;
+
 class tst_QDBusMarshall: public QObject
 {
     Q_OBJECT
@@ -43,6 +47,39 @@ private:
     QProcess proc;
 };
 
+class WaitForQPong: public QObject
+{
+    Q_OBJECT
+public:
+    WaitForQPong();
+    bool ok();
+public Q_SLOTS:
+    void ownerChange(const QString &name)
+    {
+        if (name == serviceName)
+            loop.quit();
+    }
+
+private:
+    QEventLoop loop;
+};
+
+WaitForQPong::WaitForQPong()
+{
+    QDBusConnection con = QDBusConnection::sessionBus();
+    if (!ok()) {
+        connect(con.interface(), SIGNAL(serviceOwnerChanged(QString,QString,QString)),
+                SLOT(ownerChange(QString)));
+        QTimer::singleShot(2000, &loop, SLOT(quit()));
+        loop.exec();
+    }
+}
+
+bool WaitForQPong::ok()
+{
+    return QDBusConnection::sessionBus().interface()->isServiceRegistered(serviceName);
+}
+
 void tst_QDBusMarshall::initTestCase()
 {
     commonInit();
@@ -52,7 +89,10 @@ void tst_QDBusMarshall::initTestCase()
     proc.start("./qpong/qpong");
 #endif
     QVERIFY(proc.waitForStarted());
-    QTest::qWait(2000);
+
+    WaitForQPong w;
+    QVERIFY(w.ok());
+    //QTest::qWait(2000);
 }
 
 void tst_QDBusMarshall::cleanupTestCase()
@@ -506,8 +546,8 @@ void tst_QDBusMarshall::sendBasic()
 
     QVERIFY(con.isConnected());
 
-    QDBusMessage msg = QDBusMessage::createMethodCall("org.kde.selftest",
-        "/org/kde/selftest", "org.kde.selftest", "ping");
+    QDBusMessage msg = QDBusMessage::createMethodCall(serviceName,
+                                                      objectPath, interfaceName, "ping");
     msg << value;
 
     QDBusMessage reply = con.call(msg);
@@ -527,8 +567,8 @@ void tst_QDBusMarshall::sendVariant()
 
     QVERIFY(con.isConnected());
 
-    QDBusMessage msg = QDBusMessage::createMethodCall("org.kde.selftest",
-        "/org/kde/selftest", "org.kde.selftest", "ping");
+    QDBusMessage msg = QDBusMessage::createMethodCall(serviceName,
+                                                      objectPath, interfaceName, "ping");
     msg << qVariantFromValue(QDBusVariant(value));
 
     QDBusMessage reply = con.call(msg);
@@ -573,8 +613,8 @@ void tst_QDBusMarshall::sendArgument()
 
     QVERIFY(con.isConnected());
 
-    QDBusMessage msg = QDBusMessage::createMethodCall("org.kde.selftest",
-        "/org/kde/selftest", "org.kde.selftest", "ping");
+    QDBusMessage msg = QDBusMessage::createMethodCall(serviceName, objectPath,
+                                                      interfaceName, "ping");
     msg << value;
 
     QDBusMessage reply = con.call(msg);

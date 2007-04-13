@@ -159,6 +159,30 @@ void tst_QDBusInterface::signal()
         QCOMPARE(spy.count, 1);
         QCOMPARE(spy.received, arg);
     }
+
+    QDBusInterface iface2(QDBusConnection::sessionBus().baseService(), QLatin1String("/"),
+                          TEST_INTERFACE_NAME);
+    {
+        Spy spy;
+        spy.connect(&iface, SIGNAL(somethingHappened(QString)), SLOT(spySlot(QString)));
+        spy.connect(&iface2, SIGNAL(somethingHappened(QString)), SLOT(spySlot(QString)));
+
+        emitSignal(TEST_INTERFACE_NAME, TEST_SIGNAL_NAME, arg);
+        QCOMPARE(spy.count, 2);
+        QCOMPARE(spy.received, arg);
+    }
+
+    {
+        Spy spy, spy2;
+        spy.connect(&iface, SIGNAL(somethingHappened(QString)), SLOT(spySlot(QString)));
+        spy2.connect(&iface2, SIGNAL(somethingHappened(QString)), SLOT(spySlot(QString)));
+
+        emitSignal(TEST_INTERFACE_NAME, TEST_SIGNAL_NAME, arg);
+        QCOMPARE(spy.count, 1);
+        QCOMPARE(spy.received, arg);
+        QCOMPARE(spy2.count, 1);
+        QCOMPARE(spy2.received, arg);
+    }
 }
 
 QTEST_MAIN(tst_QDBusInterface)
