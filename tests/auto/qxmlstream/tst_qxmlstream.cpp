@@ -56,7 +56,7 @@ static QByteArray makeCanonical(const QString &filename,
                                 bool testIncremental = false)
 {
     QFile file(filename);
-    file.open(QIODevice::ReadOnly);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
 
     QXmlStreamReader reader;
 
