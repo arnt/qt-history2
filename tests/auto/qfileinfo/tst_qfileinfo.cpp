@@ -24,7 +24,7 @@
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
 #endif
-
+#include <qplatformdefs.h>
 #include <qdebug.h>
 //TESTED_CLASS=
 //TESTED_FILES=corelib/io/qfileinfo.h corelib/io/qfileinfo.cpp
@@ -690,28 +690,61 @@ void tst_QFileInfo::fileTimes()
 
 void tst_QFileInfo::fileTimes_oldFile()
 {
-#ifdef Q_OS_WIN64
-    QSKIP("This test doesn't work on WIN64.", SkipSingle);
-#endif
-#ifdef Q_OS_UNIX
-    QSKIP("Windows only test.", SkipSingle);
-#endif
-
-    QFile::remove("oldfile.txt");
-    QFile file("oldfile.txt");
-    QVERIFY(file.open(QIODevice::WriteOnly | QIODevice::Truncate));
-
 #ifdef Q_OS_WIN
+    // All files are opened in share mode (both read and write).
+    DWORD shareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
+
+    // All files on Windows can be read; there's no such thing as an
+    // unreadable file. Add GENERIC_WRITE if WriteOnly is passed.
+    int accessRights = GENERIC_READ | GENERIC_WRITE;
+
+    SECURITY_ATTRIBUTES securityAtts = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
+
+    // Regular file mode. In Unbuffered mode, pass the no-buffering flag.
+    DWORD flagsAndAtts = FILE_ATTRIBUTE_NORMAL;
+
+    // WriteOnly can create files, ReadOnly cannot.
+    DWORD creationDisp = OPEN_ALWAYS;
+
+    HANDLE fileHandle;
+
+    // Create the file handle.
+    QT_WA({
+        fileHandle = CreateFileW(L"oldfile.txt",
+            accessRights,
+            shareMode,
+            &securityAtts,
+            creationDisp,
+            flagsAndAtts,
+            NULL);
+    }, {
+        fileHandle = CreateFileA("oldfile.txt",
+            accessRights,
+            shareMode,
+            &securityAtts,
+            creationDisp,
+            flagsAndAtts,
+            NULL);
+    });
+    
     // Set file times back to 1601.
     FILETIME ctime;
     ctime.dwLowDateTime = 1;
     ctime.dwHighDateTime = 0;
     FILETIME atime = ctime;
     FILETIME mtime = atime;
-    QVERIFY((HANDLE)file.handle());
-    QVERIFY(SetFileTime((HANDLE)file.handle(), &ctime, &atime, &mtime) != 0);
-    QFileInfo info(file.fileName());
-    QCOMPARE(info.lastModified(), QDateTime(QDate(1601, 1, 1), QTime(1, 0)));
+    QVERIFY(fileHandle);
+    int ret = SetFileTime(fileHandle, &ctime, &atime, &mtime);
+    if (!ret) {
+        qDebug() << qt_error_string();
+        qDebug() << "Handle: " << fileHandle;
+    }
+    QVERIFY(ret != 0);
+    QFileInfo info("oldfile.txt");
+    // ### Only works in the summertime
+    QCOMPARE(info.lastModified(), QDateTime(QDate(1601, 1, 1), QTime(2, 0)));
+
+    CloseHandle(fileHandle);
 #endif
 }
 
