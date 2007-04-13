@@ -347,10 +347,12 @@ void QGLContext::makeCurrent()
 #ifndef Q_USE_EGLWINDOWSURFACE
     }
 #else
+#if 0
     if (device()->devType() == QInternal::Widget) {
         // EGL Only works if drawable is a QGLWidget. QGLFramebufferObject, QGLPixelBuffer not supported
         static_cast<QGLWidget*>(device())->d_func()->wsurf->beginPaint(QRegion());
     }
+#endif
 #endif
 }
 
@@ -366,11 +368,13 @@ void QGLContext::doneCurrent()
         qgl_context_storage.localData()->context = 0;
     currentCtx = 0;
 
+#if 0
 #ifdef Q_USE_EGLWINDOWSURFACE
     if (device()->devType() == QInternal::Widget) {
         // EGL Only works if drawable is a QGLWidget, QGLFramebufferObject, QGLPixelBuffer not supported
         static_cast<QGLWidget*>(device())->d_func()->wsurf->endPaint(QRegion());
     }
+#endif
 #endif
 }
 
