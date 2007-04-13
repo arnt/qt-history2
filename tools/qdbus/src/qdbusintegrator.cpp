@@ -832,9 +832,9 @@ QDBusConnectionPrivate::QDBusConnectionPrivate(QObject *p)
     : QObject(p), ref(1), mode(InvalidMode), connection(0), server(0), busService(0),
       rootNode(QString(QLatin1Char('/')))
 {
+    extern bool qDBusInitThreads();
+    static const bool threads = qDBusInitThreads();
     static const bool debugging = !qgetenv("QDBUS_DEBUG").isEmpty();
-    static const bool threading = dbus_threads_init_default();
-    Q_UNUSED(threading);
 
     ::isDebugging = debugging;
 
