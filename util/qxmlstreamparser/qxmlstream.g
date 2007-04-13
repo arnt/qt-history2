@@ -223,6 +223,10 @@ public:
     QTextCodec *codec;
     QTextDecoder *decoder;
     bool atEnd;
+
+    /*!
+      \sa setType()
+     */
     QXmlStreamReader::TokenType type;
     QXmlStreamReader::Error error;
     QString errorString;
@@ -421,6 +425,17 @@ public:
     void raiseError(QXmlStreamReader::Error error, const QString& message = QString());
     void raiseWellFormedError(const QString &message);
 
+private:
+    /*! \internal
+       Never assign to variable type directly. Instead use this function.
+
+       This prevents errors from being ignored.
+     */
+    inline void setType(const QXmlStreamReader::TokenType t)
+    {
+        if(type != QXmlStreamReader::Invalid)
+            type = t;
+    }
 };
 
 bool QXmlStreamReaderPrivate::parse()
@@ -438,7 +453,7 @@ bool QXmlStreamReaderPrivate::parse()
         if (attributes.size())
             attributes.resize(0);
         if (isEmptyElement) {
-            type = QXmlStreamReader::EndElement;
+            setType(QXmlStreamReader::EndElement);
             Tag &tag = tagStack_pop();
             namespaceUri = tag.namespaceDeclaration.namespaceUri;
             name = tag.name;
@@ -483,7 +498,7 @@ bool QXmlStreamReaderPrivate::parse()
         ;
     }
 
-    type = QXmlStreamReader::NoToken;
+    setType(QXmlStreamReader::NoToken);
 
 
     // the main parse loop
@@ -679,7 +694,7 @@ bool QXmlStreamReaderPrivate::parse()
 document ::= PARSE_ENTITY content;
 /.
         case $rule_number:
-            type = QXmlStreamReader::EndDocument;
+            setType(QXmlStreamReader::EndDocument);
         break;
 ./
 
@@ -688,7 +703,7 @@ document ::= prolog;
         case $rule_number:
             if (type != QXmlStreamReader::Invalid) {
                 if (hasSeenTag || inParseEntity) {
-                    type = QXmlStreamReader::EndDocument;
+                    setType(QXmlStreamReader::EndDocument);
                 } else {
                     raiseError(QXmlStreamReader::PrematureEndOfDocumentError, QXmlStream::tr("Start tag expected."));
                     // reset the parser
@@ -733,7 +748,7 @@ xml_decl_start ::= XML;
 xml_decl ::= xml_decl_start VERSION space_opt EQ space_opt literal attribute_list_opt QUESTIONMARK RANGLE;
 /.
         case $rule_number:
-            type = QXmlStreamReader::StartDocument;
+            setType(QXmlStreamReader::StartDocument);
             startDocument(symString(6));
         break;
 ./
@@ -775,7 +790,7 @@ doctype_decl ::= langle_bang DOCTYPE name RANGLE;
 doctype_decl ::= langle_bang DOCTYPE name markup space_opt RANGLE;
 /.
         case $rule_number:
-            type = QXmlStreamReader::DTD;
+            setType(QXmlStreamReader::DTD);
             text = &textBuffer;
         break;
 ./
@@ -1039,7 +1054,7 @@ entity_decl ::= entity_decl_start entity_value space_opt RANGLE;
 processing_instruction ::= LANGLE QUESTIONMARK name space;
 /.
         case $rule_number: {
-            type = QXmlStreamReader::ProcessingInstruction;
+            setType(QXmlStreamReader::ProcessingInstruction);
             int pos = sym(4).pos + sym(4).len;
             processingInstructionTarget = symString(3);
             if (scanUntil("?>")) {
@@ -1060,7 +1075,7 @@ processing_instruction ::= LANGLE QUESTIONMARK name space;
 processing_instruction ::= LANGLE QUESTIONMARK name QUESTIONMARK RANGLE;
 /.
         case $rule_number:
-            type = QXmlStreamReader::ProcessingInstruction;
+            setType(QXmlStreamReader::ProcessingInstruction);
             processingInstructionTarget = symString(3);
             if (!processingInstructionTarget.toString().compare(QLatin1String("xml"), Qt::CaseInsensitive))
                 raiseWellFormedError(QXmlStream::tr("Invalid processing instruction name."));
@@ -1091,7 +1106,7 @@ comment_start ::= langle_bang DASH DASH;
 comment ::= comment_start RANGLE;
 /.
         case $rule_number: {
-            type = QXmlStreamReader::Comment;
+            setType(QXmlStreamReader::Comment);
             int pos = sym(1).pos + 4;
             text = QStringRef(&textBuffer, pos, textBuffer.size() - pos - 3);
         } break;
@@ -1101,7 +1116,7 @@ comment ::= comment_start RANGLE;
 cdata ::= langle_bang CDATA_START;
 /.
         case $rule_number: {
-            type = QXmlStreamReader::Characters;
+            setType(QXmlStreamReader::Characters);
             isCDATA = true;
             int pos = sym(2).pos;
             if (scanUntil("]]>", -1)) {
@@ -1171,7 +1186,7 @@ content_char_list ::= DIGIT;
 content_char_list ::= content_char;
 /.
         case $rule_number:
-            type = QXmlStreamReader::Characters;
+            setType(QXmlStreamReader::Characters);
             sym(1).len += fastScanContentCharList();
             if (atEnd && !inParseEntity) {
                 resume($rule_number);
@@ -1429,7 +1444,7 @@ empty_element_tag ::= stag_start attribute_list_opt SLASH RANGLE;
 stag ::= stag_start attribute_list_opt RANGLE;
 /.
         case $rule_number:
-            type = QXmlStreamReader::StartElement;
+            setType(QXmlStreamReader::StartElement);
             resolveTag();
             if (tagStack.size() == 1 && hasSeenTag && !inParseEntity)
                 raiseWellFormedError(QXmlStream::tr("Extra content at end of document."));
@@ -1441,7 +1456,7 @@ stag ::= stag_start attribute_list_opt RANGLE;
 etag ::= LANGLE SLASH qname space_opt RANGLE;
 /.
         case $rule_number: {
-            type = QXmlStreamReader::EndElement;
+            setType(QXmlStreamReader::EndElement);
             Tag &tag = tagStack_pop();
 
             namespaceUri = tag.namespaceDeclaration.namespaceUri;
@@ -1478,7 +1493,7 @@ entity_ref ::= AMPERSAND name SEMICOLON;
                 raiseWellFormedError(QXmlStream::tr("Entity '%1' not declared.").arg(reference));
                 break;
             }
-            type = QXmlStreamReader::EntityReference;
+            setType(QXmlStreamReader::EntityReference);
             name = symString(2);
 
         } break;
