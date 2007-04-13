@@ -155,18 +155,14 @@ void qDBusReplyFill(const QDBusMessage &reply, QDBusError &error, QVariant &data
             // matched. Demarshall it
             QDBusMetaType::demarshall(arg, data.userType(), data.data());
             return;
-        } else {
-            if (!reply.arguments().isEmpty())
-                receivedSignature = QDBusMetaType::typeToSignature(reply.arguments().at(0).userType());
-            else
-                receivedSignature = "no signature";
-            expectedSignature = QDBusMetaType::typeToSignature(data.userType());
         }
     }
 
     // error
     QString errorMsg = QLatin1String("Unexpected reply signature: got \"%1\", "
                                      "expected \"%2\" (%3)");
+    if (receivedSignature.isEmpty())
+        receivedSignature = "no signature";
     error = QDBusError(QDBusError::InvalidSignature,
                       errorMsg.arg(QLatin1String(receivedSignature),
                                    QLatin1String(expectedSignature),
