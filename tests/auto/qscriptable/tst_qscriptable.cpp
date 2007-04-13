@@ -242,12 +242,12 @@ void tst_QScriptable::thisObject()
     {
         QScriptValue ret = m_engine.evaluate("scriptable.zab");
         QCOMPARE(ret.isQObject(), true);
-        QCOMPARE(ret.toQObject(), &m_scriptable);
+        QCOMPARE(ret.toQObject(), (QObject *)&m_scriptable);
     }
     {
         QScriptValue ret = m_engine.evaluate("scriptable[1]");
         QCOMPARE(ret.isQObject(), true);
-        QCOMPARE(ret.toQObject(), &m_scriptable);
+        QCOMPARE(ret.toQObject(), (QObject *)&m_scriptable);
     }
     {
         QScriptValue ret = m_engine.evaluate("o.zab");
@@ -257,7 +257,7 @@ void tst_QScriptable::thisObject()
     {
         QScriptValue ret = m_engine.evaluate("scriptable.setZab(null)");
         QCOMPARE(ret.isQObject(), true);
-        QCOMPARE(ret.toQObject(), &m_scriptable);
+        QCOMPARE(ret.toQObject(), (QObject *)&m_scriptable);
     }
 
     m_engine.evaluate("delete o");
