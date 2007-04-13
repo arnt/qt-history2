@@ -488,7 +488,7 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
             }
         }
     }
-    t << "\n\t-$(DEL_FILE) \"$(DESTDIR_TARGET)\"" << endl;
+    t << "\n\t-$(DEL_FILE) $(DESTDIR_TARGET)" << endl;
     {
         QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
         if(!ofile.isEmpty())
