@@ -835,6 +835,7 @@ QDBusConnectionPrivate::QDBusConnectionPrivate(QObject *p)
     extern bool qDBusInitThreads();
     static const bool threads = qDBusInitThreads();
     static const bool debugging = !qgetenv("QDBUS_DEBUG").isEmpty();
+    Q_UNUSED(threads)
 
     ::isDebugging = debugging;
 
