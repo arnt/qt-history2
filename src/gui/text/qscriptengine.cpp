@@ -346,7 +346,7 @@ static const QOpenType::Features basic_features[] = {
 static bool basic_shape(QShaperItem *item)
 {
 
-#ifndef QT_NO_OPENTYPE
+#if !defined(QT_NO_OPENTYPE) && !defined(Q_WS_QWS)
     const int availableGlyphs = item->num_glyphs;
 #endif
 
