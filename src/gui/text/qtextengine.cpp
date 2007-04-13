@@ -984,13 +984,28 @@ void QTextEngine::itemize() const
     if (layoutData->string.length() == 0)
         return;
 
-    if (!ignoreBidi) {
+    bool ignore = ignoreBidi;
+    if (!ignore) {
+        ignore = true;
+        const QChar *start = layoutData->string.unicode();
+        const QChar * const end = start + layoutData->string.length();
+        while (start < end) {
+            if (start->unicode() >= 0x590) {
+                ignore = false;
+                break;
+            }
+            ++start;
+        }
+    }
+    
+    if (!ignore) {
         layoutData->hasBidi = bidiItemize(const_cast<QTextEngine *>(this), (option.textDirection() == Qt::RightToLeft));
     } else {
         QBidiControl control(false);
         int start = 0;
         int stop = layoutData->string.length() - 1;
         appendItems(const_cast<QTextEngine *>(this), start, stop, control, QChar::DirL);
+        layoutData->hasBidi = false;
     }
 
     addRequiredBoundaries();
