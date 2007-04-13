@@ -5780,7 +5780,21 @@ QRect QWidget::visibleRect() const
 */
 QRegion QWidget::visibleRegion() const
 {
-    return d_func()->clipRect();
+    Q_D(const QWidget);
+
+    QRegion r = d->clipRect();
+#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
+    d->subtractOpaqueChildren(r, r, QPoint());
+//    d->subtractOpaqueSiblings(r, r, QPoint()); // XXX: enable when caching is implemented
+#endif
+#ifdef Q_WS_QWS
+    const QWSWindowSurface *surface = static_cast<const QWSWindowSurface*>(windowSurface());
+    if (surface) {
+        const QPoint offset = mapTo(surface->window(), QPoint());
+        r &= surface->clipRegion().translated(-offset);
+    }
+#endif
+    return r;
 }
 
 

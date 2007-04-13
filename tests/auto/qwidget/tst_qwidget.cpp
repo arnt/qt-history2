@@ -3453,7 +3453,9 @@ void tst_QWidget::update()
         QCOMPARE(w.numPaintEvents, 1);
         QRegion expectedVisible = QRegion(w.rect())
                                   - child.visibleRegion().translated(childOffset);
+#ifdef Q_WS_MAC
         QEXPECT_FAIL("", "Task 151858", Continue);
+#endif
         QCOMPARE(w.visibleRegion(), expectedVisible);
         QCOMPARE(w.paintedRegion, expectedVisible);
         QCOMPARE(child.numPaintEvents, 0);
@@ -3501,7 +3503,9 @@ void tst_QWidget::update()
                  & sibling.visibleRegion().translated(siblingOffset));
 
         QCOMPARE(w.numPaintEvents, 1);
+#ifdef Q_WS_MAC
         QEXPECT_FAIL("", "Task 151858", Continue);
+#endif
         QCOMPARE(w.paintedRegion,
                  w.visibleRegion() & sibling.visibleRegion().translated(siblingOffset));
         QCOMPARE(w.paintedRegion,
@@ -3532,7 +3536,9 @@ void tst_QWidget::update()
                  - sibling.visibleRegion().translated(siblingOffset - childOffset));
 
         QCOMPARE(w.numPaintEvents, 0);
+#ifdef Q_WS_MAC
         QEXPECT_FAIL("", "Task 151858", Continue);
+#endif
         QCOMPARE(w.visibleRegion(),
                  QRegion(w.rect())
                  - child.visibleRegion().translated(childOffset)
