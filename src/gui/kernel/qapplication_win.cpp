@@ -2442,7 +2442,7 @@ void QApplication::winMouseButtonUp()
     releaseAutoCapture();
 }
 
-void QETWidget::repolishStyle(QStyle &style)
+void QETWidget::repolishStyle(QStyle &)
 {
     QEvent e(QEvent::StyleChange);
     QApplication::sendEvent(this, &e);

@@ -306,9 +306,9 @@ qint64 QStringBuffer::readData( char *p, qint64 len )
 	return qint64(-1);
     }
 #endif
-    if ( pos() + len > s->length()*sizeof(QChar) ) {
+    if ( pos() + len > qint64(s->length()*sizeof(QChar)) ) {
 	// overflow
-	if ( pos() >= s->length()*sizeof(QChar) ) {
+	if ( pos() >= qint64(s->length()*sizeof(QChar)) ) {
 	    return -1;
 	} else {
 	    len = s->length()*2 - pos();

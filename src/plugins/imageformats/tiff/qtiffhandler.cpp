@@ -118,7 +118,7 @@ bool QTiffHandler::read(QImage *image)
         TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &height);
         tiffImage = QImage(width, height, QImage::Format_ARGB32);
         size_t npixels = width * height;
-        uint32 *raster = reinterpret_cast<uint32*>(_TIFFmalloc(npixels * sizeof(uint32)));
+        uint32 *raster = reinterpret_cast<uint32*>(_TIFFmalloc(tsize_t(npixels * sizeof(uint32))));
         if (raster != 0) {
             if (TIFFReadRGBAImage(tiff, width, height, raster, 0)) {
                 for (uint32 y=0; y<height; ++y)

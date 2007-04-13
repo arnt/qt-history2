@@ -1289,6 +1289,8 @@ bool QAxBase::initializeLicensedHelper(void *f, const QString &key, IUnknown **p
                     qWarning("Runtime license key is '%s'", qlicenseKey.toLatin1().constData());
             }
         }
+#else
+        Q_UNUSED(hres);
 #endif
         factory2->Release();
     } else {  // give it a shot without license
@@ -3484,6 +3486,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
 int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 {
     Q_ASSERT(call == QMetaObject::InvokeMetaMethod);
+    Q_UNUSED(call);
 
     // get the IDispatch
     IDispatch *disp = d->dispatch();

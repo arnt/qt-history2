@@ -453,13 +453,13 @@ bool QPngHandlerPrivate::readPngHeader()
                 value = codec->toUnicode(QByteArray(text_ptr->text, text_ptr->itxt_length));
             } else {
                 key = QString::fromLatin1(text_ptr->key);
-                value = QString::fromLatin1(QByteArray(text_ptr->text, text_ptr->text_length));
+                value = QString::fromLatin1(QByteArray(text_ptr->text, int(text_ptr->text_length)));
             }
         } else
 #endif
         {
             key = QString::fromLatin1(text_ptr->key);
-            value = QString::fromLatin1(QByteArray(text_ptr->text, text_ptr->text_length));
+            value = QString::fromLatin1(QByteArray(text_ptr->text, int(text_ptr->text_length)));
         }
         if (!description.isEmpty())
             description += QLatin1String("\n\n");

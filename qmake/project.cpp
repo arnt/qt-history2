@@ -2130,7 +2130,7 @@ QMakeProject::doProjectExpand(QString func, QList<QStringList> args_list,
                 singleLine = (args[1].toLower() == "true");
             QString output;
             while(proc && !feof(proc)) {
-                int read_in = fread(buff, 1, 255, proc);
+                int read_in = int(fread(buff, 1, 255, proc));
                 if(!read_in)
                     break;
                 for(int i = 0; i < read_in; i++) {

@@ -1167,7 +1167,7 @@ static bool qt_createFragmentProgram(QGLContext *ctx, GLuint &program, const cha
     glGenProgramsARB(1, &program);
     glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, program);
     glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
-                       strlen(shader_src), reinterpret_cast<const GLbyte *>(shader_src));
+                       int(strlen(shader_src)), reinterpret_cast<const GLbyte *>(shader_src));
 
     return glGetError() == GL_NO_ERROR;
 }

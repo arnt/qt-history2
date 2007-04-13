@@ -225,7 +225,7 @@ bool WidgetEditorTool::handleDragEnterMoveEvent(QWidget *, QWidget *, QDragMoveE
     return true;
 }
 
-bool WidgetEditorTool::handleDropEvent(QWidget *widget, QWidget */* managedWidget*/, QDropEvent *e)
+bool WidgetEditorTool::handleDropEvent(QWidget *widget, QWidget *, QDropEvent *e)
 {
     const QDesignerMimeData *mimeData = qobject_cast<const QDesignerMimeData *>(e->mimeData());
     if (!mimeData)

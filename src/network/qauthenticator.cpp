@@ -732,7 +732,7 @@ class QNtlmPhase1Block : public QNtlmPhase1BlockBase
 {  // request
 public:
     QNtlmPhase1Block() {
-        strncpy(magic, "NTLMSSP", 8);
+        qstrncpy(magic, "NTLMSSP", 8);
         type = 1;
         flags = NTLMSSP_NEGOTIATE_UNICODE | NTLMSSP_NEGOTIATE_NTLM | NTLMSSP_REQUEST_TARGET;
     }
@@ -759,7 +759,7 @@ public:
 class QNtlmPhase3Block : public QNtlmPhase3BlockBase {  // response
 public:
     QNtlmPhase3Block() {
-        strncpy(magic, "NTLMSSP", 8);
+        qstrncpy(magic, "NTLMSSP", 8);
         type = 3;
         flags = NTLMSSP_NEGOTIATE_UNICODE | NTLMSSP_NEGOTIATE_NTLM | NTLMSSP_NEGOTIATE_TARGET_INFO;
     }
@@ -875,7 +875,7 @@ static QByteArray qEncodeLmResponse(const QAuthenticatorPrivate *ctx, const QNtl
 {
     QByteArray hash(21, 0);
     QByteArray key(14, 0);
-    strncpy(key.data(), ctx->password.toUpper().toLatin1(), 14);
+    qstrncpy(key.data(), ctx->password.toUpper().toLatin1(), 14);
     const char *block = "KGS!@#$%";
 
     deshash((unsigned char *)hash.data(), (unsigned char *)key.data(), (unsigned char *)block);

@@ -218,7 +218,7 @@ void qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 
     set_winapp_name();
 
-    argv = qWinCmdLine<char>(cmdParam, strlen(cmdParam), argc);
+    argv = qWinCmdLine<char>(cmdParam, int(strlen(cmdParam)), argc);
     // Get Windows parameters
 
     appInst = instance;

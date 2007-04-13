@@ -260,6 +260,7 @@ static inline qsreal DaylightSavingTA(double t)
         return 0;
     return (tmtm->tm_isdst > 0) ? msPerHour : 0;
 #else
+    Q_UNUSED(t);
     /// ### implement me
     return 0;
 #endif
