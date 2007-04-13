@@ -1347,12 +1347,12 @@ QImage QImage::copy(const QRect& r) const
 
     image.d->colortable = d->colortable;
 
-    int pixels_to_copy = w - dx;
+    int pixels_to_copy = qMax(w - dx, 0);
     if (x > d->width)
         pixels_to_copy = 0;
     else if (pixels_to_copy > d->width - x)
         pixels_to_copy = d->width - x;
-    int lines_to_copy = h - dy;
+    int lines_to_copy = qMax(h - dy, 0);
     if (y > d->height)
         lines_to_copy = 0;
     else if (lines_to_copy > d->height - y)
