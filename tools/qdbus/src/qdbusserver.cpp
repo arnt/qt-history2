@@ -39,7 +39,8 @@ QDBusServer::QDBusServer(const QString &address, QObject *parent)
     //                     this, SIGNAL(newConnection(QDBusConnection&)));
 
     // server = dbus_server_listen( "unix:tmpdir=/tmp", &error);
-    d->setServer(dbus_server_listen(address.toUtf8().constData(), &d->error));
+    QDBusErrorInternal error;
+    d->setServer(dbus_server_listen(address.toUtf8().constData(), error), error);
 }
 
 /*!

@@ -17,6 +17,7 @@
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qstringlist.h>
+#include <QtCore/qthread.h>
 
 #include "qdbusabstractadaptor.h"
 #include "qdbusabstractadaptor_p.h"
@@ -76,6 +77,10 @@ QString qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode &node
     xml_data += QLatin1String("<node>\n");
 
     if (node.obj) {
+        Q_ASSERT_X(QThread::currentThread() == node.obj->thread(),
+                   "QDBusConnection: internal threading error",
+                   "function called for an object that is in another thread!!");
+
         if (node.flags & (QDBusConnection::ExportScriptableContents
                            | QDBusConnection::ExportNonScriptableContents)) {
             // create XML for the object itself
@@ -148,6 +153,10 @@ QDBusMessage qDBusPropertyGet(const QDBusConnectionPrivate::ObjectTreeNode &node
                               const QDBusMessage &msg)
 {
     Q_ASSERT(msg.arguments().count() == 2);
+    Q_ASSERT_X(!node.obj || QThread::currentThread() == node.obj->thread(),
+               "QDBusConnection: internal threading error",
+               "function called for an object that is in another thread!!");
+
     QString interface_name = msg.arguments().at(0).toString();
     QByteArray property_name = msg.arguments().at(1).toString().toUtf8();
 
@@ -177,7 +186,7 @@ QDBusMessage qDBusPropertyGet(const QDBusConnectionPrivate::ObjectTreeNode &node
         }
     }
 
-    if (!value.isValid() && node.flags & (QDBusConnection::ExportScriptableProperties |
+    if (!value.isValid() && node.flags & (QDBusConnection::ExportAllProperties |
                                           QDBusConnection::ExportNonScriptableProperties)) {
         // try the object itself
         int pidx = node.obj->metaObject()->indexOfProperty(property_name);
@@ -201,6 +210,10 @@ QDBusMessage qDBusPropertySet(const QDBusConnectionPrivate::ObjectTreeNode &node
                               const QDBusMessage &msg)
 {
     Q_ASSERT(msg.arguments().count() == 3);
+    Q_ASSERT_X(!node.obj || QThread::currentThread() == node.obj->thread(),
+               "QDBusConnection: internal threading error",
+               "function called for an object that is in another thread!!");
+
     QString interface_name = msg.arguments().at(0).toString();
     QByteArray property_name = msg.arguments().at(1).toString().toUtf8();
     QVariant value = qvariant_cast<QDBusVariant>(msg.arguments().at(2)).variant();

@@ -101,10 +101,6 @@ void QDBusAbstractAdaptorPrivate::saveIntrospectionXml(QDBusAbstractAdaptor *ada
 QDBusAbstractAdaptor::QDBusAbstractAdaptor(QObject* obj)
     : QObject(*new QDBusAbstractAdaptorPrivate, obj)
 {
-    Q_ASSERT_X(QCoreApplication::instance() == 0 ||
-               thread() == QCoreApplication::instance()->thread(),
-               "QDBusAbstractAdaptor", "D-BUS Adaptors must be created in the main thread");
-
     QDBusAdaptorConnector *connector = qDBusCreateAdaptorConnector(obj);
 
     connector->waitingForPolish = true;

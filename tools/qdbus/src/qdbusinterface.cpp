@@ -95,12 +95,11 @@ QDBusInterfacePrivate::QDBusInterfacePrivate(const QString &serv, const QString 
 {
     // QDBusAbstractInterfacePrivate's constructor checked the parameters for us
     if (connection.isConnected()) {
-        metaObject = connectionPrivate()->findMetaObject(service, path, interface);
+        metaObject = connectionPrivate()->findMetaObject(service, path, interface, lastError);
 
         if (!metaObject) {
             // creation failed, somehow
             isValid = false;
-            lastError = connectionPrivate()->lastError;
             if (!lastError.isValid())
                 lastError = QDBusError(QDBusError::InternalError, QLatin1String("Unknown error"));
         }
