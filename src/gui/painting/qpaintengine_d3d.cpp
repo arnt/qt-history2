@@ -3515,7 +3515,7 @@ void QDirect3DPaintEnginePrivate::updateBrush(const QBrush &brush)
             if (m_brush_style == Qt::TexturePattern)
                 verifyTexture(m_brush.texture());
 
-            
+
         }
     }
 }
@@ -3671,7 +3671,7 @@ void QDirect3DPaintEnginePrivate::verifyTexture(const QPixmap &pm)
 {
     if (!pm.data->texture) {
         QImage im = pm.data->image;
-        // bitmaps are draw with the current pen color
+        // bitmaps are drawn with the current pen color
         if (im.depth() == 1) {
             QVector<QRgb> colors(2);
             colors[0] = 0;
