@@ -1012,6 +1012,14 @@ bool QXmlStreamReaderPrivate::parse()
     case QXmlStreamReader::NoToken:
     case QXmlStreamReader::Invalid:
         break;
+    case QXmlStreamReader::StartDocument:
+	lockEncoding = true;
+	if(decoder->hasFailure()) {
+	    raiseWellFormedError(QXmlStream::tr("Encountered incorrectly encoded content."));
+	    readBuffer.clear();
+	    return false;
+	}
+        // fall through
     default:
         clearTextBuffer();
         ;

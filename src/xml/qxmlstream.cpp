@@ -513,6 +513,11 @@ QXmlStreamReaderPrivate::QXmlStreamReaderPrivate(QXmlStreamReader *q)
 {
     device = 0;
     deleteDevice = false;
+    decoder = 0;
+    stack_size = 64;
+    sym_stack = 0;
+    state_stack = 0;
+    reallocateStack();
     init();
     entityHash.insert(QLatin1String("lt"), Entity::createLiteral(QLatin1String("<")));
     entityHash.insert(QLatin1String("gt"), Entity::createLiteral(QLatin1String(">")));
@@ -523,9 +528,6 @@ QXmlStreamReaderPrivate::QXmlStreamReaderPrivate(QXmlStreamReader *q)
 
 void QXmlStreamReaderPrivate::init()
 {
-    stack_size = 64;
-    sym_stack = 0;
-    state_stack = 0;
     tos = 0;
     scanDtd = false;
     token = -1;
@@ -534,7 +536,6 @@ void QXmlStreamReaderPrivate::init()
     isWhitespace = false;
     isCDATA = false;
     standalone = false;
-    reallocateStack();
     tos = 0;
     resumeReduction = 0;
     state_stack[tos++] = 0;
@@ -553,6 +554,7 @@ void QXmlStreamReaderPrivate::init()
     readBufferPos = 0;
     nbytesread = 0;
     codec = QTextCodec::codecForMib(106); // utf8
+    delete decoder;
     decoder = 0;
     attributeStack.clear();
     attributeStack.reserve(16);
@@ -687,11 +689,6 @@ bool QXmlStreamReaderPrivate::scanUntil(const char *str, short tokenToInject)
     while (uint c = getChar()) {
         /* First, we do the validation & normalization. */
         switch (c) {
-        case 0xfffe:
-        case 0xffff:
-            raiseWellFormedError(QXmlStream::tr("Invalid XML character."));
-            lineNumber = oldLineNumber;
-            return false;
         case '\r':
             if ((c = filterCarriageReturn()) == 0)
                 break;
@@ -699,11 +696,12 @@ bool QXmlStreamReaderPrivate::scanUntil(const char *str, short tokenToInject)
         case '\n':
             ++lineNumber;
             lastLineStart = characterOffset + readBufferPos;
+            // fall through
         case '\t':
             textBuffer.inline_append(c);
             continue;
         default:
-            if (c < 0x20) {
+            if(c < 0x20 || (c > 0xFFFD && c < 0x10000) || c > 0x10FFFF ) {
                 raiseWellFormedError(QXmlStream::tr("Invalid XML character."));
                 lineNumber = oldLineNumber;
                 return false;
@@ -711,15 +709,6 @@ bool QXmlStreamReaderPrivate::scanUntil(const char *str, short tokenToInject)
             textBuffer.inline_append(c);
         }
 
-        if(c < 20
-           || (c > 0xFFFD && c < 0x10000)
-           || c > 0x10FFFF
-           )
-        {
-            raiseWellFormedError(QXmlStream::tr("Invalid XML character."));
-            lineNumber = oldLineNumber;
-            return false;
-        }
 
         /* Second, attempt to lookup str. */
         if (c == uint(*str)) {
@@ -1224,7 +1213,7 @@ ushort QXmlStreamReaderPrivate::getChar_helper()
 
     decoder->toUnicode(&readBuffer, rawReadBuffer.data(), nbytesread);
 
-    if(decoder->hasFailure()) {
+    if(lockEncoding && decoder->hasFailure()) {
         raiseWellFormedError(QXmlStream::tr("Encountered incorrectly encoded content."));
         readBuffer.clear();
         return 0;
@@ -1562,7 +1551,8 @@ void QXmlStreamReaderPrivate::parseError()
 
 void QXmlStreamReaderPrivate::resume(int rule) {
     resumeReduction = rule;
-    raiseError(QXmlStreamReader::PrematureEndOfDocumentError);
+    if (error == QXmlStreamReader::NoError)
+        raiseError(QXmlStreamReader::PrematureEndOfDocumentError);
 }
 
 /*! Returns the current line number, starting with 1.
