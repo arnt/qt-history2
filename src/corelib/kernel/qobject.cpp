@@ -2810,6 +2810,9 @@ void QObject::disconnectNotify(const char *)
 
   \a types is a 0-terminated vector of meta types for queued
   connections.
+
+  if \a signal_index is -1, then we effectively connect *all* signals
+  from the sender to the receiver's slot
 */
 bool QMetaObject::connect(const QObject *sender, int signal_index,
                           const QObject *receiver, int method_index, int type, int *types)
@@ -2820,7 +2823,9 @@ bool QMetaObject::connect(const QObject *sender, int signal_index,
     QWriteLocker locker(&list->lock);
     list->addConnection(const_cast<QObject *>(sender), signal_index,
                         const_cast<QObject *>(receiver), method_index, type, types);
-    if (signal_index < 32)
+    if (signal_index < 0)
+        sender->d_func()->connectedSignals = ~0u;
+    else if (signal_index < 32)
         sender->d_func()->connectedSignals |= (1 << signal_index);
     return true;
 }
