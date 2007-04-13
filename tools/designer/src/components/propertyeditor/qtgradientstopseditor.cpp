@@ -60,8 +60,8 @@ public:
 
     void enableCurrent(bool enable);
     void setColorSpinBoxes(const QColor &color);
-    QMap<double, QColor> stopsData(const QMap<double, QtGradientStop *> &stops) const;
-    QGradientStops makeGradientStops(const QMap<double, QColor> &data) const;
+    QMap<qreal, QColor> stopsData(const QMap<qreal, QtGradientStop *> &stops) const;
+    QGradientStops makeGradientStops(const QMap<qreal, QColor> &data) const;
     void updateZoom();
 
     QtGradientStopsModel *m_model;
@@ -94,10 +94,10 @@ void QtGradientStopsEditorPrivate::enableCurrent(bool enable)
     m_ui.alphaSpinBox->setEnabled(enable);
 }
 
-QMap<double, QColor> QtGradientStopsEditorPrivate::stopsData(const QMap<double, QtGradientStop *> &stops) const
+QMap<qreal, QColor> QtGradientStopsEditorPrivate::stopsData(const QMap<qreal, QtGradientStop *> &stops) const
 {
-    QMap<double, QColor> data;
-    QMap<double, QtGradientStop *>::ConstIterator itStop = stops.constBegin();
+    QMap<qreal, QColor> data;
+    QMap<qreal, QtGradientStop *>::ConstIterator itStop = stops.constBegin();
     while (itStop != stops.constEnd()) {
         QtGradientStop *stop = itStop.value();
         data[stop->position()] = stop->color();
@@ -107,10 +107,10 @@ QMap<double, QColor> QtGradientStopsEditorPrivate::stopsData(const QMap<double, 
     return data;
 }
 
-QGradientStops QtGradientStopsEditorPrivate::makeGradientStops(const QMap<double, QColor> &data) const
+QGradientStops QtGradientStopsEditorPrivate::makeGradientStops(const QMap<qreal, QColor> &data) const
 {
     QGradientStops stops;
-    QMap<double, QColor>::ConstIterator itData = data.constBegin();
+    QMap<qreal, QColor>::ConstIterator itData = data.constBegin();
     while (itData != data.constEnd()) {
         stops << QPair<qreal, QColor>(itData.key(), itData.value());
 
@@ -212,7 +212,7 @@ void QtGradientStopsEditorPrivate::slotStopMoved(QtGradientStop *stop, qreal new
 {
     QTimer::singleShot(0, q_ptr, SLOT(slotUpdatePositionSpinBox()));
 
-    QMap<double, QColor> stops = stopsData(m_model->stops());
+    QMap<qreal, QColor> stops = stopsData(m_model->stops());
     stops.remove(stop->position());
     stops[newPos] = stop->color();
 
@@ -222,7 +222,7 @@ void QtGradientStopsEditorPrivate::slotStopMoved(QtGradientStop *stop, qreal new
 
 void QtGradientStopsEditorPrivate::slotStopAdded(QtGradientStop *stop)
 {
-    QMap<double, QColor> stops = stopsData(m_model->stops());
+    QMap<qreal, QColor> stops = stopsData(m_model->stops());
     stops[stop->position()] = stop->color();
 
     QGradientStops gradStops = makeGradientStops(stops);
@@ -231,7 +231,7 @@ void QtGradientStopsEditorPrivate::slotStopAdded(QtGradientStop *stop)
 
 void QtGradientStopsEditorPrivate::slotStopRemoved(QtGradientStop *stop)
 {
-    QMap<double, QColor> stops = stopsData(m_model->stops());
+    QMap<qreal, QColor> stops = stopsData(m_model->stops());
     stops.remove(stop->position());
 
     QGradientStops gradStops = makeGradientStops(stops);
@@ -249,7 +249,7 @@ void QtGradientStopsEditorPrivate::slotStopChanged(QtGradientStop *stop, const Q
         setColorSpinBoxes(newColor);
     }
 
-    QMap<double, QColor> stops = stopsData(m_model->stops());
+    QMap<qreal, QColor> stops = stopsData(m_model->stops());
     stops[stop->position()] = newColor;
 
     QGradientStops gradStops = makeGradientStops(stops);

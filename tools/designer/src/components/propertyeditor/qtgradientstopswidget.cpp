@@ -68,8 +68,8 @@ public:
 
     bool m_dragging;
     int m_dragOffset;
-    QMap<QtGradientStop *, double> m_dragStops;
-    QMap<double, QColor> m_dragOriginal;
+    QMap<QtGradientStop *, qreal> m_dragStops;
+    QMap<qreal, QColor> m_dragOriginal;
 };
 
 }
@@ -392,8 +392,8 @@ void QtGradientStopsWidget::mousePressEvent(QMouseEvent *e)
         } else if (e->modifiers() & Qt::ShiftModifier) {
             QtGradientStop *oldCurrent = d_ptr->m_model->currentStop();
             if (oldCurrent) {
-                QMap<double, QtGradientStop *> stops = d_ptr->m_model->stops();
-                QMap<double, QtGradientStop *>::ConstIterator itSt = stops.constFind(oldCurrent->position());
+                QMap<qreal, QtGradientStop *> stops = d_ptr->m_model->stops();
+                QMap<qreal, QtGradientStop *>::ConstIterator itSt = stops.constFind(oldCurrent->position());
                 if (itSt != stops.constEnd()) {
                     while (itSt != stops.constFind(stop->position())) {
                         d_ptr->m_model->selectStop(itSt.value(), true);
@@ -449,7 +449,7 @@ void QtGradientStopsWidget::mouseMoveEvent(QMouseEvent *e)
         double maxOffset = 0.0;
         double minOffset = 0.0;
         bool first = true;
-        QMap<QtGradientStop *, double>::ConstIterator itStop = d_ptr->m_dragStops.constBegin();
+        QMap<QtGradientStop *, qreal>::ConstIterator itStop = d_ptr->m_dragStops.constBegin();
         while (itStop != d_ptr->m_dragStops.constEnd()) {
             double offset = itStop.value();
 
@@ -469,7 +469,7 @@ void QtGradientStopsWidget::mouseMoveEvent(QMouseEvent *e)
         double viewportMin = d_ptr->toViewport(-minOffset);
         double viewportMax = d_ptr->toViewport(1.0 - maxOffset);
 
-        QMap<double, QtGradientStop *> newPositions;
+        QMap<qreal, QtGradientStop *> newPositions;
 
         int viewportX = e->pos().x() - d_ptr->m_dragOffset;
 
@@ -495,7 +495,7 @@ void QtGradientStopsWidget::mouseMoveEvent(QMouseEvent *e)
         }
 
         bool forward = true;
-        QMap<double, QtGradientStop *>::ConstIterator itNewPos = newPositions.constBegin();
+        QMap<qreal, QtGradientStop *>::ConstIterator itNewPos = newPositions.constBegin();
         if (itNewPos.value()->position() < itNewPos.key())
             forward = false;
 
@@ -519,7 +519,7 @@ void QtGradientStopsWidget::mouseMoveEvent(QMouseEvent *e)
                 itNewPos++;
         }
 
-        QMap<double, QColor>::ConstIterator itOld = d_ptr->m_dragOriginal.constBegin();
+        QMap<qreal, QColor>::ConstIterator itOld = d_ptr->m_dragOriginal.constBegin();
         while (itOld != d_ptr->m_dragOriginal.constEnd()) {
             double position = itOld.key();
             if (!d_ptr->m_model->at(position))
@@ -618,7 +618,7 @@ void QtGradientStopsWidget::keyPressEvent(QKeyEvent *e)
         d_ptr->m_model->deleteStops();
     } else if (e->key() == Qt::Key_Left || e->key() == Qt::Key_Right ||
                 e->key() == Qt::Key_Home || e->key() == Qt::Key_End) {
-        QMap<double, QtGradientStop *> stops = d_ptr->m_model->stops();
+        QMap<qreal, QtGradientStop *> stops = d_ptr->m_model->stops();
         if (stops.isEmpty())
             return;
         QtGradientStop *newCurrent = 0;
@@ -629,7 +629,7 @@ void QtGradientStopsWidget::keyPressEvent(QKeyEvent *e)
             else if (e->key() == Qt::Key_Right || e->key() == Qt::Key_End)
                 newCurrent = (--stops.constEnd()).value();
         } else {
-            QMap<double, QtGradientStop *>::ConstIterator itStop = stops.constBegin();
+            QMap<qreal, QtGradientStop *>::ConstIterator itStop = stops.constBegin();
             while (itStop.value() != current)
                 itStop++;
             if (e->key() == Qt::Key_Left && itStop != stops.constBegin())
