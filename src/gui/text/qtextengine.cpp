@@ -985,7 +985,7 @@ void QTextEngine::itemize() const
         return;
 
     bool ignore = ignoreBidi;
-    if (!ignore) {
+    if (!ignore && option.textDirection() == Qt::LeftToRight) {
         ignore = true;
         const QChar *start = layoutData->string.unicode();
         const QChar * const end = start + layoutData->string.length();
