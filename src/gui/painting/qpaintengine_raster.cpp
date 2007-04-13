@@ -2426,7 +2426,7 @@ bool QRasterPaintEnginePrivate::isUnclipped(const QRect &rect,
         // return rasterBuffer->clipRect.contains(r);
 
         // inline for performance (we know the rects are normalized)
-        const QRect r1 = rasterBuffer->clipRect;
+        const QRect &r1 = rasterBuffer->clipRect;
         return (r.left() >= r1.left() && r.right() <= r1.right()
                 && r.top() >= r1.top() && r.bottom() <= r1.bottom());
     } else {
