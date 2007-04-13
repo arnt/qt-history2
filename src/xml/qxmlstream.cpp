@@ -563,6 +563,7 @@ void QXmlStreamReaderPrivate::init()
     atEnd = false;
     inParseEntity = false;
     referenceToUnparsedEntityDetected = false;
+    referenceToParameterEntityDetected = false;
     hasExternalDtdSubset = false;
     lockEncoding = false;
     namespaceProcessing = true;

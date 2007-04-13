@@ -811,6 +811,7 @@ public:
     uint hasSeenTag : 1;
     uint inParseEntity : 1;
     uint referenceToUnparsedEntityDetected : 1;
+    uint referenceToParameterEntityDetected : 1;
     uint hasExternalDtdSubset : 1;
     uint lockEncoding : 1;
     uint namespaceProcessing : 1;
@@ -822,6 +823,7 @@ public:
         return (!inParseEntity
                 && (standalone
                     || (!referenceToUnparsedEntityDetected
+                        && !referenceToParameterEntityDetected // Errata 13 as of 2006-04-25
                         && !hasExternalDtdSubset)));
     }
 
@@ -1697,6 +1699,7 @@ bool QXmlStreamReaderPrivate::parse()
             sym(1).len += sym(2).len + 1;
             QString reference = symString(2).toString();
             if (parameterEntityHash.contains(reference)) {
+                referenceToParameterEntityDetected = true;
                 Entity &entity = parameterEntityHash[reference];
                 if (entity.unparsed || entity.external) {
                     referenceToUnparsedEntityDetected = true;
@@ -1810,7 +1813,7 @@ bool QXmlStreamReaderPrivate::parse()
                 resume(260);
                 return false;
             }
-        
+
         break;
 
     default:
