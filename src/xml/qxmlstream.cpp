@@ -1121,20 +1121,14 @@ static inline NameChar fastDetermineNameChar(QChar ch)
 inline int QXmlStreamReaderPrivate::fastScanNMTOKEN()
 {
     int n = 0;
-    ushort c = getChar();
-
-    while (c)
-    {
-        if (fastDetermineNameChar(c) == NotName)
-        {
+    uint c;
+    while ((c = getChar())) {
+        if (fastDetermineNameChar(c) == NotName) {
             putChar(c);
             return n;
-        }
-        else
-        {
+        } else {
             ++n;
             textBuffer.inline_append(c);
-            c = getChar();
         }
     }
 
