@@ -27,7 +27,8 @@ enum { Tok_Eof, Tok_class, Tok_return, Tok_tr,
        Tok_translate, Tok_Ident, Tok_Package,
        Tok_Comment, Tok_String, Tok_Colon, Tok_Dot,
        Tok_LeftBrace, Tok_RightBrace, Tok_LeftParen,
-       Tok_RightParen, Tok_Comma, Tok_Semicolon, Tok_Integer };
+       Tok_RightParen, Tok_Comma, Tok_Semicolon,
+       Tok_Integer, Tok_Plus, Tok_PlusPlus, Tok_PlusEq };
 
 class Scope
 {
@@ -269,6 +270,17 @@ static int getToken()
             case ';':
                 yyCh = getChar();
                 return Tok_Semicolon;
+            case '+':
+                yyCh = getChar();
+		if( yyCh == '+' ){
+                    yyCh = getChar();
+                    return Tok_PlusPlus;
+		}
+		if( yyCh == '=' ){
+                    yyCh = getChar();
+                    return Tok_PlusEq;
+		}
+                return Tok_Plus;
             case '0':
             case '1':
             case '2':
@@ -315,13 +327,22 @@ static bool match( int t )
 
 static bool matchString( QString &s )
 {
-    bool matches = ( yyTok == Tok_String );
-    s = "";
-    while ( yyTok == Tok_String ) {
-        s += yyString;
+    if ( yyTok != Tok_String )
+        return false;
+
+    s = yyString;
+    yyTok = getToken();
+    while ( yyTok == Tok_Plus ) {
+        yyTok = getToken();
+        if(yyTok == Tok_String)
+            s += yyString;
+        else {
+	    qWarning( "%s:%d: String used in translation can only contain strings concatenated with other strings, not expresions or numbers.", (const char *) yyFileName, yyLineNo );
+	    return false;  
+        }
         yyTok = getToken();
     }
-    return matches;
+    return true;
 }
 
 static bool matchInteger( qlonglong *number)
