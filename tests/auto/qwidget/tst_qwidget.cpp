@@ -2025,6 +2025,10 @@ void tst_QWidget::raise()
 
     foreach (UpdateWidget *child, allChildren) {
         int expectedPaintEvents = child == child4 ? 1 : 0;
+#ifdef Q_WS_WIN
+        if (expectedPaintEvents == 1 && child->numPaintEvents == 2)
+            QEXPECT_FAIL(0, "Windows issues double repaints for Z-Order change", Continue);
+#endif
         QCOMPARE(child->numPaintEvents, expectedPaintEvents);
         QCOMPARE(child->numZOrderChangeEvents, 0);
         child->reset();
@@ -2087,6 +2091,10 @@ void tst_QWidget::lower()
 
     foreach (UpdateWidget *child, allChildren) {
         int expectedPaintEvents = child == child4 ? 1 : 0;
+#ifdef Q_WS_WIN
+        if (expectedPaintEvents == 1 && child->numPaintEvents == 2)
+            QEXPECT_FAIL(0, "Windows issues double repaints for Z-Order change", Continue);
+#endif
         QCOMPARE(child->numPaintEvents, expectedPaintEvents);
         QCOMPARE(child->numZOrderChangeEvents, 0);
         child->reset();
@@ -2145,6 +2153,10 @@ void tst_QWidget::stackUnder()
 
     foreach (UpdateWidget *child, allChildren) {
         int expectedPaintEvents = child == child4 ? 1 : 0;
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
+        if (expectedPaintEvents == 1 && child->numPaintEvents == 2)
+            QEXPECT_FAIL(0, "Mac and Windows issues double repaints for Z-Order change", Continue);
+#endif
         QCOMPARE(child->numPaintEvents, expectedPaintEvents);
         QCOMPARE(child->numZOrderChangeEvents, 0);
         child->reset();
