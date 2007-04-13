@@ -23,7 +23,7 @@ QColor Colors::paperBg(QColor(100, 100, 100));
 QColor Colors::menuTextFg(QColor(255, 0, 0));
 QColor Colors::buttonBgLow(QColor(255, 255, 255, 90));
 QColor Colors::buttonBgHigh(QColor(255, 255, 255, 20));
-QColor Colors::buttonText(QColor(0, 0, 0));
+QColor Colors::buttonText(QColor(255, 255, 255));
 QColor Colors::tt_green(QColor(167, 215, 99));
 QColor Colors::fadeOut(QColor(206, 246, 117, 0));
 QColor Colors::heading(QColor(210, 231, 156));
@@ -81,9 +81,9 @@ QFont Colors::headingFont()
 {
     QFont font;
     font.setStyleStrategy(QFont::PreferAntialias);
-    font.setPixelSize(25);
+    font.setPixelSize(22);
     font.setBold(true);
-    font.setFamily("Georgia");
+    font.setFamily("Verdana");
     return font;
 }
 
@@ -95,9 +95,8 @@ QFont Colors::buttonFont()
     font.setPixelSize(11);
     font.setFamily("Silom");
 #else
-    font.setPixelSize(10);
-    font.setBold(true);
-    font.setFamily("Georgia");
+    font.setPixelSize(11);
+    font.setFamily("Verdana");
 #endif    
     return font;
 }

@@ -51,19 +51,24 @@ protected:
                 painter.setBrush(QColor(190, 180, 180));
         }
         else {
+            QLinearGradient outlinebrush(0, 0, 0, scaledRect.height());
+            outlinebrush.setColorAt(0.0, QColor(255, 255, 255, 70));
+            outlinebrush.setColorAt(1.0, QColor(0, 0, 0, 70));
+            painter.setPen(QPen(outlinebrush, 1));
             QLinearGradient brush(0, 0, 0, scaledRect.height());
             brush.setSpread(QLinearGradient::PadSpread);
             if (this->color == TextButton::BLUE){
-                brush.setColorAt(0.0, QColor(255, 255, 255, 200));
+                brush.setColorAt(0.0, QColor(255, 255, 245, 60));
                 if (!this->highlighted)
-                    brush.setColorAt(1.0, QColor(255, 255, 255, 20));
+                    brush.setColorAt(1.0, QColor(255, 255, 235, 10));
             }
             else {
-                brush.setColorAt(0.0, QColor(226, 255, 137, 200));
+                brush.setColorAt(0.0, QColor(226, 255, 137, 80));
                 if (!this->highlighted)
                     brush.setColorAt(1.0, QColor(226, 255, 137, 20));
+
            }
-            painter.setBrush(brush);
+           painter.setBrush(brush);
         }
         painter.drawRoundRect(0, 0, scaledRect.width(), scaledRect.height(), 10, 90);
         return image;
@@ -111,7 +116,8 @@ void TextButton::setupHoverText()
     textItem->setZValue(zValue() + 2);
     float xOffset = 16;
     float yOffset = 0;
-    float down = 1;
+
+    float down = 0;
     textItem->setPos(xOffset, yOffset);
     this->hoverTextAnim = new DemoItemAnimation(textItem);
     this->hoverTextAnim->setDuration(1000);
