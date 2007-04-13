@@ -525,7 +525,11 @@ bool QAbstractSocketPrivate::canReadNotification()
     }
 
     // only emit readyRead() when not recursing, and only if there is data available
-    bool hasData = newBytes > 0 || (!isBuffered && socketEngine && socketEngine->hasPendingDatagrams());
+    bool hasData = newBytes > 0
+#ifndef QT_NO_UDPSOCKET
+        || (!isBuffered && socketEngine && socketEngine->hasPendingDatagrams())
+#endif
+        ;
 
     if (!emittedReadyRead && hasData) {
         emittedReadyRead = true;

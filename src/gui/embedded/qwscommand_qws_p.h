@@ -340,7 +340,7 @@ struct QWSChangeAltitudeCommand : public QWSCommand
     QWSChangeAltitudeCommand() :
         QWSCommand(QWSCommand::ChangeAltitude, sizeof(simpleData), reinterpret_cast<char*>(&simpleData)) {}
 
-    typedef enum Altitude {
+    enum Altitude {
         Lower = -1,
         Raise = 0,
         StaysOnTop = 1

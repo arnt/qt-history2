@@ -3750,7 +3750,7 @@ bool QLocalePrivate::validateChars(const QString &str, NumberMode numMode, QByte
     }
 
     return true;
-};
+}
 
 double QLocalePrivate::stringToDouble(const QString &number, bool *ok,
                                         GroupSeparatorMode group_sep_mode) const

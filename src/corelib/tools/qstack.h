@@ -26,7 +26,7 @@ class QStack : public QVector<T>
 public:
     inline QStack() {}
     inline ~QStack() {}
-    inline void push(const T &t) { append(t); }
+    inline void push(const T &t) { QVector<T>::append(t); }
     T pop();
     T &top();
     const T &top() const;

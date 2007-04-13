@@ -25,6 +25,10 @@
 // We mean it.
 //
 
+#include <QtCore/qglobal.h>
+
+#ifndef QT_NO_QWS_SIGNALHANDLER
+
 #include <QtCore/qmap.h>
 #include <QtCore/qvector.h>
 #include <QtCore/qobjectcleanuphandler.h>
@@ -56,5 +60,7 @@ private:
 
     friend class QWSSignalHandlerPrivate;
 };
+
+#endif // QT_NO_QWS_SIGNALHANDLER
 
 #endif // QWSSIGNALHANDLER_P_H

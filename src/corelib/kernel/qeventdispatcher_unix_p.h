@@ -32,6 +32,7 @@
 
 #include <sys/types.h>
 #include <sys/time.h>
+#include <sys/select.h>
 #if !defined(_POSIX_MONOTONIC_CLOCK)
 #  define _POSIX_MONOTONIC_CLOCK -1
 #endif

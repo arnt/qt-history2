@@ -18,6 +18,7 @@
 #include <QtGui/qdialogbuttonbox.h>
 #include "private/qlabel_p.h"
 #include <QtCore/qlist.h>
+#include <QtCore/qdebug.h>
 #include <QtGui/qstyle.h>
 #include <QtGui/qstyleoption.h>
 #include <QtGui/qgridlayout.h>
@@ -30,7 +31,6 @@
 #include <QtGui/qtextedit.h>
 #include <QtGui/qmenu.h>
 #include "qdialog_p.h"
-#include <QDebug>
 #include <QtGui/qfont.h>
 #include <QtGui/qfontmetrics.h>
 #include <QtGui/qclipboard.h>

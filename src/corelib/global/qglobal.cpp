@@ -26,6 +26,7 @@
 #include <limits.h>
 #include <stdarg.h>
 #include <errno.h>
+#include <string.h>
 
 #if defined(Q_CC_MSVC) && !defined(Q_OS_TEMP)
 #include <crtdbg.h>
@@ -2014,7 +2015,8 @@ QString qt_error_string(int errorCode)
             ret = QString::fromLocal8Bit(string);
             LocalFree((HLOCAL)string);
         });
-#elif !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS) && _POSIX_VERSION >= 200112L
+#elif !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS) && _POSIX_VERSION >= 200112L && !defined(Q_OS_INTEGRITY)
+
         QByteArray buf(1024, '\0');
         strerror_r(errorCode, buf.data(), buf.size());
         ret = QString::fromLocal8Bit(buf.constData());
@@ -2382,10 +2384,16 @@ QByteArray qgetenv(const char *varName)
 #endif
 }
 
-
 #if defined(Q_OS_UNIX) && !defined(QT_NO_THREAD)
-typedef QThreadStorage<uint *> SeedStorage;
-Q_GLOBAL_STATIC(SeedStorage, randTLS);  // Thread Local Storage for seed value
+
+#  if defined(Q_OS_INTEGRITY)
+typedef long SeedStorageType;
+#  else
+typedef uint SeedStorageType;
+#  endif
+
+typedef QThreadStorage<SeedStorageType *> SeedStorage;
+Q_GLOBAL_STATIC(SeedStorage, randTLS)  // Thread Local Storage for seed value
 #endif
 
 /*!
@@ -2408,9 +2416,9 @@ Q_GLOBAL_STATIC(SeedStorage, randTLS);  // Thread Local Storage for seed value
 void qsrand(uint seed)
 {
 #if defined(Q_OS_UNIX) && !defined(QT_NO_THREAD)
-    uint *pseed = randTLS()->localData();
+    SeedStorageType *pseed = randTLS()->localData();
     if (!pseed)
-        randTLS()->setLocalData(pseed = new uint);
+        randTLS()->setLocalData(pseed = new SeedStorageType);
     *pseed = seed;
 #else
     // On Windows srand() and rand() already use Thread-Local-Storage
@@ -2437,9 +2445,9 @@ void qsrand(uint seed)
 int qrand()
 {
 #if defined(Q_OS_UNIX) && !defined(QT_NO_THREAD)
-    uint *pseed = randTLS()->localData();
+    SeedStorageType *pseed = randTLS()->localData();
     if (!pseed) {
-        randTLS()->setLocalData(pseed = new uint);
+        randTLS()->setLocalData(pseed = new SeedStorageType);
         *pseed = 1;
     }
     return rand_r(pseed);
@@ -2767,7 +2775,7 @@ struct QInternal_CallBackTable {
     QVector<QList<qInternalCallback> > callbacks;
 };
 
-Q_GLOBAL_STATIC(QInternal_CallBackTable, global_callback_table);
+Q_GLOBAL_STATIC(QInternal_CallBackTable, global_callback_table)
 
 bool QInternal::registerCallback(Callback cb, qInternalCallback callback)
 {

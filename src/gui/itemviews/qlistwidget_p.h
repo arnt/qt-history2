@@ -24,9 +24,9 @@
 // We mean it.
 //
 
-#include <QtCore/QAbstractListModel>
-#include <QtGui/QAbstractItemView>
-#include <QtGui/QListWidget>
+#include <QtCore/qabstractitemmodel.h>
+#include <QtGui/qabstractitemview.h>
+#include <QtGui/qlistwidget.h>
 #include <qitemdelegate.h>
 #include <private/qlistview_p.h>
 #include <private/qwidgetitemdata_p.h>

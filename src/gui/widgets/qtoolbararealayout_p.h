@@ -29,6 +29,8 @@
 #include <QSize>
 #include <QRect>
 
+#ifndef QT_NO_TOOLBAR
+
 class QToolBar;
 class QLayoutItem;
 class QMainWindow;
@@ -150,4 +152,5 @@ public:
     bool isEmpty() const;
 };
 
+#endif // QT_NO_TOOLBAR
 #endif // QTOOLBARAREALAYOUT_P_H

@@ -25,15 +25,17 @@
 // We mean it.
 //
 
-#include "private/qwidget_p.h"
+#include "QtCore/qglobal.h"
 
 #ifndef QT_NO_LINEEDIT
+#include "private/qwidget_p.h"
 #include "QtGui/qlineedit.h"
 #include "QtGui/qtextlayout.h"
 #include "QtGui/qstyleoption.h"
 #include "QtCore/qbasictimer.h"
 #include "QtGui/qcompleter.h"
 #include "QtCore/qpointer.h"
+#include "QtGui/qlineedit.h"
 
 class QLineEditPrivate : public QWidgetPrivate
 {

@@ -162,7 +162,7 @@ QPSPrintEnginePrivate::~QPSPrintEnginePrivate()
 {
 }
 
-#include <QDebug>
+#include <qdebug.h>
 
 static void ps_r7(QPdf::ByteStream& stream, const char * s, int l)
 {

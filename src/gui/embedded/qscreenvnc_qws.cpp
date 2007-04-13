@@ -89,7 +89,9 @@ QVNCScreenPrivate::QVNCScreenPrivate(QVNCScreen *parent)
 #ifndef QT_NO_QWS_MULTIPROCESS
     shm = 0;
 #endif
+#ifndef QT_NO_QWS_SIGNALHANDLER
     QWSSignalHandler::instance()->addObject(this);
+#endif
 }
 
 QVNCScreenPrivate::~QVNCScreenPrivate()
@@ -144,7 +146,7 @@ void QVNCScreenPrivate::configure()
 #else
         if (q_ptr->data)
             delete[] q_ptr->data;
-        q_ptr->data = new uchar[size];
+        q_ptr->data = new uchar[q_ptr->size];
 #endif
     }
 
@@ -856,12 +858,12 @@ void QRfbSingleColorHextile<SRC>::write(QTcpSocket *socket) const
     if (true || encoder->newBg) {
         const int bpp = encoder->server->clientBytesPerPixel();
         const int padding = 3;
-        char buffer[padding + 1 + bpp];
+        QVarLengthArray<char> buffer(padding + 1 + bpp);
         buffer[padding] = 2; // BackgroundSpecified
-        encoder->server->convertPixels(buffer + padding + 1,
+        encoder->server->convertPixels(buffer.data() + padding + 1,
                                        reinterpret_cast<char*>(&encoder->bg),
                                        1);
-        socket->write(buffer + padding, bpp + 1);
+        socket->write(buffer.data() + padding, bpp + 1);
 //        encoder->newBg = false;
     } else {
         char subenc = 0;
@@ -970,7 +972,7 @@ void QRfbDualColorHextile<SRC>::write(QTcpSocket *socket) const
 {
     const int bpp = encoder->server->clientBytesPerPixel();
     const int padding = 3;
-    char buffer[padding + 2 * bpp + sizeof(char) + sizeof(numRects)];
+    QVarLengthArray<char> buffer(padding + 2 * bpp + sizeof(char) + sizeof(numRects));
     char &subenc = buffer[padding];
     int n = padding + sizeof(subenc);
 
@@ -978,21 +980,21 @@ void QRfbDualColorHextile<SRC>::write(QTcpSocket *socket) const
 
     if (encoder->newBg) {
         subenc |= 0x2; // Background
-        encoder->server->convertPixels(buffer + n, (char*)&encoder->bg, 1);
+        encoder->server->convertPixels(buffer.data() + n, (char*)&encoder->bg, 1);
         n += bpp;
 //        encoder->newBg = false;
     }
 
     if (encoder->newFg) {
         subenc |= 0x4; // Foreground
-        encoder->server->convertPixels(buffer + n, (char*)&encoder->fg, 1);
+        encoder->server->convertPixels(buffer.data() + n, (char*)&encoder->fg, 1);
         n += bpp;
 //        encoder->newFg = false;
     }
     buffer[n] = numRects;
     n += sizeof(numRects);
 
-    socket->write(buffer + padding, n - padding);
+    socket->write(buffer.data() + padding, n - padding);
     socket->write((char*)rects, numRects * sizeof(Rect));
 }
 
@@ -1088,15 +1090,16 @@ template <class SRC>
 void QRfbMultiColorHextile<SRC>::write(QTcpSocket *socket) const
 {
     const int padding = 3;
-    quint8 buffer[bpp + sizeof(char) + sizeof(numRects)];
+    QVarLengthArray<quint8> buffer(bpp + padding + sizeof(quint8) + sizeof(numRects));
+
     quint8 &subenc = buffer[padding];
-    int n = padding + sizeof(subenc);
+    int n = padding + sizeof(quint8);
 
     subenc = 8 | 16; // AnySubrects | SubrectsColoured
 
     if (encoder->newBg) {
         subenc |= 0x2; // Background
-        encoder->server->convertPixels(reinterpret_cast<char*>(buffer + n),
+        encoder->server->convertPixels(reinterpret_cast<char*>(buffer.data() + n),
                                        reinterpret_cast<const char*>(&encoder->bg),
                                        1);
         n += bpp;
@@ -1106,7 +1109,7 @@ void QRfbMultiColorHextile<SRC>::write(QTcpSocket *socket) const
     buffer[n] = numRects;
     n += sizeof(numRects);
 
-    socket->write(reinterpret_cast<const char*>(buffer + padding),
+    socket->write(reinterpret_cast<const char*>(buffer.data() + padding),
                   n - padding);
     socket->write(reinterpret_cast<const char*>(rects.constData()),
                   rects.size());

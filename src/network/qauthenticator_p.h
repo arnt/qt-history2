@@ -57,7 +57,9 @@ public:
     QByteArray digestMd5Response(const QByteArray &challenge, const QByteArray &method, const QByteArray &path);
     static QHash<QByteArray, QByteArray> parseDigestAuthenticationChallenge(const QByteArray &challenge);
 
+#ifndef QT_NO_HTTP
     void parseHttpResponse(const QHttpResponseHeader &, bool isProxy);
+#endif
 
 };
 

@@ -630,7 +630,9 @@ void QTextControlPrivate::extendWordwiseSelection(int suggestedNewPosition, qrea
         setCursorPosition(wordEndPos, QTextCursor::KeepAnchor);
 
     if (interactionFlags & Qt::TextSelectableByMouse) {
+#ifndef QT_NO_CLIPBOARD
         setClipboardSelection();
+#endif
         selectionChanged(true);
     }
 }
@@ -657,7 +659,9 @@ void QTextControlPrivate::extendLinewiseSelection(int suggestedNewPosition)
     }
 
     if (interactionFlags & Qt::TextSelectableByMouse) {
+#ifndef QT_NO_CLIPBOARD
         setClipboardSelection();
+#endif
         selectionChanged(true);
     }
 }
@@ -982,6 +986,7 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
                             break;
                         }
                     }
+#ifndef QT_NO_SHORTCUT
                 } else if (ke == QKeySequence::Copy
                            || ke == QKeySequence::Paste
                            || ke == QKeySequence::Cut
@@ -993,6 +998,7 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
                            || ke == QKeySequence::MoveToEndOfDocument
                           ) {
                     ke->accept();
+#endif
                 }
             }
             // FALL THROUGH
@@ -2113,6 +2119,7 @@ bool QTextControl::cursorIsFocusIndicator() const
 #ifndef QT_NO_PRINTER
 void QTextControl::print(QPrinter *printer) const
 {
+#ifndef QT_NO_PRINTER
     Q_D(const QTextControl);
     QTextDocument *tempDoc = 0;
     const QTextDocument *doc = d->doc;
@@ -2129,6 +2136,7 @@ void QTextControl::print(QPrinter *printer) const
     }
     doc->print(printer);
     delete tempDoc;
+#endif
 }
 #endif // QT_NO_PRINTER
 

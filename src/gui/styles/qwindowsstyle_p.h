@@ -29,9 +29,9 @@
 #include "qcommonstyle_p.h"
 
 #ifndef QT_NO_STYLE_WINDOWS
-#include <QList>
-#include <QTime>
-#include <QHash>
+#include <qlist.h>
+#include <qdatetime.h>
+#include <qhash.h>
 
 class QStringList;
 class QTime;

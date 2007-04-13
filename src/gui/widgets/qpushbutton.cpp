@@ -48,7 +48,7 @@ public:
           defaultButton(false), flat(false), menuOpen(false) {}
 
     inline void init() { resetLayoutItemMargins(); }
-	void resetLayoutItemMargins();
+    void resetLayoutItemMargins();
     void _q_popupPressed();
     QDialog *dialogParent() const;
 
@@ -516,7 +516,7 @@ void QPushButton::setMenu(QMenu* menu)
     if (d->menu)
         addAction(d->menu->menuAction());
 
-	d->resetLayoutItemMargins();
+    d->resetLayoutItemMargins();
     d->sizeHint = QSize();
     update();
     updateGeometry();
@@ -546,14 +546,6 @@ void QPushButton::showMenu()
         return;
     setDown(true);
     d->_q_popupPressed();
-}
-
-void QPushButtonPrivate::resetLayoutItemMargins()
-{
-	Q_Q(QPushButton);
-	QStyleOptionButton opt;
-	q->initStyleOption(&opt);
-    setLayoutItemMargins(QStyle::SE_PushButtonLayoutItem, &opt);
 }
 
 void QPushButtonPrivate::_q_popupPressed()
@@ -603,6 +595,14 @@ void QPushButtonPrivate::_q_popupPressed()
     }
 }
 #endif // QT_NO_MENU
+
+void QPushButtonPrivate::resetLayoutItemMargins()
+{
+    Q_Q(QPushButton);
+    QStyleOptionButton opt;
+    q->initStyleOption(&opt);
+    setLayoutItemMargins(QStyle::SE_PushButtonLayoutItem, &opt);
+}
 
 void QPushButton::setFlat(bool flat)
 {

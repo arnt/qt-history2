@@ -676,11 +676,13 @@ QString QFSFileEngine::fileName(FileName file) const
         char cur[PATH_MAX+1];
         if (::getcwd(cur, PATH_MAX)) {
             QString ret;
+#  ifndef Q_OS_INTEGRITY // INTEGRITY has no realpath
             char real[PATH_MAX+1];
             // need the cast for old solaris versions of realpath that doesn't take
             // a const char*.
             if (::realpath(d->nativeFilePath.constData(), real))
                 ret = QFile::decodeName(QByteArray(real));
+#  endif
             ::chdir(cur); // always make sure we go back to the current dir
 #endif
             //check it

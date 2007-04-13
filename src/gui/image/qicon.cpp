@@ -851,12 +851,14 @@ QDataStream &operator>>(QDataStream &s, QIcon &icon)
             QIconEngineV2 *engine = new QPixmapIconEngine;
             icon.d->engine = engine;
             engine->read(s);
+#ifndef QT_NO_LIBRARY
         } else if (QIconEngineFactoryInterfaceV2 *factory = qobject_cast<QIconEngineFactoryInterfaceV2*>(loaderV2()->instance(key))) {
             if (QIconEngineV2 *engine= factory->create()) {
                 icon.d = new QIconPrivate;
                 icon.d->engine = engine;
                 engine->read(s);
             }
+#endif
         }
     } else if (s.version() == QDataStream::Qt_4_2) {
         icon = QIcon();

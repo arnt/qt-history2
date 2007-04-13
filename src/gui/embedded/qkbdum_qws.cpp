@@ -23,9 +23,9 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include <QString>
-#include <QWSServer>
-#include <QSocketNotifier>
+#include <qstring.h>
+#include <qwindowsystem_qws.h>
+#include <qsocketnotifier.h>
 
 class QWSUmKeyboardHandlerPrivate : public QObject
 {

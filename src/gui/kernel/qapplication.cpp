@@ -345,7 +345,10 @@ Qt::MouseButtons QApplicationPrivate::mouse_buttons = Qt::NoButton;
 Qt::KeyboardModifiers QApplicationPrivate::modifier_buttons = Qt::NoModifier;
 
 QStyle *QApplicationPrivate::app_style = 0;        // default application style
+
+#ifndef QT_NO_STYLE_STYLESHEET
 QString QApplicationPrivate::styleSheet;           // default application stylesheet
+#endif
 
 int QApplicationPrivate::app_cspec = QApplication::NormalColor;
 QPalette *QApplicationPrivate::app_pal = 0;        // default application palette
@@ -457,7 +460,7 @@ void QApplicationPrivate::process_cmdline()
                 is_session_restored = true;
             }
 #endif
-#ifndef QT_NO_STYLESHEETSTYLE
+#ifndef QT_NO_STYLE_STYLESHEET
         } else if (arg == "-stylesheet" && i < argc -1) {
             styleSheet = QString::fromLocal8Bit(argv[++i]);
         } else if (arg.indexOf("-stylesheet=") != -1) {

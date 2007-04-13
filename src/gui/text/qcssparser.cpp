@@ -13,12 +13,12 @@
 
 #include "qcssparser_p.h"
 
-#include <QDebug>
-#include <QColor>
-#include <QFont>
-#include <QFileInfo>
-#include <QFontMetrics>
-#include <QBrush>
+#include <qdebug.h>
+#include <qcolor.h>
+#include <qfont.h>
+#include <qfileinfo.h>
+#include <qfontmetrics.h>
+#include <qbrush.h>
 
 #include "qcssscanner.cpp"
 

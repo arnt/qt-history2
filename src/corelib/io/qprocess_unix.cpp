@@ -73,6 +73,14 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h>
+
+#ifdef Q_OS_INTEGRITY
+static inline char *strdup(const char *data)
+{
+    return qstrdup(data);
+}
+#endif
 
 static qint64 qt_native_read(int fd, char *data, qint64 maxlen)
 {

@@ -231,7 +231,7 @@ struct QWSEmbedEvent : QWSEvent
                                reinterpret_cast<char*>(&simpleData))
     {}
 
-    typedef enum Type { StartEmbed = 1, StopEmbed = 2, Region = 4 };
+    enum Type { StartEmbed = 1, StopEmbed = 2, Region = 4 };
 
     void setData(const char *d, int len, bool allocateMem = true) {
         QWSEvent::setData(d, len, allocateMem);

@@ -16,8 +16,8 @@
 #include <qt_windows.h>
 #endif
 
-#include <QtGui/QPaintDevice>
-#include <QtGui/QWidget>
+#include <QtGui/qpaintdevice.h>
+#include <QtGui/qwidget.h>
 
 #include "private/qwindowsurface_raster_p.h"
 #include "private/qpaintengine_raster_p.h"

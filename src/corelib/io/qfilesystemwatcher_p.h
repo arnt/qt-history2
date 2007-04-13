@@ -31,8 +31,8 @@
 
 #include <private/qobject_p.h>
 
-#include <QStringList>
-#include <QThread>
+#include <QtCore/qstringlist.h>
+#include <QtCore/qthread.h>
 
 class QFileSystemWatcherEngine : public QThread
 {

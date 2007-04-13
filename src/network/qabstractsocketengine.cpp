@@ -21,7 +21,7 @@ public:
     QMutex mutex;
 };
 
-Q_GLOBAL_STATIC(QSocketEngineHandlerList, socketHandlers);
+Q_GLOBAL_STATIC(QSocketEngineHandlerList, socketHandlers)
 
 QSocketEngineHandler::QSocketEngineHandler()
 {

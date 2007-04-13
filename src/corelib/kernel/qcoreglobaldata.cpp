@@ -15,7 +15,7 @@
 
 #include <QtDebug>
 
-Q_GLOBAL_STATIC(QCoreGlobalData, globalInstance);
+Q_GLOBAL_STATIC(QCoreGlobalData, globalInstance)
 
 QCoreGlobalData *QCoreGlobalData::instance()
 {

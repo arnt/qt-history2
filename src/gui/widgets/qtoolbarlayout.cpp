@@ -24,6 +24,8 @@
 #include "qtoolbarlayout_p.h"
 #include "qtoolbarseparator_p.h"
 
+#ifndef QT_NO_TOOLBAR
+
 /******************************************************************************
 ** QToolBarItem
 */
@@ -651,3 +653,4 @@ QRect QToolBarLayout::handleRect() const
     return handRect;
 }
 
+#endif // QT_NO_TOOLBAR

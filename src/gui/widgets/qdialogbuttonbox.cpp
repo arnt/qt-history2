@@ -11,11 +11,10 @@
 **
 ****************************************************************************/
 
-#include <QtCore/QHash>
-#include <QtGui/QPushButton>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QStyle>
-#include <QtGui/QVBoxLayout>
+#include <QtCore/qhash.h>
+#include <QtGui/qpushbutton.h>
+#include <QtGui/qstyle.h>
+#include <QtGui/qlayout.h>
 #include <QtGui/private/qwidget_p.h>
 
 #include "qdialogbuttonbox.h"

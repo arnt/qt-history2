@@ -46,6 +46,20 @@ static void signalHandler(int sig)
 }
 
 
+static void initThreadPipeFD(int fd)
+{
+    int ret = fcntl(fd, F_SETFD, FD_CLOEXEC);
+    if (ret == -1)
+        perror("QEventDispatcherUNIXPrivate: Unable to init thread pipe");
+
+    int flags = fcntl(fd, F_GETFL);
+    if (flags == -1)
+        perror("QEventDispatcherUNIXPrivate: Unable to get flags on thread pipe");
+
+    ret = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+    if (ret == -1)
+        perror("QEventDispatcherUNIXPrivate: Unable to set flags on thread pipe");
+}
 
 
 QEventDispatcherUNIXPrivate::QEventDispatcherUNIXPrivate()
@@ -54,11 +68,17 @@ QEventDispatcherUNIXPrivate::QEventDispatcherUNIXPrivate()
     mainThread = (QThread::currentThreadId() == qt_application_thread_id);
 
     // initialize the common parts of the event loop
-    pipe(thread_pipe);
-    fcntl(thread_pipe[0], F_SETFD, FD_CLOEXEC);
-    fcntl(thread_pipe[1], F_SETFD, FD_CLOEXEC);
-    fcntl(thread_pipe[0], F_SETFL, fcntl(thread_pipe[0], F_GETFL) | O_NONBLOCK);
-    fcntl(thread_pipe[1], F_SETFL, fcntl(thread_pipe[1], F_GETFL) | O_NONBLOCK);
+#ifdef Q_OS_INTEGRITY
+    // INTEGRITY doesn't like a "select" on pipes, so use socketpair instead
+    if (socketpair(AF_INET, SOCK_STREAM, PF_INET, thread_pipe) == -1)
+        perror("QEventDispatcherUNIXPrivate(): Unable to create socket pair");
+#else
+    if (pipe(thread_pipe) == -1)
+        perror("QEventDispatcherUNIXPrivate(): Unable to create thread pipe");
+#endif
+
+    initThreadPipeFD(thread_pipe[0]);
+    initThreadPipeFD(thread_pipe[1]);
 
     sn_highest = -1;
 

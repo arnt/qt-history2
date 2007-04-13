@@ -15,6 +15,8 @@
 #include "qapplication.h"
 #include "qclipboard.h"
 
+#ifndef QT_NO_ACCESSIBILITY
+
 /*!
     \namespace QAccessible2
     \ingroup accessibility
@@ -90,7 +92,9 @@ static QString textForRange(QAccessibleInterface *iface, int startOffset, int en
 
 void QAccessibleSimpleEditableTextInterface::copyText(int startOffset, int endOffset)
 {
+#ifndef QT_NO_CLIPBOARD
     QApplication::clipboard()->setText(textForRange(iface, startOffset, endOffset));
+#endif
 }
 
 void QAccessibleSimpleEditableTextInterface::deleteText(int startOffset, int endOffset)
@@ -109,16 +113,20 @@ void QAccessibleSimpleEditableTextInterface::insertText(int offset, const QStrin
 
 void QAccessibleSimpleEditableTextInterface::cutText(int startOffset, int endOffset)
 {
+#ifndef QT_NO_CLIPBOARD
     QString sub = textForRange(iface, startOffset, endOffset);
     deleteText(startOffset, endOffset);
     QApplication::clipboard()->setText(sub);
+#endif
 }
 
 void QAccessibleSimpleEditableTextInterface::pasteText(int offset)
 {
+#ifndef QT_NO_CLIPBOARD
     QString txt = iface->text(QAccessible::Value, 0);
     txt.insert(offset, QApplication::clipboard()->text());
     iface->setText(QAccessible::Value, 0, txt);
+#endif
 }
 
 void QAccessibleSimpleEditableTextInterface::replaceText(int startOffset, int endOffset, const QString &text)
@@ -128,3 +136,4 @@ void QAccessibleSimpleEditableTextInterface::replaceText(int startOffset, int en
     iface->setText(QAccessible::Value, 0, txt);
 }
 
+#endif // QT_NO_ACCESSIBILITY

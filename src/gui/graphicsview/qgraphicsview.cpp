@@ -982,6 +982,7 @@ void QGraphicsView::setDragMode(DragMode mode)
 #endif
 }
 
+#ifndef QT_NO_RUBBERBAND
 /*!
     \property QGraphicsView::rubberBandSelectionMode
     \brief the behavior for selecting items with a rubber band selection rectangle.
@@ -1005,6 +1006,7 @@ void QGraphicsView::setRubberBandSelectionMode(Qt::ItemSelectionMode mode)
     Q_D(QGraphicsView);
     d->rubberBandSelectionMode = mode;
 }
+#endif
 
 /*!
     \property QGraphicsView::cacheMode

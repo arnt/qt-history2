@@ -213,14 +213,14 @@ struct QSpanData
 };
 
 template <class DST, class SRC>
-static inline DST qt_colorConvert(SRC color)
+inline DST qt_colorConvert(SRC color)
 {
     return color;
 }
 
 #if defined(QT_QWS_DEPTH_16) && defined(QT_QWS_DEPTH_32)
 template <>
-static inline quint32 qt_colorConvert(quint16 color)
+inline quint32 qt_colorConvert(quint16 color)
 {
     return qt_conv16ToRgb(color);
 }
@@ -228,7 +228,7 @@ static inline quint32 qt_colorConvert(quint16 color)
 
 #ifdef QT_QWS_DEPTH_16
 template <>
-static inline quint16 qt_colorConvert(quint32 color)
+inline quint16 qt_colorConvert(quint32 color)
 {
     return qt_convRgbTo16(color);
 }
@@ -236,7 +236,7 @@ static inline quint16 qt_colorConvert(quint32 color)
 
 #ifdef QT_QWS_DEPTH_8
 template <>
-static inline quint8 qt_colorConvert(quint32 color)
+inline quint8 qt_colorConvert(quint32 color)
 {
     uchar r = (qRed(color) + 0x19) / 0x33;
     uchar g = (qGreen(color) + 0x19) / 0x33;
@@ -246,7 +246,7 @@ static inline quint8 qt_colorConvert(quint32 color)
 }
 
 template <>
-static inline quint8 qt_colorConvert(quint16 color)
+inline quint8 qt_colorConvert(quint16 color)
 {
     return qt_colorConvert<quint32, quint8>(qt_conv16ToRgb(color));
 }
@@ -275,7 +275,7 @@ private:
 } Q_PACKED;
 
 template <>
-static inline quint24 qt_colorConvert(quint32 color)
+inline quint24 qt_colorConvert(quint32 color)
 {
     return quint24(color);
 }
@@ -312,7 +312,7 @@ private:
 } Q_PACKED;
 
 template <>
-static inline quint18 qt_colorConvert(quint32 color)
+inline quint18 qt_colorConvert(quint32 color)
 {
     return quint18(color);
 }
@@ -365,7 +365,7 @@ static void qt_rectfill(T *dest, T value,
 }
 
 template <class DST, class SRC>
-static inline void qt_memconvert(DST *dest, const SRC *src, int count)
+inline void qt_memconvert(DST *dest, const SRC *src, int count)
 {
     /* Duff's device */
     int n = (count + 7) / 8;

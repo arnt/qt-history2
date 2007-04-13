@@ -103,8 +103,8 @@ extern QString qws_qtePipeFilename();
 extern void qt_client_enqueue(const QWSEvent *); //qapplication_qws.cpp
 extern QList<QWSCommand*> *qt_get_server_queue();
 
-Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultMouse, (QLatin1String("Auto")));
-Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultKeyboard, (QLatin1String("TTY")));
+Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultMouse, (QLatin1String("Auto")))
+Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultKeyboard, (QLatin1String("TTY")))
 static const int FontCleanupInterval = 60 * 1000;
 
 static int qws_keyModifiers = 0;

@@ -136,6 +136,7 @@ private:
     friend class QWSEmbedWidget;
     friend class QWSEmbedWidgetPrivate;
     class Data;
+    friend class Data;
     Data *d;
 
     friend class QWSMemorySurface;

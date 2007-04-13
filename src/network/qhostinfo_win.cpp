@@ -65,7 +65,7 @@ static getnameinfoProto local_getnameinfo = 0;
 static getaddrinfoProto local_getaddrinfo = 0;
 static freeaddrinfoProto local_freeaddrinfo = 0;
 
-void resolveLibrary()
+static void resolveLibrary()
 {
     // Attempt to resolve getaddrinfo(); without it we'll have to fall
     // back to gethostbyname(), which has no IPv6 support.

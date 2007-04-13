@@ -76,7 +76,9 @@ public:
 
     void _q_updateCurrentCharFormatAndSelection();
 
+#ifndef QT_NO_CLIPBOARD
     void setClipboardSelection();
+#endif
 
     void _q_emitCursorPosChanged(const QTextCursor &someCursor);
 

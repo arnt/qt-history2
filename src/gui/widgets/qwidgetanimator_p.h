@@ -25,9 +25,9 @@
 // We mean it.
 //
 
-#include <QObject>
-#include <QRect>
-#include <QMap>
+#include <qobject.h>
+#include <qrect.h>
+#include <qmap.h>
 
 class QWidget;
 class QTimer;

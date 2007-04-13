@@ -32,6 +32,8 @@
 #include <arpa/inet.h>
 #endif
 
+//#define QNATIVESOCKETENGINE_DEBUG
+
 #if defined QNATIVESOCKETENGINE_DEBUG
 #include <qstring.h>
 #include <ctype.h>
@@ -250,7 +252,20 @@ bool QNativeSocketEnginePrivate::setOption(QNativeSocketEngine::SocketOption opt
     case QNativeSocketEngine::NonBlockingSocketOption: {
         // Make the socket nonblocking.
         int flags = ::fcntl(socketDescriptor, F_GETFL, 0);
-        return flags != -1 && ::fcntl(socketDescriptor, F_SETFL, flags | O_NONBLOCK) != -1;
+        if (flags == -1) {
+#ifdef QNATIVESOCKETENGINE_DEBUG
+            perror("QNativeSocketEnginePrivate::setOption(): fcntl(F_GETFL) failed");
+#endif
+            return false;
+        }
+        if (::fcntl(socketDescriptor, F_SETFL, flags | O_NONBLOCK) == -1) {
+#ifdef QNATIVESOCKETENGINE_DEBUG
+            perror("QNativeSocketEnginePrivate::setOption(): fcntl(F_SETFL) failed");
+#endif
+            return false;
+        }
+
+        return true;
     }
     case QNativeSocketEngine::AddressReusable:
 #ifdef SO_REUSEPORT

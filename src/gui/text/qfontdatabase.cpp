@@ -817,7 +817,7 @@ static QStringList familyList(const QFontDef &req)
 }
 #endif
 
-Q_GLOBAL_STATIC(QFontDatabasePrivate, privateDb);
+Q_GLOBAL_STATIC(QFontDatabasePrivate, privateDb)
 
 // used in qfontcombobox.cpp
 QObject *qt_fontdatabase_private()

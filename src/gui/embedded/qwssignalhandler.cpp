@@ -13,6 +13,8 @@
 
 #include "qwssignalhandler_p.h"
 
+#ifndef QT_NO_QWS_SIGNALHANDLER
+
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
@@ -81,3 +83,5 @@ void QWSSignalHandler::handleSignal(int signum)
     h->objects.clear();
     raise(signum);
 }
+
+#endif // QT_QWS_NO_SIGNALHANDLER

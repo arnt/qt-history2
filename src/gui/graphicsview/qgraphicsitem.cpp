@@ -393,7 +393,7 @@ class QGraphicsItemCustomDataStore
 public:
     QMap<const QGraphicsItem *, QMap<int, QVariant> > data;
 };
-Q_GLOBAL_STATIC(QGraphicsItemCustomDataStore, qt_dataStore);
+Q_GLOBAL_STATIC(QGraphicsItemCustomDataStore, qt_dataStore)
 
 /*!
     \internal

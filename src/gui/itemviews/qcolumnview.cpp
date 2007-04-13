@@ -11,7 +11,9 @@
 **
 ****************************************************************************/
 
-#ifndef QT_NO_QCOLUMNVIEW
+#include <qglobal.h>
+
+#ifndef QT_NO_COLUMNVIEW
 
 #include "qcolumnview.h"
 #include "qcolumnview_p.h"

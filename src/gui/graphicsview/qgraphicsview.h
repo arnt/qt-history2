@@ -47,7 +47,9 @@ class Q_GUI_EXPORT QGraphicsView : public QAbstractScrollArea
     Q_PROPERTY(ViewportAnchor transformationAnchor READ transformationAnchor WRITE setTransformationAnchor)
     Q_PROPERTY(ViewportAnchor resizeAnchor READ resizeAnchor WRITE setResizeAnchor)
     Q_PROPERTY(ViewportUpdateMode viewportUpdateMode READ viewportUpdateMode WRITE setViewportUpdateMode)
+#ifndef QT_NO_RUBBERBAND
     Q_PROPERTY(Qt::ItemSelectionMode rubberBandSelectionMode READ rubberBandSelectionMode WRITE setRubberBandSelectionMode)
+#endif
     Q_PROPERTY(OptimizationFlags optimizationFlags READ optimizationFlags WRITE setOptimizationFlags)
 
 public:
@@ -112,8 +114,10 @@ public:
     DragMode dragMode() const;
     void setDragMode(DragMode mode);
 
+#ifndef QT_NO_RUBBERBAND
     Qt::ItemSelectionMode rubberBandSelectionMode() const;
     void setRubberBandSelectionMode(Qt::ItemSelectionMode mode);
+#endif
 
     CacheMode cacheMode() const;
     void setCacheMode(CacheMode mode);

@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <qglobal.h>
+
 #ifndef QT_NO_STYLE_STYLESHEET
 
 #include "qstylesheetstyle_p.h"

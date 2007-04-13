@@ -97,7 +97,7 @@ namespace QImageScale {
     QImageScaleInfo* qimageFreeScaleInfo(QImageScaleInfo *isi);
     QImageScaleInfo *qimageCalcScaleInfo(const QImage &img, int sw, int sh,
                                          int dw, int dh, char aa);
-};
+}
 
 using namespace QImageScale;
 

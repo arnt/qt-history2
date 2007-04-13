@@ -74,6 +74,8 @@
 
 #include <private/qthread_p.h>
 
+//#define QNATIVESOCKETENGINE_DEBUG
+
 #define Q_VOID
 
 // Common constructs

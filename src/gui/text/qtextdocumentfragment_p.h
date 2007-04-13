@@ -158,6 +158,8 @@ private:
         int column;
     };
 
+    struct Table;
+    friend struct Table;
     struct Table
     {
         Table() : isTextFrame(false), rows(0), columns(0), currentRow(0), lastIndent(0) {}

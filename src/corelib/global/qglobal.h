@@ -136,6 +136,8 @@
 #  define Q_OS_UNIXWARE
 #elif defined(__svr4__) && defined(i386) /* Open UNIX 8 + GCC */
 #  define Q_OS_UNIXWARE
+#elif defined(__INTEGRITY)
+#  define Q_OS_INTEGRITY
 #elif defined(__MAKEDEPEND__)
 #else
 #  error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
@@ -192,6 +194,10 @@
 
    Should be sorted most to least authoritative.
 */
+
+#if defined(__ghs)
+#  define Q_OUTOFLINE_TEMPLATE inline
+#endif
 
 /* Symantec C++ is now Digital Mars */
 #if defined(__DMC__) || defined(__SC__)
@@ -412,7 +418,7 @@
 #  elif defined(__INTEL_COMPILER)
 #    define Q_CC_INTEL
 
-/* Never tested! */
+/* Uses CFront, make sure to read the manual how to tweak templates. */
 #  elif defined(__ghs)
 #    define Q_CC_GHS
 

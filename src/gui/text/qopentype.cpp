@@ -366,26 +366,37 @@ bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLo
     
     bool glyphs_positioned = false;
     if (gpos) {
-        if (fontEngine->type() == QFontEngine::Freetype) {
+        switch (fontEngine->type()) {
+#ifndef QT_NO_FREETYPE
+        case QFontEngine::Freetype:
             face = static_cast<QFontEngineFT *>(fontEngine)->lockFace();
-        }
-#if defined(Q_WS_QWS) && !defined(QT_NO_QPF2)
-        else if (fontEngine->type() == QFontEngine::QPF2) {
-            face = static_cast<QFontEngineQPF *>(fontEngine)->lockFace();
-        }
+            break;
 #endif
-        else {
+#if defined(Q_WS_QWS) && !defined(QT_NO_QPF2) && !defined(QT_NO_FREETYPE)
+        case QFontEngine::QPF2:
+            face = static_cast<QFontEngineQPF *>(fontEngine)->lockFace();
+            break;
+#endif
+        default:
             Q_ASSERT(false);
         }
         memset(hb_buffer->positions, 0, hb_buffer->in_length*sizeof(HB_PositionRec));
         // #### check that passing "false,false" is correct
         glyphs_positioned = HB_GPOS_Apply_String(face, gpos, loadFlags, hb_buffer, false, false) != HB_Err_Not_Covered;
-        if (fontEngine->type() == QFontEngine::Freetype)
+        switch (fontEngine->type()) {
+        case QFontEngine::Freetype:
+#ifndef QT_NO_FREETYPE
             static_cast<QFontEngineFT *>(fontEngine)->unlockFace();
-#if defined(Q_WS_QWS) && !defined(QT_NO_QPF2)
-        else if (fontEngine->type() == QFontEngine::QPF2)
-            static_cast<QFontEngineQPF *>(fontEngine)->unlockFace();
+            break;
 #endif
+#if defined(Q_WS_QWS) && !defined(QT_NO_QPF2) && !defined(QT_NO_FREETYPE)
+        case QFontEngine::QPF2:
+            static_cast<QFontEngineQPF *>(fontEngine)->unlockFace();
+            break;
+#endif
+        default:
+            break;
+        }
     }
 
     if (!glyphs_substituted && !glyphs_positioned)

@@ -80,7 +80,7 @@ static QSet<QByteArray> interfaceNames(int socket)
     QSet<QByteArray> result;
 #ifdef QT_NO_IPV6IFNAME
     QByteArray storageBuffer;
-    ifconf interfaceList;
+    struct ifconf interfaceList;
 
     forever {
         // grow the storage buffer

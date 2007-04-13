@@ -41,6 +41,7 @@ union semun {
 #include <string.h>
 #include <errno.h>
 #include <qdebug.h>
+#include <signal.h>
 
 #define MAX_LOCKS   200            // maximum simultaneous read locks
 

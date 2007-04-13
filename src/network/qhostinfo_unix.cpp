@@ -41,14 +41,16 @@ Q_GLOBAL_STATIC(QMutex, getHostByNameMutex)
 typedef int (*res_init_proto)(void);
 static res_init_proto local_res_init = 0;
 
-void resolveLibrary()
+static void resolveLibrary()
 {
+#ifndef QT_NO_LIBRARY
     QLibrary lib(QLatin1String("resolv"));
     if (!lib.load())
         return;
     local_res_init = res_init_proto(lib.resolve("__res_init"));
     if (!local_res_init)
         local_res_init = res_init_proto(lib.resolve("res_init"));
+#endif
 }
 
 QHostInfo QHostInfoAgent::fromName(const QString &hostName)

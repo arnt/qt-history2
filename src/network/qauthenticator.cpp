@@ -189,7 +189,7 @@ QAuthenticatorPrivate::QAuthenticatorPrivate()
     nonceCount = 0;
 }
 
-
+#ifndef QT_NO_HTTP
 void QAuthenticatorPrivate::parseHttpResponse(const QHttpResponseHeader &header, bool isProxy)
 {
     QList<QPair<QString, QString> > values = header.values();
@@ -245,6 +245,7 @@ void QAuthenticatorPrivate::parseHttpResponse(const QHttpResponseHeader &header,
         challenge = QByteArray();
     }
 }
+#endif
 
 QByteArray QAuthenticatorPrivate::calculateResponse(const QByteArray &requestMethod, const QByteArray &path)
 {
