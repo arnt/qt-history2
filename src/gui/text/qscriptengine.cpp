@@ -355,7 +355,8 @@ static bool basic_shape(QShaperItem *item)
         return false;
     heuristicSetGlyphAttributes(item);
 
-#ifndef QT_NO_OPENTYPE
+    // disable open type shaping for simple scripts on embedded, as it's computationally rahter expensive
+#if !defined(QT_NO_OPENTYPE) && !defined(Q_WS_QWS)
     QOpenType *openType = item->font->openType();
     if (!openType && item->font->type() == QFontEngine::Multi) {
         openType = static_cast<QFontEngineMulti *>(item->font)->engine(0)->openType();
