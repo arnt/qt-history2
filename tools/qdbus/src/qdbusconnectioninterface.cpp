@@ -232,7 +232,7 @@ QDBusConnectionInterface::registerService(const QString &serviceName,
         flags = 0;
         break;
     case ReplaceExistingService:
-        flags = DBUS_NAME_FLAG_REPLACE_EXISTING;
+        flags = DBUS_NAME_FLAG_DO_NOT_QUEUE | DBUS_NAME_FLAG_REPLACE_EXISTING;
         break;
     }
 
