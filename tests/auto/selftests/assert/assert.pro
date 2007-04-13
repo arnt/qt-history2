@@ -5,4 +5,4 @@ QT = core
 
 mac:CONFIG -= app_bundle
 CONFIG -= debug_and_release_target
-CONFIG += debug
+!win32:CONFIG += debug

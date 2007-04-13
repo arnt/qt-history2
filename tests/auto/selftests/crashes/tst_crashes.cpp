@@ -10,6 +10,10 @@
 #include <QtCore>
 #include <QtTest/QtTest>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 class tst_Crashes: public QObject
 {
     Q_OBJECT
@@ -20,6 +24,10 @@ private slots:
 
 void tst_Crashes::crash()
 {
+#ifdef Q_OS_WIN
+   //we avoid the error dialogbox to appear on windows
+   SetErrorMode( SEM_NOGPFAULTERRORBOX | SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
+#endif
     int *i = 0;
     *i = 1;
 }
